@@ -1,5 +1,53 @@
 # Plan: Convert `SentrySpotlightTransport` from ObjC to Swift
 
+## 🚀 RESUME HERE (read this first — for a fresh agent picking this up)
+
+**Goal:** convert `Sources/Sentry/SentrySpotlightTransport.{h,m}` to Swift. It is **blocked** on two
+ObjC protocols it depends on (`SentryRequestManager`, `SentryTransport`) — they must become Swift
+first (`@_implementationOnly` ObjC types can't appear in a public Swift API). We chose **Option A**:
+convert those protocols first, in small sequential PRs to `main`, then convert the class last.
+
+**Where everything lives (all pushed to `origin`, nothing local-only):**
+
+- `ref/convert-spotlight-transport-to-swift` ← **THIS branch = the tracker.** Holds this plan doc +
+  the A2 work-in-progress. Its own A1 commit is stale on purpose (see below). Not a PR.
+- `ref/convert-request-manager-to-swift` ← **PR #8428** (A1, ready for review). The authoritative A1.
+- `main` ← base for every PR.
+
+**Exact commits (tracker branch):** `3ae6b6aa3` (latest plan) → `565aac5f3` (**A2 WIP checkpoint**)
+→ `0d436f62e` (A1 copy — STALE, superseded by PR #8428 `c0fedb958`) → `864d5f927`, `7f79301f7`…
+
+**Do this next — pick the branch by whether PR #8428 has merged** (check:
+`gh pr view 8428 --json state,mergedAt`):
+
+1. **If #8428 is NOT yet merged:** don't start A2 as a PR yet (A2 edits the same headers + pbxproj as
+   A1 → they'd conflict). Either wait, or keep iterating on A2 locally on this tracker branch.
+2. **If #8428 IS merged:** create the A2 PR:
+   - `git checkout main && git pull`
+   - `git checkout -b ref/convert-transport-protocol-to-swift`
+   - Apply the A2 code by diffing the WIP checkpoint against its parent:
+     `git diff 0d436f62e 565aac5f3 -- <code paths>` — i.e. bring over `SentryTransport.swift` and all
+     the A2 edits, but **NOT** the plan doc. (The 19 files are listed in "Phase A2" below / in the
+     `git diff --stat 0d436f62e 565aac5f3` output.)
+   - **Finish the unfinished A2 test work** (this is the only incomplete part — see **A2.4** below):
+     ~12 `sut.recordLostEvent(.enumCase, …)` sites in `SentryHttpTransportTests.swift` need
+     `.rawValue`, and `SentryHttpTransportFlushIntegrationTests.swift` needs `sut` retyped to
+     `Transport` (same treatment already applied to `SentryHttpTransportTests`).
+   - Build + test (commands below), push, `gh pr create --draft`, then mark ready.
+   - Then rebase this tracker branch's plan onto the new state and update the PR table.
+
+**Environment quirk (IMPORTANT):** `make build-ios` / `make test-ios` default to a simulator that is
+**not installed** here. Always append: `IOS_DEVICE_NAME="iPhone 17 Pro" IOS_SIMULATOR_OS=26.4`.
+`ONLY_TESTING` takes **comma-separated** targets (not space). Pre-commit hooks reformat md/swift —
+re-`git add` and re-commit if a hook edits files.
+
+**Why the tracker's A1 commit is stale:** after review, PR #8428 dropped the doc comments from
+`SentryRequestManager.swift` (now uses `// swiftlint:disable missing_docs`) and kept the
+`SentryTransportFactoryTests` cast as `as? RequestManager`. This tracker branch still has the
+pre-review A1 copy — that's fine, it's not what ships. The PR branch is authoritative for A1.
+
+---
+
 **Branch:** `ref/convert-spotlight-transport-to-swift`
 **Status:** 🟢 In progress — **Option A**, shipped as small PRs to `main`.
 Phase A1 (`SentryRequestManager` → Swift) ✅ done → **PR #8428, marked ready for review** (awaiting merge).
