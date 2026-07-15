@@ -5,18 +5,18 @@ import SentryTestUtils
 // This is a workaround to enable the swiftlint rule to avoid adding new occurrences
 // of DispatchGroup in tests.
 // swiftlint:disable avoid_dispatch_groups_in_tests
-public class TestRequestManager: NSObject, RequestManager {
-    
+class TestRequestManager: NSObject, RequestManager {
+
     private var nextResponse: () -> HTTPURLResponse? = { return nil }
     var nextError: NSError?
-    public var isReady: Bool
+    var isReady: Bool
     
     var requests = Invocations<URLRequest>()
     
     private let queue = DispatchQueue(label: "TestRequestManager")
     private let group = DispatchGroup()
     
-    public required init(session: URLSession) {
+    required init(session: URLSession) {
         self.isReady = true
     }
     
@@ -24,8 +24,8 @@ public class TestRequestManager: NSObject, RequestManager {
     let responseDispatchGroup = DispatchGroup()
     var waitForResponseDispatchGroup = false
     
-    public func add( _ request: URLRequest, completionHandler: SentryRequestOperationFinished? = nil) {
-        
+    func add( _ request: URLRequest, completionHandler: SentryRequestOperationFinished? = nil) {
+
         requests.record(request)
         
         let response = self.nextResponse()
