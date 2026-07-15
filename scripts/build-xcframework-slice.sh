@@ -10,7 +10,7 @@ source "$(cd "$(dirname "$0")" && pwd)/ci-utils.sh"
 
 usage() {
     cat <<EOF
-Usage: $(basename "$0") <sdk> <scheme> [suffix] [mach_o_type] [configuration_suffix]
+Usage: $(basename "$0") <sdk> <scheme> [suffix] [mach_o_type] [configuration_suffix] [product_name] [extra_build_settings...]
 
 Build a single SDK slice to be packaged into an XCFramework.
 
@@ -20,10 +20,13 @@ ARGUMENTS:
     suffix                  Output name suffix, e.g. '-Dynamic' (default: empty)
     mach_o_type             Mach-O type: mh_dylib or staticlib (default: mh_dylib)
     configuration_suffix    Build configuration suffix (default: empty)
+    product_name            Framework product name on disk (default: scheme+configuration_suffix)
+    extra_build_settings    Additional xcodebuild KEY=VALUE overrides (default: none)
 
 EXAMPLES:
     $(basename "$0") iphoneos Sentry "-Dynamic" mh_dylib
     $(basename "$0") macosx Sentry "" staticlib
+    $(basename "$0") appletvos "Sentry+KSCrash" "" mh_dylib "" "Sentry" "ARCHS=\$(ARCHS_STANDARD) arm64e"
 
 EOF
     exit 1
@@ -43,6 +46,8 @@ scheme="$2"
 suffix="${3:-}"
 MACH_O_TYPE="${4-mh_dylib}"
 configuration_suffix="${5-}"
+product_name="${6:-$scheme$configuration_suffix}"
+extra_build_settings=("${@:7}")
 
 log_info "Building XCFramework slice:"
 log_info "  SDK:                  $sdk"
@@ -50,18 +55,30 @@ log_info "  Scheme:               $scheme"
 log_info "  Suffix:               ${suffix:-(none)}"
 log_info "  Mach-O type:          $MACH_O_TYPE"
 log_info "  Configuration suffix: ${configuration_suffix:-(none)}"
+log_info "  Product name:         $product_name"
+if [[ ${#extra_build_settings[@]} -gt 0 ]]; then
+    log_info "  Extra build settings: ${extra_build_settings[*]}"
+fi
 
 resolved_configuration="Release$configuration_suffix"
-resolved_product_name="$scheme$configuration_suffix.framework"
+resolved_product_name="$product_name.framework"
 OTHER_LDFLAGS=""
 
 log_info "  Configuration:        $resolved_configuration"
-log_info "  Product name:         $resolved_product_name"
+log_info "  Resolved product:     $resolved_product_name"
 
 GCC_GENERATE_DEBUGGING_SYMBOLS="YES"
 if [ "$MACH_O_TYPE" = "staticlib" ]; then
     #For static framework we disabled symbols because they are not distributed in the framework causing warnings.
     GCC_GENERATE_DEBUGGING_SYMBOLS="NO"
+fi
+
+# When MACH_O_TYPE is 'inherit', the target's xcconfig controls the product type
+# and we must NOT pass MACH_O_TYPE on the command line, as that would propagate
+# to every sub-target in the build (including SPM package targets) and break their link.
+mach_o_type_override=()
+if [ "$MACH_O_TYPE" != "inherit" ]; then
+    mach_o_type_override=( MACH_O_TYPE="$MACH_O_TYPE" )
 fi
 
 rm -rf XCFrameworkBuildPath/DerivedData
@@ -90,11 +107,12 @@ if [ "$sdk" = "maccatalyst" ]; then
         CODE_SIGNING_REQUIRED=NO
         SKIP_INSTALL=NO
         CODE_SIGN_IDENTITY=
-        MACH_O_TYPE="$MACH_O_TYPE"
+        "${mach_o_type_override[@]+${mach_o_type_override[@]}}"
         SUPPORTS_MACCATALYST=YES
         ENABLE_CODE_COVERAGE=NO
         GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS"
         OTHER_LDFLAGS="$OTHER_LDFLAGS"
+        "${extra_build_settings[@]+${extra_build_settings[@]}}"
     )
     set -o pipefail && NSUnbufferedIO=YES xcodebuild "${maccatalyst_args[@]}" 2>&1 | tee "${slice_id}.maccatalyst.log" | xcbeautify --preserve-unbeautified
     end_group
@@ -133,10 +151,11 @@ else
         CODE_SIGNING_REQUIRED=NO
         SKIP_INSTALL=NO
         CODE_SIGN_IDENTITY=
-        MACH_O_TYPE="$MACH_O_TYPE"
+        "${mach_o_type_override[@]+${mach_o_type_override[@]}}"
         ENABLE_CODE_COVERAGE=NO
         GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS"
         OTHER_LDFLAGS="$OTHER_LDFLAGS"
+        "${extra_build_settings[@]+${extra_build_settings[@]}}"
     )
 
     archive_args=(

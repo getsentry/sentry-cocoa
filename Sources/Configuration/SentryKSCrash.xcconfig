@@ -16,6 +16,20 @@ EXCLUDED_SOURCE_FILE_NAMES =
 // can find SentryProfilingConditionals.h (a public header not under include/).
 HEADER_SEARCH_PATHS = $(inherited) $(SRCROOT)/Sources/Sentry/Public
 
+// Dynamic framework — keeps Sentry+KSCrash consistent with the rest of the SDK xcframework
+// builds. Declared here rather than as a global xcodebuild command-line override so it does
+// NOT propagate to KSCrash SPM package sub-targets (which have their own product types).
+MACH_O_TYPE = mh_dylib
+
+// There is a 'bug' in Xcode that doesn't build arm64e slices for SPM depedendencies
+// regardless of the Xcode settings. This can somewhat be worked around
+// by setting iOSPackagesShouldBuildARM64e to true in the workspace settings
+// however that only applies to iOS, macOS, and visionOS
+// see https://github.com/getsentry/sentry-cocoa/pull/8426 for more context
+ARCHS[sdk=appletvos*] = $(ARCHS_STANDARD)
+ARCHS[sdk=watchos*] = $(ARCHS_STANDARD)
+ARCHS[sdk=maccatalyst*] = $(ARCHS_STANDARD)
+
 // Both this target and the base Sentry target share PRODUCT_MODULE_NAME=Sentry. Xcode's
 // explicit module scanner can't tell them apart and emits a spurious missing-dependency
 // warning. Disabling explicit modules for this target silences it without affecting correctness.
