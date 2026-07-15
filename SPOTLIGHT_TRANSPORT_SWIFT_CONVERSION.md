@@ -2,7 +2,7 @@
 
 **Branch:** `ref/convert-spotlight-transport-to-swift`
 **Status:** 🟢 In progress — **Option A**, shipped as small PRs to `main`.
-Phase A1 (`SentryRequestManager` → Swift) ✅ done → **draft PR #8428** (awaiting merge).
+Phase A1 (`SentryRequestManager` → Swift) ✅ done → **PR #8428, marked ready for review** (awaiting merge).
 Phase A2 (`SentryTransport`) WIP checkpointed on this branch (tests not yet building).
 See "PR tracking" and "✅ Chosen approach" below.
 
@@ -15,7 +15,7 @@ the **plan/WIP tracker only** — its commits are NOT the PRs. Each PR is a clea
 
 | Phase                                              | PR branch                              | PR                                                                   | Status                                                         |
 | -------------------------------------------------- | -------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------- |
-| A1 `SentryRequestManager` → Swift                  | `ref/convert-request-manager-to-swift` | [#8428](https://github.com/getsentry/sentry-cocoa/pull/8428) (draft) | ⏳ awaiting merge                                              |
+| A1 `SentryRequestManager` → Swift                  | `ref/convert-request-manager-to-swift` | [#8428](https://github.com/getsentry/sentry-cocoa/pull/8428) (ready) | ⏳ in review                                                   |
 | A2 `SentryTransport` + `SentryFlushResult` → Swift | _tbd_                                  | —                                                                    | 🔧 WIP on tracker branch; blocked by test churn (see A2 notes) |
 | A3 `SentrySpotlightTransport` → Swift              | _tbd_                                  | —                                                                    | ⛔ depends on A1 + A2                                          |
 
@@ -423,3 +423,12 @@ make generate-public-api   # only if public API surface changed; commit sdk_api.
   sequentially. Cut a clean code-only branch per phase from `main` (plan doc stays on tracker
   branch). A2 WIP checkpointed here (commit `565aac5f3`). Opened **A1 as draft PR #8428**; waiting
   for it to merge before continuing A2. Recorded workflow + PR table under "PR tracking".
+- 2026-07-15: **A1 review revisions** (on `ref/convert-request-manager-to-swift`, amended +
+  force-pushed; now PR #8428 HEAD `c0fedb958`): removed the doc comments from
+  `SentryRequestManager.swift` (used `// swiftlint:disable missing_docs` like sibling files, since
+  the `missing_docs` lint blocks undocumented public decls). Kept the `SentryTransportFactoryTests`
+  cast as `as? RequestManager` (not the concrete `SentryQueueableRequestManager`) — verified the
+  concrete cast can't work because `SentryQueueableRequestManager.h` never declares
+  `addRequest:completionHandler:` (it lives only in the `.m`), so Swift only sees `add(...)` through
+  the protocol type. PR marked **ready for review**. NOTE: this tracker branch's own A1 commit
+  (`0d436f62e`) predates these revisions — the authoritative A1 is the PR branch, not this copy.
