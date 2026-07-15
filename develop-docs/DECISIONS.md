@@ -1,5 +1,45 @@
 # Decision Log
 
+## Table of Contents
+
+- [`SentryCrashBinaryImageCache` initializes off the main thread](#sentrycrashbinaryimagecache-initializes-off-the-main-thread)
+- [No local symbolication of crashes](#no-local-symbolication-of-crashes)
+- [Not capturing screenshots for crashes](#not-capturing-screenshots-for-crashes)
+- [Custom SentryHttpStatusCodeRange type instead of NSRange](#custom-sentryhttpstatuscoderange-type-instead-of-nsrange)
+- [Manually installing iOS 12 simulators](#manually-installing-ios-12-simulators)
+- [Adding Swift code in the project](#adding-swift-code-in-the-project)
+- [Writing breadcrumbs to disk in the main thread](#writing-breadcrumbs-to-disk-in-the-main-thread)
+- [Bump min Xcode version to 13](#bump-min-xcode-version-to-13)
+- [Remove the permissions feature](#remove-the-permissions-feature)
+- [Rename master to main](#rename-master-to-main)
+- [SentrySwiftUI version](#sentryswiftui-version)
+- [Tracking package managers](#tracking-package-managers)
+- [Usage of `__has_include`](#usage-of-__has_include)
+- [Remove running unit tests on iOS 12 simulators](#remove-running-unit-tests-on-ios-12-simulators)
+- [Remove integration tests from CI](#remove-integration-tests-from-ci)
+- [Async SDK init on main thread](#async-sdk-init-on-main-thread)
+- [Dependency Injection Strategy](#dependency-injection-strategy)
+- [Move UI tests from SauceLabs to GH action simulators](#move-ui-tests-from-saucelabs-to-gh-action-simulators)
+- [Removing SentryPrivate](#removing-sentryprivate)
+- [Enabling C++/Objective-c++ interoperability for visionOS](#enabling-cobjective-c-interoperability-for-visionos)
+- [Deserializing Events](#deserializing-events)
+- [Platform version support](#platform-version-support)
+- [Use preinstalled GH actions simulators](#use-preinstalled-gh-actions-simulators)
+- [Do not use Swift String constants in ObjC code](#do-not-use-swift-string-constants-in-objc-code)
+- [Decodable conformances to ObjC types](#decodable-conformances-to-objc-types)
+- [v9](#v9)
+- [v8 Branch](#v8-branch)
+- [Remove iOS 16 support](#remove-ios-16-support)
+- [swift-log dependency removal](#swift-log-dependency-removal)
+- [Change macOS deployment target to 10.14](#change-macos-deployment-target-to-1014)
+- [Deprecate Carthage Support](#deprecate-carthage-support)
+- [3rd Party Library Integrations](#3rd-party-library-integrations)
+- [Remove HybridSDK target](#remove-hybridsdk-target)
+- [Session Replay Network Details: Body Capture Strategy](#session-replay-network-details-body-capture-strategy)
+- [KSCrash Migration Strategy: Dual Integrations on `main`](#kscrash-migration-strategy-dual-integrations-on-main)
+
+---
+
 ## `SentryCrashBinaryImageCache` initializes off the main thread
 
 Date: April 21st 2026
