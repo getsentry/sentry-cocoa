@@ -1,9 +1,31 @@
 # Plan: Convert `SentrySpotlightTransport` from ObjC to Swift
 
 **Branch:** `ref/convert-spotlight-transport-to-swift`
-**Status:** 🟢 In progress — **Option A**. Phase A1 (`SentryRequestManager` → Swift) ✅ done, build
-green, 81 transport tests pass. Next: **Phase A2** (`SentryTransport` + `SentryFlushResult`).
-See "✅ Chosen approach" below.
+**Status:** 🟢 In progress — **Option A**, shipped as small PRs to `main`.
+Phase A1 (`SentryRequestManager` → Swift) ✅ done → **draft PR #8428** (awaiting merge).
+Phase A2 (`SentryTransport`) WIP checkpointed on this branch (tests not yet building).
+See "PR tracking" and "✅ Chosen approach" below.
+
+## PR tracking
+
+Small, **unstacked** PRs to `main`, opened as **drafts** first. Sequenced (not stacked) because the
+phases share files (headers + pbxproj). This branch (`ref/convert-spotlight-transport-to-swift`) is
+the **plan/WIP tracker only** — its commits are NOT the PRs. Each PR is a clean branch cut from
+`main` containing only that phase's code (no plan doc).
+
+| Phase                                              | PR branch                              | PR                                                                   | Status                                                         |
+| -------------------------------------------------- | -------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------- |
+| A1 `SentryRequestManager` → Swift                  | `ref/convert-request-manager-to-swift` | [#8428](https://github.com/getsentry/sentry-cocoa/pull/8428) (draft) | ⏳ awaiting merge                                              |
+| A2 `SentryTransport` + `SentryFlushResult` → Swift | _tbd_                                  | —                                                                    | 🔧 WIP on tracker branch; blocked by test churn (see A2 notes) |
+| A3 `SentrySpotlightTransport` → Swift              | _tbd_                                  | —                                                                    | ⛔ depends on A1 + A2                                          |
+
+**Workflow per phase:** cut `<branch>` from latest `main` → cherry-pick/apply that phase's code
+(drop the plan doc) → `make build-ios` + targeted tests → push → `gh pr create --draft`. After a PR
+merges, rebase the next phase's branch on the new `main` and continue.
+
+**A2/A3 cannot be truly parallel** with A1: they edit the same headers (`SentryHttpTransport.h`,
+`SentrySpotlightTransport.h`, `SentryPrivate.h`) and `project.pbxproj`. Per user: do A1 first, wait
+for merge, then reassess.
 **Goal:** Convert `Sources/Sentry/SentrySpotlightTransport.{h,m}` to a Swift class under
 `Sources/Swift/Networking/`, following the patterns established by recent ObjC→Swift conversions.
 Do **not** open a PR yet. Small commits, keep this file updated so work can be paused/resumed
@@ -303,17 +325,43 @@ small commits; we split into PRs when ready.
       no public-API regen needed. _(commit: `ref: convert SentryRequestManager to Swift`)_
 
 **Phase A2 — Convert `SentryTransport` (+ `SentryFlushResult`) → Swift**
+_(WIP checkpointed on tracker branch commit `565aac5f3`; **source builds green, tests do not yet
+build**. To be turned into its own PR after A1 merges.)_
 
-- [ ] **A2.1** Prototype the enum-param conformance question (see 🔬 above) in a throwaway build.
-- [ ] **A2.2** Create `Sources/Swift/Networking/SentryTransport.swift`:
-      `@objc(SentryTransport) @_spi(Private) public protocol Transport: NSObjectProtocol` with
-      `send(envelope:)`, `store(_:)`, `recordLostEvent(_:reason:)` + `(…quantity:)` (params `UInt`),
-      `flush(_:)`, and the `#if DEBUG…` `setStartFlushCallback`. Convert `SentryFlushResult` to a
-      Swift `@objc enum` (or bridge as Int) in the same file/PR.
-- [ ] **A2.3** Remove ObjC `include/SentryTransport.h`; update `SentryPrivate.h`; fix ObjC
-      conformers (`SentryHttpTransport`, `SentryTransportAdapter`, `SentrySpotlightTransport` — still
-      ObjC at this point) and `SentryTransportFactory.m` / `SentryClient.m`. pbxproj drop.
-- [ ] **A2.4** Build all platforms + tests. _(commit/PR: `ref: convert SentryTransport protocol to Swift`)_
+- [x] **A2.1** Enum-param conformance question **answered — it FAILS.** With the protocol requirement
+      typed `UInt`, ObjC conformers whose method signatures use the `SentryDataCategory` /
+      `SentryDiscardReason` enums produce `-Wmismatched-parameter-types` (which is `-Werror` here):
+      `conflicting parameter types … 'NSUInteger' vs 'SentryDataCategory'`. And typing the protocol
+      requirement with the enums directly fails too (`cannot use enum 'SentryDataCategory' here;
+      '_SentryPrivate' has been imported as implementation-only`). **Resolution:** protocol uses
+      `UInt`; the two ObjC conformers (`SentryHttpTransport`, `SentrySpotlightTransport`) change their
+      `recordLostEvent` signatures to `NSUInteger` and cast to the enum internally.
+- [x] **A2.2** Created `Sources/Swift/Networking/SentryTransport.swift`:
+      `@objc(SentryTransport) @_spi(Private) public protocol Transport: NSObjectProtocol`
+      (`send(envelope:)`, `store(_:)`, two `recordLostEvent` overloads with `UInt` params,
+      `flush(_:) -> SentryFlushResult`, `#if DEBUG…` `setStartFlushCallback`) + a Swift
+      `@objc(SentryFlushResult) @_spi(Private) public enum SentryFlushResult: Int`
+      (`success`/`timedOut`/`alreadyFlushing`). ObjC `k*` constants → `SentryFlushResult*`.
+- [x] **A2.3** Removed ObjC `include/SentryTransport.h`; dropped from `SentryPrivate.h`; conformer
+      headers (`SentryHttpTransport.h`, `SentrySpotlightTransport.h`) import `SentrySwift.h`;
+      reference-only headers (`SentryTransportFactory.h`, `SentryTransportAdapter.h`) use forward
+      decl `@protocol SentryTransport;`; `.m` files drop the import; `SentryHttpTransport.m` +
+      `SentrySpotlightTransport.m` `recordLostEvent` params → `NSUInteger` with internal casts;
+      `SentryTransportAdapter.m` `flush` call → `(void)[transport flush:…]` (Swift enum return is
+      `warn_unused_result`). pbxproj drop (6 lines, `plutil -lint` OK). **`make build-ios` green.**
+- [~] **A2.4** ⚠️ **Tests need broad updates — IN PROGRESS.** Because the old ObjC protocol used
+  `NS_SWIFT_NAME(send(envelope:))` etc., concrete conformers exposed those Swift names directly.
+  A Swift `@objc` protocol does **not** propagate names to concrete ObjC types, so Swift tests
+  calling `sut.send(envelope:)`/`.flush(_:)`/`.recordLostEvent(_:…)` on a concrete
+  `SentryHttpTransport`/`SentrySpotlightTransport` must instead go through the `Transport`
+  protocol type. Work done so far: `TestTransport` (`SentryTestUtils`) made `@_spi(Private)
+      public`, `import Sentry` added, `recordLostEvent` params → `UInt` (records via
+  `SentryDataCategory(rawValue:)`); `SentrySpotlightTransportTests.givenSut` returns `Transport`;
+  `SentryHttpTransportTests` `sut`/`getSut` retyped to `Transport`; test bridging headers +
+  `SentryClient+TestInit.h` drop `SentryTransport.h`. **Still TODO:** ~12 `recordLostEvent(.enum…)`
+  call sites in `SentryHttpTransportTests` need `.rawValue`; `SentryHttpTransportFlushIntegrationTests`
+  needs the same `Transport`-typing treatment; re-run full transport tests.
+  _(commit/PR: `ref: convert SentryTransport protocol to Swift`)_
 
 **Phase A3 — Convert `SentrySpotlightTransport` → Swift** (the original goal; now unblocked)
 
@@ -365,5 +413,13 @@ make generate-public-api   # only if public API surface changed; commit sdk_api.
 - 2026-07-15: **Phase A1 done.** `SentryRequestManager` is now a Swift `@objc` protocol. Build
   green; 81 transport tests pass. Proved the core Option A mechanic: an ObjC class
   (`SentryQueueableRequestManager`) conforms to a Swift `@objc @_spi(Private)` protocol, and ObjC
-  callers reference it via forward decl / `id<SentryRequestManager>`. Next: Phase A2.1 (prototype
-  the enum-param conformance for `SentryTransport.recordLostEvent`).
+  callers reference it via forward decl / `id<SentryRequestManager>`.
+- 2026-07-15: **Phase A2 (SentryTransport) — source converted, build green, tests WIP.** Discovered
+  A2.1 fails: under `-Werror`, ObjC enum-typed `recordLostEvent` can't satisfy a Swift `UInt`
+  requirement, and the enums can't be used in the SPI-public protocol — so conformers switch to
+  `NSUInteger` + internal casts. Also found the Swift `@objc` protocol drops the old
+  `NS_SWIFT_NAME`s, forcing many test call sites onto the `Transport` protocol type (in progress).
+- 2026-07-15: **Strategy change (user).** Ship Option A as small **unstacked draft PRs to `main`**,
+  sequentially. Cut a clean code-only branch per phase from `main` (plan doc stays on tracker
+  branch). A2 WIP checkpointed here (commit `565aac5f3`). Opened **A1 as draft PR #8428**; waiting
+  for it to merge before continuing A2. Recorded workflow + PR table under "PR tracking".
