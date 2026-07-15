@@ -84,10 +84,10 @@ filter envelope items to `event` + `transaction` types → build request via `re
 
 Each step = one small commit. Update the checkbox + "Status" line here as we go.
 
-- [ ] **Step 0 — Setup**: branch + this plan file. _(commit: `docs: add spotlight transport conversion plan`)_
-- [ ] **Step 1 — Expose ObjC protocols to Swift module**: add `SentryTransport.h` and
-      `SentryRequestManager.h` to `Sources/Sentry/include/SentryPrivate.h`. Build
-      (`make build-ios`) to confirm the Swift module still compiles and the protocols are visible.
+- [x] **Step 0 — Setup**: branch + this plan file. _(commit: `docs: add spotlight transport conversion plan`)_
+- [x] **Step 1 — Expose ObjC protocols to Swift module**: added `SentryTransport.h` and
+      `SentryRequestManager.h` to `Sources/Sentry/include/SentryPrivate.h`. ✅ `make build-ios`
+      succeeded — no dependency explosion, protocols now visible to the Swift module.
       _(commit: `build: expose transport protocols to Swift module`)_
 - [ ] **Step 2 — Add Swift class**: create `Sources/Swift/Networking/SentrySpotlightTransport.swift`
       conforming to `Transport`, holding `requestManager` + `requestBuilder` + `options`, with
@@ -118,14 +118,19 @@ thin ObjC shim. Record the exact error here before switching approaches.
 
 ## Verification checklist (run before considering done)
 
+> **Local sim note:** the default `IOS_DEVICE_NAME`/`IOS_SIMULATOR_OS` are not installed on this
+> machine. Append `IOS_DEVICE_NAME="iPhone 17 Pro" IOS_SIMULATOR_OS=26.4` to build/test targets.
+
 ```bash
 make format
 make analyze
-make build-ios
-make test-ios ONLY_TESTING=SentryTests/SentrySpotlightTransportTests
+make build-ios IOS_DEVICE_NAME="iPhone 17 Pro" IOS_SIMULATOR_OS=26.4
+make test-ios ONLY_TESTING=SentryTests/SentrySpotlightTransportTests IOS_DEVICE_NAME="iPhone 17 Pro" IOS_SIMULATOR_OS=26.4
 make generate-public-api   # only if public API surface changed; commit sdk_api.json diff
 ```
 
 ## Progress log
 
 - 2026-07-15: Research complete. Branch created. Plan written. Decisions confirmed.
+- 2026-07-15: Step 1 done — exposed `SentryTransport.h` + `SentryRequestManager.h` to
+  `SentryPrivate.h`; `make build-ios` succeeded. Direct-conformance approach is viable.
