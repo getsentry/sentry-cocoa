@@ -394,11 +394,14 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     NSMutableDictionary<NSString *, id> *response = [[NSMutableDictionary alloc] init];
 
     [response setValue:responseStatusCode forKey:@"status_code"];
+    // Safe: reading the whole dictionary, not a case-sensitive single-header lookup.
+    // sentry-lint:disable avoid_all_header_fields
     if (nil != myResponse.allHeaderFields) {
         NSDictionary<NSString *, NSString *> *headers =
             [HTTPHeaderSanitizer sanitizeHeaders:myResponse.allHeaderFields];
         [response setValue:headers forKey:@"headers"];
     }
+    // sentry-lint:enable avoid_all_header_fields
     if (sessionTask.countOfBytesReceived != 0) {
         [response setValue:[NSNumber numberWithLongLong:sessionTask.countOfBytesReceived]
                     forKey:@"body_size"];
@@ -601,10 +604,6 @@ static const void *SentryNetworkDetailsKey = &SentryNetworkDetailsKey;
         return NO;
     }
 
-    if (!options.experimental.enableReplayNetworkDetailsCapturing) {
-        return NO;
-    }
-
     if (!urlString) {
         return NO;
     }
@@ -643,8 +642,13 @@ static const void *SentryNetworkDetailsKey = &SentryNetworkDetailsKey;
         if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
             NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
             statusCode = httpResponse.statusCode;
+            // sentry-lint:disable avoid_all_header_fields
+            // Safe: reading the whole dictionary, not a case-sensitive lookup.
             allHeaders = httpResponse.allHeaderFields;
-            contentType = httpResponse.allHeaderFields[@"Content-Type"];
+            // sentry-lint:enable avoid_all_header_fields
+            contentType =
+                [SentryHTTPHeaderReader valueForHTTPHeaderFieldCaseInsensitive:@"content-type"
+                                                                    inResponse:httpResponse];
         }
 
         NSData *bodyData
@@ -687,7 +691,7 @@ static const void *SentryNetworkDetailsKey = &SentryNetworkDetailsKey;
 
     [details setRequestWithSize:requestSize
                        bodyData:bodyData
-                    contentType:request.allHTTPHeaderFields[@"Content-Type"]
+                    contentType:[request valueForHTTPHeaderField:@"content-type"]
                      allHeaders:request.allHTTPHeaderFields
               configuredHeaders:networkRequestHeaders];
 }

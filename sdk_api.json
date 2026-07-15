@@ -31257,6 +31257,27 @@
           {
             "children": [
               {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "NonObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$sSo11SentryScopeC0A0E17clearFeatureFlagsyyF",
+            "moduleName": "Sentry",
+            "name": "clearFeatureFlags",
+            "printedName": "clearFeatureFlags()",
+            "usr": "s:So11SentryScopeC0A0E17clearFeatureFlagsyyF"
+          },
+          {
+            "children": [
+              {
                 "children": [
                   {
                     "kind": "TypeNominal",
@@ -39368,82 +39389,6 @@
             "name": "dataCollection",
             "printedName": "dataCollection",
             "usr": "s:6Sentry0A19ExperimentalOptionsC14dataCollectionAA0a4DataE0O0C0Vvp"
-          },
-          {
-            "accessors": [
-              {
-                "accessorKind": "get",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Bool",
-                    "printedName": "Swift.Bool",
-                    "usr": "s:Sb"
-                  }
-                ],
-                "declAttributes": [
-                  "Final",
-                  "ObjC"
-                ],
-                "declKind": "Accessor",
-                "implicit": true,
-                "kind": "Accessor",
-                "mangledName": "$s6Sentry0A19ExperimentalOptionsC35enableReplayNetworkDetailsCapturingSbvg",
-                "moduleName": "Sentry",
-                "name": "Get",
-                "printedName": "Get()",
-                "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(im)enableReplayNetworkDetailsCapturing"
-              },
-              {
-                "accessorKind": "set",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Bool",
-                    "printedName": "Swift.Bool",
-                    "usr": "s:Sb"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "declAttributes": [
-                  "Final",
-                  "ObjC"
-                ],
-                "declKind": "Accessor",
-                "implicit": true,
-                "kind": "Accessor",
-                "mangledName": "$s6Sentry0A19ExperimentalOptionsC35enableReplayNetworkDetailsCapturingSbvs",
-                "moduleName": "Sentry",
-                "name": "Set",
-                "printedName": "Set()",
-                "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(im)setEnableReplayNetworkDetailsCapturing:"
-              }
-            ],
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Bool",
-                "printedName": "Swift.Bool",
-                "usr": "s:Sb"
-              }
-            ],
-            "declAttributes": [
-              "Final",
-              "HasStorage",
-              "ObjC"
-            ],
-            "declKind": "Var",
-            "hasStorage": true,
-            "kind": "Var",
-            "mangledName": "$s6Sentry0A19ExperimentalOptionsC35enableReplayNetworkDetailsCapturingSbvp",
-            "moduleName": "Sentry",
-            "name": "enableReplayNetworkDetailsCapturing",
-            "printedName": "enableReplayNetworkDetailsCapturing",
-            "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(py)enableReplayNetworkDetailsCapturing"
           },
           {
             "accessors": [

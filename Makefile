@@ -41,6 +41,11 @@ WATCHOS_DEVICE_NAME ?= Apple Watch SE 3 (44mm)
 # Current git reference name
 GIT-REF := $(shell git rev-parse --abbrev-ref HEAD)
 
+# Reduce build and test output for agents while retaining raw xcodebuild logs.
+FOR_AGENTS ?= false
+export FOR_AGENTS
+XCBEAUTIFY_OUTPUT_FLAGS = $(if $(filter true,$(FOR_AGENTS)),--quieter --disable-logging,--preserve-unbeautified)
+
 # ============================================================================
 # SETUP
 # ============================================================================
@@ -201,7 +206,7 @@ build-watchos:
 		-scheme $(XCODE_SCHEME) \
 		-destination 'platform=watchOS Simulator,OS=$(WATCHOS_SIMULATOR_OS),name=$(WATCHOS_DEVICE_NAME)' \
 		-configuration Debug \
-		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
+		CODE_SIGNING_ALLOWED="NO" 2>&1 | tee raw-build-output.log | xcbeautify $(XCBEAUTIFY_OUTPUT_FLAGS)
 
 ## Build all platforms with SDK_V10 flag
 #
@@ -293,7 +298,7 @@ build-watchos-v10:
 		-scheme SentryV10 \
 		-destination 'platform=watchOS Simulator,OS=$(WATCHOS_SIMULATOR_OS),name=$(WATCHOS_DEVICE_NAME)' \
 		-configuration DebugV10 \
-		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
+		CODE_SIGNING_ALLOWED="NO" 2>&1 | tee raw-build-output.log | xcbeautify $(XCBEAUTIFY_OUTPUT_FLAGS)
 
 ## Build all platforms with ENABLE_KSCRASH and SDK_V10 flags
 #
@@ -385,7 +390,7 @@ build-watchos-v10-with-kscrash:
 		-scheme Sentry+KSCrash \
 		-destination 'platform=watchOS Simulator,OS=$(WATCHOS_SIMULATOR_OS),name=$(WATCHOS_DEVICE_NAME)' \
 		-configuration DebugV10 \
-		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
+		CODE_SIGNING_ALLOWED="NO" 2>&1 | tee raw-build-output.log | xcbeautify $(XCBEAUTIFY_OUTPUT_FLAGS)
 ## Build XCFramework validation sample
 #
 # Builds the XCFramework validation sample project to verify XCFramework integration.
@@ -1354,20 +1359,27 @@ STAGED_CLANG_FILES := $(shell git diff --cached --diff-filter=d --name-only | gr
 # Get staged Objective-C header files
 STAGED_OBJC_HEADER_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep '\.h$$' | awk '{printf "\"%s\" ", $$0}')
 
+# Message for the allHeaderFields banned-pattern lint, aligned with the SwiftLint
+# rule in PR #8387 (rule id avoid_all_header_fields).
+AVOID_ALL_HEADER_FIELDS_MSG := Double-check how you use allHeaderFields (https://developer.apple.com/documentation/foundation/httpurlresponse/allheaderfields). Reading all headers is fine, but its subscript is case-sensitive while HTTP/2 and HTTP/3 lowercase field names, so a single-header lookup can silently miss the header (see \#8322). For a lookup, use value(forHTTPHeaderField:) or the HTTPURLResponse.value(forHTTPHeaderFieldCaseInsensitive:) extension in HTTPURLResponse+Sentry.swift. If your usage is intentional, suppress this rule with a comment explaining why.
+
 ## Run linting checks on all files
 #
-# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, and dprint checks without modifying files.
+# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, Objective-C banned-pattern checks, and dprint checks without modifying files.
 .PHONY: lint
 lint:
 	@echo "--> Running Swiftlint and Clang-Format"
 	./scripts/check-clang-format.py -r Sources Tests
 	ruby ./scripts/check-objc-id-usage.rb -r Sources/Sentry
+	./scripts/check-objc-banned-pattern.sh --path Sources \
+		--rule avoid_all_header_fields --pattern 'allHeaderFields' \
+		--message "$(AVOID_ALL_HEADER_FIELDS_MSG)"
 	swiftlint --strict --quiet
 	dprint check "**/*.{md,json,yaml,yml}"
 
 ## Run linting checks on staged files only
 #
-# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, and dprint checks on staged files only.
+# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, Objective-C banned-pattern checks, and dprint checks on staged files only.
 .PHONY: lint-staged
 lint-staged:
 	@echo "--> Running Swiftlint, dprint, and Clang-Format on staged files"
@@ -1376,6 +1388,13 @@ lint-staged:
 	fi
 	@if [ -n "$(STAGED_OBJC_HEADER_FILES)" ]; then \
 		ruby ./scripts/check-objc-id-usage.rb $(STAGED_OBJC_HEADER_FILES); \
+	fi
+	@if [ -n "$(STAGED_CLANG_FILES)" ]; then \
+		for f in $(STAGED_CLANG_FILES); do \
+			./scripts/check-objc-banned-pattern.sh --path "$$f" \
+				--rule avoid_all_header_fields --pattern 'allHeaderFields' \
+				--message "$(AVOID_ALL_HEADER_FIELDS_MSG)" || exit 1; \
+		done; \
 	fi
 	@if [ -n "$(STAGED_SWIFT_FILES)" ]; then \
 		swiftlint --strict --quiet $(STAGED_SWIFT_FILES); \

@@ -30,6 +30,7 @@ enum EventAssertions {
             firstException: firstException,
             mechanism: mechanism,
             debugImages: debugImages,
+            eventContext: dictionary(event["contexts"]),
             cacheRoot: cacheRoot
         )
     }
@@ -95,6 +96,7 @@ enum EventAssertions {
                                                      firstException: [String: Any],
                                                      mechanism: [String: Any],
                                                      debugImages: [[String: Any]],
+                                                     eventContext: [String: Any],
                                                      cacheRoot: URL) throws {
         switch scenario {
         case .signal, .binaryImages, .managedRuntimeSignalChain, .managedRuntimePreSDKSignal,
@@ -110,6 +112,7 @@ enum EventAssertions {
         case .nsException:
             try assert(string(firstException["type"]) == "CrashE2ENSException",
                        "Expected NSException type for \(platform)/ns-exception")
+            try assertNSExceptionUserInfo(eventContext: eventContext, platform: platform)
 
         case .cppExceptionV1, .cppExceptionV2, .swiftAsyncCPPExceptionV2Off:
             try assertCPPException(firstException, mechanism: mechanism, platform: platform,
@@ -130,6 +133,12 @@ enum EventAssertions {
         case .ignoredSignal:
             return
         }
+    }
+
+    private static func assertNSExceptionUserInfo(eventContext: [String: Any], platform: String) throws {
+        let userInfoContext = dictionary(eventContext["user info"])
+        try assert(string(userInfoContext["scenario"]) == "ns-exception",
+                   "Expected NSException userInfo scenario for \(platform)/ns-exception")
     }
 
     private static func assertBinaryImageScenario(_ debugImages: [[String: Any]], platform: String,
@@ -292,9 +301,5 @@ enum EventAssertions {
         if let value = value as? NSNumber { return value.intValue }
         if let value = value as? String { return Int(value) }
         return nil
-    }
-
-    private static func isNull(_ value: Any?) -> Bool {
-        value == nil || value is NSNull
     }
 }
