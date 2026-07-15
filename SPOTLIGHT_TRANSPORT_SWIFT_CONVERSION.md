@@ -1,8 +1,9 @@
 # Plan: Convert `SentrySpotlightTransport` from ObjC to Swift
 
 **Branch:** `ref/convert-spotlight-transport-to-swift`
-**Status:** 🔴 BLOCKED — awaiting a decision on approach (see "⛔ Blocker" below). Branch currently
-builds green (only Step 1 committed; ObjC class still in place).
+**Status:** 🟢 Unblocked — **Option A chosen** (convert `SentryRequestManager` + `SentryTransport`
+protocols to Swift first, then the class). Branch builds green (Step 1 committed; ObjC class still
+in place). Next: Phase A1. See "✅ Chosen approach" below.
 **Goal:** Convert `Sources/Sentry/SentrySpotlightTransport.{h,m}` to a Swift class under
 `Sources/Swift/Networking/`, following the patterns established by recent ObjC→Swift conversions.
 Do **not** open a PR yet. Small commits, keep this file updated so work can be paused/resumed
@@ -231,34 +232,99 @@ filter envelope items to `event` + `transaction` types → build request via `re
 
 ---
 
-## Step-by-step plan
+## ✅ Chosen approach: Option A — convert the protocols to Swift first
 
-Each step = one small commit. Update the checkbox + "Status" line here as we go.
+**Decision (user, 2026-07-15):** Convert the ObjC protocols to Swift `@objc` protocols first (the
+"correct" order per `develop-docs/SWIFT.md`), then convert `SentrySpotlightTransport` cleanly on
+top. This is a multi-PR effort; `SentrySpotlightTransport` is the final, small payoff.
 
-- [x] **Step 0 — Setup**: branch + this plan file. _(commit: `docs: add spotlight transport conversion plan`)_
-- [x] **Step 1 — Expose ObjC protocols to Swift module**: added `SentryTransport.h` and
-      `SentryRequestManager.h` to `Sources/Sentry/include/SentryPrivate.h`. ✅ `make build-ios`
-      succeeded — no dependency explosion, protocols now visible to the Swift module.
-      _(commit: `build: expose transport protocols to Swift module`)_
-- [~] **Step 2 — Add Swift class**: attempted; **BLOCKED**. The class compiles & conforms to
-  `Transport` only as an `internal` class, which ObjC can't see. See "⛔ Blocker". WIP preserved
-  in this doc. No commit — reverted to keep branch green.
-- [~] **Step 3 — Remove ObjC file + rewire**: attempted (`git rm` + pbxproj edit + factory rewire);
-  reverted because Step 2 is blocked. The pbxproj `sed` deletion and factory param-drop both
-  work mechanically and are documented for reuse once unblocked. No commit.
-- [ ] **Step 4 — Fix test call site**: update `SentrySpotlightTransportTests.swift:35` to drop the
-      `dispatchQueueWrapper:` argument. _(commit: `test: update spotlight transport init call`)_
-- [ ] **Step 5 — Verify**: `make format`, `make analyze`, `make build-ios`,
-      `make test-ios ONLY_TESTING=SentryTests/SentrySpotlightTransportTests`. Regenerate public API
-      if surface changed (`make generate-public-api`). _(commit: `test: verify spotlight transport conversion` / or fold into prior)_
-- [ ] **Step 6 — Changelog**: `ref:` type = no changelog; ensure `#skip-changelog` will go in PR
-      description later. Update this plan to ✅.
+### Feasibility — verified in-repo (2026-07-15)
 
-### Fallback (if Step 1/2 build fails)
+The pattern is already proven by existing code, so Option A is low-risk mechanically:
 
-Define a minimal Swift-side transport the class conforms to (mirroring
-`SentryTelemetryProcessorTransport` in `Sources/Swift/Tools/TelemetryProcessor/`), and/or keep a
-thin ObjC shim. Record the exact error here before switching approaches.
+- **Swift `@objc` protocol consumed by ObjC:** `RateLimits.swift` is
+  `@objc(SentryRateLimits) @_spi(Private) public protocol RateLimits: NSObjectProtocol`. ObjC refers
+  to it via a forward decl `@protocol SentryRateLimits;` and `id<SentryRateLimits>`.
+- **ObjC class _conforming_ to a Swift `@objc` protocol:** `SentryHttpTransport.m` already adopts the
+  Swift-defined `SentryReachabilityObserver` (`@interface SentryHttpTransport () <SentryReachabilityObserver>`),
+  importing it via `SentrySwift.h`. So `SentryHttpTransport`, `SentryQueueableRequestManager`, and
+  `SentryTransportAdapter` can keep conforming after the protocols move to Swift.
+
+### ⚠️ Do NOT convert the data-category enums
+
+`SentryDataCategory` (**138** `k*` refs) and `SentryDiscardReason` (**69** refs) are used pervasively
+across ObjC (214 constant references, 10+ files). Converting them is out of scope and high-risk.
+Follow the `RateLimits` precedent instead: **the Swift protocol uses `UInt`** for the category/reason
+params; ObjC conformers keep their existing `NS_ENUM(NSUInteger)`-typed method signatures, which are
+selector- and ABI-compatible. Only `SentryFlushResult` (**7** refs, defined solely in
+`SentryTransport.h`) is small enough to convert to a Swift `@objc enum ... : Int` if needed — or it
+can also be bridged as `UInt`/`Int`.
+
+### 🔬 Must prototype first (the one unproven mechanic)
+
+Whether an ObjC method typed `- (void)recordLostEvent:(SentryDataCategory)category …` satisfies a
+Swift `@objc` protocol requirement declared `func recordLostEvent(_ category: UInt, …)`.
+`NS_ENUM(NSUInteger)` bridges to `UInt`, so it _should_ match by selector — but no existing repo case
+proves ObjC _conforming_ with an enum param to a `UInt` requirement. Prove this in a throwaway build
+at the start of Step A2 before committing to the protocol shape. If it fails, the protocol requirement
+can instead be typed with the enum (still `@_implementationOnly` inside Swift — acceptable for a
+non-public `@objc` protocol method as long as it isn't in a _public Swift_ signature; verify).
+
+### Ordering / PR strategy
+
+Each of A1–A3 is independently shippable and should likely be its **own PR** (merged in order),
+with the small A4 (the actual spotlight conversion) last. All work stays on this branch for now via
+small commits; we split into PRs when ready.
+
+- [x] **Step 0 — Setup**: branch + plan. _(committed)_
+- [x] **Step 1 — Expose ObjC protocols to Swift module**: added `SentryTransport.h` +
+      `SentryRequestManager.h` to `SentryPrivate.h`; build green. _(committed)_
+      → **Superseded by Option A** (the protocols will _move_ to Swift, not just be exposed). This
+      commit is harmless to keep meanwhile; revisit/replace in Step A1.
+
+**Phase A1 — Convert `SentryRequestManager` → Swift** (simplest; 1 method + 1 block + 1 init)
+
+- [ ] **A1.1** Prototype: create `Sources/Swift/Networking/SentryRequestManager.swift` as
+      `@objc(SentryRequestManager) @_spi(Private) public protocol RequestManager: NSObjectProtocol`
+      with `add(_:completionHandler:)` (`NS_SWIFT_NAME` already maps this). Model the completion
+      block type — `SentryRequestOperationFinished` is `(NSHTTPURLResponse?, NSError?) -> Void`.
+- [ ] **A1.2** Remove ObjC `include/SentryRequestManager.h`; update `SentryPrivate.h` (drop the
+      import added in Step 1); add forward decls / `SentrySwift.h` imports in ObjC consumers
+      (`SentryQueueableRequestManager.{h,m}`, `SentryHttpTransport.{h,m}`, `SentryTransportFactory.m`,
+      `SentryRequestOperation.h`). Edit `project.pbxproj` to drop the `.h`.
+- [ ] **A1.3** Build all affected platforms + run transport tests. _(commit/PR: `ref: convert SentryRequestManager to Swift`)_
+
+**Phase A2 — Convert `SentryTransport` (+ `SentryFlushResult`) → Swift**
+
+- [ ] **A2.1** Prototype the enum-param conformance question (see 🔬 above) in a throwaway build.
+- [ ] **A2.2** Create `Sources/Swift/Networking/SentryTransport.swift`:
+      `@objc(SentryTransport) @_spi(Private) public protocol Transport: NSObjectProtocol` with
+      `send(envelope:)`, `store(_:)`, `recordLostEvent(_:reason:)` + `(…quantity:)` (params `UInt`),
+      `flush(_:)`, and the `#if DEBUG…` `setStartFlushCallback`. Convert `SentryFlushResult` to a
+      Swift `@objc enum` (or bridge as Int) in the same file/PR.
+- [ ] **A2.3** Remove ObjC `include/SentryTransport.h`; update `SentryPrivate.h`; fix ObjC
+      conformers (`SentryHttpTransport`, `SentryTransportAdapter`, `SentrySpotlightTransport` — still
+      ObjC at this point) and `SentryTransportFactory.m` / `SentryClient.m`. pbxproj drop.
+- [ ] **A2.4** Build all platforms + tests. _(commit/PR: `ref: convert SentryTransport protocol to Swift`)_
+
+**Phase A3 — Convert `SentrySpotlightTransport` → Swift** (the original goal; now unblocked)
+
+- [ ] **A3.1** Add `Sources/Swift/Networking/SentrySpotlightTransport.swift` as
+      `@_spi(Private) @objc(SentrySpotlightTransport) public final class … : NSObject, Transport`
+      (the WIP above, upgraded from `internal` to `public` now that `Transport`/`RequestManager` are
+      Swift). Drop `dispatchQueueWrapper`.
+- [ ] **A3.2** Remove ObjC `SentrySpotlightTransport.{h,m}`; pbxproj drop (`sed '/SpotlightTransport/d'`
+      — 8 lines, verified with `plutil -lint`); rewire `SentryTransportFactory.m` (drop `#import`
+      + `dispatchQueueWrapper:` arg).
+- [ ] **A3.3** Update `SentrySpotlightTransportTests.swift:35` — drop `dispatchQueueWrapper:` arg.
+- [ ] **A3.4** `make format && make analyze && make build-ios` (+ other platforms) + spotlight tests;
+      `make generate-public-api` if surface changed. _(commit/PR: `ref: convert SentrySpotlightTransport to Swift`)_
+
+### If A2.1 prototype fails (enum param can't satisfy `UInt` requirement)
+
+Fall back to typing the protocol's `recordLostEvent` params with the ObjC enums directly (the enums
+stay ObjC, imported into Swift via `_SentryPrivate`; acceptable inside a non-public-Swift `@objc`
+protocol method). Record the exact error before switching.
 
 ---
 
@@ -284,4 +350,8 @@ make generate-public-api   # only if public API surface changed; commit sdk_api.
   (from `@_implementationOnly _SentryPrivate`) cannot appear in a `public` API. `internal` class
   conforms but is invisible to the ObjC factory. Reverted ObjC deletion + factory rewire; branch
   is green with only Step 1. Documented the fork (Options A/B/C) and preserved the WIP Swift port.
-  **Awaiting decision on approach before proceeding.**
+- 2026-07-15: **Option A chosen.** Researched full blast radius: protocol pattern proven in-repo
+  (`RateLimits.swift` + `SentryHttpTransport.m` conforming to Swift `SentryReachabilityObserver`).
+  Enums stay ObjC (214 refs) — protocols use `UInt` per `RateLimits` precedent. Rewrote plan into
+  Phases A1 (`SentryRequestManager`) → A2 (`SentryTransport`+`SentryFlushResult`) → A3 (the class).
+  Next action: Phase A1.1 (prototype Swift `RequestManager` protocol).
