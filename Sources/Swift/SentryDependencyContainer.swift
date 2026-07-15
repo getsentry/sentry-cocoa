@@ -289,10 +289,11 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     }
 
     func getUIEventTracker(_ options: Options) -> SentryUIEventTracker {
-        let mode = SentryUIEventTrackerTransactionMode(idleTimeout: options.idleTimeout)
+        let eventProcessor = SentryUIEventTrackerTransactionEventProcessor(idleTimeout: options.idleTimeout)
         return SentryUIEventTracker(
-            mode: mode,
-            reportAccessibilityIdentifier: options.reportAccessibilityIdentifier
+            options: .init(reportAccessibilityIdentifier: options.reportAccessibilityIdentifier),
+            eventProcessor: eventProcessor,
+            swizzleWrapper: swizzleWrapper
         )
     }
 
