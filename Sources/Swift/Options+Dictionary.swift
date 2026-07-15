@@ -27,9 +27,8 @@ extension Options {
             self.debug = debug
         }
 
-        if let diagnosticLevel = dictionary["diagnosticLevel"] as? String,
-           let level = SentryLevel(diagnosticLevelName: diagnosticLevel) {
-            self.diagnosticLevel = level
+        if let diagnosticLevel = SentryLevel.fromName(dictionary["diagnosticLevel"] as? String) {
+            self.diagnosticLevel = diagnosticLevel
         }
 
         if !(dictionary["dsn"] is NSNull) {
@@ -343,17 +342,3 @@ private let blockClass: AnyClass = {
     }
     return candidate
 }()
-
-private extension SentryLevel {
-    init?(diagnosticLevelName: String) {
-        switch diagnosticLevelName {
-        case "none": self = .none
-        case "debug": self = .debug
-        case "info": self = .info
-        case "warning": self = .warning
-        case "error": self = .error
-        case "fatal": self = .fatal
-        default: return nil
-        }
-    }
-}
