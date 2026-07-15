@@ -1,7 +1,8 @@
 # Plan: Convert `SentrySpotlightTransport` from ObjC to Swift
 
 **Branch:** `ref/convert-spotlight-transport-to-swift`
-**Status:** 🟡 In progress
+**Status:** 🔴 BLOCKED — awaiting a decision on approach (see "⛔ Blocker" below). Branch currently
+builds green (only Step 1 committed; ObjC class still in place).
 **Goal:** Convert `Sources/Sentry/SentrySpotlightTransport.{h,m}` to a Swift class under
 `Sources/Swift/Networking/`, following the patterns established by recent ObjC→Swift conversions.
 Do **not** open a PR yet. Small commits, keep this file updated so work can be paused/resumed
@@ -18,6 +19,156 @@ and pushed at any point.
    problematic ObjC dependencies / breaks the build.
 2. **Unused `dispatchQueueWrapper`:** **Drop it.** It is stored but never used in the ObjC class.
    Removing it means updating the two call sites (`SentryTransportFactory.m` and the Swift test).
+
+---
+
+## ⛔ Blocker (discovered during Step 2/3 — compiler-verified 2026-07-15)
+
+Attempting the direct conversion produced **hard compile errors** that trace back to a real
+architectural constraint documented in `develop-docs/SWIFT.md:13`:
+
+> "An ObjC class that uses a non-public ObjC type in its API is not ready to be converted to
+> Swift until the type it uses is also converted to Swift."
+
+`SentrySpotlightTransport` depends on **two ObjC protocols that are still internal** and only
+reachable via `@_implementationOnly import _SentryPrivate`:
+
+- `SentryTransport` (`NS_SWIFT_NAME(Transport)`) — the protocol the class must conform to.
+- `SentryRequestManager` (`NS_SWIFT_NAME(RequestManager)`) — the type of an init parameter.
+- (plus enums `SentryFlushResult`, `SentryDataCategory`, `SentryDiscardReason` in the API)
+
+Because those come from an `@_implementationOnly` import, they **cannot appear in any `public`
+API**. That creates a fork with no clean exit at the current altitude:
+
+| Attempt                                              | Result                                                                                                                                                                                                                          |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `public final class … : Transport`                   | ❌ `cannot use protocol 'Transport' in a public conformance; '_SentryPrivate' has been imported as implementation-only`. Also `RequestManager` can't be a public `init` param.                                                  |
+| `internal final class … : Transport` (drop `public`) | ✅ **Compiles & conforms cleanly.** ❌ But internal `@objc` classes are **not** emitted into the ObjC-visible generated `Sentry-Swift.h`, so `SentryTransportFactory.m` errors: `unknown type name 'SentrySpotlightTransport'`. |
+| `public class` + conformance in an `extension`       | ❌ Same public-conformance error; plus methods "must be declared public".                                                                                                                                                       |
+
+This is exactly the constraint that forced `SentryTelemetryProcessorTransport` to exist
+(`Sources/Swift/Tools/TelemetryProcessor/`): it defines a **Swift-side `@objc public` protocol**
+as the boundary type instead of using the `@_implementationOnly` ObjC one.
+
+### Decision needed — pick a path (see "Options" below)
+
+**Option A — Convert the ObjC protocols first (unblocks a clean conversion).**
+Convert `SentryTransport` and `SentryRequestManager` to `@_spi(Private) @objc public` Swift
+protocols (like `RateLimits`, `SentryReachabilityObserver`, `SentryCurrentDateProvider` already are).
+Then `SentrySpotlightTransport` (and eventually `SentryHttpTransport`) can be a clean `public`
+Swift class. Largest blast radius — `SentryHttpTransport`, `SentryTransportAdapter`,
+`SentryQueueableRequestManager`, and many call sites reference these protocols — but it's the
+"correct" order per `SWIFT.md` and unblocks the whole transport layer. **Should likely be its own
+PR(s) before this one.**
+
+**Option B — Swift factory shim (localized, mirrors TelemetryProcessor).**
+Keep `SentrySpotlightTransport` as an **internal** `@objc` Swift class (conforms to `Transport`
+fine). Add a small `@objc public` Swift factory that returns the instance typed as the ObjC
+`id<SentryTransport>` (the ObjC factory already stores `NSArray<id<SentryTransport>>`), so ObjC
+never names the concrete class. Needs verification that a `@objc public func ->` returning the
+ObjC protocol is allowed (the protocol type itself is `@_implementationOnly`, so the return type
+may also be rejected — **must prototype**). If the return type is rejected, fall back to returning
+`NSObject`/`AnyObject` and casting in ObjC, or to Option C.
+
+**Option C — Defer / abandon.**
+Leave `SentrySpotlightTransport` in ObjC until the transport-protocol conversion (Option A) lands.
+Keep only the harmless Step 1 (protocols exposed to Swift module) if useful, or revert entirely.
+
+### WIP reference implementation (compiles as an _internal_ class)
+
+The Swift port below is complete and **compiles + conforms to `Transport`** when declared
+`internal` (remove `@_spi(Private)` / `public`). Preserved here so the work isn't lost; it is NOT
+in the build (kept out of `Sources/Swift` so it isn't auto-compiled).
+
+```swift
+// swiftlint:disable missing_docs
+@_implementationOnly import _SentryPrivate
+import Foundation
+
+// NOTE: `public` here is what breaks the build. As `internal` it compiles & conforms, but then
+// ObjC (SentryTransportFactory.m) can't see the type. See Options A/B above.
+@objc(SentrySpotlightTransport) final class SentrySpotlightTransport: NSObject, Transport {
+
+    private let options: Options
+    private let requestManager: RequestManager
+    private let requestBuilder: SentryNSURLRequestBuilder
+    private let apiURL: URL?
+
+    @objc init(
+        options: Options,
+        requestManager: RequestManager,
+        requestBuilder: SentryNSURLRequestBuilder
+    ) {
+        self.options = options
+        self.requestManager = requestManager
+        self.requestBuilder = requestBuilder
+        self.apiURL = URL(string: options.spotlightUrl)
+        super.init()
+    }
+
+    func send(envelope: SentryEnvelope) {
+        guard let apiURL = apiURL else {
+            SentrySDKLog.warning("Malformed Spotlight URL passed from the options. Not sending envelope to Spotlight with URL:\(options.spotlightUrl)")
+            return
+        }
+
+        // Spotlight can only handle the following envelope items.
+        // Not removing them leads to an error and events won't get displayed.
+        let allowedEnvelopeItems = envelope.items.filter { item in
+            item.header.type == SentryEnvelopeItemTypes.event
+                || item.header.type == SentryEnvelopeItemTypes.transaction
+        }
+
+        let envelopeToSend = SentryEnvelope(header: envelope.header, items: allowedEnvelopeItems)
+
+        let request: URLRequest
+        do {
+            request = try requestBuilder.createEnvelopeRequest(envelopeToSend, url: apiURL)
+        } catch {
+            SentrySDKLog.error("Unable to build envelope request with error \(error)")
+            return
+        }
+
+        requestManager.add(request) { _, error in
+            if let error = error {
+                SentrySDKLog.error("Error while performing request \(error)")
+            }
+        }
+    }
+
+    func store(_ envelope: SentryEnvelope) {
+        send(envelope: envelope)
+    }
+
+    func flush(_ timeout: TimeInterval) -> SentryFlushResult {
+        // Empty on purpose
+        return .success
+    }
+
+    func recordLostEvent(_ category: SentryDataCategory, reason: SentryDiscardReason) {
+        // Empty on purpose
+    }
+
+    func recordLostEvent(_ category: SentryDataCategory, reason: SentryDiscardReason, quantity: UInt) {
+        // Empty on purpose
+    }
+
+    #if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
+    func setStartFlushCallback(_ callback: @escaping () -> Void) {
+        // Empty on purpose
+    }
+    #endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
+}
+// swiftlint:enable missing_docs
+```
+
+Notes captured while porting:
+
+- `store(_:)` — the `Transport` protocol's `storeEnvelope:` is exposed to Swift as `store(_:)`
+  (the compiler flagged `storeEnvelope` as renamed). The ObjC selector is unchanged.
+- `flush` returns `.success` (Swift name for `kSentryFlushResultSuccess`).
+- `item.header.type` is reachable from the Swift module even though `header` is `internal`.
+- `requestManager.add(_:completionHandler:)` is the Swift name for `addRequest:completionHandler:`.
 
 ---
 
@@ -89,17 +240,12 @@ Each step = one small commit. Update the checkbox + "Status" line here as we go.
       `SentryRequestManager.h` to `Sources/Sentry/include/SentryPrivate.h`. ✅ `make build-ios`
       succeeded — no dependency explosion, protocols now visible to the Swift module.
       _(commit: `build: expose transport protocols to Swift module`)_
-- [ ] **Step 2 — Add Swift class**: create `Sources/Swift/Networking/SentrySpotlightTransport.swift`
-      conforming to `Transport`, holding `requestManager` + `requestBuilder` + `options`, with
-      `apiURL` computed from `options.spotlightUrl`. Port `sendEnvelope`/`send(envelope:)`, empty
-      `flush`/`recordLostEvent`/`storeEnvelope`/`setStartFlushCallback`. Drop `dispatchQueueWrapper`.
-      Do **not** delete the ObjC file yet — this step must fail to compile only on duplicate-symbol,
-      so temporarily rename/guard if needed, OR go straight to Step 3 in the same commit if the
-      linker complains. _(commit: `ref: add Swift SentrySpotlightTransport`)_
-- [ ] **Step 3 — Remove ObjC file + rewire**: `git rm` the `.m`/`.h`, edit `project.pbxproj` to drop
-      references, update `SentryTransportFactory.m` (remove `#import`, drop `dispatchQueueWrapper:`
-      arg — the type is now Swift so it's picked up via `SentrySwift.h`), remove
-      `SentrySpotlightTransport.h` from any include umbrella. _(commit: `ref: remove ObjC SentrySpotlightTransport`)_
+- [~] **Step 2 — Add Swift class**: attempted; **BLOCKED**. The class compiles & conforms to
+  `Transport` only as an `internal` class, which ObjC can't see. See "⛔ Blocker". WIP preserved
+  in this doc. No commit — reverted to keep branch green.
+- [~] **Step 3 — Remove ObjC file + rewire**: attempted (`git rm` + pbxproj edit + factory rewire);
+  reverted because Step 2 is blocked. The pbxproj `sed` deletion and factory param-drop both
+  work mechanically and are documented for reuse once unblocked. No commit.
 - [ ] **Step 4 — Fix test call site**: update `SentrySpotlightTransportTests.swift:35` to drop the
       `dispatchQueueWrapper:` argument. _(commit: `test: update spotlight transport init call`)_
 - [ ] **Step 5 — Verify**: `make format`, `make analyze`, `make build-ios`,
@@ -133,4 +279,9 @@ make generate-public-api   # only if public API surface changed; commit sdk_api.
 
 - 2026-07-15: Research complete. Branch created. Plan written. Decisions confirmed.
 - 2026-07-15: Step 1 done — exposed `SentryTransport.h` + `SentryRequestManager.h` to
-  `SentryPrivate.h`; `make build-ios` succeeded. Direct-conformance approach is viable.
+  `SentryPrivate.h`; `make build-ios` succeeded.
+- 2026-07-15: Steps 2/3 attempted → **BLOCKED**. Compiler confirms `Transport`/`RequestManager`
+  (from `@_implementationOnly _SentryPrivate`) cannot appear in a `public` API. `internal` class
+  conforms but is invisible to the ObjC factory. Reverted ObjC deletion + factory rewire; branch
+  is green with only Step 1. Documented the fork (Options A/B/C) and preserved the WIP Swift port.
+  **Awaiting decision on approach before proceeding.**
