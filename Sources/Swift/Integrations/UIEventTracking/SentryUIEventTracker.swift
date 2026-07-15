@@ -58,6 +58,9 @@ final class SentryUIEventTracker {
             return
         }
 
+        // When using an application delegate with SwiftUI, we receive touch events here, but
+        // the target class name is an unacceptable transaction name. Ideally, we should somehow
+        // shorten the long name instead of excluding it.
         let targetObject = target as AnyObject
         let targetClass = NSStringFromClass(type(of: targetObject))
         if targetClass.contains("SwiftUI") {

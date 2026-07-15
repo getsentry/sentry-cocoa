@@ -52,9 +52,7 @@ extension SentryUIEventTrackerTransactionEventProcessor: SentryUIEventTracker.Ev
             return false
         }
 
-        if let spanId = currentActiveTransaction?.spanId.sentrySpanIdString {
-            SentrySDKLog.debug("Dispatching idle timeout for transaction with span id \(spanId)")
-        }
+        SentrySDKLog.debug("Dispatching idle timeout for transaction with span id \(currentActiveTransaction?.spanId.sentrySpanIdString ?? "nil")")
         currentActiveTransaction?.startIdleTimeout()
         return true
     }
