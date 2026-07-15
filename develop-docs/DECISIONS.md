@@ -85,6 +85,9 @@ For the benefit of OOM crashes, we write breadcrumbs to disk; see https://github
 
 ## Bump min Xcode version to 13
 
+Date: December 5th, 2022
+Contributors: @philipphofmann, @kevinrenskers
+
 With adding the [MetricKit integration](https://github.com/getsentry/sentry-cocoa/issues/1661), we need to bump the min Xcode version to 13,
 as MetricKit is unavailable on previous Xcode versions. As Xcode 12 doesn't run on macOS 12, and the current Xcode version is 14, we are OK
 with that change. With that change, we also have to drop support for
@@ -98,6 +101,7 @@ since version 0.37.0, released in January 2021. Therefore, it's acceptable to us
 ## Remove the permissions feature
 
 Date: December 14, 2022
+Contributors: @kevinrenskers, @philipphofmann
 
 We [removed](https://github.com/getsentry/sentry-cocoa/pull/2529) the permissions feature that we added in [7.24.0](https://github.com/getsentry/sentry-cocoa/releases/tag/7.24.0). Multiple people reported getting denied in app review because of permission access without the corresponding Info.plist entry: see [#2528](https://github.com/getsentry/sentry-cocoa/issues/2528) and [2065](https://github.com/getsentry/sentry-cocoa/issues/2065).
 
@@ -117,12 +121,18 @@ We release experimental SentrySwiftUI cocoa package with the version 8.0.0 becau
 
 ## Tracking package managers
 
+Date: March 29th, 2023
+Contributors: @brustolin, @armcknight, @philipphofmann
+
 To be able to identify the package manager(PM) being used by the user, we need that the PM identify itself.
 Luckily all of the 3 PMs we support do this in some way, mostly by exposing a compiler directive (SPM, COCOA)
 or a build setting (CARTHAGE). With this information we can create a conditional compilation that injects the name of
 the PM. You can find this in `SentrySDKInfo.m`.
 
 ## Usage of `__has_include`
+
+Date: March 20th, 2023
+Contributors: @brustolin, @philipphofmann
 
 Some private headers add a dependency of a public header, when those private headers are used in a sample project, or referenced from a hybrid SDK, it is treated as part of the project using it, therefore, if it points to a header that is not part of said project, a compilation error will occur. To solve this we make use of `__has_include` to try to point to the SDK version of the header, or to fallback to the direct reference when compiling the SDK.
 
@@ -432,6 +442,9 @@ See previous discussion at https://github.com/getsentry/sentry-cocoa/issues/3846
 
 ## Use preinstalled GH actions simulators
 
+Date: April 2nd, 2025
+Contributors: @philipphofmann, @philprime
+
 Creating simulators in GH actions can take up to five minutes or more. Instead, we use the preinstalled simulators for unit and UI tests to speed up CI. We also noticed that tests are more likely to flake due to being unable to launch the app for UI tests and such. We don't have hard evidence to prove this, and these problems could vanish if GH action runners improve. It makes sense to work with what's preinstalled instead and not messing around with the CI environment. If we need to test on a specific OS version, we should use a GH action image with an Xcode version tied to that specific OS version.
 
 ## Do not use Swift String constants in ObjC code
@@ -450,6 +463,9 @@ Related links:
 
 ## Decodable conformances to ObjC types
 
+Date: June 24th, 2025
+Contributors: @noahsmartin, @philipphofmann
+
 A few types that are defined in ObjC have Decodable conformances in "Sources/Swift/Protocol/Codable/". This works for xcodebuild where ObjC and Swift are in the same target
 but not for SPM where ObjC and Swift have to be in different targets. This is because Swift does not support adding a protocol conformance to a type in a different module
 than the one the type/protocol is defined in. To work around this Swift code subclasses the ObjC type and adds the conformance to the subclass. It is then decoded as a
@@ -459,6 +475,9 @@ major version bump to change.
 Future types conforming to Decodable can be written in Swift from the start and therefore have the conformance added directly to the type.
 
 ## v9
+
+Date: July 9th, 2025
+Contributors: @noahsmartin, @philipphofmann
 
 Work on the v9 SDK is being done behind the compiler flag `SDK_V9`. CI builds the SDK with this flag enabled to ensure it does not break during the course of non-v9 development. This SDK version will focus on quality and be a part of Sentry’s quality quarter initiative. Notably, the minimum supported OS version will be bumped in this release. The changelog for this release is being tracked in [CHANGELOG-v9.md](../CHANGELOG-v9.md).
 
@@ -513,6 +532,9 @@ Related:
 - Fix for multiple files in Releases (stale for months): https://github.com/Carthage/Carthage/pull/3398
 
 ## 3rd Party Library Integrations
+
+Date: December 4th, 2025
+Contributors: @itaybre, @philipphofmann
 
 ### Background
 
