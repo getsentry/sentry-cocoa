@@ -16,6 +16,14 @@ EXCLUDED_SOURCE_FILE_NAMES =
 // can find SentryProfilingConditionals.h (a public header not under include/).
 HEADER_SEARCH_PATHS = $(inherited) $(SRCROOT)/Sources/Sentry/Public
 
+// There is a 'bug' in Xcode that doesn't build arm64e slices for SPM depedendencies
+// regardless of the Xcode settings. This can somewhat be worked around
+// by setting iOSPackagesShouldBuildARM64e to true in the workspace settings
+// however that only applies to iOS, macOS, and visionOS
+ARCHS[sdk=appletvos*] = $(ARCHS_STANDARD)
+ARCHS[sdk=watchos*] = $(ARCHS_STANDARD)
+ARCHS[sdk=maccatalyst*] = $(ARCHS_STANDARD)
+
 // Both this target and the base Sentry target share PRODUCT_MODULE_NAME=Sentry. Xcode's
 // explicit module scanner can't tell them apart and emits a spurious missing-dependency
 // warning. Disabling explicit modules for this target silences it without affecting correctness.
