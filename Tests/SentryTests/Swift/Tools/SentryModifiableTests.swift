@@ -28,6 +28,15 @@ class SentryModifiableTests: XCTestCase {
         XCTAssertTrue(sut.isModified)
     }
 
+    func testInit_whenModifiedStateIsProvided_shouldUseModifiedState() {
+        // -- Arrange --
+        let sut = SentryModifiable(false, isModified: true)
+
+        // -- Assert --
+        XCTAssertFalse(sut.value)
+        XCTAssertTrue(sut.isModified)
+    }
+
     func testSetRecursivelyModifiedValue_whenSet_shouldMarkValueAndDescendantsAsModified() {
         // -- Arrange --
         var sut = SentryModifiable(TestRecursiveModifiable())

@@ -24803,7 +24803,6 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC12experimentalAA0a12ExperimentalB0Cvg",
                 "moduleName": "Sentry",
@@ -24831,11 +24830,11 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC12experimentalAA0a12ExperimentalB0Cvs",
                 "moduleName": "Sentry",
                 "name": "Set",
+                "objc_name": "setExperimental:",
                 "printedName": "Set()",
                 "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setExperimental:"
               }
@@ -24850,11 +24849,9 @@
             ],
             "declAttributes": [
               "Final",
-              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "hasStorage": true,
             "kind": "Var",
             "mangledName": "$s6Sentry7OptionsC12experimentalAA0a12ExperimentalB0Cvp",
             "moduleName": "Sentry",
@@ -26447,7 +26444,6 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC14sendDefaultPiiSbvg",
                 "moduleName": "Sentry",
@@ -26475,11 +26471,11 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC14sendDefaultPiiSbvs",
                 "moduleName": "Sentry",
                 "name": "Set",
+                "objc_name": "setSendDefaultPii:",
                 "printedName": "Set()",
                 "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setSendDefaultPii:"
               }
@@ -26494,11 +26490,9 @@
             ],
             "declAttributes": [
               "Final",
-              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "hasStorage": true,
             "kind": "Var",
             "mangledName": "$s6Sentry7OptionsC14sendDefaultPiiSbvp",
             "moduleName": "Sentry",
@@ -38131,7 +38125,6 @@
                       }
                     ],
                     "declKind": "Accessor",
-                    "implicit": true,
                     "kind": "Accessor",
                     "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV8userInfoSbvg",
                     "moduleName": "Sentry",
@@ -38155,7 +38148,6 @@
                       }
                     ],
                     "declKind": "Accessor",
-                    "implicit": true,
                     "kind": "Accessor",
                     "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV8userInfoSbvs",
                     "moduleName": "Sentry",
@@ -38172,11 +38164,7 @@
                     "usr": "s:Sb"
                   }
                 ],
-                "declAttributes": [
-                  "HasStorage"
-                ],
                 "declKind": "Var",
-                "hasStorage": true,
                 "kind": "Var",
                 "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV8userInfoSbvp",
                 "moduleName": "Sentry",
@@ -39152,7 +39140,6 @@
                   "Final"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A19ExperimentalOptionsC14dataCollectionAA0a4DataE0O0C0Vvg",
                 "moduleName": "Sentry",
@@ -39179,7 +39166,6 @@
                   "Final"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A19ExperimentalOptionsC14dataCollectionAA0a4DataE0O0C0Vvs",
                 "moduleName": "Sentry",
@@ -39197,11 +39183,9 @@
               }
             ],
             "declAttributes": [
-              "Final",
-              "HasStorage"
+              "Final"
             ],
             "declKind": "Var",
-            "hasStorage": true,
             "kind": "Var",
             "mangledName": "$s6Sentry0A19ExperimentalOptionsC14dataCollectionAA0a4DataE0O0C0Vvp",
             "moduleName": "Sentry",

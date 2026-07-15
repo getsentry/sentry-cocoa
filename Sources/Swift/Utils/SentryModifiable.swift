@@ -1,9 +1,10 @@
 struct SentryModifiable<Value> {
     private var _value: Value
-    private(set) var isModified = false
+    private(set) var isModified: Bool
 
-    init(_ value: Value) {
+    init(_ value: Value, isModified: Bool = false) {
         self._value = value
+        self.isModified = isModified
     }
 
     var value: Value {
