@@ -12,9 +12,9 @@ struct SentrySdkInfo {
     static func global() -> Self {
         if let options = SentrySDKInternal.currentHub().getClient()?.getOptions() {
             let enabledFeatures = SentryDependencyContainerSwiftHelper.enabledFeatures(options)
-            return Self(withEnabledFeatures: enabledFeatures, sendDefaultPii: SentryDependencyContainerSwiftHelper.sendDefaultPii(options))
+            return Self(withEnabledFeatures: enabledFeatures, autoInferIP: SentryDependencyContainerSwiftHelper.autoInferIP(options))
         }
-        return Self(withEnabledFeatures: [], sendDefaultPii: false)
+        return Self(withEnabledFeatures: [], autoInferIP: false)
     }
     
     /**
@@ -59,10 +59,10 @@ struct SentrySdkInfo {
     
     init(withOptions options: Options?) {
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
-        self.init(withEnabledFeatures: features, sendDefaultPii: options?.sendDefaultPii ?? false)
+        self.init(withEnabledFeatures: features, autoInferIP: options?.resolvedAutoInferIP ?? false)
     }
 
-    init(withEnabledFeatures features: [String], sendDefaultPii: Bool) {
+    init(withEnabledFeatures features: [String], autoInferIP: Bool) {
         let integrations = SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames()
         var packages = SentryExtraPackages.getPackages()
         let sdkPackage = SentrySdkPackage.global()
@@ -75,7 +75,7 @@ struct SentrySdkInfo {
             integrations: integrations,
             features: features,
             packages: Array(packages),
-            settings: SentrySDKSettings(sendDefaultPii: sendDefaultPii))
+            settings: SentrySDKSettings(autoInferIP: autoInferIP))
     }
     
     init(name: String?, version: String?, integrations: [String]?, features: [String]?, packages: [[String: String]]?, settings: SentrySDKSettings) {

@@ -2235,17 +2235,47 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(fixture.user.email, actual.user?.email)
     }
     
+    func testDataCollectionUserInfoUntouched_GivenNoIP_sdkIPIsNever() throws {
+        fixture.getSut().capture(message: "any")
+
+        let actual = try lastSentEvent()
+        let settings = try sdkSettings(from: actual)
+
+        XCTAssertEqual(settings["infer_ip"] as? String, "never")
+    }
+
     func testSendDefaultPiiEnabled_GivenNoIP_sdkIPIsAuto() throws {
         fixture.getSut(configureOptions: { options in
             options.sendDefaultPii = true
         }).capture(message: "any")
-        
+
         let actual = try lastSentEvent()
-        XCTAssertNotNil(actual.sdk)
-        let sdk = try XCTUnwrap(actual.sdk)
-        XCTAssertNotNil(sdk["settings"])
-        let settings = try XCTUnwrap(sdk["settings"] as? [String: Any])
+        let settings = try sdkSettings(from: actual)
+
         XCTAssertEqual(settings["infer_ip"] as? String, "auto")
+    }
+
+    func testDataCollectionUserInfoEnabled_GivenNoIP_sdkIPIsAuto() throws {
+        fixture.getSut(configureOptions: { options in
+            options.experimental.dataCollection.userInfo = true
+        }).capture(message: "any")
+
+        let actual = try lastSentEvent()
+        let settings = try sdkSettings(from: actual)
+
+        XCTAssertEqual(settings["infer_ip"] as? String, "auto")
+    }
+
+    func testDataCollectionUserInfoDisabled_GivenNoIP_sdkIPIsNever() throws {
+        fixture.getSut(configureOptions: { options in
+            options.sendDefaultPii = true
+            options.experimental.dataCollection.userInfo = false
+        }).capture(message: "any")
+
+        let actual = try lastSentEvent()
+        let settings = try sdkSettings(from: actual)
+
+        XCTAssertEqual(settings["infer_ip"] as? String, "never")
     }
     
     func testSendDefaultPiiEnabled_GivenIP_IPAddressNotChanged() throws {
@@ -3038,6 +3068,11 @@ private extension SentryClientTests {
         let lastSentEventArguments = try XCTUnwrap(fixture.transportAdapter.sendEventWithTraceStateInvocations.last)
         XCTAssertEqual([TestData.dataAttachment], lastSentEventArguments.attachments)
         return lastSentEventArguments.event
+    }
+
+    private func sdkSettings(from event: Event) throws -> [String: Any] {
+        let sdk = try XCTUnwrap(event.sdk)
+        return try XCTUnwrap(sdk["settings"] as? [String: Any])
     }
 
     private func assertFeatureFlags(on event: Event) throws {

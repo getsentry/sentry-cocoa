@@ -4,6 +4,12 @@
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"
 
+@interface SentryOptions (DataCollection)
+
+@property (nonatomic, readonly) BOOL resolvedAutoInferIP;
+
+@end
+
 @implementation SentryDependencyContainerSwiftHelper
 
 #if SENTRY_HAS_UIKIT
@@ -50,9 +56,9 @@
     return [SentryEnabledFeaturesBuilder getEnabledFeaturesWithOptions:options];
 }
 
-+ (BOOL)sendDefaultPii:(SentryOptions *)options
++ (BOOL)autoInferIP:(SentryOptions *)options
 {
-    return options.sendDefaultPii;
+    return options.resolvedAutoInferIP;
 }
 
 + (SentryDispatchQueueWrapper *)dispatchQueueWrapper

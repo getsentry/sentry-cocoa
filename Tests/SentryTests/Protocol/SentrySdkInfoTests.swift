@@ -171,7 +171,7 @@ class SentrySdkInfoTests: XCTestCase {
     
     func testInitWithDict_SdkInfo() {
         let version = "10.3.1"
-        let settings = SentrySDKSettings(sendDefaultPii: true)
+        let settings = SentrySDKSettings(autoInferIP: true)
         let expected = SentrySdkInfo(
             name: sdkName,
             version: version,
@@ -291,7 +291,7 @@ class SentrySdkInfoTests: XCTestCase {
 
     func testInitWithDict_WrongTypesInArrays() {
         let version = "10.3.1"
-        let settings = SentrySDKSettings(sendDefaultPii: false)
+        let settings = SentrySDKSettings(autoInferIP: false)
         let expected = SentrySdkInfo(
             name: sdkName,
             version: version,
@@ -367,6 +367,68 @@ class SentrySdkInfoTests: XCTestCase {
         XCTAssertEqual(actual.packages.count, 2)
         XCTAssertTrue(actual.packages.contains(extraPackage))
         XCTAssertTrue(actual.packages.contains(["name": "cocoapods:getsentry/\(SentryMeta.sdkName)", "version": SentryMeta.versionString]))
+    }
+
+    func testInitWithOptions_whenDataCollectionIsUntouched_shouldNeverInferIP() {
+        let sdkInfo = SentrySdkInfo(withOptions: Options())
+
+        XCTAssertFalse(sdkInfo.settings.autoInferIP)
+    }
+
+    func testInitWithOptions_whenSendDefaultPiiIsEnabled_shouldAutoInferIP() {
+        let options = Options()
+        options.sendDefaultPii = true
+
+        let sdkInfo = SentrySdkInfo(withOptions: options)
+
+        XCTAssertTrue(sdkInfo.settings.autoInferIP)
+    }
+
+    func testInitWithOptions_whenUserInfoIsEnabled_shouldAutoInferIP() {
+        let options = Options()
+        options.experimental.dataCollection.userInfo = true
+
+        let sdkInfo = SentrySdkInfo(withOptions: options)
+
+        XCTAssertTrue(sdkInfo.settings.autoInferIP)
+    }
+
+    func testInitWithOptions_whenUserInfoIsDisabled_shouldNeverInferIP() {
+        let options = Options()
+        options.sendDefaultPii = true
+        options.experimental.dataCollection.userInfo = false
+
+        let sdkInfo = SentrySdkInfo(withOptions: options)
+
+        XCTAssertFalse(sdkInfo.settings.autoInferIP)
+    }
+
+    func testInitWithOptions_whenDataCollectionIsAssigned_shouldAutoInferIP() {
+        let options = Options()
+        options.experimental.dataCollection = .init()
+
+        let sdkInfo = SentrySdkInfo(withOptions: options)
+
+        XCTAssertTrue(sdkInfo.settings.autoInferIP)
+    }
+
+    func testInitWithOptions_whenExperimentalOptionsAreAssigned_shouldAutoInferIP() {
+        let options = Options()
+        options.experimental = SentryExperimentalOptions()
+
+        let sdkInfo = SentrySdkInfo(withOptions: options)
+
+        XCTAssertTrue(sdkInfo.settings.autoInferIP)
+    }
+
+    func testGlobal_whenUserInfoIsEnabled_shouldAutoInferIP() {
+        let options = Options()
+        options.experimental.dataCollection.userInfo = true
+        SentrySDK.start(options: options)
+
+        let sdkInfo = SentrySdkInfo.global()
+
+        XCTAssertTrue(sdkInfo.settings.autoInferIP)
     }
 
     func testSerializationIncludesSettings() {
