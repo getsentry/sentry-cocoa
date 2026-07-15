@@ -301,7 +301,7 @@ extension Options {
         }
 
         if let experimental = dictionary["experimental"] as? [String: Any] {
-            self.experimental.validateOptions(experimental)
+            self.experimental.populateFrom(dict: experimental)
         }
     }
 

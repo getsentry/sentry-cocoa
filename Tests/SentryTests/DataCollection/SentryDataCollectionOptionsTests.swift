@@ -391,7 +391,7 @@ class SentryDataCollectionOptionsTests: XCTestCase {
         ]
 
         // -- Act --
-        let options = try SentryOptionsInternal.initWithDict(dictionary)
+        let options = try Options(dictionary: dictionary)
 
         // -- Assert --
         XCTAssertFalse(options.experimental.dataCollection.userInfo)
@@ -406,7 +406,7 @@ class SentryDataCollectionOptionsTests: XCTestCase {
         ]
 
         // -- Act --
-        let options = try SentryOptionsInternal.initWithDict(dictionary)
+        let options = try Options(dictionary: dictionary)
 
         // -- Assert --
         XCTAssertEqual(options.experimental.dataCollection, SentryDataCollection.Options())
@@ -422,7 +422,7 @@ class SentryDataCollectionOptionsTests: XCTestCase {
         ]
 
         // -- Act --
-        let options = try SentryOptionsInternal.initWithDict(dictionary)
+        let options = try Options(dictionary: dictionary)
 
         // -- Assert --
         XCTAssertEqual(options.experimental.dataCollection, SentryDataCollection.Options())
@@ -438,7 +438,7 @@ class SentryDataCollectionOptionsTests: XCTestCase {
         ]
 
         // -- Act --
-        let options = try SentryOptionsInternal.initWithDict(dictionary)
+        let options = try Options(dictionary: dictionary)
 
         // -- Assert --
         XCTAssertEqual(options.experimental.dataCollection, SentryDataCollection.Options())
