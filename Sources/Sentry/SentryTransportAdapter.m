@@ -115,7 +115,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)flush:(NSTimeInterval)timeout
 {
     for (id<SentryTransport> transport in self.transports) {
-        [transport flush:timeout];
+        (void)[transport flush:timeout];
     }
 }
 

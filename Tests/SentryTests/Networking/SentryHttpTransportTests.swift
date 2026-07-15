@@ -146,7 +146,7 @@ class SentryHttpTransportTests: XCTestCase {
             fileManager: SentryFileManager? = nil,
             dispatchQueueWrapper: SentryDispatchQueueWrapper? = nil,
             reachability: SentryReachability? = nil
-        ) throws -> SentryHttpTransport {
+        ) throws -> Transport {
             return SentryHttpTransport(
                 dsn: try XCTUnwrap(options.parsedDsn),
                 sendClientReports: options.sendClientReports,
@@ -173,7 +173,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
 
     private var fixture: Fixture!
-    private var sut: SentryHttpTransport!
+    private var sut: Transport!
 
     override func setUpWithError() throws {
         try super.setUpWithError()

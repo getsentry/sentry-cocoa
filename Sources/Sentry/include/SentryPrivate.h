@@ -92,7 +92,6 @@
 #import "SentryTraceProfiler.h"
 #import "SentryTracerConfiguration.h"
 #import "SentryTransactionContext+Private.h"
-#import "SentryTransport.h"
 #import "SentryUIViewControllerSwizzlingHelper.h"
 #import "SentryUncaughtNSExceptions.h"
 #import "SentryWatchdogTerminationBreadcrumbProcessor.h"

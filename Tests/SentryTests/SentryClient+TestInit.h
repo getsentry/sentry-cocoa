@@ -1,4 +1,4 @@
-#import "SentryTransport.h"
+#import "SentryClient+Private.h"
 
 @protocol SentryCurrentDateProvider;
 @protocol SentryRandomProtocol;

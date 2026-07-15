@@ -143,18 +143,21 @@
     [self.fileManager storeEnvelope:envelope];
 }
 
-- (void)recordLostEvent:(SentryDataCategory)category reason:(SentryDiscardReason)reason
+- (void)recordLostEvent:(NSUInteger)category reason:(NSUInteger)reason
 {
     [self recordLostEvent:category reason:reason quantity:1];
 }
 
-- (void)recordLostEvent:(SentryDataCategory)category
-                 reason:(SentryDiscardReason)reason
+- (void)recordLostEvent:(NSUInteger)categoryRaw
+                 reason:(NSUInteger)reasonRaw
                quantity:(NSUInteger)quantity
 {
     if (!self.sendClientReports) {
         return;
     }
+
+    SentryDataCategory category = (SentryDataCategory)categoryRaw;
+    SentryDiscardReason reason = (SentryDiscardReason)reasonRaw;
 
     NSString *key = [NSString stringWithFormat:@"%@:%@", nameForSentryDataCategory(category),
         nameForSentryDiscardReason(reason)];
@@ -191,7 +194,7 @@
     @synchronized(self) {
         if (_isFlushing) {
             SENTRY_LOG_DEBUG(@"Already flushing.");
-            return kSentryFlushResultAlreadyFlushing;
+            return SentryFlushResultAlreadyFlushing;
         }
 
         SENTRY_LOG_DEBUG(@"Start flushing.");
@@ -222,10 +225,10 @@
 
     if (result == 0) {
         SENTRY_LOG_DEBUG(@"Finished flushing.");
-        return kSentryFlushResultSuccess;
+        return SentryFlushResultSuccess;
     } else {
         SENTRY_LOG_WARN(@"Flushing timed out.");
-        return kSentryFlushResultTimedOut;
+        return SentryFlushResultTimedOut;
     }
 }
 

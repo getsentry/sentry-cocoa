@@ -27,11 +27,11 @@ final class SentrySpotlightTransportTests: XCTestCase {
         super.tearDown()
     }
 
-    private func givenSut(spotlightUrl: String? = nil) -> SentrySpotlightTransport {
+    private func givenSut(spotlightUrl: String? = nil) -> Transport {
         if spotlightUrl != nil {
             options.spotlightUrl = spotlightUrl ?? ""
         }
-        
+
         return SentrySpotlightTransport(options: options, requestManager: requestManager, requestBuilder: requestBuilder, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
     }
     

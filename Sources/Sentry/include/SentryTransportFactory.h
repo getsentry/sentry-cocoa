@@ -1,10 +1,11 @@
-#import "SentryTransport.h"
+#import <Foundation/Foundation.h>
 
 @class SentryFileManager;
 @class SentryOptions;
 @class SentryReachability;
 @protocol SentryCurrentDateProvider;
 @protocol SentryRateLimits;
+@protocol SentryTransport;
 
 NS_ASSUME_NONNULL_BEGIN
 

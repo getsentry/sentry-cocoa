@@ -27,7 +27,6 @@
 #import "SentryTraceContext.h"
 #import "SentryTracer.h"
 #import "SentryTransaction.h"
-#import "SentryTransport.h"
 #import "SentryTransportAdapter.h"
 #import "SentryTransportFactory.h"
 #import "SentryUser.h"
