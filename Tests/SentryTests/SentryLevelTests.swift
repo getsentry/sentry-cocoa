@@ -34,7 +34,7 @@ class SentryLevelTests: XCTestCase {
         XCTAssertEqual(SentryLevel.fatal.description, "fatal")
     }
 
-    func testFromName_whenInvalid_shouldReturnError() {
-        XCTAssertEqual(SentryLevel.fromName("invalid"), SentryLevel.error)
+    func testFromName_whenInvalid_shouldReturnNil() {
+        XCTAssertNil(SentryLevel.fromName("invalid"))
     }
 }
