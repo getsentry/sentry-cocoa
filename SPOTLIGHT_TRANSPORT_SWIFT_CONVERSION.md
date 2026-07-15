@@ -1,9 +1,9 @@
 # Plan: Convert `SentrySpotlightTransport` from ObjC to Swift
 
 **Branch:** `ref/convert-spotlight-transport-to-swift`
-**Status:** 🟢 Unblocked — **Option A chosen** (convert `SentryRequestManager` + `SentryTransport`
-protocols to Swift first, then the class). Branch builds green (Step 1 committed; ObjC class still
-in place). Next: Phase A1. See "✅ Chosen approach" below.
+**Status:** 🟢 In progress — **Option A**. Phase A1 (`SentryRequestManager` → Swift) ✅ done, build
+green, 81 transport tests pass. Next: **Phase A2** (`SentryTransport` + `SentryFlushResult`).
+See "✅ Chosen approach" below.
 **Goal:** Convert `Sources/Sentry/SentrySpotlightTransport.{h,m}` to a Swift class under
 `Sources/Swift/Networking/`, following the patterns established by recent ObjC→Swift conversions.
 Do **not** open a PR yet. Small commits, keep this file updated so work can be paused/resumed
@@ -284,15 +284,23 @@ small commits; we split into PRs when ready.
 
 **Phase A1 — Convert `SentryRequestManager` → Swift** (simplest; 1 method + 1 block + 1 init)
 
-- [ ] **A1.1** Prototype: create `Sources/Swift/Networking/SentryRequestManager.swift` as
+- [x] **A1.1** Created `Sources/Swift/Networking/SentryRequestManager.swift`:
       `@objc(SentryRequestManager) @_spi(Private) public protocol RequestManager: NSObjectProtocol`
-      with `add(_:completionHandler:)` (`NS_SWIFT_NAME` already maps this). Model the completion
-      block type — `SentryRequestOperationFinished` is `(NSHTTPURLResponse?, NSError?) -> Void`.
-- [ ] **A1.2** Remove ObjC `include/SentryRequestManager.h`; update `SentryPrivate.h` (drop the
-      import added in Step 1); add forward decls / `SentrySwift.h` imports in ObjC consumers
-      (`SentryQueueableRequestManager.{h,m}`, `SentryHttpTransport.{h,m}`, `SentryTransportFactory.m`,
-      `SentryRequestOperation.h`). Edit `project.pbxproj` to drop the `.h`.
-- [ ] **A1.3** Build all affected platforms + run transport tests. _(commit/PR: `ref: convert SentryRequestManager to Swift`)_
+      with `isReady` + `@objc(addRequest:completionHandler:) func add(_:completionHandler:)`.
+      **Dropped the `initWithSession:` requirement** — it was never called through the protocol
+      (only on the concrete class), so it moved to `SentryQueueableRequestManager.h` directly.
+      Completion type is the existing `SentryRequestOperationFinished` block (public, visible to Swift).
+- [x] **A1.2** Removed ObjC `include/SentryRequestManager.h`; dropped its import from
+      `SentryPrivate.h`; `SentryQueueableRequestManager.h` now imports `SentrySwift.h` (conforms to
+      the Swift protocol, like `SentryDefaultTelemetryProcessorTransport.h`); `SentryHttpTransport.h`
+      + `SentrySpotlightTransport.h` use forward decl `@protocol SentryRequestManager;` (like
+      `SentryRateLimits`); `.m` consumers already import `SentrySwift.h`. Dropped 6 pbxproj lines
+      (`plutil -lint` OK).
+- [x] **A1.3** ✅ `make build-ios` green; **81 transport tests pass** (Spotlight + Factory + Http).
+      Fixed test fallout: `TestRequestManager`/`SyncTestRequestManager` dropped `public` (can't be
+      public conformers of an SPI protocol); `SentryTransportFactoryTests` casts to `RequestManager`
+      instead of the concrete class to reach `.add`. `RequestManager` is SPI → not in `sdk_api.json`,
+      no public-API regen needed. _(commit: `ref: convert SentryRequestManager to Swift`)_
 
 **Phase A2 — Convert `SentryTransport` (+ `SentryFlushResult`) → Swift**
 
@@ -354,4 +362,8 @@ make generate-public-api   # only if public API surface changed; commit sdk_api.
   (`RateLimits.swift` + `SentryHttpTransport.m` conforming to Swift `SentryReachabilityObserver`).
   Enums stay ObjC (214 refs) — protocols use `UInt` per `RateLimits` precedent. Rewrote plan into
   Phases A1 (`SentryRequestManager`) → A2 (`SentryTransport`+`SentryFlushResult`) → A3 (the class).
-  Next action: Phase A1.1 (prototype Swift `RequestManager` protocol).
+- 2026-07-15: **Phase A1 done.** `SentryRequestManager` is now a Swift `@objc` protocol. Build
+  green; 81 transport tests pass. Proved the core Option A mechanic: an ObjC class
+  (`SentryQueueableRequestManager`) conforms to a Swift `@objc @_spi(Private)` protocol, and ObjC
+  callers reference it via forward decl / `id<SentryRequestManager>`. Next: Phase A2.1 (prototype
+  the enum-param conformance for `SentryTransport.recordLostEvent`).

@@ -281,15 +281,15 @@ final class SentrySpotlightTransportTests: XCTestCase {
 private class SyncTestRequestManager: NSObject, RequestManager {
 
     var nextError: NSError?
-    public var isReady: Bool
+    var isReady: Bool
 
     var requests = Invocations<URLRequest>()
 
-    public required init(session: URLSession) {
+    required init(session: URLSession) {
         self.isReady = true
     }
 
-    public func add( _ request: URLRequest, completionHandler: SentryRequestOperationFinished? = nil) {
+    func add( _ request: URLRequest, completionHandler: SentryRequestOperationFinished? = nil) {
         requests.record(request)
 
         if let handler = completionHandler {

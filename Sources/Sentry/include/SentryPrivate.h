@@ -77,7 +77,6 @@
 #import "SentryOptionsHelper.h"
 #import "SentryPerformanceTracker.h"
 #import "SentryProfiler+Private.h"
-#import "SentryRequestManager.h"
 #import "SentrySDKInternal.h"
 #import "SentrySanitizerUtils.h"
 #import "SentryScope+Private.h"
