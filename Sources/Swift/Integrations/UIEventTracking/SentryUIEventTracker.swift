@@ -29,7 +29,7 @@ final class SentryUIEventTracker {
     private let options: Options
 
     /// Creates a UI event tracker with the given mode.
-    public init(options: Options, eventProcessor: EventProcessor, swizzleWrapper: SentrySwizzleWrapperProtocol) {
+    init(options: Options, eventProcessor: EventProcessor, swizzleWrapper: SentrySwizzleWrapperProtocol) {
         self.options = options
         self.eventProcessor = eventProcessor
         self.swizzleWrapper = swizzleWrapper

@@ -29,55 +29,32 @@ extension SentryUIEventTrackerTransactionEventProcessor: SentryUIEventTracker.Ev
     ) {
         let currentActiveTransaction = activeTransactionsStorage.withLock { $0.last }
 
-        if restartIdleTimeoutIfNeeded(for: action, currentActiveTransaction: currentActiveTransaction) {
+        if currentActiveTransaction?.transactionContext.name == action {
+            SentrySDKLog.debug("Dispatching idle timeout for transaction with span id \(currentActiveTransaction?.spanId.sentrySpanIdString ?? "nil")")
+            currentActiveTransaction?.startIdleTimeout()
             return
         }
 
-        finishCurrentTransaction(currentActiveTransaction)
-
-        guard shouldStartTransaction() else {
-            return
-        }
-
-        let transaction = startTransaction(action: action, operation: operation)
-        setAccessibilityIdentifier(accessibilityIdentifier, on: transaction)
-        trackTransaction(transaction)
-    }
-
-    private func restartIdleTimeoutIfNeeded(
-        for action: String,
-        currentActiveTransaction: SentryTracer?
-    ) -> Bool {
-        guard currentActiveTransaction?.transactionContext.name == action else {
-            return false
-        }
-
-        SentrySDKLog.debug("Dispatching idle timeout for transaction with span id \(currentActiveTransaction?.spanId.sentrySpanIdString ?? "nil")")
-        currentActiveTransaction?.startIdleTimeout()
-        return true
-    }
-
-    private func finishCurrentTransaction(_ currentActiveTransaction: SentryTracer?) {
         currentActiveTransaction?.finish()
-
         if let currentActiveTransaction {
             SentrySDKLog.debug("Finished transaction \(currentActiveTransaction.transactionContext.name) (span ID \(currentActiveTransaction.spanId.sentrySpanIdString))")
         }
-    }
 
-    private func shouldStartTransaction() -> Bool {
         let currentSpan = SentrySDKInternal.currentHub().scope.span
         let ongoingScreenLoadTransaction = currentSpan?.operation == SentrySpanOperationUiLoad
         let ongoingManualTransaction = currentSpan.map { span in
             span.operation != SentrySpanOperationUiLoad && !span.operation.contains(SentrySpanOperationUiAction)
         } ?? false
-
         if ongoingScreenLoadTransaction || ongoingManualTransaction {
             SentrySDKLog.debug("Not starting a new UI event transaction because there is already an ongoing transaction bound to the scope.")
-            return false
+            return
         }
 
-        return true
+        let transaction = startTransaction(action: action, operation: operation)
+        if let accessibilityIdentifier {
+            transaction.setTag(value: accessibilityIdentifier, key: "accessibilityIdentifier")
+        }
+        trackTransaction(transaction)
     }
 
     private func startTransaction(action: String, operation: String) -> SentryTracer {
@@ -103,12 +80,6 @@ extension SentryUIEventTrackerTransactionEventProcessor: SentryUIEventTracker.Ev
 
         SentrySDKLog.debug("Automatically started a new transaction with name: \(action)")
         return transaction
-    }
-
-    private func setAccessibilityIdentifier(_ accessibilityIdentifier: String?, on transaction: SentryTracer) {
-        if let accessibilityIdentifier {
-            transaction.setTag(value: accessibilityIdentifier, key: "accessibilityIdentifier")
-        }
     }
 
     private func trackTransaction(_ transaction: SentryTracer) {
