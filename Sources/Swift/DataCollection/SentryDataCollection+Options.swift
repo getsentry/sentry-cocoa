@@ -16,7 +16,11 @@ extension SentryDataCollection {
         /// Does **not** gate data explicitly set via `SentrySDK.setUser()`, which is always attached.
         ///
         /// Defaults to `true`.
-        public var userInfo: Bool
+        public var userInfo: Bool {
+            get { _userInfo.value }
+            set { _userInfo.value = newValue }
+        }
+        var _userInfo: SentryModifiable<Bool>
 
         /// Controls cookie collection. All cookie key names are always included; the SDK scrubs values
         /// for keys matching the sensitive denylist or custom allow/deny terms.
@@ -91,7 +95,7 @@ extension SentryDataCollection {
             stackFrameVariables: Bool = true,
             frameContextLines: UInt = 5
         ) {
-            self.userInfo = userInfo
+            self._userInfo = .init(userInfo)
             self.cookies = cookies
             self.httpHeaders = httpHeaders
             self.httpBodies = httpBodies
@@ -101,5 +105,11 @@ extension SentryDataCollection {
             self.stackFrameVariables = stackFrameVariables
             self.frameContextLines = frameContextLines
         }
+    }
+}
+
+extension SentryDataCollection.Options: SentryRecursiveModifiable {
+    mutating func markRecursivelyAsModified() {
+        _userInfo.markAsModified()
     }
 }

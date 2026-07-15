@@ -68,6 +68,39 @@ class SentryDataCollectionOptionsTests: XCTestCase {
         XCTAssertFalse(options.experimental.dataCollection.userInfo)
     }
 
+    // MARK: - Modification Tracking
+
+    func testInit_withoutArguments_shouldNotMarkUserInfoAsModified() {
+        // -- Arrange --
+        let options = SentryDataCollection.Options()
+
+        // -- Assert --
+        XCTAssertFalse(options._userInfo.isModified)
+    }
+
+    func testUserInfo_whenSet_shouldMarkAsModified() {
+        // -- Arrange --
+        var options = SentryDataCollection.Options()
+
+        // -- Act --
+        options.userInfo = false
+
+        // -- Assert --
+        XCTAssertTrue(options._userInfo.isModified)
+    }
+
+    func testDataCollection_whenSet_shouldMarkDataCollectionAndUserInfoAsModified() {
+        // -- Arrange --
+        let experimental = SentryExperimentalOptions()
+
+        // -- Act --
+        experimental.dataCollection = SentryDataCollection.Options()
+
+        // -- Assert --
+        XCTAssertTrue(experimental._dataCollection.isModified)
+        XCTAssertTrue(experimental.dataCollection._userInfo.isModified)
+    }
+
     // MARK: - Equatable
 
     func testEquatable_defaultInstances_shouldBeEqual() {

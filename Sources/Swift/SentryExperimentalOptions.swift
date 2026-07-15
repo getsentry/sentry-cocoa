@@ -20,7 +20,11 @@ public final class SentryExperimentalOptions: NSObject {
     ///
     /// - Important: Replaces `sendDefaultPii` with granular per-category control.
     /// - SeeAlso: https://docs.sentry.io/platforms/apple/configuration/options/#dataCollection
-    public var dataCollection = SentryDataCollection.Options()
+    public var dataCollection: SentryDataCollection.Options {
+        get { _dataCollection.value }
+        set { _dataCollection.setRecursivelyModifiedValue(newValue) }
+    }
+    var _dataCollection = SentryModifiable<SentryDataCollection.Options>(.init())
 
     /**
      * When enabled, the SDK sends a standalone app start transaction instead of attaching app
@@ -30,5 +34,11 @@ public final class SentryExperimentalOptions: NSObject {
 
     // swiftlint:disable:next missing_docs
     @_spi(Private) public func validateOptions(_ options: [String: Any]?) {
+    }
+}
+
+extension SentryExperimentalOptions: SentryRecursiveModifiable {
+    func markRecursivelyAsModified() {
+        _dataCollection.markRecursivelyAsModified()
     }
 }

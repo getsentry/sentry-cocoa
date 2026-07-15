@@ -247,7 +247,11 @@
     /// the user address. Due to backward compatibility concerns, Sentry sets sdk.settings.infer_ip to
     /// auto out of the box for Cocoa. If you want to stop Sentry from using the connections IP address,
     /// you have to enable Prevent Storing of IP Addresses in your project settings in Sentry.
-    @objc public var sendDefaultPii: Bool = false
+    @objc public var sendDefaultPii: Bool {
+        get { _sendDefaultPii.value }
+        set { _sendDefaultPii.value = newValue }
+    }
+    var _sendDefaultPii = SentryModifiable(false)
 
     /// When enabled, the SDK tracks performance for UIViewController subclasses and HTTP requests
     /// automatically. It also measures the app start and slow and frozen frames.
@@ -672,8 +676,12 @@
     }
 
     /// Options for experimental features that are subject to change.
-    @objc public var experimental = SentryExperimentalOptions()
-    
+    @objc public var experimental: SentryExperimentalOptions {
+        get { _experimental.value }
+        set { _experimental.setRecursivelyModifiedValue(newValue) }
+    }
+    var _experimental = SentryModifiable<SentryExperimentalOptions>(.init())
+
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
     
     // swiftlint:disable:next missing_docs
