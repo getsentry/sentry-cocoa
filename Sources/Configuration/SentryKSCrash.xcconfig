@@ -16,6 +16,11 @@ EXCLUDED_SOURCE_FILE_NAMES =
 // can find SentryProfilingConditionals.h (a public header not under include/).
 HEADER_SEARCH_PATHS = $(inherited) $(SRCROOT)/Sources/Sentry/Public
 
+// Dynamic framework — keeps Sentry+KSCrash consistent with the rest of the SDK xcframework
+// builds. Declared here rather than as a global xcodebuild command-line override so it does
+// NOT propagate to KSCrash SPM package sub-targets (which have their own product types).
+MACH_O_TYPE = mh_dylib
+
 // There is a 'bug' in Xcode that doesn't build arm64e slices for SPM depedendencies
 // regardless of the Xcode settings. This can somewhat be worked around
 // by setting iOSPackagesShouldBuildARM64e to true in the workspace settings

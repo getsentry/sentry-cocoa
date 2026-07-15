@@ -511,6 +511,42 @@ build-xcframework-sentryobjc-dynamic:
 	./scripts/validate-xcframework.sh --xcframework "SentryObjC-Dynamic.xcframework"
 	./scripts/compress-xcframework.sh --xcframework "SentryObjC-Dynamic.xcframework"
 
+## Build Sentry+KSCrash Dynamic XCFramework
+#
+# Builds the Sentry+KSCrash target as a dynamic xcframework. Overrides the
+# arm64e xcconfig restriction for tvOS, watchOS, and Mac Catalyst, which exists
+# only to work around an Xcode UI bug that does not affect xcodebuild.
+#
+# SDKS is a comma-separated list of SDK names (default: all).
+#
+# Examples:
+#   make build-xcframework-kscrash-dynamic
+#   make build-xcframework-kscrash-dynamic SDKS=iphoneos
+.PHONY: build-xcframework-kscrash-dynamic
+build-xcframework-kscrash-dynamic:
+	@echo "--> Creating Sentry+KSCrash-Dynamic xcframework (SDKs: $(SDKS))"
+	./scripts/build-xcframework-kscrash.sh --suffix "-Dynamic" --sdks "$(SDKS)"
+	./scripts/validate-xcframework.sh --xcframework "Sentry+KSCrash-Dynamic.xcframework"
+	./scripts/compress-xcframework.sh --xcframework "Sentry+KSCrash-Dynamic.xcframework"
+
+## Build Sentry+KSCrash Static XCFramework
+#
+# Builds the Sentry+KSCrash target as a static xcframework. Overrides the
+# arm64e xcconfig restriction for tvOS, watchOS, and Mac Catalyst, which exists
+# only to work around an Xcode UI bug that does not affect xcodebuild.
+#
+# SDKS is a comma-separated list of SDK names (default: all).
+#
+# Examples:
+#   make build-xcframework-kscrash-static
+#   make build-xcframework-kscrash-static SDKS=iphoneos
+.PHONY: build-xcframework-kscrash-static
+build-xcframework-kscrash-static:
+	@echo "--> Creating Sentry+KSCrash Static xcframework (SDKs: $(SDKS))"
+	./scripts/build-xcframework-kscrash.sh --mach-o-type "staticlib" --sdks "$(SDKS)"
+	./scripts/validate-xcframework.sh --xcframework "Sentry+KSCrash.xcframework"
+	./scripts/compress-xcframework.sh --xcframework "Sentry+KSCrash.xcframework"
+
 # ============================================================================
 # SAMPLE APPS
 # ============================================================================
