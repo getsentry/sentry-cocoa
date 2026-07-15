@@ -4,22 +4,22 @@
 
 ## Running Tests
 
-Test classes follow naming pattern `<SourceFile>Tests`. Default to iOS (fastest).
+Test classes follow naming pattern `<SourceFile>Tests`. Default to iOS (fastest). Use `FOR_AGENTS=true` to reduce platform test output. If reduced output does not explain a failure, inspect updated `raw-*-output.log` files in the repository root.
 
 ```bash
-make test-ios                                                  # all iOS tests
-make test-ios ONLY_TESTING=SentryTests/SentryHttpTransportTests  # single class
-make test-ios ONLY_TESTING=SentryTests/SentryHttpTransportTests,SentryTests/SentryHubTests  # multiple
-make test-ios ONLY_TESTING=SentryTests/SentryHttpTransportTests/testFlush_WhenNoInternet  # single method
-make test                                                      # all platforms
+make test-ios FOR_AGENTS=true                                                  # all iOS tests
+make test-ios FOR_AGENTS=true ONLY_TESTING=SentryTests/SentryHttpTransportTests  # single class
+make test-ios FOR_AGENTS=true ONLY_TESTING=SentryTests/SentryHttpTransportTests,SentryTests/SentryHubTests  # multiple
+make test-ios FOR_AGENTS=true ONLY_TESTING=SentryTests/SentryHttpTransportTests/testFlush_WhenNoInternet  # single method
+make test FOR_AGENTS=true                                                      # all platforms
 make test-ui-critical                                          # important UI tests
 ```
 
 **Scope assessment:**
 
-- Specific feature → run related test classes
-- Core SDK (`SentryHub`, `SentryClient`, `SentrySDK`) → `make test-ios`
-- Multiple areas or unsure → `make test-ios` or `make test`
+- Specific feature → run related test classes with `FOR_AGENTS=true`
+- Core SDK (`SentryHub`, `SentryClient`, `SentrySDK`) → `make test-ios FOR_AGENTS=true`
+- Multiple areas or unsure → `make test-ios FOR_AGENTS=true` or `make test FOR_AGENTS=true`
 
 ### Test Server
 
@@ -49,8 +49,8 @@ SPM does not support mixed ObjC/Swift sources in one target. Two test targets ex
 
 - Do **not** create test targets that depend on `SentryHeaders` for implementations — it is header-only (see [`develop-docs/SENTRY-OBJC.md`](../develop-docs/SENTRY-OBJC.md))
 - Both targets are in the `SentryObjCTests` scheme and `SentryObjC_Base.xctestplan`
-- Run via: `make test-macos TEST_SCHEME=SentryObjCTests`
-- Targeted class: `make test-macos TEST_SCHEME=SentryObjCTests ONLY_TESTING=SentryObjCTests/SentryObjCOptionsTests`
+- Run via: `make test-macos FOR_AGENTS=true TEST_SCHEME=SentryObjCTests`
+- Targeted class: `make test-macos FOR_AGENTS=true TEST_SCHEME=SentryObjCTests ONLY_TESTING=SentryObjCTests/SentryObjCOptionsTests`
 
 ## Naming Convention
 

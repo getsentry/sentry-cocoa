@@ -41,6 +41,11 @@ WATCHOS_DEVICE_NAME ?= Apple Watch SE 3 (44mm)
 # Current git reference name
 GIT-REF := $(shell git rev-parse --abbrev-ref HEAD)
 
+# Reduce build and test output for agents while retaining raw xcodebuild logs.
+FOR_AGENTS ?= false
+export FOR_AGENTS
+XCBEAUTIFY_OUTPUT_FLAGS = $(if $(filter true,$(FOR_AGENTS)),--quieter --disable-logging,--preserve-unbeautified)
+
 # ============================================================================
 # SETUP
 # ============================================================================
@@ -201,7 +206,7 @@ build-watchos:
 		-scheme $(XCODE_SCHEME) \
 		-destination 'platform=watchOS Simulator,OS=$(WATCHOS_SIMULATOR_OS),name=$(WATCHOS_DEVICE_NAME)' \
 		-configuration Debug \
-		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
+		CODE_SIGNING_ALLOWED="NO" 2>&1 | tee raw-build-output.log | xcbeautify $(XCBEAUTIFY_OUTPUT_FLAGS)
 
 ## Build all platforms with SDK_V10 flag
 #
@@ -293,7 +298,7 @@ build-watchos-v10:
 		-scheme SentryV10 \
 		-destination 'platform=watchOS Simulator,OS=$(WATCHOS_SIMULATOR_OS),name=$(WATCHOS_DEVICE_NAME)' \
 		-configuration DebugV10 \
-		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
+		CODE_SIGNING_ALLOWED="NO" 2>&1 | tee raw-build-output.log | xcbeautify $(XCBEAUTIFY_OUTPUT_FLAGS)
 
 ## Build all platforms with ENABLE_KSCRASH and SDK_V10 flags
 #
@@ -385,7 +390,7 @@ build-watchos-v10-with-kscrash:
 		-scheme Sentry+KSCrash \
 		-destination 'platform=watchOS Simulator,OS=$(WATCHOS_SIMULATOR_OS),name=$(WATCHOS_DEVICE_NAME)' \
 		-configuration DebugV10 \
-		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
+		CODE_SIGNING_ALLOWED="NO" 2>&1 | tee raw-build-output.log | xcbeautify $(XCBEAUTIFY_OUTPUT_FLAGS)
 ## Build XCFramework validation sample
 #
 # Builds the XCFramework validation sample project to verify XCFramework integration.
