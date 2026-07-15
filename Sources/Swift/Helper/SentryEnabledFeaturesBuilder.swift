@@ -35,6 +35,9 @@ import Foundation
         if options.sessionReplay.enableFastViewRendering {
             features.append("fastViewRendering")
         }
+        if options.sessionReplay.networkDetailHasUrls {
+            features.append("replayNetworkDetails")
+        }
 #endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
 
         if options.enableDataSwizzling {
@@ -45,9 +48,6 @@ import Foundation
         }
         if options.experimental.enableUnhandledCPPExceptionsV2 {
             features.append("unhandledCPPExceptionsV2")
-        }
-        if options.experimental.enableReplayNetworkDetailsCapturing {
-            features.append("replayNetworkDetails")
         }
         if options.enableMetrics {
             features.append("metrics")

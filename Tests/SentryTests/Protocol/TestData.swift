@@ -17,7 +17,11 @@ class TestData {
     static let context: [String: [String: Any]] = ["context": ["c": "a", "date": timestamp]]
     static let traceContext: [String: [String: Any]] = ["trace": ["trace_id": "1234567890", "span_id": "1234567890"]]
     
-    static let malformedURLString = "http://example.com:-80/"
+    // A space in the host is rejected by every Foundation URL parser (both the strict parser used
+    // on iOS and the legacy CFURL parser used by binaries with an old deployment target, e.g. macOS).
+    // A negative port like "http://example.com:-80/" only fails on the strict parser, so it isn't
+    // portably malformed.
+    static let malformedURLString = "http://exa mple.com"
     
     static var crumb: Breadcrumb {
         let crumb = Breadcrumb()

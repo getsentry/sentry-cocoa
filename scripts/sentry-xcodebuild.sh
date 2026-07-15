@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euxo pipefail
+set -euo pipefail
 
 # Disable SC1091 because it won't work with pre-commit
 # shellcheck source=./scripts/ci-utils.sh disable=SC1091
@@ -27,6 +27,7 @@ ONLY_TESTING=""
 WORKSPACE="Sentry.xcworkspace"
 SDK=""
 RAW_DESTINATION=""
+FOR_AGENTS="${FOR_AGENTS:-false}"
 
 usage() {
     cat <<EOF
@@ -226,6 +227,14 @@ case $COMMAND in
     ;;
 esac
 
+format_output() {
+    if [ "$FOR_AGENTS" = true ]; then
+        xcbeautify --quieter --disable-logging
+    else
+        xcbeautify "$@"
+    fi
+}
+
 if [ $RUN_BUILD == true ]; then
     log_info "Running xcodebuild build"
 
@@ -242,7 +251,7 @@ if [ $RUN_BUILD == true ]; then
         "${BUILD_ARGS[@]}" \
         build 2>&1 |
         tee raw-build-output.log |
-        xcbeautify --preserve-unbeautified
+        format_output --preserve-unbeautified
 fi
 
 TEST_PLAN_ARGS=()
@@ -281,7 +290,7 @@ if [ $RUN_BUILD_FOR_TESTING == true ]; then
         "${BFT_ARGS[@]}" \
         build-for-testing 2>&1 |
         tee raw-build-for-testing-output.log |
-        xcbeautify --preserve-unbeautified
+        format_output --preserve-unbeautified
 fi
 
 if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
@@ -307,7 +316,7 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
         "${TWB_ARGS[@]}" \
         test-without-building 2>&1 |
         tee raw-test-output.log |
-        xcbeautify --report junit
+        format_output --report junit
 fi
 
 log_info "Finished xcodebuild"

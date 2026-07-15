@@ -107,8 +107,6 @@ public struct SentrySDKWrapper {
             let defaultReplayQuality = options.sessionReplay.quality
             options.sessionReplay.quality = SentryReplayOptions.SentryReplayQuality(rawValue: (SentrySDKOverrides.Replay.quality.stringValue as? NSString)?.integerValue ?? defaultReplayQuality.rawValue) ?? defaultReplayQuality
 
-            options.experimental.enableReplayNetworkDetailsCapturing =
-                !SentrySDKOverrides.Replay.disableNetworkDetailsCapturing.boolValue
         }
 
 #endif // !os(macOS) && !os(watchOS) && !os(visionOS)

@@ -45,18 +45,19 @@ For each sample app, you can:
 
 ## Commands
 
-| Command                         | Description                                            |
-| ------------------------------- | ------------------------------------------------------ |
-| **Generate (Project Creation)** |                                                        |
-| `make xcode-ci`                 | Regenerate all Xcode projects                          |
-| `make xcode-ci-<name>`          | Regenerate specific project (e.g., `xcode-ci-SPM`)     |
-| **Build**                       |                                                        |
-| `make build-samples`            | Build all sample apps                                  |
-| `make build-sample-<name>`      | Build specific sample (e.g., `build-sample-iOS-Swift`) |
-| **Test (UI Tests)**             |                                                        |
-| `make test-samples-ui`          | Run all sample UI tests                                |
-| `make test-sample-<name>-ui`    | Run specific sample UI tests (e.g., `iOS-Swift-ui`)    |
-| `make test-ui-critical`         | Run critical UI test suites for validation             |
+| Command                         | Description                                                                                                                       |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| **Generate (Project Creation)** |                                                                                                                                   |
+| `make xcode-ci`                 | Regenerate all Xcode projects                                                                                                     |
+| `make xcode-ci-<name>`          | Regenerate specific project (e.g., `xcode-ci-SPM`)                                                                                |
+| **Build**                       |                                                                                                                                   |
+| `make build-samples`            | Build all sample apps                                                                                                             |
+| `make build-sample-<name>`      | Build specific sample (e.g., `build-sample-iOS-Swift`)                                                                            |
+| `make <target> FOR_AGENTS=true` | Reduce output for supported SDK platform build/test targets. Inspect `raw-*-output.log` only when reduced output is inconclusive. |
+| **Test (UI Tests)**             |                                                                                                                                   |
+| `make test-samples-ui`          | Run all sample UI tests                                                                                                           |
+| `make test-sample-<name>-ui`    | Run specific sample UI tests (e.g., `iOS-Swift-ui`)                                                                               |
+| `make test-ui-critical`         | Run critical UI test suites for validation                                                                                        |
 
 ## Samples with UI Tests
 

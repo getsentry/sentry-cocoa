@@ -626,6 +626,18 @@ class SentryScopeSwiftTests: XCTestCase {
         // -- Assert --
         XCTAssertNil(serializeFeatureFlags(from: scope))
     }
+
+    func testClearFeatureFlags_whenScopeHasFeatureFlags_shouldClearFeatureFlags() {
+        // -- Arrange --
+        let scope = Scope(maxBreadcrumbs: fixture.maxBreadcrumbs)
+        scope.addFeatureFlag(name: "first", result: true)
+
+        // -- Act --
+        scope.clearFeatureFlags()
+
+        // -- Assert --
+        XCTAssertNil(serializeFeatureFlags(from: scope))
+    }
     
     func testAttachmentsIsACopy() {
         let scope = fixture.scope
@@ -945,6 +957,17 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(values.count, 1)
         XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "checkout")
         XCTAssertEqual(values.element(at: 0)?["result"] as? Bool, true)
+    }
+
+    func testScopeObserver_clearFeatureFlags_shouldRemoveFlagsContext() {
+        let sut = Scope()
+        let observer = fixture.observer
+        sut.add(observer)
+        sut.addFeatureFlag(name: "checkout", result: true)
+
+        sut.clearFeatureFlags()
+
+        XCTAssertNil(observer.context?["flags"])
     }
 
     func testScopeObserver_setDist() {

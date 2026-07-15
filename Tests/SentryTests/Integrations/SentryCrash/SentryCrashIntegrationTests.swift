@@ -1,9 +1,12 @@
+// swiftlint:disable file_length
 @_spi(Private) import SentryTestUtils
 @_spi(Private) @testable import Sentry
 import XCTest
 
 class SentryCrashIntegrationTests: NotificationCenterTestCase {
+
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryCrashIntegrationTests")
+
     private class Fixture {
         let dateProvider = TestCurrentDateProvider()
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
@@ -88,6 +91,11 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         fixture.client.fileManager.deleteAppHangEvent()
 
         clearTestState()
+    }
+
+    override class func tearDown() {
+        SentryDependencyContainer.sharedInstance().crashReporter.uninstall()
+        super.tearDown()
     }
 
     // Test for GH-581
@@ -354,6 +362,9 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
 #endif // os(iOS) || os(tvOS)
 
     func testUninstall_DoesNotUpdateLocale_OnLocaleDidChangeNotification() throws {
+#if SDK_V10
+        throw XCTSkip("Locale is not set on device context in SDK v10")
+#else
         try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
         let (sut, hub) = try givenSutWithGlobalHubAndCrashWrapper()
@@ -366,6 +377,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         localeDidChange()
 
         assertLocaleOnHub(locale: locale, hub: hub)
+#endif
     }
 
     func testOSCorrectlySetToScopeContext() throws {
@@ -377,6 +389,9 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
 
     func testLocaleChanged_NoDeviceContext_SetsCurrentLocale() throws {
+#if SDK_V10
+        throw XCTSkip("Locale is not set on device context in SDK v10")
+#else
         try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
         let (sut, hub) = try givenSutWithGlobalHub()
@@ -391,9 +406,13 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         localeDidChange()
 
         assertLocaleOnHub(locale: Locale.autoupdatingCurrent.identifier, hub: hub)
+        #endif
     }
 
     func testLocaleChanged_DifferentLocale_SetsCurrentLocale() throws {
+#if SDK_V10
+        throw XCTSkip("Locale is not set on device context in SDK v10")
+#else
         try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
         let (sut, hub) = try givenSutWithGlobalHubAndCrashWrapper()
@@ -406,6 +425,29 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         localeDidChange()
 
         assertLocaleOnHub(locale: Locale.autoupdatingCurrent.identifier, hub: hub)
+#endif // !SDK_V10
+    }
+
+    func testLocaleChanged_whenV10_shouldNotSetDeviceLocale() throws {
+#if !SDK_V10
+        throw XCTSkip("Locale is not set on device context in SDK v10")
+#else
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
+        // -- Arrange --
+        let (sut, hub) = try givenSutWithGlobalHubAndCrashWrapper()
+        defer {
+            sut.uninstall()
+        }
+
+        // -- Act --
+        localeDidChange()
+
+        // -- Assert --
+        let context = hub.scope.contextDictionary as? [String: Any] ?? ["": ""]
+        let device = context["device"] as? [String: Any]
+        XCTAssertNil(device?["locale"])
+#endif // !SDK_V10
     }
 
     func testStartUpCrash_CallsFlush() throws {
@@ -814,6 +856,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         return (sut, hub)
     }
 
+#if !SDK_V10
     private func setLocaleToGlobalScope(locale: String) {
         SentrySDK.configureScope { scope in
             guard var device = scope.contextDictionary["device"] as? [String: Any] else {
@@ -825,6 +868,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
             scope.setContext(value: device, key: "device")
         }
     }
+#endif
 
     private func assertUserInfoField(userInfo: [AnyHashable: Any], key: String, expected: String) {
         if let actual = userInfo[key] as? String {
@@ -868,9 +912,14 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         XCTAssertEqual(UIDevice.current.systemVersion, os["version"] as? String)
         #endif
 
+#if !SDK_V10
         XCTAssertEqual(Locale.autoupdatingCurrent.identifier, device["locale"] as? String)
+#else
+        XCTAssertNil(device["locale"])
+#endif
     }
 
+#if !SDK_V10
     private func assertLocaleOnHub(locale: String, hub: SentryHubInternal) {
         let context = hub.scope.contextDictionary as? [String: Any] ?? ["": ""]
 
@@ -881,6 +930,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
 
         XCTAssertEqual(locale, device["locale"] as? String)
     }
+#endif
 
     private func advanceTime(bySeconds: TimeInterval) throws {
         try XCTUnwrap(SentryDependencyContainer.sharedInstance().dateProvider as? TestCurrentDateProvider).setDate(date: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(bySeconds))

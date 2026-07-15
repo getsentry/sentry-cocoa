@@ -78,7 +78,7 @@ NS_ASSUME_NONNULL_BEGIN
                addRequest:request
         completionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
             if (error) {
-                SENTRY_LOG_ERROR(@"Error while performing request %@", requestError);
+                SENTRY_LOG_ERROR(@"Error while performing request %@", error);
             }
         }];
 }

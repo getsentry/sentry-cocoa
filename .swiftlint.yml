@@ -16,6 +16,8 @@ excluded:
   # Exclude auto-generated files from sample app builds
   - "**/Build/Intermediates.noindex/iOS-Swift.build/**/DerivedSources/**"
   - "**/Build/Intermediates.noindex/iOS-SwiftClip.build/**/DerivedSources/**"
+  - "**/worktree/**"
+  - "**/worktrees/**"
 
 only_rules:
   - class_delegate_protocol
@@ -130,7 +132,7 @@ custom_rules:
       - "./Tests/.*\\.swift"
   avoid_all_header_fields:
     name: "Careful with allHeaderFields"
-    message: "Double-check how you use allHeaderFields (https://developer.apple.com/documentation/foundation/httpurlresponse/allheaderfields). Reading all headers is fine, but its subscript is case-sensitive while HTTP/2 and HTTP/3 lowercase field names, so a single-header lookup can silently miss the header (see #8322). For a lookup, use value(forHTTPHeaderField:) or the HTTPURLResponse.value(forHTTPHeaderFieldCaseInsensitive:) extension in DefaultRateLimits.swift. If your usage is intentional, suppress this rule with a comment explaining why."
+    message: "Double-check how you use allHeaderFields (https://developer.apple.com/documentation/foundation/httpurlresponse/allheaderfields). Reading all headers is fine, but its subscript is case-sensitive while HTTP/2 and HTTP/3 lowercase field names, so a single-header lookup can silently miss the header (see #8322). For a lookup, use value(forHTTPHeaderField:) or the HTTPURLResponse.value(forHTTPHeaderFieldCaseInsensitive:) extension in HTTPURLResponse+Sentry.swift. If your usage is intentional, suppress this rule with a comment explaining why."
     regex: "allHeaderFields"
     match_kinds:
       - identifier

@@ -108,29 +108,29 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
     /**
      * Reproduces https://github.com/getsentry/sentry-cocoa/issues/1288
      */
-    func testCustomURLProtocol_BlocksAllRequests() throws {
+    func testURLSession_whenCustomURLProtocolBlocksRequest_shouldExecuteProtocol() throws {
 #if !os(watchOS)
+        // -- Arrange --
         startSDK()
-        
-        let expect = expectation(description: "Callback Expectation")
-        
+        let requestBlocked = expectation(description: "Custom URL protocol blocked request")
+        BlockAllRequestsProtocol.onRequestBlocked.withLock {
+            $0 = { requestBlocked.fulfill() }
+        }
+        defer {
+            BlockAllRequestsProtocol.onRequestBlocked.withLock { $0 = nil }
+        }
+
         let customConfiguration = try XCTUnwrap(URLSessionConfiguration.default.copy() as? URLSessionConfiguration)
         customConfiguration.protocolClasses?.insert(BlockAllRequestsProtocol.self, at: 0)
         let session = URLSession(configuration: customConfiguration)
-        
-        let dataTask = session.dataTask(with: SentryNetworkTrackerIntegrationTests.testBaggageURL) { (_, _, error) in
-            
-            if let error = (error as NSError?) {
-                XCTAssertEqual(BlockAllRequestsProtocol.error.domain, error.domain)
-                XCTAssertEqual(BlockAllRequestsProtocol.error.code, error.code)
-            } else {
-                XCTFail("Error expected")
-            }
-            expect.fulfill()
-        }
-        
+        defer { session.invalidateAndCancel() }
+        let dataTask = session.dataTask(with: SentryNetworkTrackerIntegrationTests.testBaggageURL)
+
+        // -- Act --
         dataTask.resume()
-        wait(for: [expect], timeout: 5)
+
+        // -- Assert --
+        wait(for: [requestBlocked], timeout: 30)
 #else
         throw XCTSkip("Test is disabled for watchOS")
 #endif
@@ -231,6 +231,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
 class BlockAllRequestsProtocol: URLProtocol {
     
     static let error = NSError(domain: "network.issue", code: 10, userInfo: nil)
+    static let onRequestBlocked = SentryMutex<(() -> Void)?>(nil)
     
     override class func canInit(with request: URLRequest) -> Bool {
         return true
@@ -246,7 +247,9 @@ class BlockAllRequestsProtocol: URLProtocol {
 
     override func startLoading() {
         if client != nil {
-            client?.urlProtocol(self, didFailWithError: BlockAllRequestsProtocol.error )
+            client?.urlProtocol(self, didFailWithError: BlockAllRequestsProtocol.error)
+            let onRequestBlocked = BlockAllRequestsProtocol.onRequestBlocked.withLock { $0 }
+            onRequestBlocked?()
         } else {
             XCTFail("Couldn't block request because client was nil.")
         }

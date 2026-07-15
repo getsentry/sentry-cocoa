@@ -103,6 +103,12 @@ search_issues  → check for new/regressed issues
 - **YAML tasks** — always use `yq`; do not shell out to `node` or `python` for YAML parsing
 - **GitHub** — prefer `gh` CLI over web scraping when interacting with GitHub.com
 
+## Agent Build and Test Output
+
+- Use `FOR_AGENTS=true` with SDK platform `make build-*` and `make test-*` targets to reduce terminal output.
+- Example: `make build-ios FOR_AGENTS=true` or `make test-ios FOR_AGENTS=true ONLY_TESTING=SentryTests/SentryHttpTransportTests`.
+- If reduced output does not explain a failure, inspect the updated `raw-*-output.log` files in the repository root for complete diagnostics before retrying or changing code.
+
 ## Verification Loop
 
 Run before every commit. Stop at the first failure and fix before proceeding.
@@ -115,10 +121,10 @@ make format
 make analyze
 
 # 3. Build (at minimum iOS; ideally all platforms)
-make build-ios
+make build-ios FOR_AGENTS=true
 
 # 4. Test (targeted — see Tests/AGENTS.md for ONLY_TESTING usage)
-make test-ios ONLY_TESTING=SentryTests/SentryHttpTransportTests
+make test-ios FOR_AGENTS=true ONLY_TESTING=SentryTests/SentryHttpTransportTests
 
 # 5. If the public API surface changed (Swift/ObjC public headers, @objc/public symbols)
 make generate-public-api  # regenerates sdk_api.json; commit any diff
@@ -133,15 +139,17 @@ make test-sample-iOS-Swift-ui  # if UI behavior changed
 
 ### Platform Decision Tree
 
-| Change scope                                                 | Build                                                                                                                | Test                                         |
-| ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
-| Feature code (no `#if os`)                                   | `make build-ios`                                                                                                     | `make test-ios`                              |
-| Platform-specific (`#if os(macOS)`)                          | Build that platform (e.g., `make build-macos`)                                                                       | Test that platform (e.g., `make test-macos`) |
-| Public API / core (`SentryHub`, `SentryClient`, `SentrySDK`) | `make build-ios` + `make build-macos`                                                                                | `make test-ios` (broad impact)               |
-| `SentryCrash` / C code                                       | `make build-ios` + `make build-macos`                                                                                | `make test-ios`                              |
-| `SentrySwiftUI`                                              | `make build-ios`                                                                                                     | `make test-ios`                              |
-| Build system / `Package.swift`                               | All platforms                                                                                                        | `make test`                                  |
-| Cross-platform concern                                       | All platforms (`make build-ios`, `make build-macos`, `make build-tvos`, `make build-watchos`, `make build-visionos`) | `make test`                                  |
+| Change scope                                                 | Build                                                                                                                                                                                                | Test                                                           |
+| ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| Change scope                                                 | Build                                                                                                                                                                                                | Test                                                           |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------                                                                 | -------------------------------------------------------------- |
+| Feature code (no `#if os`)                                   | `make build-ios FOR_AGENTS=true`                                                                                                                                                                     | `make test-ios FOR_AGENTS=true`                                |
+| Platform-specific (`#if os(macOS)`)                          | Build that platform (e.g., `make build-macos FOR_AGENTS=true`)                                                                                                                                       | Test that platform (e.g., `make test-macos FOR_AGENTS=true`)   |
+| Public API / core (`SentryHub`, `SentryClient`, `SentrySDK`) | `make build-ios FOR_AGENTS=true` + `make build-macos FOR_AGENTS=true`                                                                                                                                | `make test-ios FOR_AGENTS=true` (broad impact)                 |
+| `SentryCrash` / C code                                       | `make build-ios FOR_AGENTS=true` + `make build-macos FOR_AGENTS=true`                                                                                                                                | `make test-ios FOR_AGENTS=true`                                |
+| `SentrySwiftUI`                                              | `make build-ios FOR_AGENTS=true`                                                                                                                                                                     | `make test-ios FOR_AGENTS=true`                                |
+| Build system / `Package.swift`                               | All platforms                                                                                                                                                                                        | `make test FOR_AGENTS=true`                                    |
+| Cross-platform concern                                       | All platforms (`make build-ios FOR_AGENTS=true`, `make build-macos FOR_AGENTS=true`, `make build-tvos FOR_AGENTS=true`, `make build-watchos FOR_AGENTS=true`, `make build-visionos FOR_AGENTS=true`) | `make test FOR_AGENTS=true`                                    |
 
 Ensure no new issues from: static analysis, thread/address/UB sanitizers, or cross-platform dependants (React Native, Flutter, .NET, Unity).
 
@@ -184,7 +192,7 @@ Non-changelog types require `#skip-changelog` in PR description. Breaking change
 
 ## CLI
 
-See `make help` and the Makefile for commands and documentation. Key targets: `make format`, `make analyze`, `make build-ios`, `make test-ios`, `make build-xcframework-dynamic`.
+See `make help` and the Makefile for commands and documentation. Key targets: `make format`, `make analyze`, `make build-ios FOR_AGENTS=true`, `make test-ios FOR_AGENTS=true`, `make build-xcframework-dynamic`.
 
 ## Shell Scripts
 

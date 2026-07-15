@@ -528,7 +528,6 @@ class SentryNetworkTrackerTests: XCTestCase {
         options.sessionReplay.networkDetailAllowUrls = ["api.example.com"]
         options.sessionReplay.networkResponseHeaders = ["Cache-Control"]
         options.sessionReplay.networkCaptureBodies = false
-        options.experimental.enableReplayNetworkDetailsCapturing = true
 
         let scope = Scope()
         let client = TestClient(options: options)
@@ -592,6 +591,98 @@ class SentryNetworkTrackerTests: XCTestCase {
 
         clearTestState()
     }
+
+    /// Regression test for #8388: `captureResponseDetails` must read the response `Content-Type`
+    /// case-insensitively. HTTP/2 and HTTP/3 lowercase field names, so the server sends
+    /// `content-type`. If the tracker reverts to the case-sensitive `allHeaderFields["Content-Type"]`
+    /// subscript, `contentType` becomes nil and the body degrades to a `[Body not captured …]`
+    /// placeholder — failing the body assertion below.
+    ///
+    /// `HTTPURLResponse` canonicalizes `Content-Type` in its initializer, so we use
+    /// `LowercasedHeadersHTTPURLResponse` to model the lowercased wire casing.
+    func testCaptureResponseDetails_withLowercasedContentType_parsesJSONBody() throws {
+        guard #available(iOS 16.0, tvOS 16.0, *) else { return }
+
+        // -- Arrange --
+        let testUrl = URL(string: "https://api.example.com/users")!
+        let options = Options()
+        options.dsn = "https://key@sentry.io/1234"
+        options.sessionReplay.networkDetailAllowUrls = ["api.example.com"]
+        options.sessionReplay.networkCaptureBodies = true
+
+        let scope = Scope()
+        let client = TestClient(options: options)
+        let hub = TestHub(client: client, andScope: scope)
+        SentrySDKInternal.setCurrentHub(hub)
+        SentrySDK.setStart(with: options)
+
+        let tracker = SentryNetworkTracker.sharedInstance
+        tracker.enableNetworkTracking()
+        tracker.enableNetworkBreadcrumbs()
+
+        let request = URLRequest(url: testUrl)
+        let task = URLSessionDataTaskMock(request: request)
+
+        // The server sends the header lowercased, as HTTP/2 and HTTP/3 require.
+        let httpResponse = try XCTUnwrap(LowercasedHeadersHTTPURLResponse(
+            url: testUrl, statusCode: 200, headers: ["content-type": "application/json"]
+        ))
+        task.setResponse(httpResponse)
+
+        let jsonBody = Data(#"{"key":"value"}"#.utf8)
+
+        // -- Act --
+        tracker.urlSessionTask(task, setState: .running)
+        tracker.captureResponseDetails(jsonBody, response: httpResponse, request: testUrl, task: task)
+        tracker.urlSessionTask(task, setState: .completed)
+
+        // -- Assert --
+        let breadcrumbs = try XCTUnwrap(Dynamic(scope).breadcrumbArray as [Breadcrumb]?)
+        let breadcrumb = try XCTUnwrap(breadcrumbs.first)
+        let detailsObject = try XCTUnwrap(
+            breadcrumb.data?[SentryReplayNetworkDetails.replayNetworkDetailsKey] as? SentryReplayNetworkDetails
+        )
+        let networkDetails = detailsObject.serialize()
+        let responseDict = try XCTUnwrap(networkDetails["response"] as? [String: Any])
+
+        // The Content-Type is read and reported with the lowercased wire casing the server sent.
+        let responseHeaders = try XCTUnwrap(responseDict["headers"] as? [String: String])
+        XCTAssertEqual(responseHeaders["content-type"], "application/json")
+
+        // The Content-Type is used to parse the body as JSON. Reverting the case-insensitive lookup
+        // makes `contentType` nil, so the body becomes the "[Body not captured]" placeholder and the
+        // unwrap below fails.
+        let bodyDict = try XCTUnwrap(responseDict["body"] as? [String: Any])
+        let parsedBody = try XCTUnwrap(bodyDict["body"] as? [String: Any])
+        XCTAssertEqual(parsedBody["key"] as? String, "value")
+
+        clearTestState()
+    }
+
+    /// `HTTPURLResponse` whose `allHeaderFields` returns the exact (lowercased) casing a server
+    /// sends over HTTP/2 or HTTP/3. The public initializer canonicalizes well-known headers such as
+    /// `Content-Type`, so overriding `allHeaderFields` is the only way to model the wire casing and
+    /// reproduce #8388.
+    private final class LowercasedHeadersHTTPURLResponse: HTTPURLResponse, @unchecked Sendable {
+        private let wireHeaders: [AnyHashable: Any]
+
+        init?(url: URL, statusCode: Int, headers: [String: String]) {
+            self.wireHeaders = headers
+            super.init(url: url, statusCode: statusCode, httpVersion: "2.0", headerFields: headers)
+        }
+
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+
+        // Intentionally returns the raw (lowercased) wire casing to reproduce #8388; that's the
+        // whole point of this mock, so the case-sensitivity lint rule doesn't apply here.
+        // swiftlint:disable:next avoid_all_header_fields
+        override var allHeaderFields: [AnyHashable: Any] {
+            wireHeaders
+        }
+    }
+
 #endif
 
     func testBreadcrumb_GraphQLEnabled() throws {

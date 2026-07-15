@@ -289,10 +289,11 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     }
 
     func getUIEventTracker(_ options: Options) -> SentryUIEventTracker {
-        let mode = SentryUIEventTrackerTransactionMode(idleTimeout: options.idleTimeout)
+        let eventProcessor = SentryUIEventTrackerTransactionEventProcessor(idleTimeout: options.idleTimeout)
         return SentryUIEventTracker(
-            mode: mode,
-            reportAccessibilityIdentifier: options.reportAccessibilityIdentifier
+            options: .init(reportAccessibilityIdentifier: options.reportAccessibilityIdentifier),
+            eventProcessor: eventProcessor,
+            swizzleWrapper: swizzleWrapper
         )
     }
 
@@ -766,12 +767,7 @@ protocol OptionsDeserializer {
 
 struct DefaultOptionsDeserializer: OptionsDeserializer {
     func options(from dictionary: [String: Any]) throws -> Options {
-        guard let options = try SentryOptionsHelper.makeOptions(fromDictionary: dictionary) as? Options else {
-            throw NSError(domain: "SentryInternalApi", code: 1, userInfo: [
-                NSLocalizedDescriptionKey: "Failed to create options from dictionary"
-            ])
-        }
-        return options
+        try Options(dictionary: dictionary)
     }
 }
 
