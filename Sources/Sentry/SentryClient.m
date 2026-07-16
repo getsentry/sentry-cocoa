@@ -562,7 +562,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         // Record a counted lost event in case preparing the event (e.g. encoding the event) failed.
         // This is used to determine if replay events are missing due to an error in the SDK.
         [self recordLostEvent:kSentryDataCategoryReplay
-                       reason:kSentryDiscardReasonInsufficientData
+                       reason:SentryDiscardReasonInsufficientData
                      quantity:1];
         return;
     }
@@ -706,7 +706,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     if (eventIsNotATransaction && eventIsNotReplay && eventIsNotUserFeedback &&
         [self isSampled:self.options.sampleRate]) {
         SENTRY_LOG_DEBUG(@"Event got sampled, will not send the event");
-        [self recordLostEvent:kSentryDataCategoryError reason:kSentryDiscardReasonSampleRate];
+        [self recordLostEvent:kSentryDataCategoryError reason:SentryDiscardReasonSampleRate];
         return nil;
     }
 
@@ -831,7 +831,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
         if (eventIsATransactionClass) {
             [self recordPartiallyDroppedSpans:transaction
-                                   withReason:kSentryDiscardReasonBeforeSend
+                                   withReason:SentryDiscardReasonBeforeSend
                          withCurrentSpanCount:&currentSpanCount];
         }
     }
@@ -839,17 +839,17 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     if (eventIsNotUserFeedback && event != nil && nil != self.options.beforeSend) {
         event = self.options.beforeSend(SENTRY_UNWRAP_NULLABLE(SentryEvent, event));
         if (event == nil) {
-            [self recordLost:eventIsNotATransaction reason:kSentryDiscardReasonBeforeSend];
+            [self recordLost:eventIsNotATransaction reason:SentryDiscardReasonBeforeSend];
             if (eventIsATransaction) {
                 // We dropped the whole transaction, the dropped count includes all child spans + 1
                 // root span
-                [self recordLostSpanWithReason:kSentryDiscardReasonBeforeSend
+                [self recordLostSpanWithReason:SentryDiscardReasonBeforeSend
                                       quantity:currentSpanCount + 1];
             }
         } else {
             if (eventIsATransactionClass) {
                 [self recordPartiallyDroppedSpans:(SentryTransaction *)event
-                                       withReason:kSentryDiscardReasonBeforeSend
+                                       withReason:SentryDiscardReasonBeforeSend
                              withCurrentSpanCount:&currentSpanCount];
             }
         }
@@ -860,17 +860,17 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         // might trigger e.g. unnecessary replay capture
         event = [self callEventProcessors:SENTRY_UNWRAP_NULLABLE(SentryEvent, event)];
         if (event == nil) {
-            [self recordLost:eventIsNotATransaction reason:kSentryDiscardReasonEventProcessor];
+            [self recordLost:eventIsNotATransaction reason:SentryDiscardReasonEventProcessor];
             if (eventIsATransaction) {
                 // We dropped the whole transaction, the dropped count includes all child spans + 1
                 // root span
-                [self recordLostSpanWithReason:kSentryDiscardReasonEventProcessor
+                [self recordLostSpanWithReason:SentryDiscardReasonEventProcessor
                                       quantity:currentSpanCount + 1];
             }
         } else {
             if (eventIsATransactionClass) {
                 [self recordPartiallyDroppedSpans:(SentryTransaction *)event
-                                       withReason:kSentryDiscardReasonEventProcessor
+                                       withReason:SentryDiscardReasonEventProcessor
                              withCurrentSpanCount:&currentSpanCount];
             }
         }
@@ -1191,9 +1191,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         }
         NSUInteger byteCount = [SentryLogClientReport serializedByteCountForLog:log];
         [strongSelf recordLostEvent:kSentryDataCategoryLogItem
-                             reason:kSentryDiscardReasonBeforeSend];
+                             reason:SentryDiscardReasonBeforeSend];
         [strongSelf recordLostEvent:kSentryDataCategoryLogByte
-                             reason:kSentryDiscardReasonBeforeSend
+                             reason:SentryDiscardReasonBeforeSend
                            quantity:byteCount];
     }];
 }

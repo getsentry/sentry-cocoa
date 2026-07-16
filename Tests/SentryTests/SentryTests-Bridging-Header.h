@@ -78,7 +78,6 @@
 #import "SentryDefaultAppStateManager.h"
 #import "SentryDefaultThreadInspector.h"
 #import "SentryDefaultUIViewControllerPerformanceTracker.h"
-#import "SentryDiscardReason.h"
 #import "SentryDiscardReasonMapper.h"
 #import "SentryEnvelopeAttachmentHeader.h"
 #import "SentryEnvelopeRateLimit.h"
