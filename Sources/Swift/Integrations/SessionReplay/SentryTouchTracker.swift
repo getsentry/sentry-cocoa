@@ -68,7 +68,10 @@ import UIKit
         self.init(dateProvider: dateProvider, scale: scale, dispatchQueue: SentryDispatchQueueWrapper())
     }
     
+    var isEnabled = true
+
     public func trackTouchFrom(event: UIEvent) {
+        guard isEnabled else { return }
         guard let touches = event.allTouches else { return }
         let timestamp = event.timestamp
         
