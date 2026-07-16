@@ -70,7 +70,8 @@ ever becomes a problem.
 Phase A1 (`SentryRequestManager` → Swift) ✅ **merged** → PR #8428 (`8e6a36fbd` on `main`).
 Phase A2 (`SentryTransport`) 📝 **draft PR #8443** open — but see **plan revision** below: we are
 converting the two data enums to Swift FIRST so the protocol can use the real types instead of `UInt`.
-Phase A2a1 (`SentryDiscardReason` → Swift) 📝 **draft PR #8444** open (iOS+macOS build + tests green).
+Phase A2a1 (`SentryDiscardReason` → Swift) ✅ **PR #8444 CI green + approved, ready to merge.**
+Phase A2a2 (`SentryDataCategory` → Swift) 📝 **draft PR #8451** open, stacked on #8444.
 See "PR tracking" and "✅ Chosen approach" below.
 
 ### 🔁 Plan revision (2026-07-16, user request)
@@ -100,8 +101,8 @@ the **plan/WIP tracker only** — its commits are NOT the PRs. Each PR is a clea
 | Phase                                              | PR branch                                 | PR                                                           | Status                                                                               |
 | -------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------ |
 | A1 `SentryRequestManager` → Swift                  | `ref/convert-request-manager-to-swift`    | [#8428](https://github.com/getsentry/sentry-cocoa/pull/8428) | ✅ **merged** (`8e6a36fbd`)                                                          |
-| A2a1 `SentryDiscardReason` → Swift                 | `ref/convert-discard-reason-to-swift`     | [#8444](https://github.com/getsentry/sentry-cocoa/pull/8444) | 📝 **draft PR open** — iOS+macOS build + tests green                                 |
-| A2a2 `SentryDataCategory` → Swift                  | _tbd_                                     | —                                                            | 🔜 next — rebase on A2a1 (~138 refs, 14 files)                                       |
+| A2a1 `SentryDiscardReason` → Swift                 | `ref/convert-discard-reason-to-swift`     | [#8444](https://github.com/getsentry/sentry-cocoa/pull/8444) | ✅ **CI green, approved, ready to merge** (merged main + regen)                      |
+| A2a2 `SentryDataCategory` → Swift                  | `ref/convert-data-category-to-swift`      | [#8451](https://github.com/getsentry/sentry-cocoa/pull/8451) | 📝 **draft PR open**, stacked on #8444 — iOS+macOS build + 72 tests green            |
 | A2 `SentryTransport` + `SentryFlushResult` → Swift | `ref/convert-transport-protocol-to-swift` | [#8443](https://github.com/getsentry/sentry-cocoa/pull/8443) | 📝 draft PR open (uses `UInt`) — **rebase to real enum types after A2a1+A2a2 merge** |
 | A3 `SentrySpotlightTransport` → Swift              | _tbd_                                     | —                                                            | ⛔ depends on A2                                                                     |
 
@@ -547,3 +548,24 @@ make generate-public-api   # only if public API surface changed; commit sdk_api.
   (70, 0 failures), no `sdk_api.json` change. **Next: A2a2** — same treatment for `SentryDataCategory`
   (larger: ~138 refs, 14 files), then rebase A2 (#8443) to the real enum types and drop the `.rawValue`
   churn. A3 (`SentrySpotlightTransport`) last.
+- 2026-07-16: **Public API digest — `@objc` enums ARE tracked.** Corrected an earlier wrong assumption:
+  `swift-api-digester` includes `@objc` enums (SPI or not) in `sdk_api.json` (e.g. the pre-existing
+  `@objc @_spi(Private) enum SentryReplayType`). So both new enums require `make generate-public-api`.
+  That requires **Xcode 16** (Xcode 26 omits the ObjC public API) **with the iOS platform installed** —
+  device-platform stub causes `xcodebuild -sdk iphoneos` to fall back to macOS and the digester to fail
+  with "Failed to load module". Ran it for #8444 (526 additive lines) and #8451.
+- 2026-07-16: **#8444 CI failure was stale-baseline, not our change.** The `Check API Stability` job
+  flagged `SentryObjC` + ObjC/ObjCCompat drift removing `SentryObjCDataCollection*` symbols — unrelated
+  to the enum. Root cause: `main` merged `c2a01c0f3` (gate DataCollection APIs behind SDK_V10) **without
+  regenerating the committed digests**, and our branch predated it. Fix: merge `origin/main` +
+  `make generate-public-api` (removed the now-gated symbols, 2900 deletions), verified a fresh regen
+  yields zero diff. **#8444 now fully green (259 pass) + approved, ready to merge.**
+- 2026-07-16: **A2a2 draft PR opened → #8451** (`ref/convert-data-category-to-swift`, stacked on #8444).
+  `SentryDataCategory` → Swift `@objc @_spi(Private) enum: UInt` (17 cases, raw values preserved incl.
+  the unused-but-kept ones). `SentryDataCategoryMapper` **ported to Swift**: mapping lives on the enum
+  (`name`, `init(itemType:)`, `init(name:)`); ObjC callers use `@objc SentryDataCategoryMapper` class
+  methods, Swift callers use native initializers. This was needed because Swift production code
+  (`DefaultRateLimits`, `RateLimitParser`, `SentryFileManager`) calls the enum-returning mapper funcs,
+  which a forward-declared (incomplete) enum can't satisfy — a wrinkle `SentryDiscardReason` didn't hit.
+  Verified: iOS+macOS build ✅, analyze ✅, 72 transport/rate-limit tests ✅, digest regenerated.
+  **Next: rebase A2 (#8443) to the real enum types once #8444 + #8451 merge; then A3.**
