@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Breaking Changes
+
+- Only expose `experimental.dataCollection` APIs in SDK V10 (#8435)
+
+## 9.22.0
+
 ### Features
 
 - Mark opt in option `swiftAsyncStacktraces` as stable (#8373)
@@ -17,7 +23,6 @@
 
 ### Improvements
 
-- Only expose experimental data collection APIs in SDK V10 (#8435)
 - Remove `enableReplayNetworkDetailsCapturing` experimental flag; network detail capture is now enabled automatically when `networkDetailAllowUrls` is non-empty (#8396)
 
 ## 9.21.0

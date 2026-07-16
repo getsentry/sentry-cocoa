@@ -1,6 +1,5 @@
 #import "SentryDefines.h"
 #import "SentryEnvelopeRateLimit.h"
-#import "SentryRequestManager.h"
 #import "SentryTransport.h"
 
 @class SentryFileManager;
@@ -11,6 +10,7 @@
 @class SentryReachability;
 @protocol SentryCurrentDateProvider;
 @protocol SentryRateLimits;
+@protocol SentryRequestManager;
 
 NS_ASSUME_NONNULL_BEGIN
 
