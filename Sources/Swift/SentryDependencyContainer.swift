@@ -519,6 +519,14 @@ extension SentryDependencyContainer: DateProviderProvider {}
 
 extension SentryDependencyContainer: AutoSessionTrackingProvider { }
 
+#if ENABLE_KSCRASH
+extension SentryDependencyContainer: KSCrashInstallerProvider {
+    public var kscrashInstaller: any KSCrashInstalling {
+        KSCrashInstaller()
+    }
+}
+#endif
+
 protocol FileIOTrackerProvider {
     var fileIOTracker: SentryFileIOTracker { get }
 }

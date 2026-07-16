@@ -7,7 +7,7 @@ import Foundation
 // MARK: - Dependency Provider
 
 /// Provides dependencies for `SentryKSCrashIntegration`.
-typealias KSCrashIntegrationProvider = DateProviderProvider
+typealias KSCrashIntegrationProvider = KSCrashInstallerProvider
 
 // MARK: - SentryKSCrashIntegration
 
@@ -24,8 +24,22 @@ final class SentryKSCrashIntegration<Dependencies: KSCrashIntegrationProvider>: 
 
         self.options = options
         super.init()
- 
+
+        do {
+            try dependencies.kscrashInstaller.install(
+                installPath: options.cacheDirectoryPath,
+                monitors: MonitorType.productionSafeMinimal.rawValue,
+                enableSwapCxaThrow: options.experimental.enableUnhandledCPPExceptionsV2
+            )
+        } catch {
+            SentrySDKLog.error("KSCrash install failed: \(error)")
+            return nil
+        }
+
         SentrySDKInternal.crashReporterInstalled = true
+        if dependencies.kscrashInstaller.crashedLastLaunch {
+            SentrySDKInternal.fatalDetected = true
+        }
     }
 
     // MARK: - SwiftIntegration
