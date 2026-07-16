@@ -1831,6 +1831,7 @@
 			};
 			membershipExceptions = (
 				Info.plist,
+				Integrations/KSCrash/KSCrashInstallerTests.swift,
 				"ViewCapture/SentryUIRedactBuilderTests+UIKit.swift",
 			);
 			target = 63AA76641EB8CB2F00D153DE /* SentryTests */;
