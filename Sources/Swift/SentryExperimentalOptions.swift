@@ -16,11 +16,15 @@ public final class SentryExperimentalOptions: NSObject {
     /// When enabled, the SDK uses a more efficient mechanism for detecting watchdog terminations.
     public var enableWatchdogTerminationsV2 = false
 
+    #if SDK_V10
+    // MARK: - Data Collection
+
     /// Configuration for what data the SDK collects automatically (e.g. headers, cookies, query params, bodies, user identity).
     ///
     /// - Important: Replaces `sendDefaultPii` with granular per-category control.
     /// - SeeAlso: https://docs.sentry.io/platforms/apple/configuration/options/#dataCollection
     public var dataCollection = SentryDataCollection.Options()
+    #endif // SDK_V10
 
     /**
      * When enabled, the SDK sends a standalone app start transaction instead of attaching app
@@ -30,10 +34,12 @@ public final class SentryExperimentalOptions: NSObject {
 
     // swiftlint:disable:next missing_docs
     @_spi(Private) public func populateFrom(dict options: [String: Any]?) {
+        #if SDK_V10
         guard let options else { return }
 
         if let dataCollection = options["dataCollection"] as? [String: Any] {
             self.dataCollection = SentryDataCollection.Options(dictionary: dataCollection)
         }
+        #endif // SDK_V10
     }
 }

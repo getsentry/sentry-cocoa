@@ -1,3 +1,4 @@
+#if SDK_V10
 extension SentryDataCollection {
     /// Controls how key-value data (headers, cookies, query params) is collected and filtered.
     ///
@@ -40,3 +41,4 @@ extension SentryDataCollection {
         }
     }
 }
+#endif // SDK_V10

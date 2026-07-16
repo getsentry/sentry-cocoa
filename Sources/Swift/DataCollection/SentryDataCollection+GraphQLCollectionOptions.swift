@@ -1,3 +1,4 @@
+#if SDK_V10
 extension SentryDataCollection {
     /// Controls collection of GraphQL documents and variables.
     ///
@@ -38,3 +39,4 @@ extension SentryDataCollection {
 
     }
 }
+#endif // SDK_V10

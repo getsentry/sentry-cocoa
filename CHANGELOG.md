@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Breaking Changes
+
+- Only expose `experimental.dataCollection` APIs in SDK V10 (#8435)
+
 ## 9.22.0
 
 ### Features
