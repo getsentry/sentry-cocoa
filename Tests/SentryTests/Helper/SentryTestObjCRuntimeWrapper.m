@@ -64,4 +64,15 @@
     return self.imageName;
 }
 
+- (NSArray<Class> *)classesForImage:(const char *)image
+{
+    NSArray<Class> *result = [self.objcRuntimeWrapper classesForImage:image];
+
+    if (self.classes != nil) {
+        result = self.classes(result);
+    }
+
+    return result;
+}
+
 @end

@@ -40,49 +40,42 @@ class SentrySubClassFinder: NSObject {
                 return
             }
 
-            var count: UInt32 = 0
-            guard let classes = self.objcRuntimeWrapper.copyClassNamesForImage(cImageName, &count) else {
-                return
-            }
+            // Get the image's classes from its objc class list. This gives us the classes without
+            // realizing them. We must not use NSClassFromString to find the subclasses, because it
+            // realizes the class, and realizing a class whose Swift metadata references an
+            // `@available`-gated newer-framework type crashes on older OS versions
+            // (https://github.com/getsentry/sentry-cocoa/issues/8152,
+            // https://github.com/swiftlang/swift/issues/72657). Walking the superclass chain with
+            // `class_getSuperclass` below doesn't realize any class, so it can't trigger that crash.
+            let classes = self.objcRuntimeWrapper.classes(forImage: cImageName)
 
-            SentrySDKLog.debug("Found \(count) number of classes in image: \(imageName).")
+            SentrySDKLog.debug("Found \(classes.count) number of classes in image: \(imageName).")
 
-            // Storing the actual classes in an NSArray would call initializer of the class, which we
-            // must avoid as we are on a background thread here and dealing with UIViewControllers,
-            // which assume they are running on the main thread. Therefore, we store the class name
-            // instead so we can search for the subclasses on a background thread. We can't use
-            // NSObject:isSubclassOfClass as not all classes in the runtime in classes inherit from
-            // NSObject and a call to isSubclassOfClass would call the initializer of the class, which
-            // we can't allow because of the problem with UIViewControllers mentioned above.
-            //
-            // Turns out the approach to search all the view controllers inside the app binary image is
-            // fast and we don't need to include this restriction that will cause confusion.
-            // In a project with 1000 classes (a big project), it took only ~3ms to check all classes.
+            // We keep the class names instead of the classes, so we can hand them to the swizzling on
+            // the main thread. Sending a message to a class (for example adding it to an NSArray
+            // retains it) calls its initializer, which we must avoid on this background thread as
+            // UIViewControllers assume they run on the main thread. Walking the superclass chain and
+            // reading the name with `class_getName` don't message the class.
             var classesToSwizzle: [String] = []
+            for cls in classes {
+                guard self.isClass(cls, subClassOf: viewControllerClass) else {
+                    continue
+                }
 
-            for i in 0..<Int(count) {
-                let classNamePtr = classes[i]
-                let className = String(cString: classNamePtr)
+                let className = String(cString: class_getName(cls))
 
+                // It is vital to avoid swizzling the excluded classes because we had crashes for
+                // specific classes, such as https://github.com/getsentry/sentry-cocoa/issues/3798.
                 let shouldExcludeClassFromSwizzling = SentrySwizzleClassNameExclude.shouldExcludeClass(
                     className: className,
                     swizzleClassNameExcludes: self.swizzleClassNameExcludes
                 )
-
-                // It is vital to avoid calling NSClassFromString for the excluded classes because we
-                // had crashes for specific classes when calling NSClassFromString, such as
-                // https://github.com/getsentry/sentry-cocoa/issues/3798.
                 if shouldExcludeClassFromSwizzling {
                     continue
                 }
 
-                guard let cls = NSClassFromString(className) else { continue }
-                if self.isClass(cls, subClassOf: viewControllerClass) {
-                    classesToSwizzle.append(className)
-                }
+                classesToSwizzle.append(className)
             }
-
-            free(classes)
 
             self.dispatchQueue.dispatchAsyncOnMainQueueIfNotMainThread {
                 for className in classesToSwizzle {
@@ -102,7 +95,7 @@ class SentrySubClassFinder: NSObject {
         guard childClass != nil, childClass != parentClass else {
             return false
         }
-        
+
         var currentClass: AnyClass? = childClass
 
         // Using a do while loop, like pointed out in Cocoa with Love

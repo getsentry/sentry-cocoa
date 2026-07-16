@@ -362,6 +362,10 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * A set of class names to ignore for swizzling.
  * The SDK checks if a class name of a class to swizzle contains a class name of this set.
+ * @note The SDK discovers @c UIViewController subclasses to swizzle without realizing unrelated
+ * classes, so it no longer crashes by default for classes that reference @c \@available -gated
+ * APIs. Use this option only as a fallback for the rare case of a @c UIViewController subclass that
+ * itself crashes when realized on an unsupported OS version.
  * @note Default is an empty set.
  */
 @property (nonatomic, copy) NSSet<NSString *> *swizzleClassNameExcludes;
