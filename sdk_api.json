@@ -38431,6 +38431,532 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
+                    "name": "SentryDiscardReason",
+                    "printedName": "Sentry.SentryDiscardReason",
+                    "usr": "c:@M@Sentry@E@SentryDiscardReason"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Sentry.SentryDiscardReason?",
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "UInt",
+                "printedName": "Swift.UInt",
+                "usr": "s:Su"
+              }
+            ],
+            "declKind": "Constructor",
+            "implicit": true,
+            "init_kind": "Designated",
+            "kind": "Constructor",
+            "mangledName": "$sSo19SentryDiscardReasonV8rawValueABSgSu_tcfc",
+            "moduleName": "Sentry",
+            "name": "init",
+            "printedName": "init(rawValue:)",
+            "usr": "s:So19SentryDiscardReasonV8rawValueABSgSu_tcfc"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "UInt",
+                "printedName": "Swift.UInt",
+                "usr": "s:Su"
+              }
+            ],
+            "declKind": "TypeAlias",
+            "implicit": true,
+            "kind": "TypeAlias",
+            "mangledName": "$sSo19SentryDiscardReasonV8RawValuea",
+            "moduleName": "Sentry",
+            "name": "RawValue",
+            "printedName": "RawValue",
+            "usr": "s:So19SentryDiscardReasonV8RawValuea"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryDiscardReason",
+                        "printedName": "Sentry.SentryDiscardReason",
+                        "usr": "c:@M@Sentry@E@SentryDiscardReason"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryDiscardReason.Type"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryDiscardReason",
+                    "printedName": "Sentry.SentryDiscardReason",
+                    "usr": "c:@M@Sentry@E@SentryDiscardReason"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryDiscardReason.Type) -> Sentry.SentryDiscardReason"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "moduleName": "Sentry",
+            "name": "beforeSend",
+            "printedName": "beforeSend",
+            "usr": "c:@M@Sentry@E@SentryDiscardReason@SentryDiscardReasonBeforeSend"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryDiscardReason",
+                        "printedName": "Sentry.SentryDiscardReason",
+                        "usr": "c:@M@Sentry@E@SentryDiscardReason"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryDiscardReason.Type"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryDiscardReason",
+                    "printedName": "Sentry.SentryDiscardReason",
+                    "usr": "c:@M@Sentry@E@SentryDiscardReason"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryDiscardReason.Type) -> Sentry.SentryDiscardReason"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "moduleName": "Sentry",
+            "name": "cacheOverflow",
+            "printedName": "cacheOverflow",
+            "usr": "c:@M@Sentry@E@SentryDiscardReason@SentryDiscardReasonCacheOverflow"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryDiscardReason",
+                        "printedName": "Sentry.SentryDiscardReason",
+                        "usr": "c:@M@Sentry@E@SentryDiscardReason"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryDiscardReason.Type"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryDiscardReason",
+                    "printedName": "Sentry.SentryDiscardReason",
+                    "usr": "c:@M@Sentry@E@SentryDiscardReason"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryDiscardReason.Type) -> Sentry.SentryDiscardReason"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "moduleName": "Sentry",
+            "name": "eventProcessor",
+            "printedName": "eventProcessor",
+            "usr": "c:@M@Sentry@E@SentryDiscardReason@SentryDiscardReasonEventProcessor"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryDiscardReason",
+                        "printedName": "Sentry.SentryDiscardReason",
+                        "usr": "c:@M@Sentry@E@SentryDiscardReason"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryDiscardReason.Type"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryDiscardReason",
+                    "printedName": "Sentry.SentryDiscardReason",
+                    "usr": "c:@M@Sentry@E@SentryDiscardReason"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryDiscardReason.Type) -> Sentry.SentryDiscardReason"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "moduleName": "Sentry",
+            "name": "insufficientData",
+            "printedName": "insufficientData",
+            "usr": "c:@M@Sentry@E@SentryDiscardReason@SentryDiscardReasonInsufficientData"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryDiscardReason",
+                        "printedName": "Sentry.SentryDiscardReason",
+                        "usr": "c:@M@Sentry@E@SentryDiscardReason"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryDiscardReason.Type"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryDiscardReason",
+                    "printedName": "Sentry.SentryDiscardReason",
+                    "usr": "c:@M@Sentry@E@SentryDiscardReason"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryDiscardReason.Type) -> Sentry.SentryDiscardReason"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "moduleName": "Sentry",
+            "name": "networkError",
+            "printedName": "networkError",
+            "usr": "c:@M@Sentry@E@SentryDiscardReason@SentryDiscardReasonNetworkError"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryDiscardReason",
+                        "printedName": "Sentry.SentryDiscardReason",
+                        "usr": "c:@M@Sentry@E@SentryDiscardReason"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryDiscardReason.Type"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryDiscardReason",
+                    "printedName": "Sentry.SentryDiscardReason",
+                    "usr": "c:@M@Sentry@E@SentryDiscardReason"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryDiscardReason.Type) -> Sentry.SentryDiscardReason"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "moduleName": "Sentry",
+            "name": "queueOverflow",
+            "printedName": "queueOverflow",
+            "usr": "c:@M@Sentry@E@SentryDiscardReason@SentryDiscardReasonQueueOverflow"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryDiscardReason",
+                        "printedName": "Sentry.SentryDiscardReason",
+                        "usr": "c:@M@Sentry@E@SentryDiscardReason"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryDiscardReason.Type"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryDiscardReason",
+                    "printedName": "Sentry.SentryDiscardReason",
+                    "usr": "c:@M@Sentry@E@SentryDiscardReason"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryDiscardReason.Type) -> Sentry.SentryDiscardReason"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "moduleName": "Sentry",
+            "name": "rateLimitBackoff",
+            "printedName": "rateLimitBackoff",
+            "usr": "c:@M@Sentry@E@SentryDiscardReason@SentryDiscardReasonRateLimitBackoff"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "UInt",
+                    "printedName": "Swift.UInt",
+                    "usr": "s:Su"
+                  }
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$sSo19SentryDiscardReasonV8rawValueSuvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:So19SentryDiscardReasonV8rawValueSuvg"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "UInt",
+                "printedName": "Swift.UInt",
+                "usr": "s:Su"
+              }
+            ],
+            "declKind": "Var",
+            "implicit": true,
+            "kind": "Var",
+            "mangledName": "$sSo19SentryDiscardReasonV8rawValueSuvp",
+            "moduleName": "Sentry",
+            "name": "rawValue",
+            "printedName": "rawValue",
+            "usr": "s:So19SentryDiscardReasonV8rawValueSuvp"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryDiscardReason",
+                        "printedName": "Sentry.SentryDiscardReason",
+                        "usr": "c:@M@Sentry@E@SentryDiscardReason"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryDiscardReason.Type"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryDiscardReason",
+                    "printedName": "Sentry.SentryDiscardReason",
+                    "usr": "c:@M@Sentry@E@SentryDiscardReason"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryDiscardReason.Type) -> Sentry.SentryDiscardReason"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "moduleName": "Sentry",
+            "name": "sampleRate",
+            "printedName": "sampleRate",
+            "usr": "c:@M@Sentry@E@SentryDiscardReason@SentryDiscardReasonSampleRate"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryDiscardReason",
+                        "printedName": "Sentry.SentryDiscardReason",
+                        "usr": "c:@M@Sentry@E@SentryDiscardReason"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryDiscardReason.Type"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryDiscardReason",
+                    "printedName": "Sentry.SentryDiscardReason",
+                    "usr": "c:@M@Sentry@E@SentryDiscardReason"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryDiscardReason.Type) -> Sentry.SentryDiscardReason"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "moduleName": "Sentry",
+            "name": "sendError",
+            "printedName": "sendError",
+            "usr": "c:@M@Sentry@E@SentryDiscardReason@SentryDiscardReasonSendError"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$sSQ",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$sSH",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "UInt",
+                        "printedName": "Swift.UInt",
+                        "usr": "s:Su"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "RawValue",
+                    "printedName": "Sentry.SentryDiscardReason.RawValue"
+                  }
+                ],
+                "kind": "TypeWitness",
+                "name": "RawValue",
+                "printedName": "RawValue"
+              }
+            ],
+            "kind": "Conformance",
+            "mangledName": "$sSY",
+            "name": "RawRepresentable",
+            "printedName": "RawRepresentable",
+            "usr": "s:SY"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8SendableP",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP"
+          }
+        ],
+        "declAttributes": [
+          "Dynamic",
+          "ObjC",
+          "Sendable",
+          "SynthesizedProtocol",
+          "SynthesizedProtocol"
+        ],
+        "declKind": "Enum",
+        "enumRawTypeName": "UInt",
+        "kind": "TypeDecl",
+        "moduleName": "Sentry",
+        "name": "SentryDiscardReason",
+        "objc_name": "SentryDiscardReason",
+        "printedName": "SentryDiscardReason",
+        "usr": "c:@M@Sentry@E@SentryDiscardReason"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
                     "name": "String",
                     "printedName": "Swift.String",
                     "usr": "s:SS"
