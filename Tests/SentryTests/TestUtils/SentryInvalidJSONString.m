@@ -46,12 +46,10 @@ NS_ASSUME_NONNULL_BEGIN
         @[ @"__CFStringEncodeByteStream", @"+[_NSJSONReader validForJSON:depth:allowFragments:]" ];
 
     NSString *callStackSymbol = NSThread.callStackSymbols[1];
-    NSLog(@"running on symbol: %@", callStackSymbol);
 
     BOOL shouldIgnoreInvocation = NO;
     for (NSString *symbol in ignoredSymbols) {
         if ([callStackSymbol containsString:symbol]) {
-            NSLog(@"ignoring invocation because: %@", symbol);
             shouldIgnoreInvocation = YES;
         }
     }
