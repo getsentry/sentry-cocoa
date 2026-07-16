@@ -166,4 +166,83 @@ class SentryHttpBodyTypeTests: XCTestCase {
         XCTAssertEqual(bodyTypes, [.incomingRequest])
         #endif
     }
+
+    // MARK: - Strings Init
+
+    func testInitWithStrings_whenAllKnownValuesArePresent_shouldReturnAllBodyTypes() {
+        // -- Arrange --
+        let strings = ["incomingRequest", "outgoingRequest", "incomingResponse", "outgoingResponse"]
+
+        // -- Act --
+        let bodyTypes = SentryDataCollection.HttpBodyType(strings: strings)
+
+        // -- Assert --
+        XCTAssertEqual(bodyTypes, .all)
+    }
+
+    func testInitWithStrings_whenIncomingRequestIsPresent_shouldReturnIncomingRequest() {
+        // -- Arrange --
+        let strings = ["incomingRequest"]
+
+        // -- Act --
+        let bodyTypes = SentryDataCollection.HttpBodyType(strings: strings)
+
+        // -- Assert --
+        XCTAssertEqual(bodyTypes, .incomingRequest)
+    }
+
+    func testInitWithStrings_whenOutgoingRequestIsPresent_shouldReturnOutgoingRequest() {
+        // -- Arrange --
+        let strings = ["outgoingRequest"]
+
+        // -- Act --
+        let bodyTypes = SentryDataCollection.HttpBodyType(strings: strings)
+
+        // -- Assert --
+        XCTAssertEqual(bodyTypes, .outgoingRequest)
+    }
+
+    func testInitWithStrings_whenIncomingResponseIsPresent_shouldReturnIncomingResponse() {
+        // -- Arrange --
+        let strings = ["incomingResponse"]
+
+        // -- Act --
+        let bodyTypes = SentryDataCollection.HttpBodyType(strings: strings)
+
+        // -- Assert --
+        XCTAssertEqual(bodyTypes, .incomingResponse)
+    }
+
+    func testInitWithStrings_whenOutgoingResponseIsPresent_shouldReturnOutgoingResponse() {
+        // -- Arrange --
+        let strings = ["outgoingResponse"]
+
+        // -- Act --
+        let bodyTypes = SentryDataCollection.HttpBodyType(strings: strings)
+
+        // -- Assert --
+        XCTAssertEqual(bodyTypes, .outgoingResponse)
+    }
+
+    func testInitWithStrings_whenArrayIsEmpty_shouldReturnEmptyOptionSet() {
+        // -- Arrange --
+        let strings: [String] = []
+
+        // -- Act --
+        let bodyTypes = SentryDataCollection.HttpBodyType(strings: strings)
+
+        // -- Assert --
+        XCTAssertEqual(bodyTypes, [])
+    }
+
+    func testInitWithStrings_whenUnknownValuesArePresent_shouldIgnoreUnknownValues() {
+        // -- Arrange --
+        let strings = ["incomingRequest", "unknown"]
+
+        // -- Act --
+        let bodyTypes = SentryDataCollection.HttpBodyType(strings: strings)
+
+        // -- Assert --
+        XCTAssertEqual(bodyTypes, [.incomingRequest])
+    }
 }
