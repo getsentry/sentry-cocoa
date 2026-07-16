@@ -22166,6 +22166,79 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
+                    "name": "Options",
+                    "printedName": "Sentry.SentryDataCollection.Options",
+                    "usr": "s:6Sentry0A14DataCollectionO7OptionsV"
+                  }
+                ],
+                "declAttributes": [
+                  "Final"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry7OptionsC14dataCollectionAA0a4DataD0OABVvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry7OptionsC14dataCollectionAA0a4DataD0OABVvg"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Options",
+                    "printedName": "Sentry.SentryDataCollection.Options",
+                    "usr": "s:6Sentry0A14DataCollectionO7OptionsV"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "Final"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry7OptionsC14dataCollectionAA0a4DataD0OABVvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "usr": "s:6Sentry7OptionsC14dataCollectionAA0a4DataD0OABVvs"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Options",
+                "printedName": "Sentry.SentryDataCollection.Options",
+                "usr": "s:6Sentry0A14DataCollectionO7OptionsV"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasStorage"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry7OptionsC14dataCollectionAA0a4DataD0OABVvp",
+            "moduleName": "Sentry",
+            "name": "dataCollection",
+            "printedName": "dataCollection",
+            "usr": "s:6Sentry7OptionsC14dataCollectionAA0a4DataD0OABVvp"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
                     "name": "Bool",
                     "printedName": "Swift.Bool",
                     "usr": "s:Sb"
@@ -39661,79 +39734,6 @@
             "overriding": true,
             "printedName": "init()",
             "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(im)init"
-          },
-          {
-            "accessors": [
-              {
-                "accessorKind": "get",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Options",
-                    "printedName": "Sentry.SentryDataCollection.Options",
-                    "usr": "s:6Sentry0A14DataCollectionO7OptionsV"
-                  }
-                ],
-                "declAttributes": [
-                  "Final"
-                ],
-                "declKind": "Accessor",
-                "implicit": true,
-                "kind": "Accessor",
-                "mangledName": "$s6Sentry0A19ExperimentalOptionsC14dataCollectionAA0a4DataE0O0C0Vvg",
-                "moduleName": "Sentry",
-                "name": "Get",
-                "printedName": "Get()",
-                "usr": "s:6Sentry0A19ExperimentalOptionsC14dataCollectionAA0a4DataE0O0C0Vvg"
-              },
-              {
-                "accessorKind": "set",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Options",
-                    "printedName": "Sentry.SentryDataCollection.Options",
-                    "usr": "s:6Sentry0A14DataCollectionO7OptionsV"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "declAttributes": [
-                  "Final"
-                ],
-                "declKind": "Accessor",
-                "implicit": true,
-                "kind": "Accessor",
-                "mangledName": "$s6Sentry0A19ExperimentalOptionsC14dataCollectionAA0a4DataE0O0C0Vvs",
-                "moduleName": "Sentry",
-                "name": "Set",
-                "printedName": "Set()",
-                "usr": "s:6Sentry0A19ExperimentalOptionsC14dataCollectionAA0a4DataE0O0C0Vvs"
-              }
-            ],
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Options",
-                "printedName": "Sentry.SentryDataCollection.Options",
-                "usr": "s:6Sentry0A14DataCollectionO7OptionsV"
-              }
-            ],
-            "declAttributes": [
-              "Final",
-              "HasStorage"
-            ],
-            "declKind": "Var",
-            "hasStorage": true,
-            "kind": "Var",
-            "mangledName": "$s6Sentry0A19ExperimentalOptionsC14dataCollectionAA0a4DataE0O0C0Vvp",
-            "moduleName": "Sentry",
-            "name": "dataCollection",
-            "printedName": "dataCollection",
-            "usr": "s:6Sentry0A19ExperimentalOptionsC14dataCollectionAA0a4DataE0O0C0Vvp"
           },
           {
             "accessors": [

@@ -521,6 +521,13 @@ import Foundation
         set { wrapped.orgId = newValue }
     }
 
+    #if SDK_V10
+    @objc public var dataCollection: SentryObjCDataCollectionOptions {
+        get { SentryObjCDataCollectionOptions(parent: wrapped) }
+        set { wrapped.dataCollection = newValue.wrapped }
+    }
+    #endif // SDK_V10
+
     @objc public var experimental: SentryObjCExperimentalOptions {
         get { SentryObjCExperimentalOptions(wrapped.experimental) }
         set { wrapped.experimental = newValue.wrapped }
