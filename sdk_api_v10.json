@@ -36144,11 +36144,11 @@
                 "declKind": "Constructor",
                 "init_kind": "Designated",
                 "kind": "Constructor",
-                "mangledName": "$s6Sentry0A14DataCollectionO08DatabaseC7OptionsV11queryParamsAESb_tcfc",
+                "mangledName": "$s6Sentry0A14DataCollectionO08DatabaseC7OptionsV14urlQueryParamsAESb_tcfc",
                 "moduleName": "Sentry",
                 "name": "init",
-                "printedName": "init(queryParams:)",
-                "usr": "s:6Sentry0A14DataCollectionO08DatabaseC7OptionsV11queryParamsAESb_tcfc"
+                "printedName": "init(urlQueryParams:)",
+                "usr": "s:6Sentry0A14DataCollectionO08DatabaseC7OptionsV14urlQueryParamsAESb_tcfc"
               },
               {
                 "children": [
@@ -36196,11 +36196,11 @@
                     "declKind": "Accessor",
                     "implicit": true,
                     "kind": "Accessor",
-                    "mangledName": "$s6Sentry0A14DataCollectionO08DatabaseC7OptionsV11queryParamsSbvg",
+                    "mangledName": "$s6Sentry0A14DataCollectionO08DatabaseC7OptionsV14urlQueryParamsSbvg",
                     "moduleName": "Sentry",
                     "name": "Get",
                     "printedName": "Get()",
-                    "usr": "s:6Sentry0A14DataCollectionO08DatabaseC7OptionsV11queryParamsSbvg"
+                    "usr": "s:6Sentry0A14DataCollectionO08DatabaseC7OptionsV14urlQueryParamsSbvg"
                   },
                   {
                     "accessorKind": "set",
@@ -36220,11 +36220,11 @@
                     "declKind": "Accessor",
                     "implicit": true,
                     "kind": "Accessor",
-                    "mangledName": "$s6Sentry0A14DataCollectionO08DatabaseC7OptionsV11queryParamsSbvs",
+                    "mangledName": "$s6Sentry0A14DataCollectionO08DatabaseC7OptionsV14urlQueryParamsSbvs",
                     "moduleName": "Sentry",
                     "name": "Set",
                     "printedName": "Set()",
-                    "usr": "s:6Sentry0A14DataCollectionO08DatabaseC7OptionsV11queryParamsSbvs"
+                    "usr": "s:6Sentry0A14DataCollectionO08DatabaseC7OptionsV14urlQueryParamsSbvs"
                   }
                 ],
                 "children": [
@@ -36241,11 +36241,11 @@
                 "declKind": "Var",
                 "hasStorage": true,
                 "kind": "Var",
-                "mangledName": "$s6Sentry0A14DataCollectionO08DatabaseC7OptionsV11queryParamsSbvp",
+                "mangledName": "$s6Sentry0A14DataCollectionO08DatabaseC7OptionsV14urlQueryParamsSbvp",
                 "moduleName": "Sentry",
-                "name": "queryParams",
-                "printedName": "queryParams",
-                "usr": "s:6Sentry0A14DataCollectionO08DatabaseC7OptionsV11queryParamsSbvp"
+                "name": "urlQueryParams",
+                "printedName": "urlQueryParams",
+                "usr": "s:6Sentry0A14DataCollectionO08DatabaseC7OptionsV14urlQueryParamsSbvp"
               }
             ],
             "conformances": [
@@ -37626,11 +37626,11 @@
                 "declKind": "Constructor",
                 "init_kind": "Designated",
                 "kind": "Constructor",
-                "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV8userInfo7cookies11httpHeaders0H6Bodies11queryParams7graphql8database19stackFrameVariables17frameContextLinesAESb_AC08KeyValueC8BehaviorOAC010HttpHeadercD0VAC0X8BodyTypeVApC017GraphQLCollectionD0VAC08DatabasecD0VSbSutcfc",
+                "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV8userInfo7cookies11httpHeaders0H6Bodies14urlQueryParams7graphql8database19stackFrameVariables17frameContextLinesAESb_AC08KeyValueC8BehaviorOAC010HttpHeadercD0VAC0Y8BodyTypeVApC017GraphQLCollectionD0VAC08DatabasecD0VSbSutcfc",
                 "moduleName": "Sentry",
                 "name": "init",
-                "printedName": "init(userInfo:cookies:httpHeaders:httpBodies:queryParams:graphql:database:stackFrameVariables:frameContextLines:)",
-                "usr": "s:6Sentry0A14DataCollectionO7OptionsV8userInfo7cookies11httpHeaders0H6Bodies11queryParams7graphql8database19stackFrameVariables17frameContextLinesAESb_AC08KeyValueC8BehaviorOAC010HttpHeadercD0VAC0X8BodyTypeVApC017GraphQLCollectionD0VAC08DatabasecD0VSbSutcfc"
+                "printedName": "init(userInfo:cookies:httpHeaders:httpBodies:urlQueryParams:graphql:database:stackFrameVariables:frameContextLines:)",
+                "usr": "s:6Sentry0A14DataCollectionO7OptionsV8userInfo7cookies11httpHeaders0H6Bodies14urlQueryParams7graphql8database19stackFrameVariables17frameContextLinesAESb_AC08KeyValueC8BehaviorOAC010HttpHeadercD0VAC0Y8BodyTypeVApC017GraphQLCollectionD0VAC08DatabasecD0VSbSutcfc"
               },
               {
                 "children": [
@@ -38066,72 +38066,6 @@
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "KeyValueCollectionBehavior",
-                        "printedName": "Sentry.SentryDataCollection.KeyValueCollectionBehavior",
-                        "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO"
-                      }
-                    ],
-                    "declKind": "Accessor",
-                    "implicit": true,
-                    "kind": "Accessor",
-                    "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV11queryParamsAC08KeyValueC8BehaviorOvg",
-                    "moduleName": "Sentry",
-                    "name": "Get",
-                    "printedName": "Get()",
-                    "usr": "s:6Sentry0A14DataCollectionO7OptionsV11queryParamsAC08KeyValueC8BehaviorOvg"
-                  },
-                  {
-                    "accessorKind": "set",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "KeyValueCollectionBehavior",
-                        "printedName": "Sentry.SentryDataCollection.KeyValueCollectionBehavior",
-                        "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO"
-                      },
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "declKind": "Accessor",
-                    "implicit": true,
-                    "kind": "Accessor",
-                    "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV11queryParamsAC08KeyValueC8BehaviorOvs",
-                    "moduleName": "Sentry",
-                    "name": "Set",
-                    "printedName": "Set()",
-                    "usr": "s:6Sentry0A14DataCollectionO7OptionsV11queryParamsAC08KeyValueC8BehaviorOvs"
-                  }
-                ],
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "KeyValueCollectionBehavior",
-                    "printedName": "Sentry.SentryDataCollection.KeyValueCollectionBehavior",
-                    "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO"
-                  }
-                ],
-                "declAttributes": [
-                  "HasStorage"
-                ],
-                "declKind": "Var",
-                "hasStorage": true,
-                "kind": "Var",
-                "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV11queryParamsAC08KeyValueC8BehaviorOvp",
-                "moduleName": "Sentry",
-                "name": "queryParams",
-                "printedName": "queryParams",
-                "usr": "s:6Sentry0A14DataCollectionO7OptionsV11queryParamsAC08KeyValueC8BehaviorOvp"
-              },
-              {
-                "accessors": [
-                  {
-                    "accessorKind": "get",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
                         "name": "Bool",
                         "printedName": "Swift.Bool",
                         "usr": "s:Sb"
@@ -38190,6 +38124,72 @@
                 "name": "stackFrameVariables",
                 "printedName": "stackFrameVariables",
                 "usr": "s:6Sentry0A14DataCollectionO7OptionsV19stackFrameVariablesSbvp"
+              },
+              {
+                "accessors": [
+                  {
+                    "accessorKind": "get",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "KeyValueCollectionBehavior",
+                        "printedName": "Sentry.SentryDataCollection.KeyValueCollectionBehavior",
+                        "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV14urlQueryParamsAC08KeyValueC8BehaviorOvg",
+                    "moduleName": "Sentry",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "usr": "s:6Sentry0A14DataCollectionO7OptionsV14urlQueryParamsAC08KeyValueC8BehaviorOvg"
+                  },
+                  {
+                    "accessorKind": "set",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "KeyValueCollectionBehavior",
+                        "printedName": "Sentry.SentryDataCollection.KeyValueCollectionBehavior",
+                        "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV14urlQueryParamsAC08KeyValueC8BehaviorOvs",
+                    "moduleName": "Sentry",
+                    "name": "Set",
+                    "printedName": "Set()",
+                    "usr": "s:6Sentry0A14DataCollectionO7OptionsV14urlQueryParamsAC08KeyValueC8BehaviorOvs"
+                  }
+                ],
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "KeyValueCollectionBehavior",
+                    "printedName": "Sentry.SentryDataCollection.KeyValueCollectionBehavior",
+                    "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO"
+                  }
+                ],
+                "declAttributes": [
+                  "HasStorage"
+                ],
+                "declKind": "Var",
+                "hasStorage": true,
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV14urlQueryParamsAC08KeyValueC8BehaviorOvp",
+                "moduleName": "Sentry",
+                "name": "urlQueryParams",
+                "printedName": "urlQueryParams",
+                "usr": "s:6Sentry0A14DataCollectionO7OptionsV14urlQueryParamsAC08KeyValueC8BehaviorOvp"
               },
               {
                 "accessors": [

@@ -15,34 +15,34 @@
 #else
     SentryObjCDataCollectionDatabaseCollectionOptions *options =
         [[SentryObjCDataCollectionDatabaseCollectionOptions alloc] init];
-    XCTAssertTrue(options.queryParams);
+    XCTAssertTrue(options.urlQueryParams);
 #endif
 }
 
 #pragma mark - Get/Set
 
-- (void)testQueryParams_whenSetToNo_shouldReturnFalse
+- (void)testurlQueryParams_whenSetToNo_shouldReturnFalse
 {
 #if !SDK_V10
     XCTSkip(@"Test skipped for SDK_V10");
 #else
     SentryObjCDataCollectionDatabaseCollectionOptions *options =
         [[SentryObjCDataCollectionDatabaseCollectionOptions alloc] init];
-    options.queryParams = NO;
-    XCTAssertFalse(options.queryParams);
+    options.urlQueryParams = NO;
+    XCTAssertFalse(options.urlQueryParams);
 #endif
 }
 
-- (void)testQueryParams_whenSetToNoThenYes_shouldReturnTrue
+- (void)testurlQueryParams_whenSetToNoThenYes_shouldReturnTrue
 {
 #if !SDK_V10
     XCTSkip(@"Test skipped for SDK_V10");
 #else
     SentryObjCDataCollectionDatabaseCollectionOptions *options =
         [[SentryObjCDataCollectionDatabaseCollectionOptions alloc] init];
-    options.queryParams = NO;
-    options.queryParams = YES;
-    XCTAssertTrue(options.queryParams);
+    options.urlQueryParams = NO;
+    options.urlQueryParams = YES;
+    XCTAssertTrue(options.urlQueryParams);
 #endif
 }
 

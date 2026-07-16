@@ -42,7 +42,7 @@ extension SentryDataCollection {
         ///
         /// Defaults to ``SentryDataCollection/KeyValueCollectionBehavior/denyList(terms:)`` (built-in sensitive
         /// denylist only).
-        public var queryParams: SentryDataCollection.KeyValueCollectionBehavior
+        public var urlQueryParams: SentryDataCollection.KeyValueCollectionBehavior
 
         /// Controls GraphQL document and variable collection.
         ///
@@ -52,7 +52,7 @@ extension SentryDataCollection {
 
         /// Controls database query parameter collection.
         ///
-        /// Defaults to ``SentryDataCollection/DatabaseCollectionOptions/init(queryParams:)`` with `queryParams`
+        /// Defaults to ``SentryDataCollection/DatabaseCollectionOptions/init(urlQueryParams:)`` with `urlQueryParams`
         /// set to `true`.
         public var database: SentryDataCollection.DatabaseCollectionOptions
 
@@ -76,9 +76,9 @@ extension SentryDataCollection {
         ///   - cookies: Cookie collection behavior. Defaults to `.denyList()`.
         ///   - httpHeaders: HTTP header collection for request/response. Defaults to both `.denyList()`.
         ///   - httpBodies: Body types to collect. Defaults to `.all`; pass `[]` to disable.
-        ///   - queryParams: Query parameter collection behavior. Defaults to `.denyList()`.
+        ///   - urlQueryParams: Query parameter collection behavior. Defaults to `.denyList()`.
         ///   - graphql: GraphQL collection options. Defaults to both `true`.
-        ///   - database: Database collection options. Defaults to `queryParams: true`.
+        ///   - database: Database collection options. Defaults to `urlQueryParams: true`.
         ///   - stackFrameVariables: Include stack frame local variables. Defaults to `true`.
         ///   - frameContextLines: Source context lines above/below each frame. Defaults to `5`.
         public init(
@@ -86,7 +86,7 @@ extension SentryDataCollection {
             cookies: SentryDataCollection.KeyValueCollectionBehavior = .denyList(),
             httpHeaders: SentryDataCollection.HttpHeaderCollectionOptions = .init(),
             httpBodies: SentryDataCollection.HttpBodyType = .all,
-            queryParams: SentryDataCollection.KeyValueCollectionBehavior = .denyList(),
+            urlQueryParams: SentryDataCollection.KeyValueCollectionBehavior = .denyList(),
             graphql: SentryDataCollection.GraphQLCollectionOptions = .init(),
             database: SentryDataCollection.DatabaseCollectionOptions = .init(),
             stackFrameVariables: Bool = true,
@@ -96,7 +96,7 @@ extension SentryDataCollection {
             self.cookies = cookies
             self.httpHeaders = httpHeaders
             self.httpBodies = httpBodies
-            self.queryParams = queryParams
+            self.urlQueryParams = urlQueryParams
             self.graphql = graphql
             self.database = database
             self.stackFrameVariables = stackFrameVariables
@@ -119,8 +119,8 @@ extension SentryDataCollection {
             if let httpBodies = SentryDictionaryDecoder.strings(dictionary, "httpBodies") {
                 self.httpBodies = SentryDataCollection.HttpBodyType(strings: httpBodies)
             }
-            if let queryParams = SentryDictionaryDecoder.dictionary(dictionary, "queryParams") {
-                self.queryParams = SentryDataCollection.KeyValueCollectionBehavior(dictionary: queryParams)
+            if let urlQueryParams = SentryDictionaryDecoder.dictionary(dictionary, "urlQueryParams") {
+                self.urlQueryParams = SentryDataCollection.KeyValueCollectionBehavior(dictionary: urlQueryParams)
             }
             if let graphql = SentryDictionaryDecoder.dictionary(dictionary, "graphql") {
                 self.graphql = SentryDataCollection.GraphQLCollectionOptions(dictionary: graphql)

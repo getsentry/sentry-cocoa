@@ -7,7 +7,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryObjCDataCollectionDatabaseCollectionOptions : NSObject
 
 /// Whether to collect parameterized database query values. Defaults to @c YES.
-@property (nonatomic) BOOL queryParams;
+@property (nonatomic) BOOL urlQueryParams;
 
 - (instancetype)init;
 
