@@ -44,8 +44,7 @@ re-`git add` and re-commit if a hook edits files.
 **Branch:** `ref/convert-spotlight-transport-to-swift`
 **Status:** 🟢 In progress — **Option A**, shipped as small PRs to `main`.
 Phase A1 (`SentryRequestManager` → Swift) ✅ **merged** → PR #8428 (`8e6a36fbd` on `main`).
-Phase A2 (`SentryTransport`) WIP on this branch (source builds green, tests not yet building) — next
-up as its own PR now that A1 has merged.
+Phase A2 (`SentryTransport`) 📝 **draft PR #8443** open (build + 82 transport tests green).
 See "PR tracking" and "✅ Chosen approach" below.
 
 ## PR tracking
@@ -55,11 +54,11 @@ phases share files (headers + pbxproj). This branch (`ref/convert-spotlight-tran
 the **plan/WIP tracker only** — its commits are NOT the PRs. Each PR is a clean branch cut from
 `main` containing only that phase's code (no plan doc).
 
-| Phase                                              | PR branch                              | PR                                                           | Status                                                               |
-| -------------------------------------------------- | -------------------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------------- |
-| A1 `SentryRequestManager` → Swift                  | `ref/convert-request-manager-to-swift` | [#8428](https://github.com/getsentry/sentry-cocoa/pull/8428) | ✅ **merged** (`8e6a36fbd`)                                          |
-| A2 `SentryTransport` + `SentryFlushResult` → Swift | _tbd_                                  | —                                                            | 🔧 next up — WIP on tracker branch; finish test churn (see A2 notes) |
-| A3 `SentrySpotlightTransport` → Swift              | _tbd_                                  | —                                                            | ⛔ depends on A2                                                     |
+| Phase                                              | PR branch                                 | PR                                                           | Status                                                  |
+| -------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------- |
+| A1 `SentryRequestManager` → Swift                  | `ref/convert-request-manager-to-swift`    | [#8428](https://github.com/getsentry/sentry-cocoa/pull/8428) | ✅ **merged** (`8e6a36fbd`)                             |
+| A2 `SentryTransport` + `SentryFlushResult` → Swift | `ref/convert-transport-protocol-to-swift` | [#8443](https://github.com/getsentry/sentry-cocoa/pull/8443) | 📝 **draft PR open** — build + 82 transport tests green |
+| A3 `SentrySpotlightTransport` → Swift              | _tbd_                                     | —                                                            | ⛔ depends on A2                                        |
 
 **Workflow per phase:** cut `<branch>` from latest `main` → cherry-pick/apply that phase's code
 (drop the plan doc) → `make build-ios` + targeted tests → push → `gh pr create --draft`. After a PR
@@ -481,3 +480,12 @@ make generate-public-api   # only if public API surface changed; commit sdk_api.
   → took main's shipped A1; `SentryHttpTransport.h` + `SentrySpotlightTransport.h` → kept the A2
   versions (`#import "SentrySwift.h"`). `make build-ios` green post-merge. **A2 is now unblocked and
   next up as its own PR.**
+- 2026-07-16: **A2 draft PR opened → #8443** (`ref/convert-transport-protocol-to-swift`, cut from the
+  A1-merged `main`). Finished the A2.4 test work: 11 `recordLostEvent` sites in
+  `SentryHttpTransportTests` + the `givenRecordedLostEvents` helper now pass `.rawValue` (protocol
+  param is `UInt`); `SentryHttpTransportFlushIntegrationTests.getSut` return type retyped to
+  `Transport`; added `// swiftlint:disable missing_docs` to `SentryTransport.swift` (same as the A1
+  sibling — `missing_docs` blocks the undocumented protocol methods). Verified: `make build-ios` ✅,
+  `make analyze` ✅, **82 transport tests, 0 failures** ✅, no `sdk_api.json` change (SPI-only). PR is
+  `#skip-changelog` (type `ref`). **Next: A3** — the actual `SentrySpotlightTransport` conversion,
+  once A2 merges.
