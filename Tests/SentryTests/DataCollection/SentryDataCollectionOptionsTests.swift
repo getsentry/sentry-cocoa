@@ -64,6 +64,33 @@ class SentryDataCollectionOptionsTests: XCTestCase {
         #endif
     }
 
+    func testDataCollectionObjC_whenAccessed_shouldWrapEntireDataCollection() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
+        // -- Arrange --
+        let dataCollection = SentryDataCollection.Options(
+            userInfo: false,
+            cookies: .off,
+            httpHeaders: .init(request: .allowList(terms: ["x-request"]), response: .off),
+            httpBodies: [],
+            urlQueryParams: .allowList(terms: ["page"]),
+            graphql: .init(document: false, variables: false),
+            database: .init(queryParams: false),
+            stackFrameVariables: false,
+            frameContextLines: 0
+        )
+        let options = Options()
+        options.dataCollection = dataCollection
+
+        // -- Act --
+        let objcOptions = options.dataCollectionObjC
+
+        // -- Assert --
+        XCTAssertEqual(objcOptions.wrapped, dataCollection)
+        #endif
+    }
+
     // MARK: - Dictionary Init
 
     func testInitWithDictionary_whenUserInfoIsPresent_shouldSetUserInfo() throws {

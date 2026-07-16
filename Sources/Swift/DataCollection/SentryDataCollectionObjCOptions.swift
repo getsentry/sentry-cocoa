@@ -11,9 +11,7 @@
 extension Options {
     /// Internal bridge for resolving data collection options from Objective-C.
     @_spi(Private) @objc public var dataCollectionObjC: SentryDataCollectionObjCOptions {
-        return SentryDataCollectionObjCOptions(
-            wrapped: SentryDataCollection.Options(urlQueryParams: dataCollection.urlQueryParams)
-        )
+        return SentryDataCollectionObjCOptions(wrapped: dataCollection)
     }
 }
 #endif // SDK_V10
