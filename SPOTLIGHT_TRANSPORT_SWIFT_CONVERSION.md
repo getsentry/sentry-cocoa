@@ -24,7 +24,11 @@ Swift first (now done) — then the protocol + conformers can use the real types
 
 **Where everything lives (all pushed to `origin`, nothing local-only):**
 
-- `ref/convert-spotlight-transport-to-swift` ← **THIS branch = the tracker** (plan doc + old A2 WIP snapshot). Not a PR.
+- `ref/convert-spotlight-transport-to-swift` ← **THIS branch = the tracker.** Only the plan doc matters
+  here. It also carries a **stale, pre-enum A2 WIP snapshot** (deletes `SentryTransport.h`, edits
+  `TestTransport.swift`) that is **superseded by the real PRs — do NOT merge this branch into `main` or
+  cherry-pick its code**. Intentionally NOT kept in sync with `main` (merging conflicts with the stale
+  WIP); treat it as a read-only planning reference. The authoritative code is in the per-phase PR branches.
 - `main` ← base for every PR. **Contains A1 + A2a1** (`SentryRequestManager`, `SentryDiscardReason`).
 - `ref/convert-data-category-to-swift` ← **A2a2, PR #8451**, rebased on `main`. Ready to merge once labeled.
 - `ref/convert-transport-protocol-to-swift` ← **A2, PR #8443**, stale (uses `UInt`). Rebase + retype next.
