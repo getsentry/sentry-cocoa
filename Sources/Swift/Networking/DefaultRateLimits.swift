@@ -33,7 +33,7 @@ public final class DefaultRateLimits: NSObject, RateLimits {
     /// functions written in Swift.
     @objc
     public func isRateLimitActive(_ category: UInt) -> Bool {
-        let categoryAsEnum = sentryDataCategoryForNSUInteger(category)
+        let categoryAsEnum = SentryDataCategory(category)
         let categoryDate = rateLimits.getRateLimit(for: categoryAsEnum)
         let allCategoriesDate = rateLimits.getRateLimit(for: .all)
 
@@ -49,7 +49,7 @@ public final class DefaultRateLimits: NSObject, RateLimits {
             let limits = rateLimitParser.parse(rateLimitsHeader)
 
             for (categoryAsNumber, date) in limits {
-                let category = sentryDataCategoryForNSUInteger(categoryAsNumber)
+                let category = SentryDataCategory(categoryAsNumber)
                 updateRateLimit(category, withDate: date)
             }
         } else if response.statusCode == 429 {
