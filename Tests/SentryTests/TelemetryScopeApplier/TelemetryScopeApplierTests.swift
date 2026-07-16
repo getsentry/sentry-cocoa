@@ -542,7 +542,7 @@ final class TelemetryScopeApplierTests: XCTestCase {
         XCTAssertNil(item.attributesDict["user.id"])
     }
 
-    func testApplyToItem_whenSendDefaultPiiFalse_withoutUser_shouldStillAddInstallationIdAsUserId() {
+    func testApplyToItem_whenSendDefaultPiiFalse_withoutUser_shouldHandleInstallationIdForBuild() {
         // -- Arrange --
         let scope = TestScope(propagationContextTraceId: SentryId())
         let metadata = createTestMetadata(
@@ -555,7 +555,11 @@ final class TelemetryScopeApplierTests: XCTestCase {
         scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
+#if SDK_V10
+        XCTAssertNil(item.attributesDict["user.id"])
+#else
         XCTAssertEqual(item.attributesDict["user.id"], .string("installation-456"))
+#endif // SDK_V10
         XCTAssertNil(item.attributesDict["user.name"])
         XCTAssertNil(item.attributesDict["user.email"])
     }

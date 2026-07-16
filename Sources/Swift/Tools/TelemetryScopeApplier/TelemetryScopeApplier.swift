@@ -133,6 +133,11 @@ extension TelemetryScopeApplier {
             return
         }
 
+#if SDK_V10
+        guard metadata.sendDefaultPii else {
+            return
+        }
+#endif // SDK_V10
         if let installationId = metadata.installationId {
             // We only want to set the id if the customer didn't set a user so we at least set something to
             // identify the user.

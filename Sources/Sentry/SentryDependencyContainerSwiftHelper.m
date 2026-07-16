@@ -4,6 +4,12 @@
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"
 
+#if SDK_V10
+@interface SentryOptions (DataCollection)
+@property (nonatomic, readonly) BOOL dataCollectionUserInfo;
+@end
+#endif // SDK_V10
+
 @implementation SentryDependencyContainerSwiftHelper
 
 #if SENTRY_HAS_UIKIT
@@ -52,7 +58,11 @@
 
 + (BOOL)sendDefaultPii:(SentryOptions *)options
 {
+#if SDK_V10
+    return options.dataCollectionUserInfo;
+#else
     return options.sendDefaultPii;
+#endif // SDK_V10
 }
 
 + (SentryDispatchQueueWrapper *)dispatchQueueWrapper

@@ -59,7 +59,11 @@ struct SentrySdkInfo {
     
     init(withOptions options: Options?) {
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+#if SDK_V10
+        self.init(withEnabledFeatures: features, sendDefaultPii: options?.dataCollection.userInfo ?? false)
+#else
         self.init(withEnabledFeatures: features, sendDefaultPii: options?.sendDefaultPii ?? false)
+#endif // SDK_V10
     }
 
     init(withEnabledFeatures features: [String], sendDefaultPii: Bool) {

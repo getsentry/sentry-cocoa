@@ -2227,6 +2227,7 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(fixture.user.email, actual.user?.email)
     }
     
+    #if !SDK_V10
     func testSendDefaultPiiEnabled_GivenNoIP_sdkIPIsAuto() throws {
         fixture.getSut(configureOptions: { options in
             options.sendDefaultPii = true
@@ -2239,6 +2240,30 @@ final class SentryClientTests: XCTestCase {
         let settings = try XCTUnwrap(sdk["settings"] as? [String: Any])
         XCTAssertEqual(settings["infer_ip"] as? String, "auto")
     }
+    #endif // !SDK_V10
+
+    #if SDK_V10
+    func testDataCollectionUserInfoEnabledByDefault_GivenNoIP_sdkIPIsAuto() throws {
+        fixture.getSut().capture(message: "any")
+
+        let actual = try lastSentEvent()
+        let sdk = try XCTUnwrap(actual.sdk)
+        let settings = try XCTUnwrap(sdk["settings"] as? [String: Any])
+        XCTAssertEqual(settings["infer_ip"] as? String, "auto")
+    }
+
+    func testDataCollectionUserInfoDisabled_GivenSendDefaultPiiEnabled_sdkIPIsNever() throws {
+        fixture.getSut(configureOptions: { options in
+            options.sendDefaultPii = true
+            options.dataCollection.userInfo = false
+        }).capture(message: "any")
+
+        let actual = try lastSentEvent()
+        let sdk = try XCTUnwrap(actual.sdk)
+        let settings = try XCTUnwrap(sdk["settings"] as? [String: Any])
+        XCTAssertEqual(settings["infer_ip"] as? String, "never")
+    }
+    #endif // SDK_V10
     
     func testSendDefaultPiiEnabled_GivenIP_IPAddressNotChanged() throws {
         let scope = Scope()

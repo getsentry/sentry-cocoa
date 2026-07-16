@@ -56,6 +56,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 NSString *const DropSessionLogMessage = @"Session has no release name. Won't send it.";
 
+#if SDK_V10
+@interface SentryOptions (DataCollection)
+@property (nonatomic, readonly) BOOL dataCollectionUserInfo;
+@end
+#endif // SDK_V10
+
 @implementation SentryClientInternal
 
 - (_Nullable instancetype)initWithOptions:(SentryOptions *)options
@@ -134,11 +140,16 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                           initWithTransportAdapter:transportAdapter]
                          dependencies:SentryDependencyContainer.sharedInstance];
 
+#if SDK_V10
+        BOOL sendDefaultPii = options.dataCollectionUserInfo;
+#else
+        BOOL sendDefaultPii = options.sendDefaultPii;
+#endif // SDK_V10
         self.logScopeApplier =
             [[SentryDefaultLogScopeApplier alloc] initWithEnvironment:options.environment
                                                           releaseName:options.releaseName
                                                    cacheDirectoryPath:options.cacheDirectoryPath
-                                                       sendDefaultPii:options.sendDefaultPii];
+                                                       sendDefaultPii:sendDefaultPii];
 
         [crashWrapper startBinaryImageCache];
         [binaryImageCache start:options.debug];

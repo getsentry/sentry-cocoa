@@ -710,6 +710,10 @@
     /// - Important: Replaces `sendDefaultPii` with granular per-category control.
     /// - SeeAlso: https://docs.sentry.io/platforms/apple/configuration/options/#dataCollection
     public var dataCollection = SentryDataCollection.Options()
+
+    @objc internal var dataCollectionUserInfo: Bool {
+        dataCollection.userInfo
+    }
 #endif // SDK_V10
 
     // MARK: - Integration: Metrics
