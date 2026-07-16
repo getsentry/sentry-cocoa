@@ -521,7 +521,7 @@ extension SentryDependencyContainer: AutoSessionTrackingProvider { }
 
 #if ENABLE_KSCRASH
 extension SentryDependencyContainer: KSCrashInstallerProvider {
-    public var kscrashInstaller: any KSCrashInstalling {
+    var kscrashInstaller: any KSCrashInstalling {
         KSCrashInstaller()
     }
 }
