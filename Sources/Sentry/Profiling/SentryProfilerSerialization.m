@@ -124,7 +124,7 @@ sentry_serializedTraceProfileData(
     if ([samples count] < 2) {
         SENTRY_LOG_DEBUG(@"Not enough samples in profile");
         [hub.getClient recordLostEvent:kSentryDataCategoryProfile
-                                reason:kSentryDiscardReasonEventProcessor];
+                                reason:SentryDiscardReasonEventProcessor];
         return nil;
     }
 
@@ -134,7 +134,7 @@ sentry_serializedTraceProfileData(
     if (slicedSamples.count < 2) {
         SENTRY_LOG_DEBUG(@"Not enough samples in profile during the transaction");
         [hub.getClient recordLostEvent:kSentryDataCategoryProfile
-                                reason:kSentryDiscardReasonEventProcessor];
+                                reason:SentryDiscardReasonEventProcessor];
         return nil;
     }
     NSMutableDictionary<NSString *, id> *payload = [NSMutableDictionary<NSString *, id> dictionary];

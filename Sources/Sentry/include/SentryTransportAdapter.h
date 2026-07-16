@@ -1,7 +1,9 @@
 #import "SentryDataCategory.h"
 #import "SentryDefines.h"
-#import "SentryDiscardReason.h"
 #import "SentryTransport.h"
+
+// This is a forward declaration, the actual enum is implemented in Swift.
+typedef NS_ENUM(NSUInteger, SentryDiscardReason);
 
 @class SentryAttachment;
 @class SentryEnvelope;

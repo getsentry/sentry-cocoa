@@ -193,13 +193,13 @@ open class TestClient: SentryClientInternal {
         storedEnvelopeInvocations.record(envelope)
     }
     
-    public var recordLostEvents = Invocations<(category: SentryDataCategory, reason: SentryDiscardReason)>()
-    public override func recordLostEvent(_ category: SentryDataCategory, reason: SentryDiscardReason) {
+    @_spi(Private) public var recordLostEvents = Invocations<(category: SentryDataCategory, reason: SentryDiscardReason)>()
+    @_spi(Private) public override func recordLostEvent(_ category: SentryDataCategory, reason: SentryDiscardReason) {
         recordLostEvents.record((category, reason))
     }
-    
-    public var recordLostEventsWithQauntity = Invocations<(category: SentryDataCategory, reason: SentryDiscardReason, quantity: UInt)>()
-    public override func recordLostEvent(_ category: SentryDataCategory, reason: SentryDiscardReason, quantity: UInt) {
+
+    @_spi(Private) public var recordLostEventsWithQauntity = Invocations<(category: SentryDataCategory, reason: SentryDiscardReason, quantity: UInt)>()
+    @_spi(Private) public override func recordLostEvent(_ category: SentryDataCategory, reason: SentryDiscardReason, quantity: UInt) {
         recordLostEventsWithQauntity.record((category, reason, quantity))
     }
     
