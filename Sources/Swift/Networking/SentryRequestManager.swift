@@ -1,7 +1,8 @@
 // swiftlint:disable missing_docs
 import Foundation
 
-@objc(SentryRequestManager) @_spi(Private)
+@_spi(Private)
+@objc(SentryRequestManager)
 public protocol RequestManager: NSObjectProtocol {
 
     @objc var isReady: Bool { get }
