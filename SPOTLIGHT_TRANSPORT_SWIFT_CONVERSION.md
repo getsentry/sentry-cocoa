@@ -8,36 +8,60 @@ first (`@_implementationOnly` ObjC types can't appear in a public Swift API). We
 convert those protocols first, in small sequential PRs to `main`, then convert the class last.
 
 **✅ A1 MERGED (2026-07-16).** PR #8428 (`SentryRequestManager` → Swift) merged to `main` as
-`8e6a36fbd`. This tracker branch has since **merged `origin/main` back in** (merge commit on
-`ref/convert-spotlight-transport-to-swift`) so it now carries the authoritative A1 **plus** the A2
-WIP. Conflicts resolved: `SentryRequestManager.swift` took main's version (the shipped A1); the two
-transport headers (`SentryHttpTransport.h`, `SentrySpotlightTransport.h`) kept the A2 versions
-(`#import "SentrySwift.h"`, since A2 moves `SentryTransport` to Swift). `make build-ios` green after
-the merge. The tracker's old standalone A1 commit is no longer relevant — main's A1 is what ships.
+`8e6a36fbd`. This tracker branch has since **merged `origin/main` back in** so it carries the shipped
+A1 plus the A2 WIP.
+
+**🔁 PLAN REVISED (2026-07-16) — convert the two data enums to Swift BEFORE finishing A2.** The user
+requires the ObjC transport conformers to use the **real enum types** (`SentryDataCategory` /
+`SentryDiscardReason`), not `NSUInteger`. Verified empirically that is impossible while the `Transport`
+protocol requirement is typed `UInt`: an ObjC conformer with an enum-typed `recordLostEvent` fails
+`-Wmismatched-parameter-types -Werror`. So the enums must become Swift first, then the protocol +
+conformers use the real types. See the **🔁 Plan revision** section below for the full mechanic.
 
 **Where everything lives (all pushed to `origin`, nothing local-only):**
 
-- `ref/convert-spotlight-transport-to-swift` ← **THIS branch = the tracker.** Holds this plan doc +
-  the A2 work-in-progress, now synced with `main` (A1 merged in). Not a PR.
+- `ref/convert-spotlight-transport-to-swift` ← **THIS branch = the tracker** (plan doc + A2 WIP). Not a PR.
 - `main` ← base for every PR. **Contains A1** (`8e6a36fbd`).
+- `ref/convert-discard-reason-to-swift` ← **A2a1, draft PR #8444** (`SentryDiscardReason` → Swift). Green.
+- `ref/convert-transport-protocol-to-swift` ← **A2, draft PR #8443** (`SentryTransport` → Swift, still
+  typed `UInt`). Will be rebased to the real enum types after the two enum PRs merge.
 
-**Do this next — A1 is merged, so create the A2 PR:**
+**Do this next — A2a2: convert `SentryDataCategory` to Swift** (same recipe as the merged-green A2a1):
 
-- `git checkout main && git pull`
-- `git checkout -b ref/convert-transport-protocol-to-swift`
-- Apply the A2 code from this tracker branch (`SentryTransport.swift` + all A2 edits), but **NOT**
-  the plan doc. (The A2 files are listed in "Phase A2" below.)
-- **Finish the unfinished A2 test work** (this is the only incomplete part — see **A2.4** below):
-  ~12 `sut.recordLostEvent(.enumCase, …)` sites in `SentryHttpTransportTests.swift` need
-  `.rawValue`, and `SentryHttpTransportFlushIntegrationTests.swift` needs `sut` retyped to
-  `Transport` (same treatment already applied to `SentryHttpTransportTests`).
-- Build + test (commands below), push, `gh pr create --draft`, then mark ready.
-- Then update this tracker branch's PR table once A2's PR number exists.
+- `git checkout main && git pull && git checkout -b ref/convert-data-category-to-swift` (cut fresh; if
+  A2a1 #8444 has NOT merged yet, instead branch from `ref/convert-discard-reason-to-swift` since both
+  touch the same umbrella headers — they'd conflict otherwise).
+- Add `Sources/Swift/Networking/SentryDataCategory.swift`: `@objc(SentryDataCategory) @_spi(Private)
+  public enum SentryDataCategory: UInt` with the **17 cases at their existing raw values** (0…16,
+  including the "unused but kept" ones). Modern non-`k` case names (`case error` → ObjC
+  `SentryDataCategoryError`). Keep the header-doc comment from the old `.h`.
+- Delete `include/SentryDataCategory.h`; drop its 6 pbxproj refs (`sed -E '/SentryDataCategory\.h/d'`,
+  `plutil -lint`). Rename ~138 ObjC case refs `kSentryDataCategory<Case>` → `SentryDataCategory<Case>`
+  across ~14 files with `sed -E` (NOT BSD `sed` `\|` — use extended regex). **Do NOT touch**
+  `kSentryDataCategoryName*` (mapper string consts) — different symbol.
+- Umbrella-included headers that use the type (e.g. `SentryClient+Private.h`, `SentryTransportAdapter.h`,
+  `SentryDataCategoryMapper.h`, `SentryTransport.h`) → forward-declare `typedef NS_ENUM(NSUInteger,
+  SentryDataCategory);`. `.m` files + non-umbrella headers → `#import "SentrySwift.h"`. Mapper `.m`
+  needs `SentrySwift.h` for the switch. `SentryDataCategoryMapper` stays ObjC.
+- TestUtils/tests: any `public` decl using the enum needs `@_spi(Private)`; any test file using it needs
+  `@_spi(Private) import Sentry` (A2a1 hit exactly this in `TestTransport`, `TestClient`, and
+  `SentryDiscardReasonMapperTests`).
+- Verify: `make build-ios` + `make build-macos` + `make analyze` + affected tests. SPI-only → no
+  `sdk_api.json` change.
+- Then **rebase A2 (#8443)**: retype the protocol `recordLostEvent` params + the ObjC conformer
+  signatures to the real enums, and drop the `.rawValue` from `SentryHttpTransportTests`.
+- Finally **A3** — the actual `SentrySpotlightTransport` class conversion.
 
 **Environment quirk (IMPORTANT):** `make build-ios` / `make test-ios` default to a simulator that is
 **not installed** here. Always append: `IOS_DEVICE_NAME="iPhone 17 Pro" IOS_SIMULATOR_OS=26.4`.
 `ONLY_TESTING` takes **comma-separated** targets (not space). Pre-commit hooks reformat md/swift —
 re-`git add` and re-commit if a hook edits files.
+
+**💡 Name-preservation option (verified, NOT chosen):** a Swift `@objc` enum can pin each case's ObjC
+name with `@objc(kSentryDataCategoryError) case error = 2` — the generated `SWIFT_ENUM` then emits the
+exact old `k`-prefixed constant, so ObjC needs **zero** ref renames. The user chose **modern
+non-prefixed names** instead (hence the ~138-ref rename). Keep this in back pocket if the rename churn
+ever becomes a problem.
 
 ---
 
