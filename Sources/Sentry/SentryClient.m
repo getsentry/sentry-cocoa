@@ -56,12 +56,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 NSString *const DropSessionLogMessage = @"Session has no release name. Won't send it.";
 
-#if SDK_V10
-@interface SentryOptions (DataCollection)
-@property (nonatomic, readonly) BOOL dataCollectionUserInfo;
-@end
-#endif // SDK_V10
-
 @implementation SentryClientInternal
 
 - (_Nullable instancetype)initWithOptions:(SentryOptions *)options
@@ -141,7 +135,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                          dependencies:SentryDependencyContainer.sharedInstance];
 
 #if SDK_V10
-        BOOL shouldAddDefaultUserId = options.dataCollectionUserInfo;
+        BOOL shouldAddDefaultUserId = options.dataCollectionObjC.userInfo;
 #else
         BOOL shouldAddDefaultUserId = options.sendDefaultPii;
 #endif // SDK_V10
@@ -981,6 +975,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (void)setUserIdIfNoUserSet:(SentryEvent *)event
 {
+#if SDK_V10
+    if (!self.options.dataCollectionObjC.userInfo) {
+        return;
+    }
+#endif // SDK_V10
     // We only want to set the id if the customer didn't set a user so we at least set something to
     // identify the user.
     if (event.user == nil) {
