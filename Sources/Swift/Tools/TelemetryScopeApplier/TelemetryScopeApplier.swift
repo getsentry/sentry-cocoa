@@ -134,7 +134,7 @@ extension TelemetryScopeApplier {
         }
 
 #if SDK_V10
-        guard metadata.sendDefaultPii else {
+        guard metadata.shouldAddDefaultUserId else {
             return
         }
 #endif // SDK_V10
