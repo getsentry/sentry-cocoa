@@ -7,6 +7,7 @@
 - Mark opt in option `swiftAsyncStacktraces` as stable (#8373)
 - Add `dataCollection` option under `experimental` for configuring data scrubbing behavior (#8369)
 - Add scope API to clear feature flags (#8364)
+- Add dictionary initialization for `options.experimental.dataCollection` (#8371)
 
 ### Fixes
 

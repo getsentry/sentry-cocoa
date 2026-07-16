@@ -1,8 +1,8 @@
 // swiftlint:disable missing_docs
 #if SWIFT_PACKAGE
-internal import SentrySwift
+@_spi(Private) internal import SentrySwift
 #else
-internal import Sentry
+@_spi(Private) internal import Sentry
 #endif
 import Foundation
 
@@ -25,6 +25,10 @@ public final class SentryObjCDataCollectionOptions: NSObject {
 
     @objc public override init() {
         self.storage = Accessor(SentryDataCollection.Options())
+    }
+
+    @objc public init(dictionary: NSDictionary) {
+        self.storage = Accessor(SentryDataCollection.Options(dictionary: dictionary as? [String: Any] ?? [:]))
     }
 
     @objc public var userInfo: Bool {

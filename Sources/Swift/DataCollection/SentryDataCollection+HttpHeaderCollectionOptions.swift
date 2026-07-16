@@ -30,5 +30,17 @@ extension SentryDataCollection {
             self.request = request
             self.response = response
         }
+
+        /// Creates HTTP header collection options from a dictionary.
+        @_spi(Private) public init(dictionary: [String: Any]) {
+            self.init()
+
+            if let request = SentryDictionaryDecoder.dictionary(dictionary, "request") {
+                self.request = SentryDataCollection.KeyValueCollectionBehavior(dictionary: request)
+            }
+            if let response = SentryDictionaryDecoder.dictionary(dictionary, "response") {
+                self.response = SentryDataCollection.KeyValueCollectionBehavior(dictionary: response)
+            }
+        }
     }
 }

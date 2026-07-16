@@ -49,6 +49,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init;
 
+/// Creates data collection options from a dictionary.
+///
+/// Missing keys and @c NSNull values use the same defaults as @c init.
+- (instancetype)initWithDictionary:(NSDictionary *)dictionary;
+
 @end
 
 NS_ASSUME_NONNULL_END
