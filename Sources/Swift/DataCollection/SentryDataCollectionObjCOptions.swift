@@ -11,12 +11,8 @@
 extension Options {
     /// Internal bridge for resolving data collection options from Objective-C.
     @_spi(Private) @objc public var dataCollectionObjC: SentryDataCollectionObjCOptions {
-        let urlQueryParams = sendDefaultPii
-            ? dataCollection.urlQueryParams
-            : .denyList(terms: ["forwarded", "-ip", "remote-", "via", "-user"])
-
         return SentryDataCollectionObjCOptions(
-            wrapped: SentryDataCollection.Options(urlQueryParams: urlQueryParams)
+            wrapped: SentryDataCollection.Options(urlQueryParams: dataCollection.urlQueryParams)
         )
     }
 }
