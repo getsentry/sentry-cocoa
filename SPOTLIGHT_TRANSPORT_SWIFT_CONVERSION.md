@@ -44,8 +44,27 @@ re-`git add` and re-commit if a hook edits files.
 **Branch:** `ref/convert-spotlight-transport-to-swift`
 **Status:** 🟢 In progress — **Option A**, shipped as small PRs to `main`.
 Phase A1 (`SentryRequestManager` → Swift) ✅ **merged** → PR #8428 (`8e6a36fbd` on `main`).
-Phase A2 (`SentryTransport`) 📝 **draft PR #8443** open (build + 82 transport tests green).
+Phase A2 (`SentryTransport`) 📝 **draft PR #8443** open — but see **plan revision** below: we are
+converting the two data enums to Swift FIRST so the protocol can use the real types instead of `UInt`.
+Phase A2a1 (`SentryDiscardReason` → Swift) 📝 **draft PR #8444** open (iOS+macOS build + tests green).
 See "PR tracking" and "✅ Chosen approach" below.
+
+### 🔁 Plan revision (2026-07-16, user request)
+
+The user asked that the ObjC transport conformers use the **real enum types**, not `NSUInteger`. That
+is impossible while the `Transport` protocol requirement is typed `UInt` (an ObjC conformer with an
+enum-typed `recordLostEvent` fails `-Wmismatched-parameter-types -Werror` — verified empirically).
+The clean fix (user-confirmed) is to **convert `SentryDiscardReason` + `SentryDataCategory` to Swift
+`@objc @_spi(Private)` enums first**, each as its own PR (before finishing A2), then type the protocol
+
+- conformers with the real enums and drop the `.rawValue` churn from A2's tests.
+
+Key mechanic (verified): a Swift `@objc enum` bridges its cases to ObjC. With **modern naming**
+(user choice), `case beforeSend` → ObjC `SentryDiscardReasonBeforeSend` (drops the old `k` prefix), so
+each ObjC case ref is renamed. Headers inside the `_SentryPrivate` umbrella (which Swift imports)
+**forward-declare** the enum (`typedef NS_ENUM(NSUInteger, SentryX);`) instead of importing the
+generated Swift header, to avoid a module cycle; `.m` files and non-umbrella headers import
+`SentrySwift.h`. The mappers stay ObjC. SPI-only → no `sdk_api.json` change.
 
 ## PR tracking
 
@@ -54,11 +73,13 @@ phases share files (headers + pbxproj). This branch (`ref/convert-spotlight-tran
 the **plan/WIP tracker only** — its commits are NOT the PRs. Each PR is a clean branch cut from
 `main` containing only that phase's code (no plan doc).
 
-| Phase                                              | PR branch                                 | PR                                                           | Status                                                  |
-| -------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------- |
-| A1 `SentryRequestManager` → Swift                  | `ref/convert-request-manager-to-swift`    | [#8428](https://github.com/getsentry/sentry-cocoa/pull/8428) | ✅ **merged** (`8e6a36fbd`)                             |
-| A2 `SentryTransport` + `SentryFlushResult` → Swift | `ref/convert-transport-protocol-to-swift` | [#8443](https://github.com/getsentry/sentry-cocoa/pull/8443) | 📝 **draft PR open** — build + 82 transport tests green |
-| A3 `SentrySpotlightTransport` → Swift              | _tbd_                                     | —                                                            | ⛔ depends on A2                                        |
+| Phase                                              | PR branch                                 | PR                                                           | Status                                                                               |
+| -------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------ |
+| A1 `SentryRequestManager` → Swift                  | `ref/convert-request-manager-to-swift`    | [#8428](https://github.com/getsentry/sentry-cocoa/pull/8428) | ✅ **merged** (`8e6a36fbd`)                                                          |
+| A2a1 `SentryDiscardReason` → Swift                 | `ref/convert-discard-reason-to-swift`     | [#8444](https://github.com/getsentry/sentry-cocoa/pull/8444) | 📝 **draft PR open** — iOS+macOS build + tests green                                 |
+| A2a2 `SentryDataCategory` → Swift                  | _tbd_                                     | —                                                            | 🔜 next — rebase on A2a1 (~138 refs, 14 files)                                       |
+| A2 `SentryTransport` + `SentryFlushResult` → Swift | `ref/convert-transport-protocol-to-swift` | [#8443](https://github.com/getsentry/sentry-cocoa/pull/8443) | 📝 draft PR open (uses `UInt`) — **rebase to real enum types after A2a1+A2a2 merge** |
+| A3 `SentrySpotlightTransport` → Swift              | _tbd_                                     | —                                                            | ⛔ depends on A2                                                                     |
 
 **Workflow per phase:** cut `<branch>` from latest `main` → cherry-pick/apply that phase's code
 (drop the plan doc) → `make build-ios` + targeted tests → push → `gh pr create --draft`. After a PR
@@ -487,5 +508,18 @@ make generate-public-api   # only if public API surface changed; commit sdk_api.
   `Transport`; added `// swiftlint:disable missing_docs` to `SentryTransport.swift` (same as the A1
   sibling — `missing_docs` blocks the undocumented protocol methods). Verified: `make build-ios` ✅,
   `make analyze` ✅, **82 transport tests, 0 failures** ✅, no `sdk_api.json` change (SPI-only). PR is
-  `#skip-changelog` (type `ref`). **Next: A3** — the actual `SentrySpotlightTransport` conversion,
-  once A2 merges.
+  `#skip-changelog` (type `ref`).
+- 2026-07-16: **Plan revision (user).** User asked the ObjC conformers to use the real enum types, not
+  `NSUInteger`. Verified empirically that's impossible while the protocol requirement is `UInt`
+  (`-Wmismatched-parameter-types -Werror`). Decision: convert `SentryDiscardReason` + `SentryDataCategory`
+  to Swift enums first (two separate PRs, modern non-`k` names), then rebase A2 to use the real types.
+- 2026-07-16: **A2a1 draft PR opened → #8444** (`ref/convert-discard-reason-to-swift`).
+  `SentryDiscardReason` is now a Swift `@objc @_spi(Private) enum: UInt`. ~33 ObjC case refs renamed
+  (`kSentryDiscardReasonBeforeSend` → `SentryDiscardReasonBeforeSend`) across 4 `.m` + the mapper.
+  Umbrella headers (`SentryClient+Private.h`, `SentryTransportAdapter.h`, `SentryDiscardReasonMapper.h`)
+  forward-declare the enum; `SentryTransport.h` + mapper `.m` import `SentrySwift.h`; two `TestUtils`
+  files gained `@_spi(Private)` on their `recordLostEvent` members; `SentryDiscardReasonMapperTests`
+  gained `@_spi(Private) import Sentry`. Verified: iOS+macOS build ✅, analyze ✅, affected tests ✅
+  (70, 0 failures), no `sdk_api.json` change. **Next: A2a2** — same treatment for `SentryDataCategory`
+  (larger: ~138 refs, 14 files), then rebase A2 (#8443) to the real enum types and drop the `.rawValue`
+  churn. A3 (`SentrySpotlightTransport`) last.
