@@ -2227,8 +2227,10 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(fixture.user.email, actual.user?.email)
     }
     
-    #if !SDK_V10
     func testSendDefaultPiiEnabled_GivenNoIP_sdkIPIsAuto() throws {
+#if SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+#else
         fixture.getSut(configureOptions: { options in
             options.sendDefaultPii = true
         }).capture(message: "any")
@@ -2239,20 +2241,26 @@ final class SentryClientTests: XCTestCase {
         XCTAssertNotNil(sdk["settings"])
         let settings = try XCTUnwrap(sdk["settings"] as? [String: Any])
         XCTAssertEqual(settings["infer_ip"] as? String, "auto")
+#endif
     }
-    #endif // !SDK_V10
 
-    #if SDK_V10
     func testDataCollectionUserInfoEnabledByDefault_GivenNoIP_sdkIPIsAuto() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+#else
         fixture.getSut().capture(message: "any")
 
         let actual = try lastSentEvent()
         let sdk = try XCTUnwrap(actual.sdk)
         let settings = try XCTUnwrap(sdk["settings"] as? [String: Any])
         XCTAssertEqual(settings["infer_ip"] as? String, "auto")
+#endif
     }
 
     func testDataCollectionUserInfoDisabled_GivenSendDefaultPiiEnabled_sdkIPIsNever() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+#else
         fixture.getSut(configureOptions: { options in
             options.sendDefaultPii = true
             options.dataCollection.userInfo = false
@@ -2262,8 +2270,8 @@ final class SentryClientTests: XCTestCase {
         let sdk = try XCTUnwrap(actual.sdk)
         let settings = try XCTUnwrap(sdk["settings"] as? [String: Any])
         XCTAssertEqual(settings["infer_ip"] as? String, "never")
+#endif
     }
-    #endif // SDK_V10
     
     func testSendDefaultPiiEnabled_GivenIP_IPAddressNotChanged() throws {
         let scope = Scope()

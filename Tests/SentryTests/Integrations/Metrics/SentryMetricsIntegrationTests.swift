@@ -59,8 +59,10 @@ class SentryMetricsIntegrationTests: XCTestCase {
         XCTAssertEqual(capturedMetric.value, .counter(1))
     }
 
-    #if SDK_V10
     func testAddMetric_whenDataCollectionUserInfoDisabled_shouldKeepUserProvidedEmail() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+#else
         // -- Arrange --
         let client = try givenSdkWithHub { options in
             options.sendDefaultPii = true
@@ -86,8 +88,8 @@ class SentryMetricsIntegrationTests: XCTestCase {
         // -- Assert --
         let capturedMetric = try XCTUnwrap(client.testMetricsBuffer.addInvocations.first)
         XCTAssertEqual(capturedMetric.attributes["user.email"], .string("jane@example.com"))
+#endif
     }
-    #endif // SDK_V10
 
     func testAddMetric_whenNoClientAvailable_shouldDropMetricsSilently() throws {
         // -- Arrange --
