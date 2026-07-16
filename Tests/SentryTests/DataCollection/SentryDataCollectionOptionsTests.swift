@@ -21,7 +21,7 @@ class SentryDataCollectionOptionsTests: XCTestCase {
         XCTAssertEqual(options.urlQueryParams, .denyList())
         XCTAssertTrue(options.graphql.document)
         XCTAssertTrue(options.graphql.variables)
-        XCTAssertTrue(options.database.urlQueryParams)
+        XCTAssertTrue(options.database.queryParams)
         XCTAssertTrue(options.stackFrameVariables)
         XCTAssertEqual(options.frameContextLines, 5)
         #endif
@@ -44,7 +44,7 @@ class SentryDataCollectionOptionsTests: XCTestCase {
             httpBodies: [.outgoingRequest, .incomingResponse],
             urlQueryParams: .allowList(terms: ["page"]),
             graphql: SentryDataCollection.GraphQLCollectionOptions(document: false, variables: true),
-            database: SentryDataCollection.DatabaseCollectionOptions(urlQueryParams: false),
+            database: SentryDataCollection.DatabaseCollectionOptions(queryParams: false),
             stackFrameVariables: false,
             frameContextLines: 0
         )
@@ -58,7 +58,7 @@ class SentryDataCollectionOptionsTests: XCTestCase {
         XCTAssertEqual(options.urlQueryParams, .allowList(terms: ["page"]))
         XCTAssertFalse(options.graphql.document)
         XCTAssertTrue(options.graphql.variables)
-        XCTAssertFalse(options.database.urlQueryParams)
+        XCTAssertFalse(options.database.queryParams)
         XCTAssertFalse(options.stackFrameVariables)
         XCTAssertEqual(options.frameContextLines, 0)
         #endif
@@ -254,7 +254,7 @@ class SentryDataCollectionOptionsTests: XCTestCase {
         #endif
     }
 
-    func testInitWithDictionary_whenurlQueryParamsIsPresent_shouldSeturlQueryParams() throws {
+    func testInitWithDictionary_whenUrlQueryParamsIsPresent_shouldSeturlQueryParams() throws {
         #if !SDK_V10
         throw XCTSkip("Test skipped for SDK_V10")
         #else
@@ -269,7 +269,7 @@ class SentryDataCollectionOptionsTests: XCTestCase {
         #endif
     }
 
-    func testInitWithDictionary_whenurlQueryParamsHasWrongType_shouldUseDefault() throws {
+    func testInitWithDictionary_whenUrlQueryParamsHasWrongType_shouldUseDefault() throws {
         #if !SDK_V10
         throw XCTSkip("Test skipped for SDK_V10")
         #else
@@ -281,7 +281,7 @@ class SentryDataCollectionOptionsTests: XCTestCase {
         #endif
     }
 
-    func testInitWithDictionary_whenurlQueryParamsIsNSNull_shouldUseDefault() throws {
+    func testInitWithDictionary_whenUrlQueryParamsIsNSNull_shouldUseDefault() throws {
         #if !SDK_V10
         throw XCTSkip("Test skipped for SDK_V10")
         #else
@@ -335,10 +335,10 @@ class SentryDataCollectionOptionsTests: XCTestCase {
         throw XCTSkip("Test skipped for SDK_V10")
         #else
         // -- Act --
-        let options = SentryDataCollection.Options(dictionary: ["database": ["urlQueryParams": false]])
+        let options = SentryDataCollection.Options(dictionary: ["database": ["queryParams": false]])
 
         // -- Assert --
-        XCTAssertFalse(options.database.urlQueryParams)
+        XCTAssertFalse(options.database.queryParams)
         XCTAssertEqual(options.graphql, SentryDataCollection.Options().graphql)
         #endif
     }

@@ -28,9 +28,9 @@ public final class SentryObjCDataCollectionDatabaseCollectionOptions: NSObject {
         self.storage = Accessor(SentryDataCollection.DatabaseCollectionOptions())
     }
 
-    @objc public var urlQueryParams: Bool {
-        get { storage.value.urlQueryParams }
-        set { storage.value.urlQueryParams = newValue }
+    @objc public var queryParams: Bool {
+        get { storage.value.queryParams }
+        set { storage.value.queryParams = newValue }
     }
 }
 

@@ -10,19 +10,19 @@ extension SentryDataCollection {
         /// Include parameters/arguments passed to database queries.
         ///
         /// Defaults to `true`.
-        public var urlQueryParams: Bool
+        public var queryParams: Bool
 
-        /// - Parameter urlQueryParams: Include database query parameters. Defaults to `true`.
-        public init(urlQueryParams: Bool = true) {
-            self.urlQueryParams = urlQueryParams
+        /// - Parameter queryParams: Include database query parameters. Defaults to `true`.
+        public init(queryParams: Bool = true) {
+            self.queryParams = queryParams
         }
 
         /// Creates database collection options from a dictionary.
         @_spi(Private) public init(dictionary: [String: Any]) {
             self.init()
 
-            if let urlQueryParams = SentryDictionaryDecoder.bool(dictionary, "urlQueryParams") {
-                self.urlQueryParams = urlQueryParams
+            if let queryParams = SentryDictionaryDecoder.bool(dictionary, "queryParams") {
+                self.queryParams = queryParams
             }
         }
     }

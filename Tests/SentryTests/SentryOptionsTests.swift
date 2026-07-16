@@ -115,7 +115,7 @@ final class SentryOptionsTests: XCTestCase {
             "dataCollection": [
                 "userInfo": false,
                 "graphql": ["variables": false],
-                "database": ["urlQueryParams": false],
+                "database": ["queryParams": false],
                 "frameContextLines": 0
             ]
         ]
@@ -126,7 +126,7 @@ final class SentryOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertFalse(options.dataCollection.userInfo)
         XCTAssertFalse(options.dataCollection.graphql.variables)
-        XCTAssertFalse(options.dataCollection.database.urlQueryParams)
+        XCTAssertFalse(options.dataCollection.database.queryParams)
         XCTAssertEqual(options.dataCollection.frameContextLines, 0)
         #endif
     }

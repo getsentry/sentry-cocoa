@@ -11,7 +11,7 @@ class SentryDatabaseCollectionOptionsTests: XCTestCase {
         let options = SentryDataCollection.DatabaseCollectionOptions()
 
         // -- Assert --
-        XCTAssertTrue(options.urlQueryParams)
+        XCTAssertTrue(options.queryParams)
         #endif
     }
 
@@ -20,31 +20,31 @@ class SentryDatabaseCollectionOptionsTests: XCTestCase {
         throw XCTSkip("Test skipped for SDK_V10")
         #else
         // -- Act --
-        let options = SentryDataCollection.DatabaseCollectionOptions(urlQueryParams: false)
+        let options = SentryDataCollection.DatabaseCollectionOptions(queryParams: false)
 
         // -- Assert --
-        XCTAssertFalse(options.urlQueryParams)
+        XCTAssertFalse(options.queryParams)
         #endif
     }
 
     // MARK: - Dictionary Init
 
-    func testInitWithDictionary_whenurlQueryParamsIsPresent_shouldSeturlQueryParams() throws {
+    func testInitWithDictionary_whenQueryParamsIsPresent_shouldSetQueryParams() throws {
         #if !SDK_V10
         throw XCTSkip("Test skipped for SDK_V10")
         #else
         // -- Arrange --
-        let dictionary: [String: Any] = ["urlQueryParams": false]
+        let dictionary: [String: Any] = ["queryParams": false]
 
         // -- Act --
         let options = SentryDataCollection.DatabaseCollectionOptions(dictionary: dictionary)
 
         // -- Assert --
-        XCTAssertFalse(options.urlQueryParams)
+        XCTAssertFalse(options.queryParams)
         #endif
     }
 
-    func testInitWithDictionary_whenurlQueryParamsIsMissing_shouldUseDefault() throws {
+    func testInitWithDictionary_whenQueryParamsIsMissing_shouldUseDefault() throws {
         #if !SDK_V10
         throw XCTSkip("Test skipped for SDK_V10")
         #else
@@ -59,12 +59,12 @@ class SentryDatabaseCollectionOptionsTests: XCTestCase {
         #endif
     }
 
-    func testInitWithDictionary_whenurlQueryParamsIsNSNull_shouldUseDefault() throws {
+    func testInitWithDictionary_whenQueryParamsIsNSNull_shouldUseDefault() throws {
         #if !SDK_V10
         throw XCTSkip("Test skipped for SDK_V10")
         #else
         // -- Arrange --
-        let dictionary: [String: Any] = ["urlQueryParams": NSNull()]
+        let dictionary: [String: Any] = ["queryParams": NSNull()]
 
         // -- Act --
         let options = SentryDataCollection.DatabaseCollectionOptions(dictionary: dictionary)
@@ -74,12 +74,12 @@ class SentryDatabaseCollectionOptionsTests: XCTestCase {
         #endif
     }
 
-    func testInitWithDictionary_whenurlQueryParamsHasWrongType_shouldUseDefault() throws {
+    func testInitWithDictionary_whenQueryParamsHasWrongType_shouldUseDefault() throws {
         #if !SDK_V10
         throw XCTSkip("Test skipped for SDK_V10")
         #else
         // -- Arrange --
-        let dictionary: [String: Any] = ["urlQueryParams": "false"]
+        let dictionary: [String: Any] = ["queryParams": "false"]
 
         // -- Act --
         let options = SentryDataCollection.DatabaseCollectionOptions(dictionary: dictionary)
