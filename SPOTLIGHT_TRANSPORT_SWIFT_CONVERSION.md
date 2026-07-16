@@ -7,71 +7,95 @@ ObjC protocols it depends on (`SentryRequestManager`, `SentryTransport`) — the
 first (`@_implementationOnly` ObjC types can't appear in a public Swift API). We chose **Option A**:
 convert those protocols first, in small sequential PRs to `main`, then convert the class last.
 
-**✅ A1 MERGED (2026-07-16).** PR #8428 (`SentryRequestManager` → Swift) merged to `main` as
-`8e6a36fbd`. This tracker branch has since **merged `origin/main` back in** so it carries the shipped
-A1 plus the A2 WIP.
+**Progress so far (all merged/open against `main`):**
 
-**🔁 PLAN REVISED (2026-07-16) — convert the two data enums to Swift BEFORE finishing A2.** The user
-requires the ObjC transport conformers to use the **real enum types** (`SentryDataCategory` /
-`SentryDiscardReason`), not `NSUInteger`. Verified empirically that is impossible while the `Transport`
-protocol requirement is typed `UInt`: an ObjC conformer with an enum-typed `recordLostEvent` fails
-`-Wmismatched-parameter-types -Werror`. So the enums must become Swift first, then the protocol +
-conformers use the real types. See the **🔁 Plan revision** section below for the full mechanic.
+- ✅ **A1 `SentryRequestManager` → Swift** — PR #8428, **merged** to `main`.
+- ✅ **A2a1 `SentryDiscardReason` → Swift** — PR #8444, **merged** to `main` as `bacd00766` (2026-07-16).
+- 📝 **A2a2 `SentryDataCategory` → Swift** — PR **#8451**, open, **rebased onto fresh `main`** (2 commits,
+  `mergeable`, blocked only by the draft/`ready-to-merge` label gate). Build+tests+digest all green.
+- 📝 **A2 `SentryTransport` → Swift** — PR **#8443**, open, still typed `UInt`. **STALE** — needs rebase
+  onto `main` + retype to the real enums (this is the next real work; see below).
+
+**🔁 WHY THE ENUM DETOUR (context).** The user requires the ObjC transport conformers to use the **real
+enum types** (`SentryDataCategory` / `SentryDiscardReason`), not `NSUInteger`. Verified empirically that
+is impossible while the `Transport` protocol requirement is typed `UInt`: an ObjC conformer with an
+enum-typed `recordLostEvent` fails `-Wmismatched-parameter-types -Werror`. So both enums had to become
+Swift first (now done) — then the protocol + conformers can use the real types.
 
 **Where everything lives (all pushed to `origin`, nothing local-only):**
 
-- `ref/convert-spotlight-transport-to-swift` ← **THIS branch = the tracker** (plan doc + A2 WIP). Not a PR.
-- `main` ← base for every PR. **Contains A1** (`8e6a36fbd`).
-- `ref/convert-discard-reason-to-swift` ← **A2a1, draft PR #8444** (`SentryDiscardReason` → Swift). Green.
-- `ref/convert-transport-protocol-to-swift` ← **A2, draft PR #8443** (`SentryTransport` → Swift, still
-  typed `UInt`). Will be rebased to the real enum types after the two enum PRs merge.
+- `ref/convert-spotlight-transport-to-swift` ← **THIS branch = the tracker** (plan doc + old A2 WIP snapshot). Not a PR.
+- `main` ← base for every PR. **Contains A1 + A2a1** (`SentryRequestManager`, `SentryDiscardReason`).
+- `ref/convert-data-category-to-swift` ← **A2a2, PR #8451**, rebased on `main`. Ready to merge once labeled.
+- `ref/convert-transport-protocol-to-swift` ← **A2, PR #8443**, stale (uses `UInt`). Rebase + retype next.
 
-**Do this next — A2a2: convert `SentryDataCategory` to Swift** (same recipe as the merged-green A2a1):
+**➡️ DO THIS NEXT — after #8451 merges, rebase & retype A2 (`SentryTransport`, PR #8443):**
 
-- `git checkout main && git pull && git checkout -b ref/convert-data-category-to-swift` (cut fresh; if
-  A2a1 #8444 has NOT merged yet, instead branch from `ref/convert-discard-reason-to-swift` since both
-  touch the same umbrella headers — they'd conflict otherwise).
-- Add `Sources/Swift/Networking/SentryDataCategory.swift`: `@objc(SentryDataCategory) @_spi(Private)
-  public enum SentryDataCategory: UInt` with the **17 cases at their existing raw values** (0…16,
-  including the "unused but kept" ones). Modern non-`k` case names (`case error` → ObjC
-  `SentryDataCategoryError`). Keep the header-doc comment from the old `.h`.
-- Delete `include/SentryDataCategory.h`; drop its 6 pbxproj refs (`sed -E '/SentryDataCategory\.h/d'`,
-  `plutil -lint`). Rename ~138 ObjC case refs `kSentryDataCategory<Case>` → `SentryDataCategory<Case>`
-  across ~14 files with `sed -E` (NOT BSD `sed` `\|` — use extended regex). **Do NOT touch**
-  `kSentryDataCategoryName*` (mapper string consts) — different symbol.
-- Umbrella-included headers that use the type (e.g. `SentryClient+Private.h`, `SentryTransportAdapter.h`,
-  `SentryDataCategoryMapper.h`, `SentryTransport.h`) → forward-declare `typedef NS_ENUM(NSUInteger,
-  SentryDataCategory);`. `.m` files + non-umbrella headers → `#import "SentrySwift.h"`. Mapper `.m`
-  needs `SentrySwift.h` for the switch. `SentryDataCategoryMapper` stays ObjC.
-- TestUtils/tests: any `public` decl using the enum needs `@_spi(Private)`; any test file using it needs
-  `@_spi(Private) import Sentry` (A2a1 hit exactly this in `TestTransport`, `TestClient`, and
-  `SentryDiscardReasonMapperTests`).
-- Verify: `make build-ios` + `make build-macos` + `make analyze` + affected tests. SPI-only → no
-  `sdk_api.json` change.
-- Then **rebase A2 (#8443)**: retype the protocol `recordLostEvent` params + the ObjC conformer
-  signatures to the real enums, and drop the `.rawValue` from `SentryHttpTransportTests`.
-- Finally **A3** — the actual `SentrySpotlightTransport` class conversion.
+1. `git checkout main && git pull` (should now contain A1, A2a1, and A2a2 once #8451 merges).
+2. `git checkout ref/convert-transport-protocol-to-swift && git rebase origin/main` — expect conflicts in
+   the transport headers/`.m` and `SentryHttpTransportTests.swift` (A2a1/A2a2 changed the same lines).
+3. **Retype to the real enums** (the whole point):
+   - `Sources/Swift/Networking/SentryTransport.swift`: change the two `recordLostEvent` requirements from
+     `UInt` to `SentryDataCategory` / `SentryDiscardReason` (both are now Swift `@_spi(Private)` enums, so
+     they're allowed in this SPI-public protocol — no more `_implementationOnly` blocker).
+   - ObjC conformers `SentryHttpTransport.m` + `SentrySpotlightTransport.m`: revert the `recordLostEvent`
+     signatures from `NSUInteger` back to `SentryDataCategory` / `SentryDiscardReason` (they now conform
+     to a Swift enum-typed requirement — selector-compatible, no `-Werror` mismatch because both sides are
+     the same enum type). Import the enums via `SentrySwift.h`.
+   - `SentryHttpTransportTests.swift`: drop the `.rawValue` workarounds — pass enum cases directly.
+4. Verify: `make build-ios` + `make build-macos` + `make analyze` + transport tests; `make generate-public-api`
+   (SentryFlushResult is `@objc` → digest changes; commit `sdk_api.json`).
+5. **Then A3** — the actual `SentrySpotlightTransport.{h,m}` → Swift class conversion (the original goal;
+   now fully unblocked). See "Phase A3" section below for the WIP reference implementation.
 
-**Environment quirk (IMPORTANT):** `make build-ios` / `make test-ios` default to a simulator that is
-**not installed** here. Always append: `IOS_DEVICE_NAME="iPhone 17 Pro" IOS_SIMULATOR_OS=26.4`.
-`ONLY_TESTING` takes **comma-separated** targets (not space). Pre-commit hooks reformat md/swift —
-re-`git add` and re-commit if a hook edits files.
+**Environment quirks (IMPORTANT):**
 
-**💡 Name-preservation option (verified, NOT chosen):** a Swift `@objc` enum can pin each case's ObjC
-name with `@objc(kSentryDataCategoryError) case error = 2` — the generated `SWIFT_ENUM` then emits the
-exact old `k`-prefixed constant, so ObjC needs **zero** ref renames. The user chose **modern
-non-prefixed names** instead (hence the ~138-ref rename). Keep this in back pocket if the rename churn
-ever becomes a problem.
+- `make build-ios` / `make test-ios` default to a simulator that is **not installed** here. Always append:
+  `IOS_DEVICE_NAME="iPhone 17 Pro" IOS_SIMULATOR_OS=26.4`. `ONLY_TESTING` takes **comma-separated** targets.
+- `make generate-public-api` requires **Xcode 16** (Xcode 26 omits the ObjC public API) **with the iOS
+  platform installed**. Xcode 16.4.0 is at `/Applications/Xcode-16.4.0.app`; the iOS platform is now
+  installed. If a fresh machine hits "Failed to load module: Sentry", the iOS device platform is missing
+  (`xcodebuild -sdk iphoneos` falls back to macOS) — install via Xcode 16 → Platforms, or `xcodebuild
+  -downloadPlatform iOS`. Set it active with `sudo xcode-select -s /Applications/Xcode-16.4.0.app/...`.
+- Pre-commit hooks reformat md/swift — re-`git add` and re-commit if a hook edits files. On draft PRs the
+  full CI matrix is **gated** behind the `ready-to-merge` label, so most build/test checks show as
+  `skipping` and their aggregators report `fail` — that is NOT a real failure. Only the **Fast** checks
+  (Fast PR Checks, Fast Unit Tests, Lint, Analyze, API Stability) actually run pre-label; judge drafts by those.
+
+**Key learnings (don't relearn the hard way):**
+
+- **`@objc` enums ARE in `sdk_api.json`** (SPI or not) — `swift-api-digester` dumps the ObjC-visible
+  surface. Any `@objc` enum conversion needs `make generate-public-api` + committed `sdk_api.json`. (Pure
+  Swift `@_spi(Private)` types and `@objc` _classes_ are NOT in the digest; `@objc` enums are.)
+- **Swift `enum` is closed; ObjC `NS_ENUM` is open.** `SentryDataCategory(rawValue: 100)` returned a value
+  under the old ObjC enum but returns `nil` under the Swift enum. This broke `ConcurrentRateLimitsDictionaryTests`
+  (fabricated categories from raw 100/200/300) — fixed by using real `.allCases`. Production is safe (all
+  callers use `?? .unknown`).
+- **`SentryDataCategoryMapper` had to become Swift too** (unlike `SentryDiscardReasonMapper`, which stayed
+  ObjC): Swift production code (`DefaultRateLimits`, `RateLimitParser`, `SentryFileManager`) calls the
+  enum-_returning_ mapper functions, and a forward-declared (incomplete) enum can't satisfy that. Mapping
+  now lives on the enum (`name`, `init(itemType:)`, `init(name:)`) with an `@objc SentryDataCategoryMapper`
+  class for ObjC callers.
+- **Stale digests cause phantom API-stability failures.** #8444 failed because `main` merged the
+  DataCollection→SDK_V10 gating (`c2a01c0f3`) without regenerating the committed digests. Fix: merge `main`
+  - `make generate-public-api`. If an api-stability failure names symbols unrelated to your change, suspect
+    a stale baseline, not your code.
+
+**💡 Name-preservation option (verified, NOT chosen):** a Swift `@objc` enum can pin each case's ObjC name
+with `@objc(kSentryDataCategoryError) case error = 2` — the generated `SWIFT_ENUM` emits the exact old
+`k`-prefixed constant, so ObjC needs **zero** ref renames. User chose **modern non-prefixed names** (hence
+the renames in A2a1/A2a2). Keep in back pocket if rename churn ever becomes a problem.
 
 ---
 
 **Branch:** `ref/convert-spotlight-transport-to-swift`
 **Status:** 🟢 In progress — **Option A**, shipped as small PRs to `main`.
-Phase A1 (`SentryRequestManager` → Swift) ✅ **merged** → PR #8428 (`8e6a36fbd` on `main`).
-Phase A2 (`SentryTransport`) 📝 **draft PR #8443** open — but see **plan revision** below: we are
-converting the two data enums to Swift FIRST so the protocol can use the real types instead of `UInt`.
-Phase A2a1 (`SentryDiscardReason` → Swift) ✅ **PR #8444 CI green + approved, ready to merge.**
-Phase A2a2 (`SentryDataCategory` → Swift) 📝 **draft PR #8451** open, stacked on #8444.
+Phase A1 (`SentryRequestManager`) ✅ **merged** (#8428).
+Phase A2a1 (`SentryDiscardReason`) ✅ **merged** (#8444, `bacd00766`).
+Phase A2a2 (`SentryDataCategory`) 📝 **PR #8451** open, rebased on `main`, ready to merge (needs label).
+Phase A2 (`SentryTransport`) 📝 **PR #8443** open but **stale** — rebase onto `main` + retype to real
+enums next (see "DO THIS NEXT" above).
+Phase A3 (`SentrySpotlightTransport`) ⛔ last, depends on A2.
 See "PR tracking" and "✅ Chosen approach" below.
 
 ### 🔁 Plan revision (2026-07-16, user request)
@@ -98,13 +122,13 @@ phases share files (headers + pbxproj). This branch (`ref/convert-spotlight-tran
 the **plan/WIP tracker only** — its commits are NOT the PRs. Each PR is a clean branch cut from
 `main` containing only that phase's code (no plan doc).
 
-| Phase                                              | PR branch                                 | PR                                                           | Status                                                                               |
-| -------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------ |
-| A1 `SentryRequestManager` → Swift                  | `ref/convert-request-manager-to-swift`    | [#8428](https://github.com/getsentry/sentry-cocoa/pull/8428) | ✅ **merged** (`8e6a36fbd`)                                                          |
-| A2a1 `SentryDiscardReason` → Swift                 | `ref/convert-discard-reason-to-swift`     | [#8444](https://github.com/getsentry/sentry-cocoa/pull/8444) | ✅ **CI green, approved, ready to merge** (merged main + regen)                      |
-| A2a2 `SentryDataCategory` → Swift                  | `ref/convert-data-category-to-swift`      | [#8451](https://github.com/getsentry/sentry-cocoa/pull/8451) | 📝 **draft PR open**, stacked on #8444 — iOS+macOS build + 72 tests green            |
-| A2 `SentryTransport` + `SentryFlushResult` → Swift | `ref/convert-transport-protocol-to-swift` | [#8443](https://github.com/getsentry/sentry-cocoa/pull/8443) | 📝 draft PR open (uses `UInt`) — **rebase to real enum types after A2a1+A2a2 merge** |
-| A3 `SentrySpotlightTransport` → Swift              | _tbd_                                     | —                                                            | ⛔ depends on A2                                                                     |
+| Phase                                              | PR branch                                 | PR                                                           | Status                                                                                                |
+| -------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
+| A1 `SentryRequestManager` → Swift                  | `ref/convert-request-manager-to-swift`    | [#8428](https://github.com/getsentry/sentry-cocoa/pull/8428) | ✅ **merged**                                                                                         |
+| A2a1 `SentryDiscardReason` → Swift                 | `ref/convert-discard-reason-to-swift`     | [#8444](https://github.com/getsentry/sentry-cocoa/pull/8444) | ✅ **merged** (`bacd00766`)                                                                           |
+| A2a2 `SentryDataCategory` → Swift                  | `ref/convert-data-category-to-swift`      | [#8451](https://github.com/getsentry/sentry-cocoa/pull/8451) | 📝 **open, rebased on `main`**, mergeable — needs `ready-to-merge` label. Build+72 tests+digest green |
+| A2 `SentryTransport` + `SentryFlushResult` → Swift | `ref/convert-transport-protocol-to-swift` | [#8443](https://github.com/getsentry/sentry-cocoa/pull/8443) | 📝 open but **STALE** (uses `UInt`) — **rebase onto `main` + retype to real enums next**              |
+| A3 `SentrySpotlightTransport` → Swift              | _tbd_                                     | —                                                            | ⛔ last — depends on A2                                                                               |
 
 **Workflow per phase:** cut `<branch>` from latest `main` → cherry-pick/apply that phase's code
 (drop the plan doc) → `make build-ios` + targeted tests → push → `gh pr create --draft`. After a PR
@@ -569,3 +593,13 @@ make generate-public-api   # only if public API surface changed; commit sdk_api.
   which a forward-declared (incomplete) enum can't satisfy — a wrinkle `SentryDiscardReason` didn't hit.
   Verified: iOS+macOS build ✅, analyze ✅, 72 transport/rate-limit tests ✅, digest regenerated.
   **Next: rebase A2 (#8443) to the real enum types once #8444 + #8451 merge; then A3.**
+- 2026-07-16: **#8451 CI shakeout.** First full run surfaced a real regression — 115 failures in
+  `ConcurrentRateLimitsDictionaryTests.testConcurrentReadWrite`: it fabricated categories from raw values
+  100/200/300, valid under the open ObjC enum but `nil` under the closed Swift enum. Fixed to use real
+  `SentryDataCategory.allCases`. Second run's remaining "failures" were all the draft `ready-to-merge`
+  gate cascade (real matrices `skipping`) — not real; the Fast lane + Lint + API Stability all passed.
+- 2026-07-16: **A2a1 (#8444) MERGED to `main`** as `bacd00766`. **A2a2 (#8451) rebased onto fresh `main`**
+  (dropped the now-redundant discard-reason commits; `git rebase --onto origin/main b15415597`). Clean,
+  no conflicts; digest re-verified zero-diff against the new baseline (838 additive lines, DataCategory
+  only). PR #8451 now `mergeable`, blocked only by the label gate. Backups: `backup/data-category-*`.
+  **Next real work: A2 (#8443) rebase + retype to real enums (see "DO THIS NEXT" at top).**
