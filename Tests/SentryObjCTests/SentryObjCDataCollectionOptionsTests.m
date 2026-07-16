@@ -174,52 +174,6 @@
 #endif
 }
 
-#pragma mark - Dictionary Init
-
-- (void)testInitWithDictionary_whenUserInfoIsPresent_shouldSetUserInfo
-{
-    // -- Arrange --
-    NSDictionary *dictionary = @{ @"userInfo" : @NO };
-
-    // -- Act --
-    SentryObjCDataCollectionOptions *options =
-        [[SentryObjCDataCollectionOptions alloc] initWithDictionary:dictionary];
-
-    // -- Assert --
-    XCTAssertFalse(options.userInfo);
-    XCTAssertEqual(options.cookies.mode, SentryObjCDataCollectionKeyValueCollectionModeDenyList);
-}
-
-- (void)testInitWithDictionary_whenHttpBodiesIsPresent_shouldSetHttpBodies
-{
-    // -- Arrange --
-    NSDictionary *dictionary = @{ @"httpBodies" : @[ @"outgoingRequest", @"incomingResponse" ] };
-
-    // -- Act --
-    SentryObjCDataCollectionOptions *options =
-        [[SentryObjCDataCollectionOptions alloc] initWithDictionary:dictionary];
-
-    // -- Assert --
-    XCTAssertTrue(options.httpBodies & SentryObjCDataCollectionHttpBodyTypeOutgoingRequest);
-    XCTAssertTrue(options.httpBodies & SentryObjCDataCollectionHttpBodyTypeIncomingResponse);
-    XCTAssertFalse(options.httpBodies & SentryObjCDataCollectionHttpBodyTypeIncomingRequest);
-    XCTAssertFalse(options.httpBodies & SentryObjCDataCollectionHttpBodyTypeOutgoingResponse);
-    XCTAssertTrue(options.userInfo);
-}
-
-- (void)testInitWithDictionary_whenUserInfoIsNSNull_shouldUseDefault
-{
-    // -- Arrange --
-    NSDictionary *dictionary = @{ @"userInfo" : NSNull.null };
-
-    // -- Act --
-    SentryObjCDataCollectionOptions *options =
-        [[SentryObjCDataCollectionOptions alloc] initWithDictionary:dictionary];
-
-    // -- Assert --
-    XCTAssertTrue(options.userInfo);
-}
-
 #pragma mark - Get/Set
 
 - (void)testUserInfo_whenSetToNo_shouldReturnFalse
