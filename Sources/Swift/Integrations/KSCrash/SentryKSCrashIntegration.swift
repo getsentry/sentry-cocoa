@@ -28,7 +28,7 @@ final class SentryKSCrashIntegration<Dependencies: KSCrashIntegrationProvider>: 
         do {
             try dependencies.kscrashInstaller.install(
                 installPath: options.cacheDirectoryPath,
-                monitors: MonitorType.productionSafeMinimal.rawValue,
+                monitors: kscrashProductionSafeMonitors, // TODO: match this with SentryCrash's existing monitors
                 enableSwapCxaThrow: options.experimental.enableUnhandledCPPExceptionsV2
             )
         } catch {

@@ -1,12 +1,33 @@
 #if ENABLE_KSCRASH
 @_implementationOnly import KSCrashInstallations
 
+/// Abstraction over `KSCrash.shared` to keep `SentryKSCrashIntegration` testable without
+/// linking KSCrash into every target that tests it.
+ protocol KSCrashInstalling {
+    /// Install the crash handler.
+    /// - Parameters:
+    ///   - installPath: The base directory for crash report storage.
+    ///   - monitors: Monitor types to enable.
+    ///   - enableSwapCxaThrow: Whether to swap `__cxa_throw` for better C++ stacks.
+    /// - Throws: Any error from `KSCrash.installWithConfiguration(_:error:)`.
+     func install(installPath: String, monitors: UInt, enableSwapCxaThrow: Bool) throws
+
+    /// Whether the previous run crashed.
+    var crashedLastLaunch: Bool { get }
+}
+
+/// Provides a `KSCrashInstalling` instance for dependency injection.
+protocol KSCrashInstallerProvider {
+    /// The installer used to set up KSCrash crash reporting.
+    var kscrashInstaller: any KSCrashInstalling { get }
+}
+
 /// The production-safe monitor set passed to KSCrash on install.
 /// Exposed as a primitive so test targets can assert against it without importing KSCrash.
-@_spi(Private) public let kscrashProductionSafeMonitors: UInt = MonitorType.productionSafeMinimal.rawValue
+let kscrashProductionSafeMonitors: UInt = MonitorType.productionSafeMinimal.rawValue
 
 /// Wraps `KSCrash.shared` for production use.
-final class KSCrashInstaller: KSCrashInstalling {
+struct KSCrashInstaller: KSCrashInstalling {
     func install(installPath: String, monitors: UInt, enableSwapCxaThrow: Bool) throws {
         let config = KSCrashConfiguration()
         config.installPath = installPath
