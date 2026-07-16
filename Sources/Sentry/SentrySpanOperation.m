@@ -1,4 +1,4 @@
-#import <Foundation/Foundation.h>
+#import "SentrySpanOperation.h"
 
 NSString *const SentrySpanOperationAppLifecycle = @"app.lifecycle";
 
@@ -15,6 +15,14 @@ NSString *const SentrySpanOperationNetworkRequestOperation = @"http.client";
 
 NSString *const SentrySpanOperationUiAction = @"ui.action";
 NSString *const SentrySpanOperationUiActionClick = @"ui.action.click";
+
+BOOL
+SentrySpanOperationIsUIEvent(NSString *operation)
+{
+    return [operation isEqualToString:SentrySpanOperationUiAction] ||
+        [operation isEqualToString:SentrySpanOperationUiActionClick];
+}
+
 NSString *const SentrySpanOperationAppStart = @"app.start";
 NSString *const SentrySpanOperationAppStartCold = @"app.start.cold";
 NSString *const SentrySpanOperationAppStartWarm = @"app.start.warm";

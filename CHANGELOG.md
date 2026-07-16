@@ -1,19 +1,20 @@
 # Changelog
 
-## Unreleased
+## 9.22.0
 
-### Fixes
-
-- Session Replay now correctly reads the response `Content-Type` for HTTP/2 and HTTP/3, so it captures HTTP response bodies as it was supposed to (when body capturing is enabled via `options.sessionReplay.networkCaptureBodies`) (#8390)
-- Log the actual request error instead of `(null)` when a Spotlight request fails (#8401)
-
-## Features
+### Features
 
 - Mark opt in option `swiftAsyncStacktraces` as stable (#8373)
 - Add `dataCollection` option under `experimental` for configuring data scrubbing behavior (#8369)
 - Add scope API to clear feature flags (#8364)
 
-## Improvements
+### Fixes
+
+- Session Replay now correctly reads the response `Content-Type` for HTTP/2 and HTTP/3, so it captures HTTP response bodies as it was supposed to (when body capturing is enabled via `options.sessionReplay.networkCaptureBodies`) (#8390)
+- Log the actual request error instead of `(null)` when a Spotlight request fails (#8401)
+- Decoding dictionary to Options sets value of key `"dsn"` to property `dsn` instead of `nil` (#8393)
+
+### Improvements
 
 - Remove `enableReplayNetworkDetailsCapturing` experimental flag; network detail capture is now enabled automatically when `networkDetailAllowUrls` is non-empty (#8396)
 

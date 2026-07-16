@@ -41,6 +41,11 @@ WATCHOS_DEVICE_NAME ?= Apple Watch SE 3 (44mm)
 # Current git reference name
 GIT-REF := $(shell git rev-parse --abbrev-ref HEAD)
 
+# Reduce build and test output for agents while retaining raw xcodebuild logs.
+FOR_AGENTS ?= false
+export FOR_AGENTS
+XCBEAUTIFY_OUTPUT_FLAGS = $(if $(filter true,$(FOR_AGENTS)),--quieter --disable-logging,--preserve-unbeautified)
+
 # ============================================================================
 # SETUP
 # ============================================================================
@@ -201,7 +206,7 @@ build-watchos:
 		-scheme $(XCODE_SCHEME) \
 		-destination 'platform=watchOS Simulator,OS=$(WATCHOS_SIMULATOR_OS),name=$(WATCHOS_DEVICE_NAME)' \
 		-configuration Debug \
-		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
+		CODE_SIGNING_ALLOWED="NO" 2>&1 | tee raw-build-output.log | xcbeautify $(XCBEAUTIFY_OUTPUT_FLAGS)
 
 ## Build all platforms with SDK_V10 flag
 #
@@ -293,7 +298,7 @@ build-watchos-v10:
 		-scheme SentryV10 \
 		-destination 'platform=watchOS Simulator,OS=$(WATCHOS_SIMULATOR_OS),name=$(WATCHOS_DEVICE_NAME)' \
 		-configuration DebugV10 \
-		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
+		CODE_SIGNING_ALLOWED="NO" 2>&1 | tee raw-build-output.log | xcbeautify $(XCBEAUTIFY_OUTPUT_FLAGS)
 
 ## Build all platforms with ENABLE_KSCRASH and SDK_V10 flags
 #
@@ -385,7 +390,7 @@ build-watchos-v10-with-kscrash:
 		-scheme Sentry+KSCrash \
 		-destination 'platform=watchOS Simulator,OS=$(WATCHOS_SIMULATOR_OS),name=$(WATCHOS_DEVICE_NAME)' \
 		-configuration DebugV10 \
-		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
+		CODE_SIGNING_ALLOWED="NO" 2>&1 | tee raw-build-output.log | xcbeautify $(XCBEAUTIFY_OUTPUT_FLAGS)
 ## Build XCFramework validation sample
 #
 # Builds the XCFramework validation sample project to verify XCFramework integration.
@@ -510,6 +515,42 @@ build-xcframework-sentryobjc-dynamic:
 	./scripts/build-xcframework-sentryobjc.sh --sdks "$(SDKS)" --variant dynamic
 	./scripts/validate-xcframework.sh --xcframework "SentryObjC-Dynamic.xcframework"
 	./scripts/compress-xcframework.sh --xcframework "SentryObjC-Dynamic.xcframework"
+
+## Build Sentry+KSCrash Dynamic XCFramework
+#
+# Builds the Sentry+KSCrash target as a dynamic xcframework. Overrides the
+# arm64e xcconfig restriction for tvOS, watchOS, and Mac Catalyst, which exists
+# only to work around an Xcode UI bug that does not affect xcodebuild.
+#
+# SDKS is a comma-separated list of SDK names (default: all).
+#
+# Examples:
+#   make build-xcframework-kscrash-dynamic
+#   make build-xcframework-kscrash-dynamic SDKS=iphoneos
+.PHONY: build-xcframework-kscrash-dynamic
+build-xcframework-kscrash-dynamic:
+	@echo "--> Creating Sentry+KSCrash-Dynamic xcframework (SDKs: $(SDKS))"
+	./scripts/build-xcframework-kscrash.sh --suffix "-Dynamic" --sdks "$(SDKS)"
+	./scripts/validate-xcframework.sh --xcframework "Sentry+KSCrash-Dynamic.xcframework"
+	./scripts/compress-xcframework.sh --xcframework "Sentry+KSCrash-Dynamic.xcframework"
+
+## Build Sentry+KSCrash Static XCFramework
+#
+# Builds the Sentry+KSCrash target as a static xcframework. Overrides the
+# arm64e xcconfig restriction for tvOS, watchOS, and Mac Catalyst, which exists
+# only to work around an Xcode UI bug that does not affect xcodebuild.
+#
+# SDKS is a comma-separated list of SDK names (default: all).
+#
+# Examples:
+#   make build-xcframework-kscrash-static
+#   make build-xcframework-kscrash-static SDKS=iphoneos
+.PHONY: build-xcframework-kscrash-static
+build-xcframework-kscrash-static:
+	@echo "--> Creating Sentry+KSCrash Static xcframework (SDKs: $(SDKS))"
+	./scripts/build-xcframework-kscrash.sh --mach-o-type "staticlib" --sdks "$(SDKS)"
+	./scripts/validate-xcframework.sh --xcframework "Sentry+KSCrash.xcframework"
+	./scripts/compress-xcframework.sh --xcframework "Sentry+KSCrash.xcframework"
 
 # ============================================================================
 # SAMPLE APPS

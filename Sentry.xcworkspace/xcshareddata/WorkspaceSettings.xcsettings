@@ -4,5 +4,7 @@
 <dict>
 	<key>PreviewsEnabled</key>
 	<false/>
+	<key>iOSPackagesShouldBuildARM64e</key>
+	<true/>
 </dict>
 </plist>

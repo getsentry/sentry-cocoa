@@ -112,35 +112,27 @@ final class SentryClientTests: XCTestCase {
         }
 
         func getSut(configureOptions: (Options) -> Void = { _ in }) -> SentryClientInternal {
-            var client: SentryClientInternal!
-            do {
-                let options = try SentryOptionsInternal.initWithDict([
-                    "dsn": SentryClientTests.dsn
-                ])
-                options.removeAllIntegrations()
-                options.enableLogs = true
-                configureOptions(options)
+            let options = Options()
+            options.dsn = SentryClientTests.dsn
+            options.removeAllIntegrations()
+            options.enableLogs = true
+            configureOptions(options)
 
-                client = SentryClientInternal(
-                    options: options,
-                    dateProvider: dateProvider,
-                    transportAdapter: transportAdapter,
-                    fileManager: fileManager,
-                    threadInspector: threadInspector,
-                    debugImageProvider: debugImageProvider,
-                    random: random,
-                    locale: locale,
-                    timezone: timezone,
-                    eventContextEnricher: eventContextEnricher,
-                    crashWrapper: crashWrapper,
-                    binaryImageCache: SentryDependencyContainer.sharedInstance().binaryImageCache,
-                    dispatchQueueWrapper: dispatchQueue
-                )
-            } catch {
-                XCTFail("Options could not be created")
-            }
-
-            return client
+            return SentryClientInternal(
+                options: options,
+                dateProvider: dateProvider,
+                transportAdapter: transportAdapter,
+                fileManager: fileManager,
+                threadInspector: threadInspector,
+                debugImageProvider: debugImageProvider,
+                random: random,
+                locale: locale,
+                timezone: timezone,
+                eventContextEnricher: eventContextEnricher,
+                crashWrapper: crashWrapper,
+                binaryImageCache: SentryDependencyContainer.sharedInstance().binaryImageCache,
+                dispatchQueueWrapper: dispatchQueue
+            )
         }
 
         func getSutWithNoDsn() -> SentryClientInternal {
