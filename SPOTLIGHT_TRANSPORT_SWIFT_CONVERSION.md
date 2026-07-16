@@ -11,10 +11,11 @@ convert those protocols first, in small sequential PRs to `main`, then convert t
 
 - ✅ **A1 `SentryRequestManager` → Swift** — PR #8428, **merged** to `main`.
 - ✅ **A2a1 `SentryDiscardReason` → Swift** — PR #8444, **merged** to `main` as `bacd00766` (2026-07-16).
-- 📝 **A2a2 `SentryDataCategory` → Swift** — PR **#8451**, open, **rebased onto fresh `main`** (2 commits,
-  `mergeable`, blocked only by the draft/`ready-to-merge` label gate). Build+tests+digest all green.
+- 📝 **A2a2 `SentryDataCategory` → Swift** — PR **#8451**, open, **rebased onto fresh `main`**,
+  `mergeable`, blocked only by the `ready-to-merge` label gate. Reviewed + refined (see below);
+  build+tests+digest all green. **⏳ THIS IS THE ONE TO MERGE FIRST TOMORROW** (add the label / merge).
 - 📝 **A2 `SentryTransport` → Swift** — PR **#8443**, open, still typed `UInt`. **STALE** — needs rebase
-  onto `main` + retype to the real enums (this is the next real work; see below).
+  onto `main` + retype to the real enums (this is the next real work after #8451 merges; see below).
 
 **🔁 WHY THE ENUM DETOUR (context).** The user requires the ObjC transport conformers to use the **real
 enum types** (`SentryDataCategory` / `SentryDiscardReason`), not `NSUInteger`. Verified empirically that
@@ -33,7 +34,11 @@ Swift first (now done) — then the protocol + conformers can use the real types
 - `ref/convert-data-category-to-swift` ← **A2a2, PR #8451**, rebased on `main`. Ready to merge once labeled.
 - `ref/convert-transport-protocol-to-swift` ← **A2, PR #8443**, stale (uses `UInt`). Rebase + retype next.
 
-**➡️ DO THIS NEXT — after #8451 merges, rebase & retype A2 (`SentryTransport`, PR #8443):**
+**➡️ RESUME TOMORROW:**
+
+- **Step 0 — get A2a2 (#8451) merged.** It's reviewed, green, and `mergeable`; it only needs the
+  `ready-to-merge` label (maintainer action) then merge. Everything below depends on it being in `main`.
+- **Step 1 onward — rebase & retype A2 (`SentryTransport`, PR #8443)** once #8451 is in `main`:
 
 1. `git checkout main && git pull` (should now contain A1, A2a1, and A2a2 once #8451 merges).
 2. `git checkout ref/convert-transport-protocol-to-swift && git rebase origin/main` — expect conflicts in
@@ -73,13 +78,14 @@ Swift first (now done) — then the protocol + conformers can use the real types
   Swift `@_spi(Private)` types and `@objc` _classes_ are NOT in the digest; `@objc` enums are.)
 - **Swift `enum` is closed; ObjC `NS_ENUM` is open.** `SentryDataCategory(rawValue: 100)` returned a value
   under the old ObjC enum but returns `nil` under the Swift enum. This broke `ConcurrentRateLimitsDictionaryTests`
-  (fabricated categories from raw 100/200/300) — fixed by using real `.allCases`. Production is safe (all
-  callers use `?? .unknown`).
+  (fabricated categories from raw 100/200/300) — fixed by shrinking that test's offsets to 4/8/12 (in-range)
+  while keeping its original structure. Production is safe (all callers use the `init(_:)` → `.unknown` path).
 - **`SentryDataCategoryMapper` had to become Swift too** (unlike `SentryDiscardReasonMapper`, which stayed
   ObjC): Swift production code (`DefaultRateLimits`, `RateLimitParser`, `SentryFileManager`) calls the
   enum-_returning_ mapper functions, and a forward-declared (incomplete) enum can't satisfy that. Mapping
-  now lives on the enum (`name`, `init(itemType:)`, `init(name:)`) with an `@objc SentryDataCategoryMapper`
-  class for ObjC callers.
+  lives on the enum: intrinsic bits (`name`, `init(name:)`, `init(_ rawValue:)`) in
+  `SentryDataCategory.swift`; the cross-domain `init(itemType:)` in `SentryDataCategory+EnvelopeItemType.swift`;
+  an `@objc SentryDataCategoryMapper` class bridges all of it to ObjC callers.
 - **Stale digests cause phantom API-stability failures.** #8444 failed because `main` merged the
   DataCollection→SDK_V10 gating (`c2a01c0f3`) without regenerating the committed digests. Fix: merge `main`
   - `make generate-public-api`. If an api-stability failure names symbols unrelated to your change, suspect
@@ -607,3 +613,21 @@ make generate-public-api   # only if public API surface changed; commit sdk_api.
   no conflicts; digest re-verified zero-diff against the new baseline (838 additive lines, DataCategory
   only). PR #8451 now `mergeable`, blocked only by the label gate. Backups: `backup/data-category-*`.
   **Next real work: A2 (#8443) rebase + retype to real enums (see "DO THIS NEXT" at top).**
+- 2026-07-16: **A2a2 (#8451) close-reviewed + refined** (subagent + manual, all clean — behavior-parity
+  with the old ObjC mapper verified case-by-case, incl. the Relay `profile_chunk→profile_chunk_ui` /
+  `statsd→metric_bucket` remaps). Three user-requested refinements applied (folded into the conversion
+  commit; digest unchanged since none are `@objc`):
+  1. **`init(itemType:)` moved to its own extension file** `SentryDataCategory+EnvelopeItemType.swift`
+     (it couples the enum to `SentryEnvelopeItemTypes` — a different domain). Core `SentryDataCategory.swift`
+     is now purely intrinsic. Matches the repo's `Type+Feature.swift` convention.
+  2. **Deduped the `SentryDataCategory(rawValue:) ?? .unknown` pattern** (was in 5+ places) into a single
+     non-failable convenience init `init(_ rawValue: UInt)` on the enum; all call sites + the mapper's
+     `category(forNSUInteger:)` now use `SentryDataCategory(x)`. (Can't override the synthesized failable
+     `init(rawValue:)`, so the unlabeled `init(_:)` is the form that works.)
+  3. **Reverted `ConcurrentRateLimitsDictionaryTests.testConcurrentReadWrite` to the original structure**
+     (kept the `getCategory` helper + a/b/c/d + loop shape verbatim); ONLY changed `loopCount 10→4` and
+     offsets `100/200/300→4/8/12` so fabricated raw values stay in the closed enum's 0–15 range.
+     Verified: iOS+macOS build, analyze, 175 tests (0 fail), digest zero-diff. Added a 2-sentence note to the
+     #8451 description explaining the `sdk_api*.json` additions are expected (digester tracks `@objc` enums).
+- 2026-07-16 (EOD): **A2a1 (#8444) confirmed MERGED** (`2026-07-16T11:42Z`). #8451 is the next merge, then
+  A2 (#8443). Paused here for the day — resume at "RESUME TOMORROW" at the top of this doc.
