@@ -1743,7 +1743,7 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "dataCollection",
-    "parent": "SentryObjCExperimentalOptions",
+    "parent": "SentryObjCOptions",
     "returnType": "SentryObjCDataCollectionOptions * _Nonnull",
     "instance": true
   },
@@ -5782,7 +5782,7 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setDataCollection:",
-    "parent": "SentryObjCExperimentalOptions",
+    "parent": "SentryObjCOptions",
     "returnType": "void",
     "instance": true
   },
@@ -9130,7 +9130,7 @@
   {
     "kind": "ObjCPropertyDecl",
     "name": "dataCollection",
-    "parent": "SentryObjCExperimentalOptions",
+    "parent": "SentryObjCOptions",
     "type": "SentryObjCDataCollectionOptions * _Nonnull"
   },
   {
