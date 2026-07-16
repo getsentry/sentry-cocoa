@@ -5025,6 +5025,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "queryParams",
+    "parent": "SentryObjCDataCollectionDatabaseCollectionOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "queryString",
     "parent": "SentryObjCRequest",
     "returnType": "NSString * _Nullable",
@@ -6950,6 +6957,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setQueryParams:",
+    "parent": "SentryObjCDataCollectionDatabaseCollectionOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setQueryString:",
     "parent": "SentryObjCRequest",
     "returnType": "void",
@@ -7582,13 +7596,6 @@
     "kind": "ObjCMethodDecl",
     "name": "setUrl:",
     "parent": "SentryObjCRequest",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "setUrlQueryParams:",
-    "parent": "SentryObjCDataCollectionDatabaseCollectionOptions",
     "returnType": "void",
     "instance": true
   },
@@ -8549,13 +8556,6 @@
     "name": "url",
     "parent": "SentryObjCRequest",
     "returnType": "NSString * _Nullable",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "urlQueryParams",
-    "parent": "SentryObjCDataCollectionDatabaseCollectionOptions",
-    "returnType": "BOOL",
     "instance": true
   },
   {
@@ -10569,6 +10569,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "queryParams",
+    "parent": "SentryObjCDataCollectionDatabaseCollectionOptions",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "queryString",
     "parent": "SentryObjCRequest",
     "type": "NSString * _Nullable"
@@ -11328,12 +11334,6 @@
     "name": "url",
     "parent": "SentryObjCRequest",
     "type": "NSString * _Nullable"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
-    "name": "urlQueryParams",
-    "parent": "SentryObjCDataCollectionDatabaseCollectionOptions",
-    "type": "BOOL"
   },
   {
     "kind": "ObjCPropertyDecl",

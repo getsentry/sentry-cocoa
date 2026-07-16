@@ -83,10 +83,10 @@
     SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
 
     // -- Act --
-    options.dataCollection.database.urlQueryParams = NO;
+    options.dataCollection.database.queryParams = NO;
 
     // -- Assert --
-    XCTAssertFalse(options.dataCollection.database.urlQueryParams);
+    XCTAssertFalse(options.dataCollection.database.queryParams);
 #endif
 }
 

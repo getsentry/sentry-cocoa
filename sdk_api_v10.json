@@ -36144,11 +36144,11 @@
                 "declKind": "Constructor",
                 "init_kind": "Designated",
                 "kind": "Constructor",
-                "mangledName": "$s6Sentry0A14DataCollectionO08DatabaseC7OptionsV14urlQueryParamsAESb_tcfc",
+                "mangledName": "$s6Sentry0A14DataCollectionO08DatabaseC7OptionsV11queryParamsAESb_tcfc",
                 "moduleName": "Sentry",
                 "name": "init",
-                "printedName": "init(urlQueryParams:)",
-                "usr": "s:6Sentry0A14DataCollectionO08DatabaseC7OptionsV14urlQueryParamsAESb_tcfc"
+                "printedName": "init(queryParams:)",
+                "usr": "s:6Sentry0A14DataCollectionO08DatabaseC7OptionsV11queryParamsAESb_tcfc"
               },
               {
                 "children": [
@@ -36196,11 +36196,11 @@
                     "declKind": "Accessor",
                     "implicit": true,
                     "kind": "Accessor",
-                    "mangledName": "$s6Sentry0A14DataCollectionO08DatabaseC7OptionsV14urlQueryParamsSbvg",
+                    "mangledName": "$s6Sentry0A14DataCollectionO08DatabaseC7OptionsV11queryParamsSbvg",
                     "moduleName": "Sentry",
                     "name": "Get",
                     "printedName": "Get()",
-                    "usr": "s:6Sentry0A14DataCollectionO08DatabaseC7OptionsV14urlQueryParamsSbvg"
+                    "usr": "s:6Sentry0A14DataCollectionO08DatabaseC7OptionsV11queryParamsSbvg"
                   },
                   {
                     "accessorKind": "set",
@@ -36220,11 +36220,11 @@
                     "declKind": "Accessor",
                     "implicit": true,
                     "kind": "Accessor",
-                    "mangledName": "$s6Sentry0A14DataCollectionO08DatabaseC7OptionsV14urlQueryParamsSbvs",
+                    "mangledName": "$s6Sentry0A14DataCollectionO08DatabaseC7OptionsV11queryParamsSbvs",
                     "moduleName": "Sentry",
                     "name": "Set",
                     "printedName": "Set()",
-                    "usr": "s:6Sentry0A14DataCollectionO08DatabaseC7OptionsV14urlQueryParamsSbvs"
+                    "usr": "s:6Sentry0A14DataCollectionO08DatabaseC7OptionsV11queryParamsSbvs"
                   }
                 ],
                 "children": [
@@ -36241,11 +36241,11 @@
                 "declKind": "Var",
                 "hasStorage": true,
                 "kind": "Var",
-                "mangledName": "$s6Sentry0A14DataCollectionO08DatabaseC7OptionsV14urlQueryParamsSbvp",
+                "mangledName": "$s6Sentry0A14DataCollectionO08DatabaseC7OptionsV11queryParamsSbvp",
                 "moduleName": "Sentry",
-                "name": "urlQueryParams",
-                "printedName": "urlQueryParams",
-                "usr": "s:6Sentry0A14DataCollectionO08DatabaseC7OptionsV14urlQueryParamsSbvp"
+                "name": "queryParams",
+                "printedName": "queryParams",
+                "usr": "s:6Sentry0A14DataCollectionO08DatabaseC7OptionsV11queryParamsSbvp"
               }
             ],
             "conformances": [

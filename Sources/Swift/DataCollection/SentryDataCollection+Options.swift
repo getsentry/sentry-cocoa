@@ -52,7 +52,7 @@ extension SentryDataCollection {
 
         /// Controls database query parameter collection.
         ///
-        /// Defaults to ``SentryDataCollection/DatabaseCollectionOptions/init(urlQueryParams:)`` with `urlQueryParams`
+        /// Defaults to ``SentryDataCollection/DatabaseCollectionOptions/init(queryParams:)`` with `queryParams`
         /// set to `true`.
         public var database: SentryDataCollection.DatabaseCollectionOptions
 
@@ -78,7 +78,7 @@ extension SentryDataCollection {
         ///   - httpBodies: Body types to collect. Defaults to `.all`; pass `[]` to disable.
         ///   - urlQueryParams: Query parameter collection behavior. Defaults to `.denyList()`.
         ///   - graphql: GraphQL collection options. Defaults to both `true`.
-        ///   - database: Database collection options. Defaults to `urlQueryParams: true`.
+        ///   - database: Database collection options. Defaults to `queryParams: true`.
         ///   - stackFrameVariables: Include stack frame local variables. Defaults to `true`.
         ///   - frameContextLines: Source context lines above/below each frame. Defaults to `5`.
         public init(
