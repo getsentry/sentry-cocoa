@@ -145,6 +145,7 @@ jobs:
         if: ${{ inputs.build_with_make }}
 
       - name: Add Microphone permissions
+        continue-on-error: true
         uses: ./.github/actions/add-microphone-permissions
 
       - name: Download XCFramework
