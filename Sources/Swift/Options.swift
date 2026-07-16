@@ -1,7 +1,7 @@
 // swiftlint:disable file_length
 /// Configuration options for the Sentry SDK.
 @objc(SentryOptions) public final class Options: NSObject {
-    
+
     @objc public override init() {
         super.init()
         #if os(macOS)
@@ -16,7 +16,7 @@
         }
         #endif
     }
-    
+
     /// The DSN tells the SDK where to send the events to. If this value is not provided, the SDK will
     /// not send any events.
     @objc public var dsn: String? {
@@ -270,7 +270,7 @@
     /// this, or create your own scope instead.
     /// @note The default simply returns the passed in scope.
     @objc public var initialScope: ((Scope) -> Scope) = { return $0 }
-    
+
     #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
     /// When enabled, the SDK tracks performance for UIViewController subclasses.
@@ -332,27 +332,27 @@
     ///
     /// @note Default value is @c true.
     @objc public var enablePreWarmedAppStartTracing: Bool = true
-    
+
     /// When enabled the SDK reports non-fully-blocking app hangs. A non-fully-blocking app hang is when
     /// the app appears stuck to the user but can still render a few frames.
     ///
     /// @note The default is @c true.
     @objc public var enableReportNonFullyBlockingAppHangs: Bool = true
-    
+
     // swiftlint:disable:next missing_docs
     @_spi(Private) @objc public func isAppHangTrackingDisabled() -> Bool {
         !enableAppHangTracking || appHangTimeoutInterval <= 0
     }
-    
+
     #endif
-    
+
     #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
-    
+
     /// Configuration options for Session Replay.
     @objc public var sessionReplay = SentryReplayOptions()
 
     #endif
-    
+
     /// When enabled, the SDK tracks performance for HTTP requests if auto performance tracking and
     /// @c enableSwizzling are enabled.
     /// @note The default is @c true.
@@ -421,7 +421,7 @@
         }
         return []
     }()
-    
+
     /// Adds an item to the list of inAppIncludes.
     /// - Parameter inAppInclude: The prefix of the framework name.
     @objc public func add(inAppInclude: String) {
@@ -456,7 +456,7 @@
     /// performance monitoring. The default is @c true.
     /// See: https://docs.sentry.io/platforms/apple/performance/
     @objc public var enableCoreDataTracing: Bool = true
-    
+
 #if !(os(watchOS) || os(tvOS) || os(visionOS))
 
     /// Configuration for the Sentry profiler.
@@ -476,7 +476,7 @@
 
     // swiftlint:disable:next missing_docs
     @_spi(Private) @objc public var profiling: SentryProfileOptions?
-    
+
     // swiftlint:disable:next missing_docs
     @_spi(Private) @objc public func isContinuousProfilingEnabled() -> Bool {
         profiling != nil
@@ -487,7 +487,7 @@
         profiling?.lifecycle == .trace
     }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
-    
+
     /// Whether to send client reports, which contain statistics about discarded events.
     /// @note The default is @c true.
     /// @see <https://develop.sentry.dev/sdk/client-reports/>
@@ -533,7 +533,7 @@
     ///
     /// @note Default value is @c false.
     @objc public var enablePropagateTraceparent: Bool = false
-    
+
     static let everythingAllowedRegex = try? NSRegularExpression(pattern: ".*", options: .caseInsensitive)
 
     /// An array of hosts or regexes that determines if outgoing HTTP requests will get
@@ -579,9 +579,9 @@
             }
         }
     }
-    
+
     #if canImport(MetricKit) && !os(tvOS)
-    
+
     /// Use this feature to enable the Sentry MetricKit integration.
     ///
     /// @brief When enabled, the SDK sends @c MXDiskWriteExceptionDiagnostic, @c MXCPUExceptionDiagnostic
@@ -591,15 +591,15 @@
     /// allows the Sentry SDK to apply the current data from the scope.
     /// @note This feature is disabled by default.
     @objc public var enableMetricKit = false
-    
+
     /// When enabled, the SDK adds the raw MXDiagnosticPayloads as an attachment to the converted
     /// SentryEvent. You need to enable @c enableMetricKit for this flag to work.
     ///
     /// @note Default value is @c false.
     @objc public var enableMetricKitRawPayload = false
-    
+
     #endif
-    
+
     /// @warning This is an experimental feature and may still have bugs.
     /// @brief By enabling this, every UIViewController tracing transaction will wait
     /// for a call to @c SentrySDK.reportFullyDisplayed().
@@ -673,12 +673,12 @@
 
     /// Options for experimental features that are subject to change.
     @objc public var experimental = SentryExperimentalOptions()
-    
+
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
-    
+
     // swiftlint:disable:next missing_docs
     @_spi(Private) @objc public var userFeedbackConfiguration: SentryUserFeedbackConfiguration?
-    
+
     /// A block that configures the user feedback feature.
     ///
     /// Use this to customize the form shown by `SentrySDK.feedback.show()`,
@@ -693,12 +693,12 @@
         }
     }
     #endif
-    
+
     // swiftlint:disable:next missing_docs
     @_spi(Private) @objc public static func isValidSampleRate(_ rate: NSNumber) -> Bool {
         rate.isValidSampleRate()
     }
-    
+
     // swiftlint:disable:next missing_docs
     @_spi(Private) @objc public static let defaultEnvironment = "production"
 
@@ -710,7 +710,6 @@
     /// - Important: Replaces `sendDefaultPii` with granular per-category control.
     /// - SeeAlso: https://docs.sentry.io/platforms/apple/configuration/options/#dataCollection
     public var dataCollection = SentryDataCollection.Options()
-
 #endif // SDK_V10
 
     // MARK: - Integration: Metrics
