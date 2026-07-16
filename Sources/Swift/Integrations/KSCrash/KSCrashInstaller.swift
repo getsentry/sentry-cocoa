@@ -12,7 +12,15 @@ final class KSCrashInstaller: KSCrashInstalling {
         config.installPath = installPath
         config.monitors = MonitorType(rawValue: monitors)
         config.enableSwapCxaThrow = enableSwapCxaThrow
-        try KSCrash.shared.install(with: config)
+        do {
+            try KSCrash.shared.install(with: config)
+        } catch let error as NSError
+            where error.domain == "KSCrashErrorDomain" && error.code == 1 /* KSCrashInstallErrorAlreadyInstalled */ {
+            // KSCrash holds a process-lifetime C flag, so install() fails on every
+            // subsequent call within the same process (common during tests and SDK re-init).
+            // The crash handler is already running — treat this as success.
+            SentrySDKLog.debug("KSCrash already installed; continuing.")
+        }
     }
 
     var crashedLastLaunch: Bool { KSCrash.shared.crashedLastLaunch }
