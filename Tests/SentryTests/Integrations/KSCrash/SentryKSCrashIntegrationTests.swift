@@ -1,7 +1,6 @@
 #if ENABLE_KSCRASH
 @_spi(Private) import SentryTestUtils
 @_spi(Private) @testable import Sentry
-import KSCrashInstallations
 import XCTest
 
 class MockKSCrashDependencies: KSCrashIntegrationProvider {
@@ -33,7 +32,7 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         XCTAssertNotNil(sut)
         XCTAssertEqual(installer.installCalls.count, 1)
         XCTAssertEqual(installer.installCalls[0].installPath, options.cacheDirectoryPath)
-        XCTAssertEqual(installer.installCalls[0].monitors, MonitorType.productionSafeMinimal.rawValue)
+        XCTAssertEqual(installer.installCalls[0].monitors, kscrashProductionSafeMonitors)
     }
 
     func testCrashedLastLaunchSetsFlag() {
