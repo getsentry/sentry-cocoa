@@ -5,7 +5,10 @@ class SentryDataCollectionOptionsTests: XCTestCase {
 
     // MARK: - Default Init
 
-    func testInit_withoutArguments_shouldHaveSpecDefaults() {
+    func testInit_withoutArguments_shouldHaveSpecDefaults() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.Options()
 
@@ -21,11 +24,15 @@ class SentryDataCollectionOptionsTests: XCTestCase {
         XCTAssertTrue(options.database.queryParams)
         XCTAssertTrue(options.stackFrameVariables)
         XCTAssertEqual(options.frameContextLines, 5)
+        #endif
     }
 
     // MARK: - Parameterized Init
 
-    func testInit_withAllArguments_shouldSetAllProperties() {
+    func testInit_withAllArguments_shouldSetAllProperties() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.Options(
             userInfo: false,
@@ -54,69 +61,101 @@ class SentryDataCollectionOptionsTests: XCTestCase {
         XCTAssertFalse(options.database.queryParams)
         XCTAssertFalse(options.stackFrameVariables)
         XCTAssertEqual(options.frameContextLines, 0)
+        #endif
     }
 
     // MARK: - Dictionary Init
 
-    func testInitWithDictionary_whenUserInfoIsPresent_shouldSetUserInfo() {
+    func testInitWithDictionary_whenUserInfoIsPresent_shouldSetUserInfo() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.Options(dictionary: ["userInfo": false])
 
         // -- Assert --
         XCTAssertFalse(options.userInfo)
         XCTAssertEqual(options.cookies, SentryDataCollection.Options().cookies)
+        #endif
     }
 
-    func testInitWithDictionary_whenUserInfoHasWrongType_shouldUseDefault() {
+    func testInitWithDictionary_whenUserInfoHasWrongType_shouldUseDefault() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.Options(dictionary: ["userInfo": "false"])
 
         // -- Assert --
         XCTAssertEqual(options.userInfo, SentryDataCollection.Options().userInfo)
+        #endif
     }
 
-    func testInitWithDictionary_whenUserInfoIsNSNull_shouldUseDefault() {
+    func testInitWithDictionary_whenUserInfoIsNSNull_shouldUseDefault() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.Options(dictionary: ["userInfo": NSNull()])
 
         // -- Assert --
         XCTAssertEqual(options.userInfo, SentryDataCollection.Options().userInfo)
+        #endif
     }
 
-    func testInitWithDictionary_whenValuesMissing_shouldUseSpecDefaults() {
+    func testInitWithDictionary_whenValuesMissing_shouldUseSpecDefaults() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.Options(dictionary: [:])
 
         // -- Assert --
         XCTAssertEqual(options, SentryDataCollection.Options())
+        #endif
     }
 
-    func testInitWithDictionary_whenCookiesIsPresent_shouldSetCookies() {
+    func testInitWithDictionary_whenCookiesIsPresent_shouldSetCookies() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.Options(dictionary: ["cookies": ["mode": "off"]])
 
         // -- Assert --
         XCTAssertEqual(options.cookies, .off)
         XCTAssertEqual(options.queryParams, SentryDataCollection.Options().queryParams)
+        #endif
     }
 
-    func testInitWithDictionary_whenCookiesHasWrongType_shouldUseDefault() {
+    func testInitWithDictionary_whenCookiesHasWrongType_shouldUseDefault() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.Options(dictionary: ["cookies": "off"])
 
         // -- Assert --
         XCTAssertEqual(options.cookies, SentryDataCollection.Options().cookies)
+        #endif
     }
 
-    func testInitWithDictionary_whenCookiesIsNSNull_shouldUseDefault() {
+    func testInitWithDictionary_whenCookiesIsNSNull_shouldUseDefault() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.Options(dictionary: ["cookies": NSNull()])
 
         // -- Assert --
         XCTAssertEqual(options.cookies, SentryDataCollection.Options().cookies)
+        #endif
     }
 
-    func testInitWithDictionary_whenHttpHeadersIsPresent_shouldSetHttpHeaders() {
+    func testInitWithDictionary_whenHttpHeadersIsPresent_shouldSetHttpHeaders() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.Options(dictionary: [
             "httpHeaders": ["request": ["mode": "off"]]
@@ -125,25 +164,37 @@ class SentryDataCollectionOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(options.httpHeaders.request, .off)
         XCTAssertEqual(options.httpHeaders.response, SentryDataCollection.Options().httpHeaders.response)
+        #endif
     }
 
-    func testInitWithDictionary_whenHttpHeadersHasWrongType_shouldUseDefault() {
+    func testInitWithDictionary_whenHttpHeadersHasWrongType_shouldUseDefault() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.Options(dictionary: ["httpHeaders": "off"])
 
         // -- Assert --
         XCTAssertEqual(options.httpHeaders, SentryDataCollection.Options().httpHeaders)
+        #endif
     }
 
-    func testInitWithDictionary_whenHttpHeadersIsNSNull_shouldUseDefault() {
+    func testInitWithDictionary_whenHttpHeadersIsNSNull_shouldUseDefault() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.Options(dictionary: ["httpHeaders": NSNull()])
 
         // -- Assert --
         XCTAssertEqual(options.httpHeaders, SentryDataCollection.Options().httpHeaders)
+        #endif
     }
 
-    func testInitWithDictionary_whenHttpBodiesIsPresent_shouldSetHttpBodies() {
+    func testInitWithDictionary_whenHttpBodiesIsPresent_shouldSetHttpBodies() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.Options(dictionary: [
             "httpBodies": ["outgoingRequest", "incomingResponse"]
@@ -152,41 +203,61 @@ class SentryDataCollectionOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(options.httpBodies, [.outgoingRequest, .incomingResponse])
         XCTAssertEqual(options.queryParams, SentryDataCollection.Options().queryParams)
+        #endif
     }
 
-    func testInitWithDictionary_whenHttpBodiesHasWrongType_shouldUseDefault() {
+    func testInitWithDictionary_whenHttpBodiesHasWrongType_shouldUseDefault() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.Options(dictionary: ["httpBodies": "incomingRequest"])
 
         // -- Assert --
         XCTAssertEqual(options.httpBodies, SentryDataCollection.Options().httpBodies)
+        #endif
     }
 
-    func testInitWithDictionary_whenHttpBodiesIsNSNull_shouldUseDefault() {
+    func testInitWithDictionary_whenHttpBodiesIsNSNull_shouldUseDefault() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.Options(dictionary: ["httpBodies": NSNull()])
 
         // -- Assert --
         XCTAssertEqual(options.httpBodies, SentryDataCollection.Options().httpBodies)
+        #endif
     }
 
-    func testInitWithDictionary_whenHttpBodiesIsEmptyArray_shouldDisableBodyCollection() {
+    func testInitWithDictionary_whenHttpBodiesIsEmptyArray_shouldDisableBodyCollection() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.Options(dictionary: ["httpBodies": []])
 
         // -- Assert --
         XCTAssertEqual(options.httpBodies, [])
+        #endif
     }
 
-    func testInitWithDictionary_whenHttpBodiesContainsUnknownValues_shouldIgnoreUnknownValues() {
+    func testInitWithDictionary_whenHttpBodiesContainsUnknownValues_shouldIgnoreUnknownValues() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.Options(dictionary: ["httpBodies": ["incomingRequest", "unknown", 1]])
 
         // -- Assert --
         XCTAssertEqual(options.httpBodies, [.incomingRequest])
+        #endif
     }
 
-    func testInitWithDictionary_whenQueryParamsIsPresent_shouldSetQueryParams() {
+    func testInitWithDictionary_whenQueryParamsIsPresent_shouldSetQueryParams() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.Options(dictionary: [
             "queryParams": ["mode": "allowList", "terms": ["page"]]
@@ -195,150 +266,222 @@ class SentryDataCollectionOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(options.queryParams, .allowList(terms: ["page"]))
         XCTAssertEqual(options.cookies, SentryDataCollection.Options().cookies)
+        #endif
     }
 
-    func testInitWithDictionary_whenQueryParamsHasWrongType_shouldUseDefault() {
+    func testInitWithDictionary_whenQueryParamsHasWrongType_shouldUseDefault() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.Options(dictionary: ["queryParams": "off"])
 
         // -- Assert --
         XCTAssertEqual(options.queryParams, SentryDataCollection.Options().queryParams)
+        #endif
     }
 
-    func testInitWithDictionary_whenQueryParamsIsNSNull_shouldUseDefault() {
+    func testInitWithDictionary_whenQueryParamsIsNSNull_shouldUseDefault() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.Options(dictionary: ["queryParams": NSNull()])
 
         // -- Assert --
         XCTAssertEqual(options.queryParams, SentryDataCollection.Options().queryParams)
+        #endif
     }
 
-    func testInitWithDictionary_whenGraphqlIsPresent_shouldSetGraphql() {
+    func testInitWithDictionary_whenGraphqlIsPresent_shouldSetGraphql() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.Options(dictionary: ["graphql": ["document": false]])
 
         // -- Assert --
         XCTAssertFalse(options.graphql.document)
         XCTAssertEqual(options.graphql.variables, SentryDataCollection.Options().graphql.variables)
+        #endif
     }
 
-    func testInitWithDictionary_whenGraphqlHasWrongType_shouldUseDefault() {
+    func testInitWithDictionary_whenGraphqlHasWrongType_shouldUseDefault() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.Options(dictionary: ["graphql": "off"])
 
         // -- Assert --
         XCTAssertEqual(options.graphql, SentryDataCollection.Options().graphql)
+        #endif
     }
 
-    func testInitWithDictionary_whenGraphqlIsNSNull_shouldUseDefault() {
+    func testInitWithDictionary_whenGraphqlIsNSNull_shouldUseDefault() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.Options(dictionary: ["graphql": NSNull()])
 
         // -- Assert --
         XCTAssertEqual(options.graphql, SentryDataCollection.Options().graphql)
+        #endif
     }
 
-    func testInitWithDictionary_whenDatabaseIsPresent_shouldSetDatabase() {
+    func testInitWithDictionary_whenDatabaseIsPresent_shouldSetDatabase() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.Options(dictionary: ["database": ["queryParams": false]])
 
         // -- Assert --
         XCTAssertFalse(options.database.queryParams)
         XCTAssertEqual(options.graphql, SentryDataCollection.Options().graphql)
+        #endif
     }
 
-    func testInitWithDictionary_whenDatabaseHasWrongType_shouldUseDefault() {
+    func testInitWithDictionary_whenDatabaseHasWrongType_shouldUseDefault() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.Options(dictionary: ["database": "off"])
 
         // -- Assert --
         XCTAssertEqual(options.database, SentryDataCollection.Options().database)
+        #endif
     }
 
-    func testInitWithDictionary_whenDatabaseIsNSNull_shouldUseDefault() {
+    func testInitWithDictionary_whenDatabaseIsNSNull_shouldUseDefault() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.Options(dictionary: ["database": NSNull()])
 
         // -- Assert --
         XCTAssertEqual(options.database, SentryDataCollection.Options().database)
+        #endif
     }
 
-    func testInitWithDictionary_whenStackFrameVariablesIsPresent_shouldSetStackFrameVariables() {
+    func testInitWithDictionary_whenStackFrameVariablesIsPresent_shouldSetStackFrameVariables() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.Options(dictionary: ["stackFrameVariables": false])
 
         // -- Assert --
         XCTAssertFalse(options.stackFrameVariables)
         XCTAssertEqual(options.userInfo, SentryDataCollection.Options().userInfo)
+        #endif
     }
 
-    func testInitWithDictionary_whenStackFrameVariablesHasWrongType_shouldUseDefault() {
+    func testInitWithDictionary_whenStackFrameVariablesHasWrongType_shouldUseDefault() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.Options(dictionary: ["stackFrameVariables": "false"])
 
         // -- Assert --
         XCTAssertEqual(options.stackFrameVariables, SentryDataCollection.Options().stackFrameVariables)
+        #endif
     }
 
-    func testInitWithDictionary_whenStackFrameVariablesIsNSNull_shouldUseDefault() {
+    func testInitWithDictionary_whenStackFrameVariablesIsNSNull_shouldUseDefault() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.Options(dictionary: ["stackFrameVariables": NSNull()])
 
         // -- Assert --
         XCTAssertEqual(options.stackFrameVariables, SentryDataCollection.Options().stackFrameVariables)
+        #endif
     }
 
-    func testInitWithDictionary_whenFrameContextLinesIsPresent_shouldSetFrameContextLines() {
+    func testInitWithDictionary_whenFrameContextLinesIsPresent_shouldSetFrameContextLines() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.Options(dictionary: ["frameContextLines": 0])
 
         // -- Assert --
         XCTAssertEqual(options.frameContextLines, 0)
         XCTAssertEqual(options.userInfo, SentryDataCollection.Options().userInfo)
+        #endif
     }
 
-    func testInitWithDictionary_whenFrameContextLinesIsPositiveNumber_shouldSetFrameContextLines() {
+    func testInitWithDictionary_whenFrameContextLinesIsPositiveNumber_shouldSetFrameContextLines() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.Options(dictionary: ["frameContextLines": 10])
 
         // -- Assert --
         XCTAssertEqual(options.frameContextLines, 10)
         XCTAssertEqual(options.userInfo, SentryDataCollection.Options().userInfo)
+        #endif
     }
 
-    func testInitWithDictionary_whenFrameContextLinesIsNSNumberOne_shouldSetFrameContextLines() {
+    func testInitWithDictionary_whenFrameContextLinesIsNSNumberOne_shouldSetFrameContextLines() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.Options(dictionary: ["frameContextLines": NSNumber(value: 1)])
 
         // -- Assert --
         XCTAssertEqual(options.frameContextLines, 1)
+        #endif
     }
 
-    func testInitWithDictionary_whenFrameContextLinesIsNegative_shouldUseDefault() {
+    func testInitWithDictionary_whenFrameContextLinesIsNegative_shouldUseDefault() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.Options(dictionary: ["frameContextLines": -1])
 
         // -- Assert --
         XCTAssertEqual(options.frameContextLines, SentryDataCollection.Options().frameContextLines)
+        #endif
     }
 
-    func testInitWithDictionary_whenFrameContextLinesHasWrongType_shouldUseDefault() {
+    func testInitWithDictionary_whenFrameContextLinesHasWrongType_shouldUseDefault() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.Options(dictionary: ["frameContextLines": "0"])
 
         // -- Assert --
         XCTAssertEqual(options.frameContextLines, SentryDataCollection.Options().frameContextLines)
+        #endif
     }
 
-    func testInitWithDictionary_whenFrameContextLinesIsNSNull_shouldUseDefault() {
+    func testInitWithDictionary_whenFrameContextLinesIsNSNull_shouldUseDefault() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.Options(dictionary: ["frameContextLines": NSNull()])
 
         // -- Assert --
         XCTAssertEqual(options.frameContextLines, SentryDataCollection.Options().frameContextLines)
+        #endif
     }
 
-    func testInitWithDictionary_whenFrameContextLinesIsBoolean_shouldUseBooleanFallback() {
+    func testInitWithDictionary_whenFrameContextLinesIsBoolean_shouldUseBooleanFallback() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let enabled = SentryDataCollection.Options(dictionary: ["frameContextLines": true])
         let disabled = SentryDataCollection.Options(dictionary: ["frameContextLines": false])
@@ -346,9 +489,13 @@ class SentryDataCollectionOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(enabled.frameContextLines, SentryDataCollection.Options().frameContextLines)
         XCTAssertEqual(disabled.frameContextLines, 0)
+        #endif
     }
 
-    func testInitWithDictionary_whenFrameContextLinesIsNSNumberBoolean_shouldUseBooleanFallback() {
+    func testInitWithDictionary_whenFrameContextLinesIsNSNumberBoolean_shouldUseBooleanFallback() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let enabled = SentryDataCollection.Options(dictionary: ["frameContextLines": NSNumber(value: true)])
         let disabled = SentryDataCollection.Options(dictionary: ["frameContextLines": NSNumber(value: false)])
@@ -356,19 +503,27 @@ class SentryDataCollectionOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(enabled.frameContextLines, SentryDataCollection.Options().frameContextLines)
         XCTAssertEqual(disabled.frameContextLines, 0)
+        #endif
     }
 
     // MARK: - Options Integration
 
-    func testOptions_dataCollection_hasSpecDefaults() {
+    func testOptions_dataCollection_hasSpecDefaults() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = Options()
 
         // -- Assert --
         XCTAssertEqual(options.experimental.dataCollection, SentryDataCollection.Options())
+        #endif
     }
 
-    func testOptions_dataCollection_canBeSet() {
+    func testOptions_dataCollection_canBeSet() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let options = Options()
 
@@ -377,9 +532,13 @@ class SentryDataCollectionOptionsTests: XCTestCase {
 
         // -- Assert --
         XCTAssertFalse(options.experimental.dataCollection.userInfo)
+        #endif
     }
 
     func testOptionsWithDictionary_whenExperimentalDataCollectionIsPresent_shouldSetDataCollection() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let dictionary: [String: Any] = [
             "dsn": "https://username:password@sentry.io/1",
@@ -396,9 +555,13 @@ class SentryDataCollectionOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertFalse(options.experimental.dataCollection.userInfo)
         XCTAssertEqual(options.experimental.dataCollection.cookies, SentryDataCollection.Options().cookies)
+        #endif
     }
 
     func testOptionsWithDictionary_whenExperimentalDataCollectionIsAbsent_shouldUseDefault() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let dictionary: [String: Any] = [
             "dsn": "https://username:password@sentry.io/1",
@@ -410,9 +573,13 @@ class SentryDataCollectionOptionsTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(options.experimental.dataCollection, SentryDataCollection.Options())
+        #endif
     }
 
     func testOptionsWithDictionary_whenExperimentalDataCollectionHasWrongType_shouldUseDefault() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let dictionary: [String: Any] = [
             "dsn": "https://username:password@sentry.io/1",
@@ -426,9 +593,13 @@ class SentryDataCollectionOptionsTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(options.experimental.dataCollection, SentryDataCollection.Options())
+        #endif
     }
 
     func testOptionsWithDictionary_whenExperimentalDataCollectionIsNSNull_shouldUseDefault() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let dictionary: [String: Any] = [
             "dsn": "https://username:password@sentry.io/1",
@@ -442,11 +613,15 @@ class SentryDataCollectionOptionsTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(options.experimental.dataCollection, SentryDataCollection.Options())
+        #endif
     }
 
     // MARK: - Equatable
 
-    func testEquatable_defaultInstances_shouldBeEqual() {
+    func testEquatable_defaultInstances_shouldBeEqual() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let a = SentryDataCollection.Options()
         let b = SentryDataCollection.Options()
@@ -456,9 +631,13 @@ class SentryDataCollectionOptionsTests: XCTestCase {
 
         // -- Assert --
         XCTAssertTrue(isEqual)
+        #endif
     }
 
-    func testEquatable_differentValues_shouldNotBeEqual() {
+    func testEquatable_differentValues_shouldNotBeEqual() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let a = SentryDataCollection.Options()
         let b = SentryDataCollection.Options(userInfo: false)
@@ -468,5 +647,6 @@ class SentryDataCollectionOptionsTests: XCTestCase {
 
         // -- Assert --
         XCTAssertFalse(isEqual)
+        #endif
     }
 }

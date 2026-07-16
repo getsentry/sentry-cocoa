@@ -3,16 +3,23 @@ import XCTest
 
 class SentryHttpHeaderCollectionOptionsTests: XCTestCase {
 
-    func testInit_withoutArguments_shouldDefaultToDenyList() {
+    func testInit_withoutArguments_shouldDefaultToDenyList() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.HttpHeaderCollectionOptions()
 
         // -- Assert --
         XCTAssertEqual(options.request, .denyList())
         XCTAssertEqual(options.response, .denyList())
+        #endif
     }
 
-    func testInit_withArguments_shouldSetBothDirections() {
+    func testInit_withArguments_shouldSetBothDirections() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.HttpHeaderCollectionOptions(
             request: .allowList(terms: ["authorization"]),
@@ -22,11 +29,15 @@ class SentryHttpHeaderCollectionOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(options.request, .allowList(terms: ["authorization"]))
         XCTAssertEqual(options.response, .off)
+        #endif
     }
 
     // MARK: - Dictionary Init
 
-    func testInitWithDictionary_whenRequestIsPresent_shouldSetRequest() {
+    func testInitWithDictionary_whenRequestIsPresent_shouldSetRequest() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let dictionary: [String: Any] = [
             "request": ["mode": "off"]
@@ -38,9 +49,13 @@ class SentryHttpHeaderCollectionOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(options.request, .off)
         XCTAssertEqual(options.response, SentryDataCollection.HttpHeaderCollectionOptions().response)
+        #endif
     }
 
-    func testInitWithDictionary_whenResponseIsPresent_shouldSetResponse() {
+    func testInitWithDictionary_whenResponseIsPresent_shouldSetResponse() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let dictionary: [String: Any] = [
             "response": ["mode": "allowList", "terms": ["content-type"]]
@@ -52,9 +67,13 @@ class SentryHttpHeaderCollectionOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(options.request, SentryDataCollection.HttpHeaderCollectionOptions().request)
         XCTAssertEqual(options.response, .allowList(terms: ["content-type"]))
+        #endif
     }
 
-    func testInitWithDictionary_whenResponseIsMissing_shouldUseResponseDefault() {
+    func testInitWithDictionary_whenResponseIsMissing_shouldUseResponseDefault() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let dictionary: [String: Any] = [
             "request": ["mode": "off"]
@@ -66,9 +85,13 @@ class SentryHttpHeaderCollectionOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(options.request, .off)
         XCTAssertEqual(options.response, SentryDataCollection.HttpHeaderCollectionOptions().response)
+        #endif
     }
 
-    func testInitWithDictionary_whenRequestIsMissing_shouldUseRequestDefault() {
+    func testInitWithDictionary_whenRequestIsMissing_shouldUseRequestDefault() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let dictionary: [String: Any] = [
             "response": ["mode": "off"]
@@ -80,9 +103,13 @@ class SentryHttpHeaderCollectionOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(options.request, SentryDataCollection.HttpHeaderCollectionOptions().request)
         XCTAssertEqual(options.response, .off)
+        #endif
     }
 
-    func testInitWithDictionary_whenDictionaryIsEmpty_shouldUseDefaults() {
+    func testInitWithDictionary_whenDictionaryIsEmpty_shouldUseDefaults() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let dictionary: [String: Any] = [:]
 
@@ -91,9 +118,13 @@ class SentryHttpHeaderCollectionOptionsTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(options, SentryDataCollection.HttpHeaderCollectionOptions())
+        #endif
     }
 
-    func testInitWithDictionary_whenRequestHasWrongType_shouldUseRequestDefault() {
+    func testInitWithDictionary_whenRequestHasWrongType_shouldUseRequestDefault() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let dictionary: [String: Any] = ["request": "off"]
 
@@ -102,9 +133,13 @@ class SentryHttpHeaderCollectionOptionsTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(options.request, SentryDataCollection.HttpHeaderCollectionOptions().request)
+        #endif
     }
 
-    func testInitWithDictionary_whenRequestIsNSNull_shouldUseRequestDefault() {
+    func testInitWithDictionary_whenRequestIsNSNull_shouldUseRequestDefault() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let dictionary: [String: Any] = ["request": NSNull()]
 
@@ -113,9 +148,13 @@ class SentryHttpHeaderCollectionOptionsTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(options.request, SentryDataCollection.HttpHeaderCollectionOptions().request)
+        #endif
     }
 
-    func testInitWithDictionary_whenResponseHasWrongType_shouldUseResponseDefault() {
+    func testInitWithDictionary_whenResponseHasWrongType_shouldUseResponseDefault() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let dictionary: [String: Any] = ["response": "off"]
 
@@ -124,9 +163,13 @@ class SentryHttpHeaderCollectionOptionsTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(options.response, SentryDataCollection.HttpHeaderCollectionOptions().response)
+        #endif
     }
 
-    func testInitWithDictionary_whenResponseIsNSNull_shouldUseResponseDefault() {
+    func testInitWithDictionary_whenResponseIsNSNull_shouldUseResponseDefault() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let dictionary: [String: Any] = ["response": NSNull()]
 
@@ -135,5 +178,6 @@ class SentryHttpHeaderCollectionOptionsTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(options.response, SentryDataCollection.HttpHeaderCollectionOptions().response)
+        #endif
     }
 }
