@@ -7,51 +7,45 @@ ObjC protocols it depends on (`SentryRequestManager`, `SentryTransport`) — the
 first (`@_implementationOnly` ObjC types can't appear in a public Swift API). We chose **Option A**:
 convert those protocols first, in small sequential PRs to `main`, then convert the class last.
 
+**✅ A1 MERGED (2026-07-16).** PR #8428 (`SentryRequestManager` → Swift) merged to `main` as
+`8e6a36fbd`. This tracker branch has since **merged `origin/main` back in** (merge commit on
+`ref/convert-spotlight-transport-to-swift`) so it now carries the authoritative A1 **plus** the A2
+WIP. Conflicts resolved: `SentryRequestManager.swift` took main's version (the shipped A1); the two
+transport headers (`SentryHttpTransport.h`, `SentrySpotlightTransport.h`) kept the A2 versions
+(`#import "SentrySwift.h"`, since A2 moves `SentryTransport` to Swift). `make build-ios` green after
+the merge. The tracker's old standalone A1 commit is no longer relevant — main's A1 is what ships.
+
 **Where everything lives (all pushed to `origin`, nothing local-only):**
 
 - `ref/convert-spotlight-transport-to-swift` ← **THIS branch = the tracker.** Holds this plan doc +
-  the A2 work-in-progress. Its own A1 commit is stale on purpose (see below). Not a PR.
-- `ref/convert-request-manager-to-swift` ← **PR #8428** (A1, ready for review). The authoritative A1.
-- `main` ← base for every PR.
+  the A2 work-in-progress, now synced with `main` (A1 merged in). Not a PR.
+- `main` ← base for every PR. **Contains A1** (`8e6a36fbd`).
 
-**Exact commits (tracker branch):** `3ae6b6aa3` (latest plan) → `565aac5f3` (**A2 WIP checkpoint**)
-→ `0d436f62e` (A1 copy — STALE, superseded by PR #8428 `c0fedb958`) → `864d5f927`, `7f79301f7`…
+**Do this next — A1 is merged, so create the A2 PR:**
 
-**Do this next — pick the branch by whether PR #8428 has merged** (check:
-`gh pr view 8428 --json state,mergedAt`):
-
-1. **If #8428 is NOT yet merged:** don't start A2 as a PR yet (A2 edits the same headers + pbxproj as
-   A1 → they'd conflict). Either wait, or keep iterating on A2 locally on this tracker branch.
-2. **If #8428 IS merged:** create the A2 PR:
-   - `git checkout main && git pull`
-   - `git checkout -b ref/convert-transport-protocol-to-swift`
-   - Apply the A2 code by diffing the WIP checkpoint against its parent:
-     `git diff 0d436f62e 565aac5f3 -- <code paths>` — i.e. bring over `SentryTransport.swift` and all
-     the A2 edits, but **NOT** the plan doc. (The 19 files are listed in "Phase A2" below / in the
-     `git diff --stat 0d436f62e 565aac5f3` output.)
-   - **Finish the unfinished A2 test work** (this is the only incomplete part — see **A2.4** below):
-     ~12 `sut.recordLostEvent(.enumCase, …)` sites in `SentryHttpTransportTests.swift` need
-     `.rawValue`, and `SentryHttpTransportFlushIntegrationTests.swift` needs `sut` retyped to
-     `Transport` (same treatment already applied to `SentryHttpTransportTests`).
-   - Build + test (commands below), push, `gh pr create --draft`, then mark ready.
-   - Then rebase this tracker branch's plan onto the new state and update the PR table.
+- `git checkout main && git pull`
+- `git checkout -b ref/convert-transport-protocol-to-swift`
+- Apply the A2 code from this tracker branch (`SentryTransport.swift` + all A2 edits), but **NOT**
+  the plan doc. (The A2 files are listed in "Phase A2" below.)
+- **Finish the unfinished A2 test work** (this is the only incomplete part — see **A2.4** below):
+  ~12 `sut.recordLostEvent(.enumCase, …)` sites in `SentryHttpTransportTests.swift` need
+  `.rawValue`, and `SentryHttpTransportFlushIntegrationTests.swift` needs `sut` retyped to
+  `Transport` (same treatment already applied to `SentryHttpTransportTests`).
+- Build + test (commands below), push, `gh pr create --draft`, then mark ready.
+- Then update this tracker branch's PR table once A2's PR number exists.
 
 **Environment quirk (IMPORTANT):** `make build-ios` / `make test-ios` default to a simulator that is
 **not installed** here. Always append: `IOS_DEVICE_NAME="iPhone 17 Pro" IOS_SIMULATOR_OS=26.4`.
 `ONLY_TESTING` takes **comma-separated** targets (not space). Pre-commit hooks reformat md/swift —
 re-`git add` and re-commit if a hook edits files.
 
-**Why the tracker's A1 commit is stale:** after review, PR #8428 dropped the doc comments from
-`SentryRequestManager.swift` (now uses `// swiftlint:disable missing_docs`) and kept the
-`SentryTransportFactoryTests` cast as `as? RequestManager`. This tracker branch still has the
-pre-review A1 copy — that's fine, it's not what ships. The PR branch is authoritative for A1.
-
 ---
 
 **Branch:** `ref/convert-spotlight-transport-to-swift`
 **Status:** 🟢 In progress — **Option A**, shipped as small PRs to `main`.
-Phase A1 (`SentryRequestManager` → Swift) ✅ done → **PR #8428, marked ready for review** (awaiting merge).
-Phase A2 (`SentryTransport`) WIP checkpointed on this branch (tests not yet building).
+Phase A1 (`SentryRequestManager` → Swift) ✅ **merged** → PR #8428 (`8e6a36fbd` on `main`).
+Phase A2 (`SentryTransport`) WIP on this branch (source builds green, tests not yet building) — next
+up as its own PR now that A1 has merged.
 See "PR tracking" and "✅ Chosen approach" below.
 
 ## PR tracking
@@ -61,11 +55,11 @@ phases share files (headers + pbxproj). This branch (`ref/convert-spotlight-tran
 the **plan/WIP tracker only** — its commits are NOT the PRs. Each PR is a clean branch cut from
 `main` containing only that phase's code (no plan doc).
 
-| Phase                                              | PR branch                              | PR                                                                   | Status                                                         |
-| -------------------------------------------------- | -------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------- |
-| A1 `SentryRequestManager` → Swift                  | `ref/convert-request-manager-to-swift` | [#8428](https://github.com/getsentry/sentry-cocoa/pull/8428) (ready) | ⏳ in review                                                   |
-| A2 `SentryTransport` + `SentryFlushResult` → Swift | _tbd_                                  | —                                                                    | 🔧 WIP on tracker branch; blocked by test churn (see A2 notes) |
-| A3 `SentrySpotlightTransport` → Swift              | _tbd_                                  | —                                                                    | ⛔ depends on A1 + A2                                          |
+| Phase                                              | PR branch                              | PR                                                           | Status                                                               |
+| -------------------------------------------------- | -------------------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------------- |
+| A1 `SentryRequestManager` → Swift                  | `ref/convert-request-manager-to-swift` | [#8428](https://github.com/getsentry/sentry-cocoa/pull/8428) | ✅ **merged** (`8e6a36fbd`)                                          |
+| A2 `SentryTransport` + `SentryFlushResult` → Swift | _tbd_                                  | —                                                            | 🔧 next up — WIP on tracker branch; finish test churn (see A2 notes) |
+| A3 `SentrySpotlightTransport` → Swift              | _tbd_                                  | —                                                            | ⛔ depends on A2                                                     |
 
 **Workflow per phase:** cut `<branch>` from latest `main` → cherry-pick/apply that phase's code
 (drop the plan doc) → `make build-ios` + targeted tests → push → `gh pr create --draft`. After a PR
@@ -480,3 +474,10 @@ make generate-public-api   # only if public API surface changed; commit sdk_api.
   `addRequest:completionHandler:` (it lives only in the `.m`), so Swift only sees `add(...)` through
   the protocol type. PR marked **ready for review**. NOTE: this tracker branch's own A1 commit
   (`0d436f62e`) predates these revisions — the authoritative A1 is the PR branch, not this copy.
+- 2026-07-16: **A1 MERGED.** PR #8428 auto-merged to `main` as `8e6a36fbd` (nit addressed in review:
+  split `@_spi(Private)` / `@objc(SentryRequestManager)` onto two lines; CI flakes on
+  `postman-echo.com` network test + parallel session-count tests were re-run to green). Then
+  **merged `origin/main` into this tracker branch.** 3 conflicts resolved: `SentryRequestManager.swift`
+  → took main's shipped A1; `SentryHttpTransport.h` + `SentrySpotlightTransport.h` → kept the A2
+  versions (`#import "SentrySwift.h"`). `make build-ios` green post-merge. **A2 is now unblocked and
+  next up as its own PR.**
