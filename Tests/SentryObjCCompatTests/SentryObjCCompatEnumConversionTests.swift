@@ -383,7 +383,10 @@ final class SentryObjCCompatEnumConversionTests: XCTestCase {
 
     // MARK: - SentryObjCDataCollectionKeyValueCollectionMode
 
-    func testKeyValueCollectionModeInit_whenEachBehavior_shouldMapCorrectly() {
+    func testKeyValueCollectionModeInit_whenEachBehavior_shouldMapCorrectly() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let cases: [(SentryDataCollection.KeyValueCollectionBehavior, SentryObjCDataCollectionKeyValueCollectionMode)] = [
             (.off, .off),
@@ -399,9 +402,13 @@ final class SentryObjCCompatEnumConversionTests: XCTestCase {
             // -- Assert --
             XCTAssertEqual(wrapper.mode, expected, "Expected \(expected) for underlying \(underlying)")
         }
+        #endif
     }
 
-    func testKeyValueCollectionBehaviorWrapped_whenEachMode_shouldRoundTrip() {
+    func testKeyValueCollectionBehaviorWrapped_whenEachMode_shouldRoundTrip() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let cases: [SentryDataCollection.KeyValueCollectionBehavior] = [
             .off,
@@ -418,11 +425,15 @@ final class SentryObjCCompatEnumConversionTests: XCTestCase {
             // -- Assert --
             XCTAssertEqual(result, original, "Expected roundtrip for \(original)")
         }
+        #endif
     }
 
     // MARK: - SentryObjCDataCollectionHttpBodyType
 
-    func testHttpBodyTypeConversion_whenAll_shouldRoundTrip() {
+    func testHttpBodyTypeConversion_whenAll_shouldRoundTrip() throws {
+                #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let underlying: SentryDataCollection.HttpBodyType = .all
 
@@ -430,11 +441,15 @@ final class SentryObjCCompatEnumConversionTests: XCTestCase {
         let objcValue = SentryObjCDataCollectionHttpBodyType(underlying)
         let result = objcValue.underlying
 
-        // -- Assert --
+    // -- Assert --
         XCTAssertEqual(result, underlying)
+        #endif
     }
 
-    func testHttpBodyTypeConversion_whenSubset_shouldRoundTrip() {
+    func testHttpBodyTypeConversion_whenSubset_shouldRoundTrip() throws {
+                #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let underlying: SentryDataCollection.HttpBodyType = [.outgoingRequest, .incomingResponse]
 
@@ -444,9 +459,13 @@ final class SentryObjCCompatEnumConversionTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(result, underlying)
+        #endif
     }
 
-    func testHttpBodyTypeConversion_whenEmpty_shouldRoundTrip() {
+    func testHttpBodyTypeConversion_whenEmpty_shouldRoundTrip() throws {
+                #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let underlying: SentryDataCollection.HttpBodyType = []
 
@@ -456,11 +475,15 @@ final class SentryObjCCompatEnumConversionTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(result, underlying)
+        #endif
     }
 
     // MARK: - SentryObjCRedactRegionType
 
-    func testRedactRegionTypeInit_whenEachCase_shouldMapCorrectly() {
+    func testRedactRegionTypeInit_whenEachCase_shouldMapCorrectly() throws {
+                #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let cases: [(SentryRedactRegionType, SentryObjCRedactRegionType)] = [
             (.redact, .redact),
@@ -477,9 +500,13 @@ final class SentryObjCCompatEnumConversionTests: XCTestCase {
             // -- Assert --
             XCTAssertEqual(result, expected, "Expected \(expected) for underlying \(underlying)")
         }
+        #endif
     }
 
-    func testRedactRegionTypeUnderlying_whenEachCase_shouldRoundTrip() {
+    func testRedactRegionTypeUnderlying_whenEachCase_shouldRoundTrip() throws {
+                #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let cases: [(SentryObjCRedactRegionType, SentryRedactRegionType)] = [
             (.redact, .redact),
@@ -496,6 +523,7 @@ final class SentryObjCCompatEnumConversionTests: XCTestCase {
             // -- Assert --
             XCTAssertEqual(result, expected, "Expected \(expected) for ObjC case \(objcCase)")
         }
+        #endif
     }
 }
 

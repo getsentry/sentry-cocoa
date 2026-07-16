@@ -130,26 +130,24 @@
 #    import <SentryObjC/SentryObjCLogger.h>
 #endif
 
-#if SDK_V10
 // --- Data collection types ---
-#    if !__has_include(<SentryObjC/SentryObjCDefines.h>)
-#        import "SentryObjCDataCollectionDatabaseCollectionOptions.h"
-#        import "SentryObjCDataCollectionGraphQLCollectionOptions.h"
-#        import "SentryObjCDataCollectionHttpBodyType.h"
-#        import "SentryObjCDataCollectionHttpHeaderCollectionOptions.h"
-#        import "SentryObjCDataCollectionKeyValueCollectionBehavior.h"
-#        import "SentryObjCDataCollectionKeyValueCollectionMode.h"
-#        import "SentryObjCDataCollectionOptions.h"
-#    else
-#        import <SentryObjC/SentryObjCDataCollectionDatabaseCollectionOptions.h>
-#        import <SentryObjC/SentryObjCDataCollectionGraphQLCollectionOptions.h>
-#        import <SentryObjC/SentryObjCDataCollectionHttpBodyType.h>
-#        import <SentryObjC/SentryObjCDataCollectionHttpHeaderCollectionOptions.h>
-#        import <SentryObjC/SentryObjCDataCollectionKeyValueCollectionBehavior.h>
-#        import <SentryObjC/SentryObjCDataCollectionKeyValueCollectionMode.h>
-#        import <SentryObjC/SentryObjCDataCollectionOptions.h>
-#    endif
-#endif // SDK_V10
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCDataCollectionDatabaseCollectionOptions.h"
+#    import "SentryObjCDataCollectionGraphQLCollectionOptions.h"
+#    import "SentryObjCDataCollectionHttpBodyType.h"
+#    import "SentryObjCDataCollectionHttpHeaderCollectionOptions.h"
+#    import "SentryObjCDataCollectionKeyValueCollectionBehavior.h"
+#    import "SentryObjCDataCollectionKeyValueCollectionMode.h"
+#    import "SentryObjCDataCollectionOptions.h"
+#else
+#    import <SentryObjC/SentryObjCDataCollectionDatabaseCollectionOptions.h>
+#    import <SentryObjC/SentryObjCDataCollectionGraphQLCollectionOptions.h>
+#    import <SentryObjC/SentryObjCDataCollectionHttpBodyType.h>
+#    import <SentryObjC/SentryObjCDataCollectionHttpHeaderCollectionOptions.h>
+#    import <SentryObjC/SentryObjCDataCollectionKeyValueCollectionBehavior.h>
+#    import <SentryObjC/SentryObjCDataCollectionKeyValueCollectionMode.h>
+#    import <SentryObjC/SentryObjCDataCollectionOptions.h>
+#endif
 
 // --- Configuration ---
 #if !__has_include(<SentryObjC/SentryObjCDefines.h>)
