@@ -146,7 +146,7 @@ class SentryHttpTransportTests: XCTestCase {
             fileManager: SentryFileManager? = nil,
             dispatchQueueWrapper: SentryDispatchQueueWrapper? = nil,
             reachability: SentryReachability? = nil
-        ) throws -> SentryHttpTransport {
+        ) throws -> Transport {
             return SentryHttpTransport(
                 dsn: try XCTUnwrap(options.parsedDsn),
                 sendClientReports: options.sendClientReports,
@@ -173,7 +173,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
 
     private var fixture: Fixture!
-    private var sut: SentryHttpTransport!
+    private var sut: Transport!
 
     override func setUpWithError() throws {
         try super.setUpWithError()
@@ -708,35 +708,35 @@ class SentryHttpTransportTests: XCTestCase {
     }
 
     func testRecordLostEvent_WithQuantityGreaterOne_AccumulatesByQuantity() {
-        sut.recordLostEvent(.span, reason: .rateLimitBackoff, quantity: 4)
-        sut.recordLostEvent(.span, reason: .rateLimitBackoff, quantity: 4)
+        sut.recordLostEvent(SentryDataCategory.span.rawValue, reason: SentryDiscardReason.rateLimitBackoff.rawValue, quantity: 4)
+        sut.recordLostEvent(SentryDataCategory.span.rawValue, reason: SentryDiscardReason.rateLimitBackoff.rawValue, quantity: 4)
 
         let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
         XCTAssertEqual(8, dict?["span:ratelimit_backoff"]?.quantity)
     }
 
     func testRecordLostEvent_MixingQuantityOneAndGreaterOne_AccumulatesByQuantity() {
-        sut.recordLostEvent(.span, reason: .sendError, quantity: 10)
-        sut.recordLostEvent(.span, reason: .sendError)
-        sut.recordLostEvent(.span, reason: .sendError, quantity: 5)
+        sut.recordLostEvent(SentryDataCategory.span.rawValue, reason: SentryDiscardReason.sendError.rawValue, quantity: 10)
+        sut.recordLostEvent(SentryDataCategory.span.rawValue, reason: SentryDiscardReason.sendError.rawValue)
+        sut.recordLostEvent(SentryDataCategory.span.rawValue, reason: SentryDiscardReason.sendError.rawValue, quantity: 5)
 
         let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
         XCTAssertEqual(16, dict?["span:send_error"]?.quantity)
     }
 
     func testRecordLostEvent_DefaultQuantityOverload_AccumulatesByOne() {
-        sut.recordLostEvent(.error, reason: .rateLimitBackoff)
-        sut.recordLostEvent(.error, reason: .rateLimitBackoff)
-        sut.recordLostEvent(.error, reason: .rateLimitBackoff)
+        sut.recordLostEvent(SentryDataCategory.error.rawValue, reason: SentryDiscardReason.rateLimitBackoff.rawValue)
+        sut.recordLostEvent(SentryDataCategory.error.rawValue, reason: SentryDiscardReason.rateLimitBackoff.rawValue)
+        sut.recordLostEvent(SentryDataCategory.error.rawValue, reason: SentryDiscardReason.rateLimitBackoff.rawValue)
 
         let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
         XCTAssertEqual(3, dict?["error:ratelimit_backoff"]?.quantity)
     }
 
     func testRecordLostEvent_DifferentCategoriesAndReasons_StayInSeparateBuckets() {
-        sut.recordLostEvent(.span, reason: .rateLimitBackoff, quantity: 4)
-        sut.recordLostEvent(.span, reason: .cacheOverflow, quantity: 2)
-        sut.recordLostEvent(.error, reason: .rateLimitBackoff, quantity: 3)
+        sut.recordLostEvent(SentryDataCategory.span.rawValue, reason: SentryDiscardReason.rateLimitBackoff.rawValue, quantity: 4)
+        sut.recordLostEvent(SentryDataCategory.span.rawValue, reason: SentryDiscardReason.cacheOverflow.rawValue, quantity: 2)
+        sut.recordLostEvent(SentryDataCategory.error.rawValue, reason: SentryDiscardReason.rateLimitBackoff.rawValue, quantity: 3)
 
         let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
         XCTAssertEqual(3, dict?.count)
@@ -1201,7 +1201,7 @@ class SentryHttpTransportTests: XCTestCase {
     private func givenRecordedLostEvents() throws {
         try fixture.clientReport.discardedEvents.forEach { event in
             for _ in 0..<event.quantity {
-                sut.recordLostEvent(sentryDataCategoryForString(event.category), reason: try XCTUnwrap( sentryDiscardReasonForString(event.reason)))
+                sut.recordLostEvent(sentryDataCategoryForString(event.category).rawValue, reason: try XCTUnwrap(sentryDiscardReasonForString(event.reason)).rawValue)
             }
         }
     }

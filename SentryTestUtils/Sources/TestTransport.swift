@@ -1,35 +1,36 @@
+@_spi(Private) import Sentry
 import _SentryPrivate
 import Foundation
 
-public class TestTransport: NSObject, Transport {
+@_spi(Private) public class TestTransport: NSObject, Transport {
 
-    @_spi(Private) public var sentEnvelopes = Invocations<SentryEnvelope>()
-    @_spi(Private) public func send(envelope: SentryEnvelope) {
+    public var sentEnvelopes = Invocations<SentryEnvelope>()
+    public func send(envelope: SentryEnvelope) {
         sentEnvelopes.record(envelope)
     }
-    
-    @_spi(Private) public var storedEnvelopes = Invocations<SentryEnvelope>()
-    @_spi(Private) public func store(_ envelope: SentryEnvelope) {
+
+    public var storedEnvelopes = Invocations<SentryEnvelope>()
+    public func store(_ envelope: SentryEnvelope) {
         storedEnvelopes.record(envelope)
     }
-    
+
     public var recordLostEvents = Invocations<(category: SentryDataCategory, reason: SentryDiscardReason)>()
-    public func recordLostEvent(_ category: SentryDataCategory, reason: SentryDiscardReason) {
-        recordLostEvents.record((category, reason))
+    public func recordLostEvent(_ category: UInt, reason: UInt) {
+        recordLostEvents.record((SentryDataCategory(rawValue: category) ?? .unknown, SentryDiscardReason(rawValue: reason) ?? .beforeSend))
     }
-    
+
     public var recordLostEventsWithCount = Invocations<(category: SentryDataCategory, reason: SentryDiscardReason, quantity: UInt)>()
-    public func recordLostEvent(_ category: SentryDataCategory, reason: SentryDiscardReason, quantity: UInt) {
-        recordLostEventsWithCount.record((category, reason, quantity))
+    public func recordLostEvent(_ category: UInt, reason: UInt, quantity: UInt) {
+        recordLostEventsWithCount.record((SentryDataCategory(rawValue: category) ?? .unknown, SentryDiscardReason(rawValue: reason) ?? .beforeSend, quantity))
     }
-    
+
     public var flushInvocations = Invocations<TimeInterval>()
     public func flush(_ timeout: TimeInterval) -> SentryFlushResult {
         flushInvocations.record(timeout)
         return .success
     }
-    
+
     public func setStartFlushCallback(_ callback: @escaping () -> Void) {
-        
+
     }
 }

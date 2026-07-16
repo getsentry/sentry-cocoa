@@ -39,5 +39,4 @@
 #import "SentryTraceContext.h"
 #import "SentryTracer+Test.h"
 #import "SentryTransaction.h"
-#import "SentryTransport.h"
 #import "SentryTransportAdapter.h"
