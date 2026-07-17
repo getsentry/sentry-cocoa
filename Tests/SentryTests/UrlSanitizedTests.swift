@@ -103,6 +103,39 @@ final class UrlSanitizedTests: XCTestCase {
         XCTAssertEqual(sut.sanitizedBaseUrl, "http://sentry.io")
     }
 
+    func testSanitizedBaseUrl_whenFragmentContainsQuery_shouldRemoveFragment() {
+        // -- Arrange --
+        let url = URL(string: "http://sentry.io#/users?id=1")!
+
+        // -- Act --
+        let sut = createSUT(url: url)
+
+        // -- Assert --
+        XCTAssertEqual(sut.sanitizedBaseUrl, "http://sentry.io")
+    }
+
+    func testSanitizedUrl_whenPercentEncodingIsInvalid_shouldPreserveEncodedURL() {
+        // -- Arrange --
+        let url = URL(string: "http://sentry.io/%FF")!
+
+        // -- Act --
+        let sut = createSUT(url: url)
+
+        // -- Assert --
+        XCTAssertEqual(sut.sanitizedUrl, "http://sentry.io/%FF")
+    }
+
+    func testSanitizedBaseUrl_whenPercentEncodingIsInvalid_shouldPreserveEncodedURL() {
+        // -- Arrange --
+        let url = URL(string: "http://sentry.io/%FF")!
+
+        // -- Act --
+        let sut = createSUT(url: url)
+
+        // -- Assert --
+        XCTAssertEqual(sut.sanitizedBaseUrl, "http://sentry.io/%FF")
+    }
+
     func testSanitizedBaseUrl_whenURLHasCredentials_shouldFilterCredentials() {
         // -- Arrange --
         let url = URL(string: "http://User:Password@sentry.io?query=value#fragment")!

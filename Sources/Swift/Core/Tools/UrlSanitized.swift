@@ -81,15 +81,21 @@ import Foundation
 #endif // !SDK_V10
         components.fragment = nil
 
-        return components.string?.removingPercentEncoding
+        return decodedString(from: components)
     }
 
     public var sanitizedBaseUrl: String? {
-        guard var result = components?.string else { return nil }
-        if let end = result.firstIndex(of: "?") ?? result.firstIndex(of: "#") {
-            result = String(result[result.startIndex..<end])
-        }
-        return result.removingPercentEncoding
+        guard var components else { return nil }
+
+        components.queryItems = nil
+        components.fragment = nil
+
+        return decodedString(from: components)
+    }
+
+    private func decodedString(from components: URLComponents) -> String? {
+        guard let string = components.string else { return nil }
+        return string.removingPercentEncoding ?? string
     }
 }
 // swiftlint:enable missing_docs
