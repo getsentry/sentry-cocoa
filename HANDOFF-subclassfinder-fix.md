@@ -82,6 +82,12 @@ First attempt added a new C file `SentryViewControllerClassScanner.c` doing raw 
 - SwiftPM `swift build --product Sentry` compiles the SDK but fails at `verify-emitted-module-interface` (unrelated `SentryHeaders` module-interface quirk on macOS standalone). Add `-Xswiftc -no-verify-emitted-module-interface` for a clean SDK compile check.
 - `make build-ios`/`make test-ios` also honor `FOR_AGENTS=true` for reduced output; full logs land in `raw-*-output.log` (gitignored).
 
+## Open investigations (before merge)
+
+- **Reuse `SentryBinaryImageCache` instead of scanning all dyld images?** `classes(forImage:)` currently loops `_dyld_image_count()` to find the header. `SentryBinaryImageInfo.address` IS the in-memory `mach_header` pointer (`SentryCrashDynamicLinker.c:414` `buffer->address = (uintptr_t)header`; confirmed by the remove-callback match `src->image.address == (uintptr_t)mh`). So we could pass that straight to `getsectiondata` and skip the loop. Caveats to resolve first: (1) cache is populated **async on a background thread** in prod (`dispatch_async` in `sentrycrashbic_startCache`), so it may be empty/incomplete when the finder runs at startup — need a fallback to the dyld scan; (2) cache is indexed **by address, not name** — no by-name lookup exists, would need `getAllBinaryImages()` linear scan or a new accessor. Decide if the win is worth the coupling.
+- **Performance:** measure the actual cost of `classes(forImage:)` + the superclass walk vs the old path. Old finder comment claimed ~3ms for 1000 classes. Confirm the section read + walk isn't slower; profile on a real device.
+- **Correctness / integration validation:** confirm the new enumeration swizzles the SAME set of view controllers as the old path, not just "doesn't crash." The differential unit test (`testClassListEnumerationMatchesCopyClassNamesForImage`) proves enumeration equivalence, but we want end-to-end integration coverage that the swizzled VC set matches. Do more integration testing before merge.
+
 ## Remaining gaps / next steps
 
 1. **Real-device confirmation** on iOS 16/17 with the repro (gated non-VC like RoomPlan wrapper + gesture Coordinator) — user confirmed sample doesn't crash on their run; more devices/OSes + an arm64e-built app would fully close it. (Repro is device-only; CI sims can't reproduce.)

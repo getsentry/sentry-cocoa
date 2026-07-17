@@ -64,6 +64,7 @@
     return self.imageName;
 }
 
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 - (NSArray<Class> *)classesForImage:(const char *)image
 {
     NSArray<Class> *result = [self.objcRuntimeWrapper classesForImage:image];
@@ -74,5 +75,6 @@
 
     return result;
 }
+#endif
 
 @end

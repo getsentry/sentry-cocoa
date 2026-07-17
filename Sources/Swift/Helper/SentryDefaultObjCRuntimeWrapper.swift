@@ -15,6 +15,10 @@ public final class SentryDefaultObjCRuntimeWrapper: NSObject, SentryObjCRuntimeW
         return class_getImageName(cls)
     }
 
+    // Only supported on iOS, tvOS, and visionOS, matching `SentrySubClassFinder`, its only caller.
+    // It reads `mach_header_64` via `getsectiondata`, which isn't available on 32-bit watchOS device
+    // slices (`arm64_32`, `armv7k`), so we don't build it there.
+#if os(iOS) || os(tvOS) || os(visionOS)
     @_spi(Private)
     public func classes(forImage image: UnsafePointer<CChar>) -> [AnyClass] {
         let imageName = String(cString: image)
@@ -47,5 +51,6 @@ public final class SentryDefaultObjCRuntimeWrapper: NSObject, SentryObjCRuntimeW
 
         return []
     }
+#endif
 }
 // swiftlint:enable missing_docs

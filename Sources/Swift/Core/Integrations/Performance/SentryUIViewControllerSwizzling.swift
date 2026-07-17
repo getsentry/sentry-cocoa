@@ -78,7 +78,8 @@ class SentryUIViewControllerSwizzling {
             // not to lose auto-generated transactions for the initial view controller. As we use
             // SentrySwizzleModeOncePerClassAndSuperclasses, we don't have to worry about swizzling
             // twice. We could also use objc_getClassList to lookup sub classes of UIViewController, but
-            // the lookup can take around 60ms, which is not acceptable.
+            // the lookup can take around 60ms, which is not acceptable. Furthermore, objc_getClassList
+            // realizes every class in the process.
             if !swizzleRootViewControllerFromUIApplication(app) {
                 SentrySDKLog.debug("Failed to find root UIViewController from UIApplicationDelegate. Trying to use UISceneWillConnectNotification notification.")
 

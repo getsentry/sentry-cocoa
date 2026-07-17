@@ -10,7 +10,13 @@ public protocol SentryObjCRuntimeWrapper {
     /// Returns the classes defined in the given image by reading its `__objc_classlist` section.
     /// The classes are not realized, so callers can inspect them (e.g. walk their superclass chain)
     /// without triggering class initialization.
+    ///
+    /// Only supported on iOS, tvOS, and visionOS, matching `SentrySubClassFinder`, its only caller.
+    /// It relies on `getsectiondata` with `mach_header_64`, which isn't available on 32-bit watchOS
+    /// device slices (`arm64_32`, `armv7k`).
+#if os(iOS) || os(tvOS) || os(visionOS)
     @objc(classesForImage:)
     func classes(forImage image: UnsafePointer<CChar>) -> [AnyClass]
+#endif
 }
 // swiftlint:enable missing_docs
