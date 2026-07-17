@@ -3,6 +3,22 @@ import XCTest
 
 final class HTTPHeaderSanitizerTests: XCTestCase {
 
+#if SDK_V10
+    private func sanitizeHeaders(
+        _ headers: [String: String],
+        headerBehavior: SentryDataCollection.KeyValueCollectionBehavior,
+        cookieBehavior: SentryDataCollection.KeyValueCollectionBehavior
+    ) -> HTTPHeaderSanitizer.SanitizedHeaders {
+        HTTPHeaderSanitizer.sanitizeRequestHeaders(
+            headers,
+            options: SentryDataCollection.Options(
+                cookies: cookieBehavior,
+                httpHeaders: .init(request: headerBehavior)
+            )
+        )
+    }
+#endif // SDK_V10
+
     func testSanitizeHeaders_whenDefaultBehavior_shouldApplyVersionSpecificFiltering() {
         // -- Arrange --
         let headers = [
@@ -13,7 +29,7 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
 
         // -- Act & Assert --
 #if SDK_V10
-        let result = HTTPHeaderSanitizer.sanitizeHeaders(
+        let result = sanitizeHeaders(
             headers,
             headerBehavior: .denyList(),
             cookieBehavior: .off
@@ -77,7 +93,7 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
 
         // -- Act & Assert --
 #if SDK_V10
-        let result = HTTPHeaderSanitizer.sanitizeHeaders(
+        let result = sanitizeHeaders(
             headers,
             headerBehavior: .off,
             cookieBehavior: .denyList()
@@ -99,7 +115,7 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
 
         // -- Act & Assert --
 #if SDK_V10
-        let result = HTTPHeaderSanitizer.sanitizeHeaders(
+        let result = sanitizeHeaders(
             headers,
             headerBehavior: .denyList(),
             cookieBehavior: .off
@@ -118,7 +134,7 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
 
         // -- Act & Assert --
 #if SDK_V10
-        let result = HTTPHeaderSanitizer.sanitizeHeaders(
+        let result = sanitizeHeaders(
             headers,
             headerBehavior: .denyList(terms: ["forwarded"]),
             cookieBehavior: .off
@@ -143,7 +159,7 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
 
         // -- Act & Assert --
 #if SDK_V10
-        let result = HTTPHeaderSanitizer.sanitizeHeaders(
+        let result = sanitizeHeaders(
             headers,
             headerBehavior: .allowList(terms: ["content-type", "authorization"]),
             cookieBehavior: .off
@@ -168,7 +184,7 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
 
         // -- Act & Assert --
 #if SDK_V10
-        let result = HTTPHeaderSanitizer.sanitizeHeaders(
+        let result = sanitizeHeaders(
             headers,
             headerBehavior: .off,
             cookieBehavior: .allowList(terms: ["theme", "token"])
@@ -191,7 +207,7 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
 
         // -- Act & Assert --
 #if SDK_V10
-        let result = HTTPHeaderSanitizer.sanitizeHeaders(
+        let result = sanitizeHeaders(
             headers,
             headerBehavior: .off,
             cookieBehavior: .denyList(terms: ["tracking"])
@@ -209,7 +225,7 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
 
         // -- Act & Assert --
 #if SDK_V10
-        let result = HTTPHeaderSanitizer.sanitizeHeaders(
+        let result = sanitizeHeaders(
             headers,
             headerBehavior: .off,
             cookieBehavior: .denyList()
@@ -228,7 +244,7 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
 
         // -- Act & Assert --
 #if SDK_V10
-        let result = HTTPHeaderSanitizer.sanitizeHeaders(
+        let result = sanitizeHeaders(
             headers,
             headerBehavior: .off,
             cookieBehavior: .denyList()
@@ -246,7 +262,7 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
 
         // -- Act & Assert --
 #if SDK_V10
-        let result = HTTPHeaderSanitizer.sanitizeHeaders(
+        let result = sanitizeHeaders(
             headers,
             headerBehavior: .denyList(),
             cookieBehavior: .denyList()
@@ -265,7 +281,7 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
 
         // -- Act & Assert --
 #if SDK_V10
-        let result = HTTPHeaderSanitizer.sanitizeHeaders(
+        let result = sanitizeHeaders(
             headers,
             headerBehavior: .denyList(),
             cookieBehavior: .denyList()
@@ -281,7 +297,7 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
     func testSanitizeHeaders_whenInputIsEmpty_shouldReturnEmptyResult() {
         // -- Act & Assert --
 #if SDK_V10
-        let result = HTTPHeaderSanitizer.sanitizeHeaders(
+        let result = sanitizeHeaders(
             [:],
             headerBehavior: .denyList(),
             cookieBehavior: .denyList()
@@ -300,7 +316,7 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
 
         // -- Act & Assert --
 #if SDK_V10
-        let result = HTTPHeaderSanitizer.sanitizeHeaders(
+        let result = sanitizeHeaders(
             headers,
             headerBehavior: .off,
             cookieBehavior: .denyList()
@@ -319,7 +335,7 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
 
         // -- Act & Assert --
 #if SDK_V10
-        let result = HTTPHeaderSanitizer.sanitizeHeaders(
+        let result = sanitizeHeaders(
             headers,
             headerBehavior: .denyList(),
             cookieBehavior: .denyList()
@@ -338,7 +354,7 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
 
         // -- Act & Assert --
 #if SDK_V10
-        let result = HTTPHeaderSanitizer.sanitizeHeaders(
+        let result = sanitizeHeaders(
             headers,
             headerBehavior: .off,
             cookieBehavior: .denyList()
@@ -356,7 +372,7 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
 
         // -- Act & Assert --
 #if SDK_V10
-        let result = HTTPHeaderSanitizer.sanitizeHeaders(
+        let result = sanitizeHeaders(
             headers,
             headerBehavior: .off,
             cookieBehavior: .denyList()
@@ -374,7 +390,7 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
 
         // -- Act & Assert --
 #if SDK_V10
-        let result = HTTPHeaderSanitizer.sanitizeHeaders(
+        let result = sanitizeHeaders(
             headers,
             headerBehavior: .denyList(),
             cookieBehavior: .denyList()
@@ -393,7 +409,7 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
 
         // -- Act & Assert --
 #if SDK_V10
-        let result = HTTPHeaderSanitizer.sanitizeHeaders(
+        let result = sanitizeHeaders(
             headers,
             headerBehavior: .denyList(),
             cookieBehavior: .denyList()
@@ -412,7 +428,7 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
 
         // -- Act & Assert --
 #if SDK_V10
-        let result = HTTPHeaderSanitizer.sanitizeHeaders(
+        let result = sanitizeHeaders(
             headers,
             headerBehavior: .denyList(),
             cookieBehavior: .denyList()
@@ -431,7 +447,7 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
 
         // -- Act & Assert --
 #if SDK_V10
-        let result = HTTPHeaderSanitizer.sanitizeHeaders(
+        let result = sanitizeHeaders(
             headers,
             headerBehavior: .off,
             cookieBehavior: .denyList()

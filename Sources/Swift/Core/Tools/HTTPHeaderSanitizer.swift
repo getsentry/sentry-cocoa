@@ -44,7 +44,7 @@ enum HTTPHeaderSanitizer {
         )
     }
 
-    static func sanitizeHeaders(
+    private static func sanitizeHeaders(
         _ headers: [String: String],
         headerBehavior: SentryDataCollection.KeyValueCollectionBehavior,
         cookieBehavior: SentryDataCollection.KeyValueCollectionBehavior
