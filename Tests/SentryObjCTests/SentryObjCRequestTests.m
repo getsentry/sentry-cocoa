@@ -111,7 +111,9 @@
 
 - (void)testCookies_whenV10Set_shouldReturnNewDictionary
 {
-#if SDK_V10
+#if !SDK_V10
+    return XCTFail("Test is only available in v10")
+#else
     // -- Arrange --
     SentryObjCRequest *request = [[SentryObjCRequest alloc] init];
     NSDictionary<NSString *, NSString *> *cookies = @{ @"theme" : @"dark" };
