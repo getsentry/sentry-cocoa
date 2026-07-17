@@ -30,6 +30,44 @@ final class HTTPHeaderSanitizerTests: XCTestCase {
 #endif // SDK_V10
     }
 
+    func testSanitizeHeaders_whenOptionsArePassed_shouldUseDirectionSpecificHeaderBehavior() {
+        // -- Arrange --
+        let headers = ["X-Request-Id": "request-id"]
+
+        // -- Act & Assert --
+#if SDK_V10
+        let options = SentryDataCollection.Options(
+            httpHeaders: .init(
+                request: .off,
+                response: .denyList()
+            )
+        )
+
+        let requestResult = HTTPHeaderSanitizer.sanitizeHeaders(
+            headers,
+            options: options,
+            isRequest: true
+        )
+        let responseResult = HTTPHeaderSanitizer.sanitizeHeaders(
+            headers,
+            options: options,
+            isRequest: false
+        )
+        let objcResult = HTTPHeaderSanitizerObjC.sanitizeHeaders(
+            headers,
+            options: SentryDataCollectionObjCOptions(wrapped: options),
+            isRequest: false
+        )
+
+        XCTAssertEqual(requestResult.headers, [:])
+        XCTAssertEqual(responseResult.headers, headers)
+        XCTAssertEqual(objcResult.headers, responseResult.headers)
+        XCTAssertEqual(objcResult.cookies, responseResult.cookies)
+#else
+        XCTAssertEqual(HTTPHeaderSanitizer.sanitizeHeaders(headers), headers)
+#endif // SDK_V10
+    }
+
     func testSanitizeHeaders_whenHeaderCollectionIsOffAndCookiesAreEnabled_shouldCollectOnlyCookies() {
         // -- Arrange --
         let headers = [

@@ -415,8 +415,11 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     if (nil != currentRequest.allHTTPHeaderFields) {
         NSDictionary<NSString *, NSString *> *headers = currentRequest.allHTTPHeaderFields.copy;
 #if SDK_V10
-        HTTPHeaderSanitizationResult *sanitizedHeaders =
-            [dataCollectionOptions sanitizeHeaders:headers isRequest:YES];
+        HTTPHeaderSanitizationResultObjC *sanitizedHeaders = [HTTPHeaderSanitizerObjC
+            sanitizeHeaders:headers
+                    options:SENTRY_UNWRAP_NULLABLE(
+                                SentryDataCollectionObjCOptions, dataCollectionOptions)
+                  isRequest:YES];
         if (sanitizedHeaders.headers.count > 0) {
             request.headers = sanitizedHeaders.headers;
         }
@@ -439,8 +442,11 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     // sentry-lint:disable avoid_all_header_fields
     if (nil != myResponse.allHeaderFields) {
 #if SDK_V10
-        HTTPHeaderSanitizationResult *sanitizedHeaders =
-            [dataCollectionOptions sanitizeHeaders:myResponse.allHeaderFields isRequest:NO];
+        HTTPHeaderSanitizationResultObjC *sanitizedHeaders = [HTTPHeaderSanitizerObjC
+            sanitizeHeaders:myResponse.allHeaderFields
+                    options:SENTRY_UNWRAP_NULLABLE(
+                                SentryDataCollectionObjCOptions, dataCollectionOptions)
+                  isRequest:NO];
         if (sanitizedHeaders.headers.count > 0) {
             [response setValue:sanitizedHeaders.headers forKey:@"headers"];
         }

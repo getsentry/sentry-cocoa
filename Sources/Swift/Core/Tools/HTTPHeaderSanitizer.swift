@@ -2,24 +2,29 @@
 import Foundation
 
 #if SDK_V10
-@objcMembers
-@_spi(Private) public final class HTTPHeaderSanitizationResult: NSObject {
-    public let headers: [String: String]
-    public let cookies: [String: String]
-
-    init(headers: [String: String], cookies: [String: String]) {
-        self.headers = headers
-        self.cookies = cookies
+enum HTTPHeaderSanitizer {
+    struct Result {
+        let headers: [String: String]
+        let cookies: [String: String]
     }
-}
 
-@objcMembers
-@_spi(Private) public final class HTTPHeaderSanitizer: NSObject {
-    public static func sanitizeHeaders(
+    static func sanitizeHeaders(
+        _ headers: [String: String],
+        options: SentryDataCollection.Options,
+        isRequest: Bool
+    ) -> Result {
+        sanitizeHeaders(
+            headers,
+            headerBehavior: isRequest ? options.httpHeaders.request : options.httpHeaders.response,
+            cookieBehavior: options.cookies
+        )
+    }
+
+    static func sanitizeHeaders(
         _ headers: [String: String],
         headerBehavior: SentryDataCollection.KeyValueCollectionBehavior,
         cookieBehavior: SentryDataCollection.KeyValueCollectionBehavior
-    ) -> HTTPHeaderSanitizationResult {
+    ) -> Result {
         var regularHeaders: [String: String] = [:]
         var cookies: [String: String] = [:]
 
@@ -50,7 +55,7 @@ import Foundation
             }
         }
 
-        return HTTPHeaderSanitizationResult(
+        return Result(
             headers: SentryDataCollection.KeyValueFilter.filter(
                 regularHeaders,
                 behavior: headerBehavior
