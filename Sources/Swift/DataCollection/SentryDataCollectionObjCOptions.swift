@@ -8,6 +8,19 @@
         wrapped.userInfo
     }
 
+    /// Sanitizes headers using the resolved request or response collection behavior.
+    @_spi(Private) @objc(sanitizeHeaders:isRequest:)
+    public func sanitizeHeaders(
+        _ headers: [String: String],
+        isRequest: Bool
+    ) -> HTTPHeaderSanitizationResult {
+        HTTPHeaderSanitizer.sanitizeHeaders(
+            headers,
+            headerBehavior: isRequest ? wrapped.httpHeaders.request : wrapped.httpHeaders.response,
+            cookieBehavior: wrapped.cookies
+        )
+    }
+
     init(wrapped: SentryDataCollection.Options) {
         self.wrapped = wrapped
     }

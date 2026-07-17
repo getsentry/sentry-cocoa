@@ -8,6 +8,7 @@
   - Allows dictionary initialization for `options.dataCollection` (#8371)
   - Renamed `options.dataCollection.queryParams` to `options.dataCollection.urlQueryParams` (#8414)
   - Add query parameter filtering for network spans, breadcrumbs, and failed requests using `options.dataCollection.urlQueryParams` (#8414)
+  - Add HTTP header and cookie filtering for failed requests using `options.dataCollection` (#8248, #8251)
   - Enable automatic user information for logs, metrics, and IP inference by default; configure it with `options.dataCollection.userInfo` (#8254)
 
 ### Breaking Changes
