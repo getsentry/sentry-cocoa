@@ -70,16 +70,14 @@ import Foundation
 #endif // SDK_V10
 
     public var sanitizedUrl: String? {
-        guard var result = components?.string else { return nil }
-#if SDK_V10
-        let end = result.firstIndex(of: "#")
-#else
-        let end = result.firstIndex(of: "?") ?? result.firstIndex(of: "#")
-#endif // SDK_V10
-        if let end {
-            result = String(result[result.startIndex..<end])
-        }
-        return result.removingPercentEncoding
+        guard var components else { return nil }
+
+#if !SDK_V10
+        components.queryItems = nil
+#endif // !SDK_V10
+        components.fragment = nil
+
+        return components.string?.removingPercentEncoding
     }
 
     public var sanitizedBaseUrl: String? {

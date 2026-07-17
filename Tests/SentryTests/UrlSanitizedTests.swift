@@ -41,6 +41,24 @@ final class UrlSanitizedTests: XCTestCase {
         XCTAssertEqual(sut.fragment, "fragment")
     }
 
+    func testSanitizedUrl_whenRemovingComponents_shouldNotModifyStoredComponents() {
+        // -- Arrange --
+        let url = URL(string: "http://sentry.io?query=value#fragment")!
+        let sut = createSUT(url: url)
+
+        // -- Act --
+        let sanitizedUrl = sut.sanitizedUrl
+
+        // -- Assert --
+#if SDK_V10
+        XCTAssertEqual(sanitizedUrl, "http://sentry.io?query=value")
+#else
+        XCTAssertEqual(sanitizedUrl, "http://sentry.io")
+#endif // SDK_V10
+        XCTAssertEqual(sut.query, "query=value")
+        XCTAssertEqual(sut.fragment, "fragment")
+    }
+
     func testSanitizedBaseUrl_whenURLHasNoQueryOrFragment_shouldReturnFullURL() {
         // -- Arrange --
         let url = URL(string: "http://sentry.io")!
