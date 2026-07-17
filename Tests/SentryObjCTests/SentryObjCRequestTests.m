@@ -62,7 +62,11 @@
     SentryObjCRequest *request = [[SentryObjCRequest alloc] init];
 
     // -- Act --
-    id result = request.cookies;
+#if SDK_V10
+    NSDictionary<NSString *, NSString *> result = request.cookies;
+#else
+    NSString* result = request.cookies;
+#endif
 
     // -- Assert --
     XCTAssertNil(result);
