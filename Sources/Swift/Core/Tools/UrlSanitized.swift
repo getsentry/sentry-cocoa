@@ -45,6 +45,10 @@ import Foundation
         }
 
         guard components?.query != nil, let queryItems = components?.queryItems else {
+            // If the query is set but cannot be parsed into query items, it is considered unparseable.
+            // This can happen if the query contains invalid percent encoding or other malformed data.
+            // In this case, we cannot filter individual query items, so we replace the entire query with
+            // a placeholder to indicate that sensitive data has been filtered.
             components?.queryItems = [URLQueryItem(name: Self.SENSITIVE_DATA_SUBSTITUTE, value: nil)]
             return
         }
