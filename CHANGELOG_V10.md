@@ -5,7 +5,9 @@
 ### Features
 
 - Add `options.dataCollection` to configure data collection behaviour (#8448)
-- Add dictionary initialization for `options.dataCollection` (#8371)
+  - Allows dictionary initialization for `options.dataCollection` (#8371)
+  - Renamed `options.dataCollection.queryParams` to `options.dataCollection.urlQueryParams` (#8414)
+  - Add query parameter filtering for network spans, breadcrumbs, and failed requests using `options.dataCollection.urlQueryParams` (#8414)
 
 ### Breaking Changes
 
