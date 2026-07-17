@@ -63,10 +63,10 @@
 
     // -- Act --
 #if SDK_V10
-    NSDictionary<NSString *, NSString *> result = request.cookies;
+    NSDictionary<NSString *, NSString *> *result = request.cookies;
 #else
-    NSString* result = request.cookies;
-#endif
+    NSString *result = request.cookies;
+#endif // SDK_V10
 
     // -- Assert --
     XCTAssertNil(result);

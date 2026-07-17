@@ -1622,7 +1622,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         // -- Assert --
         let request = try XCTUnwrap(fixture.hub.capturedErrorEvents.first?.request)
 #if SDK_V10
-        XCTAssertNil(request.headers)
+        XCTAssertEqual(request.headers, [:])
         XCTAssertEqual(request.cookies, ["theme": "dark", "session": "[Filtered]"])
 #else
         XCTAssertEqual(request.headers, ["Content-Type": "application/json"])
@@ -1653,7 +1653,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         // -- Assert --
         let response = try XCTUnwrap(fixture.hub.capturedErrorEvents.first?.context?["response"])
 #if SDK_V10
-        XCTAssertNil(response["headers"])
+        XCTAssertEqual(response["headers"] as? [String: String], [:])
         XCTAssertEqual(response["cookies"] as? [String: String], ["theme": "dark"])
 #else
         XCTAssertEqual(response["headers"] as? [String: String], ["Content-Type": "application/json"])
@@ -1757,7 +1757,11 @@ class SentryNetworkTrackerTests: XCTestCase {
         // -- Assert --
         let request = try XCTUnwrap(fixture.hub.capturedErrorEvents.first?.request)
         XCTAssertEqual(request.headers, ["Content-Type": "application/json"])
+#if SDK_V10
+        XCTAssertEqual(request.cookies, [:])
+#else
         XCTAssertNil(request.cookies)
+#endif // SDK_V10
     }
 
     func testCaptureHTTPClientErrorException() throws {

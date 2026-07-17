@@ -3,19 +3,43 @@ import Foundation
 
 #if SDK_V10
 enum HTTPHeaderSanitizer {
-    struct Result {
+
+    // MARK: - Types
+
+    struct SanitizedHeaders {
         let headers: [String: String]
         let cookies: [String: String]
     }
 
-    static func sanitizeHeaders(
+    private enum CookieHeader: String {
+        case cookie
+        case setCookie = "set-cookie"
+    }
+
+    // MARK: - Constants
+
+    private static let sensitiveDataSubstitute = "[Filtered]"
+
+    // MARK: - Methods
+
+    static func sanitizeRequestHeaders(
         _ headers: [String: String],
-        options: SentryDataCollection.Options,
-        isRequest: Bool
-    ) -> Result {
+        options: SentryDataCollection.Options
+    ) -> SanitizedHeaders {
         sanitizeHeaders(
             headers,
-            headerBehavior: isRequest ? options.httpHeaders.request : options.httpHeaders.response,
+            headerBehavior: options.httpHeaders.request,
+            cookieBehavior: options.cookies
+        )
+    }
+
+    static func sanitizeResponseHeaders(
+        _ headers: [String: String],
+        options: SentryDataCollection.Options
+    ) -> SanitizedHeaders {
+        sanitizeHeaders(
+            headers,
+            headerBehavior: options.httpHeaders.response,
             cookieBehavior: options.cookies
         )
     }
@@ -24,38 +48,28 @@ enum HTTPHeaderSanitizer {
         _ headers: [String: String],
         headerBehavior: SentryDataCollection.KeyValueCollectionBehavior,
         cookieBehavior: SentryDataCollection.KeyValueCollectionBehavior
-    ) -> Result {
+    ) -> SanitizedHeaders {
         var regularHeaders: [String: String] = [:]
         var cookies: [String: String] = [:]
 
         for (name, value) in headers {
-            switch name.lowercased() {
-            case "cookie":
-                collectCookies(
-                    from: value,
-                    isSetCookie: false,
-                    name: name,
-                    headerBehavior: headerBehavior,
-                    cookieBehavior: cookieBehavior,
-                    regularHeaders: &regularHeaders,
-                    cookies: &cookies
-                )
-            case "set-cookie":
-                collectCookies(
-                    from: value,
-                    isSetCookie: true,
-                    name: name,
-                    headerBehavior: headerBehavior,
-                    cookieBehavior: cookieBehavior,
-                    regularHeaders: &regularHeaders,
-                    cookies: &cookies
-                )
-            default:
+            guard let cookieHeader = CookieHeader(rawValue: name.lowercased()) else {
                 regularHeaders[name] = value
+                continue
             }
+
+            collectCookies(
+                from: value,
+                cookieHeader: cookieHeader,
+                name: name,
+                headerBehavior: headerBehavior,
+                cookieBehavior: cookieBehavior,
+                regularHeaders: &regularHeaders,
+                cookies: &cookies
+            )
         }
 
-        return Result(
+        return SanitizedHeaders(
             headers: SentryDataCollection.KeyValueFilter.filter(
                 regularHeaders,
                 behavior: headerBehavior
@@ -65,8 +79,8 @@ enum HTTPHeaderSanitizer {
     }
 
     private static func collectCookies(
-        from value: String,
-        isSetCookie: Bool,
+        from headerValue: String,
+        cookieHeader: CookieHeader,
         name: String,
         headerBehavior: SentryDataCollection.KeyValueCollectionBehavior,
         cookieBehavior: SentryDataCollection.KeyValueCollectionBehavior,
@@ -77,41 +91,51 @@ enum HTTPHeaderSanitizer {
             return
         }
 
-        guard let parsedCookies = parseCookies(value, isSetCookie: isSetCookie) else {
+        guard let parsedCookies = parseCookies(headerValue, cookieHeader: cookieHeader) else {
             if headerBehavior != .off {
-                regularHeaders[name] = "[Filtered]"
+                regularHeaders[name] = Self.sensitiveDataSubstitute
             }
             return
         }
 
         cookies.merge(
             SentryDataCollection.KeyValueFilter.filter(parsedCookies, behavior: cookieBehavior),
-            uniquingKeysWith: { _, last in last }
+            uniquingKeysWith: { _, incoming in incoming }
         )
     }
 
-    private static func parseCookies(_ value: String, isSetCookie: Bool) -> [String: String]? {
+    private static func parseCookies(
+        _ headerValue: String,
+        cookieHeader: CookieHeader
+    ) -> [String: String]? {
         let cookieValues: [Substring]
-        if isSetCookie {
-            cookieValues = [value.split(separator: ";", maxSplits: 1, omittingEmptySubsequences: false)[0]]
-        } else {
-            cookieValues = value.split(separator: ";", omittingEmptySubsequences: false)
+        switch cookieHeader {
+        case .cookie:
+            cookieValues = headerValue.split(separator: ";")
+        case .setCookie:
+            guard let cookie = headerValue
+                .split(separator: ";", maxSplits: 1)
+                .first
+            else {
+                return nil
+            }
+            cookieValues = [cookie]
         }
 
         var result: [String: String] = [:]
-        for cookieValue in cookieValues {
-            let pair = cookieValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        for value in cookieValues {
+            let pair = value.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !pair.isEmpty, let separatorIndex = pair.firstIndex(of: "=") else {
                 return nil
             }
 
-            let name = pair[..<separatorIndex].trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !name.isEmpty else {
+            let cookieName = pair[..<separatorIndex].trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !cookieName.isEmpty else {
                 return nil
             }
 
-            let value = String(pair[pair.index(after: separatorIndex)...])
-            result[name] = value
+            let cookieValue = String(pair[pair.index(after: separatorIndex)...])
+            result[cookieName] = cookieValue
         }
 
         return result.isEmpty ? nil : result

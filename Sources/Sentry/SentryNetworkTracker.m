@@ -416,16 +416,11 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         NSDictionary<NSString *, NSString *> *headers = currentRequest.allHTTPHeaderFields.copy;
 #if SDK_V10
         HTTPHeaderSanitizationResultObjC *sanitizedHeaders = [HTTPHeaderSanitizerObjC
-            sanitizeHeaders:headers
-                    options:SENTRY_UNWRAP_NULLABLE(
-                                SentryDataCollectionObjCOptions, dataCollectionOptions)
-                  isRequest:YES];
-        if (sanitizedHeaders.headers.count > 0) {
-            request.headers = sanitizedHeaders.headers;
-        }
-        if (sanitizedHeaders.cookies.count > 0) {
-            request.cookies = sanitizedHeaders.cookies;
-        }
+            sanitizeRequestHeaders:headers
+                           options:SENTRY_UNWRAP_NULLABLE(
+                                       SentryDataCollectionObjCOptions, dataCollectionOptions)];
+        request.headers = sanitizedHeaders.headers;
+        request.cookies = sanitizedHeaders.cookies;
 #else
         request.headers = [HTTPHeaderSanitizer sanitizeHeaders:headers];
 #endif // SDK_V10
@@ -443,16 +438,11 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     if (nil != myResponse.allHeaderFields) {
 #if SDK_V10
         HTTPHeaderSanitizationResultObjC *sanitizedHeaders = [HTTPHeaderSanitizerObjC
-            sanitizeHeaders:myResponse.allHeaderFields
-                    options:SENTRY_UNWRAP_NULLABLE(
-                                SentryDataCollectionObjCOptions, dataCollectionOptions)
-                  isRequest:NO];
-        if (sanitizedHeaders.headers.count > 0) {
-            [response setValue:sanitizedHeaders.headers forKey:@"headers"];
-        }
-        if (sanitizedHeaders.cookies.count > 0) {
-            [response setValue:sanitizedHeaders.cookies forKey:@"cookies"];
-        }
+            sanitizeResponseHeaders:myResponse.allHeaderFields
+                            options:SENTRY_UNWRAP_NULLABLE(
+                                        SentryDataCollectionObjCOptions, dataCollectionOptions)];
+        [response setValue:sanitizedHeaders.headers forKey:@"headers"];
+        [response setValue:sanitizedHeaders.cookies forKey:@"cookies"];
 #else
         NSDictionary<NSString *, NSString *> *headers =
             [HTTPHeaderSanitizer sanitizeHeaders:myResponse.allHeaderFields];

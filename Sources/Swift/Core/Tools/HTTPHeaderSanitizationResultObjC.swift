@@ -3,7 +3,7 @@ import Foundation
 
 /// Objective-C wrapper for the result of sanitizing HTTP headers and cookies.
 @_spi(Private) @objcMembers public final class HTTPHeaderSanitizationResultObjC: NSObject {
-    let wrapped: HTTPHeaderSanitizer.Result
+    let wrapped: HTTPHeaderSanitizer.SanitizedHeaders
 
     /// Sanitized non-cookie HTTP headers.
     public var headers: [String: String] {
@@ -15,7 +15,7 @@ import Foundation
         wrapped.cookies
     }
 
-    init(_ wrapped: HTTPHeaderSanitizer.Result) {
+    init(_ wrapped: HTTPHeaderSanitizer.SanitizedHeaders) {
         self.wrapped = wrapped
     }
 }
