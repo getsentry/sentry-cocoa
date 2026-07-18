@@ -194,6 +194,7 @@ private struct SessionSegmentState {
         self.rootView = rootView
         let now = dateProvider.date()
         resetCapturePacing(at: now)
+        touchTracker?.isEnabled = true
         startCaptureScheduler()
         state.withLock {
             $0.segmentState.reset()
