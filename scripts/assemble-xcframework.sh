@@ -8,7 +8,7 @@ source "$(cd "$(dirname "$0")" && pwd)/ci-utils.sh"
 
 usage() {
     cat <<EOF
-Usage: $(basename "$0") <scheme> <suffix> <configuration_suffix> <sdks> <xcarchive_path_template>
+Usage: $(basename "$0") <scheme> <suffix> <configuration_suffix> <sdks> <xcarchive_path_template> [product_name]
 
 Assembles an XCFramework from per-SDK xcarchive slices.
 
@@ -18,16 +18,19 @@ ARGUMENTS:
     configuration_suffix        Suffix for the product name inside archives (can be empty)
     sdks                        Comma-separated list of SDKs (e.g., iphoneos,macosx)
     xcarchive_path_template     Path template with SDK_NAME placeholder(s)
+    product_name                Framework name on disk inside xcarchives when it differs
+                                from the scheme name (default: scheme)
 
 EXAMPLES:
     $(basename "$0") Sentry "" "" "iphoneos,macosx" "/path/to/SDK_NAME.xcarchive"
+    $(basename "$0") "Sentry+KSCrash" "-Dynamic" "" "iphoneos,macosx" "/path/to/SDK_NAME.xcarchive" "Sentry"
 
 EOF
     exit 1
 }
 
 if [ $# -lt 5 ]; then
-    log_error "Expected 5 arguments, got $#"
+    log_error "Expected at least 5 arguments, got $#"
     usage
 fi
 
@@ -35,6 +38,7 @@ scheme="$1"
 suffix="$2"
 configuration_suffix="$3"
 IFS=',' read -r -a sdks <<< "$4"
+product_name="${6:-$scheme}"
 
 log_info "Assembling XCFramework:"
 log_info "  Scheme:               $scheme"
@@ -42,6 +46,9 @@ log_info "  Suffix:               ${suffix:-(none)}"
 log_info "  Configuration suffix: ${configuration_suffix:-(none)}"
 log_info "  SDKs:                 ${sdks[*]}"
 log_info "  Archive template:     $5"
+if [[ "$product_name" != "$scheme" ]]; then
+    log_info "  Product name:         $product_name"
+fi
 
 # on ci, the xcarchives live in paths like the following:
 #   /path/to/.../xcframework-slices/xcframework-sentry-swiftui-slice-maccatalyst/Library/Frameworks/SentrySwiftUI.framework
@@ -56,9 +63,9 @@ xcarchive_path_template="${5}" # may contain any number of instances of the temp
 xcodebuild_cmd="xcodebuild -create-xcframework"
 
 if [ -z "$configuration_suffix" ]; then
-    resolved_product_name="$scheme"
+    resolved_product_name="$product_name"
 else
-    resolved_product_name="$scheme$configuration_suffix"
+    resolved_product_name="$product_name$configuration_suffix"
 fi
 
 framework_filename="$resolved_product_name.framework"

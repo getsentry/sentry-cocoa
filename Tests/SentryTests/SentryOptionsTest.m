@@ -1,4 +1,5 @@
 #import "SentryError.h"
+#import "SentryOptions+Tests.h"
 #import "SentrySDKInternal.h"
 #import "SentrySpanInternal.h"
 #import "SentryTests-Swift.h"
@@ -13,7 +14,8 @@
 - (void)testEmptyDsn
 {
     NSError *error = nil;
-    SentryOptions *options = [SentryOptionsInternal initWithDict:@{ } didFailWithError:&error];
+    SentryOptions *options = [[SentryOptions alloc] initWithDictionary:@{ }
+                                                      didFailWithError:&error];
 
     XCTAssertNil(options.parsedDsn);
     XCTAssertEqual(NO, options.debug);
@@ -25,8 +27,8 @@
 - (void)testInvalidDsnBoolean
 {
     NSError *error = nil;
-    SentryOptions *options = [SentryOptionsInternal initWithDict:@{ @"dsn" : @YES }
-                                                didFailWithError:&error];
+    SentryOptions *options = [[SentryOptions alloc] initWithDictionary:@{ @"dsn" : @YES }
+                                                      didFailWithError:&error];
 
     [self assertDsnNil:options andError:error];
 }
@@ -41,16 +43,18 @@
 - (void)testInvalidDsn
 {
     NSError *error = nil;
-    SentryOptions *options = [SentryOptionsInternal initWithDict:@{ @"dsn" : @"https://sentry.io" }
-                                                didFailWithError:&error];
+    SentryOptions *options =
+        [[SentryOptions alloc] initWithDictionary:@{ @"dsn" : @"https://sentry.io" }
+                                 didFailWithError:&error];
     XCTAssertEqual(kSentryErrorInvalidDsnError, error.code);
     XCTAssertNil(options);
 }
 
 - (void)testInvalidDsnWithNoErrorArgument
 {
-    SentryOptions *options = [SentryOptionsInternal initWithDict:@{ @"dsn" : @"https://sentry.io" }
-                                                didFailWithError:nil];
+    SentryOptions *options =
+        [[SentryOptions alloc] initWithDictionary:@{ @"dsn" : @"https://sentry.io" }
+                                 didFailWithError:nil];
     XCTAssertNil(options);
 }
 
@@ -127,11 +131,11 @@
 - (void)testDebugWith:(NSObject *)debugValue expected:(BOOL)expectedDebugValue
 {
     NSError *error = nil;
-    SentryOptions *options = [SentryOptionsInternal initWithDict:@{
+    SentryOptions *options = [[SentryOptions alloc] initWithDictionary:@{
         @"dsn" : @"https://username:password@sentry.io/1",
         @"debug" : debugValue
     }
-                                                didFailWithError:&error];
+                                                      didFailWithError:&error];
 
     XCTAssertNil(error);
     XCTAssertEqual(expectedDebugValue, options.debug);
@@ -664,7 +668,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 
 - (void)testNSNull_SetsDefaultValue
 {
-    SentryOptions *options = [SentryOptionsInternal initWithDict:@{
+    SentryOptions *options = [[SentryOptions alloc] initWithDictionary:@{
         @"urlSession" : [NSNull null],
         @"dsn" : [NSNull null],
         @"enabled" : [NSNull null],
@@ -718,9 +722,12 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
         @"enableTimeToFullDisplayTracing" : [NSNull null],
         @"enableTracing" : [NSNull null],
         @"swiftAsyncStacktraces" : [NSNull null],
+#if SDK_V10
+        @"dataCollection" : [NSNull null],
+#endif // SDK_V10
         @"spotlightUrl" : [NSNull null]
     }
-                                                didFailWithError:nil];
+                                                      didFailWithError:nil];
 
     XCTAssertNil(options.parsedDsn);
     [self assertDefaultValues:options];
@@ -1196,8 +1203,8 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 
     [options addEntriesFromDictionary:dict];
 
-    SentryOptions *sentryOptions = [SentryOptionsInternal initWithDict:options
-                                                      didFailWithError:&error];
+    SentryOptions *sentryOptions = [[SentryOptions alloc] initWithDictionary:options
+                                                            didFailWithError:&error];
     XCTAssertNil(error);
     return sentryOptions;
 }

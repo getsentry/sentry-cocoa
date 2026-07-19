@@ -1,4 +1,5 @@
 #import "SentryDiscardReasonMapper.h"
+#import "SentrySwift.h"
 
 NSString *const kSentryDiscardReasonNameBeforeSend = @"before_send";
 NSString *const kSentryDiscardReasonNameEventProcessor = @"event_processor";
@@ -13,23 +14,23 @@ NSString *const kSentryDiscardReasonNameSendError = @"send_error";
 NSString *_Nonnull nameForSentryDiscardReason(SentryDiscardReason reason)
 {
     switch (reason) {
-    case kSentryDiscardReasonBeforeSend:
+    case SentryDiscardReasonBeforeSend:
         return kSentryDiscardReasonNameBeforeSend;
-    case kSentryDiscardReasonEventProcessor:
+    case SentryDiscardReasonEventProcessor:
         return kSentryDiscardReasonNameEventProcessor;
-    case kSentryDiscardReasonSampleRate:
+    case SentryDiscardReasonSampleRate:
         return kSentryDiscardReasonNameSampleRate;
-    case kSentryDiscardReasonNetworkError:
+    case SentryDiscardReasonNetworkError:
         return kSentryDiscardReasonNameNetworkError;
-    case kSentryDiscardReasonQueueOverflow:
+    case SentryDiscardReasonQueueOverflow:
         return kSentryDiscardReasonNameQueueOverflow;
-    case kSentryDiscardReasonCacheOverflow:
+    case SentryDiscardReasonCacheOverflow:
         return kSentryDiscardReasonNameCacheOverflow;
-    case kSentryDiscardReasonRateLimitBackoff:
+    case SentryDiscardReasonRateLimitBackoff:
         return kSentryDiscardReasonNameRateLimitBackoff;
-    case kSentryDiscardReasonInsufficientData:
+    case SentryDiscardReasonInsufficientData:
         return kSentryDiscardReasonNameInsufficientData;
-    case kSentryDiscardReasonSendError:
+    case SentryDiscardReasonSendError:
         return kSentryDiscardReasonNameSendError;
     }
 }

@@ -1,6 +1,6 @@
 #import "SentryError.h"
 #import "SentryMeta.h"
-#import "SentryOptionsInternal.h"
+#import "SentryOptions+Tests.h"
 #import "SentrySwift.h"
 #import <XCTest/XCTest.h>
 
@@ -13,8 +13,9 @@
 - (void)testMissingUsernamePassword
 {
     NSError *error = nil;
-    SentryOptions *options = [SentryOptionsInternal initWithDict:@{ @"dsn" : @"https://sentry.io" }
-                                                didFailWithError:&error];
+    SentryOptions *options =
+        [[SentryOptions alloc] initWithDictionary:@{ @"dsn" : @"https://sentry.io" }
+                                 didFailWithError:&error];
     XCTAssertEqual(kSentryErrorInvalidDsnError, error.code);
     XCTAssertNil(options);
 }
@@ -22,8 +23,9 @@
 - (void)testMissingScheme
 {
     NSError *error = nil;
-    SentryOptions *options = [SentryOptionsInternal initWithDict:@{ @"dsn" : @"https://sentry.io" }
-                                                didFailWithError:&error];
+    SentryOptions *options =
+        [[SentryOptions alloc] initWithDictionary:@{ @"dsn" : @"https://sentry.io" }
+                                 didFailWithError:&error];
     XCTAssertEqual(kSentryErrorInvalidDsnError, error.code);
     XCTAssertNil(options);
 }
@@ -31,8 +33,8 @@
 - (void)testMissingHost
 {
     NSError *error = nil;
-    SentryOptions *options = [SentryOptionsInternal initWithDict:@{ @"dsn" : @"http:///1" }
-                                                didFailWithError:&error];
+    SentryOptions *options = [[SentryOptions alloc] initWithDictionary:@{ @"dsn" : @"http:///1" }
+                                                      didFailWithError:&error];
     XCTAssertEqual(kSentryErrorInvalidDsnError, error.code);
     XCTAssertNil(options);
 }
@@ -40,8 +42,9 @@
 - (void)testUnsupportedProtocol
 {
     NSError *error = nil;
-    SentryOptions *options = [SentryOptionsInternal initWithDict:@{ @"dsn" : @"ftp://sentry.io/1" }
-                                                didFailWithError:&error];
+    SentryOptions *options =
+        [[SentryOptions alloc] initWithDictionary:@{ @"dsn" : @"ftp://sentry.io/1" }
+                                 didFailWithError:&error];
     XCTAssertEqual(kSentryErrorInvalidDsnError, error.code);
     XCTAssertNil(options);
 }

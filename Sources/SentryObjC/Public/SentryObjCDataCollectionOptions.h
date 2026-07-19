@@ -1,9 +1,10 @@
-#import <Foundation/Foundation.h>
-#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
-#    import "SentryObjCDataCollectionHttpBodyType.h"
-#else
-#    import <SentryObjC/SentryObjCDataCollectionHttpBodyType.h>
-#endif
+#if SDK_V10
+#    import <Foundation/Foundation.h>
+#    if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#        import "SentryObjCDataCollectionHttpBodyType.h"
+#    else
+#        import <SentryObjC/SentryObjCDataCollectionHttpBodyType.h>
+#    endif
 
 @class SentryObjCDataCollectionKeyValueCollectionBehavior;
 @class SentryObjCDataCollectionHttpHeaderCollectionOptions;
@@ -33,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) SentryObjCDataCollectionHttpBodyType httpBodies;
 
 /// Controls URL query parameter filtering. Defaults to denyList.
-@property (nonatomic, strong) SentryObjCDataCollectionKeyValueCollectionBehavior *queryParams;
+@property (nonatomic, strong) SentryObjCDataCollectionKeyValueCollectionBehavior *urlQueryParams;
 
 /// Controls GraphQL document and variable collection.
 @property (nonatomic, strong) SentryObjCDataCollectionGraphQLCollectionOptions *graphql;
@@ -49,6 +50,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init;
 
+/// Creates data collection options from a dictionary.
+///
+/// Missing keys and @c NSNull values use the same defaults as @c init.
+- (instancetype)initWithDictionary:(NSDictionary *)dictionary;
+
 @end
 
 NS_ASSUME_NONNULL_END
+#endif // SDK_V10

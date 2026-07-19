@@ -23,54 +23,6 @@ class SentryNetworkDetailSwizzlingTests: XCTestCase {
     }
 
     // MARK: - Tests
-    func testDataNotCapturedIfExperimentalFlasNotEnabled() throws {
-        let options = Options()
-        options.dsn = TestConstants.dsnAsString(username: "SentryNetworkDetailSwizzlingTests")
-        options.tracesSampleRate = 1.0
-        options.enableNetworkBreadcrumbs = true
-        options.sessionReplay.networkDetailAllowUrls = ["postman-echo.com"]
-        options.sessionReplay.networkCaptureBodies = true
-        options.experimental.enableReplayNetworkDetailsCapturing = false
-        SentrySDK.start(options: options)
-        
-        let transaction = SentrySDK.startTransaction(
-            name: "Test", operation: "test", bindToScope: true
-        )
-
-        let expect = expectation(description: "Request completed")
-        expect.assertForOverFulfill = false
-
-        let session = URLSession(configuration: .default)
-        let request = URLRequest(url: echoURL)
-
-        var receivedData: Data?
-        var receivedResponse: URLResponse?
-        var receivedError: Error?
-
-        let task = session.dataTask(with: request) { data, response, error in
-            receivedData = data
-            receivedResponse = response
-            receivedError = error
-            expect.fulfill()
-        }
-        defer { task.cancel() }
-
-        task.resume()
-        wait(for: [expect], timeout: 5)
-
-        transaction.finish()
-
-        // Original completion handler received valid data
-        XCTAssertNil(receivedError, "Request should succeed")
-        XCTAssertNotNil(receivedData, "Should receive response data")
-        let httpResponse = try XCTUnwrap(receivedResponse as? HTTPURLResponse)
-        XCTAssertEqual(httpResponse.statusCode, 200)
-
-        // Network details were captured via the swizzled completion handler
-        let breadcrumb = try lastHTTPBreadcrumb(for: echoURL)
-        XCTAssertNil(breadcrumb.data?[SentryReplayNetworkDetails.replayNetworkDetailsKey], "Breadcrumbs should not contain any network details")
-    }
-
     /// Verifies the swizzle of `-[NSURLSession dataTaskWithRequest:completionHandler:]`
     /// captures response details into the breadcrumb.
     func testDataTaskWithRequest_completionHandler_capturesNetworkDetails() throws {
@@ -177,7 +129,6 @@ class SentryNetworkDetailSwizzlingTests: XCTestCase {
         options.enableNetworkBreadcrumbs = true
         options.sessionReplay.networkDetailAllowUrls = ["postman-echo.com"]
         options.sessionReplay.networkCaptureBodies = true
-        options.experimental.enableReplayNetworkDetailsCapturing = true
         SentrySDK.start(options: options)
     }
 

@@ -14,9 +14,13 @@ extension SentryLevel {
         return levelNames[Int(self.rawValue)]
     }
 
-    static func fromName(_ name: String?) -> SentryLevel {
-        guard let name = name, let index = levelNames.firstIndex(of: name) else { return .error }
-        return SentryLevel(rawValue: UInt(index)) ?? .error
+    static func fromName(_ name: String?) -> SentryLevel? {
+        guard let name,
+              let index = levelNames.firstIndex(of: name),
+              let level = SentryLevel(rawValue: UInt(index)) else {
+            return nil
+        }
+        return level
     }
 }
 
@@ -27,7 +31,7 @@ extension SentryLevel {
     }
     
     public static func levelForName(_ name: String?) -> SentryLevel {
-        .fromName(name)
+        .fromName(name) ?? .error
     }
 }
 // swiftlint:enable missing_docs

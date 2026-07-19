@@ -1,5 +1,5 @@
-@_spi(Private) import Sentry
 @_spi(Private) import SentryTestUtils
+@testable @_spi(Private) import Sentry
 import XCTest
 
 #if os(iOS) || os(tvOS)
@@ -10,18 +10,22 @@ class SentryUIEventTrackerTests: XCTestCase {
         let target = FirstViewController()
         let hub = SentryHubInternal(client: TestClient(options: Options()), andScope: nil)
         let dispatchQueue = TestSentryDispatchQueueWrapper()
-        let uiEventTrackerMode: SentryUIEventTrackerMode
+        let uiEventTrackerMode: SentryUIEventTrackerTransactionEventProcessor
         let button = UIButton()
 
         init () {
             dispatchQueue.blockBeforeMainBlock = { false }
             SentryDependencyContainer.sharedInstance().swizzleWrapper = swizzleWrapper
             SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueue
-            uiEventTrackerMode = SentryUIEventTrackerTransactionMode(idleTimeout: 3.0)
+            uiEventTrackerMode = SentryUIEventTrackerTransactionEventProcessor(idleTimeout: 3.0)
         }
         
         func getSut(reportAccessibilityIdentifier: Bool = true) -> SentryUIEventTracker {
-            return SentryUIEventTracker(mode: uiEventTrackerMode, reportAccessibilityIdentifier: reportAccessibilityIdentifier)
+            return SentryUIEventTracker(
+                options: .init(reportAccessibilityIdentifier: reportAccessibilityIdentifier),
+                eventProcessor: uiEventTrackerMode,
+                swizzleWrapper: swizzleWrapper
+            )
         }
     }
 
@@ -260,15 +264,15 @@ class SentryUIEventTrackerTests: XCTestCase {
     }
     
     func test_IsUIEventOperation_UIAction() {
-        XCTAssertTrue(SentryUIEventTracker.isUIEventOperation("ui.action"))
+        XCTAssertTrue(SentrySpanOperationIsUIEvent("ui.action"))
     }
     
     func test_IsUIEventOperation_UIActionClick() {
-        XCTAssertTrue(SentryUIEventTracker.isUIEventOperation("ui.action.click"))
+        XCTAssertTrue(SentrySpanOperationIsUIEvent("ui.action.click"))
     }
     
     func test_IsUIEventOperation_Unknown() {
-        XCTAssertFalse(SentryUIEventTracker.isUIEventOperation("unknown"))
+        XCTAssertFalse(SentrySpanOperationIsUIEvent("unknown"))
     }
         
     private func callExecuteAction(action: String, target: Any?, sender: Any?, event: UIEvent?) {
@@ -276,13 +280,13 @@ class SentryUIEventTrackerTests: XCTestCase {
     }
     
     private func getInternalTransactions() throws -> [SentryTracer] {
-        return try XCTUnwrap(Dynamic(self.fixture.uiEventTrackerMode).activeTransactions.asArray as? [SentryTracer])
+        return fixture.uiEventTrackerMode.activeTransactions
     }
     
     private func assertTransaction(name: String, operation: String, nameSource: SentryTransactionNameSource = .component) throws {
         let span = try XCTUnwrap(SentrySDK.span as? SentryTracer)
         
-        let transactions = try XCTUnwrap(Dynamic(self.fixture.uiEventTrackerMode).activeTransactions.asArray as? [SentryTracer])
+        let transactions = try getInternalTransactions()
         XCTAssertEqual(1, transactions.count)
         XCTAssertTrue(span === transactions.first)
         

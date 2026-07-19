@@ -119,7 +119,8 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         return;
 
     // SDK not enabled no need to continue
-    if (SentrySDKInternal.options == nil) {
+    SentryOptions *_Nullable options = SentrySDKInternal.options;
+    if (options == nil) {
         return;
     }
 
@@ -133,7 +134,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     }
 
     // Don't measure requests to Sentry's backend
-    NSURL *_Nullable apiUrl = SentrySDKInternal.options.parsedDsn.url;
+    NSURL *_Nullable apiUrl = options.parsedDsn.url;
     if (apiUrl && apiUrl.host && apiUrl.path.length > 0 &&
         [url.host isEqualToString:SENTRY_UNWRAP_NULLABLE(NSString, apiUrl.host)] &&
         [url.path containsString:SENTRY_UNWRAP_NULLABLE(NSString, apiUrl.path)]) {
@@ -156,7 +157,14 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         return;
     }
 
+#if SDK_V10
+    SentryDataCollectionObjCOptions *_Nullable dataCollectionOptions = options.dataCollectionObjC;
+    UrlSanitized *safeUrl = [[UrlSanitized alloc]
+        initWithURL:url
+            options:SENTRY_UNWRAP_NULLABLE(SentryDataCollectionObjCOptions, dataCollectionOptions)];
+#else
     UrlSanitized *safeUrl = [[UrlSanitized alloc] initWithURL:url];
+#endif // SDK_V10
     @synchronized(sessionTask) {
         __block id<SentrySpan> _Nullable span;
         __block id<SentrySpan> _Nullable netSpan;
@@ -170,10 +178,19 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         id<SentrySpan> _Nullable currentSpan = [SentrySDKInternal.currentHub.scope span];
         if (currentSpan != nil) {
             span = currentSpan;
+#if SDK_V10
+            // Span descriptions exclude query strings and fragments. See
+            // https://develop.sentry.dev/sdk/foundations/client/data-collection/#urls
+            netSpan = [span
+                startChildWithOperation:SentrySpanOperationNetworkRequestOperation
+                            description:[NSString stringWithFormat:@"%@ %@",
+                                            currentRequest.HTTPMethod, safeUrl.sanitizedBaseUrl]];
+#else
             netSpan =
                 [span startChildWithOperation:SentrySpanOperationNetworkRequestOperation
                                   description:[NSString stringWithFormat:@"%@ %@",
                                                   currentRequest.HTTPMethod, safeUrl.sanitizedUrl]];
+#endif // SDK_V10
             netSpan.origin = SentryTraceOriginAutoHttpNSURLSession;
 
             [netSpan setDataValue:currentRequest.HTTPMethod forKey:@"http.request.method"];
@@ -243,8 +260,12 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         return;
     }
 
+    SentryOptions *_Nullable options = SentrySDKInternal.options;
+    if (options == nil) {
+        return;
+    }
+
 #if SENTRY_TARGET_REPLAY_SUPPORTED
-    SentryOptions *options = SentrySDKInternal.options;
     NSString *urlString = sessionTask.originalRequest.URL.absoluteString;
     if ([self isNetworkDetailCaptureEnabledFor:urlString options:options]) {
         [self captureRequestDetails:sessionTask
@@ -267,7 +288,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     }
 
     // Don't measure requests to Sentry's backend
-    NSURL *apiUrl = SentrySDKInternal.options.parsedDsn.url;
+    NSURL *apiUrl = options.parsedDsn.url;
     if ([url.host isEqualToString:SENTRY_UNWRAP_NULLABLE(NSString, apiUrl.host)] &&
         [url.path containsString:SENTRY_UNWRAP_NULLABLE(NSString, apiUrl.path)]) {
         return;
@@ -288,9 +309,11 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     //   - suspended → canceling (task cancelled while suspended)
     if (sessionTask.state == NSURLSessionTaskStateRunning
         || sessionTask.state == NSURLSessionTaskStateSuspended) {
-        [self captureFailedRequests:sessionTask currentRequest:currentRequest];
+        [self captureFailedRequests:sessionTask currentRequest:currentRequest options:options];
 
-        [self addBreadcrumbForSessionTask:sessionTask currentRequest:currentRequest];
+        [self addBreadcrumbForSessionTask:sessionTask
+                           currentRequest:currentRequest
+                                  options:options];
 
         NSInteger responseStatusCode = [self urlResponseStatusCode:sessionTask.response];
 
@@ -311,6 +334,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 
 - (void)captureFailedRequests:(NSURLSessionTask *)sessionTask
                currentRequest:(NSURLRequest *)currentRequest
+                      options:(SentryOptions *)options
 {
     if (!self.isCaptureFailedRequestsEnabled) {
         SENTRY_LOG_DEBUG(
@@ -338,9 +362,8 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         return;
     }
 
-    if (![SentryTracePropagation
-            isTargetMatch:SENTRY_UNWRAP_NULLABLE(NSURL, currentRequest.URL)
-              withTargets:SentrySDKInternal.options.failedRequestTargets ?: @[]]) {
+    if (![SentryTracePropagation isTargetMatch:SENTRY_UNWRAP_NULLABLE(NSURL, currentRequest.URL)
+                                   withTargets:options.failedRequestTargets ?: @[]]) {
         SENTRY_LOG_DEBUG(
             @"Request url isn't within the request targets, not capturing HTTP Client errors.");
         return;
@@ -374,8 +397,15 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 
     SentryRequest *request = [[SentryRequest alloc] init];
 
+#if SDK_V10
+    SentryDataCollectionObjCOptions *_Nullable dataCollectionOptions = options.dataCollectionObjC;
+    UrlSanitized *url = [[UrlSanitized alloc]
+        initWithURL:SENTRY_UNWRAP_NULLABLE(NSURL, currentRequest.URL)
+            options:SENTRY_UNWRAP_NULLABLE(SentryDataCollectionObjCOptions, dataCollectionOptions)];
+#else
     UrlSanitized *url =
         [[UrlSanitized alloc] initWithURL:SENTRY_UNWRAP_NULLABLE(NSURL, currentRequest.URL)];
+#endif // SDK_V10
 
     request.url = url.sanitizedUrl;
     request.method = currentRequest.HTTPMethod;
@@ -434,6 +464,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 
 - (void)addBreadcrumbForSessionTask:(NSURLSessionTask *)sessionTask
                      currentRequest:(NSURLRequest *)currentRequest
+                            options:(SentryOptions *)options
 {
     if (!self.isNetworkBreadcrumbEnabled) {
         return;
@@ -455,8 +486,15 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     SentryBreadcrumb *breadcrumb = [[SentryBreadcrumb alloc] initWithLevel:breadcrumbLevel
                                                                   category:@"http"];
 
+#if SDK_V10
+    SentryDataCollectionObjCOptions *_Nullable dataCollectionOptions = options.dataCollectionObjC;
+    UrlSanitized *urlComponents = [[UrlSanitized alloc]
+        initWithURL:SENTRY_UNWRAP_NULLABLE(NSURL, currentRequest.URL)
+            options:SENTRY_UNWRAP_NULLABLE(SentryDataCollectionObjCOptions, dataCollectionOptions)];
+#else
     UrlSanitized *urlComponents =
         [[UrlSanitized alloc] initWithURL:SENTRY_UNWRAP_NULLABLE(NSURL, currentRequest.URL)];
+#endif // SDK_V10
 
     breadcrumb.type = @"http";
     NSMutableDictionary<NSString *, id> *breadcrumbData = [[NSMutableDictionary alloc] init];
@@ -601,10 +639,6 @@ static const void *SentryNetworkDetailsKey = &SentryNetworkDetailsKey;
 - (BOOL)isNetworkDetailCaptureEnabledFor:(NSString *)urlString options:(SentryOptions *)options
 {
     if (!options) {
-        return NO;
-    }
-
-    if (!options.experimental.enableReplayNetworkDetailsCapturing) {
         return NO;
     }
 
