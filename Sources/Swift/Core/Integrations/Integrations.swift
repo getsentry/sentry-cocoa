@@ -54,7 +54,7 @@ private struct AnyIntegration {
         #endif
 
         #if ENABLE_KSCRASH
-        integrations.append(.init(SentryKSCrashIntegration.self))
+        integrations.append(.init(SentryKSCrash.Integration.self))
         #else
         integrations.append(.init(SentryCrashIntegration.self))
         #endif

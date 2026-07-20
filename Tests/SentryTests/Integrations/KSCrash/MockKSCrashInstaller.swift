@@ -1,7 +1,7 @@
 #if ENABLE_KSCRASH
 @_spi(Private) @testable import Sentry
 
-@_spi(Private) public final class TestKSCrashInstaller: KSCrashInstalling {
+@_spi(Private) public final class MockKSCrashInstaller: SentryKSCrash.Installing {
     public var installCalls: [(installPath: String, monitors: UInt, enableSwapCxaThrow: Bool)] = []
     public var shouldThrow: Error?
     public var crashedLastLaunch: Bool = false
