@@ -1,4 +1,7 @@
-#import "SentryDataCategory.h"
+#import <Foundation/Foundation.h>
+
+// This is a forward declaration, the actual enum is implemented in Swift.
+typedef NS_ENUM(NSUInteger, SentryDataCategory);
 
 @protocol SentryEnvelopeRateLimitDelegate;
 
