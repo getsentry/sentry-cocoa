@@ -8,12 +8,15 @@ Test classes follow naming pattern `<SourceFile>Tests`. Default to iOS (fastest)
 
 ```bash
 make test-ios FOR_AGENTS=true                                                  # all iOS tests
-make test-ios FOR_AGENTS=true ONLY_TESTING=SentryTests/SentryHttpTransportTests  # single class
+make test-ios FOR_AGENTS=true ONLY_TESTING=SentryTests/SentryHttpTransportTests  # single XCTest class
 make test-ios FOR_AGENTS=true ONLY_TESTING=SentryTests/SentryHttpTransportTests,SentryTests/SentryHubTests  # multiple
-make test-ios FOR_AGENTS=true ONLY_TESTING=SentryTests/SentryHttpTransportTests/testFlush_WhenNoInternet  # single method
+make test-ios FOR_AGENTS=true ONLY_TESTING=SentryTests/SentryHttpTransportTests/testFlush_WhenNoInternet  # single XCTest method
+make test-ios FOR_AGENTS=true ONLY_TESTING="SentryTests/MySuite/myTest_whenFoo_shouldBar()"  # single Swift Testing function (note trailing `()`)
 make test FOR_AGENTS=true                                                      # all platforms
 make test-ui-critical                                          # important UI tests
 ```
+
+**`ONLY_TESTING` and Swift Testing:** `-only-testing` works for both XCTest and Swift Testing. For Swift Testing, the identifier format is `Target/SuiteName/functionName()` — the function name must include the trailing `()`. Suite-level filtering (`Target/SuiteName`) also works. See [Apple docs](https://developer.apple.com/documentation/xcode/running-tests-and-interpreting-results) for details.
 
 **Scope assessment:**
 
