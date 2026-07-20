@@ -22,6 +22,9 @@ esac
 REMOTE_SWIFTLINT_VERSION=$(cat .swiftlint-version)
 LOCAL_SWIFTLINT_VERSION=$(swiftlint version)
 
+REMOTE_XCODEGEN_VERSION=$(cat .xcodegen-version)
+LOCAL_XCODEGEN_VERSION=$(xcodegen --version | awk -F ': ' '{print $2}')
+
 RESOLUTION_MESSAGE="Please run \`make init\` to update your local dev tools. This may actually upgrade to a newer version than what is currently recorded in repo; if that happens, please commit the update to the any lockfiles etc as well."
 
 SENTRY_TOOLING_UP_TO_DATE=true
@@ -33,6 +36,11 @@ fi
 
 if [ "${LOCAL_SWIFTLINT_VERSION}" != "${REMOTE_SWIFTLINT_VERSION}" ]; then
     echo "swiftlint version mismatch, expected: ${REMOTE_SWIFTLINT_VERSION}, but found: ${LOCAL_SWIFTLINT_VERSION}"
+    SENTRY_TOOLING_UP_TO_DATE=false
+fi
+
+if [ "${LOCAL_XCODEGEN_VERSION}" != "${REMOTE_XCODEGEN_VERSION}" ]; then
+    echo "xcodegen version mismatch, expected: ${REMOTE_XCODEGEN_VERSION}, but found: ${LOCAL_XCODEGEN_VERSION}"
     SENTRY_TOOLING_UP_TO_DATE=false
 fi
 
