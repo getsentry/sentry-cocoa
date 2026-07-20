@@ -285,6 +285,13 @@ jobs:
           version: "26"
           resolve-simulators: "false"
 
+      - name: Cache or Update Homebrew
+        uses: ./.github/actions/cache-homebrew
+      - run: make init-ci-build
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: 1
+      - run: make xcode-ci-macOS-CLI-Xcode
+
       - name: Build macOS-CLI-Xcode sample
         run: |
           set -o pipefail && xcodebuild \

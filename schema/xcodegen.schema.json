@@ -2051,6 +2051,13 @@
         "github": {
           "type": "string",
           "description": "Shortcut: org/repo instead of full URL"
+        },
+        "traits": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Package traits to enable (enabledTraits). Requires XcodeGen 2.46.0+"
         }
       },
       "required": [
@@ -2072,6 +2079,18 @@
         "excludeFromProject": {
           "type": "boolean",
           "description": "Exclude from generated project (e.g. when added via xcworkspace). Default false"
+        },
+        "traits": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "NoUIFramework",
+              "V10",
+              "KSCrash"
+            ]
+          },
+          "description": "Sentry SDK package traits to enable (enabledTraits). Requires XcodeGen 2.46.0+. NoUIFramework: build without UIKit/AppKit/SwiftUI linkage. V10: enable SDK V10 API changes. KSCrash: enable upstream KSCrash integration."
         }
       },
       "required": [
