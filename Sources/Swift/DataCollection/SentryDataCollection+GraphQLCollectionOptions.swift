@@ -1,3 +1,4 @@
+#if SDK_V10
 extension SentryDataCollection {
     /// Controls collection of GraphQL documents and variables.
     ///
@@ -24,5 +25,18 @@ extension SentryDataCollection {
             self.variables = variables
         }
 
+        /// Creates GraphQL collection options from a dictionary.
+        @_spi(Private) public init(dictionary: [String: Any]) {
+            self.init()
+
+            if let document = SentryDictionaryDecoder.bool(dictionary, "document") {
+                self.document = document
+            }
+            if let variables = SentryDictionaryDecoder.bool(dictionary, "variables") {
+                self.variables = variables
+            }
+        }
+
     }
 }
+#endif // SDK_V10

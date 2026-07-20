@@ -1,4 +1,5 @@
-#import <Foundation/Foundation.h>
+#if SDK_V10
+#    import <Foundation/Foundation.h>
 
 /// Identifies the direction and role of an HTTP body for collection purposes.
 typedef NS_OPTIONS(NSUInteger, SentryObjCDataCollectionHttpBodyType) {
@@ -16,3 +17,4 @@ typedef NS_OPTIONS(NSUInteger, SentryObjCDataCollectionHttpBodyType) {
         | SentryObjCDataCollectionHttpBodyTypeIncomingResponse
         | SentryObjCDataCollectionHttpBodyTypeOutgoingResponse
 };
+#endif // SDK_V10

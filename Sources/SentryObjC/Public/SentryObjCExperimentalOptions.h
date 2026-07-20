@@ -1,7 +1,4 @@
 #import <Foundation/Foundation.h>
-
-@class SentryObjCDataCollectionOptions;
-
 NS_ASSUME_NONNULL_BEGIN
 
 /// Options for experimental features that are subject to change or may be removed in future
@@ -23,9 +20,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// When enabled, the SDK uses a more efficient mechanism for detecting watchdog terminations.
 @property (nonatomic) BOOL enableWatchdogTerminationsV2;
-
-/// Configuration for what data the SDK collects automatically.
-@property (nonatomic, strong) SentryObjCDataCollectionOptions *dataCollection;
 
 /// Initializes experimental options with default values.
 - (instancetype)init;

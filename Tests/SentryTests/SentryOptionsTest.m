@@ -722,6 +722,9 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
         @"enableTimeToFullDisplayTracing" : [NSNull null],
         @"enableTracing" : [NSNull null],
         @"swiftAsyncStacktraces" : [NSNull null],
+#if SDK_V10
+        @"dataCollection" : [NSNull null],
+#endif // SDK_V10
         @"spotlightUrl" : [NSNull null]
     }
                                                       didFailWithError:nil];
