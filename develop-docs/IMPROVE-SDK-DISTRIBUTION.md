@@ -68,6 +68,7 @@ In **v10**:
 - `SentryObjC` (source wrapper) stays in the main repo
 - The main `Package.swift` becomes source-only: `Sentry` + `SentryObjC` + `SentryDistribution`
 - Investigate using [mergeable libraries](https://developer.apple.com/documentation/xcode/configuring-your-project-to-use-mergeable-libraries) to provide a single binary that works as both static and dynamic, replacing `Sentry-Static` + `Sentry-Dynamic` with a unified `Sentry` binary target
+- If only one variant can be offered, **prefer static** — users can still use it as dynamic by linking it into a dynamic framework themselves
 
 ### Where to host XCFramework assets
 
@@ -104,6 +105,10 @@ A workflow in `sentry-cocoa` trigger on `release: published` event and creates m
 
 > **Open question:** Should we use craft for cross-repo releases (tracked in registry, but more approval friction in `getsentry/publish`), or use release-triggered workflows (simpler, but downstream releases live outside craft's tracking)?
 
+### Repo configuration
+
+New repos (`sentry-cocoa-binary` and integration mirrors) should have **issues disabled** but keep **pull requests enabled**. All bug reports and feature requests stay on the main `sentry-cocoa` repo.
+
 ### What the binary repo looks like
 
 ```swift
@@ -138,13 +143,15 @@ let package = Package(
 
 Tests are **not affected** by this change. All unit tests (`make test-ios`, etc.) run through the **Xcode project** (`Sentry.xcodeproj`), which builds `Sentry.framework` from source — they never go through `Package.swift` or binary targets.
 
+`swift test` must also keep working against the source-only `Package.swift` after binary targets are removed. This should be validated in CI.
+
 What does need updating are the **CI validation jobs** in `release.yml` that verify SPM integration with binary targets before a release:
 
 | CI Job                  | Current behavior                                                 | Change needed                                                                         |
 | ----------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
 | `validate-spm`          | Builds sample project against static binary from `Package.swift` | Point at `sentry-cocoa-binary` repo, or drop (source target validation is sufficient) |
 | `validate-spm-dynamic`  | Builds against `Sentry-Dynamic` binary target                    | Move to `sentry-cocoa-binary` CI                                                      |
-| `swift-build`           | Runs `swift build` with local binary paths                       | Update for source-only `Package.swift`                                                |
+| `swift-build`           | Runs `swift build` with local binary paths                       | Update for source-only `Package.swift`; add `swift test` validation                   |
 | `validate-spm-visionos` | Builds against binary target for visionOS                        | Move to `sentry-cocoa-binary` CI                                                      |
 
 ### Scripts that need updating
