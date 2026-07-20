@@ -11,11 +11,10 @@ convert those protocols first, in small sequential PRs to `main`, then convert t
 
 - ✅ **A1 `SentryRequestManager` → Swift** — PR #8428, **merged** to `main`.
 - ✅ **A2a1 `SentryDiscardReason` → Swift** — PR #8444, **merged** to `main` as `bacd00766` (2026-07-16).
-- 📝 **A2a2 `SentryDataCategory` → Swift** — PR **#8451**, open, **rebased onto fresh `main`**,
-  `mergeable`, blocked only by the `ready-to-merge` label gate. Reviewed + refined (see below);
-  build+tests+digest all green. **⏳ THIS IS THE ONE TO MERGE FIRST TOMORROW** (add the label / merge).
-- 📝 **A2 `SentryTransport` → Swift** — PR **#8443**, open, still typed `UInt`. **STALE** — needs rebase
-  onto `main` + retype to the real enums (this is the next real work after #8451 merges; see below).
+- ✅ **A2a2 `SentryDataCategory` → Swift** — PR **#8451**, **merged** to `main` as `487d99372`
+  (2026-07-20). All three enum/protocol prerequisites are now in `main`.
+- 📝 **A2 `SentryTransport` → Swift** — PR **#8443**, open, still typed `UInt`. **STALE** (10 commits
+  behind `main`) — needs rebase onto `main` + retype to the real enums. **⏳ THIS IS THE NEXT REAL WORK.**
 
 **🔁 WHY THE ENUM DETOUR (context).** The user requires the ObjC transport conformers to use the **real
 enum types** (`SentryDataCategory` / `SentryDiscardReason`), not `NSUInteger`. Verified empirically that
@@ -30,17 +29,15 @@ Swift first (now done) — then the protocol + conformers can use the real types
   `TestTransport.swift`) that is **superseded by the real PRs — do NOT merge this branch into `main` or
   cherry-pick its code**. Intentionally NOT kept in sync with `main` (merging conflicts with the stale
   WIP); treat it as a read-only planning reference. The authoritative code is in the per-phase PR branches.
-- `main` ← base for every PR. **Contains A1 + A2a1** (`SentryRequestManager`, `SentryDiscardReason`).
-- `ref/convert-data-category-to-swift` ← **A2a2, PR #8451**, rebased on `main`. Ready to merge once labeled.
-- `ref/convert-transport-protocol-to-swift` ← **A2, PR #8443**, stale (uses `UInt`). Rebase + retype next.
+- `main` ← base for every PR. **Contains A1 + A2a1 + A2a2** (`SentryRequestManager`,
+  `SentryDiscardReason`, `SentryDataCategory`). All enum/protocol prerequisites are in.
+- `ref/convert-transport-protocol-to-swift` ← **A2, PR #8443**, stale (uses `UInt`, 10 commits behind
+  `main`). Rebase + retype next.
+- `ref/convert-data-category-to-swift` ← **A2a2, PR #8451 — MERGED** (`487d99372`). Branch can be deleted.
 
-**➡️ RESUME TOMORROW:**
+**➡️ RESUME HERE — rebase & retype A2 (`SentryTransport`, PR #8443):**
 
-- **Step 0 — get A2a2 (#8451) merged.** It's reviewed, green, and `mergeable`; it only needs the
-  `ready-to-merge` label (maintainer action) then merge. Everything below depends on it being in `main`.
-- **Step 1 onward — rebase & retype A2 (`SentryTransport`, PR #8443)** once #8451 is in `main`:
-
-1. `git checkout main && git pull` (should now contain A1, A2a1, and A2a2 once #8451 merges).
+1. `git checkout main && git pull` (now contains A1, A2a1, and A2a2).
 2. `git checkout ref/convert-transport-protocol-to-swift && git rebase origin/main` — expect conflicts in
    the transport headers/`.m` and `SentryHttpTransportTests.swift` (A2a1/A2a2 changed the same lines).
 3. **Retype to the real enums** (the whole point):
@@ -102,9 +99,9 @@ the renames in A2a1/A2a2). Keep in back pocket if rename churn ever becomes a pr
 **Status:** 🟢 In progress — **Option A**, shipped as small PRs to `main`.
 Phase A1 (`SentryRequestManager`) ✅ **merged** (#8428).
 Phase A2a1 (`SentryDiscardReason`) ✅ **merged** (#8444, `bacd00766`).
-Phase A2a2 (`SentryDataCategory`) 📝 **PR #8451** open, rebased on `main`, ready to merge (needs label).
+Phase A2a2 (`SentryDataCategory`) ✅ **merged** (#8451, `487d99372`, 2026-07-20).
 Phase A2 (`SentryTransport`) 📝 **PR #8443** open but **stale** — rebase onto `main` + retype to real
-enums next (see "DO THIS NEXT" above).
+enums next (see "RESUME HERE" above).
 Phase A3 (`SentrySpotlightTransport`) ⛔ last, depends on A2.
 See "PR tracking" and "✅ Chosen approach" below.
 
@@ -136,8 +133,8 @@ the **plan/WIP tracker only** — its commits are NOT the PRs. Each PR is a clea
 | -------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
 | A1 `SentryRequestManager` → Swift                  | `ref/convert-request-manager-to-swift`    | [#8428](https://github.com/getsentry/sentry-cocoa/pull/8428) | ✅ **merged**                                                                                         |
 | A2a1 `SentryDiscardReason` → Swift                 | `ref/convert-discard-reason-to-swift`     | [#8444](https://github.com/getsentry/sentry-cocoa/pull/8444) | ✅ **merged** (`bacd00766`)                                                                           |
-| A2a2 `SentryDataCategory` → Swift                  | `ref/convert-data-category-to-swift`      | [#8451](https://github.com/getsentry/sentry-cocoa/pull/8451) | 📝 **open, rebased on `main`**, mergeable — needs `ready-to-merge` label. Build+72 tests+digest green |
-| A2 `SentryTransport` + `SentryFlushResult` → Swift | `ref/convert-transport-protocol-to-swift` | [#8443](https://github.com/getsentry/sentry-cocoa/pull/8443) | 📝 open but **STALE** (uses `UInt`) — **rebase onto `main` + retype to real enums next**              |
+| A2a2 `SentryDataCategory` → Swift                  | `ref/convert-data-category-to-swift`      | [#8451](https://github.com/getsentry/sentry-cocoa/pull/8451) | ✅ **merged** (`487d99372`, 2026-07-20)                                                               |
+| A2 `SentryTransport` + `SentryFlushResult` → Swift | `ref/convert-transport-protocol-to-swift` | [#8443](https://github.com/getsentry/sentry-cocoa/pull/8443) | 📝 open but **STALE** (uses `UInt`, 10 behind `main`) — **rebase onto `main` + retype to real enums** |
 | A3 `SentrySpotlightTransport` → Swift              | _tbd_                                     | —                                                            | ⛔ last — depends on A2                                                                               |
 
 **Workflow per phase:** cut `<branch>` from latest `main` → cherry-pick/apply that phase's code
@@ -631,3 +628,18 @@ make generate-public-api   # only if public API surface changed; commit sdk_api.
      #8451 description explaining the `sdk_api*.json` additions are expected (digester tracks `@objc` enums).
 - 2026-07-16 (EOD): **A2a1 (#8444) confirmed MERGED** (`2026-07-16T11:42Z`). #8451 is the next merge, then
   A2 (#8443). Paused here for the day — resume at "RESUME TOMORROW" at the top of this doc.
+- 2026-07-20: **A2a2 (#8451) MERGED to `main`** as `487d99372` (`2026-07-20T07:49Z`). Before merge:
+  applied user feedback — dropped the "like/matching the original Objective-C mapper" justifications from
+  `SentryDataCategory.swift` comments and tightened the `userFeedback` note (`docs: refine SentryDataCategory
+  comments`); kept the `ConcurrentRateLimitsDictionaryTests` `4/8/12`/`loopCount 4` numbers (reverting to the
+  old `100/200/300` is impossible under the closed 17-value Swift enum); shortened the PR description to a
+  1-line "diff looks large but is small" note + 2 sentences. User merged main into #8451, then babysat CI:
+  all failures were a single Cirrus-runner flake (UI Tests Common couldn't download the prebuilt
+  `*.xcframework.zip` artifacts → `fatalError` before any test ran; upstream builds all green, bitrise mirrors
+  of the same configs passed). Re-ran once → **fully green (260 pass), approved, merged.**
+  **Merged `origin/main` into this tracker branch** (`c8f60a11f`): the stale pre-enum A2 WIP (`565aac5f3`)
+  conflicted in `TestTransport.swift`, `SentryHttpTransport.m`, `SentryTransportAdapter.h`, and
+  `SentryTransport.h` (deleted here, still present in `main` since A2/#8443 hasn't merged) — all resolved in
+  favor of `main` (WIP discarded, as intended; this branch is plan-only). **All three enum/protocol
+  prerequisites (A1, A2a1, A2a2) are now in `main`. Next real work: A2 (#8443) rebase + retype to the real
+  enums, then A3.**
