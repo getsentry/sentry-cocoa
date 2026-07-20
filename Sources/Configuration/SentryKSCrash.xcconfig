@@ -28,7 +28,15 @@ MACH_O_TYPE = mh_dylib
 // see https://github.com/getsentry/sentry-cocoa/pull/8426 for more context
 ARCHS[sdk=appletvos*] = $(ARCHS_STANDARD)
 ARCHS[sdk=watchos*] = $(ARCHS_STANDARD)
-ARCHS[sdk=maccatalyst*] = $(ARCHS_STANDARD)
+
+// Mac Catalyst is not affected by iOSPackagesShouldBuildARM64e, so KSCrash SPM packages
+// never produce arm64e slices for maccatalyst. Mac Catalyst also doesn't have
+// it's own SDK name, we so we need to do some working around to use the one
+// build setting that shows Mac Catalyst is being build for: IS_MACCATALYST.
+// Key off it via nested macro substitution instead.
+SENTRY_KSCRASH_ARM64E_IF_NOT_CATALYST_YES =
+SENTRY_KSCRASH_ARM64E_IF_NOT_CATALYST_NO = arm64e
+ARCHS[sdk=macosx*] = arm64 x86_64 $(SENTRY_KSCRASH_ARM64E_IF_NOT_CATALYST_$(IS_MACCATALYST))
 
 // Both this target and the base Sentry target share PRODUCT_MODULE_NAME=Sentry. Xcode's
 // explicit module scanner can't tell them apart and emits a spurious missing-dependency
