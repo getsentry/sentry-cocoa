@@ -47,8 +47,7 @@ public enum SentryDataCategory: UInt, CaseIterable {
         case .logItem: return "log_item"
         case .logByte: return "log_byte"
         case .traceMetric: return "trace_metric"
-        // `userFeedback` has no dedicated name; it falls through to `unknown` like the original
-        // Objective-C mapper.
+        // userFeedback is unused (see above), so it has no name and maps to "unknown".
         case .userFeedback, .unknown: return "unknown"
         }
     }
@@ -62,7 +61,7 @@ public enum SentryDataCategory: UInt, CaseIterable {
 
     public init(name: String) {
         // The reverse of `name`. `userFeedback` and `unknown` share the "unknown" name, so an
-        // unknown string maps to `.unknown`, matching the original Objective-C mapper.
+        // unknown string maps to `.unknown`.
         let match = SentryDataCategory.allCases.first { $0 != .userFeedback && $0.name == name }
         self = match ?? .unknown
     }
