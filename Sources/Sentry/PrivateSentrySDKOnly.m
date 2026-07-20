@@ -6,7 +6,6 @@
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
 #import "SentryMeta.h"
-#import "SentryOptionsInternal.h"
 #import "SentryProfileCollector.h"
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
@@ -313,7 +312,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 + (nullable SentryOptions *)optionsWithDictionary:(NSDictionary<NSString *, id> *)options
                                  didFailWithError:(NSError *_Nullable *_Nullable)error
 {
-    return [SentryOptionsInternal initWithDict:options didFailWithError:error];
+    return [[SentryOptions alloc] initWithDictionary:options didFailWithError:error];
 }
 
 + (void)setLogOutput:(void (^)(NSString *))output

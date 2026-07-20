@@ -34,7 +34,7 @@ class SentryTransportFactoryTests: XCTestCase {
             reachability: TestSentryReachability()
         )
         let httpTransport = transports.first
-        let requestManager = try XCTUnwrap(Dynamic(httpTransport).requestManager.asObject as? SentryQueueableRequestManager)
+        let requestManager = try XCTUnwrap(Dynamic(httpTransport).requestManager.asObject as? RequestManager)
         
         let imgUrl = URL(string: "https://github.com")!
         let request = URLRequest(url: imgUrl)
@@ -76,7 +76,7 @@ class SentryTransportFactoryTests: XCTestCase {
         )
                 
         let httpTransport = transports.first
-        let requestManager = try XCTUnwrap(Dynamic(httpTransport).requestManager.asObject as? SentryQueueableRequestManager)
+        let requestManager = try XCTUnwrap(Dynamic(httpTransport).requestManager.asObject as? RequestManager)
         
         let imgUrl = URL(string: "https://github.com")!
         let request = URLRequest(url: imgUrl)

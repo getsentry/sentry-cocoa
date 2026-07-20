@@ -12,10 +12,14 @@
 #import "SentryLogC.h"
 #import "SentryMechanism.h"
 #import "SentryMechanismContext.h"
+#import "SentrySanitizerUtils.h"
 #import "SentryStacktrace.h"
 #import "SentrySwift.h"
 #import "SentryThread.h"
 #import "SentryUser.h"
+
+static NSString *const SentryCrashReportConverterErrorDomain
+    = @"io.sentry.SentryCrashReportConverter";
 
 @interface SentryCrashReportConverter ()
 
@@ -137,6 +141,7 @@
         appContext[@"in_foreground"] = self.applicationStats[@"application_in_foreground"];
         appContext[@"is_active"] = self.applicationStats[@"application_active"];
         mutableContext[@"app"] = appContext;
+        [self addNSExceptionUserInfoToContext:mutableContext];
         event.context = mutableContext;
 
         event.extra = self.userContext[@"extra"];
@@ -504,6 +509,105 @@
             stringByAppendingString:[NSString stringWithFormat:@" >\n%@", self.diagnosis]];
     }
     return @[ exception ];
+}
+
+- (void)addNSExceptionUserInfoToContext:(NSMutableDictionary *)context
+{
+    if (![self.exceptionContext[@"type"] isEqualToString:@"nsexception"]) {
+        return;
+    }
+
+    NSDictionary *userInfo = [self
+        contextUserInfoFromNSExceptionUserInfo:self.exceptionContext[@"nsexception"][@"userInfo"]];
+    if (userInfo.count == 0) {
+        return;
+    }
+
+    NSMutableDictionary *userInfoContext;
+    if ([context[@"user info"] isKindOfClass:NSDictionary.class]) {
+        userInfoContext = [context[@"user info"] mutableCopy];
+    } else {
+        userInfoContext = [[NSMutableDictionary alloc] init];
+    }
+    [userInfoContext addEntriesFromDictionary:userInfo];
+    context[@"user info"] = userInfoContext;
+}
+
+- (NSDictionary *_Nullable)contextUserInfoFromNSExceptionUserInfo:(id)userInfo
+{
+    if ([userInfo isKindOfClass:NSDictionary.class]) {
+        return sentry_sanitize_dictionary(userInfo);
+    }
+
+    // SentryCrash/KSCrash write NSException.userInfo with NSString stringWithFormat:@"%@",
+    // which produces an OpenStep-style property list for NSDictionary values. Convert it back to
+    // a dictionary so unhandled NSExceptions match handled NSExceptions from SentryClient as much
+    // as the raw crash report allows.
+    if (![userInfo isKindOfClass:NSString.class]) {
+        return nil;
+    }
+
+    NSString *userInfoString = userInfo;
+    if (userInfoString.length == 0 || [userInfoString isEqualToString:@"(null)"]) {
+        return nil;
+    }
+
+    NSDictionary *parsedUserInfo = nil;
+    NSError *parseError = nil;
+    if ([self parseNSExceptionUserInfoString:userInfoString
+                              intoDictionary:&parsedUserInfo
+                                       error:&parseError]) {
+        return sentry_sanitize_dictionary(parsedUserInfo);
+    }
+
+    SENTRY_LOG_WARN(@"Failed to parse NSException.userInfo from crash report. Falling back to "
+                    @"raw string. Error: %@",
+        parseError.localizedDescription);
+    return @{ @"NSException.userInfo" : userInfoString };
+}
+
+- (BOOL)parseNSExceptionUserInfoString:(NSString *)userInfoString
+                        intoDictionary:(NSDictionary *_Nullable *_Nonnull)parsedUserInfo
+                                 error:(NSError *_Nullable *_Nullable)error
+{
+    NSData *data = [userInfoString dataUsingEncoding:NSUTF8StringEncoding];
+    if (data == nil) {
+        if (error != nil) {
+            NSString *errorDescription = @"Could not encode NSException.userInfo string as UTF-8.";
+            *error = [NSError errorWithDomain:SentryCrashReportConverterErrorDomain
+                                         code:1
+                                     userInfo:@{ NSLocalizedDescriptionKey : errorDescription }];
+        }
+        return NO;
+    }
+
+    NSError *propertyListError = nil;
+    id propertyList = [NSPropertyListSerialization propertyListWithData:data
+                                                                options:NSPropertyListImmutable
+                                                                 format:nil
+                                                                  error:&propertyListError];
+    if (propertyListError != nil) {
+        if (error != nil) {
+            *error = propertyListError;
+        }
+        return NO;
+    }
+
+    if (![propertyList isKindOfClass:NSDictionary.class]) {
+        if (error != nil) {
+            NSString *propertyListClass = NSStringFromClass([propertyList class]) ?: @"nil";
+            NSString *errorDescription = [NSString
+                stringWithFormat:@"Parsed NSException.userInfo is %@ instead of NSDictionary.",
+                propertyListClass];
+            *error = [NSError errorWithDomain:SentryCrashReportConverterErrorDomain
+                                         code:2
+                                     userInfo:@{ NSLocalizedDescriptionKey : errorDescription }];
+        }
+        return NO;
+    }
+
+    *parsedUserInfo = propertyList;
+    return YES;
 }
 
 - (SentryException *)parseNSException

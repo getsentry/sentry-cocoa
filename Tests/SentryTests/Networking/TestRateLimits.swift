@@ -9,7 +9,7 @@ public class TestRateLimits: NSObject, RateLimits {
     public var rateLimits: [SentryDataCategory] = []
     
     public func isRateLimitActive(_ category: UInt) -> Bool {
-        return isLimitForAllActive || rateLimits.contains(sentryDataCategoryForNSUInteger(category))
+        return isLimitForAllActive || rateLimits.contains(SentryDataCategory(category))
     }
     
     public func update(_ response: HTTPURLResponse) {

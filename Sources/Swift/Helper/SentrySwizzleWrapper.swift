@@ -6,6 +6,16 @@ import UIKit
 
 @_spi(Private) public typealias SentrySwizzleSendActionCallback = (String, Any?, Any?, UIEvent?) -> Void
 
+#if DEBUG
+protocol SentrySwizzleWrapperProtocol {
+    func swizzleSendAction(_ callback: @escaping SentrySwizzleSendActionCallback, forKey key: String)
+    func removeSwizzleSendAction(forKey key: String)
+}
+extension SentrySwizzleWrapper: SentrySwizzleWrapperProtocol {}
+#else
+typealias SentrySwizzleWrapperProtocol = SentrySwizzleWrapper
+#endif
+
 @_spi(Private) @objc public class SentrySwizzleWrapper: NSObject {
     
     static var sentrySwizzleSendActionCallbacks = [String: SentrySwizzleSendActionCallback]()

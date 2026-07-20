@@ -2,16 +2,35 @@
 
 ## Unreleased
 
-## Features
+### Breaking Changes
+
+- Only expose `experimental.dataCollection` APIs in SDK V10 (#8435)
+
+## 9.22.0
+
+### Features
 
 - Mark opt in option `swiftAsyncStacktraces` as stable (#8373)
 - Add `dataCollection` option under `experimental` for configuring data scrubbing behavior (#8369)
+- Add scope API to clear feature flags (#8364)
+- Add dictionary initialization for `options.experimental.dataCollection` (#8371)
+
+### Fixes
+
+- Session Replay now correctly reads the response `Content-Type` for HTTP/2 and HTTP/3, so it captures HTTP response bodies as it was supposed to (when body capturing is enabled via `options.sessionReplay.networkCaptureBodies`) (#8390)
+- Log the actual request error instead of `(null)` when a Spotlight request fails (#8401)
+- Decoding dictionary to Options sets value of key `"dsn"` to property `dsn` instead of `nil` (#8393)
+
+### Improvements
+
+- Remove `enableReplayNetworkDetailsCapturing` experimental flag; network detail capture is now enabled automatically when `networkDetailAllowUrls` is non-empty (#8396)
 
 ## 9.21.0
 
 ### Fixes
 
 - Fix use-after-free race in `span`, `startProfiler`, and `stopProfiler` by snapshotting `currentHub` under `currentHubLock` before dereferencing. (#8318)
+- Add `userInfo` context for unhandled `NSExceptions` (#8332)
 
 ### Features
 
@@ -31,6 +50,10 @@
 
 - Record log_byte client reports (#8186)
 - Add scope feature flag API (#8147)
+
+### Fixes
+
+- Fix EXC_BAD_ACCESS in SentryNetworkTracker caused by repeated reads of the volatile `NSURLSessionTask.currentRequest` property (#8058)
 
 ## 9.19.1
 

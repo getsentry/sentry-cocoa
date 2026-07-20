@@ -1,3 +1,4 @@
+#if SDK_V10
 extension SentryDataCollection {
     /// Controls collection of database query parameters.
     ///
@@ -15,5 +16,15 @@ extension SentryDataCollection {
         public init(queryParams: Bool = true) {
             self.queryParams = queryParams
         }
+
+        /// Creates database collection options from a dictionary.
+        @_spi(Private) public init(dictionary: [String: Any]) {
+            self.init()
+
+            if let queryParams = SentryDictionaryDecoder.bool(dictionary, "queryParams") {
+                self.queryParams = queryParams
+            }
+        }
     }
 }
+#endif // SDK_V10

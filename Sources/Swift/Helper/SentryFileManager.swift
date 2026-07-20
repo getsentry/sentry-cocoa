@@ -301,7 +301,7 @@
             }
             
             for item in envelope?.items ?? [] {
-                let rateLimitCategory = sentryDataCategoryForEnvelopItemType(item.header.type)
+                let rateLimitCategory = SentryDataCategory(itemType: item.header.type)
                 // When migrating the session init, the envelope to delete still contains the session
                 // migrated to another envelope. Therefore, the envelope item is not deleted but
                 // migrated.

@@ -123,8 +123,8 @@ sentry_serializedTraceProfileData(
     // stack frame with 0 duration, which wouldn't make sense.
     if ([samples count] < 2) {
         SENTRY_LOG_DEBUG(@"Not enough samples in profile");
-        [hub.getClient recordLostEvent:kSentryDataCategoryProfile
-                                reason:kSentryDiscardReasonEventProcessor];
+        [hub.getClient recordLostEvent:SentryDataCategoryProfile
+                                reason:SentryDiscardReasonEventProcessor];
         return nil;
     }
 
@@ -133,8 +133,8 @@ sentry_serializedTraceProfileData(
         = sentry_slicedProfileSamples(samples, startSystemTime, endSystemTime);
     if (slicedSamples.count < 2) {
         SENTRY_LOG_DEBUG(@"Not enough samples in profile during the transaction");
-        [hub.getClient recordLostEvent:kSentryDataCategoryProfile
-                                reason:kSentryDiscardReasonEventProcessor];
+        [hub.getClient recordLostEvent:SentryDataCategoryProfile
+                                reason:SentryDiscardReasonEventProcessor];
         return nil;
     }
     NSMutableDictionary<NSString *, id> *payload = [NSMutableDictionary<NSString *, id> dictionary];
@@ -163,9 +163,11 @@ sentry_serializedTraceProfileData(
     NSMutableDictionary *deviceDict = [[NSMutableDictionary alloc] initWithDictionary:@{
         @"architecture" : sentry_getCPUArchitecture(),
         @"is_emulator" : @(isEmulated),
-        @"locale" : NSLocale.currentLocale.localeIdentifier,
         @"manufacturer" : @"Apple",
     }];
+#    if !SDK_V10
+    deviceDict[@"locale"] = NSLocale.currentLocale.localeIdentifier;
+#    endif
     NSString *_Nullable deviceModel
         = isEmulated ? sentry_getSimulatorDeviceModel() : sentry_getDeviceModel();
     if (deviceModel != nil) {

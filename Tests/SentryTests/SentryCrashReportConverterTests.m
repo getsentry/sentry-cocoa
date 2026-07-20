@@ -288,6 +288,9 @@
     SentryException *exception = event.exceptions.firstObject;
     XCTAssertEqualObjects(exception.type, @"MyCustomException");
     XCTAssertNil(exception.value);
+
+    NSDictionary *userInfoContext = event.context[@"user info"];
+    XCTAssertEqualObjects(userInfoContext[@"detail"], @"Additional information");
 }
 
 - (void)testStackoverflow
@@ -669,6 +672,44 @@
 
 #pragma mark private helper
 
+- (SentryEvent *)eventFromNSExceptionUserInfo:(id)userInfo
+{
+    return [self eventFromNSExceptionUserInfo:userInfo context:nil];
+}
+
+- (SentryEvent *)eventFromNSExceptionUserInfo:(id)userInfo context:(NSDictionary *)context
+{
+    NSMutableDictionary *nsexception =
+        [@{ @"name" : @"NSInvalidArgumentException", @"reason" : @"Crash E2E uncaught NSException" }
+            mutableCopy];
+    if (userInfo != nil) {
+        nsexception[@"userInfo"] = userInfo;
+    }
+
+    NSMutableDictionary *mockReport = [@{
+        @"crash" : @ {
+            @"threads" : @[ @{
+                @"index" : @0,
+                @"crashed" : @YES,
+                @"current_thread" : @YES,
+                @"backtrace" : @ { @"contents" : @[] }
+            } ],
+            @"error" : @ { @"type" : @"nsexception", @"nsexception" : nsexception }
+        },
+        @"binary_images" : @[],
+        @"system" : @ { @"application_stats" : @ { @"application_in_foreground" : @YES } }
+    } mutableCopy];
+    if (context != nil) {
+        mockReport[@"sentry_sdk_scope"] = @{ @"context" : context };
+    }
+
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:mockReport inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+    XCTAssertNotNil(event);
+    return event;
+}
+
 - (void)isValidReport:(NSString *)path
 {
     NSDictionary *report = [self getCrashReport:path];
@@ -984,6 +1025,122 @@
     NSArray<NSString *> *messages = exception.mechanism.data[@"crash_info_messages"];
     XCTAssertEqual(messages.count, 1u);
     XCTAssertEqualObjects(messages.firstObject, unrelatedCrashInfo);
+}
+
+- (void)testNSExceptionWithUserInfo_shouldAddUserInfoToEventContext
+{
+    // -- Arrange --
+    NSString *userInfo = @"{\n    scenario = ns-exception;\n    customer = sentry;\n}";
+
+    // -- Act --
+    SentryEvent *event = [self eventFromNSExceptionUserInfo:userInfo];
+
+    // -- Assert --
+    NSDictionary *userInfoContext = event.context[@"user info"];
+    XCTAssertEqualObjects(userInfoContext[@"scenario"], @"ns-exception");
+    XCTAssertEqualObjects(userInfoContext[@"customer"], @"sentry");
+}
+
+- (void)testNSExceptionUserInfo_whenUserInfoIsNonParseableString_shouldAddRawStringToContext
+{
+    // -- Arrange --
+    NSString *userInfo = @"{ this is not valid OpenStep";
+
+    // -- Act --
+    SentryEvent *event = [self eventFromNSExceptionUserInfo:userInfo];
+
+    // -- Assert --
+    NSDictionary *userInfoContext = event.context[@"user info"];
+    XCTAssertEqualObjects(userInfoContext[@"NSException.userInfo"], userInfo);
+}
+
+- (void)
+    testNSExceptionUserInfo_whenUserInfoIsValidNonDictionaryPropertyList_shouldAddRawStringToContext
+{
+    // -- Arrange --
+    NSString *userInfo = @"(\n    one,\n    two\n)";
+
+    // -- Act --
+    SentryEvent *event = [self eventFromNSExceptionUserInfo:userInfo];
+
+    // -- Assert --
+    NSDictionary *userInfoContext = event.context[@"user info"];
+    XCTAssertEqualObjects(userInfoContext[@"NSException.userInfo"], userInfo);
+}
+
+- (void)testNSExceptionUserInfo_whenUserInfoIsDictionary_shouldAddUserInfoToContext
+{
+    // -- Arrange --
+    NSDictionary *userInfo = @{ @"dictionaryKey" : @"dictionaryValue" };
+
+    // -- Act --
+    SentryEvent *event = [self eventFromNSExceptionUserInfo:userInfo];
+
+    // -- Assert --
+    NSDictionary *userInfoContext = event.context[@"user info"];
+    XCTAssertEqualObjects(userInfoContext[@"dictionaryKey"], @"dictionaryValue");
+}
+
+- (void)testNSExceptionUserInfo_whenExistingUserInfoContext_shouldMergeIntoContext
+{
+    // -- Arrange --
+    NSString *userInfo = @"{\n    crashKey = crashValue;\n    sharedKey = crashValue;\n}";
+    NSDictionary *existingContext =
+        @{ @"user info" : @ { @"scopeKey" : @"scopeValue", @"sharedKey" : @"scopeValue" } };
+
+    // -- Act --
+    SentryEvent *event = [self eventFromNSExceptionUserInfo:userInfo context:existingContext];
+
+    // -- Assert --
+    NSDictionary *userInfoContext = event.context[@"user info"];
+    XCTAssertEqualObjects(userInfoContext[@"scopeKey"], @"scopeValue");
+    XCTAssertEqualObjects(userInfoContext[@"crashKey"], @"crashValue");
+    XCTAssertEqualObjects(userInfoContext[@"sharedKey"], @"crashValue");
+}
+
+- (void)testNSExceptionUserInfo_whenExistingUserInfoContextIsWrongType_shouldReplaceWithUserInfo
+{
+    // -- Arrange --
+    NSString *userInfo = @"{\n    crashKey = crashValue;\n}";
+    NSDictionary *existingContext = @{ @"user info" : @"not a dictionary" };
+
+    // -- Act --
+    SentryEvent *event = [self eventFromNSExceptionUserInfo:userInfo context:existingContext];
+
+    // -- Assert --
+    id userInfoContext = event.context[@"user info"];
+    XCTAssertTrue([userInfoContext isKindOfClass:NSDictionary.class]);
+    XCTAssertEqualObjects(((NSDictionary *)userInfoContext)[@"crashKey"], @"crashValue");
+}
+
+- (void)testNSExceptionUserInfo_whenUserInfoIsNullStringOrEmptyString_shouldNotAddContext
+{
+    for (NSString *userInfo in @[ @"(null)", @"" ]) {
+        // -- Act --
+        SentryEvent *event = [self eventFromNSExceptionUserInfo:userInfo];
+
+        // -- Assert --
+        XCTAssertNil(
+            event.context[@"user info"], @"Expected no user info context for %@", userInfo);
+    }
+}
+
+- (void)testNSExceptionUserInfo_whenUserInfoIsMissing_shouldNotAddContext
+{
+    // -- Act --
+    SentryEvent *event = [self eventFromNSExceptionUserInfo:nil];
+
+    // -- Assert --
+    XCTAssertNil(event.context[@"user info"]);
+}
+
+- (void)testNSExceptionUserInfo_whenUserInfoIsWrongType_shouldNotAddContext
+{
+    // -- Act --
+    SentryEvent *event = [self eventFromNSExceptionUserInfo:@42];
+
+    // -- Assert --
+    XCTAssertNil(event.context[@"user info"]);
 }
 
 - (void)testNSException_whenNoCrashInfoMessage_shouldKeepReason

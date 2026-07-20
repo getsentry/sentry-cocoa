@@ -41,6 +41,11 @@ WATCHOS_DEVICE_NAME ?= Apple Watch SE 3 (44mm)
 # Current git reference name
 GIT-REF := $(shell git rev-parse --abbrev-ref HEAD)
 
+# Reduce build and test output for agents while retaining raw xcodebuild logs.
+FOR_AGENTS ?= false
+export FOR_AGENTS
+XCBEAUTIFY_OUTPUT_FLAGS = $(if $(filter true,$(FOR_AGENTS)),--quieter --disable-logging,--preserve-unbeautified)
+
 # ============================================================================
 # SETUP
 # ============================================================================
@@ -65,7 +70,7 @@ init-local:
 	rbenv exec gem update bundler
 	rbenv exec bundle install
 	# Install the tools needed to update tooling versions locally
-	"$(MAKE)" init-ci-format
+	"$(MAKE)" init-ci-build init-ci-format
 	./scripts/update-tooling-versions.sh
 
 ## Install CI build dependencies
@@ -201,7 +206,7 @@ build-watchos:
 		-scheme $(XCODE_SCHEME) \
 		-destination 'platform=watchOS Simulator,OS=$(WATCHOS_SIMULATOR_OS),name=$(WATCHOS_DEVICE_NAME)' \
 		-configuration Debug \
-		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
+		CODE_SIGNING_ALLOWED="NO" 2>&1 | tee raw-build-output.log | xcbeautify $(XCBEAUTIFY_OUTPUT_FLAGS)
 
 ## Build all platforms with SDK_V10 flag
 #
@@ -293,7 +298,7 @@ build-watchos-v10:
 		-scheme SentryV10 \
 		-destination 'platform=watchOS Simulator,OS=$(WATCHOS_SIMULATOR_OS),name=$(WATCHOS_DEVICE_NAME)' \
 		-configuration DebugV10 \
-		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
+		CODE_SIGNING_ALLOWED="NO" 2>&1 | tee raw-build-output.log | xcbeautify $(XCBEAUTIFY_OUTPUT_FLAGS)
 
 ## Build all platforms with ENABLE_KSCRASH and SDK_V10 flags
 #
@@ -385,7 +390,7 @@ build-watchos-v10-with-kscrash:
 		-scheme Sentry+KSCrash \
 		-destination 'platform=watchOS Simulator,OS=$(WATCHOS_SIMULATOR_OS),name=$(WATCHOS_DEVICE_NAME)' \
 		-configuration DebugV10 \
-		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
+		CODE_SIGNING_ALLOWED="NO" 2>&1 | tee raw-build-output.log | xcbeautify $(XCBEAUTIFY_OUTPUT_FLAGS)
 ## Build XCFramework validation sample
 #
 # Builds the XCFramework validation sample project to verify XCFramework integration.
@@ -511,6 +516,42 @@ build-xcframework-sentryobjc-dynamic:
 	./scripts/validate-xcframework.sh --xcframework "SentryObjC-Dynamic.xcframework"
 	./scripts/compress-xcframework.sh --xcframework "SentryObjC-Dynamic.xcframework"
 
+## Build Sentry+KSCrash Dynamic XCFramework
+#
+# Builds the Sentry+KSCrash target as a dynamic xcframework. Overrides the
+# arm64e xcconfig restriction for tvOS, watchOS, and Mac Catalyst, which exists
+# only to work around an Xcode UI bug that does not affect xcodebuild.
+#
+# SDKS is a comma-separated list of SDK names (default: all).
+#
+# Examples:
+#   make build-xcframework-kscrash-dynamic
+#   make build-xcframework-kscrash-dynamic SDKS=iphoneos
+.PHONY: build-xcframework-kscrash-dynamic
+build-xcframework-kscrash-dynamic:
+	@echo "--> Creating Sentry+KSCrash-Dynamic xcframework (SDKs: $(SDKS))"
+	./scripts/build-xcframework-kscrash.sh --suffix "-Dynamic" --sdks "$(SDKS)"
+	./scripts/validate-xcframework.sh --xcframework "Sentry+KSCrash-Dynamic.xcframework"
+	./scripts/compress-xcframework.sh --xcframework "Sentry+KSCrash-Dynamic.xcframework"
+
+## Build Sentry+KSCrash Static XCFramework
+#
+# Builds the Sentry+KSCrash target as a static xcframework. Overrides the
+# arm64e xcconfig restriction for tvOS, watchOS, and Mac Catalyst, which exists
+# only to work around an Xcode UI bug that does not affect xcodebuild.
+#
+# SDKS is a comma-separated list of SDK names (default: all).
+#
+# Examples:
+#   make build-xcframework-kscrash-static
+#   make build-xcframework-kscrash-static SDKS=iphoneos
+.PHONY: build-xcframework-kscrash-static
+build-xcframework-kscrash-static:
+	@echo "--> Creating Sentry+KSCrash Static xcframework (SDKs: $(SDKS))"
+	./scripts/build-xcframework-kscrash.sh --mach-o-type "staticlib" --sdks "$(SDKS)"
+	./scripts/validate-xcframework.sh --xcframework "Sentry+KSCrash.xcframework"
+	./scripts/compress-xcframework.sh --xcframework "Sentry+KSCrash.xcframework"
+
 # ============================================================================
 # SAMPLE APPS
 # ============================================================================
@@ -595,9 +636,9 @@ build-sample-macOS-SwiftUI-SPM:
 ## Build the macOS-CLI-Xcode sample (command-line tool, SentrySPM with NoUIFramework)
 #
 # Builds the macOS CLI sample that uses SentrySPM without UIKit/AppKit linkage.
-# Uses the pre-generated .xcodeproj (traits set in version control; xcodegen has no trait support).
 .PHONY: build-sample-macOS-CLI-Xcode
 build-sample-macOS-CLI-Xcode:
+	xcodegen --spec Samples/macOS-CLI-Xcode/macOS-CLI-Xcode.yml
 	set -o pipefail && xcodebuild \
 		-project "Samples/macOS-CLI-Xcode/macOS-CLI-Xcode.xcodeproj" \
 		-scheme macOS-CLI-Xcode \
@@ -1336,29 +1377,67 @@ test-sample-tvOS-Swift-ui: xcode-ci-tvOS-Swift
 # Get staged Swift files
 STAGED_SWIFT_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep '\.swift$$' | awk '{printf "\"%s\" ", $$0}')
 
+# Get staged Markdown, JSON, and YAML files
+STAGED_DPRINT_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep -E '\.(md|json|ya?ml)$$' | awk '{printf "\"%s\" ", $$0}')
+
+# Get staged Markdown files
+STAGED_MARKDOWN_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep '\.md$$' | awk '{printf "\"%s\" ", $$0}')
+
+# Get staged JSON files
+STAGED_JSON_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep '\.json$$' | awk '{printf "\"%s\" ", $$0}')
+
+# Get staged YAML files
+STAGED_YAML_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep -E '\.ya?ml$$' | awk '{printf "\"%s\" ", $$0}')
+
+# Get staged Objective-C, Objective-C++, C, and C++ files
+STAGED_CLANG_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep -E '\.(h|hpp|c|cpp|m|mm)$$' | awk '{printf "\"%s\" ", $$0}')
+
+# Get staged Objective-C header files
+STAGED_OBJC_HEADER_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep '\.h$$' | awk '{printf "\"%s\" ", $$0}')
+
+# Message for the allHeaderFields banned-pattern lint, aligned with the SwiftLint
+# rule in PR #8387 (rule id avoid_all_header_fields).
+AVOID_ALL_HEADER_FIELDS_MSG := Double-check how you use allHeaderFields (https://developer.apple.com/documentation/foundation/httpurlresponse/allheaderfields). Reading all headers is fine, but its subscript is case-sensitive while HTTP/2 and HTTP/3 lowercase field names, so a single-header lookup can silently miss the header (see \#8322). For a lookup, use value(forHTTPHeaderField:) or the HTTPURLResponse.value(forHTTPHeaderFieldCaseInsensitive:) extension in HTTPURLResponse+Sentry.swift. If your usage is intentional, suppress this rule with a comment explaining why.
+
 ## Run linting checks on all files
 #
-# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, and dprint checks without modifying files.
+# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, Objective-C banned-pattern checks, and dprint checks without modifying files.
 .PHONY: lint
 lint:
 	@echo "--> Running Swiftlint and Clang-Format"
 	./scripts/check-clang-format.py -r Sources Tests
 	ruby ./scripts/check-objc-id-usage.rb -r Sources/Sentry
+	./scripts/check-objc-banned-pattern.sh --path Sources \
+		--rule avoid_all_header_fields --pattern 'allHeaderFields' \
+		--message "$(AVOID_ALL_HEADER_FIELDS_MSG)"
 	swiftlint --strict --quiet
 	dprint check "**/*.{md,json,yaml,yml}"
 
 ## Run linting checks on staged files only
 #
-# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, and dprint checks on staged files only.
+# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, Objective-C banned-pattern checks, and dprint checks on staged files only.
 .PHONY: lint-staged
 lint-staged:
-	@echo "--> Running Swiftlint and Clang-Format on staged files"
-	./scripts/check-clang-format.py -r Sources Tests
-	ruby ./scripts/check-objc-id-usage.rb -r Sources/Sentry
+	@echo "--> Running Swiftlint, dprint, and Clang-Format on staged files"
+	@if [ -n "$(STAGED_CLANG_FILES)" ]; then \
+		./scripts/check-clang-format.py $(STAGED_CLANG_FILES); \
+	fi
+	@if [ -n "$(STAGED_OBJC_HEADER_FILES)" ]; then \
+		ruby ./scripts/check-objc-id-usage.rb $(STAGED_OBJC_HEADER_FILES); \
+	fi
+	@if [ -n "$(STAGED_CLANG_FILES)" ]; then \
+		for f in $(STAGED_CLANG_FILES); do \
+			./scripts/check-objc-banned-pattern.sh --path "$$f" \
+				--rule avoid_all_header_fields --pattern 'allHeaderFields' \
+				--message "$(AVOID_ALL_HEADER_FIELDS_MSG)" || exit 1; \
+		done; \
+	fi
 	@if [ -n "$(STAGED_SWIFT_FILES)" ]; then \
 		swiftlint --strict --quiet $(STAGED_SWIFT_FILES); \
 	fi
-	dprint check "**/*.{md,json,yaml,yml}"
+	@if [ -n "$(STAGED_DPRINT_FILES)" ]; then \
+		dprint check --allow-no-files $(STAGED_DPRINT_FILES); \
+	fi
 
 ## Format all files
 #
@@ -1383,6 +1462,15 @@ format-clang:
 		! \( -path "**.build/*" -or -path "**Build/*"  -or -path "**/libs/**" -or -path "**/Pods/**" -or -path "**/*.xcarchive/*" \) \
 		-print0 | xargs -0 -P $(shell getconf _NPROCESSORS_ONLN 2>/dev/null || echo 8) -n 32 clang-format -i -style=file
 
+## Format staged Objective-C, C, and C++ files
+#
+# Formats only staged Objective-C, Objective-C++, C, and C++ files using clang-format.
+.PHONY: format-clang-staged
+format-clang-staged:
+	@if [ -n "$(STAGED_CLANG_FILES)" ]; then \
+		clang-format -i -style=file $(STAGED_CLANG_FILES); \
+	fi
+
 ## Format all Swift files
 #
 # Formats all Swift files using SwiftLint auto-fix.
@@ -1406,6 +1494,15 @@ format-swift-staged:
 format-markdown:
 	dprint fmt "**/*.md"
 
+## Format staged Markdown files
+#
+# Formats only staged Markdown files using dprint.
+.PHONY: format-markdown-staged
+format-markdown-staged:
+	@if [ -n "$(STAGED_MARKDOWN_FILES)" ]; then \
+		dprint fmt --allow-no-files $(STAGED_MARKDOWN_FILES); \
+	fi
+
 ## Format JSON files
 #
 # Formats all JSON files using dprint.
@@ -1413,12 +1510,30 @@ format-markdown:
 format-json:
 	dprint fmt "**/*.json"
 
+## Format staged JSON files
+#
+# Formats only staged JSON files using dprint.
+.PHONY: format-json-staged
+format-json-staged:
+	@if [ -n "$(STAGED_JSON_FILES)" ]; then \
+		dprint fmt --allow-no-files $(STAGED_JSON_FILES); \
+	fi
+
 ## Format YAML files
 #
 # Formats all YAML and YML files using dprint.
 .PHONY: format-yaml
 format-yaml:
-	dprint fmt "**/*.{yaml,yml}"
+	dprint fmt --allow-no-files "**/*.{yaml,yml}"
+
+## Format staged YAML files
+#
+# Formats only staged YAML and YML files using dprint.
+.PHONY: format-yaml-staged
+format-yaml-staged:
+	@if [ -n "$(STAGED_YAML_FILES)" ]; then \
+		dprint fmt --allow-no-files $(STAGED_YAML_FILES); \
+	fi
 
 # ============================================================================
 # ANALYSIS
@@ -1524,6 +1639,7 @@ xcode-ci: xcode-ci-SentrySampleShared \
 	xcode-ci-iOS-SwiftUI-SPM \
 	xcode-ci-iOS-SwiftUI-Widgets \
 	xcode-ci-iOS15-SwiftUI \
+	xcode-ci-macOS-CLI-Xcode \
 	xcode-ci-macOS-Swift \
 	xcode-ci-macOS-SwiftUI \
 	xcode-ci-macOS-SwiftUI-SPM \
