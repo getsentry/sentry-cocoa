@@ -520,9 +520,9 @@ extension SentryDependencyContainer: DateProviderProvider {}
 extension SentryDependencyContainer: AutoSessionTrackingProvider { }
 
 #if ENABLE_KSCRASH
-extension SentryDependencyContainer: KSCrashInstallerProvider {
-    var kscrashInstaller: any KSCrashInstalling {
-        KSCrashInstaller()
+extension SentryDependencyContainer: SentryKSCrash.InstallerProvider {
+    var kscrashInstaller: SentryKSCrash.Installer {
+        SentryKSCrash.Installer()
     }
 }
 #endif
