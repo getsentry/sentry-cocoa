@@ -18,7 +18,7 @@ class SentryDataCollectionOptionsTests: XCTestCase {
         XCTAssertEqual(options.httpHeaders.request, .denyList())
         XCTAssertEqual(options.httpHeaders.response, .denyList())
         XCTAssertEqual(options.httpBodies, .all)
-        XCTAssertEqual(options.queryParams, .denyList())
+        XCTAssertEqual(options.urlQueryParams, .denyList())
         XCTAssertTrue(options.graphql.document)
         XCTAssertTrue(options.graphql.variables)
         XCTAssertTrue(options.database.queryParams)
@@ -42,7 +42,7 @@ class SentryDataCollectionOptionsTests: XCTestCase {
                 response: .allowList(terms: ["content-type"])
             ),
             httpBodies: [.outgoingRequest, .incomingResponse],
-            queryParams: .allowList(terms: ["page"]),
+            urlQueryParams: .allowList(terms: ["page"]),
             graphql: SentryDataCollection.GraphQLCollectionOptions(document: false, variables: true),
             database: SentryDataCollection.DatabaseCollectionOptions(queryParams: false),
             stackFrameVariables: false,
@@ -55,12 +55,39 @@ class SentryDataCollectionOptionsTests: XCTestCase {
         XCTAssertEqual(options.httpHeaders.request, .denyList(terms: ["x-custom"]))
         XCTAssertEqual(options.httpHeaders.response, .allowList(terms: ["content-type"]))
         XCTAssertEqual(options.httpBodies, [.outgoingRequest, .incomingResponse])
-        XCTAssertEqual(options.queryParams, .allowList(terms: ["page"]))
+        XCTAssertEqual(options.urlQueryParams, .allowList(terms: ["page"]))
         XCTAssertFalse(options.graphql.document)
         XCTAssertTrue(options.graphql.variables)
         XCTAssertFalse(options.database.queryParams)
         XCTAssertFalse(options.stackFrameVariables)
         XCTAssertEqual(options.frameContextLines, 0)
+        #endif
+    }
+
+    func testDataCollectionObjC_whenAccessed_shouldWrapEntireDataCollection() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
+        // -- Arrange --
+        let dataCollection = SentryDataCollection.Options(
+            userInfo: false,
+            cookies: .off,
+            httpHeaders: .init(request: .allowList(terms: ["x-request"]), response: .off),
+            httpBodies: [],
+            urlQueryParams: .allowList(terms: ["page"]),
+            graphql: .init(document: false, variables: false),
+            database: .init(queryParams: false),
+            stackFrameVariables: false,
+            frameContextLines: 0
+        )
+        let options = Options()
+        options.dataCollection = dataCollection
+
+        // -- Act --
+        let objcOptions = options.dataCollectionObjC
+
+        // -- Assert --
+        XCTAssertEqual(objcOptions.wrapped, dataCollection)
         #endif
     }
 
@@ -124,7 +151,7 @@ class SentryDataCollectionOptionsTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(options.cookies, .off)
-        XCTAssertEqual(options.queryParams, SentryDataCollection.Options().queryParams)
+        XCTAssertEqual(options.urlQueryParams, SentryDataCollection.Options().urlQueryParams)
         #endif
     }
 
@@ -202,7 +229,7 @@ class SentryDataCollectionOptionsTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(options.httpBodies, [.outgoingRequest, .incomingResponse])
-        XCTAssertEqual(options.queryParams, SentryDataCollection.Options().queryParams)
+        XCTAssertEqual(options.urlQueryParams, SentryDataCollection.Options().urlQueryParams)
         #endif
     }
 
@@ -254,42 +281,42 @@ class SentryDataCollectionOptionsTests: XCTestCase {
         #endif
     }
 
-    func testInitWithDictionary_whenQueryParamsIsPresent_shouldSetQueryParams() throws {
+    func testInitWithDictionary_whenUrlQueryParamsIsPresent_shouldSeturlQueryParams() throws {
         #if !SDK_V10
         throw XCTSkip("Test skipped for SDK_V10")
         #else
         // -- Act --
         let options = SentryDataCollection.Options(dictionary: [
-            "queryParams": ["mode": "allowList", "terms": ["page"]]
+            "urlQueryParams": ["mode": "allowList", "terms": ["page"]]
         ])
 
         // -- Assert --
-        XCTAssertEqual(options.queryParams, .allowList(terms: ["page"]))
+        XCTAssertEqual(options.urlQueryParams, .allowList(terms: ["page"]))
         XCTAssertEqual(options.cookies, SentryDataCollection.Options().cookies)
         #endif
     }
 
-    func testInitWithDictionary_whenQueryParamsHasWrongType_shouldUseDefault() throws {
+    func testInitWithDictionary_whenUrlQueryParamsHasWrongType_shouldUseDefault() throws {
         #if !SDK_V10
         throw XCTSkip("Test skipped for SDK_V10")
         #else
         // -- Act --
-        let options = SentryDataCollection.Options(dictionary: ["queryParams": "off"])
+        let options = SentryDataCollection.Options(dictionary: ["urlQueryParams": "off"])
 
         // -- Assert --
-        XCTAssertEqual(options.queryParams, SentryDataCollection.Options().queryParams)
+        XCTAssertEqual(options.urlQueryParams, SentryDataCollection.Options().urlQueryParams)
         #endif
     }
 
-    func testInitWithDictionary_whenQueryParamsIsNSNull_shouldUseDefault() throws {
+    func testInitWithDictionary_whenUrlQueryParamsIsNSNull_shouldUseDefault() throws {
         #if !SDK_V10
         throw XCTSkip("Test skipped for SDK_V10")
         #else
         // -- Act --
-        let options = SentryDataCollection.Options(dictionary: ["queryParams": NSNull()])
+        let options = SentryDataCollection.Options(dictionary: ["urlQueryParams": NSNull()])
 
         // -- Assert --
-        XCTAssertEqual(options.queryParams, SentryDataCollection.Options().queryParams)
+        XCTAssertEqual(options.urlQueryParams, SentryDataCollection.Options().urlQueryParams)
         #endif
     }
 
@@ -503,116 +530,6 @@ class SentryDataCollectionOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(enabled.frameContextLines, SentryDataCollection.Options().frameContextLines)
         XCTAssertEqual(disabled.frameContextLines, 0)
-        #endif
-    }
-
-    // MARK: - Options Integration
-
-    func testOptions_dataCollection_hasSpecDefaults() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
-        // -- Act --
-        let options = Options()
-
-        // -- Assert --
-        XCTAssertEqual(options.experimental.dataCollection, SentryDataCollection.Options())
-        #endif
-    }
-
-    func testOptions_dataCollection_canBeSet() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
-        // -- Arrange --
-        let options = Options()
-
-        // -- Act --
-        options.experimental.dataCollection = SentryDataCollection.Options(userInfo: false)
-
-        // -- Assert --
-        XCTAssertFalse(options.experimental.dataCollection.userInfo)
-        #endif
-    }
-
-    func testOptionsWithDictionary_whenExperimentalDataCollectionIsPresent_shouldSetDataCollection() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
-        // -- Arrange --
-        let dictionary: [String: Any] = [
-            "dsn": "https://username:password@sentry.io/1",
-            "experimental": [
-                "dataCollection": [
-                    "userInfo": false
-                ]
-            ]
-        ]
-
-        // -- Act --
-        let options = try Options(dictionary: dictionary)
-
-        // -- Assert --
-        XCTAssertFalse(options.experimental.dataCollection.userInfo)
-        XCTAssertEqual(options.experimental.dataCollection.cookies, SentryDataCollection.Options().cookies)
-        #endif
-    }
-
-    func testOptionsWithDictionary_whenExperimentalDataCollectionIsAbsent_shouldUseDefault() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
-        // -- Arrange --
-        let dictionary: [String: Any] = [
-            "dsn": "https://username:password@sentry.io/1",
-            "experimental": [:]
-        ]
-
-        // -- Act --
-        let options = try Options(dictionary: dictionary)
-
-        // -- Assert --
-        XCTAssertEqual(options.experimental.dataCollection, SentryDataCollection.Options())
-        #endif
-    }
-
-    func testOptionsWithDictionary_whenExperimentalDataCollectionHasWrongType_shouldUseDefault() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
-        // -- Arrange --
-        let dictionary: [String: Any] = [
-            "dsn": "https://username:password@sentry.io/1",
-            "experimental": [
-                "dataCollection": "off"
-            ]
-        ]
-
-        // -- Act --
-        let options = try Options(dictionary: dictionary)
-
-        // -- Assert --
-        XCTAssertEqual(options.experimental.dataCollection, SentryDataCollection.Options())
-        #endif
-    }
-
-    func testOptionsWithDictionary_whenExperimentalDataCollectionIsNSNull_shouldUseDefault() throws {
-        #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-        #else
-        // -- Arrange --
-        let dictionary: [String: Any] = [
-            "dsn": "https://username:password@sentry.io/1",
-            "experimental": [
-                "dataCollection": NSNull()
-            ]
-        ]
-
-        // -- Act --
-        let options = try Options(dictionary: dictionary)
-
-        // -- Assert --
-        XCTAssertEqual(options.experimental.dataCollection, SentryDataCollection.Options())
         #endif
     }
 

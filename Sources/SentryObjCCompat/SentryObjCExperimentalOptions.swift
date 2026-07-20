@@ -26,13 +26,6 @@ import Foundation
         get { wrapped.enableWatchdogTerminationsV2 }
         set { wrapped.enableWatchdogTerminationsV2 = newValue }
     }
-
-    #if SDK_V10
-    @objc public var dataCollection: SentryObjCDataCollectionOptions {
-        get { SentryObjCDataCollectionOptions(parent: wrapped) }
-        set { wrapped.dataCollection = newValue.wrapped }
-    }
-    #endif // SDK_V10
 }
 
 // swiftlint:enable missing_docs

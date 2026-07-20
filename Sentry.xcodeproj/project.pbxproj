@@ -1602,6 +1602,7 @@
 		D4711CB12FC6E96D00508994 /* SentryObjCCompatTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SentryObjCCompatTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D4715F182FC7116A00508994 /* ObjCInvocations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjCInvocations.swift; sourceTree = "<group>"; };
 		D483AFA32E9D555300B43C27 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/WatchOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		D485A00C3008DF1300114467 /* CHANGELOG_V10.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CHANGELOG_V10.md; sourceTree = "<group>"; };
 		D4A2360A2D5F84FA00D55C58 /* SwiftUITestSample_Base.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = SwiftUITestSample_Base.xctestplan; sourceTree = "<group>"; };
 		D4B67CFC2FC5E6F20022BC67 /* SentryObjCTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SentryObjCTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D4B67D102FC5E7680022BC67 /* SentryObjC_Base.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = SentryObjC_Base.xctestplan; sourceTree = "<group>"; };
@@ -2095,6 +2096,7 @@
 			isa = PBXGroup;
 			children = (
 				844DA80C28246D5000E6B62E /* CHANGELOG.md */,
+				D485A00C3008DF1300114467 /* CHANGELOG_V10.md */,
 				63AA756E1EB8AEDB00D153DE /* Sources */,
 				63AA75921EB8AEDB00D153DE /* Tests */,
 				D878C6BF2BC803440039D6A3 /* Aux */,
