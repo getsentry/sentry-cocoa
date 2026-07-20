@@ -1,4 +1,3 @@
-#import "SentryDataCategory.h"
 #import "SentrySwift.h"
 
 @class SentryEnvelope;

@@ -71,8 +71,6 @@
 #import "SentryCrashStackCursor_SelfThread.h"
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryCrashUUIDConversion.h"
-#import "SentryDataCategory.h"
-#import "SentryDataCategoryMapper.h"
 #import "SentryDateUtils.h"
 #import "SentryDebugMeta.h"
 #import "SentryDefaultAppStateManager.h"

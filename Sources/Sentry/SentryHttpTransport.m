@@ -1,6 +1,4 @@
 #import "SentryHttpTransport.h"
-#import "SentryDataCategory.h"
-#import "SentryDataCategoryMapper.h"
 #import "SentryDiscardReasonMapper.h"
 #import "SentryEnvelopeItemHeader.h"
 #import "SentryEnvelopeRateLimit.h"
@@ -85,8 +83,9 @@
         typeof(self) __weak weakSelf = self;
         [self.fileManager
             setEnvelopeDeletedCallback:^(SentryEnvelopeItem *item, NSUInteger category) {
-                [weakSelf envelopeItemDeleted:item
-                                 withCategory:sentryDataCategoryForNSUInteger(category)];
+                [weakSelf
+                    envelopeItemDeleted:item
+                           withCategory:[SentryDataCategoryMapper categoryForNSUInteger:category]];
             }];
 
         [self sendAllCachedEnvelopes];
@@ -156,8 +155,8 @@
         return;
     }
 
-    NSString *key = [NSString stringWithFormat:@"%@:%@", nameForSentryDataCategory(category),
-        nameForSentryDiscardReason(reason)];
+    NSString *key = [NSString stringWithFormat:@"%@:%@",
+        [SentryDataCategoryMapper nameFor:category], nameForSentryDiscardReason(reason)];
 
     @synchronized(self.discardedEvents) {
         SentryDiscardedEvent *event = self.discardedEvents[key];
@@ -165,9 +164,10 @@
             quantity = event.quantity + quantity;
         }
 
-        event = [[SentryDiscardedEvent alloc] initWithReason:nameForSentryDiscardReason(reason)
-                                                    category:nameForSentryDataCategory(category)
-                                                    quantity:quantity];
+        event =
+            [[SentryDiscardedEvent alloc] initWithReason:nameForSentryDiscardReason(reason)
+                                                category:[SentryDataCategoryMapper nameFor:category]
+                                                quantity:quantity];
 
         self.discardedEvents[key] = event;
     }
@@ -247,7 +247,7 @@
                withCategory:(SentryDataCategory)dataCategory;
 {
     SENTRY_LOG_WARN(@"Envelope item dropped due to exceeding rate limit. Category: %@",
-        nameForSentryDataCategory(dataCategory));
+        [SentryDataCategoryMapper nameFor:dataCategory]);
     [self recordLostEvent:dataCategory reason:SentryDiscardReasonRateLimitBackoff];
     [self recordLostSpans:envelopeItem reason:SentryDiscardReasonRateLimitBackoff];
     [self recordLostLogBytes:envelopeItem reason:SentryDiscardReasonRateLimitBackoff];
@@ -468,7 +468,8 @@
         if ([itemType isEqualToString:SentryEnvelopeItemTypes.clientReport]) {
             continue;
         }
-        SentryDataCategory category = sentryDataCategoryForEnvelopItemType(itemType);
+        SentryDataCategory category =
+            [SentryDataCategoryMapper categoryForEnvelopeItemType:itemType];
         [self recordLostEvent:category reason:SentryDiscardReasonSendError];
         [self recordLostSpans:item reason:SentryDiscardReasonSendError];
         [self recordLostLogBytes:item reason:SentryDiscardReasonSendError];
@@ -479,7 +480,7 @@
 {
     if ([SentryEnvelopeItemTypes.log isEqualToString:envelopeItem.type]) {
         NSUInteger byteCount = envelopeItem.data.length;
-        [self recordLostEvent:kSentryDataCategoryLogByte reason:reason quantity:byteCount];
+        [self recordLostEvent:SentryDataCategoryLogByte reason:reason quantity:byteCount];
     }
 }
 
@@ -495,7 +496,7 @@
             return;
         }
         NSArray *spans = transactionJson[@"spans"] ?: [NSArray array];
-        [self recordLostEvent:kSentryDataCategorySpan reason:reason quantity:spans.count + 1];
+        [self recordLostEvent:SentryDataCategorySpan reason:reason quantity:spans.count + 1];
     }
 }
 
