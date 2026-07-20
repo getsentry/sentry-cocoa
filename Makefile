@@ -70,7 +70,7 @@ init-local:
 	rbenv exec gem update bundler
 	rbenv exec bundle install
 	# Install the tools needed to update tooling versions locally
-	"$(MAKE)" init-ci-format
+	"$(MAKE)" init-ci-build init-ci-format
 	./scripts/update-tooling-versions.sh
 
 ## Install CI build dependencies
