@@ -1401,7 +1401,7 @@ AVOID_ALL_HEADER_FIELDS_MSG := Double-check how you use allHeaderFields (https:/
 
 ## Run linting checks on all files
 #
-# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, Objective-C banned-pattern checks, and dprint checks without modifying files.
+# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, Objective-C banned-pattern checks, actionlint, and dprint checks without modifying files.
 .PHONY: lint
 lint:
 	@echo "--> Running Swiftlint and Clang-Format"
@@ -1412,6 +1412,7 @@ lint:
 		--message "$(AVOID_ALL_HEADER_FIELDS_MSG)"
 	swiftlint --strict --quiet
 	dprint check "**/*.{md,json,yaml,yml}"
+	actionlint
 
 ## Run linting checks on staged files only
 #
