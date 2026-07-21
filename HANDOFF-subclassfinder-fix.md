@@ -95,11 +95,14 @@ are NOT changed for docs — an earlier draft added a `swizzleClassNameExcludes`
   than misread. No FAT parsing added — `_dyld_get_image_header` only returns thin,
   in-memory, native-arch slices, so a FAT header can't reach this code. Mirrors the
   repo's only precedent, `firstCmdAfterHeader` in `SentryCrashDynamicLinker.c`.
-- **arm64e ptrauth** (itaybre, `m`): the `unsafeBitCast` just reinterprets a
-  dyld-bound classref (the same pointers the ObjC runtime stores in
-  `__objc_classlist`); we never hand-strip pointers, and the subsequent
-  `class_getSuperclass`/`class_getName` authenticate internally. App Store apps ship
-  plain arm64. A real arm64e device run is the definitive confirmation (device-only).
+- **arm64e ptrauth** (itaybre, `m`): **RESOLVED — device-validated safe.** Built the
+  iOS-Swift sample `ARCHS=arm64e ONLY_ACTIVE_ARCH=NO` and ran on a physical iPhone 12
+  (A14, iOS 26.5); app + `iOS-Swift.debug.dylib` + `Sentry.framework` all arm64e. The
+  SDK read 44 classrefs from the arm64e `__objc_classlist`, walked superclasses, and
+  swizzled 31 UIViewController subclasses with zero `EXC_BAD_ACCESS`. dyld applies
+  chained fixups **in place** at load time, so the in-memory section already holds
+  runtime-correct pointers that `class_getSuperclass`/`class_getName` accept directly —
+  no ptrauth strip needed. (Static/on-disk parsers would still need to decode fixups.)
 - **`unsafeBitcast` to `mach_header_64` to save the rebind** (NinjaLikesCheez, `l`):
   kept `withMemoryRebound` for clarity.
 - **dyld lock (new, self-found):** verified against Apple dyld source
@@ -168,9 +171,7 @@ Verified against **objc4 source** + empirical tests on Apple silicon (arm64):
   indexed **by address, not name** — no by-name lookup exists, would need a linear
   scan of `getAllBinaryImages()` or a new accessor. Decide if the win is worth the
   coupling. (User may tackle this later.)
-- **On-device confirmation** on iOS 16/17 with the repro (gated non-VC like a RoomPlan
-  wrapper + gesture Coordinator), ideally an arm64e-built app. Device-only; CI sims
-  can't reproduce.
+- **On-device arm64e run: DONE** (see arm64e item above — iPhone 12, no crash).
 - **Perf** of the section read + superclass walk vs the old path on a real device.
 
 ## Rejected over-engineered approach (do NOT resurrect unless needed)
