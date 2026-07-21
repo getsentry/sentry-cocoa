@@ -55,9 +55,16 @@ class SentrySubClassFinder: NSObject {
             // (in `isClass`) and `class_getName`. Neither sends an Objective-C message to the class,
             // so neither triggers its `+initialize`, which only runs on the first message send. This
             // matters because UIViewControllers assume they run on the main thread, so we must not
-            // trigger their `+initialize` here. We collect the class names (not the classes) to hand
-            // to the swizzling on the main thread, where messaging the class is safe.
-            var classesToSwizzle: [String] = []
+            // trigger their `+initialize` here. Storing the unrealized class pointers doesn't message
+            // them either; the swizzling block on the main thread sends the first message, where
+            // that is safe. We must not round-trip through NSClassFromString on the main thread
+            // either: it realizes the class, and realizing a class whose Swift metadata references
+            // an `@available`-gated newer-framework type crashes on older OS versions
+            // (https://github.com/getsentry/sentry-cocoa/issues/8152,
+            // https://github.com/swiftlang/swift/issues/72657) — the same reason we read the class
+            // list from the image instead (see above). It could also resolve a same-named class
+            // from a different image.
+            var classesToSwizzle: [AnyClass] = []
             for cls in classes {
                 guard self.isClass(cls, subClassOf: viewControllerClass) else {
                     continue
@@ -75,18 +82,16 @@ class SentrySubClassFinder: NSObject {
                     continue
                 }
 
-                classesToSwizzle.append(className)
+                classesToSwizzle.append(cls)
             }
 
             self.dispatchQueue.dispatchAsyncOnMainQueueIfNotMainThread {
-                for className in classesToSwizzle {
-                    if let cls = NSClassFromString(className) {
-                        block(cls)
-                    }
+                for cls in classesToSwizzle {
+                    block(cls)
                 }
 
                 SentrySDKLog.debug(
-                    "The following UIViewControllers for image: \(imageName) will generate automatic transactions: \(classesToSwizzle.joined(separator: ", "))"
+                    "The following UIViewControllers for image: \(imageName) will generate automatic transactions: \(classesToSwizzle.map { String(cString: class_getName($0)) }.joined(separator: ", "))"
                 )
             }
         }
