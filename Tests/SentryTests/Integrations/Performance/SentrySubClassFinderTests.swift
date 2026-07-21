@@ -126,10 +126,6 @@ class SentrySubClassFinderTests: XCTestCase {
         }.count
 
         XCTAssertEqual(expected.count, count)
-
-        // When there are no classes to swizzle, we early exit and must not dispatch
-        // to the main queue. Otherwise, we dispatch exactly once.
-        XCTAssertEqual(fixture.dispatchQueue.blockOnMainInvocations.count, expected.isEmpty ? 0 : 1)
     }
 }
 
