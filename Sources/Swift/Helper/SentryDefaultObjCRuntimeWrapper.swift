@@ -34,20 +34,22 @@ public final class SentryDefaultObjCRuntimeWrapper: NSObject, SentryObjCRuntimeW
                 return []
             }
 
+            // Only treat the header as a `mach_header_64` if it actually is one. dyld hands us thin,
+            // native-arch, in-memory slices, so this holds in practice; the check is defensive. It
+            // also rejects a FAT header (`FAT_MAGIC`), which would otherwise be misread, so we skip
+            // such an image instead of going off into the weeds. `magic` is the first field of both
+            // `mach_header` and `mach_header_64`, so we can read it before rebinding.
+            guard header.pointee.magic == MH_MAGIC_64 else {
+                return []
+            }
+
             // Read the class pointers from the image's `__objc_classlist` section (`__DATA_CONST` on
             // modern binaries, `__DATA` on older ones). dyld binds these pointers at load time, but
             // the classes aren't realized, so callers can inspect them without running class
             // initialization, unlike `NSClassFromString`.
             var size: UInt = 0
-            let section = header.withMemoryRebound(to: mach_header_64.self, capacity: 1) { header -> UnsafeMutablePointer<UInt8>? in
-                // Only read the header as a `mach_header_64` if it actually is one. dyld hands us
-                // thin, native-arch, in-memory slices, so this holds in practice; the check is
-                // defensive. It also rejects a FAT header (`FAT_MAGIC`), which would otherwise be
-                // misread, so we skip such an image instead of going off into the weeds.
-                guard header.pointee.magic == MH_MAGIC_64 else {
-                    return nil
-                }
-                return getsectiondata(header, "__DATA_CONST", "__objc_classlist", &size)
+            let section = header.withMemoryRebound(to: mach_header_64.self, capacity: 1) { header in
+                getsectiondata(header, "__DATA_CONST", "__objc_classlist", &size)
                     ?? getsectiondata(header, "__DATA", "__objc_classlist", &size)
             }
             guard let section else {
