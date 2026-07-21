@@ -7,7 +7,7 @@ import XCTest
      func testOnlyOneViewController() {
          let viewController = UIViewController()
 
-         XCTAssertEqual([viewController], viewControllerHierarchy(from: viewController))
+         XCTAssertEqual([viewController], viewControllerHierarchy(of: viewController))
      }
 
      func testTwoChildViewController() {
@@ -19,7 +19,7 @@ import XCTest
          let child2 = UIViewController()
          root.addChild(child2)
 
-         XCTAssertEqual(Set([root, child2, child1]), Set(viewControllerHierarchy(from: root)))
+         XCTAssertEqual(Set([root, child2, child1]), Set(viewControllerHierarchy(of: root)))
      }
 
      func testGrandChildViewController() {
@@ -34,7 +34,7 @@ import XCTest
          let grandChild2 = UIViewController()
          child.addChild(grandChild2)
 
-         XCTAssertEqual(Set([root, child, grandChild2, grandChild1]), Set(viewControllerHierarchy(from: root)))
+         XCTAssertEqual(Set([root, child, grandChild2, grandChild1]), Set(viewControllerHierarchy(of: root)))
      }
  }
 

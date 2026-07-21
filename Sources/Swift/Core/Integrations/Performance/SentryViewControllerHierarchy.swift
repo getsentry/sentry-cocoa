@@ -3,7 +3,7 @@ import UIKit
 
 /// Returns the given view controller together with all of its descendants —
 /// children, grandchildren, ... — flattened into a single array.
-func viewControllerHierarchy(from viewController: UIViewController) -> [UIViewController] {
+func viewControllerHierarchy(of viewController: UIViewController) -> [UIViewController] {
     // UIViewController guarantees a parent can't be a child of its own child,
     // so the parent/child relationship is acyclic.
     var allViewControllers: [UIViewController] = [viewController]
