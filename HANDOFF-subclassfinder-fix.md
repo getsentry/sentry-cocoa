@@ -15,9 +15,40 @@
   main's empty-check early return; dropped main's `free(classes)`, which was for the
   old C-array API) and its test (kept our `classes` seam + main's
   `_NoViewController_DoesNotDispatchToMainQueue` test adapted to that seam).
-- **Tests:** `SentrySubClassFinderTests` green on the local sim (9 tests) after the
-  merge. Includes the differential enumeration test, the section null-entry test, and
-  the real-wrapper regression test.
+- **Tests:** `SentrySubClassFinderTests` green on the local sim (10 tests) after the
+  merge. Includes the differential enumeration test, the section null-entry test, the
+  real-wrapper regression test, and the filter-drop test noted under Open blockers.
+
+## Open blockers (must resolve before ready-to-merge)
+
+- **Finding 2 — raw `__objc_classlist` entries are unremapped (OPEN, P1).** Full
+  writeup + follow-up in `REVIEW-PR-8457.md` §"Finding 2". `classes(inSection:size:)`
+  returns the raw compiler-emitted pointers without objc4's `remapClass`, and
+  `SentrySubClassFinder` carries them across the queue hop straight to the swizzler.
+  For a class objc4 remaps, the raw pointer differs from the live class object, which
+  can bypass `SentrySwizzle`'s class-identity dedup (`NSMutableSet<Class>` in
+  `SentrySwizzle.m`).
+  - **An earlier local attempt did NOT fix it** (comment + a filter-drop test only). The
+    review disproved the comment's core claim: objc4 only forbids a future class from
+    being _completed by a Swift class_, NOT from having an Objective-C view-controller
+    superclass. A reserved ObjC `objc_getFutureClass` VC subclass passes
+    `SentrySubClassFinder`'s `class_getSuperclass` filter yet has raw ≠ live identity —
+    demonstrated by a local probe (`SentryFutureViewController : NSViewController`,
+    `rawIsViewController=yes rawEqualsLive=no`).
+  - **Local changes currently in the tree (uncommitted):** softened comment in
+    `SentryDefaultObjCRuntimeWrapper.swift` (now flags this as a known open issue, no
+    longer claims safety) + `testActOnSubclassesOfViewController_WhenClassDoesNotReach`
+    `ViewController_IsNotSwizzled` (documents the filter drop for the
+    weak-missing-superclass shape only; explicitly NOT a Finding-2 fix).
+  - **Constraint on any real fix:** must NOT reintroduce the GH-8152 realization crash.
+    The review's "store names, resolve on main via `NSClassFromString`" suggestion
+    realizes the class and can pick a same-named class from another image — the exact
+    behavior this PR removed. A viable fix likely applies a `remapClass`-equivalent to
+    each entry (skipping nil results) transiently while keeping the non-realizing path.
+  - **Test gap:** name-set equivalence and the current filter test are insufficient; a
+    real regression test needs an ObjC bundle + `objc_getFutureClass` to exercise
+    remapping and pointer identity.
+  - Deferred by user decision (2026-07-21): store findings now, pick up the fix later.
 
 ## TL;DR
 

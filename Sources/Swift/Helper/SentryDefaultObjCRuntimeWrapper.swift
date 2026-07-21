@@ -52,6 +52,21 @@ public final class SentryDefaultObjCRuntimeWrapper: NSObject, SentryObjCRuntimeW
             // modern binaries, `__DATA` on older ones). dyld binds these pointers at load time, but
             // the classes aren't realized, so callers can inspect them without running class
             // initialization, unlike `NSClassFromString`.
+            //
+            // These are the raw, compiler-emitted pointers; we do NOT run objc4's `remapClass` over
+            // them, so for a class objc4 remaps (a resolved future class from `objc_getFutureClass`,
+            // or a weak-linked class with a missing superclass that it maps to nil) the entry here can
+            // differ from the live runtime class or be a disavowed struct.
+            //
+            // KNOWN OPEN ISSUE (Finding 2 in REVIEW-PR-8457.md; see HANDOFF-subclassfinder-fix.md):
+            // an Objective-C future class can have a view-controller superclass, pass
+            // `SentrySubClassFinder`'s `class_getSuperclass` filter, and reach the swizzler as a raw
+            // pointer that differs from the live class — bypassing `SentrySwizzle`'s class-identity
+            // dedup. objc4 only forbids a future class from being *completed by a Swift class*, not
+            // from having an ObjC view-controller superclass, so this is not merely theoretical.
+            // This must be resolved before merge, and the fix must not reintroduce the GH-8152
+            // realization crash: re-resolving by name via `NSClassFromString` realizes the class and
+            // can pick a same-named class from another image, which is exactly what this change removed.
             var size: UInt = 0
             let section = header.withMemoryRebound(to: mach_header_64.self, capacity: 1) { header in
                 getsectiondata(header, "__DATA_CONST", "__objc_classlist", &size)

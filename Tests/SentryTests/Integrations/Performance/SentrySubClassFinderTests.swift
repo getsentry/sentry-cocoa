@@ -144,6 +144,23 @@ class SentrySubClassFinderTests: XCTestCase {
         XCTAssertGreaterThan(comparedImages, 0, "Expected at least one image with classes")
     }
     
+    /// Documents that a class whose superclass chain does not reach `UIViewController` is dropped by
+    /// the `class_getSuperclass` filter even when mixed in with real view controllers.
+    ///
+    /// NOTE: this does NOT close review Finding 2 (raw `__objc_classlist` entries aren't run through
+    /// objc4's `remapClass`). `FakeViewController` is an ordinary live class pointer, not a remapped
+    /// one, so this only covers the weak-linked-missing-superclass shape (objc4 zeroes the superclass →
+    /// the walk can't reach `UIViewController`). It does NOT cover a resolved Objective-C future class
+    /// with a view-controller superclass, which passes this filter yet has raw ≠ live pointer identity.
+    /// Reproducing that needs an ObjC bundle + `objc_getFutureClass`. Finding 2 remains open — see
+    /// HANDOFF-subclassfinder-fix.md and REVIEW-PR-8457.md.
+    func testActOnSubclassesOfViewController_WhenClassDoesNotReachViewController_IsNotSwizzled() {
+        fixture.runtimeWrapper.classes = { _ in
+            [FakeViewController.self, FirstViewController.self, SecondViewController.self]
+        }
+        assertActOnSubclassesOfViewController(expected: [FirstViewController.self, SecondViewController.self])
+    }
+
     /// A real dyld-loaded `__objc_classlist` section never contains null entries (dyld binds every
     /// slot at load time), so this edge case can't be produced through `classes(forImage:)`. Instead
     /// we hand the section-parsing helper a crafted buffer shaped exactly like `getsectiondata`'s
