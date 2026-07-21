@@ -15,9 +15,18 @@ public final class SentryDefaultObjCRuntimeWrapper: NSObject, SentryObjCRuntimeW
         return class_getImageName(cls)
     }
 
-    // IMPORTANT: Call this off the main thread. `_dyld_get_image_header` and `_dyld_get_image_name`
-    // acquire the dyld loader read lock, which every image load/unload (for example `dlopen`)
-    // contends, so calling this on the main thread risks blocking it.
+    // Call this off the main thread; the sole caller runs it on a background queue. (These `_dyld_*`
+    // calls take the dyld loader read lock that image load/unload contends, and the superclass walk
+    // over every class takes a few ms — neither belongs on the main thread.)
+    //
+    // KNOWN OPEN ISSUE (Finding 1 in REVIEW-PR-8457.md; see HANDOFF-subclassfinder-fix.md): iterating
+    // the dyld image list is NOT thread-safe. `<mach-o/dyld.h>` states: "Another thread can add or
+    // remove an image during the iteration." If the target image is unloaded between the name match
+    // and the `getsectiondata` dereference below, the header/section pointer dangles and
+    // dereferencing it can crash. This is a P0 that must be resolved before merge (fix direction:
+    // coordinate the read with the loader, e.g. via SentryBinaryImageCache). Not reachable in the
+    // default config (only the never-unloadable main executable is enumerated); reachable when the
+    // enumerated image is dynamically unloadable.
     //
     // Only supported on iOS, tvOS, and visionOS. It reads `mach_header_64` via `getsectiondata`, so
     // we gate it to 64-bit architectures: every slice these platforms ship (`arm64`/`arm64e`
@@ -27,8 +36,9 @@ public final class SentryDefaultObjCRuntimeWrapper: NSObject, SentryObjCRuntimeW
     @_spi(Private)
     public func classes(forImage image: UnsafePointer<CChar>) -> [AnyClass] {
         // We read `_dyld_image_count` once instead of per iteration (unlike the CxaThrowSwapper): we
-        // search for one already-loaded image, so images added while iterating aren't our target, and
-        // stale indices from an unload just return nil below.
+        // search for one already-loaded image, so images added while iterating aren't our target. An
+        // index that becomes out of range after an unload returns nil below, but an in-range index
+        // whose image was unmapped yields a dangling header — see the KNOWN OPEN ISSUE above.
         for index in 0..<_dyld_image_count() {
             guard let cName = _dyld_get_image_name(index), strcmp(cName, image) == 0 else {
                 continue
