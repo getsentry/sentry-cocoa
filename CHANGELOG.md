@@ -4,7 +4,7 @@
 
 ### Features
 
-- Record trace_metric_byte client reports (#8483)
+- Record trace_metric_byte client reports (#8490)
 
 ### Breaking Changes
 
