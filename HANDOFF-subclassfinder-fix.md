@@ -10,8 +10,14 @@
   yet marked ready-to-merge; double-checking first).
 - **Reviews:** three rounds (philipphofmann, NinjaLikesCheez, itaybre). All raised
   comments addressed in code + replies; see "Review feedback" below.
-- **Tests:** `SentrySubClassFinderTests` pass on the local sim. Includes the
-  differential enumeration test and a new real-wrapper regression test.
+- **`origin/main` merged in** (merge commit, includes `#8494` "reduce SDK-start
+  overhead"). Conflicts in `SentrySubClassFinder.swift` (kept our `[AnyClass]` flow +
+  main's empty-check early return; dropped main's `free(classes)`, which was for the
+  old C-array API) and its test (kept our `classes` seam + main's
+  `_NoViewController_DoesNotDispatchToMainQueue` test adapted to that seam).
+- **Tests:** `SentrySubClassFinderTests` green on the local sim (9 tests) after the
+  merge. Includes the differential enumeration test, the section null-entry test, and
+  the real-wrapper regression test.
 
 ## TL;DR
 
@@ -32,8 +38,9 @@
   Mach-O section (gives class **pointers**, NOT realized) instead of
   `objc_copyClassNamesForImage` + `NSClassFromString`. Then use the existing
   `class_getSuperclass`-based `isClass(_:subClassOf:)` walk (already safe, never
-  realizes). `NSClassFromString` is only called at swizzle time, on the main thread,
-  for confirmed view controllers.
+  realizes). The confirmed VC class pointers are carried to the main thread and handed
+  straight to the swizzle block — `NSClassFromString` is not used at all anymore (it
+  realizes, and could resolve a same-named class from a different image).
 
 ## Root-cause chain
 
@@ -42,10 +49,12 @@
 1. old: `objcRuntimeWrapper.copyClassNamesForImage` → class name C-strings (safe).
 2. old: for each name → `NSClassFromString(name)` ← **THE CRASH** (realizes) →
    `isClass(subclassOf: UIViewController)` walk → keep name if VC.
-3. main thread: `NSClassFromString(name)` again → hand `Class` to swizzle block.
+3. old: main thread → `NSClassFromString(name)` again → hand `Class` to swizzle block.
 
 Only step 2's `NSClassFromString` was the problem. `class_getSuperclass` (used by
-`isClass`) was always safe.
+`isClass`) was always safe. The new code drops `NSClassFromString` entirely (both
+steps 2 and 3) — it walks unrealized class pointers and passes them straight to the
+swizzle.
 
 ## The fix (what changed)
 
@@ -59,9 +68,11 @@ Same structure, but get class **pointers** without realizing:
   `Class _Nullable` entries — no `unsafeBitCast`) and `compactMap` out nulls. These
   are dyld-bound but **not realized**.
 - Finder: iterate `classes(forImage:)`, run the unchanged `isClass` superclass walk,
-  read matches' names via `class_getName` (does NOT realize, does NOT call
-  `+initialize`), apply `swizzleClassNameExcludes`, collect names. Main-thread pass
-  unchanged (`NSClassFromString` only on confirmed VCs).
+  read names via `class_getName` only to apply `swizzleClassNameExcludes` (neither
+  `class_getSuperclass` nor `class_getName` sends a message, so `+initialize` never
+  runs on the background thread), then collect the class **pointers** and hand them
+  directly to the main-thread swizzle block. Holding/iterating `AnyClass` does not
+  message the class either; the swizzle is the first message, and it runs on main.
 
 ### Files changed (PR #8457, vs origin/main)
 
@@ -72,10 +83,17 @@ Same structure, but get class **pointers** without realizing:
 - `Sources/Swift/Helper/SentryObjCRuntimeWrapper.swift` — add `classes(forImage:)`
   to protocol (+ threading/arch doc).
 - `Sources/Swift/Helper/SentryDefaultObjCRuntimeWrapper.swift` — implement it
-  (`import MachO`), arch guard, `MH_MAGIC_64` guard, off-main-thread doc.
+  (`import MachO`), arch guard, `MH_MAGIC_64` guard, off-main-thread doc. Section
+  parsing extracted to a testable `static func classes(inSection:size:)` that reads
+  entries as `AnyClass?` and `compactMap`s out nulls (no `unsafeBitCast`).
 - `CHANGELOG.md` — `## Unreleased` → `### Fixes` entry (#8457).
-- `Tests/.../SentrySubClassFinderTests.swift` — new seam + differential test + real-
-  wrapper regression test + gated `AvailabilityGatedNonViewController` fixture.
+- `Tests/.../SentrySubClassFinderTests.swift` — new `classes` seam; differential test
+  (`testClassesForImage_whenReadingEveryLoadedImage_shouldMatchCopyClassNamesForImage`),
+  section null-entry test (`testClassesInSection_whenSectionContainsNullEntry_shouldSkipIt`),
+  real-wrapper regression test
+  (`testRealRuntimeWrapper_whenReadingBundleImage_findsBundleViewControllers`) + gated
+  `AvailabilityGatedNonViewController` fixture, and the merged-in
+  `_NoViewController_DoesNotDispatchToMainQueue` test.
 - `Tests/SentryTests/Helper/SentryTestObjCRuntimeWrapper.{h,m}` — added `classes`
   override block (parallels existing `classesNames`).
 
@@ -123,9 +141,14 @@ Verified against **objc4 source** + empirical tests on Apple silicon (arm64):
 2. `objc_copyClassNamesForImage` returns `demangledName(false)`; `class_getName`
    returns the same demangled form. Neither realizes. So new names == old names by
    construction.
-3. `class_getName` and the superclass walk do **not** trigger `+initialize`. A Swift
-   `[AnyClass]` append doesn't either (holds a metatype, no retain-message) — unlike
-   ObjC `NSArray addObject:`. Tested empirically.
+3. `class_getName` and the superclass walk do **not** trigger `+initialize` —
+   `+initialize` fires only on the first _message send_, and neither function messages
+   the class. Holding/iterating an `AnyClass` in a Swift array doesn't message it
+   either (metatype pointer, no retain-message) — unlike ObjC `NSArray addObject:`.
+   Guarded by `testGettingSubclasses_DoesNotCallInitializer` (registers a class with a
+   custom `+initialize`, asserts the finder never calls it). This is why passing the
+   class pointer to the main thread (instead of a name) is safe: the swizzle block is
+   the first message and it runs on main.
 4. **Classes with a Swift-generic superclass** (e.g. a `UIHostingController<V>`
    subclass) are **not in `__objc_classlist`** — and `objc_copyClassNamesForImage`
    doesn't return them either (same section). So switching enumeration loses **zero**
@@ -136,23 +159,28 @@ Verified against **objc4 source** + empirical tests on Apple silicon (arm64):
 
 ### Differential/oracle evidence
 
-- `testClassListEnumerationMatchesCopyClassNamesForImage` iterates every loaded image
-  and asserts the new (`__objc_classlist` + `class_getName`) name set equals the old
-  (`objc_copyClassNamesForImage`) set. Never calls `NSClassFromString`, so it's safe
-  on every OS. Permanent CI guard for the one thing that changed.
+- `testClassesForImage_whenReadingEveryLoadedImage_shouldMatchCopyClassNamesForImage`
+  iterates every loaded image and asserts the new (`__objc_classlist` + `class_getName`)
+  name set equals the old (`objc_copyClassNamesForImage`) set. Never calls
+  `NSClassFromString`, so it's safe on every OS. Permanent CI guard for the one thing
+  that changed.
 - Local throwaway oracle (earlier session): across ~163 images / ~9,610 classes, new
   == old, 0 mismatches; superclass walk over all classes: no crash, max depth 7, 0
   cycles.
 
-## Tests
+## Tests (9 total, all green)
 
-- Behavioral tests inject `[AnyClass]` via the new `classes` seam (find VCs, honor
-  excludes, ignore non-VC, wrong image, no `+initialize`).
-- `testClassListEnumerationMatchesCopyClassNamesForImage` — differential enumeration
-  equivalence (above).
-- `testActOnSubclassesOfViewController_withRealRuntimeWrapper_findsBundleViewControllers`
-  — drives the **real** `SentryDefaultObjCRuntimeWrapper` through the finder against
-  this bundle; asserts the bundle's VCs are found and non-VCs (incl. the gated
+- Behavioral tests inject `[AnyClass]` via the `classes` seam (find VCs, honor
+  excludes, ignore non-VC, wrong image, no `+initialize`, and — from the merged
+  `#8494` — no main-queue dispatch when there's nothing to swizzle).
+- `testClassesForImage_whenReadingEveryLoadedImage_shouldMatchCopyClassNamesForImage`
+  — differential enumeration equivalence (above).
+- `testClassesInSection_whenSectionContainsNullEntry_shouldSkipIt` — hands the
+  `classes(inSection:size:)` helper a crafted buffer with a null slot and asserts the
+  null is skipped.
+- `testRealRuntimeWrapper_whenReadingBundleImage_findsBundleViewControllers` — drives
+  the **real** `SentryDefaultObjCRuntimeWrapper` through the finder against this
+  bundle; asserts the bundle's VCs are found and non-VCs (incl. the gated
   `AvailabilityGatedNonViewController`) are not. The actual `EXC_BAD_ACCESS` is
   device/OS-version-specific and can't be reproduced on CI sims, so this guards the
   enumeration + selection behavior, not the crash itself.
