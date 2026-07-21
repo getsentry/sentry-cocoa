@@ -1,14 +1,14 @@
 name: "Cache Homebrew or Update"
 description: >-
   Caches Homebrew downloads and installed formulae. The cache key rotates
-  weekly so formulae stay reasonably fresh without downloading on every run.
+  daily so formulae stay reasonably fresh without downloading on every run.
 runs:
   using: "composite"
   steps:
-    - name: Get week number
-      id: week
+    - name: Get day number
+      id: day
       shell: bash
-      run: echo "week=$(date +%Y-%W)" >> "$GITHUB_OUTPUT"
+      run: echo "day=$(date +%Y-%j)" >> "$GITHUB_OUTPUT"
 
     - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       id: cache
@@ -18,9 +18,9 @@ runs:
           ~/Library/Caches/Homebrew/downloads
           ~/Library/Caches/Homebrew/api
         # Add here any relevant lockfiles
-        key: homebrew-${{ runner.os }}-${{ runner.arch }}-${{ steps.week.outputs.week }}-${{ hashFiles('scripts/.clang-format-version', 'scripts/.swiftlint-version', 'scripts/.xcodegen-version', '.ruby-version', 'Brewfile*') }}
+        key: homebrew-${{ runner.os }}-${{ runner.arch }}-${{ steps.day.outputs.day }}-${{ hashFiles('scripts/.clang-format-version', 'scripts/.swiftlint-version', 'scripts/.xcodegen-version', '.ruby-version', 'Brewfile*') }}
 
     - name: Update Homebrew formulae
-      if: steps.cache.outputs.cache-hit != 'true'
+      if: steps.cache.outputs.cache-hit != 'true' || github.run_attempt > 1
       shell: bash
       run: brew update
