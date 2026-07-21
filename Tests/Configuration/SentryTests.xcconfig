@@ -1,5 +1,9 @@
 #include "../../Sources/Configuration/DeploymentTargets.xcconfig"
 
+// Bump macOS minimum to 10.15 for tests only — Swift Testing requires concurrency APIs
+// (Actor, isolation()) that are not available below 10.15. The SDK itself stays at 10.14.
+MACOSX_DEPLOYMENT_TARGET = 10.15
+
 // (originally added to Sentry.xcconfig in #3716, but it's only needed in the test targets, not the SDK target)
 // This config is required so the test code can access the SentryPrivate module. Removing this setting
 // leads to an error: no such module '_SentryPrivate' when including the XCFramework
