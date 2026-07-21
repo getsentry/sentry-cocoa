@@ -1,5 +1,4 @@
 #import "SentryEnvelopeRateLimit.h"
-#import "SentryDataCategoryMapper.h"
 #import "SentryEnvelopeItemHeader.h"
 #import "SentrySwift.h"
 
@@ -52,7 +51,8 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableArray<SentryEnvelopeItem *> *itemsToDrop = [[NSMutableArray alloc] init];
 
     for (SentryEnvelopeItem *item in items) {
-        SentryDataCategory rateLimitCategory = sentryDataCategoryForEnvelopItemType(item.type);
+        SentryDataCategory rateLimitCategory =
+            [SentryDataCategoryMapper categoryForEnvelopeItemType:item.type];
         if ([self.rateLimits isRateLimitActive:rateLimitCategory]) {
             [itemsToDrop addObject:item];
             [self.delegate envelopeItemDropped:item withCategory:rateLimitCategory];

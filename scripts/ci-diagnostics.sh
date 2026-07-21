@@ -86,6 +86,14 @@ if command -v system_profiler >/dev/null 2>&1; then
 fi
 end_group
 
+begin_group "XcodeGen version"
+if command -v xcodegen >/dev/null 2>&1; then
+  xcodegen --version || true
+else
+  log_warning "xcodegen not found in PATH"
+fi
+end_group
+
 begin_group "Disk space"
 df -h || true
 end_group

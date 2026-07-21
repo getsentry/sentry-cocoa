@@ -1,5 +1,5 @@
 @_spi(Private) import SentryTestUtils
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 import XCTest
 
 class ConcurrentRateLimitsDictionaryTests: XCTestCase {
@@ -36,54 +36,56 @@ class ConcurrentRateLimitsDictionaryTests: XCTestCase {
     func testConcurrentReadWrite() {
         let queue1 = DispatchQueue(label: "SentryConcurrentRateLimitsStorageTests1", attributes: [.concurrent, .initiallyInactive])
         let queue2 = DispatchQueue(label: "SentryConcurrentRateLimitsStorageTests2", attributes: [.concurrent, .initiallyInactive])
-        
-        let loopCount = 10
+
+        // The closed Swift SentryDataCategory has raw values 0...16, so the offsets below use
+        // 4/8/12 (with loopCount 4) to keep every fabricated category in range and distinct.
+        let loopCount = 4
         let expectation = XCTestExpectation(description: "ConcurrentReadWrite")
         expectation.expectedFulfillmentCount = loopCount * 2
         expectation.assertForOverFulfill = true
-        
+
         for i in 0..<loopCount {
 
             let date = self.currentDateProvider.date().addingTimeInterval(TimeInterval(i))
-            
+
             queue1.async {
                 let a = i as NSNumber
-                let b = 100 + i as NSNumber
-       
+                let b = 4 + i as NSNumber
+
                 self.sut.addRateLimit(self.getCategory(rawValue: a), validUntil: date)
                 self.sut.addRateLimit(self.getCategory(rawValue: b), validUntil: date)
                 XCTAssertEqual(date, self.sut.getRateLimit(for: self.getCategory(rawValue: a)))
                 XCTAssertEqual(date, self.sut.getRateLimit(for: self.getCategory(rawValue: b)))
-                
+
                 expectation.fulfill()
             }
-            
+
             queue2.async {
-                                
-                let c = 200 + i as NSNumber
-                let d = 300 + i as NSNumber
+
+                let c = 8 + i as NSNumber
+                let d = 12 + i as NSNumber
 
                 self.sut.addRateLimit(self.getCategory(rawValue: c), validUntil: date)
-                
+
                 XCTAssertEqual(date, self.sut.getRateLimit(for: self.getCategory(rawValue: c)))
                 self.sut.addRateLimit(self.getCategory(rawValue: d), validUntil: date)
                 expectation.fulfill()
             }
         }
-        
+
         queue1.activate()
         queue2.activate()
 
         wait(for: [expectation], timeout: 10.0)
-        
+
         for i in 0..<loopCount {
             let date = self.currentDateProvider.date().addingTimeInterval(TimeInterval(i))
-            
+
             let a = i as NSNumber
-            let b = 100 + i as NSNumber
-            let c = 200 + i as NSNumber
-            let d = 300 + i as NSNumber
-            
+            let b = 4 + i as NSNumber
+            let c = 8 + i as NSNumber
+            let d = 12 + i as NSNumber
+
             XCTAssertEqual(date, sut.getRateLimit(for: getCategory(rawValue: a)))
             XCTAssertEqual(date, sut.getRateLimit(for: getCategory(rawValue: b)))
             XCTAssertEqual(date, sut.getRateLimit(for: getCategory(rawValue: c)))
@@ -96,7 +98,7 @@ class ConcurrentRateLimitsDictionaryTests: XCTestCase {
             XCTFail("Could not create category from \(rawValue)")
             return SentryDataCategory.default
         }
-        
+
         return SentryDataCategory(rawValue: UInt(truncating: rawValue)) ?? failedToCreateCategory()
     }
 }

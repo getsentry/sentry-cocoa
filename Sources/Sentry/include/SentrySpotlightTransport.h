@@ -1,5 +1,5 @@
 #import "SentryDefines.h"
-#import "SentryTransport.h"
+#import "SentrySwift.h"
 
 @class SentryDispatchQueueWrapper;
 @class SentryNSURLRequestBuilder;

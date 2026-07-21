@@ -158,7 +158,7 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
     // As we use real dispatch queues it could happen that some delayed operations don't finish before
     // the next test starts. Deleting the envelopes at the end or beginning of the test doesn't help,
     // when some operation is still in flight.
-    private func getSut(testName: String = #function) throws -> (SentryHttpTransport, TestRequestManager, SentryFileManager, SentryDispatchQueueWrapper) {
+    private func getSut(testName: String = #function) throws -> (Transport, TestRequestManager, SentryFileManager, SentryDispatchQueueWrapper) {
         let options = Options()
         options.debug = true
         options.dsn = TestConstants.dsnAsString(username: "SentryHttpTransportFlushIntegrationTests.\(testName)")

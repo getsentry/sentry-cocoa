@@ -18,7 +18,7 @@ runs:
           ~/Library/Caches/Homebrew/downloads
           ~/Library/Caches/Homebrew/api
         # Add here any relevant lockfiles
-        key: homebrew-${{ runner.os }}-${{ runner.arch }}-${{ steps.week.outputs.week }}-${{ hashFiles('scripts/.clang-format-version', 'scripts/.swiftlint-version', '.ruby-version', 'Brewfile*') }}
+        key: homebrew-${{ runner.os }}-${{ runner.arch }}-${{ steps.week.outputs.week }}-${{ hashFiles('scripts/.clang-format-version', 'scripts/.swiftlint-version', 'scripts/.xcodegen-version', '.ruby-version', 'Brewfile*') }}
 
     - name: Update Homebrew formulae
       if: steps.cache.outputs.cache-hit != 'true'
