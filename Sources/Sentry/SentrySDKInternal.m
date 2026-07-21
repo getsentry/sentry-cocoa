@@ -497,7 +497,11 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (BOOL)crashedLastRun
 {
+#if ENABLE_KSCRASH
+    return fatalDetected;
+#else
     return SentryDependencyContainer.sharedInstance.crashReporter.crashedLastLaunch;
+#endif
 }
 
 + (NSInteger)lastRunStatus
@@ -505,10 +509,14 @@ static NSDate *_Nullable startTimestamp = nil;
     if (!crashReporterInstalled) {
         return SentryLastRunStatusUnknown;
     }
+#if ENABLE_KSCRASH
+    return fatalDetected ? SentryLastRunStatusDidCrash : SentryLastRunStatusDidNotCrash;
+#else
     if (SentryDependencyContainer.sharedInstance.crashWrapper.crashedLastLaunch) {
         return SentryLastRunStatusDidCrash;
     }
     return SentryLastRunStatusDidNotCrash;
+#endif
 }
 
 + (BOOL)detectedStartUpCrash

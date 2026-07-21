@@ -1,6 +1,14 @@
 #if ENABLE_KSCRASH
 @_spi(Private) @testable import Sentry
 
+final class MockKSCrashDependencies: SentryKSCrash.DependencyProvider {
+    let kscrashInstaller: MockKSCrashInstaller
+
+    init(installer: MockKSCrashInstaller = .init()) {
+        self.kscrashInstaller = installer
+    }
+}
+
 final class MockKSCrashInstaller: SentryKSCrash.Installing {
     public var installCalls: [(installPath: String, monitors: UInt, enableSwapCxaThrow: Bool)] = []
     public var shouldThrow: Error?
