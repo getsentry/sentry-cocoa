@@ -1,4 +1,3 @@
-import RoomPlan
 import SentrySampleShared
 import UIKit
 
@@ -48,14 +47,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         randomDistributionTimer?.invalidate()
         randomDistributionTimer = nil
-        
-        if #available(iOS 17.0, *) {
-            let room = RoomPlanWrapper()
-            print("[hello room: \(room)")
-        } else {
-            // Fallback on earlier versions
-        }
-        
     }
     
     // Workaround for 'Stored properties cannot be marked potentially unavailable with '@available''
@@ -85,9 +76,4 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 extension Notification.Name {
     static let apnsTokenReceived = Notification.Name("io.sentry.apns-token-received")
-}
-
-@available(iOS 17.0, *)
-class RoomPlanWrapper {
-    private var finalResults: CapturedStructure?
 }

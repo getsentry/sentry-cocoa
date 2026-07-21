@@ -1,104 +1,202 @@
 # Handoff: Fix `SentrySubClassFinder` availability crash (GH #8152)
 
-> Temporary working note so this task can be picked up in a later session. Not meant to ship.
-> Delete before opening the PR (or move relevant parts into the PR description).
+> Working note for picking this up across sessions. Tracks the live PR, decisions,
+> and the one deferred optimization. Not part of the shipped SDK.
+
+## Status
+
+- **PR:** [#8457](https://github.com/getsentry/sentry-cocoa/pull/8457), branch
+  `fix/subclassfinder-availability-crash`. Open as a **draft** (intentionally — not
+  yet marked ready-to-merge; double-checking first).
+- **Reviews:** three rounds (philipphofmann, NinjaLikesCheez, itaybre). All raised
+  comments addressed in code + replies; see "Review feedback" below.
+- **Tests:** `SentrySubClassFinderTests` pass on the local sim. Includes the
+  differential enumeration test and a new real-wrapper regression test.
 
 ## TL;DR
 
-- **Issue:** [#8152](https://github.com/getsentry/sentry-cocoa/issues/8152) (related: [#3798](https://github.com/getsentry/sentry-cocoa/issues/3798), Swift bug [swiftlang/swift#72657](https://github.com/swiftlang/swift/issues/72657)).
-- **Crash:** SDK crashes on start (UIViewController performance tracing) because `SentrySubClassFinder` calls `NSClassFromString` on every class in the app image. That **realizes** the class; realizing a Swift class whose metadata references an `@available`-gated newer-framework type forces Swift metadata completion and crashes with `EXC_BAD_ACCESS` in `swift_getSingletonMetadata` on OS versions below the framework's availability. Reproduces only on **real iOS 17.x (and older) devices**, not simulators.
-- **Real-world crashers are NOT view controllers:** SwiftUI gesture `Coordinator: NSObject` (conforms under `UIGestureRecognizerRepresentable`, iOS 18+), `RoomPlan`/`ActivityKit` wrappers.
-- **Old mitigation:** users manually set `options.swizzleClassNameExcludes` after discovering the crash. Goal of this work: **stop the crash by default**.
-- **Fix (simple, pure Swift):** enumerate classes by reading the image's `__objc_classlist` Mach-O section (gives class **pointers**, NOT realized) instead of `objc_copyClassNamesForImage` + `NSClassFromString`. Then use the _existing_ `class_getSuperclass`-based `isClass(_:subClassOf:)` walk (already safe, never realizes). `NSClassFromString` is only called at swizzle time, on the main thread, for confirmed view controllers.
-- **Status:** implemented, unit-tested (7/7 pass on iOS 18.6 sim), differential test added, user confirmed sample no longer crashes. **Committed on branch, not pushed to a PR yet.** No draft PR opened.
+- **Issue:** [#8152](https://github.com/getsentry/sentry-cocoa/issues/8152) (related:
+  [#3798](https://github.com/getsentry/sentry-cocoa/issues/3798), Swift bug
+  [swiftlang/swift#72657](https://github.com/swiftlang/swift/issues/72657)).
+- **Crash:** SDK crashes on start (UIViewController performance tracing) because
+  `SentrySubClassFinder` called `NSClassFromString` on every class in the app image.
+  That **realizes** the class; realizing a Swift class whose metadata references an
+  `@available`-gated newer-framework type forces Swift metadata completion and
+  crashes with `EXC_BAD_ACCESS` in `swift_getSingletonMetadata` on OS versions below
+  the framework's availability. Reproduces only on **real iOS 17.x (and older)
+  devices**, not simulators.
+- **Real-world crashers are NOT view controllers:** SwiftUI gesture
+  `Coordinator: NSObject` (conforms under `UIGestureRecognizerRepresentable`, iOS
+  18+), `RoomPlan`/`ActivityKit` wrappers.
+- **Fix (pure Swift):** enumerate classes by reading the image's `__objc_classlist`
+  Mach-O section (gives class **pointers**, NOT realized) instead of
+  `objc_copyClassNamesForImage` + `NSClassFromString`. Then use the existing
+  `class_getSuperclass`-based `isClass(_:subClassOf:)` walk (already safe, never
+  realizes). `NSClassFromString` is only called at swizzle time, on the main thread,
+  for confirmed view controllers.
 
 ## Root-cause chain
 
 `SentrySubClassFinder.actOnSubclassesOfViewController(inImage:)` (background queue):
 
-1. old: `objcRuntimeWrapper.copyClassNamesForImage` → class name C-strings (safe, no realization).
-2. old: for each name → `NSClassFromString(name)` ← **THE CRASH** (realizes) → `isClass(subclassOf: UIViewController)` walk → keep name if VC.
+1. old: `objcRuntimeWrapper.copyClassNamesForImage` → class name C-strings (safe).
+2. old: for each name → `NSClassFromString(name)` ← **THE CRASH** (realizes) →
+   `isClass(subclassOf: UIViewController)` walk → keep name if VC.
 3. main thread: `NSClassFromString(name)` again → hand `Class` to swizzle block.
 
-Only step 2's `NSClassFromString` was the problem. `class_getSuperclass` (used by `isClass`) was always safe.
+Only step 2's `NSClassFromString` was the problem. `class_getSuperclass` (used by
+`isClass`) was always safe.
 
 ## The fix (what changed)
 
-New approach = same structure, but get class **pointers** without realizing:
+Same structure, but get class **pointers** without realizing:
 
 - Added `classes(forImage:) -> [AnyClass]` to `SentryObjCRuntimeWrapper` protocol.
-- Default impl (`SentryDefaultObjCRuntimeWrapper`): `import MachO`; find the image via `_dyld_image_count`/`_dyld_get_image_name`; read `getsectiondata(header, "__DATA_CONST", "__objc_classlist", &size)` (fallback `"__DATA"`); `unsafeBitCast` each entry to `AnyClass`. These are dyld-bound but **not realized**.
-- Finder: iterate `classes(forImage:)`, run the unchanged `isClass` superclass walk, read the name of matches via `class_getName` (does NOT realize, does NOT call `+initialize`), apply `swizzleClassNameExcludes`, collect names. Main-thread pass unchanged (`NSClassFromString` only on confirmed VCs).
-- `swizzleClassNameExcludes` kept + doc-reframed as a _fallback_ for the rare residual case (a real VC subclass that itself crashes when realized at swizzle time — unavoidable since swizzling requires realization).
+- Default impl (`SentryDefaultObjCRuntimeWrapper`): `import MachO`; find the image
+  via `_dyld_image_count`/`_dyld_get_image_name`; read
+  `getsectiondata(header, "__DATA_CONST", "__objc_classlist", &size)` (fallback
+  `"__DATA"`); `unsafeBitCast` each entry to `AnyClass`. These are dyld-bound but
+  **not realized**.
+- Finder: iterate `classes(forImage:)`, run the unchanged `isClass` superclass walk,
+  read matches' names via `class_getName` (does NOT realize, does NOT call
+  `+initialize`), apply `swizzleClassNameExcludes`, collect names. Main-thread pass
+  unchanged (`NSClassFromString` only on confirmed VCs).
 
-### Files changed (10)
+### Files changed (PR #8457, vs origin/main)
 
-- `Sources/Swift/Core/Integrations/Performance/SentrySubClassFinder.swift` — swap enumeration; net simpler.
-- `Sources/Swift/Helper/SentryObjCRuntimeWrapper.swift` — add `classes(forImage:)` to protocol.
-- `Sources/Swift/Helper/SentryDefaultObjCRuntimeWrapper.swift` — implement it (`import MachO`).
-- `Sources/Swift/Options.swift` + `Sources/SentryObjC/Public/SentryObjCOptions.h` — reframe `swizzleClassNameExcludes` doc as fallback.
-- `CHANGELOG.md` — `## Unreleased` → `### Fixes` entry (#8152).
-- `Tests/SentryTests/Integrations/Performance/SentrySubClassFinderTests.swift` — reworked to new seam + new differential test.
-- `Tests/SentryTests/Helper/SentryTestObjCRuntimeWrapper.{h,m}` — added `classes` override block (parallels existing `classesNames`).
-- `Samples/iOS-Swift/App/Sources/AppDelegate.swift` — **user's own** RoomPlan repro scaffolding; leave as-is (don't touch).
+- `Sources/Swift/Core/Integrations/Performance/SentrySubClassFinder.swift` — swap
+  enumeration; net simpler.
+- `Sources/Swift/Core/Integrations/Performance/SentryUIViewControllerSwizzling.swift`
+  — comment note that `objc_getClassList` realizes every class.
+- `Sources/Swift/Helper/SentryObjCRuntimeWrapper.swift` — add `classes(forImage:)`
+  to protocol (+ threading/arch doc).
+- `Sources/Swift/Helper/SentryDefaultObjCRuntimeWrapper.swift` — implement it
+  (`import MachO`), arch guard, `MH_MAGIC_64` guard, off-main-thread doc.
+- `CHANGELOG.md` — `## Unreleased` → `### Fixes` entry (#8457).
+- `Tests/.../SentrySubClassFinderTests.swift` — new seam + differential test + real-
+  wrapper regression test + gated `AvailabilityGatedNonViewController` fixture.
+- `Tests/SentryTests/Helper/SentryTestObjCRuntimeWrapper.{h,m}` — added `classes`
+  override block (parallels existing `classesNames`).
+
+Note: `Sources/Swift/Options.swift` and `Sources/SentryObjC/Public/SentryObjCOptions.h`
+are NOT changed for docs — an earlier draft added a `swizzleClassNameExcludes`
+"fallback" paragraph that was removed per review; the option's doc is unchanged from
+`main`.
+
+## Review feedback (all addressed)
+
+- **arch guard** (NinjaLikesCheez, `m`): gate the `#if` to 64-bit archs since we bind
+  to `mach_header_64`. Done: `(arch(arm64) || arch(x86_64))`. Used `x86_64` (not
+  `arm64e`) because Swift's `arch(arm64)` already matches `arm64e`, and `x86_64` is
+  needed for the Intel simulator. Commit `62b002c8d`.
+- **magic check** (itaybre `l` → NinjaLikesCheez upgraded to `h`, tied to the FAT
+  thread): verify `header.pointee.magic == MH_MAGIC_64` before rebinding. Done. Also
+  answers FAT: a FAT container has `FAT_MAGIC`, fails the check, so we skip rather
+  than misread. No FAT parsing added — `_dyld_get_image_header` only returns thin,
+  in-memory, native-arch slices, so a FAT header can't reach this code. Mirrors the
+  repo's only precedent, `firstCmdAfterHeader` in `SentryCrashDynamicLinker.c`.
+- **arm64e ptrauth** (itaybre, `m`): the `unsafeBitCast` just reinterprets a
+  dyld-bound classref (the same pointers the ObjC runtime stores in
+  `__objc_classlist`); we never hand-strip pointers, and the subsequent
+  `class_getSuperclass`/`class_getName` authenticate internally. App Store apps ship
+  plain arm64. A real arm64e device run is the definitive confirmation (device-only).
+- **`unsafeBitcast` to `mach_header_64` to save the rebind** (NinjaLikesCheez, `l`):
+  kept `withMemoryRebound` for clarity.
+- **dyld lock (new, self-found):** verified against Apple dyld source
+  (`DyldAPIs.cpp`): `_dyld_image_count()` does NOT lock, but
+  `_dyld_get_image_header`/`_dyld_get_image_name` acquire the dyld loader **read
+  lock** (`withLoadersReadLock`). So `classes(forImage:)` must run off the main
+  thread. Added doc comments on both the impl and the protocol. No behavior change:
+  the sole caller already runs it on a background queue via `dispatchAsync`.
 
 ## Why it's safe (verified, not assumed)
 
-Verified against **objc4 source** (`apple-oss-distributions/objc4` main) + empirical tests on Apple M5 Max (arm64):
+Verified against **objc4 source** + empirical tests on Apple silicon (arm64):
 
-1. `class_getSuperclass` = `cls->getSuperclass()` — pure field read, **never realizes**, handles arm64e ptrauth internally (`objc-class.mm:802`). The only realizing/crashing call was `NSClassFromString`.
-2. `objc_copyClassNamesForImage` returns `demangledName(false)`; `class_getName` returns the same demangled form. Neither realizes. So new names == old names by construction.
-3. `class_getName` and the superclass walk do **not** trigger `+initialize`. A Swift `[AnyClass]` append does not either (holds metatype, no retain-message) — unlike ObjC `NSArray addObject:` which does. Tested empirically.
-4. **Classes with a Swift-generic superclass** (e.g. `UIHostingController<V>` subclass like the repro's `TestHorizontalGestureVC`) are **not in `__objc_classlist` at all** — AND `objc_copyClassNamesForImage` doesn't return them either (same section), even after instantiation. So switching enumeration loses **zero** coverage; those VCs were never image-enumerated (they're handled by the root-VC swizzle path). This is the key finding that made the complex approach unnecessary.
-5. arm64e: no hand-rolled pointer stripping in the fix (we call `class_getSuperclass`, which authenticates correctly). App images are almost always plain arm64 anyway.
+1. `class_getSuperclass` = `cls->getSuperclass()` — pure field read, **never
+   realizes**, handles arm64e ptrauth internally. The only realizing/crashing call
+   was `NSClassFromString`.
+2. `objc_copyClassNamesForImage` returns `demangledName(false)`; `class_getName`
+   returns the same demangled form. Neither realizes. So new names == old names by
+   construction.
+3. `class_getName` and the superclass walk do **not** trigger `+initialize`. A Swift
+   `[AnyClass]` append doesn't either (holds a metatype, no retain-message) — unlike
+   ObjC `NSArray addObject:`. Tested empirically.
+4. **Classes with a Swift-generic superclass** (e.g. a `UIHostingController<V>`
+   subclass) are **not in `__objc_classlist`** — and `objc_copyClassNamesForImage`
+   doesn't return them either (same section). So switching enumeration loses **zero**
+   coverage; those VCs were never image-enumerated (handled by the root-VC swizzle
+   path). Key finding that made a more complex approach unnecessary.
+5. arm64e: no hand-rolled pointer stripping (we call `class_getSuperclass`, which
+   authenticates correctly). App images are almost always plain arm64 anyway.
 
-### Differential/oracle evidence (ran locally, throwaway scripts in /tmp)
+### Differential/oracle evidence
 
-- Enumeration equivalence: across **163 loaded images / 9,610 classes**, new (`__objc_classlist` + `class_getName`) == old (`objc_copyClassNamesForImage`) name set. **0 mismatches.**
-- Superclass-walk safety: walked all 9,610 classes with `class_getSuperclass` — no crash, no hang, max chain depth 7, 0 runaway/cyclic chains.
-
-## Rejected over-engineered approach (do NOT resurrect unless needed)
-
-First attempt added a new C file `SentryViewControllerClassScanner.c` doing raw `vm_read`/`sentrycrashmem_copySafely` reads of `class_t.superclass`, `ptrauth_strip`, name-demangle matching, plus a `_SentryPrivate.h` import. Problems: hit the `scripts/check-sentrycrash-imports.sh` ratchet (86/86, "never increase"), and it was all unnecessary once we confirmed `class_getSuperclass` is realization-free. The SentryCrash module (`Sources/SentryCrash/Recording/Tools/SentryCrashObjC.c` etc.) does have battle-tested non-realizing class introspection if ever needed, but note its name-read path assumes a _realized_ class and its `isMemoryReadable` uses a non-thread-safe shared static buffer.
+- `testClassListEnumerationMatchesCopyClassNamesForImage` iterates every loaded image
+  and asserts the new (`__objc_classlist` + `class_getName`) name set equals the old
+  (`objc_copyClassNamesForImage`) set. Never calls `NSClassFromString`, so it's safe
+  on every OS. Permanent CI guard for the one thing that changed.
+- Local throwaway oracle (earlier session): across ~163 images / ~9,610 classes, new
+  == old, 0 mismatches; superclass walk over all classes: no crash, max depth 7, 0
+  cycles.
 
 ## Tests
 
-- `SentrySubClassFinderTests.swift` reworked: fixture injects `[AnyClass]` via the new `classes` seam (replaced the `classesNames` string seam). Existing behavioral tests preserved (find VCs, honor excludes, ignore non-VC, wrong image, no `+initialize`).
-- **New:** `testClassListEnumerationMatchesCopyClassNamesForImage` — iterates every loaded image, asserts new enumeration == `objc_copyClassNamesForImage` name set. Never calls `NSClassFromString` (safe on every OS). Permanent CI guard for the one thing that changed.
-- Repro test `testActOnSubclassesOfViewController_WithAvailabilityGatedGestureClass` — real runtime, gated gesture `Coordinator` in binary, asserts no crash + a plain VC is found.
-- Requires `@_spi(Private) @testable import Sentry` (the default wrapper is `@_spi(Private)`).
+- Behavioral tests inject `[AnyClass]` via the new `classes` seam (find VCs, honor
+  excludes, ignore non-VC, wrong image, no `+initialize`).
+- `testClassListEnumerationMatchesCopyClassNamesForImage` — differential enumeration
+  equivalence (above).
+- `testActOnSubclassesOfViewController_withRealRuntimeWrapper_findsBundleViewControllers`
+  — drives the **real** `SentryDefaultObjCRuntimeWrapper` through the finder against
+  this bundle; asserts the bundle's VCs are found and non-VCs (incl. the gated
+  `AvailabilityGatedNonViewController`) are not. The actual `EXC_BAD_ACCESS` is
+  device/OS-version-specific and can't be reproduced on CI sims, so this guards the
+  enumeration + selection behavior, not the crash itself.
+- Requires `@_spi(Private) @testable import Sentry` (the default wrapper is
+  `@_spi(Private)`).
 
-### Verified passing
+## Deferred / future work (NOT blocking this PR)
 
-`make test-ios FOR_AGENTS=true IOS_DEVICE_NAME="iPhone 16" IOS_SIMULATOR_OS=18.6 ONLY_TESTING=SentryTests/SentrySubClassFinderTests`
-→ "Executed 7 tests, with 0 failures". The 2 key tests also confirmed by name (2/2 pass).
+- **Reuse `SentryBinaryImageCache` instead of scanning all dyld images.**
+  `classes(forImage:)` currently loops `_dyld_image_count()` to find the header.
+  `SentryBinaryImageInfo.address` IS the in-memory `mach_header` pointer
+  (`SentryCrashDynamicLinker.c:414` `buffer->address = (uintptr_t)header`), so we
+  could pass that straight to `getsectiondata` and skip the loop. **Caveats to
+  resolve first:** (1) the cache is populated **async on a background thread** in prod
+  (`dispatch_async` in `sentrycrashbic_startCache`), so it may be empty/incomplete
+  when the finder runs at startup — needs a fallback to the dyld scan; (2) it's
+  indexed **by address, not name** — no by-name lookup exists, would need a linear
+  scan of `getAllBinaryImages()` or a new accessor. Decide if the win is worth the
+  coupling. (User may tackle this later.)
+- **On-device confirmation** on iOS 16/17 with the repro (gated non-VC like a RoomPlan
+  wrapper + gesture Coordinator), ideally an arm64e-built app. Device-only; CI sims
+  can't reproduce.
+- **Perf** of the section read + superclass walk vs the old path on a real device.
 
-## Environment / invocation pitfalls (bit me; save time later)
+## Rejected over-engineered approach (do NOT resurrect unless needed)
 
-- **Local branch was 7 commits behind `origin/main`**, which independently broke `SentryTestUtils/ClearTestState.swift` (`SentryAppStartMeasurementProvider.reset()` gated behind `#if SENTRY_TEST` didn't exist yet). **Merged `origin/main` into the branch** (local merge commit `25319bf65`, then this work) to fix. This is why the test target wouldn't compile at first.
-- Test target only compiles under the **`Test` build configuration** (defines `SENTRY_TEST`). Running via XcodeBuildMCP `test_sim` with default `Debug` FAILS with "no member 'reset'". Use `make test-ios` (sets `-configuration Test`).
-- Makefile hardcodes `--os 18.4 --device "iPhone 16 Pro"`; this machine only has iOS **18.6 / iPhone 16**. Override: `IOS_DEVICE_NAME="iPhone 16" IOS_SIMULATOR_OS=18.6`.
-- `SWIFT_TREAT_WARNINGS_AS_ERRORS=YES` and `GCC_TREAT_WARNINGS_AS_ERRORS=YES`. E.g. `let x = NSClassFromString(...)` needs explicit `: AnyClass` or the build fails on the inference warning.
-- SwiftPM `swift build --product Sentry` compiles the SDK but fails at `verify-emitted-module-interface` (unrelated `SentryHeaders` module-interface quirk on macOS standalone). Add `-Xswiftc -no-verify-emitted-module-interface` for a clean SDK compile check.
-- `make build-ios`/`make test-ios` also honor `FOR_AGENTS=true` for reduced output; full logs land in `raw-*-output.log` (gitignored).
+First attempt added a C file doing raw `vm_read`/`sentrycrashmem_copySafely` reads of
+`class_t.superclass`, `ptrauth_strip`, name-demangle matching, plus a `_SentryPrivate.h`
+import. It hit the `scripts/check-sentrycrash-imports.sh` ratchet and was unnecessary
+once we confirmed `class_getSuperclass` is realization-free. The SentryCrash module has
+battle-tested non-realizing class introspection if ever needed, but note its name-read
+path assumes a _realized_ class and its `isMemoryReadable` uses a non-thread-safe shared
+static buffer.
 
-## Open investigations (before merge)
+## Environment / invocation pitfalls
 
-- **Reuse `SentryBinaryImageCache` instead of scanning all dyld images?** `classes(forImage:)` currently loops `_dyld_image_count()` to find the header. `SentryBinaryImageInfo.address` IS the in-memory `mach_header` pointer (`SentryCrashDynamicLinker.c:414` `buffer->address = (uintptr_t)header`; confirmed by the remove-callback match `src->image.address == (uintptr_t)mh`). So we could pass that straight to `getsectiondata` and skip the loop. Caveats to resolve first: (1) cache is populated **async on a background thread** in prod (`dispatch_async` in `sentrycrashbic_startCache`), so it may be empty/incomplete when the finder runs at startup — need a fallback to the dyld scan; (2) cache is indexed **by address, not name** — no by-name lookup exists, would need `getAllBinaryImages()` linear scan or a new accessor. Decide if the win is worth the coupling.
-- **Performance:** measure the actual cost of `classes(forImage:)` + the superclass walk vs the old path. Old finder comment claimed ~3ms for 1000 classes. Confirm the section read + walk isn't slower; profile on a real device.
-- **Correctness / integration validation:** confirm the new enumeration swizzles the SAME set of view controllers as the old path, not just "doesn't crash." The differential unit test (`testClassListEnumerationMatchesCopyClassNamesForImage`) proves enumeration equivalence, but we want end-to-end integration coverage that the swizzled VC set matches. Do more integration testing before merge.
+- Test target only compiles under the **`Test` build configuration** (defines
+  `SENTRY_TEST`). Use `make test-ios` (sets `-configuration Test`), not a bare
+  XcodeBuildMCP `test_sim` with `Debug`.
+- This machine's sim: override `IOS_DEVICE_NAME="iPhone 17 Pro" IOS_SIMULATOR_OS=26.4`.
+- `SWIFT_TREAT_WARNINGS_AS_ERRORS=YES` / `GCC_TREAT_WARNINGS_AS_ERRORS=YES`.
+- `make build-ios`/`make test-ios` honor `FOR_AGENTS=true`; full logs in
+  `raw-*-output.log` (gitignored).
 
-## Remaining gaps / next steps
+## Before marking ready
 
-1. **Real-device confirmation** on iOS 16/17 with the repro (gated non-VC like RoomPlan wrapper + gesture Coordinator) — user confirmed sample doesn't crash on their run; more devices/OSes + an arm64e-built app would fully close it. (Repro is device-only; CI sims can't reproduce.)
-2. **Run the broader swizzling/perf tests** (`SentryUIViewControllerSwizzlingTests`) to be thorough — not yet run this session.
-3. `make format` + `make analyze` full pass before PR (swiftlint + clang-format already pass on touched files).
-4. **When opening the PR:** delete this handoff file; move summary into the PR body; check `git log main..HEAD` for a claudescope `Agent transcript:` line to include (per AGENTS.md). `feat`/`fix` needs a changelog entry (have it). One maintainer approval; `ready-to-merge` label for full CI.
-5. Consider the other verification options not yet done: a written device-test checklist, and/or a safety fallback (if classlist read returns empty, fall back to old behavior for that image) as defense-in-depth.
-
-## Memory
-
-Persistent notes saved in this session's memory:
-
-- `subclassfinder-availability-crash-fix` (the fix + all findings)
-- `sentrycrash-raw-objc-introspection` (the rejected-approach primitives, for reference)
+- `make format` + `make analyze` clean; `SentrySubClassFinderTests` green.
+- `classes(forImage:)` is `@_spi(Private)` → not in `sdk_api.json` (confirmed absent);
+  no `make generate-public-api` needed.
+- Confirm Danger passes (changelog references **#8457**, the PR number).
+- Then flip draft → ready and add `ready-to-merge` for full CI.

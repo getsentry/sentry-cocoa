@@ -130,6 +130,46 @@ class SentrySubClassFinderTests: XCTestCase {
         XCTAssertGreaterThan(comparedImages, 0, "Expected at least one image with classes")
     }
     
+    /// End-to-end regression test for GH-8152. The other tests inject a fake class list through the
+    /// stub wrapper; this one drives the REAL `SentryDefaultObjCRuntimeWrapper` through the finder
+    /// against this test bundle's image. It proves the production enumeration path — reading the
+    /// `__objc_classlist` section and walking `class_getSuperclass` — discovers the bundle's
+    /// `UIViewController` subclasses and ignores everything else, end to end.
+    ///
+    /// `AvailabilityGatedNonViewController` is an `@available`-gated `NSObject` subclass compiled
+    /// into the same image, standing in for the real-world crashers (SwiftUI gesture coordinators,
+    /// `RoomPlan`/`ActivityKit` wrappers). The old path realized every class here via
+    /// `NSClassFromString`; realizing such a gated class on an OS older than its availability is
+    /// what crashed in Swift metadata completion. The new path never realizes classes during
+    /// discovery, so it can't trigger that. The actual `EXC_BAD_ACCESS` is device- and
+    /// OS-version-specific and cannot be reproduced on CI simulators, so this test guards the
+    /// enumeration and selection behavior rather than the crash itself.
+    func testRealRuntimeWrapper_whenReadingBundleImage_findsBundleViewControllers() throws {
+        let realWrapper = SentryDefaultObjCRuntimeWrapper()
+        let imageName = try XCTUnwrap(
+            class_getImageName(FirstViewController.self).map { String(cString: $0) })
+
+        let sut = SentrySubClassFinder(
+            dispatchQueue: TestSentryDispatchQueueWrapper(),
+            objcRuntimeWrapper: realWrapper,
+            swizzleClassNameExcludes: [])
+
+        var found: [AnyClass] = []
+        sut.actOnSubclassesOfViewController(inImage: imageName) { found.append($0) }
+
+        for expected in [FirstViewController.self, SecondViewController.self,
+                         ViewControllerNumberThree.self, VCAnyNaming.self] {
+            XCTAssertTrue(found.contains { $0 == expected },
+                          "Expected \(expected) to be discovered via the real enumeration path")
+        }
+        XCTAssertFalse(found.contains { $0 == FakeViewController.self },
+                       "Non-UIViewController must not be discovered")
+        if #available(iOS 17.0, tvOS 17.0, *) {
+            XCTAssertFalse(found.contains { $0 == AvailabilityGatedNonViewController.self },
+                           "Availability-gated non-UIViewController must not be discovered")
+        }
+    }
+
     private func assertActOnSubclassesOfViewController(expected: [AnyClass], swizzleClassNameExcludes: Set<String> = []) {
         assertActOnSubclassesOfViewController(expected: expected, imageName: fixture.imageName, swizzleClassNameExcludes: swizzleClassNameExcludes)
     }
@@ -168,4 +208,10 @@ class SecondViewController: UIViewController {}
 class ViewControllerNumberThree: UIViewController {}
 class VCAnyNaming: UIViewController {}
 class FakeViewController {}
+
+/// An `@available`-gated `NSObject` subclass, standing in for the real-world classes that crashed
+/// GH-8152 (SwiftUI gesture coordinators, `RoomPlan`/`ActivityKit` wrappers). It is compiled into
+/// the test image's `__objc_classlist` so the enumeration must encounter it without realizing it.
+@available(iOS 17.0, tvOS 17.0, *)
+class AvailabilityGatedNonViewController: NSObject {}
 #endif

@@ -449,12 +449,6 @@
     /// The SDK checks if a class name of a class to swizzle contains a class name of this array.
     /// For example, if you add MyUIViewController to this list, the SDK excludes the following classes
     /// from swizzling: YourApp.MyUIViewController, YourApp.MyUIViewControllerA, MyApp.MyUIViewController.
-    ///
-    /// The SDK discovers `UIViewController` subclasses to swizzle without realizing unrelated classes,
-    /// so it no longer crashes by default for classes that reference `@available`-gated APIs. Use this
-    /// option only as a fallback for the rare case of a `UIViewController` subclass that itself crashes
-    /// when realized on an unsupported OS version.
-    ///
     /// Default is an empty set.
     @objc public var swizzleClassNameExcludes: Set<String> = []
 
