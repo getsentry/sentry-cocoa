@@ -4,10 +4,6 @@ import MachO
 import ObjectiveC
 import XCTest
 
-#if canImport(SwiftUI)
-import SwiftUI
-#endif
-
 #if os(iOS) || os(tvOS)
 class SentrySubClassFinderTests: XCTestCase {
     
