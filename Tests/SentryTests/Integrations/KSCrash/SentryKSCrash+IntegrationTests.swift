@@ -27,8 +27,22 @@ class SentryKSCrashIntegrationTests: XCTestCase {
 
         XCTAssertNotNil(sut)
         XCTAssertEqual(installer.installCalls.count, 1)
-        XCTAssertEqual(installer.installCalls[0].installPath, options.cacheDirectoryPath)
         XCTAssertEqual(installer.installCalls[0].monitors, SentryKSCrash.productionSafeMonitors)
+    }
+
+    func testInstall_whenCrashHandlerEnabled_shouldAppendKSCrashBundleSubdirectory() {
+        let installer = MockKSCrashInstaller()
+        let deps = MockKSCrashDependencies(installer: installer)
+        let options = makeOptions()
+        let bundleID = Bundle.main.infoDictionary?["CFBundleIdentifier"] as? String ?? "Unknown"
+        let expectedPath = URL(fileURLWithPath: options.cacheDirectoryPath)
+            .appendingPathComponent("KSCrash")
+            .appendingPathComponent(bundleID)
+            .path
+
+        _ = SentryKSCrash.Integration(with: options, dependencies: deps)
+
+        XCTAssertEqual(installer.installCalls[0].installPath, expectedPath)
     }
 
     func testInstall_whenCrashedLastLaunch_shouldSetFatalDetected() {
@@ -51,6 +65,20 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         let sut = SentryKSCrash.Integration(with: makeOptions(), dependencies: deps)
 
         XCTAssertNil(sut)
+    }
+
+    // MARK: - Last-run crash APIs
+
+    func testLastRunStatus_whenCrashedLastLaunch_shouldReturnDidCrash() {
+        let installer = MockKSCrashInstaller()
+        installer.crashedLastLaunch = true
+        let deps = MockKSCrashDependencies(installer: installer)
+
+        SentrySDKInternal.fatalDetected = false
+        SentrySDKInternal.crashReporterInstalled = false
+        _ = SentryKSCrash.Integration(with: makeOptions(), dependencies: deps)
+
+        XCTAssertEqual(SentrySDK.lastRunStatus, .didCrash)
     }
 
     func testInstall_whenCrashHandlerDisabled_shouldSkipInstall() {
