@@ -1,6 +1,6 @@
 #import "SentryDefines.h"
 #import "SentryEnvelopeRateLimit.h"
-#import "SentryTransport.h"
+#import "SentrySwift.h"
 
 @class SentryFileManager;
 @class SentryDispatchQueueWrapper;

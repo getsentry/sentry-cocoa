@@ -4,7 +4,6 @@
 #import "SentryLogC.h"
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
-#import "SentryTransport.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -91,7 +90,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (SentryFlushResult)flush:(NSTimeInterval)timeout
 {
     // Empty on purpose
-    return kSentryFlushResultSuccess;
+    return SentryFlushResultSuccess;
 }
 
 - (void)recordLostEvent:(SentryDataCategory)category reason:(SentryDiscardReason)reason

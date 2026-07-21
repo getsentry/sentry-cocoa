@@ -42191,6 +42191,298 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
+                    "name": "SentryFlushResult",
+                    "printedName": "Sentry.SentryFlushResult",
+                    "usr": "c:@M@Sentry@E@SentryFlushResult"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Sentry.SentryFlushResult?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Constructor",
+            "implicit": true,
+            "init_kind": "Designated",
+            "kind": "Constructor",
+            "mangledName": "$sSo17SentryFlushResultV8rawValueABSgSi_tcfc",
+            "moduleName": "Sentry",
+            "name": "init",
+            "printedName": "init(rawValue:)",
+            "usr": "s:So17SentryFlushResultV8rawValueABSgSi_tcfc"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "TypeAlias",
+            "implicit": true,
+            "kind": "TypeAlias",
+            "mangledName": "$sSo17SentryFlushResultV8RawValuea",
+            "moduleName": "Sentry",
+            "name": "RawValue",
+            "printedName": "RawValue",
+            "usr": "s:So17SentryFlushResultV8RawValuea"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryFlushResult",
+                        "printedName": "Sentry.SentryFlushResult",
+                        "usr": "c:@M@Sentry@E@SentryFlushResult"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryFlushResult.Type"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryFlushResult",
+                    "printedName": "Sentry.SentryFlushResult",
+                    "usr": "c:@M@Sentry@E@SentryFlushResult"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryFlushResult.Type) -> Sentry.SentryFlushResult"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "moduleName": "Sentry",
+            "name": "alreadyFlushing",
+            "printedName": "alreadyFlushing",
+            "usr": "c:@M@Sentry@E@SentryFlushResult@SentryFlushResultAlreadyFlushing"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$sSo17SentryFlushResultV8rawValueSivg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:So17SentryFlushResultV8rawValueSivg"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Var",
+            "implicit": true,
+            "kind": "Var",
+            "mangledName": "$sSo17SentryFlushResultV8rawValueSivp",
+            "moduleName": "Sentry",
+            "name": "rawValue",
+            "printedName": "rawValue",
+            "usr": "s:So17SentryFlushResultV8rawValueSivp"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryFlushResult",
+                        "printedName": "Sentry.SentryFlushResult",
+                        "usr": "c:@M@Sentry@E@SentryFlushResult"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryFlushResult.Type"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryFlushResult",
+                    "printedName": "Sentry.SentryFlushResult",
+                    "usr": "c:@M@Sentry@E@SentryFlushResult"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryFlushResult.Type) -> Sentry.SentryFlushResult"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "moduleName": "Sentry",
+            "name": "success",
+            "printedName": "success",
+            "usr": "c:@M@Sentry@E@SentryFlushResult@SentryFlushResultSuccess"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryFlushResult",
+                        "printedName": "Sentry.SentryFlushResult",
+                        "usr": "c:@M@Sentry@E@SentryFlushResult"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryFlushResult.Type"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryFlushResult",
+                    "printedName": "Sentry.SentryFlushResult",
+                    "usr": "c:@M@Sentry@E@SentryFlushResult"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryFlushResult.Type) -> Sentry.SentryFlushResult"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "moduleName": "Sentry",
+            "name": "timedOut",
+            "printedName": "timedOut",
+            "usr": "c:@M@Sentry@E@SentryFlushResult@SentryFlushResultTimedOut"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$sSQ",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$sSH",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "RawValue",
+                    "printedName": "Sentry.SentryFlushResult.RawValue"
+                  }
+                ],
+                "kind": "TypeWitness",
+                "name": "RawValue",
+                "printedName": "RawValue"
+              }
+            ],
+            "kind": "Conformance",
+            "mangledName": "$sSY",
+            "name": "RawRepresentable",
+            "printedName": "RawRepresentable",
+            "usr": "s:SY"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8SendableP",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP"
+          }
+        ],
+        "declAttributes": [
+          "Dynamic",
+          "ObjC",
+          "Sendable",
+          "SynthesizedProtocol",
+          "SynthesizedProtocol"
+        ],
+        "declKind": "Enum",
+        "enumRawTypeName": "Int",
+        "kind": "TypeDecl",
+        "moduleName": "Sentry",
+        "name": "SentryFlushResult",
+        "objc_name": "SentryFlushResult",
+        "printedName": "SentryFlushResult",
+        "usr": "c:@M@Sentry@E@SentryFlushResult"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
                     "name": "SentryHttpStatusCode",
                     "printedName": "Sentry.SentryHttpStatusCode",
                     "usr": "c:@M@Sentry@E@SentryHttpStatusCode"
