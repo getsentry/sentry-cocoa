@@ -51,11 +51,12 @@ class SentrySubClassFinder: NSObject {
 
             SentrySDKLog.debug("Found \(classes.count) number of classes in image: \(imageName).")
 
-            // We keep the class names instead of the classes, so we can hand them to the swizzling on
-            // the main thread. Sending a message to a class (for example adding it to an NSArray
-            // retains it) calls its initializer, which we must avoid on this background thread as
-            // UIViewControllers assume they run on the main thread. Walking the superclass chain and
-            // reading the name with `class_getName` don't message the class.
+            // We inspect the classes on this background thread but only with `class_getSuperclass`
+            // (in `isClass`) and `class_getName`. Neither sends an Objective-C message to the class,
+            // so neither triggers its `+initialize`, which only runs on the first message send. This
+            // matters because UIViewControllers assume they run on the main thread, so we must not
+            // trigger their `+initialize` here. We collect the class names (not the classes) to hand
+            // to the swizzling on the main thread, where messaging the class is safe.
             var classesToSwizzle: [String] = []
             for cls in classes {
                 guard self.isClass(cls, subClassOf: viewControllerClass) else {
