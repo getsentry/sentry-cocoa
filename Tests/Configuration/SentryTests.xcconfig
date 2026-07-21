@@ -1,8 +1,12 @@
 #include "../../Sources/Configuration/DeploymentTargets.xcconfig"
 
-// Swift Testing (`import Testing`) requires macOS 13+. Override the SDK's macOS minimum
-// (10.14, kept low for shipping frameworks) here so it only applies to test targets.
+// Swift Testing (`import Testing`) requires macOS 13+, iOS 16+, tvOS 16+ and watchOS 9+.
+// Override the SDK's shipping minimums (kept low for the SDK target) here so they only
+// apply to test targets. visionOS's minimum (1.0) already satisfies Swift Testing's floor.
 MACOSX_DEPLOYMENT_TARGET = 13.0
+IPHONEOS_DEPLOYMENT_TARGET = 16.0
+TVOS_DEPLOYMENT_TARGET = 16.0
+WATCHOS_DEPLOYMENT_TARGET = 9.0
 
 // (originally added to Sentry.xcconfig in #3716, but it's only needed in the test targets, not the SDK target)
 // This config is required so the test code can access the SentryPrivate module. Removing this setting
