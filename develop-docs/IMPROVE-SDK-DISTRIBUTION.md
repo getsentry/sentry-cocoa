@@ -92,18 +92,14 @@ Upload the same XCFramework zips as release assets on _both_ repos. The binary r
 
 ### How to automate cross-repo releases
 
-There are two approaches for creating releases in the binary and integration repos. The right choice is still an open question.
+Use Craft's [`commit-on-git-repository`](https://craft.sentry.dev/targets/commit-on-git-repository/) target. This target extracts a `.tgz` artifact matching a regex, pushes its contents to a destination git repo, and optionally creates a version tag. Authentication uses `GITHUB_API_TOKEN`.
 
-**GH workflows: GitHub Actions workflow triggered on release publish**
+For each release of `sentry-cocoa`, the Craft config will include targets that:
 
-A workflow in `sentry-cocoa` trigger on `release: published` event and creates matching tagged releases in the binary/integration repos. Craft only handles the main `sentry-cocoa` release — downstream repos are automated independently.
+1. Push the binary repo's `Package.swift` (with updated URLs and checksums) to `getsentry/sentry-cocoa-binary` and tag it
+2. Push each integration sub-package's source to its mirror repo and tag it
 
-- Runs in our own CI environment (not craft's)
-- No additional approvals needed in `getsentry/publish`
-- Simple to implement (`gh release create --repo ...`)
-- Downstream releases are not tracked in Sentry's release registry
-
-> **Open question:** Should we use craft for cross-repo releases (tracked in registry, but more approval friction in `getsentry/publish`), or use release-triggered workflows (simpler, but downstream releases live outside craft's tracking)?
+This keeps downstream releases tracked in Sentry's release registry alongside the main SDK release.
 
 ### Repo configuration
 
@@ -161,7 +157,7 @@ What does need updating are the **CI validation jobs** in `release.yml` that ver
 | `scripts/update-package-sha.sh` | Also update the binary repo's `Package.swift` (clone, patch checksums + URLs, commit, push) |
 | `scripts/bump.sh`               | Trigger binary repo update after main repo bump                                             |
 | `scripts/prepare-package.sh`    | Remove moved binary targets from the rewrite logic                                          |
-| `.github/workflows/release.yml` | Add step to update binary repo manifest, or rely on craft's second `github` target          |
+| `.github/workflows/release.yml` | Binary repo update handled by Craft `commit-on-git-repository` target — remove manual steps |
 
 ---
 
@@ -228,12 +224,12 @@ All tasks land on `main` behind the v10 environment flag. No separate branch nee
 
 #### New repos and release automation
 
-| # | Task                                                                                                       | Goal         | Dependencies |
-| - | ---------------------------------------------------------------------------------------------------------- | ------------ | ------------ |
-| 1 | Create `getsentry/sentry-cocoa-binary` repo (empty seed)                                                   | Binary       | —            |
-| 2 | Build GHA workflow: on `release: published`, create tagged release + update `Package.swift` in binary repo | Binary       | 1            |
-| 3 | Create mirror repos for each 3rd-party integration                                                         | Integrations | —            |
-| 4 | Build GHA workflow for integration sync (trigger TBD: push to main or release)                             | Integrations | 3            |
+| # | Task                                                                                                    | Goal         | Dependencies |
+| - | ------------------------------------------------------------------------------------------------------- | ------------ | ------------ |
+| 1 | Create `getsentry/sentry-cocoa-binary` repo (empty seed)                                                | Binary       | —            |
+| 2 | Add Craft `commit-on-git-repository` target to push `Package.swift` + tag to binary repo on release     | Binary       | 1            |
+| 3 | Create mirror repos for each 3rd-party integration                                                      | Integrations | —            |
+| 4 | Add Craft `commit-on-git-repository` targets to push source + tag to each integration mirror on release | Integrations | 3            |
 
 #### Package changes
 
