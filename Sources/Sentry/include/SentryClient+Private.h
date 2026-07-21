@@ -116,6 +116,16 @@ NS_ASSUME_NONNULL_BEGIN
 /// that Swift imports.
 - (SENTRY_SWIFT_MIGRATION_ID(id<SentryObjCTelemetryProcessor>))getTelemetryProcessor;
 
+/// Records the `trace_metric` and `trace_metric_byte` client outcomes for a metric dropped by the
+/// `beforeSendMetric` callback. Mirrors `recordDroppedLogInClientReport:`, but takes a block that
+/// computes the serialized byte size: `SentryMetric` is a Swift struct and can't cross the ObjC
+/// boundary, and `recordLostEvent:` can't be called from Swift within this module (its
+/// `SentryDataCategory` parameter would create a circular dependency). The block runs on a
+/// background queue so serialization stays off the calling thread.
+- (void)recordDroppedTraceMetricInClientReportWithByteCountBlock:
+    (NSUInteger (^)(void))byteCountBlock
+    NS_SWIFT_NAME(recordDroppedTraceMetricInClientReport(byteCountBlock:));
+
 @end
 
 NS_ASSUME_NONNULL_END

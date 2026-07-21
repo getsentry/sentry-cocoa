@@ -1197,6 +1197,27 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }];
 }
 
+- (void)recordDroppedTraceMetricInClientReportWithByteCountBlock:(NSUInteger (^)(
+                                                                     void))byteCountBlock
+{
+    // Offload to a background queue: serializing the metric to determine its byte size is too
+    // expensive to run inline in beforeSendMetric, which runs on the calling thread and must stay
+    // fast.
+    __weak SentryClientInternal *weakSelf = self;
+    [self.dispatchQueueWrapper dispatchAsyncWithBlock:^{
+        SentryClientInternal *strongSelf = weakSelf;
+        if (strongSelf == nil) {
+            return;
+        }
+        NSUInteger byteCount = byteCountBlock();
+        [strongSelf recordLostEvent:SentryDataCategoryTraceMetric
+                             reason:SentryDiscardReasonBeforeSend];
+        [strongSelf recordLostEvent:SentryDataCategoryTraceMetricByte
+                             reason:SentryDiscardReasonBeforeSend
+                           quantity:byteCount];
+    }];
+}
+
 - (id)getTelemetryProcessor
 {
     return self.telemetryProcessor;

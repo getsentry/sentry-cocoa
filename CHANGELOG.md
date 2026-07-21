@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Record trace_metric_byte client reports (#8483)
+
 ### Breaking Changes
 
 - Only expose `experimental.dataCollection` APIs in SDK V10 (#8435)
