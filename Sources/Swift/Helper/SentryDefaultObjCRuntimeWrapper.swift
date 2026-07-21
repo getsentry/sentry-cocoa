@@ -26,6 +26,9 @@ public final class SentryDefaultObjCRuntimeWrapper: NSObject, SentryObjCRuntimeW
 #if (os(iOS) || os(tvOS) || os(visionOS)) && (arch(arm64) || arch(x86_64))
     @_spi(Private)
     public func classes(forImage image: UnsafePointer<CChar>) -> [AnyClass] {
+        // We read `_dyld_image_count` once instead of per iteration (unlike the CxaThrowSwapper): we
+        // search for one already-loaded image, so images added while iterating aren't our target, and
+        // stale indices from an unload just return nil below.
         for index in 0..<_dyld_image_count() {
             guard let cName = _dyld_get_image_name(index), strcmp(cName, image) == 0 else {
                 continue
