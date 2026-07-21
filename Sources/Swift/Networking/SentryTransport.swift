@@ -25,6 +25,7 @@ public protocol Transport: NSObjectProtocol {
     @objc(recordLostEvent:reason:quantity:)
     func recordLostEvent(_ category: SentryDataCategory, reason: SentryDiscardReason, quantity: UInt)
 
+    @discardableResult
     @objc(flush:)
     func flush(_ timeout: TimeInterval) -> SentryFlushResult
 
