@@ -670,14 +670,17 @@ class SentryHttpTransportTests: XCTestCase {
     }
 
     func testMetricsRateLimited_RecordsLostTraceMetricBytes() throws {
+        // -- Arrange --
         try givenRateLimitResponse(forCategory: "trace_metric")
 
+        // -- Act --
         sut.send(envelope: fixture.getMetricsEnvelope())
         waitForAllRequests()
 
         sut.send(envelope: fixture.getMetricsEnvelope())
         waitForAllRequests()
 
+        // -- Assert --
         let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
         XCTAssertNotNil(dict)
 
@@ -746,13 +749,17 @@ class SentryHttpTransportTests: XCTestCase {
     }
 
     func testCacheFull_RecordsLostTraceMetricBytes() throws {
+        // -- Arrange --
         givenNoInternetConnection()
+
+        // -- Act --
         for _ in 0...fixture.options.maxCacheItems {
             sut.send(envelope: fixture.getMetricsEnvelope())
         }
 
         waitForAllRequests()
 
+        // -- Assert --
         let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
         XCTAssertNotNil(dict)
         XCTAssertEqual(2, dict?.count)
@@ -1074,13 +1081,16 @@ class SentryHttpTransportTests: XCTestCase {
     }
 
     func testBuildingRequestFails_RecordsLostTraceMetricBytes() throws {
+        // -- Arrange --
         sut.send(envelope: fixture.getMetricsEnvelope())
         waitForAllRequests()
-
         fixture.requestBuilder.shouldFailWithError = true
+
+        // -- Act --
         sut.send(envelope: fixture.getMetricsEnvelope())
         waitForAllRequests()
 
+        // -- Assert --
         let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
         XCTAssertNotNil(dict)
         XCTAssertEqual(2, dict?.count)
