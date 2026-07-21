@@ -96,13 +96,15 @@ class SentrySubClassFinderTests: XCTestCase {
     /// exact operation that crashes for availability-gated classes on older OS versions (GH-8152).
     /// Comparing the two enumerations by name never realizes anything, so the test is safe on every
     /// OS — including ones where the old path would have crashed.
-    func testClassListEnumerationMatchesCopyClassNamesForImage() throws {
+    func testClassesForImage_whenReadingEveryLoadedImage_shouldMatchCopyClassNamesForImage() throws {
+        // -- Arrange --
         let sut = SentryDefaultObjCRuntimeWrapper()
-
         var comparedImages = 0
+
         for index in 0..<_dyld_image_count() {
             let imageName = try XCTUnwrap(_dyld_get_image_name(index).map { String(cString: $0) })
 
+            // -- Act --
             // New enumeration: class pointers from __objc_classlist, named via class_getName.
             let fromClassList = Set(sut.classes(forImage: imageName).map { NSStringFromClass($0) })
 
@@ -117,6 +119,7 @@ class SentrySubClassFinderTests: XCTestCase {
                 }
             }
 
+            // -- Assert --
             XCTAssertEqual(fromClassList, fromCopyNames, "Enumeration mismatch for image \(imageName)")
             if !fromCopyNames.isEmpty { comparedImages += 1 }
         }
