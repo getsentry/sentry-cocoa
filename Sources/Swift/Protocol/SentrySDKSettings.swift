@@ -8,8 +8,8 @@ struct SentrySDKSettings {
         autoInferIP = false
     }
 
-    init(sendDefaultPii: Bool) {
-        autoInferIP = sendDefaultPii
+    init(autoInferIP: Bool) {
+        self.autoInferIP = autoInferIP
     }
     
     init(dict: NSDictionary) {
