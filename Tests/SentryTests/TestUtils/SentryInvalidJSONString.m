@@ -34,12 +34,27 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSUInteger)length
 {
-    // Apple changed the implementation of `__CFStringEncodeByteStream` in some version after iOS26
-    // (and other platforms). Previously `length` was only called from
-    // `-[NSString(NSStringOtherEncodings) dataUsingEncoding:allowLossyConversion:]` but now it is
-    // also called by `__CFStringEncodeByteStream` so to avoid double counting, we ignore it.
-    if ([NSThread.callStackSymbols[1] rangeOfString:@"__CFStringEncodeByteStream"].location
-        == NSNotFound) {
+    // Prior to some version after *OS 26 Apple changed the implementation of
+    // `__CFStringEncodeByteStream` Previously, `length` was only called from
+    // `-[NSString(NSStringOtherEncodings) dataUsingEncoding:allowLossyConversion:] but now it is
+    // called also called by `__CFStringEncodeByteStream`. In *OS 27 `+[_NSJSONReader
+    // validForJSON:depth:allowFragments]` also calls length _before_
+    // `__CFStringEncodeByteStream does. To avoid counting an invocation more than once we ignore
+    // them.
+
+    NSArray<NSString *> *ignoredSymbols =
+        @[ @"__CFStringEncodeByteStream", @"+[_NSJSONReader validForJSON:depth:allowFragments:]" ];
+
+    NSString *callStackSymbol = NSThread.callStackSymbols[1];
+
+    BOOL shouldIgnoreInvocation = NO;
+    for (NSString *symbol in ignoredSymbols) {
+        if ([callStackSymbol containsString:symbol]) {
+            shouldIgnoreInvocation = YES;
+        }
+    }
+
+    if (!shouldIgnoreInvocation) {
         self.lengthInvocations++;
     }
 
