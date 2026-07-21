@@ -264,10 +264,17 @@ class SentrySDKTests: XCTestCase {
 
     func testLastRunStatus_whenCrashStateLoadedAndCrashed_shouldReturnDidCrash() {
         // -- Arrange --
+        #if ENABLE_KSCRASH
+        let installer = MockKSCrashInstaller()
+        installer.crashedLastLaunch = true
+        let dependencies = MockKSCrashDependencies(installer: installer)
+        _ = SentryKSCrash.Integration(with: .init(), dependencies: dependencies)
+        #else
         SentrySDKInternal.crashReporterInstalled = true
         let crashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
         crashWrapper.internalCrashedLastLaunch = true
         SentryDependencyContainer.sharedInstance().crashWrapper = crashWrapper
+        #endif
 
         // -- Act --
         let status = SentrySDK.lastRunStatus

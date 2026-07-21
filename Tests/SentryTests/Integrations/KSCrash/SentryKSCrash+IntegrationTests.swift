@@ -3,14 +3,6 @@
 @_spi(Private) @testable import Sentry
 import XCTest
 
-class MockKSCrashDependencies: SentryKSCrash.DependencyProvider {
-    let kscrashInstaller: MockKSCrashInstaller
-
-    init(installer: MockKSCrashInstaller = .init()) {
-        self.kscrashInstaller = installer
-    }
-}
-
 class SentryKSCrashIntegrationTests: XCTestCase {
     private func makeOptions(enableCrashHandler: Bool = true) -> Options {
         let options = Options()
