@@ -18,7 +18,7 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         return options
     }
 
-    func testInstallCalledOnInit() {
+    func testInstall_whenCrashHandlerEnabled_shouldCallInstallOnce() {
         let installer = MockKSCrashInstaller()
         let deps = MockKSCrashDependencies(installer: installer)
         let options = makeOptions()
@@ -31,7 +31,7 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         XCTAssertEqual(installer.installCalls[0].monitors, SentryKSCrash.productionSafeMonitors.rawValue)
     }
 
-    func testCrashedLastLaunchSetsFlag() {
+    func testInstall_whenCrashedLastLaunch_shouldSetFatalDetected() {
         let installer = MockKSCrashInstaller()
         installer.crashedLastLaunch = true
         let deps = MockKSCrashDependencies(installer: installer)
@@ -43,7 +43,7 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         XCTAssertTrue(SentrySDKInternal.fatalDetected)
     }
 
-    func testInstallFailureReturnsNil() {
+    func testInstall_whenInstallThrows_shouldReturnNil() {
         let installer = MockKSCrashInstaller()
         installer.shouldThrow = NSError(domain: "TestKSCrash", code: -99)
         let deps = MockKSCrashDependencies(installer: installer)
@@ -53,7 +53,7 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         XCTAssertNil(sut)
     }
 
-    func testInitSkipsWhenCrashHandlerDisabled() {
+    func testInstall_whenCrashHandlerDisabled_shouldSkipInstall() {
         let installer = MockKSCrashInstaller()
         let deps = MockKSCrashDependencies(installer: installer)
 
