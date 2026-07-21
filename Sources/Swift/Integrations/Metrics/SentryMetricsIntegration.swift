@@ -14,11 +14,16 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
     init?(with options: Options, dependencies _: Dependencies) {
         guard options.enableMetrics else { return nil }
 
+#if SDK_V10
+        let shouldAddDefaultUserId = options.dataCollection.userInfo
+#else
+        let shouldAddDefaultUserId = options.sendDefaultPii
+#endif // SDK_V10
         self.scopeMetaData = SentryDefaultScopeApplyingMetadata(
             environment: options.environment,
             releaseName: options.releaseName,
             cacheDirectoryPath: options.cacheDirectoryPath,
-            sendDefaultPii: options.sendDefaultPii
+            shouldAddDefaultUserId: shouldAddDefaultUserId
         )
 
         self.beforeSendMetric = options.beforeSendMetric

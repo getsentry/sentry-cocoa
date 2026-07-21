@@ -92,6 +92,7 @@ Samples/iOS-SwiftUI-SPM/iOS-SwiftUI-SPM.xcodeproj
 Samples/iOS-SwiftUI-Widgets/iOS-SwiftUI-Widgets.xcodeproj
 Samples/iOS-SwiftUI/iOS-SwiftUI.xcodeproj
 Samples/iOS15-SwiftUI/iOS15-SwiftUI.xcodeproj
+Samples/macOS-CLI-Xcode/macOS-CLI-Xcode.xcodeproj
 Samples/macOS-Swift/macOS-Swift.xcodeproj
 Samples/macOS-SwiftUI-SPM/macOS-SwiftUI-SPM.xcodeproj
 Samples/macOS-SwiftUI/macOS-SwiftUI.xcodeproj

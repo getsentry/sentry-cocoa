@@ -6,7 +6,6 @@
 #import "SentryQueueableRequestManager.h"
 #import "SentrySpotlightTransport.h"
 #import "SentrySwift.h"
-#import "SentryTransport.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

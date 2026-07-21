@@ -85,6 +85,11 @@ class SentrySubClassFinder: NSObject {
                 classesToSwizzle.append(cls)
             }
 
+            if classesToSwizzle.isEmpty {
+                SentrySDKLog.debug("No UIViewController subclasses to swizzle in image: \(imageName).")
+                return
+            }
+
             self.dispatchQueue.dispatchAsyncOnMainQueueIfNotMainThread {
                 for cls in classesToSwizzle {
                     block(cls)

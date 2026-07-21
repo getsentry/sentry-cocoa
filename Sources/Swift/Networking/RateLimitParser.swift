@@ -44,7 +44,7 @@ public final class RateLimitParser: NSObject {
             }
 
             for categoryNumber in parseCategories(parameters[1]) {
-                let dataCategory = sentryDataCategoryForNSUInteger(categoryNumber)
+                let dataCategory = SentryDataCategory(categoryNumber)
 
                 // Namespaces should only be available for MetricBucket
                 if dataCategory == .metricBucket && parameters.count > 4 {
@@ -87,7 +87,7 @@ public final class RateLimitParser: NSObject {
         var categories: [UInt] = []
 
         for categoryAsString in categoriesAsString.components(separatedBy: ";") {
-            let category = sentryDataCategoryForString(categoryAsString)
+            let category = SentryDataCategory(name: categoryAsString)
 
             // Unknown categories must be ignored. UserFeedback is not listed for rate limits, see
             // https://develop.sentry.dev/sdk/rate-limiting/#definitions

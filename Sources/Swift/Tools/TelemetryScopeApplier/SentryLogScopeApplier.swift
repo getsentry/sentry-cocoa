@@ -15,8 +15,8 @@ public protocol SentryLogScopeApplier {
 public class SentryDefaultLogScopeApplier: NSObject, SentryLogScopeApplier {
     private let metadata: TelemetryScopeMetadata
 
-    @objc public init(environment: String, releaseName: String?, cacheDirectoryPath: String, sendDefaultPii: Bool) {
-        self.metadata = SentryDefaultScopeApplyingMetadata(environment: environment, releaseName: releaseName, cacheDirectoryPath: cacheDirectoryPath, sendDefaultPii: sendDefaultPii)
+    @objc public init(environment: String, releaseName: String?, cacheDirectoryPath: String, shouldAddDefaultUserId: Bool) {
+        self.metadata = SentryDefaultScopeApplyingMetadata(environment: environment, releaseName: releaseName, cacheDirectoryPath: cacheDirectoryPath, shouldAddDefaultUserId: shouldAddDefaultUserId)
     }
 
     @objc public func applyScope(_ scope: Scope, toLog log: SentryLog) -> SentryLog {

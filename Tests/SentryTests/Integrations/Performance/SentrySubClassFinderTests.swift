@@ -16,6 +16,7 @@ class SentrySubClassFinderTests: XCTestCase {
             return result
         }()
         let imageName: String
+        let dispatchQueue = TestSentryDispatchQueueWrapper()
         let testClasses: [AnyClass] = [FirstViewController.self,
                                        SecondViewController.self,
                                        ViewControllerNumberThree.self,
@@ -30,7 +31,7 @@ class SentrySubClassFinderTests: XCTestCase {
         }
 
         func getSut(swizzleClassNameExcludes: Set<String> = []) -> SentrySubClassFinder {
-            return SentrySubClassFinder(dispatchQueue: TestSentryDispatchQueueWrapper(), objcRuntimeWrapper: runtimeWrapper, swizzleClassNameExcludes: swizzleClassNameExcludes)
+            return SentrySubClassFinder(dispatchQueue: dispatchQueue, objcRuntimeWrapper: runtimeWrapper, swizzleClassNameExcludes: swizzleClassNameExcludes)
         }
     }
 
@@ -52,6 +53,20 @@ class SentrySubClassFinderTests: XCTestCase {
     func testActOnSubclassesOfViewController_NoViewController() {
         fixture.runtimeWrapper.classes = { _ in [] }
         assertActOnSubclassesOfViewController(expected: [])
+    }
+
+    func testActOnSubclassesOfViewController_NoViewController_DoesNotDispatchToMainQueue() {
+        // Arrange
+        fixture.runtimeWrapper.classes = { _ in [] }
+        let sut = fixture.getSut()
+
+        // Act
+        sut.actOnSubclassesOfViewController(inImage: fixture.imageName) { _ in
+            XCTFail("Block must not be called when there are no subclasses to swizzle.")
+        }
+
+        // Assert
+        XCTAssertEqual(fixture.dispatchQueue.blockOnMainInvocations.count, 0)
     }
 
     func testActOnSubclassesOfViewController_IgnoreFakeViewController() {
@@ -212,13 +227,13 @@ class SentrySubClassFinderTests: XCTestCase {
         }
         
         wait(for: [expect], timeout: 1)
-        
+
         let count = actual.filter { element in
             return expected.contains { ex in
                 return element == ex
             }
         }.count
-        
+
         XCTAssertEqual(expected.count, count)
     }
 }

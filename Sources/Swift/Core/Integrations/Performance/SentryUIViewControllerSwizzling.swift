@@ -235,7 +235,7 @@ class SentryUIViewControllerSwizzling {
     }
 
     func swizzleRootViewControllerAndDescendant(_ rootViewController: UIViewController) {
-        let allViewControllers = SentryViewController.descendants(of: rootViewController)
+        let allViewControllers = viewControllerHierarchy(of: rootViewController)
 
         SentrySDKLog.debug("Found \(allViewControllers.count) descendants for RootViewController \(rootViewController)")
 
