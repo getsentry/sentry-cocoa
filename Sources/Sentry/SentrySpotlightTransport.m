@@ -93,12 +93,14 @@ NS_ASSUME_NONNULL_BEGIN
     return SentryFlushResultSuccess;
 }
 
-- (void)recordLostEvent:(NSUInteger)category reason:(NSUInteger)reason
+- (void)recordLostEvent:(SentryDataCategory)category reason:(SentryDiscardReason)reason
 {
     // Empty on purpose
 }
 
-- (void)recordLostEvent:(NSUInteger)category reason:(NSUInteger)reason quantity:(NSUInteger)quantity
+- (void)recordLostEvent:(SentryDataCategory)category
+                 reason:(SentryDiscardReason)reason
+               quantity:(NSUInteger)quantity
 {
     // Empty on purpose
 }

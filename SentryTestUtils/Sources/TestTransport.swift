@@ -15,13 +15,13 @@ import Foundation
     }
 
     public var recordLostEvents = Invocations<(category: SentryDataCategory, reason: SentryDiscardReason)>()
-    public func recordLostEvent(_ category: UInt, reason: UInt) {
-        recordLostEvents.record((SentryDataCategory(rawValue: category) ?? .unknown, SentryDiscardReason(rawValue: reason) ?? .beforeSend))
+    public func recordLostEvent(_ category: SentryDataCategory, reason: SentryDiscardReason) {
+        recordLostEvents.record((category, reason))
     }
 
     public var recordLostEventsWithCount = Invocations<(category: SentryDataCategory, reason: SentryDiscardReason, quantity: UInt)>()
-    public func recordLostEvent(_ category: UInt, reason: UInt, quantity: UInt) {
-        recordLostEventsWithCount.record((SentryDataCategory(rawValue: category) ?? .unknown, SentryDiscardReason(rawValue: reason) ?? .beforeSend, quantity))
+    public func recordLostEvent(_ category: SentryDataCategory, reason: SentryDiscardReason, quantity: UInt) {
+        recordLostEventsWithCount.record((category, reason, quantity))
     }
 
     public var flushInvocations = Invocations<TimeInterval>()

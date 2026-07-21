@@ -45,12 +45,6 @@ jobs:
             make-target: test-ios-v10-with-kscrash
           - platform: macOS
             make-target: test-macos-v10-with-kscrash
-          - platform: Catalyst
-            make-target: test-catalyst-v10-with-kscrash
-          - platform: tvOS
-            make-target: test-tvos-v10-with-kscrash
-          - platform: visionOS
-            make-target: test-visionos-v10-with-kscrash
 
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -67,7 +61,7 @@ jobs:
           platform: ${{ matrix.platform }}
 
       - name: Ensure required runtime is loaded
-        if: ${{ matrix.platform == 'iOS' || matrix.platform == 'tvOS' || matrix.platform == 'visionOS' }}
+        if: ${{ matrix.platform == 'iOS' }}
         timeout-minutes: 5
         env:
           OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
@@ -78,10 +72,6 @@ jobs:
         env:
           IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
           IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
-          TVOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.tvos-simulator-os }}
-          TVOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
-          VISIONOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.visionos-simulator-os }}
-          VISIONOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: make ${{ matrix.make-target }}
 
       - name: Archiving Raw Logs

@@ -1,3 +1,4 @@
+#if SDK_V10
 // swiftlint:disable missing_docs
 #if SWIFT_PACKAGE
 internal import SentrySwift
@@ -34,3 +35,4 @@ public final class SentryObjCDataCollectionDatabaseCollectionOptions: NSObject {
 }
 
 // swiftlint:enable missing_docs
+#endif // SDK_V10

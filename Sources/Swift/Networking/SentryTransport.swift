@@ -1,14 +1,16 @@
 // swiftlint:disable missing_docs
 import Foundation
 
-@objc(SentryFlushResult) @_spi(Private)
+@_spi(Private)
+@objc(SentryFlushResult)
 public enum SentryFlushResult: Int {
     case success = 0
     case timedOut
     case alreadyFlushing
 }
 
-@objc(SentryTransport) @_spi(Private)
+@_spi(Private)
+@objc(SentryTransport)
 public protocol Transport: NSObjectProtocol {
 
     @objc(sendEnvelope:)
@@ -18,10 +20,10 @@ public protocol Transport: NSObjectProtocol {
     func store(_ envelope: SentryEnvelope)
 
     @objc(recordLostEvent:reason:)
-    func recordLostEvent(_ category: UInt, reason: UInt)
+    func recordLostEvent(_ category: SentryDataCategory, reason: SentryDiscardReason)
 
     @objc(recordLostEvent:reason:quantity:)
-    func recordLostEvent(_ category: UInt, reason: UInt, quantity: UInt)
+    func recordLostEvent(_ category: SentryDataCategory, reason: SentryDiscardReason, quantity: UInt)
 
     @objc(flush:)
     func flush(_ timeout: TimeInterval) -> SentryFlushResult

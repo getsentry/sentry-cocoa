@@ -82,9 +82,9 @@ class SentryHttpTransportTests: XCTestCase {
             let currentDate = TestCurrentDateProvider()
             rateLimits = DefaultRateLimits(retryAfterHeaderParser: RetryAfterHeaderParser(httpDateParser: HttpDateParser(), currentDateProvider: currentDate), andRateLimitParser: RateLimitParser(currentDateProvider: currentDate), currentDateProvider: currentDate)
             
-            let beforeSendTransaction = SentryDiscardedEvent(reason: nameForSentryDiscardReason(.beforeSend), category: nameForSentryDataCategory(.transaction), quantity: 2)
-            let sampleRateTransaction = SentryDiscardedEvent(reason: nameForSentryDiscardReason(.sampleRate), category: nameForSentryDataCategory(.transaction), quantity: 1)
-            let rateLimitBackoffError = SentryDiscardedEvent(reason: nameForSentryDiscardReason(.rateLimitBackoff), category: nameForSentryDataCategory(.error), quantity: 1)
+            let beforeSendTransaction = SentryDiscardedEvent(reason: nameForSentryDiscardReason(.beforeSend), category: SentryDataCategory.transaction.name, quantity: 2)
+            let sampleRateTransaction = SentryDiscardedEvent(reason: nameForSentryDiscardReason(.sampleRate), category: SentryDataCategory.transaction.name, quantity: 1)
+            let rateLimitBackoffError = SentryDiscardedEvent(reason: nameForSentryDiscardReason(.rateLimitBackoff), category: SentryDataCategory.error.name, quantity: 1)
             
             clientReport = SentryClientReport(discardedEvents: [
                 beforeSendTransaction,
@@ -252,7 +252,7 @@ class SentryHttpTransportTests: XCTestCase {
         assertEnvelopesStored(envelopeCount: 0)
 
         // Envelope with only session and client report is sent
-        let discardedError = SentryDiscardedEvent(reason: nameForSentryDiscardReason(.rateLimitBackoff), category: nameForSentryDataCategory(.error), quantity: 1)
+        let discardedError = SentryDiscardedEvent(reason: nameForSentryDiscardReason(.rateLimitBackoff), category: SentryDataCategory.error.name, quantity: 1)
         let clientReport = SentryClientReport(discardedEvents: [discardedError], dateProvider: SentryDependencyContainer.sharedInstance().dateProvider)
         let envelopeItems = [
             SentryEnvelopeItem(session: fixture.session),
@@ -580,7 +580,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
     
     func testEventRateLimited_RecordsLostEvent() throws {
-        let rateLimitBackoffError = SentryDiscardedEvent(reason: nameForSentryDiscardReason(.rateLimitBackoff), category: nameForSentryDataCategory(.error), quantity: 1)
+        let rateLimitBackoffError = SentryDiscardedEvent(reason: nameForSentryDiscardReason(.rateLimitBackoff), category: SentryDataCategory.error.name, quantity: 1)
         let clientReport = SentryClientReport(discardedEvents: [rateLimitBackoffError], dateProvider: SentryDependencyContainer.sharedInstance().dateProvider)
         
         let clientReportEnvelopeItems = [
@@ -602,8 +602,8 @@ class SentryHttpTransportTests: XCTestCase {
     func testTransactionRateLimited_RecordsLostSpans() throws {
         let clientReport = SentryClientReport(
             discardedEvents: [
-                SentryDiscardedEvent(reason: nameForSentryDiscardReason(.rateLimitBackoff), category: nameForSentryDataCategory(.transaction), quantity: 1),
-                SentryDiscardedEvent(reason: nameForSentryDiscardReason(.rateLimitBackoff), category: nameForSentryDataCategory(.span), quantity: 4)
+                SentryDiscardedEvent(reason: nameForSentryDiscardReason(.rateLimitBackoff), category: SentryDataCategory.transaction.name, quantity: 1),
+                SentryDiscardedEvent(reason: nameForSentryDiscardReason(.rateLimitBackoff), category: SentryDataCategory.span.name, quantity: 4)
             ],
             dateProvider: SentryDependencyContainer.sharedInstance().dateProvider
         )
@@ -708,35 +708,35 @@ class SentryHttpTransportTests: XCTestCase {
     }
 
     func testRecordLostEvent_WithQuantityGreaterOne_AccumulatesByQuantity() {
-        sut.recordLostEvent(SentryDataCategory.span.rawValue, reason: SentryDiscardReason.rateLimitBackoff.rawValue, quantity: 4)
-        sut.recordLostEvent(SentryDataCategory.span.rawValue, reason: SentryDiscardReason.rateLimitBackoff.rawValue, quantity: 4)
+        sut.recordLostEvent(.span, reason: .rateLimitBackoff, quantity: 4)
+        sut.recordLostEvent(.span, reason: .rateLimitBackoff, quantity: 4)
 
         let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
         XCTAssertEqual(8, dict?["span:ratelimit_backoff"]?.quantity)
     }
 
     func testRecordLostEvent_MixingQuantityOneAndGreaterOne_AccumulatesByQuantity() {
-        sut.recordLostEvent(SentryDataCategory.span.rawValue, reason: SentryDiscardReason.sendError.rawValue, quantity: 10)
-        sut.recordLostEvent(SentryDataCategory.span.rawValue, reason: SentryDiscardReason.sendError.rawValue)
-        sut.recordLostEvent(SentryDataCategory.span.rawValue, reason: SentryDiscardReason.sendError.rawValue, quantity: 5)
+        sut.recordLostEvent(.span, reason: .sendError, quantity: 10)
+        sut.recordLostEvent(.span, reason: .sendError)
+        sut.recordLostEvent(.span, reason: .sendError, quantity: 5)
 
         let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
         XCTAssertEqual(16, dict?["span:send_error"]?.quantity)
     }
 
     func testRecordLostEvent_DefaultQuantityOverload_AccumulatesByOne() {
-        sut.recordLostEvent(SentryDataCategory.error.rawValue, reason: SentryDiscardReason.rateLimitBackoff.rawValue)
-        sut.recordLostEvent(SentryDataCategory.error.rawValue, reason: SentryDiscardReason.rateLimitBackoff.rawValue)
-        sut.recordLostEvent(SentryDataCategory.error.rawValue, reason: SentryDiscardReason.rateLimitBackoff.rawValue)
+        sut.recordLostEvent(.error, reason: .rateLimitBackoff)
+        sut.recordLostEvent(.error, reason: .rateLimitBackoff)
+        sut.recordLostEvent(.error, reason: .rateLimitBackoff)
 
         let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
         XCTAssertEqual(3, dict?["error:ratelimit_backoff"]?.quantity)
     }
 
     func testRecordLostEvent_DifferentCategoriesAndReasons_StayInSeparateBuckets() {
-        sut.recordLostEvent(SentryDataCategory.span.rawValue, reason: SentryDiscardReason.rateLimitBackoff.rawValue, quantity: 4)
-        sut.recordLostEvent(SentryDataCategory.span.rawValue, reason: SentryDiscardReason.cacheOverflow.rawValue, quantity: 2)
-        sut.recordLostEvent(SentryDataCategory.error.rawValue, reason: SentryDiscardReason.rateLimitBackoff.rawValue, quantity: 3)
+        sut.recordLostEvent(.span, reason: .rateLimitBackoff, quantity: 4)
+        sut.recordLostEvent(.span, reason: .cacheOverflow, quantity: 2)
+        sut.recordLostEvent(.error, reason: .rateLimitBackoff, quantity: 3)
 
         let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
         XCTAssertEqual(3, dict?.count)
@@ -1201,7 +1201,7 @@ class SentryHttpTransportTests: XCTestCase {
     private func givenRecordedLostEvents() throws {
         try fixture.clientReport.discardedEvents.forEach { event in
             for _ in 0..<event.quantity {
-                sut.recordLostEvent(sentryDataCategoryForString(event.category).rawValue, reason: try XCTUnwrap(sentryDiscardReasonForString(event.reason)).rawValue)
+                sut.recordLostEvent(SentryDataCategory(name: event.category), reason: try XCTUnwrap( sentryDiscardReasonForString(event.reason)))
             }
         }
     }

@@ -11,6 +11,9 @@
 #endif
 
 @class SentryObjCBreadcrumb;
+#if SDK_V10
+@class SentryObjCDataCollectionOptions;
+#endif
 @class SentryObjCEvent;
 @class SentryObjCExperimentalOptions;
 @class SentryObjCHttpStatusCodeRange;
@@ -489,6 +492,11 @@ NS_ASSUME_NONNULL_BEGIN
  * you need to override it, you can provide the ID with this option.
  */
 @property (nonatomic, copy, nullable) NSString *orgId;
+
+#if SDK_V10
+/// Configuration for what data the SDK collects automatically.
+@property (nonatomic, strong) SentryObjCDataCollectionOptions *dataCollection;
+#endif // SDK_V10
 
 /// Options for experimental features that are subject to change.
 @property (nonatomic, strong) SentryObjCExperimentalOptions *experimental;

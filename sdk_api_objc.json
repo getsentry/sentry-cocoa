@@ -11,46 +11,6 @@
   },
   {
     "kind": "EnumConstantDecl",
-    "name": "SentryObjCDataCollectionHttpBodyTypeAll",
-    "parent": "SentryObjCDataCollectionHttpBodyType"
-  },
-  {
-    "kind": "EnumConstantDecl",
-    "name": "SentryObjCDataCollectionHttpBodyTypeIncomingRequest",
-    "parent": "SentryObjCDataCollectionHttpBodyType"
-  },
-  {
-    "kind": "EnumConstantDecl",
-    "name": "SentryObjCDataCollectionHttpBodyTypeIncomingResponse",
-    "parent": "SentryObjCDataCollectionHttpBodyType"
-  },
-  {
-    "kind": "EnumConstantDecl",
-    "name": "SentryObjCDataCollectionHttpBodyTypeOutgoingRequest",
-    "parent": "SentryObjCDataCollectionHttpBodyType"
-  },
-  {
-    "kind": "EnumConstantDecl",
-    "name": "SentryObjCDataCollectionHttpBodyTypeOutgoingResponse",
-    "parent": "SentryObjCDataCollectionHttpBodyType"
-  },
-  {
-    "kind": "EnumConstantDecl",
-    "name": "SentryObjCDataCollectionKeyValueCollectionModeAllowList",
-    "parent": "SentryObjCDataCollectionKeyValueCollectionMode"
-  },
-  {
-    "kind": "EnumConstantDecl",
-    "name": "SentryObjCDataCollectionKeyValueCollectionModeDenyList",
-    "parent": "SentryObjCDataCollectionKeyValueCollectionMode"
-  },
-  {
-    "kind": "EnumConstantDecl",
-    "name": "SentryObjCDataCollectionKeyValueCollectionModeOff",
-    "parent": "SentryObjCDataCollectionKeyValueCollectionMode"
-  },
-  {
-    "kind": "EnumConstantDecl",
     "name": "SentryObjCFeedbackSourceCustom",
     "parent": "SentryObjCFeedbackSource"
   },
@@ -330,14 +290,6 @@
   },
   {
     "kind": "EnumDecl",
-    "name": "SentryObjCDataCollectionHttpBodyType"
-  },
-  {
-    "kind": "EnumDecl",
-    "name": "SentryObjCDataCollectionKeyValueCollectionMode"
-  },
-  {
-    "kind": "EnumDecl",
     "name": "SentryObjCFeedbackSource"
   },
   {
@@ -403,36 +355,6 @@
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryObjCClient",
-    "super": "NSObject",
-    "has_inner": true
-  },
-  {
-    "kind": "ObjCInterfaceDecl",
-    "name": "SentryObjCDataCollectionDatabaseCollectionOptions",
-    "super": "NSObject",
-    "has_inner": true
-  },
-  {
-    "kind": "ObjCInterfaceDecl",
-    "name": "SentryObjCDataCollectionGraphQLCollectionOptions",
-    "super": "NSObject",
-    "has_inner": true
-  },
-  {
-    "kind": "ObjCInterfaceDecl",
-    "name": "SentryObjCDataCollectionHttpHeaderCollectionOptions",
-    "super": "NSObject",
-    "has_inner": true
-  },
-  {
-    "kind": "ObjCInterfaceDecl",
-    "name": "SentryObjCDataCollectionKeyValueCollectionBehavior",
-    "super": "NSObject",
-    "has_inner": true
-  },
-  {
-    "kind": "ObjCInterfaceDecl",
-    "name": "SentryObjCDataCollectionOptions",
     "super": "NSObject",
     "has_inner": true
   },
@@ -884,13 +806,6 @@
     "name": "addSdkPackage:version:",
     "parent": "SentryObjCPrivateSDKOnly",
     "returnType": "void",
-    "instance": false
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "allowListWithTerms:",
-    "parent": "SentryObjCDataCollectionKeyValueCollectionBehavior",
-    "returnType": "instancetype _Nonnull",
     "instance": false
   },
   {
@@ -1610,13 +1525,6 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "cookies",
-    "parent": "SentryObjCDataCollectionOptions",
-    "returnType": "SentryObjCDataCollectionKeyValueCollectionBehavior * _Nonnull",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "cookies",
     "parent": "SentryObjCRequest",
     "returnType": "NSString * _Nullable",
     "instance": true
@@ -1756,20 +1664,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "dataCollection",
-    "parent": "SentryObjCExperimentalOptions",
-    "returnType": "SentryObjCDataCollectionOptions * _Nonnull",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "database",
-    "parent": "SentryObjCDataCollectionOptions",
-    "returnType": "SentryObjCDataCollectionDatabaseCollectionOptions * _Nonnull",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "day",
     "parent": "SentryObjCMeasurementUnit",
     "returnType": "SentryObjCMeasurementUnit * _Nonnull",
@@ -1823,20 +1717,6 @@
     "parent": "SentryObjCEvent",
     "returnType": "NSArray<SentryObjCDebugMeta *> * _Nullable",
     "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "denyList",
-    "parent": "SentryObjCDataCollectionKeyValueCollectionBehavior",
-    "returnType": "instancetype _Nonnull",
-    "instance": false
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "denyListWithTerms:",
-    "parent": "SentryObjCDataCollectionKeyValueCollectionBehavior",
-    "returnType": "instancetype _Nonnull",
-    "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
@@ -1920,13 +1800,6 @@
     "name": "distributionWithKey:value:unit:attributes:",
     "parent": "SentryObjCMetricsApi",
     "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "document",
-    "parent": "SentryObjCDataCollectionGraphQLCollectionOptions",
-    "returnType": "BOOL",
     "instance": true
   },
   {
@@ -2568,13 +2441,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "frameContextLines",
-    "parent": "SentryObjCDataCollectionOptions",
-    "returnType": "NSUInteger",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "frames",
     "parent": "SentryObjCStacktrace",
     "returnType": "NSArray<SentryObjCFrame *> * _Nonnull",
@@ -2715,13 +2581,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "graphql",
-    "parent": "SentryObjCDataCollectionOptions",
-    "returnType": "SentryObjCDataCollectionGraphQLCollectionOptions * _Nonnull",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "handled",
     "parent": "SentryObjCMechanism",
     "returnType": "NSNumber * _Nullable",
@@ -2782,20 +2641,6 @@
     "parent": "SentryObjCUnit",
     "returnType": "SentryObjCUnit * _Nonnull",
     "instance": false
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "httpBodies",
-    "parent": "SentryObjCDataCollectionOptions",
-    "returnType": "SentryObjCDataCollectionHttpBodyType",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "httpHeaders",
-    "parent": "SentryObjCDataCollectionOptions",
-    "returnType": "SentryObjCDataCollectionHttpHeaderCollectionOptions * _Nonnull",
-    "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
@@ -2948,41 +2793,6 @@
     "kind": "ObjCMethodDecl",
     "name": "init",
     "parent": "SentryObjCClient",
-    "returnType": "instancetype _Nonnull",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "init",
-    "parent": "SentryObjCDataCollectionDatabaseCollectionOptions",
-    "returnType": "instancetype _Nonnull",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "init",
-    "parent": "SentryObjCDataCollectionGraphQLCollectionOptions",
-    "returnType": "instancetype _Nonnull",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "init",
-    "parent": "SentryObjCDataCollectionHttpHeaderCollectionOptions",
-    "returnType": "instancetype _Nonnull",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "init",
-    "parent": "SentryObjCDataCollectionKeyValueCollectionBehavior",
-    "returnType": "instancetype _Nonnull",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "init",
-    "parent": "SentryObjCDataCollectionOptions",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
@@ -4290,13 +4100,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "mode",
-    "parent": "SentryObjCDataCollectionKeyValueCollectionBehavior",
-    "returnType": "SentryObjCDataCollectionKeyValueCollectionMode",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "module",
     "parent": "SentryObjCException",
     "returnType": "NSString * _Nullable",
@@ -4446,13 +4249,6 @@
     "kind": "ObjCMethodDecl",
     "name": "new",
     "parent": "SentryObjCClient",
-    "returnType": "instancetype _Nonnull",
-    "instance": false
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "new",
-    "parent": "SentryObjCDataCollectionKeyValueCollectionBehavior",
     "returnType": "instancetype _Nonnull",
     "instance": false
   },
@@ -4727,13 +4523,6 @@
     "name": "none",
     "parent": "SentryObjCMeasurementUnit",
     "returnType": "SentryObjCMeasurementUnit * _Nonnull",
-    "instance": false
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "off",
-    "parent": "SentryObjCDataCollectionKeyValueCollectionBehavior",
-    "returnType": "instancetype _Nonnull",
     "instance": false
   },
   {
@@ -5046,20 +4835,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "queryParams",
-    "parent": "SentryObjCDataCollectionDatabaseCollectionOptions",
-    "returnType": "BOOL",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "queryParams",
-    "parent": "SentryObjCDataCollectionOptions",
-    "returnType": "SentryObjCDataCollectionKeyValueCollectionBehavior * _Nonnull",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "queryString",
     "parent": "SentryObjCRequest",
     "returnType": "NSString * _Nullable",
@@ -5236,22 +5011,8 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "request",
-    "parent": "SentryObjCDataCollectionHttpHeaderCollectionOptions",
-    "returnType": "SentryObjCDataCollectionKeyValueCollectionBehavior * _Nonnull",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "request",
     "parent": "SentryObjCEvent",
     "returnType": "SentryObjCRequest * _Nullable",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "response",
-    "parent": "SentryObjCDataCollectionHttpHeaderCollectionOptions",
-    "returnType": "SentryObjCDataCollectionKeyValueCollectionBehavior * _Nonnull",
     "instance": true
   },
   {
@@ -5733,13 +5494,6 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setCookies:",
-    "parent": "SentryObjCDataCollectionOptions",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "setCookies:",
     "parent": "SentryObjCRequest",
     "returnType": "void",
     "instance": true
@@ -5809,22 +5563,8 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "setDataCollection:",
-    "parent": "SentryObjCExperimentalOptions",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "setDataValue:forKey:",
     "parent": "SentryObjCSpan",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "setDatabase:",
-    "parent": "SentryObjCDataCollectionOptions",
     "returnType": "void",
     "instance": true
   },
@@ -5881,13 +5621,6 @@
     "kind": "ObjCMethodDecl",
     "name": "setDist:",
     "parent": "SentryObjCScope",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "setDocument:",
-    "parent": "SentryObjCDataCollectionGraphQLCollectionOptions",
     "returnType": "void",
     "instance": true
   },
@@ -6320,13 +6053,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "setFrameContextLines:",
-    "parent": "SentryObjCDataCollectionOptions",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "setFrames:",
     "parent": "SentryObjCStacktrace",
     "returnType": "void",
@@ -6355,13 +6081,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "setGraphql:",
-    "parent": "SentryObjCDataCollectionOptions",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "setHandled:",
     "parent": "SentryObjCMechanism",
     "returnType": "void",
@@ -6378,20 +6097,6 @@
     "kind": "ObjCMethodDecl",
     "name": "setHelpLink:",
     "parent": "SentryObjCMechanism",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "setHttpBodies:",
-    "parent": "SentryObjCDataCollectionOptions",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "setHttpHeaders:",
-    "parent": "SentryObjCDataCollectionOptions",
     "returnType": "void",
     "instance": true
   },
@@ -6999,20 +6704,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "setQueryParams:",
-    "parent": "SentryObjCDataCollectionDatabaseCollectionOptions",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "setQueryParams:",
-    "parent": "SentryObjCDataCollectionOptions",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "setQueryString:",
     "parent": "SentryObjCRequest",
     "returnType": "void",
@@ -7084,21 +6775,7 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setRequest:",
-    "parent": "SentryObjCDataCollectionHttpHeaderCollectionOptions",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "setRequest:",
     "parent": "SentryObjCEvent",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "setResponse:",
-    "parent": "SentryObjCDataCollectionHttpHeaderCollectionOptions",
     "returnType": "void",
     "instance": true
   },
@@ -7302,13 +6979,6 @@
     "kind": "ObjCMethodDecl",
     "name": "setSpotlightUrl:",
     "parent": "SentryObjCOptions",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "setStackFrameVariables:",
-    "parent": "SentryObjCDataCollectionOptions",
     "returnType": "void",
     "instance": true
   },
@@ -7713,13 +7383,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "setUserInfo:",
-    "parent": "SentryObjCDataCollectionOptions",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "setUsername:",
     "parent": "SentryObjCUser",
     "returnType": "void",
@@ -7743,13 +7406,6 @@
     "kind": "ObjCMethodDecl",
     "name": "setValue:",
     "parent": "SentryObjCMetric",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "setVariables:",
-    "parent": "SentryObjCDataCollectionGraphQLCollectionOptions",
     "returnType": "void",
     "instance": true
   },
@@ -7947,13 +7603,6 @@
     "name": "spotlightUrl",
     "parent": "SentryObjCOptions",
     "returnType": "NSString * _Nonnull",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "stackFrameVariables",
-    "parent": "SentryObjCDataCollectionOptions",
-    "returnType": "BOOL",
     "instance": true
   },
   {
@@ -8329,13 +7978,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "terms",
-    "parent": "SentryObjCDataCollectionKeyValueCollectionBehavior",
-    "returnType": "NSArray<NSString *> * _Nonnull",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "threadId",
     "parent": "SentryObjCException",
     "returnType": "NSNumber * _Nullable",
@@ -8658,13 +8300,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "userInfo",
-    "parent": "SentryObjCDataCollectionOptions",
-    "returnType": "BOOL",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "userWithDictionary:",
     "parent": "SentryObjCPrivateSDKOnly",
     "returnType": "SentryObjCUser * _Nonnull",
@@ -8717,13 +8352,6 @@
     "name": "value",
     "parent": "SentryObjCTraceHeader",
     "returnType": "NSString * _Nonnull",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "variables",
-    "parent": "SentryObjCDataCollectionGraphQLCollectionOptions",
-    "returnType": "BOOL",
     "instance": true
   },
   {
@@ -9088,12 +8716,6 @@
   {
     "kind": "ObjCPropertyDecl",
     "name": "cookies",
-    "parent": "SentryObjCDataCollectionOptions",
-    "type": "SentryObjCDataCollectionKeyValueCollectionBehavior * _Nonnull"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
-    "name": "cookies",
     "parent": "SentryObjCRequest",
     "type": "NSString * _Nullable"
   },
@@ -9183,18 +8805,6 @@
   },
   {
     "kind": "ObjCPropertyDecl",
-    "name": "dataCollection",
-    "parent": "SentryObjCExperimentalOptions",
-    "type": "SentryObjCDataCollectionOptions * _Nonnull"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
-    "name": "database",
-    "parent": "SentryObjCDataCollectionOptions",
-    "type": "SentryObjCDataCollectionDatabaseCollectionOptions * _Nonnull"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
     "name": "day",
     "parent": "SentryObjCMeasurementUnit",
     "type": "SentryObjCMeasurementUnit * _Nonnull"
@@ -9264,12 +8874,6 @@
     "name": "distributionValue",
     "parent": "SentryObjCMetricValue",
     "type": "double"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
-    "name": "document",
-    "parent": "SentryObjCDataCollectionGraphQLCollectionOptions",
-    "type": "BOOL"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -9705,12 +9309,6 @@
   },
   {
     "kind": "ObjCPropertyDecl",
-    "name": "frameContextLines",
-    "parent": "SentryObjCDataCollectionOptions",
-    "type": "NSUInteger"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
     "name": "frames",
     "parent": "SentryObjCStacktrace",
     "type": "NSArray<SentryObjCFrame *> * _Nonnull"
@@ -9765,12 +9363,6 @@
   },
   {
     "kind": "ObjCPropertyDecl",
-    "name": "graphql",
-    "parent": "SentryObjCDataCollectionOptions",
-    "type": "SentryObjCDataCollectionGraphQLCollectionOptions * _Nonnull"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
     "name": "handled",
     "parent": "SentryObjCMechanism",
     "type": "NSNumber * _Nullable"
@@ -9804,18 +9396,6 @@
     "name": "hour",
     "parent": "SentryObjCUnit",
     "type": "SentryObjCUnit * _Nonnull"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
-    "name": "httpBodies",
-    "parent": "SentryObjCDataCollectionOptions",
-    "type": "SentryObjCDataCollectionHttpBodyType"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
-    "name": "httpHeaders",
-    "parent": "SentryObjCDataCollectionOptions",
-    "type": "SentryObjCDataCollectionHttpHeaderCollectionOptions * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -10263,12 +9843,6 @@
   },
   {
     "kind": "ObjCPropertyDecl",
-    "name": "mode",
-    "parent": "SentryObjCDataCollectionKeyValueCollectionBehavior",
-    "type": "SentryObjCDataCollectionKeyValueCollectionMode"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
     "name": "module",
     "parent": "SentryObjCException",
     "type": "NSString * _Nullable"
@@ -10629,18 +10203,6 @@
   },
   {
     "kind": "ObjCPropertyDecl",
-    "name": "queryParams",
-    "parent": "SentryObjCDataCollectionDatabaseCollectionOptions",
-    "type": "BOOL"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
-    "name": "queryParams",
-    "parent": "SentryObjCDataCollectionOptions",
-    "type": "SentryObjCDataCollectionKeyValueCollectionBehavior * _Nonnull"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
     "name": "queryString",
     "parent": "SentryObjCRequest",
     "type": "NSString * _Nullable"
@@ -10744,20 +10306,8 @@
   {
     "kind": "ObjCPropertyDecl",
     "name": "request",
-    "parent": "SentryObjCDataCollectionHttpHeaderCollectionOptions",
-    "type": "SentryObjCDataCollectionKeyValueCollectionBehavior * _Nonnull"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
-    "name": "request",
     "parent": "SentryObjCEvent",
     "type": "SentryObjCRequest * _Nullable"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
-    "name": "response",
-    "parent": "SentryObjCDataCollectionHttpHeaderCollectionOptions",
-    "type": "SentryObjCDataCollectionKeyValueCollectionBehavior * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -11031,12 +10581,6 @@
   },
   {
     "kind": "ObjCPropertyDecl",
-    "name": "stackFrameVariables",
-    "parent": "SentryObjCDataCollectionOptions",
-    "type": "BOOL"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
     "name": "stackStart",
     "parent": "SentryObjCFrame",
     "type": "NSNumber * _Nullable"
@@ -11184,12 +10728,6 @@
     "name": "terabyte",
     "parent": "SentryObjCUnit",
     "type": "SentryObjCUnit * _Nonnull"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
-    "name": "terms",
-    "parent": "SentryObjCDataCollectionKeyValueCollectionBehavior",
-    "type": "NSArray<NSString *> * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -11445,12 +10983,6 @@
   },
   {
     "kind": "ObjCPropertyDecl",
-    "name": "userInfo",
-    "parent": "SentryObjCDataCollectionOptions",
-    "type": "BOOL"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
     "name": "username",
     "parent": "SentryObjCUser",
     "type": "NSString * _Nullable"
@@ -11487,12 +11019,6 @@
   },
   {
     "kind": "ObjCPropertyDecl",
-    "name": "variables",
-    "parent": "SentryObjCDataCollectionGraphQLCollectionOptions",
-    "type": "BOOL"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
     "name": "vars",
     "parent": "SentryObjCFrame",
     "type": "NSDictionary<NSString *,id> * _Nullable"
@@ -11525,16 +11051,6 @@
     "kind": "TypedefDecl",
     "name": "SentryObjCAttachmentType",
     "type": "enum SentryObjCAttachmentType"
-  },
-  {
-    "kind": "TypedefDecl",
-    "name": "SentryObjCDataCollectionHttpBodyType",
-    "type": "enum SentryObjCDataCollectionHttpBodyType"
-  },
-  {
-    "kind": "TypedefDecl",
-    "name": "SentryObjCDataCollectionKeyValueCollectionMode",
-    "type": "enum SentryObjCDataCollectionKeyValueCollectionMode"
   },
   {
     "kind": "TypedefDecl",
