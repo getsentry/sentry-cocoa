@@ -129,6 +129,27 @@ class SentrySubClassFinderTests: XCTestCase {
         XCTAssertGreaterThan(comparedImages, 0, "Expected at least one image with classes")
     }
     
+    /// A real dyld-loaded `__objc_classlist` section never contains null entries (dyld binds every
+    /// slot at load time), so this edge case can't be produced through `classes(forImage:)`. Instead
+    /// we hand the section-parsing helper a crafted buffer shaped exactly like `getsectiondata`'s
+    /// return value — pointer-sized `Class _Nullable` entries — with a null slot in the middle, and
+    /// assert the null is skipped rather than surfacing as an invalid non-optional `AnyClass`.
+    func testClassesInSection_whenSectionContainsNullEntry_shouldSkipIt() {
+        // -- Arrange --
+        var entries: [AnyClass?] = [FirstViewController.self, nil, SecondViewController.self]
+
+        // -- Act --
+        let classes: [AnyClass] = entries.withUnsafeMutableBytes { raw in
+            let section = raw.baseAddress!.assumingMemoryBound(to: UInt8.self)
+            return SentryDefaultObjCRuntimeWrapper.classes(inSection: section, size: UInt(raw.count))
+        }
+
+        // -- Assert --
+        XCTAssertEqual(classes.count, 2)
+        XCTAssertTrue(classes[0] == FirstViewController.self)
+        XCTAssertTrue(classes[1] == SecondViewController.self)
+    }
+
     /// End-to-end regression test for GH-8152. The other tests inject a fake class list through the
     /// stub wrapper; this one drives the REAL `SentryDefaultObjCRuntimeWrapper` through the finder
     /// against this test bundle's image. It proves the production enumeration path — reading the
