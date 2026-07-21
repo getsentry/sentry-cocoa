@@ -16,9 +16,11 @@ public final class SentryDefaultObjCRuntimeWrapper: NSObject, SentryObjCRuntimeW
     }
 
     // Only supported on iOS, tvOS, and visionOS, matching `SentrySubClassFinder`, its only caller.
-    // It reads `mach_header_64` via `getsectiondata`, which isn't available on 32-bit watchOS device
-    // slices (`arm64_32`, `armv7k`), so we don't build it there.
-#if os(iOS) || os(tvOS) || os(visionOS)
+    // It reads `mach_header_64` via `getsectiondata`, so we gate it to 64-bit architectures. This
+    // covers every slice these platforms ship (`arm64`/`arm64e` devices, `arm64`/`x86_64`
+    // simulators) and excludes the 32-bit watchOS device slices (`arm64_32`, `armv7k`), where the
+    // 64-bit header layout doesn't apply.
+#if (os(iOS) || os(tvOS) || os(visionOS)) && (arch(arm64) || arch(x86_64))
     @_spi(Private)
     public func classes(forImage image: UnsafePointer<CChar>) -> [AnyClass] {
         let imageName = String(cString: image)
