@@ -28,7 +28,7 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         XCTAssertNotNil(sut)
         XCTAssertEqual(installer.installCalls.count, 1)
         XCTAssertEqual(installer.installCalls[0].installPath, options.cacheDirectoryPath)
-        XCTAssertEqual(installer.installCalls[0].monitors, SentryKSCrash.productionSafeMonitors.rawValue)
+        XCTAssertEqual(installer.installCalls[0].monitors, SentryKSCrash.productionSafeMonitors)
     }
 
     func testInstall_whenCrashedLastLaunch_shouldSetFatalDetected() {
