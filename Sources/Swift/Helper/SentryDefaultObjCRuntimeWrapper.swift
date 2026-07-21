@@ -62,14 +62,23 @@ public final class SentryDefaultObjCRuntimeWrapper: NSObject, SentryObjCRuntimeW
                 return []
             }
 
-            let count = Int(size) / MemoryLayout<UnsafeRawPointer>.size
-            return section.withMemoryRebound(to: UnsafeRawPointer.self, capacity: count) { classes in
-                (0..<count).map { unsafeBitCast(classes[$0], to: AnyClass.self) }
-            }
+            return Self.classes(inSection: section, size: size)
         }
 
         SentrySDKLog.debug("Image not found in loaded images: \(String(cString: image)).")
         return []
+    }
+
+    // Internal so tests can exercise the null-entry edge case, which a real dyld-loaded
+    // `__objc_classlist` section can't be made to contain.
+    static func classes(inSection section: UnsafeMutablePointer<UInt8>, size: UInt) -> [AnyClass] {
+        // The section holds ObjC `Class _Nullable` pointers, so `AnyClass?` is their honest
+        // Swift type: reading through it needs no unsafeBitCast, and a null entry (malformed
+        // section) becomes `nil` and is skipped instead of producing an invalid `AnyClass`.
+        let count = Int(size) / MemoryLayout<AnyClass?>.stride
+        return section.withMemoryRebound(to: AnyClass?.self, capacity: count) { classes in
+            UnsafeBufferPointer(start: classes, count: count).compactMap { $0 }
+        }
     }
 #endif
 }

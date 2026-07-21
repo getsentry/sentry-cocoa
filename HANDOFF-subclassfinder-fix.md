@@ -55,8 +55,9 @@ Same structure, but get class **pointers** without realizing:
 - Default impl (`SentryDefaultObjCRuntimeWrapper`): `import MachO`; find the image
   via `_dyld_image_count`/`_dyld_get_image_name`; read
   `getsectiondata(header, "__DATA_CONST", "__objc_classlist", &size)` (fallback
-  `"__DATA"`); `unsafeBitCast` each entry to `AnyClass`. These are dyld-bound but
-  **not realized**.
+  `"__DATA"`); rebind the section to `AnyClass?` (the honest type of its
+  `Class _Nullable` entries — no `unsafeBitCast`) and `compactMap` out nulls. These
+  are dyld-bound but **not realized**.
 - Finder: iterate `classes(forImage:)`, run the unchanged `isClass` superclass walk,
   read matches' names via `class_getName` (does NOT realize, does NOT call
   `+initialize`), apply `swizzleClassNameExcludes`, collect names. Main-thread pass
