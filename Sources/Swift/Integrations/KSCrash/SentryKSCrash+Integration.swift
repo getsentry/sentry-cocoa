@@ -32,9 +32,15 @@ extension SentryKSCrash {
             self.options = options
             super.init()
 
+            // To match KSCrash & SentryCrash, we need to add 'KSCrash/<bundlename>' to the cacheDirectoryPath
+            let installPath = URL(fileURLWithPath: options.cacheDirectoryPath)
+                .appendingPathComponent("KSCrash")
+                .appendingPathComponent(Bundle.main.infoDictionary?["CFBundleIdentifier"] as? String ?? "Unknown")
+                .absoluteURL
+
             do {
                 try dependencies.kscrashInstaller.install(
-                    installPath: options.cacheDirectoryPath,
+                    installPath: installPath.path,
                     monitors: productionSafeMonitors,
                     enableSwapCxaThrow: options.experimental.enableUnhandledCPPExceptionsV2
                 )
