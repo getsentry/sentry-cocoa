@@ -34,6 +34,7 @@ public final class SentryDefaultObjCRuntimeWrapper: NSObject, SentryObjCRuntimeW
                 continue
             }
             guard let header = _dyld_get_image_header(index) else {
+                SentrySDKLog.warning("No header for image: \(String(cString: image)). Skipping class list.")
                 return []
             }
 
@@ -43,6 +44,7 @@ public final class SentryDefaultObjCRuntimeWrapper: NSObject, SentryObjCRuntimeW
             // such an image instead of going off into the weeds. `magic` is the first field of both
             // `mach_header` and `mach_header_64`, so we can read it before rebinding.
             guard header.pointee.magic == MH_MAGIC_64 else {
+                SentrySDKLog.warning("Header for image: \(String(cString: image)) isn't a mach_header_64. Skipping class list.")
                 return []
             }
 
@@ -56,6 +58,7 @@ public final class SentryDefaultObjCRuntimeWrapper: NSObject, SentryObjCRuntimeW
                     ?? getsectiondata(header, "__DATA", "__objc_classlist", &size)
             }
             guard let section else {
+                SentrySDKLog.debug("No __objc_classlist section for image: \(String(cString: image)).")
                 return []
             }
 
@@ -65,6 +68,7 @@ public final class SentryDefaultObjCRuntimeWrapper: NSObject, SentryObjCRuntimeW
             }
         }
 
+        SentrySDKLog.debug("Image not found in loaded images: \(String(cString: image)).")
         return []
     }
 #endif
