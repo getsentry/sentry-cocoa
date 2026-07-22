@@ -62,6 +62,7 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
         scope.addAttributesToItem(&mutableMetric, metadata: self.scopeMetaData)
 
         if let beforeSendMetric = beforeSendMetric {
+            // Create a non-mutated copy of the metric, because it could be modified by the SDK user's `beforeSendMetric` 
             let metricToSend = mutableMetric
             guard let processedItem = beforeSendMetric(mutableMetric) else {
                 SentrySDKLog.debug("Metric dropped by beforeSendMetric callback.")
