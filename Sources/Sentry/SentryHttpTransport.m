@@ -251,6 +251,7 @@
     [self recordLostEvent:dataCategory reason:SentryDiscardReasonRateLimitBackoff];
     [self recordLostSpans:envelopeItem reason:SentryDiscardReasonRateLimitBackoff];
     [self recordLostLogBytes:envelopeItem reason:SentryDiscardReasonRateLimitBackoff];
+    [self recordLostTraceMetricBytes:envelopeItem reason:SentryDiscardReasonRateLimitBackoff];
 }
 
 - (void)envelopeItemDeleted:(SentryEnvelopeItem *)envelopeItem
@@ -259,6 +260,7 @@
     [self recordLostEvent:dataCategory reason:SentryDiscardReasonCacheOverflow];
     [self recordLostSpans:envelopeItem reason:SentryDiscardReasonCacheOverflow];
     [self recordLostLogBytes:envelopeItem reason:SentryDiscardReasonCacheOverflow];
+    [self recordLostTraceMetricBytes:envelopeItem reason:SentryDiscardReasonCacheOverflow];
 }
 
 #pragma mark private methods
@@ -473,6 +475,7 @@
         [self recordLostEvent:category reason:SentryDiscardReasonSendError];
         [self recordLostSpans:item reason:SentryDiscardReasonSendError];
         [self recordLostLogBytes:item reason:SentryDiscardReasonSendError];
+        [self recordLostTraceMetricBytes:item reason:SentryDiscardReasonSendError];
     }
 }
 
@@ -481,6 +484,15 @@
     if ([SentryEnvelopeItemTypes.log isEqualToString:envelopeItem.type]) {
         NSUInteger byteCount = envelopeItem.data.length;
         [self recordLostEvent:SentryDataCategoryLogByte reason:reason quantity:byteCount];
+    }
+}
+
+- (void)recordLostTraceMetricBytes:(SentryEnvelopeItem *)envelopeItem
+                            reason:(SentryDiscardReason)reason
+{
+    if ([SentryEnvelopeItemTypes.traceMetric isEqualToString:envelopeItem.type]) {
+        NSUInteger byteCount = envelopeItem.data.length;
+        [self recordLostEvent:SentryDataCategoryTraceMetricByte reason:reason quantity:byteCount];
     }
 }
 
