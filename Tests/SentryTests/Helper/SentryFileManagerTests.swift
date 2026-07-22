@@ -60,7 +60,7 @@ class SentryFileManagerTests: XCTestCase {
                 dispatchQueueWrapper: dispatchQueueWrapper
             ))
             sut.envelopeDeletedCallback = { [weak self] _, category in
-                self?.envelopeItemsDeleted.record(SentryDataCategory(category))
+                self?.envelopeItemsDeleted.record(category)
             }
             return sut
         }
@@ -73,7 +73,7 @@ class SentryFileManagerTests: XCTestCase {
                 dispatchQueueWrapper: dispatchQueueWrapper
             ))
             sut.envelopeDeletedCallback = { [weak self] _, category in
-                self?.envelopeItemsDeleted.record(SentryDataCategory(category))
+                self?.envelopeItemsDeleted.record(category)
             }
             return sut
         }

@@ -82,10 +82,8 @@
         [self.envelopeRateLimit setDelegate:self];
         typeof(self) __weak weakSelf = self;
         [self.fileManager
-            setEnvelopeDeletedCallback:^(SentryEnvelopeItem *item, NSUInteger category) {
-                [weakSelf
-                    envelopeItemDeleted:item
-                           withCategory:[SentryDataCategoryMapper categoryForNSUInteger:category]];
+            setEnvelopeDeletedCallback:^(SentryEnvelopeItem *item, SentryDataCategory category) {
+                [weakSelf envelopeItemDeleted:item withCategory:category];
             }];
 
         [self sendAllCachedEnvelopes];

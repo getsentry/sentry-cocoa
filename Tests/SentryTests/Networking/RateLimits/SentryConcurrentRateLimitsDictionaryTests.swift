@@ -37,8 +37,8 @@ class ConcurrentRateLimitsDictionaryTests: XCTestCase {
         let queue1 = DispatchQueue(label: "SentryConcurrentRateLimitsStorageTests1", attributes: [.concurrent, .initiallyInactive])
         let queue2 = DispatchQueue(label: "SentryConcurrentRateLimitsStorageTests2", attributes: [.concurrent, .initiallyInactive])
 
-        // The closed Swift SentryDataCategory has raw values 0...16, so the offsets below use
-        // 4/8/12 (with loopCount 4) to keep every fabricated category in range and distinct.
+        // SentryDataCategory has 16 cases, so the offsets below use 4/8/12 (with loopCount 4)
+        // to keep every fabricated category in range and distinct.
         let loopCount = 4
         let expectation = XCTestExpectation(description: "ConcurrentReadWrite")
         expectation.expectedFulfillmentCount = loopCount * 2
@@ -49,26 +49,25 @@ class ConcurrentRateLimitsDictionaryTests: XCTestCase {
             let date = self.currentDateProvider.date().addingTimeInterval(TimeInterval(i))
 
             queue1.async {
-                let a = i as NSNumber
-                let b = 4 + i as NSNumber
+                let a = self.getCategory(index: i)
+                let b = self.getCategory(index: 4 + i)
 
-                self.sut.addRateLimit(self.getCategory(rawValue: a), validUntil: date)
-                self.sut.addRateLimit(self.getCategory(rawValue: b), validUntil: date)
-                XCTAssertEqual(date, self.sut.getRateLimit(for: self.getCategory(rawValue: a)))
-                XCTAssertEqual(date, self.sut.getRateLimit(for: self.getCategory(rawValue: b)))
+                self.sut.addRateLimit(a, validUntil: date)
+                self.sut.addRateLimit(b, validUntil: date)
+                XCTAssertEqual(date, self.sut.getRateLimit(for: a))
+                XCTAssertEqual(date, self.sut.getRateLimit(for: b))
 
                 expectation.fulfill()
             }
 
             queue2.async {
+                let c = self.getCategory(index: 8 + i)
+                let d = self.getCategory(index: 12 + i)
 
-                let c = 8 + i as NSNumber
-                let d = 12 + i as NSNumber
+                self.sut.addRateLimit(c, validUntil: date)
 
-                self.sut.addRateLimit(self.getCategory(rawValue: c), validUntil: date)
-
-                XCTAssertEqual(date, self.sut.getRateLimit(for: self.getCategory(rawValue: c)))
-                self.sut.addRateLimit(self.getCategory(rawValue: d), validUntil: date)
+                XCTAssertEqual(date, self.sut.getRateLimit(for: c))
+                self.sut.addRateLimit(d, validUntil: date)
                 expectation.fulfill()
             }
         }
@@ -81,24 +80,19 @@ class ConcurrentRateLimitsDictionaryTests: XCTestCase {
         for i in 0..<loopCount {
             let date = self.currentDateProvider.date().addingTimeInterval(TimeInterval(i))
 
-            let a = i as NSNumber
-            let b = 4 + i as NSNumber
-            let c = 8 + i as NSNumber
-            let d = 12 + i as NSNumber
-
-            XCTAssertEqual(date, sut.getRateLimit(for: getCategory(rawValue: a)))
-            XCTAssertEqual(date, sut.getRateLimit(for: getCategory(rawValue: b)))
-            XCTAssertEqual(date, sut.getRateLimit(for: getCategory(rawValue: c)))
-            XCTAssertEqual(date, sut.getRateLimit(for: getCategory(rawValue: d)))
+            XCTAssertEqual(date, sut.getRateLimit(for: getCategory(index: i)))
+            XCTAssertEqual(date, sut.getRateLimit(for: getCategory(index: 4 + i)))
+            XCTAssertEqual(date, sut.getRateLimit(for: getCategory(index: 8 + i)))
+            XCTAssertEqual(date, sut.getRateLimit(for: getCategory(index: 12 + i)))
         }
     }
 
-    private func getCategory(rawValue: NSNumber) -> SentryDataCategory {
-        func failedToCreateCategory() -> SentryDataCategory {
-            XCTFail("Could not create category from \(rawValue)")
+    private func getCategory(index: Int) -> SentryDataCategory {
+        let allCases = SentryDataCategory.allCases
+        guard index < allCases.count else {
+            XCTFail("Could not create category from index \(index)")
             return SentryDataCategory.default
         }
-
-        return SentryDataCategory(rawValue: UInt(truncating: rawValue)) ?? failedToCreateCategory()
+        return allCases[index]
     }
 }

@@ -458,7 +458,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     public func sessionReplayNewSegment(replayEvent: SentryReplayEvent, replayRecording: SentryReplayRecording, videoUrl: URL) {
         SentrySDKLog.debug("[Session Replay] New segment with replay event, eventId: \(replayEvent.eventId), segmentId: \(replayEvent.segmentId)")
 
-        if rateLimits.isRateLimitActive(SentryDataCategory.replay.rawValue) || rateLimits.isRateLimitActive(SentryDataCategory.all.rawValue) {
+        if rateLimits.isRateLimitActive(.replay) || rateLimits.isRateLimitActive(.all) {
             rateLimited = true
             stop()
             return

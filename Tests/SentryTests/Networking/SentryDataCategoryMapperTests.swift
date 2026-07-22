@@ -17,28 +17,6 @@ class SentryDataCategoryMapperTests: XCTestCase {
         XCTAssertEqual(SentryDataCategory(itemType: "unknown item type"), .default)
     }
 
-    func testMapIntegerToCategory() {
-        XCTAssertEqual(SentryDataCategory(rawValue: 0), .all)
-        XCTAssertEqual(SentryDataCategory(rawValue: 1), .default)
-        XCTAssertEqual(SentryDataCategory(rawValue: 2), .error)
-        XCTAssertEqual(SentryDataCategory(rawValue: 3), .session)
-        XCTAssertEqual(SentryDataCategory(rawValue: 4), .transaction)
-        XCTAssertEqual(SentryDataCategory(rawValue: 5), .attachment)
-        XCTAssertEqual(SentryDataCategory(rawValue: 6), .userFeedback)
-        XCTAssertEqual(SentryDataCategory(rawValue: 7), .profile)
-        XCTAssertEqual(SentryDataCategory(rawValue: 8), .metricBucket)
-        XCTAssertEqual(SentryDataCategory(rawValue: 9), .replay)
-        XCTAssertEqual(SentryDataCategory(rawValue: 10), .profileChunkUI)
-        XCTAssertEqual(SentryDataCategory(rawValue: 11), .span)
-        XCTAssertEqual(SentryDataCategory(rawValue: 12), .feedback)
-        XCTAssertEqual(SentryDataCategory(rawValue: 13), .logItem)
-        XCTAssertEqual(SentryDataCategory(rawValue: 14), .traceMetric)
-        XCTAssertEqual(SentryDataCategory(rawValue: 15), .logByte)
-        XCTAssertEqual(SentryDataCategory(rawValue: 16), .unknown)
-
-        XCTAssertEqual(.unknown, SentryDataCategory(rawValue: 17) ?? .unknown, "Failed to map out-of-range category number to case .unknown")
-    }
-
     func testMapStringToCategory() {
         XCTAssertEqual(SentryDataCategory(name: ""), .all)
         XCTAssertEqual(SentryDataCategory(name: "default"), .default)
