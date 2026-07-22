@@ -4,28 +4,6 @@ import UIKit
 public class SampleAppDebugMenu: NSObject {
     public static let shared = SampleAppDebugMenu()
 
-    static var displayingMenu = false
-
-    let window = {
-        if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-            return Window(windowScene: scene)
-        }
-        return Window()
-    }()
-
-    lazy var rootVC = {
-        let uivc = UIViewController(nibName: nil, bundle: nil)
-        uivc.view.addSubview(button)
-
-        button.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            button.leadingAnchor.constraint(equalTo: uivc.view.safeAreaLayoutGuide.leadingAnchor, constant: 25),
-            button.bottomAnchor.constraint(equalTo: uivc.view.safeAreaLayoutGuide.bottomAnchor, constant: -75)
-        ])
-
-        return uivc
-    }()
-
     lazy var button = {
         let button = UIButton(type: .custom)
         button.addTarget(self, action: #selector(displayDebugMenu), for: .touchUpInside)
@@ -34,59 +12,30 @@ public class SampleAppDebugMenu: NSObject {
         return button
     }()
 
-    @objc public func display() {
-        window.rootViewController = rootVC
-        window.isHidden = false
+    @objc public func display(in windowScene: UIWindowScene) {
+        guard let window = windowScene.windows.first(where: \.isKeyWindow)
+            ?? windowScene.windows.first(where: { !$0.isHidden })
+            ?? windowScene.windows.first else {
+            return
+        }
+
+        if button.superview !== window {
+            button.removeFromSuperview()
+            window.addSubview(button)
+            button.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                button.leadingAnchor.constraint(equalTo: window.safeAreaLayoutGuide.leadingAnchor, constant: 25),
+                button.bottomAnchor.constraint(equalTo: window.safeAreaLayoutGuide.bottomAnchor, constant: -75)
+            ])
+        }
+        window.bringSubviewToFront(button)
     }
 
     @objc func displayDebugMenu() {
-        SampleAppDebugMenu.displayingMenu = true
-
+        guard let presenter = SampleAppUI.presentingViewController(in: button.window) else { return }
         let listVC = FeaturesViewController(nibName: nil, bundle: nil)
-        listVC.presentationController?.delegate = self
-        rootVC.present(listVC, animated: true)
-    }
-
-    class Window: UIWindow {
-
-        override init(windowScene: UIWindowScene) {
-            super.init(windowScene: windowScene)
-            commonInit()
-        }
-
-        init() {
-            super.init(frame: UIScreen.main.bounds)
-            commonInit()
-        }
-
-        func commonInit() {
-            windowLevel = UIWindow.Level.alert + 1
-        }
-
-        required init?(coder: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
-        }
-
-        override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
-            guard !SampleAppDebugMenu.displayingMenu else {
-                return super.hitTest(point, with: event)
-            }
-
-            guard let result = super.hitTest(point, with: event) else {
-                return nil
-            }
-            guard result.isKind(of: UIButton.self) else {
-                return nil
-            }
-            return result
-        }
+        presenter.present(listVC, animated: true)
     }
 }
 
-extension SampleAppDebugMenu: UIAdaptivePresentationControllerDelegate {
-    public func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
-        rootVC.dismiss(animated: true)
-        SampleAppDebugMenu.displayingMenu = false
-    }
-}
 #endif // !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
