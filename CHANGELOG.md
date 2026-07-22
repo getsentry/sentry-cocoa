@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- Add a depth limit to view hierarchy serialization to prevent a stack overflow crash on deeply nested view hierarchies (#8292)
+
 ### Improvements
 
 - Reduce slight overhead during SDK start by skipping an unnecessary main thread dispatch when there's no work to do (#8494)
@@ -64,7 +68,6 @@
 ### Fixes
 
 - Fix use-after-free crash in `SentrySDKInternal.isEnabled` (#8310)
-- Add a depth limit to view hierarchy serialization to prevent a stack overflow crash on deeply nested view hierarchies (#8268)
 - Fix dropped `platform` item header in profile-chunk envelopes (#8269)
 - Fix crash report ID generation so reports created at certain timestamps are not ignored (#8216)
 - Fix C++ exception capture on newer OS versions by page-aligning `mprotect` calls in the `__cxa_throw` swapper (#8221)
