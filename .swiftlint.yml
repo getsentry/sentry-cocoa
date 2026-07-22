@@ -137,3 +137,13 @@ custom_rules:
     match_kinds:
       - identifier
     severity: error
+  avoid_direct_associated_object_access:
+    name: "Avoid direct associated object access"
+    message: "Use AssociatedObjectAccessor instead of calling the Objective-C associated object APIs directly."
+    regex: "objc_(get|set)AssociatedObject"
+    match_kinds:
+      - identifier
+    severity: error
+    excluded:
+      - "./Sources/Swift/Core/Helper/AssociatedObjectAccessor.swift"
+      - "./Tests/.*\\.swift"
