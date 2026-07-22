@@ -18,6 +18,8 @@ configs:
 packages:
   Sentry:
     path: ../..
+    traits:
+      - NoUIFramework
 fileGroups:
   - macOS-CLI-Xcode.yml
 options:

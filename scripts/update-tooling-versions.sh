@@ -18,6 +18,7 @@ case "$CLANG_FORMAT_VERSION_STR" in
 esac
 
 swiftlint version > .swiftlint-version
+xcodegen --version | awk -F ': ' '{print $2}' > .xcodegen-version
 
 # -- End Script --
 

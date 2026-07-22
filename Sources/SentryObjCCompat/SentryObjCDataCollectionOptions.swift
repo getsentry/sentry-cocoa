@@ -52,9 +52,9 @@ public final class SentryObjCDataCollectionOptions: NSObject {
         set { storage.value.httpBodies = newValue.underlying }
     }
 
-    @objc public var queryParams: SentryObjCDataCollectionKeyValueCollectionBehavior {
-        get { SentryObjCDataCollectionKeyValueCollectionBehavior(storage.value.queryParams) }
-        set { storage.value.queryParams = newValue.wrapped }
+    @objc public var urlQueryParams: SentryObjCDataCollectionKeyValueCollectionBehavior {
+        get { SentryObjCDataCollectionKeyValueCollectionBehavior(storage.value.urlQueryParams) }
+        set { storage.value.urlQueryParams = newValue.wrapped }
     }
 
     @objc public var graphql: SentryObjCDataCollectionGraphQLCollectionOptions {

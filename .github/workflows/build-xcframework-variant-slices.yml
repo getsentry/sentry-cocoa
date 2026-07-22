@@ -83,9 +83,9 @@ jobs:
           RELEASE_VERSION: ${{ inputs.release-version }}
         run: |
           if [ -n "$RELEASE_VERSION" ]; then
-            echo "VERSION=$RELEASE_VERSION" >> $GITHUB_ENV
+            echo "VERSION=$RELEASE_VERSION" >> "$GITHUB_ENV"
           else
-            echo "VERSION=$(grep MARKETING_VERSION Sources/Configuration/Versioning.xcconfig | cut -d ' ' -f 3)+$GITHUB_SHA" >> $GITHUB_ENV
+            echo "VERSION=$(grep MARKETING_VERSION Sources/Configuration/Versioning.xcconfig | cut -d ' ' -f 3)+$GITHUB_SHA" >> "$GITHUB_ENV"
           fi
         shell: sh
 
@@ -125,7 +125,7 @@ jobs:
           INPUT_SUFFIX: ${{ inputs.suffix }}
           MATRIX_SDK: ${{ matrix.sdk }}
         run: |
-          ditto -c -k -X --rsrc --keepParent ${GITHUB_WORKSPACE}/XCFrameworkBuildPath/archive/${INPUT_NAME}${INPUT_SUFFIX}/${MATRIX_SDK}.xcarchive ${INPUT_NAME}${INPUT_SUFFIX}.xcarchive.zip
+          ditto -c -k -X --rsrc --keepParent "$GITHUB_WORKSPACE/XCFrameworkBuildPath/archive/$INPUT_NAME$INPUT_SUFFIX/$MATRIX_SDK.xcarchive" "$INPUT_NAME$INPUT_SUFFIX.xcarchive.zip"
         shell: bash
 
       - name: Upload xcarchive

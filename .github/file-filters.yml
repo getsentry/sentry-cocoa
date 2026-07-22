@@ -182,6 +182,7 @@ run_auto_update_tools_for_prs: &run_auto_update_tools_for_prs
   - ".pre-commit-config.yaml"
   - "scripts/.clang-format-version"
   - "scripts/.swiftlint-version"
+  - "scripts/.xcodegen-version"
 
   # Scripts
   - "scripts/check-tooling-versions.sh"
@@ -382,6 +383,9 @@ run_build_for_prs: &run_build_for_prs
   - "scripts/check-ui-framework-linkage.sh"
   - "scripts/ci-utils.sh"
   - "scripts/prepare-package.sh"
+
+  # Tool configuration
+  - "scripts/.xcodegen-version"
 
   # Build configuration
   - "fastlane/**"

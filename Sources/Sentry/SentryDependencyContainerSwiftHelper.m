@@ -50,11 +50,6 @@
     return [SentryEnabledFeaturesBuilder getEnabledFeaturesWithOptions:options];
 }
 
-+ (BOOL)sendDefaultPii:(SentryOptions *)options
-{
-    return options.sendDefaultPii;
-}
-
 + (SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     return SentryDependencyContainer.sharedInstance.dispatchQueueWrapper;
