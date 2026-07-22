@@ -112,7 +112,7 @@
 - (void)testCookies_whenV10Set_shouldReturnNewDictionary
 {
 #if !SDK_V10
-    return XCTFail("Test is only available in v10")
+    return XCTSkip("Test is only available in v10");
 #else
     // -- Arrange --
     SentryObjCRequest *request = [[SentryObjCRequest alloc] init];
