@@ -159,8 +159,8 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
     tryJson(sentrycrashjson_beginArray(context, "children"));
     if (depth >= SENTRY_VIEW_HIERARCHY_MAX_DEPTH && view.subviews.count > 0) {
         tryJson(sentrycrashjson_beginObject(context, NULL));
-        tryJson(sentrycrashjson_addStringElement(context, "type", "SentryTruncatedViewHierarchy",
-            SentryCrashJSON_SIZE_AUTOMATIC));
+        tryJson(sentrycrashjson_addStringElement(
+            context, "type", "SentryTruncatedViewHierarchy", SentryCrashJSON_SIZE_AUTOMATIC));
         tryJson(sentrycrashjson_endContainer(context));
     } else {
         for (UIView *child in view.subviews) {

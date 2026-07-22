@@ -37,9 +37,7 @@ class SentryViewHierarchyProviderTests: XCTestCase {
         return window
     }
 
-    private func viewHierarchyObject(for window: UIWindow) throws -> [String: Any] {
-        fixture.uiApplication.windows = [window]
-
+    private func serializedViewHierarchyObject() throws -> [String: Any] {
         let data = try XCTUnwrap(self.fixture.sut.appViewHierarchy())
         return try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
     }
@@ -150,36 +148,58 @@ class SentryViewHierarchyProviderTests: XCTestCase {
     }
 
     func test_ViewHierarchy_withDeepHierarchy_shouldTruncateAndSerializeValidJSON() throws {
+        // -- Arrange --
         let window = makeWindowWithNestedSubviews(count: 1_000)
+        fixture.uiApplication.windows = [window]
 
-        let object = try viewHierarchyObject(for: window)
+        // -- Act --
+        let object = try serializedViewHierarchyObject()
+
+        // -- Assert --
         let windowNode = try firstWindowNode(from: object)
-
-        XCTAssertTrue(containsTruncationMarker(in: windowNode))
+        XCTAssertTrue(
+            containsTruncationMarker(in: windowNode),
+            "A hierarchy nested beyond the depth limit must contain a truncation marker node"
+        )
         XCTAssertEqual(nestedSubviewDepth(from: windowNode), Self.viewHierarchyMaxDepth)
     }
 
     func test_ViewHierarchy_atDepthLimit_shouldNotTruncate() throws {
+        // -- Arrange --
         let window = makeWindowWithNestedSubviews(count: Self.viewHierarchyMaxDepth)
+        fixture.uiApplication.windows = [window]
 
-        let object = try viewHierarchyObject(for: window)
+        // -- Act --
+        let object = try serializedViewHierarchyObject()
+
+        // -- Assert --
         let windowNode = try firstWindowNode(from: object)
-
-        XCTAssertFalse(containsTruncationMarker(in: windowNode))
+        XCTAssertFalse(
+            containsTruncationMarker(in: windowNode),
+            "A hierarchy nested exactly at the depth limit must not contain a truncation marker node"
+        )
         XCTAssertEqual(nestedSubviewDepth(from: windowNode), Self.viewHierarchyMaxDepth)
     }
 
     func test_ViewHierarchy_beyondDepthLimit_shouldTruncate() throws {
+        // -- Arrange --
         let window = makeWindowWithNestedSubviews(count: Self.viewHierarchyMaxDepth + 1)
+        fixture.uiApplication.windows = [window]
 
-        let object = try viewHierarchyObject(for: window)
+        // -- Act --
+        let object = try serializedViewHierarchyObject()
+
+        // -- Assert --
         let windowNode = try firstWindowNode(from: object)
-
-        XCTAssertTrue(containsTruncationMarker(in: windowNode))
+        XCTAssertTrue(
+            containsTruncationMarker(in: windowNode),
+            "A hierarchy nested one level beyond the depth limit must contain a truncation marker node"
+        )
         XCTAssertEqual(nestedSubviewDepth(from: windowNode), Self.viewHierarchyMaxDepth)
     }
 
     func test_ViewHierarchy_withOneChildTooDeep_shouldTruncateOnlyThatChild() throws {
+        // -- Arrange --
         let window = makeWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
 
         // A shallow sibling that stays well within the depth limit.
@@ -196,7 +216,12 @@ class SentryViewHierarchyProviderTests: XCTestCase {
             parent = nested
         }
 
-        let object = try viewHierarchyObject(for: window)
+        fixture.uiApplication.windows = [window]
+
+        // -- Act --
+        let object = try serializedViewHierarchyObject()
+
+        // -- Assert --
         let windowNode = try firstWindowNode(from: object)
         let children = childNodes(of: windowNode)
 
@@ -206,14 +231,18 @@ class SentryViewHierarchyProviderTests: XCTestCase {
         let shallowNode = children[0]
         let deepNode = children[1]
 
-        // The shallow sibling is reported in full and never truncated.
-        XCTAssertFalse(containsTruncationMarker(in: shallowNode))
-
-        // Only the over-deep sibling gets truncated.
-        XCTAssertTrue(containsTruncationMarker(in: deepNode))
+        XCTAssertFalse(
+            containsTruncationMarker(in: shallowNode),
+            "The shallow sibling stays within the depth limit and must not contain a truncation marker node"
+        )
+        XCTAssertTrue(
+            containsTruncationMarker(in: deepNode),
+            "The sibling nested beyond the depth limit must contain a truncation marker node"
+        )
     }
 
     func test_ViewHierarchy_withWideHierarchy_shouldNotTruncate() throws {
+        // -- Arrange --
         let window = makeWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
 
         for _ in 0..<50 {
@@ -221,11 +250,19 @@ class SentryViewHierarchyProviderTests: XCTestCase {
             window.addSubview(child)
         }
 
-        let object = try viewHierarchyObject(for: window)
+        fixture.uiApplication.windows = [window]
+
+        // -- Act --
+        let object = try serializedViewHierarchyObject()
+
+        // -- Assert --
         let windowNode = try firstWindowNode(from: object)
         let children = childNodes(of: windowNode)
 
-        XCTAssertFalse(containsTruncationMarker(in: windowNode))
+        XCTAssertFalse(
+            containsTruncationMarker(in: windowNode),
+            "A wide but shallow hierarchy must not contain a truncation marker node"
+        )
         XCTAssertEqual(children.count, 50)
     }
 
