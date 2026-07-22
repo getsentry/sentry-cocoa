@@ -1,4 +1,4 @@
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 
 /**
  * This scope observer is used by the Watchdog Termination integration to write breadcrumbs to disk.

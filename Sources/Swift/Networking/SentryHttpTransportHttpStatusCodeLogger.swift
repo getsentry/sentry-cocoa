@@ -1,4 +1,4 @@
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 import Foundation
 
 /// Logs error messages for HTTP transport failures.

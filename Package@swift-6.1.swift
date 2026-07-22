@@ -96,7 +96,7 @@ let sentrySwiftTarget: Target = .target(
     dependencies: ["_SentryPrivate", "SentryHeaders"],
     path: "Sources/Swift",
     swiftSettings: [
-        .unsafeFlags(["-enable-library-evolution"]),
+        // .unsafeFlags(["-enable-library-evolution", "-no-verify-emitted-module-interface"]),
         .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"])),
         .define("SDK_V10", .when(traits: ["V10"])),
         .define("SDK_V10", .when(traits: ["KSCrash"])),
