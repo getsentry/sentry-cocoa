@@ -9,6 +9,7 @@
 ### Fixes
 
 - Add a depth limit to view hierarchy serialization to prevent a stack overflow crash on deeply nested view hierarchies (#8292)
+- Persist the configured environment in crash reports so later app launches don't overwrite it (#8511)
 
 ### Improvements
 

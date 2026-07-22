@@ -120,6 +120,21 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         assertUserInfoField(userInfo: userInfo, key: "dist", expected: dist)
     }
 
+    func testConfigureScope_whenEnvironmentSetInOptions_shouldPassEnvironmentToSentryCrash() throws {
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
+        let environment = "production"
+        SentrySDK.start { options in
+            options.dsn = SentryCrashIntegrationTests.dsnAsString
+            options.environment = environment
+            options.removeAllIntegrations()
+            options.enableCrashHandler = true
+        }
+
+        let userInfo = try XCTUnwrap(SentryDependencyContainer.sharedInstance().crashReporter.userInfo)
+        assertUserInfoField(userInfo: userInfo, key: "environment", expected: environment)
+    }
+
     func testContext_IsPassedToSentryCrash() throws {
         try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
