@@ -2,7 +2,6 @@
 
 ## Unreleased
 
-
 ### Features
 
 - Record trace_metric_byte client reports (#8490)
