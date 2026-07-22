@@ -30,6 +30,8 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         XCTAssertNotNil(sut)
         XCTAssertEqual(installer.installCalls.count, 1)
         XCTAssertEqual(installer.installCalls[0].monitors, SentryKSCrash.productionSafeMonitors)
+        XCTAssertEqual(installer.sendAllReportsInvocations.count, 1)
+        XCTAssertEqual(deps.testDispatchQueueWrapper.dispatchAsyncCalled, 1)
     }
 
     func testInstall_whenCrashHandlerEnabled_shouldAppendKSCrashBundleSubdirectory() {
@@ -69,6 +71,7 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         let sut = SentryKSCrash.Integration(with: makeOptions(), dependencies: deps)
 
         XCTAssertNil(sut)
+        XCTAssertEqual(installer.sendAllReportsInvocations.count, 0)
     }
 
     // MARK: - Last-run crash APIs
@@ -91,6 +94,7 @@ class SentryKSCrashIntegrationTests: XCTestCase {
 
         XCTAssertNil(sut)
         XCTAssertEqual(installer.installCalls.count, 0)
+        XCTAssertEqual(installer.sendAllReportsInvocations.count, 0)
     }
 }
 #endif
