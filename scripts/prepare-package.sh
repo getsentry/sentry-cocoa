@@ -165,11 +165,7 @@ for PACKAGE_FILE in "${PACKAGE_FILES[@]}"; do
 
     # Keep only source-backed products in the products array. Additional source products can be
     # appended later in the file, such as SentrySPM and SentryObjC.
-    sed -i '' '/^var products: \[Product\] = \[/,/^]/c\
-var products: [Product] = [\
-    .library(name: "SentryDistribution", targets: ["SentryDistribution"]),\
-]\
-' "$PACKAGE_FILE"
+    sed -i '' '/BEGIN:BINARY_PRODUCTS/,/END:BINARY_PRODUCTS/d' "$PACKAGE_FILE"
 
     # Keep only the SentryDistribution target in the targets array.
     sed -i '' '/^var targets: \[Target\] = \[/,/^]/c\
