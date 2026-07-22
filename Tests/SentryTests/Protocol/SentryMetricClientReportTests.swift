@@ -83,4 +83,20 @@ final class SentryMetricClientReportTests: XCTestCase {
         // The default approximates the size of a typical metric (see SentryMetricClientReport).
         XCTAssertEqual(byteCount, 512)
     }
+
+    func testSentryMetricObjC_SerializedByteCount_DelegatesToHelper() throws {
+        // -- Arrange --
+        let metric = makeMetric(
+            name: "api.response_time",
+            attributes: ["endpoint": .string("/users")]
+        )
+        let box = SentryMetricObjC(metric: metric)
+
+        // -- Act --
+        let boxCount = box.serializedByteCount()
+
+        // -- Assert --
+        // The box is just a boundary-crossing wrapper; its byte count must match the helper.
+        XCTAssertEqual(boxCount, SentryMetricClientReport.serializedByteCount(for: metric))
+    }
 }

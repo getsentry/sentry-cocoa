@@ -1201,12 +1201,13 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                            }];
 }
 
-- (void)recordDroppedTraceMetricInClientReportWithByteCountBlock:(NSUInteger (^)(
-                                                                     void))byteCountBlock
+- (void)recordDroppedTraceMetricInClientReport:(SentryMetricObjC *)metric
 {
     [self recordDroppedItemInClientReportWithItemCategory:SentryDataCategoryTraceMetric
                                              byteCategory:SentryDataCategoryTraceMetricByte
-                                           byteCountBlock:byteCountBlock];
+                                           byteCountBlock:^NSUInteger {
+                                               return [metric serializedByteCount];
+                                           }];
 }
 
 - (void)recordDroppedItemInClientReportWithItemCategory:(SentryDataCategory)itemCategory

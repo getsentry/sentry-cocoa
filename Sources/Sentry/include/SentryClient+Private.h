@@ -116,11 +116,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// that Swift imports.
 - (SENTRY_SWIFT_MIGRATION_ID(id<SentryObjCTelemetryProcessor>))getTelemetryProcessor;
 
-/// Takes a byte-count block instead of the metric because `SentryMetric` is a Swift struct that
-/// can't cross the ObjC boundary.
-- (void)recordDroppedTraceMetricInClientReportWithByteCountBlock:
-    (NSUInteger (^)(void))byteCountBlock
-    NS_SWIFT_NAME(recordDroppedTraceMetricInClientReport(byteCountBlock:));
+/// Records a dropped trace metric. Boxed in `SentryMetricObjC` (typed `id`, same header/Swift
+/// constraint as `getTelemetryProcessor` above) because `SentryMetric` is a Swift struct.
+- (void)recordDroppedTraceMetricInClientReport:(SENTRY_SWIFT_MIGRATION_ID(SentryMetricObjC))metric;
 
 @end
 

@@ -68,9 +68,7 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
                 SentrySDKLog.debug("Metric dropped by beforeSendMetric callback.")
                 // The byte size is computed lazily on a background queue inside the client, so the
                 // calling thread isn't blocked by serialization.
-                client.recordDroppedTraceMetricInClientReport(byteCountBlock: {
-                    SentryMetricClientReport.serializedByteCount(for: metricToSend)
-                })
+                client.recordDroppedTraceMetric(inClientReport: SentryMetricObjC(metric: metricToSend))
                 return
             }
             mutableMetric = processedItem
