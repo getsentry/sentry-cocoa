@@ -56,6 +56,7 @@
 #import "SentryCrashMonitor_CPPException.h"
 #import "SentryCrashMonitor_Signal.h"
 #import "SentryCrashMonitor_System.h"
+#import "SentryCrashReportProcessor.h"
 #import "SentryCrashReportSink.h"
 #import "SentryCrashScopeObserver.h"
 #import "SentryDateUtils.h"

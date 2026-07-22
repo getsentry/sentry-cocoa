@@ -1,6 +1,7 @@
 #if ENABLE_KSCRASH
 // swiftlint:disable:next no_implementation_only_import
 @_implementationOnly import KSCrashInstallations
+internal import _SentryPrivate
 
 extension SentryKSCrash {
     protocol Installing {
@@ -20,6 +21,9 @@ extension SentryKSCrash {
 
         /// Uninstall the crash handler for the current SDK lifecycle.
         func uninstall()
+
+        /// Processes all reports recorded during previous runs.
+        func sendAllReports(reportProcessor: SentryCrashReportProcessor)
 
         /// Whether the previous run crashed.
         var crashedLastLaunch: Bool { get }
@@ -46,6 +50,7 @@ extension SentryKSCrash {
             config.monitors = MonitorType(rawValue: monitors)
             config.enableMemoryIntrospection = enableMemoryIntrospection
             config.enableSwapCxaThrow = enableSwapCxaThrow
+            config.reportStoreConfiguration.reportCleanupPolicy = .onSuccess
             do {
                 try KSCrash.shared.install(with: config)
             } catch let error as NSError
@@ -61,6 +66,23 @@ extension SentryKSCrash {
         func uninstall() {
             // KSCrash itself cannot be uninstalled in-process (process-lifetime).
             installed = false
+        }
+
+        func sendAllReports(reportProcessor: SentryCrashReportProcessor) {
+            guard let reportStore = KSCrash.shared.reportStore else {
+                SentrySDKLog.error("KSCrash report store is unavailable; retaining crash reports.")
+                return
+            }
+
+            reportStore.sink = SentryKSCrash.ReportFilter(reportProcessor: reportProcessor)
+            reportStore.reportCleanupPolicy = .onSuccess
+            reportStore.sendAllReports { filteredReports, error in
+                if let error = error {
+                    SentrySDKLog.error("Error processing KSCrash reports: \(error.localizedDescription)")
+                } else {
+                    SentrySDKLog.debug("Processed \(filteredReports?.count ?? 0) KSCrash report(s)")
+                }
+            }
         }
 
         var crashedLastLaunch: Bool { KSCrash.shared.crashedLastLaunch }

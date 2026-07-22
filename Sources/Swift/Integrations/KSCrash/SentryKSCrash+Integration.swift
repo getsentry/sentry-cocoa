@@ -6,17 +6,18 @@ import Foundation
 
 // MARK: - Integration
 extension SentryKSCrash {
-    typealias DependencyProvider = SentryKSCrash.InstallerProvider
+    typealias DependencyProvider = SentryKSCrash.InstallerProvider & DispatchQueueWrapperProvider
 
     /// Crash detectors matching SentryCrash's production monitor set:
     /// Mach exceptions, signals, C++ exceptions, and NSExceptions.
-    /// KSCrash unconditionally adds its Required monitors (System, AppState,
-    /// UserInfo, Resource) on top of whatever is passed here.
+    /// Required infrastructure monitors are explicit because KSCrash 2.6.0-beta.3
+    /// does not add them to its registered monitor set when given a custom mask.
     static let productionSafeMonitors: UInt = MonitorType([
         .machException,
         .signal,
         .cppException,
-        .nsException
+        .nsException,
+        .required
     ]).rawValue
 
     final class Integration<Dependencies: DependencyProvider>: NSObject, SwiftIntegration {
@@ -53,6 +54,13 @@ extension SentryKSCrash {
 
             if installer.crashedLastLaunch {
                 SentrySDKInternal.fatalDetected = true
+            }
+
+            let reportProcessor = SentryCrashReportProcessor(
+                inAppLogic: SentryInAppLogic(inAppIncludes: options.inAppIncludes)
+            )
+            dependencies.dispatchQueueWrapper.dispatchAsync {
+                installer.sendAllReports(reportProcessor: reportProcessor)
             }
         }
 

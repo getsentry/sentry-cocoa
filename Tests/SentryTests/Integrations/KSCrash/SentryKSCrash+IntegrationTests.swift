@@ -33,6 +33,8 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         XCTAssertNotNil(sut)
         XCTAssertEqual(installer.installCalls.count, 1)
         XCTAssertEqual(installer.installCalls[0].monitors, SentryKSCrash.productionSafeMonitors)
+        XCTAssertEqual(installer.sendAllReportsInvocations.count, 1)
+        XCTAssertEqual(deps.testDispatchQueueWrapper.dispatchAsyncCalled, 1)
     }
 
     func testInstall_whenMemoryIntrospectionEnabled_shouldEnableMemoryIntrospection() throws {
@@ -156,6 +158,7 @@ class SentryKSCrashIntegrationTests: XCTestCase {
 
         // -- Assert --
         XCTAssertNil(sut)
+        XCTAssertEqual(installer.sendAllReportsInvocations.count, 0)
     }
 
     // MARK: - Last-run crash APIs
@@ -227,6 +230,7 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         XCTAssertNil(sut)
         XCTAssertEqual(installer.installCalls.count, 0)
         XCTAssertFalse(installer.installed)
+        XCTAssertEqual(installer.sendAllReportsInvocations.count, 0)
     }
 
     func testUninstall_shouldClearInstallerInstalled() {

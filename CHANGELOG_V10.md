@@ -4,6 +4,7 @@
 
 ### Features
 
+- Process pending KSCrash reports into fatal Sentry events in `Sentry+KSCrash`
 - Install KSCrash crash handler in `Sentry+KSCrash` with production-safe monitors matching SentryCrash's existing monitor set (#8469)
   - Respect `options.enableMemoryIntrospection` when configuring KSCrash
 - Add `options.dataCollection` to configure data collection behaviour (#8448)
