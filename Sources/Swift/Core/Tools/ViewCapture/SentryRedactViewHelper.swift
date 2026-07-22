@@ -55,7 +55,7 @@ import WebKit
         .init(
             on: view,
             key: key,
-            policy: .OBJC_ASSOCIATION_ASSIGN,
+            policy: .OBJC_ASSOCIATION_RETAIN_NONATOMIC,
             decode: { ($0 as? NSNumber)?.boolValue },
             encode: { NSNumber(value: $0) }
         )
