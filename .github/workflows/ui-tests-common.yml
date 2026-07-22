@@ -24,7 +24,6 @@ on:
       macos_version:
         description: "macOS version"
         required: true
-        default: macos-26
         type: string
       needs_xcframework:
         description: "Whether the workflow needs to download the XCFramework."
