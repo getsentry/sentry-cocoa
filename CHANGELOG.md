@@ -6,6 +6,10 @@
 
 - Record trace_metric_byte client reports (#8490)
 
+### Improvements
+
+- Reduce slight overhead during SDK start by skipping an unnecessary main thread dispatch when there's no work to do (#8494)
+
 ### Breaking Changes
 
 - Only expose `experimental.dataCollection` APIs in SDK V10 (#8435)

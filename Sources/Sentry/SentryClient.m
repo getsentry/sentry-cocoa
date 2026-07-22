@@ -27,7 +27,6 @@
 #import "SentryTraceContext.h"
 #import "SentryTracer.h"
 #import "SentryTransaction.h"
-#import "SentryTransport.h"
 #import "SentryTransportAdapter.h"
 #import "SentryTransportFactory.h"
 #import "SentryUser.h"
@@ -138,11 +137,16 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                           initWithTransportAdapter:transportAdapter]
                          dependencies:SentryDependencyContainer.sharedInstance];
 
+#if SDK_V10
+        BOOL shouldAddDefaultUserId = options.dataCollectionObjC.userInfo;
+#else
+        BOOL shouldAddDefaultUserId = options.sendDefaultPii;
+#endif // SDK_V10
         self.logScopeApplier =
             [[SentryDefaultLogScopeApplier alloc] initWithEnvironment:options.environment
                                                           releaseName:options.releaseName
                                                    cacheDirectoryPath:options.cacheDirectoryPath
-                                                       sendDefaultPii:options.sendDefaultPii];
+                                               shouldAddDefaultUserId:shouldAddDefaultUserId];
 
         [crashWrapper startBinaryImageCache];
         [binaryImageCache start:options.debug];
@@ -974,6 +978,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (void)setUserIdIfNoUserSet:(SentryEvent *)event
 {
+#if SDK_V10
+    if (!self.options.dataCollectionObjC.userInfo) {
+        return;
+    }
+#endif // SDK_V10
     // We only want to set the id if the customer didn't set a user so we at least set something to
     // identify the user.
     if (event.user == nil) {

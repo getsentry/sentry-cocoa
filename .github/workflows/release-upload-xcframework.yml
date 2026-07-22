@@ -26,7 +26,7 @@ jobs:
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: Get Release workflow run ID
-        run: echo "FRAMEWORK_RUN_ID=$(./scripts/xcframework-generated-run.sh)" >> $GITHUB_ENV
+        run: echo "FRAMEWORK_RUN_ID=$(./scripts/xcframework-generated-run.sh)" >> "$GITHUB_ENV"
 
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:

@@ -191,7 +191,7 @@
     @synchronized(self) {
         if (_isFlushing) {
             SENTRY_LOG_DEBUG(@"Already flushing.");
-            return kSentryFlushResultAlreadyFlushing;
+            return SentryFlushResultAlreadyFlushing;
         }
 
         SENTRY_LOG_DEBUG(@"Start flushing.");
@@ -222,10 +222,10 @@
 
     if (result == 0) {
         SENTRY_LOG_DEBUG(@"Finished flushing.");
-        return kSentryFlushResultSuccess;
+        return SentryFlushResultSuccess;
     } else {
         SENTRY_LOG_WARN(@"Flushing timed out.");
-        return kSentryFlushResultTimedOut;
+        return SentryFlushResultTimedOut;
     }
 }
 

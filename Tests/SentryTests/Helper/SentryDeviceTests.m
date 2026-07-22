@@ -106,14 +106,14 @@
 #endif
 
 #if TARGET_OS_OSX
-    SENTRY_ASSERT_PREFIX(osVersion, @"10.", @"11.", @"12.", @"13.", @"14.", @"15.", @"26.");
+    SENTRY_ASSERT_PREFIX(osVersion, @"10.", @"11.", @"12.", @"13.", @"14.", @"15.", @"26.", @"27.");
 #elif TARGET_OS_IOS || TARGET_OS_MACCATALYST || TARGET_OS_TV
     SENTRY_ASSERT_PREFIX(osVersion, @"9.", @"10.", @"11.", @"12.", @"13.", @"14.", @"15.", @"16.",
-        @"17.", @"18.", @"26.");
+        @"17.", @"18.", @"26.", @"27.");
 #elif TARGET_OS_WATCH
     XCTAssertEqualObjects(osVersion, @"");
 #elif TARGET_OS_VISION
-    SENTRY_ASSERT_PREFIX(osVersion, @"1.", @"2.", @"26.");
+    SENTRY_ASSERT_PREFIX(osVersion, @"1.", @"2.", @"26.", @"27.");
 #else
     XCTFail(@"Unexpected OS.");
 #endif
