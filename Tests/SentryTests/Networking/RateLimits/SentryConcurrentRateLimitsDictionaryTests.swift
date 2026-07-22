@@ -37,7 +37,7 @@ class ConcurrentRateLimitsDictionaryTests: XCTestCase {
         let queue1 = DispatchQueue(label: "SentryConcurrentRateLimitsStorageTests1", attributes: [.concurrent, .initiallyInactive])
         let queue2 = DispatchQueue(label: "SentryConcurrentRateLimitsStorageTests2", attributes: [.concurrent, .initiallyInactive])
 
-        // SentryDataCategory has 16 cases, so the offsets below use 4/8/12 (with loopCount 4)
+        // SentryDataCategory has 17 cases, so the offsets below use 4/8/12 (with loopCount 4)
         // to keep every fabricated category in range and distinct.
         let loopCount = 4
         let expectation = XCTestExpectation(description: "ConcurrentReadWrite")

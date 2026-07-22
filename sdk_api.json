@@ -36944,6 +36944,45 @@
             "name": "unknown",
             "printedName": "unknown",
             "usr": "c:@M@Sentry@E@SentryDataCategory@SentryDataCategoryUnknown"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryDataCategory",
+                        "printedName": "Sentry.SentryDataCategory",
+                        "usr": "c:@M@Sentry@E@SentryDataCategory"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryDataCategory.Type"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryDataCategory",
+                    "printedName": "Sentry.SentryDataCategory",
+                    "usr": "c:@M@Sentry@E@SentryDataCategory"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryDataCategory.Type) -> Sentry.SentryDataCategory"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "moduleName": "Sentry",
+            "name": "userFeedback",
+            "printedName": "userFeedback",
+            "usr": "c:@M@Sentry@E@SentryDataCategory@SentryDataCategoryUserFeedback"
           }
         ],
         "conformances": [
