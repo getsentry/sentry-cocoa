@@ -8,25 +8,24 @@ import Foundation
  */
 @objc(SentryDataCategory) @_spi(Private)
 public enum SentryDataCategory: UInt, CaseIterable {
-    case all = 0
-    case `default` = 1
-    case error = 2
-    case session = 3
-    case transaction = 4
-    case attachment = 5
-    // Unused, but kept so the following raw values stay stable and need no extra mapping logic.
-    case userFeedback = 6
-    case profile = 7
-    case metricBucket = 8
-    case replay = 9
-    case profileChunkUI = 10
-    case span = 11
-    case feedback = 12
-    case logItem = 13
-    case traceMetric = 14
-    case logByte = 15
-    case traceMetricByte = 16
-    case unknown = 17
+    case all
+    case `default`
+    case error
+    case session
+    case transaction
+    case attachment
+    case userFeedback
+    case profile
+    case metricBucket
+    case replay
+    case profileChunkUI
+    case span
+    case feedback
+    case logItem
+    case traceMetric
+    case logByte
+    case traceMetricByte
+    case unknown
 
     // While these data category names might look similar to the envelope item types, they are not
     // identical, and have slight differences. Just open them side by side and you'll see the
@@ -49,16 +48,9 @@ public enum SentryDataCategory: UInt, CaseIterable {
         case .logByte: return "log_byte"
         case .traceMetric: return "trace_metric"
         case .traceMetricByte: return "trace_metric_byte"
-        // userFeedback is unused (see above), so it has no name and maps to "unknown".
+        // userFeedback is unused, so it has no name and maps to "unknown".
         case .userFeedback, .unknown: return "unknown"
         }
-    }
-
-    /// Maps a raw value to its category, falling back to `.unknown` for any value that doesn't map
-    /// to a known category. Use this instead of the failable `init(rawValue:)` when an unmapped
-    /// value should be treated as `.unknown` rather than `nil`.
-    public init(_ rawValue: UInt) {
-        self = SentryDataCategory(rawValue: rawValue) ?? .unknown
     }
 
     public init(name: String) {
@@ -76,14 +68,6 @@ public enum SentryDataCategory: UInt, CaseIterable {
 public final class SentryDataCategoryMapper: NSObject {
     @objc public static func name(for category: SentryDataCategory) -> String {
         category.name
-    }
-
-    @objc public static func category(forNSUInteger value: UInt) -> SentryDataCategory {
-        SentryDataCategory(value)
-    }
-
-    @objc public static func category(forString value: String) -> SentryDataCategory {
-        SentryDataCategory(name: value)
     }
 
     @objc public static func category(forEnvelopeItemType itemType: String) -> SentryDataCategory {
