@@ -70,7 +70,7 @@ init-local:
 	rbenv exec gem update bundler
 	rbenv exec bundle install
 	# Install the tools needed to update tooling versions locally
-	"$(MAKE)" init-ci-format
+	"$(MAKE)" init-ci-build init-ci-format
 	./scripts/update-tooling-versions.sh
 
 ## Install CI build dependencies
@@ -636,9 +636,9 @@ build-sample-macOS-SwiftUI-SPM:
 ## Build the macOS-CLI-Xcode sample (command-line tool, SentrySPM with NoUIFramework)
 #
 # Builds the macOS CLI sample that uses SentrySPM without UIKit/AppKit linkage.
-# Uses the pre-generated .xcodeproj (traits set in version control; xcodegen has no trait support).
 .PHONY: build-sample-macOS-CLI-Xcode
 build-sample-macOS-CLI-Xcode:
+	xcodegen --spec Samples/macOS-CLI-Xcode/macOS-CLI-Xcode.yml
 	set -o pipefail && xcodebuild \
 		-project "Samples/macOS-CLI-Xcode/macOS-CLI-Xcode.xcodeproj" \
 		-scheme macOS-CLI-Xcode \
@@ -1401,7 +1401,7 @@ AVOID_ALL_HEADER_FIELDS_MSG := Double-check how you use allHeaderFields (https:/
 
 ## Run linting checks on all files
 #
-# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, Objective-C banned-pattern checks, and dprint checks without modifying files.
+# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, Objective-C banned-pattern checks, actionlint, and dprint checks without modifying files.
 .PHONY: lint
 lint:
 	@echo "--> Running Swiftlint and Clang-Format"
@@ -1412,6 +1412,7 @@ lint:
 		--message "$(AVOID_ALL_HEADER_FIELDS_MSG)"
 	swiftlint --strict --quiet
 	dprint check "**/*.{md,json,yaml,yml}"
+	actionlint
 
 ## Run linting checks on staged files only
 #
@@ -1639,6 +1640,7 @@ xcode-ci: xcode-ci-SentrySampleShared \
 	xcode-ci-iOS-SwiftUI-SPM \
 	xcode-ci-iOS-SwiftUI-Widgets \
 	xcode-ci-iOS15-SwiftUI \
+	xcode-ci-macOS-CLI-Xcode \
 	xcode-ci-macOS-Swift \
 	xcode-ci-macOS-SwiftUI \
 	xcode-ci-macOS-SwiftUI-SPM \

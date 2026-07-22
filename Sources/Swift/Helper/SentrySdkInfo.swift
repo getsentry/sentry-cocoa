@@ -8,27 +8,34 @@ import Foundation
  * @see https://develop.sentry.dev/sdk/event-payloads/sdk/
  */
 struct SentrySdkInfo {
-    
+
     static func global() -> Self {
-        if let options = SentrySDKInternal.currentHub().getClient()?.getOptions() {
-            let enabledFeatures = SentryDependencyContainerSwiftHelper.enabledFeatures(options)
-            return Self(withEnabledFeatures: enabledFeatures, sendDefaultPii: SentryDependencyContainerSwiftHelper.sendDefaultPii(options))
+        guard let options = SentrySDKInternal.currentHub().getClient()?.getOptions() as? Options else {
+            return Self(withEnabledFeatures: [], autoInferIP: false)
         }
-        return Self(withEnabledFeatures: [], sendDefaultPii: false)
+
+        let enabledFeatures = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+#if SDK_V10
+        let autoInferIP = options.dataCollection.userInfo
+#else
+        let autoInferIP = options.sendDefaultPii
+#endif // SDK_V10
+        return Self(withEnabledFeatures: enabledFeatures, autoInferIP: autoInferIP)
     }
-    
+
     /**
      * The name of the SDK. Examples: sentry.cocoa, sentry.cocoa.vapor, ...
      */
     let name: String
-    
+
     /**
      * The version of the SDK. It should have the Semantic Versioning format MAJOR.MINOR.PATCH, without
      * any prefix (no v or anything else in front of the major version number). Examples:
      * 0.1.0, 1.0.0, 2.0.0-beta0
      */
     let version: String
-    
+
     /**
      * A list of names identifying enabled integrations. The list should
      * have all enabled integrations, including default integrations. Default
@@ -36,7 +43,7 @@ struct SentrySdkInfo {
      * default integrations.
      */
     let integrations: [String]
-    
+
     /**
      * A list of feature names identifying enabled SDK features. This list
      * should contain all enabled SDK features. On some SDKs, enabling a feature in the
@@ -44,25 +51,30 @@ struct SentrySdkInfo {
      * integrations or features but not both to reduce the payload size.
      */
     let features: [String]
-    
+
     /**
      * A list of packages that were installed as part of this SDK or the
      * activated integrations. Each package consists of a name in the format
      * source:identifier and version.
      */
     let packages: [[String: String]]
-    
+
     /**
      * A set of settings as part of this SDK.
      */
     let settings: SentrySDKSettings
-    
+
     init(withOptions options: Options?) {
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
-        self.init(withEnabledFeatures: features, sendDefaultPii: options?.sendDefaultPii ?? false)
+#if SDK_V10
+        let autoInferIP = options?.dataCollection.userInfo ?? false
+#else
+        let autoInferIP = options?.sendDefaultPii ?? false
+#endif // SDK_V10
+        self.init(withEnabledFeatures: features, autoInferIP: autoInferIP)
     }
 
-    init(withEnabledFeatures features: [String], sendDefaultPii: Bool) {
+    init(withEnabledFeatures features: [String], autoInferIP: Bool) {
         let integrations = SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames()
         var packages = SentryExtraPackages.getPackages()
         let sdkPackage = SentrySdkPackage.global()
@@ -75,9 +87,9 @@ struct SentrySdkInfo {
             integrations: integrations,
             features: features,
             packages: Array(packages),
-            settings: SentrySDKSettings(sendDefaultPii: sendDefaultPii))
+            settings: SentrySDKSettings(autoInferIP: autoInferIP))
     }
-    
+
     init(name: String?, version: String?, integrations: [String]?, features: [String]?, packages: [[String: String]]?, settings: SentrySDKSettings) {
         self.name = name ?? ""
         self.version = version ?? ""
@@ -86,7 +98,7 @@ struct SentrySdkInfo {
         self.packages = packages ?? []
         self.settings = settings
     }
-    
+
     // swiftlint:disable cyclomatic_complexity
     init(dict: [AnyHashable: Any]?) {
         var name = ""
@@ -144,7 +156,7 @@ struct SentrySdkInfo {
         )
     }
     // swiftlint:enable cyclomatic_complexity
-    
+
     func serialize() -> [String: Any] {
         [
             "name": self.name,
@@ -158,10 +170,10 @@ struct SentrySdkInfo {
 }
 
 @_spi(Private) @objc public final class SentrySdkInfoObjC: NSObject {
-    
+
     @objc public static func optionsToDict(_ options: Options) -> [String: Any] {
         SentrySdkInfo(withOptions: options).serialize()
     }
-    
+
 }
 // swiftlint:enable missing_docs

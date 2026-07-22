@@ -114,7 +114,10 @@ jobs:
               repo: context.repo.repo,
               title: issueTitle,
               body: issueBody,
-              assignees: [prAuthor]
+              assignees: [prAuthor],
+              labels: [
+                'autocreated'
+              ]
             });
 
             const issueID = newIssue.data.number;

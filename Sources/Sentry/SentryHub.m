@@ -338,9 +338,9 @@ NS_ASSUME_NONNULL_BEGIN
 {
     SentrySampleDecision decision = transaction.trace.sampled;
     if (decision != kSentrySampleDecisionYes) {
-        [self.client recordLostEvent:kSentryDataCategoryTransaction
+        [self.client recordLostEvent:SentryDataCategoryTransaction
                               reason:SentryDiscardReasonSampleRate];
-        [self.client recordLostEvent:kSentryDataCategorySpan
+        [self.client recordLostEvent:SentryDataCategorySpan
                               reason:SentryDiscardReasonSampleRate
                             quantity:transaction.spans.count + 1];
         return;

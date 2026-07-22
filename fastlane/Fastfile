@@ -28,8 +28,7 @@ platform :ios do
       device: device,
       address_sanitizer: address_sanitizer,
       app_identifier: app_identifier,
-      ensure_devices_found: true,
-      skip_package_dependencies_resolution: true # See SKIP_SPM_RESOLUTION_NOTE
+      ensure_devices_found: true
     )
   end
 
