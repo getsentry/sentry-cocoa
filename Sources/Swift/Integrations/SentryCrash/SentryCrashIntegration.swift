@@ -225,14 +225,17 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
 
             var userInfo = outerScope.serialize()
 
-            // SentryCrashReportConverter.convertReportToEvent needs the release name and
-            // the dist of the SentryOptions in the UserInfo. When SentryCrash records a
-            // crash it writes the UserInfo into SentryCrashField_User of the report.
-            // SentryCrashReportConverter.initWithReport loads the contents of
-            // SentryCrashField_User into self.userContext and convertReportToEvent can map
-            // the release name and dist to the SentryEvent. Fixes GH-581
+            // SentryCrashReportConverter.convertReportToEvent needs the release name, dist, and
+            // environment of the SentryOptions in the UserInfo. When SentryCrash records a crash it
+            // writes the UserInfo into SentryCrashField_User of the report.
+            // SentryCrashReportConverter.initWithReport loads the contents of SentryCrashField_User
+            // into self.userContext and convertReportToEvent can map the release name, dist, and
+            // environment to the SentryEvent. Fixes GH-581 and GH-5260.
             userInfo["release"] = options.releaseName
             userInfo["dist"] = options.dist
+            if userInfo["environment"] == nil {
+                userInfo["environment"] = options.environment
+            }
 
             // Crashes don't use the attributes field, we remove them to avoid uploading them
             // unnecessarily.
