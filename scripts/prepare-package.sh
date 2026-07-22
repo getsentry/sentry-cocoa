@@ -160,21 +160,8 @@ for PACKAGE_FILE in "${PACKAGE_FILES[@]}"; do
   fi
 
   if is_enabled "$REMOVE_BINARY_TARGETS"; then
-    # Remove all binary targets.
-    sed -i '' '/^[[:space:]]*\.binaryTarget(/,/^[[:space:]]*),\{0,1\}$/d' "$PACKAGE_FILE"
-
-    # Keep only source-backed products in the products array. Additional source products can be
-    # appended later in the file, such as SentrySPM and SentryObjC.
     sed -i '' '/BEGIN:BINARY_PRODUCTS/,/END:BINARY_PRODUCTS/d' "$PACKAGE_FILE"
-
-    # Keep only the SentryDistribution target in the targets array.
-    sed -i '' '/^var targets: \[Target\] = \[/,/^]/c\
-var targets: [Target] = [\
-    .target(name: "SentryDistribution", path: "Sources/SentryDistribution"),\
-    .testTarget(name: "SentryDistributionTests", dependencies: ["SentryDistribution"], path: "Sources/SentryDistributionTests")\
-]\
-' "$PACKAGE_FILE"
-
+    sed -i '' '/BEGIN:BINARY_TARGETS/,/END:BINARY_TARGETS/d' "$PACKAGE_FILE"
   fi
 
   if is_enabled "$STRIP_BINARY_TARGETS"; then
