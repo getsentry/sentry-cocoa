@@ -51,6 +51,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) id<SentryEventContextEnricher> eventContextEnricher;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 
+- (void)recordDroppedItemInClientReportWithItemCategory:(SentryDataCategory)itemCategory
+                                           byteCategory:(SentryDataCategory)byteCategory
+                                         byteCountBlock:(NSUInteger (^)(void))byteCountBlock;
+
 @end
 
 NSString *const DropSessionLogMessage = @"Session has no release name. Won't send it.";
@@ -1189,18 +1193,39 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (void)recordDroppedLogInClientReport:(SentryLog *)log
 {
-    // Offload to a background queue: serializing the log to determine its byte size is too
-    // expensive to run inline in beforeSendLog, which runs on the calling thread and must stay
-    // fast.
+    [self recordDroppedItemInClientReportWithItemCategory:SentryDataCategoryLogItem
+                                             byteCategory:SentryDataCategoryLogByte
+                                           byteCountBlock:^NSUInteger {
+                                               return [SentryLogClientReport
+                                                   serializedByteCountForLog:log];
+                                           }];
+}
+
+- (void)recordDroppedTraceMetricInClientReport:(SentryMetricObjC *)metric
+{
+    [self recordDroppedItemInClientReportWithItemCategory:SentryDataCategoryTraceMetric
+                                             byteCategory:SentryDataCategoryTraceMetricByte
+                                           byteCountBlock:^NSUInteger {
+                                               return [metric serializedByteCount];
+                                           }];
+}
+
+- (void)recordDroppedItemInClientReportWithItemCategory:(SentryDataCategory)itemCategory
+                                           byteCategory:(SentryDataCategory)byteCategory
+                                         byteCountBlock:(NSUInteger (^)(void))byteCountBlock
+{
+    // Offload to a background queue: serializing the item to determine its byte size is too
+    // expensive to run inline in a beforeSend callback, which runs on the calling thread and must
+    // stay fast.
     __weak SentryClientInternal *weakSelf = self;
     [self.dispatchQueueWrapper dispatchAsyncWithBlock:^{
         SentryClientInternal *strongSelf = weakSelf;
         if (strongSelf == nil) {
             return;
         }
-        NSUInteger byteCount = [SentryLogClientReport serializedByteCountForLog:log];
-        [strongSelf recordLostEvent:SentryDataCategoryLogItem reason:SentryDiscardReasonBeforeSend];
-        [strongSelf recordLostEvent:SentryDataCategoryLogByte
+        NSUInteger byteCount = byteCountBlock();
+        [strongSelf recordLostEvent:itemCategory reason:SentryDiscardReasonBeforeSend];
+        [strongSelf recordLostEvent:byteCategory
                              reason:SentryDiscardReasonBeforeSend
                            quantity:byteCount];
     }];

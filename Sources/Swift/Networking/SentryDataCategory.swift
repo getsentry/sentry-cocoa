@@ -24,6 +24,7 @@ public enum SentryDataCategory: UInt, CaseIterable {
     case logItem
     case traceMetric
     case logByte
+    case traceMetricByte
     case unknown
 
     // While these data category names might look similar to the envelope item types, they are not
@@ -46,6 +47,7 @@ public enum SentryDataCategory: UInt, CaseIterable {
         case .logItem: return "log_item"
         case .logByte: return "log_byte"
         case .traceMetric: return "trace_metric"
+        case .traceMetricByte: return "trace_metric_byte"
         // userFeedback is unused, so it has no name and maps to "unknown".
         case .userFeedback, .unknown: return "unknown"
         }

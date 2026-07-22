@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Record trace_metric_byte client reports (#8490)
+
 ### Improvements
 
 - Reduce slight overhead during SDK start by skipping an unnecessary main thread dispatch when there's no work to do (#8494)

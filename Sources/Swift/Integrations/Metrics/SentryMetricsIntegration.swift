@@ -62,7 +62,13 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
         scope.addAttributesToItem(&mutableMetric, metadata: self.scopeMetaData)
 
         if let beforeSendMetric = beforeSendMetric {
+            // Create a non-mutated copy of the metric, because it could be modified by the SDK user's `beforeSendMetric` 
+            let metricToSend = mutableMetric
             guard let processedItem = beforeSendMetric(mutableMetric) else {
+                SentrySDKLog.debug("Metric dropped by beforeSendMetric callback.")
+                // The byte size is computed lazily on a background queue inside the client, so the
+                // calling thread isn't blocked by serialization.
+                client.recordDroppedTraceMetric(inClientReport: SentryMetricObjC(metric: metricToSend))
                 return
             }
             mutableMetric = processedItem
