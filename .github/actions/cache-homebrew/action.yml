@@ -1,7 +1,8 @@
 name: "Cache Homebrew or Update"
 description: >-
-  Caches Homebrew downloads and installed formulae. The cache key rotates
-  daily so formulae stay reasonably fresh without downloading on every run.
+  Caches Homebrew downloads and always runs brew update. The runner image's
+  baked-in core tap resolves formula versions, so brew update must run even
+  on cache hit; the cache only avoids re-downloading bottles.
 runs:
   using: "composite"
   steps:
@@ -20,7 +21,9 @@ runs:
         # Add here any relevant lockfiles
         key: homebrew-${{ runner.os }}-${{ runner.arch }}-${{ steps.day.outputs.day }}-${{ hashFiles('scripts/.clang-format-version', 'scripts/.swiftlint-version', 'scripts/.xcodegen-version', '.ruby-version', 'Brewfile*') }}
 
+    # The formula versions come from the runner image's homebrew/core tap,
+    # not from the cached paths, so skipping this on cache hit installs
+    # outdated formulae (e.g. XcodeGen without package-traits support).
     - name: Update Homebrew formulae
-      if: steps.cache.outputs.cache-hit != 'true' || github.run_attempt > 1
       shell: bash
       run: brew update

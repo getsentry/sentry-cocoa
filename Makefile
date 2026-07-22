@@ -638,6 +638,7 @@ build-sample-macOS-SwiftUI-SPM:
 # Builds the macOS CLI sample that uses SentrySPM without UIKit/AppKit linkage.
 .PHONY: build-sample-macOS-CLI-Xcode
 build-sample-macOS-CLI-Xcode:
+	./scripts/check-xcodegen-version.sh
 	xcodegen --spec Samples/macOS-CLI-Xcode/macOS-CLI-Xcode.yml
 	set -o pipefail && xcodebuild \
 		-project "Samples/macOS-CLI-Xcode/macOS-CLI-Xcode.xcodeproj" \
@@ -1708,6 +1709,7 @@ xcode-ci-iOS15-SwiftUI: xcode-ci-SentrySampleShared
 
 .PHONY: xcode-ci-macOS-CLI-Xcode
 xcode-ci-macOS-CLI-Xcode:
+	./scripts/check-xcodegen-version.sh
 	xcodegen --spec Samples/macOS-CLI-Xcode/macOS-CLI-Xcode.yml
 
 .PHONY: xcode-ci-macOS-Swift
