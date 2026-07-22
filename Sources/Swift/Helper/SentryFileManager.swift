@@ -3,9 +3,7 @@
 
 @_spi(Private) @objc public class SentryFileManager: NSObject {
 
-    // The UInt is a SentryDataCategory. This type cannot be in the Swift public interface since it's `implementationOnly`
-    // We can use the enum type directly once users of this callback are written in Swift and we can drop the @objc annotation
-    @objc public var envelopeDeletedCallback: ((SentryEnvelopeItem, UInt) -> Void)?
+    @objc public var envelopeDeletedCallback: ((SentryEnvelopeItem, SentryDataCategory) -> Void)?
 
     @objc public var basePath: String {
         helper.basePath
@@ -310,7 +308,7 @@
                     continue
                 }
                 
-                envelopeDeletedCallback?(item, rateLimitCategory.rawValue)
+                envelopeDeletedCallback?(item, rateLimitCategory)
             }
             removeFile(atPath: envelopeFilePath)
         }

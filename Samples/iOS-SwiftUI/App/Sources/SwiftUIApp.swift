@@ -34,11 +34,11 @@ class MySceneDelegate: NSObject, UIWindowSceneDelegate, ObservableObject {
     var initializedSentry = false
     func sceneDidBecomeActive(_ scene: UIScene) {
         guard !initializedSentry else { return }
-        guard UIApplication.shared.connectedScenes.first as? UIWindowScene != nil else {
+        guard let windowScene = scene as? UIWindowScene else {
             preconditionFailure("The test app should always have a UIWindowScene at this point")
         }
 
-        SampleAppDebugMenu.shared.display()
+        SampleAppDebugMenu.shared.display(in: windowScene)
         initializedSentry = true
     }
 }

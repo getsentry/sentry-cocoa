@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+
+### Features
+
+- Record trace_metric_byte client reports (#8490)
+
 ### Fixes
 
 - Add a depth limit to view hierarchy serialization to prevent a stack overflow crash on deeply nested view hierarchies (#8292)

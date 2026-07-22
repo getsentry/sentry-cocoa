@@ -15,7 +15,7 @@ public protocol RateLimits: NSObjectProtocol {
      * - Parameter category: the type e.g. event, error, session, transaction, etc.
      * - Returns: `true` if limit is reached, `false` otherwise.
      */
-    @objc func isRateLimitActive(_ category: UInt) -> Bool
+    @objc func isRateLimitActive(_ category: SentryDataCategory) -> Bool
 
     /**
      * Should be called for each HTTP response of the Sentry server. It checks the response for any

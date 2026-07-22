@@ -33,7 +33,8 @@ class MySceneDelegate: NSObject, UIWindowSceneDelegate, ObservableObject {
     var initializedSentry = false
     func sceneDidBecomeActive(_ scene: UIScene) {
         guard !initializedSentry else { return }
-        SampleAppDebugMenu.shared.display()
+        guard let windowScene = scene as? UIWindowScene else { return }
+        SampleAppDebugMenu.shared.display(in: windowScene)
         initializedSentry = true
     }
 }
