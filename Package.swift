@@ -112,7 +112,7 @@ let sentrySwiftTarget: Target = .target(
     dependencies: ["_SentryPrivate", "SentryHeaders"],
     path: "Sources/Swift",
     swiftSettings: [
-        .unsafeFlags(["-enable-library-evolution", "-no-verify-emitted-module-interface"])
+        .unsafeFlags(["-enable-library-evolution"])
     ]
 )
 
@@ -173,10 +173,7 @@ targets += [
     .target(
         name: "SentryObjCCompat",
         dependencies: ["SentryObjCInternal"],
-        path: "Sources/SentryObjCCompat",
-        swiftSettings: [
-            .unsafeFlags(["-enable-library-evolution"])
-        ]),
+        path: "Sources/SentryObjCCompat"),
     .target(
         name: "SentryObjC",
         dependencies: ["SentryObjCCompat"],
