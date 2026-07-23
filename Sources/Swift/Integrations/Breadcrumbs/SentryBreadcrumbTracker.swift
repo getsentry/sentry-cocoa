@@ -275,7 +275,8 @@ import Cocoa
     // We build the description ourselves instead of using `String(describing:)`, because the default
     // `UIView` description embeds `frame = (x y; w h)`. Those coordinates can leak which key a user
     // tapped in custom PIN/passcode views, so we never include the frame.
-    static func getUIViewDescription(_ view: UIView) -> String {
+    @_spi(Private)
+    public static func getUIViewDescription(_ view: UIView) -> String {
         let className = SwiftDescriptor.getObjectClassName(view)
         let pointer = Unmanaged.passUnretained(view).toOpaque()
         var attributes: [String] = ["opaque = \(view.isOpaque)"]
