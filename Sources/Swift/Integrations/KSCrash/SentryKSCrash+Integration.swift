@@ -73,9 +73,12 @@ extension SentryKSCrash {
             let reportProcessor = SentryStoredCrashReportProcessor(
                 inAppLogic: SentryInAppLogic(inAppIncludes: options.inAppIncludes)
             )
-            dependencies.dispatchQueueWrapper.dispatchAsync {
-                installer.sendAllReports(reportProcessor: reportProcessor)
-            }
+            // The report filter dispatches regular reports itself. Keep this call synchronous so
+            // startup crashes can be captured and flushed before SDK initialization returns.
+            installer.sendAllReports(
+                reportProcessor: reportProcessor,
+                dispatchQueue: dependencies.dispatchQueueWrapper
+            )
         }
 
         private func endPreviousSessionAsCrashed(
