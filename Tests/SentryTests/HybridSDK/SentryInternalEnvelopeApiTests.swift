@@ -52,8 +52,10 @@ private class MockHub: Hub {
         capturedEnvelopes.append(envelope)
     }
 
+    func captureErrorEvent(event: Event) {}
     func setTrace(_ traceId: SentryId, spanId: SpanId) {}
     var options: Options { Options() }
+    var scope: Scope { Scope() }
 }
 
 private struct MockEnvelopeDependencies: HubProvider {

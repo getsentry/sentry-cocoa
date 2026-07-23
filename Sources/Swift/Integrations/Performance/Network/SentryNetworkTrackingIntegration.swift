@@ -7,8 +7,8 @@ final class SentryNetworkTrackingIntegration<Dependencies: NetworkTrackerProvide
     /// URLSession swizzling can only be applied once per process, so the same tracker instance
     /// must persist across SDK restarts. Once swizzling supports re-application, this can be
     /// replaced with a new instance per integration lifecycle.
-    private let networkTracker: SentryNetworkTracker
-    
+    private let networkTracker: SentryNetworkTrackerProtocol
+
     init?(with options: Options, dependencies: Dependencies) {
         guard options.enableSwizzling else {
             SentrySDKLog.debug("Not going to enable \(Self.name) because enableSwizzling is disabled.")
@@ -40,12 +40,12 @@ final class SentryNetworkTrackingIntegration<Dependencies: NetworkTrackerProvide
 
         super.init()
 
-        SentrySwizzleWrapperHelper.swizzleURLSessionTask(networkTracker)
+        networkTracker.swizzleURLSessionTask()
 
         #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
-         if options.sessionReplay.networkDetailHasUrls {
-             SentrySwizzleWrapperHelper.swizzleURLSessionDataTasks(forResponseCapture: networkTracker)
-         }
+        if options.sessionReplay.networkDetailHasUrls {
+            networkTracker.swizzleURLSessionDataTasksForResponseCapture()
+        }
         #endif
     }
 

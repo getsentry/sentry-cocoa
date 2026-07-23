@@ -100,7 +100,6 @@
 #import "SentryNSDataUtils.h"
 #import "SentryNSError.h"
 #import "SentryNSURLSessionTaskSearch.h"
-#import "SentryNetworkTracker.h"
 #import "SentryNoOpSpan.h"
 #import "SentryPerformanceTracker+Testing.h"
 #import "SentryPerformanceTracker.h"

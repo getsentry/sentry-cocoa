@@ -4,6 +4,8 @@ import ObjectiveC
 import XCTest
 
 // swiftlint:disable file_length
+private typealias TestNetworkTracker = SentryDefaultNetworkTracker<SentryDependencyContainer>
+
 class SentryNetworkTrackerTests: XCTestCase {
 
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentrySessionTrackerTests")
@@ -45,8 +47,11 @@ class SentryNetworkTrackerTests: XCTestCase {
             hub = TestHub(client: client, andScope: scope)
         }
 
-        func getSut() -> SentryNetworkTracker {
-            let result = SentryNetworkTracker.sharedInstance
+        func getSut() -> TestNetworkTracker {
+            let result = TestNetworkTracker(
+                options: options,
+                dependencies: SentryDependencyContainer.sharedInstance()
+            )
             result.enableNetworkTracking()
             result.enableNetworkBreadcrumbs()
             result.enableCaptureFailedRequests()
@@ -103,9 +108,8 @@ class SentryNetworkTrackerTests: XCTestCase {
 
         let sut = fixture.getSut()
         sut.urlSessionTaskResume(task)
-        let span = objc_getAssociatedObject(task, SENTRY_NETWORK_REQUEST_TRACKER_SPAN)
 
-        XCTAssertNil(span)
+        XCTAssertNil(task.trackerSpan)
     }
 
     func testCaptureDownloadTask() throws {
@@ -303,15 +307,13 @@ class SentryNetworkTrackerTests: XCTestCase {
         let task = createDataTask()
         _ = startTransaction()
 
-        let timeBeforeFirstResume = Date()
+        let timeBeforeFirstResume = fixture.dateProvider.date()
         sut.urlSessionTaskResume(task)
-        let timeAfterFirstResume = Date()
+        let timeAfterFirstResume = fixture.dateProvider.date()
 
-        // Suspend and wait to guarantee wall-clock time advances, since
-        // the production code uses [NSDate date] rather than an injected date provider.
         try setTaskState(task, state: .suspended)
-        Thread.sleep(forTimeInterval: 0.1)
-        let timeBeforeSecondResume = Date()
+        advanceTime(bySeconds: 1)
+        let timeBeforeSecondResume = fixture.dateProvider.date()
         sut.urlSessionTaskResume(task)
 
         // -- Act --
@@ -439,7 +441,7 @@ class SentryNetworkTrackerTests: XCTestCase {
     func testStatusForTaskRunning() {
         let sut = fixture.getSut()
         let task = createDataTask()
-        let status = Dynamic(sut).statusForSessionTask(task, state: URLSessionTask.State.running) as SentrySpanStatus?
+        let status = sut.status(for: task, state: .running)
         XCTAssertEqual(status, .undefined)
     }
 
@@ -626,7 +628,10 @@ class SentryNetworkTrackerTests: XCTestCase {
         SentrySDKInternal.setCurrentHub(hub)
         SentrySDK.setStart(with: options)
 
-        let tracker = SentryNetworkTracker.sharedInstance
+        let tracker = TestNetworkTracker(
+            options: options,
+            dependencies: SentryDependencyContainer.sharedInstance()
+        )
         tracker.enableNetworkTracking()
         tracker.enableNetworkBreadcrumbs()
 
@@ -707,7 +712,10 @@ class SentryNetworkTrackerTests: XCTestCase {
         SentrySDKInternal.setCurrentHub(hub)
         SentrySDK.setStart(with: options)
 
-        let tracker = SentryNetworkTracker.sharedInstance
+        let tracker = TestNetworkTracker(
+            options: options,
+            dependencies: SentryDependencyContainer.sharedInstance()
+        )
         tracker.enableNetworkTracking()
         tracker.enableNetworkBreadcrumbs()
 
@@ -1619,7 +1627,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         task.state = state
     }
 
-    private func assertStatus(status: SentrySpanStatus, state: URLSessionTask.State, response: URLResponse, configSut: ((SentryNetworkTracker) -> Void)? = nil) throws {
+    private func assertStatus(status: SentrySpanStatus, state: URLSessionTask.State, response: URLResponse, configSut: ((TestNetworkTracker) -> Void)? = nil) throws {
         let sut = fixture.getSut()
         configSut?(sut)
 
