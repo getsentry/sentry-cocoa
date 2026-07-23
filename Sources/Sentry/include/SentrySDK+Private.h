@@ -49,6 +49,14 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, class) BOOL fatalDetected;
 
+/**
+ * Set to @c YES by the crash handler integration (SentryCrash or KSCrash) when the
+ * crash reporter reports a crash on the last launch. Unlike @c fatalDetected, this is
+ * never set by watchdog termination detection, so it accurately reflects whether a
+ * true crash (as opposed to an OS-level termination) occurred.
+ */
+@property (nonatomic, class) BOOL crashHandlerDetectedCrash;
+
 + (void)setDetectedStartUpCrash:(BOOL)value;
 
 + (void)setAppStartMeasurement:(nullable SentryAppStartMeasurement *)appStartMeasurement;
