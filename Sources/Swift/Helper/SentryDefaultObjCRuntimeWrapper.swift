@@ -19,14 +19,14 @@ public final class SentryDefaultObjCRuntimeWrapper: NSObject, SentryObjCRuntimeW
     // calls take the dyld loader read lock that image load/unload contends, and the superclass walk
     // over every class takes a few ms — neither belongs on the main thread.)
     //
-    // KNOWN OPEN ISSUE (Finding 1 in REVIEW-PR-8457.md; see HANDOFF-subclassfinder-fix.md): iterating
-    // the dyld image list is NOT thread-safe. `<mach-o/dyld.h>` states: "Another thread can add or
-    // remove an image during the iteration." If the target image is unloaded between the name match
-    // and the `getsectiondata` dereference below, the header/section pointer dangles and
-    // dereferencing it can crash. This is a P0 that must be resolved before merge (fix direction:
-    // coordinate the read with the loader, e.g. via SentryBinaryImageCache). Not reachable in the
-    // default config (only the never-unloadable main executable is enumerated); reachable when the
-    // enumerated image is dynamically unloadable.
+    // Known limitation (Finding 1 in REVIEW-PR-8457.md; tracked in HANDOFF-subclassfinder-fix.md):
+    // iterating the dyld image list is not thread-safe. `<mach-o/dyld.h>` states: "Another thread can
+    // add or remove an image during the iteration." If the target image is unloaded between the name
+    // match and the `getsectiondata` dereference below, the header/section pointer can dangle. This is
+    // not reachable in the default config — only the never-unloadable main executable is enumerated —
+    // and is reachable only when an `inAppInclude` names a dynamically unloadable framework. The same
+    // unpinned `_dyld_get_image_header` + `getsectiondata` read is used elsewhere in the SDK
+    // (SentryCrashCxaThrowSwapper.c, SentryCrashDynamicLinker.c).
     //
     // Only supported on iOS, tvOS, and visionOS. It reads `mach_header_64` via `getsectiondata`, so
     // we gate it to 64-bit architectures: every slice these platforms ship (`arm64`/`arm64e`
@@ -68,15 +68,14 @@ public final class SentryDefaultObjCRuntimeWrapper: NSObject, SentryObjCRuntimeW
             // or a weak-linked class with a missing superclass that it maps to nil) the entry here can
             // differ from the live runtime class or be a disavowed struct.
             //
-            // KNOWN OPEN ISSUE (Finding 2 in REVIEW-PR-8457.md; see HANDOFF-subclassfinder-fix.md):
+            // Known limitation (Finding 2 in REVIEW-PR-8457.md; tracked in HANDOFF-subclassfinder-fix.md):
             // an Objective-C future class can have a view-controller superclass, pass
             // `SentrySubClassFinder`'s `class_getSuperclass` filter, and reach the swizzler as a raw
             // pointer that differs from the live class — bypassing `SentrySwizzle`'s class-identity
-            // dedup. objc4 only forbids a future class from being *completed by a Swift class*, not
-            // from having an ObjC view-controller superclass, so this is not merely theoretical.
-            // This must be resolved before merge, and the fix must not reintroduce the GH-8152
-            // realization crash: re-resolving by name via `NSClassFromString` realizes the class and
-            // can pick a same-named class from another image, which is exactly what this change removed.
+            // dedup (objc4 only forbids a future class from being *completed by a Swift class*, not from
+            // having an ObjC view-controller superclass). Re-resolving by name via `NSClassFromString`
+            // is not an option: it realizes the class (the GH-8152 crash this change removed) and can
+            // pick a same-named class from another image.
             var size: UInt = 0
             let section = header.withMemoryRebound(to: mach_header_64.self, capacity: 1) { header in
                 getsectiondata(header, "__DATA_CONST", "__objc_classlist", &size)

@@ -2,7 +2,8 @@
 
 import MachO
 
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+// Gate matches `SentrySubClassFinder`, held as a stored property below.
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK && (arch(arm64) || arch(x86_64))
 import UIKit
 
 /// Protocol that defines the properties required from UIApplication for swizzling.

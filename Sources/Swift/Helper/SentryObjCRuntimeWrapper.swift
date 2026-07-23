@@ -18,6 +18,13 @@ public protocol SentryObjCRuntimeWrapper {
     /// Only supported on iOS, tvOS, and visionOS. It relies on `getsectiondata` with `mach_header_64`,
     /// so it's gated to 64-bit architectures and excludes the 32-bit watchOS device slices
     /// (`arm64_32`, `armv7k`).
+    ///
+    /// The `#if` gate — not `@objc optional` — is what keeps this compatible: the method exists only on
+    /// the exact platform/arch slices that can implement it, and every conformer built from these
+    /// sources (the default wrapper, the test wrapper) is compiled under the same gate, so it always has
+    /// the method wherever the protocol declares it. The sole caller (`SentrySubClassFinder`) is
+    /// compiled under a matching gate too. Keeping it required means a conformer that drops it fails to
+    /// compile, rather than deferring the mismatch to a runtime `doesNotRecognizeSelector:`.
 #if (os(iOS) || os(tvOS) || os(visionOS)) && (arch(arm64) || arch(x86_64))
     @objc(classesForImage:)
     func classes(forImage image: UnsafePointer<CChar>) -> [AnyClass]

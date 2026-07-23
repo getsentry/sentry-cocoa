@@ -1,6 +1,8 @@
 @_implementationOnly import _SentryPrivate
 
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+// UIViewController exists only on iOS/tvOS/visionOS; the 64-bit arch gate matches
+// `classes(forImage:)`, which reads a 64-bit Mach-O section.
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK && (arch(arm64) || arch(x86_64))
 import UIKit
 
 class SentrySubClassFinder: NSObject {

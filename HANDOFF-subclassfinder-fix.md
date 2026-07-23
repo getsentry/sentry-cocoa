@@ -15,15 +15,75 @@
   main's empty-check early return; dropped main's `free(classes)`, which was for the
   old C-array API) and its test (kept our `classes` seam + main's
   `_NoViewController_DoesNotDispatchToMainQueue` test adapted to that seam).
-- **Tests:** `SentrySubClassFinderTests` green on the local sim (10 executed) after the
-  merge. Includes the differential enumeration test, the section null-entry test, the
-  real-wrapper regression test, and the filter-drop test noted under Open blockers.
-- **NOT ready to merge — 2 open review blockers** from [`REVIEW-PR-8457.md`](REVIEW-PR-8457.md),
-  both validated this session and deferred by user (no fix committed): **Finding 1 (P0)**
-  concurrent image-unload crash and **Finding 2 (P1)** unremapped classlist entries. See
-  "Open blockers" below.
+- **Tests:** `SentrySubClassFinderTests` green on the local sim (**10 executed**, 0 failures).
+  Includes the differential enumeration test, the section null-entry test, the real-wrapper
+  regression test, and the filter-drop test noted under Open blockers. The Finding 3 fix adds no
+  test — a required-method conformer that omits the method can't compile, so there's no runtime
+  path to exercise.
+- **Finding 3 (P2, SPI conformer compat): addressed this session (2026-07-23)** via compiler
+  directives (method kept required, gates made consistent). Not committed yet. Note the scope: it
+  hardens the compile-time contract but does not add a runtime guard for a foreign old-SDK
+  conformer. See "Addressed this session" below.
+- **Findings 1 & 2 still open**, from [`REVIEW-PR-8457.md`](REVIEW-PR-8457.md), both validated
+  and deferred by user (no fix): **Finding 1 (P0)** concurrent image-unload crash and
+  **Finding 2 (P1)** unremapped classlist entries. User (2026-07-23) may tackle them later; the
+  in-code comments were reframed from "must be resolved before merge" to plain "known
+  limitation" notes (they still point here for the full writeup). See "Open blockers" below.
+- **These docs are kept as living tracking notes** (user decision 2026-07-23), not deleted
+  before merge as the earlier draft of this file assumed.
 
-## Open blockers (must resolve before ready-to-merge)
+## Addressed this session (2026-07-23) — Finding 3: SPI conformer compat
+
+Finding 3's stated hazard: `classes(forImage:)` is a **required** member of the
+`@objc @_spi(Private)` protocol `SentryObjCRuntimeWrapper`, called unconditionally. An
+Objective-C conformer built against an _older_ SDK (ObjC only _warns_ on incomplete conformance)
+and injected via the `@objc public var objcRuntimeWrapper` setter would hit
+`doesNotRecognizeSelector:` at runtime on the default-on swizzling path. Details:
+`REVIEW-PR-8457.md` §"Finding 3".
+
+**User decision (2026-07-23): keep the method _required_, fix with compiler directives, NOT
+`@objc optional`.** Changes (not committed yet):
+
+- `Sources/Swift/Helper/SentryObjCRuntimeWrapper.swift` — method stays **required** under the
+  existing `#if (os(iOS)||os(tvOS)||os(visionOS)) && (arch(arm64)||arch(x86_64))`; doc note now
+  explains the `#if`-not-`optional` rationale.
+- `Sources/Swift/Core/Integrations/Performance/SentrySubClassFinder.swift` — its file-level `#if`
+  gained `&& (arch(arm64)||arch(x86_64))` to match the method's gate; call site is a plain direct
+  call. On iOS/tvOS/visionOS the arch condition is always true, so no slice that used to build is
+  dropped.
+- `Sources/Swift/Core/Integrations/Performance/SentryUIViewControllerSwizzling.swift` — holds a
+  `SentrySubClassFinder` property, so its file-level `#if` got the same `&& (arch(arm64)||
+  arch(x86_64))`. The cascade **stops here**: `SentryDependencyContainer` and
+  `SentryPerformanceTrackingIntegration` reference these types inside regions already gated
+  `(os(iOS)||os(tvOS)||os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK`, which implies the arch condition
+  on those platforms — no change needed there (confirmed by the builds).
+- Tests: **no new test** — a required-method conformer that omits it wouldn't compile, so there's
+  no in-tree runtime path to exercise.
+- API stability: `make generate-public-api` produced **no diff** (SPI excluded from
+  `sdk_api*.json`). No `SentryObjC`/`SentryObjCCompat` wrapper change needed.
+
+**What this actually achieves (be precise):** it makes the caller's and swizzler's `#if` gates
+consistent with the method's gate (they existed on divergent conditions before — the method was
+64-bit-only, the caller wasn't), and keeps the method a hard **compile-time** requirement. Any
+conformer compiled _against this SDK version_ (default wrapper, test wrapper, a hybrid SDK building
+on current sources) must implement it or fail to build.
+
+**What it does NOT do:** it does not add a runtime guard for a _foreign_ ObjC conformer compiled
+against an _older_ SDK and injected at runtime — that object never sees our `#if`, so the direct
+call would still `doesNotRecognizeSelector:`. Only `@objc optional` + a `responds(to:)`/skip guard
+would close that, which the user chose against. Accepted because it's SPI and the review's
+org-wide search found no external conformers. If that vector ever matters, revisit.
+
+Verification: `make format` + `make analyze` clean; builds green on **iOS, macOS, visionOS** (macOS
+proves the protocol still compiles where the method is `#if`'d out); `SentrySubClassFinderTests`
+10/10 green. tvOS/watchOS builds could not run in this environment — the `Sentry` scheme exposes
+only iOS + visionOS simulator destinations here (no tvOS/watchOS Simulator; same pre-existing
+environment gap the review hit). tvOS mirrors the iOS/visionOS `#if` shape and watchOS mirrors
+macOS, both already exercised. Re-run tvOS/watchOS on CI or a machine with those runtimes.
+
+## Open blockers (deferred — Findings 1 & 2)
+
+> User (2026-07-23): may tackle these later. Kept as tracked known-limitations in code + here.
 
 - **Finding 1 — concurrent image-unload crash (OPEN, P0).** Full writeup + fix plan in
   the "Finding 1" section below (source: `REVIEW-PR-8457.md` §"Finding 1"). `classes(forImage:)`
@@ -120,15 +180,21 @@ Same structure, but get class **pointers** without realizing:
 ### Files changed (PR #8457, vs origin/main)
 
 - `Sources/Swift/Core/Integrations/Performance/SentrySubClassFinder.swift` — swap
-  enumeration; net simpler.
+  enumeration; net simpler. **Finding 3:** file-level `#if` gained `&& (arch(arm64)||
+  arch(x86_64))` to match the required protocol method's gate; plain direct call to
+  `classes(forImage:)`.
 - `Sources/Swift/Core/Integrations/Performance/SentryUIViewControllerSwizzling.swift`
-  — comment note that `objc_getClassList` realizes every class.
+  — comment note that `objc_getClassList` realizes every class. **Finding 3:** same
+  `&& (arch(arm64)||arch(x86_64))` added to its file-level `#if` (it holds a
+  `SentrySubClassFinder`).
 - `Sources/Swift/Helper/SentryObjCRuntimeWrapper.swift` — add `classes(forImage:)`
-  to protocol (+ threading/arch doc).
+  to protocol (+ threading/arch doc). **Finding 3:** kept **required** (not `optional`);
+  doc note explains the `#if`-not-`optional` rationale.
 - `Sources/Swift/Helper/SentryDefaultObjCRuntimeWrapper.swift` — implement it
   (`import MachO`), arch guard, `MH_MAGIC_64` guard, off-main-thread doc. Section
   parsing extracted to a testable `static func classes(inSection:size:)` that reads
-  entries as `AnyClass?` and `compactMap`s out nulls (no `unsafeBitCast`).
+  entries as `AnyClass?` and `compactMap`s out nulls (no `unsafeBitCast`). Finding 1 & 2
+  comments reframed to "known limitation" (still point to REVIEW-PR-8457.md / this handoff).
 - `CHANGELOG.md` — `## Unreleased` → `### Fixes` entry (#8457).
 - `Tests/.../SentrySubClassFinderTests.swift` — new `classes` seam; differential test
   (`testClassesForImage_whenReadingEveryLoadedImage_shouldMatchCopyClassNamesForImage`),
@@ -136,7 +202,7 @@ Same structure, but get class **pointers** without realizing:
   real-wrapper regression test
   (`testRealRuntimeWrapper_whenReadingBundleImage_findsBundleViewControllers`) + gated
   `AvailabilityGatedNonViewController` fixture, and the merged-in
-  `_NoViewController_DoesNotDispatchToMainQueue` test.
+  `_NoViewController_DoesNotDispatchToMainQueue` test. (Finding 3 adds no test — see above.)
 - `Tests/SentryTests/Helper/SentryTestObjCRuntimeWrapper.{h,m}` — added `classes`
   override block (parallels existing `classesNames`).
 
@@ -370,11 +436,16 @@ static buffer.
 
 ## Before marking ready
 
-- **Resolve the open blockers first** (see "Open blockers"): Finding 1 (P0) and
-  Finding 2 (P1). Finding 3 (P2, SPI conformer compat) is validated in
-  `REVIEW-PR-8457.md` but out of scope for this pass and not a merge blocker.
-- `make format` + `make analyze` clean; `SentrySubClassFinderTests` green.
-- `classes(forImage:)` is `@_spi(Private)` → not in `sdk_api.json` (confirmed absent);
-  no `make generate-public-api` needed.
+- **Decide on Findings 1 & 2** (see "Open blockers"): Finding 1 (P0) and Finding 2 (P1) are
+  deferred by user (2026-07-23), reframed as known-limitation code comments — not GitHub issues.
+  Confirm the user wants to ship with them open (they're local-review findings, never posted to
+  GitHub; the actual GitHub reviewers are positive). Finding 3 (P2) is **addressed** this session
+  (compile-time gate consistency; see the scope caveat under "Addressed this session").
+- `make format` + `make analyze` clean; `SentrySubClassFinderTests` green (10/10).
+- `classes(forImage:)` is `@_spi(Private)` → not in `sdk_api.json` (confirmed absent). After the
+  Finding 3 `#if` change, `make generate-public-api` still produced no diff.
+- Re-run tvOS + watchOS builds on CI / a machine with those simulator runtimes (couldn't run
+  locally — see "Addressed this session").
 - Confirm Danger passes (changelog references **#8457**, the PR number).
+- Nudge itaybre to resolve the 2 arm64e ptrauth threads (answered + device-validated).
 - Then flip draft → ready and add `ready-to-merge` for full CI.

@@ -7,9 +7,13 @@
 - Reviewed head: `6e8284f8718f1fc665bafbb10ea545c8f08c7ec3`
 - Base during review: `main` at `6d9248043b5919d9b675d9e743188924b44b6bf6`
 - Review date: July 21, 2026
-- Verdict: **Do not merge yet**
+- Original verdict: **Do not merge yet** (Findings 1 P0, 2 P1, 3 P2)
+- Status update (2026-07-23): **Finding 3 resolved** (compiler directives — see its section);
+  **Findings 1 & 2 deferred by user decision**, kept as known-limitation code comments (not GitHub
+  issues). These are local-review findings — never posted to GitHub; the actual GitHub reviewers
+  (philipphofmann, NinjaLikesCheez, itaybre, noahsmartin) are positive.
 - GitHub activity: no comments, reviews, or mutations were posted
-- Local changes from review: this handoff file only
+- Local changes from review: this doc + `HANDOFF-subclassfinder-fix.md`
 
 ## PR Intent
 
@@ -273,14 +277,16 @@ rawIsViewController=yes liveIsViewController=yes
 
 - The risk is **Objective-C** conformers only. A _Swift_ conformer would fail to **compile** against the new required method, so it can never reach runtime. Read the finding's "compiled against the previous SDK" as Objective-C-only.
 
-#### Deferred Remediation (NOT YET IMPLEMENTED)
+#### Resolution Applied (2026-07-23)
 
-- Smallest safe fix, ready to pick up later:
-  1. Mark the protocol method `@objc optional func classes(forImage:)` in `Sources/Swift/Helper/SentryObjCRuntimeWrapper.swift:22` (protocol is already `@objc`).
-  2. In `Sources/Swift/Core/Integrations/Performance/SentrySubClassFinder.swift:50`, call via optional chaining (`self.objcRuntimeWrapper.classes?(forImage: cImageName)`) and, when `nil`, log a warning and **skip** swizzling for that image. The fallback must **not** realize all classes — that is the exact GH-8152 crash this PR fixes.
-  3. Add a regression test in `Tests/SentryTests/Integrations/Performance/SentrySubClassFinderTests.swift` that injects a conformer omitting `classesForImage:` and asserts `actOnSubclassesOfViewController` completes without raising and performs no swizzling.
-  4. Run `make generate-public-api` and commit any diff to satisfy the `api-stability` CI check. No `SentryObjC`/`SentryObjCCompat` wrapper change is needed (SPI, not the public wrapper SDK surface).
-- `SentryDefaultObjCRuntimeWrapper` and the test conformer already implement the method, so the normal SDK path is unchanged; only a foreign incomplete conformer takes the skip branch.
+Fixed with **compiler directives**, keeping the method **required** (the `@objc optional` +
+`respondsToSelector:` skip fallback was considered and deliberately rejected):
+
+- `classes(forImage:)` stays a required member under its existing gate `#if (os(iOS) || os(tvOS) || os(visionOS)) && (arch(arm64) || arch(x86_64))`; its doc note explains the `#if`-not-`optional` rationale.
+- The sole caller `SentrySubClassFinder` and the `SentryUIViewControllerSwizzling` that holds it gained the matching `&& (arch(arm64) || arch(x86_64))` on their file-level `#if`, so caller and method now exist on exactly the same slices. The cascade stops there (`SentryDependencyContainer` / `SentryPerformanceTrackingIntegration` reference these inside regions already gated to those platforms).
+- No test added and no `SentryObjC`/`SentryObjCCompat` change; `make generate-public-api` produced no diff (SPI).
+
+**Scope — precise:** this hardens the **compile-time** contract (gates are now consistent; any conformer compiled against this SDK version must implement the method or fail to build) and closes the gate mismatch. It does **not** add a runtime guard for a _foreign_ Objective-C conformer compiled against an _older_ SDK and injected via `objcRuntimeWrapper` — that object never sees our `#if`, so a direct call would still `doesNotRecognizeSelector:`. Accepted because it's SPI and the org-wide search found no external conformers; only `@objc optional` + `responds(to:)` would close that residual vector. Revisit if a real external conformer ever appears.
 
 ## Validation Completed
 

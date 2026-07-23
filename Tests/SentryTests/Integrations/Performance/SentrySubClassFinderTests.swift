@@ -147,13 +147,12 @@ class SentrySubClassFinderTests: XCTestCase {
     /// Documents that a class whose superclass chain does not reach `UIViewController` is dropped by
     /// the `class_getSuperclass` filter even when mixed in with real view controllers.
     ///
-    /// NOTE: this does NOT close review Finding 2 (raw `__objc_classlist` entries aren't run through
-    /// objc4's `remapClass`). `FakeViewController` is an ordinary live class pointer, not a remapped
-    /// one, so this only covers the weak-linked-missing-superclass shape (objc4 zeroes the superclass →
-    /// the walk can't reach `UIViewController`). It does NOT cover a resolved Objective-C future class
-    /// with a view-controller superclass, which passes this filter yet has raw ≠ live pointer identity.
-    /// Reproducing that needs an ObjC bundle + `objc_getFutureClass`. Finding 2 remains open — see
-    /// HANDOFF-subclassfinder-fix.md and REVIEW-PR-8457.md.
+    /// This covers the weak-linked-missing-superclass shape (objc4 zeroes the superclass → the walk
+    /// can't reach `UIViewController`). It does not cover the raw-vs-remapped pointer identity of a
+    /// resolved Objective-C future class with a view-controller superclass (Finding 2 in
+    /// REVIEW-PR-8457.md, tracked in HANDOFF-subclassfinder-fix.md; see also the known-limitation note
+    /// in `SentryDefaultObjCRuntimeWrapper.classes(forImage:)`); reproducing that needs an ObjC bundle
+    /// + `objc_getFutureClass`, which the test suite has no harness for.
     func testActOnSubclassesOfViewController_WhenClassDoesNotReachViewController_IsNotSwizzled() {
         fixture.runtimeWrapper.classes = { _ in
             [FakeViewController.self, FirstViewController.self, SecondViewController.self]
