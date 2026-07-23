@@ -12,14 +12,14 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  ready-to-merge-gate:
-    name: Ready-to-merge gate
-    uses: ./.github/workflows/ready-to-merge-workflow.yml
+  run-full-ci-gate:
+    name: run-full-ci gate
+    uses: ./.github/workflows/run-full-ci-workflow.yml
 
   files-changed:
     name: Detect File Changes
     runs-on: ubuntu-latest
-    needs: ready-to-merge-gate
+    needs: run-full-ci-gate
     outputs:
       run_size_analysis_for_prs: ${{ steps.changes.outputs.run_size_analysis_for_prs }}
       is_dependabot: ${{ github.actor == 'dependabot[bot]' }}
@@ -119,7 +119,7 @@ jobs:
   build-required-check:
     needs:
       [
-        ready-to-merge-gate,
+        run-full-ci-gate,
         files-changed,
         build,
         skip-size-analysis-for-non-contributors,
