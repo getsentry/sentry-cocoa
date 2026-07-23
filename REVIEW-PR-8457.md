@@ -8,11 +8,13 @@
 - Base during review: `main` at `6d9248043b5919d9b675d9e743188924b44b6bf6`
 - Review date: July 21, 2026
 - Original verdict: **Do not merge yet** (Findings 1 P0, 2 P1, 3 P2)
-- Status update (2026-07-23): **Finding 3 resolved** (compiler directives — see its section);
-  **Finding 1 resolved as an accepted, documented limitation** (allow all images, no code change —
-  see Finding 1 §Resolution); **Finding 2 deferred by user decision**. All kept as known-limitation
-  code comments (not GitHub issues). These are local-review findings — never posted to GitHub; the
-  actual GitHub reviewers (philipphofmann, NinjaLikesCheez, itaybre, noahsmartin) are positive.
+- Status update (2026-07-23): **Finding 1 and Finding 3 resolved** and removed from this document
+  (Finding 1 — accepted, documented image-unload limitation, no code change; Finding 3 — SPI
+  conformer compat, fixed via compiler directives + the `SentryImageClassProvider` extraction). The
+  decision trail for both lives in `HANDOFF-subclassfinder-fix.md`. **Only Finding 2 (P1) remains**
+  and is documented below.
+- These are local-review findings — never posted to GitHub; the actual GitHub reviewers
+  (philipphofmann, NinjaLikesCheez, itaybre, noahsmartin) are positive.
 - GitHub activity: no comments, reviews, or mutations were posted
 - Local changes from review: this doc + `HANDOFF-subclassfinder-fix.md`
 
@@ -24,101 +26,6 @@
 - Walk superclasses with `class_getSuperclass` without realizing classes.
 - Pass discovered `AnyClass` pointers to the main-thread swizzling block.
 
-## Finding 1: Concurrent Image Unload Can Crash
-
-### Severity
-
-- **P0 / merge blocker**
-- Violates the SDK requirement to never crash the host application.
-
-### Affected Code
-
-- `Sources/Swift/Helper/SentryDefaultObjCRuntimeWrapper.swift:28`
-- `Sources/Swift/Helper/SentryDefaultObjCRuntimeWrapper.swift:32`
-- `Sources/Swift/Helper/SentryDefaultObjCRuntimeWrapper.swift:36`
-- `Sources/Swift/Helper/SentryDefaultObjCRuntimeWrapper.swift:56`
-- `Sources/Swift/Helper/SentryDefaultObjCRuntimeWrapper.swift:65`
-
-### Problem
-
-- `classes(forImage:)` iterates `_dyld_image_count`, matches an image name, obtains a Mach-O header, obtains a section pointer, and copies class pointers.
-- The image is not pinned and no loader/runtime synchronization protects the header or section memory.
-- An unload can occur after any of these operations:
-  - `_dyld_get_image_name(index)`
-  - `_dyld_get_image_header(index)`
-  - `getsectiondata(...)`
-  - before or during `UnsafeBufferPointer(...).compactMap`
-- The installed Apple SDK header explicitly documents this iteration as not thread-safe:
-
-```c
-/*
- * The following functions allow you to iterate through all loaded images.
- * This is not a thread safe operation. Another thread can add or remove
- * an image during the iteration.
- */
-```
-
-- Local header inspected:
-  - `/Applications/Xcode-16.4.0.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk/usr/include/mach-o/dyld.h:51`
-- The PR comments currently claim `_dyld_get_image_header` and `_dyld_get_image_name` acquire a loader read lock and that stale indices safely return `nil`. Those claims are not supported by the public API contract.
-- The old `objc_copyClassNamesForImage` implementation is materially safer. Modern objc4 uses the runtime lock plus Mach-O UUID validation to avoid concurrent-unload ABA problems before reading an image's class list.
-
-### Deterministic Reproduction
-
-- A temporary Objective-C `MH_BUNDLE` containing a class was built locally.
-- The probe performed these steps:
-  1. `dlopen` the bundle.
-  2. Find and retain its raw Mach-O header pointer using `_dyld_get_image_header`.
-  3. `dlclose` the bundle so it is unmapped.
-  4. Call `getsectiondata` using the stale header.
-- Result:
-
-```text
-before=45 loaded=348 index=45 header=0x1002dc000
-after=347 afterIndex=-1 afterHeader=0x0
-probe_status=139
-```
-
-- Exit status `139` is `SIGSEGV`.
-- This demonstrates that an Objective-C image can unload and that dereferencing the saved header or section is unsafe.
-- The production race window also extends through the entire class-pointer copy, not only the `getsectiondata` call.
-
-### Required Resolution
-
-- Do not dereference an image header or section unless image lifetime is guaranteed for the complete operation.
-- Use a mechanism that safely coordinates with image loading/unloading and validates that the header still represents the requested image.
-- Possible directions requiring careful validation:
-  - Use the SDK's binary-image cache/callback infrastructure with appropriate synchronization and image removal handling.
-  - Pin the target image for the operation and independently verify the header-to-path association before dereferencing it.
-  - Use an Objective-C runtime API that already owns the necessary runtime lock and remapping behavior, if a supported API is available.
-- Merely reading `_dyld_image_count` once does not solve this issue.
-- Add an unload-race test using an Objective-C bundle or an equivalent deterministic harness.
-
-### Resolution (2026-07-23): accepted as a documented limitation — no code change
-
-The finding is correct and was re-reproduced. The resolution is **allow all images and document the
-risk**, for a reason not covered in the original report: **a read-side fix does not prevent the
-crash.** `classes(inSection:size:)` returns raw class pointers that live in the image's
-`__DATA`/`__DATA_CONST`; they are consumed _after_ `classes(forImage:)` returns —
-`SentrySubClassFinder` walks `class_getSuperclass` on a background queue, then swizzles on the main
-queue. If the image unloads anywhere in that window the class pointers dangle and crash, outside any
-read scope. Verified locally: calling `class_getSuperclass` on a class pointer whose `MH_BUNDLE` had
-been `dlclose`d gives SIGSEGV (exit 139), the same as the read-time repro.
-
-Consequences:
-
-- The suggested directions (binary-image cache coordination, `RTLD_NOLOAD` pinning of the read) close
-  only the read window and were therefore **rejected** as not fixing the actual exposure. The cache
-  path additionally has an async-population early-miss window and a `MAX_DYLD_IMAGES` cap.
-- Reachability is narrow: only a concurrently-unloaded `MH_BUNDLE` is exposed. Verified that
-  `MH_DYLIB` (frameworks, and the SDK's own `.xctest` binaries) do not unload once they register
-  ObjC/Swift classes, and the default `inAppInclude` (`MH_EXECUTE` main executable) never unloads.
-- A robust fix would have to prevent unload for the lifetime of every swizzle (pin/leak the image) or
-  refuse to instrument unloadable images — both trade coverage or memory for safety and were declined.
-- The misleading in-code `_dyld_*`-safety comment has been corrected to an accurate known-limitation
-  note. Full decision trail in [`HANDOFF-subclassfinder-fix.md`](HANDOFF-subclassfinder-fix.md)
-  §"Finding 1".
-
 ## Finding 2: Raw Class List Entries Are Unremapped
 
 ### Severity
@@ -128,11 +35,15 @@ Consequences:
 
 ### Affected Code
 
-- `Sources/Swift/Helper/SentryDefaultObjCRuntimeWrapper.swift:74`
-- `Sources/Swift/Core/Integrations/Performance/SentrySubClassFinder.swift:50`
-- `Sources/Swift/Core/Integrations/Performance/SentrySubClassFinder.swift:67`
-- `Sources/Swift/Core/Integrations/Performance/SentrySubClassFinder.swift:85`
-- `Sources/Swift/Core/Integrations/Performance/SentrySubClassFinder.swift:93`
+> Note (2026-07-23): the implementation moved out of `SentryDefaultObjCRuntimeWrapper` into
+> `SentryDefaultImageClassProvider` (commit `3a3abd444`). Updated references:
+
+- `Sources/Swift/Helper/SentryDefaultImageClassProvider.swift` — `classes(inSection:size:)` and the
+  raw-pointer comment (the "we do NOT run objc4's `remapClass`" block).
+- `Sources/Swift/Core/Integrations/Performance/SentrySubClassFinder.swift:52` — receives the raw
+  pointers via `imageClassProvider.classes(forImage:)`.
+- `Sources/Swift/Core/Integrations/Performance/SentrySubClassFinder.swift:71,75,87,97` — filters,
+  names, collects, and hands the raw pointer to the swizzle `block`.
 
 ### Problem
 
@@ -196,10 +107,11 @@ probe_status=10
 
 ### Follow-Up Review of Local Attempt
 
-- Follow-up reviewed on July 21, 2026.
+- Follow-up reviewed on July 21, 2026. (File paths below are as of that review; the raw-pointer
+  comment has since moved to `SentryDefaultImageClassProvider.swift` — see "Affected Code".)
 - Local changes inspected:
-  - Added explanatory comments at `Sources/Swift/Helper/SentryDefaultObjCRuntimeWrapper.swift:56` justifying the intentional use of unremapped pointers.
-  - Added `testActOnSubclassesOfViewController_WhenClassDoesNotReachViewController_IsNotSwizzled` at `Tests/SentryTests/Integrations/Performance/SentrySubClassFinderTests.swift:157`.
+  - Added explanatory comments justifying the intentional use of unremapped pointers (then in `SentryDefaultObjCRuntimeWrapper.swift`).
+  - Added `testActOnSubclassesOfViewController_WhenClassDoesNotReachViewController_IsNotSwizzled` in `SentrySubClassFinderTests.swift`.
 - Conclusion: **the local attempt does not address Finding 2**.
 - No production behavior changed. Raw `__objc_classlist` entries are still returned unchanged, retained across the queue hop, and passed to the swizzler.
 
@@ -240,79 +152,6 @@ rawIsViewController=yes liveIsViewController=yes
 
 - **Finding 2 remains open and remains a merge blocker.**
 - Documentation asserting that raw pointers are safe is not a replacement for obtaining the live runtime class identity or redesigning the handoff so raw pointers never reach the swizzler.
-
-## Finding 3: Required SPI Protocol Method Breaks Old Conformers
-
-### Severity
-
-- **P2 / compatibility risk**
-- Potential unrecognized-selector host crash for an injected conformer built against an older SDK.
-
-### Affected Code
-
-- `Sources/Swift/Helper/SentryObjCRuntimeWrapper.swift:21`
-- `Sources/Swift/Core/Integrations/Performance/SentrySubClassFinder.swift:50`
-- `Sources/Swift/SentryDependencyContainer.swift:161`
-
-### Problem
-
-- `classesForImage:` is added as a required method to the public Objective-C SPI protocol `SentryObjCRuntimeWrapper`.
-- `SentryDependencyContainer.objcRuntimeWrapper` is publicly settable through the private SPI surface.
-- The new method is called unconditionally.
-- An Objective-C conformer compiled against the previous SDK can still be supplied at runtime but does not implement `classesForImage:`.
-- Calling the new selector on that object causes an unrecognized-selector exception.
-
-### Scope Check
-
-- A read-only GitHub code search across the `getsentry` organization found no external source conformers beyond `sentry-cocoa` tests.
-- This lowers the known exposure but does not eliminate private, customer, or downstream SPI users.
-
-### Recommended Resolution
-
-- Avoid adding a required method to the existing SPI protocol.
-- Options:
-  - Introduce a separate internal capability protocol used only by the default implementation.
-  - Make the Objective-C requirement optional and implement an explicit safe fallback.
-  - Remove this operation from the injectable wrapper if injection is not needed.
-- The fallback must not restore the original unsafe realization of every class.
-
-### Verification Verdict (2026-07-21)
-
-- **Verdict: TRUE — the mechanism is confirmed, and the P2 severity is correct.**
-- Every link in the chain was verified first-hand against the working tree, the diff vs base (`6d9248043`), the generated public header, and the test conformer.
-
-#### Evidence
-
-- **Required method, called unconditionally.** The method is added with no `optional` keyword, and the file has no `optional` anywhere:
-  - `Sources/Swift/Helper/SentryObjCRuntimeWrapper.swift:22` (`@objc(classesForImage:)` + `func classes(forImage:)`)
-  - `Sources/Swift/Core/Integrations/Performance/SentrySubClassFinder.swift:50` calls it directly; there is no `respondsToSelector` / optional guard anywhere in the Swift layer.
-- **Reachable by external Objective-C conformers.** The protocol is `@objc @_spi(Private) public` and is emitted into the shipped `Sentry.framework/Headers/Sentry-Swift.h` as a plain `@protocol SentryObjCRuntimeWrapper` with **no SPI guard**.
-  - `develop-docs/SWIFT.md:47` confirms `@_spi(Private)` restricts _Swift_ importers only; it has no effect for Objective-C.
-  - `Sources/Swift/SentryDependencyContainer.swift:161` exposes the setter as `@objc public var objcRuntimeWrapper` (readwrite in the header).
-- **Old conformers really are missing the method (smoking gun).** The repo's own Objective-C conformer had to _add_ `classesForImage:` under the same `#if`:
-  - `Tests/SentryTests/Helper/SentryTestObjCRuntimeWrapper.m:68`
-  - Objective-C only _warns_ (never errors) on incomplete protocol conformance, so a conformer built before this PR compiles and links, then hits `doesNotRecognizeSelector:` when the new SDK invokes the selector.
-- **Default-on trigger path.** The swizzling path that reaches this call is enabled by default:
-  - `Sources/Swift/Options.swift:257` (`enableAutoPerformanceTracing = true`), `Sources/Swift/Options.swift:280` (`enableUIViewControllerTracing = true`), `Sources/Swift/Options.swift:446` (`enableSwizzling = true`).
-
-#### Severity Note
-
-- P2 is correct — not higher. The finding's own scope check holds: the only realistic external consumers are hybrid SDKs, and none conform to this protocol. The method is also platform/arch-gated (`#if (os(iOS) || os(tvOS) || os(visionOS)) && (arch(arm64) || arch(x86_64))`), so watchOS/macOS/32-bit slices are unaffected regardless. Real latent ABI hazard, small blast radius.
-
-#### Wording Refinement
-
-- The risk is **Objective-C** conformers only. A _Swift_ conformer would fail to **compile** against the new required method, so it can never reach runtime. Read the finding's "compiled against the previous SDK" as Objective-C-only.
-
-#### Resolution Applied (2026-07-23)
-
-Fixed with **compiler directives**, keeping the method **required** (the `@objc optional` +
-`respondsToSelector:` skip fallback was considered and deliberately rejected):
-
-- `classes(forImage:)` stays a required member under its existing gate `#if (os(iOS) || os(tvOS) || os(visionOS)) && (arch(arm64) || arch(x86_64))`; its doc note explains the `#if`-not-`optional` rationale.
-- The sole caller `SentrySubClassFinder` and the `SentryUIViewControllerSwizzling` that holds it gained the matching `&& (arch(arm64) || arch(x86_64))` on their file-level `#if`, so caller and method now exist on exactly the same slices. The cascade stops there (`SentryDependencyContainer` / `SentryPerformanceTrackingIntegration` reference these inside regions already gated to those platforms).
-- No test added and no `SentryObjC`/`SentryObjCCompat` change; `make generate-public-api` produced no diff (SPI).
-
-**Scope — precise:** this hardens the **compile-time** contract (gates are now consistent; any conformer compiled against this SDK version must implement the method or fail to build) and closes the gate mismatch. It does **not** add a runtime guard for a _foreign_ Objective-C conformer compiled against an _older_ SDK and injected via `objcRuntimeWrapper` — that object never sees our `#if`, so a direct call would still `doesNotRecognizeSelector:`. Accepted because it's SPI and the org-wide search found no external conformers; only `@objc optional` + `responds(to:)` would close that residual vector. Revisit if a real external conformer ever appears.
 
 ## Validation Completed
 
@@ -365,26 +204,20 @@ xcodebuild: error: Could not resolve package dependencies
 - This is useful evidence for PAC handling.
 - It does not cover concurrent unload or Objective-C class remapping.
 
-## Suggested Implementation Sequence
+## Suggested Implementation Sequence (Finding 2, if picked up)
 
-1. Design a loader-safe image lifetime strategy.
-2. Stop carrying raw class references to main.
-3. Resolve selected names on main and validate image identity.
-4. Preserve compatibility for existing runtime-wrapper conformers.
-5. Add unload and future-class regression tests.
-6. Re-run iOS 15.5 and current iOS tests.
-7. Build tvOS, visionOS, Catalyst, and watchOS slices.
-8. Re-run format and analysis before merge.
+1. Stop carrying raw `__objc_classlist` pointers across the background→main queue hop, or apply a
+   `remapClass`-equivalent to each entry (skipping nil) before they reach the swizzler.
+2. Do it without reintroducing the GH-8152 realization crash (no `NSClassFromString` re-resolution).
+3. Add a future-class/remapping regression test — needs an ObjC bundle + `objc_getFutureClass`
+   (no such harness exists yet); name-set equivalence is insufficient.
+4. Re-run iOS 15.5 and current iOS tests; build tvOS, visionOS, Catalyst, watchOS slices.
+5. Re-run format and analysis before merge.
 
 ## Review Conclusion
 
 - The PR fixes the normal availability-crash path in the tested configurations.
-- The current implementation replaces a runtime-managed, unload-aware enumeration path with direct parsing that lacks image lifetime protection and class remapping.
-- Both gaps are runtime correctness issues, not theoretical style concerns.
-- The unload crash was reproduced locally and the remapped-pointer mismatch was demonstrated locally.
-- **Update (2026-07-23):** Finding 1 is **resolved as an accepted, documented limitation** — a
-  read-side fix cannot prevent it (the crash is at swizzle time on returned pointers), the exposure is
-  narrow (concurrently-unloaded `MH_BUNDLE` only), and the guard/pin/cache options were declined. See
-  Finding 1 §Resolution. Finding 2 (unremapped pointers) remains open/deferred. The
-  "Suggested Implementation Sequence" above reflects the original recommendation and is superseded for
-  Finding 1 by that Resolution.
+- **Only Finding 2 remains** (unremapped raw `__objc_classlist` pointers reach the swizzler); it is a
+  runtime-correctness concern, not a style one, demonstrated locally. Deferred by user decision and
+  tracked as a known-limitation code comment. Findings 1 and 3 were resolved and removed from this
+  document (see the Status update at the top and `HANDOFF-subclassfinder-fix.md`).

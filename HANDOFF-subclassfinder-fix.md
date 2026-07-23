@@ -17,72 +17,78 @@
   `_NoViewController_DoesNotDispatchToMainQueue` test adapted to that seam).
 - **Tests:** `SentrySubClassFinderTests` green on the local sim (**10 executed**, 0 failures).
   Includes the differential enumeration test, the section null-entry test, the real-wrapper
-  regression test, and the filter-drop test noted under Open blockers. The Finding 3 fix adds no
-  test — a required-method conformer that omits the method can't compile, so there's no runtime
-  path to exercise.
-- **Finding 3 (P2, SPI conformer compat): addressed this session (2026-07-23)** via compiler
-  directives (method kept required, gates made consistent). Not committed yet. Note the scope: it
-  hardens the compile-time contract but does not add a runtime guard for a foreign old-SDK
-  conformer. See "Addressed this session" below.
-- **Finding 1 (P0) — RESOLVED as an accepted, documented limitation (2026-07-23).** After
-  empirical investigation (see "Finding 1" section below) the user decided **allow all images,
-  document the risk**: no code change, no `SentryBinaryImageCache` integration, no filetype guard,
-  no pinning. The chosen "coordinate the read via the cache" direction was **investigated and
-  rejected** — it protects only the read, not the later `class_getSuperclass`/swizzle use of the
-  returned pointers, so it does not prevent the crash. In-code comment reframed to an accurate
-  known-limitation note. **Finding 2 (P1)** unremapped classlist entries remains open/deferred.
-  See "Open blockers" below.
+  regression test, and the filter-drop test noted under Open blockers.
+- **Latest work — `SentryImageClassProvider` extraction (committed `3a3abd444`, 2026-07-23).**
+  `classes(forImage:)` (+ its `classes(inSection:size:)` helper) was moved OFF `SentryObjCRuntimeWrapper`
+  into a dedicated pure-Swift `SentryImageClassProvider` protocol + `SentryDefaultImageClassProvider`
+  impl (it reads a Mach-O section via dyld, not the ObjC runtime, so it never belonged there).
+  `SentrySubClassFinder` now depends on the new provider. This subsumes the earlier Finding 3
+  "compiler-directive" fix — the arch `#if` gates carried over. See "Extraction refactor" below.
+- **Finding 3 (P2, SPI conformer compat): resolved.** `classes(forImage:)` is no longer on the
+  injectable `SentryObjCRuntimeWrapper` SPI protocol at all, so the "old ObjC conformer missing the
+  selector" hazard is gone by construction. The new `SentryImageClassProvider` is internal (not
+  `@objc`, not `@_spi` public), so it isn't an injectable SPI surface. Removed from `REVIEW-PR-8457.md`.
+- **Finding 1 (P0) — resolved as an accepted, documented limitation.** User decided **allow all
+  images, document the risk**: no code change, no `SentryBinaryImageCache` integration, no filetype
+  guard, no pinning. The "coordinate the read via the cache" direction was investigated and rejected
+  (it protects only the read, not the later `class_getSuperclass`/swizzle use of the returned
+  pointers). In-code comment is an accurate known-limitation note (now in
+  `SentryDefaultImageClassProvider.swift`). Removed from `REVIEW-PR-8457.md`; full trail kept below.
+- **Finding 2 (P1) — OPEN, deferred.** Unremapped raw `__objc_classlist` pointers reach the swizzler.
+  Still the only open finding in `REVIEW-PR-8457.md`. See "Open blockers" below.
 - **These docs are kept as living tracking notes** (user decision 2026-07-23), not deleted
-  before merge as the earlier draft of this file assumed.
+  before merge.
 
-## Addressed this session (2026-07-23) — Finding 3: SPI conformer compat
+## Extraction refactor (committed `3a3abd444`, 2026-07-23) — `SentryImageClassProvider`
 
-Finding 3's stated hazard: `classes(forImage:)` is a **required** member of the
-`@objc @_spi(Private)` protocol `SentryObjCRuntimeWrapper`, called unconditionally. An
-Objective-C conformer built against an _older_ SDK (ObjC only _warns_ on incomplete conformance)
-and injected via the `@objc public var objcRuntimeWrapper` setter would hit
-`doesNotRecognizeSelector:` at runtime on the default-on swizzling path. Details:
-`REVIEW-PR-8457.md` §"Finding 3".
+`classes(forImage:)` reads a Mach-O `__objc_classlist` section via dyld — it does **not** call the
+Objective-C runtime — so it didn't belong on `SentryObjCRuntimeWrapper` (whose other two methods,
+`copyClassNamesForImage`/`classGetImageName`, genuinely are ObjC-runtime calls). It was extracted
+into its own protocol-oriented seam. This also **resolves Finding 3**: the method is off the
+injectable SPI protocol entirely, so an old ObjC conformer can no longer be missing its selector.
 
-**User decision (2026-07-23): keep the method _required_, fix with compiler directives, NOT
-`@objc optional`.** Changes (not committed yet):
+Files (all committed):
 
-- `Sources/Swift/Helper/SentryObjCRuntimeWrapper.swift` — method stays **required** under the
-  existing `#if (os(iOS)||os(tvOS)||os(visionOS)) && (arch(arm64)||arch(x86_64))`; doc note now
-  explains the `#if`-not-`optional` rationale.
-- `Sources/Swift/Core/Integrations/Performance/SentrySubClassFinder.swift` — its file-level `#if`
-  gained `&& (arch(arm64)||arch(x86_64))` to match the method's gate; call site is a plain direct
-  call. On iOS/tvOS/visionOS the arch condition is always true, so no slice that used to build is
-  dropped.
-- `Sources/Swift/Core/Integrations/Performance/SentryUIViewControllerSwizzling.swift` — holds a
-  `SentrySubClassFinder` property, so its file-level `#if` got the same `&& (arch(arm64)||
-  arch(x86_64))`. The cascade **stops here**: `SentryDependencyContainer` and
-  `SentryPerformanceTrackingIntegration` reference these types inside regions already gated
-  `(os(iOS)||os(tvOS)||os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK`, which implies the arch condition
-  on those platforms — no change needed there (confirmed by the builds).
-- Tests: **no new test** — a required-method conformer that omits it wouldn't compile, so there's
-  no in-tree runtime path to exercise.
-- API stability: `make generate-public-api` produced **no diff** (SPI excluded from
-  `sdk_api*.json`). No `SentryObjC`/`SentryObjCCompat` wrapper change needed.
+- **New `Sources/Swift/Helper/SentryImageClassProvider.swift`** — pure-Swift `protocol
+  SentryImageClassProvider { func classes(forImage:) -> [AnyClass] }`. Internal, **not** `@objc`,
+  **not** `NSObject`, **not** `@_spi(Private)` (no ObjC caller; precedent: `SentryInfoPlistWrapperProvider`).
+  File-gated `#if (os(iOS)||os(tvOS)||os(visionOS)) && (arch(arm64)||arch(x86_64))`.
+- **New `Sources/Swift/Helper/SentryDefaultImageClassProvider.swift`** — `final class
+  SentryDefaultImageClassProvider: SentryImageClassProvider`. Holds the moved `classes(forImage:)`
+  body verbatim (dyld scan, `MH_MAGIC_64` guard, `getsectiondata`) + the internal static
+  `classes(inSection:size:)`. The Finding 1 (image-unload) and Finding 2 (unremapped pointers)
+  known-limitation comments now live here.
+- `Sources/Swift/Helper/SentryObjCRuntimeWrapper.swift` — `classes(forImage:)` **removed**; protocol
+  is back to its two ObjC-runtime methods.
+- `Sources/Swift/Helper/SentryDefaultObjCRuntimeWrapper.swift` — impl + static helper removed;
+  dropped the now-unused `import MachO`.
+- `Sources/Swift/Core/Integrations/Performance/SentrySubClassFinder.swift` — depends on
+  `SentryImageClassProvider` (property/init/call); no longer references `SentryObjCRuntimeWrapper`.
+  Keeps its file-level arch `#if` (added in the earlier compiler-directive step, `2aa8fa39e`).
+- `Sources/Swift/SentryDependencyContainer.swift` — added a gated `var imageClassProvider:
+  SentryImageClassProvider = SentryDefaultImageClassProvider()` next to `objcRuntimeWrapper`, and
+  `getUIViewControllerSwizzlingBuilder` passes it to the finder. `SentryUIViewControllerSwizzling`
+  still gets `objcRuntimeWrapper` (it uses `classGetImageName`). `Dependencies.swift` untouched.
+- Tests — `SentrySubClassFinderTests` now injects a small Swift `TestImageClassProvider` fake
+  (replaces the old ObjC `SentryTestObjCRuntimeWrapper.classes` block seam); the 3 real-wrapper tests
+  point at `SentryDefaultImageClassProvider`. `SentryUIViewControllerSwizzlingTests`' `TestSubClassFinder`
+  init updated. `SentryTestObjCRuntimeWrapper.{h,m}` dropped the now-orphaned `classes` block +
+  `classesForImage:` (it's still used by `LoadValidatorTests` for the other two methods).
 
-**What this actually achieves (be precise):** it makes the caller's and swizzler's `#if` gates
-consistent with the method's gate (they existed on divergent conditions before — the method was
-64-bit-only, the caller wasn't), and keeps the method a hard **compile-time** requirement. Any
-conformer compiled _against this SDK version_ (default wrapper, test wrapper, a hybrid SDK building
-on current sources) must implement it or fail to build.
+Verification (2026-07-23): `make format` + `make analyze` clean; builds green on **iOS, macOS,
+visionOS** (macOS proves the carve compiles where the new type is gated out); tests green —
+`SentrySubClassFinderTests` 10/0, `SentryUIViewControllerSwizzlingTests` 31/0, `LoadValidatorTests`
+7/0; `make generate-public-api` **no diff** (all new symbols internal; removed protocol member was
+`@_spi`). tvOS/watchOS builds could not run in this environment (the `Sentry` scheme exposes only
+iOS + visionOS simulator destinations here) — tvOS mirrors the iOS/visionOS `#if` shape, watchOS
+mirrors macOS. Re-run tvOS/watchOS on CI.
 
-**What it does NOT do:** it does not add a runtime guard for a _foreign_ ObjC conformer compiled
-against an _older_ SDK and injected at runtime — that object never sees our `#if`, so the direct
-call would still `doesNotRecognizeSelector:`. Only `@objc optional` + a `responds(to:)`/skip guard
-would close that, which the user chose against. Accepted because it's SPI and the review's
-org-wide search found no external conformers. If that vector ever matters, revisit.
+### Earlier compiler-directive step (`2aa8fa39e`, superseded by the extraction)
 
-Verification: `make format` + `make analyze` clean; builds green on **iOS, macOS, visionOS** (macOS
-proves the protocol still compiles where the method is `#if`'d out); `SentrySubClassFinderTests`
-10/10 green. tvOS/watchOS builds could not run in this environment — the `Sentry` scheme exposes
-only iOS + visionOS simulator destinations here (no tvOS/watchOS Simulator; same pre-existing
-environment gap the review hit). tvOS mirrors the iOS/visionOS `#if` shape and watchOS mirrors
-macOS, both already exercised. Re-run tvOS/watchOS on CI or a machine with those runtimes.
+Before the extraction, Finding 3 was addressed by keeping `classes(forImage:)` a **required**
+`SentryObjCRuntimeWrapper` member and making the caller/swizzler `#if` gates match its 64-bit gate
+(the user rejected `@objc optional`). Those arch gates carried into the extraction. That step
+hardened the compile-time contract but didn't remove the injectable-SPI surface; the extraction does.
 
 ## Open blockers (Finding 2 open; Finding 1 resolved as accepted risk)
 
@@ -112,11 +118,11 @@ macOS, both already exercised. Re-run tvOS/watchOS on CI or a machine with those
     `SentrySubClassFinder`'s `class_getSuperclass` filter yet has raw ≠ live identity —
     demonstrated by a local probe (`SentryFutureViewController : NSViewController`,
     `rawIsViewController=yes rawEqualsLive=no`).
-  - **Local changes currently in the tree (uncommitted):** softened comment in
-    `SentryDefaultObjCRuntimeWrapper.swift` (now flags this as a known open issue, no
-    longer claims safety) + `testActOnSubclassesOfViewController_WhenClassDoesNotReach`
-    `ViewController_IsNotSwizzled` (documents the filter drop for the
-    weak-missing-superclass shape only; explicitly NOT a Finding-2 fix).
+  - **Committed state:** the known-limitation comment lives in
+    `SentryDefaultImageClassProvider.swift` (moved there by the extraction refactor; flags this as a
+    known open issue, does not claim safety), plus
+    `testActOnSubclassesOfViewController_WhenClassDoesNotReachViewController_IsNotSwizzled` (documents
+    the filter drop for the weak-missing-superclass shape only; explicitly NOT a Finding-2 fix).
   - **Constraint on any real fix:** must NOT reintroduce the GH-8152 realization crash.
     The review's "store names, resolve on main via `NSClassFromString`" suggestion
     realizes the class and can pick a same-named class from another image — the exact
@@ -168,48 +174,53 @@ swizzle.
 
 Same structure, but get class **pointers** without realizing:
 
-- Added `classes(forImage:) -> [AnyClass]` to `SentryObjCRuntimeWrapper` protocol.
-- Default impl (`SentryDefaultObjCRuntimeWrapper`): `import MachO`; find the image
+- `classes(forImage:) -> [AnyClass]` lives on the `SentryImageClassProvider` protocol (extracted
+  2026-07-23 — see "Extraction refactor"; originally on `SentryObjCRuntimeWrapper`).
+- Default impl (`SentryDefaultImageClassProvider`): `import MachO`; find the image
   via `_dyld_image_count`/`_dyld_get_image_name`; read
   `getsectiondata(header, "__DATA_CONST", "__objc_classlist", &size)` (fallback
   `"__DATA"`); rebind the section to `AnyClass?` (the honest type of its
   `Class _Nullable` entries — no `unsafeBitCast`) and `compactMap` out nulls. These
   are dyld-bound but **not realized**.
-- Finder: iterate `classes(forImage:)`, run the unchanged `isClass` superclass walk,
+- Finder: iterate `imageClassProvider.classes(forImage:)`, run the unchanged `isClass` superclass walk,
   read names via `class_getName` only to apply `swizzleClassNameExcludes` (neither
   `class_getSuperclass` nor `class_getName` sends a message, so `+initialize` never
   runs on the background thread), then collect the class **pointers** and hand them
   directly to the main-thread swizzle block. Holding/iterating `AnyClass` does not
   message the class either; the swizzle is the first message, and it runs on main.
 
-### Files changed (PR #8457, vs origin/main)
+### Files changed (PR #8457, vs origin/main) — final state
 
-- `Sources/Swift/Core/Integrations/Performance/SentrySubClassFinder.swift` — swap
-  enumeration; net simpler. **Finding 3:** file-level `#if` gained `&& (arch(arm64)||
-  arch(x86_64))` to match the required protocol method's gate; plain direct call to
-  `classes(forImage:)`.
-- `Sources/Swift/Core/Integrations/Performance/SentryUIViewControllerSwizzling.swift`
-  — comment note that `objc_getClassList` realizes every class. **Finding 3:** same
-  `&& (arch(arm64)||arch(x86_64))` added to its file-level `#if` (it holds a
-  `SentrySubClassFinder`).
-- `Sources/Swift/Helper/SentryObjCRuntimeWrapper.swift` — add `classes(forImage:)`
-  to protocol (+ threading/arch doc). **Finding 3:** kept **required** (not `optional`);
-  doc note explains the `#if`-not-`optional` rationale.
-- `Sources/Swift/Helper/SentryDefaultObjCRuntimeWrapper.swift` — implement it
-  (`import MachO`), arch guard, `MH_MAGIC_64` guard, off-main-thread doc. Section
-  parsing extracted to a testable `static func classes(inSection:size:)` that reads
-  entries as `AnyClass?` and `compactMap`s out nulls (no `unsafeBitCast`). Finding 1 & 2
-  comments reframed to "known limitation" (still point to REVIEW-PR-8457.md / this handoff).
+- **`Sources/Swift/Helper/SentryImageClassProvider.swift`** (new) — pure-Swift protocol holding
+  `classes(forImage:)`; file-gated to 64-bit iOS/tvOS/visionOS.
+- **`Sources/Swift/Helper/SentryDefaultImageClassProvider.swift`** (new) — default impl: `import
+  MachO`, dyld scan, `MH_MAGIC_64` guard, `getsectiondata`, `AnyClass?` rebind + `compactMap`
+  (no `unsafeBitCast`), and the internal static `classes(inSection:size:)`. Holds the Finding 1 & 2
+  known-limitation comments (point to REVIEW-PR-8457.md / this handoff).
+- `Sources/Swift/Helper/SentryObjCRuntimeWrapper.swift` — back to its two ObjC-runtime methods
+  (`classes(forImage:)` extracted out).
+- `Sources/Swift/Helper/SentryDefaultObjCRuntimeWrapper.swift` — impl + static helper removed;
+  dropped the now-unused `import MachO`.
+- `Sources/Swift/Core/Integrations/Performance/SentrySubClassFinder.swift` — enumeration swap (net
+  simpler); depends on `SentryImageClassProvider` (not `SentryObjCRuntimeWrapper`); file-level `#if`
+  carries the `&& (arch(arm64)||arch(x86_64))` gate.
+- `Sources/Swift/Core/Integrations/Performance/SentryUIViewControllerSwizzling.swift` — comment note
+  that `objc_getClassList` realizes every class; same `&& (arch(arm64)||arch(x86_64))` on its
+  file-level `#if` (it holds a `SentrySubClassFinder`).
+- `Sources/Swift/SentryDependencyContainer.swift` — gated `imageClassProvider` var; builder passes it
+  to the finder.
 - `CHANGELOG.md` — `## Unreleased` → `### Fixes` entry (#8457).
-- `Tests/.../SentrySubClassFinderTests.swift` — new `classes` seam; differential test
+- `Tests/.../SentrySubClassFinderTests.swift` — Swift `TestImageClassProvider` seam; differential test
   (`testClassesForImage_whenReadingEveryLoadedImage_shouldMatchCopyClassNamesForImage`),
   section null-entry test (`testClassesInSection_whenSectionContainsNullEntry_shouldSkipIt`),
   real-wrapper regression test
   (`testRealRuntimeWrapper_whenReadingBundleImage_findsBundleViewControllers`) + gated
   `AvailabilityGatedNonViewController` fixture, and the merged-in
-  `_NoViewController_DoesNotDispatchToMainQueue` test. (Finding 3 adds no test — see above.)
-- `Tests/SentryTests/Helper/SentryTestObjCRuntimeWrapper.{h,m}` — added `classes`
-  override block (parallels existing `classesNames`).
+  `_NoViewController_DoesNotDispatchToMainQueue` test.
+- `Tests/SentryTests/Integrations/Performance/UIViewController/SentryUIViewControllerSwizzlingTests.swift`
+  — `TestSubClassFinder` init takes `imageClassProvider:`.
+- `Tests/SentryTests/Helper/SentryTestObjCRuntimeWrapper.{h,m}` — dropped the `classes` block +
+  `classesForImage:` (orphaned by the extraction); other two methods retained for `LoadValidatorTests`.
 
 Note: `Sources/Swift/Options.swift` and `Sources/SentryObjC/Public/SentryObjCOptions.h`
 are NOT changed for docs — an earlier draft added a `swizzleClassNameExcludes`
@@ -301,7 +312,7 @@ Verified against **objc4 source** + empirical tests on Apple silicon (arm64):
   `classes(inSection:size:)` helper a crafted buffer with a null slot and asserts the
   null is skipped.
 - `testRealRuntimeWrapper_whenReadingBundleImage_findsBundleViewControllers` — drives
-  the **real** `SentryDefaultObjCRuntimeWrapper` through the finder against this
+  the **real** `SentryDefaultImageClassProvider` through the finder against this
   bundle; asserts the bundle's VCs are found and non-VCs (incl. the gated
   `AvailabilityGatedNonViewController`) are not. The actual `EXC_BAD_ACCESS` is
   device/OS-version-specific and can't be reproduced on CI sims, so this guards the
@@ -317,7 +328,7 @@ Verified against **objc4 source** + empirical tests on Apple silicon (arm64):
 
 ### Verdict: the finding is ACCURATE (real crash), but narrow, and NOT fixable at the read.
 
-`classes(forImage:)` (`Sources/Swift/Helper/SentryDefaultObjCRuntimeWrapper.swift`)
+`classes(forImage:)` (`Sources/Swift/Helper/SentryDefaultImageClassProvider.swift`)
 matches an image by name, gets its header, then dereferences it via `getsectiondata`.
 Between the match and the deref, another thread can `dlclose`/unload that image, leaving a
 **dangling header/section → SIGSEGV**. Reproduced by the reviewer (probe exit 139) and again this
@@ -385,8 +396,9 @@ build target anyway.)
 
 - The only change is comments/docs. `make format` + `make build-ios` confirm the edited file still
   compiles. `SentrySubClassFinderTests` remain valid unchanged (no behavior change).
-- The misleading `_dyld_*`-safety comment in `SentryDefaultObjCRuntimeWrapper.swift` has been
-  corrected to the accurate known-limitation note.
+- The misleading `_dyld_*`-safety comment (originally in `SentryDefaultObjCRuntimeWrapper.swift`,
+  now in `SentryDefaultImageClassProvider.swift`) has been corrected to the accurate
+  known-limitation note.
 
 ## Deferred / future work (NOT blocking this PR)
 
@@ -419,16 +431,17 @@ static buffer.
 
 ## Before marking ready
 
-- **Findings 1 & 2:** Finding 1 (P0) is **resolved as an accepted, documented limitation**
-  (2026-07-23) — allow all images, no code change; see "Finding 1" Resolution. Finding 2 (P1) remains
-  deferred by user, reframed as a known-limitation code comment. Both are local-review findings, never
-  posted to GitHub; the actual GitHub reviewers are positive. Finding 3 (P2) is **addressed** this
-  session (compile-time gate consistency; see the scope caveat under "Addressed this session").
-- `make format` + `make analyze` clean; `SentrySubClassFinderTests` green (10/10).
-- `classes(forImage:)` is `@_spi(Private)` → not in `sdk_api.json` (confirmed absent). After the
-  Finding 3 `#if` change, `make generate-public-api` still produced no diff.
+- **Findings:** Finding 3 (P2) is **resolved** by the `SentryImageClassProvider` extraction
+  (`classes(forImage:)` is off the injectable SPI protocol entirely). Finding 1 (P0) is **resolved as
+  an accepted, documented limitation** — allow all images, no code change; see "Finding 1" Resolution.
+  Finding 2 (P1) remains **deferred** by user, kept as a known-limitation code comment. All are
+  local-review findings, never posted to GitHub; the actual GitHub reviewers are positive.
+- `make format` + `make analyze` clean; the 3 affected test targets green
+  (`SentrySubClassFinderTests` 10/0, `SentryUIViewControllerSwizzlingTests` 31/0, `LoadValidatorTests` 7/0).
+- New provider symbols are internal, and `classes(forImage:)` left an `@_spi(Private)` protocol →
+  `make generate-public-api` produced no diff.
 - Re-run tvOS + watchOS builds on CI / a machine with those simulator runtimes (couldn't run
-  locally — see "Addressed this session").
+  locally — see "Extraction refactor").
 - Confirm Danger passes (changelog references **#8457**, the PR number).
 - Nudge itaybre to resolve the 2 arm64e ptrauth threads (answered + device-validated).
 - Then flip draft → ready and add `ready-to-merge` for full CI.
