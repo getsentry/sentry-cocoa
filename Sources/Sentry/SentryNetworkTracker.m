@@ -414,7 +414,16 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     request.bodySize = [NSNumber numberWithLongLong:sessionTask.countOfBytesSent];
     if (nil != currentRequest.allHTTPHeaderFields) {
         NSDictionary<NSString *, NSString *> *headers = currentRequest.allHTTPHeaderFields.copy;
+#if SDK_V10
+        HTTPHeaderSanitizationResultObjC *sanitizedHeaders = [HTTPHeaderSanitizerObjC
+            sanitizeRequestHeaders:headers
+                           options:SENTRY_UNWRAP_NULLABLE(
+                                       SentryDataCollectionObjCOptions, dataCollectionOptions)];
+        request.headers = sanitizedHeaders.headers;
+        request.cookies = sanitizedHeaders.cookies;
+#else
         request.headers = [HTTPHeaderSanitizer sanitizeHeaders:headers];
+#endif // SDK_V10
     }
 
     event.exceptions = @[ sentryException ];
@@ -427,9 +436,18 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     // Safe: reading the whole dictionary, not a case-sensitive single-header lookup.
     // sentry-lint:disable avoid_all_header_fields
     if (nil != myResponse.allHeaderFields) {
+#if SDK_V10
+        HTTPHeaderSanitizationResultObjC *sanitizedHeaders = [HTTPHeaderSanitizerObjC
+            sanitizeResponseHeaders:myResponse.allHeaderFields
+                            options:SENTRY_UNWRAP_NULLABLE(
+                                        SentryDataCollectionObjCOptions, dataCollectionOptions)];
+        [response setValue:sanitizedHeaders.headers forKey:@"headers"];
+        [response setValue:sanitizedHeaders.cookies forKey:@"cookies"];
+#else
         NSDictionary<NSString *, NSString *> *headers =
             [HTTPHeaderSanitizer sanitizeHeaders:myResponse.allHeaderFields];
         [response setValue:headers forKey:@"headers"];
+#endif // SDK_V10
     }
     // sentry-lint:enable avoid_all_header_fields
     if (sessionTask.countOfBytesReceived != 0) {
