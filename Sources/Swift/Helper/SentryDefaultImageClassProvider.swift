@@ -9,10 +9,9 @@ final class SentryDefaultImageClassProvider: SentryImageClassProvider {
     // calls take the dyld loader read lock that image load/unload contends, and the superclass walk
     // over every class takes a few ms — neither belongs on the main thread.)
     //
-    // Known limitation (Finding 1 in REVIEW-PR-8457.md; tracked in HANDOFF-subclassfinder-fix.md):
-    // if the target image is unloaded concurrently, working with its classes can crash. We accept this
-    // as a narrow, documented limitation rather than guarding against it. Why it's narrow and why a
-    // read-side fix wouldn't help:
+    // Known limitation (concurrent image unload): if the target image is unloaded concurrently,
+    // working with its classes can crash. We accept this as a narrow, documented limitation rather
+    // than guarding against it. Why it's narrow and why a read-side fix wouldn't help:
     //
     // - Reachable only for a concurrently-unloaded `MH_BUNDLE` (a `dlopen`-able `.bundle` plugin). The
     //   default `inAppInclude` is the main executable (`MH_EXECUTE`), which never unloads; frameworks
