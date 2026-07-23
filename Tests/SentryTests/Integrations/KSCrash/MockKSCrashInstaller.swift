@@ -43,6 +43,7 @@ final class MockKSCrashInstaller: SentryKSCrash.Installing {
     public var installed: Bool = false
     public var activeDurationSinceLastCrash: TimeInterval = 0
     public var sendAllReportsInvocations: [SentryStoredCrashReportProcessor] = []
+    public var sendAllReportsDispatchQueues: [SentryDispatchQueueWrapper] = []
     public var onSendAllReports: (() -> Void)?
 
     public init() {}
@@ -70,8 +71,12 @@ final class MockKSCrashInstaller: SentryKSCrash.Installing {
         installed = false
     }
 
-    public func sendAllReports(reportProcessor: SentryStoredCrashReportProcessor) {
+    public func sendAllReports(
+        reportProcessor: SentryStoredCrashReportProcessor,
+        dispatchQueue: SentryDispatchQueueWrapper
+    ) {
         sendAllReportsInvocations.append(reportProcessor)
+        sendAllReportsDispatchQueues.append(dispatchQueue)
         onSendAllReports?()
     }
 }

@@ -8,8 +8,11 @@ extension SentryKSCrash {
     final class ReportFilter: NSObject, CrashReportFilter {
         private let core: ReportFilterCore
 
-        init(reportProcessor: SentryStoredCrashReportProcessor) {
-            core = ReportFilterCore(reportProcessor: reportProcessor)
+        init(
+            reportProcessor: SentryStoredCrashReportProcessor,
+            dispatchQueue: SentryDispatchQueueWrapper
+        ) {
+            core = ReportFilterCore(reportProcessor: reportProcessor, dispatchQueue: dispatchQueue)
         }
 
         func filterReports(

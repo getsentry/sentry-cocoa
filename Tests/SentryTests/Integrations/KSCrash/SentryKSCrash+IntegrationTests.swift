@@ -30,7 +30,7 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         return options
     }
 
-    func testInstall_whenCrashHandlerEnabled_shouldCallInstallOnce() {
+    func testInstall_whenCrashHandlerEnabled_shouldSendReportsWithoutDispatchingInstaller() throws {
         // -- Arrange --
         let installer = MockKSCrashInstaller()
         let deps = MockKSCrashDependencies(installer: installer)
@@ -42,9 +42,13 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         // -- Assert --
         XCTAssertNotNil(sut)
         XCTAssertEqual(installer.installCalls.count, 1)
-        XCTAssertEqual(installer.installCalls[0].monitors, SentryKSCrash.productionSafeMonitors)
+        XCTAssertEqual(
+            try XCTUnwrap(installer.installCalls.element(at: 0)).monitors,
+            SentryKSCrash.productionSafeMonitors
+        )
         XCTAssertEqual(installer.sendAllReportsInvocations.count, 1)
-        XCTAssertEqual(deps.testDispatchQueueWrapper.dispatchAsyncCalled, 1)
+        XCTAssertIdentical(installer.sendAllReportsDispatchQueues.first, deps.testDispatchQueueWrapper)
+        XCTAssertEqual(deps.testDispatchQueueWrapper.dispatchAsyncCalled, 0)
     }
 
     func testInstall_whenMemoryIntrospectionEnabled_shouldEnableMemoryIntrospection() throws {
