@@ -60,6 +60,10 @@ final class CrashE2ERunner {
             try buildVariant(derivedDataPath: config.derivedDataPath, label: "default", extraBuildSettings: [])
         }
         if shouldBuildManagedRuntimeVariant {
+            // KSCRASH_TODO: Sentry+KSCrash still compiles the SentryCrash recording sources, so
+            // this define activates SentryCrash's constructor-based signal preloader even when the
+            // selected integration is KSCrash. Replace it with the KSCrash-owned managed-runtime
+            // integration path before treating these scenarios as KSCrash handler-order coverage.
             try buildVariant(
                 derivedDataPath: config.managedRuntimeDerivedDataPath,
                 label: "managed runtime",
