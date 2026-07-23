@@ -1,10 +1,20 @@
 # Changelog
 
-## Unreleased
+## 9.23.0
 
-### Breaking Changes
+### Features
 
+- Record trace_metric_byte client reports (#8490)
+
+### Fixes
+
+- Add a depth limit to view hierarchy serialization to prevent a stack overflow crash on deeply nested view hierarchies (#8292)
+- Persist the configured environment in crash reports so later app launches don't overwrite it (#8511)
 - Only expose `experimental.dataCollection` APIs in SDK V10 (#8435)
+
+### Improvements
+
+- Reduce slight overhead during SDK start by skipping an unnecessary main thread dispatch when there's no work to do (#8494)
 
 ## 9.22.0
 

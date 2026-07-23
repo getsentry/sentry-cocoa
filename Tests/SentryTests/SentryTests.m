@@ -1,7 +1,6 @@
 #import "SentryBreadcrumb+Private.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient.h"
-#import "SentryDataCategory.h"
 #import "SentryDateUtils.h"
 #import "SentryEvent.h"
 #import "SentryHub.h"

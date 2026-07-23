@@ -3,9 +3,7 @@
 
 @_spi(Private) @objc public class SentryFileManager: NSObject {
 
-    // The UInt is a SentryDataCategory. This type cannot be in the Swift public interface since it's `implementationOnly`
-    // We can use the enum type directly once users of this callback are written in Swift and we can drop the @objc annotation
-    @objc public var envelopeDeletedCallback: ((SentryEnvelopeItem, UInt) -> Void)?
+    @objc public var envelopeDeletedCallback: ((SentryEnvelopeItem, SentryDataCategory) -> Void)?
 
     @objc public var basePath: String {
         helper.basePath
@@ -301,7 +299,7 @@
             }
             
             for item in envelope?.items ?? [] {
-                let rateLimitCategory = sentryDataCategoryForEnvelopItemType(item.header.type)
+                let rateLimitCategory = SentryDataCategory(itemType: item.header.type)
                 // When migrating the session init, the envelope to delete still contains the session
                 // migrated to another envelope. Therefore, the envelope item is not deleted but
                 // migrated.
@@ -310,7 +308,7 @@
                     continue
                 }
                 
-                envelopeDeletedCallback?(item, rateLimitCategory.rawValue)
+                envelopeDeletedCallback?(item, rateLimitCategory)
             }
             removeFile(atPath: envelopeFilePath)
         }

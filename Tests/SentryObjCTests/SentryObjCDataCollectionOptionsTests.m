@@ -64,14 +64,14 @@
 #endif
 }
 
-- (void)testQueryParams_whenDefault_shouldBeDenyList
+- (void)testUrlQueryParams_whenDefault_shouldBeDenyList
 {
 #if !SDK_V10
     XCTSkip(@"Test skipped for SDK_V10");
 #else
     SentryObjCDataCollectionOptions *options = [[SentryObjCDataCollectionOptions alloc] init];
     XCTAssertEqual(
-        options.queryParams.mode, SentryObjCDataCollectionKeyValueCollectionModeDenyList);
+        options.urlQueryParams.mode, SentryObjCDataCollectionKeyValueCollectionModeDenyList);
 #endif
 }
 

@@ -71,7 +71,7 @@ jobs:
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: Setup Ruby
-        uses: ruby/setup-ruby@d45b1a4e94b71acab930e56e79c6aa188764e7f9 # v1.316.0
+        uses: ruby/setup-ruby@003a5c4d8d6321bd302e38f6f0ec593f77f06600 # v1.319.0
         if: ${{ inputs.signed }}
         with:
           bundler-cache: true
@@ -91,9 +91,9 @@ jobs:
           RELEASE_VERSION: ${{ inputs.release-version }}
         run: |
           if [ -n "$RELEASE_VERSION" ]; then
-            echo "VERSION=$RELEASE_VERSION" >> $GITHUB_ENV
+            echo "VERSION=$RELEASE_VERSION" >> "$GITHUB_ENV"
           else
-            echo "VERSION=$(grep MARKETING_VERSION Sources/Configuration/Versioning.xcconfig | cut -d ' ' -f 3)+${{ github.sha }}" >> $GITHUB_ENV
+            echo "VERSION=$(grep MARKETING_VERSION Sources/Configuration/Versioning.xcconfig | cut -d ' ' -f 3)+${{ github.sha }}" >> "$GITHUB_ENV"
           fi
         shell: sh
 
@@ -105,9 +105,9 @@ jobs:
           SUFFIX: ${{ inputs.suffix }}
         run: |
           if [ -n "$OVERRIDE_NAME" ]; then
-            echo "XCFRAMEWORK_NAME=$OVERRIDE_NAME" >> $GITHUB_ENV
+            echo "XCFRAMEWORK_NAME=$OVERRIDE_NAME" >> "$GITHUB_ENV"
           else
-            echo "XCFRAMEWORK_NAME=$SCHEME$SUFFIX" >> $GITHUB_ENV
+            echo "XCFRAMEWORK_NAME=$SCHEME$SUFFIX" >> "$GITHUB_ENV"
           fi
 
       - name: Download ${{inputs.variant-id}} Slices

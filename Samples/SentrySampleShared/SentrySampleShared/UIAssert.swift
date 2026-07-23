@@ -29,8 +29,7 @@ public class UIAssert {
             return
         }
 
-        guard let window = UIApplication.shared.delegate?.window else { return }
-        guard let target = window else { return }
+        guard let target = SampleAppUI.activeWindow else { return }
 
         DispatchQueue.main.async {
             if self.view.superview != target {

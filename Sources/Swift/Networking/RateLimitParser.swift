@@ -21,13 +21,12 @@ public final class RateLimitParser: NSObject {
         super.init()
     }
 
-    @objc
-    public func parse(_ header: String) -> [UInt: Date] {
+    public func parse(_ header: String) -> [SentryDataCategory: Date] {
         guard !header.isEmpty else {
             return [:]
         }
 
-        var rateLimits: [UInt: Date] = [:]
+        var rateLimits: [SentryDataCategory: Date] = [:]
 
         // The header might contain whitespaces and they must be ignored.
         let headerNoWhitespaces = removeAllWhitespaces(header)
@@ -43,23 +42,21 @@ public final class RateLimitParser: NSObject {
                 continue
             }
 
-            for categoryNumber in parseCategories(parameters[1]) {
-                let dataCategory = sentryDataCategoryForNSUInteger(categoryNumber)
-
+            for category in parseCategories(parameters[1]) {
                 // Namespaces should only be available for MetricBucket
-                if dataCategory == .metricBucket && parameters.count > 4 {
+                if category == .metricBucket && parameters.count > 4 {
                     let namespacesAsString = parameters[4]
                     let namespaces = namespacesAsString.components(separatedBy: ";")
 
                     if namespacesAsString.isEmpty || namespaces.contains("custom") {
-                        rateLimits[categoryNumber] = getLongerRateLimit(
-                            existingRateLimit: rateLimits[categoryNumber],
+                        rateLimits[category] = getLongerRateLimit(
+                            existingRateLimit: rateLimits[category],
                             rateLimitInSeconds: rateLimitInSeconds
                         )
                     }
                 } else {
-                    rateLimits[categoryNumber] = getLongerRateLimit(
-                        existingRateLimit: rateLimits[categoryNumber],
+                    rateLimits[category] = getLongerRateLimit(
+                        existingRateLimit: rateLimits[category],
                         rateLimitInSeconds: rateLimitInSeconds
                     )
                 }
@@ -80,19 +77,19 @@ public final class RateLimitParser: NSObject {
         return numberFormatter.number(from: string)
     }
 
-    private func parseCategories(_ categoriesAsString: String) -> [UInt] {
+    private func parseCategories(_ categoriesAsString: String) -> [SentryDataCategory] {
         // The categories are a semicolon separated list. If this parameter is empty
         // it stands for all categories. componentsSeparatedByString returns one
         // category even if this parameter is empty.
-        var categories: [UInt] = []
+        var categories: [SentryDataCategory] = []
 
         for categoryAsString in categoriesAsString.components(separatedBy: ";") {
-            let category = sentryDataCategoryForString(categoryAsString)
+            let category = SentryDataCategory(name: categoryAsString)
 
-            // Unknown categories must be ignored. UserFeedback is not listed for rate limits, see
+            // Unknown categories must be ignored, see
             // https://develop.sentry.dev/sdk/rate-limiting/#definitions
-            if category != .unknown && category != .userFeedback {
-                categories.append(category.rawValue)
+            if category != .unknown {
+                categories.append(category)
             }
         }
 

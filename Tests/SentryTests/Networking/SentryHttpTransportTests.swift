@@ -43,6 +43,10 @@ class SentryHttpTransportTests: XCTestCase {
         // recorded `log_byte` quantity against this data's byte count.
         let logsData: Data
 
+        // Real trace-metric envelope payload, encoded the same way the SDK batches metrics. We
+        // assert the recorded `trace_metric_byte` quantity against this data's byte count.
+        let metricsData: Data
+
         let queue = DispatchQueue(label: "SentryHttpTransportTests", qos: .userInitiated, attributes: [.concurrent, .initiallyInactive])
 
         init() throws {
@@ -82,9 +86,9 @@ class SentryHttpTransportTests: XCTestCase {
             let currentDate = TestCurrentDateProvider()
             rateLimits = DefaultRateLimits(retryAfterHeaderParser: RetryAfterHeaderParser(httpDateParser: HttpDateParser(), currentDateProvider: currentDate), andRateLimitParser: RateLimitParser(currentDateProvider: currentDate), currentDateProvider: currentDate)
             
-            let beforeSendTransaction = SentryDiscardedEvent(reason: nameForSentryDiscardReason(.beforeSend), category: nameForSentryDataCategory(.transaction), quantity: 2)
-            let sampleRateTransaction = SentryDiscardedEvent(reason: nameForSentryDiscardReason(.sampleRate), category: nameForSentryDataCategory(.transaction), quantity: 1)
-            let rateLimitBackoffError = SentryDiscardedEvent(reason: nameForSentryDiscardReason(.rateLimitBackoff), category: nameForSentryDataCategory(.error), quantity: 1)
+            let beforeSendTransaction = SentryDiscardedEvent(reason: nameForSentryDiscardReason(.beforeSend), category: SentryDataCategory.transaction.name, quantity: 2)
+            let sampleRateTransaction = SentryDiscardedEvent(reason: nameForSentryDiscardReason(.sampleRate), category: SentryDataCategory.transaction.name, quantity: 1)
+            let rateLimitBackoffError = SentryDiscardedEvent(reason: nameForSentryDiscardReason(.rateLimitBackoff), category: SentryDataCategory.error.name, quantity: 1)
             
             clientReport = SentryClientReport(discardedEvents: [
                 beforeSendTransaction,
@@ -105,6 +109,11 @@ class SentryHttpTransportTests: XCTestCase {
             try logsBuffer.append(SentryLog(timestamp: Date(timeIntervalSince1970: 0), traceId: .empty, level: .info, body: "log 1", attributes: [:]))
             try logsBuffer.append(SentryLog(timestamp: Date(timeIntervalSince1970: 0), traceId: .empty, level: .warn, body: "log 2", attributes: [:]))
             logsData = logsBuffer.batchedData
+
+            var metricsBuffer = InMemoryInternalTelemetryBuffer<SentryMetric>()
+            try metricsBuffer.append(SentryMetric(timestamp: Date(timeIntervalSince1970: 0), traceId: .empty, name: "metric.one", value: .counter(1), unit: nil, attributes: [:]))
+            try metricsBuffer.append(SentryMetric(timestamp: Date(timeIntervalSince1970: 0), traceId: .empty, name: "metric.two", value: .gauge(2), unit: nil, attributes: [:]))
+            metricsData = metricsBuffer.batchedData
         }
 
         func getLogsEnvelope() -> SentryEnvelope {
@@ -115,6 +124,16 @@ class SentryHttpTransportTests: XCTestCase {
                 itemCount: 2
             )
             return SentryEnvelope(id: nil, singleItem: logItem)
+        }
+
+        func getMetricsEnvelope() -> SentryEnvelope {
+            let metricItem = SentryEnvelopeItem(
+                type: SentryEnvelopeItemTypes.traceMetric,
+                data: metricsData,
+                contentType: "application/vnd.sentry.items.trace-metric+json",
+                itemCount: 2
+            )
+            return SentryEnvelope(id: nil, singleItem: metricItem)
         }
 
         func getTransactionEnvelope() -> SentryEnvelope {
@@ -146,7 +165,7 @@ class SentryHttpTransportTests: XCTestCase {
             fileManager: SentryFileManager? = nil,
             dispatchQueueWrapper: SentryDispatchQueueWrapper? = nil,
             reachability: SentryReachability? = nil
-        ) throws -> SentryHttpTransport {
+        ) throws -> Transport {
             return SentryHttpTransport(
                 dsn: try XCTUnwrap(options.parsedDsn),
                 sendClientReports: options.sendClientReports,
@@ -173,7 +192,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
 
     private var fixture: Fixture!
-    private var sut: SentryHttpTransport!
+    private var sut: Transport!
 
     override func setUpWithError() throws {
         try super.setUpWithError()
@@ -252,7 +271,7 @@ class SentryHttpTransportTests: XCTestCase {
         assertEnvelopesStored(envelopeCount: 0)
 
         // Envelope with only session and client report is sent
-        let discardedError = SentryDiscardedEvent(reason: nameForSentryDiscardReason(.rateLimitBackoff), category: nameForSentryDataCategory(.error), quantity: 1)
+        let discardedError = SentryDiscardedEvent(reason: nameForSentryDiscardReason(.rateLimitBackoff), category: SentryDataCategory.error.name, quantity: 1)
         let clientReport = SentryClientReport(discardedEvents: [discardedError], dateProvider: SentryDependencyContainer.sharedInstance().dateProvider)
         let envelopeItems = [
             SentryEnvelopeItem(session: fixture.session),
@@ -580,7 +599,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
     
     func testEventRateLimited_RecordsLostEvent() throws {
-        let rateLimitBackoffError = SentryDiscardedEvent(reason: nameForSentryDiscardReason(.rateLimitBackoff), category: nameForSentryDataCategory(.error), quantity: 1)
+        let rateLimitBackoffError = SentryDiscardedEvent(reason: nameForSentryDiscardReason(.rateLimitBackoff), category: SentryDataCategory.error.name, quantity: 1)
         let clientReport = SentryClientReport(discardedEvents: [rateLimitBackoffError], dateProvider: SentryDependencyContainer.sharedInstance().dateProvider)
         
         let clientReportEnvelopeItems = [
@@ -602,8 +621,8 @@ class SentryHttpTransportTests: XCTestCase {
     func testTransactionRateLimited_RecordsLostSpans() throws {
         let clientReport = SentryClientReport(
             discardedEvents: [
-                SentryDiscardedEvent(reason: nameForSentryDiscardReason(.rateLimitBackoff), category: nameForSentryDataCategory(.transaction), quantity: 1),
-                SentryDiscardedEvent(reason: nameForSentryDiscardReason(.rateLimitBackoff), category: nameForSentryDataCategory(.span), quantity: 4)
+                SentryDiscardedEvent(reason: nameForSentryDiscardReason(.rateLimitBackoff), category: SentryDataCategory.transaction.name, quantity: 1),
+                SentryDiscardedEvent(reason: nameForSentryDiscardReason(.rateLimitBackoff), category: SentryDataCategory.span.name, quantity: 4)
             ],
             dateProvider: SentryDependencyContainer.sharedInstance().dateProvider
         )
@@ -648,6 +667,28 @@ class SentryHttpTransportTests: XCTestCase {
 
         let logByte = try XCTUnwrap(dict?["log_byte:ratelimit_backoff"])
         XCTAssertEqual(UInt(fixture.logsData.count), logByte.quantity)
+    }
+
+    func testMetricsRateLimited_RecordsLostTraceMetricBytes() throws {
+        // -- Arrange --
+        try givenRateLimitResponse(forCategory: "trace_metric")
+
+        // -- Act --
+        sut.send(envelope: fixture.getMetricsEnvelope())
+        waitForAllRequests()
+
+        sut.send(envelope: fixture.getMetricsEnvelope())
+        waitForAllRequests()
+
+        // -- Assert --
+        let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
+        XCTAssertNotNil(dict)
+
+        let traceMetric = try XCTUnwrap(dict?["trace_metric:ratelimit_backoff"])
+        XCTAssertEqual(1, traceMetric.quantity)
+
+        let traceMetricByte = try XCTUnwrap(dict?["trace_metric_byte:ratelimit_backoff"])
+        XCTAssertEqual(UInt(fixture.metricsData.count), traceMetricByte.quantity)
     }
 
     func testCacheFull_RecordsLostEvent() {
@@ -705,6 +746,29 @@ class SentryHttpTransportTests: XCTestCase {
 
         let logByte = try XCTUnwrap(dict?["log_byte:cache_overflow"])
         XCTAssertEqual(UInt(fixture.logsData.count), logByte.quantity)
+    }
+
+    func testCacheFull_RecordsLostTraceMetricBytes() throws {
+        // -- Arrange --
+        givenNoInternetConnection()
+
+        // -- Act --
+        for _ in 0...fixture.options.maxCacheItems {
+            sut.send(envelope: fixture.getMetricsEnvelope())
+        }
+
+        waitForAllRequests()
+
+        // -- Assert --
+        let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
+        XCTAssertNotNil(dict)
+        XCTAssertEqual(2, dict?.count)
+
+        let traceMetric = try XCTUnwrap(dict?["trace_metric:cache_overflow"])
+        XCTAssertEqual(1, traceMetric.quantity)
+
+        let traceMetricByte = try XCTUnwrap(dict?["trace_metric_byte:cache_overflow"])
+        XCTAssertEqual(UInt(fixture.metricsData.count), traceMetricByte.quantity)
     }
 
     func testRecordLostEvent_WithQuantityGreaterOne_AccumulatesByQuantity() {
@@ -1016,6 +1080,31 @@ class SentryHttpTransportTests: XCTestCase {
         assertRequestsSent(requestCount: 1)
     }
 
+    func testBuildingRequestFails_RecordsLostTraceMetricBytes() throws {
+        // -- Arrange --
+        sut.send(envelope: fixture.getMetricsEnvelope())
+        waitForAllRequests()
+        fixture.requestBuilder.shouldFailWithError = true
+
+        // -- Act --
+        sut.send(envelope: fixture.getMetricsEnvelope())
+        waitForAllRequests()
+
+        // -- Assert --
+        let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
+        XCTAssertNotNil(dict)
+        XCTAssertEqual(2, dict?.count)
+
+        let traceMetric = try XCTUnwrap(dict?["trace_metric:send_error"])
+        XCTAssertEqual(1, traceMetric.quantity)
+
+        let traceMetricByte = try XCTUnwrap(dict?["trace_metric_byte:send_error"])
+        XCTAssertEqual(UInt(fixture.metricsData.count), traceMetricByte.quantity)
+
+        assertEnvelopesStored(envelopeCount: 0)
+        assertRequestsSent(requestCount: 1)
+    }
+
     func testBuildingRequestFails_ClientReportNotRecordedAsLostEvent() throws {
         fixture.requestBuilder.shouldFailWithError = true
         sendEvent()
@@ -1201,7 +1290,7 @@ class SentryHttpTransportTests: XCTestCase {
     private func givenRecordedLostEvents() throws {
         try fixture.clientReport.discardedEvents.forEach { event in
             for _ in 0..<event.quantity {
-                sut.recordLostEvent(sentryDataCategoryForString(event.category), reason: try XCTUnwrap( sentryDiscardReasonForString(event.reason)))
+                sut.recordLostEvent(SentryDataCategory(name: event.category), reason: try XCTUnwrap( sentryDiscardReasonForString(event.reason)))
             }
         }
     }
@@ -1265,7 +1354,7 @@ class SentryHttpTransportTests: XCTestCase {
 
     private func assertRateLimitUpdated(response: HTTPURLResponse) {
         XCTAssertEqual(1, fixture.requestManager.requests.count)
-        XCTAssertTrue(fixture.rateLimits.isRateLimitActive(SentryDataCategory.session.rawValue))
+        XCTAssertTrue(fixture.rateLimits.isRateLimitActive(.session))
     }
 
     private func assertRequestsSent(requestCount: Int) {

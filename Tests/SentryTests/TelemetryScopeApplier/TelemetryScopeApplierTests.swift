@@ -30,7 +30,7 @@ final class TelemetryScopeApplierTests: XCTestCase {
         let environment: String
         let releaseName: String?
         let installationId: String?
-        let sendDefaultPii: Bool
+        let shouldAddDefaultUserId: Bool
     }
 
     private struct TestScope: TelemetryScopeApplier {
@@ -420,7 +420,7 @@ final class TelemetryScopeApplierTests: XCTestCase {
         XCTAssertNil(item.attributesDict["user.email"])
     }
 
-    func testApplyToItem_whenSendDefaultPiiFalse_shouldStillAddUserAttributes() {
+    func testApplyToItem_whenDefaultUserIdDisabled_shouldStillAddUserAttributes() {
         // -- Arrange --
         let user = User(userId: "user-123")
         user.name = "John Doe"
@@ -431,7 +431,7 @@ final class TelemetryScopeApplierTests: XCTestCase {
         )
         let metadata = createTestMetadata(
             installationId: "installation-123",
-            sendDefaultPii: false
+            shouldAddDefaultUserId: false
         )
         var item = createTestItem()
 
@@ -439,7 +439,7 @@ final class TelemetryScopeApplierTests: XCTestCase {
         scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
-        // User attributes are applied regardless of sendDefaultPII
+        // Explicit user attributes are applied regardless of automatic user-ID enrichment.
         XCTAssertEqual(item.attributesDict["user.id"], .string("user-123"))
         XCTAssertEqual(item.attributesDict["user.name"], .string("John Doe"))
         XCTAssertEqual(item.attributesDict["user.email"], .string("john@example.com"))
@@ -542,12 +542,12 @@ final class TelemetryScopeApplierTests: XCTestCase {
         XCTAssertNil(item.attributesDict["user.id"])
     }
 
-    func testApplyToItem_whenSendDefaultPiiFalse_withoutUser_shouldStillAddInstallationIdAsUserId() {
+    func testApplyToItem_whenDefaultUserIdDisabled_withoutUser_shouldHandleInstallationIdForBuild() {
         // -- Arrange --
         let scope = TestScope(propagationContextTraceId: SentryId())
         let metadata = createTestMetadata(
             installationId: "installation-456",
-            sendDefaultPii: false
+            shouldAddDefaultUserId: false
         )
         var item = createTestItem()
 
@@ -555,7 +555,11 @@ final class TelemetryScopeApplierTests: XCTestCase {
         scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
+#if SDK_V10
+        XCTAssertNil(item.attributesDict["user.id"])
+#else
         XCTAssertEqual(item.attributesDict["user.id"], .string("installation-456"))
+#endif // SDK_V10
         XCTAssertNil(item.attributesDict["user.name"])
         XCTAssertNil(item.attributesDict["user.email"])
     }
@@ -794,13 +798,13 @@ final class TelemetryScopeApplierTests: XCTestCase {
         environment: String = "test-environment",
         releaseName: String? = "test-release",
         installationId: String? = "test-installation-id",
-        sendDefaultPii: Bool = true
+        shouldAddDefaultUserId: Bool = true
     ) -> TestMetadata {
         return TestMetadata(
             environment: environment,
             releaseName: releaseName,
             installationId: installationId,
-            sendDefaultPii: sendDefaultPii
+            shouldAddDefaultUserId: shouldAddDefaultUserId
         )
     }
 }

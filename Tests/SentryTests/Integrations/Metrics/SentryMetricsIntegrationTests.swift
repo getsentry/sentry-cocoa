@@ -59,6 +59,38 @@ class SentryMetricsIntegrationTests: XCTestCase {
         XCTAssertEqual(capturedMetric.value, .counter(1))
     }
 
+    func testAddMetric_whenDataCollectionUserInfoDisabled_shouldKeepUserProvidedEmail() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+#else
+        // -- Arrange --
+        let client = try givenSdkWithHub { options in
+            options.sendDefaultPii = true
+            options.dataCollection.userInfo = false
+        }
+        let integration = try getSut()
+        let user = User()
+        user.email = "jane@example.com"
+        let scope = Scope()
+        scope.setUser(user)
+        let metric = SentryMetric(
+            timestamp: Date(),
+            traceId: SentryId(),
+            name: "test.metric",
+            value: .counter(1),
+            unit: nil,
+            attributes: [:]
+        )
+
+        // -- Act --
+        integration.addMetric(metric, scope: scope)
+
+        // -- Assert --
+        let capturedMetric = try XCTUnwrap(client.testMetricsBuffer.addInvocations.first)
+        XCTAssertEqual(capturedMetric.attributes["user.email"], .string("jane@example.com"))
+#endif
+    }
+
     func testAddMetric_whenNoClientAvailable_shouldDropMetricsSilently() throws {
         // -- Arrange --
         try givenSdkWithHub()
@@ -166,6 +198,47 @@ class SentryMetricsIntegrationTests: XCTestCase {
         // -- Assert --
         XCTAssertTrue(beforeSendCalled, "beforeSendMetric should be called")
         XCTAssertEqual(client.testMetricsBuffer.addInvocations.count, 0, "Metric should be dropped when beforeSendMetric returns nil")
+    }
+
+    func testAddMetric_beforeSendMetricReturnsNil_recordsClientReport() throws {
+        // -- Arrange --
+        // Capture the enriched metric handed to the callback: the byte count is computed on that
+        // (scope-applied) metric, not on the original passed to addMetric.
+        var droppedMetric: SentryMetric?
+        let client = try givenSdkWithHub { options in
+            options.beforeSendMetric = { metric in
+                droppedMetric = metric
+                return nil // Drop the metric
+            }
+        }
+
+        let integration = try getSut()
+
+        let scope = Scope()
+        let metric = SentryMetric(
+            timestamp: Date(),
+            traceId: SentryId(),
+            name: "test.metric",
+            value: .counter(1),
+            unit: nil,
+            attributes: [:]
+        )
+
+        // -- Act --
+        integration.addMetric(metric, scope: scope)
+
+        // -- Assert --
+        // A dropped metric records both a trace_metric outcome (count 1) and a trace_metric_byte
+        // outcome with the dropped metric's serialized byte size. The client's dispatch queue runs
+        // the block synchronously in tests.
+        let lostItem = try XCTUnwrap(client.recordLostEvents.first)
+        XCTAssertEqual(lostItem.category, .traceMetric)
+        XCTAssertEqual(lostItem.reason, .beforeSend)
+
+        let lostByte = try XCTUnwrap(client.recordLostEventsWithQauntity.first)
+        XCTAssertEqual(lostByte.category, .traceMetricByte)
+        XCTAssertEqual(lostByte.reason, .beforeSend)
+        XCTAssertEqual(lostByte.quantity, SentryMetricClientReport.serializedByteCount(for: try XCTUnwrap(droppedMetric)))
     }
 
     func testAddMetric_beforeSendMetricNotSet_metricCapturedUnmodified() throws {
