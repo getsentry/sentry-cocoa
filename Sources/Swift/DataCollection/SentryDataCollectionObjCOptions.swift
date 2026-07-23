@@ -3,6 +3,11 @@
 @_spi(Private) @objcMembers public final class SentryDataCollectionObjCOptions: NSObject {
     let wrapped: SentryDataCollection.Options
 
+    /// Whether automatic user information collection is enabled.
+    @_spi(Private) @objc public var userInfo: Bool {
+        wrapped.userInfo
+    }
+
     init(wrapped: SentryDataCollection.Options) {
         self.wrapped = wrapped
     }

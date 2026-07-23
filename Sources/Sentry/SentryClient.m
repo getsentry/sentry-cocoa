@@ -51,6 +51,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) id<SentryEventContextEnricher> eventContextEnricher;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 
+- (void)recordDroppedItemInClientReportWithItemCategory:(SentryDataCategory)itemCategory
+                                           byteCategory:(SentryDataCategory)byteCategory
+                                         byteCountBlock:(NSUInteger (^)(void))byteCountBlock;
+
 @end
 
 NSString *const DropSessionLogMessage = @"Session has no release name. Won't send it.";
@@ -133,11 +137,16 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                           initWithTransportAdapter:transportAdapter]
                          dependencies:SentryDependencyContainer.sharedInstance];
 
+#if SDK_V10
+        BOOL shouldAddDefaultUserId = options.dataCollectionObjC.userInfo;
+#else
+        BOOL shouldAddDefaultUserId = options.sendDefaultPii;
+#endif // SDK_V10
         self.logScopeApplier =
             [[SentryDefaultLogScopeApplier alloc] initWithEnvironment:options.environment
                                                           releaseName:options.releaseName
                                                    cacheDirectoryPath:options.cacheDirectoryPath
-                                                       sendDefaultPii:options.sendDefaultPii];
+                                               shouldAddDefaultUserId:shouldAddDefaultUserId];
 
         [crashWrapper startBinaryImageCache];
         [binaryImageCache start:options.debug];
@@ -969,6 +978,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (void)setUserIdIfNoUserSet:(SentryEvent *)event
 {
+#if SDK_V10
+    if (!self.options.dataCollectionObjC.userInfo) {
+        return;
+    }
+#endif // SDK_V10
     // We only want to set the id if the customer didn't set a user so we at least set something to
     // identify the user.
     if (event.user == nil) {
@@ -1179,18 +1193,39 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (void)recordDroppedLogInClientReport:(SentryLog *)log
 {
-    // Offload to a background queue: serializing the log to determine its byte size is too
-    // expensive to run inline in beforeSendLog, which runs on the calling thread and must stay
-    // fast.
+    [self recordDroppedItemInClientReportWithItemCategory:SentryDataCategoryLogItem
+                                             byteCategory:SentryDataCategoryLogByte
+                                           byteCountBlock:^NSUInteger {
+                                               return [SentryLogClientReport
+                                                   serializedByteCountForLog:log];
+                                           }];
+}
+
+- (void)recordDroppedTraceMetricInClientReport:(SentryMetricObjC *)metric
+{
+    [self recordDroppedItemInClientReportWithItemCategory:SentryDataCategoryTraceMetric
+                                             byteCategory:SentryDataCategoryTraceMetricByte
+                                           byteCountBlock:^NSUInteger {
+                                               return [metric serializedByteCount];
+                                           }];
+}
+
+- (void)recordDroppedItemInClientReportWithItemCategory:(SentryDataCategory)itemCategory
+                                           byteCategory:(SentryDataCategory)byteCategory
+                                         byteCountBlock:(NSUInteger (^)(void))byteCountBlock
+{
+    // Offload to a background queue: serializing the item to determine its byte size is too
+    // expensive to run inline in a beforeSend callback, which runs on the calling thread and must
+    // stay fast.
     __weak SentryClientInternal *weakSelf = self;
     [self.dispatchQueueWrapper dispatchAsyncWithBlock:^{
         SentryClientInternal *strongSelf = weakSelf;
         if (strongSelf == nil) {
             return;
         }
-        NSUInteger byteCount = [SentryLogClientReport serializedByteCountForLog:log];
-        [strongSelf recordLostEvent:SentryDataCategoryLogItem reason:SentryDiscardReasonBeforeSend];
-        [strongSelf recordLostEvent:SentryDataCategoryLogByte
+        NSUInteger byteCount = byteCountBlock();
+        [strongSelf recordLostEvent:itemCategory reason:SentryDiscardReasonBeforeSend];
+        [strongSelf recordLostEvent:byteCategory
                              reason:SentryDiscardReasonBeforeSend
                            quantity:byteCount];
     }];

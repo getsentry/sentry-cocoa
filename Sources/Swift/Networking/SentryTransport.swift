@@ -1,23 +1,16 @@
+// swiftlint:disable missing_docs
 import Foundation
 
-/// The result of flushing a transport's buffered envelopes.
-@objc(SentryFlushResult) @_spi(Private)
+@_spi(Private)
+@objc(SentryFlushResult)
 public enum SentryFlushResult: Int {
     case success = 0
     case timedOut
     case alreadyFlushing
 }
 
-/// Sends envelopes to Sentry (or a Spotlight sidecar) and tracks lost events.
-///
-/// Named `SentryTransport` in Objective-C for backwards compatibility. `recordLostEvent` takes the
-/// category and reason as `UInt` (the raw values of the ObjC `SentryDataCategory` /
-/// `SentryDiscardReason` enums), mirroring `RateLimits`. Those enums have 200+ ObjC call sites and
-/// are out of scope to convert, and they cannot appear in this SPI-public protocol because they are
-/// only reachable via the implementation-only `_SentryPrivate` module. ObjC conformers therefore
-/// declare these methods with `NSUInteger` params (which is selector-compatible) and cast to the
-/// enum internally.
-@objc(SentryTransport) @_spi(Private)
+@_spi(Private)
+@objc(SentryTransport)
 public protocol Transport: NSObjectProtocol {
 
     @objc(sendEnvelope:)
@@ -27,11 +20,12 @@ public protocol Transport: NSObjectProtocol {
     func store(_ envelope: SentryEnvelope)
 
     @objc(recordLostEvent:reason:)
-    func recordLostEvent(_ category: UInt, reason: UInt)
+    func recordLostEvent(_ category: SentryDataCategory, reason: SentryDiscardReason)
 
     @objc(recordLostEvent:reason:quantity:)
-    func recordLostEvent(_ category: UInt, reason: UInt, quantity: UInt)
+    func recordLostEvent(_ category: SentryDataCategory, reason: SentryDiscardReason, quantity: UInt)
 
+    @discardableResult
     @objc(flush:)
     func flush(_ timeout: TimeInterval) -> SentryFlushResult
 
@@ -40,3 +34,4 @@ public protocol Transport: NSObjectProtocol {
     func setStartFlushCallback(_ callback: @escaping () -> Void)
     #endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
 }
+// swiftlint:enable missing_docs

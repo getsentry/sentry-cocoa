@@ -1,3 +1,4 @@
+brew 'actionlint'
 brew 'pre-commit'
 brew 'python3'
 brew 'xcbeautify'

@@ -16,7 +16,6 @@ on:
       timeout:
         description: the timeout for the job
         required: true
-        default: 20
         type: number
 
       should_skip:

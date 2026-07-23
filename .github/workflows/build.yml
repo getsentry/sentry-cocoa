@@ -285,6 +285,13 @@ jobs:
           version: "26"
           resolve-simulators: "false"
 
+      - name: Cache or Update Homebrew
+        uses: ./.github/actions/cache-homebrew
+      - run: make init-ci-build
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: 1
+      - run: make xcode-ci-macOS-CLI-Xcode
+
       - name: Build macOS-CLI-Xcode sample
         run: |
           set -o pipefail && xcodebuild \
@@ -328,7 +335,6 @@ jobs:
             -sdk iphoneos \
             -destination 'generic/platform=iphoneos' \
             build | tee raw-build-output-spm.log | xcbeautify --preserve-unbeautified
-        shell: sh
       - name: Upload SPM Build Logs
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() || cancelled() }}

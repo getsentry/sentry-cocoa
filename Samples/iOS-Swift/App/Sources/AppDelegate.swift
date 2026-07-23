@@ -5,8 +5,7 @@ import UIKit
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     private var randomDistributionTimer: Timer?
-    var window: UIWindow?
-    
+
     var args: [String] {
         ProcessInfo.processInfo.arguments
     }
@@ -35,11 +34,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         SentrySDKWrapper.spanCaptureHandler = { LaunchVCTransactionCapture.shared.capture($0) }
         SentrySDKWrapper.shared.startSentry()
-        SampleAppDebugMenu.shared.display()
         
         metricKit.receiveReports()
         
         return true
+    }
+
+    // MARK: UISceneSession Lifecycle
+
+    func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
+        return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
     }
     
     func applicationWillTerminate(_ application: UIApplication) {

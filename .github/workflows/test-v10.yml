@@ -57,7 +57,7 @@ jobs:
       - name: Copy Test Server Binary
         working-directory: test-server
         run: >-
-          cp $(swift build --show-bin-path -c release --arch arm64)/Run test-server-exec
+          cp "$(swift build --show-bin-path -c release --arch arm64)/Run" test-server-exec
 
       - name: Archiving DerivedData
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
