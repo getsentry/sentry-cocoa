@@ -90,11 +90,7 @@ extension SentryTypedSwizzle {
             key: key.pointer
         ) { getOriginal in
             { receiver, request, completionHandler in
-                guard let receiver = receiver as? Receiver else {
-                    preconditionFailure("Unexpected swizzle receiver for \(NSStringFromSelector(method.selector))")
-                }
-
-                return interceptor(receiver, request, completionHandler) { forwardedRequest, forwardedCompletionHandler in
+                let callOriginal: (AnyObject, URLRequest, SentryDataTaskCompletionHandler?) -> URLSessionDataTask = { receiver, request, completionHandler in
                     let original = unsafeBitCast(
                         getOriginal(),
                         to: (@convention(c) (
@@ -104,7 +100,16 @@ extension SentryTypedSwizzle {
                             SentryDataTaskCompletionHandler?
                         ) -> URLSessionDataTask).self
                     )
-                    return original(receiver, method.selector, forwardedRequest, forwardedCompletionHandler)
+                    return original(receiver, method.selector, request, completionHandler)
+                }
+
+                guard let typedReceiver = receiver as? Receiver else {
+                    SentrySDKLog.error("Unexpected swizzle receiver for \(NSStringFromSelector(method.selector))")
+                    return callOriginal(receiver, request, completionHandler)
+                }
+
+                return interceptor(typedReceiver, request, completionHandler) { forwardedRequest, forwardedCompletionHandler in
+                    callOriginal(receiver, forwardedRequest, forwardedCompletionHandler)
                 }
             } as @convention(block) (
                 AnyObject,
@@ -152,11 +157,7 @@ extension SentryTypedSwizzle {
             key: key.pointer
         ) { getOriginal in
             { receiver, url, completionHandler in
-                guard let receiver = receiver as? Receiver else {
-                    preconditionFailure("Unexpected swizzle receiver for \(NSStringFromSelector(method.selector))")
-                }
-
-                return interceptor(receiver, url, completionHandler) { forwardedURL, forwardedCompletionHandler in
+                let callOriginal: (AnyObject, URL, SentryDataTaskCompletionHandler?) -> URLSessionDataTask = { receiver, url, completionHandler in
                     let original = unsafeBitCast(
                         getOriginal(),
                         to: (@convention(c) (
@@ -166,7 +167,16 @@ extension SentryTypedSwizzle {
                             SentryDataTaskCompletionHandler?
                         ) -> URLSessionDataTask).self
                     )
-                    return original(receiver, method.selector, forwardedURL, forwardedCompletionHandler)
+                    return original(receiver, method.selector, url, completionHandler)
+                }
+
+                guard let typedReceiver = receiver as? Receiver else {
+                    SentrySDKLog.error("Unexpected swizzle receiver for \(NSStringFromSelector(method.selector))")
+                    return callOriginal(receiver, url, completionHandler)
+                }
+
+                return interceptor(typedReceiver, url, completionHandler) { forwardedURL, forwardedCompletionHandler in
+                    callOriginal(receiver, forwardedURL, forwardedCompletionHandler)
                 }
             } as @convention(block) (
                 AnyObject,
