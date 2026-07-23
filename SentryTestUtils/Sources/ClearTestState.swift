@@ -32,6 +32,7 @@ class TestCleanup: NSObject {
         SentrySDKInternal.setCurrentHub(nil)
         SentrySDKInternal.lastRunStatusCalled = false
         SentrySDKInternal.crashReporterInstalled = false
+        SentrySDKInternal.crashHandlerDetectedCrash = false
         SentrySDKInternal.fatalDetected = false
         SentrySDKInternal.startInvocations = 0
         SentrySDKInternal.setDetectedStartUpCrash(false)

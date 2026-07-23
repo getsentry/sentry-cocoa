@@ -253,7 +253,7 @@ class SentrySDKTests: XCTestCase {
     func testLastRunStatus_whenCrashStateLoadedAndNoCrash_shouldReturnDidNotCrash() {
         // -- Arrange --
         SentrySDKInternal.crashReporterInstalled = true
-        // The default test crash reporter returns false for crashedLastLaunch
+        SentrySDKInternal.crashHandlerDetectedCrash = false
 
         // -- Act --
         let status = SentrySDK.lastRunStatus

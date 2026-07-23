@@ -4,6 +4,16 @@
 import XCTest
 
 class SentryKSCrashIntegrationTests: XCTestCase {
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        clearTestState()
+    }
+
+    override func tearDown() {
+        super.tearDown()
+        clearTestState()
+    }
+
     private func makeOptions(enableCrashHandler: Bool = true) -> Options {
         let options = Options()
         options.enableCrashHandler = enableCrashHandler
@@ -68,8 +78,6 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         installer.crashedLastLaunch = true
         let deps = MockKSCrashDependencies(installer: installer)
 
-        SentrySDKInternal.fatalDetected = false
-        SentrySDKInternal.crashReporterInstalled = false
         _ = SentryKSCrash.Integration(with: makeOptions(), dependencies: deps)
 
         XCTAssertEqual(SentrySDK.lastRunStatus, .didCrash)
