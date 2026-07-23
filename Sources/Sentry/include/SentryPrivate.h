@@ -23,6 +23,7 @@
 #import "SentryNSDataUtils.h"
 #import "SentryNSExceptionCaptureHelper.h"
 #import "SentryNSFileManagerSwizzlingHelper.h"
+#import "SentryNSURLSessionTaskSearch.h"
 #import "SentryNetworkTracker.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"

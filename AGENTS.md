@@ -59,6 +59,10 @@ SentrySDK (public entry point)
 
 > **Before touching `SentryObjC*` targets** (headers, wrappers, build config), read [`develop-docs/SENTRY-OBJC.md`](develop-docs/SENTRY-OBJC.md). It defines the two-target architecture, type placement rules, naming conventions, and stability contract. Violations cause linker failures or ABI breaks.
 
+## Swizzling
+
+- Read [`develop-docs/SWIZZLING.md`](develop-docs/SWIZZLING.md) before adding, changing, reviewing, or migrating swizzling code.
+
 ## Skills & MCP (dotagents)
 
 Agent skills and MCP servers are managed by [dotagents](https://github.com/getsentry/dotagents) via `agents.toml`.
