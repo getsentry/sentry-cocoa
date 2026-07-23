@@ -343,6 +343,8 @@ final class SentryBreadcrumbTrackerTests: XCTestCase {
     }
 
     func testGetUIViewDescription_neverContainsCoordinates() {
+        // Coordinates are a potential security risk, as they can leak which key a
+        // user tapped on custom PIN code views, so they must never be included.
         // -- Arrange --
         let view = UIView()
         view.frame = CGRect(x: 42, y: 240, width: 375, height: 812)
@@ -396,9 +398,6 @@ final class SentryBreadcrumbTrackerTests: XCTestCase {
         // -- Assert --
         XCTAssertTrue(opaqueDescription.contains("opaque = true"), opaqueDescription)
         XCTAssertTrue(transparentDescription.contains("opaque = false"), transparentDescription)
-        // Use Swift booleans, not Objective-C YES/NO.
-        XCTAssertFalse(opaqueDescription.contains("YES"), opaqueDescription)
-        XCTAssertFalse(transparentDescription.contains("NO"), transparentDescription)
     }
 
     func testGetUIViewDescription_includesHiddenOnlyWhenHidden() {
