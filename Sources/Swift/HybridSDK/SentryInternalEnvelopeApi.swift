@@ -1,5 +1,5 @@
 // swiftlint:disable missing_docs
-@_spi(Private) @_implementationOnly import _SentryPrivate
+@_spi(Private) internal import _SentryPrivate
 import Foundation
 
 /// Provides envelope operations for hybrid SDKs.

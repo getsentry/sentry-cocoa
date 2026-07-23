@@ -1,7 +1,7 @@
 // swiftlint:disable missing_docs
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 import UIKit
 
 @_spi(Private) @objc public protocol SentryInitialDisplayReporting {

@@ -1,5 +1,5 @@
 // swiftlint:disable missing_docs
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 
 // Feature flag APIs live in this file so the eventual public Span API has a clear home.
 // These methods stay SPI while the public surface is being finalized.
