@@ -6,15 +6,23 @@ extension SentryKSCrash {
     /// Report filtering logic independent of KSCrash package types.
     ///
     /// The caller provides the boundary between its report representation and the dictionary
-    /// consumed by `SentryStoredCrashReportProcessor`. Successfully processed reports are returned
-    /// unchanged so adapters can preserve the report objects expected by their filtering API.
+    /// consumed by `SentryStoredCrashReportProcessor`. Each invocation accepts at most one report
+    /// so KSCrash can apply cleanup and retry decisions to that report independently.
+    ///
+    /// Completion contract used with KSCrash's `.onSuccess` cleanup policy:
+    /// - Captured report: return the report without an error; KSCrash deletes it.
+    /// - Unsupported or permanently invalid report: return no report and no error; KSCrash consumes
+    ///   it so it cannot permanently block delivery.
+    /// - Retryable failure: return no report and the error; KSCrash retains it for a later launch.
     final class ReportFilterCore {
         private static let startupCrashDurationThreshold: TimeInterval = 2
         private static let startupCrashFlushDuration: TimeInterval = 5
+        private static let errorDomain = "io.sentry.kscrash-report-filter"
 
-        private struct ProcessingResult<Report> {
-            let processedReports: [Report]
-            let retryableError: (any Error)?
+        private enum ProcessingOutcome<Report> {
+            case captured(Report)
+            case discarded
+            case retry(any Error)
         }
 
         private let reportProcessor: SentryStoredCrashReportProcessor
@@ -33,72 +41,86 @@ extension SentryKSCrash {
             reportDictionary: @escaping (Report) -> [AnyHashable: Any]?,
             onCompletion: (([Report]?, (any Error)?) -> Void)? = nil
         ) {
-            let isStartupCrash = reports.contains { report in
-                guard let dictionary = reportDictionary(report) else {
-                    return false
-                }
-                return Self.isStartupCrash(dictionary)
+            guard reports.count <= 1 else {
+                let error = NSError(
+                    domain: Self.errorDomain,
+                    code: 1,
+                    userInfo: [
+                        NSLocalizedDescriptionKey:
+                            "KSCrash report delivery must process one report at a time."
+                    ]
+                )
+                onCompletion?([], error)
+                return
+            }
+            guard let report = reports.first else {
+                onCompletion?([], nil)
+                return
             }
 
+            let isStartupCrash = reportDictionary(report).map(Self.isStartupCrash) ?? false
             if isStartupCrash {
                 SentrySDKLog.warning("Startup crash detected.")
                 SentrySDKInternal.setDetectedStartUpCrash(true)
-                let result = Self.processReports(
-                    reports,
+                let outcome = Self.processReport(
+                    report,
                     reportDictionary: reportDictionary,
                     reportProcessor: reportProcessor
                 )
                 SentrySDKInternal.flush(timeout: Self.startupCrashFlushDuration)
-                onCompletion?(result.processedReports, result.retryableError)
+                Self.complete(outcome, onCompletion: onCompletion)
                 return
             }
 
             dispatchQueue.dispatchAsync { [reportProcessor = self.reportProcessor] in
-                let result = Self.processReports(
-                    reports,
+                let outcome = Self.processReport(
+                    report,
                     reportDictionary: reportDictionary,
                     reportProcessor: reportProcessor
                 )
-                onCompletion?(result.processedReports, result.retryableError)
+                Self.complete(outcome, onCompletion: onCompletion)
             }
         }
 
-        private static func processReports<Report>(
-            _ reports: [Report],
+        private static func processReport<Report>(
+            _ report: Report,
             reportDictionary: (Report) -> [AnyHashable: Any]?,
             reportProcessor: SentryStoredCrashReportProcessor
-        ) -> ProcessingResult<Report> {
-            var processedReports: [Report] = []
-
-            for report in reports {
-                guard let dictionary = reportDictionary(report) else {
-                    SentrySDKLog.error("Discarding unsupported KSCrash report type.")
-                    continue
-                }
-
-                do {
-                    try reportProcessor.process(report: dictionary)
-                    processedReports.append(report)
-                } catch {
-                    guard isPermanentProcessingError(error) else {
-                        SentrySDKLog.warning(
-                            "Deferring KSCrash report processing after retryable error: \(error.localizedDescription)"
-                        )
-                        return ProcessingResult(
-                            processedReports: processedReports,
-                            retryableError: error
-                        )
-                    }
-                    SentrySDKLog.error(
-                        "Discarding unprocessable KSCrash report: \(error.localizedDescription)"
-                    )
-                }
+        ) -> ProcessingOutcome<Report> {
+            guard let dictionary = reportDictionary(report) else {
+                SentrySDKLog.error("Discarding unsupported KSCrash report type.")
+                return .discarded
             }
 
-            // ReportStore's .onSuccess cleanup policy deletes the whole attempted batch only when
-            // the completion error is nil. Consume permanently invalid reports so they cannot block
-            // later valid reports, but return retryable errors so the entire batch remains on disk.
-            return ProcessingResult(processedReports: processedReports, retryableError: nil)
+            do {
+                try reportProcessor.process(report: dictionary)
+                return .captured(report)
+            } catch {
+                guard isPermanentProcessingError(error) else {
+                    SentrySDKLog.warning(
+                        "Deferring KSCrash report processing after retryable error: \(error.localizedDescription)"
+                    )
+                    return .retry(error)
+                }
+                SentrySDKLog.error(
+                    "Discarding unprocessable KSCrash report: \(error.localizedDescription)"
+                )
+                return .discarded
+            }
+        }
+
+        private static func complete<Report>(
+            _ outcome: ProcessingOutcome<Report>,
+            onCompletion: (([Report]?, (any Error)?) -> Void)?
+        ) {
+            switch outcome {
+            case .captured(let report):
+                onCompletion?([report], nil)
+            case .discarded:
+                onCompletion?([], nil)
+            case .retry(let error):
+                onCompletion?([], error)
+            }
         }
 
         private static func isPermanentProcessingError(_ error: any Error) -> Bool {
@@ -110,7 +132,7 @@ extension SentryKSCrash {
                 || error.code == SentryStoredCrashReportProcessorError.conversionFailed.rawValue
         }
 
-        private static func isStartupCrash(_ report: [AnyHashable: Any]) -> Bool {
+        static func isStartupCrash(_ report: [AnyHashable: Any]) -> Bool {
             guard let duration = durationSinceCrashHandlerInitialization(report) else {
                 return false
             }
