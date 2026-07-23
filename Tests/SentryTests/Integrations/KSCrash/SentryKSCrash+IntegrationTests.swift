@@ -43,10 +43,12 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         let deps = MockKSCrashDependencies(installer: installer)
 
         SentrySDKInternal.fatalDetected = false
+        SentrySDKInternal.crashHandlerDetectedCrash = false
         let sut = SentryKSCrash.Integration(with: makeOptions(), dependencies: deps)
 
         XCTAssertNotNil(sut)
         XCTAssertTrue(SentrySDKInternal.fatalDetected)
+        XCTAssertTrue(SentrySDKInternal.crashHandlerDetectedCrash)
     }
 
     func testInstall_whenInstallThrows_shouldReturnNil() {

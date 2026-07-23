@@ -159,6 +159,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         SentrySDKInternal.crashReporterInstalled = true
         if SentryDependencyContainer.sharedInstance().crashWrapper.crashedLastLaunch {
             SentrySDKInternal.fatalDetected = true
+            SentrySDKInternal.crashHandlerDetectedCrash = true
         }
 
         #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
