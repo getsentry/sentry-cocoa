@@ -4,15 +4,36 @@ on:
     branches:
       - main
 
-# Never cancel benchmarks on main to ensure complete performance baselines
-# for every commit, which are critical for regression detection.
+  pull_request:
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  files-changed:
+    name: Detect File Changes
+    runs-on: ubuntu-latest
+    outputs:
+      benchmarking_changed: ${{ steps.changes.outputs.benchmarking_changed }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - name: Get changed files
+        id: changes
+        uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2
+        with:
+          token: ${{ github.token }}
+          filters: |
+            benchmarking_changed:
+              - '.github/workflows/benchmarking.yml'
+              - '.sauce/benchmarking-config.yml'
+
   build-benchmark-test-target:
     name: Build App and Test Runner
+    if: >-
+      github.event_name != 'pull_request' ||
+      needs.files-changed.outputs.benchmarking_changed == 'true'
+    needs: files-changed
     runs-on: macos-26
     steps:
       - name: Warm CoreSimulator
@@ -69,8 +90,11 @@ jobs:
 
   run-ui-tests-with-sauce:
     name: Run Benchmarks ${{matrix.suite}}
+    if: >-
+      github.event_name != 'pull_request' ||
+      needs.files-changed.outputs.benchmarking_changed == 'true'
     runs-on: ubuntu-latest
-    needs: build-benchmark-test-target
+    needs: [files-changed, build-benchmark-test-target]
     strategy:
       fail-fast: false
       matrix:
@@ -100,11 +124,6 @@ jobs:
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
           TEST_ID: ${{ steps.run-benchmarks-in-sauce-lab.outputs.test_id }}
         with:
-          # Retry Logic: This step only runs when the benchmark test has failed.
-          # We determine if the failure was due to SauceLabs infrastructure issues
-          # (which can be fixed by retrying) or legitimate test failures (which cannot).
-          # SauceLabs internal errors frequently cause CI failures that can be resolved
-          # by re-running the test.
           script: |
             const { execSync } = require('child_process');
             const testId = process.env.TEST_ID;
@@ -133,7 +152,6 @@ jobs:
 
       - name: Run Benchmarks in SauceLab - Retry 1
         id: run-benchmarks-in-sauce-lab-retry-1
-        # Note: We need to use always() here, because the previous run step might be marked as failed.
         if: ${{ always() && steps.should-retry-test.outputs.RETRY_TEST == 'true' }}
         uses: ./.github/actions/saucelabs-run
         with:
@@ -149,7 +167,7 @@ jobs:
         if: failure()
 
   benchmarking-required-check:
-    needs: [build-benchmark-test-target, run-ui-tests-with-sauce]
+    needs: [files-changed, build-benchmark-test-target, run-ui-tests-with-sauce]
     name: Benchmarking
     if: always()
     runs-on: ubuntu-latest
