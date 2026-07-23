@@ -1,4 +1,4 @@
-#import "SentryCrashReportProcessor.h"
+#import "SentryStoredCrashReportProcessor.h"
 
 #import "SentryCrash.h"
 #import "SentryCrashReportConverter.h"
@@ -9,15 +9,16 @@
 #import "SentryScope+Private.h"
 #import "SentrySwift.h"
 
-NSErrorDomain const SentryCrashReportProcessorErrorDomain = @"io.sentry.crash-report-processor";
+NSErrorDomain const SentryStoredCrashReportProcessorErrorDomain
+    = @"io.sentry.crash-report-processor";
 
-@interface SentryCrashReportProcessor ()
+@interface SentryStoredCrashReportProcessor ()
 
 @property (nonatomic, strong) SentryInAppLogic *inAppLogic;
 
 @end
 
-@implementation SentryCrashReportProcessor
+@implementation SentryStoredCrashReportProcessor
 
 - (instancetype)initWithInAppLogic:(SentryInAppLogic *)inAppLogic
 {
@@ -31,13 +32,13 @@ NSErrorDomain const SentryCrashReportProcessorErrorDomain = @"io.sentry.crash-re
 {
     if (![report isKindOfClass:NSDictionary.class]) {
         return [self failWithError:error
-                              code:SentryCrashReportProcessorErrorUnsupportedReport
+                              code:SentryStoredCrashReportProcessorErrorUnsupportedReport
                        description:@"The crash report is not a dictionary."];
     }
 
     if ([SentrySDKInternal.currentHub getClient] == nil) {
         return [self failWithError:error
-                              code:SentryCrashReportProcessorErrorMissingClient
+                              code:SentryStoredCrashReportProcessorErrorMissingClient
                        description:@"No Sentry client is available to capture the crash report."];
     }
 
@@ -48,7 +49,7 @@ NSErrorDomain const SentryCrashReportProcessorErrorDomain = @"io.sentry.crash-re
         if (event == nil) {
             return
                 [self failWithError:error
-                               code:SentryCrashReportProcessorErrorConversionFailed
+                               code:SentryStoredCrashReportProcessorErrorConversionFailed
                         description:@"The crash report could not be converted to a Sentry event."];
         }
 
@@ -62,18 +63,18 @@ NSErrorDomain const SentryCrashReportProcessorErrorDomain = @"io.sentry.crash-re
     } @catch (NSException *exception) {
         return [self
             failWithError:error
-                     code:SentryCrashReportProcessorErrorConversionFailed
+                     code:SentryStoredCrashReportProcessorErrorConversionFailed
               description:[NSString stringWithFormat:@"The crash report could not be processed: %@",
                               exception.reason ?: exception.name]];
     }
 }
 
 - (BOOL)failWithError:(NSError **)error
-                 code:(SentryCrashReportProcessorError)code
+                 code:(SentryStoredCrashReportProcessorError)code
           description:(NSString *)description
 {
     if (error != nil) {
-        *error = [NSError errorWithDomain:SentryCrashReportProcessorErrorDomain
+        *error = [NSError errorWithDomain:SentryStoredCrashReportProcessorErrorDomain
                                      code:code
                                  userInfo:@{ NSLocalizedDescriptionKey : description }];
     }

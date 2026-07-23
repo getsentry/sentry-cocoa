@@ -2,13 +2,13 @@
 @_spi(Private) @testable import SentryTestUtils
 import XCTest
 
-final class SentryCrashReportProcessorTests: SentrySDKIntegrationTestsBase {
-    private var sut: SentryCrashReportProcessor!
+final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase {
+    private var sut: SentryStoredCrashReportProcessor!
 
     override func setUp() {
         super.setUp()
         givenSdkWithHub()
-        sut = SentryCrashReportProcessor(inAppLogic: SentryInAppLogic(inAppIncludes: []))
+        sut = SentryStoredCrashReportProcessor(inAppLogic: SentryInAppLogic(inAppIncludes: []))
     }
 
     func testProcessReport_whenReportIsValid_shouldCaptureFatalEvent() throws {
@@ -26,8 +26,8 @@ final class SentryCrashReportProcessorTests: SentrySDKIntegrationTestsBase {
 
         XCTAssertThrowsError(try sut.process(report: [:])) { error in
             let error = error as NSError
-            XCTAssertEqual(error.domain, SentryCrashReportProcessorErrorDomain)
-            XCTAssertEqual(error.code, SentryCrashReportProcessorError.missingClient.rawValue)
+            XCTAssertEqual(error.domain, SentryStoredCrashReportProcessorErrorDomain)
+            XCTAssertEqual(error.code, SentryStoredCrashReportProcessorError.missingClient.rawValue)
         }
     }
 
@@ -36,8 +36,8 @@ final class SentryCrashReportProcessorTests: SentrySDKIntegrationTestsBase {
 
         XCTAssertThrowsError(try sut.process(report: report)) { error in
             let error = error as NSError
-            XCTAssertEqual(error.domain, SentryCrashReportProcessorErrorDomain)
-            XCTAssertEqual(error.code, SentryCrashReportProcessorError.conversionFailed.rawValue)
+            XCTAssertEqual(error.domain, SentryStoredCrashReportProcessorErrorDomain)
+            XCTAssertEqual(error.code, SentryStoredCrashReportProcessorError.conversionFailed.rawValue)
         }
     }
 }
