@@ -9,9 +9,10 @@
 - Review date: July 21, 2026
 - Original verdict: **Do not merge yet** (Findings 1 P0, 2 P1, 3 P2)
 - Status update (2026-07-23): **Finding 3 resolved** (compiler directives — see its section);
-  **Findings 1 & 2 deferred by user decision**, kept as known-limitation code comments (not GitHub
-  issues). These are local-review findings — never posted to GitHub; the actual GitHub reviewers
-  (philipphofmann, NinjaLikesCheez, itaybre, noahsmartin) are positive.
+  **Finding 1 resolved as an accepted, documented limitation** (allow all images, no code change —
+  see Finding 1 §Resolution); **Finding 2 deferred by user decision**. All kept as known-limitation
+  code comments (not GitHub issues). These are local-review findings — never posted to GitHub; the
+  actual GitHub reviewers (philipphofmann, NinjaLikesCheez, itaybre, noahsmartin) are positive.
 - GitHub activity: no comments, reviews, or mutations were posted
 - Local changes from review: this doc + `HANDOFF-subclassfinder-fix.md`
 
@@ -92,6 +93,31 @@ probe_status=139
   - Use an Objective-C runtime API that already owns the necessary runtime lock and remapping behavior, if a supported API is available.
 - Merely reading `_dyld_image_count` once does not solve this issue.
 - Add an unload-race test using an Objective-C bundle or an equivalent deterministic harness.
+
+### Resolution (2026-07-23): accepted as a documented limitation — no code change
+
+The finding is correct and was re-reproduced. The resolution is **allow all images and document the
+risk**, for a reason not covered in the original report: **a read-side fix does not prevent the
+crash.** `classes(inSection:size:)` returns raw class pointers that live in the image's
+`__DATA`/`__DATA_CONST`; they are consumed _after_ `classes(forImage:)` returns —
+`SentrySubClassFinder` walks `class_getSuperclass` on a background queue, then swizzles on the main
+queue. If the image unloads anywhere in that window the class pointers dangle and crash, outside any
+read scope. Verified locally: calling `class_getSuperclass` on a class pointer whose `MH_BUNDLE` had
+been `dlclose`d gives SIGSEGV (exit 139), the same as the read-time repro.
+
+Consequences:
+
+- The suggested directions (binary-image cache coordination, `RTLD_NOLOAD` pinning of the read) close
+  only the read window and were therefore **rejected** as not fixing the actual exposure. The cache
+  path additionally has an async-population early-miss window and a `MAX_DYLD_IMAGES` cap.
+- Reachability is narrow: only a concurrently-unloaded `MH_BUNDLE` is exposed. Verified that
+  `MH_DYLIB` (frameworks, and the SDK's own `.xctest` binaries) do not unload once they register
+  ObjC/Swift classes, and the default `inAppInclude` (`MH_EXECUTE` main executable) never unloads.
+- A robust fix would have to prevent unload for the lifetime of every swizzle (pin/leak the image) or
+  refuse to instrument unloadable images — both trade coverage or memory for safety and were declined.
+- The misleading in-code `_dyld_*`-safety comment has been corrected to an accurate known-limitation
+  note. Full decision trail in [`HANDOFF-subclassfinder-fix.md`](HANDOFF-subclassfinder-fix.md)
+  §"Finding 1".
 
 ## Finding 2: Raw Class List Entries Are Unremapped
 
@@ -356,4 +382,9 @@ xcodebuild: error: Could not resolve package dependencies
 - The current implementation replaces a runtime-managed, unload-aware enumeration path with direct parsing that lacks image lifetime protection and class remapping.
 - Both gaps are runtime correctness issues, not theoretical style concerns.
 - The unload crash was reproduced locally and the remapped-pointer mismatch was demonstrated locally.
-- Address Findings 1 and 2 before marking the PR ready to merge.
+- **Update (2026-07-23):** Finding 1 is **resolved as an accepted, documented limitation** — a
+  read-side fix cannot prevent it (the crash is at swizzle time on returned pointers), the exposure is
+  narrow (concurrently-unloaded `MH_BUNDLE` only), and the guard/pin/cache options were declined. See
+  Finding 1 §Resolution. Finding 2 (unremapped pointers) remains open/deferred. The
+  "Suggested Implementation Sequence" above reflects the original recommendation and is superseded for
+  Finding 1 by that Resolution.

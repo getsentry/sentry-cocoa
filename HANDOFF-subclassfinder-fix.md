@@ -24,11 +24,14 @@
   directives (method kept required, gates made consistent). Not committed yet. Note the scope: it
   hardens the compile-time contract but does not add a runtime guard for a foreign old-SDK
   conformer. See "Addressed this session" below.
-- **Findings 1 & 2 still open**, from [`REVIEW-PR-8457.md`](REVIEW-PR-8457.md), both validated
-  and deferred by user (no fix): **Finding 1 (P0)** concurrent image-unload crash and
-  **Finding 2 (P1)** unremapped classlist entries. User (2026-07-23) may tackle them later; the
-  in-code comments were reframed from "must be resolved before merge" to plain "known
-  limitation" notes (they still point here for the full writeup). See "Open blockers" below.
+- **Finding 1 (P0) — RESOLVED as an accepted, documented limitation (2026-07-23).** After
+  empirical investigation (see "Finding 1" section below) the user decided **allow all images,
+  document the risk**: no code change, no `SentryBinaryImageCache` integration, no filetype guard,
+  no pinning. The chosen "coordinate the read via the cache" direction was **investigated and
+  rejected** — it protects only the read, not the later `class_getSuperclass`/swizzle use of the
+  returned pointers, so it does not prevent the crash. In-code comment reframed to an accurate
+  known-limitation note. **Finding 2 (P1)** unremapped classlist entries remains open/deferred.
+  See "Open blockers" below.
 - **These docs are kept as living tracking notes** (user decision 2026-07-23), not deleted
   before merge as the earlier draft of this file assumed.
 
@@ -81,17 +84,19 @@ only iOS + visionOS simulator destinations here (no tvOS/watchOS Simulator; same
 environment gap the review hit). tvOS mirrors the iOS/visionOS `#if` shape and watchOS mirrors
 macOS, both already exercised. Re-run tvOS/watchOS on CI or a machine with those runtimes.
 
-## Open blockers (deferred — Findings 1 & 2)
+## Open blockers (Finding 2 open; Finding 1 resolved as accepted risk)
 
-> User (2026-07-23): may tackle these later. Kept as tracked known-limitations in code + here.
+> User (2026-07-23): Finding 1 resolved as a documented limitation (details below); Finding 2 may
+> be tackled later. Kept as tracked known-limitations in code + here.
 
-- **Finding 1 — concurrent image-unload crash (OPEN, P0).** Full writeup + fix plan in
-  the "Finding 1" section below (source: `REVIEW-PR-8457.md` §"Finding 1"). `classes(forImage:)`
-  can dereference a dangling Mach-O header/section if the target image is unloaded
-  mid-read (reviewer reproduced a SIGSEGV). Real but **not reachable in the default
-  config** (only the never-unloadable main executable is enumerated by default);
-  reachable only for dynamically-unloadable images. Chosen fix direction: coordinate the
-  read with the loader via `SentryBinaryImageCache`. Deferred by user (2026-07-21).
+- **Finding 1 — concurrent image-unload crash (RESOLVED: accepted risk, no code change).** Full
+  writeup + the empirical investigation that drove this decision are in the "Finding 1" section
+  below (source: `REVIEW-PR-8457.md` §"Finding 1"). Summary: `classes(forImage:)` can dereference a
+  dangling Mach-O header/section if the target image is unloaded mid-read (reviewer + this session
+  both reproduced a SIGSEGV), **and** the returned class pointers can dangle later at
+  `class_getSuperclass`/swizzle time. Reachable only for a concurrently-unloaded `MH_BUNDLE`; the
+  default (`MH_EXECUTE` main exe) and frameworks/embedded dylibs (`MH_DYLIB`) don't unload. Decided
+  **allow all + document** — see the retraction of the cache fix direction below.
 
 - **Finding 2 — raw `__objc_classlist` entries are unremapped (OPEN, P1).** Full
   writeup + follow-up in `REVIEW-PR-8457.md` §"Finding 2". `classes(inSection:size:)`
@@ -304,113 +309,91 @@ Verified against **objc4 source** + empirical tests on Apple silicon (arm64):
 - Requires `@_spi(Private) @testable import Sentry` (the default wrapper is
   `@_spi(Private)`).
 
-## Finding 1 (P0) — concurrent image-unload crash: full writeup + fix plan
+## Finding 1 (P0) — concurrent image-unload crash: full writeup + resolution
 
 > Source report: [`REVIEW-PR-8457.md`](REVIEW-PR-8457.md) "Finding 1: Concurrent
-> Image Unload Can Crash". Validated this session; **no code committed**. Pick up here.
-> Summarized under "Open blockers" above.
+> Image Unload Can Crash". Validated across sessions. **Resolution (2026-07-23): accepted as a
+> documented limitation — no code change.** Summarized under "Open blockers" above.
 
-### Verdict: the finding is ACCURATE (real crash), reachable only in non-default configs.
+### Verdict: the finding is ACCURATE (real crash), but narrow, and NOT fixable at the read.
 
-`classes(forImage:)` (`Sources/Swift/Helper/SentryDefaultObjCRuntimeWrapper.swift:28-70`)
-matches an image by name (`:33`), gets its header (`:36`), then dereferences it via
-`getsectiondata` (`:56-59`). Between the match and the deref, another thread can
-`dlclose`/unload that image, leaving a **dangling header/section → SIGSEGV**. The
-reviewer reproduced this (probe exit 139). Violates "never crash the host app".
+`classes(forImage:)` (`Sources/Swift/Helper/SentryDefaultObjCRuntimeWrapper.swift`)
+matches an image by name, gets its header, then dereferences it via `getsectiondata`.
+Between the match and the deref, another thread can `dlclose`/unload that image, leaving a
+**dangling header/section → SIGSEGV**. Reproduced by the reviewer (probe exit 139) and again this
+session. The earlier in-file comment claiming `_dyld_*` "stale indices just return nil" was wrong
+(`dyld.h` documents the iteration as not thread-safe; `_dyld_get_image_header`/`_dyld_get_image_name`
+hold `withLoadersReadLock` only around the array access, not across the deref) — that comment has
+been corrected.
 
-**My existing in-file comment is WRONG and must be corrected as part of the fix.**
-`SentryDefaultObjCRuntimeWrapper.swift:29-31` (and the "dyld lock" note above) claim
-`_dyld_*` "stale indices just return nil" makes this safe. It does not:
+### Empirical investigation (2026-07-23) — what actually determines the risk
 
-- Apple's `dyld.h` (the exact SDK header) says this iteration is **not thread-safe** —
-  "Another thread can add or remove an image during the iteration."
-- dyld source (`DyldAPIs.cpp`): `_dyld_get_image_header`/`_dyld_get_image_name` take
-  `withLoadersReadLock` **only around the array access**; the lock is released before
-  returning, so it does **not** pin the image. `nil` is returned only for
-  out-of-bounds indices, not for an in-bounds index whose image was unmapped.
+Reproduced locally on darwin/arm64 with minimal ObjC images:
 
-### Reachability (why it's not a fire drill, but still must be fixed)
+1. **Only `MH_BUNDLE` unloads.** A `dlopen`-able `.bundle` (built `clang -bundle`) with an ObjC
+   class: `dlclose` → class deregistered, image unmapped → `getsectiondata` on the stale header
+   **SIGSEGV (exit 139)**. The _same_ ObjC class built as an `MH_DYLIB` (`clang -dynamiclib`) was
+   **not** unloaded even after repeated `dlclose` (ObjC/Swift runtime registration pins it —
+   matches Apple/Quinn's "runtimes don't support unloading" rule). The default `inAppInclude` is the
+   main executable (`MH_EXECUTE`), which never unloads.
+2. **`.xctest` binaries are `MH_DYLIB`, not `MH_BUNDLE`** (verified via `otool -hv`), so the test
+   images this code reads are in the safe category.
+3. **The decisive result: a read-time fix does not prevent the crash.** `classes(inSection:)`
+   returns raw class pointers that live in the image's `__DATA`/`__DATA_CONST` — it does not copy
+   the classes. Those pointers are used _after_ `classes(forImage:)` returns: `SentrySubClassFinder`
+   walks `class_getSuperclass` on a background queue, hops to the main queue, and swizzles.
+   Reproduced **SIGSEGV (exit 139)** calling `class_getSuperclass` on a class pointer whose bundle
+   had been unloaded. So cache+lock, `RTLD_NOLOAD` pinning, or any read-scoped synchronization
+   protects only the microseconds inside the read and leaves the swizzle-time crash open. The
+   exposure is inherent to swizzling classes from an image that may unload.
 
-- **Default is safe:** `inAppIncludes` defaults to just `CFBundleExecutable`
-  (`Options.swift:416-423`) → the main executable, which can never be unloaded.
-- **Reachable when the enumerated image is dynamically unloadable:** (a) a user adds a
-  framework/bundle prefix via the public `add(inAppInclude:)` (`Options.swift:425-429`),
-  or (b) the app-delegate / root-VC classes live in a `dlopen`-able framework — that
-  path passes `class_getImageName(...)` straight in
-  (`SentryUIViewControllerSwizzling.swift:123-142, 251`). The finder runs on a
-  background queue (`SentrySubClassFinder.swift:31`), so a concurrent unload is possible.
-- Note the old `objc_copyClassNamesForImage` held the objc `runtimeLock` during
-  enumeration (safe vs concurrent map/unmap) but its returned name strings point into
-  `__TEXT` and also dangle if the image unloads after — so the fix must be safe both
-  **during and after** the read.
+### Reachability
 
-### Chosen fix direction: coordinate with the loader via the binary-image cache
+- **Default safe:** `inAppIncludes` defaults to `CFBundleExecutable` → main executable.
+- **Frameworks/embedded dylibs safe:** `MH_DYLIB` doesn't unload once it registers ObjC/Swift.
+- **Only exposed case:** an app `dlopen`s an ObjC/VC-containing `MH_BUNDLE`, points the SDK at it
+  (via `add(inAppInclude:)` or a root VC living in it — `SentryUIViewControllerSwizzling.swift`),
+  and `dlclose`s it concurrently while the finder runs on its background queue.
 
-Decided approach (over the lighter `dlopen(RTLD_NOLOAD)` pin): make the header read
-coordinate with dyld load/unload so an unload cannot complete while we read. Reuse
-`SentryBinaryImageCache` (unload-aware, lock-protected) rather than the raw
-`_dyld_*` scan. (This subsumes the "Reuse SentryBinaryImageCache" deferred item above —
-now it's a correctness fix, not just a perf tidy.)
+### Resolution: allow all images, document the risk (RETRACTS the cache fix direction)
 
-**What the cache gives us today** (`Sources/Swift/Core/Helper/SentryBinaryImageCache.swift`,
-C in `Sources/SentryCrash/Recording/SentryCrashBinaryImageCache.c`):
+**User decision (2026-07-23): allow all images and document the limitation. No code change.**
+Rationale: (a) a read-time fix cannot close the crash (finding 3 above); (b) refusing `MH_BUNDLE`
+would silently drop instrumentation for the legitimate resident-bundle case (a bundle loaded once
+and never unloaded is safe); (c) pinning the image would prevent an unload the app may want and is a
+larger footprint than a telemetry SDK should take unprompted.
 
-- Registered on dyld add/remove callbacks; `SentryBinaryImageInfo` exposes both `name`
-  and the header `address`.
-- Swift layer guards with an `NSRecursiveLock`; the C remove-callback runs under dyld's
-  loader lock.
+**The previously "chosen" fix — coordinate the read via `SentryBinaryImageCache` — is retracted.**
+It was investigated in depth and rejected: it protects only the read (not the later
+superclass-walk/swizzle use of the returned pointers), and it carries its own downsides (async cache
+population → early-miss window that would silently find no classes; a `MAX_DYLD_IMAGES` cap). It is
+therefore not pursued. Likewise `RTLD_NOLOAD`/`RTLD_NODELETE` pinning and a `filetype` allow/deny
+guard were considered and declined.
 
-**Gaps to close (the actual work):**
+If this ever needs a real fix, the only robust directions are: refuse to instrument unloadable
+(`MH_BUNDLE`) images outright, or permanently pin (leak) any image whose classes are swizzled —
+both trade instrumentation coverage or memory for safety.
 
-1. **No by-name lookup** — cache is address-keyed (`imageByAddress`), no
-   name→image accessor. Add one (or a `getAllBinaryImages()` scan) to resolve the
-   requested image name → its header address.
-2. **No lifetime guarantee during the read** — the cache tells you an image _was_
-   loaded; it doesn't keep it mapped while you `getsectiondata`. Need one of:
-   - read the section while holding the cache lock so a concurrent removal (which goes
-     through the locked remove path) can't complete mid-read, **or**
-   - detect-and-abort: re-check the image is still present immediately around the read
-     and bail on removal (weaker; narrows but doesn't fully close the window), **or**
-   - pin for the read with `dlopen(path, RTLD_NOLOAD)` + `dlclose` (bumps refcount so it
-     can't unmap) — decide if this belongs inside the cache-coordinated path.
-     Decide which guarantee we actually want (true mutual-exclusion vs detect-and-abort).
-3. **Async cache population** — the C cache starts on a background queue at startup
-   (`sentrycrashbic_startCache`), so it may be incomplete when the finder runs early.
-   Need a fallback (e.g. the current dyld scan, but made unload-safe) or gate on
-   readiness. Don't leave a window where the finder silently finds nothing.
+### Test (no longer applicable)
 
-**Open design question to resolve first:** does `dlopen(mainExecutablePath, RTLD_NOLOAD)`
-return a valid handle? Undocumented for the main-program _path_ (vs `NULL`). If any
-pinning is used, verify on device that the **default main-exe path doesn't regress**
-(it's the common, currently-working case). Prefer a design that degrades to today's
-behavior for non-unloadable images rather than dropping them.
+No regression test is added: the resolution is "accept + document," with no code change to guard.
+An unload-race test would only exercise a guard we intentionally didn't build. (Had we guarded, note
+that `.xctest` binaries are `MH_DYLIB`, so a real `MH_BUNDLE` unload harness would have needed a new
+build target anyway.)
 
-**No repo prior art for pinning** — `RTLD_NOLOAD`/`dlclose` appear nowhere in
-`Sources/`. This introduces a new pattern; keep it small and well-commented.
+### Verification (done)
 
-### Test to add (reviewer asks for an unload-race regression test — decision deferred)
-
-No `dlopen`/`MH_BUNDLE` harness exists in the `SentryTests` target. Options, cheapest
-first: (a) unit-test the new by-name/lock path against a real already-loaded image
-(reuse `SentryTestUtilsDynamic.framework`'s `ExternalUIViewController`, the existing
-cross-image fixture); (b) mirror `SentryCrashBinaryImageCacheTests`' callback-replay
-style to simulate remove-during-read without real unmapping; (c) full concurrent
-`dlopen`/`dlclose` harness (closest to the repro, but new build target + timing-flaky).
-Pick when implementing.
-
-### Verification when picked up
-
-- `make build-ios` + `make test-ios ONLY_TESTING=SentryTests/SentrySubClassFinderTests`.
-- If pinning is used: on-device check that the **default** (main-exe) path still finds
-  and swizzles the app's VCs (reuse the arm64e iPhone 12 setup from the arm64e item).
-- Re-run iOS 15.5 + current iOS (report ran both, 10/10).
-- Fix the wrong `_dyld_*`-safety comment in `SentryDefaultObjCRuntimeWrapper.swift`.
+- The only change is comments/docs. `make format` + `make build-ios` confirm the edited file still
+  compiles. `SentrySubClassFinderTests` remain valid unchanged (no behavior change).
+- The misleading `_dyld_*`-safety comment in `SentryDefaultObjCRuntimeWrapper.swift` has been
+  corrected to the accurate known-limitation note.
 
 ## Deferred / future work (NOT blocking this PR)
 
-- **Reuse `SentryBinaryImageCache`** — now folded into the Finding 1 (P0) fix above
-  (it's a correctness requirement there, no longer just a perf tidy). Caveats to resolve
-  are listed under Finding 1's "Gaps to close".
+- **Reuse `SentryBinaryImageCache`** — investigated and **rejected** (see Finding 1's Resolution
+  above). It doesn't fix the crash (protects only the read, not the swizzle-time use of the returned
+  pointers) and adds an async-population early-miss window plus a `MAX_DYLD_IMAGES` cap. Not pursued.
+  A perf motivation alone doesn't justify it: the `_dyld_*` scan is microseconds and runs ~once.
 - **On-device arm64e run: DONE** (see arm64e item above — iPhone 12, no crash).
 - **Perf** of the section read + superclass walk vs the old path on a real device.
 
@@ -436,11 +419,11 @@ static buffer.
 
 ## Before marking ready
 
-- **Decide on Findings 1 & 2** (see "Open blockers"): Finding 1 (P0) and Finding 2 (P1) are
-  deferred by user (2026-07-23), reframed as known-limitation code comments — not GitHub issues.
-  Confirm the user wants to ship with them open (they're local-review findings, never posted to
-  GitHub; the actual GitHub reviewers are positive). Finding 3 (P2) is **addressed** this session
-  (compile-time gate consistency; see the scope caveat under "Addressed this session").
+- **Findings 1 & 2:** Finding 1 (P0) is **resolved as an accepted, documented limitation**
+  (2026-07-23) — allow all images, no code change; see "Finding 1" Resolution. Finding 2 (P1) remains
+  deferred by user, reframed as a known-limitation code comment. Both are local-review findings, never
+  posted to GitHub; the actual GitHub reviewers are positive. Finding 3 (P2) is **addressed** this
+  session (compile-time gate consistency; see the scope caveat under "Addressed this session").
 - `make format` + `make analyze` clean; `SentrySubClassFinderTests` green (10/10).
 - `classes(forImage:)` is `@_spi(Private)` → not in `sdk_api.json` (confirmed absent). After the
   Finding 3 `#if` change, `make generate-public-api` still produced no diff.

@@ -20,12 +20,25 @@ public final class SentryDefaultObjCRuntimeWrapper: NSObject, SentryObjCRuntimeW
     // over every class takes a few ms — neither belongs on the main thread.)
     //
     // Known limitation (Finding 1 in REVIEW-PR-8457.md; tracked in HANDOFF-subclassfinder-fix.md):
-    // iterating the dyld image list is not thread-safe. `<mach-o/dyld.h>` states: "Another thread can
-    // add or remove an image during the iteration." If the target image is unloaded between the name
-    // match and the `getsectiondata` dereference below, the header/section pointer can dangle. This is
-    // not reachable in the default config — only the never-unloadable main executable is enumerated —
-    // and is reachable only when an `inAppInclude` names a dynamically unloadable framework. The same
-    // unpinned `_dyld_get_image_header` + `getsectiondata` read is used elsewhere in the SDK
+    // if the target image is unloaded concurrently, working with its classes can crash. We accept this
+    // as a narrow, documented limitation rather than guarding against it. Why it's narrow and why a
+    // read-side fix wouldn't help:
+    //
+    // - Reachable only for a concurrently-unloaded `MH_BUNDLE` (a `dlopen`-able `.bundle` plugin). The
+    //   default `inAppInclude` is the main executable (`MH_EXECUTE`), which never unloads; frameworks
+    //   and embedded dylibs (`MH_DYLIB`) don't unload once they register ObjC/Swift classes (the
+    //   runtime keeps pointers into them). So the common cases are safe. Only an app that `dlopen`s an
+    //   ObjC/VC-containing bundle, points the SDK at it, and `dlclose`s it mid-flight is exposed.
+    // - A read-time fix (holding a lock across the read, pinning the image for the `getsectiondata`
+    //   call, coordinating via `SentryBinaryImageCache`) does NOT close this. `classes(inSection:)`
+    //   returns raw class pointers that live in the image's `__DATA`/`__DATA_CONST`; they are used
+    //   AFTER this function returns — `SentrySubClassFinder` walks `class_getSuperclass` on a
+    //   background queue, then swizzles on the main queue. If the image unloads anywhere in that
+    //   window the class pointers dangle and crash, outside any read scope. The only true fixes would
+    //   prevent unload for the lifetime of every swizzle (effectively forever) or refuse to instrument
+    //   unloadable images; both were considered and declined.
+    //
+    // The same unpinned `_dyld_get_image_header` + `getsectiondata` read is used elsewhere in the SDK
     // (SentryCrashCxaThrowSwapper.c, SentryCrashDynamicLinker.c).
     //
     // Only supported on iOS, tvOS, and visionOS. It reads `mach_header_64` via `getsectiondata`, so
@@ -35,10 +48,11 @@ public final class SentryDefaultObjCRuntimeWrapper: NSObject, SentryObjCRuntimeW
 #if (os(iOS) || os(tvOS) || os(visionOS)) && (arch(arm64) || arch(x86_64))
     @_spi(Private)
     public func classes(forImage image: UnsafePointer<CChar>) -> [AnyClass] {
-        // We read `_dyld_image_count` once instead of per iteration (unlike the CxaThrowSwapper): we
-        // search for one already-loaded image, so images added while iterating aren't our target. An
-        // index that becomes out of range after an unload returns nil below, but an in-range index
-        // whose image was unmapped yields a dangling header — see the KNOWN OPEN ISSUE above.
+        // We read `_dyld_image_count` once instead of per iteration (unlike the CxaThrowSwapper):
+        // we're searching for one already-loaded image by name, so images added while iterating can't
+        // be our target and re-reading the count each iteration would gain nothing. (This is only a
+        // loop-bound choice, not a safety property — the concurrent-unload limitation above is
+        // unaffected either way.) An index that goes out of range after an unload returns nil below.
         for index in 0..<_dyld_image_count() {
             guard let cName = _dyld_get_image_name(index), strcmp(cName, image) == 0 else {
                 continue
