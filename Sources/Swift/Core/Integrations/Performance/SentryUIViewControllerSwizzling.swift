@@ -167,6 +167,20 @@ class SentryUIViewControllerSwizzling {
         // method to swizzle if the class doesn't implement it. It seems like adding an extra
         // initializer causes problems with the rules for initialization in Swift, see
         // https://docs.swift.org/swift-book/LanguageGuide/Initialization.html#ID216.
+        //
+        // The subclasses we swizzle here include `@available`-gated view controllers running on an OS
+        // version below their gate, and that's safe. `@available` is a compile-time guard: it stops
+        // your own code from instantiating or calling the class's gated APIs on an older OS, but it
+        // doesn't remove the class from the binary (it stays in `__objc_classlist`) and it doesn't
+        // stop the Objective-C runtime from operating on the already-loaded class object. Swizzling
+        // manipulates that class object's method table (`class_addMethod` /
+        // `method_exchangeImplementations`); it does not complete the Swift metadata that GH-8152
+        // crashed on — that crash was `NSClassFromString` realizing a class whose metadata references
+        // a gated newer-framework type, forcing `swift_getSingletonMetadata`. So a gated view
+        // controller is discovered and swizzled like any other; its transaction only ever fires if the
+        // app itself instantiates it, which the app's own `@available` checks govern. Verified on
+        // iOS 16.4 (below an iOS-26-gated VC's availability): the class is enumerated, passes the
+        // superclass filter, and is swizzled without crashing.
         subClassFinder.actOnSubclassesOfViewController(inImage: imageName) { [weak self] subClass in
             self?.swizzleViewControllerSubClass(subClass)
         }

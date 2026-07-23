@@ -26,6 +26,11 @@ class SentrySubClassFinder: NSObject {
     /// Objective-C, the code first retrieves all classes from the Image, iterates over all classes, and
     /// checks for every class if the parentClass is a `UIViewController`. Cause loading all classes can
     /// take a few milliseconds, do this on a background thread.
+    ///
+    /// This includes `@available`-gated classes even on OS versions below their gate, and that's safe:
+    /// discovery never realizes or messages a class, so an unavailable class can't crash here. Such a
+    /// class can also be swizzled safely on an older OS — see the note at the `actOnSubclassesOf`
+    /// call site in `SentryUIViewControllerSwizzling` for why, and GH-8152.
     /// - Parameters:
     ///   - imageName: The objc Image (library) to get all subclasses for.
     ///   - block: The block to execute for each subclass. This block runs on the main thread.
@@ -49,6 +54,11 @@ class SentrySubClassFinder: NSObject {
             // (https://github.com/getsentry/sentry-cocoa/issues/8152,
             // https://github.com/swiftlang/swift/issues/72657). Walking the superclass chain with
             // `class_getSuperclass` below doesn't realize any class, so it can't trigger that crash.
+            //
+            // Note: this list also includes `@available`-gated classes on OS versions below the gate,
+            // because `__objc_classlist` is emitted at compile time — `@available` only gates using the
+            // class, not its presence in the binary. Safe here only because we never realize/message
+            // them below (a gated class referencing a newer-framework type is the GH-8152 case).
             let classes = self.imageClassProvider.classes(forImage: cImageName)
 
             SentrySDKLog.debug("Found \(classes.count) number of classes in image: \(imageName).")
