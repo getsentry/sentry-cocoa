@@ -24,6 +24,7 @@
 #import "SentryNSExceptionCaptureHelper.h"
 #import "SentryNSFileManagerSwizzlingHelper.h"
 #import "SentryNetworkTracker.h"
+#import "SentryObjCExceptionHelper.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySessionReplaySyncC.h"
