@@ -20,7 +20,7 @@ final class MockKSCrashInstaller: SentryKSCrash.Installing {
     public var installCalls: [(installPath: String, monitors: UInt, enableSwapCxaThrow: Bool)] = []
     public var shouldThrow: Error?
     public var crashedLastLaunch: Bool = false
-    public var sendAllReportsInvocations: [SentryCrashReportProcessor] = []
+    public var sendAllReportsInvocations: [SentryStoredCrashReportProcessor] = []
 
     public init() {}
 
@@ -29,7 +29,7 @@ final class MockKSCrashInstaller: SentryKSCrash.Installing {
         if let error = shouldThrow { throw error }
     }
 
-    public func sendAllReports(reportProcessor: SentryCrashReportProcessor) {
+    public func sendAllReports(reportProcessor: SentryStoredCrashReportProcessor) {
         sendAllReportsInvocations.append(reportProcessor)
     }
 }

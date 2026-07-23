@@ -13,7 +13,7 @@ extension SentryKSCrash {
         func install(installPath: String, monitors: UInt, enableSwapCxaThrow: Bool) throws
 
         /// Processes all reports recorded during previous runs.
-        func sendAllReports(reportProcessor: SentryCrashReportProcessor)
+        func sendAllReports(reportProcessor: SentryStoredCrashReportProcessor)
 
         /// Whether the previous run crashed.
         var crashedLastLaunch: Bool { get }
@@ -38,7 +38,7 @@ extension SentryKSCrash {
             }
         }
 
-        func sendAllReports(reportProcessor: SentryCrashReportProcessor) {
+        func sendAllReports(reportProcessor: SentryStoredCrashReportProcessor) {
             guard let reportStore = KSCrash.shared.reportStore else {
                 SentrySDKLog.error("KSCrash report store is unavailable; retaining crash reports.")
                 return
