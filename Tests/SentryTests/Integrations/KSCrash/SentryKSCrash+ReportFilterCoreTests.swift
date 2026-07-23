@@ -78,6 +78,35 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual(try getTestClient().captureFatalEventInvocations.count, 2)
     }
 
+    func testFilterReports_whenClientIsClearedBeforeAsyncProcessing_shouldReturnRetryableError() throws {
+        // -- Arrange --
+        dispatchQueue.dispatchAsyncExecutesBlock = false
+        let report = TestReport(
+            dictionary: try getCrashReport(resource: "Resources/crash-report-1")
+        )
+        let client = try getTestClient()
+        var processedReports: [TestReport]?
+        var processingError: Error?
+        sut.filterReports(
+            [report],
+            reportDictionary: { $0.dictionary }
+        ) { reports, error in
+            processedReports = reports
+            processingError = error
+        }
+        SentrySDKInternal.setCurrentHub(SentryHubInternal(client: nil, andScope: nil))
+
+        // -- Act --
+        dispatchQueue.invokeLastDispatchAsync()
+
+        // -- Assert --
+        XCTAssertEqual(client.captureFatalEventInvocations.count, 0)
+        XCTAssertEqual(processedReports?.count, 0)
+        let error = try XCTUnwrap(processingError as NSError?)
+        XCTAssertEqual(error.domain, SentryStoredCrashReportProcessorErrorDomain)
+        XCTAssertEqual(error.code, SentryStoredCrashReportProcessorError.missingClient.rawValue)
+    }
+
     func testFilterReports_whenStartupCrash_shouldFlushBeforeCompleting() throws {
         // -- Arrange --
         dispatchQueue.dispatchAsyncExecutesBlock = false

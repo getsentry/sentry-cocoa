@@ -12,6 +12,11 @@ extension SentryKSCrash {
         private static let startupCrashDurationThreshold: TimeInterval = 2
         private static let startupCrashFlushDuration: TimeInterval = 5
 
+        private struct ProcessingResult<Report> {
+            let processedReports: [Report]
+            let retryableError: (any Error)?
+        }
+
         private let reportProcessor: SentryStoredCrashReportProcessor
         private let dispatchQueue: SentryDispatchQueueWrapper
 
@@ -38,23 +43,23 @@ extension SentryKSCrash {
             if isStartupCrash {
                 SentrySDKLog.warning("Startup crash detected.")
                 SentrySDKInternal.setDetectedStartUpCrash(true)
-                let processedReports = Self.processReports(
+                let result = Self.processReports(
                     reports,
                     reportDictionary: reportDictionary,
                     reportProcessor: reportProcessor
                 )
                 SentrySDKInternal.flush(timeout: Self.startupCrashFlushDuration)
-                onCompletion?(processedReports, nil)
+                onCompletion?(result.processedReports, result.retryableError)
                 return
             }
 
             dispatchQueue.dispatchAsync { [reportProcessor = self.reportProcessor] in
-                let processedReports = Self.processReports(
+                let result = Self.processReports(
                     reports,
                     reportDictionary: reportDictionary,
                     reportProcessor: reportProcessor
                 )
-                onCompletion?(processedReports, nil)
+                onCompletion?(result.processedReports, result.retryableError)
             }
         }
 
@@ -62,7 +67,7 @@ extension SentryKSCrash {
             _ reports: [Report],
             reportDictionary: (Report) -> [AnyHashable: Any]?,
             reportProcessor: SentryStoredCrashReportProcessor
-        ) -> [Report] {
+        ) -> ProcessingResult<Report> {
             var processedReports: [Report] = []
 
             for report in reports {
@@ -75,6 +80,15 @@ extension SentryKSCrash {
                     try reportProcessor.process(report: dictionary)
                     processedReports.append(report)
                 } catch {
+                    guard isPermanentProcessingError(error) else {
+                        SentrySDKLog.warning(
+                            "Deferring KSCrash report processing after retryable error: \(error.localizedDescription)"
+                        )
+                        return ProcessingResult(
+                            processedReports: processedReports,
+                            retryableError: error
+                        )
+                    }
                     SentrySDKLog.error(
                         "Discarding unprocessable KSCrash report: \(error.localizedDescription)"
                     )
@@ -82,9 +96,18 @@ extension SentryKSCrash {
             }
 
             // ReportStore's .onSuccess cleanup policy deletes the whole attempted batch only when
-            // the completion error is nil. Treat unprocessable reports as consumed so they cannot
-            // permanently block later valid reports.
-            return processedReports
+            // the completion error is nil. Consume permanently invalid reports so they cannot block
+            // later valid reports, but return retryable errors so the entire batch remains on disk.
+            return ProcessingResult(processedReports: processedReports, retryableError: nil)
+        }
+
+        private static func isPermanentProcessingError(_ error: any Error) -> Bool {
+            let error = error as NSError
+            guard error.domain == SentryStoredCrashReportProcessorErrorDomain else {
+                return false
+            }
+            return error.code == SentryStoredCrashReportProcessorError.unsupportedReport.rawValue
+                || error.code == SentryStoredCrashReportProcessorError.conversionFailed.rawValue
         }
 
         private static func isStartupCrash(_ report: [AnyHashable: Any]) -> Bool {
