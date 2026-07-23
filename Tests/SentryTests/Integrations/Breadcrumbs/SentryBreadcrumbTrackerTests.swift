@@ -342,6 +342,81 @@ final class SentryBreadcrumbTrackerTests: XCTestCase {
         XCTAssertTrue(view.hasSuffix(">"), "view breadcrumb should keep the bracket shape: \(view)")
     }
 
+    func testGetUIViewDescription_neverContainsCoordinates() {
+        // -- Arrange --
+        let view = UIView()
+        view.frame = CGRect(x: 42, y: 240, width: 375, height: 812)
+
+        // -- Act --
+        let description = SentryBreadcrumbTracker.getUIViewDescription(view)
+
+        // -- Assert --
+        XCTAssertFalse(description.contains("frame"), description)
+        XCTAssertFalse(description.contains("42"), description)
+        XCTAssertFalse(description.contains("240"), description)
+        XCTAssertFalse(description.contains("375"), description)
+        XCTAssertFalse(description.contains("812"), description)
+    }
+
+    func testGetUIViewDescription_containsClassNameAndPointer() {
+        // -- Arrange --
+        let view = UIButton()
+
+        // -- Act --
+        let description = SentryBreadcrumbTracker.getUIViewDescription(view)
+
+        // -- Assert --
+        XCTAssertTrue(description.hasPrefix("<UIButton: 0x"), description)
+        XCTAssertTrue(description.hasSuffix(">"), description)
+    }
+
+    func testGetUIViewDescription_reportsCustomSubclassName() {
+        // -- Arrange --
+        class PinCodeButton: UIButton {}
+        let view = PinCodeButton()
+
+        // -- Act --
+        let description = SentryBreadcrumbTracker.getUIViewDescription(view)
+
+        // -- Assert --
+        XCTAssertTrue(description.contains("PinCodeButton"), description)
+    }
+
+    func testGetUIViewDescription_usesSwiftBooleanForOpaque() {
+        // -- Arrange --
+        let opaqueView = UIView()
+        opaqueView.isOpaque = true
+        let transparentView = UIView()
+        transparentView.isOpaque = false
+
+        // -- Act --
+        let opaqueDescription = SentryBreadcrumbTracker.getUIViewDescription(opaqueView)
+        let transparentDescription = SentryBreadcrumbTracker.getUIViewDescription(transparentView)
+
+        // -- Assert --
+        XCTAssertTrue(opaqueDescription.contains("opaque = true"), opaqueDescription)
+        XCTAssertTrue(transparentDescription.contains("opaque = false"), transparentDescription)
+        // Use Swift booleans, not Objective-C YES/NO.
+        XCTAssertFalse(opaqueDescription.contains("YES"), opaqueDescription)
+        XCTAssertFalse(transparentDescription.contains("NO"), transparentDescription)
+    }
+
+    func testGetUIViewDescription_includesHiddenOnlyWhenHidden() {
+        // -- Arrange --
+        let visibleView = UIView()
+        visibleView.isHidden = false
+        let hiddenView = UIView()
+        hiddenView.isHidden = true
+
+        // -- Act --
+        let visibleDescription = SentryBreadcrumbTracker.getUIViewDescription(visibleView)
+        let hiddenDescription = SentryBreadcrumbTracker.getUIViewDescription(hiddenView)
+
+        // -- Assert --
+        XCTAssertFalse(visibleDescription.contains("hidden"), visibleDescription)
+        XCTAssertTrue(hiddenDescription.contains("hidden = true"), hiddenDescription)
+    }
+
     func testTouchBreadcrumb_DontReportAccessibilityIdentifier() throws {
         let scope = Scope()
         let client = TestClient(options: Options())

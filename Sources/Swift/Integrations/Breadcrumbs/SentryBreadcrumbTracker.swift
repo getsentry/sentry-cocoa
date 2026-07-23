@@ -249,40 +249,40 @@ import Cocoa
         )
     }
     
-    // We build the description ourselves instead of using `String(describing:)`, because the default
-    // `UIView` description embeds `frame = (x y; w h)`. Those coordinates can leak which key a user
-    // tapped in custom PIN/passcode views, so we never include the frame.
-    private static func safeViewDescription(_ view: UIView) -> String {
-        let className = SwiftDescriptor.getObjectClassName(view)
-        let pointer = Unmanaged.passUnretained(view).toOpaque()
-        var attributes: [String] = ["opaque = \(view.isOpaque ? "YES" : "NO")"]
-        if view.isHidden {
-            attributes.append("hidden = YES")
-        }
-        return "<\(className): \(pointer); \(attributes.joined(separator: "; "))>"
-    }
-
     @_spi(Private)
     public static func extractData(from view: UIView, includeAccessibilityIdentifier: Bool) -> [String: Any] {
-        var result: [String: Any] = ["view": safeViewDescription(view)]
-        
+        var result: [String: Any] = ["view": getUIViewDescription(view)]
+
         if view.tag > 0 {
             result["tag"] = view.tag
         }
-        
+
         if includeAccessibilityIdentifier,
            let identifier = view.accessibilityIdentifier,
            !identifier.isEmpty {
             result["accessibilityIdentifier"] = identifier
         }
-        
+
         if let button = view as? UIButton,
            let title = button.currentTitle,
            !title.isEmpty {
             result["title"] = title
         }
-        
+
         return result
+    }
+
+    // We build the description ourselves instead of using `String(describing:)`, because the default
+    // `UIView` description embeds `frame = (x y; w h)`. Those coordinates can leak which key a user
+    // tapped in custom PIN/passcode views, so we never include the frame.
+    static func getUIViewDescription(_ view: UIView) -> String {
+        let className = SwiftDescriptor.getObjectClassName(view)
+        let pointer = Unmanaged.passUnretained(view).toOpaque()
+        var attributes: [String] = ["opaque = \(view.isOpaque)"]
+        if view.isHidden {
+            attributes.append("hidden = true")
+        }
+        return "<\(className): \(pointer); \(attributes.joined(separator: "; "))>"
     }
     
     private static func fetchInfo(about controller: UIViewController) -> [String: Any] {
@@ -307,7 +307,7 @@ import Cocoa
         }
         
         if let window = controller.view?.window {
-            info["window"] = window.description
+            info["window"] = getUIViewDescription(window)
             info["window_isKeyWindow"] = window.isKeyWindow ? "true" : "false"
             info["window_windowLevel"] = String(describing: window.windowLevel.rawValue)
             info["is_window_rootViewController"] = (window.rootViewController == controller) ? "true" : "false"
