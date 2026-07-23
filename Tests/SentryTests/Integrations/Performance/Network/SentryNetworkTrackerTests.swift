@@ -1395,12 +1395,11 @@ class SentryNetworkTrackerTests: XCTestCase {
         sut.disable()
 
         let task = createDataTask()
-        _ = try XCTUnwrap(startTransaction() as? SentryTracer)
+        let transaction = try XCTUnwrap(startTransaction() as? SentryTracer)
         sut.urlSessionTaskResume(task)
 
-        let expectedTraceHeader = SentrySDKInternal.currentHub().scope.propagationContext.traceHeader.value()
-        let traceContext = TraceContext(trace: SentrySDKInternal.currentHub().scope.propagationContext.traceId, options: self.fixture.options, replayId: nil)
-        let expectedBaggageHeader = traceContext.toBaggage().toHTTPHeader(withOriginalBaggage: nil)
+        let expectedTraceHeader = transaction.toTraceHeader().value()
+        let expectedBaggageHeader = transaction.traceContext?.toBaggage().toHTTPHeader(withOriginalBaggage: nil)
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["baggage"] ?? "", expectedBaggageHeader)
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"] ?? "", expectedTraceHeader)
     }
