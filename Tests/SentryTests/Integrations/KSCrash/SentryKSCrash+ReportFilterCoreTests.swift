@@ -119,6 +119,37 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual(error.code, SentryStoredCrashReportProcessorError.missingClient.rawValue)
     }
 
+    func testFilterReports_whenCrashOccursInSameTimestampSecond_shouldFlushBeforeCompleting() throws {
+        // -- Arrange --
+        dispatchQueue.dispatchAsyncExecutesBlock = false
+        var dictionary = try getCrashReport(resource: "Resources/crash-report-1")
+        let timestamp = "2026-07-23T16:00:00Z"
+        var reportContext = try XCTUnwrap(dictionary["report"] as? [String: Any])
+        reportContext["timestamp"] = timestamp
+        dictionary["report"] = reportContext
+        var systemContext = try XCTUnwrap(dictionary["system"] as? [String: Any])
+        systemContext["app_start_time"] = timestamp
+        dictionary["system"] = systemContext
+        let report = TestReport(dictionary: dictionary)
+        let client = try getTestClient()
+        var completionCalled = false
+
+        // -- Act --
+        sut.filterReports(
+            [report],
+            reportDictionary: { $0.dictionary }
+        ) { _, _ in
+            completionCalled = true
+        }
+
+        // -- Assert --
+        XCTAssertEqual(dispatchQueue.dispatchAsyncCalled, 0)
+        XCTAssertEqual(client.captureFatalEventInvocations.count, 1)
+        XCTAssertEqual(client.flushInvocations.count, 1)
+        XCTAssertTrue(completionCalled)
+        XCTAssertTrue(SentrySDK.detectedStartUpCrash)
+    }
+
     func testFilterReports_whenStartupCrash_shouldFlushBeforeCompleting() throws {
         // -- Arrange --
         dispatchQueue.dispatchAsyncExecutesBlock = false
