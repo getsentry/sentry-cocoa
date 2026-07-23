@@ -541,7 +541,12 @@ final class SentryBreadcrumbTrackerTests: XCTestCase {
         XCTAssertEqual("ui.lifecycle", lifeCycleCrumb.category)
 
         let data = try XCTUnwrap(lifeCycleCrumb.data)
-        XCTAssertNotNil(data["window"] as? String, "Breadcrumb should include window description when view controller is in a window")
+        let windowDescription = try XCTUnwrap(data["window"] as? String, "Breadcrumb should include window description when view controller is in a window")
+        // The window description must not embed the frame, as coordinates are a
+        // potential security risk. See getUIViewDescription.
+        XCTAssertFalse(windowDescription.contains("frame"), windowDescription)
+        XCTAssertFalse(windowDescription.contains("100"), windowDescription)
+        XCTAssertTrue(windowDescription.hasPrefix("<UIWindow: 0x"), windowDescription)
         XCTAssertNotNil(data["window_isKeyWindow"] as? String)
         XCTAssertNotNil(data["window_windowLevel"] as? String)
         XCTAssertEqual(data["is_window_rootViewController"] as? String, "true", "ViewController is root of the window")
