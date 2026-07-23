@@ -233,14 +233,27 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 
 - (void)addTraceWithoutTransactionToTask:(NSURLSessionTask *)sessionTask
 {
-    SentryPropagationContext *propagationContext
-        = SentrySDKInternal.currentHub.scope.propagationContext;
+    SentryScope *scope = SentrySDKInternal.currentHub.scope;
+    id<SentrySpan> _Nullable span = scope.span;
+    SentryTracer *tracer = [SentryTracer getTracer:span];
 
+    if (span != nil && tracer != nil) {
+        [SentryTracePropagation
+                   addBaggageHeader:SENTRY_UNWRAP_NULLABLE(
+                                        SentryBaggage, [[tracer traceContext] toBaggage])
+                        traceHeader:SENTRY_UNWRAP_NULLABLE(SentryTraceHeader, [span toTraceHeader])
+               propagateTraceparent:SentrySDKInternal.options.enablePropagateTraceparent
+            tracePropagationTargets:SentrySDKInternal.options.tracePropagationTargets
+                          toRequest:sessionTask];
+        return;
+    }
+
+    SentryPropagationContext *propagationContext = scope.propagationContext;
     SentryTraceContext *traceContext =
         [[SentryTraceContext alloc] initWithTraceId:propagationContext.traceId
                                             options:SENTRY_UNWRAP_NULLABLE(SentryOptions,
                                                         SentrySDKInternal.currentHub.client.options)
-                                           replayId:SentrySDKInternal.currentHub.scope.replayId];
+                                           replayId:scope.replayId];
 
     [SentryTracePropagation addBaggageHeader:[traceContext toBaggage]
                                  traceHeader:[propagationContext traceHeader]

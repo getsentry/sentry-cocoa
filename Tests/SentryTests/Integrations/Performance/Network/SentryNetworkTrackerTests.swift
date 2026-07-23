@@ -1317,6 +1317,23 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"] ?? "", expectedTraceHeader)
     }
 
+    func testTraceHeader_whenNetworkTrackingDisabledAndTransactionBoundToScope_shouldUseTransactionTraceId() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        sut.disable()
+        sut.enableNetworkBreadcrumbs()
+        let task = createDataTask()
+        let transaction = try XCTUnwrap(startTransaction() as? SentryTracer)
+
+        // -- Act --
+        sut.urlSessionTaskResume(task)
+
+        // -- Assert --
+        let traceHeader = try XCTUnwrap(task.currentRequest?.value(forHTTPHeaderField: "sentry-trace"))
+        let propagatedTraceId = traceHeader.components(separatedBy: "-").first
+        XCTAssertEqual(propagatedTraceId, transaction.traceId.sentryIdString)
+    }
+
     func testDontOverrideTraceHeader() {
         let sut = fixture.getSut()
         let task = createDataTask {
@@ -1378,12 +1395,11 @@ class SentryNetworkTrackerTests: XCTestCase {
         sut.disable()
 
         let task = createDataTask()
-        _ = try XCTUnwrap(startTransaction() as? SentryTracer)
+        let transaction = try XCTUnwrap(startTransaction() as? SentryTracer)
         sut.urlSessionTaskResume(task)
 
-        let expectedTraceHeader = SentrySDKInternal.currentHub().scope.propagationContext.traceHeader.value()
-        let traceContext = TraceContext(trace: SentrySDKInternal.currentHub().scope.propagationContext.traceId, options: self.fixture.options, replayId: nil)
-        let expectedBaggageHeader = traceContext.toBaggage().toHTTPHeader(withOriginalBaggage: nil)
+        let expectedTraceHeader = transaction.toTraceHeader().value()
+        let expectedBaggageHeader = transaction.traceContext?.toBaggage().toHTTPHeader(withOriginalBaggage: nil)
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["baggage"] ?? "", expectedBaggageHeader)
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"] ?? "", expectedTraceHeader)
     }
