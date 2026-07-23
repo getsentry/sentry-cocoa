@@ -4,6 +4,7 @@
 
 ### Fixes
 
+- Fix trace propagation for manually instrumented transactions when automatic performance tracing is disabled (#8522)
 - Prevent a Session Replay crash (`NSInvalidArgumentException` / `-[NSConcreteValue doubleValue]`) when Core Animation raises while redacting the view hierarchy, e.g. during React Navigation transitions or video fullscreen presentation (#8537)
 
 ## 9.23.0
