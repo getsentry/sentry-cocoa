@@ -16,7 +16,12 @@
 - These are local-review findings — never posted to GitHub; the actual GitHub reviewers
   (philipphofmann, NinjaLikesCheez, itaybre, noahsmartin) are positive.
 - GitHub activity: no comments, reviews, or mutations were posted
-- Local changes from review: this doc + `HANDOFF-subclassfinder-fix.md`
+- Code has moved on since the reviewed head (commits through `af5d80427`): `classes(forImage:)` was
+  extracted into `SentryImageClassProvider`/`SentryDefaultImageClassProvider`, and gated-class
+  discovery/swizzling behavior was documented. Finding 2 below is unchanged by those — the raw
+  `__objc_classlist` pointers now flow through the new provider, but they're still unremapped. See
+  `HANDOFF-subclassfinder-fix.md` for the full current state.
+- Local changes: this doc + `HANDOFF-subclassfinder-fix.md`.
 
 ## PR Intent
 

@@ -18,12 +18,25 @@
 - **Tests:** `SentrySubClassFinderTests` green on the local sim (**10 executed**, 0 failures).
   Includes the differential enumeration test, the section null-entry test, the real-wrapper
   regression test, and the filter-drop test noted under Open blockers.
-- **Latest work — `SentryImageClassProvider` extraction (committed `3a3abd444`, 2026-07-23).**
+- **Latest work — `@available`-gated-class behavior documented (committed `af5d80427`, 2026-07-23).**
+  Added code comments explaining that discovery + swizzling of `@available`-gated view controllers is
+  safe even on OS versions below the gate: main note at the `actOnSubclassesOf` call site in
+  `SentryUIViewControllerSwizzling.swift`, with `SentrySubClassFinder.swift`'s doc linking to it.
+  **Empirically verified** on iOS 16.4 (below an iOS-26-gated VC): the class is enumerated, passes the
+  superclass filter, and is swizzled without crashing. See "Gated-class behavior" below.
+- **`SentryImageClassProvider` extraction (committed `3a3abd444`, 2026-07-23).**
   `classes(forImage:)` (+ its `classes(inSection:size:)` helper) was moved OFF `SentryObjCRuntimeWrapper`
   into a dedicated pure-Swift `SentryImageClassProvider` protocol + `SentryDefaultImageClassProvider`
   impl (it reads a Mach-O section via dyld, not the ObjC runtime, so it never belonged there).
   `SentrySubClassFinder` now depends on the new provider. This subsumes the earlier Finding 3
   "compiler-directive" fix — the arch `#if` gates carried over. See "Extraction refactor" below.
+- **Manual-test fixtures in the iOS-Swift sample (uncommitted, working tree only).** A gated VC
+  `TinyAvailabilityGatedViewController` (`@available(iOS 26.0, *)`, never shown) and a
+  `RoomPlanWrapper` (`@available(iOS 17.0, *)`, referencing a `CapturedStructure`) in `AppDelegate.swift`
+  reproduce the gated-class discovery path for manual verification. Note: on **Debug** builds Xcode 16
+  splits the app into a launcher stub + `iOS-Swift.debug.dylib`; the SDK still finds the classes because
+  the dylib's name matches the default `inAppInclude` prefix (see "Gated-class behavior"). Decide whether
+  to keep these fixtures before merge.
 - **Finding 3 (P2, SPI conformer compat): resolved.** `classes(forImage:)` is no longer on the
   injectable `SentryObjCRuntimeWrapper` SPI protocol at all, so the "old ObjC conformer missing the
   selector" hazard is gone by construction. The new `SentryImageClassProvider` is internal (not
@@ -89,6 +102,38 @@ Before the extraction, Finding 3 was addressed by keeping `classes(forImage:)` a
 `SentryObjCRuntimeWrapper` member and making the caller/swizzler `#if` gates match its 64-bit gate
 (the user rejected `@objc optional`). Those arch gates carried into the extraction. That step
 hardened the compile-time contract but didn't remove the injectable-SPI surface; the extraction does.
+
+## Gated-class behavior (committed `af5d80427`, 2026-07-23) — documentation only
+
+An `@available(iOS X, *)` class is present in `__objc_classlist` on **every** OS the binary runs on,
+including versions below X. `@available` is a compile-time guard on _using_ the class (instantiating
+/ calling its gated APIs); it neither removes the class from the binary nor stops the ObjC runtime
+from operating on the already-loaded class object. So `SentrySubClassFinder`:
+
+- **discovers** gated classes on older OSes — safe, because discovery only reads
+  `class_getName`/`class_getSuperclass`, never realizes/messages; and
+- **swizzles** a gated view-controller subclass on older OSes — also safe, because swizzling
+  manipulates the class object's method table (`class_addMethod`/`method_exchangeImplementations`),
+  which does NOT complete the Swift metadata that GH-8152 crashed on (that crash was
+  `NSClassFromString` → realization → `swift_getSingletonMetadata` on a gated newer-framework type).
+  A gated VC's transaction only ever fires if the app itself instantiates it, which its own
+  `@available` checks govern.
+
+**Verified** on iOS 16.4 (below an iOS-26-gated VC's availability) via a throwaway probe: the class
+was enumerated (`inRawList=yes`), passed the superclass filter (`superclass=UIViewController,
+reachesVC=true`), and was swizzled (`about-to-swizzle` → `swizzled-OK`, in the transactions list) with
+zero crash markers — identical on iOS 26.4.
+
+Code: main note at the `actOnSubclassesOf` call site in `SentryUIViewControllerSwizzling.swift`;
+`SentrySubClassFinder.swift`'s method doc + the `classes(forImage:)` inline note link to it.
+
+### Sample debug-dylib caveat (manual testing)
+
+Xcode 16 Debug builds split the app into a launcher stub + `<Executable>.debug.dylib` (all code +
+`__objc_classlist` live in the dylib; the stub has none). Discovery still works because the finder
+enumerates every loaded image whose name matches an `inAppInclude` prefix, and the dylib
+(`iOS-Swift.debug.dylib`) matches the default `CFBundleExecutable` prefix (`iOS-Swift`). No SDK change
+needed — verified the split build finds and swizzles all app VCs. (Release builds don't split.)
 
 ## Open blockers (Finding 2 open; Finding 1 resolved as accepted risk)
 
