@@ -6,7 +6,7 @@ import Foundation
 
 // MARK: - Integration
 extension SentryKSCrash {
-    typealias DependencyProvider = SentryKSCrash.InstallerProvider & DispatchQueueWrapperProvider
+    typealias DependencyProvider = SentryKSCrash.InstallerProvider & DateProviderProvider & DispatchQueueWrapperProvider & FileManagerProvider
 
     /// Crash detectors matching SentryCrash's production monitor set:
     /// Mach exceptions, signals, C++ exceptions, and NSExceptions.
@@ -59,6 +59,13 @@ extension SentryKSCrash {
             // The reporter-neutral macOS CrashE2E ns-exception scenario is the acceptance test.
             if installer.crashedLastLaunch {
                 SentrySDKInternal.fatalDetected = true
+
+                // Persist the previous session before report processing or auto session tracking
+                // can start, so the first fatal event can attach the crashed session.
+                endPreviousSessionAsCrashed(
+                    activeDurationSinceLastCrash: installer.activeDurationSinceLastCrash,
+                    dependencies: dependencies
+                )
             }
 
             let reportProcessor = SentryStoredCrashReportProcessor(
@@ -67,6 +74,26 @@ extension SentryKSCrash {
             dependencies.dispatchQueueWrapper.dispatchAsync {
                 installer.sendAllReports(reportProcessor: reportProcessor)
             }
+        }
+
+        private func endPreviousSessionAsCrashed(
+            activeDurationSinceLastCrash: TimeInterval,
+            dependencies: Dependencies
+        ) {
+            guard let fileManager = dependencies.fileManager else {
+                SentrySDKLog.warning("File manager is unavailable; cannot persist the crashed session.")
+                return
+            }
+            guard let session = fileManager.readCurrentSession() else {
+                SentrySDKLog.debug("No current session found to end as crashed.")
+                return
+            }
+
+            let crashTimestamp = dependencies.dateProvider.date()
+                .addingTimeInterval(-activeDurationSinceLastCrash)
+            session.endCrashed(withTimestamp: crashTimestamp)
+            fileManager.storeCrashedSession(session)
+            fileManager.deleteCurrentSession()
         }
 
         // MARK: - SwiftIntegration

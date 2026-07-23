@@ -7,14 +7,20 @@ final class MockKSCrashDependencies: SentryKSCrash.DependencyProvider {
 
     let kscrashInstaller: MockKSCrashInstaller
     let testDispatchQueueWrapper: TestSentryDispatchQueueWrapper
+    let fileManager: SentryFileManager?
+    let dateProvider: SentryCurrentDateProvider
     var dispatchQueueWrapper: SentryDispatchQueueWrapper { testDispatchQueueWrapper }
 
     init(
         installer: MockKSCrashInstaller = .init(),
-        dispatchQueueWrapper: TestSentryDispatchQueueWrapper = .init()
+        dispatchQueueWrapper: TestSentryDispatchQueueWrapper = .init(),
+        fileManager: SentryFileManager? = nil,
+        dateProvider: SentryCurrentDateProvider = TestCurrentDateProvider()
     ) {
         self.kscrashInstaller = installer
         self.testDispatchQueueWrapper = dispatchQueueWrapper
+        self.fileManager = fileManager
+        self.dateProvider = dateProvider
     }
 
     func getKSCrashInstaller() -> MockKSCrashInstaller {
@@ -35,7 +41,9 @@ final class MockKSCrashInstaller: SentryKSCrash.Installing {
     public var shouldThrow: Error?
     public var crashedLastLaunch: Bool = false
     public var installed: Bool = false
+    public var activeDurationSinceLastCrash: TimeInterval = 0
     public var sendAllReportsInvocations: [SentryStoredCrashReportProcessor] = []
+    public var onSendAllReports: (() -> Void)?
 
     public init() {}
 
@@ -64,6 +72,7 @@ final class MockKSCrashInstaller: SentryKSCrash.Installing {
 
     public func sendAllReports(reportProcessor: SentryStoredCrashReportProcessor) {
         sendAllReportsInvocations.append(reportProcessor)
+        onSendAllReports?()
     }
 }
 #endif
