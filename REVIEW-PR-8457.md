@@ -11,8 +11,10 @@
 - Status update (2026-07-23): **Finding 1 and Finding 3 resolved** and removed from this document
   (Finding 1 — accepted, documented image-unload limitation, no code change; Finding 3 — SPI
   conformer compat, fixed via compiler directives + the `SentryImageClassProvider` extraction). The
-  decision trail for both lives in `HANDOFF-subclassfinder-fix.md`. **Only Finding 2 (P1) remains**
-  and is documented below.
+  decision trail for both lives in `HANDOFF-subclassfinder-fix.md`.
+- **New finding added 2026-07-23: Finding 4 (residual GH-8152 gated-VC swizzle crash) — CONFIRMED on
+  the iOS 16.4 simulator, accepted as a documented limitation, deferred.** This is the most important
+  open item; see its section below. Finding 2 (P1, unremapped pointers) also remains open/deferred.
 - These are local-review findings — never posted to GitHub; the actual GitHub reviewers
   (philipphofmann, NinjaLikesCheez, itaybre, noahsmartin) are positive.
 - GitHub activity: no comments, reviews, or mutations were posted
@@ -30,6 +32,88 @@
 - Replace `objc_copyClassNamesForImage` plus `NSClassFromString` discovery with direct reads of the image's `__objc_classlist` Mach-O section.
 - Walk superclasses with `class_getSuperclass` without realizing classes.
 - Pass discovered `AnyClass` pointers to the main-thread swizzling block.
+
+## Finding 4: Residual GH-8152 — Gated View-Controller Subclass Still Crashes at Swizzle Time
+
+### Severity
+
+- **P1 / the PR's headline fix is incomplete.** The PR title is "prevent SubClassFinder availability
+  crash," but a specific, realistic shape still crashes the host app on launch on older OS versions.
+
+### Status
+
+- **CONFIRMED empirically on the iOS 16.4 simulator (2026-07-23).** Accepted as a documented
+  known limitation and **deferred** by user decision — a real fix (see below) is larger than this PR.
+  The misleading in-code comment that claimed swizzling is always safe (commit `af5d80427`) has been
+  corrected.
+
+### The gap
+
+- The PR correctly stops **discovery** from realizing classes: reading `__objc_classlist` and walking
+  `class_getSuperclass` never realizes or messages a class. This eliminates the _common_ GH-8152
+  crash, where the old `NSClassFromString`-on-every-class path realized **gated non-view-controller
+  helpers** (e.g. `RoomPlanWrapper: NSObject`) during discovery.
+- But the classes the finder _selects_ are still **swizzled** on the main thread, and swizzling
+  realizes them. `SentrySwizzle`'s `class_getInstanceMethod` (and `swizzleLoadView`'s
+  `class_getMethodImplementation` / `[class superclass]`) go through
+  `lookUpImpOrForward -> realizeAndInitializeIfNeeded_locked -> realizeClassMaybeSwiftMaybeRelock`.
+- So a **Swift `UIViewController` subclass gated to a newer OS that has a stored property of a gated
+  newer-framework type** is discovered safely, then realized at swizzle time — running its Swift
+  type-metadata completion function, which resolves the missing field type and jumps to null.
+
+### Deterministic reproduction
+
+- Fixture (committed in the iOS-Swift sample, `SubClassFinderRegressionViewController.swift`):
+
+```swift
+@available(iOS 17.0, *)
+final class GatedIOS17ViewController: UIViewController {
+    private var finalResults: CapturedStructure?   // RoomPlan, iOS 17+
+}
+```
+
+- Run the iOS-Swift sample on the **iOS 16.4 simulator** with default options
+  (`enableUIViewControllerTracing`). The app crashes on launch. Crash report faulting thread:
+
+```text
+0x0
+type metadata accessor for CapturedStructure?
+type metadata completion function for GatedIOS17ViewController
+swift_getSingletonMetadata
+ObjC metadata update function for GatedIOS17ViewController
+realizeClassMaybeSwiftMaybeRelock(...)
+lookUpImpOrForward
+_objc_msgSend_uncached
++[SentryUIViewControllerSwizzlingHelper swizzleViewLayoutSubViews:]
++[SentryUIViewControllerSwizzlingHelper swizzleViewControllerSubClass:]
+SentryUIViewControllerSwizzling.swizzleViewControllerSubClass(_:)
+closure #1 in SentryUIViewControllerSwizzling.swizzleUIViewControllers(ofImage:)
+closure #1 in SentrySubClassFinder.actOnSubclassesOfViewController(inImage:block:)
+```
+
+- `EXC_BAD_ACCESS` / `SIGSEGV` at `0x0` — uncatchable (not an Objective-C exception).
+
+### Why no cheap guard fixes it (two spikes, both rejected)
+
+- **Spike A — skip classes not yet realized** (`RW_REALIZED` bit, read crash-free): no crash, but
+  **skips 100% of candidate view controllers**. At the instant the finder runs (right after SDK
+  start) essentially no app view controller has been realized yet, so this reduces UIViewController
+  instrumentation to ~0%. Rejected.
+- **Spike B — non-blocking `swift_checkMetadataState` probe**, keeping only `Complete` Swift classes:
+  **the probe itself crashes** with the same SIGSEGV (in `awaitSatisfyingState`). Swift's
+  `stdlib/public/runtime/MetadataCache.h::check()` drives initialization (returns `Resume`/`Wait`)
+  even for a non-blocking request on an un-initialized class, so querying state realizes the class.
+  There is no crash-free metadata-state probe for exactly the classes we must filter. Rejected.
+
+### Recommended resolution (deferred)
+
+- Defer swizzling a discovered subclass to its **first instantiation** rather than eagerly at SDK
+  start, so a never-instantiated gated view controller is never realized (the app instantiates it
+  only behind its own `#available` check). This is a larger redesign that revisits the
+  initializer-swizzling area the SDK moved away from (GH-1355) and must be validated against the
+  iOS 16.4 repro above.
+- Alternatively, statically parse `__swift5_types` / field descriptors to detect a gated
+  stored-property type without touching runtime metadata (most complex, version-fragile, unproven).
 
 ## Finding 2: Raw Class List Entries Are Unremapped
 

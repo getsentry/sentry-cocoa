@@ -168,19 +168,29 @@ class SentryUIViewControllerSwizzling {
         // initializer causes problems with the rules for initialization in Swift, see
         // https://docs.swift.org/swift-book/LanguageGuide/Initialization.html#ID216.
         //
-        // The subclasses we swizzle here include `@available`-gated view controllers running on an OS
-        // version below their gate, and that's safe. `@available` is a compile-time guard: it stops
-        // your own code from instantiating or calling the class's gated APIs on an older OS, but it
-        // doesn't remove the class from the binary (it stays in `__objc_classlist`) and it doesn't
-        // stop the Objective-C runtime from operating on the already-loaded class object. Swizzling
-        // manipulates that class object's method table (`class_addMethod` /
-        // `method_exchangeImplementations`); it does not complete the Swift metadata that GH-8152
-        // crashed on — that crash was `NSClassFromString` realizing a class whose metadata references
-        // a gated newer-framework type, forcing `swift_getSingletonMetadata`. So a gated view
-        // controller is discovered and swizzled like any other; its transaction only ever fires if the
-        // app itself instantiates it, which the app's own `@available` checks govern. Verified on
-        // iOS 16.4 (below an iOS-26-gated VC's availability): the class is enumerated, passes the
-        // superclass filter, and is swizzled without crashing.
+        // KNOWN LIMITATION (residual GH-8152; tracked in REVIEW-PR-8457.md and
+        // HANDOFF-subclassfinder-fix.md): swizzling a discovered subclass here CAN still crash on an
+        // OS below the class's `@available` gate. Discovery is safe — reading `__objc_classlist` and
+        // walking `class_getSuperclass` never realizes a class. But swizzling is not: the first thing
+        // the swizzler does is message/introspect the class (`class_getInstanceMethod` /
+        // `class_getMethodImplementation` / `[class superclass]`), which realizes it via
+        // `lookUpImpOrForward` -> `realizeClassMaybeSwiftMaybeRelock`. For a Swift view-controller
+        // subclass with a stored property whose type is gated to a newer framework
+        // (e.g. `RoomPlan.CapturedStructure?`), realization runs the class's Swift type-metadata
+        // completion function, which resolves that missing field type and jumps to null — an
+        // uncatchable SIGSEGV. Confirmed on the iOS 16.4 simulator with an iOS-17-gated
+        // `UIViewController` holding a `CapturedStructure?` (crash frames: `swizzleViewLayoutSubViews:`
+        // -> `realizeClassMaybeSwiftMaybeRelock` -> `swift_getSingletonMetadata` -> type metadata
+        // completion function -> 0x0).
+        //
+        // This is narrower than the original GH-8152 crash, which realized EVERY class in the image
+        // (via `NSClassFromString` on all of them, including gated non-view-controller helpers). We now
+        // only realize the `UIViewController` subclasses we actually swizzle, so the common crashers
+        // (gated non-VC types) are no longer touched. A gated VC subclass with a gated stored-property
+        // type is the remaining exposure. There is no cheap, crash-free way to detect that shape before
+        // swizzling: reading the realized bit skips essentially all VCs at SDK start (none are realized
+        // yet), and probing `swift_checkMetadataState` itself drives initialization and crashes the
+        // same way. A real fix (e.g. deferring swizzling to first instantiation) is tracked for later.
         subClassFinder.actOnSubclassesOfViewController(inImage: imageName) { [weak self] subClass in
             self?.swizzleViewControllerSubClass(subClass)
         }

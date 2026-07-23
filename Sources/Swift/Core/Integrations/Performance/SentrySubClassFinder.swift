@@ -27,10 +27,12 @@ class SentrySubClassFinder: NSObject {
     /// checks for every class if the parentClass is a `UIViewController`. Cause loading all classes can
     /// take a few milliseconds, do this on a background thread.
     ///
-    /// This includes `@available`-gated classes even on OS versions below their gate, and that's safe:
-    /// discovery never realizes or messages a class, so an unavailable class can't crash here. Such a
-    /// class can also be swizzled safely on an older OS — see the note at the `actOnSubclassesOf`
-    /// call site in `SentryUIViewControllerSwizzling` for why, and GH-8152.
+    /// This includes `@available`-gated classes even on OS versions below their gate, and discovery
+    /// itself is safe: it never realizes or messages a class, so an unavailable class can't crash
+    /// here. Swizzling such a class later is NOT always safe, though — realizing a gated Swift view
+    /// controller with a gated stored-property type crashes on older OS versions (a residual GH-8152
+    /// case). See the KNOWN LIMITATION note at the `actOnSubclassesOf` call site in
+    /// `SentryUIViewControllerSwizzling` for the mechanism and why it isn't guarded here.
     /// - Parameters:
     ///   - imageName: The objc Image (library) to get all subclasses for.
     ///   - block: The block to execute for each subclass. This block runs on the main thread.

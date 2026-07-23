@@ -18,25 +18,31 @@
 - **Tests:** `SentrySubClassFinderTests` green on the local sim (**10 executed**, 0 failures).
   Includes the differential enumeration test, the section null-entry test, the real-wrapper
   regression test, and the filter-drop test noted under Open blockers.
-- **Latest work — `@available`-gated-class behavior documented (committed `af5d80427`, 2026-07-23).**
-  Added code comments explaining that discovery + swizzling of `@available`-gated view controllers is
-  safe even on OS versions below the gate: main note at the `actOnSubclassesOf` call site in
-  `SentryUIViewControllerSwizzling.swift`, with `SentrySubClassFinder.swift`'s doc linking to it.
-  **Empirically verified** on iOS 16.4 (below an iOS-26-gated VC): the class is enumerated, passes the
-  superclass filter, and is swizzled without crashing. See "Gated-class behavior" below.
+- **CORRECTION (2026-07-23) — `af5d80427`'s "swizzling gated VCs is safe" claim was WRONG; a residual
+  crash is CONFIRMED (now Finding 4 in `REVIEW-PR-8457.md`).** That commit's comment claimed swizzling
+  never realizes the class and so can't hit GH-8152. It does: `class_getInstanceMethod` /
+  `class_getMethodImplementation` / `[class superclass]` realize the class via
+  `realizeClassMaybeSwiftMaybeRelock`. A Swift `UIViewController` subclass gated to a newer OS with a
+  gated stored-property type (e.g. `RoomPlan.CapturedStructure?`) crashes at swizzle time on the
+  **iOS 16.4 simulator** — reproduced with the committed `GatedIOS17ViewController` fixture. The
+  earlier "verified without crashing" result used a gated VC with NO gated field type (the safe
+  shape). The in-code comments have been corrected to describe this as a known limitation. See
+  "Finding 4" below and `REVIEW-PR-8457.md`.
 - **`SentryImageClassProvider` extraction (committed `3a3abd444`, 2026-07-23).**
   `classes(forImage:)` (+ its `classes(inSection:size:)` helper) was moved OFF `SentryObjCRuntimeWrapper`
   into a dedicated pure-Swift `SentryImageClassProvider` protocol + `SentryDefaultImageClassProvider`
   impl (it reads a Mach-O section via dyld, not the ObjC runtime, so it never belonged there).
   `SentrySubClassFinder` now depends on the new provider. This subsumes the earlier Finding 3
   "compiler-directive" fix — the arch `#if` gates carried over. See "Extraction refactor" below.
-- **Manual-test fixtures in the iOS-Swift sample (uncommitted, working tree only).** A gated VC
-  `TinyAvailabilityGatedViewController` (`@available(iOS 26.0, *)`, never shown) and a
-  `RoomPlanWrapper` (`@available(iOS 17.0, *)`, referencing a `CapturedStructure`) in `AppDelegate.swift`
-  reproduce the gated-class discovery path for manual verification. Note: on **Debug** builds Xcode 16
-  splits the app into a launcher stub + `iOS-Swift.debug.dylib`; the SDK still finds the classes because
-  the dylib's name matches the default `inAppInclude` prefix (see "Gated-class behavior"). Decide whether
-  to keep these fixtures before merge.
+- **Regression fixture in the iOS-Swift sample (committed `7326782e0`).**
+  `SubClassFinderRegressionViewController.swift` defines three gated VC subclasses — `GatedIOS17ViewController`
+  (holds `RoomPlan.CapturedStructure?`, the actual crasher), `GatedIOS26OnlyViewController` (holds
+  `FoundationModels.LanguageModelSession?`, behind `canImport`), and `GatedObsoletedOnIOS26ViewController`
+  (control, no gated field) — plus `SubClassFinderRegressionUITests`. They only need to be **compiled
+  in**; the SDK enumerates + swizzles them at launch. This is the acceptance gate for any future
+  Finding 4 fix. Note: on **Debug** builds Xcode 16 splits the app into a launcher stub +
+  `iOS-Swift.debug.dylib`; the SDK still finds the classes because the dylib's name matches the default
+  `inAppInclude` prefix (see "Gated-class behavior").
 - **Finding 3 (P2, SPI conformer compat): resolved.** `classes(forImage:)` is no longer on the
   injectable `SentryObjCRuntimeWrapper` SPI protocol at all, so the "old ObjC conformer missing the
   selector" hazard is gone by construction. The new `SentryImageClassProvider` is internal (not
@@ -47,8 +53,11 @@
   (it protects only the read, not the later `class_getSuperclass`/swizzle use of the returned
   pointers). In-code comment is an accurate known-limitation note (now in
   `SentryDefaultImageClassProvider.swift`). Removed from `REVIEW-PR-8457.md`; full trail kept below.
+- **Finding 4 (P1) — OPEN, CONFIRMED, deferred.** Residual GH-8152: a gated Swift VC subclass with a
+  gated stored-property type still crashes at swizzle time on older OSes. Reproduced on iOS 16.4. See
+  "Open blockers" below and `REVIEW-PR-8457.md` §"Finding 4".
 - **Finding 2 (P1) — OPEN, deferred.** Unremapped raw `__objc_classlist` pointers reach the swizzler.
-  Still the only open finding in `REVIEW-PR-8457.md`. See "Open blockers" below.
+  See "Open blockers" below.
 - **These docs are kept as living tracking notes** (user decision 2026-07-23), not deleted
   before merge.
 
@@ -103,29 +112,37 @@ Before the extraction, Finding 3 was addressed by keeping `classes(forImage:)` a
 (the user rejected `@objc optional`). Those arch gates carried into the extraction. That step
 hardened the compile-time contract but didn't remove the injectable-SPI surface; the extraction does.
 
-## Gated-class behavior (committed `af5d80427`, 2026-07-23) — documentation only
+## Gated-class behavior (comment corrected 2026-07-23) — discovery safe, swizzle NOT always safe
 
 An `@available(iOS X, *)` class is present in `__objc_classlist` on **every** OS the binary runs on,
 including versions below X. `@available` is a compile-time guard on _using_ the class (instantiating
 / calling its gated APIs); it neither removes the class from the binary nor stops the ObjC runtime
 from operating on the already-loaded class object. So `SentrySubClassFinder`:
 
-- **discovers** gated classes on older OSes — safe, because discovery only reads
-  `class_getName`/`class_getSuperclass`, never realizes/messages; and
-- **swizzles** a gated view-controller subclass on older OSes — also safe, because swizzling
-  manipulates the class object's method table (`class_addMethod`/`method_exchangeImplementations`),
-  which does NOT complete the Swift metadata that GH-8152 crashed on (that crash was
-  `NSClassFromString` → realization → `swift_getSingletonMetadata` on a gated newer-framework type).
-  A gated VC's transaction only ever fires if the app itself instantiates it, which its own
-  `@available` checks govern.
+- **discovers** gated classes on older OSes — **safe**, because discovery only reads
+  `class_getName`/`class_getSuperclass`, which never realizes or messages the class; but
+- **swizzles** the selected view-controller subclasses on older OSes — **NOT always safe.** Swizzling
+  starts by messaging/introspecting the class (`class_getInstanceMethod`,
+  `class_getMethodImplementation`, `[class superclass]`), which realizes it via
+  `lookUpImpOrForward → realizeAndInitializeIfNeeded_locked → realizeClassMaybeSwiftMaybeRelock`. For a
+  Swift gated VC subclass with a gated stored-property type, realization runs the Swift type-metadata
+  completion function → `swift_getSingletonMetadata` → resolves the missing field type → SIGSEGV. This
+  is the residual GH-8152 crash (Finding 4).
 
-**Verified** on iOS 16.4 (below an iOS-26-gated VC's availability) via a throwaway probe: the class
-was enumerated (`inRawList=yes`), passed the superclass filter (`superclass=UIViewController,
-reachesVC=true`), and was swizzled (`about-to-swizzle` → `swizzled-OK`, in the transactions list) with
-zero crash markers — identical on iOS 26.4.
+**Correction:** an earlier note here (and commit `af5d80427`) claimed the swizzle step is "also safe"
+because it only edits the method table. That is wrong — `class_addMethod` requires an already-realized
+class, and the swizzler realizes it first. The earlier "verified without crashing on iOS 16.4"
+result used a gated VC with **no gated field type** (the safe shape), so it never exercised the crash.
 
-Code: main note at the `actOnSubclassesOf` call site in `SentryUIViewControllerSwizzling.swift`;
-`SentrySubClassFinder.swift`'s method doc + the `classes(forImage:)` inline note link to it.
+**Re-verified 2026-07-23 with the dangerous shape:** `GatedIOS17ViewController : UIViewController { var
+finalResults: CapturedStructure? }` (committed sample fixture) crashes the iOS-Swift sample on launch
+on the **iOS 16.4 simulator**. Crash frames: `swizzleViewLayoutSubViews: →
+realizeClassMaybeSwiftMaybeRelock → swift_getSingletonMetadata → type metadata completion function for
+GatedIOS17ViewController → 0x0`. See Finding 4 in `REVIEW-PR-8457.md`.
+
+Code: KNOWN LIMITATION note at the `actOnSubclassesOf` call site in
+`SentryUIViewControllerSwizzling.swift`; `SentrySubClassFinder.swift`'s method doc + the
+`classes(forImage:)` inline note link to it.
 
 ### Sample debug-dylib caveat (manual testing)
 
@@ -135,10 +152,29 @@ enumerates every loaded image whose name matches an `inAppInclude` prefix, and t
 (`iOS-Swift.debug.dylib`) matches the default `CFBundleExecutable` prefix (`iOS-Swift`). No SDK change
 needed — verified the split build finds and swizzles all app VCs. (Release builds don't split.)
 
-## Open blockers (Finding 2 open; Finding 1 resolved as accepted risk)
+## Open blockers (Finding 4 + Finding 2 open; Finding 1 resolved as accepted risk)
 
-> User (2026-07-23): Finding 1 resolved as a documented limitation (details below); Finding 2 may
-> be tackled later. Kept as tracked known-limitations in code + here.
+> User (2026-07-23): Finding 1 resolved as a documented limitation (details below); Findings 4 and 2
+> accepted as documented limitations, to be tackled later. Kept as tracked known-limitations in code
+>
+> - here.
+
+- **Finding 4 — residual GH-8152 gated-VC swizzle crash (OPEN, CONFIRMED, deferred).** The most
+  important open item; full writeup + repro + spike results in `REVIEW-PR-8457.md` §"Finding 4".
+  Summary: discovery no longer realizes classes (fixes the common case: gated non-VC helpers), but the
+  selected VC subclasses are realized at **swizzle** time, so a Swift gated VC subclass with a gated
+  stored-property type still crashes on older OSes. Reproduced on the iOS 16.4 simulator with the
+  committed `GatedIOS17ViewController` fixture.
+  - **Two guard spikes tried and rejected (2026-07-23):** (A) skip `!isRealized` classes — crash-free
+    but skips ~100% of VCs at SDK start (none realized yet) → near-zero coverage; (B) non-blocking
+    `swift_checkMetadataState` probe — the probe itself crashes the same way (Swift's `MetadataCache.h`
+    drives initialization even for non-blocking requests on un-initialized classes). No crash-free
+    per-class signal exists at SDK-start.
+  - **Likely real fix (deferred):** defer swizzling a discovered subclass to its first instantiation
+    (never realize a never-instantiated gated VC), revisiting the GH-1355 initializer-swizzling area.
+    Validate against the iOS 16.4 repro.
+  - **Kept for the fix:** the confirmed crash repro (sample fixture + `SubClassFinderRegressionUITests`)
+    is the acceptance gate for any future guard.
 
 - **Finding 1 — concurrent image-unload crash (RESOLVED: accepted risk, no code change).** Full
   writeup + the empirical investigation that drove this decision are in the "Finding 1" section
@@ -188,11 +224,12 @@ needed — verified the split build finds and swizzles all app VCs. (Release bui
   That **realizes** the class; realizing a Swift class whose metadata references an
   `@available`-gated newer-framework type forces Swift metadata completion and
   crashes with `EXC_BAD_ACCESS` in `swift_getSingletonMetadata` on OS versions below
-  the framework's availability. Reproduces only on **real iOS 17.x (and older)
-  devices**, not simulators.
+  the framework's availability. (Reproducible on the **iOS 16.4 simulator** with the
+  right class shape — see Finding 4; earlier notes here saying "devices only" were wrong.)
 - **Real-world crashers are NOT view controllers:** SwiftUI gesture
   `Coordinator: NSObject` (conforms under `UIGestureRecognizerRepresentable`, iOS
-  18+), `RoomPlan`/`ActivityKit` wrappers.
+  18+), `RoomPlan`/`ActivityKit` wrappers. The fix targets exactly these — they are no
+  longer realized during discovery.
 - **Fix (pure Swift):** enumerate classes by reading the image's `__objc_classlist`
   Mach-O section (gives class **pointers**, NOT realized) instead of
   `objc_copyClassNamesForImage` + `NSClassFromString`. Then use the existing
@@ -200,6 +237,12 @@ needed — verified the split build finds and swizzles all app VCs. (Release bui
   realizes). The confirmed VC class pointers are carried to the main thread and handed
   straight to the swizzle block — `NSClassFromString` is not used at all anymore (it
   realizes, and could resolve a same-named class from a different image).
+- **NOT fully fixed (Finding 4, deferred):** the fix stops realizing classes during
+  _discovery_, but the selected VC subclasses are still realized at _swizzle_ time. A
+  Swift `UIViewController` subclass gated to a newer OS with a gated stored-property
+  type still crashes on launch on older OSes (confirmed on iOS 16.4). The common
+  crashers above (non-VC helpers) ARE fixed; a gated VC-with-gated-field is the
+  residual gap. See Open blockers §"Finding 4".
 
 ## Root-cause chain
 
@@ -316,9 +359,10 @@ Verified against **objc4 source** + empirical tests on Apple silicon (arm64):
    the class. Holding/iterating an `AnyClass` in a Swift array doesn't message it
    either (metatype pointer, no retain-message) — unlike ObjC `NSArray addObject:`.
    Guarded by `testGettingSubclasses_DoesNotCallInitializer` (registers a class with a
-   custom `+initialize`, asserts the finder never calls it). This is why passing the
-   class pointer to the main thread (instead of a name) is safe: the swizzle block is
-   the first message and it runs on main.
+   custom `+initialize`, asserts the finder never calls it). Passing the class pointer
+   to the main thread (instead of a name) is safe for **discovery**; note the swizzle
+   block itself IS the first message and DOES realize the class — safe for most classes,
+   but the origin of the residual Finding 4 crash for a gated VC with a gated field type.
 4. **Classes with a Swift-generic superclass** (e.g. a `UIHostingController<V>`
    subclass) are **not in `__objc_classlist`** — and `objc_copyClassNamesForImage`
    doesn't return them either (same section). So switching enumeration loses **zero**
