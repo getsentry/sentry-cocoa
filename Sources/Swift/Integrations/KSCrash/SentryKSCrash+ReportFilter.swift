@@ -6,7 +6,6 @@ import Foundation
 extension SentryKSCrash {
     /// Terminal KSCrash filter that converts dictionary reports into fatal Sentry events.
     final class ReportFilter: NSObject, CrashReportFilter {
-        private static let errorDomain = "io.sentry.kscrash-report-filter"
         private let reportProcessor: SentryStoredCrashReportProcessor
 
         init(reportProcessor: SentryStoredCrashReportProcessor) {
@@ -21,26 +20,23 @@ extension SentryKSCrash {
 
             for report in reports {
                 guard let dictionaryReport = report as? CrashReportDictionary else {
-                    let error = NSError(
-                        domain: Self.errorDomain,
-                        code: 1,
-                        userInfo: [
-                            NSLocalizedDescriptionKey: "KSCrash supplied an unsupported crash report type."
-                        ]
-                    )
-                    onCompletion?(processedReports, error)
-                    return
+                    SentrySDKLog.error("Discarding unsupported KSCrash report type.")
+                    continue
                 }
 
                 do {
                     try reportProcessor.process(report: dictionaryReport.value)
                     processedReports.append(report)
                 } catch {
-                    onCompletion?(processedReports, error)
-                    return
+                    SentrySDKLog.error(
+                        "Discarding unprocessable KSCrash report: \(error.localizedDescription)"
+                    )
                 }
             }
 
+            // ReportStore's .onSuccess cleanup policy deletes the whole attempted batch only when
+            // the completion error is nil. Treat unprocessable reports as consumed so they cannot
+            // permanently block later valid reports.
             onCompletion?(processedReports, nil)
         }
     }
