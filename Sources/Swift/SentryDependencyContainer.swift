@@ -159,6 +159,9 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     @objc public var sysctlWrapper = Dependencies.sysctlWrapper
     @objc public var debugImageProvider = Dependencies.debugImageProvider
     @objc public var objcRuntimeWrapper: SentryObjCRuntimeWrapper = SentryDefaultObjCRuntimeWrapper()
+#if (os(iOS) || os(tvOS) || os(visionOS)) && (arch(arm64) || arch(x86_64))
+    var imageClassProvider: SentryImageClassProvider = SentryDefaultImageClassProvider()
+#endif
     var extensionDetector: SentryExtensionDetector = {
         SentryExtensionDetector(infoPlistWrapper: Dependencies.infoPlistWrapper)
     }()
@@ -272,7 +275,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 
         let subClassFinder = SentrySubClassFinder(
             dispatchQueue: dispatchQueue,
-            objcRuntimeWrapper: objcRuntimeWrapper,
+            imageClassProvider: imageClassProvider,
             swizzleClassNameExcludes: options.swizzleClassNameExcludes
         )
 

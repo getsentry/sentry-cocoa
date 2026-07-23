@@ -8,8 +8,8 @@ import XCTest
 class SentrySubClassFinderTests: XCTestCase {
     
     private class Fixture {
-        lazy var runtimeWrapper: SentryTestObjCRuntimeWrapper = {
-            let result = SentryTestObjCRuntimeWrapper()
+        lazy var imageClassProvider: TestImageClassProvider = {
+            let result = TestImageClassProvider()
             result.classes = { _ in
                 return self.testClasses
             }
@@ -31,7 +31,7 @@ class SentrySubClassFinderTests: XCTestCase {
         }
 
         func getSut(swizzleClassNameExcludes: Set<String> = []) -> SentrySubClassFinder {
-            return SentrySubClassFinder(dispatchQueue: dispatchQueue, objcRuntimeWrapper: runtimeWrapper, swizzleClassNameExcludes: swizzleClassNameExcludes)
+            return SentrySubClassFinder(dispatchQueue: dispatchQueue, imageClassProvider: imageClassProvider, swizzleClassNameExcludes: swizzleClassNameExcludes)
         }
     }
 
@@ -51,13 +51,13 @@ class SentrySubClassFinderTests: XCTestCase {
     }
 
     func testActOnSubclassesOfViewController_NoViewController() {
-        fixture.runtimeWrapper.classes = { _ in [] }
+        fixture.imageClassProvider.classes = { _ in [] }
         assertActOnSubclassesOfViewController(expected: [])
     }
 
     func testActOnSubclassesOfViewController_NoViewController_DoesNotDispatchToMainQueue() {
         // Arrange
-        fixture.runtimeWrapper.classes = { _ in [] }
+        fixture.imageClassProvider.classes = { _ in [] }
         let sut = fixture.getSut()
 
         // Act
@@ -70,12 +70,12 @@ class SentrySubClassFinderTests: XCTestCase {
     }
 
     func testActOnSubclassesOfViewController_IgnoreFakeViewController() {
-        fixture.runtimeWrapper.classes = { _ in [FakeViewController.self] }
+        fixture.imageClassProvider.classes = { _ in [FakeViewController.self] }
         assertActOnSubclassesOfViewController(expected: [])
     }
 
     func testActOnSubclassesOfViewController_WrongImage_NoViewController() {
-        fixture.runtimeWrapper.classes = nil
+        fixture.imageClassProvider.classes = { _ in [] }
         assertActOnSubclassesOfViewController(expected: [], imageName: "OtherImage")
     }
 
@@ -83,7 +83,7 @@ class SentrySubClassFinderTests: XCTestCase {
         let trackedClassName = try XCTUnwrap(
             SentryInitializeForGettingSubclassesCalled.registerDynamicClass())
         let trackedClass: AnyClass = try XCTUnwrap(NSClassFromString(trackedClassName))
-        fixture.runtimeWrapper.classes = { _ in
+        fixture.imageClassProvider.classes = { _ in
             return self.fixture.testClasses + [trackedClass]
         }
 
@@ -113,7 +113,7 @@ class SentrySubClassFinderTests: XCTestCase {
     /// OS — including ones where the old path would have crashed.
     func testClassesForImage_whenReadingEveryLoadedImage_shouldMatchCopyClassNamesForImage() throws {
         // -- Arrange --
-        let sut = SentryDefaultObjCRuntimeWrapper()
+        let sut = SentryDefaultImageClassProvider()
         var comparedImages = 0
 
         for index in 0..<_dyld_image_count() {
@@ -151,10 +151,10 @@ class SentrySubClassFinderTests: XCTestCase {
     /// can't reach `UIViewController`). It does not cover the raw-vs-remapped pointer identity of a
     /// resolved Objective-C future class with a view-controller superclass (Finding 2 in
     /// REVIEW-PR-8457.md, tracked in HANDOFF-subclassfinder-fix.md; see also the known-limitation note
-    /// in `SentryDefaultObjCRuntimeWrapper.classes(forImage:)`); reproducing that needs an ObjC bundle
+    /// in `SentryDefaultImageClassProvider.classes(forImage:)`); reproducing that needs an ObjC bundle
     /// + `objc_getFutureClass`, which the test suite has no harness for.
     func testActOnSubclassesOfViewController_WhenClassDoesNotReachViewController_IsNotSwizzled() {
-        fixture.runtimeWrapper.classes = { _ in
+        fixture.imageClassProvider.classes = { _ in
             [FakeViewController.self, FirstViewController.self, SecondViewController.self]
         }
         assertActOnSubclassesOfViewController(expected: [FirstViewController.self, SecondViewController.self])
@@ -172,7 +172,7 @@ class SentrySubClassFinderTests: XCTestCase {
         // -- Act --
         let classes: [AnyClass] = entries.withUnsafeMutableBytes { raw in
             let section = raw.baseAddress!.assumingMemoryBound(to: UInt8.self)
-            return SentryDefaultObjCRuntimeWrapper.classes(inSection: section, size: UInt(raw.count))
+            return SentryDefaultImageClassProvider.classes(inSection: section, size: UInt(raw.count))
         }
 
         // -- Assert --
@@ -182,7 +182,7 @@ class SentrySubClassFinderTests: XCTestCase {
     }
 
     /// End-to-end regression test for GH-8152. The other tests inject a fake class list through the
-    /// stub wrapper; this one drives the REAL `SentryDefaultObjCRuntimeWrapper` through the finder
+    /// stub provider; this one drives the REAL `SentryDefaultImageClassProvider` through the finder
     /// against this test bundle's image. It proves the production enumeration path — reading the
     /// `__objc_classlist` section and walking `class_getSuperclass` — discovers the bundle's
     /// `UIViewController` subclasses and ignores everything else, end to end.
@@ -196,13 +196,13 @@ class SentrySubClassFinderTests: XCTestCase {
     /// OS-version-specific and cannot be reproduced on CI simulators, so this test guards the
     /// enumeration and selection behavior rather than the crash itself.
     func testRealRuntimeWrapper_whenReadingBundleImage_findsBundleViewControllers() throws {
-        let realWrapper = SentryDefaultObjCRuntimeWrapper()
+        let realProvider = SentryDefaultImageClassProvider()
         let imageName = try XCTUnwrap(
             class_getImageName(FirstViewController.self).map { String(cString: $0) })
 
         let sut = SentrySubClassFinder(
             dispatchQueue: TestSentryDispatchQueueWrapper(),
-            objcRuntimeWrapper: realWrapper,
+            imageClassProvider: realProvider,
             swizzleClassNameExcludes: [])
 
         var found: [AnyClass] = []
@@ -259,6 +259,15 @@ class SecondViewController: UIViewController {}
 class ViewControllerNumberThree: UIViewController {}
 class VCAnyNaming: UIViewController {}
 class FakeViewController {}
+
+/// Test seam for injecting a fake class list into `SentrySubClassFinder`. The `classes` closure
+/// receives the requested image name and returns the classes the finder should see.
+private final class TestImageClassProvider: SentryImageClassProvider {
+    var classes: (UnsafePointer<CChar>) -> [AnyClass] = { _ in [] }
+    func classes(forImage image: UnsafePointer<CChar>) -> [AnyClass] {
+        return classes(image)
+    }
+}
 
 /// An `@available`-gated `NSObject` subclass, standing in for the real-world classes that crashed
 /// GH-8152 (SwiftUI gesture coordinators, `RoomPlan`/`ActivityKit` wrappers). It is compiled into

@@ -7,16 +7,16 @@ import UIKit
 
 class SentrySubClassFinder: NSObject {
     private let dispatchQueue: SentryDispatchQueueWrapper
-    private let objcRuntimeWrapper: SentryObjCRuntimeWrapper
+    private let imageClassProvider: SentryImageClassProvider
     private let swizzleClassNameExcludes: Set<String>
 
     init(
         dispatchQueue: SentryDispatchQueueWrapper,
-        objcRuntimeWrapper: SentryObjCRuntimeWrapper,
+        imageClassProvider: SentryImageClassProvider,
         swizzleClassNameExcludes: Set<String>
     ) {
         self.dispatchQueue = dispatchQueue
-        self.objcRuntimeWrapper = objcRuntimeWrapper
+        self.imageClassProvider = imageClassProvider
         self.swizzleClassNameExcludes = swizzleClassNameExcludes
         super.init()
     }
@@ -49,7 +49,7 @@ class SentrySubClassFinder: NSObject {
             // (https://github.com/getsentry/sentry-cocoa/issues/8152,
             // https://github.com/swiftlang/swift/issues/72657). Walking the superclass chain with
             // `class_getSuperclass` below doesn't realize any class, so it can't trigger that crash.
-            let classes = self.objcRuntimeWrapper.classes(forImage: cImageName)
+            let classes = self.imageClassProvider.classes(forImage: cImageName)
 
             SentrySDKLog.debug("Found \(classes.count) number of classes in image: \(imageName).")
 

@@ -22,7 +22,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         }
 
         init() {
-            subClassFinder = TestSubClassFinder(dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper, swizzleClassNameExcludes: [])
+            subClassFinder = TestSubClassFinder(dispatchQueue: dispatchQueue, imageClassProvider: SentryDefaultImageClassProvider(), swizzleClassNameExcludes: [])
 
             options = Options.noIntegrations()
 
