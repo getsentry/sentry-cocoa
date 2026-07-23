@@ -35,7 +35,7 @@ extension SentryKSCrash {
             // To match KSCrash & SentryCrash, we need to add 'KSCrash/<bundlename>' to the cacheDirectoryPath
             let installPath = URL(fileURLWithPath: options.cacheDirectoryPath)
                 .appendingPathComponent("KSCrash")
-                .appendingPathComponent(Bundle.main.infoDictionary?["CFBundleIdentifier"] as? String ?? "Unknown")
+                .appendingPathComponent(Bundle.main.infoDictionary?["CFBundleName"] as? String ?? "Unknown")
                 .absoluteURL
 
             do {
