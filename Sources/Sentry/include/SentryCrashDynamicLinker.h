@@ -36,8 +36,6 @@
 extern "C" {
 #endif
 
-#define SENTRY_DYLD_INDEX UINT_MAX - 1
-
 #if __LP64__
 #    define SENTRY_SEGMENT_TYPE LC_SEGMENT_64
 #    define sentry_segment_command_t struct segment_command_64
@@ -57,11 +55,6 @@ typedef struct {
     const char *crashInfoMessage;
     const char *crashInfoMessage2;
 } SentryCrashBinaryImage;
-
-typedef struct {
-    uintptr_t start;
-    uintptr_t size;
-} SentrySegmentAddress;
 
 /** Get information about a binary image based on mach_header.
  *
