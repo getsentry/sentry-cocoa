@@ -5,6 +5,7 @@
 ### Fixes
 
 - Prevent crash on SDK start when the app binary contains classes that reference `@available`-gated APIs. `SentrySubClassFinder` now detects `UIViewController` subclasses without realizing unrelated classes, so it no longer triggers the Swift runtime crash for classes like SwiftUI gesture coordinators or `RoomPlan`/`ActivityKit` wrappers (#8457)
+- Fix trace propagation for manually instrumented transactions when automatic performance tracing is disabled (#8522)
 
 ## 9.23.0
 

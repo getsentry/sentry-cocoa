@@ -1618,7 +1618,7 @@
     "kind": "ObjCMethodDecl",
     "name": "cookies",
     "parent": "SentryObjCRequest",
-    "returnType": "NSString * _Nullable",
+    "returnType": "NSDictionary<NSString *,NSString *> * _Nullable",
     "instance": true
   },
   {
@@ -9053,7 +9053,7 @@
     "kind": "ObjCPropertyDecl",
     "name": "cookies",
     "parent": "SentryObjCRequest",
-    "type": "NSString * _Nullable"
+    "type": "NSDictionary<NSString *,NSString *> * _Nullable"
   },
   {
     "kind": "ObjCPropertyDecl",

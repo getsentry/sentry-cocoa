@@ -22,10 +22,17 @@ import Foundation
         set { wrapped.bodySize = newValue }
     }
 
+#if SDK_V10
+    @objc public var cookies: [String: String]? {
+        get { wrapped.cookies }
+        set { wrapped.cookies = newValue }
+    }
+#else
     @objc public var cookies: String? {
         get { wrapped.cookies }
         set { wrapped.cookies = newValue }
     }
+#endif // SDK_V10
 
     @objc public var headers: [String: String]? {
         get { wrapped.headers }
