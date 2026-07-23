@@ -24,8 +24,9 @@ enum CrashE2ECrashTriggers {
             CrashE2ERuntime.closeAndRestartSDK()
             SentrySDK.crash()
             abortBecauseScenarioReturned(scenario)
-        case .nsException, .cppExceptionV1, .cppExceptionV2, .swiftAsyncCPPExceptionV2Off,
-             .swiftAsyncCPPExceptionV2On, .unityCxaThrow, .objcObject, .idle, .drain,
+        case .nsException, .nsExceptionSubclass, .cppExceptionV1, .cppExceptionV2,
+             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .unityCxaThrow,
+             .objcObject, .objcObjectAfterCaughtCPP, .idle, .drain,
              .managedRuntimePreSDKSignal:
             triggerExceptionScenario(scenario)
         }
@@ -40,6 +41,9 @@ enum CrashE2ECrashTriggers {
                 userInfo: ["scenario": scenario.rawValue]
             ).raise()
             abortBecauseScenarioReturned(scenario)
+        case .nsExceptionSubclass:
+            CrashE2ETriggerNSExceptionSubclass()
+            abortBecauseScenarioReturned(scenario)
         case .cppExceptionV1, .cppExceptionV2:
             CrashE2ETriggerCPPException()
             abortBecauseScenarioReturned(scenario)
@@ -51,8 +55,13 @@ enum CrashE2ECrashTriggers {
         case .objcObject:
             // This is a modern C++ monitor scenario. The arbitrary Objective-C object throw is
             // expected to be reported by the C++ monitor, but the migration-sensitive contract is
-            // for the V2/KSCrash path, not SentryCrash's legacy V1 fallback behavior.
+            // for the throw-site-swapping path, not SentryCrash's weaker option-off report shape.
             CrashE2ETriggerObjCObjectException()
+            abortBecauseScenarioReturned(scenario)
+        case .objcObjectAfterCaughtCPP:
+            // A caught C++ throw first populates the throw-site cursor. The later fatal arbitrary
+            // Objective-C object must replace that cursor rather than report the stale C++ stack.
+            CrashE2ETriggerObjCObjectAfterCaughtCPPException()
             abortBecauseScenarioReturned(scenario)
         case .idle, .drain, .managedRuntimePreSDKSignal:
             abortBecauseScenarioReturned(scenario)

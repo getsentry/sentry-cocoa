@@ -9,9 +9,11 @@ extern "C" {
 void CrashE2EInstallFakeManagedRuntimeSignalHandler(const char *markerPath);
 NSString *_Nullable CrashE2ELoadDynamicBinaryImage(const char *path, int slot);
 void CrashE2ETriggerDynamicBinaryImageCrash(void);
+void CrashE2ETriggerNSExceptionSubclass(void);
 void CrashE2ETriggerCPPException(void);
 void CrashE2ETriggerUnitySentryCxaThrow(void);
 void CrashE2ETriggerObjCObjectException(void);
+void CrashE2ETriggerObjCObjectAfterCaughtCPPException(void);
 
 #ifdef __cplusplus
 }

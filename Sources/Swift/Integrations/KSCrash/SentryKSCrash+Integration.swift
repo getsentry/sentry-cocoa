@@ -52,6 +52,11 @@ extension SentryKSCrash {
                 return nil
             }
 
+            // KSCRASH_TODO: Preserve SentryCrashIntegration's macOS AppKit NSException forwarding.
+            // SentryUncaughtNSExceptions currently routes reportException:/_crashOnException:
+            // through SentryNSExceptionCaptureHelper to SentryCrashSwift. Replace that direct
+            // dependency with an active-backend facade and supply KSCrash's uncaughtExceptionHandler.
+            // The reporter-neutral macOS CrashE2E ns-exception scenario is the acceptance test.
             if installer.crashedLastLaunch {
                 SentrySDKInternal.fatalDetected = true
             }
