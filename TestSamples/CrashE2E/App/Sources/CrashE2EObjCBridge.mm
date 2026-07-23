@@ -12,6 +12,12 @@
 #include <typeinfo>
 #include <unistd.h>
 
+@interface CrashE2ENSExceptionSubclass : NSException
+@end
+
+@implementation CrashE2ENSExceptionSubclass
+@end
+
 @interface CrashE2EThrownObject : NSObject
 @end
 
@@ -126,7 +132,13 @@ CrashE2EFakeManagedRuntimeSignalHandler(int signal, siginfo_t *info, void *conte
 
     // The intended chain is managed runtime -> SentryCrash/KSCrash -> system. This fake handler
     // stands in for .NET/Mono after SentryCrash's preload constructor has installed the early
-    // signal handler. Recoverable managed faults are intentionally out of scope: with the correct
+    // signal handler.
+    //
+    // KSCRASH_TODO: Sentry+KSCrash still compiles that SentryCrash constructor, so a green marker
+    // currently proves only that the fake handler ran, not that a KSCrash-owned preloader/plugin
+    // established the intended order. Rectify this when managed-runtime handling moves to KSCrash.
+    //
+    // Recoverable managed faults are intentionally out of scope: with the correct
     // order, the managed runtime handles them without ever calling Sentry. This handler forwards
     // only to smoke-test the unrecoverable path where the runtime delegates to its previous
     // handler. Resetting to the default action before forwarding keeps Sentry's final re-raise from
@@ -178,6 +190,16 @@ CrashE2EInstallFakeManagedRuntimeSignalHandler(const char *markerPath)
 }
 
 extern "C" void
+CrashE2ETriggerNSExceptionSubclass(void)
+{
+    [[CrashE2ENSExceptionSubclass exceptionWithName:@"CrashE2ENSExceptionSubclass"
+                                             reason:@"Crash E2E uncaught NSException subclass"
+                                           userInfo:@ { @"scenario" : @"ns-exception-subclass" }]
+        raise];
+    abort();
+}
+
+extern "C" void
 CrashE2ETriggerCPPException(void)
 {
     throw std::runtime_error("CrashE2ECPPException");
@@ -217,4 +239,24 @@ extern "C" void
 CrashE2ETriggerObjCObjectException(void)
 {
     @throw [[CrashE2EThrownObject alloc] init];
+}
+
+__attribute__((noinline, disable_tail_calls)) static void
+CrashE2EThrowCaughtCPPException(void)
+{
+    throw std::runtime_error("CrashE2ECaughtCPPException");
+}
+
+extern "C" __attribute__((noinline, disable_tail_calls)) void
+CrashE2ETriggerObjCObjectAfterCaughtCPPException(void)
+{
+    try {
+        CrashE2EThrowCaughtCPPException();
+    } catch (const std::runtime_error &) {
+        // Intentionally handled so its captured throw-site cursor becomes stale state that the
+        // later fatal Objective-C object throw must replace.
+    }
+
+    @
+    throw [[CrashE2EThrownObject alloc] init];
 }
