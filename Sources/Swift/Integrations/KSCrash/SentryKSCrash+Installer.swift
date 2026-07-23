@@ -2,6 +2,7 @@
 // swiftlint:disable:next no_implementation_only_import
 @_implementationOnly import KSCrashInstallations
 internal import _SentryPrivate
+import Foundation
 
 extension SentryKSCrash {
     protocol Installing {
@@ -18,6 +19,9 @@ extension SentryKSCrash {
 
         /// Whether the previous run crashed.
         var crashedLastLaunch: Bool { get }
+
+        /// Total active time elapsed since the previous crash.
+        var activeDurationSinceLastCrash: TimeInterval { get }
     }
 
     /// Configures and installs a crash handler
@@ -57,6 +61,7 @@ extension SentryKSCrash {
         }
 
         var crashedLastLaunch: Bool { KSCrash.shared.crashedLastLaunch }
+        var activeDurationSinceLastCrash: TimeInterval { KSCrash.shared.activeDurationSinceLastCrash }
     }
 }
 #endif
