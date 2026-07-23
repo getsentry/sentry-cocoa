@@ -31,8 +31,8 @@ final class SentrySpotlightTransportTests: XCTestCase {
         if spotlightUrl != nil {
             options.spotlightUrl = spotlightUrl ?? ""
         }
-        
-        return SentrySpotlightTransport(options: options, requestManager: requestManager, requestBuilder: requestBuilder, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
+
+        return SentrySpotlightTransport(options: options, requestManager: requestManager, requestBuilder: requestBuilder)
     }
     
     private func givenEventEnvelope(withAttachment: Bool = false) throws -> SentryEnvelope {

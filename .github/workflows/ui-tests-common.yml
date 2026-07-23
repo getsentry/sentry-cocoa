@@ -80,7 +80,6 @@ jobs:
       - name: Install Ruby (Bitrise)
         if: inputs.runner_provider == 'bitrise'
         env:
-          HOMEBREW_NO_AUTO_UPDATE: "1"
           CACHE_HIT: ${{ steps.cache-ruby.outputs.cache-hit }}
         run: |
           # Only touch Homebrew / build Ruby when the cache missed.
@@ -132,13 +131,8 @@ jobs:
           OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
         run: ./scripts/ci-boot-simulator.sh --xcode "$XCODE_VERSION" --device "$DEVICE_NAME" --os-version "$OS_VERSION"
 
-      - name: Cache or Update Homebrew
-        uses: ./.github/actions/cache-homebrew
-        if: ${{ inputs.build_with_make }}
       - run: make init-ci-build
         if: ${{ inputs.build_with_make }}
-        env:
-          HOMEBREW_NO_AUTO_UPDATE: 1
 
       - run: make xcode-ci
         if: ${{ inputs.build_with_make }}

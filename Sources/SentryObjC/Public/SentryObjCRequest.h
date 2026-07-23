@@ -10,8 +10,13 @@ NS_ASSUME_NONNULL_BEGIN
 /// Optional: HTTP response body size.
 @property (nonatomic, copy, nullable) NSNumber *bodySize;
 
+#if SDK_V10
+/// Optional: Parsed cookie values.
+@property (nonatomic, copy, nullable) NSDictionary<NSString *, NSString *> *cookies;
+#else
 /// Optional: The cookie values.
 @property (nonatomic, copy, nullable) NSString *cookies;
+#endif // SDK_V10
 
 /// Optional: A dictionary of submitted headers.
 @property (nonatomic, strong, nullable) NSDictionary<NSString *, NSString *> *headers;
