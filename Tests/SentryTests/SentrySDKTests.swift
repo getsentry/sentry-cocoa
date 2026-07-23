@@ -233,7 +233,7 @@ class SentrySDKTests: XCTestCase {
     #if !SDK_V10
     @available(*, deprecated, message: "Testing deprecated crashedLastRun API")
     func testCrashedLastRun() {
-        XCTAssertEqual(SentryDependencyContainer.sharedInstance().crashReporter.crashedLastLaunch, SentrySDK.crashedLastRun)
+        XCTAssertEqual(SentrySDKInternal.crashHandlerDetectedCrash, SentrySDK.crashedLastRun)
     }
     #endif
 
@@ -264,17 +264,8 @@ class SentrySDKTests: XCTestCase {
 
     func testLastRunStatus_whenCrashStateLoadedAndCrashed_shouldReturnDidCrash() {
         // -- Arrange --
-        #if ENABLE_KSCRASH
-        let installer = MockKSCrashInstaller()
-        installer.crashedLastLaunch = true
-        let dependencies = MockKSCrashDependencies(installer: installer)
-        _ = SentryKSCrash.Integration(with: .init(), dependencies: dependencies)
-        #else
         SentrySDKInternal.crashReporterInstalled = true
-        let crashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
-        crashWrapper.internalCrashedLastLaunch = true
-        SentryDependencyContainer.sharedInstance().crashWrapper = crashWrapper
-        #endif
+        SentrySDKInternal.crashHandlerDetectedCrash = true
 
         // -- Act --
         let status = SentrySDK.lastRunStatus

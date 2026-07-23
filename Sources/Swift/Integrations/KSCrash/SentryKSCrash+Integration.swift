@@ -52,6 +52,7 @@ extension SentryKSCrash {
             SentrySDKInternal.crashReporterInstalled = true
             if dependencies.kscrashInstaller.crashedLastLaunch {
                 SentrySDKInternal.fatalDetected = true
+                SentrySDKInternal.crashHandlerDetectedCrash = true
             }
         }
 
