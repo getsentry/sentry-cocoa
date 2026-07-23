@@ -251,7 +251,7 @@ import Cocoa
     
     @_spi(Private)
     public static func extractData(from view: UIView, includeAccessibilityIdentifier: Bool) -> [String: Any] {
-        var result: [String: Any] = ["view": getUIViewDescription(view)]
+        var result: [String: Any] = ["view": SwiftDescriptor.getSanitizedViewDescription(view)]
 
         if view.tag > 0 {
             result["tag"] = view.tag
@@ -272,20 +272,6 @@ import Cocoa
         return result
     }
 
-    // We build the description ourselves instead of using `String(describing:)`, because the default
-    // `UIView` description embeds `frame = (x y; w h)`. Those coordinates can leak which key a user
-    // tapped in custom PIN/passcode views, so we never include the frame.
-    @_spi(Private)
-    public static func getUIViewDescription(_ view: UIView) -> String {
-        let className = SwiftDescriptor.getObjectClassName(view)
-        let pointer = Unmanaged.passUnretained(view).toOpaque()
-        var attributes: [String] = ["opaque = \(view.isOpaque)"]
-        if view.isHidden {
-            attributes.append("hidden = true")
-        }
-        return "<\(className): \(pointer); \(attributes.joined(separator: "; "))>"
-    }
-    
     private static func fetchInfo(about controller: UIViewController) -> [String: Any] {
         var info: [String: Any] = [:]
         
@@ -308,7 +294,7 @@ import Cocoa
         }
         
         if let window = controller.view?.window {
-            info["window"] = getUIViewDescription(window)
+            info["window"] = SwiftDescriptor.getSanitizedViewDescription(window)
             info["window_isKeyWindow"] = window.isKeyWindow ? "true" : "false"
             info["window_windowLevel"] = String(describing: window.windowLevel.rawValue)
             info["is_window_rootViewController"] = (window.rootViewController == controller) ? "true" : "false"
