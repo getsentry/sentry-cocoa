@@ -175,6 +175,14 @@ class ExtraViewController: UIViewController {
         navigationController?.pushViewController(WebViewController(), animated: true)
     }
 
+    /// Opens the regression host screen for GH-8152. The gated view controller subclasses in
+    /// `SubClassFinderRegressionViewController.swift` guard the fix by merely being compiled into the
+    /// app; this button just makes the regression test reachable in the UI (and for UI tests).
+    @IBAction func showSubClassFinderRegression(_ sender: UIButton) {
+        highlightButton(sender)
+        navigationController?.pushViewController(SubClassFinderRegressionViewController(), animated: true)
+    }
+
     @IBAction func openSafariWebView(_ sender: UIButton) {
         guard let url = URL(string: "https://docs.sentry.io/platforms/apple/guides/ios/") else {
             fatalError("The hard-coded URL is invalid.")
