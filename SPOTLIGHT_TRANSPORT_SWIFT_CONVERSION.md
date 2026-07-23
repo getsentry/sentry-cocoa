@@ -7,17 +7,32 @@ ObjC protocols it depends on (`SentryRequestManager`, `SentryTransport`) — the
 first (`@_implementationOnly` ObjC types can't appear in a public Swift API). We chose **Option A**:
 convert those protocols first, in small sequential PRs to `main`, then convert the class last.
 
-**Progress so far (all merged/open against `main`):**
+**Progress so far (all merged to `main`):**
 
 - ✅ **A1 `SentryRequestManager` → Swift** — PR #8428, **merged** to `main`.
 - ✅ **A2a1 `SentryDiscardReason` → Swift** — PR #8444, **merged** to `main` as `bacd00766` (2026-07-16).
 - ✅ **A2a2 `SentryDataCategory` → Swift** — PR **#8451**, **merged** to `main` as `487d99372`
   (2026-07-20). All three enum/protocol prerequisites are now in `main`.
-- ✅ **A2 `SentryTransport` → Swift** — PR **#8443**, **re-landed with the real enum types**
-  (2026-07-21), pushed as merge commit `8f42b43ba`. Draft, green locally (iOS+macOS build, analyze,
-  299 transport/consumer tests), digest additive (`SentryFlushResult`). **Awaiting review/merge.**
-- ⛔ **A3 `SentrySpotlightTransport` class → Swift** — last step, now fully unblocked. **NEXT REAL
-  WORK** once A2 (#8443) merges.
+- ✅ **A2 `SentryTransport` → Swift** — PR **#8443**, **merged** to `main` (2026-07-21T09:50Z), with
+  the real enum types (`SentryDataCategory`/`SentryDiscardReason`), not `UInt`. All four
+  prerequisites (A1, A2a1, A2a2, A2) are now in `main`.
+- ⛔ **A3 `SentrySpotlightTransport` class → Swift** — last step, now fully unblocked. **NEXT AND
+  ONLY REMAINING WORK.**
+
+**2026-07-23: tracker branch merged with `main`.** Merged `origin/main` into
+`ref/convert-spotlight-transport-to-swift` (merge commit `05d67ba50`). One conflict, exactly as
+predicted below: `Sources/Swift/Networking/SentryTransport.swift` was add/add (this branch's stale
+pre-enum WIP vs. the real merged A2 file) — resolved by taking `origin/main`'s version verbatim
+(discarding the stale WIP, as intended). Build then failed on merge fallout: `SentrySpotlightTransport.m`
+still declared `recordLostEvent` with `NSUInteger` params, but the merged `Transport` protocol now
+requires the real enum types — same fix `SentryHttpTransport.m` already got in A2. Applied the
+one-line-per-method fix (`NSUInteger` → `SentryDataCategory`/`SentryDiscardReason`) so the merge
+itself builds; this is **not** A3 (the class is still ObjC). Verified: `make build-ios` ✅, 84
+tests (Spotlight + Http + Factory) ✅. **Not yet committed separately — pending user confirmation**
+(this fix will likely be folded into the merge commit or a small follow-up commit; see chat).
+Nothing pushed. **A3 itself (the actual class-to-Swift conversion) has not been started** — confirmed
+`Sources/Sentry/SentrySpotlightTransport.{h,m}` is still ObjC and `SentrySpotlightTransportTests.swift`
+still passes `dispatchQueueWrapper:`. Next: follow the "RESUME HERE — A3" steps below.
 
 **🔁 WHY THE ENUM DETOUR (context).** The user requires the ObjC transport conformers to use the **real
 enum types** (`SentryDataCategory` / `SentryDiscardReason`), not `NSUInteger`. Verified empirically that
@@ -25,17 +40,16 @@ is impossible while the `Transport` protocol requirement is typed `UInt`: an Obj
 enum-typed `recordLostEvent` fails `-Wmismatched-parameter-types -Werror`. So both enums had to become
 Swift first (now done) — then the protocol + conformers can use the real types.
 
-**Where everything lives (all pushed to `origin`, nothing local-only):**
+**Where everything lives:**
 
-- `ref/convert-spotlight-transport-to-swift` ← **THIS branch = the tracker.** Only the plan doc matters
-  here. It also carries a **stale, pre-enum A2 WIP snapshot** (deletes `SentryTransport.h`, edits
-  `TestTransport.swift`) that is **superseded by the real PRs — do NOT merge this branch into `main` or
-  cherry-pick its code**. Intentionally NOT kept in sync with `main` (merging conflicts with the stale
-  WIP); treat it as a read-only planning reference. The authoritative code is in the per-phase PR branches.
-- `main` ← base for every PR. **Contains A1 + A2a1 + A2a2** (`SentryRequestManager`,
-  `SentryDiscardReason`, `SentryDataCategory`). All enum/protocol prerequisites are in.
-- `ref/convert-transport-protocol-to-swift` ← **A2, PR #8443**, stale (uses `UInt`, 10 commits behind
-  `main`). Rebase + retype next.
+- `ref/convert-spotlight-transport-to-swift` ← **THIS branch = the tracker.** As of 2026-07-23 it is
+  **merged with `main`** (merge `05d67ba50`) — the stale pre-enum A2 WIP was discarded during that
+  merge (see the resolution note above). The plan doc plus the small merge-fallout fix to
+  `SentrySpotlightTransport.m` are the only local, unpushed changes. A3 itself has not started.
+- `main` ← base for every PR. **Contains A1 + A2a1 + A2a2 + A2** (`SentryRequestManager`,
+  `SentryDiscardReason`, `SentryDataCategory`, `SentryTransport`/`SentryFlushResult` — all with real
+  enum types). All prerequisites are in. A3 is the only remaining phase.
+- `ref/convert-transport-protocol-to-swift` ← **A2, PR #8443 — MERGED.** Branch can be deleted.
 - `ref/convert-data-category-to-swift` ← **A2a2, PR #8451 — MERGED** (`487d99372`). Branch can be deleted.
 
 **✅ A2 DONE (2026-07-21) — how it was re-landed:** Instead of rebasing the stale `UInt` commit, the PR
@@ -59,18 +73,18 @@ into the stale branch** whose merged tree was forced to exactly the verified cle
 
 Backup of the clean pre-merge commit: local branch `backup/a2-real-enums` (`75c658c38`).
 
-**➡️ RESUME HERE — A3 (`SentrySpotlightTransport.{h,m}` → Swift class), after A2 (#8443) merges:**
+**➡️ RESUME HERE — A3 (`SentrySpotlightTransport.{h,m}` → Swift class) — the only remaining phase:**
 
-1. `git checkout main && git pull` (must contain the merged A2).
-2. Cut a clean code-only branch from `main`. Add `Sources/Swift/Networking/SentrySpotlightTransport.swift`
-   as `@_spi(Private) @objc(SentrySpotlightTransport) public final class … : NSObject, Transport` — the
+1. Cut a clean code-only branch from `main` (which now contains A1/A2a1/A2a2/A2 — verified
+   2026-07-23). Add `Sources/Swift/Networking/SentrySpotlightTransport.swift` as
+   `@_spi(Private) @objc(SentrySpotlightTransport) public final class … : NSObject, Transport` — the
    WIP in "Phase A3" below, upgraded from `internal` to `public` (Transport/RequestManager are Swift now).
    **Drop `dispatchQueueWrapper`** (stored but unused).
-3. Remove ObjC `SentrySpotlightTransport.{h,m}`; pbxproj drop; rewire `SentryTransportFactory.m` (drop the
+2. Remove ObjC `SentrySpotlightTransport.{h,m}`; pbxproj drop; rewire `SentryTransportFactory.m` (drop the
    `#import` + the `dispatchQueueWrapper:` arg).
-4. `SentrySpotlightTransportTests.swift`: drop the `dispatchQueueWrapper:` arg (givenSut already returns
+3. `SentrySpotlightTransportTests.swift`: drop the `dispatchQueueWrapper:` arg (givenSut already returns
    `Transport`).
-5. Verify: `make format` + `make analyze` + `make build-ios` + `make build-macos` + spotlight tests;
+4. Verify: `make format` + `make analyze` + `make build-ios` + `make build-macos` + spotlight tests;
    `make generate-public-api` (the `@objc` class is NOT in the digest, but regen to be safe).
 
 **Environment quirks (IMPORTANT):**
@@ -119,9 +133,8 @@ the renames in A2a1/A2a2). Keep in back pocket if rename churn ever becomes a pr
 Phase A1 (`SentryRequestManager`) ✅ **merged** (#8428).
 Phase A2a1 (`SentryDiscardReason`) ✅ **merged** (#8444, `bacd00766`).
 Phase A2a2 (`SentryDataCategory`) ✅ **merged** (#8451, `487d99372`, 2026-07-20).
-Phase A2 (`SentryTransport`) ✅ **re-landed with real enums** on **PR #8443** (merge `8f42b43ba`,
-2026-07-21) — draft, green locally, awaiting review/merge.
-Phase A3 (`SentrySpotlightTransport`) ⛔ last — **next work** once A2 merges.
+Phase A2 (`SentryTransport`) ✅ **merged** (#8443, real enum types, 2026-07-21T09:50Z).
+Phase A3 (`SentrySpotlightTransport`) ⛔ last — **the only remaining work.**
 See "PR tracking" and "✅ Chosen approach" below.
 
 ### 🔁 Plan revision (2026-07-16, user request)
@@ -148,13 +161,13 @@ phases share files (headers + pbxproj). This branch (`ref/convert-spotlight-tran
 the **plan/WIP tracker only** — its commits are NOT the PRs. Each PR is a clean branch cut from
 `main` containing only that phase's code (no plan doc).
 
-| Phase                                              | PR branch                                 | PR                                                           | Status                                                                                                   |
-| -------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
-| A1 `SentryRequestManager` → Swift                  | `ref/convert-request-manager-to-swift`    | [#8428](https://github.com/getsentry/sentry-cocoa/pull/8428) | ✅ **merged**                                                                                            |
-| A2a1 `SentryDiscardReason` → Swift                 | `ref/convert-discard-reason-to-swift`     | [#8444](https://github.com/getsentry/sentry-cocoa/pull/8444) | ✅ **merged** (`bacd00766`)                                                                              |
-| A2a2 `SentryDataCategory` → Swift                  | `ref/convert-data-category-to-swift`      | [#8451](https://github.com/getsentry/sentry-cocoa/pull/8451) | ✅ **merged** (`487d99372`, 2026-07-20)                                                                  |
-| A2 `SentryTransport` + `SentryFlushResult` → Swift | `ref/convert-transport-protocol-to-swift` | [#8443](https://github.com/getsentry/sentry-cocoa/pull/8443) | ✅ **re-landed with real enums** (merge `8f42b43ba`, 2026-07-21); draft, green locally — awaiting review |
-| A3 `SentrySpotlightTransport` → Swift              | _tbd_                                     | —                                                            | ⛔ last — **next**, now unblocked                                                                        |
+| Phase                                              | PR branch                                 | PR                                                           | Status                                             |
+| -------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------ | -------------------------------------------------- |
+| A1 `SentryRequestManager` → Swift                  | `ref/convert-request-manager-to-swift`    | [#8428](https://github.com/getsentry/sentry-cocoa/pull/8428) | ✅ **merged**                                      |
+| A2a1 `SentryDiscardReason` → Swift                 | `ref/convert-discard-reason-to-swift`     | [#8444](https://github.com/getsentry/sentry-cocoa/pull/8444) | ✅ **merged** (`bacd00766`)                        |
+| A2a2 `SentryDataCategory` → Swift                  | `ref/convert-data-category-to-swift`      | [#8451](https://github.com/getsentry/sentry-cocoa/pull/8451) | ✅ **merged** (`487d99372`, 2026-07-20)            |
+| A2 `SentryTransport` + `SentryFlushResult` → Swift | `ref/convert-transport-protocol-to-swift` | [#8443](https://github.com/getsentry/sentry-cocoa/pull/8443) | ✅ **merged** (real enum types, 2026-07-21T09:50Z) |
+| A3 `SentrySpotlightTransport` → Swift              | _tbd_                                     | —                                                            | ⛔ last — **the only remaining work**              |
 
 **Workflow per phase:** cut `<branch>` from latest `main` → cherry-pick/apply that phase's code
 (drop the plan doc) → `make build-ios` + targeted tests → push → `gh pr create --draft`. After a PR
@@ -680,3 +693,20 @@ make generate-public-api   # only if public API surface changed; commit sdk_api.
   clean tree (merge `8f42b43ba`), pushed fast-forward. PR #8443 `MERGEABLE`, still draft. **Next: A3 once #8443
   merges.** Note `check-versions` pre-commit hook fails locally on an unrelated `xcodegen` 2.45.4-vs-2.46.0
   drift — skipped via `SKIP=check-versions`; the real format/lint hooks all passed.
+- 2026-07-23: **Confirmed A2 (#8443) merged** to `main` (2026-07-21T09:50:46Z) — verified via
+  `gh pr view 8443`. All four prerequisites (A1, A2a1, A2a2, A2) are in `main`. **Merged `origin/main`
+  into this tracker branch** (merge `05d67ba50`, no force-push, plain `git merge`). Exactly one
+  conflict, exactly as this doc predicted: `Sources/Swift/Networking/SentryTransport.swift` (add/add —
+  this branch's stale pre-enum WIP vs. the real A2 file merged into `main`); resolved by taking
+  `origin/main`'s version verbatim, discarding the stale WIP. 151 other files changed cleanly
+  (auto-merged or unrelated additions from `main`'s forward progress — Synchronized helper,
+  AssociatedObjectAccessor, view-hierarchy refactor, etc. — none touch spotlight/transport code).
+  Post-merge `make build-ios` failed on **expected fallout**: `SentrySpotlightTransport.m`'s
+  `recordLostEvent` was still `NSUInteger`-typed, but the merged `Transport` protocol now requires the
+  real enum types (`SentryDataCategory`/`SentryDiscardReason`) — the exact same fix A2 already applied
+  to `SentryHttpTransport.m`. Applied the matching one-line-per-method retype. This is merge-conflict
+  resolution, **not** A3 — the class is still ObjC (`SentrySpotlightTransport.{h,m}` unchanged in
+  shape) and its test still passes `dispatchQueueWrapper:`. Verified: `make build-ios` ✅, 84 tests
+  (`SentrySpotlightTransportTests` + `SentryHttpTransportTests` + `SentryTransportFactoryTests`) ✅.
+  **Nothing pushed yet — paused for user confirmation before committing/pushing.** A3 (the actual
+  class conversion) is now the only remaining phase; see "RESUME HERE — A3" above.
