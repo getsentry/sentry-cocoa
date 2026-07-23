@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Prevent a Session Replay crash (`NSInvalidArgumentException` / `-[NSConcreteValue doubleValue]`) when Core Animation raises while redacting the view hierarchy, e.g. during React Navigation transitions or video fullscreen presentation (#8537)
+
 ## 9.23.0
 
 ### Features
