@@ -1,19 +1,39 @@
 @testable import Sentry
 import Foundation
+import SentryTestUtils
 import XCTest
 
 final class SentryTypedSwizzleTests: XCTestCase {
 
-    func testValidate_whenNoArgumentVoidMethodMatches_shouldReturnTrue() {
+    func testKey_whenCopied_shouldPreserveIdentity() {
         // -- Arrange --
-        let method: SentrySwizzleMethod<TypedSwizzleTestTarget, Void, Void> = .noArgumentVoid(TypedSwizzleTestTarget.self)
+        let key = SentryTypedSwizzle.Key()
 
         // -- Act --
-        let result = SentryTypedSwizzle.validate(
+        let copy = key
+
+        // -- Assert --
+        XCTAssertEqual(key.pointer, copy.pointer)
+    }
+
+    func testKey_whenInitializedSeparately_shouldHaveDistinctIdentity() {
+        // -- Arrange --
+        let first = SentryTypedSwizzle.Key()
+        let second = SentryTypedSwizzle.Key()
+
+        // -- Assert --
+        XCTAssertNotEqual(first.pointer, second.pointer)
+    }
+
+    func testValidate_whenNoArgumentVoidMethodMatches_shouldReturnTrue() {
+        // -- Arrange --
+        let method: SentrySwizzleMethod<TypedSwizzleTestTarget, Void, Void> = .noArgumentVoid(
             #selector(TypedSwizzleTestTarget.noArguments),
-            in: TypedSwizzleTestTarget.self,
-            method: method
+            receiver: TypedSwizzleTestTarget.self
         )
+
+        // -- Act --
+        let result = SentryTypedSwizzle.validate(in: TypedSwizzleTestTarget.self, method: method)
 
         // -- Assert --
         XCTAssertTrue(result)
@@ -21,14 +41,13 @@ final class SentryTypedSwizzleTests: XCTestCase {
 
     func testValidate_whenSelectorIsMissing_shouldReturnFalse() {
         // -- Arrange --
-        let method: SentrySwizzleMethod<TypedSwizzleTestTarget, Void, Void> = .noArgumentVoid(TypedSwizzleTestTarget.self)
+        let method: SentrySwizzleMethod<TypedSwizzleTestTarget, Void, Void> = .noArgumentVoid(
+            NSSelectorFromString("missingMethod"),
+            receiver: TypedSwizzleTestTarget.self
+        )
 
         // -- Act --
-        let result = SentryTypedSwizzle.validate(
-            NSSelectorFromString("missingMethod"),
-            in: TypedSwizzleTestTarget.self,
-            method: method
-        )
+        let result = SentryTypedSwizzle.validate(in: TypedSwizzleTestTarget.self, method: method)
 
         // -- Assert --
         XCTAssertFalse(result)
@@ -36,14 +55,13 @@ final class SentryTypedSwizzleTests: XCTestCase {
 
     func testValidate_whenArgumentCountDoesNotMatch_shouldReturnFalse() {
         // -- Arrange --
-        let method: SentrySwizzleMethod<TypedSwizzleTestTarget, Void, Void> = .noArgumentVoid(TypedSwizzleTestTarget.self)
+        let method: SentrySwizzleMethod<TypedSwizzleTestTarget, Void, Void> = .noArgumentVoid(
+            #selector(TypedSwizzleTestTarget.objectArgument(_:)),
+            receiver: TypedSwizzleTestTarget.self
+        )
 
         // -- Act --
-        let result = SentryTypedSwizzle.validate(
-            #selector(TypedSwizzleTestTarget.objectArgument(_:)),
-            in: TypedSwizzleTestTarget.self,
-            method: method
-        )
+        let result = SentryTypedSwizzle.validate(in: TypedSwizzleTestTarget.self, method: method)
 
         // -- Assert --
         XCTAssertFalse(result)
@@ -51,62 +69,77 @@ final class SentryTypedSwizzleTests: XCTestCase {
 
     func testValidate_whenReturnTypeDoesNotMatch_shouldReturnFalse() {
         // -- Arrange --
-        let method: SentrySwizzleMethod<TypedSwizzleTestTarget, Void, Void> = .noArgumentVoid(TypedSwizzleTestTarget.self)
+        let method: SentrySwizzleMethod<TypedSwizzleTestTarget, Void, Void> = .noArgumentVoid(
+            #selector(TypedSwizzleTestTarget.returnsObject),
+            receiver: TypedSwizzleTestTarget.self
+        )
 
         // -- Act --
-        let result = SentryTypedSwizzle.validate(
-            #selector(TypedSwizzleTestTarget.returnsObject),
-            in: TypedSwizzleTestTarget.self,
-            method: method
-        )
+        let result = SentryTypedSwizzle.validate(in: TypedSwizzleTestTarget.self, method: method)
 
         // -- Assert --
         XCTAssertFalse(result)
     }
 
     func testValidate_whenTaskStateScalarDoesNotMatch_shouldReturnFalse() {
-        // -- Act --
-        let result = SentryTypedSwizzle.validate(
-            #selector(TypedSwizzleTestTarget.boolArgument(_:)),
-            in: TypedSwizzleTestTarget.self,
-            method: .urlSessionTaskState(TypedSwizzleTestTarget.self)
+        // -- Arrange --
+        let method = SentrySwizzleMethod<TypedSwizzleTestTarget, URLSessionTask.State, Void>(
+            selector: #selector(TypedSwizzleTestTarget.boolArgument(_:)),
+            receiver: TypedSwizzleTestTarget.self,
+            signature: .init(
+                returnType: .void,
+                arguments: [.object, .selector, .signedInteger(MemoryLayout<Int>.size)]
+            )
         )
+
+        // -- Act --
+        let result = SentryTypedSwizzle.validate(in: TypedSwizzleTestTarget.self, method: method)
 
         // -- Assert --
         XCTAssertFalse(result)
     }
 
     func testValidate_whenRequestCompletionBlockPositionDoesNotMatch_shouldReturnFalse() {
-        // -- Act --
-        let result = SentryTypedSwizzle.validate(
-            #selector(TypedSwizzleTestTarget.twoObjectArguments(_:second:)),
-            in: TypedSwizzleTestTarget.self,
-            method: .urlSessionDataTaskWithRequest(TypedSwizzleTestTarget.self)
+        // -- Arrange --
+        let method = SentrySwizzleMethod<TypedSwizzleTestTarget, SentryDataTaskRequestArguments, URLSessionDataTask>(
+            selector: #selector(TypedSwizzleTestTarget.twoObjectArguments(_:second:)),
+            receiver: TypedSwizzleTestTarget.self,
+            signature: .init(
+                returnType: .object,
+                arguments: [.object, .selector, .object, .block]
+            )
         )
+
+        // -- Act --
+        let result = SentryTypedSwizzle.validate(in: TypedSwizzleTestTarget.self, method: method)
 
         // -- Assert --
         XCTAssertFalse(result)
     }
 
     func testValidate_whenReceiverTypeDoesNotMatchClass_shouldReturnFalse() {
-        // -- Act --
-        let result = SentryTypedSwizzle.validate(
+        // -- Arrange --
+        let method = SentrySwizzleMethod<TypedSwizzleTestTarget, Void, Void>.noArgumentVoid(
             #selector(TypedSwizzleNoArgumentTarget.invoke),
-            in: TypedSwizzleNoArgumentTarget.self,
-            method: .noArgumentVoid(TypedSwizzleTestTarget.self)
+            receiver: TypedSwizzleTestTarget.self
         )
+
+        // -- Act --
+        let result = SentryTypedSwizzle.validate(in: TypedSwizzleNoArgumentTarget.self, method: method)
 
         // -- Assert --
         XCTAssertFalse(result)
     }
 
     func testValidationFailure_whenReturnTypeDoesNotMatch_shouldDescribeExpectedAndActualSignatures() throws {
-        // -- Act --
-        let failure = SentryTypedSwizzle.validationFailure(
+        // -- Arrange --
+        let method = SentrySwizzleMethod<TypedSwizzleTestTarget, Void, Void>.noArgumentVoid(
             #selector(TypedSwizzleTestTarget.returnsObject),
-            in: TypedSwizzleTestTarget.self,
-            method: SentrySwizzleMethod<TypedSwizzleTestTarget, Void, Void>.noArgumentVoid(TypedSwizzleTestTarget.self)
+            receiver: TypedSwizzleTestTarget.self
         )
+
+        // -- Act --
+        let failure = SentryTypedSwizzle.validationFailure(in: TypedSwizzleTestTarget.self, method: method)
 
         // -- Assert --
         let unwrappedFailure = try XCTUnwrap(failure)
@@ -116,15 +149,14 @@ final class SentryTypedSwizzleTests: XCTestCase {
 
     func testInstanceMethod_whenNoArgumentVoidMethod_shouldCallInterceptorAndOriginal() {
         // -- Arrange --
-        let key = SentrySwizzleKey()
+        let key = SentryTypedSwizzle.Key()
         let target = TypedSwizzleNoArgumentTarget()
         var interceptedTarget: TypedSwizzleNoArgumentTarget?
 
         // -- Act --
         let installed = SentryTypedSwizzle.instanceMethod(
-            #selector(TypedSwizzleNoArgumentTarget.invoke),
             in: TypedSwizzleNoArgumentTarget.self,
-            method: .noArgumentVoid(TypedSwizzleNoArgumentTarget.self),
+            method: .noArgumentVoid(#selector(TypedSwizzleNoArgumentTarget.invoke), receiver: TypedSwizzleNoArgumentTarget.self),
             mode: .always,
             key: key
         ) { receiver, original in
@@ -141,14 +173,13 @@ final class SentryTypedSwizzleTests: XCTestCase {
 
     func testInstanceMethod_whenOriginalIsInherited_shouldCallSuperclassImplementation() {
         // -- Arrange --
-        let key = SentrySwizzleKey()
+        let key = SentryTypedSwizzle.Key()
         let target = TypedSwizzleInheritedTarget()
 
         // -- Act --
         let installed = SentryTypedSwizzle.instanceMethod(
-            #selector(TypedSwizzleInheritedBase.invoke),
             in: TypedSwizzleInheritedTarget.self,
-            method: .noArgumentVoid(TypedSwizzleInheritedTarget.self),
+            method: .noArgumentVoid(#selector(TypedSwizzleInheritedBase.invoke), receiver: TypedSwizzleInheritedTarget.self),
             mode: .always,
             key: key
         ) { _, original in
@@ -163,12 +194,11 @@ final class SentryTypedSwizzleTests: XCTestCase {
 
     func testInstanceMethod_whenTaskStateMethod_shouldReplaceArgument() {
         // -- Arrange --
-        let key = SentrySwizzleKey()
+        let key = SentryTypedSwizzle.Key()
         let target = TypedSwizzleTaskStateTarget()
 
         // -- Act --
         let installed = SentryTypedSwizzle.instanceMethod(
-            #selector(TypedSwizzleTaskStateTarget.setState(_:)),
             in: TypedSwizzleTaskStateTarget.self,
             method: .urlSessionTaskState(TypedSwizzleTaskStateTarget.self),
             mode: .always,
@@ -186,17 +216,24 @@ final class SentryTypedSwizzleTests: XCTestCase {
 
     func testInstanceMethod_whenRequestDataTaskMethod_shouldWrapCompletionAndReturnOriginalResult() throws {
         // -- Arrange --
-        let key = SentrySwizzleKey()
+        let key = SentryTypedSwizzle.Key()
         let target = TypedSwizzleDataTaskTarget()
         let request = URLRequest(url: URL(string: "https://example.com/original")!)
         let replacementRequest = URLRequest(url: URL(string: "https://example.com/replacement")!)
         var completionData: Data?
+        let method = SentrySwizzleMethod<TypedSwizzleDataTaskTarget, SentryDataTaskRequestArguments, URLSessionDataTask>(
+            selector: #selector(TypedSwizzleDataTaskTarget.makeTaskWithRequest(_:completionHandler:)),
+            receiver: TypedSwizzleDataTaskTarget.self,
+            signature: .init(
+                returnType: .object,
+                arguments: [.object, .selector, .object, .block]
+            )
+        )
 
         // -- Act --
         let installed = SentryTypedSwizzle.instanceMethod(
-            #selector(TypedSwizzleDataTaskTarget.makeTaskWithRequest(_:completionHandler:)),
             in: TypedSwizzleDataTaskTarget.self,
-            method: .urlSessionDataTaskWithRequest(TypedSwizzleDataTaskTarget.self),
+            method: method,
             mode: .always,
             key: key
         ) { _, receivedRequest, completionHandler, original in
@@ -219,16 +256,23 @@ final class SentryTypedSwizzleTests: XCTestCase {
 
     func testInstanceMethod_whenURLDataTaskMethod_shouldReplaceURLAndReturnOriginalResult() {
         // -- Arrange --
-        let key = SentrySwizzleKey()
+        let key = SentryTypedSwizzle.Key()
         let target = TypedSwizzleDataTaskTarget()
         let url = URL(string: "https://example.com/original")!
         let replacementURL = URL(string: "https://example.com/replacement")!
+        let method = SentrySwizzleMethod<TypedSwizzleDataTaskTarget, SentryDataTaskURLArguments, URLSessionDataTask>(
+            selector: #selector(TypedSwizzleDataTaskTarget.makeTaskWithURL(_:completionHandler:)),
+            receiver: TypedSwizzleDataTaskTarget.self,
+            signature: .init(
+                returnType: .object,
+                arguments: [.object, .selector, .object, .block]
+            )
+        )
 
         // -- Act --
         let installed = SentryTypedSwizzle.instanceMethod(
-            #selector(TypedSwizzleDataTaskTarget.makeTaskWithURL(_:completionHandler:)),
             in: TypedSwizzleDataTaskTarget.self,
-            method: .urlSessionDataTaskWithURL(TypedSwizzleDataTaskTarget.self),
+            method: method,
             mode: .always,
             key: key
         ) { _, receivedURL, completionHandler, original in
@@ -243,49 +287,108 @@ final class SentryTypedSwizzleTests: XCTestCase {
         XCTAssertEqual(target.receivedURL, replacementURL)
     }
 
-    func testInstanceMethod_whenDifferentKeysAreUsed_shouldAllowBothInstallations() {
+    func testInstanceMethod_whenAlwaysIsRepeated_shouldChainInterceptorsAndCallOriginalOnce() {
         // -- Arrange --
-        let firstKey = SentrySwizzleKey()
-        let secondKey = SentrySwizzleKey()
-        let method = SentrySwizzleMethod<TypedSwizzleDistinctKeyTarget, Void, Void>.noArgumentVoid(TypedSwizzleDistinctKeyTarget.self)
-        let interceptor: (TypedSwizzleDistinctKeyTarget, @escaping () -> Void) -> Void = { _, original in
-            original()
-        }
+        let target = TypedSwizzleAlwaysTarget()
+        let method = SentrySwizzleMethod<TypedSwizzleAlwaysTarget, Void, Void>.noArgumentVoid(
+            #selector(TypedSwizzleAlwaysTarget.invoke),
+            receiver: TypedSwizzleAlwaysTarget.self
+        )
+        let calls = Invocations<String>()
 
         // -- Act --
         let first = SentryTypedSwizzle.instanceMethod(
-            #selector(TypedSwizzleDistinctKeyTarget.invoke),
-            in: TypedSwizzleDistinctKeyTarget.self,
+            in: TypedSwizzleAlwaysTarget.self,
             method: method,
-            mode: .oncePerClass,
-            key: firstKey,
-            interceptor: interceptor
-        )
+            mode: .always,
+            key: SentryTypedSwizzle.Key()
+        ) { _, original in
+            calls.record("first-before")
+            original()
+            calls.record("first-after")
+        }
         let second = SentryTypedSwizzle.instanceMethod(
-            #selector(TypedSwizzleDistinctKeyTarget.invoke),
-            in: TypedSwizzleDistinctKeyTarget.self,
+            in: TypedSwizzleAlwaysTarget.self,
             method: method,
-            mode: .oncePerClass,
-            key: secondKey,
-            interceptor: interceptor
-        )
+            mode: .always,
+            key: SentryTypedSwizzle.Key()
+        ) { _, original in
+            calls.record("second-before")
+            original()
+            calls.record("second-after")
+        }
+        let third = SentryTypedSwizzle.instanceMethod(
+            in: TypedSwizzleAlwaysTarget.self,
+            method: method,
+            mode: .always,
+            key: SentryTypedSwizzle.Key()
+        ) { _, original in
+            calls.record("third-before")
+            original()
+            calls.record("third-after")
+        }
+        target.invoke()
 
         // -- Assert --
         XCTAssertTrue(first)
         XCTAssertTrue(second)
+        XCTAssertTrue(third)
+        XCTAssertEqual(
+            calls.invocations,
+            ["third-before", "second-before", "first-before", "first-after", "second-after", "third-after"]
+        )
+        XCTAssertEqual(target.originalCallCount, 1)
+    }
+
+    func testInstanceMethod_whenDifferentKeysAreUsed_shouldChainInterceptorsAndCallOriginalOnce() {
+        // -- Arrange --
+        let firstKey = SentryTypedSwizzle.Key()
+        let secondKey = SentryTypedSwizzle.Key()
+        let target = TypedSwizzleDistinctKeyTarget()
+        let method = SentrySwizzleMethod<TypedSwizzleDistinctKeyTarget, Void, Void>.noArgumentVoid(
+            #selector(TypedSwizzleDistinctKeyTarget.invoke),
+            receiver: TypedSwizzleDistinctKeyTarget.self
+        )
+        let calls = Invocations<String>()
+
+        // -- Act --
+        let first = SentryTypedSwizzle.instanceMethod(
+            in: TypedSwizzleDistinctKeyTarget.self,
+            method: method,
+            mode: .oncePerClass,
+            key: firstKey
+        ) { _, original in
+            calls.record("first")
+            original()
+        }
+        let second = SentryTypedSwizzle.instanceMethod(
+            in: TypedSwizzleDistinctKeyTarget.self,
+            method: method,
+            mode: .oncePerClass,
+            key: secondKey
+        ) { _, original in
+            calls.record("second")
+            original()
+        }
+        target.invoke()
+
+        // -- Assert --
+        XCTAssertTrue(first)
+        XCTAssertTrue(second)
+        XCTAssertEqual(calls.invocations, ["second", "first"])
+        XCTAssertEqual(target.originalCallCount, 1)
     }
 
     func testInstanceMethod_whenOncePerClassIsRepeated_shouldRejectSecondInstallation() {
         // -- Arrange --
-        let key = SentrySwizzleKey()
-        let method = SentrySwizzleMethod<TypedSwizzleOnceTarget, Void, Void>.noArgumentVoid(TypedSwizzleOnceTarget.self)
+        let key = SentryTypedSwizzle.Key()
+        let method = SentrySwizzleMethod<TypedSwizzleOnceTarget, Void, Void>.noArgumentVoid(#selector(TypedSwizzleOnceTarget.invoke), receiver: TypedSwizzleOnceTarget.self)
         let interceptor: (TypedSwizzleOnceTarget, @escaping () -> Void) -> Void = { _, original in
             original()
         }
 
         // -- Act --
         let first = SentryTypedSwizzle.instanceMethod(
-            #selector(TypedSwizzleOnceTarget.invoke),
             in: TypedSwizzleOnceTarget.self,
             method: method,
             mode: .oncePerClass,
@@ -293,7 +396,6 @@ final class SentryTypedSwizzleTests: XCTestCase {
             interceptor: interceptor
         )
         let second = SentryTypedSwizzle.instanceMethod(
-            #selector(TypedSwizzleOnceTarget.invoke),
             in: TypedSwizzleOnceTarget.self,
             method: method,
             mode: .oncePerClass,
@@ -306,24 +408,62 @@ final class SentryTypedSwizzleTests: XCTestCase {
         XCTAssertFalse(second)
     }
 
-    func testInstanceMethod_whenSuperclassWasSwizzled_shouldRejectSubclassInstallation() {
+    func testInstanceMethod_whenOncePerClassUsesSuperclassAndSubclass_shouldInstallAndChainBoth() {
         // -- Arrange --
-        let key = SentrySwizzleKey()
+        let key = SentryTypedSwizzle.Key()
+        let target = TypedSwizzleOncePerClassTarget()
+        let calls = Invocations<String>()
 
         // -- Act --
         let superclassInstalled = SentryTypedSwizzle.instanceMethod(
-            #selector(TypedSwizzleModeBase.invoke),
+            in: TypedSwizzleOncePerClassBase.self,
+            method: .noArgumentVoid(
+                #selector(TypedSwizzleOncePerClassBase.invoke),
+                receiver: TypedSwizzleOncePerClassBase.self
+            ),
+            mode: .oncePerClass,
+            key: key
+        ) { _, original in
+            calls.record("superclass")
+            original()
+        }
+        let subclassInstalled = SentryTypedSwizzle.instanceMethod(
+            in: TypedSwizzleOncePerClassTarget.self,
+            method: .noArgumentVoid(
+                #selector(TypedSwizzleOncePerClassBase.invoke),
+                receiver: TypedSwizzleOncePerClassTarget.self
+            ),
+            mode: .oncePerClass,
+            key: key
+        ) { _, original in
+            calls.record("subclass")
+            original()
+        }
+        target.invoke()
+
+        // -- Assert --
+        XCTAssertTrue(superclassInstalled)
+        XCTAssertTrue(subclassInstalled)
+        XCTAssertEqual(calls.invocations, ["subclass", "superclass"])
+        XCTAssertEqual(target.originalCallCount, 1)
+    }
+
+    func testInstanceMethod_whenSuperclassWasSwizzled_shouldRejectSubclassInstallation() {
+        // -- Arrange --
+        let key = SentryTypedSwizzle.Key()
+
+        // -- Act --
+        let superclassInstalled = SentryTypedSwizzle.instanceMethod(
             in: TypedSwizzleModeBase.self,
-            method: .noArgumentVoid(TypedSwizzleModeBase.self),
+            method: .noArgumentVoid(#selector(TypedSwizzleModeBase.invoke), receiver: TypedSwizzleModeBase.self),
             mode: .oncePerClassAndSuperclasses,
             key: key
         ) { _, original in
             original()
         }
         let subclassInstalled = SentryTypedSwizzle.instanceMethod(
-            #selector(TypedSwizzleModeBase.invoke),
             in: TypedSwizzleModeTarget.self,
-            method: .noArgumentVoid(TypedSwizzleModeTarget.self),
+            method: .noArgumentVoid(#selector(TypedSwizzleModeBase.invoke), receiver: TypedSwizzleModeTarget.self),
             mode: .oncePerClassAndSuperclasses,
             key: key
         ) { _, original in
@@ -333,6 +473,79 @@ final class SentryTypedSwizzleTests: XCTestCase {
         // -- Assert --
         XCTAssertTrue(superclassInstalled)
         XCTAssertFalse(subclassInstalled)
+    }
+
+    func testInstanceMethod_whenSubclassWasSwizzledFirst_shouldAllowSuperclassInstallation() {
+        // -- Arrange --
+        let key = SentryTypedSwizzle.Key()
+        let target = TypedSwizzleSubclassFirstTarget()
+        let calls = Invocations<String>()
+
+        // -- Act --
+        let subclassInstalled = SentryTypedSwizzle.instanceMethod(
+            in: TypedSwizzleSubclassFirstTarget.self,
+            method: .noArgumentVoid(
+                #selector(TypedSwizzleSubclassFirstBase.invoke),
+                receiver: TypedSwizzleSubclassFirstTarget.self
+            ),
+            mode: .oncePerClassAndSuperclasses,
+            key: key
+        ) { _, original in
+            calls.record("subclass")
+            original()
+        }
+        let superclassInstalled = SentryTypedSwizzle.instanceMethod(
+            in: TypedSwizzleSubclassFirstBase.self,
+            method: .noArgumentVoid(
+                #selector(TypedSwizzleSubclassFirstBase.invoke),
+                receiver: TypedSwizzleSubclassFirstBase.self
+            ),
+            mode: .oncePerClassAndSuperclasses,
+            key: key
+        ) { _, original in
+            calls.record("superclass")
+            original()
+        }
+        target.invoke()
+
+        // -- Assert --
+        XCTAssertTrue(subclassInstalled)
+        XCTAssertTrue(superclassInstalled)
+        XCTAssertEqual(calls.invocations, ["subclass", "superclass"])
+        XCTAssertEqual(target.originalCallCount, 1)
+    }
+
+    func testInstanceMethod_whenInstalledConcurrentlyOncePerClass_shouldInstallExactlyOnce() {
+        // -- Arrange --
+        let key = SentryTypedSwizzle.Key()
+        let target = TypedSwizzleConcurrentTarget()
+        let method = SentrySwizzleMethod<TypedSwizzleConcurrentTarget, Void, Void>.noArgumentVoid(
+            #selector(TypedSwizzleConcurrentTarget.invoke),
+            receiver: TypedSwizzleConcurrentTarget.self
+        )
+        let results = SentryMutex<[Bool]>([])
+        let interceptorCallCount = SentryMutex(0)
+
+        // -- Act --
+        DispatchQueue.concurrentPerform(iterations: 20) { _ in
+            let installed = SentryTypedSwizzle.instanceMethod(
+                in: TypedSwizzleConcurrentTarget.self,
+                method: method,
+                mode: .oncePerClass,
+                key: key
+            ) { _, original in
+                interceptorCallCount.withLock { $0 += 1 }
+                original()
+            }
+            results.withLock { $0.append(installed) }
+        }
+        target.invoke()
+
+        // -- Assert --
+        XCTAssertEqual(results.withLock { $0.filter { $0 }.count }, 1)
+        XCTAssertEqual(results.withLock { $0.filter { !$0 }.count }, 19)
+        XCTAssertEqual(interceptorCallCount.withLock { $0 }, 1)
+        XCTAssertEqual(target.originalCallCount, 1)
     }
 }
 
@@ -370,19 +583,59 @@ private final class TypedSwizzleTaskStateTarget: NSObject {
     }
 }
 
+private final class TypedSwizzleAlwaysTarget: NSObject {
+    private(set) var originalCallCount = 0
+
+    @objc dynamic func invoke() {
+        originalCallCount += 1
+    }
+}
+
 private final class TypedSwizzleDistinctKeyTarget: NSObject {
-    @objc dynamic func invoke() {}
+    private(set) var originalCallCount = 0
+
+    @objc dynamic func invoke() {
+        originalCallCount += 1
+    }
 }
 
 private final class TypedSwizzleOnceTarget: NSObject {
     @objc dynamic func invoke() {}
 }
 
+private class TypedSwizzleOncePerClassBase: NSObject {
+    private(set) var originalCallCount = 0
+
+    @objc dynamic func invoke() {
+        originalCallCount += 1
+    }
+}
+
+private final class TypedSwizzleOncePerClassTarget: TypedSwizzleOncePerClassBase {}
+
 private class TypedSwizzleModeBase: NSObject {
     @objc dynamic func invoke() {}
 }
 
 private final class TypedSwizzleModeTarget: TypedSwizzleModeBase {}
+
+private class TypedSwizzleSubclassFirstBase: NSObject {
+    private(set) var originalCallCount = 0
+
+    @objc dynamic func invoke() {
+        originalCallCount += 1
+    }
+}
+
+private final class TypedSwizzleSubclassFirstTarget: TypedSwizzleSubclassFirstBase {}
+
+private final class TypedSwizzleConcurrentTarget: NSObject {
+    private(set) var originalCallCount = 0
+
+    @objc dynamic func invoke() {
+        originalCallCount += 1
+    }
+}
 
 private final class TypedSwizzleDataTaskTarget: NSObject {
     let task = URLSession.shared.dataTask(with: URL(string: "https://example.com")!)

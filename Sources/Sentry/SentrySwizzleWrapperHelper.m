@@ -1,5 +1,4 @@
 #import "SentrySwizzleWrapperHelper.h"
-#import "SentryNSURLSessionTaskSearch.h"
 #import "SentrySwizzle.h"
 
 #if SENTRY_HAS_UIKIT

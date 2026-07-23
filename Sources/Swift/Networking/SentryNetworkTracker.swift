@@ -14,9 +14,10 @@ protocol SentryNetworkTrackerProtocol {
     var isCaptureFailedRequestsEnabled: Bool { get }
     var isGraphQLOperationTrackingEnabled: Bool { get }
 
-    func swizzleURLSessionTask()
+    func urlSessionTaskResume(_ sessionTask: URLSessionTask)
+    func urlSessionTask(_ sessionTask: URLSessionTask, setState newState: URLSessionTask.State)
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
-    func swizzleURLSessionDataTasksForResponseCapture()
+    func captureResponseDetails(_ data: Data, response: URLResponse, request requestURL: URL, task: URLSessionTask)
 #endif
 }
 
@@ -26,18 +27,6 @@ typealias SentryDefaultNetworkTrackerDependencies = CurrentDateProvider & HubPro
 #else
 typealias SentryNetworkTrackerProtocol = SentryDefaultNetworkTracker<SentryDependencyContainer>
 typealias SentryDefaultNetworkTrackerDependencies = SentryDependencyContainer
-#endif
-
-private let resumeSwizzleKey = SentrySwizzleKey()
-private let setStateSwizzleKey = SentrySwizzleKey()
-
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
-private final class SentryDataTaskHolder {
-    var task: URLSessionDataTask?
-}
-
-private let dataTaskWithRequestSwizzleKey = SentrySwizzleKey()
-private let dataTaskWithURLSwizzleKey = SentrySwizzleKey()
 #endif
 
 final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTrackerDependencies> {
@@ -585,131 +574,6 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         )
     }
     #endif
-
-    // MARK: - Swizzling
-
-    func swizzleURLSessionTask() {
-        let classesToSwizzle = SentryNSURLSessionTaskSearch.urlSessionTaskClassesToTrack()
-        let resumeSelector = #selector(URLSessionTask.resume)
-        // `setState:` is private API and has no Swift declaration available to `#selector`.
-        let setStateSelector = NSSelectorFromString("setState:")
-
-        for classToSwizzle in classesToSwizzle {
-            SentryTypedSwizzle.instanceMethod(
-                resumeSelector,
-                in: classToSwizzle,
-                method: .noArgumentVoid(URLSessionTask.self),
-                mode: .oncePerClassAndSuperclasses,
-                key: resumeSwizzleKey
-            ) { [self] task, original in
-                urlSessionTaskResume(task)
-                original()
-            }
-
-            SentryTypedSwizzle.instanceMethod(
-                setStateSelector,
-                in: classToSwizzle,
-                method: .urlSessionTaskState(URLSessionTask.self),
-                mode: .oncePerClassAndSuperclasses,
-                key: setStateSwizzleKey
-            ) { [self] task, state, original in
-                urlSessionTask(task, setState: state)
-                original(state)
-            }
-        }
-    }
-
-    #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
-    /**
-     * Swizzles NSURLSession data task creation methods that use completion handlers
-     * to enable response body capture for session replay.
-     *
-     * Both dataTaskWithRequest: and dataTaskWithURL: are independent implementations
-     * (neither calls through to the other), so both need swizzling.
-     *
-     * See SentryNSURLSessionTaskSearchTests that verifies these assumptions still hold.
-     */
-    func swizzleURLSessionDataTasksForResponseCapture() {
-        swizzleDataTaskWithRequestCompletionHandler()
-        swizzleDataTaskWithURLCompletionHandler()
-    }
-
-    private func swizzleDataTaskWithRequestCompletionHandler() {
-        let selector = #selector(URLSession.dataTask(with:completionHandler:)
-            as (URLSession) -> (URLRequest, @escaping @Sendable (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask)
-
-        SentryTypedSwizzle.instanceMethod(
-            selector,
-            in: URLSession.self,
-            method: .urlSessionDataTaskWithRequest(URLSession.self),
-            mode: .oncePerClassAndSuperclasses,
-            key: dataTaskWithRequestSwizzleKey
-        ) { [self] _, request, completionHandler, original in
-            let taskHolder = SentryDataTaskHolder()
-            let wrappedHandler = responseCaptureCompletionHandler(
-                completionHandler,
-                request: request,
-                taskHolder: taskHolder
-            )
-            let task = original(request, wrappedHandler)
-            taskHolder.task = task
-            return task
-        }
-    }
-
-    private func swizzleDataTaskWithURLCompletionHandler() {
-        let selector = #selector(URLSession.dataTask(with:completionHandler:)
-            as (URLSession) -> (URL, @escaping @Sendable (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask)
-
-        SentryTypedSwizzle.instanceMethod(
-            selector,
-            in: URLSession.self,
-            method: .urlSessionDataTaskWithURL(URLSession.self),
-            mode: .oncePerClassAndSuperclasses,
-            key: dataTaskWithURLSwizzleKey
-        ) { [self] _, url, completionHandler, original in
-            let taskHolder = SentryDataTaskHolder()
-            let wrappedHandler = responseCaptureCompletionHandler(
-                completionHandler,
-                url: url,
-                taskHolder: taskHolder
-            )
-            let task = original(url, wrappedHandler)
-            taskHolder.task = task
-            return task
-        }
-    }
-
-    private func responseCaptureCompletionHandler(
-        _ completionHandler: SentryDataTaskCompletionHandler?,
-        request: URLRequest,
-        taskHolder: SentryDataTaskHolder
-    ) -> SentryDataTaskCompletionHandler? {
-        completionHandler.map { completionHandler in
-            { [self] data, response, error in
-                if error == nil, let data, let response, let requestURL = request.url, let task = taskHolder.task {
-                    captureResponseDetails(data, response: response, request: requestURL, task: task)
-                }
-                completionHandler(data, response, error)
-            } as SentryDataTaskCompletionHandler
-        }
-    }
-
-    private func responseCaptureCompletionHandler(
-        _ completionHandler: SentryDataTaskCompletionHandler?,
-        url: URL,
-        taskHolder: SentryDataTaskHolder
-    ) -> SentryDataTaskCompletionHandler? {
-        completionHandler.map { completionHandler in
-            { [self] data, response, error in
-                if error == nil, let data, let response, let task = taskHolder.task {
-                    captureResponseDetails(data, response: response, request: url, task: task)
-                }
-                completionHandler(data, response, error)
-            } as SentryDataTaskCompletionHandler
-        }
-    }
-    #endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
 
     // MARK: - Helpers
 
