@@ -59,17 +59,21 @@ enum SentryTypedSwizzle {
             key: key.pointer
         ) { getOriginal in
             { receiver in
-                guard let receiver = receiver as? Receiver else {
-                    SentrySDKLog.error("Unexpected swizzle receiver for \(NSStringFromSelector(method.selector))")
-                    return
-                }
-
-                interceptor(receiver) {
+                let callOriginal: (AnyObject) -> Void = { receiver in
                     let original = unsafeBitCast(
                         getOriginal(),
                         to: (@convention(c) (AnyObject, Selector) -> Void).self
                     )
                     original(receiver, method.selector)
+                }
+
+                guard let typedReceiver = receiver as? Receiver else {
+                    SentrySDKLog.error("Unexpected swizzle receiver for \(NSStringFromSelector(method.selector))")
+                    return callOriginal(receiver)
+                }
+
+                interceptor(typedReceiver) {
+                    callOriginal(receiver)
                 }
             } as @convention(block) (AnyObject) -> Void
         }

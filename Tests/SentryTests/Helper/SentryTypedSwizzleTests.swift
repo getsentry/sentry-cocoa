@@ -1,5 +1,6 @@
 @testable import Sentry
 import Foundation
+import ObjectiveC
 import SentryTestUtils
 import XCTest
 
@@ -515,6 +516,230 @@ final class SentryTypedSwizzleTests: XCTestCase {
         XCTAssertEqual(target.originalCallCount, 1)
     }
 
+    func testInstanceMethod_whenVoidReceiverCastFails_shouldStillCallOriginal() throws {
+        // -- Arrange --
+        let key = SentryTypedSwizzle.Key()
+        let selector = #selector(TypedSwizzleReceiverMismatchBase.invoke)
+        var interceptorCallCount = 0
+        let installed = SentryTypedSwizzle.instanceMethod(
+            in: TypedSwizzleReceiverMismatchChild.self,
+            method: .noArgumentVoid(selector, receiver: TypedSwizzleReceiverMismatchChild.self),
+            mode: .always,
+            key: key
+        ) { _, original in
+            interceptorCallCount += 1
+            original()
+        }
+        XCTAssertTrue(installed)
+
+        // Invoke the installed trampoline directly with a receiver whose type is the superclass,
+        // forcing the `receiver as? Receiver` cast to the subclass to fail.
+        let imp = try XCTUnwrap(class_getMethodImplementation(TypedSwizzleReceiverMismatchChild.self, selector))
+        typealias VoidMethod = @convention(c) (AnyObject, Selector) -> Void
+        let trampoline = unsafeBitCast(imp, to: VoidMethod.self)
+        let mismatchedReceiver = TypedSwizzleReceiverMismatchBase()
+
+        // -- Act --
+        trampoline(mismatchedReceiver, selector)
+
+        // -- Assert --
+        XCTAssertEqual(interceptorCallCount, 0, "Interceptor must not run for a mismatched receiver")
+        XCTAssertEqual(mismatchedReceiver.originalCallCount, 1, "Original must still be invoked when the receiver cast fails")
+    }
+
+    func testInstanceMethod_whenTaskStateReceiverCastFails_shouldStillCallOriginal() throws {
+        // -- Arrange --
+        let key = SentryTypedSwizzle.Key()
+        let selector = #selector(TypedSwizzleStateMismatchBase.setState(_:))
+        var interceptorCallCount = 0
+        let installed = SentryTypedSwizzle.instanceMethod(
+            in: TypedSwizzleStateMismatchChild.self,
+            method: .urlSessionTaskState(TypedSwizzleStateMismatchChild.self),
+            mode: .always,
+            key: key
+        ) { _, _, original in
+            interceptorCallCount += 1
+            original(.completed)
+        }
+        XCTAssertTrue(installed)
+
+        // Invoke the installed trampoline directly with a receiver whose type is the superclass,
+        // forcing the `receiver as? Receiver` cast to the subclass to fail.
+        let imp = try XCTUnwrap(class_getMethodImplementation(TypedSwizzleStateMismatchChild.self, selector))
+        typealias StateMethod = @convention(c) (AnyObject, Selector, URLSessionTask.State) -> Void
+        let trampoline = unsafeBitCast(imp, to: StateMethod.self)
+        let mismatchedReceiver = TypedSwizzleStateMismatchBase()
+
+        // -- Act --
+        trampoline(mismatchedReceiver, selector, .running)
+
+        // -- Assert --
+        XCTAssertEqual(interceptorCallCount, 0, "Interceptor must not run for a mismatched receiver")
+        XCTAssertEqual(mismatchedReceiver.receivedState, .running, "Original must still be invoked with the received state when the receiver cast fails")
+    }
+
+    func testInstanceMethod_whenRequestDataTaskReceiverCastFails_shouldStillCallOriginal() throws {
+        // -- Arrange --
+        let key = SentryTypedSwizzle.Key()
+        let selector = #selector(TypedSwizzleDataTaskMismatchBase.makeTaskWithRequest(_:completionHandler:))
+        var interceptorCallCount = 0
+        let method = SentrySwizzleMethod<TypedSwizzleDataTaskMismatchChild, SentryDataTaskRequestArguments, URLSessionDataTask>(
+            selector: selector,
+            receiver: TypedSwizzleDataTaskMismatchChild.self,
+            signature: .init(
+                returnType: .object,
+                arguments: [.object, .selector, .object, .block]
+            )
+        )
+        let installed = SentryTypedSwizzle.instanceMethod(
+            in: TypedSwizzleDataTaskMismatchChild.self,
+            method: method,
+            mode: .always,
+            key: key
+        ) { _, _, _, original in
+            interceptorCallCount += 1
+            return original(URLRequest(url: URL(string: "https://example.com/replacement")!), nil)
+        }
+        XCTAssertTrue(installed)
+
+        // Invoke the installed trampoline directly with a receiver whose type is the superclass,
+        // forcing the `receiver as? Receiver` cast to the subclass to fail.
+        let imp = try XCTUnwrap(class_getMethodImplementation(TypedSwizzleDataTaskMismatchChild.self, selector))
+        typealias RequestMethod = @convention(c) (AnyObject, Selector, URLRequest, SentryDataTaskCompletionHandler?) -> URLSessionDataTask
+        let trampoline = unsafeBitCast(imp, to: RequestMethod.self)
+        let mismatchedReceiver = TypedSwizzleDataTaskMismatchBase()
+        let request = URLRequest(url: URL(string: "https://example.com/original")!)
+
+        // -- Act --
+        let result = trampoline(mismatchedReceiver, selector, request, nil)
+
+        // -- Assert --
+        XCTAssertEqual(interceptorCallCount, 0, "Interceptor must not run for a mismatched receiver")
+        XCTAssertEqual(mismatchedReceiver.receivedRequest, request, "Original must still be invoked with the received request when the receiver cast fails")
+        XCTAssertIdentical(result, mismatchedReceiver.task)
+    }
+
+    func testInstanceMethod_whenURLDataTaskReceiverCastFails_shouldStillCallOriginal() throws {
+        // -- Arrange --
+        let key = SentryTypedSwizzle.Key()
+        let selector = #selector(TypedSwizzleDataTaskMismatchBase.makeTaskWithURL(_:completionHandler:))
+        var interceptorCallCount = 0
+        let method = SentrySwizzleMethod<TypedSwizzleDataTaskMismatchChild, SentryDataTaskURLArguments, URLSessionDataTask>(
+            selector: selector,
+            receiver: TypedSwizzleDataTaskMismatchChild.self,
+            signature: .init(
+                returnType: .object,
+                arguments: [.object, .selector, .object, .block]
+            )
+        )
+        let installed = SentryTypedSwizzle.instanceMethod(
+            in: TypedSwizzleDataTaskMismatchChild.self,
+            method: method,
+            mode: .always,
+            key: key
+        ) { _, _, _, original in
+            interceptorCallCount += 1
+            return original(URL(string: "https://example.com/replacement")!, nil)
+        }
+        XCTAssertTrue(installed)
+
+        // Invoke the installed trampoline directly with a receiver whose type is the superclass,
+        // forcing the `receiver as? Receiver` cast to the subclass to fail.
+        let imp = try XCTUnwrap(class_getMethodImplementation(TypedSwizzleDataTaskMismatchChild.self, selector))
+        typealias URLMethod = @convention(c) (AnyObject, Selector, URL, SentryDataTaskCompletionHandler?) -> URLSessionDataTask
+        let trampoline = unsafeBitCast(imp, to: URLMethod.self)
+        let mismatchedReceiver = TypedSwizzleDataTaskMismatchBase()
+        let url = URL(string: "https://example.com/original")!
+
+        // -- Act --
+        let result = trampoline(mismatchedReceiver, selector, url, nil)
+
+        // -- Assert --
+        XCTAssertEqual(interceptorCallCount, 0, "Interceptor must not run for a mismatched receiver")
+        XCTAssertEqual(mismatchedReceiver.receivedURL, url, "Original must still be invoked with the received URL when the receiver cast fails")
+        XCTAssertIdentical(result, mismatchedReceiver.task)
+    }
+
+    func testInstanceMethod_whenVoidValidationFails_shouldNotInstall() {
+        // -- Act --
+        let installed = SentryTypedSwizzle.instanceMethod(
+            in: TypedSwizzleTestTarget.self,
+            method: .noArgumentVoid(NSSelectorFromString("missingMethod"), receiver: TypedSwizzleTestTarget.self),
+            mode: .always,
+            key: SentryTypedSwizzle.Key()
+        ) { _, original in
+            original()
+        }
+
+        // -- Assert --
+        XCTAssertFalse(installed)
+    }
+
+    func testInstanceMethod_whenTaskStateValidationFails_shouldNotInstall() {
+        // -- Act --
+        let installed = SentryTypedSwizzle.instanceMethod(
+            in: TypedSwizzleTestTarget.self,
+            method: .urlSessionTaskState(TypedSwizzleTestTarget.self),
+            mode: .always,
+            key: SentryTypedSwizzle.Key()
+        ) { _, _, original in
+            original(.completed)
+        }
+
+        // -- Assert --
+        XCTAssertFalse(installed)
+    }
+
+    func testInstanceMethod_whenRequestDataTaskValidationFails_shouldNotInstall() {
+        // -- Arrange --
+        let method = SentrySwizzleMethod<TypedSwizzleTestTarget, SentryDataTaskRequestArguments, URLSessionDataTask>(
+            selector: NSSelectorFromString("missingDataTaskWithRequest:completionHandler:"),
+            receiver: TypedSwizzleTestTarget.self,
+            signature: .init(
+                returnType: .object,
+                arguments: [.object, .selector, .object, .block]
+            )
+        )
+
+        // -- Act --
+        let installed = SentryTypedSwizzle.instanceMethod(
+            in: TypedSwizzleTestTarget.self,
+            method: method,
+            mode: .always,
+            key: SentryTypedSwizzle.Key()
+        ) { _, _, _, original in
+            original(URLRequest(url: URL(string: "https://example.com")!), nil)
+        }
+
+        // -- Assert --
+        XCTAssertFalse(installed)
+    }
+
+    func testInstanceMethod_whenURLDataTaskValidationFails_shouldNotInstall() {
+        // -- Arrange --
+        let method = SentrySwizzleMethod<TypedSwizzleTestTarget, SentryDataTaskURLArguments, URLSessionDataTask>(
+            selector: NSSelectorFromString("missingDataTaskWithURL:completionHandler:"),
+            receiver: TypedSwizzleTestTarget.self,
+            signature: .init(
+                returnType: .object,
+                arguments: [.object, .selector, .object, .block]
+            )
+        )
+
+        // -- Act --
+        let installed = SentryTypedSwizzle.instanceMethod(
+            in: TypedSwizzleTestTarget.self,
+            method: method,
+            mode: .always,
+            key: SentryTypedSwizzle.Key()
+        ) { _, _, _, original in
+            original(URL(string: "https://example.com")!, nil)
+        }
+
+        // -- Assert --
+        XCTAssertFalse(installed)
+    }
+
     func testInstanceMethod_whenInstalledConcurrentlyOncePerClass_shouldInstallExactlyOnce() {
         // -- Arrange --
         let key = SentryTypedSwizzle.Key()
@@ -636,6 +861,50 @@ private final class TypedSwizzleConcurrentTarget: NSObject {
         originalCallCount += 1
     }
 }
+
+private class TypedSwizzleReceiverMismatchBase: NSObject {
+    private(set) var originalCallCount = 0
+
+    @objc dynamic func invoke() {
+        originalCallCount += 1
+    }
+}
+
+private final class TypedSwizzleReceiverMismatchChild: TypedSwizzleReceiverMismatchBase {}
+
+private class TypedSwizzleStateMismatchBase: NSObject {
+    private(set) var receivedState: URLSessionTask.State?
+
+    @objc dynamic func setState(_ state: URLSessionTask.State) {
+        receivedState = state
+    }
+}
+
+private final class TypedSwizzleStateMismatchChild: TypedSwizzleStateMismatchBase {}
+
+private class TypedSwizzleDataTaskMismatchBase: NSObject {
+    let task = URLSession.shared.dataTask(with: URL(string: "https://example.com")!)
+    private(set) var receivedRequest: URLRequest?
+    private(set) var receivedURL: URL?
+
+    @objc dynamic func makeTaskWithRequest(
+        _ request: URLRequest,
+        completionHandler: SentryDataTaskCompletionHandler?
+    ) -> URLSessionDataTask {
+        receivedRequest = request
+        return task
+    }
+
+    @objc dynamic func makeTaskWithURL(
+        _ url: URL,
+        completionHandler: SentryDataTaskCompletionHandler?
+    ) -> URLSessionDataTask {
+        receivedURL = url
+        return task
+    }
+}
+
+private final class TypedSwizzleDataTaskMismatchChild: TypedSwizzleDataTaskMismatchBase {}
 
 private final class TypedSwizzleDataTaskTarget: NSObject {
     let task = URLSession.shared.dataTask(with: URL(string: "https://example.com")!)
