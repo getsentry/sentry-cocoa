@@ -19,4 +19,4 @@ suites:
   - name: "Low-end device"
     devices:
       - name: "iPhone SE 2022"
-        platformVersion: "16"
+        platformVersion: "18"
