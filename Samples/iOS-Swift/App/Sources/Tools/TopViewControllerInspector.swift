@@ -60,29 +60,25 @@ class TopViewControllerInspector: UIView {
     }
     
     override func layoutSubviews() {
-        let screenBounds = UIScreen.main.bounds
-        
-        btn.frame = CGRect(x: screenBounds.width - 160, y: screenBounds.height - 200, width: 140, height: 44)
-        lbl.frame = CGRect(x: 20, y: btn.frame.origin.y, width: screenBounds.width - 200, height: 44)
+        btn.frame = CGRect(x: bounds.width - 160, y: bounds.height - 200, width: 140, height: 44)
+        lbl.frame = CGRect(x: 20, y: btn.frame.origin.y, width: bounds.width - 200, height: 44)
     }
     
     func bringToFront() {
         superview?.bringSubviewToFront(self)
     }
     
-    static func show() {
+    static func show(in window: UIWindow?) {
         if shared != nil {
             return
         }
         
         let inspector = TopViewControllerInspector()
         
-        guard let appDelegate = UIApplication.shared.delegate, 
-                let window = appDelegate.window,
-                let bounds = window?.bounds else { return }
+        guard let window = window else { return }
         
-        inspector.frame = bounds
-        window?.addSubview(inspector)
+        inspector.frame = window.bounds
+        window.addSubview(inspector)
         
         shared = inspector
     }

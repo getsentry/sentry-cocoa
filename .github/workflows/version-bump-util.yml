@@ -46,7 +46,7 @@ jobs:
         id: generate-version-number
         run: |
           TIMESTAMP=$(date +%Y%m%d%H%M%S)
-          echo "VERSION=100.0.$TIMESTAMP" >> $GITHUB_OUTPUT
+          echo "VERSION=100.0.$TIMESTAMP" >> "$GITHUB_OUTPUT"
       # We don't care which version we bump to, as long as it's a valid semver
       - run: ./scripts/bump-version.sh --version "${{ steps.generate-version-number.outputs.VERSION }}"
       - run: ./scripts/verify-version.sh --version "${{ steps.generate-version-number.outputs.VERSION }}"
@@ -64,11 +64,11 @@ jobs:
         run: |
           OLD_VERSION=$(cat ./Sources/Configuration/Versioning.xcconfig | grep MARKETING_VERSION | cut -d '=' -f 2 | tr -d ' ')
           echo "Read old version: ${OLD_VERSION}"
-          echo "OLD_VERSION=${OLD_VERSION}" >> $GITHUB_OUTPUT
+          echo "OLD_VERSION=${OLD_VERSION}" >> "$GITHUB_OUTPUT"
 
           NEW_VERSION="100.0.$(date +%Y%m%d%H%M%S)"
           echo "Generated new version: ${NEW_VERSION}"
-          echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_OUTPUT
+          echo "NEW_VERSION=${NEW_VERSION}" >> "$GITHUB_OUTPUT"
 
       - name: Verify OLD_VERSION is defined
         if: ${{ steps.generate-version-number.outputs.OLD_VERSION == '' }}
@@ -88,7 +88,10 @@ jobs:
           echo "<FAKE SENTRYOBJC STATIC ZIP>" > XCFrameworkBuildPath/SentryObjC-Static.xcframework.zip
 
       - name: Bump version
-        run: ./scripts/bump.sh ${{ steps.generate-version-number.outputs.OLD_VERSION }} ${{ steps.generate-version-number.outputs.NEW_VERSION }}
+        env:
+          NEW_VERSION: ${{ steps.generate-version-number.outputs.NEW_VERSION }}
+          OLD_VERSION: ${{ steps.generate-version-number.outputs.OLD_VERSION }}
+        run: ./scripts/bump.sh "$OLD_VERSION" "$NEW_VERSION"
 
       - name: Verify outputs of bump.sh
         run: ./scripts/verify-version.sh --version "${{ steps.generate-version-number.outputs.NEW_VERSION }}"

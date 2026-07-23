@@ -1,18 +1,26 @@
 # Changelog
 
-## Unreleased
+## Unreleased 
 
-### Improvements
-
-- Reduce slight overhead during SDK start by skipping an unnecessary main thread dispatch when there's no work to do (#8494)
-
-### Breaking Changes
-
-- Only expose `experimental.dataCollection` APIs in SDK V10 (#8435)
+## 9.23.0
 
 ### Fixes
 
 - Prevent crash on SDK start when the app binary contains classes that reference `@available`-gated APIs. `SentrySubClassFinder` now detects `UIViewController` subclasses without realizing unrelated classes, so it no longer triggers the Swift runtime crash for classes like SwiftUI gesture coordinators or `RoomPlan`/`ActivityKit` wrappers (#8457)
+
+### Features
+
+- Record trace_metric_byte client reports (#8490)
+
+### Fixes
+
+- Add a depth limit to view hierarchy serialization to prevent a stack overflow crash on deeply nested view hierarchies (#8292)
+- Persist the configured environment in crash reports so later app launches don't overwrite it (#8511)
+- Only expose `experimental.dataCollection` APIs in SDK V10 (#8435)
+
+### Improvements
+
+- Reduce slight overhead during SDK start by skipping an unnecessary main thread dispatch when there's no work to do (#8494)
 
 ## 9.22.0
 

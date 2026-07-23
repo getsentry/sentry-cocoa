@@ -8,7 +8,7 @@
         <!--Hosting Controller-->
         <scene sceneID="RUd-og-cv4">
             <objects>
-                <hostingController id="NBu-mt-KyX" customClass="HostingController" customModule="watchOS_Swift_WatchKit_Extension"/>
+                <hostingController id="NBu-mt-KyX" customClass="HostingController" customModule="Extension"/>
             </objects>
             <point key="canvasLocation" x="187" y="141"/>
         </scene>
@@ -31,7 +31,7 @@
         <!--Notification Controller-->
         <scene sceneID="Niz-AI-uX2">
             <objects>
-                <controller id="eXb-UN-Cd0" customClass="NotificationController" customModule="watchOS_Swift_WatchKit_App" customModuleProvider="target"/>
+                <controller id="eXb-UN-Cd0" customClass="NotificationController" customModule="Extension" customModuleProvider="target"/>
             </objects>
             <point key="canvasLocation" x="488" y="462"/>
         </scene>
