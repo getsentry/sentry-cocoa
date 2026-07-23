@@ -58,11 +58,20 @@ class SwiftDescriptorTests: XCTestCase {
     }
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    /// The description embeds the view pointer, so we assert against the full expected string rather
+    /// than checking for the absence of specific digits, which could coincidentally appear in the
+    /// pointer's hex address.
+    private func expectedDescription(for view: UIView, attributes: String) -> String {
+        let pointer = Unmanaged.passUnretained(view).toOpaque()
+        return "<\(SwiftDescriptor.getObjectClassName(view)): \(pointer); \(attributes)>"
+    }
+
     func testGetSanitizedViewDescription_neverContainsCoordinates() {
         // Coordinates are a potential security risk, as they can leak which key a
         // user tapped on custom PIN code views, so they must never be included.
         // -- Arrange --
         let view = UIView()
+        view.isOpaque = false
         view.frame = CGRect(x: 42, y: 240, width: 375, height: 812)
 
         // -- Act --
@@ -70,22 +79,19 @@ class SwiftDescriptorTests: XCTestCase {
 
         // -- Assert --
         XCTAssertFalse(description.contains("frame"), description)
-        XCTAssertFalse(description.contains("42"), description)
-        XCTAssertFalse(description.contains("240"), description)
-        XCTAssertFalse(description.contains("375"), description)
-        XCTAssertFalse(description.contains("812"), description)
+        XCTAssertEqual(description, expectedDescription(for: view, attributes: "opaque = false"))
     }
 
     func testGetSanitizedViewDescription_containsClassNameAndPointer() {
         // -- Arrange --
         let view = UIButton()
+        view.isOpaque = false
 
         // -- Act --
         let description = SwiftDescriptor.getSanitizedViewDescription(view)
 
         // -- Assert --
-        XCTAssertTrue(description.hasPrefix("<UIButton: 0x"), description)
-        XCTAssertTrue(description.hasSuffix(">"), description)
+        XCTAssertEqual(description, expectedDescription(for: view, attributes: "opaque = false"))
     }
 
     func testGetSanitizedViewDescription_reportsCustomSubclassName() {
@@ -111,15 +117,17 @@ class SwiftDescriptorTests: XCTestCase {
         let transparentDescription = SwiftDescriptor.getSanitizedViewDescription(transparentView)
 
         // -- Assert --
-        XCTAssertTrue(opaqueDescription.contains("opaque = true"), opaqueDescription)
-        XCTAssertTrue(transparentDescription.contains("opaque = false"), transparentDescription)
+        XCTAssertEqual(opaqueDescription, expectedDescription(for: opaqueView, attributes: "opaque = true"))
+        XCTAssertEqual(transparentDescription, expectedDescription(for: transparentView, attributes: "opaque = false"))
     }
 
     func testGetSanitizedViewDescription_includesHiddenOnlyWhenHidden() {
         // -- Arrange --
         let visibleView = UIView()
+        visibleView.isOpaque = false
         visibleView.isHidden = false
         let hiddenView = UIView()
+        hiddenView.isOpaque = false
         hiddenView.isHidden = true
 
         // -- Act --
@@ -127,8 +135,8 @@ class SwiftDescriptorTests: XCTestCase {
         let hiddenDescription = SwiftDescriptor.getSanitizedViewDescription(hiddenView)
 
         // -- Assert --
-        XCTAssertFalse(visibleDescription.contains("hidden"), visibleDescription)
-        XCTAssertTrue(hiddenDescription.contains("hidden = true"), hiddenDescription)
+        XCTAssertEqual(visibleDescription, expectedDescription(for: visibleView, attributes: "opaque = false"))
+        XCTAssertEqual(hiddenDescription, expectedDescription(for: hiddenView, attributes: "opaque = false; hidden = true"))
     }
 
     private class PinCodeButton: UIButton {}

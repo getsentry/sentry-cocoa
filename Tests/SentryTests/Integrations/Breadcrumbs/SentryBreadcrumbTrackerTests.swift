@@ -336,10 +336,7 @@ final class SentryBreadcrumbTrackerTests: XCTestCase {
         let view = try XCTUnwrap(crumb.data?["view"] as? String)
 
         XCTAssertFalse(view.contains("frame"), "view breadcrumb must not embed the frame: \(view)")
-        XCTAssertFalse(view.contains("42"), "view breadcrumb must not embed the x origin: \(view)")
-        XCTAssertFalse(view.contains("240"), "view breadcrumb must not embed the y origin: \(view)")
-        XCTAssertTrue(view.hasPrefix("<UIButton: 0x"), "view breadcrumb should keep class + pointer: \(view)")
-        XCTAssertTrue(view.hasSuffix(">"), "view breadcrumb should keep the bracket shape: \(view)")
+        XCTAssertEqual(view, SwiftDescriptor.getSanitizedViewDescription(button))
     }
 
     func testTouchBreadcrumb_DontReportAccessibilityIdentifier() throws {
@@ -469,10 +466,9 @@ final class SentryBreadcrumbTrackerTests: XCTestCase {
         let data = try XCTUnwrap(lifeCycleCrumb.data)
         let windowDescription = try XCTUnwrap(data["window"] as? String, "Breadcrumb should include window description when view controller is in a window")
         // The window description must not embed the frame, as coordinates are a
-        // potential security risk. See getUIViewDescription.
+        // potential security risk. See SwiftDescriptor.getSanitizedViewDescription.
         XCTAssertFalse(windowDescription.contains("frame"), windowDescription)
-        XCTAssertFalse(windowDescription.contains("100"), windowDescription)
-        XCTAssertTrue(windowDescription.hasPrefix("<UIWindow: 0x"), windowDescription)
+        XCTAssertEqual(windowDescription, SwiftDescriptor.getSanitizedViewDescription(window))
         XCTAssertNotNil(data["window_isKeyWindow"] as? String)
         XCTAssertNotNil(data["window_windowLevel"] as? String)
         XCTAssertEqual(data["is_window_rootViewController"] as? String, "true", "ViewController is root of the window")
