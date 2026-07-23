@@ -136,7 +136,10 @@ extension SentryKSCrash {
             guard let duration = durationSinceCrashHandlerInitialization(report) else {
                 return false
             }
-            return duration > 0 && duration <= startupCrashDurationThreshold
+            // KSCrash can serialize both timestamps with second precision. In that case, a crash
+            // during the initialization second has a valid duration of zero. Missing timestamps
+            // return nil above, so zero is not an "unknown duration" sentinel here.
+            return duration >= 0 && duration <= startupCrashDurationThreshold
         }
 
         private static func durationSinceCrashHandlerInitialization(
