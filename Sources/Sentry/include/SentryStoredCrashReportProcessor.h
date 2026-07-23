@@ -4,16 +4,17 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-FOUNDATION_EXPORT NSErrorDomain const SentryCrashReportProcessorErrorDomain;
+FOUNDATION_EXPORT NSErrorDomain const SentryStoredCrashReportProcessorErrorDomain;
 
-typedef NS_ERROR_ENUM(SentryCrashReportProcessorErrorDomain, SentryCrashReportProcessorError) {
-    SentryCrashReportProcessorErrorUnsupportedReport,
-    SentryCrashReportProcessorErrorMissingClient,
-    SentryCrashReportProcessorErrorConversionFailed,
+typedef NS_ERROR_ENUM(
+    SentryStoredCrashReportProcessorErrorDomain, SentryStoredCrashReportProcessorError) {
+    SentryStoredCrashReportProcessorErrorUnsupportedReport,
+    SentryStoredCrashReportProcessorErrorMissingClient,
+    SentryStoredCrashReportProcessorErrorConversionFailed,
 };
 
 /** Converts a dictionary crash report and captures it as a fatal Sentry event. */
-@interface SentryCrashReportProcessor : NSObject
+@interface SentryStoredCrashReportProcessor : NSObject
 SENTRY_NO_INIT
 
 - (instancetype)initWithInAppLogic:(SENTRY_SWIFT_MIGRATION_ID(SentryInAppLogic))inAppLogic;

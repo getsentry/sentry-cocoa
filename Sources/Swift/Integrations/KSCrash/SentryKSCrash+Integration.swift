@@ -59,7 +59,7 @@ extension SentryKSCrash {
                 SentrySDKInternal.crashHandlerDetectedCrash = true
             }
 
-            let reportProcessor = SentryCrashReportProcessor(
+            let reportProcessor = SentryStoredCrashReportProcessor(
                 inAppLogic: SentryInAppLogic(inAppIncludes: options.inAppIncludes)
             )
             dependencies.dispatchQueueWrapper.dispatchAsync {

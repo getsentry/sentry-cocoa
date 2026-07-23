@@ -7,9 +7,9 @@ extension SentryKSCrash {
     /// Terminal KSCrash filter that converts dictionary reports into fatal Sentry events.
     final class ReportFilter: NSObject, CrashReportFilter {
         private static let errorDomain = "io.sentry.kscrash-report-filter"
-        private let reportProcessor: SentryCrashReportProcessor
+        private let reportProcessor: SentryStoredCrashReportProcessor
 
-        init(reportProcessor: SentryCrashReportProcessor) {
+        init(reportProcessor: SentryStoredCrashReportProcessor) {
             self.reportProcessor = reportProcessor
         }
 
