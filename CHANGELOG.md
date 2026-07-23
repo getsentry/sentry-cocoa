@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Remove x/y coordinates from UI tap breadcrumbs, as they are a potential security risk, for example leaking input on custom PIN code views (#8532)
+
 ## 9.23.0
 
 ### Features

@@ -311,6 +311,37 @@ final class SentryBreadcrumbTrackerTests: XCTestCase {
         XCTAssertEqual(payload["message"] as? String, "methodPressed:")
     }
     
+    func testTouchBreadcrumb_ViewDescriptionHasNoCoordinates() throws {
+        // -- Arrange --
+        let scope = Scope()
+        let client = TestClient(options: Options())
+        let hub = TestHub(client: client, andScope: scope)
+        SentrySDKInternal.setCurrentHub(hub)
+
+        let swizzlingWrapper = TestSentrySwizzleWrapper()
+        SentryDependencyContainer.sharedInstance().swizzleWrapper = swizzlingWrapper
+
+        let tracker = SentryBreadcrumbTracker(reportAccessibilityIdentifier: true)
+        tracker.start(with: delegate)
+        tracker.startSwizzle()
+
+        let button = UIButton()
+        button.frame = CGRect(x: 42, y: 240, width: 100, height: 30)
+
+        // -- Act --
+        swizzlingWrapper.execute(action: "methodPressed:", target: self, sender: button, event: TestEvent(touchedView: button))
+
+        // -- Assert --
+        let crumb = try XCTUnwrap(delegate.addCrumbInvocations.invocations.first(where: { $0.category == "touch" }))
+        let view = try XCTUnwrap(crumb.data?["view"] as? String)
+
+        XCTAssertFalse(view.contains("frame"), "view breadcrumb must not embed the frame: \(view)")
+        XCTAssertFalse(view.contains("42"), "view breadcrumb must not embed the x origin: \(view)")
+        XCTAssertFalse(view.contains("240"), "view breadcrumb must not embed the y origin: \(view)")
+        XCTAssertTrue(view.hasPrefix("<UIButton: 0x"), "view breadcrumb should keep class + pointer: \(view)")
+        XCTAssertTrue(view.hasSuffix(">"), "view breadcrumb should keep the bracket shape: \(view)")
+    }
+
     func testTouchBreadcrumb_DontReportAccessibilityIdentifier() throws {
         let scope = Scope()
         let client = TestClient(options: Options())
