@@ -88,7 +88,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         }
 
         // No options set means the SDK is not enabled
-        guard let options = SentrySDKInternal.options else {
+        guard let options = hub.currentOptions else {
             return
         }
 
@@ -192,7 +192,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             return
         }
 
-        guard isTaskSupported(sessionTask), let options = SentrySDKInternal.options else {
+        guard isTaskSupported(sessionTask), let options = hub.currentOptions else {
             return
         }
 
@@ -261,7 +261,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
     #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
     func captureResponseDetails(_ data: Data, response: URLResponse, request requestURL: URL, task: URLSessionTask) {
         let urlString = requestURL.absoluteString
-        guard let options = SentrySDKInternal.options,
+        guard let options = hub.currentOptions,
               isNetworkDetailCaptureEnabled(for: urlString, options: options) else {
             return
         }
@@ -592,16 +592,27 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
     }
 
     private func addTraceWithoutTransaction(to task: URLSessionTask) {
-        let traceContext = TraceContext(
+        guard let options = hub.currentOptions, let publicKey = options.parsedDsn?.url.user else {
+            return
+        }
+
+        let baggage = Baggage(
             trace: hub.scope.propagationContextTraceId,
-            options: hub.options,
-            replayId: hub.scope.replayId
+            publicKey: publicKey,
+            releaseName: options.releaseName,
+            environment: options.environment,
+            transaction: nil,
+            sampleRate: nil,
+            sampleRand: nil,
+            sampled: nil,
+            replayId: hub.scope.replayId,
+            orgId: options.effectiveOrgId
         )
         SentryTracePropagation.addBaggageHeader(
-            traceContext.toBaggage(),
+            baggage,
             traceHeader: hub.scope.propagationContextTraceHeader,
-            propagateTraceparent: hub.options.enablePropagateTraceparent,
-            tracePropagationTargets: hub.options.tracePropagationTargets,
+            propagateTraceparent: options.enablePropagateTraceparent,
+            tracePropagationTargets: options.tracePropagationTargets,
             toRequest: task
         )
     }

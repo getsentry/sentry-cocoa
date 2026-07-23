@@ -478,6 +478,7 @@ protocol Hub {
     func captureEnvelope(_ envelope: SentryEnvelope)
     func captureErrorEvent(event: Event)
     func setTrace(_ traceId: SentryId, spanId: SpanId)
+    var currentOptions: Options? { get }
     var options: Options { get }
     var scope: Scope { get }
 }
@@ -512,8 +513,12 @@ private struct DefaultHub: Hub {
         }
     }
 
+    var currentOptions: Options? {
+        SentryDependencyContainer.sharedInstance().startOptions
+    }
+
     var options: Options {
-        SentrySDKInternal.currentHub().getClient()?.getOptions() as? Options ?? Options()
+        currentOptions ?? Options()
     }
 
     var scope: Scope {
