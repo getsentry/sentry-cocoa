@@ -26,7 +26,7 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         let installer = MockKSCrashInstaller()
         let deps = MockKSCrashDependencies(installer: installer)
         let options = makeOptions()
-        let bundleID = Bundle.main.infoDictionary?["CFBundleIdentifier"] as? String ?? "Unknown"
+        let bundleID = Bundle.main.infoDictionary?["CFBundleName"] as? String ?? "Unknown"
         let expectedPath = URL(fileURLWithPath: options.cacheDirectoryPath)
             .appendingPathComponent("KSCrash")
             .appendingPathComponent(bundleID)
