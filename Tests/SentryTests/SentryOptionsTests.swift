@@ -124,10 +124,7 @@ final class SentryOptionsTests: XCTestCase {
         let options = try Options(dictionary: dictionary)
 
         // -- Assert --
-        XCTAssertFalse(options.dataCollection.userInfo)
-        XCTAssertFalse(options.dataCollection.graphql.variables)
-        XCTAssertFalse(options.dataCollection.database.queryParams)
-        XCTAssertEqual(options.dataCollection.frameContextLines, 0)
+        XCTAssertEqual(options.dataCollection, SentryDataCollection.Options(userInfo: false))
         #endif
     }
 }
