@@ -24,6 +24,24 @@ import UIKit
     }
 #endif
 
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    /// Builds a description of a view without its frame.
+    ///
+    /// We build it ourselves instead of using `String(describing:)`, because the default `UIView`
+    /// description embeds `frame = (x y; w h)`. Those coordinates can leak which key a user tapped in
+    /// custom PIN/passcode views, so we never include the frame.
+    @objc
+    public static func getSanitizedViewDescription(_ view: UIView) -> String {
+        let className = getObjectClassName(view)
+        let pointer = Unmanaged.passUnretained(view).toOpaque()
+        var attributes: [String] = ["opaque = \(view.isOpaque)"]
+        if view.isHidden {
+            attributes.append("hidden = true")
+        }
+        return "<\(className): \(pointer); \(attributes.joined(separator: "; "))>"
+    }
+#endif
+
     @objc
     public static func getSwiftErrorDescription(_ error: Error) -> String? {
         return String(describing: error)
