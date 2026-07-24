@@ -49,7 +49,7 @@ jobs:
       is_dependabot: ${{ github.actor == 'dependabot[bot]' }}
       is_fork: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Get changed files
         id: changes
         uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2
@@ -62,7 +62,7 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     needs: files-changed
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup matrix combinations
         id: setup-matrix-combinations
         run: |
@@ -161,7 +161,7 @@ jobs:
     steps:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: xcframework-${{github.sha}}-*
@@ -215,7 +215,7 @@ jobs:
     steps:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: xcframework-${{github.sha}}-*
@@ -260,7 +260,7 @@ jobs:
     steps:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: xcframework-${{github.sha}}-*
@@ -305,7 +305,7 @@ jobs:
     steps:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: xcframework-${{github.sha}}-*
@@ -349,7 +349,7 @@ jobs:
     steps:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: xcframework-${{github.sha}}-*
@@ -417,7 +417,7 @@ jobs:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - name: Git checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
@@ -497,7 +497,7 @@ jobs:
           app-id: ${{ vars.SENTRY_RELEASE_BOT_CLIENT_ID }}
           private-key: ${{ secrets.SENTRY_RELEASE_BOT_PRIVATE_KEY }}
       - name: Check out current commit (${{ github.sha }})
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           token: ${{ steps.token.outputs.token }}
           fetch-depth: 0
