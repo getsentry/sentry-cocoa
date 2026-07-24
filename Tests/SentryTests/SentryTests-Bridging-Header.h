@@ -118,7 +118,6 @@
 #import "SentrySpanId.h"
 #import "SentrySpanInternal.h"
 #import "SentrySpanOperation.h"
-#import "SentrySpotlightTransport.h"
 #import "SentryStacktrace.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentrySwift.h"

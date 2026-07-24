@@ -1,5 +1,5 @@
 // swiftlint:disable missing_docs
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 
 /**
  * A wrapper around a dispatch timer source that can be subclassed for mocking in tests.

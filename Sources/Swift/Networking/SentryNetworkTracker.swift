@@ -1,5 +1,5 @@
 // swiftlint:disable type_body_length file_length
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 
 #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
 protocol SentryNetworkTrackerProtocol {
@@ -350,7 +350,16 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         request.queryString = sanitizedURL.query
         request.bodySize = NSNumber(value: sessionTask.countOfBytesSent)
         if let headers = currentRequest.allHTTPHeaderFields {
+            #if SDK_V10
+            let sanitizedHeaders = HTTPHeaderSanitizer.sanitizeRequestHeaders(
+                headers,
+                options: options.dataCollection
+            )
+            request.headers = sanitizedHeaders.headers
+            request.cookies = sanitizedHeaders.cookies
+            #else
             request.headers = HTTPHeaderSanitizer.sanitizeHeaders(headers)
+            #endif
         }
 
         event.exceptions = [exception]
@@ -367,7 +376,16 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         }
         // swiftlint:enable avoid_all_header_fields
         if !responseHeaders.isEmpty {
+            #if SDK_V10
+            let sanitizedHeaders = HTTPHeaderSanitizer.sanitizeResponseHeaders(
+                responseHeaders,
+                options: options.dataCollection
+            )
+            responseContext["headers"] = sanitizedHeaders.headers
+            responseContext["cookies"] = sanitizedHeaders.cookies
+            #else
             responseContext["headers"] = HTTPHeaderSanitizer.sanitizeHeaders(responseHeaders)
+            #endif
         }
         if sessionTask.countOfBytesReceived != 0 {
             responseContext["body_size"] = sessionTask.countOfBytesReceived
@@ -592,12 +610,29 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
     }
 
     private func addTraceWithoutTransaction(to task: URLSessionTask) {
-        guard let options = hub.currentOptions, let publicKey = options.parsedDsn?.url.user else {
+        guard let options = hub.currentOptions else {
+            return
+        }
+
+        let scope = hub.scope
+        if let span = scope.span,
+           let baggage = SentryTracer.getTracer(span)?.traceContext?.toBaggage() {
+            SentryTracePropagation.addBaggageHeader(
+                baggage,
+                traceHeader: span.toTraceHeader(),
+                propagateTraceparent: options.enablePropagateTraceparent,
+                tracePropagationTargets: options.tracePropagationTargets,
+                toRequest: task
+            )
+            return
+        }
+
+        guard let publicKey = options.parsedDsn?.url.user else {
             return
         }
 
         let baggage = Baggage(
-            trace: hub.scope.propagationContextTraceId,
+            trace: scope.propagationContextTraceId,
             publicKey: publicKey,
             releaseName: options.releaseName,
             environment: options.environment,
@@ -605,12 +640,12 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             sampleRate: nil,
             sampleRand: nil,
             sampled: nil,
-            replayId: hub.scope.replayId,
+            replayId: scope.replayId,
             orgId: options.effectiveOrgId
         )
         SentryTracePropagation.addBaggageHeader(
             baggage,
-            traceHeader: hub.scope.propagationContextTraceHeader,
+            traceHeader: scope.propagationContextTraceHeader,
             propagateTraceparent: options.enablePropagateTraceparent,
             tracePropagationTargets: options.tracePropagationTargets,
             toRequest: task

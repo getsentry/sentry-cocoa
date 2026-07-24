@@ -82,16 +82,10 @@ jobs:
         uses: ruby/setup-ruby@003a5c4d8d6321bd302e38f6f0ec593f77f06600 # v1.319.0
         with:
           bundler-cache: true
-      - name: Cache or Update Homebrew
-        uses: ./.github/actions/cache-homebrew
       - run: make init-ci-build
-        env:
-          HOMEBREW_NO_AUTO_UPDATE: 1
       - run: make xcode-ci
       - name: Install Sentry CLI
         if: needs.files-changed.outputs.is_dependabot != 'true'
-        env:
-          HOMEBREW_NO_AUTO_UPDATE: 1
         run: brew install getsentry/tools/sentry-cli
 
       # When running the workflows for dependabot PRs, we need to skip code signing, because the code signing secrets are not available for dependabot PRs.

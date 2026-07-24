@@ -106,7 +106,6 @@ jobs:
       - name: Install Ruby (Bitrise)
         if: inputs.runner_provider == 'bitrise'
         env:
-          HOMEBREW_NO_AUTO_UPDATE: "1"
           CACHE_HIT: ${{ steps.cache-ruby.outputs.cache-hit }}
         run: |
           # Only touch Homebrew / build Ruby when the cache missed.

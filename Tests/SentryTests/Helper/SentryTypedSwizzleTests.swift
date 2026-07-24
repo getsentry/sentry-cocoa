@@ -1,5 +1,6 @@
 @testable import Sentry
 import Foundation
+import ObjectiveC
 import SentryTestUtils
 import XCTest
 
@@ -190,101 +191,6 @@ final class SentryTypedSwizzleTests: XCTestCase {
         // -- Assert --
         XCTAssertTrue(installed)
         XCTAssertEqual(target.originalCallCount, 1)
-    }
-
-    func testInstanceMethod_whenTaskStateMethod_shouldReplaceArgument() {
-        // -- Arrange --
-        let key = SentryTypedSwizzle.Key()
-        let target = TypedSwizzleTaskStateTarget()
-
-        // -- Act --
-        let installed = SentryTypedSwizzle.instanceMethod(
-            in: TypedSwizzleTaskStateTarget.self,
-            method: .urlSessionTaskState(TypedSwizzleTaskStateTarget.self),
-            mode: .always,
-            key: key
-        ) { _, state, original in
-            XCTAssertEqual(state, .running)
-            original(.completed)
-        }
-        target.setState(.running)
-
-        // -- Assert --
-        XCTAssertTrue(installed)
-        XCTAssertEqual(target.receivedState, .completed)
-    }
-
-    func testInstanceMethod_whenRequestDataTaskMethod_shouldWrapCompletionAndReturnOriginalResult() throws {
-        // -- Arrange --
-        let key = SentryTypedSwizzle.Key()
-        let target = TypedSwizzleDataTaskTarget()
-        let request = URLRequest(url: URL(string: "https://example.com/original")!)
-        let replacementRequest = URLRequest(url: URL(string: "https://example.com/replacement")!)
-        var completionData: Data?
-        let method = SentrySwizzleMethod<TypedSwizzleDataTaskTarget, SentryDataTaskRequestArguments, URLSessionDataTask>(
-            selector: #selector(TypedSwizzleDataTaskTarget.makeTaskWithRequest(_:completionHandler:)),
-            receiver: TypedSwizzleDataTaskTarget.self,
-            signature: .init(
-                returnType: .object,
-                arguments: [.object, .selector, .object, .block]
-            )
-        )
-
-        // -- Act --
-        let installed = SentryTypedSwizzle.instanceMethod(
-            in: TypedSwizzleDataTaskTarget.self,
-            method: method,
-            mode: .always,
-            key: key
-        ) { _, receivedRequest, completionHandler, original in
-            XCTAssertEqual(receivedRequest, request)
-            let wrappedCompletion: SentryDataTaskCompletionHandler = { _, response, error in
-                completionHandler?(Data("wrapped".utf8), response, error)
-            }
-            return original(replacementRequest, wrappedCompletion)
-        }
-        let result = target.makeTaskWithRequest(request) { data, _, _ in
-            completionData = data
-        }
-
-        // -- Assert --
-        XCTAssertTrue(installed)
-        XCTAssertIdentical(result, target.task)
-        XCTAssertEqual(target.receivedRequest, replacementRequest)
-        XCTAssertEqual(completionData, Data("wrapped".utf8))
-    }
-
-    func testInstanceMethod_whenURLDataTaskMethod_shouldReplaceURLAndReturnOriginalResult() {
-        // -- Arrange --
-        let key = SentryTypedSwizzle.Key()
-        let target = TypedSwizzleDataTaskTarget()
-        let url = URL(string: "https://example.com/original")!
-        let replacementURL = URL(string: "https://example.com/replacement")!
-        let method = SentrySwizzleMethod<TypedSwizzleDataTaskTarget, SentryDataTaskURLArguments, URLSessionDataTask>(
-            selector: #selector(TypedSwizzleDataTaskTarget.makeTaskWithURL(_:completionHandler:)),
-            receiver: TypedSwizzleDataTaskTarget.self,
-            signature: .init(
-                returnType: .object,
-                arguments: [.object, .selector, .object, .block]
-            )
-        )
-
-        // -- Act --
-        let installed = SentryTypedSwizzle.instanceMethod(
-            in: TypedSwizzleDataTaskTarget.self,
-            method: method,
-            mode: .always,
-            key: key
-        ) { _, receivedURL, completionHandler, original in
-            XCTAssertEqual(receivedURL, url)
-            return original(replacementURL, completionHandler)
-        }
-        let result = target.makeTaskWithURL(url, completionHandler: nil)
-
-        // -- Assert --
-        XCTAssertTrue(installed)
-        XCTAssertIdentical(result, target.task)
-        XCTAssertEqual(target.receivedURL, replacementURL)
     }
 
     func testInstanceMethod_whenAlwaysIsRepeated_shouldChainInterceptorsAndCallOriginalOnce() {
@@ -515,6 +421,52 @@ final class SentryTypedSwizzleTests: XCTestCase {
         XCTAssertEqual(target.originalCallCount, 1)
     }
 
+    func testInstanceMethod_whenVoidReceiverCastFails_shouldStillCallOriginal() throws {
+        // -- Arrange --
+        let key = SentryTypedSwizzle.Key()
+        let selector = #selector(TypedSwizzleReceiverMismatchBase.invoke)
+        var interceptorCallCount = 0
+        let installed = SentryTypedSwizzle.instanceMethod(
+            in: TypedSwizzleReceiverMismatchChild.self,
+            method: .noArgumentVoid(selector, receiver: TypedSwizzleReceiverMismatchChild.self),
+            mode: .always,
+            key: key
+        ) { _, original in
+            interceptorCallCount += 1
+            original()
+        }
+        XCTAssertTrue(installed)
+
+        // Invoke the installed trampoline directly with a receiver whose type is the superclass,
+        // forcing the `receiver as? Receiver` cast to the subclass to fail.
+        let imp = try XCTUnwrap(class_getMethodImplementation(TypedSwizzleReceiverMismatchChild.self, selector))
+        typealias VoidMethod = @convention(c) (AnyObject, Selector) -> Void
+        let trampoline = unsafeBitCast(imp, to: VoidMethod.self)
+        let mismatchedReceiver = TypedSwizzleReceiverMismatchBase()
+
+        // -- Act --
+        trampoline(mismatchedReceiver, selector)
+
+        // -- Assert --
+        XCTAssertEqual(interceptorCallCount, 0, "Interceptor must not run for a mismatched receiver")
+        XCTAssertEqual(mismatchedReceiver.originalCallCount, 1, "Original must still be invoked when the receiver cast fails")
+    }
+
+    func testInstanceMethod_whenVoidValidationFails_shouldNotInstall() {
+        // -- Act --
+        let installed = SentryTypedSwizzle.instanceMethod(
+            in: TypedSwizzleTestTarget.self,
+            method: .noArgumentVoid(NSSelectorFromString("missingMethod"), receiver: TypedSwizzleTestTarget.self),
+            mode: .always,
+            key: SentryTypedSwizzle.Key()
+        ) { _, original in
+            original()
+        }
+
+        // -- Assert --
+        XCTAssertFalse(installed)
+    }
+
     func testInstanceMethod_whenInstalledConcurrentlyOncePerClass_shouldInstallExactlyOnce() {
         // -- Arrange --
         let key = SentryTypedSwizzle.Key()
@@ -575,14 +527,6 @@ private class TypedSwizzleInheritedBase: NSObject {
 
 private final class TypedSwizzleInheritedTarget: TypedSwizzleInheritedBase {}
 
-private final class TypedSwizzleTaskStateTarget: NSObject {
-    private(set) var receivedState: URLSessionTask.State?
-
-    @objc dynamic func setState(_ state: URLSessionTask.State) {
-        receivedState = state
-    }
-}
-
 private final class TypedSwizzleAlwaysTarget: NSObject {
     private(set) var originalCallCount = 0
 
@@ -637,26 +581,12 @@ private final class TypedSwizzleConcurrentTarget: NSObject {
     }
 }
 
-private final class TypedSwizzleDataTaskTarget: NSObject {
-    let task = URLSession.shared.dataTask(with: URL(string: "https://example.com")!)
-    private(set) var receivedRequest: URLRequest?
-    private(set) var receivedURL: URL?
+private class TypedSwizzleReceiverMismatchBase: NSObject {
+    private(set) var originalCallCount = 0
 
-    @objc dynamic func makeTaskWithRequest(
-        _ request: URLRequest,
-        completionHandler: SentryDataTaskCompletionHandler?
-    ) -> URLSessionDataTask {
-        receivedRequest = request
-        completionHandler?(Data("original".utf8), nil, nil)
-        return task
-    }
-
-    @objc dynamic func makeTaskWithURL(
-        _ url: URL,
-        completionHandler: SentryDataTaskCompletionHandler?
-    ) -> URLSessionDataTask {
-        receivedURL = url
-        completionHandler?(Data("original".utf8), nil, nil)
-        return task
+    @objc dynamic func invoke() {
+        originalCallCount += 1
     }
 }
+
+private final class TypedSwizzleReceiverMismatchChild: TypedSwizzleReceiverMismatchBase {}

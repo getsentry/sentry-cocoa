@@ -2,7 +2,7 @@
 import SwiftUI
 import UIKit
 
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 
 struct SentryReplayMaskPreview: ViewModifier {
     let redactOptions: SentryRedactOptions

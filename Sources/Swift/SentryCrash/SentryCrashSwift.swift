@@ -1,5 +1,5 @@
 // swiftlint:disable missing_docs
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 
 // This provides the public API for passing what is essentially a `SentryCrashReportFilter` to Swift.
 @_spi(Private) @objc public final class SentryCrashReportFilterSwift: NSObject {

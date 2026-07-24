@@ -1,5 +1,5 @@
 // swiftlint:disable file_length type_body_length missing_docs
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit

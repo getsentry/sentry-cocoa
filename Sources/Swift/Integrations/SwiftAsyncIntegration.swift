@@ -1,4 +1,4 @@
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 
 final class SwiftAsyncIntegration<Dependencies>: NSObject, SwiftIntegration {
     init?(with options: Options, dependencies: Dependencies) {
