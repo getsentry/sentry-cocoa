@@ -270,11 +270,16 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope
 {
+    [self captureFatalEventWithResult:event withScope:scope];
+}
+
+- (SentryId *)captureFatalEventWithResult:(SentryEvent *)event withScope:(SentryScope *)scope
+{
     event.isFatalEvent = YES;
 
     SentryClientInternal *client = self.client;
     if (client == nil) {
-        return;
+        return SentryId.empty;
     }
 
     SentryFileManager *fileManager = [client fileManager];
@@ -284,11 +289,18 @@ NS_ASSUME_NONNULL_BEGIN
     // users didn't start a manual session yet, and there is a previous crash on disk. In this case,
     // we just send the crash event.
     if (crashedSession != nil) {
-        [client captureFatalEvent:event withSession:crashedSession withScope:scope];
-        [fileManager deleteCrashedSession];
-    } else {
-        [client captureFatalEvent:event withScope:scope];
+        SentryId *eventId = [client captureFatalEvent:event
+                                          withSession:crashedSession
+                                            withScope:scope];
+        // An unavailable client returns an empty ID without accepting the event. Keep the crashed
+        // session in that case so a retained crash report can retry with it on the next SDK start.
+        if (![eventId isEqual:SentryId.empty] || (client.isEnabled && self.client == client)) {
+            [fileManager deleteCrashedSession];
+        }
+        return eventId;
     }
+
+    return [client captureFatalEvent:event withScope:scope];
 }
 
 #if SENTRY_HAS_UIKIT
