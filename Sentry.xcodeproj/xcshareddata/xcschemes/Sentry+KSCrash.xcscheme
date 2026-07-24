@@ -3,7 +3,7 @@
    LastUpgradeVersion = "2650"
    version = "1.7">
    <BuildAction
-      parallelizeBuildables = "NO"
+      parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES"
       buildArchitectures = "Automatic">
       <BuildActionEntries>
@@ -18,6 +18,20 @@
                BlueprintIdentifier = "D61074A12EE358E90332638B"
                BuildableName = "Sentry.framework"
                BlueprintName = "Sentry+KSCrash"
+               ReferencedContainer = "container:Sentry.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "B439043466A683CC6D38AF05"
+               BuildableName = "libSentryTestUtils.a"
+               BlueprintName = "SentryTestUtils+KSCrash"
                ReferencedContainer = "container:Sentry.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
