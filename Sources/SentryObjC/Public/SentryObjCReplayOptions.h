@@ -1,7 +1,9 @@
 #import <Foundation/Foundation.h>
 #if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCReplayNetworkBodyCapture.h"
 #    import "SentryObjCReplayQuality.h"
 #else
+#    import <SentryObjC/SentryObjCReplayNetworkBodyCapture.h>
 #    import <SentryObjC/SentryObjCReplayQuality.h>
 #endif
 
@@ -78,6 +80,15 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, copy) NSArray<Class> *unmaskedViewClasses;
 
+#if SDK_V10
+/**
+ * Controls request and response body capture for allowed URLs.
+ *
+ * The default is @c SentryObjCReplayNetworkBodyCaptureInherit. It uses the global data collection
+ * body types unless explicitly enabled or disabled for Replay.
+ */
+@property (nonatomic) SentryObjCReplayNetworkBodyCapture networkCaptureBodies;
+#else
 /**
  * Whether to capture request and response bodies for allowed URLs.
  *
@@ -86,6 +97,7 @@ NS_ASSUME_NONNULL_BEGIN
  * When @c NO, only headers and metadata will be captured for allowed URLs.
  */
 @property (nonatomic) BOOL networkCaptureBodies;
+#endif
 
 /**
  * Request headers to capture for allowed URLs during session replay.

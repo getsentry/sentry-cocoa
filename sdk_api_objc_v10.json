@@ -161,6 +161,21 @@
   },
   {
     "kind": "EnumConstantDecl",
+    "name": "SentryObjCReplayNetworkBodyCaptureDisabled",
+    "parent": "SentryObjCReplayNetworkBodyCapture"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCReplayNetworkBodyCaptureEnabled",
+    "parent": "SentryObjCReplayNetworkBodyCapture"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCReplayNetworkBodyCaptureInherit",
+    "parent": "SentryObjCReplayNetworkBodyCapture"
+  },
+  {
+    "kind": "EnumConstantDecl",
     "name": "SentryObjCReplayQualityHigh",
     "parent": "SentryObjCReplayQuality"
   },
@@ -355,6 +370,10 @@
   {
     "kind": "EnumDecl",
     "name": "SentryObjCRedactRegionType"
+  },
+  {
+    "kind": "EnumDecl",
+    "name": "SentryObjCReplayNetworkBodyCapture"
   },
   {
     "kind": "EnumDecl",
@@ -4390,7 +4409,7 @@
     "kind": "ObjCMethodDecl",
     "name": "networkCaptureBodies",
     "parent": "SentryObjCReplayOptions",
-    "returnType": "BOOL",
+    "returnType": "SentryObjCReplayNetworkBodyCapture",
     "instance": true
   },
   {
@@ -10307,7 +10326,7 @@
     "kind": "ObjCPropertyDecl",
     "name": "networkCaptureBodies",
     "parent": "SentryObjCReplayOptions",
-    "type": "BOOL"
+    "type": "SentryObjCReplayNetworkBodyCapture"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -11500,6 +11519,11 @@
     "kind": "TypedefDecl",
     "name": "SentryObjCRedactRegionType",
     "type": "enum SentryObjCRedactRegionType"
+  },
+  {
+    "kind": "TypedefDecl",
+    "name": "SentryObjCReplayNetworkBodyCapture",
+    "type": "enum SentryObjCReplayNetworkBodyCapture"
   },
   {
     "kind": "TypedefDecl",

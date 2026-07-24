@@ -62,10 +62,17 @@ import Foundation
         set { wrapped.unmaskedViewClasses = newValue }
     }
 
+#if SDK_V10
+    @objc public var networkCaptureBodies: SentryObjCReplayNetworkBodyCapture {
+        get { SentryObjCReplayNetworkBodyCapture(wrapped.networkCaptureBodies) }
+        set { wrapped.networkCaptureBodies = newValue.underlying }
+    }
+#else
     @objc public var networkCaptureBodies: Bool {
         get { wrapped.networkCaptureBodies }
         set { wrapped.networkCaptureBodies = newValue }
     }
+#endif // SDK_V10
 
     @objc public var networkRequestHeaders: [String] {
         get { wrapped.networkRequestHeaders }

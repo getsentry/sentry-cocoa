@@ -199,9 +199,17 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
         if let urlString = sessionTask.originalRequest?.url?.absoluteString,
            isNetworkDetailCaptureEnabled(for: urlString, options: options) {
+#if SDK_V10
+            let networkCaptureBodies = options.sessionReplay.shouldCaptureNetworkBody(
+                .outgoingRequest,
+                dataCollection: options.dataCollection
+            )
+#else
+            let networkCaptureBodies = options.sessionReplay.networkCaptureBodies
+#endif // SDK_V10
             captureRequestDetails(
                 for: sessionTask,
-                networkCaptureBodies: options.sessionReplay.networkCaptureBodies,
+                networkCaptureBodies: networkCaptureBodies,
                 networkRequestHeaders: options.sessionReplay.networkRequestHeaders
             )
         }
@@ -284,7 +292,15 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             }
             // swiftlint:enable avoid_all_header_fields
             let contentType = httpResponse?.value(forHTTPHeaderFieldCaseInsensitive: "content-type")
-            let bodyData = options.sessionReplay.networkCaptureBodies && !data.isEmpty ? data : nil
+#if SDK_V10
+            let shouldCaptureBody = options.sessionReplay.shouldCaptureNetworkBody(
+                .incomingResponse,
+                dataCollection: options.dataCollection
+            )
+#else
+            let shouldCaptureBody = options.sessionReplay.networkCaptureBodies
+#endif // SDK_V10
+            let bodyData = shouldCaptureBody && !data.isEmpty ? data : nil
 
             details.setResponse(
                 statusCode: statusCode,

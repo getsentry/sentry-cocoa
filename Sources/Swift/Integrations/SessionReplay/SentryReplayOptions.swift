@@ -28,7 +28,11 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         // Network capture configuration defaults
         public static let networkDetailAllowUrls: [SentryUrlMatchable] = []
         public static let networkDetailDenyUrls: [SentryUrlMatchable] = []
+#if SDK_V10
+        public static let networkCaptureBodies: NetworkBodyCapture = .inherit
+#else
         public static let networkCaptureBodies: Bool = true
+#endif // SDK_V10
         public static let networkRequestHeaders: [String] = ["Content-Type", "Content-Length", "Accept"]
         public static let networkResponseHeaders: [String] = ["Content-Type", "Content-Length", "Accept"]
 
@@ -107,6 +111,26 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
             self == .low ? 0.8 : 1.0
         }
     }
+
+#if SDK_V10
+    /// Controls whether Session Replay captures HTTP request and response bodies.
+    public enum NetworkBodyCapture {
+        /// Inherit request and response body capture from `dataCollection.httpBodies`.
+        case inherit
+        /// Capture both request and response bodies.
+        case enabled
+        /// Do not capture request or response bodies.
+        case disabled
+
+        var serializedValue: String {
+            switch self {
+            case .inherit: return "inherit"
+            case .enabled: return "enabled"
+            case .disabled: return "disabled"
+            }
+        }
+    }
+#endif // SDK_V10
 
     /**
      * Indicates the percentage in which the replay for the session will be created.
@@ -360,6 +384,19 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      */
     public var networkDetailDenyUrls: [SentryUrlMatchable]
 
+#if SDK_V10
+    /**
+     * Controls request and response body capture for allowed URLs.
+     *
+     * The default ``NetworkBodyCapture/inherit`` value uses `dataCollection.httpBodies` for each
+     * body direction. Use ``NetworkBodyCapture/enabled`` or ``NetworkBodyCapture/disabled`` to
+     * override the global setting for Replay.
+     *
+     * - Note: This setting only applies when ``networkDetailAllowUrls`` is non-empty.
+     * - Note: Bodies are automatically truncated to 150KB to prevent excessive memory usage.
+     */
+    @nonobjc public var networkCaptureBodies: NetworkBodyCapture
+#else
     /**
      * Whether to capture request and response bodies for allowed URLs.
      *
@@ -374,6 +411,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * - Note: Bodies are automatically truncated to 150KB to prevent excessive memory usage.
      */
     public var networkCaptureBodies: Bool
+#endif // SDK_V10
 
     /**
      * Request headers to capture for allowed URLs during session replay.
@@ -705,7 +743,11 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         self.includedViewClasses = includedViewClasses ?? DefaultValues.includedViewClasses
         self.networkDetailAllowUrls = networkDetailAllowUrls ?? DefaultValues.networkDetailAllowUrls
         self.networkDetailDenyUrls = networkDetailDenyUrls ?? DefaultValues.networkDetailDenyUrls
+#if SDK_V10
+        self.networkCaptureBodies = networkCaptureBodies.map { $0 ? .enabled : .disabled } ?? .inherit
+#else
         self.networkCaptureBodies = networkCaptureBodies ?? DefaultValues.networkCaptureBodies
+#endif // SDK_V10
         self._networkRequestHeaders = Self.mergeWithDefaultHeaders(networkRequestHeaders, defaults: DefaultValues.networkRequestHeaders)
         self._networkResponseHeaders = Self.mergeWithDefaultHeaders(networkResponseHeaders, defaults: DefaultValues.networkResponseHeaders)
 
@@ -745,4 +787,23 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     }
 
 }
+
+#if SDK_V10
+extension SentryReplayOptions {
+    @nonobjc
+    func shouldCaptureNetworkBody(
+        _ bodyType: SentryDataCollection.HttpBodyType,
+        dataCollection: SentryDataCollection.Options
+    ) -> Bool {
+        switch networkCaptureBodies {
+        case .inherit:
+            return dataCollection.httpBodies.contains(bodyType)
+        case .enabled:
+            return true
+        case .disabled:
+            return false
+        }
+    }
+}
+#endif
 // swiftlint:enable file_length missing_docs type_body_length

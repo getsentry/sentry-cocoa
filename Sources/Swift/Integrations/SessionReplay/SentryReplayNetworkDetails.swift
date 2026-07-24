@@ -51,6 +51,8 @@ enum NetworkBodyWarning: String {
 
     /// Captured request or response body with optional parsing warnings.
     struct Body {
+        private static let filteredValue = "[Filtered]"
+
         let content: BodyContent
         let warnings: [NetworkBodyWarning]
 
@@ -79,8 +81,12 @@ enum NetworkBodyWarning: String {
             } else if #available(macOS 11, *), let parsed = Body.parseByMimeType(mimeType, data: slice, encoding: encoding, isTruncated: isTruncated, warnings: &warnings) {
                 self = parsed
             } else {
+#if SDK_V10
+                self = Body(content: Body.filteredValue)
+#else
                 let description = "[Body not captured: contentType=\(contentType ?? "unknown") (\(data.count) bytes)]"
                 self = Body(content: description)
+#endif // SDK_V10
             }
         }
 
@@ -137,7 +143,11 @@ enum NetworkBodyWarning: String {
             }
             if utType.conforms(to: .text) {
                 if isTruncated { warnings.append(.textTruncated) }
+#if SDK_V10
+                return Body(content: filteredValue, warnings: warnings)
+#else
                 return parseText(data, encoding: encoding, warnings: &warnings)
+#endif // SDK_V10
             }
             return nil
         }
@@ -145,10 +155,24 @@ enum NetworkBodyWarning: String {
         private static func parseJSON(_ data: Data, encoding: String.Encoding = .utf8, warnings: inout [NetworkBodyWarning]) -> Body {
             do {
                 let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers)
+#if SDK_V10
+                guard let values = json as? [String: Any] else {
+                    return Body(content: filteredValue, warnings: warnings)
+                }
+                return Body(
+                    content: SentryDataCollection.KeyValueFilter.filterSensitiveValues(values),
+                    warnings: warnings
+                )
+#else
                 return Body(content: json, warnings: warnings)
+#endif // SDK_V10
             } catch {
                 warnings.append(.bodyParseError)
+#if SDK_V10
+                return Body(content: filteredValue, warnings: warnings)
+#else
                 return parseText(data, encoding: encoding, warnings: &warnings)
+#endif // SDK_V10
             }
         }
 
@@ -156,7 +180,11 @@ enum NetworkBodyWarning: String {
         private static func parseFormEncoded(_ data: Data, encoding: String.Encoding, warnings: inout [NetworkBodyWarning]) -> Body {
             guard let urlEncodedFormData = String(data: data, encoding: encoding) ?? String(data: data, encoding: .utf8) else {
                 warnings.append(.bodyParseError)
+#if SDK_V10
+                return Body(content: filteredValue, warnings: warnings)
+#else
                 return parseText(data, encoding: encoding, warnings: &warnings)
+#endif // SDK_V10
             }
 
             var formData = [String: Any]()
@@ -164,7 +192,11 @@ enum NetworkBodyWarning: String {
                 let comps = rawElement.components(separatedBy: "=")
                 if comps.count < 2 {
                     warnings.append(.bodyParseError)
+#if SDK_V10
+                    return Body(content: filteredValue, warnings: warnings)
+#else
                     return parseText(data, encoding: encoding, warnings: &warnings)
+#endif // SDK_V10
                 }
                 let key = decodeFormComponent(comps[0])
                 let value = decodeFormComponent(comps.dropFirst().joined(separator: "="))
@@ -180,7 +212,14 @@ enum NetworkBodyWarning: String {
                     formData[key] = value
                 }
             }
+#if SDK_V10
+            return Body(
+                content: SentryDataCollection.KeyValueFilter.filterSensitiveValues(formData),
+                warnings: warnings
+            )
+#else
             return Body(content: formData, warnings: warnings)
+#endif // SDK_V10
         }
 
         /// Decodes a form-urlencoded component: converts `+` to space and removes percent-encoding.

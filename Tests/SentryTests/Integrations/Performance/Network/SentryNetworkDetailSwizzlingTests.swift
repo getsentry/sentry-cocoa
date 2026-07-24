@@ -129,7 +129,11 @@ class SentryNetworkDetailSwizzlingTests: XCTestCase {
         options.tracesSampleRate = 1.0
         options.enableNetworkBreadcrumbs = true
         options.sessionReplay.networkDetailAllowUrls = ["postman-echo.com"]
+#if SDK_V10
+        options.sessionReplay.networkCaptureBodies = .enabled
+#else
         options.sessionReplay.networkCaptureBodies = true
+#endif
         SentrySDK.start(options: options)
     }
 

@@ -192,6 +192,13 @@
     },
     {
       "kind": "ObjCMethodDecl",
+      "name": "networkCaptureBodies",
+      "parent": "SentryObjCReplayOptions",
+      "returnType": "SentryObjCReplayNetworkBodyCapture",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
       "name": "new",
       "parent": "SentryObjCFeedbackForm",
       "returnType": "instancetype _Nonnull",
@@ -339,6 +346,12 @@
       "name": "nameSource",
       "parent": "SentryObjCTransactionContext",
       "type": "SentryObjCTransactionNameSource"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "networkCaptureBodies",
+      "parent": "SentryObjCReplayOptions",
+      "type": "SentryObjCReplayNetworkBodyCapture"
     },
     {
       "kind": "ObjCPropertyDecl",
@@ -628,6 +641,13 @@
     },
     {
       "kind": "ObjCMethodDecl",
+      "name": "networkCaptureBodies",
+      "parent": "SentryObjCReplayOptions",
+      "returnType": "enum SentryObjCReplayNetworkBodyCapture",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
       "name": "new",
       "parent": "SentryObjCInternalBreadcrumbApi",
       "returnType": "instancetype _Nonnull",
@@ -789,6 +809,12 @@
       "name": "nameSource",
       "parent": "SentryObjCTransactionContext",
       "type": "enum SentryObjCTransactionNameSource"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "networkCaptureBodies",
+      "parent": "SentryObjCReplayOptions",
+      "type": "enum SentryObjCReplayNetworkBodyCapture"
     },
     {
       "kind": "ObjCPropertyDecl",

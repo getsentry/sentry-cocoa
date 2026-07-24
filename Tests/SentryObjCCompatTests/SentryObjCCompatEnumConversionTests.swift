@@ -151,6 +151,40 @@ final class SentryObjCCompatEnumConversionTests: XCTestCase {
         }
     }
 
+    // MARK: - SentryObjCReplayNetworkBodyCapture
+
+    func testReplayNetworkBodyCaptureInit_whenEachCase_shouldMapCorrectly() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+#else
+        let cases: [(SentryReplayOptions.NetworkBodyCapture, SentryObjCReplayNetworkBodyCapture)] = [
+            (.inherit, .inherit),
+            (.enabled, .enabled),
+            (.disabled, .disabled)
+        ]
+
+        for (underlying, expected) in cases {
+            XCTAssertEqual(SentryObjCReplayNetworkBodyCapture(underlying), expected)
+        }
+#endif
+    }
+
+    func testReplayNetworkBodyCaptureUnderlying_whenEachCase_shouldRoundTrip() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+#else
+        let cases: [(SentryObjCReplayNetworkBodyCapture, SentryReplayOptions.NetworkBodyCapture)] = [
+            (.inherit, .inherit),
+            (.enabled, .enabled),
+            (.disabled, .disabled)
+        ]
+
+        for (objcCase, expected) in cases {
+            XCTAssertEqual(objcCase.underlying, expected)
+        }
+#endif
+    }
+
     // MARK: - SentryObjCTransactionNameSource
 
     func testTransactionNameSourceInit_whenEachCase_shouldMapCorrectly() {

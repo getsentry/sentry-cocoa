@@ -1791,6 +1791,7 @@
 				Public/SentryObjCPrivateSDKOnly.h,
 				Public/SentryObjCRedactRegionType.h,
 				Public/SentryObjCReplayApi.h,
+				Public/SentryObjCReplayNetworkBodyCapture.h,
 				Public/SentryObjCReplayOptions.h,
 				Public/SentryObjCReplayQuality.h,
 				Public/SentryObjCRequest.h,

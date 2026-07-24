@@ -43,7 +43,11 @@ final class SentryRRWebOptionsEvent: SentryRRWebCustomEvent {
                     return String(describing: pattern)
                 }
             }
+#if SDK_V10
+            payload["networkCaptureBodies"] = options.networkCaptureBodies.serializedValue
+#else
             payload["networkCaptureBodies"] = options.networkCaptureBodies
+#endif // SDK_V10
             payload["networkRequestHeaders"] = options.networkRequestHeaders
             payload["networkResponseHeaders"] = options.networkResponseHeaders
         }
