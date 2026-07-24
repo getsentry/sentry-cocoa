@@ -4,7 +4,6 @@
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryQueueableRequestManager.h"
-#import "SentrySpotlightTransport.h"
 #import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -37,8 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
         SentrySpotlightTransport *spotlightTransport =
             [[SentrySpotlightTransport alloc] initWithOptions:options
                                                requestManager:requestManager
-                                               requestBuilder:requestBuilder
-                                         dispatchQueueWrapper:dispatchQueueWrapper];
+                                               requestBuilder:requestBuilder];
 
         [transports addObject:spotlightTransport];
     } else {

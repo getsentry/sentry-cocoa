@@ -1,5 +1,5 @@
 // swiftlint:disable missing_docs
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 
 /// A wrapper around sysctl for testability.
 @_spi(Private) @objc public class SentrySysctl: NSObject {

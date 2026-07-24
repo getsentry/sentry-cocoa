@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix trace propagation for manually instrumented transactions when automatic performance tracing is disabled (#8522)
+
 ## 9.23.0
 
 ### Features

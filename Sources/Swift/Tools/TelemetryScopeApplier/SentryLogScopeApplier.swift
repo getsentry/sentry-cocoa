@@ -1,5 +1,5 @@
 // swiftlint:disable missing_docs
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 import Foundation
 
 /// Required because we need to call this from Objective-C. It's just a wrapper around the TelemetryScopeApplier protocol for Objective-C.
