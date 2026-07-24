@@ -392,7 +392,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             result[key] = value
         }
         // swiftlint:enable avoid_all_header_fields
-#if SDK_V10
+        #if SDK_V10
         let sanitizedHeaders = HTTPHeaderSanitizer.sanitizeResponseHeaders(
             responseHeaders,
             options: options.dataCollection
