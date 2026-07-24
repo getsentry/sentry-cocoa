@@ -51,8 +51,81 @@ public struct SentrySDKWrapper {
 #endif // os(iOS) || os(tvOS) || os(visionOS))
     }
 
+    public func configureDataCollection(_ options: Options) {
+#if SDK_V10
+        options.dataCollection.userInfo = !SentrySDKOverrides.DataCollection.disableUserInfo.boolValue
+        options.dataCollection.cookies = dataCollectionBehavior(
+            mode: SentrySDKOverrides.DataCollection.cookiesMode.stringValue,
+            terms: SentrySDKOverrides.DataCollection.cookiesTerms.stringValue
+        )
+        options.dataCollection.httpHeaders.request = dataCollectionBehavior(
+            mode: SentrySDKOverrides.DataCollection.httpRequestHeadersMode.stringValue,
+            terms: SentrySDKOverrides.DataCollection.httpRequestHeadersTerms.stringValue
+        )
+        options.dataCollection.httpHeaders.response = dataCollectionBehavior(
+            mode: SentrySDKOverrides.DataCollection.httpResponseHeadersMode.stringValue,
+            terms: SentrySDKOverrides.DataCollection.httpResponseHeadersTerms.stringValue
+        )
+        if SentrySDKOverrides.Special.disableEverything.boolValue {
+            options.dataCollection.httpBodies = []
+        } else if let httpBodies = SentrySDKOverrides.DataCollection.httpBodies.stringValue {
+            options.dataCollection.httpBodies = dataCollectionHttpBodies(commaSeparatedValues(httpBodies))
+        }
+        options.dataCollection.urlQueryParams = dataCollectionBehavior(
+            mode: SentrySDKOverrides.DataCollection.urlQueryParamsMode.stringValue,
+            terms: SentrySDKOverrides.DataCollection.urlQueryParamsTerms.stringValue
+        )
+        options.dataCollection.graphql.document = !SentrySDKOverrides.DataCollection.disableGraphQLDocument.boolValue
+        options.dataCollection.graphql.variables = !SentrySDKOverrides.DataCollection.disableGraphQLVariables.boolValue
+        options.dataCollection.database.queryParams = !SentrySDKOverrides.DataCollection.disableDatabaseQueryParams.boolValue
+        options.dataCollection.stackFrameVariables = !SentrySDKOverrides.DataCollection.disableStackFrameVariables.boolValue
+        if SentrySDKOverrides.Special.disableEverything.boolValue {
+            options.dataCollection.frameContextLines = 0
+        } else if let frameContextLines = SentrySDKOverrides.DataCollection.frameContextLines.stringValue,
+                  let value = UInt(frameContextLines) {
+            options.dataCollection.frameContextLines = value
+        }
+#endif // SDK_V10
+    }
+
+#if SDK_V10
+    private func dataCollectionBehavior(
+        mode: String?,
+        terms: String?
+    ) -> SentryDataCollection.KeyValueCollectionBehavior {
+        guard !SentrySDKOverrides.Special.disableEverything.boolValue else { return .off }
+        let values = commaSeparatedValues(terms)
+        switch mode {
+        case "off": return .off
+        case "allowList": return .allowList(terms: values)
+        case "denyList", nil: return .denyList(terms: values)
+        default: return .denyList()
+        }
+    }
+
+    private func dataCollectionHttpBodies(_ values: [String]) -> SentryDataCollection.HttpBodyType {
+        values.reduce(into: []) { result, value in
+            switch value {
+            case "incomingRequest": result.insert(.incomingRequest)
+            case "outgoingRequest": result.insert(.outgoingRequest)
+            case "incomingResponse": result.insert(.incomingResponse)
+            case "outgoingResponse": result.insert(.outgoingResponse)
+            default: break
+            }
+        }
+    }
+
+    private func commaSeparatedValues(_ value: String?) -> [String] {
+        value?
+            .split(separator: ",")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty } ?? []
+    }
+#endif // SDK_V10
+
     func configureSentryOptions(options: Options) {
         options.dsn = dsn
+        configureDataCollection(options)
         if let sampleRate = SentrySDKOverrides.Events.sampleRate.floatValue {
             options.sampleRate = NSNumber(value: sampleRate)
         }
@@ -413,9 +486,11 @@ extension SentrySDKWrapper {
     func configureFeedback(config: SentryUserFeedbackConfiguration) {
         let shouldConfigureDeprecatedWidget = SentrySDKOverrides.Feedback.disableAutoInject.boolValue
         guard !args.contains(SentrySDKOverrides.Feedback.allDefaults.rawValue) else {
+#if !SDK_V10
             if shouldConfigureDeprecatedWidget {
                 config.configureWidget = configureFeedbackWidget(config:)
             }
+#endif // !SDK_V10
             configureHooks(config: config)
             return
         }
@@ -423,16 +498,20 @@ extension SentrySDKWrapper {
         config.animations = !SentrySDKOverrides.Feedback.noAnimations.boolValue
         config.useShakeGesture = !SentrySDKOverrides.Feedback.noShakeGesture.boolValue
         config.showFormForScreenshots = !SentrySDKOverrides.Feedback.noScreenshots.boolValue
+#if !SDK_V10
         if shouldConfigureDeprecatedWidget {
             config.configureWidget = configureFeedbackWidget(config:)
         }
+#endif // !SDK_V10
         config.configureForm = configureFeedbackForm(config:)
         config.configureTheme = configureFeedbackTheme(config:)
         configureHooks(config: config)
 
+#if !SDK_V10
         if SentrySDKOverrides.Feedback.useCustomFeedbackButton.boolValue {
             config.customButton = feedbackButton
         }
+#endif // !SDK_V10
     }
 
     func configureHooks(config: SentryUserFeedbackConfiguration) {
@@ -577,5 +656,14 @@ extension SentrySDKWrapper {
     }
 }
 #endif // !os(tvOS) && !os(watchOS) && !os(visionOS)
+
+#if SDK_V10
+@objcMembers public final class SentrySampleDataCollectionConfiguration: NSObject {
+    @objc(configureWithOptions:)
+    public static func configure(options: Options) {
+        SentrySDKWrapper.shared.configureDataCollection(options)
+    }
+}
+#endif // SDK_V10
 
 // swiftlint:enable file_length function_body_length
