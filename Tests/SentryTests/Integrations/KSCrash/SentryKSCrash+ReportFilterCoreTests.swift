@@ -22,7 +22,8 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
         dispatchQueue = TestSentryDispatchQueueWrapper()
         sut = SentryKSCrash.ReportFilterCore(
             reportProcessor: SentryStoredCrashReportProcessor(
-                inAppLogic: SentryInAppLogic(inAppIncludes: [])
+                inAppLogic: SentryInAppLogic(inAppIncludes: []),
+                preserveCrashedSessionOnCaptureFailure: true
             ),
             dispatchQueue: dispatchQueue
         )

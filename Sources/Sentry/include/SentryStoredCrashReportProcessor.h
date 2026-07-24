@@ -20,6 +20,13 @@ SENTRY_NO_INIT
 - (instancetype)initWithInAppLogic:(SENTRY_SWIFT_MIGRATION_ID(SentryInAppLogic))inAppLogic;
 
 /**
+ * @param preserveCrashedSessionOnCaptureFailure Set to YES only when the caller retains retryable
+ * reports. The default initializer uses NO to preserve the legacy SentryCrash cleanup behavior.
+ */
+- (instancetype)initWithInAppLogic:(SENTRY_SWIFT_MIGRATION_ID(SentryInAppLogic))inAppLogic
+    preserveCrashedSessionOnCaptureFailure:(BOOL)preserveCrashedSessionOnCaptureFailure;
+
+/**
  * Processes one dictionary crash report.
  * @return YES after the converted fatal event has been handed to the Sentry client.
  */
