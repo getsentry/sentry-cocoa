@@ -16,11 +16,7 @@ suites:
     devices:
       - name: "iPad Pro 11 2024"
         platformVersion: "17"
-  - name: "Mid-range device"
-    devices:
-      - name: "iPhone 13 Mini"
-        platformVersion: "17"
   - name: "Low-end device"
     devices:
       - name: "iPhone SE 2022"
-        platformVersion: "15"
+        platformVersion: "18"
