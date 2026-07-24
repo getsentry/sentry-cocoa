@@ -9,7 +9,7 @@ extension SentryKSCrash {
         ///   - monitors: Monitor types to enable.
         ///   - enableSwapCxaThrow: Whether to swap `__cxa_throw` for better C++ stacks.
         /// - Throws: Any error from `KSCrash.installWithConfiguration(_:error:)`.
-        func install(installPath: String, monitors: UInt, enableSwapCxaThrow: Bool) throws
+        func install(installPath: String, monitors: MonitorType, enableSwapCxaThrow: Bool) throws
 
         /// Whether the previous run crashed.
         var crashedLastLaunch: Bool { get }
@@ -17,10 +17,10 @@ extension SentryKSCrash {
 
     /// Configures and installs a crash handler
     struct Installer: SentryKSCrash.Installing {
-        func install(installPath: String, monitors: UInt, enableSwapCxaThrow: Bool) throws {
+        func install(installPath: String, monitors: MonitorType, enableSwapCxaThrow: Bool) throws {
             let config = KSCrashConfiguration()
             config.installPath = installPath
-            config.monitors = MonitorType(rawValue: monitors)
+            config.monitors = monitors
             config.enableSwapCxaThrow = enableSwapCxaThrow
             do {
                 try KSCrash.shared.install(with: config)
