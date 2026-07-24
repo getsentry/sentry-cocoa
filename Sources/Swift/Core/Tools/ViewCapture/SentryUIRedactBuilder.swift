@@ -1,7 +1,7 @@
 // swiftlint:disable file_length type_body_length
 #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
 #if os(iOS) || os(tvOS)
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 import Foundation
 import ObjectiveC.NSObjCRuntime
 import UIKit
@@ -627,7 +627,20 @@ final class SentryUIRedactBuilder {
         }
 
         // Traverse the sublayers to redact them if necessary
-        guard let subLayers = safeSublayers(of: layer), subLayers.count > 0 else {
+        guard let subLayers = safeSublayers(of: layer) else {
+            // Reading the sublayers raised an exception, so we cannot inspect the subtree to decide what
+            // needs redacting. To avoid leaking unmasked content (e.g. text or images in children we could
+            // not enumerate), we redact the whole layer bounds. This mirrors `isViewSubtreeIgnored`, which
+            // also redacts the full region when it must skip a crash-prone subtree.
+            redacting.append(SentryRedactRegion(
+                size: layer.bounds.size,
+                transform: newTransform,
+                type: .redact,
+                name: layer.debugDescription
+            ))
+            return
+        }
+        guard subLayers.count > 0 else {
             return
         }
         let clipToBounds = layer.masksToBounds
@@ -782,7 +795,7 @@ final class SentryUIRedactBuilder {
     /// were incorrectly treated as opaque, causing text behind them to not be redacted.
     /// See: https://github.com/getsentry/sentry-cocoa/pull/6629#issuecomment-3479730690
     private func isOpaque(_ view: UIView) -> Bool {
-        let layer = view.layer.presentation() ?? view.layer
+        let layer = safePresentationLayer(of: view.layer) ?? view.layer
 
         // Allow explicit override: if a view is marked to clip out, treat it as opaque
         if SentryRedactViewHelper.shouldClipOut(view) {

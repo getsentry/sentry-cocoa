@@ -83,17 +83,25 @@ class SentryUIRedactBuilderTests_LayerTraversalCrash: SentryUIRedactBuilderTests
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        // Traversal of the throwing subtree must be skipped gracefully instead of crashing,
-        // and the sibling label must still be redacted.
+        // Traversal of the throwing subtree must not crash. Because we cannot inspect the subtree
+        // to decide what needs redacting, we redact its whole bounds to avoid leaking unmasked
+        // content. The sibling label must still be redacted on its own merits.
         let labelRegions = result.filter { $0.type == .redact && $0.color == UIColor.purple }
         XCTAssertEqual(labelRegions.count, 1, "Sibling label should still be redacted despite the crashing subtree")
 
         let labelRegion = try XCTUnwrap(labelRegions.first)
         XCTAssertEqual(labelRegion.size, CGSize(width: 80, height: 20))
         XCTAssertEqual(labelRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 10))
+
+        // The crashing subtree is overmasked: a full-bounds redact region covers it so any
+        // unreadable child content stays hidden. It carries no view color (it is layer-derived).
+        let throwingRegions = result.filter { $0.type == .redact && $0.size == CGSize(width: 100, height: 40) }
+        XCTAssertEqual(throwingRegions.count, 1, "Crashing subtree should be overmasked with a full-bounds redact region")
+        let throwingRegion = try XCTUnwrap(throwingRegions.first)
+        XCTAssertEqual(throwingRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 40))
     }
 
-    func testRedactRegionsFor_whenRootSublayersAccessThrows_shouldNotCrash() {
+    func testRedactRegionsFor_whenRootSublayersAccessThrows_shouldNotCrash() throws {
         // -- Arrange --
         // The root view itself is backed by a layer whose sublayers access throws.
         let rootView = ThrowingSublayersView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
@@ -103,8 +111,12 @@ class SentryUIRedactBuilderTests_LayerTraversalCrash: SentryUIRedactBuilderTests
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        // Should not crash. No regions can be collected because traversal stops at the root.
-        XCTAssertEqual(result.count, 0)
+        // Should not crash. Because the root's sublayers cannot be read, we cannot inspect any
+        // content, so the root's whole bounds are overmasked to avoid leaking unmasked content.
+        XCTAssertEqual(result.count, 1)
+        let region = try XCTUnwrap(result.first)
+        XCTAssertEqual(region.type, .redact)
+        XCTAssertEqual(region.size, CGSize(width: 100, height: 100))
     }
 }
 
