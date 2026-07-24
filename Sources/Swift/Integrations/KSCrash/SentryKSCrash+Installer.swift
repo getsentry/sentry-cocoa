@@ -1,5 +1,6 @@
 #if ENABLE_KSCRASH
-internal import KSCrashInstallations
+// swiftlint:disable:next no_implementation_only_import
+@_implementationOnly import KSCrashInstallations
 
 extension SentryKSCrash {
     protocol Installing {
