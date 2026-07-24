@@ -376,7 +376,6 @@ class SentryNetworkTrackerTests: XCTestCase {
 
     func testSpan_whenURLQueryParamsAreOff_shouldNotStoreQueryInURLData() throws {
         // -- Arrange --
-        fixture.options.sendDefaultPii = true
         fixture.options.dataCollection.urlQueryParams = .off
         let url = try XCTUnwrap(URL(string: "https://www.domain.com/api?token=secret&page=2"))
         let task = URLSessionDataTaskMock(request: URLRequest(url: url))
@@ -390,24 +389,8 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(span.spanDescription, "GET https://www.domain.com/api")
     }
 
-    func testSpan_whenSendDefaultPiiIsFalse_shouldUseConfiguredQueryParamBehavior() throws {
+    func testSpan_whenURLQueryParamsUseDefault_shouldCollectNonSensitiveValues() throws {
         // -- Arrange --
-        fixture.options.sendDefaultPii = false
-        fixture.options.dataCollection.urlQueryParams = .off
-        let url = try XCTUnwrap(URL(string: "https://www.domain.com/api?forwarded=192.0.2.1&page=2"))
-        let task = URLSessionDataTaskMock(request: URLRequest(url: url))
-
-        // -- Act --
-        let span = try XCTUnwrap(spanForTask(task: task))
-
-        // -- Assert --
-        XCTAssertEqual(span.data["url"] as? String, "https://www.domain.com/api")
-        XCTAssertNil(span.data["http.query"])
-    }
-
-    func testSpan_whenSendDefaultPiiIsTrue_shouldUseConfiguredQueryParamBehavior() throws {
-        // -- Arrange --
-        fixture.options.sendDefaultPii = true
         fixture.options.dataCollection = SentryDataCollection.Options()
         let url = try XCTUnwrap(URL(string: "https://www.domain.com/api?forwarded=192.0.2.1&page=2"))
         let task = URLSessionDataTaskMock(request: URLRequest(url: url))

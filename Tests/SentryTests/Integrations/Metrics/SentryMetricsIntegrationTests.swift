@@ -65,7 +65,6 @@ class SentryMetricsIntegrationTests: XCTestCase {
 #else
         // -- Arrange --
         let client = try givenSdkWithHub { options in
-            options.sendDefaultPii = true
             options.dataCollection.userInfo = false
         }
         let integration = try getSut()
