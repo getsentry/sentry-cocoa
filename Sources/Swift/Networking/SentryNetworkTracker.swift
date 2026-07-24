@@ -370,7 +370,9 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
                 headers,
                 options: options.dataCollection
             )
-            request.headers = sanitizedHeaders.headers
+            if !sanitizedHeaders.headers.isEmpty {
+                request.headers = sanitizedHeaders.headers
+            }
             request.cookies = sanitizedHeaders.cookies
             #else
             request.headers = HTTPHeaderSanitizer.sanitizeHeaders(headers)
@@ -390,12 +392,14 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             result[key] = value
         }
         // swiftlint:enable avoid_all_header_fields
-        #if SDK_V10
+#if SDK_V10
         let sanitizedHeaders = HTTPHeaderSanitizer.sanitizeResponseHeaders(
             responseHeaders,
             options: options.dataCollection
         )
-        responseContext["headers"] = sanitizedHeaders.headers
+        if !sanitizedHeaders.headers.isEmpty {
+            responseContext["headers"] = sanitizedHeaders.headers
+        }
         responseContext["cookies"] = sanitizedHeaders.cookies
         #else
         responseContext["headers"] = HTTPHeaderSanitizer.sanitizeHeaders(responseHeaders)
