@@ -71,7 +71,8 @@ extension SentryKSCrash {
             }
 
             let reportProcessor = SentryStoredCrashReportProcessor(
-                inAppLogic: SentryInAppLogic(inAppIncludes: options.inAppIncludes)
+                inAppLogic: SentryInAppLogic(inAppIncludes: options.inAppIncludes),
+                preserveCrashedSessionOnCaptureFailure: true
             )
             // The report filter dispatches regular reports itself. Keep this call synchronous so
             // startup crashes can be captured and flushed before SDK initialization returns.

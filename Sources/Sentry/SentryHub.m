@@ -270,10 +270,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope
 {
-    [self captureFatalEventWithResult:event withScope:scope];
+    [self captureFatalEventWithResult:event withScope:scope preserveCrashedSessionOnFailure:NO];
 }
 
-- (SentryId *)captureFatalEventWithResult:(SentryEvent *)event withScope:(SentryScope *)scope
+- (SentryId *)captureFatalEventWithResult:(SentryEvent *)event
+                                withScope:(SentryScope *)scope
+          preserveCrashedSessionOnFailure:(BOOL)preserveCrashedSessionOnFailure
 {
     event.isFatalEvent = YES;
 
@@ -292,9 +294,10 @@ NS_ASSUME_NONNULL_BEGIN
         SentryId *eventId = [client captureFatalEvent:event
                                           withSession:crashedSession
                                             withScope:scope];
-        // An unavailable client returns an empty ID without accepting the event. Keep the crashed
-        // session in that case so a retained crash report can retry with it on the next SDK start.
-        if (![eventId isEqual:SentryId.empty] || (!client.isDisabled && self.client == client)) {
+        // An unavailable client returns an empty ID without accepting the event. Callers that
+        // retain the crash report can also preserve its session for the next SDK start.
+        if (!preserveCrashedSessionOnFailure || ![eventId isEqual:SentryId.empty]
+            || (!client.isDisabled && self.client == client)) {
             [fileManager deleteCrashedSession];
         }
         return eventId;

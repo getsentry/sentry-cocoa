@@ -28,6 +28,18 @@ final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase
 
     private final class ClientClosedDuringCapture: TestClient {
         public override func captureFatalEvent(_ event: Event, with scope: Scope) -> SentryId {
+            closeWithoutCapturing()
+        }
+
+        public override func captureFatalEvent(
+            _ event: Event,
+            with session: SentrySession,
+            with scope: Scope
+        ) -> SentryId {
+            closeWithoutCapturing()
+        }
+
+        private func closeWithoutCapturing() -> SentryId {
             close()
             return SentryId.empty
         }
@@ -52,7 +64,10 @@ final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase
     override func setUp() {
         super.setUp()
         givenSdkWithHub()
-        sut = SentryStoredCrashReportProcessor(inAppLogic: SentryInAppLogic(inAppIncludes: []))
+        sut = SentryStoredCrashReportProcessor(
+            inAppLogic: SentryInAppLogic(inAppIncludes: []),
+            preserveCrashedSessionOnCaptureFailure: true
+        )
     }
 
     func testProcessReport_whenReportIsValid_shouldCaptureFatalEvent() throws {
@@ -135,6 +150,23 @@ final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase
         }
         XCTAssertFalse(client.isEnabled)
         XCTAssertIdentical(SentrySDKInternal.currentHub().getClient(), client)
+    }
+
+    func testProcessReport_whenSessionPreservationIsDisabled_shouldDeleteSessionAfterFailedCapture() throws {
+        let disabledOptions = makeEnabledOptions()
+        disabledOptions.enabled = false
+        let client = try XCTUnwrap(EmptyCaptureClient(options: disabledOptions))
+        SentrySDKInternal.setCurrentHub(SentryHubInternal(client: client, andScope: nil))
+        let crashedSession = SentrySession(releaseName: "1.0.0", distinctId: "test-installation")
+        crashedSession.endCrashed(withTimestamp: Date())
+        client.fileManager.storeCrashedSession(crashedSession)
+        let report = try getCrashReport(resource: "Resources/crash-report-1")
+        let processor = SentryStoredCrashReportProcessor(
+            inAppLogic: SentryInAppLogic(inAppIncludes: [])
+        )
+
+        XCTAssertThrowsError(try processor.process(report: report))
+        XCTAssertNil(client.fileManager.readCrashedSession())
     }
 
     func testProcessReport_whenClientIsDisabledByOptions_shouldThrowAndRetainSession() throws {

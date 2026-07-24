@@ -18,6 +18,7 @@ NSErrorDomain const SentryStoredCrashReportProcessorErrorDomain
 @interface SentryStoredCrashReportProcessor ()
 
 @property (nonatomic, strong) SentryInAppLogic *inAppLogic;
+@property (nonatomic, assign) BOOL preserveCrashedSessionOnCaptureFailure;
 
 @end
 
@@ -25,8 +26,15 @@ NSErrorDomain const SentryStoredCrashReportProcessorErrorDomain
 
 - (instancetype)initWithInAppLogic:(SentryInAppLogic *)inAppLogic
 {
+    return [self initWithInAppLogic:inAppLogic preserveCrashedSessionOnCaptureFailure:NO];
+}
+
+- (instancetype)initWithInAppLogic:(SentryInAppLogic *)inAppLogic
+    preserveCrashedSessionOnCaptureFailure:(BOOL)preserveCrashedSessionOnCaptureFailure
+{
     if (self = [super init]) {
         self.inAppLogic = inAppLogic;
+        self.preserveCrashedSessionOnCaptureFailure = preserveCrashedSessionOnCaptureFailure;
     }
     return self;
 }
@@ -73,7 +81,10 @@ NSErrorDomain const SentryStoredCrashReportProcessorErrorDomain
             [scope addCrashReportAttachmentInPath:attachmentPath];
         }
 
-        SentryId *eventId = [hub captureFatalEventWithResult:event withScope:scope];
+        SentryId *eventId =
+            [hub captureFatalEventWithResult:event
+                                      withScope:scope
+                preserveCrashedSessionOnFailure:self.preserveCrashedSessionOnCaptureFailure];
         // An empty ID alone does not imply a retryable failure: an active client can intentionally
         // discard an event, for example through beforeSend. Retry only if the client was disabled
         // by configuration, closed, or unbound from the hub before accepting the report.
