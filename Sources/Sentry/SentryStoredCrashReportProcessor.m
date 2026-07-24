@@ -1,6 +1,6 @@
 #import "SentryStoredCrashReportProcessor.h"
 
-#import "SentryClient.h"
+#import "SentryClient+Private.h"
 #import "SentryCrash.h"
 #import "SentryCrashReportConverter.h"
 #import "SentryEvent.h"
@@ -75,10 +75,10 @@ NSErrorDomain const SentryStoredCrashReportProcessorErrorDomain
 
         SentryId *eventId = [hub captureFatalEventWithResult:event withScope:scope];
         // An empty ID alone does not imply a retryable failure: an active client can intentionally
-        // discard an event, for example through beforeSend. Retry only if the client also became
-        // disabled or was unbound from the hub before accepting the report.
+        // discard an event, for example through beforeSend. Retry only if the client was disabled
+        // by configuration, closed, or unbound from the hub before accepting the report.
         if ([eventId isEqual:SentryId.empty]
-            && (![client isEnabled] || [hub getClient] != client)) {
+            && ([client isDisabled] || [hub getClient] != client)) {
             return [self failWithError:error
                                   code:SentryStoredCrashReportProcessorErrorMissingClient
                            description:@"The Sentry client became unavailable before accepting the "
