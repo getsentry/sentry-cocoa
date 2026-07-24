@@ -11,6 +11,12 @@ import FoundationModels
 
 // Regression test for GH-8152: the gated `Gated*ViewController` subclasses below are compiled into
 // the app so `SentrySubClassFinder` must enumerate them at launch without realizing them.
+//
+// Discovery is fixed, but *swizzling* a discovered gated subclass still realizes it and crashes on
+// OS versions below its gate (residual GH-8152, tracked in GH-8548). The AppDelegate therefore adds
+// the two crasher fixtures (Cases 1 and 2) to `options.swizzleClassNameExcludes` — the documented
+// workaround. Removing those excludes re-arms the crash repro on the iOS 16.4 simulator, which is
+// the acceptance gate for the deferred-swizzling follow-up (GH-8548).
 
 /// Host screen for the regression fixtures. It doesn't need to be opened — the fixtures just need to
 /// be compiled in; opening it only makes the test tappable in the UI.
@@ -28,6 +34,9 @@ final class SubClassFinderRegressionViewController: UIViewController {
         Three @available-gated UIViewController subclasses are compiled into this app so the SDK's \
         SentrySubClassFinder must enumerate them at launch without realizing them. If that regresses, \
         the app crashes on launch.
+
+        The two crasher fixtures are excluded from swizzling via swizzleClassNameExcludes in the \
+        AppDelegate — the documented workaround for the residual swizzle-time crash (GH-8548).
         """
         label.accessibilityIdentifier = SubClassFinderRegressionViewController.accessibilityIdentifier
         return label.forAutoLayout()
@@ -74,6 +83,8 @@ final class SubClassFinderRegressionViewController: UIViewController {
 // MARK: - Gated fixtures (never instantiated; presence in the binary is the point)
 
 /// Case 1: gated on iOS 17, holding `RoomPlan.CapturedStructure` — the exact GH-8152 crasher.
+/// Swizzling this class realizes it and crashes below iOS 17; excluded via
+/// `swizzleClassNameExcludes` in the AppDelegate (workaround for GH-8548).
 #if canImport(RoomPlan)
 @available(iOS 17.0, *)
 final class GatedIOS17ViewController: UIViewController {
@@ -86,7 +97,8 @@ final class GatedIOS17ViewController: UIViewController {}
 #endif
 
 /// Case 2: gated on iOS 26, holding `FoundationModels.LanguageModelSession`. Behind `canImport` so
-/// the sample still builds with a pre-iOS-26 SDK, where the type doesn't exist.
+/// the sample still builds with a pre-iOS-26 SDK, where the type doesn't exist. Same crasher shape
+/// as Case 1 (gated at iOS 26); also excluded via `swizzleClassNameExcludes` in the AppDelegate.
 #if canImport(FoundationModels)
 @available(iOS 26.0, *)
 final class GatedIOS26OnlyViewController: UIViewController {

@@ -33,6 +33,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         SentrySDKWrapper.spanCaptureHandler = { LaunchVCTransactionCapture.shared.capture($0) }
+
+        // Workaround for the residual GH-8152 limitation (tracked in GH-8548): swizzling an
+        // @available-gated UIViewController subclass realizes it, which crashes on OS versions below
+        // its gate when it stores a gated newer-framework type. Excluding the class name skips it
+        // before realization. This is the documented workaround until deferred (first-instantiation)
+        // swizzling lands. The gated fixtures live in SubClassFinderRegressionViewController.swift;
+        // removing these excludes re-arms the crash repro on the iOS 16.4 simulator.
+        SentrySDKWrapper.additionalOptionsConfiguration = { options in
+            options.swizzleClassNameExcludes.formUnion([
+                "GatedIOS17ViewController",
+                "GatedIOS26OnlyViewController"
+            ])
+        }
+
         SentrySDKWrapper.shared.startSentry()
         
         metricKit.receiveReports()

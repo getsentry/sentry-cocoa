@@ -9,6 +9,9 @@ import UIKit
 public struct SentrySDKWrapper {
     public static let shared = SentrySDKWrapper()
     public static var spanCaptureHandler: ((Span) -> Void)?
+    /// Per-app hook to customize options beyond the shared configuration. Runs after all shared
+    /// configuration, so it can override any of it. Set it before calling `startSentry()`.
+    public static var additionalOptionsConfiguration: ((Options) -> Void)?
 
 #if !os(macOS) && !os(tvOS) && !os(watchOS)
     public let feedbackButton = {
@@ -232,6 +235,8 @@ public struct SentrySDKWrapper {
         options.enableUncaughtNSExceptionReporting =
             !SentrySDKOverrides.Crash.disableUncaughtNSExceptionReporting.boolValue
 #endif
+
+        SentrySDKWrapper.additionalOptionsConfiguration?(options)
     }
 
     private func configurePerformanceTracing(_ options: Options) {
