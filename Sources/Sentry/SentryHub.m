@@ -294,7 +294,7 @@ NS_ASSUME_NONNULL_BEGIN
                                             withScope:scope];
         // An unavailable client returns an empty ID without accepting the event. Keep the crashed
         // session in that case so a retained crash report can retry with it on the next SDK start.
-        if (![eventId isEqual:SentryId.empty] || (client.isEnabled && self.client == client)) {
+        if (![eventId isEqual:SentryId.empty] || (!client.isDisabled && self.client == client)) {
             [fileManager deleteCrashedSession];
         }
         return eventId;
