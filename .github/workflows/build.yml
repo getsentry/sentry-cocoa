@@ -72,11 +72,7 @@ jobs:
         uses: ruby/setup-ruby@003a5c4d8d6321bd302e38f6f0ec593f77f06600 # v1.319.0
         with:
           bundler-cache: true
-      - name: Cache or Update Homebrew
-        uses: ./.github/actions/cache-homebrew
       - run: make init-ci-build
-        env:
-          HOMEBREW_NO_AUTO_UPDATE: 1
       - run: make xcode-ci
       - name: Run Fastlane
         # We only need to archive, not package the IPA, so we skip codesigning.
@@ -137,11 +133,7 @@ jobs:
         with:
           version: "26"
           resolve-simulators: "false"
-      - name: Cache or Update Homebrew
-        uses: ./.github/actions/cache-homebrew
       - run: make init-ci-build
-        env:
-          HOMEBREW_NO_AUTO_UPDATE: 1
       - run: make xcode-ci
 
       # Note: Due to complexity in implementing the CODE_SIGNING_ALLOWED flag in the sentry-xcodebuild.sh script,
@@ -190,11 +182,7 @@ jobs:
         with:
           version: "26"
           resolve-simulators: "false"
-      - name: Cache or Update Homebrew
-        uses: ./.github/actions/cache-homebrew
       - run: make init-ci-build
-        env:
-          HOMEBREW_NO_AUTO_UPDATE: 1
       - run: make xcode-ci
       - run: |
           set -o pipefail && NSUnbufferedIO=YES xcodebuild \
@@ -252,11 +240,7 @@ jobs:
         with:
           platform: iOS
 
-      - name: Cache or Update Homebrew
-        uses: ./.github/actions/cache-homebrew
       - run: make init-ci-build
-        env:
-          HOMEBREW_NO_AUTO_UPDATE: 1
 
       - name: Build Sample
         run: make ${{ matrix.make-target }}
@@ -285,11 +269,7 @@ jobs:
           version: "26"
           resolve-simulators: "false"
 
-      - name: Cache or Update Homebrew
-        uses: ./.github/actions/cache-homebrew
       - run: make init-ci-build
-        env:
-          HOMEBREW_NO_AUTO_UPDATE: 1
       - run: make xcode-ci-macOS-CLI-Xcode
 
       - name: Build macOS-CLI-Xcode sample
