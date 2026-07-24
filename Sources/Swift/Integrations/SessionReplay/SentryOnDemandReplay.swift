@@ -2,7 +2,7 @@
 #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
 #if os(iOS) || os(tvOS)
 
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 import AVFoundation
 import CoreGraphics
 import CoreMedia
