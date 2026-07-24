@@ -32,7 +32,6 @@ extension SentryReplayNetworkDetails {
 #endif // SDK_V10
     }
 
-
     /// Sets response details from raw body data.
     @objc
     public func setResponse(
@@ -66,7 +65,6 @@ extension SentryReplayNetworkDetails {
 #endif // SDK_V10
     }
 
-
     static func extractHeaders(
         from sourceHeaders: [String: Any]?,
         matching configuredHeaders: [String]?
@@ -83,7 +81,6 @@ extension SentryReplayNetworkDetails {
         }
         return extracted
     }
-
 
     /// Serializes to dictionary for inclusion in breadcrumb data.
     @objc public func serialize() -> [String: Any] {
