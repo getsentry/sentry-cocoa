@@ -59,14 +59,14 @@ import Foundation
             features.append("watchdogTerminationsV2")
         }
 
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
         if options.attachViewHierarchy {
             features.append("viewHierarchy")
         }
         if options.screenshot.enableFastViewRendering {
             features.append("screenshotFastViewRendering")
         }
-#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+#endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
 
         return features
     }
