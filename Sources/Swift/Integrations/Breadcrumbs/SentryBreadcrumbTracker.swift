@@ -1,5 +1,5 @@
 // swiftlint:disable missing_docs
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
@@ -251,27 +251,27 @@ import Cocoa
     
     @_spi(Private)
     public static func extractData(from view: UIView, includeAccessibilityIdentifier: Bool) -> [String: Any] {
-        var result: [String: Any] = ["view": String(describing: view)]
-        
+        var result: [String: Any] = ["view": SwiftDescriptor.getSanitizedViewDescription(view)]
+
         if view.tag > 0 {
             result["tag"] = view.tag
         }
-        
+
         if includeAccessibilityIdentifier,
            let identifier = view.accessibilityIdentifier,
            !identifier.isEmpty {
             result["accessibilityIdentifier"] = identifier
         }
-        
+
         if let button = view as? UIButton,
            let title = button.currentTitle,
            !title.isEmpty {
             result["title"] = title
         }
-        
+
         return result
     }
-    
+
     private static func fetchInfo(about controller: UIViewController) -> [String: Any] {
         var info: [String: Any] = [:]
         
@@ -294,7 +294,7 @@ import Cocoa
         }
         
         if let window = controller.view?.window {
-            info["window"] = window.description
+            info["window"] = SwiftDescriptor.getSanitizedViewDescription(window)
             info["window_isKeyWindow"] = window.isKeyWindow ? "true" : "false"
             info["window_windowLevel"] = String(describing: window.windowLevel.rawValue)
             info["is_window_rootViewController"] = (window.rootViewController == controller) ? "true" : "false"

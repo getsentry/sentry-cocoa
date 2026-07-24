@@ -1,5 +1,5 @@
 // swiftlint:disable missing_docs
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 
 // Feature flag APIs live in this file so the public Scope API has a clear home.
 extension Scope {

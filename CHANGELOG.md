@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix trace propagation for manually instrumented transactions when automatic performance tracing is disabled (#8522)
+- Remove x/y coordinates from UI breadcrumbs, as they are a potential security risk, for example leaking input on custom PIN code views (#8534)
+
 ## 9.23.0
 
 ### Features

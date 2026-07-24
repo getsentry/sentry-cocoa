@@ -1,5 +1,5 @@
 // swiftlint:disable missing_docs
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 
 // We cannot expose `SwiftIntegration` to objc due to the associated type, so we have this base integration protocol
 @_spi(Private) @objc public protocol SentryIntegrationProtocol: NSObjectProtocol {

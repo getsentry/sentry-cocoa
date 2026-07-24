@@ -64,7 +64,7 @@ jobs:
     steps:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         name: Cache Ruby
@@ -80,7 +80,6 @@ jobs:
       - name: Install Ruby (Bitrise)
         if: inputs.runner_provider == 'bitrise'
         env:
-          HOMEBREW_NO_AUTO_UPDATE: "1"
           CACHE_HIT: ${{ steps.cache-ruby.outputs.cache-hit }}
         run: |
           # Only touch Homebrew / build Ruby when the cache missed.
@@ -95,7 +94,7 @@ jobs:
 
       - name: Setup Ruby
         if: inputs.runner_provider != 'bitrise'
-        uses: ruby/setup-ruby@003a5c4d8d6321bd302e38f6f0ec593f77f06600 # v1.319.0
+        uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
         with:
           bundler-cache: true
 
@@ -132,13 +131,8 @@ jobs:
           OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
         run: ./scripts/ci-boot-simulator.sh --xcode "$XCODE_VERSION" --device "$DEVICE_NAME" --os-version "$OS_VERSION"
 
-      - name: Cache or Update Homebrew
-        uses: ./.github/actions/cache-homebrew
-        if: ${{ inputs.build_with_make }}
       - run: make init-ci-build
         if: ${{ inputs.build_with_make }}
-        env:
-          HOMEBREW_NO_AUTO_UPDATE: 1
 
       - run: make xcode-ci
         if: ${{ inputs.build_with_make }}

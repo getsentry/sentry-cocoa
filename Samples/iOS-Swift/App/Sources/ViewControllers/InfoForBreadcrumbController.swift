@@ -21,7 +21,7 @@ class InfoForBreadcrumbController: UIViewController {
         let viewInfo = SentryBreadcrumbTracker.extractData(from: view, includeAccessibilityIdentifier: true)
         let buttonInfo = SentryBreadcrumbTracker.extractData(from: button, includeAccessibilityIdentifier: true)
 
-        let hasCorrectData = String(describing: view) == viewInfo["view"] as? String &&
+        let hasCorrectData = SwiftDescriptor.getSanitizedViewDescription(view) == viewInfo["view"] as? String &&
         viewInfo["tag"] == nil &&
         viewInfo["accessibilityIdentifier"] as? String == "SOME IDENTIFIER" &&
         viewInfo["title"] == nil &&

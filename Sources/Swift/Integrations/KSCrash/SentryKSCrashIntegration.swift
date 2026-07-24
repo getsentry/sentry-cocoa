@@ -1,6 +1,7 @@
 #if ENABLE_KSCRASH
-@_implementationOnly import _SentryPrivate
+// swiftlint:disable:next no_implementation_only_import
 @_implementationOnly import KSCrashInstallations
+internal import _SentryPrivate
 import Foundation
 
 // MARK: - Dependency Provider
