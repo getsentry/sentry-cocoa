@@ -1,4 +1,4 @@
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 
 typealias FileIOTrackingIntegrationProvider = FileIOTrackerProvider & NSDataSwizzlingProvider & NSFileManagerSwizzlingProvider
 

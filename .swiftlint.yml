@@ -147,3 +147,8 @@ custom_rules:
     excluded:
       - "./Sources/Swift/Core/Helper/AssociatedObjectAccessor.swift"
       - "./Tests/.*\\.swift"
+  no_implementation_only_import:
+    name: "No @_implementationOnly import"
+    message: "Use `internal import` (SE-0409) instead of `@_implementationOnly import`."
+    regex: "@_implementationOnly import"
+    severity: error

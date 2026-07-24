@@ -12,20 +12,20 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  ready-to-merge-gate:
-    name: Ready-to-merge gate
-    uses: ./.github/workflows/ready-to-merge-workflow.yml
+  run-full-ci-gate:
+    name: run-full-ci gate
+    uses: ./.github/workflows/run-full-ci-workflow.yml
 
   files-changed:
     name: Detect File Changes
     runs-on: ubuntu-latest
-    needs: ready-to-merge-gate
+    needs: run-full-ci-gate
     outputs:
       run_size_analysis_for_prs: ${{ steps.changes.outputs.run_size_analysis_for_prs }}
       is_dependabot: ${{ github.actor == 'dependabot[bot]' }}
       is_fork: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Get changed files
         id: changes
         uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2
@@ -72,7 +72,7 @@ jobs:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - name: Checkout Repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
@@ -80,7 +80,7 @@ jobs:
           resolve-simulators: "false"
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@003a5c4d8d6321bd302e38f6f0ec593f77f06600 # v1.319.0
+        uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
         with:
           bundler-cache: true
 
@@ -115,7 +115,7 @@ jobs:
   build-required-check:
     needs:
       [
-        ready-to-merge-gate,
+        run-full-ci-gate,
         files-changed,
         build,
         skip-size-analysis-for-non-contributors,

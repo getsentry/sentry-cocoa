@@ -1,4 +1,4 @@
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 import Foundation
 
 /// A ``FileManager`` extension that tracks read and write operations with Sentry.

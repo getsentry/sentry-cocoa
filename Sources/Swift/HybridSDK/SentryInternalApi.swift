@@ -1,5 +1,5 @@
 // swiftlint:disable missing_docs
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 import Foundation
 
 /// APIs intended for Sentry hybrid SDKs (React Native, Flutter, .NET, Unity).
