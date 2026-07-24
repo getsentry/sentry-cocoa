@@ -2,7 +2,7 @@
 internal import _SentryPrivate
 
 #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
-protocol SentryNetworkTrackerProtocol {
+protocol SentryNetworkTrackerProtocol: AnyObject {
     func enableNetworkTracking()
     func enableNetworkBreadcrumbs()
     func enableCaptureFailedRequests()
