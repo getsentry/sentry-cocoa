@@ -311,6 +311,34 @@ final class SentryBreadcrumbTrackerTests: XCTestCase {
         XCTAssertEqual(payload["message"] as? String, "methodPressed:")
     }
     
+    func testTouchBreadcrumb_ViewDescriptionHasNoCoordinates() throws {
+        // -- Arrange --
+        let scope = Scope()
+        let client = TestClient(options: Options())
+        let hub = TestHub(client: client, andScope: scope)
+        SentrySDKInternal.setCurrentHub(hub)
+
+        let swizzlingWrapper = TestSentrySwizzleWrapper()
+        SentryDependencyContainer.sharedInstance().swizzleWrapper = swizzlingWrapper
+
+        let tracker = SentryBreadcrumbTracker(reportAccessibilityIdentifier: true)
+        tracker.start(with: delegate)
+        tracker.startSwizzle()
+
+        let button = UIButton()
+        button.frame = CGRect(x: 42, y: 240, width: 100, height: 30)
+
+        // -- Act --
+        swizzlingWrapper.execute(action: "methodPressed:", target: self, sender: button, event: TestEvent(touchedView: button))
+
+        // -- Assert --
+        let crumb = try XCTUnwrap(delegate.addCrumbInvocations.invocations.first(where: { $0.category == "touch" }))
+        let view = try XCTUnwrap(crumb.data?["view"] as? String)
+
+        XCTAssertFalse(view.contains("frame"), "view breadcrumb must not embed the frame: \(view)")
+        XCTAssertEqual(view, SwiftDescriptor.getSanitizedViewDescription(button))
+    }
+
     func testTouchBreadcrumb_DontReportAccessibilityIdentifier() throws {
         let scope = Scope()
         let client = TestClient(options: Options())
@@ -436,7 +464,11 @@ final class SentryBreadcrumbTrackerTests: XCTestCase {
         XCTAssertEqual("ui.lifecycle", lifeCycleCrumb.category)
 
         let data = try XCTUnwrap(lifeCycleCrumb.data)
-        XCTAssertNotNil(data["window"] as? String, "Breadcrumb should include window description when view controller is in a window")
+        let windowDescription = try XCTUnwrap(data["window"] as? String, "Breadcrumb should include window description when view controller is in a window")
+        // The window description must not embed the frame, as coordinates are a
+        // potential security risk. See SwiftDescriptor.getSanitizedViewDescription.
+        XCTAssertFalse(windowDescription.contains("frame"), windowDescription)
+        XCTAssertEqual(windowDescription, SwiftDescriptor.getSanitizedViewDescription(window))
         XCTAssertNotNil(data["window_isKeyWindow"] as? String)
         XCTAssertNotNil(data["window_windowLevel"] as? String)
         XCTAssertEqual(data["is_window_rootViewController"] as? String, "true", "ViewController is root of the window")
