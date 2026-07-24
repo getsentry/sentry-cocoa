@@ -47,6 +47,11 @@ class SentryReplayNetworkDetailsIntegrationTests: XCTestCase {
         let result = details.serialize()
 
         // -- Assert --
+#if SDK_V10
+        let expectedAuthorization = "[Filtered]"
+#else
+        let expectedAuthorization = "Bearer token"
+#endif
         let expectedJSON = """
         {
             "method": "PUT",
@@ -56,7 +61,7 @@ class SentryReplayNetworkDetailsIntegrationTests: XCTestCase {
             "request": {
                 "size": 100,
                 "headers": {
-                    "Authorization": "Bearer token",
+                    "Authorization": "\(expectedAuthorization)",
                     "Content-Type": "application/json"
                 },
                 "body": {
@@ -82,6 +87,66 @@ class SentryReplayNetworkDetailsIntegrationTests: XCTestCase {
         """
 
         assertJSONEqual(result, expectedJSON: expectedJSON)
+    }
+
+    func testSerialize_whenReplaySelectsSensitiveRequestHeaders_shouldFilterValues() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+#else
+        // -- Arrange --
+        let details = SentryReplayNetworkDetails(method: "GET")
+        details.setRequest(
+            size: nil,
+            bodyData: nil,
+            contentType: nil,
+            allHeaders: [
+                "Authorization": "Bearer secret",
+                "X-Auth-Token": "secret-token",
+                "X-API-Key": "api-key",
+                "X-Request-Id": "request-id"
+            ],
+            configuredHeaders: ["Authorization", "X-Auth-Token", "X-API-Key", "X-Request-Id"]
+        )
+
+        // -- Act --
+        let result = details.serialize()
+
+        // -- Assert --
+        let request = try XCTUnwrap(result["request"] as? [String: Any])
+        XCTAssertEqual(request["headers"] as? [String: String], [
+            "Authorization": "[Filtered]",
+            "X-API-Key": "[Filtered]",
+            "X-Auth-Token": "[Filtered]",
+            "X-Request-Id": "request-id"
+        ])
+#endif
+    }
+
+    func testSerialize_whenReplaySelectsCookie_shouldFilterSensitiveValues() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+#else
+        // -- Arrange --
+        let details = SentryReplayNetworkDetails(method: "GET")
+        details.setRequest(
+            size: nil,
+            bodyData: nil,
+            contentType: nil,
+            allHeaders: ["Cookie": "theme=dark; session=secret"],
+            configuredHeaders: ["Cookie"]
+        )
+
+        // -- Act --
+        let result = details.serialize()
+
+        // -- Assert --
+        let request = try XCTUnwrap(result["request"] as? [String: Any])
+        XCTAssertNil(request["headers"])
+        XCTAssertEqual(request["cookies"] as? [String: String], [
+            "session": "[Filtered]",
+            "theme": "dark"
+        ])
+#endif
     }
 
     func testSerialize_withPartialData_shouldOnlyIncludeSetFields() {

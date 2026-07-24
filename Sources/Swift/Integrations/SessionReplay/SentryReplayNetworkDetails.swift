@@ -256,12 +256,18 @@ enum NetworkBodyWarning: String {
         let size: NSNumber?
         let body: Body?
         let headers: [String: String]
+#if SDK_V10
+        let cookies: [String: String]
+#endif // SDK_V10
 
         func serialize() -> [String: Any] {
             var result = [String: Any]()
             if let size { result["size"] = size }
             if let body { result["body"] = body.serialize() }
             if !headers.isEmpty { result["headers"] = headers }
+#if SDK_V10
+            if !cookies.isEmpty { result["cookies"] = cookies }
+#endif // SDK_V10
             return result
         }
     }
@@ -280,9 +286,9 @@ enum NetworkBodyWarning: String {
     // MARK: - Properties
 
     private(set) var method: String?
-    private(set) var statusCode: NSNumber?
-    private(set) var request: Detail?
-    private(set) var response: Detail?
+    var statusCode: NSNumber?
+    var request: Detail?
+    var response: Detail?
 
     /// Request body size in bytes, derived from request details.
     var requestBodySize: NSNumber? { request?.size }
@@ -297,89 +303,6 @@ enum NetworkBodyWarning: String {
     public init(method: String?) {
         self.method = method
         super.init()
-    }
-
-    // MARK: - ObjC Setters
-
-    /// Sets request details from raw body data.
-    ///
-    /// Parses the body data based on content type (JSON, form-urlencoded, text)
-    /// and applies size limits and truncation warnings automatically.
-    ///
-    /// - Parameters:
-    ///   - size: Request body size in bytes, or nil if unknown.
-    ///   - bodyData: Raw body bytes, or nil if body capture is disabled or unavailable.
-    ///   - contentType: MIME content type for body parsing (e.g. "application/json").
-    ///   - allHeaders: All headers from the request (e.g. from `NSURLRequest.allHTTPHeaderFields`).
-    ///   - configuredHeaders: Header names to extract, matched case-insensitively.
-    @objc
-    public func setRequest(size: NSNumber?, bodyData: Data?, contentType: String?, allHeaders: [String: Any]?, configuredHeaders: [String]?) {
-        self.request = Detail(
-            size: size,
-            body: bodyData.flatMap { Body(data: $0, contentType: contentType) },
-            headers: SentryReplayNetworkDetails.extractHeaders(from: allHeaders, matching: configuredHeaders)
-        )
-    }
-
-    /// Sets response details from raw body data.
-    ///
-    /// Parses the body data based on content type (JSON, form-urlencoded, text)
-    /// and applies size limits and truncation warnings automatically.
-    ///
-    /// - Parameters:
-    ///   - statusCode: HTTP status code.
-    ///   - size: Response body size in bytes, or nil if unknown.
-    ///   - bodyData: Raw body bytes, or nil if body capture is disabled or unavailable.
-    ///   - contentType: MIME content type for body parsing (e.g. "application/json").
-    ///   - allHeaders: All headers from the response (e.g. from `NSHTTPURLResponse.allHeaderFields`).
-    ///   - configuredHeaders: Header names to extract, matched case-insensitively.
-    @objc
-    public func setResponse(statusCode: Int, size: NSNumber?, bodyData: Data?, contentType: String?, allHeaders: [String: Any]?, configuredHeaders: [String]?) {
-        self.statusCode = NSNumber(value: statusCode)
-        self.response = Detail(
-            size: size,
-            body: bodyData.flatMap { Body(data: $0, contentType: contentType) },
-            headers: SentryReplayNetworkDetails.extractHeaders(from: allHeaders, matching: configuredHeaders)
-        )
-    }
-
-    // MARK: - Header Extraction
-
-    /// Extracts headers from a source dictionary using case-insensitive matching.
-    /// Preserves the original casing of the header key as seen in the source.
-    ///
-    /// - Parameters:
-    ///   - sourceHeaders: All available headers (e.g. from `NSURLRequest` or `NSHTTPURLResponse`).
-    ///   - configuredHeaders: Header names to extract, matched case-insensitively.
-    /// - Returns: Dictionary containing matched headers with original key casing preserved.
-    static func extractHeaders(from sourceHeaders: [String: Any]?, matching configuredHeaders: [String]?) -> [String: String] {
-        guard let sourceHeaders, let configuredHeaders else { return [:] }
-
-        var extracted = [String: String]()
-        for configured in configuredHeaders {
-            let lowered = configured.lowercased()
-            for (key, value) in sourceHeaders {
-                if key.lowercased() == lowered {
-                    extracted[key] = (value as? String) ?? "\(value)"
-                    break
-                }
-            }
-        }
-        return extracted
-    }
-
-    // MARK: - Serialization
-
-    /// Serializes to dictionary for inclusion in breadcrumb data.
-    @objc public func serialize() -> [String: Any] {
-        var result = [String: Any]()
-        if let method { result["method"] = method }
-        if let statusCode { result["statusCode"] = statusCode }
-        if let requestBodySize { result["requestBodySize"] = requestBodySize }
-        if let responseBodySize { result["responseBodySize"] = responseBodySize }
-        if let request { result["request"] = request.serialize() }
-        if let response { result["response"] = response.serialize() }
-        return result
     }
 
     public override var description: String {
