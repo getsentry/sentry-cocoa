@@ -1445,6 +1445,23 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"] ?? "", expectedTraceHeader)
     }
 
+    func testTraceHeader_whenNetworkTrackingDisabledAndTransactionBoundToScope_shouldUseTransactionTraceId() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        sut.disable()
+        sut.enableNetworkBreadcrumbs()
+        let task = createDataTask()
+        let transaction = try XCTUnwrap(startTransaction() as? SentryTracer)
+
+        // -- Act --
+        sut.urlSessionTaskResume(task)
+
+        // -- Assert --
+        let traceHeader = try XCTUnwrap(task.currentRequest?.value(forHTTPHeaderField: "sentry-trace"))
+        let propagatedTraceId = traceHeader.components(separatedBy: "-").first
+        XCTAssertEqual(propagatedTraceId, transaction.traceId.sentryIdString)
+    }
+
     func testDontOverrideTraceHeader() {
         let sut = fixture.getSut()
         let task = createDataTask {
@@ -1506,12 +1523,11 @@ class SentryNetworkTrackerTests: XCTestCase {
         sut.disable()
 
         let task = createDataTask()
-        _ = try XCTUnwrap(startTransaction() as? SentryTracer)
+        let transaction = try XCTUnwrap(startTransaction() as? SentryTracer)
         sut.urlSessionTaskResume(task)
 
-        let expectedTraceHeader = SentrySDKInternal.currentHub().scope.propagationContext.traceHeader.value()
-        let traceContext = TraceContext(trace: SentrySDKInternal.currentHub().scope.propagationContext.traceId, options: self.fixture.options, replayId: nil)
-        let expectedBaggageHeader = traceContext.toBaggage().toHTTPHeader(withOriginalBaggage: nil)
+        let expectedTraceHeader = transaction.toTraceHeader().value()
+        let expectedBaggageHeader = transaction.traceContext?.toBaggage().toHTTPHeader(withOriginalBaggage: nil)
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["baggage"] ?? "", expectedBaggageHeader)
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"] ?? "", expectedTraceHeader)
     }
@@ -1546,7 +1562,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         let url = try XCTUnwrap(URL(string: "https://www.domain.com/api?query=myQuery#myFragment"))
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-        let headers = ["test": "test", "Cookie": "myCookie", "Set-Cookie": "myCookie"]
+        let headers = ["test": "test", "Cookie": "theme=dark", "Set-Cookie": "locale=en; HttpOnly"]
         request.allHTTPHeaderFields = headers
 
         let task = URLSessionDataTaskMock(request: request)
@@ -1565,7 +1581,11 @@ class SentryNetworkTrackerTests: XCTestCase {
 #endif // SDK_V10
         XCTAssertEqual(sentryRequest.method, "GET")
         XCTAssertEqual(sentryRequest.bodySize, 652)
+#if SDK_V10
+        XCTAssertEqual(sentryRequest.cookies, ["theme": "dark", "locale": "en"])
+#else
         XCTAssertNil(sentryRequest.cookies)
+#endif // SDK_V10
         XCTAssertEqual(sentryRequest.headers, ["test": "test"])
         XCTAssertEqual(sentryRequest.fragment, "myFragment")
         XCTAssertEqual(sentryRequest.queryString, "query=myQuery")
@@ -1634,14 +1654,32 @@ class SentryNetworkTrackerTests: XCTestCase {
 #else
         XCTAssertEqual(sentryRequest.url, "https://[Filtered]:[Filtered]@www.domain.com/api")
 #endif // SDK_V10
+#if SDK_V10
+        XCTAssertEqual(sentryRequest.headers, [
+            "Authorization": "[Filtered]",
+            "Cookie": "[Filtered]",
+            "Set-Cookie": "[Filtered]",
+            "Proxy-Authorization": "[Filtered]",
+            "X-FORWARDED-FOR": "value",
+            "X-API-KEY": "[Filtered]",
+            "X-REAL-IP": "value",
+            "REMOTE-ADDR": "value",
+            "FORWARDED": "value",
+            "X-CSRF-TOKEN": "[Filtered]",
+            "X-CSRFTOKEN": "[Filtered]",
+            "X-XSRF-TOKEN": "[Filtered]",
+            "VALID_HEADER": "value"
+        ])
+#else
         XCTAssertEqual(sentryRequest.headers, ["VALID_HEADER": "value"])
+#endif // SDK_V10
     }
 
     func testCaptureHTTPClientErrorResponse() throws {
         let sut = fixture.getSut()
         let task = createDataTask()
 
-        let headers = ["test": "test", "Cookie": "myCookie", "Set-Cookie": "myCookie"]
+        let headers = ["test": "test", "Cookie": "theme=dark", "Set-Cookie": "locale=en; HttpOnly"]
         let response = try XCTUnwrap(HTTPURLResponse(
             url: SentryNetworkTrackerTests.fullUrl,
             statusCode: 500,
@@ -1659,7 +1697,11 @@ class SentryNetworkTrackerTests: XCTestCase {
 
         XCTAssertEqual(sentryResponse["status_code"] as? NSNumber, 500)
         XCTAssertEqual(sentryResponse["headers"] as? [String: String], ["test": "test"])
+#if SDK_V10
+        XCTAssertEqual(sentryResponse["cookies"] as? [String: String], ["theme": "dark", "locale": "en"])
+#else
         XCTAssertNil(sentryResponse["cookies"])
+#endif // SDK_V10
         XCTAssertEqual(sentryResponse["body_size"] as? NSNumber, 256)
     }
 
@@ -1681,7 +1723,189 @@ class SentryNetworkTrackerTests: XCTestCase {
 
         let sentryResponse = try XCTUnwrap(capturedErrorEvent.context?["response"])
 
+#if SDK_V10
+        XCTAssertEqual(sentryResponse["headers"] as? [String: String], [
+            "Authorization": "[Filtered]",
+            "Cookie": "[Filtered]",
+            "Set-Cookie": "[Filtered]",
+            "Proxy-Authorization": "[Filtered]",
+            "X-FORWARDED-FOR": "value",
+            "X-API-KEY": "[Filtered]",
+            "X-REAL-IP": "value",
+            "REMOTE-ADDR": "value",
+            "FORWARDED": "value",
+            "X-CSRF-TOKEN": "[Filtered]",
+            "X-CSRFTOKEN": "[Filtered]",
+            "X-XSRF-TOKEN": "[Filtered]",
+            "VALID_HEADER": "value"
+        ])
+#else
         XCTAssertEqual(sentryResponse["headers"] as? [String: String], ["VALID_HEADER": "value"])
+#endif // SDK_V10
+    }
+
+    func testCaptureHTTPClientErrorRequest_whenHeadersAreOffAndCookiesEnabled_shouldCollectOnlyCookies() throws {
+        // -- Arrange --
+#if SDK_V10
+        fixture.options.dataCollection.httpHeaders.request = .off
+        fixture.options.dataCollection.cookies = .denyList()
+#endif // SDK_V10
+        let task = createDataTask { request in
+            var request = request
+            request.allHTTPHeaderFields = [
+                "Content-Type": "application/json",
+                "Cookie": "theme=dark; session=secret"
+            ]
+            return request
+        }
+        task.setResponse(try createResponse(code: 500))
+
+        // -- Act --
+        fixture.getSut().urlSessionTask(task, setState: .completed)
+
+        // -- Assert --
+        let request = try XCTUnwrap(fixture.hub.capturedErrorEvents.first?.request)
+#if SDK_V10
+        XCTAssertEqual(request.headers, [:])
+        XCTAssertEqual(request.cookies, ["theme": "dark", "session": "[Filtered]"])
+#else
+        XCTAssertEqual(request.headers, ["Content-Type": "application/json"])
+        XCTAssertNil(request.cookies)
+#endif // SDK_V10
+    }
+
+    func testCaptureHTTPClientErrorResponse_whenHeadersAreOffAndCookiesEnabled_shouldCollectOnlyCookies() throws {
+        // -- Arrange --
+#if SDK_V10
+        fixture.options.dataCollection.httpHeaders.response = .off
+        fixture.options.dataCollection.cookies = .denyList()
+#endif // SDK_V10
+        let task = createDataTask()
+        task.setResponse(try XCTUnwrap(HTTPURLResponse(
+            url: SentryNetworkTrackerTests.fullUrl,
+            statusCode: 500,
+            httpVersion: "1.1",
+            headerFields: [
+                "Content-Type": "application/json",
+                "Set-Cookie": "theme=dark; HttpOnly"
+            ]
+        )))
+
+        // -- Act --
+        fixture.getSut().urlSessionTask(task, setState: .completed)
+
+        // -- Assert --
+        let response = try XCTUnwrap(fixture.hub.capturedErrorEvents.first?.context?["response"])
+#if SDK_V10
+        XCTAssertEqual(response["headers"] as? [String: String], [:])
+        XCTAssertEqual(response["cookies"] as? [String: String], ["theme": "dark"])
+#else
+        XCTAssertEqual(response["headers"] as? [String: String], ["Content-Type": "application/json"])
+        XCTAssertNil(response["cookies"])
+#endif // SDK_V10
+    }
+
+    func testCaptureHTTPClientError_whenRequestDenyListIsConfigured_shouldNotFilterResponseHeaders() throws {
+        // -- Arrange --
+#if SDK_V10
+        fixture.options.dataCollection.httpHeaders.request = .denyList(terms: ["forwarded"])
+#endif // SDK_V10
+        let task = createDataTask { request in
+            var request = request
+            request.allHTTPHeaderFields = ["X-Forwarded-For": "192.0.2.1"]
+            return request
+        }
+        task.setResponse(try XCTUnwrap(HTTPURLResponse(
+            url: SentryNetworkTrackerTests.fullUrl,
+            statusCode: 500,
+            httpVersion: "1.1",
+            headerFields: ["X-Forwarded-For": "192.0.2.2"]
+        )))
+
+        // -- Act --
+        fixture.getSut().urlSessionTask(task, setState: .completed)
+
+        // -- Assert --
+        let event = try XCTUnwrap(fixture.hub.capturedErrorEvents.first)
+        let request = try XCTUnwrap(event.request)
+        let response = try XCTUnwrap(event.context?["response"])
+#if SDK_V10
+        XCTAssertEqual(request.headers, ["X-Forwarded-For": "[Filtered]"])
+        XCTAssertEqual(response["headers"] as? [String: String], ["X-Forwarded-For": "192.0.2.2"])
+#else
+        XCTAssertEqual(request.headers, [:])
+        XCTAssertEqual(response["headers"] as? [String: String], [:])
+#endif // SDK_V10
+    }
+
+    func testCaptureHTTPClientError_whenResponseAllowListIsConfigured_shouldNotFilterRequestHeaders() throws {
+        // -- Arrange --
+#if SDK_V10
+        fixture.options.dataCollection.httpHeaders.response = .allowList(terms: ["content-type"])
+#endif // SDK_V10
+        let task = createDataTask { request in
+            var request = request
+            request.allHTTPHeaderFields = ["X-Request-Id": "request-id"]
+            return request
+        }
+        task.setResponse(try XCTUnwrap(HTTPURLResponse(
+            url: SentryNetworkTrackerTests.fullUrl,
+            statusCode: 500,
+            httpVersion: "1.1",
+            headerFields: [
+                "Content-Type": "application/json",
+                "X-Request-Id": "response-id"
+            ]
+        )))
+
+        // -- Act --
+        fixture.getSut().urlSessionTask(task, setState: .completed)
+
+        // -- Assert --
+        let event = try XCTUnwrap(fixture.hub.capturedErrorEvents.first)
+        let request = try XCTUnwrap(event.request)
+        let response = try XCTUnwrap(event.context?["response"])
+#if SDK_V10
+        XCTAssertEqual(request.headers, ["X-Request-Id": "request-id"])
+        XCTAssertEqual(response["headers"] as? [String: String], [
+            "Content-Type": "application/json",
+            "X-Request-Id": "[Filtered]"
+        ])
+#else
+        XCTAssertEqual(request.headers, ["X-Request-Id": "request-id"])
+        XCTAssertEqual(response["headers"] as? [String: String], [
+            "Content-Type": "application/json",
+            "X-Request-Id": "response-id"
+        ])
+#endif // SDK_V10
+    }
+
+    func testCaptureHTTPClientError_whenCookiesAreOff_shouldStillCaptureOrdinaryHeaders() throws {
+        // -- Arrange --
+#if SDK_V10
+        fixture.options.dataCollection.cookies = .off
+#endif // SDK_V10
+        let task = createDataTask { request in
+            var request = request
+            request.allHTTPHeaderFields = [
+                "Content-Type": "application/json",
+                "Cookie": "theme=dark"
+            ]
+            return request
+        }
+        task.setResponse(try createResponse(code: 500))
+
+        // -- Act --
+        fixture.getSut().urlSessionTask(task, setState: .completed)
+
+        // -- Assert --
+        let request = try XCTUnwrap(fixture.hub.capturedErrorEvents.first?.request)
+        XCTAssertEqual(request.headers, ["Content-Type": "application/json"])
+#if SDK_V10
+        XCTAssertEqual(request.cookies, [:])
+#else
+        XCTAssertNil(request.cookies)
+#endif // SDK_V10
     }
 
     func testCaptureHTTPClientErrorException() throws {

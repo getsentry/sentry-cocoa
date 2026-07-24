@@ -96,9 +96,6 @@ let sentrySwiftTarget: Target = .target(
     name: "SentrySwift",
     dependencies: ["_SentryPrivate", "SentryHeaders"],
     path: "Sources/Swift",
-    swiftSettings: [
-        .unsafeFlags(["-enable-library-evolution"])
-    ]
 )
 
 if enableKSCrash {

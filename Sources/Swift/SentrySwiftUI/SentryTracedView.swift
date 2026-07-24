@@ -3,7 +3,7 @@
 import Foundation
 import SwiftUI
 
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 
 class SentryTraceViewModel {
     private var transactionId: SpanId?

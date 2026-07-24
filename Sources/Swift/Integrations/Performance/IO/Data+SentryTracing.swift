@@ -1,4 +1,4 @@
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 
 /// A ``Data`` extension that tracks read and write operations with Sentry.
 ///

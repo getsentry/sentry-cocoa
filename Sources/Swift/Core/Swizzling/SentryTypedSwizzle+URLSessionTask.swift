@@ -1,4 +1,4 @@
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 import Foundation
 
 extension SentryTypedSwizzle {
@@ -36,17 +36,21 @@ extension SentryTypedSwizzle {
             key: key.pointer
         ) { getOriginal in
             { receiver, state in
-                guard let receiver = receiver as? Receiver else {
-                    SentrySDKLog.error("Unexpected swizzle receiver for \(NSStringFromSelector(method.selector))")
-                    return
-                }
-
-                interceptor(receiver, state) { forwardedState in
+                let callOriginal: (AnyObject, URLSessionTask.State) -> Void = { receiver, forwardedState in
                     let original = unsafeBitCast(
                         getOriginal(),
                         to: (@convention(c) (AnyObject, Selector, URLSessionTask.State) -> Void).self
                     )
                     original(receiver, method.selector, forwardedState)
+                }
+
+                guard let typedReceiver = receiver as? Receiver else {
+                    SentrySDKLog.error("Unexpected swizzle receiver for \(NSStringFromSelector(method.selector))")
+                    return callOriginal(receiver, state)
+                }
+
+                interceptor(typedReceiver, state) { forwardedState in
+                    callOriginal(receiver, forwardedState)
                 }
             } as @convention(block) (AnyObject, URLSessionTask.State) -> Void
         }
