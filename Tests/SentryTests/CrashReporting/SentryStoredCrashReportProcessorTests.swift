@@ -4,6 +4,41 @@ import Foundation
 import XCTest
 
 final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase {
+    private final class ClientClearedDuringCapture: TestClient {
+        var captureFatalEventInvocationCount = 0
+
+        public override func captureFatalEvent(_ event: Event, with scope: Scope) -> SentryId {
+            clearClientWithoutCapturing()
+        }
+
+        public override func captureFatalEvent(
+            _ event: Event,
+            with session: SentrySession,
+            with scope: Scope
+        ) -> SentryId {
+            clearClientWithoutCapturing()
+        }
+
+        private func clearClientWithoutCapturing() -> SentryId {
+            captureFatalEventInvocationCount += 1
+            SentrySDKInternal.currentHub().bindClient(nil)
+            return SentryId.empty
+        }
+    }
+
+    private final class ClientClosedDuringCapture: TestClient {
+        public override func captureFatalEvent(_ event: Event, with scope: Scope) -> SentryId {
+            close()
+            return SentryId.empty
+        }
+    }
+
+    private final class IntentionallyDiscardingClient: TestClient {
+        public override func captureFatalEvent(_ event: Event, with scope: Scope) -> SentryId {
+            SentryId.empty
+        }
+    }
+
     private var sut: SentryStoredCrashReportProcessor!
 
     override func setUp() {
@@ -46,6 +81,60 @@ final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase
             XCTAssertEqual(error.domain, SentryStoredCrashReportProcessorErrorDomain)
             XCTAssertEqual(error.code, SentryStoredCrashReportProcessorError.missingClient.rawValue)
         }
+    }
+
+    func testProcessReport_whenClientIsClearedDuringCaptureWithoutCrashedSession_shouldThrow() throws {
+        let client = try XCTUnwrap(ClientClearedDuringCapture(options: options))
+        SentrySDKInternal.setCurrentHub(SentryHubInternal(client: client, andScope: nil))
+        let report = try getCrashReport(resource: "Resources/crash-report-1")
+
+        XCTAssertThrowsError(try sut.process(report: report)) { error in
+            let error = error as NSError
+            XCTAssertEqual(error.domain, SentryStoredCrashReportProcessorErrorDomain)
+            XCTAssertEqual(error.code, SentryStoredCrashReportProcessorError.missingClient.rawValue)
+        }
+        XCTAssertEqual(client.captureFatalEventInvocationCount, 1)
+        XCTAssertNil(SentrySDKInternal.currentHub().getClient())
+    }
+
+    func testProcessReport_whenClientIsClearedDuringCaptureWithCrashedSession_shouldThrowAndRetainSession() throws {
+        let client = try XCTUnwrap(ClientClearedDuringCapture(options: options))
+        SentrySDKInternal.setCurrentHub(SentryHubInternal(client: client, andScope: nil))
+        let crashedSession = SentrySession(releaseName: "1.0.0", distinctId: "test-installation")
+        crashedSession.endCrashed(withTimestamp: Date())
+        client.fileManager.storeCrashedSession(crashedSession)
+        let report = try getCrashReport(resource: "Resources/crash-report-1")
+
+        XCTAssertThrowsError(try sut.process(report: report)) { error in
+            let error = error as NSError
+            XCTAssertEqual(error.domain, SentryStoredCrashReportProcessorErrorDomain)
+            XCTAssertEqual(error.code, SentryStoredCrashReportProcessorError.missingClient.rawValue)
+        }
+        XCTAssertEqual(client.captureFatalEventInvocationCount, 1)
+        XCTAssertNil(SentrySDKInternal.currentHub().getClient())
+        XCTAssertEqual(client.fileManager.readCrashedSession()?.sessionId, crashedSession.sessionId)
+    }
+
+    func testProcessReport_whenClientClosesDuringCapture_shouldThrow() throws {
+        let client = try XCTUnwrap(ClientClosedDuringCapture(options: options))
+        SentrySDKInternal.setCurrentHub(SentryHubInternal(client: client, andScope: nil))
+        let report = try getCrashReport(resource: "Resources/crash-report-1")
+
+        XCTAssertThrowsError(try sut.process(report: report)) { error in
+            let error = error as NSError
+            XCTAssertEqual(error.domain, SentryStoredCrashReportProcessorErrorDomain)
+            XCTAssertEqual(error.code, SentryStoredCrashReportProcessorError.missingClient.rawValue)
+        }
+        XCTAssertFalse(client.isEnabled)
+        XCTAssertIdentical(SentrySDKInternal.currentHub().getClient(), client)
+    }
+
+    func testProcessReport_whenClientIntentionallyDiscardsEvent_shouldSucceed() throws {
+        let client = try XCTUnwrap(IntentionallyDiscardingClient(options: options))
+        SentrySDKInternal.setCurrentHub(SentryHubInternal(client: client, andScope: nil))
+        let report = try getCrashReport(resource: "Resources/crash-report-1")
+
+        XCTAssertNoThrow(try sut.process(report: report))
     }
 
     func testProcessReport_whenConversionFails_shouldThrow() throws {
