@@ -6,7 +6,7 @@ updates:
       interval: weekly
     open-pull-requests-limit: 10
     labels:
-      - "ready-to-merge"
+      - "run-full-ci"
       - "dependencies"
     ignore:
       - dependency-name: fastlane
@@ -18,7 +18,7 @@ updates:
     schedule:
       interval: weekly
     labels:
-      - "ready-to-merge"
+      - "run-full-ci"
       - "dependencies"
 
   - package-ecosystem: "swift"
@@ -26,7 +26,7 @@ updates:
     schedule:
       interval: weekly
     labels:
-      - "ready-to-merge"
+      - "run-full-ci"
       - "dependencies"
 
   - package-ecosystem: "swift"
@@ -34,5 +34,5 @@ updates:
     schedule:
       interval: weekly
     labels:
-      - "ready-to-merge"
+      - "run-full-ci"
       - "dependencies"

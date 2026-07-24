@@ -1,25 +1,25 @@
 # CI inner working
 
-## `ready-to-merge` label
+## `run-full-ci` label
 
 CI checks are great, but macOS runners are limited on every provider, because of this, we need to be smarter on how we run jobs.
-To avoid running many jobs on every PR's commit, we have decided to only run a subset of tests regularily and run the full suite only when the PR has the label `ready-to-merge`.
+To avoid running many jobs on every PR's commit, we have decided to only run a subset of tests regularily and run the full suite only when the PR has the label `run-full-ci`.
 
 ### How to use the gate
 
-Add this job at the start the workflow and then add `need: ready-to-merge-gate` to jobs that you want to be skipped.
+Add this job at the start the workflow and then add `need: run-full-ci-gate` to jobs that you want to be skipped.
 
 ```
-ready-to-merge-gate:
-  name: Ready-to-merge gate
-  uses: ./.github/workflows/ready-to-merge-workflow.yml
+run-full-ci-gate:
+  name: run-full-ci gate
+  uses: ./.github/workflows/run-full-ci-workflow.yml
 ```
 
 This job will:
 
 - Pass if the event is not a PR
-- Fail if the event is a PR and is missing the `ready-to-merge` label
-- Pass if the event is a PR and is has the `ready-to-merge` label
+- Fail if the event is a PR and is missing the `run-full-ci` label
+- Pass if the event is a PR and is has the `run-full-ci` label
 
 ## Cirrus Labs Runners
 

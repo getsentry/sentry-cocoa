@@ -10,7 +10,7 @@ Internal developer documentation for SDK maintainers.
 | ---------------------------- | --------------------------------------------------------------------------- |
 | `ARCHITECTURE.md`            | High-level SDK architecture: core components, feature areas, integrations   |
 | `BUILD.md`                   | Build configuration: XCConfig, UIKit linking, `make` targets, visionOS, SPM |
-| `CI.md`                      | CI setup: `ready-to-merge` label, Cirrus Labs runners                       |
+| `CI.md`                      | CI setup: `run-full-ci` label, Cirrus Labs runners                          |
 | `DECISIONS.md`               | ADR-style decision log with context, rationale, and PR links                |
 | `INTEGRATIONS.md`            | 3rd-party integrations (CocoaLumberjack, SwiftLog): layout, release flow    |
 | `RELEASE.md`                 | Release process: pre-release, stable, promoting betas                       |
