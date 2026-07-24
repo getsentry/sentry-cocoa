@@ -439,6 +439,12 @@ run_version_bump_util_for_prs: &run_version_bump_util_for_prs
   - "Sources/Configuration/Versioning.xcconfig"
   - "Sources/Configuration/SentrySwiftUI.xcconfig"
 
+run_apple_binaries_archive_for_prs: &run_apple_binaries_archive_for_prs
+  - ".github/workflows/apple-binaries-archive.yml"
+  - ".github/file-filters.yml"
+  - "scripts/create-apple-binaries-archive.sh"
+  - "distribution/**"
+
 run_ui_tests_for_prs: &run_ui_tests_for_prs
   - "Sources/**"
   - "Tests/**"
