@@ -149,8 +149,8 @@ class SentrySubClassFinderTests: XCTestCase {
     ///
     /// This covers the weak-linked-missing-superclass shape (objc4 zeroes the superclass → the walk
     /// can't reach `UIViewController`). It does not cover the raw-vs-remapped pointer identity of a
-    /// resolved Objective-C future class with a view-controller superclass (Finding 2 in
-    /// REVIEW-PR-8457.md, tracked in HANDOFF-subclassfinder-fix.md; see also the known-limitation note
+    /// resolved Objective-C future class with a view-controller superclass (tracked in GH-8548;
+    /// see also the known-limitation note
     /// in `SentryDefaultImageClassProvider.classes(forImage:)`); reproducing that needs an ObjC bundle
     /// + `objc_getFutureClass`, which the test suite has no harness for.
     func testActOnSubclassesOfViewController_WhenClassDoesNotReachViewController_IsNotSwizzled() {

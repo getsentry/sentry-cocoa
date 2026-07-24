@@ -64,7 +64,7 @@ final class SentryDefaultImageClassProvider: SentryImageClassProvider {
             // or a weak-linked class with a missing superclass that it maps to nil) the entry here can
             // differ from the live runtime class or be a disavowed struct.
             //
-            // Known limitation (Finding 2 in REVIEW-PR-8457.md; tracked in HANDOFF-subclassfinder-fix.md):
+            // Known limitation (tracked in GH-8548):
             // an Objective-C future class can have a view-controller superclass, pass
             // `SentrySubClassFinder`'s `class_getSuperclass` filter, and reach the swizzler as a raw
             // pointer that differs from the live class — bypassing `SentrySwizzle`'s class-identity

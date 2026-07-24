@@ -168,8 +168,8 @@ class SentryUIViewControllerSwizzling {
         // initializer causes problems with the rules for initialization in Swift, see
         // https://docs.swift.org/swift-book/LanguageGuide/Initialization.html#ID216.
         //
-        // KNOWN LIMITATION (residual GH-8152; tracked in REVIEW-PR-8457.md and
-        // HANDOFF-subclassfinder-fix.md): swizzling a discovered subclass here CAN still crash on an
+        // KNOWN LIMITATION (residual GH-8152; tracked in GH-8548): swizzling a discovered
+        // subclass here CAN still crash on an
         // OS below the class's `@available` gate. Discovery is safe — reading `__objc_classlist` and
         // walking `class_getSuperclass` never realizes a class. But swizzling is not: the first thing
         // the swizzler does is message/introspect the class (`class_getInstanceMethod` /
@@ -190,7 +190,9 @@ class SentryUIViewControllerSwizzling {
         // type is the remaining exposure. There is no cheap, crash-free way to detect that shape before
         // swizzling: reading the realized bit skips essentially all VCs at SDK start (none are realized
         // yet), and probing `swift_checkMetadataState` itself drives initialization and crashes the
-        // same way. A real fix (e.g. deferring swizzling to first instantiation) is tracked for later.
+        // same way. Users can work around it by adding the class name to
+        // `options.swizzleClassNameExcludes`, which skips the class before it is ever realized. A real
+        // fix (deferring swizzling to first instantiation) is tracked in GH-8548.
         subClassFinder.actOnSubclassesOfViewController(inImage: imageName) { [weak self] subClass in
             self?.swizzleViewControllerSubClass(subClass)
         }
