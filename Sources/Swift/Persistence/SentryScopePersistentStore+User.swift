@@ -1,4 +1,4 @@
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 
 extension SentryScopePersistentStore {
     func encode(user: User) -> Data? {

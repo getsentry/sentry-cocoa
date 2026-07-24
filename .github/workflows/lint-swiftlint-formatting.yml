@@ -26,7 +26,7 @@ jobs:
     outputs:
       run_lint_swiftlint_for_prs: ${{ steps.changes.outputs.run_lint_swiftlint_for_prs }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Get changed files
         id: changes
         uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2
@@ -40,12 +40,8 @@ jobs:
     name: Lint
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-      - name: Cache or Update Homebrew
-        uses: ./.github/actions/cache-homebrew
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Install tooling
-        env:
-          HOMEBREW_NO_AUTO_UPDATE: 1
         run: make init-ci-format
       - run: swiftlint --version
       - name: Run SwiftLint

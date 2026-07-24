@@ -1,4 +1,4 @@
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 
 // UIViewController exists only on iOS/tvOS/visionOS; the 64-bit arch gate matches
 // `classes(forImage:)`, which reads a 64-bit Mach-O section.

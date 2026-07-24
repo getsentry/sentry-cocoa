@@ -1,5 +1,5 @@
 // swiftlint:disable missing_docs
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 import Foundation
 
 @objcMembers
@@ -37,7 +37,7 @@ import Foundation
         fatalError("init() has not been implemented")
     }
     
-    @_implementationOnly public override func serialize() -> [String: Any] {
+    @_spi(Private) public override func serialize() -> [String: Any] {
         var result = super.serialize()
         result["urls"] = urls
         result["replay_start_timestamp"] = replayStartTimestamp.timeIntervalSince1970

@@ -1,5 +1,5 @@
 // swiftlint:disable missing_docs
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 
 final class SentryNSFileManagerSwizzling: NSObject {
     func start(withOptions options: Options, tracker: SentryFileIOTracker) {

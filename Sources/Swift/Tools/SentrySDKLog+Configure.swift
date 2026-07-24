@@ -1,5 +1,5 @@
 // swiftlint:disable missing_docs
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 import Foundation
 
 // This helper class exists because if it was just an extension on SentrySDKLog the linker would strip this code unless the "-ObjC" flag was passed.
