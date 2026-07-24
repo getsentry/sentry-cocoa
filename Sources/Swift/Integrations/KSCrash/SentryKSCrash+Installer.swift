@@ -1,5 +1,5 @@
 #if ENABLE_KSCRASH
-@_implementationOnly import KSCrashInstallations
+internal import KSCrashInstallations
 
 extension SentryKSCrash {
     protocol Installing {
