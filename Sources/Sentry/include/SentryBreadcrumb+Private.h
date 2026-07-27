@@ -17,9 +17,9 @@ NS_ASSUME_NONNULL_BEGIN
  * @param data The data dictionary.
  * @return The SentryBreadcrumb.
  */
-- (instancetype _Nonnull)initWithLevel:(SentryLevel)level
-                              category:(NSString *_Nonnull)category
-                                  data:(NSDictionary<NSString *, id> *_Nonnull)data;
+- (instancetype)initWithLevel:(SentryLevel)level
+                     category:(NSString *)category
+                         data:(NSDictionary<NSString *, id> *)data;
 
 /**
  * Initializes a SentryBreadcrumb from a JSON object.
