@@ -4,6 +4,7 @@
 
 ### Fixes
 
+- Fix screenshots not being captured by hybrid SDKs (#8578)
 - Fix trace propagation for manually instrumented transactions when automatic performance tracing is disabled (#8522)
 - Remove x/y coordinates from UI breadcrumbs, as they are a potential security risk, for example leaking input on custom PIN code views (#8534)
 
