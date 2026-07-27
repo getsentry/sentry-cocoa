@@ -104,6 +104,16 @@
     @objc public var enableSigtermReporting: Bool = false
     #endif
 
+    /// When enabled, the SDK introspects memory contents during a crash.
+    /// Any Objective-C objects or C strings near the stack pointer or referenced by
+    /// CPU registers or exceptions will be recorded in the crash report, along with
+    /// their contents. This can help diagnose crashes, but may include sensitive data in memory.
+    ///
+    /// Disabling this will also disable the automatic 'memory corruption' diagnosis for crashes.
+    ///
+    /// @note Default value is @c true.
+    @objc public var enableMemoryIntrospection: Bool = true
+
     /// How many breadcrumbs do you want to keep in memory?
     /// @note Default is 100.
     @objc public var maxBreadcrumbs: UInt = 100

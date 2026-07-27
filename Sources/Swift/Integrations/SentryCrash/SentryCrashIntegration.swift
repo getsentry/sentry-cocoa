@@ -59,6 +59,9 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         // Inject bridge into crash reporter so ObjC SentryCrash can access it
         crashReporter.setBridge(bridge)
 
+        // Configure memory introspection based on options
+        crashReporter.introspectMemory = options.enableMemoryIntrospection
+
         self.sessionHandler = dependencies.getCrashIntegrationSessionBuilder(options, bridge: bridge)
         self.scopeObserver = SentryCrashScopeObserver(maxBreadcrumbs: Int(options.maxBreadcrumbs))
 
