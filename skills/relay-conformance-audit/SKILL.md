@@ -54,16 +54,16 @@ mismatches <n> (<n> need action) · ignored <n> · coverage <OK|GAPS: draft PR l
 :ticket: *Tracked*
 • #<issue> <area> — <one-line summary>
 
-Rate this report: :thumbsup: findings look accurate · :thumbsdown: something's off — and please react :thumbsup:/:thumbsdown: on each finding in the thread. On a :thumbsdown:, drop a short reply saying what's wrong.
+Rate this report: :thumbsup: findings look accurate · :thumbsdown: something's off. If a finding is wrong or overblown, drop a short reply in the thread saying which one and why.
 ```
 
 Everything tracked or ignored: `:white_check_mark: Nothing needs action. (tracked <n> · ignored <n>)` — still invite the report-level vote.
 
-Thread replies — **one per needs-action mismatch**, so each can be voted on individually. Each reply = the TLDR (2–4 plain sentences: what broke, user impact, blast radius) followed by the pickup detail (location file + symbol, exact wire strings, spec/Relay citation, failure mode, 1–3 verify steps), ending with `React :thumbsup: accurate / :thumbsdown: wrong or overblown`.
+Thread reply 1 — **TLDR**: per needs-action mismatch, 2–4 plain sentences for a human deciding whether to care — what broke, user impact, blast radius. No file paths, no jargon.
 
-Final thread reply — housekeeping: tracked/ignored entries that no longer reproduce, and the coverage-check result (gap list + draft-PR link when there are gaps).
+Thread reply 2 — **full detail**: per needs-action mismatch, everything an agent needs to pick it up cold — location (file + symbol), exact wire strings, spec/Relay citation, failure mode, 1–3 verify steps. End with one line noting any tracked/ignored entries that no longer reproduce, and the coverage-check result (gap list + draft-PR link when there are gaps).
 
-Reaction votes are feedback for the audit's maintainer only — the audit itself never reads reactions or acts on them; a human follows up on :thumbsdown: votes and tunes the skill or the ignore list.
+Votes and thread replies are feedback for the audit's maintainer only — the audit itself never reads reactions or acts on them; a human follows up and tunes the skill or the ignore list.
 
 Create-issue links: `https://github.com/getsentry/sentry-cocoa/issues/new?title=<urlenc>&body=<urlenc>&labels=Relay-Conformance` — body = the mismatch's full-detail block + "Found by relay-conformance-audit, <DATE>, @<SHA>. After filing: add this issue to skills/relay-conformance-audit/references/findings.md." Keep the URL <8000 chars; trim body to failure mode + Slack-thread pointer if needed.
 
