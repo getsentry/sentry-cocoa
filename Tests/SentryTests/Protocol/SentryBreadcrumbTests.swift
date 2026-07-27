@@ -105,6 +105,7 @@ class SentryBreadcrumbTests: XCTestCase {
         XCTAssertEqual(fixture.breadcrumb, fixture2.breadcrumb)
     }
     
+    // swiftlint:disable no_breadcrumb_data_setter
     func testNotIsEqual() {
         testIsNotEqual { breadcrumb in breadcrumb.level = SentryLevel.error }
         testIsNotEqual { breadcrumb in breadcrumb.category = "" }
@@ -112,8 +113,9 @@ class SentryBreadcrumbTests: XCTestCase {
         testIsNotEqual { breadcrumb in breadcrumb.type = "" }
         testIsNotEqual { breadcrumb in breadcrumb.origin = "" }
         testIsNotEqual { breadcrumb in breadcrumb.message = "" }
-        testIsNotEqual { breadcrumb in breadcrumb.data?.removeAll() }
+        testIsNotEqual { breadcrumb in breadcrumb.data = [:] }
     }
+    // swiftlint:enable no_breadcrumb_data_setter
     
     private func testIsNotEqual(block: (Breadcrumb) -> Void ) {
         let breadcrumb = Fixture().breadcrumb
