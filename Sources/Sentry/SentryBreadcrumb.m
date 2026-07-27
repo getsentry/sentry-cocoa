@@ -217,9 +217,6 @@ sentry_deepCopyValue(id value)
 {
     self = [self initWithLevel:level category:category];
     if (self) {
-        // initWithDictionary: bulk-materializes into native storage, avoiding the per-key
-        // re-bridge that crashes for lazily-bridged Swift dictionaries (see #7861). It doesn't
-        // route through the setData: deep copy, matching setDataValue:forKey: semantics.
         _data = [[NSMutableDictionary alloc] initWithDictionary:data];
     }
     return self;
