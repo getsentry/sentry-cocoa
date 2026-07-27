@@ -1,5 +1,5 @@
 #if ENABLE_KSCRASH
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 import Foundation
 
 extension SentryKSCrash {
