@@ -2,7 +2,6 @@
 import XCTest
 
 final class SentryOptionsDictionaryTests: XCTestCase {
-
     func testInitWithDictionary_whenValidValues_shouldPopulateOptions() throws {
         // -- Arrange --
         let dictionary: [String: Any] = [
@@ -10,7 +9,8 @@ final class SentryOptionsDictionaryTests: XCTestCase {
             "debug": true,
             "environment": "staging",
             "release": "1.2.3",
-            "sampleRate": 0.25
+            "sampleRate": 0.25,
+            "enableMemoryIntrospection": false
         ]
 
         // -- Act --
@@ -23,5 +23,6 @@ final class SentryOptionsDictionaryTests: XCTestCase {
         XCTAssertEqual(options.environment, "staging")
         XCTAssertEqual(options.releaseName, "1.2.3")
         XCTAssertEqual(options.sampleRate?.doubleValue, 0.25)
+        XCTAssertFalse(options.enableMemoryIntrospection)
     }
 }
