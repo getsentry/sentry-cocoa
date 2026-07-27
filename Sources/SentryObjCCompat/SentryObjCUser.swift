@@ -56,7 +56,8 @@ import Foundation
 
     @objc public var data: [String: Any]? {
         get { wrapped.data }
-        set { wrapped.data = newValue }
+        // swiftlint:disable:next no_breadcrumb_data_setter
+        set { wrapped.data = newValue } // `wrapped` is a User, not a Breadcrumb
     }
 }
 

@@ -29,7 +29,8 @@ import Foundation
 
     @objc public var data: [String: Any]? {
         get { wrapped.data }
-        set { wrapped.data = newValue }
+        // swiftlint:disable:next no_breadcrumb_data_setter
+        set { wrapped.data = newValue } // `wrapped` is a Mechanism, not a Breadcrumb
     }
 
     @objc public var handled: NSNumber? {

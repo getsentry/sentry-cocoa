@@ -159,7 +159,3 @@ custom_rules:
     severity: error
     included:
       - "./Sources/.*\\.swift"
-    excluded:
-      # `wrapped` is a User / Mechanism here, not a Breadcrumb.
-      - "./Sources/SentryObjCCompat/SentryObjCUser.swift"
-      - "./Sources/SentryObjCCompat/SentryObjCMechanism.swift"
