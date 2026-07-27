@@ -157,6 +157,3 @@ custom_rules:
     message: "Use `setData(value:key:)` instead of assigning the whole `Breadcrumb.data` dictionary. Assigning a bridged Swift dictionary can crash (see #7861); the `data` setter will become read-only in a future release. If you must assign a whole dictionary, suppress this rule with a comment explaining why."
     regex: '(crumb|breadcrumb|wrapped)\.data\s*=(?!=)'
     severity: error
-    included:
-      - "./Sources/.*\\.swift"
-      - "./Tests/.*\\.swift"
