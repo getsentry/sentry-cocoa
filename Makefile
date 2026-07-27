@@ -1397,7 +1397,7 @@ STAGED_OBJC_HEADER_FILES := $(shell git diff --cached --diff-filter=d --name-onl
 
 # Message for the allHeaderFields banned-pattern lint, aligned with the SwiftLint
 # rule in PR #8387 (rule id avoid_all_header_fields).
-AVOID_ALL_HEADER_FIELDS_MSG := Double-check how you use allHeaderFields (https://developer.apple.com/documentation/foundation/httpurlresponse/allheaderfields). Reading all headers is fine, but its subscript is case-sensitive while HTTP/2 and HTTP/3 lowercase field names, so a single-header lookup can silently miss the header (see \#8322). For a lookup, use value(forHTTPHeaderField:) or the HTTPURLResponse.value(forHTTPHeaderFieldCaseInsensitive:) extension in HTTPURLResponse+Sentry.swift. If your usage is intentional, suppress this rule with a comment explaining why.
+AVOID_ALL_HEADER_FIELDS_MSG := Double-check how you use allHeaderFields / allHTTPHeaderFields (https://developer.apple.com/documentation/foundation/httpurlresponse/allheaderfields). Reading all headers is fine, but their subscript is case-sensitive while HTTP/2 and HTTP/3 lowercase field names, so a single-header lookup can silently miss the header (see \#8322). For a lookup, use value(forHTTPHeaderField:) or the HTTPURLResponse.value(forHTTPHeaderFieldCaseInsensitive:) extension in HTTPURLResponse+Sentry.swift. If your usage is intentional, suppress this rule with a comment explaining why.
 
 ## Run linting checks on all files
 #
@@ -1408,7 +1408,7 @@ lint:
 	./scripts/check-clang-format.py -r Sources Tests
 	ruby ./scripts/check-objc-id-usage.rb -r Sources/Sentry
 	./scripts/check-objc-banned-pattern.sh --path Sources \
-		--rule avoid_all_header_fields --pattern 'allHeaderFields' \
+		--rule avoid_all_header_fields --pattern 'all(HTTP)?HeaderFields' \
 		--message "$(AVOID_ALL_HEADER_FIELDS_MSG)"
 	swiftlint --strict --quiet
 	dprint check "**/*.{md,json,yaml,yml}"
@@ -1429,7 +1429,7 @@ lint-staged:
 	@if [ -n "$(STAGED_CLANG_FILES)" ]; then \
 		for f in $(STAGED_CLANG_FILES); do \
 			./scripts/check-objc-banned-pattern.sh --path "$$f" \
-				--rule avoid_all_header_fields --pattern 'allHeaderFields' \
+				--rule avoid_all_header_fields --pattern 'all(HTTP)?HeaderFields' \
 				--message "$(AVOID_ALL_HEADER_FIELDS_MSG)" || exit 1; \
 		done; \
 	fi
