@@ -225,7 +225,7 @@ import Cocoa
                     }
                 }
                 
-                let crumb = Breadcrumb(level: .info, category: "touch", data: data)
+                let crumb = Breadcrumb(level: .info, category: "touch", data: data ?? [:])
                 crumb.type = "user"
                 crumb.message = action
                 self.delegate?.add(crumb)

@@ -64,11 +64,11 @@ class SentryBreadcrumbTests: XCTestCase {
         XCTAssertEqual(breadcrumb.data?["baz"] as? Int, 1)
     }
 
-    func testInitWithLevelCategoryData_whenDataIsNil() {
-        let breadcrumb = Breadcrumb(level: .info, category: "test", data: nil)
+    func testInitWithLevelCategoryData_whenDataIsEmpty() {
+        let breadcrumb = Breadcrumb(level: .info, category: "test", data: [:])
 
         XCTAssertEqual(breadcrumb.category, "test")
-        XCTAssertNil(breadcrumb.data)
+        XCTAssertEqual(breadcrumb.data?.isEmpty, true)
     }
     
     func testHash() {
