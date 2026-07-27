@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add `enableMemoryIntrospection` option to control memory introspection in crash reports (#7501)
+
 ### Fixes
 
 - Fix trace propagation for manually instrumented transactions when automatic performance tracing is disabled (#8522)
