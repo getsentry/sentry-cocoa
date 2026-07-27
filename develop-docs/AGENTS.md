@@ -16,6 +16,7 @@ Internal developer documentation for SDK maintainers.
 | `RELEASE.md`                 | Release process: pre-release, stable, promoting betas                       |
 | `SDK_HISTORY.md`             | Historical context and FAQ                                                  |
 | `SWIFT.md`                   | Swift/ObjC interop: bridging, `_SentryPrivate`, module setup                |
+| `SWIZZLING.md`               | Typed swizzle setup and migration workflow                                  |
 | `TEST.md`                    | Testing: sample apps, unit/UI tests, sanitizers, test plans, benchmarks     |
 | `VIEW_MASKING_STRATEGIES.md` | View masking for screenshots/session replay                                 |
 | `OBJC-LOAD-AND-LINKING.md`   | ObjC `+load` behavior across distribution formats                           |
