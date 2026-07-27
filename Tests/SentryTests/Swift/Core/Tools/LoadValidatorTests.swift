@@ -90,6 +90,34 @@ class LoadValidatorTests: XCTestCase {
         XCTAssertEqual(dispatchQueueWrapper.dispatchAsyncInvocations.count, 0)
     }
     
+    func testValidateSDKPresenceIn_CryptexSimulatorPath_DoesNotValidate() {
+        // Arrange
+        let imageName = "/private/var/run/com.apple.security.cryptexd/mnt/iOS_24A5279h/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 27.0.simruntime/Contents/Resources/RuntimeRoot/System/Library/Frameworks/UIKit.framework/UIKit"
+        var getClassListCalled = false
+        testObjCRuntimeWrapper.beforeGetClassList = {
+            getClassListCalled = true
+        }
+        let expectation = XCTestExpectation(description: "LoadValidation should complete")
+
+        // Act
+        var validationResult = false
+        LoadValidator.internalCheckForDuplicatedSDK(imageName,
+                                                    defaultImageAddress,
+                                                    defaultImageSize,
+                                                    objcRuntimeWrapper: testObjCRuntimeWrapper,
+                                                    dispatchQueueWrapper: dispatchQueueWrapper) { result in
+            validationResult = result
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 5)
+
+        // Assert
+        XCTAssertFalse(validationResult, "Validation should return false for cryptex simulator libraries")
+        XCTAssertFalse(getClassListCalled, "ObjectiveC Wrapper should not be called for a cryptex simulator library")
+        XCTAssertFalse(testOutput.loggedMessages.contains { $0.contains("❌ Sentry SDK was loaded multiple times") })
+        XCTAssertEqual(dispatchQueueWrapper.dispatchAsyncInvocations.count, 0)
+    }
+
     func testValidateSDKPresenceIn_SystemPath_DoesNotValidate() {
         // Arrange
         let imageName = "/System/Library/system.dylib"
