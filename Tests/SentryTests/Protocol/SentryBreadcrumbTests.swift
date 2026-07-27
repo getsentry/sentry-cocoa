@@ -271,6 +271,14 @@ class SentryBreadcrumbTests: XCTestCase {
         XCTAssertEqual(breadcrumb.data?["other"] as? String, "kept")
     }
 
+    func testSetDataValueForKey_whenValueIsNilAndDataIsNil_keepsDataNil() {
+        let breadcrumb = Breadcrumb(level: .info, category: "test")
+
+        breadcrumb.setData(value: nil, key: "key")
+
+        XCTAssertNil(breadcrumb.data)
+    }
+
     func testSetDataValueForKey_whenCalledConcurrently_shouldNotCrash() {
         let breadcrumb = Breadcrumb(level: .info, category: "test")
 

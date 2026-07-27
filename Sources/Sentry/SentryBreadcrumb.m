@@ -160,6 +160,10 @@ sentry_deepCopyValue(id value)
 {
     @synchronized(self) {
         if (_data == nil) {
+            // Don't allocate storage for a no-op remove; keep data nil.
+            if (value == nil) {
+                return;
+            }
             _data = [[NSMutableDictionary alloc] init];
         }
         // setValue:forKey: removes the key when value is nil.
