@@ -85,7 +85,7 @@ jobs:
         files-changed,
         test-apple-binaries-archive,
       ]
-    name: Test Apple Binaries Archive
+    name: Test Apple Binaries Archive - Required Check
     if: always()
     runs-on: ubuntu-latest
     steps:
