@@ -159,3 +159,4 @@ custom_rules:
     severity: error
     included:
       - "./Sources/.*\\.swift"
+      - "./Tests/.*\\.swift"

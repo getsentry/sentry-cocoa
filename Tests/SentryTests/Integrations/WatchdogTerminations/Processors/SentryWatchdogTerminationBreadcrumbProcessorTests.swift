@@ -13,6 +13,7 @@ class SentryWatchdogTerminationBreadcrumbProcessorTests: XCTestCase {
         let currentDate = TestCurrentDateProvider()
         let maxBreadcrumbs = 10
 
+        // swiftlint:disable no_breadcrumb_data_setter
         init() throws {
             breadcrumb = TestData.crumb
             breadcrumb.data = nil
@@ -27,6 +28,7 @@ class SentryWatchdogTerminationBreadcrumbProcessorTests: XCTestCase {
                 dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
             )
         }
+        // swiftlint:enable no_breadcrumb_data_setter
 
         func getSut() -> SentryWatchdogTerminationBreadcrumbProcessor {
             return getSut(fileManager: self.fileManager)

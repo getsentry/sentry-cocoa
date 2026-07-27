@@ -47,8 +47,9 @@ class SentryScopeSwiftTests: XCTestCase {
             breadcrumb.timestamp = date
             breadcrumb.type = "user"
             breadcrumb.message = "Clicked something"
+            // swiftlint:disable:next no_breadcrumb_data_setter
             breadcrumb.data = ["some": ["data": "data", "date": date] as [String: Any]]
-            
+
             scope = Scope(maxBreadcrumbs: maxBreadcrumbs)
             scope.setUser(user)
             scope.setTag(value: tags["key"] ?? "", key: "key")
@@ -771,6 +772,7 @@ class SentryScopeSwiftTests: XCTestCase {
         })
     }
 
+    // swiftlint:disable no_breadcrumb_data_setter
     func testAddBreadcrumb_storesDefensiveCopy() {
         let scope = Scope(maxBreadcrumbs: 5)
         let crumb = Breadcrumb(level: .info, category: "ui")
@@ -791,7 +793,9 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(stored?.data?["key"] as? String, "before",
             "Stored breadcrumb data should not reflect mutations to the original")
     }
+    // swiftlint:enable no_breadcrumb_data_setter
 
+    // swiftlint:disable no_breadcrumb_data_setter
     func testAddBreadcrumb_evictionDoesNotCrash_whenReadConcurrently() {
         // Regression test for https://github.com/getsentry/sentry-cocoa/issues/8013
         // The ring buffer evicts old breadcrumbs when full. Without a defensive copy,
@@ -837,6 +841,7 @@ class SentryScopeSwiftTests: XCTestCase {
 
         wait(for: [expectation], timeout: 30)
     }
+    // swiftlint:enable no_breadcrumb_data_setter
 
     func testScopeObserver_passesDistinctCopyToObservers() {
         // Verify that observers receive a different object (copy) than the internal
