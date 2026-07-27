@@ -26,6 +26,36 @@ final class SentryDependencyContainerTests: XCTestCase {
         SentryDependencyContainer.reset()
 
     }
+
+    // Regression test for getsentry/sentry-react-native#6497: `screenshotSource`
+    // must not permanently cache `nil` when it is first accessed before
+    // `startOptions` is set. Hybrid SDKs (e.g. React Native) touch
+    // `SentrySDK.internal` — which reads `screenshotSource` — before
+    // `SentrySDK.start`. When `screenshotSource` was a `lazy var`, that first
+    // pre-start access cached `nil` for the whole process, breaking all iOS
+    // screenshot capture (Feedback Widget, attachScreenshot, captureScreenshot).
+    func testScreenshotSource_AccessedBeforeStartOptions_RebuildsAfterStart() throws {
+        // `reset()` gives a fresh container (clearing the cached `_screenshotSource`)
+        // but intentionally preserves `startOptions`, so force the pre-start state
+        // explicitly to make this test independent of other tests' ordering.
+        SentryDependencyContainer.reset()
+        let sut = SentryDependencyContainer.sharedInstance()
+        sut.startOptions = nil
+
+        // Accessed before `startOptions` is set: `nil` is expected here...
+        XCTAssertNil(sut.screenshotSource)
+
+        // ...but it must not be cached. Once the options are set (SDK start), the
+        // source must be (re)built. With the previous `lazy var` it stayed `nil`.
+        let options = Options()
+        options.dsn = SentryDependencyContainerTests.dsn
+        sut.startOptions = options
+
+        XCTAssertNotNil(sut.screenshotSource)
+
+        sut.startOptions = nil
+        SentryDependencyContainer.reset()
+    }
 #endif
 
 #if os(macOS)
