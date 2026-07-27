@@ -53,8 +53,9 @@ import Foundation
 
     @objc public var data: [String: Any]? {
         get { wrapped.data }
-        // swiftlint:disable:next no_breadcrumb_data_setter
+        // swiftlint:disable no_breadcrumb_data_setter
         set { wrapped.data = newValue } // pass-through mirroring the data setter; removed in V10
+        // swiftlint:enable no_breadcrumb_data_setter
     }
 
     @objc(setDataValue:forKey:) public func setData(value: Any?, key: String) {
