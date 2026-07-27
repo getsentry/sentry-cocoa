@@ -141,7 +141,23 @@ class SentryBreadcrumbTests: XCTestCase {
         XCTAssertEqual(fixture.message, actual["message"] as? String)
         XCTAssertEqual(["some": ["data": "data", "date": fixture.dateAs8601String]], actual["data"] as? Dictionary)
     }
-    
+
+    func testSerialize_whenDataIsEmpty_shouldOmitData() {
+        let crumb = Breadcrumb(level: .info, category: "test", data: [:])
+
+        let actual = crumb.serialize()
+
+        XCTAssertNil(actual["data"])
+    }
+
+    func testSerialize_whenDataIsNil_shouldOmitData() {
+        let crumb = Breadcrumb(level: .info, category: "test")
+
+        let actual = crumb.serialize()
+
+        XCTAssertNil(actual["data"])
+    }
+
     func testDescription() {
         let crumb = fixture.breadcrumb
         let actual = crumb.description

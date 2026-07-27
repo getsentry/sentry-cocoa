@@ -278,7 +278,9 @@ sentry_deepCopyValue(id value)
     [serializedData setValue:type forKey:@"type"];
     [serializedData setValue:origin forKey:@"origin"];
     [serializedData setValue:message forKey:@"message"];
-    [serializedData setValue:sentry_sanitize_dictionary(data) forKey:@"data"];
+    if (data.count > 0) {
+        [serializedData setValue:sentry_sanitize_dictionary(data) forKey:@"data"];
+    }
     return serializedData;
 }
 
