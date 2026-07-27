@@ -433,6 +433,7 @@ run_version_bump_util_for_prs: &run_version_bump_util_for_prs
   # Project files with version info
   - "Package*.swift"
   - "3rd-party-integrations/**/Package.swift"
+  - "distribution/**/Package.swift"
 
   # Configuration files
   - "Sources/Configuration/SDK.xcconfig"
