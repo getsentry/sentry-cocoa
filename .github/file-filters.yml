@@ -305,6 +305,7 @@ run_v10_for_prs: &run_v10_for_prs
   # Project files
   - "Sentry.xcodeproj/**"
   - "Sentry.xcworkspace/**"
+  - "Package*.swift"
 
   # Build configuration
   - "Makefile"
