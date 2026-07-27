@@ -55,6 +55,10 @@ import Foundation
         get { wrapped.data }
         set { wrapped.data = newValue }
     }
+
+    @objc(setDataValue:forKey:) public func setData(value: Any?, key: String) {
+        wrapped.setData(value: value, key: key)
+    }
 }
 
 // swiftlint:enable missing_docs

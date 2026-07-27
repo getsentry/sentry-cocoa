@@ -9,6 +9,19 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryBreadcrumb ()
 
 /**
+ * Initializes a SentryBreadcrumb with a level, category and data dictionary.
+ * Convenience for constructing a breadcrumb with data in one call instead of multiple
+ * @c setDataValue:forKey: calls.
+ * @param level The severity level of the breadcrumb.
+ * @param category The category string for the breadcrumb.
+ * @param data The data dictionary, or @c nil.
+ * @return The SentryBreadcrumb.
+ */
+- (instancetype _Nonnull)initWithLevel:(SentryLevel)level
+                              category:(NSString *_Nonnull)category
+                                  data:(NSDictionary<NSString *, id> *_Nullable)data;
+
+/**
  * Initializes a SentryBreadcrumb from a JSON object.
  * @param dictionary The dictionary containing breadcrumb data.
  * @return The SentryBreadcrumb.

@@ -5019,6 +5019,54 @@
             "usr": "c:objc(cs)SentryBreadcrumb(im)serialize"
           },
           {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "kind": "TypeNameAlias",
+                "name": "Void",
+                "printedName": "Swift.Void"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Any?",
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declAttributes": [
+              "Dynamic",
+              "ObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isOpen": true,
+            "kind": "Function",
+            "moduleName": "Sentry",
+            "name": "setData",
+            "objc_name": "setDataValue:forKey:",
+            "printedName": "setData(value:key:)",
+            "usr": "c:objc(cs)SentryBreadcrumb(im)setDataValue:forKey:"
+          },
+          {
             "accessors": [
               {
                 "accessorKind": "get",

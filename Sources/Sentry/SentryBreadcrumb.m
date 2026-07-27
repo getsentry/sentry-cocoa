@@ -42,7 +42,10 @@ sentry_deepCopyValue(id value)
     return value;
 }
 
-@implementation SentryBreadcrumb
+@implementation SentryBreadcrumb {
+    // Mutable so setDataValue:forKey: can update in place.
+    NSMutableDictionary<NSString *, id> *_data;
+}
 
 // Explicit @synthesize so we can provide thread-safe accessors via @synchronized(self).
 @synthesize level = _level;
@@ -51,7 +54,6 @@ sentry_deepCopyValue(id value)
 @synthesize type = _type;
 @synthesize message = _message;
 @synthesize origin = _origin;
-@synthesize data = _data;
 
 #pragma mark - Thread-safe property accessors
 
@@ -142,14 +144,26 @@ sentry_deepCopyValue(id value)
 - (void)setData:(NSDictionary<NSString *, id> *)data
 {
     @synchronized(self) {
-        _data = data ? sentry_deepCopyValue(data) : nil;
+        _data = data ? [sentry_deepCopyValue(data) mutableCopy] : nil;
     }
 }
 
 - (NSDictionary<NSString *, id> *)data
 {
     @synchronized(self) {
-        return _data;
+        // Immutable snapshot so callers can't mutate our storage.
+        return [_data copy];
+    }
+}
+
+- (void)setDataValue:(nullable id)value forKey:(NSString *)key
+{
+    @synchronized(self) {
+        if (_data == nil) {
+            _data = [[NSMutableDictionary alloc] init];
+        }
+        // setValue:forKey: removes the key when value is nil.
+        [_data setValue:value forKey:key];
     }
 }
 
@@ -197,6 +211,23 @@ sentry_deepCopyValue(id value)
     return self;
 }
 
+- (instancetype)initWithLevel:(SentryLevel)level
+                     category:(NSString *)category
+                         data:(nullable NSDictionary<NSString *, id> *)data
+{
+    self = [self initWithLevel:level category:category];
+    if (self) {
+        // initWithDictionary: bulk-materializes into native storage, avoiding the per-key
+        // re-bridge that crashes for lazily-bridged Swift dictionaries (see #7861). It doesn't
+        // route through the setData: deep copy, matching setDataValue:forKey: semantics.
+        _data = data != nil
+            ? [[NSMutableDictionary alloc]
+                  initWithDictionary:SENTRY_UNWRAP_NULLABLE_DICT(NSString *, id, data)]
+            : nil;
+    }
+    return self;
+}
+
 - (instancetype)init
 {
     return [self initWithLevel:kSentryLevelInfo category:@"default"];
@@ -212,7 +243,8 @@ sentry_deepCopyValue(id value)
         snapshot->_type = _type;
         snapshot->_message = _message;
         snapshot->_origin = _origin;
-        snapshot->_data = _data;
+        // Copy so the snapshot has independent storage.
+        snapshot->_data = [_data mutableCopy];
     }
     return snapshot;
 }
@@ -237,7 +269,8 @@ sentry_deepCopyValue(id value)
         type = _type;
         origin = _origin;
         message = _message;
-        data = _data;
+        // Copy under the lock; _data is mutated in place elsewhere.
+        data = [_data copy];
     }
 
     NSMutableDictionary *serializedData = [[NSMutableDictionary alloc] init];

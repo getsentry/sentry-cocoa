@@ -53,6 +53,23 @@ class SentryBreadcrumbTests: XCTestCase {
         XCTAssertEqual(breadcrumb.message, fixture.message)
         XCTAssertEqual(breadcrumb.data as? [String: String], ["foo": "bar"])
     }
+
+    func testInitWithLevelCategoryData() {
+        let breadcrumb = Breadcrumb(level: .warning, category: "test", data: ["foo": "bar", "baz": 1])
+
+        XCTAssertEqual(breadcrumb.level, SentryLevel.warning)
+        XCTAssertEqual(breadcrumb.category, "test")
+        XCTAssertNotNil(breadcrumb.timestamp)
+        XCTAssertEqual(breadcrumb.data?["foo"] as? String, "bar")
+        XCTAssertEqual(breadcrumb.data?["baz"] as? Int, 1)
+    }
+
+    func testInitWithLevelCategoryData_whenDataIsNil() {
+        let breadcrumb = Breadcrumb(level: .info, category: "test", data: nil)
+
+        XCTAssertEqual(breadcrumb.category, "test")
+        XCTAssertNil(breadcrumb.data)
+    }
     
     func testHash() {
         let fixture2 = Fixture()
@@ -206,6 +223,45 @@ class SentryBreadcrumbTests: XCTestCase {
         XCTAssertNil(breadcrumb.data?["newKey"])
         let nested = breadcrumb.data?["nested"] as? NSDictionary
         XCTAssertEqual(nested?["inner"] as? String, "original")
+    }
+
+    // MARK: - setData(value:key:)
+
+    func testSetDataValueForKey_whenDataIsNil_createsDictionary() {
+        let breadcrumb = Breadcrumb(level: .info, category: "test")
+
+        breadcrumb.setData(value: "wifi", key: "connectivity")
+
+        XCTAssertEqual(breadcrumb.data?["connectivity"] as? String, "wifi")
+    }
+
+    func testSetDataValueForKey_whenDataExists_mergesWithoutRemovingOtherKeys() {
+        let breadcrumb = Breadcrumb(level: .info, category: "test")
+        breadcrumb.data = ["existing": "value"]
+
+        breadcrumb.setData(value: "wifi", key: "connectivity")
+
+        XCTAssertEqual(breadcrumb.data?["existing"] as? String, "value")
+        XCTAssertEqual(breadcrumb.data?["connectivity"] as? String, "wifi")
+    }
+
+    func testSetDataValueForKey_whenValueIsNil_removesKey() {
+        let breadcrumb = Breadcrumb(level: .info, category: "test")
+        breadcrumb.data = ["key": "value", "other": "kept"]
+
+        breadcrumb.setData(value: nil, key: "key")
+
+        XCTAssertNil(breadcrumb.data?["key"])
+        XCTAssertEqual(breadcrumb.data?["other"] as? String, "kept")
+    }
+
+    func testSetDataValueForKey_whenCalledConcurrently_shouldNotCrash() {
+        let breadcrumb = Breadcrumb(level: .info, category: "test")
+
+        testConcurrentModifications(asyncWorkItems: 10, writeLoopCount: 1_000) { i in
+            breadcrumb.setData(value: "value\(i)", key: "key\(i % 10)")
+            _ = breadcrumb.serialize()
+        }
     }
 
     func testSerialize_whenDataContainsConcurrentlyMutatedNestedDict_shouldNotCrash() {

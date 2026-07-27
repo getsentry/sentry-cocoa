@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add `Breadcrumb.setData(value:key:)` to set a single breadcrumb data entry (#8572)
+
 ### Fixes
 
 - Fix trace propagation for manually instrumented transactions when automatic performance tracing is disabled (#8522)
