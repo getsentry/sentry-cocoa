@@ -55,6 +55,18 @@ import Foundation
         if options.experimental.enableStandaloneAppStartTracing {
             features.append("standaloneAppStartTracing")
         }
+        if options.experimental.enableWatchdogTerminationsV2 {
+            features.append("watchdogTerminationsV2")
+        }
+
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+        if options.attachViewHierarchy {
+            features.append("viewHierarchy")
+        }
+        if options.screenshot.enableFastViewRendering {
+            features.append("screenshotFastViewRendering")
+        }
+#endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
 
         return features
     }
