@@ -20,6 +20,7 @@ Internal developer documentation for SDK maintainers.
 | `VIEW_MASKING_STRATEGIES.md` | View masking for screenshots/session replay                                 |
 | `OBJC-LOAD-AND-LINKING.md`   | ObjC `+load` behavior across distribution formats                           |
 | `Fishhook-Explanation.md`    | Fishhook Mach-O symbol rebinding mechanism                                  |
+| `audits/`                    | Recurring agent-driven protocol-conformance audits (see `audits/README.md`) |
 
 ## Conventions
 
