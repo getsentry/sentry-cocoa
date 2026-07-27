@@ -7,8 +7,6 @@
 
 #endif // SENTRY_HAS_UIKIT
 
-@class SentryNetworkTracker;
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentrySwizzleWrapperHelper : NSObject
@@ -39,14 +37,6 @@ NS_ASSUME_NONNULL_BEGIN
                          mode:(SentrySwizzleMode)mode
                           key:(const void *)key
                       factory:(id (^)(IMP(NS_NOESCAPE ^)(void)))factory;
-
-+ (void)swizzleURLSessionTask:(SentryNetworkTracker *)networkTracker;
-
-#if SENTRY_TARGET_REPLAY_SUPPORTED
-// Swizzle [NSURLSession dataTaskWithURL:completionHandler:]
-//         [NSURLSession dataTaskWithRequest:completionHandler:]
-+ (void)swizzleURLSessionDataTasksForResponseCapture:(SentryNetworkTracker *)networkTracker;
-#endif // SENTRY_TARGET_REPLAY_SUPPORTED
 
 @end
 
