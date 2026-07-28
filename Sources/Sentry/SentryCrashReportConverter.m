@@ -196,11 +196,14 @@ static NSString *const SentryCrashReportConverterErrorDomain
     if (nil != self.userContext[@"breadcrumbs"]) {
         NSArray *storedBreadcrumbs = self.userContext[@"breadcrumbs"];
         for (NSDictionary *storedCrumb in storedBreadcrumbs) {
-            SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc]
-                initWithLevel:[self sentryLevelFromString:storedCrumb[@"level"]]
-                     category:storedCrumb[@"category"]
-                    ?: @"default"]; // The default value is the same as the one in
-                                    // SentryBreadcrumb.init
+            SentryLevel level = [self sentryLevelFromString:storedCrumb[@"level"]];
+            NSString *category
+                = storedCrumb[@"category"] ?: @"default"; // The default value is the same as the
+                                                          // one in SentryBreadcrumb.init
+            NSDictionary *data = storedCrumb[@"data"];
+            SentryBreadcrumb *crumb = data
+                ? [[SentryBreadcrumb alloc] initWithLevel:level category:category data:data]
+                : [[SentryBreadcrumb alloc] initWithLevel:level category:category];
             crumb.message = storedCrumb[@"message"];
             crumb.type = storedCrumb[@"type"];
             crumb.origin = storedCrumb[@"origin"];
@@ -208,7 +211,6 @@ static NSString *const SentryCrashReportConverterErrorDomain
                 crumb.timestamp = sentry_fromIso8601String(
                     SENTRY_UNWRAP_NULLABLE(NSString, storedCrumb[@"timestamp"]));
             }
-            crumb.data = storedCrumb[@"data"];
             [breadcrumbs addObject:crumb];
         }
     }

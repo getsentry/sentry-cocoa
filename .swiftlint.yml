@@ -154,3 +154,8 @@ custom_rules:
     message: "Use `internal import` (SE-0409) instead of `@_implementationOnly import`."
     regex: "@_implementationOnly import"
     severity: error
+  no_breadcrumb_data_setter:
+    name: "Avoid the Breadcrumb.data setter"
+    message: "Use `setData(value:key:)` instead of assigning the whole `Breadcrumb.data` dictionary. Assigning a bridged Swift dictionary can crash (see #7861); the `data` setter will become read-only in a future release. If you must assign a whole dictionary, suppress this rule with a comment explaining why."
+    regex: '(crumb|breadcrumb|wrapped)\.data\s*=(?!=)'
+    severity: error

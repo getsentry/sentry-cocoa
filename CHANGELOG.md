@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add `Breadcrumb.setData(value:key:)` to set a single breadcrumb data entry and deprecate the `Breadcrumb.data` setter in its favor. (#8572)
+
 ### Fixes
 
 - Fix screenshots not being captured by hybrid SDKs (#8578)
