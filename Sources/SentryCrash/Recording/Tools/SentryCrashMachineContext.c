@@ -29,9 +29,21 @@
 #include "SentryCrashCPU.h"
 #include "SentryCrashCPU_Apple.h"
 #include "SentryCrashMachineContext_Apple.h"
-#include "SentryCrashMonitor_MachException.h"
 #include "SentryCrashStackCursor_MachineContext.h"
 #include "SentryInternalCDefines.h"
+
+#ifdef ENABLE_KSCRASH
+// SentryCrashMonitor_MachException.c is excluded in KSCrash builds; provide a stub
+// so the tools-layer machine-context code compiles and links cleanly.
+bool
+sentrycrashcm_isReservedThread(thread_t thread)
+{
+    (void)thread;
+    return false;
+}
+#else
+#    include "SentryCrashMonitor_MachException.h"
+#endif
 
 #include <mach/mach.h>
 

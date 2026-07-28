@@ -2,8 +2,7 @@
 
 #if SENTRY_HAS_UIKIT
 
-#    import "SentryCrashFileUtils.h"
-#    import "SentryCrashJSONCodec.h"
+#    import "SentryCrashKSCrashCompat.h"
 #    import "SentryLogC.h"
 #    import "SentrySwift.h"
 #    import <UIKit/UIKit.h>

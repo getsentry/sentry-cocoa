@@ -1,4 +1,5 @@
 // swiftlint:disable missing_docs
+#if !ENABLE_KSCRASH
 internal import _SentryPrivate
 
 // This provides the public API for passing what is essentially a `SentryCrashReportFilter` to Swift.
@@ -101,3 +102,4 @@ private final class CrashReportFilterBridge: NSObject, SentryCrashReportFilter {
     }
 }
 // swiftlint:enable missing_docs
+#endif // !ENABLE_KSCRASH

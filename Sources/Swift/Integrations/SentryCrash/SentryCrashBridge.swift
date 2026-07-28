@@ -1,3 +1,4 @@
+#if !ENABLE_KSCRASH
 internal import _SentryPrivate
 import Foundation
 
@@ -109,3 +110,5 @@ import UIKit
         super.init()
     }
 }
+
+#endif // !ENABLE_KSCRASH

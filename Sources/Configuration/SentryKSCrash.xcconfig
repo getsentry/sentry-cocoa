@@ -10,7 +10,10 @@ PRODUCT_NAME = $(PRODUCT_MODULE_NAME)
 
 // Sentry.xcconfig excludes KSCrash sources from the plain Sentry target.
 // This target owns those files, so clear the exclusion.
-EXCLUDED_SOURCE_FILE_NAMES =
+// Exclude SentryCrash crash-capture machinery from the KSCrash build variant.
+// These files are replaced by the upstream KSCrash package dependency.
+// Wildcards match by filename only (no path needed).
+EXCLUDED_SOURCE_FILE_NAMES = SentryCrashScopeObserver.m SentryCrashReportSink.m SentryCrashReportConverter.m SentryCrashExceptionApplication.m SentryCrash.m SentryCrashC.c SentryCrashReport.c SentryCrashReportFixer.c SentryCrashReportStore.c SentryCrashCachedData.c SentryCrashDoctor.m SentryCrashInstallation.m SentryCrashMonitor.c SentryCrashMonitorType.c SentryCrashMonitor_AppState.c SentryCrashMonitor_CPPException.cpp SentryCrashMonitor_MachException.c SentryCrashMonitor_NSException.m SentryCrashMonitor_NSException_StackCursor.m SentryCrashMonitor_Signal.c SentryCrashMonitor_System.m SentryCrashReportFilterBasic.m SentryCrashJSONCodec.c SentryCrashJSONCodecObjC.m SentryCrashFileUtils.c SentryCrashSysCtl.c
 
 // Add Sources/Sentry/Public to header search paths so that _SentryPrivate module compilation
 // can find SentryProfilingConditionals.h (a public header not under include/).

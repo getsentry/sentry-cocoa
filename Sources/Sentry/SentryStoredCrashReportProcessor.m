@@ -1,12 +1,10 @@
 #import "SentryStoredCrashReportProcessor.h"
 
-#import "SentryClient+Private.h"
-#import "SentryCrash.h"
-#import "SentryCrashReportConverter.h"
+#if !ENABLE_KSCRASH
+#    import "SentryCrashReportConverter.h"
+#endif
 #import "SentryEvent.h"
-#import "SentryHub+Private.h"
 #import "SentryHub.h"
-#import "SentryId.h"
 #import "SentrySDK+Private.h"
 #import "SentrySDKInternal.h"
 #import "SentryScope+Private.h"
@@ -14,11 +12,11 @@
 
 NSErrorDomain const SentryStoredCrashReportProcessorErrorDomain
     = @"io.sentry.crash-report-processor";
+NSString *const SENTRYCRASH_REPORT_ATTACHMENTS_ITEM = @"attachments";
 
 @interface SentryStoredCrashReportProcessor ()
 
 @property (nonatomic, strong) SentryInAppLogic *inAppLogic;
-@property (nonatomic, assign) BOOL preserveCrashedSessionOnCaptureFailure;
 
 @end
 
@@ -26,15 +24,8 @@ NSErrorDomain const SentryStoredCrashReportProcessorErrorDomain
 
 - (instancetype)initWithInAppLogic:(SentryInAppLogic *)inAppLogic
 {
-    return [self initWithInAppLogic:inAppLogic preserveCrashedSessionOnCaptureFailure:NO];
-}
-
-- (instancetype)initWithInAppLogic:(SentryInAppLogic *)inAppLogic
-    preserveCrashedSessionOnCaptureFailure:(BOOL)preserveCrashedSessionOnCaptureFailure
-{
     if (self = [super init]) {
         self.inAppLogic = inAppLogic;
-        self.preserveCrashedSessionOnCaptureFailure = preserveCrashedSessionOnCaptureFailure;
     }
     return self;
 }
@@ -53,6 +44,13 @@ NSErrorDomain const SentryStoredCrashReportProcessorErrorDomain
                        description:@"No Sentry client is available to capture the crash report."];
     }
 
+#if ENABLE_KSCRASH
+    // In KSCrash mode, SentryCrashReportConverter is not compiled in; crash reports are
+    // handled by KSCrash directly. This path should never be reached in practice.
+    return [self failWithError:error
+                          code:SentryStoredCrashReportProcessorErrorConversionFailed
+                   description:@"Crash report processing is not supported in KSCrash mode."];
+#else
     @try {
         SentryCrashReportConverter *reportConverter =
             [[SentryCrashReportConverter alloc] initWithReport:report inAppLogic:self.inAppLogic];
@@ -64,37 +62,12 @@ NSErrorDomain const SentryStoredCrashReportProcessorErrorDomain
                         description:@"The crash report could not be converted to a Sentry event."];
         }
 
-        // Snapshot the hub and client again after conversion because asynchronous report processing
-        // can race with SDK close. The capture result below distinguishes an accepted event from a
-        // no-op caused by that client becoming unavailable.
-        SentryHubInternal *hub = SentrySDKInternal.currentHub;
-        SentryClientInternal *client = [hub getClient];
-        if (client == nil) {
-            return
-                [self failWithError:error
-                               code:SentryStoredCrashReportProcessorErrorMissingClient
-                        description:@"No Sentry client is available to capture the crash report."];
-        }
-
-        SentryScope *scope = [[SentryScope alloc] initWithScope:hub.scope];
+        SentryScope *scope = [[SentryScope alloc] initWithScope:SentrySDKInternal.currentHub.scope];
         for (NSString *attachmentPath in report[SENTRYCRASH_REPORT_ATTACHMENTS_ITEM] ?: @[]) {
             [scope addCrashReportAttachmentInPath:attachmentPath];
         }
 
-        SentryId *eventId =
-            [hub captureFatalEventWithResult:event
-                                      withScope:scope
-                preserveCrashedSessionOnFailure:self.preserveCrashedSessionOnCaptureFailure];
-        // An empty ID alone does not imply a retryable failure: an active client can intentionally
-        // discard an event, for example through beforeSend. Retry only if the client was disabled
-        // by configuration, closed, or unbound from the hub before accepting the report.
-        if ([eventId isEqual:SentryId.empty]
-            && ([client isDisabled] || [hub getClient] != client)) {
-            return [self failWithError:error
-                                  code:SentryStoredCrashReportProcessorErrorMissingClient
-                           description:@"The Sentry client became unavailable before accepting the "
-                                       @"crash report."];
-        }
+        [SentrySDKInternal captureFatalEvent:event withScope:scope];
         return YES;
     } @catch (NSException *exception) {
         return [self
@@ -103,6 +76,7 @@ NSErrorDomain const SentryStoredCrashReportProcessorErrorDomain
               description:[NSString stringWithFormat:@"The crash report could not be processed: %@",
                               exception.reason ?: exception.name]];
     }
+#endif
 }
 
 - (BOOL)failWithError:(NSError **)error

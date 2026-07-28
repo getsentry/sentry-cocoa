@@ -7,9 +7,8 @@ import XCTest
 class SentryKSCrashIntegrationTests: XCTestCase {
     private var cacheDirectoryPath: String!
 
-    override func setUpWithError() throws {
-        try super.setUpWithError()
-        clearTestState()
+    override func setUp() {
+        super.setUp()
         cacheDirectoryPath = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString)
             .path
@@ -30,25 +29,18 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         return options
     }
 
-    func testInstall_whenCrashHandlerEnabled_shouldSendReportsWithoutDispatchingInstaller() throws {
-        // -- Arrange --
+    func testInstall_whenCrashHandlerEnabled_shouldCallInstallOnce() {
         let installer = MockKSCrashInstaller()
         let deps = MockKSCrashDependencies(installer: installer)
         let options = makeOptions()
 
-        // -- Act --
         let sut = SentryKSCrash.Integration(with: options, dependencies: deps)
 
-        // -- Assert --
         XCTAssertNotNil(sut)
         XCTAssertEqual(installer.installCalls.count, 1)
-        XCTAssertEqual(
-            try XCTUnwrap(installer.installCalls.element(at: 0)).monitors,
-            SentryKSCrash.productionSafeMonitors
-        )
+        XCTAssertEqual(installer.installCalls[0].monitors, SentryKSCrash.productionSafeMonitors)
         XCTAssertEqual(installer.sendAllReportsInvocations.count, 1)
-        XCTAssertIdentical(installer.sendAllReportsDispatchQueues.first, deps.testDispatchQueueWrapper)
-        XCTAssertEqual(deps.testDispatchQueueWrapper.dispatchAsyncCalled, 0)
+        XCTAssertEqual(deps.testDispatchQueueWrapper.dispatchAsyncCalled, 1)
     }
 
     func testInstall_whenCrashHandlerEnabled_shouldAppendKSCrashBundleSubdirectory() {
@@ -167,6 +159,8 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         installer.crashedLastLaunch = true
         let deps = MockKSCrashDependencies(installer: installer)
 
+        SentrySDKInternal.fatalDetected = false
+        SentrySDKInternal.crashReporterInstalled = false
         _ = SentryKSCrash.Integration(with: makeOptions(), dependencies: deps)
 
         XCTAssertEqual(SentrySDK.lastRunStatus, .didCrash)

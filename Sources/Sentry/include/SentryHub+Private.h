@@ -43,13 +43,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
 
-/**
- * Captures a fatal event and returns its ID, or @c SentryId.empty when no client accepted it.
- */
-- (SentryId *)captureFatalEventWithResult:(SentryEvent *)event
-                                withScope:(SentryScope *)scope
-          preserveCrashedSessionOnFailure:(BOOL)preserveCrashedSessionOnFailure;
-
 #if SENTRY_HAS_UIKIT
 - (void)captureFatalAppHangEvent:(SentryEvent *)event;
 #endif // SENTRY_HAS_UIKIT

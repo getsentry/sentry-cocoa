@@ -270,18 +270,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope
 {
-    [self captureFatalEventWithResult:event withScope:scope preserveCrashedSessionOnFailure:NO];
-}
-
-- (SentryId *)captureFatalEventWithResult:(SentryEvent *)event
-                                withScope:(SentryScope *)scope
-          preserveCrashedSessionOnFailure:(BOOL)preserveCrashedSessionOnFailure
-{
     event.isFatalEvent = YES;
 
     SentryClientInternal *client = self.client;
     if (client == nil) {
-        return SentryId.empty;
+        return;
     }
 
     SentryFileManager *fileManager = [client fileManager];
@@ -291,19 +284,11 @@ NS_ASSUME_NONNULL_BEGIN
     // users didn't start a manual session yet, and there is a previous crash on disk. In this case,
     // we just send the crash event.
     if (crashedSession != nil) {
-        SentryId *eventId = [client captureFatalEvent:event
-                                          withSession:crashedSession
-                                            withScope:scope];
-        // An unavailable client returns an empty ID without accepting the event. Callers that
-        // retain the crash report can also preserve its session for the next SDK start.
-        if (!preserveCrashedSessionOnFailure || ![eventId isEqual:SentryId.empty]
-            || (!client.isDisabled && self.client == client)) {
-            [fileManager deleteCrashedSession];
-        }
-        return eventId;
+        [client captureFatalEvent:event withSession:crashedSession withScope:scope];
+        [fileManager deleteCrashedSession];
+    } else {
+        [client captureFatalEvent:event withScope:scope];
     }
-
-    return [client captureFatalEvent:event withScope:scope];
 }
 
 #if SENTRY_HAS_UIKIT

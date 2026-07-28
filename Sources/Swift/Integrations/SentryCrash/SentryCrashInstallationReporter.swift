@@ -1,3 +1,4 @@
+#if !ENABLE_KSCRASH
 internal import _SentryPrivate
 import Foundation
 
@@ -44,3 +45,5 @@ final class SentryCrashInstallationReporter: SentryCrashInstallation {
         }
     }
 }
+
+#endif // !ENABLE_KSCRASH

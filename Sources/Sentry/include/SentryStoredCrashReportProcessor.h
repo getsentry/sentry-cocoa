@@ -4,6 +4,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+extern NSString *const SENTRYCRASH_REPORT_ATTACHMENTS_ITEM;
+
 FOUNDATION_EXPORT NSErrorDomain const SentryStoredCrashReportProcessorErrorDomain;
 
 typedef NS_ERROR_ENUM(
@@ -18,13 +20,6 @@ typedef NS_ERROR_ENUM(
 SENTRY_NO_INIT
 
 - (instancetype)initWithInAppLogic:(SENTRY_SWIFT_MIGRATION_ID(SentryInAppLogic))inAppLogic;
-
-/**
- * @param preserveCrashedSessionOnCaptureFailure Set to YES only when the caller retains retryable
- * reports. The default initializer uses NO to preserve the legacy SentryCrash cleanup behavior.
- */
-- (instancetype)initWithInAppLogic:(SENTRY_SWIFT_MIGRATION_ID(SentryInAppLogic))inAppLogic
-    preserveCrashedSessionOnCaptureFailure:(BOOL)preserveCrashedSessionOnCaptureFailure;
 
 /**
  * Processes one dictionary crash report.

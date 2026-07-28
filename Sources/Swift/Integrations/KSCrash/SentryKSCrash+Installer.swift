@@ -1,7 +1,6 @@
 #if ENABLE_KSCRASH
-// swiftlint:disable:next no_implementation_only_import
-@_implementationOnly import KSCrashInstallations
 internal import _SentryPrivate
+internal import KSCrashInstallations
 import Foundation
 
 extension SentryKSCrash {
@@ -15,10 +14,7 @@ extension SentryKSCrash {
         func install(installPath: String, monitors: UInt, enableSwapCxaThrow: Bool) throws
 
         /// Processes all reports recorded during previous runs.
-        func sendAllReports(
-            reportProcessor: SentryStoredCrashReportProcessor,
-            dispatchQueue: SentryDispatchQueueWrapper
-        )
+        func sendAllReports(reportProcessor: SentryStoredCrashReportProcessor)
 
         /// Whether the previous run crashed.
         var crashedLastLaunch: Bool { get }
@@ -46,51 +42,21 @@ extension SentryKSCrash {
             }
         }
 
-        func sendAllReports(
-            reportProcessor: SentryStoredCrashReportProcessor,
-            dispatchQueue: SentryDispatchQueueWrapper
-        ) {
+        func sendAllReports(reportProcessor: SentryStoredCrashReportProcessor) {
             guard let reportStore = KSCrash.shared.reportStore else {
                 SentrySDKLog.error("KSCrash report store is unavailable; retaining crash reports.")
                 return
             }
 
-            reportStore.sink = SentryKSCrash.ReportFilter(
-                reportProcessor: reportProcessor,
-                dispatchQueue: dispatchQueue
-            )
+            reportStore.sink = SentryKSCrash.ReportFilter(reportProcessor: reportProcessor)
             reportStore.reportCleanupPolicy = .onSuccess
-
-            // Delivery policy:
-            // - KSCrash applies .onSuccess cleanup to an entire send invocation.
-            // - ReportFilterCore returns nil errors for captured or permanently invalid reports,
-            //   allowing KSCrash to delete them.
-            // - ReportFilterCore returns retryable errors for reports that must remain on disk.
-            // Send one report per invocation so those decisions never retain an already captured
-            // report, then continue with the remaining report IDs regardless of each result.
-            let reportStoreSender = SentryKSCrash.ReportStoreSender(
-                sendReport: { reportID, onCompletion in
-                    reportStore.sendReport(
-                        withID: reportID,
-                        includeCurrentRun: false
-                    ) { filteredReports, error in
-                        onCompletion(filteredReports?.count ?? 0, error)
-                    }
-                },
-                cleanupOrphanedRunSidecars: {
-                    reportStore.cleanupOrphanedRunSidecars()
+            reportStore.sendAllReports { filteredReports, error in
+                if let error = error {
+                    SentrySDKLog.error("Error processing KSCrash reports: \(error.localizedDescription)")
+                } else {
+                    SentrySDKLog.debug("Processed \(filteredReports?.count ?? 0) KSCrash report(s)")
                 }
-            )
-            reportStoreSender.sendAllReports(
-                reportStore.reportIDs.map { $0.int64Value },
-                // Process startup crashes before regular reports can move delivery off-thread.
-                prioritizing: { reportID in
-                    guard let report = reportStore.report(for: reportID) else {
-                        return false
-                    }
-                    return SentryKSCrash.ReportFilterCore.isStartupCrash(report.value)
-                }
-            )
+            }
         }
 
         var crashedLastLaunch: Bool { KSCrash.shared.crashedLastLaunch }

@@ -132,12 +132,16 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     @objc public var processInfoWrapper = Dependencies.processInfoWrapper
     private var _crashWrapper: SentryCrashReporter?
     @objc public lazy var crashWrapper: SentryCrashReporter = getLazyVar(\._crashWrapper) {
+#if ENABLE_KSCRASH
+        return SentryKSCrashReporter()
+#else
         let bridge = SentryCrashBridge(
             notificationCenterWrapper: self.notificationCenterWrapper,
             dateProvider: self.dateProvider,
             crashReporter: self.crashReporter
         )
         return SentryDefaultCrashReporter(processInfoWrapper: Dependencies.processInfoWrapper, bridge: bridge)
+#endif
     }
     @objc public var dispatchFactory = SentryDispatchFactory()
     @objc public var timerFactory = SentryNSTimerFactory()
@@ -323,6 +327,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     }
 #endif
 
+#if !ENABLE_KSCRASH
     private var crashIntegrationSessionHandler: SentryCrashIntegrationSessionHandler?
     func getCrashIntegrationSessionBuilder(_ options: Options, bridge: SentryCrashBridge) -> SentryCrashIntegrationSessionHandler? {
         getOptionalLazyVar(\.crashIntegrationSessionHandler) {
@@ -347,6 +352,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 #endif
         }
     }
+#endif // !ENABLE_KSCRASH
 
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
     private var _screenshotSource: SentryScreenshotSource?
@@ -404,10 +410,12 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             fileManager: fileManager,
             sysctlWrapper: sysctlWrapper)
     }
+#if !ENABLE_KSCRASH
     private var _crashReporter: SentryCrashSwift?
     @objc public lazy var crashReporter = getLazyVar(\._crashReporter) {
         SentryCrashSwift(with: self.startOptions?.cacheDirectoryPath)
     }
+#endif
 
     private var anrTracker: SentryANRTracker?
     @objc public func getANRTracker(_ timeout: TimeInterval) -> SentryANRTracker {
@@ -420,6 +428,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         }
     }
 
+#if !ENABLE_KSCRASH
     private var crashInstallationReporter: SentryCrashInstallationReporter?
     func getCrashInstallationReporter(_ options: Options) -> SentryCrashInstallationReporter {
         getLazyVar(\.crashInstallationReporter) {
@@ -432,6 +441,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             )
         }
     }
+#endif // !ENABLE_KSCRASH
 
     func getCoreDataTracker(_ options: Options) -> SentryCoreDataTracker {
         let threadInspector = SentryDefaultThreadInspector(options: options)
@@ -831,11 +841,14 @@ extension SentryDependencyContainer: NetworkTrackerProvider {
     }
 }
 
+#if !ENABLE_KSCRASH
 protocol SentryCrashReporterProvider {
     var crashReporter: SentryCrashSwift { get }
 }
 extension SentryDependencyContainer: SentryCrashReporterProvider {}
+#endif
 
+#if !ENABLE_KSCRASH
 protocol CrashIntegrationSessionHandlerBuilder {
     func getCrashIntegrationSessionBuilder(_ options: Options, bridge: SentryCrashBridge) -> SentryCrashIntegrationSessionHandler?
 }
@@ -845,6 +858,7 @@ protocol CrashInstallationReporterBuilder {
     func getCrashInstallationReporter(_ options: Options) -> SentryCrashInstallationReporter
 }
 extension SentryDependencyContainer: CrashInstallationReporterBuilder {}
+#endif // !ENABLE_KSCRASH
 
 protocol SentryCoreDataSwizzlingProvider {
     var coreDataSwizzling: SentryCoreDataSwizzling { get }

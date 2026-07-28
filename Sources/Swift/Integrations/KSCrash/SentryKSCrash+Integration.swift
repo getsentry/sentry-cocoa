@@ -1,7 +1,6 @@
 #if ENABLE_KSCRASH
-// swiftlint:disable:next no_implementation_only_import
-@_implementationOnly import KSCrashInstallations
 internal import _SentryPrivate
+internal import KSCrashInstallations
 import Foundation
 
 // MARK: - Integration
@@ -71,15 +70,11 @@ extension SentryKSCrash {
             }
 
             let reportProcessor = SentryStoredCrashReportProcessor(
-                inAppLogic: SentryInAppLogic(inAppIncludes: options.inAppIncludes),
-                preserveCrashedSessionOnCaptureFailure: true
+                inAppLogic: SentryInAppLogic(inAppIncludes: options.inAppIncludes)
             )
-            // The report filter dispatches regular reports itself. Keep this call synchronous so
-            // startup crashes can be captured and flushed before SDK initialization returns.
-            installer.sendAllReports(
-                reportProcessor: reportProcessor,
-                dispatchQueue: dependencies.dispatchQueueWrapper
-            )
+            dependencies.dispatchQueueWrapper.dispatchAsync {
+                installer.sendAllReports(reportProcessor: reportProcessor)
+            }
         }
 
         private func endPreviousSessionAsCrashed(

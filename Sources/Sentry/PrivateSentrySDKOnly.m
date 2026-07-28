@@ -2,7 +2,9 @@
 #import "SentryAppStartMeasurement.h"
 #import "SentryBreadcrumb+Private.h"
 #import "SentryClient.h"
-#import "SentryCrashC.h"
+#if !ENABLE_KSCRASH
+#    import "SentryCrashC.h"
+#endif // !ENABLE_KSCRASH
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
 #import "SentryMeta.h"
@@ -390,7 +392,9 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (void)ignoreNextSignal:(int)signum
 {
+#if !ENABLE_KSCRASH
     sentrycrash_ignore_next_signal(signum);
+#endif // !ENABLE_KSCRASH
 }
 
 @end

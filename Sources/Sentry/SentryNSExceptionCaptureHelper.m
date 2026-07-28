@@ -2,7 +2,9 @@
 
 #if TARGET_OS_OSX && !SENTRY_NO_UI_FRAMEWORK
 
-#    import "SentryCrash.h"
+#    if !ENABLE_KSCRASH
+#        import "SentryCrash.h"
+#    endif // !ENABLE_KSCRASH
 #    import "SentryNSExceptionCaptureHelper.h"
 #    import "SentrySwift.h"
 

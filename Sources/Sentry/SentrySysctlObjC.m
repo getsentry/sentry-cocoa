@@ -1,5 +1,5 @@
 #import "SentrySysctlObjC.h"
-#import "SentryCrashSysCtl.h"
+#import "SentryCrashKSCrashCompat.h"
 #import "SentrySwift.h"
 #import "SentryTime.h"
 #include <stdio.h>

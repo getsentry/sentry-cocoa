@@ -3,7 +3,6 @@
 #import "SentryAppStartMeasurement.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
-#import "SentryCrash.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
@@ -17,9 +16,9 @@
 #import "SentrySwift.h"
 #import "SentryTransactionContext.h"
 
-#if TARGET_OS_OSX
+#if TARGET_OS_OSX && !ENABLE_KSCRASH
 #    import "SentryCrashExceptionApplication.h"
-#endif // TARGET_OS_MAC
+#endif // TARGET_OS_OSX && !ENABLE_KSCRASH
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryContinuousProfiler.h"
@@ -240,12 +239,12 @@ static NSDate *_Nullable startTimestamp = nil;
     SENTRY_LOG_DEBUG(@"Configured options: %@", options.debugDescription);
 #endif // defined(DEBUG) || defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 
-#if TARGET_OS_OSX && !SENTRY_NO_UI_FRAMEWORK
+#if TARGET_OS_OSX && !SENTRY_NO_UI_FRAMEWORK && !ENABLE_KSCRASH
     // Reference to SentryCrashExceptionApplication to prevent compiler from stripping it
     // Only do this if we are not building without UIKit, because otherwise the class should not be
     // available
     [SentryCrashExceptionApplication class];
-#endif
+#endif // TARGET_OS_OSX && !SENTRY_NO_UI_FRAMEWORK && !ENABLE_KSCRASH
     // These classes must be referenced somewhere for their files to not be stripped.
     [PlaceholderSentryApplication class];
     [PlaceholderProcessInfoClass class];
