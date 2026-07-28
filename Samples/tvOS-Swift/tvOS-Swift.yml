@@ -37,6 +37,8 @@ targets:
           - "**/.gitkeep"
       - path: ../Shared/SampleAssets.xcassets
         group: App/Resources
+      - path: Shared/TVAssets.xcassets
+        group: App/Resources
       # Configurations
       - path: App/Configurations
         type: group
@@ -88,6 +90,8 @@ targets:
         excludes:
           - "**/.gitkeep"
       - path: ../Shared/SampleAssets.xcassets
+        group: App/Resources
+      - path: Shared/TVAssets.xcassets
         group: App/Resources
       # Configurations
       - path: AppSBSwift/Configurations
