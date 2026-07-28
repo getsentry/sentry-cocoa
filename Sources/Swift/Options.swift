@@ -111,8 +111,8 @@
     ///
     /// Disabling this will also disable the automatic 'memory corruption' diagnosis for crashes.
     ///
-    /// @note Default value is @c true.
-    @objc public var enableMemoryIntrospection: Bool = true
+    /// @note Default value is @c false.
+    @objc public var enableMemoryIntrospection: Bool = false
 
     /// How many breadcrumbs do you want to keep in memory?
     /// @note Default is 100.

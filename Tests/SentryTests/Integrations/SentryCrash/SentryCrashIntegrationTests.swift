@@ -176,7 +176,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         XCTAssertFalse(SentryDependencyContainer.sharedInstance().crashReporter.introspectMemory)
     }
 
-    func testEnableMemoryIntrospection_defaultValue_shouldBeTrue() throws {
+    func testEnableMemoryIntrospection_defaultValue_shouldBeFalse() throws {
         try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
         // Arrange - use default options value
@@ -184,8 +184,8 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         // Act
         _ = try fixture.getSut()
 
-        // Assert - should be true by default
-        XCTAssertTrue(SentryDependencyContainer.sharedInstance().crashReporter.introspectMemory)
+        // Assert - should be false by default
+        XCTAssertFalse(SentryDependencyContainer.sharedInstance().crashReporter.introspectMemory)
     }
 
     func testEndSessionAsCrashed_WithCurrentSession() throws {

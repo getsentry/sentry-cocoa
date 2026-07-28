@@ -95,7 +95,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * Disabling this will also disable the automatic 'memory corruption' diagnosis for crashes.
  *
- * @note Default value is @c YES.
+ * @note Default value is @c NO.
  */
 @property (nonatomic) BOOL enableMemoryIntrospection;
 
