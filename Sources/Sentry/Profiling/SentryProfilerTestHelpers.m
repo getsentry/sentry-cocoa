@@ -14,8 +14,6 @@ sentry_threadSanitizerIsPresent(void)
 #    if defined(__has_feature)
 #        if __has_feature(thread_sanitizer)
     return YES;
-#            pragma clang diagnostic push
-#            pragma clang diagnostic ignored "-Wunreachable-code"
 #        endif // __has_feature(thread_sanitizer)
 #    endif // defined(__has_feature)
 
