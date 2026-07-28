@@ -39,6 +39,12 @@ NS_ASSUME_NONNULL_BEGIN
 /// Arbitrary additional data that will be sent with the breadcrumb.
 @property (nonatomic, copy, nullable) NSDictionary<NSString *, id> *data;
 
+/// @deprecated Use `setDataValue:forKey:` instead; the `data` property setter will become
+/// read-only in a future release.
+- (void)setData:(nullable NSDictionary<NSString *, id> *)data
+    __attribute__((deprecated("Use setData(value:key:) instead; the data property setter will "
+                              "become read-only in a future release.")));
+
 /**
  * Sets a single value in the breadcrumb's @c data dictionary for the given key.
  * Passing @c nil as the value removes the key. This is the preferred way of setting

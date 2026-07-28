@@ -15,7 +15,7 @@ class SentryBreadcrumbTests: XCTestCase {
         
         init() {
             date = Date(timeIntervalSince1970: 10)
-            
+
             breadcrumb = Breadcrumb()
             breadcrumb.level = SentryLevel.info
             breadcrumb.timestamp = date
@@ -23,8 +23,7 @@ class SentryBreadcrumbTests: XCTestCase {
             breadcrumb.type = type
             breadcrumb.origin = origin
             breadcrumb.message = message
-            // swiftlint:disable:next no_breadcrumb_data_setter
-            breadcrumb.data = ["some": ["data": "data", "date": date] as [String: Any]]
+            breadcrumb.setData(value: ["data": "data", "date": date] as [String: Any], key: "some")
         }
         
         var dateAs8601String: String {
@@ -106,6 +105,7 @@ class SentryBreadcrumbTests: XCTestCase {
     }
     
     // swiftlint:disable no_breadcrumb_data_setter
+    @available(*, deprecated, message: "Testing deprecated Breadcrumb.data setter")
     func testNotIsEqual() {
         testIsNotEqual { breadcrumb in breadcrumb.level = SentryLevel.error }
         testIsNotEqual { breadcrumb in breadcrumb.category = "" }
@@ -124,6 +124,7 @@ class SentryBreadcrumbTests: XCTestCase {
     }
     
     // swiftlint:disable no_breadcrumb_data_setter
+    @available(*, deprecated, message: "Testing deprecated Breadcrumb.data setter")
     func testSerialize() {
         let crumb = fixture.breadcrumb
         let actual = crumb.serialize()
@@ -212,6 +213,7 @@ class SentryBreadcrumbTests: XCTestCase {
     // MARK: - Thread Safety
 
     // swiftlint:disable no_breadcrumb_data_setter
+    @available(*, deprecated, message: "Testing deprecated Breadcrumb.data setter")
     func testSerialize_whenPropertiesMutatedConcurrently_shouldNotCrash() {
         let breadcrumb = Breadcrumb(level: .info, category: "test")
         breadcrumb.message = "initial"
@@ -258,10 +260,9 @@ class SentryBreadcrumbTests: XCTestCase {
         XCTAssertEqual(breadcrumb.data?["connectivity"] as? String, "wifi")
     }
 
-    // swiftlint:disable no_breadcrumb_data_setter
     func testSetDataValueForKey_whenDataExists_mergesWithoutRemovingOtherKeys() {
         let breadcrumb = Breadcrumb(level: .info, category: "test")
-        breadcrumb.data = ["existing": "value"]
+        breadcrumb.setData(value: "value", key: "existing")
 
         breadcrumb.setData(value: "wifi", key: "connectivity")
 
@@ -271,14 +272,14 @@ class SentryBreadcrumbTests: XCTestCase {
 
     func testSetDataValueForKey_whenValueIsNil_removesKey() {
         let breadcrumb = Breadcrumb(level: .info, category: "test")
-        breadcrumb.data = ["key": "value", "other": "kept"]
+        breadcrumb.setData(value: "value", key: "key")
+        breadcrumb.setData(value: "kept", key: "other")
 
         breadcrumb.setData(value: nil, key: "key")
 
         XCTAssertNil(breadcrumb.data?["key"])
         XCTAssertEqual(breadcrumb.data?["other"] as? String, "kept")
     }
-    // swiftlint:enable no_breadcrumb_data_setter
 
     func testSetDataValueForKey_whenValueIsNilAndDataIsNil_keepsDataNil() {
         let breadcrumb = Breadcrumb(level: .info, category: "test")
@@ -298,6 +299,7 @@ class SentryBreadcrumbTests: XCTestCase {
     }
 
     // swiftlint:disable no_breadcrumb_data_setter
+    @available(*, deprecated, message: "Testing deprecated Breadcrumb.data setter")
     func testSerialize_whenDataContainsConcurrentlyMutatedNestedDict_shouldNotCrash() {
         // nonisolated(unsafe) silences the Sendable warning — this test intentionally
         // mutates the dictionary from multiple threads to verify deep-copy safety.
@@ -335,6 +337,7 @@ class SentryBreadcrumbTests: XCTestCase {
         wait(for: [expectation], timeout: 10)
     }
 
+    @available(*, deprecated, message: "Testing deprecated Breadcrumb.data setter")
     func testSerialize_whenDataContainsConcurrentlyMutatedArray_shouldNotCrash() {
         // nonisolated(unsafe) silences the Sendable warning — this test intentionally
         // mutates the array from multiple threads to verify deep-copy safety.
@@ -372,6 +375,7 @@ class SentryBreadcrumbTests: XCTestCase {
         wait(for: [expectation], timeout: 10)
     }
 
+    @available(*, deprecated, message: "Testing deprecated Breadcrumb.data setter")
     func testSerialize_whenDataReassignedConcurrently_shouldNotCrash() {
         let breadcrumb = Breadcrumb(level: .info, category: "test")
         breadcrumb.data = ["initial": "value"]
@@ -385,6 +389,8 @@ class SentryBreadcrumbTests: XCTestCase {
 
     // MARK: - Snapshot Copy
 
+    // swiftlint:disable no_breadcrumb_data_setter
+    @available(*, deprecated, message: "Testing deprecated Breadcrumb.data setter")
     func testSnapshotCopy_copiesAllProperties() {
         let original = Breadcrumb(level: .error, category: "navigation")
         original.timestamp = Date(timeIntervalSince1970: 42)
@@ -406,6 +412,7 @@ class SentryBreadcrumbTests: XCTestCase {
         XCTAssertEqual(nested?["a"] as? Int, 1)
     }
 
+    @available(*, deprecated, message: "Testing deprecated Breadcrumb.data setter")
     func testSnapshotCopy_isIndependentOfOriginal() {
         let original = Breadcrumb(level: .info, category: "ui")
         original.message = "before"
@@ -423,6 +430,7 @@ class SentryBreadcrumbTests: XCTestCase {
         XCTAssertEqual(snapshot.message, "before")
         XCTAssertEqual(snapshot.data?["key"] as? String, "before")
     }
+    // swiftlint:enable no_breadcrumb_data_setter
 
     func testSnapshotCopy_isDifferentInstance() {
         let original = Breadcrumb(level: .info, category: "test")

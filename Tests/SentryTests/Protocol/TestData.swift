@@ -23,17 +23,15 @@ class TestData {
     // portably malformed.
     static let malformedURLString = "http://exa mple.com"
     
-    // swiftlint:disable no_breadcrumb_data_setter
     static var crumb: Breadcrumb {
         let crumb = Breadcrumb()
         crumb.level = SentryLevel.info
         crumb.timestamp = timestamp
         crumb.type = "user"
         crumb.message = "Clicked something"
-        crumb.data = ["some": ["data": "data", "date": timestamp] as [String: Any]]
+        crumb.setData(value: ["data": "data", "date": timestamp] as [String: Any], key: "some")
         return crumb
     }
-    // swiftlint:enable no_breadcrumb_data_setter
     
     static var event: Event {
         let event = Event(level: SentryLevel.info)

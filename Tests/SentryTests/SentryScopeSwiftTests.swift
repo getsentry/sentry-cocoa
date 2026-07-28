@@ -47,8 +47,7 @@ class SentryScopeSwiftTests: XCTestCase {
             breadcrumb.timestamp = date
             breadcrumb.type = "user"
             breadcrumb.message = "Clicked something"
-            // swiftlint:disable:next no_breadcrumb_data_setter
-            breadcrumb.data = ["some": ["data": "data", "date": date] as [String: Any]]
+            breadcrumb.setData(value: ["data": "data", "date": date] as [String: Any], key: "some")
 
             scope = Scope(maxBreadcrumbs: maxBreadcrumbs)
             scope.setUser(user)
@@ -773,6 +772,7 @@ class SentryScopeSwiftTests: XCTestCase {
     }
 
     // swiftlint:disable no_breadcrumb_data_setter
+    @available(*, deprecated, message: "Testing deprecated Breadcrumb.data setter")
     func testAddBreadcrumb_storesDefensiveCopy() {
         let scope = Scope(maxBreadcrumbs: 5)
         let crumb = Breadcrumb(level: .info, category: "ui")
@@ -796,6 +796,7 @@ class SentryScopeSwiftTests: XCTestCase {
     // swiftlint:enable no_breadcrumb_data_setter
 
     // swiftlint:disable no_breadcrumb_data_setter
+    @available(*, deprecated, message: "Testing deprecated Breadcrumb.data setter")
     func testAddBreadcrumb_evictionDoesNotCrash_whenReadConcurrently() {
         // Regression test for https://github.com/getsentry/sentry-cocoa/issues/8013
         // The ring buffer evicts old breadcrumbs when full. Without a defensive copy,

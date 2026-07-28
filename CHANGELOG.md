@@ -4,7 +4,7 @@
 
 ### Features
 
-- Add `Breadcrumb.setData(value:key:)` to set a single breadcrumb data entry (#8572)
+- Add `Breadcrumb.setData(value:key:)` to set a single breadcrumb data entry and deprecate the `Breadcrumb.data` setter in its favor. (#8572)
 
 ### Fixes
 

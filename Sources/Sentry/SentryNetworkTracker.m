@@ -1,5 +1,6 @@
 #import "SentryNetworkTracker.h"
 #import "SentryBaggage.h"
+#import "SentryBreadcrumb+Private.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
 #import "SentryDefaultThreadInspector.h"
@@ -514,9 +515,6 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     SentryLevel breadcrumbLevel = [self getBreadcrumbLevel:sessionTask
                                         responseStatusCode:responseStatusCode];
 
-    SentryBreadcrumb *breadcrumb = [[SentryBreadcrumb alloc] initWithLevel:breadcrumbLevel
-                                                                  category:@"http"];
-
 #if SDK_V10
     SentryDataCollectionObjCOptions *_Nullable dataCollectionOptions = options.dataCollectionObjC;
     UrlSanitized *urlComponents = [[UrlSanitized alloc]
@@ -527,7 +525,6 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         [[UrlSanitized alloc] initWithURL:SENTRY_UNWRAP_NULLABLE(NSURL, currentRequest.URL)];
 #endif // SDK_V10
 
-    breadcrumb.type = @"http";
     NSMutableDictionary<NSString *, id> *breadcrumbData = [[NSMutableDictionary alloc] init];
     breadcrumbData[@"url"] = urlComponents.sanitizedUrl;
     breadcrumbData[@"method"] = currentRequest.HTTPMethod;
@@ -569,7 +566,10 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     }
 #endif // SENTRY_TARGET_REPLAY_SUPPORTED
 
-    breadcrumb.data = breadcrumbData;
+    SentryBreadcrumb *breadcrumb = [[SentryBreadcrumb alloc] initWithLevel:breadcrumbLevel
+                                                                  category:@"http"
+                                                                      data:breadcrumbData];
+    breadcrumb.type = @"http";
     [SentrySDKInternal addBreadcrumb:breadcrumb];
 
     objc_setAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_BREADCRUMB,

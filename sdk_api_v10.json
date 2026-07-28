@@ -5240,10 +5240,12 @@
                   }
                 ],
                 "declAttributes": [
+                  "Available",
                   "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "deprecated": true,
                 "isOpen": true,
                 "kind": "Accessor",
                 "moduleName": "Sentry",

@@ -14,6 +14,7 @@ class SentryWatchdogTerminationBreadcrumbProcessorTests: XCTestCase {
         let maxBreadcrumbs = 10
 
         // swiftlint:disable no_breadcrumb_data_setter
+        @available(*, deprecated, message: "Testing deprecated Breadcrumb.data setter")
         init() throws {
             breadcrumb = TestData.crumb
             breadcrumb.data = nil
@@ -44,6 +45,7 @@ class SentryWatchdogTerminationBreadcrumbProcessorTests: XCTestCase {
     private var fixture: Fixture!
     private var sut: SentryWatchdogTerminationBreadcrumbProcessor!
 
+    @available(*, deprecated, message: "Testing deprecated Breadcrumb.data setter")
     override func setUpWithError() throws {
         try super.setUpWithError()
 

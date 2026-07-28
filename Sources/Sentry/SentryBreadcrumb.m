@@ -1,5 +1,6 @@
 #import "SentryBreadcrumb.h"
 #import "SentryBreadcrumb+Private.h"
+#import "SentryCompiler.h"
 #import "SentryDateUtils.h"
 #import "SentryInternalDefines.h"
 #import "SentryLevel.h"
@@ -197,7 +198,9 @@ sentry_deepCopyValue(id value)
             } else if ([key isEqualToString:@"message"] && isString) {
                 self.message = value;
             } else if ([key isEqualToString:@"data"] && isDictionary) {
+                ALLOW_DEPRECATED_DECLARATIONS_BEGIN
                 self.data = value;
+                ALLOW_DEPRECATED_DECLARATIONS_END
             }
         }
     }
