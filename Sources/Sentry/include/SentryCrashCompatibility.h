@@ -17,6 +17,7 @@
 
 // C headers (safe for both C and ObjC)
 #    include <KSDate.h>
+#    include <KSDebug.h>
 #    include <KSDynamicLinker.h>
 #    include <KSFileUtils.h>
 #    include <KSID.h>
@@ -26,6 +27,7 @@
 #    include <KSString.h>
 #    include <KSSysCtl.h>
 #    include <KSThread.h>
+#    include <unistd.h>
 
 // ObjC headers (only when compiling ObjC/ObjC++)
 #    ifdef __OBJC__
@@ -169,6 +171,9 @@ sentrycrashsysctl_currentProcessStartTime(void)
 #    define sentrycrashmem_copySafely ksmem_copySafely
 #    define sentrycrashmem_copyMaxPossible ksmem_copyMaxPossible
 
+// Debug
+#    define sentrycrashdebug_isBeingTraced ksdebug_isBeingTraced
+
 // Mach
 #    define sentrycrashmach_exceptionName ksmach_exceptionName
 #    define sentrycrashmach_kernelReturnCodeName ksmach_kernelReturnCodeName
@@ -180,6 +185,7 @@ sentrycrashsysctl_currentProcessStartTime(void)
 // ============================================================================
 
 #    include "SentryCrashDate.h"
+#    include "SentryCrashDebug.h"
 #    include "SentryCrashDynamicLinker.h"
 #    include "SentryCrashFileUtils.h"
 #    include "SentryCrashID.h"

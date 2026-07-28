@@ -47,8 +47,10 @@ static SentryCrash_MonitorContext g_monitorContext;
 /** The exception handler that was in place before we installed ours. */
 static NSUncaughtExceptionHandler *g_previousUncaughtExceptionHandler;
 
+#if !ENABLE_KSCRASH
 /** Bridge for accessing SDK services. */
 static SentryCrashBridge *g_bridge = nil;
+#endif // !ENABLE_KSCRASH
 
 // ============================================================================
 #pragma mark - Callbacks -
@@ -118,9 +120,11 @@ handleUncaughtException(NSException *exception)
 // ============================================================================
 
 void
-sentrycrashcm_nsexception_setBridge(SentryCrashBridge *bridge)
+sentrycrashcm_nsexception_setBridge(id bridge)
 {
-    g_bridge = bridge;
+#if !ENABLE_KSCRASH
+    g_bridge = (SentryCrashBridge *)bridge;
+#endif
 }
 
 static void
@@ -134,11 +138,14 @@ setEnabled(bool isEnabled)
 
             SENTRY_LOG_DEBUG(@"Setting new handler.");
             NSSetUncaughtExceptionHandler(&handleUncaughtException);
+#if !ENABLE_KSCRASH
+            // SentryCrashBridge is a SDK layer type excluded in KSCrash mode.
             if (g_bridge == nil) {
                 SENTRY_LOG_WARN(@"Bridge is nil; uncaughtExceptionHandler will not be set on the "
                                 @"crash reporter.");
             }
             g_bridge.crashReporter.uncaughtExceptionHandler = &handleUncaughtException;
+#endif // !ENABLE_KSCRASH
         } else {
             SENTRY_LOG_DEBUG(@"Restoring original handler.");
             NSSetUncaughtExceptionHandler(g_previousUncaughtExceptionHandler);

@@ -1,3 +1,4 @@
+#if !ENABLE_KSCRASH
 internal import _SentryPrivate
 import Foundation
 
@@ -88,3 +89,4 @@ final class SentryCrashIntegrationSessionHandler: NSObject {
         
     }
 }
+#endif // !ENABLE_KSCRASH

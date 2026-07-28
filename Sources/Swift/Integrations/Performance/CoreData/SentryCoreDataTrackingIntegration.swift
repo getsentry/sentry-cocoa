@@ -1,4 +1,8 @@
 // swiftlint:disable missing_docs
+// KSCRASH_TODO: The CoreData integration relies on SentryCoreDataTracker which requires
+// SentryDefaultThreadInspector. SentryDefaultThreadInspector is compiled out in KSCrash
+// mode. Future work: decouple SentryCoreDataTracker from SentryDefaultThreadInspector.
+#if !ENABLE_KSCRASH
 internal import _SentryPrivate
 
 typealias CoreDataTrackingIntegrationProvider = SentryCoreDataSwizzlingProvider & SentryCoreDataTrackerBuilder
@@ -45,3 +49,4 @@ final class SentryCoreDataTrackingIntegration<Dependencies: CoreDataTrackingInte
     }
 }
 // swiftlint:enable missing_docs
+#endif // !ENABLE_KSCRASH

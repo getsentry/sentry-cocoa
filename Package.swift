@@ -98,6 +98,15 @@ let sentrySwiftTarget: Target = .target(
     path: "Sources/Swift",
 )
 
+// Files in Sources/Sentry/ that use SentryCrash C APIs not available in KSCrash mode.
+// See SentryCrashCompatibility.h for the mapping of utility functions that ARE available.
+let sentryCrashOnlyObjCSources = [
+    // Thread inspection helpers (use SentryCrashStackCursor_MachineContext / SelfThread from SentryCrash/)
+    "Sentry/SentryCrashDefaultMachineContextWrapper.m",
+    "Sentry/SentryStacktraceBuilder.m",
+    "Sentry/SentryDefaultThreadInspector.m"
+]
+
 if enableKSCrash {
     sentrySwiftTarget.dependencies.append(.product(name: "Installations", package: "KSCrash"))
     sentrySwiftTarget.swiftSettings?.append(.define("ENABLE_KSCRASH"))
@@ -126,27 +135,49 @@ targets += [
         name: "SentryObjCInternal",
         dependencies: ["SentrySwift"],
         path: "Sources",
-        exclude: [
-            "Sentry/SentryDummyPublicEmptyClass.m",
-            "Sentry/SentryDummyPrivateEmptyClass.m",
-            "Swift",
-            "SentrySwiftUI",
-            "Resources",
-            "Configuration",
-            "SentryCppHelper",
-            "SentryDistribution",
-            "SentryDistributionTests",
-            "SentryObjC",
-            "SentryObjCCompat"
-        ],
-        cSettings: [
-            .headerSearchPath("Sentry"),
-            .headerSearchPath("SentryCrash/Recording"),
-            .headerSearchPath("SentryCrash/Recording/Monitors"),
-            .headerSearchPath("SentryCrash/Recording/Tools"),
-            .headerSearchPath("SentryCrash/Installations"),
-            .headerSearchPath("SentryCrash/Reporting/Filters"),
-            .headerSearchPath("SentryCrash/Reporting/Filters/Tools")])
+        exclude: enableKSCrash
+            ? [
+                "Sentry/SentryDummyPublicEmptyClass.m",
+                "Sentry/SentryDummyPrivateEmptyClass.m",
+                "Swift",
+                "SentrySwiftUI",
+                "Resources",
+                "Configuration",
+                "SentryCppHelper",
+                "SentryDistribution",
+                "SentryDistributionTests",
+                "SentryObjC",
+                "SentryObjCCompat",
+                // Exclude entire SentryCrash source directory — replaced by upstream KSCrash
+                "SentryCrash"
+            ] + sentryCrashOnlyObjCSources
+            : [
+                "Sentry/SentryDummyPublicEmptyClass.m",
+                "Sentry/SentryDummyPrivateEmptyClass.m",
+                "Swift",
+                "SentrySwiftUI",
+                "Resources",
+                "Configuration",
+                "SentryCppHelper",
+                "SentryDistribution",
+                "SentryDistributionTests",
+                "SentryObjC",
+                "SentryObjCCompat"
+            ],
+        cSettings: enableKSCrash
+            ? [
+                .headerSearchPath("Sentry"),
+                .define("ENABLE_KSCRASH", to: "1")
+            ]
+            : [
+                .headerSearchPath("Sentry"),
+                .headerSearchPath("SentryCrash/Recording"),
+                .headerSearchPath("SentryCrash/Recording/Monitors"),
+                .headerSearchPath("SentryCrash/Recording/Tools"),
+                .headerSearchPath("SentryCrash/Installations"),
+                .headerSearchPath("SentryCrash/Reporting/Filters"),
+                .headerSearchPath("SentryCrash/Reporting/Filters/Tools")
+            ])
 ]
 
 // BEGIN:OBJC_WRAPPER

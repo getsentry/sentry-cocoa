@@ -40,6 +40,12 @@ import Foundation
             }
             self.isDebug = isDebug
             self.cache = []
+#if !ENABLE_KSCRASH
+            // KSCRASH_TODO: Binary image cache population relies on SentryCrash's
+            // sentrycrashbic_registerAddedCallback / sentrycrashbic_registerRemovedCallback.
+            // KSCrash provides ksbic_registerForImageAdded but uses a different image
+            // representation (mach_header vs SentryCrashBinaryImage).
+            // Future work: wire up the binary image cache to KSCrash's dyld notification API.
             sentrycrashbic_registerAddedCallback { imagePtr in
                 guard let imagePtr else {
                     SentrySDKLog.warning("The image is NULL. Can't add NULL to cache.")
@@ -57,6 +63,7 @@ import Foundation
                 let image = imagePtr.pointee
                 SentryDependencyContainer.sharedInstance().binaryImageCache.binaryImageRemoved(image.address)
             }
+#endif // !ENABLE_KSCRASH
         }
     }
     
@@ -66,8 +73,10 @@ import Foundation
                 SentrySDKLog.debug("SentryBinaryImageCache is already stopped. Skipping stop.")
                 return
             }
+#if !ENABLE_KSCRASH
             sentrycrashbic_registerAddedCallback(nil)
             sentrycrashbic_registerRemovedCallback(nil)
+#endif // !ENABLE_KSCRASH
             self.cache = nil
         }
     }
@@ -132,9 +141,16 @@ import Foundation
     private static func convertUUID(_ value: UnsafePointer<UInt8>?) -> String? {
         guard let value = value else { return nil }
         
+#if !ENABLE_KSCRASH
+        // KSCRASH_TODO: sentrycrashdl_convertBinaryImageUUID is implemented in
+        // SentryCrashDynamicLinker.c which is excluded in KSCrash mode.
+        // Future work: provide a UUID conversion that works in KSCrash mode.
         var uuidBuffer = [CChar](repeating: 0, count: 37)
         sentrycrashdl_convertBinaryImageUUID(value, &uuidBuffer)
         return String(cString: uuidBuffer, encoding: .ascii)
+#else
+        return nil
+#endif // !ENABLE_KSCRASH
     }
     
     @objc

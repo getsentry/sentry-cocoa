@@ -103,6 +103,15 @@ let sentrySwiftTarget: Target = .target(
     ]
 )
 
+// Files in Sources/Sentry/ that use SentryCrash C APIs not available in KSCrash mode.
+// See SentryCrashCompatibility.h for the mapping of utility functions that ARE available.
+let sentryCrashOnlyObjCSources = [
+    // Thread inspection helpers (use SentryCrashStackCursor_MachineContext / SelfThread from SentryCrash/)
+    "Sentry/SentryCrashDefaultMachineContextWrapper.m",
+    "Sentry/SentryStacktraceBuilder.m",
+    "Sentry/SentryDefaultThreadInspector.m"
+]
+
 if enableKSCrash {
     sentrySwiftTarget.dependencies.append(.product(name: "Installations", package: "KSCrash"))
 }
@@ -130,32 +139,59 @@ targets += [
         name: "SentryObjCInternal",
         dependencies: ["SentrySwift"],
         path: "Sources",
-        exclude: [
-            "Sentry/SentryDummyPublicEmptyClass.m",
-            "Sentry/SentryDummyPrivateEmptyClass.m",
-            "Swift",
-            "SentrySwiftUI",
-            "Resources",
-            "Configuration",
-            "SentryCppHelper",
-            "SentryDistribution",
-            "SentryDistributionTests",
-            "SentryObjC",
-            "SentryObjCCompat"
-        ],
-        cSettings: [
-            .headerSearchPath("Sentry"),
-            .headerSearchPath("SentryCrash/Recording"),
-            .headerSearchPath("SentryCrash/Recording/Monitors"),
-            .headerSearchPath("SentryCrash/Recording/Tools"),
-            .headerSearchPath("SentryCrash/Installations"),
-            .headerSearchPath("SentryCrash/Reporting/Filters"),
-            .headerSearchPath("SentryCrash/Reporting/Filters/Tools"),
-            .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"])),
-            .define("SDK_V10", to: "1", .when(traits: ["V10"])),
-            .define("SDK_V10", to: "1", .when(traits: ["KSCrash"])),
-            .define("ENABLE_KSCRASH", to: "1", .when(traits: ["KSCrash"]))
-        ])
+        exclude: enableKSCrash
+            ? [
+                "Sentry/SentryDummyPublicEmptyClass.m",
+                "Sentry/SentryDummyPrivateEmptyClass.m",
+                "Swift",
+                "SentrySwiftUI",
+                "Resources",
+                "Configuration",
+                "SentryCppHelper",
+                "SentryDistribution",
+                "SentryDistributionTests",
+                "SentryObjC",
+                "SentryObjCCompat",
+                // Exclude entire SentryCrash source directory — replaced by upstream KSCrash
+                "SentryCrash"
+            ] + sentryCrashOnlyObjCSources
+            : [
+                "Sentry/SentryDummyPublicEmptyClass.m",
+                "Sentry/SentryDummyPrivateEmptyClass.m",
+                "Swift",
+                "SentrySwiftUI",
+                "Resources",
+                "Configuration",
+                "SentryCppHelper",
+                "SentryDistribution",
+                "SentryDistributionTests",
+                "SentryObjC",
+                "SentryObjCCompat"
+            ],
+        cSettings: enableKSCrash
+            ? [
+                .headerSearchPath("Sentry"),
+                // Unconditional ENABLE_KSCRASH when built via env var; trait-based define
+                // covers the same flag when built via `swift build --trait KSCrash`.
+                .define("ENABLE_KSCRASH", to: "1"),
+                .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"])),
+                .define("SDK_V10", to: "1", .when(traits: ["V10"])),
+                .define("SDK_V10", to: "1", .when(traits: ["KSCrash"])),
+                .define("ENABLE_KSCRASH", to: "1", .when(traits: ["KSCrash"]))
+            ]
+            : [
+                .headerSearchPath("Sentry"),
+                .headerSearchPath("SentryCrash/Recording"),
+                .headerSearchPath("SentryCrash/Recording/Monitors"),
+                .headerSearchPath("SentryCrash/Recording/Tools"),
+                .headerSearchPath("SentryCrash/Installations"),
+                .headerSearchPath("SentryCrash/Reporting/Filters"),
+                .headerSearchPath("SentryCrash/Reporting/Filters/Tools"),
+                .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"])),
+                .define("SDK_V10", to: "1", .when(traits: ["V10"])),
+                .define("SDK_V10", to: "1", .when(traits: ["KSCrash"])),
+                .define("ENABLE_KSCRASH", to: "1", .when(traits: ["KSCrash"]))
+            ])
 ]
 
 // BEGIN:OBJC_WRAPPER

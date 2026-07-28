@@ -1,3 +1,4 @@
+#if !ENABLE_KSCRASH
 internal import _SentryPrivate
 import Foundation
 
@@ -324,3 +325,4 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         sentrycrash_setSaveTransaction(sentry_finishAndSaveTransaction)
     }
 }
+#endif // !ENABLE_KSCRASH

@@ -132,12 +132,20 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     @objc public var processInfoWrapper = Dependencies.processInfoWrapper
     private var _crashWrapper: SentryCrashReporter?
     @objc public lazy var crashWrapper: SentryCrashReporter = getLazyVar(\._crashWrapper) {
+#if !ENABLE_KSCRASH
+        // KSCRASH_TODO: SentryDefaultCrashReporter wraps SentryCrash and its C APIs.
+        // In KSCrash mode, a KSCrash-backed implementation is needed.
+        // Future work: provide a KSCrashReporter conforming to SentryCrashReporter that
+        // reads crash state and system info from KSCrash's Installation API.
         let bridge = SentryCrashBridge(
             notificationCenterWrapper: self.notificationCenterWrapper,
             dateProvider: self.dateProvider,
             crashReporter: self.crashReporter
         )
         return SentryDefaultCrashReporter(processInfoWrapper: Dependencies.processInfoWrapper, bridge: bridge)
+#else
+        fatalError("crashWrapper not yet implemented for KSCrash mode")
+#endif
     }
     @objc public var dispatchFactory = SentryDispatchFactory()
     @objc public var timerFactory = SentryNSTimerFactory()
@@ -323,6 +331,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     }
 #endif
 
+#if !ENABLE_KSCRASH
     private var crashIntegrationSessionHandler: SentryCrashIntegrationSessionHandler?
     func getCrashIntegrationSessionBuilder(_ options: Options, bridge: SentryCrashBridge) -> SentryCrashIntegrationSessionHandler? {
         getOptionalLazyVar(\.crashIntegrationSessionHandler) {
@@ -347,6 +356,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 #endif
         }
     }
+#endif // !ENABLE_KSCRASH
 
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
     private var _screenshotSource: SentryScreenshotSource?
@@ -404,10 +414,12 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             fileManager: fileManager,
             sysctlWrapper: sysctlWrapper)
     }
+#if !ENABLE_KSCRASH
     private var _crashReporter: SentryCrashSwift?
     @objc public lazy var crashReporter = getLazyVar(\._crashReporter) {
         SentryCrashSwift(with: self.startOptions?.cacheDirectoryPath)
     }
+#endif // !ENABLE_KSCRASH
 
     private var anrTracker: SentryANRTracker?
     @objc public func getANRTracker(_ timeout: TimeInterval) -> SentryANRTracker {
@@ -420,6 +432,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         }
     }
 
+#if !ENABLE_KSCRASH
     private var crashInstallationReporter: SentryCrashInstallationReporter?
     func getCrashInstallationReporter(_ options: Options) -> SentryCrashInstallationReporter {
         getLazyVar(\.crashInstallationReporter) {
@@ -432,7 +445,13 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             )
         }
     }
+#endif // !ENABLE_KSCRASH
 
+#if !ENABLE_KSCRASH
+    // KSCRASH_TODO: SentryDefaultThreadInspector is compiled out in KSCrash mode.
+    // SentryCoreDataTracker requires it to report thread stacks in CoreData operations.
+    // Future work: adapt SentryCoreDataTracker to accept the SentryThreadInspecting protocol
+    // so it can work without a full SentryDefaultThreadInspector.
     func getCoreDataTracker(_ options: Options) -> SentryCoreDataTracker {
         let threadInspector = SentryDefaultThreadInspector(options: options)
         return SentryCoreDataTracker(
@@ -440,6 +459,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             processInfoWrapper: processInfoWrapper
         )
     }
+#endif // !ENABLE_KSCRASH
 }
 // swiftlint:enable type_body_length
 
@@ -831,6 +851,7 @@ extension SentryDependencyContainer: NetworkTrackerProvider {
     }
 }
 
+#if !ENABLE_KSCRASH
 protocol SentryCrashReporterProvider {
     var crashReporter: SentryCrashSwift { get }
 }
@@ -845,6 +866,7 @@ protocol CrashInstallationReporterBuilder {
     func getCrashInstallationReporter(_ options: Options) -> SentryCrashInstallationReporter
 }
 extension SentryDependencyContainer: CrashInstallationReporterBuilder {}
+#endif // !ENABLE_KSCRASH
 
 protocol SentryCoreDataSwizzlingProvider {
     var coreDataSwizzling: SentryCoreDataSwizzling { get }
@@ -879,10 +901,12 @@ protocol SentryAppStartTrackerBuilder {
 extension SentryDependencyContainer: SentryAppStartTrackerBuilder {}
 #endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
+#if !ENABLE_KSCRASH
 protocol SentryCoreDataTrackerBuilder {
     func getCoreDataTracker(_ options: Options) -> SentryCoreDataTracker
 }
 extension SentryDependencyContainer: SentryCoreDataTrackerBuilder {}
+#endif // !ENABLE_KSCRASH
 
 protocol AppHangTrackerProvider {
     var appHangTracker: SentryAppHangTracker { get }

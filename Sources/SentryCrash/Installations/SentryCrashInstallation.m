@@ -93,6 +93,8 @@ sentry_crashCallback(const SentryCrashReportWriter *writer)
 
 - (void)dealloc
 {
+#if !ENABLE_KSCRASH
+    // SentryCrashSwift and SentryCrashBridge are SDK layer types excluded in KSCrash mode.
     SentryCrashSwift *handler = self.bridge.crashReporter;
     @synchronized(handler) {
         if (g_crashHandlerData == self.crashHandlerData) {
@@ -100,6 +102,7 @@ sentry_crashCallback(const SentryCrashReportWriter *writer)
             [handler removeOnCrash];
         }
     }
+#endif
 }
 
 - (CrashHandlerData *)crashHandlerData
@@ -162,11 +165,15 @@ sentry_crashCallback(const SentryCrashReportWriter *writer)
 
 - (void)setBridgeObject:(id)bridge
 {
+#if !ENABLE_KSCRASH
     self.bridge = (SentryCrashBridge *)bridge;
+#endif
 }
 
 - (void)install:(NSString *)customCacheDirectory
 {
+#if !ENABLE_KSCRASH
+    // SentryCrashSwift / SentryCrashBridge are SDK layer types excluded in KSCrash mode.
     SentryCrashSwift *handler = self.bridge.crashReporter;
     @synchronized(handler) {
         handler.basePath = customCacheDirectory;
@@ -174,10 +181,12 @@ sentry_crashCallback(const SentryCrashReportWriter *writer)
         [handler setupOnCrash];
         [handler install];
     }
+#endif
 }
 
 - (void)uninstall
 {
+#if !ENABLE_KSCRASH
     SentryCrashSwift *handler = self.bridge.crashReporter;
     @synchronized(handler) {
         if (g_crashHandlerData == self.crashHandlerData) {
@@ -186,6 +195,7 @@ sentry_crashCallback(const SentryCrashReportWriter *writer)
         }
         [handler uninstall];
     }
+#endif
 }
 
 - (void)sendAllReportsWithCompletion:(SentryCrashReportFilterCompletion)onCompletion
@@ -209,6 +219,8 @@ sentry_crashCallback(const SentryCrashReportWriter *writer)
 
     sink = [SentryCrashReportFilterPipeline filterWithFilters:sink, nil];
 
+#if !ENABLE_KSCRASH
+    // SentryCrashSwift / SentryCrashBridge are SDK layer types excluded in KSCrash mode.
     SentryCrashSwift *handler = self.bridge.crashReporter;
     handler.sink =
         [[SentryCrashReportFilterSwift alloc] initWithFilterReports:^(NSArray *_Nonnull array,
@@ -216,6 +228,7 @@ sentry_crashCallback(const SentryCrashReportWriter *writer)
             [sink filterReports:array onCompletion:completion];
         }];
     [handler sendAllReportsWithCompletion:onCompletion];
+#endif
 }
 
 - (id<SentryCrashReportFilter>)sink

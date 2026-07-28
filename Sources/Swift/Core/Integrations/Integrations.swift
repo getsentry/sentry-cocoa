@@ -65,9 +65,12 @@ private struct AnyIntegration {
             .init(SentryHangTrackerIntegrationObjC.self),
             .init(SentryAutoBreadcrumbTrackingIntegration.self),
             .init(SentryMetricsIntegration.self),
-            .init(SentryCoreDataTrackingIntegration.self),
             .init(SentryFileIOTrackingIntegration.self)
         ])
+        // KSCRASH_TODO: CoreData tracking depends on SentryDefaultThreadInspector (excluded in KSCrash mode).
+        #if !ENABLE_KSCRASH
+        integrations.append(.init(SentryCoreDataTrackingIntegration.self))
+        #endif // !ENABLE_KSCRASH
 
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         integrations.append(.init(SentryAppStartTrackingIntegration.self))

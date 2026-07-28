@@ -14,7 +14,7 @@
 extern "C" {
 #    define restrict
 /** Allow importing C99 headers that use the restrict keyword, which isn't valid in C++ */
-#    include "SentryCrashMemory.h"
+#    include "SentryCrashCompatibility.h"
 #    undef restrict
 }
 #    include <cassert>

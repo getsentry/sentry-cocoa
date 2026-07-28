@@ -139,7 +139,11 @@
 
 - (void)setBridgeObject:(id)bridge
 {
+#if !ENABLE_KSCRASH
+    // SentryCrashBridge is a SDK layer type that is excluded in KSCrash mode.
+    // In KSCrash mode, SentryCrash is replaced by the upstream KSCrash library.
     self.bridge = (SentryCrashBridge *)bridge;
+#endif
 }
 
 - (void)setOnCrash:(SentryCrashReportWriteCallback)onCrash
@@ -238,14 +242,17 @@
 
     // Set bridge before install so the NSException monitor can access
     // crashReporter.uncaughtExceptionHandler when setEnabled(true) runs.
+#if !ENABLE_KSCRASH
     sentrycrashcm_nsexception_setBridge(self.bridge);
+#endif
 
     _monitoring = sentrycrash_install(self.bundleName.UTF8String, installPath.UTF8String);
     if (self.monitoring == 0) {
         return false;
     }
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !ENABLE_KSCRASH
+    // SentryCrashBridge (self.bridge) is a SDK layer type excluded in KSCrash mode.
     id<SentryNSNotificationCenterWrapper> notificationCenter
         = self.bridge.notificationCenterWrapper;
     [notificationCenter addObserver:self
@@ -268,8 +275,9 @@
                            selector:@selector(applicationWillTerminate)
                                name:UIApplicationWillTerminateNotification
                              object:nil];
-#endif // SENTRY_HAS_UIKIT
-#if SENTRY_HAS_NSEXTENSION
+#endif // SENTRY_HAS_UIKIT && !ENABLE_KSCRASH
+#if SENTRY_HAS_NSEXTENSION && !ENABLE_KSCRASH
+    // SentryCrashBridge (self.bridge) is a SDK layer type excluded in KSCrash mode.
     id<SentryNSNotificationCenterWrapper> notificationCenter
         = self.bridge.notificationCenterWrapper;
     [notificationCenter addObserver:self
@@ -288,7 +296,7 @@
                            selector:@selector(applicationWillEnterForeground)
                                name:NSExtensionHostWillEnterForegroundNotification
                              object:nil];
-#endif // SENTRY_HAS_NSEXTENSION
+#endif // SENTRY_HAS_NSEXTENSION && !ENABLE_KSCRASH
 
     return true;
 }
@@ -301,7 +309,7 @@
     self.onCrash = NULL;
     sentrycrash_uninstall();
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !ENABLE_KSCRASH
     id<SentryNSNotificationCenterWrapper> notificationCenter
         = self.bridge.notificationCenterWrapper;
     [notificationCenter removeObserver:self
@@ -317,8 +325,8 @@
                                   name:UIApplicationWillEnterForegroundNotification
                                 object:nil];
     [notificationCenter removeObserver:self name:UIApplicationWillTerminateNotification object:nil];
-#endif // SENTRY_HAS_UIKIT
-#if SENTRY_HAS_NSEXTENSION
+#endif // SENTRY_HAS_UIKIT && !ENABLE_KSCRASH
+#if SENTRY_HAS_NSEXTENSION && !ENABLE_KSCRASH
     id<SentryNSNotificationCenterWrapper> notificationCenter
         = self.bridge.notificationCenterWrapper;
     [notificationCenter removeObserver:self
@@ -333,7 +341,7 @@
     [notificationCenter removeObserver:self
                                   name:NSExtensionHostWillEnterForegroundNotification
                                 object:nil];
-#endif
+#endif // SENTRY_HAS_NSEXTENSION && !ENABLE_KSCRASH
 }
 
 - (void)sendAllReportsWithCompletion:(SentryCrashReportFilterCompletion)onCompletion

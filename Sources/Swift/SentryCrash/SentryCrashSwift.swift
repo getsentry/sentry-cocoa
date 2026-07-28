@@ -1,4 +1,10 @@
 // swiftlint:disable missing_docs
+// KSCRASH_TODO: SentryCrashSwift wraps the SentryCrash ObjC class and its installation
+// infrastructure. In KSCrash mode this entire file is excluded because the SentryCrash
+// ObjC class and SentryCrashInstallation types are not compiled.
+// Future work: replace SentryCrashSwift usages in the dependency container with a
+// protocol that both SentryCrash and KSCrash adapters can implement.
+#if !ENABLE_KSCRASH
 internal import _SentryPrivate
 
 // This provides the public API for passing what is essentially a `SentryCrashReportFilter` to Swift.
@@ -101,3 +107,4 @@ private final class CrashReportFilterBridge: NSObject, SentryCrashReportFilter {
     }
 }
 // swiftlint:enable missing_docs
+#endif // !ENABLE_KSCRASH

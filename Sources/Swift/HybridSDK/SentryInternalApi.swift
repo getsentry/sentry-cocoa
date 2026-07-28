@@ -92,7 +92,11 @@ public struct SentryInternalApi {
 
     /// Tells the crash reporter to ignore the next occurrence of the given signal on the calling thread.
     public func ignoreNextSignal(_ signum: Int32) {
+#if !ENABLE_KSCRASH
+        // KSCRASH_TODO: sentrycrash_ignore_next_signal is a SentryCrashC API. KSCrash does not
+        // currently expose an equivalent signal-suppression API for hybrid SDKs.
         sentrycrash_ignore_next_signal(signum)
+#endif // !ENABLE_KSCRASH
     }
 
     /// Returns the current SDK options, or a default instance if the SDK has not been started.

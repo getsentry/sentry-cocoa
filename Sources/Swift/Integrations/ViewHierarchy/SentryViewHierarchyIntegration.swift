@@ -34,16 +34,23 @@ final class SentryViewHierarchyIntegration<Dependencies: SentryViewHierarchyInte
         viewHierarchyProvider.reportAccessibilityIdentifier = options.reportAccessibilityIdentifier
         client.addAttachmentProcessor(self)
 
+#if !ENABLE_KSCRASH
+        // KSCRASH_TODO: sentrycrash_setSaveViewHierarchy is a SentryCrashC API for registering
+        // a callback that saves the view hierarchy when a crash occurs. KSCrash mode needs an
+        // equivalent hook into the crash reporting path to save attachments on crash.
         sentrycrash_setSaveViewHierarchy { path in
             guard let path = path else { return }
             let reportPath = String(cString: path)
             let filePath = (reportPath as NSString).appendingPathComponent("view-hierarchy.json")
             SentryDependencyContainer.sharedInstance().viewHierarchyProvider?.saveViewHierarchy(filePath)
         }
+#endif // !ENABLE_KSCRASH
     }
 
     func uninstall() {
+#if !ENABLE_KSCRASH
         sentrycrash_setSaveViewHierarchy(nil)
+#endif // !ENABLE_KSCRASH
         client?.removeAttachmentProcessor(self)
     }
 

@@ -33,16 +33,23 @@ final class SentryScreenshotIntegration<Dependencies: ScreenshotIntegrationProvi
         }
 
         globalScreenshotSource = screenshotSource
+#if !ENABLE_KSCRASH
+        // KSCRASH_TODO: sentrycrash_setSaveScreenshots is a SentryCrashC API for registering
+        // a callback that saves a screenshot when a crash occurs. KSCrash mode needs an
+        // equivalent hook into the crash reporting path to save attachments on crash.
         sentrycrash_setSaveScreenshots { path in
             guard let path = path else { return }
             let reportPath = String(cString: path)
             globalScreenshotSource?.saveScreenShots(reportPath)
         }
+#endif // !ENABLE_KSCRASH
     }
 
     func uninstall() {
         globalScreenshotSource = nil
+#if !ENABLE_KSCRASH
         sentrycrash_setSaveScreenshots(nil)
+#endif // !ENABLE_KSCRASH
         client?.removeAttachmentProcessor(self)
     }
 

@@ -1,4 +1,10 @@
 // swiftlint:disable missing_docs
+// KSCRASH_TODO: SentryDefaultCrashReporter implements SentryCrashReporter using the
+// SentryCrash ObjC class and SentryCrash C APIs (sentrycrashcm_*, sentrycrashstate_*,
+// sentyncrashdebug_*, sentrycrashbic_*). In KSCrash mode these C APIs are not compiled.
+// Future work: implement a KSCrash-backed SentryCrashReporter that reads system info
+// and crash state from KSCrash's equivalent APIs.
+#if !ENABLE_KSCRASH
 internal import _SentryPrivate
 import Darwin
 import Foundation
@@ -297,3 +303,4 @@ public final class SentryDefaultCrashReporter: NSObject, SentryCrashReporter {
     }
 }
 // swiftlint:enable missing_docs
+#endif // !ENABLE_KSCRASH

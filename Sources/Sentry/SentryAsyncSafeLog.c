@@ -26,7 +26,7 @@
 //
 
 #include "SentryAsyncSafeLog.h"
-#include "SentryCrashDebug.h"
+#include "SentryCrashCompatibility.h"
 #include "SentryInternalCDefines.h"
 
 #include <errno.h>
