@@ -1399,6 +1399,22 @@ STAGED_OBJC_HEADER_FILES := $(shell git diff --cached --diff-filter=d --name-onl
 # rule in PR #8387 (rule id avoid_all_header_fields).
 AVOID_ALL_HEADER_FIELDS_MSG := Double-check how you use allHeaderFields / allHTTPHeaderFields (https://developer.apple.com/documentation/foundation/httpurlresponse/allheaderfields). Reading all headers is fine, but their subscript is case-sensitive while HTTP/2 and HTTP/3 lowercase field names, so a single-header lookup can silently miss the header (see \#8322). For a lookup, use value(forHTTPHeaderField:) or the HTTPURLResponse.value(forHTTPHeaderFieldCaseInsensitive:) extension in HTTPURLResponse+Sentry.swift. If your usage is intentional, suppress this rule with a comment explaining why.
 
+## Check Objective-C header files for bare 'id' usage without SENTRY_SWIFT_MIGRATION_ID
+#
+# Standalone target so CI can run this check without a macOS runner.
+.PHONY: check-objc-id-usage
+check-objc-id-usage:
+	ruby ./scripts/check-objc-id-usage.rb -r Sources/Sentry
+
+## Check Objective-C sources for banned patterns (e.g. case-sensitive header lookups)
+#
+# Standalone target so CI can run this check without a macOS runner.
+.PHONY: check-objc-banned-patterns
+check-objc-banned-patterns:
+	./scripts/check-objc-banned-pattern.sh --path Sources \
+		--rule avoid_all_header_fields --pattern 'all(HTTP)?HeaderFields' \
+		--message "$(AVOID_ALL_HEADER_FIELDS_MSG)"
+
 ## Run linting checks on all files
 #
 # Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, Objective-C banned-pattern checks, actionlint, and dprint checks without modifying files.
@@ -1406,10 +1422,8 @@ AVOID_ALL_HEADER_FIELDS_MSG := Double-check how you use allHeaderFields / allHTT
 lint:
 	@echo "--> Running Swiftlint and Clang-Format"
 	./scripts/check-clang-format.py -r Sources Tests
-	ruby ./scripts/check-objc-id-usage.rb -r Sources/Sentry
-	./scripts/check-objc-banned-pattern.sh --path Sources \
-		--rule avoid_all_header_fields --pattern 'all(HTTP)?HeaderFields' \
-		--message "$(AVOID_ALL_HEADER_FIELDS_MSG)"
+	"$(MAKE)" check-objc-id-usage
+	"$(MAKE)" check-objc-banned-patterns
 	swiftlint --strict --quiet
 	dprint check "**/*.{md,json,yaml,yml}"
 	actionlint
