@@ -104,7 +104,13 @@ class SentryViewHierarchyProviderTests: XCTestCase {
         }
         var descriptions = String(data: data, encoding: .utf8) ?? ""
 
-        XCTAssertEqual(descriptions, "{\"rendering_system\":\"UIKIT\",\"windows\":[{\"type\":\"UIWindow\",\"identifier\":\"WindowId\",\"width\":10,\"height\":10,\"x\":0,\"y\":0,\"alpha\":1,\"visible\":false,\"children\":[]}]}")
+        var expectedDescriptions = if SentryTestSetup.isKSCrashEnabled {
+            "{\"rendering_system\":\"UIKIT\",\"windows\":[{\"type\":\"UIWindow\",\"identifier\":\"WindowId\",\"width\":10.0,\"height\":10.0,\"x\":0.0,\"y\":0.0,\"alpha\":1.0,\"visible\":false,\"children\":[]}]}"
+        } else {
+            "{\"rendering_system\":\"UIKIT\",\"windows\":[{\"type\":\"UIWindow\",\"identifier\":\"WindowId\",\"width\":10,\"height\":10,\"x\":0,\"y\":0,\"alpha\":1,\"visible\":false,\"children\":[]}]}"
+        }
+
+        XCTAssertEqual(descriptions, expectedDescriptions)
 
         window = makeWindow(frame: CGRect(x: 1, y: 2, width: 20, height: 30))
         window.accessibilityIdentifier = "IdWindow"
@@ -118,7 +124,13 @@ class SentryViewHierarchyProviderTests: XCTestCase {
         }
         descriptions = String(data: data, encoding: .utf8) ?? ""
 
-        XCTAssertEqual(descriptions, "{\"rendering_system\":\"UIKIT\",\"windows\":[{\"type\":\"UIWindow\",\"identifier\":\"IdWindow\",\"width\":20,\"height\":30,\"x\":1,\"y\":2,\"alpha\":1,\"visible\":false,\"children\":[]}]}")
+        expectedDescriptions = if SentryTestSetup.isKSCrashEnabled {
+            "{\"rendering_system\":\"UIKIT\",\"windows\":[{\"type\":\"UIWindow\",\"identifier\":\"IdWindow\",\"width\":20.0,\"height\":30.0,\"x\":1.0,\"y\":2.0,\"alpha\":1.0,\"visible\":false,\"children\":[]}]}"
+        } else {
+            "{\"rendering_system\":\"UIKIT\",\"windows\":[{\"type\":\"UIWindow\",\"identifier\":\"IdWindow\",\"width\":20,\"height\":30,\"x\":1,\"y\":2,\"alpha\":1,\"visible\":false,\"children\":[]}]}"
+        }
+
+        XCTAssertEqual(descriptions, expectedDescriptions)
     }
 
     func test_Window_with_children() throws {
@@ -300,7 +312,13 @@ class SentryViewHierarchyProviderTests: XCTestCase {
 
         let descriptions = try String(contentsOfFile: path)
 
-        XCTAssertEqual(descriptions, "{\"rendering_system\":\"UIKIT\",\"windows\":[{\"type\":\"UIWindow\",\"identifier\":\"WindowId\",\"width\":10,\"height\":10,\"x\":0,\"y\":0,\"alpha\":1,\"visible\":false,\"children\":[]}]}")
+        let expectedDescriptions = if SentryTestSetup.isKSCrashEnabled {
+            "{\"rendering_system\":\"UIKIT\",\"windows\":[{\"type\":\"UIWindow\",\"identifier\":\"WindowId\",\"width\":10.0,\"height\":10.0,\"x\":0.0,\"y\":0.0,\"alpha\":1.0,\"visible\":false,\"children\":[]}]}"
+        } else {
+            "{\"rendering_system\":\"UIKIT\",\"windows\":[{\"type\":\"UIWindow\",\"identifier\":\"WindowId\",\"width\":10,\"height\":10,\"x\":0,\"y\":0,\"alpha\":1,\"visible\":false,\"children\":[]}]}"
+        }
+
+        XCTAssertEqual(descriptions, expectedDescriptions)
     }
     
     func test_ViewHierarchy_save_noIdentifier() throws {
@@ -316,7 +334,13 @@ class SentryViewHierarchyProviderTests: XCTestCase {
 
         let descriptions = try XCTUnwrap(String(contentsOfFile: path))
 
-        XCTAssertEqual(descriptions, "{\"rendering_system\":\"UIKIT\",\"windows\":[{\"type\":\"UIWindow\",\"width\":10,\"height\":10,\"x\":0,\"y\":0,\"alpha\":1,\"visible\":false,\"children\":[]}]}")
+        let expectedDescription = if SentryTestSetup.isKSCrashEnabled {
+            "{\"rendering_system\":\"UIKIT\",\"windows\":[{\"type\":\"UIWindow\",\"width\":10.0,\"height\":10.0,\"x\":0.0,\"y\":0.0,\"alpha\":1.0,\"visible\":false,\"children\":[]}]}"
+        } else {
+            "{\"rendering_system\":\"UIKIT\",\"windows\":[{\"type\":\"UIWindow\",\"width\":10,\"height\":10,\"x\":0,\"y\":0,\"alpha\":1,\"visible\":false,\"children\":[]}]}"
+        }
+
+        XCTAssertEqual(descriptions, expectedDescription)
     }
 
     func test_invalidFilePath() {

@@ -1,6 +1,6 @@
 #include "SentrySessionReplaySyncC.h"
 #include "SentryAsyncSafeLog.h"
-#include <SentryCrashFileUtils.h>
+#include "SentryCrashCompatibility.h"
 #include <errno.h>
 #include <fcntl.h>
 #include <pthread.h>
