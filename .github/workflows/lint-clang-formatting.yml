@@ -67,8 +67,24 @@ jobs:
         uses: ./.github/actions/ci-diagnostics
         if: failure()
 
+  check-objc-patterns:
+    name: Check ObjC Patterns
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_lint_clang_formatting_for_prs == 'true'
+    needs: files-changed
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Check ObjC id usage
+        run: make check-objc-id-usage
+      - name: Check ObjC banned patterns
+        run: make check-objc-banned-patterns
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
+        if: failure()
+
   lint_clang_formatting-required-check:
-    needs: [files-changed, lint]
+    needs: [files-changed, lint, check-objc-patterns]
     name: Lint Clang
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped
     if: always()
