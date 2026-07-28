@@ -508,6 +508,14 @@ jobs:
           merge-multiple: true
           path: XCFrameworkBuildPath/
 
+      - name: Create apple-binaries archive
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          ./scripts/create-apple-binaries-archive.sh \
+            --version "${{ github.event.inputs.version }}" \
+            --xcframework-dir XCFrameworkBuildPath \
+            --output-dir XCFrameworkBuildPath
+
       - name: Archive XCFrameworks for Craft
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
@@ -516,6 +524,7 @@ jobs:
           overwrite: true
           path: |
             ${{github.workspace}}/XCFrameworkBuildPath/*.zip
+            ${{github.workspace}}/XCFrameworkBuildPath/*.tgz
 
       # update-package-sha.sh uses this env variable to update Package.swift.
       # During release Craft calls bump.sh that uses update-package-sha.sh.
