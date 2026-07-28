@@ -34,7 +34,19 @@ public class SentryFramesTracker: NSObject {
     }
     private var previousFrameTimestamp: CFTimeInterval = SentryFramesTracker.previousFrameInitialValue
     private var previousFrameSystemTimestamp: UInt64 = 0
-    private var currentFrameRate: UInt64 = 60
+
+    // Written by the display link callback on the main thread, but read off the main thread via
+    // `getFramesDelay(_:endSystemTimestamp:)` — the ANR tracker calls that from its own thread.
+    private let _currentFrameRate = SentryMutex<UInt64>(60)
+
+    private var currentFrameRate: UInt64 {
+        get {
+            _currentFrameRate.withLock { $0 }
+        }
+        set {
+            _currentFrameRate.withLock { $0 = newValue }
+        }
+    }
     // We hold listeners through `WeakReference` rather than `NSHashTable.weakObjects()`
     // because NSHashTable's internal buckets can be zeroed by the ObjC runtime on the
     // deallocating thread while the table is being iterated on another thread, causing
@@ -43,16 +55,24 @@ public class SentryFramesTracker: NSObject {
     // deallocation.
     private var listeners: [WeakReference<SentryFramesTrackerListener>] = []
 
+    // The frame counters and the profiling timeseries are written on the main thread by the display
+    // link callback, but `currentFrames()` reads them from whichever thread creates or finishes a
+    // tracer, or transmits a profile chunk. Copying a Swift `Array` while another thread appends to
+    // it retains a `_ContiguousArrayStorage` whose lifetime the appending thread owns, so a
+    // concurrent resize can free the buffer out from under the reader. Guarding every access with
+    // this mutex also makes the snapshot returned by `currentFrames()` internally consistent.
+    private struct FrameData {
+        var total: UInt = 0
+        var slow: UInt = 0
+        var frozen: UInt = 0
 #if os(iOS)
-    private var frozenFrameTimestamps = SentryFrameInfoTimeSeries()
-    private var slowFrameTimestamps = SentryFrameInfoTimeSeries()
-    private var frameRateTimestamps = SentryFrameInfoTimeSeries()
+        var slowTimestamps = SentryFrameInfoTimeSeries()
+        var frozenTimestamps = SentryFrameInfoTimeSeries()
+        var frameRateTimestamps = SentryFrameInfoTimeSeries()
 #endif // os(iOS)
+    }
 
-    // Frame counters - accessed only from main thread (display link callback)
-    private var totalFrames: UInt = 0
-    private var slowFrames: UInt = 0
-    private var frozenFrames: UInt = 0
+    private let frameData = SentryMutex<FrameData>(FrameData())
 
     private var displayLinkWrapper: SentryDisplayLinkWrapper
     private let dateProvider: SentryCurrentDateProvider
@@ -154,20 +174,21 @@ public class SentryFramesTracker: NSObject {
 
     @objc
     public func currentFrames() -> SentryScreenFrames {
+        let data = frameData.withLock { $0 }
 #if os(iOS)
         return SentryScreenFrames(
-            total: totalFrames,
-            frozen: frozenFrames,
-            slow: slowFrames,
-            slowFrameTimestamps: slowFrameTimestamps,
-            frozenFrameTimestamps: frozenFrameTimestamps,
-            frameRateTimestamps: frameRateTimestamps
+            total: data.total,
+            frozen: data.frozen,
+            slow: data.slow,
+            slowFrameTimestamps: data.slowTimestamps,
+            frozenFrameTimestamps: data.frozenTimestamps,
+            frameRateTimestamps: data.frameRateTimestamps
         )
 #else
         return SentryScreenFrames(
-            total: totalFrames,
-            frozen: frozenFrames,
-            slow: slowFrames
+            total: data.total,
+            frozen: data.frozen,
+            slow: data.slow
         )
 #endif
     }
@@ -283,9 +304,11 @@ public class SentryFramesTracker: NSObject {
 #endif
 
     @objc func resetFrames() {
-        totalFrames = 0
-        frozenFrames = 0
-        slowFrames = 0
+        frameData.withLock {
+            $0.total = 0
+            $0.frozen = 0
+            $0.slow = 0
+        }
 
         previousFrameTimestamp = Self.previousFrameInitialValue
 
@@ -364,14 +387,16 @@ public class SentryFramesTracker: NSObject {
             NSNumber(value: thisFrameSystemTimestamp)
 
         if SentryTraceProfiler.isCurrentlyProfiling() || isContinuousProfiling {
-            let hasNoFrameRatesYet = frameRateTimestamps.isEmpty
-            let previousFrameRate = frameRateTimestamps.last?["value"]?.uint64Value ?? 0
-            let frameRateChanged = previousFrameRate != currentFrameRate
-            let shouldRecordNewFrameRate = hasNoFrameRatesYet || frameRateChanged
+            let shouldRecordNewFrameRate = frameData.withLock { data -> Bool in
+                let hasNoFrameRatesYet = data.frameRateTimestamps.isEmpty
+                let previousFrameRate = data.frameRateTimestamps.last?["value"]?.uint64Value ?? 0
+                let frameRateChanged = previousFrameRate != currentFrameRate
+                return hasNoFrameRatesYet || frameRateChanged
+            }
 
             if shouldRecordNewFrameRate {
                 SentrySDKLog.debug("Recording new frame rate at \(profilingTimestamp).")
-                recordTimestamp(profilingTimestamp, value: NSNumber(value: currentFrameRate), array: &frameRateTimestamps)
+                recordTimestamp(profilingTimestamp, value: NSNumber(value: currentFrameRate), keyPath: \.frameRateTimestamps)
             }
         }
 #endif // os(iOS)
@@ -380,23 +405,23 @@ public class SentryFramesTracker: NSObject {
         let slowThreshold = Self.slowFrameThreshold(currentFrameRate)
 
         if frameDuration > slowThreshold && frameDuration <= Self.frozenFrameThreshold {
-            slowFrames += 1
+            frameData.withLock { $0.slow += 1 }
 #if os(iOS)
             SentrySDKLog.debug("Detected slow frame starting at \(profilingTimestamp) (frame tracker: \(self)).")
             recordTimestamp(
                 profilingTimestamp,
                 value: NSNumber(value: thisFrameSystemTimestamp - previousFrameSystemTimestamp),
-                array: &slowFrameTimestamps
+                keyPath: \.slowTimestamps
             )
 #endif // os(iOS)
         } else if frameDuration > Self.frozenFrameThreshold {
-            frozenFrames += 1
+            frameData.withLock { $0.frozen += 1 }
 #if os(iOS)
             SentrySDKLog.debug("Detected frozen frame starting at \(profilingTimestamp).")
             recordTimestamp(
                 profilingTimestamp,
                 value: NSNumber(value: thisFrameSystemTimestamp - previousFrameSystemTimestamp),
-                array: &frozenFrameTimestamps
+                keyPath: \.frozenTimestamps
             )
 #endif // os(iOS)
         }
@@ -412,7 +437,7 @@ public class SentryFramesTracker: NSObject {
             delayedFramesTracker.setPreviousFrameSystemTimestamp(thisFrameSystemTimestamp)
         }
 
-        totalFrames += 1
+        frameData.withLock { $0.total += 1 }
         previousFrameTimestamp = thisFrameTimestamp
         previousFrameSystemTimestamp = thisFrameSystemTimestamp
         reportNewFrame()
@@ -443,21 +468,23 @@ public class SentryFramesTracker: NSObject {
     }
 
 #if os(iOS)
-    private func recordTimestamp(_ timestamp: NSNumber, value: NSNumber, array: inout SentryFrameInfoTimeSeries) {
+    private func recordTimestamp(_ timestamp: NSNumber, value: NSNumber, keyPath: WritableKeyPath<FrameData, SentryFrameInfoTimeSeries>) {
         var shouldRecord = SentryTraceProfiler.isCurrentlyProfiling() || SentryContinuousProfiler.isCurrentlyProfiling()
 #if SENTRY_TEST || SENTRY_TEST_CI
         shouldRecord = true
 #endif
         if shouldRecord {
-            array.append(["timestamp": timestamp, "value": value])
+            frameData.withLock { $0[keyPath: keyPath].append(["timestamp": timestamp, "value": value]) }
         }
     }
     
     private func resetProfilingTimestampsInternal() {
         SentrySDKLog.debug("Resetting profiling GPU timeseries data.")
-        frozenFrameTimestamps = []
-        slowFrameTimestamps = []
-        frameRateTimestamps = []
+        frameData.withLock {
+            $0.frozenTimestamps = []
+            $0.slowTimestamps = []
+            $0.frameRateTimestamps = []
+        }
     }
 #endif // os(iOS)
     

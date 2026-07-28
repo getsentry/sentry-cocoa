@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix a data race in `SentryFramesTracker` that could crash the app while profiling is active. The display link callback appended to the profiling frame timeseries on the main thread while `currentFrames()` copied those arrays from whichever thread created or finished a tracer, or transmitted a profile chunk. Copying a Swift `Array` during a concurrent append retains a `_ContiguousArrayStorage` whose lifetime the appending thread owns, so a resize could free the buffer out from under the reader, crashing later when the snapshot deallocated. The frame counters and `currentFrameRate` were racing the same way.
+
 ## 9.23.0
 
 ### Features

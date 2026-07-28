@@ -1078,6 +1078,37 @@ final class SentryFramesTrackerTests: XCTestCase {
             self.fixture.displayLinkWrapper.normalFrame()
         }
     }
+    /// `currentFrames()` is called from arbitrary threads — a tracer reads it on creation and on
+    /// finish, and the profiler reads it when a tracer finishes or a chunk is transmitted — while the
+    /// display-link callback appends to the same profiling timeseries arrays on the main thread.
+    /// Copying a Swift `Array` while another thread appends to it retains a `_ContiguousArrayStorage`
+    /// whose lifetime the appending thread owns, so a concurrent resize can free the buffer out from
+    /// under the reader.
+    func testCurrentFrames_FromBackgroundThread_WhileRecordingSlowAndFrozenFrames() {
+        let sut = fixture.sut
+        sut.start()
+
+        let queue = DispatchQueue(label: "current frames", attributes: [.initiallyInactive, .concurrent])
+        let readsFinished = expectation(description: "All frame snapshots read")
+        readsFinished.expectedFulfillmentCount = 10_000
+
+        for _ in 0..<10_000 {
+            queue.async {
+                _ = sut.currentFrames()
+                readsFinished.fulfill()
+            }
+        }
+
+        queue.activate()
+
+        // Slow and frozen frames are the ones that append to the timeseries arrays.
+        for _ in 0..<1000 {
+            _ = self.fixture.displayLinkWrapper.fastestSlowFrame()
+            _ = self.fixture.displayLinkWrapper.fastestFrozenFrame()
+        }
+
+        wait(for: [readsFinished], timeout: 30)
+    }
 #endif // os(iOS) || os(tvOS)
     
     private func givenMoreDelayedFramesThanTransactionMaxDuration(_ framesTracker: SentryFramesTracker) -> (UInt64, UInt, Double) {
