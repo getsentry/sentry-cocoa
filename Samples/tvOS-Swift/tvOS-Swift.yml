@@ -88,7 +88,7 @@ targets:
         excludes:
           - "**/.gitkeep"
       - path: ../Shared/SampleAssets.xcassets
-        group: AppSBSwift/Resources
+        group: App/Resources
       # Configurations
       - path: AppSBSwift/Configurations
         type: group
@@ -98,7 +98,7 @@ targets:
           - "**/.gitkeep"
       - path: ../Shared/Config
         type: group
-        group: AppSBSwift/Configurations
+        group: App/Configurations
         buildPhase: none
       - path: ../../Plans/tvOS-SBSwift_Base.xctestplan
         group: AppSBSwift/Configurations
@@ -142,7 +142,7 @@ targets:
           - "**/.gitkeep"
       - path: ../Shared/Config
         type: group
-        group: UITests/Configurations
+        group: App/Configurations
         buildPhase: none
     configFiles:
       Debug: UITests/Configurations/tvOS-Swift-UITests.xcconfig
@@ -171,7 +171,7 @@ targets:
           - "**/.gitkeep"
       - path: ../Shared/Config
         type: group
-        group: AppSBSwift-UITests/Configurations
+        group: App/Configurations
         buildPhase: none
     configFiles:
       Debug: AppSBSwift-UITests/Configurations/tvOS-SBSwift-UITests.xcconfig

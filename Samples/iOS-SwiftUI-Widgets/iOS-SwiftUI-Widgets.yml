@@ -36,9 +36,12 @@ targets:
           - "**/.gitkeep"
           - "**/Info.plist"
           - "**/*.entitlements"
-      - path: Shared
+      - path: Shared/Headers
         type: group
-        group: App
+        group: App/Shared
+      - path: Shared/Data
+        type: group
+        group: App/Shared
       # Configurations
       - path: App/Configurations
         type: group
@@ -104,7 +107,7 @@ targets:
           - "**/.gitkeep"
       - path: Shared/Data
         type: group
-        group: LiveActivity
+        group: App/Shared
       # Resources
       - path: LiveActivity/Resources
         type: group
