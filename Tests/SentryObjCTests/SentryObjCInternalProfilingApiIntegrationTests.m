@@ -13,8 +13,12 @@
     [super setUp];
 
 #    if defined(__has_feature) && __has_feature(thread_sanitizer)
+    // No explicit return: XCTSkip raises _XCTSkipFailureException, so control never reaches the code
+    // below. _XCTSkipHandler is not marked noreturn, so the compiler cannot see that, and a return
+    // here would make the rest of setUp statically unreachable and trip -Wunreachable-code -Werror.
+    // Because this target then fails to compile under -enableThreadSanitizer, the whole scheme's test
+    // action fails before any test runs, which blocks running the sanitizer over the SDK at all.
     XCTSkip(@"Profiler does not run if thread sanitizer is attached.");
-    return;
 #    endif
 
     [SentryObjCSDK startWithConfigureOptions:^(SentryObjCOptions *options) {
