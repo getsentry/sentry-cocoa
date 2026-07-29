@@ -698,8 +698,7 @@ final class SentryUIRedactBuilder {
         var sublayers: [CALayer]?
         let succeeded = SentryObjCExceptionHelper.tryBlock({
             sublayers = layer.sublayers
-        }, catchingExceptionWithName: .invalidArgumentException,
-        reasonPrefix: "-[NSConcreteValue doubleValue]: unrecognized selector sent to instance")
+        }, catchingExceptionWithName: .invalidArgumentException, reasonPrefix: "-[NSConcreteValue doubleValue]: unrecognized selector sent to instance")
         guard succeeded else {
             SentrySDKLog.warning("Skipping redaction of a layer subtree because accessing its sublayers raised an exception. See https://docs.sentry.io/platforms/apple/guides/ios/session-replay/troubleshooting and https://github.com/getsentry/sentry-cocoa/issues/7810 for more details.")
             return nil
@@ -715,10 +714,9 @@ final class SentryUIRedactBuilder {
         var presentationLayer: CALayer?
         let succeeded = SentryObjCExceptionHelper.tryBlock({
             presentationLayer = layer.presentation()
-        }, catchingExceptionWithName: .invalidArgumentException,
-        reasonPrefix: "-[NSConcreteValue doubleValue]: unrecognized selector sent to instance")
+        }, catchingExceptionWithName: .invalidArgumentException, reasonPrefix: "-[NSConcreteValue doubleValue]: unrecognized selector sent to instance")
         guard succeeded else {
-            SentrySDKLog.warning("Failed to access a presentation layer because it raised an exception; falling back to the model layer. See https://github.com/getsentry/sentry-cocoa/issues/7810")
+            SentrySDKLog.warning("Failed to access a presentation layer because it raised an exception; falling back to the model layer. See https://docs.sentry.io/platforms/apple/guides/ios/session-replay/troubleshooting and https://github.com/getsentry/sentry-cocoa/issues/7810 for more details.")
             return nil
         }
         return presentationLayer
