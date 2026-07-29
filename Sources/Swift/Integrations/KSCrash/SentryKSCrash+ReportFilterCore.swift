@@ -155,7 +155,14 @@ extension SentryKSCrash {
 
             do {
                 try reportProcessor.process(report: dictionary) {
-                    operation.commitCapture() ? nil : ReportProcessingSession.cancellationError
+                    #if SENTRY_CRASH_E2E
+                    if let error = CrashE2ETestHook.retryableProcessingError(for: dictionary) {
+                        return error
+                    }
+                    #endif
+                    return operation.commitCapture()
+                        ? nil
+                        : ReportProcessingSession.cancellationError
                 }
                 return .captured(report)
             } catch {
