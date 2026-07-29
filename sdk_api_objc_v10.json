@@ -2092,6 +2092,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "enableMemoryIntrospection",
+    "parent": "SentryObjCOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "enableMetricKit",
     "parent": "SentryObjCOptions",
     "returnType": "BOOL",
@@ -5998,6 +6005,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setEnableMemoryIntrospection:",
+    "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setEnableMetricKit:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
@@ -9353,6 +9367,12 @@
   {
     "kind": "ObjCPropertyDecl",
     "name": "enableLogs",
+    "parent": "SentryObjCOptions",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "enableMemoryIntrospection",
     "parent": "SentryObjCOptions",
     "type": "BOOL"
   },
