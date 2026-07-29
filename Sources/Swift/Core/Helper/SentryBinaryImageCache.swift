@@ -141,16 +141,9 @@ import Foundation
     private static func convertUUID(_ value: UnsafePointer<UInt8>?) -> String? {
         guard let value = value else { return nil }
         
-#if !ENABLE_KSCRASH
-        // KSCRASH_TODO: sentrycrashdl_convertBinaryImageUUID is implemented in
-        // SentryCrashDynamicLinker.c which is excluded in KSCrash mode.
-        // Future work: provide a UUID conversion that works in KSCrash mode.
         var uuidBuffer = [CChar](repeating: 0, count: 37)
         sentrycrashdl_convertBinaryImageUUID(value, &uuidBuffer)
         return String(cString: uuidBuffer, encoding: .ascii)
-#else
-        return nil
-#endif // !ENABLE_KSCRASH
     }
     
     @objc
