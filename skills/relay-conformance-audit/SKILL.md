@@ -61,7 +61,7 @@ Everything tracked or ignored: `:white_check_mark: Nothing needs action. (tracke
 
 Thread reply 1 — **TLDR**: per needs-action mismatch, 2–4 plain sentences for a human deciding whether to care — what broke, user impact, blast radius. No file paths, no jargon.
 
-Thread reply 2 — **full detail**: per needs-action mismatch, everything an agent needs to pick it up cold — location (file + symbol), exact wire strings, spec/Relay citation, failure mode, 1–3 verify steps. End with one line noting any tracked/ignored entries that no longer reproduce, and the coverage-check result (gap list + draft-PR link when there are gaps).
+Thread reply 2 — **full detail**: per needs-action mismatch, everything an agent needs to pick it up cold — location (file + symbol, as a clickable `https://github.com/getsentry/sentry-cocoa/blob/main/<path>` link so a reviewer can jump straight to it), exact wire strings, spec/Relay citation (link it too), failure mode, 1–3 verify steps. End with one line noting any tracked/ignored entries that no longer reproduce, and the coverage-check result (gap list + draft-PR link when there are gaps).
 
 Votes and thread replies are feedback for the audit's maintainer only — the audit itself never reads reactions or acts on them; a human follows up and tunes the skill or the ignore list.
 
