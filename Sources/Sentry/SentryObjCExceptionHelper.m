@@ -1,4 +1,5 @@
 #import "SentryObjCExceptionHelper.h"
+#import "SentryLogC.h"
 
 @implementation SentryObjCExceptionHelper
 
@@ -8,6 +9,7 @@
         block();
         return YES;
     } @catch (NSException *exception) {
+        SENTRY_LOG_WARN(@"Caught Objective-C exception %@: %@", exception.name, exception.reason);
         return NO;
     }
 }

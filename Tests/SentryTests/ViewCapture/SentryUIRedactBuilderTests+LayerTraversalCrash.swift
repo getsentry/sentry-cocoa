@@ -57,6 +57,33 @@ class SentryUIRedactBuilderTests_LayerTraversalCrash: SentryUIRedactBuilderTests
         ))
     }
 
+    func testTryBlock_whenExceptionIsCaught_shouldLogWarning() throws {
+        // -- Arrange --
+        let logOutput = TestLogOutput(logsToConsole: false)
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLog.configureLog(true, diagnosticLevel: .warning)
+        defer { clearTestState() }
+
+        let exception = NSException(
+            name: .invalidArgumentException,
+            reason: "-[NSConcreteValue doubleValue]: unrecognized selector sent to instance 0x12e68f150",
+            userInfo: nil
+        )
+
+        // -- Act --
+        let result = SentryObjCExceptionHelper.tryBlock {
+            exception.raise()
+        }
+
+        // -- Assert --
+        XCTAssertFalse(result)
+        let loggedMessage = try XCTUnwrap(logOutput.loggedMessages.first)
+        XCTAssertTrue(loggedMessage.contains("[warning]"))
+        XCTAssertTrue(loggedMessage.contains("Caught Objective-C exception NSInvalidArgumentException"))
+        XCTAssertTrue(loggedMessage.contains("-[NSConcreteValue doubleValue]: unrecognized selector"))
+        XCTAssertEqual(logOutput.loggedMessages.count, 1, "Should log exactly one warning for the caught exception")
+    }
+
     func testRedactRegionsFor_whenSublayersAccessThrows_shouldNotCrash() throws {
         // -- Arrange --
         let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
