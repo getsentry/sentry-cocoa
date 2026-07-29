@@ -169,6 +169,24 @@ class SentryUIRedactBuilderTests_LayerTraversalCrash: SentryUIRedactBuilderTests
         XCTAssertEqual(throwingRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 40))
     }
 
+    func testRedactRegionsFor_whenUnmaskedSublayersAccessThrows_shouldNotRedactLayer() throws {
+        // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let throwingView = ThrowingSublayersView(frame: rootView.bounds)
+        SentryRedactViewHelper.unmaskView(throwingView)
+        rootView.addSubview(throwingView)
+
+        // -- Act --
+        let throwingLayer = try XCTUnwrap(throwingView.layer as? ThrowingSublayersLayer)
+        throwingLayer.shouldThrowWhenAccessingSublayers = true
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: rootView)
+        throwingLayer.shouldThrowWhenAccessingSublayers = false
+
+        // -- Assert --
+        XCTAssertEqual(result.count, 0)
+    }
+
     func testRedactRegionsFor_whenRootSublayersAccessThrows_shouldNotCrash() throws {
         // -- Arrange --
         // The root view itself is backed by a layer whose sublayers access throws.

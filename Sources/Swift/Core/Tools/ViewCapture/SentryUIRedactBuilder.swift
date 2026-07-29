@@ -632,12 +632,14 @@ final class SentryUIRedactBuilder {
             // needs redacting. To avoid leaking unmasked content (e.g. text or images in children we could
             // not enumerate), we redact the whole layer bounds. This mirrors `isViewSubtreeIgnored`, which
             // also redacts the full region when it must skip a crash-prone subtree.
-            redacting.append(SentryRedactRegion(
-                size: layer.bounds.size,
-                transform: newTransform,
-                type: .redact,
-                name: type(of: layer).description()
-            ))
+            if !enforceIgnore {
+                redacting.append(SentryRedactRegion(
+                    size: layer.bounds.size,
+                    transform: newTransform,
+                    type: .redact,
+                    name: type(of: layer).description()
+                ))
+            }
             return
         }
         guard subLayers.count > 0 else {
