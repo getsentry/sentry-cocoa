@@ -102,6 +102,49 @@ class SentryInternalEnvelopeApiIntegrationTests: XCTestCase {
         XCTAssertEqual("crashed", try XCTUnwrap(attachedSession["status"] as? String))
     }
 
+    // MARK: - captureNonTerminating
+
+    func testCaptureNonTerminating_shouldForwardToClient() {
+        // -- Arrange --
+        let client = TestClient(options: Options())
+        SentrySDKInternal.setCurrentHub(TestHub(client: client, andScope: nil))
+
+        let envelope = TestConstants.envelope
+
+        // -- Act --
+        SentrySDK.internal.envelope.captureNonTerminating(envelope)
+
+        // -- Assert --
+        XCTAssertEqual(1, client?.captureEnvelopeInvocations.count)
+        XCTAssertEqual(envelope, client?.captureEnvelopeInvocations.first)
+    }
+
+    func testCaptureNonTerminating_whenUnhandledException_shouldKeepSessionOkAndNotStartNewSession() throws {
+        // -- Arrange --
+        let client = TestClient(options: Options())
+        let hub = TestHub(client: client, andScope: nil)
+        SentrySDKInternal.setCurrentHub(hub)
+        hub.setTestSession()
+        let session = try XCTUnwrap(hub.session)
+        let sessionId = session.sessionId
+
+        let envelope = makeUnhandledExceptionEnvelope()
+
+        // -- Act --
+        SentrySDK.internal.envelope.captureNonTerminating(envelope)
+
+        // -- Assert --
+        let capturedEnvelope = try XCTUnwrap(client?.captureEnvelopeInvocations.first)
+        XCTAssertIdentical(envelope, capturedEnvelope)
+        XCTAssertNil(capturedEnvelope.items.first(where: { $0.header.type == "session" }))
+
+        XCTAssertEqual(0, hub.startSessionInvocations)
+        XCTAssertEqual(sessionId, try XCTUnwrap(hub.session).sessionId)
+        XCTAssertEqual(SentrySessionStatus.ok, session.status)
+        XCTAssertTrue(session.pendingUnhandled)
+        XCTAssertEqual(1, session.errors)
+    }
+
     // MARK: - deserialize
 
     func testDeserialize_whenValidData_shouldReturnEnvelope() {

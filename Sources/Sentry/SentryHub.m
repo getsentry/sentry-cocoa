@@ -221,7 +221,9 @@ NS_ASSUME_NONNULL_BEGIN
             timestamp = session.started;
             [session endSessionAbnormalWithTimestamp:SENTRY_UNWRAP_NULLABLE(NSDate, timestamp)];
         } else {
-            SENTRY_LOG_DEBUG(@"Closing cached session as exited.");
+            SENTRY_LOG_DEBUG(@"Closing cached session normally.");
+            // Ends the session as unhandled when it's marked pending unhandled, otherwise as
+            // exited.
             [session endSessionExitedWithTimestamp:SENTRY_UNWRAP_NULLABLE(NSDate, timestamp)];
         }
         [self deleteCurrentSession];
@@ -781,6 +783,58 @@ NS_ASSUME_NONNULL_BEGIN
     // If captured envelope contains not handled errors, these are not going to crash the app and
     // we should create new session.
     [client captureEnvelope:[self updateSessionState:envelope startNewSession:YES]];
+}
+
+/**
+ * Needed by hybrid SDKs such as Flutter, where an unhandled exception doesn't terminate the
+ * process. Instead of ending the session as crashed, this keeps the session running and marks it,
+ * so it ends as unhandled.
+ */
+- (void)captureNonTerminatingEnvelope:(id)envelope
+{
+    SentryClientInternal *client = self.client;
+    if (client == nil) {
+        return;
+    }
+
+    [client captureEnvelope:[self updateSessionStateForNonTerminatingEnvelope:envelope]];
+}
+
+- (SentryEnvelope *)updateSessionStateForNonTerminatingEnvelope:(SentryEnvelope *)envelope
+{
+    BOOL handled = YES;
+    if (![self envelopeContainsEventWithErrorOrHigher:envelope.items wasHandled:&handled]) {
+        return envelope;
+    }
+
+    if (!handled) {
+        @synchronized(_sessionLock) {
+            if (_session == nil) {
+                _errorsBeforeSession++;
+                return envelope;
+            }
+
+            [_session incrementErrors];
+            [_session markPendingUnhandled];
+            [self storeCurrentSession:SENTRY_UNWRAP_NULLABLE(SentrySession, _session)];
+            SENTRY_LOG_DEBUG(@"Marking session as pending unhandled: %@",
+                [self createSessionDebugString:SENTRY_UNWRAP_NULLABLE(SentrySession, _session)]);
+        }
+
+        // The session stays open, so there is nothing to report yet. Sending the session with the
+        // unhandled status happens when it ends.
+        return envelope;
+    }
+
+    SentrySession *currentSession = [self incrementSessionErrors];
+    if (currentSession == nil) {
+        return envelope;
+    }
+
+    NSMutableArray<SentryEnvelopeItem *> *itemsToSend =
+        [[NSMutableArray alloc] initWithArray:envelope.items];
+    [itemsToSend addObject:[[SentryEnvelopeItem alloc] initWithSession:currentSession]];
+    return [[SentryEnvelope alloc] initWithHeader:envelope.header items:itemsToSend];
 }
 
 - (SentryEnvelope *)updateSessionState:(SentryEnvelope *)envelope

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add `SentrySDK.internal.envelope.captureNonTerminating` for hybrid SDKs, which keeps the current session running and reports it with the `unhandled` status when an unhandled exception doesn't terminate the process (#8585)
+
 ### Breaking Changes
 
 - Only expose `experimental.dataCollection` APIs in SDK V10 (#8435)
