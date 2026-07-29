@@ -39785,28 +39785,20 @@
             ],
             "declAttributes": [
               "Available",
-              "Available",
               "Final",
               "ObjC"
             ],
             "declKind": "Func",
-            "deprecated": true,
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A11FeedbackAPIC10hideWidgetyyF",
+            "mangledName": "$s6Sentry0A11FeedbackAPIC07disableB7OnShakeyyF",
             "moduleName": "Sentry",
-            "name": "hideWidget",
-            "printedName": "hideWidget()",
-            "usr": "c:@M@Sentry@objc(cs)SentryFeedbackAPI(im)hideWidget"
+            "name": "disableFeedbackOnShake",
+            "printedName": "disableFeedbackOnShake()",
+            "usr": "c:@M@Sentry@objc(cs)SentryFeedbackAPI(im)disableFeedbackOnShake"
           },
           {
             "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Bool",
-                "printedName": "Swift.Bool",
-                "usr": "s:Sb"
-              },
               {
                 "kind": "TypeNominal",
                 "name": "Void",
@@ -39821,11 +39813,35 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A11FeedbackAPIC22setShakeGestureEnabledyySbF",
+            "mangledName": "$s6Sentry0A11FeedbackAPIC06enableB7OnShakeyyF",
             "moduleName": "Sentry",
-            "name": "setShakeGestureEnabled",
-            "printedName": "setShakeGestureEnabled(_:)",
-            "usr": "c:@M@Sentry@objc(cs)SentryFeedbackAPI(im)setShakeGestureEnabled:"
+            "name": "enableFeedbackOnShake",
+            "printedName": "enableFeedbackOnShake()",
+            "usr": "c:@M@Sentry@objc(cs)SentryFeedbackAPI(im)enableFeedbackOnShake"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "Available",
+              "Available",
+              "Final",
+              "ObjC"
+            ],
+            "declKind": "Func",
+            "deprecated": true,
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A11FeedbackAPIC10hideWidgetyyF",
+            "moduleName": "Sentry",
+            "name": "hideWidget",
+            "printedName": "hideWidget()",
+            "usr": "c:@M@Sentry@objc(cs)SentryFeedbackAPI(im)hideWidget"
           },
           {
             "children": [

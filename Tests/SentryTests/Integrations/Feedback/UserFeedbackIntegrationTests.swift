@@ -495,7 +495,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         withExtendedLifetime(sut) { }
     }
 
-    func testFeedbackAPI_setShakeGestureEnabled_whenConfigured_shouldPresentFormOnShake() throws {
+    func testFeedbackAPI_enableFeedbackOnShake_whenConfigured_shouldPresentFormOnShake() throws {
         let window = makeWindow()
         let viewController = TestPresentingViewController()
         let integration = try installFeedbackIntegration { $0.animations = false }
@@ -505,7 +505,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         NotificationCenter.default.post(name: .SentryShakeDetected, object: nil)
         XCTAssertFalse(integration.driver.displayingForm)
 
-        SentrySDK.feedback.setShakeGestureEnabled(true)
+        SentrySDK.feedback.enableFeedbackOnShake()
         NotificationCenter.default.post(name: .SentryShakeDetected, object: nil)
 
         _ = try XCTUnwrap(viewController.lastPresentedViewController as? SentryUserFeedbackFormController)
@@ -514,11 +514,29 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         withExtendedLifetime(window) { }
     }
 
-    func testFeedbackAPI_setShakeGestureEnabled_whenFeedbackNotConfigured_shouldNotCrash() {
+    func testFeedbackAPI_disableFeedbackOnShake_whenConfigured_shouldSuppressFormOnShake() throws {
+        let window = makeWindow()
+        let viewController = TestPresentingViewController()
+        let integration = try installFeedbackIntegration {
+            $0.animations = false
+            $0.useShakeGesture = true
+        }
+        useFallbackPresenter(viewController, in: window)
+
+        SentrySDK.feedback.disableFeedbackOnShake()
+        NotificationCenter.default.post(name: .SentryShakeDetected, object: nil)
+
+        XCTAssertFalse(integration.driver.displayingForm)
+        XCTAssertEqual(viewController.presentCallCount, 0)
+
+        withExtendedLifetime(window) { }
+    }
+
+    func testFeedbackAPI_feedbackOnShake_whenFeedbackNotConfigured_shouldNotCrash() {
         clearTestState()
 
-        SentrySDK.feedback.setShakeGestureEnabled(true)
-        SentrySDK.feedback.setShakeGestureEnabled(false)
+        SentrySDK.feedback.enableFeedbackOnShake()
+        SentrySDK.feedback.disableFeedbackOnShake()
     }
 
     @available(*, deprecated, message: "Testing deprecated widget configuration")

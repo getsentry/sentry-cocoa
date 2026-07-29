@@ -40,8 +40,13 @@ import UIKit
     }
 
     @available(iOSApplicationExtension, unavailable)
-    @objc public func setShakeGestureEnabled(_ enabled: Bool) {
-        wrapped.setShakeGestureEnabled(enabled)
+    @objc public func enableFeedbackOnShake() {
+        wrapped.enableFeedbackOnShake()
+    }
+
+    @available(iOSApplicationExtension, unavailable)
+    @objc public func disableFeedbackOnShake() {
+        wrapped.disableFeedbackOnShake()
     }
 
 #if !SDK_V10

@@ -1854,6 +1854,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "disableFeedbackOnShake",
+    "parent": "SentryObjCFeedbackApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "discardFor:",
     "parent": "SentryObjCInternalProfilingApi",
     "returnType": "void",
@@ -2060,6 +2067,13 @@
     "name": "enableFastViewRendering",
     "parent": "SentryObjCReplayOptions",
     "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "enableFeedbackOnShake",
+    "parent": "SentryObjCFeedbackApi",
+    "returnType": "void",
     "instance": true
   },
   {
@@ -7169,13 +7183,6 @@
     "kind": "ObjCMethodDecl",
     "name": "setSeverityNumber:",
     "parent": "SentryObjCLog",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "setShakeGestureEnabled:",
-    "parent": "SentryObjCFeedbackApi",
     "returnType": "void",
     "instance": true
   },
