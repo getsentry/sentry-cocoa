@@ -80,7 +80,9 @@ cp "$DIST_DIR/LICENSE.md" "$STAGING_DIR/LICENSE.md"
 mkdir -p "$STAGING_DIR/Sources/SentryCppHelper"
 cp "$DIST_DIR/Sources/SentryCppHelper/SentryCppHelper.swift" "$STAGING_DIR/Sources/SentryCppHelper/SentryCppHelper.swift"
 
+log_info "Preparing CHANGELOG.md for version $VERSION"
 cp "$REPO_ROOT/CHANGELOG.md" "$STAGING_DIR/CHANGELOG.md"
+sed -i.bak "s/^## Unreleased$/## ${VERSION}/" "$STAGING_DIR/CHANGELOG.md"
 
 log_info "Stamping version $VERSION into Package.swift"
 sed -i.bak "s|releases/download/[^/]*/|releases/download/${VERSION}/|g" "$STAGING_DIR/Package.swift"
