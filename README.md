@@ -29,9 +29,6 @@ To see all available installation options and how to integrate Sentry into your 
 > [!NOTE]
 > CocoaPods support has been dropped. The last version available via CocoaPods is [9.19.1](https://github.com/getsentry/sentry-cocoa/releases/tag/9.19.1). Please migrate to SPM or XCFrameworks.
 
-> [!WARNING]
-> **The minimum macOS deployment target will be raised to macOS 12 (Monterey)** with the upcoming release that adopts Xcode 27. Xcode 27 no longer supports deployment targets below macOS 12. If your app must support macOS 11 or earlier, please stay on the last SDK version released before this change. See [#8113](https://github.com/getsentry/sentry-cocoa/issues/8113) for full details.
-
 # Initialization
 
 _Remember to call this as early in your application life cycle as possible_
