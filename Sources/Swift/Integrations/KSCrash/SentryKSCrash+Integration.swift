@@ -33,11 +33,13 @@ extension SentryKSCrash {
             self.options = options
             super.init()
 
+            let installer = dependencies.kscrashInstaller
+
             // To match KSCrash & SentryCrash, we need to add 'KSCrash/<bundlename>' to the cacheDirectoryPath
             let installPath = Self.installPath(for: options.cacheDirectoryPath, bundleInfo: Bundle.main.infoDictionary)
 
             do {
-                try dependencies.kscrashInstaller.install(
+                try installer.install(
                     installPath: installPath.path,
                     monitors: productionSafeMonitors,
                     enableSwapCxaThrow: options.experimental.enableUnhandledCPPExceptionsV2
@@ -48,7 +50,7 @@ extension SentryKSCrash {
             }
 
             SentrySDKInternal.crashReporterInstalled = true
-            if dependencies.kscrashInstaller.crashedLastLaunch {
+            if installer.crashedLastLaunch {
                 SentrySDKInternal.fatalDetected = true
                 SentrySDKInternal.crashHandlerDetectedCrash = true
             }
