@@ -23,14 +23,16 @@
 // THE SOFTWARE.
 //
 
-#include "SentryCrashStackCursor_MachineContext.h"
+#if !ENABLE_KSCRASH
 
-#include "SentryCrashCPU.h"
-#include "SentryCrashMemory.h"
+#    include "SentryCrashStackCursor_MachineContext.h"
 
-#include <stdlib.h>
+#    include "SentryCrashCPU.h"
+#    include "SentryCrashMemory.h"
 
-#include "SentryAsyncSafeLog.h"
+#    include <stdlib.h>
+
+#    include "SentryAsyncSafeLog.h"
 
 /** Represents an entry in a frame list.
  * This is modeled after the various i386/x64 frame walkers in the xnu source,
@@ -130,3 +132,5 @@ sentrycrashsc_initWithMachineContext(SentryCrashStackCursor *cursor, int maxStac
     context->maxStackDepth = maxStackDepth;
     context->instructionAddress = cursor->stackEntry.address;
 }
+
+#endif // !ENABLE_KSCRASH

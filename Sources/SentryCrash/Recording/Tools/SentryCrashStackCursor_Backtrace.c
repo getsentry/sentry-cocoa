@@ -23,10 +23,12 @@
 // THE SOFTWARE.
 //
 
-#include "SentryCrashStackCursor_Backtrace.h"
-#include "SentryCrashCPU.h"
+#if !ENABLE_KSCRASH
 
-#include "SentryAsyncSafeLog.h"
+#    include "SentryCrashStackCursor_Backtrace.h"
+#    include "SentryCrashCPU.h"
+
+#    include "SentryAsyncSafeLog.h"
 
 static bool
 advanceCursor(SentryCrashStackCursor *cursor)
@@ -59,3 +61,5 @@ sentrycrashsc_initWithBacktrace(SentryCrashStackCursor *cursor, const uintptr_t 
     context->backtraceLength = backtraceLength;
     context->backtrace = backtrace;
 }
+
+#endif // !ENABLE_KSCRASH

@@ -25,20 +25,22 @@
 // THE SOFTWARE.
 //
 
-#include "SentryCrashReportStore.h"
-#include "SentryAsyncSafeLog.h"
-#include "SentryCrashFileUtils.h"
+#if !ENABLE_KSCRASH
 
-#include <dirent.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <inttypes.h>
-#include <pthread.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <unistd.h>
+#    include "SentryCrashReportStore.h"
+#    include "SentryAsyncSafeLog.h"
+#    include "SentryCrashFileUtils.h"
+
+#    include <dirent.h>
+#    include <errno.h>
+#    include <fcntl.h>
+#    include <inttypes.h>
+#    include <pthread.h>
+#    include <stdio.h>
+#    include <stdlib.h>
+#    include <string.h>
+#    include <time.h>
+#    include <unistd.h>
 
 static int g_maxReportCount = 5;
 // Have to use max 32-bit atomics because of MIPS.
@@ -246,7 +248,7 @@ sentrycrashcrs_getNextCrashReportPath(char *crashReportPathBuffer)
     getCrashReportPathByID(getNextUniqueID(), crashReportPathBuffer);
 }
 
-#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 void
 sentrycrashcrs_initializeIDsWithTimeForTests(const struct tm *reportTime)
 {
@@ -254,7 +256,7 @@ sentrycrashcrs_initializeIDsWithTimeForTests(const struct tm *reportTime)
     initializeIDsFromTime(reportTime);
     pthread_mutex_unlock(&g_mutex);
 }
-#endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 
 int
 sentrycrashcrs_getReportCount(void)
@@ -360,3 +362,5 @@ sentrycrashcrs_setMaxReportCount(int maxReportCount)
 {
     g_maxReportCount = maxReportCount;
 }
+
+#endif // !ENABLE_KSCRASH

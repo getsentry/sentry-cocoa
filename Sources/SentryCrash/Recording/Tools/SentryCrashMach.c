@@ -22,16 +22,18 @@
 // THE SOFTWARE.
 //
 
-#include "SentryCrashMach.h"
+#if !ENABLE_KSCRASH
 
-#include <mach/mach.h>
-#include <stdlib.h>
+#    include "SentryCrashMach.h"
 
-#if defined(__arm__) || defined(__arm64__)
-#    include <mach/arm/exception.h>
-#endif /* defined (__arm__) || defined (__arm64__) */
+#    include <mach/mach.h>
+#    include <stdlib.h>
 
-#define RETURN_NAME_FOR_ENUM(A)                                                                    \
+#    if defined(__arm__) || defined(__arm64__)
+#        include <mach/arm/exception.h>
+#    endif /* defined (__arm__) || defined (__arm64__) */
+
+#    define RETURN_NAME_FOR_ENUM(A)                                                                \
     case A:                                                                                        \
         return #A
 
@@ -109,7 +111,7 @@ sentrycrashmach_kernelReturnCodeName(const int64_t returnCode)
         RETURN_NAME_FOR_ENUM(KERN_OPERATION_TIMED_OUT);
         RETURN_NAME_FOR_ENUM(KERN_CODESIGN_ERROR);
 
-#if defined(__arm__) || defined(__arm64__)
+#    if defined(__arm__) || defined(__arm64__)
         /*
          * Located at mach/arm/exception.h
          * For EXC_BAD_ACCESS
@@ -120,11 +122,13 @@ sentrycrashmach_kernelReturnCodeName(const int64_t returnCode)
         RETURN_NAME_FOR_ENUM(EXC_ARM_SP_ALIGN);
         RETURN_NAME_FOR_ENUM(EXC_ARM_SWP);
         RETURN_NAME_FOR_ENUM(EXC_ARM_PAC_FAIL);
-#endif /* defined (__arm__) || defined (__arm64__) */
+#    endif /* defined (__arm__) || defined (__arm64__) */
     }
     return NULL;
 }
 
-#define EXC_UNIX_BAD_SYSCALL 0x10000 /* SIGSYS */
-#define EXC_UNIX_BAD_PIPE 0x10001 /* SIGPIPE */
-#define EXC_UNIX_ABORT 0x10002 /* SIGABRT */
+#    define EXC_UNIX_BAD_SYSCALL 0x10000 /* SIGSYS */
+#    define EXC_UNIX_BAD_PIPE 0x10001 /* SIGPIPE */
+#    define EXC_UNIX_ABORT 0x10002 /* SIGABRT */
+
+#endif // !ENABLE_KSCRASH

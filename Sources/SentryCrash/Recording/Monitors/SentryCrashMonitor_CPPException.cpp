@@ -23,36 +23,38 @@
 // THE SOFTWARE.
 //
 
-#include "SentryCrashMonitor_CPPException.h"
-#include "SentryCompiler.h"
-#include "SentryCrashCxaThrowSwapper.h"
-#include "SentryCrashID.h"
-#include "SentryCrashMachineContext.h"
-#include "SentryCrashMonitorContext.h"
-#include "SentryCrashStackCursor_SelfThread.h"
-#include "SentryCrashThread.h"
+#if !ENABLE_KSCRASH
 
-#include "SentryAsyncSafeLog.h"
+#    include "SentryCrashMonitor_CPPException.h"
+#    include "SentryCompiler.h"
+#    include "SentryCrashCxaThrowSwapper.h"
+#    include "SentryCrashID.h"
+#    include "SentryCrashMachineContext.h"
+#    include "SentryCrashMonitorContext.h"
+#    include "SentryCrashStackCursor_SelfThread.h"
+#    include "SentryCrashThread.h"
 
-#include <cxxabi.h>
-#include <dlfcn.h>
-#include <exception>
-#include <objc/runtime.h>
-#include <ptrauth.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <typeinfo>
+#    include "SentryAsyncSafeLog.h"
 
-#define STACKTRACE_BUFFER_LENGTH 30
-#define DESCRIPTION_BUFFER_LENGTH 1000
+#    include <cxxabi.h>
+#    include <dlfcn.h>
+#    include <exception>
+#    include <objc/runtime.h>
+#    include <ptrauth.h>
+#    include <stdio.h>
+#    include <stdlib.h>
+#    include <string.h>
+#    include <typeinfo>
+
+#    define STACKTRACE_BUFFER_LENGTH 30
+#    define DESCRIPTION_BUFFER_LENGTH 1000
 
 // Compiler hints for "if" statements
-#define likely_if(x) if (__builtin_expect(x, 1))
-#define unlikely_if(x) if (__builtin_expect(x, 0))
+#    define likely_if(x) if (__builtin_expect(x, 1))
+#    define unlikely_if(x) if (__builtin_expect(x, 0))
 
 // ============================================================================
-#pragma mark - Globals -
+#    pragma mark - Globals -
 // ============================================================================
 
 /** True if this handler has been installed. */
@@ -72,7 +74,7 @@ static SentryCrash_MonitorContext g_monitorContext;
 static SentryCrashStackCursor g_stackCursor;
 
 // ============================================================================
-#pragma mark - Helpers -
+#    pragma mark - Helpers -
 // ============================================================================
 
 // The ObjC runtime uses a custom C++ type_info subclass (objc_typeinfo) for all Objective-C
@@ -147,7 +149,7 @@ isNSException(const std::type_info *tinfo)
 }
 
 // ============================================================================
-#pragma mark - Callbacks -
+#    pragma mark - Callbacks -
 // ============================================================================
 
 static NEVER_INLINE void
@@ -296,11 +298,11 @@ CPPExceptionTerminate(void)
             } catch (std::exception &exc) {
                 strlcpy(descriptionBuff, exc.what(), sizeof(descriptionBuff));
             }
-#define CATCH_VALUE(TYPE, PRINTFTYPE)                                                              \
-    catch (TYPE value)                                                                             \
-    {                                                                                              \
-        snprintf(descriptionBuff, sizeof(descriptionBuff), "%" #PRINTFTYPE, value);                \
-    }
+#    define CATCH_VALUE(TYPE, PRINTFTYPE)                                                          \
+        catch (TYPE value)                                                                         \
+        {                                                                                          \
+            snprintf(descriptionBuff, sizeof(descriptionBuff), "%" #PRINTFTYPE, value);            \
+        }
             CATCH_VALUE(char, d)
             CATCH_VALUE(short, d)
             CATCH_VALUE(int, d)
@@ -345,7 +347,7 @@ CPPExceptionTerminate(void)
 }
 
 // ============================================================================
-#pragma mark - Public API -
+#    pragma mark - Public API -
 // ============================================================================
 
 static void
@@ -406,3 +408,5 @@ sentrycrashcm_cppexception_getAPI(void)
     static SentryCrashMonitorAPI api = { .setEnabled = setEnabled, .isEnabled = isEnabled };
     return &api;
 }
+
+#endif // !ENABLE_KSCRASH

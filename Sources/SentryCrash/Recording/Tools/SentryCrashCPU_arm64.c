@@ -25,17 +25,19 @@
 // THE SOFTWARE.
 //
 
-#if defined(__arm64__)
+#if !ENABLE_KSCRASH
 
-#    include "SentryCrashCPU.h"
-#    include "SentryCrashCPU_Apple.h"
-#    include "SentryCrashMachineContext.h"
-#    include "SentryCrashMachineContext_Apple.h"
-#    include <stdlib.h>
+#    if defined(__arm64__)
 
-#    include "SentryAsyncSafeLog.h"
+#        include "SentryCrashCPU.h"
+#        include "SentryCrashCPU_Apple.h"
+#        include "SentryCrashMachineContext.h"
+#        include "SentryCrashMachineContext_Apple.h"
+#        include <stdlib.h>
 
-#    define KSPACStrippingMask_ARM64e 0x0000000fffffffff
+#        include "SentryAsyncSafeLog.h"
+
+#        define KSPACStrippingMask_ARM64e 0x0000000fffffffff
 
 static const char *g_registerNames[] = { "x0", "x1", "x2", "x3", "x4", "x5", "x6", "x7", "x8", "x9",
     "x10", "x11", "x12", "x13", "x14", "x15", "x16", "x17", "x18", "x19", "x20", "x21", "x22",
@@ -50,40 +52,40 @@ uintptr_t
 sentrycrashcpu_framePointer(const SentryCrashMachineContext *const context)
 {
     // We don't want this from stopping us to enable warnings as errors. This needs to be fixed.
-#    pragma clang diagnostic push
-#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#        pragma clang diagnostic push
+#        pragma GCC diagnostic ignored "-Wshorten-64-to-32"
     return arm_thread_state64_get_fp(context->machineContext.__ss);
-#    pragma clang diagnostic pop
+#        pragma clang diagnostic pop
 }
 
 uintptr_t
 sentrycrashcpu_stackPointer(const SentryCrashMachineContext *const context)
 {
     // We don't want this from stopping us to enable warnings as errors. This needs to be fixed.
-#    pragma clang diagnostic push
-#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#        pragma clang diagnostic push
+#        pragma GCC diagnostic ignored "-Wshorten-64-to-32"
     return arm_thread_state64_get_sp(context->machineContext.__ss);
-#    pragma clang diagnostic pop
+#        pragma clang diagnostic pop
 }
 
 uintptr_t
 sentrycrashcpu_instructionAddress(const SentryCrashMachineContext *const context)
 {
     // We don't want this from stopping us to enable warnings as errors. This needs to be fixed.
-#    pragma clang diagnostic push
-#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#        pragma clang diagnostic push
+#        pragma GCC diagnostic ignored "-Wshorten-64-to-32"
     return arm_thread_state64_get_pc(context->machineContext.__ss);
-#    pragma clang diagnostic pop
+#        pragma clang diagnostic pop
 }
 
 uintptr_t
 sentrycrashcpu_linkRegister(const SentryCrashMachineContext *const context)
 {
     // We don't want this from stopping us to enable warnings as errors. This needs to be fixed.
-#    pragma clang diagnostic push
-#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#        pragma clang diagnostic push
+#        pragma GCC diagnostic ignored "-Wshorten-64-to-32"
     return arm_thread_state64_get_lr(context->machineContext.__ss);
-#    pragma clang diagnostic pop
+#        pragma clang diagnostic pop
 }
 
 void
@@ -174,10 +176,10 @@ uintptr_t
 sentrycrashcpu_faultAddress(const SentryCrashMachineContext *const context)
 {
     // We don't want this from stopping us to enable warnings as errors. This needs to be fixed.
-#    pragma clang diagnostic push
-#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#        pragma clang diagnostic push
+#        pragma GCC diagnostic ignored "-Wshorten-64-to-32"
     return context->machineContext.__es.__far;
-#    pragma clang diagnostic pop
+#        pragma clang diagnostic pop
 }
 
 int
@@ -192,4 +194,6 @@ sentrycrashcpu_normaliseInstructionPointer(uintptr_t ip)
     return ip & KSPACStrippingMask_ARM64e;
 }
 
-#endif
+#    endif
+
+#endif // !ENABLE_KSCRASH

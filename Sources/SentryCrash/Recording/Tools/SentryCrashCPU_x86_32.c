@@ -25,15 +25,17 @@
 // THE SOFTWARE.
 //
 
-#if defined(__i386__)
+#if !ENABLE_KSCRASH
 
-#    include "SentryCrashCPU.h"
-#    include "SentryCrashCPU_Apple.h"
-#    include "SentryCrashMachineContext.h"
-#    include "SentryCrashMachineContext_Apple.h"
-#    include <stdlib.h>
+#    if defined(__i386__)
 
-#    include "SentryAsyncSafeLog.h"
+#        include "SentryCrashCPU.h"
+#        include "SentryCrashCPU_Apple.h"
+#        include "SentryCrashMachineContext.h"
+#        include "SentryCrashMachineContext_Apple.h"
+#        include <stdlib.h>
+
+#        include "SentryAsyncSafeLog.h"
 
 static const char *g_registerNames[] = {
     "eax",
@@ -203,4 +205,6 @@ sentrycrashcpu_normaliseInstructionPointer(uintptr_t ip)
     return ip;
 }
 
-#endif
+#    endif
+
+#endif // !ENABLE_KSCRASH

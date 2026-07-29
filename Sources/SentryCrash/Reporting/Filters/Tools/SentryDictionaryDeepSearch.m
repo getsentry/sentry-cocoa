@@ -25,7 +25,9 @@
 // THE SOFTWARE.
 //
 
-#import "SentryDictionaryDeepSearch.h"
+#if !ENABLE_KSCRASH
+
+#    import "SentryDictionaryDeepSearch.h"
 
 static BOOL
 isNumericString(NSString *str)
@@ -76,3 +78,5 @@ sentry_objectForKeyPath(NSDictionary *dict, NSString *keyPath)
 {
     return objectForKeyPath(dict, keyPath);
 }
+
+#endif // !ENABLE_KSCRASH

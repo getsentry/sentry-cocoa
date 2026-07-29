@@ -25,26 +25,28 @@
 // THE SOFTWARE.
 //
 
-#include "SentryCrashMachineContext.h"
-#include "SentryCrashCPU.h"
-#include "SentryCrashCPU_Apple.h"
-#include "SentryCrashMachineContext_Apple.h"
-#include "SentryCrashMonitor_MachException.h"
-#include "SentryCrashStackCursor_MachineContext.h"
-#include "SentryInternalCDefines.h"
+#if !ENABLE_KSCRASH
 
-#include <mach/mach.h>
+#    include "SentryCrashMachineContext.h"
+#    include "SentryCrashCPU.h"
+#    include "SentryCrashCPU_Apple.h"
+#    include "SentryCrashMachineContext_Apple.h"
+#    include "SentryCrashMonitor_MachException.h"
+#    include "SentryCrashStackCursor_MachineContext.h"
+#    include "SentryInternalCDefines.h"
 
-#include "SentryAsyncSafeLog.h"
+#    include <mach/mach.h>
 
-#ifdef __arm64__
-#    include <sys/_types/_ucontext64.h>
-#    define UC_MCONTEXT uc_mcontext64
+#    include "SentryAsyncSafeLog.h"
+
+#    ifdef __arm64__
+#        include <sys/_types/_ucontext64.h>
+#        define UC_MCONTEXT uc_mcontext64
 typedef ucontext64_t SignalUserContext;
-#else
-#    define UC_MCONTEXT uc_mcontext
+#    else
+#        define UC_MCONTEXT uc_mcontext
 typedef ucontext_t SignalUserContext;
-#endif
+#    endif
 
 static inline bool
 isStackOverflow(const SentryCrashMachineContext *const context)
@@ -166,7 +168,7 @@ void
 sentrycrashmc_suspendEnvironment_upToMaxSupportedThreads(thread_act_array_t *suspendedThreads,
     mach_msg_type_number_t *numSuspendedThreads, mach_msg_type_number_t maxSupportedThreads)
 {
-#if SENTRY_HAS_THREADS_API
+#    if SENTRY_HAS_THREADS_API
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Suspending environment.");
     kern_return_t kr;
     const task_t thisTask = mach_task_self();
@@ -195,14 +197,14 @@ sentrycrashmc_suspendEnvironment_upToMaxSupportedThreads(thread_act_array_t *sus
     }
 
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Suspend complete.");
-#endif
+#    endif
 }
 
 void
 sentrycrashmc_resumeEnvironment(
     __unused thread_act_array_t threads, __unused mach_msg_type_number_t numThreads)
 {
-#if SENTRY_HAS_THREADS_API
+#    if SENTRY_HAS_THREADS_API
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Resuming environment.");
     kern_return_t kr;
     const task_t thisTask = mach_task_self();
@@ -230,7 +232,7 @@ sentrycrashmc_resumeEnvironment(
     vm_deallocate(thisTask, (vm_address_t)threads, sizeof(thread_t) * numThreads);
 
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Resume complete.");
-#endif
+#    endif
 }
 
 int
@@ -288,3 +290,5 @@ sentrycrashmc_hasValidExceptionRegisters(const SentryCrashMachineContext *const 
 {
     return sentrycrashmc_canHaveCPUState(context) && sentrycrashmc_isCrashedContext(context);
 }
+
+#endif // !ENABLE_KSCRASH

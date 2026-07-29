@@ -46,14 +46,16 @@
 // @APPLE_LICENSE_HEADER_END@
 //
 
-#include "SentryCrashMach-O.h"
+#if !ENABLE_KSCRASH
 
-#include <mach-o/loader.h>
-#include <mach/mach.h>
-#include <string.h>
-#include <sys/types.h>
+#    include "SentryCrashMach-O.h"
 
-#include "SentryAsyncSafeLog.h"
+#    include <mach-o/loader.h>
+#    include <mach/mach.h>
+#    include <string.h>
+#    include <sys/types.h>
+
+#    include "SentryAsyncSafeLog.h"
 
 const struct load_command *
 sentrycrash_macho_getCommandByTypeFromHeader(const mach_header_t *header, uint32_t commandType)
@@ -149,17 +151,17 @@ sentrycrash_macho_getSectionProtection(void *sectionStart)
     vm_size_t size = 0;
     vm_address_t address = (vm_address_t)sectionStart;
     memory_object_name_t object;
-#if __LP64__
+#    if __LP64__
     mach_msg_type_number_t count = VM_REGION_BASIC_INFO_COUNT_64;
     vm_region_basic_info_data_64_t info;
     kern_return_t info_ret = vm_region_64(task, &address, &size, VM_REGION_BASIC_INFO_64,
         (vm_region_info_64_t)&info, &count, &object);
-#else
+#    else
     mach_msg_type_number_t count = VM_REGION_BASIC_INFO_COUNT;
     vm_region_basic_info_data_t info;
     kern_return_t info_ret = vm_region(
         task, &address, &size, VM_REGION_BASIC_INFO, (vm_region_info_t)&info, &count, &object);
-#endif
+#    endif
     if (info_ret == KERN_SUCCESS) {
         SENTRY_ASYNC_SAFE_LOG_DEBUG("Protection obtained: %d", info.protection);
         return info.protection;
@@ -169,3 +171,5 @@ sentrycrash_macho_getSectionProtection(void *sectionStart)
         return VM_PROT_READ;
     }
 }
+
+#endif // !ENABLE_KSCRASH

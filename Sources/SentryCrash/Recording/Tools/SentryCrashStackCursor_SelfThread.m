@@ -23,16 +23,18 @@
 // THE SOFTWARE.
 //
 
-#include "SentryCrashStackCursor_SelfThread.h"
-#include "SentryCrashStackCursor_Backtrace.h"
-#import <Foundation/Foundation.h>
-#include <execinfo.h>
+#if !ENABLE_KSCRASH
 
-#include "SentryAsyncSafeLog.h"
+#    include "SentryCrashStackCursor_SelfThread.h"
+#    include "SentryCrashStackCursor_Backtrace.h"
+#    import <Foundation/Foundation.h>
+#    include <execinfo.h>
 
-#define MAX_BACKTRACE_LENGTH                                                                       \
-    (SentryCrashSC_CONTEXT_SIZE                                                                    \
-        - sizeof(SentryCrashStackCursor_Backtrace_Context) / sizeof(void *) - 1)
+#    include "SentryAsyncSafeLog.h"
+
+#    define MAX_BACKTRACE_LENGTH                                                                   \
+        (SentryCrashSC_CONTEXT_SIZE                                                                \
+            - sizeof(SentryCrashStackCursor_Backtrace_Context) / sizeof(void *) - 1)
 
 typedef struct {
     SentryCrashStackCursor_Backtrace_Context SelfThreadContextSpacer;
@@ -53,7 +55,7 @@ sentrycrashsc_initSelfThread(SentryCrashStackCursor *cursor, int skipEntries)
     SelfThreadContext *context = (SelfThreadContext *)cursor->context;
 
 // backtrace_async api is only available from xcode 13 and macOS 12.0+ / iOS 15.0+
-#if __clang_major__ >= 13
+#    if __clang_major__ >= 13
     int backtraceLength;
     if (stitchSwiftAsync) {
         SENTRY_ASYNC_SAFE_LOG_DEBUG("Retrieving backtrace with async swift stitching...");
@@ -68,12 +70,14 @@ sentrycrashsc_initSelfThread(SentryCrashStackCursor *cursor, int skipEntries)
         SENTRY_ASYNC_SAFE_LOG_DEBUG("Retrieving backtrace without async swift stitching...");
         backtraceLength = backtrace((void **)context->backtrace, MAX_BACKTRACE_LENGTH);
     }
-#else
+#    else
     SENTRY_ASYNC_SAFE_LOG_DEBUG(
         "Retrieving backtrace without async swift stitching (old Xcode versions)...");
     int backtraceLength = backtrace((void **)context->backtrace, MAX_BACKTRACE_LENGTH);
-#endif
+#    endif
 
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Finished retrieving backtrace.");
     sentrycrashsc_initWithBacktrace(cursor, context->backtrace, backtraceLength, skipEntries + 1);
 }
+
+#endif // !ENABLE_KSCRASH

@@ -23,18 +23,20 @@
 // THE SOFTWARE.
 //
 
-#include "SentryCrashCachedData.h"
+#if !ENABLE_KSCRASH
 
-#include "SentryAsyncSafeLog.h"
+#    include "SentryCrashCachedData.h"
 
-#include <errno.h>
-#include <mach/mach.h>
-#include <memory.h>
-#include <pthread.h>
-#include <stdatomic.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
+#    include "SentryAsyncSafeLog.h"
+
+#    include <errno.h>
+#    include <mach/mach.h>
+#    include <memory.h>
+#    include <pthread.h>
+#    include <stdatomic.h>
+#    include <stdlib.h>
+#    include <string.h>
+#    include <unistd.h>
 
 // MARK: - Types
 
@@ -353,7 +355,7 @@ sentrycrashccd_hasThreadStarted(void)
 
 // MARK: - Testing
 
-#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
 void
 sentrycrashccd_test_clearActiveCache(void)
@@ -364,4 +366,6 @@ sentrycrashccd_test_clearActiveCache(void)
     atomic_store(&g_cacheEverCreated, false);
 }
 
-#endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+
+#endif // !ENABLE_KSCRASH

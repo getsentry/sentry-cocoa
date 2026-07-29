@@ -25,15 +25,17 @@
 // THE SOFTWARE.
 //
 
-#if defined(__arm__)
+#if !ENABLE_KSCRASH
 
-#    include "SentryCrashCPU.h"
-#    include "SentryCrashCPU_Apple.h"
-#    include "SentryCrashMachineContext.h"
-#    include "SentryCrashMachineContext_Apple.h"
-#    include <stdlib.h>
+#    if defined(__arm__)
 
-#    include "SentryAsyncSafeLog.h"
+#        include "SentryCrashCPU.h"
+#        include "SentryCrashCPU_Apple.h"
+#        include "SentryCrashMachineContext.h"
+#        include "SentryCrashMachineContext_Apple.h"
+#        include <stdlib.h>
+
+#        include "SentryAsyncSafeLog.h"
 
 static const char *g_registerNames[] = { "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9",
     "r10", "r11", "ip", "sp", "lr", "pc", "cpsr" };
@@ -167,4 +169,6 @@ sentrycrashcpu_normaliseInstructionPointer(uintptr_t ip)
     return ip;
 }
 
-#endif
+#    endif
+
+#endif // !ENABLE_KSCRASH

@@ -25,30 +25,32 @@
 // THE SOFTWARE.
 //
 
-#include "SentryCrashMonitor.h"
-#include "SentryCrashMonitorContext.h"
-#include "SentryCrashMonitorType.h"
+#if !ENABLE_KSCRASH
 
-#include "SentryCrashDebug.h"
-#include "SentryCrashMachineContext.h"
-#include "SentryCrashMonitor_AppState.h"
-#include "SentryCrashMonitor_CPPException.h"
-#include "SentryCrashMonitor_MachException.h"
-#include "SentryCrashMonitor_NSException.h"
-#include "SentryCrashMonitor_Signal.h"
-#include "SentryCrashMonitor_System.h"
-#include "SentryCrashThread.h"
-#include "SentryInternalCDefines.h"
+#    include "SentryCrashMonitor.h"
+#    include "SentryCrashMonitorContext.h"
+#    include "SentryCrashMonitorType.h"
 
-#include <memory.h>
+#    include "SentryCrashDebug.h"
+#    include "SentryCrashMachineContext.h"
+#    include "SentryCrashMonitor_AppState.h"
+#    include "SentryCrashMonitor_CPPException.h"
+#    include "SentryCrashMonitor_MachException.h"
+#    include "SentryCrashMonitor_NSException.h"
+#    include "SentryCrashMonitor_Signal.h"
+#    include "SentryCrashMonitor_System.h"
+#    include "SentryCrashThread.h"
+#    include "SentryInternalCDefines.h"
 
-#include "SentryAsyncSafeLog.h"
-#include <pthread.h>
-#include <stdatomic.h>
-#include <unistd.h>
+#    include <memory.h>
+
+#    include "SentryAsyncSafeLog.h"
+#    include <pthread.h>
+#    include <stdatomic.h>
+#    include <unistd.h>
 
 // ============================================================================
-#pragma mark - Globals -
+#    pragma mark - Globals -
 // ============================================================================
 
 typedef struct {
@@ -57,18 +59,18 @@ typedef struct {
 } Monitor;
 
 static Monitor g_monitors[] = {
-#if SENTRY_HAS_MACH
+#    if SENTRY_HAS_MACH
     {
         .monitorType = SentryCrashMonitorTypeMachException,
         .getAPI = sentrycrashcm_machexception_getAPI,
     },
-#endif
-#if SENTRY_HAS_SIGNAL
+#    endif
+#    if SENTRY_HAS_SIGNAL
     {
         .monitorType = SentryCrashMonitorTypeSignal,
         .getAPI = sentrycrashcm_signal_getAPI,
     },
-#endif
+#    endif
     {
         .monitorType = SentryCrashMonitorTypeNSException,
         .getAPI = sentrycrashcm_nsexception_getAPI,
@@ -97,7 +99,7 @@ static bool g_requiresAsyncSafety = false;
 static void (*g_onExceptionEvent)(struct SentryCrash_MonitorContext *monitorContext);
 
 // ============================================================================
-#pragma mark - API -
+#    pragma mark - API -
 // ============================================================================
 
 static inline SentryCrashMonitorAPI *
@@ -194,7 +196,7 @@ sentrycrashcm_getActiveMonitors(void)
 }
 
 // ============================================================================
-#pragma mark - Private API -
+#    pragma mark - Private API -
 // ============================================================================
 
 void
@@ -301,3 +303,5 @@ sentrycrashcm_resetState(void)
     atomic_store(&g_crashingThread, (pthread_t)0);
     g_requiresAsyncSafety = false;
 }
+
+#endif // !ENABLE_KSCRASH

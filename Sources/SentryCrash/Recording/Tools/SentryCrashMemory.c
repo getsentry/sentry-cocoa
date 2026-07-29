@@ -25,12 +25,14 @@
 // THE SOFTWARE.
 //
 
-#include "SentryCrashMemory.h"
+#if !ENABLE_KSCRASH
 
-#include "SentryAsyncSafeLog.h"
+#    include "SentryCrashMemory.h"
 
-#include <_types/_uint8_t.h>
-#include <mach/mach.h>
+#    include "SentryAsyncSafeLog.h"
+
+#    include <_types/_uint8_t.h>
+#    include <mach/mach.h>
 
 static inline int
 copySafely(const void *restrict const src, void *restrict const dst, const int byteCount)
@@ -137,3 +139,5 @@ sentrycrashmem_copySafely(
 {
     return copySafely(src, dst, byteCount);
 }
+
+#endif // !ENABLE_KSCRASH

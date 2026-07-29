@@ -25,14 +25,16 @@
 // THE SOFTWARE.
 //
 
-#include "SentryCrashCPU.h"
+#if !ENABLE_KSCRASH
 
-#include "SentryInternalCDefines.h"
+#    include "SentryCrashCPU.h"
 
-#include <mach-o/arch.h>
-#include <mach/mach.h>
+#    include "SentryInternalCDefines.h"
 
-#include "SentryAsyncSafeLog.h"
+#    include <mach-o/arch.h>
+#    include <mach/mach.h>
+
+#    include "SentryAsyncSafeLog.h"
 
 const char *
 sentrycrashcpu_currentArch(void)
@@ -44,7 +46,7 @@ sentrycrashcpu_currentArch(void)
     return NULL;
 }
 
-#if SENTRY_HAS_THREADS_API
+#    if SENTRY_HAS_THREADS_API
 bool
 sentrycrashcpu_i_fillState(const thread_t thread, const thread_state_t state,
     const thread_state_flavor_t flavor, const mach_msg_type_number_t stateCount)
@@ -60,7 +62,7 @@ sentrycrashcpu_i_fillState(const thread_t thread, const thread_state_t state,
     }
     return true;
 }
-#else
+#    else
 bool
 sentrycrashcpu_i_fillState(__unused const thread_t thread, __unused const thread_state_t state,
     __unused const thread_state_flavor_t flavor, __unused const mach_msg_type_number_t stateCount)
@@ -68,4 +70,6 @@ sentrycrashcpu_i_fillState(__unused const thread_t thread, __unused const thread
     return false;
 }
 
-#endif
+#    endif
+
+#endif // !ENABLE_KSCRASH

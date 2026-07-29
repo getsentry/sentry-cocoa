@@ -25,14 +25,16 @@
 // THE SOFTWARE.
 //
 
-#include "SentryCrashDebug.h"
+#if !ENABLE_KSCRASH
 
-#include "SentryAsyncSafeLog.h"
+#    include "SentryCrashDebug.h"
 
-#include <errno.h>
-#include <string.h>
-#include <sys/sysctl.h>
-#include <unistd.h>
+#    include "SentryAsyncSafeLog.h"
+
+#    include <errno.h>
+#    include <string.h>
+#    include <sys/sysctl.h>
+#    include <unistd.h>
 
 /** Check if the current process is being traced or not.
  *
@@ -63,3 +65,5 @@ sentrycrashdebug_isBeingTraced(void)
 
     return (procInfo.kp_proc.p_flag & P_TRACED) != 0;
 }
+
+#endif // !ENABLE_KSCRASH

@@ -25,18 +25,20 @@
 // THE SOFTWARE.
 //
 
-#import "SentryCrashInstallation.h"
-#import "SentryAsyncSafeLog.h"
-#import "SentryCrash.h"
-#import "SentryCrashInstallation+Private.h"
-#import "SentryCrashJSONCodecObjC.h"
-#import "SentryCrashNSErrorUtil.h"
-#import "SentryCrashReportFilterBasic.h"
-#import "SentrySwift.h"
-#import <objc/runtime.h>
+#if !ENABLE_KSCRASH
+
+#    import "SentryCrashInstallation.h"
+#    import "SentryAsyncSafeLog.h"
+#    import "SentryCrash.h"
+#    import "SentryCrashInstallation+Private.h"
+#    import "SentryCrashJSONCodecObjC.h"
+#    import "SentryCrashNSErrorUtil.h"
+#    import "SentryCrashReportFilterBasic.h"
+#    import "SentrySwift.h"
+#    import <objc/runtime.h>
 
 /** Max number of properties that can be defined for writing to the report */
-#define kMaxProperties 500
+#    define kMaxProperties 500
 
 static CrashHandlerData *g_crashHandlerData;
 
@@ -93,7 +95,6 @@ sentry_crashCallback(const SentryCrashReportWriter *writer)
 
 - (void)dealloc
 {
-#if !ENABLE_KSCRASH
     // SentryCrashSwift and SentryCrashBridge are SDK layer types excluded in KSCrash mode.
     SentryCrashSwift *handler = self.bridge.crashReporter;
     @synchronized(handler) {
@@ -102,7 +103,6 @@ sentry_crashCallback(const SentryCrashReportWriter *writer)
             [handler removeOnCrash];
         }
     }
-#endif
 }
 
 - (CrashHandlerData *)crashHandlerData
@@ -165,14 +165,11 @@ sentry_crashCallback(const SentryCrashReportWriter *writer)
 
 - (void)setBridgeObject:(id)bridge
 {
-#if !ENABLE_KSCRASH
     self.bridge = (SentryCrashBridge *)bridge;
-#endif
 }
 
 - (void)install:(NSString *)customCacheDirectory
 {
-#if !ENABLE_KSCRASH
     // SentryCrashSwift / SentryCrashBridge are SDK layer types excluded in KSCrash mode.
     SentryCrashSwift *handler = self.bridge.crashReporter;
     @synchronized(handler) {
@@ -181,12 +178,10 @@ sentry_crashCallback(const SentryCrashReportWriter *writer)
         [handler setupOnCrash];
         [handler install];
     }
-#endif
 }
 
 - (void)uninstall
 {
-#if !ENABLE_KSCRASH
     SentryCrashSwift *handler = self.bridge.crashReporter;
     @synchronized(handler) {
         if (g_crashHandlerData == self.crashHandlerData) {
@@ -195,7 +190,6 @@ sentry_crashCallback(const SentryCrashReportWriter *writer)
         }
         [handler uninstall];
     }
-#endif
 }
 
 - (void)sendAllReportsWithCompletion:(SentryCrashReportFilterCompletion)onCompletion
@@ -219,7 +213,6 @@ sentry_crashCallback(const SentryCrashReportWriter *writer)
 
     sink = [SentryCrashReportFilterPipeline filterWithFilters:sink, nil];
 
-#if !ENABLE_KSCRASH
     // SentryCrashSwift / SentryCrashBridge are SDK layer types excluded in KSCrash mode.
     SentryCrashSwift *handler = self.bridge.crashReporter;
     handler.sink =
@@ -228,7 +221,6 @@ sentry_crashCallback(const SentryCrashReportWriter *writer)
             [sink filterReports:array onCompletion:completion];
         }];
     [handler sendAllReportsWithCompletion:onCompletion];
-#endif
 }
 
 - (id<SentryCrashReportFilter>)sink
@@ -237,3 +229,4 @@ sentry_crashCallback(const SentryCrashReportWriter *writer)
 }
 
 @end
+#endif

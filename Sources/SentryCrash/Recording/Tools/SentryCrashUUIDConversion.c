@@ -1,4 +1,6 @@
-#include "SentryCrashUUIDConversion.h"
+#if !ENABLE_KSCRASH
+
+#    include "SentryCrashUUIDConversion.h"
 
 void
 sentrycrashdl_convertBinaryImageUUID(const unsigned char *src, char *dst)
@@ -32,3 +34,5 @@ sentrycrashdl_convertBinaryImageUUID(const unsigned char *src, char *dst)
     }
     *dst++ = '\0';
 }
+
+#endif // !ENABLE_KSCRASH

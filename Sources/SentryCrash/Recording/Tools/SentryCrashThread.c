@@ -25,17 +25,19 @@
 // THE SOFTWARE.
 //
 
-#include "SentryCrashThread.h"
+#if !ENABLE_KSCRASH
 
-#include "SentryCrashMemory.h"
-#include "SentryInternalCDefines.h"
+#    include "SentryCrashThread.h"
 
-#include "SentryAsyncSafeLog.h"
+#    include "SentryCrashMemory.h"
+#    include "SentryInternalCDefines.h"
 
-#include <dispatch/dispatch.h>
-#include <mach/mach.h>
-#include <pthread.h>
-#include <sys/sysctl.h>
+#    include "SentryAsyncSafeLog.h"
+
+#    include <dispatch/dispatch.h>
+#    include <mach/mach.h>
+#    include <pthread.h>
+#    include <sys/sysctl.h>
 
 SentryCrashThread
 sentrycrashthread_self(void)
@@ -53,3 +55,5 @@ sentrycrashthread_getThreadName(const SentryCrashThread thread, char *const buff
     const pthread_t pthread = pthread_from_mach_thread_np((thread_t)thread);
     return pthread_getname_np(pthread, buffer, (unsigned)bufLength) == 0;
 }
+
+#endif // !ENABLE_KSCRASH

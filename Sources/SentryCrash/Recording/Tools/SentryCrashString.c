@@ -25,14 +25,16 @@
 // THE SOFTWARE.
 //
 
-#include "SentryCrashString.h"
-#include "SentryInternalCDefines.h"
-#include <stdlib.h>
-#include <string.h>
+#if !ENABLE_KSCRASH
+
+#    include "SentryCrashString.h"
+#    include "SentryInternalCDefines.h"
+#    include <stdlib.h>
+#    include <string.h>
 
 // Compiler hints for "if" statements
-#define likely_if(x) if (__builtin_expect(x, 1))
-#define unlikely_if(x) if (__builtin_expect(x, 0))
+#    define likely_if(x) if (__builtin_expect(x, 1))
+#    define unlikely_if(x) if (__builtin_expect(x, 0))
 
 static const int g_printableControlChars[0x20] = {
     // Only tab, CR, and LF are considered printable
@@ -173,7 +175,7 @@ sentrycrashstring_isNullTerminatedUTF8String(const void *memory, int minLength, 
     return false;
 }
 
-#define INV 0xff
+#    define INV 0xff
 
 /** Lookup table for converting hex values to integers.
  * INV (0x11111) is used to mark invalid characters so that any attempted
@@ -467,3 +469,5 @@ sentrycrashstring_extractHexValue(const char *string, int stringLength, uint64_t
     }
     return false;
 }
+
+#endif // !ENABLE_KSCRASH

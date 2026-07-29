@@ -25,10 +25,12 @@
 // THE SOFTWARE.
 //
 
-#include "SentryCrashSignalInfo.h"
+#if !ENABLE_KSCRASH
 
-#include <signal.h>
-#include <stdlib.h>
+#    include "SentryCrashSignalInfo.h"
+
+#    include <signal.h>
+#    include <stdlib.h>
 
 typedef struct {
     const int code;
@@ -42,12 +44,12 @@ typedef struct {
     const int numCodes;
 } SentryCrashSignalInfo;
 
-#define ENUM_NAME_MAPPING(A) { A, #A }
+#    define ENUM_NAME_MAPPING(A) { A, #A }
 
 static const SentryCrashSignalCodeInfo g_sigIllCodes[] = {
-#ifdef ILL_NOOP
+#    ifdef ILL_NOOP
     ENUM_NAME_MAPPING(ILL_NOOP),
-#endif
+#    endif
     ENUM_NAME_MAPPING(ILL_ILLOPC),
     ENUM_NAME_MAPPING(ILL_ILLTRP),
     ENUM_NAME_MAPPING(ILL_PRVOPC),
@@ -65,9 +67,9 @@ static const SentryCrashSignalCodeInfo g_sigTrapCodes[] = {
 };
 
 static const SentryCrashSignalCodeInfo g_sigFPECodes[] = {
-#ifdef FPE_NOOP
+#    ifdef FPE_NOOP
     ENUM_NAME_MAPPING(FPE_NOOP),
-#endif
+#    endif
     ENUM_NAME_MAPPING(FPE_FLTDIV),
     ENUM_NAME_MAPPING(FPE_FLTOVF),
     ENUM_NAME_MAPPING(FPE_FLTUND),
@@ -79,24 +81,24 @@ static const SentryCrashSignalCodeInfo g_sigFPECodes[] = {
 };
 
 static const SentryCrashSignalCodeInfo g_sigBusCodes[] = {
-#ifdef BUS_NOOP
+#    ifdef BUS_NOOP
     ENUM_NAME_MAPPING(BUS_NOOP),
-#endif
+#    endif
     ENUM_NAME_MAPPING(BUS_ADRALN),
     ENUM_NAME_MAPPING(BUS_ADRERR),
     ENUM_NAME_MAPPING(BUS_OBJERR),
 };
 
 static const SentryCrashSignalCodeInfo g_sigSegVCodes[] = {
-#ifdef SEGV_NOOP
+#    ifdef SEGV_NOOP
     ENUM_NAME_MAPPING(SEGV_NOOP),
-#endif
+#    endif
     ENUM_NAME_MAPPING(SEGV_MAPERR),
     ENUM_NAME_MAPPING(SEGV_ACCERR),
 };
 
-#define SIGNAL_INFO(SIGNAL, CODES) { SIGNAL, #SIGNAL, CODES, sizeof(CODES) / sizeof(*CODES) }
-#define SIGNAL_INFO_NOCODES(SIGNAL) { SIGNAL, #SIGNAL, 0, 0 }
+#    define SIGNAL_INFO(SIGNAL, CODES) { SIGNAL, #SIGNAL, CODES, sizeof(CODES) / sizeof(*CODES) }
+#    define SIGNAL_INFO_NOCODES(SIGNAL) { SIGNAL, #SIGNAL, 0, 0 }
 
 static const SentryCrashSignalInfo g_fatalSignalData[] = {
     SIGNAL_INFO_NOCODES(SIGABRT),
@@ -170,3 +172,5 @@ sentrycrashsignal_numFatalSignals(void)
 {
     return g_fatalSignalsCount;
 }
+
+#endif // !ENABLE_KSCRASH

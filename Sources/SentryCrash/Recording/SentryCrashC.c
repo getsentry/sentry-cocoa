@@ -25,31 +25,33 @@
 // THE SOFTWARE.
 //
 
-#include "SentryCrashC.h"
+#if !ENABLE_KSCRASH
 
-#include "SentryCrashCachedData.h"
-#include "SentryCrashFileUtils.h"
-#include "SentryCrashMonitorContext.h"
-#include "SentryCrashMonitor_AppState.h"
-#include "SentryCrashMonitor_Signal.h"
-#include "SentryCrashMonitor_System.h"
-#include "SentryCrashObjC.h"
-#include "SentryCrashReport.h"
-#include "SentryCrashReportFixer.h"
-#include "SentryCrashReportStore.h"
-#include "SentryCrashString.h"
-#include "SentryInternalCDefines.h"
+#    include "SentryCrashC.h"
 
-#include "SentryAsyncSafeLog.h"
+#    include "SentryCrashCachedData.h"
+#    include "SentryCrashFileUtils.h"
+#    include "SentryCrashMonitorContext.h"
+#    include "SentryCrashMonitor_AppState.h"
+#    include "SentryCrashMonitor_Signal.h"
+#    include "SentryCrashMonitor_System.h"
+#    include "SentryCrashObjC.h"
+#    include "SentryCrashReport.h"
+#    include "SentryCrashReportFixer.h"
+#    include "SentryCrashReportStore.h"
+#    include "SentryCrashString.h"
+#    include "SentryInternalCDefines.h"
 
-#include "SentrySessionReplaySyncC.h"
-#include <inttypes.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#    include "SentryAsyncSafeLog.h"
+
+#    include "SentrySessionReplaySyncC.h"
+#    include <inttypes.h>
+#    include <stdio.h>
+#    include <stdlib.h>
+#    include <string.h>
 
 // ============================================================================
-#pragma mark - Globals -
+#    pragma mark - Globals -
 // ============================================================================
 
 /** True if SentryCrash has been installed. */
@@ -61,10 +63,10 @@ static void (*g_saveScreenShot)(const char *) = 0;
 static void (*g_saveViewHierarchy)(const char *) = 0;
 static void (*g_saveTransaction)(void) = 0;
 // ============================================================================
-#pragma mark - Utility -
+#    pragma mark - Utility -
 // ============================================================================
 
-#ifdef SENTRY_CRASH_MANAGED_RUNTIME
+#    ifdef SENTRY_CRASH_MANAGED_RUNTIME
 /** Preload signal handlers before the managed (.NET/Mono) runtime installs its
  * own, to ensure the correct handler chain order:
  * managed runtime -> SentryCrash -> system.
@@ -77,10 +79,10 @@ onPreload(void)
     }
     sentrycrashcm_setActiveMonitors(SentryCrashMonitorTypeSignal);
 }
-#endif
+#    endif
 
 // ============================================================================
-#pragma mark - Callbacks -
+#    pragma mark - Callbacks -
 // ============================================================================
 
 /** Called when a crash occurs.
@@ -133,7 +135,7 @@ onCrash(struct SentryCrash_MonitorContext *monitorContext)
 }
 
 // ============================================================================
-#pragma mark - API -
+#    pragma mark - API -
 // ============================================================================
 
 SentryCrashMonitorType
@@ -338,3 +340,5 @@ sentrycrash_invokeSaveTransaction(void)
         g_saveTransaction();
     }
 }
+
+#endif // !ENABLE_KSCRASH

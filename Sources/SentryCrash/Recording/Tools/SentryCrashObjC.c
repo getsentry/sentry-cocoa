@@ -25,43 +25,45 @@
 // THE SOFTWARE.
 //
 
-#include "SentryCrashObjC.h"
-#include "SentryCrashObjCApple.h"
+#if !ENABLE_KSCRASH
 
-#include "SentryCrashMemory.h"
-#include "SentryCrashString.h"
+#    include "SentryCrashObjC.h"
+#    include "SentryCrashObjCApple.h"
 
-#include "SentryAsyncSafeLog.h"
+#    include "SentryCrashMemory.h"
+#    include "SentryCrashString.h"
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED > 70000
-#    include <objc/NSObjCRuntime.h>
-#else
-#    if __LP64__ || (TARGET_OS_EMBEDDED && !TARGET_OS_IPHONE) || TARGET_OS_WIN32                   \
-        || NS_BUILD_32_LIKE_64
+#    include "SentryAsyncSafeLog.h"
+
+#    if __IPHONE_OS_VERSION_MAX_ALLOWED > 70000
+#        include <objc/NSObjCRuntime.h>
+#    else
+#        if __LP64__ || (TARGET_OS_EMBEDDED && !TARGET_OS_IPHONE) || TARGET_OS_WIN32               \
+            || NS_BUILD_32_LIKE_64
 typedef long NSInteger;
 typedef unsigned long NSUInteger;
-#    else
+#        else
 typedef int NSInteger;
 typedef unsigned int NSUInteger;
+#        endif
 #    endif
-#endif
-#include <CoreFoundation/CFBase.h>
-#include <CoreGraphics/CGBase.h>
-#include <inttypes.h>
-#include <objc/runtime.h>
+#    include <CoreFoundation/CFBase.h>
+#    include <CoreGraphics/CGBase.h>
+#    include <inttypes.h>
+#    include <objc/runtime.h>
 
-#define kMaxNameLength 128
+#    define kMaxNameLength 128
 
 //======================================================================
-#pragma mark - Macros -
+#    pragma mark - Macros -
 //======================================================================
 
 // Compiler hints for "if" statements
-#define likely_if(x) if (__builtin_expect(x, 1))
-#define unlikely_if(x) if (__builtin_expect(x, 0))
+#    define likely_if(x) if (__builtin_expect(x, 1))
+#    define unlikely_if(x) if (__builtin_expect(x, 0))
 
 //======================================================================
-#pragma mark - Types -
+#    pragma mark - Types -
 //======================================================================
 
 typedef enum {
@@ -83,7 +85,7 @@ typedef struct {
 } ClassData;
 
 //======================================================================
-#pragma mark - Globals -
+#    pragma mark - Globals -
 //======================================================================
 
 // Forward references
@@ -166,10 +168,10 @@ static int g_taggedClassDataCount = sizeof(g_taggedClassData) / sizeof(*g_tagged
 static const char *g_blockBaseClassName = "NSBlock";
 
 //======================================================================
-#pragma mark - Utility -
+#    pragma mark - Utility -
 //======================================================================
 
-#if SUPPORT_TAGGED_POINTERS
+#    if SUPPORT_TAGGED_POINTERS
 static bool
 isTaggedPointer(const void *pointer)
 {
@@ -185,7 +187,7 @@ getTaggedPayload(const void *pointer)
 {
     return (((uintptr_t)pointer) << TAG_PAYLOAD_LSHIFT) >> TAG_PAYLOAD_RSHIFT;
 }
-#else
+#    else
 static bool
 isTaggedPointer(__unused const void *pointer)
 {
@@ -201,7 +203,7 @@ getTaggedPayload(const void *pointer)
 {
     return (uintptr_t)pointer;
 }
-#endif
+#    endif
 
 /** Get class data for a tagged pointer.
  *
@@ -230,19 +232,19 @@ isValidTaggedPointer(const void *object)
 static const struct class_t *
 decodeIsaPointer(const void *const isaPointer)
 {
-#if ISA_TAG_MASK
+#    if ISA_TAG_MASK
     uintptr_t isa = (uintptr_t)isaPointer;
     if (isa & ISA_TAG_MASK) {
-#    if TARGET_OS_IOS && defined(__arm64__)
+#        if TARGET_OS_IOS && defined(__arm64__)
         if (floor(kCFCoreFoundationVersionNumber) <= kCFCoreFoundationVersionNumber_iOS_8_x_Max) {
             return (const struct class_t *)(isa & ISA_MASK_OLD);
         }
         return (const struct class_t *)(isa & ISA_MASK);
-#    else
+#        else
         return (const struct class_t *)(isa & ISA_MASK);
-#    endif
+#        endif
     }
-#endif
+#    endif
     return (const struct class_t *)isaPointer;
 }
 
@@ -352,11 +354,11 @@ static int64_t
 extractTaggedNSNumber(const void *const object)
 {
     intptr_t signedPointer = (intptr_t)object;
-#if SUPPORT_TAGGED_POINTERS
+#    if SUPPORT_TAGGED_POINTERS
     intptr_t value = (signedPointer << TAG_PAYLOAD_LSHIFT) >> TAG_PAYLOAD_RSHIFT;
-#else
+#    else
     intptr_t value = signedPointer & 0;
-#endif
+#    endif
 
     // The lower 4 bits encode type information so shift them out.
     return (int64_t)(value >> 4);
@@ -478,17 +480,17 @@ stringPrintf(char *buffer, int bufferLength, const char *fmt, ...)
 }
 
 //======================================================================
-#pragma mark - Validation -
+#    pragma mark - Validation -
 //======================================================================
 
 // Lookup table for validating class/ivar names and objc @encode types.
 // An ivar name must start with a letter, and can contain letters & numbers.
 // An ivar type can in theory be any combination of numbers, letters, and
 // symbols in the ASCII range (0x21-0x7e).
-#define INV 0 // Invalid.
-#define N_C 5 // Name character: Valid for anything except the first letter of a name.
-#define N_S 7 // Name start character: Valid for anything.
-#define T_C 4 // Type character: Valid for types only.
+#    define INV 0 // Invalid.
+#    define N_C 5 // Name character: Valid for anything except the first letter of a name.
+#    define N_S 7 // Name start character: Valid for anything.
+#    define T_C 4 // Type character: Valid for types only.
 
 static const unsigned int g_nameChars[] = {
     INV,
@@ -749,9 +751,9 @@ static const unsigned int g_nameChars[] = {
     INV,
 };
 
-#define VALID_NAME_CHAR(A) ((g_nameChars[(uint8_t)(A)] & 1) != 0)
-#define VALID_NAME_START_CHAR(A) ((g_nameChars[(uint8_t)(A)] & 2) != 0)
-#define VALID_TYPE_CHAR(A) ((g_nameChars[(uint8_t)(A)] & 7) != 0)
+#    define VALID_NAME_CHAR(A) ((g_nameChars[(uint8_t)(A)] & 1) != 0)
+#    define VALID_NAME_START_CHAR(A) ((g_nameChars[(uint8_t)(A)] & 2) != 0)
+#    define VALID_TYPE_CHAR(A) ((g_nameChars[(uint8_t)(A)] & 7) != 0)
 
 static bool
 isValidName(const char *const name, const int maxLength)
@@ -930,7 +932,7 @@ isValidObject(const void *objectPtr)
 }
 
 //======================================================================
-#pragma mark - Basic Objective-C Queries -
+#    pragma mark - Basic Objective-C Queries -
 //======================================================================
 
 const void *
@@ -1192,7 +1194,7 @@ sentrycrashobjc_objectType(const void *objectOrClassPtr)
 }
 
 //======================================================================
-#pragma mark - Unknown Object -
+#    pragma mark - Unknown Object -
 //======================================================================
 
 static bool
@@ -1230,7 +1232,7 @@ taggedObjectDescription(const void *object, char *buffer, int bufferLength)
 }
 
 //======================================================================
-#pragma mark - NSString -
+#    pragma mark - NSString -
 //======================================================================
 
 static inline const char *
@@ -1309,11 +1311,11 @@ sentrycrashobjc_stringLength(const void *const stringPtr)
     }
 }
 
-#define kUTF16_LeadSurrogateStart 0xd800u
-#define kUTF16_LeadSurrogateEnd 0xdbffu
-#define kUTF16_TailSurrogateStart 0xdc00u
-#define kUTF16_TailSurrogateEnd 0xdfffu
-#define kUTF16_FirstSupplementaryPlane 0x10000u
+#    define kUTF16_LeadSurrogateStart 0xd800u
+#    define kUTF16_LeadSurrogateEnd 0xdbffu
+#    define kUTF16_TailSurrogateStart 0xdc00u
+#    define kUTF16_TailSurrogateEnd 0xdfffu
+#    define kUTF16_FirstSupplementaryPlane 0x10000u
 
 static int
 copyAndConvertUTF16StringToUTF8(
@@ -1463,7 +1465,7 @@ taggedStringDescription(const void *object, char *buffer, __unused int bufferLen
 }
 
 //======================================================================
-#pragma mark - NSURL -
+#    pragma mark - NSURL -
 //======================================================================
 
 static bool
@@ -1498,7 +1500,7 @@ urlDescription(const void *object, char *buffer, int bufferLength)
 }
 
 //======================================================================
-#pragma mark - NSDate -
+#    pragma mark - NSDate -
 //======================================================================
 
 static bool
@@ -1551,7 +1553,7 @@ taggedDateDescription(const void *object, char *buffer, int bufferLength)
 }
 
 //======================================================================
-#pragma mark - NSNumber -
+#    pragma mark - NSNumber -
 //======================================================================
 
 /* memcpy in this macro cannot read out of bounds: DATA expands to a pointer into the
@@ -1559,38 +1561,38 @@ taggedDateDescription(const void *object, char *buffer, int bufferLength)
  * macro is invoked with (sint8, sint16, sint32, sint64, float32, float64, ...). RETURN_TYPE is
  * the matching primitive type for the CFTYPE case, so sizeof(result) is at most the size of
  * _pad. result is a fresh stack local, so the destination is always sized exactly. */
-#define NSNUMBER_CASE(CFTYPE, RETURN_TYPE, CAST_TYPE, DATA)                                        \
+#    define NSNUMBER_CASE(CFTYPE, RETURN_TYPE, CAST_TYPE, DATA)                                    \
     case CFTYPE: {                                                                                 \
         RETURN_TYPE result;                                                                        \
         memcpy(&result, DATA, sizeof(result));                                                     \
         return (CAST_TYPE)result;                                                                  \
     }
 
-#define EXTRACT_AND_RETURN_NSNUMBER(OBJECT, RETURN_TYPE)                                           \
-    if (isValidTaggedPointer(object)) {                                                            \
-        return extractTaggedNSNumber(object);                                                      \
-    }                                                                                              \
-    const struct __CFNumber *number = OBJECT;                                                      \
-    CFNumberType cftype = CFNumberGetType((CFNumberRef)OBJECT);                                    \
-    const void *data = &(number->_pad);                                                            \
-    switch (cftype) {                                                                              \
-        NSNUMBER_CASE(kCFNumberSInt8Type, int8_t, RETURN_TYPE, data)                               \
-        NSNUMBER_CASE(kCFNumberSInt16Type, int16_t, RETURN_TYPE, data)                             \
-        NSNUMBER_CASE(kCFNumberSInt32Type, int32_t, RETURN_TYPE, data)                             \
-        NSNUMBER_CASE(kCFNumberSInt64Type, int64_t, RETURN_TYPE, data)                             \
-        NSNUMBER_CASE(kCFNumberFloat32Type, Float32, RETURN_TYPE, data)                            \
-        NSNUMBER_CASE(kCFNumberFloat64Type, Float64, RETURN_TYPE, data)                            \
-        NSNUMBER_CASE(kCFNumberCharType, char, RETURN_TYPE, data)                                  \
-        NSNUMBER_CASE(kCFNumberShortType, short, RETURN_TYPE, data)                                \
-        NSNUMBER_CASE(kCFNumberIntType, int, RETURN_TYPE, data)                                    \
-        NSNUMBER_CASE(kCFNumberLongType, long, RETURN_TYPE, data)                                  \
-        NSNUMBER_CASE(kCFNumberLongLongType, long long, RETURN_TYPE, data)                         \
-        NSNUMBER_CASE(kCFNumberFloatType, float, RETURN_TYPE, data)                                \
-        NSNUMBER_CASE(kCFNumberDoubleType, double, RETURN_TYPE, data)                              \
-        NSNUMBER_CASE(kCFNumberCFIndexType, CFIndex, RETURN_TYPE, data)                            \
-        NSNUMBER_CASE(kCFNumberNSIntegerType, NSInteger, RETURN_TYPE, data)                        \
-        NSNUMBER_CASE(kCFNumberCGFloatType, CGFloat, RETURN_TYPE, data)                            \
-    }
+#    define EXTRACT_AND_RETURN_NSNUMBER(OBJECT, RETURN_TYPE)                                       \
+        if (isValidTaggedPointer(object)) {                                                        \
+            return extractTaggedNSNumber(object);                                                  \
+        }                                                                                          \
+        const struct __CFNumber *number = OBJECT;                                                  \
+        CFNumberType cftype = CFNumberGetType((CFNumberRef)OBJECT);                                \
+        const void *data = &(number->_pad);                                                        \
+        switch (cftype) {                                                                          \
+            NSNUMBER_CASE(kCFNumberSInt8Type, int8_t, RETURN_TYPE, data)                           \
+            NSNUMBER_CASE(kCFNumberSInt16Type, int16_t, RETURN_TYPE, data)                         \
+            NSNUMBER_CASE(kCFNumberSInt32Type, int32_t, RETURN_TYPE, data)                         \
+            NSNUMBER_CASE(kCFNumberSInt64Type, int64_t, RETURN_TYPE, data)                         \
+            NSNUMBER_CASE(kCFNumberFloat32Type, Float32, RETURN_TYPE, data)                        \
+            NSNUMBER_CASE(kCFNumberFloat64Type, Float64, RETURN_TYPE, data)                        \
+            NSNUMBER_CASE(kCFNumberCharType, char, RETURN_TYPE, data)                              \
+            NSNUMBER_CASE(kCFNumberShortType, short, RETURN_TYPE, data)                            \
+            NSNUMBER_CASE(kCFNumberIntType, int, RETURN_TYPE, data)                                \
+            NSNUMBER_CASE(kCFNumberLongType, long, RETURN_TYPE, data)                              \
+            NSNUMBER_CASE(kCFNumberLongLongType, long long, RETURN_TYPE, data)                     \
+            NSNUMBER_CASE(kCFNumberFloatType, float, RETURN_TYPE, data)                            \
+            NSNUMBER_CASE(kCFNumberDoubleType, double, RETURN_TYPE, data)                          \
+            NSNUMBER_CASE(kCFNumberCFIndexType, CFIndex, RETURN_TYPE, data)                        \
+            NSNUMBER_CASE(kCFNumberNSIntegerType, NSInteger, RETURN_TYPE, data)                    \
+            NSNUMBER_CASE(kCFNumberCGFloatType, CGFloat, RETURN_TYPE, data)                        \
+        }
 
 Float64
 sentrycrashobjc_numberAsFloat(const void *object)
@@ -1658,7 +1660,7 @@ taggedNumberDescription(const void *object, char *buffer, int bufferLength)
 }
 
 //======================================================================
-#pragma mark - NSArray -
+#    pragma mark - NSArray -
 //======================================================================
 
 struct NSArray {
@@ -1819,7 +1821,7 @@ arrayDescription(const void *object, char *buffer, int bufferLength)
 }
 
 //======================================================================
-#pragma mark - NSDictionary (BROKEN) -
+#    pragma mark - NSDictionary (BROKEN) -
 //======================================================================
 
 bool
@@ -1860,12 +1862,12 @@ int
 sentrycrashobjc_dictionaryCount(const void *dict)
 {
     // TODO: Implement me
-#pragma unused(dict)
+#    pragma unused(dict)
     return 0;
 }
 
 //======================================================================
-#pragma mark - General Queries -
+#    pragma mark - General Queries -
 //======================================================================
 
 int
@@ -1964,3 +1966,5 @@ sentrycrashobjc_objectClassType(const void *object)
 // NSSimpleCString
 // NSString
 // NSURL
+
+#endif // !ENABLE_KSCRASH
