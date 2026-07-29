@@ -10,7 +10,11 @@ if [ -z "$GITHUB_RUN_ID" ]; then
   exit 1
 fi
 
-PACKAGE_FILES=$(find . -maxdepth 1 -name "Package.swift" -o -name "Package@swift-*.swift" | sort)
+PACKAGE_FILES=$(find . -maxdepth 1 \( -name "Package.swift" -o -name "Package@swift-*.swift" \) | sort)
+DIST_PACKAGE="./distribution/apple-binaries/Package.swift"
+if [ -f "$DIST_PACKAGE" ]; then
+    PACKAGE_FILES="$PACKAGE_FILES"$'\n'"$DIST_PACKAGE"
+fi
 
 if [ -z "$PACKAGE_FILES" ]; then
     log_error "No Package.swift or Package@swift-*.swift files found"

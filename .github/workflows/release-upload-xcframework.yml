@@ -44,3 +44,4 @@ jobs:
           overwrite: true
           path: |
             ${{github.workspace}}/XCFrameworkBuildPath/*.zip
+            ${{github.workspace}}/XCFrameworkBuildPath/*.tgz
