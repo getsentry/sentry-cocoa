@@ -30,7 +30,7 @@
 
 ### Breaking Changes
 
-- Bump the minimum deployment targets to macOS 12 and watchOS 9 because Xcode 27 no longer supports earlier versions. This lets the SDK adopt Xcode 27 without blocking users from building and submitting their apps with the latest Xcode. (#8113, #8189)
+- Bump the minimum deployment targets to macOS 12 and watchOS 9 because Xcode 27 no longer supports earlier versions. This lets the SDK adopt Xcode 27 without blocking users from building and submitting their apps with the latest Xcode. (#8595, #8113, #8189)
 
 ### Features
 
