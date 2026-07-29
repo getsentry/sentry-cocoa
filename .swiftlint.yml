@@ -132,11 +132,13 @@ custom_rules:
       - "./Tests/.*\\.swift"
   avoid_all_header_fields:
     name: "Careful with allHeaderFields"
-    message: "Double-check how you use allHeaderFields (https://developer.apple.com/documentation/foundation/httpurlresponse/allheaderfields). Reading all headers is fine, but its subscript is case-sensitive while HTTP/2 and HTTP/3 lowercase field names, so a single-header lookup can silently miss the header (see #8322). For a lookup, use value(forHTTPHeaderField:) or the HTTPURLResponse.value(forHTTPHeaderFieldCaseInsensitive:) extension in HTTPURLResponse+Sentry.swift. If your usage is intentional, suppress this rule with a comment explaining why."
-    regex: "allHeaderFields"
+    message: "Double-check how you use allHeaderFields / allHTTPHeaderFields (https://developer.apple.com/documentation/foundation/httpurlresponse/allheaderfields). Reading all headers is fine, but their subscript is case-sensitive while HTTP/2 and HTTP/3 lowercase field names, so a single-header lookup can silently miss the header (see #8322). For a lookup, use value(forHTTPHeaderField:) or the HTTPURLResponse.value(forHTTPHeaderFieldCaseInsensitive:) extension in HTTPURLResponse+Sentry.swift. If your usage is intentional, suppress this rule with a comment explaining why."
+    regex: "all(HTTP)?HeaderFields"
     match_kinds:
       - identifier
     severity: error
+    included:
+      - "./Sources/.*\\.swift"
   avoid_direct_associated_object_access:
     name: "Avoid direct associated object access"
     message: "Use AssociatedObjectAccessor instead of calling the Objective-C associated object APIs directly."
@@ -151,4 +153,9 @@ custom_rules:
     name: "No @_implementationOnly import"
     message: "Use `internal import` (SE-0409) instead of `@_implementationOnly import`."
     regex: "@_implementationOnly import"
+    severity: error
+  no_breadcrumb_data_setter:
+    name: "Avoid the Breadcrumb.data setter"
+    message: "Use `setData(value:key:)` instead of assigning the whole `Breadcrumb.data` dictionary. Assigning a bridged Swift dictionary can crash (see #7861); the `data` setter will become read-only in a future release. If you must assign a whole dictionary, suppress this rule with a comment explaining why."
+    regex: '(crumb|breadcrumb|wrapped)\.data\s*=(?!=)'
     severity: error

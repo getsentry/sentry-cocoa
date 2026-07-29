@@ -349,7 +349,10 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         request.fragment = sanitizedURL.fragment
         request.queryString = sanitizedURL.query
         request.bodySize = NSNumber(value: sessionTask.countOfBytesSent)
+        // Safe: reading the whole dictionary, not a case-sensitive single-header lookup.
+        // swiftlint:disable avoid_all_header_fields
         if let headers = currentRequest.allHTTPHeaderFields {
+            // swiftlint:enable avoid_all_header_fields
             #if SDK_V10
             let sanitizedHeaders = HTTPHeaderSanitizer.sanitizeRequestHeaders(
                 headers,
@@ -430,10 +433,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         }
 
         let responseStatusCode = urlResponseStatusCode(sessionTask.response)
-        let breadcrumb = Breadcrumb(
-            level: breadcrumbLevel(for: sessionTask, responseStatusCode: responseStatusCode),
-            category: "http"
-        )
+        let level = breadcrumbLevel(for: sessionTask, responseStatusCode: responseStatusCode)
 
         #if SDK_V10
         let urlComponents = UrlSanitized(URL: requestURL, options: options.dataCollection)
@@ -441,7 +441,6 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         let urlComponents = UrlSanitized(URL: requestURL)
         #endif
 
-        breadcrumb.type = "http"
         var data: [String: Any] = [
             "request_body_size": sessionTask.countOfBytesSent,
             "response_body_size": sessionTask.countOfBytesReceived
@@ -478,7 +477,8 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         }
         #endif
 
-        breadcrumb.data = data
+        let breadcrumb = Breadcrumb(level: level, category: "http", data: data)
+        breadcrumb.type = "http"
         SentrySDKInternal.addBreadcrumb(breadcrumb)
         sessionTask.setHasBreadcrumb(true)
     }
@@ -583,11 +583,15 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         let rawBody = sessionTask.originalRequest?.httpBody ?? request.httpBody
         let requestSize = rawBody.map { NSNumber(value: $0.count) }
 
+        // Safe: passing the whole dictionary, not a case-sensitive single-header lookup.
+        // swiftlint:disable avoid_all_header_fields
+        let allHeaders = request.allHTTPHeaderFields
+        // swiftlint:enable avoid_all_header_fields
         details.setRequest(
             size: requestSize,
             bodyData: networkCaptureBodies ? rawBody : nil,
             contentType: request.value(forHTTPHeaderField: "content-type"),
-            allHeaders: request.allHTTPHeaderFields,
+            allHeaders: allHeaders,
             configuredHeaders: networkRequestHeaders
         )
     }

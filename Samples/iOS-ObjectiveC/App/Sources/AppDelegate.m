@@ -16,6 +16,9 @@
         options.debug = YES;
         options.attachScreenshot = YES;
         options.attachViewHierarchy = YES;
+#if SDK_V10
+        [SentrySampleDataCollectionConfiguration configureWithOptions:options];
+#endif // SDK_V10
 
         if (env[@"--io.sentry.tracesSamplerValue"] != nil) {
             options.tracesSampler = ^(SentrySamplingContext *_Nonnull samplingContext) {

@@ -52,6 +52,23 @@ NS_SWIFT_NAME(Breadcrumb)
 @property (nonatomic, copy, nullable) NSDictionary<NSString *, id> *data;
 
 /**
+ * @deprecated Use @c setDataValue:forKey: instead; the @c data property setter will become
+ * read-only in a future release.
+ */
+- (void)setData:(nullable NSDictionary<NSString *, id> *)data
+    __attribute__((deprecated("Use setData(value:key:) instead; the data property setter will "
+                              "become read-only in a future release.")));
+
+/**
+ * Sets a single value in the breadcrumb's @c data dictionary for the given key.
+ * Passing @c nil as the value removes the key. This is the preferred way of setting
+ * breadcrumb data; the @c data property setter will become read-only in a future release.
+ * @param value The value to store, or @c nil to remove the key.
+ * @param key The key to set.
+ */
+- (void)setDataValue:(nullable id)value forKey:(NSString *)key NS_SWIFT_NAME(setData(value:key:));
+
+/**
  * Initializer for @c SentryBreadcrumb
  * @param level SentryLevel
  * @param category String

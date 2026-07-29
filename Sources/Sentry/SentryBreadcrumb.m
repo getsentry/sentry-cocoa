@@ -1,5 +1,6 @@
 #import "SentryBreadcrumb.h"
 #import "SentryBreadcrumb+Private.h"
+#import "SentryCompiler.h"
 #import "SentryDateUtils.h"
 #import "SentryInternalDefines.h"
 #import "SentryLevel.h"
@@ -42,7 +43,10 @@ sentry_deepCopyValue(id value)
     return value;
 }
 
-@implementation SentryBreadcrumb
+@implementation SentryBreadcrumb {
+    // Mutable so setDataValue:forKey: can update in place.
+    NSMutableDictionary<NSString *, id> *_data;
+}
 
 // Explicit @synthesize so we can provide thread-safe accessors via @synchronized(self).
 @synthesize level = _level;
@@ -51,7 +55,6 @@ sentry_deepCopyValue(id value)
 @synthesize type = _type;
 @synthesize message = _message;
 @synthesize origin = _origin;
-@synthesize data = _data;
 
 #pragma mark - Thread-safe property accessors
 
@@ -142,14 +145,30 @@ sentry_deepCopyValue(id value)
 - (void)setData:(NSDictionary<NSString *, id> *)data
 {
     @synchronized(self) {
-        _data = data ? sentry_deepCopyValue(data) : nil;
+        _data = data ? [sentry_deepCopyValue(data) mutableCopy] : nil;
     }
 }
 
 - (NSDictionary<NSString *, id> *)data
 {
     @synchronized(self) {
-        return _data;
+        // Immutable snapshot so callers can't mutate our storage.
+        return [_data copy];
+    }
+}
+
+- (void)setDataValue:(nullable id)value forKey:(NSString *)key
+{
+    @synchronized(self) {
+        if (_data == nil) {
+            // Don't allocate storage for a no-op remove; keep data nil.
+            if (value == nil) {
+                return;
+            }
+            _data = [[NSMutableDictionary alloc] init];
+        }
+        // setValue:forKey: removes the key when value is nil.
+        [_data setValue:value forKey:key];
     }
 }
 
@@ -179,7 +198,9 @@ sentry_deepCopyValue(id value)
             } else if ([key isEqualToString:@"message"] && isString) {
                 self.message = value;
             } else if ([key isEqualToString:@"data"] && isDictionary) {
+                ALLOW_DEPRECATED_DECLARATIONS_BEGIN
                 self.data = value;
+                ALLOW_DEPRECATED_DECLARATIONS_END
             }
         }
     }
@@ -193,6 +214,17 @@ sentry_deepCopyValue(id value)
         self.level = level;
         self.category = category;
         self.timestamp = [NSDate date];
+    }
+    return self;
+}
+
+- (instancetype)initWithLevel:(SentryLevel)level
+                     category:(NSString *)category
+                         data:(NSDictionary<NSString *, id> *)data
+{
+    self = [self initWithLevel:level category:category];
+    if (self) {
+        _data = [[NSMutableDictionary alloc] initWithDictionary:data];
     }
     return self;
 }
@@ -212,7 +244,8 @@ sentry_deepCopyValue(id value)
         snapshot->_type = _type;
         snapshot->_message = _message;
         snapshot->_origin = _origin;
-        snapshot->_data = _data;
+        // Copy so the snapshot has independent storage.
+        snapshot->_data = [_data mutableCopy];
     }
     return snapshot;
 }
@@ -237,7 +270,8 @@ sentry_deepCopyValue(id value)
         type = _type;
         origin = _origin;
         message = _message;
-        data = _data;
+        // Copy under the lock; _data is mutated in place elsewhere.
+        data = [_data copy];
     }
 
     NSMutableDictionary *serializedData = [[NSMutableDictionary alloc] init];
@@ -251,7 +285,9 @@ sentry_deepCopyValue(id value)
     [serializedData setValue:type forKey:@"type"];
     [serializedData setValue:origin forKey:@"origin"];
     [serializedData setValue:message forKey:@"message"];
-    [serializedData setValue:sentry_sanitize_dictionary(data) forKey:@"data"];
+    if (data.count > 0) {
+        [serializedData setValue:sentry_sanitize_dictionary(data) forKey:@"data"];
+    }
     return serializedData;
 }
 
