@@ -7,7 +7,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryTracePropagation : NSObject
 
-+ (void)addBaggageHeader:(SentryBaggage *)baggage
++ (void)addBaggageHeader:(nullable SentryBaggage *)baggage
                 traceHeader:(SentryTraceHeader *)traceHeader
        propagateTraceparent:(BOOL)propagateTraceparent
     tracePropagationTargets:(NSArray *_Nullable)tracePropagationTargets
