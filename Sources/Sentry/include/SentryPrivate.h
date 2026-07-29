@@ -43,6 +43,7 @@
 #import "SentryAppStartMeasurementProvider.h"
 #import "SentryAppStartTrackerHelper.h"
 #import "SentryAsyncLog.h"
+#import "SentryBreadcrumb+Private.h"
 #import "SentryContinuousProfiler.h"
 #import "SentryCoreDataSwizzlingHelper.h"
 #import "SentryCoreDataTracker.h"

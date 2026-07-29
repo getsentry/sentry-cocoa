@@ -29,7 +29,7 @@ class TestData {
         crumb.timestamp = timestamp
         crumb.type = "user"
         crumb.message = "Clicked something"
-        crumb.data = ["some": ["data": "data", "date": timestamp] as [String: Any]]
+        crumb.setData(value: ["data": "data", "date": timestamp] as [String: Any], key: "some")
         return crumb
     }
     

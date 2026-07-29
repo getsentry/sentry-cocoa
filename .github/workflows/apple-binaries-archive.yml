@@ -1,0 +1,95 @@
+name: Test Apple Binaries Archive
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  files-changed:
+    name: Detect File Changes
+    runs-on: ubuntu-latest
+    outputs:
+      run_for_prs: ${{ steps.changes.outputs.run_apple_binaries_archive_for_prs }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Get changed files
+        id: changes
+        uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2
+        with:
+          token: ${{ github.token }}
+          filters: .github/file-filters.yml
+
+  test-apple-binaries-archive:
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_for_prs == 'true'
+    needs: files-changed
+    name: Test Apple Binaries Archive
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Create fake xcframeworks
+        run: |
+          mkdir -p XCFrameworkBuildPath
+          echo "<FAKE STATIC ZIP>" > XCFrameworkBuildPath/Sentry.xcframework.zip
+          echo "<FAKE DYNAMIC ZIP>" > XCFrameworkBuildPath/Sentry-Dynamic.xcframework.zip
+          echo "<FAKE SENTRYOBJC DYNAMIC ZIP>" > XCFrameworkBuildPath/SentryObjC-Dynamic.xcframework.zip
+          echo "<FAKE SENTRYOBJC STATIC ZIP>" > XCFrameworkBuildPath/SentryObjC-Static.xcframework.zip
+
+      - name: Create archive
+        run: |
+          ./scripts/create-apple-binaries-archive.sh \
+            --version "99.0.0" \
+            --xcframework-dir XCFrameworkBuildPath \
+            --output-dir XCFrameworkBuildPath
+
+      - name: Verify archive contents
+        run: |
+          mkdir -p /tmp/apple-binaries-verify
+          tar -xzf XCFrameworkBuildPath/sentry-apple-binaries.tgz -C /tmp/apple-binaries-verify
+
+          # Verify all expected files exist
+          test -f /tmp/apple-binaries-verify/Package.swift
+          test -f /tmp/apple-binaries-verify/.gitignore
+          test -f /tmp/apple-binaries-verify/Sources/SentryCppHelper/SentryCppHelper.swift
+
+          # Verify version was stamped
+          grep -q "releases/download/99.0.0/" /tmp/apple-binaries-verify/Package.swift
+
+          # Verify checksums were updated (should match the fake zips)
+          EXPECTED_STATIC=$(sha256sum XCFrameworkBuildPath/Sentry.xcframework.zip | awk '{print $1}')
+          EXPECTED_OBJC_DYN=$(sha256sum XCFrameworkBuildPath/SentryObjC-Dynamic.xcframework.zip | awk '{print $1}')
+
+          grep -q "checksum: \"${EXPECTED_STATIC}\" //Sentry-Static" /tmp/apple-binaries-verify/Package.swift
+          grep -q "checksum: \"${EXPECTED_OBJC_DYN}\" //SentryObjC-Dynamic" /tmp/apple-binaries-verify/Package.swift
+
+          # Verify no extra files leaked into the archive
+          FILE_COUNT=$(find /tmp/apple-binaries-verify -type f | wc -l)
+          if [ "$FILE_COUNT" -ne 3 ]; then
+            echo "Expected 3 files in archive but found $FILE_COUNT"
+            find /tmp/apple-binaries-verify -type f
+            exit 1
+          fi
+
+          echo "Apple-binaries archive verified successfully"
+
+  apple-binaries-archive-required-check:
+    needs:
+      [
+        files-changed,
+        test-apple-binaries-archive,
+      ]
+    name: Test Apple Binaries Archive - Required Check
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for failures
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "Apple binaries archive test failed." && exit 1
