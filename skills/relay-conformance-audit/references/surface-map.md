@@ -113,6 +113,7 @@ Links track `main` (Cocoa) / `master` (Relay). If a linked path 404s, the file m
 - [`Sources/Swift/Networking/SentryDiscardReason.swift`](https://github.com/getsentry/sentry-cocoa/blob/main/Sources/Swift/Networking/SentryDiscardReason.swift)
 - [`Sources/Swift/Tools/SentryClientReport.swift`](https://github.com/getsentry/sentry-cocoa/blob/main/Sources/Swift/Tools/SentryClientReport.swift)
 - [`Sources/Swift/Tools/SentryDiscardedEvent.swift`](https://github.com/getsentry/sentry-cocoa/blob/main/Sources/Swift/Tools/SentryDiscardedEvent.swift)
+- [`Sources/Swift/Tools/SentryLogClientReport.swift`](https://github.com/getsentry/sentry-cocoa/blob/main/Sources/Swift/Tools/SentryLogClientReport.swift), [`Sources/Swift/Tools/SentryMetricClientReport.swift`](https://github.com/getsentry/sentry-cocoa/blob/main/Sources/Swift/Tools/SentryMetricClientReport.swift) (byte-count quantities for `log_byte`/`trace_metric_byte` discard reasons)
 - drop sites in [`SentryHttpTransport.m`](https://github.com/getsentry/sentry-cocoa/blob/main/Sources/Sentry/SentryHttpTransport.m), [`SentryClient.m`](https://github.com/getsentry/sentry-cocoa/blob/main/Sources/Sentry/SentryClient.m), [`SentryHub.m`](https://github.com/getsentry/sentry-cocoa/blob/main/Sources/Sentry/SentryHub.m), [`SentryTransportAdapter.m`](https://github.com/getsentry/sentry-cocoa/blob/main/Sources/Sentry/SentryTransportAdapter.m)
 
 **Relay / Spec:** [develop-docs: client reports](https://develop.sentry.dev/sdk/telemetry/client-reports/); Relay [`relay-event-schema/src/protocol/client_report.rs`](https://github.com/getsentry/relay/blob/master/relay-event-schema/src/protocol/client_report.rs), [`relay-server/src/services/outcome.rs`](https://github.com/getsentry/relay/blob/master/relay-server/src/services/outcome.rs).
@@ -184,3 +185,30 @@ Links track `main` (Cocoa) / `master` (Relay). If a linked path 404s, the file m
 **Spec:** [develop-docs: dynamic sampling context](https://develop.sentry.dev/sdk/foundations/trace-propagation/dynamic-sampling-context/) — invariant `sample_rand < sample_rate ⟺ sampled`.
 
 **Check:** full-precision decision vs rounded transmission; `<=` vs strict `<` at the boundary; `sample_rand` seeded once at trace start and reused.
+
+## 11. Session Replay payloads
+
+**What it is:** Session Replay ships as `replay_event` + `replay_recording` envelope items. Area 4 only checks the item-_type_ strings; this checks the _contents_ Relay/ingest forwards to the replay player: the rrweb-style event stream (numeric `type` codes, `timestamp`, `data`), the recording header (`segment_id`), video-segment metadata (`encoding`, `container`, `frameRateType`), and captured network-request details embedded in breadcrumbs. A drift here doesn't error — it silently produces an unplayable or mis-rendered replay, or a network panel with wrong fields.
+
+**Cocoa:**
+
+- [`Sources/Swift/Integrations/SessionReplay/RRWeb/SentryRRWebEvent.swift`](https://github.com/getsentry/sentry-cocoa/blob/main/Sources/Swift/Integrations/SessionReplay/RRWeb/SentryRRWebEvent.swift) (`SentryRRWebEventType` raw values `touch=3, meta=4, custom=5`)
+- [`Sources/Swift/Integrations/SessionReplay/SentryReplayRecording.swift`](https://github.com/getsentry/sentry-cocoa/blob/main/Sources/Swift/Integrations/SessionReplay/SentryReplayRecording.swift) (`segment_id` header; `encoding=h264`, `container=mp4`, `frameRateType=constant`)
+- [`Sources/Swift/Integrations/SessionReplay/SentryReplayEvent.swift`](https://github.com/getsentry/sentry-cocoa/blob/main/Sources/Swift/Integrations/SessionReplay/SentryReplayEvent.swift)
+- [`Sources/Swift/Integrations/SessionReplay/SentryReplayNetworkDetails.swift`](https://github.com/getsentry/sentry-cocoa/blob/main/Sources/Swift/Integrations/SessionReplay/SentryReplayNetworkDetails.swift) (keys `method, statusCode, requestBodySize, responseBodySize, request, response, body, warnings, headers`)
+
+**Relay / Spec:** [`relay-server/src/envelope/item.rs`](https://github.com/getsentry/relay/blob/master/relay-server/src/envelope/item.rs) (`ItemType::ReplayEvent`, `ItemType::ReplayRecording`); [rrweb event types](https://github.com/rrweb-io/rrweb/blob/master/packages/types/src/index.ts); [sentry-javascript replay-internal constants](https://github.com/getsentry/sentry-javascript/blob/develop/packages/replay-internal/src/constants.ts) (the frontend contract these numeric/string constants must match, per the in-file comment).
+
+**Check:** rrweb `type` numeric codes match rrweb's `EventType`, not reassigned; `segment_id` key name and int type; video constants (`h264`/`mp4`/`constant`) match what the replay player expects; network-details key names exact, matching the frontend field names referenced in `SentryReplayNetworkDetails.swift`'s own doc comments.
+
+## 12. User Feedback payload
+
+**What it is:** User Feedback ships as a `feedback` envelope item (Relay `ItemType::UserReportV2` / `DataCategory::UserReportV2`, wire name `feedback`). Area 4 only checks that item-type string; this checks the JSON body Relay parses into a feedback record. A field-name or enum-value drift silently drops the feedback's name/email/associated-event linkage or produces an unrecognized `source`.
+
+**Cocoa:**
+
+- [`Sources/Swift/Integrations/UserFeedback/SentryFeedback.swift`](https://github.com/getsentry/sentry-cocoa/blob/main/Sources/Swift/Integrations/UserFeedback/SentryFeedback.swift) (keys `message, name, contact_email, associated_event_id, source`; `source` values `widget, custom`)
+
+**Relay / Spec:** [`relay-server/src/envelope/item.rs`](https://github.com/getsentry/relay/blob/master/relay-server/src/envelope/item.rs) (`ItemType::UserReportV2`); [develop-docs: user feedback](https://develop.sentry.dev/sdk/data-model/envelope-items/).
+
+**Check:** field names exact (`contact_email`, not `email`, on the wire — `email` is only used in the local `dataDictionary()` callback payload, don't confuse the two); `source` enum values `widget`/`custom` match what the product ingests; `associated_event_id` format (32-hex, no dashes).
