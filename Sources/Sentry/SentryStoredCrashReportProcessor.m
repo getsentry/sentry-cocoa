@@ -41,13 +41,23 @@ NSErrorDomain const SentryStoredCrashReportProcessorErrorDomain
 
 - (BOOL)processReport:(NSDictionary *)report error:(NSError **)error
 {
+    return [self processReport:report
+                 beforeCapture:^NSError *_Nullable { return nil; }
+                         error:error];
+}
+
+- (BOOL)processReport:(NSDictionary *)report
+        beforeCapture:(SentryStoredCrashReportProcessorBeforeCapture)beforeCapture
+                error:(NSError **)error
+{
     if (![report isKindOfClass:NSDictionary.class]) {
         return [self failWithError:error
                               code:SentryStoredCrashReportProcessorErrorUnsupportedReport
                        description:@"The crash report is not a dictionary."];
     }
 
-    if ([SentrySDKInternal.currentHub getClient] == nil) {
+    SentryHubInternal *hub = SentrySDKInternal.currentHub;
+    if ([hub getClient] == nil) {
         return [self failWithError:error
                               code:SentryStoredCrashReportProcessorErrorMissingClient
                        description:@"No Sentry client is available to capture the crash report."];
@@ -64,10 +74,9 @@ NSErrorDomain const SentryStoredCrashReportProcessorErrorDomain
                         description:@"The crash report could not be converted to a Sentry event."];
         }
 
-        // Snapshot the hub and client again after conversion because asynchronous report processing
-        // can race with SDK close. The capture result below distinguishes an accepted event from a
-        // no-op caused by that client becoming unavailable.
-        SentryHubInternal *hub = SentrySDKInternal.currentHub;
+        // Resolve the client from the hub snapshotted before conversion. Asynchronous processing
+        // can race with SDK close or restart, and old work must never capture through a replacement
+        // hub.
         SentryClientInternal *client = [hub getClient];
         if (client == nil) {
             return
@@ -79,6 +88,14 @@ NSErrorDomain const SentryStoredCrashReportProcessorErrorDomain
         SentryScope *scope = [[SentryScope alloc] initWithScope:hub.scope];
         for (NSString *attachmentPath in report[SENTRYCRASH_REPORT_ATTACHMENTS_ITEM] ?: @[]) {
             [scope addCrashReportAttachmentInPath:attachmentPath];
+        }
+
+        NSError *captureGateError = beforeCapture();
+        if (captureGateError != nil) {
+            if (error != nil) {
+                *error = captureGateError;
+            }
+            return NO;
         }
 
         SentryId *eventId =

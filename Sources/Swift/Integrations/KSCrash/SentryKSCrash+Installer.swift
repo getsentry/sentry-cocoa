@@ -26,7 +26,8 @@ extension SentryKSCrash {
         /// Processes all reports recorded during previous runs.
         func sendAllReports(
             reportProcessor: SentryStoredCrashReportProcessor,
-            dispatchQueue: SentryDispatchQueueWrapper
+            dispatchQueue: SentryDispatchQueueWrapper,
+            processingSession: ReportProcessingSession
         )
 
         /// Whether the previous run crashed.
@@ -77,7 +78,8 @@ extension SentryKSCrash {
 
         func sendAllReports(
             reportProcessor: SentryStoredCrashReportProcessor,
-            dispatchQueue: SentryDispatchQueueWrapper
+            dispatchQueue: SentryDispatchQueueWrapper,
+            processingSession: ReportProcessingSession
         ) {
             guard let reportStore = KSCrash.shared.reportStore else {
                 SentrySDKLog.error("KSCrash report store is unavailable; retaining crash reports.")
@@ -86,7 +88,8 @@ extension SentryKSCrash {
 
             reportStore.sink = SentryKSCrash.ReportFilter(
                 reportProcessor: reportProcessor,
-                dispatchQueue: dispatchQueue
+                dispatchQueue: dispatchQueue,
+                processingSession: processingSession
             )
             reportStore.reportCleanupPolicy = .onSuccess
 
@@ -96,7 +99,8 @@ extension SentryKSCrash {
             //   allowing KSCrash to delete them.
             // - ReportFilterCore returns retryable errors for reports that must remain on disk.
             // Send one report per invocation so those decisions never retain an already captured
-            // report, then continue with the remaining report IDs regardless of each result.
+            // report, then continue with the remaining report IDs regardless of each result while
+            // this integration's processing session remains active.
             let reportStoreSender = SentryKSCrash.ReportStoreSender(
                 sendReport: { reportID, onCompletion in
                     reportStore.sendReport(
@@ -108,7 +112,8 @@ extension SentryKSCrash {
                 },
                 cleanupOrphanedRunSidecars: {
                     reportStore.cleanupOrphanedRunSidecars()
-                }
+                },
+                processingSession: processingSession
             )
             reportStoreSender.sendAllReports(
                 reportStore.reportIDs.map { $0.int64Value },
