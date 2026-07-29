@@ -7,7 +7,7 @@
 > [!CAUTION]
 > Due to a potential risk of revealing PII or security-relevant data in crash events in specific circumstances, we're shipping this strictly speaking breaking change in a minor version.
 
-- Add `enableMemoryIntrospection` option to allow users to control memory introspection in crash reports, defaults to false (was previously true) (#7501)
+- Add `enableMemoryIntrospection` option to allow users to control memory introspection in crash reports, defaults to false (was previously true) (#8571)
   - You can re-enable this feature by setting the option `enableMemoryIntrospection` to true
   - With this option disabled, string stack contents found near the crash site will not be included in the event sent to Sentry, these are included in the 'message' subtitle shown in Sentry underneath the main issue title
 
