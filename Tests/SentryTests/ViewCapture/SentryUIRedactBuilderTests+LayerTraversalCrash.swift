@@ -28,8 +28,13 @@ class SentryUIRedactBuilderTests_LayerTraversalCrash: SentryUIRedactBuilderTests
     /// A `CALayer` whose `sublayers` getter raises the same `NSInvalidArgumentException`
     /// that Core Animation raises when interpolating a struct-valued animation as a scalar.
     private final class ThrowingSublayersLayer: CALayer {
+        var shouldThrowWhenAccessingSublayers = false
+
         override var sublayers: [CALayer]? {
             get {
+                guard shouldThrowWhenAccessingSublayers else {
+                    return super.sublayers
+                }
                 NSException(
                     name: .invalidArgumentException,
                     reason: "-[NSConcreteValue doubleValue]: unrecognized selector sent to instance 0x12e68f150",
@@ -38,7 +43,7 @@ class SentryUIRedactBuilderTests_LayerTraversalCrash: SentryUIRedactBuilderTests
                 return nil
             }
             set {
-                // No-op: this layer never exposes sublayers, it only crashes on read.
+                super.sublayers = newValue
             }
         }
     }
@@ -57,7 +62,7 @@ class SentryUIRedactBuilderTests_LayerTraversalCrash: SentryUIRedactBuilderTests
         ))
     }
 
-    func testTryBlock_whenExceptionIsCaught_shouldLogWarning() throws {
+    func testTryBlock_whenExceptionMatchesFilter_shouldLogWarningAndReturnFalse() throws {
         // -- Arrange --
         let logOutput = TestLogOutput(logsToConsole: false)
         SentrySDKLog.setLogOutput(logOutput)
@@ -71,9 +76,10 @@ class SentryUIRedactBuilderTests_LayerTraversalCrash: SentryUIRedactBuilderTests
         )
 
         // -- Act --
-        let result = SentryObjCExceptionHelper.tryBlock {
+        let result = SentryObjCExceptionHelper.tryBlock({
             exception.raise()
-        }
+        }, catchingExceptionWithName: .invalidArgumentException,
+        reasonPrefix: "-[NSConcreteValue doubleValue]: unrecognized selector sent to instance")
 
         // -- Assert --
         XCTAssertFalse(result)
@@ -82,6 +88,38 @@ class SentryUIRedactBuilderTests_LayerTraversalCrash: SentryUIRedactBuilderTests
         XCTAssertTrue(loggedMessage.contains("Caught Objective-C exception NSInvalidArgumentException"))
         XCTAssertTrue(loggedMessage.contains("-[NSConcreteValue doubleValue]: unrecognized selector"))
         XCTAssertEqual(logOutput.loggedMessages.count, 1, "Should log exactly one warning for the caught exception")
+    }
+
+    func testTryBlock_whenExceptionReasonDoesNotMatchFilter_shouldRethrowException() throws {
+        // -- Arrange --
+        let raisedException = NSException(
+            name: .invalidArgumentException,
+            reason: "Unrelated invalid argument",
+            userInfo: nil
+        )
+
+        // -- Act --
+        let caughtException = ExceptionCatcher.try {
+            _ = SentryObjCExceptionHelper.tryBlock({
+                raisedException.raise()
+            }, catchingExceptionWithName: .invalidArgumentException,
+            reasonPrefix: "-[NSConcreteValue doubleValue]: unrecognized selector sent to instance")
+        }
+
+        // -- Assert --
+        XCTAssertIdentical(caughtException, raisedException)
+    }
+
+    func testRedactRegionsFor_whenLayerHasNoSublayers_shouldNotRedactLayer() {
+        // -- Arrange --
+        let leafView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+
+        // -- Act --
+        let result = sut.redactRegionsFor(view: leafView)
+
+        // -- Assert --
+        XCTAssertEqual(result.count, 0)
     }
 
     func testRedactRegionsFor_whenSublayersAccessThrows_shouldNotCrash() throws {
@@ -106,8 +144,11 @@ class SentryUIRedactBuilderTests_LayerTraversalCrash: SentryUIRedactBuilderTests
         //   | <ThrowingSublayersView: 0x...; frame = (0 40; 100 40); layer = <ThrowingSublayersLayer: 0x...>>
 
         // -- Act --
+        let throwingLayer = try XCTUnwrap(throwingView.layer as? ThrowingSublayersLayer)
+        throwingLayer.shouldThrowWhenAccessingSublayers = true
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
+        throwingLayer.shouldThrowWhenAccessingSublayers = false
 
         // -- Assert --
         // Traversal of the throwing subtree must not crash. Because we cannot inspect the subtree
@@ -134,8 +175,11 @@ class SentryUIRedactBuilderTests_LayerTraversalCrash: SentryUIRedactBuilderTests
         let rootView = ThrowingSublayersView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
 
         // -- Act --
+        let throwingLayer = try XCTUnwrap(rootView.layer as? ThrowingSublayersLayer)
+        throwingLayer.shouldThrowWhenAccessingSublayers = true
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
+        throwingLayer.shouldThrowWhenAccessingSublayers = false
 
         // -- Assert --
         // Should not crash. Because the root's sublayers cannot be read, we cannot inspect any

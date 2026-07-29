@@ -86,15 +86,19 @@ class SentryUIRedactBuilderTests_RealAnimationCrash: SentryUIRedactBuilderTests 
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
-        let result = sut.redactRegionsFor(view: window)
+        var result = [SentryRedactRegion]()
+        let traversalException = ExceptionCatcher.try {
+            result = sut.redactRegionsFor(view: window)
+        }
+        animatedView.layer.removeAnimation(forKey: "sentry-repro-crash")
+        window.isHidden = true
 
         // -- Assert --
         // With the fix, traversal survives the Core Animation exception and the sibling label
         // is still redacted.
+        XCTAssertNil(traversalException)
         let labelRegions = result.filter { $0.type == .redact && $0.color == UIColor.purple }
         XCTAssertEqual(labelRegions.count, 1, "Label should still be redacted despite the crashing animation")
-
-        window.isHidden = true
     }
 }
 

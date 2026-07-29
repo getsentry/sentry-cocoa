@@ -17,9 +17,14 @@ NS_ASSUME_NONNULL_BEGIN
 /// Executes `block` inside an Objective-C `@try`/`@catch`.
 ///
 /// - Parameter block: The block to execute. It is run synchronously before this method returns.
-/// - Returns: `YES` if `block` completed without raising an `NSException`, `NO` if an exception
-///   was caught and swallowed.
-+ (BOOL)tryBlock:(NS_NOESCAPE void (^)(void))block NS_SWIFT_NAME(tryBlock(_:));
+/// - Parameter name: The name of the exception to catch.
+/// - Parameter reasonPrefix: The prefix of the exception reason to catch.
+/// - Returns: `YES` if `block` completed without raising an `NSException`, `NO` if a matching
+///   exception was caught and swallowed. Non-matching exceptions are rethrown.
++ (BOOL)tryBlock:(NS_NOESCAPE void (^)(void))block
+    catchingExceptionWithName:(NSExceptionName)name
+                 reasonPrefix:(NSString *)reasonPrefix
+    NS_SWIFT_NAME(tryBlock(_:catchingExceptionWithName:reasonPrefix:));
 
 @end
 

@@ -636,7 +636,7 @@ final class SentryUIRedactBuilder {
                 size: layer.bounds.size,
                 transform: newTransform,
                 type: .redact,
-                name: layer.debugDescription
+                name: type(of: layer).description()
             ))
             return
         }
@@ -696,14 +696,15 @@ final class SentryUIRedactBuilder {
     /// https://github.com/getsentry/sentry-cocoa/issues/7810 for more details.
     private func safeSublayers(of layer: CALayer) -> [CALayer]? {
         var sublayers: [CALayer]?
-        let succeeded = SentryObjCExceptionHelper.tryBlock {
+        let succeeded = SentryObjCExceptionHelper.tryBlock({
             sublayers = layer.sublayers
-        }
+        }, catchingExceptionWithName: .invalidArgumentException,
+        reasonPrefix: "-[NSConcreteValue doubleValue]: unrecognized selector sent to instance")
         guard succeeded else {
             SentrySDKLog.warning("Skipping redaction of a layer subtree because accessing its sublayers raised an exception. See https://docs.sentry.io/platforms/apple/guides/ios/session-replay/troubleshooting and https://github.com/getsentry/sentry-cocoa/issues/7810 for more details.")
             return nil
         }
-        return sublayers
+        return sublayers ?? []
     }
 
     /// Reads `layer.presentation()` behind an Objective-C exception handler.
@@ -712,9 +713,10 @@ final class SentryUIRedactBuilder {
     /// Returns `nil` if it throws, so callers can fall back to the model layer.
     private func safePresentationLayer(of layer: CALayer) -> CALayer? {
         var presentationLayer: CALayer?
-        let succeeded = SentryObjCExceptionHelper.tryBlock {
+        let succeeded = SentryObjCExceptionHelper.tryBlock({
             presentationLayer = layer.presentation()
-        }
+        }, catchingExceptionWithName: .invalidArgumentException,
+        reasonPrefix: "-[NSConcreteValue doubleValue]: unrecognized selector sent to instance")
         guard succeeded else {
             SentrySDKLog.warning("Failed to access a presentation layer because it raised an exception; falling back to the model layer. See https://github.com/getsentry/sentry-cocoa/issues/7810")
             return nil
