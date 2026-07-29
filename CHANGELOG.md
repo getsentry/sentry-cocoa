@@ -2,11 +2,14 @@
 
 ## Unreleased
 
-### Features
+### Breaking Changes
+
+- Add `enableMemoryIntrospection` option to allow users to control memory introspection in crash reports, defaults to false (was previously true) (#7501)
+  - We're making this breaking change because in some specific circumstances this could reveal PII if that information was on the stack when a crash happened
+  - You can reenable this feature but setting the option to true
 
 ### Fixes
 
-- Add `enableMemoryIntrospection` option to control memory introspection in crash reports, defaults to false (#7501)
 - Fix trace propagation for manually instrumented transactions when automatic performance tracing is disabled (#8522)
 - Remove x/y coordinates from UI breadcrumbs, as they are a potential security risk, for example leaking input on custom PIN code views (#8534)
 
