@@ -21,3 +21,7 @@ source = "obra/superpowers"
 [[skills]]
 name = "*"
 source = "getsentry/sentry-skills"
+
+[[skills]]
+name = "relay-conformance-audit"
+source = "path:./skills/relay-conformance-audit"
