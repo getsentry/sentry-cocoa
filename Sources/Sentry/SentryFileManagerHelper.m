@@ -18,10 +18,7 @@ NSString *const EnvelopesPathComponent = @"envelopes";
 BOOL
 isErrorPathTooLong(NSError *error)
 {
-    NSError *_Nullable underlyingError;
-    if (@available(macOS 11.3, *)) {
-        underlyingError = error.underlyingErrors.firstObject;
-    }
+    NSError *_Nullable underlyingError = error.underlyingErrors.firstObject;
     if (underlyingError == NULL) {
         id errorInUserInfo = [error.userInfo valueForKey:NSUnderlyingErrorKey];
         if (errorInUserInfo && [errorInUserInfo isKindOfClass:[NSError class]]) {
@@ -31,14 +28,7 @@ isErrorPathTooLong(NSError *error)
     if (underlyingError == NULL) {
         underlyingError = error;
     }
-    BOOL isEnameTooLong
-        = underlyingError.domain == NSPOSIXErrorDomain && underlyingError.code == ENAMETOOLONG;
-    // On older OS versions the error code is NSFileWriteUnknown
-    // Reference: https://developer.apple.com/forums/thread/128927?answerId=631839022#631839022
-    BOOL isUnknownError = underlyingError.domain == NSCocoaErrorDomain
-        && underlyingError.code == NSFileWriteUnknownError;
-
-    return isEnameTooLong || isUnknownError;
+    return underlyingError.domain == NSPOSIXErrorDomain && underlyingError.code == ENAMETOOLONG;
 }
 
 BOOL
