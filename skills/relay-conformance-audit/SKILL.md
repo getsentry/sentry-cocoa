@@ -7,7 +7,7 @@ description: Audit the Cocoa SDK for protocol-conformance drift against Relay (g
 
 The SDK hard-codes many strings and wire formats that must match Relay exactly — header names, envelope item types, data categories, discard reasons, DSC keys, session fields. A mismatch anywhere in that surface fails **silently**: data is dropped, mis-routed, or miscounted with no error. This skill audits that entire surface. One motivating example of the class: [#8322](https://github.com/getsentry/sentry-cocoa/issues/8322) (a case-sensitive `X-Sentry-Rate-Limits` header read silently rate-limited all telemetry) — but the skill exists to hunt bugs _like_ it, wherever they occur, not that one bug.
 
-**READ-ONLY toward the SDK.** Never edit SDK code or file issues. Never modify `references/findings.md`. The only outputs are the report and — sole exception — a draft PR from the coverage check that touches nothing but `references/surface-map.md` (see "Coverage check").
+**READ-ONLY toward the SDK.** Never edit SDK code or file issues. Never modify `references/findings.md`. The only outputs are the report and — sole exception — a draft PR the coverage check opens against `getsentry/sentry-cocoa` that touches nothing but `references/surface-map.md` (see "Coverage check"). When the map is out of date, the skill opens that draft PR directly rather than only flagging the gap.
 
 ## Model
 
@@ -37,7 +37,11 @@ The audit only inspects what the surface map lists, so a stale map is a silent c
 Outcome:
 
 - **Map up to date** → one line in the report: `coverage: OK`.
-- **Gaps found** → list them in the report under `coverage: GAPS`, and prepare a **draft PR** that updates ONLY `references/surface-map.md` (extend an area's file list, fix a moved Relay path, or add a new area with files/spec/checks). Branch `chore/relay-audit-surface-map-<date>`, title `chore: update relay-audit surface map`, `#skip-changelog`, body = the gap list + why each belongs in the map. This is the skill's only permitted write: never touch SDK code, `findings.md`, or SKILL.md in that PR; never merge it — a human reviews. If a draft PR from a previous run is still open, update that branch instead of opening a second one.
+- **Gaps found** → list them in the report under `coverage: GAPS`, **and directly open a draft PR** against `getsentry/sentry-cocoa` (base `main`) that updates ONLY `references/surface-map.md` — don't just describe it, push it. The map drifts as the SDK changes, so this is the mechanism that keeps it current. Mechanically:
+  1. Edit `skills/relay-conformance-audit/references/surface-map.md` only — extend an area's file list, fix a moved Relay path, or add a new area (with **What it is / Cocoa / Relay-Spec / Check**, all links as `blob/main` (Cocoa) or `blob/master` (Relay), matching the file's existing format).
+  2. Branch `chore/relay-audit-surface-map-<date>`. Commit just that file: `chore: update relay-audit surface map` with `#skip-changelog` in the body.
+  3. Push and `gh pr create --draft --base main --title "chore: update relay-audit surface map"`; body = the gap list + one line per gap on why it belongs in the map + "Opened by relay-conformance-audit coverage check, <DATE>, @<SHA>." Put the resulting PR URL in the report's `coverage` line.
+  - This is the skill's **only** permitted write: never touch SDK code, `findings.md`, or `SKILL.md` in that PR; leave it as a draft and never merge — a human reviews. If a draft PR from a previous run is still open, push to that branch and update its body instead of opening a second one. If `gh` isn't authenticated or the push fails, say so loudly in the report and include the diff inline — never report the PR as opened when it wasn't.
 - Gaps are NOT mismatches: report them in the coverage section only; the newly-discovered files get audited by the next run after the map PR merges.
 
 ## Report
@@ -70,7 +74,7 @@ Create-issue links: `https://github.com/getsentry/sentry-cocoa/issues/new?title=
 ## Guardrails
 
 - Report only real wire-level mismatches. Style issues, dead code, and things Relay normalizes server-side are ignore-list material, not weekly noise.
-- Relay paths move: if a listed path 404s, search the Relay repo for the symbol (`ItemType`, `DataCategory`, `ClientReport`) and audit against the moved file; the coverage check turns the path fix into a draft PR.
+- Relay paths move: if a listed path 404s, search the Relay repo for the symbol (`ItemType`, `DataCategory`, `ClientReport`) and audit against the moved file; the coverage check turns the path fix into a draft PR it opens directly.
 - Bounded cost: one subagent per area plus one coverage-check subagent; don't recurse into `SentryCrash/` or other non-protocol code.
 
 ## Validation (self-test)
