@@ -37,11 +37,7 @@ enum VersionError: Error, ErrorHandling {
 let fromVersionFile = "./Sources/Sentry/SentryMeta.m"
 
 let files = [
-    "./Package.swift",
-    "./Package@swift-6.1.swift",
-    "./Package@swift-6.2.swift",
     "./Sources/Sentry/SentryMeta.m",
-    "./distribution/apple-binaries/Package.swift",
     "./3rd-party-integrations/SentrySwiftLog/Package.swift",
     "./3rd-party-integrations/SentrySwiftyBeaver/Package.swift",
     "./3rd-party-integrations/SentryCocoaLumberjack/Package.swift",
@@ -194,11 +190,7 @@ func verifyRestrictedFile(_ file: String, expectedVersion: String) throws {
 }
 
 func getRegexString(for file: String) throws -> String {
-    if file.hasPrefix("./distribution/") && file.hasSuffix("/Package.swift") {
-        return "https:\\/\\/github\\.com\\/getsentry\\/sentry-cocoa\\/releases\\/download\\/(?<version>[a-zA-z0-9\\.\\-]+)\\/Sentry"
-    } else if file.hasPrefix("./Package") && file.hasSuffix(".swift") {
-        return "https:\\/\\/github\\.com\\/getsentry\\/sentry-cocoa\\/releases\\/download\\/(?<version>[a-zA-z0-9\\.\\-]+)\\/Sentry"
-    } else if file.hasPrefix("./3rd-party-integrations/") && file.hasSuffix("/Package.swift") {
+    if file.hasPrefix("./3rd-party-integrations/") && file.hasSuffix("/Package.swift") {
         return "\\.package\\(url:\\s\"https:\\/\\/github\\.com\\/getsentry\\/sentry-cocoa\",\\sfrom:\\s\"(?<version>[a-zA-z0-9\\.\\-]+)\""
     } else if file == "./Sources/Sentry/SentryMeta.m" {
         return "static NSString \\*versionString = @\"(?<version>[a-zA-z0-9\\.\\-]+)\""

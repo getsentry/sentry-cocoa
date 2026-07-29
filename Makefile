@@ -440,20 +440,6 @@ build-xcframework-static:
 	./scripts/validate-xcframework.sh --xcframework "Sentry.xcframework"
 	./scripts/compress-xcframework.sh --xcframework "Sentry.xcframework"
 
-## Build SentrySwiftUI XCFramework
-#
-# SDKS is a comma-separated list of SDK names (default: all).
-#
-# Examples:
-#   make build-xcframework-swiftui
-#   make build-xcframework-swiftui SDKS=iphonesimulator
-.PHONY: build-xcframework-swiftui
-build-xcframework-swiftui:
-	@echo "--> Creating SentrySwiftUI xcframework (SDKs: $(SDKS))"
-	./scripts/build-xcframework-variant.sh --scheme "SentrySwiftUI" --mach-o-type "mh_dylib" --sdks "$(SDKS)"
-	./scripts/validate-xcframework.sh --xcframework "SentrySwiftUI.xcframework"
-	./scripts/compress-xcframework.sh --xcframework "SentrySwiftUI.xcframework"
-
 ## Build Sentry-WithoutUIKitOrAppKit XCFramework
 #
 # SDKS is a comma-separated list of SDK names (default: all).

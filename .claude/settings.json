@@ -79,7 +79,6 @@
       "Bash(make build-xcframework-dynamic)",
       "Bash(make build-xcframework-dynamic-arm64e)",
       "Bash(make build-xcframework-static)",
-      "Bash(make build-xcframework-swiftui)",
       "Bash(make build-xcframework-without-uikit)",
       "Bash(make build-xcframework-without-uikit-arm64e)",
       "Bash(make build-xcframework-sentryobjc-static)",

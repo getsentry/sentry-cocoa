@@ -10,7 +10,7 @@ usage() {
     cat <<EOF
 Usage: $(basename "$0") <old_version> <new_version>
 
-Bump the SDK version across all source files and update the package SHA.
+Bump the SDK version across all source files.
 This is the entry point used by Craft during releases.
 
 Accepts positional parameters for Craft compatibility.
@@ -43,9 +43,5 @@ log_info "  Old version: $OLD_VERSION"
 log_info "  New version: $NEW_VERSION"
 
 "$SCRIPT_DIR/bump-version.sh" --version "${NEW_VERSION}"
-
-begin_group "Update package SHA"
-"$SCRIPT_DIR/update-package-sha.sh"
-end_group
 
 log_info "Version bump from ${OLD_VERSION} to ${NEW_VERSION} completed successfully"
