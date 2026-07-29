@@ -115,7 +115,7 @@ final class SentryUIRedactBuilder {
     /// strings, the subtree will be ignored. For example, "MyView" will match "MyApp.MyView",
     /// "MyViewSubclass", etc.
     private var excludedViewClassPatterns: Set<String>
-    
+
     /// A set of view type identifier strings that should be included in subtree traversal.
     ///
     /// Views exactly matching these strings will be removed from the excluded set, allowing their subtrees
@@ -247,7 +247,7 @@ final class SentryUIRedactBuilder {
         excludedViewClassPatterns = SentryViewSubtreeTraversal.defaultExcludedViewClassPatterns
             .union(options.excludedViewClasses)
         includedViewClassPatterns = options.includedViewClasses
-        
+
         // didSet doesn't run during initialization, so we need to manually build the optimization structures
         rebuildOptimizedLookups()
     }
@@ -413,7 +413,7 @@ final class SentryUIRedactBuilder {
     func isRedactContainerClassTestOnly(_ containerClass: AnyClass) -> Bool {
         return isRedactContainerClass(containerClass)
     }
-    
+
     func getRedactClassesIdentifiersTestOnly() -> Set<ClassIdentifier> {
         redactClassesIdentifiers
     }
@@ -692,14 +692,15 @@ final class SentryUIRedactBuilder {
     /// the host app. Taking a Session Replay screenshot must never crash the app, so we route the
     /// access through an Objective-C exception handler and skip the subtree if it throws.
     ///
-    /// See https://github.com/getsentry/sentry-cocoa/issues/7810.
+    /// See https://docs.sentry.io/platforms/apple/guides/ios/session-replay/troubleshooting and
+    /// https://github.com/getsentry/sentry-cocoa/issues/7810 for more details.
     private func safeSublayers(of layer: CALayer) -> [CALayer]? {
         var sublayers: [CALayer]?
         let succeeded = SentryObjCExceptionHelper.tryBlock {
             sublayers = layer.sublayers
         }
         guard succeeded else {
-            SentrySDKLog.warning("Skipping redaction of a layer subtree because accessing its sublayers raised an exception. See https://github.com/getsentry/sentry-cocoa/issues/7810")
+            SentrySDKLog.warning("Skipping redaction of a layer subtree because accessing its sublayers raised an exception. See https://docs.sentry.io/platforms/apple/guides/ios/session-replay/troubleshooting and https://github.com/getsentry/sentry-cocoa/issues/7810 for more details.")
             return nil
         }
         return sublayers
