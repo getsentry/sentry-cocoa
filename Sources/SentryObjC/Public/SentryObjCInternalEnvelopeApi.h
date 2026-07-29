@@ -21,6 +21,14 @@ SENTRY_NO_INIT
 /// Captures an envelope and sends it to Sentry.
 - (void)capture:(SentryObjCEnvelope *)envelope;
 
+/// Captures an envelope whose unhandled exceptions did not terminate the process.
+///
+/// Use this instead of @c capture: in runtimes that keep the process alive after an unhandled
+/// exception. The current session keeps running with the same ID and only its error count
+/// increases, but it ends with the @c unhandled status instead of @c exited. A later crash or
+/// abnormal exit still takes precedence over @c unhandled.
+- (void)captureNonTerminating:(SentryObjCEnvelope *)envelope;
+
 /// Deserializes an envelope from raw data.
 - (nullable SentryObjCEnvelope *)deserializeFrom:(NSData *)data;
 

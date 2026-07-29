@@ -7,6 +7,7 @@ enum SentrySessionStatus: String {
     case exited
     case crashed
     case abnormal
+    case unhandled
 }
 
 // swiftlint:disable type_body_length
@@ -28,6 +29,9 @@ enum SentrySessionStatus: String {
     private var _releaseName: String?
     private var _environment: String?
     private var _abnormalMechanism: String?
+    /// Set when an unhandled exception did not terminate the process. Only persisted to disk, never
+    /// sent to Sentry, because it only decides whether the session ends as `unhandled` or `exited`.
+    private var _pendingUnhandled = false
 
     // MARK: - Initializers
 
@@ -61,7 +65,8 @@ enum SentrySessionStatus: String {
         duration: NSNumber?,
         releaseName: String?,
         environment: String?,
-        abnormalMechanism: String?
+        abnormalMechanism: String?,
+        pendingUnhandled: Bool
     ) {
         _sessionId = sessionId
         _started = started
@@ -75,6 +80,7 @@ enum SentrySessionStatus: String {
         _releaseName = releaseName
         _environment = environment
         _abnormalMechanism = abnormalMechanism
+        _pendingUnhandled = pendingUnhandled
     }
 
     /**
@@ -153,6 +159,9 @@ enum SentrySessionStatus: String {
         if let abnormalMechanism = jsonObject["abnormal_mechanism"] as? String {
             _abnormalMechanism = abnormalMechanism
         }
+
+        // Optional: pending_unhandled
+        _pendingUnhandled = (jsonObject["pending_unhandled"] as? NSNumber)?.boolValue ?? false
     }
     // swiftlint:enable cyclomatic_complexity
 
@@ -162,7 +171,7 @@ enum SentrySessionStatus: String {
     public func endExited(withTimestamp timestamp: Date) {
         lock.synchronized {
             changed()
-            _status = .exited
+            _status = _pendingUnhandled ? .unhandled : .exited
             endSession(withTimestamp: timestamp)
         }
     }
@@ -189,6 +198,17 @@ enum SentrySessionStatus: String {
         lock.synchronized {
             changed()
             _errors += 1
+        }
+    }
+
+    /// Flags the session so it ends as `unhandled` instead of `exited`.
+    ///
+    /// Use this for unhandled exceptions that did not terminate the process, as it happens in hybrid
+    /// runtimes such as Flutter. This doesn't bump the sequence, because the flag isn't part of the
+    /// session payload sent to Sentry.
+    @objc public func markPendingUnhandled() {
+        lock.synchronized {
+            _pendingUnhandled = true
         }
     }
 
@@ -242,6 +262,22 @@ enum SentrySessionStatus: String {
         }
     }
 
+    /// Serializes the session for the on-disk session file.
+    ///
+    /// Unlike ``serialize()``, which must stay within the session payload the server understands,
+    /// this keeps the pending-unhandled flag so it survives process termination.
+    @objc public func serializeForPersistence() -> [String: Any] {
+        lock.synchronized {
+            var serializedData = serialize()
+
+            if _pendingUnhandled {
+                serializedData["pending_unhandled"] = NSNumber(value: true)
+            }
+
+            return serializedData
+        }
+    }
+
     public func copy(with zone: NSZone? = nil) -> Any {
         lock.synchronized {
             SentrySession(
@@ -256,7 +292,8 @@ enum SentrySessionStatus: String {
                 duration: _duration,
                 releaseName: _releaseName,
                 environment: _environment,
-                abnormalMechanism: _abnormalMechanism
+                abnormalMechanism: _abnormalMechanism,
+                pendingUnhandled: _pendingUnhandled
             )
         }
     }
@@ -324,6 +361,12 @@ enum SentrySessionStatus: String {
         set {
             lock.synchronized { _abnormalMechanism = newValue }
         }
+    }
+
+    /// Whether an unhandled exception occurred that didn't terminate the process. Such a session ends
+    /// as `unhandled` instead of `exited`.
+    @objc public var pendingUnhandled: Bool {
+        lock.synchronized { _pendingUnhandled }
     }
 
     // MARK: - Private methods
