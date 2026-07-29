@@ -25,19 +25,19 @@ final class SentryNetworkTrackerProxy {
 
     static let shared = SentryNetworkTrackerProxy()
 
-    private let weakTarget = SentryMutex<WeakBox?>(nil)
+    private let weakTargetMutex = SentryMutex<WeakBox?>(nil)
 
     var target: SentryNetworkTrackerProtocol? {
-        weakTarget.withLock { $0?.value }
+        weakTargetMutex.withLock { $0?.value }
     }
 
     func setTarget(_ target: SentryNetworkTrackerProtocol) {
         let reference = WeakBox(target)
-        weakTarget.withLock { $0 = reference }
+        weakTargetMutex.withLock { $0 = reference }
     }
 
     func removeTarget(_ target: SentryNetworkTrackerProtocol) {
-        weakTarget.withLock {
+        weakTargetMutex.withLock {
             // An older integration must not remove a newer integration's tracker.
             guard $0?.value === target else {
                 return
