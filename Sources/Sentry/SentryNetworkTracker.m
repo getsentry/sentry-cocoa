@@ -1,5 +1,6 @@
 #import "SentryNetworkTracker.h"
 #import "SentryBaggage.h"
+#import "SentryBreadcrumb+Private.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
 #import "SentryDefaultThreadInspector.h"
@@ -425,8 +426,11 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     request.fragment = url.fragment;
     request.queryString = url.query;
     request.bodySize = [NSNumber numberWithLongLong:sessionTask.countOfBytesSent];
+    // Safe: reading the whole dictionary, not a case-sensitive single-header lookup.
+    // sentry-lint:disable avoid_all_header_fields
     if (nil != currentRequest.allHTTPHeaderFields) {
         NSDictionary<NSString *, NSString *> *headers = currentRequest.allHTTPHeaderFields.copy;
+        // sentry-lint:enable avoid_all_header_fields
 #if SDK_V10
         HTTPHeaderSanitizationResultObjC *sanitizedHeaders = [HTTPHeaderSanitizerObjC
             sanitizeRequestHeaders:headers
@@ -514,9 +518,6 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     SentryLevel breadcrumbLevel = [self getBreadcrumbLevel:sessionTask
                                         responseStatusCode:responseStatusCode];
 
-    SentryBreadcrumb *breadcrumb = [[SentryBreadcrumb alloc] initWithLevel:breadcrumbLevel
-                                                                  category:@"http"];
-
 #if SDK_V10
     SentryDataCollectionObjCOptions *_Nullable dataCollectionOptions = options.dataCollectionObjC;
     UrlSanitized *urlComponents = [[UrlSanitized alloc]
@@ -527,7 +528,6 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         [[UrlSanitized alloc] initWithURL:SENTRY_UNWRAP_NULLABLE(NSURL, currentRequest.URL)];
 #endif // SDK_V10
 
-    breadcrumb.type = @"http";
     NSMutableDictionary<NSString *, id> *breadcrumbData = [[NSMutableDictionary alloc] init];
     breadcrumbData[@"url"] = urlComponents.sanitizedUrl;
     breadcrumbData[@"method"] = currentRequest.HTTPMethod;
@@ -569,7 +569,10 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     }
 #endif // SENTRY_TARGET_REPLAY_SUPPORTED
 
-    breadcrumb.data = breadcrumbData;
+    SentryBreadcrumb *breadcrumb = [[SentryBreadcrumb alloc] initWithLevel:breadcrumbLevel
+                                                                  category:@"http"
+                                                                      data:breadcrumbData];
+    breadcrumb.type = @"http";
     [SentrySDKInternal addBreadcrumb:breadcrumb];
 
     objc_setAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_BREADCRUMB,
@@ -758,10 +761,14 @@ static const void *SentryNetworkDetailsKey = &SentryNetworkDetailsKey;
     NSNumber *requestSize = rawBody ? [NSNumber numberWithUnsignedInteger:rawBody.length] : nil;
     NSData *bodyData = networkCaptureBodies ? rawBody : nil;
 
+    // Safe: passing the whole dictionary, not a case-sensitive single-header lookup.
+    // sentry-lint:disable avoid_all_header_fields
+    NSDictionary<NSString *, NSString *> *_Nullable allHeaders = request.allHTTPHeaderFields;
+    // sentry-lint:enable avoid_all_header_fields
     [details setRequestWithSize:requestSize
                        bodyData:bodyData
                     contentType:[request valueForHTTPHeaderField:@"content-type"]
-                     allHeaders:request.allHTTPHeaderFields
+                     allHeaders:allHeaders
               configuredHeaders:networkRequestHeaders];
 }
 #endif // SENTRY_TARGET_REPLAY_SUPPORTED

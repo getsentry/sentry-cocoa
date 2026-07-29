@@ -3,6 +3,12 @@ changelogPolicy: auto
 preReleaseCommand: bash ./scripts/bump.sh
 targets:
   - name: github
+    excludeNames: /\.tgz$/
+  - name: commit-on-git-repository
+    archive: /^sentry-apple-binaries\.tgz$/
+    repositoryUrl: https://github.com/getsentry/sentry-apple-binaries
+    branch: main
+    createTag: true
   # The canonical name 'cocoapods:sentry-cocoa' is a historical artifact from when
   # the SDK was distributed via CocoaPods. Changing it requires manual surgery in
   # the sentry-release-registry repo, so we keep it as-is.

@@ -23,7 +23,7 @@ jobs:
     outputs:
       run_v10_for_prs: ${{ steps.changes.outputs.run_v10_for_prs }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Get changed files
         id: changes
         uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2
@@ -56,7 +56,7 @@ jobs:
     steps:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Xcode
         id: setup-xcode
         uses: ./.github/actions/setup-xcode
@@ -85,11 +85,39 @@ jobs:
         uses: ./.github/actions/ci-diagnostics
         if: ${{ failure() || cancelled() }}
 
+  verify-no-binary-targets:
+    name: Verify no binary targets with SDK_V10
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_v10_for_prs == 'true'
+    needs: files-changed
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "26"
+          resolve-simulators: "false"
+      - name: Verify no binary targets in package manifest
+        env:
+          SDK_V10: "1"
+        run: |
+          echo "Dumping package manifest with SDK_V10=1..."
+          swift package dump-package 2>/dev/null | jq . > package-dump.json
+
+          binary_count=$(jq '[.targets[] | select(.type == "binary")] | length' package-dump.json)
+          if [ "$binary_count" -ne 0 ]; then
+            echo "::error::Found $binary_count binary target(s) when SDK_V10=1. Binary targets must be gated behind the V10 flag."
+            jq '[.targets[] | select(.type == "binary") | .name]' package-dump.json
+            exit 1
+          fi
+          echo "No binary targets found — OK"
+
   build-v10-required-check:
     needs:
       [
         files-changed,
         build-v10,
+        verify-no-binary-targets,
         run-full-ci-gate,
       ]
     name: Build V10

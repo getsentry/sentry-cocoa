@@ -232,4 +232,98 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         // -- Assert --
         XCTAssertFalse(features.contains("standaloneAppStartTracing"))
     }
+
+    func testEnableWatchdogTerminationsV2_isEnabled_shouldAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+
+        options.experimental.enableWatchdogTerminationsV2 = true
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertTrue(features.contains("watchdogTerminationsV2"))
+    }
+
+    func testEnableWatchdogTerminationsV2_isDisabled_shouldNotAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+
+        options.experimental.enableWatchdogTerminationsV2 = false
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("watchdogTerminationsV2"))
+    }
+
+    func testAttachViewHierarchy_isEnabled_shouldAddFeature() throws {
+#if os(iOS)
+        // -- Arrange --
+        let options = Options()
+
+        options.attachViewHierarchy = true
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertTrue(features.contains("viewHierarchy"))
+#else
+        throw XCTSkip("Test not supported on this platform")
+#endif
+    }
+
+    func testAttachViewHierarchy_isDisabled_shouldNotAddFeature() throws {
+#if os(iOS)
+        // -- Arrange --
+        let options = Options()
+
+        options.attachViewHierarchy = false
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("viewHierarchy"))
+#else
+        throw XCTSkip("Test not supported on this platform")
+#endif
+    }
+
+    func testScreenshotFastViewRendering_isEnabled_shouldAddFeature() throws {
+#if os(iOS)
+        // -- Arrange --
+        let options = Options()
+
+        options.screenshot.enableFastViewRendering = true
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertTrue(features.contains("screenshotFastViewRendering"))
+#else
+        throw XCTSkip("Test not supported on this platform")
+#endif
+    }
+
+    func testScreenshotFastViewRendering_isDisabled_shouldNotAddFeature() throws {
+#if os(iOS)
+        // -- Arrange --
+        let options = Options()
+
+        options.screenshot.enableFastViewRendering = false
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("screenshotFastViewRendering"))
+#else
+        throw XCTSkip("Test not supported on this platform")
+#endif
+    }
 }
