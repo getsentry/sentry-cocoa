@@ -34,11 +34,7 @@ extension SentryKSCrash {
             super.init()
 
             // To match KSCrash & SentryCrash, we need to add 'KSCrash/<bundlename>' to the cacheDirectoryPath
-            let bundleName = Bundle.main.infoDictionary?["CFBundleName"] as? String ?? "Unknown"
-            let installPath = URL(fileURLWithPath: options.cacheDirectoryPath)
-                .appendingPathComponent("KSCrash")
-                .appendingPathComponent(bundleName.replacingOccurrences(of: "/", with: "-"))
-                .absoluteURL
+            let installPath = Self.installPath(for: options.cacheDirectoryPath, bundleInfo: Bundle.main.infoDictionary)
 
             do {
                 try dependencies.kscrashInstaller.install(
@@ -64,6 +60,20 @@ extension SentryKSCrash {
         }
 
         func uninstall() {}
+
+        // MARK: - Helpers
+
+        /// Builds the KSCrash install path by appending `KSCrash/<bundleName>` to
+        /// `cacheDirectoryPath`, matching the layout used by KSCrash and SentryCrash.
+        /// `CFBundleName` is sanitized by replacing `/` with `-` so it is safe as a
+        /// single path component. Falls back to `"Unknown"` if the key is absent.
+        static func installPath(for cacheDirectoryPath: String, bundleInfo: [String: Any]?) -> URL {
+            let bundleName = bundleInfo?["CFBundleName"] as? String ?? "Unknown"
+            return URL(fileURLWithPath: cacheDirectoryPath)
+                .appendingPathComponent("KSCrash")
+                .appendingPathComponent(bundleName.replacingOccurrences(of: "/", with: "-"))
+                .absoluteURL
+        }
     }
 }
 #endif

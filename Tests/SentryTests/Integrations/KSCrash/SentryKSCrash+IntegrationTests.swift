@@ -36,15 +36,48 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         let installer = MockKSCrashInstaller()
         let deps = MockKSCrashDependencies(installer: installer)
         let options = makeOptions()
-        let bundleID = Bundle.main.infoDictionary?["CFBundleName"] as? String ?? "Unknown"
-        let expectedPath = URL(fileURLWithPath: options.cacheDirectoryPath)
-            .appendingPathComponent("KSCrash")
-            .appendingPathComponent(bundleID)
-            .path
+        let expectedPath = SentryKSCrash.Integration<MockKSCrashDependencies>.installPath(
+            for: options.cacheDirectoryPath,
+            bundleInfo: Bundle.main.infoDictionary
+        ).path
 
         _ = SentryKSCrash.Integration(with: options, dependencies: deps)
 
         XCTAssertEqual(installer.installCalls[0].installPath, expectedPath)
+    }
+
+    // MARK: - installPath helper
+
+    func testInstallPath_appendsKSCrashAndBundleName() {
+        let result = SentryKSCrash.Integration<MockKSCrashDependencies>.installPath(
+            for: "/var/mobile/Containers/Data/app",
+            bundleInfo: ["CFBundleName": "MyApp"]
+        )
+        XCTAssertEqual(result.path, "/var/mobile/Containers/Data/app/KSCrash/MyApp")
+    }
+
+    func testInstallPath_sanitizesSlashesInBundleName() {
+        let result = SentryKSCrash.Integration<MockKSCrashDependencies>.installPath(
+            for: "/cache",
+            bundleInfo: ["CFBundleName": "My/App/Name"]
+        )
+        XCTAssertEqual(result.path, "/cache/KSCrash/My-App-Name")
+    }
+
+    func testInstallPath_fallsBackToUnknown_whenBundleInfoIsNil() {
+        let result = SentryKSCrash.Integration<MockKSCrashDependencies>.installPath(
+            for: "/cache",
+            bundleInfo: nil
+        )
+        XCTAssertEqual(result.path, "/cache/KSCrash/Unknown")
+    }
+
+    func testInstallPath_fallsBackToUnknown_whenCFBundleNameKeyMissing() {
+        let result = SentryKSCrash.Integration<MockKSCrashDependencies>.installPath(
+            for: "/cache",
+            bundleInfo: ["CFBundleIdentifier": "com.example.app"]
+        )
+        XCTAssertEqual(result.path, "/cache/KSCrash/Unknown")
     }
 
     func testInstall_whenCrashedLastLaunch_shouldSetFatalDetected() {
