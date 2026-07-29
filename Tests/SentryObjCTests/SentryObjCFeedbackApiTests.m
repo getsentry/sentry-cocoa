@@ -40,6 +40,13 @@
                  }];
 }
 
+- (void)testSetShakeGestureEnabled_whenFeedbackNotConfigured_shouldNotCrash
+{
+    // -- Act & Assert (no crash) --
+    [SentryObjCSDK.feedback setShakeGestureEnabled:YES];
+    [SentryObjCSDK.feedback setShakeGestureEnabled:NO];
+}
+
 @end
 
 #endif

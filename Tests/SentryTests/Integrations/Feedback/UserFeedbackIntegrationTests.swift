@@ -355,6 +355,172 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         withExtendedLifetime(window) { }
     }
 
+    func testSetShakeGestureEnabled_whenEnabledAtRuntime_shouldPresentFormOnShake() throws {
+        let window = makeWindow()
+        let viewController = TestPresentingViewController()
+        let config = SentryUserFeedbackConfiguration()
+        config.animations = false
+        config.useShakeGesture = false
+        let sut = SentryUserFeedbackIntegrationDriver(
+            configuration: config,
+            screenshotSource: makeScreenshotSource())
+        useFallbackPresenter(viewController, in: window)
+
+        // Not observing yet — a shake should be ignored.
+        NotificationCenter.default.post(name: .SentryShakeDetected, object: nil)
+        XCTAssertFalse(sut.displayingForm)
+
+        sut.setShakeGestureEnabled(true)
+        NotificationCenter.default.post(name: .SentryShakeDetected, object: nil)
+
+        _ = try XCTUnwrap(viewController.lastPresentedViewController as? SentryUserFeedbackFormController)
+        XCTAssertTrue(sut.displayingForm)
+        XCTAssertTrue(config.useShakeGesture)
+
+        withExtendedLifetime(window) { }
+    }
+
+    func testSetShakeGestureEnabled_whenDisabledAtRuntime_shouldNotPresentFormOnShake() {
+        let window = makeWindow()
+        let viewController = TestPresentingViewController()
+        let config = SentryUserFeedbackConfiguration()
+        config.animations = false
+        config.useShakeGesture = true
+        let sut = SentryUserFeedbackIntegrationDriver(
+            configuration: config,
+            screenshotSource: makeScreenshotSource())
+        useFallbackPresenter(viewController, in: window)
+
+        sut.setShakeGestureEnabled(false)
+        NotificationCenter.default.post(name: .SentryShakeDetected, object: nil)
+
+        XCTAssertFalse(sut.displayingForm)
+        XCTAssertEqual(viewController.presentCallCount, 0)
+        XCTAssertFalse(config.useShakeGesture)
+
+        withExtendedLifetime(window) { }
+    }
+
+    func testSetShakeGestureEnabled_whenEnabledTwice_shouldRegisterObserverOnce() {
+        let notificationCenter = TestNSNotificationCenterWrapper()
+        let config = SentryUserFeedbackConfiguration()
+        config.useShakeGesture = false
+        let sut = SentryUserFeedbackIntegrationDriver(
+            configuration: config,
+            screenshotSource: makeScreenshotSource(),
+            notificationCenter: notificationCenter)
+
+        sut.setShakeGestureEnabled(true)
+        sut.setShakeGestureEnabled(true)
+
+        let shakeObservers = notificationCenter.addObserverWithObjectInvocations.invocations
+            .filter { $0.name == .SentryShakeDetected }
+        XCTAssertEqual(shakeObservers.count, 1)
+    }
+
+    func testSetShakeGestureEnabled_whenDisabledAfterInit_shouldRemoveObserver() throws {
+        let notificationCenter = TestNSNotificationCenterWrapper()
+        let config = SentryUserFeedbackConfiguration()
+        config.useShakeGesture = true
+        let sut = SentryUserFeedbackIntegrationDriver(
+            configuration: config,
+            screenshotSource: makeScreenshotSource(),
+            notificationCenter: notificationCenter)
+
+        sut.setShakeGestureEnabled(false)
+
+        let removal = try XCTUnwrap(notificationCenter.removeObserverWithNameAndObjectInvocations
+            .invocations.first { $0.name == .SentryShakeDetected })
+        XCTAssertEqual(removal.name, .SentryShakeDetected)
+    }
+
+    func testSetShakeGestureEnabled_whenReEnabledAfterDisable_shouldPresentFormOnShake() throws {
+        let window = makeWindow()
+        let viewController = TestPresentingViewController()
+        let config = SentryUserFeedbackConfiguration()
+        config.animations = false
+        config.useShakeGesture = true
+        let sut = SentryUserFeedbackIntegrationDriver(
+            configuration: config,
+            screenshotSource: makeScreenshotSource())
+        useFallbackPresenter(viewController, in: window)
+
+        sut.setShakeGestureEnabled(false)
+        sut.setShakeGestureEnabled(true)
+        NotificationCenter.default.post(name: .SentryShakeDetected, object: nil)
+
+        _ = try XCTUnwrap(viewController.lastPresentedViewController as? SentryUserFeedbackFormController)
+        XCTAssertTrue(sut.displayingForm)
+        XCTAssertTrue(config.useShakeGesture)
+
+        withExtendedLifetime(window) { }
+    }
+
+    func testSetShakeGestureEnabled_whenDisabled_shouldKeepScreenshotObserver() throws {
+        let notificationCenter = TestNSNotificationCenterWrapper()
+        let config = SentryUserFeedbackConfiguration()
+        config.showFormForScreenshots = true
+        config.useShakeGesture = true
+        let sut = SentryUserFeedbackIntegrationDriver(
+            configuration: config,
+            screenshotSource: makeScreenshotSource(),
+            notificationCenter: notificationCenter)
+        XCTAssertEqual(notificationCenter.observerCount, 2)
+
+        sut.setShakeGestureEnabled(false)
+
+        // Only the shake observer is removed; the screenshot observer survives.
+        let removals = notificationCenter.removeObserverWithNameAndObjectInvocations.invocations
+        XCTAssertEqual(removals.count, 1)
+        XCTAssertEqual(removals.first?.name, .SentryShakeDetected)
+        XCTAssertEqual(notificationCenter.observerCount, 1)
+
+        withExtendedLifetime(sut) { }
+    }
+
+    func testSetShakeGestureEnabled_whenDisabledWhileNotObserving_shouldBeNoOp() {
+        let notificationCenter = TestNSNotificationCenterWrapper()
+        let config = SentryUserFeedbackConfiguration()
+        config.useShakeGesture = false
+        let sut = SentryUserFeedbackIntegrationDriver(
+            configuration: config,
+            screenshotSource: makeScreenshotSource(),
+            notificationCenter: notificationCenter)
+
+        sut.setShakeGestureEnabled(false)
+
+        XCTAssertTrue(notificationCenter.removeObserverWithNameAndObjectInvocations.invocations.isEmpty)
+        XCTAssertFalse(config.useShakeGesture)
+
+        withExtendedLifetime(sut) { }
+    }
+
+    func testFeedbackAPI_setShakeGestureEnabled_whenConfigured_shouldPresentFormOnShake() throws {
+        let window = makeWindow()
+        let viewController = TestPresentingViewController()
+        let integration = try installFeedbackIntegration { $0.animations = false }
+        useFallbackPresenter(viewController, in: window)
+
+        // Not observing yet (useShakeGesture defaults to false) — a shake is ignored.
+        NotificationCenter.default.post(name: .SentryShakeDetected, object: nil)
+        XCTAssertFalse(integration.driver.displayingForm)
+
+        SentrySDK.feedback.setShakeGestureEnabled(true)
+        NotificationCenter.default.post(name: .SentryShakeDetected, object: nil)
+
+        _ = try XCTUnwrap(viewController.lastPresentedViewController as? SentryUserFeedbackFormController)
+        XCTAssertTrue(integration.driver.displayingForm)
+
+        withExtendedLifetime(window) { }
+    }
+
+    func testFeedbackAPI_setShakeGestureEnabled_whenFeedbackNotConfigured_shouldNotCrash() {
+        clearTestState()
+
+        SentrySDK.feedback.setShakeGestureEnabled(true)
+        SentrySDK.feedback.setShakeGestureEnabled(false)
+    }
+
     @available(*, deprecated, message: "Testing deprecated widget configuration")
     func testScreenshotTrigger_whenWidgetAutoInjectionDisabled_shouldUseFallbackPresenter() throws {
 #if SDK_V10

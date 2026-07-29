@@ -39802,6 +39802,34 @@
           {
             "children": [
               {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "Available",
+              "Final",
+              "ObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A11FeedbackAPIC22setShakeGestureEnabledyySbF",
+            "moduleName": "Sentry",
+            "name": "setShakeGestureEnabled",
+            "printedName": "setShakeGestureEnabled(_:)",
+            "usr": "c:@M@Sentry@objc(cs)SentryFeedbackAPI(im)setShakeGestureEnabled:"
+          },
+          {
+            "children": [
+              {
                 "children": [
                   {
                     "children": [

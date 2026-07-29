@@ -6900,6 +6900,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setShakeGestureEnabled:",
+    "parent": "SentryObjCFeedbackApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setShowBranding:",
     "parent": "SentryObjCUserFeedbackFormConfiguration",
     "returnType": "void",

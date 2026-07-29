@@ -61,6 +61,18 @@ SENTRY_NO_INIT
                                SentryObjCUserFeedbackConfiguration *configuration))configure
     NS_EXTENSION_UNAVAILABLE("Not available in app extensions.");
 
+/**
+ * Enables or disables the shake-gesture trigger for the feedback form at runtime.
+ * @discussion Use this to toggle shake-to-report after @c SentrySDK.start, e.g. once an
+ * asynchronously fetched feature flag resolves. Requires the User Feedback integration to be
+ * configured; otherwise this is a no-op.
+ * @param enabled @c YES to start presenting the feedback form on shake; @c NO to stop.
+ * @note This method must be called from the main thread.
+ * @warning This is an experimental feature and may still have bugs.
+ */
+- (void)setShakeGestureEnabled:(BOOL)enabled
+    NS_EXTENSION_UNAVAILABLE("Not available in app extensions.");
+
 #    if !SDK_V10
 /**
  * Show the feedback widget button.

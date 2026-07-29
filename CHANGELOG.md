@@ -5,6 +5,7 @@
 ### Features
 
 - Add `Breadcrumb.setData(value:key:)` to set a single breadcrumb data entry and deprecate the `Breadcrumb.data` setter in its favor. (#8572)
+- Add `SentrySDK.feedback.setShakeGestureEnabled(_:)` to toggle the shake-to-report gesture at runtime (#7970)
 
 ### Fixes
 
