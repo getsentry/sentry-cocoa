@@ -70,8 +70,7 @@ final class SentrySpotlightTransportTests: XCTestCase {
     /// Captures the SDK logs so tests can assert on them. `tearDown()` restores the default log
     /// configuration so the captured output doesn't leak into other tests.
     ///
-    /// Note: we reset in `tearDown()` rather than `addTeardownBlock`, because the latter is only
-    /// available on macOS 10.15+ while the test target deploys down to macOS 10.14.
+    /// Note: we reset in `tearDown()` so captured output is cleared consistently after each test.
     private func givenCapturedLogs() -> TestLogOutput {
         let logOutput = TestLogOutput()
         SentrySDKLog.setLogOutput(logOutput)
