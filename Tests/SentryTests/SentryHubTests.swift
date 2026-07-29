@@ -1446,20 +1446,38 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(capturedSessionsBefore, fixture.client.captureSessionInvocations.count)
     }
 
-    func testCaptureNonTerminating_whenUnhandledException_shouldSendOriginalEnvelopeWithoutSessionItem() throws {
+    func testCaptureNonTerminating_whenUnhandledException_shouldAttachStillRunningSessionToEnvelope() throws {
         // -- Arrange --
         sut.startSession()
-        let envelope = givenUnhandledExceptionEnvelope()
 
         // -- Act --
-        sut.captureNonTerminating(envelope)
+        sut.captureNonTerminating(givenUnhandledExceptionEnvelope())
 
         // -- Assert --
         XCTAssertEqual(1, fixture.client.captureEnvelopeInvocations.count)
         let capturedEnvelope = try XCTUnwrap(fixture.client.captureEnvelopeInvocations.first)
-        XCTAssertIdentical(envelope, capturedEnvelope)
-        XCTAssertEqual(1, capturedEnvelope.items.count)
-        XCTAssertNil(capturedEnvelope.items.first(where: { $0.header.type == "session" }))
+        let sessionItem = try XCTUnwrap(capturedEnvelope.items.first(where: { $0.header.type == "session" }))
+        let sentSession = try XCTUnwrap(SentrySerializationSwift.session(with: try XCTUnwrap(sessionItem.data)))
+
+        // The session is still running, so it's only an intermediate update. It gets the unhandled
+        // status when it ends.
+        XCTAssertEqual(SentrySessionStatus.ok, sentSession.status)
+        XCTAssertEqual(1, sentSession.errors)
+    }
+
+    func testCaptureNonTerminating_whenUnhandledException_shouldNotSendPendingUnhandledFlagToSentry() throws {
+        // -- Arrange --
+        sut.startSession()
+
+        // -- Act --
+        sut.captureNonTerminating(givenUnhandledExceptionEnvelope())
+
+        // -- Assert --
+        let capturedEnvelope = try XCTUnwrap(fixture.client.captureEnvelopeInvocations.first)
+        let sessionItem = try XCTUnwrap(capturedEnvelope.items.first(where: { $0.header.type == "session" }))
+        let json = try XCTUnwrap(try JSONSerialization.jsonObject(with: try XCTUnwrap(sessionItem.data)) as? [String: Any])
+
+        XCTAssertNil(json["pending_unhandled"])
     }
 
     func testCaptureNonTerminating_whenUnhandledException_shouldPersistPendingSession() throws {

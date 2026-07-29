@@ -142,8 +142,8 @@ NS_ASSUME_NONNULL_BEGIN
         [self captureSession:session];
         newSession = session;
     }
-    [lastSession
-        endSessionExitedWithTimestamp:[SentryDependencyContainer.sharedInstance.dateProvider date]];
+    [lastSession endSessionNormallyWithTimestamp:[SentryDependencyContainer.sharedInstance
+                                                         .dateProvider date]];
     [self captureSession:lastSession];
 
     [self notifySessionStarted:newSession];
@@ -168,7 +168,7 @@ NS_ASSUME_NONNULL_BEGIN
         SENTRY_LOG_DEBUG(@"No session to end with timestamp.");
         return;
     }
-    [currentSession endSessionExitedWithTimestamp:timestamp];
+    [currentSession endSessionNormallyWithTimestamp:timestamp];
     [self captureSession:currentSession];
 
     [self notifySessionEnded:currentSession];
@@ -239,9 +239,7 @@ NS_ASSUME_NONNULL_BEGIN
             [session endSessionAbnormalWithTimestamp:SENTRY_UNWRAP_NULLABLE(NSDate, timestamp)];
         } else {
             SENTRY_LOG_DEBUG(@"Closing cached session normally.");
-            // Ends the session as unhandled when it's marked pending unhandled, otherwise as
-            // exited.
-            [session endSessionExitedWithTimestamp:SENTRY_UNWRAP_NULLABLE(NSDate, timestamp)];
+            [session endSessionNormallyWithTimestamp:SENTRY_UNWRAP_NULLABLE(NSDate, timestamp)];
         }
         [self deleteCurrentSession];
         [client captureSession:session];
@@ -848,30 +846,22 @@ NS_ASSUME_NONNULL_BEGIN
         return envelope;
     }
 
-    if (!handled) {
-        @synchronized(_sessionLock) {
-            if (_session == nil) {
-                _errorsBeforeSession++;
-                return envelope;
-            }
-
-            [_session incrementErrors];
+    SentrySession *currentSession;
+    @synchronized(_sessionLock) {
+        // Marking before incrementing, because incrementing persists the session.
+        if (!handled) {
             [_session markPendingUnhandled];
-            [self storeCurrentSession:SENTRY_UNWRAP_NULLABLE(SentrySession, _session)];
-            SENTRY_LOG_DEBUG(@"Marking session as pending unhandled: %@",
-                [self createSessionDebugString:SENTRY_UNWRAP_NULLABLE(SentrySession, _session)]);
         }
-
-        // The session stays open, so there is nothing to report yet. Sending the session with the
-        // unhandled status happens when it ends.
-        return envelope;
+        currentSession = [self incrementSessionErrors];
+        if (currentSession == nil) {
+            return envelope;
+        }
+        SENTRY_LOG_DEBUG(@"Updating session for non terminating envelope: %@",
+            [self createSessionDebugString:currentSession]);
     }
 
-    SentrySession *currentSession = [self incrementSessionErrors];
-    if (currentSession == nil) {
-        return envelope;
-    }
-
+    // The session stays open, so it's sent as an intermediate update with the incremented error
+    // count. It's sent again with its terminal status when it ends.
     NSMutableArray<SentryEnvelopeItem *> *itemsToSend =
         [[NSMutableArray alloc] initWithArray:envelope.items];
     [itemsToSend addObject:[[SentryEnvelopeItem alloc] initWithSession:currentSession]];

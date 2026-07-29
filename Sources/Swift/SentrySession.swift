@@ -167,8 +167,12 @@ enum SentrySessionStatus: String {
 
     // MARK: - Public methods
 
-    @objc(endSessionExitedWithTimestamp:)
-    public func endExited(withTimestamp timestamp: Date) {
+    /// Ends the session without a crash or an abnormal exit.
+    ///
+    /// The status is `exited`, unless an unhandled error that didn't terminate the process was
+    /// recorded via ``markPendingUnhandled()``, in which case it is `unhandled`.
+    @objc(endSessionNormallyWithTimestamp:)
+    public func endNormally(withTimestamp timestamp: Date) {
         lock.synchronized {
             changed()
             _status = _pendingUnhandled ? .unhandled : .exited
