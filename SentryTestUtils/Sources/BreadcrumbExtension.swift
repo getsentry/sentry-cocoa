@@ -5,7 +5,7 @@ public extension Breadcrumb {
         
         result.type = "navigation"
         result.timestamp = date
-        result.data = ["screen": screen]
+        result.setData(value: screen, key: "screen")
         
         return result
     }

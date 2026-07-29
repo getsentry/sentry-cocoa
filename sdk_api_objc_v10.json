@@ -5789,6 +5789,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setDataValue:forKey:",
+    "parent": "SentryObjCBreadcrumb",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setDataValue:forKey:",
     "parent": "SentryObjCSpan",
     "returnType": "void",
     "instance": true
