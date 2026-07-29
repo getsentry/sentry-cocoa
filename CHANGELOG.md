@@ -4,8 +4,8 @@
 
 ### Breaking Changes
 
+- Due to a potential risk of revealing PII or security-relevant data in crash events in specific circumstances, we're shipping this strictly speaking breaking change in a minor version.
 - Add `enableMemoryIntrospection` option to allow users to control memory introspection in crash reports, defaults to false (was previously true) (#7501)
-  - We're making this breaking change because in some specific circumstances this could reveal PII if that information was on the stack when a crash happened
   - You can re-enable this feature by setting the option `enableMemoryIntrospection` to true
 
 ### Fixes
