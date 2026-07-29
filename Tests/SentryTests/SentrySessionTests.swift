@@ -20,7 +20,7 @@ class SentrySessionTestsSwift: XCTestCase {
     func testEndSession() {
         let session = SentrySession(releaseName: "0.1.0", distinctId: "some-id")
         let date = currentDateProvider.date().addingTimeInterval(1)
-        session.endExited(withTimestamp: date)
+        session.endNormally(withTimestamp: date)
         
         XCTAssertEqual(1, session.duration)
         XCTAssertEqual(date, session.timestamp)
@@ -206,7 +206,7 @@ class SentrySessionTestsSwift: XCTestCase {
     func testSerializeExtraFieldsEndedSessionWithNilStatus() throws {
         let expected = SentrySession(releaseName: "io.sentry@5.0.0-test", distinctId: "some-id")
         let timestamp = Date()
-        expected.endExited(withTimestamp: timestamp)
+        expected.endNormally(withTimestamp: timestamp)
         expected.environment = "prod"
         let json = expected.serialize()
         let actual = try XCTUnwrap(SentrySession(jsonObject: json))
@@ -228,7 +228,7 @@ class SentrySessionTestsSwift: XCTestCase {
     func testSerializeErrorIncremented() throws {
         let expected = SentrySession(releaseName: "", distinctId: "some-id")
         expected.incrementErrors()
-        expected.endExited(withTimestamp: Date())
+        expected.endNormally(withTimestamp: Date())
         let json = expected.serialize()
         let actual = try XCTUnwrap(SentrySession(jsonObject: json))
 
@@ -274,7 +274,7 @@ class SentrySessionTestsSwift: XCTestCase {
         XCTAssertEqual(0, session.errors)
         XCTAssertEqual(SentrySessionStatus.ok, session.status)
         XCTAssertEqual(1, session.sequence)
-        session.endExited(withTimestamp: Date())
+        session.endNormally(withTimestamp: Date())
         XCTAssertEqual(0, session.errors)
         XCTAssertEqual(SentrySessionStatus.exited, session.status)
         XCTAssertEqual(2, session.sequence)
@@ -318,7 +318,7 @@ class SentrySessionTestsSwift: XCTestCase {
         XCTAssertEqual(1, session.sequence)
     }
 
-    func testEndExited_whenPendingUnhandled_shouldEndAsUnhandled() {
+    func testEndNormally_whenPendingUnhandled_shouldEndAsUnhandled() {
         // -- Arrange --
         let session = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
         session.incrementErrors()
@@ -326,7 +326,7 @@ class SentrySessionTestsSwift: XCTestCase {
         let timestamp = currentDateProvider.date().addingTimeInterval(3)
 
         // -- Act --
-        session.endExited(withTimestamp: timestamp)
+        session.endNormally(withTimestamp: timestamp)
 
         // -- Assert --
         XCTAssertEqual(SentrySessionStatus.unhandled, session.status)
@@ -444,14 +444,14 @@ class SentrySessionTestsSwift: XCTestCase {
         XCTAssertFalse(actual.pendingUnhandled)
     }
 
-    func testInitWithJson_whenPendingUnhandledAndEndExited_shouldEndAsUnhandled() throws {
+    func testInitWithJson_whenPendingUnhandledAndEndNormally_shouldEndAsUnhandled() throws {
         // -- Arrange --
         let session = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
         session.markPendingUnhandled()
         let restored = try XCTUnwrap(SentrySession(jsonObject: session.serializeForPersistence()))
 
         // -- Act --
-        restored.endExited(withTimestamp: currentDateProvider.date())
+        restored.endNormally(withTimestamp: currentDateProvider.date())
 
         // -- Assert --
         XCTAssertEqual(SentrySessionStatus.unhandled, restored.status)

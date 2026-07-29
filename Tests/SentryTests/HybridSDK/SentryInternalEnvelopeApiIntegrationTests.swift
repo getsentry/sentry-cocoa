@@ -135,8 +135,11 @@ class SentryInternalEnvelopeApiIntegrationTests: XCTestCase {
 
         // -- Assert --
         let capturedEnvelope = try XCTUnwrap(client?.captureEnvelopeInvocations.first)
-        XCTAssertIdentical(envelope, capturedEnvelope)
-        XCTAssertNil(capturedEnvelope.items.first(where: { $0.header.type == "session" }))
+        let attachedSessionData = try XCTUnwrap(capturedEnvelope.items.last?.data)
+        let attachedSession = try XCTUnwrap(try JSONSerialization.jsonObject(with: attachedSessionData) as? [String: Any])
+
+        XCTAssertEqual(sessionId.uuidString, try XCTUnwrap(attachedSession["sid"] as? String))
+        XCTAssertEqual("ok", try XCTUnwrap(attachedSession["status"] as? String))
 
         XCTAssertEqual(0, hub.startSessionInvocations)
         XCTAssertEqual(sessionId, try XCTUnwrap(hub.session).sessionId)

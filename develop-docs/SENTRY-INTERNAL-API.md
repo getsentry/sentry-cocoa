@@ -177,7 +177,7 @@ Sub-object accessors:
 | `captureNonTerminating(_:)`             | none (new)          |
 | `deserialize(from:) -> SentryEnvelope?` | `envelopeWithData:` |
 
-`captureNonTerminating(_:)` exists for runtimes such as Flutter, where an unhandled exception doesn't terminate the process. `capture(_:)` and `store(_:)` end the current session as `crashed`, which is wrong when the process keeps running. Instead, `captureNonTerminating(_:)` keeps the session `ok` with the same session ID, increments its error count, and flags it so it ends with the `unhandled` status. A later crash or abnormal exit still takes precedence. The flag is persisted to the session file, so it survives process termination, but it is never sent to Sentry.
+`captureNonTerminating(_:)` exists for runtimes such as Flutter and React Native, where an unhandled error doesn't terminate the process. `capture(_:)` and `store(_:)` end the current session as `crashed`, which is wrong when the process keeps running. Instead, `captureNonTerminating(_:)` keeps the session `ok` with the same session ID, increments its error count, and flags it so it ends with the [`unhandled` status](https://develop.sentry.dev/sdk/telemetry/sessions/). A later crash or abnormal exit still takes precedence. The still-running session is attached to the envelope as an intermediate update; the terminal `unhandled` status is only sent when the session ends. The flag is persisted to the session file, so it survives process termination, but it is never sent to Sentry.
 
 ### `SentrySDK.internal.screen` — `SentryInternalScreenApi`
 
