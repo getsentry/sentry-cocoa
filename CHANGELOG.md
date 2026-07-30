@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add `SentrySDK.feedback.enableFeedbackOnShake()` and `disableFeedbackOnShake()` to toggle the shake-to-report gesture at runtime (#8591)
+
 ## 9.24.0
 
 ### Breaking Changes
@@ -14,7 +20,6 @@
 ### Features
 
 - Add `Breadcrumb.setData(value:key:)` to set a single breadcrumb data entry and deprecate the `Breadcrumb.data` setter in its favor. (#8572)
-- Add `SentrySDK.feedback.enableFeedbackOnShake()` and `disableFeedbackOnShake()` to toggle the shake-to-report gesture at runtime (#8591)
 
 ### Fixes
 
