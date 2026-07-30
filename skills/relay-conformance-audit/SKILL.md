@@ -56,7 +56,7 @@ Outcome:
 
 Diffing Cocoa against Relay + develop-docs alone produces false positives: when the develop-docs spec is aspirational/wrong, or Relay tolerates a value, the docs-vs-Relay disagreement gets blamed on Cocoa. The peer SDKs are a second source of truth. If Cocoa is the **only** SDK that diverges, the finding is almost certainly real; if **every** SDK does the same thing Cocoa does, the "mismatch" is almost certainly a misreading of the spec, not a Cocoa bug.
 
-Run this only on mismatches that are still **needs action** after the `findings.md` match (step 3) — never on tracked/ignored entries. That bounds the extra searches to exactly the findings that would be reported.
+Run this only on mismatches that are still **needs action** after the `findings.md` match (step 3) — never on ignored entries. That bounds the extra searches to exactly the findings that would be reported.
 
 Peer repos, in priority order (mobile first): `getsentry/sentry-java`, `getsentry/sentry-dart`, `getsentry/sentry-react-native`, then `getsentry/sentry-javascript`, `getsentry/sentry-python`.
 
