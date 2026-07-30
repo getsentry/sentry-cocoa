@@ -1,7 +1,7 @@
 @testable import Sentry
 import XCTest
 
-#if os(iOS)
+#if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
 final class SentryShakeDetectorTests: XCTestCase {
@@ -102,4 +102,4 @@ final class SentryShakeDetectorTests: XCTestCase {
     }
 }
 
-#endif
+#endif // os(iOS) && !SENTRY_NO_UI_FRAMEWORK
