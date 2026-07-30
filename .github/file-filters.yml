@@ -449,6 +449,12 @@ run_apple_binaries_archive_for_prs: &run_apple_binaries_archive_for_prs
   - "scripts/create-apple-binaries-archive.sh"
   - "distribution/**"
 
+run_3rd_party_integrations_archive_for_prs: &run_3rd_party_integrations_archive_for_prs
+  - ".github/workflows/3rd-party-integrations-archive.yml"
+  - ".github/file-filters.yml"
+  - "scripts/create-3rd-party-integration-archive.sh"
+  - "3rd-party-integrations/**"
+
 run_ui_tests_for_prs: &run_ui_tests_for_prs
   - "Sources/**"
   - "Tests/**"

@@ -213,3 +213,28 @@ append_summary() {
     echo "[summary] ${content}"
   fi
 }
+
+# Create a .tgz archive from a staging directory.
+#
+# Usage:
+#   staging_dir=$(create_staging_dir)
+#   # ... populate $staging_dir ...
+#   create_tgz_from_staging "$staging_dir" "/path/to/output.tgz"
+#
+# The staging directory is removed after the archive is created.
+create_staging_dir() {
+  mktemp -d
+}
+
+create_tgz_from_staging() {
+  local staging_dir="$1"
+  local archive_path="$2"
+
+  (cd "$staging_dir" && find . -type f | sed 's|^\./||' | sort | xargs tar -czf "$archive_path" -C "$staging_dir")
+
+  rm -rf "$staging_dir"
+
+  log_info "Created $archive_path"
+  log_info "Contents:"
+  tar -tzf "$archive_path"
+}
