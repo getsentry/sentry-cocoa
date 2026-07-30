@@ -1,5 +1,4 @@
 import Foundation
-import SentrySwiftUI
 import SwiftUI
 
 @available(iOS 15.0, *)
