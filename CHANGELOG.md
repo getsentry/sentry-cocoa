@@ -4,7 +4,8 @@
 
 ### Fixes
 
-- Fix incorrect `duration: 0` sent for active sessions on error increments (#8612)
+- Fix incorrect `duration` sent for active sessions (#8612)
+  - Session `duration` is now set only when the session ends. Active sessions (including on error increments) no longer emit a bogus `duration`.
 
 ## 9.24.0
 

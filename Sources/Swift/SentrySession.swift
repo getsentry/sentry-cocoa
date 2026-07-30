@@ -217,11 +217,6 @@ enum SentrySessionStatus: String {
 
             if let duration = _duration {
                 serializedData["duration"] = duration
-            } else if _flagInit == nil, let secondsBetween = _timestamp?.timeIntervalSince(_started) {
-                // Only derive a duration once the session has an end timestamp.
-                // Active sessions have none yet, so we omit duration instead of
-                // emitting a bogus 0.
-                serializedData["duration"] = NSNumber(value: secondsBetween)
             }
 
             serializedData["seq"] = _sequence
