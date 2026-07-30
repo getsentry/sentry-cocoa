@@ -77,7 +77,7 @@ Each needs-action mismatch becomes exactly one `relay-audit:` GitHub issue on `g
 
 ### Dedup (do this before every create)
 
-1. `gh issue list --repo getsentry/sentry-cocoa --search "relay-audit: in:title" --state all --limit 100 --json number,title,body` — search **open and closed** issues.
+1. `gh issue list --repo getsentry/sentry-cocoa --search "relay-audit: in:title" --state all --limit 1000 --json number,title,body` — search **open and closed** issues. The list is scoped to the `relay-audit:` title prefix, so `1000` covers the audit's own issues for the foreseeable future; **if the result ever returns exactly the limit, the cap was hit — paginate (bump `--limit` or page with the Search API) before trusting a "no match", or a duplicate could slip past the 1000th result.**
 2. Match the mismatch's fingerprint (`area + file + normalized summary`, never line numbers/severity) against each candidate's title + body. A hit is the same underlying mismatch even if wording or line numbers drifted.
 3. **Match found** → `gh issue edit <number> --body-file <tmp>` with the freshly rebuilt body (new full SHA, refreshed permalinks and detail). Do not change the title unless the area/summary genuinely changed. Do not reopen a closed match — a closed issue means a human decided it; note it in the console summary instead.
 4. **No match** → create in **two steps**, because the ignore prompt needs the issue's own number (a chicken-and-egg the placeholder can't resolve at create time):
