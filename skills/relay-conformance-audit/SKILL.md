@@ -86,7 +86,7 @@ Each needs-action mismatch becomes exactly one `relay-audit:` GitHub issue on `g
 
 ### Labels
 
-`Relay-Conformance`. If the label doesn't exist yet, create it first (`gh label create Relay-Conformance --description "Cocoa ↔ Relay wire-format conformance" --color BFD4F2`), then pass `--label Relay-Conformance` on create.
+`relay-audit` (lowercase). If the label doesn't exist yet, create it first (`gh label create relay-audit --description "Cocoa ↔ Relay wire-format conformance audit" --color BFD4F2`), then pass `--label relay-audit` on create.
 
 ### Body (identical shape for create and edit)
 
