@@ -11,11 +11,12 @@ The SDK hard-codes many strings and wire formats that must match Relay exactly �
 
 ## Model
 
-Every run reports the **full current list of mismatches** — no delta tracking, no run-to-run memory. A mismatch leaves the report only by being **fixed** or **ignored**:
+Every run reports the **full current list of mismatches** — no delta tracking, no run-to-run memory. A needs-action mismatch leaves the report by being **fixed**, **ignored**, or **silently dropped** as a cross-SDK false positive:
 
 - **Tracked** — a GitHub issue exists; listed in `references/findings.md`. Reported with its issue link.
 - **Ignored** — listed in `references/findings.md` with an explicit _ignore-scenario_. Omitted from the report (counted only) while the scenario holds; reported as needs-action when it no longer holds.
-- **Needs action** — everything else. Reported with a pre-filled create-issue link; reappears every run until someone files the issue (→ tracked) or adds it to the ignore list.
+- **Needs action** — everything else, unless cross-SDK corroboration drops it. Reported with a pre-filled create-issue link; reappears every run until someone files the issue (→ tracked) or adds it to the ignore list.
+- **Cross-SDK false positive** — a needs-action mismatch whose `all-sdks-agree` verdict drops it silently: omitted entirely, with no count and no trace (see "Cross-SDK corroboration"). Unlike _ignored_, it is not counted, because it is judged not a real Cocoa mismatch rather than a known-but-tolerated one.
 
 If a tracked or ignored entry no longer reproduces, say so — humans can close the issue / prune the list.
 
