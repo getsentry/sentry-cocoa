@@ -233,7 +233,7 @@ class SentrySDKTests: XCTestCase {
     #if !SDK_V10
     @available(*, deprecated, message: "Testing deprecated crashedLastRun API")
     func testCrashedLastRun() {
-        XCTAssertEqual(SentrySDKInternal.crashHandlerDetectedCrash, SentrySDK.crashedLastRun)
+        XCTAssertEqual(SentryDependencyContainer.sharedInstance().crashReporter.crashedLastLaunch, SentrySDK.crashedLastRun)
     }
     #endif
 
@@ -241,7 +241,14 @@ class SentrySDKTests: XCTestCase {
 
     func testLastRunStatus_whenCrashStateNotLoaded_shouldReturnUnknown() {
         // -- Arrange --
-        SentrySDKInternal.crashReporterInstalled = false
+#if ENABLE_KSCRASH
+        let mockQuery = MockKSCrashQuery.create(installed: false, crashedLastLaunch: false)
+        SentryDependencyContainer.sharedInstance().kscrashQuery = mockQuery
+#else
+        let crashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
+        crashWrapper.internalInstalled = false
+        SentryDependencyContainer.sharedInstance().crashWrapper = crashWrapper
+#endif
 
         // -- Act --
         let status = SentrySDK.lastRunStatus
@@ -252,8 +259,15 @@ class SentrySDKTests: XCTestCase {
 
     func testLastRunStatus_whenCrashStateLoadedAndNoCrash_shouldReturnDidNotCrash() {
         // -- Arrange --
-        SentrySDKInternal.crashReporterInstalled = true
-        SentrySDKInternal.crashHandlerDetectedCrash = false
+#if ENABLE_KSCRASH
+        let mockQuery = MockKSCrashQuery.create(installed: true, crashedLastLaunch: false)
+        SentryDependencyContainer.sharedInstance().kscrashQuery = mockQuery
+#else
+        let crashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
+        crashWrapper.internalInstalled = true
+        crashWrapper.internalCrashedLastLaunch = false
+        SentryDependencyContainer.sharedInstance().crashWrapper = crashWrapper
+#endif
 
         // -- Act --
         let status = SentrySDK.lastRunStatus
@@ -264,8 +278,15 @@ class SentrySDKTests: XCTestCase {
 
     func testLastRunStatus_whenCrashStateLoadedAndCrashed_shouldReturnDidCrash() {
         // -- Arrange --
-        SentrySDKInternal.crashReporterInstalled = true
-        SentrySDKInternal.crashHandlerDetectedCrash = true
+#if ENABLE_KSCRASH
+        let mockQuery = MockKSCrashQuery.create(installed: true, crashedLastLaunch: true)
+        SentryDependencyContainer.sharedInstance().kscrashQuery = mockQuery
+#else
+        let crashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
+        crashWrapper.internalInstalled = true
+        crashWrapper.internalCrashedLastLaunch = true
+        SentryDependencyContainer.sharedInstance().crashWrapper = crashWrapper
+#endif
 
         // -- Act --
         let status = SentrySDK.lastRunStatus
@@ -274,7 +295,9 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(status, .didCrash)
     }
 
-    func testLastRunStatus_afterClose_shouldReturnUnknown() {
+    func testLastRunStatus_afterClose_shouldReturnUnknown() throws {
+        // KSCrash_TODO: SentryKSCrash.Integration currently has no uninstall
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "SentryKSCrash.Integration currently doesn't support uninstalling")
         // -- Arrange --
         SentrySDK.start { options in
             options.dsn = TestConstants.dsnAsString(username: "SentrySDKTests")

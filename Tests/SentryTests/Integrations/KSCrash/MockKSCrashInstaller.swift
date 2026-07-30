@@ -2,10 +2,16 @@
 @_spi(Private) @testable import Sentry
 
 final class MockKSCrashDependencies: SentryKSCrash.DependencyProvider {
+    typealias Installing = MockKSCrashInstaller
+    
     let kscrashInstaller: MockKSCrashInstaller
 
     init(installer: MockKSCrashInstaller = .init()) {
         self.kscrashInstaller = installer
+    }
+    
+    func getKSCrashInstaller() -> MockKSCrashInstaller {
+        return kscrashInstaller
     }
 }
 
