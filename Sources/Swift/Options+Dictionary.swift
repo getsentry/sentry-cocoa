@@ -305,6 +305,10 @@ extension Options {
             self.dataCollection = SentryDataCollection.Options(dictionary: dataCollection)
         }
         #endif // SDK_V10
+
+        if let enableMemoryIntrospection = boolValue(dictionary["enableMemoryIntrospection"]) {
+            self.enableMemoryIntrospection = enableMemoryIntrospection
+        }
     }
 
     private func boolValue(_ value: Any?) -> Bool? {

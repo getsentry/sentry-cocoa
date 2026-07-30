@@ -123,6 +123,12 @@ public final class SentryDefaultCrashReporter: NSObject, SentryCrashReporter {
         
         return 0
     }
+
+    @objc
+    public var introspectMemory: Bool {
+        get { bridge.crashReporter.introspectMemory }
+        set { bridge.crashReporter.introspectMemory = newValue }
+    }
     
     @objc
     public func enrichScope(_ scope: Scope) {
