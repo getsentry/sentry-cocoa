@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+> [!WARNING]
+> This release raises the minimum deployment targets to macOS 12 and watchOS 9. Apps that support older OS versions must use an earlier Sentry Cocoa release.
+
+### Breaking Changes
+
+- Bump the minimum deployment targets to macOS 12 and watchOS 9 because Xcode 27 no longer supports earlier versions. This lets the SDK adopt Xcode 27 without blocking users from building and submitting their apps with the latest Xcode. (#8595, #8113, #8189)
+
 ## 9.24.0
 
 ### Breaking Changes
