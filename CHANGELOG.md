@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Fixes
+
+- Fix incorrect `duration: 0` sent for active sessions on error increments (#8612)
+
+## 9.24.0
+
 ### Breaking Changes
 
 > [!IMPORTANT]

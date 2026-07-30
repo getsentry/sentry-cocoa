@@ -44,6 +44,57 @@ class SentrySessionTestsSwift: XCTestCase {
         XCTAssertEqual(2, duration)
     }
 
+    func testSerialize_whenActiveSessionWithIncrementedErrors_shouldNotSerializeDuration() {
+        // -- Arrange --
+        // incrementErrors clears the init flag but does not set a timestamp. An active
+        // (status ok) session must not report a bogus duration of 0 in this state.
+        let session = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
+        currentDateProvider.setDate(date: currentDateProvider.date().addingTimeInterval(60))
+        session.incrementErrors()
+
+        // -- Act --
+        let json = session.serialize()
+
+        // -- Assert --
+        XCTAssertNil(json["duration"])
+        XCTAssertNil(json["init"])
+        XCTAssertEqual("ok", json["status"] as? String)
+        XCTAssertEqual(1, json["errors"] as? UInt)
+    }
+
+    func testSerialize_whenActiveSession_shouldNotSerializeDuration() {
+        // -- Arrange --
+        let session = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
+
+        // -- Act --
+        let json = session.serialize()
+
+        // -- Assert --
+        XCTAssertNil(json["duration"])
+    }
+
+    func testSerialize_whenRestoredSessionWithTimestamp_shouldDeriveDuration() {
+        // -- Arrange --
+        // A session restored from disk has a timestamp but no init flag nor duration.
+        // In that case serialize() derives the duration from started and timestamp.
+        let session1 = SentrySession(releaseName: "1.4.0", distinctId: "some-id")
+        var json = session1.serialize()
+        json.removeValue(forKey: "init")
+        json.removeValue(forKey: "duration")
+
+        let date = currentDateProvider.date().addingTimeInterval(2)
+        json["timestamp"] = sentry_toIso8601String(date as Date)
+        guard let session = SentrySession(jsonObject: json) else {
+            XCTFail("Couldn't create session from JSON"); return
+        }
+
+        // -- Act --
+        let sessionSerialized = session.serialize()
+
+        // -- Assert --
+        XCTAssertEqual(2, sessionSerialized["duration"] as? Double)
+    }
+
     func testCopySession() throws {
         let session = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
         session.abnormalMechanism = "app hang"
