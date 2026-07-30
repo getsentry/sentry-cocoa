@@ -15,7 +15,8 @@ Every run evaluates the **full current list of mismatches** — no delta trackin
 
 - **Ignored** — listed in `references/findings.md` with an explicit _ignore-scenario_. Skipped (counted only) while the scenario holds; becomes needs-action when it no longer holds.
 - **Needs action** — everything else, unless cross-SDK corroboration drops it. The skill searches GitHub for an existing `relay-audit:` issue matching the mismatch (by fingerprint) and:
-  - **match found** → **edits that issue's description** with the latest analysis and refreshed commit-pinned permalinks.
+  - **open match** → **edits that issue's description** with the latest analysis and refreshed commit-pinned permalinks.
+  - **closed match** → the finding **regressed**; **reopens** the issue with a regression comment (a won't-fix would be on the ignore list and never reach here). Never swallow a still-reproducing finding because its issue was closed.
   - **no match** → **creates a new `relay-audit:` issue**.
 - **Cross-SDK false positive** — a needs-action mismatch whose `all-sdks-agree` verdict drops it: no issue and no per-finding detail (which finding / where / why stays out of the output, so a false positive never reads as real). It is counted **only in aggregate** — a bare `dropped all-sdks-agree <n>` in the console summary so a human can see the filter fired, nothing more (see "Cross-SDK corroboration").
 
@@ -77,9 +78,11 @@ Each needs-action mismatch becomes exactly one `relay-audit:` GitHub issue on `g
 
 ### Dedup (do this before every create)
 
-1. `gh issue list --repo getsentry/sentry-cocoa --search "relay-audit: in:title" --state all --limit 1000 --json number,title,body` — search **open and closed** issues. The list is scoped to the `relay-audit:` title prefix, so `1000` covers the audit's own issues for the foreseeable future; **if the result ever returns exactly the limit, the cap was hit — paginate (bump `--limit` or page with the Search API) before trusting a "no match", or a duplicate could slip past the 1000th result.**
+1. `gh issue list --repo getsentry/sentry-cocoa --search "relay-audit: in:title" --state all --limit 1000 --json number,title,body,state` — search **open and closed** issues; `state` is required to branch open vs closed in step 3. The list is scoped to the `relay-audit:` title prefix, so `1000` covers the audit's own issues for the foreseeable future; **if the result ever returns exactly the limit, the cap was hit — paginate (bump `--limit` or page with the Search API) before trusting a "no match", or a duplicate could slip past the 1000th result.**
 2. Match the mismatch's fingerprint (`area + file + normalized summary`, never line numbers/severity) against each candidate's title + body. A hit is the same underlying mismatch even if wording or line numbers drifted.
-3. **Match found** → `gh issue edit <number> --body-file <tmp>` with the freshly rebuilt body (new full SHA, refreshed permalinks and detail). Do not change the title unless the area/summary genuinely changed. Do not reopen a closed match — a closed issue means a human decided it; note it in the console summary instead.
+3. **Match found** → branch on the matched issue's `state`:
+   - **open** → `gh issue edit <number> --body-file <tmp>` with the freshly rebuilt body (new full SHA, refreshed permalinks and detail). Don't change the title unless the area/summary genuinely changed.
+   - **closed** → the finding **regressed** (a won't-fix would be on the ignore list and skipped at Procedure step 3 before ever reaching dedup, so a closed match that still reproduces means the fix was reverted or broke again). **Reopen it**: `gh issue reopen <number>`, `gh issue edit <number> --body-file <tmp>` (rebuilt body), and `gh issue comment <number>` with a short _"Regression: this finding reproduces again as of `<SHORT_SHA>` (<DATE>); reopened by relay-conformance-audit."_ Never leave a still-reproducing finding buried in a closed issue — that silences the regression. List it in the console summary under `reopened (regression)`.
 4. **No match** → create in **two steps**, because the ignore prompt needs the issue's own number (a chicken-and-egg the placeholder can't resolve at create time):
    a. `gh issue create --title … --label relay-audit --body-file <tmp>` with the body carrying the literal placeholder `#<ISSUE_NUMBER>`. Capture the new issue number from the command's output URL.
    b. `sed`-substitute the real number for **every** `<ISSUE_NUMBER>` in the body, then `gh issue edit <number> --body-file <tmp>`. Verify zero `<ISSUE_NUMBER>` placeholders remain — an unresolved placeholder leaves the one-click ignore prompt pointing at issue `#<ISSUE_NUMBER>` (non-functional).
@@ -157,7 +160,7 @@ context (area | location | summary), and open a short PR against main referencin
 
 After the issue pipeline, print a severity-sorted summary:
 
-- per filed finding, one line `[SEV] <area> — <summary> — <verdict> — <created|edited> <issue URL>`;
+- per filed finding, one line `[SEV] <area> — <summary> — <verdict> — <created|edited|reopened> <issue URL>`; mark regressions explicitly, e.g. `reopened (regression)`;
 - `skipped-ignored <n>` (matched the ignore list);
 - `dropped all-sdks-agree <n>` — **aggregate count only**, never the identity of the dropped findings (they are judged false positives; naming them would make a false positive read as real);
 - `no longer reproduces — verify & close: #<n>, #<n>` — open `relay-audit:` issues with no matching finding this run (from Procedure step 6), for a human to confirm and close; omit the line if none;
