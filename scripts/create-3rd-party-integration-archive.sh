@@ -67,6 +67,8 @@ if [ -z "$OUTPUT_DIR" ]; then
     OUTPUT_DIR="$REPO_ROOT"
 fi
 
+mkdir -p "$OUTPUT_DIR"
+
 create_archive() {
     local dir_name="$1"
     local archive_name
