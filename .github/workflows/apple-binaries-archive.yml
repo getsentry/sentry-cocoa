@@ -56,6 +56,9 @@ jobs:
           test -f /tmp/apple-binaries-verify/Package.swift
           test -f /tmp/apple-binaries-verify/.gitignore
           test -f /tmp/apple-binaries-verify/Sources/SentryCppHelper/SentryCppHelper.swift
+          test -f /tmp/apple-binaries-verify/CHANGELOG.md
+          test -f /tmp/apple-binaries-verify/README.md
+          test -f /tmp/apple-binaries-verify/LICENSE.md
 
           # Verify version was stamped
           grep -q "releases/download/99.0.0/" /tmp/apple-binaries-verify/Package.swift
@@ -69,8 +72,8 @@ jobs:
 
           # Verify no extra files leaked into the archive
           FILE_COUNT=$(find /tmp/apple-binaries-verify -type f | wc -l)
-          if [ "$FILE_COUNT" -ne 3 ]; then
-            echo "Expected 3 files in archive but found $FILE_COUNT"
+          if [ "$FILE_COUNT" -ne 6 ]; then
+            echo "Expected 6 files in archive but found $FILE_COUNT"
             find /tmp/apple-binaries-verify -type f
             exit 1
           fi
