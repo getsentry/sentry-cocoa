@@ -1,32 +1,33 @@
 ---
 name: relay-conformance-audit
-description: Audit the Cocoa SDK for protocol-conformance drift against Relay (getsentry/relay) — hard-coded strings/wire formats that must match Relay exactly and fail silently when they don't (the class behind #8322, the case-sensitive rate-limit header). Every candidate mismatch is corroborated against the peer SDKs (sentry-java, -dart, -react-native, -javascript, -python): a Cocoa-only divergence is confirmed with peer code links, an all-SDK agreement is treated as a likely false positive and dropped. Read-only; outputs a report, never fixes code. Use for the scheduled weekly check or on demand after networking/protocol changes.
+description: Audit the Cocoa SDK for protocol-conformance drift against Relay (getsentry/relay) — hard-coded strings/wire formats that must match Relay exactly and fail silently when they don't (the class behind #8322, the case-sensitive rate-limit header). Every candidate mismatch is corroborated against the peer SDKs (sentry-java, -dart, -react-native, -javascript, -python): a Cocoa-only divergence is confirmed with peer code links, an all-SDK agreement is treated as a likely false positive and dropped. Never edits SDK code; files/updates `relay-audit:` GitHub issues for each finding. Use for the scheduled weekly check or on demand after networking/protocol changes.
 ---
 
 # Cocoa ↔ Relay conformance audit
 
 The SDK hard-codes many strings and wire formats that must match Relay exactly — header names, envelope item types, data categories, discard reasons, DSC keys, session fields. A mismatch anywhere in that surface fails **silently**: data is dropped, mis-routed, or miscounted with no error. This skill audits that entire surface. One motivating example of the class: [#8322](https://github.com/getsentry/sentry-cocoa/issues/8322) (a case-sensitive `X-Sentry-Rate-Limits` header read silently rate-limited all telemetry) — but the skill exists to hunt bugs _like_ it, wherever they occur, not that one bug.
 
-**READ-ONLY toward the SDK.** Never edit SDK code or file issues. Never modify `references/findings.md`. The only outputs are the report and — sole exception — a draft PR the coverage check opens against `getsentry/sentry-cocoa` that touches nothing but `references/surface-map.md` (see "Coverage check"). When the map is out of date, the skill opens that draft PR directly rather than only flagging the gap.
+**READ-ONLY toward the SDK.** Never edit SDK code. Never modify `references/findings.md` (the human-maintained ignore list). The skill's primary output is **`relay-audit:` GitHub issues** (created or edited — see "GitHub issues"). The one other permitted write is a draft PR the coverage check opens against `getsentry/sentry-cocoa` that touches nothing but `references/surface-map.md` (see "Coverage check"). When the map is out of date, the skill opens that draft PR directly rather than only flagging the gap.
 
 ## Model
 
-Every run reports the **full current list of mismatches** — no delta tracking, no run-to-run memory. A needs-action mismatch leaves the report by being **fixed**, **ignored**, or **silently dropped** as a cross-SDK false positive:
+Every run evaluates the **full current list of mismatches** — no delta tracking, no run-to-run memory. GitHub is the tracker; `references/findings.md` holds only the ignore list. A mismatch is in one of three states:
 
-- **Tracked** — a GitHub issue exists; listed in `references/findings.md`. Reported with its issue link.
-- **Ignored** — listed in `references/findings.md` with an explicit _ignore-scenario_. Omitted from the report (counted only) while the scenario holds; reported as needs-action when it no longer holds.
-- **Needs action** — everything else, unless cross-SDK corroboration drops it. Reported with a pre-filled create-issue link; reappears every run until someone files the issue (→ tracked) or adds it to the ignore list.
-- **Cross-SDK false positive** — a needs-action mismatch whose `all-sdks-agree` verdict drops it silently: omitted entirely, with no count and no trace (see "Cross-SDK corroboration"). Unlike _ignored_, it is not counted, because it is judged not a real Cocoa mismatch rather than a known-but-tolerated one.
+- **Ignored** — listed in `references/findings.md` with an explicit _ignore-scenario_. Skipped (counted only) while the scenario holds; becomes needs-action when it no longer holds.
+- **Needs action** — everything else, unless cross-SDK corroboration drops it. The skill searches GitHub for an existing `relay-audit:` issue matching the mismatch (by fingerprint) and:
+  - **match found** → **edits that issue's description** with the latest analysis and refreshed commit-pinned permalinks.
+  - **no match** → **creates a new `relay-audit:` issue**.
+- **Cross-SDK false positive** — a needs-action mismatch whose `all-sdks-agree` verdict drops it silently: no issue, no count, no trace (see "Cross-SDK corroboration"). Unlike _ignored_, it is not counted, because it is judged not a real Cocoa mismatch rather than a known-but-tolerated one.
 
-If a tracked or ignored entry no longer reproduces, say so — humans can close the issue / prune the list.
+Never open a duplicate: a live GitHub search precedes every create. If an ignored entry no longer reproduces, say so in the console summary — a human can prune the list. If an existing issue's mismatch no longer reproduces, say so too — a human closes the issue.
 
 ## Procedure
 
-1. Record `git rev-parse --short HEAD` and `date +%Y-%m-%d` via shell (never hardcode); both stamp the report.
-2. For each area in `references/surface-map.md`, spawn one read-only subagent (parallel). Contract: fetch the listed Relay source / develop-docs pages, read the listed Cocoa files, diff per the area's notes. Return mismatches as `{area, severity HIGH|MEDIUM|LOW, file + symbol, exact wire strings, spec citation, failure mode}`. Severity = silent blast radius, not fix effort. In parallel with these, spawn the coverage-check subagent (see "Coverage check").
-3. Match each mismatch against `references/findings.md` on fingerprint (`area + file + normalized summary` — never line numbers, never severity: severity ratings vary between runs, fingerprints are the stable key): tracked / ignored (verify the ignore-scenario still holds) / needs action.
+1. Record `git rev-parse HEAD` (full SHA — needed for permalinks), `git rev-parse --short HEAD`, and `date +%Y-%m-%d` via shell (never hardcode); the full SHA builds the code links, the short SHA + date stamp each issue.
+2. For each area in `references/surface-map.md`, spawn one read-only subagent (parallel). Contract: fetch the listed Relay source / develop-docs pages, read the listed Cocoa files, diff per the area's notes. Return mismatches as `{area, severity HIGH|MEDIUM|LOW, file + symbol, line range (start–end), exact wire strings, spec citation, failure mode}`. The **line range is required** — it builds the commit-pinned permalink. Severity = silent blast radius, not fix effort. In parallel with these, spawn the coverage-check subagent (see "Coverage check").
+3. Classify each mismatch. First check `references/findings.md` on fingerprint (`area + file + normalized summary` — never line numbers, never severity: severity ratings vary between runs, fingerprints are the stable key): if listed and the ignore-scenario still holds → **ignored**, skip. Otherwise → **needs action**.
 4. **Cross-SDK corroboration** (see below): for every mismatch that is still **needs action** after step 3, check how the peer SDKs implement the same wire surface. This is the confidence gate — it strengthens `cocoa-only` findings with exact peer code locations and silently drops `all-sdks-agree` false positives.
-5. Build the report (below), appending the coverage-check result, and deliver: post to Slack when a connector is configured, otherwise print. If a Slack post fails, print everything and state loudly the post FAILED — never report success on a failed post.
+5. For each mismatch that survives the cross-SDK gate, run the GitHub-issue pipeline (see "GitHub issues"): search for an existing `relay-audit:` issue on fingerprint; edit its description if found, else create a new one. Then print a console summary (created / edited / skipped-ignored, with issue URLs) and append the coverage-check result. If `gh` is unauthenticated or any `gh` call fails, print everything and state loudly that the issue write FAILED — never report success on a failed write.
 
 ## Coverage check (surface-map self-audit)
 
@@ -38,13 +39,13 @@ The audit only inspects what the surface map lists, so a stale map is a silent c
 
 Outcome:
 
-- **Map up to date** → one line in the report: `coverage: OK`.
-- **Gaps found** → list them in the report under `coverage: GAPS`, **and directly open a draft PR** against `getsentry/sentry-cocoa` (base `main`) that updates ONLY `references/surface-map.md` — don't just describe it, push it. The map drifts as the SDK changes, so this is the mechanism that keeps it current. Mechanically:
+- **Map up to date** → one line in the console summary: `coverage: OK`.
+- **Gaps found** → list them in the console summary under `coverage: GAPS`, **and directly open a draft PR** against `getsentry/sentry-cocoa` (base `main`) that updates ONLY `references/surface-map.md` — don't just describe it, push it. The map drifts as the SDK changes, so this is the mechanism that keeps it current. Mechanically:
   1. Edit `skills/relay-conformance-audit/references/surface-map.md` only — extend an area's file list, fix a moved Relay path, or add a new area (with **What it is / Cocoa / Relay-Spec / Check**, all links as `blob/main` (Cocoa) or `blob/master` (Relay), matching the file's existing format).
   2. Branch `chore/relay-audit-surface-map-<date>`. Commit just that file: `chore: update relay-audit surface map` with `#skip-changelog` in the body.
-  3. Push and `gh pr create --draft --base main --title "chore: update relay-audit surface map"`; body = the gap list + one line per gap on why it belongs in the map + "Opened by relay-conformance-audit coverage check, <DATE>, @<SHA>." Put the resulting PR URL in the report's `coverage` line.
-  - This is the skill's **only** permitted write: never touch SDK code, `findings.md`, or `SKILL.md` in that PR; leave it as a draft and never merge — a human reviews. If a draft PR from a previous run is still open, push to that branch and update its body instead of opening a second one. If `gh` isn't authenticated or the push fails, say so loudly in the report and include the diff inline — never report the PR as opened when it wasn't.
-- Gaps are NOT mismatches: report them in the coverage section only; the newly-discovered files get audited by the next run after the map PR merges.
+  3. Push and `gh pr create --draft --base main --title "chore: update relay-audit surface map"`; body = the gap list + one line per gap on why it belongs in the map + "Opened by relay-conformance-audit coverage check, <DATE>, @<SHA>." Put the resulting PR URL in the console summary's `coverage` line.
+  - This is the skill's **only** permitted repository write (issue creation/editing aside): never touch SDK code, `findings.md`, or `SKILL.md` in that PR; leave it as a draft and never merge — a human reviews. If a draft PR from a previous run is still open, push to that branch and update its body instead of opening a second one. If `gh` isn't authenticated or the push fails, say so loudly in the console summary and include the diff inline — never report the PR as opened when it wasn't.
+- Gaps are NOT mismatches: list them in the coverage section only; the newly-discovered files get audited by the next run after the map PR merges.
 
 ## Cross-SDK corroboration
 
@@ -66,39 +67,65 @@ For each needs-action mismatch, classify each **independent, located** peer into
 - **`mixed`** — ≥2 independent peers located, all classify as either matches-Relay or matches-Cocoa (no matches-neither), and they **split** (at least one each) → report normally; note which peers side with Cocoa and which with Relay. Do not label a split `cocoa-only`.
 - **`all-sdks-agree`** — ≥2 independent peers located and **every one matches Cocoa** (none matches Relay, none matches-neither) → strong **false-positive** signal. Before acting, re-read the Relay source directly to confirm what it actually does with the value. Default: **drop the finding silently** — omit it from the report entirely, with no count and no trace. Escape hatch: if after re-reading Relay you are still certain it is a real wire bug affecting all SDKs, report it as needs-action, explicitly labeled _"affects all SDKs — likely a spec/Relay-wide issue, not Cocoa-specific"_ and sorted last. The escape hatch is certainty-gated, so the common case stays silent.
 
-Add the result to each reported mismatch as `crossSDK: { located:[repos], notChecked:[{repo, reason: unlocated|wrapper}], matchRelay:[{sdk, link, note}], matchCocoa:[{sdk, link}], matchNeither:[{sdk, link, value}], verdict: inconclusive|ecosystem-divergent|cocoa-only|mixed|all-sdks-agree }`.
+Add the result to each reported mismatch as `crossSDK: { located:[repos], notChecked:[{repo, reason: unlocated|wrapper}], matchRelay:[{sdk, link, note}], matchCocoa:[{sdk, link}], matchNeither:[{sdk, link, value}], verdict: inconclusive|ecosystem-divergent|cocoa-only|mixed|all-sdks-agree }`. This block feeds the issue body's cross-SDK section.
 
-## Report
+## GitHub issues
 
-Main message (Slack mrkdwn — no tables, `*bold*`, `` `code` ``), severity-sorted:
+Each needs-action mismatch becomes exactly one `relay-audit:` GitHub issue on `getsentry/sentry-cocoa` — created fresh, or (if one already matches) edited in place. **Never open a duplicate.**
 
+### Dedup (do this before every create)
+
+1. `gh issue list --repo getsentry/sentry-cocoa --search "relay-audit: in:title" --state all --limit 100 --json number,title,body` — search **open and closed** issues.
+2. Match the mismatch's fingerprint (`area + file + normalized summary`, never line numbers/severity) against each candidate's title + body. A hit is the same underlying mismatch even if wording or line numbers drifted.
+3. **Match found** → `gh issue edit <number> --body-file <tmp>` with the freshly rebuilt body (new full SHA, refreshed permalinks and detail). Do not change the title unless the area/summary genuinely changed. Do not reopen a closed match — a closed issue means a human decided it; note it in the console summary instead.
+4. **No match** → `gh issue create` (below).
+
+### Title
+
+`relay-audit: <area> — <one-line summary>` — the `relay-audit:` prefix is **mandatory** on every issue.
+
+### Labels
+
+`Relay-Conformance`. If the label doesn't exist yet, create it first (`gh label create Relay-Conformance --description "Cocoa ↔ Relay wire-format conformance" --color BFD4F2`), then pass `--label Relay-Conformance` on create.
+
+### Body (identical shape for create and edit)
+
+A short human intro, then the full agent-pickup analysis inside a collapsed `<details>` block. Permalinks use the **full SHA** recorded in step 1 of the Procedure so they pin to the audited commit and stay clickable:
+
+```markdown
+<1–3 plain sentences for a human deciding whether to care: what silently breaks, user impact, blast radius. No file paths, no jargon.>
+
+**Severity:** HIGH|MEDIUM|LOW · **Area:** <area>
+
+<details>
+<summary>Full analysis (for an agent to pick up)</summary>
+
+**Location:** [`<path> (<symbol>)`](https://github.com/getsentry/sentry-cocoa/blob/<FULL_SHA>/<path>#L<start>-L<end>)
+**Wire strings:** <exact strings, casings, edge cases>
+**Spec / Relay citation:** [<source>](link)
+**Failure mode:** <how it silently drops / mis-routes / miscounts>
+**Cross-SDK:** verdict (`cocoa-only` / `mixed` / `inconclusive` / `ecosystem-divergent`) + per-peer status — which peers match Relay (clickable `blob/`-pinned links to their correct implementation), which match Cocoa, which match **neither** (name the third value + link), which were `not-checked` (unlocated or excluded wrapper). Lead with the Relay-matching peer links for `cocoa-only`; for `inconclusive` say how many independent peers were located and why evidence was thin; for `ecosystem-divergent` spell out each third value.
+**Verify steps:**
+
+1. …
+
+_Found by relay-conformance-audit, <DATE>, @<SHORT_SHA>._
+
+</details>
 ```
-:shield: *Cocoa ↔ Relay conformance* — <DATE> · sentry-cocoa@<SHA>
-mismatches <n> (<n> need action) · ignored <n> · coverage <OK|GAPS: draft PR link>
 
-:warning: *Needs action* (file the issue or add to the ignore list)
-• [HIGH] <area> — <file (symbol)> — <one-line summary> — <create-issue link>
-   (append ` · :dart: cocoa-only` when the verdict is cocoa-only — higher confidence; ` · :grey_question: cross-SDK inconclusive` when fewer than 2 independent peers were located; ` · :globe_with_meridians: ecosystem-divergent` when a peer implements a third value)
+- One `Location` link per relevant file; always a commit-pinned line range (`#L<start>-L<end>`), never `blob/main`.
+- When editing an existing issue, rebuild the whole body from the current run (fresh SHA + line ranges). Preserve the intro's intent, but the analysis and links always reflect the latest run.
+- `all-sdks-agree` findings are dropped at the cross-SDK gate and never reach an issue, unless the certainty-gated escape hatch fired — then carry the _"affects all SDKs"_ label in the intro. For `cocoa-only` / `inconclusive` / `ecosystem-divergent`, add the matching marker to the intro (`cocoa-only — higher confidence`, `cross-SDK inconclusive — only <n> independent peer(s) located`, or `ecosystem-divergent — a peer implements a third value`).
 
-:ticket: *Tracked*
-• #<issue> <area> — <one-line summary>
+### Console summary
 
-Rate this report: :thumbsup: findings look accurate · :thumbsdown: something's off. If a finding is wrong or overblown, drop a short reply in the thread saying which one and why.
-```
-
-Everything tracked or ignored: `:white_check_mark: Nothing needs action. (tracked <n> · ignored <n>)` — still invite the report-level vote.
-
-Thread reply 1 — **TLDR**: per needs-action mismatch, 2–4 plain sentences for a human deciding whether to care — what broke, user impact, blast radius. No file paths, no jargon.
-
-Thread reply 2 — **full detail**: per needs-action mismatch, everything an agent needs to pick it up cold — location (file + symbol, as a clickable `https://github.com/getsentry/sentry-cocoa/blob/main/<path>` link so a reviewer can jump straight to it), exact wire strings, spec/Relay citation (link it too), failure mode, 1–3 verify steps, and a **Cross-SDK** line: the verdict (`cocoa-only` / `mixed` / `inconclusive` / `ecosystem-divergent`) plus per-peer status — which peers match Relay (with clickable `blob/`-pinned links to their implementation of the correct value), which match Cocoa, which match **neither** (name the third value and link it), and which were `not-checked` (note whether unlocated or excluded as a delegating wrapper). For a `cocoa-only` finding those peer links are the strongest evidence, so lead with them; for `inconclusive`, say plainly how many independent peers were located and why corroboration was thin; for `ecosystem-divergent`, spell out each third value so a human can judge the spec ambiguity. (`all-sdks-agree` findings are dropped and never reach this reply unless the certainty-gated escape hatch fired, in which case carry the _"affects all SDKs"_ label here too.) End with one line noting any tracked/ignored entries that no longer reproduce, and the coverage-check result (gap list + draft-PR link when there are gaps).
-
-Votes and thread replies are feedback for the audit's maintainer only — the audit itself never reads reactions or acts on them; a human follows up and tunes the skill or the ignore list.
-
-Create-issue links: `https://github.com/getsentry/sentry-cocoa/issues/new?title=<urlenc>&body=<urlenc>&labels=Relay-Conformance` — body = the mismatch's full-detail block + "Found by relay-conformance-audit, <DATE>, @<SHA>. After filing: add this issue to skills/relay-conformance-audit/references/findings.md." Keep the URL <8000 chars; trim body to failure mode + Slack-thread pointer if needed.
+After the issue pipeline, print a severity-sorted summary: per finding one line `[SEV] <area> — <summary> — <verdict> — <created|edited> <issue URL>`; then `skipped-ignored <n>`, `dropped all-sdks-agree <n>` (false positives filtered at the cross-SDK gate — count only), any ignored/closed entries that no longer reproduce (so a human can prune the list / close the issue), and the `coverage:` line (OK, or GAPS + draft-PR link). Nothing needs action → say so, still print the coverage line.
 
 ## Guardrails
 
-- Report only real wire-level mismatches. Style issues, dead code, and things Relay normalizes server-side are ignore-list material, not weekly noise.
+- File issues only for real wire-level mismatches. Style issues, dead code, and things Relay normalizes server-side are ignore-list material, not issues.
+- Never open a duplicate. The `relay-audit:` title prefix and the two-part body (human intro + collapsed `<details>` analysis, with commit-pinned permalinks) are mandatory on every created or edited issue.
 - Relay paths move: if a listed path 404s, search the Relay repo for the symbol (`ItemType`, `DataCategory`, `ClientReport`) and audit against the moved file; the coverage check turns the path fix into a draft PR it opens directly.
 - Bounded cost: one subagent per area plus one coverage-check subagent; don't recurse into `SentryCrash/` or other non-protocol code. Cross-SDK corroboration adds only wire-string searches against the 5 named peer repos, and only for needs-action mismatches — not every diff.
 - Cross-SDK unanimity is a false-positive filter, not a bug detector: when every located peer agrees with Cocoa, default to dropping the finding and re-read Relay directly before ever reporting it. Report an `all-sdks-agree` finding only if you remain certain it's a real wire bug, and label it as affecting all SDKs. Never invert the filter — peer agreement lowers confidence in a finding, it never raises it.
@@ -107,10 +134,10 @@ Create-issue links: `https://github.com/getsentry/sentry-cocoa/issues/new?title=
 
 ## Validation (self-test)
 
-Whenever this skill or the surface map changes materially, validate the audit itself: run it against a pinned historical commit containing a known, since-fixed conformance bug (e.g. `b557385bd`, the commit before the #8322 fix — case-sensitive `X-Sentry-Rate-Limits`/`Retry-After` reads in `DefaultRateLimits.swift`) via `git worktree add`, reading the skill from `main`. It MUST surface that bug as a needs-action mismatch (HIGH or MEDIUM — severity varies between runs; judge on location + failure mode), and a run on current `main` must not report it. The cross-SDK step must return `cocoa-only` for it — the independent peer SDKs (java, dart, javascript, python; `sentry-react-native` is excluded as a wrapper that delegates transport to the native SDKs) read that header case-insensitively (Cocoa was the outlier), which both confirms the finding and exercises the new step end-to-end; a validation run that reports the bug but marks it `all-sdks-agree` (and thus drops it) is a failure. Keep validation runs blind: don't tell them which bug to expect or that a fix exists. Last passed: 2026-07-30 (surfaced the #8322 header bug as HIGH needs-action, verdict `cocoa-only`; absent on current `main`).
+Whenever this skill or the surface map changes materially, validate the audit itself: run it against a pinned historical commit containing a known, since-fixed conformance bug (e.g. `b557385bd`, the commit before the #8322 fix — case-sensitive `X-Sentry-Rate-Limits`/`Retry-After` reads in `DefaultRateLimits.swift`) via `git worktree add`, reading the skill from `main`. It MUST surface that bug as a needs-action mismatch (HIGH or MEDIUM — severity varies between runs; judge on location + failure mode) and produce a `relay-audit:` issue for it (created, or edited if a match exists), and a run on current `main` must not. The cross-SDK step must return `cocoa-only` for it — the independent peer SDKs (java, dart, javascript, python; `sentry-react-native` is excluded as a wrapper that delegates transport to the native SDKs) read that header case-insensitively (Cocoa was the outlier), which both confirms the finding and exercises the step end-to-end; a validation run that reports the bug but marks it `all-sdks-agree` (and thus drops it) is a failure. Keep validation runs blind: don't tell them which bug to expect or that a fix exists. To avoid polluting the real tracker, run validation with `gh` dry (e.g. against a fork or with issue writes stubbed) and confirm the pipeline _would_ create/edit the right issue. Last passed: 2026-07-30 (surfaced the #8322 header bug as HIGH needs-action, verdict `cocoa-only`; absent on current `main`).
 
 ## Running it
 
-- **claude.ai routine (now):** checkout `getsentry/sentry-cocoa` `main`; prompt: _"Run the relay-conformance-audit skill at skills/relay-conformance-audit/SKILL.md and follow it exactly. Post the report to Slack #team-sdk-apple (main message + TLDR and full detail as threaded replies)."_ Weekly cron, e.g. `0 7 * * 3` UTC.
-- **CI (later):** a scheduled GitHub Actions workflow invoking Claude Code headlessly with the same one-line prompt; Slack via bot token (`chat.postMessage`, `thread_ts` for replies; always check `.ok`).
-- **Maintenance:** `references/findings.md` is edited only by humans via reviewed PRs — filed an issue → add it under Tracked; won't-fix → add under Ignored with an explicit ignore-scenario; fixed or obsolete → remove the entry.
+- **claude.ai routine (now):** checkout `getsentry/sentry-cocoa` `main`; prompt: _"Run the relay-conformance-audit skill at skills/relay-conformance-audit/SKILL.md and follow it exactly. File or update `relay-audit:` GitHub issues for each needs-action finding, and print the console summary."_ Weekly cron, e.g. `0 7 * * 3` UTC. Requires an authenticated `gh` with issue write access.
+- **CI (later):** a scheduled GitHub Actions workflow invoking Claude Code headlessly with the same one-line prompt; GitHub issue writes via `gh` authenticated with `GITHUB_TOKEN` (needs `issues: write`).
+- **Maintenance:** `references/findings.md` is the ignore list, edited only by humans via reviewed PRs — won't-fix → add under Ignored with an explicit ignore-scenario; no longer ignored → remove the entry. Tracking lives in GitHub: close the `relay-audit:` issue when the mismatch is fixed.

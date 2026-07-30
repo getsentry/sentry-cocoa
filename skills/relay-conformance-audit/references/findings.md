@@ -1,17 +1,10 @@
-# Findings — tracked & ignored
+# Findings — ignore list
 
-The audit only reads this file; humans edit it via reviewed PRs. Two lists:
+The audit only reads this file; humans edit it via reviewed PRs. It holds a single list:
 
-- **Tracked** — mismatches with an existing GitHub issue. The audit reports them with the issue link; no action needed.
-- **Ignored** — accepted mismatches. Each entry MUST state an **ignore-scenario**: the conditions under which it stays ignored. The audit omits these (counts only) while the scenario holds; if it no longer holds, the mismatch is reported as needs-action.
+- **Ignored** — accepted mismatches. Each entry MUST state an **ignore-scenario**: the conditions under which it stays ignored. The audit skips these (counts only) while the scenario holds; if it no longer holds, the mismatch becomes needs-action.
 
-Match on fingerprint = area + file + normalized summary (line numbers drift). Everything not in this file that the audit finds is **needs action** and appears in every report until it's fixed, tracked here with an issue, or ignored here with a scenario.
-
-## Tracked (GitHub issue exists)
-
-| Issue | Area | Location | Summary  |
-| ----- | ---- | -------- | -------- |
-| —     |      |          | none yet |
+Tracking lives in **GitHub**, not this file: needs-action mismatches become `relay-audit:` GitHub issues (created, or edited if one already matches). Match on fingerprint = area + file + normalized summary (line numbers drift). Everything not ignored here that the audit finds becomes (or updates) a `relay-audit:` issue every run until it's fixed (close the issue) or ignored here with a scenario.
 
 ## Ignored
 
