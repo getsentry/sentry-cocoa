@@ -14,23 +14,23 @@ let package = Package(
     targets: [
         .binaryTarget(
             name: "Sentry-Static",
-            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.23.1-alpha.0/Sentry.xcframework.zip",
-            checksum: "a518c68211d5845d524444ee81a83abf8121b82eb9c4cefa611d9e2fac4046fe" //Sentry-Static
+            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.24.0/Sentry.xcframework.zip",
+            checksum: "c530edd27b20f7c151e73d84a34ee03474e3d5ddab65ffe9d30366f80149668a" //Sentry-Static
         ),
         .binaryTarget(
             name: "Sentry-Dynamic",
-            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.23.1-alpha.0/Sentry-Dynamic.xcframework.zip",
-            checksum: "3b9b36fae6912576e81efadc1d2d6022f03882087bc1b71cd3c10993dc8da464" //Sentry-Dynamic
+            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.24.0/Sentry-Dynamic.xcframework.zip",
+            checksum: "4728d7524ca65caa5640ce1f34032db074c8409b7e4b37257e82839703f0473e" //Sentry-Dynamic
         ),
         .binaryTarget(
             name: "SentryObjC-Dynamic",
-            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.23.1-alpha.0/SentryObjC-Dynamic.xcframework.zip",
-            checksum: "5c179e73dc024bd3caf11a6bdb34122e50a30de7b48fb869fcc33a6139f95dff" //SentryObjC-Dynamic
+            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.24.0/SentryObjC-Dynamic.xcframework.zip",
+            checksum: "e8d9bca34221e32147707824542819044542201fec4ae8e25399f1e060c03b22" //SentryObjC-Dynamic
         ),
         .binaryTarget(
             name: "SentryObjC-Static",
-            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.23.1-alpha.0/SentryObjC-Static.xcframework.zip",
-            checksum: "1a7db0ead88b1200a841fa59ec9b59440613e0b684ecb80eed95d428bd964ddb" //SentryObjC-Static
+            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.24.0/SentryObjC-Static.xcframework.zip",
+            checksum: "1237d45d0c72b99604631fffd41ee5143ecefa2bf69f8329fdfd336efbe387fe" //SentryObjC-Static
         ),
         .target(
             name: "SentryCppHelper",
