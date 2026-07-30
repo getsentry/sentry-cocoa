@@ -90,12 +90,12 @@ Each needs-action mismatch becomes exactly one `relay-audit:` GitHub issue on `g
 
 ### Body (identical shape for create and edit)
 
-A short human intro, then the full agent-pickup analysis inside a collapsed `<details>` block. Permalinks use the **full SHA** recorded in step 1 of the Procedure so they pin to the audited commit and stay clickable:
+A short human intro that **links the exact code inline**, then the full agent-pickup analysis inside a collapsed `<details>` block. Permalinks use the **full SHA** recorded in step 1 of the Procedure so they pin to the audited commit and stay clickable:
 
 The body below is shown in a tilde-fenced (`~~~`) example so the inner triple-backtick prompt block nests cleanly — the issue itself uses normal triple-backtick fences.
 
 ````markdown
-<1–3 plain sentences for a human deciding whether to care: what silently breaks, user impact, blast radius. No file paths, no jargon.>
+<1–3 plain sentences for a human deciding whether to care: what silently breaks, user impact, blast radius. Keep it jargon-free, BUT anchor each claim to the exact code with an inline commit-pinned permalink — e.g. "the SDK rounds the value before sending it ([`SentryTraceContext.m#L108`](https://github.com/getsentry/sentry-cocoa/blob/<FULL_SHA>/<path>#L108))". A human should be able to click straight to the offending line from the intro, not only from the details block.>
 
 **Severity:** HIGH|MEDIUM|LOW · **Area:** <area>
 
@@ -131,6 +131,7 @@ context (area | location | summary), and open a short PR against main referencin
 ````
 
 - The prompt block uses `` ```text `` so it copies cleanly. Substitute the real issue number for every `<ISSUE_NUMBER>` at create time (you have it after `gh issue create`; on edit you already know it). The prompt points at the "Adding to the ignore list" section rather than inlining steps, so the issue text and the procedure never drift.
+- **Both** the human intro and the `<details>` block carry commit-pinned code links — the intro links the specific offending line(s) inline in prose; the details block adds the full `Location` list. Never leave the intro link-free and push all links into the details.
 - One `Location` link per relevant file; always a commit-pinned line range (`#L<start>-L<end>`), never `blob/main`.
 - When editing an existing issue, rebuild the whole body from the current run (fresh SHA + line ranges) — including the ignore prompt with the correct number. Preserve the intro's intent, but the analysis and links always reflect the latest run.
 - `all-sdks-agree` findings are dropped at the cross-SDK gate and never reach an issue, unless the certainty-gated escape hatch fired — then carry the _"affects all SDKs"_ label in the intro. For `cocoa-only` / `inconclusive` / `ecosystem-divergent`, add the matching marker to the intro (`cocoa-only — higher confidence`, `cross-SDK inconclusive — only <n> independent peer(s) located`, or `ecosystem-divergent — a peer implements a third value`).
@@ -156,7 +157,7 @@ This section is driven by the copy-paste prompt embedded in each issue (see "Bod
 ## Guardrails
 
 - File issues only for real wire-level mismatches. Style issues, dead code, and things Relay normalizes server-side are ignore-list material, not issues.
-- Never open a duplicate. The `relay-audit:` title prefix, the two-part body (human intro + collapsed `<details>` analysis, with commit-pinned permalinks), and the trailing 🔕 copy-paste ignore prompt (with the real issue number substituted) are mandatory on every created or edited issue.
+- Never open a duplicate. The `relay-audit:` title prefix, the two-part body (human intro **with inline commit-pinned code links** + collapsed `<details>` analysis, also with commit-pinned permalinks), and the trailing 🔕 copy-paste ignore prompt (with the real issue number substituted) are mandatory on every created or edited issue.
 - The ignore prompt must always ask the user for a real ignore-scenario before writing to `findings.md`, and its PR must touch only `findings.md` — never SDK code or the skill files.
 - Relay paths move: if a listed path 404s, search the Relay repo for the symbol (`ItemType`, `DataCategory`, `ClientReport`) and audit against the moved file; the coverage check turns the path fix into a draft PR it opens directly.
 - Bounded cost: one subagent per area plus one coverage-check subagent; don't recurse into `SentryCrash/` or other non-protocol code. Cross-SDK corroboration adds only wire-string searches against the 5 named peer repos, and only for needs-action mismatches — not every diff.
