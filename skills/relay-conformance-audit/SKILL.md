@@ -92,7 +92,9 @@ Each needs-action mismatch becomes exactly one `relay-audit:` GitHub issue on `g
 
 A short human intro, then the full agent-pickup analysis inside a collapsed `<details>` block. Permalinks use the **full SHA** recorded in step 1 of the Procedure so they pin to the audited commit and stay clickable:
 
-```markdown
+The body below is shown in a tilde-fenced (`~~~`) example so the inner triple-backtick prompt block nests cleanly — the issue itself uses normal triple-backtick fences.
+
+````markdown
 <1–3 plain sentences for a human deciding whether to care: what silently breaks, user impact, blast radius. No file paths, no jargon.>
 
 **Severity:** HIGH|MEDIUM|LOW · **Area:** <area>
@@ -112,20 +114,50 @@ A short human intro, then the full agent-pickup analysis inside a collapsed `<de
 _Found by relay-conformance-audit, <DATE>, @<SHORT_SHA>._
 
 </details>
-```
 
+---
+
+🔕 **False positive or won't-fix?** If this finding shouldn't be reported again, add it to the audit's ignore list. From a `getsentry/sentry-cocoa` checkout, copy the prompt below into Claude Code — it will ask you _why_ it should be ignored, then open the PR:
+
+```text
+Add relay-audit issue #<ISSUE_NUMBER> to the relay-conformance-audit ignore list.
+Read https://github.com/getsentry/sentry-cocoa/issues/<ISSUE_NUMBER>, then follow the
+"Adding to the ignore list" section of skills/relay-conformance-audit/SKILL.md: ask me for
+the ignore-scenario, append the entry to
+skills/relay-conformance-audit/references/findings.md preserving the full fingerprint
+context (area | location | summary), and open a short PR against main referencing
+#<ISSUE_NUMBER> with #skip-changelog in the body.
+```
+````
+
+- The prompt block uses `` ```text `` so it copies cleanly. Substitute the real issue number for every `<ISSUE_NUMBER>` at create time (you have it after `gh issue create`; on edit you already know it). The prompt points at the "Adding to the ignore list" section rather than inlining steps, so the issue text and the procedure never drift.
 - One `Location` link per relevant file; always a commit-pinned line range (`#L<start>-L<end>`), never `blob/main`.
-- When editing an existing issue, rebuild the whole body from the current run (fresh SHA + line ranges). Preserve the intro's intent, but the analysis and links always reflect the latest run.
+- When editing an existing issue, rebuild the whole body from the current run (fresh SHA + line ranges) — including the ignore prompt with the correct number. Preserve the intro's intent, but the analysis and links always reflect the latest run.
 - `all-sdks-agree` findings are dropped at the cross-SDK gate and never reach an issue, unless the certainty-gated escape hatch fired — then carry the _"affects all SDKs"_ label in the intro. For `cocoa-only` / `inconclusive` / `ecosystem-divergent`, add the matching marker to the intro (`cocoa-only — higher confidence`, `cross-SDK inconclusive — only <n> independent peer(s) located`, or `ecosystem-divergent — a peer implements a third value`).
 
 ### Console summary
 
 After the issue pipeline, print a severity-sorted summary: per finding one line `[SEV] <area> — <summary> — <verdict> — <created|edited> <issue URL>`; then `skipped-ignored <n>`, `dropped all-sdks-agree <n>` (false positives filtered at the cross-SDK gate — count only), any ignored/closed entries that no longer reproduce (so a human can prune the list / close the issue), and the `coverage:` line (OK, or GAPS + draft-PR link). Nothing needs action → say so, still print the coverage line.
 
+## Adding to the ignore list
+
+This section is driven by the copy-paste prompt embedded in each issue (see "Body"): a maintainer who decides a finding is a false positive or won't-fix pastes that prompt into Claude Code, which then runs these steps. This is **not** part of an audit run — it's a separate, human-initiated action on a single issue.
+
+1. Read the referenced `relay-audit:` issue. From its `<details>` block extract the **area**, **location** (file + symbol), and the normalized one-line **summary** — that triple is the fingerprint the audit matches on.
+2. **Ask the user for the ignore-scenario** — the explicit condition under which the finding stays ignored (e.g. _"only a measure-zero boundary of a uniform double"_, _"the index never appears on the wire"_). Use `AskUserQuestion`. Do **not** proceed on a bare "ignore this": without a scenario the audit can't tell when the mismatch matters again, and the entry would silence a future real regression. Never write a placeholder scenario.
+3. If the user's answer reveals the finding is actually a **real bug to fix** (not something to ignore), stop — say so and do not touch the ignore list. The ignore list is for accepted/normalized-server-side mismatches, not open bugs.
+4. Append one row to the `## Ignored` table of `references/findings.md`, preserving the fingerprint verbatim so future runs skip it:
+   `| <area> | <location> | <summary>. **Ignore while:** <user's scenario>. (relay-audit #<ISSUE_NUMBER>) |`
+5. Open a PR against `main` from branch `relay-audit/ignore-<ISSUE_NUMBER>`:
+   - title `chore: ignore relay-audit finding #<ISSUE_NUMBER>`
+   - body: 1–2 sentences — _"Adds finding #<ISSUE_NUMBER> to the relay-conformance-audit ignore list so it's no longer reported. Full fingerprint context is retained so the audit keeps matching it. Refs #<ISSUE_NUMBER>."_ — then `#skip-changelog` on its own line.
+   - **Touch only `references/findings.md`.** Never edit SDK code, `SKILL.md`, or `surface-map.md` in this PR. Leave it for human review; do not merge.
+
 ## Guardrails
 
 - File issues only for real wire-level mismatches. Style issues, dead code, and things Relay normalizes server-side are ignore-list material, not issues.
-- Never open a duplicate. The `relay-audit:` title prefix and the two-part body (human intro + collapsed `<details>` analysis, with commit-pinned permalinks) are mandatory on every created or edited issue.
+- Never open a duplicate. The `relay-audit:` title prefix, the two-part body (human intro + collapsed `<details>` analysis, with commit-pinned permalinks), and the trailing 🔕 copy-paste ignore prompt (with the real issue number substituted) are mandatory on every created or edited issue.
+- The ignore prompt must always ask the user for a real ignore-scenario before writing to `findings.md`, and its PR must touch only `findings.md` — never SDK code or the skill files.
 - Relay paths move: if a listed path 404s, search the Relay repo for the symbol (`ItemType`, `DataCategory`, `ClientReport`) and audit against the moved file; the coverage check turns the path fix into a draft PR it opens directly.
 - Bounded cost: one subagent per area plus one coverage-check subagent; don't recurse into `SentryCrash/` or other non-protocol code. Cross-SDK corroboration adds only wire-string searches against the 5 named peer repos, and only for needs-action mismatches — not every diff.
 - Cross-SDK unanimity is a false-positive filter, not a bug detector: when every located peer agrees with Cocoa, default to dropping the finding and re-read Relay directly before ever reporting it. Report an `all-sdks-agree` finding only if you remain certain it's a real wire bug, and label it as affecting all SDKs. Never invert the filter — peer agreement lowers confidence in a finding, it never raises it.

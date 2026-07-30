@@ -6,6 +6,8 @@ The audit only reads this file; humans edit it via reviewed PRs. It holds a sing
 
 Tracking lives in **GitHub**, not this file: needs-action mismatches become `relay-audit:` GitHub issues (created, or edited if one already matches). Match on fingerprint = area + file + normalized summary (line numbers drift). Everything not ignored here that the audit finds becomes (or updates) a `relay-audit:` issue every run until it's fixed (close the issue) or ignored here with a scenario.
 
+Entries added via the one-click flow (the 🔕 copy-paste prompt on each issue — see "Adding to the ignore list" in `SKILL.md`) carry a `(relay-audit #NNNN)` back-reference and a real ignore-scenario supplied by the human who ran the prompt. However added, this file changes only through a reviewed PR touching `findings.md` alone.
+
 ## Ignored
 
 | Area               | Location                                             | Summary + ignore-scenario                                                                                                                                                                                                                               |
