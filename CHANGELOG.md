@@ -11,9 +11,9 @@
 
 ### Fixes
 
-- Fix a race that could prevent consecutive app hangs from being reported (#5831)
 - Fix incorrect `duration` sent for active sessions (#8612)
   - Session `duration` is now set only when the session ends. Active sessions (including on error increments) no longer emit a bogus `duration`.
+- Fix a race that could prevent consecutive app hangs from being reported (#8627)
 
 ## 9.24.0
 
