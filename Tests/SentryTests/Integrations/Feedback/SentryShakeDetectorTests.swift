@@ -12,9 +12,15 @@ final class SentryShakeDetectorTests: XCTestCase {
         UIWindow(windowScene: Self.mockWindowScene)
     }
 
+    override func setUp() {
+        super.setUp()
+        SentryShakeDetector.resetCooldown()
+    }
+
     override func tearDown() {
-        super.tearDown()
         SentryShakeDetector.disable()
+        SentryShakeDetector.resetCooldown()
+        super.tearDown()
     }
 
     func testEnable_whenShakeOccurs_shouldPostNotification() {
