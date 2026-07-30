@@ -17,9 +17,15 @@ public func resetUserDefaults() {
 
 @objcMembers
 class TestCleanup: NSObject {
+    /// Resets extensive global SDK state to ensure test isolation.
+    ///
+    /// - CAUTION: Use sparingly and prefer resetting only the specific state needed for your test case.
+    /// Indiscriminate use can mask side effects and make tests fragile. When possible, isolate
+    /// tests by mocking dependencies or using local state instead of relying on this global reset.
+    ///
+    /// - Requires: Must be called on the main thread. Calling on a background thread could interfere
+    /// with other currently running tests, making them flaky.
     static func clearTestState() {
-        // You must call clearTestState on the main thread. Calling it on a background thread
-        // could interfere with another currently running test, making the tests flaky.
         assert(Thread.isMainThread, "You must call clearTestState on the main thread.")
         
         SentrySDK.close()
