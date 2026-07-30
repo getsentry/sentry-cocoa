@@ -1,8 +1,7 @@
 # GH-8548 — Deferred UIViewController swizzling: WIP handoff
 
 Branch: `fix/deferred-uiviewcontroller-swizzling` (off `origin/main`, standalone — not stacked on #8457).
-Status: **implementation complete and green; one deferred validation step remains before opening a PR.**
-Nothing is committed yet.
+Status: **implementation complete and validated; committed and pushed; draft PR #8625 open.**
 
 ## Problem
 
@@ -110,25 +109,23 @@ isn't installable on this host. The fixture is kept as an honest **forward regre
 proven reproduction. The temporary naive-ordering hack was fully reverted (helper `.m` is the safe
 funnel).
 
-## REMAINING STEP (deferred — do before opening the PR)
+## Transaction-equivalence validation (DONE — result: identical)
 
-**Transaction-equivalence validation** — confirm the funnel produces the same auto-instrumentation
-transactions as the default path. User-approved approach:
+Confirmed the funnel produces the same auto-instrumentation as the default path, by comparing the
+`ui.load` transactions the SDK would send with the flag **off** (eager `SentrySubClassFinder`) vs
+**on** (funnel). Full result + copy-paste re-run instructions are in the **PR #8625 description**
+(collapsible "Transaction-equivalence regression check" section). Summary:
 
-1. Run the iOS-Swift sample **twice** against its Sentry project (DSN `o447951/5428557`), navigating
-   the **same** screens each time:
-   - Run A: flag **off** (default eager path).
-   - Run B: flag **on** (funnel).
-2. Distinguish the runs with a **scope tag `init_swizzling = enabled|disabled`** (wire via the
-   sample's `additionalOptionsConfiguration` / a scope callback in `SentrySDKWrapper`).
-3. Use the **Sentry MCP** (`search_events` / `get_event`) to pull both sets of `ui.load` transactions
-   and compare operation, description, and span tree.
-4. Deliverable: a **one-time before/after report in the PR description** (transaction lists without
-   vs with the change, showing equivalence). NOT a permanent test.
-
-Reference infra that already exists: `LaunchVCTransactionCapture` (in-process `spanCaptureHandler` →
-marshaled text field) and `LaunchProfilingVCTransactionUITests` show how VC spans are captured/asserted
-in the sample.
+- Method: drive the iOS-Swift sample through the same navigation twice, with the SDK forced offline
+  (`--io.sentry.disable-http-transport` → `SentryQueueableRequestManager.isReady` returns `NO` in
+  DEBUG, so every envelope is cached to disk instead of uploaded). Compare the cached envelopes.
+- Result: **identical** — both runs produced the same 6 `ui.load` transactions
+  (Errors/Transactions/Profiling/Extra/SubClassFinderRegression/ConvenienceInit), same span-op
+  composition, same span descriptions, same `origin=auto.ui.view_controller`. `diff` is empty.
+- The throwaway harness used for this (a `deferSwizzling` sample override, release/tag stamping, and a
+  `VCSwizzleComparisonUITests`) has been **deleted** — this was a one-time check, not a shipped test.
+- Gotcha: the iOS 16.4 sim on this host would not reliably foreground the sample app, so its `ui.load`
+  transactions never finished (0 envelopes). The **iPhone 16 Pro / iOS 18.6 sim worked reliably.**
 
 ## How to pick this up
 
@@ -143,9 +140,8 @@ in the sample.
    `xcodebuild test -project Samples/iOS-Swift/iOS-Swift.xcodeproj -scheme iOS-Swift
    -destination 'platform=iOS Simulator,id=<UDID>'
    -only-testing:'iOS-Swift-UITests/SubClassFinderRegressionUITests'`.
-4. Do the transaction-equivalence validation (above) and write the PR report.
-5. Open the PR: title `feat: defer UIViewController swizzling to first instantiation`, body "Fixes
-   #8548", include the transaction report. Only push/open the PR when explicitly asked.
+4. The draft PR #8625 is open with the transaction-equivalence report. Remaining before marking ready:
+   confirm CI is green and resolve the open decisions below.
 
 ## Open decisions for the PR
 
