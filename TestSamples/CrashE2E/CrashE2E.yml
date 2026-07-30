@@ -66,7 +66,7 @@ targets:
   CrashE2E-macOS:
     type: tool
     platform: macOS
-    deploymentTarget: "11.0"
+    deploymentTarget: "12.0"
     dependencies:
       - target: Sentry/Sentry
       - target: CrashE2EDynamicImageBefore-macOS
@@ -89,7 +89,7 @@ targets:
   CrashE2E-macOS-KSCrash:
     type: tool
     platform: macOS
-    deploymentTarget: "11.0"
+    deploymentTarget: "12.0"
     dependencies:
       - target: "Sentry/Sentry+KSCrash"
       - target: CrashE2EDynamicImageBefore-macOS
@@ -138,7 +138,7 @@ targets:
   CrashE2EDynamicImageBefore-macOS:
     type: library.dynamic
     platform: macOS
-    deploymentTarget: "11.0"
+    deploymentTarget: "12.0"
     sources:
       - path: App/DynamicImages/CrashE2EDynamicImage.c
         type: file
@@ -150,7 +150,7 @@ targets:
   CrashE2EDynamicImageAfter-macOS:
     type: library.dynamic
     platform: macOS
-    deploymentTarget: "11.0"
+    deploymentTarget: "12.0"
     sources:
       - path: App/DynamicImages/CrashE2EDynamicImage.c
         type: file
