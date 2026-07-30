@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 9.24.0
 
 ### Breaking Changes
 
