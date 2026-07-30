@@ -13,7 +13,7 @@ Each section has three fields:
 - **Relay / Spec** — the source of truth to diff against: Relay source (the code that receives the bytes) and/or develop-docs (the written protocol). This is what the SDK _should_ do.
 - **Check** — the precise, machine-facing diff to run: the exact strings, casings, and edge cases to compare. Terse on purpose — it's the subagent's checklist, not prose.
 
-Links track `main` (Cocoa) / `master` (Relay). If a linked path 404s, the file moved: search the repo for the named symbol, audit the moved file, and note the move in the report (the coverage check turns a moved path into a draft PR).
+Links track `main` (Cocoa) / `master` (Relay). If a linked path 404s, the file moved: search the repo for the named symbol, audit the moved file, and note the move in the console summary (the coverage check turns a moved path into a draft PR).
 
 ---
 
