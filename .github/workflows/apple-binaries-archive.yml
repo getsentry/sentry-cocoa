@@ -38,8 +38,6 @@ jobs:
         run: |
           mkdir -p XCFrameworkBuildPath
           echo "<FAKE STATIC ZIP>" > XCFrameworkBuildPath/Sentry.xcframework.zip
-          echo "<FAKE DYNAMIC ZIP>" > XCFrameworkBuildPath/Sentry-Dynamic.xcframework.zip
-          echo "<FAKE SENTRYOBJC DYNAMIC ZIP>" > XCFrameworkBuildPath/SentryObjC-Dynamic.xcframework.zip
           echo "<FAKE SENTRYOBJC STATIC ZIP>" > XCFrameworkBuildPath/SentryObjC-Static.xcframework.zip
 
       - name: Create archive
@@ -64,10 +62,10 @@ jobs:
 
           # Verify checksums were updated (should match the fake zips)
           EXPECTED_STATIC=$(sha256sum XCFrameworkBuildPath/Sentry.xcframework.zip | awk '{print $1}')
-          EXPECTED_OBJC_DYN=$(sha256sum XCFrameworkBuildPath/SentryObjC-Dynamic.xcframework.zip | awk '{print $1}')
+          EXPECTED_OBJC_STATIC=$(sha256sum XCFrameworkBuildPath/SentryObjC-Static.xcframework.zip | awk '{print $1}')
 
           grep -q "checksum: \"${EXPECTED_STATIC}\" //Sentry-Static" /tmp/apple-binaries-verify/Package.swift
-          grep -q "checksum: \"${EXPECTED_OBJC_DYN}\" //SentryObjC-Dynamic" /tmp/apple-binaries-verify/Package.swift
+          grep -q "checksum: \"${EXPECTED_OBJC_STATIC}\" //SentryObjC-Static" /tmp/apple-binaries-verify/Package.swift
 
           # Verify no extra files leaked into the archive
           FILE_COUNT=$(find /tmp/apple-binaries-verify -type f | wc -l)
