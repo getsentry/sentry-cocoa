@@ -228,9 +228,10 @@ create_staging_dir() {
 
 create_tgz_from_staging() {
   local staging_dir="$1"
-  local archive_path="$2"
+  local archive_path
+  archive_path="$(cd "$(dirname "$2")" && pwd)/$(basename "$2")"
 
-  (cd "$staging_dir" && find . -type f | sed 's|^\./||' | sort | xargs tar -czf "$archive_path" -C "$staging_dir")
+  (cd "$staging_dir" && find . -type f | sed 's|^\./||' | sort | xargs tar -czf "$archive_path")
 
   rm -rf "$staging_dir"
 
