@@ -62,8 +62,6 @@ fi
 
 ZIPS_AND_MARKERS=(
     "Sentry.xcframework.zip|Sentry-Static"
-    "Sentry-Dynamic.xcframework.zip|Sentry-Dynamic"
-    "SentryObjC-Dynamic.xcframework.zip|SentryObjC-Dynamic"
     "SentryObjC-Static.xcframework.zip|SentryObjC-Static"
 )
 

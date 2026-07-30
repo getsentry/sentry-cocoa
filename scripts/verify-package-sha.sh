@@ -196,18 +196,6 @@ if [ -f "$DIST_PACKAGE" ]; then
         exit 1
     fi
 
-    UPDATED_PACKAGE_SHA=$(grep "checksum.*Sentry-Dynamic" "$DIST_PACKAGE" | cut -d '"' -f 2)
-    if [ "$UPDATED_PACKAGE_SHA" != "$EXPECTED_DYNAMIC_CHECKSUM" ]; then
-        log_error "Expected dynamic checksum to be $EXPECTED_DYNAMIC_CHECKSUM but got $UPDATED_PACKAGE_SHA in $DIST_PACKAGE"
-        exit 1
-    fi
-
-    UPDATED_PACKAGE_SHA=$(grep "checksum.*SentryObjC-Dynamic" "$DIST_PACKAGE" | cut -d '"' -f 2)
-    if [ "$UPDATED_PACKAGE_SHA" != "$EXPECTED_SENTRYOBJC_DYNAMIC_CHECKSUM" ]; then
-        log_error "Expected SentryObjC-Dynamic checksum to be $EXPECTED_SENTRYOBJC_DYNAMIC_CHECKSUM but got $UPDATED_PACKAGE_SHA in $DIST_PACKAGE"
-        exit 1
-    fi
-
     UPDATED_PACKAGE_SHA=$(grep "checksum.*SentryObjC-Static" "$DIST_PACKAGE" | cut -d '"' -f 2)
     if [ "$UPDATED_PACKAGE_SHA" != "$EXPECTED_SENTRYOBJC_STATIC_CHECKSUM" ]; then
         log_error "Expected SentryObjC-Static checksum to be $EXPECTED_SENTRYOBJC_STATIC_CHECKSUM but got $UPDATED_PACKAGE_SHA in $DIST_PACKAGE"
