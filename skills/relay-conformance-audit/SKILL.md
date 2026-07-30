@@ -123,7 +123,10 @@ _Found by relay-conformance-audit, <DATE>, @<SHORT_SHA>._
 
 ---
 
-🔕 **False positive or won't-fix?** If this finding shouldn't be reported again, add it to the audit's ignore list. From a `getsentry/sentry-cocoa` checkout, copy the prompt below into Claude Code — it will ask you _why_ it should be ignored, then open the PR:
+<details>
+<summary>🔕 False positive or won't-fix? Add it to the ignore list</summary>
+
+If this finding shouldn't be reported again, add it to the audit's ignore list. From a `getsentry/sentry-cocoa` checkout, copy the prompt below into Claude Code — it will ask you _why_ it should be ignored, then open the PR:
 
 ```text
 Add relay-audit issue #<ISSUE_NUMBER> to the relay-conformance-audit ignore list.
@@ -134,11 +137,13 @@ skills/relay-conformance-audit/references/findings.md preserving the full finger
 context (area | location | summary), and open a short PR against main referencing
 #<ISSUE_NUMBER> with #skip-changelog in the body.
 ```
+
+</details>
 ````
 
 - The **automated-origin banner is the first thing in the body** — one short `>` blockquote line: bot-filed, links the skill source, stamps date + audited SHA. Keep it terse (one line); substitute `<FULL_SHA>`/`<DATE>`/`<SHORT_SHA>`. Never bury it in the `<details>` footer.
 - The intro carries a **"Proof of the correct way"** line linking a peer repo that implements the surface correctly (or, for `ecosystem-divergent`, the peer with a third value) — an inline `blob/`-pinned link to the exact peer line, so a reviewer sees the evidence without opening the details block. This comes straight from the cross-SDK `crossSDK.matchRelay` (or `matchNeither`) result. Only `inconclusive` (no peer located) may omit it — and that verdict is already flagged thin-evidence.
-- The prompt block uses `` ```text `` so it copies cleanly. Substitute the real issue number for every `<ISSUE_NUMBER>` at create time (you have it after `gh issue create`; on edit you already know it). The prompt points at the "Adding to the ignore list" section rather than inlining steps, so the issue text and the procedure never drift.
+- The 🔕 ignore prompt lives in its **own collapsible `<details>` block** at the end of the body (summary `🔕 False positive or won't-fix? Add it to the ignore list`) so it doesn't clutter the issue. The prompt block inside uses `` ```text `` so it copies cleanly. Substitute the real issue number for every `<ISSUE_NUMBER>` at create time (you have it after `gh issue create`; on edit you already know it). The prompt points at the "Adding to the ignore list" section rather than inlining steps, so the issue text and the procedure never drift.
 - **Both** the human intro and the `<details>` block carry commit-pinned code links — the intro links the specific offending line(s) inline in prose; the details block adds the full `Location` list. Never leave the intro link-free and push all links into the details.
 - One `Location` link per relevant file; always a commit-pinned line range (`#L<start>-L<end>`), never `blob/main`.
 - When editing an existing issue, rebuild the whole body from the current run (fresh SHA + line ranges) — including the ignore prompt with the correct number. Preserve the intro's intent, but the analysis and links always reflect the latest run.
@@ -165,7 +170,7 @@ This section is driven by the copy-paste prompt embedded in each issue (see "Bod
 ## Guardrails
 
 - File issues only for real wire-level mismatches. Style issues, dead code, and things Relay normalizes server-side are ignore-list material, not issues.
-- Never open a duplicate. Mandatory on every created or edited issue: the `relay-audit:` title prefix; the leading 🤖 automated-origin banner; the human intro **with inline commit-pinned code links** and a **"Proof of the correct way" peer-repo link** (except `inconclusive`); the collapsed `<details>` analysis (also commit-pinned); and the trailing 🔕 copy-paste ignore prompt with the real issue number substituted.
+- Never open a duplicate. Mandatory on every created or edited issue: the `relay-audit:` title prefix; the leading 🤖 automated-origin banner; the human intro **with inline commit-pinned code links** and a **"Proof of the correct way" peer-repo link** (except `inconclusive`); the collapsed `<details>` analysis (also commit-pinned); and the trailing 🔕 copy-paste ignore prompt in its own collapsible `<details>` block, with the real issue number substituted.
 - The ignore prompt must always ask the user for a real ignore-scenario before writing to `findings.md`, and its PR must touch only `findings.md` — never SDK code or the skill files.
 - Relay paths move: if a listed path 404s, search the Relay repo for the symbol (`ItemType`, `DataCategory`, `ClientReport`) and audit against the moved file; the coverage check turns the path fix into a draft PR it opens directly.
 - Bounded cost: one subagent per area plus one coverage-check subagent; don't recurse into `SentryCrash/` or other non-protocol code. Cross-SDK corroboration adds only wire-string searches against the 5 named peer repos, and only for needs-action mismatches — not every diff.
