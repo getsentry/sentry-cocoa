@@ -1,6 +1,6 @@
 ---
 name: relay-conformance-audit
-description: Audit the Cocoa SDK for protocol-conformance drift against Relay (getsentry/relay) — hard-coded strings/wire formats that must match Relay exactly and fail silently when they don't (the class behind #8322, the case-sensitive rate-limit header). Read-only; outputs a report, never fixes code. Use for the scheduled weekly check or on demand after networking/protocol changes.
+description: Audit the Cocoa SDK for protocol-conformance drift against Relay (getsentry/relay) — hard-coded strings/wire formats that must match Relay exactly and fail silently when they don't (the class behind #8322, the case-sensitive rate-limit header). Every candidate mismatch is corroborated against the peer SDKs (sentry-java, -dart, -react-native, -javascript, -python): a Cocoa-only divergence is confirmed with peer code links, an all-SDK agreement is treated as a likely false positive and dropped. Read-only; outputs a report, never fixes code. Use for the scheduled weekly check or on demand after networking/protocol changes.
 ---
 
 # Cocoa ↔ Relay conformance audit
@@ -24,7 +24,8 @@ If a tracked or ignored entry no longer reproduces, say so — humans can close 
 1. Record `git rev-parse --short HEAD` and `date +%Y-%m-%d` via shell (never hardcode); both stamp the report.
 2. For each area in `references/surface-map.md`, spawn one read-only subagent (parallel). Contract: fetch the listed Relay source / develop-docs pages, read the listed Cocoa files, diff per the area's notes. Return mismatches as `{area, severity HIGH|MEDIUM|LOW, file + symbol, exact wire strings, spec citation, failure mode}`. Severity = silent blast radius, not fix effort. In parallel with these, spawn the coverage-check subagent (see "Coverage check").
 3. Match each mismatch against `references/findings.md` on fingerprint (`area + file + normalized summary` — never line numbers, never severity: severity ratings vary between runs, fingerprints are the stable key): tracked / ignored (verify the ignore-scenario still holds) / needs action.
-4. Build the report (below), appending the coverage-check result, and deliver: post to Slack when a connector is configured, otherwise print. If a Slack post fails, print everything and state loudly the post FAILED — never report success on a failed post.
+4. **Cross-SDK corroboration** (see below): for every mismatch that is still **needs action** after step 3, check how the peer SDKs implement the same wire surface. This is the confidence gate — it strengthens `cocoa-only` findings with exact peer code locations and silently drops `all-sdks-agree` false positives.
+5. Build the report (below), appending the coverage-check result, and deliver: post to Slack when a connector is configured, otherwise print. If a Slack post fails, print everything and state loudly the post FAILED — never report success on a failed post.
 
 ## Coverage check (surface-map self-audit)
 
@@ -44,6 +45,24 @@ Outcome:
   - This is the skill's **only** permitted write: never touch SDK code, `findings.md`, or `SKILL.md` in that PR; leave it as a draft and never merge — a human reviews. If a draft PR from a previous run is still open, push to that branch and update its body instead of opening a second one. If `gh` isn't authenticated or the push fails, say so loudly in the report and include the diff inline — never report the PR as opened when it wasn't.
 - Gaps are NOT mismatches: report them in the coverage section only; the newly-discovered files get audited by the next run after the map PR merges.
 
+## Cross-SDK corroboration
+
+Diffing Cocoa against Relay + develop-docs alone produces false positives: when the develop-docs spec is aspirational/wrong, or Relay tolerates a value, the docs-vs-Relay disagreement gets blamed on Cocoa. The peer SDKs are a second source of truth. If Cocoa is the **only** SDK that diverges, the finding is almost certainly real; if **every** SDK does the same thing Cocoa does, the "mismatch" is almost certainly a misreading of the spec, not a Cocoa bug.
+
+Run this only on mismatches that are still **needs action** after the `findings.md` match (step 3) — never on tracked/ignored entries. That bounds the extra searches to exactly the findings that would be reported.
+
+Peer repos, in priority order (mobile first): `getsentry/sentry-java`, `getsentry/sentry-dart`, `getsentry/sentry-react-native`, then `getsentry/sentry-javascript`, `getsentry/sentry-python`.
+
+**Locate peer code by the wire string, not a file map.** The exact literal the mismatch is about (discard-reason string, header name, envelope item-type, DSC key, session field) is the stable locator — search each repo for it, e.g. `gh search code --repo getsentry/sentry-java "ratelimit_backoff"`. This lands directly on the peer's implementation with no per-SDK map to maintain and keep in sync. If the literal search misses (a repo names the constant differently), fall back to the role-analogous file, then move on — a peer you genuinely can't locate is recorded as not-checked, not as agreement.
+
+For each needs-action mismatch, classify each checked peer as **matches Relay** (implements the spec-correct value Cocoa is missing) or **matches Cocoa** (shares Cocoa's divergent value), and set a verdict:
+
+- **`cocoa-only`** — Cocoa diverges and ≥1 peer matches Relay → finding **confirmed and strengthened**. Report it, flagged higher-confidence, with clickable `blob/`-pinned links to the peer code showing the correct implementation.
+- **`mixed`** — peers split → report normally; note which peers side with Cocoa and which with Relay.
+- **`all-sdks-agree`** — every checked peer holds the **same** value as Cocoa (all "mismatch" Relay together) → strong **false-positive** signal. Before acting, re-read the Relay source directly to confirm what it actually does with the value. Default: **drop the finding silently** — omit it from the report entirely, with no count and no trace. Escape hatch: if after re-reading Relay you are still certain it is a real wire bug affecting all SDKs, report it as needs-action, explicitly labeled _"affects all SDKs — likely a spec/Relay-wide issue, not Cocoa-specific"_ and sorted last. The escape hatch is certainty-gated, so the common case stays silent.
+
+Add the result to each reported mismatch as `crossSDK: { checked:[repos], matchRelay:[{sdk, link, note}], matchCocoa:[{sdk, link}], verdict: cocoa-only|mixed|all-sdks-agree }`.
+
 ## Report
 
 Main message (Slack mrkdwn — no tables, `*bold*`, `` `code` ``), severity-sorted:
@@ -54,6 +73,7 @@ mismatches <n> (<n> need action) · ignored <n> · coverage <OK|GAPS: draft PR l
 
 :warning: *Needs action* (file the issue or add to the ignore list)
 • [HIGH] <area> — <file (symbol)> — <one-line summary> — <create-issue link>
+   (append ` · :dart: cocoa-only` when the cross-SDK verdict is cocoa-only — higher confidence)
 
 :ticket: *Tracked*
 • #<issue> <area> — <one-line summary>
@@ -65,7 +85,7 @@ Everything tracked or ignored: `:white_check_mark: Nothing needs action. (tracke
 
 Thread reply 1 — **TLDR**: per needs-action mismatch, 2–4 plain sentences for a human deciding whether to care — what broke, user impact, blast radius. No file paths, no jargon.
 
-Thread reply 2 — **full detail**: per needs-action mismatch, everything an agent needs to pick it up cold — location (file + symbol, as a clickable `https://github.com/getsentry/sentry-cocoa/blob/main/<path>` link so a reviewer can jump straight to it), exact wire strings, spec/Relay citation (link it too), failure mode, 1–3 verify steps. End with one line noting any tracked/ignored entries that no longer reproduce, and the coverage-check result (gap list + draft-PR link when there are gaps).
+Thread reply 2 — **full detail**: per needs-action mismatch, everything an agent needs to pick it up cold — location (file + symbol, as a clickable `https://github.com/getsentry/sentry-cocoa/blob/main/<path>` link so a reviewer can jump straight to it), exact wire strings, spec/Relay citation (link it too), failure mode, 1–3 verify steps, and a **Cross-SDK** line: the verdict (`cocoa-only` / `mixed`) plus per-peer status — which peers match Relay (with clickable `blob/`-pinned links to their implementation of the correct value) and which match Cocoa. For a `cocoa-only` finding those peer links are the strongest evidence, so lead with them. (`all-sdks-agree` findings are dropped and never reach this reply unless the certainty-gated escape hatch fired, in which case carry the _"affects all SDKs"_ label here too.) End with one line noting any tracked/ignored entries that no longer reproduce, and the coverage-check result (gap list + draft-PR link when there are gaps).
 
 Votes and thread replies are feedback for the audit's maintainer only — the audit itself never reads reactions or acts on them; a human follows up and tunes the skill or the ignore list.
 
@@ -75,11 +95,12 @@ Create-issue links: `https://github.com/getsentry/sentry-cocoa/issues/new?title=
 
 - Report only real wire-level mismatches. Style issues, dead code, and things Relay normalizes server-side are ignore-list material, not weekly noise.
 - Relay paths move: if a listed path 404s, search the Relay repo for the symbol (`ItemType`, `DataCategory`, `ClientReport`) and audit against the moved file; the coverage check turns the path fix into a draft PR it opens directly.
-- Bounded cost: one subagent per area plus one coverage-check subagent; don't recurse into `SentryCrash/` or other non-protocol code.
+- Bounded cost: one subagent per area plus one coverage-check subagent; don't recurse into `SentryCrash/` or other non-protocol code. Cross-SDK corroboration adds only wire-string searches against the 5 named peer repos, and only for needs-action mismatches — not every diff.
+- Cross-SDK unanimity is a false-positive filter, not a bug detector: when every checked peer agrees with Cocoa, default to dropping the finding and re-read Relay directly before ever reporting it. Report an `all-sdks-agree` finding only if you remain certain it's a real wire bug, and label it as affecting all SDKs. Never invert the filter — peer agreement lowers confidence in a finding, it never raises it.
 
 ## Validation (self-test)
 
-Whenever this skill or the surface map changes materially, validate the audit itself: run it against a pinned historical commit containing a known, since-fixed conformance bug (e.g. `b557385bd`, the commit before the #8322 fix — case-sensitive `X-Sentry-Rate-Limits`/`Retry-After` reads in `DefaultRateLimits.swift`) via `git worktree add`, reading the skill from `main`. It MUST surface that bug as a needs-action mismatch (HIGH or MEDIUM — severity varies between runs; judge on location + failure mode), and a run on current `main` must not report it. Keep validation runs blind: don't tell them which bug to expect or that a fix exists. Last passed: 2026-07-27.
+Whenever this skill or the surface map changes materially, validate the audit itself: run it against a pinned historical commit containing a known, since-fixed conformance bug (e.g. `b557385bd`, the commit before the #8322 fix — case-sensitive `X-Sentry-Rate-Limits`/`Retry-After` reads in `DefaultRateLimits.swift`) via `git worktree add`, reading the skill from `main`. It MUST surface that bug as a needs-action mismatch (HIGH or MEDIUM — severity varies between runs; judge on location + failure mode), and a run on current `main` must not report it. The cross-SDK step must return `cocoa-only` for it — the peer SDKs read that header case-insensitively (Cocoa was the outlier), which both confirms the finding and exercises the new step end-to-end; a validation run that reports the bug but marks it `all-sdks-agree` (and thus drops it) is a failure. Keep validation runs blind: don't tell them which bug to expect or that a fix exists. Last passed: 2026-07-27.
 
 ## Running it
 
