@@ -251,7 +251,12 @@ final class SentryANRTrackerV2Tests: XCTestCase {
         defer { sut.clear() }
         
         // We use multiple listeners here, because we can't reset the XCTestExpectation
-        let firstListener = SentryANRTrackerV2TestDelegate()
+        let secondHangDuration = timeoutInterval + 0.1
+        let firstListener = SentryANRTrackerV2TestDelegate(blockOnFirstANRStopped: { [currentDate, secondHangDuration] in
+            // TestSentryDispatchQueueWrapper executes async blocks synchronously. Advancing the
+            // clock here deterministically starts the second hang before stop notification returns.
+            currentDate.advance(by: secondHangDuration)
+        })
         firstListener.anrDetectedExpectation.expectedFulfillmentCount = 2
         firstListener.anrStoppedExpectation.expectedFulfillmentCount = 2
         sut.add(listener: firstListener)
@@ -264,16 +269,14 @@ final class SentryANRTrackerV2Tests: XCTestCase {
         triggerFullyBlockingAppHang(currentDate)
         
         wait(for: [secondListener.anrDetectedExpectation], timeout: waitTimeout)
+
+        let thirdListener = SentryANRTrackerV2TestDelegate()
+        thirdListener.anrStoppedExpectation.expectedFulfillmentCount = 2
+        sut.add(listener: thirdListener)
         
         renderNormalFramesToStopAppHang(displayLinkWrapper)
         
         wait(for: [secondListener.anrStoppedExpectation], timeout: waitTimeout)
-        
-        let thirdListener = SentryANRTrackerV2TestDelegate()
-        sut.add(listener: thirdListener)
-        
-        triggerFullyBlockingAppHang(currentDate)
-        
         wait(for: [thirdListener.anrDetectedExpectation], timeout: waitTimeout)
         
         renderNormalFramesToStopAppHang(displayLinkWrapper)
@@ -736,8 +739,11 @@ class SentryANRTrackerV2TestDelegate: NSObject, SentryANRTrackerDelegate {
     let anrStoppedExpectation  = XCTestExpectation(description: "Test Delegate ANR Stopped")
     let anrsDetected = Invocations<Sentry.SentryANRType>()
     let anrStoppedResults = Invocations<SentryANRStoppedResult>()
+    private let blockOnFirstANRStopped: (() -> Void)?
     
-    init(shouldANRBeDetected: Bool = true, shouldStoppedBeCalled: Bool = true) {
+    init(shouldANRBeDetected: Bool = true, shouldStoppedBeCalled: Bool = true, blockOnFirstANRStopped: (() -> Void)? = nil) {
+        self.blockOnFirstANRStopped = blockOnFirstANRStopped
+
         if !shouldANRBeDetected {
             anrDetectedExpectation.isInverted = true
         }
@@ -757,6 +763,10 @@ class SentryANRTrackerV2TestDelegate: NSObject, SentryANRTrackerDelegate {
         }
         
         anrStoppedResults.record(nonNilResult)
+
+        if anrStoppedResults.count == 1 {
+            blockOnFirstANRStopped?()
+        }
         
         anrStoppedExpectation.fulfill()
     }
