@@ -24,7 +24,7 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
             "enableMetrics", // Promoted to GA in https://github.com/getsentry/sentry-cocoa/pull/7843; docs update pending
             "beforeSendMetric" // Promoted to GA in https://github.com/getsentry/sentry-cocoa/pull/7843; docs update pending
         ]
-        
+
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         options.insert("screenshot")
         #endif
@@ -44,6 +44,11 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         options.insert("configureProfiling")
         #endif
 
+        #if SDK_V10
+        options.insert("dataCollection") // Docs update pending
+        options.insert("dataCollectionObjC") // @_spi(Private) - internal Objective-C bridge
+        #endif
+
         return options
     }
 
@@ -51,33 +56,33 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         let codeName: String
         let docsName: String
     }
-    
+
     /// Known mappings where the code property name differs from the documentation option name.
     private let optionNameMappings: [OptionNameMapping] = [
         OptionNameMapping(codeName: "enableAutoSessionTracking", docsName: "autoSessionTracking"),
         OptionNameMapping(codeName: "inAppIncludes", docsName: "inAppInclude"),
         OptionNameMapping(codeName: "enablePropagateTraceparent", docsName: "enable-propagate-trace-parent")
     ]
-    
+
     func testAllOptionsAreDocumentedInSentryDocs() async throws {
 
         let optionProperties = extractPropertyNames(from: Options())
 
         let documentedOptions = try await fetchDocumentedOptions()
-        
+
         // Warn about options in undocumentedOptions that are now documented
         let undocumentedOptionsThatAreActuallyDocumented = undocumentedOptions
             .filter { documentedOptions.contains($0) }
             .sorted()
-        
+
         if !undocumentedOptionsThatAreActuallyDocumented.isEmpty {
             print("""
                 ⚠️ The following options are now documented and can be removed from undocumentedOptions:
-                
+
                 \(undocumentedOptionsThatAreActuallyDocumented.map { "   - \($0)" }.joined(separator: "\n"))
                 """)
         }
-        
+
         // Find properties that are not documented and not ignored
         let propertiesMissingDocs = optionProperties
             .filter { !undocumentedOptions.contains($0) }
@@ -90,32 +95,32 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
                 return !documentedOptions.contains(mapping.docsName)
             }
             .sorted()
-        
+
         XCTAssertTrue(propertiesMissingDocs.isEmpty, """
             ❌ The following Options.swift properties are not documented in sentry-docs:
-            
+
             \(propertiesMissingDocs.map { "   - \($0)" }.joined(separator: "\n"))
-            
+
             To fix this:
             1. Add documentation for these options in sentry-docs:
                https://github.com/getsentry/sentry-docs/blob/master/docs/platforms/apple/common/configuration/options.mdx
-            
+
             2. OR add them to the SentryOptionsDocumentationSyncTests.undocumentedOptions with a reason.
             """)
     }
-    
+
     func testIgnoredOptionsExistInCode() {
         let codeProperties = extractPropertyNames(from: Options())
-        
+
         let invalidOptions = undocumentedOptions
             .filter { !codeProperties.contains($0) }
             .sorted()
-        
+
         XCTAssertTrue(invalidOptions.isEmpty, """
             The following options in undocumentedOptions do not exist in Options.swift:
-            
+
             \(invalidOptions.map { "   - \($0)" }.joined(separator: "\n"))
-            
+
             Either remove them from undocumentedOptions, or if they are platform-specific,
             add them with the appropriate compiler flags (e.g., #if os(iOS)).
             """)

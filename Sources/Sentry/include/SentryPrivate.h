@@ -12,7 +12,6 @@
 #import "SentryCrashC.h"
 #import "SentryCrashDynamicLinker.h"
 #import "SentryCrashUUIDConversion.h"
-#import "SentryDataCategoryMapper.h"
 #import "SentryDiscardReasonMapper.h"
 #import "SentryEnvelopeAttachmentHeader.h"
 #import "SentryError.h"
@@ -24,7 +23,9 @@
 #import "SentryNSDataUtils.h"
 #import "SentryNSExceptionCaptureHelper.h"
 #import "SentryNSFileManagerSwizzlingHelper.h"
+#import "SentryNSURLSessionTaskSearch.h"
 #import "SentryNetworkTracker.h"
+#import "SentryObjCExceptionHelper.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySessionReplaySyncC.h"
@@ -33,7 +34,6 @@
 #import "SentryTracer.h"
 #import "SentryUserAccess.h"
 #import "SentryViewHierarchyProviderHelper.h"
-#import "UIViewController+Sentry.h"
 #import "_SentryDispatchQueueWrapperInternal.h"
 
 // Headers that also import SentryDefines should be at the end of this list
@@ -44,6 +44,7 @@
 #import "SentryAppStartMeasurementProvider.h"
 #import "SentryAppStartTrackerHelper.h"
 #import "SentryAsyncLog.h"
+#import "SentryBreadcrumb+Private.h"
 #import "SentryContinuousProfiler.h"
 #import "SentryCoreDataSwizzlingHelper.h"
 #import "SentryCoreDataTracker.h"

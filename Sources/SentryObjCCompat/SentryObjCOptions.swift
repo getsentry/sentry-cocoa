@@ -62,6 +62,11 @@ import Foundation
         set { wrapped.enableCrashHandler = newValue }
     }
 
+    @objc public var enableMemoryIntrospection: Bool {
+        get { wrapped.enableMemoryIntrospection }
+        set { wrapped.enableMemoryIntrospection = newValue }
+    }
+
     #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
     @objc public var enableUncaughtNSExceptionReporting: Bool {
         get { wrapped.enableUncaughtNSExceptionReporting }
@@ -520,6 +525,13 @@ import Foundation
         get { wrapped.orgId }
         set { wrapped.orgId = newValue }
     }
+
+    #if SDK_V10
+    @objc public var dataCollection: SentryObjCDataCollectionOptions {
+        get { SentryObjCDataCollectionOptions(parent: wrapped) }
+        set { wrapped.dataCollection = newValue.wrapped }
+    }
+    #endif // SDK_V10
 
     @objc public var experimental: SentryObjCExperimentalOptions {
         get { SentryObjCExperimentalOptions(wrapped.experimental) }

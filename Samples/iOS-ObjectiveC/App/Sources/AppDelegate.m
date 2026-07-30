@@ -1,21 +1,13 @@
 #import "AppDelegate.h"
 @import CoreData;
 @import Sentry;
-
 @import SentrySampleShared;
-
-@interface AppDelegate ()
-@property (strong, nonatomic) SampleAppDebugMenu *debugMenu;
-@end
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    self.debugMenu = [[SampleAppDebugMenu alloc] init];
-    [self.debugMenu display];
-
     NSArray<NSString *> *args = NSProcessInfo.processInfo.arguments;
     NSDictionary<NSString *, NSString *> *env = NSProcessInfo.processInfo.environment;
 
@@ -24,6 +16,9 @@
         options.debug = YES;
         options.attachScreenshot = YES;
         options.attachViewHierarchy = YES;
+#if SDK_V10
+        [SentrySampleDataCollectionConfiguration configureWithOptions:options];
+#endif // SDK_V10
 
         if (env[@"--io.sentry.tracesSamplerValue"] != nil) {
             options.tracesSampler = ^(SentrySamplingContext *_Nonnull samplingContext) {
@@ -113,37 +108,10 @@
                                                                 outlineWidth:4];
                 };
                 config.onSubmitSuccess = ^(NSDictionary<NSString *, id> *_Nonnull info) {
-                    NSString *name = info[@"name"] ?: @"$shakespearean_insult_name";
-                    UIAlertController *alert = [UIAlertController
-                        alertControllerWithTitle:@"Thanks?"
-                                         message:[NSString stringWithFormat:
-                                                         @"We have enough jank of our own, we "
-                                                         @"really didn't need yours too, %@",
-                                                     name]
-                                  preferredStyle:UIAlertControllerStyleAlert];
-                    [alert addAction:[UIAlertAction actionWithTitle:@"Derp"
-                                                              style:UIAlertActionStyleDefault
-                                                            handler:nil]];
-                    [self.window.rootViewController presentViewController:alert
-                                                                 animated:YES
-                                                               completion:nil];
+                    NSLog(@"Feedback submitted successfully: %@", info);
                 };
-                config.onSubmitError = ^(NSError *_Nonnull error) {
-                    UIAlertController *alert = [UIAlertController
-                        alertControllerWithTitle:@"D'oh"
-                                         message:
-                                             [NSString stringWithFormat:
-                                                     @"You tried to report jank, and encountered "
-                                                     @"more jank. The jank has you now: %@",
-                                                 error]
-                                  preferredStyle:UIAlertControllerStyleAlert];
-                    [alert addAction:[UIAlertAction actionWithTitle:@"Derp"
-                                                              style:UIAlertActionStyleDefault
-                                                            handler:nil]];
-                    [self.window.rootViewController presentViewController:alert
-                                                                 animated:YES
-                                                               completion:nil];
-                };
+                config.onSubmitError = ^(
+                    NSError *_Nonnull error) { NSLog(@"Failed to submit feedback: %@", error); };
             };
         }
     }];
@@ -152,5 +120,13 @@
 }
 
 #pragma mark - UISceneSession lifecycle
+
+- (UISceneConfiguration *)application:(UIApplication *)application
+    configurationForConnectingSceneSession:(UISceneSession *)connectingSceneSession
+                                   options:(UISceneConnectionOptions *)options
+{
+    return [[UISceneConfiguration alloc] initWithName:@"Default Configuration"
+                                          sessionRole:connectingSceneSession.role];
+}
 
 @end

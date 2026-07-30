@@ -23,6 +23,7 @@
         "SentryCrashReportStore_Tests\/testCrashReportCount1",
         "SentryCrashReportStore_Tests\/testDeleteAllReports",
         "SentryCrashReportStore_Tests\/testPruneReports",
+        "SentryDispatchSourceWrapperTests\/testDispatchSourceWrapper_Repeats()",
         "SentryFileManagerTests\/testCreateDirectoryIfNotExists_successful_shouldNotLogError()",
         "SentryHttpTransportFlushIntegrationTests",
         "SentryOnDemandReplayTests\/testAddFrameIsThreadSafe()",

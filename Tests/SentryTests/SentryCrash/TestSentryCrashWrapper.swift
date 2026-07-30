@@ -16,6 +16,7 @@ class TestSentryCrashReporter: NSObject, SentryCrashReporter {
     var internalFreeMemorySize: UInt64 = 0
     var internalAppMemorySize: UInt64 = 0
     var internalSystemInfo: [String: Any] = [:]
+    var internalIntrospectMemory: Bool = true
     var binaryCacheStarted = false
     var binaryCacheStopped = false
     var enrichScopeCalled = false
@@ -40,6 +41,10 @@ class TestSentryCrashReporter: NSObject, SentryCrashReporter {
     var freeMemorySize: UInt64 { internalFreeMemorySize }
     var appMemorySize: UInt64 { internalAppMemorySize }
     var systemInfo: [String: Any] { internalSystemInfo }
+    var introspectMemory: Bool {
+        get { internalIntrospectMemory }
+        set { internalIntrospectMemory = newValue }
+    }
 
     private var internalProcessInfoWrapper: SentryProcessInfoSource = ProcessInfo.processInfo
     var processInfoWrapper: SentryProcessInfoSource { internalProcessInfoWrapper }

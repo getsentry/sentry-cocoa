@@ -1,8 +1,9 @@
+#if SDK_V10
 // swiftlint:disable missing_docs
 #if SWIFT_PACKAGE
-internal import SentrySwift
+@_spi(Private) internal import SentrySwift
 #else
-internal import Sentry
+@_spi(Private) internal import Sentry
 #endif
 import Foundation
 
@@ -15,7 +16,7 @@ public final class SentryObjCDataCollectionOptions: NSObject {
         set { storage.value = newValue }
     }
 
-    internal init(parent: SentryExperimentalOptions) {
+    internal init(parent: Options) {
         self.storage = Accessor(root: parent, keyPath: \.dataCollection)
     }
 
@@ -25,6 +26,10 @@ public final class SentryObjCDataCollectionOptions: NSObject {
 
     @objc public override init() {
         self.storage = Accessor(SentryDataCollection.Options())
+    }
+
+    @objc public init(dictionary: NSDictionary) {
+        self.storage = Accessor(SentryDataCollection.Options(dictionary: dictionary as? [String: Any] ?? [:]))
     }
 
     @objc public var userInfo: Bool {
@@ -47,9 +52,9 @@ public final class SentryObjCDataCollectionOptions: NSObject {
         set { storage.value.httpBodies = newValue.underlying }
     }
 
-    @objc public var queryParams: SentryObjCDataCollectionKeyValueCollectionBehavior {
-        get { SentryObjCDataCollectionKeyValueCollectionBehavior(storage.value.queryParams) }
-        set { storage.value.queryParams = newValue.wrapped }
+    @objc public var urlQueryParams: SentryObjCDataCollectionKeyValueCollectionBehavior {
+        get { SentryObjCDataCollectionKeyValueCollectionBehavior(storage.value.urlQueryParams) }
+        set { storage.value.urlQueryParams = newValue.wrapped }
     }
 
     @objc public var graphql: SentryObjCDataCollectionGraphQLCollectionOptions {
@@ -74,3 +79,4 @@ public final class SentryObjCDataCollectionOptions: NSObject {
 }
 
 // swiftlint:enable missing_docs
+#endif // SDK_V10

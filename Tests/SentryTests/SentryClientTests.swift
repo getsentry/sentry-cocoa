@@ -2205,6 +2205,37 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(SentryInstallation.id(withCacheDirectoryPath: options.cacheDirectoryPath), actual.user?.userId)
     }
     
+    func testInstallationIdNotSetWhenDataCollectionUserInfoDisabled() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+#else
+        fixture.getSut(configureOptions: { options in
+            options.dataCollection.userInfo = false
+        }).capture(message: "any message")
+
+        let actual = try lastSentEvent()
+        XCTAssertNil(actual.user)
+#endif
+    }
+
+    func testExplicitUserIsSetWhenDataCollectionUserInfoDisabled() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+#else
+        let scope = Scope()
+        let user = User()
+        user.email = "jane@example.com"
+        scope.setUser(user)
+
+        fixture.getSut(configureOptions: { options in
+            options.dataCollection.userInfo = false
+        }).capture(message: "any message", scope: scope)
+
+        let actual = try lastSentEvent()
+        XCTAssertEqual(actual.user?.email, "jane@example.com")
+#endif
+    }
+
     func testInstallationIdNotSetWhenUserIsSetWithoutId() throws {
         let scope = fixture.scope
         scope.setUser(fixture.user)
@@ -2228,6 +2259,9 @@ final class SentryClientTests: XCTestCase {
     }
     
     func testSendDefaultPiiEnabled_GivenNoIP_sdkIPIsAuto() throws {
+#if SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+#else
         fixture.getSut(configureOptions: { options in
             options.sendDefaultPii = true
         }).capture(message: "any")
@@ -2238,6 +2272,36 @@ final class SentryClientTests: XCTestCase {
         XCTAssertNotNil(sdk["settings"])
         let settings = try XCTUnwrap(sdk["settings"] as? [String: Any])
         XCTAssertEqual(settings["infer_ip"] as? String, "auto")
+#endif
+    }
+
+    func testDataCollectionUserInfoEnabledByDefault_GivenNoIP_sdkIPIsAuto() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+#else
+        fixture.getSut().capture(message: "any")
+
+        let actual = try lastSentEvent()
+        let sdk = try XCTUnwrap(actual.sdk)
+        let settings = try XCTUnwrap(sdk["settings"] as? [String: Any])
+        XCTAssertEqual(settings["infer_ip"] as? String, "auto")
+#endif
+    }
+
+    func testDataCollectionUserInfoDisabled_GivenSendDefaultPiiEnabled_sdkIPIsNever() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+#else
+        fixture.getSut(configureOptions: { options in
+            options.sendDefaultPii = true
+            options.dataCollection.userInfo = false
+        }).capture(message: "any")
+
+        let actual = try lastSentEvent()
+        let sdk = try XCTUnwrap(actual.sdk)
+        let settings = try XCTUnwrap(sdk["settings"] as? [String: Any])
+        XCTAssertEqual(settings["infer_ip"] as? String, "never")
+#endif
     }
     
     func testSendDefaultPiiEnabled_GivenIP_IPAddressNotChanged() throws {

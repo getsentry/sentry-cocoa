@@ -1,4 +1,4 @@
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 #endif

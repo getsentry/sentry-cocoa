@@ -7,6 +7,123 @@
 
 @implementation SentryObjCOptionsTests
 
+#pragma mark - Data Collection
+
+- (void)testDataCollection_whenDefault_shouldReturnNotNil
+{
+#if !SDK_V10
+    XCTSkip(@"Test skipped for SDK_V10");
+#else
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Assert --
+    XCTAssertNotNil(options.dataCollection);
+#endif
+}
+
+- (void)testDataCollection_whenDefault_shouldHaveSpecDefaults
+{
+#if !SDK_V10
+    XCTSkip(@"Test skipped for SDK_V10");
+#else
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Assert --
+    XCTAssertTrue(options.dataCollection.userInfo);
+    XCTAssertEqual(options.dataCollection.httpBodies, SentryObjCDataCollectionHttpBodyTypeAll);
+    XCTAssertTrue(options.dataCollection.stackFrameVariables);
+    XCTAssertEqual(options.dataCollection.frameContextLines, 5u);
+#endif
+}
+
+- (void)testDataCollection_whenSet_shouldReturnNewValue
+{
+#if !SDK_V10
+    XCTSkip(@"Test skipped for SDK_V10");
+#else
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+    SentryObjCDataCollectionOptions *dataCollection =
+        [[SentryObjCDataCollectionOptions alloc] init];
+    dataCollection.userInfo = NO;
+
+    // -- Act --
+    options.dataCollection = dataCollection;
+
+    // -- Assert --
+    XCTAssertFalse(options.dataCollection.userInfo);
+#endif
+}
+
+- (void)testDataCollection_whenMutatedInPlace_shouldPropagateToOptions
+{
+#if !SDK_V10
+    XCTSkip(@"Test skipped for SDK_V10");
+#else
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+    XCTAssertTrue(options.dataCollection.userInfo);
+
+    // -- Act --
+    options.dataCollection.userInfo = NO;
+
+    // -- Assert --
+    XCTAssertFalse(options.dataCollection.userInfo);
+#endif
+}
+
+- (void)testDataCollection_whenSubPropertyMutatedInPlace_shouldPropagateToOptions
+{
+#if !SDK_V10
+    XCTSkip(@"Test skipped for SDK_V10");
+#else
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    options.dataCollection.database.queryParams = NO;
+
+    // -- Assert --
+    XCTAssertFalse(options.dataCollection.database.queryParams);
+#endif
+}
+
+- (void)testDataCollection_whenGraphqlMutatedInPlace_shouldPropagateToOptions
+{
+#if !SDK_V10
+    XCTSkip(@"Test skipped for SDK_V10");
+#else
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    options.dataCollection.graphql.document = NO;
+
+    // -- Assert --
+    XCTAssertFalse(options.dataCollection.graphql.document);
+#endif
+}
+
+- (void)testDataCollection_whenHttpHeadersMutatedInPlace_shouldPropagateToOptions
+{
+#if !SDK_V10
+    XCTSkip(@"Test skipped for SDK_V10");
+#else
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    options.dataCollection.httpHeaders.request =
+        [SentryObjCDataCollectionKeyValueCollectionBehavior off];
+
+    // -- Assert --
+    XCTAssertEqual(options.dataCollection.httpHeaders.request.mode,
+        SentryObjCDataCollectionKeyValueCollectionModeOff);
+#endif
+}
+
 #pragma mark - String? properties
 
 - (void)testDsn_whenSet_shouldReturnValue

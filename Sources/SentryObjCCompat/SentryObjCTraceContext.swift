@@ -4,7 +4,7 @@ internal import SentrySwift
 #else
 internal import Sentry
 #endif
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 import Foundation
 
 @objc(SentryObjCTraceContext) public final class SentryObjCTraceContext: NSObject {

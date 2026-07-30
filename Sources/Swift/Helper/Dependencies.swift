@@ -1,5 +1,5 @@
 // swiftlint:disable missing_docs
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 
 @objc(SentryDependencies) @_spi(Private) public final class Dependencies: NSObject {
     @objc public static let random: SentryRandomProtocol = SentryRandom()

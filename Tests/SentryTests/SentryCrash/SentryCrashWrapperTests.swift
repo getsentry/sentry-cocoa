@@ -147,7 +147,6 @@ final class SentryDefaultCrashReporterTests: XCTestCase {
             #endif
     }
     
-    @available(macOS 12.0, *)
     func testEnrichScope_DeviceContext_iOSAppOnMac() throws {
         let mockProcessInfo = MockSentryProcessInfo()
         mockProcessInfo.overrides.isiOSAppOnMac = true
@@ -179,7 +178,6 @@ final class SentryDefaultCrashReporterTests: XCTestCase {
         XCTAssertNil(deviceContext["mac_catalyst_app"])
     }
     
-    @available(macOS 12.0, *)
     func testEnrichScope_DeviceContext_MacCatalyst() throws {
         let mockProcessInfo = MockSentryProcessInfo()
         mockProcessInfo.overrides.isiOSAppOnMac = false
@@ -239,7 +237,6 @@ final class SentryDefaultCrashReporterTests: XCTestCase {
         XCTAssertEqual(deviceContext["ios_app_on_visionos"] as? Bool, true)
     }
     
-    @available(macOS 12.0, *)
     func testEnrichScope_DeviceContext_FlagsNotIncludedWhenFalse() throws {
         // Verify that boolean flags are not included when they are false to reduce payload size
         let mockProcessInfo = MockSentryProcessInfo()

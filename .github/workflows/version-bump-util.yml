@@ -26,7 +26,7 @@ jobs:
     outputs:
       run_version_bump_util_for_prs: ${{ steps.changes.outputs.run_version_bump_util_for_prs }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Get changed files
         id: changes
         uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2
@@ -41,12 +41,12 @@ jobs:
     # We intentionally run this on ubuntu because the release workflow also runs on ubuntu, which uses the version bump util.
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Generate Version Number
         id: generate-version-number
         run: |
           TIMESTAMP=$(date +%Y%m%d%H%M%S)
-          echo "VERSION=100.0.$TIMESTAMP" >> $GITHUB_OUTPUT
+          echo "VERSION=100.0.$TIMESTAMP" >> "$GITHUB_OUTPUT"
       # We don't care which version we bump to, as long as it's a valid semver
       - run: ./scripts/bump-version.sh --version "${{ steps.generate-version-number.outputs.VERSION }}"
       - run: ./scripts/verify-version.sh --version "${{ steps.generate-version-number.outputs.VERSION }}"
@@ -58,17 +58,17 @@ jobs:
     name: Run Version Bump (Shell Script)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Generate Version Number
         id: generate-version-number
         run: |
           OLD_VERSION=$(cat ./Sources/Configuration/Versioning.xcconfig | grep MARKETING_VERSION | cut -d '=' -f 2 | tr -d ' ')
           echo "Read old version: ${OLD_VERSION}"
-          echo "OLD_VERSION=${OLD_VERSION}" >> $GITHUB_OUTPUT
+          echo "OLD_VERSION=${OLD_VERSION}" >> "$GITHUB_OUTPUT"
 
           NEW_VERSION="100.0.$(date +%Y%m%d%H%M%S)"
           echo "Generated new version: ${NEW_VERSION}"
-          echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_OUTPUT
+          echo "NEW_VERSION=${NEW_VERSION}" >> "$GITHUB_OUTPUT"
 
       - name: Verify OLD_VERSION is defined
         if: ${{ steps.generate-version-number.outputs.OLD_VERSION == '' }}
@@ -88,7 +88,10 @@ jobs:
           echo "<FAKE SENTRYOBJC STATIC ZIP>" > XCFrameworkBuildPath/SentryObjC-Static.xcframework.zip
 
       - name: Bump version
-        run: ./scripts/bump.sh ${{ steps.generate-version-number.outputs.OLD_VERSION }} ${{ steps.generate-version-number.outputs.NEW_VERSION }}
+        env:
+          NEW_VERSION: ${{ steps.generate-version-number.outputs.NEW_VERSION }}
+          OLD_VERSION: ${{ steps.generate-version-number.outputs.OLD_VERSION }}
+        run: ./scripts/bump.sh "$OLD_VERSION" "$NEW_VERSION"
 
       - name: Verify outputs of bump.sh
         run: ./scripts/verify-version.sh --version "${{ steps.generate-version-number.outputs.NEW_VERSION }}"

@@ -59,6 +59,10 @@ SentrySDK (public entry point)
 
 > **Before touching `SentryObjC*` targets** (headers, wrappers, build config), read [`develop-docs/SENTRY-OBJC.md`](develop-docs/SENTRY-OBJC.md). It defines the two-target architecture, type placement rules, naming conventions, and stability contract. Violations cause linker failures or ABI breaks.
 
+## Swizzling
+
+- Read [`develop-docs/SWIZZLING.md`](develop-docs/SWIZZLING.md) before adding, changing, reviewing, or migrating swizzling code.
+
 ## Skills & MCP (dotagents)
 
 Agent skills and MCP servers are managed by [dotagents](https://github.com/getsentry/dotagents) via `agents.toml`.
@@ -182,7 +186,7 @@ Non-changelog types require `#skip-changelog` in PR description. Breaking change
 
 - **Title** — same format as commit subject (Conventional Commits): `type: description`
 - **Branch naming** — `<type>/<short-description>` (e.g., `feat/session-replay-privacy`, `fix/memory-leak-scope`)
-- **`ready-to-merge` label** — required for full CI. Add only when the PR is ready for comprehensive testing
+- **`run-full-ci` label** — required for full CI. Add only when the PR is ready for comprehensive testing
 - **PR template** — `.github/pull_request_template.md` includes: description, motivation, how tested, checklist
 - **Reviewers** — assigned via `CODEOWNERS` (`.github/CODEOWNERS`); one maintainer approval is sufficient
 - **Changelog** — `feat`, `fix`, `impr` PRs need a changelog entry; all others need `#skip-changelog` in the description

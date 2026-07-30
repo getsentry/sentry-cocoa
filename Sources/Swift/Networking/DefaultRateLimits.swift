@@ -1,5 +1,5 @@
 // swiftlint:disable missing_docs
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 import Foundation
 
 /// Parses HTTP responses from the Sentry server for rate limits and stores them
@@ -29,12 +29,9 @@ public final class DefaultRateLimits: NSObject, RateLimits {
         super.init()
     }
 
-    /// `category: UInt` is the unsigned integer representation for SentryDataCategory since we cannot expose
-    /// functions written in Swift.
     @objc
-    public func isRateLimitActive(_ category: UInt) -> Bool {
-        let categoryAsEnum = sentryDataCategoryForNSUInteger(category)
-        let categoryDate = rateLimits.getRateLimit(for: categoryAsEnum)
+    public func isRateLimitActive(_ category: SentryDataCategory) -> Bool {
+        let categoryDate = rateLimits.getRateLimit(for: category)
         let allCategoriesDate = rateLimits.getRateLimit(for: .all)
 
         let isActiveForCategory = dateUtil.isInFuture(categoryDate)
@@ -48,8 +45,7 @@ public final class DefaultRateLimits: NSObject, RateLimits {
         if let rateLimitsHeader = response.value(forHTTPHeaderFieldCaseInsensitive: "x-sentry-rate-limits") {
             let limits = rateLimitParser.parse(rateLimitsHeader)
 
-            for (categoryAsNumber, date) in limits {
-                let category = sentryDataCategoryForNSUInteger(categoryAsNumber)
+            for (category, date) in limits {
                 updateRateLimit(category, withDate: date)
             }
         } else if response.statusCode == 429 {

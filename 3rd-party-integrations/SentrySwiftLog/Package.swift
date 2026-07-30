@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "SentrySwiftLog",
-    platforms: [.iOS(.v15), .macOS(.v10_14), .tvOS(.v15), .watchOS(.v8), .visionOS(.v1)],
+    platforms: [.iOS(.v15), .macOS(.v12), .tvOS(.v15), .watchOS(.v9), .visionOS(.v1)],
     products: [
         .library(
             name: "SentrySwiftLog",
@@ -12,7 +12,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-log", from: "1.5.0"),
-        .package(url: "https://github.com/getsentry/sentry-cocoa", from: "9.22.0")
+        .package(url: "https://github.com/getsentry/sentry-cocoa", from: "9.24.0")
     ],
     targets: [
         .target(

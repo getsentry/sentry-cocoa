@@ -70,7 +70,7 @@ init-local:
 	rbenv exec gem update bundler
 	rbenv exec bundle install
 	# Install the tools needed to update tooling versions locally
-	"$(MAKE)" init-ci-format
+	"$(MAKE)" init-ci-build init-ci-format
 	./scripts/update-tooling-versions.sh
 
 ## Install CI build dependencies
@@ -78,14 +78,14 @@ init-local:
 # Installs tools needed for CI build tasks using Brewfile-ci-build.
 .PHONY: init-ci-build
 init-ci-build:
-	brew bundle --file Brewfile-ci-build
+	brew update && brew bundle --file Brewfile-ci-build
 
 ## Install CI format dependencies
 #
 # Installs tools needed to run CI format tasks locally using Brewfile-ci-format.
 .PHONY: init-ci-format
 init-ci-format:
-	brew bundle --file Brewfile-ci-format
+	brew update && brew bundle --file Brewfile-ci-format
 
 ## Update tooling versions
 #
@@ -636,9 +636,9 @@ build-sample-macOS-SwiftUI-SPM:
 ## Build the macOS-CLI-Xcode sample (command-line tool, SentrySPM with NoUIFramework)
 #
 # Builds the macOS CLI sample that uses SentrySPM without UIKit/AppKit linkage.
-# Uses the pre-generated .xcodeproj (traits set in version control; xcodegen has no trait support).
 .PHONY: build-sample-macOS-CLI-Xcode
 build-sample-macOS-CLI-Xcode:
+	xcodegen --spec Samples/macOS-CLI-Xcode/macOS-CLI-Xcode.yml
 	set -o pipefail && xcodebuild \
 		-project "Samples/macOS-CLI-Xcode/macOS-CLI-Xcode.xcodeproj" \
 		-scheme macOS-CLI-Xcode \
@@ -1397,21 +1397,36 @@ STAGED_OBJC_HEADER_FILES := $(shell git diff --cached --diff-filter=d --name-onl
 
 # Message for the allHeaderFields banned-pattern lint, aligned with the SwiftLint
 # rule in PR #8387 (rule id avoid_all_header_fields).
-AVOID_ALL_HEADER_FIELDS_MSG := Double-check how you use allHeaderFields (https://developer.apple.com/documentation/foundation/httpurlresponse/allheaderfields). Reading all headers is fine, but its subscript is case-sensitive while HTTP/2 and HTTP/3 lowercase field names, so a single-header lookup can silently miss the header (see \#8322). For a lookup, use value(forHTTPHeaderField:) or the HTTPURLResponse.value(forHTTPHeaderFieldCaseInsensitive:) extension in HTTPURLResponse+Sentry.swift. If your usage is intentional, suppress this rule with a comment explaining why.
+AVOID_ALL_HEADER_FIELDS_MSG := Double-check how you use allHeaderFields / allHTTPHeaderFields (https://developer.apple.com/documentation/foundation/httpurlresponse/allheaderfields). Reading all headers is fine, but their subscript is case-sensitive while HTTP/2 and HTTP/3 lowercase field names, so a single-header lookup can silently miss the header (see \#8322). For a lookup, use value(forHTTPHeaderField:) or the HTTPURLResponse.value(forHTTPHeaderFieldCaseInsensitive:) extension in HTTPURLResponse+Sentry.swift. If your usage is intentional, suppress this rule with a comment explaining why.
+
+## Check Objective-C header files for bare 'id' usage without SENTRY_SWIFT_MIGRATION_ID
+#
+# Standalone target so CI can run this check without a macOS runner.
+.PHONY: check-objc-id-usage
+check-objc-id-usage:
+	ruby ./scripts/check-objc-id-usage.rb -r Sources/Sentry
+
+## Check Objective-C sources for banned patterns (e.g. case-sensitive header lookups)
+#
+# Standalone target so CI can run this check without a macOS runner.
+.PHONY: check-objc-banned-patterns
+check-objc-banned-patterns:
+	./scripts/check-objc-banned-pattern.sh --path Sources \
+		--rule avoid_all_header_fields --pattern 'all(HTTP)?HeaderFields' \
+		--message "$(AVOID_ALL_HEADER_FIELDS_MSG)"
 
 ## Run linting checks on all files
 #
-# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, Objective-C banned-pattern checks, and dprint checks without modifying files.
+# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, Objective-C banned-pattern checks, actionlint, and dprint checks without modifying files.
 .PHONY: lint
 lint:
 	@echo "--> Running Swiftlint and Clang-Format"
 	./scripts/check-clang-format.py -r Sources Tests
-	ruby ./scripts/check-objc-id-usage.rb -r Sources/Sentry
-	./scripts/check-objc-banned-pattern.sh --path Sources \
-		--rule avoid_all_header_fields --pattern 'allHeaderFields' \
-		--message "$(AVOID_ALL_HEADER_FIELDS_MSG)"
+	"$(MAKE)" check-objc-id-usage
+	"$(MAKE)" check-objc-banned-patterns
 	swiftlint --strict --quiet
 	dprint check "**/*.{md,json,yaml,yml}"
+	actionlint
 
 ## Run linting checks on staged files only
 #
@@ -1428,7 +1443,7 @@ lint-staged:
 	@if [ -n "$(STAGED_CLANG_FILES)" ]; then \
 		for f in $(STAGED_CLANG_FILES); do \
 			./scripts/check-objc-banned-pattern.sh --path "$$f" \
-				--rule avoid_all_header_fields --pattern 'allHeaderFields' \
+				--rule avoid_all_header_fields --pattern 'all(HTTP)?HeaderFields' \
 				--message "$(AVOID_ALL_HEADER_FIELDS_MSG)" || exit 1; \
 		done; \
 	fi
@@ -1639,6 +1654,7 @@ xcode-ci: xcode-ci-SentrySampleShared \
 	xcode-ci-iOS-SwiftUI-SPM \
 	xcode-ci-iOS-SwiftUI-Widgets \
 	xcode-ci-iOS15-SwiftUI \
+	xcode-ci-macOS-CLI-Xcode \
 	xcode-ci-macOS-Swift \
 	xcode-ci-macOS-SwiftUI \
 	xcode-ci-macOS-SwiftUI-SPM \

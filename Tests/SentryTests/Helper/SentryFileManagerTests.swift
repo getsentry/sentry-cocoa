@@ -39,7 +39,7 @@ class SentryFileManagerTests: XCTestCase {
             
             let sessionCopy = try XCTUnwrap(session.copy() as? SentrySession)
             sessionCopy.incrementErrors()
-            // We need to serialize in order to set the timestamp and the duration
+            // We need to serialize in order to set the timestamp
             sessionUpdate = SentrySession(jsonObject: sessionCopy.serialize())!
             
             let event = Event()
@@ -47,9 +47,8 @@ class SentryFileManagerTests: XCTestCase {
             sessionUpdateEnvelope = SentryEnvelope(id: event.eventId, items: items)
             
             let sessionUpdateCopy = try XCTUnwrap(sessionUpdate.copy() as? SentrySession)
-            // We need to serialize in order to set the timestamp and the duration
+            // We need to serialize in order to set the timestamp
             expectedSessionUpdate = SentrySession(jsonObject: sessionUpdateCopy.serialize())!
-            // We can only set the init flag after serialize, because the duration is not set if the init flag is set
             expectedSessionUpdate.setFlagInit()
         }
         
@@ -60,7 +59,7 @@ class SentryFileManagerTests: XCTestCase {
                 dispatchQueueWrapper: dispatchQueueWrapper
             ))
             sut.envelopeDeletedCallback = { [weak self] _, category in
-                self?.envelopeItemsDeleted.record(sentryDataCategoryForNSUInteger(category))
+                self?.envelopeItemsDeleted.record(category)
             }
             return sut
         }
@@ -73,7 +72,7 @@ class SentryFileManagerTests: XCTestCase {
                 dispatchQueueWrapper: dispatchQueueWrapper
             ))
             sut.envelopeDeletedCallback = { [weak self] _, category in
-                self?.envelopeItemsDeleted.record(sentryDataCategoryForNSUInteger(category))
+                self?.envelopeItemsDeleted.record(category)
             }
             return sut
         }

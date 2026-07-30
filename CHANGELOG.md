@@ -1,5 +1,58 @@
 # Changelog
 
+## Unreleased
+
+> [!WARNING]
+> This release raises the minimum deployment targets to macOS 12 and watchOS 9. Apps that support older OS versions must use an earlier Sentry Cocoa release.
+
+### Breaking Changes
+
+- Bump the minimum deployment targets to macOS 12 and watchOS 9 because Xcode 27 no longer supports earlier versions. This lets the SDK adopt Xcode 27 without blocking users from building and submitting their apps with the latest Xcode. (#8595, #8113, #8189)
+
+### Fixes
+
+- Fix incorrect `duration` sent for active sessions (#8612)
+  - Session `duration` is now set only when the session ends. Active sessions (including on error increments) no longer emit a bogus `duration`.
+- Fix a race that could prevent consecutive app hangs from being reported (#8627)
+
+## 9.24.0
+
+### Breaking Changes
+
+> [!IMPORTANT]
+> Due to a potential risk of revealing PII or security-relevant data in crash events in specific circumstances, we're shipping this strictly speaking breaking change in a minor version.
+
+- Add `enableMemoryIntrospection` option to allow users to control memory introspection in crash reports, defaults to false (was previously true) (#8571)
+  - You can re-enable this feature by setting the option `enableMemoryIntrospection` to true
+  - When this option is disabled, string stack contents found near the crash site will not be included in the event sent to Sentry. These contents are displayed in the 'message' subtitle shown underneath the main issue title in Sentry.
+
+### Features
+
+- Add `Breadcrumb.setData(value:key:)` to set a single breadcrumb data entry and deprecate the `Breadcrumb.data` setter in its favor. (#8572)
+
+### Fixes
+
+- Fix screenshots not being captured by hybrid SDKs (#8578)
+- Fix trace propagation for manually instrumented transactions when automatic performance tracing is disabled (#8522)
+- Prevent a Session Replay crash (`NSInvalidArgumentException` / `-[NSConcreteValue doubleValue]`) when Core Animation raises while redacting the view hierarchy, e.g. during React Navigation transitions or video fullscreen presentation (#8537)
+- Remove x/y coordinates from UI breadcrumbs, as they are a potential security risk, for example leaking input on custom PIN code views (#8534)
+
+## 9.23.0
+
+### Features
+
+- Record trace_metric_byte client reports (#8490)
+
+### Fixes
+
+- Add a depth limit to view hierarchy serialization to prevent a stack overflow crash on deeply nested view hierarchies (#8292)
+- Persist the configured environment in crash reports so later app launches don't overwrite it (#8511)
+- Only expose `experimental.dataCollection` APIs in SDK V10 (#8435)
+
+### Improvements
+
+- Reduce slight overhead during SDK start by skipping an unnecessary main thread dispatch when there's no work to do (#8494)
+
 ## 9.22.0
 
 ### Features
@@ -7,6 +60,7 @@
 - Mark opt in option `swiftAsyncStacktraces` as stable (#8373)
 - Add `dataCollection` option under `experimental` for configuring data scrubbing behavior (#8369)
 - Add scope API to clear feature flags (#8364)
+- Add dictionary initialization for `options.experimental.dataCollection` (#8371)
 
 ### Fixes
 

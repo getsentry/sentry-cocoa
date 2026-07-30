@@ -11,6 +11,9 @@
 #endif
 
 @class SentryObjCBreadcrumb;
+#if SDK_V10
+@class SentryObjCDataCollectionOptions;
+#endif
 @class SentryObjCEvent;
 @class SentryObjCExperimentalOptions;
 @class SentryObjCHttpStatusCodeRange;
@@ -83,6 +86,18 @@ NS_ASSUME_NONNULL_BEGIN
  * @note Crash reporting is automatically disabled if a debugger is attached.
  */
 @property (nonatomic) BOOL enableCrashHandler;
+
+/**
+ * When enabled, the SDK introspects memory contents during a crash.
+ * Any Objective-C objects or C strings near the stack pointer or referenced by
+ * CPU registers or exceptions will be recorded in the crash report, along with
+ * their contents. This can help diagnose crashes, but may include sensitive data in memory.
+ *
+ * Disabling this will also disable the automatic 'memory corruption' diagnosis for crashes.
+ *
+ * @note Default value is @c NO.
+ */
+@property (nonatomic) BOOL enableMemoryIntrospection;
 
 /**
  * How many breadcrumbs do you want to keep in memory?
@@ -489,6 +504,11 @@ NS_ASSUME_NONNULL_BEGIN
  * you need to override it, you can provide the ID with this option.
  */
 @property (nonatomic, copy, nullable) NSString *orgId;
+
+#if SDK_V10
+/// Configuration for what data the SDK collects automatically.
+@property (nonatomic, strong) SentryObjCDataCollectionOptions *dataCollection;
+#endif // SDK_V10
 
 /// Options for experimental features that are subject to change.
 @property (nonatomic, strong) SentryObjCExperimentalOptions *experimental;

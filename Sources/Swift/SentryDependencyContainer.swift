@@ -1,6 +1,6 @@
 //swiftlint:disable file_length missing_docs
 
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 #endif
@@ -350,25 +350,38 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
     private var _screenshotSource: SentryScreenshotSource?
-    @objc public lazy var screenshotSource: SentryScreenshotSource? = getOptionalLazyVar(\._screenshotSource) {
-        // The options could be null here, but this is a general issue in the dependency
-        // container and will be fixed in a future refactoring.
-        guard let options = self.startOptions else {
-            return nil
-        }
+    // Computed property (not a `lazy var`): a `lazy var` caches its first value
+    // forever. If `screenshotSource` is first accessed before `startOptions` is
+    // set — e.g. a hybrid SDK touching `SentrySDK.internal` before `SentrySDK.start` —
+    // the builder returns `nil` and a `lazy var` would cache that `nil` permanently,
+    // so screenshots could never be captured for the rest of the process. As a
+    // computed property, `getOptionalLazyVar` re-runs the builder until `startOptions`
+    // is available and only then caches the built source in `_screenshotSource`.
+    @objc public var screenshotSource: SentryScreenshotSource? {
+        get {
+            getOptionalLazyVar(\._screenshotSource) {
+                guard let options = self.startOptions else {
+                    return nil
+                }
 
-        let viewRenderer: SentryViewRenderer
-        if options.screenshot.enableViewRendererV2 {
-            viewRenderer = SentryViewRendererV2(enableFastViewRendering: options.screenshot.enableFastViewRendering)
-        } else {
-            viewRenderer = SentryDefaultViewRenderer()
-        }
+                let viewRenderer: SentryViewRenderer
+                if options.screenshot.enableViewRendererV2 {
+                    viewRenderer = SentryViewRendererV2(enableFastViewRendering: options.screenshot.enableFastViewRendering)
+                } else {
+                    viewRenderer = SentryDefaultViewRenderer()
+                }
 
-        let photographer = SentryViewPhotographer(
-            renderer: viewRenderer,
-            redactOptions: options.screenshot,
-            enableMaskRendererV2: options.screenshot.enableViewRendererV2)
-        return SentryScreenshotSource(photographer: photographer)
+                let photographer = SentryViewPhotographer(
+                    renderer: viewRenderer,
+                    redactOptions: options.screenshot,
+                    enableMaskRendererV2: options.screenshot.enableViewRendererV2)
+                return SentryScreenshotSource(photographer: photographer)
+            }
+        }
+        // Keep a setter (a `lazy var` was settable) so tests can inject a mock source.
+        set {
+            paramLock.synchronized { _screenshotSource = newValue }
+        }
     }
 
     private var _sessionReplayBreadcrumbConverter: SentryReplayBreadcrumbConverter?

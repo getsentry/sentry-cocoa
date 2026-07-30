@@ -112,7 +112,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @param value Supported values are string, integers, boolean, double and arrays of those types.
  * @param key The key to store, cannot be an empty string.
  */
-- (void)setAttributeValue:(id)value forKey:(NSString *)key;
+- (void)setAttributeValue:(id)value
+                   forKey:(NSString *)key; // OK: bare id is needed to support multiple types
 
 /**
  * Remove the attribute for the specified key.

@@ -1,4 +1,4 @@
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 import Foundation
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
@@ -59,6 +59,9 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         // Inject bridge into crash reporter so ObjC SentryCrash can access it
         crashReporter.setBridge(bridge)
 
+        // Configure memory introspection based on options
+        crashReporter.introspectMemory = options.enableMemoryIntrospection
+
         self.sessionHandler = dependencies.getCrashIntegrationSessionBuilder(options, bridge: bridge)
         self.scopeObserver = SentryCrashScopeObserver(maxBreadcrumbs: Int(options.maxBreadcrumbs))
 
@@ -116,13 +119,11 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         )
     #endif
 
-        if #available(macOS 12.0, *) {
-            NotificationCenter.default.removeObserver(
-                self,
-                name: NSNotification.Name.NSProcessInfoPowerStateDidChange,
-                object: nil
-            )
-        }
+        NotificationCenter.default.removeObserver(
+            self,
+            name: NSNotification.Name.NSProcessInfoPowerStateDidChange,
+            object: nil
+        )
     }
 
     // MARK: - Crash Handler
@@ -225,14 +226,17 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
 
             var userInfo = outerScope.serialize()
 
-            // SentryCrashReportConverter.convertReportToEvent needs the release name and
-            // the dist of the SentryOptions in the UserInfo. When SentryCrash records a
-            // crash it writes the UserInfo into SentryCrashField_User of the report.
-            // SentryCrashReportConverter.initWithReport loads the contents of
-            // SentryCrashField_User into self.userContext and convertReportToEvent can map
-            // the release name and dist to the SentryEvent. Fixes GH-581
+            // SentryCrashReportConverter.convertReportToEvent needs the release name, dist, and
+            // environment of the SentryOptions in the UserInfo. When SentryCrash records a crash it
+            // writes the UserInfo into SentryCrashField_User of the report.
+            // SentryCrashReportConverter.initWithReport loads the contents of SentryCrashField_User
+            // into self.userContext and convertReportToEvent can map the release name, dist, and
+            // environment to the SentryEvent. Fixes GH-581 and GH-5260.
             userInfo["release"] = options.releaseName
             userInfo["dist"] = options.dist
+            if userInfo["environment"] == nil {
+                userInfo["environment"] = options.environment
+            }
 
             // Crashes don't use the attributes field, we remove them to avoid uploading them
             // unnecessarily.
@@ -254,15 +258,13 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         )
 #endif
 
-        if #available(macOS 12.0, *) {
-            updateLowPowerModeContext(ProcessInfo.processInfo)
-            NotificationCenter.default.addObserver(
-                self,
-                selector: #selector(powerStateDidChange(notification:)),
-                name: NSNotification.Name.NSProcessInfoPowerStateDidChange,
-                object: nil
-            )
-        }
+        updateLowPowerModeContext(ProcessInfo.processInfo)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(powerStateDidChange(notification:)),
+            name: NSNotification.Name.NSProcessInfoPowerStateDidChange,
+            object: nil
+        )
     }
 
 #if !SDK_V10
@@ -285,8 +287,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
     }
 #endif
 
-    @objc @available(macOS 12.0, *)
-    private func powerStateDidChange(notification: Notification) {
+    @objc private func powerStateDidChange(notification: Notification) {
         let processInfo = if let notificationProcessInfo = notification.object as? ProcessInfo {
             notificationProcessInfo
         } else {
@@ -296,7 +297,6 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         updateLowPowerModeContext(processInfo)
     }
 
-    @available(macOS 12.0, *)
     private func updateLowPowerModeContext(_ processInfo: ProcessInfo) {
         let isLowPowerMode = processInfo.isLowPowerModeEnabled
         SentrySDKInternal.currentHub().configureScope { scope in

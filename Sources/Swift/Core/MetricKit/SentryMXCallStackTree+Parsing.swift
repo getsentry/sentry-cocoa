@@ -1,6 +1,6 @@
 #if os(iOS) || os(macOS) || os(visionOS)
 
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 
 extension SentryMXCallStackTree {
     func toDebugMeta() -> [DebugMeta] {

@@ -48,7 +48,7 @@ jobs:
     outputs:
       run_auto_update_tools_for_prs: ${{ steps.changes.outputs.run_auto_update_tools_for_prs }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Get changed files
         id: changes
         uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2
@@ -70,7 +70,7 @@ jobs:
           private-key: ${{ secrets.SENTRY_DEPENDENCY_UPDATER_GITHUB_APP_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
       - name: Checkout Repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           token: ${{ github.event_name != 'pull_request' && steps.app_token.outputs.token || github.token }}
 
@@ -111,6 +111,19 @@ jobs:
           commit-message: "chore(deps): Update swiftlint version"
           delete-branch: true
           title: "chore(deps): Update swiftlint version"
+          sign-commits: true
+          base: main
+
+      - name: Create pull request for xcodegen version
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+        with:
+          token: ${{ steps.app_token.outputs.token }}
+          add-paths: scripts/.xcodegen-version
+          branch: github-actions/auto-update-tools-xcodegen
+          commit-message: "chore(deps): Update xcodegen version"
+          delete-branch: true
+          title: "chore(deps): Update xcodegen version"
           sign-commits: true
           base: main
 

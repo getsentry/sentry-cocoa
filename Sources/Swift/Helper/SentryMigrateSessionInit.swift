@@ -1,4 +1,4 @@
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 
 /// For proper statistics in release health, we need to make sure we don't send session updates
 /// without sending a session init first. In other words, we can't drop a session init. The

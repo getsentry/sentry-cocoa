@@ -1,5 +1,5 @@
 // swiftlint:disable missing_docs
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
@@ -91,7 +91,7 @@ import Cocoa
             guard let self = self else { return }
             let crumb = Breadcrumb(level: .warning, category: "device.event")
             crumb.type = "system"
-            crumb.data = ["action": "LOW_MEMORY"]
+            crumb.setData(value: "LOW_MEMORY", key: "action")
             crumb.message = "Low memory"
             self.delegate?.add(crumb)
         }
@@ -176,7 +176,7 @@ import Cocoa
     private func addBreadcrumb(type: String, category: String, level: SentryLevel, dataKey: String, dataValue: String) {
         let crumb = Breadcrumb(level: level, category: category)
         crumb.type = type
-        crumb.data = [dataKey: dataValue]
+        crumb.setData(value: dataValue, key: dataKey)
         delegate?.add(crumb)
     }
     
@@ -225,10 +225,9 @@ import Cocoa
                     }
                 }
                 
-                let crumb = Breadcrumb(level: .info, category: "touch")
+                let crumb = Breadcrumb(level: .info, category: "touch", data: data ?? [:])
                 crumb.type = "user"
                 crumb.message = action
-                crumb.data = data
                 self.delegate?.add(crumb)
             },
             forKey: Self.swizzleSendActionKey
@@ -240,9 +239,8 @@ import Cocoa
             { [weak self] viewController in
                 guard let self = self else { return }
                 
-                let crumb = Breadcrumb(level: .info, category: "ui.lifecycle")
+                let crumb = Breadcrumb(level: .info, category: "ui.lifecycle", data: Self.fetchInfo(about: viewController))
                 crumb.type = "navigation"
-                crumb.data = Self.fetchInfo(about: viewController)
                 self.delegate?.add(crumb)
             },
             forKey: Self.swizzleViewDidAppearKey
@@ -251,27 +249,27 @@ import Cocoa
     
     @_spi(Private)
     public static func extractData(from view: UIView, includeAccessibilityIdentifier: Bool) -> [String: Any] {
-        var result: [String: Any] = ["view": String(describing: view)]
-        
+        var result: [String: Any] = ["view": SwiftDescriptor.getSanitizedViewDescription(view)]
+
         if view.tag > 0 {
             result["tag"] = view.tag
         }
-        
+
         if includeAccessibilityIdentifier,
            let identifier = view.accessibilityIdentifier,
            !identifier.isEmpty {
             result["accessibilityIdentifier"] = identifier
         }
-        
+
         if let button = view as? UIButton,
            let title = button.currentTitle,
            !title.isEmpty {
             result["title"] = title
         }
-        
+
         return result
     }
-    
+
     private static func fetchInfo(about controller: UIViewController) -> [String: Any] {
         var info: [String: Any] = [:]
         
@@ -294,7 +292,7 @@ import Cocoa
         }
         
         if let window = controller.view?.window {
-            info["window"] = window.description
+            info["window"] = SwiftDescriptor.getSanitizedViewDescription(window)
             info["window_isKeyWindow"] = window.isKeyWindow ? "true" : "false"
             info["window_windowLevel"] = String(describing: window.windowLevel.rawValue)
             info["is_window_rootViewController"] = (window.rootViewController == controller) ? "true" : "false"
@@ -310,7 +308,7 @@ extension SentryBreadcrumbTracker: SentryReachabilityObserver {
     public func connectivityChanged(_ connected: Bool, typeDescription: String) {
         let crumb = Breadcrumb(level: .info, category: "device.connectivity")
         crumb.type = "connectivity"
-        crumb.data = ["connectivity": typeDescription]
+        crumb.setData(value: typeDescription, key: "connectivity")
         delegate?.add(crumb)
     }
 }

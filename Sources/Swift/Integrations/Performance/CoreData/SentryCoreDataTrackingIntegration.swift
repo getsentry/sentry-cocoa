@@ -1,5 +1,5 @@
 // swiftlint:disable missing_docs
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 
 typealias CoreDataTrackingIntegrationProvider = SentryCoreDataSwizzlingProvider & SentryCoreDataTrackerBuilder
 

@@ -11,6 +11,7 @@ import Foundation
     @objc var freeMemorySize: UInt64 { get }
     @objc var appMemorySize: UInt64 { get }
     @objc var systemInfo: [String: Any] { get }
+    @objc var introspectMemory: Bool { get set }
     var processInfoWrapper: SentryProcessInfoSource { get }
     @objc func startBinaryImageCache()
     @objc func stopBinaryImageCache()

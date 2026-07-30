@@ -300,8 +300,14 @@ extension Options {
             self.spotlightUrl = spotlightUrl
         }
 
-        if let experimental = dictionary["experimental"] as? [String: Any] {
-            self.experimental.validateOptions(experimental)
+        #if SDK_V10
+        if let dataCollection = dictionary["dataCollection"] as? [String: Any] {
+            self.dataCollection = SentryDataCollection.Options(dictionary: dataCollection)
+        }
+        #endif // SDK_V10
+
+        if let enableMemoryIntrospection = boolValue(dictionary["enableMemoryIntrospection"]) {
+            self.enableMemoryIntrospection = enableMemoryIntrospection
         }
     }
 

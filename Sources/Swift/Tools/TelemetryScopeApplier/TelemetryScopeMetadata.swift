@@ -1,26 +1,26 @@
 // swiftlint:disable missing_docs
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 import Foundation
 
 protocol TelemetryScopeMetadata {
     var environment: String { get }
     var releaseName: String? { get }
     var installationId: String? { get }
-    var sendDefaultPii: Bool { get }
+    var shouldAddDefaultUserId: Bool { get }
 }
 
 struct SentryDefaultScopeApplyingMetadata: TelemetryScopeMetadata {
     let environment: String
     let releaseName: String?
-    let sendDefaultPii: Bool
+    let shouldAddDefaultUserId: Bool
 
     private let cacheDirectoryPath: String
 
-    init(environment: String, releaseName: String?, cacheDirectoryPath: String, sendDefaultPii: Bool) {
+    init(environment: String, releaseName: String?, cacheDirectoryPath: String, shouldAddDefaultUserId: Bool) {
         self.environment = environment
         self.releaseName = releaseName
         self.cacheDirectoryPath = cacheDirectoryPath
-        self.sendDefaultPii = sendDefaultPii
+        self.shouldAddDefaultUserId = shouldAddDefaultUserId
     }
 
     /// Returns the installation ID lazily to avoid file I/O on the calling thread.

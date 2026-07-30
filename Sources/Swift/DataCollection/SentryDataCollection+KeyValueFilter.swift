@@ -1,3 +1,4 @@
+#if SDK_V10
 extension SentryDataCollection {
     /// Applies the key-value filtering rules from the Sentry Data Collection candidate specification
     /// version 0.6.0.
@@ -45,3 +46,4 @@ private extension Dictionary where Key == String, Value == String {
         }
     }
 }
+#endif // SDK_V10

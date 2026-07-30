@@ -6,7 +6,6 @@
 #if SENTRY_HAS_UIKIT
 #    import "MockUIScene.h"
 #    import "SentryDefaultUIViewControllerPerformanceTracker.h"
-#    import "UIViewController+Sentry.h"
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -71,14 +70,11 @@
 #import "SentryCrashStackCursor_SelfThread.h"
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryCrashUUIDConversion.h"
-#import "SentryDataCategory.h"
-#import "SentryDataCategoryMapper.h"
 #import "SentryDateUtils.h"
 #import "SentryDebugMeta.h"
 #import "SentryDefaultAppStateManager.h"
 #import "SentryDefaultThreadInspector.h"
 #import "SentryDefaultUIViewControllerPerformanceTracker.h"
-#import "SentryDiscardReason.h"
 #import "SentryDiscardReasonMapper.h"
 #import "SentryEnvelopeAttachmentHeader.h"
 #import "SentryEnvelopeRateLimit.h"
@@ -123,7 +119,6 @@
 #import "SentrySpanId.h"
 #import "SentrySpanInternal.h"
 #import "SentrySpanOperation.h"
-#import "SentrySpotlightTransport.h"
 #import "SentryStacktrace.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentrySwift.h"
@@ -141,7 +136,6 @@
 #import "SentryTracerConfiguration.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext+Private.h"
-#import "SentryTransport.h"
 #import "SentryTransportAdapter.h"
 #import "SentryTransportFactory.h"
 #import "SentryUncaughtNSExceptions.h"

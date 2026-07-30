@@ -29,7 +29,7 @@ class TestData {
         crumb.timestamp = timestamp
         crumb.type = "user"
         crumb.message = "Clicked something"
-        crumb.data = ["some": ["data": "data", "date": timestamp] as [String: Any]]
+        crumb.setData(value: ["data": "data", "date": timestamp] as [String: Any], key: "some")
         return crumb
     }
     
@@ -339,7 +339,11 @@ class TestData {
         request.fragment = "fragment"
         request.bodySize = 10
         request.queryString = "query"
+#if SDK_V10
+        request.cookies = ["cookie": "value"]
+#else
         request.cookies = "cookies"
+#endif // SDK_V10
         request.method = "GET"
         request.headers = ["header": "value"]
         

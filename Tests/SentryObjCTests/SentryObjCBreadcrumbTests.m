@@ -133,7 +133,10 @@
                                                                      category:@"test"];
 
     // -- Act --
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     crumb.data = @{ @"url" : @"/home" };
+#pragma clang diagnostic pop
 
     // -- Assert --
     XCTAssertEqualObjects(crumb.data[@"url"], @"/home");
@@ -144,10 +147,13 @@
     // -- Arrange --
     SentryObjCBreadcrumb *crumb = [[SentryObjCBreadcrumb alloc] initWithLevel:SentryObjCLevelInfo
                                                                      category:@"test"];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     crumb.data = @{ @"key" : @"value" };
 
     // -- Act --
     crumb.data = nil;
+#pragma clang diagnostic pop
 
     // -- Assert --
     XCTAssertNil(crumb.data);
