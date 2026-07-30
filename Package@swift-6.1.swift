@@ -207,7 +207,7 @@ let packageDependencies: [Package.Dependency] = enableKSCrash ? [.package(url: "
 
 let package = Package(
     name: "Sentry",
-    platforms: [.iOS(.v15), .macOS(.v10_14), .tvOS(.v15), .watchOS(.v8), .visionOS(.v1)],
+    platforms: [.iOS(.v15), .macOS(.v12), .tvOS(.v15), .watchOS(.v9), .visionOS(.v1)],
     products: products,
     traits: [
         .init(name: "NoUIFramework", description: "Build without UIKit/AppKit/SwiftUI framework linkage. Use for command-line tools or contexts where UI frameworks are unavailable."),

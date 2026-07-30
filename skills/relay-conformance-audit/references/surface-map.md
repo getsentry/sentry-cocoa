@@ -2,6 +2,8 @@
 
 The audit hunts one class of bug: a string or wire format the SDK hard-codes that must match Relay **exactly**, where a mismatch fails silently (data dropped, mis-routed, or miscounted with no error). This file is the checklist of where those strings live. One subagent takes one section.
 
+Any mismatch a section surfaces is then corroborated against the peer SDKs before it is reported — see the "Cross-SDK corroboration" step in `SKILL.md`. That step is orthogonal to the area list below (it keys off the wire string, not the file), so sections need no per-SDK entries.
+
 ## How to read a section
 
 Each section has three fields:
