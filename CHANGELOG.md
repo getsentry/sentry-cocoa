@@ -2,9 +2,21 @@
 
 ## Unreleased
 
+> [!WARNING]
+> This release raises the minimum deployment targets to macOS 12 and watchOS 9. Apps that support older OS versions must use an earlier Sentry Cocoa release.
+
 ### Features
 
 - Add experimental `options.experimental.enableUIViewControllerInitSwizzling` (disabled by default) that defers `UIViewController` performance swizzling to first instantiation instead of eagerly discovering and swizzling all subclasses at SDK start. This avoids realizing `@available`-gated `UIViewController` subclasses on OS versions below their gate, which could crash the app on start (#8548).
+
+### Breaking Changes
+
+- Bump the minimum deployment targets to macOS 12 and watchOS 9 because Xcode 27 no longer supports earlier versions. This lets the SDK adopt Xcode 27 without blocking users from building and submitting their apps with the latest Xcode. (#8595, #8113, #8189)
+
+### Fixes
+
+- Fix incorrect `duration` sent for active sessions (#8612)
+  - Session `duration` is now set only when the session ends. Active sessions (including on error increments) no longer emit a bogus `duration`.
 
 ## 9.24.0
 

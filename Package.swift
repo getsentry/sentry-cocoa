@@ -187,7 +187,7 @@ let packageDependencies: [Package.Dependency] = enableKSCrash ? [.package(url: "
 
 let package = Package(
     name: "Sentry",
-    platforms: [.iOS(.v15), .macOS(.v10_14), .tvOS(.v15), .watchOS(.v8), .visionOS(.v1)],
+    platforms: [.iOS(.v15), .macOS(.v12), .tvOS(.v15), .watchOS(.v9), .visionOS(.v1)],
     products: products,
     dependencies: packageDependencies,
     targets: targets,

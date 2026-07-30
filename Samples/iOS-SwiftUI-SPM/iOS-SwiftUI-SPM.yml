@@ -36,7 +36,7 @@ targets:
   watchOS-SwiftUI-SPM:
     type: application
     platform: watchOS
-    deploymentTarget: "8.0"
+    deploymentTarget: "9.0"
     sources:
       - Sources-watchOS
     dependencies:
