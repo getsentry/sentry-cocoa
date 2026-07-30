@@ -1523,6 +1523,27 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(1, endedSession.errors)
     }
 
+    func testCaptureNonTerminating_whenUnhandledExceptionAndNewSessionStarts_shouldEndPreviousSessionAsUnhandled() throws {
+        // -- Arrange --
+        sut.startSession()
+        let pendingSessionId = try XCTUnwrap(sut.session?.sessionId)
+        sut.captureNonTerminating(givenUnhandledExceptionEnvelope())
+
+        // -- Act --
+        sut.startSession()
+
+        // -- Assert --
+        let endedSession = try XCTUnwrap(fixture.client.captureSessionInvocations.last)
+        XCTAssertEqual(pendingSessionId, endedSession.sessionId)
+        XCTAssertEqual(SentrySessionStatus.unhandled, endedSession.status)
+        XCTAssertEqual(1, endedSession.errors)
+
+        let newSession = try XCTUnwrap(sut.session)
+        XCTAssertNotEqual(pendingSessionId, newSession.sessionId)
+        XCTAssertEqual(SentrySessionStatus.ok, newSession.status)
+        XCTAssertFalse(newSession.pendingUnhandled)
+    }
+
     func testCaptureNonTerminating_whenHandledException_shouldAttachSessionAndNotBePendingUnhandled() throws {
         // -- Arrange --
         sut.startSession()
