@@ -35,6 +35,10 @@ class SentryUIViewControllerSwizzling {
     private let performanceTracker: SentryUIViewControllerPerformanceTracker
     private let loadedImageNamesProvider: SentryLoadedImageNamesProvider
 
+    // Classes already passed to `handleInstantiatedViewController`, so each is processed once.
+    // `NSMutableSet` because an `AnyClass` metatype isn't `Hashable`. Main-thread confined, so unlocked.
+    private let processedClasses = NSMutableSet()
+
     init(
         options: Options,
         dispatchQueue: SentryDispatchQueueWrapper,
@@ -56,19 +60,26 @@ class SentryUIViewControllerSwizzling {
     }
 
     func start() {
-        let imageNames = loadedImageNamesProvider()
-        for inAppInclude in inAppLogic.inAppIncludes {
-            var found = false
-            for imageName in imageNames {
-                if SentryInAppLogic.isImageNameInApp(imageName, inAppInclude: inAppInclude) {
+        if options.experimental.enableUIViewControllerInitSwizzling {
+            // Opt-in: instead of the eager image scan below, swizzle each view controller when it's
+            // first instantiated. A never-instantiated `@available`-gated subclass is never swizzled,
+            // so it's never realized below its gate — avoiding the GH-8152 / GH-8548 crashes.
+            SentryUIViewControllerSwizzlingHelper.swizzleUIViewControllerInits { [weak self] cls in
+                self?.handleInstantiatedViewController(cls)
+            }
+        } else {
+            let imageNames = loadedImageNamesProvider()
+            for inAppInclude in inAppLogic.inAppIncludes {
+                var found = false
+                for imageName in imageNames where SentryInAppLogic.isImageNameInApp(imageName, inAppInclude: inAppInclude) {
                     found = true
                     swizzleUIViewControllers(ofImage: imageName)
                 }
-            }
-            if !found {
-                SentrySDKLog.warning(
-                    "Failed to find the binary image(s) for inAppInclude <\(inAppInclude)> and, therefore can't instrument UIViewControllers in these binaries."
-                )
+                if !found {
+                    SentrySDKLog.warning(
+                        "Failed to find the binary image(s) for inAppInclude <\(inAppInclude)> and, therefore can't instrument UIViewControllers in these binaries."
+                    )
+                }
             }
         }
 
@@ -242,16 +253,31 @@ class SentryUIViewControllerSwizzling {
             let viewControllerClass: AnyClass? = type(of: viewController)
             if let viewControllerClass {
                 SentrySDKLog.debug("Calling swizzleRootViewController for \(viewController)")
-                swizzleViewControllerSubClass(viewControllerClass)
+                // Already-live instances; route through the shared entry point so a class reached by
+                // both this walk and the init funnel is swizzled only once.
+                handleInstantiatedViewController(viewControllerClass)
 
-                // We can't get the image name with the app delegate class for some apps. Therefore, we
-                // use the rootViewController and its subclasses as a fallback.  The following method
-                // ensures we don't swizzle ViewControllers of UIKit.
-                swizzleUIViewControllersOfClassesInImageOf(viewControllerClass)
+                if !options.experimental.enableUIViewControllerInitSwizzling {
+                    // Eager path only: fall back to the image of a root VC when the app delegate
+                    // class yields no image name. The init funnel swizzles every instance directly.
+                    swizzleUIViewControllersOfClassesInImageOf(viewControllerClass)
+                }
             } else {
                 SentrySDKLog.warning("ViewControllerClass was nil for UIViewController: \(viewController)")
             }
         }
+    }
+
+    /// Swizzles a view controller class the first time an instance of it is seen, deduplicating by
+    /// class identity. Called by the base-init funnel and the root-hierarchy walk.
+    private func handleInstantiatedViewController(_ targetClass: AnyClass) {
+        if processedClasses.contains(targetClass) {
+            return
+        }
+        // Mark before filtering so rejected classes aren't reconsidered.
+        processedClasses.add(targetClass)
+
+        swizzleViewControllerSubClass(targetClass)
     }
 
     private func swizzleViewControllerSubClass(_ targetClass: AnyClass) {
@@ -282,6 +308,17 @@ class SentryUIViewControllerSwizzling {
         // Exposes shouldSwizzle for testing
     func testShouldSwizzleViewController(_ targetClass: AnyClass) -> Bool {
         shouldSwizzleViewController(targetClass)
+    }
+
+    // Exposes the first-instantiation funnel entry point for testing without having to trigger the
+    // base-init swizzle from a real UIViewController allocation.
+    func testHandleInstantiatedViewController(_ targetClass: AnyClass) {
+        handleInstantiatedViewController(targetClass)
+    }
+
+    // Exposes the processed-class dedup set for testing.
+    func testHasProcessedViewController(_ targetClass: AnyClass) -> Bool {
+        processedClasses.contains(targetClass)
     }
     #endif
 }

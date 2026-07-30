@@ -175,6 +175,23 @@ class ExtraViewController: UIViewController {
         navigationController?.pushViewController(WebViewController(), animated: true)
     }
 
+    /// Opens the regression host screen for GH-8152. The gated view controller subclasses in
+    /// `SubClassFinderRegressionViewController.swift` guard the fix by merely being compiled into the
+    /// app; this button just makes the regression test reachable in the UI (and for UI tests).
+    @IBAction func showSubClassFinderRegression(_ sender: UIButton) {
+        highlightButton(sender)
+        navigationController?.pushViewController(SubClassFinderRegressionViewController(), animated: true)
+    }
+
+    /// Opens the GH-1355 regression screen. `ConvenienceInitViewController` has a convenience + custom
+    /// designated initializer (no @objc) — the shape the old init swizzling (GH-1361) crashed on iOS
+    /// 15. Instantiating it via its convenience init exercises the init path the deferred-swizzling
+    /// fix (GH-8548) re-introduces, so this must stay crash-free.
+    @IBAction func showConvenienceInitRegression(_ sender: UIButton) {
+        highlightButton(sender)
+        navigationController?.pushViewController(ConvenienceInitViewController(), animated: true)
+    }
+
     @IBAction func openSafariWebView(_ sender: UIButton) {
         guard let url = URL(string: "https://docs.sentry.io/platforms/apple/guides/ios/") else {
             fatalError("The hard-coded URL is invalid.")

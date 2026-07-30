@@ -143,6 +143,44 @@ class SentryUIViewControllerSwizzlingHelperTests: XCTestCase {
         XCTAssertTrue(SentryUIViewControllerSwizzlingHelper.swizzlingActive())
     }
 
+    // MARK: - Init funnel (swizzleUIViewControllerInitsWithSubclassHandler:)
+
+    func testInitFunnel_whenViewControllerInstantiated_callsHandlerSynchronouslyWithConcreteClass() {
+        // -- Arrange --
+        var handledClasses: [AnyClass] = []
+        SentryUIViewControllerSwizzlingHelper.swizzleUIViewControllerInits { cls in
+            handledClasses.append(cls)
+        }
+
+        // -- Act --
+        // Instantiating through the base designated initializer triggers the funnel.
+        _ = UIViewController(nibName: nil, bundle: nil)
+
+        // -- Assert --
+        // The handler already ran by the time init returned (synchronous, no dispatch hop) — so
+        // handledClasses is populated on this same line, not on a later runloop turn.
+        XCTAssertTrue(handledClasses.contains { $0 == UIViewController.self },
+                      "The funnel should synchronously hand the concrete class of the initialized view controller to the handler.")
+    }
+
+    func testInitFunnel_afterStop_doesNotCallHandler() {
+        // -- Arrange --
+        var handlerCallCount = 0
+        SentryUIViewControllerSwizzlingHelper.swizzleUIViewControllerInits { _ in
+            handlerCallCount += 1
+        }
+        _ = UIViewController(nibName: nil, bundle: nil)
+        XCTAssertGreaterThan(handlerCallCount, 0)
+
+        // -- Act --
+        SentryUIViewControllerSwizzlingHelper.stop()
+        let countAfterStop = handlerCallCount
+        _ = UIViewController(nibName: nil, bundle: nil)
+
+        // -- Assert --
+        XCTAssertEqual(handlerCallCount, countAfterStop, "After stop, the funnel must no longer call the handler.")
+    }
+
     func testUnswizzle_whenCalled_shouldUnswizzleBaseLoadView() {
         // -- Arrange --
         let performanceTracker = tracker!

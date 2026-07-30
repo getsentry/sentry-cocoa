@@ -23,6 +23,23 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (void)swizzleViewControllerSubClass:(Class)class;
 
+/**
+ * Installs a funnel on the base @c UIViewController designated initializers
+ * (@c initWithNibName:bundle: and @c initWithCoder: ). After each initializer runs, the funnel
+ * calls the handler synchronously with the concrete class of the just-initialized instance, so the
+ * SDK can defer per-subclass lifecycle swizzling to first instantiation.
+ *
+ * This exists to avoid realizing `@available`-gated view controller subclasses on OS versions
+ * below their gate: a class is only swizzled once a live instance of it exists, and instantiating a
+ * class already realized it safely on a supported OS (see GH-8548). Swizzling happens synchronously
+ * right after the initializer returns so the instance's lifecycle methods are in place immediately,
+ * without a dispatch hop that could race the first @c viewDidLoad.
+ *
+ * @param handler Invoked with the concrete class of every initialized @c UIViewController. Pass
+ * @c nil (via @c stop ) to disable the funnel.
+ */
++ (void)swizzleUIViewControllerInitsWithSubclassHandler:(void (^)(Class cls))handler;
+
 + (void)stop;
 
 #    if SENTRY_TEST || SENTRY_TEST_CI

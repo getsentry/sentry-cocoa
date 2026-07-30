@@ -21,4 +21,20 @@ public final class SentryExperimentalOptions: NSObject {
      * start data to the first UIViewController transaction.
      */
     public var enableStandaloneAppStartTracing = false
+
+    /**
+     * When enabled, the SDK defers `UIViewController` performance swizzling to the first time each
+     * view controller is instantiated, instead of eagerly discovering and swizzling all
+     * `UIViewController` subclasses at SDK start.
+     *
+     * The eager approach realizes classes to inspect them, which crashes on OS versions below an
+     * `@available`-gated view controller subclass's gate when that subclass references a
+     * newer-framework type (see https://github.com/getsentry/sentry-cocoa/issues/8548). Deferring to
+     * first instantiation avoids this: a class that can't exist on the current OS is never
+     * instantiated, so the SDK never realizes it.
+     *
+     * - Experiment: This is an experimental feature and is therefore disabled by default. We'll
+     *   enable it by default in a future major release.
+     */
+    public var enableUIViewControllerInitSwizzling = false
 }
