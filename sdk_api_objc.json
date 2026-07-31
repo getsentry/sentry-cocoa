@@ -1748,7 +1748,7 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "disableFeedbackOnShake",
+    "name": "disableOnShake",
     "parent": "SentryObjCFeedbackApi",
     "returnType": "void",
     "instance": true
@@ -1958,13 +1958,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "enableFeedbackOnShake",
-    "parent": "SentryObjCFeedbackApi",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "enableFileIOTracing",
     "parent": "SentryObjCOptions",
     "returnType": "BOOL",
@@ -2031,6 +2024,13 @@
     "name": "enableNetworkTracking",
     "parent": "SentryObjCOptions",
     "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "enableOnShake",
+    "parent": "SentryObjCFeedbackApi",
+    "returnType": "void",
     "instance": true
   },
   {

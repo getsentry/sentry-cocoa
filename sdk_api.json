@@ -39867,11 +39867,11 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A11FeedbackAPIC07disableB7OnShakeyyF",
+            "mangledName": "$s6Sentry0A11FeedbackAPIC14disableOnShakeyyF",
             "moduleName": "Sentry",
-            "name": "disableFeedbackOnShake",
-            "printedName": "disableFeedbackOnShake()",
-            "usr": "c:@M@Sentry@objc(cs)SentryFeedbackAPI(im)disableFeedbackOnShake"
+            "name": "disableOnShake",
+            "printedName": "disableOnShake()",
+            "usr": "c:@M@Sentry@objc(cs)SentryFeedbackAPI(im)disableOnShake"
           },
           {
             "children": [
@@ -39889,11 +39889,11 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A11FeedbackAPIC06enableB7OnShakeyyF",
+            "mangledName": "$s6Sentry0A11FeedbackAPIC13enableOnShakeyyF",
             "moduleName": "Sentry",
-            "name": "enableFeedbackOnShake",
-            "printedName": "enableFeedbackOnShake()",
-            "usr": "c:@M@Sentry@objc(cs)SentryFeedbackAPI(im)enableFeedbackOnShake"
+            "name": "enableOnShake",
+            "printedName": "enableOnShake()",
+            "usr": "c:@M@Sentry@objc(cs)SentryFeedbackAPI(im)enableOnShake"
           },
           {
             "children": [

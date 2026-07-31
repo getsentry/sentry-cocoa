@@ -69,7 +69,7 @@ SENTRY_NO_INIT
  * @note This method must be called from the main thread.
  * @warning This is an experimental feature and may still have bugs.
  */
-- (void)enableFeedbackOnShake NS_EXTENSION_UNAVAILABLE("Not available in app extensions.");
+- (void)enableOnShake NS_EXTENSION_UNAVAILABLE("Not available in app extensions.");
 
 /**
  * Disables the shake-gesture trigger for the feedback form at runtime.
@@ -77,7 +77,7 @@ SENTRY_NO_INIT
  * @note This method must be called from the main thread.
  * @warning This is an experimental feature and may still have bugs.
  */
-- (void)disableFeedbackOnShake NS_EXTENSION_UNAVAILABLE("Not available in app extensions.");
+- (void)disableOnShake NS_EXTENSION_UNAVAILABLE("Not available in app extensions.");
 
 #    if !SDK_V10
 /**

@@ -495,7 +495,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         withExtendedLifetime(sut) { }
     }
 
-    func testFeedbackAPI_enableFeedbackOnShake_whenConfigured_shouldPresentFormOnShake() throws {
+    func testFeedbackAPI_enableOnShake_whenConfigured_shouldPresentFormOnShake() throws {
         let window = makeWindow()
         let viewController = TestPresentingViewController()
         let integration = try installFeedbackIntegration { $0.animations = false }
@@ -505,7 +505,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         NotificationCenter.default.post(name: .SentryShakeDetected, object: nil)
         XCTAssertFalse(integration.driver.displayingForm)
 
-        SentrySDK.feedback.enableFeedbackOnShake()
+        SentrySDK.feedback.enableOnShake()
         NotificationCenter.default.post(name: .SentryShakeDetected, object: nil)
 
         _ = try XCTUnwrap(viewController.lastPresentedViewController as? SentryUserFeedbackFormController)
@@ -514,7 +514,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         withExtendedLifetime(window) { }
     }
 
-    func testFeedbackAPI_disableFeedbackOnShake_whenConfigured_shouldSuppressFormOnShake() throws {
+    func testFeedbackAPI_disableOnShake_whenConfigured_shouldSuppressFormOnShake() throws {
         let window = makeWindow()
         let viewController = TestPresentingViewController()
         let integration = try installFeedbackIntegration {
@@ -523,7 +523,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         }
         useFallbackPresenter(viewController, in: window)
 
-        SentrySDK.feedback.disableFeedbackOnShake()
+        SentrySDK.feedback.disableOnShake()
         NotificationCenter.default.post(name: .SentryShakeDetected, object: nil)
 
         XCTAssertFalse(integration.driver.displayingForm)
@@ -532,11 +532,11 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         withExtendedLifetime(window) { }
     }
 
-    func testFeedbackAPI_feedbackOnShake_whenFeedbackNotConfigured_shouldNotCrash() {
+    func testFeedbackAPI_onShake_whenFeedbackNotConfigured_shouldNotCrash() {
         clearTestState()
 
-        SentrySDK.feedback.enableFeedbackOnShake()
-        SentrySDK.feedback.disableFeedbackOnShake()
+        SentrySDK.feedback.enableOnShake()
+        SentrySDK.feedback.disableOnShake()
     }
 
     @available(*, deprecated, message: "Testing deprecated widget configuration")

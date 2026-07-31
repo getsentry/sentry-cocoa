@@ -31,11 +31,11 @@ final class FeedbackViewController: UIViewController {
     }
 
     @IBAction private func enableFeedbackOnShake(_: UIButton) {
-        SentrySDK.feedback.enableFeedbackOnShake()
+        SentrySDK.feedback.enableOnShake()
     }
 
     @IBAction private func disableFeedbackOnShake(_: UIButton) {
-        SentrySDK.feedback.disableFeedbackOnShake()
+        SentrySDK.feedback.disableOnShake()
     }
 
     @IBAction private func toggleWidget(_: UIButton) {

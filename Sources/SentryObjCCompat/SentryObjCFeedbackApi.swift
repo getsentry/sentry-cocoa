@@ -40,13 +40,13 @@ import UIKit
     }
 
     @available(iOSApplicationExtension, unavailable)
-    @objc public func enableFeedbackOnShake() {
-        wrapped.enableFeedbackOnShake()
+    @objc public func enableOnShake() {
+        wrapped.enableOnShake()
     }
 
     @available(iOSApplicationExtension, unavailable)
-    @objc public func disableFeedbackOnShake() {
-        wrapped.disableFeedbackOnShake()
+    @objc public func disableOnShake() {
+        wrapped.disableOnShake()
     }
 
 #if !SDK_V10

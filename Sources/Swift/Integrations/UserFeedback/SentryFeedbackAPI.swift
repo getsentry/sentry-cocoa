@@ -73,7 +73,7 @@ import UIKit
     /// - Important: Call this method from the main thread.
     /// - warning: This is an experimental feature and may still have bugs.
     @available(iOSApplicationExtension, unavailable)
-    @objc public func enableFeedbackOnShake() {
+    @objc public func enableOnShake() {
         setShakeGestureEnabled(true)
     }
 
@@ -84,7 +84,7 @@ import UIKit
     /// - Important: Call this method from the main thread.
     /// - warning: This is an experimental feature and may still have bugs.
     @available(iOSApplicationExtension, unavailable)
-    @objc public func disableFeedbackOnShake() {
+    @objc public func disableOnShake() {
         setShakeGestureEnabled(false)
     }
 
