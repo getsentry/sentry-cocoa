@@ -6,12 +6,10 @@ import XCTest
 class SentryKSCrashIntegrationTests: XCTestCase {
     override func setUpWithError() throws {
         try super.setUpWithError()
-        clearTestState()
     }
 
     override func tearDown() {
         super.tearDown()
-        clearTestState()
     }
 
     private func makeOptions(enableCrashHandler: Bool = true) -> Options {
