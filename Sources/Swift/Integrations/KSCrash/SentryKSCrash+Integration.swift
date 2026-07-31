@@ -21,6 +21,7 @@ extension SentryKSCrash {
 
     final class Integration<Dependencies: DependencyProvider>: NSObject, SwiftIntegration {
         private weak var options: Options?
+        private let installer: Dependencies.Installing
 
         // MARK: - Initialization
 
@@ -31,9 +32,9 @@ extension SentryKSCrash {
             }
 
             self.options = options
-            super.init()
-
             let installer = dependencies.getKSCrashInstaller()
+            self.installer = installer
+            super.init()
 
             // To match KSCrash & SentryCrash, we need to add 'KSCrash/<bundlename>' to the cacheDirectoryPath
             let installPath = Self.installPath(for: options.cacheDirectoryPath, bundleInfo: Bundle.main.infoDictionary)
@@ -59,7 +60,9 @@ extension SentryKSCrash {
             "SentryKSCrashIntegration"
         }
 
-        func uninstall() {}
+        func uninstall() {
+            installer.uninstall()
+        }
 
         // MARK: - Helpers
         /// Get the install path for the crash reporter

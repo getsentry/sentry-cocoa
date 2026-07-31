@@ -156,6 +156,20 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         XCTAssertFalse(SentrySDKInternal.fatalDetected)
     }
 
+    func testInstall_whenInstallSucceeds_shouldMarkInstallerInstalled() {
+        // -- Arrange --
+        let installer = MockKSCrashInstaller()
+        let deps = MockKSCrashDependencies(installer: installer)
+        SentryDependencyContainer.sharedInstance().kscrashQuery = SentryKSCrash.Query(installer: installer)
+
+        // -- Act --
+        _ = SentryKSCrash.Integration(with: makeOptions(), dependencies: deps)
+
+        // -- Assert --
+        XCTAssertTrue(installer.installed)
+        XCTAssertTrue(SentrySDKInternal.crashReporterInstalled)
+    }
+
     func testInstall_whenInstallThrows_shouldNotSetCrashReporterInstalled() {
         // -- Arrange
         let installer = MockKSCrashInstaller()
@@ -167,6 +181,7 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         _ = SentryKSCrash.Integration(with: makeOptions(), dependencies: deps)
 
         // -- Assert --
+        XCTAssertFalse(installer.installed)
         XCTAssertFalse(SentrySDKInternal.crashReporterInstalled)
     }
 
@@ -181,6 +196,25 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         // -- Assert --
         XCTAssertNil(sut)
         XCTAssertEqual(installer.installCalls.count, 0)
+        XCTAssertFalse(installer.installed)
+    }
+
+    func testUninstall_shouldClearInstallerInstalled() {
+        // -- Arrange --
+        let installer = MockKSCrashInstaller()
+        let deps = MockKSCrashDependencies(installer: installer)
+        SentryDependencyContainer.sharedInstance().kscrashQuery = SentryKSCrash.Query(installer: installer)
+        let sut = SentryKSCrash.Integration(with: makeOptions(), dependencies: deps)
+        XCTAssertTrue(installer.installed)
+        XCTAssertTrue(SentrySDKInternal.crashReporterInstalled)
+
+        // -- Act --
+        sut?.uninstall()
+
+        // -- Assert --
+        XCTAssertEqual(installer.uninstallCallCount, 1)
+        XCTAssertFalse(installer.installed)
+        XCTAssertFalse(SentrySDKInternal.crashReporterInstalled)
     }
 }
 #endif

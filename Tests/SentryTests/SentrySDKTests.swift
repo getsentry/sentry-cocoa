@@ -295,9 +295,7 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(status, .didCrash)
     }
 
-    func testLastRunStatus_afterClose_shouldReturnUnknown() throws {
-        // KSCrash_TODO: SentryKSCrash.Integration currently has no uninstall
-        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "SentryKSCrash.Integration currently doesn't support uninstalling")
+    func testLastRunStatus_afterClose_shouldReturnUnknown() {
         // -- Arrange --
         SentrySDK.start { options in
             options.dsn = TestConstants.dsnAsString(username: "SentrySDKTests")
@@ -309,6 +307,7 @@ class SentrySDKTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(status, .unknown)
+        XCTAssertFalse(SentrySDKInternal.crashReporterInstalled)
     }
 
     // MARK: - onLastRunStatusDetermined

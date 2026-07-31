@@ -12,14 +12,23 @@ extension SentryKSCrash {
         /// - Throws: Any error from `KSCrash.installWithConfiguration(_:error:)`.
         func install(installPath: String, monitors: UInt, enableSwapCxaThrow: Bool) throws
 
+        /// Uninstall the crash handler for the current SDK lifecycle.
+        func uninstall()
+
         /// Whether the previous run crashed.
         var crashedLastLaunch: Bool { get }
 
+        /// Whether this installer has successfully installed for the current SDK lifecycle.
+        ///
+        /// Tracked separately from KSCrash's process-lifetime `reportStore`, which stays
+        /// non-nil after `SentrySDK.close()`.
         var installed: Bool { get }
     }
 
-    /// Configures and installs a crash handler
-    struct Installer: SentryKSCrash.Installing {
+    /// Configures and installs a crash handler.
+    final class Installer: SentryKSCrash.Installing {
+        private(set) var installed = false
+
         func install(installPath: String, monitors: UInt, enableSwapCxaThrow: Bool) throws {
             let config = KSCrashConfiguration()
             config.installPath = installPath
@@ -34,14 +43,15 @@ extension SentryKSCrash {
                 // The crash handler is already running — treat this as success.
                 SentrySDKLog.debug("KSCrash already installed; continuing.")
             }
+            installed = true
+        }
+
+        func uninstall() {
+            // KSCrash itself cannot be uninstalled in-process (process-lifetime).
+            installed = false
         }
 
         var crashedLastLaunch: Bool { KSCrash.shared.crashedLastLaunch }
-
-        var installed: Bool {
-            // From KSCrash docs: 'If the crash reporter is not installed, this will be `nil`'
-            KSCrash.shared.reportStore != nil
-        }
     }
 }
 #endif
