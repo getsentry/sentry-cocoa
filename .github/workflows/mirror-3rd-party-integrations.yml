@@ -1,0 +1,82 @@
+name: "Automation: Mirror 3rd-party integrations"
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "3rd-party-integrations/**"
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  mirror:
+    name: Mirror ${{ matrix.integration.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        integration:
+          - name: SentrySwiftLog
+            repo: sentry-apple-swift-log
+          - name: SentryCocoaLumberjack
+            repo: sentry-apple-cocoalumberjack
+          - name: SentryPulse
+            repo: sentry-apple-pulse
+          - name: SentrySwiftyBeaver
+            repo: sentry-apple-swiftybeaver
+    steps:
+      - name: Generate GitHub App Token
+        id: app_token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ vars.SENTRY_DEPENDENCY_UPDATER_GITHUB_APP_ID }}
+          private-key: ${{ secrets.SENTRY_DEPENDENCY_UPDATER_GITHUB_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ matrix.integration.repo }}
+
+      - name: Checkout upstream
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: upstream
+
+      - name: Checkout downstream
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: getsentry/${{ matrix.integration.repo }}
+          token: ${{ steps.app_token.outputs.token }}
+          path: downstream
+
+      - name: Sync contents
+        run: |
+          # Remove all tracked files in downstream except .git
+          find downstream -maxdepth 1 -not -name '.git' -not -name 'downstream' -exec rm -rf {} +
+
+          # Copy integration contents to downstream
+          cp -a upstream/3rd-party-integrations/${{ matrix.integration.name }}/. downstream/
+
+      - name: Commit and push
+        working-directory: downstream
+        run: |
+          git config user.name "sentry-mobile-updater[bot]"
+          git config user.email "263735479+sentry-mobile-updater[bot]@users.noreply.github.com"
+
+          git add -A
+
+          if git diff --cached --quiet; then
+            echo "No changes to mirror"
+            exit 0
+          fi
+
+          UPSTREAM_SHA="${{ github.sha }}"
+          SHORT_SHA="${UPSTREAM_SHA:0:7}"
+
+          git commit -m "chore(mirror): sync with getsentry/sentry-cocoa@${SHORT_SHA}"
+          git push
