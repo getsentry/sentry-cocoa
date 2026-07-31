@@ -141,7 +141,7 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         let envelopeCaptured = expectation(description: "Envelope captured")
         let transport = startSDK(envelopeCaptured: envelopeCaptured) {
             self.configureEnvelopeBaselineOptions($0)
-            $0.enableNetworkBreadcrumbs = true
+            $0.enableNetworkBreadcrumbs = false
         }
         let transaction = try XCTUnwrap(SentrySDK.startTransaction(
             name: "Network Envelope Baseline",

@@ -2,19 +2,6 @@
   "header": {
     "event_id": "<event-id>",
     "sdk": {
-      "features": [
-        "captureFailedRequests",
-        "experimentalViewRenderer",
-        "metrics"
-      ],
-      "integrations": [
-        "AppStartTracking",
-        "FramesTracking",
-        "NetworkTracking",
-        "ANRTracking",
-        "Metrics",
-        "Crash"
-      ],
       "name": "sentry.cocoa",
       "packages": [],
       "settings": {
@@ -32,7 +19,7 @@
   "items": [
     {
       "header": {
-        "length": 2274,
+        "length": "<length>",
         "type": "event"
       },
       "payload": {
@@ -109,7 +96,6 @@
             }
           ]
         },
-        "extra": "<runtime-performance-data>",
         "level": "error",
         "platform": "cocoa",
         "release": "io.sentry.network-envelope-baseline@1.0.0+1",
@@ -125,27 +111,12 @@
           "url": "http://localhost:8081/http-client-error"
         },
         "sdk": {
-          "features": [
-            "captureFailedRequests",
-            "experimentalViewRenderer",
-            "metrics"
-          ],
-          "integrations": [
-            "AppStartTracking",
-            "FramesTracking",
-            "NetworkTracking",
-            "ANRTracking",
-            "Metrics",
-            "Crash"
-          ],
           "name": "sentry.cocoa",
           "packages": [],
           "settings": {
             "infer_ip": "never"
           },
           "version": "9.24.0"
-        },
-        "tags": {
         },
         "threads": "<threads>",
         "timestamp": "<timestamp>",

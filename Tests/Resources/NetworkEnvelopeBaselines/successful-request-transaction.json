@@ -2,19 +2,6 @@
   "header": {
     "event_id": "<event-id>",
     "sdk": {
-      "features": [
-        "captureFailedRequests",
-        "experimentalViewRenderer",
-        "metrics"
-      ],
-      "integrations": [
-        "AppStartTracking",
-        "FramesTracking",
-        "NetworkTracking",
-        "ANRTracking",
-        "Metrics",
-        "Crash"
-      ],
       "name": "sentry.cocoa",
       "packages": [],
       "settings": {
@@ -36,27 +23,10 @@
   "items": [
     {
       "header": {
-        "length": 2745,
+        "length": "<length>",
         "type": "transaction"
       },
       "payload": {
-        "breadcrumbs": [
-          {
-            "category": "http",
-            "data": {
-              "method": "GET",
-              "reason": "no error",
-              "request_body_size": 0,
-              "request_start": "<timestamp>",
-              "response_body_size": 51,
-              "status_code": 200,
-              "url": "http://localhost:8081/echo-sentry-trace"
-            },
-            "level": "info",
-            "timestamp": "<timestamp>",
-            "type": "http"
-          }
-        ],
         "contexts": {
           "app": {
             "app_build": "<runtime-value>",
@@ -99,8 +69,7 @@
             "rooted": "<runtime-value>",
             "version": "<runtime-value>"
           },
-          "profile": {
-          },
+          "profile": {},
           "trace": {
             "data": {
               "thread.id": "<thread-id>",
@@ -120,23 +89,9 @@
         "dist": "<runtime-value>",
         "environment": "test",
         "event_id": "<event-id>",
-        "extra": "<runtime-performance-data>",
         "platform": "cocoa",
         "release": "io.sentry.network-envelope-baseline@1.0.0+1",
         "sdk": {
-          "features": [
-            "captureFailedRequests",
-            "experimentalViewRenderer",
-            "metrics"
-          ],
-          "integrations": [
-            "AppStartTracking",
-            "FramesTracking",
-            "NetworkTracking",
-            "ANRTracking",
-            "Metrics",
-            "Crash"
-          ],
           "name": "sentry.cocoa",
           "packages": [],
           "settings": {
@@ -168,8 +123,6 @@
           }
         ],
         "start_timestamp": "<timestamp>",
-        "tags": {
-        },
         "timestamp": "<timestamp>",
         "transaction": "Network Envelope Baseline",
         "transaction_info": {
