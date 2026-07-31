@@ -99,7 +99,9 @@ class SentryVideoFrameProcessor {
             }
 
             let frame = videoFrames[frameIndex]
-            guard let image = UIImage(contentsOfFile: frame.imagePath) else {
+            // Prefer the in-memory image kept from capture; fall back to disk only for
+            // crash-recovered frames that were loaded without an image payload.
+            guard let image = frame.resolvedImage() else {
                 if lastAppendedImage != nil {
                     if let videoStart = videoStart {
                         let elapsed = max(0, frame.time.timeIntervalSince(videoStart))

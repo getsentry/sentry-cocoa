@@ -112,8 +112,15 @@ func removeReplayFile(at fileURL: URL) {
     
     private func addFrame(timestamp: Date, maskedViewImage: UIImage, forScreen screen: String?) {
         SentrySDKLog.debug("[Session Replay] Adding frame to replay, screen: \(screen ?? "nil")")
-        guard let data = rescaleImage(maskedViewImage)?.pngData() else {
+        // Keep the scaled image in memory for live encode, and still write PNG to disk for
+        // crash durability / next-launch recovery. Encode prefers memory and only falls back
+        // to disk for frames loaded after a crash (image == nil).
+        guard let scaledImage = rescaleImage(maskedViewImage) else {
             SentrySDKLog.error("[Session Replay] Could not rescale image, dropping frame")
+            return
+        }
+        guard let data = scaledImage.pngData() else {
+            SentrySDKLog.error("[Session Replay] Could not encode image as PNG, dropping frame")
             return
         }
         let imagePath = (_outputPath as NSString).appendingPathComponent("\(timestamp.timeIntervalSinceReferenceDate).png")
@@ -125,7 +132,7 @@ func removeReplayFile(at fileURL: URL) {
             SentrySDKLog.error("[Session Replay] Could not save replay frame, reason: \(error)")
             return
         }
-        _frames.append(SentryReplayFrame(imagePath: imagePath, time: timestamp, screenName: screen))
+        _frames.append(SentryReplayFrame(imagePath: imagePath, time: timestamp, screenName: screen, image: scaledImage))
 
         // Remove the oldest frames if the cache size exceeds the maximum size.
         while _frames.count > cacheMaxSize {
@@ -205,10 +212,11 @@ func removeReplayFile(at fileURL: URL) {
         if let firstFrame = videoFrames.first {
             if firstFrame.time > beginning {
                 let frameToHold = frameBefore(beginning) ?? firstFrame
-                videoFrames.insert(SentryReplayFrame(imagePath: frameToHold.imagePath, time: beginning, screenName: frameToHold.screenName), at: 0)
+                // Preserve any in-memory image when anchoring a prior frame at the window start.
+                videoFrames.insert(frameToHold.withTime(beginning), at: 0)
             }
         } else if let previousFrame = frameBefore(beginning) {
-            videoFrames = [SentryReplayFrame(imagePath: previousFrame.imagePath, time: beginning, screenName: previousFrame.screenName)]
+            videoFrames = [previousFrame.withTime(beginning)]
         } else {
             return []
         }
@@ -295,8 +303,8 @@ func removeReplayFile(at fileURL: URL) {
             SentrySDKLog.error("[Session Replay] Failed to render video, reason: index out of bounds")
             return completion(.failure(SentryOnDemandReplayError.indexOutOfBounds))
         }
-        guard let image = UIImage(contentsOfFile: videoFrames[fromIndex].imagePath) else {
-            SentrySDKLog.error("[Session Replay] Failed to render video, reason: can't read image at path: \(videoFrames[fromIndex].imagePath)")
+        guard let image = videoFrames[fromIndex].resolvedImage() else {
+            SentrySDKLog.error("[Session Replay] Failed to render video, reason: can't resolve image at path: \(videoFrames[fromIndex].imagePath)")
             return completion(.failure(SentryOnDemandReplayError.cantReadImage))
         }
         

@@ -22,6 +22,9 @@
 ### Features
 
 - Add `SentrySDK.feedback.enableOnShake()` and `disableOnShake()` to toggle the shake-to-report gesture at runtime (#8591)
+### Improvements
+
+- Session Replay keeps captured frames in memory for live video encode while still writing PNGs to disk for crash durability. Encode prefers the in-memory image and only falls back to disk for frames recovered after a crash, avoiding a PNG readback on the streaming hot path. (#TBD)
 
 ### Fixes
 
