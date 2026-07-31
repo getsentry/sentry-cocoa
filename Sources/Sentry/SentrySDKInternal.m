@@ -17,14 +17,6 @@
 #import "SentrySwift.h"
 #import "SentryTransactionContext.h"
 
-#if ENABLE_KSCRASH
-// Forward declared from SentryKSCrash+Query.swift
-@interface SentryKSCrashQuery <NSObject>
-@property (nonatomic, readonly) BOOL installed;
-@property (nonatomic, readonly) BOOL crashedLastLaunch;
-@end
-#endif // ENABLE_KSCRASH
-
 #if TARGET_OS_OSX
 #    import "SentryCrashExceptionApplication.h"
 #endif // TARGET_OS_MAC

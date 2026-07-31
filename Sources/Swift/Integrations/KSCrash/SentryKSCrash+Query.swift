@@ -1,46 +1,43 @@
 #if ENABLE_KSCRASH
-// swiftlint:disable:next no_implementation_only_import
-@_implementationOnly import KSCrashInstallations
-internal import _SentryPrivate
 
 extension SentryKSCrash {
     protocol QueryProvider {
-        associatedtype Querying: SentryKSCrash.Querying
-
+        associatedtype Querying: SentryKSCrashQuerying
         var kscrashQuery: Querying { get }
     }
+
+    // The compiler is unable to emit declarations for ObjC types nested in Swift types that
+    // cannot be represented in ObjC (i.e. enum -> class). So in order to keep the 'shape' of
+    // the SentryKSCrash API, we declare them as typealiases here
+    /// An ObjC-accessible class that surfaces live KSCrash crash state to ObjC callers  without littering the SentryKSCrash types with `@objc`.
+    @_spi(Private) public typealias Query = SentryKSCrashQuery
+    /// Allows querying the state of the crash reporter.
+    @_spi(Private) public typealias Querying = SentryKSCrashQuerying
 }
 
-extension SentryKSCrash {
-    /// Allows querying the state of the crash reporter
-    @objc(SentryKSCrashQuerying)
-    public protocol Querying: NSObjectProtocol {
-        /// Whether KSCrash has been successfully installed this session.
-        @objc var installed: Bool { get }
-        /// Whether KSCrash crashed on the previous launch.
-        @objc var crashedLastLaunch: Bool { get }
-    }
+/// Allows querying the state of the crash reporter.
+@objc(SentryKSCrashQuerying)
+public protocol SentryKSCrashQuerying: NSObjectProtocol {
+    /// Whether KSCrash has been successfully installed this session.
+    @objc var installed: Bool { get }
+    /// Whether KSCrash crashed on the previous launch.
+    @objc var crashedLastLaunch: Bool { get }
 }
 
-extension SentryKSCrash {
-    /// An ObjC-accessible class that surfaces live KSCrash crash state to ObjC callers
-    /// without adding `@objc` to `SentryKSCrash.Installer`.
-    @_spi(Private)
-    @objc(SentryKSCrashQuery)
-    final public class Query: NSObject, Querying {
-        private let installer: any Installing
+/// An ObjC-accessible class that surfaces live KSCrash crash state to ObjC callers  without littering the SentryKSCrash types with `@objc`.
+@objc(SentryKSCrashQuery)
+public final class SentryKSCrashQuery: NSObject, SentryKSCrashQuerying {
+    private let _installed: () -> Bool
+    private let _crashedLastLaunch: () -> Bool
 
-        init(installer: some Installing) {
-            self.installer = installer
-        }
-
-        // swiftlint:disable missing_docs
-        @objc
-        public var installed: Bool { installer.installed }
-
-        @objc
-        public var crashedLastLaunch: Bool { installer.crashedLastLaunch }
-        //swiftlint:enable missing_docs
+    init(installer: some SentryKSCrash.Installing) {
+        _installed = { installer.installed }
+        _crashedLastLaunch = { installer.crashedLastLaunch }
     }
+
+    // swiftlint:disable missing_docs
+    @objc public var installed: Bool { _installed() }
+    @objc public var crashedLastLaunch: Bool { _crashedLastLaunch() }
+    // swiftlint:enable missing_docs
 }
 #endif
