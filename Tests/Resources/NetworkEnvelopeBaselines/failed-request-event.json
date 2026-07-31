@@ -1,0 +1,158 @@
+{
+  "header": {
+    "event_id": "<event-id>",
+    "sdk": {
+      "features": [
+        "captureFailedRequests",
+        "experimentalViewRenderer",
+        "metrics"
+      ],
+      "integrations": [
+        "AppStartTracking",
+        "FramesTracking",
+        "NetworkTracking",
+        "ANRTracking",
+        "Metrics",
+        "Crash"
+      ],
+      "name": "sentry.cocoa",
+      "packages": [],
+      "settings": {
+        "infer_ip": "never"
+      },
+      "version": "9.24.0"
+    },
+    "trace": {
+      "environment": "test",
+      "public_key": "SentryNetworkTrackerIntegrationTestServerTests.testFailedRequest_whenCaptureEnabled_shouldMatchEnvelopeBaseline()",
+      "release": "io.sentry.network-envelope-baseline@1.0.0+1",
+      "trace_id": "<trace-id>"
+    }
+  },
+  "items": [
+    {
+      "header": {
+        "length": 2274,
+        "type": "event"
+      },
+      "payload": {
+        "contexts": {
+          "app": {
+            "app_build": "<runtime-value>",
+            "app_id": "<runtime-value>",
+            "app_identifier": "<runtime-value>",
+            "app_memory": "<runtime-value>",
+            "app_name": "<runtime-value>",
+            "app_start_time": "<runtime-value>",
+            "app_version": "<runtime-value>",
+            "build_type": "<runtime-value>",
+            "device_app_hash": "<runtime-value>",
+            "in_foreground": "<runtime-value>",
+            "is_active": "<runtime-value>"
+          },
+          "culture": {
+            "calendar": "<runtime-value>",
+            "display_name": "<runtime-value>",
+            "is_24_hour_format": "<runtime-value>",
+            "locale": "<runtime-value>",
+            "timezone": "<runtime-value>"
+          },
+          "device": {
+            "arch": "<runtime-value>",
+            "family": "<runtime-value>",
+            "free_memory": "<runtime-value>",
+            "locale": "<runtime-value>",
+            "low_power_mode": "<runtime-value>",
+            "memory_size": "<runtime-value>",
+            "model": "<runtime-value>",
+            "model_id": "<runtime-value>",
+            "processor_count": "<runtime-value>",
+            "simulator": "<runtime-value>",
+            "thermal_state": "<runtime-value>",
+            "usable_memory": "<runtime-value>"
+          },
+          "os": {
+            "build": "<runtime-value>",
+            "kernel_version": "<runtime-value>",
+            "name": "<runtime-value>",
+            "rooted": "<runtime-value>",
+            "version": "<runtime-value>"
+          },
+          "response": {
+            "body_size": 37,
+            "headers": {
+              "Connection": "keep-alive",
+              "Content-Length": "37",
+              "Content-Type": "application/json; charset=utf-8",
+              "Date": "<timestamp>"
+            },
+            "status_code": 400
+          },
+          "trace": {
+            "span_id": "<span-id>",
+            "trace_id": "<trace-id>"
+          }
+        },
+        "debug_meta": "<debug-meta>",
+        "dist": "<runtime-value>",
+        "environment": "test",
+        "event_id": "<event-id>",
+        "exception": {
+          "values": [
+            {
+              "mechanism": {
+                "type": "HTTPClientError"
+              },
+              "stacktrace": "<stacktrace>",
+              "type": "HTTPClientError",
+              "value": "HTTP Client Error with status code: 400"
+            }
+          ]
+        },
+        "extra": "<runtime-performance-data>",
+        "level": "error",
+        "platform": "cocoa",
+        "release": "io.sentry.network-envelope-baseline@1.0.0+1",
+        "request": {
+          "headers": {
+            "Accept": "*/*",
+            "Accept-Encoding": "gzip, deflate",
+            "Accept-Language": "en-US,en;q=0.9",
+            "baggage": "<baggage>",
+            "sentry-trace": "<sentry-trace>"
+          },
+          "method": "GET",
+          "url": "http://localhost:8081/http-client-error"
+        },
+        "sdk": {
+          "features": [
+            "captureFailedRequests",
+            "experimentalViewRenderer",
+            "metrics"
+          ],
+          "integrations": [
+            "AppStartTracking",
+            "FramesTracking",
+            "NetworkTracking",
+            "ANRTracking",
+            "Metrics",
+            "Crash"
+          ],
+          "name": "sentry.cocoa",
+          "packages": [],
+          "settings": {
+            "infer_ip": "never"
+          },
+          "version": "9.24.0"
+        },
+        "tags": {
+        },
+        "threads": "<threads>",
+        "timestamp": "<timestamp>",
+        "user": {
+          "id": "<id>"
+        }
+      }
+    }
+  ]
+}

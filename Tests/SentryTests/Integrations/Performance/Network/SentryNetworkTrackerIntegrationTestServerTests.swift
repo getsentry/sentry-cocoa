@@ -1,5 +1,5 @@
 @_spi(Private) import SentryTestUtils
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 import XCTest
 
 /// You have to start the test server before running this test. You can do this by calling
@@ -8,6 +8,11 @@ import XCTest
 /// This test is excluded from the SentryBase test plan because it requires the test server to be running. We have an extra test plan SentryTestServer,
 /// so we can run this test in our CI isolated without having to have the test server running for all other tests.
 class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
+
+    override func tearDown() {
+        super.tearDown()
+        clearTestState()
+    }
 
     func testGetRequest_SpanCreatedAndBaggageHeaderAdded() throws {
         try ensureTestServerIsRunning()
@@ -128,6 +133,74 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         XCTAssertEqual(statusCode, 400)
     }
 
+    func testSuccessfulRequest_whenTransactionFinishes_shouldMatchEnvelopeBaseline() throws {
+        // -- Arrange --
+        try ensureTestServerIsRunning()
+        let url = try XCTUnwrap(URL(string: "http://localhost:8081/echo-sentry-trace"))
+        let requestCompleted = expectation(description: "Request completed")
+        let envelopeCaptured = expectation(description: "Envelope captured")
+        let transport = startSDK(envelopeCaptured: envelopeCaptured) {
+            self.configureEnvelopeBaselineOptions($0)
+            $0.enableNetworkBreadcrumbs = true
+        }
+        let transaction = try XCTUnwrap(SentrySDK.startTransaction(
+            name: "Network Envelope Baseline",
+            operation: "test.network",
+            bindToScope: true
+        ) as? SentryTracer)
+        let dataTask = URLSession.shared.dataTask(with: url) { _, _, error in
+            self.assertNetworkError(error)
+            requestCompleted.fulfill()
+        }
+        defer { dataTask.cancel() }
+
+        // -- Act --
+        dataTask.resume()
+        wait(for: [requestCompleted], timeout: 10)
+        transaction.finish()
+        wait(for: [envelopeCaptured], timeout: 10)
+
+        // -- Assert --
+        XCTAssertEqual(transport.sentEnvelopes.count, 1)
+        let envelope = try XCTUnwrap(transport.sentEnvelopes.first)
+        try NetworkEnvelopeBaseline.assertMatches(
+            envelope: envelope,
+            resource: "successful-request-transaction",
+            testCase: self
+        )
+    }
+
+    func testFailedRequest_whenCaptureEnabled_shouldMatchEnvelopeBaseline() throws {
+        // -- Arrange --
+        try ensureTestServerIsRunning()
+        let url = try XCTUnwrap(URL(string: "http://localhost:8081/http-client-error"))
+        let requestCompleted = expectation(description: "Request completed")
+        let envelopeCaptured = expectation(description: "Envelope captured")
+        let transport = startSDK(envelopeCaptured: envelopeCaptured) {
+            self.configureEnvelopeBaselineOptions($0)
+            $0.enableCaptureFailedRequests = true
+            $0.failedRequestStatusCodes = [HttpStatusCodeRange(statusCode: 400)]
+        }
+        let dataTask = URLSession.shared.dataTask(with: url) { _, _, error in
+            self.assertNetworkError(error)
+            requestCompleted.fulfill()
+        }
+        defer { dataTask.cancel() }
+
+        // -- Act --
+        dataTask.resume()
+        wait(for: [requestCompleted, envelopeCaptured], timeout: 10)
+
+        // -- Assert --
+        XCTAssertEqual(transport.sentEnvelopes.count, 1)
+        let envelope = try XCTUnwrap(transport.sentEnvelopes.first)
+        try NetworkEnvelopeBaseline.assertMatches(
+            envelope: envelope,
+            resource: "failed-request-event",
+            testCase: self
+        )
+    }
+
     private func assertNetworkError(_ error: Error?) {
         if error != nil {
             XCTFail("Failed to complete request : \(String(describing: error))")
@@ -179,7 +252,24 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
     }
     // swiftlint:enable avoid_dispatch_groups_in_tests
 
-    private func startSDK(function: String = #function, _ configureOptions: ((Options) -> Void)? = nil) {
+    private func configureEnvelopeBaselineOptions(_ options: Options) {
+        options.enableAutoSessionTracking = false
+        options.enableAutoBreadcrumbTracking = false
+        options.enableUIViewControllerTracing = false
+        options.enableUserInteractionTracing = false
+        options.enableFileIOTracing = false
+        options.enableDataSwizzling = false
+        options.enableCoreDataTracing = false
+        options.releaseName = "io.sentry.network-envelope-baseline@1.0.0+1"
+        options.environment = "test"
+    }
+
+    @discardableResult
+    private func startSDK(
+        function: String = #function,
+        envelopeCaptured: XCTestExpectation? = nil,
+        _ configureOptions: ((Options) -> Void)? = nil
+    ) -> EnvelopeCapturingTransport {
         let options = Options()
         options.dsn = TestConstants.dsnAsString(username: "SentryNetworkTrackerIntegrationTestServerTests.\(function)")
         options.tracesSampleRate = 1.0
@@ -187,5 +277,40 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         configureOptions?(options)
 
         SentrySDK.start(options: options)
+
+        let transport = EnvelopeCapturingTransport(expectation: envelopeCaptured)
+        let client = SentrySDKInternal.currentHub().client()
+        Dynamic(client).transportAdapter = SentryTransportAdapter(transports: [transport], options: options)
+        return transport
+    }
+
+    private final class EnvelopeCapturingTransport: NSObject, Transport {
+        let sentEnvelopes = Invocations<SentryEnvelope>()
+        private let expectation: XCTestExpectation?
+
+        init(expectation: XCTestExpectation?) {
+            self.expectation = expectation
+        }
+
+        func send(envelope: SentryEnvelope) {
+            sentEnvelopes.record(envelope)
+            expectation?.fulfill()
+        }
+
+        func store(_ envelope: SentryEnvelope) {}
+
+        func recordLostEvent(_ category: SentryDataCategory, reason: SentryDiscardReason) {}
+
+        func recordLostEvent(
+            _ category: SentryDataCategory,
+            reason: SentryDiscardReason,
+            quantity: UInt
+        ) {}
+
+        func flush(_ timeout: TimeInterval) -> SentryFlushResult {
+            .success
+        }
+
+        func setStartFlushCallback(_ callback: @escaping () -> Void) {}
     }
 }

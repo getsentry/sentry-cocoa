@@ -9,14 +9,27 @@
     }
   ],
   "defaultOptions" : {
+    "environmentVariableEntries" : [
+      {
+        "key" : "UPDATE_NETWORK_ENVELOPE_BASELINES",
+        "value" : "$(UPDATE_NETWORK_ENVELOPE_BASELINES)"
+      }
+    ],
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:Sentry.xcodeproj",
+      "identifier" : "63AA759A1EB8AEF500D153DE",
+      "name" : "Sentry"
+    },
     "testTimeoutsEnabled" : true
   },
   "testTargets" : [
     {
       "selectedTests" : [
+        "SentryNetworkTrackerIntegrationTestServerTests\/testFailedRequest_whenCaptureEnabled_shouldMatchEnvelopeBaseline()",
         "SentryNetworkTrackerIntegrationTestServerTests\/testGetCaptureFailedRequestsEnabled()",
         "SentryNetworkTrackerIntegrationTestServerTests\/testGetRequest_CompareSentryTraceHeader()",
-        "SentryNetworkTrackerIntegrationTestServerTests\/testGetRequest_SpanCreatedAndBaggageHeaderAdded()"
+        "SentryNetworkTrackerIntegrationTestServerTests\/testGetRequest_SpanCreatedAndBaggageHeaderAdded()",
+        "SentryNetworkTrackerIntegrationTestServerTests\/testSuccessfulRequest_whenTransactionFinishes_shouldMatchEnvelopeBaseline()"
       ],
       "target" : {
         "containerPath" : "container:Sentry.xcodeproj",
