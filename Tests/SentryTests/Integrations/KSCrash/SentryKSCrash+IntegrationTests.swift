@@ -9,6 +9,7 @@ class SentryKSCrashIntegrationTests: XCTestCase {
     }
 
     override func tearDown() {
+        SentrySDKInternal.fatalDetected = false
         super.tearDown()
     }
 
@@ -126,6 +127,32 @@ class SentryKSCrashIntegrationTests: XCTestCase {
     }
 
     // MARK: - Last-run crash APIs
+
+    func testInstall_whenCrashedLastLaunch_shouldSetFatalDetected() {
+        // -- Arrange --
+        let installer = MockKSCrashInstaller()
+        installer.crashedLastLaunch = true
+        let deps = MockKSCrashDependencies(installer: installer)
+
+        // -- Act --
+        _ = SentryKSCrash.Integration(with: makeOptions(), dependencies: deps)
+
+        // -- Assert --
+        XCTAssertTrue(SentrySDKInternal.fatalDetected)
+    }
+
+    func testInstall_whenDidNotCrashLastLaunch_shouldNotSetFatalDetected() {
+        // -- Arrange --
+        let installer = MockKSCrashInstaller()
+        installer.crashedLastLaunch = false
+        let deps = MockKSCrashDependencies(installer: installer)
+
+        // -- Act --
+        _ = SentryKSCrash.Integration(with: makeOptions(), dependencies: deps)
+
+        // -- Assert --
+        XCTAssertFalse(SentrySDKInternal.fatalDetected)
+    }
 
     func testInstall_whenInstallThrows_shouldNotSetCrashReporterInstalled() {
         // -- Arrange
