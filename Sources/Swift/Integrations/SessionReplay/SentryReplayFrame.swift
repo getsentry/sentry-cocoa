@@ -28,13 +28,5 @@ struct SentryReplayFrame {
     }
 }
 
-/// Prefer the in-memory image; fall back to disk for crash-recovered frames.
-func image(for frame: SentryReplayFrame) -> UIImage? {
-    if let image = frame.image {
-        return image
-    }
-    return UIImage(contentsOfFile: frame.imagePath)
-}
-
 #endif // os(iOS) || os(tvOS)
 #endif // canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK

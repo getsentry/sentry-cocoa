@@ -303,7 +303,9 @@ func removeReplayFile(at fileURL: URL) {
             SentrySDKLog.error("[Session Replay] Failed to render video, reason: index out of bounds")
             return completion(.failure(SentryOnDemandReplayError.indexOutOfBounds))
         }
-        guard let frameImage = image(for: videoFrames[fromIndex]) else {
+        guard let frameImage = videoFrames[fromIndex].image
+            ?? SessionReplayFileManager.image(atPath: videoFrames[fromIndex].imagePath)
+        else {
             SentrySDKLog.error("[Session Replay] Failed to render video, reason: can't resolve image at path: \(videoFrames[fromIndex].imagePath)")
             return completion(.failure(SentryOnDemandReplayError.cantReadImage))
         }
