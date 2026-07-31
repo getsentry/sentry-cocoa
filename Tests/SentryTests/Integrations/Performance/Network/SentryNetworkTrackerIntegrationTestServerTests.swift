@@ -255,8 +255,10 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
     private func configureEnvelopeBaselineOptions(_ options: Options) {
         options.enableAutoSessionTracking = false
         options.enableAutoBreadcrumbTracking = false
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         options.enableUIViewControllerTracing = false
         options.enableUserInteractionTracing = false
+#endif
         options.enableFileIOTracing = false
         options.enableDataSwizzling = false
         options.enableCoreDataTracing = false
