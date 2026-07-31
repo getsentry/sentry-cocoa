@@ -447,7 +447,15 @@ run_apple_binaries_archive_for_prs: &run_apple_binaries_archive_for_prs
   - ".github/workflows/apple-binaries-archive.yml"
   - ".github/file-filters.yml"
   - "scripts/create-apple-binaries-archive.sh"
+  - "scripts/ci-utils.sh"
   - "distribution/**"
+
+run_3rd_party_integrations_archive_for_prs: &run_3rd_party_integrations_archive_for_prs
+  - ".github/workflows/3rd-party-integrations-archive.yml"
+  - ".github/file-filters.yml"
+  - "scripts/create-3rd-party-integration-archive.sh"
+  - "scripts/ci-utils.sh"
+  - "3rd-party-integrations/**"
 
 run_ui_tests_for_prs: &run_ui_tests_for_prs
   - "Sources/**"

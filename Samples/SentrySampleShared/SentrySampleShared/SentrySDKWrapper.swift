@@ -185,11 +185,9 @@ public struct SentrySDKWrapper {
 #endif // !os(macOS) && !os(watchOS) && !os(visionOS)
 
 #if !os(tvOS) && !os(watchOS)
-        if #available(iOS 15.0, macOS 12.0, *) {
-            options.enableMetricKit = !SentrySDKOverrides.MetricKit.disable.boolValue
-            options.enableMetricKitRawPayload =
-                options.enableMetricKit && !SentrySDKOverrides.MetricKit.disableRawPayloads.boolValue
-        }
+        options.enableMetricKit = !SentrySDKOverrides.MetricKit.disable.boolValue
+        options.enableMetricKitRawPayload =
+            options.enableMetricKit && !SentrySDKOverrides.MetricKit.disableRawPayloads.boolValue
 #endif // !os(tvOS) && !os(watchOS)
 
         configurePerformanceTracing(options)

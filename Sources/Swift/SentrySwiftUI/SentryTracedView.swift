@@ -113,7 +113,6 @@ class SentryTraceViewModel {
 ///         //The part of your content you want to measure
 ///     }.sentryTrace("My Awesome Screen")
 ///
-@available(macOS 10.15, *)
 public struct SentryTracedView<Content: View>: View {
     @State private var viewModel: SentryTraceViewModel
     let content: () -> Content
@@ -172,7 +171,6 @@ public struct SentryTracedView<Content: View>: View {
 }
 
 /// nodoc
-@available(macOS 10.15, *)
 public extension View {
 
 #if canImport(UIKit) && (os(iOS) || os(tvOS))

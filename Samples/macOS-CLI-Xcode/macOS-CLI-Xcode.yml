@@ -28,7 +28,7 @@ targets:
   macOS-CLI-Xcode:
     type: tool
     platform: macOS
-    deploymentTarget: "11.0"
+    deploymentTarget: "12.0"
     sources:
       - Sources
     dependencies:

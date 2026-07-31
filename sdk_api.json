@@ -63600,12 +63600,8 @@
                 "printedName": "some SwiftUI.View"
               }
             ],
-            "declAttributes": [
-              "Available"
-            ],
             "declKind": "TypeAlias",
             "genericSig": "<Content where Content : SwiftUI.View>",
-            "intro_Macosx": "10.15",
             "kind": "TypeAlias",
             "mangledName": "$s6Sentry0A10TracedViewV4Bodya",
             "moduleName": "Sentry",
@@ -63730,13 +63726,11 @@
           }
         ],
         "declAttributes": [
-          "Available",
           "Custom",
           "Preconcurrency"
         ],
         "declKind": "Struct",
         "genericSig": "<Content where Content : SwiftUI.View>",
-        "intro_Macosx": "10.15",
         "kind": "TypeDecl",
         "mangledName": "$s6Sentry0A10TracedViewV",
         "moduleName": "Sentry",

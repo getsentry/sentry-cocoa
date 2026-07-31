@@ -187,16 +187,16 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
                 NSTimeInterval appHangDurationMaximum
                     = nanosecondsToTimeInterval(appHangDurationNanos + sleepIntervalInNanos);
 
+                lastAppHangStoppedSystemTime = nowSystemTime;
+                reported = NO;
+                wasInBackground = NO;
+                accumulatedBackgroundTime = 0;
+
                 // The App Hang stopped, don't block the App Hangs thread or the main thread with
                 // calling ANRStopped listeners.
                 [self.dispatchQueueWrapper dispatchAsyncWithBlock:^{
                     [self ANRStopped:appHangDurationMinimum to:appHangDurationMaximum];
                 }];
-
-                lastAppHangStoppedSystemTime = dateProvider.systemTime;
-                reported = NO;
-                wasInBackground = NO;
-                accumulatedBackgroundTime = 0;
             }
 
             continue;

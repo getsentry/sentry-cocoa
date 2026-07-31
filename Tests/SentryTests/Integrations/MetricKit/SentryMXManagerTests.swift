@@ -6,7 +6,6 @@ import XCTest
 
 import MetricKit
 
-@available(macOS 12.0, *)
 final class SentryMXManagerTests: XCTestCase {
     
     override func tearDown() {
@@ -49,7 +48,6 @@ final class SentryMXManagerTests: XCTestCase {
     }
 }
 
-@available(macOS 12.0, *)
 class TestMXDiagnosticPayload: MXDiagnosticPayload {
     struct Override {
         var crashDiagnostics: [MXCrashDiagnostic]?
