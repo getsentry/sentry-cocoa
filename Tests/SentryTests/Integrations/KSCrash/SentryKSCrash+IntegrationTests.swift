@@ -6,11 +6,12 @@ import XCTest
 class SentryKSCrashIntegrationTests: XCTestCase {
     override func setUpWithError() throws {
         try super.setUpWithError()
+        SentrySDKInternal.fatalDetected = false
     }
 
     override func tearDown() {
-        SentrySDKInternal.fatalDetected = false
         super.tearDown()
+        SentrySDKInternal.fatalDetected = false
     }
 
     private func makeOptions(enableCrashHandler: Bool = true) -> Options {
@@ -118,6 +119,7 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         let installer = MockKSCrashInstaller()
         installer.shouldThrow = NSError(domain: "TestKSCrash", code: -99)
         let deps = MockKSCrashDependencies(installer: installer)
+        SentryDependencyContainer.sharedInstance().kscrashQuery = SentryKSCrash.Query(installer: installer)
 
         // -- Act --
         let sut = SentryKSCrash.Integration(with: makeOptions(), dependencies: deps)
@@ -159,6 +161,7 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         let installer = MockKSCrashInstaller()
         installer.shouldThrow = NSError(domain: "TestKSCrash", code: -99)
         let deps = MockKSCrashDependencies(installer: installer)
+        SentryDependencyContainer.sharedInstance().kscrashQuery = SentryKSCrash.Query(installer: installer)
 
         // -- Act --
         _ = SentryKSCrash.Integration(with: makeOptions(), dependencies: deps)
