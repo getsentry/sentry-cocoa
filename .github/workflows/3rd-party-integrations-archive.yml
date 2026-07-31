@@ -1,0 +1,90 @@
+name: Test 3rd-Party Integrations Archive
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  files-changed:
+    name: Detect File Changes
+    runs-on: ubuntu-latest
+    outputs:
+      run_for_prs: ${{ steps.changes.outputs.run_3rd_party_integrations_archive_for_prs }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Get changed files
+        id: changes
+        uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2
+        with:
+          token: ${{ github.token }}
+          filters: .github/file-filters.yml
+
+  test-3rd-party-integrations-archive:
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_for_prs == 'true'
+    needs: files-changed
+    name: Test 3rd-Party Integrations Archive
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Create archives
+        run: |
+          ./scripts/create-3rd-party-integration-archive.sh \
+            --all \
+            --output-dir /tmp/3rd-party-archives
+
+      - name: Verify archives
+        run: |
+          INTEGRATIONS=(
+            "sentry-apple-swift-log:SentryLogHandler.swift:SentryLogHandlerTests.swift"
+            "sentry-apple-swiftybeaver:SentryDestination.swift:SentryDestinationTests.swift"
+            "sentry-apple-pulse:SentryPulse.swift:SentryPulseTests.swift"
+            "sentry-apple-cocoalumberjack:SentryCocoaLumberjackLogger.swift:SentryCocoaLumberjackLoggerTests.swift"
+          )
+
+          for entry in "${INTEGRATIONS[@]}"; do
+            IFS=':' read -r archive_name source_file test_file <<< "$entry"
+            archive="/tmp/3rd-party-archives/${archive_name}.tgz"
+            verify_dir="/tmp/3rd-party-verify/${archive_name}"
+
+            echo "=== Verifying ${archive_name} ==="
+
+            test -f "$archive" || { echo "Archive not found: $archive"; exit 1; }
+
+            mkdir -p "$verify_dir"
+            tar -xzf "$archive" -C "$verify_dir"
+
+            # Verify expected files exist
+            test -f "$verify_dir/Package.swift"
+            test -f "$verify_dir/.gitignore"
+            test -f "$verify_dir/README.md"
+            test -f "$verify_dir/LICENSE.md"
+            test -f "$verify_dir/Sources/$source_file"
+            test -f "$verify_dir/Tests/$test_file"
+
+            echo "${archive_name} verified successfully"
+          done
+
+          echo "All 3rd-party integration archives verified successfully"
+
+  third-party-integrations-archive-required-check:
+    needs:
+      [
+        files-changed,
+        test-3rd-party-integrations-archive,
+      ]
+    name: Test 3rd-Party Integrations Archive - Required Check
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for failures
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "3rd-party integrations archive test failed." && exit 1

@@ -70,8 +70,7 @@ ARCHIVE_PATH="$OUTPUT_DIR/$ARCHIVE_NAME"
 
 begin_group "Create $ARCHIVE_NAME"
 
-STAGING_DIR=$(mktemp -d)
-trap 'rm -rf "$STAGING_DIR"' EXIT
+STAGING_DIR=$(create_staging_dir)
 
 cp "$DIST_DIR/Package.swift" "$STAGING_DIR/Package.swift"
 cp "$DIST_DIR/.gitignore" "$STAGING_DIR/.gitignore"
@@ -83,6 +82,7 @@ cp "$DIST_DIR/Sources/SentryCppHelper/SentryCppHelper.swift" "$STAGING_DIR/Sourc
 log_info "Preparing CHANGELOG.md for version $VERSION"
 cp "$REPO_ROOT/CHANGELOG.md" "$STAGING_DIR/CHANGELOG.md"
 sed -i.bak "s/^## Unreleased$/## ${VERSION}/" "$STAGING_DIR/CHANGELOG.md"
+rm -f "$STAGING_DIR/CHANGELOG.md.bak"
 
 log_info "Stamping version $VERSION into Package.swift"
 sed -i.bak "s|releases/download/[^/]*/|releases/download/${VERSION}/|g" "$STAGING_DIR/Package.swift"
@@ -103,17 +103,6 @@ for entry in "${ZIPS_AND_MARKERS[@]}"; do
     log_info "  ${marker}: ${checksum}"
 done
 
-tar -czf "$ARCHIVE_PATH" \
-    -C "$STAGING_DIR" \
-    Package.swift \
-    Sources/SentryCppHelper/SentryCppHelper.swift \
-    CHANGELOG.md \
-    README.md \
-    LICENSE.md \
-    .gitignore
-
-log_info "Created $ARCHIVE_PATH"
-log_info "Contents:"
-tar -tzf "$ARCHIVE_PATH"
+create_tgz_from_staging "$STAGING_DIR" "$ARCHIVE_PATH"
 
 end_group

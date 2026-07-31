@@ -516,6 +516,13 @@ jobs:
             --xcframework-dir XCFrameworkBuildPath \
             --output-dir XCFrameworkBuildPath
 
+      - name: Create 3rd-party integration archives
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          ./scripts/create-3rd-party-integration-archive.sh \
+            --all \
+            --output-dir XCFrameworkBuildPath
+
       - name: Archive XCFrameworks for Craft
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
