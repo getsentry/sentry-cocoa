@@ -1,12 +1,12 @@
 #if ENABLE_KSCRASH
 /// All types related to KSCrash should live under this type
-enum SentryKSCrash {
+@_spi(Private) public enum SentryKSCrash {
     /// Provides a `KSCrashInstalling` instance for dependency injection.
     protocol InstallerProvider {
         /// The installer used to set up KSCrash crash reporting.
         associatedtype Installing: SentryKSCrash.Installing
 
-        var kscrashInstaller: Installing { get }
+        func getKSCrashInstaller() -> Installing
     }
 }
 #endif

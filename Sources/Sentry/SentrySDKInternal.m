@@ -17,6 +17,14 @@
 #import "SentrySwift.h"
 #import "SentryTransactionContext.h"
 
+#if ENABLE_KSCRASH
+// Forward declared from SentryKSCrash+Query.swift
+@interface SentryKSCrashQuery <NSObject>
+@property (nonatomic, readonly) BOOL installed;
+@property (nonatomic, readonly) BOOL crashedLastLaunch;
+@end
+#endif // ENABLE_KSCRASH
+
 #if TARGET_OS_OSX
 #    import "SentryCrashExceptionApplication.h"
 #endif // TARGET_OS_MAC
@@ -38,9 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
 static SentryHubInternal *_Nullable currentHub;
 static NSObject *currentHubLock;
 static BOOL lastRunStatusCalled;
-static BOOL crashReporterInstalled;
 static BOOL fatalDetected;
-static BOOL crashHandlerDetectedCrash;
 static SentryAppStartMeasurement *_Nullable sentrySDKappStartMeasurement;
 static NSObject *sentrySDKappStartMeasurementLock;
 static BOOL _detectedStartUpCrash;
@@ -144,12 +150,11 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (BOOL)crashReporterInstalled
 {
-    return crashReporterInstalled;
-}
-
-+ (void)setCrashReporterInstalled:(BOOL)value
-{
-    crashReporterInstalled = value;
+#if ENABLE_KSCRASH
+    return SentryDependencyContainer.sharedInstance.kscrashQuery.installed;
+#else
+    return SentryDependencyContainer.sharedInstance.crashWrapper.installed;
+#endif
 }
 
 + (BOOL)fatalDetected
@@ -160,16 +165,6 @@ static NSDate *_Nullable startTimestamp = nil;
 + (void)setFatalDetected:(BOOL)value
 {
     fatalDetected = value;
-}
-
-+ (BOOL)crashHandlerDetectedCrash
-{
-    return crashHandlerDetectedCrash;
-}
-
-+ (void)setCrashHandlerDetectedCrash:(BOOL)value
-{
-    crashHandlerDetectedCrash = value;
 }
 
 /**
@@ -287,7 +282,7 @@ static NSDate *_Nullable startTimestamp = nil;
             // The .didCrash case is handled by SentryClient.prepareEvent when
             // a fatal event arrives. Here we report .didNotCrash if no
             // integration set fatalDetected during init.
-            if (crashReporterInstalled && !fatalDetected) {
+            if ([SentrySDKInternal crashReporterInstalled] && !fatalDetected) {
                 lastRunStatusCalled = YES;
                 if (nil != options.onLastRunStatusDetermined) {
                     options.onLastRunStatusDetermined(SentryLastRunStatusDidNotCrash, nil);
@@ -508,15 +503,25 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (BOOL)crashedLastRun
 {
-    return crashHandlerDetectedCrash;
+    return SentryDependencyContainer.sharedInstance.crashReporter.crashedLastLaunch;
 }
 
 + (NSInteger)lastRunStatus
 {
-    if (!crashReporterInstalled) {
+    if (![SentrySDKInternal crashReporterInstalled]) {
         return SentryLastRunStatusUnknown;
     }
-    return crashHandlerDetectedCrash ? SentryLastRunStatusDidCrash : SentryLastRunStatusDidNotCrash;
+
+#if ENABLE_KSCRASH
+    if (SentryDependencyContainer.sharedInstance.kscrashQuery.crashedLastLaunch) {
+        return SentryLastRunStatusDidCrash;
+    }
+#else
+    if (SentryDependencyContainer.sharedInstance.crashWrapper.crashedLastLaunch) {
+        return SentryLastRunStatusDidCrash;
+    }
+#endif
+    return SentryLastRunStatusDidNotCrash;
 }
 
 + (BOOL)detectedStartUpCrash
@@ -612,9 +617,7 @@ static NSDate *_Nullable startTimestamp = nil;
 
         [SentrySDKInternal setCurrentHub:nil];
 
-        crashReporterInstalled = NO;
         fatalDetected = NO;
-        crashHandlerDetectedCrash = NO;
         lastRunStatusCalled = NO;
 
         [SentryDependencyContainer.sharedInstance.crashWrapper stopBinaryImageCache];

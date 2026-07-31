@@ -33,7 +33,7 @@ extension SentryKSCrash {
             self.options = options
             super.init()
 
-            let installer = dependencies.kscrashInstaller
+            let installer = dependencies.getKSCrashInstaller()
 
             // To match KSCrash & SentryCrash, we need to add 'KSCrash/<bundlename>' to the cacheDirectoryPath
             let installPath = Self.installPath(for: options.cacheDirectoryPath, bundleInfo: Bundle.main.infoDictionary)
@@ -49,10 +49,8 @@ extension SentryKSCrash {
                 return nil
             }
 
-            SentrySDKInternal.crashReporterInstalled = true
             if installer.crashedLastLaunch {
                 SentrySDKInternal.fatalDetected = true
-                SentrySDKInternal.crashHandlerDetectedCrash = true
             }
         }
 
@@ -64,11 +62,8 @@ extension SentryKSCrash {
         func uninstall() {}
 
         // MARK: - Helpers
-
-        /// Builds the KSCrash install path by appending `KSCrash/<bundleName>` to
-        /// `cacheDirectoryPath`, matching the layout used by KSCrash and SentryCrash.
-        /// `CFBundleName` is sanitized by replacing `/` with `-` so it is safe as a
-        /// single path component. Falls back to `"Unknown"` if the key is absent.
+        /// Get the install path for the crash reporter
+        /// This method exists to centralize path building to save rebuilding it manually in tests
         static func installPath(for cacheDirectoryPath: String, bundleInfo: [String: Any]?) -> URL {
             let bundleName = bundleInfo?["CFBundleName"] as? String ?? "Unknown"
             return URL(fileURLWithPath: cacheDirectoryPath)

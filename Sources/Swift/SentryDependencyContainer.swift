@@ -453,6 +453,21 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             processInfoWrapper: processInfoWrapper
         )
     }
+
+#if ENABLE_KSCRASH
+    private var kscrashInstaller: SentryKSCrash.Installer?
+    func getKSCrashInstaller() -> SentryKSCrash.Installer {
+        getLazyVar(\.kscrashInstaller) {
+            SentryKSCrash.Installer()
+        }
+    }
+
+    private var _kscrashQuery: SentryKSCrash.Query?
+    @objc public lazy var kscrashQuery: SentryKSCrash.Query = getLazyVar(\._kscrashQuery) {
+        SentryKSCrash.Query(installer: getKSCrashInstaller())
+    }
+
+#endif
 }
 // swiftlint:enable type_body_length
 
@@ -533,11 +548,8 @@ extension SentryDependencyContainer: DateProviderProvider {}
 extension SentryDependencyContainer: AutoSessionTrackingProvider { }
 
 #if ENABLE_KSCRASH
-extension SentryDependencyContainer: SentryKSCrash.InstallerProvider {
-    var kscrashInstaller: SentryKSCrash.Installer {
-        SentryKSCrash.Installer()
-    }
-}
+extension SentryDependencyContainer: SentryKSCrash.InstallerProvider {}
+extension SentryDependencyContainer: SentryKSCrash.QueryProvider {}
 #endif
 
 protocol FileIOTrackerProvider {

@@ -157,10 +157,8 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         // SentrySDK.lastRunStatus returns a definitive answer and the integration
         // installer can determine the .didNotCrash case. We can't use
         // isIntegrationInstalled because it's set after init returns.
-        SentrySDKInternal.crashReporterInstalled = true
         if SentryDependencyContainer.sharedInstance().crashWrapper.crashedLastLaunch {
             SentrySDKInternal.fatalDetected = true
-            SentrySDKInternal.crashHandlerDetectedCrash = true
         }
 
         #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
