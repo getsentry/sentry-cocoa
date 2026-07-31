@@ -96,6 +96,7 @@
 
 @implementation URLSessionDownloadTaskMock {
     NSURLRequest *_request;
+    NSURLRequest *_currentRequest;
     NSURLResponse *_response;
     NSURLSessionTaskState _state;
     NSError *_error;
@@ -127,7 +128,12 @@
 
 - (NSURLRequest *)currentRequest
 {
-    return _request;
+    return _currentRequest;
+}
+
+- (void)setCurrentRequest:(NSURLRequest *)request
+{
+    _currentRequest = request;
 }
 
 - (NSURLResponse *)response
@@ -156,6 +162,7 @@
 {
     if (self = [super init]) {
         _request = request;
+        _currentRequest = [_request mutableCopy];
     }
     return self;
 }

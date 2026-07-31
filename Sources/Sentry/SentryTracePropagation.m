@@ -13,11 +13,9 @@ static NSString *const SENTRY_TRACEPARENT = @"traceparent";
                 traceHeader:(SentryTraceHeader *)traceHeader
        propagateTraceparent:(BOOL)propagateTraceparent
     tracePropagationTargets:(NSArray *_Nullable)tracePropagationTargets
-                  toRequest:(NSURLSessionTask *)sessionTask
+                 forRequest:(NSURLRequest *_Nullable)request
+                     onTask:(NSURLSessionTask *)sessionTask
 {
-    // Snapshot currentRequest once — the property is volatile and can become a zombie
-    // between repeated accesses if the task completes on another thread.
-    NSURLRequest *request = sessionTask.currentRequest;
     if (request == nil) {
         return;
     }
@@ -38,25 +36,23 @@ static NSString *const SENTRY_TRACEPARENT = @"traceparent";
         }
     }
 
+    NSMutableURLRequest *mutableRequest;
     if ([request isKindOfClass:[NSMutableURLRequest class]]) {
-        NSMutableURLRequest *mutableRequest = (NSMutableURLRequest *)request;
-        [SentryTracePropagation addHeaderFieldsToRequest:mutableRequest
-                                             traceHeader:traceHeader
-                                           baggageHeader:baggageHeader
-                                    propagateTraceparent:propagateTraceparent];
+        mutableRequest = (NSMutableURLRequest *)request;
     } else {
-        SEL setCurrentRequestSelector = NSSelectorFromString(@"setCurrentRequest:");
-        if ([sessionTask respondsToSelector:setCurrentRequestSelector]) {
-            NSMutableURLRequest *newRequest = [request mutableCopy];
-            [SentryTracePropagation addHeaderFieldsToRequest:newRequest
-                                                 traceHeader:traceHeader
-                                               baggageHeader:baggageHeader
-                                        propagateTraceparent:propagateTraceparent];
+        mutableRequest = [request mutableCopy];
+    }
 
-            void (*func)(id, SEL, id param)
-                = (void *)[sessionTask methodForSelector:setCurrentRequestSelector];
-            func(sessionTask, setCurrentRequestSelector, newRequest);
-        }
+    [SentryTracePropagation addHeaderFieldsToRequest:mutableRequest
+                                         traceHeader:traceHeader
+                                       baggageHeader:baggageHeader
+                                propagateTraceparent:propagateTraceparent];
+
+    SEL setCurrentRequestSelector = NSSelectorFromString(@"setCurrentRequest:");
+    if ([sessionTask respondsToSelector:setCurrentRequestSelector]) {
+        void (*func)(id, SEL, id param)
+            = (void *)[sessionTask methodForSelector:setCurrentRequestSelector];
+        func(sessionTask, setCurrentRequestSelector, mutableRequest);
     }
 }
 

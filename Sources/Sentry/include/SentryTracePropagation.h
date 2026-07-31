@@ -11,7 +11,8 @@ NS_ASSUME_NONNULL_BEGIN
                 traceHeader:(SentryTraceHeader *)traceHeader
        propagateTraceparent:(BOOL)propagateTraceparent
     tracePropagationTargets:(NSArray *_Nullable)tracePropagationTargets
-                  toRequest:(NSURLSessionTask *)sessionTask;
+                 forRequest:(NSURLRequest *_Nullable)request
+                     onTask:(NSURLSessionTask *)sessionTask;
 
 + (BOOL)isTargetMatch:(NSURL *)URL withTargets:(NSArray *)targets;
 

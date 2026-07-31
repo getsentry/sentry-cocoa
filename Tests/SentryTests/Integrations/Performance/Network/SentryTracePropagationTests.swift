@@ -13,7 +13,7 @@ final class SentryTracePropagationTests: XCTestCase {
         let traceHeader = TraceHeader(trace: traceID, spanId: spanID, sampled: SentrySampleDecision.yes)
 
         // Act
-        SentryTracePropagation.addBaggageHeader(emptyBaggage, traceHeader: traceHeader, propagateTraceparent: true, tracePropagationTargets: [defaultRegex], toRequest: sessionTask)
+        SentryTracePropagation.addBaggageHeader(emptyBaggage, traceHeader: traceHeader, propagateTraceparent: true, tracePropagationTargets: [defaultRegex], for: sessionTask.currentRequest, on: sessionTask)
 
         // Assert
         let traceParent = try XCTUnwrap(sessionTask.currentRequest?.allHTTPHeaderFields?["traceparent"])
@@ -31,7 +31,7 @@ final class SentryTracePropagationTests: XCTestCase {
         let traceHeader = TraceHeader(trace: traceID, spanId: spanID, sampled: SentrySampleDecision.no)
 
         // Act
-        SentryTracePropagation.addBaggageHeader(emptyBaggage, traceHeader: traceHeader, propagateTraceparent: true, tracePropagationTargets: [defaultRegex], toRequest: sessionTask)
+        SentryTracePropagation.addBaggageHeader(emptyBaggage, traceHeader: traceHeader, propagateTraceparent: true, tracePropagationTargets: [defaultRegex], for: sessionTask.currentRequest, on: sessionTask)
 
         // Assert
         let traceParent = try XCTUnwrap(sessionTask.currentRequest?.allHTTPHeaderFields?["traceparent"])
@@ -49,7 +49,7 @@ final class SentryTracePropagationTests: XCTestCase {
         let traceHeader = TraceHeader(trace: traceID, spanId: spanID, sampled: SentrySampleDecision.undecided)
 
         // Act
-        SentryTracePropagation.addBaggageHeader(emptyBaggage, traceHeader: traceHeader, propagateTraceparent: true, tracePropagationTargets: [defaultRegex], toRequest: sessionTask)
+        SentryTracePropagation.addBaggageHeader(emptyBaggage, traceHeader: traceHeader, propagateTraceparent: true, tracePropagationTargets: [defaultRegex], for: sessionTask.currentRequest, on: sessionTask)
 
         // Assert
         let traceParent = try XCTUnwrap(sessionTask.currentRequest?.allHTTPHeaderFields?["traceparent"])
@@ -66,7 +66,7 @@ final class SentryTracePropagationTests: XCTestCase {
         let traceHeader = TraceHeader(trace: traceID, spanId: spanID, sampled: SentrySampleDecision.no)
 
         // Act
-        SentryTracePropagation.addBaggageHeader(emptyBaggage, traceHeader: traceHeader, propagateTraceparent: true, tracePropagationTargets: ["localhost"], toRequest: sessionTask)
+        SentryTracePropagation.addBaggageHeader(emptyBaggage, traceHeader: traceHeader, propagateTraceparent: true, tracePropagationTargets: ["localhost"], for: sessionTask.currentRequest, on: sessionTask)
 
         // Assert
         XCTAssertNil(sessionTask.currentRequest?.allHTTPHeaderFields?["traceparent"])
@@ -164,7 +164,8 @@ final class SentryTracePropagationTests: XCTestCase {
             traceHeader: traceHeader,
             propagateTraceparent: true,
             tracePropagationTargets: [try XCTUnwrap(NSRegularExpression(pattern: ".*"))],
-            toRequest: task
+            for: task.currentRequest,
+            on: task
         )
 
         XCTAssertNil(task.currentRequest?.value(forHTTPHeaderField: "sentry-trace"))

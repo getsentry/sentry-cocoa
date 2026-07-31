@@ -154,7 +154,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     }
 
     if (!self.isNetworkTrackingEnabled) {
-        [self addTraceWithoutTransactionToTask:sessionTask];
+        [self addTraceWithoutTransactionToTask:sessionTask request:currentRequest];
         return;
     }
 
@@ -210,7 +210,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         // otherwise we have nothing else to do here.
         if (netSpan == nil || [netSpan isKindOfClass:[SentryNoOpSpan class]]) {
             SENTRY_LOG_DEBUG(@"No transaction bound to scope. Won't track network operation.");
-            [self addTraceWithoutTransactionToTask:sessionTask];
+            [self addTraceWithoutTransactionToTask:sessionTask request:currentRequest];
             return;
         }
 
@@ -221,7 +221,8 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
                                         SentryTraceHeader, [netSpan toTraceHeader])
                propagateTraceparent:SentrySDKInternal.options.enablePropagateTraceparent
             tracePropagationTargets:SentrySDKInternal.options.tracePropagationTargets
-                          toRequest:sessionTask];
+                         forRequest:currentRequest
+                             onTask:sessionTask];
 
         SENTRY_LOG_DEBUG(
             @"SentryNetworkTracker automatically started HTTP span for sessionTask: %@",
@@ -233,6 +234,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 }
 
 - (void)addTraceWithoutTransactionToTask:(NSURLSessionTask *)sessionTask
+                                 request:(NSURLRequest *)request
 {
     SentryScope *scope = SentrySDKInternal.currentHub.scope;
     id<SentrySpan> _Nullable span = scope.span;
@@ -260,7 +262,8 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
                                  traceHeader:[propagationContext traceHeader]
                         propagateTraceparent:SentrySDKInternal.options.enablePropagateTraceparent
                      tracePropagationTargets:SentrySDKInternal.options.tracePropagationTargets
-                                   toRequest:sessionTask];
+                                  forRequest:request
+                                      onTask:sessionTask];
 }
 
 - (void)urlSessionTask:(NSURLSessionTask *)sessionTask setState:(NSURLSessionTaskState)newState
