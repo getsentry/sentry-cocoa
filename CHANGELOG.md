@@ -9,6 +9,10 @@
 
 - Bump the minimum deployment targets to macOS 12 and watchOS 9 because Xcode 27 no longer supports earlier versions. This lets the SDK adopt Xcode 27 without blocking users from building and submitting their apps with the latest Xcode. (#8595, #8113, #8189)
 
+### Features
+
+- Add `SentrySDK.feedback.enableOnShake()` and `disableOnShake()` to toggle the shake-to-report gesture at runtime (#8591)
+
 ### Fixes
 
 - Fix incorrect `duration` sent for active sessions (#8612)

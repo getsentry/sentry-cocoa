@@ -39,6 +39,16 @@ import UIKit
         wrapped.show(screenshot: screenshot, configure: wrappedConfigure(configure))
     }
 
+    @available(iOSApplicationExtension, unavailable)
+    @objc public func enableOnShake() {
+        wrapped.enableOnShake()
+    }
+
+    @available(iOSApplicationExtension, unavailable)
+    @objc public func disableOnShake() {
+        wrapped.disableOnShake()
+    }
+
 #if !SDK_V10
     @available(iOSApplicationExtension, unavailable)
     @available(*, deprecated, message: "The Sentry-managed User Feedback widget is deprecated and will be removed in v10.")
