@@ -80,6 +80,7 @@ run_distribution_tests_for_prs: &run_distribution_tests_for_prs
 
   # Scripts
   - "scripts/ci-ensure-runtime-loaded.sh"
+  - "scripts/ci-utils.sh"
   - "scripts/prepare-package.sh"
 
   # Project files
