@@ -506,8 +506,9 @@ class SentryOnDemandReplayTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(sut.frames.count, 1)
-        XCTAssertNil(sut.frames.first?.image, "Recovered frames should stay disk-backed until encode")
-        XCTAssertNotNil(sut.frames.first?.resolvedImage())
+        let recoveredFrame = try XCTUnwrap(sut.frames.first)
+        XCTAssertNil(recoveredFrame.image, "Recovered frames should stay disk-backed until encode")
+        XCTAssertNotNil(image(for: recoveredFrame))
     }
 
     func testCalculatePresentationTime_withOneFPS_shouldReturnTiming() {

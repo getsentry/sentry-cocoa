@@ -101,7 +101,7 @@ class SentryVideoFrameProcessor {
             let frame = videoFrames[frameIndex]
             // Prefer the in-memory image kept from capture; fall back to disk only for
             // crash-recovered frames that were loaded without an image payload.
-            guard let image = frame.resolvedImage() else {
+            guard let frameImage = image(for: frame) else {
                 if lastAppendedImage != nil {
                     if let videoStart = videoStart {
                         let elapsed = max(0, frame.time.timeIntervalSince(videoStart))
@@ -133,17 +133,17 @@ class SentryVideoFrameProcessor {
                 }
             }
 
-            SentrySDKLog.debug("[Session Replay] Image at index \(frameIndex) is ready, size: \(image.size)")
-            guard lastImageSize == image.size else {
+            SentrySDKLog.debug("[Session Replay] Image at index \(frameIndex) is ready, size: \(frameImage.size)")
+            guard lastImageSize == frameImage.size else {
                 SentrySDKLog.debug("[Session Replay] Image size has changed, finishing video")
                 finishVideo(frameIndex: self.frameIndex, onCompletion: onCompletion)
                 return
             }
-            lastImageSize = image.size
+            lastImageSize = frameImage.size
 
             do {
                 guard try shouldContinueProcessing(
-                    after: append(image: image, forFrame: frame, videoWriterInput: videoWriterInput)
+                    after: append(image: frameImage, forFrame: frame, videoWriterInput: videoWriterInput)
                 ) else { return }
             } catch {
                 return onCompletion(.failure(error))

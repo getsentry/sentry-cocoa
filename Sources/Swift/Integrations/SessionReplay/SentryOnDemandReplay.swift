@@ -303,13 +303,13 @@ func removeReplayFile(at fileURL: URL) {
             SentrySDKLog.error("[Session Replay] Failed to render video, reason: index out of bounds")
             return completion(.failure(SentryOnDemandReplayError.indexOutOfBounds))
         }
-        guard let image = videoFrames[fromIndex].resolvedImage() else {
+        guard let frameImage = image(for: videoFrames[fromIndex]) else {
             SentrySDKLog.error("[Session Replay] Failed to render video, reason: can't resolve image at path: \(videoFrames[fromIndex].imagePath)")
             return completion(.failure(SentryOnDemandReplayError.cantReadImage))
         }
         
-        let videoWidth = image.size.width * CGFloat(videoScale)
-        let videoHeight = image.size.height * CGFloat(videoScale)
+        let videoWidth = frameImage.size.width * CGFloat(videoScale)
+        let videoHeight = frameImage.size.height * CGFloat(videoScale)
         let pixelSize = CGSize(width: videoWidth, height: videoHeight)
 
         SentrySDKLog.debug("[Session Replay] Creating video writer with output file URL: \(outputFileURL)")
@@ -340,7 +340,7 @@ func removeReplayFile(at fileURL: URL) {
             videoWidth: videoWidth,
             frameRate: frameRate,
             initialFrameIndex: fromIndex,
-            initialImageSize: image.size,
+            initialImageSize: frameImage.size,
             videoEnd: videoEnd
         )
         
