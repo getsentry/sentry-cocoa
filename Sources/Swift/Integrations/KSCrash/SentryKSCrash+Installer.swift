@@ -14,6 +14,8 @@ extension SentryKSCrash {
 
         /// Whether the previous run crashed.
         var crashedLastLaunch: Bool { get }
+
+        var installed: Bool { get }
     }
 
     /// Configures and installs a crash handler
@@ -35,6 +37,11 @@ extension SentryKSCrash {
         }
 
         var crashedLastLaunch: Bool { KSCrash.shared.crashedLastLaunch }
+
+        var installed: Bool {
+            // From KSCrash docs: 'If the crash reporter is not installed, this will be `nil`'
+            KSCrash.shared.reportStore != nil
+        }
     }
 }
 #endif

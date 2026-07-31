@@ -73,7 +73,11 @@ private final class CrashReportFilterBridge: NSObject, SentryCrashReportFilter {
     @objc public func install() {
         sentryCrash.install()
     }
-    
+
+    @objc public var installed: Bool {
+        sentryCrash.installed
+    }
+
     @objc public func uninstall() {
         sentryCrash.uninstall()
     }
