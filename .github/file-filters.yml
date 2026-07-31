@@ -26,8 +26,6 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - "Sources/Sentry/**"
   - "Sources/SentryCppHelper/**"
   - "Sources/SentryCrash/**"
-  - "Sources/SentryDistribution/**"
-  - "Sources/SentryDistributionTests/**"
   - "Sources/SentryObjC/**"
   - "Sources/SentryObjCCompat/**"
   - "Sources/SentrySwiftUI/**"
@@ -71,6 +69,21 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - "fastlane/**"
   - "Makefile"
   - "Brewfile*"
+
+run_distribution_tests_for_prs: &run_distribution_tests_for_prs
+  - "Sources/SentryDistribution/**"
+  - "Sources/SentryDistributionTests/**"
+
+  # GH Actions
+  - ".github/workflows/test.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts
+  - "scripts/ci-ensure-runtime-loaded.sh"
+  - "scripts/prepare-package.sh"
+
+  # Project files
+  - "Package*.swift"
 
 run_api_stability_for_prs: &run_api_stability_for_prs
   - "Sources/Configuration/**"
