@@ -16,6 +16,7 @@ extension SentryKSCrash {
 }
 
 /// Allows querying the state of the crash reporter.
+@_spi(Private)
 @objc(SentryKSCrashQuerying)
 public protocol SentryKSCrashQuerying: NSObjectProtocol {
     /// Whether KSCrash has been successfully installed this session.
@@ -25,6 +26,7 @@ public protocol SentryKSCrashQuerying: NSObjectProtocol {
 }
 
 /// An ObjC-accessible class that surfaces live KSCrash crash state to ObjC callers  without littering the SentryKSCrash types with `@objc`.
+@_spi(Private)
 @objc(SentryKSCrashQuery)
 public final class SentryKSCrashQuery: NSObject, SentryKSCrashQuerying {
     private let _installed: () -> Bool
