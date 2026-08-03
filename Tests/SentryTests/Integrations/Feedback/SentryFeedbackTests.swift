@@ -187,9 +187,9 @@ class SentryFeedbackTests: XCTestCase {
         // -- Arrange --
         let config = SentryUserFeedbackConfiguration()
         let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
-        let data = Data("selected image".utf8)
-        let attachment = Attachment(data: data, filename: "selected.heic", contentType: "image/heic")
         let image = UIGraphicsImageRenderer(size: CGSize(width: 200, height: 100)).image { _ in }
+        let data = try XCTUnwrap(image.pngData())
+        let attachment = Attachment(data: data, filename: "selected.png", contentType: "image/png")
 
         // -- Act --
         sut.viewModel.setScreenshot(image: image, attachment: attachment)
@@ -202,8 +202,44 @@ class SentryFeedbackTests: XCTestCase {
         XCTAssertEqual(sut.viewModel.screenshotImageAspectRatioConstraint.multiplier, 2)
         let selectedAttachment = try XCTUnwrap(feedback.attachmentsForEnvelope().first)
         XCTAssertEqual(selectedAttachment.data, data)
-        XCTAssertEqual(selectedAttachment.filename, "selected.heic")
-        XCTAssertEqual(selectedAttachment.contentType, "image/heic")
+        XCTAssertEqual(selectedAttachment.filename, "selected.png")
+        XCTAssertEqual(selectedAttachment.contentType, "image/png")
+    }
+
+    func testLoadSelectedScreenshot_whenHEICSelected_shouldEncodeJPEG() throws {
+        guard #available(iOS 17.0, *) else {
+            throw XCTSkip("UIImage HEIC encoding requires iOS 17 or later.")
+        }
+
+        // -- Arrange --
+        let image = UIGraphicsImageRenderer(size: CGSize(width: 20, height: 10)).image { context in
+            UIColor.red.setFill()
+            context.fill(CGRect(x: 0, y: 0, width: 20, height: 10))
+        }
+        let data = try XCTUnwrap(image.heicData())
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("sentry-feedback-\(UUID().uuidString).heic")
+        try data.write(to: url)
+        addTeardownBlock {
+            try FileManager.default.removeItem(at: url)
+        }
+
+        // -- Act --
+        let screenshot = SentryUserFeedbackFormController.loadSelectedScreenshot(
+            from: url,
+            error: nil,
+            filename: "selected.heic",
+            contentType: "image/heic",
+            maxAttachmentSize: 10 * 1_024 * 1_024
+        )
+
+        // -- Assert --
+        let attachment = try XCTUnwrap(screenshot?.1)
+        let attachmentData = try XCTUnwrap(attachment.data)
+        XCTAssertEqual(attachment.filename, "selected.jpg")
+        XCTAssertEqual(attachment.contentType, "image/jpeg")
+        XCTAssertEqual(attachmentData.prefix(2), Data([0xFF, 0xD8]))
+        XCTAssertNotNil(UIImage(data: attachmentData))
     }
 
     func testRemoveScreenshot_whenImageSelected_shouldRemoveAttachment() {
@@ -233,6 +269,7 @@ class SentryFeedbackTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(picker.configuration.selectionLimit, 1)
         XCTAssertEqual(picker.configuration.filter, PHPickerFilter.images)
+        XCTAssertEqual(picker.configuration.preferredAssetRepresentationMode, .compatible)
         XCTAssertNotNil(picker.delegate)
         XCTAssertNotIdentical(picker.delegate as AnyObject?, sut)
     }

@@ -26,6 +26,9 @@ extension SentryUserFeedbackFormController {
         var configuration = PHPickerConfiguration()
         configuration.filter = .images
         configuration.selectionLimit = 1
+        // Sentry can store arbitrary attachments, but its UI only previews common image formats.
+        // Let Photos transcode formats such as HEIC to a compatible representation.
+        configuration.preferredAssetRepresentationMode = .compatible
         let picker = PHPickerViewController(configuration: configuration)
         let delegate = ScreenshotPickerDelegate(animations: config.animations) { [weak self] results in
             guard let self = self else { return }
@@ -41,9 +44,12 @@ extension SentryUserFeedbackFormController {
         guard let result = results.first else { return }
 
         let provider = result.itemProvider
-        guard let type = provider.registeredTypeIdentifiers.compactMap(UTType.init).first(where: {
+        let imageTypes = provider.registeredTypeIdentifiers.compactMap(UTType.init).filter {
             $0.conforms(to: .image)
-        }) else {
+        }
+        guard let type = imageTypes.first(where: {
+            Self.previewableImageContentTypes.contains($0.preferredMIMEType ?? "")
+        }) ?? imageTypes.first else {
             SentrySDKLog.warning("The item selected for user feedback doesn't provide a supported image type.")
             return
         }
@@ -92,7 +98,15 @@ extension SentryUserFeedbackFormController {
         }
     }
 
-    private static func loadSelectedScreenshot(
+    private static let previewableImageContentTypes: Set<String> = [
+        "image/jpeg",
+        "image/png",
+        "image/gif",
+        "image/webp",
+        "image/avif"
+    ]
+
+    static func loadSelectedScreenshot(
         from url: URL?,
         error: Error?,
         filename: String,
@@ -126,7 +140,29 @@ extension SentryUserFeedbackFormController {
                 SentrySDKLog.error("The screenshot selected for user feedback doesn't contain valid image data.")
                 return nil
             }
-            return (image, Attachment(data: data, filename: filename, contentType: contentType))
+
+            if let contentType = contentType,
+                previewableImageContentTypes.contains(contentType) {
+                return (image, Attachment(data: data, filename: filename, contentType: contentType))
+            }
+
+            // PHPicker's compatible mode should normally provide JPEG for formats such as HEIC.
+            // Encode a fallback so future or third-party providers cannot create an attachment
+            // that Sentry stores but cannot preview.
+            guard let jpegData = image.jpegData(compressionQuality: 0.85) else {
+                SentrySDKLog.error("Failed to encode the screenshot selected for user feedback as JPEG.")
+                return nil
+            }
+            guard UInt(jpegData.count) <= maxAttachmentSize else {
+                SentrySDKLog.warning("The screenshot selected for user feedback exceeds the maximum attachment size of \(maxAttachmentSize) bytes after JPEG encoding.")
+                return nil
+            }
+            let basename = (filename as NSString).deletingPathExtension
+            let jpegFilename = "\(basename.isEmpty ? "screenshot" : basename).jpg"
+            return (
+                image,
+                Attachment(data: jpegData, filename: jpegFilename, contentType: "image/jpeg")
+            )
         } catch {
             SentrySDKLog.error("Failed to load a screenshot selected for user feedback: \(error.localizedDescription)")
             return nil
