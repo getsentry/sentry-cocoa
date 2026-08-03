@@ -5,34 +5,6 @@ import Foundation
 import UIKit
 import UniformTypeIdentifiers
 
-private enum ScreenshotLoadingError: Error {
-    case loadFailed(String)
-    case tooLarge(UInt)
-
-    var logLevel: SentryLevel {
-        switch self {
-        case .loadFailed: return .error
-        case .tooLarge: return .warning
-        }
-    }
-
-    var logMessage: String {
-        switch self {
-        case .loadFailed(let details):
-            return "Failed to load a screenshot selected for user feedback: \(details)"
-        case .tooLarge(let maxAttachmentSize):
-            return "The screenshot selected for user feedback is larger than the maximum attachment size of \(maxAttachmentSize) bytes."
-        }
-    }
-
-    var userMessage: String {
-        switch self {
-        case .loadFailed: return "The selected screenshot couldn't be loaded."
-        case .tooLarge: return "The selected screenshot is too large to attach."
-        }
-    }
-}
-
 private final class ScreenshotPickerDelegate: NSObject, PHPickerViewControllerDelegate {
     private let animations: Bool
     private let didDismiss: ([PHPickerResult]) -> Void
@@ -74,7 +46,7 @@ extension SentryUserFeedbackFormController {
         guard let type = provider.registeredTypeIdentifiers.compactMap(UTType.init).first(where: {
             $0.conforms(to: .image)
         }) else {
-            presentScreenshotError(message: "The selected item isn't a supported image.")
+            SentrySDKLog.warning("The item selected for user feedback doesn't provide a supported image type.")
             return
         }
 
@@ -109,7 +81,7 @@ extension SentryUserFeedbackFormController {
     ) {
         viewModel.setScreenshotLoading(true)
         provider.loadFileRepresentation(forTypeIdentifier: typeIdentifier) { [weak self] url, error in
-            let result = Self.loadSelectedScreenshot(
+            let screenshot = Self.loadSelectedScreenshot(
                 from: url,
                 error: error,
                 filename: filename,
@@ -117,7 +89,7 @@ extension SentryUserFeedbackFormController {
                 maxAttachmentSize: maxAttachmentSize
             )
             Dependencies.dispatchQueueWrapper.dispatchAsyncOnMainQueueIfNotMainThread { [weak self] in
-                self?.finishLoadingScreenshot(result)
+                self?.finishLoadingScreenshot(screenshot)
             }
         }
     }
@@ -128,12 +100,14 @@ extension SentryUserFeedbackFormController {
         filename: String,
         contentType: String?,
         maxAttachmentSize: UInt
-    ) -> Result<(UIImage, Attachment), ScreenshotLoadingError> {
+    ) -> (UIImage, Attachment)? {
         if let error = error {
-            return .failure(.loadFailed(error.localizedDescription))
+            SentrySDKLog.error("Failed to load a screenshot selected for user feedback: \(error.localizedDescription)")
+            return nil
         }
         guard let url = url else {
-            return .failure(.loadFailed("The item provider returned no file URL."))
+            SentrySDKLog.error("The item provider returned no screenshot file URL for user feedback.")
+            return nil
         }
 
         do {
@@ -141,37 +115,30 @@ extension SentryUserFeedbackFormController {
             let attributes = try FileManager.default.attributesOfItem(atPath: url.path)
             if let fileSize = attributes[.size] as? NSNumber,
                 fileSize.uint64Value > UInt64(maxAttachmentSize) {
-                return .failure(.tooLarge(maxAttachmentSize))
+                SentrySDKLog.warning("The screenshot selected for user feedback exceeds the maximum attachment size of \(maxAttachmentSize) bytes.")
+                return nil
             }
 
             let data = try Data(contentsOf: url)
             guard UInt(data.count) <= maxAttachmentSize else {
-                return .failure(.tooLarge(maxAttachmentSize))
+                SentrySDKLog.warning("The screenshot selected for user feedback exceeds the maximum attachment size of \(maxAttachmentSize) bytes.")
+                return nil
             }
             guard let image = UIImage(data: data) else {
-                return .failure(.loadFailed("The selected file didn't contain valid image data."))
+                SentrySDKLog.error("The screenshot selected for user feedback doesn't contain valid image data.")
+                return nil
             }
-            return .success((image, Attachment(data: data, filename: filename, contentType: contentType)))
+            return (image, Attachment(data: data, filename: filename, contentType: contentType))
         } catch {
-            return .failure(.loadFailed(error.localizedDescription))
+            SentrySDKLog.error("Failed to load a screenshot selected for user feedback: \(error.localizedDescription)")
+            return nil
         }
     }
 
-    private func finishLoadingScreenshot(_ result: Result<(UIImage, Attachment), ScreenshotLoadingError>) {
+    private func finishLoadingScreenshot(_ screenshot: (UIImage, Attachment)?) {
         viewModel.setScreenshotLoading(false)
-        switch result {
-        case .success(let value):
-            viewModel.setScreenshot(image: value.0, attachment: value.1)
-        case .failure(let error):
-            SentrySDKLog.log(message: error.logMessage, andLevel: error.logLevel)
-            presentScreenshotError(message: error.userMessage)
-        }
-    }
-
-    private func presentScreenshotError(message: String) {
-        let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        present(alert, animated: config.animations)
+        guard let screenshot = screenshot else { return }
+        viewModel.setScreenshot(image: screenshot.0, attachment: screenshot.1)
     }
 }
 #endif
