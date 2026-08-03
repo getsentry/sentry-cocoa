@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 // Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashSignalInfo.h
@@ -24,6 +26,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
+
+#if !ENABLE_KSCRASH
 
 /* Information about the signals we are interested in for a crash reporter.
  */
@@ -72,3 +76,5 @@ int sentrycrashsignal_numFatalSignals(void);
 #endif
 
 #endif // HDR_SentryCrashSignalInfo_h
+
+#endif 

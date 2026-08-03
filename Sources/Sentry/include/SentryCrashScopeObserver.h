@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 #import "SentryDefines.h"
 #import "SentryLevel.h"
 
@@ -49,3 +51,5 @@ SENTRY_NO_INIT
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif 

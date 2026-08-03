@@ -45,4 +45,4 @@ final class SentryCrashInstallationReporter: SentryCrashInstallation {
         }
     }
 }
-#endif // !ENABLE_KSCRASH
+#endif 

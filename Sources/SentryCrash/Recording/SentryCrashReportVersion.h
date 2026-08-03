@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 // Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashReportVersion.h
@@ -25,9 +27,13 @@
 // THE SOFTWARE.
 //
 
+#if !ENABLE_KSCRASH
+
 #ifndef HDR_SentryCrashReportVersion_h
 #define HDR_SentryCrashReportVersion_h
 
 #define SENTRY_REPORT_VERSION "3.2.0"
 
 #endif /* HDR_SentryCrashReportVersion_h */
+
+#endif 

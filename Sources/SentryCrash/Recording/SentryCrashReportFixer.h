@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 // Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashReportFixer.c
@@ -25,6 +27,8 @@
 // THE SOFTWARE.
 //
 
+#if !ENABLE_KSCRASH
+
 #ifndef HDR_SentryCrashReportFixer_h
 #define HDR_SentryCrashReportFixer_h
 
@@ -49,3 +53,5 @@ char *sentrycrashcrf_fixupCrashReport(const char *crashReport);
 #endif
 
 #endif // HDR_SentryCrashReportFixer_h
+
+#endif 

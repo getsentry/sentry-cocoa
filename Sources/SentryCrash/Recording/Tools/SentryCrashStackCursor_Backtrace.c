@@ -62,4 +62,4 @@ sentrycrashsc_initWithBacktrace(SentryCrashStackCursor *cursor, const uintptr_t 
     context->backtrace = backtrace;
 }
 
-#endif // !ENABLE_KSCRASH
+#endif 

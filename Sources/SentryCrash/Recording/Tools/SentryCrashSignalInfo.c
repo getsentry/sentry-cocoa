@@ -173,4 +173,4 @@ sentrycrashsignal_numFatalSignals(void)
     return g_fatalSignalsCount;
 }
 
-#endif // !ENABLE_KSCRASH
+#endif 

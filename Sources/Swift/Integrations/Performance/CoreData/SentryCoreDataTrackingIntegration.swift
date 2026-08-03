@@ -49,4 +49,4 @@ final class SentryCoreDataTrackingIntegration<Dependencies: CoreDataTrackingInte
     }
 }
 // swiftlint:enable missing_docs
-#endif // !ENABLE_KSCRASH
+#endif 

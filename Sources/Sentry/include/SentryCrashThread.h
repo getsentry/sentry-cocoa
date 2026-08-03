@@ -25,6 +25,8 @@
 // THE SOFTWARE.
 //
 
+#if !ENABLE_KSCRASH
+
 #ifndef HDR_SentryCrashThread_h
 #define HDR_SentryCrashThread_h
 
@@ -65,3 +67,5 @@ SentryCrashThread sentrycrashthread_self(void);
 #endif
 
 #endif // HDR_SentryCrashThread_h
+
+#endif 

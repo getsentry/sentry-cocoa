@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 //
 //  SentryCrashMach.h
 //
@@ -21,6 +23,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
+
+#if !ENABLE_KSCRASH
 
 #ifndef HDR_SentryCrashMach_h
 #define HDR_SentryCrashMach_h
@@ -52,3 +56,5 @@ const char *sentrycrashmach_kernelReturnCodeName(int64_t returnCode);
 #endif
 
 #endif // HDR_SentryCrashMach_h
+
+#endif 

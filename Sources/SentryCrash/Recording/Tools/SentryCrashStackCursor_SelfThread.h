@@ -23,6 +23,8 @@
 // THE SOFTWARE.
 //
 
+#if !ENABLE_KSCRASH
+
 #ifndef SentryCrashStackCursor_SelfThread_h
 #define SentryCrashStackCursor_SelfThread_h
 
@@ -47,3 +49,5 @@ void sentrycrashsc_initSelfThread(SentryCrashStackCursor *cursor, int skipEntrie
 #endif
 
 #endif // SentryCrashStackCursor_SelfThread_h
+
+#endif 

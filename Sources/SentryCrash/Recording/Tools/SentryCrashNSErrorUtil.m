@@ -44,4 +44,4 @@ sentryErrorWithDomain(NSString *domain, NSInteger code, NSString *format, ...)
                                                                 forKey:NSLocalizedDescriptionKey]];
 }
 
-#endif // !ENABLE_KSCRASH
+#endif 

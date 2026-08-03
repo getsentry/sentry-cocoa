@@ -1,6 +1,6 @@
 #if ENABLE_KSCRASH
 // swiftlint:disable:next no_implementation_only_import
-@_implementationOnly import KSCrashInstallations
+@_implementationOnly import KSCrashRecording
 internal import _SentryPrivate
 import Foundation
 

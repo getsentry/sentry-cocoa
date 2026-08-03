@@ -25,6 +25,8 @@
 // THE SOFTWARE.
 //
 
+#if !ENABLE_KSCRASH
+
 /* Primary C entry point into the crash reporting system.
  */
 
@@ -249,3 +251,5 @@ void sentrycrash_invokeSaveTransaction(void);
 #endif
 
 #endif // HDR_SentryCrashC_h
+
+#endif 

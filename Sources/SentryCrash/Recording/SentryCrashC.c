@@ -341,4 +341,4 @@ sentrycrash_invokeSaveTransaction(void)
     }
 }
 
-#endif // !ENABLE_KSCRASH
+#endif 

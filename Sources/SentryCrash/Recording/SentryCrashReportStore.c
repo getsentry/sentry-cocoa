@@ -363,4 +363,4 @@ sentrycrashcrs_setMaxReportCount(int maxReportCount)
     g_maxReportCount = maxReportCount;
 }
 
-#endif // !ENABLE_KSCRASH
+#endif 

@@ -341,4 +341,4 @@ sentrycrashdl_clearDyld(void)
     sentryDyldHeader = NULL;
 }
 
-#endif // !ENABLE_KSCRASH
+#endif 

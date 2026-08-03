@@ -1,5 +1,6 @@
 #import "SentryStoredCrashReportProcessor.h"
 
+#import "SentryCrashCompatibility.h"
 #import "SentryClient+Private.h"
 #import "SentryCrash.h"
 #import "SentryCrashReportConverter.h"

@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 #ifndef SentryCrashBinaryImageCacheState_h
 #define SentryCrashBinaryImageCacheState_h
 
@@ -30,3 +32,5 @@ typedef struct SentryCrashBinaryImageCacheState {
 } SentryCrashBinaryImageCacheState;
 
 #endif /* SentryCrashBinaryImageCacheState_h */
+
+#endif 

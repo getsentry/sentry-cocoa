@@ -89,4 +89,4 @@ final class SentryCrashIntegrationSessionHandler: NSObject {
         
     }
 }
-#endif // !ENABLE_KSCRASH
+#endif 

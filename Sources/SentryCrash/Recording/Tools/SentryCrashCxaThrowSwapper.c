@@ -500,4 +500,4 @@ sentrycrashct_is_cxa_throw_swapped(void)
     return g_cxa_throw_handler != NULL;
 }
 
-#endif // !ENABLE_KSCRASH
+#endif 

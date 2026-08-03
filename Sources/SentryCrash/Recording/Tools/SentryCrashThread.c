@@ -56,4 +56,4 @@ sentrycrashthread_getThreadName(const SentryCrashThread thread, char *const buff
     return pthread_getname_np(pthread, buffer, (unsigned)bufLength) == 0;
 }
 
-#endif // !ENABLE_KSCRASH
+#endif 

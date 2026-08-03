@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 // Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashReportWriter.h
@@ -24,6 +26,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
+
+#if !ENABLE_KSCRASH
 
 /* Pointers to functions for writing to a crash report. All JSON types are
  * supported.
@@ -231,3 +235,5 @@ void sentry_crashCallback(const SentryCrashReportWriter *writer);
 #endif
 
 #endif // HDR_SentryCrashReportWriter_h
+
+#endif 

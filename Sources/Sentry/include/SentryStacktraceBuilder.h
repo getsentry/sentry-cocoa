@@ -2,6 +2,7 @@
 #import "SentryCrashStackCursor.h"
 #include "SentryCrashThread.h"
 #import "SentryDefines.h"
+#import "SentryCrashCompatibility.h"
 #import <Foundation/Foundation.h>
 
 @class SentryCrashStackEntryMapper;

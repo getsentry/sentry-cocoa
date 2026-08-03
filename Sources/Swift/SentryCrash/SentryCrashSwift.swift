@@ -107,4 +107,4 @@ private final class CrashReportFilterBridge: NSObject, SentryCrashReportFilter {
     }
 }
 // swiftlint:enable missing_docs
-#endif // !ENABLE_KSCRASH
+#endif 

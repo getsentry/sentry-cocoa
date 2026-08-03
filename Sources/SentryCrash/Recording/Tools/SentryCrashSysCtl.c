@@ -277,4 +277,4 @@ sentrycrashsysctl_getMacAddress(const char *const name, char *const macAddressBu
     return true;
 }
 
-#endif // !ENABLE_KSCRASH
+#endif 

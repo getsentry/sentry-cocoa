@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 // Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashReportFilterBasic.h
@@ -24,6 +26,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
+
+#if !ENABLE_KSCRASH
 
 #import "SentryCrashReportFilter.h"
 
@@ -199,3 +203,5 @@
 + (SentryCrashReportFilterStringToData *)filter;
 
 @end
+
+#endif 

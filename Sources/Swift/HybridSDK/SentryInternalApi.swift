@@ -96,7 +96,7 @@ public struct SentryInternalApi {
         // KSCRASH_TODO: sentrycrash_ignore_next_signal is a SentryCrashC API. KSCrash does not
         // currently expose an equivalent signal-suppression API for hybrid SDKs.
         sentrycrash_ignore_next_signal(signum)
-#endif // !ENABLE_KSCRASH
+#endif 
     }
 
     /// Returns the current SDK options, or a default instance if the SDK has not been started.

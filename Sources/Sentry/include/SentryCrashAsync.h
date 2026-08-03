@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 #ifndef SentryCrash_Async_h
 #define SentryCrash_Async_h
 
@@ -12,3 +14,5 @@ void sentrycrashsc_setSwiftAsyncStitching(bool enabled);
 #endif
 
 #endif
+
+#endif 

@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 // Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashMonitor_NSException.h
@@ -24,6 +26,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
+
+#if !ENABLE_KSCRASH
 
 /* Catches Objective-C exceptions.
  */
@@ -55,3 +59,5 @@ SentryCrashMonitorAPI *_Nonnull sentrycrashcm_nsexception_getAPI(void);
 #endif
 
 #endif // HDR_SentryCrashMonitor_NSException_h
+
+#endif 

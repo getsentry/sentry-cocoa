@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 // Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashObjC.h
@@ -24,6 +26,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
+
 
 #ifndef HDR_SentryCrashObjC_h
 #define HDR_SentryCrashObjC_h
@@ -373,6 +376,7 @@ int sentrycrashobjc_arrayContents(const void *arrayPtr, uintptr_t *contents, int
 #pragma mark - Broken/Unimplemented Stuff -
 //======================================================================
 
+
 /** Get the first entry from an NSDictionary.
  *
  * WARNING: This function is broken!
@@ -396,3 +400,6 @@ int sentrycrashobjc_dictionaryCount(const void *dict);
 #endif
 
 #endif // HDR_SentryCrashObjC_h
+
+
+#endif 

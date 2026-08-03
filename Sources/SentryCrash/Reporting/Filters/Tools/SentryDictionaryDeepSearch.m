@@ -79,4 +79,4 @@ sentry_objectForKeyPath(NSDictionary *dict, NSString *keyPath)
     return objectForKeyPath(dict, keyPath);
 }
 
-#endif // !ENABLE_KSCRASH
+#endif 

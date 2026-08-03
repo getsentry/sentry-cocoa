@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 // Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashJSONCodecObjC.h
@@ -24,6 +26,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
+
+#if !ENABLE_KSCRASH
 
 #import <Foundation/Foundation.h>
 
@@ -97,3 +101,5 @@ typedef enum {
        error:(NSError **)error;
 
 @end
+
+#endif 

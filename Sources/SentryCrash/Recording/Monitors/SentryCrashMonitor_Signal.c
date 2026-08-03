@@ -1,4 +1,4 @@
-// Adapted from: https://github.com/kstenerud/KSCrash
+ // Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashMonitor_Signal.c
 //
@@ -360,4 +360,4 @@ sentrycrashcm_signal_getAPI(void)
     return &api;
 }
 
-#endif // !ENABLE_KSCRASH
+#endif 

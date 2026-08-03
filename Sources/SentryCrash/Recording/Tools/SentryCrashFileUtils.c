@@ -721,4 +721,4 @@ sentrycrashfu_closeBufferedReader(SentryCrashBufferedReader *reader)
     }
 }
 
-#endif // !ENABLE_KSCRASH
+#endif 

@@ -25,6 +25,8 @@
 // THE SOFTWARE.
 //
 
+#if !ENABLE_KSCRASH
+
 #ifndef HDR_SentryCrashDynamicLinker_h
 #define HDR_SentryCrashDynamicLinker_h
 
@@ -101,3 +103,5 @@ extern const struct mach_header *sentryDyldHeader;
 #endif
 
 #endif // HDR_SentryCrashDynamicLinker_h
+
+#endif 

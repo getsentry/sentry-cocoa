@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 #import "SentryLevelMapper.h"
 #import "SentrySwift.h"
 #import <SentryBreadcrumb.h>
@@ -170,3 +172,5 @@
 }
 
 @end
+
+#endif 

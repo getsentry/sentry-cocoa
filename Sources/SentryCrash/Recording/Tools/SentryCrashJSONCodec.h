@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 // Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashJSONCodec.h
@@ -24,6 +26,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
+
 
 /* Reads and writes JSON encoded data.
  */
@@ -386,6 +389,7 @@ int sentrycrashjson_addJSONFromFile(SentryCrashJSONEncodeContext *const context,
 // Decode
 // ============================================================================
 
+
 /**
  * Callbacks called during a JSON decode process.
  * All function pointers must point to valid functions.
@@ -539,3 +543,6 @@ int sentrycrashjson_decode(const char *data, int length, char *stringBuffer, int
 #endif
 
 #endif // HDR_SentryCrashJSONCodec_h
+
+
+#endif 

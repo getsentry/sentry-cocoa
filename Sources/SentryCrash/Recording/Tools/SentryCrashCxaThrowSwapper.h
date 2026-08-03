@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 // Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCxaThrowSwapper.h
@@ -22,6 +24,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
+
+#if !ENABLE_KSCRASH
 
 #ifndef SentryCrashCxaThrowSwapper_h
 #define SentryCrashCxaThrowSwapper_h
@@ -86,3 +90,5 @@ bool sentrycrashct_is_cxa_throw_swapped(void);
 #endif
 
 #endif /* SentryCrashCxaThrowSwapper_h */
+
+#endif 

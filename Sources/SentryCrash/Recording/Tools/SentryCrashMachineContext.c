@@ -291,4 +291,4 @@ sentrycrashmc_hasValidExceptionRegisters(const SentryCrashMachineContext *const 
     return sentrycrashmc_canHaveCPUState(context) && sentrycrashmc_isCrashedContext(context);
 }
 
-#endif // !ENABLE_KSCRASH
+#endif 

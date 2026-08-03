@@ -303,4 +303,4 @@ public final class SentryDefaultCrashReporter: NSObject, SentryCrashReporter {
     }
 }
 // swiftlint:enable missing_docs
-#endif // !ENABLE_KSCRASH
+#endif 

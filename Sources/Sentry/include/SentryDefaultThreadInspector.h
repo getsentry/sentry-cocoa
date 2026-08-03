@@ -1,3 +1,4 @@
+#import "SentryCrashCompatibility.h"
 #import "SentryCrashThread.h"
 #import "SentryDefines.h"
 #import "SentryOptionsObjC.h"

@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 // Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashMemory.h
@@ -24,6 +26,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
+
+#if !ENABLE_KSCRASH
 
 /* Utility functions for querying the mach kernel.
  */
@@ -88,3 +92,5 @@ int sentrycrashmem_copyMaxPossible(
 #endif
 
 #endif // HDR_sentrycrashmemory_h
+
+#endif 

@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 // Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashMonitorContext.h
@@ -24,6 +26,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
+
+#if !ENABLE_KSCRASH
 
 #ifndef HDR_SentryCrashMonitorContext_h
 #define HDR_SentryCrashMonitorContext_h
@@ -225,3 +229,5 @@ typedef struct SentryCrash_MonitorContext {
 #endif
 
 #endif // HDR_SentryCrashMonitorContext_h
+
+#endif 

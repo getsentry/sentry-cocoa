@@ -63,7 +63,7 @@ import Foundation
                 let image = imagePtr.pointee
                 SentryDependencyContainer.sharedInstance().binaryImageCache.binaryImageRemoved(image.address)
             }
-#endif // !ENABLE_KSCRASH
+#endif 
         }
     }
     
@@ -76,7 +76,7 @@ import Foundation
 #if !ENABLE_KSCRASH
             sentrycrashbic_registerAddedCallback(nil)
             sentrycrashbic_registerRemovedCallback(nil)
-#endif // !ENABLE_KSCRASH
+#endif 
             self.cache = nil
         }
     }

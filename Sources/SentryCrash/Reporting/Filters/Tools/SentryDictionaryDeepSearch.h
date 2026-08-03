@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 // Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  Container+DeepSearch
@@ -24,6 +26,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
+
+#if !ENABLE_KSCRASH
 
 /** Deep key search based methods for hierarchical container structures.
  *
@@ -61,3 +65,5 @@
  * @param keyPath A full key path, separated by slash (e.g. @"a/b/c")
  */
 id sentry_objectForKeyPath(NSDictionary *dict, NSString *keyPath);
+
+#endif 

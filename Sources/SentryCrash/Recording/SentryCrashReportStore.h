@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 // Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashReportStore.h
@@ -24,6 +26,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
+
+#if !ENABLE_KSCRASH
 
 #ifndef HDR_SentryCrashReportStore_h
 #define HDR_SentryCrashReportStore_h
@@ -134,3 +138,5 @@ void sentrycrashcrs_initializeIDsWithTimeForTests(const struct tm *reportTime);
 #endif
 
 #endif // HDR_SentryCrashReportStore_h
+
+#endif 

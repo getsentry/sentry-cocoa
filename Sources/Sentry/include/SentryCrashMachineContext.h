@@ -25,6 +25,8 @@
 // THE SOFTWARE.
 //
 
+#if !ENABLE_KSCRASH
+
 #ifndef HDR_SentryCrashMachineContext_h
 #define HDR_SentryCrashMachineContext_h
 
@@ -149,3 +151,5 @@ bool sentrycrashmc_hasValidExceptionRegisters(
 #endif
 
 #endif // HDR_SentryCrashMachineContext_h
+
+#endif 

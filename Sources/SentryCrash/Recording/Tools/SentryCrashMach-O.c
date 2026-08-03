@@ -172,4 +172,4 @@ sentrycrash_macho_getSectionProtection(void *sectionStart)
     }
 }
 
-#endif // !ENABLE_KSCRASH
+#endif 

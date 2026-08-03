@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 // Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashDebug.h
@@ -25,6 +27,8 @@
 // THE SOFTWARE.
 //
 
+#if !ENABLE_KSCRASH
+
 /* Utility functions for querying the mach kernel.
  */
 
@@ -48,3 +52,5 @@ bool sentrycrashdebug_isBeingTraced(void);
 #endif
 
 #endif // HDR_SentryCrashDebug_h
+
+#endif 

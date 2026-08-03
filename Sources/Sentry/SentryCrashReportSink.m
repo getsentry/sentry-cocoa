@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 #import "SentryCrashReportSink.h"
 
 #import "SentryLogC.h"
@@ -74,3 +76,5 @@ static const NSTimeInterval SENTRY_APP_START_CRASH_FLUSH_DURATION = 5.0;
 }
 
 @end
+
+#endif 

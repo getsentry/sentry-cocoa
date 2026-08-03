@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 // Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashMonitor_AppState.h
@@ -24,6 +26,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
+
+#if !ENABLE_KSCRASH
 
 /* Manages persistent state information useful for crash reporting such as
  * number of sessions, session length, etc.
@@ -134,3 +138,5 @@ SentryCrashMonitorAPI *sentrycrashcm_appstate_getAPI(void);
 #endif
 
 #endif // HDR_SentryCrashMonitor_AppState_h
+
+#endif 

@@ -4,7 +4,7 @@
 #import "SentryClient.h"
 #if !ENABLE_KSCRASH
 #    import "SentryCrashC.h"
-#endif // !ENABLE_KSCRASH
+#endif 
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
 #import "SentryMeta.h"
@@ -396,7 +396,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     // KSCRASH_TODO: sentrycrash_ignore_next_signal is a SentryCrashC API. KSCrash does not
     // currently expose an equivalent signal-suppression API for hybrid SDKs.
     sentrycrash_ignore_next_signal(signum);
-#endif // !ENABLE_KSCRASH
+#endif 
 }
 
 @end

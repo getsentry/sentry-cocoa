@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 //
 //  SentryCrashPlatformSpecificDefines.h
 //
@@ -21,6 +23,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
+
+#if !ENABLE_KSCRASH
 
 #ifndef SentryCrashPlatformSpecificDefines_h
 #define SentryCrashPlatformSpecificDefines_h
@@ -53,3 +57,5 @@ typedef struct nlist nlist_t;
 #endif /* SEG_DATA_CONST */
 
 #endif /* SentryCrashPlatformSpecificDefines_h */
+
+#endif 

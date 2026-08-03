@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 #import <Foundation/Foundation.h>
 
 #if TARGET_OS_OSX && !SENTRY_NO_UI_FRAMEWORK
@@ -8,6 +10,7 @@
 #    import <AppKit/NSApplication.h>
 
 // Private AppKit method called on the application instance during CATransaction flush.
+
 @interface NSApplication (SentryCrashOnException)
 - (void)_crashOnException:(NSException *)exception;
 @end
@@ -33,3 +36,5 @@
 @end
 
 #endif // TARGET_OS_OSX
+
+#endif 

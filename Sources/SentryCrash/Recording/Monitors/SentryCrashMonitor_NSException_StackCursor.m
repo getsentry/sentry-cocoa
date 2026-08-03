@@ -63,4 +63,4 @@ sentrycrashcm_nsexception_initStackCursor(SentryCrashStackCursor *cursor, NSExce
     return callstack;
 }
 
-#endif // !ENABLE_KSCRASH
+#endif 

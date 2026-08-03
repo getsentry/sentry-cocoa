@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 // Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashMonitor_NSException_StackCursor.h
@@ -24,6 +26,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
+
+#if !ENABLE_KSCRASH
 
 #ifndef HDR_SentryCrashMonitor_NSException_StackCursor_h
 #define HDR_SentryCrashMonitor_NSException_StackCursor_h
@@ -55,3 +59,5 @@ uintptr_t *sentrycrashcm_nsexception_initStackCursor(
 #endif
 
 #endif // HDR_SentryCrashMonitor_NSException_StackCursor_h
+
+#endif 

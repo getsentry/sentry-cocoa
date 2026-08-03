@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 // Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashReportFieldProperties.h
@@ -24,6 +26,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
+
+#if !ENABLE_KSCRASH
 
 #import "SentryCrashInstallation.h"
 
@@ -62,3 +66,5 @@ typedef struct {
 - (CrashHandlerData *)g_crashHandlerData;
 
 @end
+
+#endif 

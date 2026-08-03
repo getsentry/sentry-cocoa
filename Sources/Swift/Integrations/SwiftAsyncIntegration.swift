@@ -9,13 +9,13 @@ final class SwiftAsyncIntegration<Dependencies>: NSObject, SwiftIntegration {
         // SentryCrash's stack cursor. KSCrash mode needs an equivalent opt-in to stitch
         // Swift async frames when building stack traces.
         sentrycrashsc_setSwiftAsyncStitching(true)
-#endif // !ENABLE_KSCRASH
+#endif 
     }
     
     func uninstall() {
 #if !ENABLE_KSCRASH
         sentrycrashsc_setSwiftAsyncStitching(false)
-#endif // !ENABLE_KSCRASH
+#endif 
     }
     
     static var name: String {

@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 #import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryCrashDynamicLinker.h"
 #import "SentryCrashMachineContext.h"
@@ -56,3 +58,5 @@ SentryCrashThread mainThreadID;
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif 

@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 // Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashMach-O.h
@@ -22,6 +24,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
+
+#if !ENABLE_KSCRASH
 
 #ifndef SentryCrashMachO_h
 #define SentryCrashMachO_h
@@ -82,3 +86,5 @@ vm_prot_t sentrycrash_macho_getSectionProtection(void *sectionStart);
 #endif /* __cplusplus */
 
 #endif /* SentryCrash_h */
+
+#endif 

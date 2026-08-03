@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 // Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashCPU_Apple.h
@@ -24,6 +26,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
+
+#if !ENABLE_KSCRASH
 
 #ifndef HDR_SentryCrashCPU_Apple_h
 #define HDR_SentryCrashCPU_Apple_h
@@ -54,3 +58,5 @@ bool sentrycrashcpu_i_fillState(thread_t thread, thread_state_t state, thread_st
 #endif
 
 #endif // HDR_SentryCrashCPU_Apple_h
+
+#endif 

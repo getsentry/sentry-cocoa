@@ -140,4 +140,4 @@ sentrycrashmem_copySafely(
     return copySafely(src, dst, byteCount);
 }
 
-#endif // !ENABLE_KSCRASH
+#endif 

@@ -1967,4 +1967,4 @@ sentrycrashobjc_objectClassType(const void *object)
 // NSString
 // NSURL
 
-#endif // !ENABLE_KSCRASH
+#endif 

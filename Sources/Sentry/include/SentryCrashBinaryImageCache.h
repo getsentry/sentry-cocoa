@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 #ifndef SentryCrashBinaryImageCache_h
 #define SentryCrashBinaryImageCache_h
 
@@ -44,3 +46,5 @@ void sentrycrashbic_registerRemovedCallback(sentrycrashbic_cacheChangeCallback c
 #endif
 
 #endif /* SentryCrashBinaryImageCache_h */
+
+#endif 

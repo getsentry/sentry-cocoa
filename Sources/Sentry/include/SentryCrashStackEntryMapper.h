@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 #import "SentryCrashDynamicLinker.h"
 #import "SentryCrashStackCursor.h"
 #import "SentryDefines.h"
@@ -28,3 +30,5 @@ SENTRY_NO_INIT
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif 

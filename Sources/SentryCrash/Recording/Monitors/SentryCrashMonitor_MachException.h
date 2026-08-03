@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 // Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashMonitor_MachException.h
@@ -24,6 +26,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
+
+#if !ENABLE_KSCRASH
 
 /* Catches mach exceptions.
  */
@@ -54,3 +58,5 @@ bool sentrycrashcm_hasReservedThreads(void);
 #endif
 
 #endif // HDR_SentryCrashMonitor_MachException_h
+
+#endif 

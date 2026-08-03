@@ -5,7 +5,7 @@
 #import "SentryClient+Private.h"
 #if !ENABLE_KSCRASH
 #    import "SentryCrash.h"
-#endif // !ENABLE_KSCRASH
+#endif 
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"

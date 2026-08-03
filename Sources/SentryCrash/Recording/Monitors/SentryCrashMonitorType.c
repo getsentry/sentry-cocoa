@@ -54,4 +54,4 @@ sentrycrashmonitortype_name(const SentryCrashMonitorType monitorType)
     return NULL;
 }
 
-#endif // !ENABLE_KSCRASH
+#endif 

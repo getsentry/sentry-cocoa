@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 // Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  NSError+SimpleConstructor.h
@@ -25,6 +27,8 @@
 // THE SOFTWARE.
 //
 
+#if !ENABLE_KSCRASH
+
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -51,3 +55,5 @@ NSError *sentryErrorWithDomain(NSString *domain, NSInteger code, NSString *forma
 BOOL sentryFillError(NSError **error, NSString *domain, NSInteger code, NSString *format, ...);
 
 NS_ASSUME_NONNULL_END
+
+#endif 

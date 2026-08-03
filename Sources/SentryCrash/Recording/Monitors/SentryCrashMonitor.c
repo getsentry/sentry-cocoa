@@ -304,4 +304,4 @@ sentrycrashcm_resetState(void)
     g_requiresAsyncSafety = false;
 }
 
-#endif // !ENABLE_KSCRASH
+#endif 

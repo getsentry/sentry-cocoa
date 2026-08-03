@@ -1630,4 +1630,4 @@ sentrycrashjson_addJSONElement(SentryCrashJSONEncodeContext *const encodeContext
     return result;
 }
 
-#endif // !ENABLE_KSCRASH
+#endif 

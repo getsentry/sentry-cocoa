@@ -296,4 +296,4 @@ sentrycrashbic_registerRemovedCallback(sentrycrashbic_cacheChangeCallback callba
     atomic_store_explicit(&cache->removedCallback, callback, memory_order_release);
 }
 
-#endif // !ENABLE_KSCRASH
+#endif 

@@ -37,4 +37,4 @@ sentrycrashdate_utcStringFromTimestamp(time_t timestamp, char *buffer21Chars)
         result.tm_mon + 1, result.tm_mday, result.tm_hour, result.tm_min, result.tm_sec);
 }
 
-#endif // !ENABLE_KSCRASH
+#endif 

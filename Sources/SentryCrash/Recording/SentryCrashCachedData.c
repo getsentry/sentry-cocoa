@@ -368,4 +368,4 @@ sentrycrashccd_test_clearActiveCache(void)
 
 #    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
-#endif // !ENABLE_KSCRASH
+#endif 

@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 // Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashMonitor_System.h
@@ -25,6 +27,8 @@
 // THE SOFTWARE.
 //
 
+#if !ENABLE_KSCRASH
+
 #ifndef SentryCrashMonitor_System_h
 #define SentryCrashMonitor_System_h
 
@@ -48,3 +52,5 @@ bytes sentrycrashcm_system_freememory_size(void);
 #endif
 
 #endif
+
+#endif 

@@ -80,4 +80,4 @@ sentrycrashsc_initSelfThread(SentryCrashStackCursor *cursor, int skipEntries)
     sentrycrashsc_initWithBacktrace(cursor, context->backtrace, backtraceLength, skipEntries + 1);
 }
 
-#endif // !ENABLE_KSCRASH
+#endif 

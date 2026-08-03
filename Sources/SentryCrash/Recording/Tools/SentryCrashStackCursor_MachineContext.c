@@ -133,4 +133,4 @@ sentrycrashsc_initWithMachineContext(SentryCrashStackCursor *cursor, int maxStac
     context->instructionAddress = cursor->stackEntry.address;
 }
 
-#endif // !ENABLE_KSCRASH
+#endif 

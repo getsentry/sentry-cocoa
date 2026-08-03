@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 // Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashCPU.h
@@ -24,6 +26,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
+
+#if !ENABLE_KSCRASH
 
 #ifndef HDR_SentryCrashCPU_h
 #define HDR_SentryCrashCPU_h
@@ -158,3 +162,5 @@ uintptr_t sentrycrashcpu_normaliseInstructionPointer(uintptr_t ip);
 #endif
 
 #endif // HDR_SentryCrashCPU_h
+
+#endif 

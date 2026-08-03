@@ -23,6 +23,8 @@
 // THE SOFTWARE.
 //
 
+#if !ENABLE_KSCRASH
+
 #ifndef SentryCrashStackCursor_MachineContext_h
 #define SentryCrashStackCursor_MachineContext_h
 
@@ -50,3 +52,5 @@ void sentrycrashsc_initWithMachineContext(SentryCrashStackCursor *cursor, int ma
 #endif
 
 #endif // SentryCrashStackCursor_MachineContext_h
+
+#endif 

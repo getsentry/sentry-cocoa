@@ -470,4 +470,4 @@ sentrycrashstring_extractHexValue(const char *string, int stringLength, uint64_t
     return false;
 }
 
-#endif // !ENABLE_KSCRASH
+#endif 

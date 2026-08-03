@@ -298,4 +298,4 @@ sentrycrashcrf_fixupCrashReport(const char *crashReport)
     return fixedReport;
 }
 
-#endif // !ENABLE_KSCRASH
+#endif 

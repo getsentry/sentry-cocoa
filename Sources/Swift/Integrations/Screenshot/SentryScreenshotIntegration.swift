@@ -42,14 +42,14 @@ final class SentryScreenshotIntegration<Dependencies: ScreenshotIntegrationProvi
             let reportPath = String(cString: path)
             globalScreenshotSource?.saveScreenShots(reportPath)
         }
-#endif // !ENABLE_KSCRASH
+#endif 
     }
 
     func uninstall() {
         globalScreenshotSource = nil
 #if !ENABLE_KSCRASH
         sentrycrash_setSaveScreenshots(nil)
-#endif // !ENABLE_KSCRASH
+#endif 
         client?.removeAttachmentProcessor(self)
     }
 

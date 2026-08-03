@@ -325,6 +325,7 @@ static NSString *const SentryCrashReportConverterErrorDomain
 }
 
 // We already get all the frames in the right order
+
 - (NSArray<SentryFrame *> *)stackFramesForThreadIndex:(NSInteger)threadIndex
 {
     NSUInteger frameCount = [self rawStackTraceForThreadIndex:threadIndex].count;
@@ -749,3 +750,4 @@ static NSString *const SentryCrashReportConverterErrorDomain
 }
 
 @end
+

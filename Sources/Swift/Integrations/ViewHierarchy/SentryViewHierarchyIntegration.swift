@@ -44,13 +44,13 @@ final class SentryViewHierarchyIntegration<Dependencies: SentryViewHierarchyInte
             let filePath = (reportPath as NSString).appendingPathComponent("view-hierarchy.json")
             SentryDependencyContainer.sharedInstance().viewHierarchyProvider?.saveViewHierarchy(filePath)
         }
-#endif // !ENABLE_KSCRASH
+#endif 
     }
 
     func uninstall() {
 #if !ENABLE_KSCRASH
         sentrycrash_setSaveViewHierarchy(nil)
-#endif // !ENABLE_KSCRASH
+#endif 
         client?.removeAttachmentProcessor(self)
     }
 

@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 //
 //  SentryCrashObjCApple.h
 //
@@ -12,6 +14,7 @@
 // http://www.opensource.apple.com/apsl/ and read it before using this
 // file.
 //
+
 
 // This file contains structures and constants copied from Apple header
 // files, arranged for use in SentryCrashObjC.
@@ -628,6 +631,7 @@ struct __CFBasicHashCallbacks {
 // Prime numbers. Values above 100 have been adjusted up so that the
 // malloced block size will be just below a multiple of 512; values
 // above 1200 have been adjusted up to just below a multiple of 4096.
+
 static const uintptr_t __CFBasicHashTableSizes[64] = {
     0,
     3,
@@ -768,3 +772,6 @@ __CFBasicHashGetSlotCount(CFConstBasicHashRef ht, CFIndex idx)
 #endif
 
 #endif // HDR_SentryCrashObjCApple_h
+
+
+#endif 

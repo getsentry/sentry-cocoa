@@ -11,6 +11,8 @@
 
 #if ENABLE_KSCRASH
 
+// KSCRASH_TODO: Verify these all exist
+
 // ============================================================================
 // KSCrash Mode: Map SentryCrash APIs to KSCrash equivalents
 // ============================================================================
@@ -32,6 +34,9 @@
 // ObjC headers (only when compiling ObjC/ObjC++)
 #    ifdef __OBJC__
 #        import <KSJSONCodecObjC.h>
+#        import <Foundation/Foundation.h>
+
+static NSString *_Nonnull const SENTRYCRASH_REPORT_ATTACHMENTS_ITEM = @"attachments";
 #    endif
 
 // JSON Codec (C API)
@@ -177,6 +182,9 @@ sentrycrashsysctl_currentProcessStartTime(void)
 // Mach
 #    define sentrycrashmach_exceptionName ksmach_exceptionName
 #    define sentrycrashmach_kernelReturnCodeName ksmach_kernelReturnCodeName
+
+// Machine Context
+#    define SentryCrashMachineContext KSMachineContext
 
 #else
 

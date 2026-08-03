@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 // Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashReport.h
@@ -68,6 +70,8 @@ void sentrycrashreport_setDoNotIntrospectClasses(const char **doNotIntrospectCla
 #pragma mark - Main API -
 // ============================================================================
 
+#if !ENABLE_KSCRASH
+
 /** Write a standard crash report to a file.
  *
  * @param monitorContext Contextual information about the crash and environment.
@@ -93,3 +97,5 @@ void sentrycrashreport_writeRecrashReport(
 #endif
 
 #endif // HDR_SentryCrashReport_h
+
+#endif 

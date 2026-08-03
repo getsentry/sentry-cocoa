@@ -58,4 +58,4 @@ sentrycrashsc_initCursor(SentryCrashStackCursor *cursor,
     cursor->resetCursor(cursor);
 }
 
-#endif // !ENABLE_KSCRASH
+#endif 

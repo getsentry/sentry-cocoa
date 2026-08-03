@@ -171,4 +171,4 @@ sentrycrashcpu_normaliseInstructionPointer(uintptr_t ip)
 
 #    endif
 
-#endif // !ENABLE_KSCRASH
+#endif 

@@ -23,6 +23,8 @@
 // THE SOFTWARE.
 //
 
+#if !ENABLE_KSCRASH
+
 #ifndef SentryCrashStackCursor_h
 #define SentryCrashStackCursor_h
 
@@ -109,3 +111,5 @@ void sentrycrashsc_resetCursor(SentryCrashStackCursor *cursor);
 #endif
 
 #endif // SentryCrashStackCursor_h
+
+#endif 

@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 //
 // SentryCrashDate.h
 //
@@ -22,6 +24,8 @@
 // THE SOFTWARE.
 //
 
+#if !ENABLE_KSCRASH
+
 #ifndef SentryCrashDate_h
 #define SentryCrashDate_h
 
@@ -45,3 +49,5 @@ void sentrycrashdate_utcStringFromTimestamp(time_t timestamp, char *buffer21Char
 #endif
 
 #endif /* SentryCrashDate_h */
+
+#endif 

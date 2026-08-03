@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 // Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashMachineContext_Apple.h
@@ -24,6 +26,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
+
+#if !ENABLE_KSCRASH
 
 #ifndef HDR_SentryCrashMachineContext_Apple_h
 #define HDR_SentryCrashMachineContext_Apple_h
@@ -61,3 +65,5 @@ typedef struct SentryCrashMachineContext {
 #endif
 
 #endif // HDR_SentryCrashMachineContext_Apple_h
+
+#endif 

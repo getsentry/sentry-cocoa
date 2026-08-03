@@ -131,4 +131,4 @@ sentrycrashmach_kernelReturnCodeName(const int64_t returnCode)
 #    define EXC_UNIX_BAD_PIPE 0x10001 /* SIGPIPE */
 #    define EXC_UNIX_ABORT 0x10002 /* SIGABRT */
 
-#endif // !ENABLE_KSCRASH
+#endif 

@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 // Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashID.h
@@ -23,6 +25,8 @@
 // THE SOFTWARE.
 //
 
+#if !ENABLE_KSCRASH
+
 #ifndef HDR_SentryCrashID_h
 #define HDR_SentryCrashID_h
 
@@ -41,3 +45,5 @@ void sentrycrashid_generate(char *destinationBuffer37Bytes);
 #endif
 
 #endif // HDR_SentryCrashID_h
+
+#endif 

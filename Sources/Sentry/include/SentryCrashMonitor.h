@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 // Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashMonitor.h
@@ -74,6 +76,8 @@ SentryCrashMonitorEventCallback sentrycrashcm_getEventCallback(void);
 #pragma mark - Internal API -
 // ============================================================================
 
+#if !ENABLE_KSCRASH
+
 typedef struct {
     void (*setEnabled)(bool isEnabled);
     bool (*isEnabled)(void);
@@ -113,3 +117,5 @@ void sentrycrashcm_resetState(void);
 #endif
 
 #endif // HDR_SentryCrashMonitor_h
+
+#endif 

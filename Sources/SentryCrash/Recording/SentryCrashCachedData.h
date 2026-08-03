@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 // Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashCachedData.h
@@ -97,6 +99,8 @@ void sentrycrashccd_close(void);
 
 // MARK: - Testing
 
+#if !ENABLE_KSCRASH
+
 #if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
 /** Atomically set the active cache to NULL, simulating a failed createCache()
@@ -110,3 +114,5 @@ void sentrycrashccd_test_clearActiveCache(void);
 #endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
 #endif /* SentryCrashCachedData_h */
+
+#endif 

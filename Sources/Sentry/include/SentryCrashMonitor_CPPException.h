@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 // Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashMonitor_CPPException.h
@@ -22,6 +24,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
+
+#if !ENABLE_KSCRASH
 
 #ifndef HDR_SentryCrashMonitor_CPPException_h
 #define HDR_SentryCrashMonitor_CPPException_h
@@ -52,3 +56,5 @@ SentryCrashStackCursor sentrycrashcm_cppexception_getStackCursor(void);
 #endif
 
 #endif // HDR_SentryCrashMonitor_CPPException_h
+
+#endif 

@@ -72,4 +72,4 @@ sentrycrashcpu_i_fillState(__unused const thread_t thread, __unused const thread
 
 #    endif
 
-#endif // !ENABLE_KSCRASH
+#endif 

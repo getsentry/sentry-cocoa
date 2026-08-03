@@ -55,13 +55,13 @@
 #    import "SentryCrashMonitor_System.h"
 #    import "SentryCrashReportSink.h"
 #    import "SentryCrashScopeObserver.h"
-#endif // !ENABLE_KSCRASH
+#endif 
 #import "SentryCrashCompatibility.h"
 #import "SentryDateUtils.h"
 #import "SentryDefaultAppStateManager.h"
 #if !ENABLE_KSCRASH
 #    import "SentryDefaultThreadInspector.h"
-#endif // !ENABLE_KSCRASH
+#endif 
 #import "SentryDefaultUIViewControllerPerformanceTracker.h"
 #import "SentryDelayedFramesTracker.h"
 #import "SentryDependencyContainerSwiftHelper.h"

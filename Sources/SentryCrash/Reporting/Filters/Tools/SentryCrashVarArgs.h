@@ -1,3 +1,5 @@
+#if !ENABLE_KSCRASH
+
 // Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashVarArgs.h
@@ -24,6 +26,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
+
+#if !ENABLE_KSCRASH
 
 /* SentryCrashVarArgs is a set of macros designed to make dealing with variable
  * arguments easier in Objective-C. All macros assume that the varargs list
@@ -71,3 +75,5 @@ typedef void (^SentryCrashVA_Block)(id entry);
 #define sentrycrashva_list_to_nsarray(FIRST_ARG_NAME, ARRAY_NAME)                                  \
     NSMutableArray *ARRAY_NAME = [NSMutableArray array];                                           \
     sentrycrashva_iterate_list(FIRST_ARG_NAME, ^(id entry) { [ARRAY_NAME addObject:entry]; })
+
+#endif 

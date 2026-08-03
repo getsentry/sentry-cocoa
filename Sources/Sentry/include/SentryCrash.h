@@ -25,6 +25,8 @@
 // THE SOFTWARE.
 //
 
+#if !ENABLE_KSCRASH
+
 #import "SentryCrashMonitorType.h"
 #import "SentryCrashReportFilter.h"
 #import "SentryCrashReportWriter.h"
@@ -259,4 +261,7 @@ NS_ASSUME_NONNULL_END
 FOUNDATION_EXPORT const double SentryCrashFrameworkVersionNumber;
 
 //! Project version string for SentryCrashFramework.
+
 FOUNDATION_EXPORT const unsigned char SentryCrashFrameworkVersionString[];
+
+#endif 

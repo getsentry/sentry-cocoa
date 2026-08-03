@@ -229,4 +229,5 @@ sentry_crashCallback(const SentryCrashReportWriter *writer)
 }
 
 @end
-#endif
+
+#endif 

@@ -635,4 +635,4 @@ sentrycrashcm_system_getAPI(void)
     return &api;
 }
 
-#endif // !ENABLE_KSCRASH
+#endif 

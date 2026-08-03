@@ -66,4 +66,4 @@ sentrycrashdebug_isBeingTraced(void)
     return (procInfo.kp_proc.p_flag & P_TRACED) != 0;
 }
 
-#endif // !ENABLE_KSCRASH
+#endif 

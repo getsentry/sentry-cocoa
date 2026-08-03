@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
+#if !ENABLE_KSCRASH
 
 #import "SentryCrash.h"
 
@@ -139,11 +140,9 @@
 
 - (void)setBridgeObject:(id)bridge
 {
-#if !ENABLE_KSCRASH
     // SentryCrashBridge is a SDK layer type that is excluded in KSCrash mode.
     // In KSCrash mode, SentryCrash is replaced by the upstream KSCrash library.
     self.bridge = (SentryCrashBridge *)bridge;
-#endif
 }
 
 - (void)setOnCrash:(SentryCrashReportWriteCallback)onCrash
@@ -242,9 +241,7 @@
 
     // Set bridge before install so the NSException monitor can access
     // crashReporter.uncaughtExceptionHandler when setEnabled(true) runs.
-#if !ENABLE_KSCRASH
     sentrycrashcm_nsexception_setBridge(self.bridge);
-#endif
 
     _monitoring = sentrycrash_install(self.bundleName.UTF8String, installPath.UTF8String);
     if (self.monitoring == 0) {
@@ -588,3 +585,5 @@ const double SentryCrashFrameworkVersionNumber = 1.1518;
 
 //! Project version string for SentryCrashFramework.
 const unsigned char SentryCrashFrameworkVersionString[] = "1.15.18";
+
+#endif 

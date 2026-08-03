@@ -1809,4 +1809,4 @@ sentrycrashreport_setDoNotIntrospectClasses(const char **doNotIntrospectClasses,
     }
 }
 
-#endif // !ENABLE_KSCRASH
+#endif 

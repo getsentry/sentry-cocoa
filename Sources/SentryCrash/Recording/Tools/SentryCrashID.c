@@ -41,4 +41,4 @@ sentrycrashid_generate(char *destinationBuffer37Bytes)
         (unsigned)uuid[13], (unsigned)uuid[14], (unsigned)uuid[15]);
 }
 
-#endif // !ENABLE_KSCRASH
+#endif 
