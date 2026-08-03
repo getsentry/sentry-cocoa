@@ -935,6 +935,7 @@ test-ios:
 #   make test-macos
 #   make test-macos ONLY_TESTING=SentryTests/SentryHttpTransportTests
 #   make test-macos TEST_SCHEME=SentryObjCTests
+#   make test-macos TEST_PLAN=Sentry_TestServer   # needs `make run-test-server`
 .PHONY: test-macos
 test-macos:
 	@echo "--> Running macOS tests"
@@ -945,6 +946,7 @@ test-macos:
 		--command test \
 		--configuration Test \
 		$(if $(TEST_SCHEME),--scheme "$(TEST_SCHEME)") \
+		$(if $(TEST_PLAN),--test-plan "$(TEST_PLAN)") \
 		--only-testing "$(ONLY_TESTING)"
 
 ## Run Catalyst tests
@@ -1054,6 +1056,7 @@ test-ios-v10:
 # Examples:
 #   make test-macos-v10
 #   make test-macos-v10 ONLY_TESTING=SentryTests/SentryHttpTransportTests
+#   make test-macos-v10 TEST_PLAN=Sentry_TestServer   # needs `make run-test-server`
 .PHONY: test-macos-v10
 test-macos-v10:
 	@echo "--> Running V10 macOS tests"
@@ -1064,6 +1067,7 @@ test-macos-v10:
 		--command test \
 		--scheme SentryV10 \
 		--configuration TestV10 \
+		$(if $(TEST_PLAN),--test-plan "$(TEST_PLAN)") \
 		--only-testing "$(ONLY_TESTING)"
 
 ## Run Catalyst tests with SDK_V10 flag

@@ -12,16 +12,22 @@ import XCTest
 /// Values wrapped in angle brackets, e.g. `"<timestamp>"`, are placeholders: only their presence is
 /// asserted, not their content. Use them for values that change between runs (ids, timestamps,
 /// device details). Paths listed in ``optionalPaths`` may be absent entirely, for values that only
-/// exist on some platforms or SDK versions.
+/// exist on some platforms.
+///
+/// V10 sends a different payload, so each snapshot has a `-v10` variant that is selected
+/// automatically. Both variants are compared just as strictly — V10 differences live in that file
+/// rather than as exceptions in this comparison.
 ///
 /// When the SDK intentionally changes the payload, update the snapshot files rather than weakening
 /// the comparison. On failure the assertion prints both the mismatches and the actual envelope JSON,
-/// so the snapshot can be updated by copying it and re-inserting the placeholders.
+/// so the snapshot can be updated by copying it and re-inserting the placeholders. Remember to
+/// update both the default and the `-v10` snapshot.
 struct NetworkEnvelopeSnapshot {
     /// Paths that may be missing from the envelope without failing the comparison.
     ///
-    /// Only for values whose presence legitimately differs per platform or SDK version. Everything
-    /// else must be present, even if its value is a placeholder.
+    /// Only for values whose presence legitimately differs per platform. Everything else must be
+    /// present, even if its value is a placeholder. Differences between the v9 and V10 payloads
+    /// belong in the separate `-v10` snapshot instead, so both variants stay strictly compared.
     private static let optionalPaths: Set<String> = {
         var paths = Set<String>()
 #if os(macOS)
@@ -31,13 +37,20 @@ struct NetworkEnvelopeSnapshot {
             "$.items[0].payload.contexts.device.model_id"
         ])
 #endif
-#if SDK_V10
-        paths.insert("$.items[0].payload.contexts.device.locale")
-#endif
         return paths
     }()
 
     private static let resourceDirectory = "Resources/NetworkEnvelopeSnapshots"
+
+    /// V10 sends a different payload (`infer_ip`, cookies, no `device.locale`), so it has its own
+    /// snapshot rather than exceptions carved into the comparison.
+    private static func resourceName(for resource: String) -> String {
+#if SDK_V10
+        "\(resource)-v10"
+#else
+        resource
+#endif
+    }
 
     static func assertMatches(
         envelope: SentryEnvelope,
@@ -46,6 +59,7 @@ struct NetworkEnvelopeSnapshot {
         file: StaticString = #filePath,
         line: UInt = #line
     ) throws {
+        let resource = resourceName(for: resource)
         guard let expectedURL = Bundle(for: type(of: testCase)).url(
             forResource: "\(resourceDirectory)/\(resource)",
             withExtension: "json"
@@ -164,16 +178,6 @@ struct NetworkEnvelopeSnapshot {
             return
         }
 
-#if SDK_V10
-        if path.hasSuffix(".sdk.settings.infer_ip") {
-            if actual as? String != "auto" {
-                mismatches.append(
-                    "Expected \"auto\" at \(path), got \(String(describing: actual))."
-                )
-            }
-            return
-        }
-#endif
         if expected as? NSObject != actual as? NSObject {
             mismatches.append(
                 "Expected \(expected) at \(path), got \(String(describing: actual))."
