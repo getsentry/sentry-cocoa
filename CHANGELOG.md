@@ -12,7 +12,7 @@
 ### Features
 
 - Add `SentrySDK.feedback.enableOnShake()` and `disableOnShake()` to toggle the shake-to-report gesture at runtime (#8591)
-- Add `SentrySDK.internal.envelope.captureNonTerminating` for hybrid SDKs, which keeps the current session running and reports it with the `unhandled` status when an unhandled exception doesn't terminate the process (#8585)
+- Add `SentrySDK.internal.envelope.captureNonTerminating` for hybrid SDKs, which keeps the current session running and reports it with the `unhandled` status when an unhandled exception doesn't terminate the process (#8654)
 
 ### Fixes
 
