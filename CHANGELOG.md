@@ -15,7 +15,7 @@
 
 ### Improvements
 
-- Reduce Sentry-Dynamic.xcframework binary size by ~7.6 MB per arm64 slice by removing unused mergeable-library metadata (LC_ATOM_INFO) (#8342)
+- Reduce Sentry-Dynamic.xcframework binary size by ~7.6 MB per arm64 slice by removing unused mergeable-library metadata (LC_ATOM_INFO) (#8658)
 
 ### Fixes
 
