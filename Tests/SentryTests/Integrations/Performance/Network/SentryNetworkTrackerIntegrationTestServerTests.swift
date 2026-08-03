@@ -137,8 +137,8 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         // -- Arrange --
         try ensureTestServerIsRunning()
         let url = try XCTUnwrap(URL(string: "http://localhost:8081/echo-sentry-trace"))
-        let requestCompleted = expectation(description: "Request completed")
-        let envelopeCaptured = expectation(description: "Envelope captured")
+        let requestCompleted = expectationAllowingOverFulfill(description: "Request completed")
+        let envelopeCaptured = expectationAllowingOverFulfill(description: "Envelope captured")
         let transport = startSDK(
             envelopeCaptured: envelopeCaptured,
             expectedEnvelopeItemType: SentryEnvelopeItemTypes.transaction
@@ -177,8 +177,8 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         // -- Arrange --
         try ensureTestServerIsRunning()
         let url = try XCTUnwrap(URL(string: "http://localhost:8081/http-client-error"))
-        let requestCompleted = expectation(description: "Request completed")
-        let envelopeCaptured = expectation(description: "Envelope captured")
+        let requestCompleted = expectationAllowingOverFulfill(description: "Request completed")
+        let envelopeCaptured = expectationAllowingOverFulfill(description: "Envelope captured")
         let transport = startSDK(
             envelopeCaptured: envelopeCaptured,
             expectedEnvelopeItemType: SentryEnvelopeItemTypes.event
@@ -211,6 +211,12 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         if error != nil {
             XCTFail("Failed to complete request : \(String(describing: error))")
         }
+    }
+
+    private func expectationAllowingOverFulfill(description: String) -> XCTestExpectation {
+        let expectation = expectation(description: description)
+        expectation.assertForOverFulfill = false
+        return expectation
     }
 
     // We can't use a XCTTestExpectation here because we want to retry multiple times.

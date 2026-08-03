@@ -7,7 +7,7 @@
       "settings": {
         "infer_ip": "never"
       },
-      "version": "9.24.0"
+      "version": "<sdk-version>"
     },
     "trace": {
       "environment": "test",
@@ -97,7 +97,7 @@
           "settings": {
             "infer_ip": "never"
           },
-          "version": "9.24.0"
+          "version": "<sdk-version>"
         },
         "spans": [
           {
