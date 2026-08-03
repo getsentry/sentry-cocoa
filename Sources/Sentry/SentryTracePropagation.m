@@ -38,25 +38,18 @@ static NSString *const SENTRY_TRACEPARENT = @"traceparent";
         }
     }
 
-    if ([request isKindOfClass:[NSMutableURLRequest class]]) {
-        NSMutableURLRequest *mutableRequest = (NSMutableURLRequest *)request;
-        [SentryTracePropagation addHeaderFieldsToRequest:mutableRequest
+    // CFNetwork may read currentRequest concurrently, so never mutate it in place.
+    SEL setCurrentRequestSelector = NSSelectorFromString(@"setCurrentRequest:");
+    if ([sessionTask respondsToSelector:setCurrentRequestSelector]) {
+        NSMutableURLRequest *newRequest = [request mutableCopy];
+        [SentryTracePropagation addHeaderFieldsToRequest:newRequest
                                              traceHeader:traceHeader
                                            baggageHeader:baggageHeader
                                     propagateTraceparent:propagateTraceparent];
-    } else {
-        SEL setCurrentRequestSelector = NSSelectorFromString(@"setCurrentRequest:");
-        if ([sessionTask respondsToSelector:setCurrentRequestSelector]) {
-            NSMutableURLRequest *newRequest = [request mutableCopy];
-            [SentryTracePropagation addHeaderFieldsToRequest:newRequest
-                                                 traceHeader:traceHeader
-                                               baggageHeader:baggageHeader
-                                        propagateTraceparent:propagateTraceparent];
 
-            void (*func)(id, SEL, id param)
-                = (void *)[sessionTask methodForSelector:setCurrentRequestSelector];
-            func(sessionTask, setCurrentRequestSelector, newRequest);
-        }
+        void (*func)(id, SEL, id param)
+            = (void *)[sessionTask methodForSelector:setCurrentRequestSelector];
+        func(sessionTask, setCurrentRequestSelector, newRequest);
     }
 }
 

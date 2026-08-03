@@ -86,4 +86,11 @@ static int64_t const DATA_BYTES_SENT = 652;
 
 @end
 
+@interface MutableRequestTaskMock : URLSessionDataTaskMock
+
+@property (nonatomic, readonly) NSMutableURLRequest *initialCurrentRequest;
+@property (nonatomic, readonly) NSUInteger setCurrentRequestCallCount;
+
+@end
+
 NS_ASSUME_NONNULL_END

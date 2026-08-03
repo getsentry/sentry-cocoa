@@ -325,3 +325,37 @@
 }
 
 @end
+
+@implementation MutableRequestTaskMock {
+    NSMutableURLRequest *_initialCurrentRequest;
+    NSUInteger _setCurrentRequestCallCount;
+}
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+- (instancetype)initWithRequest:(NSURLRequest *)request
+{
+    if (self = [super initWithRequest:request]) {
+        _initialCurrentRequest = (NSMutableURLRequest *)[super currentRequest];
+    }
+    return self;
+}
+#pragma clang diagnostic pop
+
+- (NSMutableURLRequest *)initialCurrentRequest
+{
+    return _initialCurrentRequest;
+}
+
+- (NSUInteger)setCurrentRequestCallCount
+{
+    return _setCurrentRequestCallCount;
+}
+
+- (void)setCurrentRequest:(NSURLRequest *)request
+{
+    _setCurrentRequestCallCount++;
+    [super setCurrentRequest:request];
+}
+
+@end

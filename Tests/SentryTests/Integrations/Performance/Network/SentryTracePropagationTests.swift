@@ -170,11 +170,36 @@ final class SentryTracePropagationTests: XCTestCase {
         XCTAssertNil(task.currentRequest?.value(forHTTPHeaderField: "sentry-trace"))
     }
 
-    private func createSessionTask(method: String = "GET") throws -> URLSessionDownloadTaskMock {
+    func testAddBaggageHeader_whenCurrentRequestIsMutable_shouldNotMutateItInPlace() throws {
+        // -- Arrange --
+        let request = URLRequest(url: try XCTUnwrap(URL(string: "https://www.domain.com/api")))
+        let task = MutableRequestTaskMock(request: request)
+        let traceHeader = TraceHeader(
+            trace: SentryId(),
+            spanId: SpanId(),
+            sampled: .yes
+        )
+
+        // -- Act --
+        SentryTracePropagation.addBaggageHeader(
+            Baggage(),
+            traceHeader: traceHeader,
+            propagateTraceparent: true,
+            tracePropagationTargets: [try XCTUnwrap(NSRegularExpression(pattern: ".*"))],
+            toRequest: task
+        )
+
+        // -- Assert --
+        XCTAssertEqual(task.setCurrentRequestCallCount, 1)
+        XCTAssertNil(task.initialCurrentRequest.value(forHTTPHeaderField: "sentry-trace"))
+        XCTAssertEqual(task.currentRequest?.value(forHTTPHeaderField: "sentry-trace"), traceHeader.value())
+    }
+
+    private func createSessionTask(method: String = "GET") throws -> URLSessionDataTaskMock {
         let url = try XCTUnwrap(URL(string: "https://www.domain.com/api?query=value&query2=value2#fragment"))
         var request = URLRequest(url: url)
         request.httpMethod = method
-        return URLSessionDownloadTaskMock(request: request)
+        return URLSessionDataTaskMock(request: request)
     }
 
 }
