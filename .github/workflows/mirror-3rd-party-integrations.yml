@@ -14,7 +14,7 @@ permissions:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   mirror:
@@ -61,6 +61,9 @@ jobs:
 
           # Copy integration contents to downstream
           cp -a upstream/3rd-party-integrations/${{ matrix.integration.name }}/. downstream/
+
+          # Include root LICENSE.md
+          cp upstream/LICENSE.md downstream/
 
       - name: Commit and push
         working-directory: downstream
