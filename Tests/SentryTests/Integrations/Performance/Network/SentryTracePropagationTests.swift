@@ -195,6 +195,54 @@ final class SentryTracePropagationTests: XCTestCase {
         XCTAssertEqual(task.currentRequest?.value(forHTTPHeaderField: "sentry-trace"), traceHeader.value())
     }
 
+    // MARK: - Trace propagation for download and upload tasks (issue #8519)
+
+    func testAddBaggageHeader_DownloadTask_AddsTraceHeaders() throws {
+        // -- Arrange --
+        let url = try XCTUnwrap(URL(string: "https://www.domain.com/api"))
+        let task = URLSessionDownloadTaskMock(request: URLRequest(url: url))
+        let traceHeader = TraceHeader(
+            trace: SentryId(),
+            spanId: SpanId(),
+            sampled: .yes
+        )
+
+        // -- Act --
+        SentryTracePropagation.addBaggageHeader(
+            Baggage(),
+            traceHeader: traceHeader,
+            propagateTraceparent: true,
+            tracePropagationTargets: [try XCTUnwrap(NSRegularExpression(pattern: ".*"))],
+            toRequest: task
+        )
+
+        // -- Assert --
+        XCTAssertEqual(task.currentRequest?.value(forHTTPHeaderField: "sentry-trace"), traceHeader.value())
+    }
+
+    func testAddBaggageHeader_UploadTask_AddsTraceHeaders() throws {
+        // -- Arrange --
+        let url = try XCTUnwrap(URL(string: "https://www.domain.com/api"))
+        let task = URLSessionUploadTaskMock(request: URLRequest(url: url))
+        let traceHeader = TraceHeader(
+            trace: SentryId(),
+            spanId: SpanId(),
+            sampled: .yes
+        )
+
+        // -- Act --
+        SentryTracePropagation.addBaggageHeader(
+            Baggage(),
+            traceHeader: traceHeader,
+            propagateTraceparent: true,
+            tracePropagationTargets: [try XCTUnwrap(NSRegularExpression(pattern: ".*"))],
+            toRequest: task
+        )
+
+        // -- Assert --
+        XCTAssertEqual(task.currentRequest?.value(forHTTPHeaderField: "sentry-trace"), traceHeader.value())
+    }
+
     private func createSessionTask(method: String = "GET") throws -> URLSessionDataTaskMock {
         let url = try XCTUnwrap(URL(string: "https://www.domain.com/api?query=value&query2=value2#fragment"))
         var request = URLRequest(url: url)
