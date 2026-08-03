@@ -43,6 +43,7 @@ extension SentryKSCrash {
                 try installer.install(
                     installPath: installPath.path,
                     monitors: productionSafeMonitors,
+                    enableMemoryIntrospection: options.enableMemoryIntrospection,
                     enableSwapCxaThrow: options.experimental.enableUnhandledCPPExceptionsV2
                 )
             } catch {

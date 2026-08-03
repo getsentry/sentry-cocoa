@@ -8,9 +8,15 @@ extension SentryKSCrash {
         /// - Parameters:
         ///   - installPath: The base directory for crash report storage.
         ///   - monitors: Monitor types to enable.
+        ///   - enableMemoryIntrospection: Whether to introspect memory contents during a crash.
         ///   - enableSwapCxaThrow: Whether to swap `__cxa_throw` for better C++ stacks.
         /// - Throws: Any error from `KSCrash.installWithConfiguration(_:error:)`.
-        func install(installPath: String, monitors: UInt, enableSwapCxaThrow: Bool) throws
+        func install(
+            installPath: String,
+            monitors: UInt,
+            enableMemoryIntrospection: Bool,
+            enableSwapCxaThrow: Bool
+        ) throws
 
         /// Uninstall the crash handler for the current SDK lifecycle.
         func uninstall()
@@ -29,10 +35,16 @@ extension SentryKSCrash {
     final class Installer: SentryKSCrash.Installing {
         private(set) var installed = false
 
-        func install(installPath: String, monitors: UInt, enableSwapCxaThrow: Bool) throws {
+        func install(
+            installPath: String,
+            monitors: UInt,
+            enableMemoryIntrospection: Bool,
+            enableSwapCxaThrow: Bool
+        ) throws {
             let config = KSCrashConfiguration()
             config.installPath = installPath
             config.monitors = MonitorType(rawValue: monitors)
+            config.enableMemoryIntrospection = enableMemoryIntrospection
             config.enableSwapCxaThrow = enableSwapCxaThrow
             do {
                 try KSCrash.shared.install(with: config)

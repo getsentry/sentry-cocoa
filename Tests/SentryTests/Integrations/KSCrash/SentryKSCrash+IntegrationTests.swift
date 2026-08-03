@@ -35,6 +35,36 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         XCTAssertEqual(installer.installCalls[0].monitors, SentryKSCrash.productionSafeMonitors)
     }
 
+    func testInstall_whenMemoryIntrospectionEnabled_shouldEnableMemoryIntrospection() throws {
+        // -- Arrange --
+        let installer = MockKSCrashInstaller()
+        let deps = MockKSCrashDependencies(installer: installer)
+        let options = makeOptions()
+        options.enableMemoryIntrospection = true
+
+        // -- Act --
+        _ = SentryKSCrash.Integration(with: options, dependencies: deps)
+
+        // -- Assert --
+        let installCall = try XCTUnwrap(installer.installCalls.first)
+        XCTAssertTrue(installCall.enableMemoryIntrospection)
+    }
+
+    func testInstall_whenMemoryIntrospectionDisabled_shouldDisableMemoryIntrospection() throws {
+        // -- Arrange --
+        let installer = MockKSCrashInstaller()
+        let deps = MockKSCrashDependencies(installer: installer)
+        let options = makeOptions()
+        options.enableMemoryIntrospection = false
+
+        // -- Act --
+        _ = SentryKSCrash.Integration(with: options, dependencies: deps)
+
+        // -- Assert --
+        let installCall = try XCTUnwrap(installer.installCalls.first)
+        XCTAssertFalse(installCall.enableMemoryIntrospection)
+    }
+
     func testInstall_whenCrashHandlerEnabled_shouldAppendKSCrashBundleSubdirectory() {
         // -- Arrange --
         let installer = MockKSCrashInstaller()

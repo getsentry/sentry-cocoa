@@ -16,7 +16,14 @@ final class MockKSCrashDependencies: SentryKSCrash.DependencyProvider {
 }
 
 final class MockKSCrashInstaller: SentryKSCrash.Installing {
-    public var installCalls: [(installPath: String, monitors: UInt, enableSwapCxaThrow: Bool)] = []
+    public var installCalls: [
+        (
+            installPath: String,
+            monitors: UInt,
+            enableMemoryIntrospection: Bool,
+            enableSwapCxaThrow: Bool
+        )
+    ] = []
     public var uninstallCallCount = 0
     public var shouldThrow: Error?
     public var crashedLastLaunch: Bool = false
@@ -24,8 +31,20 @@ final class MockKSCrashInstaller: SentryKSCrash.Installing {
 
     public init() {}
 
-    public func install(installPath: String, monitors: UInt, enableSwapCxaThrow: Bool) throws {
-        installCalls.append((installPath: installPath, monitors: monitors, enableSwapCxaThrow: enableSwapCxaThrow))
+    public func install(
+        installPath: String,
+        monitors: UInt,
+        enableMemoryIntrospection: Bool,
+        enableSwapCxaThrow: Bool
+    ) throws {
+        installCalls.append(
+            (
+                installPath: installPath,
+                monitors: monitors,
+                enableMemoryIntrospection: enableMemoryIntrospection,
+                enableSwapCxaThrow: enableSwapCxaThrow
+            )
+        )
         if let error = shouldThrow { throw error }
         installed = true
     }
