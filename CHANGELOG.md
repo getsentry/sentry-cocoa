@@ -15,7 +15,7 @@
 
 ### Fixes
 
-- Reduce memory usage when storing envelopes with large attachments (#3630)
+- Reduce memory usage when storing envelopes with large attachments (#8649)
 - Fix incorrect `duration` sent for active sessions (#8612)
   - Session `duration` is now set only when the session ends. Active sessions (including on error increments) no longer emit a bogus `duration`.
 - Fix a race that could prevent consecutive app hangs from being reported (#8627)
