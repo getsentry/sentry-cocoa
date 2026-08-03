@@ -233,7 +233,6 @@ class SentryFeedbackTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(picker.configuration.selectionLimit, 1)
         XCTAssertEqual(picker.configuration.filter, PHPickerFilter.images)
-        XCTAssertEqual(picker.configuration.preferredAssetRepresentationMode, .current)
         XCTAssertNotNil(picker.delegate)
         XCTAssertNotIdentical(picker.delegate as AnyObject?, sut)
     }

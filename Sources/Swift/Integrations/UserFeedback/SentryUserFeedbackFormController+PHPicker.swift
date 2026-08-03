@@ -26,8 +26,6 @@ extension SentryUserFeedbackFormController {
         var configuration = PHPickerConfiguration()
         configuration.filter = .images
         configuration.selectionLimit = 1
-        // Preserve the original bytes and metadata instead of requesting a conversion.
-        configuration.preferredAssetRepresentationMode = .current
         let picker = PHPickerViewController(configuration: configuration)
         let delegate = ScreenshotPickerDelegate(animations: config.animations) { [weak self] results in
             guard let self = self else { return }
