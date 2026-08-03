@@ -26,6 +26,7 @@ final class SentryUserFeedbackConfigurationTests: XCTestCase {
         sut.tags = ["source": "global"]
         sut.formConfig.formTitle = "Global title"
         sut.formConfig.isNameRequired = true
+        sut.formConfig.enableScreenshot = false
         sut.theme.background = .red
         sut.theme.outlineStyle = SentryUserFeedbackThemeConfiguration.SentryFormElementOutlineStyle(
             color: .green,
@@ -44,6 +45,7 @@ final class SentryUserFeedbackConfigurationTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(result.tags?["source"] as? String), "global")
         XCTAssertNotIdentical(result.formConfig, sut.formConfig)
         XCTAssertTrue(result.formConfig.isNameRequired)
+        XCTAssertFalse(result.formConfig.enableScreenshot)
         XCTAssertEqual(result.formConfig.formTitle, "Changed title")
         XCTAssertEqual(sut.formConfig.formTitle, "Global title")
         XCTAssertNotIdentical(result.theme, sut.theme)
@@ -101,6 +103,8 @@ final class SentryUserFeedbackConfigurationTests: XCTestCase {
             config.configureForm = { form in
                 form.submitButtonLabel = "Send Feedback"
                 form.cancelButtonLabel = "Close Feedback"
+                form.addScreenshotButtonLabel = "Attach screenshot"
+                form.screenshotAccessibilityLabel = "Screenshot attached"
                 form.removeScreenshotButtonLabel = "Delete screenshot"
                 form.messagePlaceholder = "Describe feedback"
                 form.namePlaceholder = "Your full name"
@@ -109,6 +113,8 @@ final class SentryUserFeedbackConfigurationTests: XCTestCase {
 
         XCTAssertEqual(result.formConfig.submitButtonAccessibilityLabel, "Send Feedback")
         XCTAssertEqual(result.formConfig.cancelButtonAccessibilityLabel, "Close Feedback")
+        XCTAssertEqual(result.formConfig.addScreenshotButtonAccessibilityLabel, "Attach screenshot")
+        XCTAssertEqual(result.formConfig.screenshotAccessibilityLabel, "Screenshot attached")
         XCTAssertEqual(result.formConfig.removeScreenshotButtonAccessibilityLabel, "Delete screenshot")
         XCTAssertEqual(result.formConfig.messageTextViewAccessibilityLabel, "Describe feedback")
         XCTAssertEqual(result.formConfig.nameTextFieldAccessibilityLabel, "Your full name")

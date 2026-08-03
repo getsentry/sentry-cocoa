@@ -2,6 +2,7 @@ import Foundation
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 @_spi(Private) import SentryTestUtils
 @_spi(Private) @testable import Sentry
+import PhotosUI
 import XCTest
 
 class SentryFeedbackTests: XCTestCase {
@@ -104,6 +105,137 @@ class SentryFeedbackTests: XCTestCase {
 
         XCTAssertEqual(openCalls, 2)
         XCTAssertEqual(closeCalls, 2)
+    }
+
+    func testForm_whenNoScreenshotProvided_shouldShowAddScreenshotButton() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+
+        // -- Act --
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+
+        // -- Assert --
+        XCTAssertFalse(sut.viewModel.addScreenshotButton.isHidden)
+        XCTAssertTrue(sut.viewModel.removeScreenshotStack.isHidden)
+    }
+
+    func testForm_whenScreenshotSelectionDisabled_shouldHideAddScreenshotButton() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        config.formConfig.enableScreenshot = false
+
+        // -- Act --
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+
+        // -- Assert --
+        XCTAssertTrue(sut.viewModel.addScreenshotButton.isHidden)
+        XCTAssertTrue(sut.viewModel.removeScreenshotStack.isHidden)
+    }
+
+    func testForm_whenAddScreenshotLabelsConfigured_shouldUseConfiguredLabels() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        config.formConfig.addScreenshotButtonLabel = "Attach image"
+        config.formConfig.addScreenshotButtonAccessibilityLabel = "Choose an image to attach"
+
+        // -- Act --
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+
+        // -- Assert --
+        XCTAssertEqual(sut.viewModel.addScreenshotButton.title(for: .normal), "Attach image")
+        XCTAssertEqual(sut.viewModel.addScreenshotButton.accessibilityLabel, "Choose an image to attach")
+    }
+
+    func testForm_whenScreenshotLoading_shouldShowActivityIndicatorAndHideButtonTitle() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        config.formConfig.addScreenshotButtonLabel = "Attach image"
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+
+        // -- Act --
+        sut.viewModel.setScreenshotLoading(true)
+
+        // -- Assert --
+        XCTAssertNil(sut.viewModel.addScreenshotButton.title(for: .normal))
+        XCTAssertFalse(sut.viewModel.addScreenshotButton.isEnabled)
+        XCTAssertFalse(sut.viewModel.submitButton.isEnabled)
+        XCTAssertTrue(sut.viewModel.screenshotLoadingIndicator.isAnimating)
+
+        // -- Act --
+        sut.viewModel.setScreenshotLoading(false)
+
+        // -- Assert --
+        XCTAssertEqual(sut.viewModel.addScreenshotButton.title(for: .normal), "Attach image")
+        XCTAssertTrue(sut.viewModel.addScreenshotButton.isEnabled)
+        XCTAssertTrue(sut.viewModel.submitButton.isEnabled)
+        XCTAssertFalse(sut.viewModel.screenshotLoadingIndicator.isAnimating)
+    }
+
+    func testForm_whenScreenshotProvided_shouldShowRemoveScreenshotButton() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+
+        // -- Act --
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: UIImage())
+
+        // -- Assert --
+        XCTAssertTrue(sut.viewModel.addScreenshotButton.isHidden)
+        XCTAssertFalse(sut.viewModel.removeScreenshotStack.isHidden)
+    }
+
+    func testSetScreenshot_whenImageSelected_shouldUseOriginalAttachment() throws {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        let data = Data("selected image".utf8)
+        let attachment = Attachment(data: data, filename: "selected.heic", contentType: "image/heic")
+        let image = UIGraphicsImageRenderer(size: CGSize(width: 200, height: 100)).image { _ in }
+
+        // -- Act --
+        sut.viewModel.setScreenshot(image: image, attachment: attachment)
+        let feedback = sut.viewModel.feedbackObject()
+
+        // -- Assert --
+        XCTAssertTrue(sut.viewModel.addScreenshotButton.isHidden)
+        XCTAssertFalse(sut.viewModel.removeScreenshotStack.isHidden)
+        XCTAssertFalse(sut.viewModel.screenshotImageView.isAccessibilityElement)
+        XCTAssertEqual(sut.viewModel.screenshotImageAspectRatioConstraint.multiplier, 2)
+        let selectedAttachment = try XCTUnwrap(feedback.attachmentsForEnvelope().first)
+        XCTAssertEqual(selectedAttachment.data, data)
+        XCTAssertEqual(selectedAttachment.filename, "selected.heic")
+        XCTAssertEqual(selectedAttachment.contentType, "image/heic")
+    }
+
+    func testRemoveScreenshot_whenImageSelected_shouldRemoveAttachment() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        let attachment = Attachment(data: Data(), filename: "selected.png", contentType: "image/png")
+        sut.viewModel.setScreenshot(image: UIImage(), attachment: attachment)
+
+        // -- Act --
+        sut.viewModel.removeScreenshotTapped()
+
+        // -- Assert --
+        XCTAssertFalse(sut.viewModel.addScreenshotButton.isHidden)
+        XCTAssertTrue(sut.viewModel.removeScreenshotStack.isHidden)
+        XCTAssertTrue(sut.viewModel.feedbackObject().attachmentsForEnvelope().isEmpty)
+    }
+
+    func testMakeScreenshotPicker_shouldSelectOneImageWithoutPhotoLibraryAccess() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+
+        // -- Act --
+        let picker = sut.makeScreenshotPicker()
+
+        // -- Assert --
+        XCTAssertEqual(picker.configuration.selectionLimit, 1)
+        XCTAssertEqual(picker.configuration.filter, PHPickerFilter.images)
+        XCTAssertEqual(picker.configuration.preferredAssetRepresentationMode, .current)
+        XCTAssertNotNil(picker.delegate)
+        XCTAssertNotIdentical(picker.delegate as AnyObject?, sut)
     }
 
     func testSerializeWithAllFields() throws {

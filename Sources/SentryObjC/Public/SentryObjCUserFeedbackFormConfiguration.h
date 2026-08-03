@@ -53,6 +53,27 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy) NSString *isRequiredLabel;
 
 /**
+ * Displays a button that lets users select a screenshot from their photo library.
+ * @note Default value is @c YES.
+ */
+@property (nonatomic) BOOL enableScreenshot;
+
+/**
+ * The label of the button to add a screenshot to the form.
+ * @note Default value is @c "Add a screenshot".
+ */
+@property (nonatomic, copy) NSString *addScreenshotButtonLabel;
+
+/// The accessibility label for the add screenshot button.
+@property (nonatomic, copy) NSString *addScreenshotButtonAccessibilityLabel;
+
+/**
+ * The accessibility description of a screenshot attached to the form.
+ * @note Default value is @c "Attached screenshot".
+ */
+@property (nonatomic, copy) NSString *screenshotAccessibilityLabel;
+
+/**
  * The label of the button to remove the screenshot from the form.
  * @note Default value is @c "Remove screenshot".
  */

@@ -34,6 +34,7 @@ public final class SentryUserFeedbackFormController: UIViewController {
         case didClose
     }
     private var formLifecycleState: FormLifecycleState = .idle
+    var screenshotPickerHandler: NSObject?
     lazy var viewModel = SentryUserFeedbackFormViewModel(config: config, controller: self, screenshot: screenshot)
 
     /// Creates a feedback form controller using the global configuration from `SentryOptions.configureUserFeedback`.
@@ -184,6 +185,11 @@ extension SentryUserFeedbackFormController {
 
 // MARK: SentryUserFeedbackFormViewModelDelegate
 extension SentryUserFeedbackFormController: SentryUserFeedbackFormViewModelDelegate {
+    func selectScreenshot() {
+        view.endEditing(true)
+        present(makeScreenshotPicker(), animated: config.animations)
+    }
+
     func submitFeedback() {
         switch viewModel.validate() {
         case .success:
