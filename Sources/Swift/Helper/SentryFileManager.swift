@@ -47,8 +47,8 @@ internal import _SentryPrivate
     }
 
     @discardableResult @objc(storeEnvelope:) public func store(_ envelope: SentryEnvelope) -> String? {
-        helper.storeEnvelope(withCurrentTime: dateProvider.date().timeIntervalSince1970) { [weak self] path in
-            self?.write(envelope, toPath: path) ?? false
+        helper.storeEnvelope(withCurrentTime: dateProvider.date().timeIntervalSince1970) { [self] path in
+            write(envelope, toPath: path)
         }
     }
     
