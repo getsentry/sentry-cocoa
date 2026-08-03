@@ -86,6 +86,12 @@ final class Buffer<Storage: StorageProtocol, Item: ItemProtocol> {
 - Tests should override dependencies through `SentryDependencyContainer.sharedInstance()` when possible
 - Do not use `PrivateSentrySDKOnly` as a test injection path when a dependency-container provider fits
 
+### Comments
+
+- Do not add comments to internal code that merely restate what the code does
+- Comment only to explain non-obvious _why_ (rationale, workaround, gotcha)
+- Public API: headerdocs are expected; write them once, properly
+
 ## Public API Surface
 
 - **Backward compatibility** — do not remove or rename public symbols; deprecate first
