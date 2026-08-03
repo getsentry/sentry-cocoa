@@ -16,7 +16,7 @@ Usage: $(basename "$0") [options]
 Create a .tgz archive for the sentry-apple-binaries distribution repo.
 Copies the binary Package.swift template, stamps in the release version
 and xcframework checksums, and tars the result alongside the SentryCppHelper
-source and .gitignore.
+source, CHANGELOG.md, README.md, LICENSE.md, and .gitignore.
 
 OPTIONS:
     --version <ver>             Release version, e.g. 9.24.0 (required)
@@ -62,8 +62,6 @@ fi
 
 ZIPS_AND_MARKERS=(
     "Sentry.xcframework.zip|Sentry-Static"
-    "Sentry-Dynamic.xcframework.zip|Sentry-Dynamic"
-    "SentryObjC-Dynamic.xcframework.zip|SentryObjC-Dynamic"
     "SentryObjC-Static.xcframework.zip|SentryObjC-Static"
 )
 
@@ -77,8 +75,14 @@ trap 'rm -rf "$STAGING_DIR"' EXIT
 
 cp "$DIST_DIR/Package.swift" "$STAGING_DIR/Package.swift"
 cp "$DIST_DIR/.gitignore" "$STAGING_DIR/.gitignore"
+cp "$DIST_DIR/README.md" "$STAGING_DIR/README.md"
+cp "$DIST_DIR/LICENSE.md" "$STAGING_DIR/LICENSE.md"
 mkdir -p "$STAGING_DIR/Sources/SentryCppHelper"
 cp "$DIST_DIR/Sources/SentryCppHelper/SentryCppHelper.swift" "$STAGING_DIR/Sources/SentryCppHelper/SentryCppHelper.swift"
+
+log_info "Preparing CHANGELOG.md for version $VERSION"
+cp "$REPO_ROOT/CHANGELOG.md" "$STAGING_DIR/CHANGELOG.md"
+sed -i.bak "s/^## Unreleased$/## ${VERSION}/" "$STAGING_DIR/CHANGELOG.md"
 
 log_info "Stamping version $VERSION into Package.swift"
 sed -i.bak "s|releases/download/[^/]*/|releases/download/${VERSION}/|g" "$STAGING_DIR/Package.swift"
@@ -103,6 +107,9 @@ tar -czf "$ARCHIVE_PATH" \
     -C "$STAGING_DIR" \
     Package.swift \
     Sources/SentryCppHelper/SentryCppHelper.swift \
+    CHANGELOG.md \
+    README.md \
+    LICENSE.md \
     .gitignore
 
 log_info "Created $ARCHIVE_PATH"

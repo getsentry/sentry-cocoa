@@ -2,6 +2,37 @@
 
 ## Unreleased
 
+> [!WARNING]
+> This release raises the minimum deployment targets to macOS 12 and watchOS 9. Apps that support older OS versions must use an earlier Sentry Cocoa release.
+
+### Breaking Changes
+
+- Bump the minimum deployment targets to macOS 12 and watchOS 9 because Xcode 27 no longer supports earlier versions. This lets the SDK adopt Xcode 27 without blocking users from building and submitting their apps with the latest Xcode. (#8595, #8113, #8189)
+
+### Fixes
+
+- Fix incorrect `duration` sent for active sessions (#8612)
+  - Session `duration` is now set only when the session ends. Active sessions (including on error increments) no longer emit a bogus `duration`.
+- Fix a race that could prevent consecutive app hangs from being reported (#8627)
+
+## 9.24.0
+
+### Breaking Changes
+
+> [!IMPORTANT]
+> Due to a potential risk of revealing PII or security-relevant data in crash events in specific circumstances, we're shipping this strictly speaking breaking change in a minor version.
+
+- Add `enableMemoryIntrospection` option to allow users to control memory introspection in crash reports, defaults to false (was previously true) (#8571)
+  - You can re-enable this feature by setting the option `enableMemoryIntrospection` to true
+  - When this option is disabled, string stack contents found near the crash site will not be included in the event sent to Sentry. These contents are displayed in the 'message' subtitle shown underneath the main issue title in Sentry.
+
+> [!WARNING]
+> This release raises the minimum deployment targets to macOS 12 and watchOS 9. Apps that support older OS versions must use an earlier Sentry Cocoa release.
+
+### Breaking Changes
+
+- Bump the minimum deployment targets to macOS 12 and watchOS 9 because Xcode 27 no longer supports earlier versions. This lets the SDK adopt Xcode 27 without blocking users from building and submitting their apps with the latest Xcode. (#8113, #8189)
+
 ### Features
 
 - Add `Breadcrumb.setData(value:key:)` to set a single breadcrumb data entry and deprecate the `Breadcrumb.data` setter in its favor. (#8572)

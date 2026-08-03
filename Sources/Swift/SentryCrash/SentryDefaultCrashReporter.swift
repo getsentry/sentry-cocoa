@@ -123,6 +123,12 @@ public final class SentryDefaultCrashReporter: NSObject, SentryCrashReporter {
         
         return 0
     }
+
+    @objc
+    public var introspectMemory: Bool {
+        get { bridge.crashReporter.introspectMemory }
+        set { bridge.crashReporter.introspectMemory = newValue }
+    }
     
     @objc
     public func enrichScope(_ scope: Scope) {
@@ -181,13 +187,11 @@ public final class SentryDefaultCrashReporter: NSObject, SentryCrashReporter {
         // Only include these boolean flags when they are `true` to reduce payload size.
         // These flags are `false` for the vast majority of events (regular iOS apps, native macOS apps, etc.),
         // so omitting them when `false` significantly reduces the payload size without losing meaningful information.
-        if #available(macOS 12, *) {
-            if self.processInfoWrapper.isiOSAppOnMac {
-                deviceData["ios_app_on_macos"] = true
-            }
-            if self.processInfoWrapper.isMacCatalystApp {
-                deviceData["mac_catalyst_app"] = true
-            }
+        if self.processInfoWrapper.isiOSAppOnMac {
+            deviceData["ios_app_on_macos"] = true
+        }
+        if self.processInfoWrapper.isMacCatalystApp {
+            deviceData["mac_catalyst_app"] = true
         }
         if self.processInfoWrapper.isiOSAppOnVisionOS {
             deviceData["ios_app_on_visionos"] = true
@@ -219,22 +223,20 @@ public final class SentryDefaultCrashReporter: NSObject, SentryCrashReporter {
     private func enrichScopeWithRuntimeData(_ scope: Scope) {
         var runtimeContext: [String: Any] = [:]
 
-        if #available(macOS 12, *) {
-            // We set this info on the runtime context because the app context has no existing fields
-            // suitable for representing Catalyst or iOS-on-Mac execution modes. We also wanted to avoid
-            // adding two new Apple-specific fields to the app context. Coming up with a generic,
-            // reusable property on the app context proved difficult, so instead we reuse the "name"
-            // field of the runtime context as a pragmatic and semantically acceptable solution.
-            // isiOSAppOnMac and isMacCatalystApp are mutually exclusive, so we only set one of them.
-            if self.processInfoWrapper.isiOSAppOnMac {
-                runtimeContext["name"] = "iOS App on Mac"
-                runtimeContext["raw_description"] = "ios-app-on-mac"
-            }
+        // We set this info on the runtime context because the app context has no existing fields
+        // suitable for representing Catalyst or iOS-on-Mac execution modes. We also wanted to avoid
+        // adding two new Apple-specific fields to the app context. Coming up with a generic,
+        // reusable property on the app context proved difficult, so instead we reuse the "name"
+        // field of the runtime context as a pragmatic and semantically acceptable solution.
+        // isiOSAppOnMac and isMacCatalystApp are mutually exclusive, so we only set one of them.
+        if self.processInfoWrapper.isiOSAppOnMac {
+            runtimeContext["name"] = "iOS App on Mac"
+            runtimeContext["raw_description"] = "ios-app-on-mac"
+        }
 
-            if self.processInfoWrapper.isMacCatalystApp {
-                runtimeContext["name"] = "Mac Catalyst App"
-                runtimeContext["raw_description"] = "mac-catalyst-app"
-            }
+        if self.processInfoWrapper.isMacCatalystApp {
+            runtimeContext["name"] = "Mac Catalyst App"
+            runtimeContext["raw_description"] = "mac-catalyst-app"
         }
 
         if !runtimeContext.isEmpty {

@@ -217,12 +217,6 @@ enum SentrySessionStatus: String {
 
             if let duration = _duration {
                 serializedData["duration"] = duration
-            } else if _flagInit == nil {
-                if let secondsBetween = _timestamp?.timeIntervalSince(_started) {
-                    serializedData["duration"] = NSNumber(value: secondsBetween)
-                } else {
-                    serializedData["duration"] = NSNumber(value: 0)
-                }
             }
 
             serializedData["seq"] = _sequence

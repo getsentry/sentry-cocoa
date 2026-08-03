@@ -71,7 +71,6 @@ class SentryStacktraceBuilderTests: XCTestCase {
         )
     }
 
-    @available(macOS 10.15, *)
     func testConcurrentStacktraces() throws {
         SentrySDK.start { options in
             options.dsn = TestConstants.dsnAsString(username: "SentryStacktraceBuilderTests")
@@ -93,7 +92,6 @@ class SentryStacktraceBuilderTests: XCTestCase {
         wait(for: [waitForAsyncToRun], timeout: 10)
     }
 
-    @available(macOS 10.15, *)
     func testConcurrentStacktraces_noStitching() throws {
         SentrySDK.start { options in
             options.dsn = TestConstants.dsnAsString(username: "SentryStacktraceBuilderTests")
@@ -115,13 +113,11 @@ class SentryStacktraceBuilderTests: XCTestCase {
         wait(for: [waitForAsyncToRun], timeout: 10)
     }
 
-    @available(macOS 10.15, *)
     private func firstFrame() async -> Int {
         print("\(Date()) [Sentry] [TEST] first async frame about to await...")
         return await innerFrame1()
     }
 
-    @available(macOS 10.15, *)
     private func innerFrame1() async -> Int {
         print("\(Date()) [Sentry] [TEST] second async frame about to await on task...")
         await Task { @MainActor in

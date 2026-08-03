@@ -96,6 +96,11 @@ private final class CrashReportFilterBridge: NSObject, SentryCrashReportFilter {
         sentryCrash.monitoring.rawValue
     }
 
+    @objc public var introspectMemory: Bool {
+        get { sentryCrash.introspectMemory }
+        set { sentryCrash.introspectMemory = newValue }
+    }
+
     @objc public func hasOnCrash() -> Bool {
         sentryCrash.onCrash != nil
     }

@@ -82,7 +82,9 @@ targets:
           - "**/.gitkeep"
     dependencies:
       - target: Sentry/Sentry
+        embed: true
       - target: SentrySampleShared/SentrySampleShared
+        embed: true
     configFiles:
       Debug: Extension/Configurations/watchOS-Swift-Extension.xcconfig
       Release: Extension/Configurations/watchOS-Swift-Extension.xcconfig

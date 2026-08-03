@@ -28,20 +28,67 @@ class SentrySessionTestsSwift: XCTestCase {
     }
     
     func testInitAndDurationNilWhenSerialize() {
+        // A restored, still-active session (no init flag, no stored duration, but with a
+        // timestamp) must not gain a duration on re-serialization. Duration is only set on
+        // session end.
         let session1 = SentrySession(releaseName: "1.4.0", distinctId: "some-id")
         var json = session1.serialize()
         json.removeValue(forKey: "init")
         json.removeValue(forKey: "duration")
-        
+
         let date = currentDateProvider.date().addingTimeInterval(2)
         json["timestamp"] = sentry_toIso8601String(date as Date)
         guard let session = SentrySession(jsonObject: json) else {
             XCTFail("Couldn't create session from JSON"); return
         }
-        
+
         let sessionSerialized = session.serialize()
-        let duration = sessionSerialized["duration"] as? Double ?? -1
-        XCTAssertEqual(2, duration)
+        XCTAssertNil(sessionSerialized["init"])
+        XCTAssertNil(sessionSerialized["duration"])
+    }
+
+    func testSerialize_whenActiveSessionWithIncrementedErrors_shouldNotSerializeDuration() {
+        // -- Arrange --
+        // incrementErrors clears the init flag but does not set a timestamp. An active
+        // (status ok) session must not report a bogus duration of 0 in this state.
+        let session = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
+        currentDateProvider.setDate(date: currentDateProvider.date().addingTimeInterval(60))
+        session.incrementErrors()
+
+        // -- Act --
+        let json = session.serialize()
+
+        // -- Assert --
+        XCTAssertNil(json["duration"])
+        XCTAssertNil(json["init"])
+        XCTAssertEqual("ok", json["status"] as? String)
+        XCTAssertEqual(1, json["errors"] as? UInt)
+    }
+
+    func testSerialize_whenActiveSession_shouldNotSerializeDuration() {
+        // -- Arrange --
+        let session = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
+
+        // -- Act --
+        let json = session.serialize()
+
+        // -- Assert --
+        XCTAssertNil(json["duration"])
+    }
+
+    func testSerialize_whenEndedSession_shouldSerializeDuration() {
+        // -- Arrange --
+        // Duration is set when the session ends and must survive serialization.
+        let session = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
+        let endDate = currentDateProvider.date().addingTimeInterval(2)
+        session.endExited(withTimestamp: endDate)
+
+        // -- Act --
+        let json = session.serialize()
+
+        // -- Assert --
+        XCTAssertEqual(2, json["duration"] as? Double)
+        XCTAssertEqual("exited", json["status"] as? String)
     }
 
     func testCopySession() throws {

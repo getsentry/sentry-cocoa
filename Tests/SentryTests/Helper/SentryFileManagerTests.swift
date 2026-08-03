@@ -39,7 +39,7 @@ class SentryFileManagerTests: XCTestCase {
             
             let sessionCopy = try XCTUnwrap(session.copy() as? SentrySession)
             sessionCopy.incrementErrors()
-            // We need to serialize in order to set the timestamp and the duration
+            // We need to serialize in order to set the timestamp
             sessionUpdate = SentrySession(jsonObject: sessionCopy.serialize())!
             
             let event = Event()
@@ -47,9 +47,8 @@ class SentryFileManagerTests: XCTestCase {
             sessionUpdateEnvelope = SentryEnvelope(id: event.eventId, items: items)
             
             let sessionUpdateCopy = try XCTUnwrap(sessionUpdate.copy() as? SentrySession)
-            // We need to serialize in order to set the timestamp and the duration
+            // We need to serialize in order to set the timestamp
             expectedSessionUpdate = SentrySession(jsonObject: sessionUpdateCopy.serialize())!
-            // We can only set the init flag after serialize, because the duration is not set if the init flag is set
             expectedSessionUpdate.setFlagInit()
         }
         
@@ -933,7 +932,6 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertNil(sut.readTimezoneOffset())
     }
 
-    @available(macOS 11.3, *)
     func testIsErrorPathTooLong_underlyingErrorsAvailableAndMultipleErrorsGiven_shouldUseErrorInUserInfo() throws {
         // -- Arrange --
         // When accessing via `underlyingErrors`, the first result is the error set with `NSUnderlyingErrorKey`.
@@ -950,7 +948,6 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertTrue(result)
     }
 
-    @available(macOS 11.3, *)
     func testIsErrorPathTooLong_underlyingErrorsAvailableAndMultipleErrorsEmpty_shouldUseErrorInUserInfo() throws {
         // -- Arrange --
         // When accessing via `underlyingErrors`, the first result is the error set with `NSUnderlyingErrorKey`.
@@ -978,7 +975,6 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertTrue(result)
     }
 
-    @available(macOS 11.3, *)
     func testIsErrorPathTooLong_underlyingErrorsAvailableAndOnlyMultipleErrorsGiven_shouldUseErrorFirstError() throws {
         // -- Arrange --
         // When accessing via `underlyingErrors`, the first result is the error set with `NSUnderlyingErrorKey`.
@@ -995,7 +991,7 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertTrue(result)
     }
 
-    func testIsErrorPathTooLong_underlyingErrorsNotAvailableAndErrorNotInUserInfo_shouldNotCheckError() throws {
+    func testIsErrorPathTooLong_underlyingErrorsEmptyAndErrorNotInUserInfo_shouldNotCheckError() throws {
         // -- Arrange --
         // When accessing via `underlyingErrors`, the first result is the error set with `NSUnderlyingErrorKey`.
         // This test asserts if that behavior changes.
@@ -1006,7 +1002,7 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertFalse(result)
     }
 
-    func testIsErrorPathTooLong_underlyingErrorsNotAvailableAndNonErrorInUserInfo_shouldNotCheckError() throws {
+    func testIsErrorPathTooLong_underlyingErrorsEmptyAndNonErrorInUserInfo_shouldNotCheckError() throws {
         // -- Arrange --
         // When accessing via `underlyingErrors`, the first result is the error set with `NSUnderlyingErrorKey`.
         // This test asserts if that behavior changes.
@@ -1019,7 +1015,7 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertFalse(result)
     }
 
-    func testIsErrorPathTooLong_underlyingErrorsNotAvailableAndErrorInUserInfo_shouldNotCheckError() throws {
+    func testIsErrorPathTooLong_underlyingErrorsUsesErrorInUserInfo_shouldCheckError() throws {
         // -- Arrange --
         // When accessing via `underlyingErrors`, the first result is the error set with `NSUnderlyingErrorKey`.
         // This test asserts if that behavior changes.

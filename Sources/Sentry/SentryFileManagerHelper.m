@@ -18,10 +18,7 @@ NSString *const EnvelopesPathComponent = @"envelopes";
 BOOL
 isErrorPathTooLong(NSError *error)
 {
-    NSError *_Nullable underlyingError;
-    if (@available(macOS 11.3, *)) {
-        underlyingError = error.underlyingErrors.firstObject;
-    }
+    NSError *_Nullable underlyingError = error.underlyingErrors.firstObject;
     if (underlyingError == NULL) {
         id errorInUserInfo = [error.userInfo valueForKey:NSUnderlyingErrorKey];
         if (errorInUserInfo && [errorInUserInfo isKindOfClass:[NSError class]]) {
