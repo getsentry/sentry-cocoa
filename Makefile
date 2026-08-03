@@ -1242,18 +1242,20 @@ test-visionos-v10-with-kscrash:
 #
 # Builds and runs the test server in the background for integration testing.
 # Saves the process ID to test-server/.test-server.pid for safe shutdown.
+# Serves on port 8081, which is the port the tests and scripts/start-test-server.sh expect.
 .PHONY: run-test-server
 run-test-server:
 	cd ./test-server && swift build
-	cd ./test-server && { swift run & echo $$! > .test-server.pid; }
+	cd ./test-server && { swift run Run serve --port 8081 & echo $$! > .test-server.pid; }
 
 ## Run test server synchronously
 #
 # Builds and runs the test server synchronously (blocks until stopped).
+# Serves on port 8081, which is the port the tests and scripts/start-test-server.sh expect.
 .PHONY: run-test-server-sync
 run-test-server-sync:
 	cd ./test-server && swift build
-	cd ./test-server && swift run
+	cd ./test-server && swift run Run serve --port 8081
 
 ## Stop test server
 #

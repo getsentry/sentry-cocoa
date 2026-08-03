@@ -2,6 +2,8 @@
   "header": {
     "event_id": "<event-id>",
     "sdk": {
+      "features": "<features>",
+      "integrations": "<integrations>",
       "name": "sentry.cocoa",
       "packages": [],
       "settings": {
@@ -11,20 +13,16 @@
     },
     "trace": {
       "environment": "test",
-      "public_key": "SentryNetworkTrackerIntegrationTestServerTests.testSuccessfulRequest_whenTransactionFinishes_shouldMatchEnvelopeBaseline()",
-      "release": "io.sentry.network-envelope-baseline@1.0.0+1",
-      "sample_rand": "<sample-rand>",
-      "sample_rate": "1.000000",
-      "sampled": "true",
-      "trace_id": "<trace-id>",
-      "transaction": "Network Envelope Baseline"
+      "public_key": "SentryNetworkTrackerIntegrationTestServerTests.testFailedRequest_whenCaptureEnabled_shouldMatchEnvelopeSnapshot()",
+      "release": "io.sentry.network-envelope-snapshot@1.0.0+1",
+      "trace_id": "<trace-id>"
     }
   },
   "items": [
     {
       "header": {
         "length": "<length>",
-        "type": "transaction"
+        "type": "event"
       },
       "payload": {
         "contexts": {
@@ -69,29 +67,55 @@
             "rooted": "<runtime-value>",
             "version": "<runtime-value>"
           },
-          "profile": {},
-          "trace": {
-            "data": {
-              "thread.id": "<thread-id>",
-              "thread.name": "main"
+          "response": {
+            "body_size": 37,
+            "headers": {
+              "Connection": "keep-alive",
+              "Content-Length": "37",
+              "Content-Type": "application/json; charset=utf-8",
+              "Date": "<timestamp>"
             },
-            "op": "test.network",
-            "origin": "manual",
-            "sampled": true,
+            "status_code": 400
+          },
+          "trace": {
             "span_id": "<span-id>",
-            "start_timestamp": "<timestamp>",
-            "status": "ok",
-            "timestamp": "<timestamp>",
-            "trace_id": "<trace-id>",
-            "type": "trace"
+            "trace_id": "<trace-id>"
           }
         },
+        "debug_meta": "<debug-meta>",
         "dist": "<runtime-value>",
         "environment": "test",
         "event_id": "<event-id>",
+        "exception": {
+          "values": [
+            {
+              "mechanism": {
+                "type": "HTTPClientError"
+              },
+              "stacktrace": "<stacktrace>",
+              "type": "HTTPClientError",
+              "value": "HTTP Client Error with status code: 400"
+            }
+          ]
+        },
+        "extra": {},
+        "level": "error",
         "platform": "cocoa",
-        "release": "io.sentry.network-envelope-baseline@1.0.0+1",
+        "release": "io.sentry.network-envelope-snapshot@1.0.0+1",
+        "request": {
+          "headers": {
+            "Accept": "*/*",
+            "Accept-Encoding": "gzip, deflate",
+            "Accept-Language": "<accept-language>",
+            "baggage": "<baggage>",
+            "sentry-trace": "<sentry-trace>"
+          },
+          "method": "GET",
+          "url": "http://localhost:8081/http-client-error"
+        },
         "sdk": {
+          "features": "<features>",
+          "integrations": "<integrations>",
           "name": "sentry.cocoa",
           "packages": [],
           "settings": {
@@ -99,36 +123,9 @@
           },
           "version": "<sdk-version>"
         },
-        "spans": [
-          {
-            "data": {
-              "http.request.method": "GET",
-              "http.response.status_code": 200,
-              "thread.id": "<thread-id>",
-              "thread.name": "main",
-              "type": "fetch",
-              "url": "http://localhost:8081/echo-sentry-trace"
-            },
-            "description": "GET http://localhost:8081/echo-sentry-trace",
-            "op": "http.client",
-            "origin": "auto.http.ns_url_session",
-            "parent_span_id": "<span-id>",
-            "sampled": true,
-            "span_id": "<span-id>",
-            "start_timestamp": "<timestamp>",
-            "status": "ok",
-            "timestamp": "<timestamp>",
-            "trace_id": "<trace-id>",
-            "type": "trace"
-          }
-        ],
-        "start_timestamp": "<timestamp>",
+        "tags": {},
+        "threads": "<threads>",
         "timestamp": "<timestamp>",
-        "transaction": "Network Envelope Baseline",
-        "transaction_info": {
-          "source": "custom"
-        },
-        "type": "transaction",
         "user": {
           "id": "<id>"
         }

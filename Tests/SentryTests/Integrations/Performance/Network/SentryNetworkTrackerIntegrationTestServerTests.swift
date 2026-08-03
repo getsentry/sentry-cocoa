@@ -11,7 +11,10 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
 
     override func tearDown() {
         super.tearDown()
-        clearTestState()
+        // Closing the SDK uninstalls all integrations, which disables the network tracker and its
+        // URLSession swizzling. Without this, the swizzled callbacks of one test leak into the next
+        // one and create spans on the wrong transaction.
+        SentrySDK.close()
     }
 
     func testGetRequest_SpanCreatedAndBaggageHeaderAdded() throws {
@@ -133,7 +136,7 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         XCTAssertEqual(statusCode, 400)
     }
 
-    func testSuccessfulRequest_whenTransactionFinishes_shouldMatchEnvelopeBaseline() throws {
+    func testSuccessfulRequest_whenTransactionFinishes_shouldMatchEnvelopeSnapshot() throws {
         // -- Arrange --
         try ensureTestServerIsRunning()
         let url = try XCTUnwrap(URL(string: "http://localhost:8081/echo-sentry-trace"))
@@ -143,11 +146,11 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
             envelopeCaptured: envelopeCaptured,
             expectedEnvelopeItemType: SentryEnvelopeItemTypes.transaction
         ) {
-            self.configureEnvelopeBaselineOptions($0)
+            self.configureEnvelopeSnapshotOptions($0)
             $0.enableNetworkBreadcrumbs = false
         }
         let transaction = try XCTUnwrap(SentrySDK.startTransaction(
-            name: "Network Envelope Baseline",
+            name: "Network Envelope Snapshot",
             operation: "test.network",
             bindToScope: true
         ) as? SentryTracer)
@@ -166,14 +169,14 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(transport.sentEnvelopes.count, 1)
         let envelope = try XCTUnwrap(transport.sentEnvelopes.first)
-        try NetworkEnvelopeBaseline.assertMatches(
+        try NetworkEnvelopeSnapshot.assertMatches(
             envelope: envelope,
             resource: "successful-request-transaction",
             testCase: self
         )
     }
 
-    func testFailedRequest_whenCaptureEnabled_shouldMatchEnvelopeBaseline() throws {
+    func testFailedRequest_whenCaptureEnabled_shouldMatchEnvelopeSnapshot() throws {
         // -- Arrange --
         try ensureTestServerIsRunning()
         let url = try XCTUnwrap(URL(string: "http://localhost:8081/http-client-error"))
@@ -183,7 +186,7 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
             envelopeCaptured: envelopeCaptured,
             expectedEnvelopeItemType: SentryEnvelopeItemTypes.event
         ) {
-            self.configureEnvelopeBaselineOptions($0)
+            self.configureEnvelopeSnapshotOptions($0)
             $0.enableCaptureFailedRequests = true
             $0.failedRequestStatusCodes = [HttpStatusCodeRange(statusCode: 400)]
         }
@@ -200,7 +203,7 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(transport.sentEnvelopes.count, 1)
         let envelope = try XCTUnwrap(transport.sentEnvelopes.first)
-        try NetworkEnvelopeBaseline.assertMatches(
+        try NetworkEnvelopeSnapshot.assertMatches(
             envelope: envelope,
             resource: "failed-request-event",
             testCase: self
@@ -264,7 +267,7 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
     }
     // swiftlint:enable avoid_dispatch_groups_in_tests
 
-    private func configureEnvelopeBaselineOptions(_ options: Options) {
+    private func configureEnvelopeSnapshotOptions(_ options: Options) {
         options.enableAutoSessionTracking = false
         options.enableAutoBreadcrumbTracking = false
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
@@ -274,7 +277,7 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         options.enableFileIOTracing = false
         options.enableDataSwizzling = false
         options.enableCoreDataTracing = false
-        options.releaseName = "io.sentry.network-envelope-baseline@1.0.0+1"
+        options.releaseName = "io.sentry.network-envelope-snapshot@1.0.0+1"
         options.environment = "test"
     }
 
