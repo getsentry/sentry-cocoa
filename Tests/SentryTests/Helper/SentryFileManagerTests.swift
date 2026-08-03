@@ -206,6 +206,21 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertTrue(sut.allFilesInFolder(sut.sentryPath).filter { $0.hasSuffix(".tmp") }.isEmpty)
     }
 
+    func testStore_whenSentryRootIsReadOnly_shouldStoreEnvelope() throws {
+        // -- Arrange --
+        try FileManager.default.setAttributes([.posixPermissions: 0o555], ofItemAtPath: sut.sentryPath)
+        defer {
+            XCTAssertNoThrow(try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: sut.sentryPath))
+        }
+
+        // -- Act --
+        let path = sut.store(TestConstants.envelope)
+
+        // -- Assert --
+        XCTAssertNotNil(path)
+        XCTAssertEqual(sut.getAllEnvelopes().count, 1)
+    }
+
     func testStore_whenEnvelopeHasLargeAttachment_shouldStoreValidEnvelope() throws {
         // -- Arrange --
         let attachmentData = Data(repeating: 0x2A, count: 20 * 1_024 * 1_024)

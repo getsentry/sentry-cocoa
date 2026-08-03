@@ -315,7 +315,9 @@ internal import _SentryPrivate
 
 private extension SentryFileManager {
     func write(_ envelope: SentryEnvelope, toPath path: String) -> Bool {
-        let temporaryPath = (sentryPath as NSString).appendingPathComponent("\(UUID().uuidString).tmp")
+        let temporaryPath = FileManager.default.temporaryDirectory
+            .appendingPathComponent("\(UUID().uuidString).tmp")
+            .path
         guard FileManager.default.createFile(atPath: temporaryPath, contents: nil) else {
             SentrySDKLog.error("Failed to create temporary envelope file at path: \(temporaryPath)")
             return false
