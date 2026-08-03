@@ -139,7 +139,10 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         let url = try XCTUnwrap(URL(string: "http://localhost:8081/echo-sentry-trace"))
         let requestCompleted = expectation(description: "Request completed")
         let envelopeCaptured = expectation(description: "Envelope captured")
-        let transport = startSDK(envelopeCaptured: envelopeCaptured) {
+        let transport = startSDK(
+            envelopeCaptured: envelopeCaptured,
+            expectedEnvelopeItemType: SentryEnvelopeItemTypes.transaction
+        ) {
             self.configureEnvelopeBaselineOptions($0)
             $0.enableNetworkBreadcrumbs = false
         }
@@ -176,7 +179,10 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         let url = try XCTUnwrap(URL(string: "http://localhost:8081/http-client-error"))
         let requestCompleted = expectation(description: "Request completed")
         let envelopeCaptured = expectation(description: "Envelope captured")
-        let transport = startSDK(envelopeCaptured: envelopeCaptured) {
+        let transport = startSDK(
+            envelopeCaptured: envelopeCaptured,
+            expectedEnvelopeItemType: SentryEnvelopeItemTypes.event
+        ) {
             self.configureEnvelopeBaselineOptions($0)
             $0.enableCaptureFailedRequests = true
             $0.failedRequestStatusCodes = [HttpStatusCodeRange(statusCode: 400)]
@@ -270,6 +276,7 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
     private func startSDK(
         function: String = #function,
         envelopeCaptured: XCTestExpectation? = nil,
+        expectedEnvelopeItemType: String? = nil,
         _ configureOptions: ((Options) -> Void)? = nil
     ) -> EnvelopeCapturingTransport {
         let options = Options()
@@ -280,7 +287,10 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
 
         SentrySDK.start(options: options)
 
-        let transport = EnvelopeCapturingTransport(expectation: envelopeCaptured)
+        let transport = EnvelopeCapturingTransport(
+            expectation: envelopeCaptured,
+            expectedEnvelopeItemType: expectedEnvelopeItemType
+        )
         let client = SentrySDKInternal.currentHub().client()
         Dynamic(client).transportAdapter = SentryTransportAdapter(transports: [transport], options: options)
         return transport
@@ -289,12 +299,18 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
     private final class EnvelopeCapturingTransport: NSObject, Transport {
         let sentEnvelopes = Invocations<SentryEnvelope>()
         private let expectation: XCTestExpectation?
+        private let expectedEnvelopeItemType: String?
 
-        init(expectation: XCTestExpectation?) {
+        init(expectation: XCTestExpectation?, expectedEnvelopeItemType: String?) {
             self.expectation = expectation
+            self.expectedEnvelopeItemType = expectedEnvelopeItemType
         }
 
         func send(envelope: SentryEnvelope) {
+            if let expectedEnvelopeItemType,
+               !envelope.items.contains(where: { $0.header.type == expectedEnvelopeItemType }) {
+                return
+            }
             sentEnvelopes.record(envelope)
             expectation?.fulfill()
         }
