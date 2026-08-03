@@ -2,6 +2,7 @@
 import Foundation
 
 @_spi(Private) @objc public protocol SentryCrashReporter: NSObjectProtocol {
+    @objc var installed: Bool { get }
     @objc var crashedLastLaunch: Bool { get }
     @objc var durationFromCrashStateInitToLastCrash: TimeInterval { get }
     @objc var activeDurationSinceLastCrash: TimeInterval { get }

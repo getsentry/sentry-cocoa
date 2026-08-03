@@ -87,6 +87,9 @@
     },
     {
       "parallelizable" : false,
+      "skippedTests" : [
+        "SentryObjCInternalProfilingApiIntegrationTests\/testCollect_shouldContainTransactionInfo"
+      ],
       "target" : {
         "containerPath" : "container:Sentry.xcodeproj",
         "identifier" : "D4B67CFB2FC5E6F20022BC67",

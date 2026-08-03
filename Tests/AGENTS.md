@@ -23,12 +23,23 @@ make test-ui-critical                                          # important UI te
 
 ### Test Server
 
-Only needed for `SentryNetworkTrackerIntegrationTestServerTests` (3 tests). Most tests run without it.
+Only needed for `SentryNetworkTrackerIntegrationTestServerTests` (5 tests). Most tests run without it.
 
 ```bash
 make run-test-server
 ./scripts/sentry-xcodebuild.sh --platform iOS --command test --test-plan Sentry_TestServer
 make stop-test-server   # always stop after use
+```
+
+Some of these tests compare full envelopes against JSON snapshots in `Tests/Resources/NetworkEnvelopeSnapshots`. The comparison is strict in both directions, so unexpected new keys fail too. On mismatch the failure lists every difference and prints the actual envelope JSON to update the snapshot from.
+
+V10 uses the `-v10` variant of each snapshot, selected automatically. Payload changes usually need both files updated. Run each variant with a test plan:
+
+```bash
+make run-test-server
+make test-macos TEST_PLAN=Sentry_TestServer      # v9 snapshots
+make test-macos-v10 TEST_PLAN=Sentry_TestServer  # -v10 snapshots
+make stop-test-server
 ```
 
 ## Test Location for SentryObjC Targets
