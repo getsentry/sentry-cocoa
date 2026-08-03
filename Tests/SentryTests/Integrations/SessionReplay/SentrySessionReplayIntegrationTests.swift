@@ -27,6 +27,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
             super.init()
         }
 
+        var installed: Bool { false }
         var crashedLastLaunch: Bool { false }
         var durationFromCrashStateInitToLastCrash: TimeInterval { 0 }
         var activeDurationSinceLastCrash: TimeInterval { 0 }

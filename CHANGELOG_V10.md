@@ -4,6 +4,8 @@
 
 ### Features
 
+- Install KSCrash crash handler in `Sentry+KSCrash` with production-safe monitors matching SentryCrash's existing monitor set (#8469)
+  - Respect `options.enableMemoryIntrospection` when configuring KSCrash
 - Add `options.dataCollection` to configure data collection behaviour (#8448)
   - Allows dictionary initialization for `options.dataCollection` (#8371)
   - Renamed `options.dataCollection.queryParams` to `options.dataCollection.urlQueryParams` (#8414)
