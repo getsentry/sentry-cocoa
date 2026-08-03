@@ -47,12 +47,9 @@ internal import _SentryPrivate
     }
 
     @discardableResult @objc(storeEnvelope:) public func store(_ envelope: SentryEnvelope) -> String? {
-        let envelopeData = SentrySerializationSwift.data(with: envelope)
-        guard let envelopeData else {
-            SentrySDKLog.error("Serialization of envelope failed. Can't store envelope.")
-            return nil
+        helper.storeEnvelope(withCurrentTime: dateProvider.date().timeIntervalSince1970) { [weak self] path in
+            self?.write(envelope, toPath: path) ?? false
         }
-        return helper.storeEnvelopeData(envelopeData, currentTime: self.dateProvider.date().timeIntervalSince1970)
     }
     
     @objc public func getEnvelopesPath(_ filePath: String) -> String? {
@@ -313,6 +310,55 @@ internal import _SentryPrivate
             removeFile(atPath: envelopeFilePath)
         }
         SentrySDKLog.debug("Removed \(numberOfEnvelopesToRemove) file(s) from <\((envelopesPath as NSString).lastPathComponent)>")
+    }
+}
+
+private extension SentryFileManager {
+    func write(_ envelope: SentryEnvelope, toPath path: String) -> Bool {
+        let temporaryPath = (sentryPath as NSString).appendingPathComponent("\(UUID().uuidString).tmp")
+        guard FileManager.default.createFile(atPath: temporaryPath, contents: nil) else {
+            SentrySDKLog.error("Failed to create temporary envelope file at path: \(temporaryPath)")
+            return false
+        }
+
+        guard let fileHandle = FileHandle(forWritingAtPath: temporaryPath) else {
+            SentrySDKLog.error("Failed to open temporary envelope file at path: \(temporaryPath)")
+            removeFile(atPath: temporaryPath)
+            return false
+        }
+
+        var isFileOpen = true
+        defer {
+            if isFileOpen {
+                try? fileHandle.close()
+            }
+            try? FileManager.default.removeItem(atPath: temporaryPath)
+        }
+
+        let serialized = SentrySerializationSwift.writeEnvelopeData(envelope) { data in
+            do {
+                try fileHandle.write(contentsOf: data)
+                return true
+            } catch {
+                SentrySDKLog.error("Failed to write envelope data to temporary file: \(error)")
+                return false
+            }
+        }
+        guard serialized else {
+            SentrySDKLog.error("Serialization of envelope failed. Can't store envelope.")
+            return false
+        }
+
+        do {
+            try fileHandle.synchronize()
+            try fileHandle.close()
+            isFileOpen = false
+            try FileManager.default.moveItem(atPath: temporaryPath, toPath: path)
+            return true
+        } catch {
+            SentrySDKLog.error("Failed to atomically store envelope at path \(path): \(error)")
+            return false
+        }
     }
 }
 // swiftlint:enable missing_docs
