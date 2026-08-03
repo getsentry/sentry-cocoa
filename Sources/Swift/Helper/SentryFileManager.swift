@@ -320,19 +320,25 @@ private extension SentryFileManager {
             SentrySDKLog.error("Failed to create temporary envelope file at path: \(temporaryPath)")
             return false
         }
+        defer { removeTemporaryFile(atPath: temporaryPath) }
 
-        guard let fileHandle = FileHandle(forWritingAtPath: temporaryPath) else {
-            SentrySDKLog.error("Failed to open temporary envelope file at path: \(temporaryPath)")
-            removeFile(atPath: temporaryPath)
+        guard writeEnvelope(envelope, toTemporaryPath: temporaryPath) else {
             return false
         }
 
-        var isFileOpen = true
-        defer {
-            if isFileOpen {
-                try? fileHandle.close()
-            }
-            try? FileManager.default.removeItem(atPath: temporaryPath)
+        do {
+            try FileManager.default.moveItem(atPath: temporaryPath, toPath: path)
+            return true
+        } catch {
+            SentrySDKLog.error("Failed to publish envelope at path \(path): \(error)")
+            return false
+        }
+    }
+
+    func writeEnvelope(_ envelope: SentryEnvelope, toTemporaryPath path: String) -> Bool {
+        guard let fileHandle = FileHandle(forWritingAtPath: path) else {
+            SentrySDKLog.error("Failed to open temporary envelope file at path: \(path)")
+            return false
         }
 
         let serialized = SentrySerializationSwift.writeEnvelopeData(envelope) { data in
@@ -345,19 +351,40 @@ private extension SentryFileManager {
             }
         }
         guard serialized else {
+            close(fileHandle, atPath: path)
             SentrySDKLog.error("Serialization of envelope failed. Can't store envelope.")
             return false
         }
 
         do {
             try fileHandle.synchronize()
+        } catch {
+            close(fileHandle, atPath: path)
+            SentrySDKLog.error("Failed to synchronize temporary envelope file at path \(path): \(error)")
+            return false
+        }
+        return close(fileHandle, atPath: path)
+    }
+
+    @discardableResult
+    func close(_ fileHandle: FileHandle, atPath path: String) -> Bool {
+        do {
             try fileHandle.close()
-            isFileOpen = false
-            try FileManager.default.moveItem(atPath: temporaryPath, toPath: path)
             return true
         } catch {
-            SentrySDKLog.error("Failed to atomically store envelope at path \(path): \(error)")
+            SentrySDKLog.debug("Failed to close temporary envelope file at path \(path): \(error)")
             return false
+        }
+    }
+
+    func removeTemporaryFile(atPath path: String) {
+        guard FileManager.default.fileExists(atPath: path) else {
+            return
+        }
+        do {
+            try FileManager.default.removeItem(atPath: path)
+        } catch {
+            SentrySDKLog.debug("Failed to remove temporary envelope file at path \(path): \(error)")
         }
     }
 }
