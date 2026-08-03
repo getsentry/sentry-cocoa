@@ -44,6 +44,7 @@ class NotificationService: UNNotificationServiceExtension {
         SentrySDK.start { options in
             options.dsn = SentrySDKWrapper.defaultDSN
             options.debug = true
+            SentrySDKWrapper.shared.configureDataCollection(options)
 
             // App Hang Tracking must be enabled, but should not be installed
             options.enableAppHangTracking = true

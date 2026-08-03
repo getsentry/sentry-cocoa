@@ -1,5 +1,5 @@
 // swiftlint:disable missing_docs
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 
 // We cannot expose `SwiftIntegration` to objc due to the associated type, so we have this base integration protocol
 @_spi(Private) @objc public protocol SentryIntegrationProtocol: NSObjectProtocol {
@@ -87,9 +87,7 @@ private struct AnyIntegration {
         #endif
         
         #if os(iOS) || os(macOS) || os(visionOS)
-        if #available(macOS 12.0, *) {
-            integrations.append(.init(SentryMetricKitIntegration.self))
-        }
+        integrations.append(.init(SentryMetricKitIntegration.self))
         #endif
         
         integrations.forEach { anyIntegration in

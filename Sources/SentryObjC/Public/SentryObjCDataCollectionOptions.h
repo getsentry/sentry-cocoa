@@ -34,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) SentryObjCDataCollectionHttpBodyType httpBodies;
 
 /// Controls URL query parameter filtering. Defaults to denyList.
-@property (nonatomic, strong) SentryObjCDataCollectionKeyValueCollectionBehavior *queryParams;
+@property (nonatomic, strong) SentryObjCDataCollectionKeyValueCollectionBehavior *urlQueryParams;
 
 /// Controls GraphQL document and variable collection.
 @property (nonatomic, strong) SentryObjCDataCollectionGraphQLCollectionOptions *graphql;

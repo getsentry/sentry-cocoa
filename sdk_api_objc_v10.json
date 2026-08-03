@@ -1625,7 +1625,7 @@
     "kind": "ObjCMethodDecl",
     "name": "cookies",
     "parent": "SentryObjCRequest",
-    "returnType": "NSString * _Nullable",
+    "returnType": "NSDictionary<NSString *,NSString *> * _Nullable",
     "instance": true
   },
   {
@@ -1750,7 +1750,7 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "dataCollection",
-    "parent": "SentryObjCExperimentalOptions",
+    "parent": "SentryObjCOptions",
     "returnType": "SentryObjCDataCollectionOptions * _Nonnull",
     "instance": true
   },
@@ -1857,6 +1857,13 @@
     "name": "diagnosticLevel",
     "parent": "SentryObjCOptions",
     "returnType": "SentryObjCLevel",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "disableOnShake",
+    "parent": "SentryObjCFeedbackApi",
+    "returnType": "void",
     "instance": true
   },
   {
@@ -2099,6 +2106,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "enableMemoryIntrospection",
+    "parent": "SentryObjCOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "enableMetricKit",
     "parent": "SentryObjCOptions",
     "returnType": "BOOL",
@@ -2130,6 +2144,13 @@
     "name": "enableNetworkTracking",
     "parent": "SentryObjCOptions",
     "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "enableOnShake",
+    "parent": "SentryObjCFeedbackApi",
+    "returnType": "void",
     "instance": true
   },
   {
@@ -5039,13 +5060,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "queryParams",
-    "parent": "SentryObjCDataCollectionOptions",
-    "returnType": "SentryObjCDataCollectionKeyValueCollectionBehavior * _Nonnull",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "queryString",
     "parent": "SentryObjCRequest",
     "returnType": "NSString * _Nullable",
@@ -5789,7 +5803,14 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setDataCollection:",
-    "parent": "SentryObjCExperimentalOptions",
+    "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setDataValue:forKey:",
+    "parent": "SentryObjCBreadcrumb",
     "returnType": "void",
     "instance": true
   },
@@ -5999,6 +6020,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setEnableLogs:",
+    "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setEnableMemoryIntrospection:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
     "instance": true
@@ -6978,13 +7006,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "setQueryParams:",
-    "parent": "SentryObjCDataCollectionOptions",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "setQueryString:",
     "parent": "SentryObjCRequest",
     "returnType": "void",
@@ -7617,6 +7638,13 @@
     "kind": "ObjCMethodDecl",
     "name": "setUrl:",
     "parent": "SentryObjCRequest",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setUrlQueryParams:",
+    "parent": "SentryObjCDataCollectionOptions",
     "returnType": "void",
     "instance": true
   },
@@ -8574,6 +8602,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "urlQueryParams",
+    "parent": "SentryObjCDataCollectionOptions",
+    "returnType": "SentryObjCDataCollectionKeyValueCollectionBehavior * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "urlSession",
     "parent": "SentryObjCOptions",
     "returnType": "NSURLSession * _Nullable",
@@ -9060,7 +9095,7 @@
     "kind": "ObjCPropertyDecl",
     "name": "cookies",
     "parent": "SentryObjCRequest",
-    "type": "NSString * _Nullable"
+    "type": "NSDictionary<NSString *,NSString *> * _Nullable"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -9137,7 +9172,7 @@
   {
     "kind": "ObjCPropertyDecl",
     "name": "dataCollection",
-    "parent": "SentryObjCExperimentalOptions",
+    "parent": "SentryObjCOptions",
     "type": "SentryObjCDataCollectionOptions * _Nonnull"
   },
   {
@@ -9353,6 +9388,12 @@
   {
     "kind": "ObjCPropertyDecl",
     "name": "enableLogs",
+    "parent": "SentryObjCOptions",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "enableMemoryIntrospection",
     "parent": "SentryObjCOptions",
     "type": "BOOL"
   },
@@ -10582,12 +10623,6 @@
   },
   {
     "kind": "ObjCPropertyDecl",
-    "name": "queryParams",
-    "parent": "SentryObjCDataCollectionOptions",
-    "type": "SentryObjCDataCollectionKeyValueCollectionBehavior * _Nonnull"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
     "name": "queryString",
     "parent": "SentryObjCRequest",
     "type": "NSString * _Nullable"
@@ -11347,6 +11382,12 @@
     "name": "url",
     "parent": "SentryObjCRequest",
     "type": "NSString * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "urlQueryParams",
+    "parent": "SentryObjCDataCollectionOptions",
+    "type": "SentryObjCDataCollectionKeyValueCollectionBehavior * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",

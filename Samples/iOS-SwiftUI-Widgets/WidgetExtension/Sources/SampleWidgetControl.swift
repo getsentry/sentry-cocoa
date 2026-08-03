@@ -18,6 +18,7 @@ struct SampleWidgetControl: ControlWidget {
         SentrySDK.start { options in
             options.dsn = SentrySDKWrapper.defaultDSN
             options.debug = true
+            SentrySDKWrapper.shared.configureDataCollection(options)
             options.enableAppHangTracking = true
         }
     }

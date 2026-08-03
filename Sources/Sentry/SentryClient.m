@@ -27,7 +27,6 @@
 #import "SentryTraceContext.h"
 #import "SentryTracer.h"
 #import "SentryTransaction.h"
-#import "SentryTransport.h"
 #import "SentryTransportAdapter.h"
 #import "SentryTransportFactory.h"
 #import "SentryUser.h"
@@ -51,6 +50,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) id<SentryObjCTelemetryProcessor> telemetryProcessor;
 @property (nonatomic, strong) id<SentryEventContextEnricher> eventContextEnricher;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
+
+- (void)recordDroppedItemInClientReportWithItemCategory:(SentryDataCategory)itemCategory
+                                           byteCategory:(SentryDataCategory)byteCategory
+                                         byteCountBlock:(NSUInteger (^)(void))byteCountBlock;
 
 @end
 
@@ -134,11 +137,16 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                           initWithTransportAdapter:transportAdapter]
                          dependencies:SentryDependencyContainer.sharedInstance];
 
+#if SDK_V10
+        BOOL shouldAddDefaultUserId = options.dataCollectionObjC.userInfo;
+#else
+        BOOL shouldAddDefaultUserId = options.sendDefaultPii;
+#endif // SDK_V10
         self.logScopeApplier =
             [[SentryDefaultLogScopeApplier alloc] initWithEnvironment:options.environment
                                                           releaseName:options.releaseName
                                                    cacheDirectoryPath:options.cacheDirectoryPath
-                                                       sendDefaultPii:options.sendDefaultPii];
+                                               shouldAddDefaultUserId:shouldAddDefaultUserId];
 
         [crashWrapper startBinaryImageCache];
         [binaryImageCache start:options.debug];
@@ -561,8 +569,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                          @"Envelope Item could not be created.");
         // Record a counted lost event in case preparing the event (e.g. encoding the event) failed.
         // This is used to determine if replay events are missing due to an error in the SDK.
-        [self recordLostEvent:kSentryDataCategoryReplay
-                       reason:kSentryDiscardReasonInsufficientData
+        [self recordLostEvent:SentryDataCategoryReplay
+                       reason:SentryDiscardReasonInsufficientData
                      quantity:1];
         return;
     }
@@ -706,7 +714,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     if (eventIsNotATransaction && eventIsNotReplay && eventIsNotUserFeedback &&
         [self isSampled:self.options.sampleRate]) {
         SENTRY_LOG_DEBUG(@"Event got sampled, will not send the event");
-        [self recordLostEvent:kSentryDataCategoryError reason:kSentryDiscardReasonSampleRate];
+        [self recordLostEvent:SentryDataCategoryError reason:SentryDiscardReasonSampleRate];
         return nil;
     }
 
@@ -831,7 +839,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
         if (eventIsATransactionClass) {
             [self recordPartiallyDroppedSpans:transaction
-                                   withReason:kSentryDiscardReasonBeforeSend
+                                   withReason:SentryDiscardReasonBeforeSend
                          withCurrentSpanCount:&currentSpanCount];
         }
     }
@@ -839,17 +847,17 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     if (eventIsNotUserFeedback && event != nil && nil != self.options.beforeSend) {
         event = self.options.beforeSend(SENTRY_UNWRAP_NULLABLE(SentryEvent, event));
         if (event == nil) {
-            [self recordLost:eventIsNotATransaction reason:kSentryDiscardReasonBeforeSend];
+            [self recordLost:eventIsNotATransaction reason:SentryDiscardReasonBeforeSend];
             if (eventIsATransaction) {
                 // We dropped the whole transaction, the dropped count includes all child spans + 1
                 // root span
-                [self recordLostSpanWithReason:kSentryDiscardReasonBeforeSend
+                [self recordLostSpanWithReason:SentryDiscardReasonBeforeSend
                                       quantity:currentSpanCount + 1];
             }
         } else {
             if (eventIsATransactionClass) {
                 [self recordPartiallyDroppedSpans:(SentryTransaction *)event
-                                       withReason:kSentryDiscardReasonBeforeSend
+                                       withReason:SentryDiscardReasonBeforeSend
                              withCurrentSpanCount:&currentSpanCount];
             }
         }
@@ -860,17 +868,17 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         // might trigger e.g. unnecessary replay capture
         event = [self callEventProcessors:SENTRY_UNWRAP_NULLABLE(SentryEvent, event)];
         if (event == nil) {
-            [self recordLost:eventIsNotATransaction reason:kSentryDiscardReasonEventProcessor];
+            [self recordLost:eventIsNotATransaction reason:SentryDiscardReasonEventProcessor];
             if (eventIsATransaction) {
                 // We dropped the whole transaction, the dropped count includes all child spans + 1
                 // root span
-                [self recordLostSpanWithReason:kSentryDiscardReasonEventProcessor
+                [self recordLostSpanWithReason:SentryDiscardReasonEventProcessor
                                       quantity:currentSpanCount + 1];
             }
         } else {
             if (eventIsATransactionClass) {
                 [self recordPartiallyDroppedSpans:(SentryTransaction *)event
-                                       withReason:kSentryDiscardReasonEventProcessor
+                                       withReason:SentryDiscardReasonEventProcessor
                              withCurrentSpanCount:&currentSpanCount];
             }
         }
@@ -970,6 +978,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (void)setUserIdIfNoUserSet:(SentryEvent *)event
 {
+#if SDK_V10
+    if (!self.options.dataCollectionObjC.userInfo) {
+        return;
+    }
+#endif // SDK_V10
     // We only want to set the id if the customer didn't set a user so we at least set something to
     // identify the user.
     if (event.user == nil) {
@@ -1102,15 +1115,15 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 - (void)recordLost:(BOOL)eventIsNotATransaction reason:(SentryDiscardReason)reason
 {
     if (eventIsNotATransaction) {
-        [self recordLostEvent:kSentryDataCategoryError reason:reason];
+        [self recordLostEvent:SentryDataCategoryError reason:reason];
     } else {
-        [self recordLostEvent:kSentryDataCategoryTransaction reason:reason];
+        [self recordLostEvent:SentryDataCategoryTransaction reason:reason];
     }
 }
 
 - (void)recordLostSpanWithReason:(SentryDiscardReason)reason quantity:(NSUInteger)quantity
 {
-    [self recordLostEvent:kSentryDataCategorySpan reason:reason quantity:quantity];
+    [self recordLostEvent:SentryDataCategorySpan reason:reason quantity:quantity];
 }
 
 - (void)addAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor
@@ -1180,20 +1193,40 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (void)recordDroppedLogInClientReport:(SentryLog *)log
 {
-    // Offload to a background queue: serializing the log to determine its byte size is too
-    // expensive to run inline in beforeSendLog, which runs on the calling thread and must stay
-    // fast.
+    [self recordDroppedItemInClientReportWithItemCategory:SentryDataCategoryLogItem
+                                             byteCategory:SentryDataCategoryLogByte
+                                           byteCountBlock:^NSUInteger {
+                                               return [SentryLogClientReport
+                                                   serializedByteCountForLog:log];
+                                           }];
+}
+
+- (void)recordDroppedTraceMetricInClientReport:(SentryMetricObjC *)metric
+{
+    [self recordDroppedItemInClientReportWithItemCategory:SentryDataCategoryTraceMetric
+                                             byteCategory:SentryDataCategoryTraceMetricByte
+                                           byteCountBlock:^NSUInteger {
+                                               return [metric serializedByteCount];
+                                           }];
+}
+
+- (void)recordDroppedItemInClientReportWithItemCategory:(SentryDataCategory)itemCategory
+                                           byteCategory:(SentryDataCategory)byteCategory
+                                         byteCountBlock:(NSUInteger (^)(void))byteCountBlock
+{
+    // Offload to a background queue: serializing the item to determine its byte size is too
+    // expensive to run inline in a beforeSend callback, which runs on the calling thread and must
+    // stay fast.
     __weak SentryClientInternal *weakSelf = self;
     [self.dispatchQueueWrapper dispatchAsyncWithBlock:^{
         SentryClientInternal *strongSelf = weakSelf;
         if (strongSelf == nil) {
             return;
         }
-        NSUInteger byteCount = [SentryLogClientReport serializedByteCountForLog:log];
-        [strongSelf recordLostEvent:kSentryDataCategoryLogItem
-                             reason:kSentryDiscardReasonBeforeSend];
-        [strongSelf recordLostEvent:kSentryDataCategoryLogByte
-                             reason:kSentryDiscardReasonBeforeSend
+        NSUInteger byteCount = byteCountBlock();
+        [strongSelf recordLostEvent:itemCategory reason:SentryDiscardReasonBeforeSend];
+        [strongSelf recordLostEvent:byteCategory
+                             reason:SentryDiscardReasonBeforeSend
                            quantity:byteCount];
     }];
 }

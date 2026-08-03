@@ -1,4 +1,4 @@
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
@@ -83,6 +83,11 @@ class SentrySubClassFinder: NSObject {
             }
 
             free(classes)
+
+            if classesToSwizzle.isEmpty {
+                SentrySDKLog.debug("No UIViewController subclasses to swizzle in image: \(imageName).")
+                return
+            }
 
             self.dispatchQueue.dispatchAsyncOnMainQueueIfNotMainThread {
                 for className in classesToSwizzle {

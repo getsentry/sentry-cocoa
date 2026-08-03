@@ -1,6 +1,4 @@
 #import "SentryHttpTransport.h"
-#import "SentryDataCategory.h"
-#import "SentryDataCategoryMapper.h"
 #import "SentryDiscardReasonMapper.h"
 #import "SentryEnvelopeItemHeader.h"
 #import "SentryEnvelopeRateLimit.h"
@@ -84,9 +82,8 @@
         [self.envelopeRateLimit setDelegate:self];
         typeof(self) __weak weakSelf = self;
         [self.fileManager
-            setEnvelopeDeletedCallback:^(SentryEnvelopeItem *item, NSUInteger category) {
-                [weakSelf envelopeItemDeleted:item
-                                 withCategory:sentryDataCategoryForNSUInteger(category)];
+            setEnvelopeDeletedCallback:^(SentryEnvelopeItem *item, SentryDataCategory category) {
+                [weakSelf envelopeItemDeleted:item withCategory:category];
             }];
 
         [self sendAllCachedEnvelopes];
@@ -156,8 +153,8 @@
         return;
     }
 
-    NSString *key = [NSString stringWithFormat:@"%@:%@", nameForSentryDataCategory(category),
-        nameForSentryDiscardReason(reason)];
+    NSString *key = [NSString stringWithFormat:@"%@:%@",
+        [SentryDataCategoryMapper nameFor:category], nameForSentryDiscardReason(reason)];
 
     @synchronized(self.discardedEvents) {
         SentryDiscardedEvent *event = self.discardedEvents[key];
@@ -165,9 +162,10 @@
             quantity = event.quantity + quantity;
         }
 
-        event = [[SentryDiscardedEvent alloc] initWithReason:nameForSentryDiscardReason(reason)
-                                                    category:nameForSentryDataCategory(category)
-                                                    quantity:quantity];
+        event =
+            [[SentryDiscardedEvent alloc] initWithReason:nameForSentryDiscardReason(reason)
+                                                category:[SentryDataCategoryMapper nameFor:category]
+                                                quantity:quantity];
 
         self.discardedEvents[key] = event;
     }
@@ -191,7 +189,7 @@
     @synchronized(self) {
         if (_isFlushing) {
             SENTRY_LOG_DEBUG(@"Already flushing.");
-            return kSentryFlushResultAlreadyFlushing;
+            return SentryFlushResultAlreadyFlushing;
         }
 
         SENTRY_LOG_DEBUG(@"Start flushing.");
@@ -222,10 +220,10 @@
 
     if (result == 0) {
         SENTRY_LOG_DEBUG(@"Finished flushing.");
-        return kSentryFlushResultSuccess;
+        return SentryFlushResultSuccess;
     } else {
         SENTRY_LOG_WARN(@"Flushing timed out.");
-        return kSentryFlushResultTimedOut;
+        return SentryFlushResultTimedOut;
     }
 }
 
@@ -247,18 +245,20 @@
                withCategory:(SentryDataCategory)dataCategory;
 {
     SENTRY_LOG_WARN(@"Envelope item dropped due to exceeding rate limit. Category: %@",
-        nameForSentryDataCategory(dataCategory));
-    [self recordLostEvent:dataCategory reason:kSentryDiscardReasonRateLimitBackoff];
-    [self recordLostSpans:envelopeItem reason:kSentryDiscardReasonRateLimitBackoff];
-    [self recordLostLogBytes:envelopeItem reason:kSentryDiscardReasonRateLimitBackoff];
+        [SentryDataCategoryMapper nameFor:dataCategory]);
+    [self recordLostEvent:dataCategory reason:SentryDiscardReasonRateLimitBackoff];
+    [self recordLostSpans:envelopeItem reason:SentryDiscardReasonRateLimitBackoff];
+    [self recordLostLogBytes:envelopeItem reason:SentryDiscardReasonRateLimitBackoff];
+    [self recordLostTraceMetricBytes:envelopeItem reason:SentryDiscardReasonRateLimitBackoff];
 }
 
 - (void)envelopeItemDeleted:(SentryEnvelopeItem *)envelopeItem
                withCategory:(SentryDataCategory)dataCategory
 {
-    [self recordLostEvent:dataCategory reason:kSentryDiscardReasonCacheOverflow];
-    [self recordLostSpans:envelopeItem reason:kSentryDiscardReasonCacheOverflow];
-    [self recordLostLogBytes:envelopeItem reason:kSentryDiscardReasonCacheOverflow];
+    [self recordLostEvent:dataCategory reason:SentryDiscardReasonCacheOverflow];
+    [self recordLostSpans:envelopeItem reason:SentryDiscardReasonCacheOverflow];
+    [self recordLostLogBytes:envelopeItem reason:SentryDiscardReasonCacheOverflow];
+    [self recordLostTraceMetricBytes:envelopeItem reason:SentryDiscardReasonCacheOverflow];
 }
 
 #pragma mark private methods
@@ -468,10 +468,12 @@
         if ([itemType isEqualToString:SentryEnvelopeItemTypes.clientReport]) {
             continue;
         }
-        SentryDataCategory category = sentryDataCategoryForEnvelopItemType(itemType);
-        [self recordLostEvent:category reason:kSentryDiscardReasonSendError];
-        [self recordLostSpans:item reason:kSentryDiscardReasonSendError];
-        [self recordLostLogBytes:item reason:kSentryDiscardReasonSendError];
+        SentryDataCategory category =
+            [SentryDataCategoryMapper categoryForEnvelopeItemType:itemType];
+        [self recordLostEvent:category reason:SentryDiscardReasonSendError];
+        [self recordLostSpans:item reason:SentryDiscardReasonSendError];
+        [self recordLostLogBytes:item reason:SentryDiscardReasonSendError];
+        [self recordLostTraceMetricBytes:item reason:SentryDiscardReasonSendError];
     }
 }
 
@@ -479,7 +481,16 @@
 {
     if ([SentryEnvelopeItemTypes.log isEqualToString:envelopeItem.type]) {
         NSUInteger byteCount = envelopeItem.data.length;
-        [self recordLostEvent:kSentryDataCategoryLogByte reason:reason quantity:byteCount];
+        [self recordLostEvent:SentryDataCategoryLogByte reason:reason quantity:byteCount];
+    }
+}
+
+- (void)recordLostTraceMetricBytes:(SentryEnvelopeItem *)envelopeItem
+                            reason:(SentryDiscardReason)reason
+{
+    if ([SentryEnvelopeItemTypes.traceMetric isEqualToString:envelopeItem.type]) {
+        NSUInteger byteCount = envelopeItem.data.length;
+        [self recordLostEvent:SentryDataCategoryTraceMetricByte reason:reason quantity:byteCount];
     }
 }
 
@@ -495,7 +506,7 @@
             return;
         }
         NSArray *spans = transactionJson[@"spans"] ?: [NSArray array];
-        [self recordLostEvent:kSentryDataCategorySpan reason:reason quantity:spans.count + 1];
+        [self recordLostEvent:SentryDataCategorySpan reason:reason quantity:spans.count + 1];
     }
 }
 

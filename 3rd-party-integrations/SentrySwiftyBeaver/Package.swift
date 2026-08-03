@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "SentrySwiftyBeaver",
-    platforms: [.iOS(.v15), .macOS(.v10_14), .tvOS(.v15), .watchOS(.v8), .visionOS(.v1)],
+    platforms: [.iOS(.v15), .macOS(.v12), .tvOS(.v15), .watchOS(.v9), .visionOS(.v1)],
     products: [
         .library(
             name: "SentrySwiftyBeaver",
@@ -11,7 +11,7 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/getsentry/sentry-cocoa", from: "9.22.0"),
+        .package(url: "https://github.com/getsentry/sentry-cocoa", from: "9.24.0"),
         .package(url: "https://github.com/SwiftyBeaver/SwiftyBeaver.git", from: "2.0.0")
     ],
     targets: [

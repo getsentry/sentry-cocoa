@@ -36,20 +36,20 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  ready-to-merge-gate:
-    name: Ready-to-merge gate
-    uses: ./.github/workflows/ready-to-merge-workflow.yml
+  run-full-ci-gate:
+    name: run-full-ci gate
+    uses: ./.github/workflows/run-full-ci-workflow.yml
 
   files-changed:
     name: Detect File Changes
     runs-on: ubuntu-latest
-    needs: ready-to-merge-gate
+    needs: run-full-ci-gate
     outputs:
       run_release_for_prs: ${{ steps.changes.outputs.run_release_for_prs }}
       is_dependabot: ${{ github.actor == 'dependabot[bot]' }}
       is_fork: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Get changed files
         id: changes
         uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2
@@ -62,7 +62,7 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     needs: files-changed
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup matrix combinations
         id: setup-matrix-combinations
         run: |
@@ -161,7 +161,7 @@ jobs:
     steps:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: xcframework-${{github.sha}}-*
@@ -215,7 +215,7 @@ jobs:
     steps:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: xcframework-${{github.sha}}-*
@@ -260,7 +260,7 @@ jobs:
     steps:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: xcframework-${{github.sha}}-*
@@ -305,7 +305,7 @@ jobs:
     steps:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: xcframework-${{github.sha}}-*
@@ -349,7 +349,7 @@ jobs:
     steps:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: xcframework-${{github.sha}}-*
@@ -417,14 +417,14 @@ jobs:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - name: Git checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: "16"
           resolve-simulators: "false"
       - name: Setup Ruby
-        uses: ruby/setup-ruby@d45b1a4e94b71acab930e56e79c6aa188764e7f9 # v1.316.0
+        uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
         with:
           bundler-cache: true
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -497,7 +497,7 @@ jobs:
           app-id: ${{ vars.SENTRY_RELEASE_BOT_CLIENT_ID }}
           private-key: ${{ secrets.SENTRY_RELEASE_BOT_PRIVATE_KEY }}
       - name: Check out current commit (${{ github.sha }})
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           token: ${{ steps.token.outputs.token }}
           fetch-depth: 0
@@ -508,6 +508,21 @@ jobs:
           merge-multiple: true
           path: XCFrameworkBuildPath/
 
+      - name: Create apple-binaries archive
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          ./scripts/create-apple-binaries-archive.sh \
+            --version "${{ github.event.inputs.version }}" \
+            --xcframework-dir XCFrameworkBuildPath \
+            --output-dir XCFrameworkBuildPath
+
+      - name: Create 3rd-party integration archives
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          ./scripts/create-3rd-party-integration-archive.sh \
+            --all \
+            --output-dir XCFrameworkBuildPath
+
       - name: Archive XCFrameworks for Craft
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
@@ -516,6 +531,7 @@ jobs:
           overwrite: true
           path: |
             ${{github.workspace}}/XCFrameworkBuildPath/*.zip
+            ${{github.workspace}}/XCFrameworkBuildPath/*.tgz
 
       # update-package-sha.sh uses this env variable to update Package.swift.
       # During release Craft calls bump.sh that uses update-package-sha.sh.
@@ -524,7 +540,7 @@ jobs:
           GITHUB_RUN_ID: ${{ github.run_id }}
 
       - name: Prepare release
-        uses: getsentry/craft@cdb657d4bbc70cd497876ad158984b4d345a48ae # v2
+        uses: getsentry/craft@667b5f5669552a35990a11ff6ac1131febb07446 # v2
         env:
           GITHUB_TOKEN: ${{ steps.token.outputs.token }}
         with:
@@ -551,7 +567,7 @@ jobs:
         swift-build,
         duplication-tests,
         app-metrics,
-        ready-to-merge-gate,
+        run-full-ci-gate,
       ]
     name: Release
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped

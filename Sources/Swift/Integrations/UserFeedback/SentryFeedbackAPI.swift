@@ -1,4 +1,4 @@
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
@@ -59,6 +59,42 @@ import UIKit
         }
 
         driver.showForm(from: presenter, screenshot: screenshot, configure: configure)
+    }
+
+    /// Enables the shake-gesture trigger for the feedback form at runtime.
+    ///
+    /// Sentry's options are applied synchronously during `SentrySDK.start`, so consumers that
+    /// decide whether to offer feedback based on an asynchronous signal (e.g. a feature flag or a
+    /// user role fetched at launch) cannot express that choice through `useShakeGesture` alone.
+    /// Use this to enable shake-to-report after initialization.
+    ///
+    /// Requires the User Feedback integration to be configured (`SentryOptions.configureUserFeedback`);
+    /// otherwise this is a no-op. Only affects iOS/iPadOS; a no-op on other platforms.
+    /// - Important: Call this method from the main thread.
+    /// - warning: This is an experimental feature and may still have bugs.
+    @available(iOSApplicationExtension, unavailable)
+    @objc public func enableOnShake() {
+        setShakeGestureEnabled(true)
+    }
+
+    /// Disables the shake-gesture trigger for the feedback form at runtime.
+    ///
+    /// Requires the User Feedback integration to be configured (`SentryOptions.configureUserFeedback`);
+    /// otherwise this is a no-op. Only affects iOS/iPadOS; a no-op on other platforms.
+    /// - Important: Call this method from the main thread.
+    /// - warning: This is an experimental feature and may still have bugs.
+    @available(iOSApplicationExtension, unavailable)
+    @objc public func disableOnShake() {
+        setShakeGestureEnabled(false)
+    }
+
+    @available(iOSApplicationExtension, unavailable)
+    private func setShakeGestureEnabled(_ enabled: Bool) {
+        guard let driver = getIntegration()?.driver else {
+            SentrySDKLog.debug("Cannot toggle shake gesture — user feedback is not configured")
+            return
+        }
+        driver.setShakeGestureEnabled(enabled)
     }
 
     @available(iOSApplicationExtension, unavailable)

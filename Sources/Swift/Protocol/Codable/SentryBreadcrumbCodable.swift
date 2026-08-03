@@ -1,4 +1,4 @@
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 import Foundation
 
 final class BreadcrumbDecodable: Breadcrumb {
@@ -8,7 +8,7 @@ final class BreadcrumbDecodable: Breadcrumb {
 }
 
 extension BreadcrumbDecodable: Decodable {
-    
+
     private enum CodingKeys: String, CodingKey {
         case level
         case category
@@ -21,21 +21,23 @@ extension BreadcrumbDecodable: Decodable {
 
     private convenience init(decodedFrom decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        
-        self.init()
-        
+
         let rawLevel = try container.decode(String.self, forKey: .level)
         let level = SentryLevelHelper.levelForName(rawLevel)
-        self.level = level
-        
-        self.category = try container.decode(String.self, forKey: .category)
+        let category = try container.decode(String.self, forKey: .category)
+        let data = decodeArbitraryData {
+            try container.decodeIfPresent([String: ArbitraryData].self, forKey: .data)
+        }
+
+        if let data = data {
+            self.init(level: level, category: category, data: data)
+        } else {
+            self.init(level: level, category: category)
+        }
+
         self.timestamp = try container.decodeIfPresent(Date.self, forKey: .timestamp)
         self.type = try container.decodeIfPresent(String.self, forKey: .type)
         self.message = try container.decodeIfPresent(String.self, forKey: .message)
         self.origin = try container.decodeIfPresent(String.self, forKey: .origin)
-        
-        self.data = decodeArbitraryData {
-            try container.decodeIfPresent([String: ArbitraryData].self, forKey: .data)
-        }
     }
 }

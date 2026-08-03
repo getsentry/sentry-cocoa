@@ -1,7 +1,6 @@
 #if os(iOS) || os(macOS) || os(visionOS)
 import MetricKit
 
-@available(macOS 12.0, *)
 final class SentryMetricKitIntegration<Dependencies>: NSObject, SwiftIntegration {
     
     let mxManager: SentryMXManager

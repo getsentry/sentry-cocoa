@@ -1,4 +1,4 @@
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 import Foundation
 
 final class SentryRequestDecodable: SentryRequest {
@@ -25,7 +25,11 @@ extension SentryRequestDecodable: Decodable {
         self.init()
         
         self.bodySize = try container.decodeIfPresent(NSNumberDecodableWrapper.self, forKey: .bodySize)?.value
+#if SDK_V10
+        self.cookies = try container.decodeIfPresent([String: String].self, forKey: .cookies)
+#else
         self.cookies = try container.decodeIfPresent(String.self, forKey: .cookies)
+#endif // SDK_V10
         self.headers = try container.decodeIfPresent([String: String].self, forKey: .headers)
         self.fragment = try container.decodeIfPresent(String.self, forKey: .fragment)
         self.method = try container.decodeIfPresent(String.self, forKey: .method)

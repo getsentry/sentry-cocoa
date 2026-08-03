@@ -1,0 +1,44 @@
+name: Run Full CI Workflow
+on:
+  workflow_call:
+
+jobs:
+  run-full-ci-gate:
+    name: 'Missing "run-full-ci" label'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for exact 'run-full-ci' label
+        if: ${{ github.event_name == 'pull_request' }}
+        id: check-label
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const expectedLabel = 'run-full-ci';
+
+            // Fetch labels from GitHub API
+            // GitHub Actions may not contain the labels in the event, so we need to fetch them from the API.
+            const { data: labels } = await github.rest.issues.listLabelsOnIssue({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+
+            const labelNames = labels.map(label => label.name);
+            console.log(`Found labels: ${labelNames.join(', ')}`);
+
+            // Check for exact 'run-full-ci' label match
+            const labelFound = labelNames.includes(expectedLabel);
+            core.setOutput('label_found', labelFound.toString());
+      # Since Github also accepts `skipped` results for Required Workflows, we need
+      # to fail the job to ensure that the downstream jobs don't just skip.
+      - name: Fail until the 'run-full-ci' label is present
+        if: ${{ github.event_name == 'pull_request' && steps.check-label.outputs.label_found == 'false' }}
+        run: |
+          echo "Add the 'run-full-ci' label to run CI."
+          exit 1
+      - name: Gate passed
+        if: ${{ github.event_name == 'pull_request' && steps.check-label.outputs.label_found == 'true' }}
+        run: echo "Label present. Proceeding with CI."
+      - name: Gate passed
+        if: ${{ github.event_name != 'pull_request' }}
+        run: echo "Not a PR. Proceeding with CI."

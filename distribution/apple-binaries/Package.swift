@@ -1,0 +1,33 @@
+// swift-tools-version:6.0
+import PackageDescription
+
+let package = Package(
+    name: "Sentry",
+    platforms: [.iOS(.v15), .macOS(.v12), .tvOS(.v15), .watchOS(.v9), .visionOS(.v1)],
+    products: [
+        .library(name: "Sentry-Static", targets: ["Sentry-Static", "SentryCppHelper"]),
+        .library(name: "SentryObjC-Static", targets: ["SentryObjC-Static"])
+    ],
+    dependencies: [],
+    targets: [
+        .binaryTarget(
+            name: "Sentry-Static",
+            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.24.0/Sentry.xcframework.zip",
+            checksum: "c530edd27b20f7c151e73d84a34ee03474e3d5ddab65ffe9d30366f80149668a" //Sentry-Static
+        ),
+        .binaryTarget(
+            name: "SentryObjC-Static",
+            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.24.0/SentryObjC-Static.xcframework.zip",
+            checksum: "1237d45d0c72b99604631fffd41ee5143ecefa2bf69f8329fdfd336efbe387fe" //SentryObjC-Static
+        ),
+        .target(
+            name: "SentryCppHelper",
+            path: "Sources/SentryCppHelper",
+            linkerSettings: [
+                .linkedLibrary("c++")
+            ]
+        )
+    ],
+    swiftLanguageModes: [.v5],
+    cxxLanguageStandard: .cxx14
+)

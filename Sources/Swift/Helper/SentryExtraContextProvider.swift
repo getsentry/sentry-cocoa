@@ -1,5 +1,5 @@
 // swiftlint:disable missing_docs
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 
 @_spi(Private) @objc public final class SentryExtraContextProvider: NSObject {
     
@@ -53,9 +53,7 @@
             SentrySDKLog.warning("Unexpected thermal state enum value: \(thermalState)")
         }
 
-        if #available(macOS 12.0, *) {
-            extraDeviceContext["low_power_mode"] = NSNumber(value: processInfoWrapper.isLowPowerModeEnabled)
-        }
+        extraDeviceContext["low_power_mode"] = NSNumber(value: processInfoWrapper.isLowPowerModeEnabled)
         
         #if (os(iOS)) && !SENTRY_NO_UI_FRAMEWORK
         if deviceWrapper.orientation != .unknown {

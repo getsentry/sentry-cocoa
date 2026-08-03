@@ -20,11 +20,15 @@ public class SentryLocale: NSObject {
     /// - Returns: `true` if the language is RTL, `false` otherwise.
     public static func isRightToLeftLanguage() -> Bool {
         let languageCode: String?
-        if #available(iOS 16, macOS 13, tvOS 16, watchOS 9, visionOS 1, *) {
+        #if os(watchOS) || os(visionOS)
+        languageCode = Locale.current.language.languageCode?.identifier
+        #else
+        if #available(iOS 16, macOS 13, tvOS 16, *) {
             languageCode = Locale.current.language.languageCode?.identifier
         } else {
             languageCode = Locale.current.languageCode
         }
+        #endif
         guard let languageCode else {
             return false
         }

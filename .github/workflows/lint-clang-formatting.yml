@@ -26,7 +26,7 @@ jobs:
     outputs:
       run_lint_clang_formatting_for_prs: ${{ steps.changes.outputs.run_lint_clang_formatting_for_prs }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Get changed files
         id: changes
         uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2
@@ -43,12 +43,8 @@ jobs:
     needs: files-changed
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-      - name: Cache or Update Homebrew
-        uses: ./.github/actions/cache-homebrew
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Install tooling
-        env:
-          HOMEBREW_NO_AUTO_UPDATE: 1
         run: |
           make init-ci-format
           clang-format --version
@@ -71,8 +67,24 @@ jobs:
         uses: ./.github/actions/ci-diagnostics
         if: failure()
 
+  check-objc-patterns:
+    name: Check ObjC Patterns
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_lint_clang_formatting_for_prs == 'true'
+    needs: files-changed
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Check ObjC id usage
+        run: make check-objc-id-usage
+      - name: Check ObjC banned patterns
+        run: make check-objc-banned-patterns
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
+        if: failure()
+
   lint_clang_formatting-required-check:
-    needs: [files-changed, lint]
+    needs: [files-changed, lint, check-objc-patterns]
     name: Lint Clang
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped
     if: always()

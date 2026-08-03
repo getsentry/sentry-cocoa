@@ -1,5 +1,5 @@
 // swiftlint:disable missing_docs
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 import Foundation
 
 @objcMembers @_spi(Private) public class SentryAppState: NSObject, SentrySerializable {

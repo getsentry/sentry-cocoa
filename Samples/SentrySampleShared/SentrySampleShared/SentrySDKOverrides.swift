@@ -36,6 +36,7 @@ public enum SentrySDKOverrides: String, CaseIterable {
     var featureFlags: [any SentrySDKOverride] {
         switch self {
         case .special: return SentrySDKOverrides.Special.allCases
+        case .dataCollection: return SentrySDKOverrides.DataCollection.allCases
         case .events: return SentrySDKOverrides.Events.allCases
         case .performance: return SentrySDKOverrides.Performance.allCases
         case .appStart: return SentrySDKOverrides.AppStart.allCases
@@ -75,6 +76,25 @@ public enum SentrySDKOverrides: String, CaseIterable {
         case dsn               = "--io.sentry.special.dsn"
     }
     case special = "Special"
+
+    public enum DataCollection: String, SentrySDKOverride {
+        case disableUserInfo = "--io.sentry.data-collection.disable-user-info"
+        case cookiesMode = "--io.sentry.data-collection.cookies.mode"
+        case cookiesTerms = "--io.sentry.data-collection.cookies.terms"
+        case httpRequestHeadersMode = "--io.sentry.data-collection.http-headers.request.mode"
+        case httpRequestHeadersTerms = "--io.sentry.data-collection.http-headers.request.terms"
+        case httpResponseHeadersMode = "--io.sentry.data-collection.http-headers.response.mode"
+        case httpResponseHeadersTerms = "--io.sentry.data-collection.http-headers.response.terms"
+        case httpBodies = "--io.sentry.data-collection.http-bodies"
+        case urlQueryParamsMode = "--io.sentry.data-collection.url-query-params.mode"
+        case urlQueryParamsTerms = "--io.sentry.data-collection.url-query-params.terms"
+        case disableGraphQLDocument = "--io.sentry.data-collection.graphql.disable-document"
+        case disableGraphQLVariables = "--io.sentry.data-collection.graphql.disable-variables"
+        case disableDatabaseQueryParams = "--io.sentry.data-collection.database.disable-query-params"
+        case disableStackFrameVariables = "--io.sentry.data-collection.disable-stack-frame-variables"
+        case frameContextLines = "--io.sentry.data-collection.frame-context-lines"
+    }
+    case dataCollection = "Data Collection"
 
     public enum Events: String, SentrySDKOverride {
         case sampleRate       = "--io.sentry.events.sample-rate"
@@ -370,6 +390,20 @@ extension SentrySDKOverrides.Special {
     }
 }
 
+extension SentrySDKOverrides.DataCollection {
+    public var overrideType: OverrideType {
+        switch self {
+        case .disableUserInfo, .disableGraphQLDocument, .disableGraphQLVariables,
+             .disableDatabaseQueryParams, .disableStackFrameVariables:
+            return .boolean
+        case .cookiesMode, .cookiesTerms, .httpRequestHeadersMode, .httpRequestHeadersTerms,
+             .httpResponseHeadersMode, .httpResponseHeadersTerms, .httpBodies,
+             .urlQueryParamsMode, .urlQueryParamsTerms, .frameContextLines:
+            return .string
+        }
+    }
+}
+
 extension SentrySDKOverrides.Events {
     public var overrideType: OverrideType {
         switch self {
@@ -624,6 +658,10 @@ extension SentrySDKOverrides.Special {
             return true
         }
     }
+}
+
+extension SentrySDKOverrides.DataCollection {
+    public var ignoresDisableEverything: Bool { return false }
 }
 
 extension SentrySDKOverrides.Events {

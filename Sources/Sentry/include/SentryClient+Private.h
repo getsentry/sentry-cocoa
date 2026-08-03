@@ -1,6 +1,8 @@
 #import "SentryClient.h"
-#import "SentryDataCategory.h"
-#import "SentryDiscardReason.h"
+
+// These are forward declarations, the actual enums are implemented in Swift.
+typedef NS_ENUM(NSUInteger, SentryDataCategory);
+typedef NS_ENUM(NSUInteger, SentryDiscardReason);
 
 @class SentryAttachment;
 @class SentryEnvelope;
@@ -113,6 +115,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// circular dependency: the protocol is defined in Swift and cannot be referenced in ObjC headers
 /// that Swift imports.
 - (SENTRY_SWIFT_MIGRATION_ID(id<SentryObjCTelemetryProcessor>))getTelemetryProcessor;
+
+/// Records a dropped trace metric. Boxed in `SentryMetricObjC` (typed `id`, same header/Swift
+/// constraint as `getTelemetryProcessor` above) because `SentryMetric` is a Swift struct.
+- (void)recordDroppedTraceMetricInClientReport:(SENTRY_SWIFT_MIGRATION_ID(SentryMetricObjC))metric;
 
 @end
 

@@ -9,21 +9,15 @@ private let diskWriteMechanism = "mx_disk_write_exception"
 private let cpuExceptionMechanism = "mx_cpu_exception"
 private let hangDiagnosticMechanism = "mx_hang_diagnostic"
 
-@available(macOS 12.0, *)
 protocol CallStackTreeProviding {
     var callStackTree: MXCallStackTree { get }
 }
 
-@available(macOS 12.0, *)
 extension MXCrashDiagnostic: CallStackTreeProviding { }
-@available(macOS 12.0, *)
 extension MXDiskWriteExceptionDiagnostic: CallStackTreeProviding { }
-@available(macOS 12.0, *)
 extension MXCPUExceptionDiagnostic: CallStackTreeProviding { }
-@available(macOS 12.0, *)
 extension MXHangDiagnostic: CallStackTreeProviding { }
 
-@available(macOS 12.0, *)
 final class SentryMXManager: NSObject, MXMetricManagerSubscriber {
     
     let disableCrashDiagnostics: Bool

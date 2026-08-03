@@ -1,4 +1,4 @@
-@_implementationOnly import _SentryPrivate
+internal import _SentryPrivate
 
 protocol SentryMetricsIntegrationProtocol {
     func addMetric(_ metric: SentryMetric, scope: Scope)
@@ -14,11 +14,16 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
     init?(with options: Options, dependencies _: Dependencies) {
         guard options.enableMetrics else { return nil }
 
+#if SDK_V10
+        let shouldAddDefaultUserId = options.dataCollection.userInfo
+#else
+        let shouldAddDefaultUserId = options.sendDefaultPii
+#endif // SDK_V10
         self.scopeMetaData = SentryDefaultScopeApplyingMetadata(
             environment: options.environment,
             releaseName: options.releaseName,
             cacheDirectoryPath: options.cacheDirectoryPath,
-            sendDefaultPii: options.sendDefaultPii
+            shouldAddDefaultUserId: shouldAddDefaultUserId
         )
 
         self.beforeSendMetric = options.beforeSendMetric
@@ -57,7 +62,13 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
         scope.addAttributesToItem(&mutableMetric, metadata: self.scopeMetaData)
 
         if let beforeSendMetric = beforeSendMetric {
+            // Create a non-mutated copy of the metric, because it could be modified by the SDK user's `beforeSendMetric` 
+            let metricToSend = mutableMetric
             guard let processedItem = beforeSendMetric(mutableMetric) else {
+                SentrySDKLog.debug("Metric dropped by beforeSendMetric callback.")
+                // The byte size is computed lazily on a background queue inside the client, so the
+                // calling thread isn't blocked by serialization.
+                client.recordDroppedTraceMetric(inClientReport: SentryMetricObjC(metric: metricToSend))
                 return
             }
             mutableMetric = processedItem

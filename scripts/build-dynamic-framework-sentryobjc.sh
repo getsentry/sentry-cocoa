@@ -101,7 +101,7 @@ arch_targets_for_sdk() {
         maccatalyst)       echo "arm64-apple-ios${DT_IOS}-macabi x86_64-apple-ios${DT_IOS}-macabi" ;;
         appletvos)         echo "arm64-apple-tvos${DT_TVOS}" ;;
         appletvsimulator)  echo "arm64-apple-tvos${DT_TVOS}-simulator x86_64-apple-tvos${DT_TVOS}-simulator" ;;
-        watchos)           echo "arm64-apple-watchos${DT_WATCHOS} arm64_32-apple-watchos${DT_WATCHOS} armv7k-apple-watchos${DT_WATCHOS}" ;;
+        watchos)           echo "arm64-apple-watchos${DT_WATCHOS} arm64_32-apple-watchos${DT_WATCHOS}" ;;
         watchsimulator)    echo "arm64-apple-watchos${DT_WATCHOS}-simulator x86_64-apple-watchos${DT_WATCHOS}-simulator" ;;
         xros)              echo "arm64-apple-xros${DT_XROS}" ;;
         xrsimulator)       echo "arm64-apple-xros${DT_XROS}-simulator" ;;
