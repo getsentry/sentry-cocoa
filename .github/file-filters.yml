@@ -116,7 +116,6 @@ run_api_stability_for_prs: &run_api_stability_for_prs
 
   # API files
   - "sdk_api.json"
-  - "sdk_api_sentryswiftui.json"
   - "sdk_api_objc.json"
 
   # Build configuration

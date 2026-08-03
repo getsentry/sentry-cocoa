@@ -55,27 +55,11 @@ log_info "Assembling Sentry-Dynamic xcframework"
 "$SCRIPT_DIR/assemble-xcframework.sh" "Sentry" "-Dynamic" "" "iphoneos" "$(pwd)/XCFrameworkBuildPath/archive/Sentry-Dynamic/SDK_NAME.xcarchive"
 end_group
 
-begin_group "Build SentrySwiftUI XCFramework"
-log_info "Building SentrySwiftUI slice"
-"$SCRIPT_DIR/build-xcframework-slice.sh" "iphoneos" "SentrySwiftUI" "" "mh_dylib"
-
-log_info "Assembling SentrySwiftUI xcframework"
-"$SCRIPT_DIR/assemble-xcframework.sh" "SentrySwiftUI" "" "" "iphoneos" "$(pwd)/XCFrameworkBuildPath/archive/SentrySwiftUI/SDK_NAME.xcarchive"
-end_group
-
 begin_group "Extract Public API"
 "$SCRIPT_DIR/extract-swift-api.sh" \
     --module Sentry \
     --output sdk_api.json \
     --framework-path "./Sentry-Dynamic.xcframework/ios-arm64_arm64e"
-end_group
-
-begin_group "Extract SentrySwiftUI Public API"
-"$SCRIPT_DIR/extract-swift-api.sh" \
-    --module SentrySwiftUI \
-    --output sdk_api_sentryswiftui.json \
-    --framework-path "$(pwd)/SentrySwiftUI.xcframework/ios-arm64_arm64e" \
-    --framework-path "$(pwd)/Sentry-Dynamic.xcframework/ios-arm64_arm64e"
 end_group
 
 begin_group "Extract SentryObjC Public API"
