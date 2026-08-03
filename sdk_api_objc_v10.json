@@ -1854,6 +1854,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "disableOnShake",
+    "parent": "SentryObjCFeedbackApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "discardFor:",
     "parent": "SentryObjCInternalProfilingApi",
     "returnType": "void",
@@ -2130,6 +2137,13 @@
     "name": "enableNetworkTracking",
     "parent": "SentryObjCOptions",
     "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "enableOnShake",
+    "parent": "SentryObjCFeedbackApi",
+    "returnType": "void",
     "instance": true
   },
   {

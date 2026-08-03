@@ -1998,6 +1998,22 @@
                                             <action selector="toggleWidget:" destination="fdb-vc-001" eventType="touchUpInside" id="fdb-act-toggle"/>
                                         </connections>
                                     </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fdb-btn-shake-enable">
+                                        <rect key="frame" x="0.0" y="210" width="288" height="34.5"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="filled" title="Enable Feedback On Shake"/>
+                                        <connections>
+                                            <action selector="enableFeedbackOnShake:" destination="fdb-vc-001" eventType="touchUpInside" id="fdb-act-shake-enable"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fdb-btn-shake-disable">
+                                        <rect key="frame" x="0.0" y="260" width="288" height="34.5"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="filled" title="Disable Feedback On Shake"/>
+                                        <connections>
+                                            <action selector="disableFeedbackOnShake:" destination="fdb-vc-001" eventType="touchUpInside" id="fdb-act-shake-disable"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                             </stackView>
                         </subviews>

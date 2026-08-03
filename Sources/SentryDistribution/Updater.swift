@@ -61,6 +61,7 @@ public final class Updater: Sendable {
   public static func buildUrlForInstall(_ plistUrl: String) -> URL? {
     var components = URLComponents()
     components.scheme = "itms-services"
+    components.host = ""
     components.queryItems = [
       URLQueryItem(name: "action", value: "download-manifest"),
       URLQueryItem(name: "url", value: plistUrl)

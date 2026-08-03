@@ -1,6 +1,6 @@
 import Foundation
+import Sentry
 import SentrySampleShared
-import SentrySwiftUI
 import SwiftUI
 
 struct LoremIpsumView: View {

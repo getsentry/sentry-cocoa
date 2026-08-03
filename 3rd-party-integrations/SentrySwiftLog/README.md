@@ -13,7 +13,7 @@ Add the following dependencies to your `Package.swift` or Xcode package dependen
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/getsentry/sentry-cocoa-swiftlog", from: "1.0.0")
+    .package(url: "https://github.com/getsentry/sentry-apple-swift-log", from: "1.0.0")
 ]
 ```
 
