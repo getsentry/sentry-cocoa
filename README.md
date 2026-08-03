@@ -31,7 +31,9 @@ brew install getsentry/tools/sentry-wizard && sentry-wizard -i ios
 
 This patches your project and configures the SDK automatically.
 
-### Swift Package Manager
+### Swift Package Manager (Compile from Source)
+
+Use this repository to build the SDK from source:
 
 **In Xcode:** File > Add Packages, then paste:
 
@@ -54,7 +56,9 @@ targets: [
 
 ### Pre-built XCFrameworks
 
-Download pre-built static or dynamic XCFrameworks from [GitHub Releases](https://github.com/getsentry/sentry-cocoa/releases).
+For pre-built static binaries via SPM, use the [sentry-apple-binaries](https://github.com/getsentry/sentry-apple-binaries) repository.
+
+You can also download XCFrameworks directly from [GitHub Releases](https://github.com/getsentry/sentry-cocoa/releases).
 
 For all installation options (Objective-C, dynamic linking, manual install), see the [full installation docs](https://docs.sentry.io/platforms/apple/install/).
 
