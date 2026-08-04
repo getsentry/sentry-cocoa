@@ -5171,6 +5171,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "screenshotErrorText",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "sdk",
     "parent": "SentryObjCEvent",
     "returnType": "NSDictionary<NSString *,id> * _Nullable",
@@ -6901,6 +6908,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setScreenshotAccessibilityLabel:",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setScreenshotErrorText:",
     "parent": "SentryObjCUserFeedbackFormConfiguration",
     "returnType": "void",
     "instance": true
@@ -10505,6 +10519,12 @@
   {
     "kind": "ObjCPropertyDecl",
     "name": "screenshotAccessibilityLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "screenshotErrorText",
     "parent": "SentryObjCUserFeedbackFormConfiguration",
     "type": "NSString * _Nonnull"
   },

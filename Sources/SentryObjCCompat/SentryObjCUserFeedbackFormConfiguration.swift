@@ -74,6 +74,11 @@ import Foundation
         set { wrapped.screenshotAccessibilityLabel = newValue }
     }
 
+    @objc public var screenshotErrorText: String {
+        get { wrapped.screenshotErrorText }
+        set { wrapped.screenshotErrorText = newValue }
+    }
+
     @objc public var removeScreenshotButtonLabel: String {
         get { wrapped.removeScreenshotButtonLabel }
         set { wrapped.removeScreenshotButtonLabel = newValue }

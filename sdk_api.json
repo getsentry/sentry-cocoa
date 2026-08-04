@@ -69236,6 +69236,82 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC19screenshotErrorTextSSvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormConfiguration(im)screenshotErrorText"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC19screenshotErrorTextSSvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormConfiguration(im)setScreenshotErrorText:"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasStorage",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC19screenshotErrorTextSSvp",
+            "moduleName": "Sentry",
+            "name": "screenshotErrorText",
+            "printedName": "screenshotErrorText",
+            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormConfiguration(py)screenshotErrorText"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
                     "name": "Bool",
                     "printedName": "Swift.Bool",
                     "usr": "s:Sb"

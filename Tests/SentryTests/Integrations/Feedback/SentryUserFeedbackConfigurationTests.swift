@@ -27,6 +27,7 @@ final class SentryUserFeedbackConfigurationTests: XCTestCase {
         sut.formConfig.formTitle = "Global title"
         sut.formConfig.isNameRequired = true
         sut.formConfig.enableScreenshot = false
+        sut.formConfig.screenshotErrorText = "Choose another image"
         sut.theme.background = .red
         sut.theme.outlineStyle = SentryUserFeedbackThemeConfiguration.SentryFormElementOutlineStyle(
             color: .green,
@@ -46,6 +47,7 @@ final class SentryUserFeedbackConfigurationTests: XCTestCase {
         XCTAssertNotIdentical(result.formConfig, sut.formConfig)
         XCTAssertTrue(result.formConfig.isNameRequired)
         XCTAssertFalse(result.formConfig.enableScreenshot)
+        XCTAssertEqual(result.formConfig.screenshotErrorText, "Choose another image")
         XCTAssertEqual(result.formConfig.formTitle, "Changed title")
         XCTAssertEqual(sut.formConfig.formTitle, "Global title")
         XCTAssertNotIdentical(result.theme, sut.theme)

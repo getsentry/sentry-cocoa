@@ -89,6 +89,12 @@ public final class SentryUserFeedbackFormConfiguration: NSObject {
     public var screenshotAccessibilityLabel: String = "Attached screenshot"
 
     /**
+     * Message shown when the selected screenshot could not be attached.
+     * - note: Default: `"Unable to attach screenshot. Please choose another image."`
+     */
+    public var screenshotErrorText: String = "Unable to attach screenshot. Please choose another image."
+
+    /**
      * The label of the button to remove the screenshot from the form.
      * - note: Default: `"Remove screenshot"`
      * - note: ignored if `SentryUserFeedbackConfiguration.showFormForScreenshots` is `false`.

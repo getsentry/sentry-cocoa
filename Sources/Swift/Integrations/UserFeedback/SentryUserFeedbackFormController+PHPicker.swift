@@ -51,6 +51,7 @@ extension SentryUserFeedbackFormController {
             Self.previewableImageContentTypes.contains($0.preferredMIMEType ?? "")
         }) ?? imageTypes.first else {
             SentrySDKLog.warning("The item selected for user feedback doesn't provide a supported image type.")
+            presentScreenshotError()
             return
         }
 
@@ -169,9 +170,12 @@ extension SentryUserFeedbackFormController {
         }
     }
 
-    private func finishLoadingScreenshot(_ screenshot: (UIImage, Attachment)?) {
+    func finishLoadingScreenshot(_ screenshot: (UIImage, Attachment)?) {
         viewModel.setScreenshotLoading(false)
-        guard let screenshot = screenshot else { return }
+        guard let screenshot = screenshot else {
+            presentScreenshotError()
+            return
+        }
         viewModel.setScreenshot(image: screenshot.0, attachment: screenshot.1)
     }
 }

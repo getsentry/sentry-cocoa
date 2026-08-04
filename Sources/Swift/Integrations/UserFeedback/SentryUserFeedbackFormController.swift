@@ -183,6 +183,27 @@ extension SentryUserFeedbackFormController {
     }
 }
 
+// MARK: Error presentation
+extension SentryUserFeedbackFormController {
+    func makeErrorAlert(message: String) -> UIAlertController {
+        let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        return alert
+    }
+
+    func presentErrorAlert(message: String, completion: (() -> Void)? = nil) {
+        present(makeErrorAlert(message: message), animated: config.animations, completion: completion)
+    }
+
+    func makeScreenshotErrorAlert() -> UIAlertController {
+        return makeErrorAlert(message: config.formConfig.screenshotErrorText)
+    }
+
+    func presentScreenshotError() {
+        present(makeScreenshotErrorAlert(), animated: config.animations)
+    }
+}
+
 // MARK: SentryUserFeedbackFormViewModelDelegate
 extension SentryUserFeedbackFormController: SentryUserFeedbackFormViewModelDelegate {
     func selectScreenshot() {
@@ -202,9 +223,7 @@ extension SentryUserFeedbackFormController: SentryUserFeedbackFormViewModelDeleg
             dismiss(animated: config.animations)
         case .failure(let error):
             func presentAlert(message: String, errorCode: Int, info: [String: Any]) {
-                let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "OK", style: .default))
-                present(alert, animated: config.animations) { [config] in
+                presentErrorAlert(message: message) { [config] in
                     // we use NSError here instead of Swift.Error because NSError automatically bridges to Swift.Error, but the same is not true in the other direction if you want to include a userInfo dictionary. Using Swift.Error would require additional implementation for this to work with ObjC consumers.
                     config.onSubmitError?(NSError(domain: "io.sentry.error", code: errorCode, userInfo: info))
                 }

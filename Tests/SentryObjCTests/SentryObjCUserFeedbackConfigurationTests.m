@@ -62,6 +62,7 @@
         configuration.addScreenshotButtonLabel = @"Add";
         configuration.addScreenshotButtonAccessibilityLabel = @"Add screenshot";
         configuration.screenshotAccessibilityLabel = @"Screenshot attached";
+        configuration.screenshotErrorText = @"Choose another screenshot";
         configuration.removeScreenshotButtonLabel = @"Remove";
         configuration.removeScreenshotButtonAccessibilityLabel = @"Remove screenshot";
         configuration.isNameRequired = YES;
@@ -98,6 +99,7 @@
     XCTAssertEqualObjects(form.addScreenshotButtonLabel, @"Add");
     XCTAssertEqualObjects(form.addScreenshotButtonAccessibilityLabel, @"Add screenshot");
     XCTAssertEqualObjects(form.screenshotAccessibilityLabel, @"Screenshot attached");
+    XCTAssertEqualObjects(form.screenshotErrorText, @"Choose another screenshot");
     XCTAssertEqualObjects(form.removeScreenshotButtonLabel, @"Remove");
     XCTAssertEqualObjects(form.removeScreenshotButtonAccessibilityLabel, @"Remove screenshot");
     XCTAssertTrue(form.isNameRequired);

@@ -171,6 +171,30 @@ class SentryFeedbackTests: XCTestCase {
         XCTAssertFalse(sut.viewModel.screenshotLoadingIndicator.isAnimating)
     }
 
+    func testFinishLoadingScreenshot_whenLoadingFails_shouldPresentConfiguredErrorAlert() throws {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        config.animations = false
+        config.formConfig.screenshotErrorText = "Choose a different image."
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        let window = UIWindow(windowScene: MockUIWindowScene())
+        window.rootViewController = sut
+        window.makeKeyAndVisible()
+        addTeardownBlock { [window] in
+            window.isHidden = true
+        }
+
+        // -- Act --
+        sut.finishLoadingScreenshot(nil)
+
+        // -- Assert --
+        let alert = try XCTUnwrap(sut.presentedViewController as? UIAlertController)
+        XCTAssertEqual(alert.title, "Error")
+        XCTAssertEqual(alert.message, "Choose a different image.")
+        XCTAssertEqual(alert.actions.count, 1)
+        XCTAssertEqual(try XCTUnwrap(alert.actions.element(at: 0)).title, "OK")
+    }
+
     func testForm_whenScreenshotProvided_shouldShowRemoveScreenshotButton() {
         // -- Arrange --
         let config = SentryUserFeedbackConfiguration()
