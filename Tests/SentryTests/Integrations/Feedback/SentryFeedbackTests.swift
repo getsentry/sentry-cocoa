@@ -3,6 +3,7 @@ import Foundation
 @_spi(Private) import SentryTestUtils
 @_spi(Private) @testable import Sentry
 import PhotosUI
+import UniformTypeIdentifiers
 import XCTest
 
 class SentryFeedbackTests: XCTestCase {
@@ -228,6 +229,39 @@ class SentryFeedbackTests: XCTestCase {
         XCTAssertEqual(selectedAttachment.data, data)
         XCTAssertEqual(selectedAttachment.filename, "selected.png")
         XCTAssertEqual(selectedAttachment.contentType, "image/png")
+    }
+
+    func testScreenshotFilename_whenSuggestedNameHasMismatchedImageExtension_shouldReplaceExtension() {
+        // -- Act --
+        let filename = SentryUserFeedbackFormController.screenshotFilename(
+            suggestedName: "selected.heic",
+            type: .jpeg
+        )
+
+        // -- Assert --
+        XCTAssertEqual(filename, "selected.jpeg")
+    }
+
+    func testScreenshotFilename_whenSuggestedNameHasMatchingImageExtension_shouldPreserveExtension() {
+        // -- Act --
+        let filename = SentryUserFeedbackFormController.screenshotFilename(
+            suggestedName: "selected.jpeg",
+            type: .jpeg
+        )
+
+        // -- Assert --
+        XCTAssertEqual(filename, "selected.jpeg")
+    }
+
+    func testScreenshotFilename_whenSuggestedNameHasDottedBasename_shouldAppendExtension() {
+        // -- Act --
+        let filename = SentryUserFeedbackFormController.screenshotFilename(
+            suggestedName: "selected.final",
+            type: .jpeg
+        )
+
+        // -- Assert --
+        XCTAssertEqual(filename, "selected.final.jpeg")
     }
 
     func testLoadSelectedScreenshot_whenHEICSelected_shouldEncodeJPEG() throws {

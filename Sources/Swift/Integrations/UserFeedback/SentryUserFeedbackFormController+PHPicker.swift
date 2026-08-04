@@ -55,14 +55,7 @@ extension SentryUserFeedbackFormController {
             return
         }
 
-        let suggestedName = provider.suggestedName.flatMap { $0.isEmpty ? nil : $0 } ?? "screenshot"
-        let filename: String
-        if (suggestedName as NSString).pathExtension.isEmpty,
-            let fileExtension = type.preferredFilenameExtension {
-            filename = "\(suggestedName).\(fileExtension)"
-        } else {
-            filename = suggestedName
-        }
+        let filename = Self.screenshotFilename(suggestedName: provider.suggestedName, type: type)
         let contentType = type.preferredMIMEType
         // Forms can be created before the SDK has a client.
         let maxAttachmentSize = (SentrySDKInternal.currentHub().getClient()?.getOptions() as? Options)?
@@ -106,6 +99,28 @@ extension SentryUserFeedbackFormController {
         "image/webp",
         "image/avif"
     ]
+
+    static func screenshotFilename(suggestedName: String?, type: UTType) -> String {
+        let suggestedName = suggestedName.flatMap { $0.isEmpty ? nil : $0 } ?? "screenshot"
+        guard let preferredExtension = type.preferredFilenameExtension else {
+            return suggestedName
+        }
+
+        let filename = suggestedName as NSString
+        guard !filename.pathExtension.isEmpty else {
+            return "\(suggestedName).\(preferredExtension)"
+        }
+        guard let suggestedType = UTType(filenameExtension: filename.pathExtension),
+            suggestedType.conforms(to: .image) else {
+            return "\(suggestedName).\(preferredExtension)"
+        }
+        guard suggestedType != type else {
+            return suggestedName
+        }
+
+        let basename = filename.deletingPathExtension
+        return "\(basename.isEmpty ? "screenshot" : basename).\(preferredExtension)"
+    }
 
     static func loadSelectedScreenshot(
         from url: URL?,
