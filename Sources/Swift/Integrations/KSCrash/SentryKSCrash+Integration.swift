@@ -61,7 +61,8 @@ extension SentryKSCrash {
 
             // KSCRASH_TODO: Restore previous-run session handling for watchdog terminations and
             // fatal app hangs through reporter-neutral coordination. It must run before automatic
-            // session tracking and the corresponding event processing. Tracking issue pending.
+            // session tracking and the corresponding event processing.
+            // Tracked in https://github.com/getsentry/sentry-cocoa/issues/8674.
             if installer.crashedLastLaunch {
                 SentrySDKInternal.fatalDetected = true
 
