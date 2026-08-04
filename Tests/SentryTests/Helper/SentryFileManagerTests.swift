@@ -174,13 +174,79 @@ class SentryFileManagerTests: XCTestCase {
         try compareEnvelopes(expectedData, actualData as Data, message: "Envelopes are not equal")
     }
     
-    func testStoreInvalidEnvelope_ReturnsNil() {
+    func testStore_whenEnvelopeHeaderIsInvalid_shouldReturnNilWithoutLeavingFiles() {
+        // -- Arrange --
         let sdkInfoWithInvalidJSON = SentrySdkInfo(name: SentryInvalidJSONString() as String, version: "8.0.0", integrations: [], features: [], packages: [], settings: SentrySDKSettings(dict: [:]))
         let headerWithInvalidJSON = SentryEnvelopeHeader(id: nil, sdkInfo: sdkInfoWithInvalidJSON, traceContext: nil)
-        
         let envelope = SentryEnvelope(header: headerWithInvalidJSON, items: [])
-        
-        XCTAssertNil(sut.store(envelope))
+
+        // -- Act --
+        let path = sut.store(envelope)
+
+        // -- Assert --
+        XCTAssertNil(path)
+        XCTAssertTrue(sut.getAllEnvelopes().isEmpty)
+    }
+
+    func testStore_whenEnvelopeItemHeaderIsInvalid_shouldReturnNilWithoutLeavingFiles() {
+        // -- Arrange --
+        let itemHeader = SentryEnvelopeItemHeader(type: SentryInvalidJSONString() as String, length: 0)
+        let envelope = SentryEnvelope(
+            header: SentryEnvelopeHeader(id: SentryId()),
+            singleItem: SentryEnvelopeItem(header: itemHeader, data: Data())
+        )
+
+        // -- Act --
+        let path = sut.store(envelope)
+
+        // -- Assert --
+        XCTAssertNil(path)
+        XCTAssertTrue(sut.getAllEnvelopes().isEmpty)
+    }
+
+    func testStore_whenSentryRootIsReadOnly_shouldStoreEnvelope() throws {
+        // -- Arrange --
+        try FileManager.default.setAttributes([.posixPermissions: 0o555], ofItemAtPath: sut.sentryPath)
+        defer {
+            XCTAssertNoThrow(try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: sut.sentryPath))
+        }
+
+        // -- Act --
+        let path = sut.store(TestConstants.envelope)
+
+        // -- Assert --
+        XCTAssertNotNil(path)
+        XCTAssertEqual(sut.getAllEnvelopes().count, 1)
+    }
+
+    func testStore_whenEnvelopeHasLargeAttachment_shouldStoreValidEnvelope() throws {
+        // -- Arrange --
+        let attachmentData = Data(repeating: 0x2A, count: 20 * 1_024 * 1_024)
+        let itemHeader = SentryEnvelopeItemHeader(type: SentryEnvelopeItemTypes.attachment, length: UInt(attachmentData.count))
+        let envelope = SentryEnvelope(
+            header: SentryEnvelopeHeader(id: SentryId()),
+            singleItem: SentryEnvelopeItem(header: itemHeader, data: attachmentData)
+        )
+
+        // -- Act --
+        let path = sut.store(envelope)
+
+        // -- Assert --
+        let storedData = try Data(contentsOf: URL(fileURLWithPath: XCTUnwrap(path)))
+        let storedEnvelope = try XCTUnwrap(SentrySerializationSwift.envelope(with: storedData))
+        XCTAssertEqual(storedEnvelope.items.first?.data, attachmentData)
+    }
+
+    func testStore_whenFinalEnvelopeCannotBePublished_shouldReturnNilWithoutLeavingFiles() throws {
+        // -- Arrange --
+        try FileManager.default.removeItem(atPath: sut.envelopesPath)
+
+        // -- Act --
+        let path = sut.store(TestConstants.envelope)
+
+        // -- Assert --
+        XCTAssertNil(path)
+        XCTAssertTrue(sut.getAllEnvelopes().isEmpty)
     }
     
     func testDeleteOldEnvelopes() throws {
