@@ -163,6 +163,9 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         SentryExtensionDetector(infoPlistWrapper: Dependencies.infoPlistWrapper)
     }()
     var coreDataSwizzling = SentryCoreDataSwizzling()
+    lazy var networkTracker: SentryNetworkTrackerProtocol = {
+        SentryDefaultNetworkTracker(options: self.startOptions, dependencies: self)
+    }()
 
     // This is a var so that it's initialized lazily on first access. It never should get set
     // to a different value.
@@ -501,8 +504,11 @@ protocol Hub {
     func configureScope(_ callback: @escaping (Scope) -> Void)
     func storeEnvelope(_ envelope: SentryEnvelope)
     func captureEnvelope(_ envelope: SentryEnvelope)
+    func captureErrorEvent(event: Event)
     func setTrace(_ traceId: SentryId, spanId: SpanId)
+    var currentOptions: Options? { get }
     var options: Options { get }
+    var scope: Scope { get }
 }
 
 protocol HubProvider {
@@ -525,14 +531,26 @@ private struct DefaultHub: Hub {
         SentrySDKInternal.currentHub().capture(envelope)
     }
 
+    func captureErrorEvent(event: Event) {
+        SentrySDKInternal.currentHub().captureErrorEvent(event: event)
+    }
+
     func setTrace(_ traceId: SentryId, spanId: SpanId) {
         SentrySDKInternal.currentHub().configureScope { scope in
             scope.setPropagationContext(traceId: traceId, spanId: spanId)
         }
     }
 
+    var currentOptions: Options? {
+        SentryDependencyContainer.sharedInstance().startOptions
+    }
+
     var options: Options {
         SentrySDKInternal.currentHub().getClient()?.getOptions() as? Options ?? Options()
+    }
+
+    var scope: Scope {
+        SentrySDKInternal.currentHub().scope
     }
 }
 
@@ -845,16 +863,9 @@ extension SentryDependencyContainer: WatchdogTerminationTrackerBuilder {}
 #endif
 
 protocol NetworkTrackerProvider {
-    var networkTracker: SentryNetworkTracker { get }
+    var networkTracker: SentryNetworkTrackerProtocol { get }
 }
-extension SentryDependencyContainer: NetworkTrackerProvider {
-    // Inject the network tracer via the Dependency Container
-    // Because this is used in swizzling, we cannot remove the singleton
-    // or that may lead to issues when stopping and enabling the SDK again
-    var networkTracker: SentryNetworkTracker {
-        SentryNetworkTracker.sharedInstance
-    }
-}
+extension SentryDependencyContainer: NetworkTrackerProvider {}
 
 protocol SentryCrashReporterProvider {
     var crashReporter: SentryCrashSwift { get }
