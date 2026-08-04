@@ -77,8 +77,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # "GH-1355 iOS 15" is TEMPORARY — delete before merging GH-8548.
-        suite: ["High-end device", "Low-end device", "GH-1355 iOS 15"]
+        # TEMPORARY — restore to ["High-end device", "Low-end device"] before merging GH-8548.
+        # Only the GH-1355 suite runs on this branch: the benchmark suites aren't needed for that
+        # verification and they compete with it for SauceLabs devices.
+        suite: ["GH-1355 iOS 15"]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
