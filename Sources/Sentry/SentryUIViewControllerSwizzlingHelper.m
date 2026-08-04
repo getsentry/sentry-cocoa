@@ -43,50 +43,60 @@ static BOOL swizzlingIsActive = FALSE;
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
 }
 
+/**
+ * Swizzles the two base @c UIViewController designated initializers and notifies @c delegate after
+ * each one, so the caller can defer its own swizzling to first instantiation.
+ *
+ * Every @c UIViewController is created through one of the two: a subclass's designated init calls
+ * super, a convenience init routes through a designated init, and @c -init routes through
+ * @c initWithNibName:bundle:.
+ *
+ * The initializers are swizzled only on the base class, so that part REPLACES UIKit's own
+ * implementation rather than adding a method. That does not mean the funnel only mutates the base
+ * class: the handler runs @c swizzleViewControllerSubClass: on the concrete subclass, and
+ * @c class_replaceMethod ADDS a lifecycle method when the subclass doesn't implement one — while
+ * still inside the outermost initializer frame. That is the same mechanism GH-1361 blamed for the
+ * GH-1355 convenience-initializer crash, so this funnel does not eliminate the condition.
+ *
+ * We could not reproduce GH-1355, and are not claiming it cannot happen:
+ *   - A standalone probe reproducing the pre-GH-1361 ordering, instrumented to confirm it ADDED all
+ *     lifecycle methods to a Swift @c UITableViewController subclass mid-init, stayed crash-free on
+ *     iOS 15.5, 18.6 and 26.4 across convenience init, navigation push, a second instance, and
+ *     @c UIPageViewController.
+ *   - Real iOS 15 devices on SauceLabs never reached a verdict: the harness was too flaky and the
+ *     tests never executed. See PR #8667.
+ *   - GH-1355 was only ever reported on iOS 15.0 in Release/TestFlight builds, and iOS 15.0 cannot
+ *     be installed on current macOS hosts.
+ *   - A maintainer reproduced the same exception in an empty project with no Sentry SDK attached
+ *     (https://developer.apple.com/forums/thread/691371), so GH-1361's root cause was a hypothesis
+ *     rather than an established fact.
+ *
+ * See PR #8625's description for the full write-up.
+ *
+ * Ordering inside the replacement is load-bearing:
+ *   1. Call the original initializer FIRST, and never touch @c self before it. The pre-GH-1361
+ *      code messaged @c self and mutated the class before the original ran.
+ *   2. Read the concrete class from the RETURNED object via @c object_getClass, a C runtime call
+ *      rather than a message. This handles an init returning a different instance, or nil.
+ *   3. Invoke the handler synchronously, so lifecycle methods are swizzled before the instance
+ *      can reach its first @c viewDidLoad.
+ *   4. Return the result verbatim, adding no retain, so ARC's return handshake stays balanced.
+ *
+ * We use the ObjC @c SentrySwizzleInstanceMethod macro rather than the typed Swift API that
+ * develop-docs/SWIZZLING.md prefers (@c SentryTypedSwizzle, #8524): its object-returning overloads
+ * model +0 autoreleased returns, while an initializer returns +1, which Swift cannot express
+ * through an @c \@convention(block) object return without passing @c Unmanaged across the
+ * boundary. @c SentryNSDataSwizzlingHelper.m uses this same macro path for
+ * @c -[NSData initWithContentsOfFile:options:error:], another +1 initializer. The retain
+ * handshake is covered by @c testInitFunnel_whenViewControllersInstantiated_doesNotOverRetainThem.
+ *
+ * @warning Experimental and opt-in, disabled by default. See GH-8548.
+ */
 + (void)swizzleUIViewControllerInitsWithDelegate:
     (id<SentryUIViewControllerInitSwizzlingDelegate>)delegate
 {
     _initSwizzlingDelegate = delegate;
 
-    // EXPERIMENTAL: only installed when options.experimental.enableUIViewControllerInitSwizzling is
-    // enabled. Disabled by default.
-    //
-    // Swizzle the two base UIViewController designated initializers. Every UIViewController is
-    // created through one of them: a subclass's designated init calls super, convenience inits
-    // route through a designated init, and `-init` routes through initWithNibName:bundle:.
-    //
-    // The INITIALIZERS are swizzled only on the base class, so that part replaces UIKit's own
-    // implementation rather than adding a method. Note this does NOT mean the funnel only ever
-    // mutates the base class: the handler runs swizzleViewControllerSubClass: on the concrete
-    // subclass, and class_replaceMethod ADDS a lifecycle method when the subclass doesn't implement
-    // it. That happens while still inside the outermost initializer frame, which is the same
-    // mechanism GH-1361 blamed for the GH-1355 convenience-initializer crash.
-    //
-    // We could not demonstrate that as a crasher: a standalone probe reproducing the pre-GH-1361
-    // ordering, and confirming it ADDED all lifecycle methods to a Swift UITableViewController
-    // subclass mid-init, stayed crash-free on iOS 15.5, 18.6 and 26.4 across the reported shapes
-    // (convenience init, navigation push, second instance, UIPageViewController). GH-1355 was only
-    // ever seen on iOS 15.0 in Release/TestFlight builds, was reproduced by a maintainer in an
-    // empty project with no SDK attached (https://developer.apple.com/forums/thread/691371), and
-    // iOS 15.0 cannot be installed on current macOS hosts. Best reading: an iOS-15.0-era UIKit bug
-    // that swizzling perturbed. This funnel is experimental and opt-in partly for that reason.
-    //
-    // Ordering inside the replacement is load-bearing:
-    //   1. Call the original initializer FIRST, and never touch `self` before it. The pre-GH-1361
-    //      code messaged `self` and mutated the class before the original ran.
-    //   2. Read the concrete class from the RETURNED object via object_getClass, a C runtime call
-    //      rather than a message. This handles an init returning a different instance, or nil.
-    //   3. Invoke the handler synchronously, so lifecycle methods are swizzled before the instance
-    //      can reach its first viewDidLoad.
-    //   4. Return the result verbatim, adding no retain, so ARC's return handshake stays balanced.
-    //
-    // We use the ObjC SentrySwizzleInstanceMethod macro rather than the typed Swift API that
-    // develop-docs/SWIZZLING.md prefers (SentryTypedSwizzle, #8524): its object-returning overloads
-    // model +0 autoreleased returns, while an initializer returns +1, which Swift cannot express
-    // through an @convention(block) object return without passing Unmanaged across the boundary.
-    // SentryNSDataSwizzlingHelper.m uses this same macro path for -[NSData
-    // initWithContentsOfFile:options:error:], another +1 initializer. The retain handshake is
-    // covered by testInitFunnel_whenViewControllersInstantiated_doesNotOverRetainThem.
     SEL nibSelector = NSSelectorFromString(@"initWithNibName:bundle:");
     SentrySwizzleInstanceMethod(UIViewController.class, nibSelector, SentrySWReturnType(id),
         SentrySWArguments(NSString * nibName, NSBundle * bundle), SentrySWReplacement({
