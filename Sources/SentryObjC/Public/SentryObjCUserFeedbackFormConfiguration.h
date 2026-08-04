@@ -54,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Displays a button that lets users select a screenshot from their photo library.
- * @note Default value is @c YES.
+ * @note Default value is @c NO.
  */
 @property (nonatomic) BOOL enableScreenshot;
 

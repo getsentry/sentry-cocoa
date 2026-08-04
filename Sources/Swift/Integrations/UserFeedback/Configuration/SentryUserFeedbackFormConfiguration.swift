@@ -62,9 +62,9 @@ public final class SentryUserFeedbackFormConfiguration: NSObject {
     
     /**
      * Displays a button that lets users select a screenshot from their photo library.
-     * - note: Default: `true`
+     * - note: Default: `false`
      */
-    public var enableScreenshot: Bool = true
+    public var enableScreenshot: Bool = false
 
     /**
      * The label of the button to add a screenshot to the form.

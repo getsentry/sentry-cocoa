@@ -107,9 +107,10 @@ class SentryFeedbackTests: XCTestCase {
         XCTAssertEqual(closeCalls, 2)
     }
 
-    func testForm_whenNoScreenshotProvided_shouldShowAddScreenshotButton() {
+    func testForm_whenScreenshotSelectionEnabled_shouldShowAddScreenshotButton() {
         // -- Arrange --
         let config = SentryUserFeedbackConfiguration()
+        config.formConfig.enableScreenshot = true
 
         // -- Act --
         let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
@@ -119,10 +120,9 @@ class SentryFeedbackTests: XCTestCase {
         XCTAssertTrue(sut.viewModel.removeScreenshotStack.isHidden)
     }
 
-    func testForm_whenScreenshotSelectionDisabled_shouldHideAddScreenshotButton() {
+    func testForm_whenScreenshotSelectionDisabledByDefault_shouldHideAddScreenshotButton() {
         // -- Arrange --
         let config = SentryUserFeedbackConfiguration()
-        config.formConfig.enableScreenshot = false
 
         // -- Act --
         let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
@@ -269,6 +269,7 @@ class SentryFeedbackTests: XCTestCase {
     func testRemoveScreenshot_whenImageSelected_shouldRemoveAttachment() {
         // -- Arrange --
         let config = SentryUserFeedbackConfiguration()
+        config.formConfig.enableScreenshot = true
         let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
         let attachment = Attachment(data: Data(), filename: "selected.png", contentType: "image/png")
         sut.viewModel.setScreenshot(image: UIImage(), attachment: attachment)
