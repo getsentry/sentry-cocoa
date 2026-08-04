@@ -527,6 +527,26 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         XCTAssertGreaterThan(fixture.subClassFinder.invocations.count, 0, "The eager path is expected to scan the root view controller's image.")
     }
 
+    /// The root walk must not route through the first-instantiation funnel while the flag is off, so
+    /// the eager path keeps behaving exactly as it did before the funnel existed.
+    func testInitSwizzling_whenDisabledAndRootViewControllerFound_doesNotUseInstantiationFunnel() {
+        // -- Arrange --
+        XCTAssertFalse(fixture.options.experimental.enableUIViewControllerInitSwizzling)
+        let sut = fixture.sutWithDefaultObjCRuntimeWrapper
+        let window = fixture.makeWindow()
+        let rootViewController = TestViewController()
+        window.rootViewController = rootViewController
+
+        // -- Act --
+        sut.swizzleRootViewControllerAndDescendant(rootViewController)
+
+        // -- Assert --
+        XCTAssertFalse(
+            sut.testHasProcessedViewController(TestViewController.self),
+            "The eager path must not record classes in the funnel's dedup set."
+        )
+    }
+
     func testInitSwizzling_whenEnabledAndStartedWithApp_doesNotInvokeSubClassFinder() {
         // -- Arrange --
         // Full start() with a resolvable app delegate + root view controller, i.e. the real launch

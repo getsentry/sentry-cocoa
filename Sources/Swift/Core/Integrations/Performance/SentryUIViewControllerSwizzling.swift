@@ -78,9 +78,11 @@ class SentryUIViewControllerSwizzling: NSObject, SentryUIViewControllerInitSwizz
             let imageNames = loadedImageNamesProvider()
             for inAppInclude in inAppLogic.inAppIncludes {
                 var found = false
-                for imageName in imageNames where SentryInAppLogic.isImageNameInApp(imageName, inAppInclude: inAppInclude) {
-                    found = true
-                    swizzleUIViewControllers(ofImage: imageName)
+                for imageName in imageNames {
+                    if SentryInAppLogic.isImageNameInApp(imageName, inAppInclude: inAppInclude) {
+                        found = true
+                        swizzleUIViewControllers(ofImage: imageName)
+                    }
                 }
                 if !found {
                     SentrySDKLog.warning(
@@ -260,13 +262,18 @@ class SentryUIViewControllerSwizzling: NSObject, SentryUIViewControllerInitSwizz
             let viewControllerClass: AnyClass? = type(of: viewController)
             if let viewControllerClass {
                 SentrySDKLog.debug("Calling swizzleRootViewController for \(viewController)")
-                // Already-live instances; route through the shared entry point so a class reached by
-                // both this walk and the init funnel is swizzled only once.
-                handleInstantiatedViewController(viewControllerClass)
 
-                if !options.experimental.enableUIViewControllerInitSwizzling {
-                    // Eager path only: fall back to the image of a root VC when the app delegate
-                    // class yields no image name. The init funnel swizzles every instance directly.
+                if options.experimental.enableUIViewControllerInitSwizzling {
+                    // These instances already exist, so the init funnel never sees them. Route them
+                    // through its entry point so a class reached by both is filtered once, and skip
+                    // the image fallback below — the funnel swizzles each instance directly.
+                    handleInstantiatedViewController(viewControllerClass)
+                } else {
+                    swizzleViewControllerSubClass(viewControllerClass)
+
+                    // We can't get the image name with the app delegate class for some apps. Therefore, we
+                    // use the rootViewController and its subclasses as a fallback.  The following method
+                    // ensures we don't swizzle ViewControllers of UIKit.
                     swizzleUIViewControllersOfClassesInImageOf(viewControllerClass)
                 }
             } else {
