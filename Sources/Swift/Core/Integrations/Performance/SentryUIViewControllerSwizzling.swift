@@ -11,10 +11,10 @@ import UIKit
     var delegate: UIApplicationDelegate? { get set }
 }
 
-/// Called synchronously, still inside the initializer frame, on the main thread.
+/// Reports every initialized `UIViewController` while the base-init funnel is installed.
 @_spi(Private) @objc public protocol SentryUIViewControllerInitSwizzlingDelegate {
-    /// - Parameter viewControllerClass: The concrete subclass, read from the initialized instance via
-    ///   `object_getClass` rather than from the base class the initializer was swizzled on.
+    /// Called synchronously, still inside the initializer frame, on the main thread. The class is the
+    /// concrete subclass, not the base class the initializer was swizzled on.
     func viewControllerInitialized(_ viewControllerClass: AnyClass)
 }
 
