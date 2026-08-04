@@ -224,6 +224,38 @@ are already main-thread-confined **by construction**, not by convention:
 Decision: do **not** add locking. If this is revisited, `SentryDispatchQueueWrapper` already offers
 `dispatchAsyncOnMainQueueIfNotMainThread` / `dispatchSyncOnMainQueue`.
 
+## iOS 15 real-device probe split out into PR #8667 (draft, stacked)
+
+The temporary SauceLabs probe that ran the GH-1355 fixture under the pre-GH-1361 ordering on real iOS
+15 hardware **is no longer on this branch**. It lives in draft PR **#8667**
+(`test/gh1355-ios15-saucelabs-probe`), based on this branch so its diff is only the probe:
+`benchmarking.yml` (branch trigger + matrix entry), `.sauce/benchmarking-config.yml` (GH-1355 iOS 15
+suite + class scoping of the existing suites), `Benchmarking/Sources/GH1355OldOrderingTests.m`, and the
+`useOldCrashingOrdering` launch-argument branch in `SentryUIViewControllerSwizzlingHelper.m`.
+
+Split out because SauceLabs was busy and the probe's failures were blocking this PR's CI. **Do not
+merge #8667** — read its result, then close it. This branch was force-pushed to drop the four probe
+commits (safe: no reviews existed). Probe state is preserved in the local branch
+`backup/probe-state-9e5a56b18`.
+
+Repo gotchas learned while wiring it up, worth knowing independently:
+
+- `iOS-Swift-UITests` is a **target, not a scheme**. The `build_ios_swift_ui_test` fastlane lane builds
+  `-scheme iOS-Swift-UITests`, which doesn't exist — the lane is dead code that fails for any caller.
+  UI tests run through the `iOS-Swift` scheme; one `build-for-testing` on it emits both the app and
+  `iOS-Swift-UITests-Runner.app`.
+- Signing and building must be in the **same** fastlane lane: every signing lane ends with
+  `delete_keychain`, so a later `xcodebuild` step fails with `No signing certificate found`.
+- `setup_code_signing` uses `readonly: false` and **generates** profiles in the shared Match repo —
+  don't call it from CI.
+- The sample's `Test` configuration defines `SENTRY_TEST=1`, **not `DEBUG`**
+  (`Samples/Shared/Config/ClangPreprocessing.xcconfig`). A `#if DEBUG` gate silently compiles out and
+  produced a false green until gated on `DEBUG || SENTRY_TEST || SENTRY_TEST_CI`.
+- The pre-existing SauceLabs benchmark suites had **no class filter**, so they run every XCTestCase in
+  the target. Adding one class pushed them past the 60m timeout;
+  `ERR Suite failed. error="User Abandoned Test -- User terminated"` means **timeout**, not assertion
+  failure.
+
 ## Deferred (non-blocking, still open)
 
 1. **Changelog is missing the PR number** — Danger fails with "Please consider adding a changelog
@@ -234,10 +266,10 @@ Decision: do **not** add locking. If this is revisited, `SentryDispatchQueueWrap
    `Sources/SentryObjCCompat/SentryObjCExperimentalOptions.swift`, so pure-ObjC consumers can't enable
    the fix. Note `enableStandaloneAppStartTracing` is **also** unmirrored, so there is precedent either
    way; decide whether to mirror just this one, both, or neither (and document the reason).
-3. **`run-full-ci` label** — not yet added; the ~12 "Missing run-full-ci label" failures are only that
-   gate and will clear once it is applied.
+3. **`run-full-ci` label** — applied.
 4. **Delete this handoff file before merge** — it is agent scratch, not maintainer docs. The durable
    content lives in the PR description and code comments.
+   Also close (don't merge) **PR #8667**, the stacked iOS 15 probe.
 5. **Don't close #8548 with this PR** — the option defaults to **off**, so default-configuration users
    remain exposed. Reference the issue; close it when the default flips.
 
