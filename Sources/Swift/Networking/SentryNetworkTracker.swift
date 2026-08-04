@@ -370,7 +370,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
                 headers,
                 options: options.dataCollection
             )
-            if !sanitizedHeaders.headers.isEmpty {
+            if options.dataCollection.httpHeaders.request != .off {
                 request.headers = sanitizedHeaders.headers
             }
             request.cookies = sanitizedHeaders.cookies
@@ -397,7 +397,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             responseHeaders,
             options: options.dataCollection
         )
-        if !sanitizedHeaders.headers.isEmpty {
+        if options.dataCollection.httpHeaders.response != .off {
             responseContext["headers"] = sanitizedHeaders.headers
         }
         responseContext["cookies"] = sanitizedHeaders.cookies

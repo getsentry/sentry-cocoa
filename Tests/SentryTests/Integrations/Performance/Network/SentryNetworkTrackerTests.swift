@@ -1707,6 +1707,36 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(response["headers"] as? [String: String], [:])
     }
 
+    func testCaptureHTTPClientError_whenOnlyCookiesArePresentAndHeaderCollectionIsEnabled_shouldIncludeEmptyHeaders() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+#else
+        // -- Arrange --
+        let task = createDataTask { request in
+            var request = request
+            request.allHTTPHeaderFields = ["Cookie": "theme=dark"]
+            return request
+        }
+        task.setResponse(try XCTUnwrap(HTTPURLResponse(
+            url: SentryNetworkTrackerTests.fullUrl,
+            statusCode: 500,
+            httpVersion: "1.1",
+            headerFields: ["Set-Cookie": "locale=en; HttpOnly"]
+        )))
+
+        // -- Act --
+        fixture.getSut().urlSessionTask(task, setState: .completed)
+
+        // -- Assert --
+        let event = try XCTUnwrap(fixture.hub.capturedErrorEvents.first)
+        XCTAssertEqual(event.request?.headers, [:])
+        XCTAssertEqual(event.request?.cookies, ["theme": "dark"])
+        let response = try XCTUnwrap(event.context?["response"])
+        XCTAssertEqual(response["headers"] as? [String: String], [:])
+        XCTAssertEqual(response["cookies"] as? [String: String], ["locale": "en"])
+#endif // SDK_V10
+    }
+
     func testCaptureHTTPClientErrorResponse_noSecurityHeader() throws {
         let sut = fixture.getSut()
         let task = createDataTask()
