@@ -210,6 +210,61 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
         XCTAssertTrue(completionCalled)
     }
 
+    func testIsStartupCrash_whenPreciseTimestampAndSixDigitCrashTimestampProvided_shouldPreferPreciseTimestamp() {
+        let report = makeStartupClassificationReport(
+            crashTimestamp: "1970-01-01T02:46:42.500000Z",
+            appStartTime: "1970-01-01T02:46:40Z",
+            processStartWallClockNanoseconds: NSNumber(value: 10_000_900_000_000 as UInt64)
+        )
+
+        XCTAssertTrue(SentryKSCrash.ReportFilterCore.isStartupCrash(report))
+    }
+
+    func testIsStartupCrash_whenCrashTimestampIsInvalid_shouldReturnFalse() {
+        let report = makeStartupClassificationReport(
+            crashTimestamp: "invalid",
+            appStartTime: "1970-01-01T02:46:40Z"
+        )
+
+        XCTAssertFalse(SentryKSCrash.ReportFilterCore.isStartupCrash(report))
+    }
+
+    func testIsStartupCrash_whenSystemContextIsMissing_shouldReturnFalse() {
+        let report: [AnyHashable: Any] = [
+            "report": ["timestamp": "1970-01-01T02:46:41.000000Z"]
+        ]
+
+        XCTAssertFalse(SentryKSCrash.ReportFilterCore.isStartupCrash(report))
+    }
+
+    func testIsStartupCrash_whenInitializationIsAfterCrash_shouldReturnFalse() {
+        let report = makeStartupClassificationReport(
+            crashTimestamp: "1970-01-01T02:46:40.000000Z",
+            processStartWallClockNanoseconds: NSNumber(value: 10_001_000_000_000 as UInt64)
+        )
+
+        XCTAssertFalse(SentryKSCrash.ReportFilterCore.isStartupCrash(report))
+    }
+
+    func testIsStartupCrash_whenPreciseTimestampIsMissing_shouldFallbackToAppStartTime() {
+        let report = makeStartupClassificationReport(
+            crashTimestamp: "1970-01-01T02:46:41.000000Z",
+            appStartTime: "1970-01-01T02:46:40Z"
+        )
+
+        XCTAssertTrue(SentryKSCrash.ReportFilterCore.isStartupCrash(report))
+    }
+
+    func testIsStartupCrash_whenPreciseTimestampIsInvalid_shouldFallbackToAppStartTime() {
+        let report = makeStartupClassificationReport(
+            crashTimestamp: "1970-01-01T02:46:41.000000Z",
+            appStartTime: "1970-01-01T02:46:40Z",
+            processStartWallClockNanoseconds: "invalid"
+        )
+
+        XCTAssertTrue(SentryKSCrash.ReportFilterCore.isStartupCrash(report))
+    }
+
     private func makeCrashReport(durationSinceInitialization: TimeInterval) throws -> [String: Any] {
         var report = try getCrashReport(resource: "Resources/crash-report-1")
         let initializationDate = Date(timeIntervalSince1970: 10_000)
@@ -222,9 +277,27 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
 
         var systemContext = try XCTUnwrap(report["system"] as? [String: Any])
         systemContext["app_start_time"] = sentry_toIso8601String(initializationDate)
+        systemContext["process_start_wall_clock_ns"] = NSNumber(
+            value: UInt64(initializationDate.timeIntervalSince1970 * 1_000_000_000)
+        )
         report["system"] = systemContext
 
         return report
+    }
+
+    private func makeStartupClassificationReport(
+        crashTimestamp: Any,
+        appStartTime: Any? = nil,
+        processStartWallClockNanoseconds: Any? = nil
+    ) -> [AnyHashable: Any] {
+        var systemContext: [AnyHashable: Any] = [:]
+        systemContext["app_start_time"] = appStartTime
+        systemContext["process_start_wall_clock_ns"] = processStartWallClockNanoseconds
+
+        return [
+            "report": ["timestamp": crashTimestamp],
+            "system": systemContext
+        ]
     }
 
     private func getTestClient() throws -> TestClient {
