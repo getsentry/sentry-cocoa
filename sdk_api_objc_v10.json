@@ -2204,6 +2204,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "enableUIViewControllerInitSwizzling",
+    "parent": "SentryObjCExperimentalOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "enableUIViewControllerTracing",
     "parent": "SentryObjCOptions",
     "returnType": "BOOL",
@@ -6117,6 +6124,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setEnableUIViewControllerInitSwizzling:",
+    "parent": "SentryObjCExperimentalOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setEnableUIViewControllerTracing:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
@@ -9466,6 +9480,12 @@
     "kind": "ObjCPropertyDecl",
     "name": "enableTimeToFullDisplayTracing",
     "parent": "SentryObjCOptions",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "enableUIViewControllerInitSwizzling",
+    "parent": "SentryObjCExperimentalOptions",
     "type": "BOOL"
   },
   {

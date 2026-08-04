@@ -256,22 +256,32 @@ Repo gotchas learned while wiring it up, worth knowing independently:
   `ERR Suite failed. error="User Abandoned Test -- User terminated"` means **timeout**, not assertion
   failure.
 
-## Deferred (non-blocking, still open)
+## Ready-for-review checklist
 
-1. **Changelog is missing the PR number** — Danger fails with "Please consider adding a changelog
-   entry". The entry exists under `## Unreleased` → Features but omits `(#8625)`, which Danger
-   requires. One-line fix.
-2. **ObjC mirror missing** — `enableUIViewControllerInitSwizzling` is absent from
+Done:
+
+1. **Changelog** — entry under `## Unreleased` → Features now carries `(#8625, #8548)`. Danger requires
+   this PR's own number, not just the issue's.
+2. **ObjC mirror** — `enableUIViewControllerInitSwizzling` added to
    `Sources/SentryObjC/Public/SentryObjCExperimentalOptions.h` and
-   `Sources/SentryObjCCompat/SentryObjCExperimentalOptions.swift`, so pure-ObjC consumers can't enable
-   the fix. Note `enableStandaloneAppStartTracing` is **also** unmirrored, so there is precedent either
-   way; decide whether to mirror just this one, both, or neither (and document the reason).
+   `Sources/SentryObjCCompat/SentryObjCExperimentalOptions.swift`, so pure-ObjC consumers can enable
+   it. `sdk_api*.json` regenerated, including the `objc` and `objccompat` surfaces.
+   (`enableStandaloneAppStartTracing` remains unmirrored — pre-existing, out of scope here.)
 3. **`run-full-ci` label** — applied.
-4. **Delete this handoff file before merge** — it is agent scratch, not maintainer docs. The durable
-   content lives in the PR description and code comments.
-   Also close (don't merge) **PR #8667**, the stacked iOS 15 probe.
+4. **Public API surface** — regenerated via `make generate-public-api`; the `api-stability` check
+   diffs it against the committed files.
+
+Still open:
+
 5. **Don't close #8548 with this PR** — the option defaults to **off**, so default-configuration users
    remain exposed. Reference the issue; close it when the default flips.
+6. **Delete this handoff file before merge** — it is agent scratch, not maintainer docs. The durable
+   content lives in the PR description and code comments. Keeping it for now, on request.
+   Also close (don't merge) **PR #8667**, the stacked iOS 15 probe.
+7. **Known-flaky CI, not caused by this PR** — `Collect App Metrics` and the `Release` gate that
+   depends on it failed with SauceLabs session errors (`Unable to find session with requested ID`,
+   WebDriverAgent session drops) on the perf-test apps, which this PR doesn't touch. Every substantive
+   job in that run passed. Worth one re-run once SauceLabs is less congested.
 
 ## How to pick this up
 

@@ -7,7 +7,7 @@
 
 ### Features
 
-- Add experimental `options.experimental.enableUIViewControllerInitSwizzling` (disabled by default) that defers `UIViewController` performance swizzling to first instantiation instead of eagerly discovering and swizzling all subclasses at SDK start. This avoids realizing `@available`-gated `UIViewController` subclasses on OS versions below their gate, which could crash the app on start (#8548).
+- Add experimental `options.experimental.enableUIViewControllerInitSwizzling` (disabled by default) that defers `UIViewController` performance swizzling to first instantiation instead of eagerly discovering and swizzling all subclasses at SDK start. This avoids realizing `@available`-gated `UIViewController` subclasses on OS versions below their gate, which could crash the app on start (#8625, #8548).
 
 ### Breaking Changes
 
