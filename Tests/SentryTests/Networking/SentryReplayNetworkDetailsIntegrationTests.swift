@@ -47,11 +47,6 @@ class SentryReplayNetworkDetailsIntegrationTests: XCTestCase {
         let result = details.serialize()
 
         // -- Assert --
-#if SDK_V10
-        let expectedAuthorization = "[Filtered]"
-#else
-        let expectedAuthorization = "Bearer token"
-#endif
         let expectedJSON = """
         {
             "method": "PUT",
@@ -61,7 +56,7 @@ class SentryReplayNetworkDetailsIntegrationTests: XCTestCase {
             "request": {
                 "size": 100,
                 "headers": {
-                    "Authorization": "\(expectedAuthorization)",
+                    "Authorization": "\(SentryTestSetup.isV10 ? "[Filtered]" : "Bearer token")",
                     "Content-Type": "application/json"
                 },
                 "body": {
@@ -91,7 +86,7 @@ class SentryReplayNetworkDetailsIntegrationTests: XCTestCase {
 
     func testSerialize_whenReplaySelectsSensitiveRequestHeaders_shouldFilterValues() throws {
 #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
+        throw XCTSkip("Test only runs with SDK_V10")
 #else
         // -- Arrange --
         let details = SentryReplayNetworkDetails(method: "GET")
@@ -124,7 +119,7 @@ class SentryReplayNetworkDetailsIntegrationTests: XCTestCase {
 
     func testSerialize_whenReplaySelectsCookie_shouldFilterSensitiveValues() throws {
 #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
+        throw XCTSkip("Test only runs with SDK_V10")
 #else
         // -- Arrange --
         let details = SentryReplayNetworkDetails(method: "GET")

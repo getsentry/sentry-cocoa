@@ -1,6 +1,14 @@
 // This currently exists because we needed to duplicate the test target to link the Sentry+KSCrash variant
 // Once SentryCrash is removed, we should also remove this.
 enum SentryTestSetup {
+    static var isV10: Bool {
+        #if SDK_V10
+        true
+        #else
+        false
+        #endif
+    }
+
     static var isKSCrashEnabled: Bool {
         #if ENABLE_KSCRASH
         true
