@@ -22,4 +22,5 @@
 
 ### Fixes
 
+- Omit failed-request headers when `options.dataCollection.httpHeaders` is disabled (#8562)
 - Normalize profiling CPU usage to 0–100 percent (#8323)
