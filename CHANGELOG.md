@@ -12,7 +12,7 @@
 ### Features
 
 - Add `SentrySDK.feedback.enableOnShake()` and `disableOnShake()` to toggle the shake-to-report gesture at runtime (#8591)
-- Add experimental `options.experimental.enableUIViewControllerInitSwizzling` (disabled by default) that defers `UIViewController` performance swizzling to first instantiation instead of eagerly discovering and swizzling all subclasses at SDK start. This avoids realizing `@available`-gated `UIViewController` subclasses on OS versions below their gate, which could crash the app on start (#8625).
+- Add experimental option `enableUIViewControllerInitSwizzling` that defers `UIViewController` swizzling to first instantiation instead of eagerly discovering and swizzling all subclasses at SDK start. This avoids realizing `@available`-gated `UIViewController` subclasses on OS versions below their gate, which crashes apps on start (#8625).
 
 ### Fixes
 
