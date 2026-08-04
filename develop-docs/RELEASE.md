@@ -6,6 +6,34 @@ This repo uses the following ways to release SDK updates:
 - `Latest`: We continuously release major/minor/hotfix versions from the `main` branch. These releases go through all our internal quality gates and are very safe to use and intended to be the default for most teams.
 - `Stable`: We promote releases from `Latest` when they have been used in the field for some time and in scale, considering time since release, adoption, and other quality and stability metrics. These releases will be indicated on the [releases page](https://github.com/getsentry/sentry-cocoa/releases/) with the `Stable` suffix.
 
+## Distribution Channels
+
+The SDK is distributed via **SPM**. CocoaPods and Carthage support were removed.
+
+When a release is triggered, the [release workflow](../.github/workflows/release.yml) builds XCFrameworks and archives, then [Craft](../.craft.yml) publishes to:
+
+| Target                                   | Description                                                                                           |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| GitHub Release                           | Source + XCFramework zips on the [releases page](https://github.com/getsentry/sentry-cocoa/releases/) |
+| `getsentry/sentry-apple-binaries`        | Pre-built XCFrameworks with a `Package.swift` for SPM binary targets                                  |
+| `getsentry/sentry-apple-swift-log`       | 3rd-party integration mirror                                                                          |
+| `getsentry/sentry-apple-cocoalumberjack` | 3rd-party integration mirror                                                                          |
+| `getsentry/sentry-apple-pulse`           | 3rd-party integration mirror                                                                          |
+| `getsentry/sentry-apple-swiftybeaver`    | 3rd-party integration mirror                                                                          |
+| Sentry Release Registry                  | Updates the `cocoapods:sentry-cocoa` entry (historical name)                                          |
+
+The 3rd-party integration repos also receive continuous code sync on every push to `main`. See [MIRRORING.md](MIRRORING.md) for full details on both mechanisms.
+
+### Release Workflow Steps
+
+1. **Build XCFramework slices** — matrix build across platforms and variants.
+2. **Assemble XCFrameworks** — static, dynamic, and signed variants for Sentry and SentryObjC.
+3. **Validate** — XCFramework validation, SPM static/dynamic, Swift build, visionOS SPM.
+4. **Create archives** — `scripts/create-apple-binaries-archive.sh` (stamps version + checksums into `Package.swift`) and `scripts/create-3rd-party-integration-archive.sh --all`.
+5. **Craft release** — pushes archives to downstream repos with version tags, creates GitHub release.
+
+Craft runs `scripts/bump.sh` as its `preReleaseCommand`, which calls `bump-version.sh` and `update-package-sha.sh`.
+
 ## Promoting a beta release to a normal release
 
 We frequently release a beta version of our SDK and dogfood it with internal apps to increase our SDK stability. We continue to merge PRs to the main branch, so we can't promote a beta release by publishing it from the main branch. Instead, we create a branch from the GH tag of the beta release and promote it from there. To do this, follow these steps:
