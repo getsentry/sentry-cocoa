@@ -36,7 +36,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     func testEnableCaptureFailedRequests_isEnabled_shouldAddFeature() throws {
         // -- Arrange --
         let options = Options()
-
         options.enableCaptureFailedRequests = true
 
         // -- Act --
@@ -49,7 +48,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     func testEnableCaptureFailedRequests_isDisabled_shouldNotAddFeature() throws {
         // -- Arrange --
         let options = Options()
-
         options.enableCaptureFailedRequests = false
 
         // -- Act --
@@ -62,7 +60,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     func testEnableTimeToFullDisplayTracing_isDisabled_shouldNotAddFeature() throws {
         // -- Arrange --
         let options = Options()
-
         options.enableTimeToFullDisplayTracing = false
 
         // -- Act --
@@ -75,7 +72,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     func testSwiftAsyncStacktraces_isDisabled_shouldNotAddFeature() throws {
         // -- Arrange --
         let options = Options()
-
         options.swiftAsyncStacktraces = false
 
         // -- Act --
@@ -88,7 +84,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     func testEnablePersistingTracesWhenCrashing() {
         // -- Arrange --
         let options = Options()
-
         options.enablePersistingTracesWhenCrashing = true
 
         // -- Act --
@@ -101,7 +96,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     func testEnablePersistingTracesWhenCrashing_isDisabled_shouldNotAddFeature() {
         // -- Arrange --
         let options = Options()
-
         options.enablePersistingTracesWhenCrashing = false
 
         // -- Act --
@@ -123,7 +117,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 #if os(iOS)
         // -- Arrange --
         let options = Options()
-
         options.sessionReplay.enableViewRendererV2 = true
 
         // -- Act --
@@ -140,7 +133,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 #if os(iOS)
         // -- Arrange --
         let options = Options()
-
         options.sessionReplay.enableViewRendererV2 = false
 
         // -- Act --
@@ -157,7 +149,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 #if os(iOS)
         // -- Arrange --
         let options = Options()
-
         options.sessionReplay.enableFastViewRendering = true
 
         // -- Act --
@@ -174,7 +165,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 #if os(iOS)
         // -- Arrange --
         let options = Options()
-
         options.sessionReplay.enableFastViewRendering = false
 
         // -- Act --
@@ -191,7 +181,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 #if os(iOS)
         // -- Arrange --
         let options = Options()
-
         options.sessionReplay.networkDetailAllowUrls = ["https://api.example.com"]
 
         // -- Act --
@@ -208,7 +197,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 #if os(iOS)
         // -- Arrange --
         let options = Options()
-
         options.sessionReplay.networkDetailAllowUrls = []
 
         // -- Act --
@@ -224,7 +212,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     func testEnableDataSwizzling_isEnabled_shouldAddFeature() throws {
         // -- Arrange --
         let options = Options()
-
         options.enableDataSwizzling = true
 
         // -- Act --
@@ -237,7 +224,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     func testEnableDataSwizzling_isDisabled_shouldNotAddFeature() throws {
         // -- Arrange --
         let options = Options()
-
         options.enableDataSwizzling = false
 
         // -- Act --
@@ -250,7 +236,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     func testEnableFileManagerSwizzling_isEnabled_shouldAddFeature() throws {
         // -- Arrange --
         let options = Options()
-
         options.enableFileManagerSwizzling = true
 
         // -- Act --
@@ -263,7 +248,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     func testEnableFileManagerSwizzling_isDisabled_shouldNotAddFeature() throws {
         // -- Arrange --
         let options = Options()
-
         options.enableFileManagerSwizzling = false
 
         // -- Act --
@@ -276,7 +260,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     func testEnableUnhandledCPPExceptionsV2_shouldAddFeature() throws {
         // -- Arrange --
         let options = Options()
-
         options.experimental.enableUnhandledCPPExceptionsV2 = true
 
         // -- Act --
@@ -289,7 +272,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     func testEnableUnhandledCPPExceptionsV2_isDisabled_shouldNotAddFeature() throws {
         // -- Arrange --
         let options = Options()
-
         options.experimental.enableUnhandledCPPExceptionsV2 = false
 
         // -- Act --
@@ -302,7 +284,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     func testEnableMetrics_isEnabled_shouldAddFeature() throws {
         // -- Arrange --
         let options = Options()
-
         options.enableMetrics = true
 
         // -- Act --
@@ -315,7 +296,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     func testEnableMetrics_isDisabled_shouldNotAddFeature() throws {
         // -- Arrange --
         let options = Options()
-
         options.enableMetrics = false
 
         // -- Act --
@@ -328,7 +308,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     func testEnableStandaloneAppStartTracing_isEnabled_shouldAddFeature() throws {
         // -- Arrange --
         let options = Options()
-
         options.experimental.enableStandaloneAppStartTracing = true
 
         // -- Act --
@@ -341,7 +320,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     func testEnableStandaloneAppStartTracing_isDisabled_shouldNotAddFeature() throws {
         // -- Arrange --
         let options = Options()
-
         options.experimental.enableStandaloneAppStartTracing = false
 
         // -- Act --
@@ -365,7 +343,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     func testEnableWatchdogTerminationsV2_isEnabled_shouldAddFeature() throws {
         // -- Arrange --
         let options = Options()
-
         options.experimental.enableWatchdogTerminationsV2 = true
 
         // -- Act --
@@ -378,7 +355,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     func testEnableWatchdogTerminationsV2_isDisabled_shouldNotAddFeature() throws {
         // -- Arrange --
         let options = Options()
-
         options.experimental.enableWatchdogTerminationsV2 = false
 
         // -- Act --
@@ -392,7 +368,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 #if os(iOS)
         // -- Arrange --
         let options = Options()
-
         options.attachViewHierarchy = true
 
         // -- Act --
@@ -409,7 +384,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 #if os(iOS)
         // -- Arrange --
         let options = Options()
-
         options.attachViewHierarchy = false
 
         // -- Act --
@@ -426,7 +400,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 #if os(iOS)
         // -- Arrange --
         let options = Options()
-
         options.screenshot.enableFastViewRendering = true
 
         // -- Act --
@@ -443,7 +416,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 #if os(iOS)
         // -- Arrange --
         let options = Options()
-
         options.screenshot.enableFastViewRendering = false
 
         // -- Act --
