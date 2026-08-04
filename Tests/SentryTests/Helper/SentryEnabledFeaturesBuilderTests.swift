@@ -33,6 +33,58 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         XCTAssertTrue(features.contains("swiftAsyncStacktraces"))
     }
 
+    func testEnableCaptureFailedRequests_isEnabled_shouldAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+
+        options.enableCaptureFailedRequests = true
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertTrue(features.contains("captureFailedRequests"))
+    }
+
+    func testEnableCaptureFailedRequests_isDisabled_shouldNotAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+
+        options.enableCaptureFailedRequests = false
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("captureFailedRequests"))
+    }
+
+    func testEnableTimeToFullDisplayTracing_isDisabled_shouldNotAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+
+        options.enableTimeToFullDisplayTracing = false
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("timeToFullDisplayTracing"))
+    }
+
+    func testSwiftAsyncStacktraces_isDisabled_shouldNotAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+
+        options.swiftAsyncStacktraces = false
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("swiftAsyncStacktraces"))
+    }
+
     func testEnablePersistingTracesWhenCrashing() {
         // -- Arrange --
         let options = Options()
@@ -44,6 +96,19 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 
         // -- Assert --
         XCTAssertTrue(features.contains("persistingTracesWhenCrashing"))
+    }
+
+    func testEnablePersistingTracesWhenCrashing_isDisabled_shouldNotAddFeature() {
+        // -- Arrange --
+        let options = Options()
+
+        options.enablePersistingTracesWhenCrashing = false
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("persistingTracesWhenCrashing"))
     }
 
     func testGetEnabledFeatures_optionsAreNil_shouldReturnEmptyArray() {
@@ -100,6 +165,57 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 
         // -- Assert --
         XCTAssertTrue(features.contains("fastViewRendering"))
+#else
+        throw XCTSkip("Test not supported on this platform")
+#endif
+    }
+
+    func testEnableFastViewRendering_isDisabled_shouldNotAddFeature() throws {
+#if os(iOS)
+        // -- Arrange --
+        let options = Options()
+
+        options.sessionReplay.enableFastViewRendering = false
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("fastViewRendering"))
+#else
+        throw XCTSkip("Test not supported on this platform")
+#endif
+    }
+
+    func testNetworkDetailHasUrls_withAllowUrls_shouldAddFeature() throws {
+#if os(iOS)
+        // -- Arrange --
+        let options = Options()
+
+        options.sessionReplay.networkDetailAllowUrls = ["https://api.example.com"]
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertTrue(features.contains("replayNetworkDetails"))
+#else
+        throw XCTSkip("Test not supported on this platform")
+#endif
+    }
+
+    func testNetworkDetailHasUrls_withoutAllowUrls_shouldNotAddFeature() throws {
+#if os(iOS)
+        // -- Arrange --
+        let options = Options()
+
+        options.sessionReplay.networkDetailAllowUrls = []
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("replayNetworkDetails"))
 #else
         throw XCTSkip("Test not supported on this platform")
 #endif
@@ -168,6 +284,19 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 
         // -- Assert --
         XCTAssertTrue(features.contains("unhandledCPPExceptionsV2"))
+    }
+
+    func testEnableUnhandledCPPExceptionsV2_isDisabled_shouldNotAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+
+        options.experimental.enableUnhandledCPPExceptionsV2 = false
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("unhandledCPPExceptionsV2"))
     }
 
     func testEnableMetrics_isEnabled_shouldAddFeature() throws {
