@@ -186,28 +186,3 @@ class SentryNetworkTrackingIntegrationSwiftTests: XCTestCase {
         XCTAssertEqual(SentryNetworkTrackingIntegration<SentryDependencyContainer>.name, "SentryNetworkTrackingIntegration")
     }
 }
-
-private final class TestNetworkTracker: SentryNetworkTrackerProtocol {
-    private(set) var resumeInvocations = 0
-
-    func enableNetworkTracking() {}
-    func enableNetworkBreadcrumbs() {}
-    func enableCaptureFailedRequests() {}
-    func enableGraphQLOperationTracking() {}
-    func disable() {}
-
-    var isNetworkTrackingEnabled: Bool { false }
-    var isNetworkBreadcrumbEnabled: Bool { false }
-    var isCaptureFailedRequestsEnabled: Bool { false }
-    var isGraphQLOperationTrackingEnabled: Bool { false }
-
-    func urlSessionTaskResume(_ sessionTask: URLSessionTask) {
-        resumeInvocations += 1
-    }
-
-    func urlSessionTask(_ sessionTask: URLSessionTask, setState newState: URLSessionTask.State) {}
-
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
-    func captureResponseDetails(_ data: Data, response: URLResponse, request requestURL: URL, task: URLSessionTask) {}
-#endif
-}
