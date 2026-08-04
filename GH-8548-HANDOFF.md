@@ -224,7 +224,7 @@ are already main-thread-confined **by construction**, not by convention:
 Decision: do **not** add locking. If this is revisited, `SentryDispatchQueueWrapper` already offers
 `dispatchAsyncOnMainQueueIfNotMainThread` / `dispatchSyncOnMainQueue`.
 
-## iOS 15 real-device probe split out into PR #8667 (draft, stacked)
+## iOS 15 real-device probe — PR #8667, CLOSED unmerged (SauceLabs never ran it)
 
 The temporary SauceLabs probe that ran the GH-1355 fixture under the pre-GH-1361 ordering on real iOS
 15 hardware **is no longer on this branch**. It lives in draft PR **#8667**
@@ -233,8 +233,13 @@ The temporary SauceLabs probe that ran the GH-1355 fixture under the pre-GH-1361
 suite + class scoping of the existing suites), `Benchmarking/Sources/GH1355OldOrderingTests.m`, and the
 `useOldCrashingOrdering` launch-argument branch in `SentryUIViewControllerSwizzlingHelper.m`.
 
-Split out because SauceLabs was busy and the probe's failures were blocking this PR's CI. **Do not
-merge #8667** — read its result, then close it. This branch was force-pushed to drop the four probe
+Split out because SauceLabs was busy and the probe's failures were blocking this PR's CI. **#8667 is
+now closed unmerged.** SauceLabs never executed the tests across five attempts: two expired in the
+device queue, one was cancelled to free capacity, and two failed with
+`Start of XCUITest-Runner timed out`. Both of the latter still reported `Suite passed. passed=true` in
+saucectl output while executing nothing — a false green that only the SauceLabs UI revealed, not the
+GitHub log. Abandoned as not worth further CI time; the conclusion is that this ships experimental and
+off by default and gets validated in the wild. This branch was force-pushed to drop the four probe
 commits (safe: no reviews existed). Probe state is preserved in the local branch
 `backup/probe-state-9e5a56b18`.
 
@@ -277,7 +282,7 @@ Still open:
    remain exposed. Reference the issue; close it when the default flips.
 6. **Delete this handoff file before merge** — it is agent scratch, not maintainer docs. The durable
    content lives in the PR description and code comments. Keeping it for now, on request.
-   Also close (don't merge) **PR #8667**, the stacked iOS 15 probe.
+   (**PR #8667** is already closed unmerged.)
 7. **Known-flaky CI, not caused by this PR** — `Collect App Metrics` and the `Release` gate that
    depends on it failed with SauceLabs session errors (`Unable to find session with requested ID`,
    WebDriverAgent session drops) on the perf-test apps, which this PR doesn't touch. Every substantive
