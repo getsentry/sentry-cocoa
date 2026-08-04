@@ -199,6 +199,7 @@ extension SentryUserFeedbackFormController {
     }
 
     func presentScreenshotError() {
+        guard viewIfLoaded?.window != nil else { return }
         present(makeScreenshotErrorAlert(), animated: config.animations)
     }
 }
