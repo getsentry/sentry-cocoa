@@ -56,22 +56,8 @@ static BOOL swizzlingIsActive = FALSE;
  * class: the handler runs @c swizzleViewControllerSubClass: on the concrete subclass, and
  * @c class_replaceMethod ADDS a lifecycle method when the subclass doesn't implement one — while
  * still inside the outermost initializer frame. That is the same mechanism GH-1361 blamed for the
- * GH-1355 convenience-initializer crash, so this funnel does not eliminate the condition.
- *
- * We could not reproduce GH-1355, and are not claiming it cannot happen:
- *   - A standalone probe reproducing the pre-GH-1361 ordering, instrumented to confirm it ADDED all
- *     lifecycle methods to a Swift @c UITableViewController subclass mid-init, stayed crash-free on
- *     iOS 15.5, 18.6 and 26.4 across convenience init, navigation push, a second instance, and
- *     @c UIPageViewController.
- *   - Real iOS 15 devices on SauceLabs never reached a verdict: the harness was too flaky and the
- *     tests never executed. See PR #8667.
- *   - GH-1355 was only ever reported on iOS 15.0 in Release/TestFlight builds, and iOS 15.0 cannot
- *     be installed on current macOS hosts.
- *   - A maintainer reproduced the same exception in an empty project with no Sentry SDK attached
- *     (https://developer.apple.com/forums/thread/691371), so GH-1361's root cause was a hypothesis
- *     rather than an established fact.
- *
- * See PR #8625's description for the full write-up.
+ * GH-1355 convenience-initializer crash, so this funnel does not eliminate the condition. We could
+ * not reproduce GH-1355; see PR #8625's description for what we tried and why we shipped anyway.
  *
  * Ordering inside the replacement is load-bearing:
  *   1. Call the original initializer FIRST, and never touch @c self before it. The pre-GH-1361
@@ -81,6 +67,18 @@ static BOOL swizzlingIsActive = FALSE;
  *   3. Invoke the handler synchronously, so lifecycle methods are swizzled before the instance
  *      can reach its first @c viewDidLoad.
  *   4. Return the result verbatim, adding no retain, so ARC's return handshake stays balanced.
+ *
+ * Step 3 must not hop through @c dispatch_async(dispatch_get_main_queue(), …) to escape the
+ * initializer frame. UIKit calls initializers on the main thread, so a dispatch from the main
+ * thread cannot run until the current run loop turn finishes — by which point the caller already
+ * holds a fully initialized instance and may have driven it into @c viewDidLoad, or released it.
+ * That opens a window where a live view controller is uninstrumented, and it reorders the swizzle
+ * against that instance's own first lifecycle callbacks, so the first appearance of a screen is
+ * silently missed. Swizzling synchronously keeps the mutation ordered against the very first
+ * callback. It is also why everything here is main-thread-only and unlocked: the delegate hand-off
+ * happens on whichever thread ran the initializer, and moving it off-thread would race both this
+ * file's static state and the ObjC runtime mutations in @c swizzleViewControllerSubClass:
+ * (background swizzling already caused GH-1366).
  *
  * We use the ObjC @c SentrySwizzleInstanceMethod macro rather than the typed Swift API that
  * develop-docs/SWIZZLING.md prefers (@c SentryTypedSwizzle, #8524): its object-returning overloads
