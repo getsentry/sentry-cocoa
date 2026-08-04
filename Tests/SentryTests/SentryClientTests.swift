@@ -2236,6 +2236,30 @@ final class SentryClientTests: XCTestCase {
 #endif
     }
 
+    func testCapture_whenRequestHeadersAreExplicitAndCollectionIsOff_shouldNotFilterHeaders() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+#else
+        // -- Arrange --
+        let event = Event()
+        let request = SentryRequest()
+        request.headers = ["Authorization": "Bearer user-provided-token"]
+        event.request = request
+        let sut = fixture.getSut { options in
+            options.dataCollection.httpHeaders = .init(request: .off, response: .off)
+        }
+
+        // -- Act --
+        sut.capture(event: event)
+
+        // -- Assert --
+        let capturedEvent = try lastSentEvent()
+        XCTAssertEqual(capturedEvent.request?.headers, [
+            "Authorization": "Bearer user-provided-token"
+        ])
+#endif // SDK_V10
+    }
+
     func testInstallationIdNotSetWhenUserIsSetWithoutId() throws {
         let scope = fixture.scope
         scope.setUser(fixture.user)
