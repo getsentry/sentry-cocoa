@@ -11,8 +11,7 @@
 
 static __weak SentryUIViewControllerPerformanceTracker *_tracker = nil;
 
-// Weak, like _tracker: the delegate is the caller that installed the funnel, and a strong reference
-// here would outlive it for the process lifetime.
+// Weak, like _tracker: a strong reference here would outlive the caller that installed the funnel.
 static __weak id<SentryUIViewControllerInitSwizzlingDelegate> _initSwizzlingDelegate = nil;
 
 #    if SENTRY_TEST || SENTRY_TEST_CI

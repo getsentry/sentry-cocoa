@@ -1,7 +1,9 @@
 # GH-8548 — Deferred UIViewController swizzling: WIP handoff
 
 Branch: `fix/deferred-uiviewcontroller-swizzling` (off `origin/main`, standalone — not stacked on #8457).
-Status: **implementation complete and validated; committed and pushed; draft PR #8625 open.**
+Status: **complete; draft PR #8625 open, substantively ready for review.** Only remaining task: delete
+this file (kept on request). The iOS 15 real-device probe (#8667) is closed unmerged — SauceLabs never
+ran it.
 
 ## Problem
 
@@ -37,10 +39,16 @@ runs. Flag on: the funnel runs and the eager scan is skipped. Both paths stay li
 
 The SDK removed init swizzling in **#1361** because the old approach crashed apps using a
 convenience/custom initializer on iOS 15 (`NSInternalInconsistencyException: UIViewController is
-missing its initial trait collection…`). Root cause: the old code mutated the subclass's method list
-_from inside_ the initializer, before the original ran. The new funnel is defensively different:
-original-first, `object_getClass(result)` (a C call, not a message to `self`), and it swizzles only
-the **base** class (so `class_replaceMethod` replaces, never adds a method to a subclass).
+missing its initial trait collection…`). #1361 blamed the old code mutating the subclass's method list
+_from inside_ the initializer, before the original ran. The new funnel differs in ordering:
+original-first, then `object_getClass(result)` (a C call, not a message to `self`).
+
+**Do not repeat the claim that the funnel "only mutates the base class".** It is wrong and was removed
+from the code and the PR description. Only the two _initializers_ are swizzled on the base class; the
+handler then swizzles lifecycle methods on the **concrete subclass**, and `class_replaceMethod` ADDS a
+method when the subclass doesn't implement one — still inside the outermost initializer frame. That is
+exactly the mechanism #1361 blamed, and it is reproducible on demand yet did not crash anything
+testable (see below).
 
 ### Why not the typed Swift swizzle API (PR #8524)
 
@@ -56,16 +64,21 @@ helper `.m` NOTE.
 Core:
 
 - `Sources/Sentry/SentryUIViewControllerSwizzlingHelper.m` / `include/…​.h` — the init funnel
-  (`+swizzleUIViewControllerInitsWithSubclassHandler:`), handler storage, `+stop` clears it,
-  `+unswizzle` restores both init IMPs.
+  (`+swizzleUIViewControllerInitsWithDelegate:`), a `__weak` delegate, `+stop` clears it, `+unswizzle`
+  restores both init IMPs (test-only).
 - `Sources/Swift/Core/Integrations/Performance/SentryUIViewControllerSwizzling.swift` — flag-gated
-  `start()`; `handleInstantiatedViewController` router; lock-free main-thread `NSMutableSet`
-  (`processedClasses`); root-hierarchy walk routes through the same entry point.
+  `start()`; `SentryUIViewControllerInitSwizzlingDelegate` + `handleInstantiatedViewController` router;
+  lock-free main-thread `NSMutableSet` (`processedUIViewControllerSubClasses`); root-hierarchy walk
+  routes through the same entry point.
 - `Sources/Swift/SentryExperimentalOptions.swift` — new `enableUIViewControllerInitSwizzling = false`.
 - `Sources/Swift/Helper/SentryEnabledFeaturesBuilder.swift` — telemetry entry
   `"uiViewControllerInitSwizzling"`.
-- `sdk_api.json` / `sdk_api_v10.json` — regenerated for the new public option. (ObjC mirror
-  intentionally NOT updated — matches `enableStandaloneAppStartTracing`, which is also unmirrored.)
+- `Sources/SentryObjC/Public/SentryObjCExperimentalOptions.h` +
+  `Sources/SentryObjCCompat/SentryObjCExperimentalOptions.swift` — the option mirrored for pure-ObjC
+  consumers. (`enableStandaloneAppStartTracing` is still unmirrored — pre-existing, out of scope.)
+- `sdk_api.json`, `sdk_api_v10.json`, `sdk_api_objc.json`, `sdk_api_objc_v10.json` — regenerated with
+  `make generate-public-api`. There are dedicated `objc`/`objccompat` surface files; missing them fails
+  the `api-stability` check.
 
 Tests:
 
@@ -83,18 +96,23 @@ Sample (iOS-Swift) — crash-repro fixtures + enabling the flag:
 - `App/Sources/ViewControllers/ConvenienceInitViewController.swift` (NEW) — GH-1355 forward-guard
   (`UITableViewController`, convenience + designated init, no `@objc`).
 - `UITests/Sources/SubClassFinderRegressionUITests.swift` (NEW) — 3 UITests covering both fixtures.
-- `App/Sources/AppDelegate.swift` — enables `experimental.enableUIViewControllerInitSwizzling = true`
-  via `SentrySDKWrapper.additionalOptionsConfiguration`.
+- `App/Sources/AppDelegate.swift` — forces the option on by setting
+  `SentrySDKOverrides.UIViewControllerTracing.enableInitSwizzling.boolValue = true`, so the sample's
+  gated fixtures don't crash at launch.
 - `App/Sources/ExtraViewController.swift` + `App/Resources/Base.lproj/Main.storyboard` — buttons to
   reach both fixtures from the Extra tab.
-- `Samples/SentrySampleShared/.../SentrySDKWrapper.swift` — `additionalOptionsConfiguration` hook.
+- `Samples/SentrySampleShared/.../SentrySDKOverrides.swift` + `SentrySDKWrapper.swift` — new
+  `--io.sentry.uiviewcontroller-tracing.init-swizzling` launch-argument override wired to the option.
 - `CHANGELOG.md` — Features entry under `## Unreleased`.
 
 ## Validation done (all green)
 
 - `make format`, `make analyze`, `make build-ios`, `make build-macos` — clean.
-- Unit: 36 `SentryUIViewControllerSwizzlingTests` + 13 `SentryUIViewControllerSwizzlingHelperTests`
-  pass (iPhone 16 Pro / iOS 18.6).
+- Unit (iPhone 16 Pro / iOS 18.6): the four suites that the funnel leak used to break —
+  `SentryUIViewControllerSwizzlingTests` (42), `SentryUIViewControllerSwizzlingHelperTests` (16),
+  `SentryViewHierarchyProviderTests` (15), `UserFeedbackIntegrationTests` (41) — pass together at
+  **114/0**; with `SentryEnabledFeaturesBuilderTests` added, **140/0**. Always run these four TOGETHER:
+  each passes alone even when the leak is present.
 - Sample UITests (`SubClassFinderRegressionUITests`, 3 tests) pass with the funnel active on **iOS
   16.4** (Repro A gated crash) and **iOS 15.5** (Repro B convenience-init).
 
@@ -213,7 +231,8 @@ branch). `make format` and `make analyze` clean.
 
 ## Thread safety: reviewed, no change needed
 
-A review flagged `processedClasses` (unlocked `NSMutableSet`) and `_initHandler` as races. Both writes
+A review flagged the dedup set (`processedUIViewControllerSubClasses`, an unlocked `NSMutableSet`)
+and the funnel delegate (`_initSwizzlingDelegate`, formerly a handler block) as races. Both writes
 are already main-thread-confined **by construction**, not by convention:
 
 - install — `SentrySDKInternal.m:254` wraps `installIntegrations` in
@@ -301,8 +320,10 @@ Still open:
    `xcodebuild test -project Samples/iOS-Swift/iOS-Swift.xcodeproj -scheme iOS-Swift
    -destination 'platform=iOS Simulator,id=<UDID>'
    -only-testing:'iOS-Swift-UITests/SubClassFinderRegressionUITests'`.
-4. The draft PR #8625 is open with the transaction-equivalence report. Remaining before marking ready:
-   confirm CI is green and resolve the open decisions below.
+4. #8625 is a draft but substantively ready: changelog, ObjC mirror, regenerated API surface and the
+   `run-full-ci` label are all in place. Before marking ready, confirm CI is green — note `Collect App
+   Metrics` and the `Release` gate depending on it fail on SauceLabs flake unrelated to this PR — and
+   delete this file.
 
 ## Open decisions for the PR
 
