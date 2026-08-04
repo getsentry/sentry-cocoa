@@ -250,8 +250,6 @@ static BOOL swizzlingIsActive = FALSE;
 + (void)stop
 {
     _tracker = nil;
-    // Clearing the delegate makes the base-init funnel replacements pure pass-throughs (call
-    // original, return) — the same no-op-when-nil pattern the lifecycle swizzles use with _tracker.
     _initSwizzlingDelegate = nil;
 #    if SENTRY_TEST || SENTRY_TEST_CI
     [self unswizzle];
