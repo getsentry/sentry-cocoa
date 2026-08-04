@@ -24,12 +24,6 @@ on:
         default: false
         type: boolean
 
-      runner_provider:
-        description: "CI runner provider: cirrus (default) or bitrise"
-        required: false
-        default: "cirrus"
-        type: string
-
       xcode:
         description: the Xcode version to use for the job
         required: true
@@ -62,7 +56,7 @@ on:
 jobs:
   unit-tests:
     name: Unit ${{inputs.name}}
-    runs-on: ${{ inputs.runner_provider == 'bitrise' && fromJSON(format('["bitrise_pool_name:{0}"]', inputs.runs-on)) || fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', inputs.runs-on, github.run_id)) }}
+    runs-on: ${{ fromJSON(format('["bitrise_pool_name:{0}"]', inputs.runs-on)) }}
     timeout-minutes: ${{inputs.timeout}}
     if: ${{!inputs.should_skip}}
     steps:
@@ -76,8 +70,7 @@ jobs:
           version: ${{ inputs.xcode }}
 
       - name: Install simulator runtime
-        # Bitrise is missing tvOS 17.5 runtime, so we need to install it manually.
-        if: ${{ inputs.runner_provider == 'bitrise' && inputs.test-destination-os == '17.5' && inputs.platform == 'tvOS' }}
+        if: ${{ inputs.test-destination-os == '17.5' && inputs.platform == 'tvOS' }}
         timeout-minutes: 5
         env:
           PLATFORM: ${{ inputs.platform }}
@@ -103,8 +96,7 @@ jobs:
           restore-keys: |
             ruby-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.ruby-version') }}-
 
-      - name: Install Ruby (Bitrise)
-        if: inputs.runner_provider == 'bitrise'
+      - name: Install Ruby
         env:
           CACHE_HIT: ${{ steps.cache-ruby.outputs.cache-hit }}
         run: |
@@ -117,12 +109,6 @@ jobs:
             rbenv rehash
           fi
           bundle install
-
-      - name: Setup Ruby
-        if: inputs.runner_provider != 'bitrise'
-        uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
-        with:
-          bundler-cache: true
 
       - name: Ensure required runtime is loaded
         if: ${{ inputs.platform == 'iOS' || inputs.platform == 'tvOS' || inputs.platform == 'visionOS' }}
@@ -253,7 +239,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: steps.build_tests.outcome == 'failure'
         with:
-          name: derived-data-${{ inputs.runner_provider }}-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
+          name: derived-data-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
           path: |
             /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
 
@@ -261,7 +247,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() || cancelled() }}
         with:
-          name: raw-output-${{ inputs.runner_provider }}-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
+          name: raw-output-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
           path: |
             raw-build-output.log
             raw-build-for-testing-output.log
@@ -271,7 +257,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() || cancelled() }}
         with:
-          name: crash-logs-${{ inputs.runner_provider }}-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
+          name: crash-logs-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
           path: |
             ~/Library/Logs/DiagnosticReports/**
 
@@ -279,7 +265,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() || cancelled() }}
         with:
-          name: result-bundle-${{ inputs.runner_provider }}-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
+          name: result-bundle-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
           path: |
             results.xcresult
             flaky-results.xcresult
@@ -288,7 +274,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ (failure() || cancelled()) && inputs.scheme == 'Sentry' && steps.collect_sentrytests_metadata.outcome == 'success' }}
         with:
-          name: sentrytests-metadata-${{ inputs.runner_provider }}-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
+          name: sentrytests-metadata-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
           if-no-files-found: error
           path: |
             sentrytests-metadata/**
@@ -301,4 +287,4 @@ jobs:
         uses: ./.github/actions/capture-screenshot
         if: failure()
         with:
-          suffix: unit-tests-${{ inputs.runner_provider }}-${{ inputs.platform }}-xcode-${{ inputs.xcode }}-os-${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          suffix: unit-tests-${{ inputs.platform }}-xcode-${{ inputs.xcode }}-os-${{ steps.resolve-test-destination.outputs.TEST_OS }}
