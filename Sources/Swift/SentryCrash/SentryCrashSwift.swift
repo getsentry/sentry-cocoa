@@ -73,7 +73,11 @@ private final class CrashReportFilterBridge: NSObject, SentryCrashReportFilter {
     @objc public func install() {
         sentryCrash.install()
     }
-    
+
+    @objc public var installed: Bool {
+        sentryCrash.installed
+    }
+
     @objc public func uninstall() {
         sentryCrash.uninstall()
     }
@@ -94,6 +98,11 @@ private final class CrashReportFilterBridge: NSObject, SentryCrashReportFilter {
     // Only visible for testing
     @objc public var monitoring: UInt32 {
         sentryCrash.monitoring.rawValue
+    }
+
+    @objc public var introspectMemory: Bool {
+        get { sentryCrash.introspectMemory }
+        set { sentryCrash.introspectMemory = newValue }
     }
 
     @objc public func hasOnCrash() -> Bool {

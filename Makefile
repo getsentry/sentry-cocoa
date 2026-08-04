@@ -935,6 +935,7 @@ test-ios:
 #   make test-macos
 #   make test-macos ONLY_TESTING=SentryTests/SentryHttpTransportTests
 #   make test-macos TEST_SCHEME=SentryObjCTests
+#   make test-macos TEST_PLAN=Sentry_TestServer   # needs `make run-test-server`
 .PHONY: test-macos
 test-macos:
 	@echo "--> Running macOS tests"
@@ -945,6 +946,7 @@ test-macos:
 		--command test \
 		--configuration Test \
 		$(if $(TEST_SCHEME),--scheme "$(TEST_SCHEME)") \
+		$(if $(TEST_PLAN),--test-plan "$(TEST_PLAN)") \
 		--only-testing "$(ONLY_TESTING)"
 
 ## Run Catalyst tests
@@ -1054,6 +1056,7 @@ test-ios-v10:
 # Examples:
 #   make test-macos-v10
 #   make test-macos-v10 ONLY_TESTING=SentryTests/SentryHttpTransportTests
+#   make test-macos-v10 TEST_PLAN=Sentry_TestServer   # needs `make run-test-server`
 .PHONY: test-macos-v10
 test-macos-v10:
 	@echo "--> Running V10 macOS tests"
@@ -1064,6 +1067,7 @@ test-macos-v10:
 		--command test \
 		--scheme SentryV10 \
 		--configuration TestV10 \
+		$(if $(TEST_PLAN),--test-plan "$(TEST_PLAN)") \
 		--only-testing "$(ONLY_TESTING)"
 
 ## Run Catalyst tests with SDK_V10 flag
@@ -1242,18 +1246,20 @@ test-visionos-v10-with-kscrash:
 #
 # Builds and runs the test server in the background for integration testing.
 # Saves the process ID to test-server/.test-server.pid for safe shutdown.
+# Serves on port 8081, which is the port the tests and scripts/start-test-server.sh expect.
 .PHONY: run-test-server
 run-test-server:
 	cd ./test-server && swift build
-	cd ./test-server && { swift run & echo $$! > .test-server.pid; }
+	cd ./test-server && { swift run Run serve --port 8081 & echo $$! > .test-server.pid; }
 
 ## Run test server synchronously
 #
 # Builds and runs the test server synchronously (blocks until stopped).
+# Serves on port 8081, which is the port the tests and scripts/start-test-server.sh expect.
 .PHONY: run-test-server-sync
 run-test-server-sync:
 	cd ./test-server && swift build
-	cd ./test-server && swift run
+	cd ./test-server && swift run Run serve --port 8081
 
 ## Stop test server
 #
@@ -1397,7 +1403,23 @@ STAGED_OBJC_HEADER_FILES := $(shell git diff --cached --diff-filter=d --name-onl
 
 # Message for the allHeaderFields banned-pattern lint, aligned with the SwiftLint
 # rule in PR #8387 (rule id avoid_all_header_fields).
-AVOID_ALL_HEADER_FIELDS_MSG := Double-check how you use allHeaderFields (https://developer.apple.com/documentation/foundation/httpurlresponse/allheaderfields). Reading all headers is fine, but its subscript is case-sensitive while HTTP/2 and HTTP/3 lowercase field names, so a single-header lookup can silently miss the header (see \#8322). For a lookup, use value(forHTTPHeaderField:) or the HTTPURLResponse.value(forHTTPHeaderFieldCaseInsensitive:) extension in HTTPURLResponse+Sentry.swift. If your usage is intentional, suppress this rule with a comment explaining why.
+AVOID_ALL_HEADER_FIELDS_MSG := Double-check how you use allHeaderFields / allHTTPHeaderFields (https://developer.apple.com/documentation/foundation/httpurlresponse/allheaderfields). Reading all headers is fine, but their subscript is case-sensitive while HTTP/2 and HTTP/3 lowercase field names, so a single-header lookup can silently miss the header (see \#8322). For a lookup, use value(forHTTPHeaderField:) or the HTTPURLResponse.value(forHTTPHeaderFieldCaseInsensitive:) extension in HTTPURLResponse+Sentry.swift. If your usage is intentional, suppress this rule with a comment explaining why.
+
+## Check Objective-C header files for bare 'id' usage without SENTRY_SWIFT_MIGRATION_ID
+#
+# Standalone target so CI can run this check without a macOS runner.
+.PHONY: check-objc-id-usage
+check-objc-id-usage:
+	ruby ./scripts/check-objc-id-usage.rb -r Sources/Sentry
+
+## Check Objective-C sources for banned patterns (e.g. case-sensitive header lookups)
+#
+# Standalone target so CI can run this check without a macOS runner.
+.PHONY: check-objc-banned-patterns
+check-objc-banned-patterns:
+	./scripts/check-objc-banned-pattern.sh --path Sources \
+		--rule avoid_all_header_fields --pattern 'all(HTTP)?HeaderFields' \
+		--message "$(AVOID_ALL_HEADER_FIELDS_MSG)"
 
 ## Run linting checks on all files
 #
@@ -1406,10 +1428,8 @@ AVOID_ALL_HEADER_FIELDS_MSG := Double-check how you use allHeaderFields (https:/
 lint:
 	@echo "--> Running Swiftlint and Clang-Format"
 	./scripts/check-clang-format.py -r Sources Tests
-	ruby ./scripts/check-objc-id-usage.rb -r Sources/Sentry
-	./scripts/check-objc-banned-pattern.sh --path Sources \
-		--rule avoid_all_header_fields --pattern 'allHeaderFields' \
-		--message "$(AVOID_ALL_HEADER_FIELDS_MSG)"
+	"$(MAKE)" check-objc-id-usage
+	"$(MAKE)" check-objc-banned-patterns
 	swiftlint --strict --quiet
 	dprint check "**/*.{md,json,yaml,yml}"
 	actionlint
@@ -1429,7 +1449,7 @@ lint-staged:
 	@if [ -n "$(STAGED_CLANG_FILES)" ]; then \
 		for f in $(STAGED_CLANG_FILES); do \
 			./scripts/check-objc-banned-pattern.sh --path "$$f" \
-				--rule avoid_all_header_fields --pattern 'allHeaderFields' \
+				--rule avoid_all_header_fields --pattern 'all(HTTP)?HeaderFields' \
 				--message "$(AVOID_ALL_HEADER_FIELDS_MSG)" || exit 1; \
 		done; \
 	fi

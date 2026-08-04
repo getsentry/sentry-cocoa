@@ -37,7 +37,7 @@ jobs:
     outputs:
       run_3rd_party_integrations_tests_for_prs: ${{ steps.changes.outputs.run_3rd_party_integrations_tests_for_prs }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Get changed files
         id: changes
         uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2
@@ -61,7 +61,7 @@ jobs:
     steps:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
@@ -99,7 +99,7 @@ jobs:
     steps:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:

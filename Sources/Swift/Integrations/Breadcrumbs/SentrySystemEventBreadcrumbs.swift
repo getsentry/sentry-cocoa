@@ -157,9 +157,8 @@ final class SentrySystemEventBreadcrumbs: NSObject {
 
         let batteryData = getBatteryStatus(currentDevice)
 
-        let crumb = Breadcrumb(level: .info, category: "device.event")
+        let crumb = Breadcrumb(level: .info, category: "device.event", data: batteryData)
         crumb.type = "system"
-        crumb.data = batteryData
         delegate?.add(crumb)
     }
 
@@ -221,9 +220,9 @@ final class SentrySystemEventBreadcrumbs: NSObject {
         }
 
         if currentOrientation.isLandscape {
-            crumb.data = ["position": "landscape"]
+            crumb.setData(value: "landscape", key: "position")
         } else {
-            crumb.data = ["position": "portrait"]
+            crumb.setData(value: "portrait", key: "position")
         }
         crumb.type = "navigation"
         delegate?.add(crumb)
@@ -253,7 +252,7 @@ final class SentrySystemEventBreadcrumbs: NSObject {
     @objc private func systemEventTriggered(_ notification: Notification) {
         let crumb = Breadcrumb(level: .info, category: "device.event")
         crumb.type = "system"
-        crumb.data = ["action": notification.name.rawValue]
+        crumb.setData(value: notification.name.rawValue, key: "action")
         delegate?.add(crumb)
     }
 
@@ -299,10 +298,7 @@ final class SentrySystemEventBreadcrumbs: NSObject {
     private func timezoneEventTriggered(storedTimezoneOffset: NSNumber?) {
         let storedOffset = storedTimezoneOffset ?? fileManager.readTimezoneOffset()
 
-        let crumb = Breadcrumb(level: .info, category: "device.event")
         let offset = dateProvider.timezoneOffset()
-
-        crumb.type = "system"
 
         var dataDict: [String: Any] = [
             "action": "TIMEZONE_CHANGE",
@@ -313,7 +309,8 @@ final class SentrySystemEventBreadcrumbs: NSObject {
             dataDict["previous_seconds_from_gmt"] = storedOffset
         }
 
-        crumb.data = dataDict
+        let crumb = Breadcrumb(level: .info, category: "device.event", data: dataDict)
+        crumb.type = "system"
         delegate?.add(crumb)
 
         updateStoredTimezone()
@@ -347,7 +344,7 @@ final class SentrySystemEventBreadcrumbs: NSObject {
         crumb.type = "system"
 
         // We don't add the timezone here, because we already add it in timezoneEventTriggered.
-        crumb.data = ["action": "SIGNIFICANT_TIME_CHANGE"]
+        crumb.setData(value: "SIGNIFICANT_TIME_CHANGE", key: "action")
 
         delegate?.add(crumb)
     }

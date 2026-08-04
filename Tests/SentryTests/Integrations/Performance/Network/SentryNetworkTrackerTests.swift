@@ -804,6 +804,39 @@ class SentryNetworkTrackerTests: XCTestCase {
     }
 #endif
 
+    func testCaptureRequestDetails_whenAlreadyCaptured_shouldKeepOriginalRequest() throws {
+        guard #available(iOS 16.0, tvOS 16.0, *) else { return }
+
+        // -- Arrange --
+        let testUrl = URL(string: "https://api.example.com/users")!
+        fixture.options.sessionReplay.networkDetailAllowUrls = ["api.example.com"]
+        fixture.options.sessionReplay.networkRequestHeaders = ["X-Request"]
+
+        var originalRequest = URLRequest(url: testUrl)
+        originalRequest.httpMethod = "POST"
+        originalRequest.setValue("original", forHTTPHeaderField: "X-Request")
+        let task = URLSessionDataTaskMock(request: originalRequest)
+        let tracker = fixture.getSut()
+
+        tracker.urlSessionTask(task, setState: .running)
+
+        var redirectedRequest = URLRequest(url: testUrl)
+        redirectedRequest.httpMethod = "GET"
+        redirectedRequest.setValue("redirected", forHTTPHeaderField: "X-Request")
+        task.setCurrentRequest(redirectedRequest)
+
+        // -- Act --
+        tracker.urlSessionTask(task, setState: .completed)
+
+        // -- Assert --
+        guard case .valid(let details) = task.networkDetails else {
+            return XCTFail("Expected network details")
+        }
+        let request = try XCTUnwrap(details.serialize()["request"] as? [String: Any])
+        let headers = try XCTUnwrap(request["headers"] as? [String: String])
+        XCTAssertEqual(headers["X-Request"], "original")
+    }
+
     /// Regression test for #8388: `captureResponseDetails` must read the response `Content-Type`
     /// case-insensitively. HTTP/2 and HTTP/3 lowercase field names, so the server sends
     /// `content-type`. If the tracker reverts to the case-sensitive `allHeaderFields["Content-Type"]`
@@ -1462,6 +1495,42 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(propagatedTraceId, transaction.traceId.sentryIdString)
     }
 
+    func testTraceHeader_whenScopeSpanHasNoTracer_shouldUseNetworkSpanTraceHeader() {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        let task = createDataTask()
+        let span = NetworkTrackerTestSpan()
+        fixture.scope.span = span
+
+        // -- Act --
+        sut.urlSessionTaskResume(task)
+
+        // -- Assert --
+        XCTAssertEqual(
+            task.currentRequest?.value(forHTTPHeaderField: "sentry-trace"),
+            span.toTraceHeader().value()
+        )
+    }
+
+    func testTraceHeader_whenNetworkTrackingDisabledAndTracerHasNoBaggage_shouldUseSpanTraceHeader() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        sut.disable()
+        sut.enableNetworkBreadcrumbs()
+        let task = createDataTask()
+        let transaction = try XCTUnwrap(startTransaction() as? SentryTracer)
+        fixture.options.dsn = nil
+
+        // -- Act --
+        sut.urlSessionTaskResume(task)
+
+        // -- Assert --
+        XCTAssertEqual(
+            task.currentRequest?.value(forHTTPHeaderField: "sentry-trace"),
+            transaction.toTraceHeader().value()
+        )
+    }
+
     func testDontOverrideTraceHeader() {
         let sut = fixture.getSut()
         let task = createDataTask {
@@ -1542,6 +1611,25 @@ class SentryNetworkTrackerTests: XCTestCase {
         let expectedBaggageHeader = traceContext.toBaggage().toHTTPHeader(withOriginalBaggage: nil)
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["baggage"] ?? "", expectedBaggageHeader)
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"] ?? "", expectedTraceHeader)
+    }
+
+    func testDefaultTraceHeader_whenNoTransactionAndDsnIsNil_shouldUsePropagationContext() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        let task = createDataTask()
+        fixture.options.dsn = nil
+
+        // -- Act --
+        sut.urlSessionTaskResume(task)
+
+        // -- Assert --
+        XCTAssertEqual(
+            task.currentRequest?.value(forHTTPHeaderField: "sentry-trace"),
+            fixture.scope.propagationContext.traceHeader.value()
+        )
+        let baggage = try XCTUnwrap(task.currentRequest?.value(forHTTPHeaderField: "baggage"))
+        XCTAssertTrue(baggage.contains("sentry-trace_id="))
+        XCTAssertFalse(baggage.contains("sentry-public_key="))
     }
 
     func testNoHeadersForWrongUrl() throws {
@@ -1703,6 +1791,19 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertNil(sentryResponse["cookies"])
 #endif // SDK_V10
         XCTAssertEqual(sentryResponse["body_size"] as? NSNumber, 256)
+    }
+
+    func testCaptureHTTPClientErrorResponse_whenHeadersAreEmpty_shouldIncludeEmptyHeaders() throws {
+        // -- Arrange --
+        let task = createDataTask()
+        task.setResponse(try createResponse(code: 500))
+
+        // -- Act --
+        fixture.getSut().urlSessionTask(task, setState: .completed)
+
+        // -- Assert --
+        let response = try XCTUnwrap(fixture.hub.capturedErrorEvents.first?.context?["response"])
+        XCTAssertEqual(response["headers"] as? [String: String], [:])
     }
 
     func testCaptureHTTPClientErrorResponse_noSecurityHeader() throws {
@@ -2134,4 +2235,41 @@ class SentryNetworkTrackerTests: XCTestCase {
         let spans = Dynamic(transaction).children as [Span]?
         XCTAssertEqual(spans?.count ?? 0, 0)
     }
+}
+
+private final class NetworkTrackerTestSpan: NSObject, Span {
+    init(traceId: SentryId = SentryId()) {
+        self.traceId = traceId
+    }
+
+    var traceId: SentryId
+    var spanId = SpanId()
+    var parentSpanId: SpanId?
+    var sampled: SentrySampleDecision = .undecided
+    var operation = "test"
+    var origin = "test"
+    var spanDescription: String?
+    var status: SentrySpanStatus = .undefined
+    var timestamp: Date?
+    var startTimestamp: Date?
+    var data: [String: Any] { [:] }
+    var tags: [String: String] { [:] }
+    var isFinished: Bool { false }
+    var traceContext: TraceContext?
+
+    func startChild(operation: String) -> Span { self }
+    func startChild(operation: String, description: String?) -> Span { self }
+    func setData(value: Any?, key: String) {}
+    func removeData(key: String) {}
+    func setTag(value: String, key: String) {}
+    func removeTag(key: String) {}
+    func setMeasurement(name: String, value: NSNumber) {}
+    func setMeasurement(name: String, value: NSNumber, unit: MeasurementUnit) {}
+    func finish() {}
+    func finish(status: SentrySpanStatus) {}
+    func toTraceHeader() -> TraceHeader {
+        TraceHeader(trace: traceId, spanId: spanId, sampled: sampled)
+    }
+    func baggageHttpHeader() -> String? { nil }
+    func serialize() -> [String: Any] { [:] }
 }

@@ -54,7 +54,7 @@ private struct AnyIntegration {
         #endif
 
         #if ENABLE_KSCRASH
-        integrations.append(.init(SentryKSCrashIntegration.self))
+        integrations.append(.init(SentryKSCrash.Integration.self))
         #else
         integrations.append(.init(SentryCrashIntegration.self))
         #endif
@@ -87,9 +87,7 @@ private struct AnyIntegration {
         #endif
         
         #if os(iOS) || os(macOS) || os(visionOS)
-        if #available(macOS 12.0, *) {
-            integrations.append(.init(SentryMetricKitIntegration.self))
-        }
+        integrations.append(.init(SentryMetricKitIntegration.self))
         #endif
         
         integrations.forEach { anyIntegration in

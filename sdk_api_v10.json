@@ -5019,6 +5019,54 @@
             "usr": "c:objc(cs)SentryBreadcrumb(im)serialize"
           },
           {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "kind": "TypeNameAlias",
+                "name": "Void",
+                "printedName": "Swift.Void"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Any?",
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declAttributes": [
+              "Dynamic",
+              "ObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isOpen": true,
+            "kind": "Function",
+            "moduleName": "Sentry",
+            "name": "setData",
+            "objc_name": "setDataValue:forKey:",
+            "printedName": "setData(value:key:)",
+            "usr": "c:objc(cs)SentryBreadcrumb(im)setDataValue:forKey:"
+          },
+          {
             "accessors": [
               {
                 "accessorKind": "get",
@@ -5192,10 +5240,12 @@
                   }
                 ],
                 "declAttributes": [
+                  "Available",
                   "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "deprecated": true,
                 "isOpen": true,
                 "kind": "Accessor",
                 "moduleName": "Sentry",
@@ -23513,6 +23563,82 @@
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry7OptionsC25enableMemoryIntrospectionSbvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)enableMemoryIntrospection"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry7OptionsC25enableMemoryIntrospectionSbvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setEnableMemoryIntrospection:"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasStorage",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry7OptionsC25enableMemoryIntrospectionSbvp",
+            "moduleName": "Sentry",
+            "name": "enableMemoryIntrospection",
+            "printedName": "enableMemoryIntrospection",
+            "usr": "c:@M@Sentry@objc(cs)SentryOptions(py)enableMemoryIntrospection"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC15enableMetricKitSbvg",
                 "moduleName": "Sentry",
                 "name": "Get",
@@ -41810,6 +41936,50 @@
             "overriding": true,
             "printedName": "init()",
             "usr": "c:@M@Sentry@objc(cs)SentryFeedbackAPI(im)init"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "Available",
+              "Final",
+              "ObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A11FeedbackAPIC14disableOnShakeyyF",
+            "moduleName": "Sentry",
+            "name": "disableOnShake",
+            "printedName": "disableOnShake()",
+            "usr": "c:@M@Sentry@objc(cs)SentryFeedbackAPI(im)disableOnShake"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "Available",
+              "Final",
+              "ObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A11FeedbackAPIC13enableOnShakeyyF",
+            "moduleName": "Sentry",
+            "name": "enableOnShake",
+            "printedName": "enableOnShake()",
+            "usr": "c:@M@Sentry@objc(cs)SentryFeedbackAPI(im)enableOnShake"
           },
           {
             "children": [
@@ -65092,12 +65262,8 @@
                 "printedName": "some SwiftUI.View"
               }
             ],
-            "declAttributes": [
-              "Available"
-            ],
             "declKind": "TypeAlias",
             "genericSig": "<Content where Content : SwiftUI.View>",
-            "intro_Macosx": "10.15",
             "kind": "TypeAlias",
             "mangledName": "$s6Sentry0A10TracedViewV4Bodya",
             "moduleName": "Sentry",
@@ -65222,13 +65388,11 @@
           }
         ],
         "declAttributes": [
-          "Available",
           "Custom",
           "Preconcurrency"
         ],
         "declKind": "Struct",
         "genericSig": "<Content where Content : SwiftUI.View>",
-        "intro_Macosx": "10.15",
         "kind": "TypeDecl",
         "mangledName": "$s6Sentry0A10TracedViewV",
         "moduleName": "Sentry",

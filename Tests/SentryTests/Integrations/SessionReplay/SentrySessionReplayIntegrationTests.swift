@@ -27,6 +27,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
             super.init()
         }
 
+        var installed: Bool { false }
         var crashedLastLaunch: Bool { false }
         var durationFromCrashStateInitToLastCrash: TimeInterval { 0 }
         var activeDurationSinceLastCrash: TimeInterval { 0 }
@@ -36,6 +37,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         var freeMemorySize: UInt64 { 0 }
         var appMemorySize: UInt64 { 0 }
         var systemInfo: [String: Any] { [:] }
+        var introspectMemory: Bool = true
         var processInfoWrapper: SentryProcessInfoSource { ProcessInfo.processInfo }
         func startBinaryImageCache() {}
         func stopBinaryImageCache() {}

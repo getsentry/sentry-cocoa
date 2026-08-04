@@ -62,6 +62,11 @@ import Foundation
         set { wrapped.enableCrashHandler = newValue }
     }
 
+    @objc public var enableMemoryIntrospection: Bool {
+        get { wrapped.enableMemoryIntrospection }
+        set { wrapped.enableMemoryIntrospection = newValue }
+    }
+
     #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
     @objc public var enableUncaughtNSExceptionReporting: Bool {
         get { wrapped.enableUncaughtNSExceptionReporting }

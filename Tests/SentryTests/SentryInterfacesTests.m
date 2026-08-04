@@ -369,7 +369,7 @@
                                                               category:@"http"];
     XCTAssertTrue(crumb2.level >= 0);
     XCTAssertNotNil(crumb2.category);
-    crumb2.data = @{ @"bla" : @"1" };
+    [crumb2 setDataValue:@"1" forKey:@"bla"];
     crumb2.type = @"type";
     crumb2.timestamp = date;
     crumb2.message = @"message";

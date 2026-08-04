@@ -7,6 +7,7 @@ class TestSentryCrashReporter: NSObject, SentryCrashReporter {
 
     // MARK: - Test Properties
 
+    var internalInstalled = false
     var internalCrashedLastLaunch = false
     var internalDurationFromCrashStateInitToLastCrash: TimeInterval = 0
     var internalActiveDurationSinceLastCrash: TimeInterval = 0
@@ -16,6 +17,7 @@ class TestSentryCrashReporter: NSObject, SentryCrashReporter {
     var internalFreeMemorySize: UInt64 = 0
     var internalAppMemorySize: UInt64 = 0
     var internalSystemInfo: [String: Any] = [:]
+    var internalIntrospectMemory: Bool = true
     var binaryCacheStarted = false
     var binaryCacheStopped = false
     var enrichScopeCalled = false
@@ -31,6 +33,7 @@ class TestSentryCrashReporter: NSObject, SentryCrashReporter {
 
     // MARK: - SentryCrashReporter Protocol
 
+    var installed: Bool { internalInstalled }
     var crashedLastLaunch: Bool { internalCrashedLastLaunch }
     var durationFromCrashStateInitToLastCrash: TimeInterval { internalDurationFromCrashStateInitToLastCrash }
     var activeDurationSinceLastCrash: TimeInterval { internalActiveDurationSinceLastCrash }
@@ -40,6 +43,10 @@ class TestSentryCrashReporter: NSObject, SentryCrashReporter {
     var freeMemorySize: UInt64 { internalFreeMemorySize }
     var appMemorySize: UInt64 { internalAppMemorySize }
     var systemInfo: [String: Any] { internalSystemInfo }
+    var introspectMemory: Bool {
+        get { internalIntrospectMemory }
+        set { internalIntrospectMemory = newValue }
+    }
 
     private var internalProcessInfoWrapper: SentryProcessInfoSource = ProcessInfo.processInfo
     var processInfoWrapper: SentryProcessInfoSource { internalProcessInfoWrapper }

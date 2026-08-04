@@ -153,7 +153,7 @@ class SentryNetworkTrackingIntegrationSwiftTests: XCTestCase {
         defer {
             sut.uninstall()
         }
-        
+
         XCTAssertTrue(SentryDependencyContainer.sharedInstance().networkTracker.isCaptureFailedRequestsEnabled)
     }
 
@@ -180,61 +180,6 @@ class SentryNetworkTrackingIntegrationSwiftTests: XCTestCase {
         sut.uninstall()
 
         XCTAssertFalse(SentryDependencyContainer.sharedInstance().networkTracker.isNetworkTrackingEnabled)
-    }
-
-    func testNetworkTrackerProxy_whenTargetChanges_shouldForwardToLatestTarget() {
-        let sut = SentryNetworkTrackerProxy()
-        let firstTracker = TestNetworkTracker()
-        let secondTracker = TestNetworkTracker()
-        let task = URLSession.shared.dataTask(with: URL(string: "https://example.com")!)
-
-        sut.setTarget(firstTracker)
-        sut.target?.urlSessionTaskResume(task)
-        sut.setTarget(secondTracker)
-        sut.target?.urlSessionTaskResume(task)
-
-        XCTAssertEqual(firstTracker.resumeInvocations, 1)
-        XCTAssertEqual(secondTracker.resumeInvocations, 1)
-    }
-
-    func testNetworkTrackerProxy_shouldNotRetainTarget() {
-        let sut = SentryNetworkTrackerProxy()
-        weak var weakTracker: TestNetworkTracker?
-
-        autoreleasepool {
-            let tracker = TestNetworkTracker()
-            weakTracker = tracker
-            sut.setTarget(tracker)
-        }
-
-        XCTAssertNil(weakTracker)
-    }
-
-    func testNetworkTrackerProxy_whenRemovingStaleTarget_shouldKeepLatestTarget() {
-        let sut = SentryNetworkTrackerProxy()
-        let firstTracker = TestNetworkTracker()
-        let secondTracker = TestNetworkTracker()
-        let task = URLSession.shared.dataTask(with: URL(string: "https://example.com")!)
-
-        sut.setTarget(firstTracker)
-        sut.setTarget(secondTracker)
-        sut.removeTarget(firstTracker)
-        sut.target?.urlSessionTaskResume(task)
-
-        XCTAssertEqual(firstTracker.resumeInvocations, 0)
-        XCTAssertEqual(secondTracker.resumeInvocations, 1)
-    }
-
-    func testNetworkTrackerProxy_whenRemovingCurrentTarget_shouldStopForwarding() {
-        let sut = SentryNetworkTrackerProxy()
-        let tracker = TestNetworkTracker()
-        let task = URLSession.shared.dataTask(with: URL(string: "https://example.com")!)
-
-        sut.setTarget(tracker)
-        sut.removeTarget(tracker)
-        sut.target?.urlSessionTaskResume(task)
-
-        XCTAssertEqual(tracker.resumeInvocations, 0)
     }
 
     func test_IntegrationName() {

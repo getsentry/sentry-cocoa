@@ -30,6 +30,14 @@ final class FeedbackViewController: UIViewController {
         }
     }
 
+    @IBAction private func enableFeedbackOnShake(_: UIButton) {
+        SentrySDK.feedback.enableOnShake()
+    }
+
+    @IBAction private func disableFeedbackOnShake(_: UIButton) {
+        SentrySDK.feedback.disableOnShake()
+    }
+
     @IBAction private func toggleWidget(_: UIButton) {
         if isFeedbackWidgetVisible {
             SentrySDK.feedback.hideWidget()

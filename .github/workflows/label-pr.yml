@@ -26,7 +26,10 @@ jobs:
       - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
-            const MANAGED_LABELS = ['skip-changelog', 'approved', 'changes-requested'];
+            // skip-changelog is intentionally not managed here: Danger/cross-repo
+            // checks read #skip-changelog from the PR body, and applying the label
+            // on open retriggers pull_request workflows that listen for `labeled`.
+            const MANAGED_LABELS = ['approved', 'changes-requested'];
 
             const pr = context.payload.pull_request
               ?? context.payload.review?.pull_request;
@@ -73,11 +76,7 @@ jobs:
               return;
             }
 
-            // 1. skip-changelog — check PR body for #skip-changelog
-            const hasSkipChangelog = (pr.body ?? '').includes('#skip-changelog');
-            await ensureLabel('skip-changelog', hasSkipChangelog);
-
-            // 2. Fetch all reviews (paginated) to determine approval / changes-requested state
+            // Fetch all reviews (paginated) to determine approval / changes-requested state
             const reviews = await github.paginate(github.rest.pulls.listReviews, {
               owner,
               repo,
@@ -104,4 +103,4 @@ jobs:
             await ensureLabel('approved', hasApproval && !hasChangesRequested);
             await ensureLabel('changes-requested', hasChangesRequested);
 
-            core.info(`Labels applied — skip-changelog: ${hasSkipChangelog}, approved: ${hasApproval && !hasChangesRequested}, changes-requested: ${hasChangesRequested}`);
+            core.info(`Labels applied — approved: ${hasApproval && !hasChangesRequested}, changes-requested: ${hasChangesRequested}`);

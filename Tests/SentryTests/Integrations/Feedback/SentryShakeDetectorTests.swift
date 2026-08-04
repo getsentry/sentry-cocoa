@@ -1,7 +1,7 @@
 @testable import Sentry
 import XCTest
 
-#if os(iOS)
+#if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
 final class SentryShakeDetectorTests: XCTestCase {
@@ -12,9 +12,15 @@ final class SentryShakeDetectorTests: XCTestCase {
         UIWindow(windowScene: Self.mockWindowScene)
     }
 
+    override func setUp() {
+        super.setUp()
+        SentryShakeDetector.resetCooldown()
+    }
+
     override func tearDown() {
-        super.tearDown()
         SentryShakeDetector.disable()
+        SentryShakeDetector.resetCooldown()
+        super.tearDown()
     }
 
     func testEnable_whenShakeOccurs_shouldPostNotification() {
@@ -96,4 +102,4 @@ final class SentryShakeDetectorTests: XCTestCase {
     }
 }
 
-#endif
+#endif // os(iOS) && !SENTRY_NO_UI_FRAMEWORK

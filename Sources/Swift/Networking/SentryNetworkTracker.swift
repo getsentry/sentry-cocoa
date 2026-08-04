@@ -29,6 +29,10 @@ typealias SentryNetworkTrackerProtocol = SentryDefaultNetworkTracker<SentryDepen
 typealias SentryDefaultNetworkTrackerDependencies = SentryDependencyContainer
 #endif
 
+/// Network tracking has historically been sensitive to older iOS runtime behavior. Unit tests do
+/// not run on every supported iOS version. See the decision log for context:
+/// https://github.com/getsentry/sentry-cocoa/blob/main/develop-docs/README.md
+/// Evaluate changes for older-runtime impact and add UI tests when behavior could differ.
 final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTrackerDependencies> {
     // MARK: - State
 
@@ -36,6 +40,8 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
     private let hub: Hub
     private let threadInspector: SentryThreadInspector
 
+    // We accept races when toggling these flags to avoid acquiring locks for many parallel HTTP
+    // requests. This matches the Objective-C implementation's deliberate performance tradeoff.
     private(set) var isNetworkTrackingEnabled = false
     private(set) var isNetworkBreadcrumbEnabled = false
     private(set) var isCaptureFailedRequestsEnabled = false
@@ -100,10 +106,11 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         }
 
         // Don't measure requests to Sentry's backend
-        if isSentryRequest(url, options: options) {
+        if isSentryRequestOnResume(url, options: options) {
             return
         }
 
+        // Register the request start date only on first resume so suspend/resume cycles preserve it.
         if isNetworkBreadcrumbEnabled {
             switch sessionTask.startDate {
             case .valid:
@@ -138,6 +145,8 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
 
             if let currentSpan {
                 #if SDK_V10
+                // Span descriptions exclude query strings and fragments. See
+                // https://develop.sentry.dev/sdk/foundations/client/data-collection/#urls
                 let descriptionUrl = safeUrl.sanitizedBaseUrl
                 #else
                 let descriptionUrl = safeUrl.sanitizedUrl
@@ -147,8 +156,8 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
                     operation: SentrySpanOperationNetworkRequestOperation,
                     description: String(
                         format: "%@ %@",
-                        currentRequest.httpMethod ?? "<null>",
-                        descriptionUrl ?? "<null>"
+                        currentRequest.httpMethod ?? "(null)",
+                        descriptionUrl ?? "(null)"
                     )
                 )
                 networkSpan?.origin = SentryTraceOriginAutoHttpNSURLSession
@@ -172,15 +181,14 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
                 return
             }
 
-            if let baggage = SentryTracer.getTracer(currentSpan)?.traceContext?.toBaggage() {
-                SentryTracePropagation.addBaggageHeader(
-                    baggage,
-                    traceHeader: networkSpan.toTraceHeader(),
-                    propagateTraceparent: hub.options.enablePropagateTraceparent,
-                    tracePropagationTargets: hub.options.tracePropagationTargets,
-                    toRequest: sessionTask
-                )
-            }
+            let baggage = SentryTracer.getTracer(currentSpan)?.traceContext?.toBaggage()
+            SentryTracePropagation.addBaggageHeader(
+                baggage,
+                traceHeader: networkSpan.toTraceHeader(),
+                propagateTraceparent: options.enablePropagateTraceparent,
+                tracePropagationTargets: options.tracePropagationTargets,
+                toRequest: sessionTask
+            )
 
             SentrySDKLog.debug("SentryNetworkTracker automatically started HTTP span for sessionTask: \(networkSpan.description)")
             sessionTask.setTrackerSpan(networkSpan)
@@ -198,7 +206,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
 
         #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
         if let urlString = sessionTask.originalRequest?.url?.absoluteString,
-           isNetworkDetailCaptureEnabled(for: urlString, options: options) {
+            isNetworkDetailCaptureEnabled(for: urlString, options: options) {
 #if SDK_V10
             let networkCaptureBodies = options.sessionReplay.shouldCaptureNetworkBody(
                 .outgoingRequest,
@@ -210,12 +218,11 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             captureRequestDetails(
                 for: sessionTask,
                 networkCaptureBodies: networkCaptureBodies,
-                networkRequestHeaders: options.sessionReplay.networkRequestHeaders
             )
         }
         #endif
 
-        // Suspended is not terminal because the task may be resumed or cancelled later.
+        // Suspended is not a terminal state because the task may be resumed or cancelled later.
         if newState == .running || newState == .suspended {
             return
         }
@@ -224,7 +231,8 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             return
         }
 
-        if isSentryRequest(url, options: options) {
+        // Don't measure requests to Sentry's backend.
+        if isSentryRequestOnStateChange(url, options: options) {
             return
         }
 
@@ -345,6 +353,9 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
 
         let message = "HTTP Client Error with status code: \(httpResponse.statusCode)"
         let event = Event(level: .error)
+
+        // sessionTask.error isn't used because this reports requests considered failed based on
+        // their HTTP status code, not network errors.
         let exception = Exception(value: message, type: "HTTPClientError")
         exception.mechanism = Mechanism(type: "HTTPClientError")
 
@@ -365,7 +376,10 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         request.fragment = sanitizedURL.fragment
         request.queryString = sanitizedURL.query
         request.bodySize = NSNumber(value: sessionTask.countOfBytesSent)
+        // Safe: reading the whole dictionary, not a case-sensitive single-header lookup.
+        // swiftlint:disable avoid_all_header_fields
         if let headers = currentRequest.allHTTPHeaderFields {
+            // swiftlint:enable avoid_all_header_fields
             #if SDK_V10
             let sanitizedHeaders = HTTPHeaderSanitizer.sanitizeRequestHeaders(
                 headers,
@@ -391,18 +405,16 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             result[key] = value
         }
         // swiftlint:enable avoid_all_header_fields
-        if !responseHeaders.isEmpty {
-            #if SDK_V10
-            let sanitizedHeaders = HTTPHeaderSanitizer.sanitizeResponseHeaders(
-                responseHeaders,
-                options: options.dataCollection
-            )
-            responseContext["headers"] = sanitizedHeaders.headers
-            responseContext["cookies"] = sanitizedHeaders.cookies
-            #else
-            responseContext["headers"] = HTTPHeaderSanitizer.sanitizeHeaders(responseHeaders)
-            #endif
-        }
+        #if SDK_V10
+        let sanitizedHeaders = HTTPHeaderSanitizer.sanitizeResponseHeaders(
+            responseHeaders,
+            options: options.dataCollection
+        )
+        responseContext["headers"] = sanitizedHeaders.headers
+        responseContext["cookies"] = sanitizedHeaders.cookies
+        #else
+        responseContext["headers"] = HTTPHeaderSanitizer.sanitizeHeaders(responseHeaders)
+        #endif
         if sessionTask.countOfBytesReceived != 0 {
             responseContext["body_size"] = sessionTask.countOfBytesReceived
         }
@@ -446,10 +458,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         }
 
         let responseStatusCode = urlResponseStatusCode(sessionTask.response)
-        let breadcrumb = Breadcrumb(
-            level: breadcrumbLevel(for: sessionTask, responseStatusCode: responseStatusCode),
-            category: "http"
-        )
+        let level = breadcrumbLevel(for: sessionTask, responseStatusCode: responseStatusCode)
 
         #if SDK_V10
         let urlComponents = UrlSanitized(URL: requestURL, options: options.dataCollection)
@@ -457,7 +466,6 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         let urlComponents = UrlSanitized(URL: requestURL)
         #endif
 
-        breadcrumb.type = "http"
         var data: [String: Any] = [
             "request_body_size": sessionTask.countOfBytesSent,
             "response_body_size": sessionTask.countOfBytesReceived
@@ -487,6 +495,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         }
 
         #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+        // Store the raw object. SentrySRDefaultBreadcrumbConverter serializes it when read.
         synchronized(sessionTask) {
             if case .valid(let networkDetails) = sessionTask.networkDetails {
                 data[SentryReplayNetworkDetails.replayNetworkDetailsKey] = networkDetails
@@ -494,7 +503,8 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         }
         #endif
 
-        breadcrumb.data = data
+        let breadcrumb = Breadcrumb(level: level, category: "http", data: data)
+        breadcrumb.type = "http"
         SentrySDKInternal.addBreadcrumb(breadcrumb)
         sessionTask.setHasBreadcrumb(true)
     }
@@ -586,24 +596,34 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             return
         }
 
-        let details: SentryReplayNetworkDetails = synchronized(sessionTask) {
-            if case .valid(let existingDetails) = sessionTask.networkDetails {
-                return existingDetails
+        let details: SentryReplayNetworkDetails? = synchronized(sessionTask) {
+            // Capture the initial request only. currentRequest can change after redirects.
+            guard case nil = sessionTask.networkDetails else {
+                return nil
             }
 
             let newDetails = SentryReplayNetworkDetails(method: request.httpMethod ?? "GET")
             sessionTask.setNetworkDetails(newDetails)
             return newDetails
         }
+        guard let details else {
+            return
+        }
 
+        // Prefer originalRequest.httpBody because currentRequest can reflect redirects and its body
+        // can be nil while the task is in flight.
         let rawBody = sessionTask.originalRequest?.httpBody ?? request.httpBody
         let requestSize = rawBody.map { NSNumber(value: $0.count) }
 
+        // Safe: passing the whole dictionary, not a case-sensitive single-header lookup.
+        // swiftlint:disable avoid_all_header_fields
+        let allHeaders = request.allHTTPHeaderFields
+        // swiftlint:enable avoid_all_header_fields
         details.setRequest(
             size: requestSize,
             bodyData: networkCaptureBodies ? rawBody : nil,
             contentType: request.value(forHTTPHeaderField: "content-type"),
-            allHeaders: request.allHTTPHeaderFields,
+            allHeaders: allHeaders,
             configuredHeaders: networkRequestHeaders
         )
     }
@@ -612,10 +632,11 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
     // MARK: - Helpers
 
     private func isTaskSupported(_ task: URLSessionTask) -> Bool {
+        // Streams are usually long-lived connections, so we don't measure this transfer type.
         task is URLSessionDataTask || task is URLSessionDownloadTask || task is URLSessionUploadTask
     }
 
-    private func isSentryRequest(_ url: URL, options: Options) -> Bool {
+    private func isSentryRequestOnResume(_ url: URL, options: Options) -> Bool {
         guard let apiURL = options.parsedDsn?.url,
               let apiHost = apiURL.host,
               !apiURL.path.isEmpty else {
@@ -625,16 +646,25 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         return url.host == apiHost && url.path.contains(apiURL.path)
     }
 
+    private func isSentryRequestOnStateChange(_ url: URL, options: Options) -> Bool {
+        guard let apiURL = options.parsedDsn?.url,
+              let urlHost = url.host,
+              let apiHost = apiURL.host else {
+            return false
+        }
+
+        return urlHost == apiHost && url.path.contains(apiURL.path)
+    }
+
     private func addTraceWithoutTransaction(to task: URLSessionTask) {
         guard let options = hub.currentOptions else {
             return
         }
 
         let scope = hub.scope
-        if let span = scope.span,
-           let baggage = SentryTracer.getTracer(span)?.traceContext?.toBaggage() {
+        if let span = scope.span, let tracer = SentryTracer.getTracer(span) {
             SentryTracePropagation.addBaggageHeader(
-                baggage,
+                tracer.traceContext?.toBaggage(),
                 traceHeader: span.toTraceHeader(),
                 propagateTraceparent: options.enablePropagateTraceparent,
                 tracePropagationTargets: options.tracePropagationTargets,
@@ -643,21 +673,10 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             return
         }
 
-        guard let publicKey = options.parsedDsn?.url.user else {
-            return
-        }
-
-        let baggage = Baggage(
-            trace: scope.propagationContextTraceId,
-            publicKey: publicKey,
-            releaseName: options.releaseName,
-            environment: options.environment,
-            transaction: nil,
-            sampleRate: nil,
-            sampleRand: nil,
-            sampled: nil,
-            replayId: scope.replayId,
-            orgId: options.effectiveOrgId
+        let baggage = SentryTraceContextSwiftHelper.baggage(
+            traceId: scope.propagationContextTraceId.sentryIdString,
+            options: options,
+            replayId: scope.replayId
         )
         SentryTracePropagation.addBaggageHeader(
             baggage,

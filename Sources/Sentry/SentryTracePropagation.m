@@ -9,7 +9,7 @@ static NSString *const SENTRY_TRACEPARENT = @"traceparent";
 
 @implementation SentryTracePropagation
 
-+ (void)addBaggageHeader:(SentryBaggage *)baggage
++ (void)addBaggageHeader:(nullable SentryBaggage *)baggage
                 traceHeader:(SentryTraceHeader *)traceHeader
        propagateTraceparent:(BOOL)propagateTraceparent
     tracePropagationTargets:(NSArray *_Nullable)tracePropagationTargets
@@ -31,8 +31,7 @@ static NSString *const SENTRY_TRACEPARENT = @"traceparent";
     NSString *baggageHeader = @"";
 
     if (baggage != nil) {
-        NSString *_Nullable rawHeader
-            = SENTRY_UNWRAP_NULLABLE(NSString, request.allHTTPHeaderFields[SENTRY_BAGGAGE_HEADER]);
+        NSString *_Nullable rawHeader = [request valueForHTTPHeaderField:SENTRY_BAGGAGE_HEADER];
         NSDictionary *originalBaggage = [SentryBaggageSerialization decode:rawHeader ?: @""];
         if (originalBaggage[@"sentry-trace_id"] == nil) {
             baggageHeader = [baggage toHTTPHeaderWithOriginalBaggage:originalBaggage];

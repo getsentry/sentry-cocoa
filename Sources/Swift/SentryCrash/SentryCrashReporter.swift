@@ -2,6 +2,7 @@
 import Foundation
 
 @_spi(Private) @objc public protocol SentryCrashReporter: NSObjectProtocol {
+    @objc var installed: Bool { get }
     @objc var crashedLastLaunch: Bool { get }
     @objc var durationFromCrashStateInitToLastCrash: TimeInterval { get }
     @objc var activeDurationSinceLastCrash: TimeInterval { get }
@@ -11,6 +12,7 @@ import Foundation
     @objc var freeMemorySize: UInt64 { get }
     @objc var appMemorySize: UInt64 { get }
     @objc var systemInfo: [String: Any] { get }
+    @objc var introspectMemory: Bool { get set }
     var processInfoWrapper: SentryProcessInfoSource { get }
     @objc func startBinaryImageCache()
     @objc func stopBinaryImageCache()

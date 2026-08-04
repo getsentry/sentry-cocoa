@@ -1,6 +1,7 @@
 // swiftlint:disable file_length type_body_length
 #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
 #if os(iOS) || os(tvOS)
+internal import _SentryPrivate
 import Foundation
 import ObjectiveC.NSObjCRuntime
 import UIKit
@@ -114,7 +115,7 @@ final class SentryUIRedactBuilder {
     /// strings, the subtree will be ignored. For example, "MyView" will match "MyApp.MyView",
     /// "MyViewSubclass", etc.
     private var excludedViewClassPatterns: Set<String>
-    
+
     /// A set of view type identifier strings that should be included in subtree traversal.
     ///
     /// Views exactly matching these strings will be removed from the excluded set, allowing their subtrees
@@ -246,7 +247,7 @@ final class SentryUIRedactBuilder {
         excludedViewClassPatterns = SentryViewSubtreeTraversal.defaultExcludedViewClassPatterns
             .union(options.excludedViewClasses)
         includedViewClassPatterns = options.includedViewClasses
-        
+
         // didSet doesn't run during initialization, so we need to manually build the optimization structures
         rebuildOptimizedLookups()
     }
@@ -412,7 +413,7 @@ final class SentryUIRedactBuilder {
     func isRedactContainerClassTestOnly(_ containerClass: AnyClass) -> Bool {
         return isRedactContainerClass(containerClass)
     }
-    
+
     func getRedactClassesIdentifiersTestOnly() -> Set<ClassIdentifier> {
         redactClassesIdentifiers
     }
@@ -448,7 +449,7 @@ final class SentryUIRedactBuilder {
         var redactingRegions = [SentryRedactRegion]()
 
         self.mapRedactRegion(
-            fromLayer: view.layer.presentation() ?? view.layer,
+            fromLayer: safePresentationLayer(of: view.layer) ?? view.layer,
             relativeTo: nil,
             redacting: &redactingRegions,
             rootFrame: view.frame,
@@ -626,7 +627,22 @@ final class SentryUIRedactBuilder {
         }
 
         // Traverse the sublayers to redact them if necessary
-        guard let subLayers = layer.sublayers, subLayers.count > 0 else {
+        guard let subLayers = safeSublayers(of: layer) else {
+            // Reading the sublayers raised an exception, so we cannot inspect the subtree to decide what
+            // needs redacting. To avoid leaking unmasked content (e.g. text or images in children we could
+            // not enumerate), we redact the whole layer bounds. This mirrors `isViewSubtreeIgnored`, which
+            // also redacts the full region when it must skip a crash-prone subtree.
+            if !enforceIgnore {
+                redacting.append(SentryRedactRegion(
+                    size: layer.bounds.size,
+                    transform: newTransform,
+                    type: .redact,
+                    name: type(of: layer).description()
+                ))
+            }
+            return
+        }
+        guard subLayers.count > 0 else {
             return
         }
         let clipToBounds = layer.masksToBounds
@@ -666,6 +682,46 @@ final class SentryUIRedactBuilder {
                 name: layer.debugDescription
             ))
         }
+    }
+
+    /// Reads `layer.sublayers` behind an Objective-C exception handler.
+    ///
+    /// Accessing `sublayers` on a presentation layer makes Core Animation resolve the presentation
+    /// layers of its children, interpolating any running animations. A malformed animation — e.g. a
+    /// `CABasicAnimation` whose endpoints mix a scalar `NSNumber` with an `NSValue` boxing a struct —
+    /// makes Core Animation raise an `NSException` (`-[NSConcreteValue doubleValue]: unrecognized
+    /// selector`). Swift cannot catch that, so it would unwind through these frames and force-kill
+    /// the host app. Taking a Session Replay screenshot must never crash the app, so we route the
+    /// access through an Objective-C exception handler and skip the subtree if it throws.
+    ///
+    /// See https://docs.sentry.io/platforms/apple/guides/ios/session-replay/troubleshooting and
+    /// https://github.com/getsentry/sentry-cocoa/issues/7810 for more details.
+    private func safeSublayers(of layer: CALayer) -> [CALayer]? {
+        var sublayers: [CALayer]?
+        let succeeded = SentryObjCExceptionHelper.tryBlock({
+            sublayers = layer.sublayers
+        }, catchingExceptionWithName: .invalidArgumentException, reasonPrefix: "-[NSConcreteValue doubleValue]: unrecognized selector sent to instance")
+        guard succeeded else {
+            SentrySDKLog.warning("Skipping redaction of a layer subtree because accessing its sublayers raised an exception. See https://docs.sentry.io/platforms/apple/guides/ios/session-replay/troubleshooting and https://github.com/getsentry/sentry-cocoa/issues/7810 for more details.")
+            return nil
+        }
+        return sublayers ?? []
+    }
+
+    /// Reads `layer.presentation()` behind an Objective-C exception handler.
+    ///
+    /// Resolving the presentation layer can raise for the same reason as `safeSublayers(of:)`.
+    /// Returns `nil` if it throws, so callers can fall back to the model layer.
+    private func safePresentationLayer(of layer: CALayer) -> CALayer? {
+        var presentationLayer: CALayer?
+        let succeeded = SentryObjCExceptionHelper.tryBlock({
+            presentationLayer = layer.presentation()
+        }, catchingExceptionWithName: .invalidArgumentException, reasonPrefix: "-[NSConcreteValue doubleValue]: unrecognized selector sent to instance")
+        guard succeeded else {
+            SentrySDKLog.warning("Failed to access a presentation layer because it raised an exception; falling back to the model layer. See https://docs.sentry.io/platforms/apple/guides/ios/session-replay/troubleshooting and https://github.com/getsentry/sentry-cocoa/issues/7810 for more details.")
+            return nil
+        }
+        return presentationLayer
     }
 
     private func isViewSubtreeIgnored(_ view: UIView) -> Bool {
@@ -742,7 +798,7 @@ final class SentryUIRedactBuilder {
     /// were incorrectly treated as opaque, causing text behind them to not be redacted.
     /// See: https://github.com/getsentry/sentry-cocoa/pull/6629#issuecomment-3479730690
     private func isOpaque(_ view: UIView) -> Bool {
-        let layer = view.layer.presentation() ?? view.layer
+        let layer = safePresentationLayer(of: view.layer) ?? view.layer
 
         // Allow explicit override: if a view is marked to clip out, treat it as opaque
         if SentryRedactViewHelper.shouldClipOut(view) {

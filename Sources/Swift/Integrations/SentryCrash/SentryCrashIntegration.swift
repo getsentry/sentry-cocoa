@@ -59,6 +59,9 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         // Inject bridge into crash reporter so ObjC SentryCrash can access it
         crashReporter.setBridge(bridge)
 
+        // Configure memory introspection based on options
+        crashReporter.introspectMemory = options.enableMemoryIntrospection
+
         self.sessionHandler = dependencies.getCrashIntegrationSessionBuilder(options, bridge: bridge)
         self.scopeObserver = SentryCrashScopeObserver(maxBreadcrumbs: Int(options.maxBreadcrumbs))
 
@@ -116,13 +119,11 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         )
     #endif
 
-        if #available(macOS 12.0, *) {
-            NotificationCenter.default.removeObserver(
-                self,
-                name: NSNotification.Name.NSProcessInfoPowerStateDidChange,
-                object: nil
-            )
-        }
+        NotificationCenter.default.removeObserver(
+            self,
+            name: NSNotification.Name.NSProcessInfoPowerStateDidChange,
+            object: nil
+        )
     }
 
     // MARK: - Crash Handler
@@ -156,7 +157,6 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         // SentrySDK.lastRunStatus returns a definitive answer and the integration
         // installer can determine the .didNotCrash case. We can't use
         // isIntegrationInstalled because it's set after init returns.
-        SentrySDKInternal.crashReporterInstalled = true
         if SentryDependencyContainer.sharedInstance().crashWrapper.crashedLastLaunch {
             SentrySDKInternal.fatalDetected = true
         }
@@ -257,15 +257,13 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         )
 #endif
 
-        if #available(macOS 12.0, *) {
-            updateLowPowerModeContext(ProcessInfo.processInfo)
-            NotificationCenter.default.addObserver(
-                self,
-                selector: #selector(powerStateDidChange(notification:)),
-                name: NSNotification.Name.NSProcessInfoPowerStateDidChange,
-                object: nil
-            )
-        }
+        updateLowPowerModeContext(ProcessInfo.processInfo)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(powerStateDidChange(notification:)),
+            name: NSNotification.Name.NSProcessInfoPowerStateDidChange,
+            object: nil
+        )
     }
 
 #if !SDK_V10
@@ -288,8 +286,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
     }
 #endif
 
-    @objc @available(macOS 12.0, *)
-    private func powerStateDidChange(notification: Notification) {
+    @objc private func powerStateDidChange(notification: Notification) {
         let processInfo = if let notificationProcessInfo = notification.object as? ProcessInfo {
             notificationProcessInfo
         } else {
@@ -299,7 +296,6 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         updateLowPowerModeContext(processInfo)
     }
 
-    @available(macOS 12.0, *)
     private func updateLowPowerModeContext(_ processInfo: ProcessInfo) {
         let isLowPowerMode = processInfo.isLowPowerModeEnabled
         SentrySDKInternal.currentHub().configureScope { scope in

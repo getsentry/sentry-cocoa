@@ -11,42 +11,6 @@ private enum SentryNetworkTrackingSwizzleKeys {
 #endif
 }
 
-/// Routes process-lifetime swizzles to the tracker owned by the current SDK lifecycle.
-/// A new tracker is registered when restarting the SDK with a new dependency container.
-final class SentryNetworkTrackerProxy {
-    // The proxy must not extend the tracker's integration and dependency-container lifetime.
-    private final class WeakBox {
-        weak var value: SentryNetworkTrackerProtocol?
-
-        init(_ value: SentryNetworkTrackerProtocol) {
-            self.value = value
-        }
-    }
-
-    static let shared = SentryNetworkTrackerProxy()
-
-    private let weakTarget = SentryMutex<WeakBox?>(nil)
-
-    var target: SentryNetworkTrackerProtocol? {
-        weakTarget.withLock { $0?.value }
-    }
-
-    func setTarget(_ target: SentryNetworkTrackerProtocol) {
-        let reference = WeakBox(target)
-        weakTarget.withLock { $0 = reference }
-    }
-
-    func removeTarget(_ target: SentryNetworkTrackerProtocol) {
-        weakTarget.withLock {
-            // An older integration must not remove a newer integration's tracker.
-            guard $0?.value === target else {
-                return
-            }
-            $0 = nil
-        }
-    }
-}
-
 final class SentryNetworkTrackingIntegration<Dependencies: NetworkTrackerProvider>: NSObject, SwiftIntegration {
 
     private let networkTracker: SentryNetworkTrackerProtocol
