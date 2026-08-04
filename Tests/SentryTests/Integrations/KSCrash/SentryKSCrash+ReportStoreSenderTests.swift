@@ -169,7 +169,7 @@ final class SentryKSCrashReportStoreSenderTests: XCTestCase {
         XCTAssertEqual(cleanupInvocationCount, 2)
     }
 
-    func testSendAllReports_whenCancelledAfterActiveReportStarts_shouldStopBeforeNextReportAndCleanup() throws {
+    func testSendAllReports_whenCancelledAfterActiveReportStarts_shouldStopAndCleanupOrphans() throws {
         // -- Arrange --
         var sentReportIDs: [Int64] = []
         var pendingCompletion: ((Int, (any Error)?) -> Void)?
@@ -197,7 +197,7 @@ final class SentryKSCrashReportStoreSenderTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(sentReportIDs, [1])
-        XCTAssertEqual(cleanupInvocationCount, 0)
+        XCTAssertEqual(cleanupInvocationCount, 1)
     }
 
     func testSendAllReports_whenAlreadyCancelled_shouldNotSendOrCleanup() {

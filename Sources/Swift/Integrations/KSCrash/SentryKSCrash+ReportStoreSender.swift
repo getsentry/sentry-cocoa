@@ -3,8 +3,8 @@ import Foundation
 
 extension SentryKSCrash {
     /// Sends stored reports sequentially so each report is its own cleanup and retry unit.
-    /// A per-report error does not stop later IDs. While the processing session remains active,
-    /// cleanup runs only after every completion.
+    /// A per-report error does not stop later IDs. Cleanup runs after the sequence finishes or
+    /// cancellation stops an active sequence.
     /// Prioritized reports run first so startup crashes can complete synchronously before regular
     /// report delivery moves processing to the background queue.
     final class ReportStoreSender {
@@ -58,6 +58,7 @@ extension SentryKSCrash {
 
             sendReports(prioritizedReportIDs[...]) { [self] in
                 guard !processingSession.isCancelled else {
+                    cleanupOrphanedRunSidecars()
                     return
                 }
                 onPrioritizedReportsCompleted()
@@ -73,6 +74,7 @@ extension SentryKSCrash {
             onCompletion: @escaping () -> Void
         ) {
             guard !processingSession.isCancelled else {
+                cleanupOrphanedRunSidecars()
                 return
             }
             guard let reportID = reportIDs.first else {
