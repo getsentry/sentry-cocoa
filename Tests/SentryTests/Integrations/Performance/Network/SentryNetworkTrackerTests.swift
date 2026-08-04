@@ -786,7 +786,11 @@ class SentryNetworkTrackerTests: XCTestCase {
         // unwrap below fails.
         let bodyDict = try XCTUnwrap(responseDict["body"] as? [String: Any])
         let parsedBody = try XCTUnwrap(bodyDict["body"] as? [String: Any])
+#if SDK_V10
+        XCTAssertEqual(parsedBody["key"] as? String, "[Filtered]")
+#else
         XCTAssertEqual(parsedBody["key"] as? String, "value")
+#endif // SDK_V10
 
         clearTestState()
     }

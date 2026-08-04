@@ -12,6 +12,7 @@
   - Add query parameter filtering for network spans, breadcrumbs, and failed requests using `options.dataCollection.urlQueryParams` (#8414)
   - Enable automatic user information for logs, metrics, and IP inference by default; configure it with `options.dataCollection.userInfo` (#8254)
   - Add HTTP header and cookie filtering for failed requests using `options.dataCollection` (#8460)
+  - Scrub sensitive Session Replay request and response body values, replacing unparseable bodies with `[Filtered]` (#8547)
 
 ### Breaking Changes
 
