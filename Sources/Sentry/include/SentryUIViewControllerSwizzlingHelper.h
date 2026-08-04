@@ -15,9 +15,17 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface SentryUIViewControllerSwizzlingHelper : NSObject
 
+/**
+ * Swizzles the base UIViewController methods (loadView) with the provided tracker.
+ * @param tracker The performance tracker to use for tracking view controller lifecycle events.
+ */
 + (void)swizzleUIViewControllerWithTracker:(SENTRY_SWIFT_MIGRATION_ID(
                                                SentryUIViewControllerPerformanceTracker))tracker;
 
+/**
+ * Swizzles a specific UIViewController subclass for performance tracking.
+ * @param class The UIViewController subclass to swizzle.
+ */
 + (void)swizzleViewControllerSubClass:(Class)class;
 
 /**
@@ -38,12 +46,17 @@ NS_ASSUME_NONNULL_BEGIN
 #    if SENTRY_TEST || SENTRY_TEST_CI
 
 /**
+ * Unswizzles all UIViewController methods. Only available in test targets.
+ *
  * Restores @c loadView and the two init funnel initializers. Restoring the initializers matters
  * because a live base-class IMP outlives the delegate that @c stop clears, so leaving them
  * installed leaks the funnel into every later test suite in the same run.
  */
 + (void)unswizzle;
 
+/**
+ * Returns whether swizzling is currently active. Only available in test targets.
+ */
 + (BOOL)swizzlingActive;
 #    endif
 
