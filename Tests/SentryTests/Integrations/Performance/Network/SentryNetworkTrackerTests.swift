@@ -744,7 +744,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         ))
         task.setResponse(httpResponse)
 
-        let jsonBody = Data(#"{"key":"value"}"#.utf8)
+        let jsonBody = Data(#"{"field":"value"}"#.utf8)
 
         // -- Act --
         tracker.urlSessionTask(task, setState: .running)
@@ -769,7 +769,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         // unwrap below fails.
         let bodyDict = try XCTUnwrap(responseDict["body"] as? [String: Any])
         let parsedBody = try XCTUnwrap(bodyDict["body"] as? [String: Any])
-        XCTAssertEqual(parsedBody["key"] as? String, "value")
+        XCTAssertEqual(parsedBody["field"] as? String, "value")
 
         clearTestState()
     }
