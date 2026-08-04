@@ -224,6 +224,41 @@ class SentryUIViewControllerSwizzlingHelperTests: XCTestCase {
         XCTAssertNil(weakCoderViewController, "A view controller created via initWithCoder: must deallocate; the funnel must not retain it.")
     }
 
+    func testStop_whenInitFunnelInstalled_shouldRestoreBaseInitializerImplementations() throws {
+        // The funnel replaces two initializers on the BASE UIViewController, so leaving them
+        // installed leaks into every later test suite in the same run. Anything that resets global
+        // SDK state (clearTestState) relies on stop actually restoring them, not just clearing the
+        // handler.
+        //
+        // -- Arrange --
+        let nibSelector = NSSelectorFromString("initWithNibName:bundle:")
+        let coderSelector = NSSelectorFromString("initWithCoder:")
+
+        // imp_getBlock returns the block of an IMP created via imp_implementationWithBlock, which is
+        // how SentrySwizzle builds its replacements, and nil for UIKit's own compiled IMP. That
+        // distinguishes a swizzled initializer from the original one.
+        XCTAssertNil(imp_getBlock(try XCTUnwrap(class_getMethodImplementation(UIViewController.self, nibSelector))),
+                     "initWithNibName:bundle: must not be swizzled before the funnel is installed; a previous test suite leaked it.")
+        XCTAssertNil(imp_getBlock(try XCTUnwrap(class_getMethodImplementation(UIViewController.self, coderSelector))),
+                     "initWithCoder: must not be swizzled before the funnel is installed; a previous test suite leaked it.")
+
+        SentryUIViewControllerSwizzlingHelper.swizzleUIViewControllerInits { _ in }
+
+        XCTAssertNotNil(imp_getBlock(try XCTUnwrap(class_getMethodImplementation(UIViewController.self, nibSelector))),
+                        "The funnel should have replaced initWithNibName:bundle: with a block-based IMP.")
+        XCTAssertNotNil(imp_getBlock(try XCTUnwrap(class_getMethodImplementation(UIViewController.self, coderSelector))),
+                        "The funnel should have replaced initWithCoder: with a block-based IMP.")
+
+        // -- Act --
+        SentryUIViewControllerSwizzlingHelper.stop()
+
+        // -- Assert --
+        XCTAssertNil(imp_getBlock(try XCTUnwrap(class_getMethodImplementation(UIViewController.self, nibSelector))),
+                     "stop must restore UIKit's initWithNibName:bundle:, otherwise the funnel leaks into later test suites.")
+        XCTAssertNil(imp_getBlock(try XCTUnwrap(class_getMethodImplementation(UIViewController.self, coderSelector))),
+                     "stop must restore UIKit's initWithCoder:, otherwise the funnel leaks into later test suites.")
+    }
+
     func testUnswizzle_whenCalled_shouldUnswizzleBaseLoadView() {
         // -- Arrange --
         let performanceTracker = tracker!

@@ -98,16 +98,63 @@ Sample (iOS-Swift) — crash-repro fixtures + enabling the flag:
 - Sample UITests (`SubClassFinderRegressionUITests`, 3 tests) pass with the funnel active on **iOS
   16.4** (Repro A gated crash) and **iOS 15.5** (Repro B convenience-init).
 
-### GH-1355 red proof — inconclusive (documented limitation)
+### GH-1355 red proof — still unreproducible after a dedicated deep dive
 
 To prove the `ConvenienceInitViewController` fixture is a genuine crasher, I temporarily wired the old
 crash-inducing swizzle ordering and ran on iOS 15.5. It **did not crash** in any combination tried:
 plain `UIViewController` (Debug), `UITableViewController` (Debug + Release), on both iPhone 13 and
-iPhone 11. This matches the historical record — GH-1355 was iOS-15.0 / device / TestFlight-Release
-specific and never root-caused (an Apple UIKit bug; `@objc` on the init worked around it). iOS 15.0
-isn't installable on this host. The fixture is kept as an honest **forward regression guard**, not a
-proven reproduction. The temporary naive-ordering hack was fully reverted (helper `.m` is the safe
-funnel).
+iPhone 11. iOS 15.0 isn't installable on this host
+(`simctl`: "not supported on hosts after macOS 14.99.0"). The fixture is kept as an honest **forward
+regression guard**, not a proven reproduction. The temporary naive-ordering hack was fully reverted
+(helper `.m` is the safe funnel).
+
+#### Second, deeper attempt (standalone probe, no SDK) — also negative
+
+A standalone probe (`/tmp/gh1355/repro.swift`, throwaway) reimplemented **both** orderings with zero
+Sentry code, using the exact `CustomTableViewController` from the GH-1355 thread (convenience init →
+custom designated init → `super.init(style:)`, no `@objc`):
+
+- **old ordering** — message `self` and mutate the subclass method list _before_ calling the original
+  init (pre-#1361 behavior, `git show 75e72817a20aa5adc35155045e1ead4d53a8624a`).
+- **new ordering** — original init first, then `object_getClass(result)` (this PR's funnel).
+
+It exercised the reporters' shapes: `UINavigationController` push, a **second instance** of the same
+subclass (AndrewSB crashed on the second page), and a `UIPageViewController` swapping pages.
+
+**Result: NO-CRASH in every combination** — orderings {old, new} × iOS {15.5 iPhone 13 Pro, 15.5
+iPhone 13, 18.6, 26.4}.
+
+Crucially, the probe **verifies it actually triggers the blamed mechanism** rather than silently
+missing it. Instrumented output confirms the lifecycle swizzle `ADDED` (not replaced) all six methods
+to the Swift subclass, `class_replaceMethod` returning `nil`:
+
+```
+PROBE swizzle CustomTableViewController.viewDidLoad directlyImplemented=false replaceReturnedNil=true -> ADDED
+… viewWillAppear:, viewDidAppear:, viewWillLayoutSubviews, viewDidLayoutSubviews, viewWillDisappear: — all ADDED
+PROBE swizzle UIViewController.viewDidLoad directlyImplemented=true replaceReturnedNil=false -> REPLACED
+```
+
+So "adds a method to a subclass that doesn't implement it" — the mechanism #1361's description blamed
+— is **reproducible on demand and is not sufficient to cause the crash** on any OS available here.
+
+**Historical record, corrected.** #1361's description reads as a root cause, but the issue thread
+shows it was a hypothesis: the maintainer reproduced the same `NSInternalInconsistencyException` in an
+**empty sample project with no Sentry SDK at all**, filed it at
+<https://developer.apple.com/forums/thread/691371>, and merged #1361 saying "we decided to merge and
+release #1361 even if it wouldn't fix this issue." Reporters confirmed `@objc` on the designated init
+worked around it, and that it reproduced **only via TestFlight/Release, never in Debug** on the same
+device and commit. Best available reading: an iOS-15.0-era UIKit bug that swizzling perturbed, not a
+defect the SDK's ordering caused.
+
+**What this does and does not license.** It does _not_ prove the current funnel is safe on iOS 15.0
+hardware — that OS is untestable here. It does mean the "adds a method mid-init" objection cannot be
+demonstrated as a crasher on 15.5+ even when deliberately provoked. Anyone revisiting this should
+weigh an actual iOS 15.0 device test before treating the in-init-frame swizzle as proven-unsafe or
+proven-safe.
+
+> Rejected direction: dispatching the subclass swizzle **async onto the main queue** to leave the
+> initializer frame. Racy — it opens a window where a live instance exists uninstrumented, and it can
+> reorder against the instance's own first `viewDidLoad`. Not pursued.
 
 ## Transaction-equivalence validation (DONE — result: identical)
 
@@ -126,6 +173,73 @@ Confirmed the funnel produces the same auto-instrumentation as the default path,
   `VCSwizzleComparisonUITests`) has been **deleted** — this was a one-time check, not a shipped test.
 - Gotcha: the iOS 16.4 sim on this host would not reliably foreground the sample app, so its `ui.load`
   transactions never finished (0 envelopes). The **iPhone 16 Pro / iOS 18.6 sim worked reliably.**
+
+## CI failure: leaked init funnel across test suites (FIXED)
+
+The first CI run failed **Fast Unit Tests (iOS 18)** — not the `run-full-ci` label gate. Two suites
+crashed with a Swift trap:
+
+- `SentryViewHierarchyProviderTests.test_ViewHierarchy_with_ViewController` — `viewController.view`
+  came back nil at `SentryViewHierarchyProviderTests.swift:273`.
+- `UserFeedbackIntegrationTests.testFeedbackForm_whenLocalConfigurationIsSet_shouldApplyToCurrentFormOnly`
+  — trapped in `SentryUserFeedbackFormController.commonInit()`.
+
+Proven a real regression from this branch, not a flake: `main` passes the four suites together (98
+tests, 0 failures); the branch failed them. Each suite passes **in isolation** — only the combination
+fails, which is why per-suite runs looked green.
+
+Cause: `SentryUIViewControllerSwizzlingTests` tears down via `clearTestState()`, which never called
+`SentryUIViewControllerSwizzlingHelper.stop()`, so the base-`UIViewController` init funnel stayed
+installed and leaked into later suites. `SentryUIViewControllerSwizzlingHelperTests` was unaffected
+because it calls `stop()` in its own `tearDown`. Commit `9876a5ca3` ("drop init unswizzling") made it
+worse by removing the only mechanism that restored the base init IMPs — its rationale ("harmless
+because stop clears the handler") doesn't hold when nothing calls `stop()`.
+
+Fix (three parts — adding `stop()` to `clearTestState` alone is **not** sufficient):
+
+- `Sources/Sentry/SentryUIViewControllerSwizzlingHelper.m` — restored the two init
+  `SentryUnswizzleInstanceMethod` calls in the test-only `+unswizzle`, keyed by selector to match the
+  install keys; corrected the stale comment claiming the funnel "stays installed".
+- `SentryTestUtils/Sources/ClearTestState.swift` — calls `SentryUIViewControllerSwizzlingHelper.stop()`
+  in the UIKit block. Needed `import _SentryPrivate`: the helper ships in `SentryPrivate.h`, so it is
+  **not** reachable through `@testable import Sentry` alone.
+- `…/SentryUIViewControllerSwizzlingHelperTests.swift` — regression test asserting both base
+  initializers are swizzled after install and restored after `stop()`, detected via
+  `imp_getBlock(class_getMethodImplementation(...))` (non-nil only for an
+  `imp_implementationWithBlock` IMP).
+
+Verified: the four-suite run now reports **113 tests, 0 failures** (98 from main + 15 new on this
+branch). `make format` and `make analyze` clean.
+
+## Thread safety: reviewed, no change needed
+
+A review flagged `processedClasses` (unlocked `NSMutableSet`) and `_initHandler` as races. Both writes
+are already main-thread-confined **by construction**, not by convention:
+
+- install — `SentrySDKInternal.m:254` wraps `installIntegrations` in
+  `dispatchAsyncOnMainQueueIfNotMainThread`.
+- uninstall — `SentrySDKInternal.m:588` (`+[SentrySDKInternal close]`) wraps the whole teardown,
+  including `removeAllIntegrations` → `uninstall` → `swizzling.stop()`, in `dispatchSyncOnMainQueue`.
+
+Decision: do **not** add locking. If this is revisited, `SentryDispatchQueueWrapper` already offers
+`dispatchAsyncOnMainQueueIfNotMainThread` / `dispatchSyncOnMainQueue`.
+
+## Deferred (non-blocking, still open)
+
+1. **Changelog is missing the PR number** — Danger fails with "Please consider adding a changelog
+   entry". The entry exists under `## Unreleased` → Features but omits `(#8625)`, which Danger
+   requires. One-line fix.
+2. **ObjC mirror missing** — `enableUIViewControllerInitSwizzling` is absent from
+   `Sources/SentryObjC/Public/SentryObjCExperimentalOptions.h` and
+   `Sources/SentryObjCCompat/SentryObjCExperimentalOptions.swift`, so pure-ObjC consumers can't enable
+   the fix. Note `enableStandaloneAppStartTracing` is **also** unmirrored, so there is precedent either
+   way; decide whether to mirror just this one, both, or neither (and document the reason).
+3. **`run-full-ci` label** — not yet added; the ~12 "Missing run-full-ci label" failures are only that
+   gate and will clear once it is applied.
+4. **Delete this handoff file before merge** — it is agent scratch, not maintainer docs. The durable
+   content lives in the PR description and code comments.
+5. **Don't close #8548 with this PR** — the option defaults to **off**, so default-configuration users
+   remain exposed. Reference the issue; close it when the default flips.
 
 ## How to pick this up
 
@@ -146,5 +260,14 @@ Confirmed the funnel produces the same auto-instrumentation as the default path,
 ## Open decisions for the PR
 
 - Whether to close #8548 now (opt-in, default off → default behavior unchanged) or when the default
-  flips in a future major.
-- Whether to keep this handoff file in the repo or delete it before merge.
+  flips in a future major. Current recommendation: **don't close it** (see Deferred #5).
+- Whether to keep this handoff file in the repo or delete it before merge. Current recommendation:
+  **delete** (see Deferred #4).
+- **Open review objection, unresolved:** the per-subclass lifecycle swizzle still runs inside the
+  outermost initializer frame, and `class_replaceMethod` **adds** the method when the subclass doesn't
+  implement it — so the PR's "only mutates the base class" wording is inaccurate and should be
+  corrected regardless. The deep dive above could not demonstrate this as a crasher on any testable
+  OS, and the async-hop remedy was rejected as racy. If a reviewer still wants the in-init mutation
+  gone without an async hop, the remaining option is a **replace-only guard**: skip the swizzle unless
+  the subclass implements the selector directly (`class_copyMethodList` check), trading some span
+  coverage for never adding a method mid-init.

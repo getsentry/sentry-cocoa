@@ -32,6 +32,12 @@ NS_ASSUME_NONNULL_BEGIN
  * Deferring avoids realizing @c \@available -gated subclasses on OS versions below their gate: a
  * class is only swizzled once an instance exists, which means the OS already realized it safely.
  *
+ * @note Only the initializers are swizzled on the base class. The handler then swizzles lifecycle
+ * methods on the concrete subclass, which ADDS a method when the subclass doesn't implement it,
+ * while still inside the outermost initializer frame. That is the mechanism GH-1361 blamed for
+ * GH-1355, and it could not be reproduced as a crash on any currently installable OS. See the
+ * implementation comment for the evidence and its limits.
+ *
  * @warning Experimental. Only installed when
  * @c options.experimental.enableUIViewControllerInitSwizzling is enabled, which is off by default.
  * See GH-8548.
@@ -46,8 +52,11 @@ NS_ASSUME_NONNULL_BEGIN
 #    if SENTRY_TEST || SENTRY_TEST_CI
 
 /**
- * Restores the base @c UIViewController @c loadView . Per-subclass lifecycle swizzles and the init
- * funnel stay installed, but @c stop makes them pass-throughs. Only available in test targets.
+ * Restores everything swizzled on the base @c UIViewController : @c loadView and the two init
+ * funnel initializers. Restoring the initializers matters because a live base-class IMP outlives
+ * the handler that @c stop clears, so leaving them installed leaks the funnel into every later test
+ * suite in the same run. Per-subclass lifecycle swizzles stay installed, but @c stop makes them
+ * pass-throughs. Only available in test targets.
  */
 + (void)unswizzle;
 

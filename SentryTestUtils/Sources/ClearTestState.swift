@@ -1,4 +1,5 @@
 @_spi(Private) @testable import Sentry
+import _SentryPrivate
 import Foundation
 
 public func clearTestState() {
@@ -46,6 +47,9 @@ class TestCleanup: NSObject {
         SentryAppStartTracker.load()
         SentryDependencyContainer.sharedInstance().uiViewControllerPerformanceTracker.alwaysWaitForFullDisplay = false
         SentryDependencyContainer.sharedInstance().swizzleWrapper.removeAllCallbacks()
+        // Restores the base UIViewController methods, including the init funnel. Without this, a
+        // suite that installs the funnel leaks it into every later suite in the same test run.
+        SentryUIViewControllerSwizzlingHelper.stop()
         SentryDependencyContainer.sharedInstance().fileManager?.clearDiskState()
 
         #endif // os(iOS) || os(tvOS) || os(visionOS)

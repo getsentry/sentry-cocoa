@@ -55,13 +55,25 @@ static BOOL swizzlingIsActive = FALSE;
     // created through one of them: a subclass's designated init calls super, convenience inits
     // route through a designated init, and `-init` routes through initWithNibName:bundle:.
     //
-    // We swizzle only the BASE class, so this replaces UIKit's own implementation instead of adding
-    // a method to a subclass that doesn't implement one. Adding to the subclass caused the GH-1355
-    // convenience-initializer crash that led to removing init swizzling in GH-1361.
+    // The INITIALIZERS are swizzled only on the base class, so that part replaces UIKit's own
+    // implementation rather than adding a method. Note this does NOT mean the funnel only ever
+    // mutates the base class: the handler runs swizzleViewControllerSubClass: on the concrete
+    // subclass, and class_replaceMethod ADDS a lifecycle method when the subclass doesn't implement
+    // it. That happens while still inside the outermost initializer frame, which is the same
+    // mechanism GH-1361 blamed for the GH-1355 convenience-initializer crash.
+    //
+    // We could not demonstrate that as a crasher: a standalone probe reproducing the pre-GH-1361
+    // ordering, and confirming it ADDED all lifecycle methods to a Swift UITableViewController
+    // subclass mid-init, stayed crash-free on iOS 15.5, 18.6 and 26.4 across the reported shapes
+    // (convenience init, navigation push, second instance, UIPageViewController). GH-1355 was only
+    // ever seen on iOS 15.0 in Release/TestFlight builds, was reproduced by a maintainer in an
+    // empty project with no SDK attached (https://developer.apple.com/forums/thread/691371), and
+    // iOS 15.0 cannot be installed on current macOS hosts. Best reading: an iOS-15.0-era UIKit bug
+    // that swizzling perturbed. This funnel is experimental and opt-in partly for that reason.
     //
     // Ordering inside the replacement is load-bearing:
-    //   1. Call the original initializer FIRST, and never touch `self` before it. GH-1355 came from
-    //      mutating the class inside the init before the original ran.
+    //   1. Call the original initializer FIRST, and never touch `self` before it. The pre-GH-1361
+    //      code messaged `self` and mutated the class before the original ran.
     //   2. Read the concrete class from the RETURNED object via object_getClass, a C runtime call
     //      rather than a message. This handles an init returning a different instance, or nil.
     //   3. Invoke the handler synchronously, so lifecycle methods are swizzled before the instance
@@ -250,12 +262,20 @@ static BOOL swizzlingIsActive = FALSE;
     swizzlingIsActive = FALSE;
 
     // Unswizzling is only supported in test targets as it is considered unsafe for production.
-    // Only the base loadView is restored. Lifecycle methods are swizzled per-subclass and we don't
-    // track which subclasses were swizzled, and the init funnel stays installed. Both are harmless
-    // because stop sets _tracker and _initHandler to nil, making them pass-throughs.
+    // Restores everything swizzled on the base UIViewController: loadView and the two init funnel
+    // initializers. Leaving the funnel installed would leak it into every later test suite in the
+    // same run, because a live base-class IMP outlives the handler that stop clears. Lifecycle
+    // methods are swizzled per-subclass and we don't track which subclasses were swizzled, but
+    // those are harmless because stop sets _tracker to nil, making them pass-throughs.
     SEL loadViewSelector = NSSelectorFromString(@"loadView");
     SentryUnswizzleInstanceMethod(
         UIViewController.class, loadViewSelector, (void *)loadViewSelector);
+
+    SEL nibSelector = NSSelectorFromString(@"initWithNibName:bundle:");
+    SentryUnswizzleInstanceMethod(UIViewController.class, nibSelector, (void *)nibSelector);
+
+    SEL coderSelector = NSSelectorFromString(@"initWithCoder:");
+    SentryUnswizzleInstanceMethod(UIViewController.class, coderSelector, (void *)coderSelector);
 }
 
 + (BOOL)swizzlingActive
