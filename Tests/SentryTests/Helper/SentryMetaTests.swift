@@ -3,21 +3,6 @@ import XCTest
 
 class SentryMetaTests: XCTestCase {
 
-    private var originalVersionString: String!
-    private var originalSdkName: String!
-
-    override func setUp() {
-        super.setUp()
-        originalVersionString = SentryMeta.versionString
-        originalSdkName = SentryMeta.sdkName
-    }
-
-    override func tearDown() {
-        SentryMeta.versionString = originalVersionString
-        SentryMeta.sdkName = originalSdkName
-        super.tearDown()
-    }
-
     // MARK: - Defaults
 
     func testSdkName_shouldBeSentryCocoa() {
@@ -48,6 +33,10 @@ class SentryMetaTests: XCTestCase {
     // MARK: - versionString
 
     func testVersionString_whenSet_shouldReturnNewValue() {
+        // -- Arrange --
+        let originalVersionString = SentryMeta.versionString
+        defer { SentryMeta.versionString = originalVersionString }
+
         // -- Act --
         SentryMeta.versionString = "1.2.3-beta.1"
 
@@ -57,18 +46,23 @@ class SentryMetaTests: XCTestCase {
 
     func testVersionString_whenSet_shouldNotAffectSdkName() {
         // -- Arrange --
-        let expected = SentryMeta.sdkName
+        let originalVersionString = SentryMeta.versionString
+        defer { SentryMeta.versionString = originalVersionString }
 
         // -- Act --
         SentryMeta.versionString = "9.9.9"
 
         // -- Assert --
-        XCTAssertEqual(SentryMeta.sdkName, expected)
+        XCTAssertEqual(SentryMeta.sdkName, "sentry.cocoa")
     }
 
     // MARK: - sdkName
 
     func testSdkName_whenSet_shouldReturnNewValue() {
+        // -- Arrange --
+        let originalSdkName = SentryMeta.sdkName
+        defer { SentryMeta.sdkName = originalSdkName }
+
         // -- Act --
         SentryMeta.sdkName = "sentry.cocoa.react-native"
 
@@ -78,13 +72,15 @@ class SentryMetaTests: XCTestCase {
 
     func testSdkName_whenSet_shouldNotAffectVersionString() {
         // -- Arrange --
-        let expected = SentryMeta.versionString
+        let originalSdkName = SentryMeta.sdkName
+        let expectedVersionString = SentryMeta.versionString
+        defer { SentryMeta.sdkName = originalSdkName }
 
         // -- Act --
         SentryMeta.sdkName = "sentry.cocoa.flutter"
 
         // -- Assert --
-        XCTAssertEqual(SentryMeta.versionString, expected)
+        XCTAssertEqual(SentryMeta.versionString, expectedVersionString)
     }
 
     // MARK: - Shared state
@@ -93,6 +89,12 @@ class SentryMetaTests: XCTestCase {
     /// write is observed through a second, independent read path.
     func testSetValues_shouldBeVisibleToSdkMetadataProvider() {
         // -- Arrange --
+        let originalSdkName = SentryMeta.sdkName
+        let originalVersionString = SentryMeta.versionString
+        defer {
+            SentryMeta.sdkName = originalSdkName
+            SentryMeta.versionString = originalVersionString
+        }
         let provider = SentryDependencyContainer.sharedInstance().sdkMetadataProvider
 
         // -- Act --
@@ -105,6 +107,14 @@ class SentryMetaTests: XCTestCase {
     }
 
     func testSetValues_shouldRoundTripThroughRepeatedWrites() {
+        // -- Arrange --
+        let originalSdkName = SentryMeta.sdkName
+        let originalVersionString = SentryMeta.versionString
+        defer {
+            SentryMeta.sdkName = originalSdkName
+            SentryMeta.versionString = originalVersionString
+        }
+
         // -- Act & Assert --
         for index in 0..<5 {
             SentryMeta.versionString = "1.0.\(index)"
