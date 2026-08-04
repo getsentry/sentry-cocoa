@@ -34,6 +34,7 @@ In order of importance:
 - File renames preserve git history (`git mv`)
 - No AI assistant references in commits or PR descriptions
 - ObjC uses `[[Class alloc] init]`, not `[Class new]`
+- No redundant comments on internal code (see [Sources/AGENTS.md](Sources/AGENTS.md)); only _why_-comments and public headerdocs
 
 ## What NOT to Flag
 

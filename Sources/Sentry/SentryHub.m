@@ -28,9 +28,16 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, strong) SentryScope *scope;
 @property (nonatomic) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) id<SentryCrashReporter> crashWrapper;
+@property (nonatomic, strong) id<SentryCrashReporterState> activeCrashReporterState;
 @property (nonatomic, strong) NSMutableSet<NSString *> *installedIntegrationNames;
 @property (nonatomic) NSUInteger errorsBeforeSession;
 @property (nonatomic, weak) id<SentrySessionListener> sessionListener;
+
+- (instancetype)initWithClient:(nullable SentryClientInternal *)client
+                      andScope:(nullable SentryScope *)scope
+               andCrashWrapper:(id<SentryCrashReporter>)crashWrapper
+      activeCrashReporterState:(id<SentryCrashReporterState>)activeCrashReporterState
+              andDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue;
 
 @end
 
@@ -43,9 +50,10 @@ NS_ASSUME_NONNULL_BEGIN
                       andScope:(nullable SentryScope *)scope
 {
     return [self initWithClient:client
-                       andScope:scope
-                andCrashWrapper:SentryDependencyContainer.sharedInstance.crashWrapper
-               andDispatchQueue:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper];
+                        andScope:scope
+                 andCrashWrapper:SentryDependencyContainer.sharedInstance.crashWrapper
+        activeCrashReporterState:SentryDependencyContainer.sharedInstance.activeCrashReporterState
+                andDispatchQueue:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper];
 }
 
 /** Internal constructor for testing */
@@ -54,11 +62,24 @@ NS_ASSUME_NONNULL_BEGIN
                andCrashWrapper:(id<SentryCrashReporter>)crashWrapper
               andDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
 {
+    return [self initWithClient:client
+                        andScope:scope
+                 andCrashWrapper:crashWrapper
+        activeCrashReporterState:crashWrapper
+                andDispatchQueue:dispatchQueue];
+}
 
+- (instancetype)initWithClient:(nullable SentryClientInternal *)client
+                      andScope:(nullable SentryScope *)scope
+               andCrashWrapper:(id<SentryCrashReporter>)crashWrapper
+      activeCrashReporterState:(id<SentryCrashReporterState>)activeCrashReporterState
+              andDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
+{
     if (self = [super init]) {
         _client = client;
         _scope = scope;
         _crashWrapper = crashWrapper;
+        _activeCrashReporterState = activeCrashReporterState;
         _dispatchQueue = dispatchQueue;
         _sessionLock = [[NSObject alloc] init];
         _integrationsLock = [[NSObject alloc] init];
@@ -211,9 +232,8 @@ NS_ASSUME_NONNULL_BEGIN
         return;
     }
 
-    // The crashed session is handled in SentryCrashIntegration. Checkout the comments there to find
-    // out more.
-    if (!self.crashWrapper.crashedLastLaunch) {
+    // The active crash integration handles the crashed session before auto session tracking.
+    if (!self.activeCrashReporterState.crashedLastLaunch) {
         if (timestamp == nil) {
             SENTRY_LOG_DEBUG(@"No timestamp to close session was provided. Closing as abnormal. "
                              @"Using session's start time %@",
@@ -294,16 +314,23 @@ NS_ASSUME_NONNULL_BEGIN
         SentryId *eventId = [client captureFatalEvent:event
                                           withSession:crashedSession
                                             withScope:scope];
-        // An unavailable client returns an empty ID without accepting the event. Callers that
-        // retain the crash report can also preserve its session for the next SDK start.
-        if (!preserveCrashedSessionOnFailure || ![eventId isEqual:SentryId.empty]
-            || (!client.isDisabled && self.client == client)) {
+        if (!preserveCrashedSessionOnFailure ||
+            [self isFatalEventCaptureResultTerminal:eventId client:client]) {
             [fileManager deleteCrashedSession];
         }
         return eventId;
     }
 
     return [client captureFatalEvent:event withScope:scope];
+}
+
+- (BOOL)isFatalEventCaptureResultTerminal:(SentryId *)eventId client:(SentryClientInternal *)client
+{
+    if (![eventId isEqual:SentryId.empty]) {
+        return YES;
+    }
+
+    return !client.isDisabled && self.client == client;
 }
 
 #if SENTRY_HAS_UIKIT

@@ -10,6 +10,7 @@ static NSString *const SENTRY_CONTEXT_APP_KEY = @"app";
 @interface SentryScope ()
 
 @property (nonatomic, readonly) SentryId *propagationContextTraceId;
+@property (nonatomic, readonly) SentryTraceHeader *propagationContextTraceHeader;
 
 - (void)setPropagationContextWithTraceId:(SentryId *)traceId
                                   spanId:(SentrySpanId *)spanId

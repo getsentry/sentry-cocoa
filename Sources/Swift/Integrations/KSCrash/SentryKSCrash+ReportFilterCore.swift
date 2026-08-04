@@ -23,7 +23,7 @@ extension SentryKSCrash {
     /// - Retryable failure: return no report and the error; KSCrash retains it for a later launch.
     final class ReportFilterCore {
         private static let startupCrashDurationThreshold: TimeInterval = 2
-        private static let startupCrashFlushDuration: TimeInterval = 5
+        private static let nanosecondsPerSecond: TimeInterval = 1_000_000_000
         private static let errorDomain = "io.sentry.kscrash-report-filter"
 
         private enum ProcessingOutcome<Report> {
@@ -110,11 +110,6 @@ extension SentryKSCrash {
                 reportProcessor: reportProcessor,
                 operation: operation
             )
-            // This global flush could target a replacement SDK hub if uninstall/restart races this
-            // call. We explicitly accept that very-low-severity timing/lifecycle effect: startup
-            // reports are processed synchronously during integration installation, so the race is
-            // unlikely, and capture remains isolated by the generation operation.
-            SentrySDKInternal.flush(timeout: Self.startupCrashFlushDuration)
             operation.complete {
                 Self.complete(outcome, onCompletion: onCompletion)
             }
@@ -215,18 +210,33 @@ extension SentryKSCrash {
         private static func durationSinceCrashHandlerInitialization(
             _ report: [AnyHashable: Any]
         ) -> TimeInterval? {
-            // KSCrash records app_start_time when its System monitor is enabled, so despite the
-            // field name it represents crash-handler initialization rather than process launch.
             guard
                 let reportContext = report["report"] as? [AnyHashable: Any],
                 let systemContext = report["system"] as? [AnyHashable: Any],
                 let crashDate = date(from: reportContext["timestamp"]),
-                let crashHandlerInitDate = date(from: systemContext["app_start_time"])
+                let crashHandlerInitDate = crashHandlerInitializationDate(from: systemContext)
             else {
                 return nil
             }
 
             return crashDate.timeIntervalSince(crashHandlerInitDate)
+        }
+
+        private static func crashHandlerInitializationDate(
+            from systemContext: [AnyHashable: Any]
+        ) -> Date? {
+            // KSCrash samples this wall-clock value alongside app_start_time, but preserves
+            // nanosecond rather than whole-second precision. Older reports may not contain it.
+            if let wallClockNanoseconds = systemContext["process_start_wall_clock_ns"] as? NSNumber {
+                let timestamp = wallClockNanoseconds.doubleValue / nanosecondsPerSecond
+                if timestamp.isFinite && timestamp >= 0 {
+                    return Date(timeIntervalSince1970: timestamp)
+                }
+            }
+
+            // Despite the field name, KSCrash records app_start_time when its System monitor
+            // initializes. Keep it as a compatibility fallback for older or malformed reports.
+            return date(from: systemContext["app_start_time"])
         }
 
         private static func date(from value: Any?) -> Date? {

@@ -3,6 +3,18 @@ import XCTest
 
 final class SentryOptionsTests: XCTestCase {
 
+    func testSendDefaultPii_whenBuildingV10_shouldNotBeExposed() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+#else
+        // -- Arrange --
+        let options = Options()
+
+        // -- Assert --
+        XCTAssertFalse(options.responds(to: NSSelectorFromString("sendDefaultPii")))
+#endif
+    }
+
     // MARK: - Data Collection
 
     func testDataCollection_whenInitialized_shouldUseDefault() throws {
@@ -124,10 +136,7 @@ final class SentryOptionsTests: XCTestCase {
         let options = try Options(dictionary: dictionary)
 
         // -- Assert --
-        XCTAssertFalse(options.dataCollection.userInfo)
-        XCTAssertFalse(options.dataCollection.graphql.variables)
-        XCTAssertFalse(options.dataCollection.database.queryParams)
-        XCTAssertEqual(options.dataCollection.frameContextLines, 0)
+        XCTAssertEqual(options.dataCollection, SentryDataCollection.Options(userInfo: false))
         #endif
     }
 }

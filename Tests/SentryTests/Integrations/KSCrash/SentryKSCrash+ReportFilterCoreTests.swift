@@ -43,6 +43,7 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
         sut = SentryKSCrash.ReportFilterCore(
             reportProcessor: SentryStoredCrashReportProcessor(
                 inAppLogic: SentryInAppLogic(inAppIncludes: []),
+                currentHubProvider: { SentrySDKInternal.currentHub() },
                 preserveCrashedSessionOnCaptureFailure: true
             ),
             dispatchQueue: dispatchQueue,
@@ -241,7 +242,7 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual(processor.capturedReportCount, 1)
     }
 
-    func testFilterReports_whenStartupProcessingIsCancelledAtCaptureGate_shouldFlushAndCompleteRetry() throws {
+    func testFilterReports_whenStartupProcessingIsCancelledAtCaptureGate_shouldCompleteRetryWithoutFlushing() throws {
         // -- Arrange --
         let processor = TestReportProcessor()
         let core = SentryKSCrash.ReportFilterCore(
@@ -269,7 +270,7 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
         // -- Assert --
         XCTAssertEqual(dispatchQueue.dispatchAsyncCalled, 0)
         XCTAssertEqual(processor.capturedReportCount, 0)
-        XCTAssertEqual(client.flushInvocations.count, 1)
+        XCTAssertEqual(client.flushInvocations.count, 0)
         XCTAssertEqual(completionInvocationCount, 1)
         XCTAssertEqual(processingError as NSError?, SentryKSCrash.ReportProcessingSession.cancellationError)
     }
@@ -316,6 +317,7 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
         let replacementCore = SentryKSCrash.ReportFilterCore(
             reportProcessor: SentryStoredCrashReportProcessor(
                 inAppLogic: SentryInAppLogic(inAppIncludes: []),
+                currentHubProvider: { SentrySDKInternal.currentHub() },
                 preserveCrashedSessionOnCaptureFailure: true
             ),
             dispatchQueue: TestSentryDispatchQueueWrapper(),
@@ -340,7 +342,7 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
         XCTAssertFalse(replacementSession.isCancelled)
     }
 
-    func testFilterReports_whenCrashOccursInSameTimestampSecond_shouldFlushBeforeCompleting() throws {
+    func testFilterReports_whenCrashOccursInSameTimestampSecond_shouldProcessSynchronouslyWithoutFlushing() throws {
         // -- Arrange --
         dispatchQueue.dispatchAsyncExecutesBlock = false
         var dictionary = try getCrashReport(resource: "Resources/crash-report-1")
@@ -366,17 +368,17 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
         // -- Assert --
         XCTAssertEqual(dispatchQueue.dispatchAsyncCalled, 0)
         XCTAssertEqual(client.captureFatalEventInvocations.count, 1)
-        XCTAssertEqual(client.flushInvocations.count, 1)
+        XCTAssertEqual(client.flushInvocations.count, 0)
         XCTAssertTrue(completionCalled)
         XCTAssertTrue(SentrySDK.detectedStartUpCrash)
     }
 
-    func testFilterReports_whenStartupCrash_shouldFlushBeforeCompleting() throws {
+    func testFilterReports_whenStartupCrash_shouldProcessSynchronouslyWithoutFlushing() throws {
         // -- Arrange --
         dispatchQueue.dispatchAsyncExecutesBlock = false
         let report = TestReport(dictionary: try makeCrashReport(durationSinceInitialization: 2))
         let client = try getTestClient()
-        var flushInvocationCountAtCompletion: Int?
+        var captureInvocationCountAtCompletion: Int?
         var processedReports: [TestReport]?
 
         // -- Act --
@@ -384,16 +386,15 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
             [report],
             reportDictionary: { $0.dictionary }
         ) { reports, _ in
-            flushInvocationCountAtCompletion = client.flushInvocations.count
+            captureInvocationCountAtCompletion = client.captureFatalEventInvocations.count
             processedReports = reports
         }
 
         // -- Assert --
         XCTAssertEqual(dispatchQueue.dispatchAsyncCalled, 0)
         XCTAssertEqual(client.captureFatalEventInvocations.count, 1)
-        XCTAssertEqual(client.flushInvocations.count, 1)
-        XCTAssertEqual(try XCTUnwrap(client.flushInvocations.first), 5, accuracy: 0.001)
-        XCTAssertEqual(flushInvocationCountAtCompletion, 1)
+        XCTAssertEqual(client.flushInvocations.count, 0)
+        XCTAssertEqual(captureInvocationCountAtCompletion, 1)
         XCTAssertIdentical(processedReports?.first, report)
         XCTAssertTrue(SentrySDK.detectedStartUpCrash)
     }
@@ -429,6 +430,61 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
         XCTAssertTrue(completionCalled)
     }
 
+    func testIsStartupCrash_whenPreciseTimestampAndSixDigitCrashTimestampProvided_shouldPreferPreciseTimestamp() {
+        let report = makeStartupClassificationReport(
+            crashTimestamp: "1970-01-01T02:46:42.500000Z",
+            appStartTime: "1970-01-01T02:46:40Z",
+            processStartWallClockNanoseconds: NSNumber(value: 10_000_900_000_000 as UInt64)
+        )
+
+        XCTAssertTrue(SentryKSCrash.ReportFilterCore.isStartupCrash(report))
+    }
+
+    func testIsStartupCrash_whenCrashTimestampIsInvalid_shouldReturnFalse() {
+        let report = makeStartupClassificationReport(
+            crashTimestamp: "invalid",
+            appStartTime: "1970-01-01T02:46:40Z"
+        )
+
+        XCTAssertFalse(SentryKSCrash.ReportFilterCore.isStartupCrash(report))
+    }
+
+    func testIsStartupCrash_whenSystemContextIsMissing_shouldReturnFalse() {
+        let report: [AnyHashable: Any] = [
+            "report": ["timestamp": "1970-01-01T02:46:41.000000Z"]
+        ]
+
+        XCTAssertFalse(SentryKSCrash.ReportFilterCore.isStartupCrash(report))
+    }
+
+    func testIsStartupCrash_whenInitializationIsAfterCrash_shouldReturnFalse() {
+        let report = makeStartupClassificationReport(
+            crashTimestamp: "1970-01-01T02:46:40.000000Z",
+            processStartWallClockNanoseconds: NSNumber(value: 10_001_000_000_000 as UInt64)
+        )
+
+        XCTAssertFalse(SentryKSCrash.ReportFilterCore.isStartupCrash(report))
+    }
+
+    func testIsStartupCrash_whenPreciseTimestampIsMissing_shouldFallbackToAppStartTime() {
+        let report = makeStartupClassificationReport(
+            crashTimestamp: "1970-01-01T02:46:41.000000Z",
+            appStartTime: "1970-01-01T02:46:40Z"
+        )
+
+        XCTAssertTrue(SentryKSCrash.ReportFilterCore.isStartupCrash(report))
+    }
+
+    func testIsStartupCrash_whenPreciseTimestampIsInvalid_shouldFallbackToAppStartTime() {
+        let report = makeStartupClassificationReport(
+            crashTimestamp: "1970-01-01T02:46:41.000000Z",
+            appStartTime: "1970-01-01T02:46:40Z",
+            processStartWallClockNanoseconds: "invalid"
+        )
+
+        XCTAssertTrue(SentryKSCrash.ReportFilterCore.isStartupCrash(report))
+    }
+
     private func makeEnabledOptions() -> Options {
         let options = Options()
         options.dsn = "https://public@example.com/1"
@@ -447,9 +503,27 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
 
         var systemContext = try XCTUnwrap(report["system"] as? [String: Any])
         systemContext["app_start_time"] = sentry_toIso8601String(initializationDate)
+        systemContext["process_start_wall_clock_ns"] = NSNumber(
+            value: UInt64(initializationDate.timeIntervalSince1970 * 1_000_000_000)
+        )
         report["system"] = systemContext
 
         return report
+    }
+
+    private func makeStartupClassificationReport(
+        crashTimestamp: Any,
+        appStartTime: Any? = nil,
+        processStartWallClockNanoseconds: Any? = nil
+    ) -> [AnyHashable: Any] {
+        var systemContext: [AnyHashable: Any] = [:]
+        systemContext["app_start_time"] = appStartTime
+        systemContext["process_start_wall_clock_ns"] = processStartWallClockNanoseconds
+
+        return [
+            "report": ["timestamp": crashTimestamp],
+            "system": systemContext
+        ]
     }
 
     private func getTestClient() throws -> TestClient {

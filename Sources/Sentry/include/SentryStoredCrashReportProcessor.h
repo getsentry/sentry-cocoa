@@ -1,8 +1,11 @@
 #import "SentryDefines.h"
 
+@class SentryHubInternal;
 @class SentryInAppLogic;
 
 NS_ASSUME_NONNULL_BEGIN
+
+typedef SentryHubInternal *_Nonnull (^SentryCurrentHubProvider)(void);
 
 FOUNDATION_EXPORT NSErrorDomain const SentryStoredCrashReportProcessorErrorDomain;
 
@@ -19,13 +22,14 @@ typedef NS_ERROR_ENUM(
 @interface SentryStoredCrashReportProcessor : NSObject
 SENTRY_NO_INIT
 
-- (instancetype)initWithInAppLogic:(SENTRY_SWIFT_MIGRATION_ID(SentryInAppLogic))inAppLogic;
-
 /**
+ * @param currentHubProvider Resolves the current hub at each processing stage so asynchronous
+ * processing does not retain a hub across SDK lifecycle changes.
  * @param preserveCrashedSessionOnCaptureFailure Set to YES only when the caller retains retryable
- * reports. The default initializer uses NO to preserve the legacy SentryCrash cleanup behavior.
+ * reports. Use NO to preserve the legacy SentryCrash cleanup behavior.
  */
 - (instancetype)initWithInAppLogic:(SENTRY_SWIFT_MIGRATION_ID(SentryInAppLogic))inAppLogic
+                        currentHubProvider:(SentryCurrentHubProvider)currentHubProvider
     preserveCrashedSessionOnCaptureFailure:(BOOL)preserveCrashedSessionOnCaptureFailure;
 
 /**
