@@ -250,6 +250,7 @@
     ///  https://docs.sentry.io/product/relay/options/
     @objc public var maxAttachmentSize: UInt = 200 * 1_024 * 1_024
 
+#if !SDK_V10
     /// When enabled, the SDK sends personal identifiable along with events.
     /// @note The default is @c false.
     /// @discussion When the user of an event doesn't contain an IP address, and this flag is @c true, the
@@ -258,6 +259,7 @@
     /// auto out of the box for Cocoa. If you want to stop Sentry from using the connections IP address,
     /// you have to enable Prevent Storing of IP Addresses in your project settings in Sentry.
     @objc public var sendDefaultPii: Bool = false
+#endif // !SDK_V10
 
     /// When enabled, the SDK tracks performance for UIViewController subclasses and HTTP requests
     /// automatically. It also measures the app start and slow and frozen frames.

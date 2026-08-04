@@ -1,3 +1,6 @@
 self-hosted-runner:
   labels:
     - bitrise_pool_name:xcode-beta
+    - bitrise_pool_name:sequoia
+    - bitrise_pool_name:tahoe
+    - bitrise_pool_name:sonoma
