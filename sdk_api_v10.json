@@ -42016,6 +42016,50 @@
           {
             "children": [
               {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "Available",
+              "Final",
+              "ObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A11FeedbackAPIC14disableOnShakeyyF",
+            "moduleName": "Sentry",
+            "name": "disableOnShake",
+            "printedName": "disableOnShake()",
+            "usr": "c:@M@Sentry@objc(cs)SentryFeedbackAPI(im)disableOnShake"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "Available",
+              "Final",
+              "ObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A11FeedbackAPIC13enableOnShakeyyF",
+            "moduleName": "Sentry",
+            "name": "enableOnShake",
+            "printedName": "enableOnShake()",
+            "usr": "c:@M@Sentry@objc(cs)SentryFeedbackAPI(im)enableOnShake"
+          },
+          {
+            "children": [
+              {
                 "children": [
                   {
                     "children": [
@@ -65056,12 +65100,8 @@
                 "printedName": "some SwiftUI.View"
               }
             ],
-            "declAttributes": [
-              "Available"
-            ],
             "declKind": "TypeAlias",
             "genericSig": "<Content where Content : SwiftUI.View>",
-            "intro_Macosx": "10.15",
             "kind": "TypeAlias",
             "mangledName": "$s6Sentry0A10TracedViewV4Bodya",
             "moduleName": "Sentry",
@@ -65186,13 +65226,11 @@
           }
         ],
         "declAttributes": [
-          "Available",
           "Custom",
           "Preconcurrency"
         ],
         "declKind": "Struct",
         "genericSig": "<Content where Content : SwiftUI.View>",
-        "intro_Macosx": "10.15",
         "kind": "TypeDecl",
         "mangledName": "$s6Sentry0A10TracedViewV",
         "moduleName": "Sentry",

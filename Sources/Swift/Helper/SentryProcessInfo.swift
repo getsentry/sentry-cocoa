@@ -6,15 +6,9 @@
     var thermalState: ProcessInfo.ThermalState { get }
     var environment: [String: String] { get }
 
-    @available(macOS 12.0, *)
     var isiOSAppOnMac: Bool { get }
-
-    @available(macOS 12.0, *)
     var isMacCatalystApp: Bool { get }
-
     var isiOSAppOnVisionOS: Bool { get }
-
-    @available(macOS 12.0, *)
     var isLowPowerModeEnabled: Bool { get }
 }
 
@@ -28,11 +22,11 @@
     public var processDirectoryPath: String {
         Bundle.main.bundlePath
     }
-    
+
     public var processPath: String? {
         Bundle.main.executablePath
     }
-    
+
     public var isiOSAppOnVisionOS: Bool {
         if #available(iOS 26.1, visionOS 26.1, *) {
             // Use official API when available

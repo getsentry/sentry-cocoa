@@ -241,7 +241,14 @@ class SentrySDKTests: XCTestCase {
 
     func testLastRunStatus_whenCrashStateNotLoaded_shouldReturnUnknown() {
         // -- Arrange --
-        SentrySDKInternal.crashReporterInstalled = false
+#if ENABLE_KSCRASH
+        let mockQuery = MockKSCrashQuery.create(installed: false, crashedLastLaunch: false)
+        SentryDependencyContainer.sharedInstance().kscrashQuery = mockQuery
+#else
+        let crashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
+        crashWrapper.internalInstalled = false
+        SentryDependencyContainer.sharedInstance().crashWrapper = crashWrapper
+#endif
 
         // -- Act --
         let status = SentrySDK.lastRunStatus
@@ -252,8 +259,15 @@ class SentrySDKTests: XCTestCase {
 
     func testLastRunStatus_whenCrashStateLoadedAndNoCrash_shouldReturnDidNotCrash() {
         // -- Arrange --
-        SentrySDKInternal.crashReporterInstalled = true
-        // The default test crash reporter returns false for crashedLastLaunch
+#if ENABLE_KSCRASH
+        let mockQuery = MockKSCrashQuery.create(installed: true, crashedLastLaunch: false)
+        SentryDependencyContainer.sharedInstance().kscrashQuery = mockQuery
+#else
+        let crashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
+        crashWrapper.internalInstalled = true
+        crashWrapper.internalCrashedLastLaunch = false
+        SentryDependencyContainer.sharedInstance().crashWrapper = crashWrapper
+#endif
 
         // -- Act --
         let status = SentrySDK.lastRunStatus
@@ -264,10 +278,15 @@ class SentrySDKTests: XCTestCase {
 
     func testLastRunStatus_whenCrashStateLoadedAndCrashed_shouldReturnDidCrash() {
         // -- Arrange --
-        SentrySDKInternal.crashReporterInstalled = true
+#if ENABLE_KSCRASH
+        let mockQuery = MockKSCrashQuery.create(installed: true, crashedLastLaunch: true)
+        SentryDependencyContainer.sharedInstance().kscrashQuery = mockQuery
+#else
         let crashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
+        crashWrapper.internalInstalled = true
         crashWrapper.internalCrashedLastLaunch = true
         SentryDependencyContainer.sharedInstance().crashWrapper = crashWrapper
+#endif
 
         // -- Act --
         let status = SentrySDK.lastRunStatus
@@ -288,6 +307,7 @@ class SentrySDKTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(status, .unknown)
+        XCTAssertFalse(SentrySDKInternal.crashReporterInstalled)
     }
 
     // MARK: - onLastRunStatusDetermined

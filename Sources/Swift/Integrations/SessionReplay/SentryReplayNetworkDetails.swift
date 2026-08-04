@@ -76,7 +76,7 @@ enum NetworkBodyWarning: String {
             if mimeType == "application/x-www-form-urlencoded" {
                 if isTruncated { warnings.append(.textTruncated) }
                 self = Body.parseFormEncoded(slice, encoding: encoding, warnings: &warnings)
-            } else if #available(macOS 11, *), let parsed = Body.parseByMimeType(mimeType, data: slice, encoding: encoding, isTruncated: isTruncated, warnings: &warnings) {
+            } else if let parsed = Body.parseByMimeType(mimeType, data: slice, encoding: encoding, isTruncated: isTruncated, warnings: &warnings) {
                 self = parsed
             } else {
                 let description = "[Body not captured: contentType=\(contentType ?? "unknown") (\(data.count) bytes)]"
@@ -125,8 +125,6 @@ enum NetworkBodyWarning: String {
 
         /// Uses UTType to detect JSON/text content types. Returns nil for
         /// unrecognized types so the caller can fall through to a placeholder.
-        /// UTType requires macOS 11+;  so this will not compile there.
-        @available(macOS 11, *)
         private static func parseByMimeType(_ mimeType: String?, data: Data, encoding: String.Encoding, isTruncated: Bool, warnings: inout [NetworkBodyWarning]) -> Body? {
             guard let utType = mimeType.flatMap({ UTType(mimeType: $0) }) else {
                 return nil
