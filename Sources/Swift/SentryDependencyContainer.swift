@@ -546,7 +546,7 @@ private struct DefaultHub: Hub {
     }
 
     var options: Options {
-        currentOptions ?? Options()
+        SentrySDKInternal.currentHub().getClient()?.getOptions() as? Options ?? Options()
     }
 
     var scope: Scope {

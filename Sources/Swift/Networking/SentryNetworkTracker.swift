@@ -185,8 +185,8 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             SentryTracePropagation.addBaggageHeader(
                 baggage,
                 traceHeader: networkSpan.toTraceHeader(),
-                propagateTraceparent: hub.options.enablePropagateTraceparent,
-                tracePropagationTargets: hub.options.tracePropagationTargets,
+                propagateTraceparent: options.enablePropagateTraceparent,
+                tracePropagationTargets: options.tracePropagationTargets,
                 toRequest: sessionTask
             )
 
