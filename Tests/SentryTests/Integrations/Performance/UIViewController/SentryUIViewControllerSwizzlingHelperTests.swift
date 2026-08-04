@@ -181,6 +181,49 @@ class SentryUIViewControllerSwizzlingHelperTests: XCTestCase {
         XCTAssertEqual(handlerCallCount, countAfterStop, "After stop, the funnel must no longer call the handler.")
     }
 
+    func testInitFunnel_whenViewControllersInstantiated_doesNotOverRetainThem() throws {
+        // The funnel replaces two init-family methods, which return +1 (ns_returns_retained), while
+        // the replacement block is declared `id`-returning and therefore +0 autoreleased at the ABI
+        // level. This test pins down that the resulting retain handshake stays balanced: an
+        // over-retain would leak every view controller the host app ever creates.
+        //
+        // -- Arrange --
+        var handlerCallCount = 0
+        SentryUIViewControllerSwizzlingHelper.swizzleUIViewControllerInits { _ in
+            handlerCallCount += 1
+        }
+
+        weak var weakNibViewController: UIViewController?
+        weak var weakCoderViewController: UIViewController?
+
+        // -- Act --
+        try autoreleasepool {
+            let nibViewController = UIViewController(nibName: nil, bundle: nil)
+            weakNibViewController = nibViewController
+
+            // Round-trip through NSKeyedArchiver so the instance is created via initWithCoder:, the
+            // funnel's second swizzled initializer.
+            let archiver = NSKeyedArchiver(requiringSecureCoding: false)
+            archiver.encode(nibViewController, forKey: NSKeyedArchiveRootObjectKey)
+            archiver.finishEncoding()
+
+            let unarchiver = try NSKeyedUnarchiver(forReadingFrom: archiver.encodedData)
+            unarchiver.requiresSecureCoding = false
+            let coderViewController = try XCTUnwrap(
+                unarchiver.decodeObject(forKey: NSKeyedArchiveRootObjectKey) as? UIViewController,
+                "Expected the archived view controller to decode via initWithCoder:."
+            )
+            weakCoderViewController = coderViewController
+        }
+
+        // -- Assert --
+        // Guard against a vacuous pass: if the funnel never intercepted these initializers, the
+        // deallocation assertions below would prove nothing about the swizzled code path.
+        XCTAssertGreaterThanOrEqual(handlerCallCount, 2, "Both view controllers should have been routed through the funnel.")
+        XCTAssertNil(weakNibViewController, "A view controller created via initWithNibName:bundle: must deallocate; the funnel must not retain it.")
+        XCTAssertNil(weakCoderViewController, "A view controller created via initWithCoder: must deallocate; the funnel must not retain it.")
+    }
+
     func testUnswizzle_whenCalled_shouldUnswizzleBaseLoadView() {
         // -- Arrange --
         let performanceTracker = tracker!

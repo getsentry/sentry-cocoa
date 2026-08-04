@@ -77,11 +77,18 @@ static BOOL swizzlingIsActive = FALSE;
     //      initWithContentsOfFile:options:error:.
     //
     // NOTE: we deliberately use the ObjC SentrySwizzleInstanceMethod macro here rather than the
-    // typed Swift swizzle API (SentryTypedSwizzle, added in #8524). That API's only
+    // typed Swift swizzle API (SentryTypedSwizzle, added in #8524), even though
+    // develop-docs/SWIZZLING.md prefers the typed API for new swizzles. That API's only
     // object-returning overloads model +0 autoreleased returns (URLSessionDataTask); an initializer
-    // returns +1 (ns_returns_retained), which the typed API does not support. This macro path is
-    // the audited mechanism already used for NSData's init swizzle. See develop-docs/SWIZZLING.md
-    // and GH-8548.
+    // returns +1 (ns_returns_retained), which Swift cannot express through an @convention(block)
+    // object return at all — it would require passing Unmanaged across the ObjC boundary. Adding
+    // that overload on an IMP that runs for every UIViewController init in the host app is not a
+    // trade we want to make here. This macro path is the audited mechanism
+    // SentryNSDataSwizzlingHelper.m already uses for -[NSData
+    // initWithContentsOfFile:options:error:], another +1 initializer. The balanced retain handshake
+    // is asserted by testInitFunnel_whenViewControllersInstantiated_doesNotOverRetainThem. Adding
+    // init-family support to SentryTypedSwizzle is possible future work, not a blocker. See
+    // GH-8548.
     SEL nibSelector = NSSelectorFromString(@"initWithNibName:bundle:");
     SentrySwizzleInstanceMethod(UIViewController.class, nibSelector, SentrySWReturnType(id),
         SentrySWArguments(NSString * nibName, NSBundle * bundle), SentrySWReplacement({
