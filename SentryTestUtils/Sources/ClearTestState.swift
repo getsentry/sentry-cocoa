@@ -1,5 +1,4 @@
 @_spi(Private) @testable import Sentry
-import _SentryPrivate
 import Foundation
 
 public func clearTestState() {
