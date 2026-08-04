@@ -24,6 +24,7 @@ In order of importance:
 - **Session Replay** — privacy-sensitive; verify redaction/masking logic
 - **Envelope serialization** — correct byte ordering, length prefixes, JSON encoding
 - **SentryObjC wrapper** — any new public API must also be exposed in `SentryObjC` / `SentryObjCCompat`; see [`develop-docs/SENTRY-OBJC.md`](develop-docs/SENTRY-OBJC.md) for the wrapper pattern and naming convention
+- **Specification compliance** — for changes covered by an SDK specification, verify `sentry-spec-compliance.json` accurately reflects the implementation and follows [`develop-docs/SPEC_COMPLIANCE.md`](develop-docs/SPEC_COMPLIANCE.md)
 
 ## Conventions to Enforce
 
