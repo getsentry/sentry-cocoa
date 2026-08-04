@@ -25,7 +25,8 @@ extension SentryKSCrash {
 
         func sendAllReports(
             _ reportIDs: [Int64],
-            prioritizing shouldPrioritize: (Int64) -> Bool
+            prioritizing shouldPrioritize: (Int64) -> Bool,
+            onPrioritizedReportsCompleted: @escaping () -> Void
         ) {
             var prioritizedReportIDs: [Int64] = []
             var remainingReportIDs: [Int64] = []
@@ -36,12 +37,30 @@ extension SentryKSCrash {
                     remainingReportIDs.append(reportID)
                 }
             }
-            sendReports((prioritizedReportIDs + remainingReportIDs)[...])
+
+            guard !prioritizedReportIDs.isEmpty else {
+                sendReports(
+                    remainingReportIDs[...],
+                    onCompletion: cleanupOrphanedRunSidecars
+                )
+                return
+            }
+
+            sendReports(prioritizedReportIDs[...]) { [self] in
+                onPrioritizedReportsCompleted()
+                sendReports(
+                    remainingReportIDs[...],
+                    onCompletion: cleanupOrphanedRunSidecars
+                )
+            }
         }
 
-        private func sendReports(_ reportIDs: ArraySlice<Int64>) {
+        private func sendReports(
+            _ reportIDs: ArraySlice<Int64>,
+            onCompletion: @escaping () -> Void
+        ) {
             guard let reportID = reportIDs.first else {
-                cleanupOrphanedRunSidecars()
+                onCompletion()
                 return
             }
 
@@ -55,7 +74,7 @@ extension SentryKSCrash {
                         "Processed \(processedReportCount) KSCrash report(s) for report ID \(reportID)"
                     )
                 }
-                sendReports(reportIDs.dropFirst())
+                sendReports(reportIDs.dropFirst(), onCompletion: onCompletion)
             }
         }
     }

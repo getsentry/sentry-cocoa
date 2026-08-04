@@ -7,6 +7,7 @@ final class SentryKSCrashReportStoreSenderTests: XCTestCase {
     func testSendAllReports_whenReportIDsAreEmpty_shouldCleanupWithoutSending() {
         // -- Arrange --
         var sentReportIDs: [Int64] = []
+        var prioritizedReportsCompletedInvocationCount = 0
         var cleanupInvocationCount = 0
         let sut = SentryKSCrash.ReportStoreSender(
             sendReport: { reportID, _ in
@@ -18,10 +19,17 @@ final class SentryKSCrashReportStoreSenderTests: XCTestCase {
         )
 
         // -- Act --
-        sut.sendAllReports([], prioritizing: { _ in false })
+        sut.sendAllReports(
+            [],
+            prioritizing: { _ in false },
+            onPrioritizedReportsCompleted: {
+                prioritizedReportsCompletedInvocationCount += 1
+            }
+        )
 
         // -- Assert --
         XCTAssertEqual(sentReportIDs, [])
+        XCTAssertEqual(prioritizedReportsCompletedInvocationCount, 0)
         XCTAssertEqual(cleanupInvocationCount, 1)
     }
 
@@ -29,6 +37,7 @@ final class SentryKSCrashReportStoreSenderTests: XCTestCase {
         // -- Arrange --
         var sentReportIDs: [Int64] = []
         var pendingCompletions: [(Int, (any Error)?) -> Void] = []
+        var prioritizedReportsCompletedInvocationCount = 0
         var cleanupInvocationCount = 0
         let sut = SentryKSCrash.ReportStoreSender(
             sendReport: { reportID, onCompletion in
@@ -42,7 +51,13 @@ final class SentryKSCrashReportStoreSenderTests: XCTestCase {
         let error = NSError(domain: "test", code: 1)
 
         // -- Act --
-        sut.sendAllReports([1, 2, 3], prioritizing: { _ in false })
+        sut.sendAllReports(
+            [1, 2, 3],
+            prioritizing: { _ in false },
+            onPrioritizedReportsCompleted: {
+                prioritizedReportsCompletedInvocationCount += 1
+            }
+        )
 
         // -- Assert --
         XCTAssertEqual(sentReportIDs, [1])
@@ -74,6 +89,7 @@ final class SentryKSCrashReportStoreSenderTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(sentReportIDs, [1, 2, 3])
         XCTAssertEqual(pendingCompletions.count, 0)
+        XCTAssertEqual(prioritizedReportsCompletedInvocationCount, 0)
         XCTAssertEqual(cleanupInvocationCount, 1)
     }
 
@@ -84,6 +100,7 @@ final class SentryKSCrashReportStoreSenderTests: XCTestCase {
         var pendingCompletions: [
             (reportID: Int64, completion: (Int, (any Error)?) -> Void)
         ] = []
+        var prioritizedReportsCompletedInvocationCount = 0
         var cleanupInvocationCount = 0
         let sut = SentryKSCrash.ReportStoreSender(
             sendReport: { reportID, onCompletion in
@@ -96,7 +113,13 @@ final class SentryKSCrashReportStoreSenderTests: XCTestCase {
         )
 
         // -- Act --
-        sut.sendAllReports([1, 2], prioritizing: { _ in false })
+        sut.sendAllReports(
+            [1, 2],
+            prioritizing: { _ in false },
+            onPrioritizedReportsCompleted: {
+                prioritizedReportsCompletedInvocationCount += 1
+            }
+        )
 
         // -- Assert --
         XCTAssertEqual(sentReportIDs, [1])
@@ -121,7 +144,13 @@ final class SentryKSCrashReportStoreSenderTests: XCTestCase {
         XCTAssertEqual(cleanupInvocationCount, 1)
 
         // -- Act --
-        sut.sendAllReports(storedReportIDs.sorted(), prioritizing: { _ in false })
+        sut.sendAllReports(
+            storedReportIDs.sorted(),
+            prioritizing: { _ in false },
+            onPrioritizedReportsCompleted: {
+                prioritizedReportsCompletedInvocationCount += 1
+            }
+        )
         let retriedReport = try XCTUnwrap(pendingCompletions.first)
         pendingCompletions.removeFirst()
         storedReportIDs.remove(retriedReport.reportID)
@@ -130,16 +159,17 @@ final class SentryKSCrashReportStoreSenderTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(sentReportIDs, [1, 2, 2])
         XCTAssertEqual(storedReportIDs, [])
+        XCTAssertEqual(prioritizedReportsCompletedInvocationCount, 0)
         XCTAssertEqual(cleanupInvocationCount, 2)
     }
 
-    func testSendAllReports_whenReportIsPrioritized_shouldSendItBeforeRemainingReports() {
+    func testSendAllReports_whenMultipleReportsArePrioritized_shouldCompletePhaseBeforeRemainingReports() {
         // -- Arrange --
-        var sentReportIDs: [Int64] = []
+        var deliveryEvents: [String] = []
         var cleanupInvocationCount = 0
         let sut = SentryKSCrash.ReportStoreSender(
             sendReport: { reportID, onCompletion in
-                sentReportIDs.append(reportID)
+                deliveryEvents.append("report-\(reportID)")
                 onCompletion(1, nil)
             },
             cleanupOrphanedRunSidecars: {
@@ -148,10 +178,73 @@ final class SentryKSCrashReportStoreSenderTests: XCTestCase {
         )
 
         // -- Act --
-        sut.sendAllReports([1, 2, 3], prioritizing: { $0 == 2 })
+        sut.sendAllReports(
+            [1, 2, 3, 4],
+            prioritizing: { $0.isMultiple(of: 2) },
+            onPrioritizedReportsCompleted: {
+                deliveryEvents.append("prioritized-completed")
+            }
+        )
 
         // -- Assert --
-        XCTAssertEqual(sentReportIDs, [2, 1, 3])
+        XCTAssertEqual(
+            deliveryEvents,
+            ["report-2", "report-4", "prioritized-completed", "report-1", "report-3"]
+        )
+        XCTAssertEqual(cleanupInvocationCount, 1)
+    }
+
+    func testSendAllReports_whenPrioritizedReportsFail_shouldCompletePhaseAndSendRemainingReports() throws {
+        // -- Arrange --
+        var deliveryEvents: [String] = []
+        var pendingCompletions: [(Int, (any Error)?) -> Void] = []
+        var cleanupInvocationCount = 0
+        let sut = SentryKSCrash.ReportStoreSender(
+            sendReport: { reportID, onCompletion in
+                deliveryEvents.append("report-\(reportID)")
+                pendingCompletions.append(onCompletion)
+            },
+            cleanupOrphanedRunSidecars: {
+                cleanupInvocationCount += 1
+            }
+        )
+        let error = NSError(domain: "test", code: 1)
+
+        sut.sendAllReports(
+            [1, 2, 3],
+            prioritizing: { $0 < 3 },
+            onPrioritizedReportsCompleted: {
+                deliveryEvents.append("prioritized-completed")
+            }
+        )
+
+        // -- Act --
+        let firstPrioritizedCompletion = try XCTUnwrap(pendingCompletions.first)
+        pendingCompletions.removeFirst()
+        firstPrioritizedCompletion(0, error)
+
+        // -- Assert --
+        XCTAssertEqual(deliveryEvents, ["report-1", "report-2"])
+        XCTAssertEqual(cleanupInvocationCount, 0)
+
+        // -- Act --
+        let secondPrioritizedCompletion = try XCTUnwrap(pendingCompletions.first)
+        pendingCompletions.removeFirst()
+        secondPrioritizedCompletion(0, error)
+
+        // -- Assert --
+        XCTAssertEqual(
+            deliveryEvents,
+            ["report-1", "report-2", "prioritized-completed", "report-3"]
+        )
+        XCTAssertEqual(cleanupInvocationCount, 0)
+
+        // -- Act --
+        let remainingCompletion = try XCTUnwrap(pendingCompletions.first)
+        pendingCompletions.removeFirst()
+        remainingCompletion(1, nil)
+
+        // -- Assert --
         XCTAssertEqual(cleanupInvocationCount, 1)
     }
 }

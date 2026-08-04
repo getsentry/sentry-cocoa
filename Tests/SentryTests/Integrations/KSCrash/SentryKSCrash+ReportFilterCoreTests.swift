@@ -121,7 +121,7 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual(error.code, SentryStoredCrashReportProcessorError.missingClient.rawValue)
     }
 
-    func testFilterReports_whenCrashOccursInSameTimestampSecond_shouldFlushBeforeCompleting() throws {
+    func testFilterReports_whenCrashOccursInSameTimestampSecond_shouldProcessSynchronouslyWithoutFlushing() throws {
         // -- Arrange --
         dispatchQueue.dispatchAsyncExecutesBlock = false
         var dictionary = try getCrashReport(resource: "Resources/crash-report-1")
@@ -147,17 +147,17 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
         // -- Assert --
         XCTAssertEqual(dispatchQueue.dispatchAsyncCalled, 0)
         XCTAssertEqual(client.captureFatalEventInvocations.count, 1)
-        XCTAssertEqual(client.flushInvocations.count, 1)
+        XCTAssertEqual(client.flushInvocations.count, 0)
         XCTAssertTrue(completionCalled)
         XCTAssertTrue(SentrySDK.detectedStartUpCrash)
     }
 
-    func testFilterReports_whenStartupCrash_shouldFlushBeforeCompleting() throws {
+    func testFilterReports_whenStartupCrash_shouldProcessSynchronouslyWithoutFlushing() throws {
         // -- Arrange --
         dispatchQueue.dispatchAsyncExecutesBlock = false
         let report = TestReport(dictionary: try makeCrashReport(durationSinceInitialization: 2))
         let client = try getTestClient()
-        var flushInvocationCountAtCompletion: Int?
+        var captureInvocationCountAtCompletion: Int?
         var processedReports: [TestReport]?
 
         // -- Act --
@@ -165,16 +165,15 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
             [report],
             reportDictionary: { $0.dictionary }
         ) { reports, _ in
-            flushInvocationCountAtCompletion = client.flushInvocations.count
+            captureInvocationCountAtCompletion = client.captureFatalEventInvocations.count
             processedReports = reports
         }
 
         // -- Assert --
         XCTAssertEqual(dispatchQueue.dispatchAsyncCalled, 0)
         XCTAssertEqual(client.captureFatalEventInvocations.count, 1)
-        XCTAssertEqual(client.flushInvocations.count, 1)
-        XCTAssertEqual(try XCTUnwrap(client.flushInvocations.first), 5, accuracy: 0.001)
-        XCTAssertEqual(flushInvocationCountAtCompletion, 1)
+        XCTAssertEqual(client.flushInvocations.count, 0)
+        XCTAssertEqual(captureInvocationCountAtCompletion, 1)
         XCTAssertIdentical(processedReports?.first, report)
         XCTAssertTrue(SentrySDK.detectedStartUpCrash)
     }

@@ -16,7 +16,6 @@ extension SentryKSCrash {
     /// - Retryable failure: return no report and the error; KSCrash retains it for a later launch.
     final class ReportFilterCore {
         private static let startupCrashDurationThreshold: TimeInterval = 2
-        private static let startupCrashFlushDuration: TimeInterval = 5
         private static let nanosecondsPerSecond: TimeInterval = 1_000_000_000
         private static let errorDomain = "io.sentry.kscrash-report-filter"
 
@@ -68,7 +67,6 @@ extension SentryKSCrash {
                     reportDictionary: reportDictionary,
                     reportProcessor: reportProcessor
                 )
-                SentrySDKInternal.flush(timeout: Self.startupCrashFlushDuration)
                 Self.complete(outcome, onCompletion: onCompletion)
                 return
             }
