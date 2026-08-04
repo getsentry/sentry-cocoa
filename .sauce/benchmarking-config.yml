@@ -32,9 +32,9 @@ suites:
   # regression class on the lowest iOS 15 real devices available, the closest we can get to the
   # iOS 15.0 where that crash was reported. See GH1355OldOrderingTests.m.
   - name: "GH-1355 iOS 15"
-    # These tests only launch the app and open one screen, so cap the wait well below the 60m
-    # default: if the app crashes as GH-1355 did, we want the failure quickly, not a timeout.
-    timeout: 15m
+    # The tests themselves take about a minute, but this timeout also covers waiting for a device.
+    # A 15m cap expired in the queue before the tests ever started, so keep the 60m default rather
+    # than reporting a queue wait as a failed suite.
     testOptions:
       class:
         - GH1355OldOrderingTests
