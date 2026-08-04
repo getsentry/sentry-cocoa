@@ -162,6 +162,10 @@ extension SentryReplayBreadcrumbConverter {
         if let headers = sourceData["headers"] as? [String: String], !headers.isEmpty {
             result["headers"] = headers
         }
+
+        if let cookies = sourceData["cookies"] as? [String: String], !cookies.isEmpty {
+            result["cookies"] = cookies
+        }
         
         return result.isEmpty ? nil : result
     }
