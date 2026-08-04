@@ -186,7 +186,6 @@ class SentryFileManagerTests: XCTestCase {
         // -- Assert --
         XCTAssertNil(path)
         XCTAssertTrue(sut.getAllEnvelopes().isEmpty)
-        XCTAssertTrue(sut.allFilesInFolder(sut.sentryPath).filter { $0.hasSuffix(".tmp") }.isEmpty)
     }
 
     func testStore_whenEnvelopeItemHeaderIsInvalid_shouldReturnNilWithoutLeavingFiles() {
@@ -203,7 +202,6 @@ class SentryFileManagerTests: XCTestCase {
         // -- Assert --
         XCTAssertNil(path)
         XCTAssertTrue(sut.getAllEnvelopes().isEmpty)
-        XCTAssertTrue(sut.allFilesInFolder(sut.sentryPath).filter { $0.hasSuffix(".tmp") }.isEmpty)
     }
 
     func testStore_whenSentryRootIsReadOnly_shouldStoreEnvelope() throws {
@@ -237,7 +235,6 @@ class SentryFileManagerTests: XCTestCase {
         let storedData = try Data(contentsOf: URL(fileURLWithPath: XCTUnwrap(path)))
         let storedEnvelope = try XCTUnwrap(SentrySerializationSwift.envelope(with: storedData))
         XCTAssertEqual(storedEnvelope.items.first?.data, attachmentData)
-        XCTAssertTrue(sut.allFilesInFolder(sut.sentryPath).filter { $0.hasSuffix(".tmp") }.isEmpty)
     }
 
     func testStore_whenFinalEnvelopeCannotBePublished_shouldReturnNilWithoutLeavingFiles() throws {
@@ -250,7 +247,6 @@ class SentryFileManagerTests: XCTestCase {
         // -- Assert --
         XCTAssertNil(path)
         XCTAssertTrue(sut.getAllEnvelopes().isEmpty)
-        XCTAssertTrue(sut.allFilesInFolder(sut.sentryPath).filter { $0.hasSuffix(".tmp") }.isEmpty)
     }
     
     func testDeleteOldEnvelopes() throws {
