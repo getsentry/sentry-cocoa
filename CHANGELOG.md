@@ -5,10 +5,6 @@
 > [!WARNING]
 > This release raises the minimum deployment targets to macOS 12 and watchOS 9. Apps that support older OS versions must use an earlier Sentry Cocoa release.
 
-### Features
-
-- Add experimental `options.experimental.enableUIViewControllerInitSwizzling` (disabled by default) that defers `UIViewController` performance swizzling to first instantiation instead of eagerly discovering and swizzling all subclasses at SDK start. This avoids realizing `@available`-gated `UIViewController` subclasses on OS versions below their gate, which could crash the app on start (#8625, #8548).
-
 ### Breaking Changes
 
 - Bump the minimum deployment targets to macOS 12 and watchOS 9 because Xcode 27 no longer supports earlier versions. This lets the SDK adopt Xcode 27 without blocking users from building and submitting their apps with the latest Xcode. (#8595, #8113, #8189)
@@ -16,6 +12,7 @@
 ### Features
 
 - Add `SentrySDK.feedback.enableOnShake()` and `disableOnShake()` to toggle the shake-to-report gesture at runtime (#8591)
+- Add experimental `options.experimental.enableUIViewControllerInitSwizzling` (disabled by default) that defers `UIViewController` performance swizzling to first instantiation instead of eagerly discovering and swizzling all subclasses at SDK start. This avoids realizing `@available`-gated `UIViewController` subclasses on OS versions below their gate, which could crash the app on start (#8625).
 
 ### Fixes
 
