@@ -150,15 +150,14 @@ jobs:
   # We don't run this matrix for all different OS versions, because the chances
   # of a bug solely on a specific OS version is minimal.
   unit-tests-with-test-server:
-    name: Unit with Test Server ${{matrix.name}} on ${{matrix.runner_provider}}
-    runs-on: ${{ matrix.runner_provider == 'bitrise' && fromJSON(format('["bitrise_pool_name:{0}"]', 'sequoia')) || fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', 'sequoia', github.run_id)) }}
+    name: Unit with Test Server ${{matrix.name}}
+    runs-on: ["bitrise_pool_name:sequoia"]
     timeout-minutes: 20
     needs: build-test-server
 
     strategy:
       fail-fast: false
       matrix:
-        runner_provider: ${{ github.event_name == 'pull_request' && fromJSON('["cirrus", "bitrise"]') || fromJSON('["bitrise"]') }}
         include:
           # Running the tests with simulators is incredibly flaky. Our assumption is that simulators might have difficulties
           # with communicating with the test server in CI.
@@ -222,7 +221,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: steps.build_tests.outcome == 'failure'
         with:
-          name: derived-data-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}-${{ matrix.runner_provider }}
+          name: derived-data-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
           path: |
             /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
 
@@ -230,7 +229,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() || cancelled() }}
         with:
-          name: raw-output-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}-${{ matrix.runner_provider }}
+          name: raw-output-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
           path: |
             raw-build-output.log
             raw-build-for-testing-output.log
@@ -240,7 +239,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() || cancelled() }}
         with:
-          name: crash-logs-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}-${{ matrix.runner_provider }}
+          name: crash-logs-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
           path: |
             ~/Library/Logs/DiagnosticReports/**
 
@@ -255,7 +254,7 @@ jobs:
           suffix: ${{ matrix.platform }}-xcode-${{ matrix.xcode }}
 
   unit-tests:
-    name: Unit ${{matrix.name}} on ${{matrix.runner_provider}}
+    name: Unit ${{matrix.name}}
     needs: files-changed
     uses: ./.github/workflows/unit-test-common.yml
     secrets: inherit
@@ -263,8 +262,7 @@ jobs:
       name: ${{matrix.name}}
       runs-on: ${{ matrix.runs-on }}
       timeout: ${{matrix.timeout || 20}}
-      should_skip: ${{ (github.event_name == 'pull_request' && needs.files-changed.outputs.run_unit_tests_for_prs != 'true') || (matrix.runner_provider == 'cirrus' && matrix.runs-on == 'sonoma') || (github.event_name != 'pull_request' && matrix.runner_provider == 'cirrus') }}
-      runner_provider: ${{matrix.runner_provider}}
+      should_skip: ${{ github.event_name == 'pull_request' && needs.files-changed.outputs.run_unit_tests_for_prs != 'true' }}
       xcode: ${{matrix.xcode}}
       test-destination-os: ${{matrix.test-destination-os}}
       platform: ${{matrix.platform}}
@@ -279,14 +277,6 @@ jobs:
 
           # iOS 17
           - name: iOS 17 Sentry
-            runner_provider: cirrus
-            runs-on: sequoia
-            xcode: "16"
-            test-destination-os: "17.5"
-            platform: "iOS"
-            device: "iPhone 15 Pro"
-          - name: iOS 17 Sentry
-            runner_provider: bitrise
             runs-on: sequoia
             xcode: "16"
             test-destination-os: "17.5"
@@ -295,24 +285,12 @@ jobs:
 
           # iOS 18
           - name: iOS 18 Sentry
-            runner_provider: cirrus
-            runs-on: sequoia
-            xcode: "16"
-            platform: "iOS"
-          - name: iOS 18 Sentry
-            runner_provider: bitrise
             runs-on: sequoia
             xcode: "16"
             platform: "iOS"
 
           # iOS 26
           - name: iOS 26 Sentry
-            runner_provider: cirrus
-            runs-on: tahoe
-            xcode: "26"
-            platform: "iOS"
-          - name: iOS 26 Sentry
-            runner_provider: bitrise
             runs-on: tahoe
             xcode: "26"
             platform: "iOS"
@@ -323,38 +301,24 @@ jobs:
 
           # macOS 15 pinned to Xcode 16.2 to preserve OS matrix coverage from the retired macOS 14 runner.
           - name: macOS 15 Compat Sentry
-            runner_provider: cirrus
             runs-on: sequoia
             xcode: "16.2"
             platform: "macOS"
 
-          # macOS 14 — Bitrise only (sonoma pool still available)
+          # macOS 14
           - name: macOS 14 Sentry
-            runner_provider: bitrise
             runs-on: sonoma
             xcode: "16"
             platform: "macOS"
 
           # macOS 15
           - name: macOS 15 Sentry
-            runner_provider: cirrus
-            runs-on: sequoia
-            xcode: "16"
-            platform: "macOS"
-          - name: macOS 15 Sentry
-            runner_provider: bitrise
             runs-on: sequoia
             xcode: "16"
             platform: "macOS"
 
           # macOS 26
           - name: macOS 26 Sentry
-            runner_provider: cirrus
-            runs-on: tahoe
-            xcode: "26"
-            platform: "macOS"
-          - name: macOS 26 Sentry
-            runner_provider: bitrise
             runs-on: tahoe
             xcode: "26"
             platform: "macOS"
@@ -363,38 +327,24 @@ jobs:
           # on an older iOS or macOS version is low.
           # In addition we run Catalyst with Xcode 16.2 on macOS 15, preserving OS matrix coverage from the retired macOS 14 runner.
           - name: Catalyst 15 Compat Sentry
-            runner_provider: cirrus
             runs-on: sequoia
             xcode: "16.2"
             platform: "Catalyst"
 
-          # Catalyst 14 — Bitrise only (sonoma pool still available)
+          # Catalyst 14
           - name: Catalyst 14 Sentry
-            runner_provider: bitrise
             runs-on: sonoma
             xcode: "16"
             platform: "Catalyst"
 
           # Catalyst 15
           - name: Catalyst 15 Sentry
-            runner_provider: cirrus
-            runs-on: sequoia
-            xcode: "16"
-            platform: "Catalyst"
-          - name: Catalyst 15 Sentry
-            runner_provider: bitrise
             runs-on: sequoia
             xcode: "16"
             platform: "Catalyst"
 
           # Catalyst 26
           - name: Catalyst 26 Sentry
-            runner_provider: cirrus
-            runs-on: tahoe
-            xcode: "26"
-            platform: "Catalyst"
-          - name: Catalyst 26 Sentry
-            runner_provider: bitrise
             runs-on: tahoe
             xcode: "26"
             platform: "Catalyst"
@@ -405,13 +355,6 @@ jobs:
 
           # tvOS 17
           - name: tvOS 17 Sentry
-            runner_provider: cirrus
-            runs-on: sequoia
-            xcode: "16"
-            test-destination-os: "17.5"
-            platform: "tvOS"
-          - name: tvOS 17 Sentry
-            runner_provider: bitrise
             runs-on: sequoia
             xcode: "16"
             test-destination-os: "17.5"
@@ -419,25 +362,12 @@ jobs:
 
           # tvOS 18
           - name: tvOS 18 Sentry
-            runner_provider: cirrus
-            runs-on: sequoia
-            xcode: "16"
-            platform: "tvOS"
-          - name: tvOS 18 Sentry
-            runner_provider: bitrise
             runs-on: sequoia
             xcode: "16"
             platform: "tvOS"
 
           # tvOS 26
           - name: tvOS 26 Sentry
-            runner_provider: cirrus
-            runs-on: tahoe
-            xcode: "26"
-            platform: "tvOS"
-            device: "Apple TV"
-          - name: tvOS 26 Sentry
-            runner_provider: bitrise
             runs-on: tahoe
             xcode: "26"
             platform: "tvOS"
@@ -445,13 +375,6 @@ jobs:
 
           # visionOS 26
           - name: visionOS 26 Sentry
-            runner_provider: cirrus
-            runs-on: tahoe
-            xcode: "26"
-            platform: "visionOS"
-            timeout: 30
-          - name: visionOS 26 Sentry
-            runner_provider: bitrise
             runs-on: tahoe
             xcode: "26"
             platform: "visionOS"
