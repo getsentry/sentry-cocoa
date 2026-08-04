@@ -1370,6 +1370,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "captureNonTerminating:",
+    "parent": "SentryObjCInternalEnvelopeApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "category",
     "parent": "SentryObjCBreadcrumb",
     "returnType": "NSString * _Nonnull",

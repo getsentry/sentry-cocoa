@@ -124,8 +124,8 @@ NS_ASSUME_NONNULL_BEGIN
         [self captureSession:session];
         newSession = session;
     }
-    [lastSession
-        endSessionExitedWithTimestamp:[SentryDependencyContainer.sharedInstance.dateProvider date]];
+    [lastSession endSessionNormallyWithTimestamp:[SentryDependencyContainer.sharedInstance
+                                                         .dateProvider date]];
     [self captureSession:lastSession];
 
     [self notifySessionStarted:newSession];
@@ -150,7 +150,7 @@ NS_ASSUME_NONNULL_BEGIN
         SENTRY_LOG_DEBUG(@"No session to end with timestamp.");
         return;
     }
-    [currentSession endSessionExitedWithTimestamp:timestamp];
+    [currentSession endSessionNormallyWithTimestamp:timestamp];
     [self captureSession:currentSession];
 
     [self notifySessionEnded:currentSession];
@@ -221,8 +221,8 @@ NS_ASSUME_NONNULL_BEGIN
             timestamp = session.started;
             [session endSessionAbnormalWithTimestamp:SENTRY_UNWRAP_NULLABLE(NSDate, timestamp)];
         } else {
-            SENTRY_LOG_DEBUG(@"Closing cached session as exited.");
-            [session endSessionExitedWithTimestamp:SENTRY_UNWRAP_NULLABLE(NSDate, timestamp)];
+            SENTRY_LOG_DEBUG(@"Closing cached session normally.");
+            [session endSessionNormallyWithTimestamp:SENTRY_UNWRAP_NULLABLE(NSDate, timestamp)];
         }
         [self deleteCurrentSession];
         [client captureSession:session];
@@ -781,6 +781,50 @@ NS_ASSUME_NONNULL_BEGIN
     // If captured envelope contains not handled errors, these are not going to crash the app and
     // we should create new session.
     [client captureEnvelope:[self updateSessionState:envelope startNewSession:YES]];
+}
+
+/**
+ * Needed by hybrid SDKs such as Flutter, where an unhandled exception doesn't terminate the
+ * process. Instead of ending the session as crashed, this keeps the session running and marks it,
+ * so it ends as unhandled.
+ */
+- (void)captureNonTerminatingEnvelope:(id)envelope
+{
+    SentryClientInternal *client = self.client;
+    if (client == nil) {
+        return;
+    }
+
+    [client captureEnvelope:[self updateSessionStateForNonTerminatingEnvelope:envelope]];
+}
+
+- (SentryEnvelope *)updateSessionStateForNonTerminatingEnvelope:(SentryEnvelope *)envelope
+{
+    BOOL handled = YES;
+    if (![self envelopeContainsEventWithErrorOrHigher:envelope.items wasHandled:&handled]) {
+        return envelope;
+    }
+
+    SentrySession *currentSession;
+    @synchronized(_sessionLock) {
+        // Marking before incrementing, because incrementing persists the session.
+        if (!handled) {
+            [_session markPendingUnhandled];
+        }
+        currentSession = [self incrementSessionErrors];
+        if (currentSession == nil) {
+            return envelope;
+        }
+        SENTRY_LOG_DEBUG(@"Updating session for non terminating envelope: %@",
+            [self createSessionDebugString:currentSession]);
+    }
+
+    // The session stays open, so it's sent as an intermediate update with the incremented error
+    // count. It's sent again with its terminal status when it ends.
+    NSMutableArray<SentryEnvelopeItem *> *itemsToSend =
+        [[NSMutableArray alloc] initWithArray:envelope.items];
+    [itemsToSend addObject:[[SentryEnvelopeItem alloc] initWithSession:currentSession]];
+    return [[SentryEnvelope alloc] initWithHeader:envelope.header items:itemsToSend];
 }
 
 - (SentryEnvelope *)updateSessionState:(SentryEnvelope *)envelope
