@@ -137,6 +137,7 @@ CrashE2EFakeManagedRuntimeSignalHandler(int signal, siginfo_t *info, void *conte
     // KSCRASH_TODO: Sentry+KSCrash still compiles that SentryCrash constructor, so a green marker
     // currently proves only that the fake handler ran, not that a KSCrash-owned preloader/plugin
     // established the intended order. Rectify this when managed-runtime handling moves to KSCrash.
+    // Tracked in https://github.com/getsentry/sentry-cocoa/issues/8528.
     //
     // Recoverable managed faults are intentionally out of scope: with the correct
     // order, the managed runtime handles them without ever calling Sentry. This handler forwards
