@@ -1025,6 +1025,25 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(1, listener.endedSessions.count)
     }
 
+    func testCloseCachedSession_whenActiveCrashReporterCrashedLastLaunch_shouldPreserveCurrentSession() {
+        // -- Arrange --
+        let activeCrashReporterState = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
+        activeCrashReporterState.internalCrashedLastLaunch = true
+        SentryDependencyContainer.sharedInstance().crashWrapper = fixture.sentryCrashWrapper
+        SentryDependencyContainer.sharedInstance().activeCrashReporterStateOverride = activeCrashReporterState
+        let sut = SentryHubInternal(client: fixture.client, andScope: nil)
+        let currentSession = SentrySession(releaseName: "1.0.0", distinctId: "test-installation")
+        fixture.client.fileManager.storeCurrentSession(currentSession)
+
+        // -- Act --
+        sut.closeCachedSession(withTimestamp: fixture.currentDateProvider.date())
+
+        // -- Assert --
+        XCTAssertFalse(fixture.sentryCrashWrapper.crashedLastLaunch)
+        XCTAssertEqual(fixture.client.fileManager.readCurrentSession()?.sessionId, currentSession.sessionId)
+        XCTAssertEqual(fixture.client.captureSessionInvocations.count, 0)
+    }
+
     func testCaptureEventIncrementingSessionErrorCount_WithStartedSession_OnlySendsSessionInit() {
         let sut = fixture.getSut()
         sut.startSession()

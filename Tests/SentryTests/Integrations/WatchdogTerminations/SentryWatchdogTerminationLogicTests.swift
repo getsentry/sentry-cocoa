@@ -31,7 +31,10 @@ class SentryWatchdogTerminationLogicTests: XCTestCase {
             crashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
         }
         
-        func getSut(customCurrentAppState: SentryAppState? = nil) -> SentryWatchdogTerminationLogic {
+        func getSut(
+            customCurrentAppState: SentryAppState? = nil,
+            activeCrashReporterState: SentryCrashReporterState? = nil
+        ) -> SentryWatchdogTerminationLogic {
             let appStateManager: SentryAppStateManager
             
             if let customState = customCurrentAppState {
@@ -54,6 +57,7 @@ class SentryWatchdogTerminationLogicTests: XCTestCase {
             return SentryWatchdogTerminationLogic(
                 options: options,
                 crashAdapter: crashWrapper,
+                activeCrashReporterState: activeCrashReporterState ?? crashWrapper,
                 appStateManager: appStateManager
             )
         }
@@ -283,17 +287,22 @@ class SentryWatchdogTerminationLogicTests: XCTestCase {
     
     // MARK: - Crash Last Launch
     
-    func testIsWatchdogTermination_whenCrashedLastLaunch_shouldReturnFalse() {
+    func testIsWatchdogTermination_whenActiveCrashReporterCrashedLastLaunch_shouldReturnFalse() {
         // -- Arrange --
-        fixture.crashWrapper.internalCrashedLastLaunch = true
+        let activeCrashReporterState = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
+        activeCrashReporterState.internalCrashedLastLaunch = true
         fixture.storePreviousAppState(fixture.createAppState())
         let currentAppState = fixture.createAppState()
-        let sut = fixture.getSut(customCurrentAppState: currentAppState)
+        let sut = fixture.getSut(
+            customCurrentAppState: currentAppState,
+            activeCrashReporterState: activeCrashReporterState
+        )
         
         // -- Act --
         let result = sut.isWatchdogTermination()
         
         // -- Assert --
+        XCTAssertFalse(fixture.crashWrapper.crashedLastLaunch)
         XCTAssertFalse(result)
     }
     

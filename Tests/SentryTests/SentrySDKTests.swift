@@ -233,7 +233,10 @@ class SentrySDKTests: XCTestCase {
     #if !SDK_V10
     @available(*, deprecated, message: "Testing deprecated crashedLastRun API")
     func testCrashedLastRun() {
-        XCTAssertEqual(SentryDependencyContainer.sharedInstance().crashReporter.crashedLastLaunch, SentrySDK.crashedLastRun)
+        XCTAssertEqual(
+            SentryDependencyContainer.sharedInstance().activeCrashReporterState.crashedLastLaunch,
+            SentrySDK.crashedLastRun
+        )
     }
     #endif
 
