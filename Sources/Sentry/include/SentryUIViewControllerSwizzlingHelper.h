@@ -29,11 +29,12 @@ NS_ASSUME_NONNULL_BEGIN
  * calls the handler synchronously with the concrete class of the just-initialized instance, so the
  * SDK can defer per-subclass lifecycle swizzling to first instantiation.
  *
- * This exists to avoid realizing `@available`-gated view controller subclasses on OS versions
- * below their gate: a class is only swizzled once a live instance of it exists, and instantiating a
- * class already realized it safely on a supported OS (see GH-8548). Swizzling happens synchronously
- * right after the initializer returns so the instance's lifecycle methods are in place immediately,
- * without a dispatch hop that could race the first @c viewDidLoad.
+ * Deferring avoids realizing @c \@available -gated subclasses on OS versions below their gate: a
+ * class is only swizzled once an instance exists, which means the OS already realized it safely.
+ *
+ * @warning Experimental. Only installed when
+ * @c options.experimental.enableUIViewControllerInitSwizzling is enabled, which is off by default.
+ * See GH-8548.
  *
  * @param handler Invoked with the concrete class of every initialized @c UIViewController. Pass
  * @c nil (via @c stop ) to disable the funnel.
@@ -45,7 +46,8 @@ NS_ASSUME_NONNULL_BEGIN
 #    if SENTRY_TEST || SENTRY_TEST_CI
 
 /**
- * Unswizzles all UIViewController methods. Only available in test targets.
+ * Restores the base @c UIViewController @c loadView . Per-subclass lifecycle swizzles and the init
+ * funnel stay installed, but @c stop makes them pass-throughs. Only available in test targets.
  */
 + (void)unswizzle;
 

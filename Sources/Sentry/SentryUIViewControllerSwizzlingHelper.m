@@ -15,11 +15,6 @@ static __weak SentryUIViewControllerPerformanceTracker *_tracker = nil;
 // funnel is installed. Retained (copied) for the lifetime of the funnel; cleared in +stop.
 static void (^_subclassSwizzleHandler)(Class) = nil;
 
-// File-scope swizzle keys for the two base UIViewController initializers, so +unswizzle can restore
-// them with the same key used to install them.
-static const void *sentryInitWithNibNameKey = &sentryInitWithNibNameKey;
-static const void *sentryInitWithCoderKey = &sentryInitWithCoderKey;
-
 #    if SENTRY_TEST || SENTRY_TEST_CI
 static BOOL swizzlingIsActive = FALSE;
 #    endif
@@ -53,42 +48,33 @@ static BOOL swizzlingIsActive = FALSE;
 {
     _subclassSwizzleHandler = [handler copy];
 
+    // EXPERIMENTAL: only installed when options.experimental.enableUIViewControllerInitSwizzling is
+    // enabled. Disabled by default.
+    //
     // Swizzle the two base UIViewController designated initializers. Every UIViewController is
-    // created through one of them (a subclass's designated init calls super, which reaches one of
-    // these; convenience inits route through a designated init; `-init` routes through
-    // initWithNibName:bundle:). We swizzle only the BASE class, so class_replaceMethod REPLACES the
-    // existing UIKit implementation rather than ADDING a method to a subclass that doesn't
-    // implement it — the latter was the cause of the GH-1355 convenience-initializer crash that led
-    // to removing init swizzling in GH-1361. See GH-8548 for why we bring it back (behind an
-    // opt-in).
+    // created through one of them: a subclass's designated init calls super, convenience inits
+    // route through a designated init, and `-init` routes through initWithNibName:bundle:.
+    //
+    // We swizzle only the BASE class, so this replaces UIKit's own implementation instead of adding
+    // a method to a subclass that doesn't implement one. Adding to the subclass caused the GH-1355
+    // convenience-initializer crash that led to removing init swizzling in GH-1361.
     //
     // Ordering inside the replacement is load-bearing:
-    //   1. Call the original initializer FIRST. Never message or introspect `self` before it — the
-    //      GH-1355 crash came from mutating the class from inside the init before the original ran.
-    //   2. Read the concrete class from the RETURNED object via object_getClass (a C runtime call,
-    //      not an Objective-C message). This handles init-family self-replacement (an init may
-    //      return a different instance) and a nil return.
-    //   3. Invoke the handler SYNCHRONOUSLY, so the instance's lifecycle methods are swizzled
-    //      immediately after it is initialized — no dispatch hop that could race its first
-    //      viewDidLoad. GH-1355 is avoided by the ordering above, not by leaving the init frame.
-    //   4. Return the original result verbatim. The initializer's +1/autoreleased return is
-    //      forwarded unchanged; we add no retain, so ARC's return handshake stays balanced. This is
-    //      the same block-based pass-through shape SentryNSDataSwizzlingHelper.m uses for
-    //      initWithContentsOfFile:options:error:.
+    //   1. Call the original initializer FIRST, and never touch `self` before it. GH-1355 came from
+    //      mutating the class inside the init before the original ran.
+    //   2. Read the concrete class from the RETURNED object via object_getClass, a C runtime call
+    //      rather than a message. This handles an init returning a different instance, or nil.
+    //   3. Invoke the handler synchronously, so lifecycle methods are swizzled before the instance
+    //      can reach its first viewDidLoad.
+    //   4. Return the result verbatim, adding no retain, so ARC's return handshake stays balanced.
     //
-    // NOTE: we deliberately use the ObjC SentrySwizzleInstanceMethod macro here rather than the
-    // typed Swift swizzle API (SentryTypedSwizzle, added in #8524), even though
-    // develop-docs/SWIZZLING.md prefers the typed API for new swizzles. That API's only
-    // object-returning overloads model +0 autoreleased returns (URLSessionDataTask); an initializer
-    // returns +1 (ns_returns_retained), which Swift cannot express through an @convention(block)
-    // object return at all — it would require passing Unmanaged across the ObjC boundary. Adding
-    // that overload on an IMP that runs for every UIViewController init in the host app is not a
-    // trade we want to make here. This macro path is the audited mechanism
-    // SentryNSDataSwizzlingHelper.m already uses for -[NSData
-    // initWithContentsOfFile:options:error:], another +1 initializer. The balanced retain handshake
-    // is asserted by testInitFunnel_whenViewControllersInstantiated_doesNotOverRetainThem. Adding
-    // init-family support to SentryTypedSwizzle is possible future work, not a blocker. See
-    // GH-8548.
+    // We use the ObjC SentrySwizzleInstanceMethod macro rather than the typed Swift API that
+    // develop-docs/SWIZZLING.md prefers (SentryTypedSwizzle, #8524): its object-returning overloads
+    // model +0 autoreleased returns, while an initializer returns +1, which Swift cannot express
+    // through an @convention(block) object return without passing Unmanaged across the boundary.
+    // SentryNSDataSwizzlingHelper.m uses this same macro path for -[NSData
+    // initWithContentsOfFile:options:error:], another +1 initializer. The retain handshake is
+    // covered by testInitFunnel_whenViewControllersInstantiated_doesNotOverRetainThem.
     SEL nibSelector = NSSelectorFromString(@"initWithNibName:bundle:");
     SentrySwizzleInstanceMethod(UIViewController.class, nibSelector, SentrySWReturnType(id),
         SentrySWArguments(NSString * nibName, NSBundle * bundle), SentrySWReplacement({
@@ -99,7 +85,7 @@ static BOOL swizzlingIsActive = FALSE;
             }
             return result;
         }),
-        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)sentryInitWithNibNameKey);
+        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)nibSelector);
 
     SEL coderSelector = NSSelectorFromString(@"initWithCoder:");
     SentrySwizzleInstanceMethod(UIViewController.class, coderSelector, SentrySWReturnType(id),
@@ -111,7 +97,7 @@ static BOOL swizzlingIsActive = FALSE;
             }
             return result;
         }),
-        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)sentryInitWithCoderKey);
+        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)coderSelector);
 }
 
 + (void)swizzleViewControllerSubClass:(Class)class
@@ -264,19 +250,12 @@ static BOOL swizzlingIsActive = FALSE;
     swizzlingIsActive = FALSE;
 
     // Unswizzling is only supported in test targets as it is considered unsafe for production.
-    // Only unswizzle the base UIViewController methods we swizzle on the base class itself:
-    // loadView and the two designated initializers (the init funnel). Other lifecycle methods are
-    // swizzled per-subclass and we don't track which subclasses were swizzled, so we can't safely
-    // unswizzle them. The stop method sets _tracker = nil and _subclassSwizzleHandler = nil, which
-    // makes all swizzled methods no-ops anyway.
+    // Only the base loadView is restored. Lifecycle methods are swizzled per-subclass and we don't
+    // track which subclasses were swizzled, and the init funnel stays installed. Both are harmless
+    // because stop sets _tracker and _subclassSwizzleHandler to nil, making them pass-throughs.
     SEL loadViewSelector = NSSelectorFromString(@"loadView");
     SentryUnswizzleInstanceMethod(
         UIViewController.class, loadViewSelector, (void *)loadViewSelector);
-
-    SentryUnswizzleInstanceMethod(UIViewController.class,
-        NSSelectorFromString(@"initWithNibName:bundle:"), (void *)sentryInitWithNibNameKey);
-    SentryUnswizzleInstanceMethod(UIViewController.class, NSSelectorFromString(@"initWithCoder:"),
-        (void *)sentryInitWithCoderKey);
 }
 
 + (BOOL)swizzlingActive
