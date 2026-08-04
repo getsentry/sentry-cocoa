@@ -469,6 +469,113 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         // The finder-driven image scan runs (see testSwizzlingFromProcessPath_WhenNoAppToFind).
         XCTAssertTrue(sut.swizzleUIViewControllersOfImageCalled)
     }
+
+    // MARK: - Enabled funnel must never run the subclass-finder path
+    //
+    // The whole point of the deferred funnel is that the SDK never walks a binary image looking for
+    // UIViewController subclasses, because that realizes `@available`-gated classes and crashes below
+    // their gate (GH-8152 / GH-8548). Every one of these asserts the finder stays untouched.
+
+    func testInitSwizzling_whenEnabled_doesNotScanImages() {
+        // -- Arrange --
+        fixture.options.experimental.enableUIViewControllerInitSwizzling = true
+        let sut = fixture.testableSut
+
+        // -- Act --
+        sut.start()
+
+        // -- Assert --
+        XCTAssertFalse(sut.swizzleUIViewControllersOfImageCalled, "The funnel must not trigger the image scan.")
+        XCTAssertEqual(0, fixture.subClassFinder.invocations.count, "The funnel must never invoke the subclass finder.")
+    }
+
+    func testInitSwizzling_whenEnabledAndRootViewControllerFound_doesNotInvokeSubClassFinder() {
+        // -- Arrange --
+        // The root-hierarchy walk is the one place that also ran the image scan as a fallback, so it
+        // is the likeliest way the finder could sneak back in. Uses the real objcRuntimeWrapper so
+        // classGetImageName would actually resolve an image if the code asked for one.
+        fixture.options.experimental.enableUIViewControllerInitSwizzling = true
+        let sut = fixture.sutWithDefaultObjCRuntimeWrapper
+        let window = fixture.makeWindow()
+        let rootViewController = TestViewController()
+        window.rootViewController = rootViewController
+
+        // -- Act --
+        sut.swizzleRootViewControllerAndDescendant(rootViewController)
+
+        // -- Assert --
+        XCTAssertEqual(0, fixture.subClassFinder.invocations.count, "The root walk must not fall back to scanning the image when the funnel is enabled.")
+    }
+
+    func testInitSwizzling_whenDisabledAndRootViewControllerFound_invokesSubClassFinder() {
+        // -- Arrange --
+        // Control for the test above: on the eager path the same walk DOES scan the image, which
+        // proves the assertion above is about the flag and not a broken fixture.
+        XCTAssertFalse(fixture.options.experimental.enableUIViewControllerInitSwizzling)
+        let sut = fixture.sutWithDefaultObjCRuntimeWrapper
+        let window = fixture.makeWindow()
+        let rootViewController = TestViewController()
+        window.rootViewController = rootViewController
+
+        // -- Act --
+        sut.swizzleRootViewControllerAndDescendant(rootViewController)
+
+        // -- Assert --
+        XCTAssertGreaterThan(fixture.subClassFinder.invocations.count, 0, "The eager path is expected to scan the root view controller's image.")
+    }
+
+    func testInitSwizzling_whenEnabledAndStartedWithApp_doesNotInvokeSubClassFinder() {
+        // -- Arrange --
+        // Full start() with a resolvable app delegate + root view controller, i.e. the real launch
+        // sequence rather than a single entry point.
+        fixture.options.experimental.enableUIViewControllerInitSwizzling = true
+        let sut = fixture.sutWithDefaultObjCRuntimeWrapper
+        let delegate = fixture.delegate
+
+        // -- Act --
+        sut.start()
+        sut.swizzleRootViewControllerFromUIApplication(MockApplication(delegate))
+
+        // -- Assert --
+        XCTAssertEqual(0, fixture.subClassFinder.invocations.count, "Neither start() nor the app-delegate walk may invoke the subclass finder.")
+    }
+
+    func testInitSwizzling_whenEnabledAndSceneConnects_doesNotInvokeSubClassFinder() {
+        // -- Arrange --
+        // The scene-notification path is the third route into the root-hierarchy walk.
+        fixture.options.experimental.enableUIViewControllerInitSwizzling = true
+        let sut = fixture.sutWithDefaultObjCRuntimeWrapper
+        let window = fixture.makeWindow()
+        window.rootViewController = TestViewController()
+        let mockWindowScene = ObjectWithWindowsProperty(resultOfWindows: [window])
+        let notification = Notification(name: NSNotification.Name(rawValue: "UISceneWillConnectNotification"), object: mockWindowScene)
+
+        // -- Act --
+        sut.swizzleRootViewControllerFromSceneDelegateNotification(notification)
+
+        // -- Assert --
+        XCTAssertEqual(0, fixture.subClassFinder.invocations.count, "The scene path must not scan images when the funnel is enabled.")
+    }
+
+    func testInitSwizzling_whenEnabled_stillTracksRootViewController() {
+        // -- Arrange --
+        // Guards against a vacuous version of the assertions above: skipping the finder must not mean
+        // skipping instrumentation. The root view controller still has to be swizzled and tracked.
+        fixture.options.experimental.enableUIViewControllerInitSwizzling = true
+        let sut = fixture.sutWithDefaultObjCRuntimeWrapper
+        let window = fixture.makeWindow()
+        let rootViewController = TestViewController()
+        window.rootViewController = rootViewController
+        sut.start()
+
+        // -- Act --
+        sut.swizzleRootViewControllerAndDescendant(rootViewController)
+
+        // -- Assert --
+        XCTAssertEqual(0, fixture.subClassFinder.invocations.count)
+        rootViewController.loadView()
+        XCTAssertNotNil(SentrySDK.span, "The root view controller must still be swizzled via the funnel entry point.")
+    }
 }
 
 private class MockApplication: NSObject, SentryUIApplication {

@@ -143,7 +143,7 @@ class SentryUIViewControllerSwizzlingHelperTests: XCTestCase {
         XCTAssertTrue(SentryUIViewControllerSwizzlingHelper.swizzlingActive())
     }
 
-    // MARK: - Init funnel (swizzleUIViewControllerInitsWithSubclassHandler:)
+    // MARK: - Init funnel (swizzleUIViewControllerInitsWithInitHandler:)
 
     func testInitFunnel_whenViewControllerInstantiated_callsHandlerSynchronouslyWithConcreteClass() {
         // -- Arrange --

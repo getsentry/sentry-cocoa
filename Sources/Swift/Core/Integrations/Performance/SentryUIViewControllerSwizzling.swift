@@ -35,9 +35,10 @@ class SentryUIViewControllerSwizzling {
     private let performanceTracker: SentryUIViewControllerPerformanceTracker
     private let loadedImageNamesProvider: SentryLoadedImageNamesProvider
 
-    // Classes already passed to `handleInstantiatedViewController`, so each is processed once.
-    // `NSMutableSet` because an `AnyClass` metatype isn't `Hashable`. Main-thread confined, so unlocked.
-    private let processedClasses = NSMutableSet()
+    // UIViewController subclasses already passed to `handleInstantiatedViewController`, so each is
+    // processed once. `NSMutableSet` because an `AnyClass` metatype isn't `Hashable`. Main-thread
+    // confined, so unlocked.
+    private let processedUIViewControllerSubClasses = NSMutableSet()
 
     init(
         options: Options,
@@ -271,11 +272,11 @@ class SentryUIViewControllerSwizzling {
     /// Swizzles a view controller class the first time an instance of it is seen, deduplicating by
     /// class identity. Called by the base-init funnel and the root-hierarchy walk.
     private func handleInstantiatedViewController(_ targetClass: AnyClass) {
-        if processedClasses.contains(targetClass) {
+        if processedUIViewControllerSubClasses.contains(targetClass) {
             return
         }
         // Mark before filtering so rejected classes aren't reconsidered.
-        processedClasses.add(targetClass)
+        processedUIViewControllerSubClasses.add(targetClass)
 
         swizzleViewControllerSubClass(targetClass)
     }
@@ -316,9 +317,9 @@ class SentryUIViewControllerSwizzling {
         handleInstantiatedViewController(targetClass)
     }
 
-    // Exposes the processed-class dedup set for testing.
+    // Exposes the processed-UIViewController-subclass dedup set for testing.
     func testHasProcessedViewController(_ targetClass: AnyClass) -> Bool {
-        processedClasses.contains(targetClass)
+        processedUIViewControllerSubClasses.contains(targetClass)
     }
     #endif
 }

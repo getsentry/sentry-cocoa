@@ -13,7 +13,7 @@ static __weak SentryUIViewControllerPerformanceTracker *_tracker = nil;
 
 // Handler invoked with the concrete class of every initialized UIViewController when the base-init
 // funnel is installed. Retained (copied) for the lifetime of the funnel; cleared in +stop.
-static void (^_subclassSwizzleHandler)(Class) = nil;
+static void (^_initHandler)(Class) = nil;
 
 #    if SENTRY_TEST || SENTRY_TEST_CI
 static BOOL swizzlingIsActive = FALSE;
@@ -44,9 +44,9 @@ static BOOL swizzlingIsActive = FALSE;
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
 }
 
-+ (void)swizzleUIViewControllerInitsWithSubclassHandler:(void (^)(Class))handler
++ (void)swizzleUIViewControllerInitsWithInitHandler:(void (^)(Class))handler
 {
-    _subclassSwizzleHandler = [handler copy];
+    _initHandler = [handler copy];
 
     // EXPERIMENTAL: only installed when options.experimental.enableUIViewControllerInitSwizzling is
     // enabled. Disabled by default.
@@ -79,9 +79,9 @@ static BOOL swizzlingIsActive = FALSE;
     SentrySwizzleInstanceMethod(UIViewController.class, nibSelector, SentrySWReturnType(id),
         SentrySWArguments(NSString * nibName, NSBundle * bundle), SentrySWReplacement({
             id result = SentrySWCallOriginal(nibName, bundle);
-            void (^subclassHandler)(Class) = _subclassSwizzleHandler;
-            if (result != nil && subclassHandler != nil) {
-                subclassHandler(object_getClass(result));
+            void (^initHandler)(Class) = _initHandler;
+            if (result != nil && initHandler != nil) {
+                initHandler(object_getClass(result));
             }
             return result;
         }),
@@ -91,9 +91,9 @@ static BOOL swizzlingIsActive = FALSE;
     SentrySwizzleInstanceMethod(UIViewController.class, coderSelector, SentrySWReturnType(id),
         SentrySWArguments(NSCoder * coder), SentrySWReplacement({
             id result = SentrySWCallOriginal(coder);
-            void (^subclassHandler)(Class) = _subclassSwizzleHandler;
-            if (result != nil && subclassHandler != nil) {
-                subclassHandler(object_getClass(result));
+            void (^initHandler)(Class) = _initHandler;
+            if (result != nil && initHandler != nil) {
+                initHandler(object_getClass(result));
             }
             return result;
         }),
@@ -238,7 +238,7 @@ static BOOL swizzlingIsActive = FALSE;
     _tracker = nil;
     // Clearing the handler makes the base-init funnel replacements pure pass-throughs (call
     // original, return) — the same no-op-when-nil pattern the lifecycle swizzles use with _tracker.
-    _subclassSwizzleHandler = nil;
+    _initHandler = nil;
 #    if SENTRY_TEST || SENTRY_TEST_CI
     [self unswizzle];
 #    endif
@@ -252,7 +252,7 @@ static BOOL swizzlingIsActive = FALSE;
     // Unswizzling is only supported in test targets as it is considered unsafe for production.
     // Only the base loadView is restored. Lifecycle methods are swizzled per-subclass and we don't
     // track which subclasses were swizzled, and the init funnel stays installed. Both are harmless
-    // because stop sets _tracker and _subclassSwizzleHandler to nil, making them pass-throughs.
+    // because stop sets _tracker and _initHandler to nil, making them pass-throughs.
     SEL loadViewSelector = NSSelectorFromString(@"loadView");
     SentryUnswizzleInstanceMethod(
         UIViewController.class, loadViewSelector, (void *)loadViewSelector);

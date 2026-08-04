@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param handler Invoked with the concrete class of every initialized @c UIViewController. Pass
  * @c nil (via @c stop ) to disable the funnel.
  */
-+ (void)swizzleUIViewControllerInitsWithSubclassHandler:(void (^)(Class cls))handler;
++ (void)swizzleUIViewControllerInitsWithInitHandler:(void (^)(Class cls))handler;
 
 + (void)stop;
 
