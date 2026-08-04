@@ -11,6 +11,16 @@ import UIKit
     var delegate: UIApplicationDelegate? { get set }
 }
 
+/// Receives the concrete class of every initialized `UIViewController` while the base-init funnel is
+/// installed. Called synchronously, still inside the initializer frame.
+@_spi(Private) @objc public protocol SentryUIViewControllerInitSwizzlingDelegate {
+    /// Called after a `UIViewController` initializer returns, with the concrete class of the
+    /// just-initialized instance.
+    /// - Parameter viewControllerClass: The class read from the initialized instance via
+    ///   `object_getClass`, so it is the concrete subclass rather than the base class.
+    func viewControllerInitialized(_ viewControllerClass: AnyClass)
+}
+
 extension UIApplication: SentryUIApplication {}
 
 // This typealias, the defaultLoadedImageNamesProvider() function, and the init
@@ -24,7 +34,7 @@ private func defaultLoadedImageNamesProvider() -> [String] {
     }
 }
 
-class SentryUIViewControllerSwizzling {
+class SentryUIViewControllerSwizzling: NSObject, SentryUIViewControllerInitSwizzlingDelegate {
     private let options: Options
     private let inAppLogic: SentryInAppLogic
     private let dispatchQueue: SentryDispatchQueueWrapper
@@ -58,6 +68,7 @@ class SentryUIViewControllerSwizzling {
         self.processInfoWrapper = processInfoWrapper
         self.performanceTracker = performanceTracker
         self.loadedImageNamesProvider = loadedImageNamesProvider
+        super.init()
     }
 
     func start() {
@@ -65,9 +76,7 @@ class SentryUIViewControllerSwizzling {
             // Opt-in: instead of the eager image scan below, swizzle each view controller when it's
             // first instantiated. A never-instantiated `@available`-gated subclass is never swizzled,
             // so it's never realized below its gate — avoiding the GH-8152 / GH-8548 crashes.
-            SentryUIViewControllerSwizzlingHelper.swizzleUIViewControllerInits { [weak self] cls in
-                self?.handleInstantiatedViewController(cls)
-            }
+            SentryUIViewControllerSwizzlingHelper.swizzleUIViewControllerInits(withDelegate: self)
         } else {
             let imageNames = loadedImageNamesProvider()
             for inAppInclude in inAppLogic.inAppIncludes {
@@ -267,6 +276,10 @@ class SentryUIViewControllerSwizzling {
                 SentrySDKLog.warning("ViewControllerClass was nil for UIViewController: \(viewController)")
             }
         }
+    }
+
+    func viewControllerInitialized(_ viewControllerClass: AnyClass) {
+        handleInstantiatedViewController(viewControllerClass)
     }
 
     /// Swizzles a view controller class the first time an instance of it is seen, deduplicating by

@@ -61,6 +61,9 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     
     override func tearDown() {
         super.tearDown()
+        // Tests here install the init funnel, which replaces initializers on the base
+        // UIViewController. Restore them so the funnel doesn't leak into later suites in the run.
+        SentryUIViewControllerSwizzlingHelper.stop()
         clearTestState()
     }
     
@@ -622,7 +625,9 @@ class ObjectWithWindowsProperty: NSObject {
     }
 }
 
-class TestSentryUIViewControllerSwizzling: SentryUIViewControllerSwizzling {
+// Not exposed to ObjC: the superclass is an internal Swift type, so generating an @interface for
+// this subclass in the test target's generated header wouldn't compile.
+private class TestSentryUIViewControllerSwizzling: SentryUIViewControllerSwizzling {
     
     var viewControllers = [UIViewController]()
     var swizzleUIViewControllersOfImageCalled = false

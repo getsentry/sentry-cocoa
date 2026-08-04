@@ -11,9 +11,9 @@
 
 static __weak SentryUIViewControllerPerformanceTracker *_tracker = nil;
 
-// Handler invoked with the concrete class of every initialized UIViewController when the base-init
-// funnel is installed. Retained (copied) for the lifetime of the funnel; cleared in +stop.
-static void (^_initHandler)(Class) = nil;
+// Weak, like _tracker: the delegate is the caller that installed the funnel, and a strong reference
+// here would outlive it for the process lifetime.
+static __weak id<SentryUIViewControllerInitSwizzlingDelegate> _initSwizzlingDelegate = nil;
 
 #    if SENTRY_TEST || SENTRY_TEST_CI
 static BOOL swizzlingIsActive = FALSE;
@@ -44,9 +44,10 @@ static BOOL swizzlingIsActive = FALSE;
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
 }
 
-+ (void)swizzleUIViewControllerInitsWithInitHandler:(void (^)(Class))handler
++ (void)swizzleUIViewControllerInitsWithDelegate:
+    (id<SentryUIViewControllerInitSwizzlingDelegate>)delegate
 {
-    _initHandler = [handler copy];
+    _initSwizzlingDelegate = delegate;
 
     // EXPERIMENTAL: only installed when options.experimental.enableUIViewControllerInitSwizzling is
     // enabled. Disabled by default.
@@ -90,10 +91,11 @@ static BOOL swizzlingIsActive = FALSE;
     SEL nibSelector = NSSelectorFromString(@"initWithNibName:bundle:");
     SentrySwizzleInstanceMethod(UIViewController.class, nibSelector, SentrySWReturnType(id),
         SentrySWArguments(NSString * nibName, NSBundle * bundle), SentrySWReplacement({
+            id<SentryUIViewControllerInitSwizzlingDelegate> delegate = _initSwizzlingDelegate;
             id result = SentrySWCallOriginal(nibName, bundle);
-            void (^initHandler)(Class) = _initHandler;
-            if (result != nil && initHandler != nil) {
-                initHandler(object_getClass(result));
+            Class resultClass = object_getClass(result);
+            if (resultClass != Nil) {
+                [delegate viewControllerInitialized:resultClass];
             }
             return result;
         }),
@@ -102,10 +104,11 @@ static BOOL swizzlingIsActive = FALSE;
     SEL coderSelector = NSSelectorFromString(@"initWithCoder:");
     SentrySwizzleInstanceMethod(UIViewController.class, coderSelector, SentrySWReturnType(id),
         SentrySWArguments(NSCoder * coder), SentrySWReplacement({
+            id<SentryUIViewControllerInitSwizzlingDelegate> delegate = _initSwizzlingDelegate;
             id result = SentrySWCallOriginal(coder);
-            void (^initHandler)(Class) = _initHandler;
-            if (result != nil && initHandler != nil) {
-                initHandler(object_getClass(result));
+            Class resultClass = object_getClass(result);
+            if (resultClass != Nil) {
+                [delegate viewControllerInitialized:resultClass];
             }
             return result;
         }),
@@ -248,9 +251,9 @@ static BOOL swizzlingIsActive = FALSE;
 + (void)stop
 {
     _tracker = nil;
-    // Clearing the handler makes the base-init funnel replacements pure pass-throughs (call
+    // Clearing the delegate makes the base-init funnel replacements pure pass-throughs (call
     // original, return) — the same no-op-when-nil pattern the lifecycle swizzles use with _tracker.
-    _initHandler = nil;
+    _initSwizzlingDelegate = nil;
 #    if SENTRY_TEST || SENTRY_TEST_CI
     [self unswizzle];
 #    endif
