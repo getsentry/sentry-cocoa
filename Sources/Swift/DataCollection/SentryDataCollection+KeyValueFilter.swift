@@ -11,9 +11,11 @@ extension SentryDataCollection {
 
         static func filterSensitiveValues(_ values: [String: Any]) -> [String: Any] {
             values.reduce(into: [:]) { result, pair in
-                result[pair.key] = matches(key: pair.key, terms: sensitiveTerms)
-                    ? filteredValue
-                    : pair.value
+                guard matches(key: pair.key, terms: sensitiveTerms) else {
+                    result[pair.key] = pair.value
+                    return
+                }
+                result[pair.key] = (pair.value as? [Any])?.map { _ in filteredValue } ?? filteredValue
             }
         }
 

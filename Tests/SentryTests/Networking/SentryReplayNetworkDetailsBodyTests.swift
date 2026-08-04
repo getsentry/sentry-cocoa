@@ -291,6 +291,23 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
         XCTAssertEqual(dict["color"] as? [String], ["red", "blue", "green"])
     }
 
+    func testInit_whenV10FormHasDuplicateSensitiveKeys_shouldFilterEveryValue() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+#else
+        // -- Act --
+        let body = try XCTUnwrap(Body(
+            data: Data("token=first&token=second&name=Jane".utf8),
+            contentType: "application/x-www-form-urlencoded"
+        ))
+
+        // -- Assert --
+        let values = try XCTUnwrap(body.serialize()["body"] as? [String: Any])
+        XCTAssertEqual(values["token"] as? [String], ["[Filtered]", "[Filtered]"])
+        XCTAssertEqual(values["name"] as? String, "Jane")
+#endif
+    }
+
     func testInit_withFormURLEncoded_emptyValue_shouldParseAsEmptyString() throws {
         // -- Act --
         let body = try XCTUnwrap(Body(
