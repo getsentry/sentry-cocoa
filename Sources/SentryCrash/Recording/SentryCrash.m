@@ -290,6 +290,8 @@
                              object:nil];
 #endif // SENTRY_HAS_NSEXTENSION
 
+    _installed = true;
+
     return true;
 }
 
@@ -300,6 +302,7 @@
     self.monitoringFromUninstalledToRestore = YES;
     self.onCrash = NULL;
     sentrycrash_uninstall();
+    _installed = false;
 
 #if SENTRY_HAS_UIKIT
     id<SentryNSNotificationCenterWrapper> notificationCenter

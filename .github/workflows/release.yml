@@ -516,6 +516,13 @@ jobs:
             --xcframework-dir XCFrameworkBuildPath \
             --output-dir XCFrameworkBuildPath
 
+      - name: Create 3rd-party integration archives
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          ./scripts/create-3rd-party-integration-archive.sh \
+            --all \
+            --output-dir XCFrameworkBuildPath
+
       - name: Archive XCFrameworks for Craft
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
@@ -533,7 +540,7 @@ jobs:
           GITHUB_RUN_ID: ${{ github.run_id }}
 
       - name: Prepare release
-        uses: getsentry/craft@cdb657d4bbc70cd497876ad158984b4d345a48ae # v2
+        uses: getsentry/craft@667b5f5669552a35990a11ff6ac1131febb07446 # v2
         env:
           GITHUB_TOKEN: ${{ steps.token.outputs.token }}
         with:

@@ -12,6 +12,7 @@ import UIKit
 final class SentryUserFeedbackIntegrationDriver: NSObject {
     let configuration: SentryUserFeedbackConfiguration
     private weak var activeForm: SentryUserFeedbackFormController?
+    private var isObservingShakeGesture = false
     let screenshotSource: SentryScreenshotSource
     let windowFactory: SentryUserFeedbackWindowFactory
     private let notificationCenter: SentryNSNotificationCenterWrapper
@@ -163,6 +164,27 @@ extension SentryUserFeedbackIntegrationDriver {
         activeForm = form
         presenter.present(form, animated: formConfig.animations)
     }
+
+    /// Enables or disables shake-gesture-triggered feedback at runtime.
+    ///
+    /// This lets consumers toggle shake-to-report after `SentrySDK.start`, e.g. once an
+    /// asynchronously fetched feature flag resolves. Repeated calls with the same value are no-ops.
+    /// - Parameter enabled: `true` to start detecting shakes and presenting the feedback form;
+    ///   `false` to stop.
+    func setShakeGestureEnabled(_ enabled: Bool) {
+        configuration.useShakeGesture = enabled
+        if enabled {
+            guard !isObservingShakeGesture else { return }
+            isObservingShakeGesture = true
+            SentryShakeDetector.enable()
+            notificationCenter.addObserver(self, selector: #selector(handleShakeGesture), name: .SentryShakeDetected, object: nil)
+        } else {
+            guard isObservingShakeGesture else { return }
+            isObservingShakeGesture = false
+            SentryShakeDetector.disable()
+            notificationCenter.removeObserver(self, name: .SentryShakeDetected, object: nil)
+        }
+    }
 }
 
 // MARK: Private
@@ -209,8 +231,7 @@ private extension SentryUserFeedbackIntegrationDriver {
             SentrySDKLog.debug("Shake gesture detection is disabled in configuration")
             return
         }
-        SentryShakeDetector.enable()
-        notificationCenter.addObserver(self, selector: #selector(handleShakeGesture), name: .SentryShakeDetected, object: nil)
+        setShakeGestureEnabled(true)
     }
 
     @objc func handleShakeGesture() {

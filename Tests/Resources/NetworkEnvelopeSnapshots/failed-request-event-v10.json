@@ -2,17 +2,19 @@
   "header": {
     "event_id": "<event-id>",
     "sdk": {
+      "features": "<features>",
+      "integrations": "<integrations>",
       "name": "sentry.cocoa",
       "packages": [],
       "settings": {
-        "infer_ip": "never"
+        "infer_ip": "auto"
       },
       "version": "<sdk-version>"
     },
     "trace": {
       "environment": "test",
-      "public_key": "SentryNetworkTrackerIntegrationTestServerTests.testFailedRequest_whenCaptureEnabled_shouldMatchEnvelopeBaseline()",
-      "release": "io.sentry.network-envelope-baseline@1.0.0+1",
+      "public_key": "SentryNetworkTrackerIntegrationTestServerTests.testFailedRequest_whenCaptureEnabled_shouldMatchEnvelopeSnapshot()",
+      "release": "io.sentry.network-envelope-snapshot@1.0.0+1",
       "trace_id": "<trace-id>"
     }
   },
@@ -48,7 +50,6 @@
             "arch": "<runtime-value>",
             "family": "<runtime-value>",
             "free_memory": "<runtime-value>",
-            "locale": "<runtime-value>",
             "low_power_mode": "<runtime-value>",
             "memory_size": "<runtime-value>",
             "model": "<runtime-value>",
@@ -67,6 +68,7 @@
           },
           "response": {
             "body_size": 37,
+            "cookies": {},
             "headers": {
               "Connection": "keep-alive",
               "Content-Length": "37",
@@ -96,10 +98,12 @@
             }
           ]
         },
+        "extra": {},
         "level": "error",
         "platform": "cocoa",
-        "release": "io.sentry.network-envelope-baseline@1.0.0+1",
+        "release": "io.sentry.network-envelope-snapshot@1.0.0+1",
         "request": {
+          "cookies": {},
           "headers": {
             "Accept": "*/*",
             "Accept-Encoding": "gzip, deflate",
@@ -111,13 +115,16 @@
           "url": "http://localhost:8081/http-client-error"
         },
         "sdk": {
+          "features": "<features>",
+          "integrations": "<integrations>",
           "name": "sentry.cocoa",
           "packages": [],
           "settings": {
-            "infer_ip": "never"
+            "infer_ip": "auto"
           },
           "version": "<sdk-version>"
         },
+        "tags": {},
         "threads": "<threads>",
         "timestamp": "<timestamp>",
         "user": {

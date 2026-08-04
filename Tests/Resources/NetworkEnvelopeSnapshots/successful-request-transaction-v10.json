@@ -2,22 +2,24 @@
   "header": {
     "event_id": "<event-id>",
     "sdk": {
+      "features": "<features>",
+      "integrations": "<integrations>",
       "name": "sentry.cocoa",
       "packages": [],
       "settings": {
-        "infer_ip": "never"
+        "infer_ip": "auto"
       },
       "version": "<sdk-version>"
     },
     "trace": {
       "environment": "test",
-      "public_key": "SentryNetworkTrackerIntegrationTestServerTests.testSuccessfulRequest_whenTransactionFinishes_shouldMatchEnvelopeBaseline()",
-      "release": "io.sentry.network-envelope-baseline@1.0.0+1",
+      "public_key": "SentryNetworkTrackerIntegrationTestServerTests.testSuccessfulRequest_whenTransactionFinishes_shouldMatchEnvelopeSnapshot()",
+      "release": "io.sentry.network-envelope-snapshot@1.0.0+1",
       "sample_rand": "<sample-rand>",
       "sample_rate": "1.000000",
       "sampled": "true",
       "trace_id": "<trace-id>",
-      "transaction": "Network Envelope Baseline"
+      "transaction": "Network Envelope Snapshot"
     }
   },
   "items": [
@@ -52,7 +54,6 @@
             "arch": "<runtime-value>",
             "family": "<runtime-value>",
             "free_memory": "<runtime-value>",
-            "locale": "<runtime-value>",
             "low_power_mode": "<runtime-value>",
             "memory_size": "<runtime-value>",
             "model": "<runtime-value>",
@@ -89,13 +90,19 @@
         "dist": "<runtime-value>",
         "environment": "test",
         "event_id": "<event-id>",
+        "extra": {
+          "thread.id": "<thread-id>",
+          "thread.name": "main"
+        },
         "platform": "cocoa",
-        "release": "io.sentry.network-envelope-baseline@1.0.0+1",
+        "release": "io.sentry.network-envelope-snapshot@1.0.0+1",
         "sdk": {
+          "features": "<features>",
+          "integrations": "<integrations>",
           "name": "sentry.cocoa",
           "packages": [],
           "settings": {
-            "infer_ip": "never"
+            "infer_ip": "auto"
           },
           "version": "<sdk-version>"
         },
@@ -123,8 +130,9 @@
           }
         ],
         "start_timestamp": "<timestamp>",
+        "tags": {},
         "timestamp": "<timestamp>",
-        "transaction": "Network Envelope Baseline",
+        "transaction": "Network Envelope Snapshot",
         "transaction_info": {
           "source": "custom"
         },

@@ -7,6 +7,7 @@ class TestSentryCrashReporter: NSObject, SentryCrashReporter {
 
     // MARK: - Test Properties
 
+    var internalInstalled = false
     var internalCrashedLastLaunch = false
     var internalDurationFromCrashStateInitToLastCrash: TimeInterval = 0
     var internalActiveDurationSinceLastCrash: TimeInterval = 0
@@ -32,6 +33,7 @@ class TestSentryCrashReporter: NSObject, SentryCrashReporter {
 
     // MARK: - SentryCrashReporter Protocol
 
+    var installed: Bool { internalInstalled }
     var crashedLastLaunch: Bool { internalCrashedLastLaunch }
     var durationFromCrashStateInitToLastCrash: TimeInterval { internalDurationFromCrashStateInitToLastCrash }
     var activeDurationSinceLastCrash: TimeInterval { internalActiveDurationSinceLastCrash }

@@ -20,7 +20,16 @@ high_risk_code: &high_risk_code
   - ".github/file-filters.yml"
 
 run_unit_tests_for_prs: &run_unit_tests_for_prs
-  - "Sources/**"
+  - "Sources/Configuration/**"
+  - "Sources/include/**"
+  - "Sources/Resources/**"
+  - "Sources/Sentry/**"
+  - "Sources/SentryCppHelper/**"
+  - "Sources/SentryCrash/**"
+  - "Sources/SentryObjC/**"
+  - "Sources/SentryObjCCompat/**"
+  - "Sources/SentrySwiftUI/**"
+  - "Sources/Swift/**"
   - "Tests/**"
   - "SentryTestUtils/**"
   - "SentryTestUtilsDynamic/**"
@@ -61,8 +70,33 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - "Makefile"
   - "Brewfile*"
 
+run_distribution_tests_for_prs: &run_distribution_tests_for_prs
+  - "Sources/SentryDistribution/**"
+  - "Sources/SentryDistributionTests/**"
+
+  # GH Actions
+  - ".github/workflows/test.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts
+  - "scripts/ci-ensure-runtime-loaded.sh"
+  - "scripts/ci-utils.sh"
+  - "scripts/prepare-package.sh"
+
+  # Project files
+  - "Package*.swift"
+
 run_api_stability_for_prs: &run_api_stability_for_prs
-  - "Sources/**"
+  - "Sources/Configuration/**"
+  - "Sources/include/**"
+  - "Sources/Resources/**"
+  - "Sources/Sentry/**"
+  - "Sources/SentryCppHelper/**"
+  - "Sources/SentryCrash/**"
+  - "Sources/SentryObjC/**"
+  - "Sources/SentryObjCCompat/**"
+  - "Sources/SentrySwiftUI/**"
+  - "Sources/Swift/**"
 
   # GH Actions
   - ".github/workflows/api-stability.yml"
@@ -175,7 +209,16 @@ run_auto_update_tools_for_prs: &run_auto_update_tools_for_prs
   - ".swiftlint.yml"
 
 run_release_for_prs: &run_release_for_prs
-  - "Sources/**"
+  - "Sources/Configuration/**"
+  - "Sources/include/**"
+  - "Sources/Resources/**"
+  - "Sources/Sentry/**"
+  - "Sources/SentryCppHelper/**"
+  - "Sources/SentryCrash/**"
+  - "Sources/SentryObjC/**"
+  - "Sources/SentryObjCCompat/**"
+  - "Sources/SentrySwiftUI/**"
+  - "Sources/Swift/**"
 
   # GH Actions
   - ".github/workflows/release.yml"
@@ -265,7 +308,16 @@ run_lint_dprint_for_prs: &run_lint_dprint_for_prs
   - "dprint.json"
 
 run_lint_xcode_analyze_for_prs: &run_lint_xcode_analyze_for_prs
-  - "Sources/**"
+  - "Sources/Configuration/**"
+  - "Sources/include/**"
+  - "Sources/Resources/**"
+  - "Sources/Sentry/**"
+  - "Sources/SentryCppHelper/**"
+  - "Sources/SentryCrash/**"
+  - "Sources/SentryObjC/**"
+  - "Sources/SentryObjCCompat/**"
+  - "Sources/SentrySwiftUI/**"
+  - "Sources/Swift/**"
   - "Tests/**"
   - "Samples/**"
 
@@ -287,7 +339,16 @@ run_lint_xcode_analyze_for_prs: &run_lint_xcode_analyze_for_prs
   - "Makefile"
 
 run_v10_for_prs: &run_v10_for_prs
-  - "Sources/**"
+  - "Sources/Configuration/**"
+  - "Sources/include/**"
+  - "Sources/Resources/**"
+  - "Sources/Sentry/**"
+  - "Sources/SentryCppHelper/**"
+  - "Sources/SentryCrash/**"
+  - "Sources/SentryObjC/**"
+  - "Sources/SentryObjCCompat/**"
+  - "Sources/SentrySwiftUI/**"
+  - "Sources/Swift/**"
   - "Tests/**"
 
   # GH Actions
@@ -311,10 +372,18 @@ run_v10_for_prs: &run_v10_for_prs
 
   # Build configuration
   - "Makefile"
-  - "Sources/Configuration/**"
 
 run_v10_with_kscrash_for_prs: &run_v10_with_kscrash_for_prs
-  - "Sources/**"
+  - "Sources/Configuration/**"
+  - "Sources/include/**"
+  - "Sources/Resources/**"
+  - "Sources/Sentry/**"
+  - "Sources/SentryCppHelper/**"
+  - "Sources/SentryCrash/**"
+  - "Sources/SentryObjC/**"
+  - "Sources/SentryObjCCompat/**"
+  - "Sources/SentrySwiftUI/**"
+  - "Sources/Swift/**"
   - "Tests/**"
 
   # GH Actions
@@ -338,7 +407,6 @@ run_v10_with_kscrash_for_prs: &run_v10_with_kscrash_for_prs
 
   # Build configuration
   - "Makefile"
-  - "Sources/Configuration/**"
 
 run_build_for_prs: &run_build_for_prs
   - "Sources/**"
@@ -381,7 +449,16 @@ run_testflight_for_prs: &run_testflight_for_prs
   - "scripts/ci-utils.sh"
 
 run_testflight_for_pushes: &run_testflight_for_pushes
-  - "Sources/**"
+  - "Sources/Configuration/**"
+  - "Sources/include/**"
+  - "Sources/Resources/**"
+  - "Sources/Sentry/**"
+  - "Sources/SentryCppHelper/**"
+  - "Sources/SentryCrash/**"
+  - "Sources/SentryObjC/**"
+  - "Sources/SentryObjCCompat/**"
+  - "Sources/SentrySwiftUI/**"
+  - "Sources/Swift/**"
   - "Samples/iOS-Swift/**"
 
   # GH Actions
@@ -399,7 +476,16 @@ run_testflight_for_pushes: &run_testflight_for_pushes
   - "Makefile"
 
 run_codeql_analysis_for_prs: &run_codeql_analysis_for_prs
-  - "Sources/**"
+  - "Sources/Configuration/**"
+  - "Sources/include/**"
+  - "Sources/Resources/**"
+  - "Sources/Sentry/**"
+  - "Sources/SentryCppHelper/**"
+  - "Sources/SentryCrash/**"
+  - "Sources/SentryObjC/**"
+  - "Sources/SentryObjCCompat/**"
+  - "Sources/SentrySwiftUI/**"
+  - "Sources/Swift/**"
 
   # GH Actions
   - ".github/workflows/codeql-analysis.yml"
@@ -447,10 +533,27 @@ run_apple_binaries_archive_for_prs: &run_apple_binaries_archive_for_prs
   - ".github/workflows/apple-binaries-archive.yml"
   - ".github/file-filters.yml"
   - "scripts/create-apple-binaries-archive.sh"
+  - "scripts/ci-utils.sh"
   - "distribution/**"
 
+run_3rd_party_integrations_archive_for_prs: &run_3rd_party_integrations_archive_for_prs
+  - ".github/workflows/3rd-party-integrations-archive.yml"
+  - ".github/file-filters.yml"
+  - "scripts/create-3rd-party-integration-archive.sh"
+  - "scripts/ci-utils.sh"
+  - "3rd-party-integrations/**"
+
 run_ui_tests_for_prs: &run_ui_tests_for_prs
-  - "Sources/**"
+  - "Sources/Configuration/**"
+  - "Sources/include/**"
+  - "Sources/Resources/**"
+  - "Sources/Sentry/**"
+  - "Sources/SentryCppHelper/**"
+  - "Sources/SentryCrash/**"
+  - "Sources/SentryObjC/**"
+  - "Sources/SentryObjCCompat/**"
+  - "Sources/SentrySwiftUI/**"
+  - "Sources/Swift/**"
   - "Tests/**"
 
   # GH Actions
@@ -484,7 +587,16 @@ run_ui_tests_for_prs: &run_ui_tests_for_prs
   - "Brewfile*"
 
 run_ui_tests_critical_for_prs: &run_ui_tests_critical_for_prs
-  - "Sources/**"
+  - "Sources/Configuration/**"
+  - "Sources/include/**"
+  - "Sources/Resources/**"
+  - "Sources/Sentry/**"
+  - "Sources/SentryCppHelper/**"
+  - "Sources/SentryCrash/**"
+  - "Sources/SentryObjC/**"
+  - "Sources/SentryObjCCompat/**"
+  - "Sources/SentrySwiftUI/**"
+  - "Sources/Swift/**"
   - "TestSamples/**"
 
   # GH Actions
@@ -513,7 +625,18 @@ run_ui_tests_critical_for_prs: &run_ui_tests_critical_for_prs
   - "Brewfile*"
 
 run_lint_swiftlint_for_prs: &run_lint_swiftlint_for_prs
-  - "Sources/**"
+  - "Sources/Configuration/**"
+  - "Sources/include/**"
+  - "Sources/Resources/**"
+  - "Sources/Sentry/**"
+  - "Sources/SentryCppHelper/**"
+  - "Sources/SentryCrash/**"
+  - "Sources/SentryDistribution/**"
+  - "Sources/SentryDistributionTests/**"
+  - "Sources/SentryObjC/**"
+  - "Sources/SentryObjCCompat/**"
+  - "Sources/SentrySwiftUI/**"
+  - "Sources/Swift/**"
   - "Tests/**"
   - "Samples/**"
 
@@ -539,7 +662,16 @@ run_lint_swiftlint_for_prs: &run_lint_swiftlint_for_prs
   - "Brewfile*"
 
 run_size_analysis_for_prs: &run_size_analysis_for_prs
-  - "Sources/**"
+  - "Sources/Configuration/**"
+  - "Sources/include/**"
+  - "Sources/Resources/**"
+  - "Sources/Sentry/**"
+  - "Sources/SentryCppHelper/**"
+  - "Sources/SentryCrash/**"
+  - "Sources/SentryObjC/**"
+  - "Sources/SentryObjCCompat/**"
+  - "Sources/SentrySwiftUI/**"
+  - "Sources/Swift/**"
   - "Samples/**"
 
   # GH Actions
@@ -560,7 +692,16 @@ run_size_analysis_for_prs: &run_size_analysis_for_prs
   - "Brewfile*"
 
 run_xcode27_for_prs: &run_xcode27_for_prs
-  - "Sources/**"
+  - "Sources/Configuration/**"
+  - "Sources/include/**"
+  - "Sources/Resources/**"
+  - "Sources/Sentry/**"
+  - "Sources/SentryCppHelper/**"
+  - "Sources/SentryCrash/**"
+  - "Sources/SentryObjC/**"
+  - "Sources/SentryObjCCompat/**"
+  - "Sources/SentrySwiftUI/**"
+  - "Sources/Swift/**"
 
   # GH Actions
   - ".github/workflows/xcode27-test.yml"
@@ -578,7 +719,16 @@ run_xcode27_for_prs: &run_xcode27_for_prs
   - "Package*.swift"
 
 run_3rd_party_integrations_tests_for_prs: &run_3rd_party_integrations_tests_for_prs
-  - "Sources/**"
+  - "Sources/Configuration/**"
+  - "Sources/include/**"
+  - "Sources/Resources/**"
+  - "Sources/Sentry/**"
+  - "Sources/SentryCppHelper/**"
+  - "Sources/SentryCrash/**"
+  - "Sources/SentryObjC/**"
+  - "Sources/SentryObjCCompat/**"
+  - "Sources/SentrySwiftUI/**"
+  - "Sources/Swift/**"
   - "3rd-party-integrations/**"
 
   # GH Actions

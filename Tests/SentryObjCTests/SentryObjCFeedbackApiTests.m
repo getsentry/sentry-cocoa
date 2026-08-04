@@ -40,6 +40,13 @@
                  }];
 }
 
+- (void)testOnShake_whenFeedbackNotConfigured_shouldNotCrash
+{
+    // -- Act & Assert (no crash) --
+    [SentryObjCSDK.feedback enableOnShake];
+    [SentryObjCSDK.feedback disableOnShake];
+}
+
 @end
 
 #endif

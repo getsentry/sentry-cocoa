@@ -1,6 +1,5 @@
 import RealityKit
 import Sentry
-import SentrySwiftUI
 import SwiftUI
 
 struct ContentView: View {
