@@ -2312,12 +2312,11 @@ final class SentryClientTests: XCTestCase {
 #endif
     }
 
-    func testDataCollectionUserInfoDisabled_GivenSendDefaultPiiEnabled_sdkIPIsNever() throws {
+    func testDataCollectionUserInfoDisabled_GivenNoIP_sdkIPIsNever() throws {
 #if !SDK_V10
         throw XCTSkip("Test skipped for SDK_V10")
 #else
         fixture.getSut(configureOptions: { options in
-            options.sendDefaultPii = true
             options.dataCollection.userInfo = false
         }).capture(message: "any")
 
@@ -2329,15 +2328,19 @@ final class SentryClientTests: XCTestCase {
     }
     
     func testSendDefaultPiiEnabled_GivenIP_IPAddressNotChanged() throws {
+#if SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+#else
         let scope = Scope()
         scope.setUser(fixture.user)
-        
+
         fixture.getSut(configureOptions: { options in
             options.sendDefaultPii = true
         }).capture(message: "any", scope: scope)
-        
+
         let actual = try lastSentEvent()
         XCTAssertEqual(fixture.user.ipAddress, actual.user?.ipAddress)
+#endif
     }
     
     func testSendDefaultPiiDisabled_GivenIP_IPAddressNotChanged() throws {

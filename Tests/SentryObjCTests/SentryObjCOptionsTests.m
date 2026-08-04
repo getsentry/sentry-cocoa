@@ -7,6 +7,19 @@
 
 @implementation SentryObjCOptionsTests
 
+- (void)testSendDefaultPii_whenBuildingV10_shouldNotBeExposed
+{
+#if !SDK_V10
+    XCTSkip(@"Test skipped for SDK_V10");
+#else
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Assert --
+    XCTAssertFalse([options respondsToSelector:NSSelectorFromString(@"sendDefaultPii")]);
+#endif
+}
+
 #pragma mark - Data Collection
 
 - (void)testDataCollection_whenDefault_shouldReturnNotNil
@@ -300,6 +313,7 @@
     XCTAssertTrue(options.attachAllThreads);
 }
 
+#if !SDK_V10
 - (void)testSendDefaultPii_whenSetToYes_shouldReturnYes
 {
     // -- Arrange --
@@ -311,6 +325,7 @@
     // -- Assert --
     XCTAssertTrue(options.sendDefaultPii);
 }
+#endif // !SDK_V10
 
 - (void)testEnableAutoPerformanceTracing_whenSetToYes_shouldReturnYes
 {

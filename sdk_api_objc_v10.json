@@ -5328,13 +5328,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "sendDefaultPii",
-    "parent": "SentryObjCOptions",
-    "returnType": "BOOL",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "sentAt",
     "parent": "SentryObjCEnvelopeHeader",
     "returnType": "NSDate * _Nullable",
@@ -7051,13 +7044,6 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setSendClientReports:",
-    "parent": "SentryObjCOptions",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "setSendDefaultPii:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
     "instance": true
@@ -10685,12 +10671,6 @@
   {
     "kind": "ObjCPropertyDecl",
     "name": "sendClientReports",
-    "parent": "SentryObjCOptions",
-    "type": "BOOL"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
-    "name": "sendDefaultPii",
     "parent": "SentryObjCOptions",
     "type": "BOOL"
   },
