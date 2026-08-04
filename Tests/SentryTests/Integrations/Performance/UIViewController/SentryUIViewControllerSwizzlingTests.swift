@@ -527,6 +527,39 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         XCTAssertGreaterThan(fixture.subClassFinder.invocations.count, 0, "The eager path is expected to scan the root view controller's image.")
     }
 
+    /// Direct backstop: even if a caller reaches the image-scan entry point with the funnel enabled,
+    /// the subclass finder must not run. Scanning an image realizes every UIViewController subclass in
+    /// it, which is the crash the funnel exists to avoid.
+    func testInitSwizzling_whenEnabledAndImageScanCalledDirectly_doesNotInvokeSubClassFinder() {
+        // -- Arrange --
+        fixture.options.experimental.enableUIViewControllerInitSwizzling = true
+        let sut = fixture.sutWithDefaultObjCRuntimeWrapper
+
+        // -- Act --
+        // XCTestCase's image scans successfully on the eager path, see
+        // testSwizzleUIViewControllersOfClassesInImageOf_OtherClass_Swizzled.
+        sut.swizzleUIViewControllersOfClassesInImageOf(XCTestCase.self)
+        sut.swizzleUIViewControllers(ofImage: "SomeImageName")
+
+        // -- Assert --
+        XCTAssertEqual(0, fixture.subClassFinder.invocations.count, "Neither image-scan entry point may reach the subclass finder while the funnel is enabled.")
+    }
+
+    /// Control for the test above: the same two calls DO reach the finder on the eager path, proving
+    /// the assertion above is about the flag and not an inert fixture.
+    func testInitSwizzling_whenDisabledAndImageScanCalledDirectly_invokesSubClassFinder() {
+        // -- Arrange --
+        XCTAssertFalse(fixture.options.experimental.enableUIViewControllerInitSwizzling)
+        let sut = fixture.sutWithDefaultObjCRuntimeWrapper
+
+        // -- Act --
+        sut.swizzleUIViewControllersOfClassesInImageOf(XCTestCase.self)
+        sut.swizzleUIViewControllers(ofImage: "SomeImageName")
+
+        // -- Assert --
+        XCTAssertEqual(2, fixture.subClassFinder.invocations.count, "The eager path is expected to scan both images.")
+    }
+
     /// The root walk must not route through the first-instantiation funnel while the flag is off, so
     /// the eager path keeps behaving exactly as it did before the funnel existed.
     func testInitSwizzling_whenDisabledAndRootViewControllerFound_doesNotUseInstantiationFunnel() {
