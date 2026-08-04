@@ -29,7 +29,11 @@ import UIKit
     }
     
     @objc public var unsafeApplicationState: State {
-        applicationState
+        var applicationState: State = .active
+        Dependencies.dispatchQueueWrapper.dispatchSyncOnMainQueue({ [weak self] in
+            applicationState = self?.applicationState ?? .active
+        }, timeout: 0.01)
+        return applicationState
     }
     
     @objc public var mainThread_isActive: Bool {
