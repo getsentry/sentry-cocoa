@@ -412,38 +412,38 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         let sut = fixture.sut
         sut.start()
 
-        sut.testHandleInstantiatedViewController(TestViewController.self)
+        sut.testSwizzleViewControllerSubClassOnce(TestViewController.self)
 
         let controller = TestViewController()
         controller.loadView()
         XCTAssertNotNil(SentrySDK.span, "An instantiated in-app view controller should be swizzled and tracked.")
     }
 
-    /// The funnel deduplicates by class: a class is only processed once no matter how many instances
+    /// The funnel deduplicates by class: a class is only considered once no matter how many instances
     /// are created.
     func testInitSwizzling_whenSameClassInstantiatedTwice_isProcessedOnce() {
         fixture.options.experimental.enableUIViewControllerInitSwizzling = true
         let sut = fixture.sut
         sut.start()
 
-        XCTAssertFalse(sut.testHasProcessedViewController(TestViewController.self))
-        sut.testHandleInstantiatedViewController(TestViewController.self)
-        XCTAssertTrue(sut.testHasProcessedViewController(TestViewController.self))
+        XCTAssertFalse(sut.testWasConsideredForSwizzling(TestViewController.self))
+        sut.testSwizzleViewControllerSubClassOnce(TestViewController.self)
+        XCTAssertTrue(sut.testWasConsideredForSwizzling(TestViewController.self))
         // A second call is a no-op (the class is already recorded).
-        sut.testHandleInstantiatedViewController(TestViewController.self)
-        XCTAssertTrue(sut.testHasProcessedViewController(TestViewController.self))
+        sut.testSwizzleViewControllerSubClassOnce(TestViewController.self)
+        XCTAssertTrue(sut.testWasConsideredForSwizzling(TestViewController.self))
     }
 
-    /// An excluded class is recorded as processed (so it isn't reconsidered) but is not swizzled.
+    /// An excluded class is recorded as considered (so it isn't reconsidered) but is not swizzled.
     func testInitSwizzling_whenClassExcluded_isNotSwizzledButRecorded() {
         fixture.options.experimental.enableUIViewControllerInitSwizzling = true
         fixture.options.swizzleClassNameExcludes = ["TestViewController"]
         let sut = fixture.sut
         sut.start()
 
-        sut.testHandleInstantiatedViewController(TestViewController.self)
+        sut.testSwizzleViewControllerSubClassOnce(TestViewController.self)
 
-        XCTAssertTrue(sut.testHasProcessedViewController(TestViewController.self), "Excluded classes are still recorded so they aren't reconsidered.")
+        XCTAssertTrue(sut.testWasConsideredForSwizzling(TestViewController.self), "Excluded classes are still recorded so they aren't reconsidered.")
 
         let controller = TestViewController()
         controller.loadView()
@@ -457,11 +457,11 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         let sut = fixture.sut
         sut.start()
 
-        XCTAssertFalse(sut.testHasProcessedViewController(TestViewController.self))
+        XCTAssertFalse(sut.testWasConsideredForSwizzling(TestViewController.self))
 
         // We never call the funnel for TestViewController, so it must not be recorded or swizzled.
         // (We can't assert loadView here without instantiating it, which is the point.)
-        XCTAssertFalse(sut.testHasProcessedViewController(TestViewController.self))
+        XCTAssertFalse(sut.testWasConsideredForSwizzling(TestViewController.self))
     }
 
     /// With the flag off (default), the finder path runs and the init funnel is not installed.
@@ -575,8 +575,8 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
 
         // -- Assert --
         XCTAssertFalse(
-            sut.testHasProcessedViewController(TestViewController.self),
-            "The eager path must not record classes in the funnel's dedup set."
+            sut.testWasConsideredForSwizzling(TestViewController.self),
+            "The eager path must not record classes as considered for swizzling."
         )
     }
 

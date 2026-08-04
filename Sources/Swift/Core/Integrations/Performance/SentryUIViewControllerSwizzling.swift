@@ -42,10 +42,10 @@ class SentryUIViewControllerSwizzling: NSObject, SentryUIViewControllerInitSwizz
     private let performanceTracker: SentryUIViewControllerPerformanceTracker
     private let loadedImageNamesProvider: SentryLoadedImageNamesProvider
 
-    // UIViewController subclasses already passed to `handleInstantiatedViewController`, so each is
-    // processed once. `NSMutableSet` because an `AnyClass` metatype isn't `Hashable`. Main-thread
-    // confined, so unlocked.
-    private let processedUIViewControllerSubClasses = NSMutableSet()
+    // UIViewController subclasses `swizzleViewControllerSubClassOnce` has already looked at. Holds
+    // classes it swizzled and classes it filtered out, so neither is reconsidered. `NSMutableSet`
+    // because an `AnyClass` metatype isn't `Hashable`. Main-thread confined, so unlocked.
+    private let consideredForSwizzlingUIViewControllerSubClasses = NSMutableSet()
 
     init(
         options: Options,
@@ -273,10 +273,10 @@ class SentryUIViewControllerSwizzling: NSObject, SentryUIViewControllerInitSwizz
                 SentrySDKLog.debug("Calling swizzleRootViewController for \(viewController)")
 
                 if options.experimental.enableUIViewControllerInitSwizzling {
-                    // These instances already exist, so the init funnel never sees them. Route them
-                    // through its entry point so a class reached by both is filtered once, and skip
-                    // the image fallback below — the funnel swizzles each instance directly.
-                    handleInstantiatedViewController(viewControllerClass)
+                    // These instances already exist, so the init funnel never reports them. Share its
+                    // entry point so a class reached by both is only considered once, and skip the
+                    // image fallback below — the funnel swizzles every later instance directly.
+                    swizzleViewControllerSubClassOnce(viewControllerClass)
                 } else {
                     swizzleViewControllerSubClass(viewControllerClass)
 
@@ -292,17 +292,19 @@ class SentryUIViewControllerSwizzling: NSObject, SentryUIViewControllerInitSwizz
     }
 
     func viewControllerInitialized(_ viewControllerClass: AnyClass) {
-        handleInstantiatedViewController(viewControllerClass)
+        swizzleViewControllerSubClassOnce(viewControllerClass)
     }
 
-    /// Swizzles a view controller class the first time an instance of it is seen, deduplicating by
-    /// class identity. Called by the base-init funnel and the root-hierarchy walk.
-    private func handleInstantiatedViewController(_ targetClass: AnyClass) {
-        if processedUIViewControllerSubClasses.contains(targetClass) {
+    /// Same as `swizzleViewControllerSubClass`, but skips classes it has already been given, so
+    /// repeated reports of the same class cost nothing. Both callers report classes that already have
+    /// a live instance: the base-init funnel on every initializer call, and the root-hierarchy walk
+    /// for the view controllers UIKit created before the SDK started.
+    private func swizzleViewControllerSubClassOnce(_ targetClass: AnyClass) {
+        if consideredForSwizzlingUIViewControllerSubClasses.contains(targetClass) {
             return
         }
         // Mark before filtering so rejected classes aren't reconsidered.
-        processedUIViewControllerSubClasses.add(targetClass)
+        consideredForSwizzlingUIViewControllerSubClasses.add(targetClass)
 
         swizzleViewControllerSubClass(targetClass)
     }
@@ -339,13 +341,13 @@ class SentryUIViewControllerSwizzling: NSObject, SentryUIViewControllerInitSwizz
 
     // Exposes the first-instantiation funnel entry point for testing without having to trigger the
     // base-init swizzle from a real UIViewController allocation.
-    func testHandleInstantiatedViewController(_ targetClass: AnyClass) {
-        handleInstantiatedViewController(targetClass)
+    func testSwizzleViewControllerSubClassOnce(_ targetClass: AnyClass) {
+        swizzleViewControllerSubClassOnce(targetClass)
     }
 
-    // Exposes the processed-UIViewController-subclass dedup set for testing.
-    func testHasProcessedViewController(_ targetClass: AnyClass) -> Bool {
-        processedUIViewControllerSubClasses.contains(targetClass)
+    // Exposes whether a class has already been considered for swizzling, for testing.
+    func testWasConsideredForSwizzling(_ targetClass: AnyClass) -> Bool {
+        consideredForSwizzlingUIViewControllerSubClasses.contains(targetClass)
     }
     #endif
 }
