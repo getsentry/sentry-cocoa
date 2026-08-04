@@ -75,16 +75,6 @@ public struct SentrySDKWrapper {
             mode: SentrySDKOverrides.DataCollection.urlQueryParamsMode.stringValue,
             terms: SentrySDKOverrides.DataCollection.urlQueryParamsTerms.stringValue
         )
-        options.dataCollection.graphql.document = !SentrySDKOverrides.DataCollection.disableGraphQLDocument.boolValue
-        options.dataCollection.graphql.variables = !SentrySDKOverrides.DataCollection.disableGraphQLVariables.boolValue
-        options.dataCollection.database.queryParams = !SentrySDKOverrides.DataCollection.disableDatabaseQueryParams.boolValue
-        options.dataCollection.stackFrameVariables = !SentrySDKOverrides.DataCollection.disableStackFrameVariables.boolValue
-        if SentrySDKOverrides.Special.disableEverything.boolValue {
-            options.dataCollection.frameContextLines = 0
-        } else if let frameContextLines = SentrySDKOverrides.DataCollection.frameContextLines.stringValue,
-                  let value = UInt(frameContextLines) {
-            options.dataCollection.frameContextLines = value
-        }
 #endif // SDK_V10
     }
 

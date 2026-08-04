@@ -42,7 +42,7 @@ jobs:
   run-tests:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_critical_for_prs == 'true'
     needs: files-changed
-    name: Test ${{matrix.name}} V4 on ${{matrix.runner_provider}} # Up the version with every change to keep track of flaky tests
+    name: Test ${{matrix.name}} V4 # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
     with:
       fastlane_command: ui_critical_tests_ios_swiftui_envelope
@@ -51,11 +51,9 @@ jobs:
       files_suffix: _${{matrix.platform.xcode}}
       xcode_version: ${{matrix.platform.xcode}}
       platform: ${{matrix.platform.platform}}
-      runner_provider: ${{matrix.runner_provider}}
     strategy:
       fail-fast: false
       matrix:
-        runner_provider: ${{ github.event_name == 'pull_request' && fromJSON('["cirrus", "bitrise"]') || fromJSON('["bitrise"]') }}
         include:
           # macos-14 iOS 17 not included due to the XCUIServerNotFound errors causing flaky tests
 
@@ -77,11 +75,8 @@ jobs:
   run-swiftui-crash-test:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_critical_for_prs == 'true'
     needs: files-changed
-    name: Run SwiftUI Crash Test on ${{matrix.runner_provider}}
-    runs-on: ${{ matrix.runner_provider == 'bitrise' && fromJSON(format('["bitrise_pool_name:{0}"]', 'sequoia')) || fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', 'sequoia', github.run_id)) }}
-    strategy:
-      matrix:
-        runner_provider: ${{ github.event_name == 'pull_request' && fromJSON('["cirrus", "bitrise"]') || fromJSON('["bitrise"]') }}
+    name: Run SwiftUI Crash Test
+    runs-on: ["bitrise_pool_name:sequoia"]
     timeout-minutes: 15
     steps:
       - name: Warm CoreSimulator
@@ -121,7 +116,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: always()
         with:
-          name: swiftui-crash-test-screenshots-${{ matrix.runner_provider }}
+          name: swiftui-crash-test-screenshots
           path: swiftui-crash-test-screenshots
 
       - name: Collect Logs
@@ -132,7 +127,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: always()
         with:
-          name: swiftui-crash-test-log-${{ matrix.runner_provider }}.logarchive
+          name: swiftui-crash-test-log.logarchive
           path: swiftui-crash-test-log.logarchive
 
       - name: Run CI Diagnostics

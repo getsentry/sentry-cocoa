@@ -142,9 +142,11 @@ extension Options {
             self.maxAttachmentSize = maxAttachmentSize.uintValue
         }
 
+#if !SDK_V10
         if let sendDefaultPii = boolValue(dictionary["sendDefaultPii"]) {
             self.sendDefaultPii = sendDefaultPii
         }
+#endif // !SDK_V10
 
         if let enableAutoPerformanceTracing = boolValue(dictionary["enableAutoPerformanceTracing"]) {
             self.enableAutoPerformanceTracing = enableAutoPerformanceTracing

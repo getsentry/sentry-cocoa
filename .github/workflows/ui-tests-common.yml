@@ -50,16 +50,11 @@ on:
         required: false
         default: false
         type: boolean
-      runner_provider:
-        description: "CI runner provider: cirrus (default) or bitrise"
-        required: false
-        default: "cirrus"
-        type: string
 jobs:
   common-ui-tests:
     if: ${{ !inputs.should_skip }}
     name: UI Tests Common
-    runs-on: ${{ inputs.runner_provider == 'bitrise' && fromJSON(format('["bitrise_pool_name:{0}"]', inputs.macos_version)) || fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', inputs.macos_version, github.run_id)) }}
+    runs-on: ${{ fromJSON(format('["bitrise_pool_name:{0}"]', inputs.macos_version)) }}
     timeout-minutes: 40
     steps:
       - name: Warm CoreSimulator
@@ -77,8 +72,7 @@ jobs:
           restore-keys: |
             ruby-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.ruby-version') }}-
 
-      - name: Install Ruby (Bitrise)
-        if: inputs.runner_provider == 'bitrise'
+      - name: Install Ruby
         env:
           CACHE_HIT: ${{ steps.cache-ruby.outputs.cache-hit }}
         run: |
@@ -91,12 +85,6 @@ jobs:
             rbenv rehash
           fi
           bundle install
-
-      - name: Setup Ruby
-        if: inputs.runner_provider != 'bitrise'
-        uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
-        with:
-          bundler-cache: true
 
       - name: Setup Xcode
         id: setup-xcode
@@ -182,7 +170,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() }}
         with:
-          name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}-${{ inputs.runner_provider }}
+          name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}
           path: |
             fastlane/test_results/**/*.xcresult
 
@@ -190,7 +178,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() }}
         with:
-          name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}_crash_logs-${{ inputs.runner_provider }}
+          name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}_crash_logs
           path: |
             ~/Library/Logs/DiagnosticReports/**
 
@@ -198,7 +186,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() || cancelled() }}
         with:
-          name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}_raw_output-${{ inputs.runner_provider }}
+          name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}_raw_output
           path: |
             ~/Library/Logs/scan/*.log
             ./fastlane/test_output/**
@@ -207,7 +195,7 @@ jobs:
         uses: ./.github/actions/capture-screenshot
         if: failure()
         with:
-          suffix: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}-${{ inputs.runner_provider }}
+          suffix: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}
 
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics

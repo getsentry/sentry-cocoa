@@ -381,7 +381,7 @@ jobs:
         if: failure()
 
   duplication-tests:
-    name: Test Sentry Duplication V4 on ${{matrix.runner_provider}}
+    name: Test Sentry Duplication V4
     uses: ./.github/workflows/ui-tests-common.yml
     needs: [files-changed, assemble-xcframework-variant]
     # Run the job only for PRs with related changes or non-PR events.
@@ -392,10 +392,6 @@ jobs:
       macos_version: sequoia
       needs_xcframework: true
       platform: macOS
-      runner_provider: ${{matrix.runner_provider}}
-    strategy:
-      matrix:
-        runner_provider: ${{ github.event_name == 'pull_request' && fromJSON('["cirrus", "bitrise"]') || fromJSON('["bitrise"]') }}
 
   app-metrics:
     name: Collect App Metrics

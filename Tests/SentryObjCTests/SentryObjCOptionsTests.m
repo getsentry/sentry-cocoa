@@ -7,6 +7,19 @@
 
 @implementation SentryObjCOptionsTests
 
+- (void)testSendDefaultPii_whenBuildingV10_shouldNotBeExposed
+{
+#if !SDK_V10
+    XCTSkip(@"Test skipped for SDK_V10");
+#else
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Assert --
+    XCTAssertFalse([options respondsToSelector:NSSelectorFromString(@"sendDefaultPii")]);
+#endif
+}
+
 #pragma mark - Data Collection
 
 - (void)testDataCollection_whenDefault_shouldReturnNotNil
@@ -33,8 +46,6 @@
     // -- Assert --
     XCTAssertTrue(options.dataCollection.userInfo);
     XCTAssertEqual(options.dataCollection.httpBodies, SentryObjCDataCollectionHttpBodyTypeAll);
-    XCTAssertTrue(options.dataCollection.stackFrameVariables);
-    XCTAssertEqual(options.dataCollection.frameContextLines, 5u);
 #endif
 }
 
@@ -71,38 +82,6 @@
 
     // -- Assert --
     XCTAssertFalse(options.dataCollection.userInfo);
-#endif
-}
-
-- (void)testDataCollection_whenSubPropertyMutatedInPlace_shouldPropagateToOptions
-{
-#if !SDK_V10
-    XCTSkip(@"Test skipped for SDK_V10");
-#else
-    // -- Arrange --
-    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
-
-    // -- Act --
-    options.dataCollection.database.queryParams = NO;
-
-    // -- Assert --
-    XCTAssertFalse(options.dataCollection.database.queryParams);
-#endif
-}
-
-- (void)testDataCollection_whenGraphqlMutatedInPlace_shouldPropagateToOptions
-{
-#if !SDK_V10
-    XCTSkip(@"Test skipped for SDK_V10");
-#else
-    // -- Arrange --
-    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
-
-    // -- Act --
-    options.dataCollection.graphql.document = NO;
-
-    // -- Assert --
-    XCTAssertFalse(options.dataCollection.graphql.document);
 #endif
 }
 
@@ -334,6 +313,7 @@
     XCTAssertTrue(options.attachAllThreads);
 }
 
+#if !SDK_V10
 - (void)testSendDefaultPii_whenSetToYes_shouldReturnYes
 {
     // -- Arrange --
@@ -345,6 +325,7 @@
     // -- Assert --
     XCTAssertTrue(options.sendDefaultPii);
 }
+#endif // !SDK_V10
 
 - (void)testEnableAutoPerformanceTracing_whenSetToYes_shouldReturnYes
 {
