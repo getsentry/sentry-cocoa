@@ -198,15 +198,15 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 
 #pragma mark - Envelope
 
-- (nullable NSString *)storeEnvelopeData:(NSData *)envelopeData
-                             currentTime:(NSTimeInterval)currentTime
+- (nullable NSString *)storeEnvelopeWithCurrentTime:(NSTimeInterval)currentTime
+                                        writeToPath:(BOOL (^)(NSString *path))writeToPath
 {
     @synchronized(self) {
         NSString *path = [self.envelopesPath
             stringByAppendingPathComponent:[self uniqueAscendingJsonName:currentTime]];
         SENTRY_LOG_DEBUG(@"Writing envelope to path: %@", path);
 
-        if (![self writeData:envelopeData toPath:path]) {
+        if (!writeToPath(path)) {
             SENTRY_LOG_WARN(@"Failed to store envelope.");
             return nil;
         }

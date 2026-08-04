@@ -26,7 +26,9 @@ class SentryTraceContextTests: XCTestCase {
             options.dsn = SentryTraceContextTests.dsnAsString
             options.releaseName = releaseName
             options.environment = environment
+#if !SDK_V10
             options.sendDefaultPii = true
+#endif // !SDK_V10
             
             tracer = SentryTracer(transactionContext: TransactionContext(name: transactionName, operation: transactionOperation, sampled: .yes, sampleRate: nil, sampleRand: nil), hub: nil)
 

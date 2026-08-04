@@ -56,26 +56,6 @@ public final class SentryObjCDataCollectionOptions: NSObject {
         get { SentryObjCDataCollectionKeyValueCollectionBehavior(storage.value.urlQueryParams) }
         set { storage.value.urlQueryParams = newValue.wrapped }
     }
-
-    @objc public var graphql: SentryObjCDataCollectionGraphQLCollectionOptions {
-        get { SentryObjCDataCollectionGraphQLCollectionOptions(storage.child(\.graphql)) }
-        set { storage.value.graphql = newValue.wrapped }
-    }
-
-    @objc public var database: SentryObjCDataCollectionDatabaseCollectionOptions {
-        get { SentryObjCDataCollectionDatabaseCollectionOptions(storage.child(\.database)) }
-        set { storage.value.database = newValue.wrapped }
-    }
-
-    @objc public var stackFrameVariables: Bool {
-        get { storage.value.stackFrameVariables }
-        set { storage.value.stackFrameVariables = newValue }
-    }
-
-    @objc public var frameContextLines: UInt {
-        get { storage.value.frameContextLines }
-        set { storage.value.frameContextLines = newValue }
-    }
 }
 
 // swiftlint:enable missing_docs

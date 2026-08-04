@@ -245,11 +245,13 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic) NSUInteger maxAttachmentSize;
 
+#if !SDK_V10
 /**
  * When enabled, the SDK sends personal identifiable information along with events.
  * @note The default is @c NO.
  */
 @property (nonatomic) BOOL sendDefaultPii;
+#endif // !SDK_V10
 
 /**
  * When enabled, the SDK tracks performance for UIViewController subclasses and HTTP requests

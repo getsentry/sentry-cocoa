@@ -41,8 +41,8 @@ SENTRY_NO_INIT
 
 #pragma mark - Envelope
 
-- (nullable NSString *)storeEnvelopeData:(NSData *)envelopeData
-                             currentTime:(NSTimeInterval)currentTime;
+- (nullable NSString *)storeEnvelopeWithCurrentTime:(NSTimeInterval)currentTime
+                                        writeToPath:(BOOL (^)(NSString *path))writeToPath;
 /**
  * Only used for testing.
  */
