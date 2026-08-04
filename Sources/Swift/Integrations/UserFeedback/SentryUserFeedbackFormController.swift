@@ -34,7 +34,6 @@ public final class SentryUserFeedbackFormController: UIViewController {
         case didClose
     }
     private var formLifecycleState: FormLifecycleState = .idle
-    var screenshotPickerHandler: NSObject?
     lazy var viewModel = SentryUserFeedbackFormViewModel(config: config, controller: self, screenshot: screenshot)
 
     /// Creates a feedback form controller using the global configuration from `SentryOptions.configureUserFeedback`.

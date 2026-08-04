@@ -5,6 +5,8 @@ import Foundation
 import UIKit
 import UniformTypeIdentifiers
 
+private let screenshotPickerDelegateKey = AssociatedObjectAccessor<ScreenshotPickerDelegate>.Key()
+
 private final class ScreenshotPickerDelegate: NSObject, PHPickerViewControllerDelegate {
     private let animations: Bool
     private let didDismiss: ([PHPickerResult]) -> Void
@@ -31,11 +33,9 @@ extension SentryUserFeedbackFormController {
         configuration.preferredAssetRepresentationMode = .compatible
         let picker = PHPickerViewController(configuration: configuration)
         let delegate = ScreenshotPickerDelegate(animations: config.animations) { [weak self] results in
-            guard let self = self else { return }
-            self.screenshotPickerHandler = nil
-            self.processScreenshotPickerResults(results)
+            self?.processScreenshotPickerResults(results)
         }
-        screenshotPickerHandler = delegate
+        AssociatedObjectAccessor(on: picker, key: screenshotPickerDelegateKey).set(delegate)
         picker.delegate = delegate
         return picker
     }
