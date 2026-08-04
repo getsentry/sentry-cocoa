@@ -259,6 +259,43 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         XCTAssertFalse(features.contains("watchdogTerminationsV2"))
     }
 
+    func testEnableUIViewControllerInitSwizzling_isEnabled_shouldAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+
+        options.experimental.enableUIViewControllerInitSwizzling = true
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertTrue(features.contains("uiViewControllerInitSwizzling"))
+    }
+
+    func testEnableUIViewControllerInitSwizzling_isDisabled_shouldNotAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+
+        options.experimental.enableUIViewControllerInitSwizzling = false
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("uiViewControllerInitSwizzling"))
+    }
+
+    func testEnableUIViewControllerInitSwizzling_whenDefault_shouldNotAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("uiViewControllerInitSwizzling"))
+    }
+
     func testAttachViewHierarchy_isEnabled_shouldAddFeature() throws {
 #if os(iOS)
         // -- Arrange --

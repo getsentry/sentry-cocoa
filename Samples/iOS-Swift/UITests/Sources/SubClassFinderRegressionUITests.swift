@@ -1,14 +1,10 @@
 import XCTest
 
-/// Regression test for GH-8152 / GH-8548. The gated fixtures in
-/// `SubClassFinderRegressionViewController` are compiled into the app and run through the real
-/// swizzle path (no `swizzleClassNameExcludes` workaround), so a launch crash (the fix regressing)
-/// fails these tests. This is the acceptance gate for deferred first-instantiation swizzling: run on
-/// the iOS 16.4 simulator, where the iOS-17-gated fixture is below its gate.
+/// Gated fixtures in `SubClassFinderRegressionViewController` run through the real swizzle path; a
+/// launch crash fails these tests. Run on the iOS 16.4 simulator, below the iOS-17 gate. (GH-8152)
 class SubClassFinderRegressionUITests: BaseUITest {
 
-    /// Reaching the home screen proves the SDK enumerated and (attempted to) swizzle the gated
-    /// subclasses at launch without realizing any of them below its gate.
+    /// App launches without realizing a gated subclass below its gate.
     func testAppLaunchesWithoutCrashingOnGatedSubclasses() {
         waitForExistenceOfMainScreen()
     }
@@ -24,10 +20,7 @@ class SubClassFinderRegressionUITests: BaseUITest {
         screen.waitForExistence("SubClassFinder regression screen did not appear.")
     }
 
-    /// Regression test for GH-1355 / GH-1361: opening `ConvenienceInitViewController` instantiates a
-    /// UIViewController with a convenience + custom designated initializer (no @objc) via its
-    /// convenience init. The old init swizzling crashed this shape on iOS 15; deferred
-    /// first-instantiation swizzling (GH-8548) must not. Reaching the screen proves no crash.
+    /// Opening the convenience-init fixture doesn't crash. (GH-1355)
     func testOpenConvenienceInitRegressionScreen() {
         app.buttons["Extra"].tap()
 

@@ -34,14 +34,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         SentrySDKWrapper.spanCaptureHandler = { LaunchVCTransactionCapture.shared.capture($0) }
 
-        // Opt into deferred (first-instantiation) UIViewController swizzling so the sample exercises
-        // the GH-8548 fix. This is what keeps the gated fixtures in
-        // SubClassFinderRegressionViewController.swift from crashing at launch below their gate
-        // (they're never instantiated there, so they're never realized/swizzled), and it must keep
-        // the GH-1355 ConvenienceInitViewController fixture crash-free.
-        SentrySDKWrapper.additionalOptionsConfiguration = { options in
-            options.experimental.enableUIViewControllerInitSwizzling = true
-        }
+        // Required: this sample has @available-gated UIViewController subclasses that would crash
+        // at launch without deferred swizzling. Also acts as a safety gate for the feature itself,
+        // since this sample's UI tests cover automatic transactions/instrumentation. (GH-8548)
+        var enableInitSwizzling = SentrySDKOverrides.UIViewControllerTracing.enableInitSwizzling
+        enableInitSwizzling.boolValue = true
 
         SentrySDKWrapper.shared.startSentry()
         

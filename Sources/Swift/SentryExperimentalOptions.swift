@@ -23,18 +23,22 @@ public final class SentryExperimentalOptions: NSObject {
     public var enableStandaloneAppStartTracing = false
 
     /**
-     * When enabled, the SDK defers `UIViewController` performance swizzling to the first time each
-     * view controller is instantiated, instead of eagerly discovering and swizzling all
-     * `UIViewController` subclasses at SDK start.
+     * Reduces SDK start overhead by swizzling each `UIViewController` subclass lazily, the first
+     * time an instance of it is created, instead of eagerly discovering and swizzling every
+     * subclass when the SDK starts.
      *
-     * The eager approach realizes classes to inspect them, which crashes on OS versions below an
-     * `@available`-gated view controller subclass's gate when that subclass references a
-     * newer-framework type (see https://github.com/getsentry/sentry-cocoa/issues/8548). Deferring to
-     * first instantiation avoids this: a class that can't exist on the current OS is never
-     * instantiated, so the SDK never realizes it.
+     * By default, the SDK scans loaded binary images for all `UIViewController` subclasses at
+     * start and swizzles them up front. This realizes every subclass to inspect it, so the cost
+     * grows with the number of view controllers in the app - including ones it never uses - and it
+     * realizes `@available`-gated subclasses that reference newer-framework types, which crashes on
+     * OS versions below the gate.
      *
-     * - Experiment: This is an experimental feature and is therefore disabled by default. We'll
-     *   enable it by default in a future major release.
+     * With this option, only classes the app actually instantiates are touched: a class that can't
+     * exist on the current OS is never instantiated, so it's never realized or swizzled. This cuts
+     * start-up work and avoids the gated-subclass crash while producing the same `ui.load`
+     * auto-instrumentation transactions.
+     *
+     * See https://github.com/getsentry/sentry-cocoa/issues/8548.
      */
     public var enableUIViewControllerInitSwizzling = false
 }
