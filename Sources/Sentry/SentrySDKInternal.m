@@ -7,7 +7,6 @@
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
-#import "SentryMeta.h"
 #import "SentryProfilingConditionals.h"
 #import "SentryReplayApi.h"
 #import "SentrySamplingContext.h"

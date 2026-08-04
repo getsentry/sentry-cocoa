@@ -34,13 +34,13 @@ enum VersionError: Error, ErrorHandling {
     }
 }
 
-let fromVersionFile = "./Sources/Sentry/SentryMeta.m"
+let fromVersionFile = "./Sources/Swift/Helper/SentryMeta.swift"
 
 let files = [
     "./Package.swift",
     "./Package@swift-6.1.swift",
     "./Package@swift-6.2.swift",
-    "./Sources/Sentry/SentryMeta.m",
+    "./Sources/Swift/Helper/SentryMeta.swift",
     "./distribution/apple-binaries/Package.swift",
     "./3rd-party-integrations/SentrySwiftLog/Package.swift",
     "./3rd-party-integrations/SentrySwiftyBeaver/Package.swift",
@@ -200,8 +200,10 @@ func getRegexString(for file: String) throws -> String {
         return "https:\\/\\/github\\.com\\/getsentry\\/sentry-cocoa\\/releases\\/download\\/(?<version>[a-zA-z0-9\\.\\-]+)\\/Sentry"
     } else if file.hasPrefix("./3rd-party-integrations/") && file.hasSuffix("/Package.swift") {
         return "\\.package\\(url:\\s\"https:\\/\\/github\\.com\\/getsentry\\/sentry-cocoa\",\\sfrom:\\s\"(?<version>[a-zA-z0-9\\.\\-]+)\""
-    } else if file == "./Sources/Sentry/SentryMeta.m" {
-        return "static NSString \\*versionString = @\"(?<version>[a-zA-z0-9\\.\\-]+)\""
+    } else if file == "./Sources/Swift/Helper/SentryMeta.swift" {
+        // Anchored on the full declaration, not just `versionString = "…"`, so a version-shaped
+        // example in a comment cannot be matched instead of the real value.
+        return "static var versionString = \"(?<version>[a-zA-z0-9\\.\\-]+)\""
     }
     throw FileError.unknownFile(file)
 }

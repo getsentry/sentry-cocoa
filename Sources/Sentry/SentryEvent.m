@@ -6,7 +6,6 @@
 #import "SentryInternalDefines.h"
 #import "SentryLevelMapper.h"
 #import "SentryMessage.h"
-#import "SentryMeta.h"
 #import "SentryRequest.h"
 #import "SentrySanitizerUtils.h"
 #import "SentryStacktrace.h"
