@@ -29,109 +29,9 @@ class SentryReplayOptionsTests: XCTestCase {
         XCTAssertFalse(options.networkDetailHasUrls)
         XCTAssertEqual(options.networkDetailAllowUrls.count, 0)
         XCTAssertEqual(options.networkDetailDenyUrls.count, 0)
-#if SDK_V10
-        XCTAssertEqual(options.networkCaptureBodies, .inherit)
-#else
         XCTAssertTrue(options.networkCaptureBodies)
-#endif
         XCTAssertEqual(options.networkRequestHeaders, ["Content-Type", "Content-Length", "Accept"])
         XCTAssertEqual(options.networkResponseHeaders, ["Content-Type", "Content-Length", "Accept"])
-    }
-
-    func testShouldCaptureNetworkBody_whenReplayOptionInherits_shouldUseDataCollection() throws {
-#if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-#else
-        // -- Arrange --
-        let options = SentryReplayOptions()
-        let dataCollection = SentryDataCollection.Options(httpBodies: [.outgoingRequest])
-
-        // -- Act & Assert --
-        XCTAssertTrue(options.shouldCaptureNetworkBody(.outgoingRequest, dataCollection: dataCollection))
-        XCTAssertFalse(options.shouldCaptureNetworkBody(.incomingResponse, dataCollection: dataCollection))
-#endif
-    }
-
-    func testShouldCaptureNetworkBody_whenReplayOptionIsEnabled_shouldOverrideDataCollection() throws {
-#if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-#else
-        // -- Arrange --
-        let options = SentryReplayOptions()
-        options.networkCaptureBodies = .enabled
-        let dataCollection = SentryDataCollection.Options(httpBodies: [])
-
-        // -- Act & Assert --
-        XCTAssertTrue(options.shouldCaptureNetworkBody(.outgoingRequest, dataCollection: dataCollection))
-        XCTAssertTrue(options.shouldCaptureNetworkBody(.incomingResponse, dataCollection: dataCollection))
-#endif
-    }
-
-    func testShouldCaptureNetworkBody_whenReplayOptionIsDisabled_shouldOverrideDataCollection() throws {
-#if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-#else
-        // -- Arrange --
-        let options = SentryReplayOptions()
-        options.networkCaptureBodies = .disabled
-        let dataCollection = SentryDataCollection.Options(httpBodies: .all)
-
-        // -- Act & Assert --
-        XCTAssertFalse(options.shouldCaptureNetworkBody(.outgoingRequest, dataCollection: dataCollection))
-        XCTAssertFalse(options.shouldCaptureNetworkBody(.incomingResponse, dataCollection: dataCollection))
-#endif
-    }
-
-    func testShouldCaptureNetworkBody_whenDictionaryContainsTrue_shouldEnable() throws {
-#if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-#else
-        // -- Arrange --
-        let options = SentryReplayOptions(dictionary: ["networkCaptureBodies": true])
-        let dataCollection = SentryDataCollection.Options(httpBodies: [])
-
-        // -- Act & Assert --
-        XCTAssertEqual(options.networkCaptureBodies, .enabled)
-        XCTAssertTrue(options.shouldCaptureNetworkBody(.outgoingRequest, dataCollection: dataCollection))
-        XCTAssertTrue(options.shouldCaptureNetworkBody(.incomingResponse, dataCollection: dataCollection))
-#endif
-    }
-
-    func testShouldCaptureNetworkBody_whenDictionaryContainsFalse_shouldDisable() throws {
-#if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-#else
-        // -- Arrange --
-        let options = SentryReplayOptions(dictionary: ["networkCaptureBodies": false])
-        let dataCollection = SentryDataCollection.Options(httpBodies: .all)
-
-        // -- Act & Assert --
-        XCTAssertEqual(options.networkCaptureBodies, .disabled)
-        XCTAssertFalse(options.shouldCaptureNetworkBody(.outgoingRequest, dataCollection: dataCollection))
-        XCTAssertFalse(options.shouldCaptureNetworkBody(.incomingResponse, dataCollection: dataCollection))
-#endif
-    }
-
-    func testRRWebOptionsEvent_whenNetworkBodyCaptureConfigured_shouldSerializeValue() {
-        // -- Arrange --
-        let options = SentryReplayOptions()
-        options.networkDetailAllowUrls = ["example.com"]
-#if SDK_V10
-        options.networkCaptureBodies = .inherit
-#else
-        options.networkCaptureBodies = false
-#endif
-
-        // -- Act --
-        let event = SentryRRWebOptionsEvent(timestamp: Date(), options: options)
-
-        // -- Assert --
-        let payload = event.data?["payload"] as? [String: Any]
-#if SDK_V10
-        XCTAssertEqual(payload?["networkCaptureBodies"] as? String, "inherit")
-#else
-        XCTAssertEqual(payload?["networkCaptureBodies"] as? Bool, false)
-#endif
     }
 
     func testInit_withAllArguments_shouldSetValues() {
@@ -149,11 +49,7 @@ class SentryReplayOptionsTests: XCTestCase {
         // Set network details options after initialization since they're not in the public initializer
         options.networkDetailAllowUrls = ["https://api.example.com", "https://test.example.org"]
         options.networkDetailDenyUrls = ["https://sensitive.example.com", "https://private.example.org"]
-#if SDK_V10
-        options.networkCaptureBodies = .disabled
-#else
         options.networkCaptureBodies = false
-#endif
         options.networkRequestHeaders = ["Authorization", "User-Agent", "X-Custom-Header"]
         options.networkResponseHeaders = ["Cache-Control", "Set-Cookie", "X-Rate-Limit"]
 
@@ -177,11 +73,7 @@ class SentryReplayOptionsTests: XCTestCase {
         XCTAssertTrue(options.networkDetailHasUrls)
         XCTAssertEqual(options.networkDetailAllowUrls as? [String], ["https://api.example.com", "https://test.example.org"])
         XCTAssertEqual(options.networkDetailDenyUrls as? [String], ["https://sensitive.example.com", "https://private.example.org"])
-#if SDK_V10
-        XCTAssertEqual(options.networkCaptureBodies, .disabled)
-#else
         XCTAssertFalse(options.networkCaptureBodies)
-#endif
         XCTAssertEqual(options.networkRequestHeaders, ["Content-Type", "Content-Length", "Accept", "Authorization", "User-Agent", "X-Custom-Header"])
         XCTAssertEqual(options.networkResponseHeaders, ["Content-Type", "Content-Length", "Accept", "Cache-Control", "Set-Cookie", "X-Rate-Limit"])
     }
@@ -349,11 +241,7 @@ class SentryReplayOptionsTests: XCTestCase {
         // Network options should use defaults when not specified in dictionary
         XCTAssertEqual(options.networkDetailAllowUrls.count, 0)
         XCTAssertEqual(options.networkDetailDenyUrls.count, 0)
-#if SDK_V10
-        XCTAssertEqual(options.networkCaptureBodies, .inherit)
-#else
         XCTAssertTrue(options.networkCaptureBodies)
-#endif
         XCTAssertEqual(options.networkRequestHeaders, ["Content-Type", "Content-Length", "Accept"])
         XCTAssertEqual(options.networkResponseHeaders, ["Content-Type", "Content-Length", "Accept"])
     }
@@ -415,11 +303,7 @@ class SentryReplayOptionsTests: XCTestCase {
         // Network options
         XCTAssertEqual(options.networkDetailAllowUrls as? [String], ["https://api.example.com", "https://test.com"])
         XCTAssertEqual(options.networkDetailDenyUrls as? [String], ["https://sensitive.com", "https://auth.com"])
-#if SDK_V10
-        XCTAssertEqual(options.networkCaptureBodies, .disabled)
-#else
         XCTAssertFalse(options.networkCaptureBodies)
-#endif
         XCTAssertEqual(options.networkRequestHeaders, ["Content-Type", "Content-Length", "Accept", "Authorization", "User-Agent"])
         XCTAssertEqual(options.networkResponseHeaders, ["Content-Type", "Content-Length", "Accept", "Cache-Control", "Set-Cookie"])
     }
@@ -912,11 +796,7 @@ class SentryReplayOptionsTests: XCTestCase {
         
         // -- Assert --
         XCTAssertEqual(options.networkDetailAllowUrls as? [String], ["https://api.example.com", "https://test.com"])
-#if SDK_V10
-        XCTAssertEqual(options.networkCaptureBodies, .inherit)
-#else
-        XCTAssertTrue(options.networkCaptureBodies)
-#endif
+        XCTAssertTrue(options.networkCaptureBodies) // Should remain default
     }
     
     func testInitFromDict_networkCaptureBodies_whenValidValue_shouldSetValue() {
@@ -926,11 +806,7 @@ class SentryReplayOptionsTests: XCTestCase {
         ])
         
         // -- Assert --
-#if SDK_V10
-        XCTAssertEqual(options.networkCaptureBodies, .disabled)
-#else
         XCTAssertFalse(options.networkCaptureBodies)
-#endif
         XCTAssertEqual(options.networkDetailAllowUrls.count, 0) // Should remain default
     }
     
@@ -941,11 +817,7 @@ class SentryReplayOptionsTests: XCTestCase {
         ])
         
         // -- Assert --
-#if SDK_V10
-        XCTAssertEqual(options.networkCaptureBodies, .enabled)
-#else
         XCTAssertTrue(options.networkCaptureBodies)
-#endif
     }
     
     func testInitFromDict_networkDetailDenyUrls_whenValidValue_shouldSetValue() {

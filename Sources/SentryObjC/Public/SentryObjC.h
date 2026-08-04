@@ -14,7 +14,6 @@
 #    import "SentryObjCLastRunStatus.h"
 #    import "SentryObjCLevel.h"
 #    import "SentryObjCLogLevel.h"
-#    import "SentryObjCReplayNetworkBodyCapture.h"
 #    import "SentryObjCReplayQuality.h"
 #    import "SentryObjCSampleDecision.h"
 #    import "SentryObjCSpanStatus.h"
@@ -25,7 +24,6 @@
 #    import <SentryObjC/SentryObjCLastRunStatus.h>
 #    import <SentryObjC/SentryObjCLevel.h>
 #    import <SentryObjC/SentryObjCLogLevel.h>
-#    import <SentryObjC/SentryObjCReplayNetworkBodyCapture.h>
 #    import <SentryObjC/SentryObjCReplayQuality.h>
 #    import <SentryObjC/SentryObjCSampleDecision.h>
 #    import <SentryObjC/SentryObjCSpanStatus.h>

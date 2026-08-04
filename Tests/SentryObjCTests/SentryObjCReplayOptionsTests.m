@@ -82,19 +82,6 @@
     XCTAssertTrue(options.enableFastViewRendering);
 }
 
-#if SDK_V10
-- (void)testNetworkCaptureBodies_whenSet_shouldReturnValue
-{
-    // -- Arrange --
-    SentryObjCReplayOptions *options = [[SentryObjCReplayOptions alloc] init];
-
-    // -- Act --
-    options.networkCaptureBodies = SentryObjCReplayNetworkBodyCaptureDisabled;
-
-    // -- Assert --
-    XCTAssertEqual(options.networkCaptureBodies, SentryObjCReplayNetworkBodyCaptureDisabled);
-}
-#else
 - (void)testNetworkCaptureBodies_whenSetToYes_shouldReturnYes
 {
     // -- Arrange --
@@ -106,7 +93,6 @@
     // -- Assert --
     XCTAssertTrue(options.networkCaptureBodies);
 }
-#endif
 
 #pragma mark - Enum property
 

@@ -20,11 +20,7 @@ class SentryReplayOptionsNetworkTests: XCTestCase {
         
         // -- Assert --
         XCTAssertEqual(options.networkDetailAllowUrls.count, 0, "networkDetailAllowUrls should fallback to empty array on invalid data provided")
-#if SDK_V10
-        XCTAssertEqual(options.networkCaptureBodies, .inherit)
-#else
         XCTAssertTrue(options.networkCaptureBodies, "networkCaptureBodies should fallback to true on invalid data provided")
-#endif
     }
     
     func testNetworkDetailUrls_withEmptyStrings_shouldFilterOutEmptyEntries() {

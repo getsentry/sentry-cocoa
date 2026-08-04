@@ -55815,9 +55815,9 @@
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "NetworkBodyCapture",
-                        "printedName": "Sentry.SentryReplayOptions.NetworkBodyCapture",
-                        "usr": "s:6Sentry0A13ReplayOptionsC18NetworkBodyCaptureO"
+                        "name": "Bool",
+                        "printedName": "Swift.Bool",
+                        "usr": "s:Sb"
                       }
                     ],
                     "declAttributes": [
@@ -55826,20 +55826,20 @@
                     "declKind": "Accessor",
                     "implicit": true,
                     "kind": "Accessor",
-                    "mangledName": "$s6Sentry0A13ReplayOptionsC13DefaultValuesC20networkCaptureBodiesAC011NetworkBodyG0OvgZ",
+                    "mangledName": "$s6Sentry0A13ReplayOptionsC13DefaultValuesC20networkCaptureBodiesSbvgZ",
                     "moduleName": "Sentry",
                     "name": "Get",
                     "printedName": "Get()",
                     "static": true,
-                    "usr": "s:6Sentry0A13ReplayOptionsC13DefaultValuesC20networkCaptureBodiesAC011NetworkBodyG0OvgZ"
+                    "usr": "s:6Sentry0A13ReplayOptionsC13DefaultValuesC20networkCaptureBodiesSbvgZ"
                   }
                 ],
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "NetworkBodyCapture",
-                    "printedName": "Sentry.SentryReplayOptions.NetworkBodyCapture",
-                    "usr": "s:6Sentry0A13ReplayOptionsC18NetworkBodyCaptureO"
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
                   }
                 ],
                 "declAttributes": [
@@ -55850,12 +55850,12 @@
                 "hasStorage": true,
                 "isLet": true,
                 "kind": "Var",
-                "mangledName": "$s6Sentry0A13ReplayOptionsC13DefaultValuesC20networkCaptureBodiesAC011NetworkBodyG0OvpZ",
+                "mangledName": "$s6Sentry0A13ReplayOptionsC13DefaultValuesC20networkCaptureBodiesSbvpZ",
                 "moduleName": "Sentry",
                 "name": "networkCaptureBodies",
                 "printedName": "networkCaptureBodies",
                 "static": true,
-                "usr": "s:6Sentry0A13ReplayOptionsC13DefaultValuesC20networkCaptureBodiesAC011NetworkBodyG0OvpZ"
+                "usr": "s:6Sentry0A13ReplayOptionsC13DefaultValuesC20networkCaptureBodiesSbvpZ"
               },
               {
                 "accessors": [
@@ -56408,250 +56408,6 @@
             "name": "DefaultValues",
             "printedName": "DefaultValues",
             "usr": "s:6Sentry0A13ReplayOptionsC13DefaultValuesC"
-          },
-          {
-            "children": [
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Bool",
-                    "printedName": "Swift.Bool",
-                    "usr": "s:Sb"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "NetworkBodyCapture",
-                    "printedName": "Sentry.SentryReplayOptions.NetworkBodyCapture",
-                    "usr": "s:6Sentry0A13ReplayOptionsC18NetworkBodyCaptureO"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "NetworkBodyCapture",
-                    "printedName": "Sentry.SentryReplayOptions.NetworkBodyCapture",
-                    "usr": "s:6Sentry0A13ReplayOptionsC18NetworkBodyCaptureO"
-                  }
-                ],
-                "declKind": "Func",
-                "funcSelfKind": "NonMutating",
-                "kind": "Function",
-                "mangledName": "$s6Sentry0A13ReplayOptionsC18NetworkBodyCaptureO2eeoiySbAE_AEtFZ",
-                "moduleName": "Sentry",
-                "name": "==",
-                "printedName": "==(_:_:)",
-                "static": true,
-                "usr": "s:6Sentry0A13ReplayOptionsC18NetworkBodyCaptureO2eeoiySbAE_AEtFZ"
-              },
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Hasher",
-                    "paramValueOwnership": "InOut",
-                    "printedName": "Swift.Hasher",
-                    "usr": "s:s6HasherV"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "declKind": "Func",
-                "funcSelfKind": "NonMutating",
-                "kind": "Function",
-                "mangledName": "$s6Sentry0A13ReplayOptionsC18NetworkBodyCaptureO4hash4intoys6HasherVz_tF",
-                "moduleName": "Sentry",
-                "name": "hash",
-                "printedName": "hash(into:)",
-                "usr": "s:6Sentry0A13ReplayOptionsC18NetworkBodyCaptureO4hash4intoys6HasherVz_tF"
-              },
-              {
-                "children": [
-                  {
-                    "children": [
-                      {
-                        "children": [
-                          {
-                            "kind": "TypeNominal",
-                            "name": "NetworkBodyCapture",
-                            "printedName": "Sentry.SentryReplayOptions.NetworkBodyCapture",
-                            "usr": "s:6Sentry0A13ReplayOptionsC18NetworkBodyCaptureO"
-                          }
-                        ],
-                        "kind": "TypeNominal",
-                        "name": "Metatype",
-                        "printedName": "Sentry.SentryReplayOptions.NetworkBodyCapture.Type"
-                      },
-                      {
-                        "kind": "TypeNominal",
-                        "name": "NetworkBodyCapture",
-                        "printedName": "Sentry.SentryReplayOptions.NetworkBodyCapture",
-                        "usr": "s:6Sentry0A13ReplayOptionsC18NetworkBodyCaptureO"
-                      }
-                    ],
-                    "kind": "TypeFunc",
-                    "name": "Function",
-                    "printedName": "(Sentry.SentryReplayOptions.NetworkBodyCapture.Type) -> Sentry.SentryReplayOptions.NetworkBodyCapture"
-                  }
-                ],
-                "declKind": "EnumElement",
-                "kind": "Var",
-                "mangledName": "$s6Sentry0A13ReplayOptionsC18NetworkBodyCaptureO8disabledyA2EmF",
-                "moduleName": "Sentry",
-                "name": "disabled",
-                "printedName": "disabled",
-                "usr": "s:6Sentry0A13ReplayOptionsC18NetworkBodyCaptureO8disabledyA2EmF"
-              },
-              {
-                "children": [
-                  {
-                    "children": [
-                      {
-                        "children": [
-                          {
-                            "kind": "TypeNominal",
-                            "name": "NetworkBodyCapture",
-                            "printedName": "Sentry.SentryReplayOptions.NetworkBodyCapture",
-                            "usr": "s:6Sentry0A13ReplayOptionsC18NetworkBodyCaptureO"
-                          }
-                        ],
-                        "kind": "TypeNominal",
-                        "name": "Metatype",
-                        "printedName": "Sentry.SentryReplayOptions.NetworkBodyCapture.Type"
-                      },
-                      {
-                        "kind": "TypeNominal",
-                        "name": "NetworkBodyCapture",
-                        "printedName": "Sentry.SentryReplayOptions.NetworkBodyCapture",
-                        "usr": "s:6Sentry0A13ReplayOptionsC18NetworkBodyCaptureO"
-                      }
-                    ],
-                    "kind": "TypeFunc",
-                    "name": "Function",
-                    "printedName": "(Sentry.SentryReplayOptions.NetworkBodyCapture.Type) -> Sentry.SentryReplayOptions.NetworkBodyCapture"
-                  }
-                ],
-                "declKind": "EnumElement",
-                "kind": "Var",
-                "mangledName": "$s6Sentry0A13ReplayOptionsC18NetworkBodyCaptureO7enabledyA2EmF",
-                "moduleName": "Sentry",
-                "name": "enabled",
-                "printedName": "enabled",
-                "usr": "s:6Sentry0A13ReplayOptionsC18NetworkBodyCaptureO7enabledyA2EmF"
-              },
-              {
-                "accessors": [
-                  {
-                    "accessorKind": "get",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Int",
-                        "printedName": "Swift.Int",
-                        "usr": "s:Si"
-                      }
-                    ],
-                    "declKind": "Accessor",
-                    "kind": "Accessor",
-                    "mangledName": "$s6Sentry0A13ReplayOptionsC18NetworkBodyCaptureO9hashValueSivg",
-                    "moduleName": "Sentry",
-                    "name": "Get",
-                    "printedName": "Get()",
-                    "usr": "s:6Sentry0A13ReplayOptionsC18NetworkBodyCaptureO9hashValueSivg"
-                  }
-                ],
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Int",
-                    "printedName": "Swift.Int",
-                    "usr": "s:Si"
-                  }
-                ],
-                "declKind": "Var",
-                "kind": "Var",
-                "mangledName": "$s6Sentry0A13ReplayOptionsC18NetworkBodyCaptureO9hashValueSivp",
-                "moduleName": "Sentry",
-                "name": "hashValue",
-                "printedName": "hashValue",
-                "usr": "s:6Sentry0A13ReplayOptionsC18NetworkBodyCaptureO9hashValueSivp"
-              },
-              {
-                "children": [
-                  {
-                    "children": [
-                      {
-                        "children": [
-                          {
-                            "kind": "TypeNominal",
-                            "name": "NetworkBodyCapture",
-                            "printedName": "Sentry.SentryReplayOptions.NetworkBodyCapture",
-                            "usr": "s:6Sentry0A13ReplayOptionsC18NetworkBodyCaptureO"
-                          }
-                        ],
-                        "kind": "TypeNominal",
-                        "name": "Metatype",
-                        "printedName": "Sentry.SentryReplayOptions.NetworkBodyCapture.Type"
-                      },
-                      {
-                        "kind": "TypeNominal",
-                        "name": "NetworkBodyCapture",
-                        "printedName": "Sentry.SentryReplayOptions.NetworkBodyCapture",
-                        "usr": "s:6Sentry0A13ReplayOptionsC18NetworkBodyCaptureO"
-                      }
-                    ],
-                    "kind": "TypeFunc",
-                    "name": "Function",
-                    "printedName": "(Sentry.SentryReplayOptions.NetworkBodyCapture.Type) -> Sentry.SentryReplayOptions.NetworkBodyCapture"
-                  }
-                ],
-                "declKind": "EnumElement",
-                "kind": "Var",
-                "mangledName": "$s6Sentry0A13ReplayOptionsC18NetworkBodyCaptureO7inherityA2EmF",
-                "moduleName": "Sentry",
-                "name": "inherit",
-                "printedName": "inherit",
-                "usr": "s:6Sentry0A13ReplayOptionsC18NetworkBodyCaptureO7inherityA2EmF"
-              }
-            ],
-            "conformances": [
-              {
-                "kind": "Conformance",
-                "mangledName": "$ss8CopyableP",
-                "name": "Copyable",
-                "printedName": "Copyable",
-                "usr": "s:s8CopyableP"
-              },
-              {
-                "kind": "Conformance",
-                "mangledName": "$sSQ",
-                "name": "Equatable",
-                "printedName": "Equatable",
-                "usr": "s:SQ"
-              },
-              {
-                "kind": "Conformance",
-                "mangledName": "$ss9EscapableP",
-                "name": "Escapable",
-                "printedName": "Escapable",
-                "usr": "s:s9EscapableP"
-              },
-              {
-                "kind": "Conformance",
-                "mangledName": "$sSH",
-                "name": "Hashable",
-                "printedName": "Hashable",
-                "usr": "s:SH"
-              }
-            ],
-            "declKind": "Enum",
-            "kind": "TypeDecl",
-            "mangledName": "$s6Sentry0A13ReplayOptionsC18NetworkBodyCaptureO",
-            "moduleName": "Sentry",
-            "name": "NetworkBodyCapture",
-            "printedName": "NetworkBodyCapture",
-            "usr": "s:6Sentry0A13ReplayOptionsC18NetworkBodyCaptureO"
           },
           {
             "children": [
@@ -57658,28 +57414,31 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "NetworkBodyCapture",
-                    "printedName": "Sentry.SentryReplayOptions.NetworkBodyCapture",
-                    "usr": "s:6Sentry0A13ReplayOptionsC18NetworkBodyCaptureO"
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
                   }
+                ],
+                "declAttributes": [
+                  "ObjC"
                 ],
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry0A13ReplayOptionsC20networkCaptureBodiesAC011NetworkBodyE0Ovg",
+                "mangledName": "$s6Sentry0A13ReplayOptionsC20networkCaptureBodiesSbvg",
                 "moduleName": "Sentry",
                 "name": "Get",
                 "printedName": "Get()",
-                "usr": "s:6Sentry0A13ReplayOptionsC20networkCaptureBodiesAC011NetworkBodyE0Ovg"
+                "usr": "c:@M@Sentry@objc(cs)SentryReplayOptions(im)networkCaptureBodies"
               },
               {
                 "accessorKind": "set",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "NetworkBodyCapture",
-                    "printedName": "Sentry.SentryReplayOptions.NetworkBodyCapture",
-                    "usr": "s:6Sentry0A13ReplayOptionsC18NetworkBodyCaptureO"
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
                   },
                   {
                     "kind": "TypeNominal",
@@ -57687,36 +57446,39 @@
                     "printedName": "()"
                   }
                 ],
+                "declAttributes": [
+                  "ObjC"
+                ],
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry0A13ReplayOptionsC20networkCaptureBodiesAC011NetworkBodyE0Ovs",
+                "mangledName": "$s6Sentry0A13ReplayOptionsC20networkCaptureBodiesSbvs",
                 "moduleName": "Sentry",
                 "name": "Set",
                 "printedName": "Set()",
-                "usr": "s:6Sentry0A13ReplayOptionsC20networkCaptureBodiesAC011NetworkBodyE0Ovs"
+                "usr": "c:@M@Sentry@objc(cs)SentryReplayOptions(im)setNetworkCaptureBodies:"
               }
             ],
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "NetworkBodyCapture",
-                "printedName": "Sentry.SentryReplayOptions.NetworkBodyCapture",
-                "usr": "s:6Sentry0A13ReplayOptionsC18NetworkBodyCaptureO"
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
               }
             ],
             "declAttributes": [
               "HasStorage",
-              "NonObjC"
+              "ObjC"
             ],
             "declKind": "Var",
             "hasStorage": true,
             "kind": "Var",
-            "mangledName": "$s6Sentry0A13ReplayOptionsC20networkCaptureBodiesAC011NetworkBodyE0Ovp",
+            "mangledName": "$s6Sentry0A13ReplayOptionsC20networkCaptureBodiesSbvp",
             "moduleName": "Sentry",
             "name": "networkCaptureBodies",
             "printedName": "networkCaptureBodies",
-            "usr": "s:6Sentry0A13ReplayOptionsC20networkCaptureBodiesAC011NetworkBodyE0Ovp"
+            "usr": "c:@M@Sentry@objc(cs)SentryReplayOptions(py)networkCaptureBodies"
           },
           {
             "accessors": [

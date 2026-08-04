@@ -620,11 +620,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         options.dsn = "https://key@sentry.io/1234"
         options.sessionReplay.networkDetailAllowUrls = ["api.example.com"]
         options.sessionReplay.networkResponseHeaders = ["Cache-Control"]
-#if SDK_V10
-        options.sessionReplay.networkCaptureBodies = .disabled
-#else
         options.sessionReplay.networkCaptureBodies = false
-#endif
 
         let scope = Scope()
         let client = TestClient(options: options)
@@ -692,118 +688,6 @@ class SentryNetworkTrackerTests: XCTestCase {
         clearTestState()
     }
 
-    func testNetworkDetails_whenOnlyOutgoingRequestBodyEnabled_shouldOnlyCaptureRequestBody() throws {
-#if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-#else
-        let networkDetails = try captureNetworkDetails(httpBodies: [.outgoingRequest])
-
-        let request = try XCTUnwrap(networkDetails["request"] as? [String: Any])
-        XCTAssertNotNil(request["body"])
-        let response = try XCTUnwrap(networkDetails["response"] as? [String: Any])
-        XCTAssertNil(response["body"])
-#endif
-    }
-
-    func testNetworkDetails_whenOnlyIncomingResponseBodyEnabled_shouldOnlyCaptureResponseBody() throws {
-#if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-#else
-        let networkDetails = try captureNetworkDetails(httpBodies: [.incomingResponse])
-
-        let request = try XCTUnwrap(networkDetails["request"] as? [String: Any])
-        XCTAssertNil(request["body"])
-        let response = try XCTUnwrap(networkDetails["response"] as? [String: Any])
-        XCTAssertNotNil(response["body"])
-#endif
-    }
-
-    func testNetworkDetails_whenReplayBodyCaptureExplicitlyEnabled_shouldOverrideDataCollection() throws {
-#if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-#else
-        let networkDetails = try captureNetworkDetails(httpBodies: []) { options in
-            options.sessionReplay.networkCaptureBodies = .enabled
-        }
-
-        let request = try XCTUnwrap(networkDetails["request"] as? [String: Any])
-        XCTAssertNotNil(request["body"])
-        let response = try XCTUnwrap(networkDetails["response"] as? [String: Any])
-        XCTAssertNotNil(response["body"])
-#endif
-    }
-
-    func testNetworkDetails_whenReplayBodyCaptureExplicitlyDisabled_shouldOverrideDataCollection() throws {
-#if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
-#else
-        let networkDetails = try captureNetworkDetails(httpBodies: .all) { options in
-            options.sessionReplay.networkCaptureBodies = .disabled
-        }
-
-        let request = try XCTUnwrap(networkDetails["request"] as? [String: Any])
-        XCTAssertNil(request["body"])
-        let response = try XCTUnwrap(networkDetails["response"] as? [String: Any])
-        XCTAssertNil(response["body"])
-#endif
-    }
-
-#if SDK_V10
-    private func captureNetworkDetails(
-        httpBodies: SentryDataCollection.HttpBodyType,
-        configureOptions: (Options) -> Void = { _ in }
-    ) throws -> [String: Any] {
-        guard #available(iOS 16.0, tvOS 16.0, *) else { return [:] }
-
-        let url = URL(string: "https://api.example.com/users")!
-        let options = Options()
-        options.dsn = "https://key@sentry.io/1234"
-        options.dataCollection.httpBodies = httpBodies
-        options.sessionReplay.networkDetailAllowUrls = ["api.example.com"]
-        configureOptions(options)
-
-        let scope = Scope()
-        let client = TestClient(options: options)
-        let hub = TestHub(client: client, andScope: scope)
-        SentrySDKInternal.setCurrentHub(hub)
-        SentrySDK.setStart(with: options)
-
-        let tracker = TestNetworkTracker(
-            options: options,
-            dependencies: SentryDependencyContainer.sharedInstance()
-        )
-        tracker.enableNetworkTracking()
-        tracker.enableNetworkBreadcrumbs()
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.httpBody = Data(#"{"request":"value"}"#.utf8)
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        let task = URLSessionDataTaskMock(request: request)
-        let response = try XCTUnwrap(HTTPURLResponse(
-            url: url,
-            statusCode: 200,
-            httpVersion: "1.1",
-            headerFields: ["Content-Type": "application/json"]
-        ))
-        task.setResponse(response)
-
-        tracker.urlSessionTask(task, setState: .running)
-        tracker.captureResponseDetails(
-            Data(#"{"response":"value"}"#.utf8),
-            response: response,
-            request: url,
-            task: task
-        )
-
-        guard case .valid(let details) = task.networkDetails else {
-            XCTFail("Expected network details")
-            return [:]
-        }
-        return details.serialize()
-    }
-#endif
-
     func testCaptureRequestDetails_whenAlreadyCaptured_shouldKeepOriginalRequest() throws {
         guard #available(iOS 16.0, tvOS 16.0, *) else { return }
 
@@ -853,11 +737,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         let options = Options()
         options.dsn = "https://key@sentry.io/1234"
         options.sessionReplay.networkDetailAllowUrls = ["api.example.com"]
-#if SDK_V10
-        options.sessionReplay.networkCaptureBodies = .enabled
-#else
         options.sessionReplay.networkCaptureBodies = true
-#endif
 
         let scope = Scope()
         let client = TestClient(options: options)
@@ -881,7 +761,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         ))
         task.setResponse(httpResponse)
 
-        let jsonBody = Data(#"{"field":"value"}"#.utf8)
+        let jsonBody = Data(#"{"key":"value"}"#.utf8)
 
         // -- Act --
         tracker.urlSessionTask(task, setState: .running)
@@ -906,7 +786,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         // unwrap below fails.
         let bodyDict = try XCTUnwrap(responseDict["body"] as? [String: Any])
         let parsedBody = try XCTUnwrap(bodyDict["body"] as? [String: Any])
-        XCTAssertEqual(parsedBody["field"] as? String, "value")
+        XCTAssertEqual(parsedBody["key"] as? String, "value")
 
         clearTestState()
     }
