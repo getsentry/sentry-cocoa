@@ -161,6 +161,15 @@ class SentryUIViewControllerSwizzling: NSObject, SentryUIViewControllerInitSwizz
     }
 
     func swizzleUIViewControllers(ofImage imageName: String) {
+        // The deferred funnel must never reach the subclass finder: scanning an image realizes every
+        // UIViewController subclass in it, including `@available`-gated ones, which is exactly the
+        // crash the funnel exists to avoid (GH-8152 / GH-8548). Callers already branch on the option,
+        // so this is a backstop that keeps the guarantee here rather than spread across call sites.
+        if options.experimental.enableUIViewControllerInitSwizzling {
+            SentrySDKLog.debug("Skipping subclass finder for image \(imageName): view controllers are swizzled on first instantiation.")
+            return
+        }
+
         if imageName.contains("UIKitCore") {
             SentrySDKLog.debug("Skipping UIKitCore.")
             return

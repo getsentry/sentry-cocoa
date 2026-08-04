@@ -47,10 +47,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Unswizzles all UIViewController methods. Only available in test targets.
- *
- * Restores @c loadView and the two init funnel initializers. Restoring the initializers matters
- * because a live base-class IMP outlives the delegate that @c stop clears, so leaving them
- * installed leaks the funnel into every later test suite in the same run.
  */
 + (void)unswizzle;
 
