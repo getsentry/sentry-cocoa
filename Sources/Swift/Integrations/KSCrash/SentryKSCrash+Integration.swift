@@ -58,6 +58,12 @@ extension SentryKSCrash {
             // through SentryNSExceptionCaptureHelper to SentryCrashSwift. Replace that direct
             // dependency with an active-backend facade and supply KSCrash's uncaughtExceptionHandler.
             // The reporter-neutral macOS CrashE2E ns-exception scenario is the acceptance test.
+            // Tracked in https://github.com/getsentry/sentry-cocoa/issues/8529.
+
+            // KSCRASH_TODO: Restore previous-run session handling for watchdog terminations and
+            // fatal app hangs through reporter-neutral coordination. It must run before automatic
+            // session tracking and the corresponding event processing.
+            // Tracked in https://github.com/getsentry/sentry-cocoa/issues/8674.
             if installer.crashedLastLaunch {
                 SentrySDKInternal.fatalDetected = true
 
@@ -71,6 +77,7 @@ extension SentryKSCrash {
 
             let reportProcessor = SentryStoredCrashReportProcessor(
                 inAppLogic: SentryInAppLogic(inAppIncludes: options.inAppIncludes),
+                currentHubProvider: { SentrySDKInternal.currentHub() },
                 preserveCrashedSessionOnCaptureFailure: true
             )
             // The report filter dispatches regular reports itself. Keep this call synchronous so

@@ -64,6 +64,7 @@ final class CrashE2ERunner {
             // this define activates SentryCrash's constructor-based signal preloader even when the
             // selected integration is KSCrash. Replace it with the KSCrash-owned managed-runtime
             // integration path before treating these scenarios as KSCrash handler-order coverage.
+            // Tracked in https://github.com/getsentry/sentry-cocoa/issues/8528.
             try buildVariant(
                 derivedDataPath: config.managedRuntimeDerivedDataPath,
                 label: "managed runtime",

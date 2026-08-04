@@ -61,6 +61,47 @@ class SentrySerializationTests: XCTestCase {
         
         XCTAssertNil(SentrySerializationSwift.data(with: envelope))
     }
+
+    func testWriteEnvelopeData_whenWriterSucceeds_shouldWriteItemBodiesAsSeparateChunks() throws {
+        // -- Arrange --
+        let firstItemData = Data("first".utf8)
+        let secondItemData = Data("second".utf8)
+        let envelope = SentryEnvelope(id: SentryId(), items: [
+            SentryEnvelopeItem(header: SentryEnvelopeItemHeader(type: "first", length: UInt(firstItemData.count)), data: firstItemData),
+            SentryEnvelopeItem(header: SentryEnvelopeItemHeader(type: "second", length: UInt(secondItemData.count)), data: secondItemData)
+        ])
+        var chunks: [Data] = []
+
+        // -- Act --
+        let success = SentrySerializationSwift.writeEnvelopeData(envelope) { data in
+            chunks.append(data)
+            return true
+        }
+
+        // -- Assert --
+        XCTAssertTrue(success)
+        XCTAssertTrue(chunks.contains(firstItemData))
+        XCTAssertTrue(chunks.contains(secondItemData))
+        let deserializedEnvelope = try XCTUnwrap(SentrySerializationSwift.envelope(with: chunks.reduce(into: Data()) { $0.append($1) }))
+        XCTAssertEqual(deserializedEnvelope.header.eventId, envelope.header.eventId)
+        XCTAssertEqual(deserializedEnvelope.items.map(\.data), [firstItemData, secondItemData])
+    }
+
+    func testWriteEnvelopeData_whenWriterFails_shouldStopWriting() {
+        // -- Arrange --
+        let envelope = SentryEnvelope(id: SentryId(), singleItem: SentryEnvelopeItem(event: Event()))
+        var writeCount = 0
+
+        // -- Act --
+        let success = SentrySerializationSwift.writeEnvelopeData(envelope) { _ in
+            writeCount += 1
+            return false
+        }
+
+        // -- Assert --
+        XCTAssertFalse(success)
+        XCTAssertEqual(writeCount, 1)
+    }
     
     func testEnvelopeWithData_WithSingleEvent() throws {
         // Arrange

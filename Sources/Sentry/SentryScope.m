@@ -837,6 +837,11 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
     return self.propagationContext.traceId;
 }
 
+- (SentryTraceHeader *)propagationContextTraceHeader
+{
+    return self.propagationContext.traceHeader;
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

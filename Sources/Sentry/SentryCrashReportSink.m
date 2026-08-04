@@ -24,11 +24,15 @@ static const NSTimeInterval SENTRY_APP_START_CRASH_FLUSH_DURATION = 5.0;
                      dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
 {
     if (self = [super init]) {
-        // SentryCrash retains its legacy batch cleanup policy, so use the default processor mode
-        // that does not preserve a session after an unavailable-client capture failure. KSCrash
-        // opts into session preservation because it retains retryable reports individually.
+        // SentryCrash retains its legacy batch cleanup policy, so it does not preserve a session
+        // after an unavailable-client capture failure. KSCrash opts into session preservation
+        // because it retains retryable reports individually.
         self.reportProcessor =
-            [[SentryStoredCrashReportProcessor alloc] initWithInAppLogic:inAppLogic];
+            [[SentryStoredCrashReportProcessor alloc] initWithInAppLogic:inAppLogic
+                                                      currentHubProvider:^SentryHubInternal * {
+                                                          return SentrySDKInternal.currentHub;
+                                                      }
+                                  preserveCrashedSessionOnCaptureFailure:NO];
         self.crashWrapper = crashWrapper;
         self.dispatchQueue = dispatchQueue;
     }

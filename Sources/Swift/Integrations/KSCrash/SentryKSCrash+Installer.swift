@@ -45,6 +45,8 @@ extension SentryKSCrash {
 
     /// Configures and installs a crash handler.
     final class Installer: SentryKSCrash.Installing {
+        private static let startupCrashFlushDuration: TimeInterval = 5
+
         private(set) var installed = false
 
         func install(
@@ -123,6 +125,10 @@ extension SentryKSCrash {
                         return false
                     }
                     return SentryKSCrash.ReportFilterCore.isStartupCrash(report.value)
+                },
+                // Flush the completed startup phase once before regular delivery begins.
+                onPrioritizedReportsCompleted: {
+                    SentrySDKInternal.flush(timeout: Self.startupCrashFlushDuration)
                 }
             )
         }
