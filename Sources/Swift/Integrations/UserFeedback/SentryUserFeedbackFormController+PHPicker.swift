@@ -64,8 +64,8 @@ extension SentryUserFeedbackFormController {
         }
         let contentType = type.preferredMIMEType
         // Forms can be created before the SDK has a client.
-        let maxAttachmentSize = SentrySDKInternal.currentHub().getClient()?.options.maxAttachmentSize
-            ?? Options().maxAttachmentSize
+        let maxAttachmentSize = (SentrySDKInternal.currentHub().getClient()?.getOptions() as? Options)?
+            .maxAttachmentSize ?? Options().maxAttachmentSize
 
         loadScreenshot(
             from: provider,
