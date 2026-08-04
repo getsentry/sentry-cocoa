@@ -70,6 +70,7 @@ extension SentryKSCrash {
 
             let reportProcessor = SentryStoredCrashReportProcessor(
                 inAppLogic: SentryInAppLogic(inAppIncludes: options.inAppIncludes),
+                currentHubProvider: { SentrySDKInternal.currentHub() },
                 preserveCrashedSessionOnCaptureFailure: true
             )
             // The report filter dispatches regular reports itself. Keep this call synchronous so

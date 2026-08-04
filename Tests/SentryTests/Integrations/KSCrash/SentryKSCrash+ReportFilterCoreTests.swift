@@ -23,6 +23,7 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
         sut = SentryKSCrash.ReportFilterCore(
             reportProcessor: SentryStoredCrashReportProcessor(
                 inAppLogic: SentryInAppLogic(inAppIncludes: []),
+                currentHubProvider: { SentrySDKInternal.currentHub() },
                 preserveCrashedSessionOnCaptureFailure: true
             ),
             dispatchQueue: dispatchQueue

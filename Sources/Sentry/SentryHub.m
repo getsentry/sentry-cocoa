@@ -314,16 +314,23 @@ NS_ASSUME_NONNULL_BEGIN
         SentryId *eventId = [client captureFatalEvent:event
                                           withSession:crashedSession
                                             withScope:scope];
-        // An unavailable client returns an empty ID without accepting the event. Callers that
-        // retain the crash report can also preserve its session for the next SDK start.
-        if (!preserveCrashedSessionOnFailure || ![eventId isEqual:SentryId.empty]
-            || (!client.isDisabled && self.client == client)) {
+        if (!preserveCrashedSessionOnFailure ||
+            [self isFatalEventCaptureResultTerminal:eventId client:client]) {
             [fileManager deleteCrashedSession];
         }
         return eventId;
     }
 
     return [client captureFatalEvent:event withScope:scope];
+}
+
+- (BOOL)isFatalEventCaptureResultTerminal:(SentryId *)eventId client:(SentryClientInternal *)client
+{
+    if (![eventId isEqual:SentryId.empty]) {
+        return YES;
+    }
+
+    return !client.isDisabled && self.client == client;
 }
 
 #if SENTRY_HAS_UIKIT

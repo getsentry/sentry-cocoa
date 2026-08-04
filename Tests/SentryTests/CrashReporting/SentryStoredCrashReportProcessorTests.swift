@@ -66,6 +66,7 @@ final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase
         givenSdkWithHub()
         sut = SentryStoredCrashReportProcessor(
             inAppLogic: SentryInAppLogic(inAppIncludes: []),
+            currentHubProvider: { SentrySDKInternal.currentHub() },
             preserveCrashedSessionOnCaptureFailure: true
         )
     }
@@ -162,7 +163,9 @@ final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase
         client.fileManager.storeCrashedSession(crashedSession)
         let report = try getCrashReport(resource: "Resources/crash-report-1")
         let processor = SentryStoredCrashReportProcessor(
-            inAppLogic: SentryInAppLogic(inAppIncludes: [])
+            inAppLogic: SentryInAppLogic(inAppIncludes: []),
+            currentHubProvider: { SentrySDKInternal.currentHub() },
+            preserveCrashedSessionOnCaptureFailure: false
         )
 
         XCTAssertThrowsError(try processor.process(report: report))
@@ -218,6 +221,20 @@ final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase
             XCTAssertEqual(error.domain, SentryStoredCrashReportProcessorErrorDomain)
             XCTAssertEqual(error.code, SentryStoredCrashReportProcessorError.conversionFailed.rawValue)
         }
+    }
+
+    func testProcessReport_whenConverterRaisesException_shouldTranslateExceptionAndRemainOperational() throws {
+        var malformedReport = try getCrashReport(resource: "Resources/crash-report-1")
+        malformedReport["user"] = "not a dictionary"
+
+        XCTAssertThrowsError(try sut.process(report: malformedReport)) { error in
+            let error = error as NSError
+            XCTAssertEqual(error.domain, SentryStoredCrashReportProcessorErrorDomain)
+            XCTAssertEqual(error.code, SentryStoredCrashReportProcessorError.conversionFailed.rawValue)
+        }
+
+        let validReport = try getCrashReport(resource: "Resources/crash-report-1")
+        XCTAssertNoThrow(try sut.process(report: validReport))
     }
 
     private func makeEnabledOptions() -> Options {
