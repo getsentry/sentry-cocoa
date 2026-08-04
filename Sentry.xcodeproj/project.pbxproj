@@ -1744,8 +1744,6 @@
 				Public/SentryObjCAttributeContent.h,
 				Public/SentryObjCBreadcrumb.h,
 				Public/SentryObjCClient.h,
-				Public/SentryObjCDataCollectionDatabaseCollectionOptions.h,
-				Public/SentryObjCDataCollectionGraphQLCollectionOptions.h,
 				Public/SentryObjCDataCollectionHttpBodyType.h,
 				Public/SentryObjCDataCollectionHttpHeaderCollectionOptions.h,
 				Public/SentryObjCDataCollectionKeyValueCollectionBehavior.h,
