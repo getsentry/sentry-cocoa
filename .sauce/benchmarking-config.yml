@@ -12,11 +12,34 @@ xcuitest:
   testApp: ./DerivedData/Build/Products/Debug-iphoneos/iOS-Benchmarking-Runner.app
 
 suites:
+  # TEMPORARY, remove with GH-8548: the two class filters below only exist so these suites keep
+  # running just the benchmark, instead of also picking up GH1355OldOrderingTests and timing out.
   - name: "High-end device"
+    testOptions:
+      class:
+        - SentrySDKPerformanceBenchmarkTests
     devices:
       - name: "iPad Pro 11 2024"
         platformVersion: "17"
   - name: "Low-end device"
+    testOptions:
+      class:
+        - SentrySDKPerformanceBenchmarkTests
     devices:
       - name: "iPhone SE 2022"
         platformVersion: "18"
+  # TEMPORARY — delete before merging GH-8548, with GH1355OldOrderingTests.m. Runs only the GH-1355
+  # regression class on the lowest iOS 15 real devices available, the closest we can get to the
+  # iOS 15.0 where that crash was reported. See GH1355OldOrderingTests.m.
+  - name: "GH-1355 iOS 15"
+    # These tests only launch the app and open one screen, so cap the wait well below the 60m
+    # default: if the app crashes as GH-1355 did, we want the failure quickly, not a timeout.
+    timeout: 15m
+    testOptions:
+      class:
+        - GH1355OldOrderingTests
+    devices:
+      - name: "iPhone 11 Pro"
+        platformVersion: "15.3.1"
+      - name: "iPhone 11"
+        platformVersion: "15.7"

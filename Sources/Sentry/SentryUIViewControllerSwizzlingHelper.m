@@ -88,10 +88,33 @@ static BOOL swizzlingIsActive = FALSE;
     // SentryNSDataSwizzlingHelper.m uses this same macro path for -[NSData
     // initWithContentsOfFile:options:error:], another +1 initializer. The retain handshake is
     // covered by testInitFunnel_whenViewControllersInstantiated_doesNotOverRetainThem.
+    // TEMPORARY (delete with the GH-1355 iOS 15 SauceLabs suite, before merging GH-8548): when the
+    // host app passes --io.sentry.uiviewcontroller-tracing.gh1355-old-ordering, use the pre-GH-1361
+    // ordering instead — message the class and swizzle it BEFORE the original initializer runs.
+    // This exists only to get a red proof on real iOS 15 hardware, which is the one environment
+    // where GH-1355 was ever observed and which cannot be simulated on current macOS hosts.
+    //
+    // Gated on the same flags the rest of this file uses for test-only code, so it cannot reach a
+    // release build. DEBUG alone is not enough: the sample's Test configuration defines only
+    // SENTRY_TEST, so a DEBUG-only gate compiled this out and produced a meaningless green run.
+#    if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
+    BOOL useOldCrashingOrdering = [NSProcessInfo.processInfo.arguments
+        containsObject:@"--io.sentry.uiviewcontroller-tracing.gh1355-old-ordering"];
+    if (useOldCrashingOrdering) {
+        NSLog(@"[GH-1355 PROBE] Using the pre-GH-1361 crash-inducing swizzle ordering.");
+    }
+#    else
+    BOOL useOldCrashingOrdering = NO;
+#    endif
+
     SEL nibSelector = NSSelectorFromString(@"initWithNibName:bundle:");
     SentrySwizzleInstanceMethod(UIViewController.class, nibSelector, SentrySWReturnType(id),
         SentrySWArguments(NSString * nibName, NSBundle * bundle), SentrySWReplacement({
             id<SentryUIViewControllerInitSwizzlingDelegate> delegate = _initSwizzlingDelegate;
+            if (useOldCrashingOrdering) {
+                [delegate viewControllerInitialized:[self class]];
+                return SentrySWCallOriginal(nibName, bundle);
+            }
             id result = SentrySWCallOriginal(nibName, bundle);
             Class resultClass = object_getClass(result);
             if (resultClass != Nil) {
@@ -105,6 +128,10 @@ static BOOL swizzlingIsActive = FALSE;
     SentrySwizzleInstanceMethod(UIViewController.class, coderSelector, SentrySWReturnType(id),
         SentrySWArguments(NSCoder * coder), SentrySWReplacement({
             id<SentryUIViewControllerInitSwizzlingDelegate> delegate = _initSwizzlingDelegate;
+            if (useOldCrashingOrdering) {
+                [delegate viewControllerInitialized:[self class]];
+                return SentrySWCallOriginal(coder);
+            }
             id result = SentrySWCallOriginal(coder);
             Class resultClass = object_getClass(result);
             if (resultClass != Nil) {

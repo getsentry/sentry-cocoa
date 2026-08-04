@@ -3,6 +3,10 @@ on:
   push:
     branches:
       - main
+      # TEMPORARY — delete before merging GH-8548. Lets the GH-1355 iOS 15 suite run from the
+      # probe branch, reusing this workflow's working code signing and SauceLabs setup
+      # instead of duplicating it. See Samples/iOS-Swift/Benchmarking/Sources/GH1355OldOrderingTests.m.
+      - test/gh1355-ios15-saucelabs-probe
   workflow_dispatch:
 
 concurrency:
@@ -73,7 +77,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: ["High-end device", "Low-end device"]
+        # "GH-1355 iOS 15" is TEMPORARY — delete before merging GH-8548.
+        suite: ["High-end device", "Low-end device", "GH-1355 iOS 15"]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
