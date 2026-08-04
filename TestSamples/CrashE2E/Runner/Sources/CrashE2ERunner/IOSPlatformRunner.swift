@@ -170,7 +170,13 @@ final class IOSPlatformRunner {
     }
 
     private func cleanCache(container: URL) throws {
-        try fileManager.removeItemIfExists(at: container.appendingPathComponent("Library/Caches/io.sentry", isDirectory: true))
+        let cacheRoot = container.appendingPathComponent("Library/Caches", isDirectory: true)
+        try fileManager.removeItemIfExists(
+            at: cacheRoot.appendingPathComponent("io.sentry", isDirectory: true)
+        )
+        try fileManager.removeItemIfExists(
+            at: cacheRoot.appendingPathComponent("KSCrash", isDirectory: true)
+        )
     }
 
     private func dataContainer() throws -> URL {
