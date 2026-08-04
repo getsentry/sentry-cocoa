@@ -370,7 +370,12 @@ setEnabled(bool isEnabled)
             g_originalTerminateHandler = std::set_terminate(CPPExceptionTerminate);
         } else {
             std::set_terminate(g_originalTerminateHandler);
-            g_originalTerminateHandler = NULL;
+            // Keep g_originalTerminateHandler: CPPExceptionTerminate can still run after the
+            // monitor is disabled, because libc++abi stores the terminate handler per exception
+            // at throw time, and sentrycrashcm_handleException() disables all monitors while
+            // handling a fatal exception. Resetting the handler to NULL here would make
+            // CPPExceptionTerminate return without calling the original handler, causing
+            // libc++abi to abort with "terminate_handler unexpectedly returned".
 
             // This method is a no-op if cxa_throw is not swapped.
             sentrycrashct_unswap_cxa_throw();
