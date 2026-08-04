@@ -732,6 +732,22 @@
     /// Use this callback to drop or modify a metric before the SDK sends it to Sentry. Return nil to
     /// drop the metric.
     public var beforeSendMetric: ((SentryMetric) -> SentryMetric?)?
+
+    // MARK: - Internal
+
+    // Some features are only known after their APIs are used, so keep them separately and merge
+    // them into the SDK metadata when it is built.
+    private let _sdkFeatures = SentryMutex<Set<String>>([])
+
+    func addSdkFeature(_ feature: String) {
+        _sdkFeatures.withLock { features in
+            _ = features.insert(feature)
+        }
+    }
+
+    var sdkFeatures: [String] {
+        _sdkFeatures.withLock { $0.sorted() }
+    }
 }
 
 extension NSNumber {

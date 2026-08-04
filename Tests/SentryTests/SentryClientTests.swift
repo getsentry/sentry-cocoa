@@ -2178,7 +2178,17 @@ final class SentryClientTests: XCTestCase {
         let features = try XCTUnwrap(actual.sdk?["features"] as? [String])
         XCTAssertTrue(features.contains("captureFailedRequests"))
     }
-    
+
+    func testCaptureEvent_whenFeatureFlagNotUsed_shouldOmitFeatureFlagSdkFeature() throws {
+        let sut = fixture.getSut()
+
+        sut.capture(message: "message")
+
+        let actual = try lastSentEvent()
+        let features = try XCTUnwrap(actual.sdk?["features"] as? [String])
+        XCTAssertFalse(features.contains("featureFlags"))
+    }
+
     func testFileManagerCantBeInit() throws {
         try SentryFileManager.prepareInitError()
         defer {

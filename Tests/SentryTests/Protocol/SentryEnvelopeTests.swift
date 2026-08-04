@@ -130,6 +130,19 @@ class SentryEnvelopeTests: XCTestCase {
     func testInitSentryEnvelopeHeader_DefaultSdkInfoIsSet() {
         XCTAssertEqual(defaultSdkInfo, SentryEnvelopeHeader(id: nil).sdkInfo)
     }
+
+    func testInitSentryEnvelopeHeader_whenFeatureFlagAdded_shouldIncludeFeatureFlagSdkFeature() throws {
+        let options = Options()
+        options.dsn = TestConstants.dsnAsString(username: "SentryEnvelopeTests")
+        SentrySDK.start(options: options)
+        let featuresBeforeUse = try XCTUnwrap(SentryEnvelopeHeader(id: nil).sdkInfo?.features)
+        XCTAssertFalse(featuresBeforeUse.contains("featureFlags"))
+
+        SentrySDK.addFeatureFlag(name: "checkout", result: true)
+
+        let featuresAfterUse = try XCTUnwrap(SentryEnvelopeHeader(id: nil).sdkInfo?.features)
+        XCTAssertTrue(featuresAfterUse.contains("featureFlags"))
+    }
     
     func testInitSentryEnvelopeHeader_IdAndSkInfoNil() {
         let allNil = SentryEnvelopeHeader(id: nil, sdkInfo: nil, traceContext: nil)

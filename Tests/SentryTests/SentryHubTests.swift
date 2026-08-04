@@ -187,6 +187,15 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(values.element(at: 0)?["result"] as? Bool, true)
     }
 
+    func testAddFeatureFlag_shouldMarkSdkOptions() {
+        SentrySDK.setStart(with: fixture.options)
+        let hub = SentryHub(client: SentryClient(helper: fixture.client), andScope: Scope())
+
+        hub.addFeatureFlag(name: "checkout", result: true)
+
+        XCTAssertTrue(fixture.options.sdkFeatures.contains("featureFlags"))
+    }
+
     func testBreadcrumbOverDefaultLimit() {
         let hub = fixture.getSut(withMaxBreadcrumbs: 200)
         

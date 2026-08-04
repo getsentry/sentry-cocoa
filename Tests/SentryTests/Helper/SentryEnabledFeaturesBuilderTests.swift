@@ -427,4 +427,23 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         throw XCTSkip("Test not supported on this platform")
 #endif
     }
+
+    func testGetEnabledFeatures_whenSdkFeatureAdded_shouldIncludeFeature() {
+        let options = Options()
+        options.addSdkFeature("featureFlags")
+
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        XCTAssertTrue(features.contains("featureFlags"))
+    }
+
+    func testGetEnabledFeatures_whenSdkFeatureMatchesOptionFeature_shouldDeduplicateFeature() {
+        let options = Options()
+        options.addSdkFeature("metrics")
+
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        XCTAssertEqual(features.filter { $0 == "metrics" }.count, 1)
+    }
+
 }

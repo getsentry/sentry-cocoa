@@ -8,6 +8,7 @@ extension Span {
         guard let span = self as? SentrySpanInternal else {
             return
         }
+        SentryDependencyContainer.sharedInstance().startOptions?.addSdkFeature("featureFlags")
         span.addFeatureFlagInternal(name: name, result: result)
     }
 }

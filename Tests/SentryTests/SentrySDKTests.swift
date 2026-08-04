@@ -106,6 +106,19 @@ class SentrySDKTests: XCTestCase {
         let breadcrumbs = Dynamic(SentrySDKInternal.currentHub().scope).breadcrumbArray as [Breadcrumb]?
         XCTAssertEqual(0, breadcrumbs?.count)
     }
+
+    func testStart_whenInitialScopeAddsFeatureFlag_shouldMarkOptions() {
+        let options = Options.noIntegrations()
+        options.dsn = Self.dsnAsString
+        options.initialScope = { scope in
+            scope.addFeatureFlag(name: "checkout", result: true)
+            return scope
+        }
+
+        SentrySDK.start(options: options)
+
+        XCTAssertTrue(options.sdkFeatures.contains("featureFlags"))
+    }
     
     func testStartWithConfigureOptions() {
         SentrySDK.start { options in
@@ -538,6 +551,7 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(values.count, 1)
         XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "checkout")
         XCTAssertEqual(values.element(at: 0)?["result"] as? Bool, true)
+        XCTAssertTrue(fixture.options.sdkFeatures.contains("featureFlags"))
     }
 
     /// When events don't have debug meta the backend can't symbolicate the stack trace of events.

@@ -68,6 +68,10 @@ import Foundation
         }
 #endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
 
+        for feature in options.sdkFeatures where !features.contains(feature) {
+            features.append(feature)
+        }
+
         return features
     }
     // swiftlint:enable cyclomatic_complexity function_body_length
