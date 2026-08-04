@@ -4,6 +4,79 @@ import Foundation
 import XCTest
 
 final class SentryKSCrashReportStoreSenderTests: XCTestCase {
+    func testSendAllReports_whenReportIDsAreEmpty_shouldCleanupWithoutSending() {
+        // -- Arrange --
+        var sentReportIDs: [Int64] = []
+        var cleanupInvocationCount = 0
+        let sut = SentryKSCrash.ReportStoreSender(
+            sendReport: { reportID, _ in
+                sentReportIDs.append(reportID)
+            },
+            cleanupOrphanedRunSidecars: {
+                cleanupInvocationCount += 1
+            }
+        )
+
+        // -- Act --
+        sut.sendAllReports([], prioritizing: { _ in false })
+
+        // -- Assert --
+        XCTAssertEqual(sentReportIDs, [])
+        XCTAssertEqual(cleanupInvocationCount, 1)
+    }
+
+    func testSendAllReports_whenAllReportsFail_shouldAttemptEveryReportAndCleanupOnce() throws {
+        // -- Arrange --
+        var sentReportIDs: [Int64] = []
+        var pendingCompletions: [(Int, (any Error)?) -> Void] = []
+        var cleanupInvocationCount = 0
+        let sut = SentryKSCrash.ReportStoreSender(
+            sendReport: { reportID, onCompletion in
+                sentReportIDs.append(reportID)
+                pendingCompletions.append(onCompletion)
+            },
+            cleanupOrphanedRunSidecars: {
+                cleanupInvocationCount += 1
+            }
+        )
+        let error = NSError(domain: "test", code: 1)
+
+        // -- Act --
+        sut.sendAllReports([1, 2, 3], prioritizing: { _ in false })
+
+        // -- Assert --
+        XCTAssertEqual(sentReportIDs, [1])
+        XCTAssertEqual(cleanupInvocationCount, 0)
+
+        // -- Act --
+        let firstCompletion = try XCTUnwrap(pendingCompletions.first)
+        pendingCompletions.removeFirst()
+        firstCompletion(0, error)
+
+        // -- Assert --
+        XCTAssertEqual(sentReportIDs, [1, 2])
+        XCTAssertEqual(cleanupInvocationCount, 0)
+
+        // -- Act --
+        let secondCompletion = try XCTUnwrap(pendingCompletions.first)
+        pendingCompletions.removeFirst()
+        secondCompletion(0, error)
+
+        // -- Assert --
+        XCTAssertEqual(sentReportIDs, [1, 2, 3])
+        XCTAssertEqual(cleanupInvocationCount, 0)
+
+        // -- Act --
+        let thirdCompletion = try XCTUnwrap(pendingCompletions.first)
+        pendingCompletions.removeFirst()
+        thirdCompletion(0, error)
+
+        // -- Assert --
+        XCTAssertEqual(sentReportIDs, [1, 2, 3])
+        XCTAssertEqual(pendingCompletions.count, 0)
+        XCTAssertEqual(cleanupInvocationCount, 1)
+    }
+
     func testSendAllReports_whenRetryableFailureFollowsSuccess_shouldRetryOnlyFailedReport() throws {
         // -- Arrange --
         var storedReportIDs = Set<Int64>([1, 2])
