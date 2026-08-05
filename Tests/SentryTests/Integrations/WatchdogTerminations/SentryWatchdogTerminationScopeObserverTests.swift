@@ -46,10 +46,7 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
                 dispatchQueueWrapper: dispatchQueueWrapper
             )
             let persistendStore = try XCTUnwrap(SentryScopePersistentStore(fileManager: fileManager))
-            breadcrumbProcessor = MockWatchdogTerminationBreadcrumbProcessor(
-                maxBreadcrumbs: 10,
-                fileManager: fileManager
-            )
+            breadcrumbProcessor = MockWatchdogTerminationBreadcrumbProcessor()
             attributesProcessor = TestSentryWatchdogTerminationAttributesProcessor(
                 withDispatchQueueWrapper: dispatchQueueWrapper,
                 scopePersistentStore: persistendStore
