@@ -376,7 +376,6 @@ class SentryNetworkTrackerTests: XCTestCase {
 
     func testSpan_whenURLQueryParamsAreOff_shouldNotStoreQueryInURLData() throws {
         // -- Arrange --
-        fixture.options.sendDefaultPii = true
         fixture.options.dataCollection.urlQueryParams = .off
         let url = try XCTUnwrap(URL(string: "https://www.domain.com/api?token=secret&page=2"))
         let task = URLSessionDataTaskMock(request: URLRequest(url: url))
@@ -390,24 +389,8 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(span.spanDescription, "GET https://www.domain.com/api")
     }
 
-    func testSpan_whenSendDefaultPiiIsFalse_shouldUseConfiguredQueryParamBehavior() throws {
+    func testSpan_whenURLQueryParamsUseDefault_shouldCollectNonSensitiveValues() throws {
         // -- Arrange --
-        fixture.options.sendDefaultPii = false
-        fixture.options.dataCollection.urlQueryParams = .off
-        let url = try XCTUnwrap(URL(string: "https://www.domain.com/api?forwarded=192.0.2.1&page=2"))
-        let task = URLSessionDataTaskMock(request: URLRequest(url: url))
-
-        // -- Act --
-        let span = try XCTUnwrap(spanForTask(task: task))
-
-        // -- Assert --
-        XCTAssertEqual(span.data["url"] as? String, "https://www.domain.com/api")
-        XCTAssertNil(span.data["http.query"])
-    }
-
-    func testSpan_whenSendDefaultPiiIsTrue_shouldUseConfiguredQueryParamBehavior() throws {
-        // -- Arrange --
-        fixture.options.sendDefaultPii = true
         fixture.options.dataCollection = SentryDataCollection.Options()
         let url = try XCTUnwrap(URL(string: "https://www.domain.com/api?forwarded=192.0.2.1&page=2"))
         let task = URLSessionDataTaskMock(request: URLRequest(url: url))
@@ -761,7 +744,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         ))
         task.setResponse(httpResponse)
 
-        let jsonBody = Data(#"{"key":"value"}"#.utf8)
+        let jsonBody = Data(#"{"field":"value"}"#.utf8)
 
         // -- Act --
         tracker.urlSessionTask(task, setState: .running)
@@ -786,7 +769,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         // unwrap below fails.
         let bodyDict = try XCTUnwrap(responseDict["body"] as? [String: Any])
         let parsedBody = try XCTUnwrap(bodyDict["body"] as? [String: Any])
-        XCTAssertEqual(parsedBody["key"] as? String, "value")
+        XCTAssertEqual(parsedBody["field"] as? String, "value")
 
         clearTestState()
     }
@@ -1643,6 +1626,27 @@ class SentryNetworkTrackerTests: XCTestCase {
 #endif // SDK_V10
     }
 
+    func testCaptureHTTPClientErrorRequest_whenHeaderNamePartiallyMatchesSensitiveTerm_shouldFilterValue() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+#else
+        // -- Arrange --
+        let task = createDataTask { request in
+            var request = request
+            request.allHTTPHeaderFields = ["X-Auth-Token": "secret-token"]
+            return request
+        }
+        task.setResponse(try createResponse(code: 500))
+
+        // -- Act --
+        fixture.getSut().urlSessionTask(task, setState: .completed)
+
+        // -- Assert --
+        let request = try XCTUnwrap(fixture.hub.capturedErrorEvents.first?.request)
+        XCTAssertEqual(request.headers, ["X-Auth-Token": "[Filtered]"])
+#endif // SDK_V10
+    }
+
     func testCaptureHTTPClientErrorResponse() throws {
         let sut = fixture.getSut()
         let task = createDataTask()
@@ -1684,6 +1688,36 @@ class SentryNetworkTrackerTests: XCTestCase {
         // -- Assert --
         let response = try XCTUnwrap(fixture.hub.capturedErrorEvents.first?.context?["response"])
         XCTAssertEqual(response["headers"] as? [String: String], [:])
+    }
+
+    func testCaptureHTTPClientError_whenOnlyCookiesArePresentAndHeaderCollectionIsEnabled_shouldIncludeEmptyHeaders() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+#else
+        // -- Arrange --
+        let task = createDataTask { request in
+            var request = request
+            request.allHTTPHeaderFields = ["Cookie": "theme=dark"]
+            return request
+        }
+        task.setResponse(try XCTUnwrap(HTTPURLResponse(
+            url: SentryNetworkTrackerTests.fullUrl,
+            statusCode: 500,
+            httpVersion: "1.1",
+            headerFields: ["Set-Cookie": "locale=en; HttpOnly"]
+        )))
+
+        // -- Act --
+        fixture.getSut().urlSessionTask(task, setState: .completed)
+
+        // -- Assert --
+        let event = try XCTUnwrap(fixture.hub.capturedErrorEvents.first)
+        XCTAssertEqual(event.request?.headers, [:])
+        XCTAssertEqual(event.request?.cookies, ["theme": "dark"])
+        let response = try XCTUnwrap(event.context?["response"])
+        XCTAssertEqual(response["headers"] as? [String: String], [:])
+        XCTAssertEqual(response["cookies"] as? [String: String], ["locale": "en"])
+#endif // SDK_V10
     }
 
     func testCaptureHTTPClientErrorResponse_noSecurityHeader() throws {
@@ -1747,7 +1781,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         // -- Assert --
         let request = try XCTUnwrap(fixture.hub.capturedErrorEvents.first?.request)
 #if SDK_V10
-        XCTAssertEqual(request.headers, [:])
+        XCTAssertNil(request.headers)
         XCTAssertEqual(request.cookies, ["theme": "dark", "session": "[Filtered]"])
 #else
         XCTAssertEqual(request.headers, ["Content-Type": "application/json"])
@@ -1778,7 +1812,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         // -- Assert --
         let response = try XCTUnwrap(fixture.hub.capturedErrorEvents.first?.context?["response"])
 #if SDK_V10
-        XCTAssertEqual(response["headers"] as? [String: String], [:])
+        XCTAssertNil(response["headers"])
         XCTAssertEqual(response["cookies"] as? [String: String], ["theme": "dark"])
 #else
         XCTAssertEqual(response["headers"] as? [String: String], ["Content-Type": "application/json"])

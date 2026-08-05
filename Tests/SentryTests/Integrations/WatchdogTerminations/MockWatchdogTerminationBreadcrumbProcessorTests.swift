@@ -2,23 +2,23 @@
 @testable import Sentry
 import XCTest
 
-// This test is used to verify the functionality of the mock of TestSentryWatchdogTerminationBreadcrumbProcessor.
+// This test is used to verify the functionality of the mock of MockWatchdogTerminationBreadcrumbProcessor.
 //
 // It ensures that the mock works as expected and can be used in tests suites.
 //
 // Note: This file should ideally live in SentryTestUtilsTests, but this would lead to circular imports.
 // When refactoring the project structure, consider moving this to SentryTestUtilsTests.
 
-class TestSentryWatchdogTerminationBreadcrumbProcessorTests: XCTestCase {
+class MockWatchdogTerminationBreadcrumbProcessorTests: XCTestCase {
 
-    private static let dsn = TestConstants.dsnForTestCase(type: TestSentryWatchdogTerminationBreadcrumbProcessorTests.self)
+    private static let dsn = TestConstants.dsnForTestCase(type: MockWatchdogTerminationBreadcrumbProcessorTests.self)
 
     private class Fixture {
         let fileManager: SentryFileManager
 
         init() throws {
             let options = Options()
-            options.dsn = TestSentryWatchdogTerminationBreadcrumbProcessorTests.dsn
+            options.dsn = MockWatchdogTerminationBreadcrumbProcessorTests.dsn
             fileManager = try TestFileManager(
                 options: options,
                 dateProvider: TestCurrentDateProvider(),
@@ -26,16 +26,13 @@ class TestSentryWatchdogTerminationBreadcrumbProcessorTests: XCTestCase {
             )
         }
 
-        func getSut() -> TestSentryWatchdogTerminationBreadcrumbProcessor {
-            return TestSentryWatchdogTerminationBreadcrumbProcessor(
-                maxBreadcrumbs: 10,
-                fileManager: fileManager
-            )
+        func getSut() -> MockWatchdogTerminationBreadcrumbProcessor {
+            MockWatchdogTerminationBreadcrumbProcessor()
         }
     }
 
     private var fixture: Fixture!
-    private var sut: TestSentryWatchdogTerminationBreadcrumbProcessor!
+    private var sut: MockWatchdogTerminationBreadcrumbProcessor!
 
     override func setUpWithError() throws {
         super.setUp()

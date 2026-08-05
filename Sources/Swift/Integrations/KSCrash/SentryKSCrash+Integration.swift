@@ -6,22 +6,24 @@ import Foundation
 
 // MARK: - Integration
 extension SentryKSCrash {
-    typealias DependencyProvider = SentryKSCrash.InstallerProvider
+    typealias DependencyProvider = SentryKSCrash.InstallerProvider & DateProviderProvider & DispatchQueueWrapperProvider & FileManagerProvider
 
     /// Crash detectors matching SentryCrash's production monitor set:
     /// Mach exceptions, signals, C++ exceptions, and NSExceptions.
-    /// KSCrash unconditionally adds its Required monitors (System, AppState,
-    /// UserInfo, Resource) on top of whatever is passed here.
+    /// Required infrastructure monitors are explicit because KSCrash 2.6.0-beta.3
+    /// does not add them to its registered monitor set when given a custom mask.
     static let productionSafeMonitors: UInt = MonitorType([
         .machException,
         .signal,
         .cppException,
-        .nsException
+        .nsException,
+        .required
     ]).rawValue
 
     final class Integration<Dependencies: DependencyProvider>: NSObject, SwiftIntegration {
         private weak var options: Options?
         private let installer: Dependencies.Installing
+        private let reportProcessingSession = ReportProcessingSession()
 
         // MARK: - Initialization
 
@@ -51,9 +53,60 @@ extension SentryKSCrash {
                 return nil
             }
 
+            // KSCRASH_TODO: Preserve SentryCrashIntegration's macOS AppKit NSException forwarding.
+            // SentryUncaughtNSExceptions currently routes reportException:/_crashOnException:
+            // through SentryNSExceptionCaptureHelper to SentryCrashSwift. Replace that direct
+            // dependency with an active-backend facade and supply KSCrash's uncaughtExceptionHandler.
+            // The reporter-neutral macOS CrashE2E ns-exception scenario is the acceptance test.
+            // Tracked in https://github.com/getsentry/sentry-cocoa/issues/8529.
+
+            // KSCRASH_TODO: Restore previous-run session handling for watchdog terminations and
+            // fatal app hangs through reporter-neutral coordination. It must run before automatic
+            // session tracking and the corresponding event processing.
+            // Tracked in https://github.com/getsentry/sentry-cocoa/issues/8674.
             if installer.crashedLastLaunch {
                 SentrySDKInternal.fatalDetected = true
+
+                // Persist the previous session before report processing or auto session tracking
+                // can start, so the first fatal event can attach the crashed session.
+                endPreviousSessionAsCrashed(
+                    activeDurationSinceLastCrash: installer.activeDurationSinceLastCrash,
+                    dependencies: dependencies
+                )
             }
+
+            let reportProcessor = SentryStoredCrashReportProcessor(
+                inAppLogic: SentryInAppLogic(inAppIncludes: options.inAppIncludes),
+                currentHubProvider: { SentrySDKInternal.currentHub() },
+                preserveCrashedSessionOnCaptureFailure: true
+            )
+            // The report filter dispatches regular reports itself. Keep this call synchronous so
+            // startup crashes can be captured and flushed before SDK initialization returns.
+            installer.sendAllReports(
+                reportProcessor: reportProcessor,
+                dispatchQueue: dependencies.dispatchQueueWrapper,
+                processingSession: reportProcessingSession
+            )
+        }
+
+        private func endPreviousSessionAsCrashed(
+            activeDurationSinceLastCrash: TimeInterval,
+            dependencies: Dependencies
+        ) {
+            guard let fileManager = dependencies.fileManager else {
+                SentrySDKLog.warning("File manager is unavailable; cannot persist the crashed session.")
+                return
+            }
+            guard let session = fileManager.readCurrentSession() else {
+                SentrySDKLog.debug("No current session found to end as crashed.")
+                return
+            }
+
+            let crashTimestamp = dependencies.dateProvider.date()
+                .addingTimeInterval(-activeDurationSinceLastCrash)
+            session.endCrashed(withTimestamp: crashTimestamp)
+            fileManager.storeCrashedSession(session)
+            fileManager.deleteCurrentSession()
         }
 
         // MARK: - SwiftIntegration
@@ -62,6 +115,7 @@ extension SentryKSCrash {
         }
 
         func uninstall() {
+            reportProcessingSession.cancel()
             installer.uninstall()
         }
 

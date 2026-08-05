@@ -650,17 +650,20 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual(event.releaseName, "release-name-test")
     }
     
-    func testV2_ANRDetected_StopNotCalledAndCrashed_SendsNormalAppHangEvent() throws {
+    func testV2_ANRDetected_StopNotCalledAndActiveCrashReporterCrashed_SendsNormalAppHangEvent() throws {
         // Arrange
         setUpThreadInspector()
         givenInitializedTracker()
 
         Dynamic(sut).anrDetectedWithType(SentryANRType.fullyBlocking)
+        let activeCrashReporterState = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
+        activeCrashReporterState.internalCrashedLastLaunch = true
         
         // Act
-        givenInitializedTracker(crashedLastLaunch: true)
+        givenInitializedTracker(activeCrashReporterState: activeCrashReporterState)
         
         // Assert
+        XCTAssertFalse(crashWrapper.crashedLastLaunch)
         try assertEventWithScopeCaptured { event, scope, _ in
             let ex = try XCTUnwrap(event?.exceptions?.first)
             
@@ -875,7 +878,11 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertNotNil(sut?.tracker, "Tracker should be initialized")
     }
     
-    private func givenInitializedTracker(isBeingTraced: Bool = false, crashedLastLaunch: Bool = false) {
+    private func givenInitializedTracker(
+        isBeingTraced: Bool = false,
+        crashedLastLaunch: Bool = false,
+        activeCrashReporterState: SentryCrashReporterState? = nil
+    ) {
         givenSdkWithHub()
         
         SentrySDK.configureScope { scope in
@@ -887,6 +894,8 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         
         self.crashWrapper.internalIsBeingTraced = isBeingTraced
         self.crashWrapper.internalCrashedLastLaunch = crashedLastLaunch
+        SentryDependencyContainer.sharedInstance().activeCrashReporterStateOverride =
+            activeCrashReporterState ?? crashWrapper
         sut = hangTracker(with: self.options)
     }
     

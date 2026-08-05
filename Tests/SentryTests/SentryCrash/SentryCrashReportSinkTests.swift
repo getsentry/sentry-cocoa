@@ -9,8 +9,10 @@ class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         
         var sut: SentryCrashReportSink {
-            return SentryCrashReportSink(inAppLogic: SentryInAppLogic(inAppIncludes: []), crashWrapper: crashWrapper, dispatchQueue: dispatchQueue)
+            return SentryCrashReportSink(inAppLogic: inAppLogic, crashWrapper: crashWrapper, dispatchQueue: dispatchQueue)
         }
+
+        private let inAppLogic = SentryInAppLogic(inAppIncludes: [])
     }
     
     private var fixture: Fixture!

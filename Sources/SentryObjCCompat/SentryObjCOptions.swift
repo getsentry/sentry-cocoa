@@ -258,10 +258,12 @@ import Foundation
         set { wrapped.maxAttachmentSize = newValue }
     }
 
+#if !SDK_V10
     @objc public var sendDefaultPii: Bool {
         get { wrapped.sendDefaultPii }
         set { wrapped.sendDefaultPii = newValue }
     }
+#endif // !SDK_V10
 
     @objc public var enableAutoPerformanceTracing: Bool {
         get { wrapped.enableAutoPerformanceTracing }

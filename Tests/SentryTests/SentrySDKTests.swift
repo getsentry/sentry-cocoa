@@ -68,7 +68,7 @@ class SentrySDKTests: XCTestCase {
                 dateProvider: currentDate,
                 dispatchQueueWrapper: dispatchQueueWrapper
             ))
-            let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
+            let breadcrumbProcessor = SentryDefaultWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
             scopePersistentStore = try XCTUnwrap(TestSentryScopePersistentStore(fileManager: fileManager))
             let attributesProcessor = SentryWatchdogTerminationAttributesProcessor(
                 withDispatchQueueWrapper: dispatchQueueWrapper,
@@ -233,7 +233,10 @@ class SentrySDKTests: XCTestCase {
     #if !SDK_V10
     @available(*, deprecated, message: "Testing deprecated crashedLastRun API")
     func testCrashedLastRun() {
-        XCTAssertEqual(SentryDependencyContainer.sharedInstance().crashReporter.crashedLastLaunch, SentrySDK.crashedLastRun)
+        XCTAssertEqual(
+            SentryDependencyContainer.sharedInstance().activeCrashReporterState.crashedLastLaunch,
+            SentrySDK.crashedLastRun
+        )
     }
     #endif
 
@@ -320,6 +323,7 @@ class SentrySDKTests: XCTestCase {
         // -- Act --
         SentrySDK.start { options in
             options.dsn = TestConstants.dsnAsString(username: "SentrySDKTests")
+            Self.givenDeterministicNoCrashState(options)
             options.onLastRunStatusDetermined = { status, event in
                 receivedStatus = status
                 receivedEvent = event
@@ -335,6 +339,7 @@ class SentrySDKTests: XCTestCase {
         // -- Act --
         SentrySDK.start { options in
             options.dsn = TestConstants.dsnAsString(username: "SentrySDKTests")
+            Self.givenDeterministicNoCrashState(options)
             options.onLastRunStatusDetermined = { _, _ in }
         }
 
@@ -346,6 +351,7 @@ class SentrySDKTests: XCTestCase {
         // -- Act & Assert -- (should not crash)
         SentrySDK.start { options in
             options.dsn = TestConstants.dsnAsString(username: "SentrySDKTests")
+            Self.givenDeterministicNoCrashState(options)
             options.onLastRunStatusDetermined = nil
         }
     }
@@ -668,6 +674,16 @@ extension SentrySDKTests {
                 XCTAssertTrue(SentrySDKInternal.currentHub().hasIntegration(integration), "\(integration) not installed with legacy ObjC API nor Swift")
             }
         }
+    }
+
+    private static func givenDeterministicNoCrashState(_ options: Options) {
+#if ENABLE_KSCRASH
+        // KSCrash state is process-lifetime and may contain a crash from another test. Disable the
+        // real integration and inject the state required by these callback-focused tests.
+        options.enableCrashHandler = false
+        SentryDependencyContainer.sharedInstance().activeCrashReporterStateOverride =
+            MockKSCrashQuery.create(installed: true, crashedLastLaunch: false)
+#endif
     }
 
     private func givenSdkWithHubButNoClient() {

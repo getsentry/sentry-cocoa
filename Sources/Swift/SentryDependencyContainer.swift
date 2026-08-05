@@ -139,6 +139,21 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         )
         return SentryDefaultCrashReporter(processInfoWrapper: Dependencies.processInfoWrapper, bridge: bridge)
     }
+#if SENTRY_TEST || SENTRY_TEST_CI
+    var activeCrashReporterStateOverride: SentryCrashReporterState?
+#endif
+    @objc public var activeCrashReporterState: SentryCrashReporterState {
+#if SENTRY_TEST || SENTRY_TEST_CI
+        if let activeCrashReporterStateOverride {
+            return activeCrashReporterStateOverride
+        }
+#endif
+#if ENABLE_KSCRASH
+        return kscrashQuery
+#else
+        return crashWrapper
+#endif
+    }
     @objc public var dispatchFactory = SentryDispatchFactory()
     @objc public var timerFactory = SentryNSTimerFactory()
     private var _fileIOTracker: SentryFileIOTracker?
@@ -235,7 +250,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 
     @objc public func getWatchdogTerminationScopeObserverWithOptions(_ options: Options) -> SentryScopeObserver {
          return SentryWatchdogTerminationScopeObserver(
-            breadcrumbProcessor: SentryWatchdogTerminationBreadcrumbProcessor(
+            breadcrumbProcessor: SentryDefaultWatchdogTerminationBreadcrumbProcessor(
                 maxBreadcrumbs: Int(options.maxBreadcrumbs)),
             attributesProcessor: watchdogTerminationAttributesProcessor)
     }
@@ -256,9 +271,12 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 
             let dispatchQueueWrapper = dispatchFactory.createUtilityQueue("io.sentry.watchdog-termination-tracker", relativePriority: 0)
 
-            let logic = SentryWatchdogTerminationLogic(options: options,
-                                                       crashAdapter: crashWrapper,
-                                                       appStateManager: appStateManager)
+            let logic = SentryWatchdogTerminationLogic(
+                options: options,
+                crashAdapter: crashWrapper,
+                activeCrashReporterState: activeCrashReporterState,
+                appStateManager: appStateManager
+            )
             return SentryWatchdogTerminationTracker(
                 options: options,
                 watchdogTerminationLogic: logic,
@@ -336,9 +354,12 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             }
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-            let watchdogLogic = SentryWatchdogTerminationLogic(options: options,
-                                                       crashAdapter: crashWrapper,
-                                                       appStateManager: appStateManager)
+            let watchdogLogic = SentryWatchdogTerminationLogic(
+                options: options,
+                crashAdapter: crashWrapper,
+                activeCrashReporterState: activeCrashReporterState,
+                appStateManager: appStateManager
+            )
             return SentryCrashIntegrationSessionHandler(
                 crashWrapper: crashWrapper,
                 watchdogTerminationLogic: watchdogLogic,
@@ -739,6 +760,11 @@ protocol CrashWrapperProvider {
     var crashWrapper: SentryCrashReporter { get }
 }
 extension SentryDependencyContainer: CrashWrapperProvider {}
+
+protocol CrashReporterStateProvider {
+    var activeCrashReporterState: SentryCrashReporterState { get }
+}
+extension SentryDependencyContainer: CrashReporterStateProvider {}
 
 protocol GlobalEventProcessorProvider {
     var globalEventProcessor: SentryGlobalEventProcessor { get }

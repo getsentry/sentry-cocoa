@@ -81,6 +81,7 @@
 #import "SentrySerialization.h"
 #import "SentrySpanDataKey.h"
 #import "SentrySpanOperation.h"
+#import "SentryStoredCrashReportProcessor.h"
 #import "SentrySysctlObjC.h"
 #import "SentryTimeToDisplayTracker.h"
 #import "SentryTraceContext+Private.h"
@@ -93,4 +94,3 @@
 #import "SentryTransactionContext+Private.h"
 #import "SentryUIViewControllerSwizzlingHelper.h"
 #import "SentryUncaughtNSExceptions.h"
-#import "SentryWatchdogTerminationBreadcrumbProcessor.h"

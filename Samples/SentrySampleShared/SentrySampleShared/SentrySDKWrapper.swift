@@ -10,6 +10,9 @@ public struct SentrySDKWrapper {
     public static let shared = SentrySDKWrapper()
     public static var spanCaptureHandler: ((Span) -> Void)?
 
+    /// Forwarded to `Options.swizzleClassNameExcludes`. Set before `startSentry()`.
+    public static var swizzleClassNameExcludes: Set<String> = []
+
 #if !os(macOS) && !os(tvOS) && !os(watchOS)
     public let feedbackButton = {
         let button = UIButton(type: .custom)
@@ -75,16 +78,6 @@ public struct SentrySDKWrapper {
             mode: SentrySDKOverrides.DataCollection.urlQueryParamsMode.stringValue,
             terms: SentrySDKOverrides.DataCollection.urlQueryParamsTerms.stringValue
         )
-        options.dataCollection.graphql.document = !SentrySDKOverrides.DataCollection.disableGraphQLDocument.boolValue
-        options.dataCollection.graphql.variables = !SentrySDKOverrides.DataCollection.disableGraphQLVariables.boolValue
-        options.dataCollection.database.queryParams = !SentrySDKOverrides.DataCollection.disableDatabaseQueryParams.boolValue
-        options.dataCollection.stackFrameVariables = !SentrySDKOverrides.DataCollection.disableStackFrameVariables.boolValue
-        if SentrySDKOverrides.Special.disableEverything.boolValue {
-            options.dataCollection.frameContextLines = 0
-        } else if let frameContextLines = SentrySDKOverrides.DataCollection.frameContextLines.stringValue,
-                  let value = UInt(frameContextLines) {
-            options.dataCollection.frameContextLines = value
-        }
 #endif // SDK_V10
     }
 
@@ -238,6 +231,7 @@ public struct SentrySDKWrapper {
         options.enableAutoBreadcrumbTracking = !SentrySDKOverrides.Breadcrumbs.disableAutomatic.boolValue
         options.enableCoreDataTracing = !SentrySDKOverrides.CoreData.disableTracing.boolValue
         options.enableSwizzling = !SentrySDKOverrides.Swizzling.disable.boolValue
+        options.swizzleClassNameExcludes = SentrySDKWrapper.swizzleClassNameExcludes
         options.enableCrashHandler = !SentrySDKOverrides.Crash.disableHandler.boolValue
         // Stitch the calls to Swift async functions into one consecutive stack trace.
         options.swiftAsyncStacktraces = !SentrySDKOverrides.SwiftAsync.disable.boolValue

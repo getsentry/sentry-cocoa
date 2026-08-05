@@ -14,7 +14,7 @@ import XCTest
 ///
 /// Uses postman-echo.com so no local test server is required.
 class SentryNetworkDetailSwizzlingTests: XCTestCase {
-    
+
     private let echoURL = URL(string: "https://postman-echo.com/get")!
 
     override class func setUp() {
@@ -122,7 +122,7 @@ class SentryNetworkDetailSwizzlingTests: XCTestCase {
     }
 
     // MARK: - Helpers
-    
+
     private static func startSDK() {
         let options = Options()
         options.dsn = TestConstants.dsnAsString(username: "SentryNetworkDetailSwizzlingTests")
