@@ -4,9 +4,8 @@ import UIKit
 // designated init. Reported crashing under the SDK's init swizzling on iOS 15 with
 // `NSInternalInconsistencyException: missing initial trait collection`.
 //
-// Deferred first-instantiation swizzling re-introduces init swizzling, so this shape must stay
-// crash-free. Does not currently crash — the reported crash does not reproduce on the iOS 15.5
-// simulator, so this is a guard rather than a live repro.
+// Does not currently crash — the reported crash does not reproduce on the iOS 15.5 simulator, so
+// this is a guard rather than a live repro.
 final class ConvenienceInitViewController: UITableViewController {
 
     static let accessibilityIdentifier = "convenienceInitScreen"

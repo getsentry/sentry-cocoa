@@ -1,7 +1,8 @@
 import XCTest
 
-/// Gated fixtures in `SubClassFinderRegressionViewController` run through the real swizzle path; a
-/// launch crash fails these tests. Run on the iOS 16.4 simulator, below the iOS-17 gate. (GH-8152)
+/// Keeps the fixtures compiled in and the app launchable. These cannot observe the GH-8152 crash:
+/// CI runs iOS 17.5 / 18 / 26, all at or above the fixtures' gates, and `AppDelegate` excludes the
+/// gated classes from swizzling. For the crash itself, drop those excludes and run on iOS 16.4.
 class SubClassFinderRegressionUITests: BaseUITest {
 
     func testAppLaunchesWithoutCrashingOnGatedSubclasses() {

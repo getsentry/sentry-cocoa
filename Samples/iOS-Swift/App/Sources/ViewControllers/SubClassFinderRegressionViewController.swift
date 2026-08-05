@@ -9,11 +9,11 @@ import RoomPlan
 import FoundationModels
 #endif
 
-// Repro for GH-8152: with `@available`-gated UIViewController subclasses compiled in, eager
-// swizzling realizes them at launch and crashes the app on an OS below the gate. Deferred
-// first-instantiation swizzling avoids this because the class is never instantiated below its
-// gate. These run through the real swizzle path (no `swizzleClassNameExcludes` workaround);
-// verified on the iOS 16.4 simulator. (GH-8152 / GH-8548)
+// Repro for GH-8152: with `@available`-gated UIViewController subclasses compiled in, the SDK
+// crashes the app during launch on an OS below the gate. Verified on the iOS 16.4 simulator.
+//
+// `AppDelegate` excludes these classes from swizzling so the sample still launches there; remove
+// those excludes to reproduce.
 
 /// Host screen for the fixtures. Opening it is not what triggers the crash.
 final class SubClassFinderRegressionViewController: UIViewController {
