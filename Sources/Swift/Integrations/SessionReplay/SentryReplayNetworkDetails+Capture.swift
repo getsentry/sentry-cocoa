@@ -103,12 +103,12 @@ extension SentryReplayNetworkDetails {
     /// Serializes to dictionary for inclusion in breadcrumb data.
     @objc public func serialize() -> [String: Any] {
         var result = [String: Any]()
-        if let method { result["method"] = method }
-        if let statusCode { result["statusCode"] = statusCode }
-        if let requestBodySize { result["requestBodySize"] = requestBodySize }
-        if let responseBodySize { result["responseBodySize"] = responseBodySize }
-        if let request { result["request"] = request.serialize() }
-        if let response { result["response"] = response.serialize() }
+        result["method"] = method
+        result["statusCode"] = statusCode
+        result["requestBodySize"] = requestBodySize
+        result["responseBodySize"] = responseBodySize
+        result["request"] = request?.serialize()
+        result["response"] = response?.serialize()
         return result
     }
 }

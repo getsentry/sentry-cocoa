@@ -262,8 +262,8 @@ enum NetworkBodyWarning: String {
 
         func serialize() -> [String: Any] {
             var result = [String: Any]()
-            if let size { result["size"] = size }
-            if let body { result["body"] = body.serialize() }
+            result["size"] = size
+            result["body"] = body?.serialize()
             if !headers.isEmpty { result["headers"] = headers }
 #if SDK_V10
             if !cookies.isEmpty { result["cookies"] = cookies }
