@@ -200,3 +200,20 @@ For a migration, run the existing integration or end-to-end tests that exercised
 - [ ] Descriptor, adapter, and feature behavior are tested
 - [ ] Real framework signature is tested when available
 - [ ] All affected platforms build
+
+## FAQ
+
+### How does our swizzling relate to NSHipster's Method Swizzling article?
+
+[Method Swizzling](https://nshipster.com/method-swizzling/) is the article people point to when discussing this SDK's swizzling. It was not a reference for our implementation — `SentrySwizzle` is a fork of RSSwizzle — and it targets an app swizzling its own classes, while we are a library swizzling Apple's classes in someone else's process. We follow several of its principles, but not all.
+
+What we do follow:
+
+- **Always invoke the original.** Enforced rather than conventional: test builds throw `SwizzlingError` when a replacement returns without calling it.
+- **Swizzle exactly once.** Through `SentrySwizzleMode` and a stable key rather than `dispatch_once`, because the same swizzle is installed from several call sites for different classes.
+- **Avoid collisions.** We go further and add no prefixed selector at all: we replace the IMP and resolve the original at call time (`SentrySwizzle.m`), so a third party swizzling the same selector after us is still reached.
+
+Where we differ:
+
+- **No swizzling in `+load`.** It runs before `main()`, so `Options` does not exist yet and `enableSwizzling` could not be honored, which users disable deliberately. Swizzling is also configured, not just switched on: `swizzleClassNameExcludes`, `inAppIncludes`, and per-feature gates all live in `Options`. We do use `+load` for non-swizzling early init, see [`OBJC-LOAD-AND-LINKING.md`](OBJC-LOAD-AND-LINKING.md).
+- **Adding a method is a hazard, not a detail.** `class_replaceMethod` adds the method when the class does not implement it, which is harmless for your own classes but not for framework ones. Adding `loadView` stops nib loading, so `SentryUIViewControllerSwizzlingHelper` compares the IMP against the superclass and skips when they match. Adding an initializer broke Swift convenience initializers (GH-1355), removed in GH-1361, and swizzling view controllers off the main thread crashed (GH-1366).
