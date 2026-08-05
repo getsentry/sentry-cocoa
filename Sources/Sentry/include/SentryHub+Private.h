@@ -2,6 +2,7 @@
 #import "SentryHub+SwiftPrivate.h"
 #import "SentryHub.h"
 
+@class SentryClientInternal;
 @class SentryEnvelopeItem;
 @class SentryId;
 @class SentryScope;
@@ -42,6 +43,20 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)captureFatalEvent:(SentryEvent *)event;
 
 - (void)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
+
+/**
+ * Captures a fatal event and returns its ID, or @c SentryId.empty when no event was accepted.
+ */
+- (SentryId *)captureFatalEventWithResult:(SentryEvent *)event
+                                withScope:(SentryScope *)scope
+          preserveCrashedSessionOnFailure:(BOOL)preserveCrashedSessionOnFailure
+    NS_SWIFT_NAME(captureFatalEvent(_:scope:preserveCrashedSessionOnFailure:));
+
+/**
+ * Returns YES when a fatal-event capture was accepted or intentionally discarded. Returns NO when
+ * the snapshotted client became unavailable, making the capture retryable.
+ */
+- (BOOL)isFatalEventCaptureResultTerminal:(SentryId *)eventId client:(SentryClientInternal *)client;
 
 #if SENTRY_HAS_UIKIT
 - (void)captureFatalAppHangEvent:(SentryEvent *)event;
