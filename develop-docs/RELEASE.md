@@ -12,15 +12,15 @@ The SDK is distributed via **SPM**. CocoaPods and Carthage support has been remo
 
 When a release is triggered, the [release workflow](../.github/workflows/release.yml) builds XCFrameworks and archives, then [Craft](../.craft.yml) publishes to:
 
-| Target                                   | Description                                                                                           |
-| ---------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| GitHub Release                           | Source + XCFramework zips on the [releases page](https://github.com/getsentry/sentry-cocoa/releases/) |
-| [`getsentry/sentry-apple-binaries`](https://github.com/getsentry/sentry-apple-binaries)        | Pre-built XCFrameworks with a `Package.swift` for SPM binary targets                                  |
-| [`getsentry/sentry-apple-swift-log`](https://github.com/getsentry/sentry-apple-log)       | 3rd-party integration mirror                                                                          |
+| Target                                                                                                | Description                                                                                           |
+| ----------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| GitHub Release                                                                                        | Source + XCFramework zips on the [releases page](https://github.com/getsentry/sentry-cocoa/releases/) |
+| [`getsentry/sentry-apple-binaries`](https://github.com/getsentry/sentry-apple-binaries)               | Pre-built XCFrameworks with a `Package.swift` for SPM binary targets                                  |
+| [`getsentry/sentry-apple-swift-log`](https://github.com/getsentry/sentry-apple-log)                   | 3rd-party integration mirror                                                                          |
 | [`getsentry/sentry-apple-cocoalumberjack`](https://github.com/getsentry/sentry-apple-cocoalumberjack) | 3rd-party integration mirror                                                                          |
-| [`getsentry/sentry-apple-pulse`](https://github.com/getsentry/sentry-apple-pulse)           | 3rd-party integration mirror                                                                          |
-| [`getsentry/sentry-apple-swiftybeaver`](https://github.com/getsentry/sentry-apple-swiftybeaver]    | 3rd-party integration mirror                                                                          |
-| Sentry Release Registry                  | Updates the `cocoapods:sentry-cocoa` entry (historical name)                                          |
+| [`getsentry/sentry-apple-pulse`](https://github.com/getsentry/sentry-apple-pulse)                     | 3rd-party integration mirror                                                                          |
+| [`getsentry/sentry-apple-swiftybeaver`](https://github.com/getsentry/sentry-apple-swiftybeaver]       | 3rd-party integration mirror                                                                          |
+| Sentry Release Registry                                                                               | Updates the `cocoapods:sentry-cocoa` entry (historical name)                                          |
 
 The 3rd-party integration repos also receive continuous code sync on every push to `main`. See [MIRRORING.md](MIRRORING.md) for full details on both mechanisms.
 
