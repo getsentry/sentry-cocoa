@@ -8,7 +8,7 @@ This repo uses the following ways to release SDK updates:
 
 ## Distribution Channels
 
-The SDK is distributed via **SPM**. CocoaPods and Carthage support were removed.
+The SDK is distributed via **SPM**. CocoaPods and Carthage support has been removed.
 
 When a release is triggered, the [release workflow](../.github/workflows/release.yml) builds XCFrameworks and archives, then [Craft](../.craft.yml) publishes to:
 
