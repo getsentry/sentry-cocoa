@@ -94,4 +94,3 @@
 #import "SentryTransactionContext+Private.h"
 #import "SentryUIViewControllerSwizzlingHelper.h"
 #import "SentryUncaughtNSExceptions.h"
-#import "SentryWatchdogTerminationBreadcrumbProcessor.h"
