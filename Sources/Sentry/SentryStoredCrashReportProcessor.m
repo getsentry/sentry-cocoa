@@ -38,6 +38,15 @@ NSErrorDomain const SentryStoredCrashReportProcessorErrorDomain
 
 - (BOOL)processReport:(NSDictionary *)report error:(NSError **)error
 {
+    return [self processReport:report
+                 beforeCapture:^NSError *_Nullable { return nil; }
+                         error:error];
+}
+
+- (BOOL)processReport:(NSDictionary *)report
+        beforeCapture:(SentryStoredCrashReportProcessorBeforeCapture)beforeCapture
+                error:(NSError **)error
+{
     SENTRY_LOG_DEBUG(@"Processing a stored crash report.");
 
     if (![report isKindOfClass:NSDictionary.class]) {
@@ -80,6 +89,14 @@ NSErrorDomain const SentryStoredCrashReportProcessorErrorDomain
         // attachment paths. Tracked in https://github.com/getsentry/sentry-cocoa/issues/8532.
         for (NSString *attachmentPath in report[SENTRYCRASH_REPORT_ATTACHMENTS_ITEM] ?: @[]) {
             [scope addCrashReportAttachmentInPath:attachmentPath];
+        }
+
+        NSError *captureGateError = beforeCapture();
+        if (captureGateError != nil) {
+            if (error != nil) {
+                *error = captureGateError;
+            }
+            return NO;
         }
 
         SentryId *eventId =

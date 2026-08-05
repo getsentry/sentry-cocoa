@@ -9,13 +9,15 @@ final class SentryKSCrashReportStoreSenderTests: XCTestCase {
         var sentReportIDs: [Int64] = []
         var prioritizedReportsCompletedInvocationCount = 0
         var cleanupInvocationCount = 0
+        let processingSession = SentryKSCrash.ReportProcessingSession()
         let sut = SentryKSCrash.ReportStoreSender(
             sendReport: { reportID, _ in
                 sentReportIDs.append(reportID)
             },
             cleanupOrphanedRunSidecars: {
                 cleanupInvocationCount += 1
-            }
+            },
+            processingSession: processingSession
         )
 
         // -- Act --
@@ -39,6 +41,7 @@ final class SentryKSCrashReportStoreSenderTests: XCTestCase {
         var pendingCompletions: [(Int, (any Error)?) -> Void] = []
         var prioritizedReportsCompletedInvocationCount = 0
         var cleanupInvocationCount = 0
+        let processingSession = SentryKSCrash.ReportProcessingSession()
         let sut = SentryKSCrash.ReportStoreSender(
             sendReport: { reportID, onCompletion in
                 sentReportIDs.append(reportID)
@@ -46,7 +49,8 @@ final class SentryKSCrashReportStoreSenderTests: XCTestCase {
             },
             cleanupOrphanedRunSidecars: {
                 cleanupInvocationCount += 1
-            }
+            },
+            processingSession: processingSession
         )
         let error = NSError(domain: "test", code: 1)
 
@@ -102,6 +106,7 @@ final class SentryKSCrashReportStoreSenderTests: XCTestCase {
         ] = []
         var prioritizedReportsCompletedInvocationCount = 0
         var cleanupInvocationCount = 0
+        let processingSession = SentryKSCrash.ReportProcessingSession()
         let sut = SentryKSCrash.ReportStoreSender(
             sendReport: { reportID, onCompletion in
                 sentReportIDs.append(reportID)
@@ -109,7 +114,8 @@ final class SentryKSCrashReportStoreSenderTests: XCTestCase {
             },
             cleanupOrphanedRunSidecars: {
                 cleanupInvocationCount += 1
-            }
+            },
+            processingSession: processingSession
         )
 
         // -- Act --
@@ -163,10 +169,75 @@ final class SentryKSCrashReportStoreSenderTests: XCTestCase {
         XCTAssertEqual(cleanupInvocationCount, 2)
     }
 
+    func testSendAllReports_whenCancelledAfterActiveReportStarts_shouldStopAndCleanupOrphans() throws {
+        // -- Arrange --
+        var sentReportIDs: [Int64] = []
+        var pendingCompletion: ((Int, (any Error)?) -> Void)?
+        var cleanupInvocationCount = 0
+        let processingSession = SentryKSCrash.ReportProcessingSession()
+        let sut = SentryKSCrash.ReportStoreSender(
+            sendReport: { reportID, onCompletion in
+                sentReportIDs.append(reportID)
+                pendingCompletion = onCompletion
+            },
+            cleanupOrphanedRunSidecars: {
+                cleanupInvocationCount += 1
+            },
+            processingSession: processingSession
+        )
+        sut.sendAllReports(
+            [1, 2],
+            prioritizing: { _ in false },
+            onPrioritizedReportsCompleted: {}
+        )
+
+        // -- Act --
+        processingSession.cancel()
+        try XCTUnwrap(pendingCompletion)(0, SentryKSCrash.ReportProcessingSession.cancellationError)
+
+        // -- Assert --
+        XCTAssertEqual(sentReportIDs, [1])
+        XCTAssertEqual(cleanupInvocationCount, 1)
+    }
+
+    func testSendAllReports_whenAlreadyCancelled_shouldNotSendOrCleanup() {
+        // -- Arrange --
+        var sentReportIDs: [Int64] = []
+        var cleanupInvocationCount = 0
+        let processingSession = SentryKSCrash.ReportProcessingSession()
+        processingSession.cancel()
+        let sut = SentryKSCrash.ReportStoreSender(
+            sendReport: { reportID, _ in
+                sentReportIDs.append(reportID)
+            },
+            cleanupOrphanedRunSidecars: {
+                cleanupInvocationCount += 1
+            },
+            processingSession: processingSession
+        )
+
+        // -- Act --
+        sut.sendAllReports(
+            [1],
+            prioritizing: { _ in false },
+            onPrioritizedReportsCompleted: {}
+        )
+        sut.sendAllReports(
+            [],
+            prioritizing: { _ in false },
+            onPrioritizedReportsCompleted: {}
+        )
+
+        // -- Assert --
+        XCTAssertEqual(sentReportIDs, [])
+        XCTAssertEqual(cleanupInvocationCount, 0)
+    }
+
     func testSendAllReports_whenMultipleReportsArePrioritized_shouldCompletePhaseBeforeRemainingReports() {
         // -- Arrange --
         var deliveryEvents: [String] = []
         var cleanupInvocationCount = 0
+        let processingSession = SentryKSCrash.ReportProcessingSession()
         let sut = SentryKSCrash.ReportStoreSender(
             sendReport: { reportID, onCompletion in
                 deliveryEvents.append("report-\(reportID)")
@@ -174,7 +245,8 @@ final class SentryKSCrashReportStoreSenderTests: XCTestCase {
             },
             cleanupOrphanedRunSidecars: {
                 cleanupInvocationCount += 1
-            }
+            },
+            processingSession: processingSession
         )
 
         // -- Act --
@@ -199,6 +271,7 @@ final class SentryKSCrashReportStoreSenderTests: XCTestCase {
         var deliveryEvents: [String] = []
         var pendingCompletions: [(Int, (any Error)?) -> Void] = []
         var cleanupInvocationCount = 0
+        let processingSession = SentryKSCrash.ReportProcessingSession()
         let sut = SentryKSCrash.ReportStoreSender(
             sendReport: { reportID, onCompletion in
                 deliveryEvents.append("report-\(reportID)")
@@ -206,7 +279,8 @@ final class SentryKSCrashReportStoreSenderTests: XCTestCase {
             },
             cleanupOrphanedRunSidecars: {
                 cleanupInvocationCount += 1
-            }
+            },
+            processingSession: processingSession
         )
         let error = NSError(domain: "test", code: 1)
 

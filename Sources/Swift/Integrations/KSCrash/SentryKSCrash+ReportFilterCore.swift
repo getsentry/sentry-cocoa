@@ -3,6 +3,13 @@ internal import _SentryPrivate
 import Foundation
 
 extension SentryKSCrash {
+    protocol StoredCrashReportProcessing {
+        func process(
+            report: [AnyHashable: Any],
+            beforeCapture: @escaping () -> (any Error)?
+        ) throws
+    }
+
     /// Report filtering logic independent of KSCrash package types.
     ///
     /// The caller provides the boundary between its report representation and the dictionary
@@ -25,15 +32,18 @@ extension SentryKSCrash {
             case retry(any Error)
         }
 
-        private let reportProcessor: SentryStoredCrashReportProcessor
+        private let reportProcessor: any StoredCrashReportProcessing
         private let dispatchQueue: SentryDispatchQueueWrapper
+        private let processingSession: ReportProcessingSession
 
         init(
-            reportProcessor: SentryStoredCrashReportProcessor,
-            dispatchQueue: SentryDispatchQueueWrapper
+            reportProcessor: any StoredCrashReportProcessing,
+            dispatchQueue: SentryDispatchQueueWrapper,
+            processingSession: ReportProcessingSession
         ) {
             self.reportProcessor = reportProcessor
             self.dispatchQueue = dispatchQueue
+            self.processingSession = processingSession
         }
 
         func filterReports<Report>(
@@ -58,33 +68,80 @@ extension SentryKSCrash {
                 return
             }
 
-            let isStartupCrash = reportDictionary(report).map(Self.isStartupCrash) ?? false
-            if isStartupCrash {
-                SentrySDKLog.warning("Startup crash detected.")
-                SentrySDKInternal.setDetectedStartUpCrash(true)
-                let outcome = Self.processReport(
-                    report,
-                    reportDictionary: reportDictionary,
-                    reportProcessor: reportProcessor
-                )
-                Self.complete(outcome, onCompletion: onCompletion)
+            let operation = processingSession.register {
+                onCompletion?([], ReportProcessingSession.cancellationError)
+            }
+            guard let operation else {
                 return
             }
 
-            dispatchQueue.dispatchAsync { [reportProcessor = self.reportProcessor] in
+            let isStartupCrash = reportDictionary(report).map(Self.isStartupCrash) ?? false
+            if isStartupCrash {
+                processStartupReport(
+                    report,
+                    reportDictionary: reportDictionary,
+                    operation: operation,
+                    onCompletion: onCompletion
+                )
+            } else {
+                processRegularReport(
+                    report,
+                    reportDictionary: reportDictionary,
+                    operation: operation,
+                    onCompletion: onCompletion
+                )
+            }
+        }
+
+        private func processStartupReport<Report>(
+            _ report: Report,
+            reportDictionary: (Report) -> [AnyHashable: Any]?,
+            operation: ReportProcessingSession.Operation,
+            onCompletion: (([Report]?, (any Error)?) -> Void)?
+        ) {
+            guard operation.beginProcessing() else {
+                return
+            }
+            SentrySDKLog.warning("Startup crash detected.")
+            SentrySDKInternal.setDetectedStartUpCrash(true)
+            let outcome = Self.processReport(
+                report,
+                reportDictionary: reportDictionary,
+                reportProcessor: reportProcessor,
+                operation: operation
+            )
+            operation.complete {
+                Self.complete(outcome, onCompletion: onCompletion)
+            }
+        }
+
+        private func processRegularReport<Report>(
+            _ report: Report,
+            reportDictionary: @escaping (Report) -> [AnyHashable: Any]?,
+            operation: ReportProcessingSession.Operation,
+            onCompletion: (([Report]?, (any Error)?) -> Void)?
+        ) {
+            dispatchQueue.dispatchAsync { [reportProcessor] in
+                guard operation.beginProcessing() else {
+                    return
+                }
                 let outcome = Self.processReport(
                     report,
                     reportDictionary: reportDictionary,
-                    reportProcessor: reportProcessor
+                    reportProcessor: reportProcessor,
+                    operation: operation
                 )
-                Self.complete(outcome, onCompletion: onCompletion)
+                operation.complete {
+                    Self.complete(outcome, onCompletion: onCompletion)
+                }
             }
         }
 
         private static func processReport<Report>(
             _ report: Report,
             reportDictionary: (Report) -> [AnyHashable: Any]?,
-            reportProcessor: SentryStoredCrashReportProcessor
+            reportProcessor: any StoredCrashReportProcessing,
+            operation: ReportProcessingSession.Operation
         ) -> ProcessingOutcome<Report> {
             guard let dictionary = reportDictionary(report) else {
                 SentrySDKLog.error("Discarding unsupported KSCrash report type.")
@@ -92,7 +149,9 @@ extension SentryKSCrash {
             }
 
             do {
-                try reportProcessor.process(report: dictionary)
+                try reportProcessor.process(report: dictionary) {
+                    operation.commitCapture() ? nil : ReportProcessingSession.cancellationError
+                }
                 return .captured(report)
             } catch {
                 guard isPermanentProcessingError(error) else {
@@ -184,4 +243,6 @@ extension SentryKSCrash {
         }
     }
 }
+
+extension SentryStoredCrashReportProcessor: SentryKSCrash.StoredCrashReportProcessing {}
 #endif

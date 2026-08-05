@@ -23,6 +23,7 @@ extension SentryKSCrash {
     final class Integration<Dependencies: DependencyProvider>: NSObject, SwiftIntegration {
         private weak var options: Options?
         private let installer: Dependencies.Installing
+        private let reportProcessingSession = ReportProcessingSession()
 
         // MARK: - Initialization
 
@@ -83,7 +84,8 @@ extension SentryKSCrash {
             // startup crashes can be captured and flushed before SDK initialization returns.
             installer.sendAllReports(
                 reportProcessor: reportProcessor,
-                dispatchQueue: dependencies.dispatchQueueWrapper
+                dispatchQueue: dependencies.dispatchQueueWrapper,
+                processingSession: reportProcessingSession
             )
         }
 
@@ -113,6 +115,7 @@ extension SentryKSCrash {
         }
 
         func uninstall() {
+            reportProcessingSession.cancel()
             installer.uninstall()
         }
 

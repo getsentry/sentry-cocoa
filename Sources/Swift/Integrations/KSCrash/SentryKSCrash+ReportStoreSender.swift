@@ -3,7 +3,8 @@ import Foundation
 
 extension SentryKSCrash {
     /// Sends stored reports sequentially so each report is its own cleanup and retry unit.
-    /// A per-report error does not stop later IDs; cleanup runs only after every completion.
+    /// A per-report error does not stop later IDs. Cleanup runs after the sequence finishes or
+    /// cancellation stops an active sequence.
     /// Prioritized reports run first so startup crashes can complete synchronously before regular
     /// report delivery moves processing to the background queue.
     final class ReportStoreSender {
@@ -14,13 +15,16 @@ extension SentryKSCrash {
 
         private let sendReport: SendReport
         private let cleanupOrphanedRunSidecars: () -> Void
+        private let processingSession: ReportProcessingSession
 
         init(
             sendReport: @escaping SendReport,
-            cleanupOrphanedRunSidecars: @escaping () -> Void
+            cleanupOrphanedRunSidecars: @escaping () -> Void,
+            processingSession: ReportProcessingSession
         ) {
             self.sendReport = sendReport
             self.cleanupOrphanedRunSidecars = cleanupOrphanedRunSidecars
+            self.processingSession = processingSession
         }
 
         func sendAllReports(
@@ -28,6 +32,10 @@ extension SentryKSCrash {
             prioritizing shouldPrioritize: (Int64) -> Bool,
             onPrioritizedReportsCompleted: @escaping () -> Void
         ) {
+            guard !processingSession.isCancelled else {
+                return
+            }
+
             var prioritizedReportIDs: [Int64] = []
             var remainingReportIDs: [Int64] = []
             for reportID in reportIDs {
@@ -37,7 +45,9 @@ extension SentryKSCrash {
                     remainingReportIDs.append(reportID)
                 }
             }
-
+            guard !processingSession.isCancelled else {
+                return
+            }
             guard !prioritizedReportIDs.isEmpty else {
                 sendReports(
                     remainingReportIDs[...],
@@ -47,6 +57,10 @@ extension SentryKSCrash {
             }
 
             sendReports(prioritizedReportIDs[...]) { [self] in
+                guard !processingSession.isCancelled else {
+                    cleanupOrphanedRunSidecars()
+                    return
+                }
                 onPrioritizedReportsCompleted()
                 sendReports(
                     remainingReportIDs[...],
@@ -59,6 +73,10 @@ extension SentryKSCrash {
             _ reportIDs: ArraySlice<Int64>,
             onCompletion: @escaping () -> Void
         ) {
+            guard !processingSession.isCancelled else {
+                cleanupOrphanedRunSidecars()
+                return
+            }
             guard let reportID = reportIDs.first else {
                 onCompletion()
                 return

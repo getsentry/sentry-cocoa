@@ -282,6 +282,52 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         XCTAssertEqual(installer.sendAllReportsInvocations.count, 0)
     }
 
+    func testUninstall_shouldCancelSessionPassedToInstaller() throws {
+        // -- Arrange --
+        let installer = MockKSCrashInstaller()
+        let deps = MockKSCrashDependencies(installer: installer)
+        let sut = try XCTUnwrap(SentryKSCrash.Integration(with: makeOptions(), dependencies: deps))
+        let processingSession = try XCTUnwrap(installer.sendAllReportsProcessingSessions.first)
+        XCTAssertFalse(processingSession.isCancelled)
+
+        // -- Act --
+        sut.uninstall()
+
+        // -- Assert --
+        XCTAssertTrue(processingSession.isCancelled)
+    }
+
+    func testInstall_whenRestarted_shouldOwnDistinctProcessingSessions() throws {
+        // -- Arrange --
+        let firstInstaller = MockKSCrashInstaller()
+        let firstIntegration = try XCTUnwrap(
+            SentryKSCrash.Integration(
+                with: makeOptions(),
+                dependencies: MockKSCrashDependencies(installer: firstInstaller)
+            )
+        )
+        let firstSession = try XCTUnwrap(firstInstaller.sendAllReportsProcessingSessions.first)
+
+        let secondInstaller = MockKSCrashInstaller()
+        let secondIntegration = try XCTUnwrap(
+            SentryKSCrash.Integration(
+                with: makeOptions(),
+                dependencies: MockKSCrashDependencies(installer: secondInstaller)
+            )
+        )
+        let secondSession = try XCTUnwrap(secondInstaller.sendAllReportsProcessingSessions.first)
+
+        // -- Act --
+        firstIntegration.uninstall()
+
+        // -- Assert --
+        XCTAssertNotIdentical(firstSession, secondSession)
+        XCTAssertTrue(firstSession.isCancelled)
+        XCTAssertFalse(secondSession.isCancelled)
+
+        withExtendedLifetime(secondIntegration) {}
+    }
+
     // MARK: - Last-run crash APIs
 
     func testInstall_whenCrashedLastLaunch_shouldSetFatalDetected() {

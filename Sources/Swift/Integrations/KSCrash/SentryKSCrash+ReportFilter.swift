@@ -11,9 +11,14 @@ extension SentryKSCrash {
 
         init(
             reportProcessor: SentryStoredCrashReportProcessor,
-            dispatchQueue: SentryDispatchQueueWrapper
+            dispatchQueue: SentryDispatchQueueWrapper,
+            processingSession: ReportProcessingSession
         ) {
-            core = ReportFilterCore(reportProcessor: reportProcessor, dispatchQueue: dispatchQueue)
+            core = ReportFilterCore(
+                reportProcessor: reportProcessor,
+                dispatchQueue: dispatchQueue,
+                processingSession: processingSession
+            )
         }
 
         func filterReports(

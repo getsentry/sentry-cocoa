@@ -13,20 +13,41 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
         }
     }
 
+    private final class TestReportProcessor: SentryKSCrash.StoredCrashReportProcessing {
+        var onBeforeCaptureGate: (() -> Void)?
+        var onCaptureCommitted: (() -> Void)?
+        var capturedReportCount = 0
+
+        func process(
+            report: [AnyHashable: Any],
+            beforeCapture: @escaping () -> (any Error)?
+        ) throws {
+            onBeforeCaptureGate?()
+            if let error = beforeCapture() {
+                throw error
+            }
+            onCaptureCommitted?()
+            capturedReportCount += 1
+        }
+    }
+
     private var sut: SentryKSCrash.ReportFilterCore!
     private var dispatchQueue: TestSentryDispatchQueueWrapper!
+    private var processingSession: SentryKSCrash.ReportProcessingSession!
 
     override func setUp() {
         super.setUp()
         givenSdkWithHub()
         dispatchQueue = TestSentryDispatchQueueWrapper()
+        processingSession = SentryKSCrash.ReportProcessingSession()
         sut = SentryKSCrash.ReportFilterCore(
             reportProcessor: SentryStoredCrashReportProcessor(
                 inAppLogic: SentryInAppLogic(inAppIncludes: []),
                 currentHubProvider: { SentrySDKInternal.currentHub() },
                 preserveCrashedSessionOnCaptureFailure: true
             ),
-            dispatchQueue: dispatchQueue
+            dispatchQueue: dispatchQueue,
+            processingSession: processingSession
         )
     }
 
@@ -119,6 +140,206 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
         let error = try XCTUnwrap(processingError as NSError?)
         XCTAssertEqual(error.domain, SentryStoredCrashReportProcessorErrorDomain)
         XCTAssertEqual(error.code, SentryStoredCrashReportProcessorError.missingClient.rawValue)
+    }
+
+    func testFilterReports_whenCancelledBeforeQueuedBlockBegins_shouldCompleteRetryOnceAndSkipLateWork() throws {
+        // -- Arrange --
+        dispatchQueue.dispatchAsyncExecutesBlock = false
+        let report = TestReport(dictionary: try makeCrashReport(durationSinceInitialization: 2.001))
+        let client = try getTestClient()
+        var completionInvocationCount = 0
+        var processedReports: [TestReport]?
+        var processingError: Error?
+        sut.filterReports(
+            [report],
+            reportDictionary: { $0.dictionary }
+        ) { reports, error in
+            completionInvocationCount += 1
+            processedReports = reports
+            processingError = error
+        }
+
+        // -- Act --
+        processingSession.cancel()
+
+        // -- Assert --
+        XCTAssertEqual(completionInvocationCount, 1)
+        XCTAssertEqual(processedReports?.count, 0)
+        XCTAssertEqual(processingError as NSError?, SentryKSCrash.ReportProcessingSession.cancellationError)
+        XCTAssertEqual(client.captureFatalEventInvocations.count, 0)
+
+        // -- Act --
+        dispatchQueue.invokeLastDispatchAsync()
+
+        // -- Assert --
+        XCTAssertEqual(completionInvocationCount, 1)
+        XCTAssertEqual(client.captureFatalEventInvocations.count, 0)
+    }
+
+    func testFilterReports_whenCancelledAfterProcessingBeginsBeforeCaptureGate_shouldNotCapture() {
+        // -- Arrange --
+        let processor = TestReportProcessor()
+        let core = SentryKSCrash.ReportFilterCore(
+            reportProcessor: processor,
+            dispatchQueue: dispatchQueue,
+            processingSession: processingSession
+        )
+        processor.onBeforeCaptureGate = { [processingSession] in
+            processingSession?.cancel()
+        }
+        let report = TestReport(dictionary: [:])
+        var completionInvocationCount = 0
+        var processedReports: [TestReport]?
+        var processingError: Error?
+
+        // -- Act --
+        core.filterReports(
+            [report],
+            reportDictionary: { $0.dictionary }
+        ) { reports, error in
+            completionInvocationCount += 1
+            processedReports = reports
+            processingError = error
+        }
+
+        // -- Assert --
+        XCTAssertEqual(completionInvocationCount, 1)
+        XCTAssertEqual(processedReports?.count, 0)
+        XCTAssertEqual(processingError as NSError?, SentryKSCrash.ReportProcessingSession.cancellationError)
+        XCTAssertEqual(processor.capturedReportCount, 0)
+    }
+
+    func testFilterReports_whenCancelledAfterCaptureCommit_shouldCompleteWithCaptureResult() {
+        // -- Arrange --
+        let processor = TestReportProcessor()
+        let core = SentryKSCrash.ReportFilterCore(
+            reportProcessor: processor,
+            dispatchQueue: dispatchQueue,
+            processingSession: processingSession
+        )
+        processor.onCaptureCommitted = { [processingSession] in
+            processingSession?.cancel()
+        }
+        let report = TestReport(dictionary: [:])
+        var completionInvocationCount = 0
+        var processedReports: [TestReport]?
+        var processingError: Error?
+
+        // -- Act --
+        core.filterReports(
+            [report],
+            reportDictionary: { $0.dictionary }
+        ) { reports, error in
+            completionInvocationCount += 1
+            processedReports = reports
+            processingError = error
+        }
+
+        // -- Assert --
+        XCTAssertEqual(completionInvocationCount, 1)
+        XCTAssertIdentical(processedReports?.first, report)
+        XCTAssertNil(processingError)
+        XCTAssertEqual(processor.capturedReportCount, 1)
+    }
+
+    func testFilterReports_whenStartupProcessingIsCancelledAtCaptureGate_shouldCompleteRetryWithoutFlushing() throws {
+        // -- Arrange --
+        let processor = TestReportProcessor()
+        let core = SentryKSCrash.ReportFilterCore(
+            reportProcessor: processor,
+            dispatchQueue: dispatchQueue,
+            processingSession: processingSession
+        )
+        processor.onBeforeCaptureGate = { [processingSession] in
+            processingSession?.cancel()
+        }
+        let report = TestReport(dictionary: try makeCrashReport(durationSinceInitialization: 1))
+        let client = try getTestClient()
+        var completionInvocationCount = 0
+        var processingError: Error?
+
+        // -- Act --
+        core.filterReports(
+            [report],
+            reportDictionary: { $0.dictionary }
+        ) { _, error in
+            completionInvocationCount += 1
+            processingError = error
+        }
+
+        // -- Assert --
+        XCTAssertEqual(dispatchQueue.dispatchAsyncCalled, 0)
+        XCTAssertEqual(processor.capturedReportCount, 0)
+        XCTAssertEqual(client.flushInvocations.count, 0)
+        XCTAssertEqual(completionInvocationCount, 1)
+        XCTAssertEqual(processingError as NSError?, SentryKSCrash.ReportProcessingSession.cancellationError)
+    }
+
+    func testFilterReports_whenOldConversionIsReleasedAfterRestart_shouldNotCaptureThroughNewHub() throws {
+        // -- Arrange --
+        dispatchQueue.dispatchAsyncExecutesBlock = false
+        let oldClient = try getTestClient()
+        let oldProcessor = TestReportProcessor()
+        let oldCore = SentryKSCrash.ReportFilterCore(
+            reportProcessor: oldProcessor,
+            dispatchQueue: dispatchQueue,
+            processingSession: processingSession
+        )
+        let conversionStarted = expectation(description: "Old conversion started")
+        let releaseConversion = DispatchSemaphore(value: 0)
+        let oldWorkerFinished = expectation(description: "Old worker finished")
+        oldProcessor.onBeforeCaptureGate = {
+            conversionStarted.fulfill()
+            releaseConversion.wait()
+        }
+        let oldReport = TestReport(dictionary: try makeCrashReport(durationSinceInitialization: 2.001))
+        var oldCompletionInvocationCount = 0
+        var oldProcessingError: Error?
+        oldCore.filterReports(
+            [oldReport],
+            reportDictionary: { $0.dictionary }
+        ) { _, error in
+            oldCompletionInvocationCount += 1
+            oldProcessingError = error
+        }
+        DispatchQueue.global().async { [dispatchQueue] in
+            dispatchQueue?.invokeLastDispatchAsync()
+            oldWorkerFinished.fulfill()
+        }
+        wait(for: [conversionStarted], timeout: 1)
+
+        // -- Act --
+        processingSession.cancel()
+
+        let replacementClient = try XCTUnwrap(TestClient(options: makeEnabledOptions()))
+        SentrySDKInternal.setCurrentHub(SentryHubInternal(client: replacementClient, andScope: nil))
+        let replacementSession = SentryKSCrash.ReportProcessingSession()
+        let replacementCore = SentryKSCrash.ReportFilterCore(
+            reportProcessor: SentryStoredCrashReportProcessor(
+                inAppLogic: SentryInAppLogic(inAppIncludes: []),
+                currentHubProvider: { SentrySDKInternal.currentHub() },
+                preserveCrashedSessionOnCaptureFailure: true
+            ),
+            dispatchQueue: TestSentryDispatchQueueWrapper(),
+            processingSession: replacementSession
+        )
+        let replacementReport = TestReport(
+            dictionary: try makeCrashReport(durationSinceInitialization: 2.001)
+        )
+        replacementCore.filterReports(
+            [replacementReport],
+            reportDictionary: { $0.dictionary }
+        )
+        releaseConversion.signal()
+        wait(for: [oldWorkerFinished], timeout: 1)
+
+        // -- Assert --
+        XCTAssertEqual(oldCompletionInvocationCount, 1)
+        XCTAssertEqual(oldProcessingError as NSError?, SentryKSCrash.ReportProcessingSession.cancellationError)
+        XCTAssertEqual(oldProcessor.capturedReportCount, 0)
+        XCTAssertEqual(oldClient.captureFatalEventInvocations.count, 0)
+        XCTAssertEqual(replacementClient.captureFatalEventInvocations.count, 1)
+        XCTAssertFalse(replacementSession.isCancelled)
     }
 
     func testFilterReports_whenCrashOccursInSameTimestampSecond_shouldProcessSynchronouslyWithoutFlushing() throws {
@@ -262,6 +483,12 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
         )
 
         XCTAssertTrue(SentryKSCrash.ReportFilterCore.isStartupCrash(report))
+    }
+
+    private func makeEnabledOptions() -> Options {
+        let options = Options()
+        options.dsn = "https://public@example.com/1"
+        return options
     }
 
     private func makeCrashReport(durationSinceInitialization: TimeInterval) throws -> [String: Any] {

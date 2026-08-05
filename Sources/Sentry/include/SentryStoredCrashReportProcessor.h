@@ -9,6 +9,8 @@ typedef SentryHubInternal *_Nonnull (^SentryCurrentHubProvider)(void);
 
 FOUNDATION_EXPORT NSErrorDomain const SentryStoredCrashReportProcessorErrorDomain;
 
+typedef NSError *_Nullable (^SentryStoredCrashReportProcessorBeforeCapture)(void);
+
 typedef NS_ERROR_ENUM(
     SentryStoredCrashReportProcessorErrorDomain, SentryStoredCrashReportProcessorError) {
     SentryStoredCrashReportProcessorErrorUnsupportedReport,
@@ -36,6 +38,16 @@ SENTRY_NO_INIT
  */
 - (BOOL)processReport:(NSDictionary *)report
                 error:(NSError *_Nullable *_Nullable)error NS_SWIFT_NAME(process(report:));
+
+/**
+ * Processes one dictionary crash report with a gate invoked after conversion and immediately
+ * before client capture. Returning an error from the gate declines capture and propagates that
+ * error to the caller.
+ */
+- (BOOL)processReport:(NSDictionary *)report
+        beforeCapture:(SentryStoredCrashReportProcessorBeforeCapture)beforeCapture
+                error:(NSError *_Nullable *_Nullable)error
+    NS_SWIFT_NAME(process(report:beforeCapture:));
 
 @end
 
