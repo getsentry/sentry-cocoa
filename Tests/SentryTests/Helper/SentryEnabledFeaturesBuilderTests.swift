@@ -428,22 +428,13 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 #endif
     }
 
-    func testGetEnabledFeatures_whenSdkFeatureAdded_shouldIncludeFeature() {
+    func testGetEnabledFeatures_whenFeatureFlagsUsed_shouldIncludeFeatureFlags() {
         let options = Options()
-        options.addSdkFeature("featureFlags")
+        options.markFeatureFlagsUsed()
 
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
 
         XCTAssertTrue(features.contains("featureFlags"))
-    }
-
-    func testGetEnabledFeatures_whenSdkFeatureMatchesOptionFeature_shouldDeduplicateFeature() {
-        let options = Options()
-        options.addSdkFeature("metrics")
-
-        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
-
-        XCTAssertEqual(features.filter { $0 == "metrics" }.count, 1)
     }
 
 }

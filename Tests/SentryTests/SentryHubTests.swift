@@ -193,7 +193,7 @@ class SentryHubTests: XCTestCase {
 
         hub.addFeatureFlag(name: "checkout", result: true)
 
-        XCTAssertTrue(fixture.options.sdkFeatures.contains("featureFlags"))
+        XCTAssertTrue(fixture.options.featureFlagsUsed)
     }
 
     func testBreadcrumbOverDefaultLimit() {

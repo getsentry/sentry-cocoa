@@ -737,18 +737,16 @@
 
     // MARK: - Internal
 
-    // Some features are only known after their APIs are used, so keep them separately and merge
-    // them into the SDK metadata when it is built.
-    private let _sdkFeatures = SentryMutex<Set<String>>([])
+    // Feature flag usage is only known after one of its APIs is used, so track it for inclusion in
+    // the SDK metadata built afterward.
+    private let _featureFlagsUsed = SentryMutex(false)
 
-    func addSdkFeature(_ feature: String) {
-        _sdkFeatures.withLock { features in
-            _ = features.insert(feature)
-        }
+    func markFeatureFlagsUsed() {
+        _featureFlagsUsed.withLock { $0 = true }
     }
 
-    var sdkFeatures: [String] {
-        _sdkFeatures.withLock { $0.sorted() }
+    var featureFlagsUsed: Bool {
+        _featureFlagsUsed.withLock { $0 }
     }
 }
 

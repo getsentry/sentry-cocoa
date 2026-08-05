@@ -117,7 +117,7 @@ class SentrySDKTests: XCTestCase {
 
         SentrySDK.start(options: options)
 
-        XCTAssertTrue(options.sdkFeatures.contains("featureFlags"))
+        XCTAssertTrue(options.featureFlagsUsed)
     }
     
     func testStartWithConfigureOptions() {
@@ -551,7 +551,7 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(values.count, 1)
         XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "checkout")
         XCTAssertEqual(values.element(at: 0)?["result"] as? Bool, true)
-        XCTAssertTrue(fixture.options.sdkFeatures.contains("featureFlags"))
+        XCTAssertTrue(fixture.options.featureFlagsUsed)
     }
 
     /// When events don't have debug meta the backend can't symbolicate the stack trace of events.

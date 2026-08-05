@@ -68,8 +68,8 @@ import Foundation
         }
 #endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
 
-        for feature in options.sdkFeatures where !features.contains(feature) {
-            features.append(feature)
+        if options.featureFlagsUsed {
+            features.append("featureFlags")
         }
 
         return features
