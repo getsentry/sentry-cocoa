@@ -8,11 +8,31 @@ public final class SentryWatchdogTerminationLogic: NSObject {
 
     private let options: Options
     private let crashAdapter: SentryCrashReporter
+    private let activeCrashReporterState: SentryCrashReporterState
     private let appStateManager: SentryAppStateManager
 
-    @objc public init(options: Options, crashAdapter: SentryCrashReporter, appStateManager: SentryAppStateManager) {
+    @objc public convenience init(
+        options: Options,
+        crashAdapter: SentryCrashReporter,
+        appStateManager: SentryAppStateManager
+    ) {
+        self.init(
+            options: options,
+            crashAdapter: crashAdapter,
+            activeCrashReporterState: crashAdapter,
+            appStateManager: appStateManager
+        )
+    }
+
+    init(
+        options: Options,
+        crashAdapter: SentryCrashReporter,
+        activeCrashReporterState: SentryCrashReporterState,
+        appStateManager: SentryAppStateManager
+    ) {
         self.options = options
         self.crashAdapter = crashAdapter
+        self.activeCrashReporterState = activeCrashReporterState
         self.appStateManager = appStateManager
         super.init()
     }
@@ -73,7 +93,7 @@ public final class SentryWatchdogTerminationLogic: NSObject {
         }
 
         // The app crashed on the previous run. No Watchdog Termination.
-        if crashAdapter.crashedLastLaunch {
+        if activeCrashReporterState.crashedLastLaunch {
             return false
         }
 

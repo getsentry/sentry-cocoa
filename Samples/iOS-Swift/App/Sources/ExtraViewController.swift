@@ -175,6 +175,16 @@ class ExtraViewController: UIViewController {
         navigationController?.pushViewController(WebViewController(), animated: true)
     }
 
+    @IBAction func showSubClassFinderRegression(_ sender: UIButton) {
+        highlightButton(sender)
+        navigationController?.pushViewController(SubClassFinderRegressionViewController(), animated: true)
+    }
+
+    @IBAction func showConvenienceInitRegression(_ sender: UIButton) {
+        highlightButton(sender)
+        navigationController?.pushViewController(ConvenienceInitViewController(), animated: true)
+    }
+
     @IBAction func openSafariWebView(_ sender: UIButton) {
         guard let url = URL(string: "https://docs.sentry.io/platforms/apple/guides/ios/") else {
             fatalError("The hard-coded URL is invalid.")

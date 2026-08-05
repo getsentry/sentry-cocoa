@@ -21,6 +21,7 @@ struct ConfigArgumentParser {
     private let arguments: [String]
     private var config: Config
     private var index = 0
+    private var didParseScenarios = false
 
     init(arguments: [String], directories: Directories) {
         self.arguments = arguments
@@ -107,6 +108,11 @@ struct ConfigArgumentParser {
             throw CrashE2EFailure(message: "Invalid --reporter: \(value)")
         }
         config.reporter = reporter
+        if !didParseScenarios {
+            config.scenarios = reporter == .ksCrash
+                ? Scenario.ksCrashDefaultScenarios
+                : Scenario.defaultScenarios
+        }
         index += 2
     }
 
@@ -117,6 +123,7 @@ struct ConfigArgumentParser {
             throw CrashE2EFailure(message: "--scenarios must not be empty")
         }
         config.scenarios = try scenarioNames.map(parseScenario)
+        didParseScenarios = true
     }
 
     private mutating func scenarioArgumentValues() throws -> [String] {

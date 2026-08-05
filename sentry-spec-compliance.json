@@ -1,0 +1,22 @@
+{
+  "$schema": "https://develop.sentry.dev/schemas/spec-compliance.json",
+  "sdk": "sentry-cocoa",
+  "last_updated": "2026-08-04",
+  "specs": {
+    "sdk/foundations/client/data-collection": {
+      "version": "0.10.0",
+      "sections": {
+        "configuration-surface": "0.10.0",
+        "collection-defaults": "0.10.0",
+        "sensitive-denylist": "0.10.0",
+        "integration-overrides": "0.10.0",
+        "user-set-data-scrubbing": "0.10.0",
+        "option-types": "0.10.0",
+        "datacollection-options": "0.10.0"
+      },
+      "non_applicable": {
+        "data-sensitivity-levels": "Conceptual taxonomy with no SDK implementation requirement."
+      }
+    }
+  }
+}

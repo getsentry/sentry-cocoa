@@ -1034,6 +1034,25 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(1, listener.endedSessions.count)
     }
 
+    func testCloseCachedSession_whenActiveCrashReporterCrashedLastLaunch_shouldPreserveCurrentSession() {
+        // -- Arrange --
+        let activeCrashReporterState = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
+        activeCrashReporterState.internalCrashedLastLaunch = true
+        SentryDependencyContainer.sharedInstance().crashWrapper = fixture.sentryCrashWrapper
+        SentryDependencyContainer.sharedInstance().activeCrashReporterStateOverride = activeCrashReporterState
+        let sut = SentryHubInternal(client: fixture.client, andScope: nil)
+        let currentSession = SentrySession(releaseName: "1.0.0", distinctId: "test-installation")
+        fixture.client.fileManager.storeCurrentSession(currentSession)
+
+        // -- Act --
+        sut.closeCachedSession(withTimestamp: fixture.currentDateProvider.date())
+
+        // -- Assert --
+        XCTAssertFalse(fixture.sentryCrashWrapper.crashedLastLaunch)
+        XCTAssertEqual(fixture.client.fileManager.readCurrentSession()?.sessionId, currentSession.sessionId)
+        XCTAssertEqual(fixture.client.captureSessionInvocations.count, 0)
+    }
+
     func testCaptureEventIncrementingSessionErrorCount_WithStartedSession_OnlySendsSessionInit() {
         let sut = fixture.getSut()
         sut.startSession()
@@ -1084,6 +1103,46 @@ class SentryHubTests: XCTestCase {
         assertFatalEventSent()
     }
     
+    func testCaptureFatalEventWithResult_whenBeforeSendDropsEvent_shouldDeleteCrashedSession() throws {
+        let options = fixture.options
+        options.beforeSend = { _ in nil }
+        let client = SentryClientInternal(options: options, fileManager: fixture.fileManager)
+        let hub = SentryHubInternal(client: client, andScope: fixture.scope)
+        fixture.fileManager.storeCrashedSession(fixture.crashedSession)
+
+        let eventId = hub.captureFatalEvent(
+            fixture.event,
+            scope: fixture.scope,
+            preserveCrashedSessionOnFailure: true
+        )
+
+        XCTAssertEqual(eventId, SentryId.empty)
+        XCTAssertFalse(client.isDisabled)
+        XCTAssertIdentical(hub.getClient(), client)
+        XCTAssertNil(fixture.fileManager.readCrashedSession())
+    }
+
+    func testCaptureFatalEventWithResult_whenClientIsDisabled_shouldPreserveCrashedSession() throws {
+        let options = fixture.options
+        options.enabled = false
+        let client = SentryClientInternal(options: options, fileManager: fixture.fileManager)
+        let hub = SentryHubInternal(client: client, andScope: fixture.scope)
+        fixture.fileManager.storeCrashedSession(fixture.crashedSession)
+
+        let eventId = hub.captureFatalEvent(
+            fixture.event,
+            scope: fixture.scope,
+            preserveCrashedSessionOnFailure: true
+        )
+
+        XCTAssertEqual(eventId, SentryId.empty)
+        XCTAssertTrue(client.isDisabled)
+        XCTAssertEqual(
+            fixture.fileManager.readCrashedSession()?.sessionId,
+            fixture.crashedSession.sessionId
+        )
+    }
+
     func testCaptureFatalEvent_ManualSessionTracking_CrashedSessionExists() {
         givenAutoSessionTrackingDisabled()
         
