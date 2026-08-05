@@ -80,9 +80,10 @@ static BOOL swizzlingIsActive = FALSE;
  * against that instance's own first lifecycle callbacks, so the first appearance of a screen is
  * silently missed. Swizzling synchronously keeps the mutation ordered against the very first
  * callback. It is also why everything here is main-thread-only and unlocked: the delegate hand-off
- * happens on whichever thread ran the initializer, and moving it off-thread would race both this
- * file's static state and the ObjC runtime mutations in @c swizzleViewControllerSubClass:
- * (background swizzling already caused GH-1366).
+ * happens on whichever thread ran the initializer, and swizzling off the main thread would race
+ * both this file's static state and the ObjC runtime mutations in @c swizzleViewControllerSubClass:
+ * (background swizzling already caused GH-1366). The delegate therefore ignores initializers that
+ * run on a background thread rather than locking.
  *
  * We use the ObjC @c SentrySwizzleInstanceMethod macro rather than the typed Swift API that
  * develop-docs/SWIZZLING.md prefers (@c SentryTypedSwizzle, #8524): its object-returning overloads

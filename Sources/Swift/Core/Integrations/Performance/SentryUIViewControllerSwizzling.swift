@@ -13,8 +13,9 @@ import UIKit
 
 /// Reports every initialized `UIViewController` while the base-init funnel is installed.
 @_spi(Private) @objc public protocol SentryUIViewControllerInitSwizzlingDelegate {
-    /// Called synchronously, still inside the initializer frame, on the main thread. The class is the
-    /// concrete subclass, not the base class the initializer was swizzled on.
+    /// Called synchronously, still inside the initializer frame, on whichever thread ran the
+    /// initializer. The class is the concrete subclass, not the base class the initializer was
+    /// swizzled on.
     func viewControllerInitialized(_ viewControllerClass: AnyClass)
 }
 
@@ -292,6 +293,13 @@ class SentryUIViewControllerSwizzling: NSObject, SentryUIViewControllerInitSwizz
     }
 
     func viewControllerInitialized(_ viewControllerClass: AnyClass) {
+        // Swizzling mutates the ObjC runtime and this class' unsynchronized state, both of which are
+        // main-thread only here. Off the main thread we skip the class instead of locking: a lock
+        // wouldn't make the runtime mutation safe against concurrent lifecycle calls (GH-1366).
+        guard Thread.isMainThread else {
+            SentrySDKLog.warning("Skipping swizzling of \(viewControllerClass): initialized on a background thread.")
+            return
+        }
         swizzleViewControllerSubClassOnce(viewControllerClass)
     }
 

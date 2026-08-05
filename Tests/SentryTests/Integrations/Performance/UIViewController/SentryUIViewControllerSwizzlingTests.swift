@@ -434,6 +434,26 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         XCTAssertTrue(sut.testWasConsideredForSwizzling(TestViewController.self))
     }
 
+    /// A view controller initialized on a background thread is ignored: swizzling it there would race
+    /// the ObjC runtime and this class' unlocked state (GH-1366).
+    func testInitSwizzling_whenViewControllerInitializedOffMainThread_isIgnored() {
+        // -- Arrange --
+        fixture.options.experimental.enableUIViewControllerInitSwizzling = true
+        let sut = fixture.sut
+        sut.start()
+
+        // -- Act --
+        let expectation = expectation(description: "Reported the class from a background thread.")
+        DispatchQueue.global().async {
+            sut.viewControllerInitialized(TestViewController.self)
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
+
+        // -- Assert --
+        XCTAssertFalse(sut.testWasConsideredForSwizzling(TestViewController.self), "A view controller initialized off the main thread must not be swizzled.")
+    }
+
     /// An excluded class is recorded as considered (so it isn't reconsidered) but is not swizzled.
     func testInitSwizzling_whenClassExcluded_isNotSwizzledButRecorded() {
         fixture.options.experimental.enableUIViewControllerInitSwizzling = true
