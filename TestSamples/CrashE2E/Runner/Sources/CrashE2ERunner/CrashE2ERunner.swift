@@ -35,6 +35,11 @@ final class CrashE2ERunner {
         if shouldRunIOS {
             try processRunner.requireTool("xcrun")
         }
+
+        if config.reporter != .ksCrash,
+           config.scenarios.contains(where: \.requiresKSCrash) {
+            try fail("The kscrash-per-report-retry scenario requires --reporter KSCrash.")
+        }
     }
 
     private func preparePlatforms() throws {
@@ -57,7 +62,11 @@ final class CrashE2ERunner {
         )
 
         if shouldBuildNormalVariant {
-            try buildVariant(derivedDataPath: config.derivedDataPath, label: "default", extraBuildSettings: [])
+            try buildVariant(
+                derivedDataPath: config.derivedDataPath,
+                label: "default",
+                extraBuildSettings: crashE2ETestHookBuildSettings
+            )
         }
         if shouldBuildManagedRuntimeVariant {
             // KSCRASH_TODO: Sentry+KSCrash still compiles the SentryCrash recording sources, so
@@ -166,6 +175,13 @@ final class CrashE2ERunner {
         } catch {
             log("Failed to remove artifacts directory \(config.artifactsDir.path): \(error)")
         }
+    }
+
+    private var crashE2ETestHookBuildSettings: [String] {
+        guard config.scenarios.contains(where: \.requiresCrashE2ETestHook) else {
+            return []
+        }
+        return ["OTHER_SWIFT_FLAGS=$(inherited) -DSENTRY_CRASH_E2E"]
     }
 
     private var shouldBuildNormalVariant: Bool {

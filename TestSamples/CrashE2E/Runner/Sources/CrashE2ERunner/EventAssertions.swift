@@ -58,7 +58,7 @@ enum EventAssertions {
                                     platform: platform, scenario: scenario)
         case .signal, .binaryImages, .managedRuntimeSignalChain, .managedRuntimePreSDKSignal,
              .managedRuntimeClosedSignal, .managedRuntimeReinitSignal, .nsException,
-             .nsExceptionSubclass:
+             .nsExceptionSubclass, .ksCrashPerReportRetry:
             try assertCrashedThread(threadValues, expectedThreadID: exceptionThreadID,
                                     platform: platform, scenario: scenario)
         case .ignoredSignal:
@@ -154,7 +154,8 @@ enum EventAssertions {
                 scenario: scenario
             )
 
-        case .ignoredSignal:
+        case .ignoredSignal, .ksCrashPerReportRetry:
+            // The multi-launch KSCrash retry scenario has aggregate assertions in its own asserter.
             return
         }
     }

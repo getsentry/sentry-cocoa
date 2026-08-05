@@ -96,6 +96,7 @@ enum Scenario: String, CaseIterable {
     case managedRuntimeReinitSignal = "managed-runtime-reinit-signal"
     case swiftAsyncCPPExceptionV2Off = "swift-async-cpp-exception-v2-off"
     case swiftAsyncCPPExceptionV2On = "swift-async-cpp-exception-v2-on"
+    case ksCrashPerReportRetry = "kscrash-per-report-retry"
 
     static let defaultScenarios: [Scenario] = [
         .signal,
@@ -122,6 +123,8 @@ enum Scenario: String, CaseIterable {
         .swiftAsyncCPPExceptionV2On
     ]
 
+    static let ksCrashDefaultScenarios = defaultScenarios + [.ksCrashPerReportRetry]
+
     var requiresManagedRuntimeBuild: Bool {
         switch self {
         case .managedRuntimeSignalChain, .managedRuntimePreSDKSignal, .managedRuntimeClosedSignal,
@@ -129,7 +132,7 @@ enum Scenario: String, CaseIterable {
             return true
         case .signal, .nsException, .nsExceptionSubclass, .cppExceptionV1, .cppExceptionV2,
              .unityCxaThrow, .objcObject, .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal,
-             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On:
+             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashPerReportRetry:
             return false
         }
     }
@@ -142,7 +145,7 @@ enum Scenario: String, CaseIterable {
              .unityCxaThrow, .objcObject, .objcObjectAfterCaughtCPP, .binaryImages,
              .managedRuntimeSignalChain, .managedRuntimePreSDKSignal,
              .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
-             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On:
+             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashPerReportRetry:
             return true
         }
     }
@@ -154,9 +157,17 @@ enum Scenario: String, CaseIterable {
         case .signal, .nsException, .nsExceptionSubclass, .cppExceptionV1, .cppExceptionV2,
              .unityCxaThrow, .objcObject, .objcObjectAfterCaughtCPP, .binaryImages,
              .managedRuntimeSignalChain, .managedRuntimeReinitSignal,
-             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On:
+             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashPerReportRetry:
             return true
         }
+    }
+
+    var requiresKSCrash: Bool {
+        self == .ksCrashPerReportRetry
+    }
+
+    var requiresCrashE2ETestHook: Bool {
+        self == .ksCrashPerReportRetry
     }
 }
 
@@ -201,7 +212,8 @@ func usage(defaults: Config) -> String {
     Usage: run-crash-e2e.sh [options]
       --platform <all|ios|macos>          Platforms to run (default: all)
       --reporter <SentryCrash|KSCrash>    Crash reporter to test (default: SentryCrash)
-      --scenarios <space/comma list>      Scenarios to run (default: "\(defaultScenarios)")
+      --scenarios <space/comma list>      Scenarios to run (SentryCrash default: "\(defaultScenarios)")
+                                          KSCrash also defaults to kscrash-per-report-retry.
                                           Known scenarios: \(knownScenarios)
       --ios-destination <destination>     xcodebuild iOS destination (default: auto-selected simulator id)
       --ios-device-id <device-id>         simctl device id (default: auto-select booted/preferred iPhone simulator)

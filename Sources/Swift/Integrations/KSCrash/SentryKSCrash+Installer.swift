@@ -61,6 +61,9 @@ extension SentryKSCrash {
             config.enableMemoryIntrospection = enableMemoryIntrospection
             config.enableSwapCxaThrow = enableSwapCxaThrow
             config.reportStoreConfiguration.reportCleanupPolicy = .onSuccess
+            #if SENTRY_CRASH_E2E
+            config.userInfoJSON = SentryKSCrash.CrashE2ETestHook.reportUserInfo
+            #endif
             do {
                 try KSCrash.shared.install(with: config)
             } catch let error as NSError
@@ -114,6 +117,9 @@ extension SentryKSCrash {
                 },
                 cleanupOrphanedRunSidecars: {
                     reportStore.cleanupOrphanedRunSidecars()
+                    #if SENTRY_CRASH_E2E
+                    SentryKSCrash.CrashE2ETestHook.markReportProcessingComplete()
+                    #endif
                 },
                 processingSession: processingSession
             )

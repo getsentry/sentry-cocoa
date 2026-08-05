@@ -26,8 +26,8 @@ enum CrashE2ECrashTriggers {
             abortBecauseScenarioReturned(scenario)
         case .nsException, .nsExceptionSubclass, .cppExceptionV1, .cppExceptionV2,
              .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .unityCxaThrow,
-             .objcObject, .objcObjectAfterCaughtCPP, .idle, .drain,
-             .managedRuntimePreSDKSignal:
+             .objcObject, .objcObjectAfterCaughtCPP, .ksCrashRetryReportA, .ksCrashRetryReportB,
+             .idle, .drain, .managedRuntimePreSDKSignal:
             triggerExceptionScenario(scenario)
         }
     }
@@ -43,6 +43,16 @@ enum CrashE2ECrashTriggers {
             abortBecauseScenarioReturned(scenario)
         case .nsExceptionSubclass:
             CrashE2ETriggerNSExceptionSubclass()
+            abortBecauseScenarioReturned(scenario)
+        case .ksCrashRetryReportA, .ksCrashRetryReportB:
+            let marker = scenario == .ksCrashRetryReportA
+                ? "crash-e2e-kscrash-report-a"
+                : "crash-e2e-kscrash-report-b"
+            NSException(
+                name: NSExceptionName("CrashE2EKSCrashRetryReport"),
+                reason: "Crash E2E KSCrash retry report \(marker)",
+                userInfo: ["crash_e2e_kscrash_report": marker]
+            ).raise()
             abortBecauseScenarioReturned(scenario)
         case .cppExceptionV1, .cppExceptionV2:
             CrashE2ETriggerCPPException()
