@@ -157,45 +157,6 @@ targets:
       Release: UITests/Configurations/iOS-Swift-UITests.xcconfig
       Test: UITests/Configurations/iOS-Swift-UITests.xcconfig
       TestCI: UITests/Configurations/iOS-Swift-UITests.xcconfig
-  iOS-Benchmarking:
-    type: bundle.ui-testing
-    platform: auto
-    sources:
-      # Sources
-      - path: Benchmarking/Sources
-        type: group
-        group: Benchmarking
-        excludes:
-          - "**/.gitkeep"
-      # Resources
-      - path: Benchmarking/Resources
-        type: group
-        group: Benchmarking
-        excludes:
-          - "**/.gitkeep"
-      - path: ../Shared/SampleAssets.xcassets
-        group: Benchmarking/Resources
-      # Configurations
-      - path: ../../Plans/iOS-Benchmarking_Base.xctestplan
-        group: Benchmarking/Configurations
-        buildPhase: none
-      - path: Benchmarking/Configurations
-        type: group
-        group: Benchmarking
-        buildPhase: none
-        excludes:
-          - "**/.gitkeep"
-      - path: ../Shared/Config
-        type: group
-        group: Benchmarking/Configurations
-        buildPhase: none
-    dependencies:
-      - target: SentrySampleShared/SentrySampleUITestShared
-    configFiles:
-      Debug: Benchmarking/Configurations/iOS-Benchmarking.xcconfig
-      Release: Benchmarking/Configurations/iOS-Benchmarking.xcconfig
-      Test: Benchmarking/Configurations/iOS-Benchmarking.xcconfig
-      TestCI: Benchmarking/Configurations/iOS-Benchmarking.xcconfig
   iOS-Swift-ShareExtension:
     type: app-extension
     platform: auto
@@ -347,15 +308,6 @@ schemes:
       config: Test
       testPlans:
         - path: ../../Plans/iOS-Swift_Base.xctestplan
-  iOS-Benchmarking:
-    build:
-      targets:
-        iOS-Swift: test
-        iOS-Benchmarking: test
-    test:
-      config: Debug
-      testPlans:
-        - path: ../../Plans/iOS-Benchmarking_Base.xctestplan
   iOS-Swift-IntentExtension:
     build:
       targets:
