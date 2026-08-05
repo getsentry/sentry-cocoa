@@ -7,6 +7,10 @@ import UniformTypeIdentifiers
 import XCTest
 
 class SentryFeedbackTests: XCTestCase {
+#if !targetEnvironment(macCatalyst)
+    private static let mockWindowScene: UIWindowScene = MockUIWindowScene()
+#endif
+
     private typealias FeedbackTestCaseConfiguration = (requiresName: Bool, requiresEmail: Bool, nameInput: String?, emailInput: String?, messageInput: String?, includeScreenshot: Bool)
     private typealias FeedbackTestCase = (config: FeedbackTestCaseConfiguration, shouldValidate: Bool, expectedSubmitButtonAccessibilityHint: String)
 
@@ -172,13 +176,30 @@ class SentryFeedbackTests: XCTestCase {
         XCTAssertFalse(sut.viewModel.screenshotLoadingIndicator.isAnimating)
     }
 
+    func testMakeScreenshotErrorAlert_whenErrorTextConfigured_shouldUseConfiguredText() throws {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        config.formConfig.screenshotErrorText = "Choose a different image."
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+
+        // -- Act --
+        let alert = sut.makeScreenshotErrorAlert()
+
+        // -- Assert --
+        XCTAssertEqual(alert.title, "Error")
+        XCTAssertEqual(alert.message, "Choose a different image.")
+        XCTAssertEqual(alert.actions.count, 1)
+        XCTAssertEqual(try XCTUnwrap(alert.actions.element(at: 0)).title, "OK")
+    }
+
+#if !targetEnvironment(macCatalyst)
     func testFinishLoadingScreenshot_whenLoadingFails_shouldPresentConfiguredErrorAlert() throws {
         // -- Arrange --
         let config = SentryUserFeedbackConfiguration()
         config.animations = false
         config.formConfig.screenshotErrorText = "Choose a different image."
         let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
-        let window = UIWindow(windowScene: MockUIWindowScene())
+        let window = UIWindow(windowScene: Self.mockWindowScene)
         window.rootViewController = sut
         window.makeKeyAndVisible()
         addTeardownBlock { [window] in
@@ -195,6 +216,7 @@ class SentryFeedbackTests: XCTestCase {
         XCTAssertEqual(alert.actions.count, 1)
         XCTAssertEqual(try XCTUnwrap(alert.actions.element(at: 0)).title, "OK")
     }
+#endif
 
     func testForm_whenScreenshotProvided_shouldShowRemoveScreenshotButton() {
         // -- Arrange --
