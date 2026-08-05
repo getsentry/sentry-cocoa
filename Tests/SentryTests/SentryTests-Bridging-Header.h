@@ -138,7 +138,6 @@
 #import "SentryTransportAdapter.h"
 #import "SentryTransportFactory.h"
 #import "SentryUncaughtNSExceptions.h"
-#import "SentryWatchdogTerminationBreadcrumbProcessor.h"
 #import "SentryWeakMap.h"
 #import "TestSentrySpan.h"
 #import "URLSessionTaskMock.h"

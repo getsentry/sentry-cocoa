@@ -31,19 +31,19 @@ class SentryWatchdogTerminationBreadcrumbProcessorTests: XCTestCase {
         }
         // swiftlint:enable no_breadcrumb_data_setter
 
-        func getSut() -> SentryWatchdogTerminationBreadcrumbProcessor {
+        func getSut() -> SentryDefaultWatchdogTerminationBreadcrumbProcessor {
             return getSut(fileManager: self.fileManager)
         }
 
-        func getSut(fileManager: SentryFileManager) -> SentryWatchdogTerminationBreadcrumbProcessor {
-            return SentryWatchdogTerminationBreadcrumbProcessor(
+        func getSut(fileManager: SentryFileManager) -> SentryDefaultWatchdogTerminationBreadcrumbProcessor {
+            return SentryDefaultWatchdogTerminationBreadcrumbProcessor(
                 maxBreadcrumbs: maxBreadcrumbs,
                 fileManager: fileManager)
         }
     }
 
     private var fixture: Fixture!
-    private var sut: SentryWatchdogTerminationBreadcrumbProcessor!
+    private var sut: SentryDefaultWatchdogTerminationBreadcrumbProcessor!
 
     @available(*, deprecated, message: "Testing deprecated Breadcrumb.data setter")
     override func setUpWithError() throws {
