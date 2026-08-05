@@ -146,8 +146,6 @@ static BOOL swizzlingIsActive = FALSE;
 
 + (void)swizzleLoadView:(Class)class
 {
-    SENTRY_ASSERT([NSThread isMainThread], @"swizzleLoadView: must be called on the main thread.");
-
     // Loading a Nib file is done automatically during `loadView` in the UIViewController
     // or other native view controllers.
     // When swizzling the loadView of a custom UIViewController, the UIViewController doesn't search
@@ -176,9 +174,6 @@ static BOOL swizzlingIsActive = FALSE;
 
 + (void)swizzleViewDidLoad:(Class)class
 {
-    SENTRY_ASSERT(
-        [NSThread isMainThread], @"swizzleViewDidLoad: must be called on the main thread.");
-
     SEL selector = NSSelectorFromString(@"viewDidLoad");
     SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void), SentrySWArguments(),
         SentrySWReplacement({
@@ -195,9 +190,6 @@ static BOOL swizzlingIsActive = FALSE;
 
 + (void)swizzleViewWillAppear:(Class)class
 {
-    SENTRY_ASSERT(
-        [NSThread isMainThread], @"swizzleViewWillAppear: must be called on the main thread.");
-
     SEL selector = NSSelectorFromString(@"viewWillAppear:");
     SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void),
         SentrySWArguments(BOOL animated), SentrySWReplacement({
@@ -214,9 +206,6 @@ static BOOL swizzlingIsActive = FALSE;
 
 + (void)swizzleViewDidAppear:(Class)class
 {
-    SENTRY_ASSERT(
-        [NSThread isMainThread], @"swizzleViewDidAppear: must be called on the main thread.");
-
     SEL selector = NSSelectorFromString(@"viewDidAppear:");
     SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void),
         SentrySWArguments(BOOL animated), SentrySWReplacement({
@@ -233,9 +222,6 @@ static BOOL swizzlingIsActive = FALSE;
 
 + (void)swizzleViewWillDisappear:(Class)class
 {
-    SENTRY_ASSERT(
-        [NSThread isMainThread], @"swizzleViewWillDisappear: must be called on the main thread.");
-
     SEL selector = NSSelectorFromString(@"viewWillDisappear:");
     SentrySwizzleInstanceMethod(class, selector, SentrySWReturnType(void),
         SentrySWArguments(BOOL animated), SentrySWReplacement({
@@ -252,9 +238,6 @@ static BOOL swizzlingIsActive = FALSE;
 
 + (void)swizzleViewLayoutSubViews:(Class)class
 {
-    SENTRY_ASSERT(
-        [NSThread isMainThread], @"swizzleViewLayoutSubViews: must be called on the main thread.");
-
     SEL willSelector = NSSelectorFromString(@"viewWillLayoutSubviews");
     SentrySwizzleInstanceMethod(class, willSelector, SentrySWReturnType(void), SentrySWArguments(),
         SentrySWReplacement({
