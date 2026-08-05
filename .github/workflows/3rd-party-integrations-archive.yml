@@ -38,7 +38,7 @@ jobs:
         run: |
           ./scripts/create-3rd-party-integration-archive.sh \
             --all \
-            --version 0.0.0 \
+            --version 0.1.0 \
             --output-dir /tmp/3rd-party-archives
 
       - name: Verify archives
@@ -69,6 +69,13 @@ jobs:
             test -f "$verify_dir/LICENSE.md"
             test -f "$verify_dir/Sources/$source_file"
             test -f "$verify_dir/Tests/$test_file"
+
+            # Verify the sentry-cocoa dependency was stamped to the requested version
+            grep -q 'sentry-cocoa", from: "0.1.0"' "$verify_dir/Package.swift" || {
+              echo "Version stamp failed in ${archive_name}/Package.swift:";
+              grep 'sentry-cocoa' "$verify_dir/Package.swift";
+              exit 1;
+            }
 
             echo "${archive_name} verified successfully"
           done
