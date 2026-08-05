@@ -60,8 +60,10 @@ static BOOL swizzlingIsActive = FALSE;
  * class: the handler runs @c swizzleViewControllerSubClass: on the concrete subclass, and
  * @c class_replaceMethod ADDS a lifecycle method when the subclass doesn't implement one — while
  * still inside the outermost initializer frame. That is the same mechanism GH-1361 blamed for the
- * GH-1355 convenience-initializer crash, so this funnel does not eliminate the condition. We could
- * not reproduce GH-1355; see PR #8625's description for what we tried and why we shipped anyway.
+ * GH-1355 convenience-initializer crash, so this funnel does not eliminate the condition. We tried
+ * to reproduce GH-1355 on simulators and on real iOS 15 devices in SauceLabs (#8667) and could not.
+ * The option therefore ships opt-in and off by default, so we can validate the approach in the wild
+ * — see PR #8687's description.
  *
  * Ordering inside the replacement is load-bearing:
  *   1. Call the original initializer FIRST, and never touch @c self before it. The pre-GH-1361
