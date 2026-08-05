@@ -9,7 +9,7 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
         private let dateProvider = TestCurrentDateProvider()
         private let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
         
-        let breadcrumbProcessor: TestSentryWatchdogTerminationBreadcrumbProcessor
+        let breadcrumbProcessor: MockWatchdogTerminationBreadcrumbProcessor
         let attributesProcessor: TestSentryWatchdogTerminationAttributesProcessor
 
         let breadcrumb: [String: Any] = [
@@ -46,7 +46,7 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
                 dispatchQueueWrapper: dispatchQueueWrapper
             )
             let persistendStore = try XCTUnwrap(SentryScopePersistentStore(fileManager: fileManager))
-            breadcrumbProcessor = TestSentryWatchdogTerminationBreadcrumbProcessor(
+            breadcrumbProcessor = MockWatchdogTerminationBreadcrumbProcessor(
                 maxBreadcrumbs: 10,
                 fileManager: fileManager
             )
