@@ -58,23 +58,10 @@ import Foundation
         var target = [String: Any]()
 
         target["type"] = type
-
-        if let filename = filename {
-            target["filename"] = filename
-        }
-
-        if let contentType = contentType {
-            target["content_type"] = contentType
-        }
-
-        if let platform = platform {
-            target["platform"] = platform
-        }
-
-        if let itemCount = itemCount {
-            target["item_count"] = itemCount
-        }
-
+        target["filename"] = filename
+        target["content_type"] = contentType
+        target["platform"] = platform
+        target["item_count"] = itemCount
         target["length"] = NSNumber(value: length)
 
         return target
