@@ -12,11 +12,7 @@ extension SentryReplayNetworkDetails {
     ) {
         let headers = Self.extractHeaders(from: allHeaders, matching: configuredHeaders)
 #if SDK_V10
-        let sanitizedHeaders = HTTPHeaderSanitizer.sanitizeHeaders(
-            headers,
-            headerBehavior: .denyList(),
-            cookieBehavior: .denyList()
-        )
+        let sanitizedHeaders = Self.sanitizeHeaders(headers)
         self.request = Detail(
             size: size,
             body: bodyData.flatMap { Body(data: $0, contentType: contentType) },
@@ -45,11 +41,7 @@ extension SentryReplayNetworkDetails {
         self.statusCode = NSNumber(value: statusCode)
         let headers = Self.extractHeaders(from: allHeaders, matching: configuredHeaders)
 #if SDK_V10
-        let sanitizedHeaders = HTTPHeaderSanitizer.sanitizeHeaders(
-            headers,
-            headerBehavior: .denyList(),
-            cookieBehavior: .denyList()
-        )
+        let sanitizedHeaders = Self.sanitizeHeaders(headers)
         self.response = Detail(
             size: size,
             body: bodyData.flatMap { Body(data: $0, contentType: contentType) },
@@ -64,6 +56,32 @@ extension SentryReplayNetworkDetails {
         )
 #endif // SDK_V10
     }
+
+#if SDK_V10
+    /// Applies the built-in sensitive denylist to headers Session Replay is about to capture.
+    ///
+    /// Session Replay deliberately does **not** read the header and cookie behaviors from
+    /// `SentryOptions.dataCollection`. Per the data collection spec, Replay is not gated by
+    /// `dataCollection` (or its predecessor `sendDefaultPii`): it is a privacy-sensitive feature with
+    /// its own opt-in privacy model — masking everything by default — which is the opposite of the
+    /// `dataCollection` opt-out model. Wiring the two together would flip privacy-sensitive defaults
+    /// for existing Replay users and blur which layer controls masking. Which headers Replay captures
+    /// therefore stays controlled exclusively by `networkRequestHeaders` and `networkResponseHeaders`.
+    ///
+    /// The denylist is still applied on top of that user selection, because sensitive values must
+    /// never be sent in plaintext through automatic instrumentation, regardless of which layer
+    /// selected the header. Using `.denyList()` without extra terms keeps the user's explicit
+    /// selection intact while scrubbing values whose names match the built-in sensitive terms.
+    ///
+    /// See https://develop.sentry.dev/sdk/foundations/client/data-collection/#session-replay
+    private static func sanitizeHeaders(_ headers: [String: String]) -> HTTPHeaderSanitizer.SanitizedHeaders {
+        HTTPHeaderSanitizer.sanitizeHeaders(
+            headers,
+            headerBehavior: .denyList(),
+            cookieBehavior: .denyList()
+        )
+    }
+#endif // SDK_V10
 
     static func extractHeaders(
         from sourceHeaders: [String: Any]?,
