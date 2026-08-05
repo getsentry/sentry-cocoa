@@ -68,7 +68,7 @@ class SentrySDKTests: XCTestCase {
                 dateProvider: currentDate,
                 dispatchQueueWrapper: dispatchQueueWrapper
             ))
-            let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
+            let breadcrumbProcessor = SentryDefaultWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
             scopePersistentStore = try XCTUnwrap(TestSentryScopePersistentStore(fileManager: fileManager))
             let attributesProcessor = SentryWatchdogTerminationAttributesProcessor(
                 withDispatchQueueWrapper: dispatchQueueWrapper,

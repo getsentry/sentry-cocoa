@@ -205,6 +205,7 @@ See [`scripts/AGENTS.md`](scripts/AGENTS.md) for the named-parameter template an
 ## Documentation
 
 - **When changing logic, keep docs in sync** — update any affected headerdocs, inline comments, readmes, `AGENTS.md` files, and maintainer docs in the same change
+- **Specification compliance** — when changing behavior covered by an SDK specification, update `sentry-spec-compliance.json` and follow [`develop-docs/SPEC_COMPLIANCE.md`](develop-docs/SPEC_COMPLIANCE.md)
 - **Docs**: [docs.sentry.io/platforms/apple](https://docs.sentry.io/platforms/apple/) — repo: [sentry-docs](https://github.com/getsentry/sentry-docs)
 - **SDK dev docs**: [develop.sentry.dev/sdk/](https://develop.sentry.dev/sdk/)
 - Maintainer docs: [`README.md`](README.md), [`CONTRIBUTING.md`](CONTRIBUTING.md), [`develop-docs/`](develop-docs/), [`Samples/README.md`](Samples/README.md)

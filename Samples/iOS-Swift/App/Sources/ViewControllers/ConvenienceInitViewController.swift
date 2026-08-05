@@ -1,32 +1,29 @@
 import UIKit
 
-// `UITableViewController` with a convenience init delegating to a custom designated init that calls
-// `super.init(style:)`, deliberately without `@objc`. This shape crashed under the SDK's old
-// UIViewController init swizzling on iOS 15 with `NSInternalInconsistencyException: missing initial
-// trait collection` — the old funnel mutated the subclass's method list from inside the initializer,
-// before calling the original init.
+// Repro for GH-1355: a `UITableViewController` whose convenience init delegates to a custom
+// designated init. Reported crashing under the SDK's init swizzling on iOS 15 with
+// `NSInternalInconsistencyException: missing initial trait collection`.
 //
 // Deferred first-instantiation swizzling re-introduces init swizzling, so this shape must stay
-// crash-free. The historical crash could not be reproduced on the iOS 15.5 simulator, so this fixture
-// is a forward regression guard rather than a proven repro. (GH-1355)
+// crash-free. Does not currently crash — the reported crash does not reproduce on the iOS 15.5
+// simulator, so this is a guard rather than a live repro.
 final class ConvenienceInitViewController: UITableViewController {
 
     static let accessibilityIdentifier = "convenienceInitScreen"
 
     private var payload: String?
 
-    /// Crashing shape: convenience init delegating to a custom designated init.
+    /// The reported shape: convenience init delegating to a custom designated init.
     convenience init() {
         self.init(payload: "repro")
     }
 
-    /// No `@objc`, calls `super.init(style:)`.
+    /// Intentionally not `@objc`, matching the report.
     init(payload: String) {
         super.init(style: .plain)
         self.payload = payload
     }
 
-    /// Storyboard/`NSKeyedUnarchiver` path — exercises `initWithCoder:`.
     required init?(coder: NSCoder) {
         super.init(coder: coder)
     }
@@ -40,7 +37,7 @@ final class ConvenienceInitViewController: UITableViewController {
         label.textAlignment = .center
         label.text = """
         Convenience-init regression fixture (payload: \(payload ?? "nil")).
-        The old init swizzling crashed this shape on iOS 15; deferred swizzling must not.
+        Reported crashing under init swizzling on iOS 15 (GH-1355).
         """
         label.accessibilityIdentifier = ConvenienceInitViewController.accessibilityIdentifier
         tableView.backgroundView = label

@@ -4,7 +4,6 @@ import XCTest
 /// launch crash fails these tests. Run on the iOS 16.4 simulator, below the iOS-17 gate. (GH-8152)
 class SubClassFinderRegressionUITests: BaseUITest {
 
-    /// App launches without realizing a gated subclass below its gate.
     func testAppLaunchesWithoutCrashingOnGatedSubclasses() {
         waitForExistenceOfMainScreen()
     }
@@ -20,7 +19,7 @@ class SubClassFinderRegressionUITests: BaseUITest {
         screen.waitForExistence("SubClassFinder regression screen did not appear.")
     }
 
-    /// Opening the convenience-init fixture doesn't crash. (GH-1355)
+    /// Instantiating the convenience-init fixture doesn't crash. (GH-1355)
     func testOpenConvenienceInitRegressionScreen() {
         app.buttons["Extra"].tap()
 
