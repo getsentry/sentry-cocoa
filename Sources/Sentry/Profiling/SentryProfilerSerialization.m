@@ -11,7 +11,6 @@
 #    import "SentryHub.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLogC.h"
-#    import "SentryMeta.h"
 #    import "SentryMetricProfiler.h"
 #    import "SentryProfileTimeseries.h"
 #    import "SentryProfiledTracerConcurrency.h"
