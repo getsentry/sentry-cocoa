@@ -7,7 +7,6 @@
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
-#import "SentryMeta.h"
 #import "SentryProfilingConditionals.h"
 #import "SentryReplayApi.h"
 #import "SentrySamplingContext.h"
@@ -142,11 +141,7 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (BOOL)crashReporterInstalled
 {
-#if ENABLE_KSCRASH
-    return SentryDependencyContainer.sharedInstance.kscrashQuery.installed;
-#else
-    return SentryDependencyContainer.sharedInstance.crashWrapper.installed;
-#endif
+    return SentryDependencyContainer.sharedInstance.activeCrashReporterState.installed;
 }
 
 + (BOOL)fatalDetected
@@ -495,7 +490,7 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (BOOL)crashedLastRun
 {
-    return SentryDependencyContainer.sharedInstance.crashReporter.crashedLastLaunch;
+    return SentryDependencyContainer.sharedInstance.activeCrashReporterState.crashedLastLaunch;
 }
 
 + (NSInteger)lastRunStatus
@@ -504,15 +499,9 @@ static NSDate *_Nullable startTimestamp = nil;
         return SentryLastRunStatusUnknown;
     }
 
-#if ENABLE_KSCRASH
-    if (SentryDependencyContainer.sharedInstance.kscrashQuery.crashedLastLaunch) {
+    if (SentryDependencyContainer.sharedInstance.activeCrashReporterState.crashedLastLaunch) {
         return SentryLastRunStatusDidCrash;
     }
-#else
-    if (SentryDependencyContainer.sharedInstance.crashWrapper.crashedLastLaunch) {
-        return SentryLastRunStatusDidCrash;
-    }
-#endif
     return SentryLastRunStatusDidNotCrash;
 }
 

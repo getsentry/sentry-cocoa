@@ -45,19 +45,20 @@ enum EventAssertions {
             // actual exception/main thread from threads.values, especially on iOS. The Unity smoke
             // intentionally runs in the same V1/fallback context because Sentry Unity does not
             // enable Sentry Cocoa's C++ V2 option today. Keep this escape hatch limited to these
-            // V1-context scenarios; V1 is being sunset and KSCrash should not preserve this report
-            // shape as parity behavior.
+            // option-off scenarios. The reporting behavior remains a contract for both reporters,
+            // even though KSCrash does not have a separate "V1" implementation.
             try assert(exceptionThreadID != nil,
                        "Expected exception thread id for \(platform)/\(scenario.rawValue)")
             try assert(!threadValues.isEmpty, "Expected threads for \(platform)/\(scenario.rawValue)")
         case .cppExceptionV2, .swiftAsyncCPPExceptionV2Off,
-             .swiftAsyncCPPExceptionV2On, .objcObject:
+             .swiftAsyncCPPExceptionV2On, .objcObject, .objcObjectAfterCaughtCPP:
             try assert(exceptionThreadID != nil,
                        "Expected exception thread id for \(platform)/\(scenario.rawValue)")
             try assertCrashedThread(threadValues, expectedThreadID: exceptionThreadID,
                                     platform: platform, scenario: scenario)
         case .signal, .binaryImages, .managedRuntimeSignalChain, .managedRuntimePreSDKSignal,
-             .managedRuntimeClosedSignal, .managedRuntimeReinitSignal, .nsException:
+             .managedRuntimeClosedSignal, .managedRuntimeReinitSignal, .nsException,
+             .nsExceptionSubclass, .ksCrashPerReportRetry:
             try assertCrashedThread(threadValues, expectedThreadID: exceptionThreadID,
                                     platform: platform, scenario: scenario)
         case .ignoredSignal:
@@ -101,18 +102,23 @@ enum EventAssertions {
         switch scenario {
         case .signal, .binaryImages, .managedRuntimeSignalChain, .managedRuntimePreSDKSignal,
              .managedRuntimeClosedSignal, .managedRuntimeReinitSignal:
-            let exceptionType = string(firstException["type"])
-            let signalName = string(dictionary(dictionary(mechanism["meta"])["signal"])["name"])
-            try assert(exceptionType == "EXC_BAD_ACCESS" || signalName == "SIGSEGV",
-                       "Expected signal/mach exception for \(platform)/\(scenario.rawValue)")
-            if scenario == .binaryImages {
-                try assertBinaryImageScenario(debugImages, platform: platform, cacheRoot: cacheRoot)
-            }
+            try assertSignalScenario(
+                scenario, firstException: firstException,
+                mechanism: mechanism,
+                debugImages: debugImages,
+                platform: platform,
+                cacheRoot: cacheRoot
+            )
 
         case .nsException:
-            try assert(string(firstException["type"]) == "CrashE2ENSException",
-                       "Expected NSException type for \(platform)/ns-exception")
-            try assertNSExceptionUserInfo(eventContext: eventContext, platform: platform)
+            try assertNSException(firstException, eventContext: eventContext,
+                                  expectedType: "CrashE2ENSException", platform: platform,
+                                  scenario: scenario)
+
+        case .nsExceptionSubclass:
+            try assertNSException(firstException, eventContext: eventContext,
+                                  expectedType: "CrashE2ENSExceptionSubclass", platform: platform,
+                                  scenario: scenario)
 
         case .cppExceptionV1, .cppExceptionV2, .swiftAsyncCPPExceptionV2Off:
             try assertCPPException(firstException, mechanism: mechanism, platform: platform,
@@ -128,17 +134,54 @@ enum EventAssertions {
                                    scenario: scenario, expectedValue: "CrashE2EUnitySentryCxaThrowException")
 
         case .objcObject:
-            try assertObjCObjectThrow(firstException, mechanism: mechanism, platform: platform)
+            try assertObjCObjectThrow(
+                firstException,
+                mechanism: mechanism,
+                platform: platform,
+                scenario: scenario
+            )
 
-        case .ignoredSignal:
+        case .objcObjectAfterCaughtCPP:
+            try assertObjCObjectThrow(
+                firstException,
+                mechanism: mechanism,
+                platform: platform,
+                scenario: scenario
+            )
+            try assertFreshObjCObjectThrowFrames(
+                firstException,
+                platform: platform,
+                scenario: scenario
+            )
+
+        case .ignoredSignal, .ksCrashPerReportRetry:
+            // The multi-launch KSCrash retry scenario has aggregate assertions in its own asserter.
             return
         }
     }
 
-    private static func assertNSExceptionUserInfo(eventContext: [String: Any], platform: String) throws {
+    private static func assertSignalScenario(_ scenario: Scenario,
+                                             firstException: [String: Any],
+                                             mechanism: [String: Any],
+                                             debugImages: [[String: Any]], platform: String,
+                                             cacheRoot: URL) throws {
+        let exceptionType = string(firstException["type"])
+        let signalName = string(dictionary(dictionary(mechanism["meta"])["signal"])["name"])
+        try assert(exceptionType == "EXC_BAD_ACCESS" || signalName == "SIGSEGV",
+                   "Expected signal/mach exception for \(platform)/\(scenario.rawValue)")
+        if scenario == .binaryImages {
+            try assertBinaryImageScenario(debugImages, platform: platform, cacheRoot: cacheRoot)
+        }
+    }
+
+    private static func assertNSException(_ firstException: [String: Any],
+                                          eventContext: [String: Any], expectedType: String,
+                                          platform: String, scenario: Scenario) throws {
+        try assert(string(firstException["type"]) == expectedType,
+                   "Expected NSException type for \(platform)/\(scenario.rawValue)")
         let userInfoContext = dictionary(eventContext["user info"])
-        try assert(string(userInfoContext["scenario"]) == "ns-exception",
-                   "Expected NSException userInfo scenario for \(platform)/ns-exception")
+        try assert(string(userInfoContext["scenario"]) == scenario.rawValue,
+                   "Expected NSException userInfo scenario for \(platform)/\(scenario.rawValue)")
     }
 
     private static func assertBinaryImageScenario(_ debugImages: [[String: Any]], platform: String,
@@ -214,14 +257,29 @@ enum EventAssertions {
     }
 
     private static func assertObjCObjectThrow(_ firstException: [String: Any], mechanism: [String: Any],
-                                              platform: String) throws {
+                                              platform: String, scenario: Scenario) throws {
         try assert(string(firstException["type"]) == "C++ Exception",
-                   "Expected Objective-C object throw to be reported by C++ monitor for \(platform)/objc-object")
+                   "Expected Objective-C object throw to be reported by C++ monitor for \(platform)/\(scenario.rawValue)")
         try assert(string(mechanism["type"]) == "cpp_exception",
-                   "Expected C++ exception mechanism for \(platform)/objc-object")
+                   "Expected C++ exception mechanism for \(platform)/\(scenario.rawValue)")
         let value = string(firstException["value"]) ?? ""
         try assert(value.contains("CrashE2EThrownObject"),
-                   "Expected thrown Objective-C object class in value for \(platform)/objc-object")
+                   "Expected thrown Objective-C object class in value for \(platform)/\(scenario.rawValue)")
+    }
+
+    private static func assertFreshObjCObjectThrowFrames(_ firstException: [String: Any],
+                                                         platform: String,
+                                                         scenario: Scenario) throws {
+        let frames = valuesArray(firstException["stacktrace"], key: "frames")
+        let appFrames = frames.filter { string($0["package"])?.contains("CrashE2E-") == true }
+        try assert(!appFrames.isEmpty,
+                   "Expected Objective-C throw-site app frames for \(platform)/\(scenario.rawValue)")
+
+        let symbols = try symbolicatedFrameNames(appFrames)
+        try assert(symbols.contains { $0.contains("CrashE2ETriggerObjCObjectAfterCaughtCPPException") },
+                   "Expected current Objective-C throw site for \(platform)/\(scenario.rawValue): \(symbols)")
+        try assert(!symbols.contains { $0.contains("CrashE2EThrowCaughtCPPException") },
+                   "Expected stale caught C++ throw site to be absent for \(platform)/\(scenario.rawValue): \(symbols)")
     }
 
     private static func assertCPPException(_ firstException: [String: Any], mechanism: [String: Any],

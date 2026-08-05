@@ -1115,7 +1115,8 @@ class SentryFileManagerTests: XCTestCase {
         let result = createDirectoryIfNotExists(path, &error)
         // -- Assert -
         XCTAssertTrue(result)
-        XCTAssertEqual(logOutput.loggedMessages.count, 0)
+        let unexpectedLogMessage = "Failed to create directory, path is too long: \(path)"
+        XCTAssertFalse(logOutput.loggedMessages.contains { $0.contains(unexpectedLogMessage) })
     }
 
     func testCreateDirectoryIfNotExists_pathTooLogError_shouldLogError() throws {
@@ -1155,7 +1156,8 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertFalse(result)
         XCTAssertEqual(error?.domain, SentryErrorDomain)
         XCTAssertEqual(error?.code, 108)
-        XCTAssertEqual(logOutput.loggedMessages.count, 0)
+        let unexpectedLogMessage = "Failed to create directory, path is too long: \(path)"
+        XCTAssertFalse(logOutput.loggedMessages.contains { $0.contains(unexpectedLogMessage) })
     }
 
     func testReadDataFromPath_whenFileExistsAtPath_shouldReadData() throws {

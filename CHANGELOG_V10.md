@@ -4,6 +4,7 @@
 
 ### Features
 
+- Process pending KSCrash reports into fatal Sentry events in `Sentry+KSCrash` (#8515)
 - Install KSCrash crash handler in `Sentry+KSCrash` with production-safe monitors matching SentryCrash's existing monitor set (#8469)
   - Respect `options.enableMemoryIntrospection` when configuring KSCrash
 - Add `options.dataCollection` to configure data collection behaviour (#8448)
@@ -24,5 +25,6 @@
 
 ### Fixes
 
+- Filter sensitive values from selected Session Replay network headers and cookies (#8566)
 - Omit failed-request headers when `options.dataCollection.httpHeaders` is disabled (#8562)
 - Normalize profiling CPU usage to 0–100 percent (#8323)

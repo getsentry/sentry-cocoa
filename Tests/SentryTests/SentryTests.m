@@ -6,7 +6,6 @@
 #import "SentryHub.h"
 #import "SentryLevelMapper.h"
 #import "SentryMessage.h"
-#import "SentryMeta.h"
 #import "SentryOptions+Tests.h"
 #import "SentrySDK+Private.h"
 #import <XCTest/XCTest.h>
