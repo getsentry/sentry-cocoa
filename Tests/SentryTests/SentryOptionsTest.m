@@ -694,7 +694,9 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
         @"sessionTrackingIntervalMillis" : [NSNull null],
         @"attachStacktrace" : [NSNull null],
         @"maxAttachmentSize" : [NSNull null],
+#if !SDK_V10
         @"sendDefaultPii" : [NSNull null],
+#endif // !SDK_V10
         @"enableAutoPerformanceTracing" : [NSNull null],
 #if SENTRY_HAS_UIKIT
         @"enableUIViewControllerTracing" : [NSNull null],
@@ -761,7 +763,9 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     XCTAssertEqual([@30000 unsignedIntValue], options.sessionTrackingIntervalMillis);
     XCTAssertEqual(YES, options.attachStacktrace);
     XCTAssertEqual(200 * 1024 * 1024, options.maxAttachmentSize);
+#if !SDK_V10
     XCTAssertEqual(NO, options.sendDefaultPii);
+#endif // !SDK_V10
     XCTAssertTrue(options.enableAutoPerformanceTracing);
 #if SENTRY_HAS_UIKIT
     XCTAssertTrue(options.enableUIViewControllerTracing);
@@ -882,10 +886,12 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     XCTAssertEqual(200 * 1024 * 1024, options.maxAttachmentSize);
 }
 
+#if !SDK_V10
 - (void)testSendDefaultPii
 {
     [self testBooleanField:@"sendDefaultPii" defaultValue:NO];
 }
+#endif // !SDK_V10
 
 - (void)testEnableAutoPerformanceTracing
 {

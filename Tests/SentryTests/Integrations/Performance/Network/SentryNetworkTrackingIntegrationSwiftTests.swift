@@ -153,7 +153,7 @@ class SentryNetworkTrackingIntegrationSwiftTests: XCTestCase {
         defer {
             sut.uninstall()
         }
-        
+
         XCTAssertTrue(SentryDependencyContainer.sharedInstance().networkTracker.isCaptureFailedRequestsEnabled)
     }
 

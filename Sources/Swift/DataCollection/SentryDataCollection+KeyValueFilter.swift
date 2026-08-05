@@ -9,6 +9,16 @@ extension SentryDataCollection {
             "sso", "saml", "csrf", "xsrf", "credentials", "session", "sid", "identity"
         ]
 
+        static func filterSensitiveValues(_ values: [String: Any]) -> [String: Any] {
+            values.reduce(into: [:]) { result, pair in
+                guard matches(key: pair.key, terms: sensitiveTerms) else {
+                    result[pair.key] = pair.value
+                    return
+                }
+                result[pair.key] = (pair.value as? [Any])?.map { _ in filteredValue } ?? filteredValue
+            }
+        }
+
         static func filter(
             _ values: [String: String],
             behavior: SentryDataCollection.KeyValueCollectionBehavior
