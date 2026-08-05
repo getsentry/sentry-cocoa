@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 9.25.0
 
 > [!WARNING]
 > This release raises the minimum deployment targets to macOS 12 and watchOS 9. Apps that support older OS versions must use an earlier Sentry Cocoa release.
