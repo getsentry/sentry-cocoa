@@ -16,7 +16,7 @@ When a release is triggered, the [release workflow](../.github/workflows/release
 | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
 | GitHub Release                                                                                        | Source + XCFramework zips on the [releases page](https://github.com/getsentry/sentry-cocoa/releases/) |
 | [`getsentry/sentry-apple-binaries`](https://github.com/getsentry/sentry-apple-binaries)               | Pre-built XCFrameworks with a `Package.swift` for SPM binary targets                                  |
-| [`getsentry/sentry-apple-swift-log`](https://github.com/getsentry/sentry-apple-log)                   | 3rd-party integration mirror                                                                          |
+| [`getsentry/sentry-apple-swift-log`](https://github.com/getsentry/sentry-apple-swift-log)             | 3rd-party integration mirror                                                                          |
 | [`getsentry/sentry-apple-cocoalumberjack`](https://github.com/getsentry/sentry-apple-cocoalumberjack) | 3rd-party integration mirror                                                                          |
 | [`getsentry/sentry-apple-pulse`](https://github.com/getsentry/sentry-apple-pulse)                     | 3rd-party integration mirror                                                                          |
 | [`getsentry/sentry-apple-swiftybeaver`](https://github.com/getsentry/sentry-apple-swiftybeaver]       | 3rd-party integration mirror                                                                          |
