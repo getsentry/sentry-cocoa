@@ -235,7 +235,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 
     @objc public func getWatchdogTerminationScopeObserverWithOptions(_ options: Options) -> SentryScopeObserver {
          return SentryWatchdogTerminationScopeObserver(
-            breadcrumbProcessor: SentryWatchdogTerminationBreadcrumbProcessor(
+            breadcrumbProcessor: SentryDefaultWatchdogTerminationBreadcrumbProcessor(
                 maxBreadcrumbs: Int(options.maxBreadcrumbs)),
             attributesProcessor: watchdogTerminationAttributesProcessor)
     }
