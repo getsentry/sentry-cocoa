@@ -13,7 +13,6 @@
 #import "SentryMechanism.h"
 #import "SentryMechanismContext.h"
 #import "SentryMessage.h"
-#import "SentryMeta.h"
 #import "SentryMsgPackSerializer.h"
 #import "SentryNSError.h"
 #import "SentrySDK+Private.h"

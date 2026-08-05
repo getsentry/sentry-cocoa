@@ -517,7 +517,7 @@ run_version_bump_util_for_prs: &run_version_bump_util_for_prs
   - "scripts/verify-version.sh"
 
   # Version-related source files
-  - "Sources/Sentry/SentryMeta.m"
+  - "Sources/Swift/Helper/SentryMeta.swift"
 
   # Project files with version info
   - "Package*.swift"

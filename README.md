@@ -21,10 +21,46 @@ _Bad software is everywhere, and we're tired of it. Sentry is on a mission to he
 
 # Installation
 
-SPM is the recommended way to include Sentry into your project.
-We also provide pre-built XCFrameworks on [our GitHub Releases page](https://github.com/getsentry/sentry-cocoa/releases).
+### Sentry Wizard (Recommended)
 
-To see all available installation options and how to integrate Sentry into your project, please refer to our [documentation](https://docs.sentry.io/platforms/apple/install/).
+The quickest way to get started:
+
+```bash
+brew install getsentry/tools/sentry-wizard && sentry-wizard -i ios
+```
+
+This patches your project and configures the SDK automatically.
+
+### Swift Package Manager (Compile from Source)
+
+Use this repository to build the SDK from source:
+
+**In Xcode:** File > Add Packages, then paste:
+
+```
+https://github.com/getsentry/sentry-cocoa.git
+```
+
+**In `Package.swift`:**
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/getsentry/sentry-cocoa", from: "9.24.0"),
+],
+targets: [
+    .target(name: "YourApp", dependencies: [
+        .product(name: "SentrySPM", package: "sentry-cocoa"),
+    ]),
+]
+```
+
+### Pre-built XCFrameworks
+
+For pre-built static binaries via SPM, use the [sentry-apple-binaries](https://github.com/getsentry/sentry-apple-binaries) repository.
+
+You can also download XCFrameworks directly from [GitHub Releases](https://github.com/getsentry/sentry-cocoa/releases).
+
+For all installation options (Objective-C, dynamic linking, manual install), see the [full installation docs](https://docs.sentry.io/platforms/apple/install/).
 
 > [!NOTE]
 > CocoaPods support has been dropped. The last version available via CocoaPods is [9.19.1](https://github.com/getsentry/sentry-cocoa/releases/tag/9.19.1). Please migrate to SPM or XCFrameworks.

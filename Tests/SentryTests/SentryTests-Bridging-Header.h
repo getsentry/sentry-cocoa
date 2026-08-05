@@ -95,7 +95,6 @@
 #import "SentryLogTestHelper.h"
 #import "SentryMechanism.h"
 #import "SentryMechanismContext.h"
-#import "SentryMeta.h"
 #import "SentryNSDataUtils.h"
 #import "SentryNSError.h"
 #import "SentryNSURLSessionTaskSearch.h"
