@@ -1,9 +1,12 @@
 // swiftlint:disable missing_docs
 import Foundation
 
-@_spi(Private) @objc public protocol SentryCrashReporter: NSObjectProtocol {
+@_spi(Private) @objc public protocol SentryCrashReporterState: NSObjectProtocol {
     @objc var installed: Bool { get }
     @objc var crashedLastLaunch: Bool { get }
+}
+
+@_spi(Private) @objc public protocol SentryCrashReporter: SentryCrashReporterState {
     @objc var durationFromCrashStateInitToLastCrash: TimeInterval { get }
     @objc var activeDurationSinceLastCrash: TimeInterval { get }
     @objc var isBeingTraced: Bool { get }

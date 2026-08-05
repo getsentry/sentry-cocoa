@@ -24,9 +24,10 @@ enum CrashE2ECrashTriggers {
             CrashE2ERuntime.closeAndRestartSDK()
             SentrySDK.crash()
             abortBecauseScenarioReturned(scenario)
-        case .nsException, .cppExceptionV1, .cppExceptionV2, .swiftAsyncCPPExceptionV2Off,
-             .swiftAsyncCPPExceptionV2On, .unityCxaThrow, .objcObject, .idle, .drain,
-             .managedRuntimePreSDKSignal:
+        case .nsException, .nsExceptionSubclass, .cppExceptionV1, .cppExceptionV2,
+             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .unityCxaThrow,
+             .objcObject, .objcObjectAfterCaughtCPP, .ksCrashRetryReportA, .ksCrashRetryReportB,
+             .idle, .drain, .managedRuntimePreSDKSignal:
             triggerExceptionScenario(scenario)
         }
     }
@@ -40,6 +41,19 @@ enum CrashE2ECrashTriggers {
                 userInfo: ["scenario": scenario.rawValue]
             ).raise()
             abortBecauseScenarioReturned(scenario)
+        case .nsExceptionSubclass:
+            CrashE2ETriggerNSExceptionSubclass()
+            abortBecauseScenarioReturned(scenario)
+        case .ksCrashRetryReportA, .ksCrashRetryReportB:
+            let marker = scenario == .ksCrashRetryReportA
+                ? "crash-e2e-kscrash-report-a"
+                : "crash-e2e-kscrash-report-b"
+            NSException(
+                name: NSExceptionName("CrashE2EKSCrashRetryReport"),
+                reason: "Crash E2E KSCrash retry report \(marker)",
+                userInfo: ["crash_e2e_kscrash_report": marker]
+            ).raise()
+            abortBecauseScenarioReturned(scenario)
         case .cppExceptionV1, .cppExceptionV2:
             CrashE2ETriggerCPPException()
             abortBecauseScenarioReturned(scenario)
@@ -51,8 +65,13 @@ enum CrashE2ECrashTriggers {
         case .objcObject:
             // This is a modern C++ monitor scenario. The arbitrary Objective-C object throw is
             // expected to be reported by the C++ monitor, but the migration-sensitive contract is
-            // for the V2/KSCrash path, not SentryCrash's legacy V1 fallback behavior.
+            // for the throw-site-swapping path, not SentryCrash's weaker option-off report shape.
             CrashE2ETriggerObjCObjectException()
+            abortBecauseScenarioReturned(scenario)
+        case .objcObjectAfterCaughtCPP:
+            // A caught C++ throw first populates the throw-site cursor. The later fatal arbitrary
+            // Objective-C object must replace that cursor rather than report the stale C++ stack.
+            CrashE2ETriggerObjCObjectAfterCaughtCPPException()
             abortBecauseScenarioReturned(scenario)
         case .idle, .drain, .managedRuntimePreSDKSignal:
             abortBecauseScenarioReturned(scenario)

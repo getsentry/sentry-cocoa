@@ -7,10 +7,12 @@ enum CrashE2EScenario: String {
     case drain
     case signal
     case nsException = "ns-exception"
+    case nsExceptionSubclass = "ns-exception-subclass"
     case cppExceptionV1 = "cpp-exception-v1"
     case cppExceptionV2 = "cpp-exception-v2"
     case unityCxaThrow = "unity-cxa-throw"
     case objcObject = "objc-object"
+    case objcObjectAfterCaughtCPP = "objc-object-after-caught-cpp"
     case binaryImages = "binary-images"
     case ignoredSignal = "ignored-signal"
     case managedRuntimeSignalChain = "managed-runtime-signal-chain"
@@ -19,12 +21,15 @@ enum CrashE2EScenario: String {
     case managedRuntimeReinitSignal = "managed-runtime-reinit-signal"
     case swiftAsyncCPPExceptionV2Off = "swift-async-cpp-exception-v2-off"
     case swiftAsyncCPPExceptionV2On = "swift-async-cpp-exception-v2-on"
+    case ksCrashRetryReportA = "kscrash-retry-report-a"
+    case ksCrashRetryReportB = "kscrash-retry-report-b"
 }
 
 struct CrashE2EConfiguration {
     let scenario: CrashE2EScenario
     let cacheDirectoryPath: String?
     let managedHandlerMarkerPath: String?
+    let processingCompleteMarkerPath: String?
     let exitAfterSeconds: TimeInterval?
 
     static func fromProcessInfo(_ processInfo: ProcessInfo = .processInfo) -> CrashE2EConfiguration {
@@ -42,6 +47,11 @@ struct CrashE2EConfiguration {
         let managedHandlerMarkerPath = Self.value(after: "--managed-handler-marker", in: arguments)
             ?? environment["SENTRY_CRASH_E2E_MANAGED_HANDLER_MARKER"]
 
+        let processingCompleteMarkerPath = Self.value(
+            after: "--io.sentry.crash-e2e-kscrash-processing-complete",
+            in: arguments
+        )
+
         let exitAfterSeconds = Self.value(after: "--exit-after", in: arguments)
             .flatMap(TimeInterval.init)
 
@@ -49,6 +59,7 @@ struct CrashE2EConfiguration {
             scenario: scenario,
             cacheDirectoryPath: cacheDirectoryPath,
             managedHandlerMarkerPath: managedHandlerMarkerPath,
+            processingCompleteMarkerPath: processingCompleteMarkerPath,
             exitAfterSeconds: exitAfterSeconds
         )
     }
@@ -83,16 +94,20 @@ enum CrashE2ERuntime {
             scheduleExitIfRequested()
         case .drain:
             NSLog("CrashE2E - drain previous crash")
-            scheduleExitIfRequested(defaultDelay: 3.0)
+            if configuration.processingCompleteMarkerPath == nil {
+                scheduleExitIfRequested(defaultDelay: 3.0)
+            } else {
+                scheduleExitAfterProcessingCompletes()
+            }
         case .managedRuntimePreSDKSignal:
             abortBecausePreSDKScenarioReturned()
-        case .signal, .nsException, .cppExceptionV1, .cppExceptionV2, .unityCxaThrow, .objcObject,
-             .binaryImages, .ignoredSignal, .managedRuntimeSignalChain, .managedRuntimeClosedSignal,
-             .managedRuntimeReinitSignal, .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On:
+        case .signal, .nsException, .nsExceptionSubclass, .cppExceptionV1, .cppExceptionV2,
+             .unityCxaThrow, .objcObject, .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal,
+             .managedRuntimeSignalChain, .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
+             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On,
+             .ksCrashRetryReportA, .ksCrashRetryReportB:
             NSLog("CrashE2E - will trigger scenario: \(configuration.scenario.rawValue)")
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-                CrashE2ECrashTriggers.trigger(configuration.scenario)
-            }
+            scheduleCrashAfterProcessingCompletesIfRequested()
         }
     }
 
@@ -103,13 +118,20 @@ enum CrashE2ERuntime {
             sleepThenExit(configuration.exitAfterSeconds ?? 0)
         case .drain:
             NSLog("CrashE2E - drain previous crash")
+            if configuration.processingCompleteMarkerPath != nil {
+                waitForProcessingCompletionOrAbort()
+                sleepThenExit(0)
+            }
             sleepThenExit(configuration.exitAfterSeconds ?? 3.0)
         case .managedRuntimePreSDKSignal:
             abortBecausePreSDKScenarioReturned()
-        case .signal, .nsException, .cppExceptionV1, .cppExceptionV2, .unityCxaThrow, .objcObject,
-             .binaryImages, .ignoredSignal, .managedRuntimeSignalChain, .managedRuntimeClosedSignal,
-             .managedRuntimeReinitSignal, .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On:
+        case .signal, .nsException, .nsExceptionSubclass, .cppExceptionV1, .cppExceptionV2,
+             .unityCxaThrow, .objcObject, .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal,
+             .managedRuntimeSignalChain, .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
+             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On,
+             .ksCrashRetryReportA, .ksCrashRetryReportB:
             NSLog("CrashE2E - will trigger scenario synchronously: \(configuration.scenario.rawValue)")
+            waitForProcessingCompletionOrAbort()
             Thread.sleep(forTimeInterval: 0.5)
             CrashE2ECrashTriggers.trigger(configuration.scenario)
         }
@@ -134,12 +156,13 @@ enum CrashE2ERuntime {
             #endif
             options.maxCacheItems = 100
 
-            // Keep cpp-exception-v1 and unity-cxa-throw in the current SentryCrash V1/fallback
-            // context. V1 is being sunset and is not a KSCrash parity target, but Unity's current
-            // native shim does not enable Sentry Cocoa's C++ V2 option, so the V1-context Unity
-            // scenario remains a temporary compatibility/counterexample check for the old backend.
+            // Keep cpp-exception-v1 in the public option-off configuration for both reporters.
+            // KSCrash has no "V1" implementation, but its standard terminate monitor must preserve
+            // uncaught C++ reporting when throw-site swapping is disabled. Unity's current native
+            // shim also does not enable Sentry Cocoa's C++ V2 option.
             if configuration.scenario == .cppExceptionV2
                 || configuration.scenario == .objcObject
+                || configuration.scenario == .objcObjectAfterCaughtCPP
                 || configuration.scenario == .swiftAsyncCPPExceptionV2Off
                 || configuration.scenario == .swiftAsyncCPPExceptionV2On {
                 options.experimental.enableUnhandledCPPExceptionsV2 = true
@@ -173,9 +196,10 @@ enum CrashE2ERuntime {
         switch configuration.scenario {
         case .managedRuntimeSignalChain, .managedRuntimeClosedSignal, .managedRuntimeReinitSignal:
             installFakeManagedRuntimeHandler()
-        case .idle, .drain, .signal, .nsException, .cppExceptionV1, .cppExceptionV2, .unityCxaThrow,
-             .objcObject, .binaryImages, .ignoredSignal, .managedRuntimePreSDKSignal,
-             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On:
+        case .idle, .drain, .signal, .nsException, .nsExceptionSubclass, .cppExceptionV1,
+             .cppExceptionV2, .unityCxaThrow, .objcObject, .objcObjectAfterCaughtCPP, .binaryImages,
+             .ignoredSignal, .managedRuntimePreSDKSignal, .swiftAsyncCPPExceptionV2Off,
+             .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA, .ksCrashRetryReportB:
             return
         }
     }

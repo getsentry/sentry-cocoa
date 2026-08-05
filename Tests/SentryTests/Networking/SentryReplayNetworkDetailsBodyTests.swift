@@ -27,7 +27,7 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
 
     func testInit_whenV10JSONHasSensitiveTopLevelKeys_shouldFilterTheirValues() throws {
 #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
+        throw XCTSkip("Test only runs with SDK_V10")
 #else
         // -- Arrange --
         let bodyData = try JSONSerialization.data(withJSONObject: [
@@ -49,7 +49,7 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
 
     func testInit_whenV10JSONHasNestedSensitiveKeys_shouldNotFilterNestedValues() throws {
 #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
+        throw XCTSkip("Test only runs with SDK_V10")
 #else
         // -- Arrange --
         let bodyData = try JSONSerialization.data(withJSONObject: [
@@ -264,7 +264,7 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
 
     func testInit_whenV10FormHasSensitiveKeys_shouldFilterTheirValues() throws {
 #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
+        throw XCTSkip("Test only runs with SDK_V10")
 #else
         // -- Act --
         let body = try XCTUnwrap(Body(
@@ -293,7 +293,7 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
 
     func testInit_whenV10FormHasDuplicateSensitiveKeys_shouldFilterEveryValue() throws {
 #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
+        throw XCTSkip("Test only runs with SDK_V10")
 #else
         // -- Act --
         let body = try XCTUnwrap(Body(
@@ -399,7 +399,7 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
 
     func testInit_whenV10BodyIsNotKeyValueStructure_shouldFilterEntireBody() throws {
 #if !SDK_V10
-        throw XCTSkip("Test skipped for SDK_V10")
+        throw XCTSkip("Test only runs with SDK_V10")
 #else
         let bodies: [(Data, String?)] = [
             (Data("{ invalid json }".utf8), "application/json"),
