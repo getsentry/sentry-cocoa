@@ -295,6 +295,31 @@ class SentrySRDefaultBreadcrumbConverterTests: XCTestCase {
         XCTAssertEqual(payloadData.count, 0, "No keys should be present when details is empty")
     }
 
+    @available(*, deprecated, message: "Testing deprecated convertHttpBreadcrumbWithNetworkDetails")
+    func testHttpBreadcrumb_whenV10NetworkDetailsContainCookies_shouldIncludeCookies() throws {
+#if !SDK_V10
+        throw XCTSkip("Test only runs with SDK_V10")
+#else
+        // -- Act --
+        let payloadData = try convertHttpBreadcrumbWithNetworkDetails { details in
+            details.setRequest(
+                size: nil,
+                bodyData: nil,
+                contentType: nil,
+                allHeaders: ["Cookie": "theme=dark; session=secret"],
+                configuredHeaders: ["Cookie"]
+            )
+        }
+
+        // -- Assert --
+        let request = try XCTUnwrap(payloadData["request"] as? [String: Any])
+        XCTAssertEqual(request["cookies"] as? [String: String], [
+            "session": "[Filtered]",
+            "theme": "dark"
+        ])
+#endif // SDK_V10
+    }
+
     // MARK: - Helpers
 
     /// Creates an HTTP breadcrumb with a `SentryReplayNetworkDetails` attached,

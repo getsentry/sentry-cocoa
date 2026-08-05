@@ -8,7 +8,6 @@
 #import "SentryFrame.h"
 #import "SentryId.h"
 #import "SentryMechanism.h"
-#import "SentryMeta.h"
 #import "SentryStackTrace.h"
 #import "SentrySwift.h"
 #import "SentryThread.h"
