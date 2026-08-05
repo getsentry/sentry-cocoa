@@ -33,6 +33,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         SentrySDKWrapper.spanCaptureHandler = { LaunchVCTransactionCapture.shared.capture($0) }
+
+        // Without these excludes the sample cannot launch below iOS 17: the SDK crashes on the
+        // gated fixtures in SubClassFinderRegressionViewController. Remove them to reproduce
+        // GH-8152.
+        SentrySDKWrapper.swizzleClassNameExcludes = [
+            "GatedIOS17ViewController",
+            "GatedIOS26OnlyViewController",
+            "GatedObsoletedOnIOS26ViewController"
+        ]
+
         SentrySDKWrapper.shared.startSentry()
         
         metricKit.receiveReports()
