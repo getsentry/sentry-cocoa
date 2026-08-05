@@ -1,32 +1,36 @@
 import UIKit
 
 // `UITableViewController` with a convenience init delegating to a custom designated init that calls
-// `super.init(style:)`, deliberately without `@objc`. This shape crashed under the SDK's old
-// UIViewController init swizzling on iOS 15 with `NSInternalInconsistencyException: missing initial
-// trait collection` — the old funnel mutated the subclass's method list from inside the initializer,
-// before calling the original init.
+// `super.init(style:)`, deliberately without `@objc`. GH-1355 reported this shape crashing under
+// the SDK's init swizzling on iOS 15 with `NSInternalInconsistencyException: missing initial trait
+// collection`; the hypothesis in the fix PR (#1361) was that swizzling added methods to the
+// subclass from inside the initializer, mutating the class mid-init.
 //
-// Any future change that re-introduces init swizzling must keep this shape crash-free. The
-// historical crash could not be reproduced on the iOS 15.5 simulator, so this fixture is a forward
-// regression guard rather than a proven repro. (GH-1355)
+// That root cause was never confirmed, and the crash could not be reproduced on the iOS 15.5
+// simulator. So this is a forward guard, not a proven repro: any change that re-introduces init
+// swizzling — GH-8548's deferred-swizzling work funnels through first instantiation — must keep
+// this shape crash-free.
 final class ConvenienceInitViewController: UITableViewController {
 
     static let accessibilityIdentifier = "convenienceInitScreen"
 
     private var payload: String?
 
-    /// Crashing shape: convenience init delegating to a custom designated init.
+    /// The reported shape: a convenience init that delegates to a custom designated init rather
+    /// than to a `UIViewController` one. This is the entry point `ExtraViewController` uses.
     convenience init() {
         self.init(payload: "repro")
     }
 
-    /// No `@objc`, calls `super.init(style:)`.
+    /// Custom designated init. Intentionally not `@objc` — the reported crash involved a
+    /// Swift-only initializer, so exposing it to the runtime would change what is being tested.
     init(payload: String) {
         super.init(style: .plain)
         self.payload = payload
     }
 
-    /// Storyboard/`NSKeyedUnarchiver` path — exercises `initWithCoder:`.
+    /// Required by `UIViewController`. Unused here (the fixture is pushed in code, not unarchived),
+    /// but it keeps `initWithCoder:` compiled in as a second swizzlable init on this class.
     required init?(coder: NSCoder) {
         super.init(coder: coder)
     }
@@ -40,7 +44,8 @@ final class ConvenienceInitViewController: UITableViewController {
         label.textAlignment = .center
         label.text = """
         Convenience-init regression fixture (payload: \(payload ?? "nil")).
-        The old init swizzling crashed this shape on iOS 15; deferred swizzling must not.
+        Reported crashing under init swizzling on iOS 15 (GH-1355). Reaching this screen means it
+        did not crash.
         """
         label.accessibilityIdentifier = ConvenienceInitViewController.accessibilityIdentifier
         tableView.backgroundView = label

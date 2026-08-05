@@ -34,10 +34,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         SentrySDKWrapper.spanCaptureHandler = { LaunchVCTransactionCapture.shared.capture($0) }
 
-        // Required to launch on OS versions below the fixtures' `@available` gates. Eager swizzling
-        // realizes every UIViewController subclass in the app image, and realizing a gated subclass
-        // that references a newer-framework type crashes. Excluding them by name keeps the SDK from
-        // calling `NSClassFromString` on them at all. See SubClassFinderRegressionViewController.
+        // Workaround, not a recommendation: without it the sample cannot launch below iOS 17,
+        // because `SentrySubClassFinder` calls `NSClassFromString` on every class in the app image
+        // and realizing these gated fixtures below their gate crashes. The exclusion is matched on
+        // the name before that call, so the class is never touched. Drop these entries to reproduce
+        // GH-8152. See SubClassFinderRegressionViewController for the mechanism.
         SentrySDKWrapper.swizzleClassNameExcludes = [
             "GatedIOS17ViewController",
             "GatedIOS26OnlyViewController",
