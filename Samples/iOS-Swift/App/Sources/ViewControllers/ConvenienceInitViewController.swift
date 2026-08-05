@@ -6,9 +6,9 @@ import UIKit
 // trait collection` — the old funnel mutated the subclass's method list from inside the initializer,
 // before calling the original init.
 //
-// Any future change that re-introduces init swizzling must keep this shape crash-free. The
-// historical crash could not be reproduced on the iOS 15.5 simulator, so this fixture is a forward
-// regression guard rather than a proven repro. (GH-1355)
+// Deferred first-instantiation swizzling re-introduces init swizzling, so this shape must stay
+// crash-free. The historical crash could not be reproduced on the iOS 15.5 simulator, so this fixture
+// is a forward regression guard rather than a proven repro. (GH-1355)
 final class ConvenienceInitViewController: UITableViewController {
 
     static let accessibilityIdentifier = "convenienceInitScreen"

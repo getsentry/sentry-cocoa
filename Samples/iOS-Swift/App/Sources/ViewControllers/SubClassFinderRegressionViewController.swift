@@ -9,16 +9,13 @@ import RoomPlan
 import FoundationModels
 #endif
 
-// The gated `Gated*ViewController` subclasses below are compiled into the app. The SDK's eager
-// UIViewController swizzling realizes every subclass in the app image at start, and realizing a
-// gated class that references a newer-framework type crashes on OS versions below its gate.
+// The gated `Gated*ViewController` subclasses below are compiled into the app. Eager swizzling
+// realizes them at launch, and realizing a gated class that references a newer-framework type
+// crashes on OS versions below its gate. Deferred first-instantiation swizzling avoids this because
+// the class is never instantiated below its gate.
 //
-// `AppDelegate` therefore excludes these three by name via `swizzleClassNameExcludes`, the only
-// workaround available today. Without it the sample crashes on start on the iOS 16.4 simulator —
-// that is the bug these fixtures exist to hold onto. (GH-8152 / GH-8548)
-//
-// CI does not exercise the crash: the iOS-Swift UI tests run on iOS 17.5 / 18 / 26, all at or above
-// the gates below. Verification is manual, on an iOS 16.4 simulator.
+// These run through the real swizzle path (no `swizzleClassNameExcludes` workaround); the crash is
+// verified on the iOS 16.4 simulator. (GH-8152 / GH-8548)
 
 /// Host screen for the regression fixtures. It doesn't need to be opened — the fixtures just need to
 /// be compiled in; opening it only makes the test tappable in the UI.

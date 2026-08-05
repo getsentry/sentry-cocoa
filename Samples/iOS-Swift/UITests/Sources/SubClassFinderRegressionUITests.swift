@@ -1,8 +1,7 @@
 import XCTest
 
-/// Keeps the regression fixtures reachable and the app launchable. On CI these run at or above the
-/// fixtures' `@available` gates, so they cannot observe the GH-8152 crash — run them on an iOS 16.4
-/// simulator for that. (GH-8152)
+/// Gated fixtures in `SubClassFinderRegressionViewController` run through the real swizzle path; a
+/// launch crash fails these tests. Run on the iOS 16.4 simulator, below the iOS-17 gate. (GH-8152)
 class SubClassFinderRegressionUITests: BaseUITest {
 
     /// App launches without realizing a gated subclass below its gate.

@@ -196,6 +196,7 @@ public enum SentrySDKOverrides: String, CaseIterable {
 
     public enum UIViewControllerTracing: String, SentrySDKOverride {
         case disable = "--io.sentry.uiviewcontroller-tracing.disable"
+        case enableInitSwizzling = "--io.sentry.uiviewcontroller-tracing.init-swizzling"
     }
     case uiViewControllerTracing = "UIViewController Tracing"
 
@@ -512,7 +513,7 @@ extension SentrySDKOverrides.UIEventTracking {
 extension SentrySDKOverrides.UIViewControllerTracing {
     public var overrideType: OverrideType {
         switch self {
-        case .disable: return .boolean
+        case .disable, .enableInitSwizzling: return .boolean
         }
     }
 }
@@ -761,7 +762,12 @@ extension SentrySDKOverrides.UIEventTracking {
 }
 
 extension SentrySDKOverrides.UIViewControllerTracing {
-    public var ignoresDisableEverything: Bool { return false }
+    public var ignoresDisableEverything: Bool {
+        switch self {
+        case .disable: return false
+        case .enableInitSwizzling: return true
+        }
+    }
 }
 
 extension SentrySDKOverrides.FileIO {

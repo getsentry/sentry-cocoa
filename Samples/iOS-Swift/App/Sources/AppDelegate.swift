@@ -34,15 +34,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         SentrySDKWrapper.spanCaptureHandler = { LaunchVCTransactionCapture.shared.capture($0) }
 
-        // Required to launch on OS versions below the fixtures' `@available` gates. Eager swizzling
-        // realizes every UIViewController subclass in the app image, and realizing a gated subclass
-        // that references a newer-framework type crashes. Excluding them by name keeps the SDK from
-        // calling `NSClassFromString` on them at all. See SubClassFinderRegressionViewController.
-        SentrySDKWrapper.swizzleClassNameExcludes = [
-            "GatedIOS17ViewController",
-            "GatedIOS26OnlyViewController",
-            "GatedObsoletedOnIOS26ViewController"
-        ]
+        // Required: this sample has @available-gated UIViewController subclasses that would crash
+        // at launch without deferred swizzling. Also acts as a safety gate for the feature itself,
+        // since this sample's UI tests cover automatic transactions/instrumentation. (GH-8548)
+        var enableInitSwizzling = SentrySDKOverrides.UIViewControllerTracing.enableInitSwizzling
+        enableInitSwizzling.boolValue = true
 
         SentrySDKWrapper.shared.startSentry()
         
