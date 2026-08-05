@@ -38,6 +38,7 @@ jobs:
         run: |
           ./scripts/create-3rd-party-integration-archive.sh \
             --all \
+            --version 0.0.0 \
             --output-dir /tmp/3rd-party-archives
 
       - name: Verify archives

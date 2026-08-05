@@ -517,6 +517,7 @@ jobs:
         run: |
           ./scripts/create-3rd-party-integration-archive.sh \
             --all \
+            --version "${{ github.event.inputs.version }}" \
             --output-dir XCFrameworkBuildPath
 
       - name: Archive XCFrameworks for Craft
