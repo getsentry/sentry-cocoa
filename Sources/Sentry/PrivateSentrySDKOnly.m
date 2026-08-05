@@ -5,7 +5,6 @@
 #import "SentryCrashC.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
-#import "SentryMeta.h"
 #import "SentryProfileCollector.h"
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"

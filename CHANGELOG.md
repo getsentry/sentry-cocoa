@@ -15,6 +15,7 @@
 
 ### Fixes
 
+- Reduce memory usage when storing envelopes with large attachments (#8649)
 - Fix incorrect `duration` sent for active sessions (#8612)
   - Session `duration` is now set only when the session ends. Active sessions (including on error increments) no longer emit a bogus `duration`.
 - Fix a race caused by mutating `URLSessionTask.currentRequest` during trace header propagation (#8650)

@@ -9,7 +9,7 @@ static NSString *const SENTRY_TRACEPARENT = @"traceparent";
 
 @implementation SentryTracePropagation
 
-+ (void)addBaggageHeader:(SentryBaggage *)baggage
++ (void)addBaggageHeader:(nullable SentryBaggage *)baggage
                 traceHeader:(SentryTraceHeader *)traceHeader
        propagateTraceparent:(BOOL)propagateTraceparent
     tracePropagationTargets:(NSArray *_Nullable)tracePropagationTargets

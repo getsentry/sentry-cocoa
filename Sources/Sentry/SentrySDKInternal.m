@@ -7,7 +7,6 @@
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
-#import "SentryMeta.h"
 #import "SentryProfilingConditionals.h"
 #import "SentryReplayApi.h"
 #import "SentrySamplingContext.h"
@@ -38,7 +37,6 @@ NS_ASSUME_NONNULL_BEGIN
 static SentryHubInternal *_Nullable currentHub;
 static NSObject *currentHubLock;
 static BOOL lastRunStatusCalled;
-static BOOL crashReporterInstalled;
 static BOOL fatalDetected;
 static SentryAppStartMeasurement *_Nullable sentrySDKappStartMeasurement;
 static NSObject *sentrySDKappStartMeasurementLock;
@@ -143,12 +141,7 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (BOOL)crashReporterInstalled
 {
-    return crashReporterInstalled;
-}
-
-+ (void)setCrashReporterInstalled:(BOOL)value
-{
-    crashReporterInstalled = value;
+    return SentryDependencyContainer.sharedInstance.activeCrashReporterState.installed;
 }
 
 + (BOOL)fatalDetected
@@ -276,7 +269,7 @@ static NSDate *_Nullable startTimestamp = nil;
             // The .didCrash case is handled by SentryClient.prepareEvent when
             // a fatal event arrives. Here we report .didNotCrash if no
             // integration set fatalDetected during init.
-            if (crashReporterInstalled && !fatalDetected) {
+            if ([SentrySDKInternal crashReporterInstalled] && !fatalDetected) {
                 lastRunStatusCalled = YES;
                 if (nil != options.onLastRunStatusDetermined) {
                     options.onLastRunStatusDetermined(SentryLastRunStatusDidNotCrash, nil);
@@ -497,15 +490,16 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (BOOL)crashedLastRun
 {
-    return SentryDependencyContainer.sharedInstance.crashReporter.crashedLastLaunch;
+    return SentryDependencyContainer.sharedInstance.activeCrashReporterState.crashedLastLaunch;
 }
 
 + (NSInteger)lastRunStatus
 {
-    if (!crashReporterInstalled) {
+    if (![SentrySDKInternal crashReporterInstalled]) {
         return SentryLastRunStatusUnknown;
     }
-    if (SentryDependencyContainer.sharedInstance.crashWrapper.crashedLastLaunch) {
+
+    if (SentryDependencyContainer.sharedInstance.activeCrashReporterState.crashedLastLaunch) {
         return SentryLastRunStatusDidCrash;
     }
     return SentryLastRunStatusDidNotCrash;
@@ -604,7 +598,6 @@ static NSDate *_Nullable startTimestamp = nil;
 
         [SentrySDKInternal setCurrentHub:nil];
 
-        crashReporterInstalled = NO;
         fatalDetected = NO;
         lastRunStatusCalled = NO;
 

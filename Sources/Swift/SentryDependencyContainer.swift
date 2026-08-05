@@ -139,6 +139,21 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         )
         return SentryDefaultCrashReporter(processInfoWrapper: Dependencies.processInfoWrapper, bridge: bridge)
     }
+#if SENTRY_TEST || SENTRY_TEST_CI
+    var activeCrashReporterStateOverride: SentryCrashReporterState?
+#endif
+    @objc public var activeCrashReporterState: SentryCrashReporterState {
+#if SENTRY_TEST || SENTRY_TEST_CI
+        if let activeCrashReporterStateOverride {
+            return activeCrashReporterStateOverride
+        }
+#endif
+#if ENABLE_KSCRASH
+        return kscrashQuery
+#else
+        return crashWrapper
+#endif
+    }
     @objc public var dispatchFactory = SentryDispatchFactory()
     @objc public var timerFactory = SentryNSTimerFactory()
     private var _fileIOTracker: SentryFileIOTracker?
@@ -163,6 +178,9 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         SentryExtensionDetector(infoPlistWrapper: Dependencies.infoPlistWrapper)
     }()
     var coreDataSwizzling = SentryCoreDataSwizzling()
+    lazy var networkTracker: SentryNetworkTrackerProtocol = {
+        SentryDefaultNetworkTracker(options: self.startOptions, dependencies: self)
+    }()
 
     // This is a var so that it's initialized lazily on first access. It never should get set
     // to a different value.
@@ -232,7 +250,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 
     @objc public func getWatchdogTerminationScopeObserverWithOptions(_ options: Options) -> SentryScopeObserver {
          return SentryWatchdogTerminationScopeObserver(
-            breadcrumbProcessor: SentryWatchdogTerminationBreadcrumbProcessor(
+            breadcrumbProcessor: SentryDefaultWatchdogTerminationBreadcrumbProcessor(
                 maxBreadcrumbs: Int(options.maxBreadcrumbs)),
             attributesProcessor: watchdogTerminationAttributesProcessor)
     }
@@ -253,9 +271,12 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 
             let dispatchQueueWrapper = dispatchFactory.createUtilityQueue("io.sentry.watchdog-termination-tracker", relativePriority: 0)
 
-            let logic = SentryWatchdogTerminationLogic(options: options,
-                                                       crashAdapter: crashWrapper,
-                                                       appStateManager: appStateManager)
+            let logic = SentryWatchdogTerminationLogic(
+                options: options,
+                crashAdapter: crashWrapper,
+                activeCrashReporterState: activeCrashReporterState,
+                appStateManager: appStateManager
+            )
             return SentryWatchdogTerminationTracker(
                 options: options,
                 watchdogTerminationLogic: logic,
@@ -333,9 +354,12 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             }
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-            let watchdogLogic = SentryWatchdogTerminationLogic(options: options,
-                                                       crashAdapter: crashWrapper,
-                                                       appStateManager: appStateManager)
+            let watchdogLogic = SentryWatchdogTerminationLogic(
+                options: options,
+                crashAdapter: crashWrapper,
+                activeCrashReporterState: activeCrashReporterState,
+                appStateManager: appStateManager
+            )
             return SentryCrashIntegrationSessionHandler(
                 crashWrapper: crashWrapper,
                 watchdogTerminationLogic: watchdogLogic,
@@ -453,6 +477,21 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             processInfoWrapper: processInfoWrapper
         )
     }
+
+#if ENABLE_KSCRASH
+    private var kscrashInstaller: SentryKSCrash.Installer?
+    func getKSCrashInstaller() -> SentryKSCrash.Installer {
+        getLazyVar(\.kscrashInstaller) {
+            SentryKSCrash.Installer()
+        }
+    }
+
+    private var _kscrashQuery: SentryKSCrash.Query?
+    @objc public lazy var kscrashQuery: SentryKSCrash.Query = getLazyVar(\._kscrashQuery) {
+        SentryKSCrash.Query(installer: getKSCrashInstaller())
+    }
+
+#endif
 }
 // swiftlint:enable type_body_length
 
@@ -486,8 +525,11 @@ protocol Hub {
     func configureScope(_ callback: @escaping (Scope) -> Void)
     func storeEnvelope(_ envelope: SentryEnvelope)
     func captureEnvelope(_ envelope: SentryEnvelope)
+    func captureErrorEvent(event: Event)
     func setTrace(_ traceId: SentryId, spanId: SpanId)
+    var currentOptions: Options? { get }
     var options: Options { get }
+    var scope: Scope { get }
 }
 
 protocol HubProvider {
@@ -510,14 +552,26 @@ private struct DefaultHub: Hub {
         SentrySDKInternal.currentHub().capture(envelope)
     }
 
+    func captureErrorEvent(event: Event) {
+        SentrySDKInternal.currentHub().captureErrorEvent(event: event)
+    }
+
     func setTrace(_ traceId: SentryId, spanId: SpanId) {
         SentrySDKInternal.currentHub().configureScope { scope in
             scope.setPropagationContext(traceId: traceId, spanId: spanId)
         }
     }
 
+    var currentOptions: Options? {
+        SentryDependencyContainer.sharedInstance().startOptions
+    }
+
     var options: Options {
         SentrySDKInternal.currentHub().getClient()?.getOptions() as? Options ?? Options()
+    }
+
+    var scope: Scope {
+        SentrySDKInternal.currentHub().scope
     }
 }
 
@@ -531,6 +585,11 @@ protocol DateProviderProvider {
 extension SentryDependencyContainer: DateProviderProvider {}
 
 extension SentryDependencyContainer: AutoSessionTrackingProvider { }
+
+#if ENABLE_KSCRASH
+extension SentryDependencyContainer: SentryKSCrash.InstallerProvider {}
+extension SentryDependencyContainer: SentryKSCrash.QueryProvider {}
+#endif
 
 protocol FileIOTrackerProvider {
     var fileIOTracker: SentryFileIOTracker { get }
@@ -702,6 +761,11 @@ protocol CrashWrapperProvider {
 }
 extension SentryDependencyContainer: CrashWrapperProvider {}
 
+protocol CrashReporterStateProvider {
+    var activeCrashReporterState: SentryCrashReporterState { get }
+}
+extension SentryDependencyContainer: CrashReporterStateProvider {}
+
 protocol GlobalEventProcessorProvider {
     var globalEventProcessor: SentryGlobalEventProcessor { get }
 }
@@ -825,16 +889,9 @@ extension SentryDependencyContainer: WatchdogTerminationTrackerBuilder {}
 #endif
 
 protocol NetworkTrackerProvider {
-    var networkTracker: SentryNetworkTracker { get }
+    var networkTracker: SentryNetworkTrackerProtocol { get }
 }
-extension SentryDependencyContainer: NetworkTrackerProvider {
-    // Inject the network tracer via the Dependency Container
-    // Because this is used in swizzling, we cannot remove the singleton
-    // or that may lead to issues when stopping and enabling the SDK again
-    var networkTracker: SentryNetworkTracker {
-        SentryNetworkTracker.sharedInstance
-    }
-}
+extension SentryDependencyContainer: NetworkTrackerProvider {}
 
 protocol SentryCrashReporterProvider {
     var crashReporter: SentryCrashSwift { get }

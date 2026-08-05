@@ -45,6 +45,16 @@
         "identifier" : "8431EECF29B27B1100D8DC56",
         "name" : "SentryProfilerTests"
       }
+    },
+    {
+      "selectedTests" : [
+        "SentryObjCInternalProfilingApiIntegrationTests\/testCollect_shouldContainTransactionInfo"
+      ],
+      "target" : {
+        "containerPath" : "container:Sentry.xcodeproj",
+        "identifier" : "D4B67CFB2FC5E6F20022BC67",
+        "name" : "SentryObjCTests"
+      }
     }
   ],
   "version" : 1

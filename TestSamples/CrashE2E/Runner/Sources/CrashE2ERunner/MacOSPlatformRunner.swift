@@ -1,9 +1,9 @@
 import Foundation
 
 final class MacOSPlatformRunner {
-    private let config: Config
-    private let processRunner: ProcessRunner
-    private let fileManager = FileManager.default
+    let config: Config
+    let processRunner: ProcessRunner
+    let fileManager = FileManager.default
 
     init(config: Config, processRunner: ProcessRunner) {
         self.config = config
@@ -39,6 +39,15 @@ final class MacOSPlatformRunner {
         try fileManager.ensureDirectory(at: cacheDir)
 
         log("macOS scenario: \(scenario.rawValue)")
+        if scenario == .ksCrashPerReportRetry {
+            try runKSCrashRetryScenario(
+                executable: executable,
+                cacheDir: cacheDir,
+                derivedDataPath: derivedDataPath
+            )
+            return
+        }
+
         try runCrashLaunch(scenario, executable: executable, cacheDir: cacheDir,
                            markerPath: markerPath, derivedDataPath: derivedDataPath)
         try runDrainLaunch(scenario, executable: executable, cacheDir: cacheDir,
@@ -63,7 +72,7 @@ final class MacOSPlatformRunner {
         return executable
     }
 
-    private func crashAppEnvironment(derivedDataPath: URL) -> [String: String] {
+    func crashAppEnvironment(derivedDataPath: URL) -> [String: String] {
         ["DYLD_FRAMEWORK_PATH": derivedDataPath.appendingPathComponent("Build/Products/Debug").path]
     }
 

@@ -1,9 +1,9 @@
 import Foundation
 
 final class IOSPlatformRunner {
-    private let config: Config
-    private let processRunner: ProcessRunner
-    private let fileManager = FileManager.default
+    let config: Config
+    let processRunner: ProcessRunner
+    let fileManager = FileManager.default
 
     private(set) var deviceID = ""
     private(set) var xcodebuildDestination = ""
@@ -75,8 +75,13 @@ final class IOSPlatformRunner {
     private func runScenario(_ scenario: Scenario) throws {
         log("iOS scenario: \(scenario.rawValue)")
         let container = try dataContainer()
-        let markerPath = managedRuntimeMarkerPath(for: scenario, container: container)
         try cleanCache(container: container)
+        if scenario == .ksCrashPerReportRetry {
+            try runKSCrashRetryScenario(container: container)
+            return
+        }
+
+        let markerPath = managedRuntimeMarkerPath(for: scenario, container: container)
         if let markerPath {
             try fileManager.removeItemIfExists(at: markerPath)
         }
@@ -111,7 +116,7 @@ final class IOSPlatformRunner {
         }
     }
 
-    private func launchApp(arguments: [String]) throws -> ProcessResult {
+    func launchApp(arguments: [String]) throws -> ProcessResult {
         try processRunner.run(
             "xcrun",
             ["simctl", "launch", deviceID, bundleID, "--io.sentry.disable-http-transport"] + arguments,
@@ -121,8 +126,8 @@ final class IOSPlatformRunner {
         )
     }
 
-    private func assertLaunchSucceeded(_ result: ProcessResult, scenario: Scenario,
-                                       launchType: String) throws {
+    func assertLaunchSucceeded(_ result: ProcessResult, scenario: Scenario,
+                               launchType: String) throws {
         if result.timedOut {
             try fail("iOS \(launchType) simctl launch timed out for scenario: \(scenario.rawValue)")
         }
@@ -165,7 +170,13 @@ final class IOSPlatformRunner {
     }
 
     private func cleanCache(container: URL) throws {
-        try fileManager.removeItemIfExists(at: container.appendingPathComponent("Library/Caches/io.sentry", isDirectory: true))
+        let cacheRoot = container.appendingPathComponent("Library/Caches", isDirectory: true)
+        try fileManager.removeItemIfExists(
+            at: cacheRoot.appendingPathComponent("io.sentry", isDirectory: true)
+        )
+        try fileManager.removeItemIfExists(
+            at: cacheRoot.appendingPathComponent("KSCrash", isDirectory: true)
+        )
     }
 
     private func dataContainer() throws -> URL {
@@ -176,7 +187,7 @@ final class IOSPlatformRunner {
         return URL(fileURLWithPath: path, isDirectory: true)
     }
 
-    private func waitForAppToStop(timeout: TimeInterval) throws -> Bool {
+    func waitForAppToStop(timeout: TimeInterval) throws -> Bool {
         let deadline = Date().addingTimeInterval(timeout)
         while Date() < deadline {
             if try !isAppRunning() {
@@ -196,7 +207,7 @@ final class IOSPlatformRunner {
         return output.contains(bundleID)
     }
 
-    private var bundleID: String {
+    var bundleID: String {
         config.reporter.iOSBundleID
     }
 }

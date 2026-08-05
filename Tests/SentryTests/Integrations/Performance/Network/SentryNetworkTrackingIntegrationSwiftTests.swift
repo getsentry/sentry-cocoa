@@ -128,7 +128,7 @@ class SentryNetworkTrackingIntegrationSwiftTests: XCTestCase {
             sut.uninstall()
         }
 
-        XCTAssertTrue(SentryNetworkTracker.sharedInstance.isNetworkTrackingEnabled)
+        XCTAssertTrue(SentryDependencyContainer.sharedInstance().networkTracker.isNetworkTrackingEnabled)
     }
 
     func test_OnlyBreadcrumbsEnabled_IntegrationInstalled() throws {
@@ -141,7 +141,7 @@ class SentryNetworkTrackingIntegrationSwiftTests: XCTestCase {
             sut.uninstall()
         }
 
-        XCTAssertTrue(SentryNetworkTracker.sharedInstance.isNetworkBreadcrumbEnabled)
+        XCTAssertTrue(SentryDependencyContainer.sharedInstance().networkTracker.isNetworkBreadcrumbEnabled)
     }
 
     func test_OnlyCaptureFailedRequestsEnabled_IntegrationInstalled() throws {
@@ -153,8 +153,8 @@ class SentryNetworkTrackingIntegrationSwiftTests: XCTestCase {
         defer {
             sut.uninstall()
         }
-        
-        XCTAssertTrue(SentryNetworkTracker.sharedInstance.isCaptureFailedRequestsEnabled)
+
+        XCTAssertTrue(SentryDependencyContainer.sharedInstance().networkTracker.isCaptureFailedRequestsEnabled)
     }
 
     func test_GraphQLOperationTrackingEnabled() throws {
@@ -167,7 +167,7 @@ class SentryNetworkTrackingIntegrationSwiftTests: XCTestCase {
             sut.uninstall()
         }
 
-        XCTAssertTrue(SentryNetworkTracker.sharedInstance.isGraphQLOperationTrackingEnabled)
+        XCTAssertTrue(SentryDependencyContainer.sharedInstance().networkTracker.isGraphQLOperationTrackingEnabled)
     }
 
     func test_Uninstall_DisablesNetworkTracker() throws {
@@ -175,11 +175,11 @@ class SentryNetworkTrackingIntegrationSwiftTests: XCTestCase {
         options.tracesSampleRate = 1.0
 
         let sut = try XCTUnwrap(SentryNetworkTrackingIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
-        XCTAssertTrue(SentryNetworkTracker.sharedInstance.isNetworkTrackingEnabled)
+        XCTAssertTrue(SentryDependencyContainer.sharedInstance().networkTracker.isNetworkTrackingEnabled)
 
         sut.uninstall()
 
-        XCTAssertFalse(SentryNetworkTracker.sharedInstance.isNetworkTrackingEnabled)
+        XCTAssertFalse(SentryDependencyContainer.sharedInstance().networkTracker.isNetworkTrackingEnabled)
     }
 
     func test_IntegrationName() {

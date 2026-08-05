@@ -40,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
  * from disk. This allows @c lastRunStatus to return a definitive answer instead of
  * @c SentryLastRunStatusUnknown.
  */
-@property (nonatomic, class) BOOL crashReporterInstalled;
+@property (nonatomic, class, readonly) BOOL crashReporterInstalled;
 
 /**
  * Set to @c YES by any integration that detects a fatal event from the previous run

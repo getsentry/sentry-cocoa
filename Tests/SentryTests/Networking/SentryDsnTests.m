@@ -1,5 +1,4 @@
 #import "SentryError.h"
-#import "SentryMeta.h"
 #import "SentryOptions+Tests.h"
 #import "SentrySwift.h"
 #import <XCTest/XCTest.h>

@@ -189,6 +189,8 @@ SENTRY_NO_INIT
 /** If true, the application crashed on the previous launch. */
 @property (nonatomic, readonly, assign) BOOL crashedLastLaunch;
 
+@property (nonatomic, readonly) BOOL installed;
+
 /** The total number of unsent reports. Note: This is an expensive operation. */
 @property (nonatomic, readonly, assign) int reportCount;
 

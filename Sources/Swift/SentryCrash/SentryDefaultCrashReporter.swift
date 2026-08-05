@@ -74,6 +74,11 @@ public final class SentryDefaultCrashReporter: NSObject, SentryCrashReporter {
     }
     
     @objc
+    public var installed: Bool {
+        return bridge.crashReporter.installed
+    }
+
+    @objc
     public var crashedLastLaunch: Bool {
         return bridge.crashReporter.crashedLastLaunch
     }

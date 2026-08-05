@@ -14,9 +14,11 @@
   "testTargets" : [
     {
       "selectedTests" : [
+        "SentryNetworkTrackerIntegrationTestServerTests\/testFailedRequest_whenCaptureEnabled_shouldMatchEnvelopeSnapshot()",
         "SentryNetworkTrackerIntegrationTestServerTests\/testGetCaptureFailedRequestsEnabled()",
         "SentryNetworkTrackerIntegrationTestServerTests\/testGetRequest_CompareSentryTraceHeader()",
-        "SentryNetworkTrackerIntegrationTestServerTests\/testGetRequest_SpanCreatedAndBaggageHeaderAdded()"
+        "SentryNetworkTrackerIntegrationTestServerTests\/testGetRequest_SpanCreatedAndBaggageHeaderAdded()",
+        "SentryNetworkTrackerIntegrationTestServerTests\/testSuccessfulRequest_whenTransactionFinishes_shouldMatchEnvelopeSnapshot()"
       ],
       "target" : {
         "containerPath" : "container:Sentry.xcodeproj",

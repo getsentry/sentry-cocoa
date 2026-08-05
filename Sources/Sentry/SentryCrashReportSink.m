@@ -1,26 +1,17 @@
 #import "SentryCrashReportSink.h"
-#import "SentryAttachment.h"
-#import "SentryClient.h"
-#import "SentryCrash.h"
-#include "SentryCrashMonitor_AppState.h"
-#import "SentryCrashReportConverter.h"
-#import "SentryDefines.h"
-#import "SentryEvent.h"
-#import "SentryException.h"
-#import "SentryHub.h"
+
 #import "SentryLogC.h"
 #import "SentrySDK+Private.h"
 #import "SentrySDKInternal.h"
-#import "SentryScope+Private.h"
+#import "SentryStoredCrashReportProcessor.h"
 #import "SentrySwift.h"
-#import "SentryThread.h"
 
 static const NSTimeInterval SENTRY_APP_START_CRASH_DURATION_THRESHOLD = 2.0;
 static const NSTimeInterval SENTRY_APP_START_CRASH_FLUSH_DURATION = 5.0;
 
 @interface SentryCrashReportSink ()
 
-@property (nonatomic, strong) SentryInAppLogic *inAppLogic;
+@property (nonatomic, strong) SentryStoredCrashReportProcessor *reportProcessor;
 @property (nonatomic, strong) id<SentryCrashReporter> crashWrapper;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 
@@ -33,7 +24,15 @@ static const NSTimeInterval SENTRY_APP_START_CRASH_FLUSH_DURATION = 5.0;
                      dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
 {
     if (self = [super init]) {
-        self.inAppLogic = inAppLogic;
+        // SentryCrash retains its legacy batch cleanup policy, so it does not preserve a session
+        // after an unavailable-client capture failure. KSCrash opts into session preservation
+        // because it retains retryable reports individually.
+        self.reportProcessor =
+            [[SentryStoredCrashReportProcessor alloc] initWithInAppLogic:inAppLogic
+                                                      currentHubProvider:^SentryHubInternal * {
+                                                          return SentrySDKInternal.currentHub;
+                                                      }
+                                  preserveCrashedSessionOnCaptureFailure:NO];
         self.crashWrapper = crashWrapper;
         self.dispatchQueue = dispatchQueue;
     }
@@ -66,40 +65,16 @@ static const NSTimeInterval SENTRY_APP_START_CRASH_FLUSH_DURATION = 5.0;
 {
     NSMutableArray *sentReports = [[NSMutableArray alloc] init];
     for (NSDictionary *report in reports) {
-        SentryCrashReportConverter *reportConverter =
-            [[SentryCrashReportConverter alloc] initWithReport:report inAppLogic:self.inAppLogic];
-        if (nil != [SentrySDKInternal.currentHub getClient]) {
-            SentryEvent *event = [reportConverter convertReportToEvent];
-            if (nil != event) {
-                [self handleConvertedEvent:event report:report sentReports:sentReports];
-            }
+        NSError *error = nil;
+        if ([self.reportProcessor processReport:report error:&error]) {
+            [sentReports addObject:report];
         } else {
-            SENTRY_LOG_ERROR(
-                @"Crash reports were found but no [SentrySDK.currentHub getClient] is set. "
-                @"Cannot send crash reports to Sentry. This is probably a misconfiguration, "
-                @"make sure you set the client with [SentrySDK.currentHub bindClient] before "
-                @"calling startCrashHandlerWithError:.");
+            SENTRY_LOG_ERROR(@"Could not process crash report: %@", error.localizedDescription);
         }
     }
     if (onCompletion) {
         onCompletion(sentReports, YES, nil);
     }
-}
-
-- (void)handleConvertedEvent:(SentryEvent *)event
-                      report:(NSDictionary *)report
-                 sentReports:(NSMutableArray *)sentReports
-{
-    [sentReports addObject:report];
-    SentryScope *scope = [[SentryScope alloc] initWithScope:SentrySDKInternal.currentHub.scope];
-
-    if (report[SENTRYCRASH_REPORT_ATTACHMENTS_ITEM]) {
-        for (NSString *ssPath in report[SENTRYCRASH_REPORT_ATTACHMENTS_ITEM]) {
-            [scope addCrashReportAttachmentInPath:ssPath];
-        }
-    }
-
-    [SentrySDKInternal captureFatalEvent:event withScope:scope];
 }
 
 @end

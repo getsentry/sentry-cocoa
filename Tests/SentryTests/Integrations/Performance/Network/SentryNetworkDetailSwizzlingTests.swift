@@ -14,20 +14,23 @@ import XCTest
 ///
 /// Uses postman-echo.com so no local test server is required.
 class SentryNetworkDetailSwizzlingTests: XCTestCase {
-    
+
     private let echoURL = URL(string: "https://postman-echo.com/get")!
-    
-    override func tearDown() {
-        super.tearDown()
+
+    override class func setUp() {
+        super.setUp()
+        startSDK()
+    }
+
+    override class func tearDown() {
         clearTestState()
+        super.tearDown()
     }
 
     // MARK: - Tests
     /// Verifies the swizzle of `-[NSURLSession dataTaskWithRequest:completionHandler:]`
     /// captures response details into the breadcrumb.
     func testDataTaskWithRequest_completionHandler_capturesNetworkDetails() throws {
-        startSDK()
-        
         let transaction = SentrySDK.startTransaction(
             name: "Test", operation: "test", bindToScope: true
         )
@@ -75,8 +78,6 @@ class SentryNetworkDetailSwizzlingTests: XCTestCase {
     /// Verifies the swizzle of `-[NSURLSession dataTaskWithURL:completionHandler:]`
     /// captures response details into the breadcrumb.
     func testDataTaskWithURL_completionHandler_capturesNetworkDetails() throws {
-        startSDK()
-        
         let transaction = SentrySDK.startTransaction(
             name: "Test", operation: "test", bindToScope: true
         )
@@ -121,8 +122,8 @@ class SentryNetworkDetailSwizzlingTests: XCTestCase {
     }
 
     // MARK: - Helpers
-    
-    private func startSDK() {
+
+    private static func startSDK() {
         let options = Options()
         options.dsn = TestConstants.dsnAsString(username: "SentryNetworkDetailSwizzlingTests")
         options.tracesSampleRate = 1.0

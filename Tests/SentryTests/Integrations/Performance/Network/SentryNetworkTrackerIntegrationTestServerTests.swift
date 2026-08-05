@@ -1,5 +1,5 @@
 @_spi(Private) import SentryTestUtils
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 import XCTest
 
 /// You have to start the test server before running this test. You can do this by calling
@@ -208,10 +208,90 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         XCTAssertEqual(statusCode, 400)
     }
 
+    func testSuccessfulRequest_whenTransactionFinishes_shouldMatchEnvelopeSnapshot() throws {
+        // -- Arrange --
+        try ensureTestServerIsRunning()
+        let url = try XCTUnwrap(URL(string: "http://localhost:8081/echo-sentry-trace"))
+        let requestCompleted = expectationAllowingOverFulfill(description: "Request completed")
+        let envelopeCaptured = expectationAllowingOverFulfill(description: "Envelope captured")
+        let transport = startSDK(
+            envelopeCaptured: envelopeCaptured,
+            expectedEnvelopeItemType: SentryEnvelopeItemTypes.transaction
+        ) {
+            self.configureEnvelopeSnapshotOptions($0)
+            $0.enableNetworkBreadcrumbs = false
+        }
+        let transaction = try XCTUnwrap(SentrySDK.startTransaction(
+            name: "Network Envelope Snapshot",
+            operation: "test.network",
+            bindToScope: true
+        ) as? SentryTracer)
+        let dataTask = URLSession.shared.dataTask(with: url) { _, _, error in
+            self.assertNetworkError(error)
+            requestCompleted.fulfill()
+        }
+        defer { dataTask.cancel() }
+
+        // -- Act --
+        dataTask.resume()
+        wait(for: [requestCompleted], timeout: 10)
+        transaction.finish()
+        wait(for: [envelopeCaptured], timeout: 10)
+
+        // -- Assert --
+        XCTAssertEqual(transport.sentEnvelopes.count, 1)
+        let envelope = try XCTUnwrap(transport.sentEnvelopes.first)
+        try NetworkEnvelopeSnapshot.assertMatches(
+            envelope: envelope,
+            resource: "successful-request-transaction",
+            testCase: self
+        )
+    }
+
+    func testFailedRequest_whenCaptureEnabled_shouldMatchEnvelopeSnapshot() throws {
+        // -- Arrange --
+        try ensureTestServerIsRunning()
+        let url = try XCTUnwrap(URL(string: "http://localhost:8081/http-client-error"))
+        let requestCompleted = expectationAllowingOverFulfill(description: "Request completed")
+        let envelopeCaptured = expectationAllowingOverFulfill(description: "Envelope captured")
+        let transport = startSDK(
+            envelopeCaptured: envelopeCaptured,
+            expectedEnvelopeItemType: SentryEnvelopeItemTypes.event
+        ) {
+            self.configureEnvelopeSnapshotOptions($0)
+            $0.enableCaptureFailedRequests = true
+            $0.failedRequestStatusCodes = [HttpStatusCodeRange(statusCode: 400)]
+        }
+        let dataTask = URLSession.shared.dataTask(with: url) { _, _, error in
+            self.assertNetworkError(error)
+            requestCompleted.fulfill()
+        }
+        defer { dataTask.cancel() }
+
+        // -- Act --
+        dataTask.resume()
+        wait(for: [requestCompleted, envelopeCaptured], timeout: 10)
+
+        // -- Assert --
+        XCTAssertEqual(transport.sentEnvelopes.count, 1)
+        let envelope = try XCTUnwrap(transport.sentEnvelopes.first)
+        try NetworkEnvelopeSnapshot.assertMatches(
+            envelope: envelope,
+            resource: "failed-request-event",
+            testCase: self
+        )
+    }
+
     private func assertNetworkError(_ error: Error?) {
         if error != nil {
             XCTFail("Failed to complete request : \(String(describing: error))")
         }
+    }
+
+    private func expectationAllowingOverFulfill(description: String) -> XCTestExpectation {
+        let expectation = expectation(description: description)
+        expectation.assertForOverFulfill = false
+        return expectation
     }
 
     // We can't use a XCTTestExpectation here because we want to retry multiple times.
@@ -259,7 +339,27 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
     }
     // swiftlint:enable avoid_dispatch_groups_in_tests
 
-    private func startSDK(function: String = #function, _ configureOptions: ((Options) -> Void)? = nil) {
+    private func configureEnvelopeSnapshotOptions(_ options: Options) {
+        options.enableAutoSessionTracking = false
+        options.enableAutoBreadcrumbTracking = false
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        options.enableUIViewControllerTracing = false
+        options.enableUserInteractionTracing = false
+#endif
+        options.enableFileIOTracing = false
+        options.enableDataSwizzling = false
+        options.enableCoreDataTracing = false
+        options.releaseName = "io.sentry.network-envelope-snapshot@1.0.0+1"
+        options.environment = "test"
+    }
+
+    @discardableResult
+    private func startSDK(
+        function: String = #function,
+        envelopeCaptured: XCTestExpectation? = nil,
+        expectedEnvelopeItemType: String? = nil,
+        _ configureOptions: ((Options) -> Void)? = nil
+    ) -> EnvelopeCapturingTransport {
         let options = Options()
         options.dsn = TestConstants.dsnAsString(username: "SentryNetworkTrackerIntegrationTestServerTests.\(function)")
         options.tracesSampleRate = 1.0
@@ -267,5 +367,49 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         configureOptions?(options)
 
         SentrySDK.start(options: options)
+
+        let transport = EnvelopeCapturingTransport(
+            expectation: envelopeCaptured,
+            expectedEnvelopeItemType: expectedEnvelopeItemType
+        )
+        let client = SentrySDKInternal.currentHub().client()
+        Dynamic(client).transportAdapter = SentryTransportAdapter(transports: [transport], options: options)
+        return transport
+    }
+
+    private final class EnvelopeCapturingTransport: NSObject, Transport {
+        let sentEnvelopes = Invocations<SentryEnvelope>()
+        private let expectation: XCTestExpectation?
+        private let expectedEnvelopeItemType: String?
+
+        init(expectation: XCTestExpectation?, expectedEnvelopeItemType: String?) {
+            self.expectation = expectation
+            self.expectedEnvelopeItemType = expectedEnvelopeItemType
+        }
+
+        func send(envelope: SentryEnvelope) {
+            if let expectedEnvelopeItemType,
+               !envelope.items.contains(where: { $0.header.type == expectedEnvelopeItemType }) {
+                return
+            }
+            sentEnvelopes.record(envelope)
+            expectation?.fulfill()
+        }
+
+        func store(_ envelope: SentryEnvelope) {}
+
+        func recordLostEvent(_ category: SentryDataCategory, reason: SentryDiscardReason) {}
+
+        func recordLostEvent(
+            _ category: SentryDataCategory,
+            reason: SentryDiscardReason,
+            quantity: UInt
+        ) {}
+
+        func flush(_ timeout: TimeInterval) -> SentryFlushResult {
+            .success
+        }
+
+        func setStartFlushCallback(_ callback: @escaping () -> Void) {}
     }
 }
