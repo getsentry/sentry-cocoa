@@ -26,6 +26,11 @@ import Foundation
         get { wrapped.enableWatchdogTerminationsV2 }
         set { wrapped.enableWatchdogTerminationsV2 = newValue }
     }
+
+    @objc public var enableUIViewControllerInitSwizzling: Bool {
+        get { wrapped.enableUIViewControllerInitSwizzling }
+        set { wrapped.enableUIViewControllerInitSwizzling = newValue }
+    }
 }
 
 // swiftlint:enable missing_docs
