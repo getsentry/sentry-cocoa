@@ -62,6 +62,15 @@ on:
           The name to use for the XCFramework. If not provided, the default name will be used.
         required: false
         type: string
+    secrets:
+      FASTLANE_KEYCHAIN_PASSWORD:
+        required: false
+      MATCH_GIT_PRIVATE_KEY:
+        required: false
+      MATCH_PASSWORD:
+        required: false
+      MATCH_USERNAME:
+        required: false
 
 jobs:
   assemble-xcframework-variant:
