@@ -17,20 +17,14 @@ extension SentryKSCrash {
     /// so KSCrash can apply cleanup and retry decisions to that report independently.
     ///
     /// Completion contract used with KSCrash's `.onSuccess` cleanup policy:
-    /// - Captured report: return the report without an error; KSCrash deletes it.
-    /// - Unsupported or permanently invalid report: return no report and no error; KSCrash consumes
-    ///   it so it cannot permanently block delivery.
-    /// - Retryable failure: return no report and the error; KSCrash retains it for a later launch.
+    /// - Captured report: return `.success` containing the report; KSCrash deletes it.
+    /// - Unsupported or permanently invalid report: return `.success` with no reports; KSCrash
+    ///   consumes it so it cannot permanently block delivery.
+    /// - Retryable failure: return `.failure`; KSCrash retains the report for a later launch.
     final class ReportFilterCore {
         private static let startupCrashDurationThreshold: TimeInterval = 2
         private static let nanosecondsPerSecond: TimeInterval = 1_000_000_000
         private static let errorDomain = "io.sentry.kscrash-report-filter"
-
-        private enum ProcessingOutcome<Report> {
-            case captured(Report)
-            case discarded
-            case retry(any Error)
-        }
 
         private let reportProcessor: any StoredCrashReportProcessing
         private let dispatchQueue: SentryDispatchQueueWrapper
@@ -49,7 +43,7 @@ extension SentryKSCrash {
         func filterReports<Report>(
             _ reports: [Report],
             reportDictionary: @escaping (Report) -> [AnyHashable: Any]?,
-            onCompletion: (([Report]?, (any Error)?) -> Void)? = nil
+            onCompletion: ((Result<[Report], Error>) -> Void)? = nil
         ) {
             guard reports.count <= 1 else {
                 let error = NSError(
@@ -60,16 +54,16 @@ extension SentryKSCrash {
                             "KSCrash report delivery must process one report at a time."
                     ]
                 )
-                onCompletion?([], error)
+                onCompletion?(.failure(error))
                 return
             }
             guard let report = reports.first else {
-                onCompletion?([], nil)
+                onCompletion?(.success([]))
                 return
             }
 
             let operation = processingSession.register {
-                onCompletion?([], ReportProcessingSession.cancellationError)
+                onCompletion?(.failure(ReportProcessingSession.cancellationError))
             }
             guard let operation else {
                 return
@@ -97,21 +91,21 @@ extension SentryKSCrash {
             _ report: Report,
             reportDictionary: (Report) -> [AnyHashable: Any]?,
             operation: ReportProcessingSession.Operation,
-            onCompletion: (([Report]?, (any Error)?) -> Void)?
+            onCompletion: ((Result<[Report], Error>) -> Void)?
         ) {
             guard operation.beginProcessing() else {
                 return
             }
             SentrySDKLog.warning("Startup crash detected.")
             SentrySDKInternal.setDetectedStartUpCrash(true)
-            let outcome = Self.processReport(
+            let result = Self.processReport(
                 report,
                 reportDictionary: reportDictionary,
                 reportProcessor: reportProcessor,
                 operation: operation
             )
             operation.complete {
-                Self.complete(outcome, onCompletion: onCompletion)
+                onCompletion?(result)
             }
         }
 
@@ -119,20 +113,20 @@ extension SentryKSCrash {
             _ report: Report,
             reportDictionary: @escaping (Report) -> [AnyHashable: Any]?,
             operation: ReportProcessingSession.Operation,
-            onCompletion: (([Report]?, (any Error)?) -> Void)?
+            onCompletion: ((Result<[Report], Error>) -> Void)?
         ) {
             dispatchQueue.dispatchAsync { [reportProcessor] in
                 guard operation.beginProcessing() else {
                     return
                 }
-                let outcome = Self.processReport(
+                let result = Self.processReport(
                     report,
                     reportDictionary: reportDictionary,
                     reportProcessor: reportProcessor,
                     operation: operation
                 )
                 operation.complete {
-                    Self.complete(outcome, onCompletion: onCompletion)
+                    onCompletion?(result)
                 }
             }
         }
@@ -142,10 +136,10 @@ extension SentryKSCrash {
             reportDictionary: (Report) -> [AnyHashable: Any]?,
             reportProcessor: any StoredCrashReportProcessing,
             operation: ReportProcessingSession.Operation
-        ) -> ProcessingOutcome<Report> {
+        ) -> Result<[Report], Error> {
             guard let dictionary = reportDictionary(report) else {
                 SentrySDKLog.error("Discarding unsupported KSCrash report type.")
-                return .discarded
+                return .success([])
             }
 
             do {
@@ -159,32 +153,18 @@ extension SentryKSCrash {
                         ? nil
                         : ReportProcessingSession.cancellationError
                 }
-                return .captured(report)
+                return .success([report])
             } catch {
                 guard isPermanentProcessingError(error) else {
                     SentrySDKLog.warning(
                         "Deferring KSCrash report processing after retryable error: \(error.localizedDescription)"
                     )
-                    return .retry(error)
+                    return .failure(error)
                 }
                 SentrySDKLog.error(
                     "Discarding unprocessable KSCrash report: \(error.localizedDescription)"
                 )
-                return .discarded
-            }
-        }
-
-        private static func complete<Report>(
-            _ outcome: ProcessingOutcome<Report>,
-            onCompletion: (([Report]?, (any Error)?) -> Void)?
-        ) {
-            switch outcome {
-            case .captured(let report):
-                onCompletion?([report], nil)
-            case .discarded:
-                onCompletion?([], nil)
-            case .retry(let error):
-                onCompletion?([], error)
+                return .success([])
             }
         }
 

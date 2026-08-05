@@ -54,18 +54,16 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
     func testFilterReports_whenReportTypeIsUnsupported_shouldConsumeWithoutCapturing() throws {
         let unsupportedReport = TestReport(dictionary: nil)
 
-        var processedReports: [TestReport]?
-        var processingError: Error?
+        var completionResult: Result<[TestReport], Error>?
         sut.filterReports(
             [unsupportedReport],
             reportDictionary: { $0.dictionary }
-        ) { reports, error in
-            processedReports = reports
-            processingError = error
+        ) { result in
+            completionResult = result
         }
 
-        XCTAssertNil(processingError)
-        XCTAssertEqual(processedReports?.count, 0)
+        let processedReports = try XCTUnwrap(completionResult).get()
+        XCTAssertEqual(processedReports.count, 0)
         XCTAssertEqual(try getTestClient().captureFatalEventInvocations.count, 0)
     }
 
@@ -74,18 +72,16 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
             dictionary: try getCrashReport(resource: "Resources/Crash-faulty-report")
         )
 
-        var processedReports: [TestReport]?
-        var processingError: Error?
+        var completionResult: Result<[TestReport], Error>?
         sut.filterReports(
             [invalidReport],
             reportDictionary: { $0.dictionary }
-        ) { reports, error in
-            processedReports = reports
-            processingError = error
+        ) { result in
+            completionResult = result
         }
 
-        XCTAssertNil(processingError)
-        XCTAssertEqual(processedReports?.count, 0)
+        let processedReports = try XCTUnwrap(completionResult).get()
+        XCTAssertEqual(processedReports.count, 0)
         XCTAssertEqual(try getTestClient().captureFatalEventInvocations.count, 0)
     }
 
@@ -97,18 +93,17 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
             dictionary: try getCrashReport(resource: "Resources/crash-report-1")
         )
 
-        var processedReports: [TestReport]?
-        var processingError: Error?
+        var completionResult: Result<[TestReport], Error>?
         sut.filterReports(
             [firstReport, secondReport],
             reportDictionary: { $0.dictionary }
-        ) { reports, error in
-            processedReports = reports
-            processingError = error
+        ) { result in
+            completionResult = result
         }
 
-        XCTAssertNotNil(processingError)
-        XCTAssertEqual(processedReports?.count, 0)
+        guard case .failure = try XCTUnwrap(completionResult) else {
+            return XCTFail("Expected report processing to fail")
+        }
         XCTAssertEqual(dispatchQueue.dispatchAsyncCalled, 0)
         XCTAssertEqual(try getTestClient().captureFatalEventInvocations.count, 0)
     }
@@ -120,14 +115,12 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
             dictionary: try getCrashReport(resource: "Resources/crash-report-1")
         )
         let client = try getTestClient()
-        var processedReports: [TestReport]?
-        var processingError: Error?
+        var completionResult: Result<[TestReport], Error>?
         sut.filterReports(
             [report],
             reportDictionary: { $0.dictionary }
-        ) { reports, error in
-            processedReports = reports
-            processingError = error
+        ) { result in
+            completionResult = result
         }
         SentrySDKInternal.setCurrentHub(SentryHubInternal(client: nil, andScope: nil))
 
@@ -136,8 +129,10 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
 
         // -- Assert --
         XCTAssertEqual(client.captureFatalEventInvocations.count, 0)
-        XCTAssertEqual(processedReports?.count, 0)
-        let error = try XCTUnwrap(processingError as NSError?)
+        guard case .failure(let processingError) = try XCTUnwrap(completionResult) else {
+            return XCTFail("Expected report processing to fail")
+        }
+        let error = processingError as NSError
         XCTAssertEqual(error.domain, SentryStoredCrashReportProcessorErrorDomain)
         XCTAssertEqual(error.code, SentryStoredCrashReportProcessorError.missingClient.rawValue)
     }
@@ -148,15 +143,13 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
         let report = TestReport(dictionary: try makeCrashReport(durationSinceInitialization: 2.001))
         let client = try getTestClient()
         var completionInvocationCount = 0
-        var processedReports: [TestReport]?
-        var processingError: Error?
+        var completionResult: Result<[TestReport], Error>?
         sut.filterReports(
             [report],
             reportDictionary: { $0.dictionary }
-        ) { reports, error in
+        ) { result in
             completionInvocationCount += 1
-            processedReports = reports
-            processingError = error
+            completionResult = result
         }
 
         // -- Act --
@@ -164,8 +157,10 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
 
         // -- Assert --
         XCTAssertEqual(completionInvocationCount, 1)
-        XCTAssertEqual(processedReports?.count, 0)
-        XCTAssertEqual(processingError as NSError?, SentryKSCrash.ReportProcessingSession.cancellationError)
+        guard case .failure(let processingError) = try XCTUnwrap(completionResult) else {
+            return XCTFail("Expected report processing to fail")
+        }
+        XCTAssertEqual(processingError as NSError, SentryKSCrash.ReportProcessingSession.cancellationError)
         XCTAssertEqual(client.captureFatalEventInvocations.count, 0)
 
         // -- Act --
@@ -176,7 +171,7 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual(client.captureFatalEventInvocations.count, 0)
     }
 
-    func testFilterReports_whenCancelledAfterProcessingBeginsBeforeCaptureGate_shouldNotCapture() {
+    func testFilterReports_whenCancelledAfterProcessingBeginsBeforeCaptureGate_shouldNotCapture() throws {
         // -- Arrange --
         let processor = TestReportProcessor()
         let core = SentryKSCrash.ReportFilterCore(
@@ -189,27 +184,27 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
         }
         let report = TestReport(dictionary: [:])
         var completionInvocationCount = 0
-        var processedReports: [TestReport]?
-        var processingError: Error?
+        var completionResult: Result<[TestReport], Error>?
 
         // -- Act --
         core.filterReports(
             [report],
             reportDictionary: { $0.dictionary }
-        ) { reports, error in
+        ) { result in
             completionInvocationCount += 1
-            processedReports = reports
-            processingError = error
+            completionResult = result
         }
 
         // -- Assert --
         XCTAssertEqual(completionInvocationCount, 1)
-        XCTAssertEqual(processedReports?.count, 0)
-        XCTAssertEqual(processingError as NSError?, SentryKSCrash.ReportProcessingSession.cancellationError)
+        guard case .failure(let processingError) = try XCTUnwrap(completionResult) else {
+            return XCTFail("Expected report processing to fail")
+        }
+        XCTAssertEqual(processingError as NSError, SentryKSCrash.ReportProcessingSession.cancellationError)
         XCTAssertEqual(processor.capturedReportCount, 0)
     }
 
-    func testFilterReports_whenCancelledAfterCaptureCommit_shouldCompleteWithCaptureResult() {
+    func testFilterReports_whenCancelledAfterCaptureCommit_shouldCompleteWithCaptureResult() throws {
         // -- Arrange --
         let processor = TestReportProcessor()
         let core = SentryKSCrash.ReportFilterCore(
@@ -222,23 +217,21 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
         }
         let report = TestReport(dictionary: [:])
         var completionInvocationCount = 0
-        var processedReports: [TestReport]?
-        var processingError: Error?
+        var completionResult: Result<[TestReport], Error>?
 
         // -- Act --
         core.filterReports(
             [report],
             reportDictionary: { $0.dictionary }
-        ) { reports, error in
+        ) { result in
             completionInvocationCount += 1
-            processedReports = reports
-            processingError = error
+            completionResult = result
         }
 
         // -- Assert --
         XCTAssertEqual(completionInvocationCount, 1)
-        XCTAssertIdentical(processedReports?.first, report)
-        XCTAssertNil(processingError)
+        let processedReports = try XCTUnwrap(completionResult).get()
+        XCTAssertIdentical(processedReports.first, report)
         XCTAssertEqual(processor.capturedReportCount, 1)
     }
 
@@ -256,15 +249,15 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
         let report = TestReport(dictionary: try makeCrashReport(durationSinceInitialization: 1))
         let client = try getTestClient()
         var completionInvocationCount = 0
-        var processingError: Error?
+        var completionResult: Result<[TestReport], Error>?
 
         // -- Act --
         core.filterReports(
             [report],
             reportDictionary: { $0.dictionary }
-        ) { _, error in
+        ) { result in
             completionInvocationCount += 1
-            processingError = error
+            completionResult = result
         }
 
         // -- Assert --
@@ -272,7 +265,10 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual(processor.capturedReportCount, 0)
         XCTAssertEqual(client.flushInvocations.count, 0)
         XCTAssertEqual(completionInvocationCount, 1)
-        XCTAssertEqual(processingError as NSError?, SentryKSCrash.ReportProcessingSession.cancellationError)
+        guard case .failure(let processingError) = try XCTUnwrap(completionResult) else {
+            return XCTFail("Expected report processing to fail")
+        }
+        XCTAssertEqual(processingError as NSError, SentryKSCrash.ReportProcessingSession.cancellationError)
     }
 
     func testFilterReports_whenOldConversionIsReleasedAfterRestart_shouldNotCaptureThroughNewHub() throws {
@@ -294,13 +290,13 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
         }
         let oldReport = TestReport(dictionary: try makeCrashReport(durationSinceInitialization: 2.001))
         var oldCompletionInvocationCount = 0
-        var oldProcessingError: Error?
+        var oldCompletionResult: Result<[TestReport], Error>?
         oldCore.filterReports(
             [oldReport],
             reportDictionary: { $0.dictionary }
-        ) { _, error in
+        ) { result in
             oldCompletionInvocationCount += 1
-            oldProcessingError = error
+            oldCompletionResult = result
         }
         DispatchQueue.global().async { [dispatchQueue] in
             dispatchQueue?.invokeLastDispatchAsync()
@@ -335,7 +331,10 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
 
         // -- Assert --
         XCTAssertEqual(oldCompletionInvocationCount, 1)
-        XCTAssertEqual(oldProcessingError as NSError?, SentryKSCrash.ReportProcessingSession.cancellationError)
+        guard case .failure(let oldProcessingError) = try XCTUnwrap(oldCompletionResult) else {
+            return XCTFail("Expected report processing to fail")
+        }
+        XCTAssertEqual(oldProcessingError as NSError, SentryKSCrash.ReportProcessingSession.cancellationError)
         XCTAssertEqual(oldProcessor.capturedReportCount, 0)
         XCTAssertEqual(oldClient.captureFatalEventInvocations.count, 0)
         XCTAssertEqual(replacementClient.captureFatalEventInvocations.count, 1)
@@ -361,7 +360,7 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
         sut.filterReports(
             [report],
             reportDictionary: { $0.dictionary }
-        ) { _, _ in
+        ) { _ in
             completionCalled = true
         }
 
@@ -379,15 +378,15 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
         let report = TestReport(dictionary: try makeCrashReport(durationSinceInitialization: 2))
         let client = try getTestClient()
         var captureInvocationCountAtCompletion: Int?
-        var processedReports: [TestReport]?
+        var completionResult: Result<[TestReport], Error>?
 
         // -- Act --
         sut.filterReports(
             [report],
             reportDictionary: { $0.dictionary }
-        ) { reports, _ in
+        ) { result in
             captureInvocationCountAtCompletion = client.captureFatalEventInvocations.count
-            processedReports = reports
+            completionResult = result
         }
 
         // -- Assert --
@@ -395,7 +394,8 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual(client.captureFatalEventInvocations.count, 1)
         XCTAssertEqual(client.flushInvocations.count, 0)
         XCTAssertEqual(captureInvocationCountAtCompletion, 1)
-        XCTAssertIdentical(processedReports?.first, report)
+        let processedReports = try XCTUnwrap(completionResult).get()
+        XCTAssertIdentical(processedReports.first, report)
         XCTAssertTrue(SentrySDK.detectedStartUpCrash)
     }
 
@@ -410,7 +410,7 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
         sut.filterReports(
             [report],
             reportDictionary: { $0.dictionary }
-        ) { _, _ in
+        ) { _ in
             completionCalled = true
         }
 

@@ -27,9 +27,15 @@ extension SentryKSCrash {
         ) {
             core.filterReports(
                 reports,
-                reportDictionary: { ($0 as? CrashReportDictionary)?.value },
-                onCompletion: onCompletion
-            )
+                reportDictionary: { ($0 as? CrashReportDictionary)?.value }
+            ) { result in
+                switch result {
+                case .success(let reports):
+                    onCompletion?(reports, nil)
+                case .failure(let error):
+                    onCompletion?([], error)
+                }
+            }
         }
     }
 }

@@ -63,69 +63,120 @@ extension SentryKSCrash {
             }
 
             guard didRegister else {
+                SentrySDKLog.debug(
+                    "Rejecting KSCrash report processing operation \(identifier) because the session is cancelled."
+                )
                 onCancellation()
                 return nil
             }
+            SentrySDKLog.debug("Registered KSCrash report processing operation \(identifier).")
             return Operation(identifier: identifier, session: self)
         }
 
         func cancel() {
-            let cancellationCallbacks = state.withLock { state -> [() -> Void] in
+            let cancellation = state.withLock { state -> (
+                didCancel: Bool,
+                operations: [(identifier: UUID, callback: () -> Void)],
+                committedOperationCount: Int
+            ) in
                 guard !state.isCancelled else {
-                    return []
+                    return (false, [], 0)
                 }
                 state.isCancelled = true
 
-                var callbacks: [() -> Void] = []
-                var cancelledOperationIDs: [UUID] = []
+                var operations: [(identifier: UUID, callback: () -> Void)] = []
+                var committedOperationCount = 0
                 for (identifier, operation) in state.operations {
                     switch operation {
                     case .pending(let onCancellation), .processing(let onCancellation):
-                        callbacks.append(onCancellation)
-                        cancelledOperationIDs.append(identifier)
+                        operations.append((identifier, onCancellation))
                     case .captureCommitted:
-                        break
+                        committedOperationCount += 1
                     }
                 }
-                for identifier in cancelledOperationIDs {
-                    state.operations.removeValue(forKey: identifier)
+                for operation in operations {
+                    state.operations.removeValue(forKey: operation.identifier)
                 }
-                return callbacks
+                return (true, operations, committedOperationCount)
             }
 
-            for callback in cancellationCallbacks {
-                callback()
+            guard cancellation.didCancel else {
+                SentrySDKLog.debug("Ignoring repeated KSCrash report processing session cancellation.")
+                return
+            }
+            SentrySDKLog.debug(
+                "Cancelling KSCrash report processing session with \(cancellation.operations.count) active operation(s); allowing \(cancellation.committedOperationCount) committed capture(s) to complete."
+            )
+            for operation in cancellation.operations {
+                SentrySDKLog.debug(
+                    "Cancelling KSCrash report processing operation \(operation.identifier)."
+                )
+                operation.callback()
             }
         }
 
         private func beginProcessing(identifier: UUID) -> Bool {
-            state.withLock { state in
+            let didBegin = state.withLock { state in
                 guard case .pending(let onCancellation) = state.operations[identifier] else {
                     return false
                 }
                 state.operations[identifier] = .processing(onCancellation: onCancellation)
                 return true
             }
+            if didBegin {
+                SentrySDKLog.debug("Began KSCrash report processing operation \(identifier).")
+            } else {
+                SentrySDKLog.debug(
+                    "Skipping KSCrash report processing operation \(identifier) because it is no longer pending."
+                )
+            }
+            return didBegin
         }
 
         private func commitCapture(identifier: UUID) -> Bool {
-            let cancellationCallback = state.withLock { state -> (() -> Void)? in
-                guard case .processing(let onCancellation) = state.operations[identifier] else {
-                    return nil
+            let didCommit = state.withLock { state in
+                guard case .processing = state.operations[identifier] else {
+                    return false
                 }
                 state.operations[identifier] = .captureCommitted
-                return onCancellation
+                return true
             }
-            return cancellationCallback != nil
+            if didCommit {
+                SentrySDKLog.debug(
+                    "Committed capture for KSCrash report processing operation \(identifier)."
+                )
+            } else {
+                SentrySDKLog.debug(
+                    "Skipping capture commit for KSCrash report processing operation \(identifier) because it is no longer processing."
+                )
+            }
+            return didCommit
         }
 
         private func complete(identifier: UUID, completion: () -> Void) {
             let completedOperation = state.withLock { state in
                 state.operations.removeValue(forKey: identifier)
             }
-            if completedOperation != nil {
-                completion()
+            guard let completedOperation else {
+                SentrySDKLog.debug(
+                    "Ignoring completion for KSCrash report processing operation \(identifier) because it is no longer active."
+                )
+                return
             }
+
+            let operationState: String
+            switch completedOperation {
+            case .pending:
+                operationState = "pending"
+            case .processing:
+                operationState = "processing"
+            case .captureCommitted:
+                operationState = "capture-committed"
+            }
+            SentrySDKLog.debug(
+                "Completing KSCrash report processing operation \(identifier) from the \(operationState) state."
+            )
+            completion()
         }
     }
 }
