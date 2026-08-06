@@ -217,6 +217,7 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(cachedID, nonCachedID)
     }
     
+#if !SENTRY_DISABLE_SENTRYCRASH_V10
     func testInit_WhenUsingStandaloneClient_shouldStartBinaryImageCache() throws {
         SentryDependencyContainer.sharedInstance().crashWrapper.stopBinaryImageCache()
         SentryDependencyContainer.sharedInstance().binaryImageCache.stop()
@@ -236,6 +237,7 @@ final class SentryClientTests: XCTestCase {
         let cache = try XCTUnwrap(SentryDependencyContainer.sharedInstance().binaryImageCache.cache)
         XCTAssertGreaterThan(cache.count, 0)
     }
+#endif
 
     func testClientIsEnabled() {
         XCTAssertTrue(fixture.getSut().isEnabled)

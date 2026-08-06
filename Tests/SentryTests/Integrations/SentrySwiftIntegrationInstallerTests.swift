@@ -38,9 +38,14 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         SentrySwiftIntegrationInstaller.install(with: options)
 
         // Assert
+#if SENTRY_DISABLE_SENTRYCRASH_V10
+        XCTAssertTrue(testHub.installedIntegrationNames().isEmpty)
+        XCTAssertTrue(testHub.installedIntegrations().isEmpty)
+#else
         XCTAssertEqual(testHub.installedIntegrationNames().count, 1)
         XCTAssertEqual(try XCTUnwrap(testHub.installedIntegrationNames().first), "SentrySwiftAsyncIntegration")
         XCTAssertEqual(testHub.installedIntegrations().count, 1)
+#endif
     }
 
     func testInstall_WithDisabledIntegration_DoesNotAddIntegration() {

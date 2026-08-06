@@ -40,6 +40,7 @@ import Foundation
             }
             self.isDebug = isDebug
             self.cache = []
+#if !SENTRY_DISABLE_SENTRYCRASH_V10
             sentrycrashbic_registerAddedCallback { imagePtr in
                 guard let imagePtr else {
                     SentrySDKLog.warning("The image is NULL. Can't add NULL to cache.")
@@ -57,6 +58,7 @@ import Foundation
                 let image = imagePtr.pointee
                 SentryDependencyContainer.sharedInstance().binaryImageCache.binaryImageRemoved(image.address)
             }
+#endif
         }
     }
     
@@ -66,8 +68,10 @@ import Foundation
                 SentrySDKLog.debug("SentryBinaryImageCache is already stopped. Skipping stop.")
                 return
             }
+#if !SENTRY_DISABLE_SENTRYCRASH_V10
             sentrycrashbic_registerAddedCallback(nil)
             sentrycrashbic_registerRemovedCallback(nil)
+#endif
             self.cache = nil
         }
     }
@@ -127,7 +131,7 @@ import Foundation
                                                 dispatchQueueWrapper: Dependencies.dispatchQueueWrapper)
         }
     }
-    
+
     @objc
     private static func convertUUID(_ value: UnsafePointer<UInt8>?) -> String? {
         guard let value = value else { return nil }
@@ -136,7 +140,7 @@ import Foundation
         sentrycrashdl_convertBinaryImageUUID(value, &uuidBuffer)
         return String(cString: uuidBuffer, encoding: .ascii)
     }
-    
+
     @objc
     func binaryImageRemoved(_ imageAddress: UInt64) {
         lock.synchronized {

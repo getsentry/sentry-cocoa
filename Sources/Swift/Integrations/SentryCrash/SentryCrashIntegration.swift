@@ -1,3 +1,4 @@
+#if !SENTRY_DISABLE_SENTRYCRASH_V10
 internal import _SentryPrivate
 import Foundation
 
@@ -319,3 +320,4 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         sentrycrash_setSaveTransaction(sentry_finishAndSaveTransaction)
     }
 }
+#endif // !SENTRY_DISABLE_SENTRYCRASH_V10

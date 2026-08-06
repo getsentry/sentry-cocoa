@@ -444,7 +444,11 @@ class SentrySDKInternalTests: XCTestCase {
         }
 
         let hub = SentrySDKInternal.currentHub()
+#if SENTRY_DISABLE_SENTRYCRASH_V10
+        XCTAssertEqual(0, hub.installedIntegrations().count)
+#else
         XCTAssertEqual(1, hub.installedIntegrations().count)
+#endif
         SentrySDK.close()
         XCTAssertEqual(0, hub.installedIntegrations().count)
         assertIntegrationsInstalled(integrations: [])
@@ -513,6 +517,7 @@ class SentrySDKInternalTests: XCTestCase {
         XCTAssertFalse(deviceWrapper.started)
     }
 
+#if !SENTRY_DISABLE_SENTRYCRASH_V10
     /// Ensure to start the UIDeviceWrapper before initializing the hub, so enrich scope sets the correct OS version.
     func testStartSDK_ScopeContextContainsOSVersion() throws {
         let expectation = XCTestExpectation(description: "SentrySDK start called")
@@ -533,6 +538,7 @@ class SentrySDKInternalTests: XCTestCase {
         XCTAssertEqual(UIDevice.current.systemVersion, os["version"] as? String)
 #endif
     }
+#endif // !SENTRY_DISABLE_SENTRYCRASH_V10
 #endif
 
     func testResumeAndPauseAppHangTracking() throws {

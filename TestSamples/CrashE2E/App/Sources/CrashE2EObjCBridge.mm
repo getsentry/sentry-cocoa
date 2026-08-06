@@ -130,14 +130,10 @@ CrashE2EFakeManagedRuntimeSignalHandler(int signal, siginfo_t *info, void *conte
         (void)bytesWritten;
     }
 
-    // The intended chain is managed runtime -> SentryCrash/KSCrash -> system. This fake handler
-    // stands in for .NET/Mono after SentryCrash's preload constructor has installed the early
-    // signal handler.
-    //
-    // KSCRASH_TODO: SentryV10 still compiles that SentryCrash constructor, so a green marker
-    // currently proves only that the fake handler ran, not that a KSCrash-owned preloader/plugin
-    // established the intended order. Rectify this when managed-runtime handling moves to KSCrash.
-    // Tracked in https://github.com/getsentry/sentry-cocoa/issues/8528.
+    // The intended chain is managed runtime -> crash reporter -> system. This fake handler stands
+    // in for .NET/Mono after the reporter's early signal handler has been installed. SentryCrash
+    // provides that preloader; KSCrash does not yet, so its managed-runtime scenarios expose the
+    // missing handler ordering.
     //
     // Recoverable managed faults are intentionally out of scope: with the correct
     // order, the managed runtime handles them without ever calling Sentry. This handler forwards

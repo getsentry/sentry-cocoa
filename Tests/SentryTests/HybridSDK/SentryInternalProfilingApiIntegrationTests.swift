@@ -152,9 +152,13 @@ class SentryInternalProfilingApiIntegrationTests: XCTestCase {
         )
 
         // -- Assert --
+#if SENTRY_DISABLE_SENTRYCRASH_V10
+        XCTAssertNil(payload?["debug_meta"])
+#else
         let debugMeta = try XCTUnwrap(payload?["debug_meta"] as? [String: Any])
         let images = try XCTUnwrap(debugMeta["images"] as? [[String: Any]])
         XCTAssertFalse(images.isEmpty)
+#endif
     }
 
     func testCollect_withoutStart_shouldReturnNil() {

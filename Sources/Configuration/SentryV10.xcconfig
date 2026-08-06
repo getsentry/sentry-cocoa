@@ -1,17 +1,19 @@
 #include "Sentry.xcconfig"
 
 // This target provides the KSCrash-backed SDK used by all V10 configurations.
-GCC_PREPROCESSOR_DEFINITIONS = $(GCC_PREPROCESSOR_DEFINITIONS_$(CONFIGURATION)) SDK_V10=1
-SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(SWIFT_ACTIVE_COMPILATION_CONDITIONS_$(CONFIGURATION)) SDK_V10
+// SENTRY_DISABLE_SENTRYCRASH_V10 is temporary while dependencies on the legacy recorder are removed.
+GCC_PREPROCESSOR_DEFINITIONS = $(GCC_PREPROCESSOR_DEFINITIONS_$(CONFIGURATION)) SDK_V10=1 SENTRY_DISABLE_SENTRYCRASH_V10=1
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(SWIFT_ACTIVE_COMPILATION_CONDITIONS_$(CONFIGURATION)) SDK_V10 SENTRY_DISABLE_SENTRYCRASH_V10
 IMPLICIT_DEPENDENCY_DOMAIN = SentryV10
 
 // The KSCrash variant must still build Sentry.framework because Clang framework
 // module lookup and the public umbrella header both expect the Sentry bundle name.
 PRODUCT_NAME = $(PRODUCT_MODULE_NAME)
 
-// Sentry.xcconfig excludes KSCrash sources from the plain Sentry target.
-// This target owns those files, so clear the exclusion.
-EXCLUDED_SOURCE_FILE_NAMES =
+// Sentry.xcconfig excludes KSCrash sources from the plain Sentry target. The KSCrash variant owns
+// those files, but must not compile SentryCrash's recorder alongside upstream KSCrash. Keep the
+// low-level tools that are still shared by reporter-neutral SDK features until they are migrated.
+EXCLUDED_SOURCE_FILE_NAMES = $(SRCROOT)/Sources/SentryCrash/Installations/* $(SRCROOT)/Sources/SentryCrash/Reporting/*/* $(SRCROOT)/Sources/SentryCrash/Reporting/*/*/* $(SRCROOT)/Sources/SentryCrash/Recording/Monitors/* $(SRCROOT)/Sources/SentryCrash/Recording/SentryCrash* $(SRCROOT)/Sources/SentryCrash/Recording/Tools/SentryCrashCxaThrowSwapper.* $(SRCROOT)/Sources/Sentry/SentryCrashReportSink.m $(SRCROOT)/Sources/Sentry/SentryCrashScopeObserver.m $(SRCROOT)/Sources/Swift/Integrations/SentryCrash/* $(SRCROOT)/Sources/Swift/SentryCrash/SentryCrashSwift.swift $(SRCROOT)/Sources/Swift/SentryCrash/SentryDefaultCrashReporter.swift
 
 // Add Sources/Sentry/Public to header search paths so that _SentryPrivate module compilation
 // can find SentryProfilingConditionals.h (a public header not under include/).

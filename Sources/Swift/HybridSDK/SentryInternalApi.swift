@@ -98,7 +98,9 @@ public struct SentryInternalApi {
 
     /// Tells the crash reporter to ignore the next occurrence of the given signal on the calling thread.
     public func ignoreNextSignal(_ signum: Int32) {
+#if !SENTRY_DISABLE_SENTRYCRASH_V10
         sentrycrash_ignore_next_signal(signum)
+#endif
     }
 
     /// Returns the current SDK options, or a default instance if the SDK has not been started.

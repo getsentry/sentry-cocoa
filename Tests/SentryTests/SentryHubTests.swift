@@ -210,6 +210,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertNil(hub.scope.serialize()["breadcrumbs"])
     }
     
+#if !SENTRY_DISABLE_SENTRYCRASH_V10
     func testScopeEnriched_WithInitializer() {
         let hub = SentryHubInternal(client: nil, andScope: Scope())
         XCTAssertFalse(hub.scope.contextDictionary.allValues.isEmpty)
@@ -284,6 +285,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(runtimeContext["name"], "Mac Catalyst App")
         XCTAssertEqual(runtimeContext["raw_description"], "mac-catalyst-app")
     }
+#endif // !SENTRY_DISABLE_SENTRYCRASH_V10
 
     func testScopeNotEnriched_WhenScopeIsNil() {
         _ = fixture.getSut()
@@ -291,6 +293,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertFalse(fixture.sentryCrashWrapper.enrichScopeCalled)
     }
     
+#if !SENTRY_DISABLE_SENTRYCRASH_V10
     func testScopeEnriched_WhenCreatingDefaultScope() {
         let hub = SentryHubInternal(client: nil, andScope: nil)
         
@@ -300,6 +303,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertNotNil(scope.contextDictionary["device"])
         XCTAssertNotNil(scope.contextDictionary["app"])
     }
+#endif // !SENTRY_DISABLE_SENTRYCRASH_V10
     
     func testAddBreadcrumb_WithCallbackModifies() {
         let crumbMessage = "modified"

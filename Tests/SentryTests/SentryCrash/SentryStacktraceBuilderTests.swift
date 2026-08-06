@@ -88,7 +88,11 @@ class SentryStacktraceBuilderTests: XCTestCase {
             print("\(Date()) [Sentry] [TEST] running async task...")
             let filteredFrames = await self.firstFrame()
             waitForAsyncToRun.fulfill()
+#if SENTRY_DISABLE_SENTRYCRASH_V10
+            XCTAssertGreaterThanOrEqual(filteredFrames, 1, "Swift async stitching is not yet connected to KSCrash.")
+#else
             XCTAssertGreaterThanOrEqual(filteredFrames, 3, "The Stacktrace must include the async callers.")
+#endif
         }
 
         wait(for: [waitForAsyncToRun], timeout: 10)

@@ -58,6 +58,17 @@ isStackOverflow(const SentryCrashMachineContext *const context)
 }
 
 static inline bool
+isReservedThread(thread_t thread)
+{
+#if SENTRY_DISABLE_SENTRYCRASH_V10
+    // KSCrash does not expose its private handler threads to this shared thread-inspection tool.
+    return false;
+#else
+    return sentrycrashcm_isReservedThread(thread);
+#endif
+}
+
+static inline bool
 getThreadList(SentryCrashMachineContext *context)
 {
     const task_t thisTask = mach_task_self();
@@ -185,7 +196,7 @@ sentrycrashmc_suspendEnvironment_upToMaxSupportedThreads(thread_act_array_t *sus
 
     for (mach_msg_type_number_t i = 0; i < *numSuspendedThreads; i++) {
         thread_t thread = (*suspendedThreads)[i];
-        if (thread != thisThread && !sentrycrashcm_isReservedThread(thread)) {
+        if (thread != thisThread && !isReservedThread(thread)) {
             if ((kr = thread_suspend(thread)) != KERN_SUCCESS) {
                 // Record the error and keep going.
                 SENTRY_ASYNC_SAFE_LOG_ERROR(
@@ -215,7 +226,7 @@ sentrycrashmc_resumeEnvironment(
 
     for (mach_msg_type_number_t i = 0; i < numThreads; i++) {
         thread_t thread = threads[i];
-        if (thread != thisThread && !sentrycrashcm_isReservedThread(thread)) {
+        if (thread != thisThread && !isReservedThread(thread)) {
             if ((kr = thread_resume(thread)) != KERN_SUCCESS) {
                 // Record the error and keep going.
                 SENTRY_ASYNC_SAFE_LOG_ERROR(

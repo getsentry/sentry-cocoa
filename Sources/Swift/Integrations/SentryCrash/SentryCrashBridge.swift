@@ -1,3 +1,4 @@
+#if !SENTRY_DISABLE_SENTRYCRASH_V10
 internal import _SentryPrivate
 import Foundation
 
@@ -109,3 +110,4 @@ import UIKit
         super.init()
     }
 }
+#endif // !SENTRY_DISABLE_SENTRYCRASH_V10

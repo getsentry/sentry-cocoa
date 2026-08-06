@@ -389,7 +389,9 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (void)ignoreNextSignal:(int)signum
 {
+#if !SENTRY_DISABLE_SENTRYCRASH_V10
     sentrycrash_ignore_next_signal(signum);
+#endif
 }
 
 @end

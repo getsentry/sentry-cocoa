@@ -7,6 +7,7 @@ extension XCTestCase {
         return try Data(contentsOf: URL(fileURLWithPath: jsonPath ?? ""))
     }
     
+#if !SENTRY_DISABLE_SENTRYCRASH_V10
     func givenStoredSentryCrashReport(resource: String) throws {
         let jsonData = try jsonDataOfResource(resource: resource)
         jsonData.withUnsafeBytes { ( bytes: UnsafeRawBufferPointer) in
@@ -14,6 +15,7 @@ extension XCTestCase {
             sentrycrashcrs_addUserReport(pointer.baseAddress, Int32(jsonData.count))
         }
     }
+#endif
     
     func getCrashReport(resource: String) throws -> [String: Any] {
         let jsonData = try jsonDataOfResource(resource: resource)
