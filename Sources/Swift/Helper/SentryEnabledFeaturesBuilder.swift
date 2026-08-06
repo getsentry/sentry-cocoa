@@ -52,7 +52,7 @@ import Foundation
         if options.enableMetrics {
             features.append("metrics")
         }
-        if options.experimental.enableStandaloneAppStartTracing {
+        if options.enableStandaloneAppStartTracing {
             features.append("standaloneAppStartTracing")
         }
         if options.experimental.enableWatchdogTerminationsV2 {

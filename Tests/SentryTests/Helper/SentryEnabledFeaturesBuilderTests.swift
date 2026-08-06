@@ -308,7 +308,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     func testEnableStandaloneAppStartTracing_isEnabled_shouldAddFeature() throws {
         // -- Arrange --
         let options = Options()
-        options.experimental.enableStandaloneAppStartTracing = true
+        options.enableStandaloneAppStartTracing = true
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
@@ -320,7 +320,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     func testEnableStandaloneAppStartTracing_isDisabled_shouldNotAddFeature() throws {
         // -- Arrange --
         let options = Options()
-        options.experimental.enableStandaloneAppStartTracing = false
+        options.enableStandaloneAppStartTracing = false
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)

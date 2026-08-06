@@ -4,6 +4,7 @@
 
 ### Features
 
+- Promote `enableStandaloneAppStartTracing` from `options.experimental` to a top-level option on `Options` (#TBD)
 - Add experimental option `enableUIViewControllerInitSwizzling` that defers `UIViewController` swizzling to first instantiation instead of eagerly discovering and swizzling all subclasses at SDK start. This avoids realizing `@available`-gated `UIViewController` subclasses on OS versions below their gate, which crashes apps on start (#8687).
 
 ### Fixes
