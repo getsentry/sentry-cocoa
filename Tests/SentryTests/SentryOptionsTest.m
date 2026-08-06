@@ -792,7 +792,11 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     XCTAssertEqualObjects([[NSSet alloc] init], options.swizzleClassNameExcludes);
     XCTAssertEqual(YES, options.enableFileIOTracing);
     XCTAssertEqual(YES, options.enableAutoBreadcrumbTracking);
+#if SDK_V10
+    XCTAssertTrue(options.swiftAsyncStacktraces);
+#else
     XCTAssertFalse(options.swiftAsyncStacktraces);
+#endif // SDK_V10
 
 #if SENTRY_HAS_METRIC_KIT
     XCTAssertEqual(NO, options.enableMetricKit);
@@ -1237,13 +1241,21 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 - (void)testDefaultSwiftAsyncStacktraces
 {
     SentryOptions *options = [[SentryOptions alloc] init];
+#if SDK_V10
+    XCTAssertTrue(options.swiftAsyncStacktraces);
+#else
     XCTAssertFalse(options.swiftAsyncStacktraces);
+#endif // SDK_V10
 }
 
 - (void)testInitialSwiftAsyncStacktraces
 {
     SentryOptions *options = [self getValidOptions:@{ }];
+#if SDK_V10
+    XCTAssertTrue(options.swiftAsyncStacktraces);
+#else
     XCTAssertFalse(options.swiftAsyncStacktraces);
+#endif // SDK_V10
 }
 
 - (void)testInitialSwiftAsyncStacktracesYes
