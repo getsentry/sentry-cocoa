@@ -27,8 +27,18 @@ import UIKit
     @objc public func relevantViewControllersNames() -> [String]? {
         internal_relevantViewControllersNames()
     }
-    
+
     @objc public var unsafeApplicationState: State {
+        // As of August 2026, this was only called along one code path - ThreadsafeApplication's initializer
+        // which uses it to determine the initial state exactly once. ThreadsafeApplication then uses Notifications
+        // to change it's state from there on.
+        //
+        // ThreadsafeApplication is initialized at part of the DependencyContainer initialization which happens 2x:
+        // 1. When the profiler kicks off it's pre-main startup (using `+[load]`) - always on main
+        // 2. When the SDK starts up post-main - up to the caller
+        //
+        // We dispatch this to the main thread as Apple states it should be called from the main thread only
+        // and accept any slowdown as a one-time, limited affect.
         var applicationState: State = .active
         Dependencies.dispatchQueueWrapper.dispatchSyncOnMainQueue({ [weak self] in
             applicationState = self?.applicationState ?? .active
