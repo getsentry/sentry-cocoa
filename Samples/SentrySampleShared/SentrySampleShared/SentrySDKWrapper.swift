@@ -201,7 +201,9 @@ public struct SentrySDKWrapper {
         options.enableUserInteractionTracing = !isBenchmarking && !SentrySDKOverrides.UIEventTracking.disableTracing.boolValue
 
         options.enablePreWarmedAppStartTracing = !isBenchmarking && !SentrySDKOverrides.AppStart.disablePrewarmedTracing.boolValue
+        #if !SDK_V10
         options.experimental.enableStandaloneAppStartTracing = SentrySDKOverrides.AppStart.enableStandaloneTracing.boolValue
+        #endif // !SDK_V10
         options.enableUIViewControllerTracing = !SentrySDKOverrides.UIViewControllerTracing.disable.boolValue
         options.experimental.enableUIViewControllerInitSwizzling = SentrySDKOverrides.UIViewControllerTracing.enableInitSwizzling.boolValue
 

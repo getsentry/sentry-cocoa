@@ -16,11 +16,13 @@ public final class SentryExperimentalOptions: NSObject {
     /// When enabled, the SDK uses a more efficient mechanism for detecting watchdog terminations.
     public var enableWatchdogTerminationsV2 = false
 
+    #if !SDK_V10
     /**
      * When enabled, the SDK sends a standalone app start transaction instead of attaching app
      * start data to the first UIViewController transaction.
      */
     public var enableStandaloneAppStartTracing = false
+    #endif // !SDK_V10
 
     /**
      * Reduces SDK start overhead by swizzling each `UIViewController` subclass lazily, the first

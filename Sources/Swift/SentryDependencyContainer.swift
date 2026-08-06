@@ -319,12 +319,18 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     }
 
     func getAppStartTracker(_ options: Options) -> SentryAppStartTracker {
+        #if SDK_V10
+        let standaloneAppStart = true
+        #else
+        let standaloneAppStart = options.experimental.enableStandaloneAppStartTracing
+        #endif // SDK_V10
+
         return SentryAppStartTracker(
             dispatchQueueWrapper: SentryDispatchQueueWrapper(),
             appStateManager: appStateManager,
             framesTracker: framesTracker,
             enablePreWarmedAppStartTracing: options.enablePreWarmedAppStartTracing,
-            enableStandaloneAppStartTracing: options.experimental.enableStandaloneAppStartTracing,
+            enableStandaloneAppStartTracing: standaloneAppStart,
             dateProvider: dateProvider,
             sysctlWrapper: sysctlWrapper,
             appStartInfoProvider: appStartInfoProvider,
