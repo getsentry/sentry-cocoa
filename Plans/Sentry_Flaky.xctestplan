@@ -26,6 +26,7 @@
         "SentryDispatchSourceWrapperTests\/testDispatchSourceWrapper_Repeats()",
         "SentryFileManagerTests\/testCreateDirectoryIfNotExists_successful_shouldNotLogError()",
         "SentryHttpTransportFlushIntegrationTests",
+        "SentryInternalProfilingApiIntegrationTests\/testCollect_shouldContainProfileStructure()",
         "SentryOnDemandReplayTests\/testAddFrameIsThreadSafe()",
         "SentrySubClassFinderTests\/testActOnSubclassesOfViewController()",
         "SentryWatchdogTerminationTrackerTests\/testTerminateApp_RunsOnMainThread()"
