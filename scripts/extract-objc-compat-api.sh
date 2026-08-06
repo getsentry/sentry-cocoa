@@ -45,24 +45,41 @@ INTERMEDIATES_DIR="$TMP_DIR/intermediates"
 AST_JSON="$TMP_DIR/ast.json"
 
 # Step 1: Build SentryObjCCompat to generate the -Swift.h header.
-log_info "Building SentryObjCCompat framework (configuration: $CONFIGURATION)"
-xcodebuild build \
-    -project "$PROJECT_ROOT/Sentry.xcodeproj" \
-    -scheme SentryObjCCompat \
-    -configuration "$CONFIGURATION" \
-    -sdk iphoneos \
-    -arch arm64 \
-    CODE_SIGNING_ALLOWED=NO \
-    ONLY_ACTIVE_ARCH=YES \
-    SYMROOT="$BUILD_DIR" \
-    OBJROOT="$INTERMEDIATES_DIR" \
-    >/dev/null 2>&1
+# The V10 wrapper must use the source package so its SDK dependency includes KSCrash.
+BUILD_CONFIGURATION="$CONFIGURATION"
+if [ "$CONFIGURATION" = "ReleaseV10" ]; then
+    BUILD_CONFIGURATION="Release"
+    log_info "Building V10 SentryObjC package (configuration: $BUILD_CONFIGURATION)"
+    SDK_V10=1 xcodebuild build \
+        -workspace "$PROJECT_ROOT" \
+        -scheme SentryObjC \
+        -configuration "$BUILD_CONFIGURATION" \
+        -sdk iphoneos \
+        -destination "generic/platform=iOS" \
+        CODE_SIGNING_ALLOWED=NO \
+        ONLY_ACTIVE_ARCH=YES \
+        SYMROOT="$BUILD_DIR" \
+        OBJROOT="$INTERMEDIATES_DIR" \
+        >/dev/null 2>&1
+else
+    log_info "Building SentryObjCCompat framework (configuration: $BUILD_CONFIGURATION)"
+    xcodebuild build \
+        -project "$PROJECT_ROOT/Sentry.xcodeproj" \
+        -scheme SentryObjCCompat \
+        -configuration "$BUILD_CONFIGURATION" \
+        -sdk iphoneos \
+        -arch arm64 \
+        CODE_SIGNING_ALLOWED=NO \
+        ONLY_ACTIVE_ARCH=YES \
+        SYMROOT="$BUILD_DIR" \
+        OBJROOT="$INTERMEDIATES_DIR" \
+        >/dev/null 2>&1
+fi
 
 # Step 2: Locate the generated header.
-SWIFT_HEADER="$INTERMEDIATES_DIR/Sentry.build/$CONFIGURATION-iphoneos/SentryObjCCompat.build/DerivedSources/SentryObjCCompat-Swift.h"
-if [ ! -f "$SWIFT_HEADER" ]; then
-    log_error "SentryObjCCompat-Swift.h not found at expected path"
-    log_error "looked in: $SWIFT_HEADER"
+SWIFT_HEADER=$(find "$INTERMEDIATES_DIR" -name "SentryObjCCompat-Swift.h" -type f -print -quit)
+if [ -z "$SWIFT_HEADER" ]; then
+    log_error "SentryObjCCompat-Swift.h not found under $INTERMEDIATES_DIR"
     exit 1
 fi
 

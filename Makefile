@@ -425,41 +425,41 @@ build-xcframework-sentryobjc-dynamic:
 	./scripts/validate-xcframework.sh --xcframework "SentryObjC-Dynamic.xcframework"
 	./scripts/compress-xcframework.sh --xcframework "SentryObjC-Dynamic.xcframework"
 
-## Build Sentry+KSCrash Dynamic XCFramework
+## Build V10 Dynamic XCFramework
 #
-# Builds the Sentry+KSCrash target as a dynamic xcframework. Overrides the
-# arm64e xcconfig restriction for tvOS, watchOS, and Mac Catalyst, which exists
-# only to work around an Xcode UI bug that does not affect xcodebuild.
+# Builds the V10 SDK as a dynamic xcframework. Overrides the arm64e xcconfig
+# restriction for tvOS, watchOS, and Mac Catalyst, which exists only to work
+# around an Xcode UI bug that does not affect xcodebuild.
 #
 # SDKS is a comma-separated list of SDK names (default: all).
 #
 # Examples:
-#   make build-xcframework-kscrash-dynamic
-#   make build-xcframework-kscrash-dynamic SDKS=iphoneos
-.PHONY: build-xcframework-kscrash-dynamic
-build-xcframework-kscrash-dynamic:
-	@echo "--> Creating Sentry+KSCrash-Dynamic xcframework (SDKs: $(SDKS))"
-	./scripts/build-xcframework-kscrash.sh --suffix "-Dynamic" --sdks "$(SDKS)"
-	./scripts/validate-xcframework.sh --xcframework "Sentry+KSCrash-Dynamic.xcframework"
-	./scripts/compress-xcframework.sh --xcframework "Sentry+KSCrash-Dynamic.xcframework"
+#   make build-xcframework-v10-dynamic
+#   make build-xcframework-v10-dynamic SDKS=iphoneos
+.PHONY: build-xcframework-v10-dynamic
+build-xcframework-v10-dynamic:
+	@echo "--> Creating SentryV10-Dynamic xcframework (SDKs: $(SDKS))"
+	./scripts/build-xcframework-v10.sh --suffix "-Dynamic" --sdks "$(SDKS)"
+	./scripts/validate-xcframework.sh --xcframework "SentryV10-Dynamic.xcframework"
+	./scripts/compress-xcframework.sh --xcframework "SentryV10-Dynamic.xcframework"
 
-## Build Sentry+KSCrash Static XCFramework
+## Build V10 Static XCFramework
 #
-# Builds the Sentry+KSCrash target as a static xcframework. Overrides the
-# arm64e xcconfig restriction for tvOS, watchOS, and Mac Catalyst, which exists
-# only to work around an Xcode UI bug that does not affect xcodebuild.
+# Builds the V10 SDK as a static xcframework. Overrides the arm64e xcconfig
+# restriction for tvOS, watchOS, and Mac Catalyst, which exists only to work
+# around an Xcode UI bug that does not affect xcodebuild.
 #
 # SDKS is a comma-separated list of SDK names (default: all).
 #
 # Examples:
-#   make build-xcframework-kscrash-static
-#   make build-xcframework-kscrash-static SDKS=iphoneos
-.PHONY: build-xcframework-kscrash-static
-build-xcframework-kscrash-static:
-	@echo "--> Creating Sentry+KSCrash Static xcframework (SDKs: $(SDKS))"
-	./scripts/build-xcframework-kscrash.sh --mach-o-type "staticlib" --sdks "$(SDKS)"
-	./scripts/validate-xcframework.sh --xcframework "Sentry+KSCrash.xcframework"
-	./scripts/compress-xcframework.sh --xcframework "Sentry+KSCrash.xcframework"
+#   make build-xcframework-v10-static
+#   make build-xcframework-v10-static SDKS=iphoneos
+.PHONY: build-xcframework-v10-static
+build-xcframework-v10-static:
+	@echo "--> Creating SentryV10 Static xcframework (SDKs: $(SDKS))"
+	./scripts/build-xcframework-v10.sh --mach-o-type "staticlib" --sdks "$(SDKS)"
+	./scripts/validate-xcframework.sh --xcframework "SentryV10.xcframework"
+	./scripts/compress-xcframework.sh --xcframework "SentryV10.xcframework"
 
 # ============================================================================
 # SAMPLE APPS
@@ -943,7 +943,7 @@ test-v10: test-ios-v10 test-macos-v10 test-catalyst-v10 test-tvos-v10 test-visio
 # Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
 # Examples:
 #   make test-ios-v10
-#   make test-ios-v10 ONLY_TESTING=SentryTests/SentryHttpTransportTests
+#   make test-ios-v10 ONLY_TESTING=SentryTests+KSCrash/SentryHttpTransportTests
 .PHONY: test-ios-v10
 test-ios-v10:
 	@echo "--> Running V10 iOS tests"
@@ -964,7 +964,7 @@ test-ios-v10:
 # Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
 # Examples:
 #   make test-macos-v10
-#   make test-macos-v10 ONLY_TESTING=SentryTests/SentryHttpTransportTests
+#   make test-macos-v10 ONLY_TESTING=SentryTests+KSCrash/SentryHttpTransportTests
 #   make test-macos-v10 TEST_PLAN=SentryKSCrash_TestServer   # needs `make -C test-server start-debug`
 .PHONY: test-macos-v10
 test-macos-v10:
@@ -986,7 +986,7 @@ test-macos-v10:
 # Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
 # Examples:
 #   make test-catalyst-v10
-#   make test-catalyst-v10 ONLY_TESTING=SentryTests/SentryHttpTransportTests
+#   make test-catalyst-v10 ONLY_TESTING=SentryTests+KSCrash/SentryHttpTransportTests
 .PHONY: test-catalyst-v10
 test-catalyst-v10:
 	@echo "--> Running V10 Catalyst tests"
@@ -1006,7 +1006,7 @@ test-catalyst-v10:
 # Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
 # Examples:
 #   make test-tvos-v10
-#   make test-tvos-v10 ONLY_TESTING=SentryTests/SentryHttpTransportTests
+#   make test-tvos-v10 ONLY_TESTING=SentryTests+KSCrash/SentryHttpTransportTests
 .PHONY: test-tvos-v10
 test-tvos-v10:
 	@echo "--> Running V10 tvOS tests"
@@ -1027,7 +1027,7 @@ test-tvos-v10:
 # Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
 # Examples:
 #   make test-visionos-v10
-#   make test-visionos-v10 ONLY_TESTING=SentryTests/SentryHttpTransportTests
+#   make test-visionos-v10 ONLY_TESTING=SentryTests+KSCrash/SentryHttpTransportTests
 .PHONY: test-visionos-v10
 test-visionos-v10:
 	@echo "--> Running V10 visionOS tests"

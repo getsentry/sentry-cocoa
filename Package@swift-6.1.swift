@@ -15,6 +15,15 @@ func envFlag(_ name: String) -> Bool {
 }
 
 let enableV10 = envFlag("SDK_V10")
+let v10SwiftSettings: [SwiftSetting] = enableV10
+    ? [.define("SDK_V10")]
+    : [.define("SDK_V10", .when(traits: ["V10"]))]
+let v10CSettings: [CSetting] = enableV10
+    ? [.define("SDK_V10", to: "1")]
+    : [.define("SDK_V10", to: "1", .when(traits: ["V10"]))]
+let kscrashDependencyCondition: TargetDependencyCondition? = enableV10
+    ? nil
+    : .when(traits: ["V10"])
 
 var products: [Product] = [
     .library(name: "SentryDistribution", targets: ["SentryDistribution"])
@@ -107,17 +116,21 @@ if enableV10 {
 
 let sentrySwiftTarget: Target = .target(
     name: "SentrySwift",
-    dependencies: ["_SentryPrivate", "SentryHeaders"],
+    dependencies: [
+        "_SentryPrivate",
+        "SentryHeaders",
+        .product(
+            name: "Installations",
+            package: "KSCrash",
+            condition: kscrashDependencyCondition
+        )
+    ],
     path: "Sources/Swift",
+    cSettings: v10CSettings,
     swiftSettings: [
-        .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"])),
-        .define("SDK_V10", .when(traits: ["V10"]))
-    ]
+        .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"]))
+    ] + v10SwiftSettings
 )
-
-if enableV10 {
-    sentrySwiftTarget.dependencies.append(.product(name: "Installations", package: "KSCrash"))
-}
 
 targets += [
     // At least one source file is required, therefore we use a dummy class to satisfy the SPM build system
@@ -125,14 +138,17 @@ targets += [
         name: "SentryHeaders",
         path: "Sources/Sentry",
         sources: ["SentryDummyPublicEmptyClass.m"],
-        publicHeadersPath: "Public"
+        publicHeadersPath: "Public",
+        cSettings: v10CSettings
     ),
     .target(
         name: "_SentryPrivate",
         dependencies: ["SentryHeaders"],
         path: "Sources/Sentry",
         sources: ["SentryDummyPrivateEmptyClass.m"],
-        publicHeadersPath: "include"),
+        publicHeadersPath: "include",
+        cSettings: v10CSettings
+    ),
 
     sentrySwiftTarget,
 
@@ -163,9 +179,8 @@ targets += [
             .headerSearchPath("SentryCrash/Installations"),
             .headerSearchPath("SentryCrash/Reporting/Filters"),
             .headerSearchPath("SentryCrash/Reporting/Filters/Tools"),
-            .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"])),
-            .define("SDK_V10", to: "1", .when(traits: ["V10"]))
-        ])
+            .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
+        ] + v10CSettings)
 ]
 
 // BEGIN:OBJC_WRAPPER
@@ -175,10 +190,10 @@ targets += [
         name: "SentryObjCCompat",
         dependencies: ["SentryObjCInternal"],
         path: "Sources/SentryObjCCompat",
+        cSettings: v10CSettings,
         swiftSettings: [
-            .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"])),
-            .define("SDK_V10", .when(traits: ["V10"]))
-        ]
+            .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"]))
+        ] + v10SwiftSettings
     ),
     .target(
         name: "SentryObjC",
@@ -187,14 +202,15 @@ targets += [
         publicHeadersPath: "Public",
         cSettings: [
             .headerSearchPath("Public"),
-            .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"])),
-            .define("SDK_V10", to: "1", .when(traits: ["V10"]))
-        ]
+            .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
+        ] + v10CSettings
     )
 ]
 // END:OBJC_WRAPPER
 
-let packageDependencies: [Package.Dependency] = enableV10 ? [.package(url: "https://github.com/kstenerud/KSCrash.git", from: "2.6.0-beta.5")] : []
+let packageDependencies: [Package.Dependency] = [
+    .package(url: "https://github.com/kstenerud/KSCrash.git", from: "2.6.0-beta.5")
+]
 
 let package = Package(
     name: "Sentry",

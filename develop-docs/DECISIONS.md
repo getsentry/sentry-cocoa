@@ -759,11 +759,11 @@ Cons:
 
 ### Option B: Dual integrations on `main` (chosen)
 
-The integrations initially used a separate migration switch. At the V10 cutover, `SDK_V10` became the single switch: V10 builds compile and activate `SentryKSCrashIntegration`, while V9 builds continue to use `SentryCrashIntegration`. For SwiftPM, the `SDK_V10` environment variable controls the source-built product and KSCrash dependency, and the `V10` trait supplies the compiler definition.
+The integrations initially used a separate migration switch. At the V10 cutover, `SDK_V10` became the single switch: V10 builds compile and activate `SentryKSCrashIntegration`, while V9 builds continue to use `SentryCrashIntegration`. The Xcode `SentryV10` scheme builds the internal KSCrash-backed SDK and SwiftUI targets; V10 ObjC-wrapper builds use the source package instead of the V9-only Xcode dependency graph. For SwiftPM, setting the `SDK_V10` environment variable selects the source-built product and enables the V10 compiler settings and KSCrash target dependency. In trait-capable manifests, the `V10` trait enables the same compiler settings and target dependency.
 
 Pros:
 
 - Work ships incrementally to `main`; no merge conflict mess
 - V10 exercises the crash reporter that it will ship by default
-- V9 remains isolated from the new KSCrash dependency
+- V9 does not compile or link the new KSCrash integration
 - Easier code review — changes land in small, reviewable chunks

@@ -15,6 +15,8 @@ func envFlag(_ name: String) -> Bool {
 }
 
 let enableV10 = envFlag("SDK_V10")
+let v10SwiftSettings: [SwiftSetting] = enableV10 ? [.define("SDK_V10")] : []
+let v10CSettings: [CSetting] = enableV10 ? [.define("SDK_V10", to: "1")] : []
 
 var products: [Product] = [
     .library(name: "SentryDistribution", targets: ["SentryDistribution"])
@@ -108,11 +110,12 @@ let sentrySwiftTarget: Target = .target(
     name: "SentrySwift",
     dependencies: ["_SentryPrivate", "SentryHeaders"],
     path: "Sources/Swift",
+    cSettings: v10CSettings,
+    swiftSettings: v10SwiftSettings
 )
 
 if enableV10 {
     sentrySwiftTarget.dependencies.append(.product(name: "Installations", package: "KSCrash"))
-    sentrySwiftTarget.swiftSettings?.append(.define("SDK_V10"))
 }
 
 targets += [
@@ -121,14 +124,17 @@ targets += [
         name: "SentryHeaders",
         path: "Sources/Sentry",
         sources: ["SentryDummyPublicEmptyClass.m"],
-        publicHeadersPath: "Public"
+        publicHeadersPath: "Public",
+        cSettings: v10CSettings
     ),
     .target(
         name: "_SentryPrivate",
         dependencies: ["SentryHeaders"],
         path: "Sources/Sentry",
         sources: ["SentryDummyPrivateEmptyClass.m"],
-        publicHeadersPath: "include"),
+        publicHeadersPath: "include",
+        cSettings: v10CSettings
+    ),
 
     sentrySwiftTarget,
 
@@ -158,7 +164,8 @@ targets += [
             .headerSearchPath("SentryCrash/Recording/Tools"),
             .headerSearchPath("SentryCrash/Installations"),
             .headerSearchPath("SentryCrash/Reporting/Filters"),
-            .headerSearchPath("SentryCrash/Reporting/Filters/Tools")])
+            .headerSearchPath("SentryCrash/Reporting/Filters/Tools")
+        ] + v10CSettings)
 ]
 
 // BEGIN:OBJC_WRAPPER
@@ -167,7 +174,10 @@ targets += [
     .target(
         name: "SentryObjCCompat",
         dependencies: ["SentryObjCInternal"],
-        path: "Sources/SentryObjCCompat"),
+        path: "Sources/SentryObjCCompat",
+        cSettings: v10CSettings,
+        swiftSettings: v10SwiftSettings
+    ),
     .target(
         name: "SentryObjC",
         dependencies: ["SentryObjCCompat"],
@@ -175,7 +185,7 @@ targets += [
         publicHeadersPath: "Public",
         cSettings: [
             .headerSearchPath("Public")
-        ]
+        ] + v10CSettings
     )
 ]
 // END:OBJC_WRAPPER

@@ -1,13 +1,13 @@
 #!/bin/bash
 #
-# Builds all slices for a Sentry+KSCrash XCFramework variant and assembles
-# the final xcframework.
+# Builds all slices for a V10 XCFramework variant and assembles the final
+# xcframework.
 #
 # Orchestrates per-SDK slice builds (sequentially) then assembles the final
 # xcframework. For CI, each slice runs as a separate parallel job; this script
 # is the local equivalent that runs them in sequence.
 #
-# The Sentry+KSCrash xcconfig disables arm64e on tvOS, watchOS, and Mac
+# The V10 target's xcconfig disables arm64e on tvOS, watchOS, and Mac
 # Catalyst to work around an Xcode UI bug where the IDE does not propagate
 # ARCHS into SPM package builds.
 #
@@ -30,12 +30,12 @@ SUFFIX=""
 MACH_O_TYPE="inherit"
 SDKS=""
 
-# The Sentry+KSCrash target uses PRODUCT_NAME = Sentry (via xcconfig), so the
-# framework on disk is always named Sentry.framework regardless of the scheme.
-SCHEME="Sentry+KSCrash"
+# The V10 target uses PRODUCT_NAME = Sentry (via xcconfig), so the framework
+# on disk is always named Sentry.framework regardless of the scheme.
+SCHEME="SentryV10"
 PRODUCT_NAME="Sentry"
 
-# KSCrash builds use the ReleaseV10 configuration.
+# V10 slices use the ReleaseV10 configuration.
 CONFIGURATION_SUFFIX="V10"
 
 # All device SDKs that include arm64e in the xcframework slice. ARCHS must be
