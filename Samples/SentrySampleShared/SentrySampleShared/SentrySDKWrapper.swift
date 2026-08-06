@@ -10,7 +10,10 @@ public struct SentrySDKWrapper {
     public static let shared = SentrySDKWrapper()
     public static var spanCaptureHandler: ((Span) -> Void)?
 
-    /// Forwarded to `Options.swizzleClassNameExcludes`. Set before `startSentry()`.
+    /// Class names that are only safe to swizzle eagerly when deferred (init) swizzling is off,
+    /// e.g. `@available`-gated `UIViewController` subclasses. Forwarded to
+    /// `Options.swizzleClassNameExcludes` whenever `enableUIViewControllerInitSwizzling` is
+    /// disabled. Set before `startSentry()`.
     public static var swizzleClassNameExcludes: Set<String> = []
 
 #if !os(macOS) && !os(tvOS) && !os(watchOS)
@@ -232,7 +235,12 @@ public struct SentrySDKWrapper {
         options.enableAutoBreadcrumbTracking = !SentrySDKOverrides.Breadcrumbs.disableAutomatic.boolValue
         options.enableCoreDataTracing = !SentrySDKOverrides.CoreData.disableTracing.boolValue
         options.enableSwizzling = !SentrySDKOverrides.Swizzling.disable.boolValue
-        options.swizzleClassNameExcludes = SentrySDKWrapper.swizzleClassNameExcludes
+        // Deferred (init) swizzling never touches unrealized classes, so the excludes are only
+        // needed for the eager subclass scan. Re-evaluated on every start, because the SDK Debug
+        // menu can restart the SDK with the flag toggled off or reset to its default.
+        options.swizzleClassNameExcludes = SentrySDKOverrides.UIViewControllerTracing.enableInitSwizzling.boolValue
+            ? []
+            : SentrySDKWrapper.swizzleClassNameExcludes
         options.enableCrashHandler = !SentrySDKOverrides.Crash.disableHandler.boolValue
         // Stitch the calls to Swift async functions into one consecutive stack trace.
         options.swiftAsyncStacktraces = !SentrySDKOverrides.SwiftAsync.disable.boolValue
