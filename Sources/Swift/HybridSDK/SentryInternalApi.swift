@@ -16,7 +16,7 @@ public struct SentryInternalApi {
         & SentryInternalBreadcrumbApi.Dependencies
         & SentryInternalUserApi.Dependencies
         & SentryInternalEnvelopeApi.Dependencies
-        & HubProvider
+        & SentryInternalScopeApi.Dependencies
         & OptionsDeserializerProvider
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
     typealias Dependencies = BaseDependencies
@@ -46,6 +46,12 @@ public struct SentryInternalApi {
 
     /// Envelope store, capture, and deserialization for hybrid SDKs.
     public let envelope: SentryInternalEnvelopeApi
+
+    /// Access to current scope
+    public let scope: SentryInternalScopeApi
+
+    /// Serialization of data types
+    public let serializer: SentryInternalSerializerApi
 
     private let hub: Hub
     private let optionsDeserializer: OptionsDeserializer
@@ -113,6 +119,8 @@ public struct SentryInternalApi {
         self.breadcrumbs = SentryInternalBreadcrumbApi(dependencies: dependencies)
         self.user = SentryInternalUserApi(dependencies: dependencies)
         self.envelope = SentryInternalEnvelopeApi(dependencies: dependencies)
+        self.scope = SentryInternalScopeApi(dependencies: dependencies)
+        self.serializer = SentryInternalSerializerApi()
         self.swizzle = SentryInternalSwizzleApi()
         self.appStart = SentryInternalAppStartApi()
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
