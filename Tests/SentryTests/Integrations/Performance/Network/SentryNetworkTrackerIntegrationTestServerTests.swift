@@ -103,6 +103,8 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
             ) as? SentryTracer
         )
         let requestCompleted = expectation(description: "Download request completed")
+        // Cancelling the task in defer can trigger the completion handler again.
+        requestCompleted.assertForOverFulfill = false
         var response: String?
         let session = URLSession(configuration: URLSessionConfiguration.default)
         let task = session.downloadTask(with: testTraceURL) { location, _, error in
@@ -144,6 +146,8 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
             ) as? SentryTracer
         )
         let requestCompleted = expectation(description: "Upload request completed")
+        // Cancelling the task in defer can trigger the completion handler again.
+        requestCompleted.assertForOverFulfill = false
         var response: String?
         var request = URLRequest(url: testTraceURL)
         request.httpMethod = "POST"
