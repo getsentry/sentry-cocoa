@@ -58,6 +58,9 @@ import Foundation
         if options.experimental.enableWatchdogTerminationsV2 {
             features.append("watchdogTerminationsV2")
         }
+        if options.experimental.enableUIViewControllerInitSwizzling {
+            features.append("uiViewControllerInitSwizzling")
+        }
 
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
         if options.attachViewHierarchy {
