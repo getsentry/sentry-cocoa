@@ -1,6 +1,5 @@
 #import "SentryHttpTransport.h"
 #import "SentryDiscardReasonMapper.h"
-#import "SentryEnvelopeItemHeader.h"
 #import "SentryEnvelopeRateLimit.h"
 #import "SentryEvent.h"
 #import "SentryInternalDefines.h"

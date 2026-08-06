@@ -21,7 +21,6 @@ jobs:
   unit-tests:
     name: Unit ${{matrix.name}}
     uses: ./.github/workflows/unit-test-common.yml
-    secrets: inherit
     with:
       name: ${{matrix.name}}
       runs-on: ${{ matrix.runs-on }}
