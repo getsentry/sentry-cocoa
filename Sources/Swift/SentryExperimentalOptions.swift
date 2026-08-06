@@ -21,4 +21,24 @@ public final class SentryExperimentalOptions: NSObject {
      * start data to the first UIViewController transaction.
      */
     public var enableStandaloneAppStartTracing = false
+
+    /**
+     * Reduces SDK start overhead by swizzling each `UIViewController` subclass lazily, the first
+     * time an instance of it is created, instead of eagerly discovering and swizzling every
+     * subclass when the SDK starts.
+     *
+     * By default, the SDK scans loaded binary images for all `UIViewController` subclasses at
+     * start and swizzles them up front. This realizes every subclass to inspect it, so the cost
+     * grows with the number of view controllers in the app - including ones it never uses - and it
+     * realizes `@available`-gated subclasses that reference newer-framework types, which crashes on
+     * OS versions below the gate.
+     *
+     * With this option, only classes the app actually instantiates are touched: a class that can't
+     * exist on the current OS is never instantiated, so it's never realized or swizzled. This cuts
+     * start-up work and avoids the gated-subclass crash while producing the same `ui.load`
+     * auto-instrumentation transactions.
+     *
+     * See https://github.com/getsentry/sentry-cocoa/issues/8548.
+     */
+    public var enableUIViewControllerInitSwizzling = false
 }

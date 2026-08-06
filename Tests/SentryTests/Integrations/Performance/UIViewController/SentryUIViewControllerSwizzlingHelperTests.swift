@@ -143,6 +143,132 @@ class SentryUIViewControllerSwizzlingHelperTests: XCTestCase {
         XCTAssertTrue(SentryUIViewControllerSwizzlingHelper.swizzlingActive())
     }
 
+    // MARK: - Init funnel (swizzleUIViewControllerInitsWithDelegate:)
+
+    func testInitFunnel_whenViewControllerInstantiated_callsDelegateSynchronouslyWithConcreteClass() {
+        // -- Arrange --
+        let delegate = TestInitSwizzlingDelegate()
+        SentryUIViewControllerSwizzlingHelper.swizzleUIViewControllerInits(withDelegate: delegate)
+
+        // -- Act --
+        // Instantiating through the base designated initializer triggers the funnel.
+        _ = UIViewController(nibName: nil, bundle: nil)
+
+        // -- Assert --
+        // The delegate already ran by the time init returned (synchronous, no dispatch hop) — so
+        // handledClasses is populated on this same line, not on a later runloop turn.
+        XCTAssertTrue(delegate.handledClasses.contains { $0 == UIViewController.self },
+                      "The funnel should synchronously hand the concrete class of the initialized view controller to the delegate.")
+    }
+
+    func testInitFunnel_afterStop_doesNotCallDelegate() {
+        // -- Arrange --
+        let delegate = TestInitSwizzlingDelegate()
+        SentryUIViewControllerSwizzlingHelper.swizzleUIViewControllerInits(withDelegate: delegate)
+        _ = UIViewController(nibName: nil, bundle: nil)
+        XCTAssertGreaterThan(delegate.handledClasses.count, 0)
+
+        // -- Act --
+        SentryUIViewControllerSwizzlingHelper.stop()
+        let countAfterStop = delegate.handledClasses.count
+        _ = UIViewController(nibName: nil, bundle: nil)
+
+        // -- Assert --
+        XCTAssertEqual(delegate.handledClasses.count, countAfterStop, "After stop, the funnel must no longer call the delegate.")
+    }
+
+    func testInitFunnel_whenDelegateDeallocated_doesNotCrash() {
+        // -- Arrange --
+        // The helper holds the delegate weakly, so a caller that goes away must not leave a dangling
+        // reference behind for the next initialized view controller.
+        autoreleasepool {
+            let delegate = TestInitSwizzlingDelegate()
+            SentryUIViewControllerSwizzlingHelper.swizzleUIViewControllerInits(withDelegate: delegate)
+            _ = UIViewController(nibName: nil, bundle: nil)
+            XCTAssertGreaterThan(delegate.handledClasses.count, 0)
+        }
+
+        // -- Act & Assert --
+        _ = UIViewController(nibName: nil, bundle: nil)
+    }
+
+    func testInitFunnel_whenViewControllersInstantiated_doesNotOverRetainThem() throws {
+        // The funnel replaces two init-family methods, which return +1 (ns_returns_retained), while
+        // the replacement block is declared `id`-returning and therefore +0 autoreleased at the ABI
+        // level. This test pins down that the resulting retain handshake stays balanced: an
+        // over-retain would leak every view controller the host app ever creates.
+        //
+        // -- Arrange --
+        let delegate = TestInitSwizzlingDelegate()
+        SentryUIViewControllerSwizzlingHelper.swizzleUIViewControllerInits(withDelegate: delegate)
+
+        weak var weakNibViewController: UIViewController?
+        weak var weakCoderViewController: UIViewController?
+
+        // -- Act --
+        try autoreleasepool {
+            let nibViewController = UIViewController(nibName: nil, bundle: nil)
+            weakNibViewController = nibViewController
+
+            // Round-trip through NSKeyedArchiver so the instance is created via initWithCoder:, the
+            // funnel's second swizzled initializer.
+            let archiver = NSKeyedArchiver(requiringSecureCoding: false)
+            archiver.encode(nibViewController, forKey: NSKeyedArchiveRootObjectKey)
+            archiver.finishEncoding()
+
+            let unarchiver = try NSKeyedUnarchiver(forReadingFrom: archiver.encodedData)
+            unarchiver.requiresSecureCoding = false
+            let coderViewController = try XCTUnwrap(
+                unarchiver.decodeObject(forKey: NSKeyedArchiveRootObjectKey) as? UIViewController,
+                "Expected the archived view controller to decode via initWithCoder:."
+            )
+            weakCoderViewController = coderViewController
+        }
+
+        // -- Assert --
+        // Guard against a vacuous pass: if the funnel never intercepted these initializers, the
+        // deallocation assertions below would prove nothing about the swizzled code path.
+        XCTAssertGreaterThanOrEqual(delegate.handledClasses.count, 2, "Both view controllers should have been routed through the funnel.")
+        XCTAssertNil(weakNibViewController, "A view controller created via initWithNibName:bundle: must deallocate; the funnel must not retain it.")
+        XCTAssertNil(weakCoderViewController, "A view controller created via initWithCoder: must deallocate; the funnel must not retain it.")
+    }
+
+    func testStop_whenInitFunnelInstalled_shouldRestoreBaseInitializerImplementations() throws {
+        // The funnel replaces two initializers on the BASE UIViewController, so leaving them
+        // installed leaks into every later test suite in the same run. Anything that resets global
+        // SDK state (clearTestState) relies on stop actually restoring them, not just clearing the
+        // handler.
+        //
+        // -- Arrange --
+        let nibSelector = NSSelectorFromString("initWithNibName:bundle:")
+        let coderSelector = NSSelectorFromString("initWithCoder:")
+
+        // imp_getBlock returns the block of an IMP created via imp_implementationWithBlock, which is
+        // how SentrySwizzle builds its replacements, and nil for UIKit's own compiled IMP. That
+        // distinguishes a swizzled initializer from the original one.
+        XCTAssertNil(imp_getBlock(try XCTUnwrap(class_getMethodImplementation(UIViewController.self, nibSelector))),
+                     "initWithNibName:bundle: must not be swizzled before the funnel is installed; a previous test suite leaked it.")
+        XCTAssertNil(imp_getBlock(try XCTUnwrap(class_getMethodImplementation(UIViewController.self, coderSelector))),
+                     "initWithCoder: must not be swizzled before the funnel is installed; a previous test suite leaked it.")
+
+        let delegate = TestInitSwizzlingDelegate()
+        SentryUIViewControllerSwizzlingHelper.swizzleUIViewControllerInits(withDelegate: delegate)
+
+        XCTAssertNotNil(imp_getBlock(try XCTUnwrap(class_getMethodImplementation(UIViewController.self, nibSelector))),
+                        "The funnel should have replaced initWithNibName:bundle: with a block-based IMP.")
+        XCTAssertNotNil(imp_getBlock(try XCTUnwrap(class_getMethodImplementation(UIViewController.self, coderSelector))),
+                        "The funnel should have replaced initWithCoder: with a block-based IMP.")
+
+        // -- Act --
+        SentryUIViewControllerSwizzlingHelper.stop()
+
+        // -- Assert --
+        XCTAssertNil(imp_getBlock(try XCTUnwrap(class_getMethodImplementation(UIViewController.self, nibSelector))),
+                     "stop must restore UIKit's initWithNibName:bundle:, otherwise the funnel leaks into later test suites.")
+        XCTAssertNil(imp_getBlock(try XCTUnwrap(class_getMethodImplementation(UIViewController.self, coderSelector))),
+                     "stop must restore UIKit's initWithCoder:, otherwise the funnel leaks into later test suites.")
+    }
+
     func testUnswizzle_whenCalled_shouldUnswizzleBaseLoadView() {
         // -- Arrange --
         let performanceTracker = tracker!
@@ -160,6 +286,16 @@ class SentryUIViewControllerSwizzlingHelperTests: XCTestCase {
         // 2. _tracker is set to nil by the unswizzle path (via stop)
         // 3. The base UIViewController.loadView should be unswizzled
         XCTAssertFalse(SentryUIViewControllerSwizzlingHelper.swizzlingActive())
+    }
+}
+
+/// The helper holds its delegate weakly, so tests must keep a strong reference for as long as they
+/// expect the funnel to report back.
+private class TestInitSwizzlingDelegate: NSObject, SentryUIViewControllerInitSwizzlingDelegate {
+    var handledClasses: [AnyClass] = []
+
+    func viewControllerInitialized(_ viewControllerClass: AnyClass) {
+        handledClasses.append(viewControllerClass)
     }
 }
 
