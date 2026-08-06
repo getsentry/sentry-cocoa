@@ -9,6 +9,7 @@ This is a collection of documents that can help you develop for the SentrySDK.
 - TEST.md: unit testing, UI testing and static/runtime analysis
 - BUILD.md: how we configure and build our SDK deliverables
 - RELEASE.md: our release processes and best practices
+- MIRRORING.md: how code and releases are mirrored to downstream repositories
 - OBJC-LOAD-AND-LINKING.md: how Objective-C +load interacts with build configurations and distribution formats
 - SDK_HISTORY.md: historical context and FAQ for the SDK
 - SPEC_COMPLIANCE.md: SDK specification compliance manifest maintenance
