@@ -72,6 +72,7 @@ class SentrySessionTrackerTests: XCTestCase {
     
     override class func setUp() {
         super.setUp()
+        // swiftlint:disable:next avoid_clear_test_state - not validated — reconsider if you touch this
         clearTestState()
     }
     
@@ -93,6 +94,7 @@ class SentrySessionTrackerTests: XCTestCase {
     
     override func tearDown() {
         abnormalStopSut()
+        // swiftlint:disable:next avoid_clear_test_state - not validated — reconsider if you touch this
         clearTestState()
 
         super.tearDown()

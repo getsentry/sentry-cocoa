@@ -28,7 +28,7 @@ class SentryExtendedAppLaunchTests: XCTestCase {
     }
 
     private func setUpIntegrationHub() -> TestHub {
-        addTeardownBlock { clearTestState() }
+        addTeardownBlock { clearTestState() } // swiftlint:disable:this avoid_clear_test_state - not validated — reconsider if you touch this
 
         let dateProvider = TestCurrentDateProvider()
         SentryDependencyContainer.sharedInstance().dateProvider = dateProvider
@@ -82,7 +82,7 @@ class SentryExtendedAppLaunchTests: XCTestCase {
     }
 
     func testExtend_beforeSDKStart_doesNotCreateSpan() {
-        addTeardownBlock { clearTestState() }
+        addTeardownBlock { clearTestState() } // swiftlint:disable:this avoid_clear_test_state - not validated — reconsider if you touch this
         let manager = SentryExtendedAppLaunchManager()
 
         manager.extend()

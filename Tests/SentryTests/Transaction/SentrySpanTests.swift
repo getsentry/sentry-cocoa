@@ -62,6 +62,7 @@ class SentrySpanTests: XCTestCase {
     
     override func tearDown() {
         super.tearDown()
+        // swiftlint:disable:next avoid_clear_test_state - not validated — reconsider if you touch this
         clearTestState()
     }
     

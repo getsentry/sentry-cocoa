@@ -54,6 +54,7 @@ class SentryANRTrackerV1Tests: XCTestCase, SentryANRTrackerDelegate {
         wait(for: [fixture.threadWrapper.threadFinishedExpectation], timeout: 5)
         XCTAssertEqual(0, fixture.threadWrapper.threads.count)
         SentrySDKLog._configure(self.previousIsDebug, diagnosticLevel: self.previousDiagnosticLevel)
+        // swiftlint:disable:next avoid_clear_test_state - not validated — reconsider if you touch this
         clearTestState()
     }
     

@@ -118,6 +118,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         super.tearDown()
         sut.stop()
         fixture.fileManager.deleteAllFolders()
+        // swiftlint:disable:next avoid_clear_test_state - not validated — reconsider if you touch this
         clearTestState()
     }
 

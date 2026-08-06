@@ -14,6 +14,7 @@ final class SentryBreadcrumbTrackerTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         delegate = nil
+        // swiftlint:disable:next avoid_clear_test_state - not validated — reconsider if you touch this
         clearTestState()
     }
     
@@ -129,6 +130,7 @@ final class SentryBreadcrumbTrackerTests: XCTestCase {
         XCTAssertEqual("false", lifeCycleCrumb.data?["beingPresented"] as? String)
         XCTAssertEqual("ParentUIViewController", lifeCycleCrumb.data?["parentViewController"] as? String)
         
+        // swiftlint:disable:next avoid_clear_test_state - not validated — reconsider if you touch this
         clearTestState()
     }
     

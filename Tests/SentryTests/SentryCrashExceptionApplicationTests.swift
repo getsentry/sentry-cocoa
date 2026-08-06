@@ -19,6 +19,7 @@ class SentryNSExceptionCaptureHelperTests: XCTestCase {
         crashReporter.uncaughtExceptionHandler = nil
         exceptionHandlerCallCount = 0
 
+        // swiftlint:disable:next avoid_clear_test_state - not validated — reconsider if you touch this
         clearTestState()
         resetUserDefaults()
         UserDefaults.standard.removeObject(forKey: "NSApplicationCrashOnExceptions")

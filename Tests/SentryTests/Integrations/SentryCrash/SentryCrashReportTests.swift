@@ -35,6 +35,7 @@ class SentryCrashReportTests: XCTestCase {
         super.tearDown()
         
         deleteTestDir()
+        // swiftlint:disable:next avoid_clear_test_state - not validated — reconsider if you touch this
         clearTestState()
         sentrycrashbic_stopCache()
     }

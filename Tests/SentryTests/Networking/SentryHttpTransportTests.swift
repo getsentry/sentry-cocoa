@@ -207,6 +207,7 @@ class SentryHttpTransportTests: XCTestCase {
         super.tearDown()
         fixture.fileManager.deleteAllEnvelopes()
         fixture.requestManager.waitForAllRequests()
+        // swiftlint:disable:next avoid_clear_test_state - not validated — reconsider if you touch this
         clearTestState()
     }
 

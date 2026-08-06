@@ -134,6 +134,7 @@ class FileManagerSentryTracingIntegrationTests: XCTestCase {
         }
 
         func tearDown() throws {
+            // swiftlint:disable:next avoid_clear_test_state - not validated — reconsider if you touch this
             clearTestState()
 
             // Delete files created by the test run

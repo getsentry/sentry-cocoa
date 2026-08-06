@@ -10,6 +10,7 @@ class SentryInternalReplayApiIntegrationTests: XCTestCase {
     private static let validReplayId = "0eac7ab503354dd5819b03e263627a29"
 
     override func tearDown() {
+        // swiftlint:disable:next avoid_clear_test_state - not validated — reconsider if you touch this
         clearTestState()
         super.tearDown()
     }

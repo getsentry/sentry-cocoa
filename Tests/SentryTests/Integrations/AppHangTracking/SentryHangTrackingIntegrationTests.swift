@@ -64,6 +64,7 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
 
         try fixture.tearDownDI()
         
+        // swiftlint:disable:next avoid_clear_test_state - not validated — reconsider if you touch this
         clearTestState()
         super.tearDown()
     }
