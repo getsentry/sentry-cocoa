@@ -17,7 +17,7 @@
 
 ### Breaking Changes
 
-- Standalone app starts are now the default and only mode; the legacy `ui.load` attach-to-transaction path and `enableStandaloneAppStartTracing` experimental option are removed (#TBD)
+- Standalone app starts are now the default and only mode; the legacy `ui.load` attach-to-transaction path and `enableStandaloneAppStartTracing` experimental option are removed (#8719)
 - Remove `sendDefaultPii`; use `dataCollection` to configure automatic data collection (#8253)
 - Remove Objective-C `@objc` attributes from SentrySDK (#8308)
 - Remove deprecated `locale` from device context; use `locale` in culture context instead (#8325)
