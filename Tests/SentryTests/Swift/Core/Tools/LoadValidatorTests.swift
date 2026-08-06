@@ -13,7 +13,7 @@ class LoadValidatorTests: XCTestCase {
     private var defaultImageAddress: UInt64 = 0x1000
     private var defaultImageSize: UInt64 = 0x20
 
-    private let loadedMultipleTimesMessage = "❌ Sentry SDK was loaded multiple times in the same binary ❌"
+    private let loadedMultipleTimesMessage = "❌ Sentry SDK was loaded multiple times in the same address space ❌"
 
     // MARK: - Setup and Teardown
     
