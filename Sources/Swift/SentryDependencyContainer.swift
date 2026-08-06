@@ -248,13 +248,6 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         SentryViewHierarchyProvider(dispatchQueueWrapper: dispatchQueueWrapper, applicationProvider: defaultApplicationProvider)
     }
 
-    @objc public func getWatchdogTerminationScopeObserverWithOptions(_ options: Options) -> SentryScopeObserver {
-         return SentryWatchdogTerminationScopeObserver(
-            breadcrumbProcessor: SentryDefaultWatchdogTerminationBreadcrumbProcessor(
-                maxBreadcrumbs: Int(options.maxBreadcrumbs)),
-            attributesProcessor: watchdogTerminationAttributesProcessor)
-    }
-
     private var terminationTracker: SentryWatchdogTerminationTracker?
     func getWatchdogTerminationTracker(_ options: Options) -> SentryWatchdogTerminationTracker? {
         getOptionalLazyVar(\.terminationTracker) {
@@ -787,6 +780,10 @@ protocol DispatchFactoryProvider {
 }
 extension SentryDependencyContainer: DispatchFactoryProvider {}
 
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+extension SentryDependencyContainer: WatchdogTerminationAttributesProcessorProvider {}
+#endif
+
 protocol ExtensionDetectorProvider {
     var extensionDetector: SentryExtensionDetector { get }
 }
@@ -877,11 +874,6 @@ protocol AppStateManagerProvider {
 extension SentryDependencyContainer: AppStateManagerProvider { }
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-protocol WatchdogTerminationScopeObserverBuilder {
-    func getWatchdogTerminationScopeObserverWithOptions(_ options: Options) -> SentryScopeObserver
-}
-extension SentryDependencyContainer: WatchdogTerminationScopeObserverBuilder { }
-
 protocol WatchdogTerminationTrackerBuilder {
     func getWatchdogTerminationTracker(_ options: Options) -> SentryWatchdogTerminationTracker?
 }
