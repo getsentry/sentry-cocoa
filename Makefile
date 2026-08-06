@@ -935,7 +935,7 @@ test-ios:
 #   make test-macos
 #   make test-macos ONLY_TESTING=SentryTests/SentryHttpTransportTests
 #   make test-macos TEST_SCHEME=SentryObjCTests
-#   make test-macos TEST_PLAN=Sentry_TestServer   # needs `make run-test-server`
+#   make test-macos TEST_PLAN=Sentry_TestServer   # needs `make -C test-server start-debug`
 .PHONY: test-macos
 test-macos:
 	@echo "--> Running macOS tests"
@@ -1056,7 +1056,7 @@ test-ios-v10:
 # Examples:
 #   make test-macos-v10
 #   make test-macos-v10 ONLY_TESTING=SentryTests/SentryHttpTransportTests
-#   make test-macos-v10 TEST_PLAN=Sentry_TestServer   # needs `make run-test-server`
+#   make test-macos-v10 TEST_PLAN=Sentry_TestServer   # needs `make -C test-server start-debug`
 .PHONY: test-macos-v10
 test-macos-v10:
 	@echo "--> Running V10 macOS tests"
@@ -1241,44 +1241,6 @@ test-visionos-v10-with-kscrash:
 		--scheme Sentry+KSCrash \
 		--configuration TestV10KSCrash \
 		--only-testing "$(ONLY_TESTING)"
-
-## Run test server in background
-#
-# Builds and runs the test server in the background for integration testing.
-# Saves the process ID to test-server/.test-server.pid for safe shutdown.
-# Serves on port 8081, which is the port the tests and scripts/start-test-server.sh expect.
-.PHONY: run-test-server
-run-test-server:
-	cd ./test-server && swift build
-	cd ./test-server && { swift run Run serve --port 8081 & echo $$! > .test-server.pid; }
-
-## Run test server synchronously
-#
-# Builds and runs the test server synchronously (blocks until stopped).
-# Serves on port 8081, which is the port the tests and scripts/start-test-server.sh expect.
-.PHONY: run-test-server-sync
-run-test-server-sync:
-	cd ./test-server && swift build
-	cd ./test-server && swift run Run serve --port 8081
-
-## Stop test server
-#
-# Stops the test server using the saved process ID from test-server/.test-server.pid.
-# This is safer than killing by port as it only stops the test server process.
-.PHONY: stop-test-server
-stop-test-server:
-	@if [ -f test-server/.test-server.pid ]; then \
-		pid=$$(cat test-server/.test-server.pid); \
-		if ps -p $$pid > /dev/null 2>&1; then \
-			kill $$pid && echo "Test server (PID $$pid) stopped"; \
-			rm test-server/.test-server.pid; \
-		else \
-			echo "Test server PID $$pid not running (cleaning up PID file)"; \
-			rm test-server/.test-server.pid; \
-		fi \
-	else \
-		echo "No PID file found. Test server may not be running."; \
-	fi
 
 ## Run critical UI tests
 #

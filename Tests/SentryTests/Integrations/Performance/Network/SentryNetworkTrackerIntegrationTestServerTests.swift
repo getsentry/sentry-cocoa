@@ -3,7 +3,7 @@
 import XCTest
 
 /// You have to start the test server before running this test. You can do this by calling
-/// `make run-test-server` on your terminal.
+/// `make -C test-server start-debug` on your terminal.
 /// Other tests validating the functionality of the SentryNetworkTrackerIntegration are located in SentryNetworkTrackerIntegrationTests.swift
 /// This test is excluded from the SentryBase test plan because it requires the test server to be running. We have an extra test plan SentryTestServer,
 /// so we can run this test in our CI isolated without having to have the test server running for all other tests.
@@ -226,7 +226,7 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
     // If a XCTestExpectation times out, the test would fail.
     // swiftlint:disable avoid_dispatch_groups_in_tests
     private func ensureTestServerIsRunning() throws {
-        let testUrl = try XCTUnwrap(URL(string: "http://localhost:8081/"))
+        let testUrl = try XCTUnwrap(URL(string: "http://localhost:8081/health"))
 
         let session = URLSession(configuration: URLSessionConfiguration.default)
         let attempts = 20
@@ -237,8 +237,11 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
             var isReady = false
 
             group.enter()
-            let dataTask = session.dataTask(with: testUrl) { (_, response, error) in
-                if error == nil, let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
+            let dataTask = session.dataTask(with: testUrl) { data, response, error in
+                if error == nil,
+                    let httpResponse = response as? HTTPURLResponse,
+                    httpResponse.statusCode == 200,
+                    String(data: data ?? Data(), encoding: .utf8) == "OK" {
                     isReady = true
                 }
                 group.leave()
