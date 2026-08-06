@@ -8,6 +8,7 @@
 
 ### Fixes
 
+- Fix misleading duplicate SDK detection message: "same binary" → "same address space" (#8710)
 - Fix a race caused by mutating `URLSessionTask.currentRequest` during trace header propagation (#8650)
 
 ## 9.25.0
