@@ -12,7 +12,9 @@ final class TestLog: XCTestCase {
         stopCapturingOutput()
         super.tearDown()
     }
-    
+
+    private let loadedMultipleTimesMessage = "Sentry SDK was loaded multiple times in the same address space"
+
     func testDuplicatedLoadMessageOnSDKInit() throws {
         let expectation = XCTestExpectation(description: "Wait for duplicated SDK load message")
         
@@ -38,7 +40,7 @@ final class TestLog: XCTestCase {
         let checkQueue = DispatchQueue(label: "message.check")
         checkQueue.async {
             while self.isCapturing {
-                if self.capturedOutput.contains("Sentry SDK was loaded multiple times in the same binary") {
+                if self.capturedOutput.contains(loadedMultipleTimesMessage) {
                     expectation.fulfill()
                     break
                 }
@@ -49,7 +51,7 @@ final class TestLog: XCTestCase {
         // This expectation is fulfilled immediately on a mac, but takes way longer on CI
         wait(for: [expectation], timeout: 600.0)
         
-        XCTAssertTrue(capturedOutput.contains("Sentry SDK was loaded multiple times in the same binary"))
+        XCTAssertTrue(capturedOutput.contains(loadedMultipleTimesMessage))
     }
     
     private func startCapturingOutput() {

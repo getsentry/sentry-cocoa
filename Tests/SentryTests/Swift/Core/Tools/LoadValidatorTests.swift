@@ -12,7 +12,9 @@ class LoadValidatorTests: XCTestCase {
     private var dispatchQueueWrapper: TestSentryDispatchQueueWrapper!
     private var defaultImageAddress: UInt64 = 0x1000
     private var defaultImageSize: UInt64 = 0x20
-    
+
+    private let loadedMultipleTimesMessage = "❌ Sentry SDK was loaded multiple times in the same binary ❌"
+
     // MARK: - Setup and Teardown
     
     override func setUp() {
@@ -58,7 +60,7 @@ class LoadValidatorTests: XCTestCase {
         // Assert
         XCTAssertFalse(validationResult, "Validation should return false for system libraries")
         XCTAssertFalse(getClassListCalled, "ObjectiveC Wrapper should not be called for a system library")
-        XCTAssertFalse(testOutput.loggedMessages.contains { $0.contains("❌ Sentry SDK was loaded multiple times") })
+        XCTAssertFalse(testOutput.loggedMessages.contains { $0.contains(loadedMultipleTimesMessage) })
         XCTAssertEqual(dispatchQueueWrapper.dispatchAsyncInvocations.count, 0)
     }
  
@@ -86,7 +88,7 @@ class LoadValidatorTests: XCTestCase {
         // Assert
         XCTAssertFalse(validationResult, "Validation should return false for simulator libraries")
         XCTAssertFalse(getClassListCalled, "ObjectiveC Wrapper should not be called for a simulator library")
-        XCTAssertFalse(testOutput.loggedMessages.contains { $0.contains("❌ Sentry SDK was loaded multiple times") })
+        XCTAssertFalse(testOutput.loggedMessages.contains { $0.contains(loadedMultipleTimesMessage) })
         XCTAssertEqual(dispatchQueueWrapper.dispatchAsyncInvocations.count, 0)
     }
     
@@ -114,7 +116,7 @@ class LoadValidatorTests: XCTestCase {
         // Assert
         XCTAssertFalse(validationResult, "Validation should return false for cryptex simulator libraries")
         XCTAssertFalse(getClassListCalled, "ObjectiveC Wrapper should not be called for a cryptex simulator library")
-        XCTAssertFalse(testOutput.loggedMessages.contains { $0.contains("❌ Sentry SDK was loaded multiple times") })
+        XCTAssertFalse(testOutput.loggedMessages.contains { $0.contains(loadedMultipleTimesMessage) })
         XCTAssertEqual(dispatchQueueWrapper.dispatchAsyncInvocations.count, 0)
     }
 
@@ -142,7 +144,7 @@ class LoadValidatorTests: XCTestCase {
         // Assert
         XCTAssertFalse(validationResult, "Validation should return false for system libraries")
         XCTAssertFalse(getClassListCalled, "ObjectiveC Wrapper should not be called for a simulator library")
-        XCTAssertFalse(testOutput.loggedMessages.contains { $0.contains("❌ Sentry SDK was loaded multiple times") })
+        XCTAssertFalse(testOutput.loggedMessages.contains { $0.contains(loadedMultipleTimesMessage) })
         XCTAssertEqual(dispatchQueueWrapper.dispatchAsyncInvocations.count, 0)
     }
     
@@ -170,7 +172,7 @@ class LoadValidatorTests: XCTestCase {
         // Assert
         XCTAssertFalse(validationResult, "Validation should return false")
         XCTAssertTrue(getClassListCalled, "ObjectiveC Wrapper should be called for an app binary")
-        XCTAssertFalse(testOutput.loggedMessages.contains { $0.contains("❌ Sentry SDK was loaded multiple times") })
+        XCTAssertFalse(testOutput.loggedMessages.contains { $0.contains(loadedMultipleTimesMessage) })
         XCTAssertEqual(dispatchQueueWrapper.dispatchAsyncInvocations.count, 1)
     }
 
@@ -201,7 +203,7 @@ class LoadValidatorTests: XCTestCase {
         // Assert
         XCTAssertTrue(validationResult, "Validation should skip for app binary")
         XCTAssertTrue(getClassListCalled, "ObjectiveC Wrapper should be called for an app binary")
-        XCTAssertTrue(testOutput.loggedMessages.contains { $0.contains("❌ Sentry SDK was loaded multiple times in the same binary ❌") })
+        XCTAssertTrue(testOutput.loggedMessages.contains { $0.contains(loadedMultipleTimesMessage) })
         XCTAssertTrue(testOutput.loggedMessages.contains { $0.contains("⚠️ This can cause undefined behavior, crashes, or duplicate reporting.") })
         XCTAssertTrue(testOutput.loggedMessages.contains { $0.contains("Ensure the SDK is linked only once, found `SentryDependencyContainerSwiftHelper` class in image path: \(imageName)") })
         XCTAssertEqual(dispatchQueueWrapper.dispatchAsyncInvocations.count, 1)
@@ -234,7 +236,7 @@ class LoadValidatorTests: XCTestCase {
         // Assert
         XCTAssertTrue(validationResult, "Validation should return true for app")
         XCTAssertTrue(getClassListCalled, "ObjectiveC Wrapper should be called for an app binary")
-        XCTAssertTrue(testOutput.loggedMessages.contains { $0.contains("❌ Sentry SDK was loaded multiple times in the same binary ❌") })
+        XCTAssertTrue(testOutput.loggedMessages.contains { $0.contains(loadedMultipleTimesMessage) })
         XCTAssertTrue(testOutput.loggedMessages.contains { $0.contains("⚠️ This can cause undefined behavior, crashes, or duplicate reporting.") })
         XCTAssertTrue(testOutput.loggedMessages.contains { $0.contains("Ensure the SDK is linked only once, found `SentryDependencyContainerSwiftHelper` class in image path: \(imageName)") })
         XCTAssertEqual(dispatchQueueWrapper.dispatchAsyncInvocations.count, 1)
@@ -271,7 +273,7 @@ class LoadValidatorTests: XCTestCase {
         // Assert
         XCTAssertFalse(validationResult, "Validation should skip for sentry framework")
         XCTAssertTrue(getClassListCalled, "ObjectiveC Wrapper should not be called for an app binary")
-        XCTAssertFalse(testOutput.loggedMessages.contains { $0.contains("❌ Sentry SDK was loaded multiple times") })
+        XCTAssertFalse(testOutput.loggedMessages.contains { $0.contains(loadedMultipleTimesMessage) })
         XCTAssertEqual(dispatchQueueWrapper.dispatchAsyncInvocations.count, 1)
     }
 }
