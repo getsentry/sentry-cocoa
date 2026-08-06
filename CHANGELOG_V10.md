@@ -17,7 +17,7 @@
 
 ### Breaking Changes
 
-- Enable `swiftAsyncStacktraces` by default (#TBD)
+- Enable `swiftAsyncStacktraces` by default (#8718)
 - Remove `sendDefaultPii`; use `dataCollection` to configure automatic data collection (#8253)
 - Remove Objective-C `@objc` attributes from SentrySDK (#8308)
 - Remove deprecated `locale` from device context; use `locale` in culture context instead (#8325)
