@@ -14,7 +14,6 @@ func envFlag(_ name: String) -> Bool {
     getenv(name).map { String(cString: $0) == "1" } ?? false
 }
 
-let enableKSCrash = envFlag("ENABLE_KSCRASH")
 let enableV10 = envFlag("SDK_V10")
 
 var products: [Product] = [
@@ -105,17 +104,15 @@ if enableV10 {
 } else {
     products.append(.library(name: "SentrySPM", targets: ["SentryObjCInternal"]))
 }
-products.append(.library(name: "Sentry+KSCrash", targets: ["SentryObjCInternal"]))
-
 let sentrySwiftTarget: Target = .target(
     name: "SentrySwift",
     dependencies: ["_SentryPrivate", "SentryHeaders"],
     path: "Sources/Swift",
 )
 
-if enableKSCrash {
+if enableV10 {
     sentrySwiftTarget.dependencies.append(.product(name: "Installations", package: "KSCrash"))
-    sentrySwiftTarget.swiftSettings?.append(.define("ENABLE_KSCRASH"))
+    sentrySwiftTarget.swiftSettings?.append(.define("SDK_V10"))
 }
 
 targets += [
@@ -183,7 +180,7 @@ targets += [
 ]
 // END:OBJC_WRAPPER
 
-let packageDependencies: [Package.Dependency] = enableKSCrash ? [.package(url: "https://github.com/kstenerud/KSCrash.git", from: "2.6.0-beta.5")] : []
+let packageDependencies: [Package.Dependency] = enableV10 ? [.package(url: "https://github.com/kstenerud/KSCrash.git", from: "2.6.0-beta.5")] : []
 
 let package = Package(
     name: "Sentry",

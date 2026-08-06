@@ -14,7 +14,6 @@ func envFlag(_ name: String) -> Bool {
     getenv(name).map { String(cString: $0) == "1" } ?? false
 }
 
-let enableKSCrash = envFlag("ENABLE_KSCRASH")
 let enableV10 = envFlag("SDK_V10")
 
 var products: [Product] = [
@@ -112,13 +111,11 @@ let sentrySwiftTarget: Target = .target(
     path: "Sources/Swift",
     swiftSettings: [
         .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"])),
-        .define("SDK_V10", .when(traits: ["V10"])),
-        .define("SDK_V10", .when(traits: ["KSCrash"])),
-        .define("ENABLE_KSCRASH", .when(traits: ["KSCrash"]))
+        .define("SDK_V10", .when(traits: ["V10"]))
     ]
 )
 
-if enableKSCrash {
+if enableV10 {
     sentrySwiftTarget.dependencies.append(.product(name: "Installations", package: "KSCrash"))
 }
 
@@ -167,9 +164,7 @@ targets += [
             .headerSearchPath("SentryCrash/Reporting/Filters"),
             .headerSearchPath("SentryCrash/Reporting/Filters/Tools"),
             .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"])),
-            .define("SDK_V10", to: "1", .when(traits: ["V10"])),
-            .define("SDK_V10", to: "1", .when(traits: ["KSCrash"])),
-            .define("ENABLE_KSCRASH", to: "1", .when(traits: ["KSCrash"]))
+            .define("SDK_V10", to: "1", .when(traits: ["V10"]))
         ])
 ]
 
@@ -182,9 +177,7 @@ targets += [
         path: "Sources/SentryObjCCompat",
         swiftSettings: [
             .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"])),
-            .define("SDK_V10", .when(traits: ["V10"])),
-            .define("SDK_V10", .when(traits: ["KSCrash"])),
-            .define("ENABLE_KSCRASH", .when(traits: ["KSCrash"]))
+            .define("SDK_V10", .when(traits: ["V10"]))
         ]
     ),
     .target(
@@ -195,15 +188,13 @@ targets += [
         cSettings: [
             .headerSearchPath("Public"),
             .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"])),
-            .define("SDK_V10", to: "1", .when(traits: ["V10"])),
-            .define("SDK_V10", to: "1", .when(traits: ["KSCrash"])),
-            .define("ENABLE_KSCRASH", to: "1", .when(traits: ["KSCrash"]))
+            .define("SDK_V10", to: "1", .when(traits: ["V10"]))
         ]
     )
 ]
 // END:OBJC_WRAPPER
 
-let packageDependencies: [Package.Dependency] = enableKSCrash ? [.package(url: "https://github.com/kstenerud/KSCrash.git", from: "2.6.0-beta.5")] : []
+let packageDependencies: [Package.Dependency] = enableV10 ? [.package(url: "https://github.com/kstenerud/KSCrash.git", from: "2.6.0-beta.5")] : []
 
 let package = Package(
     name: "Sentry",
@@ -211,8 +202,7 @@ let package = Package(
     products: products,
     traits: [
         .init(name: "NoUIFramework", description: "Build without UIKit/AppKit/SwiftUI framework linkage. Use for command-line tools or contexts where UI frameworks are unavailable."),
-        .init(name: "V10", description: "Enable SDK V10 API changes."),
-        .init(name: "KSCrash", description: "Enable upstream KSCrash integration.")
+        .init(name: "V10", description: "Enable SDK V10 API changes, including the upstream KSCrash integration.")
     ],
     dependencies: packageDependencies,
     targets: targets,

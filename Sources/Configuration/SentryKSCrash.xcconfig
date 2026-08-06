@@ -1,8 +1,8 @@
 #include "Sentry.xcconfig"
 
-// Always enable KSCrash and SDK_V10 for this target, regardless of configuration.
-GCC_PREPROCESSOR_DEFINITIONS = $(GCC_PREPROCESSOR_DEFINITIONS_$(CONFIGURATION)) ENABLE_KSCRASH=1 SDK_V10=1
-SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(SWIFT_ACTIVE_COMPILATION_CONDITIONS_$(CONFIGURATION)) ENABLE_KSCRASH SDK_V10
+// This target provides the KSCrash-backed SDK used by all V10 configurations.
+GCC_PREPROCESSOR_DEFINITIONS = $(GCC_PREPROCESSOR_DEFINITIONS_$(CONFIGURATION)) SDK_V10=1
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(SWIFT_ACTIVE_COMPILATION_CONDITIONS_$(CONFIGURATION)) SDK_V10
 
 // The KSCrash variant must still build Sentry.framework because Clang framework
 // module lookup and the public umbrella header both expect the Sentry bundle name.

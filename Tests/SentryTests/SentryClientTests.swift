@@ -2151,7 +2151,7 @@ final class SentryClientTests: XCTestCase {
         if !SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced {
             expectedIntegrations = ["ANRTracking"] + expectedIntegrations
         }
-        #if ENABLE_KSCRASH
+        #if SDK_V10
         expectedIntegrations.append("KSCrash")
         #else
         expectedIntegrations.append("Crash")

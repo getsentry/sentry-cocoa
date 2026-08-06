@@ -759,18 +759,11 @@ Cons:
 
 ### Option B: Dual integrations on `main` (chosen)
 
-The two integrations are mutually exclusive at compile time — only one is compiled into the binary. Which one is active is controlled by two guards:
-
-1. **`#if ENABLE_KSCRASH` compiler flag** — `SentryKSCrashIntegration` is compiled only when `ENABLE_KSCRASH` is set (which requires V10).
-2. **`ENABLE_KSCRASH` env var in `Package.swift`** — KSCrash is only downloaded and added as a dependency if `ENABLE_KSCRASH=1` when SPM runs.
+The integrations initially used a separate migration switch. At the V10 cutover, `SDK_V10` became the single switch: V10 builds compile and activate `SentryKSCrashIntegration`, while V9 builds continue to use `SentryCrashIntegration`. For SwiftPM, the `SDK_V10` environment variable controls the source-built product and KSCrash dependency, and the `V10` trait supplies the compiler definition.
 
 Pros:
 
 - Work ships incrementally to `main`; no merge conflict mess
-- Hybrid SDK consumers can test the KSCrash path and swap between the two more easily
-- The cutover becomes a single 'flip the switch' change
+- V10 exercises the crash reporter that it will ship by default
+- V9 remains isolated from the new KSCrash dependency
 - Easier code review — changes land in small, reviewable chunks
-
-Cons:
-
-- `#if ENABLE_KSCRASH` guards add a small amount of conditional-compilation mental noise for developers
