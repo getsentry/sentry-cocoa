@@ -65,7 +65,9 @@ jobs:
 
       - name: Build Universal Test Server
         working-directory: test-server
-        run: make release-universal 2>&1 | tee test-server-build.log
+        run: |
+          set -o pipefail
+          make release-universal 2>&1 | tee test-server-build.log
 
       - name: Archiving DerivedData
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
