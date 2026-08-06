@@ -43,6 +43,8 @@ static int64_t const DATA_BYTES_SENT = 652;
 
 - (void)setResponse:(NSURLResponse *)response;
 
+- (void)setCurrentRequest:(NSURLRequest *)request;
+
 @end
 
 @interface URLSessionUploadTaskMock : NSURLSessionUploadTask <URLSessionTaskMock>
@@ -52,6 +54,8 @@ static int64_t const DATA_BYTES_SENT = 652;
 - (instancetype)initWithRequest:(NSURLRequest *)request;
 
 - (void)setResponse:(NSURLResponse *)response;
+
+- (void)setCurrentRequest:(NSURLRequest *)request;
 
 @end
 
@@ -83,6 +87,13 @@ static int64_t const DATA_BYTES_SENT = 652;
 @interface VolatileRequestTaskMock : URLSessionDataTaskMock
 
 @property (nonatomic) NSUInteger currentRequestAccessLimit;
+
+@end
+
+@interface MutableRequestTaskMock : URLSessionDataTaskMock
+
+@property (nonatomic, readonly) NSMutableURLRequest *initialCurrentRequest;
+@property (nonatomic, readonly) NSUInteger setCurrentRequestCallCount;
 
 @end
 

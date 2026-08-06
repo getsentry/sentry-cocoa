@@ -17,6 +17,15 @@ public func routes(_ app: Application) {
         echoedHeader(named: "sentry-trace", from: request)
     }
 
+    app.post("echo-sentry-trace") { request -> String in
+        let trace_id = request.headers["sentry-trace"]
+        if let sentryTraceHeader = trace_id.first {
+            return sentryTraceHeader
+        }
+
+        return "(NO-HEADER)"
+    }
+
     app.get("http-client-error") { _ -> String in
         throw Abort(.badRequest)
     }

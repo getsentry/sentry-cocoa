@@ -6,6 +6,10 @@
 
 - Add experimental option `enableUIViewControllerInitSwizzling` that defers `UIViewController` swizzling to first instantiation instead of eagerly discovering and swizzling all subclasses at SDK start. This avoids realizing `@available`-gated `UIViewController` subclasses on OS versions below their gate, which crashes apps on start (#8687).
 
+### Fixes
+
+- Fix a race caused by mutating `URLSessionTask.currentRequest` during trace header propagation (#8650)
+
 ## 9.25.0
 
 > [!WARNING]
