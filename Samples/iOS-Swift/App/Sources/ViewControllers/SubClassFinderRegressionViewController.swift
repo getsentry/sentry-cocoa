@@ -12,9 +12,8 @@ import FoundationModels
 // Repro for GH-8152: with `@available`-gated UIViewController subclasses compiled in, the SDK
 // crashes the app during launch on an OS below the gate. Verified on the iOS 16.4 simulator.
 //
-// `AppDelegate` enables deferred (init) swizzling so the sample still launches there, and keeps
-// `swizzleClassNameExcludes` as a fallback for when that flag is turned off again from the SDK
-// Debug menu. Drop both to reproduce.
+// `AppDelegate` excludes these classes from swizzling so the sample still launches there; remove
+// those excludes to reproduce.
 
 /// Host screen for the fixtures. Opening it is not what triggers the crash.
 final class SubClassFinderRegressionViewController: UIViewController {

@@ -1,9 +1,8 @@
 import XCTest
 
 /// Keeps the fixtures compiled in and the app launchable. These cannot observe the GH-8152 crash:
-/// CI runs iOS 17.5 / 18 / 26, all at or above the fixtures' gates, and `AppDelegate` enables
-/// deferred (init) swizzling plus `swizzleClassNameExcludes` as a fallback. For the crash itself,
-/// drop both and run on iOS 16.4.
+/// CI runs iOS 17.5 / 18 / 26, all at or above the fixtures' gates, and `AppDelegate` excludes the
+/// gated classes from swizzling. For the crash itself, drop those excludes and run on iOS 16.4.
 class SubClassFinderRegressionUITests: BaseUITest {
 
     func testAppLaunchesWithoutCrashingOnGatedSubclasses() {

@@ -34,21 +34,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         SentrySDKWrapper.spanCaptureHandler = { LaunchVCTransactionCapture.shared.capture($0) }
 
-        // This sample has @available-gated UIViewController subclasses (see
-        // SubClassFinderRegressionViewController) that crash the eager subclass scan on an OS below
-        // their gate. Deferred (init) swizzling avoids that, so turn it on by default here; the
-        // sample's UI tests then also cover automatic transactions/instrumentation with it. (GH-8548)
+        // Required: this sample has @available-gated UIViewController subclasses that would crash
+        // at launch without deferred swizzling. Also acts as a safety gate for the feature itself,
+        // since this sample's UI tests cover automatic transactions/instrumentation. (GH-8548)
         var enableInitSwizzling = SentrySDKOverrides.UIViewControllerTracing.enableInitSwizzling
         enableInitSwizzling.boolValue = true
-
-        // Fallback for when the flag is toggled off again from the SDK Debug menu, which restarts
-        // the SDK without going through didFinishLaunching. Only applied when init swizzling is
-        // off; remove them to reproduce GH-8152.
-        SentrySDKWrapper.swizzleClassNameExcludes = [
-            "GatedIOS17ViewController",
-            "GatedIOS26OnlyViewController",
-            "GatedObsoletedOnIOS26ViewController"
-        ]
 
         SentrySDKWrapper.shared.startSentry()
         
