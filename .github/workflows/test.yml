@@ -160,8 +160,9 @@ jobs:
           name: test-server
 
       - name: Start Test Server
-        working-directory: test-server
-        run: make start TEST_SERVER_EXECUTABLE=./test-server-exec
+        run: |
+          chmod +x test-server-exec
+          make -C test-server start TEST_SERVER_EXECUTABLE=../test-server-exec
 
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
@@ -206,8 +207,7 @@ jobs:
 
       - name: Stop Test Server
         if: ${{ always() }}
-        working-directory: test-server
-        run: make stop
+        run: make -C test-server stop
 
       - name: Archiving DerivedData Logs
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7

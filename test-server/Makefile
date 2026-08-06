@@ -62,7 +62,8 @@ start:
 .PHONY: test-integration
 test-integration: build
 	@$(MAKE) start
-	@trap '$(MAKE) stop' EXIT; \
+	@set -e; \
+		trap '$(MAKE) stop' EXIT; \
 		test "$$(curl --fail --silent "http://localhost:$(PORT)/health")" = "OK"; \
 		test "$$(curl --fail --silent "http://localhost:$(PORT)/")" = "It works!"; \
 		test "$$(curl --fail --silent -H "baggage: sentry-trace_id=123" "http://localhost:$(PORT)/echo-baggage-header")" = "sentry-trace_id=123"; \
