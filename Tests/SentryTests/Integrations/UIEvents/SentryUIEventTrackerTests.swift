@@ -50,7 +50,7 @@ class SentryUIEventTrackerTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         fixture.swizzleWrapper.removeAllCallbacks()
-        // swiftlint:disable:next avoid_clear_test_state - not validated — reconsider if you touch this
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
     

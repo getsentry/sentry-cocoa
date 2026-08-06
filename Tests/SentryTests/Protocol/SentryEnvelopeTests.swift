@@ -57,7 +57,7 @@ class SentryEnvelopeTests: XCTestCase {
         if fileManager.fileExists(atPath: fixture.path) {
             try fileManager.removeItem(atPath: fixture.path)
         }
-        // swiftlint:disable:next avoid_clear_test_state - not validated — reconsider if you touch this
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
 

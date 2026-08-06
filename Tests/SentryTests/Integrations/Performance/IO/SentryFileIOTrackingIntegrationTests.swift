@@ -62,7 +62,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         if deleteFileDirectory && FileManager.default.fileExists(atPath: fixture.fileDirectory.path) {
             try FileManager.default.removeItem(at: fixture.fileDirectory)
         }
-        // swiftlint:disable:next avoid_clear_test_state - not validated — reconsider if you touch this
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
         SentrySDK.close()
     }

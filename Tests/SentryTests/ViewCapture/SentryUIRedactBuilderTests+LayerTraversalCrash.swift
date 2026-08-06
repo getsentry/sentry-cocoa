@@ -67,7 +67,7 @@ class SentryUIRedactBuilderTests_LayerTraversalCrash: SentryUIRedactBuilderTests
         let logOutput = TestLogOutput(logsToConsole: false)
         SentrySDKLog.setLogOutput(logOutput)
         SentrySDKLog.configureLog(true, diagnosticLevel: .warning)
-        defer { clearTestState() } // swiftlint:disable:this avoid_clear_test_state - not validated — reconsider if you touch this
+        defer { clearTestState() } // swiftlint:disable:this avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
 
         let exception = NSException(
             name: .invalidArgumentException,
