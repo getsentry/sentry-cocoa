@@ -910,20 +910,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		0C8F6C014ED3477AB689AAC0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 6327C5CA1EB8A783004E799B /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 63AA759A1EB8AEF500D153DE;
-			remoteInfo = Sentry;
-		};
-		960877F8585F44C6842BC18D /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 6327C5CA1EB8A783004E799B /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = D61074A12EE358E90332638B;
-			remoteInfo = "Sentry+KSCrash";
-		};
 		3CFC66E02FF50342004005B4 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6327C5CA1EB8A783004E799B /* Project object */;
@@ -3658,8 +3644,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				E300EA6E319E49278656AA94 /* PBXTargetDependency */,
-				362D72ECB4064D2EBCF927D5 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				FAB1188E2F4633F40000CC24 /* SentryTestUtils */,
@@ -4598,16 +4582,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		E300EA6E319E49278656AA94 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 63AA759A1EB8AEF500D153DE /* Sentry */;
-			targetProxy = 0C8F6C014ED3477AB689AAC0 /* PBXContainerItemProxy */;
-		};
-		362D72ECB4064D2EBCF927D5 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = D61074A12EE358E90332638B /* Sentry+KSCrash */;
-			targetProxy = 960877F8585F44C6842BC18D /* PBXContainerItemProxy */;
-		};
 		3CFC66DF2FF50342004005B4 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = D61074A12EE358E90332638B /* Sentry+KSCrash */;
