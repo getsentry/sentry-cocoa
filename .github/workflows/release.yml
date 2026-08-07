@@ -506,18 +506,22 @@ jobs:
 
       - name: Create apple-binaries archive
         if: ${{ github.event_name == 'workflow_dispatch' }}
+        env:
+          VERSION: ${{ github.event.inputs.version }}
         run: |
           ./scripts/create-apple-binaries-archive.sh \
-            --version "${{ github.event.inputs.version }}" \
+            --version "$VERSION" \
             --xcframework-dir XCFrameworkBuildPath \
             --output-dir XCFrameworkBuildPath
 
       - name: Create 3rd-party integration archives
         if: ${{ github.event_name == 'workflow_dispatch' }}
+        env:
+          VERSION: ${{ github.event.inputs.version }}
         run: |
           ./scripts/create-3rd-party-integration-archive.sh \
             --all \
-            --version "${{ github.event.inputs.version }}" \
+            --version "$VERSION" \
             --output-dir XCFrameworkBuildPath
 
       - name: Archive XCFrameworks for Craft
