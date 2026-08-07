@@ -59,27 +59,15 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ./test-server/.build
-          key: test-server-${{ hashFiles('./test-server') }}-universal
+          key: test-server-${{ hashFiles('test-server/**') }}-universal
           restore-keys: |
-            test-server-${{ hashFiles('./test-server') }}-universal
             test-server-
 
-      - name: Build Test Server for Intel CPU
-        if: steps.cache_test_server.outputs.cache-hit != 'true'
+      - name: Build Universal Test Server
         working-directory: test-server
-        run: >-
-          swift build -c release --triple x86_64-apple-macosx 2>&1 | tee test-server-build-intel.log
-
-      - name: Build Test Server for M1 CPU
-        if: steps.cache_test_server.outputs.cache-hit != 'true'
-        working-directory: test-server
-        run: >-
-          swift build -c release --arch arm64 2>&1 | tee test-server-build-arm64.log
-
-      - name: Combine Test Server
-        working-directory: test-server
-        run: >-
-          lipo -create -output test-server-exec "$(swift build --show-bin-path -c release --triple arm64-apple-macosx)/Run" "$(swift build --show-bin-path -c release --triple x86_64-apple-macosx)/Run"
+        run: |
+          set -o pipefail
+          make release-universal 2>&1 | tee test-server-build.log
 
       - name: Archiving DerivedData
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
@@ -94,8 +82,7 @@ jobs:
         with:
           name: test-server-build-log
           path: |
-            test-server-build-intel.log
-            test-server-build-arm64.log
+            test-server/test-server-build.log
 
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
@@ -175,7 +162,10 @@ jobs:
           name: test-server
 
       - name: Start Test Server
-        run: ./scripts/start-test-server.sh
+        run: |
+          chmod +x test-server-exec
+          make -C test-server start TEST_SERVER_EXECUTABLE=../test-server-exec
+
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
@@ -216,6 +206,10 @@ jobs:
             --configuration TestCI \
             --scheme Sentry \
             --test-plan Sentry_TestServer
+
+      - name: Stop Test Server
+        if: ${{ always() }}
+        run: make -C test-server stop
 
       - name: Archiving DerivedData Logs
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7

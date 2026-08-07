@@ -4,7 +4,7 @@ import PackageDescription
 let package = Package(
     name: "test-server",
     platforms: [
-        .macOS(.v10_15)
+        .macOS(.v12)
     ],
     dependencies: [
         .package(url: "https://github.com/vapor/vapor.git", exact: "4.122.0")
@@ -25,7 +25,7 @@ let package = Package(
         .executableTarget(name: "Run", dependencies: [.target(name: "App")]),
         .testTarget(name: "AppTests", dependencies: [
             .target(name: "App"),
-            .product(name: "XCTVapor", package: "vapor")
+            .product(name: "VaporTesting", package: "vapor")
         ])
     ]
 )

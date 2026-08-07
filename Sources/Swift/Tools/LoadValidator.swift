@@ -67,7 +67,7 @@ import MachO
                             continue
                         }
                         if name.contains(self.targetClassName) {
-                            var message = ["❌ Sentry SDK was loaded multiple times in the same binary ❌"]
+                            var message = ["❌ Sentry SDK was loaded multiple times in the same address space ❌"]
                             message.append("⚠️ This can cause undefined behavior, crashes, or duplicate reporting.")
                             message.append("Ensure the SDK is linked only once, found `\(self.targetClassName)` class in image path: \(imageName)")
                             SentrySDKLog.error(message.joined(separator: "\n"))
