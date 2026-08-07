@@ -40,7 +40,7 @@ final class TestLog: XCTestCase {
         let checkQueue = DispatchQueue(label: "message.check")
         checkQueue.async {
             while self.isCapturing {
-                if self.capturedOutput.contains(loadedMultipleTimesMessage) {
+                if self.capturedOutput.contains(self.loadedMultipleTimesMessage) {
                     expectation.fulfill()
                     break
                 }
