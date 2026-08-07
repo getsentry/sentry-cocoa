@@ -55,6 +55,48 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         XCTAssertEqual(NSNumber(value: 200), networkSpan.data["http.response.status_code"] as? NSNumber)
     }
 
+    func testDataTask_whenResponseIsDelayed_shouldIncludeDelayInSpanDuration() throws {
+        // -- Arrange --
+        try ensureTestServerIsRunning()
+        let url = try XCTUnwrap(URL(string: "http://localhost:8081/delayed-response"))
+        let requestCompleted = expectation(description: "Request completed")
+        requestCompleted.assertForOverFulfill = false
+
+        startSDK()
+
+        let transaction = try XCTUnwrap(SentrySDK.startTransaction(
+            name: "Test Transaction",
+            operation: "TEST",
+            bindToScope: true
+        ) as? SentryTracer)
+        let session = URLSession(configuration: .default)
+        let task = session.dataTask(with: url) { _, response, error in
+            self.assertNetworkError(error)
+            XCTAssertEqual((response as? HTTPURLResponse)?.statusCode, 200)
+            requestCompleted.fulfill()
+        }
+        let taskCompleted = keyValueObservingExpectation(
+            for: task,
+            keyPath: "state"
+        ) { object, _ in
+            (object as? URLSessionTask)?.state == .completed
+        }
+        defer { session.finishTasksAndInvalidate() }
+
+        // -- Act --
+        task.resume()
+        wait(for: [requestCompleted, taskCompleted], timeout: 10)
+
+        // -- Assert --
+        let networkSpan = try XCTUnwrap(transaction.children.first)
+        let spanStartedAt = try XCTUnwrap(networkSpan.startTimestamp)
+        let spanEndedAt = try XCTUnwrap(networkSpan.timestamp)
+        let spanDuration = spanEndedAt.timeIntervalSince(spanStartedAt)
+
+        XCTAssertTrue(networkSpan.isFinished)
+        XCTAssertGreaterThanOrEqual(spanDuration, 0.9)
+    }
+
     func testDataTask_whenRequestCompletes_shouldCaptureNetworkBreadcrumb() throws {
         // -- Arrange --
         try ensureTestServerIsRunning()
