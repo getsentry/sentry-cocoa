@@ -153,10 +153,6 @@ struct SessionReplayFileManager {
     
     // MARK: - File Utilities
 
-    static func image(atPath path: String) -> UIImage? {
-        UIImage(contentsOfFile: path)
-    }
-    
     func removeFileIfExists(atPath path: String) {
         guard FileManager.default.fileExists(atPath: path) else { return }
         SentrySDKLog.debug("[Session Replay] Removing file at path: \(path)")
