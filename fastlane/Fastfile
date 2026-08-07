@@ -244,17 +244,19 @@ platform :ios do
     delete_keychain(name: "fastlane_tmp_keychain") if is_ci
   end
 
-  lane :ui_critical_tests_ios_swiftui_all do
+  lane :ui_critical_tests_ios_swiftui_all do |options|
     run_ui_tests(
       scheme: "SwiftUITestSampleAll",
-      result_bundle_name: "ui_critical_tests_ios_swiftui_all"
+      result_bundle_name: "ui_critical_tests_ios_swiftui_all",
+      device: options[:device]
     )
   end
 
-  lane :ui_critical_tests_ios_swiftui_envelope do
+  lane :ui_critical_tests_ios_swiftui_envelope do |options|
     run_ui_tests(
       scheme: "SwiftUITestSampleEnvelope",
-      result_bundle_name: "ui_critical_tests_ios_swiftui_envelope"
+      result_bundle_name: "ui_critical_tests_ios_swiftui_envelope",
+      device: options[:device]
     )
   end
 

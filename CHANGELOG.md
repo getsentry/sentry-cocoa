@@ -6,8 +6,13 @@
 
 - Add experimental option `enableUIViewControllerInitSwizzling` that defers `UIViewController` swizzling to first instantiation instead of eagerly discovering and swizzling all subclasses at SDK start. This avoids realizing `@available`-gated `UIViewController` subclasses on OS versions below their gate, which crashes apps on start (#8687).
 
+### Improvements
+
+- Session Replay keeps captured frames in memory for live video encode while still writing PNGs to disk for crash durability. Encode prefers the in-memory image and only falls back to disk for frames recovered after a crash, avoiding a PNG readback on the streaming hot path. (#8636)
+
 ### Fixes
 
+- Fix misleading duplicate SDK detection message: "same binary" → "same address space" (#8710)
 - Fix a race caused by mutating `URLSessionTask.currentRequest` during trace header propagation (#8650)
 
 ## 9.25.0

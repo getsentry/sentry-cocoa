@@ -53,6 +53,7 @@ final class SentryAppStateManagerTests: XCTestCase {
         super.tearDown()
         sut.stop(withForce: true)
         fixture.fileManager.deleteAppState()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
 
