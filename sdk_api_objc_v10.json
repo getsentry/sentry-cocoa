@@ -564,6 +564,12 @@
   },
   {
     "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCInternalScopeApi",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
     "name": "SentryObjCInternalScreenApi",
     "super": "NSObject",
     "has_inner": true
@@ -577,6 +583,12 @@
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryObjCInternalSdkApi",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCInternalSerializerApi",
     "super": "NSObject",
     "has_inner": true
   },
@@ -3089,6 +3101,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "init",
+    "parent": "SentryObjCInternalScopeApi",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
     "parent": "SentryObjCInternalScreenApi",
     "returnType": "instancetype _Nonnull",
     "instance": true
@@ -3104,6 +3123,13 @@
     "kind": "ObjCMethodDecl",
     "name": "init",
     "parent": "SentryObjCInternalSdkApi",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "parent": "SentryObjCInternalSerializerApi",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
@@ -4524,6 +4550,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "new",
+    "parent": "SentryObjCInternalScopeApi",
+    "returnType": "instancetype _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "new",
     "parent": "SentryObjCInternalScreenApi",
     "returnType": "instancetype _Nonnull",
     "instance": false
@@ -4539,6 +4572,13 @@
     "kind": "ObjCMethodDecl",
     "name": "new",
     "parent": "SentryObjCInternalSdkApi",
+    "returnType": "instancetype _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "new",
+    "parent": "SentryObjCInternalSerializerApi",
     "returnType": "instancetype _Nonnull",
     "instance": false
   },
@@ -5286,6 +5326,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "scope",
+    "parent": "SentryObjCInternalApi",
+    "returnType": "SentryObjCInternalScopeApi * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "screen",
     "parent": "SentryObjCInternalApi",
     "returnType": "SentryObjCInternalScreenApi * _Nonnull",
@@ -5359,6 +5406,27 @@
     "name": "serialize",
     "parent": "SentryObjCScope",
     "returnType": "NSDictionary<NSString *,id> * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "serializeEvent:",
+    "parent": "SentryObjCInternalSerializerApi",
+    "returnType": "NSDictionary<NSString *,id> * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "serializedContexts",
+    "parent": "SentryObjCInternalScopeApi",
+    "returnType": "NSDictionary<NSString *,NSDictionary<NSString *,id> *> * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "serializer",
+    "parent": "SentryObjCInternalApi",
+    "returnType": "SentryObjCInternalSerializerApi * _Nonnull",
     "instance": true
   },
   {
@@ -10654,6 +10722,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "scope",
+    "parent": "SentryObjCInternalApi",
+    "type": "SentryObjCInternalScopeApi * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "screen",
     "parent": "SentryObjCInternalApi",
     "type": "SentryObjCInternalScreenApi * _Nonnull"
@@ -10711,6 +10785,12 @@
     "name": "sentrySpanIdString",
     "parent": "SentryObjCSpanId",
     "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "serializer",
+    "parent": "SentryObjCInternalApi",
+    "type": "SentryObjCInternalSerializerApi * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",

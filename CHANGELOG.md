@@ -4,6 +4,7 @@
 
 ### Features
 
+- Add internal hybrid SDK APIs to serialize native events and retrieve scope contexts for .NET event processing (#8708).
 - Add experimental option `enableUIViewControllerInitSwizzling` that defers `UIViewController` swizzling to first instantiation instead of eagerly discovering and swizzling all subclasses at SDK start. This avoids realizing `@available`-gated `UIViewController` subclasses on OS versions below their gate, which crashes apps on start (#8687).
 
 ### Fixes
