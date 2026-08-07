@@ -1,4 +1,5 @@
 // swiftlint:disable file_length
+// swiftlint:disable type_body_length
 /// Configuration options for the Sentry SDK.
 @objc(SentryOptions) public final class Options: NSObject {
 
@@ -613,8 +614,14 @@
     /// @c MXHangDiagnostic to Sentry. The SDK supports this feature from iOS 15 and later and macOS 12
     /// and later because, on these versions, @c MetricKit delivers diagnostic reports immediately, which
     /// allows the Sentry SDK to apply the current data from the scope.
-    /// @note This feature is disabled by default.
-    @objc public var enableMetricKit = false
+    /// @note Default value is @c true in v10, @c false in earlier versions.
+    @objc public var enableMetricKit: Bool = {
+        #if SDK_V10
+        return true
+        #else
+        return false
+        #endif // SDK_V10
+    }()
 
     /// When enabled, the SDK adds the raw MXDiagnosticPayloads as an attachment to the converted
     /// SentryEvent. You need to enable @c enableMetricKit for this flag to work.
@@ -754,4 +761,5 @@ extension NSNumber {
     }
 }
 
+// swiftlint:enable type_body_length
 // swiftlint:enable file_length
