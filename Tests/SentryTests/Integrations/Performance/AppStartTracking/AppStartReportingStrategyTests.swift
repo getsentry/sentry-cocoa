@@ -161,7 +161,7 @@ class AppStartReportingStrategyTests: XCTestCase {
     // MARK: - StandaloneTransactionStrategy Integration Tests
 
     private func setUpIntegrationHub() -> TestHub {
-        addTeardownBlock { clearTestState() }
+        addTeardownBlock { clearTestState() } // swiftlint:disable:this avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
 
         let dateProvider = TestCurrentDateProvider()
         SentryDependencyContainer.sharedInstance().dateProvider = dateProvider
