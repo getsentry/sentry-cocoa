@@ -10,6 +10,7 @@ protocol SentryWatchdogTerminationBreadcrumbProcessor {
     func clear()
     func clearBreadcrumbs()
     func flushAndClose()
+    func rotateToPreviousSession()
 }
 
 extension SentryDefaultWatchdogTerminationBreadcrumbProcessor: SentryWatchdogTerminationBreadcrumbProcessor {}
@@ -87,6 +88,23 @@ final class SentryDefaultWatchdogTerminationBreadcrumbProcessor {
         }
     }
 
+    /// Drains all pending breadcrumb writes, renames the current breadcrumb files to the previous
+    /// session paths, then closes the file handle. Must be called instead of
+    /// `fileManager.moveBreadcrumbsToPreviousBreadcrumbs()` when the processor is active, so that
+    /// in-flight queued writes complete before the rename and cannot follow the open file descriptor
+    /// into the previous-session file.
+    func rotateToPreviousSession() {
+        dispatchQueueWrapper.dispatchSync { [self] in
+            SentrySDKLog.debug("Rotating breadcrumb files to previous session")
+
+            shouldProcessIncomingCrumbs = false
+            closeFileHandle()
+            fileManager.moveBreadcrumbsToPreviousBreadcrumbs()
+            currentFilePath = fileManager.breadcrumbsFilePathOne
+            breadcrumbCounter = 0
+        }
+    }
+
     private func switchCurrentFilePath() {
         currentFilePath = if currentFilePath == fileManager.breadcrumbsFilePathOne {
             fileManager.breadcrumbsFilePathTwo
@@ -130,7 +148,6 @@ final class SentryDefaultWatchdogTerminationBreadcrumbProcessor {
         SentrySDKLog.debug("Storing breadcrumb data with \(data.count) bytes")
 
         guard let fileHandle = fileHandleForWriting() else { return }
-        print("Writing to fd: \(fileHandle.fileDescriptor)")
 
         var fileSize: UInt64 = 0
 

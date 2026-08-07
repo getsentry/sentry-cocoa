@@ -9,6 +9,7 @@ class MockWatchdogTerminationBreadcrumbProcessor: SentryWatchdogTerminationBread
     var clearBreadcrumbsInvocations = Invocations<Void>()
     var clearInvocations = Invocations<Void>()
     var flushAndCloseInvocations = Invocations<Void>()
+    var rotateToPreviousSessionInvocations = Invocations<Void>()
 
     func addSerializedBreadcrumb(_ crumb: [AnyHashable: Any]) {
         addSerializedBreadcrumbInvocations.record(crumb)
@@ -24,5 +25,9 @@ class MockWatchdogTerminationBreadcrumbProcessor: SentryWatchdogTerminationBread
 
     func flushAndClose() {
         flushAndCloseInvocations.record(())
+    }
+
+    func rotateToPreviousSession() {
+        rotateToPreviousSessionInvocations.record(())
     }
 }

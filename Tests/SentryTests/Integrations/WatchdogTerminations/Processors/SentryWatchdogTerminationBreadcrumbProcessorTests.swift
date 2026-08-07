@@ -116,41 +116,38 @@ class SentryWatchdogTerminationBreadcrumbProcessorTests: XCTestCase {
     // them. An open FileHandle keeps the underlying inode alive, so any queued async write that
     // executes after the rename lands in the now-previous file, corrupting the breadcrumb history
     // of the new session.
-    func testAddSerializedBreadcrumb_afterFileRenamedToPreviewPath_shouldNotWriteIntoPreviousSessionFile() throws {
+    //
+    // rotateToPreviousSession() fixes this by draining all pending writes and closing the file
+    // handle before performing the rename — all inside a single dispatchSync barrier on the
+    // processor's serial queue. This guarantees no queued write can follow the inode after rename.
+    func testRotateToPreviousSession_drainsQueueBeforeRename() throws {
         // -- Arrange --
-        // Use a real async queue so the write is truly deferred.
+        // Use a real async queue so writes are truly deferred.
         let dispatchQueue = SentryDispatchQueueWrapper(name: "io.sentry.test-watchdog-breadcrumb-processor.restart")
         let processor = fixture.makeProcessor(dispatchQueueWrapper: dispatchQueue)
         let breadcrumb = try XCTUnwrap(fixture.breadcrumb.serialize() as? [String: String])
 
-        // Prime the processor: write one breadcrumb so a file and file handle are open.
-        processor.addSerializedBreadcrumb(breadcrumb)
-        dispatchQueue.dispatchSync { }
-
         // -- Act --
-        // Suspend the queue so the next write stays pending while we simulate an SDK restart.
-        dispatchQueue.queue.suspend()
+        // Queue two breadcrumb writes without waiting for them to execute.
+        processor.addSerializedBreadcrumb(breadcrumb)
         processor.addSerializedBreadcrumb(breadcrumb)
 
-        // Simulate what SentrySDK.start() does: rename current breadcrumb files to previous paths.
-        fixture.fileManager.moveBreadcrumbsToPreviousBreadcrumbs()
-
-        // Resume the queue — the pending write now executes. With the bug it goes into the
-        // previous-session file (via the open inode); with the fix it must not.
-        dispatchQueue.queue.resume()
-        dispatchQueue.dispatchSync { }
+        // rotateToPreviousSession() issues a dispatchSync barrier: it waits for both queued
+        // writes to complete first, then closes the handle and renames the files.
+        // No write can land in the previous-session file via a stale descriptor.
+        processor.rotateToPreviousSession()
 
         // -- Assert --
-        // The previous-session file must contain exactly the one breadcrumb that was written
-        // before the rename — not the one queued after.
+        // Both breadcrumbs must be in the previous-session file (they were written before rename).
         let previousContents = try String(contentsOfFile: fixture.fileManager.previousBreadcrumbsFilePathOne)
-        XCTAssertEqual(previousContents.split(separator: "\n").count, 1,
-            "Queued write after rename must not land in the previous-session file")
+        XCTAssertEqual(previousContents.split(separator: "\n").count, 2,
+            "Both queued writes must complete before the rename and land in the previous-session file")
 
-        // The current breadcrumb files for the new session must be empty / absent.
-        let currentFileExists = FileManager.default.fileExists(atPath: fixture.fileManager.breadcrumbsFilePathOne)
-        XCTAssertFalse(currentFileExists,
-            "No breadcrumb file should exist for the new session since the processor was not re-opened")
+        // The current breadcrumb files for the new session must be absent.
+        XCTAssertFalse(FileManager.default.fileExists(atPath: fixture.fileManager.breadcrumbsFilePathOne),
+            "No breadcrumb file should exist for the new session yet")
+        XCTAssertFalse(FileManager.default.fileExists(atPath: fixture.fileManager.breadcrumbsFilePathTwo),
+            "No breadcrumb file two should exist for the new session yet")
     }
 
     func testFlushAndClose_shouldPersistQueuedBreadcrumbsAndIgnoreSubsequentBreadcrumbs() throws {
