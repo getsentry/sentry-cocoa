@@ -55,6 +55,55 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         XCTAssertEqual(NSNumber(value: 200), networkSpan.data["http.response.status_code"] as? NSNumber)
     }
 
+    func testDataTask_whenRequestCompletes_shouldCaptureNetworkBreadcrumb() throws {
+        // -- Arrange --
+        try ensureTestServerIsRunning()
+        let url = try XCTUnwrap(URL(string: "http://localhost:8081/echo-sentry-trace"))
+        let requestCompleted = expectation(description: "Request completed")
+        requestCompleted.assertForOverFulfill = false
+        let breadcrumbCaptured = expectation(description: "Network breadcrumb captured")
+        let capturedBreadcrumb = SentryMutex<Breadcrumb?>(nil)
+
+        startSDK {
+            $0.enableSwizzling = true
+            $0.enableNetworkBreadcrumbs = true
+            $0.beforeBreadcrumb = { breadcrumb in
+                guard breadcrumb.category == "http",
+                      (breadcrumb.data?["url"] as? String) == url.absoluteString else {
+                    return breadcrumb
+                }
+
+                capturedBreadcrumb.withLock { $0 = breadcrumb }
+                breadcrumbCaptured.fulfill()
+                return breadcrumb
+            }
+        }
+
+        let session = URLSession(configuration: .default)
+        let task = session.dataTask(with: url) { _, response, error in
+            self.assertNetworkError(error)
+            XCTAssertEqual((response as? HTTPURLResponse)?.statusCode, 200)
+            requestCompleted.fulfill()
+        }
+        defer { session.finishTasksAndInvalidate() }
+
+        // -- Act --
+        task.resume()
+        wait(for: [requestCompleted, breadcrumbCaptured], timeout: 10)
+
+        // -- Assert --
+        let breadcrumb = try XCTUnwrap(capturedBreadcrumb.withLock { $0 })
+        let data = try XCTUnwrap(breadcrumb.data)
+        let requestStart = try XCTUnwrap(data["request_start"] as? Date)
+        let requestEnd = try XCTUnwrap(breadcrumb.timestamp)
+
+        XCTAssertEqual(breadcrumb.type, "http")
+        XCTAssertEqual(data["url"] as? String, url.absoluteString)
+        XCTAssertEqual(data["method"] as? String, "GET")
+        XCTAssertEqual(data["status_code"] as? Int, 200)
+        XCTAssertGreaterThan(requestEnd.timeIntervalSince(requestStart), 0)
+    }
+
     func testGetRequest_CompareSentryTraceHeader() throws {
         try ensureTestServerIsRunning()
 
@@ -263,6 +312,7 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
             expectedEnvelopeItemType: SentryEnvelopeItemTypes.event
         ) {
             self.configureEnvelopeSnapshotOptions($0)
+            $0.enableNetworkBreadcrumbs = false
             $0.enableCaptureFailedRequests = true
             $0.failedRequestStatusCodes = [HttpStatusCodeRange(statusCode: 400)]
         }

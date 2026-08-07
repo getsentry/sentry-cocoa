@@ -14,6 +14,7 @@
   "testTargets" : [
     {
       "selectedTests" : [
+        "SentryNetworkTrackerIntegrationTestServerTests\/testDataTask_whenRequestCompletes_shouldCaptureNetworkBreadcrumb()",
         "SentryNetworkTrackerIntegrationTestServerTests\/testFailedRequest_whenCaptureEnabled_shouldMatchEnvelopeSnapshot()",
         "SentryNetworkTrackerIntegrationTestServerTests\/testGetCaptureFailedRequestsEnabled()",
         "SentryNetworkTrackerIntegrationTestServerTests\/testGetRequest_CompareSentryTraceHeader()",
