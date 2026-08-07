@@ -13,19 +13,20 @@ extension SentryReplayNetworkDetails {
         let headers = Self.extractHeaders(from: allHeaders, matching: configuredHeaders)
 #if SDK_V10
         let sanitizedHeaders = Self.sanitizeHeaders(headers)
-        self.request = Detail(
+        let request = Detail(
             size: size,
             body: bodyData.flatMap { Body(data: $0, contentType: contentType) },
             headers: sanitizedHeaders.headers,
             cookies: sanitizedHeaders.cookies
         )
 #else
-        self.request = Detail(
+        let request = Detail(
             size: size,
             body: bodyData.flatMap { Body(data: $0, contentType: contentType) },
             headers: headers
         )
 #endif // SDK_V10
+        state.withLockIfAvailable { $0.request = request }
     }
 
     /// Sets response details from raw body data.
@@ -38,23 +39,26 @@ extension SentryReplayNetworkDetails {
         allHeaders: [String: Any]?,
         configuredHeaders: [String]?
     ) {
-        self.statusCode = NSNumber(value: statusCode)
         let headers = Self.extractHeaders(from: allHeaders, matching: configuredHeaders)
 #if SDK_V10
         let sanitizedHeaders = Self.sanitizeHeaders(headers)
-        self.response = Detail(
+        let response = Detail(
             size: size,
             body: bodyData.flatMap { Body(data: $0, contentType: contentType) },
             headers: sanitizedHeaders.headers,
             cookies: sanitizedHeaders.cookies
         )
 #else
-        self.response = Detail(
+        let response = Detail(
             size: size,
             body: bodyData.flatMap { Body(data: $0, contentType: contentType) },
             headers: headers
         )
 #endif // SDK_V10
+        state.withLockIfAvailable {
+            $0.statusCode = NSNumber(value: statusCode)
+            $0.response = response
+        }
     }
 
 #if SDK_V10
@@ -104,11 +108,13 @@ extension SentryReplayNetworkDetails {
     @objc public func serialize() -> [String: Any] {
         var result = [String: Any]()
         result["method"] = method
-        result["statusCode"] = statusCode
-        result["requestBodySize"] = requestBodySize
-        result["responseBodySize"] = responseBodySize
-        result["request"] = request?.serialize()
-        result["response"] = response?.serialize()
+        state.withLockIfAvailable { state in
+            result["statusCode"] = state.statusCode
+            result["requestBodySize"] = state.request?.size
+            result["responseBodySize"] = state.response?.size
+            result["request"] = state.request?.serialize()
+            result["response"] = state.response?.serialize()
+        }
         return result
     }
 }

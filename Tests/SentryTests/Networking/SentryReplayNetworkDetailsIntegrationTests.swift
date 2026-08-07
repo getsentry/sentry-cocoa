@@ -13,9 +13,6 @@ class SentryReplayNetworkDetailsIntegrationTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(details.method, "POST")
-        XCTAssertNil(details.statusCode)
-        XCTAssertNil(details.requestBodySize)
-        XCTAssertNil(details.responseBodySize)
     }
 
     // MARK: - Serialization Tests
@@ -142,6 +139,89 @@ class SentryReplayNetworkDetailsIntegrationTests: XCTestCase {
             "theme": "dark"
         ])
 #endif
+    }
+
+    func testSerialize_whenResponseUpdatesOverlap_shouldPublishConsistentSnapshots() throws {
+        // -- Arrange --
+        let details = SentryReplayNetworkDetails(method: "POST")
+        let queue = DispatchQueue(
+            label: "SentryReplayNetworkDetailsIntegrationTests",
+            attributes: .concurrent
+        )
+        let writerReady = DispatchSemaphore(value: 0)
+        let readerReady = DispatchSemaphore(value: 0)
+        let readerObservedUpdate = DispatchSemaphore(value: 0)
+        let updatesFinished = DispatchSemaphore(value: 0)
+        let expectation = expectation(description: "Concurrent updates and serialization finish")
+        expectation.expectedFulfillmentCount = 2
+        expectation.assertForOverFulfill = true
+        let mismatches = SentryMutex(0)
+        let headers = Dictionary(uniqueKeysWithValues: (0..<100).map { ("Header-\($0)", "value") })
+        let configuredHeaders = Array(headers.keys)
+
+        // -- Act --
+        queue.async {
+            writerReady.signal()
+            XCTAssertEqual(readerReady.wait(timeout: .now() + 1), .success)
+
+            for index in 1...1_000 {
+                details.setResponse(
+                    statusCode: index,
+                    size: NSNumber(value: index),
+                    bodyData: nil,
+                    contentType: nil,
+                    allHeaders: headers,
+                    configuredHeaders: configuredHeaders
+                )
+            }
+
+            XCTAssertEqual(readerObservedUpdate.wait(timeout: .now() + 1), .success)
+            updatesFinished.signal()
+            expectation.fulfill()
+        }
+
+        queue.async {
+            XCTAssertEqual(writerReady.wait(timeout: .now() + 1), .success)
+            readerReady.signal()
+
+            repeat {
+                let snapshot = details.serialize()
+                let statusCode = snapshot["statusCode"] as? NSNumber
+                let response = snapshot["response"] as? [String: Any]
+                let responseSize = response?["size"] as? NSNumber
+
+                if statusCode != responseSize {
+                    mismatches.withLock { $0 += 1 }
+                }
+
+                if statusCode?.intValue ?? 0 > 0 {
+                    readerObservedUpdate.signal()
+                    break
+                }
+            } while true
+
+            XCTAssertEqual(updatesFinished.wait(timeout: .now() + 1), .success)
+            expectation.fulfill()
+        }
+
+        wait(for: [expectation], timeout: 10)
+
+        details.setResponse(
+            statusCode: 1_001,
+            size: 1_001,
+            bodyData: nil,
+            contentType: nil,
+            allHeaders: nil,
+            configuredHeaders: nil
+        )
+
+        // -- Assert --
+        let finalSnapshot = details.serialize()
+        let finalStatusCode = try XCTUnwrap(finalSnapshot["statusCode"] as? NSNumber)
+        let finalResponse = try XCTUnwrap(finalSnapshot["response"] as? [String: Any])
+        XCTAssertEqual(mismatches.withLock { $0 }, 0)
+        XCTAssertGreaterThan(finalStatusCode.intValue, 0)
+        XCTAssertEqual(finalStatusCode, finalResponse["size"] as? NSNumber)
     }
 
     func testSerialize_withPartialData_shouldOnlyIncludeSetFields() {

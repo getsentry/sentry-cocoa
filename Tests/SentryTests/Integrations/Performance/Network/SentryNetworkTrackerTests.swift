@@ -592,6 +592,116 @@ class SentryNetworkTrackerTests: XCTestCase {
     }
 
 #if os(iOS) || os(tvOS)
+    func testResume_whenTaskMonitorHeld_shouldNotBlockCallingThread() {
+        // -- Arrange --
+        let tracker = fixture.getSut()
+        let task = ContendedMonitorTaskMock(request: URLRequest(url: Self.fullUrl))
+        let monitor = holdMonitor(of: task)
+
+        // -- Act --
+        let start = ProcessInfo.processInfo.systemUptime
+        tracker.urlSessionTaskResume(task)
+        let duration = ProcessInfo.processInfo.systemUptime - start
+
+        // -- Assert --
+        releaseMonitor(monitor)
+        XCTAssertLessThan(duration, 0.5, "resume blocked while another thread held the task monitor")
+    }
+
+    func testCaptureRequestDetails_whenTaskMonitorHeld_shouldNotBlockCallingThread() {
+        // -- Arrange --
+        fixture.options.sessionReplay.networkDetailAllowUrls = ["www.domain.com"]
+        let tracker = fixture.getSut()
+        let task = ContendedMonitorTaskMock(request: URLRequest(url: Self.fullUrl))
+        let monitor = holdMonitor(of: task)
+
+        // -- Act --
+        let start = ProcessInfo.processInfo.systemUptime
+        tracker.urlSessionTask(task, setState: .running)
+        let duration = ProcessInfo.processInfo.systemUptime - start
+
+        // -- Assert --
+        releaseMonitor(monitor)
+        XCTAssertLessThan(duration, 0.5, "request capture blocked while another thread held the task monitor")
+    }
+
+    func testSetState_whenTaskMonitorHeldDuringBreadcrumb_shouldNotBlockCallingThread() {
+        // -- Arrange --
+        XCTAssertTrue(Thread.isMainThread)
+
+        let tracker = fixture.getSut()
+        let task = ContendedMonitorTaskMock(request: URLRequest(url: Self.fullUrl))
+        let releaseMonitor = DispatchSemaphore(value: 0)
+        let monitorAcquired = DispatchSemaphore(value: 0)
+        let monitorReleased = DispatchSemaphore(value: 0)
+
+        task.countOfBytesReceivedAccessed = { [weak task] in
+            guard let task else { return }
+            task.countOfBytesReceivedAccessed = nil
+            DispatchQueue.global().async {
+                task.holdMonitor(untilReleased: releaseMonitor, monitorAcquired: monitorAcquired)
+                monitorReleased.signal()
+            }
+            XCTAssertEqual(monitorAcquired.wait(timeout: .now() + 1), .success)
+        }
+
+        let releaseWatchdog = DispatchWorkItem {
+            releaseMonitor.signal()
+        }
+        DispatchQueue.global().asyncAfter(deadline: .now() + 1, execute: releaseWatchdog)
+
+        // -- Act --
+        let start = ProcessInfo.processInfo.systemUptime
+        tracker.urlSessionTask(task, setState: .canceling)
+        let duration = ProcessInfo.processInfo.systemUptime - start
+
+        // -- Assert --
+        releaseMonitor.signal()
+        XCTAssertEqual(monitorReleased.wait(timeout: .now() + 1), .success)
+        releaseWatchdog.cancel()
+        XCTAssertLessThan(duration, 0.5, "setState blocked while another thread held the task monitor")
+    }
+
+    func testCaptureResponseDetails_whenReadingResponse_shouldNotHoldTaskMonitor() throws {
+        guard #available(iOS 16.0, tvOS 16.0, *) else { return }
+
+        // -- Arrange --
+        fixture.options.sessionReplay.networkDetailAllowUrls = ["www.domain.com"]
+        let tracker = fixture.getSut()
+        let task = ContendedMonitorTaskMock(request: URLRequest(url: Self.fullUrl))
+        tracker.urlSessionTask(task, setState: .running)
+
+        let response = try XCTUnwrap(MonitorObservingHTTPURLResponse(
+            url: Self.fullUrl,
+            statusCode: 200,
+            httpVersion: "1.1",
+            headerFields: ["Content-Type": "application/json"]
+        ))
+        let releaseMonitor = DispatchSemaphore(value: 0)
+        let monitorAcquired = DispatchSemaphore(value: 0)
+        let monitorReleased = DispatchSemaphore(value: 0)
+
+        response.headersAccessed = { [weak response] in
+            response?.headersAccessed = nil
+            DispatchQueue.global().async {
+                task.holdMonitor(untilReleased: releaseMonitor, monitorAcquired: monitorAcquired)
+                monitorReleased.signal()
+            }
+            XCTAssertEqual(
+                monitorAcquired.wait(timeout: .now() + 0.5),
+                .success,
+                "captureResponseDetails held the task monitor while reading the response"
+            )
+            releaseMonitor.signal()
+        }
+
+        // -- Act --
+        tracker.captureResponseDetails(Data(), response: response, request: Self.fullUrl, task: task)
+
+        // -- Assert --
+        XCTAssertEqual(monitorReleased.wait(timeout: .now() + 1), .success)
+    }
+
     /// Simple case - when network details are enabled, `addBreadcrumbForSessionTask` will include
     /// serialized network details in the breadcrumb data.
     func testAddBreadcrumb_withNetworkDetails_shouldIncludeSerializedDetailsInBreadcrumbData() throws {
@@ -696,7 +806,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         tracker.urlSessionTask(task, setState: .completed)
 
         // -- Assert --
-        guard case .valid(let details) = task.networkDetails else {
+        guard let details = task.networkDetails else {
             return XCTFail("Expected network details")
         }
         let request = try XCTUnwrap(details.serialize()["request"] as? [String: Any])
@@ -772,6 +882,79 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(parsedBody["field"] as? String, "value")
 
         clearTestState()
+    }
+
+    /// Holds the Objective-C monitor for `task` on a worker thread.
+    ///
+    /// The production regression occurred when a synchronous URLSession callback tried to acquire
+    /// this monitor while another thread held it. Tests invoke tracker callbacks while it is held,
+    /// then verify that the caller does not wait for the monitor.
+    private func holdMonitor(of task: ContendedMonitorTaskMock) -> (
+        release: DispatchSemaphore,
+        released: DispatchSemaphore,
+        watchdog: DispatchWorkItem
+    ) {
+        let release = DispatchSemaphore(value: 0)
+        let acquired = DispatchSemaphore(value: 0)
+        let released = DispatchSemaphore(value: 0)
+        DispatchQueue.global().async {
+            task.holdMonitor(untilReleased: release, monitorAcquired: acquired)
+            released.signal()
+        }
+        XCTAssertEqual(acquired.wait(timeout: .now() + 1), .success)
+
+        // Ensure a failed assertion cannot leave the worker thread blocked indefinitely.
+        let watchdog = DispatchWorkItem {
+            release.signal()
+        }
+        DispatchQueue.global().asyncAfter(deadline: .now() + 1, execute: watchdog)
+        return (release, released, watchdog)
+    }
+
+    /// Releases the worker thread holding the monitor and cancels its fallback release.
+    private func releaseMonitor(_ monitor: (
+        release: DispatchSemaphore,
+        released: DispatchSemaphore,
+        watchdog: DispatchWorkItem
+    )) {
+        monitor.release.signal()
+        XCTAssertEqual(monitor.released.wait(timeout: .now() + 1), .success)
+        monitor.watchdog.cancel()
+    }
+
+    /// A task that can hold its Objective-C monitor while a tracker callback executes.
+    ///
+    /// `objc_sync_enter(self)` is the Swift equivalent of `@synchronized(self)`, matching the
+    /// monitor that the previous implementation acquired on `URLSessionTask`.
+    private final class ContendedMonitorTaskMock: URLSessionDataTaskMock, @unchecked Sendable {
+        /// Invoked when breadcrumb capture reads the received-byte count, allowing the test to
+        /// acquire the monitor immediately before the code path that previously blocked.
+        var countOfBytesReceivedAccessed: (() -> Void)?
+
+        override var countOfBytesReceived: Int64 {
+            countOfBytesReceivedAccessed?()
+            return super.countOfBytesReceived
+        }
+
+        /// Holds the same monitor as `@synchronized(self)` until the test signals `release`.
+        func holdMonitor(untilReleased release: DispatchSemaphore, monitorAcquired: DispatchSemaphore) {
+            objc_sync_enter(self)
+            defer { objc_sync_exit(self) }
+            monitorAcquired.signal()
+            release.wait()
+        }
+    }
+
+    private final class MonitorObservingHTTPURLResponse: HTTPURLResponse, @unchecked Sendable {
+        var headersAccessed: (() -> Void)?
+
+        // Intentionally observes reading the whole header dictionary; no case-sensitive lookup.
+        // swiftlint:disable avoid_all_header_fields
+        override var allHeaderFields: [AnyHashable: Any] {
+            headersAccessed?()
+            return super.allHeaderFields
+        }
+        // swiftlint:enable avoid_all_header_fields
     }
 
     /// `HTTPURLResponse` whose `allHeaderFields` returns the exact (lowercased) casing a server
