@@ -509,5 +509,42 @@ class SentryTouchTrackerTests: XCTestCase {
                          "Touches should have different IDs")
         XCTAssertNotNil(firstTouchPointerId, "First touch events should not be orphaned")
     }
+
+    func testIsEnabledFalse_DropsAllTouches() {
+        let sut = getSut()
+        sut.isEnabled = false
+
+        let event = MockUIEvent(timestamp: 1)
+        event.addTouch(MockUITouch(phase: .began, location: CGPoint(x: 10, y: 10)))
+        sut.trackTouchFrom(event: event)
+
+        let result = sut.replayEvents(from: referenceDate, until: referenceDate.addingTimeInterval(5))
+        XCTAssertTrue(result.isEmpty, "No touch events should be recorded when isEnabled is false")
+    }
+
+    func testIsEnabledToggle_OnlyRecordsTouchesWhileEnabled() {
+        let sut = getSut()
+
+        let began = MockUIEvent(timestamp: 1)
+        began.addTouch(MockUITouch(phase: .began, location: CGPoint(x: 10, y: 10)))
+        sut.trackTouchFrom(event: began)
+
+        sut.isEnabled = false
+        let whilePaused = MockUIEvent(timestamp: 2)
+        whilePaused.addTouch(MockUITouch(phase: .began, location: CGPoint(x: 20, y: 20)))
+        sut.trackTouchFrom(event: whilePaused)
+
+        sut.isEnabled = true
+        let afterResume = MockUIEvent(timestamp: 3)
+        afterResume.addTouch(MockUITouch(phase: .began, location: CGPoint(x: 30, y: 30)))
+        sut.trackTouchFrom(event: afterResume)
+
+        let result = sut.replayEvents(from: referenceDate, until: referenceDate.addingTimeInterval(5))
+        let timestamps = result.map { $0.timestamp }
+        XCTAssertTrue(timestamps.contains(referenceDate.addingTimeInterval(1)))
+        XCTAssertFalse(timestamps.contains(referenceDate.addingTimeInterval(2)),
+                       "Touch recorded while disabled must not appear in replay events")
+        XCTAssertTrue(timestamps.contains(referenceDate.addingTimeInterval(3)))
+    }
 }
 #endif
