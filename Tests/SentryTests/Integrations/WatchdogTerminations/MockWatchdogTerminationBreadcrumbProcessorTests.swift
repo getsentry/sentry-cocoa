@@ -100,11 +100,4 @@ class MockWatchdogTerminationBreadcrumbProcessorTests: XCTestCase {
         XCTAssertEqual(sut.flushAndCloseInvocations.count, 1)
     }
 
-    func testRotateToPreviousSession_shouldRecordInvocation() {
-        // -- Act --
-        sut.rotateToPreviousSession()
-
-        // -- Assert --
-        XCTAssertEqual(sut.rotateToPreviousSessionInvocations.count, 1)
-    }
 }

@@ -116,7 +116,7 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
     func uninstall() {
         tracker.stop()
         anrTracker?.remove(listener: self)
-        breadcrumbProcessor.rotateToPreviousSession()
+        breadcrumbProcessor.flushAndClose()
 
         guard let appHangTrackerObserverToken else {
             return

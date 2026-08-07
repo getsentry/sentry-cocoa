@@ -117,10 +117,10 @@ class SentryWatchdogTerminationBreadcrumbProcessorTests: XCTestCase {
     // executes after the rename lands in the now-previous file, corrupting the breadcrumb history
     // of the new session.
     //
-    // rotateToPreviousSession() fixes this by draining all pending writes and closing the file
+    // flushAndClose() fixes this by draining all pending writes and closing the file
     // handle before performing the rename — all inside a single dispatchSync barrier on the
     // processor's serial queue. This guarantees no queued write can follow the inode after rename.
-    func testRotateToPreviousSession_drainsQueueBeforeRename() throws {
+    func testFlushAndClose_drainsQueueBeforeRename() throws {
         // -- Arrange --
         // Use a real async queue so writes are truly deferred.
         let dispatchQueue = SentryDispatchQueueWrapper(name: "io.sentry.test-watchdog-breadcrumb-processor.restart")
@@ -132,10 +132,10 @@ class SentryWatchdogTerminationBreadcrumbProcessorTests: XCTestCase {
         processor.addSerializedBreadcrumb(breadcrumb)
         processor.addSerializedBreadcrumb(breadcrumb)
 
-        // rotateToPreviousSession() issues a dispatchSync barrier: it waits for both queued
-        // writes to complete first, then closes the handle and renames the files.
+        // flushAndClose() issues a dispatchSync barrier: it waits for both queued writes to
+        // complete first, then closes the handle and renames the files.
         // No write can land in the previous-session file via a stale descriptor.
-        processor.rotateToPreviousSession()
+        processor.flushAndClose()
 
         // -- Assert --
         // Both breadcrumbs must be in the previous-session file (they were written before rename).
@@ -159,11 +159,17 @@ class SentryWatchdogTerminationBreadcrumbProcessorTests: XCTestCase {
         // -- Act --
         processor.addSerializedBreadcrumb(breadcrumb)
         processor.flushAndClose()
+        // This write must be ignored — the processor is closed.
         processor.addSerializedBreadcrumb(breadcrumb)
         dispatchQueue.dispatchSync { }
 
         // -- Assert --
-        let contents = try String(contentsOfFile: fixture.fileManager.breadcrumbsFilePathOne)
-        XCTAssertEqual(contents.split(separator: "\n").count, 1)
+        // The breadcrumb written before close must be in the previous-session file.
+        let previousContents = try String(contentsOfFile: fixture.fileManager.previousBreadcrumbsFilePathOne)
+        XCTAssertEqual(previousContents.split(separator: "\n").count, 1,
+            "Only the breadcrumb written before flushAndClose should be persisted")
+        // The current file must not exist — the write after close was dropped.
+        XCTAssertFalse(FileManager.default.fileExists(atPath: fixture.fileManager.breadcrumbsFilePathOne),
+            "No write should have occurred after flushAndClose")
     }
 }

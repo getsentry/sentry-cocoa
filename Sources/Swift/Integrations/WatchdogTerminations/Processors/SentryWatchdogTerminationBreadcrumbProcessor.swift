@@ -10,7 +10,6 @@ protocol SentryWatchdogTerminationBreadcrumbProcessor {
     func clear()
     func clearBreadcrumbs()
     func flushAndClose()
-    func rotateToPreviousSession()
 }
 
 extension SentryDefaultWatchdogTerminationBreadcrumbProcessor: SentryWatchdogTerminationBreadcrumbProcessor {}
@@ -47,7 +46,16 @@ final class SentryDefaultWatchdogTerminationBreadcrumbProcessor {
     }
 
     deinit {
-        closeFileHandle()
+        // In normal operation fileHandle is already nil because the processor is closed via
+        // rotateToPreviousSession() or flushAndClose() before being released. If it is non-nil
+        // here, the processor was dropped without being closed; any work still queued on the
+        // serial queue has already been abandoned (the [weak self] blocks nil-guard out once
+        // deinit begins). Close the handle directly on the deallocating thread as a best-effort
+        // resource cleanup.
+        if fileHandle != nil {
+            SentrySDKLog.debug("BreadcrumbProcessor deallocated without being closed — closing file handle on deallocating thread")
+            closeFileHandle()
+        }
     }
 
     func addSerializedBreadcrumb(_ crumb: SerializedBreadcrumb) {
@@ -75,34 +83,27 @@ final class SentryDefaultWatchdogTerminationBreadcrumbProcessor {
             guard let self, shouldProcessIncomingCrumbs else { return }
 
             deleteFiles()
-            closeFileHandle()
         }
     }
 
     func flushAndClose() {
         dispatchQueueWrapper.dispatchSync { [self] in
+            guard shouldProcessIncomingCrumbs else { return }
             SentrySDKLog.debug("Flushing and closing breadcrumb file handle")
 
             shouldProcessIncomingCrumbs = false
             closeFileHandle()
+
+            SentrySDKLog.debug("Rotating breadcrumb files to previous session")
+
+            fileManager.moveBreadcrumbsToPreviousBreadcrumbs()
+            resetCurrentFilePath()
+            breadcrumbCounter = 0
         }
     }
 
-    /// Drains all pending breadcrumb writes, renames the current breadcrumb files to the previous
-    /// session paths, then closes the file handle. Must be called instead of
-    /// `fileManager.moveBreadcrumbsToPreviousBreadcrumbs()` when the processor is active, so that
-    /// in-flight queued writes complete before the rename and cannot follow the open file descriptor
-    /// into the previous-session file.
-    func rotateToPreviousSession() {
-        dispatchQueueWrapper.dispatchSync { [self] in
-            SentrySDKLog.debug("Rotating breadcrumb files to previous session")
-
-            shouldProcessIncomingCrumbs = false
-            closeFileHandle()
-            fileManager.moveBreadcrumbsToPreviousBreadcrumbs()
-            currentFilePath = fileManager.breadcrumbsFilePathOne
-            breadcrumbCounter = 0
-        }
+    private func resetCurrentFilePath() {
+        currentFilePath = fileManager.breadcrumbsFilePathOne
     }
 
     private func switchCurrentFilePath() {
@@ -122,15 +123,12 @@ final class SentryDefaultWatchdogTerminationBreadcrumbProcessor {
 
         fileManager.removeFile(atPath: currentFilePath)
 
-        guard fileManager.write(Data(), toPath: currentFilePath) else {
-            SentrySDKLog.error("Couldn't create breadcrumb file at \(currentFilePath)")
-            return
-        }
-
         fileHandle = fileHandleForWriting()
 
         if fileHandle == nil {
             SentrySDKLog.error("Couldn't open file handle for \(currentFilePath)")
+        } else {
+            breadcrumbCounter = 0
         }
     }
 
@@ -142,6 +140,8 @@ final class SentryDefaultWatchdogTerminationBreadcrumbProcessor {
 
         fileManager.removeFile(atPath: fileManager.breadcrumbsFilePathOne)
         fileManager.removeFile(atPath: fileManager.breadcrumbsFilePathTwo)
+
+        resetCurrentFilePath()
     }
 
     private func storeBreadcrumb(_ data: Data) {
@@ -164,7 +164,6 @@ final class SentryDefaultWatchdogTerminationBreadcrumbProcessor {
 
         if breadcrumbCounter >= maxBreadcrumbs {
             switchFileHandle()
-            breadcrumbCounter = 0
         }
     }
 
