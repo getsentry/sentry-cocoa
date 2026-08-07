@@ -5,6 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=./ci-utils.sh disable=SC1091
 source "$SCRIPT_DIR/ci-utils.sh"
 
+VERSION=""
 OUTPUT_DIR=""
 INTEGRATION=""
 ALL=false
@@ -29,8 +30,10 @@ Usage: $(basename "$0") [options]
 
 Create .tgz archives for 3rd-party integration distribution repos.
 Copies sources, tests, README, .gitignore, and LICENSE.md.
+Stamps the sentry-cocoa dependency version in Package.swift.
 
 OPTIONS:
+    --version <ver>             Release version, e.g. 9.25.0 (required)
     --integration <name>        Directory name under $INTEGRATIONS_DIR
                                 (e.g. SentrySwiftLog)
     --all                       Archive all integrations
@@ -38,9 +41,9 @@ OPTIONS:
     -h, --help                  Show this help message
 
 EXAMPLES:
-    $(basename "$0") --all
-    $(basename "$0") --integration SentrySwiftLog
-    $(basename "$0") --all --output-dir XCFrameworkBuildPath
+    $(basename "$0") --all --version 9.25.0
+    $(basename "$0") --integration SentrySwiftLog --version 9.25.0
+    $(basename "$0") --all --version 9.25.0 --output-dir XCFrameworkBuildPath
 
 EOF
     exit 1
@@ -48,6 +51,7 @@ EOF
 
 while [[ $# -gt 0 ]]; do
     case $1 in
+        --version)     VERSION="$2";     shift 2 ;;
         --integration) INTEGRATION="$2"; shift 2 ;;
         --all)         ALL=true;         shift ;;
         --output-dir)  OUTPUT_DIR="$2";  shift 2 ;;
@@ -55,6 +59,11 @@ while [[ $# -gt 0 ]]; do
         *)             log_error "Unknown option: $1"; usage ;;
     esac
 done
+
+if [ -z "$VERSION" ]; then
+    log_error "--version is required"
+    usage
+fi
 
 if [ "$ALL" = false ] && [ -z "$INTEGRATION" ]; then
     log_error "Either --all or --integration <name> is required"
@@ -94,6 +103,11 @@ create_archive() {
     staging_dir=$(create_staging_dir)
 
     cp "$src_dir/Package.swift" "$staging_dir/Package.swift"
+
+    log_info "Stamping sentry-cocoa dependency to version $VERSION"
+    sed -i.bak "s|sentry-cocoa\", from: \"[^\"]*\"|sentry-cocoa\", from: \"${VERSION}\"|" "$staging_dir/Package.swift"
+    rm -f "$staging_dir/Package.swift.bak"
+
     cp "$src_dir/.gitignore" "$staging_dir/.gitignore"
     cp "$src_dir/README.md" "$staging_dir/README.md"
     cp "$REPO_ROOT/LICENSE.md" "$staging_dir/LICENSE.md"

@@ -18,13 +18,6 @@ public final class SentryExperimentalOptions: NSObject {
 
     #if !SDK_V10
     /**
-     * When enabled, the SDK sends a standalone app start transaction instead of attaching app
-     * start data to the first UIViewController transaction.
-     */
-    public var enableStandaloneAppStartTracing = false
-    #endif // !SDK_V10
-
-    /**
      * Reduces SDK start overhead by swizzling each `UIViewController` subclass lazily, the first
      * time an instance of it is created, instead of eagerly discovering and swizzling every
      * subclass when the SDK starts.

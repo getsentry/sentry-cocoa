@@ -119,6 +119,7 @@ class SentryTracerTests: XCTestCase {
     
     override func tearDown() {
         super.tearDown()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
     

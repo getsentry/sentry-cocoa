@@ -55,7 +55,7 @@ import Foundation
         #if SDK_V10
         features.append("standaloneAppStartTracing")
         #else
-        if options.experimental.enableStandaloneAppStartTracing {
+        if options.enableStandaloneAppStartTracing {
             features.append("standaloneAppStartTracing")
         }
         #endif // SDK_V10
