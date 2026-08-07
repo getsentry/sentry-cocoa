@@ -386,14 +386,15 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         assertNoAppStartUp()
     }
 
-    #if !SDK_V10
-    func testStart_whenStandaloneAppStartTracingDisabled_shouldSetAppStartMeasurement() {
+    func testStart_whenStandaloneAppStartTracingDisabled_shouldSetAppStartMeasurement() throws {
+        #if SDK_V10
+        throw XCTSkip("Standalone app start tracing is always enabled in v10")
+        #endif
         fixture.enableStandaloneAppStartTracing = false
         startApp(callDisplayLink: true)
 
         assertValidStart(type: .cold, expectedDuration: 0.45)
     }
-    #endif // !SDK_V10
 
     func testStart_whenStandaloneAppStartTracingEnabled_shouldCaptureTransaction() throws {
         fixture.options.tracesSampleRate = 1

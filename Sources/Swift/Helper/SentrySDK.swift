@@ -582,7 +582,9 @@ extension SentrySDK {
     /// func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
     ///     SentrySDK.start(configureOptions: { options in
     ///         ...
+    #if !SDK_V10
     ///         options.enableStandaloneAppStartTracing = true
+    #endif
     ///     })
     ///     SentrySDK.extendAppStart()
     ///
@@ -595,9 +597,9 @@ extension SentrySDK {
     ///     return true
     /// }
     /// ```
+    #if !SDK_V10
     ///
     /// - Note: This only has an effect when Standalone App Start tracing is enabled.
-    #if !SDK_V10
     @objc
     #endif
     public static func extendAppStart() {

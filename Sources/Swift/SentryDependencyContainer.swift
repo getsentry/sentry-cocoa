@@ -322,7 +322,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         #if SDK_V10
         let standaloneAppStart = true
         #else
-        let standaloneAppStart = options.experimental.enableStandaloneAppStartTracing
+        let standaloneAppStart = options.enableStandaloneAppStartTracing
         #endif // SDK_V10
 
         return SentryAppStartTracker(

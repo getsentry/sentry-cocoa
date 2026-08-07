@@ -36,4 +36,5 @@ public final class SentryExperimentalOptions: NSObject {
      * See https://github.com/getsentry/sentry-cocoa/issues/8548.
      */
     public var enableUIViewControllerInitSwizzling = false
+    #endif // !SDK_V10
 }
