@@ -2,6 +2,7 @@ internal import _SentryPrivate
 
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
 import Foundation
+import UIKit
 
 /// Manages file operations for Session Replay, including saving, moving, and cleaning up replay files.
 // Helps reducing the login in SentrySessionReplayIntegration
@@ -151,7 +152,7 @@ struct SessionReplayFileManager {
     }
     
     // MARK: - File Utilities
-    
+
     func removeFileIfExists(atPath path: String) {
         guard FileManager.default.fileExists(atPath: path) else { return }
         SentrySDKLog.debug("[Session Replay] Removing file at path: \(path)")
