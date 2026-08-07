@@ -573,6 +573,13 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) BOOL enablePreWarmedAppStartTracing;
 
 /**
+ * When enabled, the SDK sends a standalone app start transaction instead of attaching app
+ * start data to the first UIViewController transaction.
+ * @note Default value is @c NO.
+ */
+@property (nonatomic) BOOL enableStandaloneAppStartTracing;
+
+/**
  * When enabled, the SDK reports non-fully-blocking app hangs. A non-fully-blocking app hang is
  * when the app appears stuck to the user but can still render a few frames.
  * @note The default is @c YES.

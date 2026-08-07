@@ -351,6 +351,12 @@
     /// @note Default value is @c true.
     @objc public var enablePreWarmedAppStartTracing: Bool = true
 
+    /// When enabled, the SDK sends a standalone app start transaction instead of attaching app
+    /// start data to the first UIViewController transaction.
+    ///
+    /// @note Default value is @c false.
+    @objc public var enableStandaloneAppStartTracing: Bool = false
+
     /// When enabled the SDK reports non-fully-blocking app hangs. A non-fully-blocking app hang is when
     /// the app appears stuck to the user but can still render a few frames.
     ///

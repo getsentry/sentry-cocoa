@@ -27,6 +27,7 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
 
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         options.insert("screenshot")
+        options.insert("enableStandaloneAppStartTracing")
         #endif
 
         // Session replay (documented at https://docs.sentry.io/platforms/apple/session-replay/)
