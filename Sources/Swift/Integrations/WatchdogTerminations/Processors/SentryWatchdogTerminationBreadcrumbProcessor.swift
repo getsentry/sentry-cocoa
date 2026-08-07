@@ -169,7 +169,6 @@ final class SentryDefaultWatchdogTerminationBreadcrumbProcessor {
 
     private func fileHandleForWriting() -> FileHandle? {
         if fileHandle == nil {
-            // Ensure the path is created before we go and try writing to it
             guard fileManager.write(Data(), toPath: currentFilePath) else {
                 SentrySDKLog.error("Couldn't create breadcrumb file at \(currentFilePath)")
                 return nil
