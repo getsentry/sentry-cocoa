@@ -22,6 +22,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
 
     override func tearDown() {
         super.tearDown()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
 
@@ -153,6 +154,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
     }
 
     func testGlobalConfigurationOrDefault_whenGlobalFeedbackNotConfigured_shouldPrepareDefaultConfiguration() {
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
         let defaultConfig = SentryUserFeedbackConfiguration()
         var configureFormCalls = 0
@@ -225,6 +227,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
     }
 
     func testFeedbackForm_whenLocalConfigurationSetAndFeedbackIntegrationNotConfigured_shouldUseDefaults() {
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
 
         let sut = SentryUserFeedbackFormController { config in
@@ -533,6 +536,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
     }
 
     func testFeedbackAPI_onShake_whenFeedbackNotConfigured_shouldNotCrash() {
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
 
         SentrySDK.feedback.enableOnShake()

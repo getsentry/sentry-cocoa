@@ -90,6 +90,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         fixture.client.fileManager.deleteAppState()
         fixture.client.fileManager.deleteAppHangEvent()
 
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
 
