@@ -23,7 +23,7 @@ make test-ui-critical                                          # important UI te
 
 ### Test Server
 
-Only needed for `SentryNetworkTrackerIntegrationTestServerTests` (5 tests). Most tests run without it.
+Only needed for `SentryNetworkTrackerIntegrationTestServerTests` (7 tests). Most tests run without it.
 
 ```bash
 make -C test-server start-debug
