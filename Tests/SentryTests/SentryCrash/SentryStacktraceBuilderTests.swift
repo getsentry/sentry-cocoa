@@ -18,6 +18,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
     
     override class func setUp() {
         super.setUp()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
 
@@ -28,6 +29,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
 
     override func tearDown() {
         super.tearDown()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
     
