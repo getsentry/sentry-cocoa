@@ -11,10 +11,18 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
 
         // -- Assert --
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
-        XCTAssertEqual(features, ["captureFailedRequests", "experimentalViewRenderer", "dataSwizzling", "metrics"])
+#if SDK_V10
+    #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+        XCTAssertEqual(features, ["captureFailedRequests", "swiftAsyncStacktraces", "experimentalViewRenderer", "dataSwizzling", "metrics"])
+    #else
+        XCTAssertEqual(features, ["captureFailedRequests", "swiftAsyncStacktraces", "dataSwizzling", "metrics"])
+    #endif
 #else
+    #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+        XCTAssertEqual(features, ["captureFailedRequests", "experimentalViewRenderer", "dataSwizzling", "metrics"])
+    #else
         XCTAssertEqual(features, ["captureFailedRequests", "dataSwizzling", "metrics"])
+    #endif
 #endif
     }
 

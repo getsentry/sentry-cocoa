@@ -645,8 +645,14 @@
     /// watchOS 8.0.
     ///
     /// @brief Stitches the call to Swift Async functions in one consecutive stack trace.
-    /// @note Default value is @c false.
-    @objc public var swiftAsyncStacktraces: Bool = false
+    /// @note Default value is @c true in v10, @c false in earlier versions.
+    @objc public var swiftAsyncStacktraces: Bool = {
+        #if SDK_V10
+        return true
+        #else
+        return false
+        #endif // SDK_V10
+    }()
 
     /// The path to store SDK data, like events, transactions, profiles, raw crash data, etc. We
     /// recommend only changing this when the default, e.g., in security environments, can't be accessed.
