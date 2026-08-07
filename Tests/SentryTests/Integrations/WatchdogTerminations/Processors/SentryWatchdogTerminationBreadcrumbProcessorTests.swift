@@ -78,6 +78,47 @@ class SentryWatchdogTerminationBreadcrumbProcessorTests: XCTestCase {
         XCTAssertEqual(serializedBreadcrumb, breadcrumb)
     }
 
+    func testSwitchCurrentFilePath_fromFileOneToFileTwo_shouldWriteToFileTwo() throws {
+        // -- Arrange --
+        let processor = fixture.makeProcessor(maxBreadcrumbs: 2)
+        let breadcrumb = fixture.breadcrumb.serialize()
+
+        // Fill file one to capacity to trigger the first rotation.
+        for _ in 0..<2 { processor.addSerializedBreadcrumb(breadcrumb) }
+
+        // -- Act --
+        // This breadcrumb is written after the rotation: currentFilePath must now be filePathTwo.
+        processor.addSerializedBreadcrumb(breadcrumb)
+
+        // -- Assert --
+        let fileTwoContents = try String(contentsOfFile: fixture.fileManager.breadcrumbsFilePathTwo)
+        XCTAssertEqual(fileTwoContents.split(separator: "\n").count, 1,
+            "After first rotation, writes must go to breadcrumbsFilePathTwo")
+    }
+
+    func testSwitchCurrentFilePath_fromFileTwoBackToFileOne_shouldWriteToFileOne() throws {
+        // -- Arrange --
+        let processor = fixture.makeProcessor(maxBreadcrumbs: 2)
+        let breadcrumb = fixture.breadcrumb.serialize()
+
+        // Fill file one (triggers rotation to file two), then fill file two (triggers rotation back).
+        for _ in 0..<4 { processor.addSerializedBreadcrumb(breadcrumb) }
+
+        // -- Act --
+        // This breadcrumb is written after the second rotation: currentFilePath must be filePathOne again.
+        processor.addSerializedBreadcrumb(breadcrumb)
+
+        // -- Assert --
+        // File one was cleared by the second rotation and now holds just this one breadcrumb.
+        let fileOneContents = try String(contentsOfFile: fixture.fileManager.breadcrumbsFilePathOne)
+        XCTAssertEqual(fileOneContents.split(separator: "\n").count, 1,
+            "After second rotation, writes must wrap back to breadcrumbsFilePathOne")
+        // File two still holds the two breadcrumbs from the first cycle.
+        let fileTwoContents = try String(contentsOfFile: fixture.fileManager.breadcrumbsFilePathTwo)
+        XCTAssertEqual(fileTwoContents.split(separator: "\n").count, 2,
+            "breadcrumbsFilePathTwo must still contain the breadcrumbs from the first rotation cycle")
+    }
+
     func testAddSerializedBreadcrumb_whenMaxBreadcrumbsReached_shouldRotateFiles() throws {
         // -- Arrange --
         let processor = fixture.makeProcessor(maxBreadcrumbs: 2)
@@ -148,6 +189,54 @@ class SentryWatchdogTerminationBreadcrumbProcessorTests: XCTestCase {
             "No breadcrumb file should exist for the new session yet")
         XCTAssertFalse(FileManager.default.fileExists(atPath: fixture.fileManager.breadcrumbsFilePathTwo),
             "No breadcrumb file two should exist for the new session yet")
+    }
+
+    func testClear_shouldDelegateToClearBreadcrumbs() throws {
+        // -- Arrange --
+        let breadcrumb = fixture.breadcrumb.serialize()
+        sut.addSerializedBreadcrumb(breadcrumb)
+
+        // -- Act --
+        sut.clear()
+
+        // -- Assert --
+        XCTAssertFalse(FileManager.default.fileExists(atPath: fixture.fileManager.breadcrumbsFilePathOne),
+            "clear() must delete breadcrumb files just like clearBreadcrumbs()")
+        XCTAssertFalse(FileManager.default.fileExists(atPath: fixture.fileManager.breadcrumbsFilePathTwo))
+    }
+
+    func testClearBreadcrumbs_thenAddSerializedBreadcrumb_shouldWriteToFreshFile() throws {
+        // -- Arrange --
+        let breadcrumb = try XCTUnwrap(fixture.breadcrumb.serialize() as? [String: String])
+        sut.addSerializedBreadcrumb(breadcrumb)
+        sut.clearBreadcrumbs()
+
+        // -- Act --
+        sut.addSerializedBreadcrumb(breadcrumb)
+
+        // -- Assert --
+        // The processor must re-create the file and write the new breadcrumb cleanly.
+        let contents = try String(contentsOfFile: fixture.fileManager.breadcrumbsFilePathOne)
+        XCTAssertEqual(contents.split(separator: "\n").count, 1,
+            "A write after clearBreadcrumbs must create a new file with exactly one breadcrumb")
+    }
+
+    func testFlushAndClose_calledTwice_shouldNotMoveFilesOnSecondCall() throws {
+        // -- Arrange --
+        let dispatchQueue = SentryDispatchQueueWrapper(name: "io.sentry.test-watchdog-breadcrumb-processor.idempotent")
+        let processor = fixture.makeProcessor(dispatchQueueWrapper: dispatchQueue)
+        let breadcrumb = fixture.breadcrumb.serialize()
+        processor.addSerializedBreadcrumb(breadcrumb)
+
+        // -- Act --
+        processor.flushAndClose()  // first call: moves breadcrumbs to previous, closes handle
+        processor.flushAndClose()  // second call: must be a no-op
+
+        // -- Assert --
+        // The previous-session file must contain exactly the one breadcrumb from the first call.
+        let previousContents = try String(contentsOfFile: fixture.fileManager.previousBreadcrumbsFilePathOne)
+        XCTAssertEqual(previousContents.split(separator: "\n").count, 1,
+            "Second flushAndClose must not move files again or corrupt the previous-session file")
     }
 
     func testFlushAndClose_shouldPersistQueuedBreadcrumbsAndIgnoreSubsequentBreadcrumbs() throws {

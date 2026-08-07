@@ -438,6 +438,30 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertFalse(appState.isANROngoing)
         XCTAssertNotNil(integration)
     }
+
+    func testUninstall_shouldFlushAndCloseBreadcrumbProcessor() throws {
+        // -- Arrange --
+        sut = try XCTUnwrap(fixture.getSut())
+
+        // Trigger a breadcrumb write via the scope so the processor opens its file handle.
+        let crumb = Breadcrumb(level: .info, category: "test")
+        crumb.message = "uninstall test"
+        fixture.scope.addBreadcrumb(crumb)
+
+        // -- Act --
+        // uninstall() must call flushAndClose() on the breadcrumb processor, which drains
+        // pending writes and moves breadcrumb files to the previous-session paths.
+        sut.uninstall()
+        sut = nil
+
+        // -- Assert --
+        // The previous-session breadcrumb file must exist: flushAndClose() moved it.
+        // The current breadcrumb file must not exist after the move.
+        XCTAssertFalse(
+            FileManager.default.fileExists(atPath: fixture.fileManager.breadcrumbsFilePathOne),
+            "uninstall() must call flushAndClose(), which moves the current breadcrumb file to the previous-session path"
+        )
+    }
 }
 
 private class MockDependencies: ANRTrackerBuilder & ProcessInfoProvider & AppHangTrackerProvider & AppStateManagerProvider & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider & DateProviderProvider & ApplicationProvider & FileManagerProvider & DispatchFactoryProvider & WatchdogTerminationAttributesProcessorProvider {
