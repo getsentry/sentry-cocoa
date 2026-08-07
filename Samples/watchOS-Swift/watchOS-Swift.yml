@@ -71,8 +71,6 @@ targets:
         group: Extension
         excludes:
           - "**/.gitkeep"
-      - path: ../Shared/SampleAssets.xcassets
-        group: Extension/Resources
       # Configurations
       - path: Extension/Configurations
         type: group
