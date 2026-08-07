@@ -3,6 +3,7 @@
 // This target provides the KSCrash-backed SDK used by all V10 configurations.
 GCC_PREPROCESSOR_DEFINITIONS = $(GCC_PREPROCESSOR_DEFINITIONS_$(CONFIGURATION)) SDK_V10=1
 SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(SWIFT_ACTIVE_COMPILATION_CONDITIONS_$(CONFIGURATION)) SDK_V10
+IMPLICIT_DEPENDENCY_DOMAIN = SentryV10
 
 // The KSCrash variant must still build Sentry.framework because Clang framework
 // module lookup and the public umbrella header both expect the Sentry bundle name.
@@ -37,8 +38,3 @@ ARCHS[sdk=watchos*] = $(ARCHS_STANDARD)
 SENTRY_KSCRASH_ARM64E_IF_NOT_CATALYST_YES =
 SENTRY_KSCRASH_ARM64E_IF_NOT_CATALYST_NO = arm64e
 ARCHS[sdk=macosx*] = arm64 x86_64 $(SENTRY_KSCRASH_ARM64E_IF_NOT_CATALYST_$(IS_MACCATALYST))
-
-// Both this target and the base Sentry target share PRODUCT_MODULE_NAME=Sentry. Xcode's
-// explicit module scanner can't tell them apart and emits a spurious missing-dependency
-// warning. Disabling explicit modules for this target silences it without affecting correctness.
-SWIFT_ENABLE_EXPLICIT_MODULES = NO

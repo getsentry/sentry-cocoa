@@ -155,6 +155,7 @@
 		3CFC66E52FF50342004005B4 /* libSentryTestUtils.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8431F00A29B284F200D8DC56 /* libSentryTestUtils.a */; };
 		3CFC66E72FF50342004005B4 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0787B53CA34AC1B3CF256F35 /* Sentry.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		3CFC66E92FF50342004005B4 /* Resources in Resources */ = {isa = PBXBuildFile; fileRef = 630C01951EC341D600C52CEF /* Resources */; };
+		FB857163E0B84508B6FF3FBD /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0787B53CA34AC1B3CF256F35 /* Sentry.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		3DC0F52DC65298EA3C0DDEA5 /* SentryOptionsObjC.h in Headers */ = {isa = PBXBuildFile; fileRef = FA24E0292EBBF6F500EFD92E /* SentryOptionsObjC.h */; };
 		3E41602CC36FDFDF9170F19F /* SentryTransaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 8ECC674425C23A1F000E2BF6 /* SentryTransaction.m */; };
 		3F4B9E3D4A320583B9233565 /* SentryScopeSyncC.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B96571F26830C9100C66E25 /* SentryScopeSyncC.h */; };
@@ -909,6 +910,20 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		0C8F6C014ED3477AB689AAC0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6327C5CA1EB8A783004E799B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 63AA759A1EB8AEF500D153DE;
+			remoteInfo = Sentry;
+		};
+		960877F8585F44C6842BC18D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6327C5CA1EB8A783004E799B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D61074A12EE358E90332638B;
+			remoteInfo = "Sentry+KSCrash";
+		};
 		3CFC66E02FF50342004005B4 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6327C5CA1EB8A783004E799B /* Project object */;
@@ -1848,6 +1863,14 @@
 				1D39B749E2C0B09067076027 /* CoreData.framework in Frameworks */,
 				B3418ABC1AC38F349A9E2CE6 /* libz.tbd in Frameworks */,
 				D9342A3A2155489C8CD87D27 /* Installations in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		36D2C02BA87A4343B75E8E49 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FB857163E0B84508B6FF3FBD /* Sentry.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3635,6 +3658,8 @@
 			buildRules = (
 			);
 			dependencies = (
+				E300EA6E319E49278656AA94 /* PBXTargetDependency */,
+				362D72ECB4064D2EBCF927D5 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				FAB1188E2F4633F40000CC24 /* SentryTestUtils */,
@@ -3763,6 +3788,7 @@
 			buildPhases = (
 				248AE753B180C73F5361828C /* Headers */,
 				E7EE46B3FA0ABC47A8E6AA6C /* Sources */,
+				36D2C02BA87A4343B75E8E49 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -4572,6 +4598,16 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		E300EA6E319E49278656AA94 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 63AA759A1EB8AEF500D153DE /* Sentry */;
+			targetProxy = 0C8F6C014ED3477AB689AAC0 /* PBXContainerItemProxy */;
+		};
+		362D72ECB4064D2EBCF927D5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D61074A12EE358E90332638B /* Sentry+KSCrash */;
+			targetProxy = 960877F8585F44C6842BC18D /* PBXContainerItemProxy */;
+		};
 		3CFC66DF2FF50342004005B4 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = D61074A12EE358E90332638B /* Sentry+KSCrash */;
