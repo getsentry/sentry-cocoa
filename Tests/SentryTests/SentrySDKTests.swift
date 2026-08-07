@@ -145,6 +145,9 @@ class SentrySDKTests: XCTestCase {
         #else
         expectedIntegrations.append("SentryCrashIntegration")
         #endif
+        #if SDK_V10
+        expectedIntegrations.append("SentrySwiftAsyncIntegration")
+        #endif
 
         assertIntegrationsInstalled(integrations: expectedIntegrations)
     }
