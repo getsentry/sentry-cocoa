@@ -803,7 +803,11 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 #endif // SDK_V10
 
 #if SENTRY_HAS_METRIC_KIT
+#    if SDK_V10
+    XCTAssertEqual(YES, options.enableMetricKit);
+#    else
     XCTAssertEqual(NO, options.enableMetricKit);
+#    endif // SDK_V10
     XCTAssertEqual(NO, options.enableMetricKitRawPayload);
 #endif // SENTRY_HAS_METRIC_KIT
 
@@ -986,7 +990,11 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 
 - (void)testEnableMetricKit
 {
+#    if SDK_V10
+    [self testBooleanField:@"enableMetricKit" defaultValue:YES];
+#    else
     [self testBooleanField:@"enableMetricKit" defaultValue:NO];
+#    endif // SDK_V10
 }
 
 - (void)testenableMetricKitRawPayload

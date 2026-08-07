@@ -314,30 +314,39 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     }
 
     func testEnableStandaloneAppStartTracing_isEnabled_shouldAddFeature() throws {
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         // -- Arrange --
         let options = Options()
-        options.experimental.enableStandaloneAppStartTracing = true
+        options.enableStandaloneAppStartTracing = true
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
 
         // -- Assert --
         XCTAssertTrue(features.contains("standaloneAppStartTracing"))
+#else
+        throw XCTSkip("Test not supported on this platform")
+#endif
     }
 
     func testEnableStandaloneAppStartTracing_isDisabled_shouldNotAddFeature() throws {
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         // -- Arrange --
         let options = Options()
-        options.experimental.enableStandaloneAppStartTracing = false
+        options.enableStandaloneAppStartTracing = false
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
 
         // -- Assert --
         XCTAssertFalse(features.contains("standaloneAppStartTracing"))
+#else
+        throw XCTSkip("Test not supported on this platform")
+#endif
     }
 
     func testEnableStandaloneAppStartTracing_whenDefault_shouldNotAddFeature() throws {
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         // -- Arrange --
         let options = Options()
 
@@ -346,6 +355,9 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 
         // -- Assert --
         XCTAssertFalse(features.contains("standaloneAppStartTracing"))
+#else
+        throw XCTSkip("Test not supported on this platform")
+#endif
     }
 
     func testEnableWatchdogTerminationsV2_isEnabled_shouldAddFeature() throws {

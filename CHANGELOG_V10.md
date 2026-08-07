@@ -17,6 +17,7 @@
 
 ### Breaking Changes
 
+- Enable MetricKit integration by default (#8716)
 - Enable logging by default (#8717)
 - Enable `swiftAsyncStacktraces` by default (#8718)
 - Remove `sendDefaultPii`; use `dataCollection` to configure automatic data collection (#8253)

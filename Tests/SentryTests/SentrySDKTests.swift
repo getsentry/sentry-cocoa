@@ -148,6 +148,9 @@ class SentrySDKTests: XCTestCase {
         #if SDK_V10
         expectedIntegrations.append("SentrySwiftAsyncIntegration")
         #endif
+#if canImport(MetricKit) && !os(tvOS) && SDK_V10
+        expectedIntegrations.append("SentryMetricKitIntegration")
+#endif
 
         assertIntegrationsInstalled(integrations: expectedIntegrations)
     }

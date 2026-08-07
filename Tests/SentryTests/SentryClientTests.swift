@@ -2163,6 +2163,9 @@ final class SentryClientTests: XCTestCase {
         #if SDK_V10
         expectedIntegrations.append("SwiftAsync")
         #endif
+#if canImport(MetricKit) && !os(tvOS) && SDK_V10
+        expectedIntegrations.append("MetricKit")
+#endif
 
         let actual = try lastSentEvent()
         assertArrayEquals(
