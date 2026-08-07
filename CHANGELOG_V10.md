@@ -25,6 +25,7 @@
 - Remove deprecated `locale` from device context; use `locale` in culture context instead (#8325)
 - Change `SentryRequest.cookies` from a string to a dictionary of cookie names and values (#8460)
 - Remove data collection options without applicable Cocoa collectors (#8563)
+- Standalone app starts are now the default and only mode; the legacy `ui.load` attach-to-transaction path and `enableStandaloneAppStartTracing` experimental option are removed (#8719)
 
 ### Fixes
 
