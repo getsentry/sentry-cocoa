@@ -1,4 +1,5 @@
 // swiftlint:disable file_length
+// swiftlint:disable type_body_length
 /// Configuration options for the Sentry SDK.
 @objc(SentryOptions) public final class Options: NSObject {
 
@@ -754,4 +755,5 @@ extension NSNumber {
     }
 }
 
+// swiftlint:enable type_body_length
 // swiftlint:enable file_length
