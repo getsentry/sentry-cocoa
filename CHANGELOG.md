@@ -15,6 +15,7 @@
 
 - Fix misleading duplicate SDK detection message: "same binary" → "same address space" (#8710)
 - Fix a race caused by mutating `URLSessionTask.currentRequest` during trace header propagation (#8650)
+- Prevent breadcrumb persistence for watchdog termination events from blocking the calling thread (#8653)
 
 ## 9.25.0
 

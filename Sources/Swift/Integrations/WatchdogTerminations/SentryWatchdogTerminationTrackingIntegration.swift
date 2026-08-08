@@ -3,7 +3,11 @@ import Foundation
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
-typealias WatchdogTerminationTrackingProvider = ANRTrackerBuilder & ProcessInfoProvider & AppHangTrackerProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider
+protocol WatchdogTerminationAttributesProcessorProvider {
+    var watchdogTerminationAttributesProcessor: SentryWatchdogTerminationAttributesProcessor { get }
+}
+
+typealias WatchdogTerminationTrackingProvider = ANRTrackerBuilder & ProcessInfoProvider & AppHangTrackerProvider & AppStateManagerProvider & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider & FileManagerProvider & DispatchFactoryProvider & WatchdogTerminationAttributesProcessorProvider
 
 final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogTerminationTrackingProvider>: NSObject, SwiftIntegration, SentryANRTrackerDelegate {
 
@@ -12,33 +16,35 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
     private let anrTracker: SentryANRTracker?
     private let appHangTracker: SentryAppHangTracker?
     private let appStateManager: SentryAppStateManager
+    private let breadcrumbProcessor: SentryWatchdogTerminationBreadcrumbProcessor
 
     private var hasStartedHang: Bool = false
     private var appHangTrackerObserverToken: SentryAppHangTrackerObserverToken?
 
+    // swiftlint:disable:next function_body_length
     init?(with options: Options, dependencies: Dependencies) {
         guard options.enableWatchdogTerminationTracking else {
             SentrySDKLog.debug("Not going to enable \(Self.name) because enableWatchdogTerminationTracking is disabled.")
             return nil
         }
-
         guard options.enableCrashHandler else {
             SentrySDKLog.debug("Not going to enable \(Self.name) because enableCrashHandler is disabled.")
             return nil
         }
-
         guard dependencies.processInfoWrapper.environment["XCTestConfigurationFilePath"] == nil else {
             SentrySDKLog.debug("Not going to enable \(Self.name) because XCTestConfigurationFilePath is set.")
             return nil
         }
-
         if let identifier = dependencies.extensionDetector.getExtensionPointIdentifier(), identifier.isDisabledExtensionPointIdentifier {
             SentrySDKLog.debug("Not enabling watchdog termination tracking for extension: \(identifier)")
             return nil
         }
-
         guard let terminationTracker = dependencies.getWatchdogTerminationTracker(options) else {
             SentrySDKLog.fatal("Watchdog Termination tracker not available")
+            return nil
+        }
+        guard let fileManager = dependencies.fileManager else {
+            SentrySDKLog.fatal("File manager is not available")
             return nil
         }
 
@@ -52,6 +58,14 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
             appHangTracker = nil
         }
         appStateManager = dependencies.appStateManager
+        breadcrumbProcessor = SentryDefaultWatchdogTerminationBreadcrumbProcessor(
+            maxBreadcrumbs: Int(options.maxBreadcrumbs),
+            fileManager: fileManager,
+            dispatchQueueWrapper: dependencies.dispatchFactory.createUtilityQueue(
+                "io.sentry.watchdog-termination-tracking.breadcrumbs-processor",
+                relativePriority: 0
+            )
+        )
 
         super.init()
 
@@ -68,7 +82,10 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
         }
         anrTracker?.add(listener: self)
 
-        let scopeObserver = dependencies.getWatchdogTerminationScopeObserverWithOptions(options)
+        let scopeObserver = SentryWatchdogTerminationScopeObserver(
+            breadcrumbProcessor: breadcrumbProcessor,
+            attributesProcessor: dependencies.watchdogTerminationAttributesProcessor
+        )
         SentrySDKInternal.currentHub().configureScope { outerScope in
             Self.syncWatchdogScopeObserver(scopeObserver, from: outerScope)
         }
@@ -99,6 +116,7 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
     func uninstall() {
         tracker.stop()
         anrTracker?.remove(listener: self)
+        breadcrumbProcessor.flushAndClose()
 
         guard let appHangTrackerObserverToken else {
             return
