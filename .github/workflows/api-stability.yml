@@ -47,7 +47,6 @@ jobs:
       - name: Generate HEAD SDK
         run: |
           mv sdk_api.json sdk_api_base.json
-          mv sdk_api_sentryswiftui.json sdk_api_sentryswiftui_base.json
           mv sdk_api_objc.json sdk_api_objc_base.json
           mv sdk_api_objc.diff.json sdk_api_objc.diff_base.json
           ./scripts/update-api.sh
@@ -68,25 +67,6 @@ jobs:
               -json \
               -v
             cat result.json
-            exit 1
-          fi
-
-      - name: Diagnose breaking changes for SentrySwiftUI
-        if: always()
-        run: |
-          if diff -q "sdk_api_sentryswiftui_base.json" "sdk_api_sentryswiftui.json" > /dev/null; then
-            echo "No SentrySwiftUI API changes detected."
-          else
-            echo "❌ SentrySwiftUI public API changes are detected. If they're intended run 'make generate-public-api' and commit the changes."
-            diff "sdk_api_sentryswiftui_base.json" "sdk_api_sentryswiftui.json" || true
-            xcrun --sdk iphoneos swift-api-digester \
-              -diagnose-sdk \
-              -o sentryswiftui_result.json \
-              -input-paths sdk_api_sentryswiftui_base.json \
-              -input-paths sdk_api_sentryswiftui.json \
-              -json \
-              -v
-            cat sentryswiftui_result.json
             exit 1
           fi
 
