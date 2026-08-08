@@ -112,14 +112,11 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
 
         // Register the request start date only on first resume so suspend/resume cycles preserve it.
         if isNetworkBreadcrumbEnabled {
-            switch sessionTask.startDate {
-            case .valid:
-                break
-            case .invalid(let value):
-                SentrySDKLog.error("Found invalid type associated with session start date: \(value)")
-                sessionTask.setStartDate(dateProvider.date())
-            case nil:
-                sessionTask.setStartDate(dateProvider.date())
+            let startDate = dateProvider.date()
+            sessionTask.withNetworkTrackerState {
+                if $0.startDate == nil {
+                    $0.startDate = startDate
+                }
             }
         }
 
@@ -134,64 +131,92 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         let safeUrl = UrlSanitized(URL: url)
         #endif
 
-        synchronized(sessionTask) {
-            guard sessionTask.trackerSpan == nil else {
-                // The task already has a span. Nothing to do.
-                return
+        let shouldCreateSpan = sessionTask.withNetworkTrackerState { state in
+            guard case .idle = state.spanState else {
+                return false
             }
+            state.spanState = .creating
+            return true
+        }
+        guard shouldCreateSpan else {
+            return
+        }
 
-            let currentSpan = hub.scope.span
-            var networkSpan: Span?
+        let currentSpan = hub.scope.span
+        var networkSpan: Span?
 
-            if let currentSpan {
-                #if SDK_V10
-                // Span descriptions exclude query strings and fragments. See
-                // https://develop.sentry.dev/sdk/foundations/client/data-collection/#urls
-                let descriptionUrl = safeUrl.sanitizedBaseUrl
-                #else
-                let descriptionUrl = safeUrl.sanitizedUrl
-                #endif
+        if let currentSpan {
+            #if SDK_V10
+            // Span descriptions exclude query strings and fragments. See
+            // https://develop.sentry.dev/sdk/foundations/client/data-collection/#urls
+            let descriptionUrl = safeUrl.sanitizedBaseUrl
+            #else
+            let descriptionUrl = safeUrl.sanitizedUrl
+            #endif
 
-                networkSpan = currentSpan.startChild(
-                    operation: SentrySpanOperationNetworkRequestOperation,
-                    description: String(
-                        format: "%@ %@",
-                        currentRequest.httpMethod ?? "(null)",
-                        descriptionUrl ?? "(null)"
-                    )
+            networkSpan = currentSpan.startChild(
+                operation: SentrySpanOperationNetworkRequestOperation,
+                description: String(
+                    format: "%@ %@",
+                    currentRequest.httpMethod ?? "(null)",
+                    descriptionUrl ?? "(null)"
                 )
-                networkSpan?.origin = SentryTraceOriginAutoHttpNSURLSession
-                networkSpan?.setData(value: currentRequest.httpMethod, key: "http.request.method")
-                networkSpan?.setData(value: safeUrl.sanitizedUrl, key: "url")
-                networkSpan?.setData(value: "fetch", key: "type")
-
-                if let queryItems = safeUrl.queryItems, !queryItems.isEmpty {
-                    networkSpan?.setData(value: safeUrl.query, key: "http.query")
-                }
-                if let fragment = safeUrl.fragment {
-                    networkSpan?.setData(value: fragment, key: "http.fragment")
-                }
-            }
-
-            // We only create a span if there is a transaction in the scope,
-            // otherwise we have nothing else to do here.
-            guard let networkSpan, !(networkSpan is SentryNoOpSpan) else {
-                SentrySDKLog.debug("No transaction bound to scope. Won't track network operation.")
-                addTraceWithoutTransaction(to: sessionTask)
-                return
-            }
-
-            let baggage = SentryTracer.getTracer(currentSpan)?.traceContext?.toBaggage()
-            SentryTracePropagation.addBaggageHeader(
-                baggage,
-                traceHeader: networkSpan.toTraceHeader(),
-                propagateTraceparent: options.enablePropagateTraceparent,
-                tracePropagationTargets: options.tracePropagationTargets,
-                toRequest: sessionTask
             )
+            networkSpan?.origin = SentryTraceOriginAutoHttpNSURLSession
+            networkSpan?.setData(value: currentRequest.httpMethod, key: "http.request.method")
+            networkSpan?.setData(value: safeUrl.sanitizedUrl, key: "url")
+            networkSpan?.setData(value: "fetch", key: "type")
 
-            SentrySDKLog.debug("SentryNetworkTracker automatically started HTTP span for sessionTask: \(networkSpan.description)")
-            sessionTask.setTrackerSpan(networkSpan)
+            if let queryItems = safeUrl.queryItems, !queryItems.isEmpty {
+                networkSpan?.setData(value: safeUrl.query, key: "http.query")
+            }
+            if let fragment = safeUrl.fragment {
+                networkSpan?.setData(value: fragment, key: "http.fragment")
+            }
+        }
+
+        // We only create a span if there is a transaction in the scope,
+        // otherwise we have nothing else to do here.
+        guard let networkSpan, !(networkSpan is SentryNoOpSpan) else {
+            SentrySDKLog.debug("No transaction bound to scope. Won't track network operation.")
+            addTraceWithoutTransaction(to: sessionTask)
+            sessionTask.withNetworkTrackerState { state in
+                switch state.spanState {
+                case .creating:
+                    state.spanState = .idle
+                case .completionPending:
+                    state.spanState = .completed
+                default:
+                    break
+                }
+            }
+            return
+        }
+
+        let baggage = SentryTracer.getTracer(currentSpan)?.traceContext?.toBaggage()
+        SentryTracePropagation.addBaggageHeader(
+            baggage,
+            traceHeader: networkSpan.toTraceHeader(),
+            propagateTraceparent: options.enablePropagateTraceparent,
+            tracePropagationTargets: options.tracePropagationTargets,
+            toRequest: sessionTask
+        )
+
+        SentrySDKLog.debug("SentryNetworkTracker automatically started HTTP span for sessionTask: \(networkSpan.description)")
+        let pendingCompletion = sessionTask.withNetworkTrackerState { state -> URLSessionTaskNetworkTrackerState.SpanCompletion? in
+            switch state.spanState {
+            case .creating:
+                state.spanState = .active(networkSpan)
+                return nil
+            case .completionPending(let completion):
+                state.spanState = .completed
+                return completion
+            default:
+                return nil
+            }
+        }
+        if let pendingCompletion {
+            finish(networkSpan, with: pendingCompletion)
         }
     }
 
@@ -229,17 +254,25 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             return
         }
 
-        // We'll just go through once
-        let networkSpan: Span? = synchronized(sessionTask) {
-            defer { sessionTask.setTrackerSpan(nil) }
+        let responseStatusCode = urlResponseStatusCode(sessionTask.response)
+        let completion = URLSessionTaskNetworkTrackerState.SpanCompletion(
+            status: status(for: sessionTask, state: newState),
+            responseStatusCode: responseStatusCode == -1 ? nil : responseStatusCode
+        )
 
-            switch sessionTask.trackerSpan {
-            case .valid(let span):
+        // We'll just go through once
+        let networkSpan = sessionTask.withNetworkTrackerState { state -> Span? in
+            switch state.spanState {
+            case .active(let span):
+                state.spanState = .completed
                 return span
-            case .invalid(let value):
-                SentrySDKLog.error("Found invalid tracker span associated with URL session task: \(value)")
+            case .creating:
+                state.spanState = .completionPending(completion)
                 return nil
-            case nil:
+            case .idle:
+                state.spanState = .completed
+                return nil
+            case .completionPending, .completed:
                 return nil
             }
         }
@@ -253,18 +286,11 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             captureFailedRequest(for: sessionTask, currentRequest: currentRequest, options: options)
             addBreadcrumb(for: sessionTask, currentRequest: currentRequest, options: options)
 
-            let responseStatusCode = urlResponseStatusCode(sessionTask.response)
-            if responseStatusCode != -1 {
-                networkSpan?.setData(value: responseStatusCode, key: "http.response.status_code")
-            }
         }
 
-        guard let networkSpan else {
-            return
+        if let networkSpan {
+            finish(networkSpan, with: completion)
         }
-
-        networkSpan.finish(status: status(for: sessionTask, state: newState))
-        SentrySDKLog.debug("SentryNetworkTracker finished HTTP span for sessionTask")
     }
 
     #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
@@ -275,35 +301,34 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             return
         }
 
-        synchronized(task) {
-            guard case .valid(let details) = task.networkDetails else {
-                SentrySDKLog.warning("[NetworkCapture] No SentryReplayNetworkDetails found for \(urlString) - skipping response capture")
+        guard let details = task.withNetworkTrackerStateIfAvailable({ $0.networkDetails }),
+              let details else {
+            SentrySDKLog.warning("[NetworkCapture] No SentryReplayNetworkDetails found for \(urlString) - skipping response capture")
+            return
+        }
+
+        let httpResponse = response as? HTTPURLResponse
+        let statusCode = httpResponse?.statusCode ?? 0
+        // swiftlint:disable avoid_all_header_fields
+        // Safe: reading the whole dictionary, not a case-sensitive lookup.
+        let allHeaders = httpResponse?.allHeaderFields.reduce(into: [String: Any]()) { result, entry in
+            guard let key = entry.key as? String else {
                 return
             }
-
-            let httpResponse = response as? HTTPURLResponse
-            let statusCode = httpResponse?.statusCode ?? 0
-            // swiftlint:disable avoid_all_header_fields
-            // Safe: reading the whole dictionary, not a case-sensitive lookup.
-            let allHeaders = httpResponse?.allHeaderFields.reduce(into: [String: Any]()) { result, entry in
-                guard let key = entry.key as? String else {
-                    return
-                }
-                result[key] = entry.value
-            }
-            // swiftlint:enable avoid_all_header_fields
-            let contentType = httpResponse?.value(forHTTPHeaderFieldCaseInsensitive: "content-type")
-            let bodyData = options.sessionReplay.networkCaptureBodies && !data.isEmpty ? data : nil
-
-            details.setResponse(
-                statusCode: statusCode,
-                size: NSNumber(value: data.count),
-                bodyData: bodyData,
-                contentType: contentType,
-                allHeaders: allHeaders,
-                configuredHeaders: options.sessionReplay.networkResponseHeaders
-            )
+            result[key] = entry.value
         }
+        // swiftlint:enable avoid_all_header_fields
+        let contentType = httpResponse?.value(forHTTPHeaderFieldCaseInsensitive: "content-type")
+        let bodyData = options.sessionReplay.networkCaptureBodies && !data.isEmpty ? data : nil
+
+        details.setResponse(
+            statusCode: statusCode,
+            size: NSNumber(value: data.count),
+            bodyData: bodyData,
+            contentType: contentType,
+            allHeaders: allHeaders,
+            configuredHeaders: options.sessionReplay.networkResponseHeaders
+        )
     }
     #endif
 
@@ -432,17 +457,18 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             return
         }
 
-        switch sessionTask.hasBreadcrumb {
-        case .valid(let value) where value == true:
-            // Session task already has a breadcrumb set
+        guard let requestURL = currentRequest.url else {
             return
-        case .invalid(let invalid):
-            SentrySDKLog.error("Found invalid type in url session task hasBreadcrumb: \(invalid)")
-        default:
-            break
         }
 
-        guard let requestURL = currentRequest.url else {
+        let shouldAddBreadcrumb = sessionTask.withNetworkTrackerState { state in
+            guard !state.hasBreadcrumb else {
+                return false
+            }
+            state.hasBreadcrumb = true
+            return true
+        }
+        guard shouldAddBreadcrumb else {
             return
         }
 
@@ -462,7 +488,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         data["url"] = urlComponents.sanitizedUrl
         data["method"] = currentRequest.httpMethod
 
-        if case .valid(let requestStart) = sessionTask.startDate {
+        if let requestStart = sessionTask.startDate {
             data["request_start"] = requestStart
         }
 
@@ -485,20 +511,28 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
 
         #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
         // Store the raw object. SentrySRDefaultBreadcrumbConverter serializes it when read.
-        synchronized(sessionTask) {
-            if case .valid(let networkDetails) = sessionTask.networkDetails {
-                data[SentryReplayNetworkDetails.replayNetworkDetailsKey] = networkDetails
-            }
+        if let networkDetails = sessionTask.withNetworkTrackerStateIfAvailable({ $0.networkDetails }) {
+            data[SentryReplayNetworkDetails.replayNetworkDetailsKey] = networkDetails
         }
         #endif
 
         let breadcrumb = Breadcrumb(level: level, category: "http", data: data)
         breadcrumb.type = "http"
         SentrySDKInternal.addBreadcrumb(breadcrumb)
-        sessionTask.setHasBreadcrumb(true)
     }
 
     // MARK: - Span status
+
+    private func finish(
+        _ span: Span,
+        with completion: URLSessionTaskNetworkTrackerState.SpanCompletion
+    ) {
+        if let responseStatusCode = completion.responseStatusCode {
+            span.setData(value: responseStatusCode, key: "http.response.status_code")
+        }
+        span.finish(status: completion.status)
+        SentrySDKLog.debug("SentryNetworkTracker finished HTTP span for sessionTask")
+    }
 
     private func urlResponseStatusCode(_ response: URLResponse?) -> Int {
         (response as? HTTPURLResponse)?.statusCode ?? -1
@@ -585,14 +619,14 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             return
         }
 
-        let details: SentryReplayNetworkDetails? = synchronized(sessionTask) {
+        let details = sessionTask.withNetworkTrackerState { state -> SentryReplayNetworkDetails? in
             // Capture the initial request only. currentRequest can change after redirects.
-            guard case nil = sessionTask.networkDetails else {
+            guard state.networkDetails == nil else {
                 return nil
             }
 
             let newDetails = SentryReplayNetworkDetails(method: request.httpMethod ?? "GET")
-            sessionTask.setNetworkDetails(newDetails)
+            state.networkDetails = newDetails
             return newDetails
         }
         guard let details else {
