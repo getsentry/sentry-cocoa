@@ -95,7 +95,7 @@ public final class Updater: Sendable {
       components.queryItems?.append(URLQueryItem(name: "build_version", value: shortVersionString))
     }
     if let bundleVersion = Bundle.main.infoDictionary?["CFBundleVersion"] as? String {
-      components.queryItems?.append(URLQueryItem(name: "build_number", value: bundleVersion))
+      components.queryItems?.append(URLQueryItem(name: "build_number", value: normalizeBuildNumber(bundleVersion)))
     }
       if let installGroups = params.installGroupsOverride {
         for group in installGroups {
@@ -114,6 +114,33 @@ public final class Updater: Sendable {
     session.perform(request, decode: UpdateCheckResponse.self) { result in
       completion(result)
     }
+  }
+
+  private func normalizeBuildNumber(_ buildNumber: String) -> String {
+    let components = buildNumber.split(separator: ".", omittingEmptySubsequences: false)
+    guard (2...3).contains(components.count),
+          components.allSatisfy({ component in
+            !component.isEmpty && component.allSatisfy(\.isNumber)
+          }) else {
+      return buildNumber
+    }
+
+    // Sentry stores each version component in a six-digit base-1,000,000 slot.
+    let componentBase: UInt64 = 1_000_000
+    let numericComponents = components.compactMap { UInt64($0) }
+    guard numericComponents.count == components.count,
+          numericComponents.allSatisfy({ $0 < componentBase }) else {
+      return buildNumber
+    }
+
+    let paddedComponents = numericComponents + Array(
+      repeating: 0,
+      count: 3 - numericComponents.count)
+    let normalizedBuildNumber = paddedComponents.reduce(UInt64(0)) { result, component in
+      result * componentBase + component
+    }
+
+    return String(normalizedBuildNumber)
   }
 
   // MARK: - Private
