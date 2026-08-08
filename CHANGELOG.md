@@ -31,6 +31,7 @@
 
 ### Fixes
 
+- Call the original terminate handler even after fatal C++ exception handling disables monitors, instead of aborting with "terminate_handler unexpectedly returned" (#8663)
 - Reduce memory usage when storing envelopes with large attachments (#8649)
 - Fix incorrect `duration` sent for active sessions (#8612)
   - Session `duration` is now set only when the session ends. Active sessions (including on error increments) no longer emit a bogus `duration`.
