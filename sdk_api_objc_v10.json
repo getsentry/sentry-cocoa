@@ -869,6 +869,20 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "addScreenshotButtonAccessibilityLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "addScreenshotButtonLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "addSdkPackage:version:",
     "parent": "SentryObjCPrivateSDKOnly",
     "returnType": "void",
@@ -2145,6 +2159,13 @@
     "kind": "ObjCMethodDecl",
     "name": "enableReportNonFullyBlockingAppHangs",
     "parent": "SentryObjCOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "enableScreenshot",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
     "returnType": "BOOL",
     "instance": true
   },
@@ -5307,6 +5328,20 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "screenshotAccessibilityLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "screenshotErrorText",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "sdk",
     "parent": "SentryObjCEvent",
     "returnType": "NSDictionary<NSString *,id> * _Nullable",
@@ -5394,6 +5429,20 @@
     "name": "sessionTrackingIntervalMillis",
     "parent": "SentryObjCOptions",
     "returnType": "NSUInteger",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setAddScreenshotButtonAccessibilityLabel:",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setAddScreenshotButtonLabel:",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "void",
     "instance": true
   },
   {
@@ -6016,6 +6065,13 @@
     "kind": "ObjCMethodDecl",
     "name": "setEnableReportNonFullyBlockingAppHangs:",
     "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setEnableScreenshot:",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
     "returnType": "void",
     "instance": true
   },
@@ -7045,6 +7101,20 @@
     "kind": "ObjCMethodDecl",
     "name": "setSampled:",
     "parent": "SentryObjCSpan",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setScreenshotAccessibilityLabel:",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setScreenshotErrorText:",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
     "returnType": "void",
     "instance": true
   },
@@ -8688,6 +8758,18 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "addScreenshotButtonAccessibilityLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "addScreenshotButtonLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "animations",
     "parent": "SentryObjCUserFeedbackConfiguration",
     "type": "BOOL"
@@ -9320,6 +9402,12 @@
     "kind": "ObjCPropertyDecl",
     "name": "enableReportNonFullyBlockingAppHangs",
     "parent": "SentryObjCOptions",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "enableScreenshot",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
     "type": "BOOL"
   },
   {
@@ -10683,6 +10771,18 @@
     "name": "screenshot",
     "parent": "SentryObjCInternalApi",
     "type": "SentryObjCInternalScreenshotApi * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "screenshotAccessibilityLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "screenshotErrorText",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "type": "NSString * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",

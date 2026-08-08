@@ -28,6 +28,7 @@
 ### Features
 
 - Add `SentrySDK.feedback.enableOnShake()` and `disableOnShake()` to toggle the shake-to-report gesture at runtime (#8591)
+- Add screenshot picker to feedback (#8655)
 
 ### Fixes
 
