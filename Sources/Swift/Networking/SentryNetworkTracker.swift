@@ -301,8 +301,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             return
         }
 
-        guard let details = task.withNetworkTrackerStateIfAvailable({ $0.networkDetails }),
-              let details else {
+        guard let details = task.withNetworkTrackerState({ $0.networkDetails }) else {
             SentrySDKLog.warning("[NetworkCapture] No SentryReplayNetworkDetails found for \(urlString) - skipping response capture")
             return
         }
@@ -511,7 +510,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
 
         #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
         // Store the raw object. SentrySRDefaultBreadcrumbConverter serializes it when read.
-        if let networkDetails = sessionTask.withNetworkTrackerStateIfAvailable({ $0.networkDetails }) {
+        if let networkDetails = sessionTask.withNetworkTrackerState({ $0.networkDetails }) {
             data[SentryReplayNetworkDetails.replayNetworkDetailsKey] = networkDetails
         }
         #endif

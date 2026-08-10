@@ -26,7 +26,7 @@ extension SentryReplayNetworkDetails {
             headers: headers
         )
 #endif // SDK_V10
-        state.withLockIfAvailable { $0.request = request }
+        state.withLock { $0.request = request }
     }
 
     /// Sets response details from raw body data.
@@ -55,7 +55,7 @@ extension SentryReplayNetworkDetails {
             headers: headers
         )
 #endif // SDK_V10
-        state.withLockIfAvailable {
+        state.withLock {
             $0.statusCode = NSNumber(value: statusCode)
             $0.response = response
         }
@@ -108,7 +108,7 @@ extension SentryReplayNetworkDetails {
     @objc public func serialize() -> [String: Any] {
         var result = [String: Any]()
         result["method"] = method
-        state.withLockIfAvailable { state in
+        state.withLock { state in
             result["statusCode"] = state.statusCode
             result["requestBodySize"] = state.request?.size
             result["responseBodySize"] = state.response?.size

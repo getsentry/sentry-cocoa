@@ -18,8 +18,7 @@ enum NetworkBodyWarning: String {
 /// consume it via `serialize()`.
 ///
 /// - Important: Request and response parsing happens before publishing the result to internal
-///   state. State access is nonblocking because these details are optional enrichment and must not
-///   delay URLSession callbacks or main-thread cancellation.
+///   state. The short state updates and snapshots are synchronized for consistent replay data.
 @objc
 @_spi(Private) public class SentryReplayNetworkDetails: NSObject {
 
