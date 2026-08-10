@@ -58,6 +58,11 @@
         configuration.messagePlaceholder = @"Describe the jank";
         configuration.messageTextViewAccessibilityLabel = @"Message";
         configuration.isRequiredLabel = @"Required";
+        configuration.enableScreenshot = NO;
+        configuration.addScreenshotButtonLabel = @"Add";
+        configuration.addScreenshotButtonAccessibilityLabel = @"Add screenshot";
+        configuration.screenshotAccessibilityLabel = @"Screenshot attached";
+        configuration.screenshotErrorText = @"Choose another screenshot";
         configuration.removeScreenshotButtonLabel = @"Remove";
         configuration.removeScreenshotButtonAccessibilityLabel = @"Remove screenshot";
         configuration.isNameRequired = YES;
@@ -90,6 +95,11 @@
     XCTAssertEqualObjects(form.messagePlaceholder, @"Describe the jank");
     XCTAssertEqualObjects(form.messageTextViewAccessibilityLabel, @"Message");
     XCTAssertEqualObjects(form.isRequiredLabel, @"Required");
+    XCTAssertFalse(form.enableScreenshot);
+    XCTAssertEqualObjects(form.addScreenshotButtonLabel, @"Add");
+    XCTAssertEqualObjects(form.addScreenshotButtonAccessibilityLabel, @"Add screenshot");
+    XCTAssertEqualObjects(form.screenshotAccessibilityLabel, @"Screenshot attached");
+    XCTAssertEqualObjects(form.screenshotErrorText, @"Choose another screenshot");
     XCTAssertEqualObjects(form.removeScreenshotButtonLabel, @"Remove");
     XCTAssertEqualObjects(form.removeScreenshotButtonAccessibilityLabel, @"Remove screenshot");
     XCTAssertTrue(form.isNameRequired);

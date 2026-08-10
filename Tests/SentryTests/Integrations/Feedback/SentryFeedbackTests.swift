@@ -2,9 +2,15 @@ import Foundation
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 @_spi(Private) import SentryTestUtils
 @_spi(Private) @testable import Sentry
+import PhotosUI
+import UniformTypeIdentifiers
 import XCTest
 
 class SentryFeedbackTests: XCTestCase {
+#if !targetEnvironment(macCatalyst)
+    private static let mockWindowScene: UIWindowScene = MockUIWindowScene()
+#endif
+
     private typealias FeedbackTestCaseConfiguration = (requiresName: Bool, requiresEmail: Bool, nameInput: String?, emailInput: String?, messageInput: String?, includeScreenshot: Bool)
     private typealias FeedbackTestCase = (config: FeedbackTestCaseConfiguration, shouldValidate: Bool, expectedSubmitButtonAccessibilityHint: String)
 
@@ -104,6 +110,270 @@ class SentryFeedbackTests: XCTestCase {
 
         XCTAssertEqual(openCalls, 2)
         XCTAssertEqual(closeCalls, 2)
+    }
+
+    func testForm_whenScreenshotSelectionEnabled_shouldShowAddScreenshotButton() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        config.formConfig.enableScreenshot = true
+
+        // -- Act --
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+
+        // -- Assert --
+        XCTAssertFalse(sut.viewModel.addScreenshotButton.isHidden)
+        XCTAssertTrue(sut.viewModel.removeScreenshotStack.isHidden)
+    }
+
+    func testForm_whenScreenshotSelectionDisabledByDefault_shouldHideAddScreenshotButton() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+
+        // -- Act --
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+
+        // -- Assert --
+        XCTAssertTrue(sut.viewModel.addScreenshotButton.isHidden)
+        XCTAssertTrue(sut.viewModel.removeScreenshotStack.isHidden)
+    }
+
+#if !targetEnvironment(macCatalyst)
+    func testForm_whenScreenshotStackHidden_shouldNotOccupyVerticalSpace() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        config.formConfig.enableScreenshot = true
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        let window = UIWindow(windowScene: Self.mockWindowScene)
+        window.rootViewController = sut
+        window.makeKeyAndVisible()
+        addTeardownBlock { [window] in
+            window.isHidden = true
+        }
+
+        // -- Act --
+        sut.view.layoutIfNeeded()
+
+        // -- Assert --
+        XCTAssertEqual(sut.viewModel.removeScreenshotStack.frame.height, 0)
+    }
+#endif
+
+    func testForm_whenAddScreenshotLabelsConfigured_shouldUseConfiguredLabels() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        config.formConfig.addScreenshotButtonLabel = "Attach image"
+        config.formConfig.addScreenshotButtonAccessibilityLabel = "Choose an image to attach"
+
+        // -- Act --
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+
+        // -- Assert --
+        XCTAssertEqual(sut.viewModel.addScreenshotButton.title(for: .normal), "Attach image")
+        XCTAssertEqual(sut.viewModel.addScreenshotButton.accessibilityLabel, "Choose an image to attach")
+    }
+
+    func testForm_whenScreenshotLoading_shouldShowActivityIndicatorAndHideButtonTitle() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        config.formConfig.addScreenshotButtonLabel = "Attach image"
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+
+        // -- Act --
+        sut.viewModel.setScreenshotLoading(true)
+
+        // -- Assert --
+        XCTAssertNil(sut.viewModel.addScreenshotButton.title(for: .normal))
+        XCTAssertFalse(sut.viewModel.addScreenshotButton.isEnabled)
+        XCTAssertFalse(sut.viewModel.submitButton.isEnabled)
+        XCTAssertTrue(sut.viewModel.screenshotLoadingIndicator.isAnimating)
+
+        // -- Act --
+        sut.viewModel.setScreenshotLoading(false)
+
+        // -- Assert --
+        XCTAssertEqual(sut.viewModel.addScreenshotButton.title(for: .normal), "Attach image")
+        XCTAssertTrue(sut.viewModel.addScreenshotButton.isEnabled)
+        XCTAssertTrue(sut.viewModel.submitButton.isEnabled)
+        XCTAssertFalse(sut.viewModel.screenshotLoadingIndicator.isAnimating)
+    }
+
+    func testMakeScreenshotErrorAlert_whenErrorTextConfigured_shouldUseConfiguredText() throws {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        config.formConfig.screenshotErrorText = "Choose a different image."
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+
+        // -- Act --
+        let alert = sut.makeScreenshotErrorAlert()
+
+        // -- Assert --
+        XCTAssertEqual(alert.title, "Error")
+        XCTAssertEqual(alert.message, "Choose a different image.")
+        XCTAssertEqual(alert.actions.count, 1)
+        XCTAssertEqual(try XCTUnwrap(alert.actions.element(at: 0)).title, "OK")
+    }
+
+#if !targetEnvironment(macCatalyst)
+    func testFinishLoadingScreenshot_whenLoadingFails_shouldPresentConfiguredErrorAlert() throws {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        config.animations = false
+        config.formConfig.screenshotErrorText = "Choose a different image."
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        let window = UIWindow(windowScene: Self.mockWindowScene)
+        window.rootViewController = sut
+        window.makeKeyAndVisible()
+        addTeardownBlock { [window] in
+            window.isHidden = true
+        }
+
+        // -- Act --
+        sut.finishLoadingScreenshot(nil)
+
+        // -- Assert --
+        let alert = try XCTUnwrap(sut.presentedViewController as? UIAlertController)
+        XCTAssertEqual(alert.title, "Error")
+        XCTAssertEqual(alert.message, "Choose a different image.")
+        XCTAssertEqual(alert.actions.count, 1)
+        XCTAssertEqual(try XCTUnwrap(alert.actions.element(at: 0)).title, "OK")
+    }
+#endif
+
+    func testForm_whenScreenshotProvided_shouldShowRemoveScreenshotButton() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+
+        // -- Act --
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: UIImage())
+
+        // -- Assert --
+        XCTAssertTrue(sut.viewModel.addScreenshotButton.isHidden)
+        XCTAssertFalse(sut.viewModel.removeScreenshotStack.isHidden)
+    }
+
+    func testSetScreenshot_whenImageSelected_shouldUseOriginalAttachment() throws {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        let image = UIGraphicsImageRenderer(size: CGSize(width: 200, height: 100)).image { _ in }
+        let data = try XCTUnwrap(image.pngData())
+        let attachment = Attachment(data: data, filename: "selected.png", contentType: "image/png")
+
+        // -- Act --
+        sut.viewModel.setScreenshot(image: image, attachment: attachment)
+        let feedback = sut.viewModel.feedbackObject()
+
+        // -- Assert --
+        XCTAssertTrue(sut.viewModel.addScreenshotButton.isHidden)
+        XCTAssertFalse(sut.viewModel.removeScreenshotStack.isHidden)
+        XCTAssertFalse(sut.viewModel.screenshotImageView.isAccessibilityElement)
+        XCTAssertEqual(sut.viewModel.screenshotImageAspectRatioConstraint.multiplier, 2)
+        let selectedAttachment = try XCTUnwrap(feedback.attachmentsForEnvelope().first)
+        XCTAssertEqual(selectedAttachment.data, data)
+        XCTAssertEqual(selectedAttachment.filename, "selected.png")
+        XCTAssertEqual(selectedAttachment.contentType, "image/png")
+    }
+
+    func testScreenshotFilename_whenSuggestedNameHasMismatchedImageExtension_shouldReplaceExtension() {
+        // -- Act --
+        let filename = SentryUserFeedbackFormController.screenshotFilename(
+            suggestedName: "selected.heic",
+            type: .jpeg
+        )
+
+        // -- Assert --
+        XCTAssertEqual(filename, "selected.jpeg")
+    }
+
+    func testScreenshotFilename_whenSuggestedNameHasMatchingImageExtension_shouldPreserveExtension() {
+        // -- Act --
+        let filename = SentryUserFeedbackFormController.screenshotFilename(
+            suggestedName: "selected.jpeg",
+            type: .jpeg
+        )
+
+        // -- Assert --
+        XCTAssertEqual(filename, "selected.jpeg")
+    }
+
+    func testScreenshotFilename_whenSuggestedNameHasDottedBasename_shouldAppendExtension() {
+        // -- Act --
+        let filename = SentryUserFeedbackFormController.screenshotFilename(
+            suggestedName: "selected.final",
+            type: .jpeg
+        )
+
+        // -- Assert --
+        XCTAssertEqual(filename, "selected.final.jpeg")
+    }
+
+    func testLoadSelectedScreenshot_whenHEICSelected_shouldEncodeJPEG() throws {
+        guard #available(iOS 17.0, *) else {
+            throw XCTSkip("UIImage HEIC encoding requires iOS 17 or later.")
+        }
+
+        // -- Arrange --
+        let image = UIGraphicsImageRenderer(size: CGSize(width: 20, height: 10)).image { context in
+            UIColor.red.setFill()
+            context.fill(CGRect(x: 0, y: 0, width: 20, height: 10))
+        }
+        let data = try XCTUnwrap(image.heicData())
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("sentry-feedback-\(UUID().uuidString).heic")
+        try data.write(to: url)
+        addTeardownBlock {
+            try FileManager.default.removeItem(at: url)
+        }
+
+        // -- Act --
+        let screenshot = SentryUserFeedbackFormController.loadSelectedScreenshot(
+            from: url,
+            error: nil,
+            filename: "selected.heic",
+            contentType: "image/heic",
+            maxAttachmentSize: 10 * 1_024 * 1_024
+        )
+
+        // -- Assert --
+        let attachment = try XCTUnwrap(screenshot?.1)
+        let attachmentData = try XCTUnwrap(attachment.data)
+        XCTAssertEqual(attachment.filename, "selected.jpg")
+        XCTAssertEqual(attachment.contentType, "image/jpeg")
+        XCTAssertEqual(attachmentData.prefix(2), Data([0xFF, 0xD8]))
+        XCTAssertNotNil(UIImage(data: attachmentData))
+    }
+
+    func testRemoveScreenshot_whenImageSelected_shouldRemoveAttachment() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        config.formConfig.enableScreenshot = true
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        let attachment = Attachment(data: Data(), filename: "selected.png", contentType: "image/png")
+        sut.viewModel.setScreenshot(image: UIImage(), attachment: attachment)
+
+        // -- Act --
+        sut.viewModel.removeScreenshotTapped()
+
+        // -- Assert --
+        XCTAssertFalse(sut.viewModel.addScreenshotButton.isHidden)
+        XCTAssertTrue(sut.viewModel.removeScreenshotStack.isHidden)
+        XCTAssertTrue(sut.viewModel.feedbackObject().attachmentsForEnvelope().isEmpty)
+    }
+
+    func testMakeScreenshotPicker_shouldSelectOneImageWithoutPhotoLibraryAccess() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+
+        // -- Act --
+        let picker = sut.makeScreenshotPicker()
+
+        // -- Assert --
+        XCTAssertEqual(picker.configuration.selectionLimit, 1)
+        XCTAssertEqual(picker.configuration.filter, PHPickerFilter.images)
+        XCTAssertEqual(picker.configuration.preferredAssetRepresentationMode, .compatible)
+        XCTAssertNotNil(picker.delegate)
+        XCTAssertNotIdentical(picker.delegate as AnyObject?, sut)
     }
 
     func testSerializeWithAllFields() throws {
