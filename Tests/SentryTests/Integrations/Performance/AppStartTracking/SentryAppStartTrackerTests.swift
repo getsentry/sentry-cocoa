@@ -462,7 +462,9 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
     }
 
     func testStart_whenStandaloneAppStartTracingAndSDKNotEnabled_shouldDropAppStart() {
-        #if !SDK_V10
+        #if SDK_V10
+        SentrySDKInternal.setCurrentHub(TestHub(client: nil, andScope: nil))
+        #else
         fixture.enableStandaloneAppStartTracing = true
         #endif
         startApp(callDisplayLink: true)
@@ -666,6 +668,10 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         }
         XCTAssertEqual(serialized["transaction"] as? String, "App Start", file: file, line: line)
         XCTAssertNil(SentrySDKInternal.getAppStartMeasurement(), "Global static must not be set in standalone mode", file: file, line: line)
+
+        let extra = serialized["extra"] as? [String: Any]
+        let typeKey = type == .cold ? "app.vitals.start.cold.value" : "app.vitals.start.warm.value"
+        XCTAssertNotNil(extra?[typeKey], "Expected \(typeKey) in transaction extra", file: file, line: line)
     }
     #endif
     
