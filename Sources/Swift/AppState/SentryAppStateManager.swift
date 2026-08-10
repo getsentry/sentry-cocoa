@@ -7,8 +7,6 @@ import UIKit
 
 @_spi(Private) @objc public final class SentryAppStateManager: NSObject {
     
-    private let releaseName: String?
-    private let crashWrapper: SentryCrashReporter
     private let fileManager: SentryFileManager?
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     private let _updateAppState: (@escaping (SentryAppState) -> Void) -> Void
@@ -16,15 +14,13 @@ import UIKit
     private let helper: SentryDefaultAppStateManager
 #endif
     
-    init(releaseName: String?, crashWrapper: SentryCrashReporter, fileManager: SentryFileManager?, sysctlWrapper: SentrySysctl) {
-        self.releaseName = releaseName
-        self.crashWrapper = crashWrapper
+    init(releaseName: String?, debuggerStatusProvider: SentryDebuggerStatusProvider, fileManager: SentryFileManager?, sysctlWrapper: SentrySysctl) {
         self.fileManager = fileManager
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         let lock = NSRecursiveLock()
         let buildCurrentAppState = {
             // Is the current process being traced or not? If it is a debugger is attached.
-            let isDebugging = crashWrapper.isBeingTraced
+            let isDebugging = debuggerStatusProvider.isBeingTraced
 
             let device = UIDevice.current
             let vendorId = device.identifierForVendor?.uuidString
@@ -59,9 +55,7 @@ import UIKit
 #if SENTRY_TEST || SENTRY_TEST_CI
     /// Test-only initializer to allow injecting a custom `buildCurrentAppState` closure for testing
     /// scenarios where the current app state needs specific values (e.g., nil vendorId).
-    init(releaseName: String?, crashWrapper: SentryCrashReporter, fileManager: SentryFileManager?, sysctlWrapper: SentrySysctl, customBuildCurrentAppState: @escaping () -> SentryAppState) {
-        self.releaseName = releaseName
-        self.crashWrapper = crashWrapper
+    init(fileManager: SentryFileManager?, customBuildCurrentAppState: @escaping () -> SentryAppState) {
         self.fileManager = fileManager
         let lock = NSRecursiveLock()
         _buildCurrentAppState = customBuildCurrentAppState

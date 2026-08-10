@@ -542,7 +542,7 @@ class SentrySDKInternalTests: XCTestCase {
 #endif
 
     func testResumeAndPauseAppHangTracking() throws {
-        if SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced {
+        if SentryDependencyContainer.sharedInstance().debuggerStatusProvider.isBeingTraced {
             throw XCTSkip("This test only works when the debugger is NOT attached, because it requires the SentryANRTrackingIntegration being installed, which the SDK only installs if the debugger is not attached.")
         }
 

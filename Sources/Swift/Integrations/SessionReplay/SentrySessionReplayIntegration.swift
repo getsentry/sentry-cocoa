@@ -4,7 +4,7 @@ internal import _SentryPrivate
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
-typealias SessionReplayIntegrationScope = NotificationCenterProvider & RateLimitsProvider & CurrentDateProvider & RandomProvider & FileManagerProvider & CrashWrapperProvider & ReachabilityProvider & GlobalEventProcessorProvider & DispatchQueueWrapperProvider & ApplicationProvider & DispatchFactoryProvider & SessionReplayCaptureSchedulerProvider & SessionReplayBreadcrumbConverterProvider
+typealias SessionReplayIntegrationScope = NotificationCenterProvider & RateLimitsProvider & CurrentDateProvider & RandomProvider & FileManagerProvider & DebuggerStatusProviderProvider & ReachabilityProvider & GlobalEventProcessorProvider & DispatchQueueWrapperProvider & ApplicationProvider & DispatchFactoryProvider & SessionReplayCaptureSchedulerProvider & SessionReplayBreadcrumbConverterProvider
 
 // This is static because it will be used for swizzling and would cause retain cycles
 private var touchTracker: SentryTouchTracker?
@@ -31,7 +31,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     private var breadcrumbConverter: SentryReplayBreadcrumbConverter
     private var previewView: SentryMaskingPreviewView?
     private let dateProvider: SentryCurrentDateProvider
-    private let crashWrapper: SentryCrashReporter
+    private let debuggerStatusProvider: SentryDebuggerStatusProvider
     private let replayFileManager: SessionReplayFileManager
     private var replayRecovery: SessionReplayRecovery?
     private var backgroundForegroundObserver: SentrySessionReplayBackgroundForegroundObserver?
@@ -89,7 +89,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         self.dateProvider = dependencies.dateProvider
         self.random = dependencies.random
         self.captureScheduler = dependencies.sessionReplayCaptureScheduler
-        self.crashWrapper = dependencies.crashWrapper
+        self.debuggerStatusProvider = dependencies.debuggerStatusProvider
         self.getApplication = dependencies.application
         self.breadcrumbConverter = dependencies.sessionReplayBreadcrumbConverter
 
@@ -432,7 +432,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
 
     @objc public func showMaskPreview(_ opacity: Float) {
         SentrySDKLog.debug("[Session Replay] Showing mask preview with opacity: \(opacity)")
-        guard crashWrapper.isBeingTraced else { 
+        guard debuggerStatusProvider.isBeingTraced else {
             SentrySDKLog.debug("[Session Replay] No tracing is active, not showing mask preview")
             return 
         }

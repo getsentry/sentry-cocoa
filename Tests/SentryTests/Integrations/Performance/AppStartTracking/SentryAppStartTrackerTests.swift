@@ -65,7 +65,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
             SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueue
             appStateManager = SentryAppStateManager(
                 releaseName: options.releaseName,
-                crashWrapper: crashWrapper,
+                debuggerStatusProvider: sysctl,
                 fileManager: fileManager,
                 sysctlWrapper: sysctl
             )

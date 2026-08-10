@@ -2151,7 +2151,7 @@ final class SentryClientTests: XCTestCase {
         eventId.assertIsNotEmpty()
 
         var expectedIntegrations = ["AutoBreadcrumbTracking", "AutoSessionTracking", "Metrics", "NetworkTracking"]
-        if !SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced {
+        if !SentryDependencyContainer.sharedInstance().debuggerStatusProvider.isBeingTraced {
             expectedIntegrations = ["ANRTracking"] + expectedIntegrations
         }
         #if SDK_V10

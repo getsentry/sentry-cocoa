@@ -54,7 +54,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
             SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueue
             let appStateManager = SentryAppStateManager(
                 releaseName: options.releaseName,
-                crashWrapper: crashWrapper,
+                debuggerStatusProvider: sysctl,
                 fileManager: fileManager,
                 sysctlWrapper: sysctl
             )
@@ -172,7 +172,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     }
     
     func testIsDebugging_NoOOM() {
-        fixture.crashWrapper.internalIsBeingTraced = true
+        fixture.sysctl.internalIsBeingTraced = true
         sut.start()
         
         goToForeground()

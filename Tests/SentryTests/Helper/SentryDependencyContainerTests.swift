@@ -27,6 +27,12 @@ final class SentryDependencyContainerTests: XCTestCase {
 
     }
 
+    func testApplicationStateProvider_whenUsingUIKit_shouldUseThreadsafeApplication() {
+        let container = SentryDependencyContainer.sharedInstance()
+
+        XCTAssertIdentical(container.applicationStateProvider, container.threadsafeApplication)
+    }
+
     // Regression test for getsentry/sentry-react-native#6497: `screenshotSource`
     // must not permanently cache `nil` when it is first accessed before
     // `startOptions` is set. Hybrid SDKs (e.g. React Native) touch
@@ -68,6 +74,12 @@ final class SentryDependencyContainerTests: XCTestCase {
 
 #endif // os(macOS)
 
+    func testDebuggerStatusProvider_whenUsingDefaultDependencies_shouldUseSysctlWrapper() {
+        let container = SentryDependencyContainer.sharedInstance()
+
+        XCTAssertIdentical(container.debuggerStatusProvider, container.sysctlWrapper)
+    }
+
     /**
      * This test helps to find threading issues. If you run it once it detects obvious threading issues. Some rare edge cases
      * only happen if you run this 1000 times in a row or increase the test iterations to 100k.
@@ -107,6 +119,8 @@ final class SentryDependencyContainerTests: XCTestCase {
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().processInfoWrapper)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().crashWrapper)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().sysctlWrapper)
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().debuggerStatusProvider)
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().applicationStateProvider)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().rateLimits)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().reachability)
 

@@ -96,18 +96,8 @@ public final class SentryDefaultCrashReporter: NSObject, SentryCrashReporter {
     }
     
     @objc
-    public var isBeingTraced: Bool {
-        return sentrycrashdebug_isBeingTraced()
-    }
-    
-    @objc
     public var isSimulatorBuild: Bool {
         return sentrycrash_isSimulatorBuild()
-    }
-    
-    @objc
-    public var isApplicationInForeground: Bool {
-        return sentrycrashstate_currentState()?.pointee.applicationIsInForeground ?? false
     }
     
     @objc

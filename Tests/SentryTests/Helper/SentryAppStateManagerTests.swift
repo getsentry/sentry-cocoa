@@ -13,6 +13,7 @@ final class SentryAppStateManagerTests: XCTestCase {
         let currentDate = TestCurrentDateProvider()
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         let notificationCenterWrapper = TestNSNotificationCenterWrapper()
+        let sysctl = TestSysctl()
 
         init() throws {
             options = Options()
@@ -27,14 +28,14 @@ final class SentryAppStateManagerTests: XCTestCase {
         }
 
         func getSut() -> SentryAppStateManager {
-            SentryDependencyContainer.sharedInstance().sysctlWrapper = TestSysctl()
+            SentryDependencyContainer.sharedInstance().sysctlWrapper = sysctl
             SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
             SentryDependencyContainer.sharedInstance().notificationCenterWrapper = notificationCenterWrapper
             return SentryAppStateManager(
                 releaseName: options.releaseName,
-                crashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo),
+                debuggerStatusProvider: sysctl,
                 fileManager: fileManager,
-                sysctlWrapper: SentryDependencyContainer.sharedInstance().sysctlWrapper
+                sysctlWrapper: sysctl
             )
         }
     }
@@ -62,6 +63,14 @@ final class SentryAppStateManagerTests: XCTestCase {
 
         sut.start()
         XCTAssertNotNil(fixture.fileManager.readAppState())
+    }
+
+    func testBuildCurrentAppState_whenDebuggerAttached_shouldMarkStateAsDebugging() {
+        fixture.sysctl.internalIsBeingTraced = true
+
+        let appState = sut.buildCurrentAppState()
+
+        XCTAssertTrue(appState.isDebugging)
     }
 
     func testStartOnlyRunsLogicWhenStartCountBecomesOne() {

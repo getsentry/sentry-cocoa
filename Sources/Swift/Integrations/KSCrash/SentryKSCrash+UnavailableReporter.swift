@@ -19,8 +19,6 @@ extension SentryKSCrash {
         var crashedLastLaunch: Bool { false }
         var durationFromCrashStateInitToLastCrash: TimeInterval { 0 }
         var activeDurationSinceLastCrash: TimeInterval { 0 }
-        var isBeingTraced: Bool { false }
-        var isApplicationInForeground: Bool { false }
         var freeMemorySize: UInt64 { 0 }
         var appMemorySize: UInt64 { 0 }
 

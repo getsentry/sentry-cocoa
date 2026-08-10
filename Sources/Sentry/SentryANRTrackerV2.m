@@ -20,7 +20,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
 
 @interface SentryANRTrackerV2 ()
 
-@property (nonatomic, strong) id<SentryCrashReporter> crashWrapper;
+@property (nonatomic, strong) id<SentryApplicationStateProvider> applicationStateProvider;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, strong) SentryThreadWrapper *threadWrapper;
 @property (nonatomic, strong) NSHashTable<id<SentryANRTrackerInternalDelegate>> *listeners;
@@ -36,23 +36,23 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
 
 - (instancetype)initWithTimeoutInterval:(NSTimeInterval)timeoutInterval
 {
-    return
-        [self initWithTimeoutInterval:timeoutInterval
-                         crashWrapper:SentryDependencyContainer.sharedInstance.crashWrapper
-                 dispatchQueueWrapper:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
-                        threadWrapper:SentryDependencyContainer.sharedInstance.threadWrapper
-                        framesTracker:SentryDependencyContainer.sharedInstance.framesTracker];
+    return [self
+         initWithTimeoutInterval:timeoutInterval
+        applicationStateProvider:SentryDependencyContainer.sharedInstance.applicationStateProvider
+            dispatchQueueWrapper:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
+                   threadWrapper:SentryDependencyContainer.sharedInstance.threadWrapper
+                   framesTracker:SentryDependencyContainer.sharedInstance.framesTracker];
 }
 
 - (instancetype)initWithTimeoutInterval:(NSTimeInterval)timeoutInterval
-                           crashWrapper:(id<SentryCrashReporter>)crashWrapper
+               applicationStateProvider:(id<SentryApplicationStateProvider>)applicationStateProvider
                    dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                           threadWrapper:(SentryThreadWrapper *)threadWrapper
                           framesTracker:(SentryFramesTracker *)framesTracker
 {
     if (self = [super init]) {
         self.timeoutInterval = timeoutInterval;
-        self.crashWrapper = crashWrapper;
+        self.applicationStateProvider = applicationStateProvider;
         self.dispatchQueueWrapper = dispatchQueueWrapper;
         self.threadWrapper = threadWrapper;
         self.framesTracker = framesTracker;
@@ -115,7 +115,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
 
         [self.threadWrapper sleepForTimeInterval:sleepInterval];
 
-        BOOL isInForeground = [self.crashWrapper isApplicationInForeground];
+        BOOL isInForeground = [self.applicationStateProvider isApplicationInForeground];
 
         if (!isInForeground) {
             SENTRY_LOG_DEBUG(@"Ignoring potential app hangs because the app is in the background");

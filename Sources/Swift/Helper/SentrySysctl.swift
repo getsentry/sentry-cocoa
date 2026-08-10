@@ -1,10 +1,53 @@
 // swiftlint:disable missing_docs
 internal import _SentryPrivate
+import Darwin
+
+protocol SentryDebuggerStatusProvider: AnyObject {
+    var isBeingTraced: Bool { get }
+}
+
+final class SentryDefaultDebuggerStatusProvider: SentryDebuggerStatusProvider {
+    typealias ProcessFlagsProvider = () -> Int32?
+
+    private let processFlagsProvider: ProcessFlagsProvider
+
+    convenience init() {
+        self.init(processFlagsProvider: Self.currentProcessFlags)
+    }
+
+    init(processFlagsProvider: @escaping ProcessFlagsProvider) {
+        self.processFlagsProvider = processFlagsProvider
+    }
+
+    var isBeingTraced: Bool {
+        guard let processFlags = processFlagsProvider() else {
+            SentrySDKLog.error("Failed to determine whether the process is being traced.")
+            return false
+        }
+        return processFlags & P_TRACED != 0
+    }
+
+    private static func currentProcessFlags() -> Int32? {
+        var processInfo = kinfo_proc()
+        var size = MemoryLayout<kinfo_proc>.stride
+        var mib = [CTL_KERN, KERN_PROC, KERN_PROC_PID, getpid()]
+
+        guard sysctl(&mib, u_int(mib.count), &processInfo, &size, nil, 0) == 0 else {
+            return nil
+        }
+        return processInfo.kp_proc.p_flag
+    }
+}
 
 /// A wrapper around sysctl for testability.
-@_spi(Private) @objc public class SentrySysctl: NSObject {
+@_spi(Private) @objc public class SentrySysctl: NSObject, SentryDebuggerStatusProvider {
     
     private let objcHelper = SentrySysctlObjC()
+    private let debuggerStatusProvider = SentryDefaultDebuggerStatusProvider()
+
+    var isBeingTraced: Bool {
+        debuggerStatusProvider.isBeingTraced
+    }
     
     /// Returns the time the system was booted with a precision of microseconds.
     ///

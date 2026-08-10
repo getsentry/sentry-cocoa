@@ -176,6 +176,20 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         currentDateProvider: Dependencies.dateProvider)
     @objc public var reachability = SentryReachability()
     @objc public var sysctlWrapper = Dependencies.sysctlWrapper
+    var debuggerStatusProvider: SentryDebuggerStatusProvider { sysctlWrapper }
+    private var _applicationStateProvider: SentryApplicationStateProvider?
+    @objc public var applicationStateProvider: SentryApplicationStateProvider {
+        get {
+            getLazyVar(\._applicationStateProvider) {
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+                self.threadsafeApplication
+#else
+                SentryAlwaysForegroundApplicationStateProvider()
+#endif
+            }
+        }
+        set { paramLock.synchronized { _applicationStateProvider = newValue } }
+    }
     @objc public var debugImageProvider = Dependencies.debugImageProvider
     @objc public var objcRuntimeWrapper: SentryObjCRuntimeWrapper = SentryDefaultObjCRuntimeWrapper()
     var extensionDetector: SentryExtensionDetector = {
@@ -443,7 +457,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         let release = self.startOptions?.releaseName
         return SentryAppStateManager(
             releaseName: release,
-            crashWrapper: crashWrapper,
+            debuggerStatusProvider: debuggerStatusProvider,
             fileManager: fileManager,
             sysctlWrapper: sysctlWrapper)
     }
@@ -768,10 +782,10 @@ protocol ReachabilityProvider {
 }
 extension SentryDependencyContainer: ReachabilityProvider {}
 
-protocol CrashWrapperProvider {
-    var crashWrapper: SentryCrashReporter { get }
+protocol DebuggerStatusProviderProvider {
+    var debuggerStatusProvider: SentryDebuggerStatusProvider { get }
 }
-extension SentryDependencyContainer: CrashWrapperProvider {}
+extension SentryDependencyContainer: DebuggerStatusProviderProvider {}
 
 protocol CrashReporterStateProvider {
     var activeCrashReporterState: SentryCrashReporterState { get }
