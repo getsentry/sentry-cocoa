@@ -72,7 +72,6 @@
 #import "SentryCrashUUIDConversion.h"
 #import "SentryDateUtils.h"
 #import "SentryDebugMeta.h"
-#import "SentryDefaultAppStateManager.h"
 #import "SentryDefaultThreadInspector.h"
 #import "SentryDefaultUIViewControllerPerformanceTracker.h"
 #import "SentryDiscardReasonMapper.h"
