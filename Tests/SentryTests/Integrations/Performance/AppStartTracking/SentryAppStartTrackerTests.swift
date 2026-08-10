@@ -39,9 +39,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         let framesTracker: SentryFramesTracker
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         var enablePreWarmedAppStartTracing = true
-        #if SDK_V10
-        let enableStandaloneAppStartTracing = true
-        #else
+        #if !SDK_V10
         var enableStandaloneAppStartTracing = false
         #endif
         var appStartInfoProvider: TestAppStartInfoProvider
@@ -92,6 +90,18 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         }
         
         var sut: SentryAppStartTracker {
+            #if SDK_V10
+            let sut = SentryAppStartTracker(
+                dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
+                appStateManager: appStateManager,
+                framesTracker: framesTracker,
+                enablePreWarmedAppStartTracing: enablePreWarmedAppStartTracing,
+                dateProvider: SentryDependencyContainer.sharedInstance().dateProvider,
+                sysctlWrapper: SentryDependencyContainer.sharedInstance().sysctlWrapper,
+                appStartInfoProvider: appStartInfoProvider,
+                extendedAppLaunchManager: SentryDependencyContainer.sharedInstance().extendedAppLaunchManager
+            )
+            #else
             let sut = SentryAppStartTracker(
                 dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
                 appStateManager: appStateManager,
@@ -103,6 +113,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
                 appStartInfoProvider: appStartInfoProvider,
                 extendedAppLaunchManager: SentryDependencyContainer.sharedInstance().extendedAppLaunchManager
             )
+            #endif
             return sut
         }
     }
