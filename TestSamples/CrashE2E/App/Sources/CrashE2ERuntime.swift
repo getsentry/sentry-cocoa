@@ -11,6 +11,7 @@ enum CrashE2EScenario: String {
     case cppExceptionV1 = "cpp-exception-v1"
     case cppExceptionV2 = "cpp-exception-v2"
     case unityCxaThrow = "unity-cxa-throw"
+    case unityCxaThrowV2 = "unity-cxa-throw-v2"
     case objcObject = "objc-object"
     case objcObjectAfterCaughtCPP = "objc-object-after-caught-cpp"
     case binaryImages = "binary-images"
@@ -102,10 +103,10 @@ enum CrashE2ERuntime {
         case .managedRuntimePreSDKSignal:
             abortBecausePreSDKScenarioReturned()
         case .signal, .nsException, .nsExceptionSubclass, .cppExceptionV1, .cppExceptionV2,
-             .unityCxaThrow, .objcObject, .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal,
-             .managedRuntimeSignalChain, .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
-             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On,
-             .ksCrashRetryReportA, .ksCrashRetryReportB:
+             .unityCxaThrow, .unityCxaThrowV2, .objcObject, .objcObjectAfterCaughtCPP,
+             .binaryImages, .ignoredSignal, .managedRuntimeSignalChain, .managedRuntimeClosedSignal,
+             .managedRuntimeReinitSignal, .swiftAsyncCPPExceptionV2Off,
+             .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA, .ksCrashRetryReportB:
             NSLog("CrashE2E - will trigger scenario: \(configuration.scenario.rawValue)")
             scheduleCrashAfterProcessingCompletesIfRequested()
         }
@@ -126,10 +127,10 @@ enum CrashE2ERuntime {
         case .managedRuntimePreSDKSignal:
             abortBecausePreSDKScenarioReturned()
         case .signal, .nsException, .nsExceptionSubclass, .cppExceptionV1, .cppExceptionV2,
-             .unityCxaThrow, .objcObject, .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal,
-             .managedRuntimeSignalChain, .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
-             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On,
-             .ksCrashRetryReportA, .ksCrashRetryReportB:
+             .unityCxaThrow, .unityCxaThrowV2, .objcObject, .objcObjectAfterCaughtCPP,
+             .binaryImages, .ignoredSignal, .managedRuntimeSignalChain, .managedRuntimeClosedSignal,
+             .managedRuntimeReinitSignal, .swiftAsyncCPPExceptionV2Off,
+             .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA, .ksCrashRetryReportB:
             NSLog("CrashE2E - will trigger scenario synchronously: \(configuration.scenario.rawValue)")
             waitForProcessingCompletionOrAbort()
             Thread.sleep(forTimeInterval: 0.5)
@@ -158,9 +159,10 @@ enum CrashE2ERuntime {
 
             // Keep cpp-exception-v1 in the public option-off configuration for both reporters.
             // KSCrash has no "V1" implementation, but its standard terminate monitor must preserve
-            // uncaught C++ reporting when throw-site swapping is disabled. Unity's current native
-            // shim also does not enable Sentry Cocoa's C++ V2 option.
+            // uncaught C++ reporting when throw-site swapping is disabled. unity-cxa-throw matches
+            // Sentry Unity's option-off behavior; unity-cxa-throw-v2 is the KSCrash-only companion.
             if configuration.scenario == .cppExceptionV2
+                || configuration.scenario == .unityCxaThrowV2
                 || configuration.scenario == .objcObject
                 || configuration.scenario == .objcObjectAfterCaughtCPP
                 || configuration.scenario == .swiftAsyncCPPExceptionV2Off
@@ -197,8 +199,9 @@ enum CrashE2ERuntime {
         case .managedRuntimeSignalChain, .managedRuntimeClosedSignal, .managedRuntimeReinitSignal:
             installFakeManagedRuntimeHandler()
         case .idle, .drain, .signal, .nsException, .nsExceptionSubclass, .cppExceptionV1,
-             .cppExceptionV2, .unityCxaThrow, .objcObject, .objcObjectAfterCaughtCPP, .binaryImages,
-             .ignoredSignal, .managedRuntimePreSDKSignal, .swiftAsyncCPPExceptionV2Off,
+             .cppExceptionV2, .unityCxaThrow, .unityCxaThrowV2, .objcObject,
+             .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal, .managedRuntimePreSDKSignal,
+             .swiftAsyncCPPExceptionV2Off,
              .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA, .ksCrashRetryReportB:
             return
         }

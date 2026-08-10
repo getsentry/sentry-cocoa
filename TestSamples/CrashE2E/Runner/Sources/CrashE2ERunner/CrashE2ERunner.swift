@@ -38,7 +38,7 @@ final class CrashE2ERunner {
 
         if config.reporter != .ksCrash,
            config.scenarios.contains(where: \.requiresKSCrash) {
-            try fail("The kscrash-per-report-retry scenario requires --reporter KSCrash.")
+            try fail("The selected scenario requires --reporter KSCrash.")
         }
     }
 
