@@ -1,6 +1,6 @@
 #if SDK_V10
 // swiftlint:disable:next no_implementation_only_import
-@_implementationOnly import KSCrashInstallations
+@_implementationOnly import KSCrashRecording
 internal import _SentryPrivate
 import Foundation
 
@@ -141,6 +141,33 @@ extension SentryKSCrash {
 
         var crashedLastLaunch: Bool { KSCrash.shared.crashedLastLaunch }
         var activeDurationSinceLastCrash: TimeInterval { KSCrash.shared.activeDurationSinceLastCrash }
+
+        // KSCRASH_TODO(GH-8756): We need to support dictionary types here... KSCrash's new KV store
+        // doesn't support them... we will need to either: work around this OR
+        // upstream support for it.
+        // Tracked in https://github.com/getsentry/sentry-cocoa/issues/8756
+        func setUserInfo(_ userInfo: [String: Any]) {
+            precondition(installed, "KSCrash must be installed before setUserInfo(_:forKey:) can be used")
+
+            for (key, value) in userInfo {
+                switch value {
+                case let value as String:
+                    KSCrash.shared.setUserInfo(value, forKey: key)
+                case let value as Int:
+                    KSCrash.shared.setUserInfo(value, forKey: key)
+                case let value as UInt:
+                    KSCrash.shared.setUserInfo(value, forKey: key)
+                case let value as Double:
+                    KSCrash.shared.setUserInfo(value, forKey: key)
+                case let value as Bool:
+                    KSCrash.shared.setUserInfo(value, forKey: key)
+                case let value as Date:
+                    KSCrash.shared.setUserInfo(value, forKey: key)
+                default:
+                    SentrySDKLog.debug("Dropping '\(key): \(value) as it's not a supported type")
+                }
+            }
+        }
     }
 }
 #endif
