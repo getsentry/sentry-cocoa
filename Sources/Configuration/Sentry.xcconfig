@@ -14,7 +14,6 @@ PRODUCT_MODULE_NAME_DebugV10 = $(SENTRY_MODULE_NAME)
 PRODUCT_MODULE_NAME_DebugWithoutUIKit = $(SENTRY_WITHOUT_UIKIT_MODULE_NAME)
 PRODUCT_MODULE_NAME_Test = $(SENTRY_MODULE_NAME)
 PRODUCT_MODULE_NAME_TestV10 = $(SENTRY_MODULE_NAME)
-PRODUCT_MODULE_NAME_TestV10KSCrash = $(SENTRY_MODULE_NAME)
 PRODUCT_MODULE_NAME_TestCI = $(SENTRY_MODULE_NAME)
 PRODUCT_MODULE_NAME_Release = $(SENTRY_MODULE_NAME)
 PRODUCT_MODULE_NAME_ReleaseV10 = $(SENTRY_MODULE_NAME)
@@ -52,14 +51,19 @@ GCC_WARN_SHADOW = YES
 SWIFT_VERSION = 5.0
 CLANG_WARN_ASSIGN_ENUM = NO
 
-// KSCrash integration sources live only in Sentry+KSCrash (which has the package dep).
+// The plain target always builds the V9 implementation. V10 builds use SentryV10,
+// which adds SDK_V10 back in SentryV10.xcconfig.
+SWIFT_ACTIVE_COMPILATION_CONDITIONS_DebugV10 = DEBUG
+SWIFT_ACTIVE_COMPILATION_CONDITIONS_TestV10 = SENTRY_TEST
+SWIFT_ACTIVE_COMPILATION_CONDITIONS_ReleaseV10 =
+GCC_PREPROCESSOR_DEFINITIONS_DebugV10 = DEBUG=1
+GCC_PREPROCESSOR_DEFINITIONS_TestV10 = DEBUG=1 SENTRY_TEST=1
+GCC_PREPROCESSOR_DEFINITIONS_ReleaseV10 = RELEASE=1
+
+// Both SDK targets produce a module and framework named Sentry. Keep implicit dependency
+// discovery for this target separate from the V10 KSCrash-backed target.
+IMPLICIT_DEPENDENCY_DOMAIN = SentryV9
+
+// KSCrash integration sources live only in SentryV10 (which has the package dep).
 // Exclude them here so the plain Sentry target never tries to resolve KSCrash imports.
 EXCLUDED_SOURCE_FILE_NAMES = $(SRCROOT)/Sources/Swift/Integrations/KSCrash/*
-
-// This target and Sentry+KSCrash both export PRODUCT_MODULE_NAME=Sentry. Xcode's explicit
-// module scanner can't tell the two "Sentry" modules apart and emits a spurious
-// missing-dependency warning ("'Sentry' is missing a dependency on 'Sentry+KSCrash'").
-// Disabling explicit modules silences it without affecting correctness. Mirrors the same
-// setting in SentryKSCrash.xcconfig.
-// This should be removed in SDK_V10
-SWIFT_ENABLE_EXPLICIT_MODULES = NO

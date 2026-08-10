@@ -53,7 +53,7 @@ private struct AnyIntegration {
         integrations.append(.init(SentrySessionReplayIntegration.self))
         #endif
 
-        #if ENABLE_KSCRASH
+        #if SDK_V10
         integrations.append(.init(SentryKSCrash.Integration.self))
         #else
         integrations.append(.init(SentryCrashIntegration.self))

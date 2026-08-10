@@ -23,7 +23,7 @@ ARGUMENTS:
 
 EXAMPLES:
     $(basename "$0") Sentry "" "" "iphoneos,macosx" "/path/to/SDK_NAME.xcarchive"
-    $(basename "$0") "Sentry+KSCrash" "-Dynamic" "" "iphoneos,macosx" "/path/to/SDK_NAME.xcarchive" "Sentry"
+    $(basename "$0") "SentryV10" "-Dynamic" "" "iphoneos,macosx" "/path/to/SDK_NAME.xcarchive" "Sentry"
 
 EOF
     exit 1

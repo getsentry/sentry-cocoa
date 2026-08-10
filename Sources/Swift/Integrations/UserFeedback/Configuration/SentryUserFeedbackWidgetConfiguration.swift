@@ -1,3 +1,4 @@
+#if !SDK_V10
 import Foundation
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
@@ -144,3 +145,4 @@ public final class SentryUserFeedbackWidgetConfiguration: NSObject {
 }
 
 #endif // os(iOS) && !SENTRY_NO_UI_FRAMEWORK
+#endif // !SDK_V10

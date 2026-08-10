@@ -153,8 +153,13 @@
 
 - (void)testInvalidDiagnosticLevel
 {
-    [self testDiagnosticlevelWith:@"fatala" expected:kSentryLevelDebug];
-    [self testDiagnosticlevelWith:@(YES) expected:kSentryLevelDebug];
+#if SDK_V10
+    SentryLevel defaultDiagnosticLevel = kSentryLevelWarning;
+#else
+    SentryLevel defaultDiagnosticLevel = kSentryLevelDebug;
+#endif // SDK_V10
+    [self testDiagnosticlevelWith:@"fatala" expected:defaultDiagnosticLevel];
+    [self testDiagnosticlevelWith:@(YES) expected:defaultDiagnosticLevel];
 }
 
 - (void)testDiagnosticlevelWith:(NSObject *)level expected:(SentryLevel)expected
@@ -744,7 +749,11 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     XCTAssertEqual(YES, options.enabled);
     XCTAssertEqual(2.0, options.shutdownTimeInterval);
     XCTAssertEqual(NO, options.debug);
+#if SDK_V10
+    XCTAssertEqual(kSentryLevelWarning, options.diagnosticLevel);
+#else
     XCTAssertEqual(kSentryLevelDebug, options.diagnosticLevel);
+#endif // SDK_V10
     XCTAssertEqualObjects(options.environment, [SentryOptions defaultEnvironment]);
     XCTAssertNil(options.dist);
     XCTAssertEqual(defaultMaxBreadcrumbs, options.maxBreadcrumbs);
