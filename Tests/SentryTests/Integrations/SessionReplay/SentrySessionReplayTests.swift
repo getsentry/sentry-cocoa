@@ -55,11 +55,27 @@ class SentrySessionReplayTests: XCTestCase {
     private class UntimedScreenshotProvider: NSObject, SentryViewScreenshotProvider {
         var imageCallCount = 0
         var beforeComplete: (() -> Void)?
+        var completeAsync = false
+        private var pendingCompletion: Sentry.ScreenshotCallback?
 
         func image(view: UIView, onComplete: @escaping Sentry.ScreenshotCallback) {
             imageCallCount += 1
+            if completeAsync {
+                pendingCompletion = onComplete
+                return
+            }
+            complete(onComplete)
+        }
+
+        func completePendingImage() {
+            guard let pendingCompletion else { return }
+            self.pendingCompletion = nil
+            complete(pendingCompletion)
+        }
+
+        private func complete(_ completion: Sentry.ScreenshotCallback) {
             beforeComplete?()
-            onComplete(.add)
+            completion(.add)
         }
     }
 
@@ -1232,6 +1248,31 @@ class SentrySessionReplayTests: XCTestCase {
 
         XCTAssertNil(weakSut)
         fixture.screenshotProvider.completePendingImage()
+        XCTAssertNil(weakSut)
+    }
+
+    @available(iOS 16.0, tvOS 16, *)
+    func testDealloc_DoesNotRetainSessionReplayDuringAsyncUntimedScreenshot() {
+        let fixture = Fixture()
+        let screenshotProvider = UntimedScreenshotProvider()
+        screenshotProvider.completeAsync = true
+
+        weak var weakSut: SentrySessionReplay?
+        autoreleasepool {
+            let sut = fixture.getSut(
+                options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1),
+                screenshotProvider: screenshotProvider
+            )
+            weakSut = sut
+            sut.start(rootView: fixture.rootView, fullSession: true)
+
+            fixture.dateProvider.advance(by: 1)
+            fixture.runLoopCapture()
+            XCTAssertEqual(screenshotProvider.imageCallCount, 1)
+        }
+
+        XCTAssertNil(weakSut)
+        screenshotProvider.completePendingImage()
         XCTAssertNil(weakSut)
     }
 

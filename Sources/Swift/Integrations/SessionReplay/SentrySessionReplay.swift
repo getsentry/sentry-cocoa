@@ -824,8 +824,8 @@ private struct SessionSegmentState {
             }
         } else {
             let captureStart = dateProvider.systemTime()
-            screenshotProvider.image(view: rootView) { screenshot in
-                let captureEnd = self.dateProvider.systemTime()
+            screenshotProvider.image(view: rootView) { [dateProvider] screenshot in
+                let captureEnd = dateProvider.systemTime()
                 let captureDuration = captureEnd >= captureStart
                     ? TimeInterval(captureEnd - captureStart) / TimeInterval(NSEC_PER_SEC)
                     : 0
