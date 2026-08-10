@@ -174,7 +174,6 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        // UIKit's internal text view hierarchy and opacity differ between OS versions.
         XCTAssertFalse(result.contains { $0.type == .redact })
     }
 
