@@ -7,7 +7,7 @@ import Foundation
 import UIKit
 #endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
-#if !SENTRY_DISABLE_SENTRYCRASH_V10
+#if !SDK_V10
 
 /**
  * A wrapper around SentryCrash for testability.
@@ -306,4 +306,4 @@ public final class SentryDefaultCrashReporter: NSObject, SentryCrashReporter {
     }
 }
 // swiftlint:enable missing_docs
-#endif // !SENTRY_DISABLE_SENTRYCRASH_V10
+#endif // !SDK_V10

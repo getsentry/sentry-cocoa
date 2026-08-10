@@ -129,21 +129,36 @@ jobs:
         with:
           version: "26"
           resolve-simulators: "false"
-      - name: Build with environment
+      - name: Build Swift with environment
         if: matrix.mode == 'environment'
         env:
           SDK_V10: "1"
         run: swift build --target SentrySwift --scratch-path .build/v10-environment
-      - name: Build with trait
+      - name: Build source SDK with environment
+        if: matrix.mode == 'environment'
+        env:
+          SDK_V10: "1"
+        run: swift build --target SentryObjCInternal --scratch-path .build/v10-environment
+      - name: Build Swift with trait
         if: matrix.mode == 'trait'
         run: swift build --target SentrySwift --traits V10 --scratch-path .build/v10-trait
-      - name: Build base manifest
+      - name: Verify recorder exclusion with trait
+        if: matrix.mode == 'trait'
+        run: |
+          swift build --target SentryObjCInternal --traits V10 --scratch-path .build/v10-trait
+          ./scripts/verify-v10-sentrycrash-recorder-objects.sh --build-path .build/v10-trait
+      - name: Build Swift with base manifest
         if: matrix.mode == 'base-manifest'
         env:
           SDK_V10: "1"
         run: |
           rm Package@swift-6.1.swift Package@swift-6.2.swift
           swift build --target SentrySwift --scratch-path .build/v10-base-manifest
+      - name: Build source SDK with base manifest
+        if: matrix.mode == 'base-manifest'
+        env:
+          SDK_V10: "1"
+        run: swift build --target SentryObjCInternal --scratch-path .build/v10-base-manifest
 
   build-v10-required-check:
     needs:
