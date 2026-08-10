@@ -57,12 +57,6 @@ extension URLSessionTask {
         return try state.values.withLock(body)
     }
 
-    func withNetworkTrackerStateIfAvailable<Result>(
-        _ body: (inout URLSessionTaskNetworkTrackerState.Values) throws -> Result
-    ) rethrows -> Result? {
-        try existingNetworkTrackerState.flatMap { try $0.values.withLockIfAvailable(body) }
-    }
-
     var trackerSpan: Span? {
         withNetworkTrackerState {
             guard case .active(let span) = $0.spanState else {
@@ -78,7 +72,7 @@ extension URLSessionTask {
 
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
     var networkDetails: SentryReplayNetworkDetails? {
-        withNetworkTrackerState { $0.networkDetails }
+        existingNetworkTrackerState?.values.withLock { $0.networkDetails }
     }
 #endif
 }
