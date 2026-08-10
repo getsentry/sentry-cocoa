@@ -62,7 +62,7 @@ SENTRY_NO_INIT
 /// Current scope contexts in event wire format.
 @property (nonatomic, readonly) SentryObjCInternalScopeApi *scope;
 
-/// Event serialization.
+/// Serializer for events
 @property (nonatomic, readonly) SentryObjCInternalSerializerApi *serializer;
 
 /// Method swizzling.
