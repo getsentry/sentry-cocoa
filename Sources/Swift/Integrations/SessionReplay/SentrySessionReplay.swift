@@ -572,9 +572,9 @@ private struct SessionSegmentState {
         /// at the 5 s maximum and produced single-frame segments.
         static let slowCaptureThreshold: TimeInterval = 0.15
         /// Upper bound for the adaptive screenshot interval.
-        /// Kept below the default session segment duration so a backed-off session still
-        /// captures more than one frame per segment.
-        static let maximumAdaptiveCaptureInterval: TimeInterval = 4
+        /// Kept well below the default session segment duration so a backed-off session still
+        /// captures multiple frames per segment.
+        static let maximumAdaptiveCaptureInterval: TimeInterval = 2
         /// Maximum time captures can be deferred due to animations before forcing a capture.
         static let maximumAnimationCaptureDeferralInterval: TimeInterval = 1
         /// Tolerance applied when comparing dates against capture deadlines, to absorb
