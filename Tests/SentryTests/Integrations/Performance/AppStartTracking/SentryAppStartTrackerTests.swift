@@ -39,7 +39,9 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         let framesTracker: SentryFramesTracker
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         var enablePreWarmedAppStartTracing = true
-        #if !SDK_V10
+        #if SDK_V10
+        let enableStandaloneAppStartTracing = true
+        #else
         var enableStandaloneAppStartTracing = false
         #endif
         var appStartInfoProvider: TestAppStartInfoProvider
