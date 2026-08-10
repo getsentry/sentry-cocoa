@@ -8,7 +8,7 @@ import Foundation
 import UIKit
 
 @objcMembers
-@_spi(Private) public class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
+@_spi(Private) public class SentryViewPhotographer: NSObject, SentryTimedViewScreenshotProvider {
     private let redactBuilder: SentryUIRedactBuilder
     private let maskRenderer: SentryMaskRenderer
     private let dispatchQueue = SentryDispatchQueueWrapper()
@@ -35,8 +35,19 @@ import UIKit
     }
 
     public func image(view: UIView, onComplete: @escaping ScreenshotCallback) {
+        image(view: view) { maskedScreenshot, _ in
+            onComplete(maskedScreenshot)
+        }
+    }
+
+    public func image(view: UIView, onComplete: @escaping TimedScreenshotCallback) {
         // Define a helper variable for the size, so the view is not accessed in the async block
         let viewSize = view.bounds.size
+
+        // Measure only main-thread capture work. Adaptive Session Replay pacing uses this duration
+        // to decide whether to back off. Including async mask compositing would count work that no
+        // longer blocks the UI and can pin the capture interval at its maximum.
+        let captureStart = SentryDefaultCurrentDateProvider.getAbsoluteTime()
 
         // The redact regions are expected to be thread-safe data structures
         let redactRegions = redactBuilder.redactRegionsFor(view: view)
@@ -45,13 +56,18 @@ import UIKit
         // This is because the render method accesses the view hierarchy which is managed from the main thread.
         let renderedScreenshot = renderer.render(view: view)
 
+        let captureEnd = SentryDefaultCurrentDateProvider.getAbsoluteTime()
+        let mainThreadDuration = captureEnd >= captureStart
+            ? TimeInterval(captureEnd - captureStart) / TimeInterval(NSEC_PER_SEC)
+            : 0
+
         dispatchQueue.dispatchAsync { [maskRenderer] in
             // The mask renderer does not need to be on the main thread.
             // Moving it to a background thread to avoid blocking the main thread, therefore reducing the performance
             // impact/lag of the user interface.
             let maskedScreenshot = maskRenderer.maskScreenshot(screenshot: renderedScreenshot, size: viewSize, masking: redactRegions)
 
-            onComplete(maskedScreenshot)
+            onComplete(maskedScreenshot, mainThreadDuration)
         }
     }
 

@@ -566,9 +566,15 @@ private struct SessionSegmentState {
         static let captureDeferralInterval: TimeInterval = 0.25
         /// Captures taking at least this long double the adaptive screenshot interval;
         /// faster captures halve it again.
-        static let slowCaptureThreshold: TimeInterval = 0.05
+        ///
+        /// The threshold applies to main-thread capture cost only (redaction + render).
+        /// Real masked screens commonly spend 60-90 ms there, so 50 ms latched the interval
+        /// at the 5 s maximum and produced single-frame segments.
+        static let slowCaptureThreshold: TimeInterval = 0.15
         /// Upper bound for the adaptive screenshot interval.
-        static let maximumAdaptiveCaptureInterval: TimeInterval = 5
+        /// Kept below the default session segment duration so a backed-off session still
+        /// captures more than one frame per segment.
+        static let maximumAdaptiveCaptureInterval: TimeInterval = 4
         /// Maximum time captures can be deferred due to animations before forcing a capture.
         static let maximumAnimationCaptureDeferralInterval: TimeInterval = 1
         /// Tolerance applied when comparing dates against capture deadlines, to absorb
@@ -801,19 +807,33 @@ private struct SessionSegmentState {
 
         SentrySDKLog.debug("[Session Replay] Getting screenshot from screenshot provider")
         let screenName = delegate?.currentScreenNameForSessionReplay()
-        let captureStart = dateProvider.systemTime()
-        screenshotProvider.image(view: rootView) { [weak self] screenshot in
+
+        let handleScreenshot: (UIImage, TimeInterval) -> Void = { [weak self] screenshot, captureDuration in
             guard let self = self else { return }
 
-            let captureEnd = self.dateProvider.systemTime()
-            let captureDuration = captureEnd >= captureStart
-                ? TimeInterval(captureEnd - captureStart) / TimeInterval(NSEC_PER_SEC)
-                : 0
             SentrySDKLog.debug("[Session Replay] New frame available, for screen: \(screenName ?? "nil")")
             self.state.withLock { _ in
                 self.replayMaker.addFrameAsync(timestamp: timestamp, maskedViewImage: screenshot, forScreen: screenName)
             }
             completion(captureDuration)
+        }
+
+        // Prefer providers that report main-thread capture cost directly. Fall back to wall-clock
+        // timing around the full callback for custom hybrid providers that only implement the
+        // untimed screenshot SPI.
+        if let timedScreenshotProvider = screenshotProvider as? SentryTimedViewScreenshotProvider {
+            timedScreenshotProvider.image(view: rootView, onComplete: handleScreenshot)
+        } else {
+            let captureStart = dateProvider.systemTime()
+            screenshotProvider.image(view: rootView) { [weak self] screenshot in
+                guard let self = self else { return }
+
+                let captureEnd = self.dateProvider.systemTime()
+                let captureDuration = captureEnd >= captureStart
+                    ? TimeInterval(captureEnd - captureStart) / TimeInterval(NSEC_PER_SEC)
+                    : 0
+                handleScreenshot(screenshot, captureDuration)
+            }
         }
         return true
     }
