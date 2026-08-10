@@ -37,9 +37,9 @@ public final class SentryUserFeedbackConfiguration: NSObject {
         }
     }
     var _configureWidget: ((SentryUserFeedbackWidgetConfiguration) -> Void)?
-    #endif
 
     lazy var widgetConfig = SentryUserFeedbackWidgetConfiguration()
+    #endif
 
     /**
      * Use a shake gesture to display the form.
@@ -225,8 +225,8 @@ extension SentryUserFeedbackConfiguration {
         #if !SDK_V10
         _configureWidget = nil
         _customButton = nil
-        #endif
         widgetConfig = SentryUserFeedbackWidgetConfiguration()
+        #endif
         useShakeGesture = false
         showFormForScreenshots = false
     }

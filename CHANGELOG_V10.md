@@ -26,6 +26,7 @@
 - Remove deprecated `locale` from device context; use `locale` in culture context instead (#8325)
 - Change `SentryRequest.cookies` from a string to a dictionary of cookie names and values (#8460)
 - Remove data collection options without applicable Cocoa collectors (#8563)
+- Removed deprecated user feedback widget configuration and API (#8731)
 
 ### Fixes
 
