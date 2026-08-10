@@ -943,7 +943,7 @@ test-v10: test-ios-v10 test-macos-v10 test-catalyst-v10 test-tvos-v10 test-visio
 # Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
 # Examples:
 #   make test-ios-v10
-#   make test-ios-v10 ONLY_TESTING=SentryTests+KSCrash/SentryHttpTransportTests
+#   make test-ios-v10 ONLY_TESTING=SentryTestsV10/SentryHttpTransportTests
 .PHONY: test-ios-v10
 test-ios-v10:
 	@echo "--> Running V10 iOS tests"
@@ -964,8 +964,8 @@ test-ios-v10:
 # Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
 # Examples:
 #   make test-macos-v10
-#   make test-macos-v10 ONLY_TESTING=SentryTests+KSCrash/SentryHttpTransportTests
-#   make test-macos-v10 TEST_PLAN=SentryKSCrash_TestServer   # needs `make -C test-server start-debug`
+#   make test-macos-v10 ONLY_TESTING=SentryTestsV10/SentryHttpTransportTests
+#   make test-macos-v10 TEST_PLAN=SentryV10_TestServer   # needs `make -C test-server start-debug`
 .PHONY: test-macos-v10
 test-macos-v10:
 	@echo "--> Running V10 macOS tests"
@@ -986,7 +986,7 @@ test-macos-v10:
 # Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
 # Examples:
 #   make test-catalyst-v10
-#   make test-catalyst-v10 ONLY_TESTING=SentryTests+KSCrash/SentryHttpTransportTests
+#   make test-catalyst-v10 ONLY_TESTING=SentryTestsV10/SentryHttpTransportTests
 .PHONY: test-catalyst-v10
 test-catalyst-v10:
 	@echo "--> Running V10 Catalyst tests"
@@ -1006,7 +1006,7 @@ test-catalyst-v10:
 # Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
 # Examples:
 #   make test-tvos-v10
-#   make test-tvos-v10 ONLY_TESTING=SentryTests+KSCrash/SentryHttpTransportTests
+#   make test-tvos-v10 ONLY_TESTING=SentryTestsV10/SentryHttpTransportTests
 .PHONY: test-tvos-v10
 test-tvos-v10:
 	@echo "--> Running V10 tvOS tests"
@@ -1027,7 +1027,7 @@ test-tvos-v10:
 # Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
 # Examples:
 #   make test-visionos-v10
-#   make test-visionos-v10 ONLY_TESTING=SentryTests+KSCrash/SentryHttpTransportTests
+#   make test-visionos-v10 ONLY_TESTING=SentryTestsV10/SentryHttpTransportTests
 .PHONY: test-visionos-v10
 test-visionos-v10:
 	@echo "--> Running V10 visionOS tests"

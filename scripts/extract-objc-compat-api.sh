@@ -44,37 +44,26 @@ BUILD_DIR="$TMP_DIR/build"
 INTERMEDIATES_DIR="$TMP_DIR/intermediates"
 AST_JSON="$TMP_DIR/ast.json"
 
-# Step 1: Build SentryObjCCompat to generate the -Swift.h header.
-# The V10 wrapper must use the source package so its SDK dependency includes KSCrash.
+# Step 1: Build the source package to generate the SentryObjCCompat-Swift.h header.
 BUILD_CONFIGURATION="$CONFIGURATION"
+SDK_V10_VALUE=0
 if [ "$CONFIGURATION" = "ReleaseV10" ]; then
     BUILD_CONFIGURATION="Release"
-    log_info "Building V10 SentryObjC package (configuration: $BUILD_CONFIGURATION)"
-    SDK_V10=1 xcodebuild build \
-        -workspace "$PROJECT_ROOT" \
-        -scheme SentryObjC \
-        -configuration "$BUILD_CONFIGURATION" \
-        -sdk iphoneos \
-        -destination "generic/platform=iOS" \
-        CODE_SIGNING_ALLOWED=NO \
-        ONLY_ACTIVE_ARCH=YES \
-        SYMROOT="$BUILD_DIR" \
-        OBJROOT="$INTERMEDIATES_DIR" \
-        >/dev/null 2>&1
-else
-    log_info "Building SentryObjCCompat framework (configuration: $BUILD_CONFIGURATION)"
-    xcodebuild build \
-        -project "$PROJECT_ROOT/Sentry.xcodeproj" \
-        -scheme SentryObjCCompat \
-        -configuration "$BUILD_CONFIGURATION" \
-        -sdk iphoneos \
-        -arch arm64 \
-        CODE_SIGNING_ALLOWED=NO \
-        ONLY_ACTIVE_ARCH=YES \
-        SYMROOT="$BUILD_DIR" \
-        OBJROOT="$INTERMEDIATES_DIR" \
-        >/dev/null 2>&1
+    SDK_V10_VALUE=1
 fi
+
+log_info "Building SentryObjC package (configuration: $BUILD_CONFIGURATION, SDK_V10: $SDK_V10_VALUE)"
+SDK_V10="$SDK_V10_VALUE" xcodebuild build \
+    -workspace "$PROJECT_ROOT" \
+    -scheme SentryObjC \
+    -configuration "$BUILD_CONFIGURATION" \
+    -sdk iphoneos \
+    -destination "generic/platform=iOS" \
+    CODE_SIGNING_ALLOWED=NO \
+    ONLY_ACTIVE_ARCH=YES \
+    SYMROOT="$BUILD_DIR" \
+    OBJROOT="$INTERMEDIATES_DIR" \
+    >/dev/null 2>&1
 
 # Step 2: Locate the generated header.
 SWIFT_HEADER=$(find "$INTERMEDIATES_DIR" -name "SentryObjCCompat-Swift.h" -type f -print -quit)

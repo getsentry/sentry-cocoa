@@ -17,7 +17,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D61074A12EE358E90332638B"
                BuildableName = "Sentry.framework"
-               BlueprintName = "Sentry+KSCrash"
+               BlueprintName = "SentryV10"
                ReferencedContainer = "container:Sentry.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -44,8 +44,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "3CFC66DE2FF50342004005B4"
-               BuildableName = "SentryTests+KSCrash.xctest"
-               BlueprintName = "SentryTests+KSCrash"
+               BuildableName = "SentryTestsV10.xctest"
+               BlueprintName = "SentryTestsV10"
                ReferencedContainer = "container:Sentry.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -62,7 +62,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D61074A12EE358E90332638B"
             BuildableName = "Sentry.framework"
-            BlueprintName = "Sentry+KSCrash"
+            BlueprintName = "SentryV10"
             ReferencedContainer = "container:Sentry.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -75,11 +75,11 @@
       </EnvironmentVariables>
       <TestPlans>
          <TestPlanReference
-            reference = "container:Plans/SentryKSCrash_Base.xctestplan"
+            reference = "container:Plans/SentryV10_Base.xctestplan"
             default = "YES">
          </TestPlanReference>
          <TestPlanReference
-            reference = "container:Plans/SentryKSCrash_TestServer.xctestplan">
+            reference = "container:Plans/SentryV10_TestServer.xctestplan">
          </TestPlanReference>
       </TestPlans>
       <Testables>
@@ -88,8 +88,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "3CFC66DE2FF50342004005B4"
-               BuildableName = "SentryTests+KSCrash.xctest"
-               BlueprintName = "SentryTests+KSCrash"
+               BuildableName = "SentryTestsV10.xctest"
+               BlueprintName = "SentryTestsV10"
                ReferencedContainer = "container:Sentry.xcodeproj">
             </BuildableReference>
             <SkippedTests>
@@ -177,7 +177,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D61074A12EE358E90332638B"
             BuildableName = "Sentry.framework"
-            BlueprintName = "Sentry+KSCrash"
+            BlueprintName = "SentryV10"
             ReferencedContainer = "container:Sentry.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

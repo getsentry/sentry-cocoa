@@ -186,7 +186,7 @@ jobs:
             --command build-for-testing \
             --configuration TestV10 \
             --scheme SentryV10 \
-            --test-plan SentryKSCrash_TestServer
+            --test-plan SentryV10_TestServer
 
       - name: Run tests
         env:
@@ -200,7 +200,7 @@ jobs:
             --command test-without-building \
             --configuration TestV10 \
             --scheme SentryV10 \
-            --test-plan SentryKSCrash_TestServer
+            --test-plan SentryV10_TestServer
 
       - name: Stop Test Server
         if: ${{ always() }}

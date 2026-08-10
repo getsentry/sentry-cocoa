@@ -133,17 +133,17 @@ jobs:
         if: matrix.mode == 'environment'
         env:
           SDK_V10: "1"
-        run: swift build --target SentryObjC --scratch-path .build/v10-environment
+        run: swift build --target SentrySwift --scratch-path .build/v10-environment
       - name: Build with trait
         if: matrix.mode == 'trait'
-        run: swift build --target SentryObjC --traits V10 --scratch-path .build/v10-trait
+        run: swift build --target SentrySwift --traits V10 --scratch-path .build/v10-trait
       - name: Build base manifest
         if: matrix.mode == 'base-manifest'
         env:
           SDK_V10: "1"
         run: |
           rm Package@swift-6.1.swift Package@swift-6.2.swift
-          swift build --target SentryObjC --scratch-path .build/v10-base-manifest
+          swift build --target SentrySwift --scratch-path .build/v10-base-manifest
 
   build-v10-required-check:
     needs:

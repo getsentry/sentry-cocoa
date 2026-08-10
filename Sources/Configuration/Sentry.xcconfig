@@ -51,8 +51,8 @@ GCC_WARN_SHADOW = YES
 SWIFT_VERSION = 5.0
 CLANG_WARN_ASSIGN_ENUM = NO
 
-// The plain target always builds the V9 implementation. V10 builds use Sentry+KSCrash,
-// which adds SDK_V10 back in SentryKSCrash.xcconfig.
+// The plain target always builds the V9 implementation. V10 builds use SentryV10,
+// which adds SDK_V10 back in SentryV10.xcconfig.
 SWIFT_ACTIVE_COMPILATION_CONDITIONS_DebugV10 = DEBUG
 SWIFT_ACTIVE_COMPILATION_CONDITIONS_TestV10 = SENTRY_TEST
 SWIFT_ACTIVE_COMPILATION_CONDITIONS_ReleaseV10 =
@@ -64,6 +64,6 @@ GCC_PREPROCESSOR_DEFINITIONS_ReleaseV10 = RELEASE=1
 // discovery for this target separate from the V10 KSCrash-backed target.
 IMPLICIT_DEPENDENCY_DOMAIN = SentryV9
 
-// KSCrash integration sources live only in Sentry+KSCrash (which has the package dep).
+// KSCrash integration sources live only in SentryV10 (which has the package dep).
 // Exclude them here so the plain Sentry target never tries to resolve KSCrash imports.
 EXCLUDED_SOURCE_FILE_NAMES = $(SRCROOT)/Sources/Swift/Integrations/KSCrash/*
