@@ -1,4 +1,4 @@
-#if ENABLE_KSCRASH
+#if SDK_V10
 // swiftlint:disable:next no_implementation_only_import
 @_implementationOnly import KSCrashInstallations
 internal import _SentryPrivate

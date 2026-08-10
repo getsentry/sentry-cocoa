@@ -148,7 +148,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             return activeCrashReporterStateOverride
         }
 #endif
-#if ENABLE_KSCRASH
+#if SDK_V10
         return kscrashQuery
 #else
         return crashWrapper
@@ -478,7 +478,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         )
     }
 
-#if ENABLE_KSCRASH
+#if SDK_V10
     private var kscrashInstaller: SentryKSCrash.Installer?
     func getKSCrashInstaller() -> SentryKSCrash.Installer {
         getLazyVar(\.kscrashInstaller) {
@@ -588,7 +588,7 @@ extension SentryDependencyContainer: DateProviderProvider {}
 
 extension SentryDependencyContainer: AutoSessionTrackingProvider { }
 
-#if ENABLE_KSCRASH
+#if SDK_V10
 extension SentryDependencyContainer: SentryKSCrash.InstallerProvider {}
 extension SentryDependencyContainer: SentryKSCrash.QueryProvider {}
 #endif
