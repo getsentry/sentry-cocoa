@@ -10,23 +10,16 @@ import XCTest
 #if os(iOS) || os(tvOS)
 class SentrySessionReplayTests: XCTestCase {
     
-    private class ScreenshotProvider: NSObject, SentryTimedViewScreenshotProvider {
+    private class ScreenshotProvider: NSObject, SentryViewScreenshotProvider {
         var lastImageCall: UIView?
         var imageCallCount = 0
         var beforeComplete: (() -> Void)?
-        /// Main-thread capture cost reported through the timed screenshot SPI.
-        /// When nil, Session Replay falls back to wall-clock timing around the callback.
+        /// Main-thread capture cost reported through screenshot metadata.
         var mainThreadDuration: TimeInterval?
         var completeAsync = false
-        private var pendingCompletions = [Sentry.TimedScreenshotCallback]()
+        private var pendingCompletions = [Sentry.ScreenshotCallback]()
 
         func image(view: UIView, onComplete: @escaping Sentry.ScreenshotCallback) {
-            image(view: view) { image, _ in
-                onComplete(image)
-            }
-        }
-
-        func image(view: UIView, onComplete: @escaping Sentry.TimedScreenshotCallback) {
             lastImageCall = view
             imageCallCount += 1
             if completeAsync {
@@ -40,11 +33,11 @@ class SentrySessionReplayTests: XCTestCase {
             complete(pendingCompletions.removeFirst())
         }
 
-        private func complete(_ completion: Sentry.TimedScreenshotCallback) {
+        private func complete(_ completion: Sentry.ScreenshotCallback) {
             beforeComplete?()
             completion(
                 UIImage.add,
-                SentryViewPhotographer.Metadata(
+                SentryViewPhotographerScreenshotMetadata(
                     redactDuration: mainThreadDuration ?? 0,
                     renderDuration: 0,
                     maskDuration: 0
@@ -1441,51 +1434,6 @@ class SentrySessionReplayTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(capturesAfterMaskedFrame, 1)
         XCTAssertEqual(fixture.screenshotProvider.imageCallCount, 2)
-    }
-
-    func testNewFrame_whenUntimedHybridProviderIsSlow_shouldBackOffUsingWallClock() {
-        // -- Arrange --
-        // Custom hybrid providers may only implement the untimed screenshot SPI. Session Replay
-        // then measures wall-clock duration around that callback for pacing.
-        final class UntimedScreenshotProvider: NSObject, SentryViewScreenshotProvider {
-            var imageCallCount = 0
-            var beforeComplete: (() -> Void)?
-
-            func image(view: UIView, onComplete: @escaping Sentry.ScreenshotCallback) {
-                imageCallCount += 1
-                beforeComplete?()
-                onComplete(UIImage.add)
-            }
-        }
-
-        let fixture = Fixture()
-        let options = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
-        options.frameRate = 1
-        let untimedProvider = UntimedScreenshotProvider()
-        untimedProvider.beforeComplete = {
-            fixture.dateProvider.advanceBy(nanoseconds: 160_000_000)
-        }
-        let sut = fixture.getSut(options: options)
-        sut.screenshotProvider = untimedProvider
-        sut.start(rootView: fixture.rootView, fullSession: true)
-
-        // -- Act --
-        fixture.dateProvider.advance(by: 1)
-        fixture.runLoopCapture()
-        let capturesAfterSlowFrame = untimedProvider.imageCallCount
-        untimedProvider.beforeComplete = nil
-
-        fixture.dateProvider.advance(by: 1.99)
-        fixture.runLoopCapture()
-        let capturesBeforeBackoffExpires = untimedProvider.imageCallCount
-
-        fixture.dateProvider.advance(by: 0.02)
-        fixture.runLoopCapture()
-
-        // -- Assert --
-        XCTAssertEqual(capturesAfterSlowFrame, 1)
-        XCTAssertEqual(capturesBeforeBackoffExpires, 1)
-        XCTAssertEqual(untimedProvider.imageCallCount, 2)
     }
 
     func testNewFrame_whenAsyncScreenshotCaptureIsSlow_shouldBackOffCaptureInterval() {

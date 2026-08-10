@@ -1876,7 +1876,7 @@ class TestTimeToDisplayTracker: SentryTimeToDisplayTracker {
 #if os(iOS) || os(tvOS)
 private class MockScreenshotProvider: NSObject, SentryViewScreenshotProvider {
     func image(view: UIView, onComplete: @escaping Sentry.ScreenshotCallback) {
-        onComplete(UIImage())
+        onComplete(UIImage(), .init(redactDuration: 0, renderDuration: 0, maskDuration: 0))
     }
 }
 

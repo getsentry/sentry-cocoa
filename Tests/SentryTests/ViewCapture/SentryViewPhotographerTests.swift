@@ -69,7 +69,7 @@ class SentryViewPhotographerTests: XCTestCase {
         let expect = expectation(description: "Image rendered")
         var result: UIImage?
              
-        sut.image(view: rootView) { image in
+        sut.image(view: rootView) { image, _ in
             result = image
             expect.fulfill()
         }

@@ -7,24 +7,26 @@ import CoreGraphics
 import Foundation
 import UIKit
 
-@objcMembers
-@_spi(Private) public class SentryViewPhotographer: NSObject, SentryTimedViewScreenshotProvider {
-    /// Timing data for each phase of screenshot capture.
-    public struct Metadata {
-        public let redactDuration: TimeInterval
-        public let renderDuration: TimeInterval
-        public let maskDuration: TimeInterval
+/// Timing data for each phase of screenshot capture.
+public class SentryViewPhotographerScreenshotMetadata: NSObject {
+    public let redactDuration: TimeInterval
+    public let renderDuration: TimeInterval
+    public let maskDuration: TimeInterval
 
-        public var mainThreadDuration: TimeInterval {
-            redactDuration + renderDuration
-        }
-
-        public init(redactDuration: TimeInterval, renderDuration: TimeInterval, maskDuration: TimeInterval) {
-            self.redactDuration = redactDuration
-            self.renderDuration = renderDuration
-            self.maskDuration = maskDuration
-        }
+    public init(redactDuration: TimeInterval, renderDuration: TimeInterval, maskDuration: TimeInterval) {
+        self.redactDuration = redactDuration
+        self.renderDuration = renderDuration
+        self.maskDuration = maskDuration
+        super.init()
     }
+
+    public var mainThreadDuration: TimeInterval {
+        redactDuration + renderDuration
+    }
+}
+
+@objcMembers
+@_spi(Private) public class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
 
     private let redactBuilder: SentryUIRedactBuilder
     private let maskRenderer: SentryMaskRenderer
@@ -56,12 +58,6 @@ import UIKit
     }
 
     public func image(view: UIView, onComplete: @escaping ScreenshotCallback) {
-        image(view: view) { maskedScreenshot, _ in
-            onComplete(maskedScreenshot)
-        }
-    }
-
-    @nonobjc public func image(view: UIView, onComplete: @escaping TimedScreenshotCallback) {
         // Define a helper variable for the size, so the view is not accessed in the async block
         let viewSize = view.bounds.size
 
@@ -83,7 +79,7 @@ import UIKit
             let maskedScreenshot = maskRenderer.maskScreenshot(screenshot: renderedScreenshot, size: viewSize, masking: redactRegions)
             let maskEnd = dateProvider.getAbsoluteTime()
 
-            let metadata = Metadata(
+            let metadata = SentryViewPhotographerScreenshotMetadata(
                 redactDuration: Self.duration(from: redactStart, to: redactEnd),
                 renderDuration: Self.duration(from: redactEnd, to: renderEnd),
                 maskDuration: Self.duration(from: maskStart, to: maskEnd)

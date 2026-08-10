@@ -438,7 +438,7 @@ private struct SessionSegmentState {
             return
         }
 
-        guard takeScreenshot(timestamp: now, completion: { [weak self] captureDuration in
+        guard takeScreenshot(timestamp: now, completion: { [weak self] metadata in
             guard let self = self else { return }
             self.runOnMainThread { [weak self] in
                 guard let self = self else { return }
@@ -447,7 +447,7 @@ private struct SessionSegmentState {
                 if deferralDecision == .captureAfterDeferral {
                     self.adaptiveScreenshotInterval = 0
                 } else if !isInteractionCapture {
-                    self.updateAdaptiveScreenshotInterval(captureDuration)
+                    self.updateAdaptiveScreenshotInterval(metadata.mainThreadDuration)
                 }
 
                 let finishedAt = self.dateProvider.date()
@@ -788,7 +788,7 @@ private struct SessionSegmentState {
         }
     }
 
-    private func takeScreenshot(timestamp: Date, completion: @escaping (TimeInterval) -> Void) -> Bool {
+    private func takeScreenshot(timestamp: Date, completion: @escaping (SentryViewPhotographerScreenshotMetadata) -> Void) -> Bool {
         guard let rootView = rootView else {
             SentrySDKLog.debug("[Session Replay] Not taking screenshot, reason: root view is nil")
             return false
@@ -808,34 +808,14 @@ private struct SessionSegmentState {
         SentrySDKLog.debug("[Session Replay] Getting screenshot from screenshot provider")
         let screenName = delegate?.currentScreenNameForSessionReplay()
 
-        let handleScreenshot: (UIImage, TimeInterval) -> Void = { [weak self] screenshot, captureDuration in
+        screenshotProvider.image(view: rootView) { [weak self] screenshot, metadata in
             guard let self = self else { return }
 
             SentrySDKLog.debug("[Session Replay] New frame available, for screen: \(screenName ?? "nil")")
             self.state.withLock { _ in
                 self.replayMaker.addFrameAsync(timestamp: timestamp, maskedViewImage: screenshot, forScreen: screenName)
             }
-            completion(captureDuration)
-        }
-
-        // Prefer providers that report main-thread capture cost directly. Fall back to wall-clock
-        // timing around the full callback for custom hybrid providers that only implement the
-        // untimed screenshot SPI.
-        if let timedScreenshotProvider = screenshotProvider as? SentryTimedViewScreenshotProvider {
-            timedScreenshotProvider.image(view: rootView) { screenshot, metadata in
-                handleScreenshot(screenshot, metadata.mainThreadDuration)
-            }
-        } else {
-            let captureStart = dateProvider.systemTime()
-            screenshotProvider.image(view: rootView) { [weak self] screenshot in
-                guard let self = self else { return }
-
-                let captureEnd = self.dateProvider.systemTime()
-                let captureDuration = captureEnd >= captureStart
-                    ? TimeInterval(captureEnd - captureStart) / TimeInterval(NSEC_PER_SEC)
-                    : 0
-                handleScreenshot(screenshot, captureDuration)
-            }
+            completion(metadata)
         }
         return true
     }
