@@ -128,6 +128,12 @@ NS_ASSUME_NONNULL_BEGIN
 /// This block can be used to modify the event before it will be serialized and sent.
 @property (nonatomic, copy, nullable) SentryObjCEvent *_Nullable (^beforeSend)(SentryObjCEvent *);
 
+#if SDK_V10
+/// This block can be used to modify a transaction before it will be serialized and sent.
+@property (nonatomic, copy, nullable) SentryObjCEvent *_Nullable (^beforeSendTransaction)
+    (SentryObjCEvent *);
+#endif // SDK_V10
+
 /**
  * Use this callback to drop or modify a span before the SDK sends it to Sentry.
  * Return @c nil to drop the span.

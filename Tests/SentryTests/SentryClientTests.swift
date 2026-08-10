@@ -1459,15 +1459,57 @@ final class SentryClientTests: XCTestCase {
     }
     
     func testBeforeSendReturnsNilForTransaction_TransactionNotSend() {
-        beforeSendReturnsNil { $0.capture(event: fixture.transaction) }
+        beforeSendTransactionReturnsNil { $0.capture(event: fixture.transaction) }
         
         assertLostEventRecorded(category: .transaction, reason: .beforeSend)
     }
     
     func testBeforeSendReturnsNilForTransaction_LostEventRecorded() {
-        beforeSendReturnsNil { $0.capture(event: fixture.transaction) }
+        beforeSendTransactionReturnsNil { $0.capture(event: fixture.transaction) }
         
         assertLostEventRecorded(category: .transaction, reason: .beforeSend)
+    }
+
+    func testCaptureTransaction_whenBeforeSendIsSet_shouldNotInvokeBeforeSend() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+#else
+        // -- Arrange --
+        var beforeSendCalled = false
+        let sut = fixture.getSut(configureOptions: { options in
+            options.beforeSend = { event in
+                beforeSendCalled = true
+                return event
+            }
+        })
+
+        // -- Act --
+        sut.capture(event: fixture.transaction)
+
+        // -- Assert --
+        XCTAssertFalse(beforeSendCalled)
+#endif // !SDK_V10
+    }
+
+    func testCaptureMessage_whenBeforeSendTransactionIsSet_shouldNotInvokeBeforeSendTransaction() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+#else
+        // -- Arrange --
+        var beforeSendTransactionCalled = false
+        let sut = fixture.getSut(configureOptions: { options in
+            options.beforeSendTransaction = { event in
+                beforeSendTransactionCalled = true
+                return event
+            }
+        })
+
+        // -- Act --
+        sut.capture(message: fixture.messageAsString)
+
+        // -- Assert --
+        XCTAssertFalse(beforeSendTransactionCalled)
+#endif // !SDK_V10
     }
 
     func testBeforeSendReturnsNewEvent_NewEventSent() throws {
@@ -1510,10 +1552,7 @@ final class SentryClientTests: XCTestCase {
         
         // Act
         fixture.getSut(configureOptions: { options in
-            options.beforeSend = { event in
-                guard let transaction = event as? Transaction else {
-                    return event
-                }
+            configureBeforeSendTransaction(options) { transaction in
                 // Read tags - should return merged tags from tracer and event
                 guard let tags = transaction.tags else {
                     XCTFail("Tags should not be nil")
@@ -1540,10 +1579,7 @@ final class SentryClientTests: XCTestCase {
         
         // Act
         fixture.getSut(configureOptions: { options in
-            options.beforeSend = { event in
-                guard let transaction = event as? Transaction else {
-                    return event
-                }
+            configureBeforeSendTransaction(options) { transaction in
                 // Add new tag
                 // Note: `transaction.tags?["key"] = "value"` is syntactic sugar that:
                 // 1. Gets the dictionary (calls getter)
@@ -1573,10 +1609,7 @@ final class SentryClientTests: XCTestCase {
         
         // Act
         fixture.getSut(configureOptions: { options in
-            options.beforeSend = { event in
-                guard let transaction = event as? Transaction else {
-                    return event
-                }
+            configureBeforeSendTransaction(options) { transaction in
                 // Modify both tracer tag and event tag
                 transaction.tags?["tracer-key"] = "modified-tracer-value"
                 transaction.tags?["event-key"] = "modified-event-value"
@@ -1601,10 +1634,7 @@ final class SentryClientTests: XCTestCase {
         
         // Act
         fixture.getSut(configureOptions: { options in
-            options.beforeSend = { event in
-                guard let transaction = event as? Transaction else {
-                    return event
-                }
+            configureBeforeSendTransaction(options) { transaction in
                 // Remove both tracer tag and event tag
                 transaction.tags?["tracer-key"] = nil
                 transaction.tags?["event-key"] = nil
@@ -1629,10 +1659,7 @@ final class SentryClientTests: XCTestCase {
         
         // Act
         fixture.getSut(configureOptions: { options in
-            options.beforeSend = { event in
-                guard let transaction = event as? Transaction else {
-                    return event
-                }
+            configureBeforeSendTransaction(options) { transaction in
                 // Replace all tags
                 transaction.tags = ["replaced-key": "replaced-value"]
                 return transaction
@@ -1662,10 +1689,7 @@ final class SentryClientTests: XCTestCase {
         
         // Act - modify via subscript assignment
         fixture.getSut(configureOptions: { options in
-            options.beforeSend = { event in
-                guard let transaction = event as? Transaction else {
-                    return event
-                }
+            configureBeforeSendTransaction(options) { transaction in
                 // This subscript assignment calls the setter under the hood
                 transaction.tags?["key"] = "modified"
                 transaction.tags?["new-key"] = "new-value"
@@ -1950,9 +1974,7 @@ final class SentryClientTests: XCTestCase {
         )
         
         fixture.getSut(configureOptions: { options in
-            options.beforeSend = { _ in
-                return nil
-            }
+            configureBeforeSendTransaction(options) { _ in nil }
         }).capture(event: transaction)
         
         assertLostEventWithCountRecorded(category: .span, reason: .beforeSend, quantity: 4)
@@ -1969,15 +1991,11 @@ final class SentryClientTests: XCTestCase {
         )
         
         fixture.getSut(configureOptions: { options in
-            options.beforeSend = { event in
-                if let transaction = event as? Transaction {
-                    transaction.spans = transaction.spans.filter {
-                        $0.operation != "child2"
-                    }
-                    return transaction
-                } else {
-                    return event
+            configureBeforeSendTransaction(options) { transaction in
+                transaction.spans = transaction.spans.filter {
+                    $0.operation != "child2"
                 }
+                return transaction
             }
         }).capture(event: transaction)
         
@@ -2007,15 +2025,11 @@ final class SentryClientTests: XCTestCase {
         )
         
         fixture.getSut(configureOptions: { options in
-            options.beforeSend = { event in
-                if let transaction = event as? Transaction {
-                    transaction.spans = transaction.spans.filter {
-                        $0.operation != "child2"
-                    }
-                    return transaction
-                } else {
-                    return event
+            configureBeforeSendTransaction(options) { transaction in
+                transaction.spans = transaction.spans.filter {
+                    $0.operation != "child2"
                 }
+                return transaction
             }
             options.beforeSendSpan = { span in
                 if span.operation == "child3" {
@@ -3104,6 +3118,29 @@ private extension SentryClientTests {
                 nil
             }
         }))
+    }
+
+    private func beforeSendTransactionReturnsNil(capture: (SentryClientInternal) -> Void) {
+        capture(fixture.getSut(configureOptions: { options in
+            configureBeforeSendTransaction(options) { _ in nil }
+        }))
+    }
+
+    private func configureBeforeSendTransaction(
+        _ options: Options,
+        callback: @escaping (Transaction) -> Transaction?
+    ) {
+        let eventCallback: (Event) -> Event? = { event in
+            guard let transaction = event as? Transaction else {
+                return event
+            }
+            return callback(transaction)
+        }
+#if SDK_V10
+        options.beforeSendTransaction = eventCallback
+#else
+        options.beforeSend = eventCallback
+#endif // SDK_V10
     }
     
     private func assertNoEventSent() {

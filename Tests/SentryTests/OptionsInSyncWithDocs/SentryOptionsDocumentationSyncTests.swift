@@ -46,6 +46,7 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         #endif
 
         #if SDK_V10
+        options.insert("beforeSendTransaction") // Docs update pending
         options.insert("dataCollection") // Docs update pending
         options.insert("dataCollectionObjC") // @_spi(Private) - internal Objective-C bridge
         #endif

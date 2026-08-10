@@ -1070,6 +1070,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "beforeSendTransaction",
+    "parent": "SentryObjCOptions",
+    "returnType": "SentryObjCEvent * _Nullable (^ _Nullable)(SentryObjCEvent * _Nonnull)",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "bindClient:",
     "parent": "SentryObjCHub",
     "returnType": "void",
@@ -5648,6 +5655,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setBeforeSendTransaction:",
+    "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setBody:",
     "parent": "SentryObjCLog",
     "returnType": "void",
@@ -8967,6 +8981,12 @@
     "name": "beforeSendSpan",
     "parent": "SentryObjCOptions",
     "type": "SentryObjCSpan * _Nullable (^ _Nullable)(SentryObjCSpan * _Nonnull)"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "beforeSendTransaction",
+    "parent": "SentryObjCOptions",
+    "type": "SentryObjCEvent * _Nullable (^ _Nullable)(SentryObjCEvent * _Nonnull)"
   },
   {
     "kind": "ObjCPropertyDecl",
