@@ -118,6 +118,9 @@ run_api_stability_for_prs: &run_api_stability_for_prs
   - "sdk_api.json"
   - "sdk_api_sentryswiftui.json"
   - "sdk_api_objc.json"
+  - "sdk_api_v10.json"
+  - "sdk_api_objc_v10.json"
+  - "sdk_api_objc_v10.diff.json"
 
   # Build configuration
   - "Makefile"
