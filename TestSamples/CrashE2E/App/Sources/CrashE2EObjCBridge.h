@@ -14,6 +14,7 @@ void CrashE2ETriggerCPPException(void);
 void CrashE2ETriggerUnitySentryCxaThrow(void);
 void CrashE2ETriggerObjCObjectException(void);
 void CrashE2ETriggerObjCObjectAfterCaughtCPPException(void);
+void CrashE2ETriggerMallocZoneLockedSignal(void);
 
 #ifdef __cplusplus
 }

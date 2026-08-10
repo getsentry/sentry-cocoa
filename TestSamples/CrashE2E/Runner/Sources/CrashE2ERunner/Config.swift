@@ -97,6 +97,7 @@ enum Scenario: String, CaseIterable {
     case swiftAsyncCPPExceptionV2Off = "swift-async-cpp-exception-v2-off"
     case swiftAsyncCPPExceptionV2On = "swift-async-cpp-exception-v2-on"
     case ksCrashPerReportRetry = "kscrash-per-report-retry"
+    case mallocZoneLockedSignal = "malloc-zone-locked-signal"
 
     static let defaultScenarios: [Scenario] = [
         .signal,
@@ -132,7 +133,8 @@ enum Scenario: String, CaseIterable {
             return true
         case .signal, .nsException, .nsExceptionSubclass, .cppExceptionV1, .cppExceptionV2,
              .unityCxaThrow, .objcObject, .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal,
-             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashPerReportRetry:
+             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashPerReportRetry,
+             .mallocZoneLockedSignal:
             return false
         }
     }
@@ -145,7 +147,8 @@ enum Scenario: String, CaseIterable {
              .unityCxaThrow, .objcObject, .objcObjectAfterCaughtCPP, .binaryImages,
              .managedRuntimeSignalChain, .managedRuntimePreSDKSignal,
              .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
-             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashPerReportRetry:
+             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashPerReportRetry,
+             .mallocZoneLockedSignal:
             return true
         }
     }
@@ -157,7 +160,8 @@ enum Scenario: String, CaseIterable {
         case .signal, .nsException, .nsExceptionSubclass, .cppExceptionV1, .cppExceptionV2,
              .unityCxaThrow, .objcObject, .objcObjectAfterCaughtCPP, .binaryImages,
              .managedRuntimeSignalChain, .managedRuntimeReinitSignal,
-             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashPerReportRetry:
+             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashPerReportRetry,
+             .mallocZoneLockedSignal:
             return true
         }
     }

@@ -29,6 +29,9 @@ enum CrashE2ECrashTriggers {
              .objcObject, .objcObjectAfterCaughtCPP, .ksCrashRetryReportA, .ksCrashRetryReportB,
              .idle, .drain, .managedRuntimePreSDKSignal:
             triggerExceptionScenario(scenario)
+        case .mallocZoneLockedSignal:
+            CrashE2ETriggerMallocZoneLockedSignal()
+            abortBecauseScenarioReturned(scenario)
         }
     }
 
@@ -76,7 +79,7 @@ enum CrashE2ECrashTriggers {
         case .idle, .drain, .managedRuntimePreSDKSignal:
             abortBecauseScenarioReturned(scenario)
         case .signal, .binaryImages, .ignoredSignal, .managedRuntimeSignalChain,
-             .managedRuntimeClosedSignal, .managedRuntimeReinitSignal:
+             .managedRuntimeClosedSignal, .managedRuntimeReinitSignal, .mallocZoneLockedSignal:
             abortBecauseScenarioReturned(scenario)
         }
     }
