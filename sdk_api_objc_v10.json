@@ -2197,13 +2197,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "enableStandaloneAppStartTracing",
-    "parent": "SentryObjCOptions",
-    "returnType": "BOOL",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "enableSwizzling",
     "parent": "SentryObjCOptions",
     "returnType": "BOOL",
@@ -6159,13 +6152,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "setEnableStandaloneAppStartTracing:",
-    "parent": "SentryObjCOptions",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "setEnableSwizzling:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
@@ -9487,12 +9473,6 @@
   {
     "kind": "ObjCPropertyDecl",
     "name": "enableSpotlight",
-    "parent": "SentryObjCOptions",
-    "type": "BOOL"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
-    "name": "enableStandaloneAppStartTracing",
     "parent": "SentryObjCOptions",
     "type": "BOOL"
   },
