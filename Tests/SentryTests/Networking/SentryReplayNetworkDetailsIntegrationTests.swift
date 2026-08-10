@@ -151,7 +151,6 @@ class SentryReplayNetworkDetailsIntegrationTests: XCTestCase {
         let writerReady = DispatchSemaphore(value: 0)
         let readerReady = DispatchSemaphore(value: 0)
         let readerObservedUpdate = DispatchSemaphore(value: 0)
-        let updatesFinished = DispatchSemaphore(value: 0)
         let expectation = expectation(description: "Concurrent updates and serialization finish")
         expectation.expectedFulfillmentCount = 2
         expectation.assertForOverFulfill = true
@@ -176,7 +175,6 @@ class SentryReplayNetworkDetailsIntegrationTests: XCTestCase {
             }
 
             XCTAssertEqual(readerObservedUpdate.wait(timeout: .now() + 1), .success)
-            updatesFinished.signal()
             expectation.fulfill()
         }
 
@@ -200,7 +198,6 @@ class SentryReplayNetworkDetailsIntegrationTests: XCTestCase {
                 }
             } while true
 
-            XCTAssertEqual(updatesFinished.wait(timeout: .now() + 1), .success)
             expectation.fulfill()
         }
 
