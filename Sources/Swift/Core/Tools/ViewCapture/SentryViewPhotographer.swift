@@ -9,8 +9,26 @@ import UIKit
 
 @objcMembers
 @_spi(Private) public class SentryViewPhotographer: NSObject, SentryTimedViewScreenshotProvider {
+    /// Timing data for each phase of screenshot capture.
+    public struct Metadata {
+        public let redactDuration: TimeInterval
+        public let renderDuration: TimeInterval
+        public let maskDuration: TimeInterval
+
+        public var mainThreadDuration: TimeInterval {
+            redactDuration + renderDuration
+        }
+
+        public init(redactDuration: TimeInterval, renderDuration: TimeInterval, maskDuration: TimeInterval) {
+            self.redactDuration = redactDuration
+            self.renderDuration = renderDuration
+            self.maskDuration = maskDuration
+        }
+    }
+
     private let redactBuilder: SentryUIRedactBuilder
     private let maskRenderer: SentryMaskRenderer
+    private let dateProvider: SentryCurrentDateProvider
     private let dispatchQueue = SentryDispatchQueueWrapper()
 
     var renderer: SentryViewRenderer
@@ -21,15 +39,18 @@ import UIKit
     ///   - renderer: Implementation of the view renderer.
     ///   - redactOptions: Options provided to redact sensitive information.
     ///   - enableMaskRendererV2: Flag to enable experimental view renderer.
+    ///   - dateProvider: Source for measuring capture phase durations.
     /// - Note: The option `enableMaskRendererV2` is an internal flag, which is not part of the public API.
     ///         Therefore, it is not part of the `redactOptions` parameter, to not further expose it.
     public init(
         renderer: SentryViewRenderer,
         redactOptions: SentryRedactOptions,
-        enableMaskRendererV2: Bool
+        enableMaskRendererV2: Bool,
+        dateProvider: SentryCurrentDateProvider = SentryDefaultCurrentDateProvider()
     ) {
         self.renderer = renderer
         self.maskRenderer = enableMaskRendererV2 ? SentryMaskRendererV2() : SentryDefaultMaskRenderer()
+        self.dateProvider = dateProvider
         redactBuilder = SentryUIRedactBuilder(options: redactOptions)
         super.init()
     }
@@ -40,35 +61,40 @@ import UIKit
         }
     }
 
-    public func image(view: UIView, onComplete: @escaping TimedScreenshotCallback) {
+    @nonobjc public func image(view: UIView, onComplete: @escaping TimedScreenshotCallback) {
         // Define a helper variable for the size, so the view is not accessed in the async block
         let viewSize = view.bounds.size
 
-        // Measure only main-thread capture work. Adaptive Session Replay pacing uses this duration
-        // to decide whether to back off. Including async mask compositing would count work that no
-        // longer blocks the UI and can pin the capture interval at its maximum.
-        let captureStart = SentryDefaultCurrentDateProvider.getAbsoluteTime()
-
+        let redactStart = dateProvider.getAbsoluteTime()
         // The redact regions are expected to be thread-safe data structures
         let redactRegions = redactBuilder.redactRegionsFor(view: view)
+        let redactEnd = dateProvider.getAbsoluteTime()
 
         // The render method is synchronous and must be called on the main thread.
         // This is because the render method accesses the view hierarchy which is managed from the main thread.
         let renderedScreenshot = renderer.render(view: view)
+        let renderEnd = dateProvider.getAbsoluteTime()
 
-        let captureEnd = SentryDefaultCurrentDateProvider.getAbsoluteTime()
-        let mainThreadDuration = captureEnd >= captureStart
-            ? TimeInterval(captureEnd - captureStart) / TimeInterval(NSEC_PER_SEC)
-            : 0
-
-        dispatchQueue.dispatchAsync { [maskRenderer] in
+        dispatchQueue.dispatchAsync { [dateProvider, maskRenderer] in
             // The mask renderer does not need to be on the main thread.
             // Moving it to a background thread to avoid blocking the main thread, therefore reducing the performance
             // impact/lag of the user interface.
+            let maskStart = dateProvider.getAbsoluteTime()
             let maskedScreenshot = maskRenderer.maskScreenshot(screenshot: renderedScreenshot, size: viewSize, masking: redactRegions)
+            let maskEnd = dateProvider.getAbsoluteTime()
 
-            onComplete(maskedScreenshot, mainThreadDuration)
+            let metadata = Metadata(
+                redactDuration: Self.duration(from: redactStart, to: redactEnd),
+                renderDuration: Self.duration(from: redactEnd, to: renderEnd),
+                maskDuration: Self.duration(from: maskStart, to: maskEnd)
+            )
+            onComplete(maskedScreenshot, metadata)
         }
+    }
+
+    private static func duration(from start: UInt64, to end: UInt64) -> TimeInterval {
+        guard end >= start else { return 0 }
+        return TimeInterval(end - start) / TimeInterval(NSEC_PER_SEC)
     }
 
     public func image(view: UIView) -> UIImage {

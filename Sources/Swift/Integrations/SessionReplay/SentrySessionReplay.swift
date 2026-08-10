@@ -822,7 +822,9 @@ private struct SessionSegmentState {
         // timing around the full callback for custom hybrid providers that only implement the
         // untimed screenshot SPI.
         if let timedScreenshotProvider = screenshotProvider as? SentryTimedViewScreenshotProvider {
-            timedScreenshotProvider.image(view: rootView, onComplete: handleScreenshot)
+            timedScreenshotProvider.image(view: rootView) { screenshot, metadata in
+                handleScreenshot(screenshot, metadata.mainThreadDuration)
+            }
         } else {
             let captureStart = dateProvider.systemTime()
             screenshotProvider.image(view: rootView) { [weak self] screenshot in

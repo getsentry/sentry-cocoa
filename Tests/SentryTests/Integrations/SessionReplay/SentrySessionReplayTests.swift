@@ -42,7 +42,14 @@ class SentrySessionReplayTests: XCTestCase {
 
         private func complete(_ completion: Sentry.TimedScreenshotCallback) {
             beforeComplete?()
-            completion(UIImage.add, mainThreadDuration ?? 0)
+            completion(
+                UIImage.add,
+                SentryViewPhotographer.Metadata(
+                    redactDuration: mainThreadDuration ?? 0,
+                    renderDuration: 0,
+                    maskDuration: 0
+                )
+            )
         }
     }
 

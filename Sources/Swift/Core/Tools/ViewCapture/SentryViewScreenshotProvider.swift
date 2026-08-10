@@ -6,19 +6,15 @@ import UIKit
 
 @_spi(Private) public typealias ScreenshotCallback = (_ maskedViewImage: UIImage) -> Void
 
-/// Reports the masked screenshot plus the main-thread capture cost used for Session Replay pacing.
-///
-/// `mainThreadDuration` covers only the work that blocks the main thread (for example redaction
-/// traversal and view rendering). Async post-processing such as mask compositing is excluded so
-/// adaptive backoff does not treat off-main work as UI cost.
-@_spi(Private) public typealias TimedScreenshotCallback = (_ maskedViewImage: UIImage, _ mainThreadDuration: TimeInterval) -> Void
+/// Reports the masked screenshot and timing data for each capture phase.
+@_spi(Private) public typealias TimedScreenshotCallback = (_ maskedViewImage: UIImage, _ metadata: SentryViewPhotographer.Metadata) -> Void
 
 @objc
 @_spi(Private) public protocol SentryViewScreenshotProvider: NSObjectProtocol {
     func image(view: UIView, onComplete: @escaping ScreenshotCallback)
 }
 
-/// Optional screenshot provider that can report main-thread capture duration for pacing decisions.
+/// Optional screenshot provider that can report capture timing metadata for pacing decisions.
 ///
 /// Custom hybrid providers may keep implementing only ``SentryViewScreenshotProvider``. Session Replay
 /// then falls back to wall-clock timing around the full provider callback.

@@ -98,7 +98,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
             sharedDispatchQueue: dependencies.dispatchQueueWrapper
         )
         
-        self.viewPhotographer = Self.createViewPhotographer(options: options)
+        self.viewPhotographer = Self.createViewPhotographer(options: options, dateProvider: dependencies.dateProvider)
         (self.replayProcessingQueue, self.replayAssetWorkerQueue) = Self.createDispatchQueues(dependencies: dependencies)
         
         super.init()
@@ -145,7 +145,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     
     // MARK: - Initialization Helpers
     
-    private static func createViewPhotographer(options: Options) -> SentryViewPhotographer {
+    private static func createViewPhotographer(options: Options, dateProvider: SentryCurrentDateProvider) -> SentryViewPhotographer {
         var viewRenderer: SentryViewRenderer
         
         if options.sessionReplay.enableViewRendererV2 {
@@ -157,7 +157,12 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         }
         // We are using the flag for the view renderer V2 also for the mask renderer V2, as it would
         // just introduce another option without affecting the SDK user experience.
-        return SentryViewPhotographer(renderer: viewRenderer, redactOptions: options.sessionReplay, enableMaskRendererV2: options.sessionReplay.enableViewRendererV2)
+        return SentryViewPhotographer(
+            renderer: viewRenderer,
+            redactOptions: options.sessionReplay,
+            enableMaskRendererV2: options.sessionReplay.enableViewRendererV2,
+            dateProvider: dateProvider
+        )
     }
     
     private static func createDispatchQueues(dependencies: SessionReplayIntegrationScope) -> (processing: SentryDispatchQueueWrapper, assetWorker: SentryDispatchQueueWrapper) {
