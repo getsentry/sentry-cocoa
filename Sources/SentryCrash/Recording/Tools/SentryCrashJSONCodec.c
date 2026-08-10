@@ -26,6 +26,7 @@
 //
 
 #include "SentryCrashJSONCodec.h"
+#include "SentryCrashString.h"
 
 #include <ctype.h>
 #include <errno.h>
@@ -346,11 +347,9 @@ sentrycrashjson_addIntegerElement(
 {
     // Exact max for int64_t in decimal: 19 digits plus sign and NUL.
     char buff[21];
-    int written = snprintf(buff, sizeof(buff), "%" PRId64, value);
+    int written = sentrycrashstring_int64ToString(buff, sizeof(buff), value);
     if (written < 0) {
         return SentryCrashJSON_ERROR_INVALID_CHARACTER;
-    } else if (written >= (int)sizeof(buff)) {
-        return SentryCrashJSON_ERROR_DATA_TOO_LONG;
     }
     int result = sentrycrashjson_beginElement(context, name);
     unlikely_if(result != SentryCrashJSON_OK) { return result; }
@@ -363,12 +362,34 @@ sentrycrashjson_addUIntegerElement(
 {
     // Exact max for uint64_t in decimal: 20 digits plus NUL.
     char buff[21];
-    int written = snprintf(buff, sizeof(buff), "%" PRIu64, value);
+    int written = sentrycrashstring_uint64ToString(buff, sizeof(buff), value);
     if (written < 0) {
         return SentryCrashJSON_ERROR_INVALID_CHARACTER;
-    } else if (written >= (int)sizeof(buff)) {
-        return SentryCrashJSON_ERROR_DATA_TOO_LONG;
     }
+    int result = sentrycrashjson_beginElement(context, name);
+    unlikely_if(result != SentryCrashJSON_OK) { return result; }
+    return addJSONData(context, buff, written);
+}
+
+int
+sentrycrashjson_addFloatingPointElementAsyncSafe(
+    SentryCrashJSONEncodeContext *const context, const char *const name, double value)
+{
+    if (isnan(value)) {
+        return sentrycrashjson_addNullElement(context, name);
+    }
+    if (isinf(value)) {
+        int result = sentrycrashjson_beginElement(context, name);
+        unlikely_if(result != SentryCrashJSON_OK) { return result; }
+        return value > 0 ? addJSONData(context, "1e999", 5) : addJSONData(context, "-1e999", 6);
+    }
+
+    char buff[64];
+    int written = sentrycrashstring_doubleToString(buff, sizeof(buff), value);
+    if (written < 0) {
+        return SentryCrashJSON_ERROR_INVALID_CHARACTER;
+    }
+
     int result = sentrycrashjson_beginElement(context, name);
     unlikely_if(result != SentryCrashJSON_OK) { return result; }
     return addJSONData(context, buff, written);

@@ -124,6 +124,13 @@ addFloatingPointElement(
 }
 
 static void
+addFloatingPointElementAsyncSafe(
+    const SentryCrashReportWriter *const writer, const char *const key, const double value)
+{
+    sentrycrashjson_addFloatingPointElementAsyncSafe(getJsonContext(writer), key, value);
+}
+
+static void
 addIntegerElement(
     const SentryCrashReportWriter *const writer, const char *const key, const int64_t value)
 {
@@ -1357,16 +1364,16 @@ writeAppStats(const SentryCrashReportWriter *const writer, const char *const key
             monitorContext->AppState.launchesSinceLastCrash);
         writer->addIntegerElement(writer, SentryCrashField_SessionsSinceCrash,
             monitorContext->AppState.sessionsSinceLastCrash);
-        writer->addFloatingPointElement(writer, SentryCrashField_ActiveTimeSinceCrash,
+        addFloatingPointElementAsyncSafe(writer, SentryCrashField_ActiveTimeSinceCrash,
             monitorContext->AppState.activeDurationSinceLastCrash);
-        writer->addFloatingPointElement(writer, SentryCrashField_BGTimeSinceCrash,
+        addFloatingPointElementAsyncSafe(writer, SentryCrashField_BGTimeSinceCrash,
             monitorContext->AppState.backgroundDurationSinceLastCrash);
 
         writer->addIntegerElement(writer, SentryCrashField_SessionsSinceLaunch,
             monitorContext->AppState.sessionsSinceLaunch);
-        writer->addFloatingPointElement(writer, SentryCrashField_ActiveTimeSinceLaunch,
+        addFloatingPointElementAsyncSafe(writer, SentryCrashField_ActiveTimeSinceLaunch,
             monitorContext->AppState.activeDurationSinceLaunch);
-        writer->addFloatingPointElement(writer, SentryCrashField_BGTimeSinceLaunch,
+        addFloatingPointElementAsyncSafe(writer, SentryCrashField_BGTimeSinceLaunch,
             monitorContext->AppState.backgroundDurationSinceLaunch);
     }
     writer->endContainer(writer);

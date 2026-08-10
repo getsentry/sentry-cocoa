@@ -313,17 +313,17 @@ saveState(const char *const path)
     if (g_state.crashedThisLaunch) {
         durationFromCrashStateInitToLastCrash = timeSince(g_crashstate_initialize_time);
     }
-    if ((result = sentrycrashjson_addFloatingPointElement(&JSONContext,
+    if ((result = sentrycrashjson_addFloatingPointElementAsyncSafe(&JSONContext,
              kKeyDurationFromCrashStateInitToLastCrash, durationFromCrashStateInitToLastCrash))
         != SentryCrashJSON_OK) {
         goto done;
     }
-    if ((result = sentrycrashjson_addFloatingPointElement(
+    if ((result = sentrycrashjson_addFloatingPointElementAsyncSafe(
              &JSONContext, kKeyActiveDurationSinceLastCrash, g_state.activeDurationSinceLastCrash))
         != SentryCrashJSON_OK) {
         goto done;
     }
-    if ((result = sentrycrashjson_addFloatingPointElement(&JSONContext,
+    if ((result = sentrycrashjson_addFloatingPointElementAsyncSafe(&JSONContext,
              kKeyBackgroundDurationSinceLastCrash, g_state.backgroundDurationSinceLastCrash))
         != SentryCrashJSON_OK) {
         goto done;
