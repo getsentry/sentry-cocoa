@@ -344,10 +344,12 @@ import Foundation
         set { wrapped.enablePreWarmedAppStartTracing = newValue }
     }
 
+    #if !SDK_V10
     @objc public var enableStandaloneAppStartTracing: Bool {
         get { wrapped.enableStandaloneAppStartTracing }
         set { wrapped.enableStandaloneAppStartTracing = newValue }
     }
+    #endif
 
     @objc public var enableReportNonFullyBlockingAppHangs: Bool {
         get { wrapped.enableReportNonFullyBlockingAppHangs }

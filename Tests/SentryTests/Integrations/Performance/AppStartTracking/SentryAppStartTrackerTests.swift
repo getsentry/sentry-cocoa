@@ -39,7 +39,11 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         let framesTracker: SentryFramesTracker
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         var enablePreWarmedAppStartTracing = true
+        #if SDK_V10
+        let enableStandaloneAppStartTracing = true
+        #else
         var enableStandaloneAppStartTracing = false
+        #endif
         var appStartInfoProvider: TestAppStartInfoProvider
 
         let appStartDuration: TimeInterval = 0.4
@@ -351,7 +355,9 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
     }
 
     func testBackgroundLaunch_whenStandalone_shouldClearAppStartTraceId() {
+        #if !SDK_V10
         fixture.enableStandaloneAppStartTracing = true
+        #endif
         sut = fixture.sut
         sut.start()
 
@@ -369,7 +375,9 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         let hub = TestHub(client: client, andScope: Scope())
         SentrySDKInternal.setCurrentHub(hub)
 
+        #if !SDK_V10
         fixture.enableStandaloneAppStartTracing = true
+        #endif
         let processStartTime = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(-180)
         startApp(processStartTimeStamp: processStartTime, callDisplayLink: true)
 
@@ -378,7 +386,9 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
     }
 
     func testStart_whenStandaloneAppStartTracingAndSDKNotEnabled_shouldDropAppStart() {
+        #if !SDK_V10
         fixture.enableStandaloneAppStartTracing = true
+        #endif
         startApp(callDisplayLink: true)
 
         // The standalone handler guards on SentrySDK.isEnabled. Since the SDK is not
@@ -403,7 +413,9 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         let hub = TestHub(client: client, andScope: Scope())
         SentrySDKInternal.setCurrentHub(hub)
 
+        #if !SDK_V10
         fixture.enableStandaloneAppStartTracing = true
+        #endif
         startApp(callDisplayLink: true)
 
         let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
