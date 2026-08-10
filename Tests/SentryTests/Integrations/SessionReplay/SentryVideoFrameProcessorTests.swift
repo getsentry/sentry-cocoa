@@ -385,6 +385,47 @@ class SentryVideoFrameProcessorTests: XCTestCase {
         XCTAssertEqual(completionInvocations.count, 0)
     }
 
+    func testCancel_ShouldMarkInputsFinishedAndCancelWriting() {
+        let sut = fixture.getSut()
+        let videoWriterInput = TestAVAssetWriterInput(mediaType: .video, outputSettings: nil)
+        fixture.videoWriter.add(videoWriterInput)
+
+        sut.cancel()
+
+        XCTAssertTrue(sut.isFinished)
+        XCTAssertEqual(videoWriterInput.markAsFinishedInvocations.count, 1)
+        XCTAssertTrue(fixture.videoWriter.cancelWritingCalled)
+    }
+
+    func testCancel_AfterFinished_ShouldDoNothing() {
+        let sut = fixture.getSut()
+        let videoWriterInput = TestAVAssetWriterInput(mediaType: .video, outputSettings: nil)
+        fixture.videoWriter.add(videoWriterInput)
+        let completionInvocations = Invocations<Result<SentryRenderVideoResult, any Error>>()
+
+        // Processing all frames finishes the video.
+        sut.processFrames(videoWriterInput: videoWriterInput) { completionInvocations.record($0) }
+        XCTAssertTrue(sut.isFinished)
+
+        sut.cancel()
+
+        XCTAssertFalse(fixture.videoWriter.cancelWritingCalled)
+        XCTAssertEqual(videoWriterInput.markAsFinishedInvocations.count, 1)
+    }
+
+    func testCancel_ShouldStopSubsequentProcessing() {
+        let sut = fixture.getSut()
+        let videoWriterInput = TestAVAssetWriterInput(mediaType: .video, outputSettings: nil)
+        fixture.videoWriter.add(videoWriterInput)
+        let completionInvocations = Invocations<Result<SentryRenderVideoResult, any Error>>()
+
+        sut.cancel()
+        sut.processFrames(videoWriterInput: videoWriterInput) { completionInvocations.record($0) }
+
+        XCTAssertEqual(fixture.currentPixelBuffer.appendInvocations.count, 0)
+        XCTAssertEqual(completionInvocations.count, 0)
+    }
+
     func testProcessFrames_WhenImageSizeChanges_ShouldFinishVideo() {
         let videoWriterInput = TestAVAssetWriterInput(mediaType: .video, outputSettings: nil)
         fixture.videoWriter.add(videoWriterInput)
