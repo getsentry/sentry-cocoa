@@ -197,7 +197,6 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         startApp(callDisplayLink: true)
         #if SDK_V10
         assertStandaloneTransaction(type: .warm)
-        standaloneHub.capturedTransactionsWithScope.reset()
         #else
         assertValidStart(type: .warm, expectedDuration: 0.45)
         #endif
@@ -206,7 +205,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         fixture.framesTracker.resetFrames()
         startApp(callDisplayLink: true)
         #if SDK_V10
-        assertStandaloneTransaction(type: .warm)
+        assertStandaloneTransaction(type: .warm, invocationIndex: 1)
         #else
         assertValidStart(type: .warm, expectedDuration: 0.45)
         #endif
@@ -661,11 +660,13 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
     }
 
     #if SDK_V10
-    private func assertStandaloneTransaction(type: SentryAppStartType, file: StaticString = #filePath, line: UInt = #line) {
-        guard let serialized = standaloneHub.capturedTransactionsWithScope.invocations.first?.transaction else {
-            XCTFail("Standalone app start transaction must be captured", file: file, line: line)
+    private func assertStandaloneTransaction(type: SentryAppStartType, invocationIndex: Int = 0, file: StaticString = #filePath, line: UInt = #line) {
+        let invocations = standaloneHub.capturedTransactionsWithScope.invocations
+        guard invocationIndex < invocations.count else {
+            XCTFail("Standalone app start transaction must be captured (expected index \(invocationIndex), have \(invocations.count))", file: file, line: line)
             return
         }
+        let serialized = invocations[invocationIndex].transaction
         XCTAssertEqual(serialized["transaction"] as? String, "App Start", file: file, line: line)
         XCTAssertNil(SentrySDKInternal.getAppStartMeasurement(), "Global static must not be set in standalone mode", file: file, line: line)
 
