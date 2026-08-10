@@ -49,7 +49,7 @@ class SentryViewPhotographerTests: XCTestCase {
         let expectation = expectation(description: "Image rendered")
 
         // -- Act --
-        photographer.image(view: rootView) { _, metadata in
+        photographer.timedImage(view: rootView) { _, metadata in
             // -- Assert --
             XCTAssertEqual(metadata.redactDuration, 0.01, accuracy: 0.000001)
             XCTAssertEqual(metadata.renderDuration, 0.02, accuracy: 0.000001)
@@ -69,7 +69,7 @@ class SentryViewPhotographerTests: XCTestCase {
         let expect = expectation(description: "Image rendered")
         var result: UIImage?
              
-        sut.image(view: rootView) { image, _ in
+        sut.image(view: rootView) { image in
             result = image
             expect.fulfill()
         }

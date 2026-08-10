@@ -64,7 +64,7 @@ import UIKit
     private func update() {
         guard let superview = self.superview, idle else { return }
         idle = false
-        self.photographer.image(view: superview) { maskedViewImage, _ in
+        self.photographer.image(view: superview) { maskedViewImage in
             DispatchQueue.main.async {
                 self.imageView.image = maskedViewImage
                 self.idle = true

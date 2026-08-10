@@ -8,7 +8,7 @@ import Foundation
 import UIKit
 
 /// Timing data for each phase of screenshot capture.
-public class SentryViewPhotographerScreenshotMetadata: NSObject {
+@_spi(Private) public final class SentryViewPhotographerScreenshotMetadata: NSObject {
     public let redactDuration: TimeInterval
     public let renderDuration: TimeInterval
     public let maskDuration: TimeInterval
@@ -26,7 +26,7 @@ public class SentryViewPhotographerScreenshotMetadata: NSObject {
 }
 
 @objcMembers
-@_spi(Private) public class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
+@_spi(Private) public class SentryViewPhotographer: NSObject, SentryTimedViewScreenshotProvider {
 
     private let redactBuilder: SentryUIRedactBuilder
     private let maskRenderer: SentryMaskRenderer
@@ -58,6 +58,12 @@ public class SentryViewPhotographerScreenshotMetadata: NSObject {
     }
 
     public func image(view: UIView, onComplete: @escaping ScreenshotCallback) {
+        timedImage(view: view) { screenshot, _ in
+            onComplete(screenshot)
+        }
+    }
+
+    public func timedImage(view: UIView, onComplete: @escaping TimedScreenshotCallback) {
         // Define a helper variable for the size, so the view is not accessed in the async block
         let viewSize = view.bounds.size
 

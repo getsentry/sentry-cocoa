@@ -10,16 +10,22 @@ import XCTest
 #if os(iOS) || os(tvOS)
 class SentrySessionReplayTests: XCTestCase {
     
-    private class ScreenshotProvider: NSObject, SentryViewScreenshotProvider {
+    private class ScreenshotProvider: NSObject, SentryTimedViewScreenshotProvider {
         var lastImageCall: UIView?
         var imageCallCount = 0
         var beforeComplete: (() -> Void)?
         /// Main-thread capture cost reported through screenshot metadata.
         var mainThreadDuration: TimeInterval?
         var completeAsync = false
-        private var pendingCompletions = [Sentry.ScreenshotCallback]()
+        private var pendingCompletions = [Sentry.TimedScreenshotCallback]()
 
         func image(view: UIView, onComplete: @escaping Sentry.ScreenshotCallback) {
+            timedImage(view: view) { image, _ in
+                onComplete(image)
+            }
+        }
+
+        func timedImage(view: UIView, onComplete: @escaping Sentry.TimedScreenshotCallback) {
             lastImageCall = view
             imageCallCount += 1
             if completeAsync {
@@ -33,7 +39,7 @@ class SentrySessionReplayTests: XCTestCase {
             complete(pendingCompletions.removeFirst())
         }
 
-        private func complete(_ completion: Sentry.ScreenshotCallback) {
+        private func complete(_ completion: Sentry.TimedScreenshotCallback) {
             beforeComplete?()
             completion(
                 UIImage.add,
@@ -43,6 +49,17 @@ class SentrySessionReplayTests: XCTestCase {
                     maskDuration: 0
                 )
             )
+        }
+    }
+
+    private class UntimedScreenshotProvider: NSObject, SentryViewScreenshotProvider {
+        var imageCallCount = 0
+        var beforeComplete: (() -> Void)?
+
+        func image(view: UIView, onComplete: @escaping Sentry.ScreenshotCallback) {
+            imageCallCount += 1
+            beforeComplete?()
+            onComplete(.add)
         }
     }
 
@@ -219,12 +236,13 @@ class SentrySessionReplayTests: XCTestCase {
 
         func getSut(
             options: SentryReplayOptions = .init(sessionSampleRate: 0, onErrorSampleRate: 0),
+            screenshotProvider: SentryViewScreenshotProvider? = nil,
             touchTracker: SentryTouchTracker? = nil
         ) -> SentrySessionReplay {
             return SentrySessionReplay(
                 replayOptions: options,
                 replayFolderPath: cacheFolder,
-                screenshotProvider: screenshotProvider,
+                screenshotProvider: screenshotProvider ?? self.screenshotProvider,
                 replayMaker: replayMaker,
                 breadcrumbConverter: SentrySRDefaultBreadcrumbConverter(),
                 touchTracker: touchTracker ?? SentryTouchTracker(dateProvider: dateProvider, scale: 0),
@@ -1434,6 +1452,37 @@ class SentrySessionReplayTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(capturesAfterMaskedFrame, 1)
         XCTAssertEqual(fixture.screenshotProvider.imageCallCount, 2)
+    }
+
+    func testNewFrame_whenScreenshotProviderDoesNotReportDuration_shouldUseWallClockFallback() {
+        // -- Arrange --
+        let fixture = Fixture()
+        let screenshotProvider = UntimedScreenshotProvider()
+        let options = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
+        options.frameRate = 1
+        screenshotProvider.beforeComplete = {
+            fixture.dateProvider.advance(by: 0.16)
+        }
+        let sut = fixture.getSut(options: options, screenshotProvider: screenshotProvider)
+        sut.start(rootView: fixture.rootView, fullSession: true)
+
+        // -- Act --
+        fixture.dateProvider.advance(by: 1)
+        fixture.runLoopCapture()
+        let capturesAfterSlowFrame = screenshotProvider.imageCallCount
+        screenshotProvider.beforeComplete = nil
+
+        fixture.dateProvider.advance(by: 1.99)
+        fixture.runLoopCapture()
+        let capturesBeforeBackoffExpires = screenshotProvider.imageCallCount
+
+        fixture.dateProvider.advance(by: 0.02)
+        fixture.runLoopCapture()
+
+        // -- Assert --
+        XCTAssertEqual(capturesAfterSlowFrame, 1)
+        XCTAssertEqual(capturesBeforeBackoffExpires, 1)
+        XCTAssertEqual(screenshotProvider.imageCallCount, 2)
     }
 
     func testNewFrame_whenAsyncScreenshotCaptureIsSlow_shouldBackOffCaptureInterval() {

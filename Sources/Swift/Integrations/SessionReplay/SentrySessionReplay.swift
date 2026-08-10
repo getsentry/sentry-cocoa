@@ -808,7 +808,7 @@ private struct SessionSegmentState {
         SentrySDKLog.debug("[Session Replay] Getting screenshot from screenshot provider")
         let screenName = delegate?.currentScreenNameForSessionReplay()
 
-        screenshotProvider.image(view: rootView) { [weak self] screenshot, metadata in
+        let handleScreenshot: (UIImage, SentryViewPhotographerScreenshotMetadata) -> Void = { [weak self] screenshot, metadata in
             guard let self = self else { return }
 
             SentrySDKLog.debug("[Session Replay] New frame available, for screen: \(screenName ?? "nil")")
@@ -816,6 +816,25 @@ private struct SessionSegmentState {
                 self.replayMaker.addFrameAsync(timestamp: timestamp, maskedViewImage: screenshot, forScreen: screenName)
             }
             completion(metadata)
+        }
+
+        if let timedScreenshotProvider = screenshotProvider as? SentryTimedViewScreenshotProvider {
+            timedScreenshotProvider.timedImage(view: rootView) { screenshot, metadata in
+                handleScreenshot(screenshot, metadata)
+            }
+        } else {
+            let captureStart = dateProvider.systemTime()
+            screenshotProvider.image(view: rootView) { screenshot in
+                let captureEnd = self.dateProvider.systemTime()
+                let captureDuration = captureEnd >= captureStart
+                    ? TimeInterval(captureEnd - captureStart) / TimeInterval(NSEC_PER_SEC)
+                    : 0
+                handleScreenshot(screenshot, SentryViewPhotographerScreenshotMetadata(
+                    redactDuration: captureDuration,
+                    renderDuration: 0,
+                    maskDuration: 0
+                ))
+            }
         }
         return true
     }
