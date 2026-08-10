@@ -235,6 +235,6 @@ struct SecondView: View {
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
-            .sentryReplayPreviewMask(opacity: 0.1)
+            .sentryReplayPreviewMask(opacity: 0.3)
     }
 }
