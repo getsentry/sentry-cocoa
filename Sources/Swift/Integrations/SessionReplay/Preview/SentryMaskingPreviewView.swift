@@ -54,6 +54,7 @@ import UIKit
         }
 
         frame = superview.bounds
+        autoresizingMask = [.flexibleWidth, .flexibleHeight]
         setNeedsPreviewUpdate()
     }
 
