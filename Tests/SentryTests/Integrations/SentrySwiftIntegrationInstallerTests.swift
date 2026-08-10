@@ -27,6 +27,9 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         options.enableSwizzling = false
         options.enableMetrics = false
         options.enableCrashHandler = false
+        #if canImport(MetricKit) && !os(tvOS)
+        options.enableMetricKit = false
+        #endif
 
         let testHub = TestHub(client: nil, andScope: nil)
         SentrySDKInternal.setCurrentHub(testHub)
@@ -56,6 +59,9 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         options.enableSwizzling = false
         options.enableMetrics = false
         options.enableCrashHandler = false
+        #if canImport(MetricKit) && !os(tvOS)
+        options.enableMetricKit = false
+        #endif
 
         let testHub = TestHub(client: nil, andScope: nil)
         SentrySDKInternal.setCurrentHub(testHub)

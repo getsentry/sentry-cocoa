@@ -44,6 +44,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     
     func testOptionDisabled_MetricKitManagerNotInitialized() {
           let options = Options()
+          options.enableMetricKit = false
           let sut = SentryMetricKitIntegration(with: options, dependencies: ())
           XCTAssertNil(sut)
     }
