@@ -17,11 +17,16 @@
 
 ### Breaking Changes
 
+- Enable MetricKit integration by default (#8716)
+- Enable logging by default (#8717)
+- Change the default diagnostic level to warning (#8732)
+- Enable `swiftAsyncStacktraces` by default (#8718)
 - Remove `sendDefaultPii`; use `dataCollection` to configure automatic data collection (#8253)
 - Remove Objective-C `@objc` attributes from SentrySDK (#8308)
 - Remove deprecated `locale` from device context; use `locale` in culture context instead (#8325)
 - Change `SentryRequest.cookies` from a string to a dictionary of cookie names and values (#8460)
 - Remove data collection options without applicable Cocoa collectors (#8563)
+- Removed deprecated user feedback widget configuration and API (#8731)
 
 ### Fixes
 

@@ -64,6 +64,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         // Tests here install the init funnel, which replaces initializers on the base
         // UIViewController. Restore them so the funnel doesn't leak into later suites in the run.
         SentryUIViewControllerSwizzlingHelper.stop()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
     

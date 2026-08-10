@@ -182,6 +182,7 @@ final class SentryClientTests: XCTestCase {
     
     override func tearDown() {
         super.tearDown()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
     
@@ -2159,6 +2160,12 @@ final class SentryClientTests: XCTestCase {
 #if os(iOS) || os(tvOS) || os(visionOS)
         expectedIntegrations.append("FramesTracking")
 #endif // os(iOS) || os(tvOS)
+        #if SDK_V10
+        expectedIntegrations.append("SwiftAsync")
+        #endif
+#if canImport(MetricKit) && !os(tvOS) && SDK_V10
+        expectedIntegrations.append("MetricKit")
+#endif
 
         let actual = try lastSentEvent()
         assertArrayEquals(

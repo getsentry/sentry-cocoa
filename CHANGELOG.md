@@ -4,6 +4,7 @@
 
 ### Features
 
+- Promote `enableStandaloneAppStartTracing` from `options.experimental` to a top-level option on `Options` (#8715)
 - Add experimental option `enableUIViewControllerInitSwizzling` that defers `UIViewController` swizzling to first instantiation instead of eagerly discovering and swizzling all subclasses at SDK start. This avoids realizing `@available`-gated `UIViewController` subclasses on OS versions below their gate, which crashes apps on start (#8687).
 
 ### Improvements
@@ -15,6 +16,10 @@
 - Fix misleading duplicate SDK detection message: "same binary" → "same address space" (#8710)
 - Fix a race caused by mutating `URLSessionTask.currentRequest` during trace header propagation (#8650)
 - Prevent Session Replay network-detail breadcrumbs from blocking URLSession cancellation on the task monitor (#8497)
+
+### Internal
+
+- Add internal hybrid SDK APIs to serialize native events and retrieve scope contexts for .NET event processing (#8708)
 
 ## 9.25.0
 

@@ -73,6 +73,7 @@ class SentryNetworkTrackerTests: XCTestCase {
 
     override func tearDown() {
         super.tearDown()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
 
@@ -778,6 +779,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(responseHeaders["Cache-Control"], "no-cache")
         XCTAssertEqual(responseHeaders.count, 2, "Only Content-Type and the configured Cache-Control should be captured")
 
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
 
@@ -881,6 +883,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         let parsedBody = try XCTUnwrap(bodyDict["body"] as? [String: Any])
         XCTAssertEqual(parsedBody["field"] as? String, "value")
 
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
 

@@ -17,6 +17,12 @@ public func routes(_ app: Application) {
         echoedHeader(named: "sentry-trace", from: request)
     }
 
+    app.get("delayed-response") { request -> EventLoopFuture<String> in
+        request.eventLoop.scheduleTask(in: .seconds(1)) {
+            "OK"
+        }.futureResult
+    }
+
     app.post("echo-sentry-trace") { request -> String in
         let trace_id = request.headers["sentry-trace"]
         if let sentryTraceHeader = trace_id.first {

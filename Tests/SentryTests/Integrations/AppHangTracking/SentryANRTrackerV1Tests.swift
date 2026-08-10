@@ -54,6 +54,7 @@ class SentryANRTrackerV1Tests: XCTestCase, SentryANRTrackerDelegate {
         wait(for: [fixture.threadWrapper.threadFinishedExpectation], timeout: 5)
         XCTAssertEqual(0, fixture.threadWrapper.threads.count)
         SentrySDKLog._configure(self.previousIsDebug, diagnosticLevel: self.previousDiagnosticLevel)
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
     
