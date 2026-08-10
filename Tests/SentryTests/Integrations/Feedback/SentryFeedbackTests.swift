@@ -137,6 +137,27 @@ class SentryFeedbackTests: XCTestCase {
         XCTAssertTrue(sut.viewModel.removeScreenshotStack.isHidden)
     }
 
+#if !targetEnvironment(macCatalyst)
+    func testForm_whenScreenshotStackHidden_shouldNotOccupyVerticalSpace() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        config.formConfig.enableScreenshot = true
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        let window = UIWindow(windowScene: Self.mockWindowScene)
+        window.rootViewController = sut
+        window.makeKeyAndVisible()
+        addTeardownBlock { [window] in
+            window.isHidden = true
+        }
+
+        // -- Act --
+        sut.view.layoutIfNeeded()
+
+        // -- Assert --
+        XCTAssertEqual(sut.viewModel.removeScreenshotStack.frame.height, 0)
+    }
+#endif
+
     func testForm_whenAddScreenshotLabelsConfigured_shouldUseConfiguredLabels() {
         // -- Arrange --
         let config = SentryUserFeedbackConfiguration()
