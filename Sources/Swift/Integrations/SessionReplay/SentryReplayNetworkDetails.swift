@@ -17,10 +17,8 @@ enum NetworkBodyWarning: String {
 /// via `setRequest`/`setResponse`. Swift callers (SentrySRDefaultBreadcrumbConverter)
 /// consume it via `serialize()`.
 ///
-/// - Important: `setRequest` and `setResponse` can be called concurrently from
-///   `SentryNetworkTracker` because they write to independent properties.
-///   Adding shared mutable state between will require adding synchronization.
-
+/// - Important: Request and response parsing happens before publishing the result to internal
+///   state. The short state updates and snapshots are synchronized for consistent replay data.
 @objc
 @_spi(Private) public class SentryReplayNetworkDetails: NSObject {
 
@@ -285,16 +283,14 @@ enum NetworkBodyWarning: String {
 
     // MARK: - Properties
 
-    private(set) var method: String?
-    var statusCode: NSNumber?
-    var request: Detail?
-    var response: Detail?
+    struct State {
+        var statusCode: NSNumber?
+        var request: Detail?
+        var response: Detail?
+    }
 
-    /// Request body size in bytes, derived from request details.
-    var requestBodySize: NSNumber? { request?.size }
-
-    /// Response body size in bytes, derived from response details.
-    var responseBodySize: NSNumber? { response?.size }
+    let method: String?
+    let state = SentryMutex(State())
 
     // MARK: - Initialization
 

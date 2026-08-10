@@ -1,0 +1,31 @@
+{
+  "configurations" : [
+    {
+      "id" : "A451EF21-C702-4095-835C-4F189D10635A",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "selectedTests" : [
+        "SentryNetworkTrackerIntegrationTestServerTests\/testFailedRequest_whenCaptureEnabled_shouldMatchEnvelopeSnapshot()",
+        "SentryNetworkTrackerIntegrationTestServerTests\/testGetCaptureFailedRequestsEnabled()",
+        "SentryNetworkTrackerIntegrationTestServerTests\/testGetRequest_CompareSentryTraceHeader()",
+        "SentryNetworkTrackerIntegrationTestServerTests\/testGetRequest_SpanCreatedAndBaggageHeaderAdded()",
+        "SentryNetworkTrackerIntegrationTestServerTests\/testSuccessfulRequest_whenTransactionFinishes_shouldMatchEnvelopeSnapshot()"
+      ],
+      "target" : {
+        "containerPath" : "container:Sentry.xcodeproj",
+        "identifier" : "3CFC66DE2FF50342004005B4",
+        "name" : "SentryTestsV10"
+      }
+    }
+  ],
+  "version" : 1
+}

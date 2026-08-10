@@ -19,7 +19,7 @@
     "targetForVariableExpansion" : {
       "containerPath" : "container:Sentry.xcodeproj",
       "identifier" : "D61074A12EE358E90332638B",
-      "name" : "Sentry+KSCrash"
+      "name" : "SentryV10"
     },
     "uiTestingScreenshotsLifetime" : "keepAlways"
   },
@@ -697,7 +697,7 @@
       "target" : {
         "containerPath" : "container:Sentry.xcodeproj",
         "identifier" : "3CFC66DE2FF50342004005B4",
-        "name" : "SentryTests+KSCrash"
+        "name" : "SentryTestsV10"
       }
     }
   ],

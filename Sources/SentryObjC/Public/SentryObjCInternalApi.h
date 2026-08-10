@@ -13,6 +13,8 @@
 @class SentryObjCInternalBreadcrumbApi;
 @class SentryObjCInternalUserApi;
 @class SentryObjCInternalEnvelopeApi;
+@class SentryObjCInternalScopeApi;
+@class SentryObjCInternalSerializerApi;
 @class SentryObjCInternalSwizzleApi;
 @class SentryObjCInternalAppStartApi;
 #if SENTRY_OBJC_HAS_UIKIT
@@ -56,6 +58,12 @@ SENTRY_NO_INIT
 
 /// Envelope store, capture, and deserialization.
 @property (nonatomic, readonly) SentryObjCInternalEnvelopeApi *envelope;
+
+/// Current scope contexts in event wire format.
+@property (nonatomic, readonly) SentryObjCInternalScopeApi *scope;
+
+/// Serializer for events
+@property (nonatomic, readonly) SentryObjCInternalSerializerApi *serializer;
 
 /// Method swizzling.
 @property (nonatomic, readonly) SentryObjCInternalSwizzleApi *swizzle;

@@ -23,6 +23,9 @@ public extension Options {
         #endif
         enableMetrics = false
         beforeSendMetric = { metric in metric }
+        #if canImport(MetricKit) && !os(tvOS)
+        enableMetricKit = false
+        #endif
     }
 
     static func noIntegrations() -> Options {

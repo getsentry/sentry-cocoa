@@ -1,4 +1,4 @@
-#if ENABLE_KSCRASH && SENTRY_CRASH_E2E
+#if SDK_V10 && SENTRY_CRASH_E2E
 import Foundation
 
 extension SentryKSCrash {

@@ -43,10 +43,17 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic) BOOL debug;
 
+#if SDK_V10
+/**
+ * Minimum log level to be used if debug is enabled.
+ * @note Default is @c SentryObjCLevelWarning.
+ */
+#else
 /**
  * Minimum log level to be used if debug is enabled.
  * @note Default is @c SentryObjCLevelDebug.
  */
+#endif // SDK_V10
 @property (nonatomic) SentryObjCLevel diagnosticLevel;
 
 /**
@@ -571,6 +578,13 @@ NS_ASSUME_NONNULL_BEGIN
  * @note Default value is @c YES.
  */
 @property (nonatomic) BOOL enablePreWarmedAppStartTracing;
+
+/**
+ * When enabled, the SDK sends a standalone app start transaction instead of attaching app
+ * start data to the first UIViewController transaction.
+ * @note Default value is @c NO.
+ */
+@property (nonatomic) BOOL enableStandaloneAppStartTracing;
 
 /**
  * When enabled, the SDK reports non-fully-blocking app hangs. A non-fully-blocking app hang is

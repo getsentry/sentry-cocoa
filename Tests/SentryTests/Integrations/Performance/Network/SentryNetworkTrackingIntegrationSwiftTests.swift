@@ -183,7 +183,73 @@ class SentryNetworkTrackingIntegrationSwiftTests: XCTestCase {
         XCTAssertFalse(SentryDependencyContainer.sharedInstance().networkTracker.isNetworkTrackingEnabled)
     }
 
+    func testCancel_whenRequestIsInFlight_shouldReachProtocolAndCompletion() throws {
+        // -- Arrange --
+        let requestStarted = expectation(description: "Request started")
+        let requestCancelled = expectation(description: "Request cancelled")
+        let requestCompleted = expectation(description: "Request completed")
+        CancellationObservingURLProtocol.callbacks.withLock {
+            $0 = .init(
+                requestStarted: { requestStarted.fulfill() },
+                requestCancelled: { requestCancelled.fulfill() }
+            )
+        }
+        defer {
+            CancellationObservingURLProtocol.callbacks.withLock { $0 = nil }
+        }
+
+        let options = Options()
+        options.dsn = TestConstants.dsnAsString(username: #function)
+        options.tracesSampleRate = 1.0
+        options.enableNetworkTracking = true
+        SentrySDK.start(options: options)
+
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [CancellationObservingURLProtocol.self]
+        let session = URLSession(configuration: configuration)
+        defer { session.invalidateAndCancel() }
+        let url = try XCTUnwrap(URL(string: "https://www.domain.com/api"))
+        let task = session.dataTask(with: url) { _, _, error in
+            let urlError = error as? URLError
+            XCTAssertEqual(urlError?.code, .cancelled)
+            requestCompleted.fulfill()
+        }
+
+        // -- Act --
+        task.resume()
+        wait(for: [requestStarted], timeout: 1)
+        task.cancel()
+
+        // -- Assert --
+        wait(for: [requestCancelled, requestCompleted], timeout: 1)
+    }
+
     func test_IntegrationName() {
         XCTAssertEqual(SentryNetworkTrackingIntegration<SentryDependencyContainer>.name, "SentryNetworkTrackingIntegration")
+    }
+}
+
+private final class CancellationObservingURLProtocol: URLProtocol {
+    struct Callbacks {
+        let requestStarted: () -> Void
+        let requestCancelled: () -> Void
+    }
+
+    static let callbacks = SentryMutex<Callbacks?>(nil)
+
+    override class func canInit(with request: URLRequest) -> Bool {
+        true
+    }
+
+    override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+        request
+    }
+
+    override func startLoading() {
+        CancellationObservingURLProtocol.callbacks.withLock { $0?.requestStarted() }
+    }
+
+    override func stopLoading() {
+        CancellationObservingURLProtocol.callbacks.withLock { $0?.requestCancelled() }
     }
 }

@@ -100,7 +100,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 
 #if SENTRY_TEST || SENTRY_TEST_CI
     var applicationOverride: SentryApplication?
-#if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
+#if os(iOS) && !SENTRY_NO_UI_FRAMEWORK && !SDK_V10
     var windowFactoryOverride: SentryUserFeedbackWindowFactory?
 #endif
 #endif
@@ -148,7 +148,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             return activeCrashReporterStateOverride
         }
 #endif
-#if ENABLE_KSCRASH
+#if SDK_V10
         return kscrashQuery
 #else
         return crashWrapper
@@ -324,7 +324,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             appStateManager: appStateManager,
             framesTracker: framesTracker,
             enablePreWarmedAppStartTracing: options.enablePreWarmedAppStartTracing,
-            enableStandaloneAppStartTracing: options.experimental.enableStandaloneAppStartTracing,
+            enableStandaloneAppStartTracing: options.enableStandaloneAppStartTracing,
             dateProvider: dateProvider,
             sysctlWrapper: sysctlWrapper,
             appStartInfoProvider: appStartInfoProvider,
@@ -478,7 +478,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         )
     }
 
-#if ENABLE_KSCRASH
+#if SDK_V10
     private var kscrashInstaller: SentryKSCrash.Installer?
     func getKSCrashInstaller() -> SentryKSCrash.Installer {
         getLazyVar(\.kscrashInstaller) {
@@ -497,17 +497,19 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 extension SentryDependencyContainer: ScreenshotSourceProvider { }
+#if !SDK_V10
 extension SentryDependencyContainer: WindowFactoryProvider {
     var windowFactory: SentryUserFeedbackWindowFactory {
 #if SENTRY_TEST || SENTRY_TEST_CI
         if let override = windowFactoryOverride {
             return override
         }
-#endif
+#endif // SENTRY_TEST || SENTRY_TEST_CI
         return SentryUserFeedbackWidget.defaultWindowFactory
     }
 }
-#endif
+#endif // !SDK_V10
+#endif // os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 
 protocol ClientProvider {
     var client: SentryClientInternal? { get }
@@ -586,7 +588,7 @@ extension SentryDependencyContainer: DateProviderProvider {}
 
 extension SentryDependencyContainer: AutoSessionTrackingProvider { }
 
-#if ENABLE_KSCRASH
+#if SDK_V10
 extension SentryDependencyContainer: SentryKSCrash.InstallerProvider {}
 extension SentryDependencyContainer: SentryKSCrash.QueryProvider {}
 #endif

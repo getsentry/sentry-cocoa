@@ -33,6 +33,14 @@ import Foundation
         SentryObjCInternalEnvelopeApi(wrapped.value.envelope)
     }
 
+    @objc public var scope: SentryObjCInternalScopeApi {
+        SentryObjCInternalScopeApi(wrapped.value.scope)
+    }
+
+    @objc public var serializer: SentryObjCInternalSerializerApi {
+        SentryObjCInternalSerializerApi(wrapped.value.serializer)
+    }
+
     @objc public var swizzle: SentryObjCInternalSwizzleApi {
         SentryObjCInternalSwizzleApi(wrapped.value.swizzle)
     }
