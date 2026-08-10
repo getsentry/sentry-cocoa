@@ -95,26 +95,19 @@ begin_group "Diff SentryObjC vs SentryObjCCompat"
     --output sdk_api_objc.diff.json
 end_group
 
-# V10 API extraction — rebuilds with ReleaseV10 configuration (SDK_V10 flag)
-# to track the V10 API surface separately from the base SDK.
-# The V10 configuration uses the same product/module name (Sentry) but
-# compiles with SDK_V10=1, so #if SDK_V10 branches are included.
+# V10 API extraction uses the KSCrash-backed target that V10 ships.
 
-begin_group "Build Sentry-Dynamic V10 XCFramework"
-log_info "Building Sentry-Dynamic V10 slice"
-"$SCRIPT_DIR/build-xcframework-slice.sh" "iphoneos" "Sentry" "-Dynamic-V10" "mh_dylib" "V10"
-
-log_info "Assembling Sentry-Dynamic V10 xcframework"
-# configuration_suffix is empty here because the product name inside the
-# archive is still "Sentry.framework" (xcconfig controls PRODUCT_NAME).
-"$SCRIPT_DIR/assemble-xcframework.sh" "Sentry" "-Dynamic-V10" "" "iphoneos" "$(pwd)/XCFrameworkBuildPath/archive/Sentry-Dynamic-V10/SDK_NAME.xcarchive"
+begin_group "Build Sentry V10 XCFramework"
+"$SCRIPT_DIR/build-xcframework-v10.sh" \
+    --suffix "-Dynamic" \
+    --sdks iphoneos
 end_group
 
 begin_group "Extract V10 Public API"
 "$SCRIPT_DIR/extract-swift-api.sh" \
     --module Sentry \
     --output sdk_api_v10.json \
-    --framework-path "./Sentry-Dynamic-V10.xcframework/ios-arm64_arm64e"
+    --framework-path "./SentryV10-Dynamic.xcframework/ios-arm64_arm64e"
 end_group
 
 begin_group "Extract SentryObjC V10 Public API"

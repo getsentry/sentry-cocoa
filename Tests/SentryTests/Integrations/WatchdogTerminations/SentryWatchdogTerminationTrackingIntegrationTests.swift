@@ -97,6 +97,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         sut?.uninstall()
         fixture.appStateManager.stop()
         fixture.fileManager.deleteAllFolders()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
         super.tearDown()
     }
@@ -170,7 +171,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
             value: ["NSExtensionPointIdentifier": "com.apple.usernotifications.service"]
         )
         SentryDependencyContainer.sharedInstance().extensionDetector = SentryExtensionDetector(infoPlistWrapper: infoPlistWrapper)
-        defer { clearTestState() }
+        defer { clearTestState() } // swiftlint:disable:this avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
 
         // -- Act --
         let sut = fixture.getSut()
@@ -187,7 +188,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
             value: ["NSExtensionPointIdentifier": "com.apple.widgetkit-extension"]
         )
         SentryDependencyContainer.sharedInstance().extensionDetector = SentryExtensionDetector(infoPlistWrapper: infoPlistWrapper)
-        defer { clearTestState() }
+        defer { clearTestState() } // swiftlint:disable:this avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
 
         // -- Act --
         let sut = fixture.getSut()
@@ -204,7 +205,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
             value: ["NSExtensionPointIdentifier": "com.apple.unknown-extension"]
         )
         SentryDependencyContainer.sharedInstance().extensionDetector = SentryExtensionDetector(infoPlistWrapper: infoPlistWrapper)
-        defer { clearTestState() }
+        defer { clearTestState() } // swiftlint:disable:this avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
 
         // -- Act --
         let sut = fixture.getSut()

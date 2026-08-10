@@ -6,11 +6,15 @@ protocol ScreenshotSourceProvider {
     var screenshotSource: SentryScreenshotSource? { get }
 }
 
+#if SDK_V10
+typealias UserFeedbackIntegrationProvider = ScreenshotSourceProvider
+#else
 protocol WindowFactoryProvider {
     var windowFactory: SentryUserFeedbackWindowFactory { get }
 }
 
 typealias UserFeedbackIntegrationProvider = ScreenshotSourceProvider & WindowFactoryProvider
+#endif
 
 final class UserFeedbackIntegration<Dependencies: UserFeedbackIntegrationProvider>: NSObject, SwiftIntegration {
 
@@ -27,7 +31,18 @@ final class UserFeedbackIntegration<Dependencies: UserFeedbackIntegrationProvide
             return nil
         }
 
-        driver = SentryUserFeedbackIntegrationDriver(configuration: configuration, screenshotSource: screenshotSource, windowFactory: dependencies.windowFactory)
+        #if !SDK_V10
+        driver = SentryUserFeedbackIntegrationDriver(
+            configuration: configuration,
+            screenshotSource: screenshotSource,
+            windowFactory: dependencies.windowFactory
+        )
+        #else
+        driver = SentryUserFeedbackIntegrationDriver(
+            configuration: configuration,
+            screenshotSource: screenshotSource
+        )
+        #endif
     }
 
     func uninstall() { /* Empty on purpose. Nothing to uninstall. */ }

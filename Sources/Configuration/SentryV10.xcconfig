@@ -1,8 +1,9 @@
 #include "Sentry.xcconfig"
 
-// Always enable KSCrash and SDK_V10 for this target, regardless of configuration.
-GCC_PREPROCESSOR_DEFINITIONS = $(GCC_PREPROCESSOR_DEFINITIONS_$(CONFIGURATION)) ENABLE_KSCRASH=1 SDK_V10=1
-SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(SWIFT_ACTIVE_COMPILATION_CONDITIONS_$(CONFIGURATION)) ENABLE_KSCRASH SDK_V10
+// This target provides the KSCrash-backed SDK used by all V10 configurations.
+GCC_PREPROCESSOR_DEFINITIONS = $(GCC_PREPROCESSOR_DEFINITIONS_$(CONFIGURATION)) SDK_V10=1
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(SWIFT_ACTIVE_COMPILATION_CONDITIONS_$(CONFIGURATION)) SDK_V10
+IMPLICIT_DEPENDENCY_DOMAIN = SentryV10
 
 // The KSCrash variant must still build Sentry.framework because Clang framework
 // module lookup and the public umbrella header both expect the Sentry bundle name.
@@ -16,7 +17,7 @@ EXCLUDED_SOURCE_FILE_NAMES =
 // can find SentryProfilingConditionals.h (a public header not under include/).
 HEADER_SEARCH_PATHS = $(inherited) $(SRCROOT)/Sources/Sentry/Public
 
-// Dynamic framework — keeps Sentry+KSCrash consistent with the rest of the SDK xcframework
+// Dynamic framework — keeps SentryV10 consistent with the rest of the SDK xcframework
 // builds. Declared here rather than as a global xcodebuild command-line override so it does
 // NOT propagate to KSCrash SPM package sub-targets (which have their own product types).
 MACH_O_TYPE = mh_dylib
@@ -37,8 +38,3 @@ ARCHS[sdk=watchos*] = $(ARCHS_STANDARD)
 SENTRY_KSCRASH_ARM64E_IF_NOT_CATALYST_YES =
 SENTRY_KSCRASH_ARM64E_IF_NOT_CATALYST_NO = arm64e
 ARCHS[sdk=macosx*] = arm64 x86_64 $(SENTRY_KSCRASH_ARM64E_IF_NOT_CATALYST_$(IS_MACCATALYST))
-
-// Both this target and the base Sentry target share PRODUCT_MODULE_NAME=Sentry. Xcode's
-// explicit module scanner can't tell them apart and emits a spurious missing-dependency
-// warning. Disabling explicit modules for this target silences it without affecting correctness.
-SWIFT_ENABLE_EXPLICIT_MODULES = NO

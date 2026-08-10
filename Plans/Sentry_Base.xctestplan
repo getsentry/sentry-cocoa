@@ -43,6 +43,7 @@
         "SentryDispatchSourceWrapperTests\/testDispatchSourceWrapper_Repeats()",
         "SentryFileManagerTests\/testCreateDirectoryIfNotExists_successful_shouldNotLogError()",
         "SentryHttpTransportFlushIntegrationTests",
+        "SentryInternalProfilingApiIntegrationTests\/testCollect_shouldContainProfileStructure()",
         "SentryHttpTransportTests\/testFlush_WhenNoInternet_BlocksAndFinishes()",
         "SentryNetworkTrackerIntegrationTestServerTests",
         "SentryNetworkTrackerIntegrationTestServerTests\/testGetRequest_SpanCreatedAndBaggageHeaderAdded()",

@@ -1,4 +1,4 @@
-#if ENABLE_KSCRASH
+#if SDK_V10
 // swiftlint:disable:next no_implementation_only_import
 @_implementationOnly import KSCrashInstallations
 internal import _SentryPrivate
@@ -10,14 +10,13 @@ extension SentryKSCrash {
 
     /// Crash detectors matching SentryCrash's production monitor set:
     /// Mach exceptions, signals, C++ exceptions, and NSExceptions.
-    /// Required infrastructure monitors are explicit because KSCrash 2.6.0-beta.3
-    /// does not add them to its registered monitor set when given a custom mask.
+    /// KSCrash unconditionally adds its required infrastructure monitors on top of
+    /// the crash detectors passed here.
     static let productionSafeMonitors: UInt = MonitorType([
         .machException,
         .signal,
         .cppException,
-        .nsException,
-        .required
+        .nsException
     ]).rawValue
 
     final class Integration<Dependencies: DependencyProvider>: NSObject, SwiftIntegration {

@@ -99,7 +99,11 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     name: Assemble XCFramework Variant
     uses: ./.github/workflows/assemble-xcframework-variant.yml
-    secrets: inherit
+    secrets:
+      FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
+      MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
     with:
       scheme: ${{matrix.variant.scheme}}
       suffix: ${{matrix.variant.suffix}}
@@ -129,7 +133,11 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     needs: [files-changed, build-sentryobjc-slices, setup-matrix]
     uses: ./.github/workflows/assemble-sentryobjc-static-xcframework.yml
-    secrets: inherit
+    secrets:
+      FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
+      MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
     with:
       signed: ${{ github.event_name != 'pull_request' }}
       release-version: ${{ github.event.inputs.version }}
@@ -140,7 +148,11 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     needs: [files-changed, build-sentryobjc-slices, setup-matrix]
     uses: ./.github/workflows/assemble-sentryobjc-dynamic-xcframework.yml
-    secrets: inherit
+    secrets:
+      FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
+      MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
     with:
       signed: ${{ github.event_name != 'pull_request' }}
       release-version: ${{ github.event.inputs.version }}
@@ -506,17 +518,22 @@ jobs:
 
       - name: Create apple-binaries archive
         if: ${{ github.event_name == 'workflow_dispatch' }}
+        env:
+          VERSION: ${{ github.event.inputs.version }}
         run: |
           ./scripts/create-apple-binaries-archive.sh \
-            --version "${{ github.event.inputs.version }}" \
+            --version "$VERSION" \
             --xcframework-dir XCFrameworkBuildPath \
             --output-dir XCFrameworkBuildPath
 
       - name: Create 3rd-party integration archives
         if: ${{ github.event_name == 'workflow_dispatch' }}
+        env:
+          VERSION: ${{ github.event.inputs.version }}
         run: |
           ./scripts/create-3rd-party-integration-archive.sh \
             --all \
+            --version "$VERSION" \
             --output-dir XCFrameworkBuildPath
 
       - name: Archive XCFrameworks for Craft
@@ -536,7 +553,7 @@ jobs:
           GITHUB_RUN_ID: ${{ github.run_id }}
 
       - name: Prepare release
-        uses: getsentry/craft@667b5f5669552a35990a11ff6ac1131febb07446 # v2
+        uses: getsentry/craft@aeb16753a1764f3ef0768c03c499e3d2e4b7227c # v2
         env:
           GITHUB_TOKEN: ${{ steps.token.outputs.token }}
         with:

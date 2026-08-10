@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 @_spi(Private) import SentryTestUtils
 @_spi(Private) @testable import Sentry
 import XCTest
@@ -15,13 +16,16 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         return window
     }
 
+    #if !SDK_V10
     private let mockWindowFactory: SentryUserFeedbackWindowFactory = { config in
         let window = SentryUserFeedbackWidget.Window(config: config, windowScene: mockWindowScene)
         return window
     }
+    #endif
 
     override func tearDown() {
         super.tearDown()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
 
@@ -33,9 +37,11 @@ final class UserFeedbackIntegrationTests: XCTestCase {
 
     private struct TestDependencies: UserFeedbackIntegrationProvider {
         let screenshotSource: SentryScreenshotSource?
+        #if !SDK_V10
         var windowFactory: SentryUserFeedbackWindowFactory {
             SentryUserFeedbackWidget.defaultWindowFactory
         }
+        #endif
     }
 
     private func makeScreenshotSource() -> SentryScreenshotSource {
@@ -52,25 +58,36 @@ final class UserFeedbackIntegrationTests: XCTestCase {
     }
 
     @available(*, deprecated, message: "Testing deprecated widget configuration")
-    func testWidgetAccessibilityLabel_whenLabelTextChangedBeforeAccess_shouldUseUpdatedLabelText() {
+    func testWidgetAccessibilityLabel_whenLabelTextChangedBeforeAccess_shouldUseUpdatedLabelText() throws {
+        #if SDK_V10
+        throw XCTSkip("Not available in SDK version 10")
+        #else
         let sut = SentryUserFeedbackWidgetConfiguration()
 
         sut.labelText = "Send Feedback"
 
         XCTAssertEqual(sut.widgetAccessibilityLabel, "Send Feedback")
+        #endif
     }
 
     @available(*, deprecated, message: "Testing deprecated widget configuration")
-    func testWidgetAccessibilityLabel_whenExplicitlySetToNil_shouldRemainNil() {
+    func testWidgetAccessibilityLabel_whenExplicitlySetToNil_shouldRemainNil() throws {
+        #if SDK_V10
+        throw XCTSkip("Not available in SDK version 10")
+        #else
         let sut = SentryUserFeedbackWidgetConfiguration()
 
         sut.widgetAccessibilityLabel = nil
 
         XCTAssertNil(sut.widgetAccessibilityLabel)
+        #endif
     }
 
     @available(*, deprecated, message: "Testing deprecated widget configuration")
-    func testWidgetConfiguration_whenDeprecatedPropertiesAreSet_shouldRoundTripValues() {
+    func testWidgetConfiguration_whenDeprecatedPropertiesAreSet_shouldRoundTripValues() throws {
+        #if SDK_V10
+        throw XCTSkip("Not available in SDK version 10")
+        #else
         let sut = SentryUserFeedbackWidgetConfiguration()
         let layoutOffset = UIOffset(horizontal: 10, vertical: 20)
         let windowLevel = UIWindow.Level.alert + 1
@@ -91,6 +108,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         XCTAssertEqual(sut.location, [.top, .leading])
         XCTAssertEqual(sut.layoutUIOffset.horizontal, layoutOffset.horizontal)
         XCTAssertEqual(sut.layoutUIOffset.vertical, layoutOffset.vertical)
+        #endif
     }
 
     @available(*, deprecated, message: "Testing deprecated widget configuration")
@@ -153,6 +171,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
     }
 
     func testGlobalConfigurationOrDefault_whenGlobalFeedbackNotConfigured_shouldPrepareDefaultConfiguration() {
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
         let defaultConfig = SentryUserFeedbackConfiguration()
         var configureFormCalls = 0
@@ -225,6 +244,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
     }
 
     func testFeedbackForm_whenLocalConfigurationSetAndFeedbackIntegrationNotConfigured_shouldUseDefaults() {
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
 
         let sut = SentryUserFeedbackFormController { config in
@@ -533,6 +553,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
     }
 
     func testFeedbackAPI_onShake_whenFeedbackNotConfigured_shouldNotCrash() {
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
 
         SentrySDK.feedback.enableOnShake()
@@ -869,7 +890,9 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         let options = Options()
         options.configureUserFeedback = configure
         SentrySDK.setStart(with: options)
+        #if !SDK_V10
         SentryDependencyContainer.sharedInstance().windowFactoryOverride = mockWindowFactory
+        #endif
         let integration = try XCTUnwrap(UserFeedbackIntegration<SentryDependencyContainer>(
             with: options,
             dependencies: SentryDependencyContainer.sharedInstance()))
@@ -979,3 +1002,4 @@ final class UserFeedbackIntegrationTests: XCTestCase {
 }
 
 #endif
+// swiftlint:enable file_length

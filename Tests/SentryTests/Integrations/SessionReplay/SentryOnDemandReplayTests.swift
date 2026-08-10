@@ -45,6 +45,8 @@ class SentryOnDemandReplayTests: XCTestCase {
 
         XCTAssertEqual(FileManager.default.fileExists(atPath: frame.imagePath), true)
         XCTAssertEqual(frame.imagePath.hasPrefix(self.outputPath.path), true)
+        // Live captures keep the scaled image in memory for encode, while still writing disk for durability.
+        XCTAssertNotNil(frame.image)
     }
     
     func testReleaseFrames() {
@@ -406,7 +408,7 @@ class SentryOnDemandReplayTests: XCTestCase {
         XCTAssertEqual(videos.count, 0)
     }
 
-    func testCreateVideo_DeleteFrameImages_NoVideoCreated() throws {
+    func testCreateVideo_whenDiskFilesDeleted_shouldEncodeFromInMemoryImage() throws {
         // -- Arrange --
         let processingQueue = SentryDispatchQueueWrapper()
         let workerQueue = SentryDispatchQueueWrapper()
@@ -422,21 +424,91 @@ class SentryOnDemandReplayTests: XCTestCase {
         processingQueue.dispatchSync {
             // Wait for the frame to be added by adding a sync operation to the serial queue
         }
-        let end = start.addingTimeInterval(10)
+        let end = start.addingTimeInterval(5)
 
-        // Delete the image added above so that reading the image at the image path fails,
-        // because it's removed.
+        // Delete on-disk PNGs. Live encode should still succeed from the in-memory image.
         let fileManager = FileManager.default
         let contents = try fileManager.contentsOfDirectory(at: outputPath, includingPropertiesForKeys: nil)
-        for fileURL in contents {
+        for fileURL in contents where fileURL.pathExtension == "png" {
             try fileManager.removeItem(at: fileURL)
         }
 
         // -- Act --
         let result = sut.createVideoWith(beginning: start, end: end)
 
-        // --  Assert --
+        // -- Assert --
+        XCTAssertEqual(result.count, 1)
+        let info = try XCTUnwrap(result.first)
+        XCTAssertEqual(info.frameCount, 5)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: info.path.path))
+        try FileManager.default.removeItem(at: info.path)
+    }
+
+    func testCreateVideo_whenOnlyDiskFramesAvailable_shouldFallBackToDisk() throws {
+        // -- Arrange --
+        // Simulates crash recovery: frames loaded from disk without an in-memory image.
+        let sut = getSut()
+        let start = Date(timeIntervalSinceReferenceDate: 0)
+        let imagePath = outputPath
+            .appendingPathComponent("\(start.timeIntervalSinceReferenceDate)")
+            .appendingPathExtension("png")
+        try UIImage.add.pngData()?.write(to: imagePath)
+
+        sut.frames = [
+            SentryReplayFrame(imagePath: imagePath.path, time: start, screenName: nil, image: nil)
+        ]
+
+        // -- Act --
+        let videos = sut.createVideoWith(beginning: start, end: start.addingTimeInterval(5))
+
+        // -- Assert --
+        XCTAssertEqual(videos.count, 1)
+        let info = try XCTUnwrap(videos.first)
+        XCTAssertEqual(info.frameCount, 5)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: info.path.path))
+        try FileManager.default.removeItem(at: info.path)
+    }
+
+    func testCreateVideo_whenDiskAndMemoryMissing_shouldCreateNoVideo() throws {
+        // -- Arrange --
+        let sut = getSut()
+        let start = Date(timeIntervalSinceReferenceDate: 0)
+        sut.frames = [
+            SentryReplayFrame(
+                imagePath: outputPath.appendingPathComponent("missing.png").path,
+                time: start,
+                screenName: nil,
+                image: nil
+            )
+        ]
+
+        // -- Act --
+        let result = sut.createVideoWith(beginning: start, end: start.addingTimeInterval(5))
+
+        // -- Assert --
         XCTAssertEqual(result.count, 0)
+    }
+
+    func testLoadFramesFromDisk_shouldNotKeepImagesInMemory() throws {
+        // -- Arrange --
+        let start = Date(timeIntervalSinceReferenceDate: 0)
+        let imagePath = outputPath
+            .appendingPathComponent("\(start.timeIntervalSinceReferenceDate)")
+            .appendingPathExtension("png")
+        try UIImage.add.pngData()?.write(to: imagePath)
+
+        // -- Act --
+        let sut = SentryOnDemandReplay(
+            withContentFrom: outputPath.path,
+            processingQueue: TestSentryDispatchQueueWrapper(),
+            assetWorkerQueue: TestSentryDispatchQueueWrapper()
+        )
+
+        // -- Assert --
+        XCTAssertEqual(sut.frames.count, 1)
+        let recoveredFrame = try XCTUnwrap(sut.frames.first)
+        XCTAssertNil(recoveredFrame.image, "Recovered frames should stay disk-backed until encode")
+        XCTAssertNotNil(UIImage(contentsOfFile: recoveredFrame.imagePath))
     }
 
     func testCalculatePresentationTime_withOneFPS_shouldReturnTiming() {

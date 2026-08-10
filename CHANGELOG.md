@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+### Features
+
+- Promote `enableStandaloneAppStartTracing` from `options.experimental` to a top-level option on `Options` (#8715)
+- Add experimental option `enableUIViewControllerInitSwizzling` that defers `UIViewController` swizzling to first instantiation instead of eagerly discovering and swizzling all subclasses at SDK start. This avoids realizing `@available`-gated `UIViewController` subclasses on OS versions below their gate, which crashes apps on start (#8687).
+
+### Improvements
+
+- Session Replay keeps captured frames in memory for live video encode while still writing PNGs to disk for crash durability. Encode prefers the in-memory image and only falls back to disk for frames recovered after a crash, avoiding a PNG readback on the streaming hot path. (#8636)
+
+### Fixes
+
+- Fix misleading duplicate SDK detection message: "same binary" → "same address space" (#8710)
+- Fix a race caused by mutating `URLSessionTask.currentRequest` during trace header propagation (#8650)
+- Prevent Session Replay network-detail breadcrumbs from blocking URLSession cancellation on the task monitor (#8497)
+
+### Internal
+
+- Add internal hybrid SDK APIs to serialize native events and retrieve scope contexts for .NET event processing (#8708)
+
+## 9.25.0
+
 > [!WARNING]
 > This release raises the minimum deployment targets to macOS 12 and watchOS 9. Apps that support older OS versions must use an earlier Sentry Cocoa release.
 
@@ -21,24 +42,18 @@
   - Session `duration` is now set only when the session ends. Active sessions (including on error increments) no longer emit a bogus `duration`.
 - Fix a race that could prevent consecutive app hangs from being reported (#8627)
 - Fix malformed itms-services URL in SentryDistribution updater (#8567)
+- Fix off-main thread reads of `-[UIApplication applicationState]` (8672)
 
 ## 9.24.0
-
-### Breaking Changes
 
 > [!IMPORTANT]
 > Due to a potential risk of revealing PII or security-relevant data in crash events in specific circumstances, we're shipping this strictly speaking breaking change in a minor version.
 
+### Breaking Changes
+
 - Add `enableMemoryIntrospection` option to allow users to control memory introspection in crash reports, defaults to false (was previously true) (#8571)
   - You can re-enable this feature by setting the option `enableMemoryIntrospection` to true
   - When this option is disabled, string stack contents found near the crash site will not be included in the event sent to Sentry. These contents are displayed in the 'message' subtitle shown underneath the main issue title in Sentry.
-
-> [!WARNING]
-> This release raises the minimum deployment targets to macOS 12 and watchOS 9. Apps that support older OS versions must use an earlier Sentry Cocoa release.
-
-### Breaking Changes
-
-- Bump the minimum deployment targets to macOS 12 and watchOS 9 because Xcode 27 no longer supports earlier versions. This lets the SDK adopt Xcode 27 without blocking users from building and submitting their apps with the latest Xcode. (#8113, #8189)
 
 ### Features
 

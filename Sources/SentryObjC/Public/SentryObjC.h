@@ -187,9 +187,11 @@
 #    import "SentryObjCInternalPerformanceApi.h"
 #    import "SentryObjCInternalProfilingApi.h"
 #    import "SentryObjCInternalReplayApi.h"
+#    import "SentryObjCInternalScopeApi.h"
 #    import "SentryObjCInternalScreenApi.h"
 #    import "SentryObjCInternalScreenshotApi.h"
 #    import "SentryObjCInternalSdkApi.h"
+#    import "SentryObjCInternalSerializerApi.h"
 #    import "SentryObjCInternalSwizzleApi.h"
 #    import "SentryObjCInternalUserApi.h"
 #    import "SentryObjCInternalViewHierarchyApi.h"
@@ -202,9 +204,11 @@
 #    import <SentryObjC/SentryObjCInternalPerformanceApi.h>
 #    import <SentryObjC/SentryObjCInternalProfilingApi.h>
 #    import <SentryObjC/SentryObjCInternalReplayApi.h>
+#    import <SentryObjC/SentryObjCInternalScopeApi.h>
 #    import <SentryObjC/SentryObjCInternalScreenApi.h>
 #    import <SentryObjC/SentryObjCInternalScreenshotApi.h>
 #    import <SentryObjC/SentryObjCInternalSdkApi.h>
+#    import <SentryObjC/SentryObjCInternalSerializerApi.h>
 #    import <SentryObjC/SentryObjCInternalSwizzleApi.h>
 #    import <SentryObjC/SentryObjCInternalUserApi.h>
 #    import <SentryObjC/SentryObjCInternalViewHierarchyApi.h>

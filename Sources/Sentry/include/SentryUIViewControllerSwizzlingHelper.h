@@ -5,8 +5,13 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * Helper class that performs the actual method swizzling for UIViewController tracking.
- * This class is used by the Swift SentryUIViewControllerSwizzling class.
+ * Performs the method swizzling for UIViewController tracking on behalf of the Swift
+ * SentryUIViewControllerSwizzling class.
+ *
+ * @warning Main thread only, and deliberately unsynchronized. Everything here swizzles
+ * @c UIViewController lifecycle and initializer methods, which UIKit only calls on the main thread,
+ * so the shared state below needs no locking. Calling any of this from a background thread races
+ * that state and the ObjC runtime mutations.
  */
 @interface SentryUIViewControllerSwizzlingHelper : NSObject
 
@@ -22,6 +27,19 @@ NS_ASSUME_NONNULL_BEGIN
  * @param class The UIViewController subclass to swizzle.
  */
 + (void)swizzleViewControllerSubClass:(Class)class;
+
+/**
+ * Swizzles the base @c UIViewController designated initializers and notifies @c delegate after each
+ * one, so the caller can defer its own swizzling to first instantiation. Deferring avoids realizing
+ * @c \@available -gated subclasses below their gate: a class is only reached once an instance
+ * exists, which means the OS already realized it safely.
+ *
+ * @warning Experimental. Only installed when
+ * @c options.experimental.enableUIViewControllerInitSwizzling is enabled, which is off by default.
+ * See GH-8548.
+ */
++ (void)swizzleUIViewControllerInitsWithDelegate:
+    (SENTRY_SWIFT_MIGRATION_ID(SentryUIViewControllerInitSwizzlingDelegate))delegate;
 
 + (void)stop;
 

@@ -48,7 +48,7 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
   - "scripts/sentry-xcodebuild.sh"
-  - "scripts/start-test-server.sh"
+  - "test-server/Makefile"
   - "scripts/tests-with-thread-sanitizer.sh"
   - "scripts/ci-boot-simulator.sh"
   - "scripts/ci-ensure-runtime-loaded.sh"
@@ -354,41 +354,6 @@ run_v10_for_prs: &run_v10_for_prs
   # GH Actions
   - ".github/workflows/build-v10.yml"
   - ".github/workflows/test-v10.yml"
-  - ".github/file-filters.yml"
-
-  # Scripts & actions
-  - "scripts/ci-select-xcode.sh"
-  - ".github/actions/setup-xcode/**"
-  - ".github/actions/resolve-test-destination/**"
-  - "scripts/resolve-test-destination.sh"
-  - "scripts/ci-diagnostics.sh"
-  - "scripts/ci-utils.sh"
-  - "scripts/sentry-xcodebuild.sh"
-
-  # Project files
-  - "Sentry.xcodeproj/**"
-  - "Sentry.xcworkspace/**"
-  - "Package*.swift"
-
-  # Build configuration
-  - "Makefile"
-
-run_v10_with_kscrash_for_prs: &run_v10_with_kscrash_for_prs
-  - "Sources/Configuration/**"
-  - "Sources/include/**"
-  - "Sources/Resources/**"
-  - "Sources/Sentry/**"
-  - "Sources/SentryCppHelper/**"
-  - "Sources/SentryCrash/**"
-  - "Sources/SentryObjC/**"
-  - "Sources/SentryObjCCompat/**"
-  - "Sources/SentrySwiftUI/**"
-  - "Sources/Swift/**"
-  - "Tests/**"
-
-  # GH Actions
-  - ".github/workflows/build-v10-with-kscrash.yml"
-  - ".github/workflows/test-v10-with-kscrash.yml"
   - ".github/file-filters.yml"
 
   # Scripts & actions

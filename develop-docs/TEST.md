@@ -9,7 +9,7 @@ See //Samples/README.md for more information about how to use the sample apps to
 The tests depend on our test server. To run the automated tests, you first need to have the server running locally with
 
 ```sh
-make run-test-server
+make -C test-server start-debug
 ```
 
 Test guidelines:
