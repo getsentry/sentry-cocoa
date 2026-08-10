@@ -45,7 +45,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Minimum log level to be used if debug is enabled.
+#if SDK_V10
+ * @note Default is @c SentryObjCLevelWarning.
+#else
  * @note Default is @c SentryObjCLevelDebug.
+#endif // SDK_V10
  */
 @property (nonatomic) SentryObjCLevel diagnosticLevel;
 

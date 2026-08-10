@@ -41,8 +41,13 @@
     @objc public var debug: Bool = false
 
     /// Minimum LogLevel to be used if debug is enabled.
+    #if SDK_V10
+    /// @note Default is kSentryLevelWarning.
+    @objc public var diagnosticLevel: SentryLevel = .warning
+    #else
     /// @note Default is kSentryLevelDebug.
     @objc public var diagnosticLevel: SentryLevel = .debug
+    #endif // SDK_V10
 
     /// This property will be filled before the event is sent.
     @objc public var releaseName: String? = {
