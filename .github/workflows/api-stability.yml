@@ -50,6 +50,9 @@ jobs:
           mv sdk_api_sentryswiftui.json sdk_api_sentryswiftui_base.json
           mv sdk_api_objc.json sdk_api_objc_base.json
           mv sdk_api_objc.diff.json sdk_api_objc.diff_base.json
+          mv sdk_api_v10.json sdk_api_v10_base.json
+          mv sdk_api_objc_v10.json sdk_api_objc_v10_base.json
+          mv sdk_api_objc_v10.diff.json sdk_api_objc_v10.diff_base.json
           ./scripts/update-api.sh
 
       - name: Diagnose breaking changes for Sentry
@@ -109,6 +112,47 @@ jobs:
           else
             echo "❌ ObjC/ObjCCompat drift has changed. If intended run 'make generate-public-api' and commit the changes."
             diff "sdk_api_objc.diff_base.json" "sdk_api_objc.diff.json" || true
+            exit 1
+          fi
+
+      - name: Diagnose breaking changes for Sentry V10
+        if: always()
+        run: |
+          if diff -q "sdk_api_v10_base.json" "sdk_api_v10.json" > /dev/null; then
+            echo "No Sentry V10 API changes detected."
+          else
+            echo "❌ Sentry V10 public API changes are detected. If they're intended run 'make generate-public-api' and commit the changes."
+            diff "sdk_api_v10_base.json" "sdk_api_v10.json" || true
+            xcrun --sdk iphoneos swift-api-digester \
+              -diagnose-sdk \
+              -o v10_result.json \
+              -input-paths sdk_api_v10_base.json \
+              -input-paths sdk_api_v10.json \
+              -json \
+              -v
+            cat v10_result.json
+            exit 1
+          fi
+
+      - name: Diagnose breaking changes for SentryObjC V10
+        if: always()
+        run: |
+          if diff -q "sdk_api_objc_v10_base.json" "sdk_api_objc_v10.json" > /dev/null; then
+            echo "No SentryObjC V10 API changes detected."
+          else
+            echo "❌ SentryObjC V10 public API changes are detected. If they're intended run 'make generate-public-api' and commit the changes."
+            diff "sdk_api_objc_v10_base.json" "sdk_api_objc_v10.json" || true
+            exit 1
+          fi
+
+      - name: Diagnose ObjC/ObjCCompat V10 drift changes
+        if: always()
+        run: |
+          if diff -q "sdk_api_objc_v10.diff_base.json" "sdk_api_objc_v10.diff.json" > /dev/null; then
+            echo "No ObjC/ObjCCompat V10 drift changes detected."
+          else
+            echo "❌ ObjC/ObjCCompat V10 drift has changed. If intended run 'make generate-public-api' and commit the changes."
+            diff "sdk_api_objc_v10.diff_base.json" "sdk_api_objc_v10.diff.json" || true
             exit 1
           fi
 

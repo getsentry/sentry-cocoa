@@ -1,4 +1,5 @@
 // swiftlint:disable file_length
+// swiftlint:disable type_body_length
 /// Configuration options for the Sentry SDK.
 @objc(SentryOptions) public final class Options: NSObject {
 
@@ -40,8 +41,13 @@
     @objc public var debug: Bool = false
 
     /// Minimum LogLevel to be used if debug is enabled.
+    #if SDK_V10
+    /// @note Default is kSentryLevelWarning.
+    @objc public var diagnosticLevel: SentryLevel = .warning
+    #else
     /// @note Default is kSentryLevelDebug.
     @objc public var diagnosticLevel: SentryLevel = .debug
+    #endif // SDK_V10
 
     /// This property will be filled before the event is sent.
     @objc public var releaseName: String? = {
@@ -613,8 +619,14 @@
     /// @c MXHangDiagnostic to Sentry. The SDK supports this feature from iOS 15 and later and macOS 12
     /// and later because, on these versions, @c MetricKit delivers diagnostic reports immediately, which
     /// allows the Sentry SDK to apply the current data from the scope.
-    /// @note This feature is disabled by default.
-    @objc public var enableMetricKit = false
+    /// @note Default value is @c true in v10, @c false in earlier versions.
+    @objc public var enableMetricKit: Bool = {
+        #if SDK_V10
+        return true
+        #else
+        return false
+        #endif // SDK_V10
+    }()
 
     /// When enabled, the SDK adds the raw MXDiagnosticPayloads as an attachment to the converted
     /// SentryEvent. You need to enable @c enableMetricKit for this flag to work.
@@ -638,8 +650,14 @@
     /// watchOS 8.0.
     ///
     /// @brief Stitches the call to Swift Async functions in one consecutive stack trace.
-    /// @note Default value is @c false.
-    @objc public var swiftAsyncStacktraces: Bool = false
+    /// @note Default value is @c true in v10, @c false in earlier versions.
+    @objc public var swiftAsyncStacktraces: Bool = {
+        #if SDK_V10
+        return true
+        #else
+        return false
+        #endif // SDK_V10
+    }()
 
     /// The path to store SDK data, like events, transactions, profiles, raw crash data, etc. We
     /// recommend only changing this when the default, e.g., in security environments, can't be accessed.
@@ -754,4 +772,5 @@ extension NSNumber {
     }
 }
 
+// swiftlint:enable type_body_length
 // swiftlint:enable file_length

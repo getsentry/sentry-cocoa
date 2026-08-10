@@ -153,8 +153,13 @@
 
 - (void)testInvalidDiagnosticLevel
 {
-    [self testDiagnosticlevelWith:@"fatala" expected:kSentryLevelDebug];
-    [self testDiagnosticlevelWith:@(YES) expected:kSentryLevelDebug];
+#if SDK_V10
+    SentryLevel defaultDiagnosticLevel = kSentryLevelWarning;
+#else
+    SentryLevel defaultDiagnosticLevel = kSentryLevelDebug;
+#endif // SDK_V10
+    [self testDiagnosticlevelWith:@"fatala" expected:defaultDiagnosticLevel];
+    [self testDiagnosticlevelWith:@(YES) expected:defaultDiagnosticLevel];
 }
 
 - (void)testDiagnosticlevelWith:(NSObject *)level expected:(SentryLevel)expected
@@ -744,7 +749,11 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     XCTAssertEqual(YES, options.enabled);
     XCTAssertEqual(2.0, options.shutdownTimeInterval);
     XCTAssertEqual(NO, options.debug);
+#if SDK_V10
+    XCTAssertEqual(kSentryLevelWarning, options.diagnosticLevel);
+#else
     XCTAssertEqual(kSentryLevelDebug, options.diagnosticLevel);
+#endif // SDK_V10
     XCTAssertEqualObjects(options.environment, [SentryOptions defaultEnvironment]);
     XCTAssertNil(options.dist);
     XCTAssertEqual(defaultMaxBreadcrumbs, options.maxBreadcrumbs);
@@ -796,10 +805,18 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     XCTAssertEqualObjects([[NSSet alloc] init], options.swizzleClassNameExcludes);
     XCTAssertEqual(YES, options.enableFileIOTracing);
     XCTAssertEqual(YES, options.enableAutoBreadcrumbTracking);
+#if SDK_V10
+    XCTAssertTrue(options.swiftAsyncStacktraces);
+#else
     XCTAssertFalse(options.swiftAsyncStacktraces);
+#endif // SDK_V10
 
 #if SENTRY_HAS_METRIC_KIT
+#    if SDK_V10
+    XCTAssertEqual(YES, options.enableMetricKit);
+#    else
     XCTAssertEqual(NO, options.enableMetricKit);
+#    endif // SDK_V10
     XCTAssertEqual(NO, options.enableMetricKitRawPayload);
 #endif // SENTRY_HAS_METRIC_KIT
 
@@ -982,7 +999,11 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 
 - (void)testEnableMetricKit
 {
+#    if SDK_V10
+    [self testBooleanField:@"enableMetricKit" defaultValue:YES];
+#    else
     [self testBooleanField:@"enableMetricKit" defaultValue:NO];
+#    endif // SDK_V10
 }
 
 - (void)testenableMetricKitRawPayload
@@ -1241,13 +1262,21 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 - (void)testDefaultSwiftAsyncStacktraces
 {
     SentryOptions *options = [[SentryOptions alloc] init];
+#if SDK_V10
+    XCTAssertTrue(options.swiftAsyncStacktraces);
+#else
     XCTAssertFalse(options.swiftAsyncStacktraces);
+#endif // SDK_V10
 }
 
 - (void)testInitialSwiftAsyncStacktraces
 {
     SentryOptions *options = [self getValidOptions:@{ }];
+#if SDK_V10
+    XCTAssertTrue(options.swiftAsyncStacktraces);
+#else
     XCTAssertFalse(options.swiftAsyncStacktraces);
+#endif // SDK_V10
 }
 
 - (void)testInitialSwiftAsyncStacktracesYes

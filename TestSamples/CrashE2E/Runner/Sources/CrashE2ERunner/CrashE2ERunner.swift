@@ -69,7 +69,7 @@ final class CrashE2ERunner {
             )
         }
         if shouldBuildManagedRuntimeVariant {
-            // KSCRASH_TODO: Sentry+KSCrash still compiles the SentryCrash recording sources, so
+            // KSCRASH_TODO: SentryV10 still compiles the SentryCrash recording sources, so
             // this define activates SentryCrash's constructor-based signal preloader even when the
             // selected integration is KSCrash. Replace it with the KSCrash-owned managed-runtime
             // integration path before treating these scenarios as KSCrash handler-order coverage.

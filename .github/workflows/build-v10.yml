@@ -112,11 +112,45 @@ jobs:
           fi
           echo "No binary targets found — OK"
 
+  build-v10-spm:
+    name: SPM V10 ${{ matrix.mode }}
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_v10_for_prs == 'true'
+    needs: files-changed
+    runs-on: macos-26
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [environment, trait, base-manifest]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "26"
+          resolve-simulators: "false"
+      - name: Build with environment
+        if: matrix.mode == 'environment'
+        env:
+          SDK_V10: "1"
+        run: swift build --target SentrySwift --scratch-path .build/v10-environment
+      - name: Build with trait
+        if: matrix.mode == 'trait'
+        run: swift build --target SentrySwift --traits V10 --scratch-path .build/v10-trait
+      - name: Build base manifest
+        if: matrix.mode == 'base-manifest'
+        env:
+          SDK_V10: "1"
+        run: |
+          rm Package@swift-6.1.swift Package@swift-6.2.swift
+          swift build --target SentrySwift --scratch-path .build/v10-base-manifest
+
   build-v10-required-check:
     needs:
       [
         files-changed,
         build-v10,
+        build-v10-spm,
         verify-no-binary-targets,
         run-full-ci-gate,
       ]

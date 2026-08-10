@@ -14,9 +14,18 @@ OTHER_LDFLAGS_DebugV10 = -framework Sentry
 OTHER_LDFLAGS_Test = -framework Sentry
 OTHER_LDFLAGS_TestCI = -framework Sentry
 OTHER_LDFLAGS_TestV10 = -framework Sentry
-OTHER_LDFLAGS_TestV10KSCrash = -framework Sentry
 OTHER_LDFLAGS_Release = -framework Sentry
 OTHER_LDFLAGS_ReleaseV10 = -framework Sentry
-OTHER_LDFLAGS = $(OTHER_LDFLAGS_$(CONFIGURATION))
+SENTRY_SWIFTUI_LDFLAGS_SentrySwiftUI = $(OTHER_LDFLAGS_$(CONFIGURATION))
+SENTRY_SWIFTUI_LDFLAGS_SentrySwiftUIV10 =
+OTHER_LDFLAGS = $(SENTRY_SWIFTUI_LDFLAGS_$(TARGET_NAME))
 ARCHS = $(ARCHS_STANDARD) arm64e
 ARCHS[sdk=*simulator] = $(ARCHS_STANDARD)
+
+// Match the V10 KSCrash target, whose SPM dependencies cannot build arm64e for Catalyst.
+// XCFramework builds can still override ARCHS on the command line for all package targets.
+SENTRY_SWIFTUI_V10_ARM64E_IF_NOT_CATALYST_YES =
+SENTRY_SWIFTUI_V10_ARM64E_IF_NOT_CATALYST_NO = arm64e
+ARCHS[sdk=macosx*][config=DebugV10] = arm64 x86_64 $(SENTRY_SWIFTUI_V10_ARM64E_IF_NOT_CATALYST_$(IS_MACCATALYST))
+ARCHS[sdk=macosx*][config=TestV10] = arm64 x86_64 $(SENTRY_SWIFTUI_V10_ARM64E_IF_NOT_CATALYST_$(IS_MACCATALYST))
+ARCHS[sdk=macosx*][config=ReleaseV10] = arm64 x86_64 $(SENTRY_SWIFTUI_V10_ARM64E_IF_NOT_CATALYST_$(IS_MACCATALYST))

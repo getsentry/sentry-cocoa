@@ -1,4 +1,4 @@
-#if ENABLE_KSCRASH
+#if SDK_V10
 
 extension SentryKSCrash {
     protocol QueryProvider {

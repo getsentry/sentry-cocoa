@@ -134,7 +134,7 @@ CrashE2EFakeManagedRuntimeSignalHandler(int signal, siginfo_t *info, void *conte
     // stands in for .NET/Mono after SentryCrash's preload constructor has installed the early
     // signal handler.
     //
-    // KSCRASH_TODO: Sentry+KSCrash still compiles that SentryCrash constructor, so a green marker
+    // KSCRASH_TODO: SentryV10 still compiles that SentryCrash constructor, so a green marker
     // currently proves only that the fake handler ran, not that a KSCrash-owned preloader/plugin
     // established the intended order. Rectify this when managed-runtime handling moves to KSCrash.
     // Tracked in https://github.com/getsentry/sentry-cocoa/issues/8528.
