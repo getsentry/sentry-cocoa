@@ -31,6 +31,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     
     override func tearDown() {
         super.tearDown()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
 
@@ -43,6 +44,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     
     func testOptionDisabled_MetricKitManagerNotInitialized() {
           let options = Options()
+          options.enableMetricKit = false
           let sut = SentryMetricKitIntegration(with: options, dependencies: ())
           XCTAssertNil(sut)
     }

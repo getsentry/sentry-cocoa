@@ -91,6 +91,7 @@ class SentrySDKTests: XCTestCase {
 
         givenSdkWithHubButNoClient()
 
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
 
@@ -144,6 +145,12 @@ class SentrySDKTests: XCTestCase {
         #else
         expectedIntegrations.append("SentryCrashIntegration")
         #endif
+        #if SDK_V10
+        expectedIntegrations.append("SentrySwiftAsyncIntegration")
+        #endif
+#if canImport(MetricKit) && !os(tvOS) && SDK_V10
+        expectedIntegrations.append("SentryMetricKitIntegration")
+#endif
 
         assertIntegrationsInstalled(integrations: expectedIntegrations)
     }

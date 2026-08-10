@@ -1,29 +1,36 @@
 import Vapor
 
-public func routes(_ app: Application) throws {
+public func routes(_ app: Application) {
     app.get { _ in
-        return "It works!"
+        "It works!"
     }
 
-    app.get("echo-baggage-header") { request -> String in
-        let baggage = request.headers["baggage"]
-        if let sentryTraceHeader = baggage.first {
-          return sentryTraceHeader
-        }
-
-        return "(NO-HEADER)"
+    app.get("health") { _ in
+        "OK"
     }
 
-    app.get("echo-sentry-trace") { request -> String in
+    app.get("echo-baggage-header") { request in
+        echoedHeader(named: "baggage", from: request)
+    }
+
+    app.get("echo-sentry-trace") { request in
+        echoedHeader(named: "sentry-trace", from: request)
+    }
+
+    app.post("echo-sentry-trace") { request -> String in
         let trace_id = request.headers["sentry-trace"]
         if let sentryTraceHeader = trace_id.first {
             return sentryTraceHeader
         }
-        
+
         return "(NO-HEADER)"
     }
 
     app.get("http-client-error") { _ -> String in
         throw Abort(.badRequest)
     }
+}
+
+private func echoedHeader(named name: HTTPHeaders.Name, from request: Request) -> String {
+    request.headers[name].first ?? "(NO-HEADER)"
 }

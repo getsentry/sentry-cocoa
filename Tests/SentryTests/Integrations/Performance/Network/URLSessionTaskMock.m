@@ -96,6 +96,7 @@
 
 @implementation URLSessionDownloadTaskMock {
     NSURLRequest *_request;
+    NSURLRequest *_currentRequest;
     NSURLResponse *_response;
     NSURLSessionTaskState _state;
     NSError *_error;
@@ -127,7 +128,12 @@
 
 - (NSURLRequest *)currentRequest
 {
-    return _request;
+    return _currentRequest;
+}
+
+- (void)setCurrentRequest:(NSURLRequest *)request
+{
+    _currentRequest = request;
 }
 
 - (NSURLResponse *)response
@@ -156,6 +162,7 @@
 {
     if (self = [super init]) {
         _request = request;
+        _currentRequest = [_request mutableCopy];
     }
     return self;
 }
@@ -164,6 +171,7 @@
 
 @implementation URLSessionUploadTaskMock {
     NSURLRequest *_request;
+    NSURLRequest *_currentRequest;
     NSURLResponse *_response;
     NSURLSessionTaskState _state;
     NSError *_error;
@@ -195,7 +203,12 @@
 
 - (NSURLRequest *)currentRequest
 {
-    return _request;
+    return _currentRequest;
+}
+
+- (void)setCurrentRequest:(NSURLRequest *)request
+{
+    _currentRequest = request;
 }
 
 - (NSURLResponse *)response
@@ -224,6 +237,7 @@
 {
     if (self = [super init]) {
         _request = request;
+        _currentRequest = [_request mutableCopy];
     }
     return self;
 }
@@ -322,6 +336,40 @@
         return nil;
     }
     return [super currentRequest];
+}
+
+@end
+
+@implementation MutableRequestTaskMock {
+    NSMutableURLRequest *_initialCurrentRequest;
+    NSUInteger _setCurrentRequestCallCount;
+}
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+- (instancetype)initWithRequest:(NSURLRequest *)request
+{
+    if (self = [super initWithRequest:request]) {
+        _initialCurrentRequest = (NSMutableURLRequest *)[super currentRequest];
+    }
+    return self;
+}
+#pragma clang diagnostic pop
+
+- (NSMutableURLRequest *)initialCurrentRequest
+{
+    return _initialCurrentRequest;
+}
+
+- (NSUInteger)setCurrentRequestCallCount
+{
+    return _setCurrentRequestCallCount;
+}
+
+- (void)setCurrentRequest:(NSURLRequest *)request
+{
+    _setCurrentRequestCallCount++;
+    [super setCurrentRequest:request];
 }
 
 @end
