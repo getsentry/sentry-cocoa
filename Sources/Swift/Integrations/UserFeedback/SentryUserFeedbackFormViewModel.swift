@@ -267,7 +267,12 @@ protocol SentryUserFeedbackFormViewModelDelegate: NSObjectProtocol {
     lazy var logoViewWidthConstraint = sentryLogoView.widthAnchor.constraint(equalToConstant: logoWidth * config.scaleFactor)
     lazy var fullNameTextFieldHeightConstraint = fullNameTextField.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
     lazy var emailTextFieldHeightConstraint = emailTextField.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
-    lazy var addScreenshotButtonHeightConstraint = addScreenshotButton.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
+    lazy var addScreenshotButtonHeightConstraint = {
+        let constraint = addScreenshotButton.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
+        // Keep this below UIStackView's hiding constraint so the button can collapse.
+        constraint.priority = UILayoutPriority(rawValue: 999)
+        return constraint
+    }()
     lazy var removeScreenshotButtonHeightConstraint = {
         let constraint = removeScreenshotButton.heightAnchor.constraint(equalToConstant: formElementHeight * config.scaleFactor)
         // Keep this below UIStackView's hiding constraint so the screenshot stack can collapse.
