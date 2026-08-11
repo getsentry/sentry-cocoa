@@ -77,9 +77,11 @@ extension Options {
             self.maxBreadcrumbs = maxBreadcrumbs.uintValue
         }
 
+        #if !SDK_V10
         if let enableLogs = boolValue(dictionary["enableLogs"]) {
             self.enableLogs = enableLogs
         }
+        #endif // !SDK_V10
 
         if let enableMetrics = boolValue(dictionary["enableMetrics"]) {
             self.enableMetrics = enableMetrics

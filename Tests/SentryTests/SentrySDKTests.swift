@@ -589,7 +589,9 @@ class SentrySDKTests: XCTestCase {
     // MARK: - Logger Flush Tests
     
     func testFlush_CallsLoggerCaptureLogs() {
+        #if !SDK_V10
         fixture.client.options.enableLogs = true
+        #endif // !SDK_V10
         SentrySDKInternal.setCurrentHub(fixture.hub)
         SentrySDK.setStart(with: fixture.client.options)
         
@@ -608,7 +610,9 @@ class SentrySDKTests: XCTestCase {
     }
     
     func testClose_CallsLoggerCaptureLogs() {
+        #if !SDK_V10
         fixture.client.options.enableLogs = true
+        #endif // !SDK_V10
         SentrySDKInternal.setCurrentHub(fixture.hub)
         SentrySDK.setStart(with: fixture.client.options)
         
