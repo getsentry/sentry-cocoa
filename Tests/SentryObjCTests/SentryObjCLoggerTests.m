@@ -861,7 +861,7 @@
 }
 
 #if !SDK_V10
-#pragma mark - logs disabled
+#    pragma mark - logs disabled
 
 - (void)testLoggerMethod_whenLogsDisabled_shouldNotCrash
 {
