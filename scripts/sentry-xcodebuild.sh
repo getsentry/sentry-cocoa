@@ -17,7 +17,7 @@ PLATFORM=""
 OS="latest"
 REF_NAME="HEAD"
 COMMAND="test"
-DEVICE="iPhone 16 Pro"
+DEVICE=""
 CONFIGURATION_OVERRIDE=""
 DERIVED_DATA_PATH=""
 TEST_SCHEME="Sentry"
@@ -40,7 +40,7 @@ OPTIONS:
     -o, --os <os>                    OS version (default: latest)
     -r, --ref <ref>                  Reference name (default: HEAD)
     -c, --command <command>          Command (build/build-for-testing/test-without-building/test)
-    -d, --device <device>            Device name (default: iPhone 16 Pro)
+    -d, --device <device>            Device name (default: platform-specific)
     -C, --configuration <config>     Configuration override
     -D, --derived-data <path>        Derived data path
     -s, --scheme <scheme>            Test scheme (default: Sentry)
@@ -130,6 +130,15 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+if [ -z "$DEVICE" ]; then
+    case $PLATFORM in
+        "iOS") DEVICE="iPhone 16 Pro" ;;
+        "tvOS") DEVICE="Apple TV" ;;
+        "visionOS") DEVICE="Apple Vision Pro" ;;
+        "watchOS") DEVICE="Apple Watch SE 3 (44mm)" ;;
+    esac
+fi
+
 # Resolve the actual simulator runtime version from simctl.
 # The display version (e.g., "26.3") may differ from the build version (e.g., "26.3.1")
 # and xcodebuild requires the build version in the destination.
@@ -167,12 +176,12 @@ case $PLATFORM in
 
 "tvOS")
     RESOLVED_OS=$(resolve_runtime_version "$PLATFORM" "$OS")
-    DESTINATION="platform=tvOS Simulator,OS=$RESOLVED_OS,name=Apple TV"
+    DESTINATION="platform=tvOS Simulator,OS=$RESOLVED_OS,name=$DEVICE"
     ;;
 
 "visionOS")
     RESOLVED_OS=$(resolve_runtime_version "$PLATFORM" "$OS")
-    DESTINATION="platform=visionOS Simulator,OS=$RESOLVED_OS,name=Apple Vision Pro"
+    DESTINATION="platform=visionOS Simulator,OS=$RESOLVED_OS,name=$DEVICE"
     ;;
 
 "watchOS")
