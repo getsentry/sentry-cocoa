@@ -54,7 +54,6 @@
 		0D1FC0C33C71C23599EEE577 /* SentryCrashMonitor_MachException.h in Headers */ = {isa = PBXBuildFile; fileRef = 63FE6FFB20DA4C1000CDBAE8 /* SentryCrashMonitor_MachException.h */; };
 		0D7BF1881C38ACFD34DB9A64 /* SentryANRTrackerV2.h in Headers */ = {isa = PBXBuildFile; fileRef = 621AE74A2C626C230012E730 /* SentryANRTrackerV2.h */; };
 		0E71A289BD7FF202EEAAE4F4 /* SentryCrashBinaryImageCache.c in Sources */ = {isa = PBXBuildFile; fileRef = D865892E29D6ECA7000BE151 /* SentryCrashBinaryImageCache.c */; };
-		0EDF9A291B15184860DB4151 /* SentryTracerConfiguration.h in Headers */ = {isa = PBXBuildFile; fileRef = D8B088B429C9E3FF00213258 /* SentryTracerConfiguration.h */; };
 		0F9A581E6BFC16161A36D65D /* SentryCrashMonitorType.c in Sources */ = {isa = PBXBuildFile; fileRef = 63FE6FF520DA4C1000CDBAE8 /* SentryCrashMonitorType.c */; };
 		0FFC7C6FA5F99CCF924BFC4D /* SentryCrashReportFilter.h in Headers */ = {isa = PBXBuildFile; fileRef = 63FE6FC420DA4C1000CDBAE8 /* SentryCrashReportFilter.h */; };
 		103BA867DDA89F656ABA9FDA /* SentryProfilerSampleCreation.h in Headers */ = {isa = PBXBuildFile; fileRef = F400C0D32F368A980042712D /* SentryProfilerSampleCreation.h */; };
@@ -190,7 +189,6 @@
 		4EEE091A247154ED4751949D /* SentryCrashDynamicLinker+Test.h in Headers */ = {isa = PBXBuildFile; fileRef = F44858122E0357940013E63B /* SentryCrashDynamicLinker+Test.h */; };
 		4F753BE15DE061E2639E049F /* SentryCrashID.h in Headers */ = {isa = PBXBuildFile; fileRef = 63FE701820DA4C1000CDBAE8 /* SentryCrashID.h */; };
 		4FD4DF4E96FDCFA3443947A4 /* SentryBreadcrumb.h in Headers */ = {isa = PBXBuildFile; fileRef = 6360850B1ED2AFE100E8599E /* SentryBreadcrumb.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		501046BD45CBE9F763B798E2 /* SentryTracerConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = D8B088B529C9E3FF00213258 /* SentryTracerConfiguration.m */; };
 		516A13F9BCA649B9C3ADA072 /* SentryQueueableRequestManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 631E6D321EBC679C00712345 /* SentryQueueableRequestManager.m */; };
 		5198E5533AF7D419A90803A2 /* SentrySwizzleWrapperHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 7BC63F0928081288009D9E37 /* SentrySwizzleWrapperHelper.m */; };
 		51E2FAEBA1578261AFE8C387 /* SentryProfiler.mm in Sources */ = {isa = PBXBuildFile; fileRef = 03F84D2B27DD4191008FE43F /* SentryProfiler.mm */; };
@@ -794,8 +792,6 @@
 		D8ACE3C82762187200F5A213 /* SentryFileIOTrackerHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = D8ACE3C52762187200F5A213 /* SentryFileIOTrackerHelper.m */; };
 		D8ACE3CE2762187D00F5A213 /* SentryFileIOTrackerHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = D8ACE3CB2762187D00F5A213 /* SentryFileIOTrackerHelper.h */; };
 		D8B0542E2A7D2C720056BAF6 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = D8B0542D2A7D2C720056BAF6 /* PrivacyInfo.xcprivacy */; };
-		D8B088B629C9E3FF00213258 /* SentryTracerConfiguration.h in Headers */ = {isa = PBXBuildFile; fileRef = D8B088B429C9E3FF00213258 /* SentryTracerConfiguration.h */; };
-		D8B088B729C9E3FF00213258 /* SentryTracerConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = D8B088B529C9E3FF00213258 /* SentryTracerConfiguration.m */; };
 		D8B665BC2B95F73200BD0E7B /* SentryPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = D8B665BA2B95F54200BD0E7B /* SentryPrivate.h */; };
 		D8BBD32728FD9FC00011F850 /* SentrySwift.h in Headers */ = {isa = PBXBuildFile; fileRef = D8BBD32628FD9FBF0011F850 /* SentrySwift.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		D8BD2E6829361A0F00D96C6A /* PrivatesHeader.h in Headers */ = {isa = PBXBuildFile; fileRef = D8BD2E67293619F600D96C6A /* PrivatesHeader.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1637,8 +1633,6 @@
 		D8ACE3CB2762187D00F5A213 /* SentryFileIOTrackerHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryFileIOTrackerHelper.h; path = include/SentryFileIOTrackerHelper.h; sourceTree = "<group>"; };
 		D8AE48B12C5786AA0092A2A6 /* SentryLogC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryLogC.h; path = include/SentryLogC.h; sourceTree = "<group>"; };
 		D8B0542D2A7D2C720056BAF6 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		D8B088B429C9E3FF00213258 /* SentryTracerConfiguration.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryTracerConfiguration.h; path = include/SentryTracerConfiguration.h; sourceTree = "<group>"; };
-		D8B088B529C9E3FF00213258 /* SentryTracerConfiguration.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryTracerConfiguration.m; sourceTree = "<group>"; };
 		D8B665BA2B95F54200BD0E7B /* SentryPrivate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryPrivate.h; path = include/SentryPrivate.h; sourceTree = "<group>"; };
 		D8BBD32628FD9FBF0011F850 /* SentrySwift.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentrySwift.h; path = include/SentrySwift.h; sourceTree = "<group>"; };
 		D8BD2E27292D1F7300D96C6A /* SDK.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = SDK.xcconfig; sourceTree = "<group>"; };
@@ -1713,7 +1707,6 @@
 				Integrations/Performance/UIViewController/SentryUIViewControllerPerformanceTrackerTests.swift,
 				Integrations/Performance/UIViewController/SentryUIViewControllerSwizzlingTests.swift,
 				Integrations/Performance/UIViewController/SentryVCTrackerLaunchProfilingTests.swift,
-				"ViewCapture/SentryUIRedactBuilderTests+UIKit.swift",
 			);
 			target = 3CFC66DE2FF50342004005B4 /* SentryTestsV10 */;
 		};
@@ -1827,7 +1820,6 @@
 			};
 			membershipExceptions = (
 				Info.plist,
-				"ViewCapture/SentryUIRedactBuilderTests+UIKit.swift",
 			);
 			target = 63AA76641EB8CB2F00D153DE /* SentryTests */;
 		};
@@ -2804,8 +2796,6 @@
 				8E4E7C7B25DAB287006AB9E2 /* SentryTracer.h */,
 				8E4E7C8125DAB2A5006AB9E2 /* SentryTracer.m */,
 				845C16D42A622A5B00EC9519 /* SentryTracer+Private.h */,
-				D8B088B429C9E3FF00213258 /* SentryTracerConfiguration.h */,
-				D8B088B529C9E3FF00213258 /* SentryTracerConfiguration.m */,
 				8E4E7C6B25DAAAFE006AB9E2 /* SentryTransaction.h */,
 				8ECC674425C23A1F000E2BF6 /* SentryTransaction.m */,
 				8ECC673B25C23996000E2BF6 /* SentryTransactionContext.h */,
@@ -3193,7 +3183,6 @@
 				7BD86EC5264A63F6005439DB /* SentrySysctlObjC.h in Headers */,
 				63BE85701ECEC6DE00DC44F5 /* SentryDateUtils.h in Headers */,
 				63FE709520DA4C1000CDBAE8 /* SentryCrashReportFilterBasic.h in Headers */,
-				D8B088B629C9E3FF00213258 /* SentryTracerConfiguration.h in Headers */,
 				7B7D873424864C6600D2ECFF /* SentryCrashDefaultMachineContextWrapper.h in Headers */,
 				7BA61CC8247D125400C130A8 /* SentryDefaultThreadInspector.h in Headers */,
 				63FE713320DA4C1100CDBAE8 /* SentryCrashCPU.h in Headers */,
@@ -3467,7 +3456,6 @@
 				D01441EB7F6162CA15E955A4 /* SentrySysctlObjC.h in Headers */,
 				985EE6687E2CC46D2D1B57CD /* SentryDateUtils.h in Headers */,
 				69233122282F27391CC27B64 /* SentryCrashReportFilterBasic.h in Headers */,
-				0EDF9A291B15184860DB4151 /* SentryTracerConfiguration.h in Headers */,
 				A6ED768122358CC831DDBF19 /* SentryCrashDefaultMachineContextWrapper.h in Headers */,
 				2F6D0BFEC4980798559B1A7D /* SentryDefaultThreadInspector.h in Headers */,
 				C279DBBFE52A2999B3D74390 /* SentryCrashCPU.h in Headers */,
@@ -4117,7 +4105,6 @@
 				621AE74D2C626C510012E730 /* SentryANRTrackerV2.m in Sources */,
 				F49D419E2DEA3D0600D9244E /* SentryNSExceptionCaptureHelper.m in Sources */,
 				D8ACE3C82762187200F5A213 /* SentryFileIOTrackerHelper.m in Sources */,
-				D8B088B729C9E3FF00213258 /* SentryTracerConfiguration.m in Sources */,
 				FA7206E12E0B37C80072FDD4 /* SentryProfileCollector.mm in Sources */,
 				8ECC674A25C23A20000E2BF6 /* SentryTransactionContext.m in Sources */,
 				03BCC38C27E1C01A003232C7 /* SentryTime.mm in Sources */,
@@ -4347,7 +4334,6 @@
 				CE2FF1A8D835C2A37210F1FD /* SentryANRTrackerV2.m in Sources */,
 				3BA6456A86B5D262DAFCEA6B /* SentryNSExceptionCaptureHelper.m in Sources */,
 				36793D66F487DEBEA04EE89D /* SentryFileIOTrackerHelper.m in Sources */,
-				501046BD45CBE9F763B798E2 /* SentryTracerConfiguration.m in Sources */,
 				0AACAEC18BF3A5EF9D0DDB0E /* SentryProfileCollector.mm in Sources */,
 				C5A36DEC7D1AB12A12CAC84F /* SentryTransactionContext.m in Sources */,
 				4669F176407FCF4A76976B4F /* SentryTime.mm in Sources */,

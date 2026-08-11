@@ -13,7 +13,9 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         // -- Assert --
 #if SDK_V10
     #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
-        XCTAssertEqual(features, ["captureFailedRequests", "swiftAsyncStacktraces", "experimentalViewRenderer", "dataSwizzling", "metrics"])
+        XCTAssertEqual(features, ["captureFailedRequests", "swiftAsyncStacktraces", "experimentalViewRenderer", "dataSwizzling", "metrics", "standaloneAppStartTracing"])
+    #elseif os(visionOS) && !SENTRY_NO_UI_FRAMEWORK
+        XCTAssertEqual(features, ["captureFailedRequests", "swiftAsyncStacktraces", "dataSwizzling", "metrics", "standaloneAppStartTracing"])
     #else
         XCTAssertEqual(features, ["captureFailedRequests", "swiftAsyncStacktraces", "dataSwizzling", "metrics"])
     #endif
@@ -317,7 +319,9 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         // -- Arrange --
         let options = Options()
+        #if !SDK_V10
         options.enableStandaloneAppStartTracing = true
+        #endif // !SDK_V10
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
@@ -329,6 +333,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 #endif
     }
 
+    #if !SDK_V10
     func testEnableStandaloneAppStartTracing_isDisabled_shouldNotAddFeature() throws {
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         // -- Arrange --
@@ -359,6 +364,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         throw XCTSkip("Test not supported on this platform")
 #endif
     }
+    #endif // !SDK_V10
 
     func testEnableWatchdogTerminationsV2_isEnabled_shouldAddFeature() throws {
         // -- Arrange --

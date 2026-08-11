@@ -45,7 +45,7 @@ class PermissionsViewController: UIViewController {
             print("Initial push permission status: \(settings.authorizationStatus)")
         }
 
-        print("Initial location permission status: \(CLLocationManager.authorizationStatus())")
+        print("Initial location permission status: \(locationManager.authorizationStatus)")
     }
 
     private func setupView() {

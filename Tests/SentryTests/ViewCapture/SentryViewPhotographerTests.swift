@@ -7,6 +7,23 @@ import XCTest
 
 class SentryViewPhotographerTests: XCTestCase {
     
+    private final class SequencedDateProvider: SentryCurrentDateProvider {
+        private var absoluteTimes: [UInt64]
+
+        init(absoluteTimes: [UInt64]) {
+            self.absoluteTimes = absoluteTimes
+        }
+
+        func date() -> Date { .distantPast }
+        func timezoneOffset() -> Int { 0 }
+        func systemTime() -> UInt64 { 0 }
+        func systemUptime() -> TimeInterval { 0 }
+
+        func getAbsoluteTime() -> UInt64 {
+            absoluteTimes.removeFirst()
+        }
+    }
+
     private class TestViewRenderer: SentryViewRenderer {
         func render(view: UIView) -> UIImage {
             UIGraphicsImageRenderer(size: view.bounds.size).image { context in
@@ -15,8 +32,32 @@ class SentryViewPhotographerTests: XCTestCase {
         }
     }
     
-    private func sut() -> SentryViewPhotographer {
-        return SentryViewPhotographer(renderer: TestViewRenderer(), redactOptions: TestRedactOptions(), enableMaskRendererV2: false)
+    private func sut(dateProvider: SentryCurrentDateProvider = SentryDefaultCurrentDateProvider()) -> SentryViewPhotographer {
+        return SentryViewPhotographer(
+            renderer: TestViewRenderer(),
+            redactOptions: TestRedactOptions(),
+            enableMaskRendererV2: false,
+            dateProvider: dateProvider
+        )
+    }
+
+    func testImage_whenTimed_shouldReportDurationForEachPhase() {
+        // -- Arrange --
+        let dateProvider = SequencedDateProvider(absoluteTimes: [0, 10_000_000, 30_000_000, 30_000_000, 60_000_000])
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
+        let photographer = sut(dateProvider: dateProvider)
+        let expectation = expectation(description: "Image rendered")
+
+        // -- Act --
+        photographer.timedImage(view: rootView) { _, metadata in
+            // -- Assert --
+            XCTAssertEqual(metadata.redactDuration, 0.01, accuracy: 0.000001)
+            XCTAssertEqual(metadata.renderDuration, 0.02, accuracy: 0.000001)
+            XCTAssertEqual(metadata.maskDuration, 0.03, accuracy: 0.000001)
+            expectation.fulfill()
+        }
+
+        wait(for: [expectation], timeout: 1)
     }
     
     private func prepare(views: [UIView]) -> UIImage? {

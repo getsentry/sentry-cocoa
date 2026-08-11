@@ -17,7 +17,6 @@
 #    import "SentryTraceOrigin.h"
 #    import "SentryTraceProfiler.h"
 #    import "SentryTracer+Private.h"
-#    import "SentryTracerConfiguration.h"
 #    import "SentryTransactionContext+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN

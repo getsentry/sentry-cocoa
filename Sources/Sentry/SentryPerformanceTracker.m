@@ -8,8 +8,8 @@
 #import "SentrySpanInternal.h"
 #import "SentrySpanOperation.h"
 #import "SentrySpanProtocol.h"
+#import "SentrySwift.h"
 #import "SentryTracer.h"
-#import "SentryTracerConfiguration.h"
 #import "SentryTransactionContext+Private.h"
 
 #import "SentryProfilingConditionals.h"

@@ -1,77 +1,71 @@
 import Sentry
 import SwiftUI
 
-// This sample app also serves as a build-time validation that the Sentry module
-// correctly exposes all public APIs (SentryTracedView, sentryTrace(), sentryReplayMask(),
-// sentryReplayUnmask(), etc.). If any of these APIs are accidentally removed or renamed,
-// the build for this sample will fail in CI.
-
-//This is for test purpose
 class DataBag {
-
     static let shared = DataBag()
 
     var info = [String: Any]()
 
-    private init() {
-    }
+    private init() {}
 }
 
 struct ContentView: View {
 
     @State var TTDInfo: String = ""
     @State var errorId: SentryId?
-    
+
     var addBreadcrumbAction: () -> Void = {
         let crumb = Breadcrumb(level: SentryLevel.info, category: "Debug")
         crumb.message = "tapped addBreadcrumb"
         crumb.type = "user"
         SentrySDK.addBreadcrumb(crumb)
     }
-    
+
     var captureMessageAction: () -> Void = {
         SentrySDK.capture(message: "Yeah captured a message")
     }
-    
+
     func captureErrorAction() {
-        let error = NSError(domain: "SampleErrorDomain", code: 1, userInfo: [NSLocalizedDescriptionKey: "Object does not exist"])
+        let error = NSError(domain: "SampleErrorDomain", code: 1, userInfo: [
+            NSLocalizedDescriptionKey: "Object does not exist"
+        ])
         errorId = SentrySDK.capture(error: error) { (scope) in
             scope.setTag(value: "value", key: "myTag")
         }
     }
-    
+
     var captureNSExceptionAction: () -> Void = {
         let exception = NSException(name: NSExceptionName("My Custom exeption"), reason: "User clicked the button", userInfo: nil)
         let scope = Scope()
         scope.setLevel(.fatal)
         SentrySDK.capture(exception: exception, scope: scope)
     }
-    
+
     var captureTransactionAction: () -> Void = {
         let transaction = SentrySDK.startTransaction(name: "Some Transaction", operation: "some operation")
         DispatchQueue.main.asyncAfter(deadline: .now() + Double.random(in: 0.4...0.6), execute: {
             transaction.finish()
         })
     }
-    
+
     func asyncCrash1() {
         DispatchQueue.main.async {
             self.asyncCrash2()
         }
     }
-    
+
     func asyncCrash2() {
         DispatchQueue.main.async {
             SentrySDK.crash()
         }
     }
-    
+
     var oomCrashAction: () -> Void = {
         DispatchQueue.main.async {
             let megaByte = 1_024 * 1_024
             let memoryPageSize = NSPageSize()
             let memoryPages = megaByte / memoryPageSize
-            
+
             while true {
                 // Allocate one MB and set one element of each memory page to something.
                 let ptr = UnsafeMutablePointer<Int8>.allocate(capacity: megaByte)
@@ -84,35 +78,34 @@ struct ContentView: View {
 
     func showTTD() {
         guard let tracer = getCurrentTracer() else { return }
-        
+
         var log = [String]()
-        
+
         if !hasTTID(tracer: tracer) { log.append("TTID not found") }
         if !hasTTFD(tracer: tracer) { log.append("TTFD not found") }
-        
+
         if log.isEmpty {
             log.append("TTID and TTFD found")
         }
         TTDInfo = log.joined(separator: "\n")
     }
-    
+
     func getCurrentTracer() -> SentryTracer? {
         if DataBag.shared.info["initialTransaction"] == nil {
             DataBag.shared.info["initialTransaction"] = SentrySDK.span as? SentryTracer
         }
         return DataBag.shared.info["initialTransaction"] as? SentryTracer
     }
-    
+
     func hasTTID(tracer: SentryTracer?) -> Bool {
         tracer?.children.contains { $0.spanDescription?.contains("initial display") == true } == true
     }
-    
+
     func hasTTFD(tracer: SentryTracer?) -> Bool {
         tracer?.children.contains { $0.spanDescription?.contains("full display") == true } == true
     }
 
     func getCurrentSpan() -> Span? {
-
         let tracker = SentryPerformanceTracker.shared
         guard let currentSpanId = tracker.activeSpanId() else {
             return DataBag.shared.info["lastSpan"] as? Span
@@ -128,7 +121,7 @@ struct ContentView: View {
 
         return DataBag.shared.info["lastSpan"] as? Span
     }
- 
+
     var body: some View {
         return SentryTracedView("Content View Body", waitForFullDisplay: true) {
             NavigationView {
@@ -136,57 +129,54 @@ struct ContentView: View {
                     Group {
                         Text(getCurrentTracer()?.transactionContext.name ?? "NO SPAN")
                             .accessibilityIdentifier("TRANSACTION_NAME")
-                            
+
                         Text(getCurrentTracer()?.transactionContext.spanId.sentrySpanIdString ?? "NO ID")
                             .accessibilityIdentifier("TRANSACTION_ID")
                             .sentryReplayMask()
-                        
+
                         Text(getCurrentTracer()?.transactionContext.origin ?? "NO ORIGIN")
                             .accessibilityIdentifier("TRACE_ORIGIN")
-                    }.sentryReplayUnmask()
-                        .onAppear {
-                            SentrySDK.reportFullyDisplayed()
-                        }
+                    }
+                    .sentryReplayUnmask()
+                    .onAppear {
+                        SentrySDK.reportFullyDisplayed()
+                    }
                     SentryTracedView("Child Span") {
                         VStack {
                             Text(getCurrentSpan()?.spanDescription ?? "NO SPAN")
                                 .accessibilityIdentifier("CHILD_NAME")
                             Text(getCurrentSpan()?.parentSpanId?.sentrySpanIdString ?? "NO SPAN")
                                 .accessibilityIdentifier("CHILD_PARENT_SPANID")
-                            
+
                             Text(getCurrentSpan()?.origin ?? "NO CHILD ORIGIN")
                                 .accessibilityIdentifier("CHILD_TRACE_ORIGIN")
                         }
                     }
                     HStack (spacing: 30) {
                         VStack(spacing: 16) {
-
                             Button(action: addBreadcrumbAction) {
                                 Text("Add Breadcrumb")
                             }
-
                             Button(action: captureMessageAction) {
                                 Text("Capture Message")
                             }
-
                             Button(action: captureErrorAction) {
                                 Text("Capture Error")
                             }
-
                             Button(action: captureNSExceptionAction) {
                                 Text("Capture NSException")
                             }
-
                             Button(action: captureTransactionAction) {
                                 Text("Capture Transaction")
                             }
                             // This is used by a UI test since UIApplication.shared is nil in unit tests.
                             Button("UIApplication sendEmptyEvent") {
-                              UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                             }
                             Button(action: showTTD) {
                                 Text("Show TTD")
-                            }.sentryReplayUnmask()
+                            }
+                            .sentryReplayUnmask()
                         }
                         VStack(spacing: 16) {
                             Button(action: {
@@ -194,7 +184,6 @@ struct ContentView: View {
                             }) {
                                 Text("Crash")
                             }
-                            
                             Button(action: {
                                 DispatchQueue.main.async {
                                     self.asyncCrash1()
@@ -202,27 +191,21 @@ struct ContentView: View {
                             }) {
                                 Text("Async Crash")
                             }
-                            
                             Button(action: oomCrashAction) {
                                 Text("OOM Crash")
                             }
-                            
                             NavigationLink(destination: SecondView()) {
                                 Text("Show Detail View 1")
                             }
-                            
                             NavigationLink(destination: LoremIpsumView()) {
                                 Text("Lorem Ipsum")
                             }
-                            
                             NavigationLink(destination: UIKitScreen()) {
                                 Text("UIKit Screen")
                             }
-                            
                             NavigationLink(destination: FormScreen()) {
                                 Text("Form Screen")
                             }
-
                             NavigationLink(destination: FeedbackScreen()) {
                                 Text("Feedback Screen")
                             }
@@ -230,10 +213,10 @@ struct ContentView: View {
                         .background(Color.white)
                     }
                     SecondView()
-                  if let errorId {
-                    Text(errorId.sentryIdString)
-                      .accessibilityIdentifier("errorId")
-                  }
+                    if let errorId {
+                        Text(errorId.sentryIdString)
+                            .accessibilityIdentifier("errorId")
+                    }
                     Text(TTDInfo)
                         .accessibilityIdentifier("TTDInfo")
                 }
