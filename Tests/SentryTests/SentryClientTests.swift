@@ -1512,6 +1512,24 @@ final class SentryClientTests: XCTestCase {
 #endif // !SDK_V10
     }
 
+    func testCaptureTransaction_whenBeforeSendTransactionReturnsEvent_shouldSendEvent() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+#else
+        // -- Arrange --
+        let returnedEvent = Event()
+        let sut = fixture.getSut(configureOptions: { options in
+            options.beforeSendTransaction = { _ in returnedEvent }
+        })
+
+        // -- Act --
+        sut.capture(event: fixture.transaction)
+
+        // -- Assert --
+        XCTAssertIdentical(returnedEvent, try lastSentEvent())
+#endif // !SDK_V10
+    }
+
     func testBeforeSendReturnsNewEvent_NewEventSent() throws {
         let newEvent = Event()
         let releaseName = "1.0.0"

@@ -852,7 +852,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
             // root span
             [self recordLostSpanWithReason:SentryDiscardReasonBeforeSend
                                   quantity:currentSpanCount + 1];
-        } else if (eventIsATransactionClass) {
+        } else if ([event isKindOfClass:[SentryTransaction class]]) {
             [self recordPartiallyDroppedSpans:(SentryTransaction *)event
                                    withReason:SentryDiscardReasonBeforeSend
                          withCurrentSpanCount:&currentSpanCount];
@@ -876,7 +876,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                       quantity:currentSpanCount + 1];
             }
         } else {
-            if (eventIsATransactionClass) {
+            if ([event isKindOfClass:[SentryTransaction class]]) {
                 [self recordPartiallyDroppedSpans:(SentryTransaction *)event
                                        withReason:SentryDiscardReasonBeforeSend
                              withCurrentSpanCount:&currentSpanCount];
@@ -898,7 +898,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                       quantity:currentSpanCount + 1];
             }
         } else {
-            if (eventIsATransactionClass) {
+            if ([event isKindOfClass:[SentryTransaction class]]) {
                 [self recordPartiallyDroppedSpans:(SentryTransaction *)event
                                        withReason:SentryDiscardReasonEventProcessor
                              withCurrentSpanCount:&currentSpanCount];
