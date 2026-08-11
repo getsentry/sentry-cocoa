@@ -90,8 +90,6 @@ targets:
         group: AppClip
         excludes:
           - "**/.gitkeep"
-      - path: ../Shared/SampleAssets.xcassets
-        group: AppClip/Resources
       # Configurations
       - path: AppClip/Configurations
         type: group
@@ -101,7 +99,7 @@ targets:
           - "**/.gitkeep"
       - path: ../Shared/Config
         type: group
-        group: AppClip/Configurations
+        group: App/Configurations
         buildPhase: none
     dependencies:
       - target: Sentry/Sentry
@@ -150,7 +148,7 @@ targets:
           - "**/.gitkeep"
       - path: ../Shared/Config
         type: group
-        group: UITests/Configurations
+        group: App/Configurations
         buildPhase: none
     configFiles:
       Debug: UITests/Configurations/iOS-Swift-UITests.xcconfig
@@ -182,7 +180,7 @@ targets:
           - "**/.gitkeep"
       - path: ../Shared/Config
         type: group
-        group: ShareExtension/Configurations
+        group: App/Configurations
         buildPhase: none
     dependencies:
       - target: Sentry/Sentry
@@ -217,7 +215,7 @@ targets:
           - "**/.gitkeep"
       - path: ../Shared/Config
         type: group
-        group: ActionExtension/Configurations
+        group: App/Configurations
         buildPhase: none
     dependencies:
       - target: Sentry/Sentry
@@ -252,7 +250,7 @@ targets:
           - "**/.gitkeep"
       - path: ../Shared/Config
         type: group
-        group: IntentExtension/Configurations
+        group: App/Configurations
         buildPhase: none
     dependencies:
       - target: Sentry/Sentry
@@ -287,7 +285,7 @@ targets:
           - "**/.gitkeep"
       - path: ../Shared/Config
         type: group
-        group: NotificationServiceExtension/Configurations
+        group: App/Configurations
         buildPhase: none
     dependencies:
       - target: Sentry/Sentry
