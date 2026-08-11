@@ -6,12 +6,14 @@
     public override init(
         renderer: SentryViewRenderer,
         redactOptions: any SentryRedactOptions,
-        enableMaskRendererV2: Bool = false
+        enableMaskRendererV2: Bool = false,
+        dateProvider: SentryCurrentDateProvider = SentryDefaultCurrentDateProvider()
     ) {
         super.init(
             renderer: renderer,
             redactOptions: redactOptions,
-            enableMaskRendererV2: enableMaskRendererV2
+            enableMaskRendererV2: enableMaskRendererV2,
+            dateProvider: dateProvider
         )
     }
 }

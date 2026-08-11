@@ -29,7 +29,8 @@ import UIKit
         self.photographer = SentryViewPhotographer(
             renderer: PreviewRenderer(),
             redactOptions: redactOptions,
-            enableMaskRendererV2: false
+            enableMaskRendererV2: false,
+            dateProvider: SentryDependencyContainer.sharedInstance().dateProvider
         )
         super.init(frame: .zero)
         self.isUserInteractionEnabled = false

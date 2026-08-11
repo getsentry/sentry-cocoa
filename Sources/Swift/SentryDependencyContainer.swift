@@ -404,7 +404,8 @@ extension SentryFileManager: SentryFileManagerProtocol { }
                 let photographer = SentryViewPhotographer(
                     renderer: viewRenderer,
                     redactOptions: options.screenshot,
-                    enableMaskRendererV2: options.screenshot.enableViewRendererV2)
+                    enableMaskRendererV2: options.screenshot.enableViewRendererV2,
+                    dateProvider: self.dateProvider)
                 return SentryScreenshotSource(photographer: photographer)
             }
         }

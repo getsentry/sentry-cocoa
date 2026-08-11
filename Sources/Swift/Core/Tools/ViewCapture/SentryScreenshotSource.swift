@@ -18,7 +18,8 @@ import UIKit
         self.init(photographer: SentryViewPhotographer(
             renderer: SentryDefaultViewRenderer(),
             redactOptions: SentryRedactDefaultOptions(),
-            enableMaskRendererV2: false
+            enableMaskRendererV2: false,
+            dateProvider: SentryDependencyContainer.sharedInstance().dateProvider
         ))
     }
 
