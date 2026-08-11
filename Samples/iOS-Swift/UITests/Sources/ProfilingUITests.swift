@@ -97,13 +97,16 @@ extension ProfilingUITests {
         ])
 
         app.launchEnvironment[SentrySDKOverrides.Profiling.sessionSampleRate.rawValue] = "1"
-        switch lifecycle {
-        case .none:
+        guard let lifecycle else {
             fatalError("Misconfigured test case. Must provide a lifecycle for UI profiling.")
+        }
+        switch lifecycle {
         case .trace:
             break
         case .manual:
             app.launchArguments.append(SentrySDKOverrides.Profiling.manualLifecycle.rawValue)
+        @unknown default:
+            fatalError("Misconfigured test case. Unknown lifecycle for UI profiling.")
         }
         
         if !shouldProfileNextLaunch {
