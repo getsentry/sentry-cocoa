@@ -8,22 +8,24 @@
     NSError *_error;
     NSDate *_resumeDate;
     NSURLSessionTaskState _state;
+    NSLock *_lock;
 }
 
 @dynamic state;
 
 - (void)setState:(NSURLSessionTaskState)state
 {
-    @synchronized(self) {
-        _state = state;
-    }
+    [_lock lock];
+    _state = state;
+    [_lock unlock];
 }
 
 - (NSURLSessionTaskState)state
 {
-    @synchronized(self) {
-        return _state;
-    }
+    [_lock lock];
+    NSURLSessionTaskState state = _state;
+    [_lock unlock];
+    return state;
 }
 
 - (NSURLRequest *)originalRequest
@@ -68,16 +70,17 @@
 
 - (NSURLRequest *)currentRequest
 {
-    @synchronized(self) {
-        return _currentRequest;
-    }
+    [_lock lock];
+    NSURLRequest *request = _currentRequest;
+    [_lock unlock];
+    return request;
 }
 
 - (void)setCurrentRequest:(NSURLRequest *)request
 {
-    @synchronized(self) {
-        _currentRequest = request;
-    }
+    [_lock lock];
+    _currentRequest = request;
+    [_lock unlock];
 }
 
 #pragma clang diagnostic push
@@ -85,13 +88,16 @@
 
 - (instancetype)init
 {
-    self = [super init];
+    if (self = [super init]) {
+        _lock = [[NSLock alloc] init];
+    }
     return self;
 }
 
 - (instancetype)initWithRequest:(NSURLRequest *)request
 {
     if (self = [super init]) {
+        _lock = [[NSLock alloc] init];
         _request = request;
         _currentRequest = [_request mutableCopy];
     }
