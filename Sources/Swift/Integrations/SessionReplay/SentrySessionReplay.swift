@@ -438,7 +438,7 @@ private struct SessionSegmentState {
             return
         }
 
-        guard takeScreenshot(timestamp: now, completion: { [weak self] captureDuration in
+        guard takeScreenshot(timestamp: now, completion: { [weak self] metadata in
             guard let self = self else { return }
             self.runOnMainThread { [weak self] in
                 guard let self = self else { return }
@@ -447,7 +447,7 @@ private struct SessionSegmentState {
                 if deferralDecision == .captureAfterDeferral {
                     self.adaptiveScreenshotInterval = 0
                 } else if !isInteractionCapture {
-                    self.updateAdaptiveScreenshotInterval(captureDuration)
+                    self.updateAdaptiveScreenshotInterval(metadata.mainThreadDuration)
                 }
 
                 let finishedAt = self.dateProvider.date()
@@ -566,9 +566,15 @@ private struct SessionSegmentState {
         static let captureDeferralInterval: TimeInterval = 0.25
         /// Captures taking at least this long double the adaptive screenshot interval;
         /// faster captures halve it again.
-        static let slowCaptureThreshold: TimeInterval = 0.05
+        ///
+        /// The threshold applies to main-thread capture cost only (redaction + render).
+        /// Real masked screens commonly spend 60-90 ms there, so 50 ms latched the interval
+        /// at the 5 s maximum and produced single-frame segments.
+        static let slowCaptureThreshold: TimeInterval = 0.15
         /// Upper bound for the adaptive screenshot interval.
-        static let maximumAdaptiveCaptureInterval: TimeInterval = 5
+        /// Kept well below the default session segment duration so a backed-off session still
+        /// captures multiple frames per segment.
+        static let maximumAdaptiveCaptureInterval: TimeInterval = 2
         /// Maximum time captures can be deferred due to animations before forcing a capture.
         static let maximumAnimationCaptureDeferralInterval: TimeInterval = 1
         /// Tolerance applied when comparing dates against capture deadlines, to absorb
@@ -782,7 +788,7 @@ private struct SessionSegmentState {
         }
     }
 
-    private func takeScreenshot(timestamp: Date, completion: @escaping (TimeInterval) -> Void) -> Bool {
+    private func takeScreenshot(timestamp: Date, completion: @escaping (SentryViewPhotographerScreenshotMetadata) -> Void) -> Bool {
         guard let rootView = rootView else {
             SentrySDKLog.debug("[Session Replay] Not taking screenshot, reason: root view is nil")
             return false
@@ -801,19 +807,34 @@ private struct SessionSegmentState {
 
         SentrySDKLog.debug("[Session Replay] Getting screenshot from screenshot provider")
         let screenName = delegate?.currentScreenNameForSessionReplay()
-        let captureStart = dateProvider.systemTime()
-        screenshotProvider.image(view: rootView) { [weak self] screenshot in
+
+        let handleScreenshot: (UIImage, SentryViewPhotographerScreenshotMetadata) -> Void = { [weak self] screenshot, metadata in
             guard let self = self else { return }
 
-            let captureEnd = self.dateProvider.systemTime()
-            let captureDuration = captureEnd >= captureStart
-                ? TimeInterval(captureEnd - captureStart) / TimeInterval(NSEC_PER_SEC)
-                : 0
             SentrySDKLog.debug("[Session Replay] New frame available, for screen: \(screenName ?? "nil")")
             self.state.withLock { _ in
                 self.replayMaker.addFrameAsync(timestamp: timestamp, maskedViewImage: screenshot, forScreen: screenName)
             }
-            completion(captureDuration)
+            completion(metadata)
+        }
+
+        if let timedScreenshotProvider = screenshotProvider as? SentryTimedViewScreenshotProvider {
+            timedScreenshotProvider.timedImage(view: rootView) { screenshot, metadata in
+                handleScreenshot(screenshot, metadata)
+            }
+        } else {
+            let captureStart = dateProvider.systemTime()
+            screenshotProvider.image(view: rootView) { [dateProvider] screenshot in
+                let captureEnd = dateProvider.systemTime()
+                let captureDuration = captureEnd >= captureStart
+                    ? TimeInterval(captureEnd - captureStart) / TimeInterval(NSEC_PER_SEC)
+                    : 0
+                handleScreenshot(screenshot, SentryViewPhotographerScreenshotMetadata(
+                    redactDuration: captureDuration,
+                    renderDuration: 0,
+                    maskDuration: 0
+                ))
+            }
         }
         return true
     }

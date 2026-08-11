@@ -89,7 +89,7 @@ targets:
           - "**/.gitkeep"
       - path: ../Shared/Config
         type: group
-        group: UITests/Configurations
+        group: App/Configurations
         buildPhase: none
       - path: ../../Plans/iOS-Swift6_Base.xctestplan
         group: UITests/Configurations

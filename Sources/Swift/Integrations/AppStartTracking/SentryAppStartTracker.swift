@@ -51,6 +51,32 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
 
     // MARK: - Initialization
 
+    #if SDK_V10
+    init(
+        dispatchQueueWrapper: SentryDispatchQueueWrapper,
+        appStateManager: SentryAppStateManager,
+        framesTracker: SentryFramesTracker,
+        enablePreWarmedAppStartTracing: Bool,
+        dateProvider: SentryCurrentDateProvider,
+        sysctlWrapper: SentrySysctl,
+        appStartInfoProvider: AppStartInfoProvider,
+        extendedAppLaunchManager: SentryExtendedAppLaunchManager
+    ) {
+        self.dispatchQueue = dispatchQueueWrapper
+        self.appStateManager = appStateManager
+        self.framesTracker = framesTracker
+        self.enablePreWarmedAppStartTracing = enablePreWarmedAppStartTracing
+        self.extendedAppLaunchManager = extendedAppLaunchManager
+        self.reportingStrategy = StandaloneTransactionStrategy(extendedAppLaunchManager: extendedAppLaunchManager)
+        self.previousAppState = appStateManager.loadPreviousAppState()
+        self.dateProvider = dateProvider
+        self.didFinishLaunchingTimestamp = dateProvider.date()
+        self.sysctlWrapper = sysctlWrapper
+        self.appStartInfoProvider = appStartInfoProvider
+
+        super.init()
+    }
+    #else
     init(
         dispatchQueueWrapper: SentryDispatchQueueWrapper,
         appStateManager: SentryAppStateManager,
@@ -82,6 +108,7 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
             framesTracker.addListener(self)
         }
     }
+    #endif
 
     deinit {
         stop()

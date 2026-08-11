@@ -10,14 +10,22 @@ import XCTest
 #if os(iOS) || os(tvOS)
 class SentrySessionReplayTests: XCTestCase {
     
-    private class ScreenshotProvider: NSObject, SentryViewScreenshotProvider {
+    private class ScreenshotProvider: NSObject, SentryTimedViewScreenshotProvider {
         var lastImageCall: UIView?
         var imageCallCount = 0
         var beforeComplete: (() -> Void)?
+        /// Main-thread capture cost reported through screenshot metadata.
+        var mainThreadDuration: TimeInterval?
         var completeAsync = false
-        private var pendingCompletions = [Sentry.ScreenshotCallback]()
+        private var pendingCompletions = [Sentry.TimedScreenshotCallback]()
 
         func image(view: UIView, onComplete: @escaping Sentry.ScreenshotCallback) {
+            timedImage(view: view) { image, _ in
+                onComplete(image)
+            }
+        }
+
+        func timedImage(view: UIView, onComplete: @escaping Sentry.TimedScreenshotCallback) {
             lastImageCall = view
             imageCallCount += 1
             if completeAsync {
@@ -31,9 +39,43 @@ class SentrySessionReplayTests: XCTestCase {
             complete(pendingCompletions.removeFirst())
         }
 
+        private func complete(_ completion: Sentry.TimedScreenshotCallback) {
+            beforeComplete?()
+            completion(
+                UIImage.add,
+                SentryViewPhotographerScreenshotMetadata(
+                    redactDuration: mainThreadDuration ?? 0,
+                    renderDuration: 0,
+                    maskDuration: 0
+                )
+            )
+        }
+    }
+
+    private class UntimedScreenshotProvider: NSObject, SentryViewScreenshotProvider {
+        var imageCallCount = 0
+        var beforeComplete: (() -> Void)?
+        var completeAsync = false
+        private var pendingCompletion: Sentry.ScreenshotCallback?
+
+        func image(view: UIView, onComplete: @escaping Sentry.ScreenshotCallback) {
+            imageCallCount += 1
+            if completeAsync {
+                pendingCompletion = onComplete
+                return
+            }
+            complete(onComplete)
+        }
+
+        func completePendingImage() {
+            guard let pendingCompletion else { return }
+            self.pendingCompletion = nil
+            complete(pendingCompletion)
+        }
+
         private func complete(_ completion: Sentry.ScreenshotCallback) {
             beforeComplete?()
-            completion(UIImage.add)
+            completion(.add)
         }
     }
 
@@ -210,12 +252,13 @@ class SentrySessionReplayTests: XCTestCase {
 
         func getSut(
             options: SentryReplayOptions = .init(sessionSampleRate: 0, onErrorSampleRate: 0),
+            screenshotProvider: SentryViewScreenshotProvider? = nil,
             touchTracker: SentryTouchTracker? = nil
         ) -> SentrySessionReplay {
             return SentrySessionReplay(
                 replayOptions: options,
                 replayFolderPath: cacheFolder,
-                screenshotProvider: screenshotProvider,
+                screenshotProvider: screenshotProvider ?? self.screenshotProvider,
                 replayMaker: replayMaker,
                 breadcrumbConverter: SentrySRDefaultBreadcrumbConverter(),
                 touchTracker: touchTracker ?? SentryTouchTracker(dateProvider: dateProvider, scale: 0),
@@ -1209,6 +1252,31 @@ class SentrySessionReplayTests: XCTestCase {
     }
 
     @available(iOS 16.0, tvOS 16, *)
+    func testDealloc_DoesNotRetainSessionReplayDuringAsyncUntimedScreenshot() {
+        let fixture = Fixture()
+        let screenshotProvider = UntimedScreenshotProvider()
+        screenshotProvider.completeAsync = true
+
+        weak var weakSut: SentrySessionReplay?
+        autoreleasepool {
+            let sut = fixture.getSut(
+                options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1),
+                screenshotProvider: screenshotProvider
+            )
+            weakSut = sut
+            sut.start(rootView: fixture.rootView, fullSession: true)
+
+            fixture.dateProvider.advance(by: 1)
+            fixture.runLoopCapture()
+            XCTAssertEqual(screenshotProvider.imageCallCount, 1)
+        }
+
+        XCTAssertNil(weakSut)
+        screenshotProvider.completePendingImage()
+        XCTAssertNil(weakSut)
+    }
+
+    @available(iOS 16.0, tvOS 16, *)
     func testDealloc_DoesNotRetainSessionReplayDuringVideoCreation() throws {
         let fixture = Fixture()
         fixture.replayMaker.deferCreateVideoCompletion = true
@@ -1370,9 +1438,8 @@ class SentrySessionReplayTests: XCTestCase {
         let fixture = Fixture()
         let options = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
         options.frameRate = 1
-        fixture.screenshotProvider.beforeComplete = {
-            fixture.dateProvider.advance(by: 0.06)
-        }
+        // Above the 150 ms slow-capture threshold; next interval becomes 2 s.
+        fixture.screenshotProvider.mainThreadDuration = 0.16
         let sut = fixture.getSut(options: options)
         sut.start(rootView: fixture.rootView, fullSession: true)
 
@@ -1380,13 +1447,13 @@ class SentrySessionReplayTests: XCTestCase {
         fixture.dateProvider.advance(by: 1)
         fixture.runLoopCapture()
         let capturesAfterSlowFrame = fixture.screenshotProvider.imageCallCount
-        fixture.screenshotProvider.beforeComplete = nil
+        fixture.screenshotProvider.mainThreadDuration = nil
 
         fixture.dateProvider.advance(by: 1.99)
         fixture.runLoopCapture()
         let capturesBeforeBackoffExpires = fixture.screenshotProvider.imageCallCount
 
-        fixture.dateProvider.advance(by: 3.1)
+        fixture.dateProvider.advance(by: 0.02)
         fixture.runLoopCapture()
 
         // -- Assert --
@@ -1395,15 +1462,77 @@ class SentrySessionReplayTests: XCTestCase {
         XCTAssertEqual(fixture.screenshotProvider.imageCallCount, 2)
     }
 
+    func testNewFrame_whenAsyncMaskingIsSlow_shouldNotBackOffCaptureInterval() {
+        // -- Arrange --
+        // Async mask compositing can take longer than the slow-capture threshold without
+        // blocking the main thread. Timed providers report only main-thread cost, so pacing
+        // must ignore that async delay.
+        let fixture = Fixture()
+        let options = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
+        options.frameRate = 1
+        fixture.screenshotProvider.completeAsync = true
+        fixture.screenshotProvider.mainThreadDuration = 0.04
+        fixture.screenshotProvider.beforeComplete = {
+            fixture.dateProvider.advance(by: 0.20)
+        }
+        let sut = fixture.getSut(options: options)
+        sut.start(rootView: fixture.rootView, fullSession: true)
+
+        // -- Act --
+        fixture.dateProvider.advance(by: 1)
+        fixture.runLoopCapture()
+        fixture.screenshotProvider.completePendingImage()
+        let capturesAfterMaskedFrame = fixture.screenshotProvider.imageCallCount
+        fixture.screenshotProvider.completeAsync = false
+        fixture.screenshotProvider.mainThreadDuration = nil
+        fixture.screenshotProvider.beforeComplete = nil
+
+        fixture.dateProvider.advance(by: 1)
+        fixture.runLoopCapture()
+
+        // -- Assert --
+        XCTAssertEqual(capturesAfterMaskedFrame, 1)
+        XCTAssertEqual(fixture.screenshotProvider.imageCallCount, 2)
+    }
+
+    func testNewFrame_whenScreenshotProviderDoesNotReportDuration_shouldUseWallClockFallback() {
+        // -- Arrange --
+        let fixture = Fixture()
+        let screenshotProvider = UntimedScreenshotProvider()
+        let options = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
+        options.frameRate = 1
+        screenshotProvider.beforeComplete = {
+            fixture.dateProvider.advance(by: 0.16)
+        }
+        let sut = fixture.getSut(options: options, screenshotProvider: screenshotProvider)
+        sut.start(rootView: fixture.rootView, fullSession: true)
+
+        // -- Act --
+        fixture.dateProvider.advance(by: 1)
+        fixture.runLoopCapture()
+        let capturesAfterSlowFrame = screenshotProvider.imageCallCount
+        screenshotProvider.beforeComplete = nil
+
+        fixture.dateProvider.advance(by: 1.99)
+        fixture.runLoopCapture()
+        let capturesBeforeBackoffExpires = screenshotProvider.imageCallCount
+
+        fixture.dateProvider.advance(by: 0.02)
+        fixture.runLoopCapture()
+
+        // -- Assert --
+        XCTAssertEqual(capturesAfterSlowFrame, 1)
+        XCTAssertEqual(capturesBeforeBackoffExpires, 1)
+        XCTAssertEqual(screenshotProvider.imageCallCount, 2)
+    }
+
     func testNewFrame_whenAsyncScreenshotCaptureIsSlow_shouldBackOffCaptureInterval() {
         // -- Arrange --
         let fixture = Fixture()
         let options = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
         options.frameRate = 1
         fixture.screenshotProvider.completeAsync = true
-        fixture.screenshotProvider.beforeComplete = {
-            fixture.dateProvider.advance(by: 0.06)
-        }
+        fixture.screenshotProvider.mainThreadDuration = 0.16
         let sut = fixture.getSut(options: options)
         sut.start(rootView: fixture.rootView, fullSession: true)
 
@@ -1413,7 +1542,7 @@ class SentrySessionReplayTests: XCTestCase {
         fixture.screenshotProvider.completePendingImage()
         let capturesAfterSlowFrame = fixture.screenshotProvider.imageCallCount
         fixture.screenshotProvider.completeAsync = false
-        fixture.screenshotProvider.beforeComplete = nil
+        fixture.screenshotProvider.mainThreadDuration = nil
 
         fixture.dateProvider.advance(by: 1.99)
         fixture.runLoopCapture()
@@ -1433,15 +1562,13 @@ class SentrySessionReplayTests: XCTestCase {
         let fixture = Fixture()
         let options = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
         options.frameRate = 1
-        fixture.screenshotProvider.beforeComplete = {
-            fixture.dateProvider.advance(by: 0.06)
-        }
+        fixture.screenshotProvider.mainThreadDuration = 0.16
         let sut = fixture.getSut(options: options)
         sut.start(rootView: fixture.rootView, fullSession: true)
 
         fixture.dateProvider.advance(by: 1)
         fixture.runLoopCapture()
-        fixture.screenshotProvider.beforeComplete = nil
+        fixture.screenshotProvider.mainThreadDuration = nil
 
         // -- Act --
         sut.pause()
@@ -1484,9 +1611,7 @@ class SentrySessionReplayTests: XCTestCase {
         let fixture = Fixture()
         let options = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
         options.frameRate = 1
-        fixture.screenshotProvider.beforeComplete = {
-            fixture.dateProvider.advance(by: 0.06)
-        }
+        fixture.screenshotProvider.mainThreadDuration = 0.16
         let sut = fixture.getSut(options: options)
         let scrollView = DraggingScrollView(frame: fixture.rootView.bounds)
         fixture.rootView.addSubview(scrollView)
@@ -1496,7 +1621,7 @@ class SentrySessionReplayTests: XCTestCase {
         fixture.dateProvider.advance(by: 1)
         fixture.runLoopCapture()
         let capturesAfterSlowInteractionFrame = fixture.screenshotProvider.imageCallCount
-        fixture.screenshotProvider.beforeComplete = nil
+        fixture.screenshotProvider.mainThreadDuration = nil
 
         fixture.dateProvider.advance(by: 1)
         fixture.runLoopCapture()
@@ -1511,15 +1636,13 @@ class SentrySessionReplayTests: XCTestCase {
         let fixture = Fixture()
         let options = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
         options.frameRate = 1
-        fixture.screenshotProvider.beforeComplete = {
-            fixture.dateProvider.advance(by: 0.06)
-        }
+        fixture.screenshotProvider.mainThreadDuration = 0.16
         let sut = fixture.getSut(options: options)
         sut.start(rootView: fixture.rootView, fullSession: true)
 
         fixture.dateProvider.advance(by: 1)
         fixture.runLoopCapture()
-        fixture.screenshotProvider.beforeComplete = nil
+        fixture.screenshotProvider.mainThreadDuration = nil
 
         let scrollView = DraggingScrollView(frame: fixture.rootView.bounds)
         fixture.rootView.addSubview(scrollView)

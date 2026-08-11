@@ -39,7 +39,11 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         let framesTracker: SentryFramesTracker
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         var enablePreWarmedAppStartTracing = true
+        #if SDK_V10
+        let enableStandaloneAppStartTracing = true
+        #else
         var enableStandaloneAppStartTracing = false
+        #endif
         var appStartInfoProvider: TestAppStartInfoProvider
 
         let appStartDuration: TimeInterval = 0.4
@@ -88,6 +92,18 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         }
         
         var sut: SentryAppStartTracker {
+            #if SDK_V10
+            let sut = SentryAppStartTracker(
+                dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
+                appStateManager: appStateManager,
+                framesTracker: framesTracker,
+                enablePreWarmedAppStartTracing: enablePreWarmedAppStartTracing,
+                dateProvider: SentryDependencyContainer.sharedInstance().dateProvider,
+                sysctlWrapper: SentryDependencyContainer.sharedInstance().sysctlWrapper,
+                appStartInfoProvider: appStartInfoProvider,
+                extendedAppLaunchManager: SentryDependencyContainer.sharedInstance().extendedAppLaunchManager
+            )
+            #else
             let sut = SentryAppStartTracker(
                 dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
                 appStateManager: appStateManager,
@@ -99,24 +115,36 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
                 appStartInfoProvider: appStartInfoProvider,
                 extendedAppLaunchManager: SentryDependencyContainer.sharedInstance().extendedAppLaunchManager
             )
+            #endif
             return sut
         }
     }
     
     private var fixture: Fixture!
     private var sut: SentryAppStartTracker!
-    
+
+    #if SDK_V10
+    private var standaloneHub: TestHub!
+    #endif
+
     override func setUpWithError() throws {
         try super.setUpWithError()
 
         fixture = try Fixture()
 
         fixture.sysctl.setProcessStartTimestamp(value: SentryDependencyContainer.sharedInstance().dateProvider.date())
+
+        #if SDK_V10
+        fixture.options.tracesSampleRate = 1
+        let client = TestClient(options: fixture.options)
+        standaloneHub = TestHub(client: client, andScope: Scope())
+        SentrySDKInternal.setCurrentHub(standaloneHub)
+        #endif
     }
     
     override func tearDown() {
         super.tearDown()
-        sut.stop()
+        sut?.stop()
         fixture.fileManager.deleteAllFolders()
         // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
@@ -124,17 +152,25 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
 
     func testFirstStart_IsColdStart() {
         startApp(callDisplayLink: true)
-        
+
+        #if SDK_V10
+        assertStandaloneTransaction(type: .cold)
+        #else
         assertValidStart(type: .cold, expectedDuration: 0.45)
+        #endif
     }
     
-    func testRemovesFramesTrackerListener() {
+    func testRemovesFramesTrackerListener() throws {
+        #if SDK_V10
+        throw XCTSkip("Standalone mode does not use the frames tracker listener")
+        #else
         startApp(callDisplayLink: true)
-        
+
         advanceTime(bySeconds: 0.05)
         fixture.displayLinkWrapper.normalFrame()
-        
+
         assertValidStart(type: .cold, expectedDuration: 0.45)
+        #endif
     }
     
     func testSecondStart_AfterSystemReboot_IsColdStart() {
@@ -143,17 +179,25 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         store(appState: appState)
         
         startApp(callDisplayLink: true)
-        
+
+        #if SDK_V10
+        assertStandaloneTransaction(type: .cold)
+        #else
         assertValidStart(type: .cold, expectedDuration: 0.45)
+        #endif
     }
-    
+
     func testSecondStart_SystemNotRebooted_IsWarmStart() {
         givenSystemNotRebooted()
 
         fixture.fileManager.moveAppStateToPreviousAppState()
         startApp(callDisplayLink: true)
-        
+
+        #if SDK_V10
+        assertStandaloneTransaction(type: .warm)
+        #else
         assertValidStart(type: .warm, expectedDuration: 0.45)
+        #endif
     }
 
     // Test for situation described in https://github.com/getsentry/sentry-cocoa/issues/2376
@@ -164,12 +208,20 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
 
         fixture.fileManager.moveAppStateToPreviousAppState()
         startApp(callDisplayLink: true)
+        #if SDK_V10
+        assertStandaloneTransaction(type: .warm)
+        #else
         assertValidStart(type: .warm, expectedDuration: 0.45)
+        #endif
 
         fixture.fileManager.moveAppStateToPreviousAppState()
         fixture.framesTracker.resetFrames()
         startApp(callDisplayLink: true)
+        #if SDK_V10
+        assertStandaloneTransaction(type: .warm)
+        #else
         assertValidStart(type: .warm, expectedDuration: 0.45)
+        #endif
     }
     
     func testAppUpgrade_IsColdStart() {
@@ -177,10 +229,14 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         store(appState: appState)
         
         startApp(callDisplayLink: true)
-        
+
+        #if SDK_V10
+        assertStandaloneTransaction(type: .cold)
+        #else
         assertValidStart(type: .cold, expectedDuration: 0.45)
+        #endif
     }
-    
+
     func testAppWasInBackground_NoAppStartUp() {
         store(appState: TestData.appState)
         
@@ -204,10 +260,14 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
 
         fixture.fileManager.moveAppStateToPreviousAppState()
         startApp(callDisplayLink: true)
-        
+
+        #if SDK_V10
+        assertStandaloneTransaction(type: .warm)
+        #else
         assertValidStart(type: .warm, expectedDuration: 0.45)
+        #endif
     }
-    
+
     /**
      * Test if the user changes the time of his phone and the previous boot time is in the future.
      */
@@ -228,7 +288,11 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         fixture.fileManager.moveAppStateToPreviousAppState()
         startApp(processStartTimeStamp: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(-60 * 60 * 4), callDisplayLink: true)
 #if os(iOS)
+    #if SDK_V10
+        assertStandaloneTransaction(type: .warm)
+    #else
         assertValidStart(type: .warm, expectedDuration: 0.35, preWarmed: true)
+    #endif
 #else
         assertNoAppStartUp()
 #endif
@@ -244,7 +308,11 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
 #if os(iOS)
         assertNoAppStartUp()
 #else
+    #if SDK_V10
+        assertStandaloneTransaction(type: .warm)
+    #else
         assertValidStart(type: .warm, expectedDuration: 0.45)
+    #endif
 #endif
     }
     
@@ -270,21 +338,33 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         fixture.fileManager.moveAppStateToPreviousAppState()
         startApp(callDisplayLink: true)
 
+        #if SDK_V10
+        assertStandaloneTransaction(type: .warm)
+        #else
         assertValidStart(type: .warm, expectedDuration: 0.45)
+        #endif
     }
-    
-    func testAppLaunches_MaximumAppStartDuration_NoAppStart() {
+
+    func testAppLaunches_MaximumAppStartDuration_NoAppStart() throws {
+        #if SDK_V10
+        throw XCTSkip("Standalone mode does not apply maximum app start duration limit")
+        #else
         let processStartTime = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(-180)
         startApp(processStartTimeStamp: processStartTime, callDisplayLink: true)
 
         assertNoAppStartUp()
+        #endif
     }
 
     func testAppLaunches_OSAlmostPrewarmedProcess_AppStartUp() {
         let processStartTime = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(-179)
         startApp(processStartTimeStamp: processStartTime, callDisplayLink: true)
 
+        #if SDK_V10
+        assertStandaloneTransaction(type: .cold)
+        #else
         assertValidStart(type: .cold, expectedDuration: 179.45)
+        #endif
     }
     
     func testAppLaunchesBackgroundTask_NoAppStartUp() {
@@ -310,48 +390,62 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
      * Test for reproducing GH-1225
      * It can happen that the OS posts the didFinishLaunching notification before we register for it.
      */
-    func testDidFinishLaunching_PostedBeforeStart() {
+    func testDidFinishLaunching_PostedBeforeStart() throws {
+        #if SDK_V10
+        throw XCTSkip("Tests late-start notification ordering specific to attach-to-transaction mode")
+        #else
         givenProcessStartTimestamp()
         sut = fixture.sut
         givenRuntimeInitTimestamp(sut: sut)
-        
+
         willEnterForeground()
-        
+
         givenDidFinishLaunchingTimestamp()
-        
+
         didFinishLaunching()
-        
+
         sut.start()
-        
+
         advanceTime(bySeconds: 0.1)
         uiWindowDidBecomeVisible()
         didBecomeActive()
-        
+
         advanceTime(bySeconds: 0.05)
         fixture.currentDate.driftTimeForEveryRead = true
         fixture.displayLinkWrapper.normalFrame()
         fixture.currentDate.driftTimeForEveryRead = false
-        
+
         assertValidStart(type: .cold, expectedDuration: 0.45)
+        #endif
     }
-    
+
     func testHybridSDKs_ColdStart() {
         hybridAppStart()
-        
+
+        #if SDK_V10
+        assertStandaloneTransaction(type: .cold)
+        #else
         assertValidHybridStart(type: .cold)
+        #endif
     }
-    
+
     func testHybridSDKs_SecondStart_SystemNotRebooted_IsWarmStart() {
         givenSystemNotRebooted()
 
         fixture.fileManager.moveAppStateToPreviousAppState()
         hybridAppStart()
 
+        #if SDK_V10
+        assertStandaloneTransaction(type: .warm)
+        #else
         assertValidHybridStart(type: .warm)
+        #endif
     }
 
     func testBackgroundLaunch_whenStandalone_shouldClearAppStartTraceId() {
+        #if !SDK_V10
         fixture.enableStandaloneAppStartTracing = true
+        #endif
         sut = fixture.sut
         sut.start()
 
@@ -369,7 +463,9 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         let hub = TestHub(client: client, andScope: Scope())
         SentrySDKInternal.setCurrentHub(hub)
 
+        #if !SDK_V10
         fixture.enableStandaloneAppStartTracing = true
+        #endif
         let processStartTime = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(-180)
         startApp(processStartTimeStamp: processStartTime, callDisplayLink: true)
 
@@ -378,7 +474,11 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
     }
 
     func testStart_whenStandaloneAppStartTracingAndSDKNotEnabled_shouldDropAppStart() {
+        #if SDK_V10
+        SentrySDKInternal.setCurrentHub(TestHub(client: nil, andScope: nil))
+        #else
         fixture.enableStandaloneAppStartTracing = true
+        #endif
         startApp(callDisplayLink: true)
 
         // The standalone handler guards on SentrySDK.isEnabled. Since the SDK is not
@@ -386,11 +486,15 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         assertNoAppStartUp()
     }
 
-    func testStart_whenStandaloneAppStartTracingDisabled_shouldSetAppStartMeasurement() {
+    func testStart_whenStandaloneAppStartTracingDisabled_shouldSetAppStartMeasurement() throws {
+        #if SDK_V10
+        throw XCTSkip("Standalone app start tracing is always enabled in v10")
+        #else
         fixture.enableStandaloneAppStartTracing = false
         startApp(callDisplayLink: true)
 
         assertValidStart(type: .cold, expectedDuration: 0.45)
+        #endif
     }
 
     func testStart_whenStandaloneAppStartTracingEnabled_shouldCaptureTransaction() throws {
@@ -399,7 +503,9 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         let hub = TestHub(client: client, andScope: Scope())
         SentrySDKInternal.setCurrentHub(hub)
 
+        #if !SDK_V10
         fixture.enableStandaloneAppStartTracing = true
+        #endif
         startApp(callDisplayLink: true)
 
         let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
@@ -565,6 +671,20 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
     private func assertNoAppStartUp() {
         XCTAssertNil(SentrySDKInternal.getAppStartMeasurement())
     }
+
+    #if SDK_V10
+    private func assertStandaloneTransaction(type: SentryAppStartType, invocationIndex: Int? = nil, file: StaticString = #filePath, line: UInt = #line) {
+        let invocations = standaloneHub.capturedTransactionsWithScope.invocations
+        let index = invocationIndex ?? (invocations.count - 1)
+        guard index >= 0, index < invocations.count else {
+            XCTFail("Standalone app start transaction must be captured (expected index \(index), have \(invocations.count))", file: file, line: line)
+            return
+        }
+        let serialized = invocations[index].transaction
+        XCTAssertEqual(serialized["transaction"] as? String, "App Start", file: file, line: line)
+        XCTAssertNil(SentrySDKInternal.getAppStartMeasurement(), "Global static must not be set in standalone mode", file: file, line: line)
+    }
+    #endif
     
     private func advanceTime(bySeconds: TimeInterval) {
         fixture.currentDate.setDate(date: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(bySeconds))

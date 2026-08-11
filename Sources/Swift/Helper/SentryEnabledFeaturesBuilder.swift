@@ -52,11 +52,15 @@ import Foundation
         if options.enableMetrics {
             features.append("metrics")
         }
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        #if SDK_V10
+        features.append("standaloneAppStartTracing")
+        #else
         if options.enableStandaloneAppStartTracing {
             features.append("standaloneAppStartTracing")
         }
-#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        #endif // SDK_V10
+        #endif // os(iOS) || os(tvOS) || os(visionOS)
         if options.experimental.enableWatchdogTerminationsV2 {
             features.append("watchdogTerminationsV2")
         }
