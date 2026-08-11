@@ -133,7 +133,6 @@
 #import "SentryTracerConfiguration.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext+Private.h"
-#import "SentryTransportAdapter.h"
 #import "SentryTransportFactory.h"
 #import "SentryUncaughtNSExceptions.h"
 #import "SentryWeakMap.h"
