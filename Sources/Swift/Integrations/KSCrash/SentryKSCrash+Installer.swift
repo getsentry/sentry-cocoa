@@ -41,6 +41,9 @@ extension SentryKSCrash {
 
         /// Total active time elapsed since the previous crash.
         var activeDurationSinceLastCrash: TimeInterval { get }
+
+        /// Adds additional user information to the crash handler
+        func setUserInfo(_ userInfo: [String: Any])
     }
 
     /// Configures and installs a crash handler.

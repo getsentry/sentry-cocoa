@@ -8,11 +8,11 @@ extension SentryKSCrash {
 extension SentryKSCrash.Scope {
     class Configuration {
         private let options: Options
-        private let installer: SentryKSCrash.Installer
+        private let installer: SentryKSCrash.Installing
 
         private let observer: SentryKSCrash.Scope.Observer
 
-        init(installer: SentryKSCrash.Installer, options: Options) {
+        init(installer: SentryKSCrash.Installing, options: Options) {
             self.installer = installer
             self.options = options
             self.observer = .init(maxBreadcrumbs: options.maxBreadcrumbs)
