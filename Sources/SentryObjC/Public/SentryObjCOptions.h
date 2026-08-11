@@ -138,7 +138,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * When enabled, the SDK sends logs to Sentry. Logs can be captured using the
  * @c SentryObjCSDK.logger API, which provides structured logging with attributes.
- * @note Default value is @c NO.
+ * @note Default value is @c YES.
  * @note In v10 and later, logs are always enabled. Remove this option when upgrading.
  */
 @property (nonatomic) BOOL enableLogs;

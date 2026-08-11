@@ -14,9 +14,6 @@
     [SentryObjCSDK startWithConfigureOptions:^(SentryObjCOptions *options) {
         options.dsn = @"https://key@sentry.io/123";
         options.enableCrashHandler = NO;
-#if !SDK_V10
-        options.enableLogs = YES;
-#endif // !SDK_V10
         options.beforeSendLog = ^SentryObjCLog *(SentryObjCLog *log) {
             weakSelf.capturedLog = log;
             return log;

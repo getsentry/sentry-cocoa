@@ -115,9 +115,6 @@ final class SentryClientTests: XCTestCase {
             let options = Options()
             options.dsn = SentryClientTests.dsn
             options.removeAllIntegrations()
-            #if !SDK_V10
-            options.enableLogs = true
-            #endif // !SDK_V10
             configureOptions(options)
 
             return SentryClientInternal(

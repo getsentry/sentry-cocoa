@@ -589,30 +589,24 @@ class SentrySDKTests: XCTestCase {
     // MARK: - Logger Flush Tests
     
     func testFlush_CallsLoggerCaptureLogs() {
-        #if !SDK_V10
-        fixture.client.options.enableLogs = true
-        #endif // !SDK_V10
         SentrySDKInternal.setCurrentHub(fixture.hub)
         SentrySDK.setStart(with: fixture.client.options)
-        
+
         // Add a log to ensure there's something to flush
         SentrySDK.logger.info("Test log message")
-        
+
         // Verify the log was captured
         XCTAssertEqual(fixture.client.captureLogInvocations.count, 1)
         XCTAssertEqual(fixture.client.captureLogInvocations.first?.log.body, "Test log message")
-        
+
         // Flush the SDK - this should trigger the log buffer to flush
         SentrySDK.flush(timeout: 1.0)
-        
+
         // The log should still be captured (flush doesn't clear the invocations)
         XCTAssertEqual(fixture.client.captureLogInvocations.count, 1)
     }
-    
+
     func testClose_CallsLoggerCaptureLogs() {
-        #if !SDK_V10
-        fixture.client.options.enableLogs = true
-        #endif // !SDK_V10
         SentrySDKInternal.setCurrentHub(fixture.hub)
         SentrySDK.setStart(with: fixture.client.options)
         

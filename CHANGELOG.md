@@ -8,6 +8,7 @@
 - Add experimental option `enableUIViewControllerInitSwizzling` that defers `UIViewController` swizzling to first instantiation instead of eagerly discovering and swizzling all subclasses at SDK start. This avoids realizing `@available`-gated `UIViewController` subclasses on OS versions below their gate, which crashes apps on start (#8687).
 - Add screenshot picker to feedback (#8655)
   - Enable it with `form.enableScreenshot = true` in the `configureForm` callback.
+- Enable logs by default (#8771)
 
 ### Improvements
 

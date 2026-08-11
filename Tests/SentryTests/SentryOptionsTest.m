@@ -214,7 +214,7 @@
 #if !SDK_V10
 - (void)testEnableLogs
 {
-    [self testBooleanField:@"enableLogs" defaultValue:NO];
+    [self testBooleanField:@"enableLogs" defaultValue:YES];
 }
 #endif // !SDK_V10
 
