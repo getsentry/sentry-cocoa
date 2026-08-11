@@ -838,6 +838,20 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertEqual(window.subviews.count, 1, "Mask preview did not appear in production" )
         XCTAssertTrue(window.subviews.first is SentryMaskingPreviewView)
     }
+
+    func testMaskPreview_whenSuperviewResizes_shouldResize() {
+        // -- Arrange --
+        let superview = UIView(frame: .init(x: 0, y: 0, width: 100, height: 100))
+        let preview = SentryMaskingPreviewView(redactOptions: SentryReplayOptions())
+        superview.addSubview(preview)
+
+        // -- Act --
+        superview.frame.size = .init(width: 200, height: 200)
+        superview.layoutIfNeeded()
+
+        // -- Assert --
+        XCTAssertEqual(preview.frame.size, superview.bounds.size)
+    }
     
     func testDontShowMaskPreviewForRelese() throws {
         SentryDependencyContainer.sharedInstance().crashWrapper = TestCrashWrapper(traced: false)

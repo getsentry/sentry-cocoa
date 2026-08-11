@@ -14,17 +14,18 @@ import UIKit
             }
         }
     }
-    
+
     private let photographer: SentryViewPhotographer
-    private var displayLink: CADisplayLink?
     private var imageView = UIImageView()
     private var idle = true
-    
+    private var needsUpdate = false
+    private var updateScheduled = false
+
     public var opacity: Float {
         get { return Float(imageView.alpha) }
-        set { imageView.alpha = CGFloat(newValue)}
+        set { imageView.alpha = CGFloat(newValue) }
     }
-    
+
     public init(redactOptions: SentryRedactOptions) {
         self.photographer = SentryViewPhotographer(
             renderer: PreviewRenderer(),
@@ -34,40 +35,90 @@ import UIKit
         )
         super.init(frame: .zero)
         self.isUserInteractionEnabled = false
-        
+
         imageView.sentryReplayUnmask()
         imageView.frame = bounds
         imageView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         addSubview(imageView)
     }
-        
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    deinit {
-        displayLink?.invalidate()
-    }
-    
+
     public override func didMoveToSuperview() {
-        if displayLink == nil {
-            displayLink = CADisplayLink(target: self, selector: #selector(update))
-            displayLink?.add(to: .main, forMode: .common)
+        super.didMoveToSuperview()
+
+        guard let superview else {
+            cancelPendingUpdate()
+            return
         }
 
-        if let superview = self.superview {
-            self.frame = superview.bounds
+        frame = superview.bounds
+        autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        setNeedsPreviewUpdate()
+    }
+
+    public override func didMoveToWindow() {
+        super.didMoveToWindow()
+
+        if window == nil {
+            cancelPendingUpdate()
+        } else {
+            setNeedsPreviewUpdate()
         }
     }
-    
-    @objc
+
+    public override func layoutSubviews() {
+        super.layoutSubviews()
+        setNeedsPreviewUpdate()
+    }
+
+    public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        setNeedsPreviewUpdate()
+    }
+
+    private func setNeedsPreviewUpdate() {
+        guard superview != nil, window != nil else { return }
+
+        needsUpdate = true
+        scheduleUpdate()
+    }
+
+    private func scheduleUpdate() {
+        guard needsUpdate, idle, !updateScheduled else { return }
+
+        updateScheduled = true
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+
+            self.updateScheduled = false
+            self.update()
+        }
+    }
+
+    private func cancelPendingUpdate() {
+        needsUpdate = false
+    }
+
     private func update() {
-        guard let superview = self.superview, idle else { return }
+        guard needsUpdate, let superview, window != nil, idle else { return }
+
+        needsUpdate = false
         idle = false
-        self.photographer.image(view: superview) { maskedViewImage in
+        photographer.image(view: superview) { [weak self] maskedViewImage in
             DispatchQueue.main.async {
-                self.imageView.image = maskedViewImage
+                guard let self else { return }
+
                 self.idle = true
+                guard self.superview != nil, self.window != nil else { return }
+                guard !self.needsUpdate else {
+                    self.scheduleUpdate()
+                    return
+                }
+
+                self.imageView.image = maskedViewImage
             }
         }
     }
