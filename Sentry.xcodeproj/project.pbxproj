@@ -1713,7 +1713,6 @@
 				Integrations/Performance/UIViewController/SentryUIViewControllerPerformanceTrackerTests.swift,
 				Integrations/Performance/UIViewController/SentryUIViewControllerSwizzlingTests.swift,
 				Integrations/Performance/UIViewController/SentryVCTrackerLaunchProfilingTests.swift,
-				"ViewCapture/SentryUIRedactBuilderTests+UIKit.swift",
 			);
 			target = 3CFC66DE2FF50342004005B4 /* SentryTestsV10 */;
 		};
@@ -1826,7 +1825,6 @@
 			};
 			membershipExceptions = (
 				Info.plist,
-				"ViewCapture/SentryUIRedactBuilderTests+UIKit.swift",
 			);
 			target = 63AA76641EB8CB2F00D153DE /* SentryTests */;
 		};
