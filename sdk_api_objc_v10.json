@@ -2092,13 +2092,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "enableLogs",
-    "parent": "SentryObjCOptions",
-    "returnType": "BOOL",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "enableMemoryIntrospection",
     "parent": "SentryObjCOptions",
     "returnType": "BOOL",
@@ -6054,13 +6047,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "setEnableLogs:",
-    "parent": "SentryObjCOptions",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "setEnableMemoryIntrospection:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
@@ -9389,12 +9375,6 @@
   {
     "kind": "ObjCPropertyDecl",
     "name": "enableGraphQLOperationTracking",
-    "parent": "SentryObjCOptions",
-    "type": "BOOL"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
-    "name": "enableLogs",
     "parent": "SentryObjCOptions",
     "type": "BOOL"
   },
