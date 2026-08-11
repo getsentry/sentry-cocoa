@@ -14,6 +14,8 @@
   "testTargets" : [
     {
       "selectedTests" : [
+        "SentryNetworkDetailSwizzlingTests\/testDataTaskWithRequest_completionHandler_capturesNetworkDetails()",
+        "SentryNetworkDetailSwizzlingTests\/testDataTaskWithURL_completionHandler_capturesNetworkDetails()",
         "SentryNetworkTrackerIntegrationTestServerTests\/testFailedRequest_whenCaptureEnabled_shouldMatchEnvelopeSnapshot()",
         "SentryNetworkTrackerIntegrationTestServerTests\/testGetCaptureFailedRequestsEnabled()",
         "SentryNetworkTrackerIntegrationTestServerTests\/testGetRequest_CompareSentryTraceHeader()",
