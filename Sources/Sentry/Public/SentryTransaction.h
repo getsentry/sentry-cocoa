@@ -8,19 +8,14 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryTracer;
-
 NS_SWIFT_NAME(Transaction)
 @interface SentryTransaction : SentryEvent
 SENTRY_NO_INIT
 - (instancetype)initWithLevel:(SentryLevel)level NS_UNAVAILABLE;
 - (instancetype)initWithError:(NSError *)error NS_UNAVAILABLE;
 
-@property (nonatomic, strong) SentryTracer *trace;
-@property (nonatomic, copy, nullable) NSArray<NSString *> *viewNames;
+/// The child spans belonging to this transaction.
 @property (nonatomic, strong) NSArray<id<SentrySpan>> *spans;
-
-- (instancetype)initWithTrace:(SentryTracer *)trace children:(NSArray<id<SentrySpan>> *)children;
 
 @end
 

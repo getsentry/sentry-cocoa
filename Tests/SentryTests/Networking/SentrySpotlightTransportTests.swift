@@ -51,16 +51,18 @@ final class SentrySpotlightTransportTests: XCTestCase {
     }
     
     private func givenTransactionEnvelope() throws -> SentryEnvelope {
-        let transaction = Transaction(level: .debug)
-        transaction.type = SentryEnvelopeItemTypes.transaction
+        let transaction = try givenTransaction()
 
         return SentryEnvelope(id: transaction.eventId, items: [SentryEnvelopeItem(event: transaction)])
     }
 
-    private func givenTransactionItem() -> SentryEnvelopeItem {
-        let transaction = Transaction(level: .debug)
-        transaction.type = SentryEnvelopeItemTypes.transaction
-        return SentryEnvelopeItem(event: transaction)
+    private func givenTransactionItem() throws -> SentryEnvelopeItem {
+        SentryEnvelopeItem(event: try givenTransaction())
+    }
+
+    private func givenTransaction() throws -> Transaction {
+        let tracer = SentryTracer(context: SpanContext(operation: "test"), framesTracker: nil)
+        return try XCTUnwrap(Dynamic(tracer).toTransaction() as Transaction?)
     }
 
     private func givenAttachmentItem() throws -> SentryEnvelopeItem {
@@ -142,7 +144,7 @@ final class SentrySpotlightTransportTests: XCTestCase {
     func testShouldKeepEventAndTransaction_AndStripAttachment_WhenEnvelopeHasMixedItems() throws {
         // -- Arrange --
         let eventItem = SentryEnvelopeItem(event: TestData.event)
-        let transactionItem = givenTransactionItem()
+        let transactionItem = try givenTransactionItem()
         let attachmentItem = try givenAttachmentItem()
 
         // Order matters: the transport preserves the original item order while filtering.
