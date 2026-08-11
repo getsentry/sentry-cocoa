@@ -30,32 +30,55 @@
 
 - (NSURLRequest *)originalRequest
 {
-    return _request;
+    [_lock lock];
+    NSURLRequest *request = _request;
+    [_lock unlock];
+    return request;
 }
 
 - (NSURLResponse *)response
 {
-    return _response;
+    [_lock lock];
+    NSURLResponse *response = _response;
+    [_lock unlock];
+    return response;
 }
 
 - (void)setResponse:(NSURLResponse *)response
 {
+    [_lock lock];
     _response = response;
+    [_lock unlock];
 }
 
 - (NSError *)error
 {
-    return _error;
+    [_lock lock];
+    NSError *error = _error;
+    [_lock unlock];
+    return error;
 }
 
 - (void)setError:(NSError *)error
 {
+    [_lock lock];
     _error = error;
+    [_lock unlock];
+}
+
+- (NSDate *)resumeDate
+{
+    [_lock lock];
+    NSDate *resumeDate = _resumeDate;
+    [_lock unlock];
+    return resumeDate;
 }
 
 - (void)resume
 {
+    [_lock lock];
     _resumeDate = SentryDependencyContainer.sharedInstance.dateProvider.date;
+    [_lock unlock];
 }
 
 - (int64_t)countOfBytesSent
@@ -114,50 +137,71 @@
     NSURLResponse *_response;
     NSURLSessionTaskState _state;
     NSError *_error;
+    NSLock *_lock;
 }
 
 @dynamic state;
 
 - (void)setState:(NSURLSessionTaskState)state
 {
+    [_lock lock];
     _state = state;
+    [_lock unlock];
 }
 
 - (NSURLSessionTaskState)state
 {
-    return _state;
+    [_lock lock];
+    NSURLSessionTaskState state = _state;
+    [_lock unlock];
+    return state;
 }
 
 @dynamic error;
 
 - (void)setError:(NSError *)error
 {
+    [_lock lock];
     _error = error;
+    [_lock unlock];
 }
 
 - (NSError *)error
 {
-    return _error;
+    [_lock lock];
+    NSError *error = _error;
+    [_lock unlock];
+    return error;
 }
 
 - (NSURLRequest *)currentRequest
 {
-    return _currentRequest;
+    [_lock lock];
+    NSURLRequest *request = _currentRequest;
+    [_lock unlock];
+    return request;
 }
 
 - (void)setCurrentRequest:(NSURLRequest *)request
 {
+    [_lock lock];
     _currentRequest = request;
+    [_lock unlock];
 }
 
 - (NSURLResponse *)response
 {
-    return _response;
+    [_lock lock];
+    NSURLResponse *response = _response;
+    [_lock unlock];
+    return response;
 }
 
 - (void)setResponse:(NSURLResponse *)response
 {
+    [_lock lock];
     _response = response;
+    [_lock unlock];
 }
 
 - (int64_t)countOfBytesSent
@@ -175,6 +219,7 @@
 - (instancetype)initWithRequest:(NSURLRequest *)request
 {
     if (self = [super init]) {
+        _lock = [[NSLock alloc] init];
         _request = request;
         _currentRequest = [_request mutableCopy];
     }
@@ -189,50 +234,71 @@
     NSURLResponse *_response;
     NSURLSessionTaskState _state;
     NSError *_error;
+    NSLock *_lock;
 }
 
 @dynamic state;
 
 - (void)setState:(NSURLSessionTaskState)state
 {
+    [_lock lock];
     _state = state;
+    [_lock unlock];
 }
 
 - (NSURLSessionTaskState)state
 {
-    return _state;
+    [_lock lock];
+    NSURLSessionTaskState state = _state;
+    [_lock unlock];
+    return state;
 }
 
 @dynamic error;
 
 - (void)setError:(NSError *)error
 {
+    [_lock lock];
     _error = error;
+    [_lock unlock];
 }
 
 - (NSError *)error
 {
-    return _error;
+    [_lock lock];
+    NSError *error = _error;
+    [_lock unlock];
+    return error;
 }
 
 - (NSURLRequest *)currentRequest
 {
-    return _currentRequest;
+    [_lock lock];
+    NSURLRequest *request = _currentRequest;
+    [_lock unlock];
+    return request;
 }
 
 - (void)setCurrentRequest:(NSURLRequest *)request
 {
+    [_lock lock];
     _currentRequest = request;
+    [_lock unlock];
 }
 
 - (NSURLResponse *)response
 {
-    return _response;
+    [_lock lock];
+    NSURLResponse *response = _response;
+    [_lock unlock];
+    return response;
 }
 
 - (void)setResponse:(NSURLResponse *)response
 {
+    [_lock lock];
     _response = response;
+    [_lock unlock];
 }
 
 - (int64_t)countOfBytesSent
@@ -250,6 +316,7 @@
 - (instancetype)initWithRequest:(NSURLRequest *)request
 {
     if (self = [super init]) {
+        _lock = [[NSLock alloc] init];
         _request = request;
         _currentRequest = [_request mutableCopy];
     }
@@ -262,33 +329,47 @@
     NSURLRequest *_request;
     NSURLResponse *_response;
     NSURLSessionTaskState _state;
+    NSLock *_lock;
 }
 
 @dynamic state;
 
 - (void)setState:(NSURLSessionTaskState)state
 {
+    [_lock lock];
     _state = state;
+    [_lock unlock];
 }
 
 - (NSURLSessionTaskState)state
 {
-    return _state;
+    [_lock lock];
+    NSURLSessionTaskState state = _state;
+    [_lock unlock];
+    return state;
 }
 
 - (NSURLRequest *)currentRequest
 {
-    return _request;
+    [_lock lock];
+    NSURLRequest *request = _request;
+    [_lock unlock];
+    return request;
 }
 
 - (NSURLResponse *)response
 {
-    return _response;
+    [_lock lock];
+    NSURLResponse *response = _response;
+    [_lock unlock];
+    return response;
 }
 
 - (void)setResponse:(NSURLResponse *)response
 {
+    [_lock lock];
     _response = response;
+    [_lock unlock];
 }
 
 #pragma clang diagnostic push
@@ -296,6 +377,7 @@
 - (instancetype)initWithRequest:(NSURLRequest *)request
 {
     if (self = [super init]) {
+        _lock = [[NSLock alloc] init];
         _request = request;
     }
     return self;
@@ -330,6 +412,8 @@
 
 @implementation VolatileRequestTaskMock {
     NSUInteger _currentRequestAccessCount;
+    NSUInteger _currentRequestAccessLimit;
+    NSLock *_lock;
 }
 
 #pragma clang diagnostic push
@@ -337,16 +421,36 @@
 - (instancetype)initWithRequest:(NSURLRequest *)request
 {
     if (self = [super initWithRequest:request]) {
+        _lock = [[NSLock alloc] init];
         _currentRequestAccessLimit = 1;
     }
     return self;
 }
 #pragma clang diagnostic pop
 
+- (NSUInteger)currentRequestAccessLimit
+{
+    [_lock lock];
+    NSUInteger limit = _currentRequestAccessLimit;
+    [_lock unlock];
+    return limit;
+}
+
+- (void)setCurrentRequestAccessLimit:(NSUInteger)currentRequestAccessLimit
+{
+    [_lock lock];
+    _currentRequestAccessLimit = currentRequestAccessLimit;
+    [_lock unlock];
+}
+
 - (NSURLRequest *)currentRequest
 {
+    [_lock lock];
     _currentRequestAccessCount++;
-    if (_currentRequestAccessCount > self.currentRequestAccessLimit) {
+    BOOL isBeyondAccessLimit = _currentRequestAccessCount > _currentRequestAccessLimit;
+    [_lock unlock];
+
+    if (isBeyondAccessLimit) {
         return nil;
     }
     return [super currentRequest];
@@ -357,6 +461,7 @@
 @implementation MutableRequestTaskMock {
     NSMutableURLRequest *_initialCurrentRequest;
     NSUInteger _setCurrentRequestCallCount;
+    NSLock *_lock;
 }
 
 #pragma clang diagnostic push
@@ -364,6 +469,7 @@
 - (instancetype)initWithRequest:(NSURLRequest *)request
 {
     if (self = [super initWithRequest:request]) {
+        _lock = [[NSLock alloc] init];
         _initialCurrentRequest = (NSMutableURLRequest *)[super currentRequest];
     }
     return self;
@@ -372,17 +478,25 @@
 
 - (NSMutableURLRequest *)initialCurrentRequest
 {
-    return _initialCurrentRequest;
+    [_lock lock];
+    NSMutableURLRequest *request = _initialCurrentRequest;
+    [_lock unlock];
+    return request;
 }
 
 - (NSUInteger)setCurrentRequestCallCount
 {
-    return _setCurrentRequestCallCount;
+    [_lock lock];
+    NSUInteger callCount = _setCurrentRequestCallCount;
+    [_lock unlock];
+    return callCount;
 }
 
 - (void)setCurrentRequest:(NSURLRequest *)request
 {
+    [_lock lock];
     _setCurrentRequestCallCount++;
+    [_lock unlock];
     [super setCurrentRequest:request];
 }
 
