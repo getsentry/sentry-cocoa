@@ -26,6 +26,22 @@ final class SentryOptionsDictionaryTests: XCTestCase {
         XCTAssertTrue(options.enableMemoryIntrospection)
     }
 
+    #if SDK_V10
+    func testInitWithDictionary_whenBeforeSendTransactionIsBlock_shouldSetCallback() throws {
+        // -- Arrange --
+        let callback: @convention(block) (Event) -> Event? = { $0 }
+
+        // -- Act --
+        let options = try Options(dictionary: [
+            "dsn": "https://username:password@sentry.io/1",
+            "beforeSendTransaction": callback
+        ])
+
+        // -- Assert --
+        XCTAssertNotNil(options.beforeSendTransaction)
+    }
+    #endif // SDK_V10
+
     func testInitWithDictionary_whenMemoryIntrospectionNotSet_shouldDefaultToFalse() throws {
         // -- Arrange --
         let dictionary: [String: Any] = [
