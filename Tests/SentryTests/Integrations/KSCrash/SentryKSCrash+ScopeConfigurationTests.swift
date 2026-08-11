@@ -1,4 +1,4 @@
-#if ENABLE_KSCRASH
+#if SDK_V10
 @_spi(Private) import SentryTestUtils
 @_spi(Private) @testable import Sentry
 import XCTest
