@@ -9,7 +9,7 @@ final class SentryKSCrashLegacyRecorderExclusionTests: XCTestCase {
         "__sentry_cxa_rethrow"
     ]
 
-    func testKSCrashBuild_whenInspectingRuntime_shouldNotContainSentryCrashRecorderSymbols() {
+    func testKSCrashBuild_whenInspectingRuntime_shouldNotContainExcludedSentryCrashSymbols() {
         let symbols = [
             "sentrycrash_install",
             "sentrycrashcm_signal_getAPI",
@@ -17,7 +17,18 @@ final class SentryKSCrashLegacyRecorderExclusionTests: XCTestCase {
             "sentrycrashcm_cppexception_getAPI",
             "sentrycrashcm_nsexception_getAPI",
             "sentrycrashbic_startCache",
-            "sentrycrashcrs_initialize"
+            "sentrycrashcrs_initialize",
+            "sentrycrashdate_utcStringFromTimestamp",
+            "sentrycrashdebug_isBeingTraced",
+            "sentrycrashdl_initialize",
+            "sentrycrashid_generate",
+            "sentrycrash_macho_getCommandByTypeFromHeader",
+            "sentrycrashmach_exceptionName",
+            "sentryErrorWithDomain",
+            "sentrycrashobjc_objectType",
+            "sentrycrashsignal_signalName",
+            "sentrycrashstring_extractHexValue",
+            "sentrycrash_scopesync_getScope"
         ]
 
         for symbol in symbols {
@@ -36,6 +47,7 @@ final class SentryKSCrashLegacyRecorderExclusionTests: XCTestCase {
             "SentryCrash",
             "SentryCrashBridge",
             "SentryCrashInstallation",
+            "SentryCrashJSONCodec",
             "SentryCrashReportSink",
             "SentryCrashScopeObserver",
             "SentryCrashSwift",

@@ -42,16 +42,22 @@ jobs:
         include:
           - platform: iOS
             make-target: build-ios-v10
+            objects-configuration: DebugV10-iphonesimulator
           - platform: macOS
             make-target: build-macos-v10
+            objects-configuration: DebugV10
           - platform: Catalyst
             make-target: build-catalyst-v10
+            objects-configuration: DebugV10-maccatalyst
           - platform: tvOS
             make-target: build-tvos-v10
+            objects-configuration: DebugV10-appletvsimulator
           - platform: visionOS
             make-target: build-visionos-v10
+            objects-configuration: DebugV10-xrsimulator
           - platform: watchOS
             make-target: build-watchos-v10
+            objects-configuration: DebugV10-watchsimulator
 
     steps:
       - name: Warm CoreSimulator
@@ -80,6 +86,15 @@ jobs:
           WATCHOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.watchos-simulator-os }}
           WATCHOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: make ${{ matrix.make-target }}
+
+      - name: Verify SentryCrash source allowlist
+        run: |
+          objects_path="$(find "$HOME/Library/Developer/Xcode/DerivedData" -type d -path '*/Sentry.build/${{ matrix.objects-configuration }}/SentryV10.build/Objects-normal' -print -quit)"
+          if [[ -z "$objects_path" ]]; then
+            echo "::error::Could not find SentryV10 object output"
+            exit 1
+          fi
+          ./scripts/verify-v10-sentrycrash-objects.sh --build-path "$objects_path"
 
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
@@ -138,15 +153,19 @@ jobs:
         if: matrix.mode == 'environment'
         env:
           SDK_V10: "1"
-        run: swift build --target SentryObjCInternal --scratch-path .build/v10-environment
+        run: |
+          swift build --target SentryObjCInternal --scratch-path .build/v10-environment
+          ./scripts/verify-v10-sentrycrash-objects.sh --build-path .build/v10-environment
       - name: Build Swift with trait
         if: matrix.mode == 'trait'
         run: swift build --target SentrySwift --traits V10 --scratch-path .build/v10-trait
-      - name: Verify recorder exclusion with trait
+      - name: Verify SentryCrash sources with trait
         if: matrix.mode == 'trait'
         run: |
           swift build --target SentryObjCInternal --traits V10 --scratch-path .build/v10-trait
-          ./scripts/verify-v10-sentrycrash-recorder-objects.sh --build-path .build/v10-trait
+          ./scripts/verify-v10-sentrycrash-objects.sh \
+            --build-path .build/v10-trait \
+            --allow-empty-translation-units
       - name: Build Swift with base manifest
         if: matrix.mode == 'base-manifest'
         env:
@@ -158,7 +177,9 @@ jobs:
         if: matrix.mode == 'base-manifest'
         env:
           SDK_V10: "1"
-        run: swift build --target SentryObjCInternal --scratch-path .build/v10-base-manifest
+        run: |
+          swift build --target SentryObjCInternal --scratch-path .build/v10-base-manifest
+          ./scripts/verify-v10-sentrycrash-objects.sh --build-path .build/v10-base-manifest
 
   build-v10-required-check:
     needs:

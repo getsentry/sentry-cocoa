@@ -1,4 +1,5 @@
 #include "Sentry.xcconfig"
+#include "SentryCrashV10ToolSources.xcconfig"
 
 // This target provides the KSCrash-backed SDK used by all V10 configurations.
 // SENTRY_DISABLE_SENTRYCRASH_V10 is temporary while dependencies on the legacy recorder are removed.
@@ -11,9 +12,10 @@ IMPLICIT_DEPENDENCY_DOMAIN = SentryV10
 PRODUCT_NAME = $(PRODUCT_MODULE_NAME)
 
 // Sentry.xcconfig excludes KSCrash sources from the plain Sentry target. The KSCrash variant owns
-// those files, but must not compile SentryCrash's recorder alongside upstream KSCrash. Keep the
-// low-level tools that are still shared by reporter-neutral SDK features until they are migrated.
-EXCLUDED_SOURCE_FILE_NAMES = $(SRCROOT)/Sources/SentryCrash/Installations/* $(SRCROOT)/Sources/SentryCrash/Reporting/*/* $(SRCROOT)/Sources/SentryCrash/Reporting/*/*/* $(SRCROOT)/Sources/SentryCrash/Recording/Monitors/* $(SRCROOT)/Sources/SentryCrash/Recording/SentryCrash* $(SRCROOT)/Sources/SentryCrash/Recording/Tools/SentryCrashCxaThrowSwapper.* $(SRCROOT)/Sources/Sentry/SentryCrashReportSink.m $(SRCROOT)/Sources/Sentry/SentryCrashScopeObserver.m $(SRCROOT)/Sources/Swift/Integrations/SentryCrash/* $(SRCROOT)/Sources/Swift/SentryCrash/SentryCrashSwift.swift $(SRCROOT)/Sources/Swift/SentryCrash/SentryDefaultCrashReporter.swift
+// those files, but must not compile SentryCrash's recorder alongside upstream KSCrash. Exclude the
+// entire legacy Tool directory, then opt in only to the temporary centralized allowlist.
+EXCLUDED_SOURCE_FILE_NAMES = $(SRCROOT)/Sources/SentryCrash/Installations/* $(SRCROOT)/Sources/SentryCrash/Reporting/*/* $(SRCROOT)/Sources/SentryCrash/Reporting/*/*/* $(SRCROOT)/Sources/SentryCrash/Recording/Monitors/* $(SRCROOT)/Sources/SentryCrash/Recording/SentryCrash* $(SRCROOT)/Sources/SentryCrash/Recording/Tools/* $(SRCROOT)/Sources/Sentry/SentryCrashReportSink.m $(SRCROOT)/Sources/Sentry/SentryCrashScopeObserver.m $(SRCROOT)/Sources/Sentry/SentryScopeSyncC.c $(SRCROOT)/Sources/Swift/Integrations/SentryCrash/* $(SRCROOT)/Sources/Swift/SentryCrash/SentryCrashSwift.swift $(SRCROOT)/Sources/Swift/SentryCrash/SentryDefaultCrashReporter.swift
+INCLUDED_SOURCE_FILE_NAMES = $(inherited) $(SENTRYCRASH_V10_RETAINED_TOOL_SOURCE_FILE_NAMES)
 
 // Add Sources/Sentry/Public to header search paths so that _SentryPrivate module compilation
 // can find SentryProfilingConditionals.h (a public header not under include/).

@@ -1,10 +1,12 @@
-#include "SentryScopeSyncC.h"
-#include <pthread.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#if !SDK_V10
 
-#define NUMBER_OF_FIELDS 9
+#    include "SentryScopeSyncC.h"
+#    include <pthread.h>
+#    include <stdio.h>
+#    include <stdlib.h>
+#    include <string.h>
+
+#    define NUMBER_OF_FIELDS 9
 
 static SentryCrashScope scope = { 0 };
 
@@ -141,3 +143,5 @@ sentrycrash_scopesync_reset(void)
     sentrycrash_scopesync_clear();
     scope.breadcrumbs = NULL;
 }
+
+#endif // !SDK_V10

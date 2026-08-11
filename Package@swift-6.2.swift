@@ -15,6 +15,21 @@ func envFlag(_ name: String) -> Bool {
 }
 
 let enableV10 = envFlag("SDK_V10")
+// SwiftPM has no source include override; CI audits this complement against the Xcode allowlist.
+let v10ExcludedSentryCrashToolSources = [
+    "SentryCrash/Recording/Tools/SentryCrashCxaThrowSwapper.c",
+    "SentryCrash/Recording/Tools/SentryCrashDate.c",
+    "SentryCrash/Recording/Tools/SentryCrashDebug.c",
+    "SentryCrash/Recording/Tools/SentryCrashDynamicLinker.c",
+    "SentryCrash/Recording/Tools/SentryCrashID.c",
+    "SentryCrash/Recording/Tools/SentryCrashJSONCodecObjC.m",
+    "SentryCrash/Recording/Tools/SentryCrashMach-O.c",
+    "SentryCrash/Recording/Tools/SentryCrashMach.c",
+    "SentryCrash/Recording/Tools/SentryCrashNSErrorUtil.m",
+    "SentryCrash/Recording/Tools/SentryCrashObjC.c",
+    "SentryCrash/Recording/Tools/SentryCrashSignalInfo.c",
+    "SentryCrash/Recording/Tools/SentryCrashString.c"
+]
 let v10SwiftSettings: [SwiftSetting] = enableV10
     ? [.define("SDK_V10"), .define("SENTRY_DISABLE_SENTRYCRASH_V10")]
     : [
@@ -160,7 +175,7 @@ var sentryObjCInternalExcludes = [
 ]
 
 if enableV10 {
-    sentryObjCInternalExcludes += [
+    sentryObjCInternalExcludes += v10ExcludedSentryCrashToolSources + [
         "Sentry/SentryCrashReportSink.m",
         "Sentry/SentryCrashScopeObserver.m",
         "SentryCrash/Installations",
@@ -182,8 +197,8 @@ if enableV10 {
         "SentryCrash/Recording/SentryCrashReportStore.c",
         "SentryCrash/Recording/SentryCrashReportStore.h",
         "SentryCrash/Recording/SentryCrashReportVersion.h",
-        "SentryCrash/Recording/Tools/SentryCrashCxaThrowSwapper.c",
-        "SentryCrash/Recording/Tools/SentryCrashCxaThrowSwapper.h"
+        "SentryCrash/Recording/Tools/SentryCrashCxaThrowSwapper.h",
+        "Sentry/SentryScopeSyncC.c"
     ]
 }
 

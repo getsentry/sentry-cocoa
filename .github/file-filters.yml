@@ -364,7 +364,7 @@ run_v10_for_prs: &run_v10_for_prs
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
   - "scripts/sentry-xcodebuild.sh"
-  - "scripts/verify-v10-sentrycrash-recorder-objects.sh"
+  - "scripts/verify-v10-sentrycrash-objects.sh"
 
   # Project files
   - "Sentry.xcodeproj/**"
