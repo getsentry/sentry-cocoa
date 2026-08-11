@@ -14,12 +14,16 @@
 
 - (void)setState:(NSURLSessionTaskState)state
 {
-    _state = state;
+    @synchronized(self) {
+        _state = state;
+    }
 }
 
 - (NSURLSessionTaskState)state
 {
-    return _state;
+    @synchronized(self) {
+        return _state;
+    }
 }
 
 - (NSURLRequest *)originalRequest
@@ -64,12 +68,16 @@
 
 - (NSURLRequest *)currentRequest
 {
-    return _currentRequest;
+    @synchronized(self) {
+        return _currentRequest;
+    }
 }
 
 - (void)setCurrentRequest:(NSURLRequest *)request
 {
-    _currentRequest = request;
+    @synchronized(self) {
+        _currentRequest = request;
+    }
 }
 
 #pragma clang diagnostic push
