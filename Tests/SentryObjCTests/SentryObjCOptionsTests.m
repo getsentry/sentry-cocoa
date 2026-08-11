@@ -533,6 +533,7 @@
     XCTAssertTrue(options.strictTraceContinuation);
 }
 
+#if !SDK_V10
 - (void)testEnableMetrics_whenSetToYes_shouldReturnYes
 {
     // -- Arrange --
@@ -544,6 +545,7 @@
     // -- Assert --
     XCTAssertTrue(options.enableMetrics);
 }
+#endif // !SDK_V10
 
 #pragma mark - Numeric properties
 

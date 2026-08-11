@@ -44,7 +44,11 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
             return
         }
         guard let integration = dependencies.metricsIntegration else {
+#if SDK_V10
+            SentrySDKLog.warning("Metric '\(name)' was not captured because the metrics integration is not installed.")
+#else
             SentrySDKLog.warning("Metric '\(name)' was not captured because metrics are disabled. Enable metrics by setting 'options.enableMetrics = true' when starting the SDK.")
+#endif // SDK_V10
             return
         }
 

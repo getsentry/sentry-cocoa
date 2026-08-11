@@ -83,9 +83,11 @@ extension Options {
         }
         #endif // !SDK_V10
 
+        #if !SDK_V10
         if let enableMetrics = boolValue(dictionary["enableMetrics"]) {
             self.enableMetrics = enableMetrics
         }
+        #endif // !SDK_V10
 
         if let enableNetworkBreadcrumbs = boolValue(dictionary["enableNetworkBreadcrumbs"]) {
             self.enableNetworkBreadcrumbs = enableNetworkBreadcrumbs

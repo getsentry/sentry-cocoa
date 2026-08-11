@@ -218,10 +218,12 @@
 }
 #endif // !SDK_V10
 
+#if !SDK_V10
 - (void)testEnableMetrics
 {
     [self testBooleanField:@"enableMetrics" defaultValue:YES];
 }
+#endif // !SDK_V10
 
 - (void)testEnableAutoBreadcrumbTracking
 {

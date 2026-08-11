@@ -755,10 +755,13 @@
 
     // MARK: - Integration: Metrics
 
+    #if !SDK_V10
     /// When enabled, the SDK sends metrics to Sentry. Metrics can be captured using the ``SentrySDK/metrics``
     /// API, which allows you to send, view and query counters, gauges and measurements.
     /// @note Default value is @c true.
+    /// @note In v10 and later, metrics are always enabled. Remove this option when upgrading.
     @objc public var enableMetrics: Bool = true
+    #endif // !SDK_V10
 
     /// Use this callback to drop or modify a metric before the SDK sends it to Sentry. Return nil to
     /// drop the metric.

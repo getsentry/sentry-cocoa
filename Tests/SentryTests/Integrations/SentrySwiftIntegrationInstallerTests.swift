@@ -25,7 +25,9 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         options.enableAppHangTracking = false
         options.enableWatchdogTerminationTracking = false
         options.enableSwizzling = false
+        #if !SDK_V10
         options.enableMetrics = false
+        #endif // !SDK_V10
         options.enableCrashHandler = false
         #if canImport(MetricKit) && !os(tvOS)
         options.enableMetricKit = false
@@ -57,7 +59,9 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         options.enableAppHangTracking = false
         options.enableWatchdogTerminationTracking = false
         options.enableSwizzling = false
+        #if !SDK_V10
         options.enableMetrics = false
+        #endif // !SDK_V10
         options.enableCrashHandler = false
         #if canImport(MetricKit) && !os(tvOS)
         options.enableMetricKit = false

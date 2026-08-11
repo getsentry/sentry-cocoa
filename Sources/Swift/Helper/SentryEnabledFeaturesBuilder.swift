@@ -49,9 +49,13 @@ import Foundation
         if options.experimental.enableUnhandledCPPExceptionsV2 {
             features.append("unhandledCPPExceptionsV2")
         }
+        #if SDK_V10
+        features.append("metrics")
+        #else
         if options.enableMetrics {
             features.append("metrics")
         }
+        #endif // SDK_V10
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         #if SDK_V10
         features.append("standaloneAppStartTracing")

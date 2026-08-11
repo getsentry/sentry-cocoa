@@ -549,9 +549,11 @@ import Foundation
         set { wrapped.experimental = newValue.wrapped }
     }
 
+    #if !SDK_V10
     @objc public var enableMetrics: Bool {
         get { wrapped.enableMetrics }
         set { wrapped.enableMetrics = newValue }
     }
+    #endif // !SDK_V10
 }
 // swiftlint:enable file_length missing_docs type_body_length

@@ -273,7 +273,9 @@ public struct SentrySDKWrapper {
         #endif // !SDK_V10
 
         // Integration: Metrics
+        #if !SDK_V10
         options.enableMetrics = SentrySDKOverrides.Metrics.enable.boolValue
+        #endif // !SDK_V10
         options.beforeSendMetric = { metric in
             // Modify the metric in the callback
             var modifiedMetric = metric

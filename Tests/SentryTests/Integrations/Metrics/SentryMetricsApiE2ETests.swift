@@ -41,6 +41,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
         XCTAssertEqual(client.testMetricsBuffer.addInvocations.count, 0)
     }
 
+    #if !SDK_V10
     func testCount_withMetricsDisabled_shouldNotCreateMetric() throws {
         // -- Arrange --
         let client = try givenSdkWithHub(isMetricsEnabled: false)
@@ -51,6 +52,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(client.testMetricsBuffer.addInvocations.count, 0)
     }
+    #endif // !SDK_V10
 
     func testCount_withZeroValue_shouldCreateMetric() throws {
         // -- Arrange --
@@ -132,6 +134,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
         XCTAssertEqual(client.testMetricsBuffer.addInvocations.count, 0)
     }
 
+    #if !SDK_V10
     func testDistribution_withMetricsDisabled_shouldNotCreateMetric() throws {
         // -- Arrange --
         let client = try givenSdkWithHub(isMetricsEnabled: false)
@@ -142,6 +145,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(client.testMetricsBuffer.addInvocations.count, 0)
     }
+    #endif // !SDK_V10
 
     func testDistribution_withNegativeValue_shouldCreateMetric() throws {
         // -- Arrange --
@@ -206,6 +210,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
         XCTAssertEqual(client.testMetricsBuffer.addInvocations.count, 0)
     }
 
+    #if !SDK_V10
     func testGauge_withMetricsDisabled_shouldNotCreateMetric() throws {
         // -- Arrange --
         let client = try givenSdkWithHub(isMetricsEnabled: false)
@@ -216,6 +221,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(client.testMetricsBuffer.addInvocations.count, 0)
     }
+    #endif // !SDK_V10
 
     func testGauge_withNegativeValue_shouldCreateMetric() throws {
         // -- Arrange --
@@ -261,7 +267,9 @@ class SentryMetricsApiE2ETests: XCTestCase {
         let options = Options()
         options.dsn = TestConstants.dsnForTestCase(type: Self.self)
         options.removeAllIntegrations()
+        #if !SDK_V10
         options.enableMetrics = isMetricsEnabled
+        #endif // !SDK_V10
 
         let client = try XCTUnwrap(E2EMetricsTestClient(options: options))
         let hub = SentryHubInternal(

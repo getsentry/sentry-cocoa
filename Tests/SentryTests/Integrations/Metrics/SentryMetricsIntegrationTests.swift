@@ -13,6 +13,7 @@ class SentryMetricsIntegrationTests: XCTestCase {
 
     // MARK: - Tests
 
+    #if !SDK_V10
     func testStartSDK_whenIntegrationIsNotEnabled_shouldNotBeInstalled() {
         // -- Arrange --
         // SDK not enabled in startSDK call
@@ -23,6 +24,7 @@ class SentryMetricsIntegrationTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().count, 0)
     }
+    #endif // !SDK_V10
 
     func testStartSDK_whenIntegrationIsEnabled_shouldBeInstalled() {
         // -- Arrange --
@@ -476,7 +478,9 @@ class SentryMetricsIntegrationTests: XCTestCase {
             $0.dsn = TestConstants.dsnForTestCase(type: Self.self)
             $0.removeAllIntegrations()
 
+            #if !SDK_V10
             $0.enableMetrics = isEnabled
+            #endif // !SDK_V10
 
             configure?($0)
         }
@@ -487,7 +491,9 @@ class SentryMetricsIntegrationTests: XCTestCase {
         let options = Options()
         options.dsn = TestConstants.dsnForTestCase(type: Self.self)
         options.removeAllIntegrations()
+        #if !SDK_V10
         options.enableMetrics = true
+        #endif // !SDK_V10
 
         configure?(options)
 

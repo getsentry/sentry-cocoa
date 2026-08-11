@@ -291,6 +291,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         XCTAssertFalse(features.contains("unhandledCPPExceptionsV2"))
     }
 
+    #if !SDK_V10
     func testEnableMetrics_isEnabled_shouldAddFeature() throws {
         // -- Arrange --
         let options = Options()
@@ -314,6 +315,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         // -- Assert --
         XCTAssertFalse(features.contains("metrics"))
     }
+    #endif // !SDK_V10
 
     func testEnableStandaloneAppStartTracing_isEnabled_shouldAddFeature() throws {
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
