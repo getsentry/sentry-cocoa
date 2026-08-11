@@ -844,8 +844,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
 #if SDK_V10
-    if (eventIsATransaction && event != nil && self.options.beforeSendTransaction != nil) {
-        event = self.options.beforeSendTransaction(SENTRY_UNWRAP_NULLABLE(SentryEvent, event));
+    if (eventIsATransactionClass && event != nil && self.options.beforeSendTransaction != nil) {
+        event = self.options.beforeSendTransaction((SentryTransaction *)event);
         if (event == nil) {
             [self recordLost:NO reason:SentryDiscardReasonBeforeSend];
             // We dropped the whole transaction, the dropped count includes all child spans + 1

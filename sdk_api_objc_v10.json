@@ -762,6 +762,12 @@
   },
   {
     "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCTransaction",
+    "super": "SentryObjCEvent",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
     "name": "SentryObjCTransactionContext",
     "super": "SentryObjCSpanContext",
     "has_inner": true
@@ -1072,7 +1078,7 @@
     "kind": "ObjCMethodDecl",
     "name": "beforeSendTransaction",
     "parent": "SentryObjCOptions",
-    "returnType": "SentryObjCEvent * _Nullable (^ _Nullable)(SentryObjCEvent * _Nonnull)",
+    "returnType": "SentryObjCTransaction * _Nullable (^ _Nullable)(SentryObjCTransaction * _Nonnull)",
     "instance": true
   },
   {
@@ -3346,6 +3352,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "init",
+    "parent": "SentryObjCTransaction",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
     "parent": "SentryObjCUnit",
     "returnType": "instancetype _Nonnull",
     "instance": true
@@ -4747,6 +4760,13 @@
     "kind": "ObjCMethodDecl",
     "name": "new",
     "parent": "SentryObjCTraceHeader",
+    "returnType": "instancetype _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "new",
+    "parent": "SentryObjCTransaction",
     "returnType": "instancetype _Nonnull",
     "instance": false
   },
@@ -8986,7 +9006,7 @@
     "kind": "ObjCPropertyDecl",
     "name": "beforeSendTransaction",
     "parent": "SentryObjCOptions",
-    "type": "SentryObjCEvent * _Nullable (^ _Nullable)(SentryObjCEvent * _Nonnull)"
+    "type": "SentryObjCTransaction * _Nullable (^ _Nullable)(SentryObjCTransaction * _Nonnull)"
   },
   {
     "kind": "ObjCPropertyDecl",

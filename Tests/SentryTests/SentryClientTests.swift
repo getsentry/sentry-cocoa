@@ -1512,21 +1512,21 @@ final class SentryClientTests: XCTestCase {
 #endif // !SDK_V10
     }
 
-    func testCaptureTransaction_whenBeforeSendTransactionReturnsEvent_shouldSendEvent() throws {
+    func testCaptureTransaction_whenBeforeSendTransactionReturnsTransaction_shouldSendTransaction() throws {
 #if !SDK_V10
         throw XCTSkip("Test skipped for SDK_V10")
 #else
         // -- Arrange --
-        let returnedEvent = Event()
+        let returnedTransaction = Transaction(trace: fixture.trace, children: [])
         let sut = fixture.getSut(configureOptions: { options in
-            options.beforeSendTransaction = { _ in returnedEvent }
+            options.beforeSendTransaction = { (_: Transaction) -> Transaction? in returnedTransaction }
         })
 
         // -- Act --
         sut.capture(event: fixture.transaction)
 
         // -- Assert --
-        XCTAssertIdentical(returnedEvent, try lastSentEvent())
+        XCTAssertIdentical(returnedTransaction, try lastSentEvent())
 #endif // !SDK_V10
     }
 
@@ -3148,16 +3148,15 @@ private extension SentryClientTests {
         _ options: Options,
         callback: @escaping (Transaction) -> Transaction?
     ) {
-        let eventCallback: (Event) -> Event? = { event in
+#if SDK_V10
+        options.beforeSendTransaction = callback
+#else
+        options.beforeSend = { event in
             guard let transaction = event as? Transaction else {
                 return event
             }
             return callback(transaction)
         }
-#if SDK_V10
-        options.beforeSendTransaction = eventCallback
-#else
-        options.beforeSend = eventCallback
 #endif // SDK_V10
     }
     

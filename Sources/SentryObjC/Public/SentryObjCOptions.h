@@ -4,10 +4,12 @@
 #    import "SentryObjCDefines.h"
 #    import "SentryObjCLastRunStatus.h"
 #    import "SentryObjCLevel.h"
+#    import "SentryObjCTransaction.h"
 #else
 #    import <SentryObjC/SentryObjCDefines.h>
 #    import <SentryObjC/SentryObjCLastRunStatus.h>
 #    import <SentryObjC/SentryObjCLevel.h>
+#    import <SentryObjC/SentryObjCTransaction.h>
 #endif
 
 @class SentryObjCBreadcrumb;
@@ -130,8 +132,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 #if SDK_V10
 /// This block can be used to modify a transaction before it will be serialized and sent.
-@property (nonatomic, copy, nullable) SentryObjCEvent *_Nullable (^beforeSendTransaction)
-    (SentryObjCEvent *);
+@property (nonatomic, copy, nullable) SentryObjCTransaction *_Nullable (^beforeSendTransaction)
+    (SentryObjCTransaction *);
 #endif // SDK_V10
 
 /**

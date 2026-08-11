@@ -110,14 +110,14 @@ import Foundation
     }
 
     #if SDK_V10
-    @objc public var beforeSendTransaction: ((SentryObjCEvent) -> SentryObjCEvent?)? {
+    @objc public var beforeSendTransaction: ((SentryObjCTransaction) -> SentryObjCTransaction?)? {
         didSet {
             if let beforeSendTransaction = beforeSendTransaction {
                 wrapped.beforeSendTransaction = { transaction in
-                    guard let result = beforeSendTransaction(SentryObjCEvent(transaction)) else {
+                    guard let result = beforeSendTransaction(SentryObjCTransaction(transaction)) else {
                         return nil
                     }
-                    return result.wrapped
+                    return result.wrappedTransaction
                 }
             } else {
                 wrapped.beforeSendTransaction = nil

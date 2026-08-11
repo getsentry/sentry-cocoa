@@ -4,6 +4,7 @@
 #import "SentrySanitizerUtils.h"
 #import "SentrySpanInternal+Private.h"
 #import "SentrySwift.h"
+#import "SentryTracer.h"
 #import "SentryTransactionContext.h"
 
 NS_ASSUME_NONNULL_BEGIN
