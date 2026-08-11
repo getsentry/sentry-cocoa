@@ -167,7 +167,7 @@ case $PLATFORM in
 
 "tvOS")
     RESOLVED_OS=$(resolve_runtime_version "$PLATFORM" "$OS")
-    DESTINATION="platform=tvOS Simulator,OS=$RESOLVED_OS,name=Apple TV"
+    DESTINATION="platform=tvOS Simulator,OS=$RESOLVED_OS,name=$DEVICE"
     ;;
 
 "visionOS")
