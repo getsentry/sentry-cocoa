@@ -32,8 +32,8 @@ final class SentryViewRendererV2Tests: XCTestCase {
         XCTAssertEqual(image.size, view.bounds.size)
         XCTAssertEqual(image.scale, window.screen.scale)
         XCTAssertEqual(try XCTUnwrap(image.cgImage).width, Int(view.bounds.width * window.screen.scale))
-        assertColor(.red, at: CGPoint(x: 5, y: 10), in: image)
-        assertColor(.blue, at: CGPoint(x: 30, y: 10), in: image)
+        assertImagePixelColor(.red, at: CGPoint(x: 5, y: 10), in: image)
+        assertImagePixelColor(.blue, at: CGPoint(x: 30, y: 10), in: image)
     }
 
     func testRender_whenUsingFastRendering_shouldRenderSublayers() {
@@ -68,8 +68,8 @@ final class SentryViewRendererV2Tests: XCTestCase {
         let image = sut.render(view: view)
 
         // -- Assert --
-        assertColor(.red, at: CGPoint(x: 5, y: 10), in: image)
-        assertColor(.blue, at: CGPoint(x: 30, y: 10), in: image)
+        assertImagePixelColor(.red, at: CGPoint(x: 5, y: 10), in: image)
+        assertImagePixelColor(.blue, at: CGPoint(x: 30, y: 10), in: image)
     }
 
     private final class DrawHierarchyView: UIView {
@@ -101,51 +101,5 @@ final class SentryViewRendererV2Tests: XCTestCase {
         return window
     }
 
-    private func assertColor(
-        _ expected: UIColor,
-        at point: CGPoint,
-        in image: UIImage,
-        file: StaticString = #filePath,
-        line: UInt = #line
-    ) {
-        guard let actual = color(at: point, in: image) else {
-            return XCTFail("Could not read image pixel at \(point)", file: file, line: line)
-        }
-
-        var expectedRed: CGFloat = 0
-        var expectedGreen: CGFloat = 0
-        var expectedBlue: CGFloat = 0
-        var expectedAlpha: CGFloat = 0
-        guard expected.getRed(&expectedRed, green: &expectedGreen, blue: &expectedBlue, alpha: &expectedAlpha) else {
-            return XCTFail("Could not convert expected color to RGB", file: file, line: line)
-        }
-
-        XCTAssertEqual(actual.red, expectedRed, accuracy: 0.01, file: file, line: line)
-        XCTAssertEqual(actual.green, expectedGreen, accuracy: 0.01, file: file, line: line)
-        XCTAssertEqual(actual.blue, expectedBlue, accuracy: 0.01, file: file, line: line)
-        XCTAssertEqual(actual.alpha, expectedAlpha, accuracy: 0.01, file: file, line: line)
-    }
-
-    private func color(at point: CGPoint, in image: UIImage) -> (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat)? {
-        guard let cgImage = image.cgImage,
-              let pixelData = cgImage.dataProvider?.data,
-              let bytes = CFDataGetBytePtr(pixelData) else {
-            return nil
-        }
-
-        let x = Int(point.x * image.scale)
-        let y = Int(point.y * image.scale)
-        guard x >= 0, x < cgImage.width, y >= 0, y < cgImage.height else {
-            return nil
-        }
-
-        let offset = y * cgImage.bytesPerRow + x * 4
-        return (
-            CGFloat(bytes[offset]) / 255,
-            CGFloat(bytes[offset + 1]) / 255,
-            CGFloat(bytes[offset + 2]) / 255,
-            CGFloat(bytes[offset + 3]) / 255
-        )
-    }
 }
 #endif

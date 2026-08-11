@@ -64,19 +64,19 @@ final class SentryViewPhotographerV2Tests: XCTestCase {
         let result = sut.image(view: rootView)
 
         // -- Assert --
-        assertColor(.red, at: CGPoint(x: 2, y: 2), in: result)
-        assertColor(.green, at: CGPoint(x: 22, y: 2), in: result)
+        assertImagePixelColor(.red, at: CGPoint(x: 2, y: 2), in: result)
+        assertImagePixelColor(.green, at: CGPoint(x: 22, y: 2), in: result)
 
-        let imageMaskLeft = try XCTUnwrap(color(at: CGPoint(x: 45, y: 10), in: result))
-        let imageMaskRight = try XCTUnwrap(color(at: CGPoint(x: 55, y: 10), in: result))
-        assertEqual(imageMaskLeft, imageMaskRight)
+        let imageMaskLeft = try XCTUnwrap(imagePixel(at: CGPoint(x: 45, y: 10), in: result))
+        let imageMaskRight = try XCTUnwrap(imagePixel(at: CGPoint(x: 55, y: 10), in: result))
+        assertImagePixelsEqual(imageMaskLeft, imageMaskRight)
         XCTAssertEqual(imageMaskLeft.red, 0.5, accuracy: 0.1)
         XCTAssertEqual(imageMaskLeft.green, 0.5, accuracy: 0.1)
         XCTAssertEqual(imageMaskLeft.blue, 0.5, accuracy: 0.1)
 
-        let explicitMaskLeft = try XCTUnwrap(color(at: CGPoint(x: 65, y: 10), in: result))
-        let explicitMaskRight = try XCTUnwrap(color(at: CGPoint(x: 75, y: 10), in: result))
-        assertEqual(explicitMaskLeft, explicitMaskRight)
+        let explicitMaskLeft = try XCTUnwrap(imagePixel(at: CGPoint(x: 65, y: 10), in: result))
+        let explicitMaskRight = try XCTUnwrap(imagePixel(at: CGPoint(x: 75, y: 10), in: result))
+        assertImagePixelsEqual(explicitMaskLeft, explicitMaskRight)
         XCTAssertEqual(explicitMaskLeft.red, 0.5, accuracy: 0.1)
         XCTAssertEqual(explicitMaskLeft.green, 0.5, accuracy: 0.1)
         XCTAssertEqual(explicitMaskLeft.blue, 1, accuracy: 0.1)
@@ -125,8 +125,8 @@ final class SentryViewPhotographerV2Tests: XCTestCase {
         let result = sut.image(view: rootView)
 
         // -- Assert --
-        assertColor(.black, at: CGPoint(x: 5, y: 10), in: result)
-        assertColor(.green, at: CGPoint(x: 30, y: 10), in: result)
+        assertImagePixelColor(.black, at: CGPoint(x: 5, y: 10), in: result)
+        assertImagePixelColor(.green, at: CGPoint(x: 30, y: 10), in: result)
     }
 
     func testImage_whenTransparentViewCoversText_shouldStillMaskCoveredText() {
@@ -170,8 +170,8 @@ final class SentryViewPhotographerV2Tests: XCTestCase {
         let result = sut.image(view: rootView)
 
         // -- Assert --
-        assertColor(.black, at: CGPoint(x: 5, y: 10), in: result)
-        assertColor(.black, at: CGPoint(x: 30, y: 10), in: result)
+        assertImagePixelColor(.black, at: CGPoint(x: 5, y: 10), in: result)
+        assertImagePixelColor(.black, at: CGPoint(x: 30, y: 10), in: result)
     }
 
     private func makeSplitImage(leftColor: UIColor, rightColor: UIColor) -> UIImage {
@@ -185,63 +185,5 @@ final class SentryViewPhotographerV2Tests: XCTestCase {
         }
     }
 
-    private func assertEqual(
-        _ lhs: (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat),
-        _ rhs: (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat),
-        file: StaticString = #filePath,
-        line: UInt = #line
-    ) {
-        XCTAssertEqual(lhs.red, rhs.red, accuracy: 0.01, file: file, line: line)
-        XCTAssertEqual(lhs.green, rhs.green, accuracy: 0.01, file: file, line: line)
-        XCTAssertEqual(lhs.blue, rhs.blue, accuracy: 0.01, file: file, line: line)
-        XCTAssertEqual(lhs.alpha, rhs.alpha, accuracy: 0.01, file: file, line: line)
-    }
-
-    private func assertColor(
-        _ expected: UIColor,
-        at point: CGPoint,
-        in image: UIImage,
-        file: StaticString = #filePath,
-        line: UInt = #line
-    ) {
-        guard let actual = color(at: point, in: image) else {
-            return XCTFail("Could not read image pixel at \(point)", file: file, line: line)
-        }
-
-        var expectedRed: CGFloat = 0
-        var expectedGreen: CGFloat = 0
-        var expectedBlue: CGFloat = 0
-        var expectedAlpha: CGFloat = 0
-        guard expected.getRed(&expectedRed, green: &expectedGreen, blue: &expectedBlue, alpha: &expectedAlpha) else {
-            return XCTFail("Could not convert expected color to RGB", file: file, line: line)
-        }
-
-        XCTAssertEqual(actual.red, expectedRed, accuracy: 0.01, file: file, line: line)
-        XCTAssertEqual(actual.green, expectedGreen, accuracy: 0.01, file: file, line: line)
-        XCTAssertEqual(actual.blue, expectedBlue, accuracy: 0.01, file: file, line: line)
-        XCTAssertEqual(actual.alpha, expectedAlpha, accuracy: 0.01, file: file, line: line)
-    }
-
-    private func color(at point: CGPoint, in image: UIImage) -> (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat)? {
-        guard let cgImage = image.cgImage,
-              let pixelData = cgImage.dataProvider?.data,
-              let bytes = CFDataGetBytePtr(pixelData) else {
-            return nil
-        }
-
-        let x = Int(point.x * image.scale)
-        let y = Int(point.y * image.scale)
-        guard x >= 0, x < cgImage.width, y >= 0, y < cgImage.height else {
-            return nil
-        }
-
-        let offset = y * cgImage.bytesPerRow + x * 4
-        return (
-            CGFloat(bytes[offset]) / 255,
-            CGFloat(bytes[offset + 1]) / 255,
-            CGFloat(bytes[offset + 2]) / 255,
-            CGFloat(bytes[offset + 3]) / 255
-        )
-    }
 }
 #endif

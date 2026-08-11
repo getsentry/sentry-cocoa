@@ -39,9 +39,9 @@ final class SentryMaskRendererV2Tests: XCTestCase {
         let result = sut.maskScreenshot(screenshot: image, size: image.size, masking: [region])
 
         // -- Assert --
-        assertColor(.red, at: CGPoint(x: 12, y: 10), in: result)
-        assertColor(.blue, at: CGPoint(x: 17, y: 10), in: result)
-        assertColor(.red, at: CGPoint(x: 25, y: 10), in: result)
+        assertImagePixelColor(.red, at: CGPoint(x: 12, y: 10), in: result)
+        assertImagePixelColor(.blue, at: CGPoint(x: 17, y: 10), in: result)
+        assertImagePixelColor(.red, at: CGPoint(x: 25, y: 10), in: result)
     }
 
     func testMaskScreenshot_whenColorIsNotProvided_shouldFillRegionWithAverageColor() throws {
@@ -79,8 +79,8 @@ final class SentryMaskRendererV2Tests: XCTestCase {
         let result = sut.maskScreenshot(screenshot: image, size: image.size, masking: [region])
 
         // -- Assert --
-        let left = try XCTUnwrap(color(at: CGPoint(x: 5, y: 5), in: result))
-        let right = try XCTUnwrap(color(at: CGPoint(x: 15, y: 5), in: result))
+        let left = try XCTUnwrap(imagePixel(at: CGPoint(x: 5, y: 5), in: result))
+        let right = try XCTUnwrap(imagePixel(at: CGPoint(x: 15, y: 5), in: result))
         XCTAssertEqual(left.red, right.red, accuracy: 0.01)
         XCTAssertEqual(left.green, right.green, accuracy: 0.01)
         XCTAssertEqual(left.blue, right.blue, accuracy: 0.01)
@@ -137,9 +137,9 @@ final class SentryMaskRendererV2Tests: XCTestCase {
         let result = sut.maskScreenshot(screenshot: image, size: image.size, masking: regions)
 
         // -- Assert --
-        assertColor(.red, at: CGPoint(x: 5, y: 10), in: result)
-        assertColor(.blue, at: CGPoint(x: 15, y: 10), in: result)
-        assertColor(.red, at: CGPoint(x: 25, y: 10), in: result)
+        assertImagePixelColor(.red, at: CGPoint(x: 5, y: 10), in: result)
+        assertImagePixelColor(.blue, at: CGPoint(x: 15, y: 10), in: result)
+        assertImagePixelColor(.red, at: CGPoint(x: 25, y: 10), in: result)
     }
 
     private func makeImage(size: CGSize, drawing: (CGContext) -> Void) -> UIImage {
@@ -150,51 +150,5 @@ final class SentryMaskRendererV2Tests: XCTestCase {
         }
     }
 
-    private func assertColor(
-        _ expected: UIColor,
-        at point: CGPoint,
-        in image: UIImage,
-        file: StaticString = #filePath,
-        line: UInt = #line
-    ) {
-        guard let actual = color(at: point, in: image) else {
-            return XCTFail("Could not read image pixel at \(point)", file: file, line: line)
-        }
-
-        var expectedRed: CGFloat = 0
-        var expectedGreen: CGFloat = 0
-        var expectedBlue: CGFloat = 0
-        var expectedAlpha: CGFloat = 0
-        guard expected.getRed(&expectedRed, green: &expectedGreen, blue: &expectedBlue, alpha: &expectedAlpha) else {
-            return XCTFail("Could not convert expected color to RGB", file: file, line: line)
-        }
-
-        XCTAssertEqual(actual.red, expectedRed, accuracy: 0.01, file: file, line: line)
-        XCTAssertEqual(actual.green, expectedGreen, accuracy: 0.01, file: file, line: line)
-        XCTAssertEqual(actual.blue, expectedBlue, accuracy: 0.01, file: file, line: line)
-        XCTAssertEqual(actual.alpha, expectedAlpha, accuracy: 0.01, file: file, line: line)
-    }
-
-    private func color(at point: CGPoint, in image: UIImage) -> (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat)? {
-        guard let cgImage = image.cgImage,
-              let pixelData = cgImage.dataProvider?.data,
-              let bytes = CFDataGetBytePtr(pixelData) else {
-            return nil
-        }
-
-        let x = Int(point.x * image.scale)
-        let y = Int(point.y * image.scale)
-        guard x >= 0, x < cgImage.width, y >= 0, y < cgImage.height else {
-            return nil
-        }
-
-        let offset = y * cgImage.bytesPerRow + x * 4
-        return (
-            CGFloat(bytes[offset]) / 255,
-            CGFloat(bytes[offset + 1]) / 255,
-            CGFloat(bytes[offset + 2]) / 255,
-            CGFloat(bytes[offset + 3]) / 255
-        )
-    }
 }
 #endif
