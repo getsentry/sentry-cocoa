@@ -150,7 +150,10 @@ extension SentryKSCrash {
         // upstream support for it.
         // Tracked in https://github.com/getsentry/sentry-cocoa/issues/8756
         func setUserInfo(_ userInfo: [String: Any]) {
-            precondition(installed, "KSCrash must be installed before setUserInfo(_:forKey:) can be used")
+            guard installed else {
+                SentrySDKLog.debug("KSCrash must be installed before calling setUserInfo(_:)")
+                return
+            }
 
             for (key, value) in userInfo {
                 switch value {
