@@ -5178,7 +5178,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryTestUtils;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) SDK_V10";
 				SWIFT_OBJC_BRIDGING_HEADER = "SentryTestUtils/Headers/SentryTestUtils-ObjC-BridgingHeader.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -5605,7 +5604,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryTestUtils;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) SDK_V10";
 				SWIFT_OBJC_BRIDGING_HEADER = "SentryTestUtils/Headers/SentryTestUtils-ObjC-BridgingHeader.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -9650,7 +9648,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryTestUtils;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) SDK_V10";
 				SWIFT_OBJC_BRIDGING_HEADER = "SentryTestUtils/Headers/SentryTestUtils-ObjC-BridgingHeader.h";
 				SWIFT_VERSION = 5.0;
 			};

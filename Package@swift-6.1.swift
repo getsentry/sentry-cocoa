@@ -197,8 +197,7 @@ if enableV10 {
         "SentryCrash/Recording/SentryCrashReportStore.c",
         "SentryCrash/Recording/SentryCrashReportStore.h",
         "SentryCrash/Recording/SentryCrashReportVersion.h",
-        "SentryCrash/Recording/Tools/SentryCrashCxaThrowSwapper.h",
-        "Sentry/SentryScopeSyncC.c"
+        "SentryCrash/Recording/Tools/SentryCrashCxaThrowSwapper.h"
     ]
 }
 

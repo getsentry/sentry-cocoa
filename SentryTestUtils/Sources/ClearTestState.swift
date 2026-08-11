@@ -74,9 +74,7 @@ class TestCleanup: NSObject {
         SentrySDKInternal.setAppStartMeasurement(nil)
         #endif // os(iOS) || os(tvOS) || os(visionOS)
 
-        #if !SDK_V10
         sentrycrash_scopesync_reset()
-        #endif
 
         #if SENTRY_TEST || SENTRY_TEST_CI
         SentrySdkPackage.resetPackageManager()

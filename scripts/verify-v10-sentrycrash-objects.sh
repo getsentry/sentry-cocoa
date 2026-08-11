@@ -116,8 +116,7 @@ done < <(find "$REPO_ROOT/Sources/SentryCrash" -type f \
 
 for source_path in \
   Sources/Sentry/SentryCrashReportSink.m \
-  Sources/Sentry/SentryCrashScopeObserver.m \
-  Sources/Sentry/SentryScopeSyncC.c; do
+  Sources/Sentry/SentryCrashScopeObserver.m; do
   add_source_mapping "$source_path"
 done
 
