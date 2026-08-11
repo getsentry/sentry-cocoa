@@ -1,6 +1,7 @@
 import Foundation
 
 /// Configuration for a tracer.
+@_spi(Private)
 @objc(SentryTracerConfiguration)
 public final class SentryTracerConfiguration: NSObject {
     /// Returns an instance with default values.
