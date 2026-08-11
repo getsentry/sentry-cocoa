@@ -1,3 +1,4 @@
+#if SDK_V10
 @_spi(Private) @testable import Sentry
 import SentryTestUtils
 import XCTest
@@ -469,3 +470,4 @@ class SentryKSCrashScopeObserverTests: XCTestCase {
         }
     }
 }
+#endif
