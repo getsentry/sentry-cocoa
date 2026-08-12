@@ -700,6 +700,14 @@
         "identifier" : "3CFC66DE2FF50342004005B4",
         "name" : "SentryTestsV10"
       }
+    },
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:Sentry.xcodeproj",
+        "identifier" : "C7B25B4B511857C68344B040",
+        "name" : "SentryTestUtilsTestsV10"
+      }
     }
   ],
   "version" : 1
