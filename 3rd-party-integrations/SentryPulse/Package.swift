@@ -17,7 +17,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/kean/Pulse", from: "5.0.0"),
-        .package(url: "https://github.com/getsentry/sentry-cocoa", from: "9.25.0")
+        .package(url: "https://github.com/getsentry/sentry-cocoa", from: "9.26.0")
     ],
     targets: [
         .target(

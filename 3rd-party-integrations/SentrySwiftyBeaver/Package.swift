@@ -16,7 +16,7 @@ let package = Package(
         .init(name: "SentryFromSource", description: "Build Sentry from source instead of using precompiled binaries.")
     ],
     dependencies: [
-        .package(url: "https://github.com/getsentry/sentry-cocoa", from: "9.25.0"),
+        .package(url: "https://github.com/getsentry/sentry-cocoa", from: "9.26.0"),
         .package(url: "https://github.com/SwiftyBeaver/SwiftyBeaver.git", from: "2.0.0")
     ],
     targets: [
