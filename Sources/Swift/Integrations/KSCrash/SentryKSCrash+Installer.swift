@@ -14,7 +14,7 @@ extension SentryKSCrash {
         /// - Throws: Any error from `KSCrash.installWithConfiguration(_:error:)`.
         func install(
             installPath: String,
-            monitors: UInt,
+            monitors: MonitorType,
             enableMemoryIntrospection: Bool,
             enableSwapCxaThrow: Bool
         ) throws
@@ -53,13 +53,13 @@ extension SentryKSCrash {
 
         func install(
             installPath: String,
-            monitors: UInt,
+            monitors: MonitorType,
             enableMemoryIntrospection: Bool,
             enableSwapCxaThrow: Bool
         ) throws {
             let config = KSCrashConfiguration()
             config.installPath = installPath
-            config.monitors = MonitorType(rawValue: monitors)
+            config.monitors = monitors
             config.enableMemoryIntrospection = enableMemoryIntrospection
             config.enableSwapCxaThrow = enableSwapCxaThrow
             config.reportStoreConfiguration.reportCleanupPolicy = .onSuccess
