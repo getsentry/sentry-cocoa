@@ -153,7 +153,7 @@ jobs:
             platform: "macOS"
             xcode: "16"
 
-          - name: Catalyst 14
+          - name: Catalyst 15
             platform: "Catalyst"
             xcode: "16"
 
