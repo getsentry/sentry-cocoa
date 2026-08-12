@@ -4885,8 +4885,7 @@
 				CODE_SIGN_STYLE = Manual;
 				INFOPLIST_FILE = SentryTestUtilsTests/Resources/Info.plist;
 				OTHER_SWIFT_FLAGS = "-DSENTRY_USE_UIKIT";
-				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.TestUtilsTests;
-				PRODUCT_MODULE_NAME = SentryTestUtils;
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.TestUtilsTestsV10;
 				PRODUCT_NAME = SentryTestUtilsTestsV10;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
@@ -5022,8 +5021,7 @@
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Manual;
 				INFOPLIST_FILE = SentryTestUtilsTests/Resources/Info.plist;
-				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.TestUtilsTests;
-				PRODUCT_MODULE_NAME = SentryTestUtils;
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.TestUtilsTestsV10;
 				PRODUCT_NAME = SentryTestUtilsTestsV10;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
@@ -5402,7 +5400,22 @@
 		29A679CCA663E97271E01EB2 /* Test */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				SDKROOT = iphoneos;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_FLOAT_CONVERSION = YES;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Manual;
+				INFOPLIST_FILE = SentryTestUtilsTests/Resources/Info.plist;
+				OTHER_SWIFT_FLAGS = "-DSENTRY_USE_UIKIT";
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.TestUtilsTestsV10;
+				PRODUCT_NAME = SentryTestUtilsTestsV10;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Test;
 		};
@@ -5937,8 +5950,7 @@
 				CODE_SIGN_STYLE = Manual;
 				INFOPLIST_FILE = SentryTestUtilsTests/Resources/Info.plist;
 				OTHER_SWIFT_FLAGS = "-DSENTRY_USE_UIKIT";
-				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.TestUtilsTests;
-				PRODUCT_MODULE_NAME = SentryTestUtils;
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.TestUtilsTestsV10;
 				PRODUCT_NAME = SentryTestUtilsTestsV10;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
@@ -6141,8 +6153,7 @@
 				CODE_SIGN_STYLE = Manual;
 				INFOPLIST_FILE = SentryTestUtilsTests/Resources/Info.plist;
 				OTHER_SWIFT_FLAGS = "-DSENTRY_USE_UIKIT";
-				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.TestUtilsTests;
-				PRODUCT_MODULE_NAME = SentryTestUtils;
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.TestUtilsTestsV10;
 				PRODUCT_NAME = SentryTestUtilsTestsV10;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
@@ -7514,8 +7525,22 @@
 		A4650239F2714625BF1C5420 /* ReleaseV10 */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				SDKROOT = iphoneos;
-				VALIDATE_PRODUCT = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_FLOAT_CONVERSION = YES;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Manual;
+				INFOPLIST_FILE = SentryTestUtilsTests/Resources/Info.plist;
+				OTHER_SWIFT_FLAGS = "-DSENTRY_USE_UIKIT";
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.TestUtilsTestsV10;
+				PRODUCT_NAME = SentryTestUtilsTestsV10;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
+				SWIFT_VERSION = 5.0;
 			};
 			name = ReleaseV10;
 		};
@@ -9994,7 +10019,22 @@
 		E6390B7B465F4DA6D1BD8026 /* TestCI */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				SDKROOT = iphoneos;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_FLOAT_CONVERSION = YES;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Manual;
+				INFOPLIST_FILE = SentryTestUtilsTests/Resources/Info.plist;
+				OTHER_SWIFT_FLAGS = "-DSENTRY_USE_UIKIT";
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.TestUtilsTestsV10;
+				PRODUCT_NAME = SentryTestUtilsTestsV10;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
+				SWIFT_VERSION = 5.0;
 			};
 			name = TestCI;
 		};
@@ -10230,8 +10270,7 @@
 				CODE_SIGN_STYLE = Manual;
 				INFOPLIST_FILE = SentryTestUtilsTests/Resources/Info.plist;
 				OTHER_SWIFT_FLAGS = "-DSENTRY_USE_UIKIT";
-				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.TestUtilsTests;
-				PRODUCT_MODULE_NAME = SentryTestUtils;
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.TestUtilsTestsV10;
 				PRODUCT_NAME = SentryTestUtilsTestsV10;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
@@ -10242,7 +10281,22 @@
 		FD5375DD118083CF63BE7035 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				SDKROOT = iphoneos;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_FLOAT_CONVERSION = YES;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Manual;
+				INFOPLIST_FILE = SentryTestUtilsTests/Resources/Info.plist;
+				OTHER_SWIFT_FLAGS = "-DSENTRY_USE_UIKIT";
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.TestUtilsTestsV10;
+				PRODUCT_NAME = SentryTestUtilsTestsV10;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
