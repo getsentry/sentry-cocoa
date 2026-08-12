@@ -1,5 +1,9 @@
 import Logging
+#if SENTRY_FROM_SOURCE
+import SentrySwift
+#else
 import Sentry
+#endif
 
 /// A `swift-log` handler that forwards log entries to Sentry's structured logging system.
 ///
