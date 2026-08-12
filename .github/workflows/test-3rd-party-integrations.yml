@@ -105,6 +105,8 @@ jobs:
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: xcframeworks-for-3rd-party-integration-tests
+      - name: Remove versioned Package files
+        run: rm -f Package@swift-*.swift
       - name: Modify Package.swift to use local xcframeworks
         run: ./scripts/prepare-package.sh --package-file Package.swift --is-pr true --remove-duplicate true --change-path true
       - name: Use local sentry-cocoa

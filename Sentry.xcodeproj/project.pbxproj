@@ -1561,6 +1561,8 @@
 		D269D1832ED1DD86DF4AF78A /* SentryObjC.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SentryObjC.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D36813946B580095D0A8C6D2 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		D4120F87302C5A1400FEDA3A /* SentryTransaction+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "SentryTransaction+Private.h"; path = "include/SentryTransaction+Private.h"; sourceTree = "<group>"; };
+		D4121DC0302C69A500FEDA3A /* SentryV10_Base.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = SentryV10_Base.xctestplan; sourceTree = "<group>"; };
+		D4121DC1302C69A500FEDA3A /* SentryV10_TestServer.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = SentryV10_TestServer.xctestplan; sourceTree = "<group>"; };
 		D41A231A2F3B2A3800F279C9 /* SentrySwiftUIExports.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentrySwiftUIExports.swift; sourceTree = "<group>"; };
 		D431C8BA301251A000A2F0DE /* SentryObjCExceptionHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryObjCExceptionHelper.m; sourceTree = "<group>"; };
 		D431C8C2301251AE00A2F0DE /* SentryObjCExceptionHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryObjCExceptionHelper.h; path = include/SentryObjCExceptionHelper.h; sourceTree = "<group>"; };
@@ -2848,6 +2850,8 @@
 				629B24502EAB50C70050052C /* Sentry_Flaky.xctestplan */,
 				6214366A2E7A7D6600A2CB8F /* Sentry_TestServer.xctestplan */,
 				D4B67D102FC5E7680022BC67 /* SentryObjC_Base.xctestplan */,
+				D4121DC0302C69A500FEDA3A /* SentryV10_Base.xctestplan */,
+				D4121DC1302C69A500FEDA3A /* SentryV10_TestServer.xctestplan */,
 				D4A2360A2D5F84FA00D55C58 /* SwiftUITestSample_Base.xctestplan */,
 				848214B42E32B10900DF6998 /* SwiftUITestSample_Crash.xctestplan */,
 				848214B52E32B10900DF6998 /* SwiftUITestSample_Envelope.xctestplan */,
@@ -7191,7 +7195,7 @@
 			};
 			name = DebugV10;
 		};
-		D4120F81302C553400FEDA3A /* Debug */ = {
+		D4121DBA302C696600FEDA3A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
@@ -7201,28 +7205,28 @@
 			};
 			name = Debug;
 		};
-		D4120F82302C553400FEDA3A /* DebugWithoutUIKit */ = {
+		D4121DBB302C696600FEDA3A /* DebugWithoutUIKit */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = SentrySwiftUI;
 			};
 			name = DebugWithoutUIKit;
 		};
-		D4120F83302C553400FEDA3A /* Test */ = {
+		D4121DBC302C696600FEDA3A /* Test */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = SentrySwiftUI;
 			};
 			name = Test;
 		};
-		D4120F84302C553400FEDA3A /* TestCI */ = {
+		D4121DBD302C696600FEDA3A /* TestCI */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = SentrySwiftUI;
 			};
 			name = TestCI;
 		};
-		D4120F85302C553400FEDA3A /* Release */ = {
+		D4121DBE302C696600FEDA3A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
@@ -7231,7 +7235,7 @@
 			};
 			name = Release;
 		};
-		D4120F86302C553400FEDA3A /* ReleaseWithoutUIKit */ = {
+		D4121DBF302C696600FEDA3A /* ReleaseWithoutUIKit */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = SentrySwiftUI;
@@ -9802,12 +9806,12 @@
 				5C5D55FCEFF69F62932A46B8 /* TestV10 */,
 				45F8E5F49A3C9B9F420A0B4C /* DebugV10 */,
 				6F8786375E4ED3192BF80244 /* ReleaseV10 */,
-				D4120F81302C553400FEDA3A /* Debug */,
-				D4120F82302C553400FEDA3A /* DebugWithoutUIKit */,
-				D4120F83302C553400FEDA3A /* Test */,
-				D4120F84302C553400FEDA3A /* TestCI */,
-				D4120F85302C553400FEDA3A /* Release */,
-				D4120F86302C553400FEDA3A /* ReleaseWithoutUIKit */,
+				D4121DBA302C696600FEDA3A /* Debug */,
+				D4121DBB302C696600FEDA3A /* DebugWithoutUIKit */,
+				D4121DBC302C696600FEDA3A /* Test */,
+				D4121DBD302C696600FEDA3A /* TestCI */,
+				D4121DBE302C696600FEDA3A /* Release */,
+				D4121DBF302C696600FEDA3A /* ReleaseWithoutUIKit */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = ReleaseV10;
