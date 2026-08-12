@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-> [!WARNING]
+> [!IMPORTANT]
 > This release removes the option `enableLogs` from `Options`. If you need to disable logs, use `beforeSendLog` to drop all logs.
 >
 > We recognize that removing this option in a minor release is disruptive. We made this tradeoff deliberately because enabling Logs by default will help most users successfully adopt this feature.
