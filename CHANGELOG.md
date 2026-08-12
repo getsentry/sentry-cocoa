@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+> [!WARNING]
+> The 3rd-party integration packages (SentryCocoaLumberjack, SentryPulse, SentrySwiftLog, SentrySwiftyBeaver) now require Swift 6.1+ to support SPM package traits. Users on older Swift toolchains should pin to an earlier release of these packages.
+
 ### Features
 
 - Promote `enableStandaloneAppStartTracing` from `options.experimental` to a top-level option on `Options` (#8715)
