@@ -109,6 +109,23 @@ import Foundation
         }
     }
 
+    #if SDK_V10
+    @objc public var beforeSendTransaction: ((SentryObjCTransaction) -> SentryObjCTransaction?)? {
+        didSet {
+            if let beforeSendTransaction = beforeSendTransaction {
+                wrapped.beforeSendTransaction = { transaction in
+                    guard let result = beforeSendTransaction(SentryObjCTransaction(transaction)) else {
+                        return nil
+                    }
+                    return result.wrappedTransaction
+                }
+            } else {
+                wrapped.beforeSendTransaction = nil
+            }
+        }
+    }
+    #endif // SDK_V10
+
     @objc public var beforeSendSpan: ((SentryObjCSpan) -> SentryObjCSpan?)? {
         didSet {
             if let beforeSendSpan = beforeSendSpan {
