@@ -1,4 +1,4 @@
-// swift-tools-version:6.0
+// swift-tools-version:6.1
 import PackageDescription
 
 let package = Package(
@@ -10,6 +10,11 @@ let package = Package(
             targets: ["SentryCocoaLumberjack"]
         )
     ],
+    traits: [
+        .default(enabledTraits: ["PrecompiledSentry"]),
+        .init(name: "PrecompiledSentry", description: "Use precompiled Sentry binary xcframeworks."),
+        .init(name: "SentryFromSource", description: "Build Sentry from source instead of using precompiled binaries.")
+    ],
     dependencies: [
         .package(url: "https://github.com/CocoaLumberjack/CocoaLumberjack", from: "3.8.0"),
         .package(url: "https://github.com/getsentry/sentry-cocoa", from: "9.25.0")
@@ -19,7 +24,12 @@ let package = Package(
             name: "SentryCocoaLumberjack",
             dependencies: [
                 .product(name: "CocoaLumberjackSwift", package: "CocoaLumberjack"),
-                .product(name: "Sentry", package: "sentry-cocoa")
+                .product(name: "Sentry", package: "sentry-cocoa", condition: .when(traits: ["PrecompiledSentry"])),
+                .product(name: "SentrySPM", package: "sentry-cocoa", condition: .when(traits: ["SentryFromSource"]))
+            ],
+            swiftSettings: [
+                .define("SENTRY_PRECOMPILED", .when(traits: ["PrecompiledSentry"])),
+                .define("SENTRY_FROM_SOURCE", .when(traits: ["SentryFromSource"]))
             ]
         ),
         .testTarget(
@@ -27,7 +37,12 @@ let package = Package(
             dependencies: [
                 "SentryCocoaLumberjack",
                 .product(name: "CocoaLumberjackSwift", package: "CocoaLumberjack"),
-                .product(name: "Sentry", package: "sentry-cocoa")
+                .product(name: "Sentry", package: "sentry-cocoa", condition: .when(traits: ["PrecompiledSentry"])),
+                .product(name: "SentrySPM", package: "sentry-cocoa", condition: .when(traits: ["SentryFromSource"]))
+            ],
+            swiftSettings: [
+                .define("SENTRY_PRECOMPILED", .when(traits: ["PrecompiledSentry"])),
+                .define("SENTRY_FROM_SOURCE", .when(traits: ["SentryFromSource"]))
             ]
         )
     ]

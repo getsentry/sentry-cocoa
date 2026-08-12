@@ -1,4 +1,4 @@
-// swift-tools-version:6.0
+// swift-tools-version:6.1
 import PackageDescription
 
 let package = Package(
@@ -10,6 +10,11 @@ let package = Package(
             targets: ["SentryPulse"]
         )
     ],
+    traits: [
+        .default(enabledTraits: ["PrecompiledSentry"]),
+        .init(name: "PrecompiledSentry", description: "Use precompiled Sentry binary xcframeworks."),
+        .init(name: "SentryFromSource", description: "Build Sentry from source instead of using precompiled binaries.")
+    ],
     dependencies: [
         .package(url: "https://github.com/kean/Pulse", from: "5.0.0"),
         .package(url: "https://github.com/getsentry/sentry-cocoa", from: "9.25.0")
@@ -19,7 +24,12 @@ let package = Package(
             name: "SentryPulse",
             dependencies: [
                 .product(name: "Pulse", package: "Pulse"),
-                .product(name: "Sentry", package: "sentry-cocoa")
+                .product(name: "Sentry", package: "sentry-cocoa", condition: .when(traits: ["PrecompiledSentry"])),
+                .product(name: "SentrySPM", package: "sentry-cocoa", condition: .when(traits: ["SentryFromSource"]))
+            ],
+            swiftSettings: [
+                .define("SENTRY_PRECOMPILED", .when(traits: ["PrecompiledSentry"])),
+                .define("SENTRY_FROM_SOURCE", .when(traits: ["SentryFromSource"]))
             ]
         ),
         .testTarget(
@@ -27,8 +37,13 @@ let package = Package(
             dependencies: [
                 "SentryPulse",
                 .product(name: "Pulse", package: "Pulse"),
-                .product(name: "Sentry", package: "sentry-cocoa")
+                .product(name: "Sentry", package: "sentry-cocoa", condition: .when(traits: ["PrecompiledSentry"])),
+                .product(name: "SentrySPM", package: "sentry-cocoa", condition: .when(traits: ["SentryFromSource"]))
+            ],
+            swiftSettings: [
+                .define("SENTRY_PRECOMPILED", .when(traits: ["PrecompiledSentry"])),
+                .define("SENTRY_FROM_SOURCE", .when(traits: ["SentryFromSource"]))
             ]
-        ) 
+        )
     ]
 )
