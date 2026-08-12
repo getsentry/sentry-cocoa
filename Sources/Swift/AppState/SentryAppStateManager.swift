@@ -191,7 +191,12 @@ import UIKit
         _updateAppState(block)
     }
 
-    /// It is called when an app is receiving events / it is in the foreground and when we receive a
+
+    /// The app has been has moved from an inactive to active state or it received a
+    /// @c SentryHybridSdkDidBecomeActiveNotification while in the foreground.
+    /// @discussion This also works when using SwiftUI or Scenes, as UIKit posts a
+    /// @c didBecomeActiveNotification regardless of whether your app uses scenes, see
+    /// https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1622956-applicationdidbecomeactive for more details
     /// @c SentryHybridSdkDidBecomeActiveNotification.
     /// @discussion This also works when using SwiftUI or Scenes, as UIKit posts a
     /// @c didBecomeActiveNotification regardless of whether your app uses scenes, see
