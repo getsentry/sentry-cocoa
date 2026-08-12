@@ -52,14 +52,9 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
             container.fileManager = fileManager
 
             let notificationCenterWrapper = TestNSNotificationCenterWrapper()
-            SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueueWrapper
-            SentryDependencyContainer.sharedInstance().notificationCenterWrapper = notificationCenterWrapper
-            appStateManager = SentryAppStateManager(
-                releaseName: options.releaseName,
-                debuggerStatusProvider: sysctl,
-                fileManager: fileManager,
-                sysctlWrapper: sysctl
-            )
+            container.dispatchQueueWrapper = dispatchQueueWrapper
+            container.notificationCenterWrapper = notificationCenterWrapper
+            appStateManager = SentryAppStateManager(releaseName: options.releaseName, dependencies: container)
             container.appStateManager = appStateManager
             appStateManager.start()
 

@@ -822,6 +822,7 @@ test: test-ios test-macos test-catalyst test-tvos test-visionos
 #   make test-ios ONLY_TESTING=SentryTests/SentryHttpTransportTests,SentryTests/SentryHubTests
 #   make test-ios ONLY_TESTING=SentryTests/SentryHttpTransportTests/testFlush_WhenNoInternet
 #   make test-ios TEST_SCHEME=SentryObjCTests
+#   make test-ios TEST_PLAN=Sentry_TestServer   # needs `make -C test-server start-debug`
 .PHONY: test-ios
 test-ios:
 	@echo "--> Running iOS tests"
@@ -833,6 +834,7 @@ test-ios:
 		--command test \
 		--configuration Test \
 		$(if $(TEST_SCHEME),--scheme "$(TEST_SCHEME)") \
+		$(if $(TEST_PLAN),--test-plan "$(TEST_PLAN)") \
 		--only-testing "$(ONLY_TESTING)"
 
 ## Run macOS tests
@@ -870,6 +872,7 @@ test-macos:
 # Examples:
 #   make test-catalyst
 #   make test-catalyst ONLY_TESTING=SentryTests/SentryHttpTransportTests
+#   make test-catalyst TEST_PLAN=Sentry_TestServer   # needs `make -C test-server start-debug`
 .PHONY: test-catalyst
 test-catalyst:
 	@echo "--> Running Catalyst tests"
@@ -880,6 +883,7 @@ test-catalyst:
 		--command test \
 		--configuration Test \
 		$(if $(TEST_SCHEME),--scheme "$(TEST_SCHEME)") \
+		$(if $(TEST_PLAN),--test-plan "$(TEST_PLAN)") \
 		--only-testing "$(ONLY_TESTING)"
 
 ## Run tvOS tests
@@ -892,6 +896,7 @@ test-catalyst:
 # Examples:
 #   make test-tvos
 #   make test-tvos ONLY_TESTING=SentryTests/SentryHttpTransportTests
+#   make test-tvos TEST_PLAN=Sentry_TestServer   # needs `make -C test-server start-debug`
 .PHONY: test-tvos
 test-tvos:
 	@echo "--> Running tvOS tests"
@@ -903,6 +908,7 @@ test-tvos:
 		--command test \
 		--configuration Test \
 		$(if $(TEST_SCHEME),--scheme "$(TEST_SCHEME)") \
+		$(if $(TEST_PLAN),--test-plan "$(TEST_PLAN)") \
 		--only-testing "$(ONLY_TESTING)"
 
 ## Run visionOS tests
@@ -915,6 +921,7 @@ test-tvos:
 # Examples:
 #   make test-visionos
 #   make test-visionos ONLY_TESTING=SentryTests/SentryHttpTransportTests
+#   make test-visionos TEST_PLAN=Sentry_TestServer   # needs `make -C test-server start-debug`
 .PHONY: test-visionos
 test-visionos:
 	@echo "--> Running visionOS tests"
@@ -926,6 +933,7 @@ test-visionos:
 		--command test \
 		--configuration Test \
 		$(if $(TEST_SCHEME),--scheme "$(TEST_SCHEME)") \
+		$(if $(TEST_PLAN),--test-plan "$(TEST_PLAN)") \
 		--only-testing "$(ONLY_TESTING)"
 
 # Note: test-watchos target is not available because watchOS does not support XCTest.
@@ -946,6 +954,7 @@ test-v10: test-ios-v10 test-macos-v10 test-catalyst-v10 test-tvos-v10 test-visio
 # Examples:
 #   make test-ios-v10
 #   make test-ios-v10 ONLY_TESTING=SentryTestsV10/SentryHttpTransportTests
+#   make test-ios-v10 TEST_PLAN=SentryV10_TestServer   # needs `make -C test-server start-debug`
 .PHONY: test-ios-v10
 test-ios-v10:
 	@echo "--> Running V10 iOS tests"
@@ -957,6 +966,7 @@ test-ios-v10:
 		--command test \
 		--scheme SentryV10 \
 		--configuration TestV10 \
+		$(if $(TEST_PLAN),--test-plan "$(TEST_PLAN)") \
 		--only-testing "$(ONLY_TESTING)"
 
 ## Run macOS tests with SDK_V10 flag
@@ -989,6 +999,7 @@ test-macos-v10:
 # Examples:
 #   make test-catalyst-v10
 #   make test-catalyst-v10 ONLY_TESTING=SentryTestsV10/SentryHttpTransportTests
+#   make test-catalyst-v10 TEST_PLAN=SentryV10_TestServer   # needs `make -C test-server start-debug`
 .PHONY: test-catalyst-v10
 test-catalyst-v10:
 	@echo "--> Running V10 Catalyst tests"
@@ -999,6 +1010,7 @@ test-catalyst-v10:
 		--command test \
 		--scheme SentryV10 \
 		--configuration TestV10 \
+		$(if $(TEST_PLAN),--test-plan "$(TEST_PLAN)") \
 		--only-testing "$(ONLY_TESTING)"
 
 ## Run tvOS tests with SDK_V10 flag
@@ -1009,6 +1021,7 @@ test-catalyst-v10:
 # Examples:
 #   make test-tvos-v10
 #   make test-tvos-v10 ONLY_TESTING=SentryTestsV10/SentryHttpTransportTests
+#   make test-tvos-v10 TEST_PLAN=SentryV10_TestServer   # needs `make -C test-server start-debug`
 .PHONY: test-tvos-v10
 test-tvos-v10:
 	@echo "--> Running V10 tvOS tests"
@@ -1020,6 +1033,7 @@ test-tvos-v10:
 		--command test \
 		--scheme SentryV10 \
 		--configuration TestV10 \
+		$(if $(TEST_PLAN),--test-plan "$(TEST_PLAN)") \
 		--only-testing "$(ONLY_TESTING)"
 
 ## Run visionOS tests with SDK_V10 flag
@@ -1030,6 +1044,7 @@ test-tvos-v10:
 # Examples:
 #   make test-visionos-v10
 #   make test-visionos-v10 ONLY_TESTING=SentryTestsV10/SentryHttpTransportTests
+#   make test-visionos-v10 TEST_PLAN=SentryV10_TestServer   # needs `make -C test-server start-debug`
 .PHONY: test-visionos-v10
 test-visionos-v10:
 	@echo "--> Running V10 visionOS tests"
@@ -1041,6 +1056,7 @@ test-visionos-v10:
 		--command test \
 		--scheme SentryV10 \
 		--configuration TestV10 \
+		$(if $(TEST_PLAN),--test-plan "$(TEST_PLAN)") \
 		--only-testing "$(ONLY_TESTING)"
 
 ## Run critical UI tests

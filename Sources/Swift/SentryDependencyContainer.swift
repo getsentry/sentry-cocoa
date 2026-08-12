@@ -472,11 +472,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     private var _appStateManager: SentryAppStateManager?
     @objc public lazy var appStateManager = getLazyVar(\._appStateManager) {
         let release = self.startOptions?.releaseName
-        return SentryAppStateManager(
-            releaseName: release,
-            debuggerStatusProvider: debuggerStatusProvider,
-            fileManager: fileManager,
-            sysctlWrapper: sysctlWrapper)
+        return SentryAppStateManager(releaseName: release, dependencies: self)
     }
 #if !SDK_V10
     private var _crashReporter: SentryCrashSwift?
@@ -803,6 +799,11 @@ protocol DebuggerStatusProviderProvider {
     var debuggerStatusProvider: SentryDebuggerStatusProvider { get }
 }
 extension SentryDependencyContainer: DebuggerStatusProviderProvider {}
+
+protocol SysctlProvider {
+    var sysctlWrapper: SentrySysctl { get }
+}
+extension SentryDependencyContainer: SysctlProvider {}
 
 protocol CrashReporterStateProvider {
     var activeCrashReporterState: SentryCrashReporterState { get }

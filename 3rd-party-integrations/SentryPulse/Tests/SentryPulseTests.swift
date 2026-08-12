@@ -1,6 +1,10 @@
 @testable import SentryPulse
 import Pulse
+#if SENTRY_FROM_SOURCE
+import SentrySwift
+#else
 import Sentry
+#endif
 import XCTest
 
 // swiftlint:disable cyclomatic_complexity

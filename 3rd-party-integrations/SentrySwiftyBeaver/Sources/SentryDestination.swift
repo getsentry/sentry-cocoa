@@ -1,4 +1,8 @@
+#if SENTRY_FROM_SOURCE
+import SentrySwift
+#else
 import Sentry
+#endif
 import SwiftyBeaver
 
 /// A SwiftyBeaver destination that forwards log entries to Sentry's structured logging system.

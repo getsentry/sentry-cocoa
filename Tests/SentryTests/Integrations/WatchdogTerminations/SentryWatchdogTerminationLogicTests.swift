@@ -35,19 +35,23 @@ class SentryWatchdogTerminationLogicTests: XCTestCase {
             customCurrentAppState: SentryAppState? = nil,
             activeCrashReporterState: SentryCrashReporterState? = nil
         ) -> SentryWatchdogTerminationLogic {
+            let dependencies = SentryDependencyContainer.sharedInstance()
+            dependencies.crashWrapper = crashWrapper
+            dependencies.fileManager = fileManager
+            dependencies.sysctlWrapper = sysctl
+            dependencies.dispatchQueueWrapper = dispatchQueue
             let appStateManager: SentryAppStateManager
             
             if let customState = customCurrentAppState {
                 appStateManager = SentryAppStateManager(
-                    fileManager: fileManager,
-                    customBuildCurrentAppState: { customState }
+                    releaseName: options.releaseName,
+                    customBuildCurrentAppState: { customState },
+                    dependencies: dependencies
                 )
             } else {
                 appStateManager = SentryAppStateManager(
                     releaseName: options.releaseName,
-                    debuggerStatusProvider: sysctl,
-                    fileManager: fileManager,
-                    sysctlWrapper: sysctl
+                    dependencies: dependencies
                 )
             }
             
