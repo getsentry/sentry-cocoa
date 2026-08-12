@@ -490,4 +490,14 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         throw XCTSkip("Test not supported on this platform")
 #endif
     }
+
+    func testGetEnabledFeatures_whenFeatureFlagsUsed_shouldIncludeFeatureFlags() {
+        let options = Options()
+        options.markFeatureFlagsUsed()
+
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        XCTAssertTrue(features.contains("featureFlags"))
+    }
+
 }

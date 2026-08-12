@@ -763,6 +763,20 @@
     /// Use this callback to drop or modify a metric before the SDK sends it to Sentry. Return nil to
     /// drop the metric.
     public var beforeSendMetric: ((SentryMetric) -> SentryMetric?)?
+
+    // MARK: - Internal
+
+    // Feature flag usage is only known after one of its APIs is used, so track it for inclusion in
+    // the SDK metadata built afterward.
+    private let _featureFlagsUsed = SentryMutex(false)
+
+    func markFeatureFlagsUsed() {
+        _featureFlagsUsed.withLock { $0 = true }
+    }
+
+    var featureFlagsUsed: Bool {
+        _featureFlagsUsed.withLock { $0 }
+    }
 }
 
 extension NSNumber {
