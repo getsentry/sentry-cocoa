@@ -153,6 +153,10 @@ jobs:
             platform: "macOS"
             xcode: "16"
 
+          - name: Catalyst 15
+            platform: "Catalyst"
+            xcode: "16"
+
     steps:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
