@@ -43,7 +43,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "77F8DCC5A609155AD2C5A6C6"
+               BlueprintIdentifier = "1C2FEF2649BB40C532CF4441"
                BuildableName = "libSentryTestUtils.a"
                BlueprintName = "SentryTestUtilsV10"
                ReferencedContainer = "container:Sentry.xcodeproj">
