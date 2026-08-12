@@ -263,11 +263,13 @@ sentrycrashstring_doubleToString(char *buffer, size_t bufferLength, double value
         }
     }
 
-    while (index > 0 && buffer[index - 1] == '0') {
-        buffer[--index] = '\0';
-    }
-    if (index > 0 && buffer[index - 1] == '.') {
-        buffer[--index] = '\0';
+    if (decimalPosition < 6) {
+        while (index > 0 && buffer[index - 1] == '0') {
+            buffer[--index] = '\0';
+        }
+        if (index > 0 && buffer[index - 1] == '.') {
+            buffer[--index] = '\0';
+        }
     }
 
     return (int)index;

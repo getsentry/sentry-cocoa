@@ -228,6 +228,12 @@
 
     XCTAssertEqual(sentrycrashstring_doubleToString(buffer, sizeof(buffer), 123.456789), 7);
     XCTAssertEqual(strcmp(buffer, "123.457"), 0);
+
+    XCTAssertEqual(sentrycrashstring_doubleToString(buffer, sizeof(buffer), 100000), 6);
+    XCTAssertEqual(strcmp(buffer, "100000"), 0);
+
+    XCTAssertEqual(sentrycrashstring_doubleToString(buffer, sizeof(buffer), 123000), 6);
+    XCTAssertEqual(strcmp(buffer, "123000"), 0);
 }
 
 @end
