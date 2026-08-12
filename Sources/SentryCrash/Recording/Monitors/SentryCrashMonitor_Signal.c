@@ -67,6 +67,7 @@ static bool g_isSigtermReportingEnabled = false;
 #    ifdef SENTRY_CRASH_MANAGED_RUNTIME
 static _Atomic(SentryCrashIgnoreSignal *) g_ignoreSignals = NULL;
 static pthread_key_t g_ignoreSignalKey;
+static bool g_ignoreSignalKeyCreated = false;
 static pthread_once_t g_ignoreSignalKeyOnce = PTHREAD_ONCE_INIT;
 #    endif
 
@@ -112,7 +113,7 @@ clearIgnoreSignal(void *value)
 static void
 createIgnoreSignalKey(void)
 {
-    pthread_key_create(&g_ignoreSignalKey, clearIgnoreSignal);
+    g_ignoreSignalKeyCreated = pthread_key_create(&g_ignoreSignalKey, clearIgnoreSignal) == 0;
 }
 #    endif
 
@@ -374,7 +375,10 @@ void
 sentrycrashcm_signal_ignore_next(int signum)
 {
 #if SENTRY_HAS_SIGNAL && defined(SENTRY_CRASH_MANAGED_RUNTIME)
-    pthread_once(&g_ignoreSignalKeyOnce, createIgnoreSignalKey);
+    if (pthread_once(&g_ignoreSignalKeyOnce, createIgnoreSignalKey) != 0
+        || !g_ignoreSignalKeyCreated) {
+        return;
+    }
 
     SentryCrashIgnoreSignal *entry = pthread_getspecific(g_ignoreSignalKey);
     if (entry == NULL) {
