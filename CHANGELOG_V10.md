@@ -4,6 +4,7 @@
 
 ### Features
 
+- Sync scope data to KSCrash crash reports in `SentryV10` (#8759)
 - Process pending KSCrash reports into fatal Sentry events in `SentryV10` (#8515)
 - Install KSCrash crash handler in `SentryV10` with production-safe monitors matching SentryCrash's existing monitor set (#8469)
   - Respect `options.enableMemoryIntrospection` when configuring KSCrash
@@ -37,4 +38,4 @@
 - Filter sensitive values from selected Session Replay network headers and cookies (#8566)
 - Omit failed-request headers when `options.dataCollection.httpHeaders` is disabled (#8562)
 - Normalize profiling CPU usage to 0–100 percent (#8323)
-- Bump KSCrash to `2.6.0-beta.5`
+- Bump KSCrash to `2.6.0`
