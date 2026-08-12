@@ -197,10 +197,6 @@ import UIKit
     /// @discussion This also works when using SwiftUI or Scenes, as UIKit posts a
     /// @c didBecomeActiveNotification regardless of whether your app uses scenes, see
     /// https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1622956-applicationdidbecomeactive for more details
-    /// @c SentryHybridSdkDidBecomeActiveNotification.
-    /// @discussion This also works when using SwiftUI or Scenes, as UIKit posts a
-    /// @c didBecomeActiveNotification regardless of whether your app uses scenes, see
-    /// https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1622956-applicationdidbecomeactive.
     @objc private func didBecomeActive() {
         dispatchQueue.dispatchAsync { [self] in
             _updateAppState { $0.isActive = true }
