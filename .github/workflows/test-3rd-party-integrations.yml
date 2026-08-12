@@ -109,6 +109,9 @@ jobs:
         run: |
           unzip -q Sentry.xcframework.zip
           ./scripts/prepare-package.sh --is-pr true --remove-duplicate true --change-path true
+          sed -i '' '/\.library(name: "SentryObjC-/d' Package*.swift
+          sed -i '' '/^[[:space:]]*\.binaryTarget($/{N;N;N;/SentryObjC-Dynamic/d;}' Package*.swift
+          sed -i '' '/^[[:space:]]*\.binaryTarget($/{N;N;N;/SentryObjC-Static/d;}' Package*.swift
           sed -i '' 's|path: "Sentry.xcframework.zip"|path: "Sentry.xcframework"|' Package*.swift
       - name: Use local sentry-cocoa
         working-directory: 3rd-party-integrations/${{matrix.integration_dir}}
