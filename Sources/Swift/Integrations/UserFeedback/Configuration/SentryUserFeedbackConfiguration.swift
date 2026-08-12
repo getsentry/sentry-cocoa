@@ -242,6 +242,11 @@ extension SentryUserFeedbackFormConfiguration {
         copy.messagePlaceholder = messagePlaceholder
         copy.messageTextViewAccessibilityLabelOverride = messageTextViewAccessibilityLabelOverride
         copy.isRequiredLabel = isRequiredLabel
+        copy.enableScreenshot = enableScreenshot
+        copy.addScreenshotButtonLabel = addScreenshotButtonLabel
+        copy.addScreenshotButtonAccessibilityLabelOverride = addScreenshotButtonAccessibilityLabelOverride
+        copy.screenshotAccessibilityLabel = screenshotAccessibilityLabel
+        copy.screenshotErrorText = screenshotErrorText
         copy.removeScreenshotButtonLabel = removeScreenshotButtonLabel
         copy.removeScreenshotButtonAccessibilityLabelOverride = removeScreenshotButtonAccessibilityLabelOverride
         copy.isNameRequired = isNameRequired

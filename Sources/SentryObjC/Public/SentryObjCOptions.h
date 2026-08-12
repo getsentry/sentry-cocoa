@@ -134,12 +134,15 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, copy, nullable) SentryObjCSpan *_Nullable (^beforeSendSpan)(SentryObjCSpan *);
 
+#if !SDK_V10
 /**
  * When enabled, the SDK sends logs to Sentry. Logs can be captured using the
  * @c SentryObjCSDK.logger API, which provides structured logging with attributes.
  * @note Default value is @c NO.
+ * @note In v10 and later, logs are always enabled. Remove this option when upgrading.
  */
 @property (nonatomic) BOOL enableLogs;
+#endif // !SDK_V10
 
 /// This block can be used to modify the breadcrumb before it will be serialized and sent.
 @property (nonatomic, copy, nullable) SentryObjCBreadcrumb *_Nullable (^beforeBreadcrumb)
@@ -579,12 +582,14 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic) BOOL enablePreWarmedAppStartTracing;
 
+#    if !SDK_V10
 /**
  * When enabled, the SDK sends a standalone app start transaction instead of attaching app
  * start data to the first UIViewController transaction.
  * @note Default value is @c NO.
  */
 @property (nonatomic) BOOL enableStandaloneAppStartTracing;
+#    endif // !SDK_V10
 
 /**
  * When enabled, the SDK reports non-fully-blocking app hangs. A non-fully-blocking app hang is

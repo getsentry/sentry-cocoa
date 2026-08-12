@@ -198,6 +198,7 @@ func removeReplayFile(at fileURL: URL) {
         }
     }
     
+    // swiftlint:disable:next function_body_length cyclomatic_complexity
     public func createVideoWith(beginning: Date, end: Date) -> [SentryVideoInfo] {
         SentrySDKLog.debug("[Session Replay] Creating video with beginning: \(beginning), end: \(end)")
 
@@ -235,7 +236,7 @@ func removeReplayFile(at fileURL: URL) {
             var currentError: Error?
 
             group.enter()
-            self.renderVideo(with: videoFrames, fromIndex: frameCount, until: end, at: outputFileURL) { result in
+            let frameProcessor = self.renderVideo(with: videoFrames, fromIndex: frameCount, until: end, at: outputFileURL) { result in
                 switch result {
                 case .success(let videoResult):
                     // Set the frame count/offset to the new index that is returned by the completion block.
@@ -261,6 +262,15 @@ func removeReplayFile(at fileURL: URL) {
             // Otherwise, it could lead to queue starvation and a deadlock/timeout.
             guard group.wait(timeout: .now() + 10) == .success else {
                 SentrySDKLog.error("[Session Replay] Timeout while waiting for video rendering to finish, returning \(videos.count) videos")
+                // Tear down the stalled writer so AVFoundation releases the media-data-ready
+                // callback. The callback retains the frame processor and its frames (including
+                // in-memory images), which would otherwise stay alive for the process lifetime.
+                // Cancel on the asset worker queue to serialize with any in-flight processing.
+                if let frameProcessor = frameProcessor {
+                    assetWorkerQueue.dispatchAsync {
+                        frameProcessor.cancel()
+                    }
+                }
                 return videos
             }
 
@@ -290,24 +300,29 @@ func removeReplayFile(at fileURL: URL) {
     }
 
     // swiftlint:disable function_body_length cyclomatic_complexity
+    /// Starts rendering a video segment and returns the frame processor driving it, or `nil`
+    /// when rendering failed before a processor was created. The caller uses the returned
+    /// processor to cancel the render session if it stalls (see `createVideoWith`).
     private func renderVideo(
         with videoFrames: [SentryReplayFrame],
         fromIndex: Int,
         until videoEnd: Date,
         at outputFileURL: URL,
         completion: @escaping (Result<SentryRenderVideoResult, Error>) -> Void
-    ) {
+    ) -> SentryVideoFrameProcessor? {
         SentrySDKLog.debug("[Session Replay] Rendering video with \(videoFrames.count) frames, from index: \(fromIndex), to output url: \(outputFileURL)")
 
         guard fromIndex < videoFrames.count else {
             SentrySDKLog.error("[Session Replay] Failed to render video, reason: index out of bounds")
-            return completion(.failure(SentryOnDemandReplayError.indexOutOfBounds))
+            completion(.failure(SentryOnDemandReplayError.indexOutOfBounds))
+            return nil
         }
         guard let image = videoFrames[fromIndex].image
             ?? UIImage(contentsOfFile: videoFrames[fromIndex].imagePath)
         else {
             SentrySDKLog.error("[Session Replay] Failed to render video, reason: can't resolve image at path: \(videoFrames[fromIndex].imagePath)")
-            return completion(.failure(SentryOnDemandReplayError.cantReadImage))
+            completion(.failure(SentryOnDemandReplayError.cantReadImage))
+            return nil
         }
         
         let videoWidth = image.size.width * CGFloat(videoScale)
@@ -320,14 +335,16 @@ func removeReplayFile(at fileURL: URL) {
             videoWriter = try AVAssetWriter(url: outputFileURL, fileType: .mp4)
         } catch {
             SentrySDKLog.error("[Session Replay] Failed to create video writer, reason: \(error)")
-            return completion(.failure(error))
+            completion(.failure(error))
+            return nil
         }
 
         SentrySDKLog.debug("[Session Replay] Creating pixel buffer based video writer input")
         let videoWriterInput = AVAssetWriterInput(mediaType: .video, outputSettings: createVideoSettings(width: videoWidth, height: videoHeight))
         guard let currentPixelBuffer = SentryPixelBuffer(size: pixelSize, videoWriterInput: videoWriterInput) else {
             SentrySDKLog.error("[Session Replay] Failed to render video, reason: pixel buffer creation failed")
-            return completion(.failure(SentryOnDemandReplayError.cantCreatePixelBuffer))
+            completion(.failure(SentryOnDemandReplayError.cantCreatePixelBuffer))
+            return nil
         }
         videoWriter.add(videoWriterInput)
         videoWriter.startWriting()
@@ -359,6 +376,7 @@ func removeReplayFile(at fileURL: URL) {
         videoWriterInput.requestMediaDataWhenReady(on: assetWorkerQueue.queue) {
             frameProcessor.processFrames(videoWriterInput: videoWriterInput, onCompletion: completion)
         }
+        return frameProcessor
     }
 
     internal func createVideoSettings(width: CGFloat, height: CGFloat) -> [String: Any] {

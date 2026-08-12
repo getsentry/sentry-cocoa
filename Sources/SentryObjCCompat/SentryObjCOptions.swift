@@ -122,10 +122,12 @@ import Foundation
         }
     }
 
+    #if !SDK_V10
     @objc public var enableLogs: Bool {
         get { wrapped.enableLogs }
         set { wrapped.enableLogs = newValue }
     }
+    #endif // !SDK_V10
 
     @objc public var beforeBreadcrumb: ((SentryObjCBreadcrumb) -> SentryObjCBreadcrumb?)? {
         didSet {
@@ -344,10 +346,12 @@ import Foundation
         set { wrapped.enablePreWarmedAppStartTracing = newValue }
     }
 
+    #if !SDK_V10
     @objc public var enableStandaloneAppStartTracing: Bool {
         get { wrapped.enableStandaloneAppStartTracing }
         set { wrapped.enableStandaloneAppStartTracing = newValue }
     }
+    #endif
 
     @objc public var enableReportNonFullyBlockingAppHangs: Bool {
         get { wrapped.enableReportNonFullyBlockingAppHangs }

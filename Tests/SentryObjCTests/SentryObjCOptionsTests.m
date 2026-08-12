@@ -241,6 +241,7 @@
     XCTAssertTrue(options.enableNetworkBreadcrumbs);
 }
 
+#if !SDK_V10
 - (void)testEnableLogs_whenSetToYes_shouldReturnYes
 {
     // -- Arrange --
@@ -252,6 +253,7 @@
     // -- Assert --
     XCTAssertTrue(options.enableLogs);
 }
+#endif // !SDK_V10
 
 - (void)testEnableAutoSessionTracking_whenSetToYes_shouldReturnYes
 {

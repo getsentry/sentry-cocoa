@@ -569,6 +569,36 @@ extension SentrySDK {
     // MARK: - Extended App Launch
 
     #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS) || os(visionOS))
+    #if SDK_V10
+    /// Extends the app launch measurement beyond the default end point.
+    ///
+    /// Call this method after `start(options:)` but before didFinishLaunching notification is posted
+    /// so the SDK doesn't finish the app start transaction automatically.
+    ///
+    /// Use ``getExtendedAppStartSpan()`` to retrieve the span and add child spans that break
+    /// down the extended launch period. Call `finish()` on that span (or call ``finishExtendedAppStart()``)
+    /// when the app is fully launched.
+    ///
+    /// ```swift
+    /// func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    ///     SentrySDK.start(configureOptions: { options in
+    ///         ...
+    ///     })
+    ///     SentrySDK.extendAppStart()
+    ///
+    ///     let appStartSpan = SentrySDK.getExtendedAppStartSpan()
+    ///     let configSpan = appStartSpan?.startChild(operation: "app.init", description: "fetch remote config")
+    ///     fetchRemoteConfig()
+    ///     configSpan?.finish()
+    ///
+    ///     appStartSpan?.finish()
+    ///     return true
+    /// }
+    /// ```
+    public static func extendAppStart() {
+        SentryDependencyContainer.sharedInstance().extendedAppLaunchManager.extend()
+    }
+    #else
     /// Extends the app launch measurement beyond the default end point.
     ///
     /// Call this method after `start(options:)` but before didFinishLaunching notification is posted
@@ -597,12 +627,11 @@ extension SentrySDK {
     /// ```
     ///
     /// - Note: This only has an effect when Standalone App Start tracing is enabled.
-    #if !SDK_V10
     @objc
-    #endif
     public static func extendAppStart() {
         SentryDependencyContainer.sharedInstance().extendedAppLaunchManager.extend()
     }
+    #endif
 
     /// Returns the extended app start span, or `nil` if ``extendAppStart()`` was not called,
     /// the SDK is not started, or the app start transaction was already created.

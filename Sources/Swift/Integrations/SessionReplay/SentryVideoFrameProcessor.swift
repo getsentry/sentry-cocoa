@@ -6,6 +6,7 @@ import CoreGraphics
 import Foundation
 import UIKit
 
+// swiftlint:disable:next type_body_length
 class SentryVideoFrameProcessor {
     private enum AppendFrameResult {
         case success
@@ -61,6 +62,21 @@ class SentryVideoFrameProcessor {
         self.lastImageSize = initialImageSize
         self.usedFrames = []
         self.isFinished = false
+    }
+
+    /// Cancels an in-flight render session.
+    ///
+    /// Marks the writer inputs as finished and cancels the writing session so AVFoundation
+    /// releases the `requestMediaDataWhenReady` block. That block retains this processor and,
+    /// through `videoFrames`, the in-memory frame images — without this, a stalled writer would
+    /// keep them alive indefinitely. Must be called on the asset worker queue to serialize with
+    /// `processFrames(videoWriterInput:onCompletion:)`.
+    func cancel() {
+        guard !isFinished else { return }
+        isFinished = true
+        SentrySDKLog.warning("[Session Replay] Cancelling stalled video render session")
+        videoWriter.inputs.forEach { $0.markAsFinished() }
+        videoWriter.cancelWriting()
     }
 
     // swiftlint:disable function_body_length cyclomatic_complexity

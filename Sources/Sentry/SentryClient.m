@@ -26,7 +26,6 @@
 #import "SentryTraceContext.h"
 #import "SentryTracer.h"
 #import "SentryTransaction.h"
-#import "SentryTransportAdapter.h"
 #import "SentryTransportFactory.h"
 #import "SentryUser.h"
 
@@ -1166,10 +1165,12 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         return;
     }
 
+#if !SDK_V10
     if (self.options.enableLogs == NO) {
         SENTRY_LOG_DEBUG(@"Dropping log, because the option enableLogs is false.");
         return;
     }
+#endif // !SDK_V10
 
     if (![log isKindOfClass:[SentryLog class]]) {
         return;

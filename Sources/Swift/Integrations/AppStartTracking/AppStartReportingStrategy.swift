@@ -8,6 +8,7 @@ protocol AppStartReportingStrategy {
     func shouldSkipMaxAppStartDurationLimit() -> Bool
 }
 
+#if !SDK_V10
 /// Attaches app start data to the first UIViewController transaction (default behavior).
 struct AttachToTransactionStrategy: AppStartReportingStrategy {
     func report(_ measurement: SentryAppStartMeasurement, traceId: SentryId) {
@@ -18,6 +19,7 @@ struct AttachToTransactionStrategy: AppStartReportingStrategy {
         return false
     }
 }
+#endif
 
 /// Sends a standalone app start transaction by passing the measurement directly via the tracer
 /// configuration. The existing tracer pipeline then handles span building, measurements, context,

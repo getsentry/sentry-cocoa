@@ -180,7 +180,11 @@ Ensure no new issues from: static analysis, thread/address/UB sanitizers, or cro
 
 Non-changelog types require `#skip-changelog` in PR description. Breaking changes: `feat!:` or `BREAKING CHANGE:` footer.
 
-- **V10-gated changes** (`#if SDK_V10`) — add an entry to `CHANGELOG_V10.md` under the appropriate section (Breaking Changes, Features, Fixes, etc.). These changes ship in the next major version and are tracked separately from `CHANGELOG.md`.
+- **Changelog entries** — append entries to the end of their `CHANGELOG.md` section.
+- **PR changelog requirement** — include a changelog entry containing the pull request number, or put `#skip-changelog` in the pull request description. Never put `#skip-changelog` in a commit message.
+- **PR number for changelog entries** — either determine the current highest issue or PR number and increment it, or create the PR after the first commit and make a second commit that adds its number.
+- **V10-gated changes** (`#if SDK_V10`) — add an entry to `CHANGELOG_V10.md` under the appropriate section (Breaking Changes, Features, Fixes, etc.) and use `#skip-changelog` in the pull request description. The organization-wide changelog check only reads `CHANGELOG.md`, so it requires `#skip-changelog` for V10-only changes. These changes ship in the next major version and are tracked separately from `CHANGELOG.md`.
+- **Changelog alerts** — place alerts after `## Version` and before the `### <Section>` headings.
 
 ## Pull Requests
 

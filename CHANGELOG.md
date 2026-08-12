@@ -6,16 +6,20 @@
 
 - Promote `enableStandaloneAppStartTracing` from `options.experimental` to a top-level option on `Options` (#8715)
 - Add experimental option `enableUIViewControllerInitSwizzling` that defers `UIViewController` swizzling to first instantiation instead of eagerly discovering and swizzling all subclasses at SDK start. This avoids realizing `@available`-gated `UIViewController` subclasses on OS versions below their gate, which crashes apps on start (#8687).
+- Add screenshot picker to feedback (#8655)
+  - Enable it with `form.enableScreenshot = true` in the `configureForm` callback.
 
 ### Improvements
 
 - Session Replay keeps captured frames in memory for live video encode while still writing PNGs to disk for crash durability. Encode prefers the in-memory image and only falls back to disk for frames recovered after a crash, avoiding a PNG readback on the streaming hot path. (#8636)
+- Remove the per-frame render loop from the Session Replay masking preview. (#8730)
 
 ### Fixes
 
 - Fix misleading duplicate SDK detection message: "same binary" → "same address space" (#8710)
 - Fix a race caused by mutating `URLSessionTask.currentRequest` during trace header propagation (#8650)
 - Prevent Session Replay network-detail breadcrumbs from blocking URLSession cancellation on the task monitor (#8497)
+- Fix Session Replay adaptive capture backoff pinning at the maximum interval due to mask compositing being included in the measured capture duration, which could produce single-frame segments that appear stuck on one screen (#8740)
 
 ### Internal
 
