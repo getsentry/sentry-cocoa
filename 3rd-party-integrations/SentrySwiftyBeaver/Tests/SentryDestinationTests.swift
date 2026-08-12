@@ -1,5 +1,9 @@
 @testable import SentrySwiftyBeaver
+#if canImport(Sentry)
 import Sentry
+#else
+import SentrySwift
+#endif
 import SwiftyBeaver
 import XCTest
 

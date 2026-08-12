@@ -1,6 +1,10 @@
 @_spi(Private) @testable import SentryCocoaLumberjack
 import CocoaLumberjackSwift
+#if canImport(Sentry)
 import Sentry
+#else
+import SentrySwift
+#endif
 import XCTest
 
 // swiftlint:disable cyclomatic_complexity file_length type_body_length

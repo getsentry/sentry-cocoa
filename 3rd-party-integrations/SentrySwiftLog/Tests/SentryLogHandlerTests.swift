@@ -1,6 +1,10 @@
 @testable import SentrySwiftLog
 import Logging
+#if canImport(Sentry)
 import Sentry
+#else
+import SentrySwift
+#endif
 import XCTest
 
 final class SentryLogHandlerTests: XCTestCase {

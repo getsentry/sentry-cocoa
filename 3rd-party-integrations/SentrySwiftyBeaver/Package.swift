@@ -1,5 +1,20 @@
 // swift-tools-version:6.0
+
+#if canImport(Darwin)
+import Darwin.C
+#elseif canImport(Glibc)
+import Glibc
+#elseif canImport(MSVCRT)
+import MSVCRT
+#endif
+
 import PackageDescription
+
+func envFlag(_ name: String) -> Bool {
+    getenv(name).map { String(cString: $0) == "1" } ?? false
+}
+
+let sentryProductName = envFlag("SENTRY_COCOA_SOURCE_BUILD") ? "SentrySPM" : "Sentry"
 
 let package = Package(
     name: "SentrySwiftyBeaver",
@@ -18,7 +33,7 @@ let package = Package(
         .target(
             name: "SentrySwiftyBeaver",
             dependencies: [
-                .product(name: "Sentry", package: "sentry-cocoa"),
+                .product(name: sentryProductName, package: "sentry-cocoa"),
                 .product(name: "SwiftyBeaver", package: "SwiftyBeaver")
             ]
         ),
@@ -26,7 +41,7 @@ let package = Package(
             name: "SentrySwiftyBeaverTests",
             dependencies: [
                 "SentrySwiftyBeaver",
-                .product(name: "Sentry", package: "sentry-cocoa"),
+                .product(name: sentryProductName, package: "sentry-cocoa"),
                 .product(name: "SwiftyBeaver", package: "SwiftyBeaver")
             ]
         )

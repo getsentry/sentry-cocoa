@@ -1,5 +1,9 @@
 import CocoaLumberjackSwift
+#if canImport(Sentry)
 import Sentry
+#else
+import SentrySwift
+#endif
 
 /// A CocoaLumberjack logger that forwards log entries to Sentry's structured logging system.
 ///

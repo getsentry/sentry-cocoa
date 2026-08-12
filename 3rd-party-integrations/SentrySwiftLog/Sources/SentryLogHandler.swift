@@ -1,5 +1,9 @@
 import Logging
+#if canImport(Sentry)
 import Sentry
+#else
+import SentrySwift
+#endif
 
 /// A `swift-log` handler that forwards log entries to Sentry's structured logging system.
 ///
