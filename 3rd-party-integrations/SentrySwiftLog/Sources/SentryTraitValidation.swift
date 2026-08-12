@@ -1,3 +1,3 @@
-#if SENTRY_PRECOMPILED && SENTRY_FROM_SOURCE
-#error("PrecompiledSentry and SentryFromSource are mutually exclusive. Enable only one.")
+#if SENTRY_FROM_BINARY && SENTRY_FROM_SOURCE
+#error("SentryFromBinary and SentryFromSource are mutually exclusive. Enable only one.")
 #endif

@@ -92,7 +92,7 @@ jobs:
           "SentryCocoaLumberjack",
           "SentryPulse",
         ]
-        trait: ["PrecompiledSentry", "SentryFromSource"]
+        trait: ["SentryFromBinary", "SentryFromSource"]
     steps:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
