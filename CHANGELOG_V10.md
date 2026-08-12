@@ -4,6 +4,7 @@
 
 ### Features
 
+- Sync scope data to KSCrash crash reports in `SentryV10` (#8759)
 - Process pending KSCrash reports into fatal Sentry events in `SentryV10` (#8515)
 - Install KSCrash crash handler in `SentryV10` with production-safe monitors matching SentryCrash's existing monitor set (#8469)
   - Respect `options.enableMemoryIntrospection` when configuring KSCrash
