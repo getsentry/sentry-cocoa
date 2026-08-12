@@ -523,12 +523,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// Options for experimental features that are subject to change.
 @property (nonatomic, strong) SentryObjCExperimentalOptions *experimental;
 
-/**
- * When enabled, the SDK sends metrics to Sentry.
- * @note Default value is @c YES.
- */
-@property (nonatomic) BOOL enableMetrics;
-
 #if (TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION) && SENTRY_OBJC_HAS_UIKIT
 
 /**
