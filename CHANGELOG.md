@@ -11,7 +11,7 @@
 ### Breaking Changes
 
 - Remove `options.enableLogs` to remove explicit opt-in for Logs. If you need to disable logs, use `beforeSendLog` to drop all logs (#8769)
-- Remove `options.enableMetrics` to make Metrics always enabled. Use `beforeSendMetric` to drop all metrics (#8770)
+- Remove `options.enableMetrics` to make Metrics always enabled. Use `beforeSendMetric` to drop all metrics (#8785)
 
 ## 9.26.0
 
