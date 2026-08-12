@@ -1,6 +1,20 @@
 #!/bin/bash
 set -euo pipefail
 
+# Compiled-object V10 migration contract. This audit takes an Xcode or SwiftPM build directory and
+# proves that compilation followed the reviewed source classification.
+#
+# Verifies:
+# - Every Tool in Sources/Configuration/SentryCrashV10ToolSources.xcconfig exists, is unique, and
+#   produced an object in the audited build.
+# - No recorder source, excluded Tool, or excluded SDK-owned V9 adapter produced a normal V10
+#   object.
+# - SwiftPM trait builds may contain only the unavoidable whole-file !SDK_V10 guarded translation
+#   units, and each such object exports no external symbol.
+#
+# This does not prove that final linking, dead stripping, or framework packaging preserved the
+# intended API. That layer is enforced by verify-v10-sentrycrash-framework.sh.
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=./ci-utils.sh disable=SC1091
 source "$SCRIPT_DIR/ci-utils.sh"

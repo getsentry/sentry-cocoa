@@ -1,6 +1,21 @@
 #!/bin/bash
 set -euo pipefail
 
+# Final-product V10 migration contract. This audit takes a dynamic or static Sentry.framework and
+# proves that linking and packaging expose the intended compatibility boundary.
+#
+# Verifies:
+# - Proven recorder entry points and ObjC implementation classes are absent.
+# - The C++ ABI compatibility symbols are exactly __sentry_cxa_throw and __sentry_cxa_rethrow.
+# - All 15 SDK-owned sentrycrash_scopesync_* symbols and SentryCrashReportConverter remain present.
+# - macOS retains the public SentryCrashExceptionApplication implementation and every platform
+#   packages its public header.
+# - Headers for excluded adapters are absent, packaged headers do not import legacy recorder
+#   headers, and the generated Swift header does not declare excluded implementation classes.
+#
+# This enforces the linked and packaged result; source responsibility coverage and compiled-object
+# provenance are enforced by the companion source-contract and object scripts.
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=./ci-utils.sh disable=SC1091
 source "$SCRIPT_DIR/ci-utils.sh"

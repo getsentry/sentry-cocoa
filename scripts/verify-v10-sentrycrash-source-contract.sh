@@ -1,6 +1,22 @@
 #!/bin/bash
 set -euo pipefail
 
+# Repository/source-level V10 migration contract. This audit runs without build artifacts and
+# catches responsibilities that could disappear before an object or link audit can observe them.
+#
+# Verifies:
+# - Every production and test migration-marker block has a KSCRASH_TODO, durable GH tracker, and
+#   acceptance ID that exists in the migration ledger.
+# - Every SDK-owned source that imports or calls a legacy-shaped dependency is represented in the
+#   ledger. Historical names are audit input, not automatic evidence of legacy ownership.
+# - The reviewed SDK-owned V10 exclusions are exact and agree across Xcode and all SwiftPM
+#   manifests.
+# - Every retained legacy Tool is documented, while SDK-owned SentryScopeSyncC.c remains
+#   unconditional and unexcluded.
+#
+# This does not inspect compiled objects or shipped products. Those layers are enforced by
+# verify-v10-sentrycrash-objects.sh and verify-v10-sentrycrash-framework.sh.
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=./ci-utils.sh disable=SC1091
 source "$SCRIPT_DIR/ci-utils.sh"

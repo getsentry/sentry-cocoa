@@ -139,10 +139,10 @@
 
 ## Contract Enforcement
 
-- `scripts/verify-v10-sentrycrash-source-contract.sh` validates marker annotations, acceptance IDs, source-ledger coverage, the exact SDK-owned exclusion set, retained Tool documentation, and unconditional scope-sync ownership.
-- `scripts/verify-v10-sentrycrash-objects.sh` validates the exact retained Tool object set and trait-only empty translation units.
-- `scripts/verify-v10-sentrycrash-framework.sh` validates exact forbidden implementations, compatibility symbols, the complete scope-sync API, excluded classes, and packaged headers.
-- `SentryKSCrashLegacyRecorderExclusionTests` validates the same runtime class/symbol boundary and invokes the SDK-owned scope-sync API.
+- `scripts/verify-v10-sentrycrash-source-contract.sh` inspects source annotations, ledger references, and reviewed SDK-owned exclusions.
+- `scripts/verify-v10-sentrycrash-objects.sh` inspects compiled objects against the retained Tool and guarded-translation-unit contract.
+- `scripts/verify-v10-sentrycrash-framework.sh` inspects final framework symbols, classes, compatibility APIs, and packaged headers.
+- Detailed purpose, guarantees, and limitations are documented at the top of each script.
 
 ## Decisions
 
