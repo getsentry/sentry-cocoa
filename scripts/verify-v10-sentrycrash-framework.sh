@@ -181,7 +181,7 @@ while IFS=: read -r packaged_header line_number directive; do
     record_error "Packaged V10 header imports legacy recorder header $imported_name: $packaged_header:$line_number"
   fi
 done < <(
-  rg -n --no-heading '^[[:space:]]*#[[:space:]]*(import|include)[[:space:]]*[<"][^>"]+[>"]' \
+  grep -RInHE '^[[:space:]]*#[[:space:]]*(import|include)[[:space:]]*[<"][^>"]+[>"]' \
     "$FRAMEWORK_PATH/Headers" "$FRAMEWORK_PATH/PrivateHeaders" 2>/dev/null || true
 )
 

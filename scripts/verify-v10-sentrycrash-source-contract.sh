@@ -122,9 +122,12 @@ verify_marker_blocks() {
         record_error "$source_path:$line_number references unknown acceptance ID $acceptance_id"
       fi
     done
-  done < <(rg -n --no-heading \
-    '^[[:space:]]*#[[:space:]]*(if|ifdef|ifndef).*SENTRY_DISABLE_SENTRYCRASH_V10' \
-    "$search_path" --glob '!Configuration/**')
+  done < <(find "$search_path" -type f \
+    \( -name '*.h' -o -name '*.hpp' -o -name '*.c' -o -name '*.cc' -o -name '*.cpp' \
+    -o -name '*.m' -o -name '*.mm' -o -name '*.swift' \) \
+    ! -path '*/Configuration/*' \
+    -exec grep -nHE \
+    '^[[:space:]]*#[[:space:]]*(if|ifdef|ifndef).*SENTRY_DISABLE_SENTRYCRASH_V10' {} + || true)
 
   if [[ $marker_count -eq 0 ]]; then
     record_error "No $marker_kind migration markers found under $search_path; the marker audit did not run"
@@ -144,19 +147,24 @@ find Sources/SentryCrash -type f \( -name '*.h' -o -name '*.hpp' \) -exec basena
   | sort -u > "$legacy_headers_path"
 
 while IFS= read -r header_name; do
-  rg -l "[<\"]${header_name}[>\"]" Sources/Sentry Sources/Swift Sources/SentryCppHelper \
-    --glob '*.{h,hpp,c,cc,cpp,m,mm,swift}' || true
+  find Sources/Sentry Sources/Swift Sources/SentryCppHelper -type f \
+    \( -name '*.h' -o -name '*.hpp' -o -name '*.c' -o -name '*.cc' -o -name '*.cpp' \
+    -o -name '*.m' -o -name '*.mm' -o -name '*.swift' \) \
+    -exec grep -lE "[<\"]${header_name}[>\"]" {} + || true
 done < "$legacy_headers_path" >> "$dependency_files_path"
 
 # Historical SDK include paths also contain declarations for implementations under Sources/SentryCrash.
 # Treat the name as audit input only; the ledger records whether each dependency is legacy or SDK-owned.
-rg -l '^[[:space:]]*#[[:space:]]*(include|import)[[:space:]]*[<"]SentryCrash' \
-  Sources/Sentry Sources/Swift Sources/SentryCppHelper \
-  --glob '*.{h,hpp,c,cc,cpp,m,mm,swift}' >> "$dependency_files_path" || true
+find Sources/Sentry Sources/Swift Sources/SentryCppHelper -type f \
+  \( -name '*.h' -o -name '*.hpp' -o -name '*.c' -o -name '*.cc' -o -name '*.cpp' \
+  -o -name '*.m' -o -name '*.mm' -o -name '*.swift' \) \
+  -exec grep -lE '^[[:space:]]*#[[:space:]]*(include|import)[[:space:]]*[<"]SentryCrash' {} + \
+  >> "$dependency_files_path" || true
 
-rg -n --no-heading '\bsentrycrash[A-Za-z0-9_]*[[:space:]]*\(' \
-  Sources/Sentry Sources/Swift Sources/SentryCppHelper \
-  --glob '*.{h,hpp,c,cc,cpp,m,mm,swift}' \
+find Sources/Sentry Sources/Swift Sources/SentryCppHelper -type f \
+  \( -name '*.h' -o -name '*.hpp' -o -name '*.c' -o -name '*.cc' -o -name '*.cpp' \
+  -o -name '*.m' -o -name '*.mm' -o -name '*.swift' \) \
+  -exec grep -nHE '(^|[^[:alnum:]_])sentrycrash[A-Za-z0-9_]*[[:space:]]*\(' {} + \
   | grep -v 'sentrycrash_scopesync_' \
   | cut -d: -f1 >> "$dependency_files_path" || true
 
@@ -279,10 +287,10 @@ for manifest_path in Package.swift Package@swift-6.1.swift Package@swift-6.2.swi
 done
 log_notice "Verified SDK-owned V10 exclusions use the classified Xcode and SwiftPM sets"
 
-if rg -q 'SentryScopeSyncC\.c' "$V10_XCCONFIG_PATH" Package.swift Package@swift-6.1.swift Package@swift-6.2.swift; then
+if grep -qE 'SentryScopeSyncC\.c' "$V10_XCCONFIG_PATH" Package.swift Package@swift-6.1.swift Package@swift-6.2.swift; then
   record_error "SDK-owned SentryScopeSyncC.c must not be excluded from a V10 route"
 fi
-if rg -q '^#if[[:space:]]+!SDK_V10[[:space:]]*$' Sources/Sentry/SentryScopeSyncC.c; then
+if grep -qE '^#if[[:space:]]+!SDK_V10[[:space:]]*$' Sources/Sentry/SentryScopeSyncC.c; then
   record_error "SDK-owned SentryScopeSyncC.c must not have a whole-file V10 guard"
 fi
 
