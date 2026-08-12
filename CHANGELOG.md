@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+> [!WARNING]
+> This release removes the option `enableLogs` from `Options`. If you need to disable logs, use `beforeSendLog` to drop all logs.
+
+### Breaking Changes
+
+- Remove `options.enableLogs` to remove explicit opt-in for Logs. If you need to disable logs, use `beforeSendLog` to drop all logs (#8769)
+
 ### Features
 
 - Promote `enableStandaloneAppStartTracing` from `options.experimental` to a top-level option on `Options` (#8715)
