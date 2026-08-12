@@ -139,6 +139,8 @@ for PACKAGE_FILE in "${PACKAGE_FILES[@]}"; do
   if is_enabled "$REMOVE_DUPLICATE"; then
     sed -i '' '/Sentry-Dynamic/d' "$PACKAGE_FILE"
     sed -i '' '/Sentry-WithoutUIKitOrAppKit/d' "$PACKAGE_FILE"
+    sed -i '' '/SentryObjC-Dynamic/d' "$PACKAGE_FILE"
+    sed -i '' '/SentryObjC-Static/d' "$PACKAGE_FILE"
     sed -i '' '/^[[:space:]]*\.binaryTarget($/{N;/\n[[:space:]]*),\{0,1\}$/d;}' "$PACKAGE_FILE"
   fi
 
