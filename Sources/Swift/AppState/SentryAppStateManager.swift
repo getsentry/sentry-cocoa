@@ -191,7 +191,6 @@ import UIKit
         _updateAppState(block)
     }
 
-
     /// The app has been has moved from an inactive to active state or it received a
     /// @c SentryHybridSdkDidBecomeActiveNotification while in the foreground.
     /// @discussion This also works when using SwiftUI or Scenes, as UIKit posts a
