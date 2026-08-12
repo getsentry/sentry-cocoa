@@ -4,6 +4,7 @@
 
 ### Features
 
+- Sync scope data to KSCrash crash reports in `SentryV10` (#8759)
 - Process pending KSCrash reports into fatal Sentry events in `SentryV10` (#8515)
 - Install KSCrash crash handler in `SentryV10` with production-safe monitors matching SentryCrash's existing monitor set (#8469)
   - Respect `options.enableMemoryIntrospection` when configuring KSCrash
@@ -20,6 +21,7 @@
 
 - Enable MetricKit integration by default (#8716)
 - Enable logging by default (#8717)
+- Remove `enableLogs`; logs are always enabled in v10 (#8769)
 - Change the default diagnostic level to warning (#8732)
 - Enable `swiftAsyncStacktraces` by default (#8718)
 - Remove `sendDefaultPii`; use `dataCollection` to configure automatic data collection (#8253)
@@ -37,4 +39,4 @@
 - Filter sensitive values from selected Session Replay network headers and cookies (#8566)
 - Omit failed-request headers when `options.dataCollection.httpHeaders` is disabled (#8562)
 - Normalize profiling CPU usage to 0–100 percent (#8323)
-- Bump KSCrash to `2.6.0-beta.5`
+- Bump KSCrash to `2.6.0`

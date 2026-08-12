@@ -115,7 +115,9 @@ final class SentryClientTests: XCTestCase {
             let options = Options()
             options.dsn = SentryClientTests.dsn
             options.removeAllIntegrations()
+            #if !SDK_V10
             options.enableLogs = true
+            #endif // !SDK_V10
             configureOptions(options)
 
             return SentryClientInternal(
@@ -3051,6 +3053,7 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(testProcessor.forwardTelemetryDataInvocations.count, 1)
     }
 
+    #if !SDK_V10
     func testCaptureLog_withLogsDisabled_logDropped() {
         // -- Arrange --
         let sut = fixture.getSut()
@@ -3068,6 +3071,7 @@ final class SentryClientTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(testProcessor.addLogInvocations.count, 0, "Log should be dropped when enableLogs is false")
     }
+    #endif // !SDK_V10
 
     func testCaptureLog_whenClientDisabled_logDropped() {
         // The full isDisabled logic is covered elsewhere; this just verifies _swiftCaptureLog

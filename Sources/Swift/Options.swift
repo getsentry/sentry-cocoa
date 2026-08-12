@@ -147,16 +147,13 @@
     /// drop the span.
     @objc public var beforeSendSpan: SentryBeforeSendSpanCallback?
 
+    #if !SDK_V10
     /// When enabled, the SDK sends logs to Sentry. Logs can be captured using the SentrySDK.logger
     /// API, which provides structured logging with attributes.
-    /// @note Default value is @c true in v10, @c false in earlier versions.
-    @objc public var enableLogs: Bool = {
-        #if SDK_V10
-        return true
-        #else
-        return false
-        #endif // SDK_V10
-    }()
+    /// @note Default value is @c false.
+    /// @note In v10 and later, logs are always enabled. Remove this option when upgrading.
+    @objc public var enableLogs: Bool = false
+    #endif // !SDK_V10
 
     /// Use this callback to drop or modify a log before the SDK sends it to Sentry. Return nil to
     /// drop the log.
