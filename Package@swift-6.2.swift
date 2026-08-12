@@ -209,7 +209,7 @@ targets += [
 // END:OBJC_WRAPPER
 
 let packageDependencies: [Package.Dependency] = [
-    .package(url: "https://github.com/kstenerud/KSCrash.git", from: "2.6.0-beta.5")
+    .package(url: "https://github.com/kstenerud/KSCrash.git", from: "2.6.0")
 ]
 
 let package = Package(

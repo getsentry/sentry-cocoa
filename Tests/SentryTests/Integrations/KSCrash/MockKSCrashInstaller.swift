@@ -46,6 +46,7 @@ final class MockKSCrashInstaller: SentryKSCrash.Installing {
     public var sendAllReportsDispatchQueues: [SentryDispatchQueueWrapper] = []
     public var sendAllReportsProcessingSessions: [SentryKSCrash.ReportProcessingSession] = []
     public var onSendAllReports: (() -> Void)?
+    public var setUserInfoInvocations: [[String: Any]] = []
 
     public init() {}
 
@@ -70,6 +71,10 @@ final class MockKSCrashInstaller: SentryKSCrash.Installing {
     public func uninstall() {
         uninstallCallCount += 1
         installed = false
+    }
+
+    public func setUserInfo(_ userInfo: [String: Any]) {
+        setUserInfoInvocations.append(userInfo)
     }
 
     public func sendAllReports(

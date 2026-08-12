@@ -415,24 +415,11 @@ class SentryViewPhotographerTests: XCTestCase {
     }
     
     private func color(at point: CGPoint, in image: UIImage) -> UIColor {
-        guard let cgImage = image.cgImage,
-              let dataProvider = cgImage.dataProvider,
-              let pixelData = dataProvider.data else {
+        guard let pixel = imagePixel(at: point, in: image) else {
             return .clear
         }
 
-        let data: UnsafePointer<UInt8> = CFDataGetBytePtr(pixelData)
-        
-        let bytesPerPixel = 4
-        let bytesPerRow = cgImage.bytesPerRow
-        let pixelOffset = Int(point.y) * bytesPerRow + Int(point.x) * bytesPerPixel
-        
-        let red = CGFloat(data[pixelOffset]) / 255.0
-        let green = CGFloat(data[pixelOffset + 1]) / 255.0
-        let blue = CGFloat(data[pixelOffset + 2]) / 255.0
-        let alpha = CGFloat(data[pixelOffset + 3]) / 255.0
-        
-        return UIColor(red: red, green: green, blue: blue, alpha: alpha)
+        return UIColor(red: pixel.red, green: pixel.green, blue: pixel.blue, alpha: pixel.alpha)
     }
 }
 
