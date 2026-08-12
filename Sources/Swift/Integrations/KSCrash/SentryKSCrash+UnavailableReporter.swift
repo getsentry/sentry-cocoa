@@ -2,6 +2,8 @@
 internal import _SentryPrivate
 import Foundation
 
+typealias SentryScope = Scope
+
 extension SentryKSCrash {
     /// Keeps reporter-neutral consumers buildable without emulating capabilities that have not
     /// been migrated from SentryCrash. Installation state comes from `SentryKSCrash.Query`.
@@ -32,7 +34,7 @@ extension SentryKSCrash {
 
         func startBinaryImageCache() { }
         func stopBinaryImageCache() { }
-        func enrichScope(_ scope: Scope) { }
+        func enrichScope(_ scope: SentryScope) { }
     }
 }
 #endif // SENTRY_DISABLE_SENTRYCRASH_V10

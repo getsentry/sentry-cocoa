@@ -1,5 +1,6 @@
 #if SDK_V10
 @_spi(Private) @testable import Sentry
+import KSCrashRecording
 import SentryTestUtils
 import XCTest
 
@@ -414,8 +415,8 @@ class SentryKSCrashScopeObserverTests: XCTestCase {
     }
 
     private func serialize(object: Any) throws -> String {
-        let serialized = try XCTUnwrap(SentryCrashJSONCodec.encode(object, options: SentryCrashJSONEncodeOptionSorted))
-        return String(data: serialized, encoding: .utf8) ?? ""
+        let serialized = try KSJSONCodec.encode(object, options: .sorted)
+        return try XCTUnwrap(String(data: serialized, encoding: .utf8))
     }
 
     private func getCrashScope() -> SentryCrashScope {
