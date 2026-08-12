@@ -382,6 +382,7 @@ sentrycrashcm_signal_ignore_next(int signum)
 
     SentryCrashIgnoreSignal *entry = pthread_getspecific(g_ignoreSignalKey);
     if (entry == NULL) {
+        // Intentional leak: signal handlers may still traverse list
         entry = calloc(1, sizeof(*entry));
         if (entry == NULL || pthread_setspecific(g_ignoreSignalKey, entry) != 0) {
             free(entry);
