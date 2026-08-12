@@ -61,7 +61,10 @@ static inline bool
 isReservedThread(thread_t thread)
 {
 #if SENTRY_DISABLE_SENTRYCRASH_V10
-    // KSCrash does not expose its private handler threads to this shared thread-inspection tool.
+    // KSCRASH_TODO(GH-8799): KSCrash reserved threads are not visible through this legacy tool,
+    // so V10 temporarily treats every thread as non-reserved. Acceptance: SCV10-003 in
+    // SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+    (void)thread;
     return false;
 #else
     return sentrycrashcm_isReservedThread(thread);

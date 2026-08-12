@@ -1,4 +1,4 @@
-#if SENTRY_DISABLE_SENTRYCRASH_V10
+#if SDK_V10
 import Darwin
 import Foundation
 import XCTest
@@ -100,4 +100,4 @@ final class SentryKSCrashLegacyRecorderExclusionTests: XCTestCase {
         }
     }
 }
-#endif // SENTRY_DISABLE_SENTRYCRASH_V10
+#endif // SDK_V10

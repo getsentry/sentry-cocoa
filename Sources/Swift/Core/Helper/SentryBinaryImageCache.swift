@@ -58,6 +58,9 @@ import Foundation
                 let image = imagePtr.pointee
                 SentryDependencyContainer.sharedInstance().binaryImageCache.binaryImageRemoved(image.address)
             }
+#else
+            // KSCRASH_TODO(GH-8798): V10 starts an empty cache because no KSCrash-backed image
+            // provider is registered. Acceptance: SCV10-001 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
 #endif
         }
     }
@@ -71,6 +74,9 @@ import Foundation
 #if !SENTRY_DISABLE_SENTRYCRASH_V10
             sentrycrashbic_registerAddedCallback(nil)
             sentrycrashbic_registerRemovedCallback(nil)
+#else
+            // KSCRASH_TODO(GH-8798): V10 has no image-provider callbacks to unregister.
+            // Acceptance: SCV10-001 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
 #endif
             self.cache = nil
         }

@@ -145,8 +145,11 @@ class SentrySDKTests: XCTestCase {
         #else
         expectedIntegrations.append("SentryCrashIntegration")
         #endif
-        #if SDK_V10
+        #if SDK_V10 && !SENTRY_DISABLE_SENTRYCRASH_V10
         expectedIntegrations.append("SentrySwiftAsyncIntegration")
+        #elseif SDK_V10
+        // KSCRASH_TODO(GH-8725): V10 temporarily omits the Swift async integration.
+        // Acceptance: SCV10-011 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
         #endif
 #if canImport(MetricKit) && !os(tvOS) && SDK_V10
         expectedIntegrations.append("SentryMetricKitIntegration")
@@ -164,6 +167,8 @@ class SentrySDKTests: XCTestCase {
         XCTAssertNotNil(SentryDependencyContainer.sharedInstance().binaryImageCache.cache)
         let cache = try XCTUnwrap(SentryDependencyContainer.sharedInstance().binaryImageCache.cache)
 #if SENTRY_DISABLE_SENTRYCRASH_V10
+        // KSCRASH_TODO(GH-8798): V10 starts an empty binary-image cache.
+        // Acceptance: SCV10-001 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
         XCTAssertTrue(cache.isEmpty)
 #else
         XCTAssertGreaterThan(cache.count, 0)
@@ -580,6 +585,8 @@ class SentrySDKTests: XCTestCase {
 
         let debugMetas = try XCTUnwrap(event.debugMeta, "Expected event to have debug meta but got nil")
 #if SENTRY_DISABLE_SENTRYCRASH_V10
+        // KSCRASH_TODO(GH-8798): V10 emits empty debug metadata without an image provider.
+        // Acceptance: SCV10-001 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
         XCTAssertTrue(debugMetas.isEmpty)
 #else
         // During local testing we got 6 debug metas, but to avoid flakiness in CI we only check for 3.

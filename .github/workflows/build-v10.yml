@@ -31,6 +31,16 @@ jobs:
           token: ${{ github.token }}
           filters: .github/file-filters.yml
 
+  verify-v10-source-contract:
+    name: Verify Source Contract
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_v10_for_prs == 'true'
+    needs: files-changed
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Verify source contract
+        run: ./scripts/verify-v10-sentrycrash-source-contract.sh
+
   build-v10:
     name: Build V10 ${{ matrix.platform }}
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_v10_for_prs == 'true'
@@ -95,6 +105,15 @@ jobs:
             exit 1
           fi
           ./scripts/verify-v10-sentrycrash-objects.sh --build-path "$objects_path"
+
+      - name: Verify SentryCrash framework contract
+        run: |
+          framework_path="$(find "$HOME/Library/Developer/Xcode/DerivedData" -type d -path '*/Build/Products/${{ matrix.objects-configuration }}/Sentry.framework' -print -quit)"
+          if [[ -z "$framework_path" ]]; then
+            echo "::error::Could not find the SentryV10 framework output"
+            exit 1
+          fi
+          ./scripts/verify-v10-sentrycrash-framework.sh --framework-path "$framework_path"
 
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
@@ -188,6 +207,7 @@ jobs:
         build-v10,
         build-v10-spm,
         verify-no-binary-targets,
+        verify-v10-source-contract,
         run-full-ci-gate,
       ]
     name: Build V10

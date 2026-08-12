@@ -37,6 +37,10 @@ static BOOL _insideReportException = NO;
     if (nil != crash.uncaughtExceptionHandler && nil != exception) {
         crash.uncaughtExceptionHandler(exception);
     }
+#    else
+    // KSCRASH_TODO(GH-8529): V10 does not forward AppKit exceptions to KSCrash, so this helper
+    // is temporarily a no-op. Acceptance: SCV10-012 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+    (void)exception;
 #    endif
 }
 

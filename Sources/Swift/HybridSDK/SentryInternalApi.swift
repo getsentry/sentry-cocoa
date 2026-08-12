@@ -100,6 +100,11 @@ public struct SentryInternalApi {
     public func ignoreNextSignal(_ signum: Int32) {
 #if !SENTRY_DISABLE_SENTRYCRASH_V10
         sentrycrash_ignore_next_signal(signum)
+#else
+        // KSCRASH_TODO(GH-8797): V10 cannot yet suppress the next signal on this thread, so this
+        // downstream SPI is temporarily a no-op. Acceptance: SCV10-007 in
+        // SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+        _ = signum
 #endif
     }
 

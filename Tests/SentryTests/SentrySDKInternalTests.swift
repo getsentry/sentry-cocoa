@@ -445,6 +445,8 @@ class SentrySDKInternalTests: XCTestCase {
 
         let hub = SentrySDKInternal.currentHub()
 #if SENTRY_DISABLE_SENTRYCRASH_V10
+        // KSCRASH_TODO(GH-8725): V10 temporarily omits the Swift async integration.
+        // Acceptance: SCV10-011 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
         XCTAssertEqual(0, hub.installedIntegrations().count)
 #else
         XCTAssertEqual(1, hub.installedIntegrations().count)
@@ -518,6 +520,8 @@ class SentrySDKInternalTests: XCTestCase {
     }
 
 #if !SENTRY_DISABLE_SENTRYCRASH_V10
+    // KSCRASH_TODO(GH-8800): V10 omits initial OS context enrichment.
+    // Acceptance: SCV10-017 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
     /// Ensure to start the UIDeviceWrapper before initializing the hub, so enrich scope sets the correct OS version.
     func testStartSDK_ScopeContextContainsOSVersion() throws {
         let expectation = XCTestExpectation(description: "SentrySDK start called")

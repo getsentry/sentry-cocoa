@@ -5,6 +5,8 @@
 // override the header name explicitly.
 SWIFT_OBJC_INTERFACE_HEADER_NAME = SentryTests-Swift.h
 
+// Temporary expectations selected by this marker map to acceptance IDs in
+// SENTRYCRASH_V10_MIGRATION_LEDGER.md. SDK_V10 selects permanent backend-specific tests.
 SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(inherited) SDK_V10 SENTRY_DISABLE_SENTRYCRASH_V10 SENTRY_TEST
 GCC_PREPROCESSOR_DEFINITIONS = $(inherited) SDK_V10=1 SENTRY_DISABLE_SENTRYCRASH_V10=1 SENTRY_TEST=1
 IMPLICIT_DEPENDENCY_DOMAIN = SentryV10

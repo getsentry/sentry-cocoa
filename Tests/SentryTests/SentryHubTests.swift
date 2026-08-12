@@ -211,6 +211,8 @@ class SentryHubTests: XCTestCase {
     }
     
 #if !SENTRY_DISABLE_SENTRYCRASH_V10
+    // KSCRASH_TODO(GH-8800): V10 omits initial scope context enrichment.
+    // Acceptance: SCV10-017 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
     func testScopeEnriched_WithInitializer() {
         let hub = SentryHubInternal(client: nil, andScope: Scope())
         XCTAssertFalse(hub.scope.contextDictionary.allValues.isEmpty)
@@ -218,7 +220,9 @@ class SentryHubTests: XCTestCase {
         XCTAssertNotNil(hub.scope.contextDictionary["device"])
         XCTAssertNotNil(hub.scope.contextDictionary["app"])
     }
+#endif // !SENTRY_DISABLE_SENTRYCRASH_V10
 
+#if !SDK_V10
     func testScopeEnriched_WithNoRuntime() throws {
         // Arrange
         let processInfoWrapper = MockSentryProcessInfo()
@@ -285,7 +289,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(runtimeContext["name"], "Mac Catalyst App")
         XCTAssertEqual(runtimeContext["raw_description"], "mac-catalyst-app")
     }
-#endif // !SENTRY_DISABLE_SENTRYCRASH_V10
+#endif // !SDK_V10
 
     func testScopeNotEnriched_WhenScopeIsNil() {
         _ = fixture.getSut()
@@ -294,6 +298,8 @@ class SentryHubTests: XCTestCase {
     }
     
 #if !SENTRY_DISABLE_SENTRYCRASH_V10
+    // KSCRASH_TODO(GH-8800): V10 omits initial scope context enrichment.
+    // Acceptance: SCV10-017 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
     func testScopeEnriched_WhenCreatingDefaultScope() {
         let hub = SentryHubInternal(client: nil, andScope: nil)
         
