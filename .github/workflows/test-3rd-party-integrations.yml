@@ -108,8 +108,8 @@ jobs:
       - name: Modify Package.swift to use local xcframeworks
         run: |
           unzip -q Sentry.xcframework.zip
-          ./scripts/prepare-package.sh --package-file Package.swift --is-pr true --remove-duplicate true --change-path true
-          sed -i '' 's|path: "Sentry.xcframework.zip"|path: "Sentry.xcframework"|' Package.swift
+          ./scripts/prepare-package.sh --is-pr true --remove-duplicate true --change-path true
+          sed -i '' 's|path: "Sentry.xcframework.zip"|path: "Sentry.xcframework"|' Package*.swift
       - name: Use local sentry-cocoa
         working-directory: 3rd-party-integrations/${{matrix.integration_dir}}
         run: |
