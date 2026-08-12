@@ -11,8 +11,10 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(Transaction)
 @interface SentryTransaction : SentryEvent
 SENTRY_NO_INIT
+#if !SENTRY_TEST && !SENTRY_TEST_CI
 - (instancetype)initWithLevel:(SentryLevel)level NS_UNAVAILABLE;
 - (instancetype)initWithError:(NSError *)error NS_UNAVAILABLE;
+#endif // !SENTRY_TEST && !SENTRY_TEST_CI
 
 /// The child spans belonging to this transaction.
 @property (nonatomic, strong) NSArray<id<SentrySpan>> *spans;

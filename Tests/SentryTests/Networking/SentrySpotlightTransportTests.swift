@@ -3,17 +3,17 @@
 import XCTest
 
 final class SentrySpotlightTransportTests: XCTestCase {
-    
+
     private var options: Options!
     private var requestManager: SyncTestRequestManager!
     private var requestBuilder: TestNSURLRequestBuilder!
-    
+
     override func setUp() {
         super.setUp()
-        
+
         options = Options()
         options.enableSpotlight = true
-        
+
         requestManager = SyncTestRequestManager(session: URLSession(configuration: URLSessionConfiguration.ephemeral))
 
         requestBuilder = TestNSURLRequestBuilder()
@@ -34,35 +34,33 @@ final class SentrySpotlightTransportTests: XCTestCase {
 
         return SentrySpotlightTransport(options: options, requestManager: requestManager, requestBuilder: requestBuilder)
     }
-    
+
     private func givenEventEnvelope(withAttachment: Bool = false) throws -> SentryEnvelope {
         let event = TestData.event
-        
+
         let attachmentEnvelopeItem = try XCTUnwrap( SentryEnvelopeItem(attachment: TestData.dataAttachment, maxAttachmentSize: 5 * 1_024 * 1_024))
-        
+
         var envelopeItems: [SentryEnvelopeItem]
         if withAttachment {
             envelopeItems = [SentryEnvelopeItem(event: event), attachmentEnvelopeItem]
         } else {
             envelopeItems = [SentryEnvelopeItem(event: event)]
         }
-        
+
         return SentryEnvelope(id: event.eventId, items: envelopeItems)
     }
-    
+
     private func givenTransactionEnvelope() throws -> SentryEnvelope {
-        let transaction = try givenTransaction()
+        let transaction = Transaction(level: .debug)
+        transaction.type = SentryEnvelopeItemTypes.transaction
 
         return SentryEnvelope(id: transaction.eventId, items: [SentryEnvelopeItem(event: transaction)])
     }
 
-    private func givenTransactionItem() throws -> SentryEnvelopeItem {
-        SentryEnvelopeItem(event: try givenTransaction())
-    }
-
-    private func givenTransaction() throws -> Transaction {
-        let tracer = SentryTracer(context: SpanContext(operation: "test"), framesTracker: nil)
-        return try XCTUnwrap(Dynamic(tracer).toTransaction() as Transaction?)
+    private func givenTransactionItem() -> SentryEnvelopeItem {
+        let transaction = Transaction(level: .debug)
+        transaction.type = SentryEnvelopeItemTypes.transaction
+        return SentryEnvelopeItem(event: transaction)
     }
 
     private func givenAttachmentItem() throws -> SentryEnvelopeItem {
@@ -144,7 +142,7 @@ final class SentrySpotlightTransportTests: XCTestCase {
     func testShouldKeepEventAndTransaction_AndStripAttachment_WhenEnvelopeHasMixedItems() throws {
         // -- Arrange --
         let eventItem = SentryEnvelopeItem(event: TestData.event)
-        let transactionItem = try givenTransactionItem()
+        let transactionItem = givenTransactionItem()
         let attachmentItem = try givenAttachmentItem()
 
         // Order matters: the transport preserves the original item order while filtering.
@@ -270,7 +268,7 @@ final class SentrySpotlightTransportTests: XCTestCase {
 
         XCTAssertEqual(logMessages.count, 1)
     }
-    
+
     private func getSerializedGzippedData(envelope: SentryEnvelope) throws -> Data {
         let expectedData = try XCTUnwrap(SentrySerializationSwift.data(with: envelope)) as NSData
         return try SentryNSDataUtils.sentry_gzipped(with: expectedData as Data, compressionLevel: -1)

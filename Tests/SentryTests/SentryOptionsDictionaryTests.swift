@@ -26,8 +26,10 @@ final class SentryOptionsDictionaryTests: XCTestCase {
         XCTAssertTrue(options.enableMemoryIntrospection)
     }
 
-    #if SDK_V10
     func testInitWithDictionary_whenBeforeSendTransactionIsBlock_shouldSetCallback() throws {
+    #if !SDK_V10
+        throw XCTSkip("Test is only valid for SDK v10 and above")
+    #else
         // -- Arrange --
         let callback: @convention(block) (Event) -> Event? = { $0 }
 
@@ -39,8 +41,8 @@ final class SentryOptionsDictionaryTests: XCTestCase {
 
         // -- Assert --
         XCTAssertNotNil(options.beforeSendTransaction)
-    }
     #endif // SDK_V10
+    }
 
     func testInitWithDictionary_whenMemoryIntrospectionNotSet_shouldDefaultToFalse() throws {
         // -- Arrange --
