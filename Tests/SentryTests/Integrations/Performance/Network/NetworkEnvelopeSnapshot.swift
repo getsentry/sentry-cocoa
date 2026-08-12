@@ -53,8 +53,10 @@ struct NetworkEnvelopeSnapshot {
         let platformResource = "\(resource)-tvos"
 #elseif os(visionOS)
         let platformResource = "\(resource)-visionos"
+#elseif os(macOS)
+        let platformResource = "\(resource)-macos"
 #else
-        let platformResource = resource
+#error("Missing platform-specific network envelope snapshot")
 #endif
 #if SDK_V10
         return "\(platformResource)-v10"
