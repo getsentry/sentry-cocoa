@@ -9,7 +9,7 @@
 
 ### Breaking Changes
 
-- Remove `options.enableLogs` to remove explicit opt-in for Logs. If you need to disable logs, use `beforeSendLog` to drop all logs (#8769)
+- Remove `options.enableLogs` to remove explicit opt-in for Logs. If you need to disable logs, use `beforeSendLog` to drop all logs (#8783)
 
 ### Features
 
