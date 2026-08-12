@@ -20,6 +20,7 @@
 - Fix a race caused by mutating `URLSessionTask.currentRequest` during trace header propagation (#8650)
 - Prevent Session Replay network-detail breadcrumbs from blocking URLSession cancellation on the task monitor (#8497)
 - Fix Session Replay adaptive capture backoff pinning at the maximum interval due to mask compositing being included in the measured capture duration, which could produce single-frame segments that appear stuck on one screen (#8740)
+- Prevent deadlock when a signal interrupts memory allocation by avoiding thread-local storage and unsafe formatting during signal handling. (#8271)
 
 ### Internal
 
