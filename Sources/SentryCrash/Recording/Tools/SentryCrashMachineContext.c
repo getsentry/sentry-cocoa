@@ -57,19 +57,21 @@ isStackOverflow(const SentryCrashMachineContext *const context)
     return rv;
 }
 
+#if SENTRY_HAS_THREADS_API
 static inline bool
 isReservedThread(thread_t thread)
 {
-#if SENTRY_DISABLE_SENTRYCRASH_V10
+#    if SENTRY_DISABLE_SENTRYCRASH_V10
     // KSCRASH_TODO(GH-8799): KSCrash reserved threads are not visible through this legacy tool,
     // so V10 temporarily treats every thread as non-reserved. Acceptance: SCV10-003 in
     // SENTRYCRASH_V10_MIGRATION_LEDGER.md.
     (void)thread;
     return false;
-#else
+#    else
     return sentrycrashcm_isReservedThread(thread);
-#endif
+#    endif
 }
+#endif
 
 static inline bool
 getThreadList(SentryCrashMachineContext *context)
