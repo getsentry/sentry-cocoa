@@ -1298,23 +1298,23 @@ class SentryHttpTransportTests: XCTestCase {
 
     private func sentryDiscardReasonForString(_ reason: String) -> SentryDiscardReason? {
         switch reason {
-        case "before_send":
+        case SentryDiscardReasonMapper.beforeSend:
             return .beforeSend
-        case "event_processor":
+        case SentryDiscardReasonMapper.eventProcessor:
             return .eventProcessor
-        case "sample_rate":
+        case SentryDiscardReasonMapper.sampleRate:
             return .sampleRate
-        case "network_error":
+        case SentryDiscardReasonMapper.networkError:
             return .networkError
-        case "queue_overflow":
+        case SentryDiscardReasonMapper.queueOverflow:
             return .queueOverflow
-        case "cache_overflow":
+        case SentryDiscardReasonMapper.cacheOverflow:
             return .cacheOverflow
-        case "ratelimit_backoff":
+        case SentryDiscardReasonMapper.rateLimitBackoff:
             return .rateLimitBackoff
-        case "insufficient_data":
+        case SentryDiscardReasonMapper.insufficientData:
             return .insufficientData
-        case "send_error":
+        case SentryDiscardReasonMapper.sendError:
             return .sendError
         default:
             return nil
