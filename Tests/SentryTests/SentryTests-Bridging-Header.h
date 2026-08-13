@@ -29,8 +29,6 @@
 #import "NSMutableDictionary+Sentry.h"
 #import "PrivateSentrySDKOnly.h"
 #import "Sentry/Sentry-Swift.h"
-#import "SentryANRTrackerV1.h"
-#import "SentryANRTrackerV2.h"
 #import "SentryAppStartMeasurement+Private.h"
 #import "SentryAppStartMeasurementProvider.h"
 #import "SentryAttachment+Private.h"

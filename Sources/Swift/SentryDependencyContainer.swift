@@ -20,11 +20,8 @@ let defaultApplicationProvider: () -> SentryApplication? = {
 // MARK: - Extensions
 
 extension SentryFileManager: SentryFileManagerProtocol { }
-@_spi(Private) extension SentryANRTrackerV1: SentryANRTrackerInternalProtocol { }
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-@_spi(Private) extension SentryANRTrackerV2: SentryANRTrackerInternalProtocol { }
-
 @_spi(Private) extension SentryDelayedFramesTracker: SentryDelayedFramesTrackerWrapper {
     func getFramesDelay(_ startSystemTimestamp: UInt64, endSystemTimestamp: UInt64, isRunning: Bool, slowFrameThreshold: CFTimeInterval) -> SentryFramesDelayResult {
         let objcResult = getFramesDelayObjC(startSystemTimestamp, endSystemTimestamp: endSystemTimestamp, isRunning: isRunning, slowFrameThreshold: slowFrameThreshold)
