@@ -3,14 +3,14 @@ import XCTest
 
 class SentryDiscardReasonMapperTests: XCTestCase {
     func testMapReasonToName() {
-        XCTAssertEqual("before_send", SentryDiscardReasonMapper.nameFor(.beforeSend))
-        XCTAssertEqual("event_processor", SentryDiscardReasonMapper.nameFor(.eventProcessor))
-        XCTAssertEqual("sample_rate", SentryDiscardReasonMapper.nameFor(.sampleRate))
-        XCTAssertEqual("network_error", SentryDiscardReasonMapper.nameFor(.networkError))
-        XCTAssertEqual("queue_overflow", SentryDiscardReasonMapper.nameFor(.queueOverflow))
-        XCTAssertEqual("cache_overflow", SentryDiscardReasonMapper.nameFor(.cacheOverflow))
-        XCTAssertEqual("ratelimit_backoff", SentryDiscardReasonMapper.nameFor(.rateLimitBackoff))
-        XCTAssertEqual("insufficient_data", SentryDiscardReasonMapper.nameFor(.insufficientData))
-        XCTAssertEqual("send_error", SentryDiscardReasonMapper.nameFor(.sendError))
+        XCTAssertEqual(SentryDiscardReason.beforeSend.name, SentryDiscardReasonMapper.nameFor(.beforeSend))
+        XCTAssertEqual(SentryDiscardReason.eventProcessor.name, SentryDiscardReasonMapper.nameFor(.eventProcessor))
+        XCTAssertEqual(SentryDiscardReason.sampleRate.name, SentryDiscardReasonMapper.nameFor(.sampleRate))
+        XCTAssertEqual(SentryDiscardReason.networkError.name, SentryDiscardReasonMapper.nameFor(.networkError))
+        XCTAssertEqual(SentryDiscardReason.queueOverflow.name, SentryDiscardReasonMapper.nameFor(.queueOverflow))
+        XCTAssertEqual(SentryDiscardReason.cacheOverflow.name, SentryDiscardReasonMapper.nameFor(.cacheOverflow))
+        XCTAssertEqual(SentryDiscardReason.rateLimitBackoff.name, SentryDiscardReasonMapper.nameFor(.rateLimitBackoff))
+        XCTAssertEqual(SentryDiscardReason.insufficientData.name, SentryDiscardReasonMapper.nameFor(.insufficientData))
+        XCTAssertEqual(SentryDiscardReason.sendError.name, SentryDiscardReasonMapper.nameFor(.sendError))
     }
 }
