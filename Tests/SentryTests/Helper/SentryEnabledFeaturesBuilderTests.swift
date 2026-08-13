@@ -13,7 +13,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         // -- Assert --
 #if SDK_V10
     #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
-        XCTAssertEqual(features, ["captureFailedRequests", "swiftAsyncStacktraces", "experimentalViewRenderer", "dataSwizzling", "metrics", "standaloneAppStartTracing"])
+        XCTAssertEqual(features, ["captureFailedRequests", "swiftAsyncStacktraces", "experimentalViewRenderer", "dataSwizzling", "metrics", "standaloneAppStartTracing", "watchdogTerminationsV2"])
     #elseif os(visionOS) && !SENTRY_NO_UI_FRAMEWORK
         XCTAssertEqual(features, ["captureFailedRequests", "swiftAsyncStacktraces", "dataSwizzling", "metrics", "standaloneAppStartTracing"])
     #else
@@ -366,10 +366,12 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     }
     #endif // !SDK_V10
 
-    func testEnableWatchdogTerminationsV2_isEnabled_shouldAddFeature() throws {
+    func testWatchdogTerminationsV2_shouldAddFeature() throws {
         // -- Arrange --
         let options = Options()
+#if !SDK_V10
         options.experimental.enableWatchdogTerminationsV2 = true
+#endif
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
@@ -378,6 +380,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         XCTAssertTrue(features.contains("watchdogTerminationsV2"))
     }
 
+#if !SDK_V10
     func testEnableWatchdogTerminationsV2_isDisabled_shouldNotAddFeature() throws {
         // -- Arrange --
         let options = Options()
@@ -389,6 +392,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         // -- Assert --
         XCTAssertFalse(features.contains("watchdogTerminationsV2"))
     }
+#endif
 
     func testEnableUIViewControllerInitSwizzling_isEnabled_shouldAddFeature() throws {
         // -- Arrange --
