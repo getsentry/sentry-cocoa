@@ -1,0 +1,10 @@
+// Code coverage must stay disabled for the Catalyst V10 test invocation only.
+// The Recording SwiftPM product is linked into the V10 test targets so they can
+// load Sentry's KSCrashRecording module dependency. With Catalyst coverage
+// enabled, Xcode omits the LLVM profile runtime when linking that generated
+// package product, causing an undefined ___llvm_profile_runtime symbol.
+// Keep coverage enabled on all other platforms.
+// See https://github.com/swiftlang/swift/issues/57137.
+SENTRY_ENABLE_CODE_COVERAGE_FOR_CATALYST_YES = NO
+SENTRY_ENABLE_CODE_COVERAGE_FOR_CATALYST_NO = YES
+ENABLE_CODE_COVERAGE = $(SENTRY_ENABLE_CODE_COVERAGE_FOR_CATALYST_$(IS_MACCATALYST))

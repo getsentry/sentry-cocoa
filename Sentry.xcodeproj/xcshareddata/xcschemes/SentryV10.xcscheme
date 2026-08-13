@@ -3,7 +3,7 @@
    LastUpgradeVersion = "2650"
    version = "1.7">
    <BuildAction
-      parallelizeBuildables = "NO"
+      parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES"
       buildArchitectures = "Automatic">
       <BuildActionEntries>
@@ -32,6 +32,20 @@
                BlueprintIdentifier = "DD1DAE8150000B77DAE1BD8D"
                BuildableName = "SentrySwiftUI.framework"
                BlueprintName = "SentrySwiftUIV10"
+               ReferencedContainer = "container:Sentry.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "1C2FEF2649BB40C532CF4441"
+               BuildableName = "libSentryTestUtils.a"
+               BlueprintName = "SentryTestUtilsV10"
                ReferencedContainer = "container:Sentry.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
