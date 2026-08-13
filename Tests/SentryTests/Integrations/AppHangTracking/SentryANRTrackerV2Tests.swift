@@ -365,6 +365,42 @@ final class SentryANRTrackerV2Tests: XCTestCase {
         wait(for: [listener.anrDetectedExpectation, listener.anrStoppedExpectation], timeout: waitTimeout)
     }
     
+    func testClear_WhenWorkerWakesInBackground_DoesNotLogAfterStopping() throws {
+        // -- Arrange --
+        let (sut, _, _, applicationStateProvider, threadWrapper, _) = try getSut()
+        let oldDebug = SentrySDKLog.isDebug
+        let oldLevel = SentrySDKLog.diagnosticLevel
+        let oldOutput = SentrySDKLog.getLogOutput()
+        let logOutput = TestLogOutput(logsToConsole: false)
+        let sleepStarted = expectation(description: "ANR worker started sleeping")
+        let allowSleepToFinish = DispatchSemaphore(value: 0)
+
+        defer {
+            SentrySDKLogSupport.configure(oldDebug, diagnosticLevel: oldLevel)
+            SentrySDKLog.setOutput(oldOutput)
+        }
+
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLogSupport.configure(true, diagnosticLevel: .debug)
+        applicationStateProvider.isApplicationInForeground = false
+        threadWrapper.blockWhenSleeping = {
+            sleepStarted.fulfill()
+            allowSleepToFinish.wait()
+        }
+
+        // -- Act --
+        sut.add(listener: SentryANRTrackerV2TestDelegate())
+        wait(for: [sleepStarted], timeout: waitTimeout)
+        sut.clear()
+        allowSleepToFinish.signal()
+        wait(for: [threadWrapper.threadFinishedExpectation], timeout: waitTimeout)
+
+        // -- Assert --
+        XCTAssertFalse(logOutput.loggedMessages.contains {
+            $0.contains("Ignoring potential app hangs because the app is in the background")
+        })
+    }
+
     func testAppSuspended_NoAppHang() throws {
         let (sut, currentDate, _, _, threadWrapper, _) = try getSut()
         defer { sut.clear() }

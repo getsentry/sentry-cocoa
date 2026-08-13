@@ -115,6 +115,12 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
 
         [self.threadWrapper sleepForTimeInterval:sleepInterval];
 
+        @synchronized(threadLock) {
+            if (state != kSentryANRTrackerRunning) {
+                break;
+            }
+        }
+
         BOOL isInForeground = [self.applicationStateProvider isApplicationInForeground];
 
         if (!isInForeground) {
