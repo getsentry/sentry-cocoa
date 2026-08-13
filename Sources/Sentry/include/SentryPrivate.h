@@ -84,7 +84,6 @@
 #import "SentrySysctlObjC.h"
 #import "SentryTimeToDisplayTracker.h"
 #import "SentryTraceContext+Private.h"
-#import "SentryTraceContextSwiftHelper.h"
 #import "SentryTraceHeader.h"
 #import "SentryTraceOrigin.h"
 #import "SentryTraceProfiler.h"

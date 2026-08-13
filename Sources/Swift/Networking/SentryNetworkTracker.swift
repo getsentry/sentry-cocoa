@@ -695,11 +695,12 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             return
         }
 
-        let baggage = SentryTraceContextSwiftHelper.baggage(
-            traceId: scope.propagationContextTraceId.sentryIdString,
+        let traceContext = TraceContext(
+            trace: SentryId(uuidString: scope.propagationContextTraceId.sentryIdString),
             options: options,
             replayId: scope.replayId
         )
+        let baggage = traceContext.toBaggage()
         SentryTracePropagation.addBaggageHeader(
             baggage,
             traceHeader: scope.propagationContextTraceHeader,
