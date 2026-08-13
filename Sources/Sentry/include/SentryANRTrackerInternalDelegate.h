@@ -1,6 +1,4 @@
-#import <Foundation/Foundation.h>
-
-@class SentryANRStoppedResultInternal;
+#import "SentryDefines.h"
 
 typedef NS_ENUM(NSInteger, SentryANRTypeInternal) {
     kSentryANRTypeFatalFullyBlocking,
@@ -16,7 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)anrDetected:(SentryANRTypeInternal)type;
 
-- (void)anrStopped:(nullable SentryANRStoppedResultInternal *)result;
+- (void)anrStopped:(nullable SENTRY_SWIFT_MIGRATION_ID(SentryANRStoppedResultInternal))result;
 
 @end
 

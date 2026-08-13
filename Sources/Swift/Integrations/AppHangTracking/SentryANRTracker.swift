@@ -4,8 +4,6 @@ import Foundation
 
 // The V1/V2 tracker will conform to this
 protocol SentryANRTrackerInternalProtocol {
-    // The types of this protocol must be defined in ObjC since it is conformed to by
-    // classes defined in ObjC.
     func addListener(_ listender: SentryANRTrackerInternalDelegate)
     func removeListener(_ listener: SentryANRTrackerInternalDelegate)
 
@@ -51,8 +49,9 @@ final class DelegateWrapper: NSObject, SentryANRTrackerInternalDelegate {
         helper?.anrDetected(type: SentryANRType.fromInternal(internal: type))
     }
 
-    func anrStopped(_ result: SentryANRStoppedResultInternal?) {
-        helper?.anrStopped(result: result.map { SentryANRStoppedResult(minDuration: $0.minDuration, maxDuration: $0.maxDuration ) })
+    func anrStopped(_ result: Any?) {
+        let typed = result as? SentryANRStoppedResultInternal
+        helper?.anrStopped(result: typed.map { SentryANRStoppedResult(minDuration: $0.minDuration, maxDuration: $0.maxDuration) })
     }
 
     weak var helper: SentryANRTrackerDelegate?

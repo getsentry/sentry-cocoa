@@ -2,7 +2,6 @@
 
 #if SENTRY_HAS_UIKIT
 
-#    import "SentryANRStoppedResultInternal.h"
 #    import "SentryANRTrackerInternalDelegate.h"
 #    import "SentryLogC.h"
 #    import "SentrySwift.h"
