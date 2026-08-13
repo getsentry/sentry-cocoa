@@ -255,7 +255,8 @@ build-catalyst-v10:
 		--ref $(GIT-REF) \
 		--command build \
 		--scheme SentryV10 \
-		--configuration DebugV10
+		--configuration DebugV10 \
+		--xcconfig Tests/Configuration/SentryV10Catalyst.xcconfig
 
 ## Build tvOS target with SDK_V10 flag
 #
