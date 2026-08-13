@@ -1,6 +1,6 @@
 #if SDK_V10
 @_spi(Private) @testable import Sentry
-import KSCrashRecording
+import Foundation
 import SentryTestUtils
 import XCTest
 
@@ -415,8 +415,28 @@ class SentryKSCrashScopeObserverTests: XCTestCase {
     }
 
     private func serialize(object: Any) throws -> String {
-        let serialized = try KSJSONCodec.encode(object, options: .sorted)
+        let serialized = try JSONSerialization.data(
+            withJSONObject: normalizeDates(in: object),
+            options: [.fragmentsAllowed, .sortedKeys]
+        )
         return try XCTUnwrap(String(data: serialized, encoding: .utf8))
+    }
+
+    private func normalizeDates(in object: Any) -> Any {
+        switch object {
+        case let date as Date:
+            return ISO8601DateFormatter.string(
+                from: date,
+                timeZone: TimeZone(secondsFromGMT: 0) ?? .autoupdatingCurrent,
+                formatOptions: [.withInternetDateTime]
+            )
+        case let dictionary as [String: Any]:
+            return dictionary.mapValues { normalizeDates(in: $0) }
+        case let array as [Any]:
+            return array.map { normalizeDates(in: $0) }
+        default:
+            return object
+        }
     }
 
     private func getCrashScope() -> SentryCrashScope {
