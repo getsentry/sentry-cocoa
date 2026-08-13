@@ -11,12 +11,12 @@ extension SentryKSCrash {
     /// Mach exceptions, signals, C++ exceptions, and NSExceptions.
     /// KSCrash unconditionally adds its required infrastructure monitors on top of
     /// the crash detectors passed here.
-    static let productionSafeMonitors: UInt = MonitorType([
+    static let productionSafeMonitors: MonitorType = [
         .machException,
         .signal,
         .cppException,
         .nsException
-    ]).rawValue
+    ]
 
     final class Integration<Dependencies: DependencyProvider>: NSObject, SwiftIntegration {
         private weak var options: Options?
