@@ -918,12 +918,16 @@ writeNotableStackContents(const SentryCrashReportWriter *const writer,
         highAddress = tmp;
     }
     uintptr_t contentsAsPointer;
-    char nameBuffer[40];
+    char nameBuffer[40] = "stack@";
     for (uintptr_t address = lowAddress; address < highAddress; address += sizeof(address)) {
         if (sentrycrashmem_copySafely(
                 (void *)address, &contentsAsPointer, sizeof(contentsAsPointer))) {
-            snprintf(nameBuffer, sizeof(nameBuffer), "stack@%p", (void *)address);
-            writeMemoryContentsIfNotable(writer, nameBuffer, contentsAsPointer);
+            const size_t prefixLength = sizeof("stack@") - 1;
+            if (sentrycrashstring_addressToString(
+                    nameBuffer + prefixLength, sizeof(nameBuffer) - prefixLength, (uint64_t)address)
+                >= 0) {
+                writeMemoryContentsIfNotable(writer, nameBuffer, contentsAsPointer);
+            }
         }
     }
 }
