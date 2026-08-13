@@ -312,7 +312,8 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         let envelopeCaptured = expectationAllowingOverFulfill(description: "Envelope captured")
         let transport = startSDK(
             envelopeCaptured: envelopeCaptured,
-            expectedEnvelopeItemType: SentryEnvelopeItemTypes.transaction
+            expectedEnvelopeItemType: SentryEnvelopeItemTypes.transaction,
+            disableFramesTracking: true
         ) {
             self.configureEnvelopeSnapshotOptions($0)
             $0.enableNetworkBreadcrumbs = false
@@ -352,7 +353,8 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         let envelopeCaptured = expectationAllowingOverFulfill(description: "Envelope captured")
         let transport = startSDK(
             envelopeCaptured: envelopeCaptured,
-            expectedEnvelopeItemType: SentryEnvelopeItemTypes.event
+            expectedEnvelopeItemType: SentryEnvelopeItemTypes.event,
+            disableFramesTracking: true
         ) {
             self.configureEnvelopeSnapshotOptions($0)
             $0.enableNetworkBreadcrumbs = false
@@ -458,6 +460,7 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         function: String = #function,
         envelopeCaptured: XCTestExpectation? = nil,
         expectedEnvelopeItemType: String? = nil,
+        disableFramesTracking: Bool = false,
         _ configureOptions: ((Options) -> Void)? = nil
     ) -> EnvelopeCapturingTransport {
         let options = Options()
@@ -467,6 +470,11 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         configureOptions?(options)
 
         SentrySDK.start(options: options)
+
+        if disableFramesTracking {
+            // The display-link callback makes frames.delay nondeterministic in strict snapshots.
+            SentryDependencyContainer.sharedInstance().framesTracker.stop()
+        }
 
         let transport = EnvelopeCapturingTransport(
             expectation: envelopeCaptured,
