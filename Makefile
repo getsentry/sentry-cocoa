@@ -1008,6 +1008,7 @@ test-catalyst-v10:
 		--command test \
 		--scheme SentryV10 \
 		--configuration TestV10 \
+		--xcconfig Tests/Configuration/SentryV10Catalyst.xcconfig \
 		$(if $(TEST_PLAN),--test-plan "$(TEST_PLAN)") \
 		--only-testing "$(ONLY_TESTING)"
 
