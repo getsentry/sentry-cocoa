@@ -19,10 +19,10 @@ final class SentryANRTrackerTests: XCTestCase {
 }
 
 final class MockSentryANRTrackerHelper: SentryANRTrackerInternalProtocol {
-    func addListener(_ listender: any SentryANRTrackerInternalDelegate) {
+    func addListener(_ listender: Any) {
     }
-    
-    func removeListener(_ listener: any SentryANRTrackerInternalDelegate) {
+
+    func removeListener(_ listener: Any) {
     }
     
     func clear() {

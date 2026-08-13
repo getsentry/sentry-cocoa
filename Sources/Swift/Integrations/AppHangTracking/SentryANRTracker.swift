@@ -1,11 +1,12 @@
 // swiftlint:disable missing_docs
-internal import _SentryPrivate
 import Foundation
 
-// The V1/V2 tracker will conform to this
+// The V1/V2 tracker will conform to this.
+// Parameters use Any because the ObjC V1/V2 headers expose these methods with
+// SENTRY_SWIFT_MIGRATION_ID (id) until V1/V2 are also migrated to Swift.
 protocol SentryANRTrackerInternalProtocol {
-    func addListener(_ listender: SentryANRTrackerInternalDelegate)
-    func removeListener(_ listener: SentryANRTrackerInternalDelegate)
+    func addListener(_ listender: Any)
+    func removeListener(_ listener: Any)
 
     /// Only used for tests.
     func clear()
@@ -49,9 +50,8 @@ final class DelegateWrapper: NSObject, SentryANRTrackerInternalDelegate {
         helper?.anrDetected(type: SentryANRType.fromInternal(internal: type))
     }
 
-    func anrStopped(_ result: Any?) {
-        let typed = result as? SentryANRStoppedResultInternal
-        helper?.anrStopped(result: typed.map { SentryANRStoppedResult(minDuration: $0.minDuration, maxDuration: $0.maxDuration) })
+    func anrStopped(_ result: SentryANRStoppedResultInternal?) {
+        helper?.anrStopped(result: result.map { SentryANRStoppedResult(minDuration: $0.minDuration, maxDuration: $0.maxDuration) })
     }
 
     weak var helper: SentryANRTrackerDelegate?

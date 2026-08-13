@@ -1,6 +1,4 @@
 // swiftlint:disable missing_docs
-internal import _SentryPrivate
-
 @objc @_spi(Private) public enum SentryANRType: Int {
     case fatalFullyBlocking
     case fatalNonFullyBlocking

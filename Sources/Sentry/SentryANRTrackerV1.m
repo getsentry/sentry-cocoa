@@ -1,5 +1,4 @@
 #import "SentryANRTrackerV1.h"
-#import "SentryANRTrackerInternalDelegate.h"
 #import "SentryLogC.h"
 #import "SentrySwift.h"
 #import <stdatomic.h>
@@ -154,7 +153,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
     }
 
     for (id<SentryANRTrackerInternalDelegate> target in localListeners) {
-        [target anrDetected:kSentryANRTypeUnknown];
+        [target anrDetected:SentryANRTypeInternalUnknown];
     }
 }
 
