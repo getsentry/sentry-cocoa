@@ -21,7 +21,7 @@ final class SentryMXCallStackTreeTests: XCTestCase {
         
         let debugMeta = callStackTree.toDebugMeta()
         let image = try XCTUnwrap(debugMeta.first { $0.debugID == "9E8D8DE6-EEC1-3199-8720-9ED68EE3F967" })
-        XCTAssertEqual(sentry_formatHexAddressUInt64Swift(4_312_798_220 - 414_732), image.imageAddress)
+        XCTAssertEqual(String(format: "0x%016llx", 4_312_798_220 - 414_732 as UInt64), image.imageAddress)
     }
     
     func testDecodeCallStackTree_NotPerThread() throws {

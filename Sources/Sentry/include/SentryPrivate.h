@@ -14,7 +14,6 @@
 #import "SentryCrashUUIDConversion.h"
 #import "SentryError.h"
 #import "SentryEventSwiftHelper.h"
-#import "SentryFormatterSwift.h"
 #import "SentryHub+Private.h"
 #import "SentryHub+SwiftPrivate.h"
 #import "SentryNSDataSwizzlingHelper.h"

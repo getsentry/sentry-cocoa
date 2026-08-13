@@ -104,7 +104,7 @@ extension SentryMXFrame {
         result.debugID = binaryUUID.uuidString
         result.codeFile = binaryName
         if offsetIntoBinaryTextSegment >= 0 && offsetIntoBinaryTextSegment < address {
-            result.imageAddress = sentry_formatHexAddressUInt64Swift(address - UInt64(offsetIntoBinaryTextSegment))
+            result.imageAddress = String(format: "0x%016llx", address - UInt64(offsetIntoBinaryTextSegment))
         }
         return [result] + (subFrames?.flatMap { $0.toDebugMeta() } ?? [])
     }
@@ -126,9 +126,9 @@ extension SentryMXFrame {
     func toSentryFrameWithTreeData(parentFrameIndex: Int) -> Frame {
         let frame = Frame()
         frame.package = binaryName
-        frame.instructionAddress = sentry_formatHexAddressUInt64Swift(address)
+        frame.instructionAddress = String(format: "0x%016llx", address)
         if offsetIntoBinaryTextSegment >= 0 && offsetIntoBinaryTextSegment < address {
-            frame.imageAddress = sentry_formatHexAddressUInt64Swift(address - UInt64(offsetIntoBinaryTextSegment))
+            frame.imageAddress = String(format: "0x%016llx", address - UInt64(offsetIntoBinaryTextSegment))
         }
 
         frame.parentIndex = parentFrameIndex as NSNumber
@@ -142,9 +142,9 @@ private extension MXSample.MXFrame {
     func toSentryFrame() -> Frame {
         let frame = Frame()
         frame.package = binaryName
-        frame.instructionAddress = sentry_formatHexAddressUInt64Swift(address)
+        frame.instructionAddress = String(format: "0x%016llx", address)
         if offsetIntoBinaryTextSegment >= 0 && offsetIntoBinaryTextSegment < address {
-            frame.imageAddress = sentry_formatHexAddressUInt64Swift(address - UInt64(offsetIntoBinaryTextSegment))
+            frame.imageAddress = String(format: "0x%016llx", address - UInt64(offsetIntoBinaryTextSegment))
         }
         return frame
     }
