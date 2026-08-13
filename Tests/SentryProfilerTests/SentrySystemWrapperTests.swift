@@ -1,3 +1,4 @@
+@_spi(Private) import Sentry
 import XCTest
 
 #if os(iOS) || os(macOS)
@@ -10,7 +11,7 @@ class SentrySystemWrapperTests: XCTestCase {
     // MARK: - cpuUsageWithError
 
     func testCPUUsage_shouldReturnNonNilValue() throws {
-        let cpuUsage = try XCTUnwrap(fixture.systemWrapper.cpuUsage())
+        let cpuUsage = try fixture.systemWrapper.cpuUsage()
         XCTAssertGreaterThanOrEqual(cpuUsage.floatValue, 0.0)
     }
 
@@ -56,7 +57,7 @@ class SentrySystemWrapperTests: XCTestCase {
 
 #if arch(arm64)
     func testCPUEnergyUsage_shouldReturnNonNilValue() throws {
-        let energyUsage = try XCTUnwrap(fixture.systemWrapper.cpuEnergyUsage())
+        let energyUsage = try fixture.systemWrapper.cpuEnergyUsage()
         XCTAssertGreaterThanOrEqual(energyUsage.uint64Value, 0)
     }
 

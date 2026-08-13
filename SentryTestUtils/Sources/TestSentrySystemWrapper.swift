@@ -1,8 +1,8 @@
-import Sentry
+@_spi(Private) import Sentry
 
 #if os(iOS) || os(macOS)
 
-public class TestSentrySystemWrapper: SentrySystemWrapper {
+@_spi(Private) public class TestSentrySystemWrapper: SentrySystemWrapper {
     public struct Override {
         public var memoryFootprintError: NSError?
         public var memoryFootprintBytes: NSNumber?

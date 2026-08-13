@@ -6,7 +6,7 @@ public typealias SentryRAMBytes = mach_vm_size_t
 
 private let sentryErrorKernelCode = 109
 
-@objc
+@_spi(Private) @objc
 open class SentrySystemWrapper: NSObject {
 
     private let processorCount: Float
