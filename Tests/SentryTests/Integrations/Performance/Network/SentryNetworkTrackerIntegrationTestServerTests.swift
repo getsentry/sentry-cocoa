@@ -471,10 +471,12 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
 
         SentrySDK.start(options: options)
 
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         if disableFramesTracking {
             // The display-link callback makes frames.delay nondeterministic in strict snapshots.
             SentryDependencyContainer.sharedInstance().framesTracker.stop()
         }
+#endif
 
         let transport = EnvelopeCapturingTransport(
             expectation: envelopeCaptured,
