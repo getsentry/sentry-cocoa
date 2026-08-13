@@ -32,7 +32,6 @@
 #import "SentrySwizzleWrapperHelper.h"
 #import "SentryTime.h"
 #import "SentryTracer.h"
-#import "SentryUserAccess.h"
 #import "SentryViewHierarchyProviderHelper.h"
 #import "_SentryDispatchQueueWrapperInternal.h"
 
