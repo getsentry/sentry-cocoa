@@ -109,6 +109,23 @@ import Foundation
         }
     }
 
+    #if SDK_V10
+    @objc public var beforeSendTransaction: ((SentryObjCTransaction) -> SentryObjCTransaction?)? {
+        didSet {
+            if let beforeSendTransaction = beforeSendTransaction {
+                wrapped.beforeSendTransaction = { transaction in
+                    guard let result = beforeSendTransaction(SentryObjCTransaction(transaction)) else {
+                        return nil
+                    }
+                    return result.wrappedTransaction
+                }
+            } else {
+                wrapped.beforeSendTransaction = nil
+            }
+        }
+    }
+    #endif // SDK_V10
+
     @objc public var beforeSendSpan: ((SentryObjCSpan) -> SentryObjCSpan?)? {
         didSet {
             if let beforeSendSpan = beforeSendSpan {
@@ -121,13 +138,6 @@ import Foundation
             }
         }
     }
-
-    #if !SDK_V10
-    @objc public var enableLogs: Bool {
-        get { wrapped.enableLogs }
-        set { wrapped.enableLogs = newValue }
-    }
-    #endif // !SDK_V10
 
     @objc public var beforeBreadcrumb: ((SentryObjCBreadcrumb) -> SentryObjCBreadcrumb?)? {
         didSet {
@@ -547,11 +557,6 @@ import Foundation
     @objc public var experimental: SentryObjCExperimentalOptions {
         get { SentryObjCExperimentalOptions(wrapped.experimental) }
         set { wrapped.experimental = newValue.wrapped }
-    }
-
-    @objc public var enableMetrics: Bool {
-        get { wrapped.enableMetrics }
-        set { wrapped.enableMetrics = newValue }
     }
 }
 // swiftlint:enable file_length missing_docs type_body_length

@@ -1,4 +1,4 @@
-// swift-tools-version:6.0
+// swift-tools-version:6.1
 import PackageDescription
 
 let package = Package(
@@ -10,24 +10,39 @@ let package = Package(
             targets: ["SentrySwiftyBeaver"]
         )
     ],
+    traits: [
+        .default(enabledTraits: ["SentryFromBinary"]),
+        .init(name: "SentryFromBinary", description: "Use precompiled Sentry binary xcframeworks."),
+        .init(name: "SentryFromSource", description: "Build Sentry from source instead of using precompiled binaries.")
+    ],
     dependencies: [
-        .package(url: "https://github.com/getsentry/sentry-cocoa", from: "9.25.0"),
+        .package(url: "https://github.com/getsentry/sentry-cocoa", from: "9.26.0"),
         .package(url: "https://github.com/SwiftyBeaver/SwiftyBeaver.git", from: "2.0.0")
     ],
     targets: [
         .target(
             name: "SentrySwiftyBeaver",
             dependencies: [
-                .product(name: "Sentry", package: "sentry-cocoa"),
+                .product(name: "Sentry", package: "sentry-cocoa", condition: .when(traits: ["SentryFromBinary"])),
+                .product(name: "SentrySPM", package: "sentry-cocoa", condition: .when(traits: ["SentryFromSource"])),
                 .product(name: "SwiftyBeaver", package: "SwiftyBeaver")
+            ],
+            swiftSettings: [
+                .define("SENTRY_FROM_BINARY", .when(traits: ["SentryFromBinary"])),
+                .define("SENTRY_FROM_SOURCE", .when(traits: ["SentryFromSource"]))
             ]
         ),
         .testTarget(
             name: "SentrySwiftyBeaverTests",
             dependencies: [
                 "SentrySwiftyBeaver",
-                .product(name: "Sentry", package: "sentry-cocoa"),
+                .product(name: "Sentry", package: "sentry-cocoa", condition: .when(traits: ["SentryFromBinary"])),
+                .product(name: "SentrySPM", package: "sentry-cocoa", condition: .when(traits: ["SentryFromSource"])),
                 .product(name: "SwiftyBeaver", package: "SwiftyBeaver")
+            ],
+            swiftSettings: [
+                .define("SENTRY_FROM_BINARY", .when(traits: ["SentryFromBinary"])),
+                .define("SENTRY_FROM_SOURCE", .when(traits: ["SentryFromSource"]))
             ]
         )
     ]

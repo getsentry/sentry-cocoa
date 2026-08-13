@@ -762,6 +762,12 @@
   },
   {
     "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCTransaction",
+    "super": "SentryObjCEvent",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
     "name": "SentryObjCTransactionContext",
     "super": "SentryObjCSpanContext",
     "has_inner": true
@@ -1066,6 +1072,13 @@
     "name": "beforeSendSpan",
     "parent": "SentryObjCOptions",
     "returnType": "SentryObjCSpan * _Nullable (^ _Nullable)(SentryObjCSpan * _Nonnull)",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "beforeSendTransaction",
+    "parent": "SentryObjCOptions",
+    "returnType": "SentryObjCTransaction * _Nullable (^ _Nullable)(SentryObjCTransaction * _Nonnull)",
     "instance": true
   },
   {
@@ -2107,13 +2120,6 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "enableMetricKitRawPayload",
-    "parent": "SentryObjCOptions",
-    "returnType": "BOOL",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "enableMetrics",
     "parent": "SentryObjCOptions",
     "returnType": "BOOL",
     "instance": true
@@ -3319,6 +3325,13 @@
     "kind": "ObjCMethodDecl",
     "name": "init",
     "parent": "SentryObjCTraceHeader",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "parent": "SentryObjCTransaction",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
@@ -4732,6 +4745,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "new",
+    "parent": "SentryObjCTransaction",
+    "returnType": "instancetype _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "new",
     "parent": "SentryObjCUnit",
     "returnType": "instancetype _Nonnull",
     "instance": false
@@ -5634,6 +5654,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setBeforeSendTransaction:",
+    "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setBody:",
     "parent": "SentryObjCLog",
     "returnType": "void",
@@ -6062,13 +6089,6 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setEnableMetricKitRawPayload:",
-    "parent": "SentryObjCOptions",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "setEnableMetrics:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
     "instance": true
@@ -8942,6 +8962,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "beforeSendTransaction",
+    "parent": "SentryObjCOptions",
+    "type": "SentryObjCTransaction * _Nullable (^ _Nullable)(SentryObjCTransaction * _Nonnull)"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "bit",
     "parent": "SentryObjCMeasurementUnit",
     "type": "SentryObjCMeasurementUnit * _Nonnull"
@@ -9393,12 +9419,6 @@
   {
     "kind": "ObjCPropertyDecl",
     "name": "enableMetricKitRawPayload",
-    "parent": "SentryObjCOptions",
-    "type": "BOOL"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
-    "name": "enableMetrics",
     "parent": "SentryObjCOptions",
     "type": "BOOL"
   },

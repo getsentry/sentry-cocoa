@@ -444,7 +444,7 @@ class SentrySDKInternalTests: XCTestCase {
         }
 
         let hub = SentrySDKInternal.currentHub()
-        XCTAssertEqual(1, hub.installedIntegrations().count)
+        XCTAssertEqual(2, hub.installedIntegrations().count)
         SentrySDK.close()
         XCTAssertEqual(0, hub.installedIntegrations().count)
         assertIntegrationsInstalled(integrations: [])

@@ -1,6 +1,10 @@
 @_spi(Private) @testable import SentryCocoaLumberjack
 import CocoaLumberjackSwift
+#if SENTRY_FROM_SOURCE
+import SentrySwift
+#else
 import Sentry
+#endif
 import XCTest
 
 // swiftlint:disable cyclomatic_complexity file_length type_body_length
@@ -14,7 +18,6 @@ final class SentryCocoaLumberjackLoggerTests: XCTestCase {
         capturedLogs = []
         SentrySDK.start { options in
             options.dsn = "https://test@test.ingest.sentry.io/123456"
-            options.enableLogs = true
             options.beforeSendLog = { [weak self] log in
                 self?.capturedLogs.append(log)
                 return nil

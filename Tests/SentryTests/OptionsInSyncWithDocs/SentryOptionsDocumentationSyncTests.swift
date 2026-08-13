@@ -21,7 +21,6 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
             "strictTraceContinuation", // Docs PR: https://github.com/getsentry/sentry-docs/pull/16983
             "orgId", // Docs PR: https://github.com/getsentry/sentry-docs/pull/16983
             "effectiveOrgId", // @_spi(Private) - internal computed property, not a user-facing option
-            "enableMetrics", // Promoted to GA in https://github.com/getsentry/sentry-cocoa/pull/7843; docs update pending
             "beforeSendMetric" // Promoted to GA in https://github.com/getsentry/sentry-cocoa/pull/7843; docs update pending
         ]
 
@@ -48,6 +47,7 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         #endif
 
         #if SDK_V10
+        options.insert("beforeSendTransaction") // Docs update pending
         options.insert("dataCollection") // Docs update pending
         options.insert("dataCollectionObjC") // @_spi(Private) - internal Objective-C bridge
         #endif

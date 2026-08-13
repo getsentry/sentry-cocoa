@@ -537,6 +537,20 @@
     },
     {
       "kind": "ObjCMethodDecl",
+      "name": "initWithError:",
+      "parent": "SentryObjCTransaction",
+      "returnType": "instancetype _Nonnull",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "initWithLevel:",
+      "parent": "SentryObjCTransaction",
+      "returnType": "instancetype _Nonnull",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
       "name": "initWithOperation:",
       "parent": "SentryObjCTransactionContext",
       "returnType": "instancetype _Nonnull",

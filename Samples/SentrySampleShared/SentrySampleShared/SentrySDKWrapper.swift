@@ -29,7 +29,7 @@ public struct SentrySDKWrapper {
             print("SentrySDK already enabled, closing it")
             SentrySDK.close()
         }
-        
+
         if !SentrySDKOverrides.Special.skipSDKInit.boolValue {
             print("[Sentry] lastRunStatus before start: \(SentrySDK.lastRunStatus)")
             SentrySDK.start(configureOptions: configureSentryOptions(options:))
@@ -147,12 +147,12 @@ public struct SentrySDKWrapper {
                 // Disable the fast view rendering, because we noticed parts (like the tab bar) are not rendered correctly
                 enableFastViewRendering: SentrySDKOverrides.Replay.enableFastViewRendering.boolValue
             )
-            
+
             // Configure network detail capture for testing
             options.sessionReplay.networkDetailAllowUrls = [
                 "httpbin.org"
             ]
-            
+
             do {
                 let sentryDomainRegex = try NSRegularExpression(pattern: ".*\\.sentry\\.io.*", options: [])
                 options.sessionReplay.networkDetailDenyUrls = [sentryDomainRegex]
@@ -267,13 +267,7 @@ public struct SentrySDKWrapper {
         options.configureUserFeedback = configureFeedback(config:)
 #endif // !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
 
-        // Integration: Logs
-        #if !SDK_V10
-        options.enableLogs = !SentrySDKOverrides.Logs.disable.boolValue
-        #endif // !SDK_V10
-
         // Integration: Metrics
-        options.enableMetrics = SentrySDKOverrides.Metrics.enable.boolValue
         options.beforeSendMetric = { metric in
             // Modify the metric in the callback
             var modifiedMetric = metric
@@ -286,7 +280,7 @@ public struct SentrySDKWrapper {
             // Add a custom attribute to the metric
             modifiedMetric.attributes["custom-attribute"] = .string("some-value")
             modifiedMetric.attributes["custom-attribute-2"] = "some-value-2"
-            
+
             return modifiedMetric
         }
 
@@ -351,7 +345,7 @@ public struct SentrySDKWrapper {
         }
         let data = Data("hello".utf8)
         scope.addAttachment(Attachment(data: data, filename: "log.txt"))
-        
+
         scope.setAttribute(value: "\(Bundle.main.bundleIdentifier ?? "")-custom-attribute", key: "custom-attribute-text")
         scope.setAttribute(value: Date().timeIntervalSince1970, key: "custom-attribute-numeric")
         scope.setAttribute(value: true, key: "custom-attribute-boolean")
@@ -380,7 +374,7 @@ public struct SentrySDKWrapper {
         for overrideCategory in SentrySDKOverrides.allCases {
             for flag in overrideCategory.featureFlags {
                 let tagKey = cleanTagKey(from: flag.rawValue)
-                
+
                 switch flag.overrideType {
                 case .boolean:
                     if flag.boolValue {
@@ -398,7 +392,7 @@ public struct SentrySDKWrapper {
             }
         }
     }
-    
+
     private func cleanTagKey(from rawValue: String) -> String {
         return rawValue
             .replacingOccurrences(of: "--io.sentry.", with: "")
@@ -631,7 +625,7 @@ extension SentrySDKWrapper {
         }
         return nil
     }
-    
+
     /// Whether or not profiling benchmarks are being run; this requires disabling certain other features for proper functionality.
     var isBenchmarking: Bool { args.contains("--io.sentry.test.benchmarking") }
     var isUITest: Bool { env[SentrySDKOverrides.Scope.environment.rawValue] == "ui-tests" }

@@ -142,11 +142,15 @@ jobs:
         if: ${{ failure() || cancelled() }}
 
   test-v10-with-test-server:
-    name: Test V10 with Test Server
+    name: Test V10 with Test Server ${{ matrix.platform }}
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_v10_for_prs == 'true'
     needs: [files-changed, build-test-server]
     runs-on: macos-26
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [macOS, Catalyst]
 
     steps:
       - name: Warm CoreSimulator
@@ -171,7 +175,7 @@ jobs:
         id: resolve-test-destination
         uses: ./.github/actions/resolve-test-destination
         with:
-          platform: macOS
+          platform: ${{ matrix.platform }}
 
       - name: Build tests
         id: build_tests
@@ -180,7 +184,7 @@ jobs:
           OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
         run: |
           ./scripts/sentry-xcodebuild.sh \
-            --platform macOS \
+            --platform ${{ matrix.platform }} \
             --os "${OS_VERSION}" \
             --ref "${REF_NAME}" \
             --command build-for-testing \
@@ -194,7 +198,7 @@ jobs:
           OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
         run: |
           ./scripts/sentry-xcodebuild.sh \
-            --platform macOS \
+            --platform ${{ matrix.platform }} \
             --os "${OS_VERSION}" \
             --ref "${REF_NAME}" \
             --command test-without-building \
@@ -210,7 +214,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: steps.build_tests.outcome == 'failure'
         with:
-          name: derived-data-v10-test-server
+          name: derived-data-v10-test-server-${{ matrix.platform }}
           path: |
             /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
 
@@ -218,7 +222,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() || cancelled() }}
         with:
-          name: raw-output-v10-test-server
+          name: raw-output-v10-test-server-${{ matrix.platform }}
           path: |
             raw-build-output.log
             raw-build-for-testing-output.log
@@ -228,7 +232,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() || cancelled() }}
         with:
-          name: crash-logs-v10-test-server
+          name: crash-logs-v10-test-server-${{ matrix.platform }}
           path: |
             ~/Library/Logs/DiagnosticReports/**
 

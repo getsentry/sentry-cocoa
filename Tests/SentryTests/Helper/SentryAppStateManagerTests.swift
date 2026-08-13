@@ -3,8 +3,32 @@
 import XCTest
 
 #if os(iOS) || os(tvOS)
+import UIKit
+
 final class SentryAppStateManagerTests: XCTestCase {
     private static let dsnAsString = TestConstants.dsnForTestCase(type: SentryAppStateManagerTests.self)
+
+    private final class MockDependencies: SentryAppStateManager.Dependencies {
+        let crashWrapper: SentryCrashReporter
+        let fileManager: SentryFileManager?
+        let sysctlWrapper: SentrySysctl
+        let dispatchQueueWrapper: SentryDispatchQueueWrapper
+        let notificationCenterWrapper: SentryNSNotificationCenterWrapper
+
+        init(
+            crashWrapper: SentryCrashReporter,
+            fileManager: SentryFileManager,
+            sysctlWrapper: SentrySysctl,
+            dispatchQueueWrapper: SentryDispatchQueueWrapper,
+            notificationCenterWrapper: SentryNSNotificationCenterWrapper
+        ) {
+            self.crashWrapper = crashWrapper
+            self.fileManager = fileManager
+            self.sysctlWrapper = sysctlWrapper
+            self.dispatchQueueWrapper = dispatchQueueWrapper
+            self.notificationCenterWrapper = notificationCenterWrapper
+        }
+    }
 
     private class Fixture {
 
@@ -13,6 +37,7 @@ final class SentryAppStateManagerTests: XCTestCase {
         let currentDate = TestCurrentDateProvider()
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         let notificationCenterWrapper = TestNSNotificationCenterWrapper()
+        let dependencies: MockDependencies
 
         init() throws {
             options = Options()
@@ -24,18 +49,17 @@ final class SentryAppStateManagerTests: XCTestCase {
                 dateProvider: currentDate,
                 dispatchQueueWrapper: dispatchQueue
             ))
+            dependencies = MockDependencies(
+                crashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo),
+                fileManager: fileManager,
+                sysctlWrapper: TestSysctl(),
+                dispatchQueueWrapper: dispatchQueue,
+                notificationCenterWrapper: notificationCenterWrapper
+            )
         }
 
         func getSut() -> SentryAppStateManager {
-            SentryDependencyContainer.sharedInstance().sysctlWrapper = TestSysctl()
-            SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
-            SentryDependencyContainer.sharedInstance().notificationCenterWrapper = notificationCenterWrapper
-            return SentryAppStateManager(
-                releaseName: options.releaseName,
-                crashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo),
-                fileManager: fileManager,
-                sysctlWrapper: SentryDependencyContainer.sharedInstance().sysctlWrapper
-            )
+            SentryAppStateManager(releaseName: options.releaseName, dependencies: dependencies)
         }
     }
 
@@ -96,6 +120,40 @@ final class SentryAppStateManagerTests: XCTestCase {
 
         let stateAfterStop = fixture.fileManager.readAppState()
         XCTAssertFalse(stateAfterStop!.isSDKRunning)
+    }
+
+    func testDidBecomeActiveUpdatesAppState() {
+        // -- Arrange --
+        sut.start()
+
+        // -- Act --
+        fixture.notificationCenterWrapper.post(Notification(name: UIApplication.didBecomeActiveNotification))
+
+        // -- Assert --
+        XCTAssertTrue(fixture.fileManager.readAppState()!.isActive)
+    }
+
+    func testWillResignActiveUpdatesAppState() {
+        // -- Arrange --
+        sut.start()
+        fixture.notificationCenterWrapper.post(Notification(name: UIApplication.didBecomeActiveNotification))
+
+        // -- Act --
+        fixture.notificationCenterWrapper.post(Notification(name: UIApplication.willResignActiveNotification))
+
+        // -- Assert --
+        XCTAssertFalse(fixture.fileManager.readAppState()!.isActive)
+    }
+
+    func testWillTerminateUpdatesAppState() {
+        // -- Arrange --
+        sut.start()
+
+        // -- Act --
+        fixture.notificationCenterWrapper.post(Notification(name: UIApplication.willTerminateNotification))
+
+        // -- Assert --
+        XCTAssertTrue(fixture.fileManager.readAppState()!.wasTerminated)
     }
 
     func testForcedStop() {
