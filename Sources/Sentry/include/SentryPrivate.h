@@ -12,7 +12,6 @@
 #import "SentryCrashC.h"
 #import "SentryCrashDynamicLinker.h"
 #import "SentryCrashUUIDConversion.h"
-#import "SentryDiscardReasonMapper.h"
 #import "SentryError.h"
 #import "SentryEventSwiftHelper.h"
 #import "SentryFormatterSwift.h"
