@@ -558,10 +558,5 @@ import Foundation
         get { SentryObjCExperimentalOptions(wrapped.experimental) }
         set { wrapped.experimental = newValue.wrapped }
     }
-
-    @objc public var enableMetrics: Bool {
-        get { wrapped.enableMetrics }
-        set { wrapped.enableMetrics = newValue }
-    }
 }
 // swiftlint:enable file_length missing_docs type_body_length

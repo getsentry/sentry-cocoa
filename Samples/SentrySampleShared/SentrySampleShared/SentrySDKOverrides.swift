@@ -56,7 +56,6 @@ public enum SentrySDKOverrides: String, CaseIterable {
         case .breadcrumbs: return SentrySDKOverrides.Breadcrumbs.allCases
         case .crash: return SentrySDKOverrides.Crash.allCases
         case .metricKit: return SentrySDKOverrides.MetricKit.allCases
-        case .metrics: return SentrySDKOverrides.Metrics.allCases
         case .spotlight: return SentrySDKOverrides.Spotlight.allCases
         case .swizzling: return SentrySDKOverrides.Swizzling.allCases
         case .swiftAsync: return SentrySDKOverrides.SwiftAsync.allCases
@@ -239,11 +238,6 @@ public enum SentrySDKOverrides: String, CaseIterable {
         case disableRawPayloads = "--io.sentry.metric-kit.disable-raw-payloads"
     }
     case metricKit = "MetricKit"
-
-    public enum Metrics: String, SentrySDKOverride {
-        case enable = "--io.sentry.metrics.enable"
-    }
-    case metrics = "Metrics"
 
     public enum Spotlight: String, SentrySDKOverride {
         case disable = "--io.sentry.spotlight.disable"
@@ -570,14 +564,6 @@ extension SentrySDKOverrides.MetricKit {
     }
 }
 
-extension SentrySDKOverrides.Metrics {
-    public var overrideType: OverrideType {
-        switch self {
-        case .enable: return .boolean
-        }
-    }
-}
-
 extension SentrySDKOverrides.Spotlight {
     public var overrideType: OverrideType {
         switch self {
@@ -782,14 +768,6 @@ extension SentrySDKOverrides.Crash {
 
 extension SentrySDKOverrides.MetricKit {
     public var ignoresDisableEverything: Bool { return false }
-}
-
-extension SentrySDKOverrides.Metrics {
-    public var ignoresDisableEverything: Bool {
-        switch self {
-        case .enable: return true
-        }
-    }
 }
 
 extension SentrySDKOverrides.Spotlight {
