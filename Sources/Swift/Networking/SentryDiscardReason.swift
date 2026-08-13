@@ -34,16 +34,6 @@ public enum SentryDiscardReason: UInt {
 
 @objcMembers
 @_spi(Private) public class SentryDiscardReasonMapper: NSObject {
-    public static let beforeSend = SentryDiscardReason.beforeSend.name
-    public static let eventProcessor = SentryDiscardReason.eventProcessor.name
-    public static let sampleRate = SentryDiscardReason.sampleRate.name
-    public static let networkError = SentryDiscardReason.networkError.name
-    public static let queueOverflow = SentryDiscardReason.queueOverflow.name
-    public static let cacheOverflow = SentryDiscardReason.cacheOverflow.name
-    public static let rateLimitBackoff = SentryDiscardReason.rateLimitBackoff.name
-    public static let insufficientData = SentryDiscardReason.insufficientData.name
-    public static let sendError = SentryDiscardReason.sendError.name
-
     public static func nameFor(_ reason: SentryDiscardReason) -> String {
         return reason.name
     }
