@@ -126,6 +126,22 @@ final class SentryReachabilitySwiftTests: XCTestCase {
         })
     }
 
+    func testRemove_WhenLastObserverIsRemoved_ShouldInvalidatePathMonitor() throws {
+        // -- Arrange --
+        reachability.skipRegisteringActualCallbacks = false
+        let observer = TestSentryReachabilityObserver()
+
+        // -- Act --
+        reachability.add(observer)
+        let pathMonitor = try XCTUnwrap(reachability.currentPathMonitor)
+        let isCurrentBeforeRemovingObserver = reachability.isCurrentPathMonitor(pathMonitor)
+        reachability.remove(observer)
+
+        // -- Assert --
+        XCTAssertTrue(isCurrentBeforeRemovingObserver)
+        XCTAssertFalse(reachability.isCurrentPathMonitor(pathMonitor))
+    }
+
     func testAddingAndRemovingObserversCleanTheMonitor() {
         reachability.skipRegisteringActualCallbacks = false
         reachability.setReachabilityIgnoreActualCallback(false)
