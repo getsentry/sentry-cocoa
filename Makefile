@@ -802,10 +802,9 @@ build-sample-SDK-Size:
 ## Run all platform tests
 #
 # Convenience target that invokes all platform test targets.
-# Note: test-watchos is excluded as watchOS does not support XCTest.
-# See test-ios, test-macos, test-catalyst, test-tvos, test-visionos for more details.
+# See test-ios, test-macos, test-catalyst, test-tvos, test-visionos, test-watchos for more details.
 .PHONY: test
-test: test-ios test-macos test-catalyst test-tvos test-visionos
+test: test-ios test-macos test-catalyst test-tvos test-visionos test-watchos
 
 ## Run iOS tests
 #
@@ -934,15 +933,36 @@ test-visionos:
 		$(if $(TEST_PLAN),--test-plan "$(TEST_PLAN)") \
 		--only-testing "$(ONLY_TESTING)"
 
-# Note: test-watchos target is not available because watchOS does not support XCTest.
-# Tests cannot be run on watchOS as the XCTest framework is not available on that platform.
+## Run watchOS tests
+#
+# Runs unit tests for watchOS Simulator.
+# Outputs logs and uses xcbeautify for formatted output.
+#
+# Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
+# Optional: TEST_SCHEME=SchemeName to override the default Xcode scheme (default: Sentry)
+# Examples:
+#   make test-watchos
+#   make test-watchos ONLY_TESTING=SentryTests/SentryHttpTransportTests
+#   make test-watchos TEST_PLAN=Sentry_TestServer   # needs `make -C test-server start-debug`
+.PHONY: test-watchos
+test-watchos:
+	@echo "--> Running watchOS tests"
+	./scripts/sentry-xcodebuild.sh \
+		--platform watchOS \
+		--os $(WATCHOS_SIMULATOR_OS) \
+		--device "$(WATCHOS_DEVICE_NAME)" \
+		--ref $(GIT-REF) \
+		--command test \
+		--configuration Test \
+		$(if $(TEST_SCHEME),--scheme "$(TEST_SCHEME)") \
+		$(if $(TEST_PLAN),--test-plan "$(TEST_PLAN)") \
+		--only-testing "$(ONLY_TESTING)"
 
 ## Run all platform tests with SDK_V10 flag
 #
 # Convenience target that invokes all V10 platform test targets.
-# Note: test-watchos-v10 is excluded as watchOS does not support XCTest.
 .PHONY: test-v10
-test-v10: test-ios-v10 test-macos-v10 test-catalyst-v10 test-tvos-v10 test-visionos-v10
+test-v10: test-ios-v10 test-macos-v10 test-catalyst-v10 test-tvos-v10 test-visionos-v10 test-watchos-v10
 
 ## Run iOS tests with SDK_V10 flag
 #
@@ -1050,6 +1070,29 @@ test-visionos-v10:
 		--platform visionOS \
 		--os $(VISIONOS_SIMULATOR_OS) \
 		--device "$(VISIONOS_DEVICE_NAME)" \
+		--ref $(GIT-REF) \
+		--command test \
+		--scheme SentryV10 \
+		--configuration TestV10 \
+		$(if $(TEST_PLAN),--test-plan "$(TEST_PLAN)") \
+		--only-testing "$(ONLY_TESTING)"
+
+## Run watchOS tests with SDK_V10 flag
+#
+# Runs unit tests for watchOS Simulator using the SentryV10 scheme.
+#
+# Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
+# Examples:
+#   make test-watchos-v10
+#   make test-watchos-v10 ONLY_TESTING=SentryTestsV10/SentryHttpTransportTests
+#   make test-watchos-v10 TEST_PLAN=SentryV10_TestServer   # needs `make -C test-server start-debug`
+.PHONY: test-watchos-v10
+test-watchos-v10:
+	@echo "--> Running V10 watchOS tests"
+	./scripts/sentry-xcodebuild.sh \
+		--platform watchOS \
+		--os $(WATCHOS_SIMULATOR_OS) \
+		--device "$(WATCHOS_DEVICE_NAME)" \
 		--ref $(GIT-REF) \
 		--command test \
 		--scheme SentryV10 \
