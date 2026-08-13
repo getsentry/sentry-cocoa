@@ -138,6 +138,11 @@
     /// This block can be used to modify the event before it will be serialized and sent.
     @objc public var beforeSend: SentryBeforeSendEventCallback?
 
+    #if SDK_V10
+    /// This block can be used to modify a transaction before it will be serialized and sent.
+    @objc public var beforeSendTransaction: ((Transaction) -> Transaction?)?
+    #endif // SDK_V10
+
     /// Use this callback to drop or modify a span before the SDK sends it to Sentry. Return nil to
     /// drop the span.
     @objc public var beforeSendSpan: SentryBeforeSendSpanCallback?

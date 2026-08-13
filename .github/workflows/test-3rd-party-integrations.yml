@@ -78,7 +78,7 @@ jobs:
 
   # SPM tests for all 3rd-party integrations
   test-integrations-spm:
-    name: SPM Tests | ${{matrix.integration_dir}}
+    name: SPM Tests (${{matrix.trait}}) | ${{matrix.integration_dir}}
     needs: [files-changed, build-xcframeworks]
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_3rd_party_integrations_tests_for_prs == 'true')
     runs-on: ["bitrise_pool_name:sequoia"]
@@ -92,6 +92,7 @@ jobs:
           "SentryCocoaLumberjack",
           "SentryPulse",
         ]
+        trait: ["SentryFromBinary", "SentryFromSource"]
     steps:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
@@ -105,6 +106,8 @@ jobs:
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: xcframeworks-for-3rd-party-integration-tests
+      - name: Remove versioned Package files
+        run: rm -f Package@swift-*.swift
       - name: Modify Package.swift to use local xcframeworks
         run: ./scripts/prepare-package.sh --package-file Package.swift --is-pr true --remove-duplicate true --change-path true
       - name: Use local sentry-cocoa
@@ -113,12 +116,12 @@ jobs:
           sed -i '' 's|\.package(url: "https://github\.com/getsentry/sentry-cocoa", from: "[^"]*")|.package(name: "sentry-cocoa", path: "../..")|g' Package.swift
       - name: Run SPM Tests
         working-directory: 3rd-party-integrations/${{matrix.integration_dir}}
-        run: swift test
+        run: swift test --traits ${{ matrix.trait  }}
       - name: Archiving Raw Logs
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() || cancelled() }}
         with:
-          name: raw-output-${{matrix.integration_dir}}-integration
+          name: raw-output-${{matrix.integration_dir}}-${{matrix.trait}}-integration
           path: |
             3rd-party-integrations/${{matrix.integration_dir}}/.build/**/*.log
       - name: Run CI Diagnostics

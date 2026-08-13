@@ -94,6 +94,9 @@ extension Options {
         }
 
         setBlock(dictionary["beforeSend"], forKey: "beforeSend")
+        #if SDK_V10
+        setBlock(dictionary["beforeSendTransaction"], forKey: "beforeSendTransaction")
+        #endif // SDK_V10
         setBlock(dictionary["beforeSendLog"], forKey: "beforeSendLog")
         setBlock(dictionary["beforeSendSpan"], forKey: "beforeSendSpan")
         setBlock(dictionary["beforeBreadcrumb"], forKey: "beforeBreadcrumb")

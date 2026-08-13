@@ -776,6 +776,26 @@
     XCTAssertNil(options.beforeSend);
 }
 
+- (void)testBeforeSendTransaction_whenBuildingV10AndSetBlock_shouldReturnNotNil
+{
+#if !SDK_V10
+    XCTSkip(@"Test skipped for non-SDK_V10");
+#else
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    options.beforeSendTransaction
+        = ^SentryObjCTransaction *_Nullable(SentryObjCTransaction *transaction)
+    {
+        return transaction;
+    };
+
+    // -- Assert --
+    XCTAssertNotNil(options.beforeSendTransaction);
+#endif
+}
+
 - (void)testBeforeSendSpan_whenSetBlock_shouldReturnNotNil
 {
     // -- Arrange --

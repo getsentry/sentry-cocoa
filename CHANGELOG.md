@@ -1,6 +1,9 @@
 # Changelog
 
-## Unreleased
+## 9.26.0
+
+> [!WARNING]
+> The 3rd-party integration packages (SentryCocoaLumberjack, SentryPulse, SentrySwiftLog, SentrySwiftyBeaver) now require Swift 6.1+ to support SPM package traits. Users on older Swift toolchains should pin to an earlier release of these packages.
 
 > [!IMPORTANT]
 > This release removes the option `enableLogs` from `Options`. If you need to disable logs, use `beforeSendLog` to drop all logs.
@@ -14,9 +17,11 @@
 ### Features
 
 - Promote `enableStandaloneAppStartTracing` from `options.experimental` to a top-level option on `Options` (#8715)
+- Add `SentryFromBinary` (default) and `SentryFromSource` SPM package traits to 3rd-party integrations, allowing users to choose between precompiled xcframeworks and building from source. Requires Swift 6.1+ (#8795)
 - Add experimental option `enableUIViewControllerInitSwizzling` that defers `UIViewController` swizzling to first instantiation instead of eagerly discovering and swizzling all subclasses at SDK start. This avoids realizing `@available`-gated `UIViewController` subclasses on OS versions below their gate, which crashes apps on start (#8687).
 - Add screenshot picker to feedback (#8655)
   - Enable it with `form.enableScreenshot = true` in the `configureForm` callback.
+- Expose transaction as a public event type (#8745)
 
 ### Improvements
 
