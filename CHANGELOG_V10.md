@@ -33,6 +33,8 @@
 
 ### Fixes
 
+- Compile only explicitly allowlisted shared SentryCrash tools in V10
+- Restore foreground app-hang detection and debugger-aware behavior in V10
 - Disambiguate V9 and V10 target dependencies in Xcode builds
 - Keep V10 compiler flags and KSCrash dependencies aligned across Xcode and SwiftPM build paths
 - Filter sensitive values from selected Session Replay network headers and cookies (#8566)

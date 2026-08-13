@@ -767,3 +767,35 @@ Pros:
 - V10 exercises the crash reporter that it will ship by default
 - V9 does not compile or link the new KSCrash integration
 - Easier code review — changes land in small, reviewable chunks
+
+### V10 recorder compile-out contract
+
+- Ownership boundary: `Sources/SentryCrash/**` is the legacy implementation; SDK-owned code outside that tree remains SDK-owned regardless of historical names.
+- Preserve each SDK use case before excluding its current implementation; use the [migration ledger](SENTRYCRASH_V10_MIGRATION_LEDGER.md) as the source-level responsibility inventory.
+- `SDK_V10` selects permanent V9/V10 backend implementations.
+- `SENTRY_DISABLE_SENTRYCRASH_V10` marks only unresolved V10 migration behavior.
+  - Every production marker has an explicit V10 path, `KSCRASH_TODO`, durable issue, ledger acceptance ID, and positive removal test.
+  - Reduced test assertions use the same issue and acceptance ID.
+  - Remove the marker after every temporary route is replaced or explicitly rejected.
+- SwiftPM selection:
+  - `SDK_V10=1` and the base-manifest route exclude legacy files.
+  - The `V10` trait compiles guarded legacy files as empty translation units because traits cannot change source exclusions.
+  - All routes build the full `SentryObjCInternal` target and enforce the same object contract.
+- Compatibility allowlist:
+  - `__sentry_cxa_throw` and `__sentry_cxa_rethrow` preserve the Unity/native ABI handoff.
+  - `SentryCrashExceptionApplication` remains public and must forward to the active backend.
+- Packaged headers must not declare excluded implementations or import a legacy implementation header.
+- Exact retained Tool implementations and SDK clients:
+  - `SentryCrashCPU.c`, `SentryCrashCPU_arm.c`, `SentryCrashCPU_arm64.c`, `SentryCrashCPU_x86_32.c`, `SentryCrashCPU_x86_64.c`: thread inspection and stack capture.
+  - `SentryCrashFileUtils.c`: session-replay sync and view-hierarchy output.
+  - `SentryCrashJSONCodec.c`: view-hierarchy serialization.
+  - `SentryCrashMachineContext.c`: thread inspector, stacktrace builder, and machine-context wrapper.
+  - `SentryCrashMemory.c`: profiler backtrace validation and stack cursors.
+  - `SentryCrashStackCursor.c`, `SentryCrashStackCursor_Backtrace.c`, `SentryCrashStackCursor_MachineContext.c`, `SentryCrashStackCursor_SelfThread.m`: current/all-thread stack capture.
+  - `SentryCrashSysCtl.c`: process-start and boot-time queries.
+  - `SentryCrashThread.c`: thread inspection, stack building, and span thread metadata.
+  - `SentryCrashUUIDConversion.c`: binary-image UUID conversion.
+- Definition of done:
+  - No V10 source/object from `Sources/SentryCrash/**`, retained Tool, temporary reporter, or migration marker remains.
+  - Xcode, SwiftPM environment/trait/base-manifest, and dynamic/static products have the same KSCrash backend contract.
+  - Exact object, symbol, class, compatibility, scope-sync, and header audits pass.

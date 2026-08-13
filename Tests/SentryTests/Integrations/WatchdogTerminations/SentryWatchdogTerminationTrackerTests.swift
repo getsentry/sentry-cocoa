@@ -171,7 +171,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     }
     
     func testIsDebugging_NoOOM() {
-        fixture.crashWrapper.internalIsBeingTraced = true
+        fixture.sysctl.internalIsBeingTraced = true
         sut.start()
         
         goToForeground()

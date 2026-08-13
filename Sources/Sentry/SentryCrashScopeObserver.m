@@ -1,13 +1,15 @@
-#import "SentryLevelMapper.h"
-#import "SentrySwift.h"
-#import <SentryBreadcrumb.h>
-#import <SentryCrashJSONCodec.h>
-#import <SentryCrashJSONCodecObjC.h>
-#import <SentryCrashScopeObserver.h>
-#import <SentryLogC.h>
-#import <SentryNSDataUtils.h>
-#import <SentryScopeSyncC.h>
-#import <SentryUser.h>
+#if !SDK_V10
+
+#    import "SentryLevelMapper.h"
+#    import "SentrySwift.h"
+#    import <SentryBreadcrumb.h>
+#    import <SentryCrashJSONCodec.h>
+#    import <SentryCrashJSONCodecObjC.h>
+#    import <SentryCrashScopeObserver.h>
+#    import <SentryLogC.h>
+#    import <SentryNSDataUtils.h>
+#    import <SentryScopeSyncC.h>
+#    import <SentryUser.h>
 
 @implementation SentryCrashScopeObserver
 
@@ -171,3 +173,5 @@
 }
 
 @end
+
+#endif // !SDK_V10

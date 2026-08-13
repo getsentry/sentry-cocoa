@@ -25,11 +25,13 @@
 // THE SOFTWARE.
 //
 
-#import "SentryCrashMonitor_NSException_StackCursor.h"
-#import "SentryCrashStackCursor_Backtrace.h"
-#import "SentryCrashStackCursor_SelfThread.h"
+#if !SDK_V10
 
-#import "SentryLogC.h"
+#    import "SentryCrashMonitor_NSException_StackCursor.h"
+#    import "SentryCrashStackCursor_Backtrace.h"
+#    import "SentryCrashStackCursor_SelfThread.h"
+
+#    import "SentryLogC.h"
 
 uintptr_t *
 sentrycrashcm_nsexception_initStackCursor(SentryCrashStackCursor *cursor, NSException *exception)
@@ -60,3 +62,5 @@ sentrycrashcm_nsexception_initStackCursor(SentryCrashStackCursor *cursor, NSExce
     sentrycrashsc_initWithBacktrace(cursor, callstack, (int)numFrames, 0);
     return callstack;
 }
+
+#endif // !SDK_V10

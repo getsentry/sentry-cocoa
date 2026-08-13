@@ -37,11 +37,20 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         SentrySwiftIntegrationInstaller.install(with: options)
 
         // Assert
-        XCTAssertEqual(testHub.installedIntegrationNames().count, 2)
         let names = try XCTUnwrap(testHub.installedIntegrationNames())
+#if SENTRY_DISABLE_SENTRYCRASH_V10
+        // KSCRASH_TODO(GH-8725): V10 temporarily omits the Swift async integration.
+        // Acceptance: SCV10-011 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+        XCTAssertEqual(names.count, 1)
+        XCTAssertFalse(names.contains("SentrySwiftAsyncIntegration"))
+        XCTAssertTrue(names.contains("SentryMetricsIntegration"))
+        XCTAssertEqual(testHub.installedIntegrations().count, 1)
+#else
+        XCTAssertEqual(names.count, 2)
         XCTAssertTrue(names.contains("SentrySwiftAsyncIntegration"))
         XCTAssertTrue(names.contains("SentryMetricsIntegration"))
         XCTAssertEqual(testHub.installedIntegrations().count, 2)
+#endif
     }
 
     func testInstall_WithDisabledIntegration_DoesNotAddIntegration() {
@@ -70,7 +79,10 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         SentrySwiftIntegrationInstaller.install(with: options)
 
         // Assert
-        XCTAssertEqual(testHub.installedIntegrationNames().count, 1)
+        let names = testHub.installedIntegrationNames()
+        XCTAssertEqual(names.count, 1)
+        XCTAssertFalse(names.contains("SentrySwiftAsyncIntegration"))
+        XCTAssertTrue(names.contains("SentryMetricsIntegration"))
         XCTAssertEqual(testHub.installedIntegrations().count, 1)
     }
 }

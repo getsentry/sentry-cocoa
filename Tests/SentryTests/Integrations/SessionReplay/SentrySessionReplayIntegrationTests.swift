@@ -18,31 +18,6 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     private let currentRunLoopMode = RunLoop.Mode.default
 
     private struct TestSessionReplayRunLoopObserver: SentryRunLoopObserver { }
-
-    private class TestCrashWrapper: NSObject, SentryCrashReporter {
-        let traced: Bool
-
-        init(traced: Bool = true) {
-            self.traced = traced
-            super.init()
-        }
-
-        var installed: Bool { false }
-        var crashedLastLaunch: Bool { false }
-        var durationFromCrashStateInitToLastCrash: TimeInterval { 0 }
-        var activeDurationSinceLastCrash: TimeInterval { 0 }
-        var isBeingTraced: Bool { traced }
-        var isSimulatorBuild: Bool { false }
-        var isApplicationInForeground: Bool { true }
-        var freeMemorySize: UInt64 { 0 }
-        var appMemorySize: UInt64 { 0 }
-        var systemInfo: [String: Any] { [:] }
-        var introspectMemory: Bool = true
-        var processInfoWrapper: SentryProcessInfoSource { ProcessInfo.processInfo }
-        func startBinaryImageCache() {}
-        func stopBinaryImageCache() {}
-        func enrichScope(_ scope: Scope) {}
-    }
     
     override func setUpWithError() throws {
         guard #available(iOS 16.0, tvOS 16.0, *) else {
@@ -836,7 +811,9 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     }
 
     func testShowMaskPreviewForDebug() throws {
-        SentryDependencyContainer.sharedInstance().crashWrapper = TestCrashWrapper(traced: true)
+        let sysctl = TestSysctl()
+        sysctl.internalIsBeingTraced = true
+        SentryDependencyContainer.sharedInstance().sysctlWrapper = sysctl
         let window = UIWindow()
         uiApplication.windows = [window]
         
@@ -863,7 +840,9 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     }
     
     func testDontShowMaskPreviewForRelese() throws {
-        SentryDependencyContainer.sharedInstance().crashWrapper = TestCrashWrapper(traced: false)
+        let sysctl = TestSysctl()
+        sysctl.internalIsBeingTraced = false
+        SentryDependencyContainer.sharedInstance().sysctlWrapper = sysctl
         let window = UIWindow()
         uiApplication.windows = [window]
         
