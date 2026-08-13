@@ -3,11 +3,11 @@
 import XCTest
 
 class SentrySDKTests: XCTestCase {
-    
+
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentrySDKTests")
-    
+
     private class Fixture {
-    
+
         let options: Options = {
             let options = Options.noIntegrations()
             options.dsn = SentrySDKTests.dsnAsString
@@ -59,7 +59,7 @@ class SentrySDKTests: XCTestCase {
             hub = SentryHubInternal(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo), andDispatchQueue: SentryDispatchQueueWrapper())
 
             feedback = SentryFeedback(message: "Again really?", name: "Tim Apple", email: "tim@apple.com")
-            
+
 #if os(iOS) || os(tvOS)
             options.dsn = SentrySDKTests.dsnAsString
 
@@ -85,7 +85,7 @@ class SentrySDKTests: XCTestCase {
         try super.setUpWithError()
         fixture = try Fixture()
     }
-    
+
     override func tearDown() {
         super.tearDown()
 
@@ -107,7 +107,7 @@ class SentrySDKTests: XCTestCase {
         let breadcrumbs = Dynamic(SentrySDKInternal.currentHub().scope).breadcrumbArray as [Breadcrumb]?
         XCTAssertEqual(0, breadcrumbs?.count)
     }
-    
+
     func testStartWithConfigureOptions() {
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
@@ -375,13 +375,13 @@ class SentrySDKTests: XCTestCase {
     func testDetectedStartUpCrash_DefaultValue() {
         XCTAssertFalse(SentrySDK.detectedStartUpCrash)
     }
-    
+
     func testInstallIntegrations_NoIntegrations() {
         SentrySDK.start { options in
             options.removeAllIntegrations()
         }
 
-        assertIntegrationsInstalled(integrations: [])
+        assertIntegrationsInstalled(integrations: ["SentryMetricsIntegration"])
     }
 
     func testGlobalOptions() {
@@ -409,15 +409,15 @@ class SentrySDKTests: XCTestCase {
 
         let scope = Scope()
         SentrySDK.capture(event: fixture.event, scope: scope)
-    
+
         assertEventCaptured(expectedScope: scope)
     }
-       
+
     func testCaptureEventWithScopeBlock_ScopePassedToHub() {
         givenSdkWithHub()
 
         SentrySDK.capture(event: fixture.event, block: fixture.scopeBlock)
-    
+
         assertEventCaptured(expectedScope: fixture.scopeWithBlockApplied)
     }
 
@@ -425,7 +425,7 @@ class SentrySDKTests: XCTestCase {
         givenSdkWithHub()
 
         SentrySDK.capture(event: fixture.event, block: fixture.scopeBlock)
-    
+
         assertHubScopeNotChanged()
     }
 
@@ -602,44 +602,38 @@ class SentrySDKTests: XCTestCase {
     }
 
     // MARK: - Logger Flush Tests
-    
+
     func testFlush_CallsLoggerCaptureLogs() {
-        #if !SDK_V10
-        fixture.client.options.enableLogs = true
-        #endif // !SDK_V10
         SentrySDKInternal.setCurrentHub(fixture.hub)
         SentrySDK.setStart(with: fixture.client.options)
-        
+
         // Add a log to ensure there's something to flush
         SentrySDK.logger.info("Test log message")
-        
+
         // Verify the log was captured
         XCTAssertEqual(fixture.client.captureLogInvocations.count, 1)
         XCTAssertEqual(fixture.client.captureLogInvocations.first?.log.body, "Test log message")
-        
+
         // Flush the SDK - this should trigger the log buffer to flush
         SentrySDK.flush(timeout: 1.0)
-        
+
         // The log should still be captured (flush doesn't clear the invocations)
         XCTAssertEqual(fixture.client.captureLogInvocations.count, 1)
     }
-    
+
     func testClose_CallsLoggerCaptureLogs() {
-        #if !SDK_V10
-        fixture.client.options.enableLogs = true
-        #endif // !SDK_V10
         SentrySDKInternal.setCurrentHub(fixture.hub)
         SentrySDK.setStart(with: fixture.client.options)
-        
+
         // Add a log to ensure there's something to flush
         SentrySDK.logger.info("Test log message")
-        
+
         // Verify the log was captured
         XCTAssertEqual(fixture.client.captureLogInvocations.count, 1)
-        
+
         // Close the SDK
         SentrySDK.close()
-        
+
         // The log should still be captured
         XCTAssertEqual(fixture.client.captureLogInvocations.count, 1)
     }
@@ -652,28 +646,28 @@ extension SentrySDKTests {
         XCTAssertEqual(fixture.event, client.captureEventWithScopeInvocations.first?.event)
         XCTAssertEqual(expectedScope, client.captureEventWithScopeInvocations.first?.scope)
     }
-    
+
     private func assertErrorCaptured(expectedScope: Scope) {
         let client = fixture.client
         XCTAssertEqual(1, client.captureErrorWithScopeInvocations.count)
         XCTAssertEqual(fixture.error.localizedDescription, client.captureErrorWithScopeInvocations.first?.error.localizedDescription)
         XCTAssertEqual(expectedScope, client.captureErrorWithScopeInvocations.first?.scope)
     }
-    
+
     private func assertExceptionCaptured(expectedScope: Scope) {
         let client = fixture.client
         XCTAssertEqual(1, client.captureExceptionWithScopeInvocations.count)
         XCTAssertEqual(fixture.exception, client.captureExceptionWithScopeInvocations.first?.exception)
         XCTAssertEqual(expectedScope, client.captureExceptionWithScopeInvocations.first?.scope)
     }
-    
+
     private func assertMessageCaptured(expectedScope: Scope) {
         let client = fixture.client
         XCTAssertEqual(1, client.captureMessageWithScopeInvocations.count)
         XCTAssertEqual(fixture.message, client.captureMessageWithScopeInvocations.first?.message)
         XCTAssertEqual(expectedScope, client.captureMessageWithScopeInvocations.first?.scope)
     }
-    
+
     private func assertHubScopeNotChanged() {
         let hubScope = SentrySDKInternal.currentHub().scope
         XCTAssertEqual(fixture.scope, hubScope)
@@ -684,20 +678,21 @@ extension SentrySDKTests {
         let flags = try XCTUnwrap(context["flags"] as? [String: Any])
         return try XCTUnwrap(flags["values"] as? [[String: Any]])
     }
-    
+
     private func startprocessInfoWrapperForPreview() {
         let testProcessInfoWrapper = MockSentryProcessInfo()
         testProcessInfoWrapper.overrides.environment = ["XCODE_RUNNING_FOR_PREVIEWS": "1"]
         SentryDependencyContainer.sharedInstance().processInfoWrapper = testProcessInfoWrapper
     }
-    
-    private func assertIntegrationsInstalled(integrations: [String]) {
-        XCTAssertEqual(integrations.count, SentrySDKInternal.currentHub().installedIntegrations().count)
+
+    private func assertIntegrationsInstalled(integrations: [String], file: StaticString = #file, line: UInt = #line) {
+        let hub = SentrySDKInternal.currentHub()
+        XCTAssertEqual(integrations.count, hub.installedIntegrations().count, file: file, line: line)
         integrations.forEach { integration in
             if let integrationClass = NSClassFromString(integration) {
-                XCTAssertTrue(SentrySDKInternal.currentHub().isIntegrationInstalled(integrationClass), "\(integration) not installed")
+                XCTAssertTrue(hub.isIntegrationInstalled(integrationClass), "\(integration) not installed", file: file, line: line)
             } else {
-                XCTAssertTrue(SentrySDKInternal.currentHub().hasIntegration(integration), "\(integration) not installed with legacy ObjC API nor Swift")
+                XCTAssertTrue(hub.hasIntegration(integration), "\(integration) not installed with legacy ObjC API nor Swift", file: file, line: line)
             }
         }
     }

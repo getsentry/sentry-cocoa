@@ -447,9 +447,9 @@ class SentrySDKInternalTests: XCTestCase {
 #if SENTRY_DISABLE_SENTRYCRASH_V10
         // KSCRASH_TODO(GH-8725): V10 temporarily omits the Swift async integration.
         // Acceptance: SCV10-011 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
-        XCTAssertEqual(0, hub.installedIntegrations().count)
-#else
         XCTAssertEqual(1, hub.installedIntegrations().count)
+#else
+        XCTAssertEqual(2, hub.installedIntegrations().count)
 #endif
         SentrySDK.close()
         XCTAssertEqual(0, hub.installedIntegrations().count)
