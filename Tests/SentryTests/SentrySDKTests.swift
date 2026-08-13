@@ -134,9 +134,11 @@ class SentrySDKTests: XCTestCase {
             "SentryMetricsIntegration",
             "SentryNetworkTrackingIntegration"
         ]
+#if !SDK_V10
         if !SentryDependencyContainer.sharedInstance().debuggerStatusProvider.isBeingTraced {
             expectedIntegrations.append("SentryANRTrackingIntegration")
         }
+#endif
 #if os(iOS) || os(tvOS) || os(visionOS)
         expectedIntegrations.append("SentryFramesTrackingIntegration")
 #endif // os(iOS) || os(tvOS)

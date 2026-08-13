@@ -19,13 +19,14 @@ final class SentryDependencyContainerTests: XCTestCase {
         XCTAssertFalse(framesTracker.isRunning)
     }
 
+#if !SDK_V10
     func testGetANRTrackerV2() {
         let instance = SentryDependencyContainer.sharedInstance().getANRTracker(2.0)
         XCTAssertTrue(instance.helper is SentryANRTrackerV2)
 
         SentryDependencyContainer.reset()
-
     }
+#endif
 
     func testApplicationStateProvider_whenUsingUIKit_shouldUseThreadsafeApplication() {
         let container = SentryDependencyContainer.sharedInstance()
@@ -64,7 +65,7 @@ final class SentryDependencyContainerTests: XCTestCase {
     }
 #endif
 
-#if os(macOS)
+#if os(macOS) && !SDK_V10
     func testGetANRTrackerV1() {
         let instance = SentryDependencyContainer.sharedInstance().getANRTracker(2.0)
         XCTAssertTrue(instance.helper is SentryANRTrackerV1)
@@ -138,11 +139,10 @@ final class SentryDependencyContainerTests: XCTestCase {
 #endif
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().scopePersistentStore)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().debugImageProvider)
-                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().getANRTracker(2.0))
 
-#if os(iOS) || os(tvOS)
+#if !SDK_V10
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().getANRTracker(2.0))
-#endif // os(iOS) || os(tvOS)
+#endif
 
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().dispatchFactory)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().timerFactory)

@@ -554,6 +554,7 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentrySDKInternal.currentHub reportFullyDisplayed];
 }
 
+#if !SDK_V10
 + (void)pauseAppHangTracking
 {
     SentryHangTrackerIntegrationObjC *anrTrackingIntegration
@@ -571,6 +572,7 @@ static NSDate *_Nullable startTimestamp = nil;
 
     [anrTrackingIntegration resumeAppHangTracking];
 }
+#endif
 
 + (void)flush:(NSTimeInterval)timeout
 {
