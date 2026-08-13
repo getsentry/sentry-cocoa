@@ -1,3 +1,4 @@
+#if !SDK_V10
 internal import _SentryPrivate
 import Foundation
 
@@ -44,3 +45,4 @@ final class SentryCrashInstallationReporter: SentryCrashInstallation {
         }
     }
 }
+#endif // !SDK_V10

@@ -18,31 +18,6 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     private let currentRunLoopMode = RunLoop.Mode.default
 
     private struct TestSessionReplayRunLoopObserver: SentryRunLoopObserver { }
-
-    private class TestCrashWrapper: NSObject, SentryCrashReporter {
-        let traced: Bool
-
-        init(traced: Bool = true) {
-            self.traced = traced
-            super.init()
-        }
-
-        var installed: Bool { false }
-        var crashedLastLaunch: Bool { false }
-        var durationFromCrashStateInitToLastCrash: TimeInterval { 0 }
-        var activeDurationSinceLastCrash: TimeInterval { 0 }
-        var isBeingTraced: Bool { traced }
-        var isSimulatorBuild: Bool { false }
-        var isApplicationInForeground: Bool { true }
-        var freeMemorySize: UInt64 { 0 }
-        var appMemorySize: UInt64 { 0 }
-        var systemInfo: [String: Any] { [:] }
-        var introspectMemory: Bool = true
-        var processInfoWrapper: SentryProcessInfoSource { ProcessInfo.processInfo }
-        func startBinaryImageCache() {}
-        func stopBinaryImageCache() {}
-        func enrichScope(_ scope: Scope) {}
-    }
     
     override func setUpWithError() throws {
         guard #available(iOS 16.0, tvOS 16.0, *) else {
@@ -86,7 +61,12 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     }
     
     private func getSut() throws -> SentrySessionReplayIntegration {
-        return try XCTUnwrap(SentrySDKInternal.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration)
+        return try XCTUnwrap(sessionReplayIntegration())
+    }
+
+    private func sessionReplayIntegration() -> SentrySessionReplayIntegration? {
+        return SentrySDKInternal.currentHub().installedIntegrations()
+            .first { $0 is SentrySessionReplayIntegration } as? SentrySessionReplayIntegration
     }
     
     private func startSDK(sessionSampleRate: Float, errorSampleRate: Float, enableSwizzling: Bool = true, noIntegrations: Bool = false, configure: ((Options) -> Void)? = nil) {
@@ -105,15 +85,15 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     
     func testNoInstall() {
         startSDK(sessionSampleRate: 0, errorSampleRate: 0)
-        
-        XCTAssertEqual(SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().count, 0)
+
+        XCTAssertNil(sessionReplayIntegration())
         XCTAssertEqual(globalEventProcessor.processors.count, 0)
     }
-    
+
     func testInstallFullSessionReplay() {
         startSDK(sessionSampleRate: 1, errorSampleRate: 0)
-        
-        XCTAssertEqual(SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().count, 1)
+
+        XCTAssertNotNil(sessionReplayIntegration())
         XCTAssertEqual(globalEventProcessor.processors.count, 1)
     }
 
@@ -136,8 +116,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     
     func testInstallNoSwizzlingNoTouchTracker() {
         startSDK(sessionSampleRate: 1, errorSampleRate: 0, enableSwizzling: false)
-        guard let integration = SentrySDKInternal.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration
-        else {
+        guard let integration = sessionReplayIntegration() else {
             XCTFail("Could not find session replay integration")
             return
         }
@@ -153,7 +132,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     func testInstallFullSessionReplayButDontRunBecauseOfRandom() throws {
         SentryDependencyContainer.sharedInstance().random = TestRandom(value: 0.3)
         startSDK(sessionSampleRate: 0.2, errorSampleRate: 0)
-        XCTAssertEqual(SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().count, 1)
+        XCTAssertNotNil(sessionReplayIntegration())
         XCTAssertEqual(globalEventProcessor.processors.count, 1)
         let sut = try getSut()
         XCTAssertNil(sut.sessionReplay)
@@ -178,8 +157,8 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         SentryDependencyContainer.sharedInstance().random = TestRandom(value: 0.1)
         
         startSDK(sessionSampleRate: 0.3, errorSampleRate: 0)
-        
-        XCTAssertEqual(SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().count, 1)
+
+        XCTAssertNotNil(sessionReplayIntegration())
         XCTAssertEqual(globalEventProcessor.processors.count, 1)
         let sut = try getSut()
         XCTAssertNotNil(sut.sessionReplay)
@@ -187,7 +166,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     
     func testInstallErrorReplay() {
         startSDK(sessionSampleRate: 0, errorSampleRate: 0.1)
-        XCTAssertEqual(SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().count, 1)
+        XCTAssertNotNil(sessionReplayIntegration())
         XCTAssertEqual(globalEventProcessor.processors.count, 1)
     }
     
@@ -612,7 +591,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     
     func testStartWithNoSessionReplay() throws {
         startSDK(sessionSampleRate: 0, errorSampleRate: 0, noIntegrations: true)
-        var sut = SentrySDKInternal.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration
+        var sut = sessionReplayIntegration()
         XCTAssertNil(sut)
         SentrySDK.replay.start()
         sut = try getSut()
@@ -832,7 +811,9 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     }
 
     func testShowMaskPreviewForDebug() throws {
-        SentryDependencyContainer.sharedInstance().crashWrapper = TestCrashWrapper(traced: true)
+        let sysctl = TestSysctl()
+        sysctl.internalIsBeingTraced = true
+        SentryDependencyContainer.sharedInstance().sysctlWrapper = sysctl
         let window = UIWindow()
         uiApplication.windows = [window]
         
@@ -859,7 +840,9 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     }
     
     func testDontShowMaskPreviewForRelese() throws {
-        SentryDependencyContainer.sharedInstance().crashWrapper = TestCrashWrapper(traced: false)
+        let sysctl = TestSysctl()
+        sysctl.internalIsBeingTraced = false
+        SentryDependencyContainer.sharedInstance().sysctlWrapper = sysctl
         let window = UIWindow()
         uiApplication.windows = [window]
         

@@ -50,7 +50,7 @@ enum EventAssertions {
             try assert(exceptionThreadID != nil,
                        "Expected exception thread id for \(platform)/\(scenario.rawValue)")
             try assert(!threadValues.isEmpty, "Expected threads for \(platform)/\(scenario.rawValue)")
-        case .cppExceptionV2, .swiftAsyncCPPExceptionV2Off,
+        case .cppExceptionV2, .unityCxaThrowV2, .swiftAsyncCPPExceptionV2Off,
              .swiftAsyncCPPExceptionV2On, .objcObject, .objcObjectAfterCaughtCPP:
             try assert(exceptionThreadID != nil,
                        "Expected exception thread id for \(platform)/\(scenario.rawValue)")
@@ -129,7 +129,7 @@ enum EventAssertions {
                                    scenario: scenario, expectedValue: "CrashE2ECPPException")
             try assertSwiftAsyncFrames(firstException, platform: platform, scenario: scenario)
 
-        case .unityCxaThrow:
+        case .unityCxaThrow, .unityCxaThrowV2:
             try assertCPPException(firstException, mechanism: mechanism, platform: platform,
                                    scenario: scenario, expectedValue: "CrashE2EUnitySentryCxaThrowException")
 

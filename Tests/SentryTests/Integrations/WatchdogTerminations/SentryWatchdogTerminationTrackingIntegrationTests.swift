@@ -13,6 +13,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let crashWrapper: TestSentryCrashWrapper
         let fileManager: SentryFileManager
         let processInfoWrapper: MockSentryProcessInfo
+        let sysctl: TestSysctl
         let watchdogTerminationAttributesProcessor: TestSentryWatchdogTerminationAttributesProcessor
         let hub: SentryHubInternal
         let scope: Scope
@@ -37,6 +38,8 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
 
             processInfoWrapper = MockSentryProcessInfo()
             container.processInfoWrapper = processInfoWrapper
+            sysctl = TestSysctl()
+            container.sysctlWrapper = sysctl
 
             crashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
             container.crashWrapper = crashWrapper
@@ -315,7 +318,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
 
     func testANRDetected_UpdatesAppStateToTrue() throws {
         // -- Arrange --
-        fixture.crashWrapper.internalIsBeingTraced = false
+        fixture.sysctl.internalIsBeingTraced = false
         let sut = try XCTUnwrap(fixture.getSut())
 
         // -- Act --
@@ -328,7 +331,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
 
     func testANRDetected_NewHangTracker_UpdatesAppStateToTrue() throws {
         // -- Arrange --
-        fixture.crashWrapper.internalIsBeingTraced = false
+        fixture.sysctl.internalIsBeingTraced = false
         let sut = try XCTUnwrap(fixture.getSut(enableNewHangTracker: true))
 
         // -- Act --
@@ -341,7 +344,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
 
     func testANRStopped_UpdatesAppStateToFalse() throws {
         // -- Arrange --
-        fixture.crashWrapper.internalIsBeingTraced = false
+        fixture.sysctl.internalIsBeingTraced = false
         let sut = try XCTUnwrap(fixture.getSut())
 
         // -- Act --
@@ -354,7 +357,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
 
     func testANRStopped_NewHangTracker_UpdatesAppStateToFalse() throws {
         // -- Arrange --
-        fixture.crashWrapper.internalIsBeingTraced = false
+        fixture.sysctl.internalIsBeingTraced = false
         let sut = try XCTUnwrap(fixture.getSut(enableNewHangTracker: true))
         sut.hangStarted()
 

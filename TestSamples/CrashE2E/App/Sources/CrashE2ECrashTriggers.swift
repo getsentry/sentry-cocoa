@@ -26,7 +26,8 @@ enum CrashE2ECrashTriggers {
             abortBecauseScenarioReturned(scenario)
         case .nsException, .nsExceptionSubclass, .cppExceptionV1, .cppExceptionV2,
              .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .unityCxaThrow,
-             .objcObject, .objcObjectAfterCaughtCPP, .ksCrashRetryReportA, .ksCrashRetryReportB,
+             .unityCxaThrowV2, .objcObject, .objcObjectAfterCaughtCPP, .ksCrashRetryReportA,
+             .ksCrashRetryReportB,
              .idle, .drain, .managedRuntimePreSDKSignal:
             triggerExceptionScenario(scenario)
         }
@@ -59,7 +60,7 @@ enum CrashE2ECrashTriggers {
             abortBecauseScenarioReturned(scenario)
         case .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On:
             triggerSwiftAsyncCPPException(scenario)
-        case .unityCxaThrow:
+        case .unityCxaThrow, .unityCxaThrowV2:
             CrashE2ETriggerUnitySentryCxaThrow()
             abortBecauseScenarioReturned(scenario)
         case .objcObject:

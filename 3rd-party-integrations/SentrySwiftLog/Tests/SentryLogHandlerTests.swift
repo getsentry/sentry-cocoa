@@ -16,7 +16,6 @@ final class SentryLogHandlerTests: XCTestCase {
         capturedLogs = []
         SentrySDK.start { options in
             options.dsn = "https://test@test.ingest.sentry.io/123456"
-            options.enableLogs = true
             options.beforeSendLog = { [weak self] log in
                 self?.capturedLogs.append(log)
                 return nil

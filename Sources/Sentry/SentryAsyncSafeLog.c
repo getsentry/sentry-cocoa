@@ -26,7 +26,6 @@
 //
 
 #include "SentryAsyncSafeLog.h"
-#include "SentryCrashDebug.h"
 #include "SentryInternalCDefines.h"
 
 #include <errno.h>
@@ -34,6 +33,9 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
+#if SENTRY_ASYNC_SAFE_LOG_ALSO_WRITE_TO_CONSOLE
+#    include <sys/sysctl.h>
+#endif
 #include <unistd.h>
 
 // Compiler hints for "if" statements
@@ -76,6 +78,23 @@ static int g_fd = -1;
 #if SENTRY_ASYNC_SAFE_LOG_ALSO_WRITE_TO_CONSOLE
 static bool g_isDebugging;
 static bool g_checkedIsDebugging;
+
+static bool
+isBeingTraced(void)
+{
+    struct kinfo_proc processInfo;
+    processInfo.kp_proc.p_flag = 0;
+
+    size_t size = sizeof(processInfo);
+    int mib[] = { CTL_KERN, KERN_PROC, KERN_PROC_PID, getpid() };
+    if (sysctl(mib, sizeof(mib) / sizeof(*mib), &processInfo, &size, NULL, 0) != 0) {
+        // This failure cannot be forced reliably in a test environment. See PR #6817.
+        SENTRY_ASYNC_SAFE_LOG_ERROR("sysctl: %s", SENTRY_STRERROR_R(errno));
+        return false;
+    }
+
+    return (processInfo.kp_proc.p_flag & P_TRACED) != 0;
+}
 #endif // SENTRY_ASYNC_SAFE_LOG_ALSO_WRITE_TO_CONSOLE
 
 static void
@@ -103,7 +122,7 @@ writeToLog(const char *const str)
     // change console-based logging
     if (!g_checkedIsDebugging) {
         g_checkedIsDebugging = true;
-        g_isDebugging = sentrycrashdebug_isBeingTraced();
+        g_isDebugging = isBeingTraced();
     }
     if (g_isDebugging) {
         fprintf(stdout, "%s", str);
