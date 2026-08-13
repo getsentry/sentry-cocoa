@@ -178,4 +178,62 @@
     XCTAssertFalse(success, @"");
 }
 
+- (void)testAddressToString
+{
+    char buffer[32];
+    int length = sentrycrashstring_addressToString(buffer, sizeof(buffer), 0x1234abcd);
+
+    XCTAssertEqual(length, 10);
+    XCTAssertEqual(strcmp(buffer, "0x1234abcd"), 0);
+}
+
+- (void)testAddressToString_BufferTooSmall
+{
+    char buffer[4];
+    int length = sentrycrashstring_addressToString(buffer, sizeof(buffer), 0x1234abcd);
+
+    XCTAssertEqual(length, -1);
+    XCTAssertEqual(buffer[0], '\0');
+}
+
+- (void)testInt64ToString_Int64Limits
+{
+    char minBuffer[32];
+    char maxBuffer[32];
+
+    XCTAssertEqual(sentrycrashstring_int64ToString(minBuffer, sizeof(minBuffer), INT64_MIN), 20);
+    XCTAssertEqual(sentrycrashstring_int64ToString(maxBuffer, sizeof(maxBuffer), INT64_MAX), 19);
+    XCTAssertEqual(strcmp(minBuffer, "-9223372036854775808"), 0);
+    XCTAssertEqual(strcmp(maxBuffer, "9223372036854775807"), 0);
+}
+
+- (void)testUInt64ToString_UInt64Max
+{
+    char buffer[32];
+    int length = sentrycrashstring_uint64ToString(buffer, sizeof(buffer), UINT64_MAX);
+
+    XCTAssertEqual(length, 20);
+    XCTAssertEqual(strcmp(buffer, "18446744073709551615"), 0);
+}
+
+- (void)testDoubleToString
+{
+    char buffer[64];
+
+    XCTAssertEqual(sentrycrashstring_doubleToString(buffer, sizeof(buffer), -0.2), 4);
+    XCTAssertEqual(strcmp(buffer, "-0.2"), 0);
+
+    XCTAssertEqual(sentrycrashstring_doubleToString(buffer, sizeof(buffer), -2e-15), 6);
+    XCTAssertEqual(strcmp(buffer, "-2e-15"), 0);
+
+    XCTAssertEqual(sentrycrashstring_doubleToString(buffer, sizeof(buffer), 123.456789), 7);
+    XCTAssertEqual(strcmp(buffer, "123.457"), 0);
+
+    XCTAssertEqual(sentrycrashstring_doubleToString(buffer, sizeof(buffer), 100000), 6);
+    XCTAssertEqual(strcmp(buffer, "100000"), 0);
+
+    XCTAssertEqual(sentrycrashstring_doubleToString(buffer, sizeof(buffer), 123000), 6);
+    XCTAssertEqual(strcmp(buffer, "123000"), 0);
+}
+
 @end

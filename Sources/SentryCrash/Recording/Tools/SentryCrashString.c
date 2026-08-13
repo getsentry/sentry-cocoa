@@ -34,6 +34,247 @@
 #define likely_if(x) if (__builtin_expect(x, 1))
 #define unlikely_if(x) if (__builtin_expect(x, 0))
 
+static int
+appendChar(char *buffer, size_t bufferLength, size_t *index, char value)
+{
+    if (*index + 1 >= bufferLength) {
+        if (bufferLength > 0) {
+            buffer[0] = '\0';
+        }
+        return -1;
+    }
+
+    buffer[(*index)++] = value;
+    buffer[*index] = '\0';
+    return 0;
+}
+
+static int
+appendUInt64(char *buffer, size_t bufferLength, size_t *index, uint64_t value)
+{
+    char reversed[20];
+    size_t reversedIndex = 0;
+    if (value == 0) {
+        reversed[reversedIndex++] = '0';
+    } else {
+        while (value > 0 && reversedIndex < sizeof(reversed)) {
+            reversed[reversedIndex++] = (char)('0' + value % 10);
+            value /= 10;
+        }
+    }
+
+    while (reversedIndex > 0) {
+        if (appendChar(buffer, bufferLength, index, reversed[--reversedIndex]) < 0) {
+            return -1;
+        }
+    }
+    return 0;
+}
+
+int
+sentrycrashstring_uint64ToString(char *buffer, size_t bufferLength, uint64_t value)
+{
+    if (buffer == NULL || bufferLength == 0) {
+        return -1;
+    }
+
+    buffer[0] = '\0';
+    size_t index = 0;
+    if (appendUInt64(buffer, bufferLength, &index, value) < 0) {
+        return -1;
+    }
+    return (int)index;
+}
+
+int
+sentrycrashstring_int64ToString(char *buffer, size_t bufferLength, int64_t value)
+{
+    if (buffer == NULL || bufferLength == 0) {
+        return -1;
+    }
+
+    buffer[0] = '\0';
+    size_t index = 0;
+    uint64_t unsignedValue;
+    if (value < 0) {
+        if (appendChar(buffer, bufferLength, &index, '-') < 0) {
+            return -1;
+        }
+        unsignedValue = (uint64_t)(-(value + 1)) + 1;
+    } else {
+        unsignedValue = (uint64_t)value;
+    }
+
+    if (appendUInt64(buffer, bufferLength, &index, unsignedValue) < 0) {
+        return -1;
+    }
+    return (int)index;
+}
+
+int
+sentrycrashstring_addressToString(char *buffer, size_t bufferLength, uint64_t value)
+{
+    static const char hex[] = "0123456789abcdef";
+
+    if (buffer == NULL || bufferLength == 0) {
+        return -1;
+    }
+
+    buffer[0] = '\0';
+    size_t index = 0;
+    if (appendChar(buffer, bufferLength, &index, '0') < 0
+        || appendChar(buffer, bufferLength, &index, 'x') < 0) {
+        return -1;
+    }
+
+    char reversed[2 * sizeof(uint64_t)];
+    size_t reversedIndex = 0;
+    if (value == 0) {
+        reversed[reversedIndex++] = '0';
+    } else {
+        while (value > 0 && reversedIndex < sizeof(reversed)) {
+            reversed[reversedIndex++] = hex[value & 0x0f];
+            value >>= 4;
+        }
+    }
+
+    while (reversedIndex > 0) {
+        if (appendChar(buffer, bufferLength, &index, reversed[--reversedIndex]) < 0) {
+            return -1;
+        }
+    }
+    return (int)index;
+}
+
+int
+sentrycrashstring_doubleToString(char *buffer, size_t bufferLength, double value)
+{
+    if (buffer == NULL || bufferLength == 0) {
+        return -1;
+    }
+
+    buffer[0] = '\0';
+    size_t index = 0;
+    if (value == 0.0) {
+        if (appendChar(buffer, bufferLength, &index, '0') < 0) {
+            return -1;
+        }
+        return (int)index;
+    }
+
+    double positiveValue = value;
+    if (value < 0.0) {
+        if (appendChar(buffer, bufferLength, &index, '-') < 0) {
+            return -1;
+        }
+        positiveValue = -value;
+    }
+
+    int exponent = 0;
+    double normalized = positiveValue;
+    while (normalized >= 10.0) {
+        normalized /= 10.0;
+        exponent++;
+    }
+    while (normalized < 1.0) {
+        normalized *= 10.0;
+        exponent--;
+    }
+
+    uint64_t scaled = (uint64_t)(normalized * 100000.0 + 0.5);
+    if (scaled >= 1000000) {
+        scaled = 100000;
+        exponent++;
+    }
+
+    char digits[6];
+    for (int i = 5; i >= 0; i--) {
+        digits[i] = (char)('0' + scaled % 10);
+        scaled /= 10;
+    }
+
+    if (exponent < -4 || exponent >= 6) {
+        if (appendChar(buffer, bufferLength, &index, digits[0]) < 0) {
+            return -1;
+        }
+
+        int lastSignificant = 5;
+        while (lastSignificant > 0 && digits[lastSignificant] == '0') {
+            lastSignificant--;
+        }
+        if (lastSignificant > 0) {
+            if (appendChar(buffer, bufferLength, &index, '.') < 0) {
+                return -1;
+            }
+            for (int i = 1; i <= lastSignificant; i++) {
+                if (appendChar(buffer, bufferLength, &index, digits[i]) < 0) {
+                    return -1;
+                }
+            }
+        }
+
+        if (appendChar(buffer, bufferLength, &index, 'e') < 0) {
+            return -1;
+        }
+        if (exponent < 0) {
+            if (appendChar(buffer, bufferLength, &index, '-') < 0) {
+                return -1;
+            }
+            exponent = -exponent;
+        }
+        if (appendUInt64(buffer, bufferLength, &index, (uint64_t)exponent) < 0) {
+            return -1;
+        }
+        return (int)index;
+    }
+
+    const int decimalPosition = exponent + 1;
+    if (decimalPosition <= 0) {
+        if (appendChar(buffer, bufferLength, &index, '0') < 0
+            || appendChar(buffer, bufferLength, &index, '.') < 0) {
+            return -1;
+        }
+        for (int i = 0; i < -decimalPosition; i++) {
+            if (appendChar(buffer, bufferLength, &index, '0') < 0) {
+                return -1;
+            }
+        }
+        for (int i = 0; i < 6; i++) {
+            if (appendChar(buffer, bufferLength, &index, digits[i]) < 0) {
+                return -1;
+            }
+        }
+    } else {
+        for (int i = 0; i < decimalPosition; i++) {
+            char digit = i < 6 ? digits[i] : '0';
+            if (appendChar(buffer, bufferLength, &index, digit) < 0) {
+                return -1;
+            }
+        }
+        if (decimalPosition < 6) {
+            if (appendChar(buffer, bufferLength, &index, '.') < 0) {
+                return -1;
+            }
+            for (int i = decimalPosition; i < 6; i++) {
+                if (appendChar(buffer, bufferLength, &index, digits[i]) < 0) {
+                    return -1;
+                }
+            }
+        }
+    }
+
+    if (decimalPosition < 6) {
+        while (index > 0 && buffer[index - 1] == '0') {
+            buffer[--index] = '\0';
+        }
+        if (index > 0 && buffer[index - 1] == '.') {
+            buffer[--index] = '\0';
+        }
+    }
+
+    return (int)index;
+}
+
 static const int g_printableControlChars[0x20] = {
     // Only tab, CR, and LF are considered printable
     // 1  2  3  4  5  6  7  8  9  a  b  c  d  e  f

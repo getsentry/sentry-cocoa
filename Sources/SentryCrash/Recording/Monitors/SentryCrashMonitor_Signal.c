@@ -38,10 +38,25 @@
 #if SENTRY_HAS_SIGNAL
 
 #    include <errno.h>
+#    include <pthread.h>
 #    include <signal.h>
+#    include <stdatomic.h>
+#    include <stdint.h>
 #    include <stdio.h>
 #    include <stdlib.h>
 #    include <string.h>
+
+// ============================================================================
+#    pragma mark - Types -
+// ============================================================================
+
+#    ifdef SENTRY_CRASH_MANAGED_RUNTIME
+typedef struct SentryCrashIgnoreSignal {
+    _Atomic uintptr_t tid;
+    _Atomic int signum;
+    struct SentryCrashIgnoreSignal *next;
+} SentryCrashIgnoreSignal;
+#    endif
 
 // ============================================================================
 #    pragma mark - Globals -
@@ -50,7 +65,10 @@
 static volatile bool g_isEnabled = false;
 static bool g_isSigtermReportingEnabled = false;
 #    ifdef SENTRY_CRASH_MANAGED_RUNTIME
-static _Thread_local int tl_ignoreSignum = 0;
+static _Atomic(SentryCrashIgnoreSignal *) g_ignoreSignals = NULL;
+static pthread_key_t g_ignoreSignalKey;
+static bool g_ignoreSignalKeyCreated = false;
+static pthread_once_t g_ignoreSignalKeyOnce = PTHREAD_ONCE_INIT;
 #    endif
 
 static SentryCrash_MonitorContext g_monitorContext;
@@ -83,6 +101,22 @@ restorePreviousSignalHandler(int sigNum)
     }
 }
 
+#    ifdef SENTRY_CRASH_MANAGED_RUNTIME
+static void
+clearIgnoreSignal(void *value)
+{
+    SentryCrashIgnoreSignal *entry = value;
+    atomic_store_explicit(&entry->signum, 0, memory_order_relaxed);
+    atomic_store_explicit(&entry->tid, 0, memory_order_relaxed);
+}
+
+static void
+createIgnoreSignalKey(void)
+{
+    g_ignoreSignalKeyCreated = pthread_key_create(&g_ignoreSignalKey, clearIgnoreSignal) == 0;
+}
+#    endif
+
 // ============================================================================
 #    pragma mark - Callbacks -
 // ============================================================================
@@ -102,17 +136,23 @@ restorePreviousSignalHandler(int sigNum)
 static void
 handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
 {
+    bool ignoreSignal = false;
 #    ifdef SENTRY_CRASH_MANAGED_RUNTIME
-    const int ignoreSignum = tl_ignoreSignum;
-    tl_ignoreSignum = 0;
+    const uintptr_t tid = (uintptr_t)pthread_self();
+    SentryCrashIgnoreSignal *entry = atomic_load_explicit(&g_ignoreSignals, memory_order_acquire);
+    while (entry != NULL) {
+        if (atomic_load_explicit(&entry->tid, memory_order_relaxed) == tid) {
+            if (atomic_exchange_explicit(&entry->signum, 0, memory_order_relaxed) == sigNum) {
+                ignoreSignal = true;
+            }
+            break;
+        }
+        entry = entry->next;
+    }
 #    endif
 
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Trapped signal %d", sigNum);
-    if (g_isEnabled
-#    ifdef SENTRY_CRASH_MANAGED_RUNTIME
-        && sigNum != ignoreSignum
-#    endif
-    ) {
+    if (g_isEnabled && !ignoreSignal) {
         thread_act_array_t threads = NULL;
         mach_msg_type_number_t numThreads = 0;
         // Signal handlers preempt the crashing thread, so reentrancy can
@@ -141,11 +181,7 @@ handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
     }
 
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Re-raising signal for regular handlers to catch.");
-    if (!g_isEnabled
-#    ifdef SENTRY_CRASH_MANAGED_RUNTIME
-        || sigNum == ignoreSignum
-#    endif
-    ) {
+    if (!g_isEnabled || ignoreSignal) {
         // Avoid re-entering this handler on raise().
         restorePreviousSignalHandler(sigNum);
     }
@@ -339,7 +375,31 @@ void
 sentrycrashcm_signal_ignore_next(int signum)
 {
 #if SENTRY_HAS_SIGNAL && defined(SENTRY_CRASH_MANAGED_RUNTIME)
-    tl_ignoreSignum = signum;
+    if (pthread_once(&g_ignoreSignalKeyOnce, createIgnoreSignalKey) != 0
+        || !g_ignoreSignalKeyCreated) {
+        return;
+    }
+
+    SentryCrashIgnoreSignal *entry = pthread_getspecific(g_ignoreSignalKey);
+    if (entry == NULL) {
+        // Intentional leak: signal handlers may still traverse list
+        entry = calloc(1, sizeof(*entry));
+        if (entry == NULL || pthread_setspecific(g_ignoreSignalKey, entry) != 0) {
+            free(entry);
+            return;
+        }
+
+        atomic_store_explicit(&entry->tid, (uintptr_t)pthread_self(), memory_order_relaxed);
+
+        SentryCrashIgnoreSignal *head
+            = atomic_load_explicit(&g_ignoreSignals, memory_order_relaxed);
+        do {
+            entry->next = head;
+        } while (!atomic_compare_exchange_weak_explicit(
+            &g_ignoreSignals, &head, entry, memory_order_release, memory_order_relaxed));
+    }
+
+    atomic_store_explicit(&entry->signum, signum, memory_order_relaxed);
 #else
     (void)signum;
 #endif

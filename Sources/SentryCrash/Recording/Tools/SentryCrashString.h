@@ -33,6 +33,7 @@ extern "C" {
 #endif
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 /** Check if a memory location contains a null terminated UTF-8 string.
@@ -56,6 +57,41 @@ bool sentrycrashstring_isNullTerminatedUTF8String(const void *memory, int minLen
  * @return true if the operation was successful.
  */
 bool sentrycrashstring_extractHexValue(const char *string, int stringLength, uint64_t *result);
+
+/** Formats an address as "0x" + lowercase hex into a caller-provided buffer.
+ *
+ * This is a replacement for snprintf in crash handlers:
+ * - signal-safe: uses no stdio, malloc, locks, or thread-local state.
+ * - reentrant: only stack locals; no writable globals.
+ *
+ * @return The number of bytes written, excluding the NUL terminator, or -1 if the buffer is too
+ * small.
+ */
+int sentrycrashstring_addressToString(char *buffer, size_t bufferLength, uint64_t value);
+
+/** Formats a signed integer into a caller-provided buffer.
+ *
+ * @return The number of bytes written, excluding the NUL terminator, or -1 if the buffer is too
+ * small.
+ */
+int sentrycrashstring_int64ToString(char *buffer, size_t bufferLength, int64_t value);
+
+/** Formats an unsigned integer into a caller-provided buffer.
+ *
+ * @return The number of bytes written, excluding the NUL terminator, or -1 if the buffer is too
+ * small.
+ */
+int sentrycrashstring_uint64ToString(char *buffer, size_t bufferLength, uint64_t value);
+
+/** Formats a finite double into a JSON-compatible number using six significant digits.
+ *
+ * This intentionally does not try to be a general dtoa replacement. It is meant for crash-handler
+ * metadata where avoiding stdio/malloc/locks matters more than preserving libc's exact spelling.
+ *
+ * @return The number of bytes written, excluding the NUL terminator, or -1 if the buffer is too
+ * small.
+ */
+int sentrycrashstring_doubleToString(char *buffer, size_t bufferLength, double value);
 
 #ifdef __cplusplus
 }

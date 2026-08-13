@@ -4,7 +4,9 @@
 #include <dlfcn.h>
 #include <fcntl.h>
 #include <mach-o/dyld.h>
+#include <malloc/malloc.h>
 #include <new>
+#include <pthread.h>
 #include <signal.h>
 #include <stdexcept>
 #include <stdlib.h>
@@ -260,4 +262,33 @@ CrashE2ETriggerObjCObjectAfterCaughtCPPException(void)
 
     @
     throw [[CrashE2EThrownObject alloc] init];
+}
+
+__attribute__((noinline)) static void *
+CrashE2EMallocZoneLockedSignalThread(void *context)
+{
+    malloc_zone_t *zone = malloc_default_zone();
+    zone->introspect->force_lock(zone);
+    int result = pthread_kill(pthread_self(), SIGSEGV);
+    zone->introspect->force_unlock(zone);
+    *static_cast<int *>(context) = result;
+    return nullptr;
+}
+
+extern "C" void
+CrashE2ETriggerMallocZoneLockedSignal(void)
+{
+    pthread_t thread;
+    int signalResult = 0;
+    int result
+        = pthread_create(&thread, nullptr, CrashE2EMallocZoneLockedSignalThread, &signalResult);
+    if (result == 0) {
+        result = pthread_join(thread, nullptr);
+    }
+    if (result == 0) {
+        result = signalResult;
+    }
+
+    NSLog(@"CrashE2E - malloc-zone-locked signal returned with error %d", result);
+    abort();
 }

@@ -23,6 +23,7 @@ enum CrashE2EScenario: String {
     case swiftAsyncCPPExceptionV2On = "swift-async-cpp-exception-v2-on"
     case ksCrashRetryReportA = "kscrash-retry-report-a"
     case ksCrashRetryReportB = "kscrash-retry-report-b"
+    case mallocZoneLockedSignal = "malloc-zone-locked-signal"
 }
 
 struct CrashE2EConfiguration {
@@ -105,7 +106,7 @@ enum CrashE2ERuntime {
              .unityCxaThrow, .objcObject, .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal,
              .managedRuntimeSignalChain, .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
              .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On,
-             .ksCrashRetryReportA, .ksCrashRetryReportB:
+             .ksCrashRetryReportA, .ksCrashRetryReportB, .mallocZoneLockedSignal:
             NSLog("CrashE2E - will trigger scenario: \(configuration.scenario.rawValue)")
             scheduleCrashAfterProcessingCompletesIfRequested()
         }
@@ -129,7 +130,7 @@ enum CrashE2ERuntime {
              .unityCxaThrow, .objcObject, .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal,
              .managedRuntimeSignalChain, .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
              .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On,
-             .ksCrashRetryReportA, .ksCrashRetryReportB:
+             .ksCrashRetryReportA, .ksCrashRetryReportB, .mallocZoneLockedSignal:
             NSLog("CrashE2E - will trigger scenario synchronously: \(configuration.scenario.rawValue)")
             waitForProcessingCompletionOrAbort()
             Thread.sleep(forTimeInterval: 0.5)
@@ -199,7 +200,8 @@ enum CrashE2ERuntime {
         case .idle, .drain, .signal, .nsException, .nsExceptionSubclass, .cppExceptionV1,
              .cppExceptionV2, .unityCxaThrow, .objcObject, .objcObjectAfterCaughtCPP, .binaryImages,
              .ignoredSignal, .managedRuntimePreSDKSignal, .swiftAsyncCPPExceptionV2Off,
-             .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA, .ksCrashRetryReportB:
+             .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA, .ksCrashRetryReportB,
+             .mallocZoneLockedSignal:
             return
         }
     }

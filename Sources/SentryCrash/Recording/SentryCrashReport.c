@@ -124,6 +124,13 @@ addFloatingPointElement(
 }
 
 static void
+addFloatingPointElementAsyncSafe(
+    const SentryCrashReportWriter *const writer, const char *const key, const double value)
+{
+    sentrycrashjson_addFloatingPointElementAsyncSafe(getJsonContext(writer), key, value);
+}
+
+static void
 addIntegerElement(
     const SentryCrashReportWriter *const writer, const char *const key, const int64_t value)
 {
@@ -911,12 +918,16 @@ writeNotableStackContents(const SentryCrashReportWriter *const writer,
         highAddress = tmp;
     }
     uintptr_t contentsAsPointer;
-    char nameBuffer[40];
+    char nameBuffer[40] = "stack@";
     for (uintptr_t address = lowAddress; address < highAddress; address += sizeof(address)) {
         if (sentrycrashmem_copySafely(
                 (void *)address, &contentsAsPointer, sizeof(contentsAsPointer))) {
-            snprintf(nameBuffer, sizeof(nameBuffer), "stack@%p", (void *)address);
-            writeMemoryContentsIfNotable(writer, nameBuffer, contentsAsPointer);
+            const size_t prefixLength = sizeof("stack@") - 1;
+            if (sentrycrashstring_addressToString(
+                    nameBuffer + prefixLength, sizeof(nameBuffer) - prefixLength, (uint64_t)address)
+                >= 0) {
+                writeMemoryContentsIfNotable(writer, nameBuffer, contentsAsPointer);
+            }
         }
     }
 }
@@ -1357,16 +1368,16 @@ writeAppStats(const SentryCrashReportWriter *const writer, const char *const key
             monitorContext->AppState.launchesSinceLastCrash);
         writer->addIntegerElement(writer, SentryCrashField_SessionsSinceCrash,
             monitorContext->AppState.sessionsSinceLastCrash);
-        writer->addFloatingPointElement(writer, SentryCrashField_ActiveTimeSinceCrash,
+        addFloatingPointElementAsyncSafe(writer, SentryCrashField_ActiveTimeSinceCrash,
             monitorContext->AppState.activeDurationSinceLastCrash);
-        writer->addFloatingPointElement(writer, SentryCrashField_BGTimeSinceCrash,
+        addFloatingPointElementAsyncSafe(writer, SentryCrashField_BGTimeSinceCrash,
             monitorContext->AppState.backgroundDurationSinceLastCrash);
 
         writer->addIntegerElement(writer, SentryCrashField_SessionsSinceLaunch,
             monitorContext->AppState.sessionsSinceLaunch);
-        writer->addFloatingPointElement(writer, SentryCrashField_ActiveTimeSinceLaunch,
+        addFloatingPointElementAsyncSafe(writer, SentryCrashField_ActiveTimeSinceLaunch,
             monitorContext->AppState.activeDurationSinceLaunch);
-        writer->addFloatingPointElement(writer, SentryCrashField_BGTimeSinceLaunch,
+        addFloatingPointElementAsyncSafe(writer, SentryCrashField_BGTimeSinceLaunch,
             monitorContext->AppState.backgroundDurationSinceLaunch);
     }
     writer->endContainer(writer);
