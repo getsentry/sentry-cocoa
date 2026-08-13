@@ -441,7 +441,14 @@ build-xcframework-v10-dynamic:
 	@echo "--> Creating SentryV10-Dynamic xcframework (SDKs: $(SDKS))"
 	./scripts/build-xcframework-v10.sh --suffix "-Dynamic" --sdks "$(SDKS)"
 	./scripts/validate-xcframework.sh --xcframework "SentryV10-Dynamic.xcframework"
-	find "SentryV10-Dynamic.xcframework" -type d -name Sentry.framework -exec ./scripts/verify-v10-sentrycrash-framework.sh --framework-path {} \;
+	framework_paths="$$(find "SentryV10-Dynamic.xcframework" -type d -name Sentry.framework -print)"; \
+	if [ -z "$$framework_paths" ]; then \
+		echo "No Sentry.framework found in SentryV10-Dynamic.xcframework"; \
+		exit 1; \
+	fi; \
+	printf '%s\n' "$$framework_paths" | while IFS= read -r framework_path; do \
+		./scripts/verify-v10-sentrycrash-framework.sh --framework-path "$$framework_path" || exit 1; \
+	done
 	./scripts/compress-xcframework.sh --xcframework "SentryV10-Dynamic.xcframework"
 
 ## Build V10 Static XCFramework
@@ -460,7 +467,14 @@ build-xcframework-v10-static:
 	@echo "--> Creating SentryV10 Static xcframework (SDKs: $(SDKS))"
 	./scripts/build-xcframework-v10.sh --mach-o-type "staticlib" --sdks "$(SDKS)"
 	./scripts/validate-xcframework.sh --xcframework "SentryV10.xcframework"
-	find "SentryV10.xcframework" -type d -name Sentry.framework -exec ./scripts/verify-v10-sentrycrash-framework.sh --framework-path {} \;
+	framework_paths="$$(find "SentryV10.xcframework" -type d -name Sentry.framework -print)"; \
+	if [ -z "$$framework_paths" ]; then \
+		echo "No Sentry.framework found in SentryV10.xcframework"; \
+		exit 1; \
+	fi; \
+	printf '%s\n' "$$framework_paths" | while IFS= read -r framework_path; do \
+		./scripts/verify-v10-sentrycrash-framework.sh --framework-path "$$framework_path" || exit 1; \
+	done
 	./scripts/compress-xcframework.sh --xcframework "SentryV10.xcframework"
 
 # ============================================================================
