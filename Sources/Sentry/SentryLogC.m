@@ -1,7 +1,6 @@
 #import "SentryLogC.h"
 #import "SentryAsyncSafeLog.h"
 #import "SentryInternalCDefines.h"
-#import "SentryLevelMapper.h"
 #import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
