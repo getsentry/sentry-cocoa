@@ -139,13 +139,6 @@ import Foundation
         }
     }
 
-    #if !SDK_V10
-    @objc public var enableLogs: Bool {
-        get { wrapped.enableLogs }
-        set { wrapped.enableLogs = newValue }
-    }
-    #endif // !SDK_V10
-
     @objc public var beforeBreadcrumb: ((SentryObjCBreadcrumb) -> SentryObjCBreadcrumb?)? {
         didSet {
             if let beforeBreadcrumb = beforeBreadcrumb {

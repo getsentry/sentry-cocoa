@@ -25,7 +25,6 @@ import Logging
 
 SentrySDK.start { options in
     options.dsn = "YOUR_DSN"
-    options.enableLogs = true
 }
 
 var handler = SentryLogHandler(logLevel: .info)
