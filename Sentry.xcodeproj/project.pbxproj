@@ -1220,7 +1220,7 @@
 		4688371380F1360CC363010F /* SentryObjC.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SentryObjC.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4BAD9EEF039B46468356FDDF /* SentryDefaultTelemetryProcessorTransport.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryDefaultTelemetryProcessorTransport.m; sourceTree = "<group>"; };
 		55A6C82292034DB0A38BC74C /* SentrySamplerDecisionHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentrySamplerDecisionHelper.h; path = include/SentrySamplerDecisionHelper.h; sourceTree = "<group>"; };
-		561C802967D4B56E87461906 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		561C802967D4B56E87461906 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		620379DA2AFE1415005AC0C1 /* SentryBuildAppStartSpans.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryBuildAppStartSpans.h; path = include/SentryBuildAppStartSpans.h; sourceTree = "<group>"; };
 		620379DC2AFE1432005AC0C1 /* SentryBuildAppStartSpans.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryBuildAppStartSpans.m; sourceTree = "<group>"; };
 		6214366A2E7A7D6600A2CB8F /* Sentry_TestServer.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = Sentry_TestServer.xctestplan; sourceTree = "<group>"; };
@@ -2106,6 +2106,7 @@
 				6387B82F1ED851970045A84C /* libz.tbd */,
 				6304360D1EC05CEF00C4D3FA /* libz.tbd */,
 				F261834AAD86E04585A25701 /* iOS */,
+				561C802967D4B56E87461906 /* Foundation.framework */,
 				DCD018246A89E739EB736605 /* Foundation.framework */,
 				1275E5EA5712B13FE13C519A /* Foundation.framework */,
 				04A5EF59986C8131EFFC8A18 /* Foundation.framework */,
@@ -3036,7 +3037,6 @@
 			isa = PBXGroup;
 			children = (
 				0948AEC80B17C011B2A15FC3 /* Foundation.framework */,
-				561C802967D4B56E87461906 /* Foundation.framework */,
 			);
 			name = iOS;
 			sourceTree = "<group>";
