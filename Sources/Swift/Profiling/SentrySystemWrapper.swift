@@ -2,7 +2,7 @@
 #if !(os(watchOS) || os(tvOS) || os(visionOS))
 import Foundation
 
-public typealias SentryRAMBytes = mach_vm_size_t
+@_spi(Private) public typealias SentryRAMBytes = mach_vm_size_t
 
 private let sentryErrorKernelCode = 109
 
