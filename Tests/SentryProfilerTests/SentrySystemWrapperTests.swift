@@ -47,11 +47,9 @@ class SentrySystemWrapperTests: XCTestCase {
 
     // MARK: - memoryFootprintBytes
 
-    func testMemoryFootprint_shouldReturnPositiveValue() {
-        var error: NSError?
-        let memoryFootprint = fixture.systemWrapper.memoryFootprintBytes(&error)
-        XCTAssertNil(error)
-        XCTAssertGreaterThan(memoryFootprint, 0)
+    func testMemoryFootprint_shouldReturnPositiveValue() throws {
+        let memoryFootprint = try fixture.systemWrapper.memoryFootprintBytes()
+        XCTAssertGreaterThan(memoryFootprint.uint64Value, 0)
     }
 
     // MARK: - cpuEnergyUsageWithError

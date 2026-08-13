@@ -34,7 +34,6 @@
 #import "SentrySDK+Private.h"
 #import "SentrySDKInternal+Tests.h"
 #import "SentryScopeSyncC.h"
-#import "SentrySystemWrapper.h"
 #import "SentryTraceContext.h"
 #import "SentryTracer+Test.h"
 #import "SentryTransaction.h"
