@@ -1,9 +1,6 @@
 # Changelog
 
-## 9.26.0
-
-> [!WARNING]
-> The 3rd-party integration packages (SentryCocoaLumberjack, SentryPulse, SentrySwiftLog, SentrySwiftyBeaver) now require Swift 6.1+ to support SPM package traits. Users on older Swift toolchains should pin to an earlier release of these packages.
+## Unreleased
 
 > [!IMPORTANT]
 > This release removes the option `enableLogs` from `Options`. If you need to disable logs, use `beforeSendLog` to drop all logs.
@@ -13,6 +10,11 @@
 ### Breaking Changes
 
 - Remove `options.enableLogs` to remove explicit opt-in for Logs. If you need to disable logs, use `beforeSendLog` to drop all logs (#8783)
+
+## 9.26.0
+
+> [!WARNING]
+> The 3rd-party integration packages (SentryCocoaLumberjack, SentryPulse, SentrySwiftLog, SentrySwiftyBeaver) now require Swift 6.1+ to support SPM package traits. Users on older Swift toolchains should pin to an earlier release of these packages.
 
 ### Features
 
