@@ -157,7 +157,6 @@
 		3CB64C903029D35800ED9B67 /* Recording in Frameworks */ = {isa = PBXBuildFile; productRef = 3CB64C8F3029D35800ED9B67 /* Recording */; };
 		3CFC66E72FF50342004005B4 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0787B53CA34AC1B3CF256F35 /* Sentry.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		3CFC66E92FF50342004005B4 /* Resources in Resources */ = {isa = PBXBuildFile; fileRef = 630C01951EC341D600C52CEF /* Resources */; };
-		FB857163E0B84508B6FF3FBD /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0787B53CA34AC1B3CF256F35 /* Sentry.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		3D7E31E3C3E347E27E50B0D1 /* ObjCInvocations.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4715F182FC7116A00508994 /* ObjCInvocations.swift */; };
 		3DC0F52DC65298EA3C0DDEA5 /* SentryOptionsObjC.h in Headers */ = {isa = PBXBuildFile; fileRef = FA24E0292EBBF6F500EFD92E /* SentryOptionsObjC.h */; };
 		3E41602CC36FDFDF9170F19F /* SentryTransaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 8ECC674425C23A1F000E2BF6 /* SentryTransaction.m */; };
@@ -5387,6 +5386,7 @@
 				MACH_O_TYPE = staticlib;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				MTL_FAST_MATH = YES;
+				IMPLICIT_DEPENDENCY_DOMAIN = SentryV10;
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryTestUtils;
 				PRODUCT_MODULE_NAME = SentryTestUtils;
 				PRODUCT_NAME = SentryTestUtils;
@@ -5466,6 +5466,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				MACH_O_TYPE = staticlib;
 				MTL_FAST_MATH = YES;
+				IMPLICIT_DEPENDENCY_DOMAIN = SentryV10;
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryTestUtils;
 				PRODUCT_MODULE_NAME = SentryTestUtils;
 				PRODUCT_NAME = SentryTestUtils;
@@ -5980,6 +5981,7 @@
 				MACH_O_TYPE = staticlib;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				MTL_FAST_MATH = YES;
+				IMPLICIT_DEPENDENCY_DOMAIN = SentryV10;
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryTestUtils;
 				PRODUCT_MODULE_NAME = SentryTestUtils;
 				PRODUCT_NAME = SentryTestUtils;
@@ -6054,6 +6056,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				MACH_O_TYPE = staticlib;
 				MTL_FAST_MATH = YES;
+				IMPLICIT_DEPENDENCY_DOMAIN = SentryV10;
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryTestUtils;
 				PRODUCT_MODULE_NAME = SentryTestUtils;
 				PRODUCT_NAME = SentryTestUtils;
@@ -6084,6 +6087,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				MACH_O_TYPE = staticlib;
 				MTL_FAST_MATH = YES;
+				IMPLICIT_DEPENDENCY_DOMAIN = SentryV10;
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryTestUtils;
 				PRODUCT_MODULE_NAME = SentryTestUtils;
 				PRODUCT_NAME = SentryTestUtils;
@@ -6417,6 +6421,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				MACH_O_TYPE = staticlib;
 				MTL_FAST_MATH = YES;
+				IMPLICIT_DEPENDENCY_DOMAIN = SentryV10;
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryTestUtils;
 				PRODUCT_MODULE_NAME = SentryTestUtils;
 				PRODUCT_NAME = SentryTestUtils;
@@ -6494,6 +6499,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				MACH_O_TYPE = staticlib;
 				MTL_FAST_MATH = YES;
+				IMPLICIT_DEPENDENCY_DOMAIN = SentryV10;
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryTestUtils;
 				PRODUCT_MODULE_NAME = SentryTestUtils;
 				PRODUCT_NAME = SentryTestUtils;
@@ -7390,6 +7396,7 @@
 				MACH_O_TYPE = staticlib;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				MTL_FAST_MATH = YES;
+				IMPLICIT_DEPENDENCY_DOMAIN = SentryV10;
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryTestUtils;
 				PRODUCT_MODULE_NAME = SentryTestUtils;
 				PRODUCT_NAME = SentryTestUtils;
@@ -7565,6 +7572,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				MACH_O_TYPE = staticlib;
 				MTL_FAST_MATH = YES;
+				IMPLICIT_DEPENDENCY_DOMAIN = SentryV10;
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryTestUtils;
 				PRODUCT_MODULE_NAME = SentryTestUtils;
 				PRODUCT_NAME = SentryTestUtils;
