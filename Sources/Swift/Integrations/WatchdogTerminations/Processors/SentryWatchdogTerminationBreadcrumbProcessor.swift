@@ -168,6 +168,11 @@ final class SentryDefaultWatchdogTerminationBreadcrumbProcessor {
             }
 
             let fileHandle = FileHandle(forWritingAtPath: currentFilePath)
+
+            if fileHandle == nil {
+                SentrySDKLog.error("Couldn't get file handle for writing breadcrumb to \(currentFilePath)")
+            }
+
             self.fileHandle = fileHandle
         }
 
