@@ -75,6 +75,19 @@ import Foundation
         SentryObjCId(SentrySDK.capture(event: event.wrapped, attachAllThreads: attachAllThreads))
     }
 
+    @objc(captureEvent:withCurrentScope:)
+    @discardableResult public static func capture(event: SentryObjCEvent, currentScope: SentryObjCScope) -> SentryObjCId {
+        SentryObjCId(SentrySDK.capture(event: event.wrapped, currentScope: currentScope.wrapped))
+    }
+
+    @objc public static func createScope() -> SentryObjCScope {
+        SentryObjCScope(SentrySDK.createScope())
+    }
+
+    @objc public static func cloneScope(_ scope: SentryObjCScope) -> SentryObjCScope {
+        SentryObjCScope(SentrySDK.cloneScope(scope.wrapped))
+    }
+
     @objc @discardableResult public static func startTransaction(name: String, operation: String) -> SentryObjCSpan {
         SentryObjCSpan(SentrySDK.startTransaction(name: name, operation: operation))
     }
