@@ -464,7 +464,7 @@ final class SentryMetricsApiTests: XCTestCase {
 
 fileprivate struct MockMetricsIntegration: SentryMetricsIntegrationProtocol {
     var addMetricInvocations = Invocations<(SentryMetric, Scope)>()
-    func addMetric(_ metric: Sentry.SentryMetric, scope: Scope, currentScope: Scope? = nil) {
+    func addMetric(_ metric: Sentry.SentryMetric, scope: Scope, currentScope: Scope?) {
         addMetricInvocations.record((metric, scope))
     }
 }
