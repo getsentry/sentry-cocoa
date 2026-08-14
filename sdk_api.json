@@ -50809,21 +50809,6 @@
                 "usr": "s:SD"
               },
               {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Scope",
-                    "printedName": "Sentry.Scope",
-                    "usr": "c:objc(cs)SentryScope"
-                  }
-                ],
-                "hasDefaultArg": true,
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Sentry.Scope?",
-                "usr": "s:Sq"
-              },
-              {
                 "kind": "TypeNominal",
                 "name": "String",
                 "printedName": "Swift.String",
@@ -50847,11 +50832,11 @@
             "genericSig": "<Self where Self : Sentry.SentryMetricsApiProtocol>",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A18MetricsApiProtocolPAAE5count3key5value10attributes12currentScopeySS_SuSDySSAA0A14AttributeValue_pGSo0aJ0CSgtF",
+            "mangledName": "$s6Sentry0A18MetricsApiProtocolPAAE5count3key5value10attributesySS_SuSDySSAA0A14AttributeValue_pGtF",
             "moduleName": "Sentry",
             "name": "count",
-            "printedName": "count(key:value:attributes:currentScope:)",
-            "usr": "s:6Sentry0A18MetricsApiProtocolPAAE5count3key5value10attributes12currentScopeySS_SuSDySSAA0A14AttributeValue_pGSo0aJ0CSgtF"
+            "printedName": "count(key:value:attributes:)",
+            "usr": "s:6Sentry0A18MetricsApiProtocolPAAE5count3key5value10attributesySS_SuSDySSAA0A14AttributeValue_pGtF"
           },
           {
             "children": [
@@ -50952,21 +50937,6 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "Scope",
-                    "printedName": "Sentry.Scope",
-                    "usr": "c:objc(cs)SentryScope"
-                  }
-                ],
-                "hasDefaultArg": true,
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Sentry.Scope?",
-                "usr": "s:Sq"
-              },
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
                     "name": "SentryUnit",
                     "printedName": "Sentry.SentryUnit",
                     "usr": "s:6Sentry0A4UnitO"
@@ -50995,11 +50965,11 @@
             "genericSig": "<Self where Self : Sentry.SentryMetricsApiProtocol>",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A18MetricsApiProtocolPAAE12distribution3key5value4unit10attributes12currentScopeySS_SdAA0A4UnitOSgSDySSAA0A14AttributeValue_pGSo0aK0CSgtF",
+            "mangledName": "$s6Sentry0A18MetricsApiProtocolPAAE12distribution3key5value4unit10attributesySS_SdAA0A4UnitOSgSDySSAA0A14AttributeValue_pGtF",
             "moduleName": "Sentry",
             "name": "distribution",
-            "printedName": "distribution(key:value:unit:attributes:currentScope:)",
-            "usr": "s:6Sentry0A18MetricsApiProtocolPAAE12distribution3key5value4unit10attributes12currentScopeySS_SdAA0A4UnitOSgSDySSAA0A14AttributeValue_pGSo0aK0CSgtF"
+            "printedName": "distribution(key:value:unit:attributes:)",
+            "usr": "s:6Sentry0A18MetricsApiProtocolPAAE12distribution3key5value4unit10attributesySS_SdAA0A4UnitOSgSDySSAA0A14AttributeValue_pGtF"
           },
           {
             "children": [
@@ -51114,21 +51084,6 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "Scope",
-                    "printedName": "Sentry.Scope",
-                    "usr": "c:objc(cs)SentryScope"
-                  }
-                ],
-                "hasDefaultArg": true,
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Sentry.Scope?",
-                "usr": "s:Sq"
-              },
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
                     "name": "SentryUnit",
                     "printedName": "Sentry.SentryUnit",
                     "usr": "s:6Sentry0A4UnitO"
@@ -51157,11 +51112,11 @@
             "genericSig": "<Self where Self : Sentry.SentryMetricsApiProtocol>",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A18MetricsApiProtocolPAAE5gauge3key5value4unit10attributes12currentScopeySS_SdAA0A4UnitOSgSDySSAA0A14AttributeValue_pGSo0aK0CSgtF",
+            "mangledName": "$s6Sentry0A18MetricsApiProtocolPAAE5gauge3key5value4unit10attributesySS_SdAA0A4UnitOSgSDySSAA0A14AttributeValue_pGtF",
             "moduleName": "Sentry",
             "name": "gauge",
-            "printedName": "gauge(key:value:unit:attributes:currentScope:)",
-            "usr": "s:6Sentry0A18MetricsApiProtocolPAAE5gauge3key5value4unit10attributes12currentScopeySS_SdAA0A4UnitOSgSDySSAA0A14AttributeValue_pGSo0aK0CSgtF"
+            "printedName": "gauge(key:value:unit:attributes:)",
+            "usr": "s:6Sentry0A18MetricsApiProtocolPAAE5gauge3key5value4unit10attributesySS_SdAA0A4UnitOSgSDySSAA0A14AttributeValue_pGtF"
           },
           {
             "children": [
