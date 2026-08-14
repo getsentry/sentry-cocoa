@@ -450,16 +450,19 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
 
         // -- Act --
         // uninstall() must call flushAndClose() on the breadcrumb processor, which drains
-        // pending writes and moves breadcrumb files to the previous-session paths.
+        // pending writes and closes the file handle without rotating files.
         sut.uninstall()
         sut = nil
 
         // -- Assert --
-        // The previous-session breadcrumb file must exist: flushAndClose() moved it.
-        // The current breadcrumb file must not exist after the move.
-        XCTAssertFalse(
+        // The current breadcrumb file must still exist: flushAndClose() only closes the handle.
+        XCTAssertTrue(
             FileManager.default.fileExists(atPath: fixture.fileManager.breadcrumbsFilePathOne),
-            "uninstall() must call flushAndClose(), which moves the current breadcrumb file to the previous-session path"
+            "uninstall() must flush pending breadcrumbs without rotating the current file"
+        )
+        XCTAssertFalse(
+            FileManager.default.fileExists(atPath: fixture.fileManager.previousBreadcrumbsFilePathOne),
+            "uninstall() must not rotate breadcrumbs to the previous-session path"
         )
     }
 }

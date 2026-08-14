@@ -153,15 +153,15 @@ class SentryWatchdogTerminationBreadcrumbProcessorTests: XCTestCase {
     // https://github.com/getsentry/sentry-cocoa/pull/8653
     //
     // When the SDK restarts (e.g. close() + start(), or start() + start()), the file manager
-    // renames the current breadcrumb files to the "previous" paths so the next session can read
-    // them. An open FileHandle keeps the underlying inode alive, so any queued async write that
-    // executes after the rename lands in the now-previous file, corrupting the breadcrumb history
-    // of the new session.
+    // later renames the current breadcrumb files to the "previous" paths so the next session can
+    // read them. An open FileHandle keeps the underlying inode alive, so any queued async write
+    // that executes after that rename would land in the now-previous file and corrupt the new
+    // session's breadcrumb history.
     //
-    // flushAndClose() fixes this by draining all pending writes and closing the file
-    // handle before performing the rename — all inside a single dispatchSync barrier on the
-    // processor's serial queue. This guarantees no queued write can follow the inode after rename.
-    func testFlushAndClose_drainsQueueBeforeRename() throws {
+    // flushAndClose() drains all pending writes and closes the file handle inside a single
+    // dispatchSync barrier on the processor's serial queue. Session rotation stays with the SDK
+    // start path, after this handle is already closed.
+    func testFlushAndClose_drainsQueueAndLeavesCurrentFilesInPlace() throws {
         // -- Arrange --
         // Use a real async queue so writes are truly deferred.
         let dispatchQueue = SentryDispatchQueueWrapper(name: "io.sentry.test-watchdog-breadcrumb-processor.restart")
@@ -174,21 +174,19 @@ class SentryWatchdogTerminationBreadcrumbProcessorTests: XCTestCase {
         processor.addSerializedBreadcrumb(breadcrumb)
 
         // flushAndClose() issues a dispatchSync barrier: it waits for both queued writes to
-        // complete first, then closes the handle and renames the files.
-        // No write can land in the previous-session file via a stale descriptor.
+        // complete first, then closes the handle without rotating files.
         processor.flushAndClose()
 
         // -- Assert --
-        // Both breadcrumbs must be in the previous-session file (they were written before rename).
-        let previousContents = try String(contentsOfFile: fixture.fileManager.previousBreadcrumbsFilePathOne)
-        XCTAssertEqual(previousContents.split(separator: "\n").count, 2,
-            "Both queued writes must complete before the rename and land in the previous-session file")
+        // Both breadcrumbs must be in the current-session file (they were written before close).
+        let currentContents = try String(contentsOfFile: fixture.fileManager.breadcrumbsFilePathOne)
+        XCTAssertEqual(currentContents.split(separator: "\n").count, 2,
+            "Both queued writes must complete before close and stay in the current-session file")
 
-        // The current breadcrumb files for the new session must be absent.
-        XCTAssertFalse(FileManager.default.fileExists(atPath: fixture.fileManager.breadcrumbsFilePathOne),
-            "No breadcrumb file should exist for the new session yet")
-        XCTAssertFalse(FileManager.default.fileExists(atPath: fixture.fileManager.breadcrumbsFilePathTwo),
-            "No breadcrumb file two should exist for the new session yet")
+        XCTAssertFalse(FileManager.default.fileExists(atPath: fixture.fileManager.previousBreadcrumbsFilePathOne),
+            "flushAndClose must not rotate breadcrumbs to the previous-session path")
+        XCTAssertFalse(FileManager.default.fileExists(atPath: fixture.fileManager.previousBreadcrumbsFilePathTwo),
+            "flushAndClose must not rotate breadcrumb file two to the previous-session path")
     }
 
     func testClear_shouldDelegateToClearBreadcrumbs() throws {
@@ -221,7 +219,7 @@ class SentryWatchdogTerminationBreadcrumbProcessorTests: XCTestCase {
             "A write after clearBreadcrumbs must create a new file with exactly one breadcrumb")
     }
 
-    func testFlushAndClose_calledTwice_shouldNotMoveFilesOnSecondCall() throws {
+    func testFlushAndClose_calledTwice_shouldBeIdempotent() throws {
         // -- Arrange --
         let dispatchQueue = SentryDispatchQueueWrapper(name: "io.sentry.test-watchdog-breadcrumb-processor.idempotent")
         let processor = fixture.makeProcessor(dispatchQueueWrapper: dispatchQueue)
@@ -229,14 +227,16 @@ class SentryWatchdogTerminationBreadcrumbProcessorTests: XCTestCase {
         processor.addSerializedBreadcrumb(breadcrumb)
 
         // -- Act --
-        processor.flushAndClose()  // first call: moves breadcrumbs to previous, closes handle
+        processor.flushAndClose()  // first call: drains writes and closes handle
         processor.flushAndClose()  // second call: must be a no-op
 
         // -- Assert --
-        // The previous-session file must contain exactly the one breadcrumb from the first call.
-        let previousContents = try String(contentsOfFile: fixture.fileManager.previousBreadcrumbsFilePathOne)
-        XCTAssertEqual(previousContents.split(separator: "\n").count, 1,
-            "Second flushAndClose must not move files again or corrupt the previous-session file")
+        // The current-session file must still contain exactly the one breadcrumb from the first call.
+        let currentContents = try String(contentsOfFile: fixture.fileManager.breadcrumbsFilePathOne)
+        XCTAssertEqual(currentContents.split(separator: "\n").count, 1,
+            "Second flushAndClose must not alter the current-session file")
+        XCTAssertFalse(FileManager.default.fileExists(atPath: fixture.fileManager.previousBreadcrumbsFilePathOne),
+            "flushAndClose must not rotate breadcrumbs to the previous-session path")
     }
 
     func testFlushAndClose_shouldPersistQueuedBreadcrumbsAndIgnoreSubsequentBreadcrumbs() throws {
@@ -253,12 +253,11 @@ class SentryWatchdogTerminationBreadcrumbProcessorTests: XCTestCase {
         dispatchQueue.dispatchSync { }
 
         // -- Assert --
-        // The breadcrumb written before close must be in the previous-session file.
-        let previousContents = try String(contentsOfFile: fixture.fileManager.previousBreadcrumbsFilePathOne)
-        XCTAssertEqual(previousContents.split(separator: "\n").count, 1,
+        // The breadcrumb written before close must stay in the current-session file.
+        let currentContents = try String(contentsOfFile: fixture.fileManager.breadcrumbsFilePathOne)
+        XCTAssertEqual(currentContents.split(separator: "\n").count, 1,
             "Only the breadcrumb written before flushAndClose should be persisted")
-        // The current file must not exist — the write after close was dropped.
-        XCTAssertFalse(FileManager.default.fileExists(atPath: fixture.fileManager.breadcrumbsFilePathOne),
-            "No write should have occurred after flushAndClose")
+        XCTAssertFalse(FileManager.default.fileExists(atPath: fixture.fileManager.previousBreadcrumbsFilePathOne),
+            "flushAndClose must not rotate breadcrumbs to the previous-session path")
     }
 }

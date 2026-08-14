@@ -47,11 +47,10 @@ final class SentryDefaultWatchdogTerminationBreadcrumbProcessor {
 
     deinit {
         // In normal operation fileHandle is already nil because the processor is closed via
-        // rotateToPreviousSession() or flushAndClose() before being released. If it is non-nil
-        // here, the processor was dropped without being closed; any work still queued on the
-        // serial queue has already been abandoned (the [weak self] blocks nil-guard out once
-        // deinit begins). Close the handle directly on the deallocating thread as a best-effort
-        // resource cleanup.
+        // flushAndClose() before being released. If it is non-nil here, the processor was
+        // dropped without being closed; any work still queued on the serial queue has already
+        // been abandoned (the [weak self] blocks nil-guard out once deinit begins). Close the
+        // handle directly on the deallocating thread as a best-effort resource cleanup.
         if fileHandle != nil {
             SentrySDKLog.debug("BreadcrumbProcessor deallocated without being closed — closing file handle on deallocating thread")
             closeFileHandle()
@@ -93,12 +92,6 @@ final class SentryDefaultWatchdogTerminationBreadcrumbProcessor {
 
             shouldProcessIncomingCrumbs = false
             closeFileHandle()
-
-            SentrySDKLog.debug("Rotating breadcrumb files to previous session")
-
-            fileManager.moveBreadcrumbsToPreviousBreadcrumbs()
-            resetCurrentFilePath()
-            breadcrumbCounter = 0
         }
     }
 
