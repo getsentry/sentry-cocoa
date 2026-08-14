@@ -1,5 +1,5 @@
 import Foundation
-import Sentry
+import SentrySwift
 
 extension Bundle {
     var gitCommitHash: String? {

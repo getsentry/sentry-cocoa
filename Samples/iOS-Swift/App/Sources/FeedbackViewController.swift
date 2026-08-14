@@ -1,4 +1,4 @@
-import Sentry
+import SentrySwift
 import UIKit
 
 final class FeedbackViewController: UIViewController {

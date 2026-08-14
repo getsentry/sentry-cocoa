@@ -1,5 +1,5 @@
 import Foundation
-import Sentry
+import SentrySwift
 
 public class SpanObserver: NSObject {
     let span: Span
