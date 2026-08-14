@@ -12,6 +12,10 @@
 - Remove `options.enableLogs` to remove explicit opt-in for Logs. If you need to disable logs, use `beforeSendLog` to drop all logs (#8769)
 - Remove `options.enableMetrics` to remove opt-out of Metrics. If you need to disable metrics, use `beforeSendMetric` to drop all metrics (#8785)
 
+### Fixes
+
+- Prevent breadcrumb persistence for watchdog termination events from blocking the calling thread (#8653)
+
 ## 9.26.0
 
 > [!WARNING]
@@ -35,7 +39,6 @@
 
 - Fix misleading duplicate SDK detection message: "same binary" → "same address space" (#8710)
 - Fix a race caused by mutating `URLSessionTask.currentRequest` during trace header propagation (#8650)
-- Prevent breadcrumb persistence for watchdog termination events from blocking the calling thread (#8653)
 - Prevent Session Replay network-detail breadcrumbs from blocking URLSession cancellation on the task monitor (#8497)
 - Fix Session Replay adaptive capture backoff pinning at the maximum interval due to mask compositing being included in the measured capture duration, which could produce single-frame segments that appear stuck on one screen (#8740)
 
