@@ -1,5 +1,5 @@
 // swiftlint:disable function_body_length type_body_length
-import Sentry
+import SentrySwift
 import SwiftUI
 
 struct MetricsView: View {
