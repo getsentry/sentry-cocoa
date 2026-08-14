@@ -1235,6 +1235,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "captureEvent:withCurrentScope:",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "captureEvent:withScope:",
     "parent": "SentryObjCClient",
     "returnType": "SentryObjCId * _Nonnull",
@@ -1438,6 +1445,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "cloneScope:",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCScope * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "close",
     "parent": "SentryObjCClient",
     "returnType": "void",
@@ -1623,6 +1637,13 @@
     "name": "crashedLastRun",
     "parent": "SentryObjCSDK",
     "returnType": "BOOL",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "createScope",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCScope * _Nonnull",
     "instance": false
   },
   {

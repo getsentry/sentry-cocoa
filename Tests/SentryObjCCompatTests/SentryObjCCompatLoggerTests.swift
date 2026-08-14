@@ -24,6 +24,9 @@ final class SentryObjCCompatLoggerTests: XCTestCase {
         func capture(log: SentryLog) {
             capturedLogs.append(log)
         }
+        func capture(log: SentryLog, currentScope: Scope) {
+            capturedLogs.append(log)
+        }
     }
 
     private var delegate: MockLoggerDelegate!

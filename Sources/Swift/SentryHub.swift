@@ -49,6 +49,17 @@ import Foundation
         helper.capture(event: event, scope: scope)
     }
 
+    /// Captures a manually created event and sends it to Sentry, with `currentScope` layered on
+    /// top of the hub's global scope. The hub's scope is applied first, then `currentScope`
+    /// overrides any conflicting fields.
+    /// - Parameters:
+    ///   - event: The event to send to Sentry.
+    ///   - currentScope: The scope to layer on top of the global scope.
+    /// - Returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
+    @discardableResult public func capture(event: Event, currentScope: Scope) -> SentryId {
+        helper.capture(event: event, currentScope: currentScope)
+    }
+
     /// Creates a transaction, binds it to the hub and returns the instance.
     /// - Parameters:
     ///   - name: The transaction name.
@@ -169,6 +180,28 @@ import Foundation
           feedback.serialize(),
           withEventId: feedback.eventId.sentryIdString,
           attachments: feedback.attachmentsForEnvelope())
+    }
+
+    /// Captures user feedback and sends it to Sentry, with `currentScope` layered on top of the
+    /// hub's global scope. The hub's scope is applied first, then `currentScope` overrides any
+    /// conflicting fields.
+    /// - Parameters:
+    ///   - feedback: The feedback to send to Sentry.
+    ///   - currentScope: The scope to layer on top of the global scope.
+    public func capture(feedback: SentryFeedback, currentScope: Scope) {
+        helper.captureFeedback(feedback, currentScope: currentScope)
+    }
+
+    /// Creates a new empty scope.
+    public func createScope() -> Scope {
+        Scope()
+    }
+
+    /// Creates a deep copy of the given scope.
+    /// - Parameter scope: The scope to clone.
+    /// - Returns: A new scope with the same data as the given scope.
+    public func cloneScope(_ scope: Scope) -> Scope {
+        Scope(scope: scope)
     }
 
     /// Use this method to modify the `Scope` of the Hub. The SDK uses the `Scope` to attach

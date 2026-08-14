@@ -1,4 +1,5 @@
 #import "SentryClient.h"
+#import "NSMutableDictionary+Sentry.h"
 #import "SentryAttachment.h"
 #import "SentryClient+Private.h"
 #import "SentryCrashDefaultMachineContextWrapper.h"
@@ -384,6 +385,19 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         additionalEnvelopeItems:additionalEnvelopeItems];
 }
 
+- (SentryId *)captureEvent:(SentryEvent *)event
+                  withScope:(SentryScope *)scope
+               currentScope:(SentryScope *)currentScope
+    additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
+{
+    return [self sendEvent:event
+                      withScope:scope
+                   currentScope:currentScope
+         alwaysAttachStacktrace:NO
+                   isFatalEvent:NO
+        additionalEnvelopeItems:additionalEnvelopeItems];
+}
+
 - (SentryId *)captureEventIncrementingSessionErrorCount:(SentryEvent *)event
                                               withScope:(SentryScope *)scope
 {
@@ -471,6 +485,39 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     NSArray<SentryAttachment *> *attachments = [self processAttachmentsForEvent:preparedEvent
                                                                     attachments:scope.attachments];
+
+    [self.transportAdapter sendEvent:preparedEvent
+                        traceContext:traceContext
+                         attachments:attachments
+             additionalEnvelopeItems:additionalEnvelopeItems];
+
+    return preparedEvent.eventId;
+}
+
+- (SentryId *)sendEvent:(SentryEvent *)event
+                  withScope:(SentryScope *)scope
+               currentScope:(SentryScope *)currentScope
+     alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+               isFatalEvent:(BOOL)isFatalEvent
+    additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
+{
+    SentryEvent *preparedEvent = [self prepareEvent:event
+                                          withScope:scope
+                                       currentScope:currentScope
+                             alwaysAttachStacktrace:alwaysAttachStacktrace
+                                       isFatalEvent:isFatalEvent];
+
+    if (preparedEvent == nil) {
+        return SentryId.empty;
+    }
+
+    SentryTraceContext *traceContext = [self getTraceStateWithEvent:event withScope:scope];
+
+    NSMutableArray<SentryAttachment *> *allAttachments = [NSMutableArray array];
+    [allAttachments addObjectsFromArray:scope.attachments];
+    [allAttachments addObjectsFromArray:currentScope.attachments];
+    NSArray<SentryAttachment *> *attachments = [self processAttachmentsForEvent:preparedEvent
+                                                                    attachments:allAttachments];
 
     [self.transportAdapter sendEvent:preparedEvent
                         traceContext:traceContext
@@ -601,6 +648,65 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                               scope:scope];
 }
 
+- (void)captureFeedback:(SentryFeedback *)feedback
+              withScope:(SentryScope *)scope
+           currentScope:(SentryScope *)currentScope
+{
+    [self captureSerializedFeedback:[feedback serialize]
+                        withEventId:feedback.eventId.sentryIdString
+                        attachments:[feedback attachmentsForEnvelope]
+                              scope:scope
+                       currentScope:currentScope];
+}
+
+- (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
+                      withEventId:(NSString *)feedbackEventId
+                      attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
+                            scope:(SentryScope *)scope
+                     currentScope:(SentryScope *)currentScope
+{
+    if ([self isDisabled]) {
+        [self logDisabledMessage];
+        return;
+    }
+
+    SentryEvent *feedbackEvent = [[SentryEvent alloc] init];
+    feedbackEvent.eventId = [[SentryId alloc] initWithUUIDString:feedbackEventId];
+    feedbackEvent.type = SentryEnvelopeItemTypes.feedback;
+
+    NSString *replayId = currentScope.replayId ?: scope.replayId;
+    NSUInteger optionalItems = (scope.span == nil ? 0 : 1) + (replayId == nil ? 0 : 1);
+    NSMutableDictionary *context = [NSMutableDictionary dictionaryWithCapacity:1 + optionalItems];
+    context[@"feedback"] = serializedFeedback;
+
+    if (replayId != nil) {
+        NSMutableDictionary *replayContext = [NSMutableDictionary dictionaryWithCapacity:1];
+        replayContext[@"replay_id"] = replayId;
+        context[@"replay"] = replayContext;
+    }
+
+    feedbackEvent.context = context;
+
+    SentryEvent *preparedEvent = [self prepareEvent:feedbackEvent
+                                          withScope:scope
+                                       currentScope:currentScope
+                             alwaysAttachStacktrace:NO
+                                       isFatalEvent:NO];
+    SentryTraceContext *traceContext = [self getTraceStateWithEvent:preparedEvent withScope:scope];
+
+    NSMutableArray<SentryAttachment *> *allAttachments = [NSMutableArray array];
+    [allAttachments addObjectsFromArray:scope.attachments];
+    [allAttachments addObjectsFromArray:currentScope.attachments];
+    NSArray<SentryAttachment *> *attachments = [[self processAttachmentsForEvent:preparedEvent
+                                                                     attachments:allAttachments]
+        arrayByAddingObjectsFromArray:feedbackAttachments];
+
+    [self.transportAdapter sendEvent:preparedEvent
+                        traceContext:traceContext
+                         attachments:attachments
+             additionalEnvelopeItems:@[]];
+}
+
 - (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
                       withEventId:(NSString *)feedbackEventId
                       attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
@@ -691,6 +797,19 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                 alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
                           isFatalEvent:(BOOL)isFatalEvent
 {
+    return [self prepareEvent:event
+                     withScope:scope
+        alwaysAttachStacktrace:alwaysAttachStacktrace
+                  isFatalEvent:isFatalEvent
+                  currentScope:nil];
+}
+
+- (SentryEvent *_Nullable)prepareEvent:(SentryEvent *_Nullable)event
+                             withScope:(SentryScope *)scope
+                alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+                          isFatalEvent:(BOOL)isFatalEvent
+                          currentScope:(SentryScope *_Nullable)currentScope
+{
     NSParameterAssert(event);
     if (event == nil) {
         return nil;
@@ -779,6 +898,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         // Unwrapping the event because we assume that the event will be returned
         event = SENTRY_UNWRAP_NULLABLE(
             SentryEvent, [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs]);
+    }
+
+    if (!isFatalEvent && currentScope != nil && event != nil) {
+        [self applyCurrentScope:(SentryScope *_Nonnull)currentScope
+                        toEvent:SENTRY_UNWRAP_NULLABLE(SentryEvent, event)];
     }
 
     if (!eventIsNotReplay) {
@@ -926,6 +1050,85 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     return event;
+}
+
+- (void)applyCurrentScope:(SentryScope *)currentScope toEvent:(SentryEvent *)event
+{
+    NSDictionary<NSString *, NSString *> *currentTags = currentScope.tagDictionary;
+    if (currentTags.count > 0) {
+        NSMutableDictionary *mergedTags =
+            [NSMutableDictionary dictionaryWithDictionary:event.tags ?: @{ }];
+        [mergedTags addEntriesFromDictionary:currentTags];
+        event.tags = mergedTags;
+    }
+
+    NSDictionary<NSString *, id> *currentExtras = currentScope.extraDictionary;
+    if (currentExtras.count > 0) {
+        NSMutableDictionary *mergedExtras =
+            [NSMutableDictionary dictionaryWithDictionary:event.extra ?: @{ }];
+        [mergedExtras addEntriesFromDictionary:currentExtras];
+        event.extra = mergedExtras;
+    }
+
+    SentryUser *currentUser = currentScope.userObject;
+    if (currentUser != nil) {
+        event.user = currentUser.copy;
+    }
+
+    NSArray<NSString *> *currentFingerprint = currentScope.fingerprintArray;
+    if (currentFingerprint.count > 0) {
+        event.fingerprint = currentFingerprint;
+    }
+
+    NSArray<SentryBreadcrumb *> *currentBreadcrumbs = [currentScope breadcrumbs];
+    if (currentBreadcrumbs.count > 0) {
+        NSMutableArray *mergedBreadcrumbs =
+            [NSMutableArray arrayWithArray:event.breadcrumbs ?: @[]];
+        NSUInteger maxBreadcrumbs = self.options.maxBreadcrumbs;
+        for (SentryBreadcrumb *crumb in currentBreadcrumbs) {
+            if (mergedBreadcrumbs.count < maxBreadcrumbs) {
+                [mergedBreadcrumbs addObject:[crumb serialize]];
+            }
+        }
+        event.breadcrumbs = mergedBreadcrumbs;
+    }
+
+    NSString *currentDist = currentScope.distString;
+    if (currentDist != nil) {
+        event.dist = currentDist;
+    }
+
+    NSString *currentEnvironment = currentScope.environmentString;
+    if (currentEnvironment != nil) {
+        event.environment = currentEnvironment;
+    }
+
+    SentryLevel currentLevel = currentScope.levelEnum;
+    if (currentLevel != kSentryLevelNone) {
+        event.level = currentLevel;
+    }
+
+    NSDictionary<NSString *, NSDictionary<NSString *, id> *> *currentContext
+        = currentScope.contextDictionary;
+    if (currentContext.count > 0) {
+        NSMutableDictionary *mergedContext =
+            [NSMutableDictionary dictionaryWithDictionary:event.context ?: @{ }];
+        [SentryDictionary mergeEntriesFromDictionary:currentContext intoDictionary:mergedContext];
+        event.context = mergedContext;
+    }
+}
+
+- (SentryEvent *_Nullable)prepareEvent:(SentryEvent *_Nullable)event
+                             withScope:(SentryScope *)scope
+                          currentScope:(SentryScope *)currentScope
+                alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+                          isFatalEvent:(BOOL)isFatalEvent
+{
+    return [self prepareEvent:event
+                     withScope:scope
+        alwaysAttachStacktrace:alwaysAttachStacktrace
+                  isFatalEvent:isFatalEvent
+                  currentScope:currentScope];
 }
 
 - (void)recordPartiallyDroppedSpans:(SentryTransaction *)transaction
@@ -1193,6 +1396,35 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     SentryLog *enrichedLog = [self.logScopeApplier applyScope:scope toLog:(SentryLog *)log];
+    SentryLog *logToSend = enrichedLog;
+
+    if (self.options.beforeSendLog != nil) {
+        logToSend = self.options.beforeSendLog(enrichedLog);
+        if (logToSend == nil) {
+            SENTRY_LOG_DEBUG(@"Log dropped by beforeSendLog callback.");
+            [self recordDroppedLogInClientReport:enrichedLog];
+            return;
+        }
+    }
+
+    [self.telemetryProcessor addLog:logToSend];
+}
+
+- (void)_swiftCaptureLog:(NSObject *)log
+               withScope:(SentryScope *)scope
+            currentScope:(SentryScope *)currentScope
+{
+    if ([self isDisabled]) {
+        [self logDisabledMessage];
+        return;
+    }
+
+    if (![log isKindOfClass:[SentryLog class]]) {
+        return;
+    }
+
+    SentryLog *enrichedLog = [self.logScopeApplier applyScope:scope toLog:(SentryLog *)log];
+    enrichedLog = [self.logScopeApplier applyScope:currentScope toLog:enrichedLog];
     SentryLog *logToSend = enrichedLog;
 
     if (self.options.beforeSendLog != nil) {

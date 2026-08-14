@@ -8,9 +8,15 @@ final class SentryLoggerTests: XCTestCase {
     
     private class TestLoggerDelegate: NSObject, SentryLoggerDelegate {
         let capturedLogs = Invocations<SentryLog>()
+        var lastCurrentScope: Scope?
         
         func capture(log: SentryLog) {
             capturedLogs.record(log)
+        }
+
+        func capture(log: SentryLog, currentScope: Scope) {
+            capturedLogs.record(log)
+            lastCurrentScope = currentScope
         }
     }
     

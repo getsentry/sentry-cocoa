@@ -135,6 +135,16 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (SentryObjCId *)captureEvent:(SentryObjCEvent *)event attachAllThreads:(BOOL)attachAllThreads;
 
+/// Captures an event with @c currentScope layered on top of the hub's global scope.
++ (SentryObjCId *)captureEvent:(SentryObjCEvent *)event
+              withCurrentScope:(SentryObjCScope *)currentScope;
+
+/// Creates a new empty scope.
++ (SentryObjCScope *)createScope;
+
+/// Creates a deep copy of the given scope.
++ (SentryObjCScope *)cloneScope:(SentryObjCScope *)scope;
+
 /**
  * Creates a transaction, binds it to the hub and returns the instance.
  * @param name The transaction name.
