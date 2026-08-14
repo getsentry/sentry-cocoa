@@ -218,6 +218,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         _ = SentryWatchdogTerminationTrackingIntegration(with: fixture.options, dependencies: dependencies)
 
         XCTAssertTrue(dependencies.getWatchdogTerminationTrackerCalled)
+        XCTAssertTrue(dependencies.getWatchdogTerminationBreadcrumbProcessorCalled)
     }
 
     func testInit_shouldAddScopeObserverToHub() throws {
@@ -441,33 +442,27 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
 
     func testUninstall_shouldFlushAndCloseBreadcrumbProcessor() throws {
         // -- Arrange --
-        sut = try XCTUnwrap(fixture.getSut())
-
-        // Trigger a breadcrumb write via the scope so the processor opens its file handle.
-        let crumb = Breadcrumb(level: .info, category: "test")
-        crumb.message = "uninstall test"
-        fixture.scope.addBreadcrumb(crumb)
+        let breadcrumbProcessor = MockWatchdogTerminationBreadcrumbProcessor()
+        let dependencies = MockDependencies(breadcrumbProcessor: breadcrumbProcessor)
+        let sut = try XCTUnwrap(
+            SentryWatchdogTerminationTrackingIntegration(with: fixture.options, dependencies: dependencies)
+        )
 
         // -- Act --
-        // uninstall() must call flushAndClose() on the breadcrumb processor, which drains
-        // pending writes and closes the file handle without rotating files.
         sut.uninstall()
-        sut = nil
 
         // -- Assert --
-        // The current breadcrumb file must still exist: flushAndClose() only closes the handle.
-        XCTAssertTrue(
-            FileManager.default.fileExists(atPath: fixture.fileManager.breadcrumbsFilePathOne),
-            "uninstall() must flush pending breadcrumbs without rotating the current file"
-        )
-        XCTAssertFalse(
-            FileManager.default.fileExists(atPath: fixture.fileManager.previousBreadcrumbsFilePathOne),
-            "uninstall() must not rotate breadcrumbs to the previous-session path"
-        )
+        XCTAssertEqual(breadcrumbProcessor.flushAndCloseInvocations.count, 1)
     }
 }
 
-private class MockDependencies: ANRTrackerBuilder & ProcessInfoProvider & AppHangTrackerProvider & AppStateManagerProvider & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider & DateProviderProvider & ApplicationProvider & FileManagerProvider & DispatchFactoryProvider & WatchdogTerminationAttributesProcessorProvider {
+private class MockDependencies: ANRTrackerBuilder & ProcessInfoProvider & AppHangTrackerProvider & AppStateManagerProvider & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider & DateProviderProvider & ApplicationProvider & WatchdogTerminationAttributesProcessorProvider & WatchdogTerminationBreadcrumbProcessorProvider {
+
+    private let injectedBreadcrumbProcessor: SentryWatchdogTerminationBreadcrumbProcessor?
+
+    init(breadcrumbProcessor: SentryWatchdogTerminationBreadcrumbProcessor? = nil) {
+        injectedBreadcrumbProcessor = breadcrumbProcessor
+    }
 
     func getANRTracker(_ interval: TimeInterval) -> Sentry.SentryANRTracker {
         SentryDependencyContainer.sharedInstance().getANRTracker(interval)
@@ -506,14 +501,6 @@ private class MockDependencies: ANRTrackerBuilder & ProcessInfoProvider & AppHan
         SentryDependencyContainer.sharedInstance().appStateManager
     }
 
-    var fileManager: SentryFileManager? {
-        SentryDependencyContainer.sharedInstance().fileManager
-    }
-
-    var dispatchFactory: SentryDispatchFactory {
-        SentryDependencyContainer.sharedInstance().dispatchFactory
-    }
-
     var watchdogTerminationAttributesProcessor: SentryWatchdogTerminationAttributesProcessor {
         SentryDependencyContainer.sharedInstance().watchdogTerminationAttributesProcessor
     }
@@ -522,6 +509,15 @@ private class MockDependencies: ANRTrackerBuilder & ProcessInfoProvider & AppHan
     func getWatchdogTerminationTracker(_ options: Sentry.Options) -> Sentry.SentryWatchdogTerminationTracker? {
         getWatchdogTerminationTrackerCalled = true
         return SentryDependencyContainer.sharedInstance().getWatchdogTerminationTracker(options)
+    }
+
+    var getWatchdogTerminationBreadcrumbProcessorCalled: Bool = false
+    func getWatchdogTerminationBreadcrumbProcessor(_ options: Sentry.Options) -> SentryWatchdogTerminationBreadcrumbProcessor? {
+        getWatchdogTerminationBreadcrumbProcessorCalled = true
+        if let injectedBreadcrumbProcessor {
+            return injectedBreadcrumbProcessor
+        }
+        return SentryDependencyContainer.sharedInstance().getWatchdogTerminationBreadcrumbProcessor(options)
     }
 
     var extensionDetector: SentryExtensionDetector {
@@ -552,7 +548,7 @@ private class MockRunLoopDelayTracker: SentryRunLoopDelayTracker {
 
 /// Mock dependencies that use a controllable MockRunLoopDelayTracker wrapped in a real
 /// SentryDefaultAppHangTracker, so per-observer threshold logic is exercised.
-private class MockDependenciesWithControllableDelayTracker: ANRTrackerBuilder & ProcessInfoProvider & AppHangTrackerProvider & AppStateManagerProvider & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider & FileManagerProvider & DispatchFactoryProvider & WatchdogTerminationAttributesProcessorProvider {
+private class MockDependenciesWithControllableDelayTracker: ANRTrackerBuilder & ProcessInfoProvider & AppHangTrackerProvider & AppStateManagerProvider & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider & WatchdogTerminationAttributesProcessorProvider & WatchdogTerminationBreadcrumbProcessorProvider {
 
     func getANRTracker(_ interval: TimeInterval) -> Sentry.SentryANRTracker {
         SentryDependencyContainer.sharedInstance().getANRTracker(interval)
@@ -572,20 +568,16 @@ private class MockDependenciesWithControllableDelayTracker: ANRTrackerBuilder & 
         SentryDependencyContainer.sharedInstance().appStateManager
     }
 
-    var fileManager: SentryFileManager? {
-        SentryDependencyContainer.sharedInstance().fileManager
-    }
-
-    var dispatchFactory: SentryDispatchFactory {
-        SentryDependencyContainer.sharedInstance().dispatchFactory
-    }
-
     var watchdogTerminationAttributesProcessor: SentryWatchdogTerminationAttributesProcessor {
         SentryDependencyContainer.sharedInstance().watchdogTerminationAttributesProcessor
     }
 
     func getWatchdogTerminationTracker(_ options: Sentry.Options) -> Sentry.SentryWatchdogTerminationTracker? {
         return SentryDependencyContainer.sharedInstance().getWatchdogTerminationTracker(options)
+    }
+
+    func getWatchdogTerminationBreadcrumbProcessor(_ options: Sentry.Options) -> SentryWatchdogTerminationBreadcrumbProcessor? {
+        return SentryDependencyContainer.sharedInstance().getWatchdogTerminationBreadcrumbProcessor(options)
     }
 
     var extensionDetector: SentryExtensionDetector {

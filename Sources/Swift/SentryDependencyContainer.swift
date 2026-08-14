@@ -248,6 +248,25 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         SentryViewHierarchyProvider(dispatchQueueWrapper: dispatchQueueWrapper, applicationProvider: defaultApplicationProvider)
     }
 
+    private var _watchdogTerminationBreadcrumbProcessor: SentryWatchdogTerminationBreadcrumbProcessor?
+    func getWatchdogTerminationBreadcrumbProcessor(_ options: Options) -> SentryWatchdogTerminationBreadcrumbProcessor? {
+        getOptionalLazyVar(\._watchdogTerminationBreadcrumbProcessor) {
+            guard let fileManager = fileManager else {
+                SentrySDKLog.fatal("File manager is not available")
+                return nil
+            }
+
+            return SentryDefaultWatchdogTerminationBreadcrumbProcessor(
+                maxBreadcrumbs: Int(options.maxBreadcrumbs),
+                fileManager: fileManager,
+                dispatchQueueWrapper: dispatchFactory.createUtilityQueue(
+                    "io.sentry.watchdog-termination-tracking.breadcrumbs-processor",
+                    relativePriority: 0
+                )
+            )
+        }
+    }
+
     private var terminationTracker: SentryWatchdogTerminationTracker?
     func getWatchdogTerminationTracker(_ options: Options) -> SentryWatchdogTerminationTracker? {
         getOptionalLazyVar(\.terminationTracker) {
@@ -782,6 +801,7 @@ extension SentryDependencyContainer: DispatchFactoryProvider {}
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 extension SentryDependencyContainer: WatchdogTerminationAttributesProcessorProvider {}
+extension SentryDependencyContainer: WatchdogTerminationBreadcrumbProcessorProvider {}
 #endif
 
 protocol ExtensionDetectorProvider {

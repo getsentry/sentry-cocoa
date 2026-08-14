@@ -7,7 +7,11 @@ protocol WatchdogTerminationAttributesProcessorProvider {
     var watchdogTerminationAttributesProcessor: SentryWatchdogTerminationAttributesProcessor { get }
 }
 
-typealias WatchdogTerminationTrackingProvider = ANRTrackerBuilder & ProcessInfoProvider & AppHangTrackerProvider & AppStateManagerProvider & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider & FileManagerProvider & DispatchFactoryProvider & WatchdogTerminationAttributesProcessorProvider
+protocol WatchdogTerminationBreadcrumbProcessorProvider {
+    func getWatchdogTerminationBreadcrumbProcessor(_ options: Options) -> SentryWatchdogTerminationBreadcrumbProcessor?
+}
+
+typealias WatchdogTerminationTrackingProvider = ANRTrackerBuilder & ProcessInfoProvider & AppHangTrackerProvider & AppStateManagerProvider & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider & WatchdogTerminationAttributesProcessorProvider & WatchdogTerminationBreadcrumbProcessorProvider
 
 final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogTerminationTrackingProvider>: NSObject, SwiftIntegration, SentryANRTrackerDelegate {
 
@@ -43,8 +47,8 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
             SentrySDKLog.fatal("Watchdog Termination tracker not available")
             return nil
         }
-        guard let fileManager = dependencies.fileManager else {
-            SentrySDKLog.fatal("File manager is not available")
+        guard let breadcrumbProcessor = dependencies.getWatchdogTerminationBreadcrumbProcessor(options) else {
+            SentrySDKLog.fatal("Watchdog Termination breadcrumb processor not available")
             return nil
         }
 
@@ -58,14 +62,7 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
             appHangTracker = nil
         }
         appStateManager = dependencies.appStateManager
-        breadcrumbProcessor = SentryDefaultWatchdogTerminationBreadcrumbProcessor(
-            maxBreadcrumbs: Int(options.maxBreadcrumbs),
-            fileManager: fileManager,
-            dispatchQueueWrapper: dependencies.dispatchFactory.createUtilityQueue(
-                "io.sentry.watchdog-termination-tracking.breadcrumbs-processor",
-                relativePriority: 0
-            )
-        )
+        self.breadcrumbProcessor = breadcrumbProcessor
 
         super.init()
 
