@@ -62,13 +62,15 @@ open class SentrySystemWrapper: NSObject {
         }
 
         defer {
+            for i in 0..<Int(count) {
+                mach_port_deallocate(mach_task_self_, threadList[i])
+            }
             vm_deallocate(mach_task_self_, vm_address_t(bitPattern: threadList), vm_size_t(MemoryLayout<thread_t>.size) * vm_size_t(count))
         }
 
         var usage: Float = 0
         for i in 0..<Int(count) {
             let thread = threadList[i]
-            defer { mach_port_deallocate(mach_task_self_, thread) }
 
             var infoSize = mach_msg_type_number_t(MemoryLayout<thread_basic_info_data_t>.size / MemoryLayout<natural_t>.size)
             var data = thread_basic_info_data_t()
