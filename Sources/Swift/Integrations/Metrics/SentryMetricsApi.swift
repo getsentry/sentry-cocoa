@@ -19,15 +19,15 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
         self.dependencies = dependencies
     }
 
-    func count(key: String, value: UInt, attributes: [String: SentryAttributeValue], currentScope: Scope?) {
+    func count(key: String, value: UInt, attributes: [String: SentryAttributeValue], currentScope: Scope? = nil) {
         captureMetric(name: key, value: .counter(value), unit: nil, attributes: attributes, currentScope: currentScope)
     }
 
-    func distribution(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue], currentScope: Scope?) {
+    func distribution(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue], currentScope: Scope? = nil) {
         captureMetric(name: key, value: .distribution(value), unit: unit, attributes: attributes, currentScope: currentScope)
     }
 
-    func gauge(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue], currentScope: Scope?) {
+    func gauge(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue], currentScope: Scope? = nil) {
         captureMetric(name: key, value: .gauge(value), unit: unit, attributes: attributes, currentScope: currentScope)
     }
 

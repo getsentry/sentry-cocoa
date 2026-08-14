@@ -18,7 +18,7 @@ public protocol SentryMetricsApiProtocol {
     ///                 (`[String]`, `[Bool]`, `[Int]`, `[Double]`). Mixed arrays and unsupported
     ///                 types are converted to strings.
     ///                 Example: `["endpoint": "api/users", "success": true, "status_code": 200]`
-    func count(key: String, value: UInt, attributes: [String: SentryAttributeValue], currentScope: Scope?)
+    func count(key: String, value: UInt, attributes: [String: SentryAttributeValue])
 
     /// Records a distribution metric for the specified key.
     ///
@@ -38,7 +38,7 @@ public protocol SentryMetricsApiProtocol {
     ///                 (`[String]`, `[Bool]`, `[Int]`, `[Double]`). Mixed arrays and unsupported
     ///                 types are converted to strings.
     ///                 Example: `["endpoint": "/api/data", "cached": false, "response_size": 1024.5]`
-    func distribution(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue], currentScope: Scope?)
+    func distribution(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue])
 
     /// Records a gauge metric for the specified key.
     ///
@@ -58,7 +58,7 @@ public protocol SentryMetricsApiProtocol {
     ///                 (`[String]`, `[Bool]`, `[Int]`, `[Double]`). Mixed arrays and unsupported
     ///                 types are converted to strings.
     ///                 Example: `["process": "main_app", "compressed": true, "pressure_level": 2]`
-    func gauge(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue], currentScope: Scope?)
+    func gauge(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue])
 }
 
 // MARK: - Default Parameter Values
@@ -75,8 +75,8 @@ public extension SentryMetricsApiProtocol {
     ///   - key: A namespaced identifier for the metric
     ///   - value: The count value to record (defaults to 1)
     ///   - attributes: Optional dictionary of attributes (defaults to empty)
-    func count(key: String, value: UInt = 1, attributes: [String: SentryAttributeValue] = [:], currentScope: Scope? = nil) {
-        self.count(key: key, value: value, attributes: attributes, currentScope: currentScope)
+    func count(key: String, value: UInt = 1, attributes: [String: SentryAttributeValue] = [:]) {
+        self.count(key: key, value: value, attributes: attributes)
     }
 
     /// Records a distribution metric with default parameter values.
@@ -86,9 +86,8 @@ public extension SentryMetricsApiProtocol {
     ///   - value: The value to record in the distribution
     ///   - unit: Optional unit of measurement (defaults to nil)
     ///   - attributes: Optional dictionary of attributes (defaults to empty)
-    ///   - currentScope: Optional scope to layer on top of the global scope (defaults to nil)
-    func distribution(key: String, value: Double, unit: SentryUnit? = nil, attributes: [String: SentryAttributeValue] = [:], currentScope: Scope? = nil) {
-        self.distribution(key: key, value: value, unit: unit, attributes: attributes, currentScope: currentScope)
+    func distribution(key: String, value: Double, unit: SentryUnit? = nil, attributes: [String: SentryAttributeValue] = [:]) {
+        self.distribution(key: key, value: value, unit: unit, attributes: attributes)
     }
 
     /// Records a gauge metric with default parameter values.
@@ -98,8 +97,7 @@ public extension SentryMetricsApiProtocol {
     ///   - value: The current gauge value to record
     ///   - unit: Optional unit of measurement (defaults to nil)
     ///   - attributes: Optional dictionary of attributes (defaults to empty)
-    ///   - currentScope: Optional scope to layer on top of the global scope (defaults to nil)
-    func gauge(key: String, value: Double, unit: SentryUnit? = nil, attributes: [String: SentryAttributeValue] = [:], currentScope: Scope? = nil) {
-        self.gauge(key: key, value: value, unit: unit, attributes: attributes, currentScope: currentScope)
+    func gauge(key: String, value: Double, unit: SentryUnit? = nil, attributes: [String: SentryAttributeValue] = [:]) {
+        self.gauge(key: key, value: value, unit: unit, attributes: attributes)
     }
 }
