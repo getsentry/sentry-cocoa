@@ -19,6 +19,7 @@ open class SentrySystemWrapper: NSObject {
     @objc
     open func memoryFootprintBytes() throws -> NSNumber {
         var info = task_vm_info_data_t()
+        // Equivalent to TASK_VM_INFO_COUNT, which is not bridged to Swift
         var count = mach_msg_type_number_t(MemoryLayout<task_vm_info_data_t>.size / MemoryLayout<natural_t>.size)
 
         let status = withUnsafeMutablePointer(to: &info) { infoPtr in
@@ -67,6 +68,7 @@ open class SentrySystemWrapper: NSObject {
         var usage: Float = 0
         for i in 0..<Int(count) {
             let thread = threadList[i]
+            defer { mach_port_deallocate(mach_task_self_, thread) }
 
             var infoSize = mach_msg_type_number_t(MemoryLayout<thread_basic_info_data_t>.size / MemoryLayout<natural_t>.size)
             var data = thread_basic_info_data_t()
