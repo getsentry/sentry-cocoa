@@ -2,7 +2,6 @@
 #import "SentryEvent+Private.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
-#import "SentryLevelMapper.h"
 #import "SentryLogC.h"
 #import "SentryPerformanceTracker.h"
 #import "SentryProfilingConditionals.h"
@@ -874,7 +873,7 @@ NS_ASSUME_NONNULL_BEGIN
             NSDictionary *_Nonnull eventJson
                 = SENTRY_UNWRAP_NULLABLE(NSDictionary, nullableEventJson);
 
-            SentryLevel level = sentryLevelForString(eventJson[@"level"]);
+            SentryLevel level = [SentryLevelHelper levelForName:eventJson[@"level"]];
             if (level >= kSentryLevelError) {
                 *handled = [self eventContainsOnlyHandledErrors:eventJson];
                 return YES;

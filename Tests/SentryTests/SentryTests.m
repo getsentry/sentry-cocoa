@@ -4,7 +4,6 @@
 #import "SentryDateUtils.h"
 #import "SentryEvent.h"
 #import "SentryHub.h"
-#import "SentryLevelMapper.h"
 #import "SentryMessage.h"
 #import "SentryOptions+Tests.h"
 #import "SentrySDK+Private.h"

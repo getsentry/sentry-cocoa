@@ -89,7 +89,6 @@
 #import "SentryInitializeForGettingSubclassesNotCalled.h"
 #import "SentryInternalNotificationNames.h"
 #import "SentryInvalidJSONString.h"
-#import "SentryLevelMapper.h"
 #import "SentryLogC.h"
 #import "SentryLogTestHelper.h"
 #import "SentryMechanism.h"
