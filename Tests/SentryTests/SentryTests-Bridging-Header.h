@@ -116,7 +116,6 @@
 #import "SentryStacktrace.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentrySwift.h"
-#import "SentrySystemWrapper.h"
 #import "SentryTestIntegration.h"
 #import "SentryTestObjCRuntimeWrapper.h"
 #import "SentryThread.h"
