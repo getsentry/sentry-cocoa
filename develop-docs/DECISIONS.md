@@ -37,6 +37,7 @@
 - [33. `SentryCrashBinaryImageCache` initializes off the main thread](#33-sentrycrashbinaryimagecache-initializes-off-the-main-thread)
 - [34. Session Replay Network Details: Body Capture Strategy](#34-session-replay-network-details-body-capture-strategy)
 - [35. KSCrash Migration Strategy: Dual Integrations on `main`](#35-kscrash-migration-strategy-dual-integrations-on-main)
+- [36. Breadcrumb persistence durability and caller latency](#36-breadcrumb-persistence-durability-and-caller-latency)
 
 ---
 
@@ -799,3 +800,12 @@ Pros:
   - No V10 source/object from `Sources/SentryCrash/**`, retained Tool, temporary reporter, or migration marker remains.
   - Xcode, SwiftPM environment/trait/base-manifest, and dynamic/static products have the same KSCrash backend contract.
   - Exact object, symbol, class, compatibility, scope-sync, and header audits pass.
+
+## 36. Breadcrumb persistence durability and caller latency
+
+Date: August 5, 2026
+Contributors: @philprime, @itaybre, @NinjaLikesCheez, @philipphofmann
+
+Reports of watchdog breadcrumb file writes causing app hangs showed that average filesystem write performance does not account for tail latency. We serialize and persist breadcrumbs on a serial utility queue so a blocked filesystem operation cannot block the thread adding a breadcrumb; see https://github.com/getsentry/sentry-cocoa/issues/7794.
+
+This preserves the order of completed persistence operations but can lose any breadcrumbs still queued when the OS abruptly terminates the process. Watchdog and OOM terminations do not provide a final callback in which the SDK can safely perform a synchronous flush, so a crash-time synchronous fallback cannot restore this durability guarantee. This aligns with the [crash-safe telemetry buffer guidance for abnormal process termination](https://develop.sentry.dev/sdk/foundations/processing/telemetry-processor/mobile-telemetry-processor/#abnormal-process-termination). We accept this trade-off to prevent breadcrumb persistence from causing an app hang.
