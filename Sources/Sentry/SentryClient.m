@@ -797,6 +797,19 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                 alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
                           isFatalEvent:(BOOL)isFatalEvent
 {
+    return [self prepareEvent:event
+                     withScope:scope
+        alwaysAttachStacktrace:alwaysAttachStacktrace
+                  isFatalEvent:isFatalEvent
+                  currentScope:nil];
+}
+
+- (SentryEvent *_Nullable)prepareEvent:(SentryEvent *_Nullable)event
+                             withScope:(SentryScope *)scope
+                alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+                          isFatalEvent:(BOOL)isFatalEvent
+                          currentScope:(SentryScope *_Nullable)currentScope
+{
     NSParameterAssert(event);
     if (event == nil) {
         return nil;
@@ -885,6 +898,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         // Unwrapping the event because we assume that the event will be returned
         event = SENTRY_UNWRAP_NULLABLE(
             SentryEvent, [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs]);
+    }
+
+    if (!isFatalEvent && currentScope != nil && event != nil) {
+        [self applyCurrentScope:(SentryScope *_Nonnull)currentScope
+                        toEvent:SENTRY_UNWRAP_NULLABLE(SentryEvent, event)];
     }
 
     if (!eventIsNotReplay) {
@@ -1034,85 +1052,83 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     return event;
 }
 
-- (SentryEvent *_Nullable)prepareEvent:(SentryEvent *_Nullable)event
-                             withScope:(SentryScope *)scope
-                          currentScope:(SentryScope *)currentScope
-                alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
-                          isFatalEvent:(BOOL)isFatalEvent
+- (void)applyCurrentScope:(SentryScope *)currentScope toEvent:(SentryEvent *)event
 {
-    SentryEvent *prepared = [self prepareEvent:event
-                                     withScope:scope
-                        alwaysAttachStacktrace:alwaysAttachStacktrace
-                                  isFatalEvent:isFatalEvent];
-
-    if (prepared == nil || isFatalEvent) {
-        return prepared;
-    }
-
     NSDictionary<NSString *, NSString *> *currentTags = currentScope.tagDictionary;
     if (currentTags.count > 0) {
         NSMutableDictionary *mergedTags =
-            [NSMutableDictionary dictionaryWithDictionary:prepared.tags ?: @{ }];
+            [NSMutableDictionary dictionaryWithDictionary:event.tags ?: @{ }];
         [mergedTags addEntriesFromDictionary:currentTags];
-        prepared.tags = mergedTags;
+        event.tags = mergedTags;
     }
 
     NSDictionary<NSString *, id> *currentExtras = currentScope.extraDictionary;
     if (currentExtras.count > 0) {
         NSMutableDictionary *mergedExtras =
-            [NSMutableDictionary dictionaryWithDictionary:prepared.extra ?: @{ }];
+            [NSMutableDictionary dictionaryWithDictionary:event.extra ?: @{ }];
         [mergedExtras addEntriesFromDictionary:currentExtras];
-        prepared.extra = mergedExtras;
+        event.extra = mergedExtras;
     }
 
     SentryUser *currentUser = currentScope.userObject;
     if (currentUser != nil) {
-        prepared.user = currentUser.copy;
+        event.user = currentUser.copy;
     }
 
     NSArray<NSString *> *currentFingerprint = currentScope.fingerprintArray;
     if (currentFingerprint.count > 0) {
-        prepared.fingerprint = currentFingerprint;
+        event.fingerprint = currentFingerprint;
     }
 
     NSArray<SentryBreadcrumb *> *currentBreadcrumbs = [currentScope breadcrumbs];
     if (currentBreadcrumbs.count > 0) {
         NSMutableArray *mergedBreadcrumbs =
-            [NSMutableArray arrayWithArray:prepared.breadcrumbs ?: @[]];
+            [NSMutableArray arrayWithArray:event.breadcrumbs ?: @[]];
         NSUInteger maxBreadcrumbs = self.options.maxBreadcrumbs;
         for (SentryBreadcrumb *crumb in currentBreadcrumbs) {
             if (mergedBreadcrumbs.count < maxBreadcrumbs) {
                 [mergedBreadcrumbs addObject:[crumb serialize]];
             }
         }
-        prepared.breadcrumbs = mergedBreadcrumbs;
+        event.breadcrumbs = mergedBreadcrumbs;
     }
 
     NSString *currentDist = currentScope.distString;
     if (currentDist != nil) {
-        prepared.dist = currentDist;
+        event.dist = currentDist;
     }
 
     NSString *currentEnvironment = currentScope.environmentString;
     if (currentEnvironment != nil) {
-        prepared.environment = currentEnvironment;
+        event.environment = currentEnvironment;
     }
 
     SentryLevel currentLevel = currentScope.levelEnum;
     if (currentLevel != kSentryLevelNone) {
-        prepared.level = currentLevel;
+        event.level = currentLevel;
     }
 
     NSDictionary<NSString *, NSDictionary<NSString *, id> *> *currentContext
         = currentScope.contextDictionary;
     if (currentContext.count > 0) {
         NSMutableDictionary *mergedContext =
-            [NSMutableDictionary dictionaryWithDictionary:prepared.context ?: @{ }];
+            [NSMutableDictionary dictionaryWithDictionary:event.context ?: @{ }];
         [SentryDictionary mergeEntriesFromDictionary:currentContext intoDictionary:mergedContext];
-        prepared.context = mergedContext;
+        event.context = mergedContext;
     }
+}
 
-    return prepared;
+- (SentryEvent *_Nullable)prepareEvent:(SentryEvent *_Nullable)event
+                             withScope:(SentryScope *)scope
+                          currentScope:(SentryScope *)currentScope
+                alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+                          isFatalEvent:(BOOL)isFatalEvent
+{
+    return [self prepareEvent:event
+                     withScope:scope
+        alwaysAttachStacktrace:alwaysAttachStacktrace
+                  isFatalEvent:isFatalEvent
+                  currentScope:currentScope];
 }
 
 - (void)recordPartiallyDroppedSpans:(SentryTransaction *)transaction
