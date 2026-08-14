@@ -3273,6 +3273,210 @@ private extension SentryClientTests {
         }
     }
 
+    // MARK: - Scope Layering
+
+    func testCaptureEvent_withCurrentScope_tagsFromBothScopes() throws {
+        let globalScope = Scope()
+        globalScope.setTag(value: "global", key: "global_only")
+        globalScope.setTag(value: "global", key: "shared")
+
+        let currentScope = Scope()
+        currentScope.setTag(value: "current", key: "current_only")
+        currentScope.setTag(value: "current", key: "shared")
+
+        let sut = fixture.getSut()
+        _ = sut.capture(Event(), with: globalScope, currentScope: currentScope, additionalEnvelopeItems: [])
+
+        let event = try lastSentEvent()
+        XCTAssertEqual(event.tags?["global_only"], "global")
+        XCTAssertEqual(event.tags?["current_only"], "current")
+        XCTAssertEqual(event.tags?["shared"], "current")
+    }
+
+    func testCaptureEvent_withCurrentScope_extrasFromBothScopes() throws {
+        let globalScope = Scope()
+        globalScope.setExtra(value: "global", key: "global_only")
+        globalScope.setExtra(value: "global", key: "shared")
+
+        let currentScope = Scope()
+        currentScope.setExtra(value: "current", key: "current_only")
+        currentScope.setExtra(value: "current", key: "shared")
+
+        let sut = fixture.getSut()
+        _ = sut.capture(Event(), with: globalScope, currentScope: currentScope, additionalEnvelopeItems: [])
+
+        let event = try lastSentEvent()
+        XCTAssertEqual(event.extra?["global_only"] as? String, "global")
+        XCTAssertEqual(event.extra?["current_only"] as? String, "current")
+        XCTAssertEqual(event.extra?["shared"] as? String, "current")
+    }
+
+    func testCaptureEvent_withCurrentScope_currentUserOverridesGlobal() throws {
+        let globalScope = Scope()
+        let globalUser = User()
+        globalUser.userId = "global"
+        globalScope.setUser(globalUser)
+
+        let currentScope = Scope()
+        let currentUser = User()
+        currentUser.userId = "current"
+        currentScope.setUser(currentUser)
+
+        let sut = fixture.getSut()
+        _ = sut.capture(Event(), with: globalScope, currentScope: currentScope, additionalEnvelopeItems: [])
+
+        let event = try lastSentEvent()
+        XCTAssertEqual(event.user?.userId, "current")
+    }
+
+    func testCaptureEvent_withCurrentScope_globalUserPreservedWhenCurrentNotSet() throws {
+        let globalScope = Scope()
+        let globalUser = User()
+        globalUser.userId = "global"
+        globalScope.setUser(globalUser)
+
+        let currentScope = Scope()
+
+        let sut = fixture.getSut()
+        _ = sut.capture(Event(), with: globalScope, currentScope: currentScope, additionalEnvelopeItems: [])
+
+        let event = try lastSentEvent()
+        XCTAssertEqual(event.user?.userId, "global")
+    }
+
+    func testCaptureEvent_withCurrentScope_breadcrumbsMerged() throws {
+        let globalScope = Scope()
+        let crumb1 = Breadcrumb()
+        crumb1.message = "global"
+        globalScope.add(crumb1)
+
+        let currentScope = Scope()
+        let crumb2 = Breadcrumb()
+        crumb2.message = "current"
+        currentScope.add(crumb2)
+
+        let sut = fixture.getSut()
+        _ = sut.capture(Event(), with: globalScope, currentScope: currentScope, additionalEnvelopeItems: [])
+
+        let event = try lastSentEvent()
+        XCTAssertEqual(event.breadcrumbs?.count, 2)
+    }
+
+    func testCaptureEvent_withCurrentScope_currentFingerprintOverridesGlobal() throws {
+        let globalScope = Scope()
+        globalScope.setFingerprint(["global"])
+
+        let currentScope = Scope()
+        currentScope.setFingerprint(["current"])
+
+        let sut = fixture.getSut()
+        _ = sut.capture(Event(), with: globalScope, currentScope: currentScope, additionalEnvelopeItems: [])
+
+        let event = try lastSentEvent()
+        XCTAssertEqual(event.fingerprint, ["current"])
+    }
+
+    func testCaptureEvent_withCurrentScope_currentDistOverridesGlobal() throws {
+        let globalScope = Scope()
+        globalScope.setDist("global-dist")
+
+        let currentScope = Scope()
+        currentScope.setDist("current-dist")
+
+        let sut = fixture.getSut()
+        _ = sut.capture(Event(), with: globalScope, currentScope: currentScope, additionalEnvelopeItems: [])
+
+        let event = try lastSentEvent()
+        XCTAssertEqual(event.dist, "current-dist")
+    }
+
+    func testCaptureEvent_withCurrentScope_currentEnvironmentOverridesGlobal() throws {
+        let globalScope = Scope()
+        globalScope.setEnvironment("production")
+
+        let currentScope = Scope()
+        currentScope.setEnvironment("staging")
+
+        let sut = fixture.getSut()
+        _ = sut.capture(Event(), with: globalScope, currentScope: currentScope, additionalEnvelopeItems: [])
+
+        let event = try lastSentEvent()
+        XCTAssertEqual(event.environment, "staging")
+    }
+
+    func testCaptureEvent_withCurrentScope_currentLevelOverridesGlobal() throws {
+        let globalScope = Scope()
+        globalScope.setLevel(.warning)
+
+        let currentScope = Scope()
+        currentScope.setLevel(.error)
+
+        let sut = fixture.getSut()
+        _ = sut.capture(Event(), with: globalScope, currentScope: currentScope, additionalEnvelopeItems: [])
+
+        let event = try lastSentEvent()
+        XCTAssertEqual(event.level, .error)
+    }
+
+    func testCaptureEvent_withCurrentScope_contextDeepMerged() throws {
+        let globalScope = Scope()
+        globalScope.setContext(value: ["a": "1", "b": "2"], key: "shared")
+        globalScope.setContext(value: ["x": "y"], key: "global_only")
+
+        let currentScope = Scope()
+        currentScope.setContext(value: ["a": "overridden", "c": "3"], key: "shared")
+
+        let sut = fixture.getSut()
+        _ = sut.capture(Event(), with: globalScope, currentScope: currentScope, additionalEnvelopeItems: [])
+
+        let event = try lastSentEvent()
+        let shared = event.context?["shared"] as? [String: Any]
+        XCTAssertEqual(shared?["a"] as? String, "overridden")
+        XCTAssertEqual(shared?["b"] as? String, "2")
+        XCTAssertEqual(shared?["c"] as? String, "3")
+        XCTAssertNotNil(event.context?["global_only"])
+    }
+
+    func testCaptureEvent_withCurrentScope_doesNotMutateGlobalScope() throws {
+        let globalScope = Scope()
+        globalScope.setTag(value: "global", key: "key")
+
+        let currentScope = Scope()
+        currentScope.setTag(value: "current", key: "key")
+
+        let sut = fixture.getSut()
+        _ = sut.capture(Event(), with: globalScope, currentScope: currentScope, additionalEnvelopeItems: [])
+
+        XCTAssertEqual(globalScope.tags["key"], "global")
+    }
+
+    func testCaptureEvent_withCurrentScope_doesNotMutateCurrentScope() throws {
+        let globalScope = Scope()
+        globalScope.setTag(value: "global", key: "global_key")
+
+        let currentScope = Scope()
+        currentScope.setTag(value: "current", key: "current_key")
+
+        let sut = fixture.getSut()
+        _ = sut.capture(Event(), with: globalScope, currentScope: currentScope, additionalEnvelopeItems: [])
+
+        XCTAssertNil(currentScope.tags["global_key"])
+    }
+
+    func testCaptureEvent_withCurrentScope_attachmentsFromBothScopes() throws {
+        let globalScope = Scope()
+        globalScope.addAttachment(Attachment(data: Data("global".utf8), filename: "global.txt"))
+
+        let currentScope = Scope()
+        currentScope.addAttachment(Attachment(data: Data("current".utf8), filename: "current.txt"))
+
+        let sut = fixture.getSut()
+        _ = sut.capture(Event(), with: globalScope, currentScope: currentScope, additionalEnvelopeItems: [])
+
+        let attachments = fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.attachments ?? []
+        XCTAssertEqual(attachments.count, 2)
+    }
+
     func assertSampleRate( sampleRate: NSNumber?, randomValue: Double, isSampled: Bool) throws {
         fixture.random.value = randomValue
 
