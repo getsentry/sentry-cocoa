@@ -21,7 +21,6 @@
 
 - Enable MetricKit integration by default (#8716)
 - Enable logging by default (#8717)
-- Remove `enableLogs`; logs are always enabled in v10 (#8769)
 - Change the default diagnostic level to warning (#8732)
 - Enable `swiftAsyncStacktraces` by default (#8718)
 - Remove `sendDefaultPii`; use `dataCollection` to configure automatic data collection (#8253)
@@ -34,6 +33,8 @@
 
 ### Fixes
 
+- Compile only explicitly allowlisted shared SentryCrash tools in V10
+- Restore foreground app-hang detection and debugger-aware behavior in V10
 - Disambiguate V9 and V10 target dependencies in Xcode builds
 - Keep V10 compiler flags and KSCrash dependencies aligned across Xcode and SwiftPM build paths
 - Filter sensitive values from selected Session Replay network headers and cookies (#8566)

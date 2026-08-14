@@ -1,4 +1,5 @@
-@_spi(Private) import Sentry
+@_spi(Private) @testable import Sentry
+import Darwin
 import XCTest
 
 class SentrySysctlTests: XCTestCase {
@@ -50,5 +51,34 @@ class SentrySysctlTests: XCTestCase {
         let distance = Date().timeIntervalSince(sut.runtimeInitTimestamp)
 
         XCTAssertGreaterThan(distance, 0)
+    }
+
+    func testDebuggerStatus_whenProcessIsTraced_shouldReturnTrue() {
+        let sut = SentryDefaultDebuggerStatusProvider(processFlagsProvider: { P_TRACED })
+
+        XCTAssertTrue(sut.isBeingTraced)
+    }
+
+    func testDebuggerStatus_whenProcessIsNotTraced_shouldReturnFalse() {
+        let sut = SentryDefaultDebuggerStatusProvider(processFlagsProvider: { 0 })
+
+        XCTAssertFalse(sut.isBeingTraced)
+    }
+
+    func testDebuggerStatus_whenTraceStateChanges_shouldReturnLatestState() {
+        var processFlags: Int32 = 0
+        let sut = SentryDefaultDebuggerStatusProvider(processFlagsProvider: { processFlags })
+
+        XCTAssertFalse(sut.isBeingTraced)
+
+        processFlags = P_TRACED
+
+        XCTAssertTrue(sut.isBeingTraced)
+    }
+
+    func testDebuggerStatus_whenSysctlFails_shouldReturnFalse() {
+        let sut = SentryDefaultDebuggerStatusProvider(processFlagsProvider: { nil })
+
+        XCTAssertFalse(sut.isBeingTraced)
     }
 }

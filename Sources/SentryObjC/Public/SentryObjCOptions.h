@@ -142,16 +142,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, copy, nullable) SentryObjCSpan *_Nullable (^beforeSendSpan)(SentryObjCSpan *);
 
-#if !SDK_V10
-/**
- * When enabled, the SDK sends logs to Sentry. Logs can be captured using the
- * @c SentryObjCSDK.logger API, which provides structured logging with attributes.
- * @note Default value is @c NO.
- * @note In v10 and later, logs are always enabled. Remove this option when upgrading.
- */
-@property (nonatomic) BOOL enableLogs;
-#endif // !SDK_V10
-
 /// This block can be used to modify the breadcrumb before it will be serialized and sent.
 @property (nonatomic, copy, nullable) SentryObjCBreadcrumb *_Nullable (^beforeBreadcrumb)
     (SentryObjCBreadcrumb *);
@@ -532,12 +522,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Options for experimental features that are subject to change.
 @property (nonatomic, strong) SentryObjCExperimentalOptions *experimental;
-
-/**
- * When enabled, the SDK sends metrics to Sentry.
- * @note Default value is @c YES.
- */
-@property (nonatomic) BOOL enableMetrics;
 
 #if (TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION) && SENTRY_OBJC_HAS_UIKIT
 

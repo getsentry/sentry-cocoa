@@ -66,7 +66,6 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
             ))
 
             let dependencies = SentryDependencyContainer.sharedInstance()
-            dependencies.crashWrapper = crashWrapper
             dependencies.fileManager = fileManager
             dependencies.sysctlWrapper = sysctl
             dependencies.dispatchQueueWrapper = dispatchQueue

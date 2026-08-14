@@ -1,7 +1,6 @@
 #if SDK_V10
-// swiftlint:disable:next no_implementation_only_import
-@_implementationOnly import KSCrashRecording
 internal import _SentryPrivate
+internal import KSCrashRecording
 import Foundation
 
 extension SentryKSCrash {
@@ -15,7 +14,7 @@ extension SentryKSCrash {
         /// - Throws: Any error from `KSCrash.installWithConfiguration(_:error:)`.
         func install(
             installPath: String,
-            monitors: UInt,
+            monitors: MonitorType,
             enableMemoryIntrospection: Bool,
             enableSwapCxaThrow: Bool
         ) throws
@@ -54,19 +53,28 @@ extension SentryKSCrash {
 
         func install(
             installPath: String,
-            monitors: UInt,
+            monitors: MonitorType,
             enableMemoryIntrospection: Bool,
             enableSwapCxaThrow: Bool
         ) throws {
             let config = KSCrashConfiguration()
             config.installPath = installPath
-            config.monitors = MonitorType(rawValue: monitors)
+            config.monitors = monitors
             config.enableMemoryIntrospection = enableMemoryIntrospection
             config.enableSwapCxaThrow = enableSwapCxaThrow
             config.reportStoreConfiguration.reportCleanupPolicy = .onSuccess
             #if SENTRY_CRASH_E2E
             config.userInfoJSON = SentryKSCrash.CrashE2ETestHook.reportUserInfo
             #endif
+#if SENTRY_DISABLE_SENTRYCRASH_V10
+            // KSCRASH_TODO(GH-8276, GH-8758): No KSCrash report-writing callback copies the
+            // SDK-owned scope mirror into sentry_sdk_scope. Acceptance: SCV10-014 in
+            // SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+#endif
+#if SENTRY_DISABLE_SENTRYCRASH_V10
+            // KSCRASH_TODO(GH-8801): No KSCrash crash/report callback writes the session-replay
+            // recovery checkpoint. Acceptance: SCV10-039 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+#endif
             do {
                 try KSCrash.shared.install(with: config)
             } catch let error as NSError
@@ -80,7 +88,11 @@ extension SentryKSCrash {
         }
 
         func uninstall() {
-            // KSCrash itself cannot be uninstalled in-process (process-lifetime).
+#if SENTRY_DISABLE_SENTRYCRASH_V10
+            // KSCRASH_TODO(GH-8536): KSCrash cannot currently be uninstalled in-process, so only
+            // this SDK lifecycle's query state is cleared. Acceptance: SCV10-032 in
+            // SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+#endif
             installed = false
         }
 
@@ -145,10 +157,6 @@ extension SentryKSCrash {
         var crashedLastLaunch: Bool { KSCrash.shared.crashedLastLaunch }
         var activeDurationSinceLastCrash: TimeInterval { KSCrash.shared.activeDurationSinceLastCrash }
 
-        // KSCRASH_TODO(GH-8756): We need to support dictionary types here... KSCrash's new KV store
-        // doesn't support them... we will need to either: work around this OR
-        // upstream support for it.
-        // Tracked in https://github.com/getsentry/sentry-cocoa/issues/8756
         func setUserInfo(_ userInfo: [String: Any]) {
             guard installed else {
                 SentrySDKLog.debug("KSCrash must be installed before calling setUserInfo(_:)")
@@ -170,6 +178,10 @@ extension SentryKSCrash {
                 case let value as Date:
                     KSCrash.shared.setUserInfo(value, forKey: key)
                 default:
+#if SENTRY_DISABLE_SENTRYCRASH_V10
+                    // KSCRASH_TODO(GH-8756): KSCrash's key-value store drops nested scope data.
+                    // Acceptance: SCV10-015 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+#endif
                     SentrySDKLog.debug("Dropping '\(key): \(value) as it's not a supported type")
                 }
             }

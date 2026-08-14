@@ -1,0 +1,112 @@
+{
+  "header": {
+    "event_id": "<event-id>",
+    "sdk": {
+      "features": "<features>",
+      "integrations": "<integrations>",
+      "name": "sentry.cocoa",
+      "packages": [],
+      "settings": {
+        "infer_ip": "auto"
+      },
+      "version": "<sdk-version>"
+    },
+    "trace": {
+      "environment": "test",
+      "public_key": "SentryNetworkTrackerIntegrationTestServerTests.testFailedRequest_whenCaptureEnabled_shouldMatchEnvelopeSnapshot()",
+      "release": "io.sentry.network-envelope-snapshot@1.0.0+1",
+      "trace_id": "<trace-id>"
+    }
+  },
+  "items": [
+    {
+      "header": {
+        "length": "<length>",
+        "type": "event"
+      },
+      "payload": {
+        "contexts": {
+          "app": {
+            "app_memory": "<runtime-value>"
+          },
+          "culture": {
+            "calendar": "<runtime-value>",
+            "display_name": "<runtime-value>",
+            "is_24_hour_format": "<runtime-value>",
+            "locale": "<runtime-value>",
+            "timezone": "<runtime-value>"
+          },
+          "device": {
+            "free_memory": "<runtime-value>",
+            "low_power_mode": "<runtime-value>",
+            "processor_count": "<runtime-value>",
+            "thermal_state": "<runtime-value>"
+          },
+          "response": {
+            "body_size": 37,
+            "cookies": {},
+            "headers": {
+              "Connection": "keep-alive",
+              "Content-Length": "37",
+              "Content-Type": "application/json; charset=utf-8",
+              "Date": "<timestamp>"
+            },
+            "status_code": 400
+          },
+          "trace": {
+            "span_id": "<span-id>",
+            "trace_id": "<trace-id>"
+          }
+        },
+        "dist": "<runtime-value>",
+        "environment": "test",
+        "event_id": "<event-id>",
+        "exception": {
+          "values": [
+            {
+              "mechanism": {
+                "type": "HTTPClientError"
+              },
+              "stacktrace": "<stacktrace>",
+              "type": "HTTPClientError",
+              "value": "HTTP Client Error with status code: 400"
+            }
+          ]
+        },
+        "extra": {},
+        "level": "error",
+        "platform": "cocoa",
+        "release": "io.sentry.network-envelope-snapshot@1.0.0+1",
+        "request": {
+          "cookies": {},
+          "headers": {
+            "Accept": "*/*",
+            "Accept-Encoding": "gzip, deflate",
+            "Accept-Language": "<accept-language>",
+            "baggage": "<baggage>",
+            "sentry-trace": "<sentry-trace>",
+            "User-Agent": "<user-agent>"
+          },
+          "method": "GET",
+          "url": "http://localhost:8081/http-client-error"
+        },
+        "sdk": {
+          "features": "<features>",
+          "integrations": "<integrations>",
+          "name": "sentry.cocoa",
+          "packages": [],
+          "settings": {
+            "infer_ip": "auto"
+          },
+          "version": "<sdk-version>"
+        },
+        "tags": {},
+        "threads": "<threads>",
+        "timestamp": "<timestamp>",
+        "user": {
+          "id": "<id>"
+        }
+      }
+    }
+  ]
+}

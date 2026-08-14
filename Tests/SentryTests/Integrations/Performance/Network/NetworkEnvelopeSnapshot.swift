@@ -51,6 +51,8 @@ struct NetworkEnvelopeSnapshot {
         let platformResource = "\(resource)-ios"
 #elseif os(tvOS)
         let platformResource = "\(resource)-tvos"
+#elseif os(watchOS)
+        let platformResource = "\(resource)-watchos"
 #elseif os(visionOS)
         let platformResource = "\(resource)-visionos"
 #elseif os(macOS)
@@ -59,6 +61,12 @@ struct NetworkEnvelopeSnapshot {
 #error("Missing platform-specific network envelope snapshot")
 #endif
 #if SDK_V10
+#if SENTRY_DISABLE_SENTRYCRASH_V10
+        // KSCRASH_TODO(GH-8798): V10 snapshots omit debug_meta while the binary-image cache is
+        // empty. Acceptance: SCV10-001 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+        // KSCRASH_TODO(GH-8800): V10 snapshots omit initial OS/device/app/runtime context that the
+        // unavailable reporter does not enrich. Acceptance: SCV10-017 in the migration ledger.
+#endif
         return "\(platformResource)-v10"
 #else
         return platformResource

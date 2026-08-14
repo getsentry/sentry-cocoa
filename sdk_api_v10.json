@@ -218,49 +218,6 @@
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              }
-            ],
-            "kind": "TypeNameAlias",
-            "name": "Void",
-            "printedName": "Swift.Void"
-          }
-        ],
-        "declKind": "Func",
-        "funcSelfKind": "NonMutating",
-        "kind": "Function",
-        "moduleName": "Sentry",
-        "name": "sentry_finishAndSaveTransaction",
-        "printedName": "sentry_finishAndSaveTransaction()",
-        "usr": "c:@M@Sentry@F@sentry_finishAndSaveTransaction"
-      },
-      {
-        "children": [
-          {
-            "kind": "TypeNominal",
-            "name": "Void",
-            "printedName": "()"
-          }
-        ],
-        "declAttributes": [
-          "CDecl"
-        ],
-        "declKind": "Func",
-        "funcSelfKind": "NonMutating",
-        "kind": "Function",
-        "mangledName": "$s6Sentry31sentry_finishAndSaveTransactionyyF",
-        "moduleName": "Sentry",
-        "name": "sentry_finishAndSaveTransaction",
-        "printedName": "sentry_finishAndSaveTransaction()",
-        "usr": "c:(cm)sentry_finishAndSaveTransaction"
-      },
-      {
-        "children": [
-          {
-            "children": [
-              {
-                "kind": "TypeNominal",
                 "name": "NSDictionary",
                 "printedName": "Foundation.NSDictionary",
                 "usr": "c:objc(cs)NSDictionary"
@@ -23869,82 +23826,6 @@
             "name": "enableMetricKitRawPayload",
             "printedName": "enableMetricKitRawPayload",
             "usr": "c:@M@Sentry@objc(cs)SentryOptions(py)enableMetricKitRawPayload"
-          },
-          {
-            "accessors": [
-              {
-                "accessorKind": "get",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Bool",
-                    "printedName": "Swift.Bool",
-                    "usr": "s:Sb"
-                  }
-                ],
-                "declAttributes": [
-                  "Final",
-                  "ObjC"
-                ],
-                "declKind": "Accessor",
-                "implicit": true,
-                "kind": "Accessor",
-                "mangledName": "$s6Sentry7OptionsC13enableMetricsSbvg",
-                "moduleName": "Sentry",
-                "name": "Get",
-                "printedName": "Get()",
-                "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)enableMetrics"
-              },
-              {
-                "accessorKind": "set",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Bool",
-                    "printedName": "Swift.Bool",
-                    "usr": "s:Sb"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "declAttributes": [
-                  "Final",
-                  "ObjC"
-                ],
-                "declKind": "Accessor",
-                "implicit": true,
-                "kind": "Accessor",
-                "mangledName": "$s6Sentry7OptionsC13enableMetricsSbvs",
-                "moduleName": "Sentry",
-                "name": "Set",
-                "printedName": "Set()",
-                "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setEnableMetrics:"
-              }
-            ],
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Bool",
-                "printedName": "Swift.Bool",
-                "usr": "s:Sb"
-              }
-            ],
-            "declAttributes": [
-              "Final",
-              "HasStorage",
-              "ObjC"
-            ],
-            "declKind": "Var",
-            "hasStorage": true,
-            "kind": "Var",
-            "mangledName": "$s6Sentry7OptionsC13enableMetricsSbvp",
-            "moduleName": "Sentry",
-            "name": "enableMetrics",
-            "printedName": "enableMetrics",
-            "usr": "c:@M@Sentry@objc(cs)SentryOptions(py)enableMetrics"
           },
           {
             "accessors": [

@@ -190,7 +190,8 @@ jobs:
             --command build-for-testing \
             --configuration TestV10 \
             --scheme SentryV10 \
-            --test-plan SentryV10_TestServer
+            --test-plan SentryV10_TestServer \
+            ${{ matrix.platform == 'Catalyst' && '--xcconfig Tests/Configuration/SentryV10Catalyst.xcconfig' || '' }}
 
       - name: Run tests
         env:
@@ -204,7 +205,8 @@ jobs:
             --command test-without-building \
             --configuration TestV10 \
             --scheme SentryV10 \
-            --test-plan SentryV10_TestServer
+            --test-plan SentryV10_TestServer \
+            ${{ matrix.platform == 'Catalyst' && '--xcconfig Tests/Configuration/SentryV10Catalyst.xcconfig' || '' }}
 
       - name: Stop Test Server
         if: ${{ always() }}

@@ -1,8 +1,21 @@
 // swiftlint:disable missing_docs
+import Foundation
 #if !os(macOS) && !os(watchOS) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
+#endif
 
-@objc @_spi(Private) public final class SentryThreadsafeApplication: NSObject {
+@_spi(Private) @objc public protocol SentryApplicationStateProvider: NSObjectProtocol {
+    @objc var isApplicationInForeground: Bool { get }
+}
+
+final class SentryAlwaysForegroundApplicationStateProvider: NSObject, SentryApplicationStateProvider {
+    // Non-UIKit apps do not enter UIKit's suspended background state. This matches the legacy
+    // crash-state monitor, which treated these platforms as foreground for app-hang detection.
+    var isApplicationInForeground: Bool { true }
+}
+
+#if !os(macOS) && !os(watchOS) && !SENTRY_NO_UI_FRAMEWORK
+@objc @_spi(Private) public final class SentryThreadsafeApplication: NSObject, SentryApplicationStateProvider {
     private let notificationCenter: SentryNSNotificationCenterWrapper
     
     init(applicationProvider: () -> SentryApplication?, notificationCenter: SentryNSNotificationCenterWrapper) {
@@ -19,6 +32,7 @@ import UIKit
         super.init()
 
         notificationCenter.addObserver(self, selector: #selector(didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(willEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
         notificationCenter.addObserver(self, selector: #selector(didBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
     }
     
@@ -31,6 +45,10 @@ import UIKit
         state.withLock { $0 }
     }
 
+    @objc public var isApplicationInForeground: Bool {
+        applicationState != .background
+    }
+
     @objc
     public var isActive: Bool {
         return applicationState == .active
@@ -39,6 +57,11 @@ import UIKit
     @objc
     private func didEnterBackground() {
         state.withLock { $0 = .background }
+    }
+
+    @objc
+    private func willEnterForeground() {
+        state.withLock { $0 = .inactive }
     }
 
     @objc
