@@ -235,14 +235,6 @@ static NSDate *_Nullable startTimestamp = nil;
     startInvocations++;
     startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
 
-    // In cases where the user calls `start()` without balancing `close()` things like breadcrumbs
-    // may still have pending work in their queue... This can cause weird data races - so, uninstall
-    // any integration. If this `start()` was balanced with a `close()` then this is a NOP since
-    // `close()` nulls `currentHub`
-    if (currentHub != nil) {
-        [currentHub removeAllIntegrations];
-    }
-
     SentryClientInternal *newClient = [[SentryClientInternal alloc] initWithOptions:options];
     [newClient.fileManager moveAppStateToPreviousAppState];
     [newClient.fileManager moveBreadcrumbsToPreviousBreadcrumbs];
