@@ -55,13 +55,12 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         }
         
         func getSut(fileManager: SentryFileManager) throws -> SentryWatchdogTerminationTracker {
-            SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueue
-            let appStateManager = SentryAppStateManager(
-                releaseName: options.releaseName,
-                crashWrapper: crashWrapper,
-                fileManager: fileManager,
-                sysctlWrapper: sysctl
-            )
+            let dependencies = SentryDependencyContainer.sharedInstance()
+            dependencies.crashWrapper = crashWrapper
+            dependencies.fileManager = fileManager
+            dependencies.sysctlWrapper = sysctl
+            dependencies.dispatchQueueWrapper = dispatchQueue
+            let appStateManager = SentryAppStateManager(releaseName: options.releaseName, dependencies: dependencies)
             let logic = SentryWatchdogTerminationLogic(
                 options: options,
                 crashAdapter: crashWrapper,
@@ -97,6 +96,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         sut.stop()
         fixture.client.fileManager.deleteAllFolders()
         
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
 
@@ -175,7 +175,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     }
     
     func testIsDebugging_NoOOM() {
-        fixture.crashWrapper.internalIsBeingTraced = true
+        fixture.sysctl.internalIsBeingTraced = true
         sut.start()
         
         goToForeground()

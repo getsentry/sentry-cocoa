@@ -21,12 +21,14 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
             "strictTraceContinuation", // Docs PR: https://github.com/getsentry/sentry-docs/pull/16983
             "orgId", // Docs PR: https://github.com/getsentry/sentry-docs/pull/16983
             "effectiveOrgId", // @_spi(Private) - internal computed property, not a user-facing option
-            "enableMetrics", // Promoted to GA in https://github.com/getsentry/sentry-cocoa/pull/7843; docs update pending
             "beforeSendMetric" // Promoted to GA in https://github.com/getsentry/sentry-cocoa/pull/7843; docs update pending
         ]
 
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         options.insert("screenshot")
+        #if !SDK_V10
+        options.insert("enableStandaloneAppStartTracing")
+        #endif
         #endif
 
         // Session replay (documented at https://docs.sentry.io/platforms/apple/session-replay/)
@@ -45,6 +47,7 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         #endif
 
         #if SDK_V10
+        options.insert("beforeSendTransaction") // Docs update pending
         options.insert("dataCollection") // Docs update pending
         options.insert("dataCollectionObjC") // @_spi(Private) - internal Objective-C bridge
         #endif

@@ -38,7 +38,7 @@ final class CrashE2ERunner {
 
         if config.reporter != .ksCrash,
            config.scenarios.contains(where: \.requiresKSCrash) {
-            try fail("The kscrash-per-report-retry scenario requires --reporter KSCrash.")
+            try fail("The selected scenario requires --reporter KSCrash.")
         }
     }
 
@@ -69,11 +69,9 @@ final class CrashE2ERunner {
             )
         }
         if shouldBuildManagedRuntimeVariant {
-            // KSCRASH_TODO: Sentry+KSCrash still compiles the SentryCrash recording sources, so
-            // this define activates SentryCrash's constructor-based signal preloader even when the
-            // selected integration is KSCrash. Replace it with the KSCrash-owned managed-runtime
-            // integration path before treating these scenarios as KSCrash handler-order coverage.
-            // Tracked in https://github.com/getsentry/sentry-cocoa/issues/8528.
+            // This activates SentryCrash's constructor-based signal preloader only for the legacy
+            // reporter. The KSCrash build intentionally has no equivalent yet, so these scenarios
+            // expose the missing managed-runtime handler ordering instead of passing accidentally.
             try buildVariant(
                 derivedDataPath: config.managedRuntimeDerivedDataPath,
                 label: "managed runtime",

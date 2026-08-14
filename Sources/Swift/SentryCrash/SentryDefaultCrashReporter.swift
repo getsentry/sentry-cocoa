@@ -7,6 +7,8 @@ import Foundation
 import UIKit
 #endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
+#if !SDK_V10
+
 /**
  * A wrapper around SentryCrash for testability.
  */
@@ -94,18 +96,8 @@ public final class SentryDefaultCrashReporter: NSObject, SentryCrashReporter {
     }
     
     @objc
-    public var isBeingTraced: Bool {
-        return sentrycrashdebug_isBeingTraced()
-    }
-    
-    @objc
     public var isSimulatorBuild: Bool {
         return sentrycrash_isSimulatorBuild()
-    }
-    
-    @objc
-    public var isApplicationInForeground: Bool {
-        return sentrycrashstate_currentState()?.pointee.applicationIsInForeground ?? false
     }
     
     @objc
@@ -304,3 +296,4 @@ public final class SentryDefaultCrashReporter: NSObject, SentryCrashReporter {
     }
 }
 // swiftlint:enable missing_docs
+#endif // !SDK_V10

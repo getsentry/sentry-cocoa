@@ -241,18 +241,6 @@
     XCTAssertTrue(options.enableNetworkBreadcrumbs);
 }
 
-- (void)testEnableLogs_whenSetToYes_shouldReturnYes
-{
-    // -- Arrange --
-    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
-
-    // -- Act --
-    options.enableLogs = YES;
-
-    // -- Assert --
-    XCTAssertTrue(options.enableLogs);
-}
-
 - (void)testEnableAutoSessionTracking_whenSetToYes_shouldReturnYes
 {
     // -- Arrange --
@@ -531,18 +519,6 @@
     XCTAssertTrue(options.strictTraceContinuation);
 }
 
-- (void)testEnableMetrics_whenSetToYes_shouldReturnYes
-{
-    // -- Arrange --
-    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
-
-    // -- Act --
-    options.enableMetrics = YES;
-
-    // -- Assert --
-    XCTAssertTrue(options.enableMetrics);
-}
-
 #pragma mark - Numeric properties
 
 - (void)testShutdownTimeInterval_whenSet_shouldReturnValue
@@ -786,6 +762,26 @@
 
     // -- Assert --
     XCTAssertNil(options.beforeSend);
+}
+
+- (void)testBeforeSendTransaction_whenBuildingV10AndSetBlock_shouldReturnNotNil
+{
+#if !SDK_V10
+    XCTSkip(@"Test skipped for non-SDK_V10");
+#else
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    options.beforeSendTransaction
+        = ^SentryObjCTransaction *_Nullable(SentryObjCTransaction *transaction)
+    {
+        return transaction;
+    };
+
+    // -- Assert --
+    XCTAssertNotNil(options.beforeSendTransaction);
+#endif
 }
 
 - (void)testBeforeSendSpan_whenSetBlock_shouldReturnNotNil

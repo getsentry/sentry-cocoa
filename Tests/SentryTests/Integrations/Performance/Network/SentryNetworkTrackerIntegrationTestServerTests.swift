@@ -11,6 +11,7 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
 
     override func tearDown() {
         super.tearDown()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
 
@@ -53,6 +54,97 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         XCTAssertEqual("GET \(testBaggageURL)", networkSpan.spanDescription)
 
         XCTAssertEqual(NSNumber(value: 200), networkSpan.data["http.response.status_code"] as? NSNumber)
+    }
+
+    func testDataTask_whenResponseIsDelayed_shouldIncludeDelayInSpanDuration() throws {
+        // -- Arrange --
+        try ensureTestServerIsRunning()
+        let url = try XCTUnwrap(URL(string: "http://localhost:8081/delayed-response"))
+        let requestCompleted = expectation(description: "Request completed")
+        requestCompleted.assertForOverFulfill = false
+
+        startSDK()
+
+        let transaction = try XCTUnwrap(SentrySDK.startTransaction(
+            name: "Test Transaction",
+            operation: "TEST",
+            bindToScope: true
+        ) as? SentryTracer)
+        let session = URLSession(configuration: .default)
+        let task = session.dataTask(with: url) { _, response, error in
+            self.assertNetworkError(error)
+            XCTAssertEqual((response as? HTTPURLResponse)?.statusCode, 200)
+            requestCompleted.fulfill()
+        }
+        let taskCompleted = keyValueObservingExpectation(
+            for: task,
+            keyPath: "state"
+        ) { object, _ in
+            (object as? URLSessionTask)?.state == .completed
+        }
+        defer { session.finishTasksAndInvalidate() }
+
+        // -- Act --
+        task.resume()
+        wait(for: [requestCompleted, taskCompleted], timeout: 10)
+
+        // -- Assert --
+        let networkSpan = try XCTUnwrap(transaction.children.first)
+        let spanStartedAt = try XCTUnwrap(networkSpan.startTimestamp)
+        let spanEndedAt = try XCTUnwrap(networkSpan.timestamp)
+        let spanDuration = spanEndedAt.timeIntervalSince(spanStartedAt)
+
+        XCTAssertTrue(networkSpan.isFinished)
+        XCTAssertGreaterThanOrEqual(spanDuration, 0.9)
+    }
+
+    func testDataTask_whenRequestCompletes_shouldCaptureNetworkBreadcrumb() throws {
+        // -- Arrange --
+        try ensureTestServerIsRunning()
+        let url = try XCTUnwrap(URL(string: "http://localhost:8081/echo-sentry-trace"))
+        let requestCompleted = expectation(description: "Request completed")
+        requestCompleted.assertForOverFulfill = false
+        let breadcrumbCaptured = expectation(description: "Network breadcrumb captured")
+        let capturedBreadcrumb = SentryMutex<Breadcrumb?>(nil)
+
+        startSDK {
+            $0.enableSwizzling = true
+            $0.enableNetworkBreadcrumbs = true
+            $0.beforeBreadcrumb = { breadcrumb in
+                guard breadcrumb.category == "http",
+                      (breadcrumb.data?["url"] as? String) == url.absoluteString else {
+                    return breadcrumb
+                }
+
+                capturedBreadcrumb.withLock { $0 = breadcrumb }
+                breadcrumbCaptured.fulfill()
+                return breadcrumb
+            }
+        }
+
+        let session = URLSession(configuration: .default)
+        let task = session.dataTask(with: url) { _, response, error in
+            self.assertNetworkError(error)
+            XCTAssertEqual((response as? HTTPURLResponse)?.statusCode, 200)
+            requestCompleted.fulfill()
+        }
+        defer { session.finishTasksAndInvalidate() }
+
+        // -- Act --
+        task.resume()
+        wait(for: [requestCompleted, breadcrumbCaptured], timeout: 10)
+
+        // -- Assert --
+        let breadcrumb = try XCTUnwrap(capturedBreadcrumb.withLock { $0 })
+        let data = try XCTUnwrap(breadcrumb.data)
+        let requestStart = try XCTUnwrap(data["request_start"] as? Date)
+        let requestEnd = try XCTUnwrap(breadcrumb.timestamp)
+
+        XCTAssertEqual(breadcrumb.type, "http")
+        XCTAssertEqual(data["url"] as? String, url.absoluteString)
+        XCTAssertEqual(data["method"] as? String, "GET")
+        XCTAssertEqual(data["status_code"] as? Int, 200)
+        XCTAssertGreaterThan(requestEnd.timeIntervalSince(requestStart), 0)
     }
 
     func testGetRequest_CompareSentryTraceHeader() throws {
@@ -220,7 +312,8 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         let envelopeCaptured = expectationAllowingOverFulfill(description: "Envelope captured")
         let transport = startSDK(
             envelopeCaptured: envelopeCaptured,
-            expectedEnvelopeItemType: SentryEnvelopeItemTypes.transaction
+            expectedEnvelopeItemType: SentryEnvelopeItemTypes.transaction,
+            disableFramesTracking: true
         ) {
             self.configureEnvelopeSnapshotOptions($0)
             $0.enableNetworkBreadcrumbs = false
@@ -260,9 +353,11 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         let envelopeCaptured = expectationAllowingOverFulfill(description: "Envelope captured")
         let transport = startSDK(
             envelopeCaptured: envelopeCaptured,
-            expectedEnvelopeItemType: SentryEnvelopeItemTypes.event
+            expectedEnvelopeItemType: SentryEnvelopeItemTypes.event,
+            disableFramesTracking: true
         ) {
             self.configureEnvelopeSnapshotOptions($0)
+            $0.enableNetworkBreadcrumbs = false
             $0.enableCaptureFailedRequests = true
             $0.failedRequestStatusCodes = [HttpStatusCodeRange(statusCode: 400)]
         }
@@ -365,6 +460,7 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         function: String = #function,
         envelopeCaptured: XCTestExpectation? = nil,
         expectedEnvelopeItemType: String? = nil,
+        disableFramesTracking: Bool = false,
         _ configureOptions: ((Options) -> Void)? = nil
     ) -> EnvelopeCapturingTransport {
         let options = Options()
@@ -374,6 +470,13 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         configureOptions?(options)
 
         SentrySDK.start(options: options)
+
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        if disableFramesTracking {
+            // The display-link callback makes frames.delay nondeterministic in strict snapshots.
+            SentryDependencyContainer.sharedInstance().framesTracker.stop()
+        }
+#endif
 
         let transport = EnvelopeCapturingTransport(
             expectation: envelopeCaptured,

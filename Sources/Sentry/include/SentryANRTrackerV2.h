@@ -2,7 +2,7 @@
 
 #if SENTRY_HAS_UIKIT
 
-@protocol SentryCrashReporter;
+@protocol SentryApplicationStateProvider;
 @class SentryDispatchQueueWrapper;
 @class SentryThreadWrapper;
 @class SentryFramesTracker;
@@ -26,7 +26,7 @@ SENTRY_NO_INIT
 - (instancetype)initWithTimeoutInterval:(NSTimeInterval)timeoutInterval;
 
 - (instancetype)initWithTimeoutInterval:(NSTimeInterval)timeoutInterval
-                           crashWrapper:(id<SentryCrashReporter>)crashWrapper
+               applicationStateProvider:(id<SentryApplicationStateProvider>)applicationStateProvider
                    dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                           threadWrapper:(SentryThreadWrapper *)threadWrapper
                           framesTracker:(SentryFramesTracker *)framesTracker;

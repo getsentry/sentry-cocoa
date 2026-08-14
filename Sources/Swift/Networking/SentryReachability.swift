@@ -41,6 +41,10 @@ public class SentryReachability: NSObject {
     public var pathMonitorIsNil: Bool {
         return pathMonitor == nil
     }
+
+    var currentPathMonitor: NWPathMonitor? {
+        observersLock.synchronized { pathMonitor }
+    }
 #endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
     
     @objc(addObserver:)
@@ -72,9 +76,15 @@ public class SentryReachability: NSObject {
 #endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
         
         self.currentConnectivity = .none
-        self.pathMonitor = NWPathMonitor()
-        self.pathMonitor?.pathUpdateHandler = self.pathUpdateHandler
-        self.pathMonitor?.start(queue: self.reachabilityQueue)
+        let pathMonitor = NWPathMonitor()
+        pathMonitor.pathUpdateHandler = { [weak self, weak pathMonitor] path in
+            guard let self, let pathMonitor, self.isCurrentPathMonitor(pathMonitor) else {
+                return
+            }
+            self.pathUpdateHandler(path)
+        }
+        self.pathMonitor = pathMonitor
+        pathMonitor.start(queue: self.reachabilityQueue)
     }
     
     @objc(removeObserver:)
@@ -117,6 +127,12 @@ public class SentryReachability: NSObject {
         }
     }
     
+    func isCurrentPathMonitor(_ pathMonitor: NWPathMonitor) -> Bool {
+        observersLock.synchronized {
+            self.pathMonitor === pathMonitor
+        }
+    }
+
     private func pathUpdateHandler(_ path: NWPath) {
         SentrySDKLog.debug("SentryPathUpdateHandler called with path status: \(path.status)")
         

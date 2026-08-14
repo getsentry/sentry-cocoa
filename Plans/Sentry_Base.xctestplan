@@ -45,6 +45,7 @@
         "SentryHttpTransportFlushIntegrationTests",
         "SentryInternalProfilingApiIntegrationTests\/testCollect_shouldContainProfileStructure()",
         "SentryHttpTransportTests\/testFlush_WhenNoInternet_BlocksAndFinishes()",
+        "SentryNetworkDetailSwizzlingTests",
         "SentryNetworkTrackerIntegrationTestServerTests",
         "SentryNetworkTrackerIntegrationTestServerTests\/testGetRequest_SpanCreatedAndBaggageHeaderAdded()",
         "SentryOnDemandReplayTests\/testAddFrameIsThreadSafe()",

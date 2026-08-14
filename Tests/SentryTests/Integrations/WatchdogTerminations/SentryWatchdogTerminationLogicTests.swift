@@ -35,22 +35,23 @@ class SentryWatchdogTerminationLogicTests: XCTestCase {
             customCurrentAppState: SentryAppState? = nil,
             activeCrashReporterState: SentryCrashReporterState? = nil
         ) -> SentryWatchdogTerminationLogic {
+            let dependencies = SentryDependencyContainer.sharedInstance()
+            dependencies.crashWrapper = crashWrapper
+            dependencies.fileManager = fileManager
+            dependencies.sysctlWrapper = sysctl
+            dependencies.dispatchQueueWrapper = dispatchQueue
             let appStateManager: SentryAppStateManager
             
             if let customState = customCurrentAppState {
                 appStateManager = SentryAppStateManager(
                     releaseName: options.releaseName,
-                    crashWrapper: crashWrapper,
-                    fileManager: fileManager,
-                    sysctlWrapper: sysctl,
-                    customBuildCurrentAppState: { customState }
+                    customBuildCurrentAppState: { customState },
+                    dependencies: dependencies
                 )
             } else {
                 appStateManager = SentryAppStateManager(
                     releaseName: options.releaseName,
-                    crashWrapper: crashWrapper,
-                    fileManager: fileManager,
-                    sysctlWrapper: sysctl
+                    dependencies: dependencies
                 )
             }
             
@@ -103,6 +104,7 @@ class SentryWatchdogTerminationLogicTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         fixture.fileManager.deleteAllFolders()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
     

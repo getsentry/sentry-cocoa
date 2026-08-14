@@ -1,3 +1,4 @@
+#if !SDK_V10
 internal import _SentryPrivate
 import Foundation
 
@@ -88,3 +89,4 @@ final class SentryCrashIntegrationSessionHandler: NSObject {
         
     }
 }
+#endif // !SDK_V10

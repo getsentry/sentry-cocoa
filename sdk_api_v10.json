@@ -218,49 +218,6 @@
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              }
-            ],
-            "kind": "TypeNameAlias",
-            "name": "Void",
-            "printedName": "Swift.Void"
-          }
-        ],
-        "declKind": "Func",
-        "funcSelfKind": "NonMutating",
-        "kind": "Function",
-        "moduleName": "Sentry",
-        "name": "sentry_finishAndSaveTransaction",
-        "printedName": "sentry_finishAndSaveTransaction()",
-        "usr": "c:@M@Sentry@F@sentry_finishAndSaveTransaction"
-      },
-      {
-        "children": [
-          {
-            "kind": "TypeNominal",
-            "name": "Void",
-            "printedName": "()"
-          }
-        ],
-        "declAttributes": [
-          "CDecl"
-        ],
-        "declKind": "Func",
-        "funcSelfKind": "NonMutating",
-        "kind": "Function",
-        "mangledName": "$s6Sentry31sentry_finishAndSaveTransactionyyF",
-        "moduleName": "Sentry",
-        "name": "sentry_finishAndSaveTransaction",
-        "printedName": "sentry_finishAndSaveTransaction()",
-        "usr": "c:(cm)sentry_finishAndSaveTransaction"
-      },
-      {
-        "children": [
-          {
-            "children": [
-              {
-                "kind": "TypeNominal",
                 "name": "NSDictionary",
                 "printedName": "Foundation.NSDictionary",
                 "usr": "c:objc(cs)NSDictionary"
@@ -850,6 +807,16 @@
         "moduleName": "Sentry",
         "name": "Sentry.SentryTraceHeader",
         "printedName": "Sentry.SentryTraceHeader"
+      },
+      {
+        "declAttributes": [
+          "Exported"
+        ],
+        "declKind": "Import",
+        "kind": "Import",
+        "moduleName": "Sentry",
+        "name": "Sentry.SentryTransaction",
+        "printedName": "Sentry.SentryTransaction"
       },
       {
         "declAttributes": [
@@ -21809,6 +21776,170 @@
                 "accessorKind": "get",
                 "children": [
                   {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Transaction",
+                                "printedName": "Sentry.Transaction",
+                                "usr": "c:objc(cs)SentryTransaction"
+                              }
+                            ],
+                            "kind": "TypeNominal",
+                            "name": "Optional",
+                            "printedName": "Sentry.Transaction?",
+                            "usr": "s:Sq"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Transaction",
+                            "printedName": "Sentry.Transaction",
+                            "usr": "c:objc(cs)SentryTransaction"
+                          }
+                        ],
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "(Sentry.Transaction) -> Sentry.Transaction?"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "((Sentry.Transaction) -> Sentry.Transaction?)?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry7OptionsC21beforeSendTransactionSo0aE0CSgAFcSgvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)beforeSendTransaction"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Transaction",
+                                "printedName": "Sentry.Transaction",
+                                "usr": "c:objc(cs)SentryTransaction"
+                              }
+                            ],
+                            "kind": "TypeNominal",
+                            "name": "Optional",
+                            "printedName": "Sentry.Transaction?",
+                            "usr": "s:Sq"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Transaction",
+                            "printedName": "Sentry.Transaction",
+                            "usr": "c:objc(cs)SentryTransaction"
+                          }
+                        ],
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "(Sentry.Transaction) -> Sentry.Transaction?"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "((Sentry.Transaction) -> Sentry.Transaction?)?",
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry7OptionsC21beforeSendTransactionSo0aE0CSgAFcSgvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setBeforeSendTransaction:"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Transaction",
+                            "printedName": "Sentry.Transaction",
+                            "usr": "c:objc(cs)SentryTransaction"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Optional",
+                        "printedName": "Sentry.Transaction?",
+                        "usr": "s:Sq"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Transaction",
+                        "printedName": "Sentry.Transaction",
+                        "usr": "c:objc(cs)SentryTransaction"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.Transaction) -> Sentry.Transaction?"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "((Sentry.Transaction) -> Sentry.Transaction?)?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasInitialValue",
+              "HasStorage",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry7OptionsC21beforeSendTransactionSo0aE0CSgAFcSgvp",
+            "moduleName": "Sentry",
+            "name": "beforeSendTransaction",
+            "printedName": "beforeSendTransaction",
+            "usr": "c:@M@Sentry@objc(cs)SentryOptions(py)beforeSendTransaction"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
                     "kind": "TypeNominal",
                     "name": "String",
                     "printedName": "Swift.String",
@@ -23487,82 +23618,6 @@
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry7OptionsC10enableLogsSbvg",
-                "moduleName": "Sentry",
-                "name": "Get",
-                "printedName": "Get()",
-                "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)enableLogs"
-              },
-              {
-                "accessorKind": "set",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Bool",
-                    "printedName": "Swift.Bool",
-                    "usr": "s:Sb"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "declAttributes": [
-                  "Final",
-                  "ObjC"
-                ],
-                "declKind": "Accessor",
-                "implicit": true,
-                "kind": "Accessor",
-                "mangledName": "$s6Sentry7OptionsC10enableLogsSbvs",
-                "moduleName": "Sentry",
-                "name": "Set",
-                "printedName": "Set()",
-                "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setEnableLogs:"
-              }
-            ],
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Bool",
-                "printedName": "Swift.Bool",
-                "usr": "s:Sb"
-              }
-            ],
-            "declAttributes": [
-              "Final",
-              "HasStorage",
-              "ObjC"
-            ],
-            "declKind": "Var",
-            "hasStorage": true,
-            "kind": "Var",
-            "mangledName": "$s6Sentry7OptionsC10enableLogsSbvp",
-            "moduleName": "Sentry",
-            "name": "enableLogs",
-            "printedName": "enableLogs",
-            "usr": "c:@M@Sentry@objc(cs)SentryOptions(py)enableLogs"
-          },
-          {
-            "accessors": [
-              {
-                "accessorKind": "get",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Bool",
-                    "printedName": "Swift.Bool",
-                    "usr": "s:Sb"
-                  }
-                ],
-                "declAttributes": [
-                  "Final",
-                  "ObjC"
-                ],
-                "declKind": "Accessor",
-                "implicit": true,
-                "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC25enableMemoryIntrospectionSbvg",
                 "moduleName": "Sentry",
                 "name": "Get",
@@ -23771,82 +23826,6 @@
             "name": "enableMetricKitRawPayload",
             "printedName": "enableMetricKitRawPayload",
             "usr": "c:@M@Sentry@objc(cs)SentryOptions(py)enableMetricKitRawPayload"
-          },
-          {
-            "accessors": [
-              {
-                "accessorKind": "get",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Bool",
-                    "printedName": "Swift.Bool",
-                    "usr": "s:Sb"
-                  }
-                ],
-                "declAttributes": [
-                  "Final",
-                  "ObjC"
-                ],
-                "declKind": "Accessor",
-                "implicit": true,
-                "kind": "Accessor",
-                "mangledName": "$s6Sentry7OptionsC13enableMetricsSbvg",
-                "moduleName": "Sentry",
-                "name": "Get",
-                "printedName": "Get()",
-                "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)enableMetrics"
-              },
-              {
-                "accessorKind": "set",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Bool",
-                    "printedName": "Swift.Bool",
-                    "usr": "s:Sb"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "declAttributes": [
-                  "Final",
-                  "ObjC"
-                ],
-                "declKind": "Accessor",
-                "implicit": true,
-                "kind": "Accessor",
-                "mangledName": "$s6Sentry7OptionsC13enableMetricsSbvs",
-                "moduleName": "Sentry",
-                "name": "Set",
-                "printedName": "Set()",
-                "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setEnableMetrics:"
-              }
-            ],
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Bool",
-                "printedName": "Swift.Bool",
-                "usr": "s:Sb"
-              }
-            ],
-            "declAttributes": [
-              "Final",
-              "HasStorage",
-              "ObjC"
-            ],
-            "declKind": "Var",
-            "hasStorage": true,
-            "kind": "Var",
-            "mangledName": "$s6Sentry7OptionsC13enableMetricsSbvp",
-            "moduleName": "Sentry",
-            "name": "enableMetrics",
-            "printedName": "enableMetrics",
-            "usr": "c:@M@Sentry@objc(cs)SentryOptions(py)enableMetrics"
           },
           {
             "accessors": [
@@ -40002,82 +39981,6 @@
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry0A19ExperimentalOptionsC31enableStandaloneAppStartTracingSbvg",
-                "moduleName": "Sentry",
-                "name": "Get",
-                "printedName": "Get()",
-                "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(im)enableStandaloneAppStartTracing"
-              },
-              {
-                "accessorKind": "set",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Bool",
-                    "printedName": "Swift.Bool",
-                    "usr": "s:Sb"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "declAttributes": [
-                  "Final",
-                  "ObjC"
-                ],
-                "declKind": "Accessor",
-                "implicit": true,
-                "kind": "Accessor",
-                "mangledName": "$s6Sentry0A19ExperimentalOptionsC31enableStandaloneAppStartTracingSbvs",
-                "moduleName": "Sentry",
-                "name": "Set",
-                "printedName": "Set()",
-                "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(im)setEnableStandaloneAppStartTracing:"
-              }
-            ],
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Bool",
-                "printedName": "Swift.Bool",
-                "usr": "s:Sb"
-              }
-            ],
-            "declAttributes": [
-              "Final",
-              "HasStorage",
-              "ObjC"
-            ],
-            "declKind": "Var",
-            "hasStorage": true,
-            "kind": "Var",
-            "mangledName": "$s6Sentry0A19ExperimentalOptionsC31enableStandaloneAppStartTracingSbvp",
-            "moduleName": "Sentry",
-            "name": "enableStandaloneAppStartTracing",
-            "printedName": "enableStandaloneAppStartTracing",
-            "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(py)enableStandaloneAppStartTracing"
-          },
-          {
-            "accessors": [
-              {
-                "accessorKind": "get",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Bool",
-                    "printedName": "Swift.Bool",
-                    "usr": "s:Sb"
-                  }
-                ],
-                "declAttributes": [
-                  "Final",
-                  "ObjC"
-                ],
-                "declKind": "Accessor",
-                "implicit": true,
-                "kind": "Accessor",
                 "mangledName": "$s6Sentry0A19ExperimentalOptionsC35enableUIViewControllerInitSwizzlingSbvg",
                 "moduleName": "Sentry",
                 "name": "Get",
@@ -44420,6 +44323,49 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
+                    "name": "SentryInternalScopeApi",
+                    "printedName": "Sentry.SentryInternalScopeApi",
+                    "usr": "s:6Sentry0A16InternalScopeApiV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A11InternalApiV5scopeAA0ab5ScopeC0Vvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A11InternalApiV5scopeAA0ab5ScopeC0Vvg"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryInternalScopeApi",
+                "printedName": "Sentry.SentryInternalScopeApi",
+                "usr": "s:6Sentry0A16InternalScopeApiV"
+              }
+            ],
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "isLet": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A11InternalApiV5scopeAA0ab5ScopeC0Vvp",
+            "moduleName": "Sentry",
+            "name": "scope",
+            "printedName": "scope",
+            "usr": "s:6Sentry0A11InternalApiV5scopeAA0ab5ScopeC0Vvp"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
                     "name": "SentryInternalScreenApi",
                     "printedName": "Sentry.SentryInternalScreenApi",
                     "usr": "s:6Sentry0A17InternalScreenApiV"
@@ -44541,6 +44487,49 @@
             "name": "sdk",
             "printedName": "sdk",
             "usr": "s:6Sentry0A11InternalApiV3sdkAA0ab3SdkC0Vvp"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryInternalSerializerApi",
+                    "printedName": "Sentry.SentryInternalSerializerApi",
+                    "usr": "s:6Sentry0A21InternalSerializerApiV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A11InternalApiV10serializerAA0ab10SerializerC0Vvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A11InternalApiV10serializerAA0ab10SerializerC0Vvg"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryInternalSerializerApi",
+                "printedName": "Sentry.SentryInternalSerializerApi",
+                "usr": "s:6Sentry0A21InternalSerializerApiV"
+              }
+            ],
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "isLet": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A11InternalApiV10serializerAA0ab10SerializerC0Vvp",
+            "moduleName": "Sentry",
+            "name": "serializer",
+            "printedName": "serializer",
+            "usr": "s:6Sentry0A11InternalApiV10serializerAA0ab10SerializerC0Vvp"
           },
           {
             "accessors": [
@@ -45904,6 +45893,78 @@
               {
                 "children": [
                   {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "ProtocolComposition",
+                        "printedName": "Any"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Dictionary",
+                    "printedName": "[Swift.String : Any]",
+                    "usr": "s:SD"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : [Swift.String : Any]]",
+                "usr": "s:SD"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A16InternalScopeApiV18serializedContextsSDySSSDySSypGGyF",
+            "moduleName": "Sentry",
+            "name": "serializedContexts",
+            "printedName": "serializedContexts()",
+            "usr": "s:6Sentry0A16InternalScopeApiV18serializedContextsSDySSSDySSypGGyF"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          }
+        ],
+        "declKind": "Struct",
+        "kind": "TypeDecl",
+        "mangledName": "$s6Sentry0A16InternalScopeApiV",
+        "moduleName": "Sentry",
+        "name": "SentryInternalScopeApi",
+        "printedName": "SentryInternalScopeApi",
+        "usr": "s:6Sentry0A16InternalScopeApiV"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
                     "kind": "TypeNominal",
                     "name": "String",
                     "printedName": "Swift.String",
@@ -46320,6 +46381,70 @@
         "name": "SentryInternalSdkApi",
         "printedName": "SentryInternalSdkApi",
         "usr": "s:6Sentry0A14InternalSdkApiV"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Any]",
+                "usr": "s:SD"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Event",
+                "printedName": "Sentry.Event",
+                "usr": "c:objc(cs)SentryEvent"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A21InternalSerializerApiV9serialize5eventSDySSypGSo0A5EventC_tF",
+            "moduleName": "Sentry",
+            "name": "serialize",
+            "printedName": "serialize(event:)",
+            "usr": "s:6Sentry0A21InternalSerializerApiV9serialize5eventSDySSypGSo0A5EventC_tF"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          }
+        ],
+        "declKind": "Struct",
+        "kind": "TypeDecl",
+        "mangledName": "$s6Sentry0A21InternalSerializerApiV",
+        "moduleName": "Sentry",
+        "name": "SentryInternalSerializerApi",
+        "printedName": "SentryInternalSerializerApi",
+        "usr": "s:6Sentry0A21InternalSerializerApiV"
       },
       {
         "children": [
@@ -68003,6 +68128,155 @@
                 ],
                 "declKind": "Accessor",
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC37addScreenshotButtonAccessibilityLabelSSvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormConfiguration(im)addScreenshotButtonAccessibilityLabel"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC37addScreenshotButtonAccessibilityLabelSSvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "objc_name": "setAddScreenshotButtonAccessibilityLabel:",
+                "printedName": "Set()",
+                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormConfiguration(im)setAddScreenshotButtonAccessibilityLabel:"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC37addScreenshotButtonAccessibilityLabelSSvp",
+            "moduleName": "Sentry",
+            "name": "addScreenshotButtonAccessibilityLabel",
+            "printedName": "addScreenshotButtonAccessibilityLabel",
+            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormConfiguration(py)addScreenshotButtonAccessibilityLabel"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC24addScreenshotButtonLabelSSvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormConfiguration(im)addScreenshotButtonLabel"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC24addScreenshotButtonLabelSSvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormConfiguration(im)setAddScreenshotButtonLabel:"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasStorage",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC24addScreenshotButtonLabelSSvp",
+            "moduleName": "Sentry",
+            "name": "addScreenshotButtonLabel",
+            "printedName": "addScreenshotButtonLabel",
+            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormConfiguration(py)addScreenshotButtonLabel"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "kind": "Accessor",
                 "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC30cancelButtonAccessibilityLabelSSvg",
                 "moduleName": "Sentry",
                 "name": "Get",
@@ -68358,6 +68632,82 @@
             "name": "emailTextFieldAccessibilityLabel",
             "printedName": "emailTextFieldAccessibilityLabel",
             "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormConfiguration(py)emailTextFieldAccessibilityLabel"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC16enableScreenshotSbvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormConfiguration(im)enableScreenshot"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC16enableScreenshotSbvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormConfiguration(im)setEnableScreenshot:"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasStorage",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC16enableScreenshotSbvp",
+            "moduleName": "Sentry",
+            "name": "enableScreenshot",
+            "printedName": "enableScreenshot",
+            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormConfiguration(py)enableScreenshot"
           },
           {
             "accessors": [
@@ -69261,6 +69611,158 @@
             "name": "removeScreenshotButtonLabel",
             "printedName": "removeScreenshotButtonLabel",
             "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormConfiguration(py)removeScreenshotButtonLabel"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC28screenshotAccessibilityLabelSSvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormConfiguration(im)screenshotAccessibilityLabel"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC28screenshotAccessibilityLabelSSvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormConfiguration(im)setScreenshotAccessibilityLabel:"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasStorage",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC28screenshotAccessibilityLabelSSvp",
+            "moduleName": "Sentry",
+            "name": "screenshotAccessibilityLabel",
+            "printedName": "screenshotAccessibilityLabel",
+            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormConfiguration(py)screenshotAccessibilityLabel"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC19screenshotErrorTextSSvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormConfiguration(im)screenshotErrorText"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC19screenshotErrorTextSSvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormConfiguration(im)setScreenshotErrorText:"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasStorage",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC19screenshotErrorTextSSvp",
+            "moduleName": "Sentry",
+            "name": "screenshotErrorText",
+            "printedName": "screenshotErrorText",
+            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormConfiguration(py)screenshotErrorText"
           },
           {
             "accessors": [
@@ -72222,682 +72724,6 @@
         ],
         "superclassUsr": "c:objc(cs)NSObject",
         "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackThemeConfiguration"
-      },
-      {
-        "children": [
-          {
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "SentryUserFeedbackWidgetConfiguration",
-                "printedName": "Sentry.SentryUserFeedbackWidgetConfiguration",
-                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration"
-              }
-            ],
-            "declAttributes": [
-              "Dynamic",
-              "ObjC",
-              "Override"
-            ],
-            "declKind": "Constructor",
-            "init_kind": "Designated",
-            "kind": "Constructor",
-            "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationCACycfc",
-            "moduleName": "Sentry",
-            "name": "init",
-            "objc_name": "init",
-            "overriding": true,
-            "printedName": "init()",
-            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration(im)init"
-          },
-          {
-            "accessors": [
-              {
-                "accessorKind": "get",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Bool",
-                    "printedName": "Swift.Bool",
-                    "usr": "s:Sb"
-                  }
-                ],
-                "declAttributes": [
-                  "Final",
-                  "ObjC"
-                ],
-                "declKind": "Accessor",
-                "kind": "Accessor",
-                "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC10autoInjectSbvg",
-                "moduleName": "Sentry",
-                "name": "Get",
-                "printedName": "Get()",
-                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration(im)autoInject"
-              },
-              {
-                "accessorKind": "set",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Bool",
-                    "printedName": "Swift.Bool",
-                    "usr": "s:Sb"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "declAttributes": [
-                  "Available",
-                  "Final",
-                  "ObjC"
-                ],
-                "declKind": "Accessor",
-                "deprecated": true,
-                "kind": "Accessor",
-                "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC10autoInjectSbvs",
-                "moduleName": "Sentry",
-                "name": "Set",
-                "objc_name": "setAutoInject:",
-                "printedName": "Set()",
-                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration(im)setAutoInject:"
-              }
-            ],
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Bool",
-                "printedName": "Swift.Bool",
-                "usr": "s:Sb"
-              }
-            ],
-            "declAttributes": [
-              "Final",
-              "ObjC"
-            ],
-            "declKind": "Var",
-            "kind": "Var",
-            "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC10autoInjectSbvp",
-            "moduleName": "Sentry",
-            "name": "autoInject",
-            "printedName": "autoInject",
-            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration(py)autoInject"
-          },
-          {
-            "accessors": [
-              {
-                "accessorKind": "get",
-                "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "String",
-                        "printedName": "Swift.String",
-                        "usr": "s:SS"
-                      }
-                    ],
-                    "kind": "TypeNominal",
-                    "name": "Optional",
-                    "printedName": "Swift.String?",
-                    "usr": "s:Sq"
-                  }
-                ],
-                "declAttributes": [
-                  "Final",
-                  "ObjC"
-                ],
-                "declKind": "Accessor",
-                "kind": "Accessor",
-                "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC9labelTextSSSgvg",
-                "moduleName": "Sentry",
-                "name": "Get",
-                "printedName": "Get()",
-                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration(im)labelText"
-              },
-              {
-                "accessorKind": "set",
-                "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "String",
-                        "printedName": "Swift.String",
-                        "usr": "s:SS"
-                      }
-                    ],
-                    "kind": "TypeNominal",
-                    "name": "Optional",
-                    "printedName": "Swift.String?",
-                    "usr": "s:Sq"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "declAttributes": [
-                  "Available",
-                  "Final",
-                  "ObjC"
-                ],
-                "declKind": "Accessor",
-                "deprecated": true,
-                "kind": "Accessor",
-                "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC9labelTextSSSgvs",
-                "moduleName": "Sentry",
-                "name": "Set",
-                "objc_name": "setLabelText:",
-                "printedName": "Set()",
-                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration(im)setLabelText:"
-              }
-            ],
-            "children": [
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Swift.String?",
-                "usr": "s:Sq"
-              }
-            ],
-            "declAttributes": [
-              "Final",
-              "ObjC"
-            ],
-            "declKind": "Var",
-            "kind": "Var",
-            "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC9labelTextSSSgvp",
-            "moduleName": "Sentry",
-            "name": "labelText",
-            "printedName": "labelText",
-            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration(py)labelText"
-          },
-          {
-            "accessors": [
-              {
-                "accessorKind": "get",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "UIOffset",
-                    "printedName": "UIKit.UIOffset",
-                    "usr": "c:@S@UIOffset"
-                  }
-                ],
-                "declAttributes": [
-                  "Final",
-                  "ObjC"
-                ],
-                "declKind": "Accessor",
-                "kind": "Accessor",
-                "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC14layoutUIOffsetSo0G0Vvg",
-                "moduleName": "Sentry",
-                "name": "Get",
-                "printedName": "Get()",
-                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration(im)layoutUIOffset"
-              },
-              {
-                "accessorKind": "set",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "UIOffset",
-                    "printedName": "UIKit.UIOffset",
-                    "usr": "c:@S@UIOffset"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "declAttributes": [
-                  "Available",
-                  "Final",
-                  "ObjC"
-                ],
-                "declKind": "Accessor",
-                "deprecated": true,
-                "kind": "Accessor",
-                "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC14layoutUIOffsetSo0G0Vvs",
-                "moduleName": "Sentry",
-                "name": "Set",
-                "objc_name": "setLayoutUIOffset:",
-                "printedName": "Set()",
-                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration(im)setLayoutUIOffset:"
-              }
-            ],
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "UIOffset",
-                "printedName": "UIKit.UIOffset",
-                "usr": "c:@S@UIOffset"
-              }
-            ],
-            "declAttributes": [
-              "Final",
-              "ObjC"
-            ],
-            "declKind": "Var",
-            "kind": "Var",
-            "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC14layoutUIOffsetSo0G0Vvp",
-            "moduleName": "Sentry",
-            "name": "layoutUIOffset",
-            "printedName": "layoutUIOffset",
-            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration(py)layoutUIOffset"
-          },
-          {
-            "accessors": [
-              {
-                "accessorKind": "get",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "NSDirectionalRectEdge",
-                    "printedName": "UIKit.NSDirectionalRectEdge",
-                    "usr": "c:@E@NSDirectionalRectEdge"
-                  }
-                ],
-                "declAttributes": [
-                  "Final",
-                  "ObjC"
-                ],
-                "declKind": "Accessor",
-                "kind": "Accessor",
-                "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC8locationSo21NSDirectionalRectEdgeVvg",
-                "moduleName": "Sentry",
-                "name": "Get",
-                "printedName": "Get()",
-                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration(im)location"
-              },
-              {
-                "accessorKind": "set",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "NSDirectionalRectEdge",
-                    "printedName": "UIKit.NSDirectionalRectEdge",
-                    "usr": "c:@E@NSDirectionalRectEdge"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "declAttributes": [
-                  "Available",
-                  "Final",
-                  "ObjC"
-                ],
-                "declKind": "Accessor",
-                "deprecated": true,
-                "kind": "Accessor",
-                "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC8locationSo21NSDirectionalRectEdgeVvs",
-                "moduleName": "Sentry",
-                "name": "Set",
-                "objc_name": "setLocation:",
-                "printedName": "Set()",
-                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration(im)setLocation:"
-              }
-            ],
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "NSDirectionalRectEdge",
-                "printedName": "UIKit.NSDirectionalRectEdge",
-                "usr": "c:@E@NSDirectionalRectEdge"
-              }
-            ],
-            "declAttributes": [
-              "Final",
-              "ObjC"
-            ],
-            "declKind": "Var",
-            "kind": "Var",
-            "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC8locationSo21NSDirectionalRectEdgeVvp",
-            "moduleName": "Sentry",
-            "name": "location",
-            "printedName": "location",
-            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration(py)location"
-          },
-          {
-            "accessors": [
-              {
-                "accessorKind": "get",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Bool",
-                    "printedName": "Swift.Bool",
-                    "usr": "s:Sb"
-                  }
-                ],
-                "declAttributes": [
-                  "Final",
-                  "ObjC"
-                ],
-                "declKind": "Accessor",
-                "kind": "Accessor",
-                "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC8showIconSbvg",
-                "moduleName": "Sentry",
-                "name": "Get",
-                "printedName": "Get()",
-                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration(im)showIcon"
-              },
-              {
-                "accessorKind": "set",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Bool",
-                    "printedName": "Swift.Bool",
-                    "usr": "s:Sb"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "declAttributes": [
-                  "Available",
-                  "Final",
-                  "ObjC"
-                ],
-                "declKind": "Accessor",
-                "deprecated": true,
-                "kind": "Accessor",
-                "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC8showIconSbvs",
-                "moduleName": "Sentry",
-                "name": "Set",
-                "objc_name": "setShowIcon:",
-                "printedName": "Set()",
-                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration(im)setShowIcon:"
-              }
-            ],
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Bool",
-                "printedName": "Swift.Bool",
-                "usr": "s:Sb"
-              }
-            ],
-            "declAttributes": [
-              "Final",
-              "ObjC"
-            ],
-            "declKind": "Var",
-            "kind": "Var",
-            "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC8showIconSbvp",
-            "moduleName": "Sentry",
-            "name": "showIcon",
-            "printedName": "showIcon",
-            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration(py)showIcon"
-          },
-          {
-            "accessors": [
-              {
-                "accessorKind": "get",
-                "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "String",
-                        "printedName": "Swift.String",
-                        "usr": "s:SS"
-                      }
-                    ],
-                    "kind": "TypeNominal",
-                    "name": "Optional",
-                    "printedName": "Swift.String?",
-                    "usr": "s:Sq"
-                  }
-                ],
-                "declAttributes": [
-                  "Final",
-                  "ObjC"
-                ],
-                "declKind": "Accessor",
-                "kind": "Accessor",
-                "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC24widgetAccessibilityLabelSSSgvg",
-                "moduleName": "Sentry",
-                "name": "Get",
-                "printedName": "Get()",
-                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration(im)widgetAccessibilityLabel"
-              },
-              {
-                "accessorKind": "set",
-                "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "String",
-                        "printedName": "Swift.String",
-                        "usr": "s:SS"
-                      }
-                    ],
-                    "kind": "TypeNominal",
-                    "name": "Optional",
-                    "printedName": "Swift.String?",
-                    "usr": "s:Sq"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "declAttributes": [
-                  "Available",
-                  "Final",
-                  "ObjC"
-                ],
-                "declKind": "Accessor",
-                "deprecated": true,
-                "kind": "Accessor",
-                "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC24widgetAccessibilityLabelSSSgvs",
-                "moduleName": "Sentry",
-                "name": "Set",
-                "objc_name": "setWidgetAccessibilityLabel:",
-                "printedName": "Set()",
-                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration(im)setWidgetAccessibilityLabel:"
-              }
-            ],
-            "children": [
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Swift.String?",
-                "usr": "s:Sq"
-              }
-            ],
-            "declAttributes": [
-              "Final",
-              "ObjC"
-            ],
-            "declKind": "Var",
-            "kind": "Var",
-            "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC24widgetAccessibilityLabelSSSgvp",
-            "moduleName": "Sentry",
-            "name": "widgetAccessibilityLabel",
-            "printedName": "widgetAccessibilityLabel",
-            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration(py)widgetAccessibilityLabel"
-          },
-          {
-            "accessors": [
-              {
-                "accessorKind": "get",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Level",
-                    "printedName": "UIKit.UIWindow.Level",
-                    "usr": "c:@T@UIWindowLevel"
-                  }
-                ],
-                "declAttributes": [
-                  "Final",
-                  "ObjC"
-                ],
-                "declKind": "Accessor",
-                "kind": "Accessor",
-                "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC11windowLevelSo08UIWindowG0avg",
-                "moduleName": "Sentry",
-                "name": "Get",
-                "printedName": "Get()",
-                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration(im)windowLevel"
-              },
-              {
-                "accessorKind": "set",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Level",
-                    "printedName": "UIKit.UIWindow.Level",
-                    "usr": "c:@T@UIWindowLevel"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "declAttributes": [
-                  "Available",
-                  "Final",
-                  "ObjC"
-                ],
-                "declKind": "Accessor",
-                "deprecated": true,
-                "kind": "Accessor",
-                "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC11windowLevelSo08UIWindowG0avs",
-                "moduleName": "Sentry",
-                "name": "Set",
-                "objc_name": "setWindowLevel:",
-                "printedName": "Set()",
-                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration(im)setWindowLevel:"
-              }
-            ],
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Level",
-                "printedName": "UIKit.UIWindow.Level",
-                "usr": "c:@T@UIWindowLevel"
-              }
-            ],
-            "declAttributes": [
-              "Final",
-              "ObjC"
-            ],
-            "declKind": "Var",
-            "kind": "Var",
-            "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC11windowLevelSo08UIWindowG0avp",
-            "moduleName": "Sentry",
-            "name": "windowLevel",
-            "printedName": "windowLevel",
-            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration(py)windowLevel"
-          }
-        ],
-        "conformances": [
-          {
-            "kind": "Conformance",
-            "mangledName": "$ss7CVarArgP",
-            "name": "CVarArg",
-            "printedName": "CVarArg",
-            "usr": "s:s7CVarArgP"
-          },
-          {
-            "kind": "Conformance",
-            "mangledName": "$ss8CopyableP",
-            "name": "Copyable",
-            "printedName": "Copyable",
-            "usr": "s:s8CopyableP"
-          },
-          {
-            "kind": "Conformance",
-            "mangledName": "$ss28CustomDebugStringConvertibleP",
-            "name": "CustomDebugStringConvertible",
-            "printedName": "CustomDebugStringConvertible",
-            "usr": "s:s28CustomDebugStringConvertibleP"
-          },
-          {
-            "kind": "Conformance",
-            "mangledName": "$ss23CustomStringConvertibleP",
-            "name": "CustomStringConvertible",
-            "printedName": "CustomStringConvertible",
-            "usr": "s:s23CustomStringConvertibleP"
-          },
-          {
-            "kind": "Conformance",
-            "mangledName": "$sSQ",
-            "name": "Equatable",
-            "printedName": "Equatable",
-            "usr": "s:SQ"
-          },
-          {
-            "kind": "Conformance",
-            "mangledName": "$ss9EscapableP",
-            "name": "Escapable",
-            "printedName": "Escapable",
-            "usr": "s:s9EscapableP"
-          },
-          {
-            "kind": "Conformance",
-            "mangledName": "$sSH",
-            "name": "Hashable",
-            "printedName": "Hashable",
-            "usr": "s:SH"
-          },
-          {
-            "kind": "Conformance",
-            "name": "NSObjectProtocol",
-            "printedName": "NSObjectProtocol",
-            "usr": "c:objc(pl)NSObject"
-          }
-        ],
-        "declAttributes": [
-          "Final",
-          "ObjC",
-          "ObjCMembers"
-        ],
-        "declKind": "Class",
-        "inheritsConvenienceInitializers": true,
-        "kind": "TypeDecl",
-        "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC",
-        "moduleName": "Sentry",
-        "name": "SentryUserFeedbackWidgetConfiguration",
-        "printedName": "SentryUserFeedbackWidgetConfiguration",
-        "superclassNames": [
-          "ObjectiveC.NSObject"
-        ],
-        "superclassUsr": "c:objc(cs)NSObject",
-        "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration"
       },
       {
         "children": [
@@ -78641,6 +78467,198 @@
         ],
         "superclassUsr": "c:objc(cs)NSObject",
         "usr": "c:objc(cs)SentryTraceHeader"
+      },
+      {
+        "children": [
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Span",
+                        "printedName": "any Sentry.Span",
+                        "usr": "c:objc(pl)SentrySpan"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[any Sentry.Span]",
+                    "usr": "s:Sa"
+                  }
+                ],
+                "declAttributes": [
+                  "DiscardableResult",
+                  "Dynamic",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "objc_name": "spans",
+                "printedName": "Get()",
+                "usr": "c:objc(cs)SentryTransaction(im)spans"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "Void",
+                    "printedName": "Swift.Void"
+                  },
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Span",
+                        "printedName": "any Sentry.Span",
+                        "usr": "c:objc(pl)SentrySpan"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[any Sentry.Span]",
+                    "usr": "s:Sa"
+                  }
+                ],
+                "declAttributes": [
+                  "Dynamic",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "objc_name": "setSpans:",
+                "printedName": "Set()",
+                "usr": "c:objc(cs)SentryTransaction(im)setSpans:"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Span",
+                    "printedName": "any Sentry.Span",
+                    "usr": "c:objc(pl)SentrySpan"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[any Sentry.Span]",
+                "usr": "s:Sa"
+              }
+            ],
+            "declAttributes": [
+              "Dynamic",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "isOpen": true,
+            "kind": "Var",
+            "moduleName": "Sentry",
+            "name": "spans",
+            "objc_name": "spans",
+            "printedName": "spans",
+            "usr": "c:objc(cs)SentryTransaction(py)spans"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss7CVarArgP",
+            "name": "CVarArg",
+            "printedName": "CVarArg",
+            "usr": "s:s7CVarArgP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss28CustomDebugStringConvertibleP",
+            "name": "CustomDebugStringConvertible",
+            "printedName": "CustomDebugStringConvertible",
+            "usr": "s:s28CustomDebugStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss23CustomStringConvertibleP",
+            "name": "CustomStringConvertible",
+            "printedName": "CustomStringConvertible",
+            "usr": "s:s23CustomStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$sSQ",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$sSH",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH"
+          },
+          {
+            "kind": "Conformance",
+            "name": "NSObjectProtocol",
+            "printedName": "NSObjectProtocol",
+            "usr": "c:objc(pl)NSObject"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SentrySerializable",
+            "printedName": "SentrySerializable",
+            "usr": "c:objc(pl)SentrySerializable"
+          }
+        ],
+        "declAttributes": [
+          "Dynamic",
+          "ObjC"
+        ],
+        "declKind": "Class",
+        "inheritsConvenienceInitializers": true,
+        "isOpen": true,
+        "kind": "TypeDecl",
+        "moduleName": "Sentry",
+        "name": "Transaction",
+        "objc_name": "SentryTransaction",
+        "printedName": "Transaction",
+        "superclassNames": [
+          "ObjectiveC.NSObject",
+          "Sentry.Event"
+        ],
+        "superclassUsr": "c:objc(cs)SentryEvent",
+        "usr": "c:objc(cs)SentryTransaction"
       },
       {
         "children": [

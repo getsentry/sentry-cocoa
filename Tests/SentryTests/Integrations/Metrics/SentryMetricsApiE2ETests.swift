@@ -9,6 +9,7 @@ import XCTest
 class SentryMetricsApiE2ETests: XCTestCase {
     override func tearDown() {
         super.tearDown()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
 
@@ -32,17 +33,6 @@ class SentryMetricsApiE2ETests: XCTestCase {
         let client = try givenSdkWithHub()
         let hubWithoutClient = SentryHubInternal(client: nil, andScope: SentrySDKInternal.currentHub().scope)
         SentrySDKInternal.setCurrentHub(hubWithoutClient)
-
-        // -- Act --
-        SentrySDK.metrics.count(key: "test.metric", value: 1)
-
-        // -- Assert --
-        XCTAssertEqual(client.testMetricsBuffer.addInvocations.count, 0)
-    }
-
-    func testCount_withMetricsDisabled_shouldNotCreateMetric() throws {
-        // -- Arrange --
-        let client = try givenSdkWithHub(isMetricsEnabled: false)
 
         // -- Act --
         SentrySDK.metrics.count(key: "test.metric", value: 1)
@@ -131,17 +121,6 @@ class SentryMetricsApiE2ETests: XCTestCase {
         XCTAssertEqual(client.testMetricsBuffer.addInvocations.count, 0)
     }
 
-    func testDistribution_withMetricsDisabled_shouldNotCreateMetric() throws {
-        // -- Arrange --
-        let client = try givenSdkWithHub(isMetricsEnabled: false)
-
-        // -- Act --
-        SentrySDK.metrics.distribution(key: "test.metric", value: 1.0)
-
-        // -- Assert --
-        XCTAssertEqual(client.testMetricsBuffer.addInvocations.count, 0)
-    }
-
     func testDistribution_withNegativeValue_shouldCreateMetric() throws {
         // -- Arrange --
         let client = try givenSdkWithHub()
@@ -205,17 +184,6 @@ class SentryMetricsApiE2ETests: XCTestCase {
         XCTAssertEqual(client.testMetricsBuffer.addInvocations.count, 0)
     }
 
-    func testGauge_withMetricsDisabled_shouldNotCreateMetric() throws {
-        // -- Arrange --
-        let client = try givenSdkWithHub(isMetricsEnabled: false)
-
-        // -- Act --
-        SentrySDK.metrics.gauge(key: "test.metric", value: 1.0)
-
-        // -- Assert --
-        XCTAssertEqual(client.testMetricsBuffer.addInvocations.count, 0)
-    }
-
     func testGauge_withNegativeValue_shouldCreateMetric() throws {
         // -- Arrange --
         let client = try givenSdkWithHub()
@@ -256,11 +224,10 @@ class SentryMetricsApiE2ETests: XCTestCase {
     // MARK: - Helpers
 
     @discardableResult
-    private func givenSdkWithHub(isMetricsEnabled: Bool = true) throws -> E2EMetricsTestClient {
+    private func givenSdkWithHub() throws -> E2EMetricsTestClient {
         let options = Options()
         options.dsn = TestConstants.dsnForTestCase(type: Self.self)
         options.removeAllIntegrations()
-        options.enableMetrics = isMetricsEnabled
 
         let client = try XCTUnwrap(E2EMetricsTestClient(options: options))
         let hub = SentryHubInternal(
@@ -273,16 +240,14 @@ class SentryMetricsApiE2ETests: XCTestCase {
         SentrySDK.setStart(with: options)
         SentrySDKInternal.setCurrentHub(hub)
 
-        if isMetricsEnabled {
-            let dependencies = SentryDependencyContainer.sharedInstance()
-            let integration = try XCTUnwrap(
-                SentryMetricsIntegration<SentryDependencyContainer>(
-                    with: options,
-                    dependencies: dependencies
-                ) as Any as? SentryIntegrationProtocol
-            )
-            hub.addInstalledIntegration(integration, name: SentryMetricsIntegration<SentryDependencyContainer>.name)
-        }
+        let dependencies = SentryDependencyContainer.sharedInstance()
+        let integration = try XCTUnwrap(
+            SentryMetricsIntegration<SentryDependencyContainer>(
+                with: options,
+                dependencies: dependencies
+            ) as Any as? SentryIntegrationProtocol
+        )
+        hub.addInstalledIntegration(integration, name: SentryMetricsIntegration<SentryDependencyContainer>.name)
 
         hub.startSession()
         return client

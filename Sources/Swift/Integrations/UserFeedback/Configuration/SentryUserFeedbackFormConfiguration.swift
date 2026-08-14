@@ -61,6 +61,40 @@ public final class SentryUserFeedbackFormConfiguration: NSObject {
     // MARK: Screenshots
     
     /**
+     * Displays a button that lets users select a screenshot from their photo library.
+     * - note: Default: `false`
+     */
+    public var enableScreenshot: Bool = false
+
+    /**
+     * The label of the button to add a screenshot to the form.
+     * - note: Default: `"Add a screenshot"`
+     */
+    public var addScreenshotButtonLabel: String = "Add a screenshot"
+
+    /**
+     * The accessibility label of the form's add screenshot button.
+     * - note: Default: `addScreenshotButtonLabel` value
+     */
+    @nonobjc var addScreenshotButtonAccessibilityLabelOverride: String?
+    public var addScreenshotButtonAccessibilityLabel: String {
+        get { addScreenshotButtonAccessibilityLabelOverride ?? addScreenshotButtonLabel }
+        set { addScreenshotButtonAccessibilityLabelOverride = newValue }
+    }
+
+    /**
+     * The accessibility description of a screenshot attached to the form.
+     * - note: Default: `"Attached screenshot"`
+     */
+    public var screenshotAccessibilityLabel: String = "Attached screenshot"
+
+    /**
+     * Message shown when the selected screenshot could not be attached.
+     * - note: Default: `"Unable to attach screenshot. Please choose another image."`
+     */
+    public var screenshotErrorText: String = "Unable to attach screenshot. Please choose another image."
+
+    /**
      * The label of the button to remove the screenshot from the form.
      * - note: Default: `"Remove screenshot"`
      * - note: ignored if `SentryUserFeedbackConfiguration.showFormForScreenshots` is `false`.

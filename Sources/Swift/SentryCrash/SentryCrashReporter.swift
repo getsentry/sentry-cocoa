@@ -9,9 +9,7 @@ import Foundation
 @_spi(Private) @objc public protocol SentryCrashReporter: SentryCrashReporterState {
     @objc var durationFromCrashStateInitToLastCrash: TimeInterval { get }
     @objc var activeDurationSinceLastCrash: TimeInterval { get }
-    @objc var isBeingTraced: Bool { get }
     @objc var isSimulatorBuild: Bool { get }
-    @objc var isApplicationInForeground: Bool { get }
     @objc var freeMemorySize: UInt64 { get }
     @objc var appMemorySize: UInt64 { get }
     @objc var systemInfo: [String: Any] { get }

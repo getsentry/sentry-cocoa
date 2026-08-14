@@ -54,6 +54,31 @@ import Foundation
         set { wrapped.isRequiredLabel = newValue }
     }
 
+    @objc public var enableScreenshot: Bool {
+        get { wrapped.enableScreenshot }
+        set { wrapped.enableScreenshot = newValue }
+    }
+
+    @objc public var addScreenshotButtonLabel: String {
+        get { wrapped.addScreenshotButtonLabel }
+        set { wrapped.addScreenshotButtonLabel = newValue }
+    }
+
+    @objc public var addScreenshotButtonAccessibilityLabel: String {
+        get { wrapped.addScreenshotButtonAccessibilityLabel }
+        set { wrapped.addScreenshotButtonAccessibilityLabel = newValue }
+    }
+
+    @objc public var screenshotAccessibilityLabel: String {
+        get { wrapped.screenshotAccessibilityLabel }
+        set { wrapped.screenshotAccessibilityLabel = newValue }
+    }
+
+    @objc public var screenshotErrorText: String {
+        get { wrapped.screenshotErrorText }
+        set { wrapped.screenshotErrorText = newValue }
+    }
+
     @objc public var removeScreenshotButtonLabel: String {
         get { wrapped.removeScreenshotButtonLabel }
         set { wrapped.removeScreenshotButtonLabel = newValue }

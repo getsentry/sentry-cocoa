@@ -2,19 +2,46 @@
 
 ## Unreleased
 
+> [!IMPORTANT]
+> This release removes the options `enableLogs` and `enableMetrics` from `Options`. Use `beforeSendLog` or `beforeSendMetric` to drop logs or metrics.
+>
+> We recognize that removing these options in a minor release is disruptive. We made this tradeoff deliberately because enabling Logs and Metrics by default will help most users successfully adopt these features.
+
+### Breaking Changes
+
+- Remove `options.enableLogs` to remove explicit opt-in for Logs. If you need to disable logs, use `beforeSendLog` to drop all logs (#8769)
+- Remove `options.enableMetrics` to remove opt-out of Metrics. If you need to disable metrics, use `beforeSendMetric` to drop all metrics (#8785)
+
+## 9.26.0
+
+> [!WARNING]
+> The 3rd-party integration packages (SentryCocoaLumberjack, SentryPulse, SentrySwiftLog, SentrySwiftyBeaver) now require Swift 6.1+ to support SPM package traits. Users on older Swift toolchains should pin to an earlier release of these packages.
+
 ### Features
 
+- Promote `enableStandaloneAppStartTracing` from `options.experimental` to a top-level option on `Options` (#8715)
+- Add `SentryFromBinary` (default) and `SentryFromSource` SPM package traits to 3rd-party integrations, allowing users to choose between precompiled xcframeworks and building from source. Requires Swift 6.1+ (#8795)
 - Add experimental option `enableUIViewControllerInitSwizzling` that defers `UIViewController` swizzling to first instantiation instead of eagerly discovering and swizzling all subclasses at SDK start. This avoids realizing `@available`-gated `UIViewController` subclasses on OS versions below their gate, which crashes apps on start (#8687).
+- Add screenshot picker to feedback (#8655)
+  - Enable it with `form.enableScreenshot = true` in the `configureForm` callback.
+- Expose transaction as a public event type (#8745)
 
 ### Improvements
 
 - Session Replay keeps captured frames in memory for live video encode while still writing PNGs to disk for crash durability. Encode prefers the in-memory image and only falls back to disk for frames recovered after a crash, avoiding a PNG readback on the streaming hot path. (#8636)
+- Remove the per-frame render loop from the Session Replay masking preview. (#8730)
 
 ### Fixes
 
 - Fix misleading duplicate SDK detection message: "same binary" → "same address space" (#8710)
 - Fix a race caused by mutating `URLSessionTask.currentRequest` during trace header propagation (#8650)
 - Prevent breadcrumb persistence for watchdog termination events from blocking the calling thread (#8653)
+- Prevent Session Replay network-detail breadcrumbs from blocking URLSession cancellation on the task monitor (#8497)
+- Fix Session Replay adaptive capture backoff pinning at the maximum interval due to mask compositing being included in the measured capture duration, which could produce single-frame segments that appear stuck on one screen (#8740)
+
+### Internal
+
+- Add internal hybrid SDK APIs to serialize native events and retrieve scope contexts for .NET event processing (#8708)
 
 ## 9.25.0
 

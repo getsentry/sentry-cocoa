@@ -17,12 +17,11 @@ class SentryANRTrackerV1Tests: XCTestCase, SentryANRTrackerDelegate {
     private class Fixture {
         let timeoutInterval: TimeInterval = 5
         let currentDate = TestCurrentDateProvider()
-        let crashWrapper: TestSentryCrashWrapper
+        let applicationStateProvider = TestSentryApplicationStateProvider()
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         let threadWrapper = SentryTestThreadWrapper()
         
         init() {
-            crashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
             SentryDependencyContainer.sharedInstance().dateProvider = currentDate
         }
     }
@@ -42,7 +41,7 @@ class SentryANRTrackerV1Tests: XCTestCase, SentryANRTrackerDelegate {
         
         sut = SentryANRTracker(helper: SentryANRTrackerV1(
             timeoutInterval: fixture.timeoutInterval,
-            crashWrapper: fixture.crashWrapper,
+            applicationStateProvider: fixture.applicationStateProvider,
             dispatchQueueWrapper: fixture.dispatchQueue,
             threadWrapper: fixture.threadWrapper))
     }
@@ -54,6 +53,7 @@ class SentryANRTrackerV1Tests: XCTestCase, SentryANRTrackerDelegate {
         wait(for: [fixture.threadWrapper.threadFinishedExpectation], timeout: 5)
         XCTAssertEqual(0, fixture.threadWrapper.threads.count)
         SentrySDKLog._configure(self.previousIsDebug, diagnosticLevel: self.previousDiagnosticLevel)
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
     
@@ -97,7 +97,7 @@ class SentryANRTrackerV1Tests: XCTestCase, SentryANRTrackerDelegate {
     
     func testANRButAppInBackground_NoANR() {
         anrDetectedExpectation.isInverted = true
-        fixture.crashWrapper.internalIsApplicationInForeground = false
+        fixture.applicationStateProvider.isApplicationInForeground = false
         
         fixture.dispatchQueue.blockBeforeMainBlock = {
             self.advanceTime(bySeconds: self.fixture.timeoutInterval)

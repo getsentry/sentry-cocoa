@@ -1,58 +1,78 @@
-extension URLSessionTask {
-    private enum AssociatedKeys {
-        static let trackerSpan = AssociatedObjectAccessor<Span>.Key()
-        static let startDate = AssociatedObjectAccessor<Date>.Key()
-        static let trackerBreadcrumb = AssociatedObjectAccessor<Bool>.Key()
+final class URLSessionTaskNetworkTrackerState {
+    struct SpanCompletion {
+        let status: SentrySpanStatus
+        let responseStatusCode: Int?
+    }
+
+    enum SpanState {
+        case idle
+        case creating
+        case active(Span)
+        case completionPending(SpanCompletion)
+        case completed
+    }
+
+    struct Values {
+        var spanState = SpanState.idle
+        var startDate: Date?
+        var hasBreadcrumb = false
 
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
-        static let networkDetails = AssociatedObjectAccessor<SentryReplayNetworkDetails>.Key()
+        var networkDetails: SentryReplayNetworkDetails?
 #endif
     }
 
-    private var trackerSpanAccessor: AssociatedObjectAccessor<Span> {
-        .init(on: self, key: AssociatedKeys.trackerSpan)
-    }
-    var trackerSpan: AssociatedObjectAccessor<Span>.Value? {
-        trackerSpanAccessor.value
-    }
-    func setTrackerSpan(_ newValue: Span?) {
-        trackerSpanAccessor.set(newValue)
+    let values = SentryMutex(Values())
+}
+
+extension URLSessionTask {
+    private enum AssociatedKeys {
+        static let networkTrackerState = AssociatedObjectAccessor<URLSessionTaskNetworkTrackerState>.Key()
+        static let stateCreation = SentryMutex<Void>(())
     }
 
-    private var startDateAccessor: AssociatedObjectAccessor<Date> {
-        .init(on: self, key: AssociatedKeys.startDate)
-    }
-    var startDate: AssociatedObjectAccessor<Date>.Value? {
-        startDateAccessor.value
-    }
-    func setStartDate(_ newValue: Date?) {
-        startDateAccessor.set(newValue)
+    private var networkTrackerStateAccessor: AssociatedObjectAccessor<URLSessionTaskNetworkTrackerState> {
+        .init(on: self, key: AssociatedKeys.networkTrackerState)
     }
 
-    private var trackerBreadcrumbAccessor: AssociatedObjectAccessor<Bool> {
-        .init(
-            on: self,
-            key: AssociatedKeys.trackerBreadcrumb,
-            decode: { ($0 as? NSNumber)?.boolValue },
-            encode: { NSNumber(value: $0) }
-        )
+    private var existingNetworkTrackerState: URLSessionTaskNetworkTrackerState? {
+        guard case .valid(let state) = networkTrackerStateAccessor.value else {
+            return nil
+        }
+        return state
     }
-    var hasBreadcrumb: AssociatedObjectAccessor<Bool>.Value? {
-        trackerBreadcrumbAccessor.value
+
+    func withNetworkTrackerState<Result>(
+        _ body: (inout URLSessionTaskNetworkTrackerState.Values) throws -> Result
+    ) rethrows -> Result {
+        let state = existingNetworkTrackerState ?? AssociatedKeys.stateCreation.withLock { _ in
+            if let state = existingNetworkTrackerState {
+                return state
+            }
+
+            let state = URLSessionTaskNetworkTrackerState()
+            networkTrackerStateAccessor.set(state)
+            return state
+        }
+        return try state.values.withLock(body)
     }
-    func setHasBreadcrumb(_ newValue: Bool?) {
-        trackerBreadcrumbAccessor.set(newValue)
+
+    var trackerSpan: Span? {
+        withNetworkTrackerState {
+            guard case .active(let span) = $0.spanState else {
+                return nil
+            }
+            return span
+        }
+    }
+
+    var startDate: Date? {
+        withNetworkTrackerState { $0.startDate }
     }
 
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
-    private var networkDetailsAccessor: AssociatedObjectAccessor<SentryReplayNetworkDetails> {
-        .init(on: self, key: AssociatedKeys.networkDetails)
-    }
-    var networkDetails: AssociatedObjectAccessor<SentryReplayNetworkDetails>.Value? {
-        networkDetailsAccessor.value
-    }
-    func setNetworkDetails(_ newValue: SentryReplayNetworkDetails?) {
-        networkDetailsAccessor.set(newValue)
+    var networkDetails: SentryReplayNetworkDetails? {
+        existingNetworkTrackerState?.values.withLock { $0.networkDetails }
     }
 #endif
 }

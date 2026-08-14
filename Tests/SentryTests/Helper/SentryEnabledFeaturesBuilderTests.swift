@@ -11,10 +11,20 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
 
         // -- Assert --
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
-        XCTAssertEqual(features, ["captureFailedRequests", "experimentalViewRenderer", "dataSwizzling", "metrics"])
+#if SDK_V10
+    #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+        XCTAssertEqual(features, ["captureFailedRequests", "swiftAsyncStacktraces", "experimentalViewRenderer", "dataSwizzling", "metrics", "standaloneAppStartTracing"])
+    #elseif os(visionOS) && !SENTRY_NO_UI_FRAMEWORK
+        XCTAssertEqual(features, ["captureFailedRequests", "swiftAsyncStacktraces", "dataSwizzling", "metrics", "standaloneAppStartTracing"])
+    #else
+        XCTAssertEqual(features, ["captureFailedRequests", "swiftAsyncStacktraces", "dataSwizzling", "metrics"])
+    #endif
 #else
+    #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+        XCTAssertEqual(features, ["captureFailedRequests", "experimentalViewRenderer", "dataSwizzling", "metrics"])
+    #else
         XCTAssertEqual(features, ["captureFailedRequests", "dataSwizzling", "metrics"])
+    #endif
 #endif
     }
 
@@ -281,55 +291,43 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         XCTAssertFalse(features.contains("unhandledCPPExceptionsV2"))
     }
 
-    func testEnableMetrics_isEnabled_shouldAddFeature() throws {
-        // -- Arrange --
-        let options = Options()
-        options.enableMetrics = true
-
-        // -- Act --
-        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
-
-        // -- Assert --
-        XCTAssertTrue(features.contains("metrics"))
-    }
-
-    func testEnableMetrics_isDisabled_shouldNotAddFeature() throws {
-        // -- Arrange --
-        let options = Options()
-        options.enableMetrics = false
-
-        // -- Act --
-        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
-
-        // -- Assert --
-        XCTAssertFalse(features.contains("metrics"))
-    }
-
     func testEnableStandaloneAppStartTracing_isEnabled_shouldAddFeature() throws {
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         // -- Arrange --
         let options = Options()
-        options.experimental.enableStandaloneAppStartTracing = true
+        #if !SDK_V10
+        options.enableStandaloneAppStartTracing = true
+        #endif // !SDK_V10
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
 
         // -- Assert --
         XCTAssertTrue(features.contains("standaloneAppStartTracing"))
+#else
+        throw XCTSkip("Test not supported on this platform")
+#endif
     }
 
+    #if !SDK_V10
     func testEnableStandaloneAppStartTracing_isDisabled_shouldNotAddFeature() throws {
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         // -- Arrange --
         let options = Options()
-        options.experimental.enableStandaloneAppStartTracing = false
+        options.enableStandaloneAppStartTracing = false
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
 
         // -- Assert --
         XCTAssertFalse(features.contains("standaloneAppStartTracing"))
+#else
+        throw XCTSkip("Test not supported on this platform")
+#endif
     }
 
     func testEnableStandaloneAppStartTracing_whenDefault_shouldNotAddFeature() throws {
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         // -- Arrange --
         let options = Options()
 
@@ -338,7 +336,11 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 
         // -- Assert --
         XCTAssertFalse(features.contains("standaloneAppStartTracing"))
+#else
+        throw XCTSkip("Test not supported on this platform")
+#endif
     }
+    #endif // !SDK_V10
 
     func testEnableWatchdogTerminationsV2_isEnabled_shouldAddFeature() throws {
         // -- Arrange --

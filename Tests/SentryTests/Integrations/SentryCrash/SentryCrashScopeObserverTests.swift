@@ -21,6 +21,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
     
     override func tearDown() {
         super.tearDown()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
 
@@ -241,7 +242,7 @@ class SentryCrashScopeObserverTests: XCTestCase {
         sentrycrash_scopesync_configureBreadcrumbs(fixture.maxBreadcrumbs)
         
         let scope = sentrycrash_scopesync_getScope()
-        XCTAssertEqual(0, scope?.pointee.currentCrumb)
+        XCTAssertEqual(0, scope.pointee.currentCrumb)
         
         sut.addSerializedBreadcrumb(crumb.serialize())
         try assertOneCrumbSetToScope(crumb: crumb)
@@ -261,16 +262,16 @@ class SentryCrashScopeObserverTests: XCTestCase {
 
         let scope = sentrycrash_scopesync_getScope()
         
-        XCTAssertEqual(1, scope?.pointee.currentCrumb)
+        XCTAssertEqual(1, scope.pointee.currentCrumb)
         
-        guard let breadcrumbs = scope?.pointee.breadcrumbs else {
+        guard let breadcrumbs = scope.pointee.breadcrumbs else {
             XCTFail("Pointer to breadcrumbs is nil.")
             return
         }
         
         // Breadcrumbs are stored with a ring buffer. Therefore,
         // we need to start where the current crumb is
-        var i = scope?.pointee.currentCrumb ?? 0
+        var i = scope.pointee.currentCrumb
         var crumbPointer = breadcrumbs[i]
         for crumb in crumbs {
             let scopeCrumbJSON = String(cString: crumbPointer ?? UnsafeMutablePointer<CChar>.allocate(capacity: 0))
@@ -314,13 +315,11 @@ class SentryCrashScopeObserverTests: XCTestCase {
     
     private func getCrashScope() -> SentryCrashScope {
         let jsonPointer = sentrycrash_scopesync_getScope()
-        return jsonPointer!.pointee
+        return jsonPointer.pointee
     }
     
     private func getScopeJson(getField: (SentryCrashScope) -> UnsafeMutablePointer<CChar>?) -> String? {
-        guard let scopePointer = sentrycrash_scopesync_getScope() else {
-            return nil
-        }
+        let scopePointer = sentrycrash_scopesync_getScope()
 
         guard let charPointer = getField(scopePointer.pointee) else {
             return nil
@@ -334,9 +333,9 @@ class SentryCrashScopeObserverTests: XCTestCase {
 
         let scope = sentrycrash_scopesync_getScope()
         
-        XCTAssertEqual(1, scope?.pointee.currentCrumb)
+        XCTAssertEqual(1, scope.pointee.currentCrumb)
         
-        let breadcrumbs = scope?.pointee.breadcrumbs
+        let breadcrumbs = scope.pointee.breadcrumbs
         let breadcrumbJSON = String(cString: breadcrumbs?.pointee ?? UnsafeMutablePointer<CChar>.allocate(capacity: 0))
         
         XCTAssertEqual(expected, breadcrumbJSON)

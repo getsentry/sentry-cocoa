@@ -109,6 +109,9 @@
 @class SentryAttribute;
 @class SentryBreadcrumb;
 @class SentryEvent;
+#if SDK_V10
+@class SentryTransaction;
+#endif // SDK_V10
 @class SentrySamplingContext;
 @class SentryUserFeedbackConfiguration;
 @class SentryLog;
@@ -143,6 +146,15 @@ typedef SentryBreadcrumb *_Nullable (^SentryBeforeBreadcrumbCallback)(
  * To avoid sending the event altogether, return nil instead.
  */
 typedef SentryEvent *_Nullable (^SentryBeforeSendEventCallback)(SentryEvent *_Nonnull event);
+
+#if SDK_V10
+/**
+ * Block can be used to mutate a transaction before it's sent.
+ * To avoid sending the transaction altogether, return nil instead.
+ */
+typedef SentryTransaction *_Nullable (^SentryBeforeSendTransactionCallback)(
+    SentryTransaction *_Nonnull transaction);
+#endif // SDK_V10
 
 /**
  * Use this block to drop or modify a span before the SDK sends it to Sentry. Return @c nil to drop

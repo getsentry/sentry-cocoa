@@ -13,6 +13,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let crashWrapper: TestSentryCrashWrapper
         let fileManager: SentryFileManager
         let processInfoWrapper: MockSentryProcessInfo
+        let sysctl: TestSysctl
         let watchdogTerminationAttributesProcessor: TestSentryWatchdogTerminationAttributesProcessor
         let hub: SentryHubInternal
         let scope: Scope
@@ -37,6 +38,8 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
 
             processInfoWrapper = MockSentryProcessInfo()
             container.processInfoWrapper = processInfoWrapper
+            sysctl = TestSysctl()
+            container.sysctlWrapper = sysctl
 
             crashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
             container.crashWrapper = crashWrapper
@@ -49,14 +52,9 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
             container.fileManager = fileManager
 
             let notificationCenterWrapper = TestNSNotificationCenterWrapper()
-            SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueueWrapper
-            SentryDependencyContainer.sharedInstance().notificationCenterWrapper = notificationCenterWrapper
-            appStateManager = SentryAppStateManager(
-                releaseName: options.releaseName,
-                crashWrapper: crashWrapper,
-                fileManager: fileManager,
-                sysctlWrapper: SentryDependencyContainer.sharedInstance().sysctlWrapper
-            )
+            container.dispatchQueueWrapper = dispatchQueueWrapper
+            container.notificationCenterWrapper = notificationCenterWrapper
+            appStateManager = SentryAppStateManager(releaseName: options.releaseName, dependencies: container)
             container.appStateManager = appStateManager
             appStateManager.start()
 
@@ -97,6 +95,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         sut?.uninstall()
         fixture.appStateManager.stop()
         fixture.fileManager.deleteAllFolders()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
         super.tearDown()
     }
@@ -170,7 +169,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
             value: ["NSExtensionPointIdentifier": "com.apple.usernotifications.service"]
         )
         SentryDependencyContainer.sharedInstance().extensionDetector = SentryExtensionDetector(infoPlistWrapper: infoPlistWrapper)
-        defer { clearTestState() }
+        defer { clearTestState() } // swiftlint:disable:this avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
 
         // -- Act --
         let sut = fixture.getSut()
@@ -187,7 +186,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
             value: ["NSExtensionPointIdentifier": "com.apple.widgetkit-extension"]
         )
         SentryDependencyContainer.sharedInstance().extensionDetector = SentryExtensionDetector(infoPlistWrapper: infoPlistWrapper)
-        defer { clearTestState() }
+        defer { clearTestState() } // swiftlint:disable:this avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
 
         // -- Act --
         let sut = fixture.getSut()
@@ -204,7 +203,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
             value: ["NSExtensionPointIdentifier": "com.apple.unknown-extension"]
         )
         SentryDependencyContainer.sharedInstance().extensionDetector = SentryExtensionDetector(infoPlistWrapper: infoPlistWrapper)
-        defer { clearTestState() }
+        defer { clearTestState() } // swiftlint:disable:this avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
 
         // -- Act --
         let sut = fixture.getSut()
@@ -320,7 +319,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
 
     func testANRDetected_UpdatesAppStateToTrue() throws {
         // -- Arrange --
-        fixture.crashWrapper.internalIsBeingTraced = false
+        fixture.sysctl.internalIsBeingTraced = false
         let sut = try XCTUnwrap(fixture.getSut())
 
         // -- Act --
@@ -333,7 +332,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
 
     func testANRDetected_NewHangTracker_UpdatesAppStateToTrue() throws {
         // -- Arrange --
-        fixture.crashWrapper.internalIsBeingTraced = false
+        fixture.sysctl.internalIsBeingTraced = false
         let sut = try XCTUnwrap(fixture.getSut(enableNewHangTracker: true))
 
         // -- Act --
@@ -346,7 +345,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
 
     func testANRStopped_UpdatesAppStateToFalse() throws {
         // -- Arrange --
-        fixture.crashWrapper.internalIsBeingTraced = false
+        fixture.sysctl.internalIsBeingTraced = false
         let sut = try XCTUnwrap(fixture.getSut())
 
         // -- Act --
@@ -359,7 +358,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
 
     func testANRStopped_NewHangTracker_UpdatesAppStateToFalse() throws {
         // -- Arrange --
-        fixture.crashWrapper.internalIsBeingTraced = false
+        fixture.sysctl.internalIsBeingTraced = false
         let sut = try XCTUnwrap(fixture.getSut(enableNewHangTracker: true))
         sut.hangStarted()
 

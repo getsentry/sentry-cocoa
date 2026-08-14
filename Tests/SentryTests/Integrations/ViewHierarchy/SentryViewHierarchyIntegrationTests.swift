@@ -36,6 +36,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
 
     override func tearDown() {
         super.tearDown()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
 
@@ -49,7 +50,11 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         }
 
         XCTAssertEqual(SentrySDKInternal.currentHub().getClient()?.attachmentProcessors.count, 0)
+#if !SENTRY_DISABLE_SENTRYCRASH_V10
+        // KSCRASH_TODO(GH-8273, GH-8532): V10 has no fatal view-hierarchy callback.
+        // Acceptance: SCV10-009 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
         XCTAssertFalse(sentrycrash_hasSaveViewHierarchyCallback())
+#endif
     }
 
     func test_attachViewHierarchy_enabled() {
@@ -62,7 +67,11 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         }
 
         XCTAssertEqual(SentrySDKInternal.currentHub().getClient()?.attachmentProcessors.count, 1)
+#if !SENTRY_DISABLE_SENTRYCRASH_V10
+        // KSCRASH_TODO(GH-8273, GH-8532): V10 does not install a fatal view-hierarchy callback.
+        // Acceptance: SCV10-009 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
         XCTAssertTrue(sentrycrash_hasSaveViewHierarchyCallback())
+#endif
     }
 
     func test_uninstall() {
@@ -72,7 +81,11 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         }
         SentrySDK.close()
         XCTAssertNil(SentrySDKInternal.currentHub().getClient()?.attachmentProcessors)
+#if !SENTRY_DISABLE_SENTRYCRASH_V10
+        // KSCRASH_TODO(GH-8273, GH-8532): V10 has no fatal view-hierarchy callback to remove.
+        // Acceptance: SCV10-009 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
         XCTAssertFalse(sentrycrash_hasSaveViewHierarchyCallback())
+#endif
     }
 
     func test_integrationAddFileName() {

@@ -67,7 +67,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (SentryTracer *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
                                   bindToScope:(BOOL)bindToScope
                         customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
-                                configuration:(SentryTracerConfiguration *)configuration;
+                                configuration:(SENTRY_SWIFT_MIGRATION_ID(
+                                                  SentryTracerConfiguration))configuration;
 
 - (SentryId *)captureEvent:(SentryEvent *)event
                   withScope:(SentryScope *)scope

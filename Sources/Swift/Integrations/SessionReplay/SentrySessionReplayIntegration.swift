@@ -4,7 +4,7 @@ internal import _SentryPrivate
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
-typealias SessionReplayIntegrationScope = NotificationCenterProvider & RateLimitsProvider & CurrentDateProvider & RandomProvider & FileManagerProvider & CrashWrapperProvider & ReachabilityProvider & GlobalEventProcessorProvider & DispatchQueueWrapperProvider & ApplicationProvider & DispatchFactoryProvider & SessionReplayCaptureSchedulerProvider & SessionReplayBreadcrumbConverterProvider
+typealias SessionReplayIntegrationScope = NotificationCenterProvider & RateLimitsProvider & CurrentDateProvider & RandomProvider & FileManagerProvider & DebuggerStatusProviderProvider & ReachabilityProvider & GlobalEventProcessorProvider & DispatchQueueWrapperProvider & ApplicationProvider & DispatchFactoryProvider & SessionReplayCaptureSchedulerProvider & SessionReplayBreadcrumbConverterProvider
 
 // This is static because it will be used for swizzling and would cause retain cycles
 private var touchTracker: SentryTouchTracker?
@@ -31,7 +31,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     private var breadcrumbConverter: SentryReplayBreadcrumbConverter
     private var previewView: SentryMaskingPreviewView?
     private let dateProvider: SentryCurrentDateProvider
-    private let crashWrapper: SentryCrashReporter
+    private let debuggerStatusProvider: SentryDebuggerStatusProvider
     private let replayFileManager: SessionReplayFileManager
     private var replayRecovery: SessionReplayRecovery?
     private var backgroundForegroundObserver: SentrySessionReplayBackgroundForegroundObserver?
@@ -89,7 +89,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         self.dateProvider = dependencies.dateProvider
         self.random = dependencies.random
         self.captureScheduler = dependencies.sessionReplayCaptureScheduler
-        self.crashWrapper = dependencies.crashWrapper
+        self.debuggerStatusProvider = dependencies.debuggerStatusProvider
         self.getApplication = dependencies.application
         self.breadcrumbConverter = dependencies.sessionReplayBreadcrumbConverter
 
@@ -98,7 +98,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
             sharedDispatchQueue: dependencies.dispatchQueueWrapper
         )
         
-        self.viewPhotographer = Self.createViewPhotographer(options: options)
+        self.viewPhotographer = Self.createViewPhotographer(options: options, dateProvider: dependencies.dateProvider)
         (self.replayProcessingQueue, self.replayAssetWorkerQueue) = Self.createDispatchQueues(dependencies: dependencies)
         
         super.init()
@@ -145,7 +145,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     
     // MARK: - Initialization Helpers
     
-    private static func createViewPhotographer(options: Options) -> SentryViewPhotographer {
+    private static func createViewPhotographer(options: Options, dateProvider: SentryCurrentDateProvider) -> SentryViewPhotographer {
         var viewRenderer: SentryViewRenderer
         
         if options.sessionReplay.enableViewRendererV2 {
@@ -157,7 +157,12 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         }
         // We are using the flag for the view renderer V2 also for the mask renderer V2, as it would
         // just introduce another option without affecting the SDK user experience.
-        return SentryViewPhotographer(renderer: viewRenderer, redactOptions: options.sessionReplay, enableMaskRendererV2: options.sessionReplay.enableViewRendererV2)
+        return SentryViewPhotographer(
+            renderer: viewRenderer,
+            redactOptions: options.sessionReplay,
+            enableMaskRendererV2: options.sessionReplay.enableViewRendererV2,
+            dateProvider: dateProvider
+        )
     }
     
     private static func createDispatchQueues(dependencies: SessionReplayIntegrationScope) -> (processing: SentryDispatchQueueWrapper, assetWorker: SentryDispatchQueueWrapper) {
@@ -432,7 +437,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
 
     @objc public func showMaskPreview(_ opacity: Float) {
         SentrySDKLog.debug("[Session Replay] Showing mask preview with opacity: \(opacity)")
-        guard crashWrapper.isBeingTraced else { 
+        guard debuggerStatusProvider.isBeingTraced else {
             SentrySDKLog.debug("[Session Replay] No tracing is active, not showing mask preview")
             return 
         }

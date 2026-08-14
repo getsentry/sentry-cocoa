@@ -7,32 +7,11 @@ class SentryMetricsIntegrationTests: XCTestCase {
 
     override func tearDown() {
         super.tearDown()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
 
     // MARK: - Tests
-
-    func testStartSDK_whenIntegrationIsNotEnabled_shouldNotBeInstalled() {
-        // -- Arrange --
-        // SDK not enabled in startSDK call
-
-        // -- Act --
-        startSDK(isEnabled: false)
-
-        // -- Assert --
-        XCTAssertEqual(SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().count, 0)
-    }
-
-    func testStartSDK_whenIntegrationIsEnabled_shouldBeInstalled() {
-        // -- Arrange --
-        // SDK enabled in startSDK call
-
-        // -- Act --
-        startSDK(isEnabled: true)
-
-        // -- Assert --
-        XCTAssertEqual(SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().first, "Metrics")
-    }
 
     func testAddMetric_whenMetricAdded_shouldForwardToTelemetryProcessor() throws {
         // -- Arrange --
@@ -470,12 +449,10 @@ class SentryMetricsIntegrationTests: XCTestCase {
 
     // MARK: - Helpers
 
-    private func startSDK(isEnabled: Bool, configure: ((Options) -> Void)? = nil) {
+    private func startSDK(configure: ((Options) -> Void)? = nil) {
         SentrySDK.start {
             $0.dsn = TestConstants.dsnForTestCase(type: Self.self)
             $0.removeAllIntegrations()
-
-            $0.enableMetrics = isEnabled
 
             configure?($0)
         }
@@ -486,7 +463,6 @@ class SentryMetricsIntegrationTests: XCTestCase {
         let options = Options()
         options.dsn = TestConstants.dsnForTestCase(type: Self.self)
         options.removeAllIntegrations()
-        options.enableMetrics = true
 
         configure?(options)
 

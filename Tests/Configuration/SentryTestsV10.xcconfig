@@ -1,0 +1,16 @@
+#include "SentryTests.xcconfig"
+
+// The V10 target uses a distinct Swift module name, which would generate
+// "SentryTestsV10-Swift.h". ObjC files import "SentryTests-Swift.h", so we
+// override the header name explicitly.
+SWIFT_OBJC_INTERFACE_HEADER_NAME = SentryTests-Swift.h
+
+// Temporary expectations selected by this marker map to acceptance IDs in
+// SENTRYCRASH_V10_MIGRATION_LEDGER.md. SDK_V10 selects permanent backend-specific tests.
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(inherited) SDK_V10 SENTRY_DISABLE_SENTRYCRASH_V10 SENTRY_TEST
+GCC_PREPROCESSOR_DEFINITIONS = $(inherited) SDK_V10=1 SENTRY_DISABLE_SENTRYCRASH_V10=1 SENTRY_TEST=1
+IMPLICIT_DEPENDENCY_DOMAIN = SentryV10
+
+// Tests for implementations removed from the V10 build cannot be linked into this target. Keep
+// tests for the low-level tools that remain shared by reporter-neutral SDK features.
+EXCLUDED_SOURCE_FILE_NAMES = $(inherited) $(SRCROOT)/Tests/SentryTests/Integrations/SentryCrash/* $(SRCROOT)/Tests/SentryTests/SentryCrash/Container+DeepSearch_Tests.m $(SRCROOT)/Tests/SentryTests/SentryCrash/RFC3339UTFString_Tests.m $(SRCROOT)/Tests/SentryTests/SentryCrash/SentryCrashBinaryImageCache* $(SRCROOT)/Tests/SentryTests/SentryCrash/SentryCrashCachedData* $(SRCROOT)/Tests/SentryTests/SentryCrash/SentryCrashCxaThrowSwapper* $(SRCROOT)/Tests/SentryTests/SentryCrash/SentryCrashDebug_Tests.m $(SRCROOT)/Tests/SentryTests/SentryCrash/SentryCrashDoctorTests.swift $(SRCROOT)/Tests/SentryTests/SentryCrash/SentryCrashDynamicLinker* $(SRCROOT)/Tests/SentryTests/SentryCrash/SentryCrashInstallation* $(SRCROOT)/Tests/SentryTests/SentryCrash/SentryCrashJSONCodec_Tests.m $(SRCROOT)/Tests/SentryTests/SentryCrash/SentryCrashMach-OTests.m $(SRCROOT)/Tests/SentryTests/SentryCrash/SentryCrashMach_Tests.m $(SRCROOT)/Tests/SentryTests/SentryCrash/SentryCrashMonitor_* $(SRCROOT)/Tests/SentryTests/SentryCrash/SentryCrashNSErrorUtilTests.m $(SRCROOT)/Tests/SentryTests/SentryCrash/SentryCrashObjC_Tests.m $(SRCROOT)/Tests/SentryTests/SentryCrash/SentryCrashReport* $(SRCROOT)/Tests/SentryTests/SentryCrash/SentryCrashSignalInfo_Tests.m $(SRCROOT)/Tests/SentryTests/SentryCrash/SentryCrashString_Tests.m $(SRCROOT)/Tests/SentryTests/SentryCrash/SentryCrashTests.m $(SRCROOT)/Tests/SentryTests/SentryCrash/SentryCrashWrapperTests.swift $(SRCROOT)/Tests/SentryTests/Integrations/Session/SentrySessionGeneratorTests.swift $(SRCROOT)/Tests/SentryTests/SentryCrashExceptionApplicationTests.swift $(SRCROOT)/Tests/SentryTests/SentryBinaryImageCacheTests.swift $(SRCROOT)/Tests/SentryTests/Recording/SentryCrashCTests.swift

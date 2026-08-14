@@ -15,8 +15,7 @@
 #import "SentryTime.h"
 #import "SentryTraceOrigin.h"
 #import "SentryTracer.h"
-#import "SentryTracerConfiguration.h"
-#import "SentryTransaction.h"
+#import "SentryTransaction+Private.h"
 #import "SentryTransactionContext+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN

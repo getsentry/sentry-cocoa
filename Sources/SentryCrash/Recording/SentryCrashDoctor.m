@@ -7,9 +7,11 @@
 //  Copyright (c) 2012 Karl Stenerud. All rights reserved.
 //
 
-#import "SentryCrashDoctor.h"
-#import "SentryCrashMonitor_System.h"
-#import "SentryCrashReportFields.h"
+#if !SDK_V10
+
+#    import "SentryCrashDoctor.h"
+#    import "SentryCrashMonitor_System.h"
+#    import "SentryCrashReportFields.h"
 
 typedef enum { CPUFamilyUnknown, CPUFamilyArm, CPUFamilyX86, CPUFamilyX86_64 } CPUFamily;
 
@@ -449,3 +451,5 @@ typedef enum { CPUFamilyUnknown, CPUFamilyArm, CPUFamilyX86, CPUFamilyX86_64 } C
 }
 
 @end
+
+#endif // !SDK_V10

@@ -42,7 +42,7 @@ targets:
     platform: iOS
     deploymentTarget: "16.0"
     dependencies:
-      - target: "Sentry/Sentry+KSCrash"
+      - target: "Sentry/SentryV10"
       - target: CrashE2EDynamicImageBefore-iOS
         embed: true
         link: false
@@ -91,7 +91,7 @@ targets:
     platform: macOS
     deploymentTarget: "12.0"
     dependencies:
-      - target: "Sentry/Sentry+KSCrash"
+      - target: "Sentry/SentryV10"
       - target: CrashE2EDynamicImageBefore-macOS
         link: false
       - target: CrashE2EDynamicImageAfter-macOS

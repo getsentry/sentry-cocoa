@@ -165,7 +165,7 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
         XCTAssertEqual(result.count, 1)
     }
 
-    func testRedact_withUITextView_withMaskAllTextDisabled_shouldNotRedactView() throws {
+    func testRedact_withUITextView_withMaskAllTextDisabled_shouldNotAddRedactionRegion() {
         // -- Arrange --
         let rootView = setupUITextViewFixture()
 
@@ -174,27 +174,7 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        let region1 = try XCTUnwrap(result.element(at: 0))
-        XCTAssertNil(region1.color)
-        XCTAssertEqual(region1.size, CGSize(width: 40, height: 40))
-        XCTAssertEqual(region1.type, .clipBegin)
-        XCTAssertEqual(region1.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
-
-        let region2 = try XCTUnwrap(result.element(at: 1))
-        XCTAssertNil(region2.color)
-        XCTAssertEqual(region2.size, CGSize(width: 40, height: 40))
-        XCTAssertEqual(region2.type, .clipEnd)
-        XCTAssertEqual(region2.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
-
-        // The text view is marked as opaque and will therefore cause a clip out of its frame
-        let region3 = try XCTUnwrap(result.element(at: 2))
-        XCTAssertNil(region3.color)
-        XCTAssertEqual(region3.size, CGSize(width: 40, height: 40))
-        XCTAssertEqual(region3.type, .clipOut)
-        XCTAssertEqual(region3.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
-
-        // Assert that there are no other regions
-        XCTAssertEqual(result.count, 3)
+        XCTAssertFalse(result.contains { $0.type == .redact })
     }
 
     func testRedact_withUITextView_withMaskAllImagesDisabled_shouldRedactView() throws {

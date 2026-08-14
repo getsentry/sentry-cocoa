@@ -40,6 +40,7 @@ class SentryScreenshotIntegrationTests: XCTestCase {
     
     override func tearDown() {
         super.tearDown()
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
 
@@ -49,7 +50,11 @@ class SentryScreenshotIntegrationTests: XCTestCase {
             $0.attachScreenshot = false
         }
         XCTAssertEqual(SentrySDKInternal.currentHub().getClient()?.attachmentProcessors.count, 0)
+#if !SENTRY_DISABLE_SENTRYCRASH_V10
+        // KSCRASH_TODO(GH-8273, GH-8532): V10 has no fatal screenshot callback.
+        // Acceptance: SCV10-008 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
         XCTAssertFalse(sentrycrash_hasSaveScreenshotCallback())
+#endif
     }
     
     func test_attachScreenshot_enabled() {
@@ -58,7 +63,11 @@ class SentryScreenshotIntegrationTests: XCTestCase {
             $0.attachScreenshot = true
         }
         XCTAssertEqual(SentrySDKInternal.currentHub().getClient()?.attachmentProcessors.count, 1)
+#if !SENTRY_DISABLE_SENTRYCRASH_V10
+        // KSCRASH_TODO(GH-8273, GH-8532): V10 does not install a fatal screenshot callback.
+        // Acceptance: SCV10-008 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
         XCTAssertTrue(sentrycrash_hasSaveScreenshotCallback())
+#endif
     }
     
     func test_uninstall() {
@@ -69,7 +78,11 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         SentrySDK.close()
         
         XCTAssertNil(SentrySDKInternal.currentHub().getClient()?.attachmentProcessors)
+#if !SENTRY_DISABLE_SENTRYCRASH_V10
+        // KSCRASH_TODO(GH-8273, GH-8532): V10 has no fatal screenshot callback to remove.
+        // Acceptance: SCV10-008 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
         XCTAssertFalse(sentrycrash_hasSaveScreenshotCallback())
+#endif
     }
     
     func test_attachScreenShot_withError() throws {

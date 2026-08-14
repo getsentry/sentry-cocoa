@@ -26,7 +26,7 @@ ARGUMENTS:
 EXAMPLES:
     $(basename "$0") iphoneos Sentry "-Dynamic" mh_dylib
     $(basename "$0") macosx Sentry "" staticlib
-    $(basename "$0") appletvos "Sentry+KSCrash" "" mh_dylib "" "Sentry" "ARCHS=\$(ARCHS_STANDARD) arm64e"
+    $(basename "$0") appletvos "SentryV10" "" mh_dylib "V10" "Sentry" "ARCHS=\$(ARCHS_STANDARD) arm64e"
 
 EOF
     exit 1

@@ -97,6 +97,7 @@ class SentrySDKInternalTests: XCTestCase {
 
         givenSdkWithHubButNoClient()
 
+        // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
 
@@ -447,7 +448,13 @@ class SentrySDKInternalTests: XCTestCase {
         }
 
         let hub = SentrySDKInternal.currentHub()
+#if SENTRY_DISABLE_SENTRYCRASH_V10
+        // KSCRASH_TODO(GH-8725): V10 temporarily omits the Swift async integration.
+        // Acceptance: SCV10-011 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
         XCTAssertEqual(1, hub.installedIntegrations().count)
+#else
+        XCTAssertEqual(2, hub.installedIntegrations().count)
+#endif
         SentrySDK.close()
         XCTAssertEqual(0, hub.installedIntegrations().count)
         assertIntegrationsInstalled(integrations: [])
@@ -516,6 +523,9 @@ class SentrySDKInternalTests: XCTestCase {
         XCTAssertFalse(deviceWrapper.started)
     }
 
+#if !SENTRY_DISABLE_SENTRYCRASH_V10
+    // KSCRASH_TODO(GH-8800): V10 omits initial OS context enrichment.
+    // Acceptance: SCV10-017 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
     /// Ensure to start the UIDeviceWrapper before initializing the hub, so enrich scope sets the correct OS version.
     func testStartSDK_ScopeContextContainsOSVersion() throws {
         let expectation = XCTestExpectation(description: "SentrySDK start called")
@@ -536,10 +546,11 @@ class SentrySDKInternalTests: XCTestCase {
         XCTAssertEqual(UIDevice.current.systemVersion, os["version"] as? String)
 #endif
     }
+#endif // !SENTRY_DISABLE_SENTRYCRASH_V10
 #endif
 
     func testResumeAndPauseAppHangTracking() throws {
-        if SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced {
+        if SentryDependencyContainer.sharedInstance().debuggerStatusProvider.isBeingTraced {
             throw XCTSkip("This test only works when the debugger is NOT attached, because it requires the SentryANRTrackingIntegration being installed, which the SDK only installs if the debugger is not attached.")
         }
 

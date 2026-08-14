@@ -1,6 +1,10 @@
 @testable import SentryPulse
 import Pulse
+#if SENTRY_FROM_SOURCE
+import SentrySwift
+#else
 import Sentry
+#endif
 import XCTest
 
 // swiftlint:disable cyclomatic_complexity
@@ -20,7 +24,6 @@ final class SentryPulseTests: XCTestCase {
 
         SentrySDK.start { options in
             options.dsn = "https://test@test.ingest.sentry.io/123456"
-            options.enableLogs = true
             options.beforeSendLog = { [weak self] log in
                 self?.capturedLogs.append(log)
                 return nil

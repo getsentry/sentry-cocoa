@@ -16,7 +16,7 @@ public struct SentryInternalApi {
         & SentryInternalBreadcrumbApi.Dependencies
         & SentryInternalUserApi.Dependencies
         & SentryInternalEnvelopeApi.Dependencies
-        & HubProvider
+        & SentryInternalScopeApi.Dependencies
         & OptionsDeserializerProvider
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
     typealias Dependencies = BaseDependencies
@@ -46,6 +46,12 @@ public struct SentryInternalApi {
 
     /// Envelope store, capture, and deserialization for hybrid SDKs.
     public let envelope: SentryInternalEnvelopeApi
+
+    /// Access to current scope
+    public let scope: SentryInternalScopeApi
+
+    /// Serialization of data types
+    public let serializer: SentryInternalSerializerApi
 
     private let hub: Hub
     private let optionsDeserializer: OptionsDeserializer
@@ -92,7 +98,14 @@ public struct SentryInternalApi {
 
     /// Tells the crash reporter to ignore the next occurrence of the given signal on the calling thread.
     public func ignoreNextSignal(_ signum: Int32) {
+#if !SENTRY_DISABLE_SENTRYCRASH_V10
         sentrycrash_ignore_next_signal(signum)
+#else
+        // KSCRASH_TODO(GH-8797): V10 cannot yet suppress the next signal on this thread, so this
+        // downstream SPI is temporarily a no-op. Acceptance: SCV10-007 in
+        // SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+        _ = signum
+#endif
     }
 
     /// Returns the current SDK options, or a default instance if the SDK has not been started.
@@ -113,6 +126,8 @@ public struct SentryInternalApi {
         self.breadcrumbs = SentryInternalBreadcrumbApi(dependencies: dependencies)
         self.user = SentryInternalUserApi(dependencies: dependencies)
         self.envelope = SentryInternalEnvelopeApi(dependencies: dependencies)
+        self.scope = SentryInternalScopeApi(dependencies: dependencies)
+        self.serializer = SentryInternalSerializerApi()
         self.swizzle = SentryInternalSwizzleApi()
         self.appStart = SentryInternalAppStartApi()
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK

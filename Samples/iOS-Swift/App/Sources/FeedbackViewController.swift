@@ -18,6 +18,7 @@ final class FeedbackViewController: UIViewController {
             config.configureForm = { form in
                 form.formTitle = "Report Feedback"
                 form.submitButtonLabel = "Send Feedback"
+                form.enableScreenshot = true
             }
             config.tags = ["presentation": "uikit-controller"]
         }

@@ -26,7 +26,6 @@ import SentryPulse
 
 SentrySDK.start { options in
     options.dsn = "YOUR_DSN"
-    options.enableLogs = true
 }
 
 SentryPulse.start()

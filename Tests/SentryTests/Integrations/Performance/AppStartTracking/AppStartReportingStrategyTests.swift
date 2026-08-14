@@ -44,6 +44,7 @@ class AppStartReportingStrategyTests: XCTestCase {
 
     // MARK: - AttachToTransactionStrategy
 
+    #if !SDK_V10
     func testReport_whenColdStart_shouldSetMeasurementOnGlobalStatic() throws {
         XCTAssertNil(SentrySDKInternal.getAppStartMeasurement(), "Precondition: global measurement should be nil before test")
         addTeardownBlock { SentrySDKInternal.setAppStartMeasurement(nil) }
@@ -66,6 +67,7 @@ class AppStartReportingStrategyTests: XCTestCase {
         let stored = try XCTUnwrap(SentrySDKInternal.getAppStartMeasurement())
         XCTAssertEqual(stored.type, .warm)
     }
+    #endif
 
     // MARK: - StandaloneTransactionStrategy
 
@@ -161,7 +163,7 @@ class AppStartReportingStrategyTests: XCTestCase {
     // MARK: - StandaloneTransactionStrategy Integration Tests
 
     private func setUpIntegrationHub() -> TestHub {
-        addTeardownBlock { clearTestState() }
+        addTeardownBlock { clearTestState() } // swiftlint:disable:this avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
 
         let dateProvider = TestCurrentDateProvider()
         SentryDependencyContainer.sharedInstance().dateProvider = dateProvider

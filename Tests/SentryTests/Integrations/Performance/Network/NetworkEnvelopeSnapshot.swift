@@ -42,13 +42,34 @@ struct NetworkEnvelopeSnapshot {
 
     private static let resourceDirectory = "Resources/NetworkEnvelopeSnapshots"
 
-    /// V10 sends a different payload (`infer_ip`, cookies, no `device.locale`), so it has its own
-    /// snapshot rather than exceptions carved into the comparison.
+    /// Catalyst and V10 send different payloads, so each has dedicated snapshots rather than
+    /// exceptions carved into the comparison.
     private static func resourceName(for resource: String) -> String {
-#if SDK_V10
-        "\(resource)-v10"
+#if targetEnvironment(macCatalyst)
+        let platformResource = "\(resource)-catalyst"
+#elseif os(iOS)
+        let platformResource = "\(resource)-ios"
+#elseif os(tvOS)
+        let platformResource = "\(resource)-tvos"
+#elseif os(watchOS)
+        let platformResource = "\(resource)-watchos"
+#elseif os(visionOS)
+        let platformResource = "\(resource)-visionos"
+#elseif os(macOS)
+        let platformResource = "\(resource)-macos"
 #else
-        resource
+#error("Missing platform-specific network envelope snapshot")
+#endif
+#if SDK_V10
+#if SENTRY_DISABLE_SENTRYCRASH_V10
+        // KSCRASH_TODO(GH-8798): V10 snapshots omit debug_meta while the binary-image cache is
+        // empty. Acceptance: SCV10-001 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+        // KSCRASH_TODO(GH-8800): V10 snapshots omit initial OS/device/app/runtime context that the
+        // unavailable reporter does not enrich. Acceptance: SCV10-017 in the migration ledger.
+#endif
+        return "\(platformResource)-v10"
+#else
+        return platformResource
 #endif
     }
 
