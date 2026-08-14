@@ -1,6 +1,6 @@
 import Darwin
 import Foundation
-import Sentry
+import SentrySwift
 
 enum CrashE2EScenario: String {
     case idle

@@ -3,11 +3,9 @@
 # macOS command-line tool using SentrySPM with NoUIFramework trait.
 # Verifies that the SDK can be used without linking AppKit or UIKit.
 #
-# LIMITATION: XcodeGen does not yet support Swift package traits (enabledTraits on
-# XCSwiftPackageProductDependency). As of Xcode 26.4 Beta, traits can be set from the
-# Xcode UI when adding a package dependency. We keep the .xcodeproj in version control
-# with the NoUIFramework trait applied and use a Makefile post-step when regenerating
-# via xcodegen until XcodeGen adds support. See: https://github.com/yonaskolb/XcodeGen/issues/1585
+# XcodeGen 2.46.0+ can emit package traits (yonaskolb/XcodeGen#1629). This sample
+# keeps `NoUIFramework` on the local Sentry package reference so the CLI tool can
+# link SentrySPM without AppKit or UIKit.
 
 name: macOS-CLI-Xcode
 createIntermediateGroups: true

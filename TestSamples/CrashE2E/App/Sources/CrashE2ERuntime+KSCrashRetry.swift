@@ -1,6 +1,6 @@
 import Darwin
 import Foundation
-import Sentry
+import SentrySwift
 
 extension CrashE2ERuntime {
     static func scheduleCrashAfterProcessingCompletesIfRequested() {

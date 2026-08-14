@@ -1,4 +1,4 @@
-import Sentry
+import SentrySwift
 
 #if os(iOS)
 import SwiftUI

@@ -6,9 +6,9 @@ generateEmptyDirectories: true
 configs:
   Debug: debug
   Release: release
-projectReferences:
+packages:
   Sentry:
-    path: ../../Sentry.xcodeproj
+    path: ../..
 options:
   bundleIdPrefix: io.sentry
 fileGroups:
@@ -20,7 +20,8 @@ targets:
     platform: iOS
     deploymentTarget: "16.0"
     dependencies:
-      - target: Sentry/Sentry
+      - package: Sentry
+        product: SentrySPM
       - target: CrashE2EDynamicImageBefore-iOS
         embed: true
         link: false
@@ -42,7 +43,8 @@ targets:
     platform: iOS
     deploymentTarget: "16.0"
     dependencies:
-      - target: "Sentry/SentryV10"
+      - package: Sentry
+        product: SentrySPM
       - target: CrashE2EDynamicImageBefore-iOS
         embed: true
         link: false
@@ -68,7 +70,8 @@ targets:
     platform: macOS
     deploymentTarget: "12.0"
     dependencies:
-      - target: Sentry/Sentry
+      - package: Sentry
+        product: SentrySPM
       - target: CrashE2EDynamicImageBefore-macOS
         link: false
       - target: CrashE2EDynamicImageAfter-macOS
@@ -91,7 +94,8 @@ targets:
     platform: macOS
     deploymentTarget: "12.0"
     dependencies:
-      - target: "Sentry/SentryV10"
+      - package: Sentry
+        product: SentrySPM
       - target: CrashE2EDynamicImageBefore-macOS
         link: false
       - target: CrashE2EDynamicImageAfter-macOS

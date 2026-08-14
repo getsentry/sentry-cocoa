@@ -1,6 +1,6 @@
 import Darwin
 import Foundation
-import Sentry
+import SentrySwift
 
 enum CrashE2ECrashTriggers {
     static func trigger(_ scenario: CrashE2EScenario) -> Never {
