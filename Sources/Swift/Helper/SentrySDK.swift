@@ -658,24 +658,22 @@ extension SentrySDK {
 
     // MARK: - App Hang Tracking
 
+#if !SDK_V10
     /// Pauses sending detected app hangs to Sentry.
     ///
     /// This method doesn't close the detection of app hangs. Instead, the app hang detection
     /// will ignore detected app hangs until you call `resumeAppHangTracking`.
-    #if !SDK_V10
     @objc
-    #endif
     public static func pauseAppHangTracking() {
         SentrySDKInternal.pauseAppHangTracking()
     }
 
     /// Resumes sending detected app hangs to Sentry.
-    #if !SDK_V10
     @objc
-    #endif
     public static func resumeAppHangTracking() {
         SentrySDKInternal.resumeAppHangTracking()
     }
+#endif
 
     /// Waits synchronously for the SDK to flush out all queued and cached items for up to the specified
     /// timeout in seconds. If there is no internet connection, the function returns immediately. The SDK

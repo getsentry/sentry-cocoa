@@ -1,15 +1,22 @@
+// swiftlint:disable function_body_length
 internal import _SentryPrivate
 import Foundation
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
+#if !SDK_V10
 typealias WatchdogTerminationTrackingProvider = ANRTrackerBuilder & ProcessInfoProvider & AppHangTrackerProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider
+#else
+typealias WatchdogTerminationTrackingProvider = ProcessInfoProvider & AppHangTrackerProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider
+#endif
 
 final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogTerminationTrackingProvider>: NSObject, SwiftIntegration, SentryANRTrackerDelegate {
 
     private let tracker: SentryWatchdogTerminationTracker
     private let timeoutInterval: TimeInterval
+    #if !SDK_V10
     private let anrTracker: SentryANRTracker?
+    #endif
     private let appHangTracker: SentryAppHangTracker?
     private let appStateManager: SentryAppStateManager
 
@@ -44,6 +51,7 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
 
         tracker = terminationTracker
         timeoutInterval = options.appHangTimeoutInterval
+        #if !SDK_V10
         if options.experimental.enableWatchdogTerminationsV2 {
             appHangTracker = dependencies.appHangTracker
             anrTracker = nil
@@ -51,6 +59,9 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
             anrTracker = dependencies.getANRTracker(options.appHangTimeoutInterval)
             appHangTracker = nil
         }
+        #else
+        appHangTracker = dependencies.appHangTracker
+        #endif
         appStateManager = dependencies.appStateManager
 
         super.init()
@@ -66,7 +77,9 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
                 hangStopped()
             }
         }
+        #if !SDK_V10
         anrTracker?.add(listener: self)
+        #endif
 
         let scopeObserver = dependencies.getWatchdogTerminationScopeObserverWithOptions(options)
         SentrySDKInternal.currentHub().configureScope { outerScope in
@@ -98,7 +111,9 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
 
     func uninstall() {
         tracker.stop()
+        #if !SDK_V10
         anrTracker?.remove(listener: self)
+        #endif
 
         guard let appHangTrackerObserverToken else {
             return
@@ -137,3 +152,4 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
 }
 
 #endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+// swiftlint:enable function_body_length

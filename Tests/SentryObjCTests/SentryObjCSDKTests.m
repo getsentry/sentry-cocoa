@@ -606,6 +606,7 @@
     [SentryObjCSDK reportFullyDisplayed];
 }
 
+#if !SDK_V10
 - (void)testPauseAppHangTracking_shouldNotCrash
 {
     // -- Act & Assert (no crash) --
@@ -617,6 +618,7 @@
     // -- Act & Assert (no crash) --
     [SentryObjCSDK resumeAppHangTracking];
 }
+#endif
 
 #pragma mark - Flush
 

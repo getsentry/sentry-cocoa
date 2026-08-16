@@ -1603,12 +1603,14 @@ class SentryHubTests: XCTestCase {
         XCTAssertIdentical(integration, installedIntegration)
     }
     
+#if !SDK_V10
     func testGetInstalledIntegration_ReturnsNilIfNotFound() {
         let integration = EmptyIntegration()
         sut.addInstalledIntegration(integration, name: "EmptyIntegration")
         
         XCTAssertNil(sut.getInstalledIntegration(SentryHangTrackerIntegrationObjC.self))
     }
+#endif
     
     func testEventContainsOnlyHandledErrors() {
         let sut = fixture.getSut()
