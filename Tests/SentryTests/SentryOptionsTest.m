@@ -211,20 +211,6 @@
     [self testBooleanField:@"enableNetworkBreadcrumbs"];
 }
 
-- (void)testEnableLogs
-{
-#if SDK_V10
-    [self testBooleanField:@"enableLogs" defaultValue:YES];
-#else
-    [self testBooleanField:@"enableLogs" defaultValue:NO];
-#endif // SDK_V10
-}
-
-- (void)testEnableMetrics
-{
-    [self testBooleanField:@"enableMetrics" defaultValue:YES];
-}
-
 - (void)testEnableAutoBreadcrumbTracking
 {
     [self testBooleanField:@"enableAutoBreadcrumbTracking"];

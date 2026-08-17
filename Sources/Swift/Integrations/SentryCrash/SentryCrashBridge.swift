@@ -1,3 +1,4 @@
+#if !SDK_V10
 internal import _SentryPrivate
 import Foundation
 
@@ -109,3 +110,4 @@ import UIKit
         super.init()
     }
 }
+#endif // !SDK_V10

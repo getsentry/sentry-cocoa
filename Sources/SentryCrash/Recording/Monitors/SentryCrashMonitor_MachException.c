@@ -25,42 +25,44 @@
 // THE SOFTWARE.
 //
 
-#include "SentryCrashMonitor_MachException.h"
-#include "SentryCrashCPU.h"
-#include "SentryCrashID.h"
-#include "SentryCrashMonitorContext.h"
-#include "SentryCrashStackCursor_MachineContext.h"
-#include "SentryCrashThread.h"
-#include "SentryInternalCDefines.h"
+#if !SDK_V10
 
-#include "SentryAsyncSafeLog.h"
+#    include "SentryCrashMonitor_MachException.h"
+#    include "SentryCrashCPU.h"
+#    include "SentryCrashID.h"
+#    include "SentryCrashMonitorContext.h"
+#    include "SentryCrashStackCursor_MachineContext.h"
+#    include "SentryCrashThread.h"
+#    include "SentryInternalCDefines.h"
 
-#if SENTRY_HAS_MACH
+#    include "SentryAsyncSafeLog.h"
 
-#    include <mach/mach.h>
-#    include <pthread.h>
-#    include <signal.h>
+#    if SENTRY_HAS_MACH
 
-// ============================================================================
-#    pragma mark - Constants -
-// ============================================================================
-
-#    define kThreadPrimary "SentryCrash Exception Handler (Primary)"
-#    define kThreadSecondary "SentryCrash Exception Handler (Secondary)"
-
-#    ifdef __LP64__
-#        define MACH_ERROR_CODE_MASK 0xFFFFFFFFFFFFFFFF
-#    else // !__LP64__
-#        define MACH_ERROR_CODE_MASK 0xFFFFFFFF
-#    endif // __LP64__
+#        include <mach/mach.h>
+#        include <pthread.h>
+#        include <signal.h>
 
 // ============================================================================
-#    pragma mark - Types -
+#        pragma mark - Constants -
+// ============================================================================
+
+#        define kThreadPrimary "SentryCrash Exception Handler (Primary)"
+#        define kThreadSecondary "SentryCrash Exception Handler (Secondary)"
+
+#        ifdef __LP64__
+#            define MACH_ERROR_CODE_MASK 0xFFFFFFFFFFFFFFFF
+#        else // !__LP64__
+#            define MACH_ERROR_CODE_MASK 0xFFFFFFFF
+#        endif // __LP64__
+
+// ============================================================================
+#        pragma mark - Types -
 // ============================================================================
 
 /** A mach exception message (according to ux_exception.c, xnu-1699.22.81).
  */
-#    pragma pack(4)
+#        pragma pack(4)
 typedef struct {
     /** Mach header. */
     mach_msg_header_t header;
@@ -97,11 +99,11 @@ typedef struct {
     /** Padding to avoid RCV_TOO_LARGE. */
     char padding[512];
 } MachExceptionMessage;
-#    pragma pack()
+#        pragma pack()
 
 /** A mach reply message (according to ux_exception.c, xnu-1699.22.81).
  */
-#    pragma pack(4)
+#        pragma pack(4)
 typedef struct {
     /** Mach header. */
     mach_msg_header_t header;
@@ -112,10 +114,10 @@ typedef struct {
     /** Return code. */
     kern_return_t returnCode;
 } MachReplyMessage;
-#    pragma pack()
+#        pragma pack()
 
 // ============================================================================
-#    pragma mark - Globals -
+#        pragma mark - Globals -
 // ============================================================================
 
 static volatile bool g_isEnabled = false;
@@ -152,7 +154,7 @@ static char g_primaryEventID[37];
 static char g_secondaryEventID[37];
 
 // ============================================================================
-#    pragma mark - Utility -
+#        pragma mark - Utility -
 // ============================================================================
 
 /** Restore the original mach exception ports.
@@ -183,9 +185,9 @@ restoreExceptionPorts(void)
     g_previousExceptionPorts.count = 0;
 }
 
-#    define EXC_UNIX_BAD_SYSCALL 0x10000 /* SIGSYS */
-#    define EXC_UNIX_BAD_PIPE 0x10001 /* SIGPIPE */
-#    define EXC_UNIX_ABORT 0x10002 /* SIGABRT */
+#        define EXC_UNIX_BAD_SYSCALL 0x10000 /* SIGSYS */
+#        define EXC_UNIX_BAD_PIPE 0x10001 /* SIGPIPE */
+#        define EXC_UNIX_ABORT 0x10002 /* SIGABRT */
 
 static int
 signalForMachException(exception_type_t exception, mach_exception_code_t code)
@@ -248,7 +250,7 @@ machExceptionForSignal(int sigNum)
 }
 
 // ============================================================================
-#    pragma mark - Reserved threads -
+#        pragma mark - Reserved threads -
 // ============================================================================
 /**
  * We only have reserved threads if SENTRY_HAS_MACH.
@@ -266,7 +268,7 @@ sentrycrashcm_hasReservedThreads(void)
     return g_primaryMachThread != 0 && g_secondaryMachThread != 0;
 }
 
-#else // !SENTRY_HAS_MACH
+#    else // !SENTRY_HAS_MACH
 bool
 sentrycrashcm_isReservedThread(thread_t thread)
 {
@@ -279,12 +281,12 @@ sentrycrashcm_hasReservedThreads(void)
     return false;
 }
 
-#endif // SENTRY_HAS_MACH
+#    endif // SENTRY_HAS_MACH
 
-#if SENTRY_HAS_MACH
+#    if SENTRY_HAS_MACH
 
 // ============================================================================
-#    pragma mark - Handler -
+#        pragma mark - Handler -
 // ============================================================================
 
 /** Our exception handler thread routine.
@@ -408,7 +410,7 @@ handleExceptions(void *const userData)
 }
 
 // ============================================================================
-#    pragma mark - API -
+#        pragma mark - API -
 // ============================================================================
 
 static void
@@ -463,12 +465,12 @@ installExceptionHandler(void)
     exception_mask_t mask = EXC_MASK_BAD_ACCESS | EXC_MASK_BAD_INSTRUCTION | EXC_MASK_ARITHMETIC
         | EXC_MASK_SOFTWARE | EXC_MASK_BREAKPOINT;
 
-#    ifdef SENTRY_CRASH_MANAGED_RUNTIME
+#        ifdef SENTRY_CRASH_MANAGED_RUNTIME
     // Exclude Mach exceptions that the managed (.NET/Mono) runtime handles via
     // signal handlers (EXC_BAD_ACCESS for NullReferenceException, EXC_ARITHMETIC
     // for DivideByZeroException).
     mask &= ~(EXC_MASK_BAD_ACCESS | EXC_MASK_ARITHMETIC);
-#    endif
+#        endif
 
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Backing up original exception ports.");
     kr = task_get_exception_ports(thisTask, mask, g_previousExceptionPorts.masks,
@@ -588,17 +590,19 @@ addContextualInfoToEvent(struct SentryCrash_MonitorContext *eventContext)
     }
 }
 
-#endif // SENTRY_HAS_MACH
+#    endif // SENTRY_HAS_MACH
 
 SentryCrashMonitorAPI *
 sentrycrashcm_machexception_getAPI(void)
 {
     static SentryCrashMonitorAPI api = {
-#if SENTRY_HAS_MACH
+#    if SENTRY_HAS_MACH
         .setEnabled = setEnabled,
         .isEnabled = isEnabled,
         .addContextualInfoToEvent = addContextualInfoToEvent
-#endif // SENTRY_HAS_MACH
+#    endif // SENTRY_HAS_MACH
     };
     return &api;
 }
+
+#endif // !SDK_V10

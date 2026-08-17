@@ -679,6 +679,7 @@
         "SentryFileManagerTests\/testCreateDirectoryIfNotExists_successful_shouldNotLogError()",
         "SentryHttpTransportFlushIntegrationTests",
         "SentryHttpTransportTests\/testFlush_WhenNoInternet_BlocksAndFinishes()",
+        "SentryNetworkDetailSwizzlingTests",
         "SentryNetworkTrackerIntegrationTestServerTests",
         "SentryNetworkTrackerIntegrationTestServerTests\/testGetRequest_SpanCreatedAndBaggageHeaderAdded()",
         "SentryOnDemandReplayTests\/testAddFrameIsThreadSafe()",
@@ -698,6 +699,14 @@
         "containerPath" : "container:Sentry.xcodeproj",
         "identifier" : "3CFC66DE2FF50342004005B4",
         "name" : "SentryTestsV10"
+      }
+    },
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:Sentry.xcodeproj",
+        "identifier" : "C7B25B4B511857C68344B040",
+        "name" : "SentryTestUtilsTestsV10"
       }
     }
   ],

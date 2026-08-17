@@ -4,6 +4,7 @@
 
 ### Features
 
+- Sync scope data to KSCrash crash reports in `SentryV10` (#8759)
 - Process pending KSCrash reports into fatal Sentry events in `SentryV10` (#8515)
 - Install KSCrash crash handler in `SentryV10` with production-safe monitors matching SentryCrash's existing monitor set (#8469)
   - Respect `options.enableMemoryIntrospection` when configuring KSCrash
@@ -14,6 +15,7 @@
   - Enable automatic user information for logs, metrics, and IP inference by default; configure it with `options.dataCollection.userInfo` (#8254)
   - Add HTTP header and cookie filtering for failed requests using `options.dataCollection` (#8460)
   - Scrub sensitive Session Replay request and response body values, replacing unparseable bodies with `[Filtered]` (#8547)
+- Add `beforeSendTransaction` to modify or drop transaction events before sending (#8745)
 
 ### Breaking Changes
 
@@ -31,9 +33,11 @@
 
 ### Fixes
 
+- Compile only explicitly allowlisted shared SentryCrash tools in V10
+- Restore foreground app-hang detection and debugger-aware behavior in V10
 - Disambiguate V9 and V10 target dependencies in Xcode builds
 - Keep V10 compiler flags and KSCrash dependencies aligned across Xcode and SwiftPM build paths
 - Filter sensitive values from selected Session Replay network headers and cookies (#8566)
 - Omit failed-request headers when `options.dataCollection.httpHeaders` is disabled (#8562)
 - Normalize profiling CPU usage to 0–100 percent (#8323)
-- Bump KSCrash to `2.6.0-beta.5`
+- Bump KSCrash to `2.6.0`

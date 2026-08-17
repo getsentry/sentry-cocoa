@@ -14,7 +14,6 @@ struct MainApp: App {
             options.enableTimeToFullDisplayTracing = true
             options.attachScreenshot = true
             options.enableMetricKit = true
-            options.enableLogs = true
 
             #if targetEnvironment(simulator)
             options.enableSpotlight = true

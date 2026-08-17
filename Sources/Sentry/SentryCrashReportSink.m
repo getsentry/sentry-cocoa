@@ -1,10 +1,12 @@
-#import "SentryCrashReportSink.h"
+#if !SDK_V10
 
-#import "SentryLogC.h"
-#import "SentrySDK+Private.h"
-#import "SentrySDKInternal.h"
-#import "SentryStoredCrashReportProcessor.h"
-#import "SentrySwift.h"
+#    import "SentryCrashReportSink.h"
+
+#    import "SentryLogC.h"
+#    import "SentrySDK+Private.h"
+#    import "SentrySDKInternal.h"
+#    import "SentryStoredCrashReportProcessor.h"
+#    import "SentrySwift.h"
 
 static const NSTimeInterval SENTRY_APP_START_CRASH_DURATION_THRESHOLD = 2.0;
 static const NSTimeInterval SENTRY_APP_START_CRASH_FLUSH_DURATION = 5.0;
@@ -78,3 +80,5 @@ static const NSTimeInterval SENTRY_APP_START_CRASH_FLUSH_DURATION = 5.0;
 }
 
 @end
+
+#endif // !SDK_V10

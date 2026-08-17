@@ -9,11 +9,11 @@ final class SentryANRTrackerV2Tests: XCTestCase {
     private let waitTimeout: TimeInterval = 10.0
     private var timeoutInterval: TimeInterval = 2
         
-    private func getSut() throws -> (SentryANRTracker, TestCurrentDateProvider, TestDisplayLinkWrapper, TestSentryCrashWrapper, SentryTestThreadWrapper, SentryFramesTracker) {
+    private func getSut() throws -> (SentryANRTracker, TestCurrentDateProvider, TestDisplayLinkWrapper, TestSentryApplicationStateProvider, SentryTestThreadWrapper, SentryFramesTracker) {
         
         let currentDate = TestCurrentDateProvider()
         
-        let crashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
+        let applicationStateProvider = TestSentryApplicationStateProvider()
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         let threadWrapper = SentryTestThreadWrapper()
         
@@ -33,10 +33,10 @@ final class SentryANRTrackerV2Tests: XCTestCase {
         
         return (SentryANRTracker(helper: SentryANRTrackerV2(
             timeoutInterval: timeoutInterval,
-            crashWrapper: crashWrapper,
+            applicationStateProvider: applicationStateProvider,
             dispatchQueueWrapper: dispatchQueue,
             threadWrapper: threadWrapper,
-            framesTracker: framesTracker)), currentDate, displayLinkWrapper, crashWrapper, threadWrapper, framesTracker)
+            framesTracker: framesTracker)), currentDate, displayLinkWrapper, applicationStateProvider, threadWrapper, framesTracker)
     }
     
     /// When no frame gets rendered its a fully blocking app hang.
@@ -349,10 +349,10 @@ final class SentryANRTrackerV2Tests: XCTestCase {
     }
     
     func testFullyBlockingAppHang_ButAppInBackground_NoneReported() throws {
-        let (sut, currentDate, displayLinkWrapper, crashWrapper, _, _) = try getSut()
+        let (sut, currentDate, displayLinkWrapper, applicationStateProvider, _, _) = try getSut()
         defer { sut.clear() }
         
-        crashWrapper.internalIsApplicationInForeground = false
+        applicationStateProvider.isApplicationInForeground = false
         
         let listener = SentryANRTrackerV2TestDelegate(shouldANRBeDetected: false, shouldStoppedBeCalled: false)
         
@@ -365,6 +365,42 @@ final class SentryANRTrackerV2Tests: XCTestCase {
         wait(for: [listener.anrDetectedExpectation, listener.anrStoppedExpectation], timeout: waitTimeout)
     }
     
+    func testClear_WhenWorkerWakesInBackground_DoesNotLogAfterStopping() throws {
+        // -- Arrange --
+        let (sut, _, _, applicationStateProvider, threadWrapper, _) = try getSut()
+        let oldDebug = SentrySDKLog.isDebug
+        let oldLevel = SentrySDKLog.diagnosticLevel
+        let oldOutput = SentrySDKLog.getLogOutput()
+        let logOutput = TestLogOutput(logsToConsole: false)
+        let sleepStarted = expectation(description: "ANR worker started sleeping")
+        let allowSleepToFinish = DispatchSemaphore(value: 0)
+
+        defer {
+            SentrySDKLogSupport.configure(oldDebug, diagnosticLevel: oldLevel)
+            SentrySDKLog.setOutput(oldOutput)
+        }
+
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLogSupport.configure(true, diagnosticLevel: .debug)
+        applicationStateProvider.isApplicationInForeground = false
+        threadWrapper.blockWhenSleeping = {
+            sleepStarted.fulfill()
+            allowSleepToFinish.wait()
+        }
+
+        // -- Act --
+        sut.add(listener: SentryANRTrackerV2TestDelegate())
+        wait(for: [sleepStarted], timeout: waitTimeout)
+        sut.clear()
+        allowSleepToFinish.signal()
+        wait(for: [threadWrapper.threadFinishedExpectation], timeout: waitTimeout)
+
+        // -- Assert --
+        XCTAssertFalse(logOutput.loggedMessages.contains {
+            $0.contains("Ignoring potential app hangs because the app is in the background")
+        })
+    }
+
     func testAppSuspended_NoAppHang() throws {
         let (sut, currentDate, _, _, threadWrapper, _) = try getSut()
         defer { sut.clear() }
@@ -393,7 +429,7 @@ final class SentryANRTrackerV2Tests: XCTestCase {
     /// - means no frame rendered
     func testFullyBlockingAppHang_whenAppGoesToBackgroundDuringHang_shouldNotIncludeBackgroundTimeInDuration() throws {
         timeoutInterval = 0.5
-        let (sut, currentDate, displayLinkWrapper, crashWrapper, threadWrapper, _) = try getSut()
+        let (sut, currentDate, displayLinkWrapper, applicationStateProvider, threadWrapper, _) = try getSut()
         defer { sut.clear() }
         
         let listener = SentryANRTrackerV2TestDelegate()
@@ -409,13 +445,13 @@ final class SentryANRTrackerV2Tests: XCTestCase {
             
             switch backgroundIterations {
             case 0:
-                crashWrapper.internalIsApplicationInForeground = false
+                applicationStateProvider.isApplicationInForeground = false
                 fallthrough
             case 1..<iterationsInBackground:
                 currentDate.advance(by: backgroundDuration / Double(iterationsInBackground))
                 backgroundIterations += 1
             case iterationsInBackground:
-                crashWrapper.internalIsApplicationInForeground = true
+                applicationStateProvider.isApplicationInForeground = true
                 backgroundIterations += 1
                 backgroundCompleted.fulfill()
             default:
@@ -444,7 +480,7 @@ final class SentryANRTrackerV2Tests: XCTestCase {
     /// - means no frame rendered
     func testFullyBlockingAppHang_whenAppGoesToBackgroundMultipleTimes_shouldExcludeAllBackgroundTime() throws {
         timeoutInterval = 0.5
-        let (sut, currentDate, displayLinkWrapper, crashWrapper, threadWrapper, _) = try getSut()
+        let (sut, currentDate, displayLinkWrapper, applicationStateProvider, threadWrapper, _) = try getSut()
         defer { sut.clear() }
         
         let listener = SentryANRTrackerV2TestDelegate()
@@ -465,13 +501,13 @@ final class SentryANRTrackerV2Tests: XCTestCase {
             let cycleIteration = iteration % (iterationsPerCycle + 1)
             
             if cycleIteration == 0 {
-                crashWrapper.internalIsApplicationInForeground = false
+                applicationStateProvider.isApplicationInForeground = false
             }
             
             if cycleIteration < iterationsPerCycle {
                 currentDate.advance(by: backgroundDurationPerCycle / Double(iterationsPerCycle))
             } else {
-                crashWrapper.internalIsApplicationInForeground = true
+                applicationStateProvider.isApplicationInForeground = true
             }
             
             iteration += 1
@@ -502,7 +538,7 @@ final class SentryANRTrackerV2Tests: XCTestCase {
     /// - means no frame rendered
     func testFullyBlockingAppHang_whenSecondHangAfterBackgroundedHang_shouldNotIncludePreviousBackgroundTime() throws {
         timeoutInterval = 0.5
-        let (sut, currentDate, displayLinkWrapper, crashWrapper, threadWrapper, _) = try getSut()
+        let (sut, currentDate, displayLinkWrapper, applicationStateProvider, threadWrapper, _) = try getSut()
         defer { sut.clear() }
         
         let firstListener = SentryANRTrackerV2TestDelegate()
@@ -520,13 +556,13 @@ final class SentryANRTrackerV2Tests: XCTestCase {
             
             switch firstHangBackgroundIterations {
             case 0:
-                crashWrapper.internalIsApplicationInForeground = false
+                applicationStateProvider.isApplicationInForeground = false
                 fallthrough
             case 1..<firstIterationsInBackground:
                 currentDate.advance(by: firstHangBackgroundDuration / Double(firstIterationsInBackground))
                 firstHangBackgroundIterations += 1
             case firstIterationsInBackground:
-                crashWrapper.internalIsApplicationInForeground = true
+                applicationStateProvider.isApplicationInForeground = true
                 firstHangBackgroundIterations += 1
                 firstBackgroundCompleted.fulfill()
             default:
@@ -556,13 +592,13 @@ final class SentryANRTrackerV2Tests: XCTestCase {
             
             switch secondHangBackgroundIterations {
             case 0:
-                crashWrapper.internalIsApplicationInForeground = false
+                applicationStateProvider.isApplicationInForeground = false
                 fallthrough
             case 1..<secondIterationsInBackground:
                 currentDate.advance(by: secondHangBackgroundDuration / Double(secondIterationsInBackground))
                 secondHangBackgroundIterations += 1
             case secondIterationsInBackground:
-                crashWrapper.internalIsApplicationInForeground = true
+                applicationStateProvider.isApplicationInForeground = true
                 secondHangBackgroundIterations += 1
                 secondBackgroundCompleted.fulfill()
             default:

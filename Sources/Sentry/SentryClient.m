@@ -25,7 +25,7 @@
 #import "SentryTraceContext+Private.h"
 #import "SentryTraceContext.h"
 #import "SentryTracer.h"
-#import "SentryTransaction.h"
+#import "SentryTransaction+Private.h"
 #import "SentryTransportFactory.h"
 #import "SentryUser.h"
 
@@ -842,6 +842,28 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         }
     }
 
+#if SDK_V10
+    if (eventIsATransactionClass && event != nil && self.options.beforeSendTransaction != nil) {
+        event = self.options.beforeSendTransaction((SentryTransaction *)event);
+        if (event == nil) {
+            [self recordLost:NO reason:SentryDiscardReasonBeforeSend];
+            // We dropped the whole transaction, the dropped count includes all child spans + 1
+            // root span
+            [self recordLostSpanWithReason:SentryDiscardReasonBeforeSend
+                                  quantity:currentSpanCount + 1];
+        } else if ([event isKindOfClass:[SentryTransaction class]]) {
+            [self recordPartiallyDroppedSpans:(SentryTransaction *)event
+                                   withReason:SentryDiscardReasonBeforeSend
+                         withCurrentSpanCount:&currentSpanCount];
+        }
+    } else if (eventIsNotUserFeedback && !eventIsATransaction && event != nil
+        && self.options.beforeSend != nil) {
+        event = self.options.beforeSend(SENTRY_UNWRAP_NULLABLE(SentryEvent, event));
+        if (event == nil) {
+            [self recordLost:YES reason:SentryDiscardReasonBeforeSend];
+        }
+    }
+#else
     if (eventIsNotUserFeedback && event != nil && nil != self.options.beforeSend) {
         event = self.options.beforeSend(SENTRY_UNWRAP_NULLABLE(SentryEvent, event));
         if (event == nil) {
@@ -853,13 +875,14 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                       quantity:currentSpanCount + 1];
             }
         } else {
-            if (eventIsATransactionClass) {
+            if ([event isKindOfClass:[SentryTransaction class]]) {
                 [self recordPartiallyDroppedSpans:(SentryTransaction *)event
                                        withReason:SentryDiscardReasonBeforeSend
                              withCurrentSpanCount:&currentSpanCount];
             }
         }
     }
+#endif // SDK_V10
 
     if (event != nil) {
         // if the event is dropped by beforeSend we should not execute event processors as they
@@ -874,7 +897,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                       quantity:currentSpanCount + 1];
             }
         } else {
-            if (eventIsATransactionClass) {
+            if ([event isKindOfClass:[SentryTransaction class]]) {
                 [self recordPartiallyDroppedSpans:(SentryTransaction *)event
                                        withReason:SentryDiscardReasonEventProcessor
                              withCurrentSpanCount:&currentSpanCount];
@@ -1162,11 +1185,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 {
     if ([self isDisabled]) {
         [self logDisabledMessage];
-        return;
-    }
-
-    if (self.options.enableLogs == NO) {
-        SENTRY_LOG_DEBUG(@"Dropping log, because the option enableLogs is false.");
         return;
     }
 

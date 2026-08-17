@@ -7,7 +7,7 @@
       "name": "sentry.cocoa",
       "packages": [],
       "settings": {
-        "infer_ip": "auto"
+        "infer_ip": "never"
       },
       "version": "<sdk-version>"
     },
@@ -52,9 +52,13 @@
           },
           "device": {
             "arch": "<runtime-value>",
+            "battery_level": "<runtime-value>",
+            "charging": "<runtime-value>",
             "family": "<runtime-value>",
             "free_memory": "<runtime-value>",
+            "locale": "<runtime-value>",
             "low_power_mode": "<runtime-value>",
+            "mac_catalyst_app": "<runtime-value>",
             "memory_size": "<runtime-value>",
             "model": "<runtime-value>",
             "model_id": "<runtime-value>",
@@ -71,6 +75,10 @@
             "version": "<runtime-value>"
           },
           "profile": {},
+          "runtime": {
+            "name": "Mac Catalyst App",
+            "raw_description": "mac-catalyst-app"
+          },
           "trace": {
             "data": {
               "thread.id": "<thread-id>",
@@ -102,7 +110,7 @@
           "name": "sentry.cocoa",
           "packages": [],
           "settings": {
-            "infer_ip": "auto"
+            "infer_ip": "never"
           },
           "version": "<sdk-version>"
         },

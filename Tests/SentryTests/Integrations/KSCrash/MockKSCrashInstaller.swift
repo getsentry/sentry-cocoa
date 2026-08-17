@@ -1,6 +1,7 @@
 #if SDK_V10
 @_spi(Private) import SentryTestUtils
 @_spi(Private) @testable import Sentry
+internal import KSCrashRecording
 
 final class MockKSCrashDependencies: SentryKSCrash.DependencyProvider {
     typealias Installing = MockKSCrashInstaller
@@ -32,7 +33,7 @@ final class MockKSCrashInstaller: SentryKSCrash.Installing {
     public var installCalls: [
         (
             installPath: String,
-            monitors: UInt,
+            monitors: MonitorType,
             enableMemoryIntrospection: Bool,
             enableSwapCxaThrow: Bool
         )
@@ -46,12 +47,13 @@ final class MockKSCrashInstaller: SentryKSCrash.Installing {
     public var sendAllReportsDispatchQueues: [SentryDispatchQueueWrapper] = []
     public var sendAllReportsProcessingSessions: [SentryKSCrash.ReportProcessingSession] = []
     public var onSendAllReports: (() -> Void)?
+    public var setUserInfoInvocations: [[String: Any]] = []
 
     public init() {}
 
     public func install(
         installPath: String,
-        monitors: UInt,
+        monitors: MonitorType,
         enableMemoryIntrospection: Bool,
         enableSwapCxaThrow: Bool
     ) throws {
@@ -70,6 +72,10 @@ final class MockKSCrashInstaller: SentryKSCrash.Installing {
     public func uninstall() {
         uninstallCallCount += 1
         installed = false
+    }
+
+    public func setUserInfo(_ userInfo: [String: Any]) {
+        setUserInfoInvocations.append(userInfo)
     }
 
     public func sendAllReports(

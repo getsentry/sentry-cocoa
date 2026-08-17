@@ -25,39 +25,41 @@
 // THE SOFTWARE.
 //
 
-#include "SentryCrashMonitor_AppState.h"
+#if !SDK_V10
 
-#include "SentryCrashFileUtils.h"
-#include "SentryCrashJSONCodec.h"
-#include "SentryCrashMonitorContext.h"
+#    include "SentryCrashMonitor_AppState.h"
 
-#include "SentryAsyncSafeLog.h"
+#    include "SentryCrashFileUtils.h"
+#    include "SentryCrashJSONCodec.h"
+#    include "SentryCrashMonitorContext.h"
 
-#include <errno.h>
-#include <fcntl.h>
-#include <inttypes.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/time.h>
-#include <unistd.h>
+#    include "SentryAsyncSafeLog.h"
 
-// ============================================================================
-#pragma mark - Constants -
-// ============================================================================
-
-#define kFormatVersion 1
-
-#define kKeyFormatVersion "version"
-#define kKeyCrashedLastLaunch "crashedLastLaunch"
-#define kKeyDurationFromCrashStateInitToLastCrash "durationFromCrashStateInitToLastCrash"
-#define kKeyActiveDurationSinceLastCrash "activeDurationSinceLastCrash"
-#define kKeyBackgroundDurationSinceLastCrash "backgroundDurationSinceLastCrash"
-#define kKeyLaunchesSinceLastCrash "launchesSinceLastCrash"
-#define kKeySessionsSinceLastCrash "sessionsSinceLastCrash"
-#define kKeySessionsSinceLaunch "sessionsSinceLaunch"
+#    include <errno.h>
+#    include <fcntl.h>
+#    include <inttypes.h>
+#    include <stdlib.h>
+#    include <string.h>
+#    include <sys/time.h>
+#    include <unistd.h>
 
 // ============================================================================
-#pragma mark - Globals -
+#    pragma mark - Constants -
+// ============================================================================
+
+#    define kFormatVersion 1
+
+#    define kKeyFormatVersion "version"
+#    define kKeyCrashedLastLaunch "crashedLastLaunch"
+#    define kKeyDurationFromCrashStateInitToLastCrash "durationFromCrashStateInitToLastCrash"
+#    define kKeyActiveDurationSinceLastCrash "activeDurationSinceLastCrash"
+#    define kKeyBackgroundDurationSinceLastCrash "backgroundDurationSinceLastCrash"
+#    define kKeyLaunchesSinceLastCrash "launchesSinceLastCrash"
+#    define kKeySessionsSinceLastCrash "sessionsSinceLastCrash"
+#    define kKeySessionsSinceLaunch "sessionsSinceLaunch"
+
+// ============================================================================
+#    pragma mark - Globals -
 // ============================================================================
 
 /** Location where stat file is stored. */
@@ -71,7 +73,7 @@ static double g_crashstate_initialize_time;
 static volatile bool g_isEnabled = false;
 
 // ============================================================================
-#pragma mark - JSON Encoding -
+#    pragma mark - JSON Encoding -
 // ============================================================================
 
 static int
@@ -192,7 +194,7 @@ addJSONData(const char *const data, const int length, void *const userData)
 }
 
 // ============================================================================
-#pragma mark - Utility -
+#    pragma mark - Utility -
 // ============================================================================
 
 static double
@@ -350,7 +352,7 @@ done:
 }
 
 // ============================================================================
-#pragma mark - API -
+#    pragma mark - API -
 // ============================================================================
 
 void
@@ -511,3 +513,5 @@ sentrycrashcm_appstate_getAPI(void)
         .addContextualInfoToEvent = addContextualInfoToEvent };
     return &api;
 }
+
+#endif // !SDK_V10

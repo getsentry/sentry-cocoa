@@ -40,11 +40,6 @@
     return options.environment;
 }
 
-+ (BOOL)enableLogs:(SentryOptions *)options
-{
-    return options.enableLogs;
-}
-
 + (NSArray<NSString *> *)enabledFeatures:(SentryOptions *)options
 {
     return [SentryEnabledFeaturesBuilder getEnabledFeaturesWithOptions:options];

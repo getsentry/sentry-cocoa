@@ -2,6 +2,12 @@
 import Foundation
 
 class TestSysctl: SentrySysctl {
+
+    var internalIsBeingTraced = false
+
+    override var isBeingTraced: Bool {
+        internalIsBeingTraced
+    }
     
     private var internalSystemBootTimestamp: Date = Date(timeIntervalSinceReferenceDate: 0)
     

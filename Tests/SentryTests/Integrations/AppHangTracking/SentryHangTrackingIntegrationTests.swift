@@ -13,6 +13,7 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         let debugImageProvider = TestDebugImageProvider()
         let infoPlistWrapper = TestInfoPlistWrapper()
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        let sysctl = TestSysctl()
 
         private var originalExtensionDetector: SentryExtensionDetector!
 
@@ -57,6 +58,7 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
 
         SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = fixture.dispatchQueueWrapper
         SentryDependencyContainer.sharedInstance().debugImageProvider = fixture.debugImageProvider
+        SentryDependencyContainer.sharedInstance().sysctlWrapper = fixture.sysctl
     }
     
     override func tearDownWithError() throws {
@@ -350,7 +352,7 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         
         // // So ARC deallocates the SentryANRTrackingIntegration
         func initIntegration() {
-            self.crashWrapper.internalIsBeingTraced = false
+            self.fixture.sysctl.internalIsBeingTraced = false
             let _ = hangTracker(with: self.options)
         }
         
@@ -764,7 +766,7 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         try fixture.setUpDI(
             extensionDetector: SentryExtensionDetector(infoPlistWrapper: fixture.infoPlistWrapper)
         )
-        crashWrapper.internalIsBeingTraced = false
+        fixture.sysctl.internalIsBeingTraced = false
 
         let sut = hangTracker(with: options)
         
@@ -782,7 +784,7 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         try fixture.setUpDI(
             extensionDetector: SentryExtensionDetector(infoPlistWrapper: fixture.infoPlistWrapper)
         )
-        crashWrapper.internalIsBeingTraced = false
+        fixture.sysctl.internalIsBeingTraced = false
 
         let sut = hangTracker(with: options)
         
@@ -799,7 +801,7 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         try fixture.setUpDI(
             extensionDetector: SentryExtensionDetector(infoPlistWrapper: fixture.infoPlistWrapper)
         )
-        crashWrapper.internalIsBeingTraced = false
+        fixture.sysctl.internalIsBeingTraced = false
 
         let sut = hangTracker(with: options)
         
@@ -816,7 +818,7 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         try fixture.setUpDI(
             extensionDetector: SentryExtensionDetector(infoPlistWrapper: fixture.infoPlistWrapper)
         )
-        crashWrapper.internalIsBeingTraced = false
+        fixture.sysctl.internalIsBeingTraced = false
 
         let sut = hangTracker(with: options)
         
@@ -833,7 +835,7 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         try fixture.setUpDI(
             extensionDetector: SentryExtensionDetector(infoPlistWrapper: fixture.infoPlistWrapper)
         )
-        crashWrapper.internalIsBeingTraced = false
+        fixture.sysctl.internalIsBeingTraced = false
 
         let sut = hangTracker(with: options)
         
@@ -850,7 +852,7 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         try fixture.setUpDI(
             extensionDetector: SentryExtensionDetector(infoPlistWrapper: fixture.infoPlistWrapper)
         )
-        crashWrapper.internalIsBeingTraced = false
+        fixture.sysctl.internalIsBeingTraced = false
 
         let sut = hangTracker(with: options)
 
@@ -870,7 +872,7 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         defer {
             XCTAssertNoThrow(try fixture.tearDownDI())
         }
-        crashWrapper.internalIsBeingTraced = false
+        fixture.sysctl.internalIsBeingTraced = false
 
         let sut = hangTracker(with: options)
         
@@ -893,7 +895,7 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         crumb.message = "crumb"
         SentrySDK.addBreadcrumb(crumb)
         
-        self.crashWrapper.internalIsBeingTraced = isBeingTraced
+        self.fixture.sysctl.internalIsBeingTraced = isBeingTraced
         self.crashWrapper.internalCrashedLastLaunch = crashedLastLaunch
         SentryDependencyContainer.sharedInstance().activeCrashReporterStateOverride =
             activeCrashReporterState ?? crashWrapper
