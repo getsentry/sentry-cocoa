@@ -2,9 +2,21 @@ import SwiftUI
 import UIKit
 
 final class SRRedactSampleViewController: UIViewController {
+    private static let animatedLabelAnimationKey = "replay-fixture-animation"
+
     @IBOutlet private var notRedactedView: UIView?
     @IBOutlet private var notRedactedLabel: UILabel?
     @IBOutlet private var label: UILabel?
+
+    private let animatedLabel: UILabel = {
+        let label = SplitBackgroundLabel()
+        label.accessibilityIdentifier = "replay-fixture-animated-label"
+        label.font = .boldSystemFont(ofSize: 18)
+        label.text = "ANIMATED"
+        label.textAlignment = .center
+        label.textColor = .black
+        return label
+    }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -18,7 +30,7 @@ final class SRRedactSampleViewController: UIViewController {
             row(maskedUIKitImage(), hostedView(rootView: swiftUIText())),
             row(hostedView(rootView: swiftUIImage()), explicitlyMaskedView()),
             row(explicitlyUnmaskedView(), hostedView(rootView: explicitlyMaskedSwiftUIView())),
-            row(hostedView(rootView: explicitlyUnmaskedSwiftUIView()), spacerView())
+            row(hostedView(rootView: explicitlyUnmaskedSwiftUIView()), animatedLabel)
         ])
         grid.axis = .vertical
         grid.spacing = 16
@@ -32,6 +44,25 @@ final class SRRedactSampleViewController: UIViewController {
             grid.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             grid.heightAnchor.constraint(equalToConstant: 384)
         ])
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        // Keep a presentation layer moving to cover replay masking during active Core Animation.
+        // See https://github.com/getsentry/sentry-cocoa/pull/4574.
+        let animation = CABasicAnimation(keyPath: "transform.translation.x")
+        animation.fromValue = -8
+        animation.toValue = 8
+        animation.duration = 0.3
+        animation.autoreverses = true
+        animation.repeatCount = .infinity
+        animatedLabel.layer.add(animation, forKey: Self.animatedLabelAnimationKey)
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        animatedLabel.layer.removeAnimation(forKey: Self.animatedLabelAnimationKey)
     }
 
     private func row(_ leadingView: UIView, _ trailingView: UIView) -> UIStackView {
@@ -158,12 +189,6 @@ final class SRRedactSampleViewController: UIViewController {
             colors.bottomAnchor.constraint(equalTo: container.bottomAnchor)
         ])
         return container
-    }
-
-    private func spacerView() -> UIView {
-        let view = UIView()
-        view.backgroundColor = .white
-        return view
     }
 
     private func splitImage() -> UIImage {

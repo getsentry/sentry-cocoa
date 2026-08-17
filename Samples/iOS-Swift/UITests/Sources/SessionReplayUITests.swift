@@ -78,12 +78,8 @@ final class SessionReplayUITests: BaseUITest {
         try assertRegionIsUniform(in: replayImage, element: fixture.maskedLabel)
         try assertRegionIsUniform(in: replayImage, element: fixture.maskedTextField)
         try assertRegionIsUniform(in: replayImage, element: fixture.maskedUIKitImage)
-        try assertRegionIsUniform(
-            in: replayImage,
-            element: fixture.maskedSwiftUIText,
-            leftPosition: 0.45,
-            rightPosition: 0.55
-        )
+        try assertRegionIsUniform(in: replayImage, element: fixture.animatedLabel)
+        try assertRegionIsUniform(in: replayImage, element: fixture.maskedSwiftUIText)
         try assertRegionIsUniform(in: replayImage, element: fixture.maskedSwiftUIImage)
         try assertRegionIsUniform(in: replayImage, element: fixture.explicitlyMaskedView)
         try assertRegionIsUniform(in: replayImage, element: fixture.explicitlyMaskedSwiftUIView)
@@ -140,18 +136,38 @@ final class SessionReplayUITests: BaseUITest {
     private func assertRegionIsUniform(
         in image: UIImage,
         element: XCUIElement,
-        leftPosition: CGFloat = 0.25,
-        rightPosition: CGFloat = 0.75,
         accuracy: CGFloat = 0.08,
         file: StaticString = #filePath,
         line: UInt = #line
     ) throws {
-        let left = try pixel(in: image, element: element, horizontalPosition: leftPosition)
-        let right = try pixel(in: image, element: element, horizontalPosition: rightPosition)
-        XCTAssertEqual(left.red, right.red, accuracy: accuracy, file: file, line: line)
-        XCTAssertEqual(left.green, right.green, accuracy: accuracy, file: file, line: line)
-        XCTAssertEqual(left.blue, right.blue, accuracy: accuracy, file: file, line: line)
-        XCTAssertEqual(left.alpha, right.alpha, accuracy: accuracy, file: file, line: line)
+        let horizontalPositions: [CGFloat] = [0.2, 0.35, 0.65, 0.8]
+        let verticalPositions: [CGFloat] = [0.25, 0.5, 0.75]
+        guard let referenceHorizontalPosition = horizontalPositions.first,
+              let referenceVerticalPosition = verticalPositions.first else {
+            return XCTFail("Replay region sample grid must not be empty.", file: file, line: line)
+        }
+
+        let reference = try pixel(
+            in: image,
+            element: element,
+            horizontalPosition: referenceHorizontalPosition,
+            verticalPosition: referenceVerticalPosition
+        )
+        for verticalPosition in verticalPositions {
+            for horizontalPosition in horizontalPositions {
+                let sample = try pixel(
+                    in: image,
+                    element: element,
+                    horizontalPosition: horizontalPosition,
+                    verticalPosition: verticalPosition
+                )
+                let message = "Replay region sample at (\(horizontalPosition), \(verticalPosition)) should match the reference color."
+                XCTAssertEqual(sample.red, reference.red, accuracy: accuracy, message, file: file, line: line)
+                XCTAssertEqual(sample.green, reference.green, accuracy: accuracy, message, file: file, line: line)
+                XCTAssertEqual(sample.blue, reference.blue, accuracy: accuracy, message, file: file, line: line)
+                XCTAssertEqual(sample.alpha, reference.alpha, accuracy: accuracy, message, file: file, line: line)
+            }
+        }
     }
 
     private func assertSplitRegion(
@@ -201,12 +217,17 @@ final class SessionReplayUITests: BaseUITest {
         XCTAssertEqual(actual.alpha, expectedAlpha, accuracy: accuracy, file: file, line: line)
     }
 
-    private func pixel(in image: UIImage, element: XCUIElement, horizontalPosition: CGFloat) throws -> ReplayPixel {
+    private func pixel(
+        in image: UIImage,
+        element: XCUIElement,
+        horizontalPosition: CGFloat,
+        verticalPosition: CGFloat = 0.5
+    ) throws -> ReplayPixel {
         let applicationFrame = app.frame
         let elementFrame = element.frame
         let point = CGPoint(
             x: elementFrame.minX + elementFrame.width * horizontalPosition,
-            y: elementFrame.midY
+            y: elementFrame.minY + elementFrame.height * verticalPosition
         )
         let imagePoint = CGPoint(
             x: (point.x - applicationFrame.minX) * image.size.width / applicationFrame.width,
@@ -243,6 +264,7 @@ private struct ReplayFixtureElements {
     let maskedLabel: XCUIElement
     let maskedTextField: XCUIElement
     let maskedUIKitImage: XCUIElement
+    let animatedLabel: XCUIElement
     let maskedSwiftUIText: XCUIElement
     let maskedSwiftUIImage: XCUIElement
     let explicitlyMaskedView: XCUIElement
@@ -254,6 +276,7 @@ private struct ReplayFixtureElements {
         maskedLabel = app.staticTexts["replay-fixture-uikit-label"]
         maskedTextField = app.textFields["replay-fixture-uikit-text-field"]
         maskedUIKitImage = app.images["replay-fixture-uikit-image"]
+        animatedLabel = app.staticTexts["replay-fixture-animated-label"]
         maskedSwiftUIText = app.staticTexts["replay-fixture-swiftui-text"]
         maskedSwiftUIImage = app.images["replay-fixture-swiftui-image"]
         explicitlyMaskedView = app.otherElements["replay-fixture-explicit-mask"]
@@ -267,6 +290,7 @@ private struct ReplayFixtureElements {
             maskedLabel,
             maskedTextField,
             maskedUIKitImage,
+            animatedLabel,
             maskedSwiftUIText,
             maskedSwiftUIImage,
             explicitlyMaskedView,
