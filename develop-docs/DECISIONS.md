@@ -790,6 +790,12 @@ Pros:
   - V9 adapts the legacy callbacks. V10 uses a stateless pull adapter over KSCrash RecordingCore: initialize with idempotent `ksdl_init()`, read `ksbic_getImages()`, and add dyld explicitly with `ksbic_getDyldHeader()` and `ksbic_getDyldPath()`.
   - The V10 adapter must not register KSCrash's image-added callback, because the C++ V2 throw swapper uses that slot for newly loaded images and there is no generic multi-subscribe API. Cache refresh before enumeration and after lookup misses discovers dynamic images without displacing that callback.
   - SwiftPM manifests depend directly on `RecordingCore`. The Xcode `SentryV10` target keeps only its existing `Recording` product dependency and imports `KSCrashRecordingCore` transitively; adding both overlapping products causes Xcode package artifact collisions.
+- Memory and initial-context boundaries:
+  - `SentryExtraContextProvider` reads `SentryMemoryMetricsProvider` directly. The default provider preserves the existing host free-memory and current-task internal-plus-compressed-memory semantics in both V9 and V10.
+  - `SentryHub` invokes `SentryScopeContextEnricher` directly. The default SDK-owned enricher and system-info provider populate OS, device, app, and runtime contexts without importing or initializing SentryCrash.
+  - The system-info provider uses the binary-image cache for the main executable UUID and loaded-image jailbreak check, and preserves the existing device/app hash, build type, memory, model, architecture, and timestamp mappings.
+  - V10 intentionally omits the legacy `device.locale`; `culture.locale` remains its replacement. All other supported initial-context fields use shared V9/V10 policy.
+  - `SentryCrashReporter`, `SentryDefaultCrashReporter`, and the temporary V10 unavailable reporter do not expose memory, system-info, or scope-enrichment capabilities.
 - Exact retained Tool implementations and SDK clients:
   - `SentryCrashCPU.c`, `SentryCrashCPU_arm.c`, `SentryCrashCPU_arm64.c`, `SentryCrashCPU_x86_32.c`, `SentryCrashCPU_x86_64.c`: thread inspection and stack capture.
   - `SentryCrashFileUtils.c`: session-replay sync and view-hierarchy output.
