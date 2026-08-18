@@ -10,11 +10,6 @@ import Foundation
     @objc var durationFromCrashStateInitToLastCrash: TimeInterval { get }
     @objc var activeDurationSinceLastCrash: TimeInterval { get }
     @objc var isSimulatorBuild: Bool { get }
-    @objc var freeMemorySize: UInt64 { get }
-    @objc var appMemorySize: UInt64 { get }
-    @objc var systemInfo: [String: Any] { get }
     @objc var introspectMemory: Bool { get set }
-    var processInfoWrapper: SentryProcessInfoSource { get }
-    @objc func enrichScope(_ scope: Scope)
 }
 // swiftlint:enable missing_docs

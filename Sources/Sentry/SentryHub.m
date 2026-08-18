@@ -26,6 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) id<SentryCrashReporter> crashWrapper;
 @property (nonatomic, strong) id<SentryCrashReporterState> activeCrashReporterState;
+@property (nonatomic, strong) id<SentryScopeContextEnricher> scopeContextEnricher;
 @property (nonatomic, strong) NSMutableSet<NSString *> *installedIntegrationNames;
 @property (nonatomic) NSUInteger errorsBeforeSession;
 @property (nonatomic, weak) id<SentrySessionListener> sessionListener;
@@ -33,7 +34,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithClient:(nullable SentryClientInternal *)client
                       andScope:(nullable SentryScope *)scope
                andCrashWrapper:(id<SentryCrashReporter>)crashWrapper
+          scopeContextEnricher:(id<SentryScopeContextEnricher>)scopeContextEnricher
+              andDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue;
+
+- (instancetype)initWithClient:(nullable SentryClientInternal *)client
+                      andScope:(nullable SentryScope *)scope
+               andCrashWrapper:(id<SentryCrashReporter>)crashWrapper
       activeCrashReporterState:(id<SentryCrashReporterState>)activeCrashReporterState
+          scopeContextEnricher:(id<SentryScopeContextEnricher>)scopeContextEnricher
               andDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue;
 
 @end
@@ -50,6 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
                         andScope:scope
                  andCrashWrapper:SentryDependencyContainer.sharedInstance.crashWrapper
         activeCrashReporterState:SentryDependencyContainer.sharedInstance.activeCrashReporterState
+            scopeContextEnricher:SentryDependencyContainer.sharedInstance.scopeContextEnricher
                 andDispatchQueue:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper];
 }
 
@@ -63,6 +72,21 @@ NS_ASSUME_NONNULL_BEGIN
                         andScope:scope
                  andCrashWrapper:crashWrapper
         activeCrashReporterState:crashWrapper
+            scopeContextEnricher:SentryDependencyContainer.sharedInstance.scopeContextEnricher
+                andDispatchQueue:dispatchQueue];
+}
+
+- (instancetype)initWithClient:(nullable SentryClientInternal *)client
+                      andScope:(nullable SentryScope *)scope
+               andCrashWrapper:(id<SentryCrashReporter>)crashWrapper
+          scopeContextEnricher:(id<SentryScopeContextEnricher>)scopeContextEnricher
+              andDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
+{
+    return [self initWithClient:client
+                        andScope:scope
+                 andCrashWrapper:crashWrapper
+        activeCrashReporterState:crashWrapper
+            scopeContextEnricher:scopeContextEnricher
                 andDispatchQueue:dispatchQueue];
 }
 
@@ -70,6 +94,7 @@ NS_ASSUME_NONNULL_BEGIN
                       andScope:(nullable SentryScope *)scope
                andCrashWrapper:(id<SentryCrashReporter>)crashWrapper
       activeCrashReporterState:(id<SentryCrashReporterState>)activeCrashReporterState
+          scopeContextEnricher:(id<SentryScopeContextEnricher>)scopeContextEnricher
               andDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
 {
     if (self = [super init]) {
@@ -77,6 +102,7 @@ NS_ASSUME_NONNULL_BEGIN
         _scope = scope;
         _crashWrapper = crashWrapper;
         _activeCrashReporterState = activeCrashReporterState;
+        _scopeContextEnricher = scopeContextEnricher;
         _dispatchQueue = dispatchQueue;
         _sessionLock = [[NSObject alloc] init];
         _integrationsLock = [[NSObject alloc] init];
@@ -89,7 +115,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
 
         if (_scope) {
-            [_crashWrapper enrichScope:SENTRY_UNWRAP_NULLABLE(SentryScope, _scope)];
+            [_scopeContextEnricher enrichScope:SENTRY_UNWRAP_NULLABLE(SentryScope, _scope)];
         }
 
         __swiftLogger = [[SentryLogger alloc]
@@ -698,7 +724,7 @@ NS_ASSUME_NONNULL_BEGIN
                 _scope = [[SentryScope alloc] init];
             }
 
-            [_crashWrapper enrichScope:SENTRY_UNWRAP_NULLABLE(SentryScope, _scope)];
+            [_scopeContextEnricher enrichScope:SENTRY_UNWRAP_NULLABLE(SentryScope, _scope)];
         }
         return SENTRY_UNWRAP_NULLABLE(SentryScope, _scope);
     }

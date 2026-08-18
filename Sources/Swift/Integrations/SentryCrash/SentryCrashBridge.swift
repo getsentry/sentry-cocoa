@@ -27,7 +27,7 @@ import UIKit
 /// |--------------------------------|---------------------------------------------------------|
 /// | `notificationCenterWrapper`    | Observing app-lifecycle events (foreground, background)  |
 /// | `dateProvider`                 | Timestamping crash reports and session boundaries        |
-/// | `crashReporter`                | Reading system info, crash state, and launch metadata    |
+/// | `crashReporter`                | Reading crash state and launch metadata                 |
 /// | `uncaughtExceptionHandler`     | Installing / reading the NSException handler             |
 /// | `activeScreenSize()` (UIKit)   | Recording screen dimensions in device context            |
 ///
@@ -63,8 +63,8 @@ import UIKit
     /// computing session durations.
     @objc public let dateProvider: SentryCurrentDateProvider
 
-    /// The crash reporter instance that owns system info, crash state, and the
-    /// on-disk report store. This is the main object SentryCrash interacts with.
+    /// The crash reporter instance that owns crash state and the on-disk report store.
+    /// This is the main object SentryCrash interacts with.
     @objc public let crashReporter: SentryCrashSwift
 
     /// The C-convention uncaught-exception handler installed by SentryCrash.
