@@ -271,7 +271,6 @@ static NSDate *_Nullable startTimestamp = nil;
                                                                       andScope:scope];
             [SentrySDKInternal setCurrentHub:hub];
 
-            [SentryDependencyContainer.sharedInstance.crashWrapper startBinaryImageCache];
             [SentryDependencyContainer.sharedInstance.binaryImageCache start:options.debug];
 
             [SentrySDKInternal installIntegrations];
@@ -611,7 +610,6 @@ static NSDate *_Nullable startTimestamp = nil;
         fatalDetected = NO;
         lastRunStatusCalled = NO;
 
-        [SentryDependencyContainer.sharedInstance.crashWrapper stopBinaryImageCache];
         [SentryDependencyContainer.sharedInstance.binaryImageCache stop];
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT

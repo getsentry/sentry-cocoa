@@ -15,8 +15,6 @@ import Foundation
     @objc var systemInfo: [String: Any] { get }
     @objc var introspectMemory: Bool { get set }
     var processInfoWrapper: SentryProcessInfoSource { get }
-    @objc func startBinaryImageCache()
-    @objc func stopBinaryImageCache()
     @objc func enrichScope(_ scope: Scope)
 }
 // swiftlint:enable missing_docs

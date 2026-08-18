@@ -41,13 +41,6 @@ extension SentryKSCrash {
         }
 
 #if SENTRY_DISABLE_SENTRYCRASH_V10
-        // KSCRASH_TODO(GH-8798): These no-ops leave the V10 binary-image cache empty.
-        // Acceptance: SCV10-001 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
-        func startBinaryImageCache() { }
-        func stopBinaryImageCache() { }
-#endif
-
-#if SENTRY_DISABLE_SENTRYCRASH_V10
         // KSCRASH_TODO(GH-8800): Initial OS/device/app/runtime scope enrichment is omitted.
         // Acceptance: SCV10-017 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
         func enrichScope(_ scope: SentryScope) { }

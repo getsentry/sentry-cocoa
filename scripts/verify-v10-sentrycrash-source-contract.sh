@@ -13,6 +13,8 @@ set -euo pipefail
 #   manifests.
 # - Every retained legacy Tool is documented, while SDK-owned SentryScopeSyncC.c remains
 #   unconditional and unexcluded.
+# - The pull-based KSCrash binary-image adapter does not take KSCrash's single image-added callback
+#   slot, and Xcode avoids an overlapping direct RecordingCore product dependency.
 #
 # This does not inspect compiled objects or shipped products. Those layers are enforced by
 # verify-v10-sentrycrash-objects.sh and verify-v10-sentrycrash-framework.sh.
@@ -302,6 +304,23 @@ for source_name in "${retained_tool_sources[@]}"; do
   fi
 done
 log_notice "Verified ${#retained_tool_sources[@]} retained Tool sources are documented"
+
+if grep -R -qE '(^|[^[:alnum:]_])ksbic_registerForImageAdded[[:space:]]*\(' Sources; then
+  record_error "SDK source must not take KSCrash's single image-added callback slot"
+else
+  log_notice "Verified SDK source leaves KSCrash's image-added callback slot untouched"
+fi
+
+for manifest_path in Package.swift Package@swift-6.1.swift Package@swift-6.2.swift; do
+  if ! grep -qE '\.product\(name: "RecordingCore", package: "KSCrash"\)|name: "RecordingCore"' "$manifest_path"; then
+    record_error "$manifest_path does not declare the direct SwiftPM RecordingCore dependency"
+  fi
+done
+if grep -q 'RecordingCore' Sentry.xcodeproj/project.pbxproj; then
+  record_error "Xcode must receive RecordingCore transitively through its Recording product"
+else
+  log_notice "Verified the SwiftPM/Xcode KSCrash product exception"
+fi
 
 if [[ $violation_count -ne 0 ]]; then
   log_error "$violation_count V10 SentryCrash source-contract violation(s) found"

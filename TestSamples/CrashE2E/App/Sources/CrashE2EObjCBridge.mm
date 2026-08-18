@@ -27,9 +27,11 @@
 using sentry_cxa_throw_type = void (*)(void *, std::type_info *, void (*)(void *));
 using dynamic_image_call_type = void (*)(void (*)(void));
 using dynamic_image_crash_type = void (*)(void);
+using dynamic_image_cpp_exception_type = void (*)(void);
 
 static dynamic_image_call_type g_beforeDynamicImageCall = nullptr;
 static dynamic_image_crash_type g_afterDynamicImageCrash = nullptr;
+static dynamic_image_cpp_exception_type g_afterDynamicImageCPPException = nullptr;
 
 static NSString *
 CrashE2EFindLoadedImage(const char *path)
@@ -84,6 +86,15 @@ extern "C" NSString *_Nullable CrashE2ELoadDynamicBinaryImage(const char *path, 
             return nil;
         }
         g_afterDynamicImageCrash = crash;
+
+        auto cppException = reinterpret_cast<dynamic_image_cpp_exception_type>(
+            dlsym(handle, "CrashE2EDynamicImageThrowCPPException"));
+        if (cppException == nullptr) {
+            NSLog(@"CrashE2E - failed to dlsym CrashE2EDynamicImageThrowCPPException in %s: %s",
+                path, dlerror());
+            return nil;
+        }
+        g_afterDynamicImageCPPException = cppException;
     }
 
     NSString *loadedImage = CrashE2EFindLoadedImage(path);
@@ -108,6 +119,17 @@ CrashE2ETriggerDynamicBinaryImageCrash(void)
         abort();
     }
     g_beforeDynamicImageCall(CrashE2ECallAfterDynamicImage);
+    __builtin_unreachable();
+}
+
+extern "C" __attribute__((noinline, disable_tail_calls)) void
+CrashE2ETriggerDynamicCPPException(void)
+{
+    if (g_afterDynamicImageCPPException == nullptr) {
+        NSLog(@"CrashE2E - dynamic C++ exception function is not loaded");
+        abort();
+    }
+    g_afterDynamicImageCPPException();
     __builtin_unreachable();
 }
 

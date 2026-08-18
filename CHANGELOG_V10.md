@@ -33,6 +33,7 @@
 
 ### Fixes
 
+- Restore binary images and `debug_meta` in `SentryV10` with KSCrash RecordingCore (#8798)
 - Compile only explicitly allowlisted shared SentryCrash tools in V10
 - Restore foreground app-hang detection and debugger-aware behavior in V10
 - Disambiguate V9 and V10 target dependencies in Xcode builds
