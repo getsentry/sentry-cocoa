@@ -1544,6 +1544,10 @@ xcode-ci-iOS-ObjectiveCpp-NoModules:
 xcode-ci-iOS-Swift: xcode-ci-SentrySampleShared
 	xcodegen --spec Samples/iOS-Swift/iOS-Swift.yml
 
+.PHONY: xcode-ci-OS27-Prewarm
+xcode-ci-OS27-Prewarm:
+	xcodegen --spec Samples/OS27-Prewarm/OS27-Prewarm.yml
+
 .PHONY: xcode-ci-iOS-Swift6
 xcode-ci-iOS-Swift6: xcode-ci-SentrySampleShared
 	xcodegen --spec Samples/iOS-Swift6/iOS-Swift6.yml

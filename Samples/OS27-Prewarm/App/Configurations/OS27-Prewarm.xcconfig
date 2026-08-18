@@ -1,0 +1,15 @@
+#include "../../../Shared/Config/_Common.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.iOS-Swift
+INFOPLIST_FILE = App/Configurations/Info.plist
+CODE_SIGN_ENTITLEMENTS = App/Configurations/OS27-Prewarm.entitlements
+SWIFT_OBJC_BRIDGING_HEADER = App/Sources/OS27Prewarm-Bridging-Header.h
+SUPPORTED_PLATFORMS = iphoneos iphonesimulator
+
+OS27_PREWARM_BUILD_LABEL = manual
+OS27_PREWARM_DSN = https:/$()/6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557
+OS27_PREWARM_STANDALONE = NO
+
+DEVELOPMENT_TEAM = 97JCY7859U
+CODE_SIGN_STYLE = Automatic
+PROVISIONING_PROFILE_SPECIFIER =

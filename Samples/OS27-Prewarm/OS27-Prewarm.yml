@@ -1,0 +1,67 @@
+# yaml-language-server: $schema=../../schema/xcodegen.schema.json
+
+name: OS27-Prewarm
+createIntermediateGroups: true
+generateEmptyDirectories: true
+configs:
+  Debug: debug
+  Release: release
+projectReferences:
+  Sentry:
+    path: ../../Sentry.xcodeproj
+options:
+  defaultSourceDirectoryType: group
+
+targetTemplates:
+  PrewarmApp:
+    type: application
+    platform: iOS
+    deploymentTarget: "15.0"
+    sources:
+      - path: App/Sources
+        type: group
+      - path: App/Configurations
+        type: group
+        buildPhase: none
+    configFiles:
+      Debug: App/Configurations/OS27-Prewarm.xcconfig
+      Release: App/Configurations/OS27-Prewarm.xcconfig
+    settings:
+      base:
+        PRODUCT_MODULE_NAME: OS27Prewarm
+        PRODUCT_NAME: OS27-Prewarm
+
+targets:
+  OS27-Prewarm-V9:
+    templates:
+      - PrewarmApp
+    dependencies:
+      - target: Sentry/Sentry
+    settings:
+      base:
+        OS27_PREWARM_SDK_GENERATION: "9"
+  OS27-Prewarm-V10:
+    templates:
+      - PrewarmApp
+    dependencies:
+      - target: Sentry/SentryV10
+    settings:
+      base:
+        GCC_PREPROCESSOR_DEFINITIONS: $(inherited) SDK_V10=1
+        OS27_PREWARM_SDK_GENERATION: "10"
+        OS27_PREWARM_STANDALONE: YES
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) SDK_V10
+
+schemes:
+  OS27-Prewarm-V9:
+    build:
+      targets:
+        OS27-Prewarm-V9: all
+    run:
+      config: Debug
+  OS27-Prewarm-V10:
+    build:
+      targets:
+        OS27-Prewarm-V10: all
+    run:
+      config: Debug

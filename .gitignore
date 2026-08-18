@@ -88,6 +88,7 @@ Samples/iOS-ObjectiveC-Dynamic/iOS-ObjectiveC-Dynamic.xcodeproj
 Samples/iOS-ObjectiveC-Static/iOS-ObjectiveC-Static.xcodeproj
 Samples/iOS-ObjectiveCpp-NoModules/iOS-ObjectiveCpp-NoModules.xcodeproj
 Samples/iOS-Swift/iOS-Swift.xcodeproj
+Samples/OS27-Prewarm/OS27-Prewarm.xcodeproj
 Samples/iOS-Swift6/iOS-Swift6.xcodeproj
 Samples/iOS-SwiftUI-SPM/iOS-SwiftUI-SPM.xcodeproj
 Samples/iOS-SwiftUI-Widgets/iOS-SwiftUI-Widgets.xcodeproj
