@@ -50,6 +50,8 @@ jobs:
       macos_version: ${{matrix.platform.runs-on}}
       files_suffix: _${{matrix.platform.xcode}}
       xcode_version: ${{matrix.platform.xcode}}
+      allow_prerelease: ${{matrix.platform.allow_prerelease || false}}
+      continue_on_error: ${{matrix.platform.continue_on_error || false}}
       platform: ${{matrix.platform.platform}}
     strategy:
       fail-fast: false
@@ -71,6 +73,16 @@ jobs:
             platform:
               runs-on: tahoe
               xcode: "26"
+              platform: "iOS"
+
+          # TODO: Remove continue_on_error once Xcode 27 and the iOS 27 simulator runtime are stable.
+          # iOS 27
+          - name: iOS 27
+            platform:
+              runs-on: xcode-beta
+              xcode: "27"
+              allow_prerelease: true
+              continue_on_error: true
               platform: "iOS"
   run-swiftui-crash-test:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_critical_for_prs == 'true'

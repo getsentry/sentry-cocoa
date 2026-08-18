@@ -8,6 +8,7 @@
 # - https://github.com/actions/runner-images/blob/main/images/macos/macos-14-Readme.md
 # - https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md
 # - https://github.com/actions/runner-images/blob/main/images/macos/macos-26-arm64-Readme.md
+# - https://github.com/actions/runner-images/blob/main/images/macos/xcode-27-arm64-Readme.md
 
 set -euo pipefail
 
@@ -196,15 +197,20 @@ for attempt in $(seq 1 $MAX_BOOT_ATTEMPTS); do
         log_info "Simulator boot command executed successfully"
     fi
     
-    # Open Simulator app UI (only on first attempt)
+    # Open Simulator app UI when available (only on first attempt).
+    # Xcode 27 no longer bundles Simulator.app, so simctl must boot without it.
     if [ "$attempt" -eq 1 ]; then
-        log_info "Opening Simulator app UI"
         SIMULATOR_APP_PATH="$(xcode-select -p)/Applications/Simulator.app"
-        if ! open "$SIMULATOR_APP_PATH"; then
-            log_error "Failed to open Simulator app at $SIMULATOR_APP_PATH"
-            exit 1
+        if [ -d "$SIMULATOR_APP_PATH" ]; then
+            log_info "Opening Simulator app UI"
+            if ! open "$SIMULATOR_APP_PATH"; then
+                log_error "Failed to open Simulator app at $SIMULATOR_APP_PATH"
+                exit 1
+            fi
+            log_info "Simulator app opened successfully"
+        else
+            log_info "Simulator app is not bundled with this Xcode; continuing with simctl"
         fi
-        log_info "Simulator app opened successfully"
     fi
     
     # Wait for simulator to fully boot with timeout
