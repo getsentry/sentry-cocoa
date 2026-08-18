@@ -401,7 +401,7 @@ jobs:
             allow_prerelease: true
             continue_on_error: true
             platform: "visionOS"
-            timeout: 45
+            timeout: 60
 
   # This check validates that either all unit tests passed or were skipped, which allows us
   # to make unit tests a required check with only running the unit tests when required.
