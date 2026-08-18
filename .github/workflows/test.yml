@@ -396,7 +396,7 @@ jobs:
             xcode: "27"
             allow_prerelease: true
             platform: "visionOS"
-            timeout: 30
+            timeout: 45
 
   # This check validates that either all unit tests passed or were skipped, which allows us
   # to make unit tests a required check with only running the unit tests when required.
