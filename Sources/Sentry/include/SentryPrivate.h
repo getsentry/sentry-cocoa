@@ -8,10 +8,12 @@
 #import "SentryANRTrackerInternalDelegate.h"
 #import "SentryClient+Private.h"
 #import "SentryCrashAsync.h"
-#import "SentryCrashBinaryImageCache.h"
+#if !SDK_V10
+#    import "SentryCrashBinaryImageCache.h"
+#    import "SentryCrashDynamicLinker.h"
+#    import "SentryCrashUUIDConversion.h"
+#endif
 #import "SentryCrashC.h"
-#import "SentryCrashDynamicLinker.h"
-#import "SentryCrashUUIDConversion.h"
 #import "SentryError.h"
 #import "SentryFormatterSwift.h"
 #import "SentryHub+Private.h"

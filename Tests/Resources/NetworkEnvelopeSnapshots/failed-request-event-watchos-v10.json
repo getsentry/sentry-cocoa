@@ -58,6 +58,7 @@
             "trace_id": "<trace-id>"
           }
         },
+        "debug_meta": "<debug-meta>",
         "dist": "<runtime-value>",
         "environment": "test",
         "event_id": "<event-id>",
