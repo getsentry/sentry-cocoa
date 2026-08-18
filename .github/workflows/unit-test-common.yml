@@ -9,7 +9,7 @@ on:
         type: string
 
       runs-on:
-        description: the runner to use for the job
+        description: the Bitrise runner pool to use for the job
         required: true
         type: string
 
@@ -28,6 +28,12 @@ on:
         description: the Xcode version to use for the job
         required: true
         type: string
+
+      allow_prerelease:
+        description: whether prerelease Xcode versions can be selected
+        required: false
+        default: false
+        type: boolean
 
       test-destination-os:
         description: >-
@@ -68,6 +74,7 @@ jobs:
         uses: ./.github/actions/setup-xcode
         with:
           version: ${{ inputs.xcode }}
+          allow-prerelease: ${{ inputs.allow_prerelease }}
 
       - name: Install simulator runtime
         if: ${{ inputs.test-destination-os == '17.5' && inputs.platform == 'tvOS' }}
