@@ -262,6 +262,7 @@ jobs:
       should_skip: ${{ github.event_name == 'pull_request' && needs.files-changed.outputs.run_unit_tests_for_prs != 'true' }}
       xcode: ${{matrix.xcode}}
       allow_prerelease: ${{matrix.allow_prerelease || false}}
+      continue_on_error: ${{matrix.continue_on_error || false}}
       test-destination-os: ${{matrix.test-destination-os}}
       platform: ${{matrix.platform}}
       device: ${{matrix.device || ''}}
@@ -295,11 +296,13 @@ jobs:
 
           # The xcode-beta Bitrise pool includes Xcode 27 and the matching simulator runtimes:
           # https://docs.bitrise.io/en/bitrise-platform/infrastructure/build-stacks/macos-stack-update-policy
+          # TODO: Remove continue_on_error once Xcode 27 and the xOS 27 simulator runtimes are stable.
           # iOS 27
           - name: iOS 27 Sentry
             runs-on: xcode-beta
             xcode: "27"
             allow_prerelease: true
+            continue_on_error: true
             platform: "iOS"
 
           # We don't run the unit tests on macOS 13 cause we run them on all on GH actions available iOS versions.
@@ -380,6 +383,7 @@ jobs:
             runs-on: xcode-beta
             xcode: "27"
             allow_prerelease: true
+            continue_on_error: true
             platform: "tvOS"
             device: "Apple TV 4K (3rd generation)"
 
@@ -395,6 +399,7 @@ jobs:
             runs-on: xcode-beta
             xcode: "27"
             allow_prerelease: true
+            continue_on_error: true
             platform: "visionOS"
             timeout: 45
 

@@ -35,6 +35,12 @@ on:
         default: false
         type: boolean
 
+      continue_on_error:
+        description: whether test failures should be non-blocking
+        required: false
+        default: false
+        type: boolean
+
       test-destination-os:
         description: >-
           Simulator OS version to test against. Leave empty to use the default
@@ -64,6 +70,7 @@ jobs:
     name: Unit ${{inputs.name}}
     runs-on: ${{ fromJSON(format('["bitrise_pool_name:{0}"]', inputs.runs-on)) }}
     timeout-minutes: ${{inputs.timeout}}
+    continue-on-error: ${{ inputs.continue_on_error }}
     if: ${{!inputs.should_skip}}
     steps:
       - name: Warm CoreSimulator
