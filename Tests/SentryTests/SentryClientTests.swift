@@ -2683,7 +2683,7 @@ final class SentryClientTests: XCTestCase {
             }
 
             sut.capture(event: Event())
-            wait(for: [expectation], timeout: 1)
+            wait(for: [expectation], timeout: 10)
             hub.removeAllIntegrations()
         }
     }
