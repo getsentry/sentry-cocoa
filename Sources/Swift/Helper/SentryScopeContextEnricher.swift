@@ -172,7 +172,7 @@ final class SentryDefaultSystemInfoProvider: SentrySystemInfoProvider {
                 break
             }
         }
-#if arch(arm64)
+#if arch(arm64) || arch(arm64_32)
         return "arm64"
 #elseif arch(arm)
         return "arm"
