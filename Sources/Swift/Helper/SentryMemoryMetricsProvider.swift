@@ -55,6 +55,8 @@ final class SentryDefaultMemoryMetricsProvider: SentryMemoryMetricsProvider {
 
     private func vmStatistics() -> (vm_statistics_data_t, vm_size_t)? {
         let hostPort = mach_host_self()
+        defer { _ = mach_port_deallocate(mach_task_self_, hostPort) }
+
         var pageSize: vm_size_t = 0
         var result = host_page_size(hostPort, &pageSize)
         guard result == KERN_SUCCESS else {
