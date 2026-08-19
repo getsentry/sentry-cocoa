@@ -48,11 +48,16 @@ final class SentryDefaultScopeContextEnricherTests: XCTestCase {
     )
 
     private func getSut(
-        processInfo: MockSentryProcessInfo = MockSentryProcessInfo(),
+        processInfo: MockSentryProcessInfo? = nil,
         systemInfo: SentrySystemInfo? = nil,
         screenSize: CGSize = .zero
     ) -> SentryDefaultScopeContextEnricher {
-        SentryDefaultScopeContextEnricher(
+        let processInfo = processInfo ?? MockSentryProcessInfo()
+        processInfo.overrides.isiOSAppOnMac = processInfo.overrides.isiOSAppOnMac ?? false
+        processInfo.overrides.isMacCatalystApp = processInfo.overrides.isMacCatalystApp ?? false
+        processInfo.overrides.isiOSAppOnVisionOS = processInfo.overrides.isiOSAppOnVisionOS ?? false
+
+        return SentryDefaultScopeContextEnricher(
             processInfoWrapper: processInfo,
             systemInfoProvider: TestSystemInfoProvider(value: systemInfo ?? defaultSystemInfo),
             bundleInfo: [
@@ -83,7 +88,11 @@ final class SentryDefaultScopeContextEnricherTests: XCTestCase {
         getSut().enrichScope(scope)
 
         let context = try XCTUnwrap(scope.contextDictionary["device"] as? [String: Any])
+#if targetEnvironment(macCatalyst)
+        XCTAssertEqual(context["family"] as? String, "macOS")
+#else
         XCTAssertEqual(context["family"] as? String, "iOS")
+#endif
         XCTAssertEqual(context["arch"] as? String, "arm64")
         XCTAssertEqual(context["model"] as? String, "iPhone14,2")
         XCTAssertEqual(context["model_id"] as? String, "iPhone 13 Pro")
