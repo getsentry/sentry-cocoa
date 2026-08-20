@@ -119,7 +119,9 @@ final class SentryDependencyContainerTests: XCTestCase {
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().memoryMetricsProvider)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().scopeContextEnricher)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().processInfoWrapper)
+#if !SDK_V10
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().crashWrapper)
+#endif
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().sysctlWrapper)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().debuggerStatusProvider)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().applicationStateProvider)

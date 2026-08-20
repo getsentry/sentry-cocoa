@@ -1,31 +1,26 @@
 @_spi(Private) @testable import Sentry
 import Foundation
 
-/// Protocol-based test double for SentryCrashReporter.
-/// Implements the protocol directly -- no subclassing of the concrete class.
-class TestSentryCrashReporter: NSObject, SentryCrashReporter {
-
-    // MARK: - Test Properties
-
+class TestSentryCrashReporterState: NSObject, SentryCrashReporterState {
     var internalInstalled = false
     var internalCrashedLastLaunch = false
+
+    var installed: Bool { internalInstalled }
+    var crashedLastLaunch: Bool { internalCrashedLastLaunch }
+}
+
+#if !SDK_V10
+/// V9 test double for the broad SentryCrash reporter adapter.
+final class TestSentryCrashReporter: TestSentryCrashReporterState, SentryCrashReporter {
     var internalDurationFromCrashStateInitToLastCrash: TimeInterval = 0
     var internalActiveDurationSinceLastCrash: TimeInterval = 0
     var internalIsSimulatorBuild = false
     var internalIntrospectMemory: Bool = true
 
-    // MARK: - Convenience Init (backward compatibility)
-
-    /// Compatibility init so the test files that call
-    /// `TestSentryCrashWrapper(processInfoWrapper:)` compile without changes.
     convenience init(processInfoWrapper: SentryProcessInfoSource) {
         self.init()
     }
 
-    // MARK: - SentryCrashReporter Protocol
-
-    var installed: Bool { internalInstalled }
-    var crashedLastLaunch: Bool { internalCrashedLastLaunch }
     var durationFromCrashStateInitToLastCrash: TimeInterval { internalDurationFromCrashStateInitToLastCrash }
     var activeDurationSinceLastCrash: TimeInterval { internalActiveDurationSinceLastCrash }
     var isSimulatorBuild: Bool { internalIsSimulatorBuild }
@@ -35,9 +30,8 @@ class TestSentryCrashReporter: NSObject, SentryCrashReporter {
     }
 }
 
-/// Backward compatibility alias so test files that reference
-/// `TestSentryCrashWrapper` by name compile without modification.
 typealias TestSentryCrashWrapper = TestSentryCrashReporter
+#endif // !SDK_V10
 
 final class TestSentryApplicationStateProvider: NSObject, SentryApplicationStateProvider {
     var isApplicationInForeground = true

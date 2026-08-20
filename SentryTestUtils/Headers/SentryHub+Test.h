@@ -3,7 +3,7 @@
 @class SentryClient;
 @class SentryDispatchQueueWrapper;
 @class SentryClientInternal;
-@protocol SentryCrashReporter;
+@protocol SentryCrashReporterState;
 @protocol SentryIntegrationProtocol;
 @protocol SentryScopeContextEnricher;
 NS_ASSUME_NONNULL_BEGIN
@@ -13,12 +13,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithClient:(SentryClientInternal *_Nullable)client
                       andScope:(SentryScope *_Nullable)scope
-               andCrashWrapper:(id<SentryCrashReporter>)crashAdapter
+      activeCrashReporterState:(id<SentryCrashReporterState>)activeCrashReporterState
               andDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue;
 
 - (instancetype)initWithClient:(SentryClientInternal *_Nullable)client
                       andScope:(SentryScope *_Nullable)scope
-               andCrashWrapper:(id<SentryCrashReporter>)crashAdapter
+      activeCrashReporterState:(id<SentryCrashReporterState>)activeCrashReporterState
           scopeContextEnricher:(id<SentryScopeContextEnricher>)scopeContextEnricher
               andDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue;
 
