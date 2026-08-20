@@ -233,7 +233,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
         let hub = SentryHubInternal(
             client: client,
             andScope: Scope(),
-            andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo),
+            activeCrashReporterState: TestSentryCrashReporterState(),
             andDispatchQueue: SentryDispatchQueueWrapper()
         )
 
