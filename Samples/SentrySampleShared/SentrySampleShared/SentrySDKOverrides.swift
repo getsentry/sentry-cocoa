@@ -57,6 +57,7 @@ public enum SentrySDKOverrides: String, CaseIterable {
         case .crash: return SentrySDKOverrides.Crash.allCases
         case .metricKit: return SentrySDKOverrides.MetricKit.allCases
         case .metrics: return SentrySDKOverrides.Metrics.allCases
+        case .logs: return SentrySDKOverrides.Logs.allCases
         case .spotlight: return SentrySDKOverrides.Spotlight.allCases
         case .swizzling: return SentrySDKOverrides.Swizzling.allCases
         case .swiftAsync: return SentrySDKOverrides.SwiftAsync.allCases
@@ -244,6 +245,11 @@ public enum SentrySDKOverrides: String, CaseIterable {
         case enable = "--io.sentry.metrics.enable"
     }
     case metrics = "Metrics"
+
+    public enum Logs: String, SentrySDKOverride {
+        case disable = "--io.sentry.logs.disable"
+    }
+    case logs = "Logs"
 
     public enum Spotlight: String, SentrySDKOverride {
         case disable = "--io.sentry.spotlight.disable"
@@ -578,6 +584,14 @@ extension SentrySDKOverrides.Metrics {
     }
 }
 
+extension SentrySDKOverrides.Logs {
+    public var overrideType: OverrideType {
+        switch self {
+        case .disable: return .boolean
+        }
+    }
+}
+
 extension SentrySDKOverrides.Spotlight {
     public var overrideType: OverrideType {
         switch self {
@@ -790,6 +804,10 @@ extension SentrySDKOverrides.Metrics {
         case .enable: return true
         }
     }
+}
+
+extension SentrySDKOverrides.Logs {
+    public var ignoresDisableEverything: Bool { return false }
 }
 
 extension SentrySDKOverrides.Spotlight {

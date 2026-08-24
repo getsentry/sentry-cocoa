@@ -110,6 +110,9 @@ schemeTemplates:
         # metrics
         "--io.sentry.metrics.enable": true
 
+        # logs
+        "--io.sentry.logs.disable": false
+
         # spotlight
         "--io.sentry.spotlight.disable": true
         "--io.sentry.spotlight.enable": false
