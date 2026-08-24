@@ -96,7 +96,6 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         wait(for: [requestCompleted], timeout: 10)
 
         let networkSpan = try XCTUnwrap(transaction.children.first)
-        XCTAssertEqual(transaction.children.count, 1)
         XCTAssertTrue(networkSpan.isFinished)
         XCTAssertEqual(networkSpan.status, .cancelled)
     }
@@ -509,11 +508,16 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
 
         // -- Assert --
         let children = transaction.children
-        let responseTraceHeader = responseBody.withLock { $0 }
-        let networkSpan = try XCTUnwrap(children.first {
-            $0.toTraceHeader().value() == responseTraceHeader
-        })
-        XCTAssertEqual(children.count, 1)
+        let networkSpan: Span
+        if usesClassicLoadingMode {
+            let responseTraceHeader = responseBody.withLock { $0 }
+            networkSpan = try XCTUnwrap(children.first {
+                $0.toTraceHeader().value() == responseTraceHeader
+            })
+        } else {
+            networkSpan = try XCTUnwrap(children.first)
+            XCTAssertEqual(responseBody.withLock { $0 }, "(NO-HEADER)")
+        }
         XCTAssertTrue(networkSpan.isFinished)
         XCTAssertEqual(networkSpan.data["http.response.status_code"] as? NSNumber, 200)
     }
@@ -576,10 +580,17 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         task.resume()
         wait(for: [requestCompleted], timeout: 10)
 
-        let networkSpan = try XCTUnwrap(transaction.children.first)
-        XCTAssertEqual(transaction.children.count, 1)
+        let networkSpan: Span
+        if usesClassicLoadingMode {
+            let responseTraceHeader = responseBody.withLock { $0 }
+            networkSpan = try XCTUnwrap(transaction.children.first {
+                $0.toTraceHeader().value() == responseTraceHeader
+            })
+        } else {
+            networkSpan = try XCTUnwrap(transaction.children.first)
+            XCTAssertEqual(responseBody.withLock { $0 }, "(NO-HEADER)")
+        }
         XCTAssertTrue(networkSpan.isFinished)
-        XCTAssertEqual(networkSpan.toTraceHeader().value(), responseBody.withLock { $0 })
         XCTAssertEqual(networkSpan.data["http.response.status_code"] as? NSNumber, 200)
     }
 

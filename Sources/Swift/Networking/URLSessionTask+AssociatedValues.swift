@@ -16,7 +16,6 @@ final class URLSessionTaskNetworkTrackerState {
         var spanState = SpanState.idle
         var startDate: Date?
         var hasBreadcrumb = false
-        var isDuplicate = false
         var usesNewLoaderCompletionHandler = false
 
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK

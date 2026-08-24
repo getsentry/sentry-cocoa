@@ -1515,33 +1515,6 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["baggage"] ?? "", "sentry-trace_id=something")
     }
 
-    func testResume_whenTaskCarriesActiveNetworkSpanHeader_shouldIgnoreDuplicateTask() throws {
-        // -- Arrange --
-        let sut = fixture.getSut()
-        let transaction = try XCTUnwrap(startTransaction() as? SentryTracer)
-        let originalTask = createDataTask()
-        sut.urlSessionTaskResume(originalTask)
-        let networkSpan = try XCTUnwrap(transaction.children.first)
-        let duplicateTask = createDataTask { request in
-            var duplicateRequest = request
-            duplicateRequest.setValue(
-                networkSpan.toTraceHeader().value(),
-                forHTTPHeaderField: SENTRY_TRACE_HEADER
-            )
-            return duplicateRequest
-        }
-
-        // -- Act --
-        sut.urlSessionTaskResume(duplicateTask)
-        duplicateTask.setResponse(try createResponse(code: 200))
-        sut.urlSessionTask(duplicateTask, setState: .completed)
-
-        // -- Assert --
-        XCTAssertEqual(transaction.children.count, 1)
-        let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
-        XCTAssertTrue(breadcrumbs?.isEmpty ?? true)
-    }
-
     func testTraceHeader() throws {
         let sut = fixture.getSut()
         let task = createDataTask()
