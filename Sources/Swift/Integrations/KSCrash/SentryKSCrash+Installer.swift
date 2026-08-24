@@ -16,7 +16,7 @@ extension SentryKSCrash {
             installPath: String,
             monitors: MonitorType,
             enableMemoryIntrospection: Bool,
-            enableSwapCxaThrow: Bool
+            enableSwapCxaThrow: Bool,
         ) throws
 
         /// Uninstall the crash handler for the current SDK lifecycle.
@@ -55,7 +55,7 @@ extension SentryKSCrash {
             installPath: String,
             monitors: MonitorType,
             enableMemoryIntrospection: Bool,
-            enableSwapCxaThrow: Bool
+            enableSwapCxaThrow: Bool,
         ) throws {
             let config = KSCrashConfiguration()
             config.installPath = installPath
@@ -66,11 +66,11 @@ extension SentryKSCrash {
             #if SENTRY_CRASH_E2E
             config.userInfoJSON = SentryKSCrash.CrashE2ETestHook.reportUserInfo
             #endif
-#if SENTRY_DISABLE_SENTRYCRASH_V10
-            // KSCRASH_TODO(GH-8276, GH-8758): No KSCrash report-writing callback copies the
-            // SDK-owned scope mirror into sentry_sdk_scope. Acceptance: SCV10-014 in
-            // SENTRYCRASH_V10_MIGRATION_LEDGER.md.
-#endif
+
+            config.willWriteReportCallback = sentrykscrash_willWriteReport
+            config.isWritingReportCallback = sentrykscrash_isWritingReport
+            config.didWriteReportCallback = sentrykscrash_didWriteReport
+
 #if SENTRY_DISABLE_SENTRYCRASH_V10
             // KSCRASH_TODO(GH-8801): No KSCrash crash/report callback writes the session-replay
             // recovery checkpoint. Acceptance: SCV10-039 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
