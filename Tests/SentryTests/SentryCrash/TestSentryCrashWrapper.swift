@@ -12,11 +12,7 @@ class TestSentryCrashReporter: NSObject, SentryCrashReporter {
     var internalDurationFromCrashStateInitToLastCrash: TimeInterval = 0
     var internalActiveDurationSinceLastCrash: TimeInterval = 0
     var internalIsSimulatorBuild = false
-    var internalFreeMemorySize: UInt64 = 0
-    var internalAppMemorySize: UInt64 = 0
-    var internalSystemInfo: [String: Any] = [:]
     var internalIntrospectMemory: Bool = true
-    var enrichScopeCalled = false
 
     // MARK: - Convenience Init (backward compatibility)
 
@@ -24,7 +20,6 @@ class TestSentryCrashReporter: NSObject, SentryCrashReporter {
     /// `TestSentryCrashWrapper(processInfoWrapper:)` compile without changes.
     convenience init(processInfoWrapper: SentryProcessInfoSource) {
         self.init()
-        self.internalProcessInfoWrapper = processInfoWrapper
     }
 
     // MARK: - SentryCrashReporter Protocol
@@ -34,19 +29,9 @@ class TestSentryCrashReporter: NSObject, SentryCrashReporter {
     var durationFromCrashStateInitToLastCrash: TimeInterval { internalDurationFromCrashStateInitToLastCrash }
     var activeDurationSinceLastCrash: TimeInterval { internalActiveDurationSinceLastCrash }
     var isSimulatorBuild: Bool { internalIsSimulatorBuild }
-    var freeMemorySize: UInt64 { internalFreeMemorySize }
-    var appMemorySize: UInt64 { internalAppMemorySize }
-    var systemInfo: [String: Any] { internalSystemInfo }
     var introspectMemory: Bool {
         get { internalIntrospectMemory }
         set { internalIntrospectMemory = newValue }
-    }
-
-    private var internalProcessInfoWrapper: SentryProcessInfoSource = ProcessInfo.processInfo
-    var processInfoWrapper: SentryProcessInfoSource { internalProcessInfoWrapper }
-
-    func enrichScope(_ scope: Scope) {
-        enrichScopeCalled = true
     }
 }
 
@@ -56,4 +41,19 @@ typealias TestSentryCrashWrapper = TestSentryCrashReporter
 
 final class TestSentryApplicationStateProvider: NSObject, SentryApplicationStateProvider {
     var isApplicationInForeground = true
+}
+
+final class TestSentryMemoryMetricsProvider: SentryMemoryMetricsProvider {
+    var freeMemorySize: UInt64 = 0
+    var appMemorySize: UInt64 = 0
+    var usableMemorySize: UInt64 = 0
+    var totalMemorySize: UInt64 = 0
+}
+
+final class TestSentryScopeContextEnricher: NSObject, SentryScopeContextEnricher {
+    var enrichScopeCalled = false
+
+    func enrichScope(_ scope: Scope) {
+        enrichScopeCalled = true
+    }
 }

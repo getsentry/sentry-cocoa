@@ -54,6 +54,7 @@ final class SentryClientTests: XCTestCase {
         let trace = SentryTracer(transactionContext: TransactionContext(name: "SomeTransaction", operation: "SomeOperation"), hub: nil)
         let transaction: Transaction
         let crashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
+        let memoryMetricsProvider = TestSentryMemoryMetricsProvider()
         #if os(iOS)
         let deviceWrapper = TestSentryUIDeviceWrapper()
         #endif // os(iOS)
@@ -97,15 +98,15 @@ final class SentryClientTests: XCTestCase {
             transport = TestTransport()
             transportAdapter = TestTransportAdapter(transports: [transport], options: options)
 
-            crashWrapper.internalFreeMemorySize = 123_456
-            crashWrapper.internalAppMemorySize = 234_567
+            memoryMetricsProvider.freeMemorySize = 123_456
+            memoryMetricsProvider.appMemorySize = 234_567
 
             debugImageProvider.debugImages = [TestData.debugImage]
 
 #if os(iOS)
-            extraContentProvider = SentryExtraContextProvider(crashWrapper: crashWrapper, processInfoWrapper: processWrapper, deviceWrapper: deviceWrapper)
+            extraContentProvider = SentryExtraContextProvider(memoryMetricsProvider: memoryMetricsProvider, processInfoWrapper: processWrapper, deviceWrapper: deviceWrapper)
             #else
-            extraContentProvider = SentryExtraContextProvider(crashWrapper: crashWrapper, processInfoWrapper: processWrapper)
+            extraContentProvider = SentryExtraContextProvider(memoryMetricsProvider: memoryMetricsProvider, processInfoWrapper: processWrapper)
 #endif // os(iOS)
             SentryDependencyContainer.sharedInstance().extraContextProvider = extraContentProvider
         }

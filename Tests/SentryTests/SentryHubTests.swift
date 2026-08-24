@@ -18,6 +18,7 @@ class SentryHubTests: XCTestCase {
         let event: Event
         let currentDateProvider = TestCurrentDateProvider()
         let sentryCrashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
+        let scopeContextEnricher = TestSentryScopeContextEnricher()
         let fileManager: SentryFileManager
         let crashedSession: SentrySession
         let abnormalSession: SentrySession
@@ -61,7 +62,7 @@ class SentryHubTests: XCTestCase {
         }
         
         func getSut(_ options: Options, _ scope: Scope? = nil) -> SentryHubInternal {
-            let hub = SentryHubInternal(client: client, andScope: scope, andCrashWrapper: sentryCrashWrapper, andDispatchQueue: dispatchQueueWrapper)
+            let hub = SentryHubInternal(client: client, andScope: scope, andCrashWrapper: sentryCrashWrapper, scopeContextEnricher: scopeContextEnricher, andDispatchQueue: dispatchQueueWrapper)
             hub.bindClient(client)
             return hub
         }
@@ -210,9 +211,6 @@ class SentryHubTests: XCTestCase {
         XCTAssertNil(hub.scope.serialize()["breadcrumbs"])
     }
     
-#if !SENTRY_DISABLE_SENTRYCRASH_V10
-    // KSCRASH_TODO(GH-8800): V10 omits initial scope context enrichment.
-    // Acceptance: SCV10-017 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
     func testScopeEnriched_WithInitializer() {
         let hub = SentryHubInternal(client: nil, andScope: Scope())
         XCTAssertFalse(hub.scope.contextDictionary.allValues.isEmpty)
@@ -220,96 +218,21 @@ class SentryHubTests: XCTestCase {
         XCTAssertNotNil(hub.scope.contextDictionary["device"])
         XCTAssertNotNil(hub.scope.contextDictionary["app"])
     }
-#endif // !SENTRY_DISABLE_SENTRYCRASH_V10
-
-#if !SDK_V10
-    func testScopeEnriched_WithNoRuntime() throws {
-        // Arrange
-        let processInfoWrapper = MockSentryProcessInfo()
-        processInfoWrapper.overrides.isiOSAppOnMac = false
-        processInfoWrapper.overrides.isMacCatalystApp = false
-        let container = SentryDependencyContainer.sharedInstance()
-        let bridge = SentryCrashBridge(
-            notificationCenterWrapper: container.notificationCenterWrapper,
-            dateProvider: container.dateProvider,
-            crashReporter: container.crashReporter
-        )
-        let crashWrapper = SentryDefaultCrashReporter(processInfoWrapper: processInfoWrapper, bridge: bridge)
-        
-        // Act
-        let hub = SentryHubInternal(client: nil, andScope: Scope(), andCrashWrapper: crashWrapper, andDispatchQueue: TestSentryDispatchQueueWrapper())
-
-        // Assert
-        XCTAssertNil(hub.scope.contextDictionary["runtime"])
-    }
-
-    func testScopeEnriched_WithRuntime_isiOSAppOnMac() throws {
-        // Arrange
-        let processInfoWrapper = MockSentryProcessInfo()
-        processInfoWrapper.overrides.isiOSAppOnMac = true
-        processInfoWrapper.overrides.isMacCatalystApp = false
-        SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfoWrapper
-        let container = SentryDependencyContainer.sharedInstance()
-        let bridge = SentryCrashBridge(
-            notificationCenterWrapper: container.notificationCenterWrapper,
-            dateProvider: container.dateProvider,
-            crashReporter: container.crashReporter
-        )
-        let crashWrapper = SentryDefaultCrashReporter(processInfoWrapper: processInfoWrapper, bridge: bridge)
-        
-        // Act
-        let hub = SentryHubInternal(client: nil, andScope: Scope(), andCrashWrapper: crashWrapper, andDispatchQueue: TestSentryDispatchQueueWrapper())
-        
-        // Assert
-        let runtimeContext = try XCTUnwrap (hub.scope.contextDictionary["runtime"] as? [String: String])
-        
-        XCTAssertEqual(runtimeContext["name"], "iOS App on Mac")
-        XCTAssertEqual(runtimeContext["raw_description"], "ios-app-on-mac")
-    }
-
-    func testScopeEnriched_WithRuntime_isMacCatalystApp() throws {
-        // Arrange
-        let processInfoWrapper = MockSentryProcessInfo()
-        processInfoWrapper.overrides.isiOSAppOnMac = false
-        processInfoWrapper.overrides.isMacCatalystApp = true
-        SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfoWrapper
-        let container = SentryDependencyContainer.sharedInstance()
-        let bridge = SentryCrashBridge(
-            notificationCenterWrapper: container.notificationCenterWrapper,
-            dateProvider: container.dateProvider,
-            crashReporter: container.crashReporter
-        )
-        let crashWrapper = SentryDefaultCrashReporter(processInfoWrapper: processInfoWrapper, bridge: bridge)
-        
-        // Act
-        let hub = SentryHubInternal(client: nil, andScope: Scope(), andCrashWrapper: crashWrapper, andDispatchQueue: TestSentryDispatchQueueWrapper())
-
-        // Assert
-        let runtimeContext = try XCTUnwrap (hub.scope.contextDictionary["runtime"] as? [String: String])
-        XCTAssertEqual(runtimeContext["name"], "Mac Catalyst App")
-        XCTAssertEqual(runtimeContext["raw_description"], "mac-catalyst-app")
-    }
-#endif // !SDK_V10
 
     func testScopeNotEnriched_WhenScopeIsNil() {
         _ = fixture.getSut()
-     
-        XCTAssertFalse(fixture.sentryCrashWrapper.enrichScopeCalled)
+        XCTAssertFalse(fixture.scopeContextEnricher.enrichScopeCalled)
     }
-    
-#if !SENTRY_DISABLE_SENTRYCRASH_V10
-    // KSCRASH_TODO(GH-8800): V10 omits initial scope context enrichment.
-    // Acceptance: SCV10-017 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+
     func testScopeEnriched_WhenCreatingDefaultScope() {
         let hub = SentryHubInternal(client: nil, andScope: nil)
-        
+
         let scope = hub.scope
         XCTAssertFalse(scope.contextDictionary.allValues.isEmpty)
         XCTAssertNotNil(scope.contextDictionary["os"])
         XCTAssertNotNil(scope.contextDictionary["device"])
         XCTAssertNotNil(scope.contextDictionary["app"])
     }
-#endif // !SENTRY_DISABLE_SENTRYCRASH_V10
     
     func testAddBreadcrumb_WithCallbackModifies() {
         let crumbMessage = "modified"
