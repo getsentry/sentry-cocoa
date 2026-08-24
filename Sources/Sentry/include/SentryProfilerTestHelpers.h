@@ -17,15 +17,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 SENTRY_EXTERN BOOL sentry_threadSanitizerIsPresent(void);
 
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
-
 /**
  * Write a file to the disk cache containing the profile data. This is an affordance for UI
- * tests to be able to validate the contents of a profile.
+ * tests to be able to validate the contents of a profile. Callers must still gate on the
+ * `--io.sentry.ui-test.test-name` environment variable so production builds are a no-op.
  */
 SENTRY_EXTERN void sentry_writeProfileFile(NSData *JSONData, BOOL continuous);
-
-#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
 NS_ASSUME_NONNULL_END
 

@@ -165,19 +165,14 @@ _sentry_unsafe_stopTimerAndCleanup()
         return;
     }
 
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
-    // we want to allow immediately stopping a continuous profile for a UI test, since those
-    // currently only test launch profiles, and there is no reliable way to make the UI test
-    // wait until the continuous profile chunk would finish (behavior introduced in
-    // https://github.com/getsentry/sentry-cocoa/pull/4214). we just want to look in its samples
-    // for a call to main()
+    // UI tests pass this launch arg so they can inspect launch-profile samples without
+    // waiting for the timed chunk to finish (https://github.com/getsentry/sentry-cocoa/pull/4214).
     if ([NSProcessInfo.processInfo.arguments
             containsObject:@"--io.sentry.profiling.continuous-profiler-immediate-stop"]) {
         _sentry_threadUnsafe_transmitChunkEnvelope();
         _sentry_unsafe_stopTimerAndCleanup();
         return;
     }
-#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 
     SENTRY_LOG_DEBUG(@"Stopping continuous profiler after current chunk completes.");
     _stopCalled = YES;
