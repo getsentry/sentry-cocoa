@@ -400,7 +400,6 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         return SentryAppStartTracker(
             dispatchQueueWrapper: SentryDispatchQueueWrapper(),
             appStateManager: appStateManager,
-            framesTracker: framesTracker,
             enablePreWarmedAppStartTracing: options.enablePreWarmedAppStartTracing,
             dateProvider: dateProvider,
             sysctlWrapper: sysctlWrapper,
