@@ -126,6 +126,11 @@ final class SentryNetworkTrackingIntegration<Dependencies: NetworkTrackerProvide
             var wrappedHandler: SentryDataTaskCompletionHandler?
             if let completionHandler {
                 wrappedHandler = { data, response, error in
+                    // Deliver the response to the app first. Replay enrichment reads properties on
+                    // the URLSessionTask (headers, currentRequest) that can contend on the task's
+                    // internal monitor; running it before the app's handler could delay or block the
+                    // response from ever reaching the app. Keep Replay enrichment nonblocking.
+                    completionHandler(data, response, error)
                     if error == nil, let data, let response, let requestURL = request.url, let task {
                         SentryNetworkTrackerProxy.shared.target?.captureResponseDetails(
                             data,
@@ -134,7 +139,6 @@ final class SentryNetworkTrackingIntegration<Dependencies: NetworkTrackerProvide
                             task: task
                         )
                     }
-                    completionHandler(data, response, error)
                 }
             }
             let originalTask = original(request, wrappedHandler)
@@ -154,6 +158,11 @@ final class SentryNetworkTrackingIntegration<Dependencies: NetworkTrackerProvide
             var wrappedHandler: SentryDataTaskCompletionHandler?
             if let completionHandler {
                 wrappedHandler = { data, response, error in
+                    // Deliver the response to the app first. Replay enrichment reads properties on
+                    // the URLSessionTask (headers, currentRequest) that can contend on the task's
+                    // internal monitor; running it before the app's handler could delay or block the
+                    // response from ever reaching the app. Keep Replay enrichment nonblocking.
+                    completionHandler(data, response, error)
                     if error == nil, let data, let response, let task {
                         SentryNetworkTrackerProxy.shared.target?.captureResponseDetails(
                             data,
@@ -162,7 +171,6 @@ final class SentryNetworkTrackingIntegration<Dependencies: NetworkTrackerProvide
                             task: task
                         )
                     }
-                    completionHandler(data, response, error)
                 }
             }
             let originalTask = original(url, wrappedHandler)

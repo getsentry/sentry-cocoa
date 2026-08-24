@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Run Session Replay network-detail response capture after the app's `URLSession` completion handler, so Replay enrichment can no longer delay or block delivery of the response (#8852)
+
 ## 9.26.0
 
 > [!WARNING]

@@ -147,6 +147,100 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         XCTAssertGreaterThan(requestEnd.timeIntervalSince(requestStart), 0)
     }
 
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+    /// With Session Replay network-detail capture enabled, the completion-handler swizzle must
+    /// deliver the response to the app *before* running Replay enrichment (`captureResponseDetails`),
+    /// which reads properties that can contend on the URLSessionTask's internal monitor. Ordering it
+    /// after delivery keeps enrichment nonblocking so it cannot delay or break the request.
+    func testCompletionHandlerRequest_whenNetworkDetailCaptureEnabled_shouldEnrichAfterHandler() throws {
+        try ensureTestServerIsRunning()
+        let url = try XCTUnwrap(URL(string: "http://localhost:8081/echo-sentry-trace"))
+
+        startSDK {
+            $0.enableSwizzling = true
+            $0.sessionReplay.networkDetailAllowUrls = ["localhost"]
+            $0.sessionReplay.networkCaptureBodies = true
+        }
+
+        // Intercept Replay enrichment to observe its ordering relative to the app's handler. The
+        // proxy holds its target weakly, so keep strong references to both alive for the test.
+        let realTarget = try XCTUnwrap(SentryNetworkTrackerProxy.shared.target)
+        let order = SentryMutex<[String]>([])
+        var fulfillCapture: (() -> Void)?
+        let recorder = OrderRecordingNetworkTracker(wrapping: realTarget) {
+            order.withLock { $0.append("capture") }
+            fulfillCapture?()
+        }
+        SentryNetworkTrackerProxy.shared.setTarget(recorder)
+        defer { SentryNetworkTrackerProxy.shared.setTarget(realTarget) }
+
+        // Run several iterations to shake out timing-dependent stalls.
+        for iteration in 0..<10 {
+            order.withLock { $0.removeAll() }
+            let handlerCompleted = expectation(description: "Handler \(iteration) completed")
+            let captureCompleted = expectation(description: "Capture \(iteration) completed")
+            fulfillCapture = { captureCompleted.fulfill() }
+
+            let session = URLSession(configuration: .default)
+            let task = session.dataTask(with: url) { data, response, error in
+                self.assertNetworkError(error)
+                XCTAssertEqual((response as? HTTPURLResponse)?.statusCode, 200)
+                XCTAssertFalse((data ?? Data()).isEmpty, "Response body should reach the app")
+                order.withLock { $0.append("handler") }
+                handlerCompleted.fulfill()
+            }
+            defer { session.finishTasksAndInvalidate() }
+
+            task.resume()
+            // Wait for both the app handler and Replay enrichment so the order log is complete
+            // before asserting. Both run synchronously in the swizzle wrapper for a single request.
+            wait(for: [handlerCompleted, captureCompleted], timeout: 5)
+
+            XCTAssertEqual(
+                order.withLock { $0 },
+                ["handler", "capture"],
+                "App handler must run before Replay enrichment"
+            )
+        }
+    }
+
+    /// Forwards every `SentryNetworkTrackerProtocol` call to a wrapped tracker, recording when
+    /// `captureResponseDetails` runs. Used to assert Replay enrichment ordering in the swizzle.
+    private final class OrderRecordingNetworkTracker: SentryNetworkTrackerProtocol {
+        private let wrapped: SentryNetworkTrackerProtocol
+        private let onCapture: () -> Void
+
+        init(wrapping wrapped: SentryNetworkTrackerProtocol, onCapture: @escaping () -> Void) {
+            self.wrapped = wrapped
+            self.onCapture = onCapture
+        }
+
+        func enableNetworkTracking() { wrapped.enableNetworkTracking() }
+        func enableNetworkBreadcrumbs() { wrapped.enableNetworkBreadcrumbs() }
+        func enableCaptureFailedRequests() { wrapped.enableCaptureFailedRequests() }
+        func enableGraphQLOperationTracking() { wrapped.enableGraphQLOperationTracking() }
+        func disable() { wrapped.disable() }
+
+        var isNetworkTrackingEnabled: Bool { wrapped.isNetworkTrackingEnabled }
+        var isNetworkBreadcrumbEnabled: Bool { wrapped.isNetworkBreadcrumbEnabled }
+        var isCaptureFailedRequestsEnabled: Bool { wrapped.isCaptureFailedRequestsEnabled }
+        var isGraphQLOperationTrackingEnabled: Bool { wrapped.isGraphQLOperationTrackingEnabled }
+
+        func urlSessionTaskResume(_ sessionTask: URLSessionTask) {
+            wrapped.urlSessionTaskResume(sessionTask)
+        }
+
+        func urlSessionTask(_ sessionTask: URLSessionTask, setState newState: URLSessionTask.State) {
+            wrapped.urlSessionTask(sessionTask, setState: newState)
+        }
+
+        func captureResponseDetails(_ data: Data, response: URLResponse, request requestURL: URL, task: URLSessionTask) {
+            onCapture()
+            wrapped.captureResponseDetails(data, response: response, request: requestURL, task: task)
+        }
+    }
+#endif
+
     func testGetRequest_CompareSentryTraceHeader() throws {
         try ensureTestServerIsRunning()
 
