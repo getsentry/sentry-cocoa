@@ -4,3 +4,7 @@ GENERATE_INFOPLIST_FILE = YES
 IPHONEOS_DEPLOYMENT_TARGET = 16.0
 COPY_PHASE_STRIP = NO
 TARGETED_DEVICE_FAMILY = 1,2
+
+// Workspace iOSPackagesShouldBuildARM64e=YES makes local Swift packages inherit
+// arm64e. There is no Swift stdlib for arm64e-apple-ios-simulator, so exclude it.
+EXCLUDED_ARCHS[sdk=iphonesimulator*] = arm64e

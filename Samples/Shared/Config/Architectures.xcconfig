@@ -4,4 +4,11 @@ ONLY_ACTIVE_ARCH_TestCI = YES
 ONLY_ACTIVE_ARCH_Release = NO
 ONLY_ACTIVE_ARCH = $(ONLY_ACTIVE_ARCH_$(CONFIGURATION))
 
+// Workspace iOSPackagesShouldBuildARM64e=YES makes local Swift packages inherit
+// arm64e. There is no Swift stdlib for arm64e-apple-ios-simulator, so exclude it.
+EXCLUDED_ARCHS[sdk=iphonesimulator*] = arm64e
+EXCLUDED_ARCHS[sdk=appletvsimulator*] = arm64e
+EXCLUDED_ARCHS[sdk=watchsimulator*] = arm64e
+EXCLUDED_ARCHS[sdk=xrsimulator*] = arm64e
+
 SDKROOT = auto
