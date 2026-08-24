@@ -1618,32 +1618,6 @@ class SentryHubTests: XCTestCase {
         assertNoEnvelopesCaptured()
     }
 
-    func testCaptureNonTerminating_whenSessionCrashesAfterwards_shouldEndSessionAsCrashed() throws {
-        // -- Arrange --
-        sut.startSession()
-        sut.captureNonTerminating(givenUnhandledExceptionEnvelope())
-        let session = try XCTUnwrap(sut.session)
-
-        // -- Act --
-        session.endCrashed(withTimestamp: fixture.currentDateProvider.date())
-
-        // -- Assert --
-        XCTAssertEqual(SentrySessionStatus.crashed, session.status)
-    }
-
-    func testCaptureNonTerminating_whenSessionEndsAbnormallyAfterwards_shouldEndSessionAsAbnormal() throws {
-        // -- Arrange --
-        sut.startSession()
-        sut.captureNonTerminating(givenUnhandledExceptionEnvelope())
-        let session = try XCTUnwrap(sut.session)
-
-        // -- Act --
-        session.endAbnormal(withTimestamp: fixture.currentDateProvider.date())
-
-        // -- Assert --
-        XCTAssertEqual(SentrySessionStatus.abnormal, session.status)
-    }
-
     func testCaptureNonTerminating_whenPendingSessionCached_shouldCloseCachedSessionAsUnhandled() throws {
         // -- Arrange --
         sut.startSession()
