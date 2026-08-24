@@ -31,6 +31,7 @@
 - Remove data collection options without applicable Cocoa collectors (#8563)
 - Standalone app starts are now the default and only mode; the legacy `ui.load` attach-to-transaction path and `enableStandaloneAppStartTracing` experimental option are removed (#8719)
 - Removed deprecated user feedback widget configuration and API (#8731)
+- Remove legacy app hang ANR trackers in V10 (#8817)
 
 ### Fixes
 
