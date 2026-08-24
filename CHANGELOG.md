@@ -12,6 +12,11 @@
 - Remove `options.enableLogs` to remove explicit opt-in for Logs. If you need to disable logs, use `beforeSendLog` to drop all logs (#8769)
 - Remove `options.enableMetrics` to remove opt-out of Metrics. If you need to disable metrics, use `beforeSendMetric` to drop all metrics (#8785)
 
+### Fixes
+
+- Fix false fully-blocking app hang reports when the app stops rendering while staying active, e.g. a CarPlay scene keeping the app alive while the phone is locked, or the proximity sensor blanking the screen during a call (#8840)
+- Exclude time without frame delay data and app suspension time from reported app hang durations (#8840)
+
 ## 9.26.0
 
 > [!WARNING]

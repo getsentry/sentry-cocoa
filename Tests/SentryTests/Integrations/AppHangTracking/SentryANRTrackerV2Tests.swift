@@ -2,19 +2,23 @@
 @_spi(Private) @testable import Sentry
 import XCTest
 
+// swiftlint:disable file_length
+
 #if os(iOS) || os(tvOS)
 
 final class SentryANRTrackerV2Tests: XCTestCase {
     
     private let waitTimeout: TimeInterval = 10.0
     private var timeoutInterval: TimeInterval = 2
-        
+    private var dispatchQueue: TestSentryDispatchQueueWrapper!
+
     private func getSut() throws -> (SentryANRTracker, TestCurrentDateProvider, TestDisplayLinkWrapper, TestSentryApplicationStateProvider, SentryTestThreadWrapper, SentryFramesTracker) {
-        
+
         let currentDate = TestCurrentDateProvider()
-        
+
         let applicationStateProvider = TestSentryApplicationStateProvider()
         let dispatchQueue = TestSentryDispatchQueueWrapper()
+        self.dispatchQueue = dispatchQueue
         let threadWrapper = SentryTestThreadWrapper()
         
         let displayLinkWrapper = TestDisplayLinkWrapper(dateProvider: currentDate)
@@ -47,7 +51,9 @@ final class SentryANRTrackerV2Tests: XCTestCase {
     func testFullyBlockingAppHang_Reported() throws {
         let (sut, currentDate, displayLinkWrapper, _, _, _) = try getSut()
         defer { sut.clear() }
-        
+
+        simulateBlockedMainThread()
+
         let listener = SentryANRTrackerV2TestDelegate()
         sut.add(listener: listener)
         
@@ -78,7 +84,9 @@ final class SentryANRTrackerV2Tests: XCTestCase {
         timeoutInterval = 5.0
         let (sut, currentDate, displayLinkWrapper, _, _, _) = try getSut()
         defer { sut.clear() }
-        
+
+        simulateBlockedMainThread()
+
         let listener = SentryANRTrackerV2TestDelegate()
         sut.add(listener: listener)
         
@@ -109,7 +117,9 @@ final class SentryANRTrackerV2Tests: XCTestCase {
         timeoutInterval = 0.5
         let (sut, currentDate, displayLinkWrapper, _, _, _) = try getSut()
         defer { sut.clear() }
-        
+
+        simulateBlockedMainThread()
+
         let listener = SentryANRTrackerV2TestDelegate()
         sut.add(listener: listener)
         
@@ -144,7 +154,10 @@ final class SentryANRTrackerV2Tests: XCTestCase {
     func testNonFullyBlockingAppHang_Reported() throws {
         let (sut, _, displayLinkWrapper, _, _, _) = try getSut()
         defer { sut.clear() }
-        
+
+        // This test intentionally keeps the main thread responsive: recorded slow frames
+        // must trigger a non fully blocking app hang even when the heartbeat is alive.
+
         let listener = SentryANRTrackerV2TestDelegate()
         
         sut.add(listener: listener)
@@ -194,7 +207,9 @@ final class SentryANRTrackerV2Tests: XCTestCase {
     func testAlmostFullyBlockingAppHang_NoneReported() throws {
         let (sut, dateProvider, displayLinkWrapper, _, _, _) = try getSut()
         defer { sut.clear() }
-        
+
+        simulateBlockedMainThread()
+
         let listener = SentryANRTrackerV2TestDelegate(shouldANRBeDetected: false, shouldStoppedBeCalled: false)
         
         sut.add(listener: listener)
@@ -220,7 +235,9 @@ final class SentryANRTrackerV2Tests: XCTestCase {
     func testFullyBlockingFollowedByNonFullyBlocking_OnlyFirstReported() throws {
         let (sut, dateProvider, displayLinkWrapper, _, _, _) = try getSut()
         defer { sut.clear() }
-        
+
+        simulateBlockedMainThread()
+
         let listener = SentryANRTrackerV2TestDelegate()
         
         sut.add(listener: listener)
@@ -249,7 +266,9 @@ final class SentryANRTrackerV2Tests: XCTestCase {
     func testFullyBlockingFollowedByFullyBlocking_BothReported() throws {
         let (sut, currentDate, displayLinkWrapper, _, _, _) = try getSut()
         defer { sut.clear() }
-        
+
+        simulateBlockedMainThread()
+
         // We use multiple listeners here, because we can't reset the XCTestExpectation
         let secondHangDuration = timeoutInterval + 0.1
         let firstListener = SentryANRTrackerV2TestDelegate(blockOnFirstANRStopped: { [currentDate, secondHangDuration] in
@@ -294,7 +313,9 @@ final class SentryANRTrackerV2Tests: XCTestCase {
     func testFullyBlockingFollowedByNormalFrames_OneReported() throws {
         let (sut, currentDate, displayLinkWrapper, _, _, _) = try getSut()
         defer { sut.clear() }
-        
+
+        simulateBlockedMainThread()
+
         let firstListener = SentryANRTrackerV2TestDelegate()
         sut.add(listener: firstListener)
         
@@ -331,7 +352,9 @@ final class SentryANRTrackerV2Tests: XCTestCase {
     func testTwoListeners_FullyBlocking_ReportedToBothListeners() throws {
         let (sut, currentDate, displayLinkWrapper, _, _, _) = try getSut()
         defer { sut.clear() }
-        
+
+        simulateBlockedMainThread()
+
         let firstListener = SentryANRTrackerV2TestDelegate()
         
         sut.add(listener: firstListener)
@@ -353,18 +376,40 @@ final class SentryANRTrackerV2Tests: XCTestCase {
         defer { sut.clear() }
         
         applicationStateProvider.isApplicationInForeground = false
-        
+        simulateBlockedMainThread()
+
         let listener = SentryANRTrackerV2TestDelegate(shouldANRBeDetected: false, shouldStoppedBeCalled: false)
-        
+
         sut.add(listener: listener)
-        
+
         triggerFullyBlockingAppHang(currentDate)
-        
+
         renderNormalFramesToStopAppHang(displayLinkWrapper)
 
         wait(for: [listener.anrDetectedExpectation, listener.anrStoppedExpectation], timeout: waitTimeout)
     }
     
+    /// When the app stops rendering but the main thread stays responsive, e.g. a CarPlay
+    /// scene keeping the app alive while the phone is locked, it's not an app hang (#8317).
+    ///
+    /// [||||--------------]
+    /// - means no frame rendered
+    /// | means a rendered frame
+    func testNoFramesRendered_whenMainThreadResponsive_shouldNotReportAppHang() throws {
+        let (sut, currentDate, _, _, _, _) = try getSut()
+        defer { sut.clear() }
+
+        // The test dispatch queue wrapper executes main queue blocks,
+        // keeping the main thread heartbeat responsive.
+        let listener = SentryANRTrackerV2TestDelegate(shouldANRBeDetected: false, shouldStoppedBeCalled: false)
+
+        sut.add(listener: listener)
+
+        triggerFullyBlockingAppHang(currentDate)
+
+        wait(for: [listener.anrDetectedExpectation, listener.anrStoppedExpectation], timeout: waitTimeout)
+    }
+
     func testClear_WhenWorkerWakesInBackground_DoesNotLogAfterStopping() throws {
         // -- Arrange --
         let (sut, _, _, applicationStateProvider, threadWrapper, _) = try getSut()
@@ -404,7 +449,9 @@ final class SentryANRTrackerV2Tests: XCTestCase {
     func testAppSuspended_NoAppHang() throws {
         let (sut, currentDate, _, _, threadWrapper, _) = try getSut()
         defer { sut.clear() }
-        
+
+        simulateBlockedMainThread()
+
         let listener = SentryANRTrackerV2TestDelegate(shouldANRBeDetected: false, shouldStoppedBeCalled: false)
         
         // When the app is suspended the thread sleep can take way longer
@@ -431,7 +478,9 @@ final class SentryANRTrackerV2Tests: XCTestCase {
         timeoutInterval = 0.5
         let (sut, currentDate, displayLinkWrapper, applicationStateProvider, threadWrapper, _) = try getSut()
         defer { sut.clear() }
-        
+
+        simulateBlockedMainThread()
+
         let listener = SentryANRTrackerV2TestDelegate()
         sut.add(listener: listener)
         
@@ -482,7 +531,9 @@ final class SentryANRTrackerV2Tests: XCTestCase {
         timeoutInterval = 0.5
         let (sut, currentDate, displayLinkWrapper, applicationStateProvider, threadWrapper, _) = try getSut()
         defer { sut.clear() }
-        
+
+        simulateBlockedMainThread()
+
         let listener = SentryANRTrackerV2TestDelegate()
         sut.add(listener: listener)
         
@@ -540,7 +591,9 @@ final class SentryANRTrackerV2Tests: XCTestCase {
         timeoutInterval = 0.5
         let (sut, currentDate, displayLinkWrapper, applicationStateProvider, threadWrapper, _) = try getSut()
         defer { sut.clear() }
-        
+
+        simulateBlockedMainThread()
+
         let firstListener = SentryANRTrackerV2TestDelegate()
         firstListener.anrDetectedExpectation.assertForOverFulfill = false
         firstListener.anrStoppedExpectation.assertForOverFulfill = false
@@ -618,11 +671,166 @@ final class SentryANRTrackerV2Tests: XCTestCase {
         let secondHangDuration = try XCTUnwrap(secondListener.anrStoppedResults.last)
         XCTAssertLessThan(secondHangDuration.maxDuration, firstHangBackgroundDuration)
     }
-    
+
+    /// Time without frame delay data, e.g. while the frames tracker is paused because the app
+    /// resigned active, should be excluded from the hang duration.
+    ///
+    /// [||||---NO FRAME DELAY DATA---||||]
+    /// | means a rendered frame
+    /// - means no frame rendered
+    func testFullyBlockingAppHang_whenNoFrameDelayDataDuringHang_shouldNotIncludeThatTimeInDuration() throws {
+        timeoutInterval = 0.5
+        let (sut, currentDate, displayLinkWrapper, _, threadWrapper, framesTracker) = try getSut()
+        defer { sut.clear() }
+
+        simulateBlockedMainThread()
+
+        let listener = SentryANRTrackerV2TestDelegate()
+        sut.add(listener: listener)
+
+        let noFrameDelayDataDuration = 3.0
+        var iteration = 0
+        let iterationsWithoutData = 15
+        let noDataIterationsCompleted = expectation(description: "No frame delay data iterations completed")
+
+        threadWrapper.blockWhenSleeping = {
+            guard listener.anrsDetected.count > 0 else { return }
+
+            switch iteration {
+            case 0:
+                // Resetting the frames deletes all frame delay data, the same as pausing
+                // the frames tracker does, so getting the frames delay returns -1.
+                framesTracker.resetFrames()
+                fallthrough
+            case 1..<iterationsWithoutData:
+                currentDate.advance(by: noFrameDelayDataDuration / Double(iterationsWithoutData))
+                iteration += 1
+            case iterationsWithoutData:
+                iteration += 1
+                noDataIterationsCompleted.fulfill()
+            default:
+                break
+            }
+        }
+
+        triggerFullyBlockingAppHang(currentDate)
+        wait(for: [listener.anrDetectedExpectation], timeout: waitTimeout)
+
+        wait(for: [noDataIterationsCompleted], timeout: waitTimeout)
+        threadWrapper.blockWhenSleeping = {}
+
+        renderNormalFramesToStopAppHang(displayLinkWrapper)
+        wait(for: [listener.anrStoppedExpectation], timeout: waitTimeout)
+
+        let actual = try XCTUnwrap(listener.anrStoppedResults.last)
+        XCTAssertLessThan(actual.maxDuration, noFrameDelayDataDuration)
+    }
+
+    /// When a slow frame is followed by the app not rendering at all while the main thread
+    /// stays responsive, the frame gap must not turn the slow frame into a hang (#8317).
+    ///
+    /// [||||--|----------]
+    /// - means no frame rendered
+    /// | means a rendered frame
+    func testSlowFrameThenNoRendering_whenMainThreadResponsive_shouldNotReportAppHang() throws {
+        let (sut, currentDate, displayLinkWrapper, _, _, _) = try getSut()
+        defer { sut.clear() }
+
+        let listener = SentryANRTrackerV2TestDelegate(shouldANRBeDetected: false, shouldStoppedBeCalled: false)
+
+        sut.add(listener: listener)
+
+        displayLinkWrapper.frameWith(delay: 1.0)
+
+        // The app stops rendering, but the main thread keeps servicing its queue.
+        currentDate.advance(by: 1.2)
+
+        wait(for: [listener.anrDetectedExpectation, listener.anrStoppedExpectation], timeout: waitTimeout)
+    }
+
+    /// A hang stops when the main thread becomes responsive again, even when the app isn't
+    /// rendering frames, e.g. because the screen turned off during the hang.
+    ///
+    /// [||||----------------]
+    /// - means no frame rendered
+    /// | means a rendered frame
+    func testFullyBlockingAppHang_whenMainThreadRecoversWithoutRendering_shouldReportStopped() throws {
+        let (sut, currentDate, _, _, _, _) = try getSut()
+        defer { sut.clear() }
+
+        simulateBlockedMainThread()
+
+        let listener = SentryANRTrackerV2TestDelegate()
+        sut.add(listener: listener)
+
+        triggerFullyBlockingAppHang(currentDate)
+        wait(for: [listener.anrDetectedExpectation], timeout: waitTimeout)
+
+        // The main thread becomes responsive again, but no frames get rendered.
+        dispatchQueue.blockBeforeMainBlock = { true }
+
+        wait(for: [listener.anrStoppedExpectation], timeout: waitTimeout)
+
+        let actual = try XCTUnwrap(listener.anrStoppedResults.last)
+        XCTAssertLessThanOrEqual(actual.maxDuration, 4.0)
+        XCTAssertEqual(0.8, actual.maxDuration - actual.minDuration, accuracy: 0.01)
+    }
+
+    /// When the OS suspends the app, the ANR thread sleeps way longer than expected. The
+    /// extra sleep time should be excluded from the hang duration.
+    ///
+    /// [||||---SUSPENDED---||||]
+    /// | means a rendered frame
+    /// - means no frame rendered
+    func testFullyBlockingAppHang_whenAppSuspendedDuringHang_shouldNotIncludeSuspensionTimeInDuration() throws {
+        timeoutInterval = 0.5
+        let (sut, currentDate, displayLinkWrapper, _, threadWrapper, _) = try getSut()
+        defer { sut.clear() }
+
+        simulateBlockedMainThread()
+
+        let listener = SentryANRTrackerV2TestDelegate()
+        sut.add(listener: listener)
+
+        let suspensionIterations = 3
+        let suspensionDurationPerIteration = 1.0
+        let suspensionDuration = suspensionDurationPerIteration * Double(suspensionIterations)
+        var iteration = 0
+        let suspensionCompleted = expectation(description: "Suspension iterations completed")
+
+        threadWrapper.blockWhenSleeping = {
+            guard listener.anrsDetected.count > 0 else { return }
+            guard iteration <= suspensionIterations else { return }
+
+            if iteration < suspensionIterations {
+                // Sleeping way longer than the sleep interval simulates the OS
+                // suspending the app.
+                currentDate.advance(by: suspensionDurationPerIteration)
+            } else {
+                suspensionCompleted.fulfill()
+            }
+            iteration += 1
+        }
+
+        triggerFullyBlockingAppHang(currentDate)
+        wait(for: [listener.anrDetectedExpectation], timeout: waitTimeout)
+
+        wait(for: [suspensionCompleted], timeout: waitTimeout)
+        threadWrapper.blockWhenSleeping = {}
+
+        renderNormalFramesToStopAppHang(displayLinkWrapper)
+        wait(for: [listener.anrStoppedExpectation], timeout: waitTimeout)
+
+        let actual = try XCTUnwrap(listener.anrStoppedResults.last)
+        XCTAssertLessThan(actual.maxDuration, suspensionDuration)
+    }
+
     func testRemoveListener_StopsReporting() throws {
         let (sut, currentDate, _, _, threadWrapper, _) = try getSut()
         defer { sut.clear() }
-        
+
+        simulateBlockedMainThread()
+
         let listener = SentryANRTrackerV2TestDelegate(shouldANRBeDetected: false, shouldStoppedBeCalled: false)
         
         let mainBlockExpectation = expectation(description: "Main Block")
@@ -642,7 +850,9 @@ final class SentryANRTrackerV2Tests: XCTestCase {
     func testClear_StopsReporting() throws {
         let (sut, currentDate, _, _, threadWrapper, _) = try getSut()
         defer { sut.clear() }
-        
+
+        simulateBlockedMainThread()
+
         let firstListener = SentryANRTrackerV2TestDelegate(shouldANRBeDetected: false, shouldStoppedBeCalled: false)
         let secondListener = SentryANRTrackerV2TestDelegate(shouldANRBeDetected: false, shouldStoppedBeCalled: false)
         
@@ -667,7 +877,9 @@ final class SentryANRTrackerV2Tests: XCTestCase {
     func testNotRemovingDeallocatedListener_DoesNotRetainListener_AndStopsTracking() throws {
         let (sut, currentDate, _, _, _, _) = try getSut()
         defer { sut.clear() }
-        
+
+        simulateBlockedMainThread()
+
         let listener = SentryANRTrackerV2TestDelegate(shouldANRBeDetected: false, shouldStoppedBeCalled: false)
         
         // So ARC deallocates SentryANRTrackerTestDelegate
@@ -705,7 +917,9 @@ final class SentryANRTrackerV2Tests: XCTestCase {
     func testClearDirectlyAfterStart_FullyBlocking_NotReported() throws {
         let (sut, currentDate, _, _, threadWrapper, _) = try getSut()
         defer { sut.clear() }
-        
+
+        simulateBlockedMainThread()
+
         let listener = SentryANRTrackerV2TestDelegate(shouldANRBeDetected: false, shouldStoppedBeCalled: false)
         
         let invocations = 10
@@ -729,7 +943,8 @@ final class SentryANRTrackerV2Tests: XCTestCase {
         defer { sut.clear() }
         
         framesTracker.stop()
-        
+        simulateBlockedMainThread()
+
         let listener = SentryANRTrackerV2TestDelegate(shouldANRBeDetected: false, shouldStoppedBeCalled: false)
         
         sut.add(listener: listener)
@@ -739,6 +954,12 @@ final class SentryANRTrackerV2Tests: XCTestCase {
         wait(for: [listener.anrDetectedExpectation, listener.anrStoppedExpectation], timeout: waitTimeout)
     }
     
+    /// Stops the test dispatch queue wrapper from executing main queue blocks, so the
+    /// tracker's heartbeat treats the main thread as blocked.
+    private func simulateBlockedMainThread() {
+        dispatchQueue.blockBeforeMainBlock = { false }
+    }
+
     private func renderNormalFramesToStopAppHang(_ displayLinkWrapper: TestDisplayLinkWrapper) {
         
         // We need to render normal frames until we reach the
@@ -814,3 +1035,5 @@ class SentryANRTrackerV2TestDelegate: NSObject, SentryANRTrackerDelegate {
 }
 
 #endif
+
+// swiftlint:enable file_length
