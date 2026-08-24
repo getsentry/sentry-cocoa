@@ -1,4 +1,4 @@
-// swift-tools-version: 6.0
+// swift-tools-version: 6.1
 
 import PackageDescription
 
@@ -15,8 +15,21 @@ let package = Package(
             targets: ["SentrySampleUITestShared"]
         )
     ],
+    traits: [
+        .init(
+            name: "V10",
+            description: "Compile shared sample code with SDK_V10 and enable Sentry's V10 trait."
+        )
+    ],
     dependencies: [
-        .package(name: "Sentry", path: "../..")
+        .package(
+            name: "Sentry",
+            path: "../..",
+            traits: [
+                .defaults,
+                .trait(name: "V10", condition: .when(traits: ["V10"]))
+            ]
+        )
     ],
     targets: [
         .target(
@@ -28,6 +41,9 @@ let package = Package(
             resources: [
                 .process("LoremIpsum.txt"),
                 .process("screenshot.png")
+            ],
+            swiftSettings: [
+                .define("SDK_V10", .when(traits: ["V10"]))
             ]
         ),
         .target(

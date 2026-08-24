@@ -402,11 +402,11 @@ class ExtraViewController: UIViewController {
     }
 
     @IBAction func showFeedbackWidget(_ sender: Any) {
-        SentrySDK.feedback.showWidget()
+        SentrySampleFeedback.showWidget()
     }
 
     @IBAction func hideFeedbackWidget(_ sender: Any) {
-        SentrySDK.feedback.hideWidget()
+        SentrySampleFeedback.hideWidget()
     }
 
     @IBAction func showCameraUIAction(_ sender: Any) {

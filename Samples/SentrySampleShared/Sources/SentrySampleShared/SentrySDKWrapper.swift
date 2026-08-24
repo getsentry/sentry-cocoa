@@ -201,7 +201,9 @@ public struct SentrySDKWrapper {
         options.enableUserInteractionTracing = !isBenchmarking && !SentrySDKOverrides.UIEventTracking.disableTracing.boolValue
 
         options.enablePreWarmedAppStartTracing = !isBenchmarking && !SentrySDKOverrides.AppStart.disablePrewarmedTracing.boolValue
+        #if !SDK_V10
         options.enableStandaloneAppStartTracing = SentrySDKOverrides.AppStart.enableStandaloneTracing.boolValue
+        #endif
         options.enableUIViewControllerTracing = !SentrySDKOverrides.UIViewControllerTracing.disable.boolValue
         options.experimental.enableUIViewControllerInitSwizzling = SentrySDKOverrides.UIViewControllerTracing.enableInitSwizzling.boolValue
 
@@ -411,6 +413,7 @@ public struct SentrySDKWrapper {
 extension SentrySDKWrapper {
     var layoutOffset: UIOffset { UIOffset(horizontal: 25, vertical: 75) }
 
+    #if !SDK_V10
     func configureFeedbackWidget(config: SentryUserFeedbackWidgetConfiguration) {
         config.autoInject = false
         config.layoutUIOffset = layoutOffset
@@ -434,6 +437,7 @@ extension SentrySDKWrapper {
         }
         config.showIcon = !SentrySDKOverrides.Feedback.noWidgetIcon.boolValue
     }
+    #endif
 
     func configureFeedbackForm(config: SentryUserFeedbackFormConfiguration) {
         config.useSentryUser = !SentrySDKOverrides.Feedback.noUserInjection.boolValue
@@ -660,5 +664,27 @@ extension SentrySDKWrapper {
     }
 }
 #endif // SDK_V10
+
+#if !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
+/// V10-safe entry points for sample apps. App targets do not inherit `SDK_V10`
+/// from package traits, so they must not call APIs removed in V10 directly.
+@objcMembers public final class SentrySampleFeedback: NSObject {
+    @objc public static func showWidget() {
+#if !SDK_V10
+        SentrySDK.feedback.showWidget()
+#endif // !SDK_V10
+    }
+
+    @objc public static func hideWidget() {
+#if !SDK_V10
+        SentrySDK.feedback.hideWidget()
+#endif // !SDK_V10
+    }
+
+    @objc public static func configure(_ config: SentryUserFeedbackConfiguration) {
+        SentrySDKWrapper.shared.configureFeedback(config: config)
+    }
+}
+#endif // !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
 
 // swiftlint:enable file_length function_body_length

@@ -1,3 +1,4 @@
+import SentrySampleShared
 import SentrySwift
 import SwiftUI
 
@@ -27,9 +28,9 @@ struct FeedbackScreen: View {
 
             Button(isFeedbackWidgetVisible ? "Hide Widget (Deprecated)" : "Show Widget (Deprecated)") {
                 if isFeedbackWidgetVisible {
-                    SentrySDK.feedback.hideWidget()
+                    SentrySampleFeedback.hideWidget()
                 } else {
-                    SentrySDK.feedback.showWidget()
+                    SentrySampleFeedback.showWidget()
                 }
                 isFeedbackWidgetVisible.toggle()
             }
