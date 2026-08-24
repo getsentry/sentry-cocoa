@@ -111,9 +111,12 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             }
             return true
         }
-        if isUntracked, isDuplicateTask(currentRequest, currentSpan: hub.scope.span) {
-            sessionTask.withNetworkTrackerState { $0.isDuplicate = true }
-            return
+        if isUntracked {
+            let isDuplicate = isDuplicateTask(currentRequest, currentSpan: hub.scope.span)
+            sessionTask.withNetworkTrackerState { $0.isDuplicate = isDuplicate }
+            if isDuplicate {
+                return
+            }
         }
 
         // Don't measure requests to Sentry's backend
