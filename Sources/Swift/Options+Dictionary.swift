@@ -77,6 +77,10 @@ extension Options {
             self.maxBreadcrumbs = maxBreadcrumbs.uintValue
         }
 
+        if let maxFeatureFlags = dictionary["maxFeatureFlags"] as? NSNumber {
+            self.maxFeatureFlags = maxFeatureFlags.uintValue
+        }
+
         #if !SDK_V10
         if let enableLogs = boolValue(dictionary["enableLogs"]) {
             self.enableLogs = enableLogs

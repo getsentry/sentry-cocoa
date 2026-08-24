@@ -68,6 +68,16 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
     return self;
 }
 
+- (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
+                       maxFeatureFlags:(NSInteger)maxFeatureFlags
+{
+    if (self = [self initWithMaxBreadcrumbs:maxBreadcrumbs]) {
+        _featureFlagBuffer =
+            [SentryFeatureFlagBufferWrapper scopeBufferWithMaxSize:MAX(0, maxFeatureFlags)];
+    }
+    return self;
+}
+
 - (instancetype)init
 {
     return [self initWithMaxBreadcrumbs:defaultMaxBreadcrumbs];

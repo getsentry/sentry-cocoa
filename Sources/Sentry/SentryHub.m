@@ -693,7 +693,9 @@ NS_ASSUME_NONNULL_BEGIN
         if (_scope == nil) {
             SentryClientInternal *client = self.client;
             if (client != nil) {
-                _scope = [[SentryScope alloc] initWithMaxBreadcrumbs:client.options.maxBreadcrumbs];
+                _scope =
+                    [[SentryScope alloc] initWithMaxBreadcrumbs:client.options.maxBreadcrumbs
+                                                maxFeatureFlags:client.options.maxFeatureFlags];
             } else {
                 _scope = [[SentryScope alloc] init];
             }

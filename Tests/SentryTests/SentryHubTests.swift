@@ -189,6 +189,32 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(values.element(at: 0)?["result"] as? Bool, true)
     }
 
+    func testFeatureFlagCapLimit_withDefaultMaxFeatureFlags() throws {
+        let hub = fixture.getSut(fixture.options)
+
+        for index in 0...100 {
+            hub.scope.addFeatureFlag(name: "flag-\(index)", result: true)
+        }
+
+        let values = try featureFlagValues(from: hub.scope)
+        XCTAssertEqual(values.count, 100)
+        XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "flag-1")
+    }
+
+    func testFeatureFlagOverDefaultLimit_whenMaxFeatureFlagsRaised() throws {
+        let options = fixture.options
+        options.maxFeatureFlags = 200
+        let hub = fixture.getSut(options)
+
+        for index in 0..<200 {
+            hub.scope.addFeatureFlag(name: "flag-\(index)", result: true)
+        }
+
+        let values = try featureFlagValues(from: hub.scope)
+        XCTAssertEqual(values.count, 200)
+        XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "flag-0")
+    }
+
     func testBreadcrumbOverDefaultLimit() {
         let hub = fixture.getSut(withMaxBreadcrumbs: 200)
         

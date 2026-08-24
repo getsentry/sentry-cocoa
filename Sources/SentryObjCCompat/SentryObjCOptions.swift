@@ -86,6 +86,11 @@ import Foundation
         set { wrapped.maxBreadcrumbs = newValue }
     }
 
+    @objc public var maxFeatureFlags: UInt {
+        get { wrapped.maxFeatureFlags }
+        set { wrapped.maxFeatureFlags = newValue }
+    }
+
     @objc public var enableNetworkBreadcrumbs: Bool {
         get { wrapped.enableNetworkBreadcrumbs }
         set { wrapped.enableNetworkBreadcrumbs = newValue }

@@ -262,6 +262,29 @@
     XCTAssertEqual(100, options.maxBreadcrumbs);
 }
 
+- (void)testMaxFeatureFlags
+{
+    NSNumber *maxFeatureFlags = @2000;
+
+    SentryOptions *options = [self getValidOptions:@{ @"maxFeatureFlags" : maxFeatureFlags }];
+
+    XCTAssertEqual([maxFeatureFlags unsignedIntValue], options.maxFeatureFlags);
+}
+
+- (void)testDefaultMaxFeatureFlags
+{
+    SentryOptions *options = [self getValidOptions:@{ }];
+
+    XCTAssertEqual([@100 unsignedIntValue], options.maxFeatureFlags);
+}
+
+- (void)testMaxFeatureFlagsGarbage
+{
+    SentryOptions *options = [self getValidOptions:@{ @"maxFeatureFlags" : self }];
+
+    XCTAssertEqual(100, options.maxFeatureFlags);
+}
+
 - (void)testMaxCacheItems
 {
     NSNumber *maxCacheItems = @20;
