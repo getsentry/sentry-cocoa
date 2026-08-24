@@ -785,6 +785,11 @@ Pros:
   - `__sentry_cxa_throw` and `__sentry_cxa_rethrow` preserve the Unity/native ABI handoff.
   - `SentryCrashExceptionApplication` remains public and must forward to the active backend.
 - Packaged headers must not declare excluded implementations or import a legacy implementation header.
+- Binary-image provider boundary:
+  - `SentryBinaryImageCache` remains the sole retained SDK cache and owns the provider lifecycle; its internal provider protocol uses only Sentry image models and primitive types (i.e., doesn't expose any types from KSCrash).
+  - V9 adapts the legacy callbacks. V10 uses a stateless pull adapter over KSCrash RecordingCore: initialize with idempotent `ksdl_init()`, read `ksbic_getImages()`, and add dyld explicitly with `ksbic_getDyldHeader()` and `ksbic_getDyldPath()`.
+  - The V10 adapter must not register KSCrash's image-added callback, because the C++ V2 throw swapper uses that slot for newly loaded images and there is no generic multi-subscribe API. Cache refresh before enumeration and after lookup misses discovers dynamic images without displacing that callback.
+  - SwiftPM manifests depend directly on `RecordingCore`. The Xcode `SentryV10` target keeps only its existing `Recording` product dependency and imports `KSCrashRecordingCore` transitively; adding both overlapping products causes Xcode package artifact collisions.
 - Exact retained Tool implementations and SDK clients:
   - `SentryCrashCPU.c`, `SentryCrashCPU_arm.c`, `SentryCrashCPU_arm64.c`, `SentryCrashCPU_x86_32.c`, `SentryCrashCPU_x86_64.c`: thread inspection and stack capture.
   - `SentryCrashFileUtils.c`: session-replay sync and view-hierarchy output.
@@ -794,7 +799,6 @@ Pros:
   - `SentryCrashStackCursor.c`, `SentryCrashStackCursor_Backtrace.c`, `SentryCrashStackCursor_MachineContext.c`, `SentryCrashStackCursor_SelfThread.m`: current/all-thread stack capture.
   - `SentryCrashSysCtl.c`: process-start and boot-time queries.
   - `SentryCrashThread.c`: thread inspection, stack building, and span thread metadata.
-  - `SentryCrashUUIDConversion.c`: binary-image UUID conversion.
 - Definition of done:
   - No V10 source/object from `Sources/SentryCrash/**`, retained Tool, temporary reporter, or migration marker remains.
   - Xcode, SwiftPM environment/trait/base-manifest, and dynamic/static products have the same KSCrash backend contract.

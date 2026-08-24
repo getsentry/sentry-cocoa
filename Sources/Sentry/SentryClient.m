@@ -97,7 +97,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                           locale:[NSLocale autoupdatingCurrentLocale]
                         timezone:[NSCalendar autoupdatingCurrentCalendar].timeZone
             eventContextEnricher:dependencies.eventContextEnricher
-                    crashWrapper:dependencies.crashWrapper
                 binaryImageCache:dependencies.binaryImageCache
             dispatchQueueWrapper:dependencies.dispatchQueueWrapper];
 }
@@ -112,7 +111,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                          locale:(NSLocale *)locale
                        timezone:(NSTimeZone *)timezone
            eventContextEnricher:(id<SentryEventContextEnricher>)eventContextEnricher
-                   crashWrapper:(id<SentryCrashReporter>)crashWrapper
                binaryImageCache:(SentryBinaryImageCache *)binaryImageCache
            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
@@ -146,7 +144,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                                    cacheDirectoryPath:options.cacheDirectoryPath
                                                shouldAddDefaultUserId:shouldAddDefaultUserId];
 
-        [crashWrapper startBinaryImageCache];
         [binaryImageCache start:options.debug];
 
         // The SDK stores the installationID in a file. The first call requires file IO. To avoid

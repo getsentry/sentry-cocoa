@@ -133,9 +133,8 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     private var _crashWrapper: SentryCrashReporter?
     @objc public lazy var crashWrapper: SentryCrashReporter = getLazyVar(\._crashWrapper) {
 #if SENTRY_DISABLE_SENTRYCRASH_V10
-        // KSCRASH_TODO(GH-8798, GH-8800): Remove the temporary broad reporter after its
-        // binary-image, memory, and context consumers use narrow capabilities.
-        // Acceptance: SCV10-040 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+        // KSCRASH_TODO(GH-8800): Remove the temporary broad reporter after its memory and context
+        // consumers use narrow capabilities. Acceptance: SCV10-040 in the migration ledger.
         return SentryKSCrash.UnavailableReporter(processInfoWrapper: Dependencies.processInfoWrapper)
 #else
         let bridge = SentryCrashBridge(

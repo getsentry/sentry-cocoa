@@ -19,7 +19,6 @@ extension SentryClientInternal {
             locale: Locale.autoupdatingCurrent,
             timezone: Calendar.autoupdatingCurrent.timeZone,
             eventContextEnricher: TestEventContextEnricher(),
-            crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper,
             binaryImageCache: SentryDependencyContainer.sharedInstance().binaryImageCache,
             dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
         )
@@ -128,7 +127,6 @@ final class SentryClientTests: XCTestCase {
                 locale: locale,
                 timezone: timezone,
                 eventContextEnricher: eventContextEnricher,
-                crashWrapper: crashWrapper,
                 binaryImageCache: SentryDependencyContainer.sharedInstance().binaryImageCache,
                 dispatchQueueWrapper: dispatchQueue
             )
@@ -216,17 +214,16 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(cachedID, nonCachedID)
     }
 
-#if !SENTRY_DISABLE_SENTRYCRASH_V10
-    // KSCRASH_TODO(GH-8798): V10 has no binary-image provider for a standalone client.
-    // Acceptance: SCV10-001 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
     func testInit_WhenUsingStandaloneClient_shouldStartBinaryImageCache() throws {
-        SentryDependencyContainer.sharedInstance().crashWrapper.stopBinaryImageCache()
         SentryDependencyContainer.sharedInstance().binaryImageCache.stop()
+#if !SDK_V10
         sentrycrashbic_useFreshTestCacheState()
+#endif
         defer {
-            SentryDependencyContainer.sharedInstance().crashWrapper.stopBinaryImageCache()
             SentryDependencyContainer.sharedInstance().binaryImageCache.stop()
+#if !SDK_V10
             sentrycrashbic_useDefaultCacheState()
+#endif
         }
 
         XCTAssertNil(SentryDependencyContainer.sharedInstance().binaryImageCache.cache)
@@ -238,7 +235,6 @@ final class SentryClientTests: XCTestCase {
         let cache = try XCTUnwrap(SentryDependencyContainer.sharedInstance().binaryImageCache.cache)
         XCTAssertGreaterThan(cache.count, 0)
     }
-#endif
 
     func testClientIsEnabled() {
         XCTAssertTrue(fixture.getSut().isEnabled)
