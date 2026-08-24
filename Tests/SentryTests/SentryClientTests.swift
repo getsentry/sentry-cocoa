@@ -53,7 +53,6 @@ final class SentryClientTests: XCTestCase {
 
         let trace = SentryTracer(transactionContext: TransactionContext(name: "SomeTransaction", operation: "SomeOperation"), hub: nil)
         let transaction: Transaction
-        let crashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
         let memoryMetricsProvider = TestSentryMemoryMetricsProvider()
         #if os(iOS)
         let deviceWrapper = TestSentryUIDeviceWrapper()

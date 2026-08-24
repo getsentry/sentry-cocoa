@@ -13,6 +13,8 @@ set -euo pipefail
 #   manifests.
 # - Every retained legacy Tool is documented, while SDK-owned SentryScopeSyncC.c remains
 #   unconditional and unexcluded.
+# - The temporary unavailable reporter is absent, active crash state remains shared, and the broad
+#   reporter protocol is V9-only.
 # - The pull-based KSCrash binary-image adapter does not take KSCrash's single image-added callback
 #   slot, and Xcode avoids an overlapping direct RecordingCore product dependency.
 #
@@ -44,6 +46,32 @@ record_error() {
   log_error "$1"
   violation_count=$((violation_count + 1))
 }
+
+unavailable_reporter_path="Sources/Swift/Integrations/KSCrash/SentryKSCrash+UnavailableReporter.swift"
+if [[ -e "$unavailable_reporter_path" ]]; then
+  record_error "The temporary V10 unavailable reporter still exists: $unavailable_reporter_path"
+fi
+if grep -R -q 'UnavailableReporter' Sources; then
+  record_error "SDK source still references the temporary V10 unavailable reporter"
+fi
+if grep -q 'SENTRY_DISABLE_SENTRYCRASH_V10' Sources/Swift/SentryDependencyContainer.swift; then
+  record_error "The dependency container still uses a migration marker for the broad reporter"
+fi
+
+reporter_protocol_path="Sources/Swift/SentryCrash/SentryCrashReporter.swift"
+state_protocol_line=$(grep -n 'public protocol SentryCrashReporterState:' "$reporter_protocol_path" | cut -d: -f1 || true)
+reporter_guard_line=$(grep -n '^#if !SDK_V10$' "$reporter_protocol_path" | cut -d: -f1 || true)
+broad_protocol_line=$(grep -n 'public protocol SentryCrashReporter:' "$reporter_protocol_path" | cut -d: -f1 || true)
+reporter_guard_end_line=$(grep -n '^#endif // !SDK_V10$' "$reporter_protocol_path" | cut -d: -f1 || true)
+if [[ -z "$state_protocol_line" || -z "$reporter_guard_line" || -z "$broad_protocol_line" \
+  || -z "$reporter_guard_end_line" \
+  || "$state_protocol_line" -ge "$reporter_guard_line" \
+  || "$broad_protocol_line" -le "$reporter_guard_line" \
+  || "$broad_protocol_line" -ge "$reporter_guard_end_line" ]]; then
+  record_error "The narrow crash-state protocol must remain shared and the broad reporter protocol must be V9-only"
+else
+  log_notice "Verified the placeholder reporter is absent and the broad reporter protocol is V9-only"
+fi
 
 if [[ ! -f "$LEDGER_PATH" ]]; then
   log_error "Migration ledger does not exist: $LEDGER_PATH"

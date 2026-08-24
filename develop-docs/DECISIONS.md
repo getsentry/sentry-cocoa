@@ -795,7 +795,12 @@ Pros:
   - `SentryHub` invokes `SentryScopeContextEnricher` directly. The default SDK-owned enricher and system-info provider populate OS, device, app, and runtime contexts without importing or initializing SentryCrash.
   - The system-info provider uses the binary-image cache for the main executable UUID and loaded-image jailbreak check, and preserves the existing device/app hash, build type, memory, model, architecture, and timestamp mappings.
   - V10 intentionally omits the legacy `device.locale`; `culture.locale` remains its replacement. All other supported initial-context fields use shared V9/V10 policy.
-  - `SentryCrashReporter`, `SentryDefaultCrashReporter`, and the temporary V10 unavailable reporter do not expose memory, system-info, or scope-enrichment capabilities.
+  - `SentryCrashReporter` and `SentryDefaultCrashReporter` are V9-only and do not expose memory, system-info, or scope-enrichment capabilities.
+- Active crash-state and reporter boundaries:
+  - Shared SDK consumers depend only on `SentryCrashReporterState`; V10 satisfies it with `SentryKSCrash.Query`.
+  - `SentryHub` receives active crash state directly. Watchdog logic receives active crash state and the SDK-owned `targetEnvironment(simulator)` value directly.
+  - The broad `SentryCrashReporter` protocol, its dependency-container factory, and `SentryDefaultCrashReporter` remain V9-only for legacy duration and introspection clients.
+  - V10 has no broad reporter facade or zero-value placeholder. `SentryKSCrash.UnavailableReporter` and its `SENTRY_DISABLE_SENTRYCRASH_V10` factory marker were removed in Stack 2D.
 - Exact retained Tool implementations and SDK clients:
   - `SentryCrashCPU.c`, `SentryCrashCPU_arm.c`, `SentryCrashCPU_arm64.c`, `SentryCrashCPU_x86_32.c`, `SentryCrashCPU_x86_64.c`: thread inspection and stack capture.
   - `SentryCrashFileUtils.c`: session-replay sync and view-hierarchy output.

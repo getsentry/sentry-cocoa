@@ -7,10 +7,11 @@ import Foundation
 public final class SentryWatchdogTerminationLogic: NSObject {
 
     private let options: Options
-    private let crashAdapter: SentryCrashReporter
     private let activeCrashReporterState: SentryCrashReporterState
+    private let isSimulatorBuild: Bool
     private let appStateManager: SentryAppStateManager
 
+#if !SDK_V10
     @objc public convenience init(
         options: Options,
         crashAdapter: SentryCrashReporter,
@@ -18,21 +19,22 @@ public final class SentryWatchdogTerminationLogic: NSObject {
     ) {
         self.init(
             options: options,
-            crashAdapter: crashAdapter,
             activeCrashReporterState: crashAdapter,
+            isSimulatorBuild: crashAdapter.isSimulatorBuild,
             appStateManager: appStateManager
         )
     }
+#endif // !SDK_V10
 
     init(
         options: Options,
-        crashAdapter: SentryCrashReporter,
         activeCrashReporterState: SentryCrashReporterState,
+        isSimulatorBuild: Bool,
         appStateManager: SentryAppStateManager
     ) {
         self.options = options
-        self.crashAdapter = crashAdapter
         self.activeCrashReporterState = activeCrashReporterState
+        self.isSimulatorBuild = isSimulatorBuild
         self.appStateManager = appStateManager
         super.init()
     }
@@ -50,7 +52,7 @@ public final class SentryWatchdogTerminationLogic: NSObject {
 
         let currentAppState = appStateManager.buildCurrentAppState()
 
-        if crashAdapter.isSimulatorBuild {
+        if isSimulatorBuild {
             return false
         }
 

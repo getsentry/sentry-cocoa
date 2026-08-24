@@ -24,7 +24,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, atomic, strong) SentryClientInternal *client;
 @property (nullable, nonatomic, strong) SentryScope *scope;
 @property (nonatomic) SentryDispatchQueueWrapper *dispatchQueue;
-@property (nonatomic, strong) id<SentryCrashReporter> crashWrapper;
 @property (nonatomic, strong) id<SentryCrashReporterState> activeCrashReporterState;
 @property (nonatomic, strong) id<SentryScopeContextEnricher> scopeContextEnricher;
 @property (nonatomic, strong) NSMutableSet<NSString *> *installedIntegrationNames;
@@ -33,13 +32,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithClient:(nullable SentryClientInternal *)client
                       andScope:(nullable SentryScope *)scope
-               andCrashWrapper:(id<SentryCrashReporter>)crashWrapper
-          scopeContextEnricher:(id<SentryScopeContextEnricher>)scopeContextEnricher
-              andDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue;
-
-- (instancetype)initWithClient:(nullable SentryClientInternal *)client
-                      andScope:(nullable SentryScope *)scope
-               andCrashWrapper:(id<SentryCrashReporter>)crashWrapper
       activeCrashReporterState:(id<SentryCrashReporterState>)activeCrashReporterState
           scopeContextEnricher:(id<SentryScopeContextEnricher>)scopeContextEnricher
               andDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue;
@@ -56,7 +48,6 @@ NS_ASSUME_NONNULL_BEGIN
 {
     return [self initWithClient:client
                         andScope:scope
-                 andCrashWrapper:SentryDependencyContainer.sharedInstance.crashWrapper
         activeCrashReporterState:SentryDependencyContainer.sharedInstance.activeCrashReporterState
             scopeContextEnricher:SentryDependencyContainer.sharedInstance.scopeContextEnricher
                 andDispatchQueue:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper];
@@ -65,34 +56,18 @@ NS_ASSUME_NONNULL_BEGIN
 /** Internal constructor for testing */
 - (instancetype)initWithClient:(nullable SentryClientInternal *)client
                       andScope:(nullable SentryScope *)scope
-               andCrashWrapper:(id<SentryCrashReporter>)crashWrapper
+      activeCrashReporterState:(id<SentryCrashReporterState>)activeCrashReporterState
               andDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
 {
     return [self initWithClient:client
                         andScope:scope
-                 andCrashWrapper:crashWrapper
-        activeCrashReporterState:crashWrapper
+        activeCrashReporterState:activeCrashReporterState
             scopeContextEnricher:SentryDependencyContainer.sharedInstance.scopeContextEnricher
                 andDispatchQueue:dispatchQueue];
 }
 
 - (instancetype)initWithClient:(nullable SentryClientInternal *)client
                       andScope:(nullable SentryScope *)scope
-               andCrashWrapper:(id<SentryCrashReporter>)crashWrapper
-          scopeContextEnricher:(id<SentryScopeContextEnricher>)scopeContextEnricher
-              andDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
-{
-    return [self initWithClient:client
-                        andScope:scope
-                 andCrashWrapper:crashWrapper
-        activeCrashReporterState:crashWrapper
-            scopeContextEnricher:scopeContextEnricher
-                andDispatchQueue:dispatchQueue];
-}
-
-- (instancetype)initWithClient:(nullable SentryClientInternal *)client
-                      andScope:(nullable SentryScope *)scope
-               andCrashWrapper:(id<SentryCrashReporter>)crashWrapper
       activeCrashReporterState:(id<SentryCrashReporterState>)activeCrashReporterState
           scopeContextEnricher:(id<SentryScopeContextEnricher>)scopeContextEnricher
               andDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
@@ -100,7 +75,6 @@ NS_ASSUME_NONNULL_BEGIN
     if (self = [super init]) {
         _client = client;
         _scope = scope;
-        _crashWrapper = crashWrapper;
         _activeCrashReporterState = activeCrashReporterState;
         _scopeContextEnricher = scopeContextEnricher;
         _dispatchQueue = dispatchQueue;
