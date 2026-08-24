@@ -2026,6 +2026,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "enableMetrics",
+    "parent": "SentryObjCOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "enableNetworkBreadcrumbs",
     "parent": "SentryObjCOptions",
     "returnType": "BOOL",
@@ -5918,6 +5925,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setEnableMetrics:",
+    "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setEnableNetworkBreadcrumbs:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
@@ -9201,6 +9215,12 @@
   {
     "kind": "ObjCPropertyDecl",
     "name": "enableMetricKitRawPayload",
+    "parent": "SentryObjCOptions",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "enableMetrics",
     "parent": "SentryObjCOptions",
     "type": "BOOL"
   },

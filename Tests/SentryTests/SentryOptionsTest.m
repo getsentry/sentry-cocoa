@@ -211,6 +211,11 @@
     [self testBooleanField:@"enableNetworkBreadcrumbs"];
 }
 
+- (void)testEnableMetrics
+{
+    [self testBooleanField:@"enableMetrics" defaultValue:YES];
+}
+
 - (void)testEnableAutoBreadcrumbTracking
 {
     [self testBooleanField:@"enableAutoBreadcrumbTracking"];

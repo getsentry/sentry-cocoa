@@ -268,6 +268,7 @@ public struct SentrySDKWrapper {
 #endif // !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
 
         // Integration: Metrics
+        options.enableMetrics = SentrySDKOverrides.Metrics.enable.boolValue
         options.beforeSendMetric = { metric in
             // Modify the metric in the callback
             var modifiedMetric = metric

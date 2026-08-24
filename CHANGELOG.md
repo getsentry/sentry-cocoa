@@ -3,14 +3,13 @@
 ## Unreleased
 
 > [!IMPORTANT]
-> This release removes the options `enableLogs` and `enableMetrics` from `Options`. Use `beforeSendLog` or `beforeSendMetric` to drop logs or metrics.
+> This release removes the option `enableLogs` from `Options`. If you need to disable logs, use `beforeSendLog` to drop all logs.
 >
-> We recognize that removing these options in a minor release is disruptive. We made this tradeoff deliberately because enabling Logs and Metrics by default will help most users successfully adopt these features.
+> We recognize that removing this option in a minor release is disruptive. We made this tradeoff deliberately because enabling Logs by default will help most users successfully adopt this feature.
 
 ### Breaking Changes
 
-- Remove `options.enableLogs` to remove explicit opt-in for Logs. If you need to disable logs, use `beforeSendLog` to drop all logs (#8769)
-- Remove `options.enableMetrics` to remove opt-out of Metrics. If you need to disable metrics, use `beforeSendMetric` to drop all metrics (#8785)
+- Remove `options.enableLogs` to remove explicit opt-in for Logs. If you need to disable logs, use `beforeSendLog` to drop all logs (#8783)
 
 ## 9.26.0
 

@@ -381,7 +381,7 @@ class SentrySDKTests: XCTestCase {
             options.removeAllIntegrations()
         }
 
-        assertIntegrationsInstalled(integrations: ["SentryMetricsIntegration"])
+        assertIntegrationsInstalled(integrations: [])
     }
 
     func testGlobalOptions() {
@@ -685,14 +685,13 @@ extension SentrySDKTests {
         SentryDependencyContainer.sharedInstance().processInfoWrapper = testProcessInfoWrapper
     }
 
-    private func assertIntegrationsInstalled(integrations: [String], file: StaticString = #file, line: UInt = #line) {
-        let hub = SentrySDKInternal.currentHub()
-        XCTAssertEqual(integrations.count, hub.installedIntegrations().count, file: file, line: line)
+    private func assertIntegrationsInstalled(integrations: [String]) {
+        XCTAssertEqual(integrations.count, SentrySDKInternal.currentHub().installedIntegrations().count)
         integrations.forEach { integration in
             if let integrationClass = NSClassFromString(integration) {
-                XCTAssertTrue(hub.isIntegrationInstalled(integrationClass), "\(integration) not installed", file: file, line: line)
+                XCTAssertTrue(SentrySDKInternal.currentHub().isIntegrationInstalled(integrationClass), "\(integration) not installed")
             } else {
-                XCTAssertTrue(hub.hasIntegration(integration), "\(integration) not installed with legacy ObjC API nor Swift", file: file, line: line)
+                XCTAssertTrue(SentrySDKInternal.currentHub().hasIntegration(integration), "\(integration) not installed with legacy ObjC API nor Swift")
             }
         }
     }

@@ -77,6 +77,10 @@ extension Options {
             self.maxBreadcrumbs = maxBreadcrumbs.uintValue
         }
 
+        if let enableMetrics = boolValue(dictionary["enableMetrics"]) {
+            self.enableMetrics = enableMetrics
+        }
+
         if let enableNetworkBreadcrumbs = boolValue(dictionary["enableNetworkBreadcrumbs"]) {
             self.enableNetworkBreadcrumbs = enableNetworkBreadcrumbs
         }
