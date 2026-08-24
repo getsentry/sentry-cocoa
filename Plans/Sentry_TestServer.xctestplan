@@ -15,6 +15,14 @@
     {
       "selectedTests" : [
         "SentryNetworkDetailSwizzlingTests",
+        "SentryNetworkTrackerIntegrationTestServerTests\/testDataTask_whenUsingClassicLoader_shouldTrackRequest()",
+        "SentryNetworkTrackerIntegrationTestServerTests\/testDataTask_whenUsingNewLoaderAndCancelled_shouldFinishCancelledSpan()",
+        "SentryNetworkTrackerIntegrationTestServerTests\/testDataTaskWithoutCompletionHandler_whenUsingNewLoader_shouldNotCreateUnfinishedSpan()",
+        "SentryNetworkTrackerIntegrationTestServerTests\/testDataTask_whenUsingNewLoader_shouldTrackRequest()",
+        "SentryNetworkTrackerIntegrationTestServerTests\/testDownloadTask_whenUsingClassicLoader_shouldTrackRequest()",
+        "SentryNetworkTrackerIntegrationTestServerTests\/testDownloadTask_whenUsingNewLoader_shouldTrackRequest()",
+        "SentryNetworkTrackerIntegrationTestServerTests\/testUploadTask_whenUsingClassicLoader_shouldTrackRequest()",
+        "SentryNetworkTrackerIntegrationTestServerTests\/testUploadTask_whenUsingNewLoader_shouldTrackRequest()",
         "SentryNetworkTrackerIntegrationTestServerTests\/testDataTask_whenRequestCompletes_shouldCaptureNetworkBreadcrumb()",
         "SentryNetworkTrackerIntegrationTestServerTests\/testDataTask_whenResponseIsDelayed_shouldIncludeDelayInSpanDuration()",
         "SentryNetworkTrackerIntegrationTestServerTests\/testFailedRequest_whenCaptureEnabled_shouldMatchEnvelopeSnapshot()",

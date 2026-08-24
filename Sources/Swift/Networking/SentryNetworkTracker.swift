@@ -16,6 +16,7 @@ protocol SentryNetworkTrackerProtocol: AnyObject {
 
     func urlSessionTaskResume(_ sessionTask: URLSessionTask)
     func urlSessionTask(_ sessionTask: URLSessionTask, setState newState: URLSessionTask.State)
+    func urlSessionTaskCompleted(_ sessionTask: URLSessionTask, error: Error?)
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
     func captureResponseDetails(_ data: Data, response: URLResponse, request requestURL: URL, task: URLSessionTask)
 #endif
@@ -102,6 +103,21 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         // object if the task completes on another thread between repeated accesses.
         guard let currentRequest = sessionTask.currentRequest,
               let url = currentRequest.url else {
+            return
+        }
+
+        let isUntracked = sessionTask.withNetworkTrackerState { state in
+            guard case .idle = state.spanState else {
+                return false
+            }
+            return true
+        }
+        if isUntracked, isDuplicateTask(currentRequest, currentSpan: hub.scope.span) {
+            sessionTask.withNetworkTrackerState { $0.isDuplicate = true }
+            return
+        }
+
+        if isNewLoaderTask(sessionTask), !sessionTask.usesNewLoaderCompletionHandler {
             return
         }
 
@@ -221,11 +237,38 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
     }
 
     func urlSessionTask(_ sessionTask: URLSessionTask, setState newState: URLSessionTask.State) {
+        completeURLSessionTask(
+            sessionTask,
+            state: newState,
+            error: sessionTask.error,
+            captureRequest: sessionTask.state == .running || sessionTask.state == .suspended
+        )
+    }
+
+    func urlSessionTaskCompleted(_ sessionTask: URLSessionTask, error: Error?) {
+        completeURLSessionTask(
+            sessionTask,
+            state: (error as? URLError)?.code == .cancelled ? .canceling : .completed,
+            error: error,
+            captureRequest: true
+        )
+    }
+
+    private func completeURLSessionTask(
+        _ sessionTask: URLSessionTask,
+        state newState: URLSessionTask.State,
+        error: Error?,
+        captureRequest: Bool
+    ) {
         if !isNetworkTrackingEnabled && !isNetworkBreadcrumbEnabled && !isCaptureFailedRequestsEnabled {
             return
         }
 
         guard isTaskSupported(sessionTask), let options = hub.currentOptions else {
+            return
+        }
+
+        guard !sessionTask.withNetworkTrackerState({ $0.isDuplicate }) else {
             return
         }
 
@@ -256,7 +299,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
 
         let responseStatusCode = urlResponseStatusCode(sessionTask.response)
         let completion = URLSessionTaskNetworkTrackerState.SpanCompletion(
-            status: status(for: sessionTask, state: newState),
+            status: status(for: sessionTask, state: newState, error: error),
             responseStatusCode: responseStatusCode == -1 ? nil : responseStatusCode
         )
 
@@ -282,7 +325,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         // still reflects the previous state. We check for Running and Suspended to cover:
         //   - running → completed/canceling (normal completion or cancellation)
         //   - suspended → canceling (task cancelled while suspended)
-        if sessionTask.state == .running || sessionTask.state == .suspended {
+        if captureRequest {
             captureFailedRequest(for: sessionTask, currentRequest: currentRequest, options: options)
             addBreadcrumb(for: sessionTask, currentRequest: currentRequest, options: options)
 
@@ -537,12 +580,16 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         (response as? HTTPURLResponse)?.statusCode ?? -1
     }
 
-    func status(for task: URLSessionTask, state: URLSessionTask.State) -> SentrySpanStatus {
+    func status(
+        for task: URLSessionTask,
+        state: URLSessionTask.State,
+        error: Error? = nil
+    ) -> SentrySpanStatus {
         switch state {
         case .canceling:
             return .cancelled
         case .completed:
-            if task.error != nil {
+            if error != nil || task.error != nil {
                 return .unknownError
             }
             return spanStatus(forHTTPResponseStatusCode: urlResponseStatusCode(task.response))
@@ -666,6 +713,30 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         }
 
         return url.host == apiHost && url.path.contains(apiURL.path)
+    }
+
+    private func isNewLoaderTask(_ task: URLSessionTask) -> Bool {
+        var currentClass: AnyClass? = type(of: task)
+        while let candidate = currentClass {
+            if candidate === URLSessionTask.self {
+                return false
+            }
+            currentClass = class_getSuperclass(candidate)
+        }
+        return true
+    }
+
+    private func isDuplicateTask(_ request: URLRequest, currentSpan: Span?) -> Bool {
+        guard let traceHeader = request.value(forHTTPHeaderField: SENTRY_TRACE_HEADER),
+              let tracer = currentSpan.flatMap(SentryTracer.getTracer) else {
+            return false
+        }
+
+        return tracer.children.contains { child in
+            child.origin == SentryTraceOriginAutoHttpNSURLSession
+                && child.toTraceHeader().value() == traceHeader
+                && !child.isFinished
+        }
     }
 
     private func isSentryRequestOnStateChange(_ url: URL, options: Options) -> Bool {
