@@ -103,6 +103,19 @@ sentrykscrash_didWriteReport(const KSCrash_ExceptionHandlingPlan *const plan, in
 {
     (void)plan;
     (void)reportID;
+
+#    if SENTRY_DISABLE_SENTRYCRASH_V10
+    // KSCRASH_TODO(GH-8273, GH-8532): Capture crash-time screenshots into the report
+    // attachment directory. Acceptance: SCV10-008 and SCV10-010 in
+    // SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+    // KSCRASH_TODO(GH-8273, GH-8532): Capture crash-time view hierarchy into the report
+    // attachment directory. Acceptance: SCV10-009 and SCV10-010 in
+    // SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+    // KSCRASH_TODO(GH-8801): Write the session-replay recovery checkpoint after the report
+    // is on disk. Acceptance: SCV10-039 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+    // KSCRASH_TODO(GH-8735): Persist the active transaction bound to the scope. Acceptance:
+    // SCV10-027 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+#    endif
 }
 
 #endif // SDK_V10
