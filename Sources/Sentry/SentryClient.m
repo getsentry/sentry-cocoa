@@ -663,7 +663,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                       withEventId:(NSString *)feedbackEventId
                       attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
                             scope:(SentryScope *)scope
-                     currentScope:(SentryScope *)currentScope
+                     currentScope:(nullable SentryScope *)currentScope
 {
     if ([self isDisabled]) {
         [self logDisabledMessage];
@@ -701,7 +701,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     NSMutableArray<SentryAttachment *> *allAttachments = [NSMutableArray array];
     [allAttachments addObjectsFromArray:scope.attachments];
-    [allAttachments addObjectsFromArray:currentScope.attachments];
+    NSArray<SentryAttachment *> *currentAttachments = currentScope.attachments;
+    if (currentAttachments != nil) {
+        [allAttachments addObjectsFromArray:currentAttachments];
+    }
     NSArray<SentryAttachment *> *attachments = [[self processAttachmentsForEvent:preparedEvent
                                                                      attachments:allAttachments]
         arrayByAddingObjectsFromArray:feedbackAttachments];
@@ -717,44 +720,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                       attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
                             scope:(SentryScope *)scope
 {
-    if ([self isDisabled]) {
-        [self logDisabledMessage];
-        return;
-    }
-
-    SentryEvent *feedbackEvent = [[SentryEvent alloc] init];
-    feedbackEvent.eventId = [[SentryId alloc] initWithUUIDString:feedbackEventId];
-    feedbackEvent.type = SentryEnvelopeItemTypes.feedback;
-
-    NSUInteger optionalItems = (scope.span == nil ? 0 : 1) + (scope.replayId == nil ? 0 : 1);
-    NSMutableDictionary *context = [NSMutableDictionary dictionaryWithCapacity:1 + optionalItems];
-    context[@"feedback"] = serializedFeedback;
-
-    if (scope.replayId != nil) {
-        NSMutableDictionary *replayContext = [NSMutableDictionary dictionaryWithCapacity:1];
-        replayContext[@"replay_id"] = scope.replayId;
-        context[@"replay"] = replayContext;
-    }
-
-    feedbackEvent.context = context;
-
-    SentryEvent *preparedEvent = [self prepareEvent:feedbackEvent
-                                          withScope:scope
-                             alwaysAttachStacktrace:NO];
-
-    if (preparedEvent == nil) {
-        return;
-    }
-
-    SentryTraceContext *traceContext = [self getTraceStateWithEvent:preparedEvent withScope:scope];
-    NSArray<SentryAttachment *> *attachments = [[self processAttachmentsForEvent:preparedEvent
-                                                                     attachments:scope.attachments]
-        arrayByAddingObjectsFromArray:feedbackAttachments];
-
-    [self.transportAdapter sendEvent:preparedEvent
-                        traceContext:traceContext
-                         attachments:attachments
-             additionalEnvelopeItems:@[]];
+    [self captureSerializedFeedback:serializedFeedback
+                        withEventId:feedbackEventId
+                        attachments:feedbackAttachments
+                              scope:scope
+                       currentScope:nil];
 }
 
 - (void)storeEnvelope:(SentryEnvelope *)envelope
@@ -1069,7 +1039,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (SentryEvent *_Nullable)prepareEvent:(SentryEvent *_Nullable)event
                              withScope:(SentryScope *)scope
-                          currentScope:(SentryScope *)currentScope
+                          currentScope:(SentryScope *_Nullable)currentScope
                 alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
                           isFatalEvent:(BOOL)isFatalEvent
 {
@@ -1335,33 +1305,12 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (void)_swiftCaptureLog:(NSObject *)log withScope:(SentryScope *)scope
 {
-    if ([self isDisabled]) {
-        [self logDisabledMessage];
-        return;
-    }
-
-    if (![log isKindOfClass:[SentryLog class]]) {
-        return;
-    }
-
-    SentryLog *enrichedLog = [self.logScopeApplier applyScope:scope toLog:(SentryLog *)log];
-    SentryLog *logToSend = enrichedLog;
-
-    if (self.options.beforeSendLog != nil) {
-        logToSend = self.options.beforeSendLog(enrichedLog);
-        if (logToSend == nil) {
-            SENTRY_LOG_DEBUG(@"Log dropped by beforeSendLog callback.");
-            [self recordDroppedLogInClientReport:enrichedLog];
-            return;
-        }
-    }
-
-    [self.telemetryProcessor addLog:logToSend];
+    [self _swiftCaptureLog:log withScope:scope currentScope:nil];
 }
 
 - (void)_swiftCaptureLog:(NSObject *)log
                withScope:(SentryScope *)scope
-            currentScope:(SentryScope *)currentScope
+            currentScope:(nullable SentryScope *)currentScope
 {
     if ([self isDisabled]) {
         [self logDisabledMessage];
@@ -1373,7 +1322,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     SentryLog *enrichedLog = [self.logScopeApplier applyScope:scope toLog:(SentryLog *)log];
-    enrichedLog = [self.logScopeApplier applyScope:currentScope toLog:enrichedLog];
+    if (currentScope != nil) {
+        enrichedLog = [self.logScopeApplier applyScope:(SentryScope *_Nonnull)currentScope
+                                                 toLog:enrichedLog];
+    }
     SentryLog *logToSend = enrichedLog;
 
     if (self.options.beforeSendLog != nil) {

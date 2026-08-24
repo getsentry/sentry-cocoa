@@ -947,21 +947,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 // SentryLoggerDelegate
 
-- (void)captureLog:(SentryLog *)log
-{
-    SentryClientInternal *client = self.client;
-    if (client == nil) {
-        SENTRY_LOG_WARN(@"No client configured. Dropping log.");
-        return;
-    }
 #if SENTRY_TARGET_REPLAY_SUPPORTED
-    NSString *scopeReplayId = self.scope.replayId;
+- (void)enrichLog:(SentryLog *)log withReplayIdFromScope:(nullable NSString *)scopeReplayId
+{
     if (scopeReplayId != nil) {
-        // Session mode: use scope replay ID
-        [log setAttribute:[[SentryLogAttribute alloc] initWithString:scopeReplayId]
+        [log setAttribute:[[SentryLogAttribute alloc]
+                              initWithString:(NSString *_Nonnull)scopeReplayId]
                    forKey:@"sentry.replay_id"];
     } else {
-        // Buffer mode: check if hub has a session replay ID
         NSString *sessionReplayId = [self getSessionReplayId];
         if (sessionReplayId != nil) {
             [log setAttribute:[[SentryLogAttribute alloc] initWithString:sessionReplayId]
@@ -970,8 +963,12 @@ NS_ASSUME_NONNULL_BEGIN
                        forKey:@"sentry._internal.replay_is_buffering"];
         }
     }
+}
 #endif
-    [client _swiftCaptureLog:log withScope:self.scope];
+
+- (void)captureLog:(SentryLog *)log
+{
+    [self captureLog:log withScope:self.scope];
 }
 
 - (void)captureLog:(SentryLog *)log withScope:(SentryScope *)scope
@@ -982,19 +979,7 @@ NS_ASSUME_NONNULL_BEGIN
         return;
     }
 #if SENTRY_TARGET_REPLAY_SUPPORTED
-    NSString *scopeReplayId = scope.replayId;
-    if (scopeReplayId != nil) {
-        [log setAttribute:[[SentryLogAttribute alloc] initWithString:scopeReplayId]
-                   forKey:@"sentry.replay_id"];
-    } else {
-        NSString *sessionReplayId = [self getSessionReplayId];
-        if (sessionReplayId != nil) {
-            [log setAttribute:[[SentryLogAttribute alloc] initWithString:sessionReplayId]
-                       forKey:@"sentry.replay_id"];
-            [log setAttribute:[[SentryLogAttribute alloc] initWithBoolean:YES]
-                       forKey:@"sentry._internal.replay_is_buffering"];
-        }
-    }
+    [self enrichLog:log withReplayIdFromScope:scope.replayId];
 #endif
     [client _swiftCaptureLog:log withScope:scope];
 }
@@ -1027,19 +1012,7 @@ NS_ASSUME_NONNULL_BEGIN
         return;
     }
 #if SENTRY_TARGET_REPLAY_SUPPORTED
-    NSString *scopeReplayId = currentScope.replayId ?: self.scope.replayId;
-    if (scopeReplayId != nil) {
-        [log setAttribute:[[SentryLogAttribute alloc] initWithString:scopeReplayId]
-                   forKey:@"sentry.replay_id"];
-    } else {
-        NSString *sessionReplayId = [self getSessionReplayId];
-        if (sessionReplayId != nil) {
-            [log setAttribute:[[SentryLogAttribute alloc] initWithString:sessionReplayId]
-                       forKey:@"sentry.replay_id"];
-            [log setAttribute:[[SentryLogAttribute alloc] initWithBoolean:YES]
-                       forKey:@"sentry._internal.replay_is_buffering"];
-        }
-    }
+    [self enrichLog:log withReplayIdFromScope:currentScope.replayId ?: self.scope.replayId];
 #endif
     [client _swiftCaptureLog:log withScope:self.scope currentScope:currentScope];
 }
