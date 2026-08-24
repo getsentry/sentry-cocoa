@@ -724,6 +724,82 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
     return event;
 }
 
+- (void)overlayOnEvent:(SentryEvent *)event maxBreadcrumb:(NSUInteger)maxBreadcrumbs
+{
+    if (!event) {
+        return;
+    }
+
+    NSDictionary<NSString *, NSString *> *overlayTags = self.tagDictionary;
+    if (overlayTags.count > 0) {
+        NSMutableDictionary *mergedTags =
+            [NSMutableDictionary dictionaryWithDictionary:event.tags ?: @{ }];
+        [mergedTags addEntriesFromDictionary:overlayTags];
+        event.tags = mergedTags;
+    }
+
+    NSDictionary<NSString *, id> *overlayExtras = self.extraDictionary;
+    if (overlayExtras.count > 0) {
+        NSMutableDictionary *mergedExtras =
+            [NSMutableDictionary dictionaryWithDictionary:event.extra ?: @{ }];
+        [mergedExtras addEntriesFromDictionary:overlayExtras];
+        event.extra = mergedExtras;
+    }
+
+    SentryUser *overlayUser = self.userObject.copy;
+    if (overlayUser != nil) {
+        event.user = overlayUser;
+    }
+
+    NSArray *overlayFingerprint = self.fingerprintArray;
+    if (overlayFingerprint.count > 0) {
+        event.fingerprint = overlayFingerprint;
+    }
+
+    NSArray<SentryBreadcrumb *> *overlayBreadcrumbs = [self breadcrumbs];
+    if (overlayBreadcrumbs.count > 0) {
+        NSMutableArray *mergedBreadcrumbs =
+            [NSMutableArray arrayWithArray:event.breadcrumbs ?: @[]];
+        for (SentryBreadcrumb *crumb in overlayBreadcrumbs) {
+            if (mergedBreadcrumbs.count < maxBreadcrumbs) {
+                [mergedBreadcrumbs addObject:crumb];
+            }
+        }
+        event.breadcrumbs = mergedBreadcrumbs;
+    }
+
+    NSString *overlayDist = self.distString;
+    if (overlayDist != nil) {
+        event.dist = overlayDist;
+    }
+
+    NSString *overlayEnvironment = self.environmentString;
+    if (overlayEnvironment != nil) {
+        event.environment = overlayEnvironment;
+    }
+
+    SentryLevel overlayLevel = self.levelEnum;
+    if (overlayLevel != kSentryLevelNone) {
+        event.level = overlayLevel;
+    }
+
+    NSDictionary<NSString *, NSDictionary<NSString *, id> *> *overlayContext
+        = self.contextDictionary;
+    if (overlayContext.count > 0) {
+        NSMutableDictionary *mergedContext =
+            [NSMutableDictionary dictionaryWithDictionary:event.context ?: @{ }];
+        [SentryDictionary mergeEntriesFromDictionary:overlayContext intoDictionary:mergedContext];
+
+        BOOL isRegularEvent
+            = event.type == nil || [event.type isEqualToString:SentryEnvelopeItemTypes.event];
+        if (!isRegularEvent) {
+            [mergedContext removeObjectForKey:@"flags"];
+        }
+
+        event.context = mergedContext;
+    }
+}
+
 - (void)addScopeObserver:(SENTRY_SWIFT_MIGRATION_ID(id<SentryScopeObserver>))observer
 {
     // Validate if the observer conforms because the API doesn't require
