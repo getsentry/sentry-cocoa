@@ -692,6 +692,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                        currentScope:currentScope
                              alwaysAttachStacktrace:NO
                                        isFatalEvent:NO];
+
+    if (preparedEvent == nil) {
+        return;
+    }
+
     SentryTraceContext *traceContext = [self getTraceStateWithEvent:preparedEvent withScope:scope];
 
     NSMutableArray<SentryAttachment *> *allAttachments = [NSMutableArray array];
@@ -736,6 +741,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     SentryEvent *preparedEvent = [self prepareEvent:feedbackEvent
                                           withScope:scope
                              alwaysAttachStacktrace:NO];
+
+    if (preparedEvent == nil) {
+        return;
+    }
+
     SentryTraceContext *traceContext = [self getTraceStateWithEvent:preparedEvent withScope:scope];
     NSArray<SentryAttachment *> *attachments = [[self processAttachmentsForEvent:preparedEvent
                                                                      attachments:scope.attachments]
