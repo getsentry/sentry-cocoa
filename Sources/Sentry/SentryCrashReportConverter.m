@@ -53,8 +53,14 @@ static NSString *const SentryCrashReportConverterErrorDomain
         // Now sentry_sdk_scope contains scope data. To be backwards compatible, to still support
         // data from userInfo, and to not have to do many changes in here we merge both dictionaries
         // here. For more details please check out SentryCrashScopeObserver.
+        // V9 writes sentry_sdk_scope at the report root. KSCrash can only write it inside the
+        // already-open user object. Lift both locations so converted events match.
         NSMutableDictionary *userContextMerged =
             [[NSMutableDictionary alloc] initWithDictionary:userContextUnMerged];
+        NSDictionary *nestedScope = userContextUnMerged[@"sentry_sdk_scope"];
+        if ([nestedScope isKindOfClass:NSDictionary.class]) {
+            [userContextMerged addEntriesFromDictionary:nestedScope];
+        }
         [userContextMerged addEntriesFromDictionary:report[@"sentry_sdk_scope"] ?: @{ }];
         [userContextMerged removeObjectForKey:@"sentry_sdk_scope"];
         self.userContext = userContextMerged;

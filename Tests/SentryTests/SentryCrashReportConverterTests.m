@@ -670,6 +670,51 @@
     [self testBreadcrumb:@"Resources/breadcrumb_sdk_scope"];
 }
 
+- (void)testConvertReport_whenSentrySdkScopeIsNestedInUser_shouldLiftScopeFields
+{
+    // -- Arrange --
+    NSDictionary *mockReport = @{
+        @"user" : @ {
+            @"release" : @"app@1.0+1",
+            @"sentry_sdk_scope" : @ {
+                @"dist" : @"crash-e2e-dist",
+                @"environment" : @"crash-e2e-environment",
+                @"user" : @ { @"id" : @"crash-e2e-scope-user" },
+                @"extra" : @ { @"crash_e2e_extra" : @"crash-e2e-extra-value" },
+                @"tags" : @ { @"crash_e2e_tag" : @"crash-e2e-tag-value" },
+                @"context" : @ { @"crash_e2e" : @ { @"marker" : @"crash-e2e-context" } },
+                @"breadcrumbs" : @[ @{
+                    @"category" : @"crash-e2e",
+                    @"message" : @"crash-e2e-breadcrumb",
+                    @"type" : @"debug",
+                    @"level" : @"info"
+                } ]
+            }
+        },
+        @"crash" : @ { @"threads" : @[], @"error" : @ { @"type" : @"signal" } },
+        @"binary_images" : @[],
+        @"system" : @ { @"application_stats" : @ { @"application_in_foreground" : @YES } }
+    };
+
+    // -- Act --
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:mockReport inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    // -- Assert --
+    XCTAssertEqualObjects(event.releaseName, @"app@1.0+1");
+    XCTAssertEqualObjects(event.dist, @"crash-e2e-dist");
+    XCTAssertEqualObjects(event.environment, @"crash-e2e-environment");
+    XCTAssertEqualObjects(event.user.userId, @"crash-e2e-scope-user");
+    XCTAssertEqualObjects(event.extra[@"crash_e2e_extra"], @"crash-e2e-extra-value");
+    XCTAssertEqualObjects(event.tags[@"crash_e2e_tag"], @"crash-e2e-tag-value");
+    XCTAssertEqualObjects(event.context[@"crash_e2e"][@"marker"], @"crash-e2e-context");
+    XCTAssertEqual(event.breadcrumbs.count, 1u);
+    XCTAssertEqualObjects(event.breadcrumbs.firstObject.category, @"crash-e2e");
+    XCTAssertEqualObjects(event.breadcrumbs.firstObject.message, @"crash-e2e-breadcrumb");
+    XCTAssertNil(reportConverter.userContext[@"sentry_sdk_scope"]);
+}
+
 #pragma mark private helper
 
 - (SentryEvent *)eventFromNSExceptionUserInfo:(id)userInfo

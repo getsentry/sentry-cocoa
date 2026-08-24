@@ -12,6 +12,11 @@ writeScope(const KSCrashReportWriter *const writer)
         return;
     }
 
+    // KSCrash invokes this callback inside the already-open "user" object.
+    // Nest sentry_sdk_scope there so the converter can lift it the same way
+    // V9 reads a top-level sentry_sdk_scope sibling.
+    writer->beginObject(writer, "sentry_sdk_scope");
+
     if (scope->user) {
         writer->addJSONElement(writer, "user", scope->user, false);
     }
@@ -41,6 +46,7 @@ writeScope(const KSCrashReportWriter *const writer)
     }
 
     if (scope->breadcrumbs == NULL || scope->maxCrumbs < 1) {
+        writer->endContainer(writer);
         return;
     }
 
@@ -53,18 +59,18 @@ writeScope(const KSCrashReportWriter *const writer)
         }
     }
 
-    if (!areThereBreadcrumbs) {
-        return;
+    if (areThereBreadcrumbs) {
+        writer->beginArray(writer, "breadcrumbs");
+        for (i = 0; i < scope->maxCrumbs; i++) {
+            // Ring buffer: currentCrumb is the next write slot, so it is also the oldest entry.
+            long index = (scope->currentCrumb + i) % scope->maxCrumbs;
+            if (scope->breadcrumbs[index]) {
+                writer->addJSONElement(writer, "crumb", scope->breadcrumbs[index], false);
+            }
+        }
+        writer->endContainer(writer);
     }
 
-    writer->beginArray(writer, "breadcrumbs");
-    for (i = 0; i < scope->maxCrumbs; i++) {
-        // Ring buffer: currentCrumb is the next write slot, so it is also the oldest entry.
-        long index = (scope->currentCrumb + i) % scope->maxCrumbs;
-        if (scope->breadcrumbs[index]) {
-            writer->addJSONElement(writer, "crumb", scope->breadcrumbs[index], false);
-        }
-    }
     writer->endContainer(writer);
 }
 
