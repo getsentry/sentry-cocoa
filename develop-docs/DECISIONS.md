@@ -808,8 +808,12 @@ Pros:
   - `SentryCrashMachineContext.c`: thread inspector, stacktrace builder, and machine-context wrapper.
   - `SentryCrashMemory.c`: profiler backtrace validation and stack cursors.
   - `SentryCrashStackCursor.c`, `SentryCrashStackCursor_Backtrace.c`, `SentryCrashStackCursor_MachineContext.c`, `SentryCrashStackCursor_SelfThread.m`: current/all-thread stack capture.
-  - `SentryCrashSysCtl.c`: process-start and boot-time queries.
   - `SentryCrashThread.c`: thread inspection, stack building, and span thread metadata.
+- Process-time boundary:
+  - SDK-owned `SentrySysctlObjC` queries Darwin directly for system boot time and the current process start time, preserving microsecond precision and the epoch fallback on errors.
+  - KSCrash reads the same `kern.boottime` kernel value, so using its sysctl wrapper would not materially align boot-time semantics. Its `app_start_time` and `process_start_*` report fields describe System-monitor initialization, not the kernel process start used by Sentry app-start tracking.
+  - Keep these SDK timestamps backend-neutral for V10. Consolidating the duplicate Darwin queries behind a future upstream capability is optional follow-up work, not a V10 release blocker.
+  - `SentryCrashSysCtl.c` remains available to V9's legacy system monitor and is excluded from every V10 route.
 - Definition of done:
   - No V10 source/object from `Sources/SentryCrash/**`, retained Tool, temporary reporter, or migration marker remains.
   - Xcode, SwiftPM environment/trait/base-manifest, and dynamic/static products have the same KSCrash backend contract.

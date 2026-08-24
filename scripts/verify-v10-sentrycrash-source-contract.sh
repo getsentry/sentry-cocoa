@@ -333,6 +333,13 @@ for source_name in "${retained_tool_sources[@]}"; do
 done
 log_notice "Verified ${#retained_tool_sources[@]} retained Tool sources are documented"
 
+if grep -Fqw 'SentryCrashSysCtl.c' <<< "${retained_tool_sources[*]}"; then
+  record_error "V10 must not retain SentryCrashSysCtl.c after the neutral process-time migration"
+fi
+if grep -qE '^[[:space:]]*#import[[:space:]]+[<\"]SentryCrashSysCtl\.h[>\"]' Sources/Sentry/SentrySysctlObjC.m; then
+  record_error "SentrySysctlObjC.m must not import the legacy SentryCrashSysCtl header"
+fi
+
 if grep -R -qE '(^|[^[:alnum:]_])ksbic_registerForImageAdded[[:space:]]*\(' Sources; then
   record_error "SDK source must not take KSCrash's single image-added callback slot"
 else
