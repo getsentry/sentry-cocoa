@@ -11,7 +11,7 @@ import Foundation
 
     /// Captures a log entry with a current scope layered on top of the global scope.
     @objc(captureLog:withCurrentScope:)
-    func capture(log: SentryLog, currentScope: Scope)
+    optional func capture(log: SentryLog, currentScope: Scope)
 }
 
 /// `SentryLogger` provides a structured logging interface that captures log entries
@@ -190,7 +190,7 @@ public final class SentryLogger: NSObject {
         }
         let log = buildLog(level: level, logMessage: logMessage, attributes: attributes)
         if let currentScope {
-            delegate.capture(log: log, currentScope: currentScope)
+            delegate.capture?(log: log, currentScope: currentScope) ?? delegate.capture(log: log)
         } else {
             delegate.capture(log: log)
         }

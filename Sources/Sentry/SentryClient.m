@@ -1087,7 +1087,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         NSUInteger maxBreadcrumbs = self.options.maxBreadcrumbs;
         for (SentryBreadcrumb *crumb in currentBreadcrumbs) {
             if (mergedBreadcrumbs.count < maxBreadcrumbs) {
-                [mergedBreadcrumbs addObject:[crumb serialize]];
+                [mergedBreadcrumbs addObject:crumb];
             }
         }
         event.breadcrumbs = mergedBreadcrumbs;

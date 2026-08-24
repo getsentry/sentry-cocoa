@@ -3078,7 +3078,7 @@ final class SentryClientTests: XCTestCase {
 
 }
 
-private extension SentryClientTests {
+extension SentryClientTests {
 
     final class SentryTestSessionDelegate: NSObject, SentrySessionDelegate {
         private let handler: () -> SentrySession?
@@ -3348,18 +3348,71 @@ private extension SentryClientTests {
         let globalScope = Scope()
         let crumb1 = Breadcrumb()
         crumb1.message = "global"
-        globalScope.add(crumb1)
+        globalScope.addBreadcrumb(crumb1)
 
         let currentScope = Scope()
         let crumb2 = Breadcrumb()
         crumb2.message = "current"
-        currentScope.add(crumb2)
+        currentScope.addBreadcrumb(crumb2)
 
         let sut = fixture.getSut()
         _ = sut.capture(Event(), with: globalScope, currentScope: currentScope, additionalEnvelopeItems: [])
 
         let event = try lastSentEvent()
         XCTAssertEqual(event.breadcrumbs?.count, 2)
+    }
+
+    func testCaptureEvent_withCurrentScope_breadcrumbsSerializeWithoutCrash() throws {
+        let globalScope = Scope()
+        let crumb1 = Breadcrumb()
+        crumb1.message = "global"
+        crumb1.category = "test"
+        globalScope.addBreadcrumb(crumb1)
+
+        let currentScope = Scope()
+        let crumb2 = Breadcrumb()
+        crumb2.message = "current"
+        crumb2.category = "test"
+        currentScope.addBreadcrumb(crumb2)
+
+        let sut = fixture.getSut()
+        _ = sut.capture(Event(), with: globalScope, currentScope: currentScope, additionalEnvelopeItems: [])
+
+        let event = try lastSentEvent()
+        let serialized = event.serialize()
+        let serializedBreadcrumbs = try XCTUnwrap(serialized["breadcrumbs"] as? [[String: Any]])
+        XCTAssertEqual(serializedBreadcrumbs.count, 2)
+        XCTAssertEqual(serializedBreadcrumbs[0]["message"] as? String, "global")
+        XCTAssertEqual(serializedBreadcrumbs[1]["message"] as? String, "current")
+    }
+
+    func testCaptureEvent_withCurrentScope_breadcrumbsRespectsMaxBreadcrumbs() throws {
+        let globalScope = Scope()
+        let crumb1 = Breadcrumb()
+        crumb1.message = "global1"
+        globalScope.addBreadcrumb(crumb1)
+        let crumb2 = Breadcrumb()
+        crumb2.message = "global2"
+        globalScope.addBreadcrumb(crumb2)
+
+        let currentScope = Scope()
+        let crumb3 = Breadcrumb()
+        crumb3.message = "current"
+        currentScope.addBreadcrumb(crumb3)
+
+        let sut = fixture.getSut { options in
+            options.maxBreadcrumbs = 2
+        }
+        _ = sut.capture(Event(), with: globalScope, currentScope: currentScope, additionalEnvelopeItems: [])
+
+        let event = try lastSentEvent()
+        let breadcrumbs = try XCTUnwrap(event.breadcrumbs)
+        XCTAssertEqual(breadcrumbs.count, 2)
+
+        let serialized = event.serialize()
+        let serializedBreadcrumbs = try XCTUnwrap(serialized["breadcrumbs"] as? [[String: Any]])
+        XCTAssertEqual(serializedBreadcrumbs[0]["message"] as? String, "global1")
+        XCTAssertEqual(serializedBreadcrumbs[1]["message"] as? String, "global2")
     }
 
     func testCaptureEvent_withCurrentScope_currentFingerprintOverridesGlobal() throws {

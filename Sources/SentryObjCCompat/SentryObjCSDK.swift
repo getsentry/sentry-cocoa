@@ -195,6 +195,19 @@ import Foundation
         SentrySDK.capture(feedback: feedback)
     }
 
+    @objc(captureFeedbackWithMessage:name:email:source:associatedEventId:attachments:currentScope:)
+    public static func captureFeedback(message: String, name: String?, email: String?, source: SentryObjCFeedbackSource, associatedEventId: SentryObjCId?, attachments: [SentryObjCAttachment]?, currentScope: SentryObjCScope) {
+        let feedback = SentryFeedback(
+            message: message,
+            name: name,
+            email: email,
+            source: source.underlying,
+            associatedEventId: associatedEventId?.wrapped,
+            attachments: attachments?.map(\.wrapped)
+        )
+        SentrySDK.capture(feedback: feedback, currentScope: currentScope.wrapped)
+    }
+
     @objc(addBreadcrumb:)
     public static func addBreadcrumb(_ crumb: SentryObjCBreadcrumb) {
         SentrySDK.addBreadcrumb(crumb.wrapped)

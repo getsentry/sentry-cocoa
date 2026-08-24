@@ -323,6 +323,24 @@ NS_ASSUME_NONNULL_BEGIN
                        attachments:(nullable NSArray<SentryObjCAttachment *> *)attachments;
 
 /**
+ * Captures user feedback with a caller-provided scope layered on top of the global scope.
+ * @param message The feedback message.
+ * @param name The name of the user providing feedback (optional).
+ * @param email The email of the user providing feedback (optional).
+ * @param source The source of the feedback.
+ * @param associatedEventId The event ID to associate with this feedback (optional).
+ * @param attachments Attachments to include with the feedback (optional).
+ * @param currentScope The scope to layer on top of the global scope.
+ */
++ (void)captureFeedbackWithMessage:(NSString *)message
+                              name:(nullable NSString *)name
+                             email:(nullable NSString *)email
+                            source:(SentryObjCFeedbackSource)source
+                 associatedEventId:(nullable SentryObjCId *)associatedEventId
+                       attachments:(nullable NSArray<SentryObjCAttachment *> *)attachments
+                      currentScope:(SentryObjCScope *)currentScope;
+
+/**
  * Adds a @c Breadcrumb to the current @c Scope of the current @c Hub. If the total number of
  * breadcrumbs exceeds the @c maxBreadcrumbs option, the SDK removes the oldest breadcrumb.
  * @param crumb The @c Breadcrumb to add to the current @c Scope.
