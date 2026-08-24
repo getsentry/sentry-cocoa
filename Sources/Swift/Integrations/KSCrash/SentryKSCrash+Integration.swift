@@ -44,7 +44,8 @@ extension SentryKSCrash {
                     installPath: installPath.path,
                     monitors: productionSafeMonitors,
                     enableMemoryIntrospection: options.enableMemoryIntrospection,
-                    enableSwapCxaThrow: options.experimental.enableUnhandledCPPExceptionsV2
+                    enableSwapCxaThrow: options.experimental.enableUnhandledCPPExceptionsV2,
+                    enableSwiftAsyncStackTraces: options.swiftAsyncStacktraces
                 )
             } catch {
                 SentrySDKLog.error("KSCrash install failed: \(error)")

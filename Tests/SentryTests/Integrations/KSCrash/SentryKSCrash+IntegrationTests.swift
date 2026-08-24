@@ -81,6 +81,36 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         XCTAssertFalse(installCall.enableMemoryIntrospection)
     }
 
+    func testInstall_whenSwiftAsyncStacktracesEnabled_shouldEnableSwiftAsyncStackTraces() throws {
+        // -- Arrange --
+        let installer = MockKSCrashInstaller()
+        let deps = MockKSCrashDependencies(installer: installer)
+        let options = makeOptions()
+        options.swiftAsyncStacktraces = true
+
+        // -- Act --
+        _ = SentryKSCrash.Integration(with: options, dependencies: deps)
+
+        // -- Assert --
+        let installCall = try XCTUnwrap(installer.installCalls.first)
+        XCTAssertTrue(installCall.enableSwiftAsyncStackTraces)
+    }
+
+    func testInstall_whenSwiftAsyncStacktracesDisabled_shouldDisableSwiftAsyncStackTraces() throws {
+        // -- Arrange --
+        let installer = MockKSCrashInstaller()
+        let deps = MockKSCrashDependencies(installer: installer)
+        let options = makeOptions()
+        options.swiftAsyncStacktraces = false
+
+        // -- Act --
+        _ = SentryKSCrash.Integration(with: options, dependencies: deps)
+
+        // -- Assert --
+        let installCall = try XCTUnwrap(installer.installCalls.first)
+        XCTAssertFalse(installCall.enableSwiftAsyncStackTraces)
+    }
+
     func testInstall_whenCrashHandlerEnabled_shouldAppendKSCrashBundleSubdirectory() {
         // -- Arrange --
         let installer = MockKSCrashInstaller()

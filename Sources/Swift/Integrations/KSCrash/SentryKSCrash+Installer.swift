@@ -11,12 +11,14 @@ extension SentryKSCrash {
         ///   - monitors: Monitor types to enable.
         ///   - enableMemoryIntrospection: Whether to introspect memory contents during a crash.
         ///   - enableSwapCxaThrow: Whether to swap `__cxa_throw` for better C++ stacks.
+        ///   - enableSwiftAsyncStackTraces: Whether to stitch Swift async frames into current-thread captures.
         /// - Throws: Any error from `KSCrash.installWithConfiguration(_:error:)`.
         func install(
             installPath: String,
             monitors: MonitorType,
             enableMemoryIntrospection: Bool,
-            enableSwapCxaThrow: Bool
+            enableSwapCxaThrow: Bool,
+            enableSwiftAsyncStackTraces: Bool
         ) throws
 
         /// Uninstall the crash handler for the current SDK lifecycle.
@@ -55,13 +57,15 @@ extension SentryKSCrash {
             installPath: String,
             monitors: MonitorType,
             enableMemoryIntrospection: Bool,
-            enableSwapCxaThrow: Bool
+            enableSwapCxaThrow: Bool,
+            enableSwiftAsyncStackTraces: Bool
         ) throws {
             let config = KSCrashConfiguration()
             config.installPath = installPath
             config.monitors = monitors
             config.enableMemoryIntrospection = enableMemoryIntrospection
             config.enableSwapCxaThrow = enableSwapCxaThrow
+            config.enableSwiftAsyncStackTraces = enableSwiftAsyncStackTraces
             config.reportStoreConfiguration.reportCleanupPolicy = .onSuccess
             #if SENTRY_CRASH_E2E
             config.userInfoJSON = SentryKSCrash.CrashE2ETestHook.reportUserInfo

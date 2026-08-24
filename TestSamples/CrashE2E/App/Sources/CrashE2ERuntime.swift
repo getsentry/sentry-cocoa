@@ -174,7 +174,9 @@ enum CrashE2ERuntime {
                 options.experimental.enableUnhandledCPPExceptionsV2 = true
             }
 
-            if configuration.scenario == .swiftAsyncCPPExceptionV2On {
+            if configuration.scenario == .swiftAsyncCPPExceptionV2Off {
+                options.swiftAsyncStacktraces = false
+            } else if configuration.scenario == .swiftAsyncCPPExceptionV2On {
                 options.swiftAsyncStacktraces = true
             }
 
