@@ -21,6 +21,7 @@ extension SentryKSCrash {
     final class Integration<Dependencies: DependencyProvider>: NSObject, SwiftIntegration {
         private weak var options: Options?
         private let installer: Dependencies.Installing
+        private var scopeConfiguration: SentryKSCrash.Scope.Configuration?
         private let reportProcessingSession = ReportProcessingSession()
 
         // MARK: - Initialization
@@ -51,14 +52,14 @@ extension SentryKSCrash {
                 return nil
             }
 
+            self.scopeConfiguration = SentryKSCrash.Scope.Configuration(
+                installer: installer,
+                options: options
+            )
+
 #if SENTRY_DISABLE_SENTRYCRASH_V10
-            // KSCRASH_TODO(GH-8276): V10 does not retain SentryKSCrash.Scope.Configuration, so its
-            // observer is not installed in production. Acceptance: SCV10-013 in
-            // SENTRYCRASH_V10_MIGRATION_LEDGER.md.
-            // KSCRASH_TODO(GH-8276, GH-8756): V10 does not populate initial crash user info through
-            // the inactive scope configuration. Acceptance: SCV10-015 in the migration ledger.
-            // KSCRASH_TODO(GH-8736): V10 does not install the inactive configuration's low-power
-            // scope observer. Acceptance: SCV10-026 in the migration ledger.
+            // KSCRASH_TODO(GH-8276, GH-8756): Installer setUserInfo drops nested containers from
+            // the retained scope configuration. Acceptance: SCV10-015 in the migration ledger.
             // KSCRASH_TODO(GH-8529): V10 does not forward AppKit reportException:/_crashOnException:
             // calls to KSCrash. Acceptance: SCV10-012 in the migration ledger.
             // KSCRASH_TODO(GH-8674): V10 handles actual crashes below but omits previous-run
