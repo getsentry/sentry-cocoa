@@ -42,3 +42,4 @@
 - Omit failed-request headers when `options.dataCollection.httpHeaders` is disabled (#8562)
 - Normalize profiling CPU usage to 0–100 percent (#8323)
 - Bump KSCrash to `2.6.0`
+- Restore memory metrics and initial OS, device, app, and runtime contexts in `SentryV10` (#8836)
