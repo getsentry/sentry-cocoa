@@ -1433,6 +1433,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "captureFeedbackWithMessage:name:email:source:associatedEventId:attachments:currentScope:",
+    "parent": "SentryObjCSDK",
+    "returnType": "void",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "captureMessage:",
     "parent": "SentryObjCClient",
     "returnType": "SentryObjCId * _Nonnull",
