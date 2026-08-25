@@ -123,6 +123,7 @@ xcodebuild -workspace Sentry.xcworkspace \
     -derivedDataPath DerivedData \
     -configuration Debug \
     CODE_SIGNING_REQUIRED=NO \
+    ARCHS=arm64 \
     EXCLUDED_ARCHS=arm64e \
     build 2>&1 | tee raw-build.log | xcbeautify --preserve-unbeautified
 

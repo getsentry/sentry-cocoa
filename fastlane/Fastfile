@@ -29,9 +29,9 @@ platform :ios do
       address_sanitizer: address_sanitizer,
       app_identifier: app_identifier,
       ensure_devices_found: true,
-      # Workspace iOSPackagesShouldBuildARM64e makes SPM packages inherit arm64e.
-      # There is no Swift stdlib for arm64e-apple-ios-simulator.
-      xcargs: "EXCLUDED_ARCHS=arm64e"
+      # Workspace iOSPackagesShouldBuildARM64e sets package ARCHS to arm64e only.
+      # There is no Swift stdlib for arm64e-apple-ios-simulator, so force arm64.
+      xcargs: "ARCHS=arm64 EXCLUDED_ARCHS=arm64e"
     )
   end
 
