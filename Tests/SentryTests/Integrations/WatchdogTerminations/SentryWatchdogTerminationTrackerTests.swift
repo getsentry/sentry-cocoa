@@ -31,7 +31,11 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
             
             fileManager = try XCTUnwrap(SentryFileManager(options: options, dateProvider: currentDate, dispatchQueueWrapper: dispatchQueue))
 
-            breadcrumbProcessor = SentryDefaultWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: Int(options.maxBreadcrumbs), fileManager: fileManager)
+            breadcrumbProcessor = SentryDefaultWatchdogTerminationBreadcrumbProcessor(
+                maxBreadcrumbs: Int(options.maxBreadcrumbs),
+                fileManager: fileManager,
+                dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
+            )
             let backgroundQueueWrapper = TestSentryDispatchQueueWrapper()
             scopePersistentStore = try XCTUnwrap(SentryScopePersistentStore(fileManager: fileManager))
             attributesProcessor = SentryWatchdogTerminationAttributesProcessor(
