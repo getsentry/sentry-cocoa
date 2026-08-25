@@ -116,8 +116,12 @@ final class SentryDependencyContainerTests: XCTestCase {
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().dateProvider)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().notificationCenterWrapper)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().extraContextProvider)
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().memoryMetricsProvider)
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().scopeContextEnricher)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().processInfoWrapper)
+#if !SDK_V10
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().crashWrapper)
+#endif
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().sysctlWrapper)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().debuggerStatusProvider)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().applicationStateProvider)
@@ -362,6 +366,22 @@ final class SentryDependencyContainerTests: XCTestCase {
 
         // -- Assert --
         XCTAssertIdentical(enricher1, enricher2)
+    }
+
+    func testScopeContextEnricherReturnsSameInstance() {
+        let container = SentryDependencyContainer.sharedInstance()
+        XCTAssertIdentical(
+            container.scopeContextEnricher as AnyObject,
+            container.scopeContextEnricher as AnyObject
+        )
+    }
+
+    func testMemoryMetricsProviderReturnsSameInstance() {
+        let container = SentryDependencyContainer.sharedInstance()
+        XCTAssertIdentical(
+            container.memoryMetricsProvider as AnyObject,
+            container.memoryMetricsProvider as AnyObject
+        )
     }
 
     func testEventContextEnricher_shouldBeInitialized() throws {

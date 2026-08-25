@@ -4,7 +4,6 @@
 #import "SentryEvent+Private.h"
 #import "SentryException.h"
 #import "SentryInternalDefines.h"
-#import "SentryLevelMapper.h"
 #import "SentryMessage.h"
 #import "SentryRequest.h"
 #import "SentrySanitizerUtils.h"
@@ -68,7 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
                                               .mutableCopy;
 
     if (self.level != kSentryLevelNone) {
-        [serializedData setValue:nameForSentryLevel(self.level) forKey:@"level"];
+        [serializedData setValue:[SentryLevelHelper nameForLevel:self.level] forKey:@"level"];
     }
 
     [self addSimpleProperties:serializedData];

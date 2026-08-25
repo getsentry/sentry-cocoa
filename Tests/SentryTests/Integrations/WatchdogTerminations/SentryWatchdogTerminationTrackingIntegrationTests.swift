@@ -10,7 +10,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
     private class Fixture {
         let options: Options
 
-        let crashWrapper: TestSentryCrashWrapper
+        let crashReporterState: TestSentryCrashReporterState
         let fileManager: SentryFileManager
         let processInfoWrapper: MockSentryProcessInfo
         let sysctl: TestSysctl
@@ -41,8 +41,8 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
             sysctl = TestSysctl()
             container.sysctlWrapper = sysctl
 
-            crashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
-            container.crashWrapper = crashWrapper
+            crashReporterState = TestSentryCrashReporterState()
+            container.activeCrashReporterStateOverride = crashReporterState
 
             fileManager = try SentryFileManager(
                 options: options,
@@ -67,7 +67,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
 
             let client = TestClient(options: options)
             scope = Scope()
-            hub = SentryHubInternal(client: client, andScope: scope, andCrashWrapper: crashWrapper, andDispatchQueue: dispatchQueueWrapper)
+            hub = SentryHubInternal(client: client, andScope: scope, activeCrashReporterState: crashReporterState, andDispatchQueue: dispatchQueueWrapper)
             SentrySDKInternal.setCurrentHub(hub)
         }
 

@@ -52,7 +52,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Get changed files
         id: changes
-        uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         with:
           token: ${{ github.token }}
           filters: .github/file-filters.yml
@@ -553,7 +553,7 @@ jobs:
           GITHUB_RUN_ID: ${{ github.run_id }}
 
       - name: Prepare release
-        uses: getsentry/craft@aeb16753a1764f3ef0768c03c499e3d2e4b7227c # v2
+        uses: getsentry/craft@cd1e8294061fd970b40d98b77aaa109cb1e00e78 # v2
         env:
           GITHUB_TOKEN: ${{ steps.token.outputs.token }}
         with:

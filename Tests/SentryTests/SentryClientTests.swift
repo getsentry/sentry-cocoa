@@ -19,7 +19,6 @@ extension SentryClientInternal {
             locale: Locale.autoupdatingCurrent,
             timezone: Calendar.autoupdatingCurrent.timeZone,
             eventContextEnricher: TestEventContextEnricher(),
-            crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper,
             binaryImageCache: SentryDependencyContainer.sharedInstance().binaryImageCache,
             dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
         )
@@ -54,7 +53,7 @@ final class SentryClientTests: XCTestCase {
 
         let trace = SentryTracer(transactionContext: TransactionContext(name: "SomeTransaction", operation: "SomeOperation"), hub: nil)
         let transaction: Transaction
-        let crashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
+        let memoryMetricsProvider = TestSentryMemoryMetricsProvider()
         #if os(iOS)
         let deviceWrapper = TestSentryUIDeviceWrapper()
         #endif // os(iOS)
@@ -98,15 +97,15 @@ final class SentryClientTests: XCTestCase {
             transport = TestTransport()
             transportAdapter = TestTransportAdapter(transports: [transport], options: options)
 
-            crashWrapper.internalFreeMemorySize = 123_456
-            crashWrapper.internalAppMemorySize = 234_567
+            memoryMetricsProvider.freeMemorySize = 123_456
+            memoryMetricsProvider.appMemorySize = 234_567
 
             debugImageProvider.debugImages = [TestData.debugImage]
 
 #if os(iOS)
-            extraContentProvider = SentryExtraContextProvider(crashWrapper: crashWrapper, processInfoWrapper: processWrapper, deviceWrapper: deviceWrapper)
+            extraContentProvider = SentryExtraContextProvider(memoryMetricsProvider: memoryMetricsProvider, processInfoWrapper: processWrapper, deviceWrapper: deviceWrapper)
             #else
-            extraContentProvider = SentryExtraContextProvider(crashWrapper: crashWrapper, processInfoWrapper: processWrapper)
+            extraContentProvider = SentryExtraContextProvider(memoryMetricsProvider: memoryMetricsProvider, processInfoWrapper: processWrapper)
 #endif // os(iOS)
             SentryDependencyContainer.sharedInstance().extraContextProvider = extraContentProvider
         }
@@ -115,6 +114,9 @@ final class SentryClientTests: XCTestCase {
             let options = Options()
             options.dsn = SentryClientTests.dsn
             options.removeAllIntegrations()
+            #if !SDK_V10
+            options.enableLogs = true
+            #endif // !SDK_V10
             configureOptions(options)
 
             return SentryClientInternal(
@@ -128,7 +130,6 @@ final class SentryClientTests: XCTestCase {
                 locale: locale,
                 timezone: timezone,
                 eventContextEnricher: eventContextEnricher,
-                crashWrapper: crashWrapper,
                 binaryImageCache: SentryDependencyContainer.sharedInstance().binaryImageCache,
                 dispatchQueueWrapper: dispatchQueue
             )
@@ -216,17 +217,16 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(cachedID, nonCachedID)
     }
 
-#if !SENTRY_DISABLE_SENTRYCRASH_V10
-    // KSCRASH_TODO(GH-8798): V10 has no binary-image provider for a standalone client.
-    // Acceptance: SCV10-001 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
     func testInit_WhenUsingStandaloneClient_shouldStartBinaryImageCache() throws {
-        SentryDependencyContainer.sharedInstance().crashWrapper.stopBinaryImageCache()
         SentryDependencyContainer.sharedInstance().binaryImageCache.stop()
+#if !SDK_V10
         sentrycrashbic_useFreshTestCacheState()
+#endif
         defer {
-            SentryDependencyContainer.sharedInstance().crashWrapper.stopBinaryImageCache()
             SentryDependencyContainer.sharedInstance().binaryImageCache.stop()
+#if !SDK_V10
             sentrycrashbic_useDefaultCacheState()
+#endif
         }
 
         XCTAssertNil(SentryDependencyContainer.sharedInstance().binaryImageCache.cache)
@@ -238,7 +238,6 @@ final class SentryClientTests: XCTestCase {
         let cache = try XCTUnwrap(SentryDependencyContainer.sharedInstance().binaryImageCache.cache)
         XCTAssertGreaterThan(cache.count, 0)
     }
-#endif
 
     func testClientIsEnabled() {
         XCTAssertTrue(fixture.getSut().isEnabled)
@@ -3056,6 +3055,26 @@ final class SentryClientTests: XCTestCase {
 
         XCTAssertEqual(testProcessor.forwardTelemetryDataInvocations.count, 1)
     }
+
+    #if !SDK_V10
+    func testCaptureLog_withLogsDisabled_logDropped() {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        sut.options.enableLogs = false
+
+        let testProcessor = TestTelemetryProcessorForClient()
+        Dynamic(sut).telemetryProcessor = testProcessor
+
+        let log = SentryLog(level: .info, body: "This log should be dropped")
+        let scope = Scope()
+
+        // -- Act --
+        sut._swiftCaptureLog(log, with: scope)
+
+        // -- Assert --
+        XCTAssertEqual(testProcessor.addLogInvocations.count, 0, "Log should be dropped when enableLogs is false")
+    }
+    #endif // !SDK_V10
 
     func testCaptureLog_whenClientDisabled_logDropped() {
         // The full isDisabled logic is covered elsewhere; this just verifies _swiftCaptureLog

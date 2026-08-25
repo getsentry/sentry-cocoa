@@ -33,7 +33,6 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         let currentDate = TestCurrentDateProvider()
         let sysctl = TestSysctl()
         let fileManager: SentryFileManager
-        let crashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
         let appStateManager: SentryAppStateManager
         var displayLinkWrapper = TestDisplayLinkWrapper()
         let framesTracker: SentryFramesTracker
