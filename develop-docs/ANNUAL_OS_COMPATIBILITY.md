@@ -49,7 +49,7 @@ Run all of these on beta Xcode. Point the shell at it first, for example
 
 - [ ] `make build` + `make test`
 - [ ] `make analyze`
-- [ ] `make build-v10` + `make test-v10`, while a next major is in flight
+- [ ] If major-version work is in flight, run its dedicated build and test targets
 - [ ] `make build-samples` (must be warning-free — and diff its list against `ls Samples/`, it misses directories), `make test-samples-ui`, `make test-ui-critical`
 - [ ] `./TestSamples/CrashE2E/run-crash-e2e.sh --platform all` (manual — `all` selects only iOS and macOS, not all Apple platforms; nothing in CI runs it)
 - [ ] `./TestSamples/SwiftUICrashTest/test-crash-and-relaunch.sh`
@@ -116,7 +116,7 @@ Start validation here — where the SDK has broken before, plus the areas we kee
 - **Session Replay masking** — the most fragile area, two years running. Liquid Glass silently broke SwiftUI masking in iOS 26 ([#6390](https://github.com/getsentry/sentry-cocoa/issues/6390)). iOS 27 changed UIKit and SwiftUI rendering internals ([#8768](https://github.com/getsentry/sentry-cocoa/pull/8768)), and a masking fixture that had reliably produced clipping regions produced none ([#8744](https://github.com/getsentry/sentry-cocoa/pull/8744)). Check the touch overlay and Replay's network capture too.
 - **Simulator image paths** — xOS 27 runtimes moved to a cryptex mount; our duplicate-SDK validator scanned them on the shared queue and starved launch profiling ([#8576](https://github.com/getsentry/sentry-cocoa/pull/8576)).
 - **Runtime discovery and swizzling** — Apple's Swift networking rewrite prompted a full `NSURLSession` census; it found no swizzling change was needed ([#8127](https://github.com/getsentry/sentry-cocoa/issues/8127)). The `AsyncImage` HTTP-caching follow-up remains open ([#8739](https://github.com/getsentry/sentry-cocoa/issues/8739)).
-- **Swift compiler and language mode** — each Xcode can introduce stricter concurrency diagnostics, new warnings, and source breaks before runtime tests start. Exercise Swift 6 consumers with `iOS-Swift6` and `iOS-Cocoapods-Swift6`, plus `make build-v10` while the next major is in flight.
+- **Swift compiler and language mode** — each Xcode can introduce stricter concurrency diagnostics, new warnings, and source breaks before runtime tests start. Exercise Swift 6 consumers with `iOS-Swift6` and `iOS-Cocoapods-Swift6`, plus the dedicated build target for any major-version work in flight.
 - **Downstream hybrid SDKs** — React Native, Flutter, .NET, and Unity consume this SDK and its private APIs on their own release schedules. Warn and validate them before changing deployment targets, build products, or shared API.
 - **App start and prewarming** — needs a physical device without a debugger, and Apple offers no public trigger or detection API, so it can't be reproduced naturally; inject `ActivePrewarm=1` against a suspended process instead ([#8129](https://github.com/getsentry/sentry-cocoa/issues/8129)). The harness and results live on branch [`test/os-27-prewarm`](https://github.com/getsentry/sentry-cocoa/tree/test/os-27-prewarm) — `Samples/OS27-Prewarm` on `main` is an empty shell.
 - **Samples** — each new Xcode flags newly deprecated API, malformed XcodeGen refs, and missing platform assets ([#8724](https://github.com/getsentry/sentry-cocoa/pull/8724)).
