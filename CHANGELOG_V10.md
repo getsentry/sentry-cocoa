@@ -45,4 +45,4 @@
 - Restore memory metrics and initial OS, device, app, and runtime contexts in `SentryV10` (#8836)
 - Remove unused `SentryFramesTracker` dependency from `SentryAppStartTracker` in V10 (#8859)
 - Restore binary images and `debug_meta` in `SentryV10` with KSCrash RecordingCore (#8798)
-- Restore macOS AppKit NSException forwarding in `SentryV10` (PR#)
+- Restore macOS AppKit NSException forwarding in `SentryV10` (#8874)
