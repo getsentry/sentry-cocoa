@@ -197,10 +197,12 @@ for attempt in $(seq 1 $MAX_BOOT_ATTEMPTS); do
         log_info "Simulator boot command executed successfully"
     fi
     
-    # Open Simulator app UI when available (only on first attempt).
-    # Xcode 27 no longer bundles Simulator.app, so simctl must boot without it.
+    # Open the selected simulator UI on the first attempt so CI screenshots show relevant device state.
     if [ "$attempt" -eq 1 ]; then
-        SIMULATOR_APP_PATH="$(xcode-select -p)/Applications/Simulator.app"
+        DEVELOPER_DIR="$(xcode-select -p)"
+        SIMULATOR_APP_PATH="$DEVELOPER_DIR/Applications/Simulator.app"
+        DEVICE_HUB_APP_PATH="$(dirname "$DEVELOPER_DIR")/Applications/DeviceHub.app"
+
         if [ -d "$SIMULATOR_APP_PATH" ]; then
             log_info "Opening Simulator app UI"
             if ! open "$SIMULATOR_APP_PATH"; then
@@ -208,8 +210,19 @@ for attempt in $(seq 1 $MAX_BOOT_ATTEMPTS); do
                 exit 1
             fi
             log_info "Simulator app opened successfully"
+        elif [ -d "$DEVICE_HUB_APP_PATH" ]; then
+            log_info "Opening Device Hub for simulator $UDID"
+            if ! open "$DEVICE_HUB_APP_PATH"; then
+                log_error "Failed to open Device Hub at $DEVICE_HUB_APP_PATH"
+                exit 1
+            fi
+            if ! open "devices://device/open?id=$UDID"; then
+                log_error "Failed to focus simulator $UDID in Device Hub"
+                exit 1
+            fi
+            log_info "Device Hub opened successfully"
         else
-            log_info "Simulator app is not bundled with this Xcode; continuing with simctl"
+            log_info "No simulator UI app is bundled with this Xcode; continuing with simctl"
         fi
     fi
     
