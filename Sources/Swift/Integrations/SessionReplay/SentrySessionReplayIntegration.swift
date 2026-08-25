@@ -63,11 +63,6 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     // MARK: - Initialization
 
     required convenience init?(with options: Options, dependencies: SentryDependencyContainer) {
-        guard options.sessionReplay.sessionSampleRate > 0 || options.sessionReplay.onErrorSampleRate > 0 else {
-            SentrySDKLog.debug("Not going to enable SentrySessionReplayIntegration because sample rates are 0.")
-            return nil
-        }
-
         self.init(nonOptionalWith: options, dependencies: dependencies)
     }
     
@@ -134,8 +129,8 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         notificationCenter.removeObserver(self, name: UIScene.didActivateNotification, object: nil)
         notificationCenter.removeObserver(self, name: UIApplication.didBecomeActiveNotification, object: nil)
         SentrySDKInternal.currentHub().unregisterSessionListener(self)
-        touchTracker = nil
         stopCurrentReplay()
+        touchTracker = nil
     }
 
     deinit {
@@ -315,6 +310,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
             dateProvider: dateProvider, delegate: self, captureScheduler: captureScheduler)
 
         self.sessionReplay = newSessionReplay
+        touchTracker?.enable()
         newSessionReplay.start(rootView: rootView, fullSession: fullSession)
         addBackgroundForegroundObservers()
         if isApplicationStatePaused.withLock({ $0 }) {
@@ -372,6 +368,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
 
     private func stopCurrentReplay() {
         sessionReplay?.pause()
+        touchTracker?.disable()
         removeBackgroundForegroundObservers()
         sessionReplay = nil
     }
@@ -485,6 +482,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         SentrySDKLog.debug("[Session Replay] Session replay ended")
         isPendingStart = false
         SentrySDKInternal.currentHub().configureScope { scope in scope.replayId = nil }
+        touchTracker?.disable()
         removeBackgroundForegroundObservers()
         sessionReplay = nil
     }

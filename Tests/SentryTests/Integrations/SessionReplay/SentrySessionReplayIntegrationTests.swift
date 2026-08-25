@@ -78,11 +78,14 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         SentrySDKInternal.currentHub().startSession()
     }
     
-    func testNoInstall() {
+    func testInstallWithZeroSampleRates_shouldRemainIdle() throws {
         startSDK(sessionSampleRate: 0, errorSampleRate: 0)
-        
-        XCTAssertEqual(SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().count, 0)
-        XCTAssertEqual(globalEventProcessor.processors.count, 0)
+
+        let sut = try getSut()
+        XCTAssertEqual(SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().count, 1)
+        XCTAssertEqual(globalEventProcessor.processors.count, 1)
+        XCTAssertNil(sut.sessionReplay)
+        XCTAssertFalse(try XCTUnwrap(sut.getTouchTracker()).isEnabled)
     }
     
     func testInstallFullSessionReplay() {
@@ -585,17 +588,17 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertNil(sut.sessionReplay)
     }
     
-    func testStartWithNoSessionReplay() throws {
+    func testStartWithIdleSessionReplay() throws {
         startSDK(sessionSampleRate: 0, errorSampleRate: 0, noIntegrations: true)
-        var sut = SentrySDKInternal.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration
-        XCTAssertNil(sut)
+        let sut = try getSut()
+        XCTAssertNil(sut.sessionReplay)
+
         SentrySDK.replay.start()
-        sut = try getSut()
-        
-        let sessionReplay = sut?.sessionReplay
+
+        let sessionReplay = sut.sessionReplay
         XCTAssertTrue(sessionReplay?.isRunning ?? false)
         XCTAssertTrue(sessionReplay?.isFullSession ?? false)
-        XCTAssertNotNil(sut?.sessionReplay)
+        XCTAssertNotNil(sut.sessionReplay)
     }
     
     func testStartWithSessionReplayRunning() throws {
