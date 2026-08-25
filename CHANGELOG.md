@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add manual Session Replay controls for starting session or buffer mode, pausing, resuming, flushing, and stopping. ([#8868](https://github.com/getsentry/sentry-cocoa/pull/8868))
+
 ### Improvements
 
 - Install idle Session Replay recovery infrastructure at zero sample rates. ([#8865](https://github.com/getsentry/sentry-cocoa/pull/8865))
