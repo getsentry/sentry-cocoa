@@ -3,14 +3,6 @@ import Foundation
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
-protocol WatchdogTerminationAttributesProcessorProvider {
-    var watchdogTerminationAttributesProcessor: SentryWatchdogTerminationAttributesProcessor { get }
-}
-
-protocol WatchdogTerminationBreadcrumbProcessorProvider {
-    func getWatchdogTerminationBreadcrumbProcessor(_ options: Options) -> SentryWatchdogTerminationBreadcrumbProcessor?
-}
-
 typealias WatchdogTerminationTrackingProvider = ANRTrackerBuilder & ProcessInfoProvider & AppHangTrackerProvider & AppStateManagerProvider & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider & WatchdogTerminationAttributesProcessorProvider & WatchdogTerminationBreadcrumbProcessorProvider
 
 final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogTerminationTrackingProvider>: NSObject, SwiftIntegration, SentryANRTrackerDelegate {

@@ -843,11 +843,6 @@ protocol DispatchFactoryProvider {
 }
 extension SentryDependencyContainer: DispatchFactoryProvider {}
 
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-extension SentryDependencyContainer: WatchdogTerminationAttributesProcessorProvider {}
-extension SentryDependencyContainer: WatchdogTerminationBreadcrumbProcessorProvider {}
-#endif
-
 protocol ExtensionDetectorProvider {
     var extensionDetector: SentryExtensionDetector { get }
 }
@@ -942,6 +937,16 @@ protocol WatchdogTerminationTrackerBuilder {
     func getWatchdogTerminationTracker(_ options: Options) -> SentryWatchdogTerminationTracker?
 }
 extension SentryDependencyContainer: WatchdogTerminationTrackerBuilder {}
+
+protocol WatchdogTerminationAttributesProcessorProvider {
+    var watchdogTerminationAttributesProcessor: SentryWatchdogTerminationAttributesProcessor { get }
+}
+extension SentryDependencyContainer: WatchdogTerminationAttributesProcessorProvider {}
+
+protocol WatchdogTerminationBreadcrumbProcessorProvider {
+    func getWatchdogTerminationBreadcrumbProcessor(_ options: Options) -> SentryWatchdogTerminationBreadcrumbProcessor?
+}
+extension SentryDependencyContainer: WatchdogTerminationBreadcrumbProcessorProvider {}
 #endif
 
 protocol NetworkTrackerProvider {
