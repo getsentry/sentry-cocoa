@@ -645,7 +645,7 @@ extension SentrySDKWrapper {
             options.configureProfiling = {
                 $0.lifecycle = SentrySDKOverrides.Profiling.manualLifecycle.boolValue ? .manual : .trace
                 $0.sessionSampleRate = SentrySDKOverrides.Profiling.sessionSampleRate.floatValue ?? 1
-                $0.profileAppStarts = !isUITest && !SentrySDKOverrides.Profiling.disableAppStartProfiling.boolValue
+                $0.profileAppStarts = !SentrySDKOverrides.Profiling.disableAppStartProfiling.boolValue
             }
         }
     }
