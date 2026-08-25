@@ -189,4 +189,113 @@ extension SentryTypedSwizzle {
             ) -> URLSessionDataTask
         }
     }
+
+    @discardableResult
+    static func instanceMethod<Receiver: AnyObject>(
+        in classToSwizzle: AnyClass,
+        method: SentrySwizzleMethod<Receiver, SentryDownloadTaskURLArguments, URLSessionDownloadTask>,
+        mode: SentrySwizzleMode,
+        key: Key,
+        interceptor: @escaping (
+            Receiver,
+            URL,
+            SentryDownloadTaskCompletionHandler?,
+            @escaping (URL, SentryDownloadTaskCompletionHandler?) -> URLSessionDownloadTask
+        ) -> URLSessionDownloadTask
+    ) -> Bool {
+        guard validate(in: classToSwizzle, method: method) else {
+            return false
+        }
+
+        return SentrySwizzleWrapperHelper.swizzleInstanceMethod(
+            method.selector,
+            in: classToSwizzle,
+            mode: mode,
+            key: key.pointer
+        ) { getOriginal in
+            { receiver, url, completionHandler in
+                let callOriginal: (AnyObject, URL, SentryDownloadTaskCompletionHandler?) -> URLSessionDownloadTask = { receiver, url, completionHandler in
+                    let original = unsafeBitCast(
+                        getOriginal(),
+                        to: (@convention(c) (
+                            AnyObject,
+                            Selector,
+                            URL,
+                            SentryDownloadTaskCompletionHandler?
+                        ) -> URLSessionDownloadTask).self
+                    )
+                    return original(receiver, method.selector, url, completionHandler)
+                }
+
+                guard let typedReceiver = receiver as? Receiver else {
+                    SentrySDKLog.error("Unexpected swizzle receiver for \(NSStringFromSelector(method.selector))")
+                    return callOriginal(receiver, url, completionHandler)
+                }
+
+                return interceptor(typedReceiver, url, completionHandler) { forwardedURL, forwardedCompletionHandler in
+                    callOriginal(receiver, forwardedURL, forwardedCompletionHandler)
+                }
+            } as @convention(block) (
+                AnyObject,
+                URL,
+                SentryDownloadTaskCompletionHandler?
+            ) -> URLSessionDownloadTask
+        }
+    }
+
+    @discardableResult
+    static func instanceMethod<Receiver: AnyObject>(
+        in classToSwizzle: AnyClass,
+        method: SentrySwizzleMethod<Receiver, SentryUploadTaskDataArguments, URLSessionUploadTask>,
+        mode: SentrySwizzleMode,
+        key: Key,
+        interceptor: @escaping (
+            Receiver,
+            URLRequest,
+            Data?,
+            SentryDataTaskCompletionHandler?,
+            @escaping (URLRequest, Data?, SentryDataTaskCompletionHandler?) -> URLSessionUploadTask
+        ) -> URLSessionUploadTask
+    ) -> Bool {
+        guard validate(in: classToSwizzle, method: method) else {
+            return false
+        }
+
+        return SentrySwizzleWrapperHelper.swizzleInstanceMethod(
+            method.selector,
+            in: classToSwizzle,
+            mode: mode,
+            key: key.pointer
+        ) { getOriginal in
+            { receiver, request, data, completionHandler in
+                let callOriginal: (AnyObject, URLRequest, Data?, SentryDataTaskCompletionHandler?) -> URLSessionUploadTask = { receiver, request, data, completionHandler in
+                    let original = unsafeBitCast(
+                        getOriginal(),
+                        to: (@convention(c) (
+                            AnyObject,
+                            Selector,
+                            URLRequest,
+                            Data?,
+                            SentryDataTaskCompletionHandler?
+                        ) -> URLSessionUploadTask).self
+                    )
+                    return original(receiver, method.selector, request, data, completionHandler)
+                }
+
+                guard let typedReceiver = receiver as? Receiver else {
+                    SentrySDKLog.error("Unexpected swizzle receiver for \(NSStringFromSelector(method.selector))")
+                    return callOriginal(receiver, request, data, completionHandler)
+                }
+
+                return interceptor(typedReceiver, request, data, completionHandler) { forwardedRequest, forwardedData, forwardedCompletionHandler in
+                    callOriginal(receiver, forwardedRequest, forwardedData, forwardedCompletionHandler)
+                }
+            } as @convention(block) (
+                AnyObject,
+                URLRequest,
+                Data?,
+                SentryDataTaskCompletionHandler?
+            ) -> URLSessionUploadTask
+        }
+    }
 }

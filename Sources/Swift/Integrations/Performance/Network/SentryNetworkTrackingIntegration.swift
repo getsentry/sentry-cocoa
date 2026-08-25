@@ -4,11 +4,10 @@ import Foundation
 private enum SentryNetworkTrackingSwizzleKeys {
     static let resume = SentryTypedSwizzle.Key()
     static let state = SentryTypedSwizzle.Key()
-
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
     static let dataTaskWithRequest = SentryTypedSwizzle.Key()
     static let dataTaskWithURL = SentryTypedSwizzle.Key()
-#endif
+    static let downloadTaskWithURL = SentryTypedSwizzle.Key()
+    static let uploadTaskWithData = SentryTypedSwizzle.Key()
 }
 
 final class SentryNetworkTrackingIntegration<Dependencies: NetworkTrackerProvider>: NSObject, SwiftIntegration {
@@ -51,6 +50,7 @@ final class SentryNetworkTrackingIntegration<Dependencies: NetworkTrackerProvide
         // proxy routes them to this new tracker instead.
         SentryNetworkTrackerProxy.shared.setTarget(networkTracker)
         Self.swizzleURLSessionTasks()
+        Self.swizzleNewLoaderURLSessionTasks()
 
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
         if options.sessionReplay.networkDetailHasUrls {
@@ -114,18 +114,133 @@ final class SentryNetworkTrackingIntegration<Dependencies: NetworkTrackerProvide
         }
     }
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
-    private static func swizzleDataTaskWithRequestForResponseCapture() {
+}
+
+private extension SentryNetworkTrackingIntegration {
+    static func swizzleNewLoaderURLSessionTasks() {
+#if compiler(>=6.1)
+        guard #available(macOS 15.4, iOS 18.4, tvOS 18.4, watchOS 11.4, visionOS 2.4, *) else {
+            return
+        }
+
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.usesClassicLoadingMode = false
+        let session = URLSession(configuration: configuration)
+        guard let probeURL = URL(string: "https://example.com") else {
+            return
+        }
+        let task = session.dataTask(with: probeURL)
+        defer {
+            task.cancel()
+            session.finishTasksAndInvalidate()
+        }
+
+        let dataTaskSelector = #selector(URLSession.dataTask(with:completionHandler:)
+            as (URLSession) -> (URL, @escaping @Sendable (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask)
+        guard let sessionClass = classImplementing(dataTaskSelector, startingAt: type(of: session)),
+              sessionClass !== URLSession.self,
+              let taskClass = classImplementing(#selector(URLSessionTask.resume), startingAt: type(of: task)) else {
+            return
+        }
+
         SentryTypedSwizzle.instanceMethod(
-            in: URLSession.self,
+            in: taskClass,
+            method: .urlSessionTaskResume(URLSessionTask.self),
+            mode: .oncePerClassAndSuperclasses,
+            key: SentryNetworkTrackingSwizzleKeys.resume
+        ) { task, original in
+            SentryNetworkTrackerProxy.shared.target?.urlSessionTaskResume(task)
+            original()
+        }
+
+        swizzleDataTaskWithRequest(in: sessionClass, completeTask: true)
+        swizzleDataTaskWithURL(in: sessionClass, completeTask: true)
+        swizzleDownloadTaskWithURL(in: sessionClass)
+        swizzleUploadTaskWithData(in: sessionClass)
+#endif
+    }
+
+    private static func classImplementing(_ selector: Selector, startingAt runtimeClass: AnyClass) -> AnyClass? {
+        var currentClass: AnyClass? = runtimeClass
+        while let candidate = currentClass {
+            var methodCount: UInt32 = 0
+            if let methods = class_copyMethodList(candidate, &methodCount) {
+                defer { free(methods) }
+                for index in 0..<Int(methodCount) where method_getName(methods[index]) == selector {
+                    return candidate
+                }
+            }
+            currentClass = class_getSuperclass(candidate)
+        }
+        return nil
+    }
+
+    private static func swizzleDownloadTaskWithURL(in sessionClass: AnyClass) {
+        SentryTypedSwizzle.instanceMethod(
+            in: sessionClass,
+            method: .urlSessionDownloadTaskWithURL(URLSession.self),
+            mode: .oncePerClassAndSuperclasses,
+            key: SentryNetworkTrackingSwizzleKeys.downloadTaskWithURL
+        ) { _, url, completionHandler, original in
+            var task: URLSessionDownloadTask?
+            let wrappedHandler = completionHandler.map { completionHandler in
+                { location, response, error in
+                    if let task {
+                        SentryNetworkTrackerProxy.shared.target?.urlSessionTaskCompleted(
+                            task,
+                            error: error
+                        )
+                    }
+                    completionHandler(location, response, error)
+                } as SentryDownloadTaskCompletionHandler
+            }
+            let originalTask = original(url, wrappedHandler)
+            originalTask.usesNewLoaderCompletionHandler = completionHandler != nil
+            task = originalTask
+            return originalTask
+        }
+    }
+
+    private static func swizzleUploadTaskWithData(in sessionClass: AnyClass) {
+        SentryTypedSwizzle.instanceMethod(
+            in: sessionClass,
+            method: .urlSessionUploadTaskWithData(URLSession.self),
+            mode: .oncePerClassAndSuperclasses,
+            key: SentryNetworkTrackingSwizzleKeys.uploadTaskWithData
+        ) { _, request, data, completionHandler, original in
+            var task: URLSessionUploadTask?
+            let wrappedHandler = completionHandler.map { completionHandler in
+                { responseData, response, error in
+                    if let task {
+                        SentryNetworkTrackerProxy.shared.target?.urlSessionTaskCompleted(
+                            task,
+                            error: error
+                        )
+                    }
+                    completionHandler(responseData, response, error)
+                } as SentryDataTaskCompletionHandler
+            }
+            let originalTask = original(request, data, wrappedHandler)
+            originalTask.usesNewLoaderCompletionHandler = completionHandler != nil
+            task = originalTask
+            return originalTask
+        }
+    }
+
+    private static func swizzleDataTaskWithRequest(
+        in sessionClass: AnyClass,
+        completeTask: Bool
+    ) {
+        SentryTypedSwizzle.instanceMethod(
+            in: sessionClass,
             method: .urlSessionDataTaskWithRequest(URLSession.self),
             mode: .oncePerClassAndSuperclasses,
             key: SentryNetworkTrackingSwizzleKeys.dataTaskWithRequest
         ) { _, request, completionHandler, original in
             var task: URLSessionDataTask?
-            var wrappedHandler: SentryDataTaskCompletionHandler?
-            if let completionHandler {
-                wrappedHandler = { data, response, error in
+            let wrappedHandler = completionHandler.map { completionHandler in
+                { data, response, error in
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
                     if error == nil, let data, let response, let requestURL = request.url, let task {
                         SentryNetworkTrackerProxy.shared.target?.captureResponseDetails(
                             data,
@@ -134,26 +249,39 @@ final class SentryNetworkTrackingIntegration<Dependencies: NetworkTrackerProvide
                             task: task
                         )
                     }
+#endif
+                    if completeTask, let task {
+                        SentryNetworkTrackerProxy.shared.target?.urlSessionTaskCompleted(
+                            task,
+                            error: error
+                        )
+                    }
                     completionHandler(data, response, error)
-                }
+                } as SentryDataTaskCompletionHandler
             }
             let originalTask = original(request, wrappedHandler)
+            if completeTask {
+                originalTask.usesNewLoaderCompletionHandler = completionHandler != nil
+            }
             task = originalTask
             return originalTask
         }
     }
 
-    private static func swizzleDataTaskWithURLForResponseCapture() {
+    private static func swizzleDataTaskWithURL(
+        in sessionClass: AnyClass,
+        completeTask: Bool
+    ) {
         SentryTypedSwizzle.instanceMethod(
-            in: URLSession.self,
+            in: sessionClass,
             method: .urlSessionDataTaskWithURL(URLSession.self),
             mode: .oncePerClassAndSuperclasses,
             key: SentryNetworkTrackingSwizzleKeys.dataTaskWithURL
         ) { _, url, completionHandler, original in
             var task: URLSessionDataTask?
-            var wrappedHandler: SentryDataTaskCompletionHandler?
-            if let completionHandler {
-                wrappedHandler = { data, response, error in
+            let wrappedHandler = completionHandler.map { completionHandler in
+                { data, response, error in
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
                     if error == nil, let data, let response, let task {
                         SentryNetworkTrackerProxy.shared.target?.captureResponseDetails(
                             data,
@@ -162,13 +290,32 @@ final class SentryNetworkTrackingIntegration<Dependencies: NetworkTrackerProvide
                             task: task
                         )
                     }
+#endif
+                    if completeTask, let task {
+                        SentryNetworkTrackerProxy.shared.target?.urlSessionTaskCompleted(
+                            task,
+                            error: error
+                        )
+                    }
                     completionHandler(data, response, error)
-                }
+                } as SentryDataTaskCompletionHandler
             }
             let originalTask = original(url, wrappedHandler)
+            if completeTask {
+                originalTask.usesNewLoaderCompletionHandler = completionHandler != nil
+            }
             task = originalTask
             return originalTask
         }
+    }
+
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+    private static func swizzleDataTaskWithRequestForResponseCapture() {
+        swizzleDataTaskWithRequest(in: URLSession.self, completeTask: false)
+    }
+
+    private static func swizzleDataTaskWithURLForResponseCapture() {
+        swizzleDataTaskWithURL(in: URLSession.self, completeTask: false)
     }
 #endif
 }

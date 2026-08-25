@@ -59,7 +59,7 @@ final class SentryDefaultWatchdogTerminationBreadcrumbProcessor {
 
     func addSerializedBreadcrumb(_ crumb: SerializedBreadcrumb) {
         SentrySDKLog.debug("Adding breadcrumb: \(crumb)")
-        
+
         dispatchQueueWrapper.dispatchAsync { [weak self] in
             guard let self, shouldProcessIncomingCrumbs else { return }
             guard let jsonData = SentrySerializationSwift.data(withJSONObject: crumb) else {

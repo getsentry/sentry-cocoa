@@ -15,6 +15,93 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         clearTestState()
     }
 
+#if compiler(>=6.1)
+    func testDataTask_whenUsingClassicLoader_shouldTrackRequest() throws {
+        try assertNetworkTracking(usesClassicLoadingMode: true)
+    }
+
+    func testDataTask_whenUsingNewLoader_shouldTrackRequest() throws {
+        try assertNetworkTracking(usesClassicLoadingMode: false)
+    }
+
+    func testDownloadTask_whenUsingClassicLoader_shouldTrackRequest() throws {
+        try assertDownloadTracking(usesClassicLoadingMode: true)
+    }
+
+    func testDownloadTask_whenUsingNewLoader_shouldTrackRequest() throws {
+        try assertDownloadTracking(usesClassicLoadingMode: false)
+    }
+
+    func testUploadTask_whenUsingClassicLoader_shouldTrackRequest() throws {
+        try assertUploadTracking(usesClassicLoadingMode: true)
+    }
+
+    func testUploadTask_whenUsingNewLoader_shouldTrackRequest() throws {
+        try assertUploadTracking(usesClassicLoadingMode: false)
+    }
+
+    func testDataTaskWithoutCompletionHandler_whenUsingNewLoader_shouldNotCreateUnfinishedSpan() throws {
+        guard #available(macOS 15.4, iOS 18.4, tvOS 18.4, watchOS 11.4, visionOS 2.4, *) else {
+            throw XCTSkip("The selected OS does not support choosing the URLSession HTTP loader.")
+        }
+
+        try ensureTestServerIsRunning()
+        let url = try XCTUnwrap(URL(string: "http://localhost:8081/echo-sentry-trace"))
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.usesClassicLoadingMode = false
+        let delegate = TaskCompletionDelegate(testCase: self)
+        let session = URLSession(configuration: configuration, delegate: delegate, delegateQueue: nil)
+        defer { session.finishTasksAndInvalidate() }
+
+        startSDK()
+        let transaction = try XCTUnwrap(SentrySDK.startTransaction(
+            name: "Test Transaction",
+            operation: "TEST",
+            bindToScope: true
+        ) as? SentryTracer)
+        let task = session.dataTask(with: url)
+
+        task.resume()
+        wait(for: [delegate.requestCompleted], timeout: 10)
+
+        XCTAssertTrue(transaction.children.isEmpty)
+    }
+
+    func testDataTask_whenUsingNewLoaderAndCancelled_shouldFinishCancelledSpan() throws {
+        guard #available(macOS 15.4, iOS 18.4, tvOS 18.4, watchOS 11.4, visionOS 2.4, *) else {
+            throw XCTSkip("The selected OS does not support choosing the URLSession HTTP loader.")
+        }
+
+        try ensureTestServerIsRunning()
+        let url = try XCTUnwrap(URL(string: "http://localhost:8081/delayed-response"))
+        let requestCompleted = expectationAllowingOverFulfill(description: "Request completed")
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.usesClassicLoadingMode = false
+        let session = URLSession(configuration: configuration)
+        defer { session.finishTasksAndInvalidate() }
+
+        startSDK()
+        let transaction = try XCTUnwrap(SentrySDK.startTransaction(
+            name: "Test Transaction",
+            operation: "TEST",
+            bindToScope: true
+        ) as? SentryTracer)
+        let task = session.dataTask(with: url) { _, _, error in
+            XCTAssertEqual((error as? URLError)?.code, .cancelled)
+            requestCompleted.fulfill()
+        }
+
+        task.resume()
+        task.cancel()
+        wait(for: [requestCompleted], timeout: 10)
+
+        let networkSpan = try XCTUnwrap(transaction.children.first)
+        XCTAssertTrue(networkSpan.isFinished)
+        XCTAssertEqual(networkSpan.status, .cancelled)
+    }
+
+#endif
+
     func testGetRequest_SpanCreatedAndBaggageHeaderAdded() throws {
         try ensureTestServerIsRunning()
 
@@ -381,6 +468,134 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         )
     }
 
+#if compiler(>=6.1)
+    private func assertNetworkTracking(usesClassicLoadingMode: Bool) throws {
+        // -- Arrange --
+        guard #available(macOS 15.4, iOS 18.4, tvOS 18.4, watchOS 11.4, visionOS 2.4, *) else {
+            throw XCTSkip("The selected OS does not support choosing the URLSession HTTP loader.")
+        }
+
+        try ensureTestServerIsRunning()
+        let url = try XCTUnwrap(URL(string: "http://localhost:8081/echo-sentry-trace"))
+        let requestCompleted = expectationAllowingOverFulfill(description: "Request completed")
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.usesClassicLoadingMode = usesClassicLoadingMode
+        let session = URLSession(configuration: configuration)
+        defer { session.finishTasksAndInvalidate() }
+
+        startSDK()
+        let transaction = try XCTUnwrap(SentrySDK.startTransaction(
+            name: "Test Transaction",
+            operation: "TEST",
+            bindToScope: true
+        ) as? SentryTracer)
+        let responseBody = SentryMutex<String?>(nil)
+        let task = session.dataTask(with: url) { data, _, error in
+            self.assertNetworkError(error)
+            responseBody.withLock { $0 = String(data: data ?? Data(), encoding: .utf8) }
+            requestCompleted.fulfill()
+        }
+        let taskCompleted = usesClassicLoadingMode ? keyValueObservingExpectation(
+            for: task,
+            keyPath: "state"
+        ) { object, _ in
+            (object as? URLSessionTask)?.state == .completed
+        } : nil
+
+        // -- Act --
+        task.resume()
+        wait(for: [requestCompleted] + [taskCompleted].compactMap { $0 }, timeout: 10)
+
+        // -- Assert --
+        let children = transaction.children
+        let networkSpan: Span
+        if usesClassicLoadingMode {
+            let responseTraceHeader = responseBody.withLock { $0 }
+            networkSpan = try XCTUnwrap(children.first {
+                $0.toTraceHeader().value() == responseTraceHeader
+            })
+        } else {
+            networkSpan = try XCTUnwrap(children.first)
+            XCTAssertEqual(responseBody.withLock { $0 }, "(NO-HEADER)")
+        }
+        XCTAssertTrue(networkSpan.isFinished)
+        XCTAssertEqual(networkSpan.data["http.response.status_code"] as? NSNumber, 200)
+    }
+
+    private func assertDownloadTracking(usesClassicLoadingMode: Bool) throws {
+        try assertTaskTracking(usesClassicLoadingMode: usesClassicLoadingMode) { session, url, completion in
+            session.downloadTask(with: url) { location, _, error in
+                guard let location else {
+                    return completion(nil, error)
+                }
+                do {
+                    let data = try Data(contentsOf: location)
+                    completion(String(data: data, encoding: .utf8), error)
+                } catch {
+                    completion(nil, error)
+                }
+            }
+        }
+    }
+
+    private func assertUploadTracking(usesClassicLoadingMode: Bool) throws {
+        try assertTaskTracking(usesClassicLoadingMode: usesClassicLoadingMode) { session, url, completion in
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            return session.uploadTask(with: request, from: Data("test".utf8)) { data, _, error in
+                completion(data.flatMap { String(data: $0, encoding: .utf8) }, error)
+            }
+        }
+    }
+
+    private func assertTaskTracking(
+        usesClassicLoadingMode: Bool,
+        makeTask: (URLSession, URL, @escaping (String?, Error?) -> Void) -> URLSessionTask
+    ) throws {
+        guard #available(macOS 15.4, iOS 18.4, tvOS 18.4, watchOS 11.4, visionOS 2.4, *) else {
+            throw XCTSkip("The selected OS does not support choosing the URLSession HTTP loader.")
+        }
+
+        try ensureTestServerIsRunning()
+        let url = try XCTUnwrap(URL(string: "http://localhost:8081/echo-sentry-trace"))
+        let requestCompleted = expectationAllowingOverFulfill(description: "Request completed")
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.usesClassicLoadingMode = usesClassicLoadingMode
+        let session = URLSession(configuration: configuration)
+        defer { session.finishTasksAndInvalidate() }
+
+        startSDK()
+        let transaction = try XCTUnwrap(SentrySDK.startTransaction(
+            name: "Test Transaction",
+            operation: "TEST",
+            bindToScope: true
+        ) as? SentryTracer)
+        let responseBody = SentryMutex<String?>(nil)
+        let task = makeTask(session, url) { body, error in
+            self.assertNetworkError(error)
+            responseBody.withLock { $0 = body }
+            requestCompleted.fulfill()
+        }
+
+        task.resume()
+        wait(for: [requestCompleted], timeout: 10)
+
+        let networkSpan: Span
+        if usesClassicLoadingMode {
+            let responseTraceHeader = responseBody.withLock { $0 }
+            networkSpan = try XCTUnwrap(transaction.children.first {
+                $0.toTraceHeader().value() == responseTraceHeader
+            })
+        } else {
+            networkSpan = try XCTUnwrap(transaction.children.first)
+            XCTAssertEqual(responseBody.withLock { $0 }, "(NO-HEADER)")
+        }
+        XCTAssertTrue(networkSpan.isFinished)
+        XCTAssertEqual(networkSpan.data["http.response.status_code"] as? NSNumber, 200)
+    }
+
+#endif
+
     private func assertNetworkError(_ error: Error?) {
         if error != nil {
             XCTFail("Failed to complete request : \(String(describing: error))")
@@ -486,6 +701,26 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         Dynamic(client).transportAdapter = SentryTransportAdapter(transports: [transport], options: options)
         return transport
     }
+
+#if compiler(>=6.1)
+    private final class TaskCompletionDelegate: NSObject, URLSessionTaskDelegate {
+        let requestCompleted: XCTestExpectation
+
+        init(testCase: XCTestCase) {
+            requestCompleted = testCase.expectation(description: "Request completed")
+        }
+
+        func urlSession(
+            _ session: URLSession,
+            task: URLSessionTask,
+            didCompleteWithError error: Error?
+        ) {
+            XCTAssertNil(error)
+            requestCompleted.fulfill()
+        }
+    }
+
+#endif
 
     private final class EnvelopeCapturingTransport: NSObject, Transport {
         let sentEnvelopes = Invocations<SentryEnvelope>()

@@ -16,6 +16,7 @@ final class URLSessionTaskNetworkTrackerState {
         var spanState = SpanState.idle
         var startDate: Date?
         var hasBreadcrumb = false
+        var usesNewLoaderCompletionHandler = false
         var isDuplicate = false
 
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
@@ -69,6 +70,11 @@ extension URLSessionTask {
 
     var startDate: Date? {
         withNetworkTrackerState { $0.startDate }
+    }
+
+    var usesNewLoaderCompletionHandler: Bool {
+        get { withNetworkTrackerState { $0.usesNewLoaderCompletionHandler } }
+        set { withNetworkTrackerState { $0.usesNewLoaderCompletionHandler = newValue } }
     }
 
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
