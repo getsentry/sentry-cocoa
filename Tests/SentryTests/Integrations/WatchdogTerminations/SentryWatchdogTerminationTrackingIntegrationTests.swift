@@ -319,6 +319,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setFingerprintInvocations.count, 1)
     }
 
+    #if !SDK_V10
     func testANRDetected_UpdatesAppStateToTrue() throws {
         // -- Arrange --
         fixture.sysctl.internalIsBeingTraced = false
@@ -331,6 +332,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let appState = try XCTUnwrap(fixture.fileManager.readAppState())
         XCTAssertTrue(appState.isANROngoing)
     }
+    #endif // !SDK_V10
 
     func testANRDetected_NewHangTracker_UpdatesAppStateToTrue() throws {
         // -- Arrange --
@@ -345,6 +347,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertTrue(appState.isANROngoing)
     }
 
+    #if !SDK_V10
     func testANRStopped_UpdatesAppStateToFalse() throws {
         // -- Arrange --
         fixture.sysctl.internalIsBeingTraced = false
@@ -357,6 +360,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let appState = try XCTUnwrap(fixture.fileManager.readAppState())
         XCTAssertFalse(appState.isANROngoing)
     }
+    #endif // !SDK_V10
 
     func testANRStopped_NewHangTracker_UpdatesAppStateToFalse() throws {
         // -- Arrange --

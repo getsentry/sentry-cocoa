@@ -89,7 +89,9 @@ class SentryHubTests: XCTestCase {
         fixture = try Fixture()
         fixture.fileManager.deleteCurrentSession()
         fixture.fileManager.deleteCrashedSession()
+        #if !SDK_V10
         fixture.fileManager.deleteAbnormalSession()
+        #endif // !SDK_V10
         fixture.fileManager.deleteAppState()
         fixture.fileManager.deleteTimestampLastInForeground()
         fixture.fileManager.deleteAllEnvelopes()
@@ -99,7 +101,9 @@ class SentryHubTests: XCTestCase {
         super.tearDown()
         fixture.fileManager.deleteCurrentSession()
         fixture.fileManager.deleteCrashedSession()
+        #if !SDK_V10
         fixture.fileManager.deleteAbnormalSession()
+        #endif // !SDK_V10
         fixture.fileManager.deleteAppState()
         fixture.fileManager.deleteTimestampLastInForeground()
         fixture.fileManager.deleteAllEnvelopes()
@@ -1133,7 +1137,7 @@ class SentryHubTests: XCTestCase {
         assertNoEventsSent()
     }
     
-#if os(iOS) || os(tvOS)
+#if (os(iOS) || os(tvOS)) && !SDK_V10
     func testCaptureFatalAppHangEvent_AbnormalSessionExists() {
         // Arrange
         sut = fixture.getSut(fixture.options, fixture.scope)
@@ -1229,7 +1233,7 @@ class SentryHubTests: XCTestCase {
         // Assert
         assertNoEventsSent()
     }
-#endif // os(iOS) || os(tvOS)
+#endif // (os(iOS) || os(tvOS)) && !SDK_V10
 
     func testCaptureEnvelope_WithEventWithError() throws {
         sut.startSession()
@@ -1611,11 +1615,13 @@ class SentryHubTests: XCTestCase {
         sut.startSession()
     }
     
+    #if !SDK_V10
     private func givenAbnormalSession() {
         fixture.fileManager.storeAbnormalSession(fixture.abnormalSession)
         sut.closeCachedSession(withTimestamp: fixture.currentDateProvider.date())
         sut.startSession()
     }
+    #endif // !SDK_V10
     
     private func givenAutoSessionTrackingDisabled() {
         let options = fixture.options

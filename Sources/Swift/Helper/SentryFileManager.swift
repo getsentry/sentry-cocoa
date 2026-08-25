@@ -115,6 +115,7 @@ internal import _SentryPrivate
         helper.deleteCrashedSession()
     }
 
+    #if !SDK_V10
     @objc public func storeAbnormalSession(_ session: SentrySession) {
         helper.storeAbnormalSessionData(SentrySerializationSwift.data(withJSONObject: session.serialize()))
     }
@@ -126,6 +127,7 @@ internal import _SentryPrivate
     @objc public func deleteAbnormalSession() {
         helper.deleteAbnormalSession()
     }
+    #endif // !SDK_V10
     
     @objc public func storeTimestampLast(inForeground timestamp: Date) {
         helper.storeTimestampLast(inForeground: timestamp)
@@ -184,6 +186,7 @@ internal import _SentryPrivate
         helper.deleteTimezoneOffset()
     }
 
+    #if !SDK_V10
     @objc(storeAppHangEvent:) public func storeAppHang(_ event: Event) {
         helper.storeAppHang(event)
     }
@@ -199,6 +202,7 @@ internal import _SentryPrivate
     @objc public func deleteAppHangEvent() {
         helper.deleteAppHangEvent()
     }
+    #endif // !SDK_V10
 
     @objc public static func createDirectory(atPath path: String) throws {
         try SentryFileManagerHelper.createDirectory(atPath: path)
@@ -230,9 +234,11 @@ internal import _SentryPrivate
     
     // MARK: Internal
     
+    #if !SDK_V10
     var appHangEventFilePath: String {
         helper.appHangEventFilePath
     }
+    #endif // !SDK_V10
 
     var appStateFilePath: String {
         helper.appStateFilePath

@@ -303,14 +303,14 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentrySDKInternal.currentHub captureFatalEvent:event withScope:scope];
 }
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !SDK_V10
 
 + (void)captureFatalAppHangEvent:(SentryEvent *)event
 {
     [SentrySDKInternal.currentHub captureFatalAppHangEvent:event];
 }
 
-#endif // SENTRY_HAS_UIKIT
+#endif // SENTRY_HAS_UIKIT && !SDK_V10
 
 + (SentryId *)captureEvent:(SentryEvent *)event
 {

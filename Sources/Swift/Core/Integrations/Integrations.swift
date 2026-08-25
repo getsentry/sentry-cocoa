@@ -61,16 +61,19 @@ private struct AnyIntegration {
 
         integrations.append(contentsOf: [
             .init(SentryAutoSessionTrackingIntegration.self),
-            .init(SentryNetworkTrackingIntegration.self),
-            .init(SentryAutoBreadcrumbTrackingIntegration.self),
-            .init(SentryMetricsIntegration.self),
-            .init(SentryCoreDataTrackingIntegration.self),
-            .init(SentryFileIOTrackingIntegration.self)
+            .init(SentryNetworkTrackingIntegration.self)
         ])
 
         #if !SDK_V10
         integrations.append(.init(SentryHangTrackerIntegrationObjC.self))
         #endif
+
+        integrations.append(contentsOf: [
+            .init(SentryAutoBreadcrumbTrackingIntegration.self),
+            .init(SentryMetricsIntegration.self),
+            .init(SentryCoreDataTrackingIntegration.self),
+            .init(SentryFileIOTrackingIntegration.self)
+        ])
 
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         integrations.append(.init(SentryAppStartTrackingIntegration.self))

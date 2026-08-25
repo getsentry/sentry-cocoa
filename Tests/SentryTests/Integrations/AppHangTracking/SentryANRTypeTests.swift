@@ -1,3 +1,4 @@
+#if !SDK_V10
 @_spi(Private) @testable import Sentry
 import XCTest
 
@@ -96,3 +97,4 @@ final class SentryANRTypeTests: XCTestCase {
     }
 
 }
+#endif // !SDK_V10
