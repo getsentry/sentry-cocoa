@@ -152,6 +152,26 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertNil(task.observationInfo)
     }
 
+    func testResume_whenSentryRequest_shouldNotAccessScope() {
+        // -- Arrange --
+        let hub = NetworkTrackerTestHub(options: fixture.options, scope: fixture.scope)
+        let dependencies = NetworkTrackerTestDependencies(
+            dateProvider: fixture.dateProvider,
+            hub: hub,
+            threadInspector: SentryDependencyContainer.sharedInstance().threadInspector
+        )
+        let sut = SentryDefaultNetworkTracker<NetworkTrackerTestDependencies>(
+            options: fixture.options,
+            dependencies: dependencies
+        )
+
+        // -- Act --
+        sut.urlSessionTaskResume(fixture.sentryTask)
+
+        // -- Assert --
+        XCTAssertEqual(hub.scopeAccessCount, 0)
+    }
+
     func testSDKOptionsNil() {
         SentrySDKInternal.setCurrentHub(nil)
 
@@ -2394,6 +2414,41 @@ class SentryNetworkTrackerTests: XCTestCase {
         let spans = Dynamic(transaction).children as [Span]?
         XCTAssertEqual(spans?.count ?? 0, 0)
     }
+}
+
+private struct NetworkTrackerTestDependencies: CurrentDateProvider, HubProvider, ThreadInspectorProvider {
+    let dateProvider: SentryCurrentDateProvider
+    let hub: Hub
+    let threadInspector: SentryThreadInspector
+}
+
+private final class NetworkTrackerTestHub: Hub {
+    private let storedScope: Scope
+    private(set) var scopeAccessCount = 0
+    let currentOptions: Options?
+
+    init(options: Options, scope: Scope) {
+        currentOptions = options
+        self.storedScope = scope
+    }
+
+    var options: Options {
+        currentOptions ?? Options()
+    }
+
+    var scope: Scope {
+        scopeAccessCount += 1
+        return storedScope
+    }
+
+    func configureScope(_ callback: @escaping (Scope) -> Void) {
+        callback(storedScope)
+    }
+
+    func storeEnvelope(_ envelope: SentryEnvelope) {}
+    func captureEnvelope(_ envelope: SentryEnvelope) {}
+    func captureErrorEvent(event: Event) {}
+    func setTrace(_ traceId: SentryId, spanId: SpanId) {}
 }
 
 private final class NetworkTrackerTestSpan: NSObject, Span {

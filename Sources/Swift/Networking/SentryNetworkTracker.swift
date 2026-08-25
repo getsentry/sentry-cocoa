@@ -105,6 +105,11 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             return
         }
 
+        // Don't measure requests to Sentry's backend
+        if isSentryRequestOnResume(url, options: options) {
+            return
+        }
+
         let isUntracked = sessionTask.withNetworkTrackerState { state in
             guard case .idle = state.spanState else {
                 return false
@@ -117,11 +122,6 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             if isDuplicate {
                 return
             }
-        }
-
-        // Don't measure requests to Sentry's backend
-        if isSentryRequestOnResume(url, options: options) {
-            return
         }
 
         // Register the request start date only on first resume so suspend/resume cycles preserve it.
