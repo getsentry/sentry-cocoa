@@ -2,11 +2,14 @@
 internal import _SentryPrivate
 import Foundation
 
+typealias SerializedBreadcrumb = [AnyHashable: Any]
+
 #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
-protocol SentryWatchdogTerminationBreadcrumbProcessor: AnyObject {
-    func addSerializedBreadcrumb(_ crumb: [AnyHashable: Any])
+protocol SentryWatchdogTerminationBreadcrumbProcessor {
+    func addSerializedBreadcrumb(_ crumb: SerializedBreadcrumb)
     func clear()
     func clearBreadcrumbs()
+    func flushAndClose()
 }
 
 extension SentryDefaultWatchdogTerminationBreadcrumbProcessor: SentryWatchdogTerminationBreadcrumbProcessor {}
@@ -14,41 +17,58 @@ extension SentryDefaultWatchdogTerminationBreadcrumbProcessor: SentryWatchdogTer
 typealias SentryWatchdogTerminationBreadcrumbProcessor = SentryDefaultWatchdogTerminationBreadcrumbProcessor
 #endif
 
-final class SentryDefaultWatchdogTerminationBreadcrumbProcessor: NSObject {
-    private let fileManager: SentryFileManager?
-    @objc private var fileHandle: FileHandle?
-    private var activeFilePath: String?
+final class SentryDefaultWatchdogTerminationBreadcrumbProcessor {
+    private static let newlineData = Data("\n".utf8)
+
+    private let fileManager: SentryFileManager
     private let maxBreadcrumbs: Int
+    private let dispatchQueueWrapper: SentryDispatchQueueWrapper
+
+    private var fileHandle: FileHandle?
+    private var currentFilePath: String
     private var breadcrumbCounter = 0
 
-    convenience init(maxBreadcrumbs: Int) {
-        self.init(
-            maxBreadcrumbs: maxBreadcrumbs,
-            fileManager: SentryDependencyContainer.sharedInstance().fileManager
-        )
-    }
+    // The file handle is opened lazily, so nil is valid before the first breadcrumb and after a
+    // failed file open. When the watchdog integration is uninstalled, it drains pending writes and
+    // closes the handle. Marking the processor as closed prevents subsequent scope-observer calls
+    // from creating a new handle and writing breadcrumbs after the SDK has shut down.
+    private var shouldProcessIncomingCrumbs = true
 
-    init(maxBreadcrumbs: Int, fileManager: SentryFileManager?) {
+    init(
+        maxBreadcrumbs: Int,
+        fileManager: SentryFileManager,
+        dispatchQueueWrapper: SentryDispatchQueueWrapper
+    ) {
         self.maxBreadcrumbs = maxBreadcrumbs
         self.fileManager = fileManager
-        super.init()
-
-        switchFileHandle()
+        self.dispatchQueueWrapper = dispatchQueueWrapper
+        self.currentFilePath = fileManager.breadcrumbsFilePathOne
     }
 
     deinit {
-        fileHandle?.closeFile()
+        // In normal operation fileHandle is already nil because the processor is closed via
+        // flushAndClose() before being released. If it is non-nil here, the processor was
+        // dropped without being closed; any work still queued on the serial queue has already
+        // been abandoned (the [weak self] blocks nil-guard out once deinit begins). Close the
+        // handle directly on the deallocating thread as a best-effort resource cleanup.
+        if fileHandle != nil {
+            SentrySDKLog.debug("BreadcrumbProcessor deallocated without being closed — closing file handle on deallocating thread")
+            closeFileHandle()
+        }
     }
 
-    func addSerializedBreadcrumb(_ crumb: [AnyHashable: Any]) {
+    func addSerializedBreadcrumb(_ crumb: SerializedBreadcrumb) {
         SentrySDKLog.debug("Adding breadcrumb: \(crumb)")
 
-        guard let jsonData = SentrySerializationSwift.data(withJSONObject: crumb) else {
-            SentrySDKLog.error("Error serializing breadcrumb to JSON")
-            return
-        }
+        dispatchQueueWrapper.dispatchAsync { [weak self] in
+            guard let self, shouldProcessIncomingCrumbs else { return }
+            guard let jsonData = SentrySerializationSwift.data(withJSONObject: crumb) else {
+                SentrySDKLog.error("Error serializing breadcrumb to JSON")
+                return
+            }
 
-        storeBreadcrumb(jsonData)
+            storeBreadcrumb(jsonData)
+        }
     }
 
     func clear() {
@@ -56,60 +76,96 @@ final class SentryDefaultWatchdogTerminationBreadcrumbProcessor: NSObject {
     }
 
     func clearBreadcrumbs() {
-        deleteFiles()
-        switchFileHandle()
+        SentrySDKLog.debug("Clearing breadcrumb files")
+
+        dispatchQueueWrapper.dispatchAsync { [weak self] in
+            guard let self else {
+                SentrySDKLog.debug("Not clearing breadcrumb files because the processor is deallocated")
+                return
+            }
+            guard shouldProcessIncomingCrumbs else {
+                SentrySDKLog.debug("Not clearing breadcrumb files because the processor is closed")
+                return
+            }
+
+            deleteFiles()
+        }
+    }
+
+    func flushAndClose() {
+        SentrySDKLog.debug("Requested flush and close of breadcrumb processor")
+
+        dispatchQueueWrapper.dispatchSync { [self] in
+            guard shouldProcessIncomingCrumbs else {
+                SentrySDKLog.debug("Not flushing breadcrumb processor because it is already closed")
+                return
+            }
+            SentrySDKLog.debug("Flushing and closing breadcrumb file handle")
+
+            shouldProcessIncomingCrumbs = false
+            closeFileHandle()
+        }
+    }
+
+    private func resetCurrentFilePath() {
+        currentFilePath = fileManager.breadcrumbsFilePathOne
+    }
+
+    private func switchCurrentFilePath() {
+        currentFilePath = if currentFilePath == fileManager.breadcrumbsFilePathOne {
+            fileManager.breadcrumbsFilePathTwo
+        } else {
+            fileManager.breadcrumbsFilePathOne
+        }
     }
 
     private func switchFileHandle() {
-        guard let fileManager else {
-            SentrySDKLog.error("Cannot switch breadcrumb file handle because the file manager is nil")
-            return
-        }
-
-        if activeFilePath == fileManager.breadcrumbsFilePathOne {
-            activeFilePath = fileManager.breadcrumbsFilePathTwo
+        let nextPath = if currentFilePath == fileManager.breadcrumbsFilePathOne {
+            fileManager.breadcrumbsFilePathTwo
         } else {
-            activeFilePath = fileManager.breadcrumbsFilePathOne
+            fileManager.breadcrumbsFilePathOne
         }
 
-        fileHandle?.closeFile()
+        SentrySDKLog.debug("Switching breadcrumb file handle to \(nextPath)")
 
-        guard let activeFilePath else {
-            SentrySDKLog.error("Cannot switch breadcrumb file handle because the active file path is nil")
+        guard let nextHandle = openFileHandle(at: nextPath) else {
+            SentrySDKLog.error("Couldn't open file handle for \(nextPath); keeping current file \(currentFilePath)")
             return
         }
 
-        fileManager.removeFile(atPath: activeFilePath)
-        FileManager.default.createFile(atPath: activeFilePath, contents: nil)
-        fileHandle = FileHandle(forWritingAtPath: activeFilePath)
-
-        if fileHandle == nil {
-            SentrySDKLog.error("Couldn't open file handle for \(activeFilePath)")
-        }
+        closeFileHandle()
+        switchCurrentFilePath()
+        fileHandle = nextHandle
+        breadcrumbCounter = 0
     }
 
     private func deleteFiles() {
-        fileHandle?.closeFile()
-        fileHandle = nil
-        activeFilePath = nil
-        breadcrumbCounter = 0
+        SentrySDKLog.debug("Deleting files")
 
-        guard let fileManager else {
-            SentrySDKLog.error("Cannot delete breadcrumb files because the file manager is nil")
-            return
-        }
+        closeFileHandle()
+        breadcrumbCounter = 0
 
         fileManager.removeFile(atPath: fileManager.breadcrumbsFilePathOne)
         fileManager.removeFile(atPath: fileManager.breadcrumbsFilePathTwo)
+
+        resetCurrentFilePath()
     }
 
     private func storeBreadcrumb(_ data: Data) {
+        SentrySDKLog.debug("Storing breadcrumb data with \(data.count) bytes")
+
+        guard let fileHandle = fileHandleForWriting() else {
+            SentrySDKLog.warning("storeBreadcrumb could not get a file handle for \(currentFilePath)")
+            return
+        }
+
         var fileSize: UInt64 = 0
 
         do {
-            fileSize = try fileHandle?.seekToEnd() ?? 0
-            try fileHandle?.write(contentsOf: data)
-            try fileHandle?.write(contentsOf: Data("\n".utf8))
+            fileSize = try fileHandle.seekToEnd()
+
+            try fileHandle.write(contentsOf: data)
+            try fileHandle.write(contentsOf: Self.newlineData)
 
             breadcrumbCounter += 1
         } catch {
@@ -118,8 +174,36 @@ final class SentryDefaultWatchdogTerminationBreadcrumbProcessor: NSObject {
 
         if breadcrumbCounter >= maxBreadcrumbs {
             switchFileHandle()
-            breadcrumbCounter = 0
         }
+    }
+
+    private func fileHandleForWriting() -> FileHandle? {
+        if fileHandle == nil {
+            fileHandle = openFileHandle(at: currentFilePath)
+        }
+
+        return fileHandle
+    }
+
+    private func openFileHandle(at path: String) -> FileHandle? {
+        guard fileManager.write(Data(), toPath: path) else {
+            SentrySDKLog.error("Couldn't create breadcrumb file at \(path)")
+            return nil
+        }
+
+        let fileHandle = FileHandle(forWritingAtPath: path)
+        if fileHandle == nil {
+            SentrySDKLog.error("Couldn't get file handle for writing breadcrumb to \(path)")
+        }
+        return fileHandle
+    }
+
+    private func closeFileHandle() {
+        guard let fileHandle else { return }
+
+        SentrySDKLog.debug("Closing file handle")
+        fileHandle.closeFile()
+        self.fileHandle = nil
     }
 }
 // swiftlint:enable missing_docs

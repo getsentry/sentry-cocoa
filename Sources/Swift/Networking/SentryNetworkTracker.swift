@@ -115,6 +115,20 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             return
         }
 
+        let isUntracked = sessionTask.withNetworkTrackerState { state in
+            guard case .idle = state.spanState else {
+                return false
+            }
+            return true
+        }
+        if isUntracked {
+            let isDuplicate = isDuplicateTask(currentRequest, currentSpan: hub.scope.span)
+            sessionTask.withNetworkTrackerState { $0.isDuplicate = isDuplicate }
+            if isDuplicate {
+                return
+            }
+        }
+
         // Register the request start date only on first resume so suspend/resume cycles preserve it.
         if isNetworkBreadcrumbEnabled {
             let startDate = dateProvider.date()
@@ -254,6 +268,10 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         }
 
         guard isTaskSupported(sessionTask), let options = hub.currentOptions else {
+            return
+        }
+
+        guard !sessionTask.withNetworkTrackerState({ $0.isDuplicate }) else {
             return
         }
 
@@ -709,6 +727,19 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             currentClass = class_getSuperclass(candidate)
         }
         return true
+    }
+
+    private func isDuplicateTask(_ request: URLRequest, currentSpan: Span?) -> Bool {
+        guard let traceHeader = request.value(forHTTPHeaderField: SENTRY_TRACE_HEADER),
+              let tracer = currentSpan.flatMap(SentryTracer.getTracer) else {
+            return false
+        }
+
+        return tracer.children.contains { child in
+            child.origin == SentryTraceOriginAutoHttpNSURLSession
+                && child.toTraceHeader().value() == traceHeader
+                && !child.isFinished
+        }
     }
 
     private func isSentryRequestOnStateChange(_ url: URL, options: Options) -> Bool {

@@ -17,6 +17,7 @@ final class URLSessionTaskNetworkTrackerState {
         var startDate: Date?
         var hasBreadcrumb = false
         var usesNewLoaderCompletionHandler = false
+        var isDuplicate = false
 
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
         var networkDetails: SentryReplayNetworkDetails?
