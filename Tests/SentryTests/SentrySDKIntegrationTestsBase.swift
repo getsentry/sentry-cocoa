@@ -8,7 +8,7 @@ import XCTest
 class SentrySDKIntegrationTestsBase: XCTestCase {
     
     var currentDate = TestCurrentDateProvider()
-    var crashWrapper: TestSentryCrashWrapper!
+    var crashReporterState: TestSentryCrashReporterState!
     
     var options: Options {
         Options()
@@ -16,8 +16,14 @@ class SentrySDKIntegrationTestsBase: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        crashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
-        SentryDependencyContainer.sharedInstance().crashWrapper = crashWrapper
+#if SDK_V10
+        crashReporterState = TestSentryCrashReporterState()
+#else
+        let crashReporter = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
+        crashReporterState = crashReporter
+        SentryDependencyContainer.sharedInstance().crashWrapper = crashReporter
+#endif
+        SentryDependencyContainer.sharedInstance().activeCrashReporterStateOverride = crashReporterState
         currentDate = TestCurrentDateProvider()
     }
     
@@ -29,7 +35,7 @@ class SentrySDKIntegrationTestsBase: XCTestCase {
     
     func givenSdkWithHub(_ options: Options? = nil, scope: Scope = Scope()) {
         let client = TestClient(options: options ?? self.options)
-        let hub = SentryHubInternal(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo), andDispatchQueue: SentryDispatchQueueWrapper())
+        let hub = SentryHubInternal(client: client, andScope: scope, activeCrashReporterState: crashReporterState, andDispatchQueue: SentryDispatchQueueWrapper())
         
         SentrySDK.setStart(with: self.options)
         SentrySDKInternal.setCurrentHub(hub)

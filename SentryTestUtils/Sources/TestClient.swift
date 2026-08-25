@@ -21,7 +21,6 @@ open class TestClient: SentryClientInternal {
             locale: NSLocale.autoupdatingCurrent,
             timezone: NSCalendar.autoupdatingCurrent.timeZone,
             eventContextEnricher: SentryDependencyContainer.sharedInstance().eventContextEnricher,
-            crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper,
             binaryImageCache: SentryDependencyContainer.sharedInstance().binaryImageCache,
             dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
         )
@@ -40,7 +39,6 @@ open class TestClient: SentryClientInternal {
         locale: Locale,
         timezone: TimeZone,
         eventContextEnricher: SentryEventContextEnricher,
-        crashWrapper: SentryCrashReporter,
         binaryImageCache: SentryBinaryImageCache,
         dispatchQueueWrapper: SentryDispatchQueueWrapper
     ) {
@@ -55,7 +53,6 @@ open class TestClient: SentryClientInternal {
             locale: locale,
             timezone: timezone,
             eventContextEnricher: eventContextEnricher,
-            crashWrapper: crashWrapper,
             binaryImageCache: binaryImageCache,
             dispatchQueueWrapper: dispatchQueueWrapper
         )

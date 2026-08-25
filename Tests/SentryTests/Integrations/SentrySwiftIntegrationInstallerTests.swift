@@ -25,6 +25,7 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         options.enableAppHangTracking = false
         options.enableWatchdogTerminationTracking = false
         options.enableSwizzling = false
+        options.enableMetrics = false
         options.enableCrashHandler = false
         #if canImport(MetricKit) && !os(tvOS)
         options.enableMetricKit = false
@@ -41,15 +42,13 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
 #if SENTRY_DISABLE_SENTRYCRASH_V10
         // KSCRASH_TODO(GH-8725): V10 temporarily omits the Swift async integration.
         // Acceptance: SCV10-011 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
-        XCTAssertEqual(names.count, 1)
+        XCTAssertEqual(names.count, 0)
         XCTAssertFalse(names.contains("SentrySwiftAsyncIntegration"))
-        XCTAssertTrue(names.contains("SentryMetricsIntegration"))
-        XCTAssertEqual(testHub.installedIntegrations().count, 1)
+        XCTAssertEqual(testHub.installedIntegrations().count, 0)
 #else
-        XCTAssertEqual(names.count, 2)
+        XCTAssertEqual(names.count, 1)
         XCTAssertTrue(names.contains("SentrySwiftAsyncIntegration"))
-        XCTAssertTrue(names.contains("SentryMetricsIntegration"))
-        XCTAssertEqual(testHub.installedIntegrations().count, 2)
+        XCTAssertEqual(testHub.installedIntegrations().count, 1)
 #endif
     }
 
@@ -67,6 +66,7 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         options.enableAppHangTracking = false
         options.enableWatchdogTerminationTracking = false
         options.enableSwizzling = false
+        options.enableMetrics = false
         options.enableCrashHandler = false
         #if canImport(MetricKit) && !os(tvOS)
         options.enableMetricKit = false
@@ -79,10 +79,7 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         SentrySwiftIntegrationInstaller.install(with: options)
 
         // Assert
-        let names = testHub.installedIntegrationNames()
-        XCTAssertEqual(names.count, 1)
-        XCTAssertFalse(names.contains("SentrySwiftAsyncIntegration"))
-        XCTAssertTrue(names.contains("SentryMetricsIntegration"))
-        XCTAssertEqual(testHub.installedIntegrations().count, 1)
+        XCTAssertEqual(testHub.installedIntegrationNames().count, 0)
+        XCTAssertEqual(testHub.installedIntegrations().count, 0)
     }
 }

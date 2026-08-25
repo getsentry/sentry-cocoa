@@ -58,7 +58,7 @@ class SentrySDKInternalTests: XCTestCase {
             scope.setTag(value: "value", key: "key")
 
             client = try XCTUnwrap(TestClient(options: options))
-            hub = SentryHubInternal(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo), andDispatchQueue: SentryDispatchQueueWrapper())
+            hub = SentryHubInternal(client: client, andScope: scope, activeCrashReporterState: TestSentryCrashReporterState(), andDispatchQueue: SentryDispatchQueueWrapper())
 
             feedback = SentryFeedback(message: "Again really?", name: "Tim Apple", email: "tim@apple.com")
 
@@ -70,7 +70,11 @@ class SentrySDKInternalTests: XCTestCase {
                 dateProvider: currentDate,
                 dispatchQueueWrapper: dispatchQueueWrapper
             ))
-            let breadcrumbProcessor = SentryDefaultWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
+            let breadcrumbProcessor = SentryDefaultWatchdogTerminationBreadcrumbProcessor(
+                maxBreadcrumbs: 10,
+                fileManager: fileManager,
+                dispatchQueueWrapper: dispatchQueueWrapper
+            )
             scopePersistentStore = try XCTUnwrap(TestSentryScopePersistentStore(fileManager: fileManager))
             let attributesProcessor = SentryWatchdogTerminationAttributesProcessor(
                 withDispatchQueueWrapper: dispatchQueueWrapper,
@@ -447,9 +451,9 @@ class SentrySDKInternalTests: XCTestCase {
 #if SENTRY_DISABLE_SENTRYCRASH_V10
         // KSCRASH_TODO(GH-8725): V10 temporarily omits the Swift async integration.
         // Acceptance: SCV10-011 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
-        XCTAssertEqual(1, hub.installedIntegrations().count)
+        XCTAssertEqual(0, hub.installedIntegrations().count)
 #else
-        XCTAssertEqual(2, hub.installedIntegrations().count)
+        XCTAssertEqual(1, hub.installedIntegrations().count)
 #endif
         SentrySDK.close()
         XCTAssertEqual(0, hub.installedIntegrations().count)
@@ -519,9 +523,6 @@ class SentrySDKInternalTests: XCTestCase {
         XCTAssertFalse(deviceWrapper.started)
     }
 
-#if !SENTRY_DISABLE_SENTRYCRASH_V10
-    // KSCRASH_TODO(GH-8800): V10 omits initial OS context enrichment.
-    // Acceptance: SCV10-017 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
     /// Ensure to start the UIDeviceWrapper before initializing the hub, so enrich scope sets the correct OS version.
     func testStartSDK_ScopeContextContainsOSVersion() throws {
         let expectation = XCTestExpectation(description: "SentrySDK start called")
@@ -542,7 +543,6 @@ class SentrySDKInternalTests: XCTestCase {
         XCTAssertEqual(UIDevice.current.systemVersion, os["version"] as? String)
 #endif
     }
-#endif // !SENTRY_DISABLE_SENTRYCRASH_V10
 #endif
 
     func testResumeAndPauseAppHangTracking() throws {
@@ -746,8 +746,12 @@ class SentrySDKInternalTests: XCTestCase {
         options.dsn = SentrySDKInternalTests.dsnAsString
 
         let fileManager = try TestFileManager(options: options, dateProvider: fixture.currentDate, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
-        let breadcrumbProcessor = SentryDefaultWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        let breadcrumbProcessor = SentryDefaultWatchdogTerminationBreadcrumbProcessor(
+            maxBreadcrumbs: 10,
+            fileManager: fileManager,
+            dispatchQueueWrapper: dispatchQueueWrapper
+        )
         let scopePersistentStore = try XCTUnwrap(TestSentryScopePersistentStore(fileManager: fileManager))
         let attributesProcessor = SentryWatchdogTerminationAttributesProcessor(
             withDispatchQueueWrapper: dispatchQueueWrapper,
