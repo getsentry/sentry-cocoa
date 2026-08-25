@@ -119,6 +119,44 @@ class SentryWatchdogTerminationBreadcrumbProcessorTests: XCTestCase {
             "breadcrumbsFilePathTwo must still contain the breadcrumbs from the first rotation cycle")
     }
 
+    func testSwitchFileHandle_whenDestinationOpenFails_shouldKeepSourceFile() throws {
+        // -- Arrange --
+        let options = Options()
+        options.dsn = Self.dsn
+        let fileManager = try FailingWriteFileManager(
+            options: options,
+            dateProvider: TestCurrentDateProvider(),
+            dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
+        )
+        let processor = SentryDefaultWatchdogTerminationBreadcrumbProcessor(
+            maxBreadcrumbs: 2,
+            fileManager: fileManager,
+            dispatchQueueWrapper: fixture.dispatchQueueWrapper
+        )
+        let breadcrumb = fixture.breadcrumb.serialize()
+
+        // Fill file one and rotate to file two.
+        for _ in 0..<2 { processor.addSerializedBreadcrumb(breadcrumb) }
+        processor.addSerializedBreadcrumb(breadcrumb)
+
+        // Fail the wrap-around rotation back to file one.
+        fileManager.failingPath = fileManager.breadcrumbsFilePathOne
+
+        // -- Act --
+        // These writes fill file two and then retry a failed rotation to file one.
+        processor.addSerializedBreadcrumb(breadcrumb)
+        processor.addSerializedBreadcrumb(breadcrumb)
+        processor.addSerializedBreadcrumb(breadcrumb)
+
+        // -- Assert --
+        let fileOneContents = try String(contentsOfFile: fileManager.breadcrumbsFilePathOne)
+        XCTAssertEqual(fileOneContents.split(separator: "\n").count, 2,
+            "A failed rotation must not delete the source breadcrumb file")
+        let fileTwoContents = try String(contentsOfFile: fileManager.breadcrumbsFilePathTwo)
+        XCTAssertEqual(fileTwoContents.split(separator: "\n").count, 4,
+            "Writes after a failed rotation must stay on the current file")
+    }
+
     func testAddSerializedBreadcrumb_whenMaxBreadcrumbsReached_shouldRotateFiles() throws {
         // -- Arrange --
         let processor = fixture.makeProcessor(maxBreadcrumbs: 2)
@@ -259,5 +297,25 @@ class SentryWatchdogTerminationBreadcrumbProcessorTests: XCTestCase {
             "Only the breadcrumb written before flushAndClose should be persisted")
         XCTAssertFalse(FileManager.default.fileExists(atPath: fixture.fileManager.previousBreadcrumbsFilePathOne),
             "flushAndClose must not rotate breadcrumbs to the previous-session path")
+    }
+}
+
+private final class FailingWriteFileManager: SentryFileManager {
+    var failingPath: String?
+
+    convenience init(
+        options: Options?,
+        dateProvider: SentryCurrentDateProvider,
+        dispatchQueueWrapper: SentryDispatchQueueWrapper
+    ) throws {
+        let helper = try SentryFileManagerHelper(options: options)
+        self.init(helper: helper, dateProvider: dateProvider, dispatchQueueWrapper: dispatchQueueWrapper)
+    }
+
+    override func write(_ data: Data, toPath: String) -> Bool {
+        if toPath == failingPath {
+            return false
+        }
+        return super.write(data, toPath: toPath)
     }
 }

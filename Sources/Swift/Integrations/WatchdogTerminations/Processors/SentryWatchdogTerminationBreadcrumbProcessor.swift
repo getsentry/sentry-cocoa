@@ -120,21 +120,23 @@ final class SentryDefaultWatchdogTerminationBreadcrumbProcessor {
     }
 
     private func switchFileHandle() {
-        closeFileHandle()
-
-        switchCurrentFilePath()
-
-        SentrySDKLog.debug("Switching breadcrumb file handle to \(currentFilePath)")
-
-        fileManager.removeFile(atPath: currentFilePath)
-
-        fileHandle = fileHandleForWriting()
-
-        if fileHandle == nil {
-            SentrySDKLog.error("Couldn't open file handle for \(currentFilePath)")
+        let nextPath = if currentFilePath == fileManager.breadcrumbsFilePathOne {
+            fileManager.breadcrumbsFilePathTwo
         } else {
-            breadcrumbCounter = 0
+            fileManager.breadcrumbsFilePathOne
         }
+
+        SentrySDKLog.debug("Switching breadcrumb file handle to \(nextPath)")
+
+        guard let nextHandle = openFileHandle(at: nextPath) else {
+            SentrySDKLog.error("Couldn't open file handle for \(nextPath); keeping current file \(currentFilePath)")
+            return
+        }
+
+        closeFileHandle()
+        switchCurrentFilePath()
+        fileHandle = nextHandle
+        breadcrumbCounter = 0
     }
 
     private func deleteFiles() {
@@ -174,20 +176,22 @@ final class SentryDefaultWatchdogTerminationBreadcrumbProcessor {
 
     private func fileHandleForWriting() -> FileHandle? {
         if fileHandle == nil {
-            guard fileManager.write(Data(), toPath: currentFilePath) else {
-                SentrySDKLog.error("Couldn't create breadcrumb file at \(currentFilePath)")
-                return nil
-            }
-
-            let fileHandle = FileHandle(forWritingAtPath: currentFilePath)
-
-            if fileHandle == nil {
-                SentrySDKLog.error("Couldn't get file handle for writing breadcrumb to \(currentFilePath)")
-            }
-
-            self.fileHandle = fileHandle
+            fileHandle = openFileHandle(at: currentFilePath)
         }
 
+        return fileHandle
+    }
+
+    private func openFileHandle(at path: String) -> FileHandle? {
+        guard fileManager.write(Data(), toPath: path) else {
+            SentrySDKLog.error("Couldn't create breadcrumb file at \(path)")
+            return nil
+        }
+
+        let fileHandle = FileHandle(forWritingAtPath: path)
+        if fileHandle == nil {
+            SentrySDKLog.error("Couldn't get file handle for writing breadcrumb to \(path)")
+        }
         return fileHandle
     }
 
