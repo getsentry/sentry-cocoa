@@ -95,6 +95,26 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertEqual(globalEventProcessor.processors.count, 1)
     }
 
+    func testCurrentReplayInfo_whenSessionMode_shouldPersistMode() throws {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+
+        XCTAssertEqual(try currentReplayInfo()["replayType"] as? String, "session")
+    }
+
+    func testCurrentReplayInfo_whenBufferMode_shouldPersistMode() throws {
+        startSDK(sessionSampleRate: 0, errorSampleRate: 1)
+
+        XCTAssertEqual(try currentReplayInfo()["replayType"] as? String, "buffer")
+    }
+
+    func testCurrentReplayInfo_whenBufferConvertsToSession_shouldUpdateMode() throws {
+        startSDK(sessionSampleRate: 0, errorSampleRate: 1)
+
+        XCTAssertTrue(try XCTUnwrap(getSut().sessionReplay).captureReplay())
+
+        XCTAssertEqual(try currentReplayInfo()["replayType"] as? String, "session")
+    }
+
     func testRunLoopScheduler_whenStaleStopRunsAfterNewStart_shouldKeepNewObserver() {
         let oldToken = NSObject()
         let newToken = NSObject()
@@ -1054,6 +1074,11 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         options.dsn = "https://user@test.com/test"
         options.cacheDirectoryPath = FileManager.default.temporaryDirectory.path
         return options.cacheDirectoryPath + "/io.sentry/\(options.parsedDsn?.getHash() ?? "")/replay"
+    }
+
+    private func currentReplayInfo() throws -> [String: Any] {
+        let data = try Data(contentsOf: URL(fileURLWithPath: replayFolder() + "/replay.current"))
+        return try XCTUnwrap(SentrySerialization.deserializeDictionary(fromJsonData: data) as? [String: Any])
     }
 }
 

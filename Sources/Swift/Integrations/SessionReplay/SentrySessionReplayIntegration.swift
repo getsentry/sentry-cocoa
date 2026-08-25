@@ -318,7 +318,12 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         }
         
         if let replayId = newSessionReplay.sessionReplayId {
-            replayFileManager.saveCurrentSessionInfo(replayId, path: sessionDocs.path, options: replayOptions)
+            replayFileManager.saveCurrentSessionInfo(
+                replayId,
+                path: sessionDocs.path,
+                options: replayOptions,
+                replayType: fullSession ? .session : .buffer
+            )
         }
     }
     
@@ -475,6 +480,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
 
     public func sessionReplayStarted(replayId: SentryId) {
         SentrySDKLog.debug("[Session Replay] Session replay started with replayId: \(replayId.sentryIdString)")
+        replayFileManager.updateCurrentReplayType(.session)
         SentrySDKInternal.currentHub().configureScope { scope in scope.replayId = replayId.sentryIdString }
     }
 
