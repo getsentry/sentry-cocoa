@@ -89,17 +89,23 @@ class SentryInternalReplayApiIntegrationTests: XCTestCase {
         XCTAssertNil(SentrySDK.internal.replay.replayId)
     }
 
-    func testReplayId_whenSetOnScope_shouldReturnReplayId() {
+    func testReplayId_whenOnlySetOnScope_shouldReturnNil() {
         startSDKWithReplay()
 
         // -- Arrange --
         SentrySDKInternal.currentHub().scope.replayId = Self.validReplayId
 
-        // -- Act --
-        let result = SentrySDK.internal.replay.replayId
+        // -- Act & Assert --
+        XCTAssertNil(SentrySDK.internal.replay.replayId)
+    }
 
-        // -- Assert --
-        XCTAssertEqual(result, Self.validReplayId)
+    // MARK: - isBuffering
+
+    func testIsBuffering_withoutReplay_shouldReturnFalse() {
+        startSDKWithoutReplay()
+
+        // -- Act & Assert --
+        XCTAssertFalse(SentrySDK.internal.replay.isBuffering)
     }
 
     // MARK: - addIgnoreClasses

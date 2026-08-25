@@ -7,13 +7,11 @@ import Foundation
 /// Provides session replay access for hybrid SDKs.
 public struct SentryInternalReplayApi {
 
-    typealias Dependencies = HubProvider & ReplayIntegrationProviderProvider
+    typealias Dependencies = ReplayIntegrationProviderProvider
 
-    private let hub: Hub
     private let replayIntegrationProvider: ReplayIntegrationProvider
 
     init(dependencies: Dependencies) {
-        self.hub = dependencies.hub
         self.replayIntegrationProvider = dependencies.replayIntegrationProvider
     }
 
@@ -36,13 +34,16 @@ public struct SentryInternalReplayApi {
         replayIntegrationProvider.getReplayIntegration()?.captureReplay() ?? false
     }
 
-    /// The current replay ID, or `nil` if no replay is active.
+    /// The active integration's replay ID, available in both session and buffer modes.
     public var replayId: String? {
-        var result: String?
-        hub.configureScope { scope in
-            result = scope.replayId
-        }
-        return result
+        replayIntegrationProvider.getReplayIntegration()?.currentReplayId?.sentryIdString
+    }
+
+    /// Whether the active replay is in buffer mode.
+    ///
+    /// Returns `false` when no replay is active.
+    public var isBuffering: Bool {
+        replayIntegrationProvider.getReplayIntegration()?.isCurrentReplayBuffering ?? false
     }
 
     /// Adds classes to the replay ignore list.

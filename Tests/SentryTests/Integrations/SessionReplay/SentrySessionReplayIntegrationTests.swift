@@ -573,16 +573,36 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertTrue(redactBuilder.containsIgnoreClass(AnotherLabel.self))
     }
     
+    func testReplayState_whenBuffering_shouldExposeIdAndBufferingState() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 0, errorSampleRate: 1)
+        let sut = try getSut()
+        let replayId = try XCTUnwrap(sut.currentReplayId)
+
+        // -- Act & Assert --
+        XCTAssertTrue(sut.isCurrentReplayBuffering)
+        XCTAssertEqual(SentrySDK.internal.replay.replayId, replayId.sentryIdString)
+        XCTAssertTrue(SentrySDK.internal.replay.isBuffering)
+    }
+
     func testStop() throws {
         startSDK(sessionSampleRate: 1, errorSampleRate: 1)
         let sut = try getSut()
         let sessionReplay = sut.sessionReplay
+        let replayId = try XCTUnwrap(sut.currentReplayId)
         XCTAssertTrue(sessionReplay?.isRunning ?? false)
+        XCTAssertFalse(sut.isCurrentReplayBuffering)
+        XCTAssertEqual(SentrySDK.internal.replay.replayId, replayId.sentryIdString)
+        XCTAssertFalse(SentrySDK.internal.replay.isBuffering)
         
         SentrySDK.replay.stop()
         
         XCTAssertFalse(sessionReplay?.isRunning ?? true)
         XCTAssertNil(sut.sessionReplay)
+        XCTAssertNil(sut.currentReplayId)
+        XCTAssertFalse(sut.isCurrentReplayBuffering)
+        XCTAssertNil(SentrySDK.internal.replay.replayId)
+        XCTAssertFalse(SentrySDK.internal.replay.isBuffering)
     }
     
     func testStartWithNoSessionReplay() throws {
@@ -1012,6 +1032,8 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         }
         XCTAssertNil(replayId)
         XCTAssertNil(sut.sessionReplay)
+        XCTAssertNil(sut.currentReplayId)
+        XCTAssertFalse(sut.isCurrentReplayBuffering)
     }
 
     private func createLastSessionReplay(

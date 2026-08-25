@@ -17,8 +17,20 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     // MARK: - Properties
     var replayProcessingQueue: SentryDispatchQueueWrapper
     var replayAssetWorkerQueue: SentryDispatchQueueWrapper
-    @objc public var sessionReplay: SentrySessionReplay?
+    private let sessionReplayReference = SentryMutex<SentrySessionReplay?>(nil)
+    @objc public var sessionReplay: SentrySessionReplay? {
+        get { sessionReplayReference.withLock { $0 } }
+        set { sessionReplayReference.withLock { $0 = newValue } }
+    }
     @objc public let viewPhotographer: SentryViewPhotographer
+
+    var currentReplayId: SentryId? {
+        sessionReplayReference.withLock { $0?.sessionReplayId }
+    }
+
+    var isCurrentReplayBuffering: Bool {
+        sessionReplayReference.withLock { $0?.isBuffering ?? false }
+    }
     
     private let replayOptions: SentryReplayOptions
     private let rateLimits: RateLimits
@@ -371,9 +383,12 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     }
 
     private func stopCurrentReplay() {
-        sessionReplay?.pause()
+        let replay = sessionReplayReference.withLock { replay in
+            defer { replay = nil }
+            return replay
+        }
+        replay?.pause()
         removeBackgroundForegroundObservers()
-        sessionReplay = nil
     }
 
     // MARK: - API Exposed to ObjC

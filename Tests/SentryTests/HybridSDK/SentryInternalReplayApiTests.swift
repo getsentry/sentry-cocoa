@@ -30,6 +30,12 @@ class SentryInternalReplayApiTests: XCTestCase {
         XCTAssertNil(sut.replayId)
     }
 
+    // MARK: - isBuffering
+
+    func testIsBuffering_beforeStart_shouldReturnFalse() {
+        XCTAssertFalse(sut.isBuffering)
+    }
+
     // MARK: - addIgnoreClasses
 
     func testAddIgnoreClasses_beforeStart_shouldNotCrash() {

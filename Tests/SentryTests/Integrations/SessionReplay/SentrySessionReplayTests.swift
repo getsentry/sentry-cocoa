@@ -312,6 +312,50 @@ class SentrySessionReplayTests: XCTestCase {
         clearTestState()
     }
         
+    func testIsBuffering_beforeStart_shouldReturnFalse() {
+        let sut = Fixture().getSut()
+
+        XCTAssertFalse(sut.isBuffering)
+    }
+
+    func testIsBuffering_whenBuffering_shouldReturnTrue() {
+        let fixture = Fixture()
+        let sut = fixture.getSut()
+        sut.start(rootView: fixture.rootView, fullSession: false)
+
+        XCTAssertTrue(sut.isBuffering)
+    }
+
+    func testIsBuffering_whenFullSession_shouldReturnFalse() {
+        let fixture = Fixture()
+        let sut = fixture.getSut()
+        sut.start(rootView: fixture.rootView, fullSession: true)
+
+        XCTAssertFalse(sut.isBuffering)
+    }
+
+    func testIsBuffering_whenBufferConvertsToSession_shouldReturnFalseAndKeepId() throws {
+        let fixture = Fixture()
+        let sut = fixture.getSut()
+        sut.start(rootView: fixture.rootView, fullSession: false)
+        let replayId = try XCTUnwrap(sut.sessionReplayId)
+
+        _ = sut.captureReplay(replayType: .session)
+
+        XCTAssertEqual(sut.sessionReplayId, replayId)
+        XCTAssertFalse(sut.isBuffering)
+    }
+
+    func testIsBuffering_whenPaused_shouldRetainMode() {
+        let fixture = Fixture()
+        let sut = fixture.getSut()
+        sut.start(rootView: fixture.rootView, fullSession: false)
+
+        sut.pause()
+
+        XCTAssertTrue(sut.isBuffering)
+    }
+
     func testDontSentReplay_NoFullSession() {
         let fixture = Fixture()
         let sut = fixture.getSut()

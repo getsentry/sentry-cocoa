@@ -3911,6 +3911,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "isBuffering",
+    "parent": "SentryObjCInternalReplayApi",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "isCounter",
     "parent": "SentryObjCMetricValue",
     "returnType": "BOOL",
@@ -9951,6 +9958,12 @@
     "name": "ipAddress",
     "parent": "SentryObjCUser",
     "type": "NSString * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "isBuffering",
+    "parent": "SentryObjCInternalReplayApi",
+    "type": "BOOL"
   },
   {
     "kind": "ObjCPropertyDecl",
