@@ -6,6 +6,7 @@
 
 - Prevent duplicate automatic HTTP spans and breadcrumbs for URLSession task wrappers (#8846)
 - Prevent breadcrumb persistence for watchdog termination events from blocking the calling thread (#8653)
+- Fix `unrecognized selector` crash during Session Replay network-detail capture in statically linked builds (e.g. React Native) by moving the `SentryReplayNetworkDetails` capture methods out of a Swift `@objc` extension, whose category metadata the static linker stripped (#8872)
 
 ## 9.26.0
 
