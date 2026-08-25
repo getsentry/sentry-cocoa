@@ -22,6 +22,9 @@ extension SentryKSCrash {
         private weak var options: Options?
         private let installer: Dependencies.Installing
         private let reportProcessingSession = ReportProcessingSession()
+        #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
+        private let nsExceptionHandlerOwner = NSObject()
+        #endif
 
         // MARK: - Initialization
 
@@ -51,6 +54,18 @@ extension SentryKSCrash {
                 return nil
             }
 
+            #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
+            SentryNSExceptionCaptureHelper.setUncaughtExceptionHandler(
+                installer.uncaughtExceptionHandler,
+                owner: nsExceptionHandlerOwner
+            )
+            if options.enableSwizzling && options.enableUncaughtNSExceptionReporting {
+                SentryUncaughtNSExceptions.configureCrashOnExceptions()
+                SentryUncaughtNSExceptions.swizzleNSApplicationReportException()
+                SentryUncaughtNSExceptions.swizzleNSApplicationCrashOnException()
+            }
+            #endif
+
 #if SENTRY_DISABLE_SENTRYCRASH_V10
             // KSCRASH_TODO(GH-8276): V10 does not retain SentryKSCrash.Scope.Configuration, so its
             // observer is not installed in production. Acceptance: SCV10-013 in
@@ -59,8 +74,6 @@ extension SentryKSCrash {
             // the inactive scope configuration. Acceptance: SCV10-015 in the migration ledger.
             // KSCRASH_TODO(GH-8736): V10 does not install the inactive configuration's low-power
             // scope observer. Acceptance: SCV10-026 in the migration ledger.
-            // KSCRASH_TODO(GH-8529): V10 does not forward AppKit reportException:/_crashOnException:
-            // calls to KSCrash. Acceptance: SCV10-012 in the migration ledger.
             // KSCRASH_TODO(GH-8674): V10 handles actual crashes below but omits previous-run
             // watchdog and fatal-app-hang session finalization. Acceptance: SCV10-025 in the ledger.
             // KSCRASH_TODO(GH-8735): V10 does not register a callback to persist an active trace
@@ -128,6 +141,9 @@ extension SentryKSCrash {
             // SENTRYCRASH_V10_MIGRATION_LEDGER.md.
 #endif
             reportProcessingSession.cancel()
+            #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
+            SentryNSExceptionCaptureHelper.clearUncaughtExceptionHandler(forOwner: nsExceptionHandlerOwner)
+            #endif
             installer.uninstall()
         }
 

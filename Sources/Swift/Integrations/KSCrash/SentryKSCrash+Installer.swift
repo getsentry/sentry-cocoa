@@ -43,6 +43,11 @@ extension SentryKSCrash {
 
         /// Adds additional user information to the crash handler
         func setUserInfo(_ userInfo: [String: Any])
+
+        #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
+        /// The fatal NSException handler installed by the active crash backend.
+        var uncaughtExceptionHandler: (@convention(c) (NSException) -> Void)? { get }
+        #endif
     }
 
     /// Configures and installs a crash handler.
@@ -156,6 +161,12 @@ extension SentryKSCrash {
 
         var crashedLastLaunch: Bool { KSCrash.shared.crashedLastLaunch }
         var activeDurationSinceLastCrash: TimeInterval { KSCrash.shared.activeDurationSinceLastCrash }
+
+        #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
+        var uncaughtExceptionHandler: (@convention(c) (NSException) -> Void)? {
+            KSCrash.shared.uncaughtExceptionHandler
+        }
+        #endif
 
         func setUserInfo(_ userInfo: [String: Any]) {
             guard installed else {
