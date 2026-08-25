@@ -130,21 +130,24 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     @objc public var dateProvider: SentryCurrentDateProvider = Dependencies.dateProvider
     @objc public var notificationCenterWrapper = Dependencies.notificationCenterWrapper
     @objc public var processInfoWrapper = Dependencies.processInfoWrapper
+    private static var isSimulatorBuild: Bool {
+#if targetEnvironment(simulator)
+        true
+#else
+        false
+#endif
+    }
+#if !SDK_V10
     private var _crashWrapper: SentryCrashReporter?
     @objc public lazy var crashWrapper: SentryCrashReporter = getLazyVar(\._crashWrapper) {
-#if SENTRY_DISABLE_SENTRYCRASH_V10
-        // KSCRASH_TODO(GH-8800): Remove the temporary broad reporter after its remaining
-        // legacy-shaped consumers use narrow capabilities. Acceptance: SCV10-040 in the ledger.
-        return SentryKSCrash.UnavailableReporter()
-#else
         let bridge = SentryCrashBridge(
             notificationCenterWrapper: self.notificationCenterWrapper,
             dateProvider: self.dateProvider,
             crashReporter: self.crashReporter
         )
         return SentryDefaultCrashReporter(bridge: bridge)
-#endif
     }
+#endif // !SDK_V10
 #if SENTRY_TEST || SENTRY_TEST_CI
     var activeCrashReporterStateOverride: SentryCrashReporterState?
 #endif
@@ -322,11 +325,23 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         SentryViewHierarchyProvider(dispatchQueueWrapper: dispatchQueueWrapper, applicationProvider: defaultApplicationProvider)
     }
 
-    @objc public func getWatchdogTerminationScopeObserverWithOptions(_ options: Options) -> SentryScopeObserver {
-         return SentryWatchdogTerminationScopeObserver(
-            breadcrumbProcessor: SentryDefaultWatchdogTerminationBreadcrumbProcessor(
-                maxBreadcrumbs: Int(options.maxBreadcrumbs)),
-            attributesProcessor: watchdogTerminationAttributesProcessor)
+    private var _watchdogTerminationBreadcrumbProcessor: SentryWatchdogTerminationBreadcrumbProcessor?
+    func getWatchdogTerminationBreadcrumbProcessor(_ options: Options) -> SentryWatchdogTerminationBreadcrumbProcessor? {
+        getOptionalLazyVar(\._watchdogTerminationBreadcrumbProcessor) {
+            guard let fileManager = fileManager else {
+                SentrySDKLog.fatal("File manager is not available")
+                return nil
+            }
+
+            return SentryDefaultWatchdogTerminationBreadcrumbProcessor(
+                maxBreadcrumbs: Int(options.maxBreadcrumbs),
+                fileManager: fileManager,
+                dispatchQueueWrapper: dispatchFactory.createUtilityQueue(
+                    "io.sentry.watchdog-termination-tracking.breadcrumbs-processor",
+                    relativePriority: 0
+                )
+            )
+        }
     }
 
     private var terminationTracker: SentryWatchdogTerminationTracker?
@@ -347,8 +362,8 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 
             let logic = SentryWatchdogTerminationLogic(
                 options: options,
-                crashAdapter: crashWrapper,
                 activeCrashReporterState: activeCrashReporterState,
+                isSimulatorBuild: Self.isSimulatorBuild,
                 appStateManager: appStateManager
             )
             return SentryWatchdogTerminationTracker(
@@ -397,7 +412,6 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         return SentryAppStartTracker(
             dispatchQueueWrapper: SentryDispatchQueueWrapper(),
             appStateManager: appStateManager,
-            framesTracker: framesTracker,
             enablePreWarmedAppStartTracing: options.enablePreWarmedAppStartTracing,
             dateProvider: dateProvider,
             sysctlWrapper: sysctlWrapper,
@@ -444,8 +458,8 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
             let watchdogLogic = SentryWatchdogTerminationLogic(
                 options: options,
-                crashAdapter: crashWrapper,
                 activeCrashReporterState: activeCrashReporterState,
+                isSimulatorBuild: Self.isSimulatorBuild,
                 appStateManager: appStateManager
             )
             return SentryCrashIntegrationSessionHandler(
@@ -974,15 +988,20 @@ protocol AppStateManagerProvider {
 extension SentryDependencyContainer: AppStateManagerProvider { }
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-protocol WatchdogTerminationScopeObserverBuilder {
-    func getWatchdogTerminationScopeObserverWithOptions(_ options: Options) -> SentryScopeObserver
-}
-extension SentryDependencyContainer: WatchdogTerminationScopeObserverBuilder { }
-
 protocol WatchdogTerminationTrackerBuilder {
     func getWatchdogTerminationTracker(_ options: Options) -> SentryWatchdogTerminationTracker?
 }
 extension SentryDependencyContainer: WatchdogTerminationTrackerBuilder {}
+
+protocol WatchdogTerminationAttributesProcessorProvider {
+    var watchdogTerminationAttributesProcessor: SentryWatchdogTerminationAttributesProcessor { get }
+}
+extension SentryDependencyContainer: WatchdogTerminationAttributesProcessorProvider {}
+
+protocol WatchdogTerminationBreadcrumbProcessorProvider {
+    func getWatchdogTerminationBreadcrumbProcessor(_ options: Options) -> SentryWatchdogTerminationBreadcrumbProcessor?
+}
+extension SentryDependencyContainer: WatchdogTerminationBreadcrumbProcessorProvider {}
 #endif
 
 protocol NetworkTrackerProvider {
