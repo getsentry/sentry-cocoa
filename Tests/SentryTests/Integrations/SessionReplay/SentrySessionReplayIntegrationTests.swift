@@ -63,6 +63,12 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     private func getSut() throws -> SentrySessionReplayIntegration {
         return try XCTUnwrap(SentrySDKInternal.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration)
     }
+
+    private func waitForReplayCommand() {
+        let commandExpectation = expectation(description: "Replay command executed")
+        DispatchQueue.main.async { commandExpectation.fulfill() }
+        wait(for: [commandExpectation], timeout: 1)
+    }
     
     private func startSDK(sessionSampleRate: Float, errorSampleRate: Float, enableSwizzling: Bool = true, noIntegrations: Bool = false, configure: ((Options) -> Void)? = nil) {
         SentrySDK.start {
@@ -656,6 +662,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertTrue(sessionReplay?.isRunning ?? false)
         
         SentrySDK.replay.stop()
+        waitForReplayCommand()
         
         XCTAssertFalse(sessionReplay?.isRunning ?? true)
         XCTAssertNil(sut.sessionReplay)
@@ -667,6 +674,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertNil(sut.sessionReplay)
 
         SentrySDK.replay.start()
+        waitForReplayCommand()
 
         let sessionReplay = sut.sessionReplay
         XCTAssertTrue(sessionReplay?.isRunning ?? false)
@@ -681,6 +689,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         let replayId = sessionReplay.sessionReplayId
         
         SentrySDK.replay.start()
+        waitForReplayCommand()
         
         //Test whether the integration keeps the same instance of the session replay
         XCTAssertEqual(sessionReplay, sut.sessionReplay)
@@ -734,7 +743,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertNil(sut.sessionReplay)
     }
     
-    func testDontRestartAfterRateLimit() throws {
+    func testExplicitStartAfterRateLimit() throws {
         let rateLimiter = TestRateLimits()
         SentryDependencyContainer.sharedInstance().rateLimits = rateLimiter
         rateLimiter.rateLimits.append(.all)
@@ -757,38 +766,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertNil(sut.sessionReplay)
         
         sut.start()
-        
-        XCTAssertFalse(sessionReplay?.isRunning ?? true)
-        XCTAssertNil(sut.sessionReplay)
-    }
-    
-    func testAlowStartForNewSessionAfterRateLimit() throws {
-        let rateLimiter = TestRateLimits()
-        SentryDependencyContainer.sharedInstance().rateLimits = rateLimiter
-        rateLimiter.rateLimits.append(.all)
-        
-        startSDK(sessionSampleRate: 0, errorSampleRate: 1)
-        let sut = try getSut()
-        let sessionReplay = sut.sessionReplay
-        sut.start()
-        
-        XCTAssertTrue(sessionReplay?.isRunning ?? false)
-  
-        let videoUrl = URL(fileURLWithPath: "video.mp4")
-        let videoInfo = SentryVideoInfo(path: videoUrl, height: 1_024, width: 480, duration: 5, frameCount: 5, frameRate: 1, start: Date(), end: Date(), fileSize: 10, screens: [])
-        let replayEvent = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(), replayType: .session, segmentId: 0)
-        
-        sut.sessionReplayNewSegment(replayEvent: replayEvent,
-                                                                     replayRecording: SentryReplayRecording(segmentId: 0, video: videoInfo, extraEvents: []),
-                                                                     videoUrl: videoUrl)
-        XCTAssertNil(sut.sessionReplay)
-        
-        sut.start()
-        XCTAssertNil(sut.sessionReplay)
-        
-        sut.sentrySessionStarted(session: SentrySession(releaseName: "", distinctId: ""))
-        
-        sut.start()
+
         XCTAssertTrue(sut.sessionReplay?.isRunning ?? false)
     }
     
@@ -796,10 +774,73 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         startSDK(sessionSampleRate: 0, errorSampleRate: 1)
         let sut = try getSut()
         let sessionReplay = try XCTUnwrap(sut.sessionReplay)
+        let replayId = sessionReplay.sessionReplayId
         
         XCTAssertFalse(sessionReplay.isFullSession)
         SentrySDK.replay.start()
+        waitForReplayCommand()
+        XCTAssertFalse(sessionReplay.isFullSession)
+        XCTAssertEqual(sessionReplay.sessionReplayId, replayId)
+    }
+
+    func testStartBufferingWithIdleZeroRateReplay() throws {
+        startSDK(sessionSampleRate: 0, errorSampleRate: 0)
+        let sut = try getSut()
+
+        sut.startBuffering()
+
+        let sessionReplay = try XCTUnwrap(sut.sessionReplay)
+        XCTAssertTrue(sessionReplay.isRunning)
+        XCTAssertFalse(sessionReplay.isFullSession)
+    }
+
+    func testStartBufferingWithActiveBuffer_shouldKeepReplay() throws {
+        startSDK(sessionSampleRate: 0, errorSampleRate: 1)
+        let sut = try getSut()
+        let sessionReplay = try XCTUnwrap(sut.sessionReplay)
+        let replayId = sessionReplay.sessionReplayId
+
+        sut.startBuffering()
+
+        XCTAssertIdentical(sut.sessionReplay, sessionReplay)
+        XCTAssertEqual(sessionReplay.sessionReplayId, replayId)
+        XCTAssertFalse(sessionReplay.isFullSession)
+    }
+
+    func testFlushWithIdleZeroRateReplay_shouldStartSessionMode() throws {
+        startSDK(sessionSampleRate: 0, errorSampleRate: 0)
+        let sut = try getSut()
+
+        sut.flush()
+
+        let sessionReplay = try XCTUnwrap(sut.sessionReplay)
+        XCTAssertTrue(sessionReplay.isRunning)
         XCTAssertTrue(sessionReplay.isFullSession)
+    }
+
+    func testFlushWithBuffer_shouldPromoteWithoutSampling() throws {
+        startSDK(sessionSampleRate: 0, errorSampleRate: 0)
+        let sut = try getSut()
+        sut.startBuffering()
+        let sessionReplay = try XCTUnwrap(sut.sessionReplay)
+        let replayId = sessionReplay.sessionReplayId
+
+        sut.flush()
+
+        XCTAssertIdentical(sut.sessionReplay, sessionReplay)
+        XCTAssertEqual(sessionReplay.sessionReplayId, replayId)
+        XCTAssertTrue(sessionReplay.isFullSession)
+    }
+
+    func testStopThenStart_shouldCreateNewReplayId() throws {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+        let replayId = try XCTUnwrap(sut.sessionReplay?.sessionReplayId)
+
+        sut.stop()
+        sut.start()
+
+        XCTAssertNotEqual(sut.sessionReplay?.sessionReplayId, replayId)
     }
     
     func testCleanUp() throws {

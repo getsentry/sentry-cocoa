@@ -327,7 +327,7 @@ private struct SessionSegmentState {
     }
 
     @discardableResult
-    func captureReplay(replayType: SentryReplayType) -> Bool {
+    func captureReplay(replayType: SentryReplayType, bypassSampling: Bool = false) -> Bool {
         guard isRunning else {
             SentrySDKLog.debug("[Session Replay] Session replay is not running, not capturing replay")
             return false
@@ -337,7 +337,7 @@ private struct SessionSegmentState {
             return true
         }
 
-        guard delegate?.sessionReplayShouldCaptureReplayForError() == true else {
+        guard bypassSampling || delegate?.sessionReplayShouldCaptureReplayForError() == true else {
             SentrySDKLog.debug("[Session Replay] Not capturing replay, reason: delegate should not capture replay")
             return false
         }

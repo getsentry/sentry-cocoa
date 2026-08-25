@@ -12,6 +12,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ * API for controlling Session Replay.
+ *
+ * Replay lifecycle methods may be called from any thread. They return before the requested
+ * operation completes and execute serially in call order.
+ */
 @interface SentryReplayApi : NSObject
 
 /**
@@ -25,22 +31,39 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)unmaskView:(UIView *)view NS_SWIFT_NAME(unmaskView(_:));
 
 /**
- * Pauses the replay.
+ * Pauses the current replay until @c resume is called.
  */
 - (void)pause;
 
 /**
- * Resumes the ongoing replay.
+ * Resumes a replay paused with @c pause.
  */
 - (void)resume;
 
 /**
- * Start recording a session replay if not started.
+ * Starts a new replay session. Does nothing if a replay is already active.
+ *
+ * This explicit start bypasses session sampling. Recording and delivery remain subject to
+ * active Replay rate limits.
  */
 - (void)start;
 
 /**
- * Stop the current session replay recording.
+ * Starts Replay in buffer mode. Does nothing if a replay is already active.
+ *
+ * The rolling buffer is sent when @c flush is called or when an error is captured and selected
+ * by the configured error sample rate. This explicit start bypasses session sampling.
+ */
+- (void)startBuffering;
+
+/**
+ * Flushes buffered replay data and continues recording in session mode. If Replay is inactive,
+ * starts a new replay session. This explicit operation bypasses sampling.
+ */
+- (void)flush;
+
+/**
+ * Stops the current replay. A subsequent @c start or @c startBuffering call creates a new replay.
  */
 - (void)stop;
 

@@ -15,6 +15,30 @@ import Foundation
         self.wrapped = Box(wrapped)
     }
 
+    @objc public func start() {
+        wrapped.value.start()
+    }
+
+    @objc public func startBuffering() {
+        wrapped.value.startBuffering()
+    }
+
+    @objc public func pause() {
+        wrapped.value.pause()
+    }
+
+    @objc public func resume() {
+        wrapped.value.resume()
+    }
+
+    @objc public func flush() {
+        wrapped.value.flush()
+    }
+
+    @objc public func stop() {
+        wrapped.value.stop()
+    }
+
     @objc public func capture() -> Bool {
         wrapped.value.capture()
     }

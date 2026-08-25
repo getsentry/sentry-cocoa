@@ -46,11 +46,6 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     /// dynamically get it later, even if the application is not changing during the life-time of the app
     private let getApplication: () -> SentryApplication?
 
-    /// We need to use this variable to identify whether rate limiting was ever activated for session replay
-    /// in this session, instead of always looking for the rate status in `SentryRateLimits`. This is the
-    /// easiest way to ensure segment 0 will always reach the server, because session replay needs segment 0.
-    private var rateLimited = false
-
     /// Indicates that session replay should start once the SDK can resolve a usable application
     /// window. This is needed because SDK startup can run before `UIApplication.shared` or a
     /// foreground scene window is available; lifecycle notifications should retry startup while this
@@ -68,11 +63,16 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     
     @objc
     public convenience init(forManualUseWith options: Options, dependencies: SentryDependencyContainer) {
+        self.init(forManualUseWith: options, dependencies: dependencies, fullSession: true)
+    }
+
+    @objc
+    public convenience init(forManualUseWith options: Options, dependencies: SentryDependencyContainer, fullSession: Bool) {
         self.init(nonOptionalWith: options, dependencies: dependencies)
         startWithOptions(
             options.sessionReplay,
             experimentalOptions: options.experimental,
-            fullSession: true
+            fullSession: fullSession
         )
     }
     
@@ -194,7 +194,6 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
 
     public func sentrySessionStarted(session: SentrySession) {
         SentrySDKLog.debug("[Session Replay] Session started")
-        rateLimited = false
         startSession()
     }
 
@@ -394,17 +393,25 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
 
     @objc public func start() {
         SentrySDKLog.debug("[Session Replay] Starting session")
-        if rateLimited {
-            SentrySDKLog.warning("[Session Replay] This session was rate limited. Not starting session replay until next app session")
-            return
+        start(fullSession: true)
+    }
+
+    @objc public func startBuffering() {
+        SentrySDKLog.debug("[Session Replay] Starting buffer")
+        start(fullSession: false)
+    }
+
+    @objc public func flush() {
+        SentrySDKLog.debug("[Session Replay] Flushing session")
+        guard let sessionReplay else {
+            return start()
         }
-        if let replay = sessionReplay {
-            if !replay.isFullSession {
-                replay.captureReplay(replayType: .session)
-            }
-            return
-        }
-        startedAsFullSession = true
+        _ = sessionReplay.captureReplay(replayType: .session, bypassSampling: true)
+    }
+
+    private func start(fullSession: Bool) {
+        guard sessionReplay == nil else { return }
+        startedAsFullSession = fullSession
         isPendingStart = true
         runReplayForAvailableWindow()
     }
@@ -466,7 +473,6 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         SentrySDKLog.debug("[Session Replay] New segment with replay event, eventId: \(replayEvent.eventId), segmentId: \(replayEvent.segmentId)")
 
         if rateLimits.isRateLimitActive(.replay) || rateLimits.isRateLimitActive(.all) {
-            rateLimited = true
             stop()
             return
         }
