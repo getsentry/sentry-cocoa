@@ -83,6 +83,10 @@ final class SentryKSCrashLegacyRecorderExclusionTests: XCTestCase {
         }
     }
 
+    func testKSCrashBuild_whenInspectingRuntime_shouldNotExposeBroadReporterProtocol() {
+        XCTAssertNil(NSProtocolFromString("SentryCrashReporter"))
+    }
+
     func testKSCrashBuild_whenInspectingRuntime_shouldNotContainSentryCrashRecorderClasses() {
         let classes = [
             "SentryCrash",

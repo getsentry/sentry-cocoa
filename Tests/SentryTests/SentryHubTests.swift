@@ -17,7 +17,7 @@ class SentryHubTests: XCTestCase {
         let message = "some message"
         let event: Event
         let currentDateProvider = TestCurrentDateProvider()
-        let sentryCrashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
+        let crashReporterState = TestSentryCrashReporterState()
         let scopeContextEnricher = TestSentryScopeContextEnricher()
         let fileManager: SentryFileManager
         let crashedSession: SentrySession
@@ -62,7 +62,7 @@ class SentryHubTests: XCTestCase {
         }
         
         func getSut(_ options: Options, _ scope: Scope? = nil) -> SentryHubInternal {
-            let hub = SentryHubInternal(client: client, andScope: scope, andCrashWrapper: sentryCrashWrapper, scopeContextEnricher: scopeContextEnricher, andDispatchQueue: dispatchQueueWrapper)
+            let hub = SentryHubInternal(client: client, andScope: scope, activeCrashReporterState: crashReporterState, scopeContextEnricher: scopeContextEnricher, andDispatchQueue: dispatchQueueWrapper)
             hub.bindClient(client)
             return hub
         }
@@ -961,9 +961,8 @@ class SentryHubTests: XCTestCase {
 
     func testCloseCachedSession_whenActiveCrashReporterCrashedLastLaunch_shouldPreserveCurrentSession() {
         // -- Arrange --
-        let activeCrashReporterState = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
+        let activeCrashReporterState = TestSentryCrashReporterState()
         activeCrashReporterState.internalCrashedLastLaunch = true
-        SentryDependencyContainer.sharedInstance().crashWrapper = fixture.sentryCrashWrapper
         SentryDependencyContainer.sharedInstance().activeCrashReporterStateOverride = activeCrashReporterState
         let sut = SentryHubInternal(client: fixture.client, andScope: nil)
         let currentSession = SentrySession(releaseName: "1.0.0", distinctId: "test-installation")
@@ -973,7 +972,7 @@ class SentryHubTests: XCTestCase {
         sut.closeCachedSession(withTimestamp: fixture.currentDateProvider.date())
 
         // -- Assert --
-        XCTAssertFalse(fixture.sentryCrashWrapper.crashedLastLaunch)
+        XCTAssertFalse(fixture.crashReporterState.crashedLastLaunch)
         XCTAssertEqual(fixture.client.fileManager.readCurrentSession()?.sessionId, currentSession.sessionId)
         XCTAssertEqual(fixture.client.captureSessionInvocations.count, 0)
     }
@@ -1606,7 +1605,7 @@ class SentryHubTests: XCTestCase {
     }
     
     private func givenCrashedSession() {
-        fixture.sentryCrashWrapper.internalCrashedLastLaunch = true
+        fixture.crashReporterState.internalCrashedLastLaunch = true
         fixture.fileManager.storeCrashedSession(fixture.crashedSession)
         sut.closeCachedSession(withTimestamp: fixture.currentDateProvider.date())
         sut.startSession()

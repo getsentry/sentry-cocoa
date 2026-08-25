@@ -37,6 +37,7 @@
 - [33. `SentryCrashBinaryImageCache` initializes off the main thread](#33-sentrycrashbinaryimagecache-initializes-off-the-main-thread)
 - [34. Session Replay Network Details: Body Capture Strategy](#34-session-replay-network-details-body-capture-strategy)
 - [35. KSCrash Migration Strategy: Dual Integrations on `main`](#35-kscrash-migration-strategy-dual-integrations-on-main)
+- [36. Breadcrumb persistence durability and caller latency](#36-breadcrumb-persistence-durability-and-caller-latency)
 
 ---
 
@@ -795,7 +796,12 @@ Pros:
   - `SentryHub` invokes `SentryScopeContextEnricher` directly. The default SDK-owned enricher and system-info provider populate OS, device, app, and runtime contexts without importing or initializing SentryCrash.
   - The system-info provider uses the binary-image cache for the main executable UUID and loaded-image jailbreak check, and preserves the existing device/app hash, build type, memory, model, architecture, and timestamp mappings.
   - V10 intentionally omits the legacy `device.locale`; `culture.locale` remains its replacement. All other supported initial-context fields use shared V9/V10 policy.
-  - `SentryCrashReporter`, `SentryDefaultCrashReporter`, and the temporary V10 unavailable reporter do not expose memory, system-info, or scope-enrichment capabilities.
+  - `SentryCrashReporter` and `SentryDefaultCrashReporter` are V9-only and do not expose memory, system-info, or scope-enrichment capabilities.
+- Active crash-state and reporter boundaries:
+  - Shared SDK consumers depend only on `SentryCrashReporterState`; V10 satisfies it with `SentryKSCrash.Query`.
+  - `SentryHub` receives active crash state directly. Watchdog logic receives active crash state and the SDK-owned `targetEnvironment(simulator)` value directly.
+  - The broad `SentryCrashReporter` protocol, its dependency-container factory, and `SentryDefaultCrashReporter` remain V9-only for legacy duration and introspection clients.
+  - V10 has no broad reporter facade or zero-value placeholder. `SentryKSCrash.UnavailableReporter` and its `SENTRY_DISABLE_SENTRYCRASH_V10` factory marker were removed in Stack 2D.
 - Exact retained Tool implementations and SDK clients:
   - `SentryCrashCPU.c`, `SentryCrashCPU_arm.c`, `SentryCrashCPU_arm64.c`, `SentryCrashCPU_x86_32.c`, `SentryCrashCPU_x86_64.c`: thread inspection and stack capture.
   - `SentryCrashFileUtils.c`: session-replay sync and view-hierarchy output.
@@ -803,9 +809,22 @@ Pros:
   - `SentryCrashMachineContext.c`: thread inspector, stacktrace builder, and machine-context wrapper.
   - `SentryCrashMemory.c`: profiler backtrace validation and stack cursors.
   - `SentryCrashStackCursor.c`, `SentryCrashStackCursor_Backtrace.c`, `SentryCrashStackCursor_MachineContext.c`, `SentryCrashStackCursor_SelfThread.m`: current/all-thread stack capture.
-  - `SentryCrashSysCtl.c`: process-start and boot-time queries.
   - `SentryCrashThread.c`: thread inspection, stack building, and span thread metadata.
+- Process-time boundary:
+  - SDK-owned `SentrySysctlObjC` queries Darwin directly for system boot time and the current process start time, preserving microsecond precision and the epoch fallback on errors.
+  - KSCrash reads the same `kern.boottime` kernel value, so using its sysctl wrapper would not materially align boot-time semantics. Its `app_start_time` and `process_start_*` report fields describe System-monitor initialization, not the kernel process start used by Sentry app-start tracking.
+  - Keep these SDK timestamps backend-neutral for V10. Consolidating the duplicate Darwin queries behind a future upstream capability is optional follow-up work, not a V10 release blocker.
+  - `SentryCrashSysCtl.c` remains available to V9's legacy system monitor and is excluded from every V10 route.
 - Definition of done:
   - No V10 source/object from `Sources/SentryCrash/**`, retained Tool, temporary reporter, or migration marker remains.
   - Xcode, SwiftPM environment/trait/base-manifest, and dynamic/static products have the same KSCrash backend contract.
   - Exact object, symbol, class, compatibility, scope-sync, and header audits pass.
+
+## 36. Breadcrumb persistence durability and caller latency
+
+Date: August 5, 2026
+Contributors: @philprime, @itaybre, @NinjaLikesCheez, @philipphofmann
+
+Reports of watchdog breadcrumb file writes causing app hangs showed that average filesystem write performance does not account for tail latency. We serialize and persist breadcrumbs on a serial utility queue so a blocked filesystem operation cannot block the thread adding a breadcrumb; see https://github.com/getsentry/sentry-cocoa/issues/7794.
+
+This preserves the order of completed persistence operations but can lose any breadcrumbs still queued when the OS abruptly terminates the process. Watchdog and OOM terminations do not provide a final callback in which the SDK can safely perform a synchronous flush, so a crash-time synchronous fallback cannot restore this durability guarantee. This aligns with the [crash-safe telemetry buffer guidance for abnormal process termination](https://develop.sentry.dev/sdk/foundations/processing/telemetry-processor/mobile-telemetry-processor/#abnormal-process-termination). We accept this trade-off to prevent breadcrumb persistence from causing an app hang.

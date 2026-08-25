@@ -45,3 +45,4 @@
 - Normalize profiling CPU usage to 0–100 percent (#8323)
 - Bump KSCrash to `2.6.0`
 - Restore memory metrics and initial OS, device, app, and runtime contexts in `SentryV10` (#8836)
+- Remove unused `SentryFramesTracker` dependency from `SentryAppStartTracker` in V10 (#8859)

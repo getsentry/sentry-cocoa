@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Prevent breadcrumb persistence for watchdog termination events from blocking the calling thread (#8653)
+
 ## 9.26.0
 
 > [!WARNING]
