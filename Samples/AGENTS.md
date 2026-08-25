@@ -33,8 +33,6 @@ make xcode-ci
 make build-sample-iOS-Swift
 ```
 
-Rationale: The Makefile ensures correct build order and dependencies (e.g., SentrySampleShared must be generated before iOS-Swift).
-
 ## Sample Workflow
 
 For each sample app, you can:

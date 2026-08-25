@@ -1,6 +1,7 @@
+import _SentryPrivate
 import ActivityKit
-import Sentry
 import SentrySampleShared
+import SentrySwift
 import SwiftUI
 import WidgetKit
 
@@ -85,6 +86,6 @@ struct LiveActivityWidget: Widget {
     }
 
     var isANRTrackingEnabled: Bool {
-        return isSentryEnabled && SentrySDKInternal.trimmedInstalledIntegrationNames().contains("ANRTracking")
+        return isSentryEnabled && SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().contains("ANRTracking")
     }
 }

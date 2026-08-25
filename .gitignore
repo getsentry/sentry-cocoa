@@ -98,7 +98,6 @@ Samples/macOS-Swift/macOS-Swift.xcodeproj
 Samples/macOS-SwiftUI-SPM/macOS-SwiftUI-SPM.xcodeproj
 Samples/macOS-SwiftUI/macOS-SwiftUI.xcodeproj
 Samples/SDK-Size/SDK-Size.xcodeproj
-Samples/SentrySampleShared/SentrySampleShared.xcodeproj
 Samples/SessionReplay-CameraTest/SessionReplay-CameraTest.xcodeproj
 Samples/SPM/SPM.xcodeproj
 Samples/tvOS-Swift/tvOS-Swift.xcodeproj

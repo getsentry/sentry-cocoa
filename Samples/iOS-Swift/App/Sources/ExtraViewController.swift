@@ -1,5 +1,5 @@
 // swiftlint:disable file_length type_body_length force_try force_unwrapping unused_optional_binding private_outlet
-@_spi(Private) import Sentry
+@_spi(Private) import SentrySwift
 import AuthenticationServices
 import Foundation
 import PhotosUI
@@ -32,7 +32,8 @@ class ExtraViewController: UIViewController {
         }
 
         Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
-            self.framesLabel?.text = "Frames Total:\(PrivateSentrySDKOnly.currentScreenFrames.total) Slow:\(PrivateSentrySDKOnly.currentScreenFrames.slow) Frozen:\(PrivateSentrySDKOnly.currentScreenFrames.frozen)"
+            let frames = SentryDependencyContainer.sharedInstance().framesTracker.currentFrames()
+            self.framesLabel?.text = "Frames Total:\(frames.total) Slow:\(frames.slow) Frozen:\(frames.frozen)"
         }
     }
 
