@@ -85,6 +85,7 @@ enum Scenario: String, CaseIterable {
     case nsExceptionSubclass = "ns-exception-subclass"
     case cppExceptionV1 = "cpp-exception-v1"
     case cppExceptionV2 = "cpp-exception-v2"
+    case cppExceptionV2DynamicImage = "cpp-exception-v2-dynamic-image"
     case unityCxaThrow = "unity-cxa-throw"
     case unityCxaThrowV2 = "unity-cxa-throw-v2"
     case objcObject = "objc-object"
@@ -126,6 +127,7 @@ enum Scenario: String, CaseIterable {
     ]
 
     static let ksCrashDefaultScenarios = defaultScenarios + [
+        .cppExceptionV2DynamicImage,
         .unityCxaThrowV2,
         .ksCrashPerReportRetry,
         .crashTimeScope
@@ -137,8 +139,8 @@ enum Scenario: String, CaseIterable {
              .managedRuntimeReinitSignal:
             return true
         case .signal, .nsException, .nsExceptionSubclass, .cppExceptionV1, .cppExceptionV2,
-             .unityCxaThrow, .unityCxaThrowV2, .objcObject, .objcObjectAfterCaughtCPP,
-             .binaryImages, .ignoredSignal, .swiftAsyncCPPExceptionV2Off,
+             .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2, .objcObject,
+             .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal, .swiftAsyncCPPExceptionV2Off,
              .swiftAsyncCPPExceptionV2On, .ksCrashPerReportRetry, .crashTimeScope:
             return false
         }
@@ -149,8 +151,9 @@ enum Scenario: String, CaseIterable {
         case .ignoredSignal:
             return false
         case .signal, .nsException, .nsExceptionSubclass, .cppExceptionV1, .cppExceptionV2,
-             .unityCxaThrow, .unityCxaThrowV2, .objcObject, .objcObjectAfterCaughtCPP,
-             .binaryImages, .managedRuntimeSignalChain, .managedRuntimePreSDKSignal,
+             .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2, .objcObject,
+             .objcObjectAfterCaughtCPP, .binaryImages, .managedRuntimeSignalChain,
+             .managedRuntimePreSDKSignal,
              .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
              .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashPerReportRetry,
              .crashTimeScope:
@@ -163,8 +166,9 @@ enum Scenario: String, CaseIterable {
         case .managedRuntimePreSDKSignal, .managedRuntimeClosedSignal, .ignoredSignal:
             return false
         case .signal, .nsException, .nsExceptionSubclass, .cppExceptionV1, .cppExceptionV2,
-             .unityCxaThrow, .unityCxaThrowV2, .objcObject, .objcObjectAfterCaughtCPP,
-             .binaryImages, .managedRuntimeSignalChain, .managedRuntimeReinitSignal,
+             .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2, .objcObject,
+             .objcObjectAfterCaughtCPP, .binaryImages, .managedRuntimeSignalChain,
+             .managedRuntimeReinitSignal,
              .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashPerReportRetry,
              .crashTimeScope:
             return true
@@ -172,7 +176,8 @@ enum Scenario: String, CaseIterable {
     }
 
     var requiresKSCrash: Bool {
-        self == .unityCxaThrowV2 || self == .ksCrashPerReportRetry || self == .crashTimeScope
+        self == .cppExceptionV2DynamicImage || self == .unityCxaThrowV2
+            || self == .ksCrashPerReportRetry || self == .crashTimeScope
     }
 
     var requiresCrashE2ETestHook: Bool {
@@ -215,14 +220,14 @@ struct Config {
 struct HelpRequested: Error {}
 
 func usage(defaults: Config) -> String {
-    let defaultScenarios = Scenario.defaultScenarios.map(\.rawValue).joined(separator: " ")
     let knownScenarios = Scenario.allCases.map(\.rawValue).joined(separator: ", ")
     return """
     Usage: run-crash-e2e.sh [options]
       --platform <all|ios|macos>          Platforms to run (default: all)
       --reporter <SentryCrash|KSCrash>    Crash reporter to test (default: SentryCrash)
-      --scenarios <space/comma list>      Scenarios to run (SentryCrash default: "\(defaultScenarios)")
-                                          KSCrash also defaults to unity-cxa-throw-v2 and kscrash-per-report-retry.
+      --scenarios <space/comma list>      Scenarios to run (uses reporter-specific defaults).
+                                          Default sets: Scenario.defaultScenarios and
+                                          Scenario.ksCrashDefaultScenarios in Config.swift.
                                           Known scenarios: \(knownScenarios)
       --ios-destination <destination>     xcodebuild iOS destination (default: auto-selected simulator id)
       --ios-device-id <device-id>         simctl device id (default: auto-select booted/preferred iPhone simulator)

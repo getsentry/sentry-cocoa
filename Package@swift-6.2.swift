@@ -28,7 +28,9 @@ let v10ExcludedSentryCrashToolSources = [
     "SentryCrash/Recording/Tools/SentryCrashNSErrorUtil.m",
     "SentryCrash/Recording/Tools/SentryCrashObjC.c",
     "SentryCrash/Recording/Tools/SentryCrashSignalInfo.c",
-    "SentryCrash/Recording/Tools/SentryCrashString.c"
+    "SentryCrash/Recording/Tools/SentryCrashString.c",
+    "SentryCrash/Recording/Tools/SentryCrashSysCtl.c",
+    "SentryCrash/Recording/Tools/SentryCrashUUIDConversion.c"
 ]
 let v10SwiftSettings: [SwiftSetting] = enableV10
     ? [.define("SDK_V10"), .define("SENTRY_DISABLE_SENTRYCRASH_V10")]
@@ -150,6 +152,11 @@ let sentrySwiftTarget: Target = .target(
             name: "Installations",
             package: "KSCrash",
             condition: kscrashDependencyCondition
+        ),
+        .product(
+            name: "RecordingCore",
+            package: "KSCrash",
+            condition: kscrashDependencyCondition
         )
     ],
     path: "Sources/Swift",
@@ -197,7 +204,8 @@ if enableV10 {
         "SentryCrash/Recording/SentryCrashReportStore.c",
         "SentryCrash/Recording/SentryCrashReportStore.h",
         "SentryCrash/Recording/SentryCrashReportVersion.h",
-        "SentryCrash/Recording/Tools/SentryCrashCxaThrowSwapper.h"
+        "SentryCrash/Recording/Tools/SentryCrashCxaThrowSwapper.h",
+        "SentryCrash/Recording/Tools/SentryCrashSysCtl.h"
     ]
 }
 

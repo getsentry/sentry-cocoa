@@ -118,6 +118,8 @@ targets:
     sources:
       - path: App/DynamicImages/CrashE2EDynamicImage.c
         type: file
+      - path: App/DynamicImages/CrashE2EDynamicCPPException.cpp
+        type: file
     settings:
       base:
         PRODUCT_NAME: CrashE2EDynamicImageBefore
@@ -129,6 +131,8 @@ targets:
     deploymentTarget: "16.0"
     sources:
       - path: App/DynamicImages/CrashE2EDynamicImage.c
+        type: file
+      - path: App/DynamicImages/CrashE2EDynamicCPPException.cpp
         type: file
     settings:
       base:
@@ -142,6 +146,8 @@ targets:
     sources:
       - path: App/DynamicImages/CrashE2EDynamicImage.c
         type: file
+      - path: App/DynamicImages/CrashE2EDynamicCPPException.cpp
+        type: file
     settings:
       base:
         PRODUCT_NAME: CrashE2EDynamicImageBefore
@@ -153,6 +159,8 @@ targets:
     deploymentTarget: "12.0"
     sources:
       - path: App/DynamicImages/CrashE2EDynamicImage.c
+        type: file
+      - path: App/DynamicImages/CrashE2EDynamicCPPException.cpp
         type: file
     settings:
       base:

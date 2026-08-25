@@ -1,69 +1,53 @@
 @_spi(Private) @testable import Sentry
 import Foundation
 
-/// Protocol-based test double for SentryCrashReporter.
-/// Implements the protocol directly -- no subclassing of the concrete class.
-class TestSentryCrashReporter: NSObject, SentryCrashReporter {
-
-    // MARK: - Test Properties
-
+class TestSentryCrashReporterState: NSObject, SentryCrashReporterState {
     var internalInstalled = false
     var internalCrashedLastLaunch = false
-    var internalDurationFromCrashStateInitToLastCrash: TimeInterval = 0
-    var internalActiveDurationSinceLastCrash: TimeInterval = 0
-    var internalIsSimulatorBuild = false
-    var internalFreeMemorySize: UInt64 = 0
-    var internalAppMemorySize: UInt64 = 0
-    var internalSystemInfo: [String: Any] = [:]
-    var internalIntrospectMemory: Bool = true
-    var binaryCacheStarted = false
-    var binaryCacheStopped = false
-    var enrichScopeCalled = false
-
-    // MARK: - Convenience Init (backward compatibility)
-
-    /// Compatibility init so the test files that call
-    /// `TestSentryCrashWrapper(processInfoWrapper:)` compile without changes.
-    convenience init(processInfoWrapper: SentryProcessInfoSource) {
-        self.init()
-        self.internalProcessInfoWrapper = processInfoWrapper
-    }
-
-    // MARK: - SentryCrashReporter Protocol
 
     var installed: Bool { internalInstalled }
     var crashedLastLaunch: Bool { internalCrashedLastLaunch }
+}
+
+#if !SDK_V10
+/// V9 test double for the broad SentryCrash reporter adapter.
+final class TestSentryCrashReporter: TestSentryCrashReporterState, SentryCrashReporter {
+    var internalDurationFromCrashStateInitToLastCrash: TimeInterval = 0
+    var internalActiveDurationSinceLastCrash: TimeInterval = 0
+    var internalIsSimulatorBuild = false
+    var internalIntrospectMemory: Bool = true
+
+    convenience init(processInfoWrapper: SentryProcessInfoSource) {
+        self.init()
+    }
+
     var durationFromCrashStateInitToLastCrash: TimeInterval { internalDurationFromCrashStateInitToLastCrash }
     var activeDurationSinceLastCrash: TimeInterval { internalActiveDurationSinceLastCrash }
     var isSimulatorBuild: Bool { internalIsSimulatorBuild }
-    var freeMemorySize: UInt64 { internalFreeMemorySize }
-    var appMemorySize: UInt64 { internalAppMemorySize }
-    var systemInfo: [String: Any] { internalSystemInfo }
     var introspectMemory: Bool {
         get { internalIntrospectMemory }
         set { internalIntrospectMemory = newValue }
     }
+}
 
-    private var internalProcessInfoWrapper: SentryProcessInfoSource = ProcessInfo.processInfo
-    var processInfoWrapper: SentryProcessInfoSource { internalProcessInfoWrapper }
+typealias TestSentryCrashWrapper = TestSentryCrashReporter
+#endif // !SDK_V10
 
-    func startBinaryImageCache() {
-        binaryCacheStarted = true
-    }
+final class TestSentryApplicationStateProvider: NSObject, SentryApplicationStateProvider {
+    var isApplicationInForeground = true
+}
 
-    func stopBinaryImageCache() {
-        binaryCacheStopped = true
-    }
+final class TestSentryMemoryMetricsProvider: SentryMemoryMetricsProvider {
+    var freeMemorySize: UInt64 = 0
+    var appMemorySize: UInt64 = 0
+    var usableMemorySize: UInt64 = 0
+    var totalMemorySize: UInt64 = 0
+}
+
+final class TestSentryScopeContextEnricher: NSObject, SentryScopeContextEnricher {
+    var enrichScopeCalled = false
 
     func enrichScope(_ scope: Scope) {
         enrichScopeCalled = true
     }
-}
-
-/// Backward compatibility alias so test files that reference
-/// `TestSentryCrashWrapper` by name compile without modification.
-typealias TestSentryCrashWrapper = TestSentryCrashReporter
-
-final class TestSentryApplicationStateProvider: NSObject, SentryApplicationStateProvider {
-    var isApplicationInForeground = true
 }

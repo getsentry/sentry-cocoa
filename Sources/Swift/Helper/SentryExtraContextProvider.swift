@@ -8,20 +8,20 @@ internal import _SentryPrivate
     private static let kSentryProcessInfoThermalStateSerious = "serious"
     private static let kSentryProcessInfoThermalStateCritical = "critical"
     
-    private let crashWrapper: SentryCrashReporter
+    private let memoryMetricsProvider: SentryMemoryMetricsProvider
     private let processInfoWrapper: SentryProcessInfoSource
     
     #if (os(iOS)) && !SENTRY_NO_UI_FRAMEWORK
     private let deviceWrapper: SentryUIDeviceWrapper
 
-    init(crashWrapper: SentryCrashReporter, processInfoWrapper: SentryProcessInfoSource, deviceWrapper: SentryUIDeviceWrapper) {
-        self.crashWrapper = crashWrapper
+    init(memoryMetricsProvider: SentryMemoryMetricsProvider, processInfoWrapper: SentryProcessInfoSource, deviceWrapper: SentryUIDeviceWrapper) {
+        self.memoryMetricsProvider = memoryMetricsProvider
         self.processInfoWrapper = processInfoWrapper
         self.deviceWrapper = deviceWrapper
     }
     #else
-    init(crashWrapper: SentryCrashReporter, processInfoWrapper: SentryProcessInfoSource) {
-        self.crashWrapper = crashWrapper
+    init(memoryMetricsProvider: SentryMemoryMetricsProvider, processInfoWrapper: SentryProcessInfoSource) {
+        self.memoryMetricsProvider = memoryMetricsProvider
         self.processInfoWrapper = processInfoWrapper
     }
     #endif
@@ -35,7 +35,7 @@ internal import _SentryPrivate
     
     private func getExtraDeviceContext() -> [String: Any] {
         var extraDeviceContext: [String: Any] = [
-            SentryDeviceContextFreeMemoryKey: NSNumber(value: crashWrapper.freeMemorySize),
+            SentryDeviceContextFreeMemoryKey: NSNumber(value: memoryMetricsProvider.freeMemorySize),
             "processor_count": NSNumber(value: processInfoWrapper.processorCount)
         ]
 
@@ -70,7 +70,7 @@ internal import _SentryPrivate
     }
     
     private func getExtraAppContext() -> [String: Any] {
-        [ SentryDeviceContextAppMemoryKey: NSNumber(value: self.crashWrapper.appMemorySize) ]
+        [ SentryDeviceContextAppMemoryKey: NSNumber(value: self.memoryMetricsProvider.appMemorySize) ]
     }
 }
 // swiftlint:enable missing_docs

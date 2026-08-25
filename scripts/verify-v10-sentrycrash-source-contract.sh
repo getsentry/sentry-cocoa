@@ -13,6 +13,10 @@ set -euo pipefail
 #   manifests.
 # - Every retained legacy Tool is documented, while SDK-owned SentryScopeSyncC.c remains
 #   unconditional and unexcluded.
+# - The temporary unavailable reporter is absent, active crash state remains shared, and the broad
+#   reporter protocol is V9-only.
+# - The pull-based KSCrash binary-image adapter does not take KSCrash's single image-added callback
+#   slot, and Xcode avoids an overlapping direct RecordingCore product dependency.
 #
 # This does not inspect compiled objects or shipped products. Those layers are enforced by
 # verify-v10-sentrycrash-objects.sh and verify-v10-sentrycrash-framework.sh.
@@ -42,6 +46,32 @@ record_error() {
   log_error "$1"
   violation_count=$((violation_count + 1))
 }
+
+unavailable_reporter_path="Sources/Swift/Integrations/KSCrash/SentryKSCrash+UnavailableReporter.swift"
+if [[ -e "$unavailable_reporter_path" ]]; then
+  record_error "The temporary V10 unavailable reporter still exists: $unavailable_reporter_path"
+fi
+if grep -R -q 'UnavailableReporter' Sources; then
+  record_error "SDK source still references the temporary V10 unavailable reporter"
+fi
+if grep -q 'SENTRY_DISABLE_SENTRYCRASH_V10' Sources/Swift/SentryDependencyContainer.swift; then
+  record_error "The dependency container still uses a migration marker for the broad reporter"
+fi
+
+reporter_protocol_path="Sources/Swift/SentryCrash/SentryCrashReporter.swift"
+state_protocol_line=$(grep -n 'public protocol SentryCrashReporterState:' "$reporter_protocol_path" | cut -d: -f1 || true)
+reporter_guard_line=$(grep -n '^#if !SDK_V10$' "$reporter_protocol_path" | cut -d: -f1 || true)
+broad_protocol_line=$(grep -n 'public protocol SentryCrashReporter:' "$reporter_protocol_path" | cut -d: -f1 || true)
+reporter_guard_end_line=$(grep -n '^#endif // !SDK_V10$' "$reporter_protocol_path" | cut -d: -f1 || true)
+if [[ -z "$state_protocol_line" || -z "$reporter_guard_line" || -z "$broad_protocol_line" \
+  || -z "$reporter_guard_end_line" \
+  || "$state_protocol_line" -ge "$reporter_guard_line" \
+  || "$broad_protocol_line" -le "$reporter_guard_line" \
+  || "$broad_protocol_line" -ge "$reporter_guard_end_line" ]]; then
+  record_error "The narrow crash-state protocol must remain shared and the broad reporter protocol must be V9-only"
+else
+  log_notice "Verified the placeholder reporter is absent and the broad reporter protocol is V9-only"
+fi
 
 if [[ ! -f "$LEDGER_PATH" ]]; then
   log_error "Migration ledger does not exist: $LEDGER_PATH"
@@ -302,6 +332,30 @@ for source_name in "${retained_tool_sources[@]}"; do
   fi
 done
 log_notice "Verified ${#retained_tool_sources[@]} retained Tool sources are documented"
+
+if grep -Fqw 'SentryCrashSysCtl.c' <<< "${retained_tool_sources[*]}"; then
+  record_error "V10 must not retain SentryCrashSysCtl.c after the neutral process-time migration"
+fi
+if grep -qE '^[[:space:]]*#import[[:space:]]+[<\"]SentryCrashSysCtl\.h[>\"]' Sources/Sentry/SentrySysctlObjC.m; then
+  record_error "SentrySysctlObjC.m must not import the legacy SentryCrashSysCtl header"
+fi
+
+if grep -R -qE '(^|[^[:alnum:]_])ksbic_registerForImageAdded[[:space:]]*\(' Sources; then
+  record_error "SDK source must not take KSCrash's single image-added callback slot"
+else
+  log_notice "Verified SDK source leaves KSCrash's image-added callback slot untouched"
+fi
+
+for manifest_path in Package.swift Package@swift-6.1.swift Package@swift-6.2.swift; do
+  if ! grep -qE '\.product\(name: "RecordingCore", package: "KSCrash"\)|name: "RecordingCore"' "$manifest_path"; then
+    record_error "$manifest_path does not declare the direct SwiftPM RecordingCore dependency"
+  fi
+done
+if grep -q 'RecordingCore' Sentry.xcodeproj/project.pbxproj; then
+  record_error "Xcode must receive RecordingCore transitively through its Recording product"
+else
+  log_notice "Verified the SwiftPM/Xcode KSCrash product exception"
+fi
 
 if [[ $violation_count -ne 0 ]]; then
   log_error "$violation_count V10 SentryCrash source-contract violation(s) found"

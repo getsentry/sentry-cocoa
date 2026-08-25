@@ -4,7 +4,6 @@
 #import "SentryDateUtils.h"
 #import "SentryInternalDefines.h"
 #import "SentryLevel.h"
-#import "SentryLevelMapper.h"
 #import "SentrySanitizerUtils.h"
 #import "SentrySwift.h"
 
@@ -186,7 +185,7 @@ sentry_deepCopyValue(id value)
             BOOL isDictionary = [value isKindOfClass:[NSDictionary class]];
 
             if ([key isEqualToString:@"level"] && isString) {
-                self.level = sentryLevelForString(value);
+                self.level = [SentryLevelHelper levelForName:value];
             } else if ([key isEqualToString:@"timestamp"] && isString) {
                 self.timestamp = sentry_fromIso8601String(value);
             } else if ([key isEqualToString:@"category"] && isString) {
@@ -276,7 +275,7 @@ sentry_deepCopyValue(id value)
 
     NSMutableDictionary *serializedData = [[NSMutableDictionary alloc] init];
 
-    [serializedData setValue:nameForSentryLevel(level) forKey:@"level"];
+    [serializedData setValue:[SentryLevelHelper nameForLevel:level] forKey:@"level"];
     if (timestamp != nil) {
         [serializedData setValue:sentry_toIso8601String(SENTRY_UNWRAP_NULLABLE(NSDate, timestamp))
                           forKey:@"timestamp"];

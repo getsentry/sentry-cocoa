@@ -1,5 +1,6 @@
 import Foundation
 
+// swiftlint:disable file_length
 //swiftlint:disable:next type_body_length
 enum EventAssertions {
     private static let binaryImageMarkerFileName = "crash-e2e-binary-images.json"
@@ -50,8 +51,9 @@ enum EventAssertions {
             try assert(exceptionThreadID != nil,
                        "Expected exception thread id for \(platform)/\(scenario.rawValue)")
             try assert(!threadValues.isEmpty, "Expected threads for \(platform)/\(scenario.rawValue)")
-        case .cppExceptionV2, .unityCxaThrowV2, .swiftAsyncCPPExceptionV2Off,
-             .swiftAsyncCPPExceptionV2On, .objcObject, .objcObjectAfterCaughtCPP:
+        case .cppExceptionV2, .cppExceptionV2DynamicImage, .unityCxaThrowV2,
+             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .objcObject,
+             .objcObjectAfterCaughtCPP:
             try assert(exceptionThreadID != nil,
                        "Expected exception thread id for \(platform)/\(scenario.rawValue)")
             try assertCrashedThread(threadValues, expectedThreadID: exceptionThreadID,
@@ -130,26 +132,18 @@ enum EventAssertions {
                 platform: platform
             )
 
-        case .objcObject:
-            try assertObjCObjectThrow(
-                firstException,
-                mechanism: mechanism,
-                platform: platform,
-                scenario: scenario
-            )
+        case .cppExceptionV2DynamicImage:
+            try assertDynamicCPPException(firstException, mechanism: mechanism,
+                                          debugImages: debugImages, platform: platform,
+                                          scenario: scenario)
 
-        case .objcObjectAfterCaughtCPP:
-            try assertObjCObjectThrow(
-                firstException,
-                mechanism: mechanism,
-                platform: platform,
-                scenario: scenario
-            )
-            try assertFreshObjCObjectThrowFrames(
-                firstException,
-                platform: platform,
-                scenario: scenario
-            )
+        case .objcObject, .objcObjectAfterCaughtCPP:
+            try assertObjCObjectThrow(firstException, mechanism: mechanism,
+                                      platform: platform, scenario: scenario)
+            if scenario == .objcObjectAfterCaughtCPP {
+                try assertFreshObjCObjectThrowFrames(firstException, platform: platform,
+                                                     scenario: scenario)
+            }
 
         case .ignoredSignal, .ksCrashPerReportRetry:
             // The multi-launch KSCrash retry scenario has aggregate assertions in its own asserter.
@@ -310,6 +304,36 @@ enum EventAssertions {
         let value = string(firstException["value"]) ?? ""
         try assert(value.contains("runtime_error") && value.contains(expectedValue),
                    "Expected runtime_error value for \(platform)/\(scenario.rawValue)")
+    }
+
+    private static func assertDynamicCPPException(_ firstException: [String: Any],
+                                                  mechanism: [String: Any],
+                                                  debugImages: [[String: Any]],
+                                                  platform: String,
+                                                  scenario: Scenario) throws {
+        try assertCPPException(
+            firstException,
+            mechanism: mechanism,
+            platform: platform,
+            scenario: scenario,
+            expectedValue: "CrashE2EDynamicImageCPPException"
+        )
+
+        let imageName = "CrashE2EDynamicImageAfter.dylib"
+        try assert(debugImagesContainPath(debugImages, expectedPath: imageName),
+                   "Expected dynamically loaded C++ image for \(platform)/\(scenario.rawValue)")
+
+        let frames = valuesArray(firstException["stacktrace"], key: "frames")
+        let dynamicFrames = frames.filter {
+            guard let package = string($0["package"]) else { return false }
+            return URL(fileURLWithPath: package).lastPathComponent == imageName
+        }
+        try assert(!dynamicFrames.isEmpty,
+                   "Expected dynamic C++ throw-site frame for \(platform)/\(scenario.rawValue)")
+
+        let symbols = try symbolicatedFrameNames(dynamicFrames)
+        try assert(symbols.contains { $0.contains("CrashE2EDynamicImageThrowCPPException") },
+                   "Expected dynamic C++ throw symbol for \(platform)/\(scenario.rawValue): \(symbols)")
     }
 
     private static func debugImagesContainPath(_ debugImages: [[String: Any]], expectedPath: String) -> Bool {

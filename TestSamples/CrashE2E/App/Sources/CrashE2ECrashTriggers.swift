@@ -14,6 +14,12 @@ enum CrashE2ECrashTriggers {
             Thread.sleep(forTimeInterval: 0.5)
             CrashE2ETriggerDynamicBinaryImageCrash()
             abortBecauseScenarioReturned(scenario)
+        case .cppExceptionV2DynamicImage:
+            Thread.sleep(forTimeInterval: 2.0)
+            CrashE2ERuntime.loadCPPExceptionImageAfterSDK()
+            Thread.sleep(forTimeInterval: 0.5)
+            CrashE2ETriggerDynamicCPPException()
+            abortBecauseScenarioReturned(scenario)
         case .ignoredSignal:
             triggerIgnoredSignal()
         case .managedRuntimeClosedSignal:
@@ -76,8 +82,9 @@ enum CrashE2ECrashTriggers {
             abortBecauseScenarioReturned(scenario)
         case .idle, .drain, .managedRuntimePreSDKSignal:
             abortBecauseScenarioReturned(scenario)
-        case .signal, .binaryImages, .ignoredSignal, .managedRuntimeSignalChain,
-             .managedRuntimeClosedSignal, .managedRuntimeReinitSignal, .crashTimeScope:
+        case .signal, .cppExceptionV2DynamicImage, .binaryImages, .ignoredSignal,
+             .managedRuntimeSignalChain, .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
+             .crashTimeScope:
             abortBecauseScenarioReturned(scenario)
         }
     }

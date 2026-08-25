@@ -22,6 +22,7 @@
 
 - Enable MetricKit integration by default (#8716)
 - Enable logging by default (#8717)
+- Remove `enableLogs`; logs are always enabled in v10 (#8769)
 - Change the default diagnostic level to warning (#8732)
 - Enable `swiftAsyncStacktraces` by default (#8718)
 - Remove `sendDefaultPii`; use `dataCollection` to configure automatic data collection (#8253)
@@ -34,6 +35,7 @@
 
 ### Fixes
 
+- Restore binary images and `debug_meta` in `SentryV10` with KSCrash RecordingCore (#8798)
 - Compile only explicitly allowlisted shared SentryCrash tools in V10
 - Restore foreground app-hang detection and debugger-aware behavior in V10
 - Disambiguate V9 and V10 target dependencies in Xcode builds
@@ -42,3 +44,5 @@
 - Omit failed-request headers when `options.dataCollection.httpHeaders` is disabled (#8562)
 - Normalize profiling CPU usage to 0–100 percent (#8323)
 - Bump KSCrash to `2.6.0`
+- Restore memory metrics and initial OS, device, app, and runtime contexts in `SentryV10` (#8836)
+- Remove unused `SentryFramesTracker` dependency from `SentryAppStartTracker` in V10 (#8859)
