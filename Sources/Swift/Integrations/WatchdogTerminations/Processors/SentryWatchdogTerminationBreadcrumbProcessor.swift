@@ -154,7 +154,10 @@ final class SentryDefaultWatchdogTerminationBreadcrumbProcessor {
     private func storeBreadcrumb(_ data: Data) {
         SentrySDKLog.debug("Storing breadcrumb data with \(data.count) bytes")
 
-        guard let fileHandle = fileHandleForWriting() else { return }
+        guard let fileHandle = fileHandleForWriting() else {
+            SentrySDKLog.warning("storeBreadcrumb could not get a file handle for \(currentFilePath)")
+            return
+        }
 
         var fileSize: UInt64 = 0
 
