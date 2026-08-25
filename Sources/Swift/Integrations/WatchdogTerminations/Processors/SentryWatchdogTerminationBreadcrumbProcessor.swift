@@ -93,8 +93,13 @@ final class SentryDefaultWatchdogTerminationBreadcrumbProcessor {
     }
 
     func flushAndClose() {
+        SentrySDKLog.debug("Requested flush and close of breadcrumb processor")
+
         dispatchQueueWrapper.dispatchSync { [self] in
-            guard shouldProcessIncomingCrumbs else { return }
+            guard shouldProcessIncomingCrumbs else {
+                SentrySDKLog.debug("Not flushing breadcrumb processor because it is already closed")
+                return
+            }
             SentrySDKLog.debug("Flushing and closing breadcrumb file handle")
 
             shouldProcessIncomingCrumbs = false
