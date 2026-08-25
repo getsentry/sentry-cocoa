@@ -1136,7 +1136,8 @@ test-sample-iOS-Swift-ui: xcode-ci-iOS-Swift
 		-scheme iOS-Swift \
 		-testPlan iOS-Swift_Base \
 		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
-		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
+		CODE_SIGNING_ALLOWED="NO" \
+		'ARCHS=$$(ARCHS_STANDARD)' 2>&1 | xcbeautify --preserve-unbeautified
 
 ## Run iOS-SwiftUI sample UI tests
 #
@@ -1149,7 +1150,8 @@ test-sample-iOS-SwiftUI-ui: xcode-ci-iOS-SwiftUI
 		-scheme iOS-SwiftUI \
 		-testPlan iOS-SwiftUI_Base \
 		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
-		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
+		CODE_SIGNING_ALLOWED="NO" \
+		'ARCHS=$$(ARCHS_STANDARD)' 2>&1 | xcbeautify --preserve-unbeautified
 
 ## Run iOS-Swift6 sample UI tests
 #
@@ -1162,7 +1164,8 @@ test-sample-iOS-Swift6-ui: xcode-ci-iOS-Swift6
 		-scheme iOS-Swift6 \
 		-testPlan iOS-Swift6_Base \
 		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
-		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
+		CODE_SIGNING_ALLOWED="NO" \
+		'ARCHS=$$(ARCHS_STANDARD)' 2>&1 | xcbeautify --preserve-unbeautified
 
 ## Run iOS-ObjectiveC sample UI tests
 #
@@ -1175,7 +1178,8 @@ test-sample-iOS-ObjectiveC-ui: xcode-ci-iOS-ObjectiveC
 		-scheme iOS-ObjectiveC \
 		-testPlan iOS-ObjectiveC_Base \
 		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
-		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
+		CODE_SIGNING_ALLOWED="NO" \
+		'ARCHS=$$(ARCHS_STANDARD)' 2>&1 | xcbeautify --preserve-unbeautified
 
 ## Run macOS-Swift sample UI tests
 #
