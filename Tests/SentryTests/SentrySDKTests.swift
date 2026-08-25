@@ -143,9 +143,9 @@ class SentrySDKTests: XCTestCase {
             expectedIntegrations.append("SentryANRTrackingIntegration")
         }
 #endif
-#if os(iOS) || os(tvOS) || os(visionOS)
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SDK_V10
         expectedIntegrations.append("SentryFramesTrackingIntegration")
-#endif // os(iOS) || os(tvOS)
+#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SDK_V10
         #if SDK_V10
         expectedIntegrations.append("SentryKSCrashIntegration")
         #else
