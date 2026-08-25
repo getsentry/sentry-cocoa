@@ -79,7 +79,14 @@ final class SentryDefaultWatchdogTerminationBreadcrumbProcessor {
         SentrySDKLog.debug("Clearing breadcrumb files")
 
         dispatchQueueWrapper.dispatchAsync { [weak self] in
-            guard let self, shouldProcessIncomingCrumbs else { return }
+            guard let self else {
+                SentrySDKLog.debug("Not clearing breadcrumb files because the processor is deallocated")
+                return
+            }
+            guard shouldProcessIncomingCrumbs else {
+                SentrySDKLog.debug("Not clearing breadcrumb files because the processor is closed")
+                return
+            }
 
             deleteFiles()
         }
