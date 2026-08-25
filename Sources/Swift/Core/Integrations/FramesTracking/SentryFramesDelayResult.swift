@@ -1,3 +1,4 @@
+#if !SDK_V10
 // swiftlint:disable missing_docs
 import Foundation
 
@@ -25,3 +26,4 @@ final class SentryFramesDelayResult {
     }
 }
 // swiftlint:enable missing_docs
+#endif // !SDK_V10

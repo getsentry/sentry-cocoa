@@ -49,7 +49,7 @@ import Foundation
         SentryObjCInternalAppStartApi(wrapped.value.appStart)
     }
 
-#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS) || os(visionOS))
+#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS) || os(visionOS)) && !SDK_V10
     @objc public var performance: SentryObjCInternalPerformanceApi {
         SentryObjCInternalPerformanceApi(wrapped.value.performance)
     }

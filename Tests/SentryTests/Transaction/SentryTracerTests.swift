@@ -47,9 +47,9 @@ class SentryTracerTests: XCTestCase {
         
         let idleTimeout: TimeInterval = 1.0
         
-#if os(iOS) || os(tvOS)
+#if (os(iOS) || os(tvOS)) && !SDK_V10
         var displayLinkWrapper: TestDisplayLinkWrapper
-#endif // os(iOS) || os(tvOS)
+#endif // (os(iOS) || os(tvOS)) && !SDK_V10
         
         init() {
             SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
@@ -70,13 +70,13 @@ class SentryTracerTests: XCTestCase {
             client = TestClient(options: options)
             hub = TestHub(client: client, andScope: scope)
             
-#if os(iOS) || os(tvOS)
+#if (os(iOS) || os(tvOS)) && !SDK_V10
             displayLinkWrapper = TestDisplayLinkWrapper(dateProvider: currentDateProvider)
             
             SentryDependencyContainer.sharedInstance().framesTracker.setDisplayLinkWrapper(displayLinkWrapper)
             SentryDependencyContainer.sharedInstance().framesTracker.start()
             displayLinkWrapper.call()
-#endif // os(iOS) || os(tvOS)
+#endif // (os(iOS) || os(tvOS)) && !SDK_V10
         }
 
 #if os(iOS) || os(tvOS)
@@ -1532,7 +1532,7 @@ class SentryTracerTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(spans.count, children)
     }
     
-#if os(iOS) || os(tvOS)
+#if (os(iOS) || os(tvOS)) && !SDK_V10
     
     func testChangeStartTimeStamp_OnlyFramesDelayAdded() throws {
         let sut = fixture.getSut()
@@ -1611,7 +1611,7 @@ class SentryTracerTests: XCTestCase {
         
         try assertNoMeasurementsAdded()
     }
-#endif
+#endif // (os(iOS) || os(tvOS)) && !SDK_V10
     
     func testFinishShouldBeCalled_Timeout_NotCaptured() throws {
         let sut = fixture.getSut(finishMustBeCalled: true)

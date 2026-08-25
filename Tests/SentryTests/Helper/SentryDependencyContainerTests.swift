@@ -11,6 +11,7 @@ final class SentryDependencyContainerTests: XCTestCase {
     }
 
 #if os(iOS) || os(tvOS)
+#if !SDK_V10
     func testReset_CallsFramesTrackerStop() throws {
         let framesTracker = SentryDependencyContainer.sharedInstance().framesTracker
         framesTracker.start()
@@ -18,6 +19,7 @@ final class SentryDependencyContainerTests: XCTestCase {
 
         XCTAssertFalse(framesTracker.isRunning)
     }
+#endif // !SDK_V10
 
 #if !SDK_V10
     func testGetANRTrackerV2() {
@@ -153,7 +155,9 @@ final class SentryDependencyContainerTests: XCTestCase {
 
 #if os(iOS) || os(tvOS)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().swizzleWrapper)
+#if !SDK_V10
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().framesTracker)
+#endif // !SDK_V10
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().screenshotSource)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().viewHierarchyProvider)
 

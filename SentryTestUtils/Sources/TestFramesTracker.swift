@@ -1,3 +1,4 @@
+#if !SDK_V10
 @_spi(Private) @testable import Sentry
 
 #if os(iOS) || os(tvOS)
@@ -9,3 +10,4 @@
     }
 }
 #endif // os(iOS) || os(tvOS)
+#endif // !SDK_V10

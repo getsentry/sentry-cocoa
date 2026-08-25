@@ -1,3 +1,4 @@
+#if !SDK_V10
 import Foundation
 
 #if (os(iOS) || os(tvOS) || os(visionOS))
@@ -186,3 +187,4 @@ public final class SentryScreenFrames: NSObject, NSCopying {
 }
 
 #endif // (os(iOS) || os(tvOS) || os(visionOS))
+#endif // !SDK_V10

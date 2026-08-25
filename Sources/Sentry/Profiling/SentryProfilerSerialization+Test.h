@@ -12,9 +12,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+#        if !SDK_V10
 SENTRY_EXTERN NSString *const kSentryProfilerSerializationKeySlowFrameRenders;
 SENTRY_EXTERN NSString *const kSentryProfilerSerializationKeyFrozenFrameRenders;
 SENTRY_EXTERN NSString *const kSentryProfilerSerializationKeyFrameRates;
+#        endif // !SDK_V10
 
 SENTRY_EXTERN NSString *sentry_profilerTruncationReasonName(SentryProfilerTruncationReason reason);
 
@@ -27,10 +29,10 @@ SENTRY_EXTERN NSMutableDictionary<NSString *, id> *sentry_serializedTraceProfile
     NSDictionary<NSString *, id> *profileData, uint64_t startSystemTime, uint64_t endSystemTime,
     NSString *truncationReason, NSDictionary<NSString *, id> *serializedMetrics,
     NSArray<SentryDebugMeta *> *debugMeta, SentryHubInternal *hub
-#        if SENTRY_HAS_UIKIT
+#        if SENTRY_HAS_UIKIT && !SDK_V10
     ,
     SentryScreenFrames *gpuData
-#        endif // SENTRY_HAS_UIKIT
+#        endif // SENTRY_HAS_UIKIT && !SDK_V10
 );
 
 NS_ASSUME_NONNULL_END

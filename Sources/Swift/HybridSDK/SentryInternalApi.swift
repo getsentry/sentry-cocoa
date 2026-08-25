@@ -19,15 +19,24 @@ public struct SentryInternalApi {
         & SentryInternalScopeApi.Dependencies
         & OptionsDeserializerProvider
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
-    typealias Dependencies = BaseDependencies
-        & SentryInternalPerformanceApi.Dependencies
-        & SentryInternalScreenshotApi.Dependencies
+    typealias PlatformDependencies = SentryInternalScreenshotApi.Dependencies
         & SentryInternalViewHierarchyApi.Dependencies
         & SentryInternalScreenApi.Dependencies
         & SentryInternalReplayApi.Dependencies
-#elseif os(visionOS) && !SENTRY_NO_UI_FRAMEWORK
+    #if SDK_V10
+    typealias Dependencies = BaseDependencies & PlatformDependencies
+    #else
     typealias Dependencies = BaseDependencies
         & SentryInternalPerformanceApi.Dependencies
+        & PlatformDependencies
+    #endif // SDK_V10
+#elseif os(visionOS) && !SENTRY_NO_UI_FRAMEWORK
+    #if SDK_V10
+    typealias Dependencies = BaseDependencies
+    #else
+    typealias Dependencies = BaseDependencies
+        & SentryInternalPerformanceApi.Dependencies
+    #endif // SDK_V10
 #else
     typealias Dependencies = BaseDependencies
 #endif
@@ -62,7 +71,7 @@ public struct SentryInternalApi {
     /// App start measurement for hybrid SDKs.
     public let appStart: SentryInternalAppStartApi
 
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK && !SDK_V10
     /// Frame tracking metrics for hybrid SDKs.
     public let performance: SentryInternalPerformanceApi
 #endif
@@ -130,7 +139,7 @@ public struct SentryInternalApi {
         self.serializer = SentryInternalSerializerApi()
         self.swizzle = SentryInternalSwizzleApi()
         self.appStart = SentryInternalAppStartApi()
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK && !SDK_V10
         self.performance = SentryInternalPerformanceApi(dependencies: dependencies)
 #endif
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK

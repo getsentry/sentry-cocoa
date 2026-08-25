@@ -86,6 +86,7 @@ extension SentryAppLaunchProfilingTests {
 // MARK: continuous profiling v2 (iOS-only)
 #if !os(macOS)
 extension SentryAppLaunchProfilingTests {
+#if !SDK_V10
     func testLaunchContinuousProfileV2TraceLifecycleNotStoppedOnFullyDisplayed() throws {
         // Arrange
         fixture.options.tracesSampleRate = 1
@@ -209,6 +210,7 @@ extension SentryAppLaunchProfilingTests {
         // Assert
         XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
     }
+#endif // !SDK_V10
 
     func testNonLaunchTracerTransactionCapturedDuringLaunchProfiling() throws {
         // Arrange: set up launch profiling with trace lifecycle

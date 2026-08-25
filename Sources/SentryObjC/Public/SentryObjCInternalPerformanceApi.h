@@ -1,11 +1,12 @@
-#import <Foundation/Foundation.h>
-#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
-#    import "SentryObjCDefines.h"
-#else
-#    import <SentryObjC/SentryObjCDefines.h>
-#endif
+#if !SDK_V10
+#    import <Foundation/Foundation.h>
+#    if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#        import "SentryObjCDefines.h"
+#    else
+#        import <SentryObjC/SentryObjCDefines.h>
+#    endif
 
-#if SENTRY_OBJC_HAS_UIKIT
+#    if SENTRY_OBJC_HAS_UIKIT
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -25,4 +26,5 @@ SENTRY_NO_INIT
 
 NS_ASSUME_NONNULL_END
 
-#endif
+#    endif
+#endif // !SDK_V10

@@ -1,3 +1,4 @@
+#if !SDK_V10
 @testable import Sentry
 import SentryTestUtils
 import XCTest
@@ -59,3 +60,4 @@ class SentryInternalPerformanceApiIntegrationTests: XCTestCase {
 }
 
 #endif
+#endif // !SDK_V10

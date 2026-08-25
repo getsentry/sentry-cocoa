@@ -20,7 +20,11 @@
 #        import "SentryProfiler+Private.h"
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
+#    if SDK_V10
+@interface SentryTimeToDisplayTracker ()
+#    else
 @interface SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
+#    endif // SDK_V10
 
 @property (nonatomic, weak) id<SentrySpan> initialDisplaySpan;
 @property (nonatomic, weak) id<SentrySpan> fullDisplaySpan;
@@ -51,6 +55,9 @@
 
 - (BOOL)startForTracer:(SentryTracer *)tracer
 {
+#    if SDK_V10
+    return NO;
+#    else
     if (SentryDependencyContainer.sharedInstance.framesTracker.isRunning == NO) {
         SENTRY_LOG_DEBUG(@"Skipping TTID/TTFD spans, because can't report them correctly when the "
                          @"frames tracker isn't running.");
@@ -123,6 +130,7 @@
     }];
 
     return YES;
+#    endif // SDK_V10
 }
 
 - (void)reportInitialDisplay
@@ -142,7 +150,9 @@
 
 - (void)finishSpansIfNotFinished
 {
+#    if !SDK_V10
     [SentryDependencyContainer.sharedInstance.framesTracker removeListener:self];
+#    endif // !SDK_V10
 
     if (self.initialDisplaySpan.isFinished == NO) {
         [self.initialDisplaySpan finish];
@@ -166,6 +176,7 @@
     }
 }
 
+#    if !SDK_V10
 - (void)framesTrackerHasNewFrame:(NSDate *)newFrameDate
 {
     // The purpose of TTID and TTFD is to measure how long
@@ -177,11 +188,11 @@
         [self.initialDisplaySpan finish];
         if (!_waitForFullDisplay) {
             [SentryDependencyContainer.sharedInstance.framesTracker removeListener:self];
-#    if SENTRY_TARGET_PROFILING_SUPPORTED
+#        if SENTRY_TARGET_PROFILING_SUPPORTED
             if (sentry_isLaunchProfileCorrelatedToTraces()) {
                 sentry_stopAndDiscardLaunchProfileTracer(SentrySDKInternal.currentHub);
             }
-#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
+#        endif // SENTRY_TARGET_PROFILING_SUPPORTED
         }
     }
     if (_waitForFullDisplay && _fullyDisplayedReported && self.fullDisplaySpan.isFinished == NO
@@ -189,17 +200,18 @@
         SENTRY_LOG_DEBUG(@"Finishing full display span");
         self.fullDisplaySpan.timestamp = newFrameDate;
         [self.fullDisplaySpan finish];
-#    if SENTRY_TARGET_PROFILING_SUPPORTED
+#        if SENTRY_TARGET_PROFILING_SUPPORTED
         if (sentry_isLaunchProfileCorrelatedToTraces()) {
             sentry_stopAndDiscardLaunchProfileTracer(SentrySDKInternal.currentHub);
         }
-#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
+#        endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }
 
     if (self.initialDisplaySpan.isFinished == YES && self.fullDisplaySpan.isFinished == YES) {
         [SentryDependencyContainer.sharedInstance.framesTracker removeListener:self];
     }
 }
+#    endif // !SDK_V10
 
 - (void)addTimeToDisplayMeasurement:(id<SentrySpan>)span name:(NSString *)name
 {

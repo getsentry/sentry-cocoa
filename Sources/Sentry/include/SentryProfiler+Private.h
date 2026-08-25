@@ -16,10 +16,10 @@
 @class SentrySamplerDecision;
 @class SentryTransaction;
 
-#    if SENTRY_HAS_UIKIT
+#    if SENTRY_HAS_UIKIT && !SDK_V10
 @class SentryFramesTracker;
 @class SentryScreenFrames;
-#    endif // SENTRY_HAS_UIKIT
+#    endif // SENTRY_HAS_UIKIT && !SDK_V10
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -60,7 +60,7 @@ SENTRY_EXTERN void sentry_configureContinuousProfiling(SentryOptions *options);
 @property (assign, nonatomic) SentryProfilerTruncationReason truncationReason;
 @property (strong, nonatomic) SentryMetricProfiler *metricProfiler;
 
-#    if SENTRY_HAS_UIKIT
+#    if SENTRY_HAS_UIKIT && !SDK_V10
 /**
  * @note This property is only needed for trace profiling, to store the appropriate GPU data per
  * profiler instance when there might be multiple profiler instances all waiting for their linked
@@ -68,7 +68,7 @@ SENTRY_EXTERN void sentry_configureContinuousProfiling(SentryOptions *options);
  * data can be directly marshaled to the serialization function.
  */
 @property (strong, nonatomic) SentryScreenFrames *screenFrameData;
-#    endif // SENTRY_HAS_UIKIT
+#    endif // SENTRY_HAS_UIKIT && !SDK_V10
 
 SENTRY_NO_INIT
 

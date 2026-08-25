@@ -172,10 +172,12 @@ class AppStartReportingStrategyTests: XCTestCase {
         debugImageProvider.debugImages = [TestData.debugImage]
         SentryDependencyContainer.sharedInstance().debugImageProvider = debugImageProvider
 
+        #if !SDK_V10
         let displayLinkWrapper = TestDisplayLinkWrapper(dateProvider: dateProvider)
         SentryDependencyContainer.sharedInstance().framesTracker.setDisplayLinkWrapper(displayLinkWrapper)
         SentryDependencyContainer.sharedInstance().framesTracker.start()
         displayLinkWrapper.call()
+        #endif // !SDK_V10
 
         let options = Options()
         options.dsn = TestConstants.dsnAsString(username: "AppStartReportingStrategyTests")

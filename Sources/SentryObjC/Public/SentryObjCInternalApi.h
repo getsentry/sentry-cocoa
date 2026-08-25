@@ -18,7 +18,9 @@
 @class SentryObjCInternalSwizzleApi;
 @class SentryObjCInternalAppStartApi;
 #if SENTRY_OBJC_HAS_UIKIT
+#    if !SDK_V10
 @class SentryObjCInternalPerformanceApi;
+#    endif // !SDK_V10
 #    if !TARGET_OS_VISION
 @class SentryObjCInternalScreenshotApi;
 @class SentryObjCInternalViewHierarchyApi;
@@ -72,8 +74,10 @@ SENTRY_NO_INIT
 @property (nonatomic, readonly) SentryObjCInternalAppStartApi *appStart;
 
 #if SENTRY_OBJC_HAS_UIKIT
+#    if !SDK_V10
 /// Frame tracking performance metrics.
 @property (nonatomic, readonly) SentryObjCInternalPerformanceApi *performance;
+#    endif // !SDK_V10
 
 #    if !TARGET_OS_VISION
 /// Screenshot capture.

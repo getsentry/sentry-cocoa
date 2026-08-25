@@ -1,3 +1,4 @@
+#if !SDK_V10
 import Foundation
 
 protocol SentryDelayedFramesTrackerWrapper {
@@ -6,3 +7,4 @@ protocol SentryDelayedFramesTrackerWrapper {
     func getFramesDelay(_ startSystemTimestamp: UInt64, endSystemTimestamp: UInt64, isRunning: Bool, slowFrameThreshold: CFTimeInterval) -> SentryFramesDelayResult
     func recordDelayedFrame(_ startSystemTimestamp: UInt64, thisFrameSystemTimestamp: UInt64, expectedDuration: CFTimeInterval, actualDuration: CFTimeInterval)
 }
+#endif // !SDK_V10

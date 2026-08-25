@@ -78,7 +78,9 @@ private struct AnyIntegration {
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         integrations.append(.init(SentryAppStartTrackingIntegration.self))
         integrations.append(.init(SentryPerformanceTrackingIntegration.self))
+        #if !SDK_V10
         integrations.append(.init(SentryFramesTrackingIntegration.self))
+        #endif // !SDK_V10
         integrations.append(.init(SentryWatchdogTerminationTrackingIntegration.self))
         integrations.append(.init(SentryUIEventTrackingIntegration.self))
         #endif

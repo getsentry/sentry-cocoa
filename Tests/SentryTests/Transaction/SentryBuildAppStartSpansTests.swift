@@ -8,7 +8,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
     func testSentryBuildAppStartSpans_appStartMeasurementIsNil_shouldNotReturnAnySpans() {
         // Arrange
         let context = SpanContext(operation: "operation")
-        let tracer = SentryTracer(context: context, framesTracker: nil)
+        let tracer = makeTracer(context: context)
         let appStartMeasurement: SentryAppStartMeasurement? = nil
 
         // Act
@@ -20,7 +20,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
 
     func testBuildStandaloneAppStartSpans_whenMeasurementIsNil_shouldNotReturnAnySpans() {
         let context = SpanContext(operation: "operation")
-        let tracer = SentryTracer(context: context, framesTracker: nil)
+        let tracer = makeTracer(context: context)
 
         let result = sentryBuildStandaloneAppStartSpans(tracer, nil)
 
@@ -29,7 +29,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
 
     func testBuildStandaloneAppStartSpans_whenUnknownType_shouldStillBuildSpans() {
         let context = SpanContext(operation: "operation")
-        let tracer = SentryTracer(context: context, framesTracker: nil)
+        let tracer = makeTracer(context: context)
         let appStartMeasurement = SentryAppStartMeasurement(
             type: SentryAppStartType.unknown,
             isPreWarmed: false,
@@ -50,7 +50,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
     func testSentryBuildAppStartSpans_appStartMeasurementIsNotColdOrWarm_shouldNotReturnAnySpans() {
         // Arrange
         let context = SpanContext(operation: "operation")
-        let tracer = SentryTracer(context: context, framesTracker: nil)
+        let tracer = makeTracer(context: context)
         let appStartMeasurement = SentryAppStartMeasurement(
             type: SentryAppStartType.unknown,
             isPreWarmed: false,
@@ -73,7 +73,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
     func testSentryBuildAppStartSpans_appStartMeasurementIsColdAndNotPrewarmed_shouldNotIncludePreRuntimeSpans() {
         // Arrange
         let context = SpanContext(operation: "operation")
-        let tracer = SentryTracer(context: context, framesTracker: nil)
+        let tracer = makeTracer(context: context)
         let appStartMeasurement = SentryAppStartMeasurement(
             type: SentryAppStartType.cold,
             isPreWarmed: false,
@@ -156,7 +156,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
     func testSentryBuildAppStartSpans_appStartMeasurementIsWarmAndNotPrewarmed_shouldNotIncludePreRuntimeSpans() {
         // Arrange
         let context = SpanContext(operation: "operation")
-        let tracer = SentryTracer(context: context, framesTracker: nil)
+        let tracer = makeTracer(context: context)
         let appStartMeasurement = SentryAppStartMeasurement(
             type: SentryAppStartType.warm,
             isPreWarmed: false,
@@ -239,7 +239,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
     func testBuildStandaloneAppStartSpans_whenColdNotPrewarmed_shouldNotIncludeGroupingSpan() {
         // Arrange
         let context = SpanContext(operation: "operation")
-        let tracer = SentryTracer(context: context, framesTracker: nil)
+        let tracer = makeTracer(context: context)
         let appStartMeasurement = SentryAppStartMeasurement(
             type: SentryAppStartType.cold,
             isPreWarmed: false,
@@ -303,7 +303,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
     func testBuildStandaloneAppStartSpans_whenPrewarmed_shouldNotIncludeGroupingSpan() {
         // Arrange
         let context = SpanContext(operation: "operation")
-        let tracer = SentryTracer(context: context, framesTracker: nil)
+        let tracer = makeTracer(context: context)
         let appStartMeasurement = SentryAppStartMeasurement(
             type: SentryAppStartType.warm,
             isPreWarmed: true,
@@ -349,7 +349,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
     func testSentryBuildAppStartSpans_appStartMeasurementIsPreWarmed_shouldIncludePreRuntimeSpans() {
         // Arrange
         let context = SpanContext(operation: "operation")
-        let tracer = SentryTracer(context: context, framesTracker: nil)
+        let tracer = makeTracer(context: context)
         let appStartMeasurement = SentryAppStartMeasurement(
             type: SentryAppStartType.warm,
             isPreWarmed: true,
@@ -407,6 +407,14 @@ class SentryBuildAppStartSpansTests: XCTestCase {
             expectedEndTimestamp: Date(timeIntervalSince1970: 1_935),
             expectedSampled: tracer.sampled
         )
+    }
+
+    private func makeTracer(context: SpanContext) -> SentryTracer {
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SDK_V10
+        SentryTracer(context: context, framesTracker: nil)
+#else
+        SentryTracer(context: context)
+#endif
     }
 
     private func assertSpan(

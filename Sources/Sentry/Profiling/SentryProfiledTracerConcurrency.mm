@@ -189,7 +189,7 @@ sentry_discardProfilerCorrelatedToTrace(SentryId *internalTraceId, SentryHubInte
 
         _unsafe_cleanUpTraceProfiler(profiler, tracerKey);
 
-#    if SENTRY_HAS_UIKIT
+#    if SENTRY_HAS_UIKIT && !SDK_V10
         if (_gProfilersToTracers == nil) {
             SENTRY_LOG_ERROR(@"Profiler to tracer structure should have already been "
                              @"initialized by the time they are being queried");
@@ -197,7 +197,7 @@ sentry_discardProfilerCorrelatedToTrace(SentryId *internalTraceId, SentryHubInte
         if (_gProfilersToTracers.count == 0) {
             sentry_framesTrackerResetProfilingTimestamps();
         }
-#    endif // SENTRY_HAS_UIKIT
+#    endif // SENTRY_HAS_UIKIT && !SDK_V10
     }
 }
 
@@ -221,7 +221,7 @@ SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryId *internalTra
 
     _unsafe_cleanUpTraceProfiler(profiler, tracerKey);
 
-#    if SENTRY_HAS_UIKIT
+#    if SENTRY_HAS_UIKIT && !SDK_V10
     profiler.screenFrameData =
         [SentryProfilingScreenFramesHelper copyScreenFrames:sentry_framesTrackerGetCurrentFrames()];
     SENTRY_LOG_DEBUG(
@@ -230,7 +230,7 @@ SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryId *internalTra
     if (_gProfilersToTracers.count == 0) {
         sentry_framesTrackerResetProfilingTimestamps();
     }
-#    endif // SENTRY_HAS_UIKIT
+#    endif // SENTRY_HAS_UIKIT && !SDK_V10
 
     return profiler;
 }

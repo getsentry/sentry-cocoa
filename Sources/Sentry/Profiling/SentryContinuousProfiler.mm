@@ -71,11 +71,11 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
     NSDictionary *_Nonnull metricProfilerState = [profiler.metricProfiler copyMetricProfilerData];
     [profiler.metricProfiler clear];
 
-#    if SENTRY_HAS_UIKIT
+#    if SENTRY_HAS_UIKIT && !SDK_V10
     SentryScreenFrames *screenFrameData =
         [SentryProfilingScreenFramesHelper copyScreenFrames:sentry_framesTrackerGetCurrentFrames()];
     sentry_framesTrackerResetProfilingTimestamps();
-#    endif // SENTRY_HAS_UIKIT
+#    endif // SENTRY_HAS_UIKIT && !SDK_V10
 
     // Capture profiler ID on main thread since we need it for the background work
     const auto profilerID = profiler.profilerId;
@@ -87,10 +87,10 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
             = serializeContinuousProfileMetrics(metricProfilerState);
         SentryEnvelope *_Nullable envelope
             = sentry_continuousProfileChunkEnvelope(profilerID, profilerState, serializedMetrics
-#    if SENTRY_HAS_UIKIT
+#    if SENTRY_HAS_UIKIT && !SDK_V10
                 ,
                 screenFrameData
-#    endif // SENTRY_HAS_UIKIT
+#    endif // SENTRY_HAS_UIKIT && !SDK_V10
             );
         if (envelope == nil) {
             SENTRY_LOG_ERROR(@"Failed to create continuous profile chunk envelope.");

@@ -1,3 +1,4 @@
+#if !SDK_V10
 // swiftlint:disable missing_docs
 #if SWIFT_PACKAGE
 @_spi(Private) internal import SentrySwift
@@ -27,3 +28,4 @@ import Foundation
 
 #endif
 // swiftlint:enable missing_docs
+#endif // !SDK_V10

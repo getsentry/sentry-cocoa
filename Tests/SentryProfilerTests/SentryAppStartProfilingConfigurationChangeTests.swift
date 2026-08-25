@@ -1,5 +1,6 @@
 // swiftlint:disable file_length
 
+#if !SDK_V10
 @_spi(Private) import SentryTestUtils
 @testable import Sentry
 import XCTest
@@ -373,5 +374,6 @@ extension SentryAppStartProfilingConfigurationChangeTests {
 #endif // !os(macOS)
 
 #endif // os(iOS) || os(macOS)
+#endif // !SDK_V10
 
 // swiftlint:enable file_length

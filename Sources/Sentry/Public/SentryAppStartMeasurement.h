@@ -35,8 +35,10 @@ SENTRY_NO_INIT
 @property (readonly, nonatomic, assign) BOOL isPreWarmed;
 
 /**
- * How long the app start took. From appStartTimestamp to when the SDK creates the
- * AppStartMeasurement, which is done when the first CADisplayLink callback is received.
+ * How long the app start took.
+#if !SDK_V10
+ * In V9, this is measured from appStartTimestamp until the first CADisplayLink callback.
+#endif // !SDK_V10
  */
 @property (readonly, nonatomic, assign) NSTimeInterval duration;
 

@@ -27,9 +27,13 @@ sentryBuildAppStartSpan(
                                             origin:SentryTraceOriginAutoAppStart
                                            sampled:tracer.sampled];
 
+#    if !SDK_V10
     // Pass nil for the framesTracker because app start spans are created during launch,
     // before the frames tracker is available.
     return [[SentrySpanInternal alloc] initWithTracer:tracer context:context framesTracker:nil];
+#    else
+    return [[SentrySpanInternal alloc] initWithTracer:tracer context:context];
+#    endif // !SDK_V10
 }
 
 /**

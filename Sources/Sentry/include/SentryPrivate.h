@@ -65,7 +65,9 @@
 #import "SentryDateUtils.h"
 #import "SentryDefaultThreadInspector.h"
 #import "SentryDefaultUIViewControllerPerformanceTracker.h"
-#import "SentryDelayedFramesTracker.h"
+#if !SDK_V10
+#    import "SentryDelayedFramesTracker.h"
+#endif // !SDK_V10
 #import "SentryDependencyContainerSwiftHelper.h"
 #import "SentryDeviceContextKeys.h"
 #import "SentryEvent+Private.h"

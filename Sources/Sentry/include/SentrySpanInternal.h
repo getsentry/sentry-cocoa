@@ -11,9 +11,9 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentrySpanId;
 @class SentryTracer;
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !SDK_V10
 @class SentryFramesTracker;
-#endif // SENTRY_HAS_UIKIT
+#endif // SENTRY_HAS_UIKIT && !SDK_V10
 
 // This class used to be named SentrySpan, but it was renamed to SentrySpanInternal to avoid
 // confusion with the public SentrySpan protocol.
@@ -103,9 +103,9 @@ SENTRY_NO_INIT
  */
 - (instancetype)initWithTracer:(SentryTracer *)transaction
                        context:(SentrySpanContext *)context
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !SDK_V10
                  framesTracker:(nullable SentryFramesTracker *)framesTracker;
-#endif // SENTRY_HAS_UIKIT
+#endif // SENTRY_HAS_UIKIT && !SDK_V10
 ;
 
 /**
@@ -113,9 +113,9 @@ SENTRY_NO_INIT
  * @param context This span context information.
  */
 - (instancetype)initWithContext:(SentrySpanContext *)context
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !SDK_V10
                   framesTracker:(nullable SentryFramesTracker *)framesTracker;
-#endif // SENTRY_HAS_UIKIT
+#endif // SENTRY_HAS_UIKIT && !SDK_V10
 ;
 
 @end

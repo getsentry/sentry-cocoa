@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 #if os(iOS) || os(tvOS) || os(visionOS)
 
 @_spi(Private) import SentryTestUtils
@@ -32,8 +33,10 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         let tracker = SentryPerformanceTracker.shared
         let dateProvider = TestCurrentDateProvider()
         
+        #if !SDK_V10
         var displayLinkWrapper = TestDisplayLinkWrapper()
         var framesTracker: SentryFramesTracker
+        #endif // !SDK_V10
 
         var viewControllerName: String!
 
@@ -49,10 +52,12 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
             options.add(inAppInclude: imageName.lastPathComponent)
             options.debug = true
 
+            #if !SDK_V10
             framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: dateProvider, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
                                                 notificationCenter: TestNSNotificationCenterWrapper(), delayedFramesTracker: TestDelayedWrapper(keepDelayedFramesDuration: 0, dateProvider: dateProvider))
             SentryDependencyContainer.sharedInstance().framesTracker = framesTracker
             framesTracker.start()
+            #endif // !SDK_V10
         }
 
         func getSut() -> SentryUIViewControllerPerformanceTracker {
@@ -386,6 +391,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         XCTAssertEqual(ttfdSpan.timestamp, expectedTTFDTimestamp)
     }
     
+    #if !SDK_V10
     func testFramesTrackerNotRunning_NoTTDTrackerAndSpans() {
         fixture.framesTracker.stop()
         let sut = fixture.getSut()
@@ -406,6 +412,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         XCTAssertEqual(tracer?.children.filter { $0.operation.contains("initial_display") }.count, 0, "Tracer must not contain a TTID span")
         XCTAssertEqual(tracer?.children.filter { $0.operation.contains("full_display") }.count, 0, "Tracer must not contain a TTFD span")
     }
+    #endif // !SDK_V10
 
     func testSecondViewController() throws {
         let sut = fixture.getSut()
@@ -836,6 +843,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         XCTAssertEqual(secondTracer?.traceId, SentrySDK.span?.traceId)
     }
     
+    #if !SDK_V10
     func test_waitForFullDisplay_NewViewControllerLoaded_BeforeReportTTFD_FramesTrackerStopped() throws {
         let sut = fixture.getSut()
         let tracker = fixture.tracker
@@ -875,7 +883,8 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         
         XCTAssertEqual(0, secondTracer?.children.filter { $0.operation == "ui.load.full_display" }.count, "There should be no full display span, because the frames tracker is not running.")
     }
-    
+    #endif // !SDK_V10
+
     func test_waitForFullDisplay_NestedUIViewControllers_DoesNotFinishTTFDSpan() throws {
         let sut = fixture.getSut()
         let tracker = fixture.tracker
@@ -990,8 +999,11 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
     }
 
     private func reportFrame() {
+        #if !SDK_V10
         advanceTime(bySeconds: self.frameDuration)
         Dynamic(SentryDependencyContainer.sharedInstance().framesTracker).displayLinkCallback()
+        #endif // !SDK_V10
     }
 }
 #endif // os(iOS) || os(tvOS)
+// swiftlint:enable file_length

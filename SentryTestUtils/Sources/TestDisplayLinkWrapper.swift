@@ -1,3 +1,4 @@
+#if !SDK_V10
 @_spi(Private) @testable import Sentry
 import Foundation
 
@@ -138,3 +139,4 @@ public enum FrameRate: UInt64 {
 }
 
 #endif
+#endif // !SDK_V10

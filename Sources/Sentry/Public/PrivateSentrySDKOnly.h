@@ -5,7 +5,9 @@
 #endif
 
 @class SentryDebugMeta;
+#if !SDK_V10
 @class SentryScreenFrames;
+#endif // !SDK_V10
 @class SentryAppStartMeasurement;
 @class SentryOptions;
 @class SentryBreadcrumb;
@@ -127,6 +129,7 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 @property (class, nonatomic, assign) BOOL appStartMeasurementHybridSDKMode;
 
 #if SENTRY_UIKIT_AVAILABLE
+#    if !SDK_V10
 /**
  * Allows hybrid SDKs to enable frame tracking measurements despite other options.
  * @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
@@ -145,6 +148,7 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
  * configurations even when targeting iOS or tvOS platforms.
  */
 @property (class, nonatomic, assign, readonly) SentryScreenFrames *currentScreenFrames;
+#    endif // !SDK_V10
 
 /**
  * @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit

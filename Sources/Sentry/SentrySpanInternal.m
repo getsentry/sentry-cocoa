@@ -34,12 +34,12 @@ NS_ASSUME_NONNULL_BEGIN
     NSObject *_stateLock;
     BOOL _isFinished;
     uint64_t _startSystemTime;
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !SDK_V10
     NSUInteger initTotalFrames;
     NSUInteger initSlowFrames;
     NSUInteger initFrozenFrames;
     SentryFramesTracker *_framesTracker;
-#endif // SENTRY_HAS_UIKIT
+#endif // SENTRY_HAS_UIKIT && !SDK_V10
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     BOOL _isContinuousProfiling;
@@ -47,9 +47,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)initWithContext:(SentrySpanContext *)context
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !SDK_V10
                   framesTracker:(nullable SentryFramesTracker *)framesTracker;
-#endif // SENTRY_HAS_UIKIT
+#endif // SENTRY_HAS_UIKIT && !SDK_V10
 {
     if (self = [super init]) {
         _startSystemTime = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
@@ -66,7 +66,7 @@ NS_ASSUME_NONNULL_BEGIN
                 getThreadName:currentThread];
         }
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !SDK_V10
         _framesTracker = framesTracker;
         if (_framesTracker.isRunning) {
             SentryScreenFrames *currentFrames = _framesTracker.currentFrames;
@@ -74,7 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
             initSlowFrames = currentFrames.slow;
             initFrozenFrames = currentFrames.frozen;
         }
-#endif // SENTRY_HAS_UIKIT
+#endif // SENTRY_HAS_UIKIT && !SDK_V10
 
         _tags = [[NSMutableDictionary alloc] init];
         self.featureFlagBuffer = [SentryFeatureFlagBufferWrapper spanBuffer];
@@ -139,14 +139,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithTracer:(SentryTracer *)tracer
                        context:(SentrySpanContext *)context
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !SDK_V10
                  framesTracker:(nullable SentryFramesTracker *)framesTracker
 {
     if (self = [self initWithContext:context framesTracker:framesTracker]) {
 #else
 {
     if (self = [self initWithContext:context]) {
-#endif // SENTRY_HAS_UIKIT
+#endif // SENTRY_HAS_UIKIT && !SDK_V10
 
         _tracer = tracer;
 
@@ -270,7 +270,7 @@ NS_ASSUME_NONNULL_BEGIN
             (unsigned long long)SentryDependencyContainer.sharedInstance.dateProvider.systemTime);
     }
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !SDK_V10
     if (_framesTracker.isRunning) {
         CFTimeInterval framesDelay = [_framesTracker
              getFramesDelaySPI:_startSystemTime
@@ -298,7 +298,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
 
-#endif // SENTRY_HAS_UIKIT
+#endif // SENTRY_HAS_UIKIT && !SDK_V10
 
     if (self.tracer == nil) {
         SENTRY_LOG_DEBUG(

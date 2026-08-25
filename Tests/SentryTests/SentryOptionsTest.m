@@ -377,7 +377,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     SentryOptions *options = [self getValidOptions:@{ @"beforeSendSpan" : callback }];
     options.beforeSendSpan([[SentrySpanInternal alloc]
         initWithContext:[[SentrySpanContext alloc] initWithOperation:@""]
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !SDK_V10
           framesTracker:NULL
 #endif
     ]);

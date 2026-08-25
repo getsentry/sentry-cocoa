@@ -1,7 +1,8 @@
+#if !SDK_V10
 @import SentryObjC;
 @import XCTest;
 
-#if SENTRY_OBJC_HAS_UIKIT
+#    if SENTRY_OBJC_HAS_UIKIT
 
 @interface SentryObjCInternalPerformanceApiIntegrationTests : XCTestCase
 @end
@@ -25,7 +26,7 @@
     [super tearDown];
 }
 
-#    pragma mark - Accessor
+#        pragma mark - Accessor
 
 - (void)testInternal_performance_shouldBeAccessible
 {
@@ -36,7 +37,7 @@
     XCTAssertNotNil(performance);
 }
 
-#    pragma mark - framesTrackingHybridSDKMode
+#        pragma mark - framesTrackingHybridSDKMode
 
 - (void)testFramesTrackingHybridSDKMode_defaultIsFalse
 {
@@ -56,7 +57,7 @@
     SentryObjCSDK.internal.performance.framesTrackingHybridSDKMode = NO;
 }
 
-#    pragma mark - isFramesTrackingRunning
+#        pragma mark - isFramesTrackingRunning
 
 - (void)testIsFramesTrackingRunning_defaultIsTrue
 {
@@ -69,4 +70,5 @@
 
 @end
 
-#endif
+#    endif
+#endif // !SDK_V10

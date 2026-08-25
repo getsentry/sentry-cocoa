@@ -162,8 +162,7 @@ sentry_scheduledTimerWithTarget(
                                repeats:repeats];
 }
 
-#    if SENTRY_HAS_UIKIT
-#        if !SDK_V10
+#    if SENTRY_HAS_UIKIT && !SDK_V10
 BOOL
 sentry_appHangsDisabled(void)
 {
@@ -173,7 +172,6 @@ sentry_appHangsDisabled(void)
     }
     return [options isAppHangTrackingDisabled];
 }
-#        endif // !SDK_V10
 BOOL
 sentry_autoPerformanceTracingDisabled(void)
 {
@@ -206,7 +204,7 @@ sentry_framesTrackerGetCurrentFrames(void)
 {
     return [SentryDependencyContainer.sharedInstance.framesTracker currentFrames];
 }
-#    endif // SENTRY_HAS_UIKIT
+#    endif // SENTRY_HAS_UIKIT && !SDK_V10
 
 void
 sentry_configureContinuousProfiling(SentryOptions *options)
@@ -264,7 +262,7 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHubInternal *hub)
                 && !sentry_isTraceLifecycle(SENTRY_UNWRAP_NULLABLE(
                     SentryProfileOptions, configurationFromLaunch.profileOptions));
 
-#    if SENTRY_HAS_UIKIT
+#    if SENTRY_HAS_UIKIT && !SDK_V10
             BOOL v2LifecycleIsTrace = profileIsContinuousV2
                 && sentry_isTraceLifecycle(SENTRY_UNWRAP_NULLABLE(
                     SentryProfileOptions, configurationFromLaunch.profileOptions));
@@ -275,7 +273,7 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHubInternal *hub)
                     @"display reported.");
                 shouldStopAndTransmitLaunchProfile = NO;
             }
-#    endif // SENTRY_HAS_UIKIT
+#    endif // SENTRY_HAS_UIKIT && !SDK_V10
 
             if (v2LifecycleIsManual) {
                 SENTRY_LOG_DEBUG(@"Continuous manual launch profiles aren't stopped on calls to "

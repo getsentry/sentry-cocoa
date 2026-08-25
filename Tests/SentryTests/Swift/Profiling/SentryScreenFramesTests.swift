@@ -1,3 +1,4 @@
+#if !SDK_V10
 @_spi(Private) @testable import Sentry
 import XCTest
 
@@ -379,3 +380,4 @@ class SentryScreenFramesTests: XCTestCase {
 }
 
 #endif // (os(iOS) || os(tvOS) || os(visionOS))
+#endif // !SDK_V10

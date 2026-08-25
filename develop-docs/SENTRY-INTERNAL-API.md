@@ -148,7 +148,9 @@ Sub-object accessors:
 | `measurement: SentryAppStartMeasurement?`                         | `appStartMeasurement`              | `SENTRY_UIKIT_AVAILABLE` |
 | `onMeasurementAvailable: ((SentryAppStartMeasurement?) -> Void)?` | `onAppStartMeasurementAvailable`   | `SENTRY_UIKIT_AVAILABLE` |
 
-### `SentrySDK.internal.performance` — `SentryInternalPerformanceApi`
+### `SentrySDK.internal.performance` — `SentryInternalPerformanceApi` (V9 only)
+
+Removed in V10 together with rendered-frame tracking.
 
 | Method                                    | Replaced                                 |
 | ----------------------------------------- | ---------------------------------------- |

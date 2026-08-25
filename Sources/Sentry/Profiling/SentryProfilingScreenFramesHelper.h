@@ -1,7 +1,9 @@
-#import "SentryDefines.h"
-#import <Foundation/Foundation.h>
+#if !SDK_V10
 
-#if SENTRY_HAS_UIKIT
+#    import "SentryDefines.h"
+#    import <Foundation/Foundation.h>
+
+#    if SENTRY_HAS_UIKIT
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -16,4 +18,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_ASSUME_NONNULL_END
 
-#endif // SENTRY_HAS_UIKIT
+#    endif // SENTRY_HAS_UIKIT
+
+#endif // !SDK_V10

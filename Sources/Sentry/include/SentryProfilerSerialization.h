@@ -8,7 +8,9 @@
 @class SentryEnvelopeItem;
 @class SentryHubInternal;
 @class SentryId;
+#    if SENTRY_HAS_UIKIT && !SDK_V10
 @class SentryScreenFrames;
+#    endif // SENTRY_HAS_UIKIT && !SDK_V10
 @class SentryTransaction;
 @class SentryProfiler;
 
@@ -24,10 +26,10 @@ SENTRY_EXTERN SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(Sent
 
 SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
     SentryId *profileID, NSDictionary *profileState, NSDictionary *metricProfilerState
-#    if SENTRY_HAS_UIKIT
+#    if SENTRY_HAS_UIKIT && !SDK_V10
     ,
     SentryScreenFrames *gpuData
-#    endif // SENTRY_HAS_UIKIT
+#    endif // SENTRY_HAS_UIKIT && !SDK_V10
 );
 
 /** Alternative affordance for use by PrivateSentrySDKOnly for hybrid SDKs. */

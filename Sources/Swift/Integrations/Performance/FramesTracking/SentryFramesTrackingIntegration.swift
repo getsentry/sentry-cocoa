@@ -1,3 +1,4 @@
+#if !SDK_V10
 internal import _SentryPrivate
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
@@ -54,3 +55,4 @@ final class SentryFramesTrackingIntegration<Dependencies: FramesTrackingProvider
 }
 
 #endif
+#endif // !SDK_V10

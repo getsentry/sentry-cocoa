@@ -273,7 +273,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * When enabled, the SDK tracks performance for UIViewController subclasses and HTTP requests
- * automatically. It also measures the app start and slow and frozen frames.
+ * automatically. It also measures app start performance.
+#if !SDK_V10
+ * In V9, it additionally measures slow and frozen frames.
+#endif // !SDK_V10
  * @note The default is @c YES.
  * @note Performance Monitoring must be enabled for this flag to take effect.
  */

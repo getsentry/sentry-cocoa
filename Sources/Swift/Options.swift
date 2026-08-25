@@ -275,8 +275,13 @@
     @objc public var sendDefaultPii: Bool = false
 #endif // !SDK_V10
 
+    #if SDK_V10
+    /// When enabled, the SDK tracks performance for UIViewController subclasses and HTTP requests
+    /// automatically. It also measures app start performance.
+    #else
     /// When enabled, the SDK tracks performance for UIViewController subclasses and HTTP requests
     /// automatically. It also measures the app start and slow and frozen frames.
+    #endif // SDK_V10
     /// @note The default is @c true.
     /// @note Performance Monitoring must be enabled for this flag to take effect. See:
     /// https://docs.sentry.io/platforms/apple/performance/

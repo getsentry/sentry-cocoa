@@ -190,7 +190,9 @@
 #    import "SentryObjCInternalBreadcrumbApi.h"
 #    import "SentryObjCInternalDebugApi.h"
 #    import "SentryObjCInternalEnvelopeApi.h"
-#    import "SentryObjCInternalPerformanceApi.h"
+#    if !SDK_V10
+#        import "SentryObjCInternalPerformanceApi.h"
+#    endif // !SDK_V10
 #    import "SentryObjCInternalProfilingApi.h"
 #    import "SentryObjCInternalReplayApi.h"
 #    import "SentryObjCInternalScopeApi.h"
@@ -207,7 +209,9 @@
 #    import <SentryObjC/SentryObjCInternalBreadcrumbApi.h>
 #    import <SentryObjC/SentryObjCInternalDebugApi.h>
 #    import <SentryObjC/SentryObjCInternalEnvelopeApi.h>
-#    import <SentryObjC/SentryObjCInternalPerformanceApi.h>
+#    if !SDK_V10
+#        import <SentryObjC/SentryObjCInternalPerformanceApi.h>
+#    endif // !SDK_V10
 #    import <SentryObjC/SentryObjCInternalProfilingApi.h>
 #    import <SentryObjC/SentryObjCInternalReplayApi.h>
 #    import <SentryObjC/SentryObjCInternalScopeApi.h>

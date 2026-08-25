@@ -164,6 +164,17 @@ class SentrySDKTests: XCTestCase {
         assertIntegrationsInstalled(integrations: expectedIntegrations)
     }
 
+#if SDK_V10 && (os(iOS) || os(tvOS) || os(visionOS))
+    func testStartWithTracing_DoesNotInstallFramesTrackingIntegration() {
+        SentrySDK.start { options in
+            options.dsn = SentrySDKTests.dsnAsString
+            options.tracesSampleRate = 1
+        }
+
+        XCTAssertFalse(SentrySDKInternal.currentHub().hasIntegration("SentryFramesTrackingIntegration"))
+    }
+#endif
+
     func testStartStopBinaryImageCache() throws {
         SentrySDK.start { options in
             options.debug = true

@@ -28,7 +28,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 #endif
 #endif
 
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK && !SDK_V10
 @_spi(Private) extension SentryDelayedFramesTracker: SentryDelayedFramesTrackerWrapper {
     func getFramesDelay(_ startSystemTimestamp: UInt64, endSystemTimestamp: UInt64, isRunning: Bool, slowFrameThreshold: CFTimeInterval) -> SentryFramesDelayResult {
         let objcResult = getFramesDelayObjC(startSystemTimestamp, endSystemTimestamp: endSystemTimestamp, isRunning: isRunning, slowFrameThreshold: slowFrameThreshold)
@@ -94,7 +94,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             // instanceLock blocks the only external write path (SentrySDK.setStart → sharedInstance).
             let currentOptions = instance._startOptions
             instance.reachability.removeAllObservers()
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK && !SDK_V10
             instance._framesTracker?.stop()
 #endif
             instance = SentryDependencyContainer()
@@ -317,12 +317,14 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         SentryUIViewControllerPerformanceTracker()
     }
 
+    #if !SDK_V10
     private var _framesTracker: SentryFramesTracker?
     @objc public lazy var framesTracker = getLazyVar(\._framesTracker) {
         let sentryAutoTransactionMaxDuration = 500.0
         let delayedFramesTracker = SentryDelayedFramesTracker(keepDelayedFramesDuration: sentryAutoTransactionMaxDuration)
         return SentryFramesTracker(displayLinkWrapper: SentryDisplayLinkWrapper(), dateProvider: dateProvider, dispatchQueueWrapper: dispatchQueueWrapper, notificationCenter: notificationCenterWrapper, delayedFramesTracker: delayedFramesTracker)
     }
+    #endif // !SDK_V10
 
     private var _viewHierarchyProvider: SentryViewHierarchyProvider?
     @objc public lazy var viewHierarchyProvider: SentryViewHierarchyProvider? = getOptionalLazyVar(\._viewHierarchyProvider) {
@@ -719,7 +721,7 @@ extension SentryDependencyContainer: FileIOTrackerProvider { }
 extension SentryDependencyContainer: NSDataSwizzlingProvider { }
 extension SentryDependencyContainer: NSFileManagerSwizzlingProvider { }
 
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK && !SDK_V10
 protocol FramesTrackingProvider {
     var framesTracker: SentryFramesTracker { get }
 }

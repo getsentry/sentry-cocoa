@@ -5,7 +5,7 @@ import XCTest
 
 #if os(iOS) || os(macOS)
 
-#if !os(macOS)
+#if !os(macOS) && !SDK_V10
 class TestDelayedWrapper: SentryDelayedFramesTracker {}
 #endif // !os(macOS)
 
@@ -38,7 +38,7 @@ class SentryProfileTestFixture {
     
     let currentDateProvider = TestCurrentDateProvider()
     
-#if !os(macOS)
+#if !os(macOS) && !SDK_V10
     lazy var displayLinkWrapper = TestDisplayLinkWrapper(dateProvider: currentDateProvider)
     lazy var framesTracker = TestFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: currentDateProvider, dispatchQueueWrapper: dispatchQueueWrapper, notificationCenter: notificationCenter, delayedFramesTracker: TestDelayedWrapper(keepDelayedFramesDuration: 0, dateProvider: currentDateProvider))
 #endif // !os(macOS)
@@ -89,7 +89,7 @@ class SentryProfileTestFixture {
             self.metricTimerFactory = eventHandler
         }
         
-#if !os(macOS)
+#if !os(macOS) && !SDK_V10
         SentryDependencyContainer.sharedInstance().framesTracker = framesTracker
         framesTracker.start()
         displayLinkWrapper.call()
@@ -147,7 +147,7 @@ class SentryProfileTestFixture {
         systemWrapper.overrides.cpuEnergyUsageError = nil
     }
     
-#if !os(macOS)
+#if !os(macOS) && !SDK_V10
     // SentryFramesTracker starts assuming a frame rate of 60 Hz and will only log an update if it changes, so the first value here needs to be different for it to register.
     let mockFrameRateChangesPerBatch: [FrameRate] = [.high, .low, .high, .low]
     
@@ -189,7 +189,7 @@ class SentryProfileTestFixture {
             systemWrapper.overrides.cpuEnergyUsage = NSNumber(value: try XCTUnwrap(systemWrapper.overrides.cpuEnergyUsage).intValue + mockMetrics.cpuEnergyUsage.intValue)
         }
         
-#if !os(macOS)
+#if !os(macOS) && !SDK_V10
         var shouldRecordFrameRateExpectation = true
         
         func changeFrameRate(_ new: FrameRate) {
@@ -300,7 +300,7 @@ class SentryProfileTestFixture {
         systemWrapper.overrides.memoryFootprintError = nil
         systemWrapper.overrides.cpuEnergyUsageError = nil
         
-#if !os(macOS)
+#if !os(macOS) && !SDK_V10
         var shouldRecordFrameRateExpectation = true
         
         func changeFrameRate(_ new: FrameRate) {

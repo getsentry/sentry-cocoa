@@ -31,9 +31,11 @@ class ExtraViewController: UIViewController {
             uiTestNameLabel.isHidden = false
         }
 
+        #if !SDK_V10
         Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
             self.framesLabel?.text = "Frames Total:\(PrivateSentrySDKOnly.currentScreenFrames.total) Slow:\(PrivateSentrySDKOnly.currentScreenFrames.slow) Frozen:\(PrivateSentrySDKOnly.currentScreenFrames.frozen)"
         }
+        #endif // !SDK_V10
     }
 
     override func viewDidAppear(_ animated: Bool) {

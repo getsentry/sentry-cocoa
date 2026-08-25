@@ -1,5 +1,5 @@
 // Profiling is only supported on iOS
-#if os(iOS)
+#if os(iOS) && !SDK_V10
 
 @_spi(Private) import SentryTestUtils
 @_spi(Private) @testable import Sentry

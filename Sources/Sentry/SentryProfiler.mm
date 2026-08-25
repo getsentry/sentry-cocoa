@@ -120,10 +120,10 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
 
     SENTRY_LOG_DEBUG(@"Initialized new SentryProfiler %@", self);
 
-#    if SENTRY_HAS_UIKIT
+#    if SENTRY_HAS_UIKIT && !SDK_V10
     // the frame tracker may not be running if SentryOptions.enableAutoPerformanceTracing is NO
     sentry_startFramesTracker();
-#    endif // SENTRY_HAS_UIKIT
+#    endif // SENTRY_HAS_UIKIT && !SDK_V10
 
     [self start];
 
@@ -165,24 +165,18 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
 
     self.truncationReason = reason;
 
-#    if SENTRY_HAS_UIKIT
+#    if SENTRY_HAS_UIKIT && !SDK_V10
     // if SentryOptions.enableAutoPerformanceTracing is NO and appHangsV2Disabled, which uses the
     // frames tracker, is YES, then we need to stop the frames tracker from running outside of
     // profiles because it isn't needed for anything else
 
     BOOL autoPerformanceTracingDisabled = sentry_autoPerformanceTracingDisabled();
-#        if SDK_V10
-    if (autoPerformanceTracingDisabled) {
-        sentry_stopFramesTracker();
-    }
-#        else
     BOOL appHangsDisabled = sentry_appHangsDisabled();
 
     if (autoPerformanceTracingDisabled && appHangsDisabled) {
         sentry_stopFramesTracker();
     }
-#        endif // SDK_V10
-#    endif // SENTRY_HAS_UIKIT
+#    endif // SENTRY_HAS_UIKIT && !SDK_V10
 
     _samplingProfiler->stopSampling();
     SENTRY_LOG_DEBUG(@"Stopped profiler %@.", self);

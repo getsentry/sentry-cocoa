@@ -34,8 +34,10 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         let sysctl = TestSysctl()
         let fileManager: SentryFileManager
         let appStateManager: SentryAppStateManager
+        #if !SDK_V10
         var displayLinkWrapper = TestDisplayLinkWrapper()
         let framesTracker: SentryFramesTracker
+        #endif // !SDK_V10
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         var enablePreWarmedAppStartTracing = true
         #if SDK_V10
@@ -70,9 +72,11 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
             dependencies.dispatchQueueWrapper = dispatchQueue
             appStateManager = SentryAppStateManager(releaseName: options.releaseName, dependencies: dependencies)
 
+            #if !SDK_V10
             framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: currentDate, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
                                                 notificationCenter: TestNSNotificationCenterWrapper(), delayedFramesTracker: TestDelayedWrapper(keepDelayedFramesDuration: 0, dateProvider: currentDate))
             framesTracker.start()
+            #endif // !SDK_V10
 
             runtimeInitTimestamp = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(0.2)
             moduleInitializationTimestamp = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(0.1)
@@ -210,7 +214,9 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         #endif
 
         fixture.fileManager.moveAppStateToPreviousAppState()
+        #if !SDK_V10
         fixture.framesTracker.resetFrames()
+        #endif // !SDK_V10
         startApp(callDisplayLink: true)
         #if SDK_V10
         assertStandaloneTransaction(type: .warm)
@@ -573,12 +579,14 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         uiWindowDidBecomeVisible()
         didBecomeActive()
         
+        #if !SDK_V10
         if callDisplayLink {
             advanceTime(bySeconds: 0.05)
             fixture.currentDate.driftTimeForEveryRead = true
             fixture.displayLinkWrapper.normalFrame()
             fixture.currentDate.driftTimeForEveryRead = false
         }
+        #endif // !SDK_V10
     }
     
     private func hybridAppStart() {

@@ -505,7 +505,12 @@ final class SentryClientTests: XCTestCase {
         SentryDependencyContainer.sharedInstance().applicationOverride = testApplication
         testApplication._relevantViewControllerNames = ["ClientTestViewController"]
 
-        let event = Transaction(trace: SentryTracer(context: SpanContext(operation: "test"), framesTracker: nil), children: [])
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SDK_V10
+        let tracer = SentryTracer(context: SpanContext(operation: "test"), framesTracker: nil)
+#else
+        let tracer = SentryTracer(context: SpanContext(operation: "test"))
+#endif
+        let event = Transaction(trace: tracer, children: [])
         fixture.getSut().capture(event: event, scope: fixture.scope)
 
         let sentEvent = try lastSentEventWithAttachment()
@@ -3132,7 +3137,7 @@ private extension SentryClientTests {
     }
 
     private func getSpan(operation: String, tracer: SentryTracer) -> Span {
-#if os(iOS) || os(tvOS) || os(visionOS)
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SDK_V10
         return SentrySpanInternal(tracer: tracer, context: SpanContext(operation: operation), framesTracker: nil)
 #else
         return  SentrySpanInternal(tracer: tracer, context: SpanContext(operation: operation))

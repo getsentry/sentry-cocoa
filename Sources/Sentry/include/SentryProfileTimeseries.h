@@ -5,9 +5,9 @@
 #    import "SentryDefines.h"
 #    import <Foundation/Foundation.h>
 
-#    if SENTRY_HAS_UIKIT
+#    if SENTRY_HAS_UIKIT && !SDK_V10
 #        import "SentryProfilerDefines.h"
-#    endif // SENTRY_HAS_UIKIT
+#    endif // SENTRY_HAS_UIKIT && !SDK_V10
 
 @class SentrySample;
 @class SentryTransaction;
@@ -18,12 +18,14 @@ NS_ASSUME_NONNULL_BEGIN
 extern "C" {
 #    endif
 
+#    if SENTRY_HAS_UIKIT && !SDK_V10
 typedef NSArray<NSDictionary<NSString *, NSNumber *> *> SentryFrameInfoTimeSeries;
+#    endif // SENTRY_HAS_UIKIT && !SDK_V10
 
 NSArray<SentrySample *> *_Nullable sentry_slicedProfileSamples(
     NSArray<SentrySample *> *samples, uint64_t startSystemTime, uint64_t endSystemTime);
 
-#    if SENTRY_HAS_UIKIT
+#    if SENTRY_HAS_UIKIT && !SDK_V10
 
 /**
  * Convert the data structure that records timestamps for GPU frame render info from
@@ -44,7 +46,7 @@ SENTRY_EXTERN NSArray<NSDictionary<NSString *, NSNumber *> *> *sentry_sliceConti
     SentryFrameInfoTimeSeries *frameInfo, NSTimeInterval start, NSTimeInterval end,
     BOOL useMostRecentFrameRate);
 
-#    endif // SENTRY_HAS_UIKIT
+#    endif // SENTRY_HAS_UIKIT && !SDK_V10
 
 #    if defined(__cplusplus)
 }

@@ -322,7 +322,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     }
     #endif
 
-    #if os(iOS) || os(tvOS)
+    #if (os(iOS) || os(tvOS)) && !SDK_V10
 
     func testIsFramesTrackingRunning() {
         XCTAssertFalse(PrivateSentrySDKOnly.isFramesTrackingRunning)

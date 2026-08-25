@@ -86,7 +86,7 @@ NSArray<SentrySample *> *_Nullable sentry_slicedProfileSamples(
     return [samples objectsAtIndexes:indices];
 }
 
-#    if SENTRY_HAS_UIKIT
+#    if SENTRY_HAS_UIKIT && !SDK_V10
 NSArray<SentrySerializedMetricEntry *> *
 sentry_sliceTraceProfileGPUData(SentryFrameInfoTimeSeries *frameInfo, uint64_t startSystemTime,
     uint64_t endSystemTime, BOOL useMostRecentRecording)
@@ -130,6 +130,6 @@ sentry_sliceTraceProfileGPUData(SentryFrameInfoTimeSeries *frameInfo, uint64_t s
     }
     return slicedGPUEntries;
 }
-#    endif // SENTRY_HAS_UIKIT
+#    endif // SENTRY_HAS_UIKIT && !SDK_V10
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

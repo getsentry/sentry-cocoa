@@ -1,7 +1,9 @@
-#import "SentryProfilingScreenFramesHelper.h"
-#import "SentrySwift.h"
+#if !SDK_V10
 
-#if SENTRY_HAS_UIKIT
+#    import "SentryProfilingScreenFramesHelper.h"
+#    import "SentrySwift.h"
+
+#    if SENTRY_HAS_UIKIT
 
 @implementation SentryProfilingScreenFramesHelper
 
@@ -12,4 +14,6 @@
 
 @end
 
-#endif // SENTRY_HAS_UIKIT
+#    endif // SENTRY_HAS_UIKIT
+
+#endif // !SDK_V10

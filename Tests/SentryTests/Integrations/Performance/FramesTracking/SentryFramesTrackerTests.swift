@@ -4,6 +4,7 @@
 import XCTest
 
 // swiftlint:disable file_length
+#if !SDK_V10
 // This test class also includes tests for delayed frames calculation which is quite complex.
 
 #if os(iOS) || os(tvOS)
@@ -1168,4 +1169,5 @@ private extension SentryFramesTrackerTests {
 
 #endif
 
+#endif // !SDK_V10
 // swiftlint:enable file_length

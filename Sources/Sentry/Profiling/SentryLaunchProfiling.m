@@ -267,7 +267,11 @@ _sentry_nondeduplicated_startLaunchProfile(void)
         return;
     }
 
+#    if SDK_V10
+    BOOL shouldWaitForFullDisplay = NO;
+#    else
     BOOL shouldWaitForFullDisplay = shouldWaitForFullDisplayValue.boolValue;
+#    endif // SDK_V10
 
     SentryProfileOptions *profileOptions = nil;
     SENTRY_LOG_DEBUG(@"Starting continuous launch profile v2.");
@@ -316,8 +320,12 @@ sentry_configureLaunchProfilingForNextLaunch(SentryOptions *options)
 
         NSMutableDictionary<NSString *, NSNumber *> *configDict =
             [NSMutableDictionary<NSString *, NSNumber *> dictionary];
+#    if SDK_V10
+        configDict[kSentryLaunchProfileConfigKeyWaitForFullDisplay] = @NO;
+#    else
         configDict[kSentryLaunchProfileConfigKeyWaitForFullDisplay] =
             @(options.enableTimeToFullDisplayTracing);
+#    endif // SDK_V10
         SENTRY_LOG_DEBUG(@"Configuring continuous launch profile v2.");
         configDict[kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle] =
             @(options.profiling.lifecycle);

@@ -59,6 +59,7 @@ class LaunchUITests: BaseUITest {
         assertApp()
     }
 
+    #if !SDK_V10
     func testCheckSlowAndFrozenFrames() {
         app.buttons["Extra"].tap()
         
@@ -104,6 +105,7 @@ class LaunchUITests: BaseUITest {
         XCTAssertGreaterThanOrEqual(actualTotalFrames, expectedMinimumTotalFrames, "Actual frames:\(actualTotalFrames) should be greater than \(expectedMinimumTotalFrames)")
         XCTAssertLessThanOrEqual(actualTotalFrames, expectedMaximumTotalFrames, "Actual frames:\(actualTotalFrames) should be less than \(expectedMaximumTotalFrames)")
     }
+    #endif // !SDK_V10
 
     /**
      * We received a customer report that ASAN reports a use-after-free error after
@@ -120,6 +122,7 @@ class LaunchUITests: BaseUITest {
         app.tabBars["Tab Bar"].buttons["Extra"].tap()
     }
     
+    #if !SDK_V10
     private func getFramesStats() -> (Int, Int, Int) {
         let frameStatsLabel = app.staticTexts["framesStatsLabel"]
         frameStatsLabel.waitForExistence("Frame statistics message not found.")
@@ -134,6 +137,7 @@ class LaunchUITests: BaseUITest {
         
         return (totalFrames, slowFrames, frozenFrames)
     }
+    #endif // !SDK_V10
 }
 
 private extension LaunchUITests {

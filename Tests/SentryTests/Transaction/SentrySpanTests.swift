@@ -15,7 +15,7 @@ class SentrySpanTests: XCTestCase {
         let options: Options
         let notificationCenter = TestNSNotificationCenterWrapper()
         let currentDateProvider = TestCurrentDateProvider()
-#if os(iOS) || os(tvOS) || os(visionOS)
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SDK_V10
         let tracer = SentryTracer(context: SpanContext(operation: "TEST"), framesTracker: nil)
 #else
         let tracer = SentryTracer(context: SpanContext(operation: "TEST"))
@@ -41,7 +41,7 @@ class SentrySpanTests: XCTestCase {
         }
         
         func getSutWithTracer() -> SentrySpanInternal {
-#if os(iOS) || os(tvOS) || os(visionOS)
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SDK_V10
             return SentrySpanInternal(tracer: tracer, context: SpanContext(operation: someOperation, sampled: .undecided), framesTracker: nil)
 #else
             return SentrySpanInternal(tracer: tracer, context: SpanContext(operation: someOperation, sampled: .undecided))
@@ -635,7 +635,7 @@ class SentrySpanTests: XCTestCase {
         // Span has a weak reference to tracer. If we don't keep a reference
         // to the tracer ARC will deallocate the tracer.
         let sutGenerator: () -> Span = {
-#if os(iOS) || os(tvOS) || os(visionOS)
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SDK_V10
             let tracer = SentryTracer(context: SpanContext(operation: "TEST"), framesTracker: nil)
             return SentrySpanInternal(tracer: tracer, context: SpanContext(operation: ""), framesTracker: nil)
 #else
@@ -725,7 +725,7 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(expectedBaggage, sut.baggageHttpHeader())
     }
     
-#if os(iOS) || os(tvOS)
+#if (os(iOS) || os(tvOS)) && !SDK_V10
     func testAddSlowFrozenFramesToData() {
         let (displayLinkWrapper, framesTracker) = givenFramesTracker()
         
@@ -803,5 +803,5 @@ class SentrySpanTests: XCTestCase {
         
         return (displayLinkWrapper, framesTracker)
     }
-#endif // os(iOS) || os(tvOS)
+#endif // (os(iOS) || os(tvOS)) && !SDK_V10
 }

@@ -72,10 +72,12 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
     NSMutableArray<id<SentrySpan>> *_children;
     BOOL _startTimeChanged;
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !SDK_V10
     NSUInteger initTotalFrames;
     NSUInteger initSlowFrames;
     NSUInteger initFrozenFrames;
+#endif // SENTRY_HAS_UIKIT && !SDK_V10
+#if SENTRY_HAS_UIKIT
     NSArray<NSString *> *viewNames;
 #endif // SENTRY_HAS_UIKIT
 }
@@ -93,9 +95,9 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
                              configuration:(SentryTracerConfiguration *)configuration;
 {
     if (!(self = [super initWithContext:transactionContext
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !SDK_V10
                           framesTracker:SentryDependencyContainer.sharedInstance.framesTracker
-#endif // SENTRY_HAS_UIKIT
+#endif // SENTRY_HAS_UIKIT && !SDK_V10
     ])) {
         return nil;
     }
@@ -135,7 +137,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
         [self startDeadlineTimeout];
     }
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !SDK_V10
     // Store current amount of frames at the beginning to be able to calculate the amount of
     // frames at the end of the transaction.
     SentryFramesTracker *framesTracker = SentryDependencyContainer.sharedInstance.framesTracker;
@@ -145,7 +147,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
         initSlowFrames = currentFrames.slow;
         initFrozenFrames = currentFrames.frozen;
     }
-#endif // SENTRY_HAS_UIKIT
+#endif // SENTRY_HAS_UIKIT && !SDK_V10
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     _profilerReferenceID = sentry_startProfilerForTrace(configuration, hub, transactionContext);
@@ -369,9 +371,9 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
     SentrySpanInternal *child = [[SentrySpanInternal alloc]
         initWithTracer:self
                context:context
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !SDK_V10
          framesTracker:SentryDependencyContainer.sharedInstance.framesTracker
-#endif // SENTRY_HAS_UIKIT
+#endif // SENTRY_HAS_UIKIT && !SDK_V10
     ];
     child.startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
     SENTRY_LOG_DEBUG(@"Started child span %@ under %@", child.spanId.sentrySpanIdString,
@@ -713,7 +715,9 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 
     NSUInteger capacity;
 #if SENTRY_HAS_UIKIT
+#    if !SDK_V10
     [self addFrameStatistics];
+#    endif // !SDK_V10
 
     NSArray<id<SentrySpan>> *appStartSpans = [self isStandaloneAppStartTransaction]
         ? sentryBuildStandaloneAppStartSpans(self, appStartMeasurement)
@@ -826,6 +830,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
     }
 }
 
+#    if !SDK_V10
 - (void)addFrameStatistics
 {
     SentryFramesTracker *framesTracker = SentryDependencyContainer.sharedInstance.framesTracker;
@@ -860,6 +865,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
         }
     }
 }
+#    endif // !SDK_V10
 
 #endif // SENTRY_HAS_UIKIT
 
