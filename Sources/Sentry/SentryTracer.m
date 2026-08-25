@@ -417,7 +417,9 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 
 - (NSArray<id<SentrySpan>> *)children
 {
-    return [_children copy];
+    @synchronized(_children) {
+        return [_children copy];
+    }
 }
 
 - (void)setMeasurement:(NSString *)name value:(NSNumber *)value
