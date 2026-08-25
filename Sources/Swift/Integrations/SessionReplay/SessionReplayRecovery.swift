@@ -102,6 +102,8 @@ struct SessionReplayRecovery {
         let crashInfoPath = lastReplayURL.appendingPathComponent("crashInfo").path
         let hasCrashInfo = sentrySessionReplaySync_readInfo(&crashInfo, crashInfoPath)
 
+        // Crash info exists only after a completed segment, so persist the mode separately for
+        // crashes during the first segment.
         let persistedType: SentryReplayType?
         switch jsonObject["replayType"] as? String {
         case "session": persistedType = .session

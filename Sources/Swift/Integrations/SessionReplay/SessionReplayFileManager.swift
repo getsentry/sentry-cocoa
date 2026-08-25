@@ -63,20 +63,23 @@ struct SessionReplayFileManager {
         sentrySessionReplaySync_start(crashInfoPath)
     }
 
-    func updateCurrentReplayType(_ replayType: SentryReplayType) {
+    func updateCurrentReplayType(_ replayType: SentryReplayType, replayId: SentryId) {
         guard let replayDirectory = replayDirectory() else { return }
         let infoURL = replayDirectory.appendingPathComponent(Constants.currentReplay)
-        guard let data = try? Data(contentsOf: infoURL),
-              var info = SentrySerialization.deserializeDictionary(fromJsonData: data) as? [String: Any]
-        else { return }
+        sharedDispatchQueue.dispatchAsync {
+            guard let data = try? Data(contentsOf: infoURL),
+                  var info = SentrySerialization.deserializeDictionary(fromJsonData: data) as? [String: Any],
+                  info["replayId"] as? String == replayId.sentryIdString
+            else { return }
 
-        info["replayType"] = replayType.toString()
-        guard let updated = SentrySerializationSwift.data(withJSONObject: info) else { return }
+            info["replayType"] = replayType.toString()
+            guard let updated = SentrySerializationSwift.data(withJSONObject: info) else { return }
 
-        do {
-            try updated.write(to: infoURL, options: .atomic)
-        } catch {
-            SentrySDKLog.error("[Session Replay] Failed to update current replay type: \(error)")
+            do {
+                try updated.write(to: infoURL, options: .atomic)
+            } catch {
+                SentrySDKLog.error("[Session Replay] Failed to update current replay type: \(error)")
+            }
         }
     }
     

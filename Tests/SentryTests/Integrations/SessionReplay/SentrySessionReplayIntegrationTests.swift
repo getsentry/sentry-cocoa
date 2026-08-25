@@ -108,11 +108,56 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     }
 
     func testCurrentReplayInfo_whenBufferConvertsToSession_shouldUpdateMode() throws {
+        let dispatchQueue = TestSentryDispatchQueueWrapper()
+        dispatchQueue.dispatchAsyncExecutesBlock = false
+        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueue
         startSDK(sessionSampleRate: 0, errorSampleRate: 1)
+        let asyncCallsBeforeCapture = dispatchQueue.dispatchAsyncCalled
 
         XCTAssertTrue(try XCTUnwrap(getSut().sessionReplay).captureReplay())
+        XCTAssertEqual(dispatchQueue.dispatchAsyncCalled, asyncCallsBeforeCapture + 1)
+        XCTAssertEqual(try currentReplayInfo()["replayType"] as? String, "buffer")
 
+        dispatchQueue.invokeLastDispatchAsync()
         XCTAssertEqual(try currentReplayInfo()["replayType"] as? String, "session")
+    }
+
+    func testCurrentReplayInfo_whenQueuedUpdateIsStale_shouldNotUpdateNewReplay() throws {
+        let dispatchQueue = TestSentryDispatchQueueWrapper()
+        dispatchQueue.dispatchAsyncExecutesBlock = false
+        let options = Options()
+        options.dsn = "https://user@test.com/test"
+        options.cacheDirectoryPath = FileManager.default.temporaryDirectory.path
+        let fileManager = try SentryFileManager(
+            options: options,
+            dateProvider: dateProvider,
+            dispatchQueueWrapper: dispatchQueue
+        )
+        let sut = SessionReplayFileManager(fileManager: fileManager, sharedDispatchQueue: dispatchQueue)
+
+        let firstReplayId = SentryId()
+        let firstDirectory = try XCTUnwrap(sut.createSessionDirectory())
+        sut.saveCurrentSessionInfo(
+            firstReplayId,
+            path: firstDirectory.path,
+            options: options.sessionReplay,
+            replayType: .buffer
+        )
+        sut.updateCurrentReplayType(.session, replayId: firstReplayId)
+
+        let secondReplayId = SentryId()
+        let secondDirectory = try XCTUnwrap(sut.createSessionDirectory())
+        sut.saveCurrentSessionInfo(
+            secondReplayId,
+            path: secondDirectory.path,
+            options: options.sessionReplay,
+            replayType: .buffer
+        )
+        dispatchQueue.invokeLastDispatchAsync()
+
+        let currentInfo = try currentReplayInfo()
+        XCTAssertEqual(currentInfo["replayId"] as? String, secondReplayId.sentryIdString)
+        XCTAssertEqual(currentInfo["replayType"] as? String, "buffer")
     }
 
     func testRunLoopScheduler_whenStaleStopRunsAfterNewStart_shouldKeepNewObserver() {

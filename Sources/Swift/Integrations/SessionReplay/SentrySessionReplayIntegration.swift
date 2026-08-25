@@ -480,7 +480,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
 
     public func sessionReplayStarted(replayId: SentryId) {
         SentrySDKLog.debug("[Session Replay] Session replay started with replayId: \(replayId.sentryIdString)")
-        replayFileManager.updateCurrentReplayType(.session)
+        replayFileManager.updateCurrentReplayType(.session, replayId: replayId)
         SentrySDKInternal.currentHub().configureScope { scope in scope.replayId = replayId.sentryIdString }
     }
 

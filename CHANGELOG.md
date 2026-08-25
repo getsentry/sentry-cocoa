@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Improvements
+
+- Install idle Session Replay recovery infrastructure at zero sample rates. ([#8865](https://github.com/getsentry/sentry-cocoa/pull/8865))
+
 ### Fixes
 
 - Prevent duplicate automatic HTTP spans and breadcrumbs for URLSession task wrappers (#8846)
@@ -26,7 +30,6 @@
 
 - Session Replay keeps captured frames in memory for live video encode while still writing PNGs to disk for crash durability. Encode prefers the in-memory image and only falls back to disk for frames recovered after a crash, avoiding a PNG readback on the streaming hot path. (#8636)
 - Remove the per-frame render loop from the Session Replay masking preview. (#8730)
-- Install idle Session Replay recovery infrastructure at zero sample rates. ([#8865](https://github.com/getsentry/sentry-cocoa/pull/8865))
 
 ### Fixes
 
