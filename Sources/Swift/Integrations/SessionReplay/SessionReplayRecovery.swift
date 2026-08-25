@@ -102,8 +102,16 @@ struct SessionReplayRecovery {
         let crashInfoPath = lastReplayURL.appendingPathComponent("crashInfo").path
         let hasCrashInfo = sentrySessionReplaySync_readInfo(&crashInfo, crashInfoPath)
 
-        let type: SentryReplayType = hasCrashInfo ? .session : .buffer
-        let duration = hasCrashInfo ? replayOptions.sessionSegmentDuration : replayOptions.errorReplayDuration
+        let persistedType: SentryReplayType?
+        switch jsonObject["replayType"] as? String {
+        case "session": persistedType = .session
+        case "buffer": persistedType = .buffer
+        default: persistedType = nil
+        }
+        let type = persistedType ?? (hasCrashInfo ? .session : .buffer)
+        let duration = type == .session
+            ? replayOptions.sessionSegmentDuration
+            : replayOptions.errorReplayDuration
         let segmentId = hasCrashInfo ? Int(crashInfo.segmentId) + 1 : 0
 
         if type == .buffer {

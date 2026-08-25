@@ -310,32 +310,34 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertEqual(sut.currentScreenNameForSessionReplay(), "Scope Screen")
     }
     
-    func testSessionReplayForCrash() throws {
+    func testLegacyReplayWithoutMode_shouldInferSessionFromCrashInfo() throws {
         try createLastSessionReplay()
-        
-        startSDK(sessionSampleRate: 1, errorSampleRate: 1)
-        
-        let client = SentryClientInternal(options: try XCTUnwrap(SentrySDK.startOption))
-        let scope = Scope()
-        let hub = TestHub(client: client, andScope: scope)
-        SentrySDKInternal.setCurrentHub(hub)
-        let expectation = expectation(description: "Replay to be captured")
-        hub.onReplayCapture = {
-            expectation.fulfill()
-        }
-        
-        let crash = Event(error: NSError(domain: "Error", code: 1))
-        crash.context = [:]
-        crash.isFatalEvent = true
-        globalEventProcessor.reportAll(crash)
-        
-        wait(for: [expectation], timeout: 1)
-        XCTAssertEqual(hub.capturedReplayRecordingVideo.count, 1)
-        
-        let replayInfo = try XCTUnwrap(hub.capturedReplayRecordingVideo.first)
-        XCTAssertEqual(replayInfo.replay.replayType, SentryReplayType.session)
-        XCTAssertEqual(replayInfo.recording.segmentId, 2)
-        XCTAssertEqual(replayInfo.replay.replayStartTimestamp, Date(timeIntervalSinceReferenceDate: 4))
+        startSDK(sessionSampleRate: 0, errorSampleRate: 0)
+
+        let replay = try XCTUnwrap(captureCrashReplay().replay)
+
+        XCTAssertEqual(replay.replay.replayType, .session)
+        XCTAssertEqual(replay.recording.segmentId, 2)
+        XCTAssertEqual(replay.replay.replayStartTimestamp, Date(timeIntervalSinceReferenceDate: 4))
+    }
+
+    func testSessionReplayForCrash_withoutCompletedSegmentAndZeroRates_shouldRecover() throws {
+        try createLastSessionReplay(
+            writeSessionInfo: false,
+            errorSampleRate: 0,
+            replayType: .session
+        )
+        startSDK(sessionSampleRate: 0, errorSampleRate: 0)
+
+        let result = try captureCrashReplay()
+        let replay = try XCTUnwrap(result.replay)
+
+        XCTAssertEqual(replay.replay.replayType, .session)
+        XCTAssertEqual(replay.recording.segmentId, 0)
+        XCTAssertEqual(
+            (result.crash.context?["replay"] as? [String: Any])?["replay_id"] as? String,
+            replay.replay.eventId.sentryIdString
+        )
     }
 
     func testBufferReplayForCrash() throws {
@@ -448,49 +450,16 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertEqual(replayInfo.replay.replayStartTimestamp, Date(timeIntervalSinceReferenceDate: 71))
     }
     
-    func testBufferReplayIgnoredBecauseSampleRateForCrash() throws {
-        // -- Arrange --
-        // Use deterministic random number to avoid flaky test behavior.
-        // CRITICAL: Set random value to 1.0 to ensure shouldReplayFullSession(sessionSampleRate) returns false,
-        // preventing the session from starting as a full session. Buffer replay sample rate checks
-        // only apply to non-full sessions. The sample rate check uses: random >= errorSampleRate
-        // With errorSampleRate=0 and random=1.0: 1.0 >= 0 = true → replay dropped
-        SentryDependencyContainer.sharedInstance().random = TestRandom(value: 1.0)
+    func testBufferReplayForCrash_withPersistedZeroRate_shouldNotRecover() throws {
+        try createLastSessionReplay(
+            writeSessionInfo: false,
+            errorSampleRate: 0,
+            replayType: .buffer
+        )
+        SentryDependencyContainer.sharedInstance().random = TestRandom(value: 0.5)
+        startSDK(sessionSampleRate: 0, errorSampleRate: 0)
 
-        // Start current session with 0% session sample rate to ensure it's NOT a full session
-        // (shouldReplayFullSession: 1.0 < 0 = false), but 100% error sample rate would normally 
-        // capture all error replays if this were not a buffer replay from previous session
-        startSDK(sessionSampleRate: 0, errorSampleRate: 1)
-        
-        let client = SentryClientInternal(options: try XCTUnwrap(SentrySDK.startOption))
-        let scope = Scope()
-        let hub = TestHub(client: client, andScope: scope)
-        SentrySDKInternal.setCurrentHub(hub)
-        let expectation = expectation(description: "Replay to be captured")
-        expectation.isInverted = true // We expect NO replay to be captured
-        hub.onReplayCapture = { 
-            expectation.fulfill()
-        }
-
-        // -- Act --
-        // Create a previous session replay file with 0% error sample rate.
-        // This simulates a previous session that crashed and had error replay disabled.
-        // The key insight: replay capture decision uses the PREVIOUS session's sample rate,
-        // not the current session's sample rate, because the replay frames were recorded
-        // during the previous session with its own sampling configuration.
-        try createLastSessionReplay(writeSessionInfo: false, errorSampleRate: 0)
-        let crash = Event(error: NSError(domain: "Error", code: 1))
-        crash.context = [:]
-        crash.isFatalEvent = true
-        globalEventProcessor.reportAll(crash) // This triggers resumePreviousSessionReplay
-
-        // -- Assert --
-        // The replay should be dropped because:
-        // 1. Previous session had errorSampleRate = 0 (no error replays wanted)
-        // 2. Sample rate check: 1.0 >= 0 = true → drop replay
-        // 3. Current session's errorSampleRate = 1 is irrelevant for previous session data
-        wait(for: [expectation], timeout: 1)
-        XCTAssertEqual(hub.capturedReplayRecordingVideo.count, 0)
+        XCTAssertNil(try captureCrashReplay(expectCapture: false).replay)
     }
     
     func testBufferReplayIgnoredBecauseEventDroppedInBeforeSend() throws {
@@ -1040,14 +1009,18 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     private func createLastSessionReplay(
         writeSessionInfo: Bool = true,
         errorSampleRate: Double = 1,
-        frameTimestamps: [Int] = Array(5...9)
+        frameTimestamps: [Int] = Array(5...9),
+        replayType: SentryReplayType? = nil
     ) throws {
         let replayFolder = replayFolder()
         let jsonPath = replayFolder + "/replay.current"
         var sessionFolder = UUID().uuidString
-        let info: [String: Any] = ["replayId": SentryId().sentryIdString,
-                                    "path": sessionFolder,
-                                    "errorSampleRate": errorSampleRate]
+        var info: [String: Any] = ["replayId": SentryId().sentryIdString,
+                                   "path": sessionFolder,
+                                   "errorSampleRate": errorSampleRate]
+        if let replayType {
+            info["replayType"] = replayType.toString()
+        }
         let data = SentrySerializationSwift.data(withJSONObject: info)
         
         try FileManager.default.createDirectory(atPath: replayFolder, withIntermediateDirectories: true)
@@ -1067,6 +1040,28 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
             sentrySessionReplaySync_updateInfo(1, Double(4))
             sentrySessionReplaySync_writeInfo()
         }
+    }
+
+    private func captureCrashReplay(expectCapture: Bool = true) throws -> (
+        crash: Event,
+        replay: (replay: SentryReplayEvent, recording: SentryReplayRecording, video: URL)?
+    ) {
+        let client = SentryClientInternal(options: try XCTUnwrap(SentrySDK.startOption))
+        let hub = TestHub(client: client, andScope: Scope())
+        SentrySDKInternal.setCurrentHub(hub)
+        let replayCapture = expectation(description: "Replay capture")
+        replayCapture.isInverted = !expectCapture
+        hub.onReplayCapture = {
+            replayCapture.fulfill()
+        }
+
+        let crash = Event(error: NSError(domain: "Error", code: 1))
+        crash.context = [:]
+        crash.isFatalEvent = true
+        globalEventProcessor.reportAll(crash)
+
+        wait(for: [replayCapture], timeout: 1)
+        return (crash, hub.capturedReplayRecordingVideo.first)
     }
     
     private func replayFolder() -> String {
