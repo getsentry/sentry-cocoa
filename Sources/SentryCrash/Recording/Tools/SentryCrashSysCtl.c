@@ -25,30 +25,32 @@
 // THE SOFTWARE.
 //
 
-#include "SentryCrashSysCtl.h"
+#if !SDK_V10
 
-#include "SentryAsyncSafeLog.h"
+#    include "SentryCrashSysCtl.h"
 
-#include <errno.h>
-#include <net/if.h>
-#include <net/if_dl.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
+#    include "SentryAsyncSafeLog.h"
 
-#define CHECK_SYSCTL_NAME(TYPE, CALL)                                                              \
-    if (0 != (CALL)) {                                                                             \
-        SENTRY_ASYNC_SAFE_LOG_ERROR(                                                               \
-            "Could not get %s value for %s: %s", #CALL, name, SENTRY_STRERROR_R(errno));           \
-        return 0;                                                                                  \
-    }
+#    include <errno.h>
+#    include <net/if.h>
+#    include <net/if_dl.h>
+#    include <stdlib.h>
+#    include <string.h>
+#    include <unistd.h>
 
-#define CHECK_SYSCTL_CMD(TYPE, CALL)                                                               \
-    if (0 != (CALL)) {                                                                             \
-        SENTRY_ASYNC_SAFE_LOG_ERROR("Could not get %s value for %d,%d: %s", #CALL, major_cmd,      \
-            minor_cmd, SENTRY_STRERROR_R(errno));                                                  \
-        return 0;                                                                                  \
-    }
+#    define CHECK_SYSCTL_NAME(TYPE, CALL)                                                          \
+        if (0 != (CALL)) {                                                                         \
+            SENTRY_ASYNC_SAFE_LOG_ERROR(                                                           \
+                "Could not get %s value for %s: %s", #CALL, name, SENTRY_STRERROR_R(errno));       \
+            return 0;                                                                              \
+        }
+
+#    define CHECK_SYSCTL_CMD(TYPE, CALL)                                                           \
+        if (0 != (CALL)) {                                                                         \
+            SENTRY_ASYNC_SAFE_LOG_ERROR("Could not get %s value for %d,%d: %s", #CALL, major_cmd,  \
+                minor_cmd, SENTRY_STRERROR_R(errno));                                              \
+            return 0;                                                                              \
+        }
 
 int32_t
 sentrycrashsysctl_int32(const int major_cmd, const int minor_cmd)
@@ -274,3 +276,5 @@ sentrycrashsysctl_getMacAddress(const char *const name, char *const macAddressBu
 
     return true;
 }
+
+#endif // !SDK_V10
