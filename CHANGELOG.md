@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Expose active Session Replay IDs and buffering state to hybrid SDKs (#8864)
+
 ### Fixes
 
 - Prevent breadcrumb persistence for watchdog termination events from blocking the calling thread (#8653)
