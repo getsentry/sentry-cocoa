@@ -29,6 +29,7 @@ let v10ExcludedSentryCrashToolSources = [
     "SentryCrash/Recording/Tools/SentryCrashObjC.c",
     "SentryCrash/Recording/Tools/SentryCrashSignalInfo.c",
     "SentryCrash/Recording/Tools/SentryCrashString.c",
+    "SentryCrash/Recording/Tools/SentryCrashSysCtl.c",
     "SentryCrash/Recording/Tools/SentryCrashUUIDConversion.c"
 ]
 let v10SwiftSettings: [SwiftSetting] = enableV10
@@ -203,7 +204,8 @@ if enableV10 {
         "SentryCrash/Recording/SentryCrashReportStore.c",
         "SentryCrash/Recording/SentryCrashReportStore.h",
         "SentryCrash/Recording/SentryCrashReportVersion.h",
-        "SentryCrash/Recording/Tools/SentryCrashCxaThrowSwapper.h"
+        "SentryCrash/Recording/Tools/SentryCrashCxaThrowSwapper.h",
+        "SentryCrash/Recording/Tools/SentryCrashSysCtl.h"
     ]
 }
 
