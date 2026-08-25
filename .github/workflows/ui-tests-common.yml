@@ -16,6 +16,16 @@ on:
         description: "Xcode version"
         required: true
         type: string
+      allow_prerelease:
+        description: "Whether prerelease Xcode versions can be selected"
+        required: false
+        default: false
+        type: boolean
+      continue_on_error:
+        description: "Whether test failures should be non-blocking"
+        required: false
+        default: false
+        type: boolean
       build_with_make:
         description: "Build with make"
         required: false
@@ -56,6 +66,7 @@ jobs:
     name: UI Tests Common
     runs-on: ${{ fromJSON(format('["bitrise_pool_name:{0}"]', inputs.macos_version)) }}
     timeout-minutes: 40
+    continue-on-error: ${{ inputs.continue_on_error }}
     steps:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
@@ -91,6 +102,7 @@ jobs:
         uses: ./.github/actions/setup-xcode
         with:
           version: ${{ inputs.xcode_version }}
+          allow-prerelease: ${{ inputs.allow_prerelease }}
 
       - name: Resolve test destination
         id: resolve-test-destination
