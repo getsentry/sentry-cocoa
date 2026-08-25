@@ -82,7 +82,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
             options.debug = true
             options.removeAllIntegrations()
             options.swiftAsyncStacktraces = true
-            options.enableCrashHandler = true
+            options.enableCrashHandler = false
         }
 
         let waitForAsyncToRun = expectation(description: "Wait async functions")
@@ -103,7 +103,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
             options.debug = true
             options.removeAllIntegrations()
             options.swiftAsyncStacktraces = false
-            options.enableCrashHandler = true
+            options.enableCrashHandler = false
         }
 
         let waitForAsyncToRun = expectation(description: "Wait async functions")
@@ -111,7 +111,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
             print("\(Date()) [Sentry] [TEST] running async task...")
             let filteredFrames = await self.firstFrame()
             waitForAsyncToRun.fulfill()
-            XCTAssertGreaterThanOrEqual(filteredFrames, 1, "The Stacktrace must have only one function.")
+            XCTAssertLessThan(filteredFrames, 3, "The stacktrace must not stitch all async callers.")
         }
 
         wait(for: [waitForAsyncToRun], timeout: 10)

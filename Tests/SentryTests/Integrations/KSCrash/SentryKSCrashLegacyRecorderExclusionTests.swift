@@ -27,6 +27,8 @@ final class SentryKSCrashLegacyRecorderExclusionTests: XCTestCase {
             "sentryErrorWithDomain",
             "sentrycrashobjc_objectType",
             "sentrycrashsignal_signalName",
+            "sentrycrashsc_initSelfThread",
+            "sentrycrashsc_initWithBacktrace",
             "sentrycrashstring_extractHexValue"
         ]
 

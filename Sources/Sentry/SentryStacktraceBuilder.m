@@ -1,7 +1,9 @@
 #import "SentryStacktraceBuilder.h"
 #import "SentryCrashStackCursor.h"
 #import "SentryCrashStackCursor_MachineContext.h"
-#import "SentryCrashStackCursor_SelfThread.h"
+#if !SDK_V10
+#    import "SentryCrashStackCursor_SelfThread.h"
+#endif
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryFrame.h"
 #import "SentryLogC.h"
@@ -14,6 +16,9 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryStacktraceBuilder ()
 
 @property (nonatomic, strong) SentryCrashStackEntryMapper *crashStackEntryMapper;
+#if SDK_V10
+@property (nonatomic, strong) SentryKSCrashCurrentThreadStackProvider *currentThreadStackProvider;
+#endif
 
 @end
 
@@ -23,6 +28,9 @@ NS_ASSUME_NONNULL_BEGIN
 {
     if (self = [super init]) {
         self.crashStackEntryMapper = crashStackEntryMapper;
+#if SDK_V10
+        self.currentThreadStackProvider = [[SentryKSCrashCurrentThreadStackProvider alloc] init];
+#endif
     }
     return self;
 }
@@ -45,6 +53,27 @@ NS_ASSUME_NONNULL_BEGIN
 
     return [SentryStacktraceBuilder buildStacktraceFromFrames:frames];
 }
+
+#if SDK_V10
+- (SentryStacktrace *)retrieveStacktraceFromAddresses:(NSArray<NSNumber *> *)addresses
+{
+    NSMutableArray<SentryFrame *> *frames = [NSMutableArray arrayWithCapacity:addresses.count];
+    SentryFrame *frame = nil;
+    for (NSNumber *address in addresses) {
+        SentryCrashStackEntry stackEntry = { .address = (uintptr_t)address.unsignedLongLongValue };
+        if (stackEntry.address == SentryCrashSC_ASYNC_MARKER) {
+            if (frame != nil) {
+                frame.stackStart = @(YES);
+            }
+            continue;
+        }
+        frame = [self.crashStackEntryMapper sentryCrashStackEntryToSentryFrame:stackEntry];
+        [frames addObject:frame];
+    }
+
+    return [SentryStacktraceBuilder buildStacktraceFromFrames:frames];
+}
+#endif
 
 - (SentryStacktrace *)buildStackTraceFromStackEntries:(SentryCrashStackEntry *)entries
                                                amount:(unsigned int)amount
@@ -79,20 +108,30 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (SentryStacktrace *)buildStacktraceForCurrentThread
 {
+#if SDK_V10
+    return [self
+        retrieveStacktraceFromAddresses:[self.currentThreadStackProvider captureStackEntries]];
+#else
     SentryCrashStackCursor stackCursor;
     // We don't need to skip any frames, because we filter out non sentry frames below.
     NSInteger framesToSkip = 0;
     sentrycrashsc_initSelfThread(&stackCursor, (int)framesToSkip);
 
     return [self retrieveStacktraceFromCursor:stackCursor];
+#endif
 }
 
 - (nullable SentryStacktrace *)buildStacktraceForCurrentThreadAsyncUnsafe
 {
     SENTRY_LOG_DEBUG(@"Building async-unsafe stack trace...");
+#if SDK_V10
+    return [self
+        retrieveStacktraceFromAddresses:[self.currentThreadStackProvider captureStackEntries]];
+#else
     SentryCrashStackCursor stackCursor;
     sentrycrashsc_initSelfThread(&stackCursor, 0);
     return [self retrieveStacktraceFromCursor:stackCursor];
+#endif
 }
 
 + (SentryStacktrace *_Nonnull)buildStacktraceFromFrames:(NSArray<SentryFrame *> *)frames
