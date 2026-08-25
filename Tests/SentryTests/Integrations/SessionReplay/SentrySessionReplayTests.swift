@@ -312,6 +312,7 @@ class SentrySessionReplayTests: XCTestCase {
         clearTestState()
     }
         
+    #if SDK_V10
     func testIsBuffering_beforeStart_shouldReturnFalse() {
         let sut = Fixture().getSut()
 
@@ -355,6 +356,7 @@ class SentrySessionReplayTests: XCTestCase {
 
         XCTAssertTrue(sut.isBuffering)
     }
+    #endif // SDK_V10
 
     func testDontSentReplay_NoFullSession() {
         let fixture = Fixture()

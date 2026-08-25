@@ -60,12 +60,14 @@
     (void)replayId;
 }
 
-#    pragma mark - isBuffering
+#    if SDK_V10
+#        pragma mark - isBuffering
 
 - (void)testIsBuffering_withFullSessionSampling_shouldReturnNO
 {
     XCTAssertFalse(SentryObjCSDK.internal.replay.isBuffering);
 }
+#    endif // SDK_V10
 
 #    pragma mark - addIgnoreClasses
 

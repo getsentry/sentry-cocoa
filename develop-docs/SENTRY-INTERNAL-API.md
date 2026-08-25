@@ -118,22 +118,22 @@ Sub-object accessors:
 
 ### `SentrySDK.internal.replay` — `SentryInternalReplayApi`
 
-| Method                                               | Replaced                                            |
-| ---------------------------------------------------- | --------------------------------------------------- |
-| `configure(breadcrumbConverter:screenshotProvider:)` | `configureSessionReplayWith:screenshotProvider:`    |
-| `capture() -> Bool`                                  | `captureReplay` + `getReplayIntegration` (see note) |
-| `replayId: String?`                                  | Active replay ID in session and buffer modes        |
-| `isBuffering: Bool`                                  | Whether the active replay is buffering              |
-| `addIgnoreClasses(_:)`                               | `addReplayIgnoreClasses:`                           |
-| `addRedactClasses(_:)`                               | `addReplayRedactClasses:`                           |
-| `setIgnoreContainerClass(_:)`                        | `setIgnoreContainerClass:`                          |
-| `setRedactContainerClass(_:)`                        | `setRedactContainerClass:`                          |
-| `setTags(_:)`                                        | `setReplayTags:`                                    |
+| Method                                               | Replaced                                                  |
+| ---------------------------------------------------- | --------------------------------------------------------- |
+| `configure(breadcrumbConverter:screenshotProvider:)` | `configureSessionReplayWith:screenshotProvider:`          |
+| `capture() -> Bool`                                  | `captureReplay` + `getReplayIntegration` (see note)       |
+| `replayId: String?`                                  | Scope replay ID (V9); active replay ID in all modes (V10) |
+| `isBuffering: Bool`                                  | Whether the active replay is buffering (V10 only)         |
+| `addIgnoreClasses(_:)`                               | `addReplayIgnoreClasses:`                                 |
+| `addRedactClasses(_:)`                               | `addReplayRedactClasses:`                                 |
+| `setIgnoreContainerClass(_:)`                        | `setIgnoreContainerClass:`                                |
+| `setRedactContainerClass(_:)`                        | `setRedactContainerClass:`                                |
+| `setTags(_:)`                                        | `setReplayTags:`                                          |
 
 > **Note on `capture() -> Bool`:** React Native previously worked around `captureReplay` being `void` by dynamically calling `getReplayIntegration` via `performSelector:` to access the integration's `captureReplay` which returns `BOOL`. The new API returns `Bool` directly, eliminating both the void limitation and the dynamic dispatch hack. `getReplayIntegration` is intentionally not exposed — callers should not need the integration object.
 >
 > [!WARNING]
-> `replayId` now reads the active replay integration, so a non-`nil` value no longer implies that a full-session replay is running or that a buffered replay was captured. Hybrid SDKs upgrading to this version must also read `isBuffering`. When it is `true`, do not write the ID to scope or treat replay capture as successful; when enriching telemetry, attach `sentry._internal.replay_is_buffering = true`. The legacy `PrivateSentrySDKOnly.getReplayId` remains scope-based and does not return buffered replay IDs.
+> In V10, `replayId` reads the active replay integration, so a non-`nil` value no longer implies that a full-session replay is running or that a buffered replay was captured. Hybrid SDKs upgrading to V10 must also read `isBuffering`. When it is `true`, do not write the ID to scope or treat replay capture as successful; when enriching telemetry, attach `sentry._internal.replay_is_buffering = true`. V9 and the legacy `PrivateSentrySDKOnly.getReplayId` remain scope-based and do not return buffered replay IDs.
 
 ### `SentrySDK.internal.profiling` — `SentryInternalProfilingApi`
 
@@ -309,13 +309,18 @@ SentrySDK.internal.sdk.setName("sentry.cocoa.react-native", version: "6.0.0")
 SentrySDK.internal.appStart.hybridSDKMode = true
 let frames = SentrySDK.internal.performance.currentScreenFrames
 let success = SentrySDK.internal.replay.capture()
+let integrations = SentrySDK.internal.sdk.trimmedInstalledIntegrationNames
+```
+
+In V10, hybrid SDKs can associate telemetry with an active buffered replay:
+
+```swift
 if let replayId = SentrySDK.internal.replay.replayId {
     attributes["sentry.replay_id"] = replayId
     if SentrySDK.internal.replay.isBuffering {
         attributes["sentry._internal.replay_is_buffering"] = true
     }
 }
-let integrations = SentrySDK.internal.sdk.trimmedInstalledIntegrationNames
 ```
 
 ### Flutter (hybrid SDK — native integrations on events)

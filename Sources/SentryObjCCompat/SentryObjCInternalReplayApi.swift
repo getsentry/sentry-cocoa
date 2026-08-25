@@ -23,9 +23,11 @@ import Foundation
         wrapped.value.replayId
     }
 
+    #if SDK_V10
     @objc public var isBuffering: Bool {
         wrapped.value.isBuffering
     }
+    #endif // SDK_V10
 
     @objc public func addIgnoreClasses(_ classes: [AnyClass]) {
         wrapped.value.addIgnoreClasses(classes)

@@ -98,6 +98,7 @@ private struct SessionSegmentState {
     var isSessionPaused: Bool {
         state.withLock { $0.isSessionPaused }
     }
+    #if SDK_V10
     public private(set) var sessionReplayId: SentryId? {
         get { state.withLock { $0.sessionReplayId } }
         set { state.withLock { $0.sessionReplayId = newValue } }
@@ -106,6 +107,9 @@ private struct SessionSegmentState {
     @nonobjc var isBuffering: Bool {
         state.withLock { $0.sessionReplayId != nil && !$0.isFullSession }
     }
+    #else
+    public private(set) var sessionReplayId: SentryId?
+    #endif // SDK_V10
 
     private var urlToCache: URL?
     private var rootView: UIView?
@@ -121,15 +125,16 @@ private struct SessionSegmentState {
     ///
     /// Contains segment bookkeeping (`segmentState`, `currentSegmentId`), capture scheduler state
     /// (`captureSchedulerToken`, `captureSchedulerGeneration`, `nextCaptureActivityCheckAt`) and the
-    /// replay identity (`sessionReplayId`, `isFullSession`), `processingScreenshot`,
-    /// `isSessionPaused` and `reachedMaximumDuration` flags.
+    /// `isFullSession`, `processingScreenshot`, `isSessionPaused` and `reachedMaximumDuration` flags.
     ///
     /// Capture pacing state (`lastScreenshotAt`, `nextScreenshotAt`, `adaptiveScreenshotInterval`,
     /// `deferredScreenshotStart`) is not guarded by this lock; it is main-thread confined and only
     /// mutated from the run-loop capture scheduler callbacks, blocks dispatched to the main
     /// thread, and `start`.
     private struct State {
+        #if SDK_V10
         var sessionReplayId: SentryId?
+        #endif // SDK_V10
         var isFullSession = false
         var processingScreenshot = false
         var isSessionPaused = false
@@ -204,6 +209,7 @@ private struct SessionSegmentState {
         let now = dateProvider.date()
         resetCapturePacing(at: now)
         startCaptureScheduler()
+        #if SDK_V10
         let replayId = SentryId()
         state.withLock {
             $0.segmentState.reset()
@@ -214,16 +220,28 @@ private struct SessionSegmentState {
                 $0.segmentState.start(at: lastScreenshotAt)
             }
         }
+        #else
+        state.withLock {
+            $0.segmentState.reset()
+            $0.currentSegmentId = 0
+        }
+        sessionReplayId = SentryId()
+        #endif // SDK_V10
         imageCollection = []
         replayType = fullSession ? .session : .buffer
 
         if fullSession {
+            #if SDK_V10
             delegate?.sessionReplayStarted(replayId: replayId)
+            #else
+            startFullReplay(startedAt: lastScreenshotAt)
+            #endif // SDK_V10
         }
     }
 
     private func startFullReplay(startedAt: Date?) {
         SentrySDKLog.debug("[Session Replay] Starting full session replay")
+        #if SDK_V10
         let replayId = state.withLock { state -> SentryId? in
             state.segmentState.start(at: startedAt)
             state.isFullSession = true
@@ -231,6 +249,14 @@ private struct SessionSegmentState {
         }
         guard let replayId = replayId else { return }
         delegate?.sessionReplayStarted(replayId: replayId)
+        #else
+        state.withLock {
+            $0.segmentState.start(at: startedAt)
+            $0.isFullSession = true
+        }
+        guard let sessionReplayId = sessionReplayId else { return }
+        delegate?.sessionReplayStarted(replayId: sessionReplayId)
+        #endif // SDK_V10
     }
 
     public func pauseSessionMode() {
