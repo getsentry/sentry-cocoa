@@ -405,6 +405,7 @@ class ExtraViewController: UIViewController {
         }
     }
 
+#if !SDK_V10
     @IBAction func showFeedbackWidget(_ sender: Any) {
         SentrySDK.feedback.showWidget()
     }
@@ -412,6 +413,7 @@ class ExtraViewController: UIViewController {
     @IBAction func hideFeedbackWidget(_ sender: Any) {
         SentrySDK.feedback.hideWidget()
     }
+#endif // !SDK_V10
 
     @IBAction func showCameraUIAction(_ sender: Any) {
         // We need to check if the camera is available, otherwise simulators running on a Mac Mini (device without any

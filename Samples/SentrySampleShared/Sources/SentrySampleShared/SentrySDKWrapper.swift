@@ -201,7 +201,9 @@ public struct SentrySDKWrapper {
         options.enableUserInteractionTracing = !isBenchmarking && !SentrySDKOverrides.UIEventTracking.disableTracing.boolValue
 
         options.enablePreWarmedAppStartTracing = !isBenchmarking && !SentrySDKOverrides.AppStart.disablePrewarmedTracing.boolValue
+#if !SDK_V10
         options.enableStandaloneAppStartTracing = SentrySDKOverrides.AppStart.enableStandaloneTracing.boolValue
+#endif // !SDK_V10
         options.enableUIViewControllerTracing = !SentrySDKOverrides.UIViewControllerTracing.disable.boolValue
         options.experimental.enableUIViewControllerInitSwizzling = SentrySDKOverrides.UIViewControllerTracing.enableInitSwizzling.boolValue
 
@@ -415,6 +417,7 @@ public struct SentrySDKWrapper {
 extension SentrySDKWrapper {
     var layoutOffset: UIOffset { UIOffset(horizontal: 25, vertical: 75) }
 
+#if !SDK_V10
     func configureFeedbackWidget(config: SentryUserFeedbackWidgetConfiguration) {
         config.autoInject = false
         config.layoutUIOffset = layoutOffset
@@ -438,6 +441,7 @@ extension SentrySDKWrapper {
         }
         config.showIcon = !SentrySDKOverrides.Feedback.noWidgetIcon.boolValue
     }
+#endif // !SDK_V10
 
     func configureFeedbackForm(config: SentryUserFeedbackFormConfiguration) {
         config.useSentryUser = !SentrySDKOverrides.Feedback.noUserInjection.boolValue
