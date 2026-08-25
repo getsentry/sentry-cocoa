@@ -35,6 +35,12 @@
   - Remove the `enableAppHangTracking` and `enableReportNonFullyBlockingAppHangs` options
   - Remove the `pauseAppHangTracking` and `resumeAppHangTracking` APIs
   - Remove the `enableWatchdogTerminationsV2` option; watchdog termination tracking always uses the run-loop-based tracker
+- Remove rendered-frame tracking in V10 (#8871)
+  - Remove the `CADisplayLink`-based frame tracker and delayed-frame tracking
+  - Stop adding frame counts and delays to transactions and spans
+  - Stop adding slow, frozen, and frame-rate measurements to profiles
+  - Remove the structured hybrid frame-performance API
+  - Stop emitting automatic time-to-initial-display and time-to-full-display spans
 
 ### Fixes
 
