@@ -2,16 +2,6 @@
 
 ## Unreleased
 
-> [!IMPORTANT]
-> This release removes the options `enableLogs` and `enableMetrics` from `Options`. Use `beforeSendLog` or `beforeSendMetric` to drop logs or metrics.
->
-> We recognize that removing these options in a minor release is disruptive. We made this tradeoff deliberately because enabling Logs and Metrics by default will help most users successfully adopt these features.
-
-### Breaking Changes
-
-- Remove `options.enableLogs` to remove explicit opt-in for Logs. If you need to disable logs, use `beforeSendLog` to drop all logs (#8769)
-- Remove `options.enableMetrics` to remove opt-out of Metrics. If you need to disable metrics, use `beforeSendMetric` to drop all metrics (#8785)
-
 ### Fixes
 
 - Prevent breadcrumb persistence for watchdog termination events from blocking the calling thread (#8653)
