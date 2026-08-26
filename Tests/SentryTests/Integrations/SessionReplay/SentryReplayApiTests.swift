@@ -70,7 +70,7 @@ class SentryReplayApiTests: XCTestCase {
     }
 
     func testStartBuffering_whenReplayIntegrationIsMissing_shouldNotInstall() {
-        startSDKWithoutReplayIntegration()
+        setHubWithoutReplayIntegration()
         let hub = SentrySDKInternal.currentHub()
         let sut = SentryReplayApi()
 
@@ -81,7 +81,7 @@ class SentryReplayApiTests: XCTestCase {
     }
 
     func testFlush_whenReplayIntegrationIsMissing_shouldNotInstall() {
-        startSDKWithoutReplayIntegration()
+        setHubWithoutReplayIntegration()
         let hub = SentrySDKInternal.currentHub()
         let sut = SentryReplayApi()
 
@@ -91,18 +91,10 @@ class SentryReplayApiTests: XCTestCase {
         XCTAssertFalse(hub.installedIntegrations().contains { $0 is SentrySessionReplayIntegration })
     }
 
-    private func startSDKWithoutReplayIntegration() {
-        let application = TestSentryUIApplication()
-        application.windows = [UIWindow()]
-        SentryDependencyContainer.sharedInstance().applicationOverride = application
-        SentrySDK.start { options in
-            options.dsn = "https://user@test.com/test"
-            options.removeAllIntegrations()
-            options.sessionReplay.sessionSampleRate = 0
-            options.sessionReplay.onErrorSampleRate = 0
-            options.cacheDirectoryPath = FileManager.default.temporaryDirectory.path
-        }
-        SentrySDKInternal.currentHub().removeAllIntegrations()
+    private func setHubWithoutReplayIntegration() {
+        let hub = TestHub(client: TestClient(options: Options()), andScope: Scope())
+        hub.removeAllIntegrations()
+        SentrySDKInternal.setCurrentHub(hub)
     }
 
     private func waitForMainQueue() {
