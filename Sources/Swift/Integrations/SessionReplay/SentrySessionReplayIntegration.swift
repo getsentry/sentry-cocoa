@@ -401,8 +401,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         guard let sessionReplay else {
             return start()
         }
-        // Error-triggered captures are sampled; an explicit flush always sends the buffer.
-        _ = sessionReplay.captureReplay(replayType: .session, bypassSampling: true)
+        _ = sessionReplay.flush()
     }
 
     private func start(fullSession: Bool) {

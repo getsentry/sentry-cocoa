@@ -505,14 +505,14 @@ class SentrySessionReplayTests: XCTestCase {
         assertFullSession(sut, expected: true)
     }
 
-    func testCaptureReplay_whenRequestedAsSession_shouldKeepSessionReplayTypeForFollowingSegments() throws {
+    func testFlush_shouldKeepSessionReplayTypeForFollowingSegments() throws {
         // -- Arrange --
         let fixture = Fixture()
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 1))
         sut.start(rootView: fixture.rootView, fullSession: false)
 
         // -- Act --
-        _ = sut.captureReplay(replayType: .session)
+        _ = sut.flush()
         let firstSegment = try XCTUnwrap(fixture.lastReplayEvent)
 
         fixture.dateProvider.advance(by: 5)
@@ -526,7 +526,7 @@ class SentrySessionReplayTests: XCTestCase {
         XCTAssertEqual(secondSegment.segmentId, 1)
     }
 
-    func testCaptureReplay_whenCalledFromBackground_shouldStartSessionAtLastScreenshot() throws {
+    func testFlush_whenCalledFromBackground_shouldStartSessionAtLastScreenshot() throws {
         // -- Arrange --
         let fixture = Fixture()
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 1))
@@ -540,7 +540,7 @@ class SentrySessionReplayTests: XCTestCase {
 
         // -- Act --
         DispatchQueue.global().async {
-            _ = sut.captureReplay(replayType: .session)
+            _ = sut.flush()
             expectation.fulfill()
         }
         wait(for: [expectation], timeout: 1)
