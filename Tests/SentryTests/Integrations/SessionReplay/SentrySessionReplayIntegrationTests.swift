@@ -358,6 +358,28 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertIdentical(sut.sessionReplay, sessionReplay)
         XCTAssertFalse(sessionReplay.isRunning)
     }
+
+    func testPause_whenReplayRunning_shouldDisableTouchTracking() throws {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let touchTracker = try XCTUnwrap(getSut().getTouchTracker())
+
+        SentrySDK.replay.pause()
+        waitForReplayCommand()
+
+        XCTAssertFalse(touchTracker.isEnabled)
+    }
+
+    func testResume_whenReplayPaused_shouldEnableTouchTracking() throws {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let touchTracker = try XCTUnwrap(getSut().getTouchTracker())
+        SentrySDK.replay.pause()
+        waitForReplayCommand()
+
+        SentrySDK.replay.resume()
+        waitForReplayCommand()
+
+        XCTAssertTrue(touchTracker.isEnabled)
+    }
     
     func testStopReplayAtEndOfSession() throws {
         startSDK(sessionSampleRate: 1, errorSampleRate: 0)

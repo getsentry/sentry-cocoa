@@ -233,6 +233,7 @@ private struct SessionSegmentState {
     public func pause() {
         SentrySDKLog.debug("[Session Replay] Pausing session")
         stopCaptureScheduler()
+        touchTracker?.disable()
 
         let pauseDate = dateProvider.date()
         let shouldPreparePauseSegment = state.withLock { (state: inout State) -> Bool in
@@ -282,6 +283,7 @@ private struct SessionSegmentState {
             guard let self = self else { return }
 
             if self.startCaptureScheduler(expectedGeneration: schedulerGeneration) {
+                self.touchTracker?.enable()
                 self.resetCapturePacing(at: self.dateProvider.date())
             }
         }
