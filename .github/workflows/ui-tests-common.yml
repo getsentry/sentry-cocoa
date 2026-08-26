@@ -201,7 +201,7 @@ jobs:
 
       - name: Store screenshot
         uses: ./.github/actions/capture-screenshot
-        if: failure()
+        if: always()
         with:
           suffix: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}
 
