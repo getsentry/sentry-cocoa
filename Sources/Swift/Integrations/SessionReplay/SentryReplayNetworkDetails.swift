@@ -1,3 +1,7 @@
+// swiftlint:disable file_length type_body_length
+// The `@objc` capture methods must live in the main class body (not an extension) or the static
+// linker strips them; keeping them here pushes the file/type over the length limits. See the
+// `- Important:` note on `SentryReplayNetworkDetails` and getsentry/sentry-react-native#6609.
 import Foundation
 import UniformTypeIdentifiers
 
