@@ -388,10 +388,11 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertEqual(replay.recording.segmentId, 2)
     }
 
-    func testSessionReplayForCrash_withoutCompletedSegmentAndStaleBufferType_shouldRecoverAsSession() throws {
+    func testSessionReplayForCrash_whenPromotedBeforeFirstSegment_shouldRecoverBufferedWindowAsSession() throws {
         try createLastSessionReplay(
             writeSessionInfo: false,
             errorSampleRate: 0,
+            frameTimestamps: Array(1...10),
             replayType: .buffer,
             crashSafeReplayType: .session
         )
@@ -401,6 +402,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
 
         XCTAssertEqual(replay.replay.replayType, .session)
         XCTAssertEqual(replay.recording.segmentId, 0)
+        XCTAssertEqual(replay.replay.replayStartTimestamp, Date(timeIntervalSinceReferenceDate: 1))
     }
 
     func testSessionReplayForCrash_withoutCompletedSegmentAndZeroRates_shouldRecover() throws {

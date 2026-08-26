@@ -112,7 +112,7 @@ struct SessionReplayRecovery {
         }
         let crashSafeType = hasCrashSafeInfo ? SentryReplayType(crashReplayType: crashInfo.replayType) : nil
         let type = hasCompletedSegment ? .session : (crashSafeType ?? persistedType ?? .buffer)
-        let duration = type == .session
+        let duration = hasCompletedSegment
             ? replayOptions.sessionSegmentDuration
             : replayOptions.errorReplayDuration
         let segmentId = hasCompletedSegment ? Int(crashInfo.segmentId) + 1 : 0
