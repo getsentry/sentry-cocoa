@@ -179,12 +179,16 @@ jobs:
             }
 
             const assignees = assigneeCandidates.slice(0, 1);
-            const attributedBy = assignees[0] || prAuthor;
+            // Never attribute the tracking issue to a bot when no human resolved.
+            const attributedBy = assignees[0];
+            const createdByLine = attributedBy
+              ? `was created by @${attributedBy}`
+              : 'did not identify a human author';
 
             // Construct the title and body for the new issue
             const issueTitle = `${prTitle}`;
             const issueBody = `> [!NOTE]
-            > The pull request "[${prTitle}](${prUrl})" was created by @${attributedBy} but did not reference an issue. Therefore this issue was created for better visibility in external tools like Linear.
+            > The pull request "[${prTitle}](${prUrl})" ${createdByLine} and did not reference an issue. Therefore this issue was created for better visibility in external tools like Linear.
 
             ${prBody}
             `;
