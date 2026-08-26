@@ -307,7 +307,7 @@ class SentryFeedbackTests: XCTestCase {
         XCTAssertEqual(filename, "selected.final.jpeg")
     }
 
-    func testLoadSelectedScreenshot_whenHEICSelected_shouldPreserveOriginalBytes() throws {
+    func testLoadSelectedScreenshot_whenHEICSelected_shouldEncodeJPEG() throws {
         guard #available(iOS 17.0, *) else {
             throw XCTSkip("UIImage HEIC encoding requires iOS 17 or later.")
         }
@@ -337,9 +337,9 @@ class SentryFeedbackTests: XCTestCase {
         // -- Assert --
         let attachment = try XCTUnwrap(screenshot?.1)
         let attachmentData = try XCTUnwrap(attachment.data)
-        XCTAssertEqual(attachment.filename, "selected.heic")
-        XCTAssertEqual(attachment.contentType, "image/heic")
-        XCTAssertEqual(attachmentData, data)
+        XCTAssertEqual(attachment.filename, "selected.jpg")
+        XCTAssertEqual(attachment.contentType, "image/jpeg")
+        XCTAssertEqual(attachmentData.prefix(2), Data([0xFF, 0xD8]))
         XCTAssertNotNil(UIImage(data: attachmentData))
     }
 
