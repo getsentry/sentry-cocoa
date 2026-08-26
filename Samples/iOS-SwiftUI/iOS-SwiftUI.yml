@@ -117,6 +117,9 @@ targets:
       Release: UITests/Configurations/iOS-SwiftUI-UITests.xcconfig
       Test: UITests/Configurations/iOS-SwiftUI-UITests.xcconfig
       TestCI: UITests/Configurations/iOS-SwiftUI-UITests.xcconfig
+    settings:
+      base:
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) SDK_V10
 schemes:
   iOS-SwiftUI:
     templates:
