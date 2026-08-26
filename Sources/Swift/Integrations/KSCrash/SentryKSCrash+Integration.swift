@@ -96,6 +96,10 @@ extension SentryKSCrash {
                 )
             }
 
+            processStoredReports(options: options, dependencies: dependencies)
+        }
+
+        private func processStoredReports(options: Options, dependencies: Dependencies) {
             let reportProcessor = SentryStoredCrashReportProcessor(
                 inAppLogic: SentryInAppLogic(inAppIncludes: options.inAppIncludes),
                 currentHubProvider: { SentrySDKInternal.currentHub() },
