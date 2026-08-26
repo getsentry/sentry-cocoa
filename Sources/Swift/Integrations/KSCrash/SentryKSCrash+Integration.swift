@@ -47,7 +47,8 @@ extension SentryKSCrash {
                     installPath: installPath.path,
                     monitors: productionSafeMonitors,
                     enableMemoryIntrospection: options.enableMemoryIntrospection,
-                    enableSwapCxaThrow: options.experimental.enableUnhandledCPPExceptionsV2
+                    enableSwapCxaThrow: options.experimental.enableUnhandledCPPExceptionsV2,
+                    enableSwiftAsyncStackTraces: options.swiftAsyncStacktraces
                 )
             } catch {
                 SentrySDKLog.error("KSCrash install failed: \(error)")
@@ -95,6 +96,10 @@ extension SentryKSCrash {
                 )
             }
 
+            processStoredReports(options: options, dependencies: dependencies)
+        }
+
+        private func processStoredReports(options: Options, dependencies: Dependencies) {
             let reportProcessor = SentryStoredCrashReportProcessor(
                 inAppLogic: SentryInAppLogic(inAppIncludes: options.inAppIncludes),
                 currentHubProvider: { SentrySDKInternal.currentHub() },

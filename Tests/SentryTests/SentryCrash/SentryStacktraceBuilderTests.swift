@@ -90,13 +90,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
             print("\(Date()) [Sentry] [TEST] running async task...")
             let filteredFrames = await self.firstFrame()
             waitForAsyncToRun.fulfill()
-#if SENTRY_DISABLE_SENTRYCRASH_V10
-            // KSCRASH_TODO(GH-8725): V10 accepts an unstitched async stack temporarily.
-            // Acceptance: SCV10-011 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
-            XCTAssertGreaterThanOrEqual(filteredFrames, 1, "Swift async stitching is not yet connected to KSCrash.")
-#else
             XCTAssertGreaterThanOrEqual(filteredFrames, 3, "The Stacktrace must include the async callers.")
-#endif
         }
 
         wait(for: [waitForAsyncToRun], timeout: 10)
@@ -108,7 +102,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
             options.swiftAsyncStacktraces = false
             options.debug = true
             options.removeAllIntegrations()
-            options.swiftAsyncStacktraces = true
+            options.swiftAsyncStacktraces = false
             options.enableCrashHandler = true
         }
 
