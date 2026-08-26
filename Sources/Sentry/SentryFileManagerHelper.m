@@ -85,7 +85,9 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 @property (nonatomic, copy) NSString *sentryPath;
 @property (nonatomic, copy) NSString *currentSessionFilePath;
 @property (nonatomic, copy) NSString *crashedSessionFilePath;
+#if !SDK_V10
 @property (nonatomic, copy) NSString *abnormalSessionFilePath;
+#endif // !SDK_V10
 @property (nonatomic, copy) NSString *lastInForegroundFilePath;
 @property (nonatomic, copy) NSString *previousAppStateFilePath;
 @property (nonatomic, copy) NSString *previousBreadcrumbsFilePathOne;
@@ -166,8 +168,10 @@ _non_thread_safe_removeFileAtPath(NSString *path)
         [self.sentryPath stringByAppendingPathComponent:@"session.current"];
     self.crashedSessionFilePath =
         [self.sentryPath stringByAppendingPathComponent:@"session.crashed"];
+#if !SDK_V10
     self.abnormalSessionFilePath =
         [self.sentryPath stringByAppendingPathComponent:@"session.abnormal"];
+#endif // !SDK_V10
     self.lastInForegroundFilePath =
         [self.sentryPath stringByAppendingPathComponent:@"lastInForeground.timestamp"];
     self.previousAppStateFilePath =
@@ -183,8 +187,10 @@ _non_thread_safe_removeFileAtPath(NSString *path)
         [self.sentryPath stringByAppendingPathComponent:@"breadcrumbs.2.state"];
     self.timezoneOffsetFilePath =
         [self.sentryPath stringByAppendingPathComponent:@"timezone.offset"];
+#if !SDK_V10
     self.appHangEventFilePath =
         [self.sentryPath stringByAppendingPathComponent:@"app.hang.event.json"];
+#endif // !SDK_V10
     self.envelopesPath = [self.sentryPath stringByAppendingPathComponent:EnvelopesPathComponent];
 }
 
@@ -302,6 +308,7 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     [self deleteSession:self.crashedSessionFilePath];
 }
 
+#if !SDK_V10
 - (void)storeAbnormalSessionData:(nullable NSData *)data
 {
     [self storeSessionData:data sessionFilePath:self.abnormalSessionFilePath];
@@ -316,6 +323,7 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 {
     [self deleteSession:self.abnormalSessionFilePath];
 }
+#endif // !SDK_V10
 
 #pragma mark - LastInForeground
 
@@ -523,7 +531,8 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     }
 }
 
-#pragma mark - AppHangs
+#if !SDK_V10
+#    pragma mark - AppHangs
 
 - (void)storeAppHangEvent:(SentryEvent *)appHangEvent
 {
@@ -567,6 +576,7 @@ _non_thread_safe_removeFileAtPath(NSString *path)
         [self removeFileAtPath:self.appHangEventFilePath];
     }
 }
+#endif // !SDK_V10
 
 #pragma mark - File Operations
 

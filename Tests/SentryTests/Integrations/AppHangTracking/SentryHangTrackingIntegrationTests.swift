@@ -1,3 +1,4 @@
+#if !SDK_V10
 @_spi(Private) import SentryTestUtils
 @_spi(Private) @testable import Sentry
 import XCTest
@@ -930,3 +931,4 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         SentryDependencyContainer.sharedInstance().threadInspector = threadInspector
     }
 }
+#endif // !SDK_V10

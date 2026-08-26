@@ -78,11 +78,13 @@ final class SentryScreenshotIntegration<Dependencies: ScreenshotIntegrationProvi
         }
 #endif
 
+        #if !SDK_V10
         // If the event is an App hanging event, we can't take the
         // screenshot because the main thread is blocked.
         if event.isAppHangEvent {
             return attachments
         }
+        #endif // !SDK_V10
 
         if let beforeCaptureScreenshot = options.beforeCaptureScreenshot,
            !beforeCaptureScreenshot(event) {

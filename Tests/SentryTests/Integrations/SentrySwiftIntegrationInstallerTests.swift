@@ -22,7 +22,9 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         options.enableAutoSessionTracking = false
         options.enableAutoPerformanceTracing = false
         options.tracesSampleRate = 0
+        #if !SDK_V10
         options.enableAppHangTracking = false
+        #endif // !SDK_V10
         options.enableWatchdogTerminationTracking = false
         options.enableSwizzling = false
         options.enableMetrics = false
@@ -63,7 +65,9 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         options.enableAutoSessionTracking = false
         options.enableAutoPerformanceTracing = false
         options.tracesSampleRate = 0
+        #if !SDK_V10
         options.enableAppHangTracking = false
+        #endif // !SDK_V10
         options.enableWatchdogTerminationTracking = false
         options.enableSwizzling = false
         options.enableMetrics = false

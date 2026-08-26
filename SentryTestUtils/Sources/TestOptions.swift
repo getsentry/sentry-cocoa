@@ -9,7 +9,9 @@ public extension Options {
         enableAutoPerformanceTracing = false
         enableCrashHandler = false
         swiftAsyncStacktraces = false
+        #if !SDK_V10
         enableAppHangTracking = false
+        #endif // !SDK_V10
         enableNetworkTracking = false
         enableNetworkBreadcrumbs = false
         enableCaptureFailedRequests = false

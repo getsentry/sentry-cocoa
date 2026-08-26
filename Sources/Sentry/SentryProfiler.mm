@@ -171,11 +171,17 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
     // profiles because it isn't needed for anything else
 
     BOOL autoPerformanceTracingDisabled = sentry_autoPerformanceTracingDisabled();
+#        if SDK_V10
+    if (autoPerformanceTracingDisabled) {
+        sentry_stopFramesTracker();
+    }
+#        else
     BOOL appHangsDisabled = sentry_appHangsDisabled();
 
     if (autoPerformanceTracingDisabled && appHangsDisabled) {
         sentry_stopFramesTracker();
     }
+#        endif // SDK_V10
 #    endif // SENTRY_HAS_UIKIT
 
     _samplingProfiler->stopSampling();

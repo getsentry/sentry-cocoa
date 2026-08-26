@@ -18,7 +18,9 @@ struct LiveActivityWidget: Widget {
             options.dsn = SentrySDKWrapper.defaultDSN
             options.debug = true
             SentrySDKWrapper.shared.configureDataCollection(options)
+            #if !SDK_V10
             options.enableAppHangTracking = true
+            #endif // !SDK_V10
         }
     }
     

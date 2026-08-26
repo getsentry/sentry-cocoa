@@ -545,6 +545,7 @@ class SentrySDKInternalTests: XCTestCase {
     }
 #endif
 
+#if !SDK_V10
     func testResumeAndPauseAppHangTracking() throws {
         if SentryDependencyContainer.sharedInstance().debuggerStatusProvider.isBeingTraced {
             throw XCTSkip("This test only works when the debugger is NOT attached, because it requires the SentryANRTrackingIntegration being installed, which the SDK only installs if the debugger is not attached.")
@@ -584,6 +585,8 @@ class SentrySDKInternalTests: XCTestCase {
         SentrySDK.pauseAppHangTracking()
         SentrySDK.resumeAppHangTracking()
     }
+
+#endif // !SDK_V10
 
     func testClose_SetsClientToNil() {
         SentrySDK.start { options in
