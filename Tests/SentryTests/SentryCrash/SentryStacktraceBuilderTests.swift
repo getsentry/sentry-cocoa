@@ -117,6 +117,58 @@ class SentryStacktraceBuilderTests: XCTestCase {
         wait(for: [waitForAsyncToRun], timeout: 10)
     }
 
+    #if SDK_V10
+    func testClose_whenSwiftAsyncStitchingEnabled_shouldPreserveStitching() {
+        // -- Arrange --
+        SentrySDK.start { options in
+            options.dsn = TestConstants.dsnAsString(username: "SentryStacktraceBuilderTests")
+            options.removeAllIntegrations()
+            options.swiftAsyncStacktraces = true
+            options.enableCrashHandler = false
+        }
+
+        // -- Act --
+        SentrySDK.close()
+
+        // -- Assert --
+        let waitForAsyncToRun = expectation(description: "Wait for async stack capture")
+        Task {
+            let filteredFrames = await self.firstFrame()
+            XCTAssertGreaterThanOrEqual(filteredFrames, 3, "SDK close must preserve KSCrash's process-lifetime configuration.")
+            waitForAsyncToRun.fulfill()
+        }
+        wait(for: [waitForAsyncToRun], timeout: 10)
+    }
+
+    func testReinitialize_whenSwiftAsyncStitchingDisabled_shouldDisableStitching() {
+        // -- Arrange --
+        SentrySDK.start { options in
+            options.dsn = TestConstants.dsnAsString(username: "SentryStacktraceBuilderTests")
+            options.removeAllIntegrations()
+            options.swiftAsyncStacktraces = true
+            options.enableCrashHandler = false
+        }
+        SentrySDK.close()
+
+        // -- Act --
+        SentrySDK.start { options in
+            options.dsn = TestConstants.dsnAsString(username: "SentryStacktraceBuilderTests")
+            options.removeAllIntegrations()
+            options.swiftAsyncStacktraces = false
+            options.enableCrashHandler = false
+        }
+
+        // -- Assert --
+        let waitForAsyncToRun = expectation(description: "Wait for async stack capture")
+        Task {
+            let filteredFrames = await self.firstFrame()
+            XCTAssertLessThan(filteredFrames, 3, "SDK reinitialization must apply the latest Swift async option.")
+            waitForAsyncToRun.fulfill()
+        }
+        wait(for: [waitForAsyncToRun], timeout: 10)
+    }
+    #endif
+
     private func firstFrame() async -> Int {
         print("\(Date()) [Sentry] [TEST] first async frame about to await...")
         return await innerFrame1()
