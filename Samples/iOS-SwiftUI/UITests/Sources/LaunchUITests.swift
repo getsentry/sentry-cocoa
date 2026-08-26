@@ -64,7 +64,6 @@ class LaunchUITests: XCTestCase {
         app.launchEnvironment["--io.sentry.ui-test.test-name"] = name
         app.launchEnvironment[SentrySDKOverrides.Scope.environment.rawValue] = "ui-tests"
         app.launchArguments.append(contentsOf: [
-            SentrySDKOverrides.Profiling.disableAppStartProfiling.rawValue,
             SentrySDKOverrides.Spotlight.disable.rawValue,
             SentrySDKOverrides.Special.wipeDataOnLaunch.rawValue
         ])

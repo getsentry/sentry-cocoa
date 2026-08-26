@@ -760,7 +760,8 @@ NSString *_Nullable sentryStaticBasePath(void)
     return sentryStaticBasePath;
 }
 
-#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)                              \
+    || defined(SENTRY_UI_TEST_SUPPORT)
 void
 removeSentryStaticBasePath(void)
 {
@@ -771,7 +772,8 @@ removeSentryStaticBasePath(void)
     }
     _non_thread_safe_removeFileAtPath((NSString *_Nonnull)basePath);
 }
-#endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG) ||
+       // defined(SENTRY_UI_TEST_SUPPORT)
 
 #pragma mark - Profiling
 
