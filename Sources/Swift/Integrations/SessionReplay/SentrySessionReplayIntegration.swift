@@ -504,7 +504,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     public func connectivityChanged(_ connected: Bool, typeDescription: String) {
         SentrySDKLog.debug("[Session Replay] Connectivity changed to: \(connected ? "connected" : "disconnected"), type: \(typeDescription)")
         if connected {
-            let shouldRestartCaptureScheduler = !isManuallyPaused.withLock({ $0 }) && sessionReplay?.isRunning == true
+            let shouldRestartCaptureScheduler = !isManuallyPaused.withLock({ $0 }) && getApplication()?.mainThread_isActive != false
             sessionReplay?.resumeSessionMode(restartCaptureScheduler: shouldRestartCaptureScheduler)
         } else {
             sessionReplay?.pauseSessionMode()

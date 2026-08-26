@@ -610,6 +610,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         let sessionReplay = try XCTUnwrap(sut.sessionReplay)
 
         sut.connectivityChanged(false, typeDescription: "")
+        uiApplication.unsafeApplicationState = .background
         NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
 
         sut.connectivityChanged(true, typeDescription: "")
@@ -617,8 +618,26 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertFalse(sessionReplay.isSessionPaused)
         XCTAssertFalse(sessionReplay.isRunning)
 
+        uiApplication.unsafeApplicationState = .active
         NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
 
+        XCTAssertTrue(sessionReplay.isRunning)
+    }
+
+    func testConnectivityReconnect_whenApplicationForegrounded_shouldResume() throws {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+        let sessionReplay = try XCTUnwrap(sut.sessionReplay)
+
+        sut.connectivityChanged(false, typeDescription: "")
+        uiApplication.unsafeApplicationState = .background
+        NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
+        uiApplication.unsafeApplicationState = .active
+        NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
+
+        sut.connectivityChanged(true, typeDescription: "")
+
+        XCTAssertFalse(sessionReplay.isSessionPaused)
         XCTAssertTrue(sessionReplay.isRunning)
     }
 
