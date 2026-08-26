@@ -157,28 +157,14 @@ extension SentryUserFeedbackFormController {
                 return nil
             }
 
-            if let contentType = contentType,
-                previewableImageContentTypes.contains(contentType) {
-                return (image, Attachment(data: data, filename: filename, contentType: contentType))
-            }
-
-            // PHPicker's compatible mode should normally provide JPEG for formats such as HEIC.
-            // Encode a fallback so future or third-party providers cannot create an attachment
-            // that Sentry stores but cannot preview.
-            guard let jpegData = image.jpegData(compressionQuality: 0.85) else {
-                SentrySDKLog.error("Failed to encode the screenshot selected for user feedback as JPEG.")
-                return nil
-            }
-            guard UInt(jpegData.count) <= maxAttachmentSize else {
-                SentrySDKLog.warning("The screenshot selected for user feedback exceeds the maximum attachment size of \(maxAttachmentSize) bytes after JPEG encoding.")
-                return nil
-            }
-            let basename = (filename as NSString).deletingPathExtension
-            let jpegFilename = "\(basename.isEmpty ? "screenshot" : basename).jpg"
-            return (
-                image,
-                Attachment(data: jpegData, filename: jpegFilename, contentType: "image/jpeg")
-            )
+            // Keep the provider bytes as-is. Screenshots are typically well under attachment
+            // limits, and re-encoding (e.g. JPEG quality 0.85) can introduce visible quality loss
+            // without a meaningful size win. PHPicker's compatible mode already prefers
+            // previewable formats such as JPEG for HEIC sources when available.
+            let attachmentContentType = contentType
+                ?? UTType(filenameExtension: (filename as NSString).pathExtension)?.preferredMIMEType
+                ?? "application/octet-stream"
+            return (image, Attachment(data: data, filename: filename, contentType: attachmentContentType))
         } catch {
             SentrySDKLog.error("Failed to load a screenshot selected for user feedback: \(error.localizedDescription)")
             return nil

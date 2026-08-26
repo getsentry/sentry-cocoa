@@ -6,6 +6,7 @@
 
 - Prevent duplicate automatic HTTP spans and breadcrumbs for URLSession task wrappers (#8846)
 - Prevent breadcrumb persistence for watchdog termination events from blocking the calling thread (#8653)
+- Preserve original bytes for user feedback screenshots instead of JPEG-compressing non-previewable formats (#PLACEHOLDER)
 
 ## 9.26.0
 
