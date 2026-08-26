@@ -20,6 +20,7 @@ packages:
     path: ../..
     traits:
       - NoUIFramework
+      - V10
 fileGroups:
   - macOS-CLI-Xcode.yml
 options:
@@ -38,6 +39,8 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: io.sentry.macOS-CLI-Xcode
         SWIFT_VERSION: "5.0"
+        GCC_PREPROCESSOR_DEFINITIONS: $(inherited) SDK_V10=1
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) SDK_V10
 schemes:
   macOS-CLI-Xcode:
     build:

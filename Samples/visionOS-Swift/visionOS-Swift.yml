@@ -13,8 +13,12 @@ configs:
 packages:
   Sentry:
     path: ../..
+    traits:
+      - V10
   SentrySampleShared:
     path: ../SentrySampleShared
+    traits:
+      - V10
 options:
   bundleIdPrefix: io.sentry
   defaultSourceDirectoryType: syncedFolder
@@ -61,6 +65,10 @@ targets:
       Release: App/Configurations/visionOS-Swift.xcconfig
       Test: App/Configurations/visionOS-Swift.xcconfig
       TestCI: App/Configurations/visionOS-Swift.xcconfig
+    settings:
+      base:
+        GCC_PREPROCESSOR_DEFINITIONS: $(inherited) SDK_V10=1
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) SDK_V10
     postCompileScripts:
       - script: ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist

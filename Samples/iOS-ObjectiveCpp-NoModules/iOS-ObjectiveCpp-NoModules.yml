@@ -15,6 +15,8 @@ configs:
 packages:
   Sentry:
     path: ../..
+    traits:
+      - V10
 options:
   bundleIdPrefix: io.sentry
 targets:
@@ -57,6 +59,10 @@ targets:
     configFiles:
       Debug: App/Configurations/iOS-ObjectiveCpp-NoModules.xcconfig
       Release: App/Configurations/iOS-ObjectiveCpp-NoModules.xcconfig
+    settings:
+      base:
+        GCC_PREPROCESSOR_DEFINITIONS: $(inherited) SDK_V10=1
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) SDK_V10
 schemes:
   iOS-ObjectiveCpp-NoModules:
     build:

@@ -11,6 +11,8 @@ configs:
 packages:
   Sentry:
     path: ../..
+    traits:
+      - V10
 options:
   bundleIdPrefix: io.sentry
   defaultSourceDirectoryType: syncedFolder
@@ -43,6 +45,8 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: io.sentry.tvOS-SwiftUI-SPM
         SWIFT_VERSION: "5.0"
+        GCC_PREPROCESSOR_DEFINITIONS: $(inherited) SDK_V10=1
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) SDK_V10
     info:
       path: Resources/Info.plist
       properties:

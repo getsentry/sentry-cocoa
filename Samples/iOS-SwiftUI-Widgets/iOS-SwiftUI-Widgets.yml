@@ -11,8 +11,12 @@ configs:
 packages:
   Sentry:
     path: ../..
+    traits:
+      - V10
   SentrySampleShared:
     path: ../SentrySampleShared
+    traits:
+      - V10
 options:
   bundleIdPrefix: io.sentry.sentry-cocoa.samples
   defaultSourceDirectoryType: syncedFolder
@@ -63,6 +67,10 @@ targets:
     configFiles:
       Debug: App/Configurations/iOS-SwiftUI-Widgets.xcconfig
       Release: App/Configurations/iOS-SwiftUI-Widgets.xcconfig
+    settings:
+      base:
+        GCC_PREPROCESSOR_DEFINITIONS: $(inherited) SDK_V10=1
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) SDK_V10
   iOS-SwiftUI-Widgets-WidgetExtension:
     type: app-extension
     platform: iOS
