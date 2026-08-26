@@ -173,6 +173,9 @@ targets:
       Release: UITests/Configurations/iOS-Swift-UITests.xcconfig
       Test: UITests/Configurations/iOS-Swift-UITests.xcconfig
       TestCI: UITests/Configurations/iOS-Swift-UITests.xcconfig
+    settings:
+      base:
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) SDK_V10
   iOS-Swift-ShareExtension:
     type: app-extension
     platform: auto

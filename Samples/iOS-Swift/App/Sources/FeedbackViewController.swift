@@ -39,8 +39,8 @@ final class FeedbackViewController: UIViewController {
         SentrySDK.feedback.disableOnShake()
     }
 
-#if !SDK_V10
     @IBAction private func toggleWidget(_: UIButton) {
+#if !SDK_V10
         if isFeedbackWidgetVisible {
             SentrySDK.feedback.hideWidget()
         } else {
@@ -48,8 +48,8 @@ final class FeedbackViewController: UIViewController {
         }
         isFeedbackWidgetVisible.toggle()
         updateToggleWidgetButtonTitle()
-    }
 #endif // !SDK_V10
+    }
 
     private func updateToggleWidgetButtonTitle() {
         setTitle(isFeedbackWidgetVisible ? "Hide Widget (Deprecated)" : "Show Widget (Deprecated)", for: toggleWidgetButton)
