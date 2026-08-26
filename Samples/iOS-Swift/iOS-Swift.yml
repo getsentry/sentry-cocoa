@@ -215,6 +215,10 @@ targets:
       Release: ShareExtension/Configurations/iOS-Swift-ShareExtension.xcconfig
       Test: ShareExtension/Configurations/iOS-Swift-ShareExtension.xcconfig
       TestCI: ShareExtension/Configurations/iOS-Swift-ShareExtension.xcconfig
+    settings:
+      base:
+        GCC_PREPROCESSOR_DEFINITIONS: $(inherited) SDK_V10=1
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) SDK_V10
   iOS-Swift-ActionExtension:
     type: app-extension
     platform: auto
@@ -254,6 +258,10 @@ targets:
       Release: ActionExtension/Configurations/iOS-Swift-ActionExtension.xcconfig
       Test: ActionExtension/Configurations/iOS-Swift-ActionExtension.xcconfig
       TestCI: ActionExtension/Configurations/iOS-Swift-ActionExtension.xcconfig
+    settings:
+      base:
+        GCC_PREPROCESSOR_DEFINITIONS: $(inherited) SDK_V10=1
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) SDK_V10
   iOS-Swift-IntentExtension:
     type: app-extension
     platform: auto
@@ -293,6 +301,10 @@ targets:
       Release: IntentExtension/Configurations/iOS-Swift-IntentExtension.xcconfig
       Test: IntentExtension/Configurations/iOS-Swift-IntentExtension.xcconfig
       TestCI: IntentExtension/Configurations/iOS-Swift-IntentExtension.xcconfig
+    settings:
+      base:
+        GCC_PREPROCESSOR_DEFINITIONS: $(inherited) SDK_V10=1
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) SDK_V10
   iOS-Swift-NotificationServiceExtension:
     type: app-extension
     platform: auto
@@ -332,6 +344,10 @@ targets:
       Release: NotificationServiceExtension/Configurations/iOS-Swift-NotificationServiceExtension.xcconfig
       Test: NotificationServiceExtension/Configurations/iOS-Swift-NotificationServiceExtension.xcconfig
       TestCI: NotificationServiceExtension/Configurations/iOS-Swift-NotificationServiceExtension.xcconfig
+    settings:
+      base:
+        GCC_PREPROCESSOR_DEFINITIONS: $(inherited) SDK_V10=1
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) SDK_V10
 schemes:
   iOS-Swift:
     templates:
