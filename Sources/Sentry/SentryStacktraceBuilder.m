@@ -38,16 +38,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (SentryStacktrace *)retrieveStacktraceFromCursor:(SentryCrashStackCursor)stackCursor
 {
     NSMutableArray<SentryFrame *> *frames = [NSMutableArray array];
-    SentryFrame *frame = nil;
     while (stackCursor.advanceCursor(&stackCursor)) {
-        if (stackCursor.stackEntry.address == SentryCrashSC_ASYNC_MARKER) {
-            if (frame != nil) {
-                frame.stackStart = @(YES);
-            }
-            // skip the marker frame
-            continue;
-        }
-        frame = [self.crashStackEntryMapper mapStackEntryWithCursor:stackCursor];
+        SentryFrame *frame = [self.crashStackEntryMapper mapStackEntryWithCursor:stackCursor];
         [frames addObject:frame];
     }
 
@@ -73,17 +65,10 @@ NS_ASSUME_NONNULL_BEGIN
                                                amount:(unsigned int)amount
 {
     NSMutableArray<SentryFrame *> *frames = [[NSMutableArray alloc] initWithCapacity:amount];
-    SentryFrame *frame = nil;
     for (int i = 0; i < amount; i++) {
         SentryCrashStackEntry stackEntry = entries[i];
-        if (stackEntry.address == SentryCrashSC_ASYNC_MARKER) {
-            if (frame != nil) {
-                frame.stackStart = @(YES);
-            }
-            // skip the marker frame
-            continue;
-        }
-        frame = [self.crashStackEntryMapper sentryCrashStackEntryToSentryFrame:stackEntry];
+        SentryFrame *frame =
+            [self.crashStackEntryMapper sentryCrashStackEntryToSentryFrame:stackEntry];
         [frames addObject:frame];
     }
 
