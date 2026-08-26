@@ -804,7 +804,7 @@ Pros:
   - V10 has no broad reporter facade or zero-value placeholder. `SentryKSCrash.UnavailableReporter` and its `SENTRY_DISABLE_SENTRYCRASH_V10` factory marker were removed in Stack 2D.
 - Exact retained Tool implementations and SDK clients:
   - `SentryCrashCPU.c`, `SentryCrashCPU_arm.c`, `SentryCrashCPU_arm64.c`, `SentryCrashCPU_x86_32.c`, `SentryCrashCPU_x86_64.c`: thread inspection and stack capture.
-  - `SentryCrashFileUtils.c`: session-replay sync and view-hierarchy output.
+  - `SentryCrashFileUtils.c`: view-hierarchy output. Session-replay sync uses SDK-owned exact-read/exact-write helpers.
   - `SentryCrashJSONCodec.c`: view-hierarchy serialization.
   - `SentryCrashMachineContext.c`: thread inspector, stacktrace builder, and machine-context wrapper.
   - `SentryCrashMemory.c`: profiler backtrace validation and stack cursors.
