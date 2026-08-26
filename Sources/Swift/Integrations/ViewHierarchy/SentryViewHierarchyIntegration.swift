@@ -77,11 +77,13 @@ final class SentryViewHierarchyIntegration<Dependencies: SentryViewHierarchyInte
         }
 #endif
 
+        #if !SDK_V10
         // If the event is an App hanging event, we can't take the
         // view hierarchy because the main thread is blocked.
         if event.isAppHangEvent {
             return attachments
         }
+        #endif // !SDK_V10
 
         if let beforeCaptureViewHierarchy = options.beforeCaptureViewHierarchy,
            !beforeCaptureViewHierarchy(event) {

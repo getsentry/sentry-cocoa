@@ -154,7 +154,9 @@ enum CrashE2ERuntime {
             options.debug = true
             options.enableAutoSessionTracking = true
             options.enableSwizzling = true
+            #if !SDK_V10
             options.enableAppHangTracking = false
+            #endif // !SDK_V10
             #if os(macOS)
             options.enableUncaughtNSExceptionReporting = true
             #endif

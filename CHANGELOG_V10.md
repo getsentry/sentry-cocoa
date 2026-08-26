@@ -31,11 +31,13 @@
 - Remove data collection options without applicable Cocoa collectors (#8563)
 - Standalone app starts are now the default and only mode; the legacy `ui.load` attach-to-transaction path and `enableStandaloneAppStartTracing` experimental option are removed (#8719)
 - Removed deprecated user feedback widget configuration and API (#8731)
+- Remove legacy app hang event tracking in V10 (#8817)
+  - Remove the `enableAppHangTracking` and `enableReportNonFullyBlockingAppHangs` options
+  - Remove the `pauseAppHangTracking` and `resumeAppHangTracking` APIs
+  - Remove the `enableWatchdogTerminationsV2` option; watchdog termination tracking always uses the run-loop-based tracker
 
 ### Fixes
 
-- Honor `swiftAsyncStacktraces` in `SentryV10` with KSCrash (#8856)
-- Restore binary images and `debug_meta` in `SentryV10` with KSCrash RecordingCore (#8798)
 - Compile only explicitly allowlisted shared SentryCrash tools in V10
 - Restore foreground app-hang detection and debugger-aware behavior in V10
 - Disambiguate V9 and V10 target dependencies in Xcode builds
@@ -46,3 +48,6 @@
 - Bump KSCrash to `2.6.0`
 - Restore memory metrics and initial OS, device, app, and runtime contexts in `SentryV10` (#8836)
 - Remove unused `SentryFramesTracker` dependency from `SentryAppStartTracker` in V10 (#8859)
+- Restore binary images and `debug_meta` in `SentryV10` with KSCrash RecordingCore (#8798)
+- Restore macOS AppKit NSException forwarding in `SentryV10` (#8874)
+- Honor `swiftAsyncStacktraces` in `SentryV10` with KSCrash (#8856)

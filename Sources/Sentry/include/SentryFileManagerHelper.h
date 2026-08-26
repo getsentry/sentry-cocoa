@@ -29,7 +29,9 @@ SENTRY_NO_INIT
 @property (nonatomic, copy) NSString *timezoneOffsetFilePath;
 @property (nonatomic, copy) NSString *eventsPath;
 @property (nonatomic, copy) NSString *appStateFilePath;
+#if !SDK_V10
 @property (nonatomic, copy) NSString *appHangEventFilePath;
+#endif // !SDK_V10
 
 @property (nonatomic, copy, nullable) void (^handleEnvelopesLimit)(void);
 
@@ -72,9 +74,11 @@ SENTRY_NO_INIT
 - (NSData *_Nullable)readCrashedSession;
 - (void)deleteCrashedSession;
 
+#if !SDK_V10
 - (void)storeAbnormalSessionData:(nullable NSData *)data;
 - (NSData *_Nullable)readAbnormalSession;
 - (void)deleteAbnormalSession;
+#endif // !SDK_V10
 
 #pragma mark - LastInForeground
 - (void)storeTimestampLastInForeground:(NSDate *)timestamp;
@@ -97,11 +101,13 @@ SENTRY_NO_INIT
 - (void)storeTimezoneOffset:(NSInteger)offset;
 - (void)deleteTimezoneOffset;
 
-#pragma mark - AppHangs
+#if !SDK_V10
+#    pragma mark - AppHangs
 - (void)storeAppHangEvent:(SentryEvent *)appHangEvent;
 - (nullable SentryEvent *)readAppHangEvent;
 - (BOOL)appHangEventExists;
 - (void)deleteAppHangEvent;
+#endif // !SDK_V10
 
 #pragma mark - File Operations
 + (BOOL)createDirectoryAtPath:(NSString *)path withError:(NSError **)error;

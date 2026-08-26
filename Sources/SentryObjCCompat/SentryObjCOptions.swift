@@ -370,10 +370,12 @@ import Foundation
     }
     #endif
 
+    #if !SDK_V10
     @objc public var enableReportNonFullyBlockingAppHangs: Bool {
         get { wrapped.enableReportNonFullyBlockingAppHangs }
         set { wrapped.enableReportNonFullyBlockingAppHangs = newValue }
     }
+    #endif // !SDK_V10
 
     #endif
 
@@ -465,10 +467,12 @@ import Foundation
         set { wrapped.sendClientReports = newValue }
     }
 
+    #if !SDK_V10
     @objc public var enableAppHangTracking: Bool {
         get { wrapped.enableAppHangTracking }
         set { wrapped.enableAppHangTracking = newValue }
     }
+    #endif // !SDK_V10
 
     @objc public var appHangTimeoutInterval: TimeInterval {
         get { wrapped.appHangTimeoutInterval }

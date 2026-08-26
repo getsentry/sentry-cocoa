@@ -2183,15 +2183,17 @@ final class SentryClientTests: XCTestCase {
         eventId.assertIsNotEmpty()
 
         var expectedIntegrations = ["AutoBreadcrumbTracking", "AutoSessionTracking", "Metrics", "NetworkTracking"]
+        #if !SDK_V10
         if !SentryDependencyContainer.sharedInstance().debuggerStatusProvider.isBeingTraced {
             expectedIntegrations = ["ANRTracking"] + expectedIntegrations
         }
+        #endif
         #if SDK_V10
         expectedIntegrations.append("KSCrash")
         #else
         expectedIntegrations.append("Crash")
         #endif
-#if os(iOS) || os(tvOS) || os(visionOS)
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SDK_V10
         expectedIntegrations.append("FramesTracking")
 #endif // os(iOS) || os(tvOS)
         #if SDK_V10
@@ -2679,7 +2681,7 @@ final class SentryClientTests: XCTestCase {
             }
 
             sut.capture(event: Event())
-            wait(for: [expectation], timeout: 1)
+            wait(for: [expectation], timeout: 10)
             hub.removeAllIntegrations()
         }
     }

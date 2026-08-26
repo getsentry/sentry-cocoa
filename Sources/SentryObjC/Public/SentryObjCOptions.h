@@ -411,6 +411,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic) BOOL sendClientReports;
 
+#if !SDK_V10
 /**
  * When enabled, the SDK tracks when the application stops responding for a specific amount of
  * time defined by the @c appHangTimeoutInterval option.
@@ -418,6 +419,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @note App Hang tracking is automatically disabled if a debugger is attached.
  */
 @property (nonatomic) BOOL enableAppHangTracking;
+#endif // !SDK_V10
 
 /**
  * The minimum amount of time an app should be unresponsive to be classified as an App Hang.
@@ -599,12 +601,14 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) BOOL enableStandaloneAppStartTracing;
 #    endif // !SDK_V10
 
+#    if !SDK_V10
 /**
  * When enabled, the SDK reports non-fully-blocking app hangs. A non-fully-blocking app hang is
  * when the app appears stuck to the user but can still render a few frames.
  * @note The default is @c YES.
  */
 @property (nonatomic) BOOL enableReportNonFullyBlockingAppHangs;
+#    endif // !SDK_V10
 
 #endif
 

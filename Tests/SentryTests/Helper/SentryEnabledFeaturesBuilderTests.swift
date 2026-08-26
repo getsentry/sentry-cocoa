@@ -13,9 +13,9 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         // -- Assert --
 #if SDK_V10
     #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
-        XCTAssertEqual(features, ["captureFailedRequests", "swiftAsyncStacktraces", "experimentalViewRenderer", "dataSwizzling", "metrics", "standaloneAppStartTracing"])
+        XCTAssertEqual(features, ["captureFailedRequests", "swiftAsyncStacktraces", "experimentalViewRenderer", "dataSwizzling", "metrics", "standaloneAppStartTracing", "watchdogTerminationsV2"])
     #elseif os(visionOS) && !SENTRY_NO_UI_FRAMEWORK
-        XCTAssertEqual(features, ["captureFailedRequests", "swiftAsyncStacktraces", "dataSwizzling", "metrics", "standaloneAppStartTracing"])
+        XCTAssertEqual(features, ["captureFailedRequests", "swiftAsyncStacktraces", "dataSwizzling", "metrics", "standaloneAppStartTracing", "watchdogTerminationsV2"])
     #else
         XCTAssertEqual(features, ["captureFailedRequests", "swiftAsyncStacktraces", "dataSwizzling", "metrics"])
     #endif
@@ -366,18 +366,25 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     }
     #endif // !SDK_V10
 
-    func testEnableWatchdogTerminationsV2_isEnabled_shouldAddFeature() throws {
+    func testWatchdogTerminationsV2_shouldAddFeature() throws {
+#if !SDK_V10 || ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK)
         // -- Arrange --
         let options = Options()
+    #if !SDK_V10
         options.experimental.enableWatchdogTerminationsV2 = true
+    #endif
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
 
         // -- Assert --
         XCTAssertTrue(features.contains("watchdogTerminationsV2"))
+#else
+        throw XCTSkip("Test not supported on this platform")
+#endif
     }
 
+#if !SDK_V10
     func testEnableWatchdogTerminationsV2_isDisabled_shouldNotAddFeature() throws {
         // -- Arrange --
         let options = Options()
@@ -389,6 +396,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         // -- Assert --
         XCTAssertFalse(features.contains("watchdogTerminationsV2"))
     }
+#endif
 
     func testEnableUIViewControllerInitSwizzling_isEnabled_shouldAddFeature() throws {
         // -- Arrange --
