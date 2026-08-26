@@ -58,16 +58,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (SentryStacktrace *)retrieveStacktraceFromAddresses:(NSArray<NSNumber *> *)addresses
 {
     NSMutableArray<SentryFrame *> *frames = [NSMutableArray arrayWithCapacity:addresses.count];
-    SentryFrame *frame = nil;
     for (NSNumber *address in addresses) {
         SentryCrashStackEntry stackEntry = { .address = (uintptr_t)address.unsignedLongLongValue };
-        if (stackEntry.address == SentryCrashSC_ASYNC_MARKER) {
-            if (frame != nil) {
-                frame.stackStart = @(YES);
-            }
-            continue;
-        }
-        frame = [self.crashStackEntryMapper sentryCrashStackEntryToSentryFrame:stackEntry];
+        SentryFrame *frame =
+            [self.crashStackEntryMapper sentryCrashStackEntryToSentryFrame:stackEntry];
         [frames addObject:frame];
     }
 
