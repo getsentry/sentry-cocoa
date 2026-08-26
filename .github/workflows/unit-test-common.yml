@@ -299,6 +299,6 @@ jobs:
 
       - name: Store screenshot
         uses: ./.github/actions/capture-screenshot
-        if: always()
+        if: failure()
         with:
           suffix: unit-tests-${{ inputs.platform }}-xcode-${{ inputs.xcode }}-os-${{ steps.resolve-test-destination.outputs.TEST_OS }}

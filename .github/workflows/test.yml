@@ -247,7 +247,7 @@ jobs:
 
       - name: Store screenshot
         uses: ./.github/actions/capture-screenshot
-        if: always()
+        if: ${{ failure() || cancelled() }}
         with:
           suffix: ${{ matrix.platform }}-xcode-${{ matrix.xcode }}
 
