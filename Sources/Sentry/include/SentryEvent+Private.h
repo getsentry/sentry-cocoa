@@ -11,10 +11,12 @@
  */
 @property (nonatomic) BOOL isFatalEvent;
 
+#if !SDK_V10
 /**
  * This indicates whether this event represents an app hang.
  */
 @property (nonatomic, readonly) BOOL isAppHangEvent;
+#endif // !SDK_V10
 
 /**
  * We're storing serialized breadcrumbs to disk in JSON, and when we're reading them back (in

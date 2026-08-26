@@ -330,7 +330,7 @@ NS_ASSUME_NONNULL_BEGIN
     return !client.isDisabled && self.client == client;
 }
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !SDK_V10
 
 /**
  * This method expects an abnormal session already stored to disk. For more info checkout: @c
@@ -364,7 +364,7 @@ NS_ASSUME_NONNULL_BEGIN
     [fileManager deleteAbnormalSession];
 }
 
-#endif // SENTRY_HAS_UIKIT
+#endif // SENTRY_HAS_UIKIT && !SDK_V10
 
 - (void)captureTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope
 {

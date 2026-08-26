@@ -1,8 +1,10 @@
-#import "SentryANRTrackerV1.h"
-#import "SentryANRTrackerInternalDelegate.h"
-#import "SentryLogC.h"
-#import "SentrySwift.h"
-#import <stdatomic.h>
+#if !SDK_V10
+
+#    import "SentryANRTrackerV1.h"
+#    import "SentryANRTrackerInternalDelegate.h"
+#    import "SentryLogC.h"
+#    import "SentrySwift.h"
+#    import <stdatomic.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -220,3 +222,5 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif // !SDK_V10

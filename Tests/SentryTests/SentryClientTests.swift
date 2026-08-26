@@ -2183,17 +2183,19 @@ final class SentryClientTests: XCTestCase {
         eventId.assertIsNotEmpty()
 
         var expectedIntegrations = ["AutoBreadcrumbTracking", "AutoSessionTracking", "Metrics", "NetworkTracking"]
+        #if !SDK_V10
         if !SentryDependencyContainer.sharedInstance().debuggerStatusProvider.isBeingTraced {
             expectedIntegrations = ["ANRTracking"] + expectedIntegrations
         }
+        #endif
         #if SDK_V10
         expectedIntegrations.append("KSCrash")
         #else
         expectedIntegrations.append("Crash")
         #endif
-#if os(iOS) || os(tvOS) || os(visionOS)
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SDK_V10
         expectedIntegrations.append("FramesTracking")
-#endif // os(iOS) || os(tvOS)
+#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SDK_V10
         #if SDK_V10 && !SENTRY_DISABLE_SENTRYCRASH_V10
         expectedIntegrations.append("SwiftAsync")
         #elseif SDK_V10

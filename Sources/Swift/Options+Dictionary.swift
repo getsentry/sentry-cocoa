@@ -200,9 +200,11 @@ extension Options {
             self.enablePreWarmedAppStartTracing = enablePreWarmedAppStartTracing
         }
 
+        #if !SDK_V10
         if let enableReportNonFullyBlockingAppHangs = boolValue(dictionary["enableReportNonFullyBlockingAppHangs"]) {
             self.enableReportNonFullyBlockingAppHangs = enableReportNonFullyBlockingAppHangs
         }
+        #endif // !SDK_V10
         #endif
 
         #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
@@ -211,9 +213,11 @@ extension Options {
         }
         #endif
 
+        #if !SDK_V10
         if let enableAppHangTracking = boolValue(dictionary["enableAppHangTracking"]) {
             self.enableAppHangTracking = enableAppHangTracking
         }
+        #endif // !SDK_V10
 
         if let appHangTimeoutInterval = dictionary["appHangTimeoutInterval"] as? NSNumber {
             self.appHangTimeoutInterval = appHangTimeoutInterval.doubleValue

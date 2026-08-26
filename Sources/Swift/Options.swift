@@ -367,6 +367,7 @@
     @objc public var enableStandaloneAppStartTracing: Bool = false
     #endif
 
+    #if !SDK_V10
     /// When enabled the SDK reports non-fully-blocking app hangs. A non-fully-blocking app hang is when
     /// the app appears stuck to the user but can still render a few frames.
     ///
@@ -377,6 +378,7 @@
     @_spi(Private) @objc public func isAppHangTrackingDisabled() -> Bool {
         !enableAppHangTracking || appHangTimeoutInterval <= 0
     }
+    #endif // !SDK_V10
 
     #endif
 
@@ -527,6 +529,7 @@
     /// @see <https://develop.sentry.dev/sdk/client-reports/>
     @objc public var sendClientReports: Bool = true
 
+    #if !SDK_V10
     /// When enabled, the SDK tracks when the application stops responding for a specific amount of
     /// time defined by the @c appHangTimeoutInterval option.
     ///
@@ -546,6 +549,7 @@
     /// @note The default is @c true.
     /// @note App Hang tracking is automatically disabled if a debugger is attached.
     @objc public var enableAppHangTracking: Bool = true
+    #endif // !SDK_V10
 
     /// The minimum amount of time an app should be unresponsive to be classified as an App Hanging.
     /// @note The actual amount may be a little longer.
