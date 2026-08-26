@@ -63,16 +63,11 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     
     @objc
     public convenience init(forManualUseWith options: Options, dependencies: SentryDependencyContainer) {
-        self.init(forManualUseWith: options, dependencies: dependencies, fullSession: true)
-    }
-
-    @objc
-    public convenience init(forManualUseWith options: Options, dependencies: SentryDependencyContainer, fullSession: Bool) {
         self.init(nonOptionalWith: options, dependencies: dependencies)
         startWithOptions(
             options.sessionReplay,
             experimentalOptions: options.experimental,
-            fullSession: fullSession
+            fullSession: true
         )
     }
     
@@ -406,6 +401,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         guard let sessionReplay else {
             return start()
         }
+        // Error-triggered captures are sampled; an explicit flush always sends the buffer.
         _ = sessionReplay.captureReplay(replayType: .session, bypassSampling: true)
     }
 

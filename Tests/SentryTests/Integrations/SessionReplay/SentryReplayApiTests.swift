@@ -69,7 +69,7 @@ class SentryReplayApiTests: XCTestCase {
         XCTAssertEqual(mockReplayIntegration.commandsOnMainThread, Array(repeating: true, count: 6))
     }
 
-    func testStartBuffering_whenReplayIntegrationIsMissing_shouldInstallInBufferMode() throws {
+    func testStartBuffering_whenReplayIntegrationIsMissing_shouldNotInstall() {
         startSDKWithoutReplayIntegration()
         let hub = SentrySDKInternal.currentHub()
         let sut = SentryReplayApi()
@@ -77,11 +77,10 @@ class SentryReplayApiTests: XCTestCase {
         sut.startBuffering()
         waitForMainQueue()
 
-        let integration = try XCTUnwrap(hub.installedIntegrations().first as? SentrySessionReplayIntegration)
-        XCTAssertFalse(try XCTUnwrap(integration.sessionReplay).isFullSession)
+        XCTAssertFalse(hub.installedIntegrations().contains { $0 is SentrySessionReplayIntegration })
     }
 
-    func testFlush_whenReplayIntegrationIsMissing_shouldInstallInSessionMode() throws {
+    func testFlush_whenReplayIntegrationIsMissing_shouldNotInstall() {
         startSDKWithoutReplayIntegration()
         let hub = SentrySDKInternal.currentHub()
         let sut = SentryReplayApi()
@@ -89,8 +88,7 @@ class SentryReplayApiTests: XCTestCase {
         sut.flush()
         waitForMainQueue()
 
-        let integration = try XCTUnwrap(hub.installedIntegrations().first as? SentrySessionReplayIntegration)
-        XCTAssertTrue(try XCTUnwrap(integration.sessionReplay).isFullSession)
+        XCTAssertFalse(hub.installedIntegrations().contains { $0 is SentrySessionReplayIntegration })
     }
 
     private func startSDKWithoutReplayIntegration() {
@@ -104,6 +102,7 @@ class SentryReplayApiTests: XCTestCase {
             options.sessionReplay.onErrorSampleRate = 0
             options.cacheDirectoryPath = FileManager.default.temporaryDirectory.path
         }
+        SentrySDKInternal.currentHub().removeAllIntegrations()
     }
 
     private func waitForMainQueue() {

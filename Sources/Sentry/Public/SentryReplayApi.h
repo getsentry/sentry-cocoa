@@ -57,8 +57,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)startBuffering;
 
 /**
- * Flushes buffered replay data and continues recording in session mode. If Replay is inactive,
- * starts a new replay session. This explicit operation bypasses sampling.
+ * Sends buffered replay data to Sentry and continues recording in session mode. If Replay is
+ * inactive, starts a new replay session. This explicit operation bypasses error sampling.
  */
 - (void)flush;
 
