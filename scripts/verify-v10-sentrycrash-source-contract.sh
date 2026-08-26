@@ -339,7 +339,7 @@ fi
 if grep -qE '^[[:space:]]*#import[[:space:]]+[<\"]SentryCrashSysCtl\.h[>\"]' Sources/Sentry/SentrySysctlObjC.m; then
   record_error "SentrySysctlObjC.m must not import the legacy SentryCrashSysCtl header"
 fi
-if grep -qE 'SentryCrashFileUtils\.h|sentrycrashfu_(read|write)BytesFromFD' Sources/Sentry/SentrySessionReplaySyncC.c; then
+if grep -qE 'SentryCrashFileUtils\.h|sentrycrashfu_(readBytesFromFD|writeBytesToFD)' Sources/Sentry/SentrySessionReplaySyncC.c; then
   record_error "SentrySessionReplaySyncC.c must use SDK-owned exact file I/O helpers"
 fi
 
