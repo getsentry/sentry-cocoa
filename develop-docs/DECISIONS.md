@@ -802,13 +802,17 @@ Pros:
   - `SentryHub` receives active crash state directly. Watchdog logic receives active crash state and the SDK-owned `targetEnvironment(simulator)` value directly.
   - The broad `SentryCrashReporter` protocol, its dependency-container factory, and `SentryDefaultCrashReporter` remain V9-only for legacy duration and introspection clients.
   - V10 has no broad reporter facade or zero-value placeholder. `SentryKSCrash.UnavailableReporter` and its `SENTRY_DISABLE_SENTRYCRASH_V10` factory marker were removed in Stack 2D.
+- Current-thread stack-capture boundary:
+  - V9 uses `SentryCrashStackCursor_SelfThread`; V10 uses `SentryKSCrash.CurrentThreadStackProvider` over KSCrash RecordingCore.
+  - SDK-side current-thread capture remains available when crash handling is disabled, and `swiftAsyncStacktraces` configures the active backend for both fatal and nonfatal captures.
+  - `SentryCrashStackCursor_Backtrace.c` and `SentryCrashStackCursor_SelfThread.m` are V9-only; all-thread V10 capture still temporarily retains the machine-context cursor path.
 - Exact retained Tool implementations and SDK clients:
   - `SentryCrashCPU.c`, `SentryCrashCPU_arm.c`, `SentryCrashCPU_arm64.c`, `SentryCrashCPU_x86_32.c`, `SentryCrashCPU_x86_64.c`: thread inspection and stack capture.
-  - `SentryCrashFileUtils.c`: session-replay sync and view-hierarchy output.
+  - `SentryCrashFileUtils.c`: view-hierarchy output. Session-replay sync uses SDK-owned exact-read/exact-write helpers.
   - `SentryCrashJSONCodec.c`: view-hierarchy serialization.
   - `SentryCrashMachineContext.c`: thread inspector, stacktrace builder, and machine-context wrapper.
   - `SentryCrashMemory.c`: profiler backtrace validation and stack cursors.
-  - `SentryCrashStackCursor.c`, `SentryCrashStackCursor_Backtrace.c`, `SentryCrashStackCursor_MachineContext.c`, `SentryCrashStackCursor_SelfThread.m`: current/all-thread stack capture.
+  - `SentryCrashStackCursor.c`, `SentryCrashStackCursor_MachineContext.c`: all-thread stack capture.
   - `SentryCrashThread.c`: thread inspection, stack building, and span thread metadata.
 - Process-time boundary:
   - SDK-owned `SentrySysctlObjC` queries Darwin directly for system boot time and the current process start time, preserving microsecond precision and the epoch fallback on errors.

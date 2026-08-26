@@ -28,6 +28,8 @@ let v10ExcludedSentryCrashToolSources = [
     "SentryCrash/Recording/Tools/SentryCrashNSErrorUtil.m",
     "SentryCrash/Recording/Tools/SentryCrashObjC.c",
     "SentryCrash/Recording/Tools/SentryCrashSignalInfo.c",
+    "SentryCrash/Recording/Tools/SentryCrashStackCursor_Backtrace.c",
+    "SentryCrash/Recording/Tools/SentryCrashStackCursor_SelfThread.m",
     "SentryCrash/Recording/Tools/SentryCrashString.c",
     "SentryCrash/Recording/Tools/SentryCrashSysCtl.c",
     "SentryCrash/Recording/Tools/SentryCrashUUIDConversion.c"

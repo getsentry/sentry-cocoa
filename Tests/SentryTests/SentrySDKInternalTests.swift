@@ -448,13 +448,7 @@ class SentrySDKInternalTests: XCTestCase {
         }
 
         let hub = SentrySDKInternal.currentHub()
-#if SENTRY_DISABLE_SENTRYCRASH_V10
-        // KSCRASH_TODO(GH-8725): V10 temporarily omits the Swift async integration.
-        // Acceptance: SCV10-011 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
-        XCTAssertEqual(0, hub.installedIntegrations().count)
-#else
         XCTAssertEqual(1, hub.installedIntegrations().count)
-#endif
         SentrySDK.close()
         XCTAssertEqual(0, hub.installedIntegrations().count)
         assertIntegrationsInstalled(integrations: [])
@@ -545,6 +539,7 @@ class SentrySDKInternalTests: XCTestCase {
     }
 #endif
 
+#if !SDK_V10
     func testResumeAndPauseAppHangTracking() throws {
         if SentryDependencyContainer.sharedInstance().debuggerStatusProvider.isBeingTraced {
             throw XCTSkip("This test only works when the debugger is NOT attached, because it requires the SentryANRTrackingIntegration being installed, which the SDK only installs if the debugger is not attached.")
@@ -584,6 +579,8 @@ class SentrySDKInternalTests: XCTestCase {
         SentrySDK.pauseAppHangTracking()
         SentrySDK.resumeAppHangTracking()
     }
+
+#endif // !SDK_V10
 
     func testClose_SetsClientToNil() {
         SentrySDK.start { options in

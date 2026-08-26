@@ -3,7 +3,7 @@ internal import _SentryPrivate
 
 // We cannot expose `SwiftIntegration` to objc due to the associated type, so we have this base integration protocol
 @_spi(Private) @objc public protocol SentryIntegrationProtocol: NSObjectProtocol {
-    
+
     // Uninstalls the integration
     func uninstall()
 }
@@ -16,10 +16,10 @@ protocol SwiftIntegration: SentryIntegrationProtocol {
     // constraint on the `Dependencies` type can make it easier to test and to use without a direct dependency on all
     // of `SentryDependencyContainer`.
     associatedtype Dependencies
-    
+
     // The initializer is failable, return nil if the integration was not installed, for example when the options that enable the integration is not enabled.
     init?(with options: Options, dependencies: Dependencies)
-    
+
     // Name of the integration that is used by `SentrySdkInfo`
     static var name: String { get }
 }
@@ -41,14 +41,14 @@ private struct AnyIntegration {
 @_spi(Private) @objc public final class SentrySwiftIntegrationInstaller: NSObject {
     @objc public class func install(with options: Options) {
         let dependencies = SentryDependencyContainer.sharedInstance()
-        
+
         // The order of integrations here is important.
         // SentryCrashIntegration needs to be initialized before SentryAutoSessionTrackingIntegration.
         // And SentrySessionReplayIntegration before SentryCrashIntegration.
         var integrations: [AnyIntegration] = [
             .init(SwiftAsyncIntegration.self)
         ]
-        
+
         #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
         integrations.append(.init(SentrySessionReplayIntegration.self))
         #endif
@@ -61,8 +61,14 @@ private struct AnyIntegration {
 
         integrations.append(contentsOf: [
             .init(SentryAutoSessionTrackingIntegration.self),
-            .init(SentryNetworkTrackingIntegration.self),
-            .init(SentryHangTrackerIntegrationObjC.self),
+            .init(SentryNetworkTrackingIntegration.self)
+        ])
+
+        #if !SDK_V10
+        integrations.append(.init(SentryHangTrackerIntegrationObjC.self))
+        #endif
+
+        integrations.append(contentsOf: [
             .init(SentryAutoBreadcrumbTrackingIntegration.self),
             .init(SentryMetricsIntegration.self),
             .init(SentryCoreDataTrackingIntegration.self),
@@ -85,11 +91,11 @@ private struct AnyIntegration {
         integrations.append(.init(SentryScreenshotIntegration.self))
         integrations.append(.init(SentryViewHierarchyIntegration.self))
         #endif
-        
+
         #if os(iOS) || os(macOS) || os(visionOS)
         integrations.append(.init(SentryMetricKitIntegration.self))
         #endif
-        
+
         integrations.forEach { anyIntegration in
             guard let integration = anyIntegration.install(options, dependencies) else { return }
 

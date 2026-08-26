@@ -339,6 +339,9 @@ fi
 if grep -qE '^[[:space:]]*#import[[:space:]]+[<\"]SentryCrashSysCtl\.h[>\"]' Sources/Sentry/SentrySysctlObjC.m; then
   record_error "SentrySysctlObjC.m must not import the legacy SentryCrashSysCtl header"
 fi
+if grep -qE 'SentryCrashFileUtils\.h|sentrycrashfu_(readBytesFromFD|writeBytesToFD)' Sources/Sentry/SentrySessionReplaySyncC.c; then
+  record_error "SentrySessionReplaySyncC.c must use SDK-owned exact file I/O helpers"
+fi
 
 if grep -R -qE '(^|[^[:alnum:]_])ksbic_registerForImageAdded[[:space:]]*\(' Sources; then
   record_error "SDK source must not take KSCrash's single image-added callback slot"
