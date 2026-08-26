@@ -60,10 +60,11 @@ struct SessionReplayFileManager {
             SentrySDKLog.error("[Session Replay] Failed to write session info to path: \(infoPath), error: \(error)")
         }
         let crashInfoPath = (path as NSString).appendingPathComponent("crashInfo")
-        sentrySessionReplaySync_start(crashInfoPath)
+        sentrySessionReplaySync_start(crashInfoPath, replayType.crashReplayType)
     }
 
     func updateCurrentReplayType(_ replayType: SentryReplayType, replayId: SentryId) {
+        sentrySessionReplaySync_updateReplayType(replayType.crashReplayType)
         guard let replayDirectory = replayDirectory() else { return }
         let infoURL = replayDirectory.appendingPathComponent(Constants.currentReplay)
         sharedDispatchQueue.dispatchAsync {

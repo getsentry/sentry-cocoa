@@ -116,7 +116,15 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
 
         XCTAssertTrue(try XCTUnwrap(getSut().sessionReplay).captureReplay())
         XCTAssertEqual(dispatchQueue.dispatchAsyncCalled, asyncCallsBeforeCapture + 1)
-        XCTAssertEqual(try currentReplayInfo()["replayType"] as? String, "buffer")
+        let currentInfo = try currentReplayInfo()
+        XCTAssertEqual(currentInfo["replayType"] as? String, "buffer")
+
+        sentrySessionReplaySync_writeInfo()
+        var crashInfo = SentryCrashReplay()
+        let sessionPath = try XCTUnwrap(currentInfo["path"] as? String)
+        let crashInfoPath = "\(replayFolder())/\(sessionPath)/crashInfo"
+        XCTAssertTrue(sentrySessionReplaySync_readInfo(&crashInfo, crashInfoPath))
+        XCTAssertEqual(SentryReplayType(crashReplayType: crashInfo.replayType), .session)
 
         dispatchQueue.invokeLastDispatchAsync()
         XCTAssertEqual(try currentReplayInfo()["replayType"] as? String, "session")
@@ -364,6 +372,35 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertEqual(replay.replay.replayType, .session)
         XCTAssertEqual(replay.recording.segmentId, 2)
         XCTAssertEqual(replay.replay.replayStartTimestamp, Date(timeIntervalSinceReferenceDate: 4))
+    }
+
+    func testSessionReplayForCrash_withCompletedSegmentAndStaleBufferType_shouldRecoverAsSession() throws {
+        try createLastSessionReplay(
+            errorSampleRate: 0,
+            replayType: .buffer,
+            crashSafeReplayType: .session
+        )
+        startSDK(sessionSampleRate: 0, errorSampleRate: 0)
+
+        let replay = try XCTUnwrap(captureCrashReplay().replay)
+
+        XCTAssertEqual(replay.replay.replayType, .session)
+        XCTAssertEqual(replay.recording.segmentId, 2)
+    }
+
+    func testSessionReplayForCrash_withoutCompletedSegmentAndStaleBufferType_shouldRecoverAsSession() throws {
+        try createLastSessionReplay(
+            writeSessionInfo: false,
+            errorSampleRate: 0,
+            replayType: .buffer,
+            crashSafeReplayType: .session
+        )
+        startSDK(sessionSampleRate: 0, errorSampleRate: 0)
+
+        let replay = try XCTUnwrap(captureCrashReplay().replay)
+
+        XCTAssertEqual(replay.replay.replayType, .session)
+        XCTAssertEqual(replay.recording.segmentId, 0)
     }
 
     func testSessionReplayForCrash_withoutCompletedSegmentAndZeroRates_shouldRecover() throws {
@@ -1055,7 +1092,8 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         writeSessionInfo: Bool = true,
         errorSampleRate: Double = 1,
         frameTimestamps: [Int] = Array(5...9),
-        replayType: SentryReplayType? = nil
+        replayType: SentryReplayType? = nil,
+        crashSafeReplayType: SentryReplayType? = nil
     ) throws {
         let replayFolder = replayFolder()
         let jsonPath = replayFolder + "/replay.current"
@@ -1080,10 +1118,20 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
             try image?.write(to: URL(fileURLWithPath: "\(sessionFolder)/\(i).png") )
         }
         
-        if writeSessionInfo {
-            sentrySessionReplaySync_start("\(sessionFolder)/crashInfo")
-            sentrySessionReplaySync_updateInfo(1, Double(4))
+        if writeSessionInfo || crashSafeReplayType != nil {
+            sentrySessionReplaySync_start(
+                "\(sessionFolder)/crashInfo",
+                crashSafeReplayType?.crashReplayType ?? 0
+            )
+            if writeSessionInfo {
+                sentrySessionReplaySync_updateInfo(1, Double(4))
+            }
             sentrySessionReplaySync_writeInfo()
+            if crashSafeReplayType == nil {
+                let crashInfoURL = URL(fileURLWithPath: "\(sessionFolder)/crashInfo")
+                let legacySize = MemoryLayout<UInt32>.size + MemoryLayout<Double>.size
+                try Data(Data(contentsOf: crashInfoURL).prefix(legacySize)).write(to: crashInfoURL)
+            }
         }
     }
 

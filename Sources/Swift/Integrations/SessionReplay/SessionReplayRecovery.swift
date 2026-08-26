@@ -100,21 +100,22 @@ struct SessionReplayRecovery {
     ) -> PreviousReplayConfig? {
         var crashInfo = SentryCrashReplay()
         let crashInfoPath = lastReplayURL.appendingPathComponent("crashInfo").path
-        let hasCrashInfo = sentrySessionReplaySync_readInfo(&crashInfo, crashInfoPath)
+        let hasCrashSafeInfo = sentrySessionReplaySync_readInfo(&crashInfo, crashInfoPath)
+        let hasCompletedSegment = hasCrashSafeInfo && crashInfo.lastSegmentEnd > 0
 
-        // Crash info exists only after a completed segment, so persist the mode separately for
-        // crashes during the first segment.
+        // Persisted JSON is the fallback for legacy crash-info files without a replay type.
         let persistedType: SentryReplayType?
         switch jsonObject["replayType"] as? String {
         case "session": persistedType = .session
         case "buffer": persistedType = .buffer
         default: persistedType = nil
         }
-        let type = persistedType ?? (hasCrashInfo ? .session : .buffer)
+        let crashSafeType = hasCrashSafeInfo ? SentryReplayType(crashReplayType: crashInfo.replayType) : nil
+        let type = hasCompletedSegment ? .session : (crashSafeType ?? persistedType ?? .buffer)
         let duration = type == .session
             ? replayOptions.sessionSegmentDuration
             : replayOptions.errorReplayDuration
-        let segmentId = hasCrashInfo ? Int(crashInfo.segmentId) + 1 : 0
+        let segmentId = hasCompletedSegment ? Int(crashInfo.segmentId) + 1 : 0
 
         if type == .buffer {
             SentrySDKLog.debug("[Session Replay] Previous session replay is a buffer, using error sample rate")
@@ -128,7 +129,7 @@ struct SessionReplayRecovery {
         let resumeReplayMaker = createResumeReplayMaker(from: lastReplayURL)
         
         let dateInterval: DateInterval
-        if hasCrashInfo {
+        if hasCompletedSegment {
             let beginning = Date(timeIntervalSinceReferenceDate: crashInfo.lastSegmentEnd)
             dateInterval = DateInterval(start: beginning, duration: duration)
         } else {

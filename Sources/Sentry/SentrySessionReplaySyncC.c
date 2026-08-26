@@ -7,16 +7,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 static SentryCrashReplay crashReplay = { 0 };
 
 void
-sentrySessionReplaySync_start(const char *const path)
+sentrySessionReplaySync_start(const char *const path, unsigned int replayType)
 {
     SENTRY_ASYNC_SAFE_LOG_DEBUG("[Session Replay] Starting session replay with path: %s", path);
     crashReplay.lastSegmentEnd = 0;
     crashReplay.segmentId = 0;
+    crashReplay.replayType = replayType;
 
     if (crashReplay.path != NULL) {
         free(crashReplay.path);
@@ -44,6 +46,12 @@ sentrySessionReplaySync_updateInfo(unsigned int segmentId, double lastSegmentEnd
         lastSegmentEnd);
     crashReplay.segmentId = segmentId;
     crashReplay.lastSegmentEnd = lastSegmentEnd;
+}
+
+void
+sentrySessionReplaySync_updateReplayType(unsigned int replayType)
+{
+    crashReplay.replayType = replayType;
 }
 
 void
@@ -76,6 +84,12 @@ sentrySessionReplaySync_writeInfo(void)
         return;
     }
 
+    if (!sentryFileIO_writeBytesToFD(fd, &crashReplay.replayType, sizeof(crashReplay.replayType))) {
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Error writing replay type for crash.");
+        close(fd);
+        return;
+    }
+
     close(fd);
 }
 
@@ -92,6 +106,7 @@ sentrySessionReplaySync_readInfo(SentryCrashReplay *output, const char *const pa
 
     unsigned int segmentId = 0;
     double lastSegmentEnd = 0;
+    unsigned int replayType = 0;
 
     if (!sentryFileIO_readBytesFromFD(fd, &segmentId, sizeof(segmentId))) {
         SENTRY_ASYNC_SAFE_LOG_ERROR("Error reading segmentId from replay info crash file.");
@@ -105,13 +120,21 @@ sentrySessionReplaySync_readInfo(SentryCrashReplay *output, const char *const pa
         return false;
     }
 
-    close(fd);
-
-    if (lastSegmentEnd == 0) {
+    struct stat fileInfo;
+    const off_t replayTypeEndOffset
+        = (off_t)(sizeof(segmentId) + sizeof(lastSegmentEnd) + sizeof(replayType));
+    // Replay type was appended to the file format, so older files end after lastSegmentEnd.
+    if (fstat(fd, &fileInfo) == 0 && fileInfo.st_size >= replayTypeEndOffset
+        && !sentryFileIO_readBytesFromFD(fd, &replayType, sizeof(replayType))) {
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Error reading replay type from replay info crash file.");
+        close(fd);
         return false;
     }
 
+    close(fd);
+
     output->segmentId = segmentId;
     output->lastSegmentEnd = lastSegmentEnd;
-    return true;
+    output->replayType = replayType;
+    return lastSegmentEnd != 0 || replayType != 0;
 }
