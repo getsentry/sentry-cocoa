@@ -48,6 +48,9 @@ final class MockKSCrashInstaller: SentryKSCrash.Installing {
     public var sendAllReportsProcessingSessions: [SentryKSCrash.ReportProcessingSession] = []
     public var onSendAllReports: (() -> Void)?
     public var setUserInfoInvocations: [[String: Any]] = []
+    #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
+    public var uncaughtExceptionHandler: (@convention(c) (NSException) -> Void)?
+    #endif
 
     public init() {}
 
