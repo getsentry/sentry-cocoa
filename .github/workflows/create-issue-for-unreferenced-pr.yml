@@ -100,10 +100,91 @@ jobs:
 
             core.warning(`PR #${prNumber} does not have an issue reference. Creating a new issue so it can be tracked in Linear.`);
 
+            // Prefer human Co-Authored-By trailers (Junior credits requesters there).
+            // Never assign bots/apps: GitHub App installation tokens cannot assign agents.
+            const isBotLogin = (login) => {
+              if (!login) return true;
+              const normalized = String(login).toLowerCase();
+              return normalized.endsWith('[bot]') || normalized === 'github-actions[bot]';
+            };
+
+            const loginFromNoreplyEmail = (email) => {
+              const match = String(email || '').match(
+                /^(?:[1-9]\d*\+)?([^@\s]+)@users\.noreply\.github\.com$/i
+              );
+              return match?.[1] || undefined;
+            };
+
+            const parseCoAuthorTrailers = (message) => {
+              const trailers = [];
+              const regex = /^co-authored-by:\s*(.+?)\s*<([^>\s]+)>$/gim;
+              let match;
+              while ((match = regex.exec(message || '')) !== null) {
+                trailers.push({ name: match[1].trim(), email: match[2].trim() });
+              }
+              return trailers;
+            };
+
+            const resolveLoginForEmail = async (email) => {
+              const fromNoreply = loginFromNoreplyEmail(email);
+              if (fromNoreply) {
+                return fromNoreply;
+              }
+
+              // Fall back to commits authored with this email in this repo.
+              try {
+                const commits = await github.rest.repos.listCommits({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  author: email,
+                  per_page: 1,
+                });
+                const login = commits.data?.[0]?.author?.login;
+                if (login) {
+                  return login;
+                }
+              } catch (error) {
+                console.log(`Could not resolve GitHub login for ${email}: ${error.message}`);
+              }
+              return undefined;
+            };
+
+            const commitsResponse = await github.rest.pulls.listCommits({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+              per_page: 100,
+            });
+
+            const assigneeCandidates = [];
+            const seenLogins = new Set();
+            const addCandidate = (login) => {
+              if (!login || isBotLogin(login)) return;
+              const key = login.toLowerCase();
+              if (seenLogins.has(key)) return;
+              seenLogins.add(key);
+              assigneeCandidates.push(login);
+            };
+
+            for (const commit of commitsResponse.data) {
+              for (const trailer of parseCoAuthorTrailers(commit.commit?.message || '')) {
+                const login = await resolveLoginForEmail(trailer.email);
+                addCandidate(login);
+              }
+            }
+
+            // Human PR authors still get assigned when no co-author resolved.
+            if (!isBotLogin(prAuthor)) {
+              addCandidate(prAuthor);
+            }
+
+            const assignees = assigneeCandidates.slice(0, 1);
+            const attributedBy = assignees[0] || prAuthor;
+
             // Construct the title and body for the new issue
             const issueTitle = `${prTitle}`;
             const issueBody = `> [!NOTE]
-            > The pull request "[${prTitle}](${prUrl})" was created by @${prAuthor} but did not reference an issue. Therefore this issue was created for better visibility in external tools like Linear.
+            > The pull request "[${prTitle}](${prUrl})" was created by @${attributedBy} but did not reference an issue. Therefore this issue was created for better visibility in external tools like Linear.
 
             ${prBody}
             `;
@@ -114,14 +195,14 @@ jobs:
               repo: context.repo.repo,
               title: issueTitle,
               body: issueBody,
-              assignees: [prAuthor],
+              ...(assignees.length > 0 ? { assignees } : {}),
               labels: [
                 'autocreated'
               ]
             });
 
             const issueID = newIssue.data.number;
-            console.log(`Created issue #${issueID}.`);
+            console.log(`Created issue #${issueID}${assignees.length ? ` assigned to @${assignees[0]}` : ' with no assignee'}.`);
 
             // Update the PR body to reference the new issue
             const updatedPrBody = `${prBody}\n\nCloses #${issueID}`;
