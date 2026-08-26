@@ -14,10 +14,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithDelayDuration:(CFTimeInterval)delayDuration
        framesContributingToDelayCount:(NSUInteger)frames
+            ongoingFrameDelayDuration:(CFTimeInterval)ongoingFrameDelayDuration
 {
     if (self = [super init]) {
         _delayDuration = delayDuration;
         _framesContributingToDelayCount = frames;
+        _ongoingFrameDelayDuration = ongoingFrameDelayDuration;
         return self;
     }
     return nil;
@@ -145,7 +147,8 @@ NS_ASSUME_NONNULL_BEGIN
 {
     SentryFramesDelayResultObjC *cantCalculateFrameDelayReturnValue =
         [[SentryFramesDelayResultObjC alloc] initWithDelayDuration:-1.0
-                                    framesContributingToDelayCount:0];
+                                    framesContributingToDelayCount:0
+                                         ongoingFrameDelayDuration:-1.0];
 
     if (isRunning == NO) {
         SENTRY_LOG_DEBUG(@"Not calculating frames delay because frames tracker isn't running.");
@@ -216,6 +219,9 @@ NS_ASSUME_NONNULL_BEGIN
     NSDateInterval *queryDateInterval = [[NSDateInterval alloc] initWithStartDate:startDate
                                                                           endDate:endDate];
 
+    CFTimeInterval ongoingFrameDelay = [self calculateDelay:currentFrameDelay
+                                          queryDateInterval:queryDateInterval];
+
     CFTimeInterval delay = 0.0;
     NSUInteger framesCount = 0;
 
@@ -235,7 +241,8 @@ NS_ASSUME_NONNULL_BEGIN
 
     SentryFramesDelayResultObjC *data =
         [[SentryFramesDelayResultObjC alloc] initWithDelayDuration:delay
-                                    framesContributingToDelayCount:framesCount];
+                                    framesContributingToDelayCount:framesCount
+                                         ongoingFrameDelayDuration:ongoingFrameDelay];
 
     return data;
 }

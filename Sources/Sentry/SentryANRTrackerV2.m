@@ -34,6 +34,37 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
     SentryANRTrackerState state;
 }
 
+/**
+ * Returns the frames delay to trust for hang classification, and via @c trustedFramesCount the
+ * matching frames count when passed non NULL.
+ *
+ * When the main thread drains its queue, the run loop turns, and an active display link fires
+ * within roughly one frame duration afterwards. So when the main thread is responsive, an ongoing
+ * frame gap larger than the @c sleepInterval means the app isn't rendering although the main
+ * thread isn't blocked, and the ongoing frame's delay must be ignored. Recorded delayed frames
+ * stay trusted because they actually rendered. The ongoing frame always contributes one frame to
+ * @c framesContributingToDelayCount (see @c getFramesDelayObjC), so ignoring its delay also
+ * removes it from the trusted frames count.
+ */
+static CFTimeInterval
+getTrustedFramesDelayDuration(SentryFramesDelayResultSPI *framesDelay,
+    BOOL isMainThreadUnresponsive, NSTimeInterval sleepInterval,
+    NSUInteger *_Nullable trustedFramesCount)
+{
+    CFTimeInterval delayDuration = framesDelay.delayDuration;
+    NSUInteger framesCount = framesDelay.framesContributingToDelayCount;
+
+    if (!isMainThreadUnresponsive && framesDelay.ongoingFrameDelayDuration > sleepInterval) {
+        delayDuration -= framesDelay.ongoingFrameDelayDuration;
+        framesCount -= 1;
+    }
+
+    if (trustedFramesCount != NULL) {
+        *trustedFramesCount = framesCount;
+    }
+    return delayDuration;
+}
+
 - (instancetype)initWithTimeoutInterval:(NSTimeInterval)timeoutInterval
 {
     return [self
@@ -84,6 +115,10 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
 
     BOOL reported = NO;
 
+    // Ticks since the main thread last drained the main queue. When the ticks reach the
+    // reportThreshold the main thread is treated as unresponsive; see the heartbeat block below.
+    __block atomic_int ticksSinceLastMainQueueDrain = 0;
+
     NSInteger reportThreshold = 5;
     NSTimeInterval sleepInterval = self.timeoutInterval / reportThreshold;
     uint64_t sleepIntervalInNanos = timeIntervalToNanoseconds(sleepInterval);
@@ -96,12 +131,12 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
     uint64_t lastAppHangStoppedSystemTime = dateProvider.systemTime - timeoutIntervalInNanos;
     uint64_t lastAppHangStartedSystemTime = 0;
 
-    // Track background time to exclude from hang duration calculation.
-    // When the app goes to background during a hang, we don't want to include
-    // the background time in the reported duration.
-    BOOL wasInBackground = NO;
-    uint64_t wentToBackgroundSystemTime = 0;
-    uint64_t accumulatedBackgroundTime = 0;
+    // Track time to exclude from the hang duration calculation. While the app is in the
+    // background, the frames tracker can't provide frame delay data, e.g. because it's paused, or
+    // the OS suspends the app, the app can't be hanging, but the system time keeps ticking.
+    BOOL isExcludingTime = NO;
+    uint64_t excludedTimeStartSystemTime = 0;
+    uint64_t accumulatedExcludedTime = 0;
 
     // Canceling the thread can take up to sleepInterval.
     while (YES) {
@@ -112,6 +147,16 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
         }
 
         NSDate *sleepDeadline = [[dateProvider date] dateByAddingTimeInterval:self.timeoutInterval];
+
+        // Frame delay data alone can't distinguish a blocked main thread from an app that
+        // legitimately stopped rendering while staying active, e.g. a CarPlay scene keeping the
+        // app alive while the phone is locked, or the proximity sensor blanking the screen; see
+        // https://github.com/getsentry/sentry-cocoa/issues/8317. This heartbeat provides the
+        // missing signal: when the main thread drains its queue, it isn't blocked.
+        atomic_fetch_add_explicit(&ticksSinceLastMainQueueDrain, 1, memory_order_relaxed);
+        [self.dispatchQueueWrapper dispatchAsyncOnMainQueueIfNotMainThread:^{
+            atomic_store_explicit(&ticksSinceLastMainQueueDrain, 0, memory_order_relaxed);
+        }];
 
         [self.threadWrapper sleepForTimeInterval:sleepInterval];
 
@@ -126,22 +171,14 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
         if (!isInForeground) {
             SENTRY_LOG_DEBUG(@"Ignoring potential app hangs because the app is in the background");
 
-            // Track when the app goes to background during an ongoing hang.
-            // This is needed to exclude background time from the hang duration.
-            if (reported && !wasInBackground) {
-                wasInBackground = YES;
-                wentToBackgroundSystemTime = dateProvider.systemTime;
+            // Start excluding time from the hang duration. Background time is one of three
+            // exclusion causes; see the declaration of isExcludingTime.
+            if (reported && !isExcludingTime) {
+                isExcludingTime = YES;
+                excludedTimeStartSystemTime = dateProvider.systemTime;
             }
 
             continue;
-        }
-
-        // App is in foreground - check if we're returning from background during a hang.
-        // Accumulate the time spent in background so we can exclude it from the duration.
-        if (reported && wasInBackground) {
-            uint64_t backgroundTime = dateProvider.systemTime - wentToBackgroundSystemTime;
-            accumulatedBackgroundTime += backgroundTime;
-            wasInBackground = NO;
         }
 
         // The sleepDeadline should be roughly executed after the timeoutInterval even if there is
@@ -153,10 +190,22 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
         if (deltaFromNowToSleepDeadline >= self.timeoutInterval) {
             SENTRY_LOG_DEBUG(@"Ignoring App Hang because the delta is too big: %f.",
                 deltaFromNowToSleepDeadline);
+
+            // The thread slept way longer than expected, e.g. because the OS suspended the app.
+            // Exclude the extra sleep time from the hang duration. When already excluding time,
+            // the ongoing excluded time span covers the extra sleep time.
+            if (reported && !isExcludingTime) {
+                accumulatedExcludedTime += timeIntervalToNanoseconds(
+                    deltaFromNowToSleepDeadline + self.timeoutInterval - sleepInterval);
+            }
             continue;
         }
 
         uint64_t nowSystemTime = dateProvider.systemTime;
+
+        int mainQueueDrainTicks
+            = atomic_load_explicit(&ticksSinceLastMainQueueDrain, memory_order_relaxed);
+        BOOL isMainThreadUnresponsive = mainQueueDrainTicks >= reportThreshold;
 
         if (reported) {
 
@@ -167,10 +216,25 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
                                    endSystemTimestamp:nowSystemTime];
 
             if (framesDelay.delayDuration == -1) {
+                // Without frame delay data, e.g. because the frames tracker is paused after the
+                // app resigned active, the app can't be hanging. Exclude that time from the hang
+                // duration.
+                if (!isExcludingTime) {
+                    isExcludingTime = YES;
+                    excludedTimeStartSystemTime = nowSystemTime;
+                }
                 continue;
             }
 
-            BOOL appHangStopped = framesDelay.delayDuration < appHangStoppedFrameDelayThreshold;
+            if (isExcludingTime) {
+                accumulatedExcludedTime += nowSystemTime - excludedTimeStartSystemTime;
+                isExcludingTime = NO;
+            }
+
+            CFTimeInterval framesDelayDuration = getTrustedFramesDelayDuration(
+                framesDelay, isMainThreadUnresponsive, sleepInterval, NULL);
+
+            BOOL appHangStopped = framesDelayDuration < appHangStoppedFrameDelayThreshold;
 
             if (appHangStopped) {
                 SENTRY_LOG_DEBUG(@"App hang stopped.");
@@ -179,14 +243,15 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
                 // hanging for almost the sleepInterval until we detect it and it could already
                 // stopped hanging almost a sleepInterval until we again detect it's not.
                 //
-                // Subtract any time spent in background during the hang.
-                // When the app goes to background during a hang, the system time continues
-                // to tick, but we don't want to include that time in the reported duration.
+                // Subtract any time during which the app couldn't have been hanging, such as
+                // time in background, without frame delay data, or while the OS suspended the
+                // app. The system time continues to tick during that time, but we don't want to
+                // include it in the reported duration.
                 uint64_t elapsedSystemTime = nowSystemTime - lastAppHangStartedSystemTime;
-                uint64_t foregroundElapsedTime = elapsedSystemTime > accumulatedBackgroundTime
-                    ? elapsedSystemTime - accumulatedBackgroundTime
+                uint64_t observedElapsedTime = elapsedSystemTime > accumulatedExcludedTime
+                    ? elapsedSystemTime - accumulatedExcludedTime
                     : 0;
-                uint64_t appHangDurationNanos = timeoutIntervalInNanos + foregroundElapsedTime;
+                uint64_t appHangDurationNanos = timeoutIntervalInNanos + observedElapsedTime;
 
                 NSTimeInterval appHangDurationMinimum
                     = nanosecondsToTimeInterval(appHangDurationNanos - sleepIntervalInNanos);
@@ -195,8 +260,8 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
 
                 lastAppHangStoppedSystemTime = nowSystemTime;
                 reported = NO;
-                wasInBackground = NO;
-                accumulatedBackgroundTime = 0;
+                isExcludingTime = NO;
+                accumulatedExcludedTime = 0;
 
                 // The App Hang stopped, don't block the App Hangs thread or the main thread with
                 // calling ANRStopped listeners.
@@ -226,10 +291,13 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
             continue;
         }
 
-        uint64_t framesDelayForTimeIntervalInNanos
-            = timeIntervalToNanoseconds(framesDelayForTimeInterval.delayDuration);
+        NSUInteger framesContributingToDelayCount;
+        CFTimeInterval delayDuration = getTrustedFramesDelayDuration(framesDelayForTimeInterval,
+            isMainThreadUnresponsive, sleepInterval, &framesContributingToDelayCount);
 
-        BOOL isFullyBlocking = framesDelayForTimeInterval.framesContributingToDelayCount == 1;
+        uint64_t framesDelayForTimeIntervalInNanos = timeIntervalToNanoseconds(delayDuration);
+
+        BOOL isFullyBlocking = framesContributingToDelayCount == 1;
 
         if (isFullyBlocking && framesDelayForTimeIntervalInNanos >= timeoutIntervalInNanos) {
             SENTRY_LOG_WARN(@"App Hang detected: fully-blocking.");
@@ -240,8 +308,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
         }
 
         NSTimeInterval nonFullyBlockingFramesDelayThreshold = self.timeoutInterval * 0.99;
-        if (!isFullyBlocking
-            && framesDelayForTimeInterval.delayDuration > nonFullyBlockingFramesDelayThreshold) {
+        if (!isFullyBlocking && delayDuration > nonFullyBlockingFramesDelayThreshold) {
 
             SENTRY_LOG_WARN(@"App Hang detected: non-fully-blocking.");
 

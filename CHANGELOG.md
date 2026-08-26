@@ -8,6 +8,11 @@
 - Prevent breadcrumb persistence for watchdog termination events from blocking the calling thread (#8653)
 - Fix data races when reading and updating network tracker feature flags (#8832)
 
+### Fixes
+
+- Fix false fully-blocking app hang reports when the app stops rendering while staying active, e.g. a CarPlay scene keeping the app alive while the phone is locked, or the proximity sensor blanking the screen during a call (#8840)
+- Exclude time without frame delay data and app suspension time from reported app hang durations (#8840)
+
 ## 9.26.0
 
 > [!WARNING]

@@ -11,6 +11,14 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) CFTimeInterval delayDuration;
 @property (nonatomic, readonly) NSUInteger framesContributingToDelayCount;
 
+/**
+ * The part of @c delayDuration stemming from the ongoing, not yet recorded frame. This is only an
+ * assumption, because the app may not be rendering at all, e.g. when the screen is off. The
+ * ongoing frame always contributes one frame to @c framesContributingToDelayCount. This is -1
+ * when the frames delay can't be calculated; check @c delayDuration first.
+ */
+@property (nonatomic, readonly) CFTimeInterval ongoingFrameDelayDuration;
+
 @end
 
 @interface SentryDelayedFramesTracker : NSObject
