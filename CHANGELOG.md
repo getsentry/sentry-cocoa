@@ -22,6 +22,7 @@
 - Prevent duplicate automatic HTTP spans and breadcrumbs for URLSession task wrappers (#8846)
 - Prevent breadcrumb persistence for watchdog termination events from blocking the calling thread (#8653)
 - Fix data races when reading and updating network tracker feature flags (#8832)
+- Stop recording touch events while Session Replay is paused. ([#8887](https://github.com/getsentry/sentry-cocoa/pull/8887))
 
 ## 9.26.0
 
