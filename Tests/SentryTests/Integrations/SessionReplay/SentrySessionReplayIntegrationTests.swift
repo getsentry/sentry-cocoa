@@ -308,6 +308,21 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
         XCTAssertTrue(sut.sessionReplay?.isRunning ?? false)
     }
+
+    func testManualPause_whenApplicationForegrounds_shouldRemainPausedUntilManualResume() throws {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+
+        sut.pause()
+        NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
+        NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
+
+        XCTAssertFalse(sut.sessionReplay?.isRunning ?? true)
+
+        sut.resume()
+
+        XCTAssertTrue(sut.sessionReplay?.isRunning ?? false)
+    }
     
     func testStopReplayAtEndOfSession() throws {
         startSDK(sessionSampleRate: 1, errorSampleRate: 0)

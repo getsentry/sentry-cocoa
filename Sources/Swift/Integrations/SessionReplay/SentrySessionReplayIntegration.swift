@@ -36,9 +36,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     private var replayRecovery: SessionReplayRecovery?
     private var backgroundForegroundObserver: SentrySessionReplayBackgroundForegroundObserver?
 
-    /// Written by `pause`/`resume` (application lifecycle, usually the main thread) and read
-    /// from the reachability queue in `connectivityChanged`.
-    private let isApplicationStatePaused = SentryMutex<Bool>(false)
+    private let isManuallyPaused = SentryMutex(false)
 
     /// Getter to get the current application at runtime
     ///
@@ -93,7 +91,6 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         
         super.init()
 
-        isApplicationStatePaused.withLock { $0 = getApplication()?.mainThread_isActive == false }
         self.backgroundForegroundObserver = SentrySessionReplayBackgroundForegroundObserver(integration: self)
         
         self.replayRecovery = SessionReplayRecovery(
@@ -256,13 +253,11 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
 
     @objc private func applicationDidBecomeActiveHandler(_ notification: Notification) {
         SentrySDKLog.debug("[Session Replay] Application did become active, starting replay")
-        isApplicationStatePaused.withLock { $0 = false }
         runReplayForAvailableWindow()
     }
 
     @objc private func sceneDidActivateHandler(_ notification: Notification) {
         SentrySDKLog.debug("[Session Replay] Scene is available, starting replay")
-        isApplicationStatePaused.withLock { $0 = false }
         runReplayForAvailableWindow()
     }
 
@@ -307,7 +302,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         touchTracker?.enable()
         newSessionReplay.start(rootView: rootView, fullSession: fullSession)
         addBackgroundForegroundObservers()
-        if isApplicationStatePaused.withLock({ $0 }) {
+        if isManuallyPaused.withLock({ $0 }) || getApplication()?.mainThread_isActive == false {
             newSessionReplay.pause()
         }
         
@@ -376,13 +371,14 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     
     @objc public func pause() {
         SentrySDKLog.debug("[Session Replay] Pausing session")
-        isApplicationStatePaused.withLock { $0 = true }
+        isManuallyPaused.withLock { $0 = true }
         sessionReplay?.pause()
     }
 
     @objc public func resume() {
         SentrySDKLog.debug("[Session Replay] Resuming session")
-        isApplicationStatePaused.withLock { $0 = false }
+        isManuallyPaused.withLock { $0 = false }
+        guard getApplication()?.mainThread_isActive != false else { return }
         sessionReplay?.resume()
     }
 
@@ -508,10 +504,20 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     public func connectivityChanged(_ connected: Bool, typeDescription: String) {
         SentrySDKLog.debug("[Session Replay] Connectivity changed to: \(connected ? "connected" : "disconnected"), type: \(typeDescription)")
         if connected {
-            sessionReplay?.resumeSessionMode(restartCaptureScheduler: !isApplicationStatePaused.withLock({ $0 }))
+            let shouldRestartCaptureScheduler = !isManuallyPaused.withLock({ $0 }) && sessionReplay?.isRunning == true
+            sessionReplay?.resumeSessionMode(restartCaptureScheduler: shouldRestartCaptureScheduler)
         } else {
             sessionReplay?.pauseSessionMode()
         }
+    }
+
+    fileprivate func onAppBackgrounded() {
+        sessionReplay?.pause()
+    }
+
+    fileprivate func onAppForegrounded() {
+        guard !isManuallyPaused.withLock({ $0 }) else { return }
+        sessionReplay?.resume()
     }
     
     // MARK: - Test only
@@ -543,11 +549,11 @@ private final class SentrySessionReplayBackgroundForegroundObserver: NSObject {
     }
 
     @objc func pause(_ notification: Notification) {
-        integration?.pause()
+        integration?.onAppBackgrounded()
     }
 
     @objc func resume(_ notification: Notification) {
-        integration?.resume()
+        integration?.onAppForegrounded()
     }
 }
 
