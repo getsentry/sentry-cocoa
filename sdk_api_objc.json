@@ -1235,13 +1235,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "captureEvent:withCurrentScope:",
-    "parent": "SentryObjCSDK",
-    "returnType": "SentryObjCId * _Nonnull",
-    "instance": false
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "captureEvent:withScope:",
     "parent": "SentryObjCClient",
     "returnType": "SentryObjCId * _Nonnull",
@@ -1347,13 +1340,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "captureFeedbackWithMessage:name:email:source:associatedEventId:attachments:currentScope:",
-    "parent": "SentryObjCSDK",
-    "returnType": "void",
-    "instance": false
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "captureMessage:",
     "parent": "SentryObjCClient",
     "returnType": "SentryObjCId * _Nonnull",
@@ -1453,9 +1439,9 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "cloneScope:",
-    "parent": "SentryObjCSDK",
+    "parent": "SentryObjCInternalScopeApi",
     "returnType": "SentryObjCScope * _Nonnull",
-    "instance": false
+    "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
@@ -1649,9 +1635,9 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "createScope",
-    "parent": "SentryObjCSDK",
+    "parent": "SentryObjCInternalScopeApi",
     "returnType": "SentryObjCScope * _Nonnull",
-    "instance": false
+    "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
@@ -8631,6 +8617,13 @@
     "parent": "SentryObjCUnit",
     "returnType": "SentryObjCUnit * _Nonnull",
     "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "withCurrentScope:callback:",
+    "parent": "SentryObjCInternalScopeApi",
+    "returnType": "void",
+    "instance": true
   },
   {
     "kind": "ObjCPropertyDecl",

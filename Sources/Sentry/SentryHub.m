@@ -30,6 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSMutableSet<NSString *> *installedIntegrationNames;
 @property (nonatomic) NSUInteger errorsBeforeSession;
 @property (nonatomic, weak) id<SentrySessionListener> sessionListener;
+@property (nonatomic, strong) SentryCurrentScopeStorage *currentScopeStorage;
 
 - (instancetype)initWithClient:(nullable SentryClientInternal *)client
                       andScope:(nullable SentryScope *)scope
@@ -79,6 +80,7 @@ NS_ASSUME_NONNULL_BEGIN
         _crashWrapper = crashWrapper;
         _activeCrashReporterState = activeCrashReporterState;
         _dispatchQueue = dispatchQueue;
+        _currentScopeStorage = SentryDependencyContainer.sharedInstance.currentScopeStorage;
         _sessionLock = [[NSObject alloc] init];
         _integrationsLock = [[NSObject alloc] init];
         _installedIntegrations = [[NSMutableArray alloc] init];
@@ -992,37 +994,9 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (SentryId *)captureEvent:(SentryEvent *)event withCurrentScope:(SentryScope *)currentScope
+- (void)withCurrentScope:(SentryScope *)scope callback:(void(NS_NOESCAPE ^)(void))callback
 {
-    SentryClientInternal *client = self.client;
-    if (client != nil) {
-        return [client captureEvent:event
-                          withScope:self.scope
-                       currentScope:currentScope
-            additionalEnvelopeItems:@[]];
-    }
-    return SentryId.empty;
-}
-
-- (void)captureLog:(SentryLog *)log withCurrentScope:(SentryScope *)currentScope
-{
-    SentryClientInternal *client = self.client;
-    if (client == nil) {
-        SENTRY_LOG_WARN(@"No client configured. Dropping log.");
-        return;
-    }
-#if SENTRY_TARGET_REPLAY_SUPPORTED
-    [self enrichLog:log withReplayIdFromScope:currentScope.replayId ?: self.scope.replayId];
-#endif
-    [client _swiftCaptureLog:log withScope:self.scope currentScope:currentScope];
-}
-
-- (void)captureFeedback:(SentryFeedback *)feedback withCurrentScope:(SentryScope *)currentScope
-{
-    SentryClientInternal *client = self.client;
-    if (client != nil) {
-        [client captureFeedback:feedback withScope:self.scope currentScope:currentScope];
-    }
+    [self.currentScopeStorage withScope:scope callback:callback];
 }
 
 #pragma mark - Protected

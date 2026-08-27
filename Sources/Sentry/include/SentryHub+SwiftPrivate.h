@@ -18,14 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)registerSessionListener:(SENTRY_SWIFT_MIGRATION_ID(id<SentrySessionListener>))listener;
 - (void)unregisterSessionListener:(SENTRY_SWIFT_MIGRATION_ID(id<SentrySessionListener>))listener;
 
-- (SentryId *)captureEvent:(SentryEvent *)event
-          withCurrentScope:(SentryScope *)currentScope NS_SWIFT_NAME(capture(event:currentScope:));
-
-- (void)captureLog:(SENTRY_SWIFT_MIGRATION_ID(SentryLog))log
-    withCurrentScope:(SentryScope *)currentScope NS_SWIFT_NAME(captureLog(_:currentScope:));
-
-- (void)captureFeedback:(SENTRY_SWIFT_MIGRATION_ID(SentryFeedback))feedback
-       withCurrentScope:(SentryScope *)currentScope NS_SWIFT_NAME(captureFeedback(_:currentScope:));
+- (void)withCurrentScope:(SentryScope *)scope callback:(void(NS_NOESCAPE ^)(void))callback;
 
 @end
 

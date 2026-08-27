@@ -18,8 +18,7 @@ public protocol SentryMetricsApiProtocol {
     ///                 (`[String]`, `[Bool]`, `[Int]`, `[Double]`). Mixed arrays and unsupported
     ///                 types are converted to strings.
     ///                 Example: `["endpoint": "api/users", "success": true, "status_code": 200]`
-    ///   - currentScope: Optional scope to layer on top of the global scope. Defaults to nil.
-    func count(key: String, value: UInt, attributes: [String: SentryAttributeValue], currentScope: Scope?)
+    func count(key: String, value: UInt, attributes: [String: SentryAttributeValue])
 
     /// Records a distribution metric for the specified key.
     ///
@@ -39,8 +38,7 @@ public protocol SentryMetricsApiProtocol {
     ///                 (`[String]`, `[Bool]`, `[Int]`, `[Double]`). Mixed arrays and unsupported
     ///                 types are converted to strings.
     ///                 Example: `["endpoint": "/api/data", "cached": false, "response_size": 1024.5]`
-    ///   - currentScope: Optional scope to layer on top of the global scope. Defaults to nil.
-    func distribution(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue], currentScope: Scope?)
+    func distribution(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue])
 
     /// Records a gauge metric for the specified key.
     ///
@@ -60,8 +58,7 @@ public protocol SentryMetricsApiProtocol {
     ///                 (`[String]`, `[Bool]`, `[Int]`, `[Double]`). Mixed arrays and unsupported
     ///                 types are converted to strings.
     ///                 Example: `["process": "main_app", "compressed": true, "pressure_level": 2]`
-    ///   - currentScope: Optional scope to layer on top of the global scope. Defaults to nil.
-    func gauge(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue], currentScope: Scope?)
+    func gauge(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue])
 }
 
 // MARK: - Default Parameter Values
@@ -70,16 +67,16 @@ public protocol SentryMetricsApiProtocol {
 public extension SentryMetricsApiProtocol {
     /// Records a count metric with default parameter values.
     func count(key: String, value: UInt = 1, attributes: [String: SentryAttributeValue] = [:]) {
-        self.count(key: key, value: value, attributes: attributes, currentScope: nil)
+        self.count(key: key, value: value, attributes: attributes)
     }
 
     /// Records a distribution metric with default parameter values.
     func distribution(key: String, value: Double, unit: SentryUnit? = nil, attributes: [String: SentryAttributeValue] = [:]) {
-        self.distribution(key: key, value: value, unit: unit, attributes: attributes, currentScope: nil)
+        self.distribution(key: key, value: value, unit: unit, attributes: attributes)
     }
 
     /// Records a gauge metric with default parameter values.
     func gauge(key: String, value: Double, unit: SentryUnit? = nil, attributes: [String: SentryAttributeValue] = [:]) {
-        self.gauge(key: key, value: value, unit: unit, attributes: attributes, currentScope: nil)
+        self.gauge(key: key, value: value, unit: unit, attributes: attributes)
     }
 }

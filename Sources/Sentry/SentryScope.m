@@ -761,7 +761,10 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
         NSMutableArray *mergedBreadcrumbs =
             [NSMutableArray arrayWithArray:event.breadcrumbs ?: @[]];
         for (SentryBreadcrumb *crumb in overlayBreadcrumbs) {
-            if (mergedBreadcrumbs.count < maxBreadcrumbs) {
+            if (mergedBreadcrumbs.count >= maxBreadcrumbs) {
+                break;
+            }
+            if ([mergedBreadcrumbs indexOfObjectIdenticalTo:crumb] == NSNotFound) {
                 [mergedBreadcrumbs addObject:crumb];
             }
         }

@@ -123,6 +123,8 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         return SessionTracker(options: options, applicationProvider: defaultApplicationProvider, dateProvider: dateProvider, notificationCenter: notificationCenterWrapper, dispatchQueue: sessionDispatchQueue)
     }
 
+    @objc public var currentScopeStorage = SentryCurrentScopeStorage()
+
     @objc public var dispatchQueueWrapper = Dependencies.dispatchQueueWrapper
     @objc public var random = Dependencies.random
     @objc public var threadWrapper = Dependencies.threadWrapper
@@ -566,6 +568,7 @@ protocol Hub {
     func captureEnvelope(_ envelope: SentryEnvelope)
     func captureErrorEvent(event: Event)
     func setTrace(_ traceId: SentryId, spanId: SpanId)
+    func withCurrentScope(_ scope: Scope, callback: () -> Void)
     var currentOptions: Options? { get }
     var options: Options { get }
     var scope: Scope { get }
@@ -611,6 +614,10 @@ private struct DefaultHub: Hub {
 
     var scope: Scope {
         SentrySDKInternal.currentHub().scope
+    }
+
+    func withCurrentScope(_ scope: Scope, callback: () -> Void) {
+        SentrySDKInternal.currentHub().withCurrentScope(scope, callback: callback)
     }
 }
 

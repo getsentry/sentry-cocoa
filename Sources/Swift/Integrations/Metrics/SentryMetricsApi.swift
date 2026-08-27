@@ -7,6 +7,7 @@ protocol SentryMetricsApiDependencies {
     var isSDKEnabled: Bool { get }
     var scope: Scope { get }
     var dateProvider: SentryCurrentDateProvider { get }
+    var currentScopeStorage: SentryCurrentScopeStorage { get }
 
     /// The integration is nullable as it might not be installed on the hub as expected.
     var metricsIntegration: Integration? { get }
@@ -19,16 +20,16 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
         self.dependencies = dependencies
     }
 
-    func count(key: String, value: UInt, attributes: [String: SentryAttributeValue], currentScope: Scope?) {
-        captureMetric(name: key, value: .counter(value), unit: nil, attributes: attributes, currentScope: currentScope)
+    func count(key: String, value: UInt, attributes: [String: SentryAttributeValue]) {
+        captureMetric(name: key, value: .counter(value), unit: nil, attributes: attributes)
     }
 
-    func distribution(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue], currentScope: Scope?) {
-        captureMetric(name: key, value: .distribution(value), unit: unit, attributes: attributes, currentScope: currentScope)
+    func distribution(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue]) {
+        captureMetric(name: key, value: .distribution(value), unit: unit, attributes: attributes)
     }
 
-    func gauge(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue], currentScope: Scope?) {
-        captureMetric(name: key, value: .gauge(value), unit: unit, attributes: attributes, currentScope: currentScope)
+    func gauge(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue]) {
+        captureMetric(name: key, value: .gauge(value), unit: unit, attributes: attributes)
     }
 
     // MARK: - Private
@@ -37,8 +38,7 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
         name: String,
         value: SentryMetric.Value,
         unit: SentryUnit?,
-        attributes: [String: SentryAttributeValue],
-        currentScope: Scope? = nil
+        attributes: [String: SentryAttributeValue]
     ) {
         guard dependencies.isSDKEnabled else {
             SentrySDKLog.warning("Metric '\(name)' was not captured because the Sentry SDK has not been started. Call SentrySDK.start(options:) first.")
@@ -75,6 +75,7 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
                 attributable.asSentryAttributeContent
             }
         )
+        let currentScope = dependencies.currentScopeStorage.scope()
         integration.addMetric(metric, scope: dependencies.scope, currentScope: currentScope)
     }
 }

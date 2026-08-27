@@ -8,11 +8,11 @@ public final class TestMetricsApi: NSObject, SentryMetricsApiProtocol {
     @objc public let distributionInvocations = ObjCInvocations()
     @objc public let gaugeInvocations = ObjCInvocations()
 
-    public func count(key: String, value: UInt, attributes: [String: SentryAttributeValue], currentScope: Scope?) {
+    public func count(key: String, value: UInt, attributes: [String: SentryAttributeValue]) {
         countInvocations.record(["key": key, "value": value] as NSDictionary)
     }
 
-    public func distribution(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue], currentScope: Scope?) {
+    public func distribution(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue]) {
         var dict: [String: Any] = ["key": key, "value": value]
         if let unit {
             dict["unit"] = unit.rawValue
@@ -20,7 +20,7 @@ public final class TestMetricsApi: NSObject, SentryMetricsApiProtocol {
         distributionInvocations.record(dict as NSDictionary)
     }
 
-    public func gauge(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue], currentScope: Scope?) {
+    public func gauge(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue]) {
         var dict: [String: Any] = ["key": key, "value": value]
         if let unit {
             dict["unit"] = unit.rawValue

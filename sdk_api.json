@@ -41289,40 +41289,6 @@
             ],
             "declAttributes": [
               "DiscardableResult",
-              "Final"
-            ],
-            "declKind": "Func",
-            "funcSelfKind": "NonMutating",
-            "kind": "Function",
-            "mangledName": "$s6Sentry0A3HubC7capture5event12currentScopeSo0A2IdCSo0A5EventC_So0aF0CtF",
-            "moduleName": "Sentry",
-            "name": "capture",
-            "printedName": "capture(event:currentScope:)",
-            "usr": "s:6Sentry0A3HubC7capture5event12currentScopeSo0A2IdCSo0A5EventC_So0aF0CtF"
-          },
-          {
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Event",
-                "printedName": "Sentry.Event",
-                "usr": "c:objc(cs)SentryEvent"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Scope",
-                "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "SentryId",
-                "printedName": "Sentry.SentryId",
-                "usr": "c:objc(cs)SentryId"
-              }
-            ],
-            "declAttributes": [
-              "DiscardableResult",
               "Final",
               "ObjC"
             ],
@@ -41434,38 +41400,6 @@
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "Scope",
-                "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "SentryFeedback",
-                "printedName": "Sentry.SentryFeedback",
-                "usr": "c:@M@Sentry@objc(cs)SentryFeedback"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              }
-            ],
-            "declAttributes": [
-              "Final"
-            ],
-            "declKind": "Func",
-            "funcSelfKind": "NonMutating",
-            "kind": "Function",
-            "mangledName": "$s6Sentry0A3HubC7capture8feedback12currentScopeyAA0A8FeedbackC_So0aF0CtF",
-            "moduleName": "Sentry",
-            "name": "capture",
-            "printedName": "capture(feedback:currentScope:)",
-            "usr": "s:6Sentry0A3HubC7capture8feedback12currentScopeyAA0A8FeedbackC_So0aF0CtF"
-          },
-          {
-            "children": [
-              {
-                "kind": "TypeNominal",
                 "name": "SentryId",
                 "printedName": "Sentry.SentryId",
                 "usr": "c:objc(cs)SentryId"
@@ -41527,33 +41461,6 @@
             "objc_name": "captureMessage:withScope:",
             "printedName": "capture(message:scope:)",
             "usr": "c:@M@Sentry@objc(cs)SentryHub(im)captureMessage:withScope:"
-          },
-          {
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Scope",
-                "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Scope",
-                "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
-              }
-            ],
-            "declAttributes": [
-              "Final"
-            ],
-            "declKind": "Func",
-            "funcSelfKind": "NonMutating",
-            "kind": "Function",
-            "mangledName": "$s6Sentry0A3HubC10cloneScopeySo0aD0CAFF",
-            "moduleName": "Sentry",
-            "name": "cloneScope",
-            "printedName": "cloneScope(_:)",
-            "usr": "s:6Sentry0A3HubC10cloneScopeySo0aD0CAFF"
           },
           {
             "children": [
@@ -41621,27 +41528,6 @@
             "name": "configureScope",
             "printedName": "configureScope(_:)",
             "usr": "c:@M@Sentry@objc(cs)SentryHub(im)configureScope:"
-          },
-          {
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Scope",
-                "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
-              }
-            ],
-            "declAttributes": [
-              "Final"
-            ],
-            "declKind": "Func",
-            "funcSelfKind": "NonMutating",
-            "kind": "Function",
-            "mangledName": "$s6Sentry0A3HubC11createScopeSo0aD0CyF",
-            "moduleName": "Sentry",
-            "name": "createScope",
-            "printedName": "createScope()",
-            "usr": "s:6Sentry0A3HubC11createScopeSo0aD0CyF"
           },
           {
             "children": [
@@ -44677,6 +44563,48 @@
           {
             "children": [
               {
+                "kind": "TypeNominal",
+                "name": "Scope",
+                "printedName": "Sentry.Scope",
+                "usr": "c:objc(cs)SentryScope"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Scope",
+                "printedName": "Sentry.Scope",
+                "usr": "c:objc(cs)SentryScope"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A16InternalScopeApiV05cloneC0ySo0aC0CAFF",
+            "moduleName": "Sentry",
+            "name": "cloneScope",
+            "printedName": "cloneScope(_:)",
+            "usr": "s:6Sentry0A16InternalScopeApiV05cloneC0ySo0aC0CAFF"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Scope",
+                "printedName": "Sentry.Scope",
+                "usr": "c:objc(cs)SentryScope"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A16InternalScopeApiV06createC0So0aC0CyF",
+            "moduleName": "Sentry",
+            "name": "createScope",
+            "printedName": "createScope()",
+            "usr": "s:6Sentry0A16InternalScopeApiV06createC0So0aC0CyF"
+          },
+          {
+            "children": [
+              {
                 "children": [
                   {
                     "children": [
@@ -44718,6 +44646,56 @@
             "name": "serializedContexts",
             "printedName": "serializedContexts()",
             "usr": "s:6Sentry0A16InternalScopeApiV18serializedContextsSDySSSDySSypGGyF"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "Void",
+                    "printedName": "Swift.Void"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "() -> Swift.Void",
+                "typeAttributes": [
+                  "noescape"
+                ]
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Scope",
+                "printedName": "Sentry.Scope",
+                "usr": "c:objc(cs)SentryScope"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A16InternalScopeApiV011withCurrentC0yySo0aC0C_yyXEtF",
+            "moduleName": "Sentry",
+            "name": "withCurrentScope",
+            "printedName": "withCurrentScope(_:_:)",
+            "usr": "s:6Sentry0A16InternalScopeApiV011withCurrentC0yySo0aC0C_yyXEtF"
           }
         ],
         "conformances": [
@@ -48516,6 +48494,52 @@
                     "usr": "s:SS"
                   }
                 ],
+                "hasDefaultArg": true,
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Any]",
+                "usr": "s:SD"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryLogMessage",
+                "printedName": "Sentry.SentryLogMessage",
+                "usr": "s:6Sentry0A10LogMessageV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "Final"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A6LoggerC5debug_10attributesyAA0A10LogMessageV_SDySSypGtF",
+            "moduleName": "Sentry",
+            "name": "debug",
+            "printedName": "debug(_:attributes:)",
+            "usr": "s:6Sentry0A6LoggerC5debug_10attributesyAA0A10LogMessageV_SDySSypGtF"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
                 "kind": "TypeNominal",
                 "name": "Dictionary",
                 "printedName": "[Swift.String : Any]",
@@ -48550,67 +48574,6 @@
           {
             "children": [
               {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "ProtocolComposition",
-                    "printedName": "Any"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "hasDefaultArg": true,
-                "kind": "TypeNominal",
-                "name": "Dictionary",
-                "printedName": "[Swift.String : Any]",
-                "usr": "s:SD"
-              },
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Scope",
-                    "printedName": "Sentry.Scope",
-                    "usr": "c:objc(cs)SentryScope"
-                  }
-                ],
-                "hasDefaultArg": true,
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Sentry.Scope?",
-                "usr": "s:Sq"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "SentryLogMessage",
-                "printedName": "Sentry.SentryLogMessage",
-                "usr": "s:6Sentry0A10LogMessageV"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              }
-            ],
-            "declAttributes": [
-              "Final"
-            ],
-            "declKind": "Func",
-            "funcSelfKind": "NonMutating",
-            "kind": "Function",
-            "mangledName": "$s6Sentry0A6LoggerC5debug_10attributes12currentScopeyAA0A10LogMessageV_SDySSypGSo0aF0CSgtF",
-            "moduleName": "Sentry",
-            "name": "debug",
-            "printedName": "debug(_:attributes:currentScope:)",
-            "usr": "s:6Sentry0A6LoggerC5debug_10attributes12currentScopeyAA0A10LogMessageV_SDySSypGSo0aF0CSgtF"
-          },
-          {
-            "children": [
-              {
                 "kind": "TypeNominal",
                 "name": "String",
                 "printedName": "Swift.String",
@@ -48635,6 +48598,52 @@
             "objc_name": "error:",
             "printedName": "error(_:)",
             "usr": "c:@M@Sentry@objc(cs)SentryLogger(im)error:"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Any]",
+                "usr": "s:SD"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryLogMessage",
+                "printedName": "Sentry.SentryLogMessage",
+                "usr": "s:6Sentry0A10LogMessageV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "Final"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A6LoggerC5error_10attributesyAA0A10LogMessageV_SDySSypGtF",
+            "moduleName": "Sentry",
+            "name": "error",
+            "printedName": "error(_:attributes:)",
+            "usr": "s:6Sentry0A6LoggerC5error_10attributesyAA0A10LogMessageV_SDySSypGtF"
           },
           {
             "children": [
@@ -48686,67 +48695,6 @@
           {
             "children": [
               {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "ProtocolComposition",
-                    "printedName": "Any"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "hasDefaultArg": true,
-                "kind": "TypeNominal",
-                "name": "Dictionary",
-                "printedName": "[Swift.String : Any]",
-                "usr": "s:SD"
-              },
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Scope",
-                    "printedName": "Sentry.Scope",
-                    "usr": "c:objc(cs)SentryScope"
-                  }
-                ],
-                "hasDefaultArg": true,
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Sentry.Scope?",
-                "usr": "s:Sq"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "SentryLogMessage",
-                "printedName": "Sentry.SentryLogMessage",
-                "usr": "s:6Sentry0A10LogMessageV"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              }
-            ],
-            "declAttributes": [
-              "Final"
-            ],
-            "declKind": "Func",
-            "funcSelfKind": "NonMutating",
-            "kind": "Function",
-            "mangledName": "$s6Sentry0A6LoggerC5error_10attributes12currentScopeyAA0A10LogMessageV_SDySSypGSo0aF0CSgtF",
-            "moduleName": "Sentry",
-            "name": "error",
-            "printedName": "error(_:attributes:currentScope:)",
-            "usr": "s:6Sentry0A6LoggerC5error_10attributes12currentScopeyAA0A10LogMessageV_SDySSypGSo0aF0CSgtF"
-          },
-          {
-            "children": [
-              {
                 "kind": "TypeNominal",
                 "name": "String",
                 "printedName": "Swift.String",
@@ -48771,6 +48719,52 @@
             "objc_name": "fatal:",
             "printedName": "fatal(_:)",
             "usr": "c:@M@Sentry@objc(cs)SentryLogger(im)fatal:"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Any]",
+                "usr": "s:SD"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryLogMessage",
+                "printedName": "Sentry.SentryLogMessage",
+                "usr": "s:6Sentry0A10LogMessageV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "Final"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A6LoggerC5fatal_10attributesyAA0A10LogMessageV_SDySSypGtF",
+            "moduleName": "Sentry",
+            "name": "fatal",
+            "printedName": "fatal(_:attributes:)",
+            "usr": "s:6Sentry0A6LoggerC5fatal_10attributesyAA0A10LogMessageV_SDySSypGtF"
           },
           {
             "children": [
@@ -48822,67 +48816,6 @@
           {
             "children": [
               {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "ProtocolComposition",
-                    "printedName": "Any"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "hasDefaultArg": true,
-                "kind": "TypeNominal",
-                "name": "Dictionary",
-                "printedName": "[Swift.String : Any]",
-                "usr": "s:SD"
-              },
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Scope",
-                    "printedName": "Sentry.Scope",
-                    "usr": "c:objc(cs)SentryScope"
-                  }
-                ],
-                "hasDefaultArg": true,
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Sentry.Scope?",
-                "usr": "s:Sq"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "SentryLogMessage",
-                "printedName": "Sentry.SentryLogMessage",
-                "usr": "s:6Sentry0A10LogMessageV"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              }
-            ],
-            "declAttributes": [
-              "Final"
-            ],
-            "declKind": "Func",
-            "funcSelfKind": "NonMutating",
-            "kind": "Function",
-            "mangledName": "$s6Sentry0A6LoggerC5fatal_10attributes12currentScopeyAA0A10LogMessageV_SDySSypGSo0aF0CSgtF",
-            "moduleName": "Sentry",
-            "name": "fatal",
-            "printedName": "fatal(_:attributes:currentScope:)",
-            "usr": "s:6Sentry0A6LoggerC5fatal_10attributes12currentScopeyAA0A10LogMessageV_SDySSypGSo0aF0CSgtF"
-          },
-          {
-            "children": [
-              {
                 "kind": "TypeNominal",
                 "name": "String",
                 "printedName": "Swift.String",
@@ -48907,6 +48840,52 @@
             "objc_name": "info:",
             "printedName": "info(_:)",
             "usr": "c:@M@Sentry@objc(cs)SentryLogger(im)info:"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Any]",
+                "usr": "s:SD"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryLogMessage",
+                "printedName": "Sentry.SentryLogMessage",
+                "usr": "s:6Sentry0A10LogMessageV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "Final"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A6LoggerC4info_10attributesyAA0A10LogMessageV_SDySSypGtF",
+            "moduleName": "Sentry",
+            "name": "info",
+            "printedName": "info(_:attributes:)",
+            "usr": "s:6Sentry0A6LoggerC4info_10attributesyAA0A10LogMessageV_SDySSypGtF"
           },
           {
             "children": [
@@ -48958,67 +48937,6 @@
           {
             "children": [
               {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "ProtocolComposition",
-                    "printedName": "Any"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "hasDefaultArg": true,
-                "kind": "TypeNominal",
-                "name": "Dictionary",
-                "printedName": "[Swift.String : Any]",
-                "usr": "s:SD"
-              },
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Scope",
-                    "printedName": "Sentry.Scope",
-                    "usr": "c:objc(cs)SentryScope"
-                  }
-                ],
-                "hasDefaultArg": true,
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Sentry.Scope?",
-                "usr": "s:Sq"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "SentryLogMessage",
-                "printedName": "Sentry.SentryLogMessage",
-                "usr": "s:6Sentry0A10LogMessageV"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              }
-            ],
-            "declAttributes": [
-              "Final"
-            ],
-            "declKind": "Func",
-            "funcSelfKind": "NonMutating",
-            "kind": "Function",
-            "mangledName": "$s6Sentry0A6LoggerC4info_10attributes12currentScopeyAA0A10LogMessageV_SDySSypGSo0aF0CSgtF",
-            "moduleName": "Sentry",
-            "name": "info",
-            "printedName": "info(_:attributes:currentScope:)",
-            "usr": "s:6Sentry0A6LoggerC4info_10attributes12currentScopeyAA0A10LogMessageV_SDySSypGSo0aF0CSgtF"
-          },
-          {
-            "children": [
-              {
                 "kind": "TypeNominal",
                 "name": "String",
                 "printedName": "Swift.String",
@@ -49043,6 +48961,52 @@
             "objc_name": "trace:",
             "printedName": "trace(_:)",
             "usr": "c:@M@Sentry@objc(cs)SentryLogger(im)trace:"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Any]",
+                "usr": "s:SD"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryLogMessage",
+                "printedName": "Sentry.SentryLogMessage",
+                "usr": "s:6Sentry0A10LogMessageV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "Final"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A6LoggerC5trace_10attributesyAA0A10LogMessageV_SDySSypGtF",
+            "moduleName": "Sentry",
+            "name": "trace",
+            "printedName": "trace(_:attributes:)",
+            "usr": "s:6Sentry0A6LoggerC5trace_10attributesyAA0A10LogMessageV_SDySSypGtF"
           },
           {
             "children": [
@@ -49094,67 +49058,6 @@
           {
             "children": [
               {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "ProtocolComposition",
-                    "printedName": "Any"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "hasDefaultArg": true,
-                "kind": "TypeNominal",
-                "name": "Dictionary",
-                "printedName": "[Swift.String : Any]",
-                "usr": "s:SD"
-              },
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Scope",
-                    "printedName": "Sentry.Scope",
-                    "usr": "c:objc(cs)SentryScope"
-                  }
-                ],
-                "hasDefaultArg": true,
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Sentry.Scope?",
-                "usr": "s:Sq"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "SentryLogMessage",
-                "printedName": "Sentry.SentryLogMessage",
-                "usr": "s:6Sentry0A10LogMessageV"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              }
-            ],
-            "declAttributes": [
-              "Final"
-            ],
-            "declKind": "Func",
-            "funcSelfKind": "NonMutating",
-            "kind": "Function",
-            "mangledName": "$s6Sentry0A6LoggerC5trace_10attributes12currentScopeyAA0A10LogMessageV_SDySSypGSo0aF0CSgtF",
-            "moduleName": "Sentry",
-            "name": "trace",
-            "printedName": "trace(_:attributes:currentScope:)",
-            "usr": "s:6Sentry0A6LoggerC5trace_10attributes12currentScopeyAA0A10LogMessageV_SDySSypGSo0aF0CSgtF"
-          },
-          {
-            "children": [
-              {
                 "kind": "TypeNominal",
                 "name": "String",
                 "printedName": "Swift.String",
@@ -49179,6 +49082,52 @@
             "objc_name": "warn:",
             "printedName": "warn(_:)",
             "usr": "c:@M@Sentry@objc(cs)SentryLogger(im)warn:"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Any]",
+                "usr": "s:SD"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryLogMessage",
+                "printedName": "Sentry.SentryLogMessage",
+                "usr": "s:6Sentry0A10LogMessageV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "Final"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A6LoggerC4warn_10attributesyAA0A10LogMessageV_SDySSypGtF",
+            "moduleName": "Sentry",
+            "name": "warn",
+            "printedName": "warn(_:attributes:)",
+            "usr": "s:6Sentry0A6LoggerC4warn_10attributesyAA0A10LogMessageV_SDySSypGtF"
           },
           {
             "children": [
@@ -49226,67 +49175,6 @@
             "objc_name": "warn:attributes:",
             "printedName": "warn(_:attributes:)",
             "usr": "c:@M@Sentry@objc(cs)SentryLogger(im)warn:attributes:"
-          },
-          {
-            "children": [
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "ProtocolComposition",
-                    "printedName": "Any"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "hasDefaultArg": true,
-                "kind": "TypeNominal",
-                "name": "Dictionary",
-                "printedName": "[Swift.String : Any]",
-                "usr": "s:SD"
-              },
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Scope",
-                    "printedName": "Sentry.Scope",
-                    "usr": "c:objc(cs)SentryScope"
-                  }
-                ],
-                "hasDefaultArg": true,
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Sentry.Scope?",
-                "usr": "s:Sq"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "SentryLogMessage",
-                "printedName": "Sentry.SentryLogMessage",
-                "usr": "s:6Sentry0A10LogMessageV"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              }
-            ],
-            "declAttributes": [
-              "Final"
-            ],
-            "declKind": "Func",
-            "funcSelfKind": "NonMutating",
-            "kind": "Function",
-            "mangledName": "$s6Sentry0A6LoggerC4warn_10attributes12currentScopeyAA0A10LogMessageV_SDySSypGSo0aF0CSgtF",
-            "moduleName": "Sentry",
-            "name": "warn",
-            "printedName": "warn(_:attributes:currentScope:)",
-            "usr": "s:6Sentry0A6LoggerC4warn_10attributes12currentScopeyAA0A10LogMessageV_SDySSypGSo0aF0CSgtF"
           }
         ],
         "conformances": [
@@ -50861,20 +50749,6 @@
                 "usr": "s:SD"
               },
               {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Scope",
-                    "printedName": "Sentry.Scope",
-                    "usr": "c:objc(cs)SentryScope"
-                  }
-                ],
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Sentry.Scope?",
-                "usr": "s:Sq"
-              },
-              {
                 "kind": "TypeNominal",
                 "name": "String",
                 "printedName": "Swift.String",
@@ -50896,13 +50770,13 @@
             "funcSelfKind": "NonMutating",
             "genericSig": "<Self where Self : Sentry.SentryMetricsApiProtocol>",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A18MetricsApiProtocolP5count3key5value10attributes12currentScopeySS_SuSDySSAA0A14AttributeValue_pGSo0aJ0CSgtF",
+            "mangledName": "$s6Sentry0A18MetricsApiProtocolP5count3key5value10attributesySS_SuSDySSAA0A14AttributeValue_pGtF",
             "moduleName": "Sentry",
             "name": "count",
-            "printedName": "count(key:value:attributes:currentScope:)",
+            "printedName": "count(key:value:attributes:)",
             "protocolReq": true,
             "reqNewWitnessTableEntry": true,
-            "usr": "s:6Sentry0A18MetricsApiProtocolP5count3key5value10attributes12currentScopeySS_SuSDySSAA0A14AttributeValue_pGSo0aJ0CSgtF"
+            "usr": "s:6Sentry0A18MetricsApiProtocolP5count3key5value10attributesySS_SuSDySSAA0A14AttributeValue_pGtF"
           },
           {
             "children": [
@@ -51003,20 +50877,6 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "Scope",
-                    "printedName": "Sentry.Scope",
-                    "usr": "c:objc(cs)SentryScope"
-                  }
-                ],
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Sentry.Scope?",
-                "usr": "s:Sq"
-              },
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
                     "name": "SentryUnit",
                     "printedName": "Sentry.SentryUnit",
                     "usr": "s:6Sentry0A4UnitO"
@@ -51043,13 +50903,13 @@
             "funcSelfKind": "NonMutating",
             "genericSig": "<Self where Self : Sentry.SentryMetricsApiProtocol>",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A18MetricsApiProtocolP12distribution3key5value4unit10attributes12currentScopeySS_SdAA0A4UnitOSgSDySSAA0A14AttributeValue_pGSo0aK0CSgtF",
+            "mangledName": "$s6Sentry0A18MetricsApiProtocolP12distribution3key5value4unit10attributesySS_SdAA0A4UnitOSgSDySSAA0A14AttributeValue_pGtF",
             "moduleName": "Sentry",
             "name": "distribution",
-            "printedName": "distribution(key:value:unit:attributes:currentScope:)",
+            "printedName": "distribution(key:value:unit:attributes:)",
             "protocolReq": true,
             "reqNewWitnessTableEntry": true,
-            "usr": "s:6Sentry0A18MetricsApiProtocolP12distribution3key5value4unit10attributes12currentScopeySS_SdAA0A4UnitOSgSDySSAA0A14AttributeValue_pGSo0aK0CSgtF"
+            "usr": "s:6Sentry0A18MetricsApiProtocolP12distribution3key5value4unit10attributesySS_SdAA0A4UnitOSgSDySSAA0A14AttributeValue_pGtF"
           },
           {
             "children": [
@@ -51150,20 +51010,6 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "Scope",
-                    "printedName": "Sentry.Scope",
-                    "usr": "c:objc(cs)SentryScope"
-                  }
-                ],
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Sentry.Scope?",
-                "usr": "s:Sq"
-              },
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
                     "name": "SentryUnit",
                     "printedName": "Sentry.SentryUnit",
                     "usr": "s:6Sentry0A4UnitO"
@@ -51190,13 +51036,13 @@
             "funcSelfKind": "NonMutating",
             "genericSig": "<Self where Self : Sentry.SentryMetricsApiProtocol>",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A18MetricsApiProtocolP5gauge3key5value4unit10attributes12currentScopeySS_SdAA0A4UnitOSgSDySSAA0A14AttributeValue_pGSo0aK0CSgtF",
+            "mangledName": "$s6Sentry0A18MetricsApiProtocolP5gauge3key5value4unit10attributesySS_SdAA0A4UnitOSgSDySSAA0A14AttributeValue_pGtF",
             "moduleName": "Sentry",
             "name": "gauge",
-            "printedName": "gauge(key:value:unit:attributes:currentScope:)",
+            "printedName": "gauge(key:value:unit:attributes:)",
             "protocolReq": true,
             "reqNewWitnessTableEntry": true,
-            "usr": "s:6Sentry0A18MetricsApiProtocolP5gauge3key5value4unit10attributes12currentScopeySS_SdAA0A4UnitOSgSDySSAA0A14AttributeValue_pGSo0aK0CSgtF"
+            "usr": "s:6Sentry0A18MetricsApiProtocolP5gauge3key5value4unit10attributesySS_SdAA0A4UnitOSgSDySSAA0A14AttributeValue_pGtF"
           }
         ],
         "conformances": [
@@ -58619,42 +58465,6 @@
             ],
             "declAttributes": [
               "DiscardableResult",
-              "Final"
-            ],
-            "declKind": "Func",
-            "funcSelfKind": "NonMutating",
-            "isFromExtension": true,
-            "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKC7capture5event12currentScopeSo0A2IdCSo0A5EventC_So0aF0CtFZ",
-            "moduleName": "Sentry",
-            "name": "capture",
-            "printedName": "capture(event:currentScope:)",
-            "static": true,
-            "usr": "s:6Sentry0A3SDKC7capture5event12currentScopeSo0A2IdCSo0A5EventC_So0aF0CtFZ"
-          },
-          {
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Event",
-                "printedName": "Sentry.Event",
-                "usr": "c:objc(cs)SentryEvent"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Scope",
-                "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "SentryId",
-                "printedName": "Sentry.SentryId",
-                "usr": "c:objc(cs)SentryId"
-              }
-            ],
-            "declAttributes": [
-              "DiscardableResult",
               "Final",
               "ObjC"
             ],
@@ -58869,40 +58679,6 @@
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "Scope",
-                "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "SentryFeedback",
-                "printedName": "Sentry.SentryFeedback",
-                "usr": "c:@M@Sentry@objc(cs)SentryFeedback"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              }
-            ],
-            "declAttributes": [
-              "Final"
-            ],
-            "declKind": "Func",
-            "funcSelfKind": "NonMutating",
-            "isFromExtension": true,
-            "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKC7capture8feedback12currentScopeyAA0A8FeedbackC_So0aF0CtFZ",
-            "moduleName": "Sentry",
-            "name": "capture",
-            "printedName": "capture(feedback:currentScope:)",
-            "static": true,
-            "usr": "s:6Sentry0A3SDKC7capture8feedback12currentScopeyAA0A8FeedbackC_So0aF0CtFZ"
-          },
-          {
-            "children": [
-              {
-                "kind": "TypeNominal",
                 "name": "SentryId",
                 "printedName": "Sentry.SentryId",
                 "usr": "c:objc(cs)SentryId"
@@ -59068,35 +58844,6 @@
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "Scope",
-                "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Scope",
-                "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
-              }
-            ],
-            "declAttributes": [
-              "Final"
-            ],
-            "declKind": "Func",
-            "funcSelfKind": "NonMutating",
-            "isFromExtension": true,
-            "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKC10cloneScopeySo0aD0CAFFZ",
-            "moduleName": "Sentry",
-            "name": "cloneScope",
-            "printedName": "cloneScope(_:)",
-            "static": true,
-            "usr": "s:6Sentry0A3SDKC10cloneScopeySo0aD0CAFFZ"
-          },
-          {
-            "children": [
-              {
-                "kind": "TypeNominal",
                 "name": "Void",
                 "printedName": "()"
               }
@@ -59187,29 +58934,6 @@
             "printedName": "crash()",
             "static": true,
             "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)crash"
-          },
-          {
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Scope",
-                "printedName": "Sentry.Scope",
-                "usr": "c:objc(cs)SentryScope"
-              }
-            ],
-            "declAttributes": [
-              "Final"
-            ],
-            "declKind": "Func",
-            "funcSelfKind": "NonMutating",
-            "isFromExtension": true,
-            "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKC11createScopeSo0aD0CyFZ",
-            "moduleName": "Sentry",
-            "name": "createScope",
-            "printedName": "createScope()",
-            "static": true,
-            "usr": "s:6Sentry0A3SDKC11createScopeSo0aD0CyFZ"
           },
           {
             "children": [

@@ -75,19 +75,6 @@ import Foundation
         SentryObjCId(SentrySDK.capture(event: event.wrapped, attachAllThreads: attachAllThreads))
     }
 
-    @objc(captureEvent:withCurrentScope:)
-    @discardableResult public static func capture(event: SentryObjCEvent, currentScope: SentryObjCScope) -> SentryObjCId {
-        SentryObjCId(SentrySDK.capture(event: event.wrapped, currentScope: currentScope.wrapped))
-    }
-
-    @objc public static func createScope() -> SentryObjCScope {
-        SentryObjCScope(SentrySDK.createScope())
-    }
-
-    @objc public static func cloneScope(_ scope: SentryObjCScope) -> SentryObjCScope {
-        SentryObjCScope(SentrySDK.cloneScope(scope.wrapped))
-    }
-
     @objc @discardableResult public static func startTransaction(name: String, operation: String) -> SentryObjCSpan {
         SentryObjCSpan(SentrySDK.startTransaction(name: name, operation: operation))
     }
@@ -193,19 +180,6 @@ import Foundation
             attachments: attachments?.map(\.wrapped)
         )
         SentrySDK.capture(feedback: feedback)
-    }
-
-    @objc(captureFeedbackWithMessage:name:email:source:associatedEventId:attachments:currentScope:)
-    public static func captureFeedback(message: String, name: String?, email: String?, source: SentryObjCFeedbackSource, associatedEventId: SentryObjCId?, attachments: [SentryObjCAttachment]?, currentScope: SentryObjCScope) {
-        let feedback = SentryFeedback(
-            message: message,
-            name: name,
-            email: email,
-            source: source.underlying,
-            associatedEventId: associatedEventId?.wrapped,
-            attachments: attachments?.map(\.wrapped)
-        )
-        SentrySDK.capture(feedback: feedback, currentScope: currentScope.wrapped)
     }
 
     @objc(addBreadcrumb:)

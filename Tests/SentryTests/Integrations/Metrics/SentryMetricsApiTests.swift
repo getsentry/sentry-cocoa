@@ -464,7 +464,7 @@ final class SentryMetricsApiTests: XCTestCase {
 
 fileprivate struct MockMetricsIntegration: SentryMetricsIntegrationProtocol {
     var addMetricInvocations = Invocations<(SentryMetric, Scope)>()
-    func addMetric(_ metric: Sentry.SentryMetric, scope: Scope, currentScope: Scope?) {
+    func addMetric(_ metric: Sentry.SentryMetric, scope: Scope, currentScope: Scope? = nil) {
         addMetricInvocations.record((metric, scope))
     }
 }
@@ -473,17 +473,20 @@ fileprivate struct MockMetricsApiDependencies: SentryMetricsApiDependencies {
     let isSDKEnabled: Bool
     let scope: Scope
     let dateProvider: SentryCurrentDateProvider
+    let currentScopeStorage: SentryCurrentScopeStorage
     let metricsIntegration: MockMetricsIntegration?
 
     init(
         isSDKEnabled: Bool,
         scope: Scope,
         metricsIntegration: MockMetricsIntegration?,
-        dateProvider: SentryCurrentDateProvider = TestCurrentDateProvider()
+        dateProvider: SentryCurrentDateProvider = TestCurrentDateProvider(),
+        currentScopeStorage: SentryCurrentScopeStorage = SentryCurrentScopeStorage()
     ) {
         self.isSDKEnabled = isSDKEnabled
         self.scope = scope
         self.dateProvider = dateProvider
+        self.currentScopeStorage = currentScopeStorage
         self.metricsIntegration = metricsIntegration
     }
 }

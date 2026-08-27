@@ -7,7 +7,6 @@ typedef NS_ENUM(NSUInteger, SentryDiscardReason);
 @class SentryAttachment;
 @class SentryEnvelope;
 @class SentryEnvelopeItem;
-@class SentryFeedback;
 @class SentryId;
 @class SentryReplayEvent;
 @class SentryFileManager;
@@ -99,19 +98,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)removeAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor;
 
 - (void)_swiftCaptureLog:(NSObject *)log withScope:(SentryScope *)scope;
-
-- (SentryId *)captureEvent:(SentryEvent *)event
-                  withScope:(SentryScope *)scope
-               currentScope:(SentryScope *)currentScope
-    additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems;
-
-- (void)_swiftCaptureLog:(NSObject *)log
-               withScope:(SentryScope *)scope
-            currentScope:(nullable SentryScope *)currentScope;
-
-- (void)captureFeedback:(SentryFeedback *)feedback
-              withScope:(SentryScope *)scope
-           currentScope:(SentryScope *)currentScope;
 
 /// Exposed so Swift (e.g. metrics) can reuse it to drop data when the client is disabled.
 /// Broader than `isEnabled` in `SentryClient.h`: `isEnabled` only reflects `close`,

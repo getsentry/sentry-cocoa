@@ -45,6 +45,8 @@ final class SentryInternalScopeApiTests: XCTestCase {
 
         func setTrace(_ traceId: SentryId, spanId: SpanId) {}
 
+        func withCurrentScope(_ scope: Scope, callback: () -> Void) { callback() }
+
         var currentOptions: Options? { nil }
 
         var options: Options { Options() }

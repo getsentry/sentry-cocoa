@@ -41,7 +41,7 @@
 
 - (void)testCreateScope_shouldReturnUsableScope
 {
-    SentryObjCScope *scope = [SentryObjCSDK createScope];
+    SentryObjCScope *scope = [SentryObjCSDK.internal.scope createScope];
     XCTAssertNotNil(scope);
     [scope setTagValue:@"value" forKey:@"key"];
     XCTAssertEqualObjects(scope.tags[@"key"], @"value");
@@ -49,30 +49,35 @@
 
 - (void)testCloneScope_shouldReturnIndependentCopy
 {
-    SentryObjCScope *original = [SentryObjCSDK createScope];
+    SentryObjCScope *original = [SentryObjCSDK.internal.scope createScope];
     [original setTagValue:@"v1" forKey:@"key"];
 
-    SentryObjCScope *clone = [SentryObjCSDK cloneScope:original];
+    SentryObjCScope *clone = [SentryObjCSDK.internal.scope cloneScope:original];
     [clone setTagValue:@"v2" forKey:@"key"];
 
     XCTAssertEqualObjects(original.tags[@"key"], @"v1");
     XCTAssertEqualObjects(clone.tags[@"key"], @"v2");
 }
 
-#pragma mark - captureEvent with currentScope
+#pragma mark - withCurrentScope
 
-- (void)testCaptureEvent_withCurrentScope_shouldNotCrash
+- (void)testWithCurrentScope_captureEvent_shouldNotCrash
 {
     // -- Arrange --
     [SentryObjCSDK configureScope:^(
         SentryObjCScope *scope) { [scope setTagValue:@"global" forKey:@"global_tag"]; }];
 
-    SentryObjCScope *currentScope = [SentryObjCSDK createScope];
+    SentryObjCScope *currentScope = [SentryObjCSDK.internal.scope createScope];
     [currentScope setTagValue:@"current" forKey:@"current_tag"];
 
     // -- Act & Assert (no crash) --
-    SentryObjCEvent *event = [[SentryObjCEvent alloc] init];
-    SentryObjCId *eventId = [SentryObjCSDK captureEvent:event withCurrentScope:currentScope];
+    __block SentryObjCId *eventId;
+    [SentryObjCSDK.internal.scope withCurrentScope:currentScope
+                                          callback:^{
+                                              SentryObjCEvent *event =
+                                                  [[SentryObjCEvent alloc] init];
+                                              eventId = [SentryObjCSDK captureEvent:event];
+                                          }];
     XCTAssertNotNil(eventId);
 }
 

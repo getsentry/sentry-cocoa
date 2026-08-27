@@ -16,5 +16,17 @@ import Foundation
     @objc public func serializedContexts() -> [String: [String: Any]] {
         wrapped.value.serializedContexts()
     }
+
+    @objc public func withCurrentScope(_ scope: SentryObjCScope, callback: () -> Void) {
+        wrapped.value.withCurrentScope(scope.wrapped, callback)
+    }
+
+    @objc public func createScope() -> SentryObjCScope {
+        SentryObjCScope(wrapped.value.createScope())
+    }
+
+    @objc public func cloneScope(_ scope: SentryObjCScope) -> SentryObjCScope {
+        SentryObjCScope(wrapped.value.cloneScope(scope.wrapped))
+    }
 }
 // swiftlint:enable missing_docs

@@ -135,16 +135,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (SentryObjCId *)captureEvent:(SentryObjCEvent *)event attachAllThreads:(BOOL)attachAllThreads;
 
-/// Captures an event with @c currentScope layered on top of the hub's global scope.
-+ (SentryObjCId *)captureEvent:(SentryObjCEvent *)event
-              withCurrentScope:(SentryObjCScope *)currentScope;
-
-/// Creates a new empty scope.
-+ (SentryObjCScope *)createScope;
-
-/// Creates a deep copy of the given scope.
-+ (SentryObjCScope *)cloneScope:(SentryObjCScope *)scope;
-
 /**
  * Creates a transaction, binds it to the hub and returns the instance.
  * @param name The transaction name.
@@ -321,24 +311,6 @@ NS_ASSUME_NONNULL_BEGIN
                             source:(SentryObjCFeedbackSource)source
                  associatedEventId:(nullable SentryObjCId *)associatedEventId
                        attachments:(nullable NSArray<SentryObjCAttachment *> *)attachments;
-
-/**
- * Captures user feedback with a caller-provided scope layered on top of the global scope.
- * @param message The feedback message.
- * @param name The name of the user providing feedback (optional).
- * @param email The email of the user providing feedback (optional).
- * @param source The source of the feedback.
- * @param associatedEventId The event ID to associate with this feedback (optional).
- * @param attachments Attachments to include with the feedback (optional).
- * @param currentScope The scope to layer on top of the global scope.
- */
-+ (void)captureFeedbackWithMessage:(NSString *)message
-                              name:(nullable NSString *)name
-                             email:(nullable NSString *)email
-                            source:(SentryObjCFeedbackSource)source
-                 associatedEventId:(nullable SentryObjCId *)associatedEventId
-                       attachments:(nullable NSArray<SentryObjCAttachment *> *)attachments
-                      currentScope:(SentryObjCScope *)currentScope;
 
 /**
  * Adds a @c Breadcrumb to the current @c Scope of the current @c Hub. If the total number of

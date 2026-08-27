@@ -422,40 +422,6 @@ extension SentrySDK {
         attachments: feedback.attachmentsForEnvelope())
     }
 
-    // MARK: - Scope Layering
-
-    /// Creates a new empty scope.
-    public static func createScope() -> Scope {
-        Scope()
-    }
-
-    /// Creates a deep copy of the given scope.
-    /// - Parameter scope: The scope to clone.
-    /// - Returns: A new scope with the same data as the given scope.
-    public static func cloneScope(_ scope: Scope) -> Scope {
-        Scope(scope: scope)
-    }
-
-    /// Captures a manually created event with `currentScope` layered on top of the hub's
-    /// global scope.
-    ///
-    /// The hub's scope is applied first, then `currentScope` overrides any conflicting fields.
-    /// - parameter event: The event to send to Sentry.
-    /// - parameter currentScope: The scope to layer on top of the global scope.
-    /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
-    @discardableResult public static func capture(event: Event, currentScope: Scope) -> SentryId {
-        SentrySDKInternal.currentHub().capture(event: event, currentScope: currentScope)
-    }
-
-    /// Captures user feedback with `currentScope` layered on top of the hub's global scope.
-    ///
-    /// The hub's scope is applied first, then `currentScope` overrides any conflicting fields.
-    /// - parameter feedback: The feedback to send to Sentry.
-    /// - parameter currentScope: The scope to layer on top of the global scope.
-    public static func capture(feedback: SentryFeedback, currentScope: Scope) {
-        SentrySDKInternal.currentHub().captureFeedback(feedback, currentScope: currentScope)
-    }
-
     #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
     /// A UIKit view controller that displays the Sentry user feedback form.
     /// - warning: This is an experimental feature and may still have bugs.
