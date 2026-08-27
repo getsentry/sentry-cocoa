@@ -92,6 +92,7 @@ jobs:
           - ios_17
           - ios_18
           - ios_26
+          - ios_27
         include:
           - job_id: ios_17
             name: iOS 17
@@ -112,12 +113,23 @@ jobs:
             runs_on: tahoe
             xcode: "26"
             platform: "iOS"
+
+          # TODO: Remove continue_on_error once Xcode 27 and the iOS 27 simulator runtime are stable.
+          - job_id: ios_27
+            name: iOS 27
+            runs_on: xcode-beta
+            xcode: "27"
+            allow_prerelease: true
+            continue_on_error: true
+            platform: "iOS"
     with:
       fastlane_command: ui_tests_ios_swift
       files_suffix: _xcode_${{matrix.xcode}}-${{matrix.device}}
       build_with_make: true
       macos_version: ${{matrix.runs_on}}
       xcode_version: ${{ matrix.xcode}}
+      allow_prerelease: ${{matrix.allow_prerelease || false}}
+      continue_on_error: ${{matrix.continue_on_error || false}}
       test-destination-os: ${{matrix.test_destination_os}}
       platform: ${{matrix.platform}}
       device: ${{matrix.device}}

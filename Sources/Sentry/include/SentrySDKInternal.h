@@ -338,6 +338,7 @@ SENTRY_NO_INIT
  */
 + (void)reportFullyDisplayed;
 
+#if !SDK_V10
 /**
  * Pauses sending detected app hangs to Sentry.
  *
@@ -350,6 +351,7 @@ SENTRY_NO_INIT
  * Resumes sending detected app hangs to Sentry.
  */
 + (void)resumeAppHangTracking;
+#endif
 
 /**
  * Waits synchronously for the SDK to flush out all queued and cached items for up to the specified

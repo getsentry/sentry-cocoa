@@ -1,6 +1,7 @@
 @_spi(Private) import SentryTestUtils
 @_spi(Private) @testable import Sentry
 import _SentryPrivate
+import ObjectiveC
 import XCTest
 
 // swiftlint:disable file_length type_body_length
@@ -1483,6 +1484,33 @@ class SentryTracerTests: XCTestCase {
 
     #endif // os(iOS) || os(tvOS)
     
+    func testChildren_whenReadConcurrently_shouldWaitForMutationLock() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        let childrenIvar = try XCTUnwrap(class_getInstanceVariable(SentryTracer.self, "_children"))
+        let children = try XCTUnwrap(object_getIvar(sut, childrenIvar))
+        let readStarted = DispatchSemaphore(value: 0)
+        let readFinished = DispatchSemaphore(value: 0)
+
+        objc_sync_enter(children)
+        DispatchQueue.global().async {
+            readStarted.signal()
+            _ = sut.children
+            readFinished.signal()
+        }
+        XCTAssertEqual(readStarted.wait(timeout: .now() + 1), .success)
+
+        // -- Act --
+        let readWhileLocked = readFinished.wait(timeout: .now() + 0.1)
+        objc_sync_exit(children)
+
+        // -- Assert --
+        XCTAssertEqual(readWhileLocked, .timedOut)
+        if readWhileLocked == .timedOut {
+            XCTAssertEqual(readFinished.wait(timeout: .now() + 1), .success)
+        }
+    }
+
     func testAddingSpansOnDifferentThread_WhileFinishing_DoesNotCrash() throws {
         let sut = fixture.getSut(waitForChildren: false)
 

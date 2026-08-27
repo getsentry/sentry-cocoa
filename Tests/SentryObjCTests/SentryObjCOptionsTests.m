@@ -437,6 +437,7 @@
     XCTAssertTrue(options.sendClientReports);
 }
 
+#if !SDK_V10
 - (void)testEnableAppHangTracking_whenSetToYes_shouldReturnYes
 {
     // -- Arrange --
@@ -448,6 +449,7 @@
     // -- Assert --
     XCTAssertTrue(options.enableAppHangTracking);
 }
+#endif // !SDK_V10
 
 - (void)testEnableAutoBreadcrumbTracking_whenSetToYes_shouldReturnYes
 {
@@ -1262,6 +1264,7 @@
     XCTAssertTrue(options.enablePreWarmedAppStartTracing);
 }
 
+#    if !SDK_V10
 - (void)testEnableReportNonFullyBlockingAppHangs_whenSetToYes_shouldReturnYes
 {
     // -- Arrange --
@@ -1273,6 +1276,7 @@
     // -- Assert --
     XCTAssertTrue(options.enableReportNonFullyBlockingAppHangs);
 }
+#    endif // !SDK_V10
 
 #endif
 

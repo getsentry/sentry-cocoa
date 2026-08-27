@@ -1,3 +1,4 @@
+#if !SDK_V10
 // swiftlint:disable missing_docs
 internal import _SentryPrivate
 
@@ -28,3 +29,4 @@ extension SentryANRType {
     }
 }
 // swiftlint:enable missing_docs
+#endif // !SDK_V10

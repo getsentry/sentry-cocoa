@@ -61,9 +61,13 @@ import Foundation
         }
         #endif // SDK_V10
         #endif // os(iOS) || os(tvOS) || os(visionOS)
+        #if !SDK_V10
         if options.experimental.enableWatchdogTerminationsV2 {
             features.append("watchdogTerminationsV2")
         }
+        #elseif (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        features.append("watchdogTerminationsV2")
+        #endif
         if options.experimental.enableUIViewControllerInitSwizzling {
             features.append("uiViewControllerInitSwizzling")
         }

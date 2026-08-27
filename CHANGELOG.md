@@ -1,5 +1,14 @@
 # Changelog
 
+## 9.26.1
+
+### Fixes
+
+- Prevent duplicate automatic HTTP spans and breadcrumbs for URLSession task wrappers (#8846)
+- Prevent breadcrumb persistence for watchdog termination events from blocking the calling thread (#8653)
+- Fix data races when reading and updating network tracker feature flags (#8832)
+- Avoid lossy JPEG compression for user feedback screenshot fallbacks from non-previewable formats (#8876)
+
 ## 9.26.0
 
 > [!WARNING]
