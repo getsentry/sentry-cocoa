@@ -93,12 +93,11 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
 
 + (void)load
 {
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(SENTRY_UI_TEST_SUPPORT)
     // we want to allow starting a launch profile from here for UI tests, but not unit tests
     if (NSProcessInfo.processInfo.environment[@"--io.sentry.ui-test.test-name"] == nil) {
         return;
     }
-#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 
     // the samples apps may want to wipe the data like before UI test case runs, or manually during
     // development, to remove any launch config files that might be present before launching the app
@@ -108,6 +107,7 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
     if ([NSProcessInfo.processInfo.arguments containsObject:@"--io.sentry.special.wipe-data"]) {
         removeSentryStaticBasePath();
     }
+#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 
     sentry_startLaunchProfile();
 }
