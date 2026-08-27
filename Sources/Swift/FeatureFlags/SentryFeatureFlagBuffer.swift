@@ -1,6 +1,6 @@
 // swiftlint:disable missing_docs
 
-// Keep in sync with Options.maxFeatureFlags and defaultMaxFeatureFlags in SentryDefines.h.
+// Keep in sync with the default of Options.maxFeatureFlags.
 let defaultMaxScopeFeatureFlags = 100
 private let maxSpanFeatureFlags = 10
 

@@ -252,9 +252,9 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentryDependencyContainer.sharedInstance
             .scopePersistentStore moveAllCurrentStateToPreviousState];
 
-    SentryScope *scope = options.initialScope([[SentryScope alloc]
-        initWithMaxBreadcrumbs:options.maxBreadcrumbs
-               maxFeatureFlags:options.maxFeatureFlags]);
+    SentryScope *scope = options.initialScope(
+        [[SentryScope alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs
+                                    maxFeatureFlags:options.maxFeatureFlags]);
 
     SENTRY_LOG_DEBUG(@"Dispatching init work required to run on main thread.");
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper

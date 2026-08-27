@@ -13,7 +13,8 @@ static NSString *const SENTRY_CONTEXT_APP_KEY = @"app";
  * Creates a scope that keeps at most @c maxFeatureFlags feature flag evaluations.
  * @discussion Internal because the public designated initializer must stay source and binary
  * stable. The SDK passes @c SentryOptions.maxFeatureFlags here when it creates a scope from
- * options; scopes created without options use @c defaultMaxFeatureFlags.
+ * options; scopes created without options use the default of 100 defined by
+ * @c defaultMaxScopeFeatureFlags in the Swift layer.
  */
 - (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
                        maxFeatureFlags:(NSInteger)maxFeatureFlags;

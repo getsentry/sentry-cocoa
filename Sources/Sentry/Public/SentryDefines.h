@@ -202,8 +202,6 @@ typedef NSNumber *_Nullable (^SentryTracesSamplerCallback)(
 
 static NSUInteger const defaultMaxBreadcrumbs = 100;
 
-static NSUInteger const defaultMaxFeatureFlags = 100;
-
 static NSString *_Nonnull const kSentryTrueString = @"true";
 static NSString *_Nonnull const kSentryFalseString = @"false";
 
