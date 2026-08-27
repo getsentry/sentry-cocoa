@@ -402,7 +402,10 @@ SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHubInternal 
     }
 
 #    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(SENTRY_UI_TEST_SUPPORT)
-    sentry_writeProfileFile(JSONData, false /*continuous*/);
+    // only write profile payloads to disk for UI tests
+    if (NSProcessInfo.processInfo.environment[@"--io.sentry.ui-test.test-name"] != nil) {
+        sentry_writeProfileFile(JSONData, false /*continuous*/);
+    }
 #    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(SENTRY_UI_TEST_SUPPORT)
 
     return [[SentryEnvelopeItem alloc] initWithType:SentryEnvelopeItemTypes.profile
