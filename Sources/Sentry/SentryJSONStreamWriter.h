@@ -4,7 +4,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#define SENTRY_JSON_STREAM_MAX_CONTAINERS 192
+// Match SentryCrashJSONEncodeContext's legacy container budget.
+#define SENTRY_JSON_STREAM_MAX_CONTAINERS 200
 
 /**
  * This writer is not generally async-signal-safe. The callback executes caller-owned code, and
