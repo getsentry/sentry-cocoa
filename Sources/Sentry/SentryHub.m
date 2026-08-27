@@ -47,12 +47,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithClient:(nullable SentryClientInternal *)client
                       andScope:(nullable SentryScope *)scope
 {
-    SentryDependencyContainer *deps = SentryDependencyContainer.sharedInstance;
     return [self initWithClient:client
                         andScope:scope
-                 andCrashWrapper:deps.crashWrapper
-        activeCrashReporterState:deps.activeCrashReporterState
-                andDispatchQueue:deps.dispatchQueueWrapper];
+                 andCrashWrapper:SentryDependencyContainer.sharedInstance.crashWrapper
+        activeCrashReporterState:SentryDependencyContainer.sharedInstance.activeCrashReporterState
+                andDispatchQueue:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper];
 }
 
 /** Internal constructor for testing */
@@ -948,14 +947,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 // SentryLoggerDelegate
 
-#if SENTRY_TARGET_REPLAY_SUPPORTED
-- (void)enrichLog:(SentryLog *)log withReplayIdFromScope:(nullable NSString *)scopeReplayId
+- (void)captureLog:(SentryLog *)log
 {
+    SentryClientInternal *client = self.client;
+    if (client == nil) {
+        SENTRY_LOG_WARN(@"No client configured. Dropping log.");
+        return;
+    }
+#if SENTRY_TARGET_REPLAY_SUPPORTED
+    NSString *scopeReplayId = self.scope.replayId;
     if (scopeReplayId != nil) {
-        [log setAttribute:[[SentryLogAttribute alloc]
-                              initWithString:(NSString *_Nonnull)scopeReplayId]
+        // Session mode: use scope replay ID
+        [log setAttribute:[[SentryLogAttribute alloc] initWithString:scopeReplayId]
                    forKey:@"sentry.replay_id"];
     } else {
+        // Buffer mode: check if hub has a session replay ID
         NSString *sessionReplayId = [self getSessionReplayId];
         if (sessionReplayId != nil) {
             [log setAttribute:[[SentryLogAttribute alloc] initWithString:sessionReplayId]
@@ -964,33 +970,8 @@ NS_ASSUME_NONNULL_BEGIN
                        forKey:@"sentry._internal.replay_is_buffering"];
         }
     }
-}
 #endif
-
-- (void)captureLog:(SentryLog *)log
-{
-    [self captureLog:log withScope:self.scope];
-}
-
-- (void)captureLog:(SentryLog *)log withScope:(SentryScope *)scope
-{
-    SentryClientInternal *client = self.client;
-    if (client == nil) {
-        SENTRY_LOG_WARN(@"No client configured. Dropping log.");
-        return;
-    }
-#if SENTRY_TARGET_REPLAY_SUPPORTED
-    [self enrichLog:log withReplayIdFromScope:scope.replayId];
-#endif
-    [client _swiftCaptureLog:log withScope:scope];
-}
-
-- (void)captureFeedback:(SentryFeedback *)feedback withScope:(SentryScope *)scope
-{
-    SentryClientInternal *client = self.client;
-    if (client != nil) {
-        [client captureFeedback:feedback withScope:scope];
-    }
+    [client _swiftCaptureLog:log withScope:self.scope];
 }
 
 #pragma mark - Protected
