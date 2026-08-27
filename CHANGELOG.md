@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 9.26.1
 
 ### Fixes
 
