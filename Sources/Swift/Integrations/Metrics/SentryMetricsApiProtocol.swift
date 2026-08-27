@@ -62,20 +62,41 @@ public protocol SentryMetricsApiProtocol {
 }
 
 // MARK: - Default Parameter Values
+//
+// Swift protocols don't support default parameter values directly. This extension provides
+// convenience overloads that call through to the protocol requirements with default values.
+// This pattern allows callers to omit optional parameters while keeping the protocol simple.
 
-/// Convenience overloads that provide default values for optional parameters.
+/// Extension providing default parameter values for metric recording methods.
 public extension SentryMetricsApiProtocol {
     /// Records a count metric with default parameter values.
+    ///
+    /// - Parameters:
+    ///   - key: A namespaced identifier for the metric
+    ///   - value: The count value to record (defaults to 1)
+    ///   - attributes: Optional dictionary of attributes (defaults to empty)
     func count(key: String, value: UInt = 1, attributes: [String: SentryAttributeValue] = [:]) {
         self.count(key: key, value: value, attributes: attributes)
     }
 
     /// Records a distribution metric with default parameter values.
+    ///
+    /// - Parameters:
+    ///   - key: A namespaced identifier for the metric
+    ///   - value: The value to record in the distribution
+    ///   - unit: Optional unit of measurement (defaults to nil)
+    ///   - attributes: Optional dictionary of attributes (defaults to empty)
     func distribution(key: String, value: Double, unit: SentryUnit? = nil, attributes: [String: SentryAttributeValue] = [:]) {
         self.distribution(key: key, value: value, unit: unit, attributes: attributes)
     }
 
     /// Records a gauge metric with default parameter values.
+    ///
+    /// - Parameters:
+    ///   - key: A namespaced identifier for the metric
+    ///   - value: The current gauge value to record
+    ///   - unit: Optional unit of measurement (defaults to nil)
+    ///   - attributes: Optional dictionary of attributes (defaults to empty)
     func gauge(key: String, value: Double, unit: SentryUnit? = nil, attributes: [String: SentryAttributeValue] = [:]) {
         self.gauge(key: key, value: value, unit: unit, attributes: attributes)
     }
