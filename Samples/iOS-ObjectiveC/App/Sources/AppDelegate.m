@@ -1,6 +1,7 @@
 #import "AppDelegate.h"
 @import CoreData;
 @import SentryObjC;
+@import SentrySampleShared;
 
 @implementation AppDelegate
 
@@ -15,6 +16,7 @@
         options.debug = YES;
         options.attachScreenshot = YES;
         options.attachViewHierarchy = YES;
+        [SentrySampleDataCollectionConfiguration configureWithObjCOptions:options];
 
         if (env[@"--io.sentry.tracesSamplerValue"] != nil) {
             options.tracesSampler

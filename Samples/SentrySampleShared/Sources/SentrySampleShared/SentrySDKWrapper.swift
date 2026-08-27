@@ -1,6 +1,9 @@
 // swiftlint:disable file_length function_body_length
 
 import SentrySwift
+#if SDK_V10
+import SentryObjC
+#endif // SDK_V10
 
 #if !os(macOS)
 import UIKit
@@ -82,6 +85,47 @@ public struct SentrySDKWrapper {
     }
 
 #if SDK_V10
+    public func configureDataCollection(_ options: SentryObjCOptions) {
+        options.dataCollection.userInfo = !SentrySDKOverrides.DataCollection.disableUserInfo.boolValue
+        options.dataCollection.cookies = objcDataCollectionBehavior(
+            mode: SentrySDKOverrides.DataCollection.cookiesMode.stringValue,
+            terms: SentrySDKOverrides.DataCollection.cookiesTerms.stringValue
+        )
+        options.dataCollection.httpHeaders.request = objcDataCollectionBehavior(
+            mode: SentrySDKOverrides.DataCollection.httpRequestHeadersMode.stringValue,
+            terms: SentrySDKOverrides.DataCollection.httpRequestHeadersTerms.stringValue
+        )
+        options.dataCollection.httpHeaders.response = objcDataCollectionBehavior(
+            mode: SentrySDKOverrides.DataCollection.httpResponseHeadersMode.stringValue,
+            terms: SentrySDKOverrides.DataCollection.httpResponseHeadersTerms.stringValue
+        )
+        if SentrySDKOverrides.Special.disableEverything.boolValue {
+            options.dataCollection.httpBodies = 0
+        } else if let httpBodies = SentrySDKOverrides.DataCollection.httpBodies.stringValue {
+            options.dataCollection.httpBodies = UInt(dataCollectionHttpBodies(commaSeparatedValues(httpBodies)).rawValue)
+        }
+        options.dataCollection.urlQueryParams = objcDataCollectionBehavior(
+            mode: SentrySDKOverrides.DataCollection.urlQueryParamsMode.stringValue,
+            terms: SentrySDKOverrides.DataCollection.urlQueryParamsTerms.stringValue
+        )
+    }
+
+    private func objcDataCollectionBehavior(
+        mode: String?,
+        terms: String?
+    ) -> SentryObjCDataCollectionKeyValueCollectionBehavior {
+        guard !SentrySDKOverrides.Special.disableEverything.boolValue else {
+            return .off()
+        }
+        let values = commaSeparatedValues(terms)
+        switch mode {
+        case "off": return .off()
+        case "allowList": return .allowList(withTerms: values)
+        case "denyList", nil: return values.isEmpty ? .denyList() : .denyList(withTerms: values)
+        default: return .denyList()
+        }
+    }
+
     private func dataCollectionBehavior(
         mode: String?,
         terms: String?
@@ -665,6 +709,11 @@ extension SentrySDKWrapper {
     @objc(configureWithOptions:)
     public static func configure(options: Options) {
         SentrySDKWrapper.shared.configureDataCollection(options)
+    }
+
+    @objc(configureWithObjCOptions:)
+    public static func configure(objcOptions: SentryObjCOptions) {
+        SentrySDKWrapper.shared.configureDataCollection(objcOptions)
     }
 }
 #endif // SDK_V10
