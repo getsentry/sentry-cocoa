@@ -18,8 +18,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)registerSessionListener:(SENTRY_SWIFT_MIGRATION_ID(id<SentrySessionListener>))listener;
 - (void)unregisterSessionListener:(SENTRY_SWIFT_MIGRATION_ID(id<SentrySessionListener>))listener;
 
-- (void)withCurrentScope:(SentryScope *)scope callback:(void(NS_NOESCAPE ^)(void))callback;
-
 @end
 
 NS_ASSUME_NONNULL_END

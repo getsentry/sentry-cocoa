@@ -4,12 +4,14 @@ import Foundation
 /// Scope APIs for Sentry hybrid SDKs.
 public struct SentryInternalScopeApi {
 
-    typealias Dependencies = HubProvider
+    typealias Dependencies = HubProvider & CurrentScopeStorageProvider
 
     private let hub: Hub
+    private let currentScopeStorage: SentryCurrentScopeStorage
 
     init(dependencies: Dependencies) {
         self.hub = dependencies.hub
+        self.currentScopeStorage = dependencies.currentScopeStorage
     }
 
     /// Returns the current scope contexts in Sentry event wire format.
@@ -26,7 +28,7 @@ public struct SentryInternalScopeApi {
     /// top of the hub's global scope. The hub's scope is applied first, then
     /// `scope` overrides any conflicting fields.
     public func withCurrentScope(_ scope: Scope, _ callback: () -> Void) {
-        hub.withCurrentScope(scope, callback: callback)
+        currentScopeStorage.withScope(scope, callback: callback)
     }
 
     /// Creates a new empty scope.

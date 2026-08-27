@@ -999,11 +999,6 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (void)withCurrentScope:(SentryScope *)scope callback:(void(NS_NOESCAPE ^)(void))callback
-{
-    [self.currentScopeStorage withScope:scope callback:callback];
-}
-
 #pragma mark - Protected
 
 - (NSArray<NSString *> *)trimmedInstalledIntegrationNames

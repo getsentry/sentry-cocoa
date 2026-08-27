@@ -8,7 +8,6 @@ import Foundation
     /// - Parameter log: The log entry to capture.
     @objc(captureLog:)
     func capture(log: SentryLog)
-
 }
 
 /// `SentryLogger` provides a structured logging interface that captures log entries
@@ -185,27 +184,26 @@ public final class SentryLogger: NSObject {
         guard let delegate else {
             return
         }
-        let log = buildLog(level: level, logMessage: logMessage, attributes: attributes)
-        delegate.capture(log: log)
-    }
-
-    private func buildLog(level: SentryLog.Level, logMessage: SentryLogMessage, attributes: [String: Any]) -> SentryLog {
+        // Convert provided attributes to SentryLog.Attribute format
         var logAttributes = attributes.mapValues { SentryLog.Attribute(value: $0) }
         
+        // Add template string if there are interpolations
         if !logMessage.attributes.isEmpty {
             logAttributes["sentry.message.template"] = .init(string: logMessage.template)
         }
         
+        // Add attributes from the SentryLogMessage
         for (index, attribute) in logMessage.attributes.enumerated() {
             logAttributes["sentry.message.parameter.\(index)"] = attribute
         }
 
-        return SentryLog(
+        let log = SentryLog(
             timestamp: dateProvider.date(),
             traceId: SentryId.empty,
             level: level,
             body: logMessage.message,
             attributes: logAttributes
         )
+        delegate.capture(log: log)
     }
 }

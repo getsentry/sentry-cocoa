@@ -183,6 +183,36 @@ final class SentryWithCurrentScopeIntegrationTests: XCTestCase {
         XCTAssertEqual(matchCount, 1, "Shared attachment should not be duplicated")
     }
 
+    // MARK: - Logs
+
+    func testWithCurrentScope_captureLog_appliesCurrentScope() {
+        var capturedLog: SentryLog?
+        fixture.options.beforeSendLog = { log in
+            capturedLog = log
+            return log
+        }
+        // Recreate client/hub with the updated options
+        // swiftlint:disable:next force_try
+        let client = try! fixture.getSut()
+        let hub = SentryHubInternal(
+            client: client,
+            andScope: Scope(),
+            andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo),
+            andDispatchQueue: SentryDispatchQueueWrapper()
+        )
+        SentrySDKInternal.setCurrentHub(hub)
+
+        let currentScope = SentrySDK.internal.scope.createScope()
+        currentScope.setAttribute(value: "log-scoped", key: "log_tag")
+
+        SentrySDK.internal.scope.withCurrentScope(currentScope) {
+            SentrySDK.logger.info("test log message")
+        }
+
+        XCTAssertNotNil(capturedLog)
+        XCTAssertEqual(capturedLog?.attributes["log_tag"]?.value as? String, "log-scoped")
+    }
+
     // MARK: - Helpers
 
     private func lastSentEvent() -> Event? {

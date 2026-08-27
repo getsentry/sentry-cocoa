@@ -18,8 +18,9 @@ final class SentryInternalScopeApiTests: XCTestCase {
         XCTAssertNotNil(contexts["trace"])
     }
 
-    private struct Dependencies: HubProvider {
+    private struct Dependencies: HubProvider, CurrentScopeStorageProvider {
         let hub: Hub
+        let currentScopeStorage = SentryCurrentScopeStorage()
 
         init(scope: Scope) {
             hub = TestHub(scope: scope)
@@ -44,8 +45,6 @@ final class SentryInternalScopeApiTests: XCTestCase {
         func captureErrorEvent(event: Event) {}
 
         func setTrace(_ traceId: SentryId, spanId: SpanId) {}
-
-        func withCurrentScope(_ scope: Scope, callback: () -> Void) { callback() }
 
         var currentOptions: Options? { nil }
 

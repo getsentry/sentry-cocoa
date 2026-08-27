@@ -568,7 +568,6 @@ protocol Hub {
     func captureEnvelope(_ envelope: SentryEnvelope)
     func captureErrorEvent(event: Event)
     func setTrace(_ traceId: SentryId, spanId: SpanId)
-    func withCurrentScope(_ scope: Scope, callback: () -> Void)
     var currentOptions: Options? { get }
     var options: Options { get }
     var scope: Scope { get }
@@ -576,6 +575,10 @@ protocol Hub {
 
 protocol HubProvider {
     var hub: Hub { get }
+}
+
+protocol CurrentScopeStorageProvider {
+    var currentScopeStorage: SentryCurrentScopeStorage { get }
 }
 
 /// DefaultHub is a temporary abstraction around the ``SentryHubInternal.h``
@@ -616,14 +619,13 @@ private struct DefaultHub: Hub {
         SentrySDKInternal.currentHub().scope
     }
 
-    func withCurrentScope(_ scope: Scope, callback: () -> Void) {
-        SentrySDKInternal.currentHub().withCurrentScope(scope, callback: callback)
-    }
 }
 
 extension SentryDependencyContainer: HubProvider {
     var hub: Hub { DefaultHub() }
 }
+
+extension SentryDependencyContainer: CurrentScopeStorageProvider {}
 
 protocol DateProviderProvider {
     var dateProvider: SentryCurrentDateProvider { get }
