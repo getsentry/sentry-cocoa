@@ -30,14 +30,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSMutableSet<NSString *> *installedIntegrationNames;
 @property (nonatomic) NSUInteger errorsBeforeSession;
 @property (nonatomic, weak) id<SentrySessionListener> sessionListener;
-@property (nonatomic, strong) SentryCurrentScopeStorage *currentScopeStorage;
 
 - (instancetype)initWithClient:(nullable SentryClientInternal *)client
                       andScope:(nullable SentryScope *)scope
                andCrashWrapper:(id<SentryCrashReporter>)crashWrapper
       activeCrashReporterState:(id<SentryCrashReporterState>)activeCrashReporterState
-              andDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
-           currentScopeStorage:(SentryCurrentScopeStorage *)currentScopeStorage;
+              andDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue;
 
 @end
 
@@ -54,8 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
                         andScope:scope
                  andCrashWrapper:deps.crashWrapper
         activeCrashReporterState:deps.activeCrashReporterState
-                andDispatchQueue:deps.dispatchQueueWrapper
-             currentScopeStorage:deps.currentScopeStorage];
+                andDispatchQueue:deps.dispatchQueueWrapper];
 }
 
 /** Internal constructor for testing */
@@ -68,8 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
                         andScope:scope
                  andCrashWrapper:crashWrapper
         activeCrashReporterState:crashWrapper
-                andDispatchQueue:dispatchQueue
-             currentScopeStorage:SentryDependencyContainer.sharedInstance.currentScopeStorage];
+                andDispatchQueue:dispatchQueue];
 }
 
 - (instancetype)initWithClient:(nullable SentryClientInternal *)client
@@ -77,7 +73,6 @@ NS_ASSUME_NONNULL_BEGIN
                andCrashWrapper:(id<SentryCrashReporter>)crashWrapper
       activeCrashReporterState:(id<SentryCrashReporterState>)activeCrashReporterState
               andDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
-           currentScopeStorage:(SentryCurrentScopeStorage *)currentScopeStorage
 {
     if (self = [super init]) {
         _client = client;
@@ -85,7 +80,6 @@ NS_ASSUME_NONNULL_BEGIN
         _crashWrapper = crashWrapper;
         _activeCrashReporterState = activeCrashReporterState;
         _dispatchQueue = dispatchQueue;
-        _currentScopeStorage = currentScopeStorage;
         _sessionLock = [[NSObject alloc] init];
         _integrationsLock = [[NSObject alloc] init];
         _installedIntegrations = [[NSMutableArray alloc] init];
