@@ -31,7 +31,7 @@ platform :ios do
       ensure_devices_found: true,
       # iOSPackagesShouldBuildARM64e makes local packages target arm64e, which
       # has no simulator Swift standard library. Restore standard simulator architectures.
-      xcargs: "ARCHS=$(ARCHS_STANDARD)"
+      xcargs: "'ARCHS=$(ARCHS_STANDARD)'"
     )
   end
 
