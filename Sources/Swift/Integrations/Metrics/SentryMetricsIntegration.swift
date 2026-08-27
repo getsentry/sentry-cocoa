@@ -1,7 +1,7 @@
 internal import _SentryPrivate
 
 protocol SentryMetricsIntegrationProtocol {
-    func addMetric(_ metric: SentryMetric, scope: Scope)
+    func addMetric(_ metric: SentryMetric, scope: Scope, currentScope: Scope?)
 }
 
 /// Empty on purpose. Required by the SwiftIntegration protocol constraint.
@@ -39,7 +39,7 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
 
     // MARK: - Public API for Metrics
 
-    func addMetric(_ metric: SentryMetric, scope: Scope) {
+    func addMetric(_ metric: SentryMetric, scope: Scope, currentScope: Scope? = nil) {
         // We go directly to the client instead of through the hub because metrics only have a
         // static API today and the hub doesn't implement any metrics methods. Ideally, metrics should also go
         // through the hub to align with other telemetry types.
@@ -57,6 +57,17 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
         }
 
         var mutableMetric = metric
+        // Merge the current scope's custom attributes before applying the global scope so the
+        // precedence is: caller attributes > current scope > global scope. Only custom attributes
+        // are taken from the current scope; user, span, and trace correlation stay on the global
+        // scope, which addAttributesToItem applies below.
+        if let currentScope {
+            var attributes = mutableMetric.attributesDict
+            for (key, value) in currentScope.attributesDict where attributes[key] == nil {
+                attributes[key] = value
+            }
+            mutableMetric.attributesDict = attributes
+        }
         scope.addAttributesToItem(&mutableMetric, metadata: self.scopeMetaData)
 
         if let beforeSendMetric = beforeSendMetric {

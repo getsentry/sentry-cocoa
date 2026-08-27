@@ -7,6 +7,7 @@ protocol SentryMetricsApiDependencies {
     var isSDKEnabled: Bool { get }
     var scope: Scope { get }
     var dateProvider: SentryCurrentDateProvider { get }
+    var currentScopeStorage: SentryCurrentScopeStorage { get }
 
     /// The integration is nullable as it might not be installed on the hub as expected.
     var metricsIntegration: Integration? { get }
@@ -74,7 +75,8 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
                 attributable.asSentryAttributeContent
             }
         )
-        integration.addMetric(metric, scope: dependencies.scope)
+        let currentScope = dependencies.currentScopeStorage.scope()
+        integration.addMetric(metric, scope: dependencies.scope, currentScope: currentScope)
     }
 }
 
