@@ -101,7 +101,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
             eventContextEnricher:dependencies.eventContextEnricher
                     crashWrapper:dependencies.crashWrapper
                 binaryImageCache:dependencies.binaryImageCache
-            dispatchQueueWrapper:dependencies.dispatchQueueWrapper];
+            dispatchQueueWrapper:dependencies.dispatchQueueWrapper
+             currentScopeStorage:dependencies.currentScopeStorage];
 }
 
 - (instancetype)initWithOptions:(SentryOptions *)options
@@ -118,6 +119,37 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                binaryImageCache:(SentryBinaryImageCache *)binaryImageCache
            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
+    return [self initWithOptions:options
+                    dateProvider:dateProvider
+                transportAdapter:transportAdapter
+                     fileManager:fileManager
+                 threadInspector:threadInspector
+              debugImageProvider:debugImageProvider
+                          random:random
+                          locale:locale
+                        timezone:timezone
+            eventContextEnricher:eventContextEnricher
+                    crashWrapper:crashWrapper
+                binaryImageCache:binaryImageCache
+            dispatchQueueWrapper:dispatchQueueWrapper
+             currentScopeStorage:SentryDependencyContainer.sharedInstance.currentScopeStorage];
+}
+
+- (instancetype)initWithOptions:(SentryOptions *)options
+                   dateProvider:(id<SentryCurrentDateProvider>)dateProvider
+               transportAdapter:(SentryTransportAdapter *)transportAdapter
+                    fileManager:(SentryFileManager *)fileManager
+                threadInspector:(SentryDefaultThreadInspector *)threadInspector
+             debugImageProvider:(SentryDebugImageProvider *)debugImageProvider
+                         random:(id<SentryRandomProtocol>)random
+                         locale:(NSLocale *)locale
+                       timezone:(NSTimeZone *)timezone
+           eventContextEnricher:(id<SentryEventContextEnricher>)eventContextEnricher
+                   crashWrapper:(id<SentryCrashReporter>)crashWrapper
+               binaryImageCache:(SentryBinaryImageCache *)binaryImageCache
+           dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+            currentScopeStorage:(SentryCurrentScopeStorage *)currentScopeStorage
+{
     if (self = [super init]) {
         _isEnabled = YES;
         self.options = options;
@@ -131,7 +163,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         self.attachmentProcessors = [[NSMutableArray alloc] init];
         self.eventContextEnricher = eventContextEnricher;
         self.dispatchQueueWrapper = dispatchQueueWrapper;
-        self.currentScopeStorage = SentryDependencyContainer.sharedInstance.currentScopeStorage;
+        self.currentScopeStorage = currentScopeStorage;
 
         self.telemetryProcessor = [SentryTelemetryProcessorFactory
             getProcessorWithTransport:[[SentryDefaultTelemetryProcessorTransport alloc]

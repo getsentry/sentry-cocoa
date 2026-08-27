@@ -36,7 +36,8 @@ NS_ASSUME_NONNULL_BEGIN
                       andScope:(nullable SentryScope *)scope
                andCrashWrapper:(id<SentryCrashReporter>)crashWrapper
       activeCrashReporterState:(id<SentryCrashReporterState>)activeCrashReporterState
-              andDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue;
+              andDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
+           currentScopeStorage:(SentryCurrentScopeStorage *)currentScopeStorage;
 
 @end
 
@@ -48,11 +49,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithClient:(nullable SentryClientInternal *)client
                       andScope:(nullable SentryScope *)scope
 {
+    SentryDependencyContainer *deps = SentryDependencyContainer.sharedInstance;
     return [self initWithClient:client
                         andScope:scope
-                 andCrashWrapper:SentryDependencyContainer.sharedInstance.crashWrapper
-        activeCrashReporterState:SentryDependencyContainer.sharedInstance.activeCrashReporterState
-                andDispatchQueue:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper];
+                 andCrashWrapper:deps.crashWrapper
+        activeCrashReporterState:deps.activeCrashReporterState
+                andDispatchQueue:deps.dispatchQueueWrapper
+             currentScopeStorage:deps.currentScopeStorage];
 }
 
 /** Internal constructor for testing */
@@ -65,7 +68,8 @@ NS_ASSUME_NONNULL_BEGIN
                         andScope:scope
                  andCrashWrapper:crashWrapper
         activeCrashReporterState:crashWrapper
-                andDispatchQueue:dispatchQueue];
+                andDispatchQueue:dispatchQueue
+             currentScopeStorage:SentryDependencyContainer.sharedInstance.currentScopeStorage];
 }
 
 - (instancetype)initWithClient:(nullable SentryClientInternal *)client
@@ -73,6 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
                andCrashWrapper:(id<SentryCrashReporter>)crashWrapper
       activeCrashReporterState:(id<SentryCrashReporterState>)activeCrashReporterState
               andDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
+           currentScopeStorage:(SentryCurrentScopeStorage *)currentScopeStorage
 {
     if (self = [super init]) {
         _client = client;
@@ -80,7 +85,7 @@ NS_ASSUME_NONNULL_BEGIN
         _crashWrapper = crashWrapper;
         _activeCrashReporterState = activeCrashReporterState;
         _dispatchQueue = dispatchQueue;
-        _currentScopeStorage = SentryDependencyContainer.sharedInstance.currentScopeStorage;
+        _currentScopeStorage = currentScopeStorage;
         _sessionLock = [[NSObject alloc] init];
         _integrationsLock = [[NSObject alloc] init];
         _installedIntegrations = [[NSMutableArray alloc] init];
