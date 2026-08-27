@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add `maxFeatureFlags` option to configure how many feature flag evaluations the scope retains, matching sentry-java. Defaults to 100 (#8858)
+
 ## 9.26.1
 
 ### Fixes
@@ -22,7 +28,6 @@
 - Add screenshot picker to feedback (#8655)
   - Enable it with `form.enableScreenshot = true` in the `configureForm` callback.
 - Expose transaction as a public event type (#8745)
-- Add `maxFeatureFlags` option to configure how many feature flag evaluations the scope retains, matching sentry-java. Defaults to 100 (#8838)
 
 ### Improvements
 
