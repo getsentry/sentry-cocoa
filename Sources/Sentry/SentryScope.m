@@ -761,14 +761,17 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
         NSMutableArray *mergedBreadcrumbs =
             [NSMutableArray arrayWithArray:event.breadcrumbs ?: @[]];
         for (SentryBreadcrumb *crumb in overlayBreadcrumbs) {
-            if (mergedBreadcrumbs.count >= maxBreadcrumbs) {
-                break;
-            }
             if ([mergedBreadcrumbs indexOfObjectIdenticalTo:crumb] == NSNotFound) {
                 [mergedBreadcrumbs addObject:crumb];
             }
         }
-        event.breadcrumbs = mergedBreadcrumbs;
+        if (mergedBreadcrumbs.count > maxBreadcrumbs) {
+            NSRange keepRange
+                = NSMakeRange(mergedBreadcrumbs.count - maxBreadcrumbs, maxBreadcrumbs);
+            event.breadcrumbs = [mergedBreadcrumbs subarrayWithRange:keepRange];
+        } else {
+            event.breadcrumbs = mergedBreadcrumbs;
+        }
     }
 
     NSString *overlayDist = self.distString;

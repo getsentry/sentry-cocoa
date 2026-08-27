@@ -1625,7 +1625,7 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertTrue(messages?.contains("current") ?? false)
     }
 
-    func testOverlay_breadcrumbsRespectsMaxBreadcrumbs() {
+    func testOverlay_breadcrumbsRespectsMaxBreadcrumbs_dropsOldest() {
         let event = Event()
         let globalScope = Scope()
         let crumb1 = Breadcrumb()
@@ -1642,7 +1642,9 @@ class SentryScopeSwiftTests: XCTestCase {
         currentScope.addBreadcrumb(crumb3)
         currentScope.overlay(on: event, maxBreadcrumb: 2)
 
-        XCTAssertEqual(event.breadcrumbs?.count, 2)
+        let messages = event.breadcrumbs?.compactMap(\.message) ?? []
+        XCTAssertEqual(messages.count, 2)
+        XCTAssertEqual(messages, ["g2", "current"], "Should drop oldest (g1) and keep most recent")
     }
 
     func testOverlay_clonedScope_breadcrumbsDeduplicatedByIdentity() {
