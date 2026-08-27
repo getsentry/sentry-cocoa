@@ -343,12 +343,12 @@ private struct SessionSegmentState {
 
     @discardableResult
     func flush() -> Bool {
-        guard isRunning else {
-            SentrySDKLog.debug("[Session Replay] Session replay is not running, not flushing replay")
-            return false
-        }
-        guard !isFullSession else {
-            SentrySDKLog.debug("[Session Replay] Session replay is full, not flushing replay")
+        if isFullSession {
+            let shouldResume = isRunning
+            pause()
+            if shouldResume {
+                resume()
+            }
             return true
         }
 

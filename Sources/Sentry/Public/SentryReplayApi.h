@@ -32,6 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Pauses the current replay until @c resume is called.
+ * Automatically started replays remain paused within the same process.
  */
 - (void)pause;
 

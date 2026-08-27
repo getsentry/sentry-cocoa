@@ -402,6 +402,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
 
     private func start(fullSession: Bool) {
         guard sessionReplay == nil else { return }
+        isManuallyPaused.withLock { $0 = false }
         startedAsFullSession = fullSession
         isPendingStart = true
         runReplayForAvailableWindow()
@@ -409,6 +410,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
 
     @objc public func stop() {
         SentrySDKLog.debug("[Session Replay] Stopping session")
+        isManuallyPaused.withLock { $0 = false }
         cancelPendingStartAndStopCurrentReplay()
     }
 

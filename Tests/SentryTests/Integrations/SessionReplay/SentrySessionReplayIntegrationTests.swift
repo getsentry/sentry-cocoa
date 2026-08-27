@@ -323,6 +323,41 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
 
         XCTAssertTrue(sut.sessionReplay?.isRunning ?? false)
     }
+
+    func testStartAfterSessionEnd_whenManuallyPaused_shouldStartNewReplay() throws {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+
+        sut.pause()
+        sut.sentrySessionEnded(session: SentrySession(releaseName: "", distinctId: ""))
+        sut.start()
+
+        XCTAssertTrue(sut.sessionReplay?.isRunning ?? false)
+    }
+
+    func testStopWhenManuallyPaused_shouldClearPauseForAutomaticSessionRestart() throws {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+
+        sut.pause()
+        sut.stop()
+        sut.sentrySessionStarted(session: SentrySession(releaseName: "", distinctId: ""))
+
+        XCTAssertTrue(sut.sessionReplay?.isRunning ?? false)
+    }
+
+    func testStartWithActiveManuallyPausedReplay_shouldRemainPaused() throws {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+        let sessionReplay = try XCTUnwrap(sut.sessionReplay)
+
+        sut.pause()
+        sut.start()
+        NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
+
+        XCTAssertIdentical(sut.sessionReplay, sessionReplay)
+        XCTAssertFalse(sessionReplay.isRunning)
+    }
     
     func testStopReplayAtEndOfSession() throws {
         startSDK(sessionSampleRate: 1, errorSampleRate: 0)

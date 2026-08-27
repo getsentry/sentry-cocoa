@@ -554,6 +554,36 @@ class SentrySessionReplayTests: XCTestCase {
         XCTAssertEqual(fullSessionSegment.beginning, expectedSessionStart)
     }
 
+    func testFlush_whenBufferIsPaused_shouldSendWithoutResuming() throws {
+        let fixture = Fixture()
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 1))
+        sut.start(rootView: fixture.rootView, fullSession: false)
+        fixture.dateProvider.advance(by: 1)
+        fixture.runLoopCapture()
+        sut.pause()
+
+        let flushed = sut.flush()
+
+        XCTAssertTrue(flushed)
+        XCTAssertTrue(sut.isFullSession)
+        XCTAssertFalse(sut.isRunning)
+        XCTAssertEqual(fixture.lastReplayEvent?.replayType, .session)
+    }
+
+    func testFlush_whenFullSessionIsRunning_shouldSendAndContinueRecording() {
+        let fixture = Fixture()
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 0))
+        sut.start(rootView: fixture.rootView, fullSession: true)
+        fixture.dateProvider.advance(by: 1)
+        fixture.runLoopCapture()
+
+        let flushed = sut.flush()
+
+        XCTAssertTrue(flushed)
+        XCTAssertTrue(sut.isRunning)
+        XCTAssertEqual(fixture.lastReplayEvent?.replayType, .session)
+    }
+
     func testSessionReplayMaximumDuration() {
         // -- Arrange --
         let fixture = Fixture()
