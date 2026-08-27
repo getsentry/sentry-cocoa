@@ -3078,7 +3078,7 @@ final class SentryClientTests: XCTestCase {
 
 }
 
-private extension SentryClientTests {
+extension SentryClientTests {
 
     final class SentryTestSessionDelegate: NSObject, SentrySessionDelegate {
         private let handler: () -> SentrySession?
