@@ -4,7 +4,7 @@
 
 ### Features
 
-- Add manual Session Replay controls through `SentrySDK.replay`. ([#8868](https://github.com/getsentry/sentry-cocoa/pull/8868))
+- Add manual Session Replay controls through `SentrySDK.replay`. (#8868)
   - Explicit `start()` and `startBuffering()` calls bypass the configured replay sample rates; sampling still controls automatic startup.
   - `start()` starts a full-session replay and does nothing if one is already recording.
   - `startBuffering()` keeps a rolling buffer that is sent on `flush()` or an error, then continues in session mode.
