@@ -507,11 +507,14 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     // MARK: - SentryReachabilityObserver
     public func connectivityChanged(_ connected: Bool, typeDescription: String) {
         SentrySDKLog.debug("[Session Replay] Connectivity changed to: \(connected ? "connected" : "disconnected"), type: \(typeDescription)")
-        if connected {
-            let shouldRestartCaptureScheduler = !isManuallyPaused.withLock({ $0 }) && getApplication()?.mainThread_isActive != false
-            sessionReplay?.resumeSessionMode(restartCaptureScheduler: shouldRestartCaptureScheduler)
-        } else {
-            sessionReplay?.pauseSessionMode()
+        replayProcessingQueue.dispatchAsyncOnMainQueueIfNotMainThread { [weak self] in
+            guard let self else { return }
+            if connected {
+                let shouldRestartCaptureScheduler = !isManuallyPaused.withLock({ $0 }) && getApplication()?.mainThread_isActive != false
+                sessionReplay?.resumeSessionMode(restartCaptureScheduler: shouldRestartCaptureScheduler)
+            } else {
+                sessionReplay?.pauseSessionMode()
+            }
         }
     }
 

@@ -630,6 +630,22 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertEqual(hub.capturedReplayRecordingVideo.count, 0)
     }
     
+    func testConnectivityChanged_whenDisconnected_shouldDispatchPauseToMainQueue() throws {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+        let sessionReplay = try XCTUnwrap(sut.sessionReplay)
+        let mainQueue = TestSentryDispatchQueueWrapper()
+        mainQueue.blockBeforeMainBlock = { false }
+        sut.replayProcessingQueue = mainQueue
+
+        sut.connectivityChanged(false, typeDescription: "")
+
+        XCTAssertEqual(mainQueue.blockOnMainInvocations.invocations.count, 1)
+        XCTAssertFalse(sessionReplay.isSessionPaused)
+        mainQueue.blockOnMainInvocations.invocations.first?()
+        XCTAssertTrue(sessionReplay.isSessionPaused)
+    }
+
     func testPauseSessionReplayWithReacheability() throws {
         startSDK(sessionSampleRate: 1, errorSampleRate: 0)
         let sut = try getSut()
