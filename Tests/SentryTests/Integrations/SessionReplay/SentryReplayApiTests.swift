@@ -70,6 +70,16 @@ class SentryReplayApiTests: XCTestCase {
     }
 
     func testStartBuffering_whenReplayIntegrationIsMissing_shouldNotInstall() {
+        let oldDebug = SentrySDKLog.isDebug
+        let oldLevel = SentrySDKLog.diagnosticLevel
+        let oldOutput = SentrySDKLog.getLogOutput()
+        defer {
+            SentrySDKLog.configureLog(oldDebug, diagnosticLevel: oldLevel)
+            SentrySDKLog.setOutput(oldOutput)
+        }
+        let logOutput = TestLogOutput(logsToConsole: false)
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLog.configureLog(true, diagnosticLevel: .debug)
         setHubWithoutReplayIntegration()
         let hub = SentrySDKInternal.currentHub()
         let sut = SentryReplayApi()
@@ -78,6 +88,7 @@ class SentryReplayApiTests: XCTestCase {
         waitForMainQueue()
 
         XCTAssertFalse(hub.installedIntegrations().contains { $0 is SentrySessionReplayIntegration })
+        XCTAssertEqual(logOutput.loggedMessages.filter { $0.contains("Session Replay integration is not installed") }.count, 1)
     }
 
     func testFlush_whenReplayIntegrationIsMissing_shouldNotInstall() {

@@ -72,6 +72,9 @@
                 getInstalledIntegration:SentrySessionReplayIntegration.class];
         if (replayIntegration != nil) {
             command(replayIntegration);
+        } else {
+            SENTRY_LOG_WARN(@"[Session Replay] Cannot execute command because the Session "
+                            @"Replay integration is not installed.");
         }
     });
 }

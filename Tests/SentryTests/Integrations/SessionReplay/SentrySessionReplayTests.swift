@@ -512,7 +512,7 @@ class SentrySessionReplayTests: XCTestCase {
         sut.start(rootView: fixture.rootView, fullSession: false)
 
         // -- Act --
-        _ = sut.flush()
+        sut.flush()
         let firstSegment = try XCTUnwrap(fixture.lastReplayEvent)
 
         fixture.dateProvider.advance(by: 5)
@@ -540,7 +540,7 @@ class SentrySessionReplayTests: XCTestCase {
 
         // -- Act --
         DispatchQueue.global().async {
-            _ = sut.flush()
+            sut.flush()
             expectation.fulfill()
         }
         wait(for: [expectation], timeout: 1)
@@ -562,9 +562,8 @@ class SentrySessionReplayTests: XCTestCase {
         fixture.runLoopCapture()
         sut.pause()
 
-        let flushed = sut.flush()
+        sut.flush()
 
-        XCTAssertTrue(flushed)
         XCTAssertTrue(sut.isFullSession)
         XCTAssertFalse(sut.isRunning)
         XCTAssertEqual(fixture.lastReplayEvent?.replayType, .session)
@@ -577,9 +576,8 @@ class SentrySessionReplayTests: XCTestCase {
         fixture.dateProvider.advance(by: 1)
         fixture.runLoopCapture()
 
-        let flushed = sut.flush()
+        sut.flush()
 
-        XCTAssertTrue(flushed)
         XCTAssertTrue(sut.isRunning)
         XCTAssertEqual(fixture.lastReplayEvent?.replayType, .session)
     }

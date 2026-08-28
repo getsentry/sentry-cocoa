@@ -766,7 +766,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertEqual(sessionReplay.sessionReplayId, replayId)
     }
     
-    func testStopBecauseOfReplayRateLimit() throws {
+    func testSessionReplayNewSegment_whenReplayRateLimited_shouldDispatchStopToMainQueue() throws {
         let rateLimiter = TestRateLimits()
         SentryDependencyContainer.sharedInstance().rateLimits = rateLimiter
         rateLimiter.rateLimits.append(.replay)
@@ -774,6 +774,9 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         startSDK(sessionSampleRate: 1, errorSampleRate: 1)
         let sut = try getSut()
         let sessionReplay = sut.sessionReplay
+        let mainQueue = TestSentryDispatchQueueWrapper()
+        mainQueue.blockBeforeMainBlock = { false }
+        sut.replayProcessingQueue = mainQueue
         
         XCTAssertTrue(sessionReplay?.isRunning ?? false)
   
@@ -784,7 +787,10 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         sut.sessionReplayNewSegment(replayEvent: replayEvent,
                                                                      replayRecording: SentryReplayRecording(segmentId: 0, video: videoInfo, extraEvents: []),
                                                                      videoUrl: videoUrl)
-        
+
+        XCTAssertEqual(mainQueue.blockOnMainInvocations.invocations.count, 1)
+        XCTAssertNotNil(sut.sessionReplay)
+        mainQueue.blockOnMainInvocations.invocations.first?()
         XCTAssertFalse(sessionReplay?.isRunning ?? true)
         XCTAssertNil(sut.sessionReplay)
     }

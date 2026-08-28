@@ -341,19 +341,17 @@ private struct SessionSegmentState {
         return true
     }
 
-    @discardableResult
-    func flush() -> Bool {
+    func flush() {
         if isFullSession {
             let shouldResume = isRunning
             pause()
             if shouldResume {
                 resume()
             }
-            return true
+            return
         }
 
         captureReplayInternal(replayType: .session)
-        return true
     }
 
     private func captureReplayInternal(replayType: SentryReplayType) {

@@ -397,7 +397,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         guard let sessionReplay else {
             return start()
         }
-        _ = sessionReplay.flush()
+        sessionReplay.flush()
     }
 
     private func start(fullSession: Bool) {
@@ -466,7 +466,9 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         SentrySDKLog.debug("[Session Replay] New segment with replay event, eventId: \(replayEvent.eventId), segmentId: \(replayEvent.segmentId)")
 
         if rateLimits.isRateLimitActive(.replay) || rateLimits.isRateLimitActive(.all) {
-            stop()
+            replayProcessingQueue.dispatchAsyncOnMainQueueIfNotMainThread { [weak self] in
+                self?.stop()
+            }
             return
         }
         guard let timestamp = replayEvent.timestamp else { 
