@@ -41,6 +41,9 @@ let package = Package(
                 .process("LoremIpsum.txt"),
                 .process("screenshot.png")
             ],
+            cSettings: [
+                .define("SDK_V10", to: "1", .when(traits: ["V10"]))
+            ],
             swiftSettings: [
                 .define("SDK_V10", .when(traits: ["V10"]))
             ]

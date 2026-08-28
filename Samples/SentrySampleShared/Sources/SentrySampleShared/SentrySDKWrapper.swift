@@ -100,9 +100,11 @@ public struct SentrySDKWrapper {
             terms: SentrySDKOverrides.DataCollection.httpResponseHeadersTerms.stringValue
         )
         if SentrySDKOverrides.Special.disableEverything.boolValue {
-            options.dataCollection.httpBodies = 0
+            options.dataCollection.httpBodies = []
         } else if let httpBodies = SentrySDKOverrides.DataCollection.httpBodies.stringValue {
-            options.dataCollection.httpBodies = UInt(dataCollectionHttpBodies(commaSeparatedValues(httpBodies)).rawValue)
+            options.dataCollection.httpBodies = SentryObjCDataCollectionHttpBodyType(
+                rawValue: UInt(dataCollectionHttpBodies(commaSeparatedValues(httpBodies)).rawValue)
+            )
         }
         options.dataCollection.urlQueryParams = objcDataCollectionBehavior(
             mode: SentrySDKOverrides.DataCollection.urlQueryParamsMode.stringValue,
