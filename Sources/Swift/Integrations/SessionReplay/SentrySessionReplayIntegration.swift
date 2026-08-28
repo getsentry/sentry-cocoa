@@ -467,7 +467,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
 
         if rateLimits.isRateLimitActive(.replay) || rateLimits.isRateLimitActive(.all) {
             replayProcessingQueue.dispatchAsyncOnMainQueueIfNotMainThread { [weak self] in
-                self?.stop()
+                self?.cancelPendingStartAndStopCurrentReplay()
             }
             return
         }
