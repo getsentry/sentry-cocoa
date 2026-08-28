@@ -18,13 +18,17 @@ let defaultApplicationProvider: () -> SentryApplication? = {
 }
 
 // MARK: - Extensions
-
 extension SentryFileManager: SentryFileManagerProtocol { }
+
+#if !SDK_V10
 @_spi(Private) extension SentryANRTrackerV1: SentryANRTrackerInternalProtocol { }
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 @_spi(Private) extension SentryANRTrackerV2: SentryANRTrackerInternalProtocol { }
+#endif
+#endif
 
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 @_spi(Private) extension SentryDelayedFramesTracker: SentryDelayedFramesTrackerWrapper {
     func getFramesDelay(_ startSystemTimestamp: UInt64, endSystemTimestamp: UInt64, isRunning: Bool, slowFrameThreshold: CFTimeInterval) -> SentryFramesDelayResult {
         let objcResult = getFramesDelayObjC(startSystemTimestamp, endSystemTimestamp: endSystemTimestamp, isRunning: isRunning, slowFrameThreshold: slowFrameThreshold)
@@ -548,6 +552,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     }
 #endif // !SDK_V10
 
+    #if !SDK_V10
     private var anrTracker: SentryANRTracker?
     @objc public func getANRTracker(_ timeout: TimeInterval) -> SentryANRTracker {
         getLazyVar(\.anrTracker) {
@@ -558,6 +563,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         #endif
         }
     }
+    #endif
 
 #if !SDK_V10
     private var crashInstallationReporter: SentryCrashInstallationReporter?
@@ -972,10 +978,12 @@ protocol ThreadInspectorProvider {
 }
 extension SentryDependencyContainer: ThreadInspectorProvider { }
 
+#if !SDK_V10
 protocol ANRTrackerBuilder {
     func getANRTracker(_ interval: TimeInterval) -> SentryANRTracker
 }
 extension SentryDependencyContainer: ANRTrackerBuilder { }
+#endif
 
 protocol ProcessInfoProvider {
     var processInfoWrapper: SentryProcessInfoSource { get }

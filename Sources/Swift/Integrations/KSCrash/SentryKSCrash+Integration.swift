@@ -23,6 +23,9 @@ extension SentryKSCrash {
         private let installer: Dependencies.Installing
         private var scopeConfiguration: SentryKSCrash.Scope.Configuration?
         private let reportProcessingSession = ReportProcessingSession()
+        #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
+        private let nsExceptionHandlerOwner = NSObject()
+        #endif
 
         // MARK: - Initialization
 
@@ -45,7 +48,8 @@ extension SentryKSCrash {
                     installPath: installPath.path,
                     monitors: productionSafeMonitors,
                     enableMemoryIntrospection: options.enableMemoryIntrospection,
-                    enableSwapCxaThrow: options.experimental.enableUnhandledCPPExceptionsV2
+                    enableSwapCxaThrow: options.experimental.enableUnhandledCPPExceptionsV2,
+                    enableSwiftAsyncStackTraces: options.swiftAsyncStacktraces
                 )
             } catch {
                 SentrySDKLog.error("KSCrash install failed: \(error)")
@@ -57,11 +61,21 @@ extension SentryKSCrash {
                 options: options
             )
 
+            #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
+            SentryNSExceptionCaptureHelper.setUncaughtExceptionHandler(
+                installer.uncaughtExceptionHandler,
+                owner: nsExceptionHandlerOwner
+            )
+            if options.enableSwizzling && options.enableUncaughtNSExceptionReporting {
+                SentryUncaughtNSExceptions.configureCrashOnExceptions()
+                SentryUncaughtNSExceptions.swizzleNSApplicationReportException()
+                SentryUncaughtNSExceptions.swizzleNSApplicationCrashOnException()
+            }
+            #endif
+
 #if SENTRY_DISABLE_SENTRYCRASH_V10
             // KSCRASH_TODO(GH-8276, GH-8756): Installer setUserInfo drops nested containers from
             // the retained scope configuration. Acceptance: SCV10-015 in the migration ledger.
-            // KSCRASH_TODO(GH-8529): V10 does not forward AppKit reportException:/_crashOnException:
-            // calls to KSCrash. Acceptance: SCV10-012 in the migration ledger.
             // KSCRASH_TODO(GH-8674): V10 handles actual crashes below but omits previous-run
             // watchdog and fatal-app-hang session finalization. Acceptance: SCV10-025 in the ledger.
             // KSCRASH_TODO(GH-8735): V10 does not register a callback to persist an active trace
@@ -83,6 +97,10 @@ extension SentryKSCrash {
                 )
             }
 
+            processStoredReports(options: options, dependencies: dependencies)
+        }
+
+        private func processStoredReports(options: Options, dependencies: Dependencies) {
             let reportProcessor = SentryStoredCrashReportProcessor(
                 inAppLogic: SentryInAppLogic(inAppIncludes: options.inAppIncludes),
                 currentHubProvider: { SentrySDKInternal.currentHub() },
@@ -129,6 +147,9 @@ extension SentryKSCrash {
             // SENTRYCRASH_V10_MIGRATION_LEDGER.md.
 #endif
             reportProcessingSession.cancel()
+            #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
+            SentryNSExceptionCaptureHelper.clearUncaughtExceptionHandler(forOwner: nsExceptionHandlerOwner)
+            #endif
             installer.uninstall()
         }
 

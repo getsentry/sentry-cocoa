@@ -1,7 +1,6 @@
 #import "SentryCrashReportConverter.h"
 #import "SentryBreadcrumb+Private.h"
 #import "SentryBreadcrumb.h"
-#import "SentryCrashStackCursor.h"
 #import "SentryDateUtils.h"
 #import "SentryDebugMeta.h"
 #import "SentryEvent.h"
@@ -17,9 +16,12 @@
 #import "SentrySwift.h"
 #import "SentryThread.h"
 #import "SentryUser.h"
+#import <stdint.h>
 
 static NSString *const SentryCrashReportConverterErrorDomain
     = @"io.sentry.SentryCrashReportConverter";
+// Sentry SDKs before May 2023 could persist this sentinel between chained async stacks.
+static const uintptr_t SentryLegacyAsyncStackTraceMarker = UINTPTR_MAX - 1234;
 
 @interface SentryCrashReportConverter ()
 
@@ -347,7 +349,7 @@ static NSString *const SentryCrashReportConverterErrorDomain
         NSDictionary *frameDictionary = [self rawStackTraceForThreadIndex:threadIndex][i];
         uintptr_t instructionAddress
             = (uintptr_t)[frameDictionary[@"instruction_addr"] unsignedLongLongValue];
-        if (instructionAddress == SentryCrashSC_ASYNC_MARKER) {
+        if (instructionAddress == SentryLegacyAsyncStackTraceMarker) {
             if (lastFrame != nil) {
                 lastFrame.stackStart = @(YES);
             }

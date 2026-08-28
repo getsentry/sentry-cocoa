@@ -11,12 +11,14 @@ extension SentryKSCrash {
         ///   - monitors: Monitor types to enable.
         ///   - enableMemoryIntrospection: Whether to introspect memory contents during a crash.
         ///   - enableSwapCxaThrow: Whether to swap `__cxa_throw` for better C++ stacks.
+        ///   - enableSwiftAsyncStackTraces: Whether to stitch Swift async frames into current-thread captures.
         /// - Throws: Any error from `KSCrash.installWithConfiguration(_:error:)`.
         func install(
             installPath: String,
             monitors: MonitorType,
             enableMemoryIntrospection: Bool,
             enableSwapCxaThrow: Bool,
+            enableSwiftAsyncStackTraces: Bool
         ) throws
 
         /// Uninstall the crash handler for the current SDK lifecycle.
@@ -43,6 +45,11 @@ extension SentryKSCrash {
 
         /// Adds additional user information to the crash handler
         func setUserInfo(_ userInfo: [String: Any])
+
+        #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
+        /// The fatal NSException handler installed by the active crash backend.
+        var uncaughtExceptionHandler: (@convention(c) (NSException) -> Void)? { get }
+        #endif
     }
 
     /// Configures and installs a crash handler.
@@ -56,12 +63,14 @@ extension SentryKSCrash {
             monitors: MonitorType,
             enableMemoryIntrospection: Bool,
             enableSwapCxaThrow: Bool,
+            enableSwiftAsyncStackTraces: Bool
         ) throws {
             let config = KSCrashConfiguration()
             config.installPath = installPath
             config.monitors = monitors
             config.enableMemoryIntrospection = enableMemoryIntrospection
             config.enableSwapCxaThrow = enableSwapCxaThrow
+            config.enableSwiftAsyncStackTraces = enableSwiftAsyncStackTraces
             config.reportStoreConfiguration.reportCleanupPolicy = .onSuccess
             #if SENTRY_CRASH_E2E
             config.userInfoJSON = SentryKSCrash.CrashE2ETestHook.reportUserInfo
@@ -159,6 +168,12 @@ extension SentryKSCrash {
 
         var crashedLastLaunch: Bool { KSCrash.shared.crashedLastLaunch }
         var activeDurationSinceLastCrash: TimeInterval { KSCrash.shared.activeDurationSinceLastCrash }
+
+        #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
+        var uncaughtExceptionHandler: (@convention(c) (NSException) -> Void)? {
+            KSCrash.shared.uncaughtExceptionHandler
+        }
+        #endif
 
         func setUserInfo(_ userInfo: [String: Any]) {
             guard installed else {

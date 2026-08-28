@@ -4,6 +4,19 @@
 import Foundation
 import XCTest
 
+#if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
+private var integrationNSExceptionHandlerCallCount = 0
+private var reinitializedNSExceptionHandlerCallCount = 0
+
+private func integrationNSExceptionHandler(_ exception: NSException) {
+    integrationNSExceptionHandlerCallCount += 1
+}
+
+private func reinitializedNSExceptionHandler(_ exception: NSException) {
+    reinitializedNSExceptionHandlerCallCount += 1
+}
+#endif
+
 class SentryKSCrashIntegrationTests: XCTestCase {
     private var cacheDirectoryPath: String!
 
@@ -79,6 +92,36 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         // -- Assert --
         let installCall = try XCTUnwrap(installer.installCalls.first)
         XCTAssertFalse(installCall.enableMemoryIntrospection)
+    }
+
+    func testInstall_whenSwiftAsyncStacktracesEnabled_shouldEnableSwiftAsyncStackTraces() throws {
+        // -- Arrange --
+        let installer = MockKSCrashInstaller()
+        let deps = MockKSCrashDependencies(installer: installer)
+        let options = makeOptions()
+        options.swiftAsyncStacktraces = true
+
+        // -- Act --
+        _ = SentryKSCrash.Integration(with: options, dependencies: deps)
+
+        // -- Assert --
+        let installCall = try XCTUnwrap(installer.installCalls.first)
+        XCTAssertTrue(installCall.enableSwiftAsyncStackTraces)
+    }
+
+    func testInstall_whenSwiftAsyncStacktracesDisabled_shouldDisableSwiftAsyncStackTraces() throws {
+        // -- Arrange --
+        let installer = MockKSCrashInstaller()
+        let deps = MockKSCrashDependencies(installer: installer)
+        let options = makeOptions()
+        options.swiftAsyncStacktraces = false
+
+        // -- Act --
+        _ = SentryKSCrash.Integration(with: options, dependencies: deps)
+
+        // -- Assert --
+        let installCall = try XCTUnwrap(installer.installCalls.first)
+        XCTAssertFalse(installCall.enableSwiftAsyncStackTraces)
     }
 
     func testInstall_whenCrashHandlerEnabled_shouldAppendKSCrashBundleSubdirectory() {
@@ -296,6 +339,100 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         // -- Assert --
         XCTAssertTrue(processingSession.isCancelled)
     }
+
+    #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
+    func testInstall_whenOptionDisabledAndAppKitForwardsException_shouldCallInstallerHandler() throws {
+        // -- Arrange --
+        integrationNSExceptionHandlerCallCount = 0
+        let installer = MockKSCrashInstaller()
+        installer.uncaughtExceptionHandler = integrationNSExceptionHandler
+        let options = makeOptions()
+        options.enableUncaughtNSExceptionReporting = false
+        let sut = try XCTUnwrap(
+            SentryKSCrash.Integration(
+                with: options,
+                dependencies: MockKSCrashDependencies(installer: installer)
+            )
+        )
+        defer {
+            sut.uninstall()
+            integrationNSExceptionHandlerCallCount = 0
+        }
+        let exception = NSException(
+            name: NSExceptionName("CrashE2ENSException"),
+            reason: "Crash E2E uncaught NSException",
+            userInfo: ["scenario": "ns-exception"]
+        )
+
+        // -- Act --
+        SentryNSExceptionCaptureHelper.report(exception)
+        SentryNSExceptionCaptureHelper.reportExceptionDidFinish()
+
+        // -- Assert --
+        XCTAssertEqual(integrationNSExceptionHandlerCallCount, 1)
+    }
+
+    func testUninstall_whenAppKitForwardsException_shouldNotCallInstallerHandler() throws {
+        // -- Arrange --
+        integrationNSExceptionHandlerCallCount = 0
+        let installer = MockKSCrashInstaller()
+        installer.uncaughtExceptionHandler = integrationNSExceptionHandler
+        let sut = try XCTUnwrap(
+            SentryKSCrash.Integration(
+                with: makeOptions(),
+                dependencies: MockKSCrashDependencies(installer: installer)
+            )
+        )
+        sut.uninstall()
+
+        // -- Act --
+        SentryNSExceptionCaptureHelper.report(
+            NSException(name: .internalInconsistencyException, reason: "closed")
+        )
+        SentryNSExceptionCaptureHelper.reportExceptionDidFinish()
+
+        // -- Assert --
+        XCTAssertEqual(integrationNSExceptionHandlerCallCount, 0)
+    }
+
+    func testUninstall_whenNewIntegrationOwnsHandler_shouldKeepNewHandler() throws {
+        // -- Arrange --
+        integrationNSExceptionHandlerCallCount = 0
+        reinitializedNSExceptionHandlerCallCount = 0
+        let firstInstaller = MockKSCrashInstaller()
+        firstInstaller.uncaughtExceptionHandler = integrationNSExceptionHandler
+        let firstIntegration = try XCTUnwrap(
+            SentryKSCrash.Integration(
+                with: makeOptions(),
+                dependencies: MockKSCrashDependencies(installer: firstInstaller)
+            )
+        )
+        let secondInstaller = MockKSCrashInstaller()
+        secondInstaller.uncaughtExceptionHandler = reinitializedNSExceptionHandler
+        let secondIntegration = try XCTUnwrap(
+            SentryKSCrash.Integration(
+                with: makeOptions(),
+                dependencies: MockKSCrashDependencies(installer: secondInstaller)
+            )
+        )
+        defer {
+            secondIntegration.uninstall()
+            integrationNSExceptionHandlerCallCount = 0
+            reinitializedNSExceptionHandlerCallCount = 0
+        }
+        firstIntegration.uninstall()
+
+        // -- Act --
+        SentryNSExceptionCaptureHelper.report(
+            NSException(name: .internalInconsistencyException, reason: "reinitialized")
+        )
+        SentryNSExceptionCaptureHelper.reportExceptionDidFinish()
+
+        // -- Assert --
+        XCTAssertEqual(integrationNSExceptionHandlerCallCount, 0)
+        XCTAssertEqual(reinitializedNSExceptionHandlerCallCount, 1)
+    }
+    #endif
 
     func testInstall_whenRestarted_shouldOwnDistinctProcessingSessions() throws {
         // -- Arrange --

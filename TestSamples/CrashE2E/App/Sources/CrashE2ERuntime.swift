@@ -157,7 +157,9 @@ enum CrashE2ERuntime {
             options.debug = true
             options.enableAutoSessionTracking = true
             options.enableSwizzling = true
+            #if !SDK_V10
             options.enableAppHangTracking = false
+            #endif // !SDK_V10
             #if os(macOS)
             options.enableUncaughtNSExceptionReporting = true
             #endif
@@ -182,7 +184,9 @@ enum CrashE2ERuntime {
                 options.experimental.enableUnhandledCPPExceptionsV2 = true
             }
 
-            if configuration.scenario == .swiftAsyncCPPExceptionV2On {
+            if configuration.scenario == .swiftAsyncCPPExceptionV2Off {
+                options.swiftAsyncStacktraces = false
+            } else if configuration.scenario == .swiftAsyncCPPExceptionV2On {
                 options.swiftAsyncStacktraces = true
             }
 

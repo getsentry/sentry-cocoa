@@ -25,9 +25,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !SDK_V10
 + (void)captureFatalAppHangEvent:(SentryEvent *)event;
-#endif // SENTRY_HAS_UIKIT
+#endif // SENTRY_HAS_UIKIT && !SDK_V10
 
 /**
  * SDK private field to store the state if onLastRunStatusDetermined (or the deprecated
