@@ -11,7 +11,6 @@ class LaunchUITests: BaseUITest {
         return app
     }
 
-
     func testBreadcrumbData() {
         app.buttons["Extra"].tap()
 

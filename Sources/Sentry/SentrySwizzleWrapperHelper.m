@@ -57,7 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
 #    pragma clang diagnostic ignored "-Wshadow"
     SEL selector = NSSelectorFromString(@"sendEvent:");
     SentrySwizzleInstanceMethod([UIApplication class], selector, SentrySWReturnType(void),
-        SentrySWArguments(UIEvent *event), SentrySWReplacement({
+        SentrySWArguments(UIEvent * event), SentrySWReplacement({
             callback(event);
             SentrySWCallOriginal(event);
         }),
