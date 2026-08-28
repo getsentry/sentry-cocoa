@@ -127,6 +127,8 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         return SessionTracker(options: options, applicationProvider: defaultApplicationProvider, dateProvider: dateProvider, notificationCenter: notificationCenterWrapper, dispatchQueue: sessionDispatchQueue)
     }
 
+    @objc public var currentScopeStorage = SentryCurrentScopeStorage()
+
     @objc public var dispatchQueueWrapper = Dependencies.dispatchQueueWrapper
     @objc public var random = Dependencies.random
     @objc public var threadWrapper = Dependencies.threadWrapper
@@ -648,6 +650,10 @@ protocol HubProvider {
     var hub: Hub { get }
 }
 
+protocol CurrentScopeStorageProvider {
+    var currentScopeStorage: SentryCurrentScopeStorage { get }
+}
+
 /// DefaultHub is a temporary abstraction around the ``SentryHubInternal.h``
 private struct DefaultHub: Hub {
     func configureScope(_ callback: @escaping (Scope) -> Void) {
@@ -685,11 +691,14 @@ private struct DefaultHub: Hub {
     var scope: Scope {
         SentrySDKInternal.currentHub().scope
     }
+
 }
 
 extension SentryDependencyContainer: HubProvider {
     var hub: Hub { DefaultHub() }
 }
+
+extension SentryDependencyContainer: CurrentScopeStorageProvider {}
 
 protocol DateProviderProvider {
     var dateProvider: SentryCurrentDateProvider { get }
