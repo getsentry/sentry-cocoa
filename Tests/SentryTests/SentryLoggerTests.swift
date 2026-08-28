@@ -8,7 +8,7 @@ final class SentryLoggerTests: XCTestCase {
     
     private class TestLoggerDelegate: NSObject, SentryLoggerDelegate {
         let capturedLogs = Invocations<SentryLog>()
-        
+
         func capture(log: SentryLog) {
             capturedLogs.record(log)
         }

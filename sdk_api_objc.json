@@ -1438,6 +1438,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "cloneScope:",
+    "parent": "SentryObjCInternalScopeApi",
+    "returnType": "SentryObjCScope * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "close",
     "parent": "SentryObjCClient",
     "returnType": "void",
@@ -1624,6 +1631,13 @@
     "parent": "SentryObjCSDK",
     "returnType": "BOOL",
     "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "createScope",
+    "parent": "SentryObjCInternalScopeApi",
+    "returnType": "SentryObjCScope * _Nonnull",
+    "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
@@ -8631,6 +8645,13 @@
     "parent": "SentryObjCUnit",
     "returnType": "SentryObjCUnit * _Nonnull",
     "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "withCurrentScope:callback:",
+    "parent": "SentryObjCInternalScopeApi",
+    "returnType": "void",
+    "instance": true
   },
   {
     "kind": "ObjCPropertyDecl",
