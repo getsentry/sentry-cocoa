@@ -706,18 +706,24 @@ extension SentrySDKWrapper {
 }
 #endif // !os(tvOS) && !os(watchOS) && !os(visionOS)
 
-#if SDK_V10
+/// ObjC-facing hook so sample AppDelegates can apply override-driven data collection.
+/// Always compiled so `@import SentrySampleShared` exposes the class even when the
+/// generated Swift header cannot import `SentryObjCOptions`.
 @objcMembers public final class SentrySampleDataCollectionConfiguration: NSObject {
+#if SDK_V10
     @objc(configureWithOptions:)
     public static func configure(options: Options) {
         SentrySDKWrapper.shared.configureDataCollection(options)
     }
+#endif // SDK_V10
 
     @objc(configureWithObjCOptions:)
-    public static func configure(objcOptions: SentryObjCOptions) {
-        SentrySDKWrapper.shared.configureDataCollection(objcOptions)
+    public static func configure(objcOptions: AnyObject) {
+#if SDK_V10
+        guard let options = objcOptions as? SentryObjCOptions else { return }
+        SentrySDKWrapper.shared.configureDataCollection(options)
+#endif // SDK_V10
     }
 }
-#endif // SDK_V10
 
 // swiftlint:enable file_length function_body_length
