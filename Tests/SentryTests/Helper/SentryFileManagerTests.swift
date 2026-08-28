@@ -121,7 +121,9 @@ class SentryFileManagerTests: XCTestCase {
         sut.deleteAllFolders()
         sut.deleteTimestampLastInForeground()
         sut.deleteAppState()
+        #if !SDK_V10
         sut.deleteAbnormalSession()
+        #endif // !SDK_V10
     }
     
     func testInitDoesNotOverrideDirectories() throws {
@@ -609,6 +611,7 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertNil(actualSession)
     }
     
+    #if !SDK_V10
     func testStoreAbnormalSession() throws {
         // Arrange
         let session = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
@@ -681,6 +684,7 @@ class SentryFileManagerTests: XCTestCase {
         // Assert
         waitForExpectations(timeout: 10)
     }
+    #endif // !SDK_V10
     
     func testStoreAndReadTimestampLastInForeground() {
         let expectedTimestamp = TestCurrentDateProvider().date()
@@ -843,6 +847,7 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertNotNil(sut.readTimezoneOffset())
     }
     
+    #if !SDK_V10
     func testStoreWriteAppHangEvent() throws {
         // Arrange
         let event = TestData.event
@@ -921,6 +926,7 @@ class SentryFileManagerTests: XCTestCase {
         // Assert
         XCTAssertNil(sut.readAppHangEvent())
     }
+    #endif // !SDK_V10
 
     func testSentryPathFromOptionsCacheDirectoryPath() throws {
         fixture.options.cacheDirectoryPath = "/var/tmp"
@@ -932,7 +938,11 @@ class SentryFileManagerTests: XCTestCase {
 #if os(iOS) || os(tvOS)
     
     func testReadPreviousBreadcrumbs() throws {
-        let breadcrumbProcessor = SentryDefaultWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 2, fileManager: sut)
+        let breadcrumbProcessor = SentryDefaultWatchdogTerminationBreadcrumbProcessor(
+            maxBreadcrumbs: 2,
+            fileManager: sut,
+            dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
+        )
         let attributesProcessor = try SentryWatchdogTerminationAttributesProcessor(
             withDispatchQueueWrapper: SentryDispatchQueueWrapper(),
             scopePersistentStore: XCTUnwrap(SentryScopePersistentStore(fileManager: sut))
@@ -962,7 +972,11 @@ class SentryFileManagerTests: XCTestCase {
     }
     
     func testReadPreviousBreadcrumbsCorrectOrderWhenFileTwoHasMoreCrumbs() throws {
-        let breadcrumbProcessor = SentryDefaultWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 2, fileManager: sut)
+        let breadcrumbProcessor = SentryDefaultWatchdogTerminationBreadcrumbProcessor(
+            maxBreadcrumbs: 2,
+            fileManager: sut,
+            dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
+        )
         let attributesProcessor = try SentryWatchdogTerminationAttributesProcessor(
             withDispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
             scopePersistentStore: XCTUnwrap(SentryScopePersistentStore(fileManager: sut))

@@ -2,14 +2,16 @@ import Foundation
 import Sentry
 
 public extension Options {
-
+    
     func removeAllIntegrations() {
         enableAutoSessionTracking = false
         enableWatchdogTerminationTracking = false
         enableAutoPerformanceTracing = false
         enableCrashHandler = false
         swiftAsyncStacktraces = false
+        #if !SDK_V10
         enableAppHangTracking = false
+        #endif // !SDK_V10
         enableNetworkTracking = false
         enableNetworkBreadcrumbs = false
         enableCaptureFailedRequests = false
@@ -21,6 +23,7 @@ public extension Options {
         attachViewHierarchy = false
         enableUIViewControllerTracing = false
         #endif
+        enableMetrics = false
         beforeSendMetric = { metric in metric }
         #if canImport(MetricKit) && !os(tvOS)
         enableMetricKit = false

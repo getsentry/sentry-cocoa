@@ -17,7 +17,8 @@ class SentryHubTests: XCTestCase {
         let message = "some message"
         let event: Event
         let currentDateProvider = TestCurrentDateProvider()
-        let sentryCrashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
+        let crashReporterState = TestSentryCrashReporterState()
+        let scopeContextEnricher = TestSentryScopeContextEnricher()
         let fileManager: SentryFileManager
         let crashedSession: SentrySession
         let abnormalSession: SentrySession
@@ -61,7 +62,7 @@ class SentryHubTests: XCTestCase {
         }
         
         func getSut(_ options: Options, _ scope: Scope? = nil) -> SentryHubInternal {
-            let hub = SentryHubInternal(client: client, andScope: scope, andCrashWrapper: sentryCrashWrapper, andDispatchQueue: dispatchQueueWrapper)
+            let hub = SentryHubInternal(client: client, andScope: scope, activeCrashReporterState: crashReporterState, scopeContextEnricher: scopeContextEnricher, andDispatchQueue: dispatchQueueWrapper)
             hub.bindClient(client)
             return hub
         }
@@ -88,7 +89,9 @@ class SentryHubTests: XCTestCase {
         fixture = try Fixture()
         fixture.fileManager.deleteCurrentSession()
         fixture.fileManager.deleteCrashedSession()
+        #if !SDK_V10
         fixture.fileManager.deleteAbnormalSession()
+        #endif // !SDK_V10
         fixture.fileManager.deleteAppState()
         fixture.fileManager.deleteTimestampLastInForeground()
         fixture.fileManager.deleteAllEnvelopes()
@@ -98,7 +101,9 @@ class SentryHubTests: XCTestCase {
         super.tearDown()
         fixture.fileManager.deleteCurrentSession()
         fixture.fileManager.deleteCrashedSession()
+        #if !SDK_V10
         fixture.fileManager.deleteAbnormalSession()
+        #endif // !SDK_V10
         fixture.fileManager.deleteAppState()
         fixture.fileManager.deleteTimestampLastInForeground()
         fixture.fileManager.deleteAllEnvelopes()
@@ -210,9 +215,6 @@ class SentryHubTests: XCTestCase {
         XCTAssertNil(hub.scope.serialize()["breadcrumbs"])
     }
     
-#if !SENTRY_DISABLE_SENTRYCRASH_V10
-    // KSCRASH_TODO(GH-8800): V10 omits initial scope context enrichment.
-    // Acceptance: SCV10-017 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
     func testScopeEnriched_WithInitializer() {
         let hub = SentryHubInternal(client: nil, andScope: Scope())
         XCTAssertFalse(hub.scope.contextDictionary.allValues.isEmpty)
@@ -220,96 +222,21 @@ class SentryHubTests: XCTestCase {
         XCTAssertNotNil(hub.scope.contextDictionary["device"])
         XCTAssertNotNil(hub.scope.contextDictionary["app"])
     }
-#endif // !SENTRY_DISABLE_SENTRYCRASH_V10
-
-#if !SDK_V10
-    func testScopeEnriched_WithNoRuntime() throws {
-        // Arrange
-        let processInfoWrapper = MockSentryProcessInfo()
-        processInfoWrapper.overrides.isiOSAppOnMac = false
-        processInfoWrapper.overrides.isMacCatalystApp = false
-        let container = SentryDependencyContainer.sharedInstance()
-        let bridge = SentryCrashBridge(
-            notificationCenterWrapper: container.notificationCenterWrapper,
-            dateProvider: container.dateProvider,
-            crashReporter: container.crashReporter
-        )
-        let crashWrapper = SentryDefaultCrashReporter(processInfoWrapper: processInfoWrapper, bridge: bridge)
-        
-        // Act
-        let hub = SentryHubInternal(client: nil, andScope: Scope(), andCrashWrapper: crashWrapper, andDispatchQueue: TestSentryDispatchQueueWrapper())
-
-        // Assert
-        XCTAssertNil(hub.scope.contextDictionary["runtime"])
-    }
-
-    func testScopeEnriched_WithRuntime_isiOSAppOnMac() throws {
-        // Arrange
-        let processInfoWrapper = MockSentryProcessInfo()
-        processInfoWrapper.overrides.isiOSAppOnMac = true
-        processInfoWrapper.overrides.isMacCatalystApp = false
-        SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfoWrapper
-        let container = SentryDependencyContainer.sharedInstance()
-        let bridge = SentryCrashBridge(
-            notificationCenterWrapper: container.notificationCenterWrapper,
-            dateProvider: container.dateProvider,
-            crashReporter: container.crashReporter
-        )
-        let crashWrapper = SentryDefaultCrashReporter(processInfoWrapper: processInfoWrapper, bridge: bridge)
-        
-        // Act
-        let hub = SentryHubInternal(client: nil, andScope: Scope(), andCrashWrapper: crashWrapper, andDispatchQueue: TestSentryDispatchQueueWrapper())
-        
-        // Assert
-        let runtimeContext = try XCTUnwrap (hub.scope.contextDictionary["runtime"] as? [String: String])
-        
-        XCTAssertEqual(runtimeContext["name"], "iOS App on Mac")
-        XCTAssertEqual(runtimeContext["raw_description"], "ios-app-on-mac")
-    }
-
-    func testScopeEnriched_WithRuntime_isMacCatalystApp() throws {
-        // Arrange
-        let processInfoWrapper = MockSentryProcessInfo()
-        processInfoWrapper.overrides.isiOSAppOnMac = false
-        processInfoWrapper.overrides.isMacCatalystApp = true
-        SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfoWrapper
-        let container = SentryDependencyContainer.sharedInstance()
-        let bridge = SentryCrashBridge(
-            notificationCenterWrapper: container.notificationCenterWrapper,
-            dateProvider: container.dateProvider,
-            crashReporter: container.crashReporter
-        )
-        let crashWrapper = SentryDefaultCrashReporter(processInfoWrapper: processInfoWrapper, bridge: bridge)
-        
-        // Act
-        let hub = SentryHubInternal(client: nil, andScope: Scope(), andCrashWrapper: crashWrapper, andDispatchQueue: TestSentryDispatchQueueWrapper())
-
-        // Assert
-        let runtimeContext = try XCTUnwrap (hub.scope.contextDictionary["runtime"] as? [String: String])
-        XCTAssertEqual(runtimeContext["name"], "Mac Catalyst App")
-        XCTAssertEqual(runtimeContext["raw_description"], "mac-catalyst-app")
-    }
-#endif // !SDK_V10
 
     func testScopeNotEnriched_WhenScopeIsNil() {
         _ = fixture.getSut()
-     
-        XCTAssertFalse(fixture.sentryCrashWrapper.enrichScopeCalled)
+        XCTAssertFalse(fixture.scopeContextEnricher.enrichScopeCalled)
     }
-    
-#if !SENTRY_DISABLE_SENTRYCRASH_V10
-    // KSCRASH_TODO(GH-8800): V10 omits initial scope context enrichment.
-    // Acceptance: SCV10-017 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+
     func testScopeEnriched_WhenCreatingDefaultScope() {
         let hub = SentryHubInternal(client: nil, andScope: nil)
-        
+
         let scope = hub.scope
         XCTAssertFalse(scope.contextDictionary.allValues.isEmpty)
         XCTAssertNotNil(scope.contextDictionary["os"])
         XCTAssertNotNil(scope.contextDictionary["device"])
         XCTAssertNotNil(scope.contextDictionary["app"])
     }
-#endif // !SENTRY_DISABLE_SENTRYCRASH_V10
     
     func testAddBreadcrumb_WithCallbackModifies() {
         let crumbMessage = "modified"
@@ -1038,9 +965,8 @@ class SentryHubTests: XCTestCase {
 
     func testCloseCachedSession_whenActiveCrashReporterCrashedLastLaunch_shouldPreserveCurrentSession() {
         // -- Arrange --
-        let activeCrashReporterState = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
+        let activeCrashReporterState = TestSentryCrashReporterState()
         activeCrashReporterState.internalCrashedLastLaunch = true
-        SentryDependencyContainer.sharedInstance().crashWrapper = fixture.sentryCrashWrapper
         SentryDependencyContainer.sharedInstance().activeCrashReporterStateOverride = activeCrashReporterState
         let sut = SentryHubInternal(client: fixture.client, andScope: nil)
         let currentSession = SentrySession(releaseName: "1.0.0", distinctId: "test-installation")
@@ -1050,7 +976,7 @@ class SentryHubTests: XCTestCase {
         sut.closeCachedSession(withTimestamp: fixture.currentDateProvider.date())
 
         // -- Assert --
-        XCTAssertFalse(fixture.sentryCrashWrapper.crashedLastLaunch)
+        XCTAssertFalse(fixture.crashReporterState.crashedLastLaunch)
         XCTAssertEqual(fixture.client.fileManager.readCurrentSession()?.sessionId, currentSession.sessionId)
         XCTAssertEqual(fixture.client.captureSessionInvocations.count, 0)
     }
@@ -1211,7 +1137,7 @@ class SentryHubTests: XCTestCase {
         assertNoEventsSent()
     }
     
-#if os(iOS) || os(tvOS)
+#if (os(iOS) || os(tvOS)) && !SDK_V10
     func testCaptureFatalAppHangEvent_AbnormalSessionExists() {
         // Arrange
         sut = fixture.getSut(fixture.options, fixture.scope)
@@ -1307,7 +1233,7 @@ class SentryHubTests: XCTestCase {
         // Assert
         assertNoEventsSent()
     }
-#endif // os(iOS) || os(tvOS)
+#endif // (os(iOS) || os(tvOS)) && !SDK_V10
 
     func testCaptureEnvelope_WithEventWithError() throws {
         sut.startSession()
@@ -1603,12 +1529,14 @@ class SentryHubTests: XCTestCase {
         XCTAssertIdentical(integration, installedIntegration)
     }
     
+#if !SDK_V10
     func testGetInstalledIntegration_ReturnsNilIfNotFound() {
         let integration = EmptyIntegration()
         sut.addInstalledIntegration(integration, name: "EmptyIntegration")
         
         XCTAssertNil(sut.getInstalledIntegration(SentryHangTrackerIntegrationObjC.self))
     }
+#endif
     
     func testEventContainsOnlyHandledErrors() {
         let sut = fixture.getSut()
@@ -1681,17 +1609,19 @@ class SentryHubTests: XCTestCase {
     }
     
     private func givenCrashedSession() {
-        fixture.sentryCrashWrapper.internalCrashedLastLaunch = true
+        fixture.crashReporterState.internalCrashedLastLaunch = true
         fixture.fileManager.storeCrashedSession(fixture.crashedSession)
         sut.closeCachedSession(withTimestamp: fixture.currentDateProvider.date())
         sut.startSession()
     }
     
+    #if !SDK_V10
     private func givenAbnormalSession() {
         fixture.fileManager.storeAbnormalSession(fixture.abnormalSession)
         sut.closeCachedSession(withTimestamp: fixture.currentDateProvider.date())
         sut.startSession()
     }
+    #endif // !SDK_V10
     
     private func givenAutoSessionTrackingDisabled() {
         let options = fixture.options

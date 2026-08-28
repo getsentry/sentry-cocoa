@@ -8,6 +8,29 @@
 @implementation SentryNSExceptionCaptureHelper
 
 static BOOL _insideReportException = NO;
+#    if SDK_V10
+static NSUncaughtExceptionHandler *_uncaughtExceptionHandler = nil;
+static __weak NSObject *_uncaughtExceptionHandlerOwner = nil;
+
++ (void)setUncaughtExceptionHandler:(NSUncaughtExceptionHandler *)uncaughtExceptionHandler
+                              owner:(NSObject *)owner
+{
+    @synchronized(self) {
+        _uncaughtExceptionHandler = uncaughtExceptionHandler;
+        _uncaughtExceptionHandlerOwner = owner;
+    }
+}
+
++ (void)clearUncaughtExceptionHandlerForOwner:(NSObject *)owner
+{
+    @synchronized(self) {
+        if (_uncaughtExceptionHandlerOwner == owner) {
+            _uncaughtExceptionHandler = nil;
+            _uncaughtExceptionHandlerOwner = nil;
+        }
+    }
+}
+#    endif
 
 + (void)reportException:(NSException *)exception
 {
@@ -32,15 +55,21 @@ static BOOL _insideReportException = NO;
 
 + (void)captureException:(NSException *)exception
 {
-#    if !SENTRY_DISABLE_SENTRYCRASH_V10
+#    if !SDK_V10
     SentryCrashSwift *crash = SentryDependencyContainer.sharedInstance.crashReporter;
     if (nil != crash.uncaughtExceptionHandler && nil != exception) {
         crash.uncaughtExceptionHandler(exception);
     }
 #    else
-    // KSCRASH_TODO(GH-8529): V10 does not forward AppKit exceptions to KSCrash, so this helper
-    // is temporarily a no-op. Acceptance: SCV10-012 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
-    (void)exception;
+    NSUncaughtExceptionHandler *uncaughtExceptionHandler = nil;
+    @synchronized(self) {
+        if (_uncaughtExceptionHandlerOwner != nil) {
+            uncaughtExceptionHandler = _uncaughtExceptionHandler;
+        }
+    }
+    if (uncaughtExceptionHandler != nil && exception != nil) {
+        uncaughtExceptionHandler(exception);
+    }
 #    endif
 }
 

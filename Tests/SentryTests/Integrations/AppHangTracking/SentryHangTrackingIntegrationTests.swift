@@ -1,3 +1,4 @@
+#if !SDK_V10
 @_spi(Private) import SentryTestUtils
 @_spi(Private) @testable import Sentry
 import XCTest
@@ -659,14 +660,14 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         givenInitializedTracker()
 
         Dynamic(sut).anrDetectedWithType(SentryANRType.fullyBlocking)
-        let activeCrashReporterState = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
+        let activeCrashReporterState = TestSentryCrashReporterState()
         activeCrashReporterState.internalCrashedLastLaunch = true
         
         // Act
         givenInitializedTracker(activeCrashReporterState: activeCrashReporterState)
         
         // Assert
-        XCTAssertFalse(crashWrapper.crashedLastLaunch)
+        XCTAssertFalse(crashReporterState.crashedLastLaunch)
         try assertEventWithScopeCaptured { event, scope, _ in
             let ex = try XCTUnwrap(event?.exceptions?.first)
             
@@ -896,9 +897,9 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         SentrySDK.addBreadcrumb(crumb)
         
         self.fixture.sysctl.internalIsBeingTraced = isBeingTraced
-        self.crashWrapper.internalCrashedLastLaunch = crashedLastLaunch
+        self.crashReporterState.internalCrashedLastLaunch = crashedLastLaunch
         SentryDependencyContainer.sharedInstance().activeCrashReporterStateOverride =
-            activeCrashReporterState ?? crashWrapper
+            activeCrashReporterState ?? crashReporterState
         sut = hangTracker(with: self.options)
     }
     
@@ -930,3 +931,4 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         SentryDependencyContainer.sharedInstance().threadInspector = threadInspector
     }
 }
+#endif // !SDK_V10

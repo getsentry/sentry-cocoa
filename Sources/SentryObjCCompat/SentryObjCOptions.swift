@@ -139,6 +139,13 @@ import Foundation
         }
     }
 
+    #if !SDK_V10
+    @objc public var enableLogs: Bool {
+        get { wrapped.enableLogs }
+        set { wrapped.enableLogs = newValue }
+    }
+    #endif // !SDK_V10
+
     @objc public var beforeBreadcrumb: ((SentryObjCBreadcrumb) -> SentryObjCBreadcrumb?)? {
         didSet {
             if let beforeBreadcrumb = beforeBreadcrumb {
@@ -363,10 +370,12 @@ import Foundation
     }
     #endif
 
+    #if !SDK_V10
     @objc public var enableReportNonFullyBlockingAppHangs: Bool {
         get { wrapped.enableReportNonFullyBlockingAppHangs }
         set { wrapped.enableReportNonFullyBlockingAppHangs = newValue }
     }
+    #endif // !SDK_V10
 
     #endif
 
@@ -458,10 +467,12 @@ import Foundation
         set { wrapped.sendClientReports = newValue }
     }
 
+    #if !SDK_V10
     @objc public var enableAppHangTracking: Bool {
         get { wrapped.enableAppHangTracking }
         set { wrapped.enableAppHangTracking = newValue }
     }
+    #endif // !SDK_V10
 
     @objc public var appHangTimeoutInterval: TimeInterval {
         get { wrapped.appHangTimeoutInterval }
@@ -557,6 +568,11 @@ import Foundation
     @objc public var experimental: SentryObjCExperimentalOptions {
         get { SentryObjCExperimentalOptions(wrapped.experimental) }
         set { wrapped.experimental = newValue.wrapped }
+    }
+
+    @objc public var enableMetrics: Bool {
+        get { wrapped.enableMetrics }
+        set { wrapped.enableMetrics = newValue }
     }
 }
 // swiftlint:enable file_length missing_docs type_body_length

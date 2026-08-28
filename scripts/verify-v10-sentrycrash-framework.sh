@@ -11,7 +11,8 @@ set -euo pipefail
 # - macOS retains the public SentryCrashExceptionApplication implementation and every platform
 #   packages its public header.
 # - Headers for excluded adapters are absent, packaged headers do not import legacy recorder
-#   headers, and the generated Swift header does not declare excluded implementation classes.
+#   headers, and the generated Swift header does not declare excluded implementation classes or
+#   the V9-only broad reporter protocol.
 #
 # This enforces the linked and packaged result; source responsibility coverage and compiled-object
 # provenance are enforced by the companion source-contract and object scripts.
@@ -91,6 +92,8 @@ forbidden_symbols=(
   sentryErrorWithDomain
   sentrycrashobjc_objectType
   sentrycrashsignal_signalName
+  sentrycrashsc_initSelfThread
+  sentrycrashsc_initWithBacktrace
   sentrycrashstring_extractHexValue
 )
 for symbol in "${forbidden_symbols[@]}"; do
@@ -192,6 +195,12 @@ if [[ -f "$swift_header" ]]; then
       record_error "Generated V10 header declares absent class: $class_name"
     fi
   done
+  if grep -Eq '^@protocol SentryCrashReporter([[:space:]]|<)' "$swift_header"; then
+    record_error "Generated V10 header declares the V9-only broad reporter protocol"
+  fi
+  if ! grep -Eq '^@protocol SentryCrashReporterState([[:space:]]|<)' "$swift_header"; then
+    record_error "Generated V10 header is missing the shared crash-state protocol"
+  fi
 fi
 
 if [[ $violation_count -ne 0 ]]; then

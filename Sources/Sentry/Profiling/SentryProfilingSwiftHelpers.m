@@ -163,6 +163,7 @@ sentry_scheduledTimerWithTarget(
 }
 
 #    if SENTRY_HAS_UIKIT
+#        if !SDK_V10
 BOOL
 sentry_appHangsDisabled(void)
 {
@@ -172,6 +173,7 @@ sentry_appHangsDisabled(void)
     }
     return [options isAppHangTrackingDisabled];
 }
+#        endif // !SDK_V10
 BOOL
 sentry_autoPerformanceTracingDisabled(void)
 {

@@ -241,6 +241,20 @@
     XCTAssertTrue(options.enableNetworkBreadcrumbs);
 }
 
+#if !SDK_V10
+- (void)testEnableLogs_whenSetToYes_shouldReturnYes
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    options.enableLogs = YES;
+
+    // -- Assert --
+    XCTAssertTrue(options.enableLogs);
+}
+#endif // !SDK_V10
+
 - (void)testEnableAutoSessionTracking_whenSetToYes_shouldReturnYes
 {
     // -- Arrange --
@@ -423,6 +437,7 @@
     XCTAssertTrue(options.sendClientReports);
 }
 
+#if !SDK_V10
 - (void)testEnableAppHangTracking_whenSetToYes_shouldReturnYes
 {
     // -- Arrange --
@@ -434,6 +449,7 @@
     // -- Assert --
     XCTAssertTrue(options.enableAppHangTracking);
 }
+#endif // !SDK_V10
 
 - (void)testEnableAutoBreadcrumbTracking_whenSetToYes_shouldReturnYes
 {
@@ -517,6 +533,18 @@
 
     // -- Assert --
     XCTAssertTrue(options.strictTraceContinuation);
+}
+
+- (void)testEnableMetrics_whenSetToYes_shouldReturnYes
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    options.enableMetrics = YES;
+
+    // -- Assert --
+    XCTAssertTrue(options.enableMetrics);
 }
 
 #pragma mark - Numeric properties
@@ -1215,6 +1243,7 @@
     XCTAssertTrue(options.enablePreWarmedAppStartTracing);
 }
 
+#    if !SDK_V10
 - (void)testEnableReportNonFullyBlockingAppHangs_whenSetToYes_shouldReturnYes
 {
     // -- Arrange --
@@ -1226,6 +1255,7 @@
     // -- Assert --
     XCTAssertTrue(options.enableReportNonFullyBlockingAppHangs);
 }
+#    endif // !SDK_V10
 
 #endif
 

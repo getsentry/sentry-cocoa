@@ -10,19 +10,19 @@ import Foundation
             return []
         }
         var features: [String] = []
-
+        
         if options.enableCaptureFailedRequests {
             features.append("captureFailedRequests")
         }
-
+        
         if options.enableTimeToFullDisplayTracing {
             features.append("timeToFullDisplayTracing")
         }
-
+        
         if options.swiftAsyncStacktraces {
             features.append("swiftAsyncStacktraces")
         }
-
+        
         if options.enablePersistingTracesWhenCrashing {
             features.append("persistingTracesWhenCrashing")
         }
@@ -49,7 +49,9 @@ import Foundation
         if options.experimental.enableUnhandledCPPExceptionsV2 {
             features.append("unhandledCPPExceptionsV2")
         }
-        features.append("metrics")
+        if options.enableMetrics {
+            features.append("metrics")
+        }
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         #if SDK_V10
         features.append("standaloneAppStartTracing")
@@ -59,9 +61,13 @@ import Foundation
         }
         #endif // SDK_V10
         #endif // os(iOS) || os(tvOS) || os(visionOS)
+        #if !SDK_V10
         if options.experimental.enableWatchdogTerminationsV2 {
             features.append("watchdogTerminationsV2")
         }
+        #elseif (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        features.append("watchdogTerminationsV2")
+        #endif
         if options.experimental.enableUIViewControllerInitSwizzling {
             features.append("uiViewControllerInitSwizzling")
         }

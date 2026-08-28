@@ -147,6 +147,14 @@
     /// drop the span.
     @objc public var beforeSendSpan: SentryBeforeSendSpanCallback?
 
+    #if !SDK_V10
+    /// When enabled, the SDK sends logs to Sentry. Logs can be captured using the SentrySDK.logger
+    /// API, which provides structured logging with attributes.
+    /// @note Default value is @c false.
+    /// @note In v10 and later, logs are always enabled. Remove this option when upgrading.
+    @objc public var enableLogs: Bool = false
+    #endif // !SDK_V10
+
     /// Use this callback to drop or modify a log before the SDK sends it to Sentry. Return nil to
     /// drop the log.
     @objc public var beforeSendLog: ((SentryLog) -> SentryLog?)?
@@ -359,6 +367,7 @@
     @objc public var enableStandaloneAppStartTracing: Bool = false
     #endif
 
+    #if !SDK_V10
     /// When enabled the SDK reports non-fully-blocking app hangs. A non-fully-blocking app hang is when
     /// the app appears stuck to the user but can still render a few frames.
     ///
@@ -369,6 +378,7 @@
     @_spi(Private) @objc public func isAppHangTrackingDisabled() -> Bool {
         !enableAppHangTracking || appHangTimeoutInterval <= 0
     }
+    #endif // !SDK_V10
 
     #endif
 
@@ -519,6 +529,7 @@
     /// @see <https://develop.sentry.dev/sdk/client-reports/>
     @objc public var sendClientReports: Bool = true
 
+    #if !SDK_V10
     /// When enabled, the SDK tracks when the application stops responding for a specific amount of
     /// time defined by the @c appHangTimeoutInterval option.
     ///
@@ -538,6 +549,7 @@
     /// @note The default is @c true.
     /// @note App Hang tracking is automatically disabled if a debugger is attached.
     @objc public var enableAppHangTracking: Bool = true
+    #endif // !SDK_V10
 
     /// The minimum amount of time an app should be unresponsive to be classified as an App Hanging.
     /// @note The actual amount may be a little longer.
@@ -751,6 +763,11 @@
 #endif // SDK_V10
 
     // MARK: - Integration: Metrics
+
+    /// When enabled, the SDK sends metrics to Sentry. Metrics can be captured using the ``SentrySDK/metrics``
+    /// API, which allows you to send, view and query counters, gauges and measurements.
+    /// @note Default value is @c true.
+    @objc public var enableMetrics: Bool = true
 
     /// Use this callback to drop or modify a metric before the SDK sends it to Sentry. Return nil to
     /// drop the metric.
