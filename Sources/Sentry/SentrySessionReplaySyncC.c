@@ -123,7 +123,7 @@ sentrySessionReplaySync_readInfo(SentryCrashReplay *output, const char *const pa
     struct stat fileInfo;
     const off_t replayTypeEndOffset
         = (off_t)(sizeof(segmentId) + sizeof(lastSegmentEnd) + sizeof(replayType));
-    // Replay type was appended to the file format, so older files end after lastSegmentEnd.
+    // Replay type was appended to the file format, so legacy files leave zero as unavailable.
     if (fstat(fd, &fileInfo) == 0 && fileInfo.st_size >= replayTypeEndOffset
         && !sentryFileIO_readBytesFromFD(fd, &replayType, sizeof(replayType))) {
         SENTRY_ASYNC_SAFE_LOG_ERROR("Error reading replay type from replay info crash file.");
