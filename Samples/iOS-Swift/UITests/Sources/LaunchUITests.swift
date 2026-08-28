@@ -1,6 +1,16 @@
+import SentrySampleShared
 import XCTest
 
 class LaunchUITests: BaseUITest {
+    override func newAppSession() -> XCUIApplication {
+        let app = super.newAppSession()
+        // Session Replay video encoding (AVAssetWriterInput → VideoToolbox dlopen) races with the
+        // profiler's backtrace_symbols on iOS 27 Simulator, causing a SIGBUS in map_images_nolock.
+        // LaunchUITests don't test replay, so disable it to avoid the flaky crash.
+        app.launchArguments.append(SentrySDKOverrides.Replay.disable.rawValue)
+        return app
+    }
+
 
     func testBreadcrumbData() {
         app.buttons["Extra"].tap()
