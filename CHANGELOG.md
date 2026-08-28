@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Expose continuous profiling configuration on `SentryObjCOptions` via `configureProfiling` and `SentryObjCProfileOptions` (#8881)
+
 ### Fixes
 
 - Prevent duplicate automatic HTTP spans and breadcrumbs for URLSession task wrappers (#8846)

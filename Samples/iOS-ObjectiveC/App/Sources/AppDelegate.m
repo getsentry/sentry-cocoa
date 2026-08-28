@@ -31,6 +31,21 @@
             options.tracesSampleRate = @([env[@"--io.sentry.tracesSampleRate"] doubleValue]);
         }
 
+        if (![args containsObject:@"--io.sentry.profiling.disable-ui-profiling"]) {
+            options.configureProfiling = ^(SentryObjCProfileOptions *_Nonnull profiling) {
+                profiling.lifecycle =
+                    [args containsObject:@"--io.sentry.profiling.profile-lifecycle-manual"]
+                    ? SentryObjCProfileLifecycleManual
+                    : SentryObjCProfileLifecycleTrace;
+
+                profiling.sessionSampleRate = 1.f;
+                if (env[@"--io.sentry.profiling.profile-session-sample-rate"] != nil) {
+                    profiling.sessionSampleRate =
+                        [env[@"--io.sentry.profiling.profile-session-sample-rate"] floatValue];
+                }
+            };
+        }
+
         SentryObjCHttpStatusCodeRange *httpStatusCodeRange =
             [[SentryObjCHttpStatusCodeRange alloc] initWithMin:400 max:599];
         options.failedRequestStatusCodes = @[ httpStatusCodeRange ];
