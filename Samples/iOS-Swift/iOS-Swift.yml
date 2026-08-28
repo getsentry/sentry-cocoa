@@ -75,8 +75,8 @@ targets:
       TestCI: App/Configurations/iOS-Swift.xcconfig
     settings:
       base:
-        GCC_PREPROCESSOR_DEFINITIONS: $(inherited) SDK_V10=1
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) SDK_V10
+        GCC_PREPROCESSOR_DEFINITIONS: $(inherited) SDK_V10=1 SENTRY_DISABLE_SENTRYCRASH_V10=1
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) SDK_V10 SENTRY_DISABLE_SENTRYCRASH_V10
     postCompileScripts:
       - script: ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
@@ -175,7 +175,7 @@ targets:
       TestCI: UITests/Configurations/iOS-Swift-UITests.xcconfig
     settings:
       base:
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) SDK_V10
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) SDK_V10 SENTRY_DISABLE_SENTRYCRASH_V10
   iOS-Swift-ShareExtension:
     type: app-extension
     platform: auto
@@ -217,8 +217,8 @@ targets:
       TestCI: ShareExtension/Configurations/iOS-Swift-ShareExtension.xcconfig
     settings:
       base:
-        GCC_PREPROCESSOR_DEFINITIONS: $(inherited) SDK_V10=1
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) SDK_V10
+        GCC_PREPROCESSOR_DEFINITIONS: $(inherited) SDK_V10=1 SENTRY_DISABLE_SENTRYCRASH_V10=1
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) SDK_V10 SENTRY_DISABLE_SENTRYCRASH_V10
   iOS-Swift-ActionExtension:
     type: app-extension
     platform: auto
@@ -260,8 +260,8 @@ targets:
       TestCI: ActionExtension/Configurations/iOS-Swift-ActionExtension.xcconfig
     settings:
       base:
-        GCC_PREPROCESSOR_DEFINITIONS: $(inherited) SDK_V10=1
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) SDK_V10
+        GCC_PREPROCESSOR_DEFINITIONS: $(inherited) SDK_V10=1 SENTRY_DISABLE_SENTRYCRASH_V10=1
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) SDK_V10 SENTRY_DISABLE_SENTRYCRASH_V10
   iOS-Swift-IntentExtension:
     type: app-extension
     platform: auto
@@ -303,8 +303,8 @@ targets:
       TestCI: IntentExtension/Configurations/iOS-Swift-IntentExtension.xcconfig
     settings:
       base:
-        GCC_PREPROCESSOR_DEFINITIONS: $(inherited) SDK_V10=1
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) SDK_V10
+        GCC_PREPROCESSOR_DEFINITIONS: $(inherited) SDK_V10=1 SENTRY_DISABLE_SENTRYCRASH_V10=1
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) SDK_V10 SENTRY_DISABLE_SENTRYCRASH_V10
   iOS-Swift-NotificationServiceExtension:
     type: app-extension
     platform: auto
@@ -346,8 +346,8 @@ targets:
       TestCI: NotificationServiceExtension/Configurations/iOS-Swift-NotificationServiceExtension.xcconfig
     settings:
       base:
-        GCC_PREPROCESSOR_DEFINITIONS: $(inherited) SDK_V10=1
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) SDK_V10
+        GCC_PREPROCESSOR_DEFINITIONS: $(inherited) SDK_V10=1 SENTRY_DISABLE_SENTRYCRASH_V10=1
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) SDK_V10 SENTRY_DISABLE_SENTRYCRASH_V10
 schemes:
   iOS-Swift:
     templates:
