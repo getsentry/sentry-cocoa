@@ -9,7 +9,7 @@ protocol SentryMetricsApiDependencies {
     var dateProvider: SentryCurrentDateProvider { get }
     var currentScopeStorage: SentryCurrentScopeStorage { get }
 
-    /// The integration is nullable as it might not be installed on the hub as expected.
+    /// The integration is nullable, meaning if it's not installed or not enabled, it will return nil
     var metricsIntegration: Integration? { get }
 }
 
@@ -45,7 +45,7 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
             return
         }
         guard let integration = dependencies.metricsIntegration else {
-            SentrySDKLog.fatal("Metric '\(name)' was not captured because metrics integrations is not available. This is a bug, please create an issue at https://github.com/getsentry/sentry-cocoa/issues")
+            SentrySDKLog.warning("Metric '\(name)' was not captured because metrics are disabled. Enable metrics by setting 'options.enableMetrics = true' when starting the SDK.")
             return
         }
 

@@ -6,7 +6,6 @@
 #import "SentryEvent+Private.h"
 #import "SentryInternalDefines.h"
 #import "SentryLevel.h"
-#import "SentryLevelMapper.h"
 #import "SentryLogC.h"
 #import "SentryScope+Private.h"
 #import "SentryScope+PrivateSwift.h"
@@ -65,6 +64,16 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
         _propagationContextLock = [[NSObject alloc] init];
         self.observers = [[NSMutableArray alloc] init];
         self.propagationContext = [[SentryPropagationContext alloc] init];
+    }
+    return self;
+}
+
+- (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
+                       maxFeatureFlags:(NSInteger)maxFeatureFlags
+{
+    if (self = [self initWithMaxBreadcrumbs:maxBreadcrumbs]) {
+        _featureFlagBuffer =
+            [SentryFeatureFlagBufferWrapper scopeBufferWithMaxSize:MAX(0, maxFeatureFlags)];
     }
     return self;
 }
@@ -582,7 +591,7 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
 
     SentryLevel level = self.levelEnum;
     if (level != kSentryLevelNone) {
-        [serializedData setValue:nameForSentryLevel(level) forKey:@"level"];
+        [serializedData setValue:[SentryLevelHelper nameForLevel:level] forKey:@"level"];
     }
     NSArray *crumbs = [self serializeBreadcrumbs];
     if (crumbs.count > 0) {

@@ -1,3 +1,3 @@
 // Temporary legacy Tool implementations still required by reporter-neutral V10 SDK features.
 // Keep this list explicit and remove entries as their consumers migrate off SentryCrash.
-SENTRYCRASH_V10_RETAINED_TOOL_SOURCE_FILE_NAMES = SentryCrashCPU.c SentryCrashCPU_arm.c SentryCrashCPU_arm64.c SentryCrashCPU_x86_32.c SentryCrashCPU_x86_64.c SentryCrashFileUtils.c SentryCrashJSONCodec.c SentryCrashMachineContext.c SentryCrashMemory.c SentryCrashStackCursor.c SentryCrashStackCursor_Backtrace.c SentryCrashStackCursor_MachineContext.c SentryCrashStackCursor_SelfThread.m SentryCrashSysCtl.c SentryCrashThread.c SentryCrashUUIDConversion.c
+SENTRYCRASH_V10_RETAINED_TOOL_SOURCE_FILE_NAMES = SentryCrashCPU.c SentryCrashCPU_arm.c SentryCrashCPU_arm64.c SentryCrashCPU_x86_32.c SentryCrashCPU_x86_64.c SentryCrashMachineContext.c SentryCrashMemory.c SentryCrashStackCursor.c SentryCrashStackCursor_MachineContext.c SentryCrashThread.c

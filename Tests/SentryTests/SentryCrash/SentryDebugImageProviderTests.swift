@@ -2,6 +2,12 @@
 @_spi(Private) @testable import SentryTestUtils
 import XCTest
 
+private final class NoOpBinaryImageProvider: SentryBinaryImageProvider {
+    func start(registry: SentryBinaryImageRegistry) { }
+    func refresh() { }
+    func stop() { }
+}
+
 /**
  * Some of the test parameters are copied from debugging
  * SentryCrashReportConverter.convertDebugMeta.
@@ -13,7 +19,7 @@ class SentryDebugImageProviderTests: XCTestCase {
         let cache: SentryBinaryImageCache
         
         init() {
-            cache = SentryBinaryImageCache()
+            cache = SentryBinaryImageCache(provider: NoOpBinaryImageProvider())
         }
         
         func getSut(images: [SentryCrashBinaryImage] = []) -> SentryDebugImageProvider {

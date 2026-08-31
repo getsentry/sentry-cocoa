@@ -99,7 +99,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                           locale:[NSLocale autoupdatingCurrentLocale]
                         timezone:[NSCalendar autoupdatingCurrentCalendar].timeZone
             eventContextEnricher:dependencies.eventContextEnricher
-                    crashWrapper:dependencies.crashWrapper
                 binaryImageCache:dependencies.binaryImageCache
             dispatchQueueWrapper:dependencies.dispatchQueueWrapper
              currentScopeStorage:dependencies.currentScopeStorage];
@@ -115,7 +114,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                          locale:(NSLocale *)locale
                        timezone:(NSTimeZone *)timezone
            eventContextEnricher:(id<SentryEventContextEnricher>)eventContextEnricher
-                   crashWrapper:(id<SentryCrashReporter>)crashWrapper
                binaryImageCache:(SentryBinaryImageCache *)binaryImageCache
            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
@@ -129,7 +127,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                           locale:locale
                         timezone:timezone
             eventContextEnricher:eventContextEnricher
-                    crashWrapper:crashWrapper
                 binaryImageCache:binaryImageCache
             dispatchQueueWrapper:dispatchQueueWrapper
              currentScopeStorage:SentryDependencyContainer.sharedInstance.currentScopeStorage];
@@ -145,7 +142,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                          locale:(NSLocale *)locale
                        timezone:(NSTimeZone *)timezone
            eventContextEnricher:(id<SentryEventContextEnricher>)eventContextEnricher
-                   crashWrapper:(id<SentryCrashReporter>)crashWrapper
                binaryImageCache:(SentryBinaryImageCache *)binaryImageCache
            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
             currentScopeStorage:(SentryCurrentScopeStorage *)currentScopeStorage
@@ -181,7 +177,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                                    cacheDirectoryPath:options.cacheDirectoryPath
                                                shouldAddDefaultUserId:shouldAddDefaultUserId];
 
-        [crashWrapper startBinaryImageCache];
         [binaryImageCache start:options.debug];
 
         // The SDK stores the installationID in a file. The first call requires file IO. To avoid
@@ -1306,19 +1301,22 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         return;
     }
 
+#if !SDK_V10
+    if (self.options.enableLogs == NO) {
+        SENTRY_LOG_DEBUG(@"Dropping log, because the option enableLogs is false.");
+        return;
+    }
+#endif // !SDK_V10
+
     if (![log isKindOfClass:[SentryLog class]]) {
         return;
     }
 
-    // Merge the current scope's custom attributes before applying the global scope so the
-    // precedence is: caller attributes > current scope > global scope. Only custom attributes
-    // are taken from the current scope; user and trace correlation stay on the global scope.
-    SentryLog *enrichedLog = (SentryLog *)log;
-    if (currentScope != nil) {
-        enrichedLog = [self.logScopeApplier applyScopeAttributes:(SentryScope *_Nonnull)currentScope
-                                                           toLog:enrichedLog];
-    }
-    enrichedLog = [self.logScopeApplier applyScope:scope toLog:enrichedLog];
+    // Custom attribute precedence: caller > current scope > global scope. Trace correlation,
+    // user, and the other reserved attributes come from the global scope only.
+    SentryLog *enrichedLog = [self.logScopeApplier applyScope:scope
+                                                 currentScope:currentScope
+                                                        toLog:(SentryLog *)log];
     SentryLog *logToSend = enrichedLog;
 
     if (self.options.beforeSendLog != nil) {

@@ -14,9 +14,9 @@ class SentryClientReportTests: XCTestCase {
     func testSerialize() throws {
         SentryDependencyContainer.sharedInstance().dateProvider = TestCurrentDateProvider()
         
-        let event1 = SentryDiscardedEvent(reason: nameForSentryDiscardReason(.sampleRate), category: SentryDataCategory.transaction.name, quantity: 2)
-        let event2 = SentryDiscardedEvent(reason: nameForSentryDiscardReason(.beforeSend), category: SentryDataCategory.transaction.name, quantity: 3)
-        let event3 = SentryDiscardedEvent(reason: nameForSentryDiscardReason(.rateLimitBackoff), category: SentryDataCategory.error.name, quantity: 1)
+        let event1 = SentryDiscardedEvent(reason: SentryDiscardReason.sampleRate.name, category: SentryDataCategory.transaction.name, quantity: 2)
+        let event2 = SentryDiscardedEvent(reason: SentryDiscardReason.beforeSend.name, category: SentryDataCategory.transaction.name, quantity: 3)
+        let event3 = SentryDiscardedEvent(reason: SentryDiscardReason.rateLimitBackoff.name, category: SentryDataCategory.error.name, quantity: 1)
         
         let report = SentryClientReport(discardedEvents: [event1, event2, event3], dateProvider: SentryDependencyContainer.sharedInstance().dateProvider)
         

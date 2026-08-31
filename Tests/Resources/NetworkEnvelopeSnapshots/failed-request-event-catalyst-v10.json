@@ -29,7 +29,15 @@
           "app": {
             "app_memory": "<runtime-value>",
             "in_foreground": "<runtime-value>",
-            "is_active": "<runtime-value>"
+            "is_active": "<runtime-value>",
+            "app_build": "<runtime-value>",
+            "app_id": "<runtime-value>",
+            "app_identifier": "<runtime-value>",
+            "app_name": "<runtime-value>",
+            "app_start_time": "<runtime-value>",
+            "app_version": "<runtime-value>",
+            "build_type": "<runtime-value>",
+            "device_app_hash": "<runtime-value>"
           },
           "culture": {
             "calendar": "<runtime-value>",
@@ -44,7 +52,15 @@
             "free_memory": "<runtime-value>",
             "low_power_mode": "<runtime-value>",
             "processor_count": "<runtime-value>",
-            "thermal_state": "<runtime-value>"
+            "thermal_state": "<runtime-value>",
+            "arch": "<runtime-value>",
+            "family": "<runtime-value>",
+            "mac_catalyst_app": "<runtime-value>",
+            "memory_size": "<runtime-value>",
+            "model": "<runtime-value>",
+            "model_id": "<runtime-value>",
+            "simulator": "<runtime-value>",
+            "usable_memory": "<runtime-value>"
           },
           "response": {
             "body_size": 37,
@@ -60,8 +76,20 @@
           "trace": {
             "span_id": "<span-id>",
             "trace_id": "<trace-id>"
+          },
+          "os": {
+            "build": "<runtime-value>",
+            "kernel_version": "<runtime-value>",
+            "name": "<runtime-value>",
+            "rooted": "<runtime-value>",
+            "version": "<runtime-value>"
+          },
+          "runtime": {
+            "name": "Mac Catalyst App",
+            "raw_description": "mac-catalyst-app"
           }
         },
+        "debug_meta": "<debug-meta>",
         "dist": "<runtime-value>",
         "environment": "test",
         "event_id": "<event-id>",

@@ -11,7 +11,9 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
     private let scopeMetaData: SentryDefaultScopeApplyingMetadata
     private let beforeSendMetric: ((SentryMetric) -> SentryMetric?)?
 
-    init(with options: Options, dependencies _: Dependencies) {
+    init?(with options: Options, dependencies _: Dependencies) {
+        guard options.enableMetrics else { return nil }
+
 #if SDK_V10
         let shouldAddDefaultUserId = options.dataCollection.userInfo
 #else
@@ -57,21 +59,12 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
         }
 
         var mutableMetric = metric
-        // Merge the current scope's custom attributes before applying the global scope so the
-        // precedence is: caller attributes > current scope > global scope. Only custom attributes
-        // are taken from the current scope; user, span, and trace correlation stay on the global
-        // scope, which addAttributesToItem applies below.
-        if let currentScope {
-            var attributes = mutableMetric.attributesDict
-            for (key, value) in currentScope.attributesDict where attributes[key] == nil {
-                attributes[key] = value
-            }
-            mutableMetric.attributesDict = attributes
-        }
-        scope.addAttributesToItem(&mutableMetric, metadata: self.scopeMetaData)
+        // Custom attribute precedence: caller > current scope > global scope. Trace correlation,
+        // user, and the other reserved attributes come from the global scope only.
+        scope.addAttributesToItem(&mutableMetric, metadata: self.scopeMetaData, currentScope: currentScope)
 
         if let beforeSendMetric = beforeSendMetric {
-            // Create a non-mutated copy of the metric, because it could be modified by the SDK user's `beforeSendMetric`
+            // Create a non-mutated copy of the metric, because it could be modified by the SDK user's `beforeSendMetric` 
             let metricToSend = mutableMetric
             guard let processedItem = beforeSendMetric(mutableMetric) else {
                 SentrySDKLog.debug("Metric dropped by beforeSendMetric callback.")

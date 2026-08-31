@@ -2019,6 +2019,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "enableLogs",
+    "parent": "SentryObjCOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "enableMemoryIntrospection",
     "parent": "SentryObjCOptions",
     "returnType": "BOOL",
@@ -2034,6 +2041,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "enableMetricKitRawPayload",
+    "parent": "SentryObjCOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "enableMetrics",
     "parent": "SentryObjCOptions",
     "returnType": "BOOL",
     "instance": true
@@ -4021,6 +4035,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "maxFeatureFlags",
+    "parent": "SentryObjCOptions",
+    "returnType": "NSUInteger",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "measurementWithSpans",
     "parent": "SentryObjCInternalAppStartApi",
     "returnType": "NSDictionary<NSString *,id> * _Nullable",
@@ -5911,6 +5932,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setEnableLogs:",
+    "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setEnableMemoryIntrospection:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
@@ -5926,6 +5954,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setEnableMetricKitRawPayload:",
+    "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setEnableMetrics:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
     "instance": true
@@ -6507,6 +6542,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setMaxCacheItems:",
+    "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setMaxFeatureFlags:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
     "instance": true
@@ -9209,6 +9251,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "enableLogs",
+    "parent": "SentryObjCOptions",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "enableMemoryIntrospection",
     "parent": "SentryObjCOptions",
     "type": "BOOL"
@@ -9222,6 +9270,12 @@
   {
     "kind": "ObjCPropertyDecl",
     "name": "enableMetricKitRawPayload",
+    "parent": "SentryObjCOptions",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "enableMetrics",
     "parent": "SentryObjCOptions",
     "type": "BOOL"
   },
@@ -9918,6 +9972,12 @@
   {
     "kind": "ObjCPropertyDecl",
     "name": "maxCacheItems",
+    "parent": "SentryObjCOptions",
+    "type": "NSUInteger"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "maxFeatureFlags",
     "parent": "SentryObjCOptions",
     "type": "NSUInteger"
   },

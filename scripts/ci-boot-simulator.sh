@@ -8,6 +8,7 @@
 # - https://github.com/actions/runner-images/blob/main/images/macos/macos-14-Readme.md
 # - https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md
 # - https://github.com/actions/runner-images/blob/main/images/macos/macos-26-arm64-Readme.md
+# - https://github.com/actions/runner-images/blob/main/images/macos/xcode-27-arm64-Readme.md
 
 set -euo pipefail
 
@@ -196,15 +197,33 @@ for attempt in $(seq 1 $MAX_BOOT_ATTEMPTS); do
         log_info "Simulator boot command executed successfully"
     fi
     
-    # Open Simulator app UI (only on first attempt)
+    # Open the selected simulator UI on the first attempt so CI screenshots show relevant device state.
     if [ "$attempt" -eq 1 ]; then
-        log_info "Opening Simulator app UI"
-        SIMULATOR_APP_PATH="$(xcode-select -p)/Applications/Simulator.app"
-        if ! open "$SIMULATOR_APP_PATH"; then
-            log_error "Failed to open Simulator app at $SIMULATOR_APP_PATH"
-            exit 1
+        DEVELOPER_DIR="$(xcode-select -p)"
+        SIMULATOR_APP_PATH="$DEVELOPER_DIR/Applications/Simulator.app"
+        DEVICE_HUB_APP_PATH="$(dirname "$DEVELOPER_DIR")/Applications/DeviceHub.app"
+
+        if [ -d "$SIMULATOR_APP_PATH" ]; then
+            log_info "Opening Simulator app UI"
+            if ! open "$SIMULATOR_APP_PATH"; then
+                log_error "Failed to open Simulator app at $SIMULATOR_APP_PATH"
+                exit 1
+            fi
+            log_info "Simulator app opened successfully"
+        elif [ -d "$DEVICE_HUB_APP_PATH" ]; then
+            log_info "Opening Device Hub for simulator $UDID"
+            if ! open "$DEVICE_HUB_APP_PATH"; then
+                log_error "Failed to open Device Hub at $DEVICE_HUB_APP_PATH"
+                exit 1
+            fi
+            if ! open "devices://device/open?id=$UDID"; then
+                log_error "Failed to focus simulator $UDID in Device Hub"
+                exit 1
+            fi
+            log_info "Device Hub opened successfully"
+        else
+            log_info "No simulator UI app is bundled with this Xcode; continuing with simctl"
         fi
-        log_info "Simulator app opened successfully"
     fi
     
     # Wait for simulator to fully boot with timeout

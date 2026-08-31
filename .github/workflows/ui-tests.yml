@@ -34,7 +34,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Get changed files
         id: changes
-        uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         with:
           token: ${{ github.token }}
           filters: .github/file-filters.yml
@@ -92,6 +92,7 @@ jobs:
           - ios_17
           - ios_18
           - ios_26
+          - ios_27
         include:
           - job_id: ios_17
             name: iOS 17
@@ -112,12 +113,23 @@ jobs:
             runs_on: tahoe
             xcode: "26"
             platform: "iOS"
+
+          # TODO: Remove continue_on_error once Xcode 27 and the iOS 27 simulator runtime are stable.
+          - job_id: ios_27
+            name: iOS 27
+            runs_on: xcode-beta
+            xcode: "27"
+            allow_prerelease: true
+            continue_on_error: true
+            platform: "iOS"
     with:
       fastlane_command: ui_tests_ios_swift
       files_suffix: _xcode_${{matrix.xcode}}-${{matrix.device}}
       build_with_make: true
       macos_version: ${{matrix.runs_on}}
       xcode_version: ${{ matrix.xcode}}
+      allow_prerelease: ${{matrix.allow_prerelease || false}}
+      continue_on_error: ${{matrix.continue_on_error || false}}
       test-destination-os: ${{matrix.test_destination_os}}
       platform: ${{matrix.platform}}
       device: ${{matrix.device}}

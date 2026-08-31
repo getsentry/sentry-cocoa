@@ -42,7 +42,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Get changed files
         id: changes
-        uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         with:
           token: ${{ github.token }}
           filters: .github/file-filters.yml
@@ -261,6 +261,8 @@ jobs:
       timeout: ${{matrix.timeout || 20}}
       should_skip: ${{ github.event_name == 'pull_request' && needs.files-changed.outputs.run_unit_tests_for_prs != 'true' }}
       xcode: ${{matrix.xcode}}
+      allow_prerelease: ${{matrix.allow_prerelease || false}}
+      continue_on_error: ${{matrix.continue_on_error || false}}
       test-destination-os: ${{matrix.test-destination-os}}
       platform: ${{matrix.platform}}
       device: ${{matrix.device || ''}}
@@ -268,7 +270,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Can't run tests on watchOS because XCTest is not available
+        # watchOS unit tests run in nightly-test.yml to keep the regular CI matrix focused.
         include:
           # We are running tests on iOS 17 and later, as there were OS-internal changes introduced in succeeding versions.
 
@@ -290,6 +292,17 @@ jobs:
           - name: iOS 26 Sentry
             runs-on: tahoe
             xcode: "26"
+            platform: "iOS"
+
+          # The xcode-beta Bitrise pool includes Xcode 27 and the matching simulator runtimes:
+          # https://docs.bitrise.io/en/bitrise-platform/infrastructure/build-stacks/macos-stack-update-policy
+          # TODO: Remove continue_on_error once Xcode 27 and the xOS 27 simulator runtimes are stable.
+          # iOS 27
+          - name: iOS 27 Sentry
+            runs-on: xcode-beta
+            xcode: "27"
+            allow_prerelease: true
+            continue_on_error: true
             platform: "iOS"
 
           # We don't run the unit tests on macOS 13 cause we run them on all on GH actions available iOS versions.
@@ -314,6 +327,9 @@ jobs:
             xcode: "26"
             platform: "macOS"
 
+          # We can compile with Xcode 27 and the macOS 27 SDK, but can't run macOS 27 tests because
+          # the xcode-beta Bitrise runner uses macOS 26 and macOS has no simulator.
+
           # Catalyst. We test the latest version, as the risk something breaking on Catalyst and not
           # on an older iOS or macOS version is low.
 
@@ -334,6 +350,9 @@ jobs:
             runs-on: tahoe
             xcode: "26"
             platform: "Catalyst"
+
+          # We can compile Catalyst with Xcode 27 and SDK 27, but can't test against a macOS 27 runtime
+          # because Catalyst tests execute on the xcode-beta Bitrise runner's macOS 26 host.
 
           # We don't run the unit tests on tvOS 16 cause we run them on all on GH actions available iOS versions.
           # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, tvOS 15 or tvOS 16 is minimal.
@@ -359,12 +378,30 @@ jobs:
             platform: "tvOS"
             device: "Apple TV"
 
+          # tvOS 27
+          - name: tvOS 27 Sentry
+            runs-on: xcode-beta
+            xcode: "27"
+            allow_prerelease: true
+            continue_on_error: true
+            platform: "tvOS"
+            device: "Apple TV 4K (3rd generation)"
+
           # visionOS 26
           - name: visionOS 26 Sentry
             runs-on: tahoe
             xcode: "26"
             platform: "visionOS"
             timeout: 30
+
+          # visionOS 27
+          - name: visionOS 27 Sentry
+            runs-on: xcode-beta
+            xcode: "27"
+            allow_prerelease: true
+            continue_on_error: true
+            platform: "visionOS"
+            timeout: 60
 
   # This check validates that either all unit tests passed or were skipped, which allows us
   # to make unit tests a required check with only running the unit tests when required.

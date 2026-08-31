@@ -216,8 +216,10 @@ public struct SentrySDKWrapper {
         options.attachViewHierarchy = !SentrySDKOverrides.ViewHierarchy.disableAttachment.boolValue
 #endif // !os(macOS) && !os(watchOS)
 
+        #if !SDK_V10
         // disable during benchmarks because we run CPU for 15 seconds at full throttle which can trigger ANRs
         options.enableAppHangTracking = !isBenchmarking && !SentrySDKOverrides.AppHangs.disableTracking.boolValue
+        #endif // !SDK_V10
 
         // UI tests generate false OOMs
         options.enableWatchdogTerminationTracking = !isUITest && !isBenchmarking && !SentrySDKOverrides.WatchdogTerminations.disableTracking.boolValue
@@ -267,7 +269,13 @@ public struct SentrySDKWrapper {
         options.configureUserFeedback = configureFeedback(config:)
 #endif // !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
 
+        // Integration: Logs
+        #if !SDK_V10
+        options.enableLogs = !SentrySDKOverrides.Logs.disable.boolValue
+        #endif // !SDK_V10
+
         // Integration: Metrics
+        options.enableMetrics = SentrySDKOverrides.Metrics.enable.boolValue
         options.beforeSendMetric = { metric in
             // Modify the metric in the callback
             var modifiedMetric = metric
@@ -288,8 +296,10 @@ public struct SentrySDKWrapper {
         options.enableFileManagerSwizzling = !SentrySDKOverrides.FileIO.disableFileManagerSwizzling.boolValue
         options.experimental.enableUnhandledCPPExceptionsV2 =
             !SentrySDKOverrides.Crash.disableUnhandledCPPExceptionsV2.boolValue
+        #if !SDK_V10
         options.experimental.enableWatchdogTerminationsV2 =
             !SentrySDKOverrides.WatchdogTerminations.disableV2.boolValue
+        #endif // !SDK_V10
 #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
         options.enableUncaughtNSExceptionReporting =
             !SentrySDKOverrides.Crash.disableUncaughtNSExceptionReporting.boolValue

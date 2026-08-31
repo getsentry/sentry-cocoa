@@ -2035,13 +2035,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "enableAppHangTracking",
-    "parent": "SentryObjCOptions",
-    "returnType": "BOOL",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "enableAutoBreadcrumbTracking",
     "parent": "SentryObjCOptions",
     "returnType": "BOOL",
@@ -2140,6 +2133,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "enableMetrics",
+    "parent": "SentryObjCOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "enableNetworkBreadcrumbs",
     "parent": "SentryObjCOptions",
     "returnType": "BOOL",
@@ -2176,13 +2176,6 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "enablePropagateTraceparent",
-    "parent": "SentryObjCOptions",
-    "returnType": "BOOL",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "enableReportNonFullyBlockingAppHangs",
     "parent": "SentryObjCOptions",
     "returnType": "BOOL",
     "instance": true
@@ -2261,13 +2254,6 @@
     "kind": "ObjCMethodDecl",
     "name": "enableWatchdogTerminationTracking",
     "parent": "SentryObjCOptions",
-    "returnType": "BOOL",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "enableWatchdogTerminationsV2",
-    "parent": "SentryObjCExperimentalOptions",
     "returnType": "BOOL",
     "instance": true
   },
@@ -4156,6 +4142,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "maxFeatureFlags",
+    "parent": "SentryObjCOptions",
+    "returnType": "NSUInteger",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "measurementWithSpans",
     "parent": "SentryObjCInternalAppStartApi",
     "returnType": "NSDictionary<NSString *,id> * _Nullable",
@@ -4982,13 +4975,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "pauseAppHangTracking",
-    "parent": "SentryObjCSDK",
-    "returnType": "void",
-    "instance": false
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "pebibyte",
     "parent": "SentryObjCMeasurementUnit",
     "returnType": "SentryObjCMeasurementUnit * _Nonnull",
@@ -5287,13 +5273,6 @@
     "parent": "SentryObjCReplayApi",
     "returnType": "void",
     "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "resumeAppHangTracking",
-    "parent": "SentryObjCSDK",
-    "returnType": "void",
-    "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
@@ -6004,13 +5983,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "setEnableAppHangTracking:",
-    "parent": "SentryObjCOptions",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "setEnableAutoBreadcrumbTracking:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
@@ -6109,6 +6081,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setEnableMetrics:",
+    "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setEnableNetworkBreadcrumbs:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
@@ -6138,13 +6117,6 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setEnablePropagateTraceparent:",
-    "parent": "SentryObjCOptions",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "setEnableReportNonFullyBlockingAppHangs:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
     "instance": true
@@ -6223,13 +6195,6 @@
     "kind": "ObjCMethodDecl",
     "name": "setEnableWatchdogTerminationTracking:",
     "parent": "SentryObjCOptions",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "setEnableWatchdogTerminationsV2:",
-    "parent": "SentryObjCExperimentalOptions",
     "returnType": "void",
     "instance": true
   },
@@ -6691,6 +6656,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setMaxCacheItems:",
+    "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setMaxFeatureFlags:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
     "instance": true
@@ -9355,12 +9327,6 @@
   },
   {
     "kind": "ObjCPropertyDecl",
-    "name": "enableAppHangTracking",
-    "parent": "SentryObjCOptions",
-    "type": "BOOL"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
     "name": "enableAutoBreadcrumbTracking",
     "parent": "SentryObjCOptions",
     "type": "BOOL"
@@ -9445,6 +9411,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "enableMetrics",
+    "parent": "SentryObjCOptions",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "enableNetworkBreadcrumbs",
     "parent": "SentryObjCOptions",
     "type": "BOOL"
@@ -9470,12 +9442,6 @@
   {
     "kind": "ObjCPropertyDecl",
     "name": "enablePropagateTraceparent",
-    "parent": "SentryObjCOptions",
-    "type": "BOOL"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
-    "name": "enableReportNonFullyBlockingAppHangs",
     "parent": "SentryObjCOptions",
     "type": "BOOL"
   },
@@ -9543,12 +9509,6 @@
     "kind": "ObjCPropertyDecl",
     "name": "enableWatchdogTerminationTracking",
     "parent": "SentryObjCOptions",
-    "type": "BOOL"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
-    "name": "enableWatchdogTerminationsV2",
-    "parent": "SentryObjCExperimentalOptions",
     "type": "BOOL"
   },
   {
@@ -10142,6 +10102,12 @@
   {
     "kind": "ObjCPropertyDecl",
     "name": "maxCacheItems",
+    "parent": "SentryObjCOptions",
+    "type": "NSUInteger"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "maxFeatureFlags",
     "parent": "SentryObjCOptions",
     "type": "NSUInteger"
   },

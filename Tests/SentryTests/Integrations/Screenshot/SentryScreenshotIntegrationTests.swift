@@ -243,6 +243,7 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         
     }
     
+    #if !SDK_V10
     func test_backgroundForAppHangs() throws {
         let sut = try fixture.getSut()
         defer {
@@ -265,6 +266,7 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         
         wait(for: [ex], timeout: 1)
     }
+    #endif // !SDK_V10
     
 }
 

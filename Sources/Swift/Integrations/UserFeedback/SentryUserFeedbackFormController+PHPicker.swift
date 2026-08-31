@@ -164,8 +164,9 @@ extension SentryUserFeedbackFormController {
 
             // PHPicker's compatible mode should normally provide JPEG for formats such as HEIC.
             // Encode a fallback so future or third-party providers cannot create an attachment
-            // that Sentry stores but cannot preview.
-            guard let jpegData = image.jpegData(compressionQuality: 0.85) else {
+            // that Sentry stores but cannot preview. Use quality 1.0 so the fallback does not
+            // introduce avoidable compression artifacts.
+            guard let jpegData = image.jpegData(compressionQuality: 1.0) else {
                 SentrySDKLog.error("Failed to encode the screenshot selected for user feedback as JPEG.")
                 return nil
             }
