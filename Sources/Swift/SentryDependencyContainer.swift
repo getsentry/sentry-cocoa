@@ -18,13 +18,17 @@ let defaultApplicationProvider: () -> SentryApplication? = {
 }
 
 // MARK: - Extensions
-
 extension SentryFileManager: SentryFileManagerProtocol { }
+
+#if !SDK_V10
 @_spi(Private) extension SentryANRTrackerV1: SentryANRTrackerInternalProtocol { }
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 @_spi(Private) extension SentryANRTrackerV2: SentryANRTrackerInternalProtocol { }
+#endif
+#endif
 
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 @_spi(Private) extension SentryDelayedFramesTracker: SentryDelayedFramesTrackerWrapper {
     func getFramesDelay(_ startSystemTimestamp: UInt64, endSystemTimestamp: UInt64, isRunning: Bool, slowFrameThreshold: CFTimeInterval) -> SentryFramesDelayResult {
         let objcResult = getFramesDelayObjC(startSystemTimestamp, endSystemTimestamp: endSystemTimestamp, isRunning: isRunning, slowFrameThreshold: slowFrameThreshold)
@@ -122,6 +126,8 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     func getSessionTracker(with options: Options) -> SessionTracker {
         return SessionTracker(options: options, applicationProvider: defaultApplicationProvider, dateProvider: dateProvider, notificationCenter: notificationCenterWrapper, dispatchQueue: sessionDispatchQueue)
     }
+
+    @objc public var currentScopeStorage = SentryCurrentScopeStorage()
 
     @objc public var dispatchQueueWrapper = Dependencies.dispatchQueueWrapper
     @objc public var random = Dependencies.random
@@ -548,6 +554,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     }
 #endif // !SDK_V10
 
+    #if !SDK_V10
     private var anrTracker: SentryANRTracker?
     @objc public func getANRTracker(_ timeout: TimeInterval) -> SentryANRTracker {
         getLazyVar(\.anrTracker) {
@@ -558,6 +565,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         #endif
         }
     }
+    #endif
 
 #if !SDK_V10
     private var crashInstallationReporter: SentryCrashInstallationReporter?
@@ -642,6 +650,10 @@ protocol HubProvider {
     var hub: Hub { get }
 }
 
+protocol CurrentScopeStorageProvider {
+    var currentScopeStorage: SentryCurrentScopeStorage { get }
+}
+
 /// DefaultHub is a temporary abstraction around the ``SentryHubInternal.h``
 private struct DefaultHub: Hub {
     func configureScope(_ callback: @escaping (Scope) -> Void) {
@@ -679,11 +691,14 @@ private struct DefaultHub: Hub {
     var scope: Scope {
         SentrySDKInternal.currentHub().scope
     }
+
 }
 
 extension SentryDependencyContainer: HubProvider {
     var hub: Hub { DefaultHub() }
 }
+
+extension SentryDependencyContainer: CurrentScopeStorageProvider {}
 
 protocol DateProviderProvider {
     var dateProvider: SentryCurrentDateProvider { get }
@@ -972,10 +987,12 @@ protocol ThreadInspectorProvider {
 }
 extension SentryDependencyContainer: ThreadInspectorProvider { }
 
+#if !SDK_V10
 protocol ANRTrackerBuilder {
     func getANRTracker(_ interval: TimeInterval) -> SentryANRTracker
 }
 extension SentryDependencyContainer: ANRTrackerBuilder { }
+#endif
 
 protocol ProcessInfoProvider {
     var processInfoWrapper: SentryProcessInfoSource { get }

@@ -92,6 +92,8 @@ forbidden_symbols=(
   sentryErrorWithDomain
   sentrycrashobjc_objectType
   sentrycrashsignal_signalName
+  sentrycrashsc_initSelfThread
+  sentrycrashsc_initWithBacktrace
   sentrycrashstring_extractHexValue
 )
 for symbol in "${forbidden_symbols[@]}"; do

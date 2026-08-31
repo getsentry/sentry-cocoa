@@ -119,7 +119,9 @@ class ExtraViewController: UIViewController {
     }
 
     @IBAction func getPasteBoardString(_ sender: Any) {
+        #if !SDK_V10
         SentrySDK.pauseAppHangTracking()
+        #endif // !SDK_V10
 
         // Getting the pasteboard string asks for permission
         // and the SDK would detect an ANR if we don't pause it.
@@ -130,7 +132,9 @@ class ExtraViewController: UIViewController {
             SentrySDK.capture(message: clipboard)
         }
 
+        #if !SDK_V10
         SentrySDK.resumeAppHangTracking()
+        #endif // !SDK_V10
     }
 
     @IBAction func start100Threads(_ sender: UIButton) {

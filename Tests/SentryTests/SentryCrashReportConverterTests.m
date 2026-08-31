@@ -12,6 +12,7 @@
 #import "SentryThread.h"
 #import "SentryUser.h"
 #import <XCTest/XCTest.h>
+#import <stdint.h>
 @import Sentry;
 
 @interface SentryCrashReportConverterTests : XCTestCase
@@ -889,6 +890,41 @@
     XCTAssertEqual(event.threads.count, 1);
     XCTAssertNil(event.threads.firstObject.threadId);
     XCTAssertEqual(event.threads.firstObject.isMain.boolValue, NO);
+}
+
+- (void)testLegacyAsyncStackTraceMarker_whenConvertingPersistedReport_shouldPreserveStackStart
+{
+    // -- Arrange --
+    NSDictionary *report = @{
+        @"crash" : @ {
+            @"threads" : @[ @{
+                @"index" : @0,
+                @"crashed" : @NO,
+                @"current_thread" : @NO,
+                @"backtrace" : @ {
+                    @"contents" : @[
+                        @{ @"instruction_addr" : @0x1000, @"symbol_addr" : @0x1000 },
+                        @{ @"instruction_addr" : @(UINTPTR_MAX - 1234) },
+                        @{ @"instruction_addr" : @0x2000, @"symbol_addr" : @0x2000 },
+                    ]
+                }
+            } ],
+            @"error" : @ { @"type" : @"signal" }
+        },
+        @"binary_images" : @[],
+        @"system" : @ { @"application_stats" : @ { @"application_in_foreground" : @YES } }
+    };
+
+    // -- Act --
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:report inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    // -- Assert --
+    NSArray<SentryFrame *> *frames = event.threads.firstObject.stacktrace.frames;
+    XCTAssertEqual(frames.count, 2);
+    XCTAssertNil(frames.firstObject.stackStart);
+    XCTAssertEqualObjects(frames.lastObject.stackStart, @YES);
 }
 
 - (void)testThreadWithInvalidIndexTypes_ShouldReturnNil

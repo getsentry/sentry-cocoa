@@ -18,8 +18,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic) BOOL enableUnhandledCPPExceptionsV2;
 
+#if !SDK_V10
 /// When enabled, the SDK uses a more efficient mechanism for detecting watchdog terminations.
 @property (nonatomic) BOOL enableWatchdogTerminationsV2;
+#endif
 
 /**
  * Reduces SDK start overhead by swizzling each @c UIViewController subclass lazily, the first time
