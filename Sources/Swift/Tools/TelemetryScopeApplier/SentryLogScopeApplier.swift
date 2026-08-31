@@ -27,16 +27,6 @@ public class SentryDefaultLogScopeApplier: NSObject, SentryLogScopeApplier {
         scope.addAttributesToItem(&mutableLog, metadata: metadata, currentScope: currentScope)
         return mutableLog
     }
-
-    @objc public func applyScopeAttributes(_ scope: Scope, toLog log: SentryLog) -> SentryLog {
-        let mutableLog = log
-        var attributes = mutableLog.attributesDict
-        for (key, value) in scope.attributesDict where attributes[key] == nil {
-            attributes[key] = value
-        }
-        mutableLog.attributesDict = attributes
-        return mutableLog
-    }
 }
 
 // swiftlint:enable missing_docs
