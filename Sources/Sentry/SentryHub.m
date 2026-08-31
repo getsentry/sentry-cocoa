@@ -36,6 +36,8 @@ NS_ASSUME_NONNULL_BEGIN
           scopeContextEnricher:(id<SentryScopeContextEnricher>)scopeContextEnricher
               andDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue;
 
+- (nullable SentrySession *)updateSessionForDroppedEventNonTerminating:(BOOL)unhandled;
+
 @end
 
 @implementation SentryHubInternal {
@@ -828,6 +830,9 @@ NS_ASSUME_NONNULL_BEGIN
  * Needed by hybrid SDKs such as Flutter, where an unhandled exception doesn't terminate the
  * process. Instead of ending the session as crashed, this keeps the session running and marks it,
  * so it ends as unhandled.
+ *
+ * Session side effects are the same as -updateSessionForDroppedEventNonTerminating:;
+ * this method also sends the envelope.
  */
 - (void)captureNonTerminatingEnvelope:(id)envelope
 {
@@ -846,18 +851,9 @@ NS_ASSUME_NONNULL_BEGIN
         return envelope;
     }
 
-    SentrySession *currentSession;
-    @synchronized(_sessionLock) {
-        // Marking before incrementing, because incrementing persists the session.
-        if (!handled) {
-            [_session markPendingUnhandled];
-        }
-        currentSession = [self incrementSessionErrors];
-        if (currentSession == nil) {
-            return envelope;
-        }
-        SENTRY_LOG_DEBUG(@"Updating session for non terminating envelope: %@",
-            [self createSessionDebugString:currentSession]);
+    SentrySession *currentSession = [self updateSessionForDroppedEventNonTerminating:!handled];
+    if (currentSession == nil) {
+        return envelope;
     }
 
     // The session stays open, so it's sent as an intermediate update with the incremented error
@@ -866,6 +862,26 @@ NS_ASSUME_NONNULL_BEGIN
         [[NSMutableArray alloc] initWithArray:envelope.items];
     [itemsToSend addObject:[[SentryEnvelopeItem alloc] initWithSession:currentSession]];
     return [[SentryEnvelope alloc] initWithHeader:envelope.header items:itemsToSend];
+}
+
+/**
+ * Session side effects of a non-terminating hybrid error, without sending an envelope.
+ */
+- (nullable SentrySession *)updateSessionForDroppedEventNonTerminating:(BOOL)unhandled
+{
+    SentrySession *currentSession;
+    @synchronized(_sessionLock) {
+        // Marking before incrementing, because incrementing persists the session.
+        if (unhandled) {
+            [_session markPendingUnhandled];
+        }
+        currentSession = [self incrementSessionErrors];
+        if (currentSession != nil) {
+            SENTRY_LOG_DEBUG(@"Updating session for non-terminating event: %@",
+                [self createSessionDebugString:currentSession]);
+        }
+    }
+    return currentSession;
 }
 
 - (SentryEnvelope *)updateSessionState:(SentryEnvelope *)envelope
