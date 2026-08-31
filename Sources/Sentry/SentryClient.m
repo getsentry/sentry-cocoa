@@ -1312,15 +1312,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         return;
     }
 
-    // Merge the current scope's custom attributes before applying the global scope so the
-    // precedence is: caller attributes > current scope > global scope. Only custom attributes
-    // are taken from the current scope; user and trace correlation stay on the global scope.
-    SentryLog *enrichedLog = (SentryLog *)log;
-    if (currentScope != nil) {
-        enrichedLog = [self.logScopeApplier applyScopeAttributes:(SentryScope *_Nonnull)currentScope
-                                                           toLog:enrichedLog];
-    }
-    enrichedLog = [self.logScopeApplier applyScope:scope toLog:enrichedLog];
+    // Custom attribute precedence: caller > current scope > global scope. Trace correlation,
+    // user, and the other reserved attributes come from the global scope only.
+    SentryLog *enrichedLog = [self.logScopeApplier applyScope:scope
+                                                 currentScope:currentScope
+                                                        toLog:(SentryLog *)log];
     SentryLog *logToSend = enrichedLog;
 
     if (self.options.beforeSendLog != nil) {
