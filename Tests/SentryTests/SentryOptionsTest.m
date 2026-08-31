@@ -710,7 +710,9 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
         @"attachScreenshot" : [NSNull null],
         @"sessionReplay" : [NSNull null],
 #endif // SENTRY_HAS_UIKIT
+#if !SDK_V10
         @"enableAppHangTracking" : [NSNull null],
+#endif // !SDK_V10
         @"appHangTimeoutInterval" : [NSNull null],
         @"enableNetworkTracking" : [NSNull null],
         @"enableAutoBreadcrumbTracking" : [NSNull null],
@@ -791,7 +793,9 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     XCTAssertEqual(options.sessionReplay.sessionSampleRate, 0);
 #    endif // SENTRY_TARGET_REPLAY_SUPPORTED
 #endif // SENTRY_HAS_UIKIT
+#if !SDK_V10
     XCTAssertTrue(options.enableAppHangTracking);
+#endif // !SDK_V10
     XCTAssertEqual(options.appHangTimeoutInterval, 2);
     XCTAssertEqual(YES, options.enableNetworkTracking);
     XCTAssertNil(options.tracesSampleRate);
@@ -1010,19 +1014,21 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 }
 #endif // SENTRY_HAS_METRIC_KIT
 
+#if !SDK_V10
 - (void)testEnableAppHangTracking
 {
     [self testBooleanField:@"enableAppHangTracking" defaultValue:YES];
 }
+#endif // !SDK_V10
 
-#if SENTRY_UIKIT_AVAILABLE
+#if SENTRY_UIKIT_AVAILABLE && !SDK_V10
 
 - (void)testEnableReportNonFullyBlockingAppHangs
 {
     [self testBooleanField:@"enableReportNonFullyBlockingAppHangs" defaultValue:YES];
 }
 
-#endif // SENTRY_UIKIT_AVAILABLE
+#endif // SENTRY_UIKIT_AVAILABLE && !SDK_V10
 
 - (void)testDefaultAppHangsTimeout
 {
@@ -1300,7 +1306,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     XCTAssertEqualObjects(options3.spotlightUrl, @"http://localhost:8969/stream");
 }
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !SDK_V10
 - (void)testIsAppHangTrackingDisabled_WhenOptionDisabled
 {
     SentryOptions *options = [self getValidOptions:@{ @"appHangTimeoutInterval" : @0 }];
@@ -1313,7 +1319,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
         [self getValidOptions:@{ @"enableAppHangTracking" : @YES, @"appHangTimeoutInterval" : @0 }];
     XCTAssertTrue(options.isAppHangTrackingDisabled);
 }
-#endif // SENTRY_HAS_UIKIT
+#endif // SENTRY_HAS_UIKIT && !SDK_V10
 
 #pragma mark - Strict Trace Continuation
 

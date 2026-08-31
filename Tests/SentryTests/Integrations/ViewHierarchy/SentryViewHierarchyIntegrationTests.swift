@@ -238,6 +238,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         XCTAssertEqual(newAttachmentList.first, attachment)
     }
     
+    #if !SDK_V10
     func test_backgroundForAppHangs() throws {
         SentrySDK.start {
             $0.removeAllIntegrations()
@@ -271,6 +272,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         
         wait(for: [ex], timeout: 1)
     }
+    #endif // !SDK_V10
     
     func testReportAccessibilityIdentifierTrue() {
         SentrySDK.start {
