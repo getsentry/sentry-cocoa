@@ -3,8 +3,7 @@
 set -euo pipefail
 
 # Launches the SwiftUI Crash Test app and validates that it crashes and relaunches correctly.
-# This test run requires one booted simulator to work. So make sure to boot one simulator before
-# running this script.
+# This test run requires the simulator identified by --device-id to be booted.
 
 # Background:
 # XCTest isn't built for crashing during tests. Instead of using XCTest to press a button and
@@ -16,11 +15,14 @@ set -euo pipefail
 
 BUNDLE_ID="io.sentry.tests.SwiftUICrashTest"
 USER_DEFAULT_KEY="crash-on-launch"
-DEVICE_ID="booted"
+DEVICE_ID=""
+OS_VERSION=""
 SCREENSHOTS_DIR="test-crash-and-relaunch-simulator-screenshots"
 
 usage() {
-    echo "Usage: $0"
+    echo "Usage: $0 --device-id <udid> --os-version <version> [options]"
+    echo "  -d|--device-id <udid>           Booted simulator UDID (required)"
+    echo "  -o|--os-version <version>       Exact booted iOS simulator version (required)"
     echo "  -s|--screenshots-dir <dir>      Screenshots directory (default: test-crash-and-relaunch-simulator-screenshots)"
     echo "  -h|--help                       Show this help message"
     exit 1
@@ -29,6 +31,14 @@ usage() {
 # Parse arguments
 while [[ $# -gt 0 ]]; do
     case $1 in
+        -d|--device-id)
+            DEVICE_ID="$2"
+            shift 2
+            ;;
+        -o|--os-version)
+            OS_VERSION="$2"
+            shift 2
+            ;;
         -s|--screenshots-dir)
             SCREENSHOTS_DIR="$2"
             shift 2
@@ -42,6 +52,21 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
+
+if [ -z "$DEVICE_ID" ] || [ -z "$OS_VERSION" ]; then
+    echo "Both --device-id and --os-version are required."
+    usage
+fi
+
+if ! ACTUAL_OS_VERSION=$(xcrun simctl getenv "$DEVICE_ID" SIMULATOR_RUNTIME_VERSION 2>/dev/null); then
+    echo "Simulator $DEVICE_ID is unavailable or not booted."
+    exit 1
+fi
+
+if [ "$ACTUAL_OS_VERSION" != "$OS_VERSION" ]; then
+    echo "Simulator $DEVICE_ID runs iOS $ACTUAL_OS_VERSION, expected $OS_VERSION."
+    exit 1
+fi
 
 # Echo with timestamp
 log() {
@@ -67,11 +92,13 @@ take_simulator_screenshot() {
     # for this single use case. This native approach works with built-in commands.
     
     # Start screenshot command in background
-    xcrun simctl io booted screenshot "$screenshot_name" &
+    xcrun simctl io "$DEVICE_ID" screenshot "$screenshot_name" &
     screenshot_pid=$!
 
-    # take a screenshot of the whole screen
-    screencapture -x "$full_screen_screenshot_name"
+    # Take a screenshot of the whole screen when the host allows screen capture.
+    if ! screencapture -x "$full_screen_screenshot_name"; then
+        log "⚠️  Failed to capture the host screen, continuing without it."
+    fi
     
     # Wait for 10 seconds or until process completes
     start_time=$(date +%s)
@@ -106,7 +133,7 @@ take_simulator_screenshot() {
 
 # Check if the app is currently running
 is_app_running() {
-    xcrun simctl spawn booted launchctl list | grep "$BUNDLE_ID" >/dev/null 2>&1
+    xcrun simctl spawn "$DEVICE_ID" launchctl list | grep "$BUNDLE_ID" >/dev/null 2>&1
 }
 
 log "Removing previous screenshots directory."
@@ -119,29 +146,29 @@ log "🔨 Building SwiftUI Crash Test app for simulator 🔨"
 
 xcodebuild -workspace Sentry.xcworkspace \
     -scheme SwiftUICrashTest \
-    -destination "platform=iOS Simulator,name=iPhone 16 Pro" \
+    -destination "platform=iOS Simulator,id=$DEVICE_ID" \
     -derivedDataPath DerivedData \
     -configuration Debug \
     CODE_SIGNING_REQUIRED=NO \
     build 2>&1 | tee raw-build.log | xcbeautify --preserve-unbeautified
 
-xcrun simctl runtime dyld_shared_cache update iOS18.4
+xcrun simctl runtime dyld_shared_cache update "iOS$ACTUAL_OS_VERSION"
 
 log "Installing app on simulator."
-xcrun simctl install $DEVICE_ID DerivedData/Build/Products/Debug-iphonesimulator/SwiftUICrashTest.app
+xcrun simctl install "$DEVICE_ID" DerivedData/Build/Products/Debug-iphonesimulator/SwiftUICrashTest.app
 
 take_simulator_screenshot "after-install"
 
 log "Terminating app if running."
-xcrun simctl terminate $DEVICE_ID $BUNDLE_ID 2>/dev/null || true
+xcrun simctl terminate "$DEVICE_ID" "$BUNDLE_ID" 2>/dev/null || true
 
 # Phase 1: Let the app crash
 
 log "Setting crash flag."
-xcrun simctl spawn $DEVICE_ID defaults write $BUNDLE_ID $USER_DEFAULT_KEY -bool true
+xcrun simctl spawn "$DEVICE_ID" defaults write "$BUNDLE_ID" "$USER_DEFAULT_KEY" -bool true
 
 log "Launching app with expected crash."
-xcrun simctl launch $DEVICE_ID $BUNDLE_ID
+xcrun simctl launch "$DEVICE_ID" "$BUNDLE_ID"
 
 log "Starting to check if app crashed as expected."
 
@@ -171,13 +198,13 @@ take_simulator_screenshot "after-crash"
 # Phase 2: Test normal operation
 
 log "Removing crash flag..."
-xcrun simctl spawn $DEVICE_ID defaults delete $BUNDLE_ID $USER_DEFAULT_KEY
+xcrun simctl spawn "$DEVICE_ID" defaults delete "$BUNDLE_ID" "$USER_DEFAULT_KEY"
 
 log "Relaunching app after crash."
 
 # We do this in the background because the command could block indefinitely.
 # Instead, we iterate below to check if the app is running.
-xcrun simctl launch $DEVICE_ID $BUNDLE_ID &
+xcrun simctl launch "$DEVICE_ID" "$BUNDLE_ID" &
 
 take_simulator_screenshot "after-crash-check"
 

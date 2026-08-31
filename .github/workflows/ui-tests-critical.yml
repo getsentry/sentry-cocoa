@@ -112,13 +112,17 @@ jobs:
         run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
 
       - name: Boot simulator
+        id: boot-simulator
         env:
           OS_VERSION: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
         run: ./scripts/ci-boot-simulator.sh --device "iPhone 16 Pro" --os-version "$OS_VERSION"
 
       - name: Run SwiftUI Crash Test
         run: |
-          ./TestSamples/SwiftUICrashTest/test-crash-and-relaunch.sh --screenshots-dir "swiftui-crash-test-screenshots"
+          ./TestSamples/SwiftUICrashTest/test-crash-and-relaunch.sh \
+            --device-id "${{ steps.boot-simulator.outputs.device-udid }}" \
+            --os-version "${{ steps.boot-simulator.outputs.platform-version }}" \
+            --screenshots-dir "swiftui-crash-test-screenshots"
 
       - name: Upload SwiftUI Crash Test Screenshots
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
@@ -128,8 +132,8 @@ jobs:
           path: swiftui-crash-test-screenshots
 
       - name: Collect Logs
-        if: always()
-        run: xcrun simctl spawn booted log collect --output "$(pwd)/swiftui-crash-test-log.logarchive"
+        if: ${{ always() && steps.boot-simulator.outputs.device-udid != '' }}
+        run: xcrun simctl spawn "${{ steps.boot-simulator.outputs.device-udid }}" log collect --output "$(pwd)/swiftui-crash-test-log.logarchive"
 
       - name: Upload Logs
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
