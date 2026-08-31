@@ -37,7 +37,6 @@ final class SentryWithCurrentScopeIntegrationTests: XCTestCase {
                 locale: .autoupdatingCurrent,
                 timezone: .autoupdatingCurrent,
                 eventContextEnricher: TestEventContextEnricher(),
-                crashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo),
                 binaryImageCache: SentryDependencyContainer.sharedInstance().binaryImageCache,
                 dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
             )
@@ -55,7 +54,7 @@ final class SentryWithCurrentScopeIntegrationTests: XCTestCase {
         let hub = SentryHubInternal(
             client: client,
             andScope: Scope(),
-            andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo),
+            activeCrashReporterState: TestSentryCrashReporterState(),
             andDispatchQueue: SentryDispatchQueueWrapper()
         )
         SentrySDK.setStart(with: fixture.options)
@@ -187,6 +186,9 @@ final class SentryWithCurrentScopeIntegrationTests: XCTestCase {
 
     func testWithCurrentScope_captureLog_appliesCurrentScope() {
         var capturedLog: SentryLog?
+        #if !SDK_V10
+        fixture.options.enableLogs = true
+        #endif // !SDK_V10
         fixture.options.beforeSendLog = { log in
             capturedLog = log
             return log
@@ -197,7 +199,7 @@ final class SentryWithCurrentScopeIntegrationTests: XCTestCase {
         let hub = SentryHubInternal(
             client: client,
             andScope: Scope(),
-            andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo),
+            activeCrashReporterState: TestSentryCrashReporterState(),
             andDispatchQueue: SentryDispatchQueueWrapper()
         )
         SentrySDKInternal.setCurrentHub(hub)
