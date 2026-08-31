@@ -52,6 +52,10 @@ import Foundation
         if options.enableMetrics {
             features.append("metrics")
         }
+        if options.maxFeatureFlags != defaultMaxScopeFeatureFlags {
+            // Only tracking if modified from the default
+            features.append("maxFeatureFlags")
+        }
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         #if SDK_V10
         features.append("standaloneAppStartTracing")

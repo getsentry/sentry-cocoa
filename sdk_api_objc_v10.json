@@ -4128,6 +4128,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "maxFeatureFlags",
+    "parent": "SentryObjCOptions",
+    "returnType": "NSUInteger",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "measurementWithSpans",
     "parent": "SentryObjCInternalAppStartApi",
     "returnType": "NSDictionary<NSString *,id> * _Nullable",
@@ -6635,6 +6642,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setMaxCacheItems:",
+    "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setMaxFeatureFlags:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
     "instance": true
@@ -10067,6 +10081,12 @@
   {
     "kind": "ObjCPropertyDecl",
     "name": "maxCacheItems",
+    "parent": "SentryObjCOptions",
+    "type": "NSUInteger"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "maxFeatureFlags",
     "parent": "SentryObjCOptions",
     "type": "NSUInteger"
   },

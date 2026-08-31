@@ -10,6 +10,7 @@
 #import "SentryProfilingConditionals.h"
 #import "SentryReplayApi.h"
 #import "SentrySamplingContext.h"
+#import "SentryScope+Private.h"
 #import "SentryScope.h"
 #import "SentrySerialization.h"
 #import "SentrySpanInternal.h"
@@ -251,8 +252,9 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentryDependencyContainer.sharedInstance
             .scopePersistentStore moveAllCurrentStateToPreviousState];
 
-    SentryScope *scope
-        = options.initialScope([[SentryScope alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs]);
+    SentryScope *scope = options.initialScope(
+        [[SentryScope alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs
+                                    maxFeatureFlags:options.maxFeatureFlags]);
 
     SENTRY_LOG_DEBUG(@"Dispatching init work required to run on main thread.");
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
