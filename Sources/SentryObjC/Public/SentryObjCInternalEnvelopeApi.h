@@ -24,15 +24,20 @@ SENTRY_NO_INIT
 /// Captures an envelope whose unhandled exceptions did not terminate the process.
 ///
 /// Use this instead of @c capture: in runtimes that keep the process alive after an unhandled
-/// exception. The current session keeps running with the same ID and only its error count
-/// increases, but it ends with the @c unhandled status instead of @c exited. A later crash or
-/// abnormal exit still takes precedence over @c unhandled.
+/// exception. Applies the same session side effects as
+/// @c updateSessionForDroppedEventNonTerminating:, then sends the envelope. The current session
+/// keeps running with the same ID and only its error count increases, but it ends with the
+/// @c unhandled status instead of @c exited. A later crash or abnormal exit still takes precedence
+/// over @c unhandled.
+///
+/// Do not also call @c updateSessionForDroppedEventNonTerminating: for the same event.
 - (void)captureNonTerminating:(SentryObjCEnvelope *)envelope;
 
 /// Session side effects of @c captureNonTerminating: without sending the event.
 ///
 /// Hybrid SDKs should call this when an error is dropped by sampling.
-/// Do not call this for events dropped by @c beforeSend or ignored exception types.
+/// Do not call this for events dropped by @c beforeSend or ignored exception types, and do not
+/// call it in addition to @c captureNonTerminating: for the same event.
 ///
 /// @param unhandled @c YES if the dropped error was unhandled (@c mechanism.handled=false).
 - (void)updateSessionForDroppedEventNonTerminating:(BOOL)unhandled;
