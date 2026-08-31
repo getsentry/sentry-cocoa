@@ -1734,6 +1734,8 @@
 		D49B51CE302E118500FF88D3 /* SentryObjCCompatV10.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = SentryObjCCompatV10.xcconfig; sourceTree = "<group>"; };
 		D49B51CF302E118500FF88D3 /* SentryObjCV10.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = SentryObjCV10.xcconfig; sourceTree = "<group>"; };
 		D49B51D6302E142700FF88D3 /* SentryObjCCompat.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = SentryObjCCompat.xcconfig; sourceTree = "<group>"; };
+		D49B51D7302E142700FF88D3 /* SentryObjCCommon.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = SentryObjCCommon.xcconfig; sourceTree = "<group>"; };
+		D49B51D8302E142700FF88D3 /* SentryObjCV10Common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = SentryObjCV10Common.xcconfig; sourceTree = "<group>"; };
 		D49B6001302E200000000001 /* SentryTestUtilsDynamic.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = SentryTestUtilsDynamic.xcconfig; sourceTree = "<group>"; };
 		D49B6002302E200000000002 /* SentryTestUtilsDynamicV10.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = SentryTestUtilsDynamicV10.xcconfig; sourceTree = "<group>"; };
 		D49BE436302DFF3000FF88D3 /* SentryObjCCompat.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SentryObjCCompat.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -2586,8 +2588,10 @@
 				A5C101D42FF0000000000001 /* SentryCrashV10ToolSources.xcconfig */,
 				D4F0C0012FA0000000000001 /* SentryObjC.xcconfig */,
 				D49B51D6302E142700FF88D3 /* SentryObjCCompat.xcconfig */,
+				D49B51D7302E142700FF88D3 /* SentryObjCCommon.xcconfig */,
 				D49B51CE302E118500FF88D3 /* SentryObjCCompatV10.xcconfig */,
 				D49B51CF302E118500FF88D3 /* SentryObjCV10.xcconfig */,
+				D49B51D8302E142700FF88D3 /* SentryObjCV10Common.xcconfig */,
 				D8199DCF29376FF40074249E /* SentrySwiftUI.xcconfig */,
 				37D207F61D348FDFC964BCE0 /* SentryV10.xcconfig */,
 				84AB6AAF2DB2E9BA006D6C83 /* Versioning.xcconfig */,

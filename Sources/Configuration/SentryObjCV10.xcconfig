@@ -1,6 +1,2 @@
 #include "SentryObjC.xcconfig"
-
-IMPLICIT_DEPENDENCY_DOMAIN = SentryV10
-PRODUCT_MODULE_NAME = SentryObjC
-PRODUCT_NAME = $(PRODUCT_MODULE_NAME)
-PRODUCT_BUNDLE_IDENTIFIER = io.sentry.$(PRODUCT_MODULE_NAME)
+#include "SentryObjCV10Common.xcconfig"
