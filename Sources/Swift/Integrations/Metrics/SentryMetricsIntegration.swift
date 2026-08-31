@@ -59,18 +59,9 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
         }
 
         var mutableMetric = metric
-        // Merge the current scope's custom attributes before applying the global scope so the
-        // precedence is: caller attributes > current scope > global scope. Only custom attributes
-        // are taken from the current scope; user, span, and trace correlation stay on the global
-        // scope, which addAttributesToItem applies below.
-        if let currentScope {
-            var attributes = mutableMetric.attributesDict
-            for (key, value) in currentScope.attributesDict where attributes[key] == nil {
-                attributes[key] = value
-            }
-            mutableMetric.attributesDict = attributes
-        }
-        scope.addAttributesToItem(&mutableMetric, metadata: self.scopeMetaData)
+        // Custom attribute precedence: caller > current scope > global scope. Trace correlation,
+        // user, and the other reserved attributes come from the global scope only.
+        scope.addAttributesToItem(&mutableMetric, metadata: self.scopeMetaData, currentScope: currentScope)
 
         if let beforeSendMetric = beforeSendMetric {
             // Create a non-mutated copy of the metric, because it could be modified by the SDK user's `beforeSendMetric` 
