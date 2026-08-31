@@ -2,7 +2,6 @@
 #import "SentryEvent+Private.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
-#import "SentryLevelMapper.h"
 #import "SentryLogC.h"
 #import "SentryPerformanceTracker.h"
 #import "SentryProfilingConditionals.h"
@@ -25,16 +24,16 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, atomic, strong) SentryClientInternal *client;
 @property (nullable, nonatomic, strong) SentryScope *scope;
 @property (nonatomic) SentryDispatchQueueWrapper *dispatchQueue;
-@property (nonatomic, strong) id<SentryCrashReporter> crashWrapper;
 @property (nonatomic, strong) id<SentryCrashReporterState> activeCrashReporterState;
+@property (nonatomic, strong) id<SentryScopeContextEnricher> scopeContextEnricher;
 @property (nonatomic, strong) NSMutableSet<NSString *> *installedIntegrationNames;
 @property (nonatomic) NSUInteger errorsBeforeSession;
 @property (nonatomic, weak) id<SentrySessionListener> sessionListener;
 
 - (instancetype)initWithClient:(nullable SentryClientInternal *)client
                       andScope:(nullable SentryScope *)scope
-               andCrashWrapper:(id<SentryCrashReporter>)crashWrapper
       activeCrashReporterState:(id<SentryCrashReporterState>)activeCrashReporterState
+          scopeContextEnricher:(id<SentryScopeContextEnricher>)scopeContextEnricher
               andDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue;
 
 @end
@@ -49,35 +48,35 @@ NS_ASSUME_NONNULL_BEGIN
 {
     return [self initWithClient:client
                         andScope:scope
-                 andCrashWrapper:SentryDependencyContainer.sharedInstance.crashWrapper
         activeCrashReporterState:SentryDependencyContainer.sharedInstance.activeCrashReporterState
+            scopeContextEnricher:SentryDependencyContainer.sharedInstance.scopeContextEnricher
                 andDispatchQueue:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper];
 }
 
 /** Internal constructor for testing */
 - (instancetype)initWithClient:(nullable SentryClientInternal *)client
                       andScope:(nullable SentryScope *)scope
-               andCrashWrapper:(id<SentryCrashReporter>)crashWrapper
+      activeCrashReporterState:(id<SentryCrashReporterState>)activeCrashReporterState
               andDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
 {
     return [self initWithClient:client
                         andScope:scope
-                 andCrashWrapper:crashWrapper
-        activeCrashReporterState:crashWrapper
+        activeCrashReporterState:activeCrashReporterState
+            scopeContextEnricher:SentryDependencyContainer.sharedInstance.scopeContextEnricher
                 andDispatchQueue:dispatchQueue];
 }
 
 - (instancetype)initWithClient:(nullable SentryClientInternal *)client
                       andScope:(nullable SentryScope *)scope
-               andCrashWrapper:(id<SentryCrashReporter>)crashWrapper
       activeCrashReporterState:(id<SentryCrashReporterState>)activeCrashReporterState
+          scopeContextEnricher:(id<SentryScopeContextEnricher>)scopeContextEnricher
               andDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
 {
     if (self = [super init]) {
         _client = client;
         _scope = scope;
-        _crashWrapper = crashWrapper;
         _activeCrashReporterState = activeCrashReporterState;
+        _scopeContextEnricher = scopeContextEnricher;
         _dispatchQueue = dispatchQueue;
         _sessionLock = [[NSObject alloc] init];
         _integrationsLock = [[NSObject alloc] init];
@@ -90,7 +89,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
 
         if (_scope) {
-            [_crashWrapper enrichScope:SENTRY_UNWRAP_NULLABLE(SentryScope, _scope)];
+            [_scopeContextEnricher enrichScope:SENTRY_UNWRAP_NULLABLE(SentryScope, _scope)];
         }
 
         __swiftLogger = [[SentryLogger alloc]
@@ -331,7 +330,7 @@ NS_ASSUME_NONNULL_BEGIN
     return !client.isDisabled && self.client == client;
 }
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !SDK_V10
 
 /**
  * This method expects an abnormal session already stored to disk. For more info checkout: @c
@@ -365,7 +364,7 @@ NS_ASSUME_NONNULL_BEGIN
     [fileManager deleteAbnormalSession];
 }
 
-#endif // SENTRY_HAS_UIKIT
+#endif // SENTRY_HAS_UIKIT && !SDK_V10
 
 - (void)captureTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope
 {
@@ -694,12 +693,14 @@ NS_ASSUME_NONNULL_BEGIN
         if (_scope == nil) {
             SentryClientInternal *client = self.client;
             if (client != nil) {
-                _scope = [[SentryScope alloc] initWithMaxBreadcrumbs:client.options.maxBreadcrumbs];
+                _scope =
+                    [[SentryScope alloc] initWithMaxBreadcrumbs:client.options.maxBreadcrumbs
+                                                maxFeatureFlags:client.options.maxFeatureFlags];
             } else {
                 _scope = [[SentryScope alloc] init];
             }
 
-            [_crashWrapper enrichScope:SENTRY_UNWRAP_NULLABLE(SentryScope, _scope)];
+            [_scopeContextEnricher enrichScope:SENTRY_UNWRAP_NULLABLE(SentryScope, _scope)];
         }
         return SENTRY_UNWRAP_NULLABLE(SentryScope, _scope);
     }
@@ -874,7 +875,7 @@ NS_ASSUME_NONNULL_BEGIN
             NSDictionary *_Nonnull eventJson
                 = SENTRY_UNWRAP_NULLABLE(NSDictionary, nullableEventJson);
 
-            SentryLevel level = sentryLevelForString(eventJson[@"level"]);
+            SentryLevel level = [SentryLevelHelper levelForName:eventJson[@"level"]];
             if (level >= kSentryLevelError) {
                 *handled = [self eventContainsOnlyHandledErrors:eventJson];
                 return YES;

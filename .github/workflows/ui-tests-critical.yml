@@ -34,7 +34,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Get changed files
         id: changes
-        uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         with:
           token: ${{ github.token }}
           filters: .github/file-filters.yml
@@ -50,6 +50,8 @@ jobs:
       macos_version: ${{matrix.platform.runs-on}}
       files_suffix: _${{matrix.platform.xcode}}
       xcode_version: ${{matrix.platform.xcode}}
+      allow_prerelease: ${{matrix.platform.allow_prerelease || false}}
+      continue_on_error: ${{matrix.platform.continue_on_error || false}}
       platform: ${{matrix.platform.platform}}
     strategy:
       fail-fast: false
@@ -72,6 +74,16 @@ jobs:
               runs-on: tahoe
               xcode: "26"
               platform: "iOS"
+
+          # TODO: Remove continue_on_error once Xcode 27 and the iOS 27 simulator runtime are stable.
+          # iOS 27
+          - name: iOS 27
+            platform:
+              runs-on: xcode-beta
+              xcode: "27"
+              allow_prerelease: true
+              continue_on_error: true
+              platform: "iOS"
   run-swiftui-crash-test:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_critical_for_prs == 'true'
     needs: files-changed
@@ -90,10 +102,6 @@ jobs:
 
       - run: make init-ci-build
       - run: make xcode-ci
-
-      - name: Enable screenshots permissions
-        shell: bash
-        run: ./scripts/ci-enable-permissions.sh
 
       - name: Ensure required runtime is loaded
         # Ideally we will not need this, but CI sometimes is failing to load some runtimes, this will ensure they are loaded

@@ -228,6 +228,64 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(values.element(at: 99)?["flag"] as? String, "flag-100")
     }
 
+    func testFeatureFlags_whenMaxFeatureFlagsConfigured_shouldRetainMostRecentFlags() throws {
+        // -- Arrange --
+        let scope = Scope(maxBreadcrumbs: 5, maxFeatureFlags: 3)
+
+        // -- Act --
+        for index in 0..<5 {
+            scope.addFeatureFlag(name: "flag-\(index)", result: true)
+        }
+
+        // -- Assert --
+        let values = try serializeFeatureFlagValues(from: scope)
+        XCTAssertEqual(values.count, 3)
+        XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "flag-2")
+        XCTAssertEqual(values.element(at: 2)?["flag"] as? String, "flag-4")
+    }
+
+    func testFeatureFlags_whenMaxFeatureFlagsRaised_shouldRetainMoreThanTheDefault() throws {
+        // -- Arrange --
+        let scope = Scope(maxBreadcrumbs: 5, maxFeatureFlags: 2_000)
+
+        // -- Act --
+        for index in 0..<150 {
+            scope.addFeatureFlag(name: "flag-\(index)", result: true)
+        }
+
+        // -- Assert --
+        let values = try serializeFeatureFlagValues(from: scope)
+        XCTAssertEqual(values.count, 150)
+    }
+
+    func testFeatureFlags_whenMaxFeatureFlagsIsZero_shouldNotRecordFlagsContext() throws {
+        // -- Arrange --
+        let scope = Scope(maxBreadcrumbs: 5, maxFeatureFlags: 0)
+
+        // -- Act --
+        scope.addFeatureFlag(name: "checkout", result: true)
+
+        // -- Assert --
+        XCTAssertNil(serializeFeatureFlags(from: scope))
+    }
+
+    func testInitWithScope_whenMaxFeatureFlagsConfigured_shouldPreserveLimitInCopy() throws {
+        // -- Arrange --
+        let scope = Scope(maxBreadcrumbs: 5, maxFeatureFlags: 2)
+        scope.addFeatureFlag(name: "first", result: true)
+        scope.addFeatureFlag(name: "second", result: true)
+
+        // -- Act --
+        let cloned = Scope(scope: scope)
+        cloned.addFeatureFlag(name: "third", result: true)
+
+        // -- Assert --
+        let values = try serializeFeatureFlagValues(from: cloned)
+        XCTAssertEqual(values.count, 2)
+        XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "second")
+        XCTAssertEqual(values.element(at: 1)?["flag"] as? String, "third")
+    }
+
     func testApplyToEvent_whenScopeHasFeatureFlags_shouldApplyToRegularEvent() throws {
         // -- Arrange --
         let scope = Scope(maxBreadcrumbs: 5)

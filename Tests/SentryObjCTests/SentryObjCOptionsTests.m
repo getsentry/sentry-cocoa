@@ -241,6 +241,20 @@
     XCTAssertTrue(options.enableNetworkBreadcrumbs);
 }
 
+#if !SDK_V10
+- (void)testEnableLogs_whenSetToYes_shouldReturnYes
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    options.enableLogs = YES;
+
+    // -- Assert --
+    XCTAssertTrue(options.enableLogs);
+}
+#endif // !SDK_V10
+
 - (void)testEnableAutoSessionTracking_whenSetToYes_shouldReturnYes
 {
     // -- Arrange --
@@ -423,6 +437,7 @@
     XCTAssertTrue(options.sendClientReports);
 }
 
+#if !SDK_V10
 - (void)testEnableAppHangTracking_whenSetToYes_shouldReturnYes
 {
     // -- Arrange --
@@ -434,6 +449,7 @@
     // -- Assert --
     XCTAssertTrue(options.enableAppHangTracking);
 }
+#endif // !SDK_V10
 
 - (void)testEnableAutoBreadcrumbTracking_whenSetToYes_shouldReturnYes
 {
@@ -519,6 +535,18 @@
     XCTAssertTrue(options.strictTraceContinuation);
 }
 
+- (void)testEnableMetrics_whenSetToYes_shouldReturnYes
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    options.enableMetrics = YES;
+
+    // -- Assert --
+    XCTAssertTrue(options.enableMetrics);
+}
+
 #pragma mark - Numeric properties
 
 - (void)testShutdownTimeInterval_whenSet_shouldReturnValue
@@ -543,6 +571,27 @@
 
     // -- Assert --
     XCTAssertEqual(options.maxBreadcrumbs, 50u);
+}
+
+- (void)testMaxFeatureFlags_whenSet_shouldReturnValue
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    options.maxFeatureFlags = 2000;
+
+    // -- Assert --
+    XCTAssertEqual(options.maxFeatureFlags, 2000u);
+}
+
+- (void)testMaxFeatureFlags_whenNotSet_shouldReturnDefault
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Assert --
+    XCTAssertEqual(options.maxFeatureFlags, 100u);
 }
 
 - (void)testMaxCacheItems_whenSet_shouldReturnValue
@@ -1215,6 +1264,7 @@
     XCTAssertTrue(options.enablePreWarmedAppStartTracing);
 }
 
+#    if !SDK_V10
 - (void)testEnableReportNonFullyBlockingAppHangs_whenSetToYes_shouldReturnYes
 {
     // -- Arrange --
@@ -1226,6 +1276,7 @@
     // -- Assert --
     XCTAssertTrue(options.enableReportNonFullyBlockingAppHangs);
 }
+#    endif // !SDK_V10
 
 #endif
 

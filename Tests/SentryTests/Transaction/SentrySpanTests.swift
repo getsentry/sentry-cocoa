@@ -36,7 +36,7 @@ class SentrySpanTests: XCTestCase {
         }
         
         func getSut(client: SentryClientInternal) -> Span {
-            let hub = SentryHubInternal(client: client, andScope: nil, andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo), andDispatchQueue: TestSentryDispatchQueueWrapper())
+            let hub = SentryHubInternal(client: client, andScope: nil, activeCrashReporterState: TestSentryCrashReporterState(), andDispatchQueue: TestSentryDispatchQueueWrapper())
             return hub.startTransaction(name: someTransaction, operation: someOperation)
         }
         

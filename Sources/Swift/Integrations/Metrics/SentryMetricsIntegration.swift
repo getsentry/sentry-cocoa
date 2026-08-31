@@ -11,7 +11,9 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
     private let scopeMetaData: SentryDefaultScopeApplyingMetadata
     private let beforeSendMetric: ((SentryMetric) -> SentryMetric?)?
 
-    init(with options: Options, dependencies _: Dependencies) {
+    init?(with options: Options, dependencies _: Dependencies) {
+        guard options.enableMetrics else { return nil }
+
 #if SDK_V10
         let shouldAddDefaultUserId = options.dataCollection.userInfo
 #else
@@ -71,7 +73,7 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
         scope.addAttributesToItem(&mutableMetric, metadata: self.scopeMetaData)
 
         if let beforeSendMetric = beforeSendMetric {
-            // Create a non-mutated copy of the metric, because it could be modified by the SDK user's `beforeSendMetric`
+            // Create a non-mutated copy of the metric, because it could be modified by the SDK user's `beforeSendMetric` 
             let metricToSend = mutableMetric
             guard let processedItem = beforeSendMetric(mutableMetric) else {
                 SentrySDKLog.debug("Metric dropped by beforeSendMetric callback.")

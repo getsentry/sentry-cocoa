@@ -1,3 +1,4 @@
+#if !SDK_V10
 // swiftlint:disable missing_docs
 internal import _SentryPrivate
 import Foundation
@@ -204,3 +205,4 @@ final class SentryHangTrackingIntegration<Dependencies: HangTrackingIntegrationS
     #endif
 }
 // swiftlint:enable missing_docs
+#endif
