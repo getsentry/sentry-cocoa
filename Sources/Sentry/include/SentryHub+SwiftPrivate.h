@@ -16,6 +16,8 @@ NS_ASSUME_NONNULL_BEGIN
     NS_SWIFT_NAME(capture(_:));
 - (void)captureNonTerminatingEnvelope:(SENTRY_SWIFT_MIGRATION_ID(SentryEnvelope))envelope
     NS_SWIFT_NAME(captureNonTerminating(_:));
+- (nullable SENTRY_SWIFT_MIGRATION_ID(SentrySession))updateSessionForDroppedEventNonTerminating:
+    (BOOL)unhandled NS_SWIFT_NAME(updateSessionForDroppedEventNonTerminating(unhandled:));
 
 - (void)registerSessionListener:(SENTRY_SWIFT_MIGRATION_ID(id<SentrySessionListener>))listener;
 - (void)unregisterSessionListener:(SENTRY_SWIFT_MIGRATION_ID(id<SentrySessionListener>))listener;

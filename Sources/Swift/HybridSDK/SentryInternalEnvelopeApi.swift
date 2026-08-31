@@ -33,6 +33,16 @@ public struct SentryInternalEnvelopeApi {
         hub.captureNonTerminatingEnvelope(envelope)
     }
 
+    /// Session side effects of ``captureNonTerminating(_:)`` without sending the event.
+    ///
+    /// Hybrid SDKs should call this when an error is dropped by sampling.
+    /// Do not call this for events dropped by `beforeSend` or ignored exception types.
+    ///
+    /// - Parameter unhandled: `true` if the dropped error was unhandled (`mechanism.handled=false`).
+    @_spi(Private) public func updateSessionForDroppedEventNonTerminating(unhandled: Bool) {
+        hub.updateSessionForDroppedEventNonTerminating(unhandled: unhandled)
+    }
+
     /// Deserializes an envelope from raw data.
     @_spi(Private) public func deserialize(from data: Data) -> SentryEnvelope? {
         SentrySerializationSwift.envelope(with: data)

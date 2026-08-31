@@ -48,6 +48,28 @@ class SentryInternalEnvelopeApiTests: XCTestCase {
         XCTAssertTrue(mockHub.capturedEnvelopes.isEmpty)
     }
 
+    // MARK: - updateSessionForDroppedEventNonTerminating
+
+    func testUpdateSessionForDroppedEventNonTerminating_whenUnhandled_shouldForwardToHub() {
+        // -- Act --
+        sut.updateSessionForDroppedEventNonTerminating(unhandled: true)
+
+        // -- Assert --
+        XCTAssertEqual([true], mockHub.updateSessionForDroppedEventNonTerminatingInvocations)
+        XCTAssertTrue(mockHub.capturedEnvelopes.isEmpty)
+        XCTAssertTrue(mockHub.capturedNonTerminatingEnvelopes.isEmpty)
+    }
+
+    func testUpdateSessionForDroppedEventNonTerminating_whenHandled_shouldForwardToHub() {
+        // -- Act --
+        sut.updateSessionForDroppedEventNonTerminating(unhandled: false)
+
+        // -- Assert --
+        XCTAssertEqual([false], mockHub.updateSessionForDroppedEventNonTerminatingInvocations)
+        XCTAssertTrue(mockHub.capturedEnvelopes.isEmpty)
+        XCTAssertTrue(mockHub.capturedNonTerminatingEnvelopes.isEmpty)
+    }
+
     // MARK: - deserialize
 
     func testDeserialize_whenValidData_shouldReturnEnvelope() throws {
@@ -82,6 +104,7 @@ private class MockHub: Hub {
     var storedEnvelopes: [SentryEnvelope] = []
     var capturedEnvelopes: [SentryEnvelope] = []
     var capturedNonTerminatingEnvelopes: [SentryEnvelope] = []
+    var updateSessionForDroppedEventNonTerminatingInvocations: [Bool] = []
 
     func configureScope(_ callback: @escaping (Scope) -> Void) {}
 
@@ -95,6 +118,10 @@ private class MockHub: Hub {
 
     func captureNonTerminatingEnvelope(_ envelope: SentryEnvelope) {
         capturedNonTerminatingEnvelopes.append(envelope)
+    }
+
+    func updateSessionForDroppedEventNonTerminating(unhandled: Bool) {
+        updateSessionForDroppedEventNonTerminatingInvocations.append(unhandled)
     }
 
     func captureErrorEvent(event: Event) {}

@@ -25,6 +25,10 @@ import Foundation
         wrapped.value.captureNonTerminating(envelope.wrapped)
     }
 
+    @objc public func updateSessionForDroppedEventNonTerminating(_ unhandled: Bool) {
+        wrapped.value.updateSessionForDroppedEventNonTerminating(unhandled: unhandled)
+    }
+
     @objc public func deserializeFrom(_ data: Data) -> SentryObjCEnvelope? {
         guard let envelope = wrapped.value.deserialize(from: data) else { return nil }
         return SentryObjCEnvelope(envelope)

@@ -86,6 +86,22 @@
     XCTAssertNoThrow([SentryObjCSDK.internal.envelope captureNonTerminating:envelope]);
 }
 
+#pragma mark - updateSessionForDroppedEventNonTerminating
+
+- (void)testUpdateSessionForDroppedEventNonTerminating_whenUnhandled_shouldNotThrow
+{
+    // -- Act / Assert --
+    XCTAssertNoThrow(
+        [SentryObjCSDK.internal.envelope updateSessionForDroppedEventNonTerminating:YES]);
+}
+
+- (void)testUpdateSessionForDroppedEventNonTerminating_whenHandled_shouldNotThrow
+{
+    // -- Act / Assert --
+    XCTAssertNoThrow(
+        [SentryObjCSDK.internal.envelope updateSessionForDroppedEventNonTerminating:NO]);
+}
+
 #pragma mark - deserializeFrom
 
 - (void)testDeserializeFrom_whenValidData_shouldReturnEnvelope

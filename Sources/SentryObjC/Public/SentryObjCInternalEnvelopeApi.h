@@ -29,6 +29,14 @@ SENTRY_NO_INIT
 /// abnormal exit still takes precedence over @c unhandled.
 - (void)captureNonTerminating:(SentryObjCEnvelope *)envelope;
 
+/// Session side effects of @c captureNonTerminating: without sending the event.
+///
+/// Hybrid SDKs should call this when an error is dropped by sampling.
+/// Do not call this for events dropped by @c beforeSend or ignored exception types.
+///
+/// @param unhandled @c YES if the dropped error was unhandled (@c mechanism.handled=false).
+- (void)updateSessionForDroppedEventNonTerminating:(BOOL)unhandled;
+
 /// Deserializes an envelope from raw data.
 - (nullable SentryObjCEnvelope *)deserializeFrom:(NSData *)data;
 
