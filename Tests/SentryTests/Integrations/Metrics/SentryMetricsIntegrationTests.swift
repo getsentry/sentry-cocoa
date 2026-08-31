@@ -13,9 +13,10 @@ class SentryMetricsIntegrationTests: XCTestCase {
 
     // MARK: - Tests
 
-    func testStartSDK_whenMetricsIsDisabled_shouldNotInstallMetricsIntegration() {
+    func testStartSDK_whenEnableMetricsIsFalse_shouldStillBeInstalled() {
         // -- Arrange --
-        // SDK not enabled in startSDK call
+        // enableMetrics is a legacy compatibility option and must not prevent install so
+        // manual metric APIs keep working.
 
         // -- Act --
         startSDK(isEnabled: false)

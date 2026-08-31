@@ -12,7 +12,9 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
     private let beforeSendMetric: ((SentryMetric) -> SentryMetric?)?
 
     init?(with options: Options, dependencies _: Dependencies) {
-        guard options.enableMetrics else { return nil }
+        // Always install so the manual metrics API keeps working even when
+        // options.enableMetrics is false. The option remains for compatibility until the
+        // next major, but is a no-op for capture.
 
 #if SDK_V10
         let shouldAddDefaultUserId = options.dataCollection.userInfo

@@ -1301,12 +1301,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         return;
     }
 
-#if !SDK_V10
-    if (self.options.enableLogs == NO) {
-        SENTRY_LOG_DEBUG(@"Dropping log, because the option enableLogs is false.");
-        return;
-    }
-#endif // !SDK_V10
+    // Manual log APIs (SentrySDK.logger and opt-in logging integrations that forward
+    // through it) must not be gated behind options.enableLogs. The option remains for
+    // compatibility until the next major, but is a no-op for capture.
 
     if (![log isKindOfClass:[SentryLog class]]) {
         return;

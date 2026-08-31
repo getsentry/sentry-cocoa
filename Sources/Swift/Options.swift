@@ -158,10 +158,14 @@
     @objc public var beforeSendSpan: SentryBeforeSendSpanCallback?
 
     #if !SDK_V10
-    /// When enabled, the SDK sends logs to Sentry. Logs can be captured using the SentrySDK.logger
-    /// API, which provides structured logging with attributes.
-    /// @note Default value is @c false.
-    /// @note In v10 and later, logs are always enabled. Remove this option when upgrading.
+    /// Legacy option kept for compatibility until the next major release.
+    ///
+    /// Manual log capture through ``SentrySDK/logger`` (and opt-in logging integrations that
+    /// forward through it) is not gated by this flag. Setting it to `false` does not drop
+    /// those logs.
+    ///
+    /// - Note: Default value is `false`.
+    /// - Note: In v10 and later, this option is removed and logs are always enabled.
     @objc public var enableLogs: Bool = false
     #endif // !SDK_V10
 
@@ -774,9 +778,12 @@
 
     // MARK: - Integration: Metrics
 
-    /// When enabled, the SDK sends metrics to Sentry. Metrics can be captured using the ``SentrySDK/metrics``
-    /// API, which allows you to send, view and query counters, gauges and measurements.
-    /// @note Default value is @c true.
+    /// Legacy option kept for compatibility until the next major release.
+    ///
+    /// Manual metric capture through ``SentrySDK/metrics`` is not gated by this flag. Setting it
+    /// to `false` does not drop those metrics.
+    ///
+    /// - Note: Default value is `true`.
     @objc public var enableMetrics: Bool = true
 
     /// Use this callback to drop or modify a metric before the SDK sends it to Sentry. Return nil to
