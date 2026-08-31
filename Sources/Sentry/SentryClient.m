@@ -127,7 +127,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                           locale:locale
                         timezone:timezone
             eventContextEnricher:eventContextEnricher
-                    crashWrapper:crashWrapper
                 binaryImageCache:binaryImageCache
             dispatchQueueWrapper:dispatchQueueWrapper
              currentScopeStorage:SentryDependencyContainer.sharedInstance.currentScopeStorage];
@@ -143,7 +142,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                          locale:(NSLocale *)locale
                        timezone:(NSTimeZone *)timezone
            eventContextEnricher:(id<SentryEventContextEnricher>)eventContextEnricher
-                   crashWrapper:(id<SentryCrashReporter>)crashWrapper
                binaryImageCache:(SentryBinaryImageCache *)binaryImageCache
            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
             currentScopeStorage:(SentryCurrentScopeStorage *)currentScopeStorage
