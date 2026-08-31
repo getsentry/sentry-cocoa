@@ -9,9 +9,10 @@
 
 ## Project Generation
 
-- Always generate sample projects through Make targets, never by invoking `xcodegen` directly
-- Generate one project with `make xcode-ci-<name>`
-- Generate all projects with `make xcode-ci`
+- Generate XcodeGen-based sample projects through Make targets, never by invoking `xcodegen` directly
+- Build one package-based sample with `swift build --package-path Samples/<name>`
+- Generate one XcodeGen project with `make xcode-ci-<name>`
+- Generate all XcodeGen projects with `make xcode-ci`
 - Generate and build one sample with `make build-sample-<name>`
 
 ## Validation

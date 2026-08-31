@@ -4,7 +4,7 @@
 
 ## Shell Scripts
 
-- New scripts must use named `--kebab-case` parameters, not positional parameters
+- New scripts must use named `--kebab-case` parameters with short aliases, not positional parameters
 - Start scripts with `set -euo pipefail`
 - Declare defaults before `usage()` and validate required parameters after parsing
 - Document every parameter in `usage()`
@@ -27,15 +27,15 @@ PARAM_TWO="default-value"
 
 usage() {
     log_notice "Usage: $0"
-    log_notice "  --param-one <value>    Description of param one (required)"
-    log_notice "  --param-two <value>    Description of param two (default: default-value)"
+    log_notice "  -p, --param-one <value>    Description of param one (required)"
+    log_notice "  -t, --param-two <value>    Description of param two (default: default-value)"
     exit 1
 }
 
 while [[ $# -gt 0 ]]; do
     case $1 in
-        --param-one) PARAM_ONE="$2"; shift 2 ;;
-        --param-two) PARAM_TWO="$2"; shift 2 ;;
+        -p|--param-one) PARAM_ONE="$2"; shift 2 ;;
+        -t|--param-two) PARAM_TWO="$2"; shift 2 ;;
         *) usage ;;
     esac
 done
