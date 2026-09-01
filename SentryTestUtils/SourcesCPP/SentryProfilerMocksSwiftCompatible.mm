@@ -4,7 +4,12 @@
 
 #    import "SentryProfilerMocks.h"
 #    import "SentryProfilerState+ObjCpp.h"
-#    import "SentrySwift.h"
+#    if SWIFT_PACKAGE
+@import SentryHeaders;
+@import SentrySwift;
+#    else
+#        import "SentrySwift.h"
+#    endif
 #    include <vector>
 
 using namespace std;

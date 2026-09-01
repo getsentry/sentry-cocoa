@@ -85,6 +85,7 @@
 #import "SentrySpanOperation.h"
 #import "SentryStoredCrashReportProcessor.h"
 #import "SentrySysctlObjC.h"
+#import "SentrySystemWrapper.h"
 #import "SentryTimeToDisplayTracker.h"
 #import "SentryTraceContext+Private.h"
 #import "SentryTraceContextSwiftHelper.h"

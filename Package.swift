@@ -42,6 +42,10 @@ let v10SwiftSettings: [SwiftSetting] = enableV10
 let v10CSettings: [CSetting] = enableV10
     ? [.define("SDK_V10", to: "1"), .define("SENTRY_DISABLE_SENTRYCRASH_V10", to: "1")]
     : []
+// PackageDescription uses distinct C and C++ setting types, so this cannot reuse v10CSettings.
+let v10CxxSettings: [CXXSetting] = enableV10
+    ? [.define("SDK_V10", to: "1"), .define("SENTRY_DISABLE_SENTRYCRASH_V10", to: "1")]
+    : []
 
 var products: [Product] = [
     .library(name: "SentryDistribution", targets: ["SentryDistribution"])
@@ -256,6 +260,50 @@ targets += [
     )
 ]
 // END:OBJC_WRAPPER
+
+targets += [
+    .target(
+        name: "SentryTestUtilsObjCpp",
+        dependencies: ["SentryObjCInternal", "SentrySwift", "_SentryPrivate", "SentryHeaders"],
+        path: "SentryTestUtils/SourcesCPP",
+        publicHeadersPath: ".",
+        cSettings: [
+            // Enable the Clang modules imported by the Objective-C++ compatibility source.
+            .unsafeFlags(["-fmodules"])
+        ] + v10CSettings,
+        cxxSettings: [
+            // Clang requires C++ module support when compiling those imports as Objective-C++.
+            .unsafeFlags(["-fmodules", "-fcxx-modules"])
+        ] + v10CxxSettings,
+        linkerSettings: [
+            // The profiler mocks use C++ standard-library types such as std::vector.
+            .linkedLibrary("c++")
+        ]
+    ),
+    .target(
+        name: "SentryTestUtils",
+        dependencies: [
+            "SentryObjCInternal",
+            "SentrySwift",
+            "_SentryPrivate",
+            "SentryTestUtilsObjCpp"
+        ],
+        path: "SentryTestUtils/Sources",
+        // These helpers require private SDK operations that do not cross SwiftPM module boundaries.
+        exclude: [
+            "ClearTestState.swift",
+            "TestClient.swift",
+            "TestHub.swift"
+        ],
+        swiftSettings: v10SwiftSettings
+    ),
+    .testTarget(
+        name: "SentryTestUtilsTests",
+        dependencies: ["SentrySwift", "SentryTestUtils"],
+        path: "SentryTestUtilsTests/Sources",
+        swiftSettings: v10SwiftSettings
+    )
+]
 
 let packageDependencies: [Package.Dependency] = enableV10 ? [.package(url: "https://github.com/kstenerud/KSCrash.git", from: "2.6.0")] : []
 

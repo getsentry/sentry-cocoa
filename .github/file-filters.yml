@@ -73,6 +73,8 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
 run_distribution_tests_for_prs: &run_distribution_tests_for_prs
   - "Sources/SentryDistribution/**"
   - "Sources/SentryDistributionTests/**"
+  - "SentryTestUtils/**"
+  - "SentryTestUtilsTests/**"
 
   # GH Actions
   - ".github/workflows/test.yml"
@@ -353,6 +355,8 @@ run_v10_for_prs: &run_v10_for_prs
   - "Sources/SentrySwiftUI/**"
   - "Sources/Swift/**"
   - "Tests/**"
+  - "SentryTestUtils/**"
+  - "SentryTestUtilsTests/**"
 
   # GH Actions
   - ".github/workflows/build-v10.yml"

@@ -1,7 +1,11 @@
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import Foundation
 
-#if os(iOS) || os(tvOS) || os(visionOS)
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 public enum GPUFrame {
     case normal
@@ -137,4 +141,4 @@ public enum FrameRate: UInt64 {
     }
 }
 
-#endif
+#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
