@@ -5,6 +5,37 @@
 #    include <stddef.h>
 
 static void
+writeScopeBreadcrumbs(const KSCrashReportWriter *const writer, SentryCrashScope *scope)
+{
+    if (scope->breadcrumbs == NULL || scope->maxCrumbs < 1) {
+        return;
+    }
+
+    int areThereBreadcrumbs = 0;
+    for (long i = 0; i < scope->maxCrumbs; i++) {
+        if (scope->breadcrumbs[i]) {
+            areThereBreadcrumbs = 1;
+            break;
+        }
+    }
+
+    if (areThereBreadcrumbs) {
+        writer->beginArray(writer, "breadcrumbs");
+
+        for (long i = 0; i < scope->maxCrumbs; i++) {
+            // Ring buffer: currentCrumb is the next write slot, so it is also the oldest entry.
+            long index = (scope->currentCrumb + i) % scope->maxCrumbs;
+            char *breadcrumb = scope->breadcrumbs[index];
+            if (breadcrumb) {
+                writer->addJSONElement(writer, "crumb", breadcrumb, false);
+            }
+        }
+
+        writer->endContainer(writer);
+    }
+}
+
+static void
 writeScope(const KSCrashReportWriter *const writer)
 {
     SentryCrashScope *scope = sentrycrash_scopesync_getScope();
@@ -45,31 +76,7 @@ writeScope(const KSCrashReportWriter *const writer)
         writer->addJSONElement(writer, "level", scope->level, false);
     }
 
-    if (scope->breadcrumbs == NULL || scope->maxCrumbs < 1) {
-        writer->endContainer(writer);
-        return;
-    }
-
-    int areThereBreadcrumbs = 0;
-    long i;
-    for (i = 0; i < scope->maxCrumbs; i++) {
-        if (scope->breadcrumbs[i]) {
-            areThereBreadcrumbs = 1;
-            break;
-        }
-    }
-
-    if (areThereBreadcrumbs) {
-        writer->beginArray(writer, "breadcrumbs");
-        for (i = 0; i < scope->maxCrumbs; i++) {
-            // Ring buffer: currentCrumb is the next write slot, so it is also the oldest entry.
-            long index = (scope->currentCrumb + i) % scope->maxCrumbs;
-            if (scope->breadcrumbs[index]) {
-                writer->addJSONElement(writer, "crumb", scope->breadcrumbs[index], false);
-            }
-        }
-        writer->endContainer(writer);
-    }
+    writeScopeBreadcrumbs(writer, scope);
 
     writer->endContainer(writer);
 }
