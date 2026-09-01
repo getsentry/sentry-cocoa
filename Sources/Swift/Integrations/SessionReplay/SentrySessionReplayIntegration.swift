@@ -401,7 +401,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     }
 
     private func start(fullSession: Bool) {
-        guard sessionReplay == nil else { return }
+        guard sessionReplay == nil && !isPendingStart else { return }
         isManuallyPaused.withLock { $0 = false }
         startedAsFullSession = fullSession
         isPendingStart = true

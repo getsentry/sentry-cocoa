@@ -260,6 +260,22 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertNotNil(sut.sessionReplay)
     }
 
+    func testStartBuffering_whenFullSessionStartIsPending_shouldKeepFullSessionMode() throws {
+        // -- Arrange --
+        uiApplication.windows = nil
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+        XCTAssertNil(sut.sessionReplay)
+
+        // -- Act --
+        sut.startBuffering()
+        uiApplication.windows = [UIWindow()]
+        NotificationCenter.default.post(name: UIScene.didActivateNotification, object: nil)
+
+        // -- Assert --
+        XCTAssertTrue(try XCTUnwrap(sut.sessionReplay).isFullSession)
+    }
+
     func testRunReplayForAvailableWindow_whenPendingStartAndSessionEnds_shouldNotStartAfterLifecycleNotification() throws {
         // -- Arrange --
         uiApplication.windows = nil
