@@ -20,6 +20,9 @@
 #import "SentryFormatterSwift.h"
 #import "SentryHub+Private.h"
 #import "SentryHub+SwiftPrivate.h"
+#if SDK_V10
+#    import "SentryKSCrashReportWriterCallbacks.h"
+#endif // SDK_V10
 #import "SentryNSDataSwizzlingHelper.h"
 #import "SentryNSDataUtils.h"
 #import "SentryNSExceptionCaptureHelper.h"

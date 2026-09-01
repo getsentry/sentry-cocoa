@@ -10,11 +10,11 @@ configs:
   Test: debug
   TestCI: debug
   Release: release
-projectReferences:
+packages:
   Sentry:
-    path: ../../Sentry.xcodeproj
+    path: ../..
   SentrySampleShared:
-    path: ../SentrySampleShared/SentrySampleShared.xcodeproj
+    path: ../SentrySampleShared
 options:
   bundleIdPrefix: io.sentry
   defaultSourceDirectoryType: syncedFolder
@@ -53,9 +53,13 @@ targets:
         group: App/Configurations
         buildPhase: none
     dependencies:
-      - target: Sentry/Sentry
+      - package: Sentry
+        products:
+          - SentrySPM
+          - SentryObjC
+      - package: SentrySampleShared
+        product: SentrySampleShared
       - target: iOS-Swift-AppClip
-      - target: SentrySampleShared/SentrySampleShared
       - target: iOS-Swift-ShareExtension
       - target: iOS-Swift-ActionExtension
       - target: iOS-Swift-IntentExtension
@@ -102,8 +106,12 @@ targets:
         group: App/Configurations
         buildPhase: none
     dependencies:
-      - target: Sentry/Sentry
-      - target: SentrySampleShared/SentrySampleShared
+      - package: Sentry
+        products:
+          - SentrySPM
+          - SentryObjC
+      - package: SentrySampleShared
+        product: SentrySampleShared
     configFiles:
       Debug: AppClip/Configurations/iOS-Swift-AppClip.xcconfig
       Release: AppClip/Configurations/iOS-Swift-AppClip.xcconfig
@@ -121,8 +129,10 @@ targets:
     type: bundle.ui-testing
     platform: auto
     dependencies:
-      - target: SentrySampleShared/SentrySampleUITestShared
-      - target: SentrySampleShared/SentrySampleShared
+      - package: SentrySampleShared
+        products:
+          - SentrySampleShared
+          - SentrySampleUITestShared
     sources:
       # Sources
       - path: UITests/Sources
@@ -183,8 +193,12 @@ targets:
         group: App/Configurations
         buildPhase: none
     dependencies:
-      - target: Sentry/Sentry
-      - target: SentrySampleShared/SentrySampleShared
+      - package: Sentry
+        products:
+          - SentrySPM
+          - SentryObjC
+      - package: SentrySampleShared
+        product: SentrySampleShared
     configFiles:
       Debug: ShareExtension/Configurations/iOS-Swift-ShareExtension.xcconfig
       Release: ShareExtension/Configurations/iOS-Swift-ShareExtension.xcconfig
@@ -218,8 +232,12 @@ targets:
         group: App/Configurations
         buildPhase: none
     dependencies:
-      - target: Sentry/Sentry
-      - target: SentrySampleShared/SentrySampleShared
+      - package: Sentry
+        products:
+          - SentrySPM
+          - SentryObjC
+      - package: SentrySampleShared
+        product: SentrySampleShared
     configFiles:
       Debug: ActionExtension/Configurations/iOS-Swift-ActionExtension.xcconfig
       Release: ActionExtension/Configurations/iOS-Swift-ActionExtension.xcconfig
@@ -253,8 +271,12 @@ targets:
         group: App/Configurations
         buildPhase: none
     dependencies:
-      - target: Sentry/Sentry
-      - target: SentrySampleShared/SentrySampleShared
+      - package: Sentry
+        products:
+          - SentrySPM
+          - SentryObjC
+      - package: SentrySampleShared
+        product: SentrySampleShared
     configFiles:
       Debug: IntentExtension/Configurations/iOS-Swift-IntentExtension.xcconfig
       Release: IntentExtension/Configurations/iOS-Swift-IntentExtension.xcconfig
@@ -288,8 +310,12 @@ targets:
         group: App/Configurations
         buildPhase: none
     dependencies:
-      - target: Sentry/Sentry
-      - target: SentrySampleShared/SentrySampleShared
+      - package: Sentry
+        products:
+          - SentrySPM
+          - SentryObjC
+      - package: SentrySampleShared
+        product: SentrySampleShared
     configFiles:
       Debug: NotificationServiceExtension/Configurations/iOS-Swift-NotificationServiceExtension.xcconfig
       Release: NotificationServiceExtension/Configurations/iOS-Swift-NotificationServiceExtension.xcconfig
