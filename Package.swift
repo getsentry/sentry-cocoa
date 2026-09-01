@@ -205,6 +205,12 @@ let sentryObjCInternalCSettings: [CSetting] = [
     .headerSearchPath("SentryCrash/Reporting/Filters/Tools")
 ] + v10CSettings
 
+let sentryPrivateDependencies: [Target.Dependency] = if enableV10 {
+    ["SentryHeaders", .product(name: "Recording", package: "KSCrash")]
+} else {
+    ["SentryHeaders"]
+}
+
 targets += [
     // At least one source file is required, therefore we use a dummy class to satisfy the SPM build system
     .target(
@@ -216,20 +222,27 @@ targets += [
     ),
     .target(
         name: "_SentryPrivate",
-        dependencies: ["SentryHeaders"],
+        dependencies: sentryPrivateDependencies,
         path: "Sources/Sentry",
         sources: ["SentryDummyPrivateEmptyClass.m"],
         publicHeadersPath: "include",
         cSettings: v10CSettings
     ),
 
-    sentrySwiftTarget,
+    sentrySwiftTarget
+]
 
+var sentryObjCInternalDependencies: [Target.Dependency] = ["SentrySwift"]
+if enableV10 {
+    sentryObjCInternalDependencies.append(.product(name: "Recording", package: "KSCrash"))
+}
+
+targets += [
     // SentryObjCInternal compiles all ObjC/C sources from the repo. Named "Internal"
     // to reserve "SentryObjC" for a future public Objective-C wrapper around the SDK.
     .target(
         name: "SentryObjCInternal",
-        dependencies: ["SentrySwift"],
+        dependencies: sentryObjCInternalDependencies,
         path: "Sources",
         exclude: sentryObjCInternalExcludes,
         cSettings: sentryObjCInternalCSettings)
