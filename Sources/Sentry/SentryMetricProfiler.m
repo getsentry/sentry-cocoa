@@ -6,7 +6,6 @@
 #    import "SentryFormatter.h"
 #    import "SentryLogC.h"
 #    import "SentrySwift.h"
-#    import "SentrySystemWrapper.h"
 #    import "SentryTime.h"
 #    import "SentryTransaction.h"
 
@@ -276,7 +275,7 @@ static SentrySystemWrapper *_systemWrapperOverride = nil;
 - (void)recordMemoryFootprint
 {
     NSError *error;
-    SentryRAMBytes footprintBytes = [self.systemWrapper memoryFootprintBytes:&error];
+    NSNumber *footprintBytes = [self.systemWrapper memoryFootprintBytesAndReturnError:&error];
 
     if (error) {
         SENTRY_LOG_ERROR(@"Failed to read memory footprint: %@", error);
@@ -284,14 +283,14 @@ static SentrySystemWrapper *_systemWrapperOverride = nil;
     }
 
     @synchronized(self) {
-        [_memoryFootprint addObject:[self metricReadingForValue:@(footprintBytes)]];
+        [_memoryFootprint addObject:[self metricReadingForValue:footprintBytes]];
     }
 }
 
 - (void)recordCPUsage
 {
     NSError *error;
-    NSNumber *result = [self.systemWrapper cpuUsageWithError:&error];
+    NSNumber *result = [self.systemWrapper cpuUsageAndReturnError:&error];
 
     if (error) {
         SENTRY_LOG_ERROR(@"Failed to read CPU usages: %@", error);
@@ -312,7 +311,7 @@ static SentrySystemWrapper *_systemWrapperOverride = nil;
 - (void)recordEnergyUsageEstimate
 {
     NSError *error;
-    NSNumber *reading = [self.systemWrapper cpuEnergyUsageWithError:&error];
+    NSNumber *reading = [self.systemWrapper cpuEnergyUsageAndReturnError:&error];
     if (error) {
         SENTRY_LOG_ERROR(@"Failed to read CPU energy usage: %@", error);
         return;

@@ -1,3 +1,4 @@
+@_spi(Private) import Sentry
 import XCTest
 
 #if os(iOS) || os(macOS)
@@ -10,7 +11,7 @@ class SentrySystemWrapperTests: XCTestCase {
     // MARK: - cpuUsageWithError
 
     func testCPUUsage_shouldReturnNonNilValue() throws {
-        let cpuUsage = try XCTUnwrap(fixture.systemWrapper.cpuUsage())
+        let cpuUsage = try fixture.systemWrapper.cpuUsage()
         XCTAssertGreaterThanOrEqual(cpuUsage.floatValue, 0.0)
     }
 
@@ -47,18 +48,16 @@ class SentrySystemWrapperTests: XCTestCase {
 
     // MARK: - memoryFootprintBytes
 
-    func testMemoryFootprint_shouldReturnPositiveValue() {
-        var error: NSError?
-        let memoryFootprint = fixture.systemWrapper.memoryFootprintBytes(&error)
-        XCTAssertNil(error)
-        XCTAssertGreaterThan(memoryFootprint, 0)
+    func testMemoryFootprint_shouldReturnPositiveValue() throws {
+        let memoryFootprint = try fixture.systemWrapper.memoryFootprintBytes()
+        XCTAssertGreaterThan(memoryFootprint.uint64Value, 0)
     }
 
     // MARK: - cpuEnergyUsageWithError
 
 #if arch(arm64)
     func testCPUEnergyUsage_shouldReturnNonNilValue() throws {
-        let energyUsage = try XCTUnwrap(fixture.systemWrapper.cpuEnergyUsage())
+        let energyUsage = try fixture.systemWrapper.cpuEnergyUsage()
         XCTAssertGreaterThanOrEqual(energyUsage.uint64Value, 0)
     }
 
