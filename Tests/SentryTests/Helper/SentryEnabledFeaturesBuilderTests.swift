@@ -315,6 +315,29 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         XCTAssertFalse(features.contains("metrics"))
     }
 
+    func testMaxFeatureFlags_isModified_shouldAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+        options.maxFeatureFlags = 200
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertTrue(features.contains("maxFeatureFlags"))
+    }
+
+    func testMaxFeatureFlags_whenDefault_shouldNotAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("maxFeatureFlags"))
+    }
+
     func testEnableStandaloneAppStartTracing_isEnabled_shouldAddFeature() throws {
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         // -- Arrange --

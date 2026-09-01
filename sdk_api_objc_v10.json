@@ -1544,6 +1544,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "cloneScope:",
+    "parent": "SentryObjCInternalScopeApi",
+    "returnType": "SentryObjCScope * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "close",
     "parent": "SentryObjCClient",
     "returnType": "void",
@@ -1736,6 +1743,13 @@
     "name": "crashed",
     "parent": "SentryObjCThread",
     "returnType": "NSNumber * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "createScope",
+    "parent": "SentryObjCInternalScopeApi",
+    "returnType": "SentryObjCScope * _Nonnull",
     "instance": true
   },
   {
@@ -4163,6 +4177,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "maxCacheItems",
+    "parent": "SentryObjCOptions",
+    "returnType": "NSUInteger",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "maxFeatureFlags",
     "parent": "SentryObjCOptions",
     "returnType": "NSUInteger",
     "instance": true
@@ -6710,6 +6731,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setMaxFeatureFlags:",
+    "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setMeasurementWithName:value:",
     "parent": "SentryObjCSpan",
     "returnType": "void",
@@ -8858,6 +8886,13 @@
     "instance": false
   },
   {
+    "kind": "ObjCMethodDecl",
+    "name": "withCurrentScope:callback:",
+    "parent": "SentryObjCInternalScopeApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
     "kind": "ObjCPropertyDecl",
     "name": "addScreenshotButtonAccessibilityLabel",
     "parent": "SentryObjCUserFeedbackFormConfiguration",
@@ -10162,6 +10197,12 @@
   {
     "kind": "ObjCPropertyDecl",
     "name": "maxCacheItems",
+    "parent": "SentryObjCOptions",
+    "type": "NSUInteger"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "maxFeatureFlags",
     "parent": "SentryObjCOptions",
     "type": "NSUInteger"
   },

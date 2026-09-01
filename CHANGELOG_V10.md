@@ -50,3 +50,4 @@
 - Remove unused `SentryFramesTracker` dependency from `SentryAppStartTracker` in V10 (#8859)
 - Restore binary images and `debug_meta` in `SentryV10` with KSCrash RecordingCore (#8798)
 - Restore macOS AppKit NSException forwarding in `SentryV10` (#8874)
+- Honor `swiftAsyncStacktraces` in `SentryV10` with KSCrash (#8856)
