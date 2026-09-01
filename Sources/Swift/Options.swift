@@ -392,9 +392,12 @@
 
     #endif
 
-    #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+    #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
     /// Configuration options for Session Replay.
+    /// - Note: On visionOS, session replay captures only UIKit window content (2D Scenes).
+    ///   Content in immersive spaces or volumetric windows rendered via RealityKit is not
+    ///   included. Touch indicators reflect indirect input only.
     @objc public var sessionReplay = SentryReplayOptions()
 
     #endif

@@ -108,7 +108,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     var windowFactoryOverride: SentryUserFeedbackWindowFactory?
 #endif
 #endif
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     var sessionReplayCaptureScheduler: SentrySessionReplayRunLoopCaptureScheduler = DefaultSentrySessionReplayRunLoopCaptureScheduler()
 #endif
     @objc public func application() -> SentryApplication? {
@@ -481,7 +481,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     }
 #endif // !SDK_V10
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     private var _screenshotSource: SentryScreenshotSource?
     // Computed property (not a `lazy var`): a `lazy var` caches its first value
     // forever. If `screenshotSource` is first accessed before `startOptions` is
@@ -736,7 +736,7 @@ protocol FramesTrackingProvider {
 extension SentryDependencyContainer: FramesTrackingProvider { }
 #endif
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 protocol ScreenshotIntegrationProvider {
     var screenshotSource: SentryScreenshotSource? { get }
 }

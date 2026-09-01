@@ -1,5 +1,5 @@
 // swiftlint:disable missing_docs
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 import Foundation
 import UIKit
 
@@ -74,10 +74,12 @@ import UIKit
         setNeedsPreviewUpdate()
     }
 
+    #if !os(visionOS)
     public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
         setNeedsPreviewUpdate()
     }
+    #endif
 
     private func setNeedsPreviewUpdate() {
         guard superview != nil, window != nil else { return }

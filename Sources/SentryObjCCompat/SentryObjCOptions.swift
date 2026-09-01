@@ -384,7 +384,7 @@ import Foundation
 
     #endif
 
-    #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+    #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
     @objc public var sessionReplay: SentryObjCReplayOptions {
         get { SentryObjCReplayOptions(wrapped.sessionReplay) }

@@ -58,6 +58,10 @@ import Foundation
         SentryObjCInternalScreenApi(wrapped.value.screen)
     }
 
+    @objc public var replay: SentryObjCInternalReplayApi {
+        SentryObjCInternalReplayApi(wrapped.value.replay)
+    }
+
     #if (os(iOS) || os(tvOS))
     @objc public var screenshot: SentryObjCInternalScreenshotApi {
         SentryObjCInternalScreenshotApi(wrapped.value.screenshot)
@@ -65,10 +69,6 @@ import Foundation
 
     @objc public var viewHierarchy: SentryObjCInternalViewHierarchyApi {
         SentryObjCInternalViewHierarchyApi(wrapped.value.viewHierarchy)
-    }
-
-    @objc public var replay: SentryObjCInternalReplayApi {
-        SentryObjCInternalReplayApi(wrapped.value.replay)
     }
     #endif
 #endif

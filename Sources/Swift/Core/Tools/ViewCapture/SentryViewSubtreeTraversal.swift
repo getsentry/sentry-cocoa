@@ -1,5 +1,5 @@
 #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
-#if os(iOS) || os(tvOS)
+#if os(iOS) || os(tvOS) || os(visionOS)
 import UIKit
 
 // Centralizes subtree traversal and exclusion matching for redaction and capture activity checks.

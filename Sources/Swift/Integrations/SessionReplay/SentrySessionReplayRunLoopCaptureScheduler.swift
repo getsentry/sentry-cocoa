@@ -1,7 +1,7 @@
 // swiftlint:disable missing_docs
 import Foundation
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 @_spi(Private) public protocol SentrySessionReplayRunLoopCaptureScheduler: AnyObject {
     // The token owns the installed observer so stale stops from an old replay cannot remove a newer replay's observer.
