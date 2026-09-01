@@ -1,22 +1,26 @@
 # Samples
 
-> Instructions for LLM agents. Keep edits minimal (headers + bullets). Use `/agents-md` skill when editing.
+> Scope: `Samples/**`. Also follow [root instructions](../AGENTS.md).
 
-## Directory Layout
+## Layout
 
-```
-TargetName/
-├── Sources/         # Swift/ObjC source files
-├── Resources/       # Assets, storyboards
-└── Configuration/   # Info.plist, entitlements, xcconfig
-```
+- Put source in `Sources/`, assets in `Resources/`, and Info.plist, entitlements, and xcconfig files in `Configuration/`
+- Preserve empty required directories with `.gitkeep`
 
-- Info.plist and entitlements go in `Configuration/`, not `Resources/`
-- Add `.gitkeep` to empty directories
+## Project Generation
 
-## UI Tests
+- Generate XcodeGen-based sample projects through Make targets, never by invoking `xcodegen` directly
+- Build one package-based sample with `swift build --package-path Samples/<name>`
+- Generate one XcodeGen project with `make xcode-ci-<name>`
+- Generate all XcodeGen projects with `make xcode-ci`
+- Generate and build one sample with `make build-sample-<name>`
 
-Follow assertion conventions in [`Tests/AGENTS.md`](../Tests/AGENTS.md) — see "Prefer Specific Assertions Over `XCTAssert`".
+## Validation
+
+- Build affected samples with `make build-sample-<name>`
+- Run affected UI tests with `make test-sample-<name>-ui` when behavior changes
+- Use `make test-ui-critical` for critical UI coverage
+- Follow assertion conventions in [`Tests/AGENTS.md`](../Tests/AGENTS.md)
 
 ## Generating Sample Projects
 

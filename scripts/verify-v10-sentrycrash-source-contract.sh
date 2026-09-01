@@ -339,6 +339,21 @@ fi
 if grep -qE '^[[:space:]]*#import[[:space:]]+[<\"]SentryCrashSysCtl\.h[>\"]' Sources/Sentry/SentrySysctlObjC.m; then
   record_error "SentrySysctlObjC.m must not import the legacy SentryCrashSysCtl header"
 fi
+if grep -qE 'SentryCrashFileUtils\.h|sentrycrashfu_(readBytesFromFD|writeBytesToFD)' Sources/Sentry/SentrySessionReplaySyncC.c; then
+  record_error "SentrySessionReplaySyncC.c must use SDK-owned exact file I/O helpers"
+fi
+if grep -qE 'SentryCrash(FileUtils|JSONCodec)\.h|sentrycrash(fu|json)_' Sources/Sentry/SentryViewHierarchyProviderHelper.m; then
+  record_error "SentryViewHierarchyProviderHelper.m must use the SDK-owned streaming serializer"
+fi
+if ! grep -q '#.*import "SentryJSONStreamWriter.h"' Sources/Sentry/SentryViewHierarchyProviderHelper.m \
+  || [[ ! -f Tests/SentryTests/Helper/SentryJSONStreamWriterTests.m ]]; then
+  record_error "The neutral view-hierarchy serializer and its focused contract tests must remain present"
+fi
+for removed_tool in SentryCrashFileUtils.c SentryCrashJSONCodec.c; do
+  if grep -Fqw "$removed_tool" <<< "${retained_tool_sources[*]}"; then
+    record_error "V10 must not retain $removed_tool after the neutral view-hierarchy migration"
+  fi
+done
 
 if grep -R -qE '(^|[^[:alnum:]_])ksbic_registerForImageAdded[[:space:]]*\(' Sources; then
   record_error "SDK source must not take KSCrash's single image-added callback slot"
