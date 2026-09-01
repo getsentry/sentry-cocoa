@@ -205,6 +205,12 @@ let sentryObjCInternalCSettings: [CSetting] = [
     .headerSearchPath("SentryCrash/Reporting/Filters/Tools")
 ] + v10CSettings
 
+let sentryPrivateDependencies: [Target.Dependency] = if enableV10 {
+    ["SentryHeaders", .product(name: "Recording", package: "KSCrash")]
+} else {
+    ["SentryHeaders"]
+}
+
 targets += [
     // At least one source file is required, therefore we use a dummy class to satisfy the SPM build system
     .target(
@@ -216,9 +222,7 @@ targets += [
     ),
     .target(
         name: "_SentryPrivate",
-        dependencies: ["SentryHeaders"] + (enableV10
-            ? [.product(name: "Recording", package: "KSCrash")]
-            : []),
+        dependencies: sentryPrivateDependencies,
         path: "Sources/Sentry",
         sources: ["SentryDummyPrivateEmptyClass.m"],
         publicHeadersPath: "include",
