@@ -1188,8 +1188,8 @@ test-sample-iOS-ObjectiveC-ui: xcode-ci-iOS-ObjectiveC
 # Unlike the simulator based UI tests, these run natively on the host, where AMFI
 # kills any bundle whose signature doesn't match its contents. Skipping code signing
 # leaves the XCTest runner with the stale seal it ships with, so macOS refuses to
-# launch it ("... is damaged and can't be opened"). Ad-hoc signing keeps the bundles
-# valid without requiring a certificate on CI.
+# launch it ("... is damaged and can't be opened"). The "-" identity selects ad-hoc
+# signing, which keeps the bundles valid without requiring a certificate on CI.
 .PHONY: test-sample-macOS-Swift-ui
 test-sample-macOS-Swift-ui: xcode-ci-macOS-Swift
 	@echo "--> Running macOS-Swift UI tests"
