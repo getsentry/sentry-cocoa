@@ -1,7 +1,7 @@
 @import SentryObjC;
 @import XCTest;
 
-#if SENTRY_OBJC_HAS_UIKIT && !TARGET_OS_VISION
+#if SENTRY_OBJC_HAS_UIKIT
 
 @interface SentryObjCInternalScreenshotApiIntegrationTests : XCTestCase
 @end
@@ -38,6 +38,16 @@
 
 #    pragma mark - capture
 
+#    if TARGET_OS_VISION
+- (void)testCapture_shouldReturnNil
+{
+    // -- Act --
+    NSArray<NSData *> *result = [SentryObjCSDK.internal.screenshot capture];
+
+    // -- Assert --
+    XCTAssertNil(result);
+}
+#    else
 - (void)testCapture_whenNoWindows_shouldReturnEmptyArray
 {
     // -- Act --
@@ -47,6 +57,7 @@
     XCTAssertNotNil(result);
     XCTAssertEqual(result.count, 0U);
 }
+#    endif
 
 @end
 
