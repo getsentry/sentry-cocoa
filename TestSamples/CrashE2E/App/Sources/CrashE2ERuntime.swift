@@ -25,6 +25,7 @@ enum CrashE2EScenario: String {
     case swiftAsyncCPPExceptionV2On = "swift-async-cpp-exception-v2-on"
     case ksCrashRetryReportA = "kscrash-retry-report-a"
     case ksCrashRetryReportB = "kscrash-retry-report-b"
+    case crashTimeScope = "crash-time-scope"
 }
 
 struct CrashE2EConfiguration {
@@ -86,6 +87,7 @@ enum CrashE2ERuntime {
         installFakeManagedRuntimeHandlerIfNeeded()
         loadBinaryImageBeforeSDKIfNeeded()
         startConfiguredSDK()
+        CrashE2EScopePopulation.populateIfNeeded()
         NSLog("CrashE2E - SDK started")
     }
 
@@ -108,7 +110,7 @@ enum CrashE2ERuntime {
              .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal, .managedRuntimeSignalChain,
              .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
              .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA,
-             .ksCrashRetryReportB:
+             .ksCrashRetryReportB, .crashTimeScope:
             NSLog("CrashE2E - will trigger scenario: \(configuration.scenario.rawValue)")
             scheduleCrashAfterProcessingCompletesIfRequested()
         }
@@ -133,7 +135,7 @@ enum CrashE2ERuntime {
              .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal, .managedRuntimeSignalChain,
              .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
              .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA,
-             .ksCrashRetryReportB:
+             .ksCrashRetryReportB, .crashTimeScope:
             NSLog("CrashE2E - will trigger scenario synchronously: \(configuration.scenario.rawValue)")
             waitForProcessingCompletionOrAbort()
             Thread.sleep(forTimeInterval: 0.5)
@@ -145,6 +147,7 @@ enum CrashE2ERuntime {
         NSLog("CrashE2E - closing and restarting SDK")
         SentrySDK.close()
         startConfiguredSDK()
+        CrashE2EScopePopulation.populateIfNeeded()
         NSLog("CrashE2E - SDK restarted")
     }
 
@@ -161,6 +164,11 @@ enum CrashE2ERuntime {
             options.enableUncaughtNSExceptionReporting = true
             #endif
             options.maxCacheItems = 100
+
+            if configuration.scenario == .crashTimeScope {
+                options.environment = "crash-e2e-environment"
+                options.dist = "crash-e2e-dist"
+            }
 
             // Keep cpp-exception-v1 in the public option-off configuration for both reporters.
             // KSCrash has no "V1" implementation, but its standard terminate monitor must preserve
@@ -210,7 +218,8 @@ enum CrashE2ERuntime {
              .cppExceptionV2, .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2,
              .objcObject, .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal,
              .managedRuntimePreSDKSignal, .swiftAsyncCPPExceptionV2Off,
-             .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA, .ksCrashRetryReportB:
+             .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA, .ksCrashRetryReportB,
+             .crashTimeScope:
             return
         }
     }
@@ -331,5 +340,28 @@ enum CrashE2ERuntime {
         NSLog("CrashE2E - exiting")
         SentrySDK.close()
         Darwin.exit(0)
+    }
+}
+
+enum CrashE2EScopePopulation {
+    static func populateIfNeeded() {
+        guard CrashE2ERuntime.configuration.scenario == .crashTimeScope else { return }
+
+        SentrySDK.configureScope { scope in
+            let user = User(userId: "crash-e2e-scope-user")
+            user.email = "crash-e2e-scope@example.com"
+            user.username = "crash-e2e-scope"
+            scope.setUser(user)
+            scope.setTag(value: "crash-e2e-tag-value", key: "crash_e2e_tag")
+            scope.setExtra(value: "crash-e2e-extra-value", key: "crash_e2e_extra")
+            scope.setContext(value: ["marker": "crash-e2e-context"], key: "crash_e2e")
+            scope.setDist("crash-e2e-dist")
+            scope.setEnvironment("crash-e2e-environment")
+
+            let breadcrumb = Breadcrumb(level: .info, category: "crash-e2e")
+            breadcrumb.type = "debug"
+            breadcrumb.message = "crash-e2e-breadcrumb"
+            scope.addBreadcrumb(breadcrumb)
+        }
     }
 }
