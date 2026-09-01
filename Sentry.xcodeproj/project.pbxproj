@@ -735,7 +735,6 @@
 		D5D059BB76ED4DC8819BEDDA /* libSentryTestUtils.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8431F00A29B284F200D8DC56 /* libSentryTestUtils.a */; };
 		A8905B010000000000000001 /* libSentryTestUtils.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3BE337C2FC7CB5AC55D2FDAA /* libSentryTestUtils.a */; };
 		A8905B010000000000000002 /* libSentryTestUtils.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3BE337C2FC7CB5AC55D2FDAA /* libSentryTestUtils.a */; };
-		A8905B010000000000000007 /* Recording in Frameworks */ = {isa = PBXBuildFile; productRef = 3CB64C8F3029D35800ED9B67 /* Recording */; };
 		D4715FA12FC711DA00508994 /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 63AA759B1EB8AEF500D153DE /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D4715FA52FC711DE00508994 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D483AFA32E9D555300B43C27 /* XCTest.framework */; };
 		D4715FA62FC711DE00508994 /* XCTest.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D483AFA32E9D555300B43C27 /* XCTest.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -2146,7 +2145,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				D483AFA42E9D555300B43C27 /* XCTest.framework in Frameworks */,
-				A8905B010000000000000007 /* Recording in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3998,9 +3996,6 @@
 				FAB1188E2F4633F40000CC24 /* SentryTestUtils */,
 			);
 			name = SentryTestUtils;
-			packageProductDependencies = (
-				3CB64C8F3029D35800ED9B67 /* Recording */,
-			);
 			productName = SentryTestUtils;
 			productReference = 8431F00A29B284F200D8DC56 /* libSentryTestUtils.a */;
 			productType = "com.apple.product-type.library.static";
