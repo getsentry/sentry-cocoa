@@ -25689,6 +25689,82 @@
                 "accessorKind": "get",
                 "children": [
                   {
+                    "kind": "TypeNominal",
+                    "name": "UInt",
+                    "printedName": "Swift.UInt",
+                    "usr": "s:Su"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry7OptionsC15maxFeatureFlagsSuvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)maxFeatureFlags"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "UInt",
+                    "printedName": "Swift.UInt",
+                    "usr": "s:Su"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry7OptionsC15maxFeatureFlagsSuvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setMaxFeatureFlags:"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "UInt",
+                "printedName": "Swift.UInt",
+                "usr": "s:Su"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasStorage",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry7OptionsC15maxFeatureFlagsSuvp",
+            "moduleName": "Sentry",
+            "name": "maxFeatureFlags",
+            "printedName": "maxFeatureFlags",
+            "usr": "c:@M@Sentry@objc(cs)SentryOptions(py)maxFeatureFlags"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
                     "children": [
                       {
                         "children": [
@@ -45369,6 +45445,48 @@
           {
             "children": [
               {
+                "kind": "TypeNominal",
+                "name": "Scope",
+                "printedName": "Sentry.Scope",
+                "usr": "c:objc(cs)SentryScope"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Scope",
+                "printedName": "Sentry.Scope",
+                "usr": "c:objc(cs)SentryScope"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A16InternalScopeApiV05cloneC0ySo0aC0CAFF",
+            "moduleName": "Sentry",
+            "name": "cloneScope",
+            "printedName": "cloneScope(_:)",
+            "usr": "s:6Sentry0A16InternalScopeApiV05cloneC0ySo0aC0CAFF"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Scope",
+                "printedName": "Sentry.Scope",
+                "usr": "c:objc(cs)SentryScope"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A16InternalScopeApiV06createC0So0aC0CyF",
+            "moduleName": "Sentry",
+            "name": "createScope",
+            "printedName": "createScope()",
+            "usr": "s:6Sentry0A16InternalScopeApiV06createC0So0aC0CyF"
+          },
+          {
+            "children": [
+              {
                 "children": [
                   {
                     "children": [
@@ -45410,6 +45528,56 @@
             "name": "serializedContexts",
             "printedName": "serializedContexts()",
             "usr": "s:6Sentry0A16InternalScopeApiV18serializedContextsSDySSSDySSypGGyF"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "Void",
+                    "printedName": "Swift.Void"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "() -> Swift.Void",
+                "typeAttributes": [
+                  "noescape"
+                ]
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Scope",
+                "printedName": "Sentry.Scope",
+                "usr": "c:objc(cs)SentryScope"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A16InternalScopeApiV011withCurrentC0yySo0aC0C_yyXEtF",
+            "moduleName": "Sentry",
+            "name": "withCurrentScope",
+            "printedName": "withCurrentScope(_:_:)",
+            "usr": "s:6Sentry0A16InternalScopeApiV011withCurrentC0yySo0aC0C_yyXEtF"
           }
         ],
         "conformances": [

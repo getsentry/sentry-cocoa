@@ -221,7 +221,8 @@ let sentryObjCInternalCSettings: [CSetting] = [
     .headerSearchPath("SentryCrash/Installations"),
     .headerSearchPath("SentryCrash/Reporting/Filters"),
     .headerSearchPath("SentryCrash/Reporting/Filters/Tools"),
-    .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
+    .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"])),
+    .define("SENTRY_UI_TEST_SUPPORT", to: "1", .when(traits: ["_SentryInternalUITestSupport"]))
 ] + v10CSettings
 
 targets += [
@@ -305,7 +306,8 @@ let package = Package(
     products: products,
     traits: [
         .init(name: "NoUIFramework", description: "Build without UIKit/AppKit/SwiftUI framework linkage. Use for command-line tools or contexts where UI frameworks are unavailable."),
-        .init(name: "V10", description: "Enable SDK V10 API changes, including the upstream KSCrash integration.")
+        .init(name: "V10", description: "Enable SDK V10 API changes, including the upstream KSCrash integration."),
+        .init(name: "_SentryInternalUITestSupport", description: "Internal support for Sentry's sample UI tests. Do not enable in production.")
     ],
     dependencies: packageDependencies,
     targets: targets,

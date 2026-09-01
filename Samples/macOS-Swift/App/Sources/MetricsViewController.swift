@@ -1,6 +1,6 @@
 // swiftlint:disable function_body_length
 import AppKit
-import Sentry
+import SentrySwift
 
 class MetricsViewController: NSViewController {
     /// Counter metric - demonstrates all supported attribute types as variables and literals
