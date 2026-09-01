@@ -249,6 +249,7 @@ import Foundation
     }
     #endif
 
+    #if !SDK_V10
     @objc public static func pauseAppHangTracking() {
         SentrySDK.pauseAppHangTracking()
     }
@@ -256,6 +257,7 @@ import Foundation
     @objc public static func resumeAppHangTracking() {
         SentrySDK.resumeAppHangTracking()
     }
+    #endif
 
     @objc(flush:)
     public static func flush(timeout: TimeInterval) {

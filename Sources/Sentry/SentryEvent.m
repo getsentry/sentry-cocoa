@@ -182,6 +182,7 @@ NS_ASSUME_NONNULL_BEGIN
     return crumbs;
 }
 
+#if !SDK_V10
 - (BOOL)isAppHangEvent
 {
     return self.exceptions.count == 1 &&
@@ -190,6 +191,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                         NSString, self.exceptions.firstObject)
                                                         .type];
 }
+#endif // !SDK_V10
 
 @end
 

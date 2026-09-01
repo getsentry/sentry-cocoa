@@ -4,6 +4,7 @@
 
 ### Features
 
+- Copy scope data into KSCrash crash reports in `SentryV10` (#8851)
 - Sync scope data to KSCrash crash reports in `SentryV10` (#8759)
 - Process pending KSCrash reports into fatal Sentry events in `SentryV10` (#8515)
 - Install KSCrash crash handler in `SentryV10` with production-safe monitors matching SentryCrash's existing monitor set (#8469)
@@ -21,6 +22,7 @@
 
 - Enable MetricKit integration by default (#8716)
 - Enable logging by default (#8717)
+- Remove `enableLogs`; logs are always enabled in v10 (#8769)
 - Change the default diagnostic level to warning (#8732)
 - Enable `swiftAsyncStacktraces` by default (#8718)
 - Remove `sendDefaultPii`; use `dataCollection` to configure automatic data collection (#8253)
@@ -30,6 +32,10 @@
 - Remove data collection options without applicable Cocoa collectors (#8563)
 - Standalone app starts are now the default and only mode; the legacy `ui.load` attach-to-transaction path and `enableStandaloneAppStartTracing` experimental option are removed (#8719)
 - Removed deprecated user feedback widget configuration and API (#8731)
+- Remove legacy app hang event tracking in V10 (#8817)
+  - Remove the `enableAppHangTracking` and `enableReportNonFullyBlockingAppHangs` options
+  - Remove the `pauseAppHangTracking` and `resumeAppHangTracking` APIs
+  - Remove the `enableWatchdogTerminationsV2` option; watchdog termination tracking always uses the run-loop-based tracker
 
 ### Fixes
 
@@ -41,3 +47,8 @@
 - Omit failed-request headers when `options.dataCollection.httpHeaders` is disabled (#8562)
 - Normalize profiling CPU usage to 0–100 percent (#8323)
 - Bump KSCrash to `2.6.0`
+- Restore memory metrics and initial OS, device, app, and runtime contexts in `SentryV10` (#8836)
+- Remove unused `SentryFramesTracker` dependency from `SentryAppStartTracker` in V10 (#8859)
+- Restore binary images and `debug_meta` in `SentryV10` with KSCrash RecordingCore (#8798)
+- Restore macOS AppKit NSException forwarding in `SentryV10` (#8874)
+- Honor `swiftAsyncStacktraces` in `SentryV10` with KSCrash (#8856)

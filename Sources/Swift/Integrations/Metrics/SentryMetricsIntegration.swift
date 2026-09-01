@@ -1,7 +1,7 @@
 internal import _SentryPrivate
 
 protocol SentryMetricsIntegrationProtocol {
-    func addMetric(_ metric: SentryMetric, scope: Scope)
+    func addMetric(_ metric: SentryMetric, scope: Scope, currentScope: Scope?)
 }
 
 /// Empty on purpose. Required by the SwiftIntegration protocol constraint.
@@ -11,7 +11,9 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
     private let scopeMetaData: SentryDefaultScopeApplyingMetadata
     private let beforeSendMetric: ((SentryMetric) -> SentryMetric?)?
 
-    init(with options: Options, dependencies _: Dependencies) {
+    init?(with options: Options, dependencies _: Dependencies) {
+        guard options.enableMetrics else { return nil }
+
 #if SDK_V10
         let shouldAddDefaultUserId = options.dataCollection.userInfo
 #else
@@ -39,7 +41,7 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
 
     // MARK: - Public API for Metrics
 
-    func addMetric(_ metric: SentryMetric, scope: Scope) {
+    func addMetric(_ metric: SentryMetric, scope: Scope, currentScope: Scope? = nil) {
         // We go directly to the client instead of through the hub because metrics only have a
         // static API today and the hub doesn't implement any metrics methods. Ideally, metrics should also go
         // through the hub to align with other telemetry types.
@@ -57,10 +59,12 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
         }
 
         var mutableMetric = metric
-        scope.addAttributesToItem(&mutableMetric, metadata: self.scopeMetaData)
+        // Custom attribute precedence: caller > current scope > global scope. Trace correlation,
+        // user, and the other reserved attributes come from the global scope only.
+        scope.addAttributesToItem(&mutableMetric, metadata: self.scopeMetaData, currentScope: currentScope)
 
         if let beforeSendMetric = beforeSendMetric {
-            // Create a non-mutated copy of the metric, because it could be modified by the SDK user's `beforeSendMetric`
+            // Create a non-mutated copy of the metric, because it could be modified by the SDK user's `beforeSendMetric` 
             let metricToSend = mutableMetric
             guard let processedItem = beforeSendMetric(mutableMetric) else {
                 SentrySDKLog.debug("Metric dropped by beforeSendMetric callback.")

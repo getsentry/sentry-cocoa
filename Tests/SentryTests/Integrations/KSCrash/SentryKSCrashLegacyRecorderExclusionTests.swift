@@ -27,6 +27,8 @@ final class SentryKSCrashLegacyRecorderExclusionTests: XCTestCase {
             "sentryErrorWithDomain",
             "sentrycrashobjc_objectType",
             "sentrycrashsignal_signalName",
+            "sentrycrashsc_initSelfThread",
+            "sentrycrashsc_initWithBacktrace",
             "sentrycrashstring_extractHexValue"
         ]
 
@@ -81,6 +83,10 @@ final class SentryKSCrashLegacyRecorderExclusionTests: XCTestCase {
         for symbol in Self.compatibilitySymbolAllowlist {
             XCTAssertNotNil(dlsym(UnsafeMutableRawPointer(bitPattern: -2), symbol), "Missing compatibility symbol: \(symbol)")
         }
+    }
+
+    func testKSCrashBuild_whenInspectingRuntime_shouldNotExposeBroadReporterProtocol() {
+        XCTAssertNil(NSProtocolFromString("SentryCrashReporter"))
     }
 
     func testKSCrashBuild_whenInspectingRuntime_shouldNotContainSentryCrashRecorderClasses() {

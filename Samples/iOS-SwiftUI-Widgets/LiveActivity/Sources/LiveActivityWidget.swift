@@ -1,6 +1,7 @@
+import _SentryPrivate
 import ActivityKit
-import Sentry
 import SentrySampleShared
+import SentrySwift
 import SwiftUI
 import WidgetKit
 
@@ -17,7 +18,9 @@ struct LiveActivityWidget: Widget {
             options.dsn = SentrySDKWrapper.defaultDSN
             options.debug = true
             SentrySDKWrapper.shared.configureDataCollection(options)
+            #if !SDK_V10
             options.enableAppHangTracking = true
+            #endif // !SDK_V10
         }
     }
     
@@ -85,6 +88,6 @@ struct LiveActivityWidget: Widget {
     }
 
     var isANRTrackingEnabled: Bool {
-        return isSentryEnabled && SentrySDKInternal.trimmedInstalledIntegrationNames().contains("ANRTracking")
+        return isSentryEnabled && SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().contains("ANRTracking")
     }
 }

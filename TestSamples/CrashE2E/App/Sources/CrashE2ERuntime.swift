@@ -10,6 +10,7 @@ enum CrashE2EScenario: String {
     case nsExceptionSubclass = "ns-exception-subclass"
     case cppExceptionV1 = "cpp-exception-v1"
     case cppExceptionV2 = "cpp-exception-v2"
+    case cppExceptionV2DynamicImage = "cpp-exception-v2-dynamic-image"
     case unityCxaThrow = "unity-cxa-throw"
     case unityCxaThrowV2 = "unity-cxa-throw-v2"
     case objcObject = "objc-object"
@@ -24,6 +25,7 @@ enum CrashE2EScenario: String {
     case swiftAsyncCPPExceptionV2On = "swift-async-cpp-exception-v2-on"
     case ksCrashRetryReportA = "kscrash-retry-report-a"
     case ksCrashRetryReportB = "kscrash-retry-report-b"
+    case crashTimeScope = "crash-time-scope"
 }
 
 struct CrashE2EConfiguration {
@@ -85,6 +87,7 @@ enum CrashE2ERuntime {
         installFakeManagedRuntimeHandlerIfNeeded()
         loadBinaryImageBeforeSDKIfNeeded()
         startConfiguredSDK()
+        CrashE2EScopePopulation.populateIfNeeded()
         NSLog("CrashE2E - SDK started")
     }
 
@@ -103,10 +106,11 @@ enum CrashE2ERuntime {
         case .managedRuntimePreSDKSignal:
             abortBecausePreSDKScenarioReturned()
         case .signal, .nsException, .nsExceptionSubclass, .cppExceptionV1, .cppExceptionV2,
-             .unityCxaThrow, .unityCxaThrowV2, .objcObject, .objcObjectAfterCaughtCPP,
-             .binaryImages, .ignoredSignal, .managedRuntimeSignalChain, .managedRuntimeClosedSignal,
-             .managedRuntimeReinitSignal, .swiftAsyncCPPExceptionV2Off,
-             .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA, .ksCrashRetryReportB:
+             .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2, .objcObject,
+             .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal, .managedRuntimeSignalChain,
+             .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
+             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA,
+             .ksCrashRetryReportB, .crashTimeScope:
             NSLog("CrashE2E - will trigger scenario: \(configuration.scenario.rawValue)")
             scheduleCrashAfterProcessingCompletesIfRequested()
         }
@@ -127,10 +131,11 @@ enum CrashE2ERuntime {
         case .managedRuntimePreSDKSignal:
             abortBecausePreSDKScenarioReturned()
         case .signal, .nsException, .nsExceptionSubclass, .cppExceptionV1, .cppExceptionV2,
-             .unityCxaThrow, .unityCxaThrowV2, .objcObject, .objcObjectAfterCaughtCPP,
-             .binaryImages, .ignoredSignal, .managedRuntimeSignalChain, .managedRuntimeClosedSignal,
-             .managedRuntimeReinitSignal, .swiftAsyncCPPExceptionV2Off,
-             .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA, .ksCrashRetryReportB:
+             .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2, .objcObject,
+             .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal, .managedRuntimeSignalChain,
+             .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
+             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA,
+             .ksCrashRetryReportB, .crashTimeScope:
             NSLog("CrashE2E - will trigger scenario synchronously: \(configuration.scenario.rawValue)")
             waitForProcessingCompletionOrAbort()
             Thread.sleep(forTimeInterval: 0.5)
@@ -142,6 +147,7 @@ enum CrashE2ERuntime {
         NSLog("CrashE2E - closing and restarting SDK")
         SentrySDK.close()
         startConfiguredSDK()
+        CrashE2EScopePopulation.populateIfNeeded()
         NSLog("CrashE2E - SDK restarted")
     }
 
@@ -151,17 +157,25 @@ enum CrashE2ERuntime {
             options.debug = true
             options.enableAutoSessionTracking = true
             options.enableSwizzling = true
+            #if !SDK_V10
             options.enableAppHangTracking = false
+            #endif // !SDK_V10
             #if os(macOS)
             options.enableUncaughtNSExceptionReporting = true
             #endif
             options.maxCacheItems = 100
+
+            if configuration.scenario == .crashTimeScope {
+                options.environment = "crash-e2e-environment"
+                options.dist = "crash-e2e-dist"
+            }
 
             // Keep cpp-exception-v1 in the public option-off configuration for both reporters.
             // KSCrash has no "V1" implementation, but its standard terminate monitor must preserve
             // uncaught C++ reporting when throw-site swapping is disabled. unity-cxa-throw matches
             // Sentry Unity's option-off behavior; unity-cxa-throw-v2 is the KSCrash-only companion.
             if configuration.scenario == .cppExceptionV2
+                || configuration.scenario == .cppExceptionV2DynamicImage
                 || configuration.scenario == .unityCxaThrowV2
                 || configuration.scenario == .objcObject
                 || configuration.scenario == .objcObjectAfterCaughtCPP
@@ -170,7 +184,9 @@ enum CrashE2ERuntime {
                 options.experimental.enableUnhandledCPPExceptionsV2 = true
             }
 
-            if configuration.scenario == .swiftAsyncCPPExceptionV2On {
+            if configuration.scenario == .swiftAsyncCPPExceptionV2Off {
+                options.swiftAsyncStacktraces = false
+            } else if configuration.scenario == .swiftAsyncCPPExceptionV2On {
                 options.swiftAsyncStacktraces = true
             }
 
@@ -199,11 +215,21 @@ enum CrashE2ERuntime {
         case .managedRuntimeSignalChain, .managedRuntimeClosedSignal, .managedRuntimeReinitSignal:
             installFakeManagedRuntimeHandler()
         case .idle, .drain, .signal, .nsException, .nsExceptionSubclass, .cppExceptionV1,
-             .cppExceptionV2, .unityCxaThrow, .unityCxaThrowV2, .objcObject,
-             .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal, .managedRuntimePreSDKSignal,
-             .swiftAsyncCPPExceptionV2Off,
-             .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA, .ksCrashRetryReportB:
+             .cppExceptionV2, .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2,
+             .objcObject, .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal,
+             .managedRuntimePreSDKSignal, .swiftAsyncCPPExceptionV2Off,
+             .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA, .ksCrashRetryReportB,
+             .crashTimeScope:
             return
+        }
+    }
+
+    static func loadCPPExceptionImageAfterSDK() {
+        guard configuration.scenario == .cppExceptionV2DynamicImage else { return }
+        let requestedPath = dynamicBinaryImagePath(named: "After")
+        guard requestedPath.withCString({ CrashE2ELoadDynamicBinaryImage($0, 1) }) != nil else {
+            NSLog("CrashE2E - failed to load C++ exception image after SDK start")
+            Darwin.abort()
         }
     }
 
@@ -314,5 +340,28 @@ enum CrashE2ERuntime {
         NSLog("CrashE2E - exiting")
         SentrySDK.close()
         Darwin.exit(0)
+    }
+}
+
+enum CrashE2EScopePopulation {
+    static func populateIfNeeded() {
+        guard CrashE2ERuntime.configuration.scenario == .crashTimeScope else { return }
+
+        SentrySDK.configureScope { scope in
+            let user = User(userId: "crash-e2e-scope-user")
+            user.email = "crash-e2e-scope@example.com"
+            user.username = "crash-e2e-scope"
+            scope.setUser(user)
+            scope.setTag(value: "crash-e2e-tag-value", key: "crash_e2e_tag")
+            scope.setExtra(value: "crash-e2e-extra-value", key: "crash_e2e_extra")
+            scope.setContext(value: ["marker": "crash-e2e-context"], key: "crash_e2e")
+            scope.setDist("crash-e2e-dist")
+            scope.setEnvironment("crash-e2e-environment")
+
+            let breadcrumb = Breadcrumb(level: .info, category: "crash-e2e")
+            breadcrumb.type = "debug"
+            breadcrumb.message = "crash-e2e-breadcrumb"
+            scope.addBreadcrumb(breadcrumb)
+        }
     }
 }

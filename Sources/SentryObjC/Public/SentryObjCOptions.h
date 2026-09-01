@@ -115,6 +115,17 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSUInteger maxBreadcrumbs;
 
 /**
+ * How many feature flag evaluations do you want to keep in memory on the scope?
+ * @discussion Events record the most recent, unique feature flag evaluations. When the limit is
+ * exceeded, the SDK drops the oldest evaluations. Set it to @c 0 to stop recording feature flag
+ * evaluations on the scope.
+ * @note Spans always track the first 10 feature flags evaluated within the span, independent of
+ * this option.
+ * @note Default is 100.
+ */
+@property (nonatomic) NSUInteger maxFeatureFlags;
+
+/**
  * When enabled, the SDK adds breadcrumbs for each network request. As this feature uses
  * swizzling, disabling @c enableSwizzling also disables this feature.
  * @note Default value is @c YES.
@@ -141,6 +152,16 @@ NS_ASSUME_NONNULL_BEGIN
  * Return @c nil to drop the span.
  */
 @property (nonatomic, copy, nullable) SentryObjCSpan *_Nullable (^beforeSendSpan)(SentryObjCSpan *);
+
+#if !SDK_V10
+/**
+ * When enabled, the SDK sends logs to Sentry. Logs can be captured using the
+ * @c SentryObjCSDK.logger API, which provides structured logging with attributes.
+ * @note Default value is @c NO.
+ * @note In v10 and later, logs are always enabled. Remove this option when upgrading.
+ */
+@property (nonatomic) BOOL enableLogs;
+#endif // !SDK_V10
 
 /// This block can be used to modify the breadcrumb before it will be serialized and sent.
 @property (nonatomic, copy, nullable) SentryObjCBreadcrumb *_Nullable (^beforeBreadcrumb)
@@ -401,6 +422,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic) BOOL sendClientReports;
 
+#if !SDK_V10
 /**
  * When enabled, the SDK tracks when the application stops responding for a specific amount of
  * time defined by the @c appHangTimeoutInterval option.
@@ -408,6 +430,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @note App Hang tracking is automatically disabled if a debugger is attached.
  */
 @property (nonatomic) BOOL enableAppHangTracking;
+#endif // !SDK_V10
 
 /**
  * The minimum amount of time an app should be unresponsive to be classified as an App Hang.
@@ -523,6 +546,12 @@ NS_ASSUME_NONNULL_BEGIN
 /// Options for experimental features that are subject to change.
 @property (nonatomic, strong) SentryObjCExperimentalOptions *experimental;
 
+/**
+ * When enabled, the SDK sends metrics to Sentry.
+ * @note Default value is @c YES.
+ */
+@property (nonatomic) BOOL enableMetrics;
+
 #if (TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION) && SENTRY_OBJC_HAS_UIKIT
 
 /**
@@ -583,12 +612,14 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) BOOL enableStandaloneAppStartTracing;
 #    endif // !SDK_V10
 
+#    if !SDK_V10
 /**
  * When enabled, the SDK reports non-fully-blocking app hangs. A non-fully-blocking app hang is
  * when the app appears stuck to the user but can still render a few frames.
  * @note The default is @c YES.
  */
 @property (nonatomic) BOOL enableReportNonFullyBlockingAppHangs;
+#    endif // !SDK_V10
 
 #endif
 

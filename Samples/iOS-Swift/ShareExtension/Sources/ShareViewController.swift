@@ -1,4 +1,5 @@
-@_spi(Private) import Sentry
+@_spi(Private) import SentrySwift
+import _SentryPrivate
 import SentrySampleShared
 import Social
 import UIKit
@@ -29,8 +30,10 @@ class ShareViewController: SLComposeServiceViewController {
             options.debug = true
             SentrySDKWrapper.shared.configureDataCollection(options)
 
+            #if !SDK_V10
             // App Hang Tracking must be enabled, but should not be installed
             options.enableAppHangTracking = true
+            #endif // !SDK_V10
         }
     }
 
@@ -41,7 +44,7 @@ class ShareViewController: SLComposeServiceViewController {
 
     override func didSelectPost() {
         SentrySDK.capture(message: "iOS-Swift-ShareExtension: didSelectPost called")
-        
+
         self.extensionContext!.completeRequest(returningItems: [], completionHandler: nil)
     }
 
@@ -66,7 +69,7 @@ class ShareViewController: SLComposeServiceViewController {
     }
 
     var isANRInstalled: Bool {
-        return isSentryEnabled && SentrySDKInternal.trimmedInstalledIntegrationNames().contains("ANRTracking")
+        return isSentryEnabled && SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().contains("ANRTracking")
     }
 
     var isSentryEnabled: Bool {

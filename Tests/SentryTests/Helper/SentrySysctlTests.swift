@@ -53,6 +53,26 @@ class SentrySysctlTests: XCTestCase {
         XCTAssertGreaterThan(distance, 0)
     }
 
+    func testNeutralTimestampProviders() {
+        let sut = SentrySysctlObjC(
+            systemBootTimestampProvider: { 123 },
+            processStartTimestampProvider: { 456 }
+        )
+
+        XCTAssertEqual(sut.systemBootTimestamp, Date(timeIntervalSince1970: 123))
+        XCTAssertEqual(sut.processStartTimestamp, Date(timeIntervalSince1970: 456))
+    }
+
+    func testNeutralTimestampProviderErrorFallback() {
+        let sut = SentrySysctlObjC(
+            systemBootTimestampProvider: { 0 },
+            processStartTimestampProvider: { 0 }
+        )
+
+        XCTAssertEqual(sut.systemBootTimestamp, Date(timeIntervalSince1970: 0))
+        XCTAssertEqual(sut.processStartTimestamp, Date(timeIntervalSince1970: 0))
+    }
+
     func testDebuggerStatus_whenProcessIsTraced_shouldReturnTrue() {
         let sut = SentryDefaultDebuggerStatusProvider(processFlagsProvider: { P_TRACED })
 

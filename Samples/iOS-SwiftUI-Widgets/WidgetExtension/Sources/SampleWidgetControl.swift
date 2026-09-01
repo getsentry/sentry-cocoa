@@ -1,6 +1,7 @@
+import _SentryPrivate
 import AppIntents
-import Sentry
 import SentrySampleShared
+import SentrySwift
 import SwiftUI
 import WidgetKit
 
@@ -19,7 +20,9 @@ struct SampleWidgetControl: ControlWidget {
             options.dsn = SentrySDKWrapper.defaultDSN
             options.debug = true
             SentrySDKWrapper.shared.configureDataCollection(options)
+            #if !SDK_V10
             options.enableAppHangTracking = true
+            #endif // !SDK_V10
         }
     }
 
@@ -51,7 +54,7 @@ extension SampleWidgetControl {
 
         func currentValue(configuration: ANRConfiguration) async throws -> Value {
             // Check if ANR tracking is installed
-            let anrInstalled = SentrySDK.isEnabled && SentrySDKInternal.trimmedInstalledIntegrationNames()
+            let anrInstalled = SentrySDK.isEnabled && SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames()
                     .contains("ANRTracking")
 
             // isOn = true means ANR is disabled (good for widgets)

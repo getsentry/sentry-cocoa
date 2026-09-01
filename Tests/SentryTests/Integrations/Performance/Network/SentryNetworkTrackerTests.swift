@@ -152,6 +152,26 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertNil(task.observationInfo)
     }
 
+    func testResume_whenSentryRequest_shouldNotAccessScope() {
+        // -- Arrange --
+        let hub = NetworkTrackerTestHub(options: fixture.options, scope: fixture.scope)
+        let dependencies = NetworkTrackerTestDependencies(
+            dateProvider: fixture.dateProvider,
+            hub: hub,
+            threadInspector: SentryDependencyContainer.sharedInstance().threadInspector
+        )
+        let sut = SentryDefaultNetworkTracker<NetworkTrackerTestDependencies>(
+            options: fixture.options,
+            dependencies: dependencies
+        )
+
+        // -- Act --
+        sut.urlSessionTaskResume(fixture.sentryTask)
+
+        // -- Assert --
+        XCTAssertEqual(hub.scopeAccessCount, 0)
+    }
+
     func testSDKOptionsNil() {
         SentrySDKInternal.setCurrentHub(nil)
 
@@ -174,6 +194,50 @@ class SentryNetworkTrackerTests: XCTestCase {
         // -- Assert --
         let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
         XCTAssertTrue(breadcrumbs?.isEmpty ?? true)
+    }
+
+    func testDisableDisablesAllFeatureFlags() {
+        let sut = fixture.getSut()
+
+        XCTAssertTrue(sut.isNetworkTrackingEnabled)
+        XCTAssertTrue(sut.isNetworkBreadcrumbEnabled)
+        XCTAssertTrue(sut.isCaptureFailedRequestsEnabled)
+        XCTAssertTrue(sut.isGraphQLOperationTrackingEnabled)
+
+        sut.disable()
+
+        XCTAssertFalse(sut.isNetworkTrackingEnabled)
+        XCTAssertFalse(sut.isNetworkBreadcrumbEnabled)
+        XCTAssertFalse(sut.isCaptureFailedRequestsEnabled)
+        XCTAssertFalse(sut.isGraphQLOperationTrackingEnabled)
+    }
+
+    func testFeatureFlagsCanBeEnabledIndependently() {
+        let sut = TestNetworkTracker(
+            options: fixture.options,
+            dependencies: SentryDependencyContainer.sharedInstance()
+        )
+
+        XCTAssertFalse(sut.isNetworkTrackingEnabled)
+        XCTAssertFalse(sut.isNetworkBreadcrumbEnabled)
+        XCTAssertFalse(sut.isCaptureFailedRequestsEnabled)
+        XCTAssertFalse(sut.isGraphQLOperationTrackingEnabled)
+
+        sut.enableNetworkTracking()
+
+        XCTAssertTrue(sut.isNetworkTrackingEnabled)
+        XCTAssertFalse(sut.isNetworkBreadcrumbEnabled)
+        XCTAssertFalse(sut.isCaptureFailedRequestsEnabled)
+        XCTAssertFalse(sut.isGraphQLOperationTrackingEnabled)
+
+        sut.enableNetworkBreadcrumbs()
+        sut.enableCaptureFailedRequests()
+        sut.enableGraphQLOperationTracking()
+
+        XCTAssertTrue(sut.isNetworkTrackingEnabled)
+        XCTAssertTrue(sut.isNetworkBreadcrumbEnabled)
+        XCTAssertTrue(sut.isCaptureFailedRequestsEnabled)
+        XCTAssertTrue(sut.isGraphQLOperationTrackingEnabled)
     }
 
     func testDisabledTracker() throws {
@@ -1515,6 +1579,65 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["baggage"] ?? "", "sentry-trace_id=something")
     }
 
+    func testResume_whenTaskCarriesActiveNetworkSpanHeader_shouldIgnoreDuplicateTask() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        let transaction = try XCTUnwrap(startTransaction() as? SentryTracer)
+        let originalTask = createDataTask()
+        sut.urlSessionTaskResume(originalTask)
+        let networkSpan = try XCTUnwrap(transaction.children.first)
+        let duplicateTask = createDataTask { request in
+            var duplicateRequest = request
+            duplicateRequest.setValue(
+                networkSpan.toTraceHeader().value(),
+                forHTTPHeaderField: SENTRY_TRACE_HEADER
+            )
+            return duplicateRequest
+        }
+
+        // -- Act --
+        sut.urlSessionTaskResume(duplicateTask)
+        duplicateTask.setResponse(try createResponse(code: 200))
+        sut.urlSessionTask(duplicateTask, setState: .completed)
+
+        // -- Assert --
+        XCTAssertEqual(transaction.children.count, 1)
+        let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
+        XCTAssertTrue(breadcrumbs?.isEmpty ?? true)
+    }
+
+    func testResume_whenDuplicateTaskResumesAfterMatchingSpanFinishes_shouldTrackTask() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        let transaction = try XCTUnwrap(startTransaction() as? SentryTracer)
+        let originalTask = createDataTask()
+        sut.urlSessionTaskResume(originalTask)
+        let originalSpan = try XCTUnwrap(transaction.children.first)
+        let duplicateTask = createDataTask { request in
+            var duplicateRequest = request
+            duplicateRequest.setValue(
+                originalSpan.toTraceHeader().value(),
+                forHTTPHeaderField: SENTRY_TRACE_HEADER
+            )
+            return duplicateRequest
+        }
+        sut.urlSessionTaskResume(duplicateTask)
+        try setTaskState(duplicateTask, state: .suspended)
+        originalTask.setResponse(try createResponse(code: 200))
+        try setTaskState(originalTask, state: .completed)
+
+        // -- Act --
+        sut.urlSessionTaskResume(duplicateTask)
+        duplicateTask.setResponse(try createResponse(code: 200))
+        try setTaskState(duplicateTask, state: .completed)
+
+        // -- Assert --
+        XCTAssertEqual(transaction.children.count, 2)
+        XCTAssertTrue(try XCTUnwrap(transaction.children.last).isFinished)
+        let breadcrumbs = try XCTUnwrap(Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?)
+        XCTAssertEqual(breadcrumbs.count, 2)
+    }
+
     func testTraceHeader() throws {
         let sut = fixture.getSut()
         let task = createDataTask()
@@ -2335,6 +2458,41 @@ class SentryNetworkTrackerTests: XCTestCase {
         let spans = Dynamic(transaction).children as [Span]?
         XCTAssertEqual(spans?.count ?? 0, 0)
     }
+}
+
+private struct NetworkTrackerTestDependencies: CurrentDateProvider, HubProvider, ThreadInspectorProvider {
+    let dateProvider: SentryCurrentDateProvider
+    let hub: Hub
+    let threadInspector: SentryThreadInspector
+}
+
+private final class NetworkTrackerTestHub: Hub {
+    private let storedScope: Scope
+    private(set) var scopeAccessCount = 0
+    let currentOptions: Options?
+
+    init(options: Options, scope: Scope) {
+        currentOptions = options
+        self.storedScope = scope
+    }
+
+    var options: Options {
+        currentOptions ?? Options()
+    }
+
+    var scope: Scope {
+        scopeAccessCount += 1
+        return storedScope
+    }
+
+    func configureScope(_ callback: @escaping (Scope) -> Void) {
+        callback(storedScope)
+    }
+
+    func storeEnvelope(_ envelope: SentryEnvelope) {}
+    func captureEnvelope(_ envelope: SentryEnvelope) {}
+    func captureErrorEvent(event: Event) {}
+    func setTrace(_ traceId: SentryId, spanId: SpanId) {}
 }
 
 private final class NetworkTrackerTestSpan: NSObject, Span {

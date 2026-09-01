@@ -4,6 +4,14 @@ import XCTest
 
 final class SentrySwiftIntegrationInstallerTests: XCTestCase {
 
+    private var expectedReplayIntegrationCount: Int {
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+        return 1
+#else
+        return 0
+#endif
+    }
+
     override func tearDown() {
         SentrySDKInternal.setCurrentHub(nil)
 
@@ -22,9 +30,12 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         options.enableAutoSessionTracking = false
         options.enableAutoPerformanceTracing = false
         options.tracesSampleRate = 0
+        #if !SDK_V10
         options.enableAppHangTracking = false
+        #endif // !SDK_V10
         options.enableWatchdogTerminationTracking = false
         options.enableSwizzling = false
+        options.enableMetrics = false
         options.enableCrashHandler = false
         #if canImport(MetricKit) && !os(tvOS)
         options.enableMetricKit = false
@@ -38,18 +49,11 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
 
         // Assert
         let names = try XCTUnwrap(testHub.installedIntegrationNames())
-#if SENTRY_DISABLE_SENTRYCRASH_V10
-        // KSCRASH_TODO(GH-8725): V10 temporarily omits the Swift async integration.
-        // Acceptance: SCV10-011 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
-        XCTAssertEqual(names.count, 1)
-        XCTAssertFalse(names.contains("SentrySwiftAsyncIntegration"))
-        XCTAssertTrue(names.contains("SentryMetricsIntegration"))
-        XCTAssertEqual(testHub.installedIntegrations().count, 1)
-#else
-        XCTAssertEqual(names.count, 2)
+        XCTAssertEqual(names.count, expectedReplayIntegrationCount + 1)
         XCTAssertTrue(names.contains("SentrySwiftAsyncIntegration"))
-        XCTAssertTrue(names.contains("SentryMetricsIntegration"))
-        XCTAssertEqual(testHub.installedIntegrations().count, 2)
+        XCTAssertEqual(testHub.installedIntegrations().count, expectedReplayIntegrationCount + 1)
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+        XCTAssertTrue(names.contains("SentrySessionReplayIntegration"))
 #endif
     }
 
@@ -64,9 +68,12 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         options.enableAutoSessionTracking = false
         options.enableAutoPerformanceTracing = false
         options.tracesSampleRate = 0
+        #if !SDK_V10
         options.enableAppHangTracking = false
+        #endif // !SDK_V10
         options.enableWatchdogTerminationTracking = false
         options.enableSwizzling = false
+        options.enableMetrics = false
         options.enableCrashHandler = false
         #if canImport(MetricKit) && !os(tvOS)
         options.enableMetricKit = false
@@ -79,10 +86,7 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         SentrySwiftIntegrationInstaller.install(with: options)
 
         // Assert
-        let names = testHub.installedIntegrationNames()
-        XCTAssertEqual(names.count, 1)
-        XCTAssertFalse(names.contains("SentrySwiftAsyncIntegration"))
-        XCTAssertTrue(names.contains("SentryMetricsIntegration"))
-        XCTAssertEqual(testHub.installedIntegrations().count, 1)
+        XCTAssertEqual(testHub.installedIntegrationNames().count, expectedReplayIntegrationCount)
+        XCTAssertEqual(testHub.installedIntegrations().count, expectedReplayIntegrationCount)
     }
 }

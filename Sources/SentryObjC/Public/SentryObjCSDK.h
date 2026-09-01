@@ -399,6 +399,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)finishExtendedAppStart;
 #endif
 
+#if !SDK_V10
 /**
  * Pauses sending detected app hangs to Sentry.
  * @note This method doesn't close the detection of app hangs. Instead, the app hang detection
@@ -408,6 +409,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Resumes sending detected app hangs to Sentry.
 + (void)resumeAppHangTracking;
+#endif
 
 /**
  * Waits synchronously for the SDK to flush out all queued and cached items for up to the

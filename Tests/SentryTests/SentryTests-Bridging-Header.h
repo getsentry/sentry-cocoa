@@ -29,8 +29,10 @@
 #import "NSMutableDictionary+Sentry.h"
 #import "PrivateSentrySDKOnly.h"
 #import "Sentry/Sentry-Swift.h"
-#import "SentryANRTrackerV1.h"
-#import "SentryANRTrackerV2.h"
+#if !SDK_V10
+#    import "SentryANRTrackerV1.h"
+#    import "SentryANRTrackerV2.h"
+#endif
 #import "SentryAppStartMeasurement+Private.h"
 #import "SentryAppStartMeasurementProvider.h"
 #import "SentryAttachment+Private.h"
@@ -116,7 +118,6 @@
 #import "SentryStacktrace.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentrySwift.h"
-#import "SentrySystemWrapper.h"
 #import "SentryTestIntegration.h"
 #import "SentryTestObjCRuntimeWrapper.h"
 #import "SentryThread.h"
