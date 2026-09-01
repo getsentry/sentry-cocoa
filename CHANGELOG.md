@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Improvements
+
+- Install idle Session Replay recovery infrastructure at zero sample rates. (#8865)
+
 ### Features
 
 - Add manual Session Replay controls through `SentrySDK.replay`. (#8868)
