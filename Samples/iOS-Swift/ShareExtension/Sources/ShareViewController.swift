@@ -1,4 +1,5 @@
-@_spi(Private) import Sentry
+@_spi(Private) import SentrySwift
+import _SentryPrivate
 import SentrySampleShared
 import Social
 import UIKit
@@ -68,7 +69,7 @@ class ShareViewController: SLComposeServiceViewController {
     }
 
     var isANRInstalled: Bool {
-        return isSentryEnabled && SentrySDKInternal.trimmedInstalledIntegrationNames().contains("ANRTracking")
+        return isSentryEnabled && SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().contains("ANRTracking")
     }
 
     var isSentryEnabled: Bool {
