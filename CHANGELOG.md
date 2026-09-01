@@ -7,6 +7,10 @@
 - Copy `app.vitals.start.type` and `app.vitals.start.screen` onto standalone `app.start` children, including `app.start.extended` and user descendants (#8888)
 - Add `maxFeatureFlags` option to configure how many feature flag evaluations the scope retains, matching sentry-java. Defaults to 100 (#8858)
 
+### Fixes
+
+- Silence spurious ERROR log in `SentryCrashCxaThrowSwapper` for empty `__DATA_CONST,__got` sections (#8914)
+
 ## 9.26.1
 
 ### Fixes
