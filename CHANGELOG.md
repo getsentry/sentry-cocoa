@@ -9,7 +9,7 @@
 
 ### Fixes
 
-- Silence spurious ERROR log in `SentryCrashCxaThrowSwapper` for empty `__DATA_CONST,__got` sections (#8914)
+- Silence spurious ERROR log in `SentryCrashCxaThrowSwapper` for empty sections (#8915)
 
 ## 9.26.1
 
