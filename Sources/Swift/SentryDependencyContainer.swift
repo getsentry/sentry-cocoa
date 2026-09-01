@@ -736,18 +736,20 @@ protocol FramesTrackingProvider {
 extension SentryDependencyContainer: FramesTrackingProvider { }
 #endif
 
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+protocol ViewHierarchyProviderProvider {
+    var viewHierarchyProvider: SentryViewHierarchyProvider? { get }
+}
+
+extension SentryDependencyContainer: ViewHierarchyProviderProvider { }
+#endif
+
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
 protocol ScreenshotIntegrationProvider {
     var screenshotSource: SentryScreenshotSource? { get }
 }
 
 extension SentryDependencyContainer: ScreenshotIntegrationProvider { }
-
-protocol ViewHierarchyProviderProvider {
-    var viewHierarchyProvider: SentryViewHierarchyProvider? { get }
-}
-
-extension SentryDependencyContainer: ViewHierarchyProviderProvider { }
 
 protocol SessionReplayCaptureSchedulerProvider {
     var sessionReplayCaptureScheduler: SentrySessionReplayRunLoopCaptureScheduler { get }

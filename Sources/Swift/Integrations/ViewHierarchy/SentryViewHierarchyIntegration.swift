@@ -1,6 +1,6 @@
 internal import _SentryPrivate
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 typealias SentryViewHierarchyIntegrationProvider = ViewHierarchyProviderProvider & ClientProvider
 
