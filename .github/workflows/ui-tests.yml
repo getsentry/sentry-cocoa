@@ -147,6 +147,25 @@ jobs:
       platform: iOS
       files_suffix: _swift6_
 
+  ui-tests-macos-swift:
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_for_prs == 'true'
+    needs: files-changed
+    name: Test macOS Swift V1 # Up the version with every change to keep track of flaky tests
+    runs-on: ["bitrise_pool_name:tahoe"]
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "26"
+      - run: make init-ci-build
+      - name: Run macOS UI tests
+        run: make test-sample-macOS-Swift-ui
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
+        if: failure()
+
   # This check validates that either UI tests passed or were skipped, which allows us
   # to make UI tests a required check with only running the UI tests when required.
   # So, we don't have to run UI tests, for example, for unrelated changes.
@@ -158,6 +177,7 @@ jobs:
         ui-tests-swift-ui,
         ui-tests-swift,
         ui-tests-swift6,
+        ui-tests-macos-swift,
         run-full-ci-gate,
       ]
     name: UI Tests - Check
