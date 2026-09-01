@@ -17,9 +17,6 @@
          location = "group:Samples/SPM/SPM.xcodeproj">
       </FileRef>
       <FileRef
-         location = "group:Samples/SentrySampleShared/SentrySampleShared.xcodeproj">
-      </FileRef>
-      <FileRef
          location = "group:Samples/watchOS-Swift/watchOS-Swift.xcodeproj">
       </FileRef>
       <FileRef

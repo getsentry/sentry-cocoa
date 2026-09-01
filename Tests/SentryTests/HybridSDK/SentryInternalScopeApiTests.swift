@@ -18,8 +18,9 @@ final class SentryInternalScopeApiTests: XCTestCase {
         XCTAssertNotNil(contexts["trace"])
     }
 
-    private struct Dependencies: HubProvider {
+    private struct Dependencies: HubProvider, CurrentScopeStorageProvider {
         let hub: Hub
+        let currentScopeStorage = SentryCurrentScopeStorage()
 
         init(scope: Scope) {
             hub = TestHub(scope: scope)

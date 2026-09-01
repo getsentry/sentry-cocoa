@@ -1,6 +1,6 @@
 // swiftlint:disable file_length function_body_length
 
-import Sentry
+import SentrySwift
 
 #if !os(macOS)
 import UIKit

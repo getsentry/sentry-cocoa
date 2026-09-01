@@ -1,6 +1,7 @@
-@_spi(Private) import Sentry
-import Sentry
+@_spi(Private) import SentrySwift
+import _SentryPrivate
 import SentrySampleShared
+import SentrySwift
 import UserNotifications
 
 class NotificationService: UNNotificationServiceExtension {
@@ -54,11 +55,11 @@ class NotificationService: UNNotificationServiceExtension {
     }
 
     var isANRInstalled: Bool {
-        isSentryEnabled && SentrySDKInternal.trimmedInstalledIntegrationNames().contains("ANRTracking")
+        isSentryEnabled && SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().contains("ANRTracking")
     }
 
     var isWatchdogInstalled: Bool {
-        isSentryEnabled && SentrySDKInternal.trimmedInstalledIntegrationNames().contains("WatchdogTerminationTracking")
+        isSentryEnabled && SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().contains("WatchdogTerminationTracking")
     }
 
     var isSentryEnabled: Bool {

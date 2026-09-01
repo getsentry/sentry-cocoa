@@ -1,6 +1,6 @@
-import Sentry
 import SentrySampleShared
 import SentrySampleUITestShared
+import SentrySwift
 import XCTest
 
 class LaunchUITests: XCTestCase {
@@ -62,6 +62,7 @@ class LaunchUITests: XCTestCase {
     func newAppSession() -> XCUIApplication {
         let app = XCUIApplication()
         app.launchEnvironment["--io.sentry.ui-test.test-name"] = name
+        app.launchEnvironment[SentrySDKOverrides.Scope.environment.rawValue] = "ui-tests"
         app.launchArguments.append(contentsOf: [
             SentrySDKOverrides.Spotlight.disable.rawValue,
             SentrySDKOverrides.Special.wipeDataOnLaunch.rawValue
