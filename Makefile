@@ -301,6 +301,197 @@ build-watchos-v10:
 		-configuration DebugV10 \
 		CODE_SIGNING_ALLOWED="NO" 2>&1 | tee raw-build-output.log | xcbeautify $(XCBEAUTIFY_OUTPUT_FLAGS)
 
+## Build all platforms
+#
+# Convenience target that invokes all non-V10 platform build targets.
+# See build-objc-ios, build-objc-macos, build-objc-catalyst, build-objc-tvos,
+# build-objc-visionos, and build-objc-watchos for more details.
+.PHONY: build-objc
+build-objc: build-objc-ios build-objc-macos build-objc-catalyst build-objc-tvos build-objc-visionos build-objc-watchos
+
+## Build Objective-C iOS target
+#
+# Builds the SentryObjC wrapper for iOS Simulator.
+.PHONY: build-objc-ios
+build-objc-ios:
+	@echo "--> Building SentryObjC for iOS"
+	./scripts/sentry-xcodebuild.sh \
+		--platform iOS \
+		--os $(IOS_SIMULATOR_OS) \
+		--device "$(IOS_DEVICE_NAME)" \
+		--ref $(GIT-REF) \
+		--command build \
+		--scheme SentryObjC \
+		--configuration Debug
+
+## Build Objective-C macOS target
+#
+# Builds the SentryObjC wrapper for macOS.
+.PHONY: build-objc-macos
+build-objc-macos:
+	@echo "--> Building SentryObjC for macOS"
+	./scripts/sentry-xcodebuild.sh \
+		--platform macOS \
+		--os latest \
+		--ref $(GIT-REF) \
+		--command build \
+		--scheme SentryObjC \
+		--configuration Debug
+
+## Build Objective-C Catalyst target
+#
+# Builds the SentryObjC wrapper for Mac Catalyst.
+.PHONY: build-objc-catalyst
+build-objc-catalyst:
+	@echo "--> Building SentryObjC for Catalyst"
+	./scripts/sentry-xcodebuild.sh \
+		--platform Catalyst \
+		--os latest \
+		--ref $(GIT-REF) \
+		--command build \
+		--scheme SentryObjC \
+		--configuration Debug
+
+## Build Objective-C tvOS target
+#
+# Builds the SentryObjC wrapper for tvOS Simulator.
+.PHONY: build-objc-tvos
+build-objc-tvos:
+	@echo "--> Building SentryObjC for tvOS"
+	./scripts/sentry-xcodebuild.sh \
+		--platform tvOS \
+		--os $(TVOS_SIMULATOR_OS) \
+		--device "$(TVOS_DEVICE_NAME)" \
+		--ref $(GIT-REF) \
+		--command build \
+		--scheme SentryObjC \
+		--configuration Debug
+
+## Build Objective-C visionOS target
+#
+# Builds the SentryObjC wrapper for visionOS Simulator.
+.PHONY: build-objc-visionos
+build-objc-visionos:
+	@echo "--> Building SentryObjC for visionOS"
+	./scripts/sentry-xcodebuild.sh \
+		--platform visionOS \
+		--os $(VISIONOS_SIMULATOR_OS) \
+		--device "$(VISIONOS_DEVICE_NAME)" \
+		--ref $(GIT-REF) \
+		--command build \
+		--scheme SentryObjC \
+		--configuration Debug
+
+## Build Objective-C watchOS target
+#
+# Builds the SentryObjC wrapper for watchOS Simulator.
+.PHONY: build-objc-watchos
+build-objc-watchos:
+	@echo "--> Building SentryObjC for watchOS"
+	./scripts/sentry-xcodebuild.sh \
+		--platform watchOS \
+		--os $(WATCHOS_SIMULATOR_OS) \
+		--device "$(WATCHOS_DEVICE_NAME)" \
+		--ref $(GIT-REF) \
+		--command build \
+		--scheme SentryObjC \
+		--configuration Debug
+
+## Build SentryObjC for all platforms with SDK_V10 flag
+#
+# Convenience target that invokes all V10 platform build targets.
+.PHONY: build-objc-v10
+build-objc-v10: build-objc-ios-v10 build-objc-macos-v10 build-objc-catalyst-v10 build-objc-tvos-v10 build-objc-visionos-v10 build-objc-watchos-v10
+
+## Build iOS target with SDK_V10 flag
+#
+# Builds the Sentry SDK for iOS Simulator using the DebugV10 configuration.
+.PHONY: build-objc-ios-v10
+build-objc-ios-v10:
+	@echo "--> Building V10 for iOS"
+	./scripts/sentry-xcodebuild.sh \
+		--platform iOS \
+		--os $(IOS_SIMULATOR_OS) \
+		--device "$(IOS_DEVICE_NAME)" \
+		--ref $(GIT-REF) \
+		--command build \
+		--scheme SentryObjCV10 \
+		--configuration DebugV10
+
+## Build macOS target with SDK_V10 flag
+#
+# Builds the Sentry SDK for macOS using the DebugV10 configuration.
+.PHONY: build-objc-macos-v10
+build-objc-macos-v10:
+	@echo "--> Building SentryObjC V10 for macOS"
+	./scripts/sentry-xcodebuild.sh \
+		--platform macOS \
+		--os latest \
+		--ref $(GIT-REF) \
+		--command build \
+		--scheme SentryObjCV10 \
+		--configuration DebugV10
+
+## Build Catalyst target with SDK_V10 flag
+#
+# Builds the Sentry SDK for Mac Catalyst using the DebugV10 configuration.
+.PHONY: build-objc-catalyst-v10
+build-objc-catalyst-v10:
+	@echo "--> Building SentryObjC V10 for Catalyst"
+	./scripts/sentry-xcodebuild.sh \
+		--platform Catalyst \
+		--os latest \
+		--ref $(GIT-REF) \
+		--command build \
+		--scheme SentryObjCV10 \
+		--configuration DebugV10 \
+		--xcconfig Tests/Configuration/SentryV10Catalyst.xcconfig
+
+## Build tvOS target with SDK_V10 flag
+#
+# Builds the Sentry SDK for tvOS Simulator using the DebugV10 configuration.
+.PHONY: build-objc-tvos-v10
+build-objc-tvos-v10:
+	@echo "--> Building SentryObjC V10 for tvOS"
+	./scripts/sentry-xcodebuild.sh \
+		--platform tvOS \
+		--os $(TVOS_SIMULATOR_OS) \
+		--device "$(TVOS_DEVICE_NAME)" \
+		--ref $(GIT-REF) \
+		--command build \
+		--scheme SentryObjCV10 \
+		--configuration DebugV10
+
+## Build visionOS target with SDK_V10 flag
+#
+# Builds the Sentry SDK for visionOS Simulator using the DebugV10 configuration.
+.PHONY: build-objc-visionos-v10
+build-objc-visionos-v10:
+	@echo "--> Building SentryObjC V10 for visionOS"
+	./scripts/sentry-xcodebuild.sh \
+		--platform visionOS \
+		--os $(VISIONOS_SIMULATOR_OS) \
+		--device "$(VISIONOS_DEVICE_NAME)" \
+		--ref $(GIT-REF) \
+		--command build \
+		--scheme SentryObjCV10 \
+		--configuration DebugV10
+
+## Build watchOS target with SDK_V10 flag
+#
+# Builds the Sentry SDK for watchOS Simulator using the DebugV10 configuration.
+.PHONY: build-objc-watchos-v10
+build-objc-watchos-v10:
+	@echo "--> Building SentryObjC V10 for watchOS"
+	./scripts/sentry-xcodebuild.sh \
+		--platform watchOS \
+		--os $(WATCHOS_SIMULATOR_OS) \
+		--device "$(WATCHOS_DEVICE_NAME)" \
+		--ref $(GIT-REF) \
+		--command build \
+		--scheme SentryObjCV10 \
+		--configuration DebugV10
+
 ## Build XCFramework validation sample
 #
 # Builds the XCFramework validation sample project to verify XCFramework integration.
