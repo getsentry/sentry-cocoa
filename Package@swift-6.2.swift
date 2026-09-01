@@ -243,20 +243,36 @@ targets += [
     ),
     .target(
         name: "_SentryPrivate",
-        dependencies: ["SentryHeaders"],
+        dependencies: [
+            "SentryHeaders",
+            .product(
+                name: "Recording",
+                package: "KSCrash",
+                condition: kscrashDependencyCondition
+            )
+        ],
         path: "Sources/Sentry",
         sources: ["SentryDummyPrivateEmptyClass.m"],
         publicHeadersPath: "include",
         cSettings: v10CSettings
     ),
 
-    sentrySwiftTarget,
+    sentrySwiftTarget
+]
 
+var sentryObjCInternalDependencies: [Target.Dependency] = ["SentrySwift"]
+sentryObjCInternalDependencies.append(.product(
+    name: "Recording",
+    package: "KSCrash",
+    condition: kscrashDependencyCondition
+))
+
+targets += [
     // SentryObjCInternal compiles all ObjC/C sources from the repo. Named "Internal"
     // to reserve "SentryObjC" for a future public Objective-C wrapper around the SDK.
     .target(
         name: "SentryObjCInternal",
-        dependencies: ["SentrySwift"],
+        dependencies: sentryObjCInternalDependencies,
         path: "Sources",
         exclude: sentryObjCInternalExcludes,
         cSettings: sentryObjCInternalCSettings)
