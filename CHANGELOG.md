@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Improvements
+
+- Install idle Session Replay recovery infrastructure at zero sample rates. (#8865)
+
 ### Features
 
 - Copy `app.vitals.start.type` and `app.vitals.start.screen` onto standalone `app.start` children, including `app.start.extended` and user descendants (#8888)

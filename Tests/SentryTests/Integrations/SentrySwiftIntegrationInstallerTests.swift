@@ -4,6 +4,14 @@ import XCTest
 
 final class SentrySwiftIntegrationInstallerTests: XCTestCase {
 
+    private var expectedReplayIntegrationCount: Int {
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+        return 1
+#else
+        return 0
+#endif
+    }
+
     override func tearDown() {
         SentrySDKInternal.setCurrentHub(nil)
 
@@ -41,9 +49,12 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
 
         // Assert
         let names = try XCTUnwrap(testHub.installedIntegrationNames())
-        XCTAssertEqual(names.count, 1)
+        XCTAssertEqual(names.count, expectedReplayIntegrationCount + 1)
         XCTAssertTrue(names.contains("SentrySwiftAsyncIntegration"))
-        XCTAssertEqual(testHub.installedIntegrations().count, 1)
+        XCTAssertEqual(testHub.installedIntegrations().count, expectedReplayIntegrationCount + 1)
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+        XCTAssertTrue(names.contains("SentrySessionReplayIntegration"))
+#endif
     }
 
     func testInstall_WithDisabledIntegration_DoesNotAddIntegration() {
@@ -75,7 +86,7 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         SentrySwiftIntegrationInstaller.install(with: options)
 
         // Assert
-        XCTAssertEqual(testHub.installedIntegrationNames().count, 0)
-        XCTAssertEqual(testHub.installedIntegrations().count, 0)
+        XCTAssertEqual(testHub.installedIntegrationNames().count, expectedReplayIntegrationCount)
+        XCTAssertEqual(testHub.installedIntegrations().count, expectedReplayIntegrationCount)
     }
 }
