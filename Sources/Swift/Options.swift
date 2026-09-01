@@ -324,6 +324,8 @@
     /// @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
     /// configurations even when targeting iOS or tvOS platforms.
     /// @note Default value is @c false.
+    /// - Note: On visionOS, only UIKit window content (2D Scenes) is captured. Content in
+    ///   immersive spaces or volumetric windows rendered via RealityKit is not included.
     @objc public var attachScreenshot: Bool = false
 
     /// Settings to configure screenshot attachments.
