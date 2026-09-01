@@ -1,6 +1,6 @@
 import CoreData
 import Foundation
-import Sentry
+import SentrySwift
 import UIKit
 
 class CoreDataViewController: UITableViewController {

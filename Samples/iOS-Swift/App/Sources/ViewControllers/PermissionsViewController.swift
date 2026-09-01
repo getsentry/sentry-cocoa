@@ -1,5 +1,6 @@
 import CoreLocation
 import LocalAuthentication
+import SentrySwift
 import UIKit
 
 class PermissionsViewController: UIViewController {

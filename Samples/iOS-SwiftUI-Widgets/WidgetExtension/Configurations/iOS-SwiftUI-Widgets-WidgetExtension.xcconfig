@@ -11,8 +11,6 @@ TARGETED_DEVICE_FAMILY = 1,2
 
 CODE_SIGN_STYLE = Manual
 
-SWIFT_OBJC_BRIDGING_HEADER = Shared/Headers/iOS-Swift-Widget-Bridging-Header.h
-
 SUPPORTED_PLATFORMS = iphoneos iphonesimulator
 SUPPORTS_MACCATALYST = NO
 
