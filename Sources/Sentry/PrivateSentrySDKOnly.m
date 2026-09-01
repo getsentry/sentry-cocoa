@@ -22,12 +22,6 @@
 
 @implementation PrivateSentrySDKOnly
 
-static SentryOnAppStartMeasurementAvailable _onAppStartMeasurementAvailable;
-static BOOL _appStartMeasurementHybridSDKMode = NO;
-#if SENTRY_HAS_UIKIT
-static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
-#endif // SENTRY_HAS_UIKIT
-
 + (void)storeEnvelope:(SentryEnvelope *)envelope
 {
     [SentrySDKInternal storeEnvelope:envelope];
@@ -125,23 +119,23 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (SentryOnAppStartMeasurementAvailable)onAppStartMeasurementAvailable
 {
-    return _onAppStartMeasurementAvailable;
+    return SentrySDKInternal.onAppStartMeasurementAvailable;
 }
 
 + (void)setOnAppStartMeasurementAvailable:
     (SentryOnAppStartMeasurementAvailable)onAppStartMeasurementAvailable
 {
-    _onAppStartMeasurementAvailable = onAppStartMeasurementAvailable;
+    SentrySDKInternal.onAppStartMeasurementAvailable = onAppStartMeasurementAvailable;
 }
 
 + (BOOL)appStartMeasurementHybridSDKMode
 {
-    return _appStartMeasurementHybridSDKMode;
+    return SentrySDKInternal.appStartMeasurementHybridSDKMode;
 }
 
 + (void)setAppStartMeasurementHybridSDKMode:(BOOL)appStartMeasurementHybridSDKMode
 {
-    _appStartMeasurementHybridSDKMode = appStartMeasurementHybridSDKMode;
+    SentrySDKInternal.appStartMeasurementHybridSDKMode = appStartMeasurementHybridSDKMode;
 }
 
 + (void)setSdkName:(NSString *)sdkName andVersionString:(NSString *)versionString
@@ -209,7 +203,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 + (BOOL)framesTrackingMeasurementHybridSDKMode
 {
 #if SENTRY_HAS_UIKIT
-    return _framesTrackingMeasurementHybridSDKMode;
+    return SentrySDKInternal.framesTrackingMeasurementHybridSDKMode;
 #else
     SENTRY_LOG_DEBUG(@"PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode only works with "
                      @"UIKit enabled. Ensure you're "
@@ -221,7 +215,8 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 + (void)setFramesTrackingMeasurementHybridSDKMode:(BOOL)framesTrackingMeasurementHybridSDKMode
 {
 #if SENTRY_HAS_UIKIT
-    _framesTrackingMeasurementHybridSDKMode = framesTrackingMeasurementHybridSDKMode;
+    SentrySDKInternal.framesTrackingMeasurementHybridSDKMode
+        = framesTrackingMeasurementHybridSDKMode;
 #else
     SENTRY_LOG_DEBUG(@"PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode only works with "
                      @"UIKit enabled. Ensure you're "

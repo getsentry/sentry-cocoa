@@ -1,5 +1,4 @@
 #import "SentrySDKInternal.h"
-#import "PrivateSentrySDKOnly.h"
 #import "SentryAppStartMeasurement.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
@@ -16,6 +15,8 @@
 #import "SentrySpanInternal.h"
 #import "SentrySwift.h"
 #import "SentryTransactionContext.h"
+
+@class SentryAppStartMeasurement;
 
 #if SDK_V10
 // Keep the dlsym-only Unity C++ ABI compatibility symbols in static links.
@@ -47,6 +48,11 @@ static BOOL lastRunStatusCalled;
 static BOOL fatalDetected;
 static SentryAppStartMeasurement *_Nullable sentrySDKappStartMeasurement;
 static NSObject *sentrySDKappStartMeasurementLock;
+static void (^_Nullable sentryOnAppStartMeasurementAvailable)(SentryAppStartMeasurement *_Nullable);
+static BOOL sentryAppStartMeasurementHybridSDKMode;
+#if SENTRY_HAS_UIKIT
+static BOOL sentryFramesTrackingMeasurementHybridSDKMode;
+#endif // SENTRY_HAS_UIKIT
 static BOOL _detectedStartUpCrash;
 
 /**
@@ -169,8 +175,10 @@ static NSDate *_Nullable startTimestamp = nil;
     @synchronized(sentrySDKappStartMeasurementLock) {
         sentrySDKappStartMeasurement = value;
     }
-    if (PrivateSentrySDKOnly.onAppStartMeasurementAvailable) {
-        PrivateSentrySDKOnly.onAppStartMeasurementAvailable(value);
+
+    void (^callback)(SentryAppStartMeasurement *_Nullable) = self.onAppStartMeasurementAvailable;
+    if (callback != nil) {
+        callback(value);
     }
 }
 
@@ -183,6 +191,51 @@ static NSDate *_Nullable startTimestamp = nil;
         return sentrySDKappStartMeasurement;
     }
 }
+
++ (void (^_Nullable)(SentryAppStartMeasurement *_Nullable))onAppStartMeasurementAvailable
+{
+    @synchronized(self) {
+        return [sentryOnAppStartMeasurementAvailable copy];
+    }
+}
+
++ (void)setOnAppStartMeasurementAvailable:(void (^_Nullable)(
+                                              SentryAppStartMeasurement *_Nullable))callback
+{
+    @synchronized(self) {
+        sentryOnAppStartMeasurementAvailable = [callback copy];
+    }
+}
+
++ (BOOL)appStartMeasurementHybridSDKMode
+{
+    @synchronized(self) {
+        return sentryAppStartMeasurementHybridSDKMode;
+    }
+}
+
++ (void)setAppStartMeasurementHybridSDKMode:(BOOL)value
+{
+    @synchronized(self) {
+        sentryAppStartMeasurementHybridSDKMode = value;
+    }
+}
+
+#if SENTRY_HAS_UIKIT
++ (BOOL)framesTrackingMeasurementHybridSDKMode
+{
+    @synchronized(self) {
+        return sentryFramesTrackingMeasurementHybridSDKMode;
+    }
+}
+
++ (void)setFramesTrackingMeasurementHybridSDKMode:(BOOL)value
+{
+    @synchronized(self) {
+        sentryFramesTrackingMeasurementHybridSDKMode = value;
+    }
+}
+#endif // SENTRY_HAS_UIKIT
 
 /**
  * Not public, only for internal use.
