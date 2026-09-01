@@ -19,9 +19,11 @@
 @class SentryObjCInternalAppStartApi;
 #if SENTRY_OBJC_HAS_UIKIT
 @class SentryObjCInternalPerformanceApi;
+#    if !TARGET_OS_VISION
 @class SentryObjCInternalScreenshotApi;
 @class SentryObjCInternalViewHierarchyApi;
 @class SentryObjCInternalScreenApi;
+#    endif
 #endif
 #if SENTRY_OBJC_REPLAY_SUPPORTED
 @class SentryObjCInternalReplayApi;
@@ -73,14 +75,16 @@ SENTRY_NO_INIT
 /// Frame tracking performance metrics.
 @property (nonatomic, readonly) SentryObjCInternalPerformanceApi *performance;
 
+/// Screen name tracking.
+@property (nonatomic, readonly) SentryObjCInternalScreenApi *screen;
+
+#    if !TARGET_OS_VISION
 /// Screenshot capture.
 @property (nonatomic, readonly) SentryObjCInternalScreenshotApi *screenshot;
 
 /// View hierarchy capture.
 @property (nonatomic, readonly) SentryObjCInternalViewHierarchyApi *viewHierarchy;
-
-/// Screen name tracking.
-@property (nonatomic, readonly) SentryObjCInternalScreenApi *screen;
+#    endif
 #endif
 
 #if SENTRY_OBJC_REPLAY_SUPPORTED

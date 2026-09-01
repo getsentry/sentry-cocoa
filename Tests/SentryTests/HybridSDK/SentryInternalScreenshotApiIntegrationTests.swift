@@ -2,7 +2,7 @@
 import SentryTestUtils
 import XCTest
 
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 class SentryInternalScreenshotApiIntegrationTests: XCTestCase {
 
@@ -34,15 +34,6 @@ class SentryInternalScreenshotApiIntegrationTests: XCTestCase {
 
     // MARK: - capture
 
-#if os(visionOS)
-    func testCapture_shouldReturnNil() {
-        // -- Act --
-        let result = SentrySDK.internal.screenshot.capture()
-
-        // -- Assert --
-        XCTAssertNil(result)
-    }
-#else
     func testCapture_whenNoWindows_shouldReturnEmptyArray() {
         // -- Act --
         let result = SentrySDK.internal.screenshot.capture()
@@ -50,7 +41,6 @@ class SentryInternalScreenshotApiIntegrationTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(result, [])
     }
-#endif
 }
 
 #endif
