@@ -19,10 +19,10 @@
 @class SentryObjCInternalAppStartApi;
 #if SENTRY_OBJC_HAS_UIKIT
 @class SentryObjCInternalPerformanceApi;
+@class SentryObjCInternalScreenApi;
 #    if !TARGET_OS_VISION
 @class SentryObjCInternalScreenshotApi;
 @class SentryObjCInternalViewHierarchyApi;
-@class SentryObjCInternalScreenApi;
 #    endif
 #endif
 #if SENTRY_OBJC_REPLAY_SUPPORTED
