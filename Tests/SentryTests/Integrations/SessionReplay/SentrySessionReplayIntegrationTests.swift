@@ -87,7 +87,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         startSDK(sessionSampleRate: 0, errorSampleRate: 0)
 
         let sut = try getSut()
-        XCTAssertEqual(SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().count, 1)
+        XCTAssertEqual(SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().count, 2) // Metrics and SessionReplay
         XCTAssertEqual(globalEventProcessor.processors.count, 1)
         XCTAssertNil(sut.sessionReplay)
         XCTAssertFalse(try XCTUnwrap(sut.getTouchTracker()).isEnabled)

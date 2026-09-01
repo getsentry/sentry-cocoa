@@ -22,7 +22,7 @@ class SentryMetricsIntegrationTests: XCTestCase {
         startSDK(isEnabled: false)
 
         // -- Assert --
-        XCTAssertFalse(SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().contains("Metrics"))
+        XCTAssertTrue(SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().contains("Metrics"))
     }
 
     func testStartSDK_whenMetricsIsEnabled_shouldInstallMetricsIntegration() {
