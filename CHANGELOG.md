@@ -10,6 +10,7 @@
 ### Fixes
 
 - Silence spurious ERROR log in `SentryCrashCxaThrowSwapper` for empty sections (#8915)
+
 ### Internal
 
 - Add visionOS support to internal screen APIs (#8913)
