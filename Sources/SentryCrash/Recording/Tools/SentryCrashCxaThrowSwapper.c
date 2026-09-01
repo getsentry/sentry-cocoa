@@ -244,14 +244,20 @@ perform_rebinding_with_section(const section_t *dataSection, intptr_t slide, nli
     SENTRY_ASYNC_SAFE_LOG_TRACE(
         "Processing section %s,%s", dataSection->segname, dataSection->sectname);
 
+    uint32_t *indirect_symbol_indices = indirect_symtab + dataSection->reserved1;
+    void **indirect_symbol_bindings = (void **)((uintptr_t)slide + dataSection->addr);
+
     if (dataSection->size == 0) {
         SENTRY_ASYNC_SAFE_LOG_TRACE(
             "Skipping empty section %s,%s", dataSection->segname, dataSection->sectname);
         return;
     }
 
-    uint32_t *indirect_symbol_indices = indirect_symtab + dataSection->reserved1;
-    void **indirect_symbol_bindings = (void **)((uintptr_t)slide + dataSection->addr);
+    if (indirect_symbol_bindings == NULL) {
+        SENTRY_ASYNC_SAFE_LOG_TRACE("Skipping section %s,%s with a NULL indirect symbol bindings",
+            dataSection->segname, dataSection->sectname);
+        return;
+    }
 
     // The SEG_DATA_CONST is read-only by default, so we need to make it writable
     // before we can modify the indirect symbol bindings.
