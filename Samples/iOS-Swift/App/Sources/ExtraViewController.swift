@@ -32,8 +32,7 @@ class ExtraViewController: UIViewController {
         }
 
         Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
-            let frames = SentryDependencyContainer.sharedInstance().framesTracker.currentFrames()
-            self.framesLabel?.text = "Frames Total:\(frames.total) Slow:\(frames.slow) Frozen:\(frames.frozen)"
+            self.framesLabel?.text = "Frames Total:\(SentrySDK.internal.performance.currentScreenFrames.total) Slow:\(SentrySDK.internal.performance.currentScreenFrames.slow) Frozen:\(SentrySDK.internal.performance.currentScreenFrames.frozen)"
         }
     }
 
