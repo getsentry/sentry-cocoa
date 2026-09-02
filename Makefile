@@ -512,6 +512,156 @@ build-samples: \
 	build-sample-watchOS-Swift \
 	build-sample-watchOS-SwiftUI-SPM
 
+
+## Build all SPM-based sample apps with the V10 trait enabled
+#
+# Builds every sample that uses the local Sentry Swift package after patching
+# the V10 trait into its .xcodeproj.  Run 'make xcode-ci' first to generate
+# the projects, or use 'make build-sample-v10-<name>' for a single sample.
+.PHONY: build-samples-v10
+build-samples-v10: \
+	build-sample-v10-DistributionSample \
+	build-sample-v10-iOS-ObjectiveC \
+	build-sample-v10-iOS-ObjectiveCpp-NoModules \
+	build-sample-v10-iOS-Swift \
+	build-sample-v10-iOS-SwiftUI \
+	build-sample-v10-SessionReplay-CameraTest \
+	build-sample-v10-SPM \
+	build-sample-v10-macOS-Swift \
+	build-sample-v10-macOS-SwiftUI \
+	build-sample-v10-tvOS-Swift \
+	build-sample-v10-visionOS-Swift \
+	build-sample-v10-watchOS-Swift
+
+## Build the iOS-Swift sample app with the V10 trait
+.PHONY: build-sample-v10-iOS-Swift
+build-sample-v10-iOS-Swift:
+	xcodegen --spec Samples/iOS-Swift/iOS-Swift.yml
+	scripts/set-xcode-project-traits.py --trait V10 --mode add --project Samples/iOS-Swift/iOS-Swift.xcodeproj
+	set -o pipefail && xcodebuild \
+		-workspace Sentry.xcworkspace \
+		-scheme iOS-Swift \
+		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the iOS-SwiftUI sample app with the V10 trait
+.PHONY: build-sample-v10-iOS-SwiftUI
+build-sample-v10-iOS-SwiftUI:
+	xcodegen --spec Samples/iOS-SwiftUI/iOS-SwiftUI.yml
+	scripts/set-xcode-project-traits.py --trait V10 --mode add --project Samples/iOS-SwiftUI/iOS-SwiftUI.xcodeproj
+	set -o pipefail && xcodebuild \
+		-workspace Sentry.xcworkspace \
+		-scheme iOS-SwiftUI \
+		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the iOS-ObjectiveC sample app with the V10 trait
+.PHONY: build-sample-v10-iOS-ObjectiveC
+build-sample-v10-iOS-ObjectiveC:
+	xcodegen --spec Samples/iOS-ObjectiveC/iOS-ObjectiveC.yml
+	scripts/set-xcode-project-traits.py --trait V10 --mode add --project Samples/iOS-ObjectiveC/iOS-ObjectiveC.xcodeproj
+	set -o pipefail && xcodebuild \
+		-workspace Sentry.xcworkspace \
+		-scheme iOS-ObjectiveC \
+		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the iOS-ObjectiveCpp-NoModules sample app with the V10 trait
+.PHONY: build-sample-v10-iOS-ObjectiveCpp-NoModules
+build-sample-v10-iOS-ObjectiveCpp-NoModules:
+	xcodegen --spec Samples/iOS-ObjectiveCpp-NoModules/iOS-ObjectiveCpp-NoModules.yml
+	scripts/set-xcode-project-traits.py --trait V10 --mode add --project Samples/iOS-ObjectiveCpp-NoModules/iOS-ObjectiveCpp-NoModules.xcodeproj
+	set -o pipefail && xcodebuild \
+		-workspace Sentry.xcworkspace \
+		-scheme iOS-ObjectiveCpp-NoModules \
+		-configuration Debug \
+		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the SessionReplay-CameraTest sample app with the V10 trait
+.PHONY: build-sample-v10-SessionReplay-CameraTest
+build-sample-v10-SessionReplay-CameraTest:
+	xcodegen --spec Samples/SessionReplay-CameraTest/SessionReplay-CameraTest.yml
+	scripts/set-xcode-project-traits.py --trait V10 --mode add --project Samples/SessionReplay-CameraTest/SessionReplay-CameraTest.xcodeproj
+	set -o pipefail && xcodebuild \
+		-workspace Sentry.xcworkspace \
+		-scheme SessionReplay-CameraTest \
+		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the SPM sample app with the V10 trait
+.PHONY: build-sample-v10-SPM
+build-sample-v10-SPM:
+	xcodegen --spec Samples/SPM/SPM.yml
+	scripts/set-xcode-project-traits.py --trait V10 --mode add --project Samples/SPM/SPM.xcodeproj
+	set -o pipefail && xcodebuild \
+		-workspace Sentry.xcworkspace \
+		-scheme SPM \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the DistributionSample app with the V10 trait
+.PHONY: build-sample-v10-DistributionSample
+build-sample-v10-DistributionSample:
+	xcodegen --spec Samples/DistributionSample/DistributionSample.yml
+	scripts/set-xcode-project-traits.py --trait V10 --mode add --project Samples/DistributionSample/DistributionSample.xcodeproj
+	set -o pipefail && xcodebuild \
+		-workspace Sentry.xcworkspace \
+		-scheme DistributionSample \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the macOS-Swift sample app with the V10 trait
+.PHONY: build-sample-v10-macOS-Swift
+build-sample-v10-macOS-Swift:
+	xcodegen --spec Samples/macOS-Swift/macOS-Swift.yml
+	scripts/set-xcode-project-traits.py --trait V10 --mode add --project Samples/macOS-Swift/macOS-Swift.xcodeproj
+	set -o pipefail && xcodebuild \
+		-workspace Sentry.xcworkspace \
+		-scheme macOS-Swift \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the macOS-SwiftUI sample app with the V10 trait
+.PHONY: build-sample-v10-macOS-SwiftUI
+build-sample-v10-macOS-SwiftUI:
+	xcodegen --spec Samples/macOS-SwiftUI/macOS-SwiftUI.yml
+	scripts/set-xcode-project-traits.py --trait V10 --mode add --project Samples/macOS-SwiftUI/macOS-SwiftUI.xcodeproj
+	set -o pipefail && xcodebuild \
+		-workspace Sentry.xcworkspace \
+		-scheme macOS-SwiftUI \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the tvOS-Swift sample app with the V10 trait
+.PHONY: build-sample-v10-tvOS-Swift
+build-sample-v10-tvOS-Swift:
+	xcodegen --spec Samples/tvOS-Swift/tvOS-Swift.yml
+	scripts/set-xcode-project-traits.py --trait V10 --mode add --project Samples/tvOS-Swift/tvOS-Swift.xcodeproj
+	set -o pipefail && xcodebuild \
+		-workspace Sentry.xcworkspace \
+		-scheme tvOS-Swift \
+		-destination 'platform=tvOS Simulator,OS=$(TVOS_SIMULATOR_OS),name=$(TVOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the visionOS-Swift sample app with the V10 trait
+.PHONY: build-sample-v10-visionOS-Swift
+build-sample-v10-visionOS-Swift:
+	xcodegen --spec Samples/visionOS-Swift/visionOS-Swift.yml
+	scripts/set-xcode-project-traits.py --trait V10 --mode add --project Samples/visionOS-Swift/visionOS-Swift.xcodeproj
+	set -o pipefail && xcodebuild \
+		-workspace Sentry.xcworkspace \
+		-scheme visionOS-Swift \
+		-destination 'platform=visionOS Simulator,OS=$(VISIONOS_SIMULATOR_OS),name=$(VISIONOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the watchOS-Swift sample app with the V10 trait
+.PHONY: build-sample-v10-watchOS-Swift
+build-sample-v10-watchOS-Swift:
+	xcodegen --spec Samples/watchOS-Swift/watchOS-Swift.yml
+	scripts/set-xcode-project-traits.py --trait V10 --mode add --project Samples/watchOS-Swift/watchOS-Swift.xcodeproj
+	set -o pipefail && xcodebuild \
+		-workspace Sentry.xcworkspace \
+		-scheme 'watchOS-Swift WatchKit App' \
+		-destination 'platform=watchOS Simulator,OS=$(WATCHOS_SIMULATOR_OS),name=$(WATCHOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
 ## Build the iOS-SwiftUI-SPM sample app
 #
 # Builds the iOS SentrySPM sample app for the iOS Simulator.

@@ -77,17 +77,31 @@ def main() -> None:
     parser.add_argument(
         "-m", "--mode", required=True, choices=["add", "remove"], help="Whether to add or remove the trait"
     )
+    parser.add_argument(
+        "-p", "--project", help="Limit patching to this .xcodeproj (name or path); patches all Samples/ projects when omitted"
+    )
     args = parser.parse_args()
 
     repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     samples_dir = os.path.join(repo_root, "Samples")
 
-    pbxproj_files = []
-    for dirpath, dirnames, filenames in os.walk(samples_dir):
-        dirnames[:] = [d for d in dirnames if d != ".build"]
-        for filename in filenames:
-            if filename == "project.pbxproj":
-                pbxproj_files.append(os.path.join(dirpath, filename))
+    if args.project:
+        # Accept a path to a .xcodeproj directory (relative to repo root or absolute)
+        project_path = args.project
+        if not os.path.isabs(project_path):
+            project_path = os.path.join(repo_root, project_path)
+        pbxproj = os.path.join(project_path, "project.pbxproj")
+        if not os.path.exists(pbxproj):
+            log_error(f"Could not find project.pbxproj inside '{args.project}'")
+            sys.exit(1)
+        pbxproj_files = [pbxproj]
+    else:
+        pbxproj_files = []
+        for dirpath, dirnames, filenames in os.walk(samples_dir):
+            dirnames[:] = [d for d in dirnames if d != ".build"]
+            for filename in filenames:
+                if filename == "project.pbxproj":
+                    pbxproj_files.append(os.path.join(dirpath, filename))
 
     if not pbxproj_files:
         log_warning("No project.pbxproj files found under Samples/ — run 'make xcode-ci' first")
