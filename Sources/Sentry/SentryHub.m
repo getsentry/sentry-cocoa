@@ -865,7 +865,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 /**
- * Session side effects of a non-terminating hybrid error, without sending an envelope.
+ * Updates the current session for a non-terminating hybrid error.
+ * Does not capture an envelope. Hybrid SDKs should call this when an error is dropped by sampling.
  */
 - (nullable SentrySession *)updateSessionForDroppedEventNonTerminating:(BOOL)unhandled
 {

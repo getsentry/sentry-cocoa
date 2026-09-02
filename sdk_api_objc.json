@@ -8536,6 +8536,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "updateSessionForDroppedEventNonTerminating:",
+    "parent": "SentryObjCInternalEnvelopeApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "url",
     "parent": "SentryObjCRequest",
     "returnType": "NSString * _Nullable",

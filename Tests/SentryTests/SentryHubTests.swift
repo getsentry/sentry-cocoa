@@ -1646,6 +1646,49 @@ class SentryHubTests: XCTestCase {
         let closedSession = try XCTUnwrap(fixture.client.captureSessionInvocations.last)
         XCTAssertEqual(SentrySessionStatus.abnormal, closedSession.status)
     }
+
+    // MARK: - updateSessionForDroppedEventNonTerminating
+
+    func testUpdateSessionForDroppedEventNonTerminating_whenUnhandled_shouldKeepSessionOkAndNotCaptureEnvelope() throws {
+        // -- Arrange --
+        sut.startSession()
+        let sessionIdBefore = try XCTUnwrap(sut.session?.sessionId)
+
+        // -- Act --
+        sut.updateSessionForDroppedEventNonTerminating(unhandled: true)
+
+        // -- Assert --
+        let session = try XCTUnwrap(sut.session)
+        XCTAssertEqual(SentrySessionStatus.ok, session.status)
+        XCTAssertTrue(session.pendingUnhandled)
+        XCTAssertEqual(1, session.errors)
+        XCTAssertEqual(sessionIdBefore, session.sessionId)
+        assertNoEnvelopesCaptured()
+    }
+
+    func testUpdateSessionForDroppedEventNonTerminating_whenHandled_shouldIncrementErrorsAndNotCaptureEnvelope() throws {
+        // -- Arrange --
+        sut.startSession()
+
+        // -- Act --
+        sut.updateSessionForDroppedEventNonTerminating(unhandled: false)
+
+        // -- Assert --
+        let session = try XCTUnwrap(sut.session)
+        XCTAssertFalse(session.pendingUnhandled)
+        XCTAssertEqual(SentrySessionStatus.ok, session.status)
+        XCTAssertEqual(1, session.errors)
+        assertNoEnvelopesCaptured()
+    }
+
+    func testUpdateSessionForDroppedEventNonTerminating_whenNoSessionStarted_shouldNotCaptureEnvelope() {
+        // -- Act --
+        sut.updateSessionForDroppedEventNonTerminating(unhandled: true)
+
+        // -- Assert --
+        XCTAssertNil(sut.session)
+        assertNoEnvelopesCaptured()
+    }
     
 #if os(iOS) || os(tvOS)
     func test_reportFullyDisplayed_enableTimeToFullDisplay_YES() {

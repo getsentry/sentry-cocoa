@@ -149,6 +149,29 @@ class SentryInternalEnvelopeApiIntegrationTests: XCTestCase {
         XCTAssertEqual(1, session.errors)
     }
 
+    // MARK: - updateSessionForDroppedEventNonTerminating
+
+    func testUpdateSessionForDroppedEventNonTerminating_whenUnhandled_shouldKeepSessionOkAndNotCaptureEnvelope() throws {
+        // -- Arrange --
+        let client = TestClient(options: Options())
+        let hub = TestHub(client: client, andScope: nil)
+        SentrySDKInternal.setCurrentHub(hub)
+        hub.setTestSession()
+        let session = try XCTUnwrap(hub.session)
+        let sessionId = session.sessionId
+
+        // -- Act --
+        SentrySDK.internal.envelope.updateSessionForDroppedEventNonTerminating(unhandled: true)
+
+        // -- Assert --
+        XCTAssertEqual(0, client?.captureEnvelopeInvocations.count)
+        XCTAssertEqual(0, hub.startSessionInvocations)
+        XCTAssertEqual(sessionId, try XCTUnwrap(hub.session).sessionId)
+        XCTAssertEqual(SentrySessionStatus.ok, session.status)
+        XCTAssertTrue(session.pendingUnhandled)
+        XCTAssertEqual(1, session.errors)
+    }
+
     // MARK: - deserialize
 
     func testDeserialize_whenValidData_shouldReturnEnvelope() {
