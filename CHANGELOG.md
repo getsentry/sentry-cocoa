@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+> [!WARNING]
+> Native crashes now set `mechanism.synthetic`, which takes the mach exception name (`EXC_BAD_ACCESS`) or signal name (`SIGSEGV`) out of the grouping hash. Expect a one-time regrouping as your app adopts this version: existing crash issues stop receiving events and new ones open. Crashes that differ only by signal at the same stacktrace now share one issue. The mach and signal detail stays on `mechanism.meta`.
+
 ### Improvements
 
 - Install idle Session Replay recovery infrastructure at zero sample rates. (#8865)
@@ -16,13 +19,6 @@
   - `pause()` suspends recording until `resume()` and remains paused across background and foreground transitions and automatic replay restarts in the same process.
   - `resume()` continues the same manually paused replay.
   - `flush()` sends the current replay data to Sentry, or starts a full-session replay when recording is stopped.
-
-### Improvements
-
-- Install idle Session Replay recovery infrastructure at zero sample rates. (#8865)
-
-### Features
-
 - Copy `app.vitals.start.type` and `app.vitals.start.screen` onto standalone `app.start` children, including `app.start.extended` and user descendants (#8888)
 - Add `maxFeatureFlags` option to configure how many feature flag evaluations the scope retains, matching sentry-java. Defaults to 100 (#8858)
 
@@ -30,6 +26,8 @@
 
 - Silence spurious ERROR log in `SentryCrashCxaThrowSwapper` for empty sections (#8915)
 - Stop recording touch events while Session Replay is paused. (#8887)
+- Mark the fabricated `mach` and `signal` crash mechanisms as `synthetic` so an Apple crash groups with the identical crash reported by the other Sentry SDKs, and so a mach-caught and a signal-caught report of the same bug no longer split into two issues (#8919)
+- Set `mechanism.handled` to `false` on crash reports that carry no mach context, which previously left it unset (#8919)
 
 ### Internal
 
