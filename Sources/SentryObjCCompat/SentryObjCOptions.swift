@@ -1,8 +1,8 @@
 // swiftlint:disable file_length missing_docs type_body_length
 #if SWIFT_PACKAGE
-internal import SentrySwift
+@_spi(Private) internal import SentrySwift
 #else
-internal import Sentry
+@_spi(Private) internal import Sentry
 #endif
 import Foundation
 

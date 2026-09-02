@@ -160,7 +160,7 @@
     #if !SDK_V10
     /// Storage for the legacy ``enableLogs`` option. Prefer this from SDK internals so call
     /// sites do not need deprecation suppressions.
-    var enableLogsValue: Bool = false
+    @_spi(Private) public var enableLogsValue: Bool = false
 
     /// Legacy option kept for compatibility until the next major release.
     ///
@@ -788,7 +788,7 @@
 
     /// Storage for the legacy ``enableMetrics`` option. Prefer this from SDK internals so call
     /// sites do not need deprecation suppressions.
-    var enableMetricsValue: Bool = true
+    @_spi(Private) public var enableMetricsValue: Bool = true
 
     /// Legacy option kept for compatibility until the next major release.
     ///
