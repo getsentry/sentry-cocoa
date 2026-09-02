@@ -5,6 +5,7 @@
 ### Improvements
 
 - Install idle Session Replay recovery infrastructure at zero sample rates. (#8865)
+- Do not gate manual log and metrics APIs behind `enableLogs` / `enableMetrics`. Both options remain for compatibility until the next major and are now deprecated; `SentrySDK.logger`, opt-in logging integrations that forward through it, and `SentrySDK.metrics` keep capturing when the flags are `false` (#8918)
 
 ### Features
 
@@ -18,10 +19,6 @@
 ### Internal
 
 - Add visionOS support to internal screen APIs (#8913)
-
-### Improvements
-
-- Do not gate manual log and metrics APIs behind `enableLogs` / `enableMetrics`. Both options remain for compatibility until the next major, but `SentrySDK.logger`, opt-in logging integrations that forward through it, and `SentrySDK.metrics` keep capturing when the flags are `false` (#8906)
 
 ## 9.26.1
 
