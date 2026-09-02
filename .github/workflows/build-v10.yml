@@ -265,13 +265,13 @@ jobs:
       - run: make init-ci-build
       - run: make ${{ matrix.make-target }}
         env:
-          IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
+          IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
-          TVOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.tvos-simulator-os }}
+          TVOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           TVOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
-          VISIONOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.visionos-simulator-os }}
+          VISIONOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           VISIONOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
-          WATCHOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.watchos-simulator-os }}
+          WATCHOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           WATCHOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
 
       - name: Archiving Raw Build Logs

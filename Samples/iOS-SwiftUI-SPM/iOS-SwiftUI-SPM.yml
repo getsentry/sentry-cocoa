@@ -13,8 +13,6 @@ configs:
 packages:
   Sentry:
     path: ../..
-    traits:
-      - V10
 fileGroups:
   - iOS-SwiftUI-SPM.yml
 options:
@@ -35,8 +33,6 @@ targets:
         INFOPLIST_FILE: Resources/Info.plist
         CODE_SIGN_ENTITLEMENTS: Resources/Entitlements.entitlements
         SWIFT_VERSION: "5.0"
-        GCC_PREPROCESSOR_DEFINITIONS: $(inherited) SDK_V10=1
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) SDK_V10
   watchOS-SwiftUI-SPM:
     type: application
     platform: watchOS
@@ -50,8 +46,6 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: io.sentry.watchOS-SwiftUI-SPM
         SWIFT_VERSION: "5.0"
-        GCC_PREPROCESSOR_DEFINITIONS: $(inherited) SDK_V10=1
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) SDK_V10
     info:
       path: Resources/watchOS-Info.plist
       properties:

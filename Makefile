@@ -724,6 +724,10 @@ build-samples-v10: \
 	build-sample-v10-visionOS-Swift \
 	build-sample-v10-watchOS-Swift
 
+# App-target SDK_V10 flags for V10 sample builds. Package targets get SDK_V10
+# from the V10 Swift package trait; $$ keeps Make from expanding $(inherited).
+V10_SDK_FLAGS = GCC_PREPROCESSOR_DEFINITIONS='$$(inherited) SDK_V10=1' SWIFT_ACTIVE_COMPILATION_CONDITIONS='$$(inherited) SDK_V10'
+
 ## Build the iOS-Swift sample app with the V10 trait
 .PHONY: build-sample-v10-iOS-Swift
 build-sample-v10-iOS-Swift:
@@ -733,7 +737,9 @@ build-sample-v10-iOS-Swift:
 		-workspace Sentry.xcworkspace \
 		-scheme iOS-Swift \
 		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
-		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+		CODE_SIGNING_ALLOWED="NO" \
+		$(V10_SDK_FLAGS) \
+		build | xcbeautify --preserve-unbeautified
 
 ## Build the iOS-SwiftUI sample app with the V10 trait
 .PHONY: build-sample-v10-iOS-SwiftUI
@@ -744,7 +750,9 @@ build-sample-v10-iOS-SwiftUI:
 		-workspace Sentry.xcworkspace \
 		-scheme iOS-SwiftUI \
 		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
-		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+		CODE_SIGNING_ALLOWED="NO" \
+		$(V10_SDK_FLAGS) \
+		build | xcbeautify --preserve-unbeautified
 
 ## Build the iOS-ObjectiveC sample app with the V10 trait
 .PHONY: build-sample-v10-iOS-ObjectiveC
@@ -755,7 +763,9 @@ build-sample-v10-iOS-ObjectiveC:
 		-workspace Sentry.xcworkspace \
 		-scheme iOS-ObjectiveC \
 		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
-		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+		CODE_SIGNING_ALLOWED="NO" \
+		$(V10_SDK_FLAGS) \
+		build | xcbeautify --preserve-unbeautified
 
 ## Build the iOS-ObjectiveCpp-NoModules sample app with the V10 trait
 .PHONY: build-sample-v10-iOS-ObjectiveCpp-NoModules
@@ -767,7 +777,9 @@ build-sample-v10-iOS-ObjectiveCpp-NoModules:
 		-scheme iOS-ObjectiveCpp-NoModules \
 		-configuration Debug \
 		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
-		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+		CODE_SIGNING_ALLOWED="NO" \
+		$(V10_SDK_FLAGS) \
+		build | xcbeautify --preserve-unbeautified
 
 ## Build the SessionReplay-CameraTest sample app with the V10 trait
 .PHONY: build-sample-v10-SessionReplay-CameraTest
@@ -778,7 +790,9 @@ build-sample-v10-SessionReplay-CameraTest:
 		-workspace Sentry.xcworkspace \
 		-scheme SessionReplay-CameraTest \
 		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
-		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+		CODE_SIGNING_ALLOWED="NO" \
+		$(V10_SDK_FLAGS) \
+		build | xcbeautify --preserve-unbeautified
 
 ## Build the SPM sample app with the V10 trait
 .PHONY: build-sample-v10-SPM
@@ -788,7 +802,9 @@ build-sample-v10-SPM:
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme SPM \
-		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+		CODE_SIGNING_ALLOWED="NO" \
+		$(V10_SDK_FLAGS) \
+		build | xcbeautify --preserve-unbeautified
 
 ## Build the DistributionSample app with the V10 trait
 .PHONY: build-sample-v10-DistributionSample
@@ -798,7 +814,9 @@ build-sample-v10-DistributionSample:
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme DistributionSample \
-		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+		CODE_SIGNING_ALLOWED="NO" \
+		$(V10_SDK_FLAGS) \
+		build | xcbeautify --preserve-unbeautified
 
 ## Build the macOS-Swift sample app with the V10 trait
 .PHONY: build-sample-v10-macOS-Swift
@@ -808,7 +826,9 @@ build-sample-v10-macOS-Swift:
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme macOS-Swift \
-		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+		CODE_SIGNING_ALLOWED="NO" \
+		$(V10_SDK_FLAGS) \
+		build | xcbeautify --preserve-unbeautified
 
 ## Build the macOS-SwiftUI sample app with the V10 trait
 .PHONY: build-sample-v10-macOS-SwiftUI
@@ -818,7 +838,9 @@ build-sample-v10-macOS-SwiftUI:
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme macOS-SwiftUI \
-		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+		CODE_SIGNING_ALLOWED="NO" \
+		$(V10_SDK_FLAGS) \
+		build | xcbeautify --preserve-unbeautified
 
 ## Build the tvOS-Swift sample app with the V10 trait
 .PHONY: build-sample-v10-tvOS-Swift
@@ -829,7 +851,9 @@ build-sample-v10-tvOS-Swift:
 		-workspace Sentry.xcworkspace \
 		-scheme tvOS-Swift \
 		-destination 'platform=tvOS Simulator,OS=$(TVOS_SIMULATOR_OS),name=$(TVOS_DEVICE_NAME)' \
-		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+		CODE_SIGNING_ALLOWED="NO" \
+		$(V10_SDK_FLAGS) \
+		build | xcbeautify --preserve-unbeautified
 
 ## Build the visionOS-Swift sample app with the V10 trait
 .PHONY: build-sample-v10-visionOS-Swift
@@ -840,7 +864,9 @@ build-sample-v10-visionOS-Swift:
 		-workspace Sentry.xcworkspace \
 		-scheme visionOS-Swift \
 		-destination 'platform=visionOS Simulator,OS=$(VISIONOS_SIMULATOR_OS),name=$(VISIONOS_DEVICE_NAME)' \
-		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+		CODE_SIGNING_ALLOWED="NO" \
+		$(V10_SDK_FLAGS) \
+		build | xcbeautify --preserve-unbeautified
 
 ## Build the watchOS-Swift sample app with the V10 trait
 .PHONY: build-sample-v10-watchOS-Swift
@@ -851,7 +877,9 @@ build-sample-v10-watchOS-Swift:
 		-workspace Sentry.xcworkspace \
 		-scheme 'watchOS-Swift WatchKit App' \
 		-destination 'platform=watchOS Simulator,OS=$(WATCHOS_SIMULATOR_OS),name=$(WATCHOS_DEVICE_NAME)' \
-		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+		CODE_SIGNING_ALLOWED="NO" \
+		$(V10_SDK_FLAGS) \
+		build | xcbeautify --preserve-unbeautified
 
 ## Build the iOS-SwiftUI-SPM sample app
 #

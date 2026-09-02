@@ -12,8 +12,6 @@ options:
 packages:
   Sentry:
     path: ../../
-    traits:
-      - V10
 targets:
   SPM:
     type: application
@@ -48,10 +46,6 @@ targets:
     configFiles:
       Debug: App/Configurations/SPM.xcconfig
       Release: App/Configurations/SPM.xcconfig
-    settings:
-      base:
-        GCC_PREPROCESSOR_DEFINITIONS: $(inherited) SDK_V10=1
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) SDK_V10
 schemes:
   SPM:
     templates:
