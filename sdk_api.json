@@ -23422,7 +23422,6 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC10enableLogsSbvg",
                 "moduleName": "Sentry",
@@ -23450,11 +23449,11 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC10enableLogsSbvs",
                 "moduleName": "Sentry",
                 "name": "Set",
+                "objc_name": "setEnableLogs:",
                 "printedName": "Set()",
                 "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setEnableLogs:"
               }
@@ -23469,11 +23468,11 @@
             ],
             "declAttributes": [
               "Final",
-              "HasStorage",
+              "Available",
               "ObjC"
             ],
             "declKind": "Var",
-            "hasStorage": true,
+            "deprecated": true,
             "kind": "Var",
             "mangledName": "$s6Sentry7OptionsC10enableLogsSbvp",
             "moduleName": "Sentry",
@@ -23726,7 +23725,6 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC13enableMetricsSbvg",
                 "moduleName": "Sentry",
@@ -23754,11 +23752,11 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC13enableMetricsSbvs",
                 "moduleName": "Sentry",
                 "name": "Set",
+                "objc_name": "setEnableMetrics:",
                 "printedName": "Set()",
                 "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setEnableMetrics:"
               }
@@ -23773,11 +23771,11 @@
             ],
             "declAttributes": [
               "Final",
-              "HasStorage",
+              "Available",
               "ObjC"
             ],
             "declKind": "Var",
-            "hasStorage": true,
+            "deprecated": true,
             "kind": "Var",
             "mangledName": "$s6Sentry7OptionsC13enableMetricsSbvp",
             "moduleName": "Sentry",
