@@ -161,8 +161,12 @@ NS_ASSUME_NONNULL_BEGIN
  * forward through it) is not gated by this flag. Setting it to @c NO does not drop those logs.
  * @note Default value is @c NO.
  * @note In v10 and later, this option is removed and logs are always enabled.
+ * @deprecated enableLogs is a no-op and will be removed in the next major release. Manual log
+ * APIs always capture.
  */
-@property (nonatomic) BOOL enableLogs;
+@property (nonatomic) BOOL enableLogs
+    __attribute__((deprecated("enableLogs is a no-op and will be removed in the next major "
+                              "release. Manual log APIs always capture.")));
 #endif // !SDK_V10
 
 /// This block can be used to modify the breadcrumb before it will be serialized and sent.
@@ -554,8 +558,12 @@ NS_ASSUME_NONNULL_BEGIN
  * Manual metric capture through the metrics API is not gated by this flag. Setting it to
  * @c NO does not drop those metrics.
  * @note Default value is @c YES.
+ * @deprecated enableMetrics is a no-op and will be removed in the next major release. Manual
+ * metric APIs always capture.
  */
-@property (nonatomic) BOOL enableMetrics;
+@property (nonatomic) BOOL enableMetrics
+    __attribute__((deprecated("enableMetrics is a no-op and will be removed in the next major "
+                              "release. Manual metric APIs always capture.")));
 
 #if (TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION) && SENTRY_OBJC_HAS_UIKIT
 

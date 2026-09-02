@@ -45,7 +45,10 @@
 #if SDK_V10
     return YES;
 #else
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     return options.enableLogs;
+#    pragma clang diagnostic pop
 #endif // SDK_V10
 }
 

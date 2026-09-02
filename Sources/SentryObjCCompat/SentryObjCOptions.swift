@@ -145,9 +145,10 @@ import Foundation
     }
 
     #if !SDK_V10
+    @available(*, deprecated, message: "enableLogs is a no-op and will be removed in the next major release. Manual log APIs always capture.")
     @objc public var enableLogs: Bool {
-        get { wrapped.enableLogs }
-        set { wrapped.enableLogs = newValue }
+        get { wrapped.enableLogsValue }
+        set { wrapped.enableLogsValue = newValue }
     }
     #endif // !SDK_V10
 
@@ -575,9 +576,10 @@ import Foundation
         set { wrapped.experimental = newValue.wrapped }
     }
 
+    @available(*, deprecated, message: "enableMetrics is a no-op and will be removed in the next major release. Manual metric APIs always capture.")
     @objc public var enableMetrics: Bool {
-        get { wrapped.enableMetrics }
-        set { wrapped.enableMetrics = newValue }
+        get { wrapped.enableMetricsValue }
+        set { wrapped.enableMetricsValue = newValue }
     }
 }
 // swiftlint:enable file_length missing_docs type_body_length

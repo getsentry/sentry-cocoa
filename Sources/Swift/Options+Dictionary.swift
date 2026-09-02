@@ -83,12 +83,12 @@ extension Options {
 
         #if !SDK_V10
         if let enableLogs = boolValue(dictionary["enableLogs"]) {
-            self.enableLogs = enableLogs
+            self.enableLogsValue = enableLogs
         }
         #endif // !SDK_V10
 
         if let enableMetrics = boolValue(dictionary["enableMetrics"]) {
-            self.enableMetrics = enableMetrics
+            self.enableMetricsValue = enableMetrics
         }
 
         if let enableNetworkBreadcrumbs = boolValue(dictionary["enableNetworkBreadcrumbs"]) {

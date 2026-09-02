@@ -270,7 +270,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
         let options = Options()
         options.dsn = TestConstants.dsnForTestCase(type: Self.self)
         options.removeAllIntegrations()
-        options.enableMetrics = isMetricsEnabled
+        options.enableMetricsValue = isMetricsEnabled
 
         let client = try XCTUnwrap(E2EMetricsTestClient(options: options))
         let hub = SentryHubInternal(

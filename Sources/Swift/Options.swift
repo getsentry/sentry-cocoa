@@ -158,6 +158,10 @@
     @objc public var beforeSendSpan: SentryBeforeSendSpanCallback?
 
     #if !SDK_V10
+    /// Storage for the legacy ``enableLogs`` option. Prefer this from SDK internals so call
+    /// sites do not need deprecation suppressions.
+    var enableLogsValue: Bool = false
+
     /// Legacy option kept for compatibility until the next major release.
     ///
     /// Manual log capture through ``SentrySDK/logger`` (and opt-in logging integrations that
@@ -166,7 +170,11 @@
     ///
     /// - Note: Default value is `false`.
     /// - Note: In v10 and later, this option is removed and logs are always enabled.
-    @objc public var enableLogs: Bool = false
+    @available(*, deprecated, message: "enableLogs is a no-op and will be removed in the next major release. Manual log APIs always capture.")
+    @objc public var enableLogs: Bool {
+        get { enableLogsValue }
+        set { enableLogsValue = newValue }
+    }
     #endif // !SDK_V10
 
     /// Use this callback to drop or modify a log before the SDK sends it to Sentry. Return nil to
@@ -778,13 +786,21 @@
 
     // MARK: - Integration: Metrics
 
+    /// Storage for the legacy ``enableMetrics`` option. Prefer this from SDK internals so call
+    /// sites do not need deprecation suppressions.
+    var enableMetricsValue: Bool = true
+
     /// Legacy option kept for compatibility until the next major release.
     ///
     /// Manual metric capture through ``SentrySDK/metrics`` is not gated by this flag. Setting it
     /// to `false` does not drop those metrics.
     ///
     /// - Note: Default value is `true`.
-    @objc public var enableMetrics: Bool = true
+    @available(*, deprecated, message: "enableMetrics is a no-op and will be removed in the next major release. Manual metric APIs always capture.")
+    @objc public var enableMetrics: Bool {
+        get { enableMetricsValue }
+        set { enableMetricsValue = newValue }
+    }
 
     /// Use this callback to drop or modify a metric before the SDK sends it to Sentry. Return nil to
     /// drop the metric.

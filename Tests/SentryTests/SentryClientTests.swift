@@ -115,7 +115,7 @@ final class SentryClientTests: XCTestCase {
             options.dsn = SentryClientTests.dsn
             options.removeAllIntegrations()
             #if !SDK_V10
-            options.enableLogs = true
+            options.enableLogsValue = true
             #endif // !SDK_V10
             configureOptions(options)
 
@@ -3063,7 +3063,7 @@ final class SentryClientTests: XCTestCase {
         // -- Arrange --
         // enableLogs is a legacy compatibility option and must not gate manual log APIs.
         let sut = fixture.getSut()
-        sut.options.enableLogs = false
+        sut.options.enableLogsValue = false
 
         let testProcessor = TestTelemetryProcessorForClient()
         Dynamic(sut).telemetryProcessor = testProcessor

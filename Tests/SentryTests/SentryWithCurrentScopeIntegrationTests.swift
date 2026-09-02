@@ -187,7 +187,7 @@ final class SentryWithCurrentScopeIntegrationTests: XCTestCase {
     func testWithCurrentScope_captureLog_appliesCurrentScope() {
         var capturedLog: SentryLog?
         #if !SDK_V10
-        fixture.options.enableLogs = true
+        fixture.options.enableLogsValue = true
         #endif // !SDK_V10
         fixture.options.beforeSendLog = { log in
             capturedLog = log

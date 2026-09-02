@@ -269,13 +269,7 @@ public struct SentrySDKWrapper {
         options.configureUserFeedback = configureFeedback(config:)
 #endif // !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
 
-        // Integration: Logs
-        #if !SDK_V10
-        options.enableLogs = !SentrySDKOverrides.Logs.disable.boolValue
-        #endif // !SDK_V10
-
         // Integration: Metrics
-        options.enableMetrics = SentrySDKOverrides.Metrics.enable.boolValue
         options.beforeSendMetric = { metric in
             // Modify the metric in the callback
             var modifiedMetric = metric

@@ -1,5 +1,5 @@
 import Foundation
-import Sentry
+@_spi(Private) @testable import Sentry
 
 public extension Options {
     
@@ -23,7 +23,7 @@ public extension Options {
         attachViewHierarchy = false
         enableUIViewControllerTracing = false
         #endif
-        enableMetrics = false
+        enableMetricsValue = false
         beforeSendMetric = { metric in metric }
         #if canImport(MetricKit) && !os(tvOS)
         enableMetricKit = false

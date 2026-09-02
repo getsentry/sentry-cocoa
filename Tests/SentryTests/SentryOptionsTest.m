@@ -214,13 +214,19 @@
 #if !SDK_V10
 - (void)testEnableLogs
 {
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [self testBooleanField:@"enableLogs" defaultValue:NO];
+#    pragma clang diagnostic pop
 }
 #endif // !SDK_V10
 
 - (void)testEnableMetrics
 {
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [self testBooleanField:@"enableMetrics" defaultValue:YES];
+#    pragma clang diagnostic pop
 }
 
 - (void)testEnableAutoBreadcrumbTracking

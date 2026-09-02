@@ -294,7 +294,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     func testEnableMetrics_isEnabled_shouldAddFeature() throws {
         // -- Arrange --
         let options = Options()
-        options.enableMetrics = true
+        options.enableMetricsValue = true
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
@@ -306,7 +306,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     func testEnableMetrics_isDisabled_shouldNotAddFeature() throws {
         // -- Arrange --
         let options = Options()
-        options.enableMetrics = false
+        options.enableMetricsValue = false
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
