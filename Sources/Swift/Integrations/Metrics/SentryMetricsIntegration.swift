@@ -12,8 +12,6 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
     private let beforeSendMetric: ((SentryMetric) -> SentryMetric?)?
 
     init?(with options: Options, dependencies _: Dependencies) {
-        guard options.enableMetrics else { return nil }
-
 #if SDK_V10
         let shouldAddDefaultUserId = options.dataCollection.userInfo
 #else

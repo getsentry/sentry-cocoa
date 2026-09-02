@@ -92,7 +92,8 @@ extension SentrySDK {
     ///
     /// ## Requirements
     ///
-    /// To disable metrics, set ``Options/enableMetrics`` to `false`.
+    /// ``Options/enableMetrics`` is kept for compatibility until the next major release and does
+    /// not gate this manual API.
     ///
     /// - Important: The Metrics API has been designed and optimized for Swift. Objective-C support is
     ///   currently not available. If you need Objective-C support, please see the issue
