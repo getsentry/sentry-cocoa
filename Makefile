@@ -1479,7 +1479,7 @@ xcode: xcode-ci
 # Run 'make xcode-ci' first to generate the projects.
 .PHONY: switch-v10
 switch-v10:
-	scripts/set-xcode-project-traits.sh --trait V10 --mode add
+	scripts/set-xcode-project-traits.py --trait V10 --mode add
 
 ## Switch all generated sample Xcode projects back to default (non-V10) mode
 #
@@ -1487,7 +1487,7 @@ switch-v10:
 # files under Samples/.
 .PHONY: switch-v9
 switch-v9:
-	scripts/set-xcode-project-traits.sh --trait V10 --mode remove
+	scripts/set-xcode-project-traits.py --trait V10 --mode remove
 
 ## Generate all sample Xcode projects
 #

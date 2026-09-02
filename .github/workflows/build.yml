@@ -274,7 +274,6 @@ jobs:
 
       - run: make init-ci-build
       - run: make xcode-ci-macOS-CLI-Xcode
-      - run: make switch-v10
 
       - name: Build macOS-CLI-Xcode sample
         run: |
