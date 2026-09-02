@@ -21,6 +21,12 @@ void sentrykscrash_isWritingReport(const KSCrash_ExceptionHandlingPlan *_Nonnull
 void sentrykscrash_didWriteReport(
     const KSCrash_ExceptionHandlingPlan *_Nonnull const plan, int64_t reportID);
 
+/** Called after a fatal report has been written. Receives the KSCrash report ID. */
+typedef void (*SentryKSCrashAttachmentsDidWriteHandler)(int64_t reportID);
+
+void sentrykscrash_setAttachmentsDidWriteHandler(
+    SentryKSCrashAttachmentsDidWriteHandler _Nullable handler);
+
 #    ifdef __cplusplus
 }
 #    endif

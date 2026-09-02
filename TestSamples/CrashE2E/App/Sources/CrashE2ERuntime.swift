@@ -26,6 +26,7 @@ enum CrashE2EScenario: String {
     case ksCrashRetryReportA = "kscrash-retry-report-a"
     case ksCrashRetryReportB = "kscrash-retry-report-b"
     case crashTimeScope = "crash-time-scope"
+    case crashTimeAttachments = "crash-time-attachments"
 }
 
 struct CrashE2EConfiguration {
@@ -88,6 +89,7 @@ enum CrashE2ERuntime {
         loadBinaryImageBeforeSDKIfNeeded()
         startConfiguredSDK()
         CrashE2EScopePopulation.populateIfNeeded()
+        CrashE2EAttachmentsSetup.setupIfNeeded()
         NSLog("CrashE2E - SDK started")
     }
 
@@ -110,7 +112,7 @@ enum CrashE2ERuntime {
              .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal, .managedRuntimeSignalChain,
              .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
              .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA,
-             .ksCrashRetryReportB, .crashTimeScope:
+             .ksCrashRetryReportB, .crashTimeScope, .crashTimeAttachments:
             NSLog("CrashE2E - will trigger scenario: \(configuration.scenario.rawValue)")
             scheduleCrashAfterProcessingCompletesIfRequested()
         }
@@ -135,7 +137,7 @@ enum CrashE2ERuntime {
              .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal, .managedRuntimeSignalChain,
              .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
              .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA,
-             .ksCrashRetryReportB, .crashTimeScope:
+             .ksCrashRetryReportB, .crashTimeScope, .crashTimeAttachments:
             NSLog("CrashE2E - will trigger scenario synchronously: \(configuration.scenario.rawValue)")
             waitForProcessingCompletionOrAbort()
             Thread.sleep(forTimeInterval: 0.5)
@@ -148,6 +150,7 @@ enum CrashE2ERuntime {
         SentrySDK.close()
         startConfiguredSDK()
         CrashE2EScopePopulation.populateIfNeeded()
+        CrashE2EAttachmentsSetup.setupIfNeeded()
         NSLog("CrashE2E - SDK restarted")
     }
 
@@ -219,7 +222,7 @@ enum CrashE2ERuntime {
              .objcObject, .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal,
              .managedRuntimePreSDKSignal, .swiftAsyncCPPExceptionV2Off,
              .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA, .ksCrashRetryReportB,
-             .crashTimeScope:
+             .crashTimeScope, .crashTimeAttachments:
             return
         }
     }

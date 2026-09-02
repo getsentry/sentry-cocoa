@@ -40,9 +40,9 @@ final class SentryScreenshotIntegration<Dependencies: ScreenshotIntegrationProvi
             globalScreenshotSource?.saveScreenShots(reportPath)
         }
 #else
-        // KSCRASH_TODO(GH-8273, GH-8532): Nonfatal screenshots still work, but V10 does not
-        // register a fatal-crash screenshot callback. Acceptance: SCV10-008 in
-        // SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+        SentryDependencyContainer.sharedInstance().getKSCrashInstaller().setScreenshotProvider { directory in
+            globalScreenshotSource?.saveScreenShots(directory)
+        }
 #endif
     }
 
@@ -51,8 +51,7 @@ final class SentryScreenshotIntegration<Dependencies: ScreenshotIntegrationProvi
 #if !SENTRY_DISABLE_SENTRYCRASH_V10
         sentrycrash_setSaveScreenshots(nil)
 #else
-        // KSCRASH_TODO(GH-8273, GH-8532): V10 has no fatal-crash screenshot callback to remove.
-        // Acceptance: SCV10-008 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+        SentryDependencyContainer.sharedInstance().getKSCrashInstaller().setScreenshotProvider(nil)
 #endif
         client?.removeAttachmentProcessor(self)
     }

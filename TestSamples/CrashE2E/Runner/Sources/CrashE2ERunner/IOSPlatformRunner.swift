@@ -95,6 +95,11 @@ final class IOSPlatformRunner {
             try fail("iOS app did not terminate for scenario: \(scenario.rawValue)")
         }
 
+        try assertAttachmentPayloadIfNeeded(
+            scenario: scenario,
+            container: container,
+            platform: "ios"
+        )
         try drainPreviousCrash(for: scenario)
         try ScenarioEventAsserter.assertScenarioEvent(
             scenario,
@@ -209,5 +214,17 @@ final class IOSPlatformRunner {
 
     var bundleID: String {
         config.reporter.iOSBundleID
+    }
+
+    private func assertAttachmentPayloadIfNeeded(
+        scenario: Scenario, container: URL, platform: String
+    ) throws {
+        guard scenario == .crashTimeAttachments else { return }
+        let cacheDir = container.appendingPathComponent("Library/Caches", isDirectory: true)
+        // installPath mirrors SentryKSCrash.Integration.installPath(for:bundleInfo:)
+        let installDir = cacheDir
+            .appendingPathComponent("KSCrash", isDirectory: true)
+            .appendingPathComponent(config.reporter.iOSScheme, isDirectory: true)
+        try CrashTimeAttachmentsAsserter.assert(installDir: installDir, platform: platform)
     }
 }

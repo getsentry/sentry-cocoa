@@ -105,16 +105,27 @@ sentrykscrash_isWritingReport(
     writeScope(writer);
 }
 
+static SentryKSCrashAttachmentsDidWriteHandler g_attachmentsDidWriteHandler;
+
+void
+sentrykscrash_setAttachmentsDidWriteHandler(SentryKSCrashAttachmentsDidWriteHandler handler)
+{
+    g_attachmentsDidWriteHandler = handler;
+}
+
 void
 sentrykscrash_didWriteReport(const KSCrash_ExceptionHandlingPlan *const plan, int64_t reportID)
 {
-    (void)plan;
-    (void)reportID;
+    if (plan == NULL || !plan->isFatal || plan->isCleanExit || plan->crashedDuringExceptionHandling
+        || reportID <= 0) {
+        return;
+    }
+
+    if (g_attachmentsDidWriteHandler != NULL) {
+        g_attachmentsDidWriteHandler(reportID);
+    }
 
 #    if SENTRY_DISABLE_SENTRYCRASH_V10
-    // KSCRASH_TODO(GH-8273, GH-8532): Capture crash-time screenshots into the report
-    // attachment directory. Acceptance: SCV10-008 and SCV10-010 in
-    // SENTRYCRASH_V10_MIGRATION_LEDGER.md.
     // KSCRASH_TODO(GH-8273, GH-8532): Capture crash-time view hierarchy into the report
     // attachment directory. Acceptance: SCV10-009 and SCV10-010 in
     // SENTRYCRASH_V10_MIGRATION_LEDGER.md.

@@ -5,7 +5,7 @@ import Sentry
 enum CrashE2ECrashTriggers {
     static func trigger(_ scenario: CrashE2EScenario) -> Never {
         switch scenario {
-        case .signal, .managedRuntimeSignalChain, .crashTimeScope:
+        case .signal, .managedRuntimeSignalChain, .crashTimeScope, .crashTimeAttachments:
             SentrySDK.crash()
             abortBecauseScenarioReturned(scenario)
         case .binaryImages:
@@ -84,7 +84,7 @@ enum CrashE2ECrashTriggers {
             abortBecauseScenarioReturned(scenario)
         case .signal, .cppExceptionV2DynamicImage, .binaryImages, .ignoredSignal,
              .managedRuntimeSignalChain, .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
-             .crashTimeScope:
+             .crashTimeScope, .crashTimeAttachments:
             abortBecauseScenarioReturned(scenario)
         }
     }

@@ -46,6 +46,11 @@ extension SentryKSCrash {
         /// Adds additional user information to the crash handler
         func setUserInfo(_ userInfo: [String: Any])
 
+        /// Sets the crash-time screenshot writer. Receives the per-report payload directory.
+        /// Invoked on the crash thread after the JSON report is on disk; must not hop to main.
+        /// Pass `nil` to disable screenshot capture.
+        func setScreenshotProvider(_ provider: ((String) -> Void)?)
+
         #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
         /// The fatal NSException handler installed by the active crash backend.
         var uncaughtExceptionHandler: (@convention(c) (NSException) -> Void)? { get }
@@ -57,6 +62,11 @@ extension SentryKSCrash {
         private static let startupCrashFlushDuration: TimeInterval = 5
 
         private(set) var installed = false
+
+        /// KSCrash copies plugins only on the first process-lifetime install, so this monitor
+        /// must outlive any single SDK lifecycle.
+        private static let sharedScreenshotMonitor = SentryKSCrash.ScreenshotMonitor()
+        private var screenshotMonitor: SentryKSCrash.ScreenshotMonitor { Self.sharedScreenshotMonitor }
 
         func install(
             installPath: String,
@@ -72,6 +82,7 @@ extension SentryKSCrash {
             config.enableSwapCxaThrow = enableSwapCxaThrow
             config.enableSwiftAsyncStackTraces = enableSwiftAsyncStackTraces
             config.reportStoreConfiguration.reportCleanupPolicy = .onSuccess
+            config.plugins = [screenshotMonitor]
             #if SENTRY_CRASH_E2E
             config.userInfoJSON = SentryKSCrash.CrashE2ETestHook.reportUserInfo
             #endif
@@ -80,12 +91,13 @@ extension SentryKSCrash {
             config.isWritingReportCallback = sentrykscrash_isWritingReport
             config.didWriteReportCallback = sentrykscrash_didWriteReport
 
+            SentryKSCrash.ScreenshotMonitor.active = screenshotMonitor
+            sentrykscrash_setAttachmentsDidWriteHandler(SentryKSCrash.ScreenshotMonitor.cDidWriteHandler)
+
 #if SENTRY_DISABLE_SENTRYCRASH_V10
-            // KSCRASH_TODO(GH-8273, GH-8532, GH-8801, GH-8735): didWriteReport is installed but
-            // still a no-op. Screenshots, view hierarchy, replay checkpoint, and active-trace
-            // persistence belong in sentrykscrash_didWriteReport. Acceptance: SCV10-008,
-            // SCV10-009, SCV10-010, SCV10-027, and SCV10-039 in
-            // SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+            // KSCRASH_TODO(GH-8273, GH-8532, GH-8801, GH-8735): didWriteReport captures screenshots
+            // but not view hierarchy, replay checkpoint, or the active trace. Acceptance:
+            // SCV10-009, SCV10-027, and SCV10-039 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
 #endif
             do {
                 try KSCrash.shared.install(with: config)
@@ -105,6 +117,8 @@ extension SentryKSCrash {
             // this SDK lifecycle's query state is cleared. Acceptance: SCV10-032 in
             // SENTRYCRASH_V10_MIGRATION_LEDGER.md.
 #endif
+            sentrykscrash_setAttachmentsDidWriteHandler(nil)
+            SentryKSCrash.ScreenshotMonitor.active = nil
             installed = false
         }
 
@@ -203,6 +217,10 @@ extension SentryKSCrash {
                     SentrySDKLog.debug("Dropping '\(key): \(value) as it's not a supported type")
                 }
             }
+        }
+
+        func setScreenshotProvider(_ provider: ((String) -> Void)?) {
+            screenshotMonitor.screenshotProvider = provider
         }
     }
 }
