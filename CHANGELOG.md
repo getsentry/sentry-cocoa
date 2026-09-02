@@ -2,10 +2,13 @@
 
 ## Unreleased
 
+> [!NOTE]
+> `enableLogs` and `enableMetrics` are now deprecated and will be removed in the next major version. Manual log and metric capture is no longer gated by these flags.
+
 ### Improvements
 
 - Install idle Session Replay recovery infrastructure at zero sample rates. (#8865)
-- Do not gate manual log and metrics APIs behind `enableLogs` / `enableMetrics`. Both options remain for compatibility until the next major and are now deprecated; `SentrySDK.logger`, opt-in logging integrations that forward through it, and `SentrySDK.metrics` keep capturing when the flags are `false` (#8918)
+- Manual log and metrics APIs are no longer gated by behind `enableLogs` / `enableMetrics` (#8918)
 
 ### Features
 

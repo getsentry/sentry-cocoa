@@ -166,6 +166,7 @@
     ///
     /// - Note: Default value is `false`.
     /// - Note: In v10 and later, this option is removed and logs are always enabled.
+    /// - Warning: Deprecated. This option will be removed in the next major version.
     @objc public var enableLogs: Bool = false
     #endif // !SDK_V10
 
@@ -784,6 +785,7 @@
     /// to `false` does not drop those metrics.
     ///
     /// - Note: Default value is `true`.
+    /// - Warning: Deprecated. This option will be removed in the next major version.
     @objc public var enableMetrics: Bool = true
 
     /// Use this callback to drop or modify a metric before the SDK sends it to Sentry. Return nil to
