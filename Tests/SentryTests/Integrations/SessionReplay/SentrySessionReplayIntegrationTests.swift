@@ -276,6 +276,23 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertTrue(try XCTUnwrap(sut.sessionReplay).isFullSession)
     }
 
+    func testFlush_whenBufferStartIsPending_shouldPromoteToFullSessionMode() throws {
+        // -- Arrange --
+        uiApplication.windows = nil
+        startSDK(sessionSampleRate: 0, errorSampleRate: 0)
+        let sut = try getSut()
+        sut.startBuffering()
+        XCTAssertNil(sut.sessionReplay)
+
+        // -- Act --
+        sut.flush()
+        uiApplication.windows = [UIWindow()]
+        NotificationCenter.default.post(name: UIScene.didActivateNotification, object: nil)
+
+        // -- Assert --
+        XCTAssertTrue(try XCTUnwrap(sut.sessionReplay).isFullSession)
+    }
+
     func testRunReplayForAvailableWindow_whenPendingStartAndSessionEnds_shouldNotStartAfterLifecycleNotification() throws {
         // -- Arrange --
         uiApplication.windows = nil
@@ -349,6 +366,22 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         sut.start()
 
         XCTAssertTrue(sut.sessionReplay?.isRunning ?? false)
+    }
+
+    func testFlushAfterSessionEnd_whenManuallyPaused_shouldStartPausedReplay() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+        sut.pause()
+        sut.sentrySessionEnded(session: SentrySession(releaseName: "", distinctId: ""))
+        XCTAssertNil(sut.sessionReplay)
+
+        // -- Act --
+        sut.flush()
+
+        // -- Assert --
+        XCTAssertNotNil(sut.sessionReplay)
+        XCTAssertFalse(sut.sessionReplay?.isRunning ?? true)
     }
 
     func testStopWhenManuallyPaused_shouldClearPauseForAutomaticSessionRestart() throws {
