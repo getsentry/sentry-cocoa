@@ -345,11 +345,9 @@ private struct SessionSegmentState {
 
     func flush() {
         if isFullSession {
-            let shouldResume = isRunning
+            guard isRunning else { return }
             pause()
-            if shouldResume {
-                resume()
-            }
+            resume()
             return
         }
 

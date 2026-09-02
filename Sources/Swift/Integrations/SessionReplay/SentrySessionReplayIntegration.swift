@@ -395,14 +395,20 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     @objc public func flush() {
         SentrySDKLog.debug("[Session Replay] Flushing session")
         guard let sessionReplay else {
-            return start()
+            if isPendingStart {
+                startedAsFullSession = true
+                return
+            }
+            return start(fullSession: true, resetManualPause: false)
         }
         sessionReplay.flush()
     }
 
-    private func start(fullSession: Bool) {
-        guard sessionReplay == nil else { return }
-        isManuallyPaused.withLock { $0 = false }
+    private func start(fullSession: Bool, resetManualPause: Bool = true) {
+        guard sessionReplay == nil && !isPendingStart else { return }
+        if resetManualPause {
+            isManuallyPaused.withLock { $0 = false }
+        }
         startedAsFullSession = fullSession
         isPendingStart = true
         runReplayForAvailableWindow()
@@ -467,7 +473,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
 
         if rateLimits.isRateLimitActive(.replay) || rateLimits.isRateLimitActive(.all) {
             replayProcessingQueue.dispatchAsyncOnMainQueueIfNotMainThread { [weak self] in
-                self?.stop()
+                self?.cancelPendingStartAndStopCurrentReplay()
             }
             return
         }
@@ -507,11 +513,14 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     // MARK: - SentryReachabilityObserver
     public func connectivityChanged(_ connected: Bool, typeDescription: String) {
         SentrySDKLog.debug("[Session Replay] Connectivity changed to: \(connected ? "connected" : "disconnected"), type: \(typeDescription)")
-        if connected {
-            let shouldRestartCaptureScheduler = !isManuallyPaused.withLock({ $0 }) && getApplication()?.mainThread_isActive != false
-            sessionReplay?.resumeSessionMode(restartCaptureScheduler: shouldRestartCaptureScheduler)
-        } else {
-            sessionReplay?.pauseSessionMode()
+        replayProcessingQueue.dispatchAsyncOnMainQueueIfNotMainThread { [weak self] in
+            guard let self else { return }
+            if connected {
+                let shouldRestartCaptureScheduler = !isManuallyPaused.withLock({ $0 }) && getApplication()?.mainThread_isActive != false
+                sessionReplay?.resumeSessionMode(restartCaptureScheduler: shouldRestartCaptureScheduler)
+            } else {
+                sessionReplay?.pauseSessionMode()
+            }
         }
     }
 

@@ -174,9 +174,11 @@ SENTRY_EXTERN void removeAppLaunchProfilingConfigFile(void);
 
 SENTRY_EXTERN NSString *_Nullable sentryStaticBasePath(void);
 
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)                          \
+        || defined(SENTRY_UI_TEST_SUPPORT)
 SENTRY_EXTERN void removeSentryStaticBasePath(void);
-#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG) ||
+           // defined(SENTRY_UI_TEST_SUPPORT)
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 

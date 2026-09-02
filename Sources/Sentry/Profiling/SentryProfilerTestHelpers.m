@@ -22,7 +22,8 @@ sentry_threadSanitizerIsPresent(void)
     return NO;
 }
 
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)                          \
+        || defined(SENTRY_UI_TEST_SUPPORT)
 
 void
 sentry_writeProfileFile(NSData *JSONData, BOOL continuous)
@@ -69,6 +70,7 @@ sentry_writeProfileFile(NSData *JSONData, BOOL continuous)
         @"Failed to write profile data to path %@: %@", pathToWrite, error);
 }
 
-#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG) ||
+           // defined(SENTRY_UI_TEST_SUPPORT)
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

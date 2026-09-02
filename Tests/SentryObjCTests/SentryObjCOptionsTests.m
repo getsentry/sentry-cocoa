@@ -573,6 +573,27 @@
     XCTAssertEqual(options.maxBreadcrumbs, 50u);
 }
 
+- (void)testMaxFeatureFlags_whenSet_shouldReturnValue
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    options.maxFeatureFlags = 2000;
+
+    // -- Assert --
+    XCTAssertEqual(options.maxFeatureFlags, 2000u);
+}
+
+- (void)testMaxFeatureFlags_whenNotSet_shouldReturnDefault
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Assert --
+    XCTAssertEqual(options.maxFeatureFlags, 100u);
+}
+
 - (void)testMaxCacheItems_whenSet_shouldReturnValue
 {
     // -- Arrange --
