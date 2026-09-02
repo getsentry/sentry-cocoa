@@ -1050,7 +1050,12 @@ class SentrySessionReplayTests: XCTestCase {
         let fixture = Fixture()
         let captureScheduler = RecordingCaptureScheduler()
         fixture.captureScheduler = captureScheduler
-        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 1))
+        let touchTracker = SentryTouchTracker(dateProvider: fixture.dateProvider, scale: 1)
+        touchTracker.enable()
+        let sut = fixture.getSut(
+            options: SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 1),
+            touchTracker: touchTracker
+        )
         sut.start(rootView: fixture.rootView, fullSession: false)
 
         let firstToken = try XCTUnwrap(captureScheduler.startedTokens.last)
@@ -1060,6 +1065,7 @@ class SentrySessionReplayTests: XCTestCase {
 
         XCTAssertIdentical(try XCTUnwrap(captureScheduler.stoppedTokens.last), firstToken)
         XCTAssertNotIdentical(try XCTUnwrap(captureScheduler.startedTokens.last), firstToken)
+        XCTAssertTrue(touchTracker.isEnabled)
     }
 
     func testResume_whenPauseRunsBeforeQueuedStart_shouldNotStartCaptureScheduler() {
