@@ -505,14 +505,14 @@ class SentrySessionReplayTests: XCTestCase {
         assertFullSession(sut, expected: true)
     }
 
-    func testCaptureReplay_whenRequestedAsSession_shouldKeepSessionReplayTypeForFollowingSegments() throws {
+    func testFlush_shouldKeepSessionReplayTypeForFollowingSegments() throws {
         // -- Arrange --
         let fixture = Fixture()
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 1))
         sut.start(rootView: fixture.rootView, fullSession: false)
 
         // -- Act --
-        _ = sut.captureReplay(replayType: .session)
+        sut.flush()
         let firstSegment = try XCTUnwrap(fixture.lastReplayEvent)
 
         fixture.dateProvider.advance(by: 5)
@@ -526,7 +526,7 @@ class SentrySessionReplayTests: XCTestCase {
         XCTAssertEqual(secondSegment.segmentId, 1)
     }
 
-    func testCaptureReplay_whenCalledFromBackground_shouldStartSessionAtLastScreenshot() throws {
+    func testFlush_whenCalledFromBackground_shouldStartSessionAtLastScreenshot() throws {
         // -- Arrange --
         let fixture = Fixture()
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 1))
@@ -540,7 +540,7 @@ class SentrySessionReplayTests: XCTestCase {
 
         // -- Act --
         DispatchQueue.global().async {
-            _ = sut.captureReplay(replayType: .session)
+            sut.flush()
             expectation.fulfill()
         }
         wait(for: [expectation], timeout: 1)
@@ -552,6 +552,52 @@ class SentrySessionReplayTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(fullSessionSegment.beginning, expectedSessionStart)
+    }
+
+    func testFlush_whenBufferIsPaused_shouldSendWithoutResuming() throws {
+        let fixture = Fixture()
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 1))
+        sut.start(rootView: fixture.rootView, fullSession: false)
+        fixture.dateProvider.advance(by: 1)
+        fixture.runLoopCapture()
+        sut.pause()
+
+        sut.flush()
+
+        XCTAssertTrue(sut.isFullSession)
+        XCTAssertFalse(sut.isRunning)
+        XCTAssertEqual(fixture.lastReplayEvent?.replayType, .session)
+    }
+
+    func testFlush_whenFullSessionIsRunning_shouldSendAndContinueRecording() {
+        let fixture = Fixture()
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 0))
+        sut.start(rootView: fixture.rootView, fullSession: true)
+        fixture.dateProvider.advance(by: 1)
+        fixture.runLoopCapture()
+
+        sut.flush()
+
+        XCTAssertTrue(sut.isRunning)
+        XCTAssertEqual(fixture.lastReplayEvent?.replayType, .session)
+    }
+
+    func testFlush_whenFullSessionIsPausedAndSegmentIsPending_shouldNotEnqueueOverlappingSegment() {
+        // -- Arrange --
+        let fixture = Fixture()
+        fixture.replayMaker.deferCreateVideoCompletion = true
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 0))
+        sut.start(rootView: fixture.rootView, fullSession: true)
+        fixture.dateProvider.advance(by: 1)
+        fixture.runLoopCapture()
+        sut.pause()
+        XCTAssertEqual(fixture.replayMaker.createVideoCalls.count, 1)
+
+        // -- Act --
+        sut.flush()
+
+        // -- Assert --
+        XCTAssertEqual(fixture.replayMaker.createVideoCalls.count, 1)
     }
 
     func testSessionReplayMaximumDuration() {

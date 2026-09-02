@@ -8,6 +8,21 @@
 
 ### Features
 
+- Add manual Session Replay controls through `SentrySDK.replay`. (#8868)
+  - Explicit `start()` and `startBuffering()` calls bypass the configured replay sample rates; sampling still controls automatic startup.
+  - `start()` starts a full-session replay and does nothing if one is already recording.
+  - `startBuffering()` keeps a rolling buffer that is sent on `flush()` or an error, then continues in session mode.
+  - `stop()` ends the current replay; the next `start()` creates a new replay session.
+  - `pause()` suspends recording until `resume()` and remains paused across background and foreground transitions and automatic replay restarts in the same process.
+  - `resume()` continues the same manually paused replay.
+  - `flush()` sends the current replay data to Sentry, or starts a full-session replay when recording is stopped.
+
+### Improvements
+
+- Install idle Session Replay recovery infrastructure at zero sample rates. (#8865)
+
+### Features
+
 - Copy `app.vitals.start.type` and `app.vitals.start.screen` onto standalone `app.start` children, including `app.start.extended` and user descendants (#8888)
 - Add `maxFeatureFlags` option to configure how many feature flag evaluations the scope retains, matching sentry-java. Defaults to 100 (#8858)
 

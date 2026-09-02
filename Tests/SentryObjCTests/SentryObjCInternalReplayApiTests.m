@@ -25,6 +25,22 @@
 
 #    pragma mark - capture
 
+- (void)testControls_shouldBeCallable
+{
+    SentryObjCInternalReplayApi *replay = SentryObjCSDK.internal.replay;
+
+    [replay start];
+    [replay startBuffering];
+    [replay pause];
+    [replay resume];
+    [replay flush];
+    [replay stop];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Replay commands executed"];
+    dispatch_async(dispatch_get_main_queue(), ^{ [expectation fulfill]; });
+    [self waitForExpectations:@[ expectation ] timeout:1];
+}
+
 - (void)testCapture_withoutReplay_shouldReturnNO
 {
     // -- Act --
