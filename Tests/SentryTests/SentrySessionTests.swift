@@ -82,7 +82,7 @@ class SentrySessionTestsSwift: XCTestCase {
         // Duration is set when the session ends and must survive serialization.
         let session = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
         let endDate = currentDateProvider.date().addingTimeInterval(2)
-        session.endExited(withTimestamp: endDate)
+        session.endNormally(withTimestamp: endDate)
 
         // -- Act --
         let json = session.serialize()
