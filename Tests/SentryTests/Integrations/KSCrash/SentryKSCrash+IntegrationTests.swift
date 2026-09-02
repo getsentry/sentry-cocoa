@@ -554,5 +554,28 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         XCTAssertFalse(installer.installed)
         XCTAssertFalse(SentrySDKInternal.crashReporterInstalled)
     }
+
+    func testInstall_whenCrashHandlerEnabled_shouldRetainScopeConfiguration() throws {
+        // -- Arrange --
+        let scope = Scope()
+        let originalHub = SentrySDKInternal.currentHub()
+        SentrySDKInternal.setCurrentHub(
+            SentryHubInternal(client: TestClient(options: Options()), andScope: scope)
+        )
+        defer { SentrySDKInternal.setCurrentHub(originalHub) }
+
+        let installer = MockKSCrashInstaller()
+        let deps = MockKSCrashDependencies(installer: installer)
+
+        // -- Act --
+        let sut = try XCTUnwrap(SentryKSCrash.Integration(with: makeOptions(), dependencies: deps))
+        scope.setDist("crash-e2e-dist")
+
+        // -- Assert --
+        withExtendedLifetime(sut) {
+            let dist = sentrycrash_scopesync_getScope().pointee.dist
+            XCTAssertEqual(dist.map { String(cString: $0) }, "\"crash-e2e-dist\"")
+        }
+    }
 }
 #endif

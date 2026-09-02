@@ -101,6 +101,36 @@ final class SessionReplayUITests: BaseUITest {
         )
     }
 
+    func testReplayControls_whenSampleRatesAreZero_shouldBeUsable() throws {
+        guard #available(iOS 16.0, *) else {
+            throw XCTSkip("Session Replay requires iOS 16 or later.")
+        }
+
+        launchApp(env: [
+            SentrySDKOverrides.Replay.sessionSampleRate.rawValue: "0",
+            SentrySDKOverrides.Replay.onErrorSampleRate.rawValue: "0"
+        ])
+
+        app.buttons["Extra"].tap()
+        app.buttons["Show UI Test"].tap()
+
+        let controls = [
+            app.buttons["replay-control-buffer"],
+            app.buttons["replay-control-pause"],
+            app.buttons["replay-control-resume"],
+            app.buttons["replay-control-flush"],
+            app.buttons["replay-control-stop"],
+            app.buttons["replay-control-start"]
+        ]
+
+        for control in controls {
+            XCTAssertTrue(control.waitForExistence(timeout: 5))
+            control.tap()
+        }
+
+        XCTAssertTrue(app.buttons["replay-control-start"].exists)
+    }
+
     private func waitForReplayFrame(in cachesURL: URL, capturedAfter date: Date) throws -> UIImage {
         let timeout = Date().addingTimeInterval(10)
         while Date() < timeout {

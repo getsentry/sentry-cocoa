@@ -448,7 +448,11 @@ class SentrySDKInternalTests: XCTestCase {
         }
 
         let hub = SentrySDKInternal.currentHub()
-        XCTAssertEqual(1, hub.installedIntegrations().count)
+        var expectedIntegrationCount = 1
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+        expectedIntegrationCount += 1
+#endif
+        XCTAssertEqual(expectedIntegrationCount, hub.installedIntegrations().count)
         SentrySDK.close()
         XCTAssertEqual(0, hub.installedIntegrations().count)
         assertIntegrationsInstalled(integrations: [])

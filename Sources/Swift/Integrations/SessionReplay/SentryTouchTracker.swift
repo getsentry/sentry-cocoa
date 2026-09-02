@@ -54,6 +54,11 @@ import UIKit
     private var touchId = 1
     private let dateProvider: SentryCurrentDateProvider
     private let scale: CGAffineTransform
+    private let enabled = SentryMutex<Bool>(false)
+
+    var isEnabled: Bool {
+        enabled.withLock { $0 }
+    }
     
     public init(dateProvider: SentryCurrentDateProvider, scale: Float, dispatchQueue: SentryDispatchQueueWrapper) {
         self.dateProvider = dateProvider
@@ -67,8 +72,17 @@ import UIKit
         // queue with the rest of the SDK.
         self.init(dateProvider: dateProvider, scale: scale, dispatchQueue: SentryDispatchQueueWrapper())
     }
+
+    func enable() {
+        enabled.withLock { $0 = true }
+    }
+
+    func disable() {
+        enabled.withLock { $0 = false }
+    }
     
     public func trackTouchFrom(event: UIEvent) {
+        guard enabled.withLock({ $0 }) else { return }
         guard let touches = event.allTouches else { return }
         let timestamp = event.timestamp
         

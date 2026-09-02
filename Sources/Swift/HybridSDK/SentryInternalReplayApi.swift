@@ -17,6 +17,36 @@ public struct SentryInternalReplayApi {
         self.replayIntegrationProvider = dependencies.replayIntegrationProvider
     }
 
+    /// Starts a new replay session if Replay is inactive.
+    public func start() {
+        SentrySDK.replay.start()
+    }
+
+    /// Starts Replay in buffer mode if Replay is inactive.
+    public func startBuffering() {
+        SentrySDK.replay.startBuffering()
+    }
+
+    /// Pauses the current replay.
+    public func pause() {
+        SentrySDK.replay.pause()
+    }
+
+    /// Resumes a replay paused with ``pause()``.
+    public func resume() {
+        SentrySDK.replay.resume()
+    }
+
+    /// Flushes buffered replay data or starts a new replay session if Replay is inactive.
+    public func flush() {
+        SentrySDK.replay.flush()
+    }
+
+    /// Stops the current replay.
+    public func stop() {
+        SentrySDK.replay.stop()
+    }
+
     /// Configures the session replay with a custom breadcrumb converter
     /// and/or screenshot provider.
     @_spi(Private)
