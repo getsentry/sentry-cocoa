@@ -2491,6 +2491,7 @@ private final class NetworkTrackerTestHub: Hub {
 
     func storeEnvelope(_ envelope: SentryEnvelope) {}
     func captureEnvelope(_ envelope: SentryEnvelope) {}
+    func captureNonTerminatingEnvelope(_ envelope: SentryEnvelope) {}
     func captureErrorEvent(event: Event) {}
     func setTrace(_ traceId: SentryId, spanId: SpanId) {}
 }
