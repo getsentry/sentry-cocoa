@@ -39,11 +39,12 @@ public struct SentryInternalEnvelopeApi {
         hub.captureNonTerminatingEnvelope(envelope)
     }
 
-    /// Session side effects of ``captureNonTerminating(_:)`` without sending the event.
+    /// Updates the current session for a non-terminating error that was dropped by sampling.
     ///
-    /// Hybrid SDKs should call this when an error is dropped by sampling.
-    /// Do not call this for events dropped by `beforeSend` or ignored exception types, and do not
-    /// call it in addition to ``captureNonTerminating(_:)`` for the same event.
+    /// Does not capture an envelope. Hybrid SDKs should call this when an error is dropped by
+    /// sampling, so the native session still records the error. Do not call this for events dropped
+    /// by `beforeSend` or ignored exception types, and do not call it in addition to
+    /// ``captureNonTerminating(_:)`` for the same event.
     ///
     /// - Parameter unhandled: `true` if the dropped error was unhandled (`mechanism.handled=false`).
     @_spi(Private) public func updateSessionForDroppedEventNonTerminating(unhandled: Bool) {

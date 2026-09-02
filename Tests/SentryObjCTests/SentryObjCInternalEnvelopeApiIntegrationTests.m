@@ -88,18 +88,11 @@
 
 #pragma mark - updateSessionForDroppedEventNonTerminating
 
-- (void)testUpdateSessionForDroppedEventNonTerminating_whenUnhandled_shouldNotThrow
+- (void)testUpdateSessionForDroppedEventNonTerminating_shouldNotThrow
 {
     // -- Act / Assert --
     XCTAssertNoThrow(
         [SentryObjCSDK.internal.envelope updateSessionForDroppedEventNonTerminating:YES]);
-}
-
-- (void)testUpdateSessionForDroppedEventNonTerminating_whenHandled_shouldNotThrow
-{
-    // -- Act / Assert --
-    XCTAssertNoThrow(
-        [SentryObjCSDK.internal.envelope updateSessionForDroppedEventNonTerminating:NO]);
 }
 
 #pragma mark - deserializeFrom

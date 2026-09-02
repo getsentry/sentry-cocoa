@@ -33,11 +33,12 @@ SENTRY_NO_INIT
 /// Do not also call @c updateSessionForDroppedEventNonTerminating: for the same event.
 - (void)captureNonTerminating:(SentryObjCEnvelope *)envelope;
 
-/// Session side effects of @c captureNonTerminating: without sending the event.
+/// Updates the current session for a non-terminating error that was dropped by sampling.
 ///
-/// Hybrid SDKs should call this when an error is dropped by sampling.
-/// Do not call this for events dropped by @c beforeSend or ignored exception types, and do not
-/// call it in addition to @c captureNonTerminating: for the same event.
+/// Does not capture an envelope. Hybrid SDKs should call this when an error is dropped by
+/// sampling, so the native session still records the error. Do not call this for events dropped
+/// by @c beforeSend or ignored exception types, and do not call it in addition to
+/// @c captureNonTerminating: for the same event.
 ///
 /// @param unhandled @c YES if the dropped error was unhandled (@c mechanism.handled=false).
 - (void)updateSessionForDroppedEventNonTerminating:(BOOL)unhandled;

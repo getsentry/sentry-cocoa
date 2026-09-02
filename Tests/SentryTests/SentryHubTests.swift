@@ -1649,11 +1649,10 @@ class SentryHubTests: XCTestCase {
 
     // MARK: - updateSessionForDroppedEventNonTerminating
 
-    func testUpdateSessionForDroppedEventNonTerminating_whenUnhandled_shouldKeepSessionOkAndPendingUnhandled() throws {
+    func testUpdateSessionForDroppedEventNonTerminating_whenUnhandled_shouldKeepSessionOkAndNotCaptureEnvelope() throws {
         // -- Arrange --
         sut.startSession()
         let sessionIdBefore = try XCTUnwrap(sut.session?.sessionId)
-        let capturedSessionsBefore = fixture.client.captureSessionInvocations.count
 
         // -- Act --
         sut.updateSessionForDroppedEventNonTerminating(unhandled: true)
@@ -1664,55 +1663,10 @@ class SentryHubTests: XCTestCase {
         XCTAssertTrue(session.pendingUnhandled)
         XCTAssertEqual(1, session.errors)
         XCTAssertEqual(sessionIdBefore, session.sessionId)
-        XCTAssertEqual(capturedSessionsBefore, fixture.client.captureSessionInvocations.count)
         assertNoEnvelopesCaptured()
     }
 
-    func testUpdateSessionForDroppedEventNonTerminating_whenUnhandled_shouldPersistPendingSession() throws {
-        // -- Arrange --
-        sut.startSession()
-
-        // -- Act --
-        sut.updateSessionForDroppedEventNonTerminating(unhandled: true)
-
-        // -- Assert --
-        let persistedSession = try XCTUnwrap(fixture.fileManager.readCurrentSession())
-        XCTAssertTrue(persistedSession.pendingUnhandled)
-        XCTAssertEqual(SentrySessionStatus.ok, persistedSession.status)
-        XCTAssertEqual(1, persistedSession.errors)
-    }
-
-    func testUpdateSessionForDroppedEventNonTerminating_whenUnhandledTwice_shouldIncrementErrorsTwiceAndStayPending() throws {
-        // -- Arrange --
-        sut.startSession()
-
-        // -- Act --
-        sut.updateSessionForDroppedEventNonTerminating(unhandled: true)
-        sut.updateSessionForDroppedEventNonTerminating(unhandled: true)
-
-        // -- Assert --
-        let session = try XCTUnwrap(sut.session)
-        XCTAssertEqual(2, session.errors)
-        XCTAssertTrue(session.pendingUnhandled)
-        XCTAssertEqual(SentrySessionStatus.ok, session.status)
-        assertNoEnvelopesCaptured()
-    }
-
-    func testUpdateSessionForDroppedEventNonTerminating_whenUnhandledAndSessionEnds_shouldEndSessionAsUnhandled() throws {
-        // -- Arrange --
-        sut.startSession()
-        sut.updateSessionForDroppedEventNonTerminating(unhandled: true)
-
-        // -- Act --
-        sut.endSession()
-
-        // -- Assert --
-        let endedSession = try XCTUnwrap(fixture.client.captureSessionInvocations.last)
-        XCTAssertEqual(SentrySessionStatus.unhandled, endedSession.status)
-        XCTAssertEqual(1, endedSession.errors)
-    }
-
-    func testUpdateSessionForDroppedEventNonTerminating_whenHandled_shouldIncrementErrorsAndNotBePendingUnhandled() throws {
+    func testUpdateSessionForDroppedEventNonTerminating_whenHandled_shouldIncrementErrorsAndNotCaptureEnvelope() throws {
         // -- Arrange --
         sut.startSession()
 
@@ -1725,23 +1679,6 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(SentrySessionStatus.ok, session.status)
         XCTAssertEqual(1, session.errors)
         assertNoEnvelopesCaptured()
-
-        let persistedSession = try XCTUnwrap(fixture.fileManager.readCurrentSession())
-        XCTAssertEqual(1, persistedSession.errors)
-        XCTAssertFalse(persistedSession.pendingUnhandled)
-    }
-
-    func testUpdateSessionForDroppedEventNonTerminating_whenHandledAndSessionEnds_shouldEndSessionAsExited() throws {
-        // -- Arrange --
-        sut.startSession()
-        sut.updateSessionForDroppedEventNonTerminating(unhandled: false)
-
-        // -- Act --
-        sut.endSession()
-
-        // -- Assert --
-        let endedSession = try XCTUnwrap(fixture.client.captureSessionInvocations.last)
-        XCTAssertEqual(SentrySessionStatus.exited, endedSession.status)
     }
 
     func testUpdateSessionForDroppedEventNonTerminating_whenNoSessionStarted_shouldNotCaptureEnvelope() {

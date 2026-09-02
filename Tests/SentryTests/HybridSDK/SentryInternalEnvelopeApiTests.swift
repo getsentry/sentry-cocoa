@@ -50,22 +50,13 @@ class SentryInternalEnvelopeApiTests: XCTestCase {
 
     // MARK: - updateSessionForDroppedEventNonTerminating
 
-    func testUpdateSessionForDroppedEventNonTerminating_whenUnhandled_shouldForwardToHub() {
+    func testUpdateSessionForDroppedEventNonTerminating_shouldForwardToHubWithoutCapturing() {
         // -- Act --
         sut.updateSessionForDroppedEventNonTerminating(unhandled: true)
-
-        // -- Assert --
-        XCTAssertEqual([true], mockHub.updateSessionForDroppedEventNonTerminatingInvocations)
-        XCTAssertTrue(mockHub.capturedEnvelopes.isEmpty)
-        XCTAssertTrue(mockHub.capturedNonTerminatingEnvelopes.isEmpty)
-    }
-
-    func testUpdateSessionForDroppedEventNonTerminating_whenHandled_shouldForwardToHub() {
-        // -- Act --
         sut.updateSessionForDroppedEventNonTerminating(unhandled: false)
 
         // -- Assert --
-        XCTAssertEqual([false], mockHub.updateSessionForDroppedEventNonTerminatingInvocations)
+        XCTAssertEqual([true, false], mockHub.updateSessionForDroppedEventNonTerminatingInvocations)
         XCTAssertTrue(mockHub.capturedEnvelopes.isEmpty)
         XCTAssertTrue(mockHub.capturedNonTerminatingEnvelopes.isEmpty)
     }
