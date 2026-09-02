@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 9.27.0
 
 > [!NOTE]
 > `enableLogs` and `enableMetrics` are now deprecated and will be removed in the next major version. Manual log and metric capture is no longer gated by these flags.
