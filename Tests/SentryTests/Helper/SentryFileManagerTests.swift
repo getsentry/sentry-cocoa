@@ -623,6 +623,7 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertFalse(actualSession.pendingUnhandled)
     }
 
+#if !SDK_V10
     func testStoreAndReadAbnormalSession_whenPendingUnhandled_shouldKeepPendingUnhandled() throws {
         // -- Arrange --
         let expectedSession = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
@@ -635,6 +636,7 @@ class SentryFileManagerTests: XCTestCase {
         // -- Assert --
         XCTAssertTrue(actualSession.pendingUnhandled)
     }
+#endif // !SDK_V10
 
     func testStoreAndReadCrashedSession_whenPendingUnhandled_shouldKeepPendingUnhandled() throws {
         // -- Arrange --
