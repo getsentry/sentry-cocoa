@@ -5029,7 +5029,6 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MODULEMAP_FILE = "";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryObjC;
 				PRODUCT_MODULE_NAME = SentryObjC;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5072,7 +5071,6 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MODULEMAP_FILE = "";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryObjC;
 				PRODUCT_MODULE_NAME = SentryObjC;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5205,7 +5203,6 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MODULEMAP_FILE = "";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryObjC;
 				PRODUCT_MODULE_NAME = SentryObjC;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5479,7 +5476,6 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MODULEMAP_FILE = "";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryObjC;
 				PRODUCT_MODULE_NAME = SentryObjC;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5995,7 +5991,6 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MODULEMAP_FILE = "";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryObjC;
 				PRODUCT_MODULE_NAME = SentryObjC;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -6513,7 +6508,6 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MODULEMAP_FILE = "";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryObjC;
 				PRODUCT_MODULE_NAME = SentryObjC;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -9376,7 +9370,6 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MODULEMAP_FILE = "";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryObjC;
 				PRODUCT_MODULE_NAME = SentryObjC;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -9955,7 +9948,6 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MODULEMAP_FILE = "";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryObjC;
 				PRODUCT_MODULE_NAME = SentryObjC;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -10330,7 +10322,6 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MODULEMAP_FILE = "";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryObjC;
 				PRODUCT_MODULE_NAME = SentryObjC;
 				PRODUCT_NAME = "$(TARGET_NAME)";

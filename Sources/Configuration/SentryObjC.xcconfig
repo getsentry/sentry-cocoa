@@ -1,5 +1,7 @@
 #include "DeploymentTargets.xcconfig"
 
+MODULEMAP_FILE = $(SRCROOT)/Sources/Resources/SentryObjC.modulemap
+
 ARCHS = $(ARCHS_STANDARD) arm64e
 ARCHS[sdk=*simulator] = $(ARCHS_STANDARD)
 
