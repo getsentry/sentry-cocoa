@@ -211,28 +211,40 @@ jobs:
         include:
           - scheme: watchOS-Swift WatchKit App
             make-target: build-sample-v10-watchOS-Swift
+            platform: watchOS
           - scheme: macOS-SwiftUI
             make-target: build-sample-v10-macOS-SwiftUI
+            platform: macOS
           - scheme: SessionReplay-CameraTest
             make-target: build-sample-v10-SessionReplay-CameraTest
+            platform: iOS
           - scheme: iOS-Swift
             make-target: build-sample-v10-iOS-Swift
+            platform: iOS
           - scheme: macOS-Swift
             make-target: build-sample-v10-macOS-Swift
+            platform: macOS
           - scheme: tvOS-Swift
             make-target: build-sample-v10-tvOS-Swift
+            platform: tvOS
           - scheme: visionOS-Swift
             make-target: build-sample-v10-visionOS-Swift
+            platform: visionOS
           - scheme: iOS-SwiftUI
             make-target: build-sample-v10-iOS-SwiftUI
+            platform: iOS
           - scheme: iOS-ObjectiveC
             make-target: build-sample-v10-iOS-ObjectiveC
+            platform: iOS
           - scheme: iOS-ObjectiveCpp-NoModules
             make-target: build-sample-v10-iOS-ObjectiveCpp-NoModules
+            platform: iOS
           - scheme: SPM
             make-target: build-sample-v10-SPM
+            platform: macOS
           - scheme: DistributionSample
             make-target: build-sample-v10-DistributionSample
+            platform: macOS
     steps:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
@@ -240,12 +252,27 @@ jobs:
       - name: Remove binary targets from Package.swift
         run: ./scripts/prepare-package.sh --remove-binary-targets true
       - name: Setup Xcode
+        id: setup-xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: "26"
           resolve-simulators: "false"
+      - name: Resolve test destination
+        id: resolve-test-destination
+        uses: ./.github/actions/resolve-test-destination
+        with:
+          platform: ${{ matrix.platform }}
       - run: make init-ci-build
       - run: make ${{ matrix.make-target }}
+        env:
+          IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
+          IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          TVOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.tvos-simulator-os }}
+          TVOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          VISIONOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.visionos-simulator-os }}
+          VISIONOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          WATCHOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.watchos-simulator-os }}
+          WATCHOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
 
       - name: Archiving Raw Build Logs
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
