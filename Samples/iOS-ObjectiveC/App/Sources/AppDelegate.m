@@ -64,19 +64,7 @@
             = ![args containsObject:@"--disable-filemanager-swizzling"];
 
         options.initialScope = ^SentryObjCScope *(SentryObjCScope *scope) {
-            [scope setTagValue:@"" forKey:@""];
-            NSDictionary *info = NSBundle.mainBundle.infoDictionary;
-            NSString *commitHash = info[@"GIT_COMMIT_HASH"];
-            if (commitHash.length > 0) {
-                BOOL gitStatusClean = [info[@"GIT_STATUS_CLEAN"] isEqualToString:@"1"];
-                [scope setTagValue:[NSString stringWithFormat:@"%@%@", commitHash,
-                                       gitStatusClean ? @"" : @"-dirty"]
-                            forKey:@"git-commit-hash"];
-            }
-            NSString *branchName = info[@"GIT_BRANCH"];
-            if (branchName.length > 0) {
-                [scope setTagValue:branchName forKey:@"git-branch-name"];
-            }
+            [GitInjector objc_injectGitInformationInto:scope];
             return scope;
         };
 
