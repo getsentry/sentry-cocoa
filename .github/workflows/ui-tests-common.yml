@@ -136,8 +136,6 @@ jobs:
 
       - run: make xcode-ci
         if: ${{ inputs.build_with_make }}
-      - run: make switch-v10
-        if: ${{ inputs.build_with_make }}
 
       - name: Download XCFramework
         if: ${{ inputs.needs_xcframework }}

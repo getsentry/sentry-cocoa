@@ -74,7 +74,6 @@ jobs:
           bundler-cache: true
       - run: make init-ci-build
       - run: make xcode-ci
-      - run: make switch-v10
       - name: Run Fastlane
         # We only need to archive, not package the IPA, so we skip codesigning.
         run: bundle exec fastlane build_ios_swift_without_codesigning
@@ -136,7 +135,6 @@ jobs:
           resolve-simulators: "false"
       - run: make init-ci-build
       - run: make xcode-ci
-      - run: make switch-v10
 
       # Note: Due to complexity in implementing the CODE_SIGNING_ALLOWED flag in the sentry-xcodebuild.sh script,
       #       we did not yet migrate this step to use the script yet.
@@ -186,7 +184,6 @@ jobs:
           resolve-simulators: "false"
       - run: make init-ci-build
       - run: make xcode-ci
-      - run: make switch-v10
       - run: |
           set -o pipefail && NSUnbufferedIO=YES xcodebuild \
             -workspace Sentry.xcworkspace \
