@@ -23813,8 +23813,8 @@
               }
             ],
             "declAttributes": [
-              "Final",
               "Available",
+              "Final",
               "ObjC"
             ],
             "declKind": "Var",
