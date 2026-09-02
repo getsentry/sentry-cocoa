@@ -1472,6 +1472,23 @@ validate-xcframework-symbols:
 xcode: xcode-ci
 	open Sentry.xcworkspace
 
+## Switch all generated sample Xcode projects to SDK V10 mode
+#
+# Patches every XcodeGen-generated .xcodeproj under Samples/ to add the V10
+# Swift package trait on all XCLocalSwiftPackageReference entries.
+# Run 'make xcode-ci' first to generate the projects.
+.PHONY: switch-v10
+switch-v10:
+	scripts/set-xcode-project-traits.sh --trait V10 --mode add
+
+## Switch all generated sample Xcode projects back to default (non-V10) mode
+#
+# Removes the V10 Swift package trait from all XcodeGen-generated .xcodeproj
+# files under Samples/.
+.PHONY: switch-v9
+switch-v9:
+	scripts/set-xcode-project-traits.sh --trait V10 --mode remove
+
 ## Generate all sample Xcode projects
 #
 # Generates Xcode projects for all sample apps using xcodegen.
