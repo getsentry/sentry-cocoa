@@ -223,10 +223,10 @@
 
 - (void)testEnableMetrics
 {
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [self testBooleanField:@"enableMetrics" defaultValue:YES];
-#    pragma clang diagnostic pop
+#pragma clang diagnostic pop
 }
 
 - (void)testEnableAutoBreadcrumbTracking

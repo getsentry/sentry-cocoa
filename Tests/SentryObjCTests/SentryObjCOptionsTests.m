@@ -544,13 +544,13 @@
     SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
 
     // -- Act --
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     options.enableMetrics = YES;
 
     // -- Assert --
     XCTAssertTrue(options.enableMetrics);
-#    pragma clang diagnostic pop
+#pragma clang diagnostic pop
 }
 
 #pragma mark - Numeric properties
