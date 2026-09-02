@@ -395,14 +395,20 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     @objc public func flush() {
         SentrySDKLog.debug("[Session Replay] Flushing session")
         guard let sessionReplay else {
-            return start()
+            if isPendingStart {
+                startedAsFullSession = true
+                return
+            }
+            return start(fullSession: true, resetManualPause: false)
         }
         sessionReplay.flush()
     }
 
-    private func start(fullSession: Bool) {
-        guard sessionReplay == nil else { return }
-        isManuallyPaused.withLock { $0 = false }
+    private func start(fullSession: Bool, resetManualPause: Bool = true) {
+        guard sessionReplay == nil && !isPendingStart else { return }
+        if resetManualPause {
+            isManuallyPaused.withLock { $0 = false }
+        }
         startedAsFullSession = fullSession
         isPendingStart = true
         runReplayForAvailableWindow()

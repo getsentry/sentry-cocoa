@@ -801,19 +801,24 @@ Pros:
   - Shared SDK consumers depend only on `SentryCrashReporterState`; V10 satisfies it with `SentryKSCrash.Query`.
   - `SentryHub` receives active crash state directly. Watchdog logic receives active crash state and the SDK-owned `targetEnvironment(simulator)` value directly.
   - The broad `SentryCrashReporter` protocol, its dependency-container factory, and `SentryDefaultCrashReporter` remain V9-only for legacy duration and introspection clients.
-  - V10 has no broad reporter facade or zero-value placeholder. `SentryKSCrash.UnavailableReporter` and its `SENTRY_DISABLE_SENTRYCRASH_V10` factory marker were removed in Stack 2D.
+  - V10 has no broad reporter facade or zero-value placeholder. The reporter-facade removal tracked by [#8800](https://github.com/getsentry/sentry-cocoa/issues/8800) deleted `SentryKSCrash.UnavailableReporter` and its `SENTRY_DISABLE_SENTRYCRASH_V10` factory marker.
 - Current-thread stack-capture boundary:
   - V9 uses `SentryCrashStackCursor_SelfThread`; V10 uses `SentryKSCrash.CurrentThreadStackProvider` over KSCrash RecordingCore.
   - SDK-side current-thread capture remains available when crash handling is disabled, and `swiftAsyncStacktraces` configures the active backend for both fatal and nonfatal captures.
   - `SentryCrashStackCursor_Backtrace.c` and `SentryCrashStackCursor_SelfThread.m` are V9-only; all-thread V10 capture still temporarily retains the machine-context cursor path.
 - Exact retained Tool implementations and SDK clients:
   - `SentryCrashCPU.c`, `SentryCrashCPU_arm.c`, `SentryCrashCPU_arm64.c`, `SentryCrashCPU_x86_32.c`, `SentryCrashCPU_x86_64.c`: thread inspection and stack capture.
-  - `SentryCrashFileUtils.c`: view-hierarchy output. Session-replay sync uses SDK-owned exact-read/exact-write helpers.
-  - `SentryCrashJSONCodec.c`: view-hierarchy serialization.
   - `SentryCrashMachineContext.c`: thread inspector, stacktrace builder, and machine-context wrapper.
   - `SentryCrashMemory.c`: profiler backtrace validation and stack cursors.
   - `SentryCrashStackCursor.c`, `SentryCrashStackCursor_MachineContext.c`: all-thread stack capture.
   - `SentryCrashThread.c`: thread inspection, stack building, and span thread metadata.
+- View-hierarchy serialization boundary:
+  - `SentryViewHierarchyProviderHelper` uses an SDK-owned streaming JSON writer for both memory and file output. It preserves field order, escaping, floating-point formatting, depth truncation, and immediate output-error propagation without first building a Foundation object graph.
+  - File output uses the SDK-owned exact-write helper introduced for session replay. `SentryCrashJSONCodec.c` and `SentryCrashFileUtils.c` remain available to V9's recorder but are excluded from every V10 route.
+  - V9 invokes view-hierarchy attachment capture from SentryCrash's on-crash callback, in the context of whichever crash handler is processing the crash. The UIKit/Objective-C traversal is not async-signal-safe, and the C writer does not make the overall operation safe, but this execution context is a real reason to retain bounded streaming and avoid a second object graph.
+  - V10 does not reproduce that unsafe callback arrangement. Restoring fatal view-hierarchy attachments under [#8273](https://github.com/getsentry/sentry-cocoa/issues/8273) and [#8532](https://github.com/getsentry/sentry-cocoa/issues/8532) requires a proven post-report-writing or otherwise safe hook; do not invoke Swift, Objective-C, or UIKit from a signal handler merely to preserve V9's timing.
+  - The small C writer is currently a migration-scope, byte-parity, and constrained-execution-context choice, not a permanent conclusion that serialization architecturally requires C.
+  - Treat the writer, UIKit traversal, memory/file output adapters, and fatal-attachment hook as one Swift-modernization assessment cluster. A future Swift implementation is preferred when its execution context is proven safe and it retains streaming output, deterministic legacy-compatible bytes, immediate write-error propagation, bounded nesting, shared V9/V10 behavior, and does not build a second Foundation object graph or add main-thread work. The focused writer and provider fixtures define that replacement contract.
 - Process-time boundary:
   - SDK-owned `SentrySysctlObjC` queries Darwin directly for system boot time and the current process start time, preserving microsecond precision and the epoch fallback on errors.
   - KSCrash reads the same `kern.boottime` kernel value, so using its sysctl wrapper would not materially align boot-time semantics. Its `app_start_time` and `process_start_*` report fields describe System-monitor initialization, not the kernel process start used by Sentry app-start tracking.

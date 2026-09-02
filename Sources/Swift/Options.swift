@@ -124,6 +124,16 @@
     /// @note Default is 100.
     @objc public var maxBreadcrumbs: UInt = 100
 
+    /// How many feature flag evaluations do you want to keep in memory on the scope?
+    /// @discussion Events record the most recent, unique feature flag evaluations. When the limit is
+    /// exceeded, the SDK drops the oldest evaluations. Increase this if your app evaluates a large
+    /// number of flags and you want more of them attached to your events. Set it to @c 0 to stop
+    /// recording feature flag evaluations on the scope.
+    /// @note Spans always track the first 10 feature flags evaluated within the span, independent of
+    /// this option.
+    /// @note Default is 100.
+    @objc public var maxFeatureFlags: UInt = 100
+
     /// When enabled, the SDK adds breadcrumbs for each network request. As this feature uses swizzling,
     /// disabling enableSwizzling also disables this feature.
     /// @discussion If you want to enable or disable network tracking for performance monitoring, please

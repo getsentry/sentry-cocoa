@@ -128,6 +128,117 @@ class SentryMetricsIntegrationTests: XCTestCase {
         // The integration handles nil client gracefully (verified by no crash)
     }
 
+    // MARK: - CurrentScope Attribute Merging
+
+    func testAddMetric_whenCurrentScopeHasAttributes_shouldApplyThemToMetric() throws {
+        // -- Arrange --
+        let client = try givenSdkWithHub()
+        let integration = try getSut()
+
+        let currentScope = Scope()
+        currentScope.setAttribute(value: "scoped-value", key: "scoped-key")
+
+        let metric = SentryMetric(
+            timestamp: Date(),
+            traceId: SentryId(),
+            name: "test.metric",
+            value: .counter(1),
+            unit: nil,
+            attributes: [:]
+        )
+
+        // -- Act --
+        integration.addMetric(metric, scope: Scope(), currentScope: currentScope)
+
+        // -- Assert --
+        let capturedMetric = try XCTUnwrap(client.testMetricsBuffer.addInvocations.first)
+        XCTAssertEqual(capturedMetric.attributes["scoped-key"], .string("scoped-value"))
+    }
+
+    func testAddMetric_whenMetricAndCurrentScopeSetSameAttribute_shouldKeepMetricValue() throws {
+        // -- Arrange --
+        let client = try givenSdkWithHub()
+        let integration = try getSut()
+
+        let currentScope = Scope()
+        currentScope.setAttribute(value: "current-scope-value", key: "shared-key")
+
+        let metric = SentryMetric(
+            timestamp: Date(),
+            traceId: SentryId(),
+            name: "test.metric",
+            value: .counter(1),
+            unit: nil,
+            attributes: ["shared-key": .string("caller-value")]
+        )
+
+        // -- Act --
+        integration.addMetric(metric, scope: Scope(), currentScope: currentScope)
+
+        // -- Assert --
+        let capturedMetric = try XCTUnwrap(client.testMetricsBuffer.addInvocations.first)
+        XCTAssertEqual(capturedMetric.attributes["shared-key"], .string("caller-value"))
+    }
+
+    func testAddMetric_whenCurrentScopeAndGlobalScopeSetSameAttribute_shouldKeepCurrentScopeValue() throws {
+        // -- Arrange --
+        let client = try givenSdkWithHub()
+        let integration = try getSut()
+
+        let globalScope = Scope()
+        globalScope.setAttribute(value: "global-scope-value", key: "shared-key")
+        globalScope.setAttribute(value: "global-only-value", key: "global-only-key")
+
+        let currentScope = Scope()
+        currentScope.setAttribute(value: "current-scope-value", key: "shared-key")
+
+        let metric = SentryMetric(
+            timestamp: Date(),
+            traceId: SentryId(),
+            name: "test.metric",
+            value: .counter(1),
+            unit: nil,
+            attributes: [:]
+        )
+
+        // -- Act --
+        integration.addMetric(metric, scope: globalScope, currentScope: currentScope)
+
+        // -- Assert --
+        let capturedMetric = try XCTUnwrap(client.testMetricsBuffer.addInvocations.first)
+        XCTAssertEqual(capturedMetric.attributes["shared-key"], .string("current-scope-value"))
+        XCTAssertEqual(capturedMetric.attributes["global-only-key"], .string("global-only-value"),
+                       "Global scope attributes without a conflict should still be applied")
+    }
+
+    func testAddMetric_whenCurrentScopeSetsReservedAttribute_shouldKeepSdkValue() throws {
+        // SDK-derived default attributes (sentry.sdk.*, sentry.environment, os.*, device.*,
+        // user.*) are authoritative and intentionally overwrite scope-provided values with the
+        // same key, matching the behavior for logs. See TelemetryScopeApplier.addAttributesToItem.
+        // -- Arrange --
+        let client = try givenSdkWithHub()
+        let integration = try getSut()
+
+        let currentScope = Scope()
+        currentScope.setAttribute(value: "fake-sdk-name", key: "sentry.sdk.name")
+
+        let metric = SentryMetric(
+            timestamp: Date(),
+            traceId: SentryId(),
+            name: "test.metric",
+            value: .counter(1),
+            unit: nil,
+            attributes: [:]
+        )
+
+        // -- Act --
+        integration.addMetric(metric, scope: Scope(), currentScope: currentScope)
+
+        // -- Assert --
+        let capturedMetric = try XCTUnwrap(client.testMetricsBuffer.addInvocations.first)
+        XCTAssertEqual(capturedMetric.attributes["sentry.sdk.name"], .string(SentryMeta.sdkName))
+    }
+
     // MARK: - BeforeSendMetric Callback Tests
 
     func testAddMetric_beforeSendMetricModifiesMetric() throws {

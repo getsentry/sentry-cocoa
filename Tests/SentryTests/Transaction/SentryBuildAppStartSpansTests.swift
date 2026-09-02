@@ -151,6 +151,10 @@ class SentryBuildAppStartSpansTests: XCTestCase {
             expectedEndTimestamp: Date(timeIntervalSince1970: 1_935),
             expectedSampled: tracer.sampled
         )
+        for span in result {
+            XCTAssertNil(span.data["app.vitals.start.type"])
+            XCTAssertNil(span.data["app.vitals.start.screen"])
+        }
     }
 
     func testSentryBuildAppStartSpans_appStartMeasurementIsWarmAndNotPrewarmed_shouldNotIncludePreRuntimeSpans() {
@@ -298,6 +302,10 @@ class SentryBuildAppStartSpansTests: XCTestCase {
             expectedEndTimestamp: Date(timeIntervalSince1970: 1_600),
             expectedSampled: tracer.sampled
         )
+        for span in result {
+            XCTAssertEqual("cold", span.data["app.vitals.start.type"] as? String)
+            XCTAssertNil(span.data["app.vitals.start.screen"])
+        }
     }
 
     func testBuildStandaloneAppStartSpans_whenPrewarmed_shouldNotIncludeGroupingSpan() {

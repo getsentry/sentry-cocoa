@@ -1,180 +1,92 @@
 # Sources
 
-> Instructions for LLM agents. Keep edits minimal (headers + bullets). Use `/agents-md` skill when editing.
+> Scope: `Sources/**`. Also follow [root instructions](../AGENTS.md).
 
 ## Objective-C
 
-Use Objective-C sparingly; prefer Swift when possible.
-
-### No `+new`
-
-Use `[[Class alloc] init]`, not `[Class new]`:
-
-```objc
-// Correct
-NSMutableArray *items = [[NSMutableArray alloc] init];
-SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] init];
-
-// Wrong
-NSMutableArray *items = [NSMutableArray new];
-SentryBreadcrumb *crumb = [SentryBreadcrumb new];
-```
-
-### Nullability
-
-- Wrap header files with `NS_ASSUME_NONNULL_BEGIN` / `NS_ASSUME_NONNULL_END`
-- Mark nullable parameters/properties explicitly with `nullable`
+- Prefer Swift for new code when target boundaries allow it
+- Use `[[Class alloc] init]`, not `[Class new]`
+- Wrap headers with `NS_ASSUME_NONNULL_BEGIN` and `NS_ASSUME_NONNULL_END`
+- Mark nullable parameters and properties explicitly
 
 ## Swift
 
-Prefer protocol-oriented design where it improves testability and composition. See [Protocol-Oriented Programming in Swift (WWDC15)](https://developer.apple.com/videos/play/wwdc2015/408/) and [PR #7017](https://github.com/getsentry/sentry-cocoa/pull/7017).
+- Prefer protocol-oriented design when it improves testability or composition
+- Follow the [Swift API Design Guidelines](https://www.swift.org/documentation/api-design-guidelines/)
+- Default to `internal` and expose only intentional SDK API as `public`
+- Prefer `private` over `fileprivate`
+- Mark classes `final` unless designed for subclassing
 
-**Pattern** — Define multiple protocols with default implementations via extensions. Implementing types adopt several protocols and inherit defaults for free. Protocol constraints on generics reduce required init/method signatures:
+### Error Handling and Closures
 
-```swift
-protocol ItemProtocol { var id: String { get } }
-protocol StorageProtocol<Item> { associatedtype Item; func append(_ item: Item) }
-protocol Enricher {
-    func enrich<Item: ItemProtocol>(_ item: inout Item)
-}
-extension Enricher {
-    func enrich<Item: ItemProtocol>(_ item: inout Item) { /* default implementation modifying item */ }
-}
-
-// Scope adopts Enricher and gets enrich() for free
-extension Scope: Enricher {}
-
-// Generic Buffer: protocols constrain Storage and Item, reducing init surface
-final class Buffer<Storage: StorageProtocol, Item: ItemProtocol> {
-    init(storage: Storage) { /* only needs what protocols require */ }
-}
-```
-
-### Naming
-
-- Follow [Swift API Design Guidelines](https://www.swift.org/documentation/api-design-guidelines/)
-- Use `camelCase` for properties, methods, local variables
-- Use `PascalCase` for types and protocols
-- Module-level constants: `camelCase` (e.g., `sentryAutoTransactionMaxDuration`)
-
-### Access Control
-
-- Default to `internal` — only mark `public` what is part of the SDK's public API
-- Use `private` over `fileprivate` unless sibling types in the same file need access
-- `@_spi(Private)` for SPI consumed by hybrid SDKs (React Native, Flutter, .NET, Unity)
-
-### Classes
-
-- Mark classes `final` unless they are explicitly designed for subclassing
-- Applies to both `internal` and `public` classes
-
-### Error Handling
-
-- Never let the SDK crash the host app — wrap all public entry points in `do/catch` or equivalent
+- Never let the SDK crash the host app
+- Wrap public entry points in `do/catch` or equivalent
 - Prefer `Result<T, Error>` or optional returns over throwing for internal APIs
-- Log errors via `SentryLog` rather than asserting in production paths
-
-### Closures
-
-- Always use explicit capture lists when capturing `self` to prevent retain cycles
+- Log production errors through `SentryLog` instead of assertions
+- Always use explicit capture lists when capturing `self`
 - Prefer `[weak self]` with `guard let self` for closures stored by the SDK
 
-### Dependency Injection
+### Dependencies and Shared Access
 
 - Prefer `SentryDependencyContainer` providers for SDK-owned dependencies
-- In `SentryDependencyContainer`, use `getLazyVar` / `getOptionalLazyVar` for lazily-created defaults
-- Tests should override dependencies through `SentryDependencyContainer.sharedInstance()` when possible
-- Do not use `PrivateSentrySDKOnly` as a test injection path when a dependency-container provider fits
+- Use `getLazyVar` or `getOptionalLazyVar` for lazily-created defaults
+- Override dependencies through `SentryDependencyContainer.sharedInstance()` in tests
+- Do not use `PrivateSentrySDKOnly` for test injection when a provider fits
+- Do not add static shared service singletons
+- Put lifecycle-owned shared services in [`SentryDependencyContainer`](Swift/SentryDependencyContainer.swift)
+- When process-lifetime hooks require global access, use a narrow proxy with synchronized weak lifecycle targets, following [`SentryNetworkTrackerProxy`](Swift/Integrations/Performance/Network/SentryNetworkTrackerProxy.swift)
 
 ### Comments
 
-- Do not add comments to internal code that merely restate what the code does
-- Comment only to explain non-obvious _why_ (rationale, workaround, gotcha)
-- Public API: headerdocs are expected; write them once, properly
+- Comment non-obvious rationale, workarounds, and gotchas, not visible behavior
+- Add headerdocs for public API
 
-## Public API Surface
+## Public API
 
-- **Backward compatibility** — do not remove or rename public symbols; deprecate first
-- **`@objc`** — all public API must be accessible from ObjC; use `@objc(name)` or `NS_SWIFT_NAME` for idiomatic naming in both languages
-- **`@_spi(Private)`** — internal API for hybrid SDKs; must not appear in public headers
-- **`PrivateSentrySDKOnly`** — ObjC SPI class; document instability in headerdocs
-- **`SENTRY_NO_INIT`** — use on types that should not be publicly instantiated
-- **Deprecation** — add `@available(*, deprecated, message:)` with migration guidance
+- Do not remove or rename public symbols without deprecating them with migration guidance
+- Design new public API Swift-first
+- Do not add `@objc`, `NSObject` inheritance, `NS_SWIFT_NAME`, or Objective-C wrappers unless an existing contract or identified consumer requires Objective-C support
+- Use `@_spi(Private)` for unstable API consumed by hybrid SDKs
+- Keep `@_spi(Private)` out of public headers
+- Document `PrivateSentrySDKOnly` instability in headerdocs
+- Use `SENTRY_NO_INIT` for types that must not be publicly instantiated
+- Follow [`develop-docs/SENTRY-OBJC.md`](../develop-docs/SENTRY-OBJC.md) for wrappers and API placement
+
+## Conditional Compilation
+
+- Use compile-time gates for code that cannot compile or link on a target, not for ordinary runtime behavior
+- In Swift, use `os(...)`, `targetEnvironment(...)`, and `canImport(...)` for platform and module capabilities
+- Gate UI code by both supported platforms and `!SENTRY_NO_UI_FRAMEWORK`
+- In Objective-C and C/C++, prefer capability macros from [`SentryDefines.h`](Sentry/Public/SentryDefines.h) and [`SentryProfilingConditionals.h`](Sentry/Public/SentryProfilingConditionals.h), including `SENTRY_HAS_UIKIT`, `SENTRY_TARGET_REPLAY_SUPPORTED`, and `SENTRY_TARGET_PROFILING_SUPPORTED`
+- Keep Swift, Objective-C, and `SentryObjC` declaration and implementation gates aligned
+- Preserve older Xcode compatibility with `#if swift(>=...)`, compiler feature probes from [`SentryCompiler.h`](Sentry/include/SentryCompiler.h), and `canImport` or `__has_include` checks
+- Use `#available` or `@available` for runtime OS availability only after the code can compile with the oldest supported Xcode
+- When newer SDK symbols are absent from older Xcode headers, combine runtime availability with a compile-time gate or dynamic lookup instead of referencing the symbol directly
+
+### Conditional Service Protocol Stripping
+
+- Follow [`SentryNetworkTracker.swift`](Swift/Networking/SentryNetworkTracker.swift) when a service needs protocol-based mocking without retaining the abstraction in release builds
+- Under `#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG`, define the service protocol, conform the concrete service, and narrow its dependency protocols for mock injection
+- Under `#else`, typealias the service protocol name to the concrete generic implementation and its dependency protocol name to `SentryDependencyContainer`
+- This strips the protocol abstraction from release builds while preserving the same dependency-facing names in every configuration
+- Keep consumers typed against those shared names so test, debug, and release builds use the same call sites
 
 ## Thread Safety
 
-### Swift: Prefer `SentryMutex`
-
-Use `SentryMutex<T>` (in `Sources/Swift/Concurrency/SentryMutex.swift`) to protect mutable state in Swift. It wraps a value with an `os_unfair_lock`, matching the API of `Synchronization.Mutex` (iOS 18+). When the SDK's minimum deployment target reaches iOS 18+, it can be replaced with a typealias to the standard library `Mutex`.
-
-```swift
-// Single value — name the mutex after the value it protects
-private let isRunning = SentryMutex<Bool>(false)
-
-isRunning.withLock { $0 = true }
-guard isRunning.withLock({ $0 }) else { return }
-
-// Multiple related properties — group in a private State struct
-private struct State {
-    var count = 0
-    var items: [Item] = []
-}
-private let state = SentryMutex(State())
-
-state.withLock { $0.items.append(item); $0.count += 1 }
-```
-
-**Do not** use `NSLock`, `NSRecursiveLock`, or the `Locks.swift` `synchronized` extensions for new Swift code. `SentryMutex` is non-recursive — if existing code genuinely re-enters the lock, refactor the call graph first.
-
-### Other Primitives
-
-| Primitive          | Where                                                                                                       |
-| ------------------ | ----------------------------------------------------------------------------------------------------------- |
-| `@synchronized`    | `SentryScope`, `SentryHub`, `SentryClient`, `SentrySDKInternal`, `SentryHttpTransport`, `SentryFileManager` |
-| `NSRecursiveLock`  | Legacy Swift code (prefer `SentryMutex` for new code)                                                       |
-| `pthread_mutex`    | `SentryCrashBinaryImageCache`, `SentryCrashReportStore`, `SentrySwizzle`                                    |
-| `dispatch_queue_t` | `SentryDispatchQueueWrapper` (`io.sentry.http-transport`, serial, low QoS)                                  |
-| `dispatch_group`   | `SentryHttpTransport` (flush coordination)                                                                  |
-| C11 atomics        | SentryCrash monitors (signal-safe context)                                                                  |
-
-### Rules
-
-- SDK runs on arbitrary queues — assume any public method can be called from any thread
-- Use `@synchronized(self)` for ObjC mutable state (scope, hub, client)
-- Prefer `SentryDispatchQueueWrapper` over raw `dispatch_queue_t` — it's mockable for tests
+- Assume public methods can be called from arbitrary queues
+- Use `SentryMutex<T>` for new Swift mutable state
+- Group related protected values in a private `State` struct
+- Do not use `NSLock`, `NSRecursiveLock`, or legacy `synchronized` helpers for new Swift code
+- Refactor reentrant locking before adopting non-recursive `SentryMutex`
+- Use `@synchronized(self)` for Objective-C mutable state in scope, hub, and client code
+- Prefer `SentryDispatchQueueWrapper` over raw queues for testability
 - Never do synchronous work on the main thread in production paths
-- `SentryHub` dispatches transaction capture to its `dispatchQueue` for background processing
 
-## SentryCrash (C/C++)
+## SentryCrash
 
-Located in `Sources/SentryCrash/`. Fork of [KSCrash](https://github.com/kstenerud/KSCrash) — when fixing bugs or investigating, check upstream KSCrash for relevant fixes.
-
-### Signal Safety
-
-Code inside crash/signal handlers **must** be async-signal-safe:
-
-- **No heap allocations** (`malloc`, `calloc`, `new`) — use stack buffers or pre-allocated memory
-- **No locks** (`pthread_mutex`, `@synchronized`) — can deadlock if the crash occurred while holding a lock
-- **No ObjC messaging** — runtime may be in an inconsistent state
-- **Allowed**: `write()`, `vsnprintf`, `strerror_r`, C11 atomics, `SENTRY_ASYNC_SAFE_LOG_*` macros
-- `pthread_self()` is technically not async-signal-safe but accepted as a known trade-off
-- See [signal-safety(7)](https://man7.org/linux/man-pages/man7/signal-safety.7.html) and [develop docs](https://develop.sentry.dev/sdk/platform-specifics/native-sdks/signal-handlers/#general-risks) for context
-
-### Buffer Safety
-
-- Always bounds-check when writing to fixed-size buffers
-- Use `snprintf` (never `sprintf`)
-- Validate all indices before array access
-
-### Key Components
-
-| Component                             | Purpose                                  |
-| ------------------------------------- | ---------------------------------------- |
-| `SentryCrashMonitor_Signal.c`         | POSIX signal handler                     |
-| `SentryCrashMonitor_MachException.c`  | Mach exception handler                   |
-| `SentryCrashMonitor_NSException.m`    | ObjC uncaught exception handler          |
-| `SentryCrashMonitor_CPPException.cpp` | C++ uncaught exception handler           |
-| `SentryCrashReport.c`                 | Crash report generation                  |
-| `SentryCrashReportStore.c`            | Report persistence                       |
-| `SentryCrashJSONCodec.c`              | JSON encoding (async-signal-safe subset) |
-| `SentryScopeSyncC`                    | Scope data synced for crash-time access  |
+- Check upstream [KSCrash](https://github.com/kstenerud/KSCrash) when investigating relevant bugs
+- Signal handlers must remain async-signal-safe
+- Do not allocate heap memory, acquire locks, or send Objective-C messages in signal handlers
+- Accepted signal-handler operations include `write()`, `vsnprintf`, `strerror_r`, C11 atomics, and `SENTRY_ASYNC_SAFE_LOG_*` macros
+- Bounds-check fixed buffers, validate indices, and use `snprintf` instead of `sprintf`
+- Treat `pthread_self()` as an explicit accepted exception to strict signal safety

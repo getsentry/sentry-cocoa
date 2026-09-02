@@ -1,3 +1,4 @@
+import SentrySwift
 import SwiftUI
 import UIKit
 

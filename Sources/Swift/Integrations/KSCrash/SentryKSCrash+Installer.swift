@@ -75,14 +75,17 @@ extension SentryKSCrash {
             #if SENTRY_CRASH_E2E
             config.userInfoJSON = SentryKSCrash.CrashE2ETestHook.reportUserInfo
             #endif
+
+            config.willWriteReportCallback = sentrykscrash_willWriteReport
+            config.isWritingReportCallback = sentrykscrash_isWritingReport
+            config.didWriteReportCallback = sentrykscrash_didWriteReport
+
 #if SENTRY_DISABLE_SENTRYCRASH_V10
-            // KSCRASH_TODO(GH-8276, GH-8758): No KSCrash report-writing callback copies the
-            // SDK-owned scope mirror into sentry_sdk_scope. Acceptance: SCV10-014 in
+            // KSCRASH_TODO(GH-8273, GH-8532, GH-8801, GH-8735): didWriteReport is installed but
+            // still a no-op. Screenshots, view hierarchy, replay checkpoint, and active-trace
+            // persistence belong in sentrykscrash_didWriteReport. Acceptance: SCV10-008,
+            // SCV10-009, SCV10-010, SCV10-027, and SCV10-039 in
             // SENTRYCRASH_V10_MIGRATION_LEDGER.md.
-#endif
-#if SENTRY_DISABLE_SENTRYCRASH_V10
-            // KSCRASH_TODO(GH-8801): No KSCrash crash/report callback writes the session-replay
-            // recovery checkpoint. Acceptance: SCV10-039 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
 #endif
             do {
                 try KSCrash.shared.install(with: config)
