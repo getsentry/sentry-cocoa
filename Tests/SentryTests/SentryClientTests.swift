@@ -3059,22 +3059,24 @@ final class SentryClientTests: XCTestCase {
     }
 
     #if !SDK_V10
-    func testCaptureLog_withLogsDisabled_logDropped() {
+    func testCaptureLog_withLogsDisabled_logStillCaptured() {
         // -- Arrange --
+        // enableLogs is a legacy compatibility option and must not gate manual log APIs.
         let sut = fixture.getSut()
         sut.options.enableLogs = false
 
         let testProcessor = TestTelemetryProcessorForClient()
         Dynamic(sut).telemetryProcessor = testProcessor
 
-        let log = SentryLog(level: .info, body: "This log should be dropped")
+        let log = SentryLog(level: .info, body: "This log should still be captured")
         let scope = Scope()
 
         // -- Act --
         sut._swiftCaptureLog(log, with: scope)
 
         // -- Assert --
-        XCTAssertEqual(testProcessor.addLogInvocations.count, 0, "Log should be dropped when enableLogs is false")
+        XCTAssertEqual(testProcessor.addLogInvocations.count, 1, "Manual logs must not be gated by enableLogs")
+        XCTAssertEqual(testProcessor.addLogInvocations.first?.body, "This log should still be captured")
     }
     #endif // !SDK_V10
 
