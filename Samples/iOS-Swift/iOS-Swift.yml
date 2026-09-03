@@ -77,6 +77,25 @@ targets:
       - script: ../Shared/reset-git-info.sh
         name: Reset Git Fields in Info.plist
         basedOnDependencyAnalysis: false
+      - script: |
+          # This script is responsible for uploading debug symbols and source context for Sentry.
+          if [[ "$(uname -m)" == arm64 ]]; then
+            export PATH="/opt/homebrew/bin:$PATH"
+          fi
+
+          if which sentry-cli >/dev/null; then
+            export SENTRY_ORG=sentry-sdks
+            export SENTRY_PROJECT=sentry-cocoa
+            ERROR=$(sentry-cli debug-files upload --include-sources "$DWARF_DSYM_FOLDER_PATH" 2>&1 >/dev/null)
+            if [ ! $? -eq 0 ]; then
+              echo "warning: sentry-cli - $ERROR"
+            fi
+          else
+            echo "warning: sentry-cli not installed, download from https://github.com/getsentry/sentry-cli/releases"
+          fi
+        name: Upload Debug Symbols to Sentry
+        inputFiles:
+          - "${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}"
   iOS-Swift-AppClip:
     type: application.on-demand-install-capable
     platform: auto
