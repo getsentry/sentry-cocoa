@@ -1,13 +1,13 @@
 {
   "globs": [
     "CHANGELOG.md",
-    "CHANGELOG_V10.md"
+    "CHANGELOG_V10.md",
   ],
   "customRules": [
-    "./scripts/markdownlint/changelog-no-duplicate-sections.cjs"
+    "./scripts/markdownlint/changelog-no-duplicate-sections.cjs",
   ],
   "config": {
     "default": false,
-    "changelog-no-duplicate-sections": true
-  }
+    "changelog-no-duplicate-sections": true,
+  },
 }
