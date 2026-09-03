@@ -165,7 +165,10 @@ extension SentryApplication {
                 // Sometimes a view controller is used as container for a navigation controller
                 // If the navigation is occupying the whole view controller we will consider this the
                 // case.
-                if isContainerViewController(childVC), childVC.isViewLoaded, childVC.view.frame == topVC.view.bounds {
+                if isContainerViewController(childVC),
+                   let childView = childVC.viewIfLoaded,
+                   let topView = topVC.viewIfLoaded,
+                   childView.frame == topView.bounds {
                     relevantChild = childVC
                     break
                 }

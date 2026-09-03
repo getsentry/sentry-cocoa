@@ -152,6 +152,30 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         XCTAssertEqual(expectedTransactionName, transactionName)
     }
 
+    func testLoadView_whenParentIsUnloadedAndContainerChildIsLoaded_shouldCallViewDidLoadOnce() {
+        // -- Arrange --
+        let application = TestSentryUIApplication()
+        let window = fixture.makeWindow()
+        let parentViewController = ViewDidLoadCountingViewController()
+        let childViewController = UINavigationController(rootViewController: UIViewController())
+        childViewController.loadViewIfNeeded()
+        parentViewController.addChild(childViewController)
+        window.rootViewController = parentViewController
+        application.windows = [window]
+        application.relevantViewControllerNamesProvider = { [weak application] in
+            application?.internal_relevantViewControllersNames()
+        }
+        SentryDependencyContainer.sharedInstance().applicationOverride = application
+        fixture.sut.start()
+        XCTAssertFalse(parentViewController.isViewLoaded)
+
+        // -- Act --
+        parentViewController.loadViewIfNeeded()
+
+        // -- Assert --
+        XCTAssertEqual(parentViewController.viewDidLoadInvocations, 1)
+    }
+
     func testSwizzle_fromScene() {
         let swizzler = fixture.testableSut
         let window = fixture.makeWindow()
@@ -684,6 +708,15 @@ class ViewWithLoadViewController: UIViewController {
     }
 }
 // swiftlint:enable prohibited_super_call
+
+private final class ViewDidLoadCountingViewController: UIViewController {
+    private(set) var viewDidLoadInvocations = 0
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        viewDidLoadInvocations += 1
+    }
+}
 
 class ObjectWithWindowsProperty: NSObject {
     var resultOfWindows: Any?
