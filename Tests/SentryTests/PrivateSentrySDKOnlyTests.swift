@@ -15,6 +15,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         SentryExtraPackages.clear()
     }
 
+    #if !os(tvOS) && !os(watchOS) && !os(visionOS)
     // CPU-constrained CI runners can delay the sampling thread beyond any fixed sleep, so wait for
     // the samples the serializer actually requires. A short polling interval avoids busy-spinning
     // and is used instead of XCTNSPredicateExpectation, which was observed to add about one second
@@ -34,6 +35,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTFail("Profiler did not collect at least two samples")
         return false
     }
+    #endif
 
     func testStoreEnvelope() {
         let client = TestClient(options: Options())
