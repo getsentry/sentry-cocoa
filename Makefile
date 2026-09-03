@@ -876,7 +876,7 @@ build-sample-v10-watchOS-Swift:
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme 'watchOS-Swift WatchKit App' \
-		-destination 'platform=watchOS Simulator,OS=$(WATCHOS_SIMULATOR_OS),name=$(WATCHOS_DEVICE_NAME)' \
+		-configuration Debug \
 		CODE_SIGNING_ALLOWED="NO" \
 		$(V10_SDK_FLAGS) \
 		build | xcbeautify --preserve-unbeautified
