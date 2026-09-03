@@ -39,18 +39,11 @@ extension SentryKSCrash {
         /// thread after the JSON report is on disk; must not hop to the main queue.
         var screenshotProvider: ((String) -> Void)?
 
-        nonisolated(unsafe) static weak var active: ScreenshotMonitor?
-
-        let cDidWriteHandler: @convention(c) (Int64) -> Void = { reportID in
-            active?.handleDidWriteReport(reportID: reportID)
-        }
-
         // MARK: - MonitorPlugin
 
         let api: UnsafeMutablePointer<KSCrashMonitorAPI>
 
         // MARK: - Lifecycle
-
         override init() {
             self.api = UnsafeMutablePointer<KSCrashMonitorAPI>.allocate(capacity: 1)
             super.init()
@@ -62,11 +55,36 @@ extension SentryKSCrash {
             api.deallocate()
             free(_monitorId)
         }
+
+        // MARK: - Callbacks
+        let monitorIDCallback: @convention(c) (UnsafeMutableRawPointer?) -> UnsafePointer<CChar>? = { context in
+            guard let monitor = SentryKSCrash.ScreenshotMonitor.from(context) else { return nil }
+            return UnsafePointer(monitor._monitorId)
+        }
+
+        let setEnabledCallback: @convention(c) (Bool, UnsafeMutableRawPointer?) -> Void = { isEnabled, context in
+            SentryKSCrash.ScreenshotMonitor.from(context)?.enabled = isEnabled
+        }
+
+        let isEnabledCallback: @convention(c) (UnsafeMutableRawPointer?) -> Bool = { context in
+            SentryKSCrash.ScreenshotMonitor.from(context)?.enabled ?? false
+        }
+
+        let createStitchedReportCallback: @convention(c) (CFDictionary?, UnsafePointer<CChar>?, KSCrashSidecarScope, UnsafeMutableRawPointer?) -> Unmanaged<CFDictionary>? = { reportDict, sidecarPath, scope, context in
+            guard let reportDict else { return nil }
+            guard let monitor = SentryKSCrash.ScreenshotMonitor.from(context) else {
+                return Unmanaged.passRetained(reportDict)
+            }
+            return monitor.stitchedReport(
+                reportDict: reportDict,
+                sidecarPath: sidecarPath,
+                scope: scope
+            )
+        }
     }
 }
 
 // MARK: - API Initialisation
-
 extension SentryKSCrash.ScreenshotMonitor {
     func initAPI() {
         api.initialize(
@@ -75,32 +93,15 @@ extension SentryKSCrash.ScreenshotMonitor {
                 init: { callbacks, context in
                     SentryKSCrash.ScreenshotMonitor.from(context)?.callbacks = callbacks?.pointee
                 },
-                monitorId: { context in
-                    guard let monitor = SentryKSCrash.ScreenshotMonitor.from(context) else { return nil }
-                    return UnsafePointer(monitor._monitorId)
-                },
+                monitorId: monitorIDCallback,
                 monitorFlags: { _ in KSCrashMonitorFlagPlugin },
-                setEnabled: { isEnabled, context in
-                    SentryKSCrash.ScreenshotMonitor.from(context)?.enabled = isEnabled
-                },
-                isEnabled: { context in
-                    SentryKSCrash.ScreenshotMonitor.from(context)?.enabled ?? false
-                },
+                setEnabled: setEnabledCallback,
+                isEnabled: isEnabledCallback,
                 addContextualInfoToEvent: { _, _ in },
                 notifyPostMonitorsEnabled: nil,
                 notifyPostSystemEnable: { _ in },
                 writeInReportSection: nil,
-                createStitchedReport: { reportDict, sidecarPath, scope, context in
-                    guard let reportDict else { return nil }
-                    guard let monitor = SentryKSCrash.ScreenshotMonitor.from(context) else {
-                        return Unmanaged.passRetained(reportDict)
-                    }
-                    return monitor.stitchedReport(
-                        reportDict: reportDict,
-                        sidecarPath: sidecarPath,
-                        scope: scope
-                    )
-                }
+                createStitchedReport: createStitchedReportCallback
             )
         )
         api.pointee.context = Unmanaged.passUnretained(self).toOpaque()
@@ -131,9 +132,13 @@ extension SentryKSCrash.ScreenshotMonitor {
     /// Captures the screenshot into the per-report payload directory and writes the KSCrash
     /// marker sidecar. Called from `didWriteReport` after the JSON report is on disk.
     func handleDidWriteReport(reportID: Int64) {
-        guard enabled, reportID > 0, screenshotProvider != nil else { return }
-        guard let sidecarPath = reportSidecarPath(reportID: reportID) else { return }
-        guard let payloadDirectory = payloadDirectory(fromSidecarPath: sidecarPath) else { return }
+        guard
+            enabled,
+            reportID > 0,
+            screenshotProvider != nil,
+            let sidecarPath = reportSidecarPath(reportID: reportID),
+            let payloadDirectory = payloadDirectory(fromSidecarPath: sidecarPath)
+        else { return } // KSCRASH_TODO: Logging and better handling please
 
         do {
             try FileManager.default.createDirectory(
@@ -297,5 +302,10 @@ extension SentryKSCrash.ScreenshotMonitor {
         }
         return [UInt8](data.prefix(Self.pngSignature.count)) == Self.pngSignature
     }
+}
+
+@_cdecl("sentrykscrash_attachments_handleDidWriteReport")
+func sentrykscrash_attachments_handleDidWriteReport(_ context: UnsafeMutableRawPointer?, _ reportID: Int64) {
+    SentryKSCrash.ScreenshotMonitor.from(context)?.handleDidWriteReport(reportID: reportID)
 }
 #endif

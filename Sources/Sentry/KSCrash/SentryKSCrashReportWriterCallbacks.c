@@ -1,6 +1,7 @@
 #if SDK_V10
 
 #    include "SentryKSCrashReportWriterCallbacks.h"
+#    include "KSCrashMonitor.h"
 #    include "SentryScopeSyncC.h"
 #    include <stddef.h>
 
@@ -105,14 +106,6 @@ sentrykscrash_isWritingReport(
     writeScope(writer);
 }
 
-static SentryKSCrashAttachmentsDidWriteHandler g_attachmentsDidWriteHandler;
-
-void
-sentrykscrash_setAttachmentsDidWriteHandler(SentryKSCrashAttachmentsDidWriteHandler handler)
-{
-    g_attachmentsDidWriteHandler = handler;
-}
-
 void
 sentrykscrash_didWriteReport(const KSCrash_ExceptionHandlingPlan *const plan, int64_t reportID)
 {
@@ -121,8 +114,9 @@ sentrykscrash_didWriteReport(const KSCrash_ExceptionHandlingPlan *const plan, in
         return;
     }
 
-    if (g_attachmentsDidWriteHandler != NULL) {
-        g_attachmentsDidWriteHandler(reportID);
+    const KSCrashMonitorAPI *api = kscm_getMonitor("SentryAttachments");
+    if (api != NULL) {
+        sentrykscrash_attachments_handleDidWriteReport(api->context, reportID);
     }
 
 #    if SENTRY_DISABLE_SENTRYCRASH_V10

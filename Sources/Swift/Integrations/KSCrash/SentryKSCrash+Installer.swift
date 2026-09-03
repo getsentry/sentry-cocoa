@@ -65,8 +65,7 @@ extension SentryKSCrash {
 
         /// KSCrash copies plugins only on the first process-lifetime install, so this monitor
         /// must outlive any single SDK lifecycle.
-        private static let sharedScreenshotMonitor = SentryKSCrash.ScreenshotMonitor()
-        private var screenshotMonitor: SentryKSCrash.ScreenshotMonitor { Self.sharedScreenshotMonitor }
+        private static let screenshotMonitor = SentryKSCrash.ScreenshotMonitor()
 
         func install(
             installPath: String,
@@ -82,7 +81,7 @@ extension SentryKSCrash {
             config.enableSwapCxaThrow = enableSwapCxaThrow
             config.enableSwiftAsyncStackTraces = enableSwiftAsyncStackTraces
             config.reportStoreConfiguration.reportCleanupPolicy = .onSuccess
-            config.plugins = [screenshotMonitor]
+            config.plugins = [Self.screenshotMonitor]
             #if SENTRY_CRASH_E2E
             config.userInfoJSON = SentryKSCrash.CrashE2ETestHook.reportUserInfo
             #endif
@@ -90,9 +89,6 @@ extension SentryKSCrash {
             config.willWriteReportCallback = sentrykscrash_willWriteReport
             config.isWritingReportCallback = sentrykscrash_isWritingReport
             config.didWriteReportCallback = sentrykscrash_didWriteReport
-
-            SentryKSCrash.ScreenshotMonitor.active = screenshotMonitor
-            sentrykscrash_setAttachmentsDidWriteHandler(SentryKSCrash.ScreenshotMonitor.cDidWriteHandler)
 
 #if SENTRY_DISABLE_SENTRYCRASH_V10
             // KSCRASH_TODO(GH-8273, GH-8532, GH-8801, GH-8735): didWriteReport captures screenshots
@@ -109,6 +105,9 @@ extension SentryKSCrash {
                 SentrySDKLog.debug("KSCrash already installed; continuing.")
             }
             installed = true
+            #if SENTRY_CRASH_E2E
+            SentryKSCrash.CrashE2ETestHook.installSyntheticScreenshotProvider()
+            #endif
         }
 
         func uninstall() {
@@ -117,8 +116,6 @@ extension SentryKSCrash {
             // this SDK lifecycle's query state is cleared. Acceptance: SCV10-032 in
             // SENTRYCRASH_V10_MIGRATION_LEDGER.md.
 #endif
-            sentrykscrash_setAttachmentsDidWriteHandler(nil)
-            SentryKSCrash.ScreenshotMonitor.active = nil
             installed = false
         }
 
@@ -220,7 +217,7 @@ extension SentryKSCrash {
         }
 
         func setScreenshotProvider(_ provider: ((String) -> Void)?) {
-            screenshotMonitor.screenshotProvider = provider
+            Self.screenshotMonitor.screenshotProvider = provider
         }
     }
 }

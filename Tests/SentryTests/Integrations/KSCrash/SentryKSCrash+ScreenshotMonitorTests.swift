@@ -33,7 +33,6 @@ final class SentryKSCrashScreenshotMonitorTests: XCTestCase {
 
     override func tearDownWithError() throws {
         ScreenshotMonitorTestRoot.installDir = nil
-        SentryKSCrash.ScreenshotMonitor.active = nil
         if let installDir, FileManager.default.fileExists(atPath: installDir.path) {
             try FileManager.default.removeItem(at: installDir)
         }
@@ -136,15 +135,15 @@ final class SentryKSCrashScreenshotMonitorTests: XCTestCase {
         XCTAssertNil(result["attachments"])
     }
 
-    func testCDidWriteHandler_whenActiveMonitorIsSet_shouldCapture() throws {
+    func testHandleDidWriteReportFromContext_shouldCapture() throws {
         // -- Arrange --
         let reportID: Int64 = 9
         let monitor = try makeMonitor(reportID: reportID)
         monitor.screenshotProvider = writePNGProvider()
-        SentryKSCrash.ScreenshotMonitor.active = monitor
 
         // -- Act --
-        SentryKSCrash.ScreenshotMonitor.cDidWriteHandler(reportID)
+        SentryKSCrash.ScreenshotMonitor.from(monitor.api.pointee.context)?
+            .handleDidWriteReport(reportID: reportID)
 
         // -- Assert --
         XCTAssertTrue(
