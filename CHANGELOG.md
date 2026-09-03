@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add Hints API with `beforeSendWithHint` and `beforeBreadcrumbWithHint` callbacks (#8942)
+
 ## 9.27.0
 
 > [!NOTE]
@@ -12,7 +18,6 @@
 
 ### Features
 
-- Add Hints API with `beforeSendWithHint` and `beforeBreadcrumbWithHint` callbacks (#8942)
 - Add manual Session Replay controls through `SentrySDK.replay`. (#8868)
   - Explicit `start()` and `startBuffering()` calls bypass the configured replay sample rates; sampling still controls automatic startup.
   - `start()` starts a full-session replay and does nothing if one is already recording.
