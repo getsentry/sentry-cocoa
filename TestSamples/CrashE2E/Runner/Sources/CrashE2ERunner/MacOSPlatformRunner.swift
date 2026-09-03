@@ -127,11 +127,7 @@ final class MacOSPlatformRunner {
         scenario: Scenario, cacheDir: URL, platform: String
     ) throws {
         guard scenario == .crashTimeAttachments else { return }
-        // installPath mirrors SentryKSCrash.Integration.installPath(for:bundleInfo:)
-        let installDir = cacheDir
-            .appendingPathComponent("KSCrash", isDirectory: true)
-            .appendingPathComponent(config.reporter.macOSExecutableName, isDirectory: true)
-        try CrashTimeAttachmentsAsserter.assert(installDir: installDir, platform: platform)
+        try CrashTimeAttachmentsAsserter.assert(cacheDirectory: cacheDir, platform: platform)
     }
 
     private func runDrainLaunch(_ scenario: Scenario, executable: URL, cacheDir: URL,

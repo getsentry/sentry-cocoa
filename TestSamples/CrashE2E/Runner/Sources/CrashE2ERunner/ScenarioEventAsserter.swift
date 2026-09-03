@@ -23,6 +23,12 @@ enum ScenarioEventAsserter {
 
         do {
             try EventAssertions.assertScenario(scenario, platform: platform, event: event, cacheRoot: cacheRoot)
+            if scenario == .crashTimeAttachments {
+                try CrashTimeAttachmentsAsserter.assertEnvelope(
+                    attachments: events[0].attachments,
+                    platform: platform
+                )
+            }
         } catch {
             log("Event JSON:")
             print(prettyJSON(event))

@@ -1,13 +1,10 @@
 import Foundation
 
-// Installs a synthetic crash-time screenshot provider for the crash-time-attachments E2E scenario.
-// Guarded by SENTRY_CRASH_E2E so the dependency on internal SDK API never enters production builds.
+// Crash-time screenshot capture is installed inside the SDK when SENTRY_CRASH_E2E is set
+// (SentryKSCrash.CrashE2ETestHook). This type only logs so the app does not import SPI.
 enum CrashE2EAttachmentsSetup {
     static func setupIfNeeded() {
         guard CrashE2ERuntime.configuration.scenario == .crashTimeAttachments else { return }
-        #if SDK_V10 && SENTRY_CRASH_E2E
-        SentryKSCrash.CrashE2ETestHook.installSyntheticScreenshotProvider()
-        NSLog("CrashE2E - installed synthetic screenshot provider for crash-time-attachments")
-        #endif
+        NSLog("CrashE2E - crash-time-attachments uses the SDK SENTRY_CRASH_E2E screenshot hook")
     }
 }

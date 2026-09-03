@@ -221,10 +221,6 @@ final class IOSPlatformRunner {
     ) throws {
         guard scenario == .crashTimeAttachments else { return }
         let cacheDir = container.appendingPathComponent("Library/Caches", isDirectory: true)
-        // installPath mirrors SentryKSCrash.Integration.installPath(for:bundleInfo:)
-        let installDir = cacheDir
-            .appendingPathComponent("KSCrash", isDirectory: true)
-            .appendingPathComponent(config.reporter.iOSScheme, isDirectory: true)
-        try CrashTimeAttachmentsAsserter.assert(installDir: installDir, platform: platform)
+        try CrashTimeAttachmentsAsserter.assert(cacheDirectory: cacheDir, platform: platform)
     }
 }
