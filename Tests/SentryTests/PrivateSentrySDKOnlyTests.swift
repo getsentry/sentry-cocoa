@@ -15,6 +15,26 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         SentryExtraPackages.clear()
     }
 
+    // CPU-constrained CI runners can delay the sampling thread beyond any fixed sleep, so wait for
+    // the samples the serializer actually requires. A short polling interval avoids busy-spinning
+    // and is used instead of XCTNSPredicateExpectation, which was observed to add about one second
+    // to every profiling test before reevaluating its predicate.
+    private func waitForProfilerSamples() -> Bool {
+        let deadline = ProcessInfo.processInfo.systemUptime + 5
+        repeat {
+            if let profiler = SentryTraceProfiler.getCurrentProfiler(),
+               let profile = profiler.state.copyProfilingData()["profile"] as? [String: Any],
+               let samples = profile["samples"] as? [Any],
+               samples.count >= 2 {
+                return true
+            }
+            Thread.sleep(forTimeInterval: 0.01)
+        } while ProcessInfo.processInfo.systemUptime < deadline
+
+        XCTFail("Profiler did not collect at least two samples")
+        return false
+    }
+
     func testStoreEnvelope() {
         let client = TestClient(options: Options())
         SentrySDKInternal.setCurrentHub(TestHub(client: client, andScope: nil))
@@ -272,8 +292,11 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
 
         let startTime = PrivateSentrySDKOnly.startProfiler(forTrace: traceIdA)
         XCTAssertGreaterThan(startTime, 0)
-        Thread.sleep(forTimeInterval: 0.2)
-        let payload = PrivateSentrySDKOnly.collectProfileBetween(startTime, and: startTime + 200_000_000, forTrace: traceIdA)
+        guard waitForProfilerSamples() else {
+            return
+        }
+        let endTime = SentryDependencyContainer.sharedInstance().dateProvider.systemTime()
+        let payload = PrivateSentrySDKOnly.collectProfileBetween(startTime, and: endTime, forTrace: traceIdA)
         XCTAssertNotNil(payload)
         XCTAssertEqual(payload?["platform"] as? String, "cocoa")
         
