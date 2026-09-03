@@ -92,7 +92,7 @@ internal import _SentryPrivate
     }
     
     @objc public func storeCurrentSession(_ session: SentrySession) {
-        helper.storeCurrentSessionData(SentrySerializationSwift.data(withJSONObject: session.serialize()))
+        helper.storeCurrentSessionData(SentrySerializationSwift.data(withJSONObject: session.serializeForPersistence()))
     }
     
     @objc public func readCurrentSession() -> SentrySession? {
@@ -104,7 +104,7 @@ internal import _SentryPrivate
     }
     
     @objc public func storeCrashedSession(_ session: SentrySession) {
-        helper.storeCrashedSessionData(SentrySerializationSwift.data(withJSONObject: session.serialize()))
+        helper.storeCrashedSessionData(SentrySerializationSwift.data(withJSONObject: session.serializeForPersistence()))
     }
 
     @objc public func readCrashedSession() -> SentrySession? {
@@ -117,7 +117,7 @@ internal import _SentryPrivate
 
     #if !SDK_V10
     @objc public func storeAbnormalSession(_ session: SentrySession) {
-        helper.storeAbnormalSessionData(SentrySerializationSwift.data(withJSONObject: session.serialize()))
+        helper.storeAbnormalSessionData(SentrySerializationSwift.data(withJSONObject: session.serializeForPersistence()))
     }
     
     @objc public func readAbnormalSession() -> SentrySession? {

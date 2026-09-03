@@ -5,9 +5,13 @@
 > [!WARNING]
 > Native crashes now set `mechanism.synthetic`, which takes the mach exception name (`EXC_BAD_ACCESS`) or signal name (`SIGSEGV`) out of the grouping hash. Expect a one-time regrouping as your app adopts this version: existing crash issues stop receiving events and new ones open. Crashes that differ only by signal at the same stacktrace now share one issue. The mach and signal detail stays on `mechanism.meta`.
 
+> [!NOTE]
+> `enableLogs` and `enableMetrics` are now deprecated and will be removed in the next major version. Manual log and metric capture is no longer gated by these flags.
+
 ### Improvements
 
 - Install idle Session Replay recovery infrastructure at zero sample rates. (#8865)
+- Manual log and metrics APIs are no longer gated by behind `enableLogs` / `enableMetrics` (#8918)
 
 ### Features
 
@@ -21,6 +25,8 @@
   - `flush()` sends the current replay data to Sentry, or starts a full-session replay when recording is stopped.
 - Copy `app.vitals.start.type` and `app.vitals.start.screen` onto standalone `app.start` children, including `app.start.extended` and user descendants (#8888)
 - Add `maxFeatureFlags` option to configure how many feature flag evaluations the scope retains, matching sentry-java. Defaults to 100 (#8858)
+- Add `SentrySDK.internal.envelope.captureNonTerminating` for hybrid SDKs, which keeps the current session running and reports it with the `unhandled` status when an unhandled exception doesn't terminate the process (#8654)
+- Add `SentrySDK.internal.envelope.updateSessionForDroppedEventNonTerminating` so hybrid SDKs can update the native session when an error is dropped by sampling, without sending an envelope (#8907)
 
 ### Fixes
 
