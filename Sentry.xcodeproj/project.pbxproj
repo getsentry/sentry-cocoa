@@ -1951,6 +1951,8 @@
 				Public/SentryObjCNSError.h,
 				Public/SentryObjCOptions.h,
 				Public/SentryObjCPrivateSDKOnly.h,
+				Public/SentryObjCProfileLifecycle.h,
+				Public/SentryObjCProfileOptions.h,
 				Public/SentryObjCRedactRegionType.h,
 				Public/SentryObjCReplayApi.h,
 				Public/SentryObjCReplayOptions.h,
