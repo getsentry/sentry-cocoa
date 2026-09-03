@@ -1428,6 +1428,9 @@ STAGED_DPRINT_FILES := $(shell git diff --cached --diff-filter=d --name-only | g
 # Get staged Markdown files
 STAGED_MARKDOWN_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep '\.md$$' | awk '{printf "\"%s\" ", $$0}')
 
+# Get staged changelog files
+STAGED_CHANGELOG_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep -E '^CHANGELOG(_V10)?\.md$$')
+
 # Get staged JSON files
 STAGED_JSON_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep '\.json$$' | awk '{printf "\"%s\" ", $$0}')
 
@@ -1462,7 +1465,7 @@ check-objc-banned-patterns:
 
 ## Run linting checks on all files
 #
-# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, Objective-C banned-pattern checks, actionlint, and dprint checks without modifying files.
+# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, Objective-C banned-pattern checks, changelog checks, actionlint, and dprint checks without modifying files.
 .PHONY: lint
 lint:
 	@echo "--> Running Swiftlint and Clang-Format"
@@ -1471,11 +1474,12 @@ lint:
 	"$(MAKE)" check-objc-banned-patterns
 	swiftlint --strict --quiet
 	dprint check "**/*.{md,json,yaml,yml}"
+	"$(MAKE)" check-changelog
 	actionlint
 
 ## Run linting checks on staged files only
 #
-# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, Objective-C banned-pattern checks, and dprint checks on staged files only.
+# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, Objective-C banned-pattern checks, changelog checks, and dprint checks on staged files only.
 .PHONY: lint-staged
 lint-staged:
 	@echo "--> Running Swiftlint, dprint, and Clang-Format on staged files"
@@ -1497,6 +1501,9 @@ lint-staged:
 	fi
 	@if [ -n "$(STAGED_DPRINT_FILES)" ]; then \
 		dprint check --allow-no-files $(STAGED_DPRINT_FILES); \
+	fi
+	@if [ -n "$(STAGED_CHANGELOG_FILES)" ]; then \
+		"$(MAKE)" check-changelog; \
 	fi
 
 ## Format all files
