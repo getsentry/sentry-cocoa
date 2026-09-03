@@ -104,7 +104,7 @@ final class SentryMXManager: NSObject, MXMetricManagerSubscriber {
 
     private func process(crashDiagnostic diagnostic: MXCrashDiagnostic, timestamp: Date) {
         guard enabledDiagnostics.contains(.crashDiagnostics) else {
-            SentrySDK.logger.debug("Crash diagnostic are not enabled, skipping payload")
+            SentrySDKLog.debug("Crash diagnostic are not enabled, skipping payload")
             return
         }
 
@@ -124,7 +124,7 @@ final class SentryMXManager: NSObject, MXMetricManagerSubscriber {
 
     private func process(diskWriteExceptionDiagnostic diagnostic: MXDiskWriteExceptionDiagnostic, timestamp: Date) {
         guard enabledDiagnostics.contains(.diskWriteException) else {
-            SentrySDK.logger.debug("Disk write exception diagnostics are not enabled, skipping payload")
+            SentrySDKLog.debug("Disk write exception diagnostics are not enabled, skipping payload")
             return
         }
 
@@ -142,7 +142,7 @@ final class SentryMXManager: NSObject, MXMetricManagerSubscriber {
 
     private func process(cpuExceptionDiagnostic diagnostic: MXCPUExceptionDiagnostic, timestamp: Date) {
         guard enabledDiagnostics.contains(.cpuException) else {
-            SentrySDK.logger.debug("CPU exception diagnostics are not enabled, skipping payload")
+            SentrySDKLog.debug("CPU exception diagnostics are not enabled, skipping payload")
             return
         }
 
@@ -161,7 +161,7 @@ final class SentryMXManager: NSObject, MXMetricManagerSubscriber {
 
     private func process(hangDiagnostic diagnostic: MXHangDiagnostic, timestamp: Date) {
         guard enabledDiagnostics.contains(.hang) else {
-            SentrySDK.logger.debug("Hang diagnostics are not enabled, skipping payload")
+            SentrySDKLog.debug("Hang diagnostics are not enabled, skipping payload")
             return
         }
 
@@ -184,7 +184,7 @@ final class SentryMXManager: NSObject, MXMetricManagerSubscriber {
             let data = diagnostic.callStackTree.jsonRepresentation()
             callStackTree = try SentryMXCallStackTree.from(data: data)
         } catch {
-            SentrySDK.logger.error("Failed to create SentryMXCallStackTree from MXDiagnostic: \(error)")
+            SentrySDKLog.error("Failed to create SentryMXCallStackTree from MXDiagnostic: \(error)")
             return
         }
 
