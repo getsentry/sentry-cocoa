@@ -383,6 +383,22 @@ class SentrySDKInternalTests: XCTestCase {
         XCTAssertEqual(1, SentrySDKInternal.startInvocations)
     }
 
+    func testStart_whenCalledTwiceWithoutClose_shouldIgnoreSecondStart() {
+        // -- Arrange --
+        SentrySDKInternal.start(options: fixture.options)
+
+        let secondOptions = Options.noIntegrations()
+        secondOptions.dsn = TestConstants.dsnAsString(username: "second-internal-start")
+
+        // -- Act --
+        SentrySDKInternal.start(options: secondOptions)
+
+        // -- Assert --
+        XCTAssertEqual(1, SentrySDKInternal.startInvocations)
+        XCTAssertTrue(SentrySDKInternal.hasStarted)
+        XCTAssertEqual(fixture.options.dsn, SentrySDKInternal.currentHub().getClient()?.options.dsn)
+    }
+
     func testSDKStartTimestamp() {
         let currentDateProvider = TestCurrentDateProvider()
         SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider

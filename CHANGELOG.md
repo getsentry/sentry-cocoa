@@ -25,6 +25,7 @@
 
 - Copy `app.vitals.start.type` and `app.vitals.start.screen` onto standalone `app.start` children, including `app.start.extended` and user descendants (#8888)
 - Add `maxFeatureFlags` option to configure how many feature flag evaluations the scope retains, matching sentry-java. Defaults to 100 (#8858)
+- Ignore subsequent `SentrySDK.start` calls until `close()`. A second start without `close()` logs a warning and keeps the existing SDK instance (#8920)
 
 ### Fixes
 
