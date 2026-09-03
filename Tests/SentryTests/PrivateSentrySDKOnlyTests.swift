@@ -2,6 +2,18 @@
 @_spi(Private) @testable import Sentry
 import XCTest
 
+#if !os(tvOS) && !os(watchOS) && !os(visionOS)
+private final class BlockingMetricProfiler: SentryMetricProfiler {
+    let recordMetricsStarted = DispatchSemaphore(value: 0)
+    let continueRecordingMetrics = DispatchSemaphore(value: 0)
+
+    override func recordMetrics() {
+        recordMetricsStarted.signal()
+        continueRecordingMetrics.wait()
+    }
+}
+#endif
+
 class PrivateSentrySDKOnlyTests: XCTestCase {
 
     override func tearDown() {
@@ -34,6 +46,35 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
 
         XCTFail("Profiler did not collect at least two samples")
         return false
+    }
+    #endif
+
+    #if !os(tvOS) && !os(watchOS) && !os(visionOS)
+    func testGetCurrentProfiler_whenProfilerLockHeld_shouldWaitForLock() throws {
+        // -- Arrange --
+        XCTAssertTrue(SentryTraceProfiler.start(withTracer: SentryId()))
+        let profiler = try XCTUnwrap(SentryTraceProfiler.getCurrentProfiler())
+        let blockingMetricProfiler = BlockingMetricProfiler(mode: .trace)
+        profiler.metricProfiler = blockingMetricProfiler
+
+        let getCurrentProfilerFinished = DispatchSemaphore(value: 0)
+
+        // -- Act --
+        DispatchQueue.global().async {
+            SentryTraceProfiler.recordMetrics()
+        }
+        XCTAssertEqual(blockingMetricProfiler.recordMetricsStarted.wait(timeout: .now() + 1), .success)
+
+        DispatchQueue.global().async {
+            _ = SentryTraceProfiler.getCurrentProfiler()
+            getCurrentProfilerFinished.signal()
+        }
+
+        // -- Assert --
+        XCTAssertEqual(getCurrentProfilerFinished.wait(timeout: .now() + 0.1), .timedOut)
+
+        blockingMetricProfiler.continueRecordingMetrics.signal()
+        XCTAssertEqual(getCurrentProfilerFinished.wait(timeout: .now() + 1), .success)
     }
     #endif
 
