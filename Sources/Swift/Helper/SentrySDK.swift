@@ -107,16 +107,11 @@ extension SentrySDK {
     /// - note: Call this method on the main thread. When calling it from a background thread, the
     /// SDK starts on the main thread async.
     /// - note: If `start` is called again without `close()` in between, the SDK logs a warning and
-    /// ignores the call.
+    /// still reinitializes. Reinitialization is unsupported and may lead to undefined behavior.
     #if !SDK_V10
     @objc
     #endif
     public static func start(options: Options) {
-        if SentrySDKInternal.hasStarted {
-            SentrySDKLog.warning("The Sentry SDK has already been started. Ignoring this call to start. Call SentrySDK.close() before starting again.")
-            return
-        }
-
         guard SentryDependencyContainer.sharedInstance().processInfoWrapper
             .environment["XCODE_RUNNING_FOR_PREVIEWS"] != "1" else {
             // Using NSLog because SentryLog was not initialized yet.
@@ -134,15 +129,11 @@ extension SentrySDK {
     /// - note: Call this method on the main thread. When calling it from a background thread, the
     /// SDK starts on the main thread async.
     /// - note: If `start` is called again without `close()` in between, the SDK logs a warning and
-    /// ignores the call.
+    /// still reinitializes. Reinitialization is unsupported and may lead to undefined behavior.
     #if !SDK_V10
     @objc
     #endif
     public static func start(configureOptions: @escaping (Options) -> Void) {
-        if SentrySDKInternal.hasStarted {
-            SentrySDKLog.warning("The Sentry SDK has already been started. Ignoring this call to start. Call SentrySDK.close() before starting again.")
-            return
-        }
         let options = Options()
         configureOptions(options)
         start(options: options)

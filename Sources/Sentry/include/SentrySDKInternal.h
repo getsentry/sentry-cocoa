@@ -61,8 +61,8 @@ SENTRY_NO_INIT
  * @discussion Call this method on the main thread. When calling it from a background thread, the
  * SDK starts on the main thread async.
  *
- * If @c start is called again without @c close in between, the SDK logs a warning and ignores the
- * call.
+ * If @c start is called again without @c close in between, the SDK logs a warning and still
+ * reinitializes. Reinitialization is unsupported and may lead to undefined behavior.
  */
 + (void)startWithOptions:(SentryOptionsObjC *)options NS_SWIFT_NAME(start(options:));
 

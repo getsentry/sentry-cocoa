@@ -231,16 +231,16 @@ static BOOL sdkStarted;
     (void)sentry_cxa_throw_compatibility_linker_anchor();
 #endif
 
+    BOOL alreadyStarted = NO;
     @synchronized(currentHubLock) {
-        if (sdkStarted) {
-            SENTRY_LOG_WARN(@"The Sentry SDK has already been started. Ignoring this call to "
-                            @"start. Call SentrySDK.close() before starting again.");
-            return;
-        }
+        alreadyStarted = sdkStarted;
         sdkStarted = YES;
     }
+    if (alreadyStarted) {
+        SENTRY_LOG_WARN(@"The Sentry SDK has already been started. Calling start again without "
+                        @"close() may lead to undefined behavior.");
+    }
 
-    // Set options after claiming start so an ignored overlapping start cannot overwrite them.
     [self setStartOptions:options];
 
     [SentrySDKLogSupport configure:options.debug diagnosticLevel:options.diagnosticLevel];

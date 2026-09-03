@@ -247,11 +247,9 @@ class SentrySDKTests: XCTestCase {
         XCTAssertFalse(SentrySDKInternal.hasStarted)
     }
 
-    func testStart_whenCalledTwiceWithoutClose_shouldNotReinitialize() {
+    func testStart_whenCalledTwiceWithoutClose_shouldReinitialize() {
         // -- Arrange --
         SentrySDK.start(options: fixture.options)
-        let firstOptions = SentrySDK.startOption
-        let firstHub = SentrySDKInternal.currentHub()
 
         let secondOptions = Options.noIntegrations()
         secondOptions.dsn = TestConstants.dsnAsString(username: "second-start")
@@ -260,9 +258,9 @@ class SentrySDKTests: XCTestCase {
         SentrySDK.start(options: secondOptions)
 
         // -- Assert --
-        XCTAssertEqual(1, SentrySDKInternal.startInvocations)
-        XCTAssertEqual(firstOptions, SentrySDK.startOption)
-        XCTAssertIdentical(firstHub, SentrySDKInternal.currentHub())
+        XCTAssertEqual(2, SentrySDKInternal.startInvocations)
+        XCTAssertEqual(secondOptions, SentrySDK.startOption)
+        XCTAssertEqual(secondOptions.dsn, SentrySDKInternal.currentHub().getClient()?.options.dsn)
         XCTAssertTrue(SentrySDK.isEnabled)
         XCTAssertTrue(SentrySDKInternal.hasStarted)
     }
@@ -286,31 +284,39 @@ class SentrySDKTests: XCTestCase {
         // -- Act --
         SentrySDK.start { options in
             options.dsn = TestConstants.dsnAsString(username: "second-start")
+            options.debug = true
+            options.diagnosticLevel = .warning
             options.removeAllIntegrations()
         }
 
         // -- Assert --
-        let expectedLogMessage = "The Sentry SDK has already been started. Ignoring this call to start. Call SentrySDK.close() before starting again."
+        let expectedLogMessage = "The Sentry SDK has already been started. Calling start again without close() may lead to undefined behavior."
         XCTAssertTrue(
             logOutput.loggedMessages.contains { $0.contains(expectedLogMessage) },
             "Expected a warning about a duplicate start, got: \(logOutput.loggedMessages)"
         )
+        XCTAssertEqual(2, SentrySDKInternal.startInvocations)
     }
 
-    func testStart_whenCalledTwiceWithConfigureOptions_shouldNotRunSecondConfigureBlock() {
+    func testStart_whenCalledTwiceWithConfigureOptions_shouldRunSecondConfigureBlock() {
         // -- Arrange --
         SentrySDK.start(options: fixture.options)
         var didRunSecondConfigure = false
 
         // -- Act --
-        SentrySDK.start { _ in
+        SentrySDK.start { options in
             didRunSecondConfigure = true
+            options.dsn = TestConstants.dsnAsString(username: "second-configure")
+            options.removeAllIntegrations()
         }
 
         // -- Assert --
-        XCTAssertFalse(didRunSecondConfigure)
-        XCTAssertEqual(1, SentrySDKInternal.startInvocations)
-        XCTAssertEqual(fixture.options, SentrySDK.startOption)
+        XCTAssertTrue(didRunSecondConfigure)
+        XCTAssertEqual(2, SentrySDKInternal.startInvocations)
+        XCTAssertEqual(
+            TestConstants.dsnAsString(username: "second-configure"),
+            SentrySDK.startOption?.dsn
+        )
     }
 
     func testStart_whenCalledAfterClose_shouldStartAgain() {

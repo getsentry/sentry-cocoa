@@ -383,7 +383,7 @@ class SentrySDKInternalTests: XCTestCase {
         XCTAssertEqual(1, SentrySDKInternal.startInvocations)
     }
 
-    func testStart_whenCalledTwiceWithoutClose_shouldIgnoreSecondStart() {
+    func testStart_whenCalledTwiceWithoutClose_shouldReinitialize() {
         // -- Arrange --
         SentrySDKInternal.start(options: fixture.options)
 
@@ -394,10 +394,10 @@ class SentrySDKInternalTests: XCTestCase {
         SentrySDKInternal.start(options: secondOptions)
 
         // -- Assert --
-        XCTAssertEqual(1, SentrySDKInternal.startInvocations)
+        XCTAssertEqual(2, SentrySDKInternal.startInvocations)
         XCTAssertTrue(SentrySDKInternal.hasStarted)
-        XCTAssertEqual(fixture.options.dsn, SentrySDKInternal.currentHub().getClient()?.options.dsn)
-        XCTAssertEqual(fixture.options.dsn, SentrySDKInternal.options?.dsn)
+        XCTAssertEqual(secondOptions.dsn, SentrySDKInternal.currentHub().getClient()?.options.dsn)
+        XCTAssertEqual(secondOptions.dsn, SentrySDKInternal.options?.dsn)
     }
 
     func testSDKStartTimestamp() {
