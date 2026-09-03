@@ -57,6 +57,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         let blockingMetricProfiler = BlockingMetricProfiler(mode: .trace)
         profiler.metricProfiler = blockingMetricProfiler
 
+        let getCurrentProfilerStarted = DispatchSemaphore(value: 0)
         let getCurrentProfilerFinished = DispatchSemaphore(value: 0)
 
         // -- Act --
@@ -66,15 +67,24 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTAssertEqual(blockingMetricProfiler.recordMetricsStarted.wait(timeout: .now() + 1), .success)
 
         DispatchQueue.global().async {
+            getCurrentProfilerStarted.signal()
             _ = SentryTraceProfiler.getCurrentProfiler()
             getCurrentProfilerFinished.signal()
         }
+        // Confirm the worker is scheduled before using a short timeout to detect lock blocking.
+        // Otherwise, an unscheduled worker could make an unlocked getter appear blocked.
+        XCTAssertEqual(getCurrentProfilerStarted.wait(timeout: .now() + 1), .success)
+
+        let getCurrentProfilerWhileLocked = getCurrentProfilerFinished.wait(timeout: .now() + 0.1)
+        blockingMetricProfiler.continueRecordingMetrics.signal()
 
         // -- Assert --
-        XCTAssertEqual(getCurrentProfilerFinished.wait(timeout: .now() + 0.1), .timedOut)
-
-        blockingMetricProfiler.continueRecordingMetrics.signal()
-        XCTAssertEqual(getCurrentProfilerFinished.wait(timeout: .now() + 1), .success)
+        XCTAssertEqual(getCurrentProfilerWhileLocked, .timedOut)
+        // An early return consumes the semaphore signal and already fails the assertion above.
+        // Only wait again when the getter was blocked to avoid a second misleading failure.
+        if getCurrentProfilerWhileLocked == .timedOut {
+            XCTAssertEqual(getCurrentProfilerFinished.wait(timeout: .now() + 1), .success)
+        }
     }
     #endif
 
