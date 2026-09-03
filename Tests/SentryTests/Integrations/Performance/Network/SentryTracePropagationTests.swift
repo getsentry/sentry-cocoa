@@ -195,6 +195,58 @@ final class SentryTracePropagationTests: XCTestCase {
         XCTAssertEqual(task.currentRequest?.value(forHTTPHeaderField: "sentry-trace"), traceHeader.value())
     }
 
+    // MARK: - setCurrentRequest: must not be called on canceling or completed tasks (issue #8917)
+
+    func testAddBaggageHeader_whenTaskIsCanceling_shouldNotCallSetCurrentRequest() throws {
+        // -- Arrange --
+        let request = URLRequest(url: try XCTUnwrap(URL(string: "https://www.domain.com/api")))
+        let task = MutableRequestTaskMock(request: request)
+        task.state = .canceling
+
+        let traceHeader = TraceHeader(
+            trace: SentryId(),
+            spanId: SpanId(),
+            sampled: .yes
+        )
+
+        // -- Act --
+        SentryTracePropagation.addBaggageHeader(
+            Baggage(),
+            traceHeader: traceHeader,
+            propagateTraceparent: true,
+            tracePropagationTargets: [try XCTUnwrap(NSRegularExpression(pattern: ".*"))],
+            toRequest: task
+        )
+
+        // -- Assert --
+        XCTAssertEqual(task.setCurrentRequestCallCount, 0, "setCurrentRequest: must not be called on a canceling task — it races with [NSURLSessionTask cancel] and can cause EXC_BAD_ACCESS")
+    }
+
+    func testAddBaggageHeader_whenTaskIsCompleted_shouldNotCallSetCurrentRequest() throws {
+        // -- Arrange --
+        let request = URLRequest(url: try XCTUnwrap(URL(string: "https://www.domain.com/api")))
+        let task = MutableRequestTaskMock(request: request)
+        task.state = .completed
+
+        let traceHeader = TraceHeader(
+            trace: SentryId(),
+            spanId: SpanId(),
+            sampled: .yes
+        )
+
+        // -- Act --
+        SentryTracePropagation.addBaggageHeader(
+            Baggage(),
+            traceHeader: traceHeader,
+            propagateTraceparent: true,
+            tracePropagationTargets: [try XCTUnwrap(NSRegularExpression(pattern: ".*"))],
+            toRequest: task
+        )
+
+        // -- Assert --
+        XCTAssertEqual(task.setCurrentRequestCallCount, 0, "setCurrentRequest: must not be called on a completed task")
+    }
+
     // MARK: - Trace propagation for download and upload tasks (issue #8519)
 
     func testAddBaggageHeader_DownloadTask_AddsTraceHeaders() throws {

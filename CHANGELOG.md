@@ -36,6 +36,7 @@
 
 - Silence spurious ERROR log in `SentryCrashCxaThrowSwapper` for empty sections (#8915)
 - Stop recording touch events while Session Replay is paused. (#8887)
+- Fix crash in `[NSURLSessionTask cancel]` when cancelling an in-flight task with swizzling enabled (#8921)
 
 ### Internal
 

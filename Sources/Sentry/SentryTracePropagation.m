@@ -38,6 +38,15 @@ static NSString *const SENTRY_TRACEPARENT = @"traceparent";
         }
     }
 
+    // setCurrentRequest: is a private API without concurrency guarantees. Calling it
+    // on a task that is canceling or completed races with [NSURLSessionTask cancel]
+    // and can cause EXC_BAD_ACCESS (see #8917).
+    NSURLSessionTaskState taskState = sessionTask.state;
+    if (taskState == NSURLSessionTaskStateCanceling
+        || taskState == NSURLSessionTaskStateCompleted) {
+        return;
+    }
+
     // CFNetwork may read currentRequest concurrently, so never mutate it in place.
     SEL setCurrentRequestSelector = NSSelectorFromString(@"setCurrentRequest:");
     if ([sessionTask respondsToSelector:setCurrentRequestSelector]) {
