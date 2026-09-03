@@ -136,6 +136,16 @@
   },
   {
     "kind": "EnumConstantDecl",
+    "name": "SentryObjCProfileLifecycleManual",
+    "parent": "SentryObjCProfileLifecycle"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCProfileLifecycleTrace",
+    "parent": "SentryObjCProfileLifecycle"
+  },
+  {
+    "kind": "EnumConstantDecl",
     "name": "SentryObjCRedactRegionTypeClipBegin",
     "parent": "SentryObjCRedactRegionType"
   },
@@ -351,6 +361,10 @@
   {
     "kind": "EnumDecl",
     "name": "SentryObjCLogLevel"
+  },
+  {
+    "kind": "EnumDecl",
+    "name": "SentryObjCProfileLifecycle"
   },
   {
     "kind": "EnumDecl",
@@ -679,6 +693,12 @@
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryObjCPrivateSDKOnly",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCProfileOptions",
     "super": "NSObject",
     "has_inner": true
   },
@@ -1482,13 +1502,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "captureNonTerminating:",
-    "parent": "SentryObjCInternalEnvelopeApi",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "category",
     "parent": "SentryObjCBreadcrumb",
     "returnType": "NSString * _Nonnull",
@@ -1597,6 +1610,13 @@
     "name": "configureForm",
     "parent": "SentryObjCUserFeedbackConfiguration",
     "returnType": "void (^ _Nullable)(SentryObjCUserFeedbackFormConfiguration * _Nonnull)",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "configureProfiling",
+    "parent": "SentryObjCOptions",
+    "returnType": "void (^ _Nullable)(SentryObjCProfileOptions * _Nonnull)",
     "instance": true
   },
   {
@@ -3268,6 +3288,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "init",
+    "parent": "SentryObjCProfileOptions",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
     "parent": "SentryObjCReplayApi",
     "returnType": "instancetype _Nonnull",
     "instance": true
@@ -4075,6 +4102,13 @@
     "name": "level",
     "parent": "SentryObjCLog",
     "returnType": "SentryObjCLogLevel",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "lifecycle",
+    "parent": "SentryObjCProfileOptions",
+    "returnType": "SentryObjCProfileLifecycle",
     "instance": true
   },
   {
@@ -5080,6 +5114,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "profileAppStarts",
+    "parent": "SentryObjCProfileOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "profiling",
     "parent": "SentryObjCInternalApi",
     "returnType": "SentryObjCInternalProfilingApi * _Nonnull",
@@ -5522,6 +5563,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "sessionSampleRate",
+    "parent": "SentryObjCProfileOptions",
+    "returnType": "float",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "sessionSampleRate",
     "parent": "SentryObjCReplayOptions",
     "returnType": "float",
     "instance": true
@@ -5789,6 +5837,13 @@
     "kind": "ObjCMethodDecl",
     "name": "setConfigureForm:",
     "parent": "SentryObjCUserFeedbackConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setConfigureProfiling:",
+    "parent": "SentryObjCOptions",
     "returnType": "void",
     "instance": true
   },
@@ -6620,6 +6675,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setLifecycle:",
+    "parent": "SentryObjCProfileOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setLineNumber:",
     "parent": "SentryObjCFrame",
     "returnType": "void",
@@ -7054,6 +7116,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setProfileAppStarts:",
+    "parent": "SentryObjCProfileOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setQuality:",
     "parent": "SentryObjCReplayOptions",
     "returnType": "void",
@@ -7245,6 +7314,13 @@
     "kind": "ObjCMethodDecl",
     "name": "setSessionReplay:",
     "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setSessionSampleRate:",
+    "parent": "SentryObjCProfileOptions",
     "returnType": "void",
     "instance": true
   },
@@ -8664,13 +8740,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "updateSessionForDroppedEventNonTerminating:",
-    "parent": "SentryObjCInternalEnvelopeApi",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "url",
     "parent": "SentryObjCRequest",
     "returnType": "NSString * _Nullable",
@@ -9148,6 +9217,12 @@
     "name": "configureForm",
     "parent": "SentryObjCUserFeedbackConfiguration",
     "type": "void (^ _Nullable)(SentryObjCUserFeedbackFormConfiguration * _Nonnull)"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "configureProfiling",
+    "parent": "SentryObjCOptions",
+    "type": "void (^ _Nullable)(SentryObjCProfileOptions * _Nonnull)"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -10111,6 +10186,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "lifecycle",
+    "parent": "SentryObjCProfileOptions",
+    "type": "SentryObjCProfileLifecycle"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "lineNumber",
     "parent": "SentryObjCFrame",
     "type": "NSNumber * _Nullable"
@@ -10663,6 +10744,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "profileAppStarts",
+    "parent": "SentryObjCProfileOptions",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "profiling",
     "parent": "SentryObjCInternalApi",
     "type": "SentryObjCInternalProfilingApi * _Nonnull"
@@ -10960,6 +11047,12 @@
     "name": "sessionReplay",
     "parent": "SentryObjCOptions",
     "type": "SentryObjCReplayOptions * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "sessionSampleRate",
+    "parent": "SentryObjCProfileOptions",
+    "type": "float"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -11607,6 +11700,11 @@
     "kind": "TypedefDecl",
     "name": "SentryObjCLogLevel",
     "type": "enum SentryObjCLogLevel"
+  },
+  {
+    "kind": "TypedefDecl",
+    "name": "SentryObjCProfileLifecycle",
+    "type": "enum SentryObjCProfileLifecycle"
   },
   {
     "kind": "TypedefDecl",
