@@ -109,6 +109,14 @@ check-versions:
 check-sentrycrash-imports:
 	@./scripts/check-sentrycrash-imports.sh
 
+## Check changelog files for duplicate section headings
+#
+# Fails when a version block (including Unreleased) repeats a section heading
+# such as ### Features. Requires Node.js for markdownlint-cli2.
+.PHONY: check-changelog
+check-changelog:
+	./scripts/check-changelog.sh
+
 # ============================================================================
 # BUILDING
 # ============================================================================
