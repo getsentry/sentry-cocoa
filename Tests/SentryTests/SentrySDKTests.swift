@@ -465,10 +465,12 @@ class SentrySDKTests: XCTestCase {
             options.removeAllIntegrations()
         }
 
+        // Metrics always installs so the manual metrics API keeps working.
+        // Replay is only installed if session replay is supported.
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
-        assertIntegrationsInstalled(integrations: ["SentrySessionReplayIntegration"])
+        assertIntegrationsInstalled(integrations: ["SentryMetricsIntegration", "SentrySessionReplayIntegration"])
 #else
-        assertIntegrationsInstalled(integrations: [])
+        assertIntegrationsInstalled(integrations: ["SentryMetricsIntegration"])
 #endif
     }
 
@@ -773,13 +775,14 @@ extension SentrySDKTests {
         SentryDependencyContainer.sharedInstance().processInfoWrapper = testProcessInfoWrapper
     }
     
-    private func assertIntegrationsInstalled(integrations: [String]) {
-        XCTAssertEqual(integrations.count, SentrySDKInternal.currentHub().installedIntegrations().count)
+    private func assertIntegrationsInstalled(integrations: [String], file: StaticString = #file, line: UInt = #line) {
+        let hub = SentrySDKInternal.currentHub()
+        XCTAssertEqual(integrations.count, hub.installedIntegrations().count, file: file, line: line)
         integrations.forEach { integration in
             if let integrationClass = NSClassFromString(integration) {
-                XCTAssertTrue(SentrySDKInternal.currentHub().isIntegrationInstalled(integrationClass), "\(integration) not installed")
+                XCTAssertTrue(hub.isIntegrationInstalled(integrationClass), "\(integration) not installed", file: file, line: line)
             } else {
-                XCTAssertTrue(SentrySDKInternal.currentHub().hasIntegration(integration), "\(integration) not installed with legacy ObjC API nor Swift")
+                XCTAssertTrue(hub.hasIntegration(integration), "\(integration) not installed with legacy ObjC API nor Swift", file: file, line: line)
             }
         }
     }
