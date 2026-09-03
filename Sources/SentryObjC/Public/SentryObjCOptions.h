@@ -156,10 +156,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 #if !SDK_V10
 /**
- * When enabled, the SDK sends logs to Sentry. Logs can be captured using the
- * @c SentryObjCSDK.logger API, which provides structured logging with attributes.
+ * Legacy option kept for compatibility until the next major release.
+ *
+ * Manual log capture through @c SentryObjCSDK.logger (and opt-in logging integrations that
+ * forward through it) is not gated by this flag. Setting it to @c NO does not drop those logs.
  * @note Default value is @c NO.
- * @note In v10 and later, logs are always enabled. Remove this option when upgrading.
+ * @note In v10 and later, this option is removed and logs are always enabled.
  */
 @property (nonatomic) BOOL enableLogs;
 #endif // !SDK_V10
@@ -558,7 +560,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) SentryObjCExperimentalOptions *experimental;
 
 /**
- * When enabled, the SDK sends metrics to Sentry.
+ * Legacy option kept for compatibility until the next major release.
+ *
+ * Manual metric capture through the metrics API is not gated by this flag. Setting it to
+ * @c NO does not drop those metrics.
  * @note Default value is @c YES.
  */
 @property (nonatomic) BOOL enableMetrics;
