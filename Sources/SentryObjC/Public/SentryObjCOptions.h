@@ -17,6 +17,7 @@
 @class SentryObjCDataCollectionOptions;
 #endif
 @class SentryObjCEvent;
+@class SentryObjCHint;
 @class SentryObjCExperimentalOptions;
 @class SentryObjCHttpStatusCodeRange;
 @class SentryObjCLog;
@@ -141,10 +142,16 @@ NS_ASSUME_NONNULL_BEGIN
 /// This block can be used to modify the event before it will be serialized and sent.
 @property (nonatomic, copy, nullable) SentryObjCEvent *_Nullable (^beforeSend)(SentryObjCEvent *);
 
+/// This block can be used to modify the event with access to the hint before it will be sent.
+/// If set, this takes precedence over @c beforeSend.
+@property (nonatomic, copy, nullable) SentryObjCEvent *_Nullable (^beforeSendWithHint)
+    (SentryObjCEvent *, SentryObjCHint *);
+
 #if SDK_V10
 /// This block can be used to modify a transaction before it will be serialized and sent.
 @property (nonatomic, copy, nullable) SentryObjCTransaction *_Nullable (^beforeSendTransaction)
     (SentryObjCTransaction *);
+
 #endif // SDK_V10
 
 /**
@@ -168,6 +175,11 @@ NS_ASSUME_NONNULL_BEGIN
 /// This block can be used to modify the breadcrumb before it will be serialized and sent.
 @property (nonatomic, copy, nullable) SentryObjCBreadcrumb *_Nullable (^beforeBreadcrumb)
     (SentryObjCBreadcrumb *);
+
+/// This block can be used to modify the breadcrumb with access to the hint before it is added.
+/// If set, this takes precedence over @c beforeBreadcrumb.
+@property (nonatomic, copy, nullable) SentryObjCBreadcrumb *_Nullable (^beforeBreadcrumbWithHint)
+    (SentryObjCBreadcrumb *, SentryObjCHint *);
 
 /// This block can be used to modify or drop a log before it will be sent. Return @c nil to drop the
 /// log.

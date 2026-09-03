@@ -280,7 +280,81 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(1, scopeBreadcrumbs?.count)
         XCTAssertEqual(crumbMessage, scopeBreadcrumbs?.first?["message"] as? String)
     }
-    
+
+    // MARK: - beforeBreadcrumbWithHint
+
+    func testBeforeBreadcrumbWithHint_shouldReceiveHint() {
+        // -- Arrange --
+        var receivedHint: Hint?
+        let options = fixture.options
+        options.beforeBreadcrumbWithHint = { crumb, hint in
+            receivedHint = hint
+            return crumb
+        }
+        let hub = fixture.getSut(options)
+
+        // -- Act --
+        hub.add(fixture.crumb)
+
+        // -- Assert --
+        XCTAssertNotNil(receivedHint)
+        XCTAssertNotNil(hub.scope.serialize()["breadcrumbs"])
+    }
+
+    func testBeforeBreadcrumbWithHint_shouldTakePrecedenceOverBeforeBreadcrumb() {
+        // -- Arrange --
+        var beforeBreadcrumbCalled = false
+        var beforeBreadcrumbWithHintCalled = false
+        let options = fixture.options
+        options.beforeBreadcrumb = { crumb in
+            beforeBreadcrumbCalled = true
+            return crumb
+        }
+        options.beforeBreadcrumbWithHint = { crumb, _ in
+            beforeBreadcrumbWithHintCalled = true
+            return crumb
+        }
+        let hub = fixture.getSut(options)
+
+        // -- Act --
+        hub.add(fixture.crumb)
+
+        // -- Assert --
+        XCTAssertTrue(beforeBreadcrumbWithHintCalled)
+        XCTAssertFalse(beforeBreadcrumbCalled)
+    }
+
+    func testBeforeBreadcrumbWithHint_whenReturnsNil_shouldDropBreadcrumb() {
+        // -- Arrange --
+        let options = fixture.options
+        options.beforeBreadcrumbWithHint = { _, _ in nil }
+        let hub = fixture.getSut(options)
+
+        // -- Act --
+        hub.add(fixture.crumb)
+
+        // -- Assert --
+        XCTAssertNil(hub.scope.serialize()["breadcrumbs"])
+    }
+
+    func testBeforeBreadcrumb_whenWithHintIsNil_shouldFallBack() {
+        // -- Arrange --
+        var beforeBreadcrumbCalled = false
+        let options = fixture.options
+        options.beforeBreadcrumb = { crumb in
+            beforeBreadcrumbCalled = true
+            return crumb
+        }
+        let hub = fixture.getSut(options)
+
+        // -- Act --
+        hub.add(fixture.crumb)
+
+        // -- Assert --
+        XCTAssertTrue(beforeBreadcrumbCalled)
+        XCTAssertNotNil(hub.scope.serialize()["breadcrumbs"])
+    }
+
     func testAddUserToTheScope() throws {
         let client = SentryClientInternal(
             options: fixture.options,

@@ -23,7 +23,9 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
             "effectiveOrgId", // @_spi(Private) - internal computed property, not a user-facing option
             "enableMetrics", // Promoted to GA in https://github.com/getsentry/sentry-cocoa/pull/7843; docs update pending
             "beforeSendMetric", // Promoted to GA in https://github.com/getsentry/sentry-cocoa/pull/7843; docs update pending
-            "maxFeatureFlags" // Docs update pending
+            "maxFeatureFlags", // Docs update pending
+            "beforeSendWithHint", // Deprecated in favor of adding hint to beforeSend in v10
+            "beforeBreadcrumbWithHint" // Deprecated in favor of adding hint to beforeBreadcrumb in v10
         ]
 
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK

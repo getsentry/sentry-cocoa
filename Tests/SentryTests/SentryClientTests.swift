@@ -1563,6 +1563,140 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual([], actual.threads)
     }
 
+    // MARK: - beforeSendWithHint
+
+    func testBeforeSendWithHint_whenCaptureError_shouldReceiveOriginalError() throws {
+        // -- Arrange --
+        let error = NSError(domain: "test", code: 42)
+        var receivedHint: Hint?
+        let sut = fixture.getSut(configureOptions: { options in
+            options.beforeSendWithHint = { event, hint in
+                receivedHint = hint
+                return event
+            }
+        })
+
+        // -- Act --
+        sut.capture(error: error, scope: Scope())
+
+        // -- Assert --
+        let hint = try XCTUnwrap(receivedHint)
+        let originalError = try XCTUnwrap(hint.originalError as NSError?)
+        XCTAssertEqual(originalError.domain, "test")
+        XCTAssertEqual(originalError.code, 42)
+        XCTAssertNil(hint.originalException)
+    }
+
+    func testBeforeSendWithHint_whenCaptureException_shouldReceiveOriginalException() throws {
+        // -- Arrange --
+        let exception = NSException(name: .genericException, reason: "test reason")
+        var receivedHint: Hint?
+        let sut = fixture.getSut(configureOptions: { options in
+            options.beforeSendWithHint = { event, hint in
+                receivedHint = hint
+                return event
+            }
+        })
+
+        // -- Act --
+        sut.capture(exception: exception, scope: Scope())
+
+        // -- Assert --
+        let hint = try XCTUnwrap(receivedHint)
+        XCTAssertEqual(hint.originalException, exception)
+        XCTAssertNil(hint.originalError)
+    }
+
+    func testBeforeSendWithHint_whenCaptureMessage_shouldReceiveEmptyHint() throws {
+        // -- Arrange --
+        var receivedHint: Hint?
+        let sut = fixture.getSut(configureOptions: { options in
+            options.beforeSendWithHint = { event, hint in
+                receivedHint = hint
+                return event
+            }
+        })
+
+        // -- Act --
+        sut.capture(message: fixture.messageAsString)
+
+        // -- Assert --
+        let hint = try XCTUnwrap(receivedHint)
+        XCTAssertNil(hint.originalError)
+        XCTAssertNil(hint.originalException)
+    }
+
+    func testBeforeSendWithHint_shouldTakePrecedenceOverBeforeSend() throws {
+        // -- Arrange --
+        var beforeSendCalled = false
+        var beforeSendWithHintCalled = false
+        let sut = fixture.getSut(configureOptions: { options in
+            options.beforeSend = { event in
+                beforeSendCalled = true
+                return event
+            }
+            options.beforeSendWithHint = { event, _ in
+                beforeSendWithHintCalled = true
+                return event
+            }
+        })
+
+        // -- Act --
+        sut.capture(message: fixture.messageAsString)
+
+        // -- Assert --
+        XCTAssertTrue(beforeSendWithHintCalled)
+        XCTAssertFalse(beforeSendCalled)
+    }
+
+    func testBeforeSend_whenWithHintIsNil_shouldStillWork() throws {
+        // -- Arrange --
+        var beforeSendCalled = false
+        let sut = fixture.getSut(configureOptions: { options in
+            options.beforeSend = { event in
+                beforeSendCalled = true
+                return event
+            }
+        })
+
+        // -- Act --
+        sut.capture(message: fixture.messageAsString)
+
+        // -- Assert --
+        XCTAssertTrue(beforeSendCalled)
+    }
+
+    func testBeforeSendWithHint_whenReturnsNil_shouldDropEvent() {
+        // -- Arrange --
+        let sut = fixture.getSut(configureOptions: { options in
+            options.beforeSendWithHint = { _, _ in nil }
+        })
+
+        // -- Act --
+        sut.capture(message: fixture.messageAsString)
+
+        // -- Assert --
+        assertNoEventSent()
+    }
+
+    func testBeforeSendWithHint_whenAddingAttachments_shouldIncludeInSentEnvelope() throws {
+        // -- Arrange --
+        let hintAttachment = Attachment(data: Data("hint-data".utf8), filename: "hint.txt")
+        let sut = fixture.getSut(configureOptions: { options in
+            options.beforeSendWithHint = { event, hint in
+                hint.attachments = [hintAttachment]
+                return event
+            }
+        })
+
+        // -- Act --
+        sut.capture(event: Event())
+
+        // -- Assert --
+        let sentAttachments = fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.attachments ?? []
+        XCTAssertTrue(sentAttachments.contains(hintAttachment))
+    }
+
     func testBeforeSendTransaction_ReadTags() throws {
         // Arrange
         let transaction = fixture.transaction

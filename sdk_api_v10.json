@@ -15624,6 +15624,553 @@
             "children": [
               {
                 "kind": "TypeNominal",
+                "name": "Hint",
+                "printedName": "Sentry.Hint",
+                "usr": "c:@M@Sentry@objc(cs)SentryHint"
+              }
+            ],
+            "declAttributes": [
+              "Dynamic",
+              "ObjC",
+              "Override"
+            ],
+            "declKind": "Constructor",
+            "init_kind": "Designated",
+            "kind": "Constructor",
+            "mangledName": "$s6Sentry4HintCACycfc",
+            "moduleName": "Sentry",
+            "name": "init",
+            "objc_name": "init",
+            "overriding": true,
+            "printedName": "init()",
+            "usr": "c:@M@Sentry@objc(cs)SentryHint(im)init"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Error",
+                "printedName": "any Swift.Error",
+                "usr": "s:s5ErrorP"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Hint",
+                "printedName": "Sentry.Hint",
+                "usr": "c:@M@Sentry@objc(cs)SentryHint"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "Constructor",
+            "init_kind": "Convenience",
+            "kind": "Constructor",
+            "mangledName": "$s6Sentry4HintC5errorACs5Error_p_tcfc",
+            "moduleName": "Sentry",
+            "name": "init",
+            "objc_name": "initWithError:",
+            "printedName": "init(error:)",
+            "usr": "c:@M@Sentry@objc(cs)SentryHint(im)initWithError:"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Hint",
+                "printedName": "Sentry.Hint",
+                "usr": "c:@M@Sentry@objc(cs)SentryHint"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "NSException",
+                "printedName": "Foundation.NSException",
+                "usr": "c:objc(cs)NSException"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "Constructor",
+            "init_kind": "Convenience",
+            "kind": "Constructor",
+            "mangledName": "$s6Sentry4HintC9exceptionACSo11NSExceptionC_tcfc",
+            "moduleName": "Sentry",
+            "name": "init",
+            "objc_name": "initWithException:",
+            "printedName": "init(exception:)",
+            "usr": "c:@M@Sentry@objc(cs)SentryHint(im)initWithException:"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Any?",
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "ObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry4HintC9hintValue6forKeyypSgSS_tF",
+            "moduleName": "Sentry",
+            "name": "hintValue",
+            "objc_name": "hintValueForKey:",
+            "printedName": "hintValue(forKey:)",
+            "usr": "c:@M@Sentry@objc(cs)SentryHint(im)hintValueForKey:"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "ObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry4HintC06removeB5Value6forKeyySS_tF",
+            "moduleName": "Sentry",
+            "name": "removeHintValue",
+            "objc_name": "removeHintValueForKey:",
+            "printedName": "removeHintValue(forKey:)",
+            "usr": "c:@M@Sentry@objc(cs)SentryHint(im)removeHintValueForKey:"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "ProtocolComposition",
+                "printedName": "Any"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "ObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry4HintC03setB5Value_6forKeyyyp_SStF",
+            "moduleName": "Sentry",
+            "name": "setHintValue",
+            "printedName": "setHintValue(_:forKey:)",
+            "usr": "c:@M@Sentry@objc(cs)SentryHint(im)setHintValue:forKey:"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Attachment",
+                        "printedName": "Sentry.Attachment",
+                        "usr": "c:objc(cs)SentryAttachment"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[Sentry.Attachment]",
+                    "usr": "s:Sa"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry4HintC11attachmentsSaySo0A10AttachmentCGvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "c:@M@Sentry@objc(cs)SentryHint(im)attachments"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Attachment",
+                        "printedName": "Sentry.Attachment",
+                        "usr": "c:objc(cs)SentryAttachment"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[Sentry.Attachment]",
+                    "usr": "s:Sa"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry4HintC11attachmentsSaySo0A10AttachmentCGvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "objc_name": "setAttachments:",
+                "printedName": "Set()",
+                "usr": "c:@M@Sentry@objc(cs)SentryHint(im)setAttachments:"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Attachment",
+                    "printedName": "Sentry.Attachment",
+                    "usr": "c:objc(cs)SentryAttachment"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[Sentry.Attachment]",
+                "usr": "s:Sa"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "kind": "Var",
+            "mangledName": "$s6Sentry4HintC11attachmentsSaySo0A10AttachmentCGvp",
+            "moduleName": "Sentry",
+            "name": "attachments",
+            "printedName": "attachments",
+            "usr": "c:@M@Sentry@objc(cs)SentryHint(py)attachments"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Error",
+                        "printedName": "any Swift.Error",
+                        "usr": "s:s5ErrorP"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "(any Swift.Error)?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry4HintC13originalErrors0D0_pSgvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "c:@M@Sentry@objc(cs)SentryHint(im)originalError"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Error",
+                        "printedName": "any Swift.Error",
+                        "usr": "s:s5ErrorP"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "(any Swift.Error)?",
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry4HintC13originalErrors0D0_pSgvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "objc_name": "setOriginalError:",
+                "printedName": "Set()",
+                "usr": "c:@M@Sentry@objc(cs)SentryHint(im)setOriginalError:"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Error",
+                    "printedName": "any Swift.Error",
+                    "usr": "s:s5ErrorP"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "(any Swift.Error)?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "kind": "Var",
+            "mangledName": "$s6Sentry4HintC13originalErrors0D0_pSgvp",
+            "moduleName": "Sentry",
+            "name": "originalError",
+            "printedName": "originalError",
+            "usr": "c:@M@Sentry@objc(cs)SentryHint(py)originalError"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "NSException",
+                        "printedName": "Foundation.NSException",
+                        "usr": "c:objc(cs)NSException"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Foundation.NSException?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry4HintC17originalExceptionSo11NSExceptionCSgvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "c:@M@Sentry@objc(cs)SentryHint(im)originalException"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "NSException",
+                        "printedName": "Foundation.NSException",
+                        "usr": "c:objc(cs)NSException"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Foundation.NSException?",
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry4HintC17originalExceptionSo11NSExceptionCSgvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "objc_name": "setOriginalException:",
+                "printedName": "Set()",
+                "usr": "c:@M@Sentry@objc(cs)SentryHint(im)setOriginalException:"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "NSException",
+                    "printedName": "Foundation.NSException",
+                    "usr": "c:objc(cs)NSException"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Foundation.NSException?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "kind": "Var",
+            "mangledName": "$s6Sentry4HintC17originalExceptionSo11NSExceptionCSgvp",
+            "moduleName": "Sentry",
+            "name": "originalException",
+            "printedName": "originalException",
+            "usr": "c:@M@Sentry@objc(cs)SentryHint(py)originalException"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss7CVarArgP",
+            "name": "CVarArg",
+            "printedName": "CVarArg",
+            "usr": "s:s7CVarArgP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss28CustomDebugStringConvertibleP",
+            "name": "CustomDebugStringConvertible",
+            "printedName": "CustomDebugStringConvertible",
+            "usr": "s:s28CustomDebugStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss23CustomStringConvertibleP",
+            "name": "CustomStringConvertible",
+            "printedName": "CustomStringConvertible",
+            "usr": "s:s23CustomStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$sSQ",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$sSH",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH"
+          },
+          {
+            "kind": "Conformance",
+            "name": "NSObjectProtocol",
+            "printedName": "NSObjectProtocol",
+            "usr": "c:objc(pl)NSObject"
+          }
+        ],
+        "declAttributes": [
+          "Final",
+          "ObjC",
+          "ObjCMembers"
+        ],
+        "declKind": "Class",
+        "inheritsConvenienceInitializers": true,
+        "kind": "TypeDecl",
+        "mangledName": "$s6Sentry4HintC",
+        "moduleName": "Sentry",
+        "name": "Hint",
+        "objc_name": "SentryHint",
+        "printedName": "Hint",
+        "superclassNames": [
+          "ObjectiveC.NSObject"
+        ],
+        "superclassUsr": "c:objc(cs)NSObject",
+        "usr": "c:@M@Sentry@objc(cs)SentryHint"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
                 "name": "HttpStatusCodeRange",
                 "printedName": "Sentry.HttpStatusCodeRange",
                 "usr": "c:objc(cs)SentryHttpStatusCodeRange"
@@ -20766,6 +21313,209 @@
                             "children": [
                               {
                                 "kind": "TypeNominal",
+                                "name": "Breadcrumb",
+                                "printedName": "Sentry.Breadcrumb",
+                                "usr": "c:objc(cs)SentryBreadcrumb"
+                              }
+                            ],
+                            "kind": "TypeNominal",
+                            "name": "Optional",
+                            "printedName": "Sentry.Breadcrumb?",
+                            "usr": "s:Sq"
+                          },
+                          {
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Breadcrumb",
+                                "printedName": "Sentry.Breadcrumb",
+                                "usr": "c:objc(cs)SentryBreadcrumb"
+                              },
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Hint",
+                                "printedName": "Sentry.Hint",
+                                "usr": "c:@M@Sentry@objc(cs)SentryHint"
+                              }
+                            ],
+                            "kind": "TypeNominal",
+                            "name": "Tuple",
+                            "printedName": "(Sentry.Breadcrumb, Sentry.Hint)"
+                          }
+                        ],
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "(Sentry.Breadcrumb, Sentry.Hint) -> Sentry.Breadcrumb?"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "((Sentry.Breadcrumb, Sentry.Hint) -> Sentry.Breadcrumb?)?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry7OptionsC24beforeBreadcrumbWithHintSo0aD0CSgAF_AA0F0CtcSgvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)beforeBreadcrumbWithHint"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Breadcrumb",
+                                "printedName": "Sentry.Breadcrumb",
+                                "usr": "c:objc(cs)SentryBreadcrumb"
+                              }
+                            ],
+                            "kind": "TypeNominal",
+                            "name": "Optional",
+                            "printedName": "Sentry.Breadcrumb?",
+                            "usr": "s:Sq"
+                          },
+                          {
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Breadcrumb",
+                                "printedName": "Sentry.Breadcrumb",
+                                "usr": "c:objc(cs)SentryBreadcrumb"
+                              },
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Hint",
+                                "printedName": "Sentry.Hint",
+                                "usr": "c:@M@Sentry@objc(cs)SentryHint"
+                              }
+                            ],
+                            "kind": "TypeNominal",
+                            "name": "Tuple",
+                            "printedName": "(Sentry.Breadcrumb, Sentry.Hint)"
+                          }
+                        ],
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "(Sentry.Breadcrumb, Sentry.Hint) -> Sentry.Breadcrumb?"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "((Sentry.Breadcrumb, Sentry.Hint) -> Sentry.Breadcrumb?)?",
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry7OptionsC24beforeBreadcrumbWithHintSo0aD0CSgAF_AA0F0CtcSgvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setBeforeBreadcrumbWithHint:"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Breadcrumb",
+                            "printedName": "Sentry.Breadcrumb",
+                            "usr": "c:objc(cs)SentryBreadcrumb"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Optional",
+                        "printedName": "Sentry.Breadcrumb?",
+                        "usr": "s:Sq"
+                      },
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Breadcrumb",
+                            "printedName": "Sentry.Breadcrumb",
+                            "usr": "c:objc(cs)SentryBreadcrumb"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Hint",
+                            "printedName": "Sentry.Hint",
+                            "usr": "c:@M@Sentry@objc(cs)SentryHint"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Tuple",
+                        "printedName": "(Sentry.Breadcrumb, Sentry.Hint)"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.Breadcrumb, Sentry.Hint) -> Sentry.Breadcrumb?"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "((Sentry.Breadcrumb, Sentry.Hint) -> Sentry.Breadcrumb?)?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasInitialValue",
+              "HasStorage",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry7OptionsC24beforeBreadcrumbWithHintSo0aD0CSgAF_AA0F0CtcSgvp",
+            "moduleName": "Sentry",
+            "name": "beforeBreadcrumbWithHint",
+            "printedName": "beforeBreadcrumbWithHint",
+            "usr": "c:@M@Sentry@objc(cs)SentryOptions(py)beforeBreadcrumbWithHint"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
                                 "name": "Bool",
                                 "printedName": "Swift.Bool",
                                 "usr": "s:Sb"
@@ -21933,6 +22683,209 @@
             "name": "beforeSendTransaction",
             "printedName": "beforeSendTransaction",
             "usr": "c:@M@Sentry@objc(cs)SentryOptions(py)beforeSendTransaction"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Event",
+                                "printedName": "Sentry.Event",
+                                "usr": "c:objc(cs)SentryEvent"
+                              }
+                            ],
+                            "kind": "TypeNominal",
+                            "name": "Optional",
+                            "printedName": "Sentry.Event?",
+                            "usr": "s:Sq"
+                          },
+                          {
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Event",
+                                "printedName": "Sentry.Event",
+                                "usr": "c:objc(cs)SentryEvent"
+                              },
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Hint",
+                                "printedName": "Sentry.Hint",
+                                "usr": "c:@M@Sentry@objc(cs)SentryHint"
+                              }
+                            ],
+                            "kind": "TypeNominal",
+                            "name": "Tuple",
+                            "printedName": "(Sentry.Event, Sentry.Hint)"
+                          }
+                        ],
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "(Sentry.Event, Sentry.Hint) -> Sentry.Event?"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "((Sentry.Event, Sentry.Hint) -> Sentry.Event?)?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry7OptionsC18beforeSendWithHintSo0A5EventCSgAF_AA0F0CtcSgvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)beforeSendWithHint"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Event",
+                                "printedName": "Sentry.Event",
+                                "usr": "c:objc(cs)SentryEvent"
+                              }
+                            ],
+                            "kind": "TypeNominal",
+                            "name": "Optional",
+                            "printedName": "Sentry.Event?",
+                            "usr": "s:Sq"
+                          },
+                          {
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Event",
+                                "printedName": "Sentry.Event",
+                                "usr": "c:objc(cs)SentryEvent"
+                              },
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Hint",
+                                "printedName": "Sentry.Hint",
+                                "usr": "c:@M@Sentry@objc(cs)SentryHint"
+                              }
+                            ],
+                            "kind": "TypeNominal",
+                            "name": "Tuple",
+                            "printedName": "(Sentry.Event, Sentry.Hint)"
+                          }
+                        ],
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "(Sentry.Event, Sentry.Hint) -> Sentry.Event?"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "((Sentry.Event, Sentry.Hint) -> Sentry.Event?)?",
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry7OptionsC18beforeSendWithHintSo0A5EventCSgAF_AA0F0CtcSgvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setBeforeSendWithHint:"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Event",
+                            "printedName": "Sentry.Event",
+                            "usr": "c:objc(cs)SentryEvent"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Optional",
+                        "printedName": "Sentry.Event?",
+                        "usr": "s:Sq"
+                      },
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Event",
+                            "printedName": "Sentry.Event",
+                            "usr": "c:objc(cs)SentryEvent"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Hint",
+                            "printedName": "Sentry.Hint",
+                            "usr": "c:@M@Sentry@objc(cs)SentryHint"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Tuple",
+                        "printedName": "(Sentry.Event, Sentry.Hint)"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.Event, Sentry.Hint) -> Sentry.Event?"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "((Sentry.Event, Sentry.Hint) -> Sentry.Event?)?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasInitialValue",
+              "HasStorage",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry7OptionsC18beforeSendWithHintSo0A5EventCSgAF_AA0F0CtcSgvp",
+            "moduleName": "Sentry",
+            "name": "beforeSendWithHint",
+            "printedName": "beforeSendWithHint",
+            "usr": "c:@M@Sentry@objc(cs)SentryOptions(py)beforeSendWithHint"
           },
           {
             "accessors": [

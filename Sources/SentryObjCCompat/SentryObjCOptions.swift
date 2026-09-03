@@ -114,6 +114,19 @@ import Foundation
         }
     }
 
+    @objc public var beforeSendWithHint: ((SentryObjCEvent, SentryObjCHint) -> SentryObjCEvent?)? {
+        didSet {
+            if let beforeSendWithHint = beforeSendWithHint {
+                wrapped.beforeSendWithHint = { event, hint in
+                    guard let result = beforeSendWithHint(SentryObjCEvent(event), SentryObjCHint(hint)) else { return nil }
+                    return result.wrapped
+                }
+            } else {
+                wrapped.beforeSendWithHint = nil
+            }
+        }
+    }
+
     #if SDK_V10
     @objc public var beforeSendTransaction: ((SentryObjCTransaction) -> SentryObjCTransaction?)? {
         didSet {
@@ -160,6 +173,19 @@ import Foundation
                 }
             } else {
                 wrapped.beforeBreadcrumb = nil
+            }
+        }
+    }
+
+    @objc public var beforeBreadcrumbWithHint: ((SentryObjCBreadcrumb, SentryObjCHint) -> SentryObjCBreadcrumb?)? {
+        didSet {
+            if let beforeBreadcrumbWithHint = beforeBreadcrumbWithHint {
+                wrapped.beforeBreadcrumbWithHint = { crumb, hint in
+                    guard let result = beforeBreadcrumbWithHint(SentryObjCBreadcrumb(crumb), SentryObjCHint(hint)) else { return nil }
+                    return result.wrapped
+                }
+            } else {
+                wrapped.beforeBreadcrumbWithHint = nil
             }
         }
     }

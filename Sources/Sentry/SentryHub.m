@@ -662,9 +662,14 @@ NS_ASSUME_NONNULL_BEGIN
         return;
     }
     SentryBreadcrumb *_Nullable nullableCrumb = crumb;
-    SentryBeforeBreadcrumbCallback callback = [options beforeBreadcrumb];
-    if (callback != nil) {
-        nullableCrumb = callback(crumb);
+    if (options.beforeBreadcrumbWithHint != nil) {
+        SentryHint *hint = [[SentryHint alloc] init];
+        nullableCrumb = options.beforeBreadcrumbWithHint(crumb, hint);
+    } else {
+        SentryBeforeBreadcrumbCallback callback = [options beforeBreadcrumb];
+        if (callback != nil) {
+            nullableCrumb = callback(crumb);
+        }
     }
     if (nullableCrumb == nil) {
         SENTRY_LOG_DEBUG(@"Discarded Breadcrumb in `beforeBreadcrumb`");

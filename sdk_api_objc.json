@@ -432,6 +432,12 @@
   },
   {
     "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCHint",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
     "name": "SentryObjCHttpStatusCodeRange",
     "super": "NSObject",
     "has_inner": true
@@ -913,6 +919,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "attachments",
+    "parent": "SentryObjCHint",
+    "returnType": "NSArray<SentryObjCAttachment *> * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "attributes",
     "parent": "SentryObjCLog",
     "returnType": "NSDictionary<NSString *,SentryObjCAttribute *> * _Nonnull",
@@ -955,6 +968,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "beforeBreadcrumbWithHint",
+    "parent": "SentryObjCOptions",
+    "returnType": "SentryObjCBreadcrumb * _Nullable (^ _Nullable)(SentryObjCBreadcrumb * _Nonnull, SentryObjCHint * _Nonnull)",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "beforeCaptureScreenshot",
     "parent": "SentryObjCOptions",
     "returnType": "BOOL (^ _Nullable)(SentryObjCEvent * _Nonnull)",
@@ -993,6 +1013,13 @@
     "name": "beforeSendSpan",
     "parent": "SentryObjCOptions",
     "returnType": "SentryObjCSpan * _Nullable (^ _Nullable)(SentryObjCSpan * _Nonnull)",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "beforeSendWithHint",
+    "parent": "SentryObjCOptions",
+    "returnType": "SentryObjCEvent * _Nullable (^ _Nullable)(SentryObjCEvent * _Nonnull, SentryObjCHint * _Nonnull)",
     "instance": true
   },
   {
@@ -2733,6 +2760,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "hintValueForKey:",
+    "parent": "SentryObjCHint",
+    "returnType": "id _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "hour",
     "parent": "SentryObjCMeasurementUnit",
     "returnType": "SentryObjCMeasurementUnit * _Nonnull",
@@ -2980,6 +3014,13 @@
     "kind": "ObjCMethodDecl",
     "name": "init",
     "parent": "SentryObjCGeo",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "parent": "SentryObjCHint",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
@@ -3384,8 +3425,22 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "initWithError:",
+    "parent": "SentryObjCHint",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "initWithEvent:",
     "parent": "SentryObjCEnvelopeItem",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "initWithException:",
+    "parent": "SentryObjCHint",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
@@ -4784,6 +4839,20 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "originalError",
+    "parent": "SentryObjCHint",
+    "returnType": "NSError * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "originalException",
+    "parent": "SentryObjCHint",
+    "returnType": "NSException * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "outlineStyle",
     "parent": "SentryObjCUserFeedbackThemeConfiguration",
     "returnType": "SentryObjCUserFeedbackFormElementOutlineStyle * _Nonnull",
@@ -5066,6 +5135,13 @@
     "kind": "ObjCMethodDecl",
     "name": "removeExtraForKey:",
     "parent": "SentryObjCScope",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "removeHintValueForKey:",
+    "parent": "SentryObjCHint",
     "returnType": "void",
     "instance": true
   },
@@ -5477,6 +5553,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setAttachments:",
+    "parent": "SentryObjCHint",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setAttribute:forKey:",
     "parent": "SentryObjCLog",
     "returnType": "void",
@@ -5519,6 +5602,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setBeforeBreadcrumbWithHint:",
+    "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setBeforeCaptureScreenshot:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
@@ -5555,6 +5645,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setBeforeSendSpan:",
+    "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setBeforeSendWithHint:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
     "instance": true
@@ -6345,6 +6442,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setHintValue:forKey:",
+    "parent": "SentryObjCHint",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setHybridSDKMode:",
     "parent": "SentryObjCInternalAppStartApi",
     "returnType": "void",
@@ -6851,6 +6955,20 @@
     "kind": "ObjCMethodDecl",
     "name": "setOrigin:",
     "parent": "SentryObjCSpanContext",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setOriginalError:",
+    "parent": "SentryObjCHint",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setOriginalException:",
+    "parent": "SentryObjCHint",
     "returnType": "void",
     "instance": true
   },
@@ -8817,6 +8935,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "attachments",
+    "parent": "SentryObjCHint",
+    "type": "NSArray<SentryObjCAttachment *> * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "attributes",
     "parent": "SentryObjCLog",
     "type": "NSDictionary<NSString *,SentryObjCAttribute *> * _Nonnull"
@@ -8844,6 +8968,12 @@
     "name": "beforeBreadcrumb",
     "parent": "SentryObjCOptions",
     "type": "SentryObjCBreadcrumb * _Nullable (^ _Nullable)(SentryObjCBreadcrumb * _Nonnull)"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "beforeBreadcrumbWithHint",
+    "parent": "SentryObjCOptions",
+    "type": "SentryObjCBreadcrumb * _Nullable (^ _Nullable)(SentryObjCBreadcrumb * _Nonnull, SentryObjCHint * _Nonnull)"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -8880,6 +9010,12 @@
     "name": "beforeSendSpan",
     "parent": "SentryObjCOptions",
     "type": "SentryObjCSpan * _Nullable (^ _Nullable)(SentryObjCSpan * _Nonnull)"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "beforeSendWithHint",
+    "parent": "SentryObjCOptions",
+    "type": "SentryObjCEvent * _Nullable (^ _Nullable)(SentryObjCEvent * _Nonnull, SentryObjCHint * _Nonnull)"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -10398,6 +10534,18 @@
     "name": "origin",
     "parent": "SentryObjCSpanContext",
     "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "originalError",
+    "parent": "SentryObjCHint",
+    "type": "NSError * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "originalException",
+    "parent": "SentryObjCHint",
+    "type": "NSException * _Nullable"
   },
   {
     "kind": "ObjCPropertyDecl",
