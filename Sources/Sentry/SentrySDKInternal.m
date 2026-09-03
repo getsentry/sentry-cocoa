@@ -240,6 +240,9 @@ static BOOL sdkStarted;
         sdkStarted = YES;
     }
 
+    // Set options after claiming start so an ignored overlapping start cannot overwrite them.
+    [self setStartOptions:options];
+
     [SentrySDKLogSupport configure:options.debug diagnosticLevel:options.diagnosticLevel];
 
     // We accept the tradeoff that the SDK might not be fully initialized directly after

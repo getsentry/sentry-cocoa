@@ -116,15 +116,16 @@ extension SentrySDK {
             SentrySDKLog.warning("The Sentry SDK has already been started. Ignoring this call to start. Call SentrySDK.close() before starting again.")
             return
         }
-        // We save the options before checking for Xcode preview because
-        // we will use this options in the preview
-        setStart(with: options)
+
         guard SentryDependencyContainer.sharedInstance().processInfoWrapper
             .environment["XCODE_RUNNING_FOR_PREVIEWS"] != "1" else {
             // Using NSLog because SentryLog was not initialized yet.
             NSLog("[SENTRY] [WARNING] SentrySDK not started. Running from Xcode preview.")
+            // We save the options because we will use them in the preview.
+            setStart(with: options)
             return
         }
+
         SentrySDKInternal.start(options: options)
     }
 

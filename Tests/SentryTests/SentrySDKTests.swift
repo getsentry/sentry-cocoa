@@ -244,6 +244,7 @@ class SentrySDKTests: XCTestCase {
         }
 
         XCTAssertFalse(SentrySDK.isEnabled)
+        XCTAssertFalse(SentrySDKInternal.hasStarted)
     }
 
     func testStart_whenCalledTwiceWithoutClose_shouldNotReinitialize() {
