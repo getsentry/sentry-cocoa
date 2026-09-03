@@ -244,7 +244,6 @@ class SentrySDKTests: XCTestCase {
         }
 
         XCTAssertFalse(SentrySDK.isEnabled)
-        XCTAssertFalse(SentrySDKInternal.hasStarted)
     }
 
     func testStart_whenCalledTwiceWithoutClose_shouldReinitialize() {
@@ -262,7 +261,6 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(secondOptions, SentrySDK.startOption)
         XCTAssertEqual(secondOptions.dsn, SentrySDKInternal.currentHub().getClient()?.options.dsn)
         XCTAssertTrue(SentrySDK.isEnabled)
-        XCTAssertTrue(SentrySDKInternal.hasStarted)
     }
 
     func testStart_whenCalledTwiceWithoutClose_shouldLogWarning() throws {
@@ -325,14 +323,12 @@ class SentrySDKTests: XCTestCase {
         SentrySDK.close()
 
         XCTAssertFalse(SentrySDK.isEnabled)
-        XCTAssertFalse(SentrySDKInternal.hasStarted)
 
         // -- Act --
         SentrySDK.start(options: fixture.options)
 
         // -- Assert --
         XCTAssertTrue(SentrySDK.isEnabled)
-        XCTAssertTrue(SentrySDKInternal.hasStarted)
         XCTAssertEqual(2, SentrySDKInternal.startInvocations)
         XCTAssertEqual(fixture.options, SentrySDK.startOption)
     }

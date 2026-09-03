@@ -42,11 +42,6 @@ SENTRY_NO_INIT
  */
 @property (class, nonatomic, readonly) BOOL isEnabled;
 
-/**
- * Indicates whether @c start has been called without a matching @c close.
- */
-@property (class, nonatomic, readonly) BOOL hasStarted;
-
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 /**
  * API to control session replay

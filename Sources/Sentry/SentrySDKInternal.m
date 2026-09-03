@@ -138,13 +138,6 @@ static BOOL sdkStarted;
     return localCurrentHub != nil && [localCurrentHub getClient] != nil;
 }
 
-+ (BOOL)hasStarted
-{
-    @synchronized(currentHubLock) {
-        return sdkStarted;
-    }
-}
-
 + (BOOL)lastRunStatusCalled
 {
     return lastRunStatusCalled;

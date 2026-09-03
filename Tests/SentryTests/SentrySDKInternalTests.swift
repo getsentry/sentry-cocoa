@@ -395,7 +395,6 @@ class SentrySDKInternalTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(2, SentrySDKInternal.startInvocations)
-        XCTAssertTrue(SentrySDKInternal.hasStarted)
         XCTAssertEqual(secondOptions.dsn, SentrySDKInternal.currentHub().getClient()?.options.dsn)
         XCTAssertEqual(secondOptions.dsn, SentrySDKInternal.options?.dsn)
     }
