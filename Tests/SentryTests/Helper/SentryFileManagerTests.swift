@@ -101,10 +101,12 @@ class SentryFileManagerTests: XCTestCase {
     
     private var fixture: Fixture!
     private var sut: SentryFileManager!
+    private var originalDateProvider: SentryCurrentDateProvider!
     
     override func setUpWithError() throws {
         try super.setUpWithError()
         fixture = try Fixture()
+        originalDateProvider = SentryDependencyContainer.sharedInstance().dateProvider
         SentryDependencyContainer.sharedInstance().dateProvider = fixture.currentDateProvider
         
         sut = try fixture.getSut()
@@ -124,6 +126,7 @@ class SentryFileManagerTests: XCTestCase {
         #if !SDK_V10
         sut.deleteAbnormalSession()
         #endif // !SDK_V10
+        SentryDependencyContainer.sharedInstance().dateProvider = originalDateProvider
     }
     
     func testInitDoesNotOverrideDirectories() throws {
