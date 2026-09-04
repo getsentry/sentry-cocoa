@@ -1,7 +1,7 @@
 @import SentryObjC;
 @import XCTest;
 
-#if SENTRY_OBJC_HAS_UIKIT
+#if SENTRY_OBJC_HAS_UIKIT && !TARGET_OS_VISION
 
 @interface SentryObjCInternalViewHierarchyApiIntegrationTests : XCTestCase
 @end
