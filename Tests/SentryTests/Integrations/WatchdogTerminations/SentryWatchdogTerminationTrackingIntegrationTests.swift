@@ -78,13 +78,13 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
             )
         }
 
-#if !SDK_V10
         @available(*, deprecated, message: "Testing deprecated watchdog terminations V2 option")
-        func getSut(enableNewHangTracker: Bool) -> SentryWatchdogTerminationTrackingIntegration<SentryDependencyContainer>? {
-            options.experimental.enableWatchdogTerminationsV2 = enableNewHangTracker
+        func getSutUsingNewHangTracker() -> SentryWatchdogTerminationTrackingIntegration<SentryDependencyContainer>? {
+#if !SDK_V10
+            options.experimental.enableWatchdogTerminationsV2 = true
+#endif
             return getSut()
         }
-#endif
     }
 
     private var fixture: Fixture!
@@ -344,7 +344,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
     func testANRDetected_NewHangTracker_UpdatesAppStateToTrue() throws {
         // -- Arrange --
         fixture.sysctl.internalIsBeingTraced = false
-        let sut = try XCTUnwrap(fixture.getSut(enableNewHangTracker: true))
+        let sut = try XCTUnwrap(fixture.getSutUsingNewHangTracker())
 
         // -- Act --
         sut.hangStarted()
@@ -373,7 +373,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
     func testANRStopped_NewHangTracker_UpdatesAppStateToFalse() throws {
         // -- Arrange --
         fixture.sysctl.internalIsBeingTraced = false
-        let sut = try XCTUnwrap(fixture.getSut(enableNewHangTracker: true))
+        let sut = try XCTUnwrap(fixture.getSutUsingNewHangTracker())
         sut.hangStarted()
 
         // -- Act --
