@@ -1,6 +1,6 @@
 #import "AppDelegate.h"
 @import CoreData;
-@import SentrySwift;
+@import SentryObjC;
 @import SentrySampleShared;
 
 @implementation AppDelegate
@@ -11,17 +11,17 @@
     NSArray<NSString *> *args = NSProcessInfo.processInfo.arguments;
     NSDictionary<NSString *, NSString *> *env = NSProcessInfo.processInfo.environment;
 
-    [SentrySDK startWithConfigureOptions:^(SentryOptions *options) {
+    [SentryObjCSDK startWithConfigureOptions:^(SentryObjCOptions *options) {
         options.dsn = @"https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557";
         options.debug = YES;
         options.attachScreenshot = YES;
         options.attachViewHierarchy = YES;
-#if SDK_V10
-        [SentrySampleDataCollectionConfiguration configureWithOptions:options];
-#endif // SDK_V10
+        [SentrySampleDataCollectionConfiguration configureWithObjCOptions:options];
 
         if (env[@"--io.sentry.tracesSamplerValue"] != nil) {
-            options.tracesSampler = ^(SentrySamplingContext *_Nonnull samplingContext) {
+            options.tracesSampler
+                = ^NSNumber *_Nullable(SentryObjCSamplingContext *_Nonnull samplingContext)
+            {
                 return @([env[@"--io.sentry.tracesSamplerValue"] doubleValue]);
             };
         }
@@ -32,11 +32,11 @@
         }
 
         if (![args containsObject:@"--io.sentry.profiling.disable-ui-profiling"]) {
-            options.configureProfiling = ^(SentryProfileOptions *_Nonnull profiling) {
+            options.configureProfiling = ^(SentryObjCProfileOptions *_Nonnull profiling) {
                 profiling.lifecycle =
                     [args containsObject:@"--io.sentry.profiling.profile-lifecycle-manual"]
-                    ? SentryProfileLifecycleManual
-                    : SentryProfileLifecycleTrace;
+                    ? SentryObjCProfileLifecycleManual
+                    : SentryObjCProfileLifecycleTrace;
 
                 profiling.sessionSampleRate = 1.f;
                 if (env[@"--io.sentry.profiling.profile-session-sample-rate"] != nil) {
@@ -46,74 +46,54 @@
             };
         }
 
-        SentryHttpStatusCodeRange *httpStatusCodeRange =
-            [[SentryHttpStatusCodeRange alloc] initWithMin:400 max:599];
+        SentryObjCHttpStatusCodeRange *httpStatusCodeRange =
+            [[SentryObjCHttpStatusCodeRange alloc] initWithMin:400 max:599];
         options.failedRequestStatusCodes = @[ httpStatusCodeRange ];
 
-        options.sessionReplay = [[SentryReplayOptions alloc]
-            initWithSessionSampleRate:0
-                    onErrorSampleRate:1
-                          maskAllText:true
-                        maskAllImages:true
-                 enableViewRendererV2:![args containsObject:@"--disable-view-renderer-v2"]
-              enableFastViewRendering:![args containsObject:@"--disable-fast-view-rendering"]];
+        SentryObjCReplayOptions *sessionReplay = [[SentryObjCReplayOptions alloc] init];
+        sessionReplay.sessionSampleRate = 0;
+        sessionReplay.onErrorSampleRate = 1;
+        sessionReplay.maskAllText = YES;
+        sessionReplay.maskAllImages = YES;
+        sessionReplay.enableViewRendererV2 = ![args containsObject:@"--disable-view-renderer-v2"];
+        sessionReplay.enableFastViewRendering
+            = ![args containsObject:@"--disable-fast-view-rendering"];
+        options.sessionReplay = sessionReplay;
 
         options.enableFileManagerSwizzling
             = ![args containsObject:@"--disable-filemanager-swizzling"];
 
-        options.initialScope = ^(SentryScope *scope) {
-            [scope setTagValue:@"" forKey:@""];
+        options.initialScope = ^SentryObjCScope *(SentryObjCScope *scope) {
             [GitInjector objc_injectGitInformationInto:scope];
             return scope;
         };
 
-        if (@available(iOS 13.0, *)) {
-            options.configureUserFeedback = ^(SentryUserFeedbackConfiguration *_Nonnull config) {
-                BOOL shouldConfigureDeprecatedWidget =
-                    [args containsObject:@"--io.sentry.feedback.no-auto-inject-widget"];
-                UIOffset layoutOffset = UIOffsetMake(25, 75);
-                if (shouldConfigureDeprecatedWidget) {
-                    config.configureWidget = ^(
-                        SentryUserFeedbackWidgetConfiguration *_Nonnull widget) {
-                        widget.autoInject = NO;
-                        widget.layoutUIOffset = layoutOffset;
-                        if (![args containsObject:@"--io.sentry.feedback.all-defaults"]) {
-                            widget.labelText = @"Report Jank";
-                            if ([args containsObject:@"--io.sentry.feedback.no-widget-text"]) {
-                                widget.labelText = nil;
-                            }
-                            if ([args containsObject:@"--io.sentry.feedback.no-widget-icon"]) {
-                                widget.showIcon = NO;
-                            }
-                        }
-                    };
-                }
-                if ([args containsObject:@"--io.sentry.feedback.all-defaults"]) {
-                    return;
-                }
-                config.useShakeGesture = YES;
-                config.showFormForScreenshots = YES;
-                config.configureForm = ^(SentryUserFeedbackFormConfiguration *_Nonnull uiForm) {
-                    uiForm.formTitle = @"Jank Report";
-                    uiForm.submitButtonLabel = @"Report that jank";
-                    uiForm.messagePlaceholder
-                        = @"Describe the nature of the jank. Its essence, if you will.";
-                    uiForm.useSentryUser = YES;
-                };
-                config.configureTheme = ^(SentryUserFeedbackThemeConfiguration *_Nonnull theme) {
-                    theme.fontFamily = @"ChalkboardSE-Regular";
-                    theme.outlineStyle =
-                        [[SentryFormElementOutlineStyle alloc] initWithColor:UIColor.purpleColor
-                                                                cornerRadius:10
-                                                                outlineWidth:4];
-                };
-                config.onSubmitSuccess = ^(NSDictionary<NSString *, id> *_Nonnull info) {
-                    NSLog(@"Feedback submitted successfully: %@", info);
-                };
-                config.onSubmitError = ^(
-                    NSError *_Nonnull error) { NSLog(@"Failed to submit feedback: %@", error); };
+        options.configureUserFeedback = ^(SentryObjCUserFeedbackConfiguration *_Nonnull config) {
+            if ([args containsObject:@"--io.sentry.feedback.all-defaults"]) {
+                return;
+            }
+            config.useShakeGesture = YES;
+            config.showFormForScreenshots = YES;
+            config.configureForm = ^(SentryObjCUserFeedbackFormConfiguration *_Nonnull uiForm) {
+                uiForm.formTitle = @"Jank Report";
+                uiForm.submitButtonLabel = @"Report that jank";
+                uiForm.messagePlaceholder
+                    = @"Describe the nature of the jank. Its essence, if you will.";
+                uiForm.useSentryUser = YES;
             };
-        }
+            config.configureTheme = ^(SentryObjCUserFeedbackThemeConfiguration *_Nonnull theme) {
+                theme.fontFamily = @"ChalkboardSE-Regular";
+                theme.outlineStyle = [[SentryObjCUserFeedbackFormElementOutlineStyle alloc]
+                    initWithColor:UIColor.purpleColor
+                     cornerRadius:10
+                     outlineWidth:4];
+            };
+            config.onSubmitSuccess = ^(NSDictionary<NSString *, id> *_Nonnull info) {
+                NSLog(@"Feedback submitted successfully: %@", info);
+            };
+            config.onSubmitError
+                = ^(NSError *_Nonnull error) { NSLog(@"Failed to submit feedback: %@", error); };
+        };
     }];
 
     return YES;

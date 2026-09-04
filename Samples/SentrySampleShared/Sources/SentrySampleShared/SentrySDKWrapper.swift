@@ -1,6 +1,9 @@
 // swiftlint:disable file_length function_body_length
 
 import SentrySwift
+#if SDK_V10
+import SentryObjC
+#endif // SDK_V10
 
 #if !os(macOS)
 import UIKit
@@ -82,6 +85,49 @@ public struct SentrySDKWrapper {
     }
 
 #if SDK_V10
+    public func configureDataCollection(_ options: SentryObjCOptions) {
+        options.dataCollection.userInfo = !SentrySDKOverrides.DataCollection.disableUserInfo.boolValue
+        options.dataCollection.cookies = objcDataCollectionBehavior(
+            mode: SentrySDKOverrides.DataCollection.cookiesMode.stringValue,
+            terms: SentrySDKOverrides.DataCollection.cookiesTerms.stringValue
+        )
+        options.dataCollection.httpHeaders.request = objcDataCollectionBehavior(
+            mode: SentrySDKOverrides.DataCollection.httpRequestHeadersMode.stringValue,
+            terms: SentrySDKOverrides.DataCollection.httpRequestHeadersTerms.stringValue
+        )
+        options.dataCollection.httpHeaders.response = objcDataCollectionBehavior(
+            mode: SentrySDKOverrides.DataCollection.httpResponseHeadersMode.stringValue,
+            terms: SentrySDKOverrides.DataCollection.httpResponseHeadersTerms.stringValue
+        )
+        if SentrySDKOverrides.Special.disableEverything.boolValue {
+            options.dataCollection.httpBodies = []
+        } else if let httpBodies = SentrySDKOverrides.DataCollection.httpBodies.stringValue {
+            options.dataCollection.httpBodies = SentryObjCDataCollectionHttpBodyType(
+                rawValue: UInt(dataCollectionHttpBodies(commaSeparatedValues(httpBodies)).rawValue)
+            )
+        }
+        options.dataCollection.urlQueryParams = objcDataCollectionBehavior(
+            mode: SentrySDKOverrides.DataCollection.urlQueryParamsMode.stringValue,
+            terms: SentrySDKOverrides.DataCollection.urlQueryParamsTerms.stringValue
+        )
+    }
+
+    private func objcDataCollectionBehavior(
+        mode: String?,
+        terms: String?
+    ) -> SentryObjCDataCollectionKeyValueCollectionBehavior {
+        guard !SentrySDKOverrides.Special.disableEverything.boolValue else {
+            return .off()
+        }
+        let values = commaSeparatedValues(terms)
+        switch mode {
+        case "off": return .off()
+        case "allowList": return .allowList(withTerms: values)
+        case "denyList", nil: return values.isEmpty ? .denyList() : .denyList(withTerms: values)
+        default: return .denyList()
+        }
+    }
+
     private func dataCollectionBehavior(
         mode: String?,
         terms: String?
@@ -201,7 +247,9 @@ public struct SentrySDKWrapper {
         options.enableUserInteractionTracing = !isBenchmarking && !SentrySDKOverrides.UIEventTracking.disableTracing.boolValue
 
         options.enablePreWarmedAppStartTracing = !isBenchmarking && !SentrySDKOverrides.AppStart.disablePrewarmedTracing.boolValue
+#if !SDK_V10
         options.enableStandaloneAppStartTracing = SentrySDKOverrides.AppStart.enableStandaloneTracing.boolValue
+#endif // !SDK_V10
         options.enableUIViewControllerTracing = !SentrySDKOverrides.UIViewControllerTracing.disable.boolValue
         options.experimental.enableUIViewControllerInitSwizzling = SentrySDKOverrides.UIViewControllerTracing.enableInitSwizzling.boolValue
 
@@ -415,6 +463,7 @@ public struct SentrySDKWrapper {
 extension SentrySDKWrapper {
     var layoutOffset: UIOffset { UIOffset(horizontal: 25, vertical: 75) }
 
+#if !SDK_V10
     func configureFeedbackWidget(config: SentryUserFeedbackWidgetConfiguration) {
         config.autoInject = false
         config.layoutUIOffset = layoutOffset
@@ -438,6 +487,7 @@ extension SentrySDKWrapper {
         }
         config.showIcon = !SentrySDKOverrides.Feedback.noWidgetIcon.boolValue
     }
+#endif // !SDK_V10
 
     func configureFeedbackForm(config: SentryUserFeedbackFormConfiguration) {
         config.useSentryUser = !SentrySDKOverrides.Feedback.noUserInjection.boolValue
@@ -656,13 +706,24 @@ extension SentrySDKWrapper {
 }
 #endif // !os(tvOS) && !os(watchOS) && !os(visionOS)
 
-#if SDK_V10
+/// ObjC-facing hook so sample AppDelegates can apply override-driven data collection.
+/// Always compiled so `@import SentrySampleShared` exposes the class even when the
+/// generated Swift header cannot import `SentryObjCOptions`.
 @objcMembers public final class SentrySampleDataCollectionConfiguration: NSObject {
+#if SDK_V10
     @objc(configureWithOptions:)
     public static func configure(options: Options) {
         SentrySDKWrapper.shared.configureDataCollection(options)
     }
-}
 #endif // SDK_V10
+
+    @objc(configureWithObjCOptions:)
+    public static func configure(objcOptions: AnyObject) {
+#if SDK_V10
+        guard let options = objcOptions as? SentryObjCOptions else { return }
+        SentrySDKWrapper.shared.configureDataCollection(options)
+#endif // SDK_V10
+    }
+}
 
 // swiftlint:enable file_length function_body_length

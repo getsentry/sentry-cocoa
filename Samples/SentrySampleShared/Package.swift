@@ -15,13 +15,17 @@ let package = Package(
             targets: ["SentrySampleUITestShared"]
         )
     ],
+    traits: [
+        .init(name: "V10", description: "Enable SDK V10 API changes.")
+    ],
     dependencies: [
         .package(
             name: "Sentry",
             path: "../..",
             traits: [
                 .defaults,
-                "_SentryInternalUITestSupport"
+                "_SentryInternalUITestSupport",
+                .trait(name: "V10", condition: .when(traits: ["V10"]))
             ]
         )
     ],
@@ -29,12 +33,19 @@ let package = Package(
         .target(
             name: "SentrySampleShared",
             dependencies: [
-                .product(name: "SentrySPM", package: "Sentry")
+                .product(name: "SentrySPM", package: "Sentry"),
+                .product(name: "SentryObjC", package: "Sentry", condition: .when(traits: ["V10"]))
             ],
             path: "Sources/SentrySampleShared",
             resources: [
                 .process("LoremIpsum.txt"),
                 .process("screenshot.png")
+            ],
+            cSettings: [
+                .define("SDK_V10", to: "1", .when(traits: ["V10"]))
+            ],
+            swiftSettings: [
+                .define("SDK_V10", .when(traits: ["V10"]))
             ]
         ),
         .target(

@@ -1,7 +1,6 @@
 #import "ViewController.h"
 #import "NoARCCrash.h"
 
-@import SentrySwift;
 @import SentryObjC;
 @import SentrySampleShared;
 
@@ -16,28 +15,28 @@
     [super viewDidLoad];
 
     // Do any additional setup after loading the view.
-    [SentrySDK configureScope:^(SentryScope *_Nonnull scope) {
+    [SentryObjCSDK configureScope:^(SentryObjCScope *_Nonnull scope) {
         [scope setEnvironment:@"debug"];
         [scope setTagValue:@"objc" forKey:@"language"];
         [scope setExtraValue:[NSString stringWithFormat:@"%@", self]
                       forKey:@"currentViewController"];
-        SentryUser *user = [[SentryUser alloc] initWithUserId:@"1"];
+        SentryObjCUser *user = [[SentryObjCUser alloc] initWithUserId:@"1"];
         user.email = @"tony@example.com";
         [scope setUser:user];
 
         NSString *path = [[NSBundle mainBundle] pathForResource:@"Tongariro" ofType:@"jpg"];
-        [scope addAttachment:[[SentryAttachment alloc] initWithPath:path
-                                                           filename:@"Tongariro.jpg"
-                                                        contentType:@"image/jpeg"]];
+        [scope addAttachment:[[SentryObjCAttachment alloc] initWithPath:path
+                                                               filename:@"Tongariro.jpg"
+                                                            contentType:@"image/jpeg"]];
 
-        [scope addAttachment:[[SentryAttachment alloc]
+        [scope addAttachment:[[SentryObjCAttachment alloc]
                                  initWithData:[@"hello" dataUsingEncoding:NSUTF8StringEncoding]
                                      filename:@"log.txt"]];
     }];
     // Also works
-    SentryUser *user = [[SentryUser alloc] initWithUserId:@"1"];
+    SentryObjCUser *user = [[SentryObjCUser alloc] initWithUserId:@"1"];
     user.email = @"tony@example.com";
-    [SentrySDK setUser:user];
+    [SentryObjCSDK setUser:user];
 
     // Load an image just for HTTP swizzling
     NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
@@ -69,14 +68,14 @@
 
 - (IBAction)addBreadcrumb:(id)sender
 {
-    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] init];
+    SentryObjCBreadcrumb *crumb = [[SentryObjCBreadcrumb alloc] init];
     crumb.message = @"tapped addBreadcrumb";
-    [SentrySDK addBreadcrumb:crumb];
+    [SentryObjCSDK addBreadcrumb:crumb];
 }
 
 - (IBAction)captureMessage:(id)sender
 {
-    SentryId *eventId = [SentrySDK captureMessage:@"Yeah captured a message"];
+    SentryObjCId *eventId = [SentryObjCSDK captureMessage:@"Yeah captured a message"];
     // Returns eventId in case of successful processed event
     // otherwise emptyId
     NSLog(@"%@", eventId);
@@ -85,22 +84,22 @@
 - (IBAction)captureUserFeedbackV2:(id)sender
 {
     NSData *data = [NSData dataWithContentsOfURL:BundleResourceProvider.screenshotURL];
-    NSArray<SentryAttachment *> *attachments = nil;
+    NSArray<SentryObjCAttachment *> *attachments = nil;
     if (data != nil) {
-        attachments = @[ [[SentryAttachment alloc] initWithData:data filename:@"screenshot.png"] ];
+        attachments = @[ [[SentryObjCAttachment alloc] initWithData:data
+                                                           filename:@"screenshot.png"] ];
     }
-    SentryId *errorEventID =
-        [SentrySDK captureError:[NSError errorWithDomain:@"test-error.user-feedback.iOS-ObjectiveC"
-                                                    code:1
-                                                userInfo:nil]];
-    SentryFeedback *feedback = [[SentryFeedback alloc]
-          initWithMessage:@"It broke again on iOS-ObjectiveC. I don't know why, but this happens."
-                     name:@"John Me"
-                    email:@"john@me.com"
-                   source:SentryFeedbackSourceCustom
-        associatedEventId:errorEventID
-              attachments:attachments];
-    [SentrySDK captureFeedback:feedback];
+    SentryObjCId *errorEventID = [SentryObjCSDK
+        captureError:[NSError errorWithDomain:@"test-error.user-feedback.iOS-ObjectiveC"
+                                         code:1
+                                     userInfo:nil]];
+    [SentryObjCSDK captureFeedbackWithMessage:
+            @"It broke again on iOS-ObjectiveC. I don't know why, but this happens."
+                                         name:@"John Me"
+                                        email:@"john@me.com"
+                                       source:SentryObjCFeedbackSourceCustom
+                            associatedEventId:errorEventID
+                                  attachments:attachments];
 }
 
 - (IBAction)captureError:(id)sender
@@ -109,14 +108,14 @@
         [[NSError alloc] initWithDomain:@"SampleErrorDomain"
                                    code:0
                                userInfo:@{ NSLocalizedDescriptionKey : @"Object does not exist" }];
-    [SentrySDK captureError:error
-             withScopeBlock:^(SentryScope *_Nonnull scope) {
-                 // Changes in here will only be captured for this event
-                 // The scope in this callback is a clone of the current scope
-                 // It contains all data but mutations only influence the event
-                 // being sent
-                 [scope setTagValue:@"value" forKey:@"myTag"];
-             }];
+    [SentryObjCSDK captureError:error
+                 withScopeBlock:^(SentryObjCScope *_Nonnull scope) {
+                     // Changes in here will only be captured for this event
+                     // The scope in this callback is a clone of the current scope
+                     // It contains all data but mutations only influence the event
+                     // being sent
+                     [scope setTagValue:@"value" forKey:@"myTag"];
+                 }];
 }
 
 - (IBAction)captureException:(id)sender
@@ -125,19 +124,19 @@
                                                         reason:@"User clicked the button"
                                                       userInfo:nil];
 
-    SentryScope *scope = [[SentryScope alloc] init];
-    [scope setLevel:kSentryLevelFatal];
+    SentryObjCScope *scope = [[SentryObjCScope alloc] init];
+    [scope setLevel:SentryObjCLevelFatal];
     // !!!: By explicity just passing the scope, only the data in this scope object will be added to
     // the event; the global scope (calls to configureScope) will be ignored. If you do that, be
     // careful–a lot of useful info is lost. If you just want to mutate what's in the scope use the
     // callback, see: captureError.
-    [SentrySDK captureException:exception withScope:scope];
+    [SentryObjCSDK captureException:exception withScope:scope];
 }
 
 - (IBAction)captureTransaction:(id)sender
 {
-    __block id<SentrySpan> fakeTransaction = [SentrySDK startTransactionWithName:@"Some Transaction"
-                                                                       operation:@"some operation"];
+    __block SentryObjCSpan *fakeTransaction =
+        [SentryObjCSDK startTransactionWithName:@"Some Transaction" operation:@"some operation"];
 
     dispatch_after(
         dispatch_time(DISPATCH_TIME_NOW, (int64_t)(arc4random_uniform(100) + 400 * NSEC_PER_MSEC)),
@@ -146,7 +145,7 @@
 
 - (IBAction)crash:(id)sender
 {
-    [SentrySDK crash];
+    [SentryObjCSDK crash];
 }
 
 - (IBAction)sigsevCrash:(id)sender

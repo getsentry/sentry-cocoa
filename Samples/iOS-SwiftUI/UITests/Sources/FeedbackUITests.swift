@@ -2,6 +2,7 @@ import SentrySampleShared
 import XCTest
 
 final class FeedbackUITests: XCTestCase {
+#if !SDK_V10
     func testWidgetDisplayInSwiftUIApp() throws {
         let app = XCUIApplication()
         app.launchArguments.append(contentsOf: [
@@ -25,4 +26,5 @@ final class FeedbackUITests: XCTestCase {
         app.buttons["io.sentry.feedback.form.cancel"].tap()
         XCTAssertTrue(app.otherElements["Report a Bug"].exists)
     }
+#endif // !SDK_V10
 }
