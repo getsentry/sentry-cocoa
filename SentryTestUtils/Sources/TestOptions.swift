@@ -1,5 +1,5 @@
+@_spi(Private) @testable import Sentry
 import Foundation
-import Sentry
 
 public extension Options {
     
@@ -9,7 +9,9 @@ public extension Options {
         enableAutoPerformanceTracing = false
         enableCrashHandler = false
         swiftAsyncStacktraces = false
-        appHangTimeoutInterval = 0
+        #if !SDK_V10
+        enableAppHangTrackingValue = false
+        #endif // !SDK_V10
         enableNetworkTracking = false
         enableNetworkBreadcrumbs = false
         enableCaptureFailedRequests = false
