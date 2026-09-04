@@ -91,6 +91,7 @@ final class SentrySystemEventBreadcrumbs: NSObject {
         initScreenshotObserver()
         initTimezoneObserver()
         initSignificantTimeChangeObserver()
+        initSystemClockDidChangeObserver()
     }
 
     private func unsubscribeFromSystemEvents() {
@@ -102,6 +103,7 @@ final class SentrySystemEventBreadcrumbs: NSObject {
         notificationCenterWrapper.removeObserver(self, name: UIApplication.userDidTakeScreenshotNotification, object: nil)
         notificationCenterWrapper.removeObserver(self, name: UIApplication.significantTimeChangeNotification, object: nil)
         notificationCenterWrapper.removeObserver(self, name: NSNotification.Name.NSSystemTimeZoneDidChange, object: nil)
+        notificationCenterWrapper.removeObserver(self, name: NSNotification.Name.NSSystemClockDidChange, object: nil)
         #if os(iOS)
         notificationCenterWrapper.removeObserver(self, name: UIDevice.batteryLevelDidChangeNotification, object: nil)
         notificationCenterWrapper.removeObserver(self, name: UIDevice.batteryStateDidChangeNotification, object: nil)
@@ -345,6 +347,37 @@ final class SentrySystemEventBreadcrumbs: NSObject {
 
         // We don't add the timezone here, because we already add it in timezoneEventTriggered.
         crumb.setData(value: "SIGNIFICANT_TIME_CHANGE", key: "action")
+
+        delegate?.add(crumb)
+    }
+
+    // MARK: - System Clock Observer
+
+    private func initSystemClockDidChangeObserver() {
+        notificationCenterWrapper.addObserver(
+            self,
+            selector: #selector(systemClockDidChangeTriggered(_:)),
+            name: NSNotification.Name.NSSystemClockDidChange,
+            object: nil
+        )
+    }
+
+    /**
+     * The system posts this notification when the system clock changes, for example, due to a
+     * manual adjustment in Settings or a network time sync. Unlike
+     * @c UIApplication.significantTimeChangeNotification, which covers midnight rollovers, carrier
+     * time updates, and daylight saving transitions, this notification specifically flags
+     * discontinuous jumps in the wall clock. Because spans measure duration from wall-clock
+     * timestamps, this is the signal that best explains anomalous span durations caused by clock
+     * drift.
+     *
+     * @see
+     * https://developer.apple.com/documentation/foundation/nsnotification/name/1408393-nssystemclockdidchange
+     */
+    @objc private func systemClockDidChangeTriggered(_ notification: Notification) {
+        let crumb = Breadcrumb(level: .info, category: "device.event")
+        crumb.type = "system"
+        crumb.setData(value: "SYSTEM_CLOCK_CHANGE", key: "action")
 
         delegate?.add(crumb)
     }
