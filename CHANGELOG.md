@@ -12,6 +12,7 @@
 
 ### Features
 
+- Add a `device.event` breadcrumb (`SYSTEM_CLOCK_CHANGE`) when the system clock changes, for example due to a manual time change or NTP sync (#8946)
 - Add manual Session Replay controls through `SentrySDK.replay`. (#8868)
   - Explicit `start()` and `startBuffering()` calls bypass the configured replay sample rates; sampling still controls automatic startup.
   - `start()` starts a full-session replay and does nothing if one is already recording.
