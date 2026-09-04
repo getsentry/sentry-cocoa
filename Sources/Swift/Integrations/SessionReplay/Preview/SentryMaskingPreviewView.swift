@@ -74,12 +74,11 @@ import UIKit
         setNeedsPreviewUpdate()
     }
 
-    #if !os(visionOS)
+    @available(visionOS, deprecated: 1.0)
     public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
         setNeedsPreviewUpdate()
     }
-    #endif
 
     private func setNeedsPreviewUpdate() {
         guard superview != nil, window != nil else { return }
