@@ -465,7 +465,7 @@ class SentrySDKInternalTests: XCTestCase {
 
         let hub = SentrySDKInternal.currentHub()
         var expectedIntegrationCount = 2 // SwiftAsync plus the always-installed Metrics integration.
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         expectedIntegrationCount += 1
 #endif
         XCTAssertEqual(expectedIntegrationCount, hub.installedIntegrations().count)

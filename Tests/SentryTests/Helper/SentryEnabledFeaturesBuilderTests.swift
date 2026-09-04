@@ -20,7 +20,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         XCTAssertEqual(features, ["captureFailedRequests", "swiftAsyncStacktraces", "dataSwizzling", "metrics"])
     #endif
 #else
-    #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+    #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         XCTAssertEqual(features, ["captureFailedRequests", "experimentalViewRenderer", "dataSwizzling", "metrics"])
     #else
         XCTAssertEqual(features, ["captureFailedRequests", "dataSwizzling", "metrics"])
