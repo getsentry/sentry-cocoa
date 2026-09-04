@@ -6,7 +6,7 @@ internal import Sentry
 #endif
 import Foundation
 
-#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS) || os(visionOS))
+#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS))
 
 @objc(SentryObjCInternalViewHierarchyApi) public final class SentryObjCInternalViewHierarchyApi: NSObject {
     internal let wrapped: Box<SentryInternalViewHierarchyApi>

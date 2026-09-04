@@ -67,7 +67,6 @@ import Foundation
         SentryObjCInternalViewHierarchyApi(wrapped.value.viewHierarchy)
     }
 
-
     @objc public var replay: SentryObjCInternalReplayApi {
         SentryObjCInternalReplayApi(wrapped.value.replay)
     }

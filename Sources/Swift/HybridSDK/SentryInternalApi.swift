@@ -78,7 +78,6 @@ public struct SentryInternalApi {
     /// View hierarchy capture for hybrid SDKs.
     public let viewHierarchy: SentryInternalViewHierarchyApi
 
-
     /// Session replay for hybrid SDKs.
     public let replay: SentryInternalReplayApi
     #endif

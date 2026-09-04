@@ -763,7 +763,6 @@ protocol ViewHierarchyProviderProvider {
 
 extension SentryDependencyContainer: ViewHierarchyProviderProvider { }
 
-
 protocol SessionReplayCaptureSchedulerProvider {
     var sessionReplayCaptureScheduler: SentrySessionReplayRunLoopCaptureScheduler { get }
 }
