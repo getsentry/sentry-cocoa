@@ -153,6 +153,9 @@ extension SentryKSCrash {
                         ? nil
                         : ReportProcessingSession.cancellationError
                 }
+                // Capture already copied attachment bytes into envelope items. KSCrash will
+                // delete the report and `.ksscr` marker; the payload directory is Sentry-owned.
+                removeConsumedPayloads(from: dictionary)
                 return .success([report])
             } catch {
                 guard isPermanentProcessingError(error) else {
@@ -164,8 +167,16 @@ extension SentryKSCrash {
                 SentrySDKLog.error(
                     "Discarding unprocessable KSCrash report: \(error.localizedDescription)"
                 )
+                removeConsumedPayloads(from: dictionary)
                 return .success([])
             }
+        }
+
+        private static func removeConsumedPayloads(from report: [AnyHashable: Any]) {
+            let paths = report[SentryKSCrash.AttachmentsMonitor.attachmentsReportKey] as? [String] ?? []
+            SentryKSCrash.AttachmentsMonitor.Layout.removeConsumedPayloadDirectories(
+                forAttachmentPaths: paths
+            )
         }
 
         private static func isPermanentProcessingError(_ error: any Error) -> Bool {

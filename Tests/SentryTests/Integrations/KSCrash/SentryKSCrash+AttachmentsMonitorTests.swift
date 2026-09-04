@@ -4,11 +4,11 @@ internal import KSCrashRecordingCore
 import Foundation
 import XCTest
 
-private enum ScreenshotMonitorTestRoot {
+private enum AttachmentsMonitorTestRoot {
     nonisolated(unsafe) static var installDir: URL?
 }
 
-final class SentryKSCrashScreenshotMonitorTests: XCTestCase {
+final class SentryKSCrashAttachmentsMonitorTests: XCTestCase {
     private static let pngBytes: [UInt8] = [
         0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
         0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52,
@@ -28,11 +28,11 @@ final class SentryKSCrashScreenshotMonitorTests: XCTestCase {
         installDir = FileManager.default.temporaryDirectory
             .appendingPathComponent("kscrash-screenshot-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: installDir, withIntermediateDirectories: true)
-        ScreenshotMonitorTestRoot.installDir = installDir
+        AttachmentsMonitorTestRoot.installDir = installDir
     }
 
     override func tearDownWithError() throws {
-        ScreenshotMonitorTestRoot.installDir = nil
+        AttachmentsMonitorTestRoot.installDir = nil
         if let installDir, FileManager.default.fileExists(atPath: installDir.path) {
             try FileManager.default.removeItem(at: installDir)
         }
@@ -52,7 +52,7 @@ final class SentryKSCrashScreenshotMonitorTests: XCTestCase {
         let screenshotURL = payloadDirectory(reportID: reportID).appendingPathComponent("screenshot.png")
         XCTAssertTrue(FileManager.default.fileExists(atPath: screenshotURL.path))
         XCTAssertEqual(try Data(contentsOf: screenshotURL), Data(Self.pngBytes))
-        XCTAssertTrue(monitor.isValidMarker(at: markerURL(reportID: reportID).path))
+        XCTAssertTrue(SentryKSCrash.AttachmentsMonitor.Marker.isValid(at: markerURL(reportID: reportID)))
     }
 
     func testHandleDidWriteReport_whenProviderWritesNothing_shouldNotWriteMarker() throws {
@@ -142,7 +142,7 @@ final class SentryKSCrashScreenshotMonitorTests: XCTestCase {
         monitor.screenshotProvider = writePNGProvider()
 
         // -- Act --
-        SentryKSCrash.ScreenshotMonitor.from(monitor.api.pointee.context)?
+        SentryKSCrash.AttachmentsMonitor.from(monitor.api.pointee.context)?
             .handleDidWriteReport(reportID: reportID)
 
         // -- Assert --
@@ -151,7 +151,59 @@ final class SentryKSCrashScreenshotMonitorTests: XCTestCase {
                 atPath: payloadDirectory(reportID: reportID).appendingPathComponent("screenshot.png").path
             )
         )
-        XCTAssertTrue(monitor.isValidMarker(at: markerURL(reportID: reportID).path))
+        XCTAssertTrue(SentryKSCrash.AttachmentsMonitor.Marker.isValid(at: markerURL(reportID: reportID)))
+    }
+
+    func testRemoveConsumedPayloadDirectories_whenPathIsOwned_shouldDeletePayloadDirectory() throws {
+        // -- Arrange --
+        let reportID: Int64 = 0x11
+        let directory = payloadDirectory(reportID: reportID)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let file = directory.appendingPathComponent("screenshot.png")
+        try Data([0x01]).write(to: file)
+
+        // -- Act --
+        SentryKSCrash.AttachmentsMonitor.Layout.removeConsumedPayloadDirectories(
+            forAttachmentPaths: [file.path]
+        )
+
+        // -- Assert --
+        XCTAssertFalse(FileManager.default.fileExists(atPath: directory.path))
+    }
+
+    func testRemoveConsumedPayloadDirectories_whenMultipleFilesShareDirectory_shouldDeleteOnce() throws {
+        // -- Arrange --
+        let reportID: Int64 = 0x12
+        let directory = payloadDirectory(reportID: reportID)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let first = directory.appendingPathComponent("screenshot.png")
+        let second = directory.appendingPathComponent("screenshot-2.png")
+        try Data([0x01]).write(to: first)
+        try Data([0x02]).write(to: second)
+
+        // -- Act --
+        SentryKSCrash.AttachmentsMonitor.Layout.removeConsumedPayloadDirectories(
+            forAttachmentPaths: [first.path, second.path]
+        )
+
+        // -- Assert --
+        XCTAssertFalse(FileManager.default.fileExists(atPath: directory.path))
+    }
+
+    func testRemoveConsumedPayloadDirectories_whenPathIsUnrelated_shouldNotDelete() throws {
+        // -- Arrange --
+        let directory = installDir.appendingPathComponent("other", isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let file = directory.appendingPathComponent("screenshot.png")
+        try Data([0x01]).write(to: file)
+
+        // -- Act --
+        SentryKSCrash.AttachmentsMonitor.Layout.removeConsumedPayloadDirectories(
+            forAttachmentPaths: [file.path]
+        )
+
+        // -- Assert --
+        XCTAssertTrue(FileManager.default.fileExists(atPath: file.path))
     }
 
     // MARK: - Helpers
@@ -167,19 +219,19 @@ final class SentryKSCrashScreenshotMonitorTests: XCTestCase {
         }
     }
 
-    private func makeMonitor(reportID: Int64) throws -> SentryKSCrash.ScreenshotMonitor {
+    private func makeMonitor(reportID: Int64) throws -> SentryKSCrash.AttachmentsMonitor {
         let sidecar = markerURL(reportID: reportID)
         try FileManager.default.createDirectory(
             at: sidecar.deletingLastPathComponent(),
             withIntermediateDirectories: true
         )
 
-        let monitor = SentryKSCrash.ScreenshotMonitor()
+        let monitor = SentryKSCrash.AttachmentsMonitor()
         monitor.enabled = true
         var callbacks = KSCrash_ExceptionHandlerCallbacks()
         callbacks.getReportSidecarPath = { _, id, pathBuffer, length in
-            guard let pathBuffer, let root = ScreenshotMonitorTestRoot.installDir else { return false }
-            let path = SentryKSCrashScreenshotMonitorTests.markerURL(installDir: root, reportID: id).path
+            guard let pathBuffer, let root = AttachmentsMonitorTestRoot.installDir else { return false }
+            let path = SentryKSCrashAttachmentsMonitorTests.markerURL(installDir: root, reportID: id).path
             return path.withCString { source in
                 let needed = strlen(source) + 1
                 guard needed <= length else { return false }
@@ -192,7 +244,7 @@ final class SentryKSCrashScreenshotMonitorTests: XCTestCase {
     }
 
     private func stitchedReport(
-        _ monitor: SentryKSCrash.ScreenshotMonitor,
+        _ monitor: SentryKSCrash.AttachmentsMonitor,
         report: NSDictionary,
         reportID: Int64,
         scope: KSCrashSidecarScope

@@ -17,11 +17,15 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
         var onBeforeCaptureGate: (() -> Void)?
         var onCaptureCommitted: (() -> Void)?
         var capturedReportCount = 0
+        var processError: (any Error)?
 
         func process(
             report: [AnyHashable: Any],
             beforeCapture: @escaping () -> (any Error)?
         ) throws {
+            if let processError {
+                throw processError
+            }
             onBeforeCaptureGate?()
             if let error = beforeCapture() {
                 throw error
@@ -83,6 +87,104 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
         let processedReports = try XCTUnwrap(completionResult).get()
         XCTAssertEqual(processedReports.count, 0)
         XCTAssertEqual(try getTestClient().captureFatalEventInvocations.count, 0)
+    }
+
+    func testFilterReports_whenProcessingSucceeds_shouldDeleteOwnedPayloadDirectory() throws {
+        // -- Arrange --
+        let processor = TestReportProcessor()
+        let core = SentryKSCrash.ReportFilterCore(
+            reportProcessor: processor,
+            dispatchQueue: dispatchQueue,
+            processingSession: processingSession
+        )
+        let payload = try makeOwnedPayloadFile()
+        let report = TestReport(dictionary: [
+            SentryKSCrash.AttachmentsMonitor.attachmentsReportKey: [payload.file.path]
+        ])
+        var completionResult: Result<[TestReport], Error>?
+
+        // -- Act --
+        core.filterReports(
+            [report],
+            reportDictionary: { $0.dictionary }
+        ) { result in
+            completionResult = result
+        }
+
+        // -- Assert --
+        XCTAssertEqual(try XCTUnwrap(completionResult).get().count, 1)
+        XCTAssertEqual(processor.capturedReportCount, 1)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: payload.directory.path))
+    }
+
+    func testFilterReports_whenConversionFails_shouldDeleteOwnedPayloadDirectory() throws {
+        // -- Arrange --
+        let processor = TestReportProcessor()
+        processor.processError = NSError(
+            domain: SentryStoredCrashReportProcessorErrorDomain,
+            code: SentryStoredCrashReportProcessorError.conversionFailed.rawValue
+        )
+        let core = SentryKSCrash.ReportFilterCore(
+            reportProcessor: processor,
+            dispatchQueue: dispatchQueue,
+            processingSession: processingSession
+        )
+        let payload = try makeOwnedPayloadFile()
+        let report = TestReport(dictionary: [
+            SentryKSCrash.AttachmentsMonitor.attachmentsReportKey: [payload.file.path]
+        ])
+        var completionResult: Result<[TestReport], Error>?
+
+        // -- Act --
+        core.filterReports(
+            [report],
+            reportDictionary: { $0.dictionary }
+        ) { result in
+            completionResult = result
+        }
+
+        // -- Assert --
+        XCTAssertEqual(try XCTUnwrap(completionResult).get().count, 0)
+        XCTAssertEqual(processor.capturedReportCount, 0)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: payload.directory.path))
+    }
+
+    func testFilterReports_whenProcessingIsRetryable_shouldKeepOwnedPayloadDirectory() throws {
+        // -- Arrange --
+        let processor = TestReportProcessor()
+        processor.processError = NSError(domain: "test.retryable", code: 1)
+        let core = SentryKSCrash.ReportFilterCore(
+            reportProcessor: processor,
+            dispatchQueue: dispatchQueue,
+            processingSession: processingSession
+        )
+        let payload = try makeOwnedPayloadFile()
+        defer {
+            do {
+                try FileManager.default.removeItem(at: payload.directory)
+            } catch {
+                // Already deleted, or the test failed before the file existed.
+            }
+        }
+        let report = TestReport(dictionary: [
+            SentryKSCrash.AttachmentsMonitor.attachmentsReportKey: [payload.file.path]
+        ])
+        var completionResult: Result<[TestReport], Error>?
+
+        // -- Act --
+        core.filterReports(
+            [report],
+            reportDictionary: { $0.dictionary }
+        ) { result in
+            completionResult = result
+        }
+
+        // -- Assert --
+        guard case .failure = try XCTUnwrap(completionResult) else {
+            return XCTFail("Expected report processing to fail")
+        }
+        XCTAssertEqual(processor.capturedReportCount, 0)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: payload.file.path))
     }
 
     func testFilterReports_whenMultipleReportsProvided_shouldFailBeforeProcessing() throws {
@@ -483,6 +585,17 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
         )
 
         XCTAssertTrue(SentryKSCrash.ReportFilterCore.isStartupCrash(report))
+    }
+
+    private func makeOwnedPayloadFile() throws -> (directory: URL, file: URL) {
+        let reportIDHex = String(UUID().uuidString.replacingOccurrences(of: "-", with: "").prefix(16)).lowercased()
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("SentryAttachments", isDirectory: true)
+            .appendingPathComponent(reportIDHex, isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let file = directory.appendingPathComponent("screenshot.png")
+        try Data([0x01]).write(to: file)
+        return (directory, file)
     }
 
     private func makeEnabledOptions() -> Options {

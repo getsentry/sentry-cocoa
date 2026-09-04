@@ -12,8 +12,8 @@ import Foundation
 /// recently modified subdirectory, so it does not need to know the report ID in advance.
 enum CrashTimeAttachmentsAsserter {
     private static let pngSignature: [UInt8] = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]
-    // SATC magic + version byte 1
-    private static let markerMagic: [UInt8] = [0x53, 0x41, 0x54, 0x43]
+    // 0xDEADBEEF magic + version byte 1
+    private static let markerMagic: [UInt8] = [0xDE, 0xAD, 0xBE, 0xEF]
     private static let markerVersion: UInt8 = 1
 
     /// - Parameters:

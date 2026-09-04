@@ -65,7 +65,7 @@ extension SentryKSCrash {
 
         /// KSCrash copies plugins only on the first process-lifetime install, so this monitor
         /// must outlive any single SDK lifecycle.
-        private static let screenshotMonitor = SentryKSCrash.ScreenshotMonitor()
+        private static let attachmentsMonitor = SentryKSCrash.AttachmentsMonitor()
 
         func install(
             installPath: String,
@@ -81,7 +81,7 @@ extension SentryKSCrash {
             config.enableSwapCxaThrow = enableSwapCxaThrow
             config.enableSwiftAsyncStackTraces = enableSwiftAsyncStackTraces
             config.reportStoreConfiguration.reportCleanupPolicy = .onSuccess
-            config.plugins = [Self.screenshotMonitor]
+            config.plugins = [Self.attachmentsMonitor]
             #if SENTRY_CRASH_E2E
             config.userInfoJSON = SentryKSCrash.CrashE2ETestHook.reportUserInfo
             #endif
@@ -217,7 +217,7 @@ extension SentryKSCrash {
         }
 
         func setScreenshotProvider(_ provider: ((String) -> Void)?) {
-            Self.screenshotMonitor.screenshotProvider = provider
+            Self.attachmentsMonitor.screenshotProvider = provider
         }
     }
 }
