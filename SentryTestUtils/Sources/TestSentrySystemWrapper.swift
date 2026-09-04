@@ -1,4 +1,9 @@
+#if SWIFT_PACKAGE
+@_spi(Private) import SentrySwift
+#else
 @_spi(Private) import Sentry
+#endif
+import _SentryPrivate
 
 #if os(iOS) || os(macOS)
 
