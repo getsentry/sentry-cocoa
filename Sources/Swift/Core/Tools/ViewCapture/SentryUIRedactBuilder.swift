@@ -5,7 +5,7 @@ internal import _SentryPrivate
 import Foundation
 import ObjectiveC.NSObjCRuntime
 import UIKit
-#if os(iOS)
+#if os(iOS) || os(visionOS)
 import PDFKit
 import WebKit
 #endif
@@ -197,7 +197,7 @@ final class SentryUIRedactBuilder {
 
         Self.registerLiquidGlassLayers(options: options, into: &redactLayers)
 
-#if os(iOS)
+#if os(iOS) || os(visionOS)
         redactClasses.insert(ClassIdentifier(objcType: PDFView.self))
         redactClasses.insert(ClassIdentifier(objcType: WKWebView.self))
 
@@ -733,7 +733,7 @@ final class SentryUIRedactBuilder {
             return true
         }
 
-#if os(iOS)
+#if os(iOS) || os(visionOS)
         // UISwitch uses UIImageView internally, which can be in the list of redacted views.
         // But UISwitch is in the list of ignored class identifiers by default, because it uses
         // non-sensitive images. Therefore we want to ignore the subtree of UISwitch, unless
@@ -742,7 +742,7 @@ final class SentryUIRedactBuilder {
         if viewTypeId == "UISwitch" && containsIgnoreClassId(ClassIdentifier(classId: viewTypeId)) {
             return true
         }
-#endif // os(iOS)
+#endif // os(iOS) || os(visionOS)
 
         return false
     }
