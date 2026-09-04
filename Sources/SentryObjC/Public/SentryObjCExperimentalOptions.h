@@ -19,8 +19,15 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) BOOL enableUnhandledCPPExceptionsV2;
 
 #if !SDK_V10
-/// When enabled, the SDK uses a more efficient mechanism for detecting watchdog terminations.
-@property (nonatomic) BOOL enableWatchdogTerminationsV2;
+/**
+ * When enabled, the SDK uses a more efficient mechanism for detecting watchdog terminations.
+ * @deprecated This option will be removed in v10, where the improved watchdog termination tracking
+ * mechanism is enabled by default.
+ */
+@property (nonatomic) BOOL enableWatchdogTerminationsV2
+    __attribute__((deprecated("enableWatchdogTerminationsV2 is deprecated and will be removed in "
+                              "v10, where the improved watchdog termination tracking mechanism is "
+                              "enabled by default.")));
 #endif
 
 /**

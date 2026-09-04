@@ -22586,7 +22586,6 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC21enableAppHangTrackingSbvg",
                 "moduleName": "Sentry",
@@ -22610,15 +22609,17 @@
                   }
                 ],
                 "declAttributes": [
+                  "Available",
                   "Final",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
+                "deprecated": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC21enableAppHangTrackingSbvs",
                 "moduleName": "Sentry",
                 "name": "Set",
+                "objc_name": "setEnableAppHangTracking:",
                 "printedName": "Set()",
                 "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setEnableAppHangTracking:"
               }
@@ -22633,11 +22634,9 @@
             ],
             "declAttributes": [
               "Final",
-              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "hasStorage": true,
             "kind": "Var",
             "mangledName": "$s6Sentry7OptionsC21enableAppHangTrackingSbvp",
             "moduleName": "Sentry",
@@ -24182,7 +24181,6 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC36enableReportNonFullyBlockingAppHangsSbvg",
                 "moduleName": "Sentry",
@@ -24206,15 +24204,17 @@
                   }
                 ],
                 "declAttributes": [
+                  "Available",
                   "Final",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
+                "deprecated": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC36enableReportNonFullyBlockingAppHangsSbvs",
                 "moduleName": "Sentry",
                 "name": "Set",
+                "objc_name": "setEnableReportNonFullyBlockingAppHangs:",
                 "printedName": "Set()",
                 "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setEnableReportNonFullyBlockingAppHangs:"
               }
@@ -24229,11 +24229,9 @@
             ],
             "declAttributes": [
               "Final",
-              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "hasStorage": true,
             "kind": "Var",
             "mangledName": "$s6Sentry7OptionsC36enableReportNonFullyBlockingAppHangsSbvp",
             "moduleName": "Sentry",
@@ -38983,7 +38981,6 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A19ExperimentalOptionsC28enableWatchdogTerminationsV2Sbvg",
                 "moduleName": "Sentry",
@@ -39007,15 +39004,17 @@
                   }
                 ],
                 "declAttributes": [
+                  "Available",
                   "Final",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
+                "deprecated": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A19ExperimentalOptionsC28enableWatchdogTerminationsV2Sbvs",
                 "moduleName": "Sentry",
                 "name": "Set",
+                "objc_name": "setEnableWatchdogTerminationsV2:",
                 "printedName": "Set()",
                 "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(im)setEnableWatchdogTerminationsV2:"
               }
@@ -39030,11 +39029,9 @@
             ],
             "declAttributes": [
               "Final",
-              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "hasStorage": true,
             "kind": "Var",
             "mangledName": "$s6Sentry0A19ExperimentalOptionsC28enableWatchdogTerminationsV2Sbvp",
             "moduleName": "Sentry",
@@ -59470,10 +59467,12 @@
               }
             ],
             "declAttributes": [
+              "Available",
               "Final",
               "ObjC"
             ],
             "declKind": "Func",
+            "deprecated": true,
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
@@ -59516,10 +59515,12 @@
               }
             ],
             "declAttributes": [
+              "Available",
               "Final",
               "ObjC"
             ],
             "declKind": "Func",
+            "deprecated": true,
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",

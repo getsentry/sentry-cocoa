@@ -443,11 +443,14 @@
     // -- Arrange --
     SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
 
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     // -- Act --
     options.enableAppHangTracking = YES;
 
     // -- Assert --
     XCTAssertTrue(options.enableAppHangTracking);
+#    pragma clang diagnostic pop
 }
 #endif // !SDK_V10
 
@@ -1270,11 +1273,14 @@
     // -- Arrange --
     SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
 
+#        pragma clang diagnostic push
+#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
     // -- Act --
     options.enableReportNonFullyBlockingAppHangs = YES;
 
     // -- Assert --
     XCTAssertTrue(options.enableReportNonFullyBlockingAppHangs);
+#        pragma clang diagnostic pop
 }
 #    endif // !SDK_V10
 

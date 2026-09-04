@@ -3,6 +3,7 @@
 @_spi(Private) @testable import Sentry
 import XCTest
 
+@available(*, deprecated, message: "Testing deprecated App Hang tracking")
 class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     
     private static let dsn = TestConstants.dsnAsString(username: "SentryANRTrackingIntegrationTests")

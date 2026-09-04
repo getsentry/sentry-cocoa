@@ -667,12 +667,18 @@ extension SentrySDK {
     ///
     /// This method doesn't close the detection of app hangs. Instead, the app hang detection
     /// will ignore detected app hangs until you call `resumeAppHangTracking`.
+    /// - Deprecated: App Hang tracking can produce less relevant stack traces and false positives.
+    ///   Migrate to MetricKit for system-provided hang diagnostics.
+    @available(*, deprecated, message: "App Hang tracking is deprecated and will be removed in v10 because it can produce less relevant stack traces and false positives. Migrate to MetricKit for system-provided hang diagnostics.")
     @objc
     public static func pauseAppHangTracking() {
         SentrySDKInternal.pauseAppHangTracking()
     }
 
     /// Resumes sending detected app hangs to Sentry.
+    /// - Deprecated: App Hang tracking can produce less relevant stack traces and false positives.
+    ///   Migrate to MetricKit for system-provided hang diagnostics.
+    @available(*, deprecated, message: "App Hang tracking is deprecated and will be removed in v10 because it can produce less relevant stack traces and false positives. Migrate to MetricKit for system-provided hang diagnostics.")
     @objc
     public static func resumeAppHangTracking() {
         SentrySDKInternal.resumeAppHangTracking()
