@@ -713,9 +713,17 @@ static const uintptr_t SentryLegacyAsyncStackTraceMarker = UINTPTR_MAX - 1234;
 - (SentryMechanism *_Nullable)extractMechanismOfType:(nonnull NSString *)type
 {
     SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:type];
-    if (nil != self.exceptionContext[@"mach"]) {
-        mechanism.handled = @(NO);
 
+    // SentryCrash only writes a report from a fatal monitor, so nothing here was handled.
+    mechanism.handled = @(NO);
+
+    // The type of a fabricated mach or signal exception is a platform label, not the identity of
+    // what went wrong, so it must not split Apple crashes from the same crash on other platforms.
+    if ([type isEqualToString:@"mach"] || [type isEqualToString:@"signal"]) {
+        mechanism.synthetic = @(YES);
+    }
+
+    if (nil != self.exceptionContext[@"mach"]) {
         SentryMechanismContext *meta = [[SentryMechanismContext alloc] init];
 
         NSMutableDictionary *machException = [[NSMutableDictionary alloc] init];
