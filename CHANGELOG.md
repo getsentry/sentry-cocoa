@@ -38,6 +38,7 @@
 
 - Silence spurious ERROR log in `SentryCrashCxaThrowSwapper` for empty sections (#8915)
 - Stop recording touch events while Session Replay is paused. (#8887)
+- Synchronize access to the current trace profiler in debug and test builds. (#8936)
 
 ### Internal
 
