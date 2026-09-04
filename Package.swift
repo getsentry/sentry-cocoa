@@ -42,7 +42,6 @@ let v10SwiftSettings: [SwiftSetting] = enableV10
 let v10CSettings: [CSetting] = enableV10
     ? [.define("SDK_V10", to: "1"), .define("SENTRY_DISABLE_SENTRYCRASH_V10", to: "1")]
     : []
-// PackageDescription uses distinct C and C++ setting types, so this cannot reuse v10CSettings.
 let v10CxxSettings: [CXXSetting] = enableV10
     ? [.define("SDK_V10", to: "1"), .define("SENTRY_DISABLE_SENTRYCRASH_V10", to: "1")]
     : []
