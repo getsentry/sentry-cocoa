@@ -277,17 +277,11 @@ targets += [
 targets += [
     .target(
         name: "SentryTestUtilsObjCpp",
-        dependencies: ["SentryObjCInternal", "SentrySwift", "_SentryPrivate", "SentryHeaders"],
+        dependencies: ["SentryObjCInternal", "_SentryPrivate"],
         path: "SentryTestUtils/SourcesCPP",
         publicHeadersPath: ".",
-        cSettings: [
-            // Enable the Clang modules imported by the Objective-C++ compatibility source.
-            .unsafeFlags(["-fmodules"])
-        ] + v10CSettings,
-        cxxSettings: [
-            // Clang requires C++ module support when compiling those imports as Objective-C++.
-            .unsafeFlags(["-fmodules", "-fcxx-modules"])
-        ] + v10CxxSettings,
+        cSettings: v10CSettings,
+        cxxSettings: v10CxxSettings,
         linkerSettings: [
             // The profiler mocks use C++ standard-library types such as std::vector.
             .linkedLibrary("c++")

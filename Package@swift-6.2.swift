@@ -306,17 +306,13 @@ targets += [
 targets += [
     .target(
         name: "SentryTestUtilsObjCpp",
-        dependencies: ["SentryObjCInternal", "SentrySwift", "_SentryPrivate", "SentryHeaders"],
+        dependencies: ["SentryObjCInternal", "_SentryPrivate"],
         path: "SentryTestUtils/SourcesCPP",
         publicHeadersPath: ".",
         cSettings: [
-            // Enable the Clang modules imported by the Objective-C++ compatibility source.
-            .unsafeFlags(["-fmodules"]),
             .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
         ] + v10CSettings,
         cxxSettings: [
-            // Clang requires C++ module support when compiling those imports as Objective-C++.
-            .unsafeFlags(["-fmodules", "-fcxx-modules"]),
             .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
         ] + v10CxxSettings,
         linkerSettings: [

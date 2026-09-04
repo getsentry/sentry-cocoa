@@ -4,12 +4,7 @@
 
 #    import "SentryProfilerMocks.h"
 #    import "SentryProfilerState+ObjCpp.h"
-#    if SWIFT_PACKAGE
-@import SentryHeaders;
-@import SentrySwift;
-#    else
-#        import "SentrySwift.h"
-#    endif
+#    import "SentryProfilingSwiftHelpers.h"
 #    include <vector>
 
 using namespace std;
@@ -30,7 +25,7 @@ using namespace std;
 
     auto backtrace = mockBacktrace(threadID, threadPriority,
         [threadName cStringUsingEncoding:NSUTF8StringEncoding], backtraceAddresses);
-    backtrace.absoluteTimestamp = SentryDependencyContainer.sharedInstance.dateProvider.systemTime;
+    backtrace.absoluteTimestamp = sentry_getSystemTime();
     [state appendBacktrace:backtrace];
 }
 
