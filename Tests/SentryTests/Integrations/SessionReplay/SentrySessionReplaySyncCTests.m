@@ -14,7 +14,7 @@
 {
     NSString *path = [NSTemporaryDirectory() stringByAppendingPathComponent:NSUUID.UUID.UUIDString];
 
-    sentrySessionReplaySync_start(path.UTF8String);
+    sentrySessionReplaySync_start(path.UTF8String, 2);
     sentrySessionReplaySync_updateInfo(42, 123.5);
     sentrySessionReplaySync_writeInfo();
 
@@ -22,6 +22,7 @@
     XCTAssertTrue(sentrySessionReplaySync_readInfo(&output, path.UTF8String));
     XCTAssertEqual(output.segmentId, 42U);
     XCTAssertEqual(output.lastSegmentEnd, 123.5);
+    XCTAssertEqual(output.replayType, 2U);
     unlink(path.UTF8String);
 }
 

@@ -15,8 +15,13 @@ final class SentryMXManagerTests: XCTestCase {
     }
     
     private func givenSut(disableCrashDiagnostics: Bool = true) -> SentryMXManager {
-        let sut = SentryMXManager(inAppLogic: SentryInAppLogic(inAppIncludes: []), attachDiagnosticAsAttachment: false, disableCrashDiagnostics: disableCrashDiagnostics)
-        
+        let sut = SentryMXManager(
+            inAppLogic: SentryInAppLogic(inAppIncludes: []),
+            attachDiagnosticAsAttachment: false,
+            enabledDiagnostics: SentryMXManager.DiagnosticMetric.all
+                .subtracting(disableCrashDiagnostics ? [.crashDiagnostics] : [])
+        )
+
         return sut
     }
     

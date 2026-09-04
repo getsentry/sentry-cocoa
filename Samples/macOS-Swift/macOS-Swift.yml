@@ -10,11 +10,11 @@ configs:
   Test: debug
   TestCI: debug
   Release: release
-projectReferences:
+packages:
   Sentry:
-    path: ../../Sentry.xcodeproj
+    path: ../..
   SentrySampleShared:
-    path: ../SentrySampleShared/SentrySampleShared.xcodeproj
+    path: ../SentrySampleShared
 options:
   bundleIdPrefix: io.sentry
   defaultSourceDirectoryType: syncedFolder
@@ -56,21 +56,18 @@ targets:
         group: App/Configurations
         buildPhase: none
     dependencies:
-      - target: Sentry/Sentry
-      - target: Sentry/SentrySwiftUI
-      - target: SentrySampleShared/SentrySampleShared
+      - package: Sentry
+        product: SentrySPM
+      - package: SentrySampleShared
+        product: SentrySampleShared
     configFiles:
       Debug: App/Configurations/macOS-Swift.xcconfig
       Release: App/Configurations/macOS-Swift.xcconfig
       Test: App/Configurations/macOS-Swift.xcconfig
       TestCI: App/Configurations/macOS-Swift.xcconfig
-    postCompileScripts:
-      - script: ../Shared/inject-git-info.sh
-        name: Inject Git Information into Info.plist
-        basedOnDependencyAnalysis: false
     postBuildScripts:
-      - script: ../Shared/reset-git-info.sh
-        name: Reset Git Fields in Info.plist
+      - script: INFOPLIST_FILE="${TARGET_BUILD_DIR}/${INFOPLIST_PATH}" ../Shared/inject-git-info.sh
+        name: Inject Git Information into Info.plist
         basedOnDependencyAnalysis: false
   macOS-Swift-UITests:
     type: bundle.ui-testing
@@ -80,7 +77,8 @@ targets:
       - target: macOS-Swift-Other
       - target: macOS-Swift-Sandboxed
       - target: macOS-Swift-Sandboxed-Other
-      - target: SentrySampleShared/SentrySampleShared
+      - package: SentrySampleShared
+        product: SentrySampleShared
     sources:
       # Sources
       - path: UITests/Sources
@@ -136,21 +134,18 @@ targets:
         group: App/Configurations
         buildPhase: none
     dependencies:
-      - target: Sentry/Sentry
-      - target: Sentry/SentrySwiftUI
-      - target: SentrySampleShared/SentrySampleShared
+      - package: Sentry
+        product: SentrySPM
+      - package: SentrySampleShared
+        product: SentrySampleShared
     configFiles:
       Debug: App/Configurations/macOS-Swift-Other.xcconfig
       Release: App/Configurations/macOS-Swift-Other.xcconfig
       Test: App/Configurations/macOS-Swift-Other.xcconfig
       TestCI: App/Configurations/macOS-Swift-Other.xcconfig
-    postCompileScripts:
-      - script: ../Shared/inject-git-info.sh
-        name: Inject Git Information into Info.plist
-        basedOnDependencyAnalysis: false
     postBuildScripts:
-      - script: ../Shared/reset-git-info.sh
-        name: Reset Git Fields in Info.plist
+      - script: INFOPLIST_FILE="${TARGET_BUILD_DIR}/${INFOPLIST_PATH}" ../Shared/inject-git-info.sh
+        name: Inject Git Information into Info.plist
         basedOnDependencyAnalysis: false
   macOS-Swift-Sandboxed:
     type: application
@@ -183,21 +178,18 @@ targets:
         group: App/Configurations
         buildPhase: none
     dependencies:
-      - target: Sentry/Sentry
-      - target: Sentry/SentrySwiftUI
-      - target: SentrySampleShared/SentrySampleShared
+      - package: Sentry
+        product: SentrySPM
+      - package: SentrySampleShared
+        product: SentrySampleShared
     configFiles:
       Debug: App/Configurations/macOS-Swift-Sandboxed.xcconfig
       Release: App/Configurations/macOS-Swift-Sandboxed.xcconfig
       Test: App/Configurations/macOS-Swift-Sandboxed.xcconfig
       TestCI: App/Configurations/macOS-Swift-Sandboxed.xcconfig
-    postCompileScripts:
-      - script: ../Shared/inject-git-info.sh
-        name: Inject Git Information into Info.plist
-        basedOnDependencyAnalysis: false
     postBuildScripts:
-      - script: ../Shared/reset-git-info.sh
-        name: Reset Git Fields in Info.plist
+      - script: INFOPLIST_FILE="${TARGET_BUILD_DIR}/${INFOPLIST_PATH}" ../Shared/inject-git-info.sh
+        name: Inject Git Information into Info.plist
         basedOnDependencyAnalysis: false
   macOS-Swift-Sandboxed-Other:
     type: application
@@ -230,21 +222,18 @@ targets:
         group: App/Configurations
         buildPhase: none
     dependencies:
-      - target: Sentry/Sentry
-      - target: Sentry/SentrySwiftUI
-      - target: SentrySampleShared/SentrySampleShared
+      - package: Sentry
+        product: SentrySPM
+      - package: SentrySampleShared
+        product: SentrySampleShared
     configFiles:
       Debug: App/Configurations/macOS-Swift-Sandboxed-Other.xcconfig
       Release: App/Configurations/macOS-Swift-Sandboxed-Other.xcconfig
       Test: App/Configurations/macOS-Swift-Sandboxed-Other.xcconfig
       TestCI: App/Configurations/macOS-Swift-Sandboxed-Other.xcconfig
-    postCompileScripts:
-      - script: ../Shared/inject-git-info.sh
-        name: Inject Git Information into Info.plist
-        basedOnDependencyAnalysis: false
     postBuildScripts:
-      - script: ../Shared/reset-git-info.sh
-        name: Reset Git Fields in Info.plist
+      - script: INFOPLIST_FILE="${TARGET_BUILD_DIR}/${INFOPLIST_PATH}" ../Shared/inject-git-info.sh
+        name: Inject Git Information into Info.plist
         basedOnDependencyAnalysis: false
 schemes:
   macOS-Swift:

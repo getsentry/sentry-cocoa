@@ -10,6 +10,7 @@
 #import "SentryProfilingConditionals.h"
 #import "SentryReplayApi.h"
 #import "SentrySamplingContext.h"
+#import "SentryScope+Private.h"
 #import "SentryScope.h"
 #import "SentrySerialization.h"
 #import "SentrySpanInternal.h"
@@ -58,6 +59,7 @@ static BOOL _detectedStartUpCrash;
  */
 static NSUInteger startInvocations;
 static NSDate *_Nullable startTimestamp = nil;
+static BOOL sdkStarted;
 
 + (void)initialize
 {
@@ -65,6 +67,7 @@ static NSDate *_Nullable startTimestamp = nil;
         sentrySDKappStartMeasurementLock = [[NSObject alloc] init];
         currentHubLock = [[NSObject alloc] init];
         startInvocations = 0;
+        sdkStarted = NO;
         _detectedStartUpCrash = NO;
     }
 }
@@ -221,6 +224,18 @@ static NSDate *_Nullable startTimestamp = nil;
     (void)sentry_cxa_throw_compatibility_linker_anchor();
 #endif
 
+    BOOL alreadyStarted = NO;
+    @synchronized(currentHubLock) {
+        alreadyStarted = sdkStarted;
+        sdkStarted = YES;
+    }
+    if (alreadyStarted) {
+        SENTRY_LOG_WARN(@"The Sentry SDK has already been started. Calling start again without "
+                        @"close() may lead to undefined behavior.");
+    }
+
+    [self setStartOptions:options];
+
     [SentrySDKLogSupport configure:options.debug diagnosticLevel:options.diagnosticLevel];
 
     // We accept the tradeoff that the SDK might not be fully initialized directly after
@@ -251,8 +266,9 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentryDependencyContainer.sharedInstance
             .scopePersistentStore moveAllCurrentStateToPreviousState];
 
-    SentryScope *scope
-        = options.initialScope([[SentryScope alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs]);
+    SentryScope *scope = options.initialScope(
+        [[SentryScope alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs
+                                    maxFeatureFlags:options.maxFeatureFlags]);
 
     SENTRY_LOG_DEBUG(@"Dispatching init work required to run on main thread.");
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
@@ -619,6 +635,10 @@ static NSDate *_Nullable startTimestamp = nil;
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
         [SentryDependencyContainer reset];
+
+        @synchronized(currentHubLock) {
+            sdkStarted = NO;
+        }
     }];
     SENTRY_LOG_DEBUG(@"SDK closed!");
 }

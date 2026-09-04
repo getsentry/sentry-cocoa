@@ -15,6 +15,24 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryObjCInternalReplayApi : NSObject
 SENTRY_NO_INIT
 
+/// Starts a new replay session if Replay is inactive.
+- (void)start;
+
+/// Starts Replay in buffer mode if Replay is inactive.
+- (void)startBuffering;
+
+/// Pauses the current replay.
+- (void)pause;
+
+/// Resumes a replay paused with @c pause.
+- (void)resume;
+
+/// Flushes buffered replay data or starts a new replay session if Replay is inactive.
+- (void)flush;
+
+/// Stops the current replay.
+- (void)stop;
+
 /// Captures a replay event. Returns @c YES if the replay was captured.
 - (BOOL)capture;
 

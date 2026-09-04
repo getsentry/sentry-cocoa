@@ -1,10 +1,16 @@
-# scripts
+# Scripts
 
-> Instructions for LLM agents. Keep edits minimal (headers + bullets). Use `/agents-md` skill when editing.
+> Scope: `scripts/**`. Also follow [root instructions](../AGENTS.md).
 
-## New Scripts
+## Shell Scripts
 
-All new scripts **must** use named parameters. Positional parameters (`$1`, `$2`) are not allowed.
+- New scripts must use named `--kebab-case` parameters with short aliases, not positional parameters
+- Start scripts with `set -euo pipefail`
+- Declare defaults before `usage()` and validate required parameters after parsing
+- Document every parameter in `usage()`
+- Source `ci-utils.sh` for CI logging
+- Avoid complex heredocs and move substantial logic into an appropriate standalone script
+- Follow `scripts/sentry-xcodebuild.sh` as the named-parameter reference
 
 ### Template
 
@@ -12,27 +18,25 @@ All new scripts **must** use named parameters. Positional parameters (`$1`, `$2`
 #!/bin/bash
 set -euo pipefail
 
-# Source CI utilities for proper logging
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=./ci-utils.sh
 source "$SCRIPT_DIR/ci-utils.sh"
 
-# Parse named arguments
 PARAM_ONE=""
 PARAM_TWO="default-value"
 
 usage() {
     log_notice "Usage: $0"
-    log_notice "  --param-one <value>    Description of param one (required)"
-    log_notice "  --param-two <value>    Description of param two (default: default-value)"
+    log_notice "  -p, --param-one <value>    Description of param one (required)"
+    log_notice "  -t, --param-two <value>    Description of param two (default: default-value)"
     exit 1
 }
 
 while [[ $# -gt 0 ]]; do
     case $1 in
-        --param-one)  PARAM_ONE="$2";  shift 2 ;;
-        --param-two)  PARAM_TWO="$2";  shift 2 ;;
-        *)            usage ;;
+        -p|--param-one) PARAM_ONE="$2"; shift 2 ;;
+        -t|--param-two) PARAM_TWO="$2"; shift 2 ;;
+        *) usage ;;
     esac
 done
 
@@ -42,19 +46,7 @@ if [ -z "$PARAM_ONE" ]; then
 fi
 ```
 
-### Conventions
+## Legacy Scripts
 
-- `set -euo pipefail` at the top
-- Declare all parameters with defaults before `usage()`
-- Validate required parameters after parsing
-- Use `--kebab-case` for flag names
-- Include a `usage()` function that documents every parameter
-- Extract complex logic into separate scripts (e.g., Python) rather than heredocs
-
-### Reference
-
-See `sentry-xcodebuild.sh` for a complete example of named parameter parsing. For CI logging (grouping, notices, warnings), source `ci-utils.sh` so output works properly in GitHub Actions.
-
-### Legacy
-
-Some older scripts still use positional parameters (e.g., `build-xcframework-slice.sh`). When modifying these, migrate to named parameters if the change scope allows.
+- Do not migrate unrelated positional arguments while making a focused change
+- Migrate a legacy script to named parameters only when required by the requested change

@@ -8,11 +8,11 @@ generateEmptyDirectories: true
 configs:
   Debug: debug
   Release: release
-projectReferences:
+packages:
   Sentry:
-    path: ../../Sentry.xcodeproj
+    path: ../..
   SentrySampleShared:
-    path: ../SentrySampleShared/SentrySampleShared.xcodeproj
+    path: ../SentrySampleShared
 options:
   bundleIdPrefix: io.sentry.sentry-cocoa.samples
   defaultSourceDirectoryType: syncedFolder
@@ -36,9 +36,6 @@ targets:
           - "**/.gitkeep"
           - "**/Info.plist"
           - "**/*.entitlements"
-      - path: Shared/Headers
-        type: group
-        group: App/Shared
       - path: Shared/Data
         type: group
         group: App/Shared
@@ -57,8 +54,10 @@ targets:
         group: App/Configurations
         buildPhase: none
     dependencies:
-      - target: Sentry/Sentry
-      - target: SentrySampleShared/SentrySampleShared
+      - package: Sentry
+        product: SentrySPM
+      - package: SentrySampleShared
+        product: SentrySampleShared
       - target: iOS-SwiftUI-Widgets-WidgetExtension
       - target: iOS-SwiftUI-Widgets-LiveActivity
     configFiles:
@@ -89,8 +88,10 @@ targets:
         excludes:
           - "**/.gitkeep"
     dependencies:
-      - target: Sentry/Sentry
-      - target: SentrySampleShared/SentrySampleShared
+      - package: Sentry
+        product: SentrySPM
+      - package: SentrySampleShared
+        product: SentrySampleShared
     configFiles:
       Debug: WidgetExtension/Configurations/iOS-SwiftUI-Widgets-WidgetExtension.xcconfig
       Release: WidgetExtension/Configurations/iOS-SwiftUI-Widgets-WidgetExtension.xcconfig
@@ -122,8 +123,10 @@ targets:
         excludes:
           - "**/.gitkeep"
     dependencies:
-      - target: Sentry/Sentry
-      - target: SentrySampleShared/SentrySampleShared
+      - package: Sentry
+        product: SentrySPM
+      - package: SentrySampleShared
+        product: SentrySampleShared
     configFiles:
       Debug: LiveActivity/Configurations/iOS-SwiftUI-Widgets-LiveActivity.xcconfig
       Release: LiveActivity/Configurations/iOS-SwiftUI-Widgets-LiveActivity.xcconfig

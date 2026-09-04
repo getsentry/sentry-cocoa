@@ -1,5 +1,6 @@
 import Foundation
 
+// swiftlint:disable file_length
 //swiftlint:disable:next type_body_length
 enum EventAssertions {
     private static let binaryImageMarkerFileName = "crash-e2e-binary-images.json"
@@ -30,7 +31,7 @@ enum EventAssertions {
             firstException: firstException,
             mechanism: mechanism,
             debugImages: debugImages,
-            eventContext: dictionary(event["contexts"]),
+            event: event,
             cacheRoot: cacheRoot
         )
     }
@@ -59,7 +60,7 @@ enum EventAssertions {
                                     platform: platform, scenario: scenario)
         case .signal, .binaryImages, .managedRuntimeSignalChain, .managedRuntimePreSDKSignal,
              .managedRuntimeClosedSignal, .managedRuntimeReinitSignal, .nsException,
-             .nsExceptionSubclass, .ksCrashPerReportRetry:
+             .nsExceptionSubclass, .ksCrashPerReportRetry, .crashTimeScope:
             try assertCrashedThread(threadValues, expectedThreadID: exceptionThreadID,
                                     platform: platform, scenario: scenario)
         case .ignoredSignal:
@@ -98,11 +99,12 @@ enum EventAssertions {
                                                      firstException: [String: Any],
                                                      mechanism: [String: Any],
                                                      debugImages: [[String: Any]],
-                                                     eventContext: [String: Any],
+                                                     event: [String: Any],
                                                      cacheRoot: URL) throws {
+        let eventContext = dictionary(event["contexts"])
         switch scenario {
         case .signal, .binaryImages, .managedRuntimeSignalChain, .managedRuntimePreSDKSignal,
-             .managedRuntimeClosedSignal, .managedRuntimeReinitSignal:
+             .managedRuntimeClosedSignal, .managedRuntimeReinitSignal, .crashTimeScope:
             try assertSignalScenario(
                 scenario, firstException: firstException,
                 mechanism: mechanism,
@@ -110,34 +112,30 @@ enum EventAssertions {
                 platform: platform,
                 cacheRoot: cacheRoot
             )
+            if scenario == .crashTimeScope {
+                try CrashTimeScopeAssertions.assert(event, platform: platform, scenario: scenario)
+            }
 
-        case .nsException:
+        case .nsException, .nsExceptionSubclass:
+            let expectedType = scenario == .nsExceptionSubclass
+                ? "CrashE2ENSExceptionSubclass" : "CrashE2ENSException"
             try assertNSException(firstException, eventContext: eventContext,
-                                  expectedType: "CrashE2ENSException", platform: platform,
+                                  expectedType: expectedType, platform: platform,
                                   scenario: scenario)
 
-        case .nsExceptionSubclass:
-            try assertNSException(firstException, eventContext: eventContext,
-                                  expectedType: "CrashE2ENSExceptionSubclass", platform: platform,
-                                  scenario: scenario)
-
-        case .cppExceptionV1, .cppExceptionV2, .swiftAsyncCPPExceptionV2Off:
-            try assertCPPException(firstException, mechanism: mechanism, platform: platform,
-                                   scenario: scenario, expectedValue: "CrashE2ECPPException")
+        case .cppExceptionV1, .cppExceptionV2, .swiftAsyncCPPExceptionV2Off,
+             .swiftAsyncCPPExceptionV2On, .unityCxaThrow, .unityCxaThrowV2:
+            try assertCPPExceptionScenario(
+                scenario,
+                firstException: firstException,
+                mechanism: mechanism,
+                platform: platform
+            )
 
         case .cppExceptionV2DynamicImage:
             try assertDynamicCPPException(firstException, mechanism: mechanism,
                                           debugImages: debugImages, platform: platform,
                                           scenario: scenario)
-
-        case .swiftAsyncCPPExceptionV2On:
-            try assertCPPException(firstException, mechanism: mechanism, platform: platform,
-                                   scenario: scenario, expectedValue: "CrashE2ECPPException")
-            try assertSwiftAsyncFrames(firstException, platform: platform, scenario: scenario)
-
-        case .unityCxaThrow, .unityCxaThrowV2:
-            try assertCPPException(firstException, mechanism: mechanism, platform: platform,
-                                   scenario: scenario, expectedValue: "CrashE2EUnitySentryCxaThrowException")
 
         case .objcObject, .objcObjectAfterCaughtCPP:
             try assertObjCObjectThrow(firstException, mechanism: mechanism,
@@ -150,6 +148,27 @@ enum EventAssertions {
         case .ignoredSignal, .ksCrashPerReportRetry:
             // The multi-launch KSCrash retry scenario has aggregate assertions in its own asserter.
             return
+        }
+    }
+
+    private static func assertCPPExceptionScenario(
+        _ scenario: Scenario,
+        firstException: [String: Any],
+        mechanism: [String: Any],
+        platform: String
+    ) throws {
+        let expectedValue = (scenario == .unityCxaThrow || scenario == .unityCxaThrowV2)
+            ? "CrashE2EUnitySentryCxaThrowException"
+            : "CrashE2ECPPException"
+        try assertCPPException(
+            firstException,
+            mechanism: mechanism,
+            platform: platform,
+            scenario: scenario,
+            expectedValue: expectedValue
+        )
+        if scenario == .swiftAsyncCPPExceptionV2On {
+            try assertSwiftAsyncFrames(firstException, platform: platform, scenario: scenario)
         }
     }
 
@@ -352,11 +371,11 @@ enum EventAssertions {
             || codeFile.contains("/usr/lib/")
     }
 
-    private static func assert(_ condition: Bool, _ message: String) throws {
+    static func assert(_ condition: Bool, _ message: String) throws {
         guard condition else { throw CrashE2EFailure(message: message) }
     }
 
-    private static func dictionary(_ value: Any?) -> [String: Any] {
+    static func dictionary(_ value: Any?) -> [String: Any] {
         value as? [String: Any] ?? [:]
     }
 
@@ -367,7 +386,7 @@ enum EventAssertions {
         return values.compactMap { $0 as? [String: Any] }
     }
 
-    private static func string(_ value: Any?) -> String? {
+    static func string(_ value: Any?) -> String? {
         value as? String
     }
 
