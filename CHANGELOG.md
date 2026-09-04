@@ -8,6 +8,7 @@
 
 ### Fixes
 
+- Prevent relevant view controller traversal from recursively loading parent views and invoking `viewDidLoad` twice when tracing is enabled. (#8941)
 - Classify MetricKit hangs over 500 ms as errors. (#8948)
 
 ## 9.27.0
