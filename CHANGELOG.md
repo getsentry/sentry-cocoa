@@ -6,6 +6,10 @@
 
 - Add a `device.event` breadcrumb (`SYSTEM_CLOCK_CHANGE`) when the system clock changes, for example due to a manual time change or NTP sync (#8946)
 
+### Fixes
+
+- Prevent Session Replay video encoding from reusing pixel buffers retained by AVFoundation. (#8950)
+
 ## 9.27.0
 
 > [!NOTE]
@@ -37,7 +41,6 @@
 
 - Silence spurious ERROR log in `SentryCrashCxaThrowSwapper` for empty sections (#8915)
 - Stop recording touch events while Session Replay is paused. (#8887)
-- Prevent Session Replay video encoding from reusing pixel buffers retained by AVFoundation. (#8950)
 - Synchronize access to the current trace profiler in debug and test builds. (#8936)
 
 ### Internal
