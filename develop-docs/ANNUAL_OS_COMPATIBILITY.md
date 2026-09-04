@@ -61,7 +61,8 @@ Run all of these on beta Xcode. Point the shell at it first, for example
 - [ ] `./TestSamples/SwiftUICrashTest/test-crash-and-relaunch.sh`
 - [ ] `make build-xcframework-dynamic` + `make build-xcframework-static`
 - [ ] Triage every error and warning: does it also happen on stable Xcode?
-- [ ] If the new Xcode requires a deployment-target bump or another downstream-facing change, file a follow-up and notify React Native, Flutter, .NET, and Unity in `#team-sdks-mobile` at least seven days before release; include deployment targets, minimum Xcode or Swift versions, build-product or private-API changes, and relevant behavior changes
+- [ ] When beta validation confirms a user-facing breaking change, open and pin a public warning issue (for example, [#8113](https://github.com/getsentry/sentry-cocoa/issues/8113)) as soon as possible; include the current and new requirements, target release, rationale, impact, and fallback SDK version
+- [ ] File an implementation follow-up for any deployment-target bump or other downstream-facing change, and notify React Native, Flutter, .NET, and Unity in `#team-sdks-mobile` as soon as it is confirmed and at least seven days before release; include deployment targets, minimum Xcode or Swift versions, build-product or private-API changes, and relevant behavior changes
 - [ ] Record Xcode build, host OS, and runtime or device for each run
 
 ## 3b. Risk-area validations — Before RC
