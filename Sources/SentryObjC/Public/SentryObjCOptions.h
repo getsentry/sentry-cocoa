@@ -21,6 +21,7 @@
 @class SentryObjCHttpStatusCodeRange;
 @class SentryObjCLog;
 @class SentryObjCMetric;
+@class SentryObjCProfileOptions;
 @class SentryObjCReplayOptions;
 @class SentryObjCSamplingContext;
 @class SentryObjCScope;
@@ -300,6 +301,16 @@ NS_ASSUME_NONNULL_BEGIN
  * @note The default is @c NO.
  */
 @property (nonatomic) BOOL enablePersistingTracesWhenCrashing;
+
+#if SENTRY_OBJC_PROFILING_SUPPORTED
+/**
+ * A block that configures continuous profiling.
+ * @warning Continuous profiling is an experimental feature and may still contain bugs.
+ * @note Profiling is automatically disabled if a thread sanitizer is attached.
+ */
+@property (nonatomic, copy, nullable) void (^configureProfiling)
+    (SentryObjCProfileOptions *profiling);
+#endif
 
 /**
  * A block that configures the initial scope when starting the SDK.

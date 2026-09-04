@@ -1,13 +1,19 @@
+#if SWIFT_PACKAGE
+@_spi(Private) import SentrySwift
+#else
 @_spi(Private) import Sentry
+#endif
 import Foundation
 
-#if (os(iOS) || os(tvOS) || os(visionOS))
+#if !SENTRY_NO_UI_FRAMEWORK
+#if os(iOS) || os(tvOS) || os(visionOS)
 import UIKit
 public typealias CrossPlatformApplication = UIApplication
 #elseif os(macOS)
 import AppKit
 public typealias CrossPlatformApplication = NSApplication
 #endif
+#endif // !SENTRY_NO_UI_FRAMEWORK
 
 @objcMembers public class TestNSNotificationCenterWrapper: NSObject {
     private enum Observer {

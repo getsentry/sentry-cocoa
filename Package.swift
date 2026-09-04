@@ -42,6 +42,9 @@ let v10SwiftSettings: [SwiftSetting] = enableV10
 let v10CSettings: [CSetting] = enableV10
     ? [.define("SDK_V10", to: "1"), .define("SENTRY_DISABLE_SENTRYCRASH_V10", to: "1")]
     : []
+let v10CxxSettings: [CXXSetting] = enableV10
+    ? [.define("SDK_V10", to: "1"), .define("SENTRY_DISABLE_SENTRYCRASH_V10", to: "1")]
+    : []
 
 var products: [Product] = [
     .library(name: "SentryDistribution", targets: ["SentryDistribution"])
@@ -269,6 +272,44 @@ targets += [
     )
 ]
 // END:OBJC_WRAPPER
+
+targets += [
+    .target(
+        name: "SentryTestUtilsObjCpp",
+        dependencies: ["SentryObjCInternal", "_SentryPrivate"],
+        path: "SentryTestUtils/SourcesCPP",
+        publicHeadersPath: ".",
+        cSettings: v10CSettings,
+        cxxSettings: v10CxxSettings,
+        linkerSettings: [
+            // The profiler mocks use C++ standard-library types such as std::vector.
+            .linkedLibrary("c++")
+        ]
+    ),
+    .target(
+        name: "SentryTestUtils",
+        dependencies: [
+            "SentryObjCInternal",
+            "SentrySwift",
+            "_SentryPrivate",
+            "SentryTestUtilsObjCpp"
+        ],
+        path: "SentryTestUtils/Sources",
+        // These helpers require private SDK operations that do not cross SwiftPM module boundaries.
+        exclude: [
+            "ClearTestState.swift",
+            "TestClient.swift",
+            "TestHub.swift"
+        ],
+        swiftSettings: v10SwiftSettings
+    ),
+    .testTarget(
+        name: "SentryTestUtilsTests",
+        dependencies: ["SentrySwift", "SentryTestUtils"],
+        path: "SentryTestUtilsTests/Sources",
+        swiftSettings: v10SwiftSettings
+    )
+]
 
 let packageDependencies: [Package.Dependency] = enableV10 ? [.package(url: "https://github.com/kstenerud/KSCrash.git", from: "2.6.0")] : []
 
