@@ -12,8 +12,9 @@ public struct SentryInternalProfilingApi {
     /// Starts a profiler session for the given trace ID.
     /// Returns the system time when the profiler session started.
     public func start(for traceId: SentryId) -> UInt64 {
+        let startSystemTime = SentryDependencyContainer.sharedInstance().dateProvider.systemTime()
         SentryTraceProfiler.start(withTracer: traceId)
-        return SentryDependencyContainer.sharedInstance().dateProvider.systemTime()
+        return startSystemTime
     }
 
     /// Collects profiler data between the given system times for the trace.

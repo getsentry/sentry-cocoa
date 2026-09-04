@@ -22,10 +22,10 @@ public struct SentryInternalAppStartApi {
             return nil
         }
 
-        let appStartTimestampMs = measurement.appStartTimestamp.timeIntervalSince1970 * 1_000
-        let runtimeInitTimestampMs = measurement.runtimeInitTimestamp.timeIntervalSince1970 * 1_000
-        let moduleInitializationTimestampMs = measurement.moduleInitializationTimestamp.timeIntervalSince1970 * 1_000
-        let sdkStartTimestampMs = measurement.sdkStartTimestamp.timeIntervalSince1970 * 1_000
+        let appStartTimestampMs = NSNumber(value: measurement.appStartTimestamp.timeIntervalSince1970 * 1_000)
+        let runtimeInitTimestampMs = NSNumber(value: measurement.runtimeInitTimestamp.timeIntervalSince1970 * 1_000)
+        let moduleInitializationTimestampMs = NSNumber(value: measurement.moduleInitializationTimestamp.timeIntervalSince1970 * 1_000)
+        let sdkStartTimestampMs = NSNumber(value: measurement.sdkStartTimestamp.timeIntervalSince1970 * 1_000)
         let uiKitInitSpan: [String: Any] = [
             "description": "UIKit init",
             "start_timestamp_ms": moduleInitializationTimestampMs,
@@ -47,7 +47,7 @@ public struct SentryInternalAppStartApi {
 
         return [
             "type": SentryAppStartTypeToString.convert(measurement.type),
-            "is_pre_warmed": measurement.isPreWarmed,
+            "is_pre_warmed": NSNumber(value: measurement.isPreWarmed),
             "app_start_timestamp_ms": appStartTimestampMs,
             "runtime_init_timestamp_ms": runtimeInitTimestampMs,
             "module_initialization_timestamp_ms": moduleInitializationTimestampMs,
