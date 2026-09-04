@@ -350,10 +350,12 @@ final class SentrySystemEventBreadcrumbs: NSObject {
 
         delegate?.add(crumb)
     }
+}
 
-    // MARK: - System Clock Observer
+// MARK: - System Clock Observer
 
-    private func initSystemClockDidChangeObserver() {
+private extension SentrySystemEventBreadcrumbs {
+    func initSystemClockDidChangeObserver() {
         notificationCenterWrapper.addObserver(
             self,
             selector: #selector(systemClockDidChangeTriggered(_:)),
@@ -374,7 +376,7 @@ final class SentrySystemEventBreadcrumbs: NSObject {
      * @see
      * https://developer.apple.com/documentation/foundation/nsnotification/name/1408393-nssystemclockdidchange
      */
-    @objc private func systemClockDidChangeTriggered(_ notification: Notification) {
+    @objc func systemClockDidChangeTriggered(_ notification: Notification) {
         let crumb = Breadcrumb(level: .info, category: "device.event")
         crumb.type = "system"
         crumb.setData(value: "SYSTEM_CLOCK_CHANGE", key: "action")
