@@ -37,6 +37,7 @@ extension SentryKSCrash {
         typealias StitchCallback = @convention(c) (
             CFDictionary?, UnsafePointer<CChar>?, KSCrashSidecarScope, Context
         ) -> Unmanaged<CFDictionary>?
+        typealias CrashTimeWriter = (URL) -> Void
 
         static let attachmentsReportKey = "attachments"
 
@@ -77,7 +78,7 @@ extension SentryKSCrash {
             static let sidecarsDirectoryName = "Sidecars"
 
             /// `.../Sidecars/SentryAttachments/<reportID>.ksscr` → `.../SentryAttachments/<reportID>/`
-            static func payloadDirectory(from sidecarPath: URL) -> String? {
+            static func payloadDirectory(from sidecarPath: URL) -> URL? {
                 let monitorDirectory = sidecarPath.deletingLastPathComponent()
                 guard monitorDirectory.lastPathComponent == monitorID else { return nil }
 
@@ -91,7 +92,6 @@ extension SentryKSCrash {
                     .deletingLastPathComponent()
                     .appendingPathComponent(payloadDirectoryName, isDirectory: true)
                     .appendingPathComponent(reportIDHex, isDirectory: true)
-                    .path
             }
 
             /// Deletes owned payload directories after their files have been copied into an
@@ -121,27 +121,26 @@ extension SentryKSCrash {
             static let fileExtension = "png"
             static let pngSignature: [UInt8] = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]
 
-            static func paths(in payloadDirectory: String) -> [String] {
-                let directoryURL = URL(fileURLWithPath: payloadDirectory, isDirectory: true)
+            static func paths(in payloadDirectory: URL) -> [URL] {
                 guard let contents = try? FileManager.default.contentsOfDirectory(
-                    at: directoryURL,
+                    at: payloadDirectory,
                     includingPropertiesForKeys: [.isRegularFileKey],
                     options: [.skipsHiddenFiles]
                 ) else {
                     return []
                 }
 
-                var ranked: [(rank: Int, path: String)] = []
+                var ranked: [(rank: Int, url: URL)] = []
                 for url in contents {
                     let isFile = (try? url.resourceValues(forKeys: [.isRegularFileKey]).isRegularFile) ?? false
                     guard isFile, let rank = rank(for: url.lastPathComponent) else { continue }
                     guard hasPNGSignature(at: url) else { continue }
-                    ranked.append((rank, url.path))
+                    ranked.append((rank, url))
                 }
                 return ranked.sorted { lhs, rhs in
                     if lhs.rank != rhs.rank { return lhs.rank < rhs.rank }
-                    return lhs.path < rhs.path
-                }.map(\.path)
+                    return lhs.url.path < rhs.url.path
+                }.map(\.url)
             }
 
             private static func rank(for fileName: String) -> Int? {
@@ -184,7 +183,7 @@ extension SentryKSCrash {
 
         /// Writes screenshot files into the per-report payload directory. Invoked on the crash
         /// thread after the JSON report is on disk; must not hop to the main queue.
-        var screenshotProvider: ((String) -> Void)?
+        var screenshotProvider: CrashTimeWriter?
 
         // MARK: - MonitorPlugin
 
@@ -262,9 +261,9 @@ extension SentryKSCrash.AttachmentsMonitor {
         api.pointee.context = Unmanaged.passUnretained(self).toOpaque()
     }
 
-    static func from(_ context: Context) -> AttachmentsMonitor? {
+    static func from(_ context: Context) -> SentryKSCrash.AttachmentsMonitor? {
         guard let context else { return nil }
-        return Unmanaged<AttachmentsMonitor>.fromOpaque(context).takeUnretainedValue()
+        return Unmanaged<SentryKSCrash.AttachmentsMonitor>.fromOpaque(context).takeUnretainedValue()
     }
 }
 
@@ -313,7 +312,7 @@ extension SentryKSCrash.AttachmentsMonitor {
 
         do {
             try FileManager.default.createDirectory(
-                atPath: payloadDirectory,
+                at: payloadDirectory,
                 withIntermediateDirectories: true
             )
         } catch {
@@ -325,7 +324,7 @@ extension SentryKSCrash.AttachmentsMonitor {
 
         let screenshots = ScreenshotFiles.paths(in: payloadDirectory)
         guard !screenshots.isEmpty else {
-            try? FileManager.default.removeItem(atPath: payloadDirectory)
+            try? FileManager.default.removeItem(at: payloadDirectory)
             return
         }
 
@@ -370,7 +369,7 @@ extension SentryKSCrash.AttachmentsMonitor {
             return Unmanaged.passRetained(reportDict)
         }
 
-        let incoming = ScreenshotFiles.paths(in: payloadDirectory)
+        let incoming = ScreenshotFiles.paths(in: payloadDirectory).map(\.path)
         guard !incoming.isEmpty else {
             return Unmanaged.passRetained(reportDict)
         }

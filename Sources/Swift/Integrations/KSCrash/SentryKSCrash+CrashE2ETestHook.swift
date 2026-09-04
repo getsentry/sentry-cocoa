@@ -114,7 +114,7 @@ extension SentryKSCrash {
             let pngData = Data(pngBytes)
             SentryDependencyContainer.sharedInstance().getKSCrashInstaller()
                 .setScreenshotProvider { directory in
-                    let url = URL(fileURLWithPath: directory).appendingPathComponent("screenshot.png")
+                    let url = directory.appendingPathComponent("screenshot.png")
                     try? pngData.write(to: url, options: .atomic)
                 }
         }

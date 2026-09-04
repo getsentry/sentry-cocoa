@@ -41,7 +41,7 @@ final class SentryScreenshotIntegration<Dependencies: ScreenshotIntegrationProvi
         }
 #else
         SentryDependencyContainer.sharedInstance().getKSCrashInstaller().setScreenshotProvider { directory in
-            globalScreenshotSource?.saveScreenShots(directory)
+            globalScreenshotSource?.saveScreenShots(directory.path)
         }
 #endif
     }

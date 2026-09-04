@@ -208,9 +208,9 @@ final class SentryKSCrashAttachmentsMonitorTests: XCTestCase {
 
     // MARK: - Helpers
 
-    private func writePNGProvider() -> (String) -> Void {
+    private func writePNGProvider() -> SentryKSCrash.AttachmentsMonitor.CrashTimeWriter {
         { directory in
-            let url = URL(fileURLWithPath: directory).appendingPathComponent("screenshot.png")
+            let url = directory.appendingPathComponent("screenshot.png")
             do {
                 try Data(Self.pngBytes).write(to: url)
             } catch {
