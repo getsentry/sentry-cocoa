@@ -106,19 +106,21 @@ extension SentrySDK {
     /// set a valid DSN.
     /// - note: Call this method on the main thread. When calling it from a background thread, the
     /// SDK starts on the main thread async.
+    /// - note: If `start` is called again without `close()` in between, the SDK logs a warning and
+    /// still reinitializes. Reinitialization is unsupported and may lead to undefined behavior.
     #if !SDK_V10
     @objc
     #endif
     public static func start(options: Options) {
-        // We save the options before checking for Xcode preview because
-        // we will use this options in the preview
-        setStart(with: options)
         guard SentryDependencyContainer.sharedInstance().processInfoWrapper
             .environment["XCODE_RUNNING_FOR_PREVIEWS"] != "1" else {
             // Using NSLog because SentryLog was not initialized yet.
             NSLog("[SENTRY] [WARNING] SentrySDK not started. Running from Xcode preview.")
+            // We save the options because we will use them in the preview.
+            setStart(with: options)
             return
         }
+
         SentrySDKInternal.start(options: options)
     }
 
@@ -126,6 +128,8 @@ extension SentrySDK {
     /// set a valid DSN.
     /// - note: Call this method on the main thread. When calling it from a background thread, the
     /// SDK starts on the main thread async.
+    /// - note: If `start` is called again without `close()` in between, the SDK logs a warning and
+    /// still reinitializes. Reinitialization is unsupported and may lead to undefined behavior.
     #if !SDK_V10
     @objc
     #endif
