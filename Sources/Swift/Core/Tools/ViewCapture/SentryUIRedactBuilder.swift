@@ -258,7 +258,7 @@ final class SentryUIRedactBuilder {
     /// SF Symbols are rendered as CALayer sublayers without a backing UIView. This method populates
     /// the layer class set so `mapRedactRegion` can detect and mask them.
     private static func registerLiquidGlassLayers(options: SentryRedactOptions, into redactLayers: inout Set<String>) {
-        guard #available(iOS 26.0, tvOS 26.0, *) else { return }
+        guard #available(iOS 26.0, tvOS 26.0, visionOS 26.0, *) else { return }
 
         if options.maskAllText {
             // Replaces `SwiftUI.CGDrawingView` for text rendering.
@@ -608,7 +608,7 @@ final class SentryUIRedactBuilder {
                     ))
                 }
             }
-        } else if #available(iOS 26.0, tvOS 26.0, *), !enforceIgnore && shouldRedactLayer(layer) {
+        } else if #available(iOS 26.0, tvOS 26.0, visionOS 26.0, *), !enforceIgnore && shouldRedactLayer(layer) {
             // iOS 26+ (Liquid Glass): SwiftUI no longer wraps drawing content in UIView subclasses.
             // Text, images, and SF Symbols are rendered as CALayer sublayers without a backing UIView.
             // We detect these by matching the layer's class name against known drawing layer types.
