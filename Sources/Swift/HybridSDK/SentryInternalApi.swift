@@ -22,10 +22,10 @@ public struct SentryInternalApi {
     typealias UIDependencies = BaseDependencies
         & SentryInternalPerformanceApi.Dependencies
         & SentryInternalScreenApi.Dependencies
+        & SentryInternalViewHierarchyApi.Dependencies
     #if (os(iOS) || os(tvOS))
     typealias Dependencies = UIDependencies
         & SentryInternalScreenshotApi.Dependencies
-        & SentryInternalViewHierarchyApi.Dependencies
         & SentryInternalReplayApi.Dependencies
     #else
     typealias Dependencies = UIDependencies
@@ -71,12 +71,12 @@ public struct SentryInternalApi {
     /// Screen name tracking for hybrid SDKs.
     public let screen: SentryInternalScreenApi
 
+    /// View hierarchy capture for hybrid SDKs.
+    public let viewHierarchy: SentryInternalViewHierarchyApi
+
     #if (os(iOS) || os(tvOS))
     /// Screenshot capture for hybrid SDKs.
     public let screenshot: SentryInternalScreenshotApi
-
-    /// View hierarchy capture for hybrid SDKs.
-    public let viewHierarchy: SentryInternalViewHierarchyApi
 
     /// Session replay for hybrid SDKs.
     public let replay: SentryInternalReplayApi
@@ -135,9 +135,9 @@ public struct SentryInternalApi {
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         self.performance = SentryInternalPerformanceApi(dependencies: dependencies)
         self.screen = SentryInternalScreenApi(dependencies: dependencies)
+        self.viewHierarchy = SentryInternalViewHierarchyApi(dependencies: dependencies)
         #if (os(iOS) || os(tvOS))
         self.screenshot = SentryInternalScreenshotApi(dependencies: dependencies)
-        self.viewHierarchy = SentryInternalViewHierarchyApi(dependencies: dependencies)
         self.replay = SentryInternalReplayApi(dependencies: dependencies)
         #endif
 #endif

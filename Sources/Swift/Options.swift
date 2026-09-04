@@ -335,6 +335,8 @@
     /// @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
     /// configurations even when targeting iOS or tvOS platforms.
     /// @note Default value is @c false.
+    /// - Note: On visionOS, only the UIKit window hierarchy (2D Scenes) is captured. Views in
+    ///   immersive spaces or volumetric windows rendered via RealityKit are not included.
     @objc public var attachViewHierarchy: Bool = false
 
     /// @brief If enabled, view hierarchy attachment will contain view `accessibilityIdentifier`.
