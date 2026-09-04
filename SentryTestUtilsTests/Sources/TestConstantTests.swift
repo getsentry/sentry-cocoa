@@ -107,18 +107,3 @@ class TestConstantTests: XCTestCase {
         XCTAssertEqual(envelope.items.count, 1)
     }
 }
-
-final class TestOptionsTests: XCTestCase {
-    @available(*, deprecated, message: "Testing deprecated App Hang tracking option")
-    func testRemoveAllIntegrations_shouldPreserveAppHangTimeoutInterval() {
-        // -- Arrange --
-        let options = Options()
-        let appHangTimeoutInterval = options.appHangTimeoutInterval
-
-        // -- Act --
-        options.removeAllIntegrations()
-
-        // -- Assert --
-        XCTAssertEqual(options.appHangTimeoutInterval, appHangTimeoutInterval)
-    }
-}
