@@ -71,7 +71,7 @@ final class SentryViewHierarchyIntegration<Dependencies: SentryViewHierarchyInte
             return attachments
         }
 
-#if os(iOS)
+#if os(iOS) || os(visionOS)
         if event.isMetricKitEvent() {
             return attachments
         }

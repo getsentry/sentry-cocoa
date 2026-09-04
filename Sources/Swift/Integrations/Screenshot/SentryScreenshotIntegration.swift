@@ -72,7 +72,7 @@ final class SentryScreenshotIntegration<Dependencies: ScreenshotIntegrationProvi
             return attachments
         }
 
-#if os(iOS)
+#if os(iOS) || os(visionOS)
         if event.isMetricKitEvent() {
             return attachments
         }
