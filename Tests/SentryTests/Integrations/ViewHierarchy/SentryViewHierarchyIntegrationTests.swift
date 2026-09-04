@@ -1,4 +1,4 @@
-#if os(iOS) || os(tvOS) || os(visionOS)
+#if os(iOS) || os(tvOS)
 
 @_spi(Private) @testable import Sentry
 @_spi(Private) @testable import SentryTestUtils
