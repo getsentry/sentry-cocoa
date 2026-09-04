@@ -706,9 +706,9 @@ build-samples: \
 
 ## Build all SPM-based sample apps with the V10 trait enabled
 #
-# Builds every sample that uses the local Sentry Swift package after patching
-# the V10 trait into its .xcodeproj.  Run 'make xcode-ci' first to generate
-# the projects, or use 'make build-sample-v10-<name>' for a single sample.
+# Builds every sample that uses the local Sentry Swift package after adding
+# the V10 trait to its XcodeGen spec. Use 'make build-sample-v10-<name>'
+# for a single sample.
 .PHONY: build-samples-v10
 build-samples-v10: \
 	build-sample-v10-DistributionSample \
@@ -731,8 +731,7 @@ V10_SDK_FLAGS = GCC_PREPROCESSOR_DEFINITIONS='$$(inherited) SDK_V10=1' SWIFT_ACT
 ## Build the iOS-Swift sample app with the V10 trait
 .PHONY: build-sample-v10-iOS-Swift
 build-sample-v10-iOS-Swift:
-	xcodegen --spec Samples/iOS-Swift/iOS-Swift.yml
-	scripts/set-xcode-project-traits.py --trait V10 --mode add --project Samples/iOS-Swift/iOS-Swift.xcodeproj
+	scripts/set-xcodegen-package-traits.sh --trait V10 --generate --spec Samples/iOS-Swift/iOS-Swift.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme iOS-Swift \
@@ -744,8 +743,7 @@ build-sample-v10-iOS-Swift:
 ## Build the iOS-SwiftUI sample app with the V10 trait
 .PHONY: build-sample-v10-iOS-SwiftUI
 build-sample-v10-iOS-SwiftUI:
-	xcodegen --spec Samples/iOS-SwiftUI/iOS-SwiftUI.yml
-	scripts/set-xcode-project-traits.py --trait V10 --mode add --project Samples/iOS-SwiftUI/iOS-SwiftUI.xcodeproj
+	scripts/set-xcodegen-package-traits.sh --trait V10 --generate --spec Samples/iOS-SwiftUI/iOS-SwiftUI.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme iOS-SwiftUI \
@@ -757,8 +755,7 @@ build-sample-v10-iOS-SwiftUI:
 ## Build the iOS-ObjectiveC sample app with the V10 trait
 .PHONY: build-sample-v10-iOS-ObjectiveC
 build-sample-v10-iOS-ObjectiveC:
-	xcodegen --spec Samples/iOS-ObjectiveC/iOS-ObjectiveC.yml
-	scripts/set-xcode-project-traits.py --trait V10 --mode add --project Samples/iOS-ObjectiveC/iOS-ObjectiveC.xcodeproj
+	scripts/set-xcodegen-package-traits.sh --trait V10 --generate --spec Samples/iOS-ObjectiveC/iOS-ObjectiveC.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme iOS-ObjectiveC \
@@ -770,8 +767,7 @@ build-sample-v10-iOS-ObjectiveC:
 ## Build the iOS-ObjectiveCpp-NoModules sample app with the V10 trait
 .PHONY: build-sample-v10-iOS-ObjectiveCpp-NoModules
 build-sample-v10-iOS-ObjectiveCpp-NoModules:
-	xcodegen --spec Samples/iOS-ObjectiveCpp-NoModules/iOS-ObjectiveCpp-NoModules.yml
-	scripts/set-xcode-project-traits.py --trait V10 --mode add --project Samples/iOS-ObjectiveCpp-NoModules/iOS-ObjectiveCpp-NoModules.xcodeproj
+	scripts/set-xcodegen-package-traits.sh --trait V10 --generate --spec Samples/iOS-ObjectiveCpp-NoModules/iOS-ObjectiveCpp-NoModules.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme iOS-ObjectiveCpp-NoModules \
@@ -784,8 +780,7 @@ build-sample-v10-iOS-ObjectiveCpp-NoModules:
 ## Build the SessionReplay-CameraTest sample app with the V10 trait
 .PHONY: build-sample-v10-SessionReplay-CameraTest
 build-sample-v10-SessionReplay-CameraTest:
-	xcodegen --spec Samples/SessionReplay-CameraTest/SessionReplay-CameraTest.yml
-	scripts/set-xcode-project-traits.py --trait V10 --mode add --project Samples/SessionReplay-CameraTest/SessionReplay-CameraTest.xcodeproj
+	scripts/set-xcodegen-package-traits.sh --trait V10 --generate --spec Samples/SessionReplay-CameraTest/SessionReplay-CameraTest.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme SessionReplay-CameraTest \
@@ -797,8 +792,7 @@ build-sample-v10-SessionReplay-CameraTest:
 ## Build the SPM sample app with the V10 trait
 .PHONY: build-sample-v10-SPM
 build-sample-v10-SPM:
-	xcodegen --spec Samples/SPM/SPM.yml
-	scripts/set-xcode-project-traits.py --trait V10 --mode add --project Samples/SPM/SPM.xcodeproj
+	scripts/set-xcodegen-package-traits.sh --trait V10 --generate --spec Samples/SPM/SPM.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme SPM \
@@ -809,8 +803,7 @@ build-sample-v10-SPM:
 ## Build the DistributionSample app with the V10 trait
 .PHONY: build-sample-v10-DistributionSample
 build-sample-v10-DistributionSample:
-	xcodegen --spec Samples/DistributionSample/DistributionSample.yml
-	scripts/set-xcode-project-traits.py --trait V10 --mode add --project Samples/DistributionSample/DistributionSample.xcodeproj
+	scripts/set-xcodegen-package-traits.sh --trait V10 --generate --spec Samples/DistributionSample/DistributionSample.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme DistributionSample \
@@ -821,8 +814,7 @@ build-sample-v10-DistributionSample:
 ## Build the macOS-Swift sample app with the V10 trait
 .PHONY: build-sample-v10-macOS-Swift
 build-sample-v10-macOS-Swift:
-	xcodegen --spec Samples/macOS-Swift/macOS-Swift.yml
-	scripts/set-xcode-project-traits.py --trait V10 --mode add --project Samples/macOS-Swift/macOS-Swift.xcodeproj
+	scripts/set-xcodegen-package-traits.sh --trait V10 --generate --spec Samples/macOS-Swift/macOS-Swift.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme macOS-Swift \
@@ -833,8 +825,7 @@ build-sample-v10-macOS-Swift:
 ## Build the macOS-SwiftUI sample app with the V10 trait
 .PHONY: build-sample-v10-macOS-SwiftUI
 build-sample-v10-macOS-SwiftUI:
-	xcodegen --spec Samples/macOS-SwiftUI/macOS-SwiftUI.yml
-	scripts/set-xcode-project-traits.py --trait V10 --mode add --project Samples/macOS-SwiftUI/macOS-SwiftUI.xcodeproj
+	scripts/set-xcodegen-package-traits.sh --trait V10 --generate --spec Samples/macOS-SwiftUI/macOS-SwiftUI.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme macOS-SwiftUI \
@@ -845,8 +836,7 @@ build-sample-v10-macOS-SwiftUI:
 ## Build the tvOS-Swift sample app with the V10 trait
 .PHONY: build-sample-v10-tvOS-Swift
 build-sample-v10-tvOS-Swift:
-	xcodegen --spec Samples/tvOS-Swift/tvOS-Swift.yml
-	scripts/set-xcode-project-traits.py --trait V10 --mode add --project Samples/tvOS-Swift/tvOS-Swift.xcodeproj
+	scripts/set-xcodegen-package-traits.sh --trait V10 --generate --spec Samples/tvOS-Swift/tvOS-Swift.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme tvOS-Swift \
@@ -858,8 +848,7 @@ build-sample-v10-tvOS-Swift:
 ## Build the visionOS-Swift sample app with the V10 trait
 .PHONY: build-sample-v10-visionOS-Swift
 build-sample-v10-visionOS-Swift:
-	xcodegen --spec Samples/visionOS-Swift/visionOS-Swift.yml
-	scripts/set-xcode-project-traits.py --trait V10 --mode add --project Samples/visionOS-Swift/visionOS-Swift.xcodeproj
+	scripts/set-xcodegen-package-traits.sh --trait V10 --generate --spec Samples/visionOS-Swift/visionOS-Swift.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme visionOS-Swift \
@@ -871,8 +860,7 @@ build-sample-v10-visionOS-Swift:
 ## Build the watchOS-Swift sample app with the V10 trait
 .PHONY: build-sample-v10-watchOS-Swift
 build-sample-v10-watchOS-Swift:
-	xcodegen --spec Samples/watchOS-Swift/watchOS-Swift.yml
-	scripts/set-xcode-project-traits.py --trait V10 --mode add --project Samples/watchOS-Swift/watchOS-Swift.xcodeproj
+	scripts/set-xcodegen-package-traits.sh --trait V10 --generate --spec Samples/watchOS-Swift/watchOS-Swift.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme 'watchOS-Swift WatchKit App' \
@@ -1852,22 +1840,22 @@ validate-xcframework-symbols:
 xcode: xcode-ci
 	open Sentry.xcworkspace
 
-## Switch all generated sample Xcode projects to SDK V10 mode
+## Switch sample Xcode projects to SDK V10 mode
 #
-# Patches every XcodeGen-generated .xcodeproj under Samples/ to add the V10
-# Swift package trait on all XCLocalSwiftPackageReference entries.
-# Run 'make xcode-ci' first to generate the projects.
+# Copies each sample XcodeGen YAML, adds the V10 package trait with yq,
+# and regenerates the Xcode project from that copy. Committed YAML is
+# left unchanged. Skips binary and NoUIFramework samples.
 .PHONY: switch-v10
 switch-v10:
-	scripts/set-xcode-project-traits.py --trait V10 --mode add
+	scripts/set-xcodegen-package-traits.sh --trait V10 --generate
 
-## Switch all generated sample Xcode projects back to default (non-V10) mode
+## Switch sample Xcode projects back to default (non-V10) mode
 #
-# Removes the V10 Swift package trait from all XcodeGen-generated .xcodeproj
-# files under Samples/.
+# Regenerates sample Xcode projects from the committed XcodeGen YAML,
+# discarding any V10 trait that switch-v10 applied to the projects.
 .PHONY: switch-v9
 switch-v9:
-	scripts/set-xcode-project-traits.py --trait V10 --mode remove
+	$(MAKE) xcode-ci
 
 ## Generate all sample Xcode projects
 #
