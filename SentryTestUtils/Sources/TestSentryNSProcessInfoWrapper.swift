@@ -1,4 +1,8 @@
+#if SWIFT_PACKAGE
+@_spi(Private) import SentrySwift
+#else
 @_spi(Private) import Sentry
+#endif
 
 @_spi(Private) public final class MockSentryProcessInfo: SentryProcessInfoSource {
 

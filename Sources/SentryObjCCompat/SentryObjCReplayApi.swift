@@ -36,6 +36,14 @@ import UIKit
         wrapped.start()
     }
 
+    @objc public func startBuffering() {
+        wrapped.startBuffering()
+    }
+
+    @objc public func flush() {
+        wrapped.flush()
+    }
+
     @objc public func stop() {
         wrapped.stop()
     }

@@ -1,5 +1,9 @@
 import Foundation
+#if SWIFT_PACKAGE
+@_spi(Private) import SentrySwift
+#else
 import Sentry
+#endif
 
 public extension Options {
     

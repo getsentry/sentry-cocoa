@@ -922,7 +922,10 @@ class SentryHubTests: XCTestCase {
             }
         }
 
-        wait(for: [expectation], timeout: 5.0)
+        // This verifies session synchronization, not capture performance. CPU-constrained visionOS
+        // runners have exceeded five seconds, so use a generous timeout that still detects a
+        // deadlock before the overall test runner timeout.
+        wait(for: [expectation], timeout: 30.0)
 
         // Assert
         let session = try XCTUnwrap(sut.session)
@@ -950,7 +953,10 @@ class SentryHubTests: XCTestCase {
             }
         }
 
-        wait(for: [expectation], timeout: 5.0)
+        // This verifies session synchronization, not capture performance. CPU-constrained visionOS
+        // runners have exceeded five seconds, so use a generous timeout that still detects a
+        // deadlock before the overall test runner timeout.
+        wait(for: [expectation], timeout: 30.0)
 
         // Assert
         let session = try XCTUnwrap(sut.session)
@@ -1399,6 +1405,296 @@ class SentryHubTests: XCTestCase {
         
         XCTAssertEqual(beginSession, endSession)
     }
+
+    func testStoreEnvelope_WithUnhandledException_KeepsCrashedStatus() throws {
+        // -- Arrange --
+        sut.startSession()
+        fixture.currentDateProvider.setDate(date: Date(timeIntervalSince1970: 2))
+
+        // -- Act --
+        sut.store(givenUnhandledExceptionEnvelope())
+
+        // -- Assert --
+        let envelope = try XCTUnwrap(fixture.client.storedEnvelopeInvocations.first)
+        let sessionItem = try XCTUnwrap(envelope.items.first(where: { $0.header.type == "session" }))
+        let json = try XCTUnwrap(try JSONSerialization.jsonObject(with: XCTUnwrap(sessionItem.data)) as? [String: Any])
+
+        XCTAssertEqual("crashed", json["status"] as? String)
+    }
+
+    // MARK: - captureNonTerminating
+
+    func testCaptureNonTerminating_whenUnhandledException_shouldKeepSessionOkAndPendingUnhandled() throws {
+        // -- Arrange --
+        sut.startSession()
+
+        // -- Act --
+        sut.captureNonTerminating(givenUnhandledExceptionEnvelope())
+
+        // -- Assert --
+        let session = try XCTUnwrap(sut.session)
+        XCTAssertEqual(SentrySessionStatus.ok, session.status)
+        XCTAssertTrue(session.pendingUnhandled)
+        XCTAssertEqual(1, session.errors)
+    }
+
+    func testCaptureNonTerminating_whenUnhandledException_shouldKeepSameSessionAndNotStartNewOne() throws {
+        // -- Arrange --
+        sut.startSession()
+        let sessionIdBefore = try XCTUnwrap(sut.session?.sessionId)
+        let capturedSessionsBefore = fixture.client.captureSessionInvocations.count
+
+        // -- Act --
+        sut.captureNonTerminating(givenUnhandledExceptionEnvelope())
+
+        // -- Assert --
+        XCTAssertEqual(sessionIdBefore, try XCTUnwrap(sut.session?.sessionId))
+        XCTAssertEqual(capturedSessionsBefore, fixture.client.captureSessionInvocations.count)
+    }
+
+    func testCaptureNonTerminating_whenUnhandledException_shouldAttachStillRunningSessionToEnvelope() throws {
+        // -- Arrange --
+        sut.startSession()
+
+        // -- Act --
+        sut.captureNonTerminating(givenUnhandledExceptionEnvelope())
+
+        // -- Assert --
+        XCTAssertEqual(1, fixture.client.captureEnvelopeInvocations.count)
+        let capturedEnvelope = try XCTUnwrap(fixture.client.captureEnvelopeInvocations.first)
+        let sessionItem = try XCTUnwrap(capturedEnvelope.items.first(where: { $0.header.type == "session" }))
+        let sentSession = try XCTUnwrap(SentrySerializationSwift.session(with: try XCTUnwrap(sessionItem.data)))
+
+        // The session is still running, so it's only an intermediate update. It gets the unhandled
+        // status when it ends.
+        XCTAssertEqual(SentrySessionStatus.ok, sentSession.status)
+        XCTAssertEqual(1, sentSession.errors)
+    }
+
+    func testCaptureNonTerminating_whenUnhandledException_shouldNotSendPendingUnhandledFlagToSentry() throws {
+        // -- Arrange --
+        sut.startSession()
+
+        // -- Act --
+        sut.captureNonTerminating(givenUnhandledExceptionEnvelope())
+
+        // -- Assert --
+        let capturedEnvelope = try XCTUnwrap(fixture.client.captureEnvelopeInvocations.first)
+        let sessionItem = try XCTUnwrap(capturedEnvelope.items.first(where: { $0.header.type == "session" }))
+        let json = try XCTUnwrap(try JSONSerialization.jsonObject(with: try XCTUnwrap(sessionItem.data)) as? [String: Any])
+
+        XCTAssertNil(json["pending_unhandled"])
+    }
+
+    func testCaptureNonTerminating_whenUnhandledException_shouldPersistPendingSession() throws {
+        // -- Arrange --
+        sut.startSession()
+
+        // -- Act --
+        sut.captureNonTerminating(givenUnhandledExceptionEnvelope())
+
+        // -- Assert --
+        let persistedSession = try XCTUnwrap(fixture.fileManager.readCurrentSession())
+        XCTAssertTrue(persistedSession.pendingUnhandled)
+        XCTAssertEqual(SentrySessionStatus.ok, persistedSession.status)
+        XCTAssertEqual(1, persistedSession.errors)
+    }
+
+    func testCaptureNonTerminating_whenUnhandledExceptionTwice_shouldIncrementErrorsTwiceAndStayPending() throws {
+        // -- Arrange --
+        sut.startSession()
+
+        // -- Act --
+        sut.captureNonTerminating(givenUnhandledExceptionEnvelope())
+        sut.captureNonTerminating(givenUnhandledExceptionEnvelope())
+
+        // -- Assert --
+        let session = try XCTUnwrap(sut.session)
+        XCTAssertEqual(2, session.errors)
+        XCTAssertTrue(session.pendingUnhandled)
+        XCTAssertEqual(SentrySessionStatus.ok, session.status)
+    }
+
+    func testCaptureNonTerminating_whenUnhandledExceptionAndSessionEnds_shouldEndSessionAsUnhandled() throws {
+        // -- Arrange --
+        sut.startSession()
+        sut.captureNonTerminating(givenUnhandledExceptionEnvelope())
+
+        // -- Act --
+        sut.endSession()
+
+        // -- Assert --
+        let endedSession = try XCTUnwrap(fixture.client.captureSessionInvocations.last)
+        XCTAssertEqual(SentrySessionStatus.unhandled, endedSession.status)
+        XCTAssertEqual(1, endedSession.errors)
+    }
+
+    func testCaptureNonTerminating_whenUnhandledExceptionAndNewSessionStarts_shouldEndPreviousSessionAsUnhandled() throws {
+        // -- Arrange --
+        sut.startSession()
+        let pendingSessionId = try XCTUnwrap(sut.session?.sessionId)
+        sut.captureNonTerminating(givenUnhandledExceptionEnvelope())
+
+        // -- Act --
+        sut.startSession()
+
+        // -- Assert --
+        let endedSession = try XCTUnwrap(fixture.client.captureSessionInvocations.last)
+        XCTAssertEqual(pendingSessionId, endedSession.sessionId)
+        XCTAssertEqual(SentrySessionStatus.unhandled, endedSession.status)
+        XCTAssertEqual(1, endedSession.errors)
+
+        let newSession = try XCTUnwrap(sut.session)
+        XCTAssertNotEqual(pendingSessionId, newSession.sessionId)
+        XCTAssertEqual(SentrySessionStatus.ok, newSession.status)
+        XCTAssertFalse(newSession.pendingUnhandled)
+    }
+
+    func testCaptureNonTerminating_whenHandledException_shouldAttachSessionAndNotBePendingUnhandled() throws {
+        // -- Arrange --
+        sut.startSession()
+        let event = TestData.event
+        event.level = .error
+        event.exceptions = [TestData.exception]
+
+        // -- Act --
+        sut.captureNonTerminating(SentryEnvelope(event: event))
+
+        // -- Assert --
+        try assertSessionWithIncrementedErrorCountedAdded()
+        let session = try XCTUnwrap(sut.session)
+        XCTAssertFalse(session.pendingUnhandled)
+        XCTAssertEqual(SentrySessionStatus.ok, session.status)
+
+        let persistedSession = try XCTUnwrap(fixture.fileManager.readCurrentSession())
+        XCTAssertEqual(1, persistedSession.errors)
+        XCTAssertFalse(persistedSession.pendingUnhandled)
+    }
+
+    func testCaptureNonTerminating_whenHandledExceptionAndSessionEnds_shouldEndSessionAsExited() throws {
+        // -- Arrange --
+        sut.startSession()
+        let event = TestData.event
+        event.level = .error
+        event.exceptions = [TestData.exception]
+        sut.captureNonTerminating(SentryEnvelope(event: event))
+
+        // -- Act --
+        sut.endSession()
+
+        // -- Assert --
+        let endedSession = try XCTUnwrap(fixture.client.captureSessionInvocations.last)
+        XCTAssertEqual(SentrySessionStatus.exited, endedSession.status)
+    }
+
+    func testCaptureNonTerminating_whenWarningLevel_shouldSendOriginalEnvelope() throws {
+        // -- Arrange --
+        sut.startSession()
+        let event = TestData.event
+        event.level = .warning
+
+        // -- Act --
+        sut.captureNonTerminating(SentryEnvelope(event: event))
+
+        // -- Assert --
+        try assertNoSessionAddedToCapturedEnvelope()
+        XCTAssertFalse(try XCTUnwrap(sut.session).pendingUnhandled)
+    }
+
+    func testCaptureNonTerminating_whenNoSessionStarted_shouldSendOriginalEnvelope() throws {
+        // -- Arrange --
+        let envelope = givenUnhandledExceptionEnvelope()
+
+        // -- Act --
+        sut.captureNonTerminating(envelope)
+
+        // -- Assert --
+        try assertNoSessionAddedToCapturedEnvelope()
+        XCTAssertIdentical(envelope, fixture.client.captureEnvelopeInvocations.first)
+    }
+
+    func testCaptureNonTerminating_whenClientNil_shouldNotCaptureEnvelope() {
+        // -- Arrange --
+        sut.bindClient(nil)
+
+        // -- Act --
+        sut.captureNonTerminating(givenUnhandledExceptionEnvelope())
+
+        // -- Assert --
+        assertNoEnvelopesCaptured()
+    }
+
+    func testCaptureNonTerminating_whenPendingSessionCached_shouldCloseCachedSessionAsUnhandled() throws {
+        // -- Arrange --
+        sut.startSession()
+        sut.captureNonTerminating(givenUnhandledExceptionEnvelope())
+        // Simulate a new launch by dropping the in-memory session, keeping only the persisted one.
+        sut.session = nil
+
+        // -- Act --
+        sut.closeCachedSession(withTimestamp: fixture.currentDateProvider.date())
+
+        // -- Assert --
+        let closedSession = try XCTUnwrap(fixture.client.captureSessionInvocations.last)
+        XCTAssertEqual(SentrySessionStatus.unhandled, closedSession.status)
+    }
+
+    func testCaptureNonTerminating_whenPendingSessionCachedWithoutTimestamp_shouldCloseCachedSessionAsAbnormal() throws {
+        // -- Arrange --
+        sut.startSession()
+        sut.captureNonTerminating(givenUnhandledExceptionEnvelope())
+        sut.session = nil
+
+        // -- Act --
+        sut.closeCachedSession(withTimestamp: nil)
+
+        // -- Assert --
+        let closedSession = try XCTUnwrap(fixture.client.captureSessionInvocations.last)
+        XCTAssertEqual(SentrySessionStatus.abnormal, closedSession.status)
+    }
+
+    // MARK: - updateSessionForDroppedEventNonTerminating
+
+    func testUpdateSessionForDroppedEventNonTerminating_whenUnhandled_shouldKeepSessionOkAndNotCaptureEnvelope() throws {
+        // -- Arrange --
+        sut.startSession()
+        let sessionIdBefore = try XCTUnwrap(sut.session?.sessionId)
+
+        // -- Act --
+        sut.updateSessionForDroppedEventNonTerminating(unhandled: true)
+
+        // -- Assert --
+        let session = try XCTUnwrap(sut.session)
+        XCTAssertEqual(SentrySessionStatus.ok, session.status)
+        XCTAssertTrue(session.pendingUnhandled)
+        XCTAssertEqual(1, session.errors)
+        XCTAssertEqual(sessionIdBefore, session.sessionId)
+        assertNoEnvelopesCaptured()
+    }
+
+    func testUpdateSessionForDroppedEventNonTerminating_whenHandled_shouldIncrementErrorsAndNotCaptureEnvelope() throws {
+        // -- Arrange --
+        sut.startSession()
+
+        // -- Act --
+        sut.updateSessionForDroppedEventNonTerminating(unhandled: false)
+
+        // -- Assert --
+        let session = try XCTUnwrap(sut.session)
+        XCTAssertFalse(session.pendingUnhandled)
+        XCTAssertEqual(SentrySessionStatus.ok, session.status)
+        XCTAssertEqual(1, session.errors)
+        assertNoEnvelopesCaptured()
+    }
+
+    func testUpdateSessionForDroppedEventNonTerminating_whenNoSessionStarted_shouldNotCaptureEnvelope() {
+        // -- Act --
+        sut.updateSessionForDroppedEventNonTerminating(unhandled: true)
+
+        // -- Assert --
+        XCTAssertNil(sut.session)
+        assertNoEnvelopesCaptured()
+    }
     
 #if os(iOS) || os(tvOS)
     func test_reportFullyDisplayed_enableTimeToFullDisplay_YES() {
@@ -1625,6 +1921,14 @@ class SentryHubTests: XCTestCase {
         let event = TestData.event
         event.level = level
         sut.capture(SentryEnvelope(event: event))
+    }
+
+    private func givenUnhandledExceptionEnvelope() -> SentryEnvelope {
+        let event = TestData.event
+        event.level = .error
+        event.exceptions = [TestData.exception]
+        event.exceptions?.first?.mechanism?.handled = false
+        return SentryEnvelope(event: event)
     }
 
     private func captureFatalEventWithoutExceptionMechanism() throws {

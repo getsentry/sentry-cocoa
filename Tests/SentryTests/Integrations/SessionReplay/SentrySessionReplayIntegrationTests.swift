@@ -61,7 +61,18 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     }
     
     private func getSut() throws -> SentrySessionReplayIntegration {
-        return try XCTUnwrap(SentrySDKInternal.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration)
+        return try XCTUnwrap(sessionReplayIntegration())
+    }
+
+    private func sessionReplayIntegration() -> SentrySessionReplayIntegration? {
+        return SentrySDKInternal.currentHub().installedIntegrations()
+            .first { $0 is SentrySessionReplayIntegration } as? SentrySessionReplayIntegration
+    }
+
+    private func waitForReplayCommand() {
+        let commandExpectation = expectation(description: "Replay command executed")
+        DispatchQueue.main.async { commandExpectation.fulfill() }
+        wait(for: [commandExpectation], timeout: 1)
     }
     
     private func startSDK(sessionSampleRate: Float, errorSampleRate: Float, enableSwizzling: Bool = true, noIntegrations: Bool = false, configure: ((Options) -> Void)? = nil) {
@@ -82,16 +93,16 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         startSDK(sessionSampleRate: 0, errorSampleRate: 0)
 
         let sut = try getSut()
-        XCTAssertEqual(SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().count, 1)
+        XCTAssertEqual(SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().count, 2) // Metrics and SessionReplay
         XCTAssertEqual(globalEventProcessor.processors.count, 1)
         XCTAssertNil(sut.sessionReplay)
         XCTAssertFalse(try XCTUnwrap(sut.getTouchTracker()).isEnabled)
     }
-    
+
     func testInstallFullSessionReplay() {
         startSDK(sessionSampleRate: 1, errorSampleRate: 0)
-        
-        XCTAssertEqual(SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().count, 1)
+
+        XCTAssertNotNil(sessionReplayIntegration())
         XCTAssertEqual(globalEventProcessor.processors.count, 1)
     }
 
@@ -187,8 +198,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     
     func testInstallNoSwizzlingNoTouchTracker() {
         startSDK(sessionSampleRate: 1, errorSampleRate: 0, enableSwizzling: false)
-        guard let integration = SentrySDKInternal.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration
-        else {
+        guard let integration = sessionReplayIntegration() else {
             XCTFail("Could not find session replay integration")
             return
         }
@@ -204,7 +214,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     func testInstallFullSessionReplayButDontRunBecauseOfRandom() throws {
         SentryDependencyContainer.sharedInstance().random = TestRandom(value: 0.3)
         startSDK(sessionSampleRate: 0.2, errorSampleRate: 0)
-        XCTAssertEqual(SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().count, 1)
+        XCTAssertNotNil(sessionReplayIntegration())
         XCTAssertEqual(globalEventProcessor.processors.count, 1)
         let sut = try getSut()
         XCTAssertNil(sut.sessionReplay)
@@ -229,16 +239,16 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         SentryDependencyContainer.sharedInstance().random = TestRandom(value: 0.1)
         
         startSDK(sessionSampleRate: 0.3, errorSampleRate: 0)
-        
-        XCTAssertEqual(SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().count, 1)
+
+        XCTAssertNotNil(sessionReplayIntegration())
         XCTAssertEqual(globalEventProcessor.processors.count, 1)
         let sut = try getSut()
         XCTAssertNotNil(sut.sessionReplay)
     }
-    
+
     func testInstallErrorReplay() {
         startSDK(sessionSampleRate: 0, errorSampleRate: 0.1)
-        XCTAssertEqual(SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().count, 1)
+        XCTAssertNotNil(sessionReplayIntegration())
         XCTAssertEqual(globalEventProcessor.processors.count, 1)
     }
     
@@ -252,6 +262,39 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         uiApplication.windows = [UIWindow()]
         NotificationCenter.default.post(name: UIScene.didActivateNotification, object: nil)
         XCTAssertNotNil(sut.sessionReplay)
+    }
+
+    func testStartBuffering_whenFullSessionStartIsPending_shouldKeepFullSessionMode() throws {
+        // -- Arrange --
+        uiApplication.windows = nil
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+        XCTAssertNil(sut.sessionReplay)
+
+        // -- Act --
+        sut.startBuffering()
+        uiApplication.windows = [UIWindow()]
+        NotificationCenter.default.post(name: UIScene.didActivateNotification, object: nil)
+
+        // -- Assert --
+        XCTAssertTrue(try XCTUnwrap(sut.sessionReplay).isFullSession)
+    }
+
+    func testFlush_whenBufferStartIsPending_shouldPromoteToFullSessionMode() throws {
+        // -- Arrange --
+        uiApplication.windows = nil
+        startSDK(sessionSampleRate: 0, errorSampleRate: 0)
+        let sut = try getSut()
+        sut.startBuffering()
+        XCTAssertNil(sut.sessionReplay)
+
+        // -- Act --
+        sut.flush()
+        uiApplication.windows = [UIWindow()]
+        NotificationCenter.default.post(name: UIScene.didActivateNotification, object: nil)
+
+        // -- Assert --
+        XCTAssertTrue(try XCTUnwrap(sut.sessionReplay).isFullSession)
     }
 
     func testRunReplayForAvailableWindow_whenPendingStartAndSessionEnds_shouldNotStartAfterLifecycleNotification() throws {
@@ -301,6 +344,94 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertFalse(sut.sessionReplay?.isRunning ?? true)
         NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
         XCTAssertTrue(sut.sessionReplay?.isRunning ?? false)
+    }
+
+    func testManualPause_whenApplicationForegrounds_shouldRemainPausedUntilManualResume() throws {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+
+        sut.pause()
+        NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
+        NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
+
+        XCTAssertFalse(sut.sessionReplay?.isRunning ?? true)
+
+        sut.resume()
+
+        XCTAssertTrue(sut.sessionReplay?.isRunning ?? false)
+    }
+
+    func testStartAfterSessionEnd_whenManuallyPaused_shouldStartNewReplay() throws {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+
+        sut.pause()
+        sut.sentrySessionEnded(session: SentrySession(releaseName: "", distinctId: ""))
+        sut.start()
+
+        XCTAssertTrue(sut.sessionReplay?.isRunning ?? false)
+    }
+
+    func testFlushAfterSessionEnd_whenManuallyPaused_shouldStartPausedReplay() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+        sut.pause()
+        sut.sentrySessionEnded(session: SentrySession(releaseName: "", distinctId: ""))
+        XCTAssertNil(sut.sessionReplay)
+
+        // -- Act --
+        sut.flush()
+
+        // -- Assert --
+        XCTAssertNotNil(sut.sessionReplay)
+        XCTAssertFalse(sut.sessionReplay?.isRunning ?? true)
+    }
+
+    func testStopWhenManuallyPaused_shouldClearPauseForAutomaticSessionRestart() throws {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+
+        sut.pause()
+        sut.stop()
+        sut.sentrySessionStarted(session: SentrySession(releaseName: "", distinctId: ""))
+
+        XCTAssertTrue(sut.sessionReplay?.isRunning ?? false)
+    }
+
+    func testStartWithActiveManuallyPausedReplay_shouldRemainPaused() throws {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+        let sessionReplay = try XCTUnwrap(sut.sessionReplay)
+
+        sut.pause()
+        sut.start()
+        NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
+
+        XCTAssertIdentical(sut.sessionReplay, sessionReplay)
+        XCTAssertFalse(sessionReplay.isRunning)
+    }
+
+    func testPause_whenReplayRunning_shouldDisableTouchTracking() throws {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let touchTracker = try XCTUnwrap(getSut().getTouchTracker())
+
+        SentrySDK.replay.pause()
+        waitForReplayCommand()
+
+        XCTAssertFalse(touchTracker.isEnabled)
+    }
+
+    func testResume_whenReplayPaused_shouldEnableTouchTracking() throws {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let touchTracker = try XCTUnwrap(getSut().getTouchTracker())
+        SentrySDK.replay.pause()
+        waitForReplayCommand()
+
+        SentrySDK.replay.resume()
+        waitForReplayCommand()
+
+        XCTAssertTrue(touchTracker.isEnabled)
     }
     
     func testStopReplayAtEndOfSession() throws {
@@ -574,6 +705,22 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertEqual(hub.capturedReplayRecordingVideo.count, 0)
     }
     
+    func testConnectivityChanged_whenDisconnected_shouldDispatchPauseToMainQueue() throws {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+        let sessionReplay = try XCTUnwrap(sut.sessionReplay)
+        let mainQueue = TestSentryDispatchQueueWrapper()
+        mainQueue.blockBeforeMainBlock = { false }
+        sut.replayProcessingQueue = mainQueue
+
+        sut.connectivityChanged(false, typeDescription: "")
+
+        XCTAssertEqual(mainQueue.blockOnMainInvocations.invocations.count, 1)
+        XCTAssertFalse(sessionReplay.isSessionPaused)
+        mainQueue.blockOnMainInvocations.invocations.first?()
+        XCTAssertTrue(sessionReplay.isSessionPaused)
+    }
+
     func testPauseSessionReplayWithReacheability() throws {
         startSDK(sessionSampleRate: 1, errorSampleRate: 0)
         let sut = try getSut()
@@ -589,6 +736,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         let sessionReplay = try XCTUnwrap(sut.sessionReplay)
 
         sut.connectivityChanged(false, typeDescription: "")
+        uiApplication.unsafeApplicationState = .background
         NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
 
         sut.connectivityChanged(true, typeDescription: "")
@@ -596,8 +744,26 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertFalse(sessionReplay.isSessionPaused)
         XCTAssertFalse(sessionReplay.isRunning)
 
+        uiApplication.unsafeApplicationState = .active
         NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
 
+        XCTAssertTrue(sessionReplay.isRunning)
+    }
+
+    func testConnectivityReconnect_whenApplicationForegrounded_shouldResume() throws {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+        let sessionReplay = try XCTUnwrap(sut.sessionReplay)
+
+        sut.connectivityChanged(false, typeDescription: "")
+        uiApplication.unsafeApplicationState = .background
+        NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
+        uiApplication.unsafeApplicationState = .active
+        NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
+
+        sut.connectivityChanged(true, typeDescription: "")
+
+        XCTAssertFalse(sessionReplay.isSessionPaused)
         XCTAssertTrue(sessionReplay.isRunning)
     }
 
@@ -656,6 +822,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertTrue(sessionReplay?.isRunning ?? false)
         
         SentrySDK.replay.stop()
+        waitForReplayCommand()
         
         XCTAssertFalse(sessionReplay?.isRunning ?? true)
         XCTAssertNil(sut.sessionReplay)
@@ -667,6 +834,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertNil(sut.sessionReplay)
 
         SentrySDK.replay.start()
+        waitForReplayCommand()
 
         let sessionReplay = sut.sessionReplay
         XCTAssertTrue(sessionReplay?.isRunning ?? false)
@@ -681,6 +849,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         let replayId = sessionReplay.sessionReplayId
         
         SentrySDK.replay.start()
+        waitForReplayCommand()
         
         //Test whether the integration keeps the same instance of the session replay
         XCTAssertEqual(sessionReplay, sut.sessionReplay)
@@ -688,7 +857,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertEqual(sessionReplay.sessionReplayId, replayId)
     }
     
-    func testStopBecauseOfReplayRateLimit() throws {
+    func testSessionReplayNewSegment_whenReplayRateLimited_shouldDispatchStopToMainQueue() throws {
         let rateLimiter = TestRateLimits()
         SentryDependencyContainer.sharedInstance().rateLimits = rateLimiter
         rateLimiter.rateLimits.append(.replay)
@@ -696,6 +865,9 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         startSDK(sessionSampleRate: 1, errorSampleRate: 1)
         let sut = try getSut()
         let sessionReplay = sut.sessionReplay
+        let mainQueue = TestSentryDispatchQueueWrapper()
+        mainQueue.blockBeforeMainBlock = { false }
+        sut.replayProcessingQueue = mainQueue
         
         XCTAssertTrue(sessionReplay?.isRunning ?? false)
   
@@ -706,9 +878,33 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         sut.sessionReplayNewSegment(replayEvent: replayEvent,
                                                                      replayRecording: SentryReplayRecording(segmentId: 0, video: videoInfo, extraEvents: []),
                                                                      videoUrl: videoUrl)
-        
+
+        XCTAssertEqual(mainQueue.blockOnMainInvocations.invocations.count, 1)
+        XCTAssertNotNil(sut.sessionReplay)
+        mainQueue.blockOnMainInvocations.invocations.first?()
         XCTAssertFalse(sessionReplay?.isRunning ?? true)
         XCTAssertNil(sut.sessionReplay)
+    }
+
+    func testSessionReplayNewSegment_whenRateLimitedAfterManualPause_shouldPreservePauseForNextSession() throws {
+        let rateLimiter = TestRateLimits()
+        SentryDependencyContainer.sharedInstance().rateLimits = rateLimiter
+        rateLimiter.rateLimits.append(.replay)
+
+        startSDK(sessionSampleRate: 1, errorSampleRate: 1)
+        let sut = try getSut()
+        sut.pause()
+
+        let videoUrl = URL(fileURLWithPath: "video.mp4")
+        let videoInfo = SentryVideoInfo(path: videoUrl, height: 1_024, width: 480, duration: 5, frameCount: 5, frameRate: 1, start: Date(), end: Date(), fileSize: 10, screens: [])
+        let replayEvent = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(), replayType: .session, segmentId: 0)
+
+        sut.sessionReplayNewSegment(replayEvent: replayEvent,
+                                    replayRecording: SentryReplayRecording(segmentId: 0, video: videoInfo, extraEvents: []),
+                                    videoUrl: videoUrl)
+        sut.sentrySessionStarted(session: SentrySession(releaseName: "", distinctId: ""))
+
+        XCTAssertFalse(sut.sessionReplay?.isRunning ?? true)
     }
     
     func testStopBecauseOfAllRateLimit() throws {
@@ -734,7 +930,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertNil(sut.sessionReplay)
     }
     
-    func testDontRestartAfterRateLimit() throws {
+    func testExplicitStartAfterRateLimit() throws {
         let rateLimiter = TestRateLimits()
         SentryDependencyContainer.sharedInstance().rateLimits = rateLimiter
         rateLimiter.rateLimits.append(.all)
@@ -757,38 +953,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertNil(sut.sessionReplay)
         
         sut.start()
-        
-        XCTAssertFalse(sessionReplay?.isRunning ?? true)
-        XCTAssertNil(sut.sessionReplay)
-    }
-    
-    func testAlowStartForNewSessionAfterRateLimit() throws {
-        let rateLimiter = TestRateLimits()
-        SentryDependencyContainer.sharedInstance().rateLimits = rateLimiter
-        rateLimiter.rateLimits.append(.all)
-        
-        startSDK(sessionSampleRate: 0, errorSampleRate: 1)
-        let sut = try getSut()
-        let sessionReplay = sut.sessionReplay
-        sut.start()
-        
-        XCTAssertTrue(sessionReplay?.isRunning ?? false)
-  
-        let videoUrl = URL(fileURLWithPath: "video.mp4")
-        let videoInfo = SentryVideoInfo(path: videoUrl, height: 1_024, width: 480, duration: 5, frameCount: 5, frameRate: 1, start: Date(), end: Date(), fileSize: 10, screens: [])
-        let replayEvent = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(), replayType: .session, segmentId: 0)
-        
-        sut.sessionReplayNewSegment(replayEvent: replayEvent,
-                                                                     replayRecording: SentryReplayRecording(segmentId: 0, video: videoInfo, extraEvents: []),
-                                                                     videoUrl: videoUrl)
-        XCTAssertNil(sut.sessionReplay)
-        
-        sut.start()
-        XCTAssertNil(sut.sessionReplay)
-        
-        sut.sentrySessionStarted(session: SentrySession(releaseName: "", distinctId: ""))
-        
-        sut.start()
+
         XCTAssertTrue(sut.sessionReplay?.isRunning ?? false)
     }
     
@@ -796,10 +961,73 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         startSDK(sessionSampleRate: 0, errorSampleRate: 1)
         let sut = try getSut()
         let sessionReplay = try XCTUnwrap(sut.sessionReplay)
+        let replayId = sessionReplay.sessionReplayId
         
         XCTAssertFalse(sessionReplay.isFullSession)
         SentrySDK.replay.start()
+        waitForReplayCommand()
+        XCTAssertFalse(sessionReplay.isFullSession)
+        XCTAssertEqual(sessionReplay.sessionReplayId, replayId)
+    }
+
+    func testStartBufferingWithIdleZeroRateReplay() throws {
+        startSDK(sessionSampleRate: 0, errorSampleRate: 0)
+        let sut = try getSut()
+
+        sut.startBuffering()
+
+        let sessionReplay = try XCTUnwrap(sut.sessionReplay)
+        XCTAssertTrue(sessionReplay.isRunning)
+        XCTAssertFalse(sessionReplay.isFullSession)
+    }
+
+    func testStartBufferingWithActiveBuffer_shouldKeepReplay() throws {
+        startSDK(sessionSampleRate: 0, errorSampleRate: 1)
+        let sut = try getSut()
+        let sessionReplay = try XCTUnwrap(sut.sessionReplay)
+        let replayId = sessionReplay.sessionReplayId
+
+        sut.startBuffering()
+
+        XCTAssertIdentical(sut.sessionReplay, sessionReplay)
+        XCTAssertEqual(sessionReplay.sessionReplayId, replayId)
+        XCTAssertFalse(sessionReplay.isFullSession)
+    }
+
+    func testFlushWithIdleZeroRateReplay_shouldStartSessionMode() throws {
+        startSDK(sessionSampleRate: 0, errorSampleRate: 0)
+        let sut = try getSut()
+
+        sut.flush()
+
+        let sessionReplay = try XCTUnwrap(sut.sessionReplay)
+        XCTAssertTrue(sessionReplay.isRunning)
         XCTAssertTrue(sessionReplay.isFullSession)
+    }
+
+    func testFlushWithBuffer_shouldPromoteWithoutSampling() throws {
+        startSDK(sessionSampleRate: 0, errorSampleRate: 0)
+        let sut = try getSut()
+        sut.startBuffering()
+        let sessionReplay = try XCTUnwrap(sut.sessionReplay)
+        let replayId = sessionReplay.sessionReplayId
+
+        sut.flush()
+
+        XCTAssertIdentical(sut.sessionReplay, sessionReplay)
+        XCTAssertEqual(sessionReplay.sessionReplayId, replayId)
+        XCTAssertTrue(sessionReplay.isFullSession)
+    }
+
+    func testStopThenStart_shouldCreateNewReplayId() throws {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+        let replayId = try XCTUnwrap(sut.sessionReplay?.sessionReplayId)
+
+        sut.stop()
+        sut.start()
+
+        XCTAssertNotEqual(sut.sessionReplay?.sessionReplayId, replayId)
     }
     
     func testCleanUp() throws {
