@@ -1,6 +1,10 @@
-#if os(iOS) || os(tvOS)
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
 
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 
 @_spi(Private) public class TestSentryViewPhotographer: SentryViewPhotographer {
     public override init(
@@ -17,4 +21,4 @@
         )
     }
 }
-#endif
+#endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
