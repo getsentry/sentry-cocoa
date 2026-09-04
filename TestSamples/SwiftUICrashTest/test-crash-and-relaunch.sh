@@ -152,7 +152,8 @@ xcodebuild -workspace Sentry.xcworkspace \
     CODE_SIGNING_REQUIRED=NO \
     build 2>&1 | tee raw-build.log | xcbeautify --preserve-unbeautified
 
-xcrun simctl runtime dyld_shared_cache update "iOS$ACTUAL_OS_VERSION"
+RUNTIME_VERSION_MM=$(echo "$ACTUAL_OS_VERSION" | awk -F. '{print $1"."$2}')
+xcrun simctl runtime dyld_shared_cache update "iOS$RUNTIME_VERSION_MM"
 
 log "Installing app on simulator."
 xcrun simctl install "$DEVICE_ID" DerivedData/Build/Products/Debug-iphonesimulator/SwiftUICrashTest.app

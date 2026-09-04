@@ -18,10 +18,15 @@ One task per phase. Platforms and suites are acceptance criteria inside a task, 
 ```markdown
 > Risk areas and triage rules: `develop-docs/ANNUAL_OS_COMPATIBILITY.md`
 
+## 0. Set up the project — Before first beta
+
+- [ ] Assign an owner and link this checklist and the previous cycle's project
+- [ ] Track the first beta, RC, GA, and GA + 30 days as project milestones
+
 ## 1. Triage Apple's changes — First beta
 
-- [ ] Close last cycle's open validation issues that aren't in a known risk area
-- [ ] Review WWDC sessions and release notes against the known risk areas
+- [ ] Review last cycle's open validation issues; close resolved items and carry forward outstanding risks
+- [ ] Review Apple's release notes and WWDC sessions for new APIs, behavior changes, restrictions, and known risk areas
 - [ ] File one issue per area needing validation, each with its own acceptance criteria
 - [ ] Decide which features earn a manual check this cycle
 
@@ -40,6 +45,7 @@ nothing forces you to look — but phase 5 can only require what's already green
 - [ ] Move slow platforms to `nightly-test.yml`
 - [ ] Keep new-OS jobs non-blocking; the previous generation stays required
 - [ ] Fix each failure at its cause: the test (beta runtime differs), the SDK (real regression), or a workaround (toolchain bug)
+- [ ] Before RC, inspect the unit-test, UI-test, and critical-UI workflow runs and confirm every expected new-OS matrix job passed; skipped jobs do not count
 
 ## 3a. Toolchain sweep — First beta
 
@@ -59,7 +65,8 @@ Run all of these on beta Xcode and the new iOS runtime. Point the shell at them 
 - [ ] `./TestSamples/SwiftUICrashTest/test-crash-and-relaunch.sh --device-id "$IOS_DEVICE_ID" --os-version "$IOS_SIMULATOR_OS"`
 - [ ] `make build-xcframework-dynamic` + `make build-xcframework-static`
 - [ ] Triage every error and warning: does it also happen on stable Xcode?
-- [ ] File a follow-up if the new Xcode forces a deployment-target bump — it's a breaking change with its own release process, and React Native, Flutter, .NET, and Unity need advance warning
+- [ ] When beta validation confirms a user-facing breaking change, open and pin a public warning issue (for example, [#8113](https://github.com/getsentry/sentry-cocoa/issues/8113)) as soon as possible; include the current and new requirements, target release, rationale, impact, and fallback SDK version
+- [ ] File an implementation follow-up for any deployment-target bump or other downstream-facing change, and notify React Native, Flutter, .NET, and Unity in `#team-sdks-mobile` as soon as it is confirmed and at least seven days before release; include deployment targets, minimum Xcode or Swift versions, build-product or private-API changes, and relevant behavior changes
 - [ ] Record Xcode build, host OS, and runtime or device for each run
 
 ## 3b. Risk-area validations — Before RC
@@ -80,6 +87,7 @@ the set queries together, and check app identifier, OS version, and device famil
 - [ ] watchOS — `watchOS-Swift`
 - [ ] visionOS — `visionOS-Swift`
 - [ ] macOS — `macOS-Swift` (compile against the beta SDK; runtime-test on a matching beta or RC host when available, otherwise mark it blocked)
+- [ ] On iOS, repeat the smoke pass with a `Release` configuration and confirm crash symbolication, offline delivery, Session Replay, and profiling; enable SDK debug logging and investigate new warnings
 
 ## 3d. Test-debt audit — Before RC
 
