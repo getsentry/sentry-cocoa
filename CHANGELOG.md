@@ -6,6 +6,10 @@
 
 - Add a `device.event` breadcrumb (`SYSTEM_CLOCK_CHANGE`) when the system clock changes, for example due to a manual time change or NTP sync (#8946)
 
+### Fixes
+
+- Classify MetricKit hangs over 500 ms as errors. (#8948)
+
 ## 9.27.0
 
 > [!NOTE]
