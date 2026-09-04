@@ -12,6 +12,9 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /// API for interacting with the Session Replay feature.
+///
+/// Replay lifecycle methods may be called from any thread. They return before the requested
+/// operation completes and execute serially in call order.
 @interface SentryObjCReplayApi : NSObject
 SENTRY_NO_INIT
 
@@ -21,16 +24,22 @@ SENTRY_NO_INIT
 /// Marks this view to not be masked during the redact step of session replay.
 - (void)unmaskView:(UIView *)view;
 
-/// Pauses the replay.
+/// Pauses the current replay until @c resume is called.
 - (void)pause;
 
-/// Resumes the ongoing replay.
+/// Resumes a replay paused with @c pause.
 - (void)resume;
 
-/// Start recording a session replay if not started.
+/// Starts a new replay session. Does nothing if a replay is already active.
 - (void)start;
 
-/// Stop the current session replay recording.
+/// Starts Replay in buffer mode. Does nothing if a replay is already active.
+- (void)startBuffering;
+
+/// Flushes buffered replay data or starts a new replay session if Replay is inactive.
+- (void)flush;
+
+/// Stops the current replay.
 - (void)stop;
 
 /**

@@ -1375,6 +1375,12 @@ test-sample-iOS-ObjectiveC-ui: xcode-ci-iOS-ObjectiveC
 ## Run macOS-Swift sample UI tests
 #
 # Generates the macOS-Swift project and runs its UI tests.
+#
+# Unlike the simulator based UI tests, these run natively on the host, where AMFI
+# kills any bundle whose signature doesn't match its contents. Skipping code signing
+# leaves the XCTest runner with the stale seal it ships with, so macOS refuses to
+# launch it ("... is damaged and can't be opened"). The "-" identity selects ad-hoc
+# signing, which keeps the bundles valid without requiring a certificate on CI.
 .PHONY: test-sample-macOS-Swift-ui
 test-sample-macOS-Swift-ui: xcode-ci-macOS-Swift
 	@echo "--> Running macOS-Swift UI tests"
@@ -1382,7 +1388,11 @@ test-sample-macOS-Swift-ui: xcode-ci-macOS-Swift
 		-workspace Sentry.xcworkspace \
 		-scheme macOS-Swift \
 		-testPlan macOS-Swift_Base \
-		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
+		CODE_SIGNING_ALLOWED="YES" \
+		CODE_SIGNING_REQUIRED="YES" \
+		CODE_SIGN_STYLE="Manual" \
+		CODE_SIGN_IDENTITY="-" \
+		DEVELOPMENT_TEAM="" 2>&1 | xcbeautify --preserve-unbeautified
 
 ## Run tvOS-Swift sample UI tests
 #

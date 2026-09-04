@@ -1396,6 +1396,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "captureNonTerminating:",
+    "parent": "SentryObjCInternalEnvelopeApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "category",
     "parent": "SentryObjCBreadcrumb",
     "returnType": "NSString * _Nonnull",
@@ -2455,6 +2462,20 @@
     "kind": "ObjCMethodDecl",
     "name": "finishWithStatus:",
     "parent": "SentryObjCSpan",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "flush",
+    "parent": "SentryObjCInternalReplayApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "flush",
+    "parent": "SentryObjCReplayApi",
     "returnType": "void",
     "instance": true
   },
@@ -4841,6 +4862,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "pause",
+    "parent": "SentryObjCInternalReplayApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "pause",
     "parent": "SentryObjCReplayApi",
     "returnType": "void",
     "instance": true
@@ -5130,6 +5158,13 @@
     "name": "request",
     "parent": "SentryObjCEvent",
     "returnType": "SentryObjCRequest * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "resume",
+    "parent": "SentryObjCInternalReplayApi",
+    "returnType": "void",
     "instance": true
   },
   {
@@ -7865,6 +7900,27 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "start",
+    "parent": "SentryObjCInternalReplayApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "start",
+    "parent": "SentryObjCReplayApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "startBuffering",
+    "parent": "SentryObjCInternalReplayApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "startBuffering",
     "parent": "SentryObjCReplayApi",
     "returnType": "void",
     "instance": true
@@ -8028,6 +8084,13 @@
     "name": "status",
     "parent": "SentryObjCSpan",
     "returnType": "SentryObjCSpanStatus",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "stop",
+    "parent": "SentryObjCInternalReplayApi",
+    "returnType": "void",
     "instance": true
   },
   {
@@ -8469,6 +8532,13 @@
     "name": "unmaskedViewClasses",
     "parent": "SentryObjCReplayOptions",
     "returnType": "NSArray<Class> * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "updateSessionForDroppedEventNonTerminating:",
+    "parent": "SentryObjCInternalEnvelopeApi",
+    "returnType": "void",
     "instance": true
   },
   {

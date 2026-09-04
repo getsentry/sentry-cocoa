@@ -8,6 +8,16 @@ import Foundation
 }
 
 extension SentryReplayType {
+    init?(crashReplayType: UInt32) {
+        // Zero means the type was unavailable in legacy crash-info files.
+        guard crashReplayType > 0 else { return nil }
+        self.init(rawValue: Int(crashReplayType) - 1)
+    }
+
+    var crashReplayType: UInt32 {
+        UInt32(rawValue + 1)
+    }
+
     func toString() -> String {
         switch self {
             case .buffer: return "buffer"

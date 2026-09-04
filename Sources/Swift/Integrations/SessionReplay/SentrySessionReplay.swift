@@ -233,6 +233,7 @@ private struct SessionSegmentState {
     public func pause() {
         SentrySDKLog.debug("[Session Replay] Pausing session")
         stopCaptureScheduler()
+        touchTracker?.disable()
 
         let pauseDate = dateProvider.date()
         let shouldPreparePauseSegment = state.withLock { (state: inout State) -> Bool in
@@ -282,6 +283,7 @@ private struct SessionSegmentState {
             guard let self = self else { return }
 
             if self.startCaptureScheduler(expectedGeneration: schedulerGeneration) {
+                self.touchTracker?.enable()
                 self.resetCapturePacing(at: self.dateProvider.date())
             }
         }
@@ -313,7 +315,7 @@ private struct SessionSegmentState {
             return
         }
 
-        guard (event.error != nil || event.exceptions?.isEmpty == false) && captureReplay(replayType: .buffer) else {
+        guard (event.error != nil || event.exceptions?.isEmpty == false) && captureReplay() else {
             SentrySDKLog.debug("[Session Replay] Not capturing replay, reason: event is not an error or exceptions are empty")
             return
         }
@@ -323,11 +325,6 @@ private struct SessionSegmentState {
 
     @discardableResult
     public func captureReplay() -> Bool {
-        captureReplay(replayType: .buffer)
-    }
-
-    @discardableResult
-    func captureReplay(replayType: SentryReplayType) -> Bool {
         guard isRunning else {
             SentrySDKLog.debug("[Session Replay] Session replay is not running, not capturing replay")
             return false
@@ -342,6 +339,22 @@ private struct SessionSegmentState {
             return false
         }
 
+        captureReplayInternal(replayType: .buffer)
+        return true
+    }
+
+    func flush() {
+        if isFullSession {
+            guard isRunning else { return }
+            pause()
+            resume()
+            return
+        }
+
+        captureReplayInternal(replayType: .session)
+    }
+
+    private func captureReplayInternal(replayType: SentryReplayType) {
         // `lastScreenshotAt` is main-thread confined with the capture pacing state.
         let startedAt = runOnMainThreadSync { lastScreenshotAt }
         self.replayType = replayType
@@ -349,7 +362,6 @@ private struct SessionSegmentState {
         let replayStart = dateProvider.date().addingTimeInterval(-replayOptions.errorReplayDuration - (Double(replayOptions.frameRate) / 2.0))
 
         createAndCaptureInBackground(startedAt: replayStart, endedAt: dateProvider.date(), replayType: replayType)
-        return true
     }
 
     private func setEventContext(event: Event) {
