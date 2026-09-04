@@ -147,15 +147,11 @@ extension SentryKSCrash {
                 if fileName == primaryName {
                     return 1
                 }
-                guard fileName.hasPrefix(numberedPrefix),
-                      fileName.hasSuffix(".\(fileExtension)")
-                else {
+                let suffix = ".\(fileExtension)"
+                guard fileName.hasPrefix(numberedPrefix), fileName.hasSuffix(suffix) else {
                     return nil
                 }
-                let start = numberedPrefix.endIndex
-                let end = fileName.index(fileName.endIndex, offsetBy: -(fileExtension.count + 1))
-                guard start < end else { return nil }
-                let digits = fileName[start..<end]
+                let digits = fileName.dropFirst(numberedPrefix.count).dropLast(suffix.count)
                 guard let value = Int(digits), value >= 2 else { return nil }
                 return value
             }
@@ -283,30 +279,23 @@ extension SentryKSCrash.AttachmentsMonitor {
 // MARK: - Crash-time capture
 extension SentryKSCrash.AttachmentsMonitor {
     func handleDidWriteReport(reportID: Int64) {
-        guard
-            enabled,
-            reportID > 0,
-            screenshotProvider != nil
-        else {
-            let message = if !enabled {
-                "monitor is not enabled"
-            } else if reportID >= 0 {
-                "reportID is not valid (id: \(reportID))"
-            } else if screenshotProvider == nil {
-                "screenshotProvider was not set"
-            } else {
-                "an ununknown error occured"
-            }
-
-            SentrySDKLog.debug("Not running handleDidWriteReport for reportID: \(reportID) because \(message)")
+        guard enabled else {
+            SentrySDKLog.debug("Not running handleDidWriteReport for reportID: \(reportID) because monitor is not enabled")
             return
         }
-
+        guard reportID > 0 else {
+            SentrySDKLog.debug("Not running handleDidWriteReport for reportID: \(reportID) because reportID is not valid")
+            return
+        }
+        guard let screenshotProvider else {
+            SentrySDKLog.debug("Not running handleDidWriteReport for reportID: \(reportID) because screenshotProvider was not set")
+            return
+        }
         guard
             let sidecarPath = sidecarPath(for: reportID),
             let payloadDirectory = Layout.payloadDirectory(from: sidecarPath)
         else {
-            SentrySDKLog.debug("Failed to get report sidecar or payload pay for reportID: \(reportID)")
+            SentrySDKLog.debug("Failed to get report sidecar or payload path for reportID: \(reportID)")
             return
         }
 
@@ -320,7 +309,7 @@ extension SentryKSCrash.AttachmentsMonitor {
             return
         }
 
-        screenshotProvider?(payloadDirectory)
+        screenshotProvider(payloadDirectory)
 
         let screenshots = ScreenshotFiles.paths(in: payloadDirectory)
         guard !screenshots.isEmpty else {
