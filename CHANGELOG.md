@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Classify MetricKit hangs over 500 ms as errors. (#8948)
+
 ## 9.27.0
 
 > [!NOTE]
