@@ -6,7 +6,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/ci-utils.sh"
 
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-MARKDOWNLINT_CLI2_VERSION="0.23.2"
 PATHS=()
 RUN_TESTS=true
 
@@ -34,15 +33,15 @@ if [ "$RUN_TESTS" = true ]; then
     end_group
 fi
 
-if ! command -v npx >/dev/null; then
-    log_error "npx is required to run markdownlint-cli2"
+if ! command -v markdownlint-cli2 >/dev/null; then
+    log_error "markdownlint-cli2 is required. Run 'make init' to install required tools."
     exit 1
 fi
 
 begin_group "markdownlint-cli2 changelog check"
 if [ ${#PATHS[@]} -eq 0 ]; then
-    npx --yes "markdownlint-cli2@${MARKDOWNLINT_CLI2_VERSION}"
+    markdownlint-cli2
 else
-    npx --yes "markdownlint-cli2@${MARKDOWNLINT_CLI2_VERSION}" --no-globs "${PATHS[@]}"
+    markdownlint-cli2 --no-globs "${PATHS[@]}"
 fi
 end_group

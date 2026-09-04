@@ -112,7 +112,7 @@ check-sentrycrash-imports:
 ## Check changelog files for duplicate section headings
 #
 # Fails when a version block (including Unreleased) repeats a section heading
-# such as ### Features. Requires Node.js for markdownlint-cli2.
+# such as ### Features. Requires markdownlint-cli2 from Brewfile.
 .PHONY: check-changelog
 check-changelog:
 	./scripts/check-changelog.sh

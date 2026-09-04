@@ -311,8 +311,7 @@ run_lint_dprint_for_prs: &run_lint_dprint_for_prs
   - "dprint.json"
 
 run_lint_changelog_for_prs: &run_lint_changelog_for_prs
-  - "CHANGELOG.md"
-  - "CHANGELOG_V10.md"
+  - "CHANGELOG*.md"
 
   # GH Actions
   - ".github/workflows/lint-changelog.yml"
@@ -326,6 +325,7 @@ run_lint_changelog_for_prs: &run_lint_changelog_for_prs
 
   # Build configuration
   - "Makefile"
+  - "Brewfile*"
 
 run_lint_xcode_analyze_for_prs: &run_lint_xcode_analyze_for_prs
   - "Sources/Configuration/**"

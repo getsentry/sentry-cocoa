@@ -41,6 +41,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: Homebrew/actions/setup-homebrew@3cdb78d0f62ad29dd32de765782654f4eedea607 # 2026.08.31.1
+      - name: Install markdownlint-cli2
+        run: brew install markdownlint-cli2
       - name: Check changelog structure
         run: make check-changelog
 
