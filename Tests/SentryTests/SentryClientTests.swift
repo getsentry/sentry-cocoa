@@ -1565,6 +1565,7 @@ final class SentryClientTests: XCTestCase {
 
     // MARK: - beforeSendWithHint
 
+    @available(*, deprecated, message: "Testing deprecated beforeSendWithHint API")
     func testBeforeSendWithHint_whenCaptureError_shouldReceiveOriginalError() throws {
         // -- Arrange --
         let error = NSError(domain: "test", code: 42)
@@ -1587,6 +1588,7 @@ final class SentryClientTests: XCTestCase {
         XCTAssertNil(hint.originalException)
     }
 
+    @available(*, deprecated, message: "Testing deprecated beforeSendWithHint API")
     func testBeforeSendWithHint_whenCaptureException_shouldReceiveOriginalException() throws {
         // -- Arrange --
         let exception = NSException(name: .genericException, reason: "test reason")
@@ -1607,6 +1609,7 @@ final class SentryClientTests: XCTestCase {
         XCTAssertNil(hint.originalError)
     }
 
+    @available(*, deprecated, message: "Testing deprecated beforeSendWithHint API")
     func testBeforeSendWithHint_whenCaptureMessage_shouldReceiveEmptyHint() throws {
         // -- Arrange --
         var receivedHint: Hint?
@@ -1626,6 +1629,7 @@ final class SentryClientTests: XCTestCase {
         XCTAssertNil(hint.originalException)
     }
 
+    @available(*, deprecated, message: "Testing deprecated beforeSendWithHint API")
     func testBeforeSendWithHint_shouldTakePrecedenceOverBeforeSend() throws {
         // -- Arrange --
         var beforeSendCalled = false
@@ -1666,6 +1670,7 @@ final class SentryClientTests: XCTestCase {
         XCTAssertTrue(beforeSendCalled)
     }
 
+    @available(*, deprecated, message: "Testing deprecated beforeSendWithHint API")
     func testBeforeSendWithHint_whenReturnsNil_shouldDropEvent() {
         // -- Arrange --
         let sut = fixture.getSut(configureOptions: { options in
@@ -1679,22 +1684,70 @@ final class SentryClientTests: XCTestCase {
         assertNoEventSent()
     }
 
+    @available(*, deprecated, message: "Testing deprecated beforeSendWithHint API")
     func testBeforeSendWithHint_whenAddingAttachments_shouldIncludeInSentEnvelope() throws {
         // -- Arrange --
+        let scopeAttachment = Attachment(data: Data("scope-data".utf8), filename: "scope.txt")
+        let scope = Scope()
+        scope.addAttachment(scopeAttachment)
         let hintAttachment = Attachment(data: Data("hint-data".utf8), filename: "hint.txt")
         let sut = fixture.getSut(configureOptions: { options in
             options.beforeSendWithHint = { event, hint in
-                hint.attachments = [hintAttachment]
+                hint.attachments.append(hintAttachment)
                 return event
             }
         })
 
         // -- Act --
-        sut.capture(event: Event())
+        sut.capture(event: Event(), scope: scope)
 
         // -- Assert --
         let sentAttachments = fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.attachments ?? []
         XCTAssertTrue(sentAttachments.contains(hintAttachment))
+        XCTAssertTrue(sentAttachments.contains(scopeAttachment))
+    }
+
+    @available(*, deprecated, message: "Testing deprecated beforeSendWithHint API")
+    func testBeforeSendWithHint_whenScopeHasAttachments_shouldReceiveThemInHint() throws {
+        // -- Arrange --
+        let scopeAttachment = Attachment(data: Data("scope-data".utf8), filename: "scope.txt")
+        let scope = Scope()
+        scope.addAttachment(scopeAttachment)
+        var receivedAttachments = [Attachment]()
+        let sut = fixture.getSut(configureOptions: { options in
+            options.beforeSendWithHint = { event, hint in
+                receivedAttachments = hint.attachments
+                return event
+            }
+        })
+
+        // -- Act --
+        sut.capture(event: Event(), scope: scope)
+
+        // -- Assert --
+        XCTAssertTrue(receivedAttachments.contains(scopeAttachment))
+    }
+
+    @available(*, deprecated, message: "Testing deprecated beforeSendWithHint API")
+    func testBeforeSendWithHint_whenRemovingAttachments_shouldNotIncludeInSentEnvelope() throws {
+        // -- Arrange --
+        let scopeAttachment = Attachment(data: Data("scope-data".utf8), filename: "scope.txt")
+        let scope = Scope()
+        scope.addAttachment(scopeAttachment)
+        let sut = fixture.getSut(configureOptions: { options in
+            options.beforeSendWithHint = { event, hint in
+                hint.attachments.removeAll { $0 === scopeAttachment }
+                return event
+            }
+        })
+
+        // -- Act --
+        sut.capture(event: Event(), scope: scope)
+
+        // -- Assert --
+        let sentAttachments = fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.attachments ?? []
+        XCTAssertFalse(sentAttachments.contains(scopeAttachment))
+        XCTAssertTrue(sentAttachments.isEmpty)
     }
 
     func testBeforeSendTransaction_ReadTags() throws {

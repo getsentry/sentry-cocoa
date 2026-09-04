@@ -970,7 +970,7 @@
     "kind": "ObjCMethodDecl",
     "name": "beforeBreadcrumbWithHint",
     "parent": "SentryObjCOptions",
-    "returnType": "SentryObjCBreadcrumb * _Nullable (^ _Nullable)(SentryObjCBreadcrumb * _Nonnull, SentryObjCHint * _Nonnull)",
+    "returnType": "DEPRECATED_MSG_ATTRIBUTE SentryObjCBreadcrumb * _Nullable (^)(SentryObjCBreadcrumb * _Nonnull, SentryObjCHint * _Nonnull)",
     "instance": true
   },
   {
@@ -1019,7 +1019,7 @@
     "kind": "ObjCMethodDecl",
     "name": "beforeSendWithHint",
     "parent": "SentryObjCOptions",
-    "returnType": "SentryObjCEvent * _Nullable (^ _Nullable)(SentryObjCEvent * _Nonnull, SentryObjCHint * _Nonnull)",
+    "returnType": "DEPRECATED_MSG_ATTRIBUTE SentryObjCEvent * _Nullable (^)(SentryObjCEvent * _Nonnull, SentryObjCHint * _Nonnull)",
     "instance": true
   },
   {
@@ -8973,7 +8973,7 @@
     "kind": "ObjCPropertyDecl",
     "name": "beforeBreadcrumbWithHint",
     "parent": "SentryObjCOptions",
-    "type": "SentryObjCBreadcrumb * _Nullable (^ _Nullable)(SentryObjCBreadcrumb * _Nonnull, SentryObjCHint * _Nonnull)"
+    "type": "DEPRECATED_MSG_ATTRIBUTE SentryObjCBreadcrumb * _Nullable (^)(SentryObjCBreadcrumb * _Nonnull, SentryObjCHint * _Nonnull)"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -9015,7 +9015,7 @@
     "kind": "ObjCPropertyDecl",
     "name": "beforeSendWithHint",
     "parent": "SentryObjCOptions",
-    "type": "SentryObjCEvent * _Nullable (^ _Nullable)(SentryObjCEvent * _Nonnull, SentryObjCHint * _Nonnull)"
+    "type": "DEPRECATED_MSG_ATTRIBUTE SentryObjCEvent * _Nullable (^)(SentryObjCEvent * _Nonnull, SentryObjCHint * _Nonnull)"
   },
   {
     "kind": "ObjCPropertyDecl",

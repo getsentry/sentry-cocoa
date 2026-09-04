@@ -154,4 +154,81 @@ class SentryHintTests: XCTestCase {
         // -- Assert --
         wait(for: [expectation], timeout: 5)
     }
+
+    // MARK: - Concurrency
+
+    func testOriginalErrorAndException_whenAccessedConcurrently_shouldNotCrash() {
+        // -- Arrange --
+        let hint = Hint()
+
+        // -- Act --
+        DispatchQueue.concurrentPerform(iterations: 1_000) { i in
+            if i.isMultiple(of: 2) {
+                hint.originalError = NSError(domain: "test", code: i)
+                hint.originalException = NSException(name: .genericException, reason: "reason-\(i)")
+            } else {
+                _ = hint.originalError
+                _ = hint.originalException
+            }
+        }
+
+        // -- Assert --
+        XCTAssertNotNil(hint.originalError)
+        XCTAssertNotNil(hint.originalException)
+    }
+
+    func testAttachments_whenMutatedConcurrently_shouldNotCrashOrLoseWrites() {
+        // -- Arrange --
+        let hint = Hint()
+        let iterations = 1_000
+
+        // -- Act --
+        DispatchQueue.concurrentPerform(iterations: iterations) { i in
+            if i.isMultiple(of: 2) {
+                hint.attachments = [Attachment(data: Data("test".utf8), filename: "f\(i).txt")]
+            } else {
+                _ = hint.attachments.count
+            }
+        }
+
+        // -- Assert --
+        XCTAssertEqual(hint.attachments.count, 1)
+    }
+
+    func testHintValues_whenMutatedConcurrently_shouldKeepEveryKey() {
+        // -- Arrange --
+        let hint = Hint()
+        let iterations = 1_000
+
+        // -- Act --
+        DispatchQueue.concurrentPerform(iterations: iterations) { i in
+            hint.setHintValue(i, forKey: "key-\(i)")
+            _ = hint.hintValue(forKey: "key-\(i)")
+        }
+
+        // -- Assert --
+        for i in 0..<iterations {
+            XCTAssertEqual(hint.hintValue(forKey: "key-\(i)") as? Int, i)
+        }
+    }
+
+    func testHintValues_whenSameKeyMutatedConcurrently_shouldNotCrash() {
+        // -- Arrange --
+        let hint = Hint()
+
+        // -- Act --
+        DispatchQueue.concurrentPerform(iterations: 1_000) { i in
+            switch i % 3 {
+            case 0: hint.setHintValue(i, forKey: "key")
+            case 1: _ = hint.hintValue(forKey: "key")
+            default: hint.removeHintValue(forKey: "key")
+            }
+        }
+
+        // -- Assert --
+        // The final state depends on scheduling; the test verifies that concurrent
+        // set/get/remove of the same key does not crash or corrupt the storage.
+        hint.setHintValue("final", forKey: "key")
+        XCTAssertEqual(hint.hintValue(forKey: "key") as? String, "final")
+    }
 }

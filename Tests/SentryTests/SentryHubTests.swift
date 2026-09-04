@@ -283,6 +283,7 @@ class SentryHubTests: XCTestCase {
 
     // MARK: - beforeBreadcrumbWithHint
 
+    @available(*, deprecated, message: "Testing deprecated beforeBreadcrumbWithHint API")
     func testBeforeBreadcrumbWithHint_shouldReceiveHint() {
         // -- Arrange --
         var receivedHint: Hint?
@@ -301,6 +302,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertNotNil(hub.scope.serialize()["breadcrumbs"])
     }
 
+    @available(*, deprecated, message: "Testing deprecated beforeBreadcrumbWithHint API")
     func testBeforeBreadcrumbWithHint_shouldTakePrecedenceOverBeforeBreadcrumb() {
         // -- Arrange --
         var beforeBreadcrumbCalled = false
@@ -324,6 +326,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertFalse(beforeBreadcrumbCalled)
     }
 
+    @available(*, deprecated, message: "Testing deprecated beforeBreadcrumbWithHint API")
     func testBeforeBreadcrumbWithHint_whenReturnsNil_shouldDropBreadcrumb() {
         // -- Arrange --
         let options = fixture.options

@@ -21359,7 +21359,6 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC24beforeBreadcrumbWithHintSo0aD0CSgAF_AA0F0CtcSgvg",
                 "moduleName": "Sentry",
@@ -21425,15 +21424,17 @@
                   }
                 ],
                 "declAttributes": [
+                  "Available",
                   "Final",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
+                "deprecated": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC24beforeBreadcrumbWithHintSo0aD0CSgAF_AA0F0CtcSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
+                "objc_name": "setBeforeBreadcrumbWithHint:",
                 "printedName": "Set()",
                 "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setBeforeBreadcrumbWithHint:"
               }
@@ -21490,12 +21491,9 @@
             ],
             "declAttributes": [
               "Final",
-              "HasInitialValue",
-              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "hasStorage": true,
             "kind": "Var",
             "mangledName": "$s6Sentry7OptionsC24beforeBreadcrumbWithHintSo0aD0CSgAF_AA0F0CtcSgvp",
             "moduleName": "Sentry",
@@ -22743,7 +22741,6 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC18beforeSendWithHintSo0A5EventCSgAF_AA0F0CtcSgvg",
                 "moduleName": "Sentry",
@@ -22809,15 +22806,17 @@
                   }
                 ],
                 "declAttributes": [
+                  "Available",
                   "Final",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
+                "deprecated": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC18beforeSendWithHintSo0A5EventCSgAF_AA0F0CtcSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
+                "objc_name": "setBeforeSendWithHint:",
                 "printedName": "Set()",
                 "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setBeforeSendWithHint:"
               }
@@ -22874,12 +22873,9 @@
             ],
             "declAttributes": [
               "Final",
-              "HasInitialValue",
-              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "hasStorage": true,
             "kind": "Var",
             "mangledName": "$s6Sentry7OptionsC18beforeSendWithHintSo0A5EventCSgAF_AA0F0CtcSgvp",
             "moduleName": "Sentry",

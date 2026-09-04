@@ -364,6 +364,29 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     return exception;
 }
 
+// The hint's attachments must be populated before prepareEvent runs the beforeSendWithHint
+// callback, so the callback can add and remove attachments. After the callback returns, the
+// hint's attachment list is authoritative and is what the SDK sends.
+- (void)populateHintAttachments:(SentryHint *)hint
+                          scope:(SentryScope *)scope
+                   isFatalEvent:(BOOL)isFatalEvent
+{
+    NSMutableArray<SentryAttachment *> *allAttachments =
+        [NSMutableArray arrayWithArray:scope.attachments];
+    if (!isFatalEvent) {
+        SentryScope *cs = [self.currentScopeStorage scope];
+        if (cs != nil) {
+            for (SentryAttachment *attachment in cs.attachments) {
+                if ([allAttachments indexOfObjectIdenticalTo:attachment] == NSNotFound) {
+                    [allAttachments addObject:attachment];
+                }
+            }
+        }
+    }
+    [allAttachments addObjectsFromArray:hint.attachments];
+    hint.attachments = allAttachments;
+}
+
 - (SentryId *)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope
 {
     SentryHint *hint = [[SentryHint alloc] init];
@@ -379,6 +402,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                       withScope:(SentryScope *)scope
 {
     SentryHint *hint = [[SentryHint alloc] init];
+    [self populateHintAttachments:hint scope:scope isFatalEvent:YES];
     SentryEvent *preparedEvent = [self prepareEvent:event
                                           withScope:scope
                              alwaysAttachStacktrace:NO
@@ -438,6 +462,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                               withScope:(SentryScope *)scope
                                                    hint:(SentryHint *)hint
 {
+    [self populateHintAttachments:hint scope:scope isFatalEvent:NO];
     SentryEvent *preparedEvent = [self prepareEvent:event
                                           withScope:scope
                              alwaysAttachStacktrace:YES
@@ -559,6 +584,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
                        hint:(SentryHint *)hint
 {
+    [self populateHintAttachments:hint scope:scope isFatalEvent:isFatalEvent];
     SentryEvent *preparedEvent = [self prepareEvent:event
                                           withScope:scope
                              alwaysAttachStacktrace:alwaysAttachStacktrace
@@ -571,21 +597,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     SentryTraceContext *traceContext = [self getTraceStateWithEvent:event withScope:scope];
 
-    NSMutableArray<SentryAttachment *> *allAttachments =
-        [NSMutableArray arrayWithArray:scope.attachments];
-    if (!isFatalEvent) {
-        SentryScope *cs = [self.currentScopeStorage scope];
-        if (cs != nil) {
-            for (SentryAttachment *attachment in cs.attachments) {
-                if ([allAttachments indexOfObjectIdenticalTo:attachment] == NSNotFound) {
-                    [allAttachments addObject:attachment];
-                }
-            }
-        }
-    }
-    [allAttachments addObjectsFromArray:hint.attachments];
     NSArray<SentryAttachment *> *attachments = [self processAttachmentsForEvent:preparedEvent
-                                                                    attachments:allAttachments];
+                                                                    attachments:hint.attachments];
 
     [self.transportAdapter sendEvent:preparedEvent
                         traceContext:traceContext
@@ -600,9 +613,13 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
               withScope:(SentryScope *)scope
 {
     SentryHint *hint = [[SentryHint alloc] init];
+    [self populateHintAttachments:hint scope:scope isFatalEvent:event.isFatalEvent];
     return [self sendEvent:event withSession:session withScope:scope hint:hint];
 }
 
+// The hint's attachments must already be populated by every caller, either directly through
+// populateHintAttachments:scope:isFatalEvent: or before running prepareEvent, so that
+// beforeSendWithHint can add and remove attachments.
 - (SentryId *)sendEvent:(SentryEvent *)event
             withSession:(nullable SentrySession *)session
               withScope:(SentryScope *)scope
@@ -612,21 +629,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         return SentryId.empty;
     }
 
-    NSMutableArray<SentryAttachment *> *allAttachments =
-        [NSMutableArray arrayWithArray:scope.attachments];
-    if (!event.isFatalEvent) {
-        SentryScope *cs = [self.currentScopeStorage scope];
-        if (cs != nil) {
-            for (SentryAttachment *attachment in cs.attachments) {
-                if ([allAttachments indexOfObjectIdenticalTo:attachment] == NSNotFound) {
-                    [allAttachments addObject:attachment];
-                }
-            }
-        }
-    }
-    [allAttachments addObjectsFromArray:hint.attachments];
     NSArray<SentryAttachment *> *attachments = [self processAttachmentsForEvent:event
-                                                                    attachments:allAttachments];
+                                                                    attachments:hint.attachments];
 
     if (event.isFatalEvent && event.context[@"replay"] &&
         [event.context[@"replay"] isKindOfClass:NSDictionary.class]) {

@@ -151,9 +151,14 @@
     /// This block can be used to modify the event with access to the hint before it will be sent.
     /// If set, this takes precedence over ``beforeSend``.
     ///
-    /// - Note: Deprecated. In the next major version, the hint parameter will be added to
-    ///   ``beforeSend`` directly and this callback will be removed.
-    @objc public var beforeSendWithHint: ((Event, Hint) -> Event?)?
+    /// - Warning: Deprecated. This is a transitional API: in the next major version, the hint
+    ///   parameter will be added to ``beforeSend`` directly and this callback will be removed.
+    @objc public var beforeSendWithHint: ((Event, Hint) -> Event?)? {
+        get { _beforeSendWithHint }
+        @available(*, deprecated, message: "In the next major version, the hint parameter will be added to `beforeSend` directly and this callback will be removed. Use this only to adopt hints ahead of the next major version.")
+        set { _beforeSendWithHint = newValue }
+    }
+    private var _beforeSendWithHint: ((Event, Hint) -> Event?)?
 
     #if SDK_V10
     /// This block can be used to modify a transaction before it will be serialized and sent.
@@ -187,9 +192,14 @@
     /// This block can be used to modify the breadcrumb with access to the hint before it is added.
     /// If set, this takes precedence over ``beforeBreadcrumb``.
     ///
-    /// - Note: Deprecated. In the next major version, the hint parameter will be added to
-    ///   ``beforeBreadcrumb`` directly and this callback will be removed.
-    @objc public var beforeBreadcrumbWithHint: ((Breadcrumb, Hint) -> Breadcrumb?)?
+    /// - Warning: Deprecated. This is a transitional API: in the next major version, the hint
+    ///   parameter will be added to ``beforeBreadcrumb`` directly and this callback will be removed.
+    @objc public var beforeBreadcrumbWithHint: ((Breadcrumb, Hint) -> Breadcrumb?)? {
+        get { _beforeBreadcrumbWithHint }
+        @available(*, deprecated, message: "In the next major version, the hint parameter will be added to `beforeBreadcrumb` directly and this callback will be removed. Use this only to adopt hints ahead of the next major version.")
+        set { _beforeBreadcrumbWithHint = newValue }
+    }
+    private var _beforeBreadcrumbWithHint: ((Breadcrumb, Hint) -> Breadcrumb?)?
 
     /// You can use this callback to decide if the SDK should capture a screenshot or not. Return @c true
     /// if the SDK should capture a screenshot, return @c false if not. This callback doesn't work for

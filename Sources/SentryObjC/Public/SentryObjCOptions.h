@@ -144,8 +144,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// This block can be used to modify the event with access to the hint before it will be sent.
 /// If set, this takes precedence over @c beforeSend.
+/// @warning Deprecated. This is a transitional API: in the next major version, the hint parameter
+/// will be added to @c beforeSend directly and this callback will be removed.
 @property (nonatomic, copy, nullable) SentryObjCEvent *_Nullable (^beforeSendWithHint)
-    (SentryObjCEvent *, SentryObjCHint *);
+    (SentryObjCEvent *, SentryObjCHint *) DEPRECATED_MSG_ATTRIBUTE(
+        "In the next major version, the hint parameter will be added to "
+        "beforeSend directly and this callback will be removed. Use this only "
+        "to adopt hints ahead of the next major version.");
 
 #if SDK_V10
 /// This block can be used to modify a transaction before it will be serialized and sent.
@@ -178,8 +183,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// This block can be used to modify the breadcrumb with access to the hint before it is added.
 /// If set, this takes precedence over @c beforeBreadcrumb.
+/// @warning Deprecated. This is a transitional API: in the next major version, the hint parameter
+/// will be added to @c beforeBreadcrumb directly and this callback will be removed.
 @property (nonatomic, copy, nullable) SentryObjCBreadcrumb *_Nullable (^beforeBreadcrumbWithHint)
-    (SentryObjCBreadcrumb *, SentryObjCHint *);
+    (SentryObjCBreadcrumb *, SentryObjCHint *)
+        DEPRECATED_MSG_ATTRIBUTE("In the next major version, the hint parameter will be added to "
+                                 "beforeBreadcrumb directly and this callback will be removed. Use "
+                                 "this only to adopt hints ahead of the next major version.");
 
 /// This block can be used to modify or drop a log before it will be sent. Return @c nil to drop the
 /// log.

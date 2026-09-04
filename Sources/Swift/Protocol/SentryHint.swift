@@ -6,57 +6,57 @@
 /// be sent with it.
 ///
 /// ## Thread Safety
-/// All property access is guarded by a lock. It is safe to read and write from any queue.
+/// All property access is guarded by a mutex. It is safe to read and write from any queue.
 @objc(SentryHint)
 @objcMembers
 public final class Hint: NSObject {
 
-    private let lock = NSLock()
+    private struct State {
+        var originalError: Error?
+        var originalException: NSException?
+        var attachments: [Attachment] = []
+        var extra: [String: Any] = [:]
+    }
 
-    private var _originalError: Error?
-    private var _originalException: NSException?
-    private var _attachments: [Attachment]
-    private var _extra: [String: Any]
+    private let state = SentryMutex(State())
 
     /// The original `Error` (typically an `NSError`) that triggered the event capture, if any.
     public var originalError: Error? {
-        get { lock.withLock { _originalError } }
-        set { lock.withLock { _originalError = newValue } }
+        get { state.withLock { $0.originalError } }
+        set { state.withLock { $0.originalError = newValue } }
     }
 
     /// The original `NSException` that triggered the event capture, if any.
     public var originalException: NSException? {
-        get { lock.withLock { _originalException } }
-        set { lock.withLock { _originalException = newValue } }
+        get { state.withLock { $0.originalException } }
+        set { state.withLock { $0.originalException = newValue } }
     }
 
     /// The attachments that will be sent alongside the event.
     ///
-    /// Add attachments in ``Options/beforeSendWithHint`` to include them with the event.
-    /// These are merged with scope attachments after the callback returns.
+    /// Before ``Options/beforeSendWithHint`` is invoked, the SDK pre-populates this list with the
+    /// attachments that will be sent with the event, such as the scope's attachments. The list left
+    /// in the hint when the callback returns is what the SDK sends, so attachments can be both
+    /// added and removed in the callback.
     public var attachments: [Attachment] {
-        get { lock.withLock { _attachments } }
-        set { lock.withLock { _attachments = newValue } }
+        get { state.withLock { $0.attachments } }
+        set { state.withLock { $0.attachments = newValue } }
     }
 
     public override init() {
-        _originalError = nil
-        _originalException = nil
-        _attachments = []
-        _extra = [:]
         super.init()
     }
 
     /// Creates a hint pre-populated with the original error.
     @objc public convenience init(error: Error) {
         self.init()
-        _originalError = error
+        state.withLock { $0.originalError = error }
     }
 
     /// Creates a hint pre-populated with the original exception.
     @objc public convenience init(exception: NSException) {
         self.init()
-        _originalException = exception
+        state.withLock { $0.originalException = exception }
     }
 
     // MARK: - Generic Key-Value Storage
@@ -64,18 +64,18 @@ public final class Hint: NSObject {
     /// Stores an arbitrary value in the hint, accessible by key.
     @objc
     public func setHintValue(_ value: Any, forKey key: String) {
-        lock.withLock { _extra[key] = value }
+        state.withLock { $0.extra[key] = value }
     }
 
     /// Returns the value associated with the given key, or `nil` if not set.
     @objc
     public func hintValue(forKey key: String) -> Any? {
-        lock.withLock { _extra[key] }
+        state.withLock { $0.extra[key] }
     }
 
     /// Removes the value for the given key.
     @objc
     public func removeHintValue(forKey key: String) {
-        lock.withLock { _ = _extra.removeValue(forKey: key) }
+        state.withLock { _ = $0.extra.removeValue(forKey: key) }
     }
 }

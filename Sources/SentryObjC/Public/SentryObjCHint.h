@@ -24,7 +24,14 @@ NS_ASSUME_NONNULL_BEGIN
 /// The original @c NSException that triggered the event capture, if any.
 @property (nonatomic, strong, nullable) NSException *originalException;
 
-/// The attachments that will be sent alongside the event.
+/**
+ * The attachments that will be sent alongside the event.
+ *
+ * Before @c beforeSendWithHint is invoked, the SDK pre-populates this list with the attachments
+ * that will be sent with the event, such as the scope's attachments. The list left in the hint
+ * when the callback returns is what the SDK sends, so attachments can be both added and removed
+ * in the callback.
+ */
 @property (nonatomic, copy) NSArray<SentryObjCAttachment *> *attachments;
 
 - (nonnull instancetype)init;

@@ -114,9 +114,17 @@ import Foundation
         }
     }
 
+    /// This block can be used to modify the event with access to the hint before it will be sent.
+    /// If set, this takes precedence over `beforeSend`.
+    ///
+    /// - Warning: Deprecated. This is a transitional API: in the next major version, the hint
+    ///   parameter will be added to `beforeSend` directly and this callback will be removed.
     @objc public var beforeSendWithHint: ((SentryObjCEvent, SentryObjCHint) -> SentryObjCEvent?)? {
-        didSet {
-            if let beforeSendWithHint = beforeSendWithHint {
+        get { _beforeSendWithHint }
+        @available(*, deprecated, message: "In the next major version, the hint parameter will be added to `beforeSend` directly and this callback will be removed. Use this only to adopt hints ahead of the next major version.")
+        set {
+            _beforeSendWithHint = newValue
+            if let beforeSendWithHint = newValue {
                 wrapped.beforeSendWithHint = { event, hint in
                     guard let result = beforeSendWithHint(SentryObjCEvent(event), SentryObjCHint(hint)) else { return nil }
                     return result.wrapped
@@ -126,6 +134,7 @@ import Foundation
             }
         }
     }
+    private var _beforeSendWithHint: ((SentryObjCEvent, SentryObjCHint) -> SentryObjCEvent?)?
 
     #if SDK_V10
     @objc public var beforeSendTransaction: ((SentryObjCTransaction) -> SentryObjCTransaction?)? {
@@ -177,9 +186,17 @@ import Foundation
         }
     }
 
+    /// This block can be used to modify the breadcrumb with access to the hint before it is added.
+    /// If set, this takes precedence over `beforeBreadcrumb`.
+    ///
+    /// - Warning: Deprecated. This is a transitional API: in the next major version, the hint
+    ///   parameter will be added to `beforeBreadcrumb` directly and this callback will be removed.
     @objc public var beforeBreadcrumbWithHint: ((SentryObjCBreadcrumb, SentryObjCHint) -> SentryObjCBreadcrumb?)? {
-        didSet {
-            if let beforeBreadcrumbWithHint = beforeBreadcrumbWithHint {
+        get { _beforeBreadcrumbWithHint }
+        @available(*, deprecated, message: "In the next major version, the hint parameter will be added to `beforeBreadcrumb` directly and this callback will be removed. Use this only to adopt hints ahead of the next major version.")
+        set {
+            _beforeBreadcrumbWithHint = newValue
+            if let beforeBreadcrumbWithHint = newValue {
                 wrapped.beforeBreadcrumbWithHint = { crumb, hint in
                     guard let result = beforeBreadcrumbWithHint(SentryObjCBreadcrumb(crumb), SentryObjCHint(hint)) else { return nil }
                     return result.wrapped
@@ -189,6 +206,7 @@ import Foundation
             }
         }
     }
+    private var _beforeBreadcrumbWithHint: ((SentryObjCBreadcrumb, SentryObjCHint) -> SentryObjCBreadcrumb?)?
 
     @objc public var beforeSendLog: ((SentryObjCLog) -> SentryObjCLog?)? {
         didSet {
