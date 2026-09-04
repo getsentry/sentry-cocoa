@@ -305,9 +305,18 @@ targets += [
 
 targets += [
     .target(
+        name: "SentryTestUtilsObjC",
+        dependencies: ["SentryObjCInternal", "SentrySwift", "_SentryPrivate", "SentryHeaders"],
+        path: "SentryTestUtils/SourcesObjC",
+        publicHeadersPath: "include",
+        cSettings: [
+            .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
+        ] + v10CSettings
+    ),
+    .target(
         name: "SentryTestUtilsObjCpp",
         dependencies: ["SentryObjCInternal", "_SentryPrivate"],
-        path: "SentryTestUtils/SourcesCPP",
+        path: "SentryTestUtils/SourcesObjCpp",
         publicHeadersPath: ".",
         cSettings: [
             .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
@@ -326,15 +335,10 @@ targets += [
             "SentryObjCInternal",
             "SentrySwift",
             "_SentryPrivate",
+            "SentryTestUtilsObjC",
             "SentryTestUtilsObjCpp"
         ],
         path: "SentryTestUtils/Sources",
-        // These helpers require private SDK operations that do not cross SwiftPM module boundaries.
-        exclude: [
-            "ClearTestState.swift",
-            "TestClient.swift",
-            "TestHub.swift"
-        ],
         swiftSettings: [
             .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"]))
         ] + v10SwiftSettings
