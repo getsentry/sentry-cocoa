@@ -1,11 +1,11 @@
 // swiftlint:disable file_length type_body_length
 #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
-#if os(iOS) || os(tvOS)
+#if os(iOS) || os(tvOS) || os(visionOS)
 internal import _SentryPrivate
 import Foundation
 import ObjectiveC.NSObjCRuntime
 import UIKit
-#if os(iOS)
+#if os(iOS) || os(visionOS)
 import PDFKit
 import WebKit
 #endif
@@ -197,7 +197,7 @@ final class SentryUIRedactBuilder {
 
         Self.registerLiquidGlassLayers(options: options, into: &redactLayers)
 
-#if os(iOS)
+#if os(iOS) || os(visionOS)
         redactClasses.insert(ClassIdentifier(objcType: PDFView.self))
         redactClasses.insert(ClassIdentifier(objcType: WKWebView.self))
 
@@ -258,7 +258,7 @@ final class SentryUIRedactBuilder {
     /// SF Symbols are rendered as CALayer sublayers without a backing UIView. This method populates
     /// the layer class set so `mapRedactRegion` can detect and mask them.
     private static func registerLiquidGlassLayers(options: SentryRedactOptions, into redactLayers: inout Set<String>) {
-        guard #available(iOS 26.0, tvOS 26.0, *) else { return }
+        guard #available(iOS 26.0, tvOS 26.0, visionOS 26.0, *) else { return }
 
         if options.maskAllText {
             // Replaces `SwiftUI.CGDrawingView` for text rendering.
@@ -608,7 +608,7 @@ final class SentryUIRedactBuilder {
                     ))
                 }
             }
-        } else if #available(iOS 26.0, tvOS 26.0, *), !enforceIgnore && shouldRedactLayer(layer) {
+        } else if #available(iOS 26.0, tvOS 26.0, visionOS 26.0, *), !enforceIgnore && shouldRedactLayer(layer) {
             // iOS 26+ (Liquid Glass): SwiftUI no longer wraps drawing content in UIView subclasses.
             // Text, images, and SF Symbols are rendered as CALayer sublayers without a backing UIView.
             // We detect these by matching the layer's class name against known drawing layer types.
@@ -733,7 +733,7 @@ final class SentryUIRedactBuilder {
             return true
         }
 
-#if os(iOS)
+#if os(iOS) || os(visionOS)
         // UISwitch uses UIImageView internally, which can be in the list of redacted views.
         // But UISwitch is in the list of ignored class identifiers by default, because it uses
         // non-sensitive images. Therefore we want to ignore the subtree of UISwitch, unless
@@ -742,7 +742,7 @@ final class SentryUIRedactBuilder {
         if viewTypeId == "UISwitch" && containsIgnoreClassId(ClassIdentifier(classId: viewTypeId)) {
             return true
         }
-#endif // os(iOS)
+#endif // os(iOS) || os(visionOS)
 
         return false
     }

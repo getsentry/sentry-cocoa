@@ -481,7 +481,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     }
 #endif // !SDK_V10
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     private var _screenshotSource: SentryScreenshotSource?
     // Computed property (not a `lazy var`): a `lazy var` caches its first value
     // forever. If `screenshotSource` is first accessed before `startOptions` is
@@ -517,7 +517,9 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             paramLock.synchronized { _screenshotSource = newValue }
         }
     }
+#endif
 
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
     private var _sessionReplayBreadcrumbConverter: SentryReplayBreadcrumbConverter?
     var sessionReplayBreadcrumbConverter: SentryReplayBreadcrumbConverter {
         get { getLazyVar(\._sessionReplayBreadcrumbConverter) { SentrySRDefaultBreadcrumbConverter() } }
@@ -747,6 +749,14 @@ extension SentryDependencyContainer: FramesTrackingProvider { }
 #endif
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+protocol ScreenshotIntegrationProvider {
+    var screenshotSource: SentryScreenshotSource? { get }
+}
+
+extension SentryDependencyContainer: ScreenshotIntegrationProvider { }
+#endif
+
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 protocol ViewHierarchyProviderProvider {
     var viewHierarchyProvider: SentryViewHierarchyProvider? { get }
 }
@@ -755,12 +765,6 @@ extension SentryDependencyContainer: ViewHierarchyProviderProvider { }
 #endif
 
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
-protocol ScreenshotIntegrationProvider {
-    var screenshotSource: SentryScreenshotSource? { get }
-}
-
-extension SentryDependencyContainer: ScreenshotIntegrationProvider { }
-
 protocol SessionReplayCaptureSchedulerProvider {
     var sessionReplayCaptureScheduler: SentrySessionReplayRunLoopCaptureScheduler { get }
 }
