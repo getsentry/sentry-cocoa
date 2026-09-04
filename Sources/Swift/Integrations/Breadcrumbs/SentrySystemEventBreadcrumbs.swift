@@ -374,7 +374,7 @@ private extension SentrySystemEventBreadcrumbs {
      * drift.
      *
      * @see
-     * https://developer.apple.com/documentation/foundation/nsnotification/name/1408393-nssystemclockdidchange
+     * https://developer.apple.com/documentation/foundation/nsnotification/name-swift.struct/nssystemclockdidchange
      */
     @objc func systemClockDidChangeTriggered(_ notification: Notification) {
         let crumb = Breadcrumb(level: .info, category: "device.event")
