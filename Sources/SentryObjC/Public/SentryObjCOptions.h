@@ -21,6 +21,7 @@
 @class SentryObjCHttpStatusCodeRange;
 @class SentryObjCLog;
 @class SentryObjCMetric;
+@class SentryObjCProfileOptions;
 @class SentryObjCReplayOptions;
 @class SentryObjCSamplingContext;
 @class SentryObjCScope;
@@ -115,6 +116,17 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSUInteger maxBreadcrumbs;
 
 /**
+ * How many feature flag evaluations do you want to keep in memory on the scope?
+ * @discussion Events record the most recent, unique feature flag evaluations. When the limit is
+ * exceeded, the SDK drops the oldest evaluations. Set it to @c 0 to stop recording feature flag
+ * evaluations on the scope.
+ * @note Spans always track the first 10 feature flags evaluated within the span, independent of
+ * this option.
+ * @note Default is 100.
+ */
+@property (nonatomic) NSUInteger maxFeatureFlags;
+
+/**
  * When enabled, the SDK adds breadcrumbs for each network request. As this feature uses
  * swizzling, disabling @c enableSwizzling also disables this feature.
  * @note Default value is @c YES.
@@ -144,10 +156,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 #if !SDK_V10
 /**
- * When enabled, the SDK sends logs to Sentry. Logs can be captured using the
- * @c SentryObjCSDK.logger API, which provides structured logging with attributes.
+ * Legacy option kept for compatibility until the next major release.
+ *
+ * Manual log capture through @c SentryObjCSDK.logger (and opt-in logging integrations that
+ * forward through it) is not gated by this flag. Setting it to @c NO does not drop those logs.
  * @note Default value is @c NO.
- * @note In v10 and later, logs are always enabled. Remove this option when upgrading.
+ * @note In v10 and later, this option is removed and logs are always enabled.
  */
 @property (nonatomic) BOOL enableLogs;
 #endif // !SDK_V10
@@ -287,6 +301,16 @@ NS_ASSUME_NONNULL_BEGIN
  * @note The default is @c NO.
  */
 @property (nonatomic) BOOL enablePersistingTracesWhenCrashing;
+
+#if SENTRY_OBJC_PROFILING_SUPPORTED
+/**
+ * A block that configures continuous profiling.
+ * @warning Continuous profiling is an experimental feature and may still contain bugs.
+ * @note Profiling is automatically disabled if a thread sanitizer is attached.
+ */
+@property (nonatomic, copy, nullable) void (^configureProfiling)
+    (SentryObjCProfileOptions *profiling);
+#endif
 
 /**
  * A block that configures the initial scope when starting the SDK.
@@ -536,7 +560,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) SentryObjCExperimentalOptions *experimental;
 
 /**
- * When enabled, the SDK sends metrics to Sentry.
+ * Legacy option kept for compatibility until the next major release.
+ *
+ * Manual metric capture through the metrics API is not gated by this flag. Setting it to
+ * @c NO does not drop those metrics.
  * @note Default value is @c YES.
  */
 @property (nonatomic) BOOL enableMetrics;

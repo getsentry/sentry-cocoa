@@ -86,6 +86,11 @@ import Foundation
         set { wrapped.maxBreadcrumbs = newValue }
     }
 
+    @objc public var maxFeatureFlags: UInt {
+        get { wrapped.maxFeatureFlags }
+        set { wrapped.maxFeatureFlags = newValue }
+    }
+
     @objc public var enableNetworkBreadcrumbs: Bool {
         get { wrapped.enableNetworkBreadcrumbs }
         set { wrapped.enableNetworkBreadcrumbs = newValue }
@@ -293,6 +298,20 @@ import Foundation
         get { wrapped.enablePersistingTracesWhenCrashing }
         set { wrapped.enablePersistingTracesWhenCrashing = newValue }
     }
+
+#if os(iOS) || os(macOS)
+    @objc public var configureProfiling: ((SentryObjCProfileOptions) -> Void)? {
+        didSet {
+            if let configureProfiling {
+                wrapped.configureProfiling = { profiling in
+                    configureProfiling(SentryObjCProfileOptions(profiling))
+                }
+            } else {
+                wrapped.configureProfiling = nil
+            }
+        }
+    }
+#endif // os(iOS) || os(macOS)
 
     @objc public var initialScope: ((SentryObjCScope) -> SentryObjCScope) = { return $0 } {
         didSet {

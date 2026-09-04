@@ -124,6 +124,16 @@
     /// @note Default is 100.
     @objc public var maxBreadcrumbs: UInt = 100
 
+    /// How many feature flag evaluations do you want to keep in memory on the scope?
+    /// @discussion Events record the most recent, unique feature flag evaluations. When the limit is
+    /// exceeded, the SDK drops the oldest evaluations. Increase this if your app evaluates a large
+    /// number of flags and you want more of them attached to your events. Set it to @c 0 to stop
+    /// recording feature flag evaluations on the scope.
+    /// @note Spans always track the first 10 feature flags evaluated within the span, independent of
+    /// this option.
+    /// @note Default is 100.
+    @objc public var maxFeatureFlags: UInt = 100
+
     /// When enabled, the SDK adds breadcrumbs for each network request. As this feature uses swizzling,
     /// disabling enableSwizzling also disables this feature.
     /// @discussion If you want to enable or disable network tracking for performance monitoring, please
@@ -148,10 +158,15 @@
     @objc public var beforeSendSpan: SentryBeforeSendSpanCallback?
 
     #if !SDK_V10
-    /// When enabled, the SDK sends logs to Sentry. Logs can be captured using the SentrySDK.logger
-    /// API, which provides structured logging with attributes.
-    /// @note Default value is @c false.
-    /// @note In v10 and later, logs are always enabled. Remove this option when upgrading.
+    /// Legacy option kept for compatibility until the next major release.
+    ///
+    /// Manual log capture through ``SentrySDK/logger`` (and opt-in logging integrations that
+    /// forward through it) is not gated by this flag. Setting it to `false` does not drop
+    /// those logs.
+    ///
+    /// - Note: Default value is `false`.
+    /// - Note: In v10 and later, this option is removed and logs are always enabled.
+    /// - Warning: Deprecated. This option will be removed in the next major version.
     @objc public var enableLogs: Bool = false
     #endif // !SDK_V10
 
@@ -764,9 +779,13 @@
 
     // MARK: - Integration: Metrics
 
-    /// When enabled, the SDK sends metrics to Sentry. Metrics can be captured using the ``SentrySDK/metrics``
-    /// API, which allows you to send, view and query counters, gauges and measurements.
-    /// @note Default value is @c true.
+    /// Legacy option kept for compatibility until the next major release.
+    ///
+    /// Manual metric capture through ``SentrySDK/metrics`` is not gated by this flag. Setting it
+    /// to `false` does not drop those metrics.
+    ///
+    /// - Note: Default value is `true`.
+    /// - Warning: Deprecated. This option will be removed in the next major version.
     @objc public var enableMetrics: Bool = true
 
     /// Use this callback to drop or modify a metric before the SDK sends it to Sentry. Return nil to

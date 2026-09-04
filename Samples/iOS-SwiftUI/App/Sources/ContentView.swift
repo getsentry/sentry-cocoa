@@ -1,4 +1,5 @@
-import Sentry
+import _SentryPrivate
+import SentrySwift
 import SwiftUI
 
 class DataBag {

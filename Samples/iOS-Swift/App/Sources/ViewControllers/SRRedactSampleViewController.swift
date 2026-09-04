@@ -1,3 +1,4 @@
+import SentrySwift
 import SwiftUI
 import UIKit
 
@@ -38,11 +39,19 @@ final class SRRedactSampleViewController: UIViewController {
         grid.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(grid)
 
+        let controls = replayControls()
+        controls.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(controls)
+
         NSLayoutConstraint.activate([
             grid.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
             grid.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             grid.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            grid.heightAnchor.constraint(equalToConstant: 384)
+            grid.heightAnchor.constraint(equalToConstant: 384),
+            controls.topAnchor.constraint(equalTo: grid.bottomAnchor, constant: 16),
+            controls.leadingAnchor.constraint(equalTo: grid.leadingAnchor),
+            controls.trailingAnchor.constraint(equalTo: grid.trailingAnchor),
+            controls.heightAnchor.constraint(equalToConstant: 80)
         ])
     }
 
@@ -65,12 +74,51 @@ final class SRRedactSampleViewController: UIViewController {
         animatedLabel.layer.removeAnimation(forKey: Self.animatedLabelAnimationKey)
     }
 
-    private func row(_ leadingView: UIView, _ trailingView: UIView) -> UIStackView {
-        let row = UIStackView(arrangedSubviews: [leadingView, trailingView])
+    private func row(_ views: UIView...) -> UIStackView {
+        let row = UIStackView(arrangedSubviews: views)
         row.axis = .horizontal
         row.spacing = 16
         row.distribution = .fillEqually
         return row
+    }
+
+    private func replayControls() -> UIStackView {
+        let controls = UIStackView(arrangedSubviews: [
+            row(
+                replayControlButton(title: "Start", identifier: "replay-control-start") {
+                    SentrySDK.replay.start()
+                },
+                replayControlButton(title: "Start Buffering", identifier: "replay-control-buffer") {
+                    SentrySDK.replay.startBuffering()
+                },
+                replayControlButton(title: "Pause", identifier: "replay-control-pause") {
+                    SentrySDK.replay.pause()
+                }
+            ),
+            row(
+                replayControlButton(title: "Resume", identifier: "replay-control-resume") {
+                    SentrySDK.replay.resume()
+                },
+                replayControlButton(title: "Flush", identifier: "replay-control-flush") {
+                    SentrySDK.replay.flush()
+                },
+                replayControlButton(title: "Stop", identifier: "replay-control-stop") {
+                    SentrySDK.replay.stop()
+                }
+            )
+        ])
+        controls.axis = .vertical
+        controls.spacing = 8
+        controls.distribution = .fillEqually
+        return controls
+    }
+
+    private func replayControlButton(title: String, identifier: String, action: @escaping () -> Void) -> UIButton {
+        let button = UIButton(type: .system)
+        button.setTitle(title, for: .normal)
+        button.accessibilityIdentifier = identifier
+        button.addAction(UIAction { _ in action() }, for: .touchUpInside)
+        return button
     }
 
     private func maskedUIKitLabel() -> UILabel {
