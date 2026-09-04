@@ -143,7 +143,8 @@ begin_group "Device Discovery"
 log_info "Searching for simulator: $SIMULATOR running $PLATFORM_NAME $PLATFORM_VERSION"
 
 # simctl device headers use major.minor (e.g. "-- iOS 26.4 --") even for
-# hotfix versions like 26.4.1. Extract major.minor for section matching.
+# hotfix versions like 26.4.1. Use the section only to find a candidate, then
+# validate the booted device's exact runtime version below.
 VERSION_MM=$(echo "$PLATFORM_VERSION" | awk -F. '{print $1"."$2}')
 
 UDID=$(xcrun simctl list devices available | \
@@ -251,6 +252,16 @@ for attempt in $(seq 1 $MAX_BOOT_ATTEMPTS); do
         log_info "Will retry booting simulator..."
     fi
 done
+
+ACTUAL_PLATFORM_VERSION=$(xcrun simctl getenv "$UDID" SIMULATOR_RUNTIME_VERSION)
+if [ "$ACTUAL_PLATFORM_VERSION" != "$PLATFORM_VERSION" ]; then
+    log_error "Booted simulator $UDID runs $PLATFORM_NAME $ACTUAL_PLATFORM_VERSION, expected $PLATFORM_VERSION"
+    exit 1
+fi
+
+log_info "Validated simulator runtime: $PLATFORM_NAME $ACTUAL_PLATFORM_VERSION (UDID: $UDID)"
+set_output "device-udid" "$UDID"
+set_output "platform-version" "$ACTUAL_PLATFORM_VERSION"
 
 end_group
 

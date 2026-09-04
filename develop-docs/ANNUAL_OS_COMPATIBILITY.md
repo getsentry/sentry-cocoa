@@ -18,10 +18,15 @@ One task per phase. Platforms and suites are acceptance criteria inside a task, 
 ```markdown
 > Risk areas and triage rules: `develop-docs/ANNUAL_OS_COMPATIBILITY.md`
 
+## 0. Set up the project — Before first beta
+
+- [ ] Assign an owner and link this checklist and the previous cycle's project
+- [ ] Track the first beta, RC, GA, and GA + 30 days as project milestones
+
 ## 1. Triage Apple's changes — First beta
 
-- [ ] Close last cycle's open validation issues that aren't in a known risk area
-- [ ] Review WWDC sessions and release notes against the known risk areas
+- [ ] Review last cycle's open validation issues; close resolved items and carry forward outstanding risks
+- [ ] Review Apple's release notes and WWDC sessions for new APIs, behavior changes, restrictions, and known risk areas
 - [ ] File one issue per area needing validation, each with its own acceptance criteria
 - [ ] Decide which features earn a manual check this cycle
 
@@ -36,26 +41,32 @@ One task per phase. Platforms and suites are acceptance criteria inside a task, 
 Enable the tests on beta CI and fix everything until they're green. They don't block PRs yet, so
 nothing forces you to look — but phase 5 can only require what's already green.
 
-- [ ] Run the unit-test and critical-UI matrices on beta Xcode and the new runtimes
+- [ ] Run the unit-test, UI-test, and critical-UI matrices on beta Xcode and the new runtimes
 - [ ] Move slow platforms to `nightly-test.yml`
 - [ ] Keep new-OS jobs non-blocking; the previous generation stays required
 - [ ] Fix each failure at its cause: the test (beta runtime differs), the SDK (real regression), or a workaround (toolchain bug)
+- [ ] Before RC, inspect the unit-test, UI-test, and critical-UI workflow runs and confirm every expected new-OS matrix job passed; skipped jobs do not count
 
 ## 3a. Toolchain sweep — First beta
 
-Run all of these on beta Xcode. Point the shell at it first, for example
-`export DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer`, and confirm with
-`xcodebuild -version`.
+Run all of these on beta Xcode and the new iOS runtime. Point the shell at them first, for example:
+
+    export DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer
+    export IOS_SIMULATOR_OS=<new-iOS-version>
+    export IOS_DEVICE_NAME="iPhone 16 Pro"
+    export IOS_DEVICE_ID=<booted-simulator-UDID>
+    xcodebuild -version
 
 - [ ] `make build` + `make test`
 - [ ] `make analyze`
 - [ ] If major-version work is in flight, run its dedicated build and test targets
 - [ ] `make build-samples` (must be warning-free — and diff its list against `ls Samples/`, it misses directories), `make test-samples-ui`, `make test-ui-critical`
 - [ ] `./TestSamples/CrashE2E/run-crash-e2e.sh --platform all` (manual — `all` selects only iOS and macOS, not all Apple platforms; nothing in CI runs it)
-- [ ] `./TestSamples/SwiftUICrashTest/test-crash-and-relaunch.sh`
+- [ ] `./TestSamples/SwiftUICrashTest/test-crash-and-relaunch.sh --device-id "$IOS_DEVICE_ID" --os-version "$IOS_SIMULATOR_OS"`
 - [ ] `make build-xcframework-dynamic` + `make build-xcframework-static`
 - [ ] Triage every error and warning: does it also happen on stable Xcode?
-- [ ] File a follow-up if the new Xcode forces a deployment-target bump — it's a breaking change with its own release process, and React Native, Flutter, .NET, and Unity need advance warning
+- [ ] When beta validation confirms a user-facing breaking change, open and pin a public warning issue (for example, [#8113](https://github.com/getsentry/sentry-cocoa/issues/8113)) as soon as possible; include the current and new requirements, target release, rationale, impact, and fallback SDK version
+- [ ] File an implementation follow-up for any deployment-target bump or other downstream-facing change, and notify React Native, Flutter, .NET, and Unity in `#team-sdks-mobile` as soon as it is confirmed and at least seven days before release; include deployment targets, minimum Xcode or Swift versions, build-product or private-API changes, and relevant behavior changes
 - [ ] Record Xcode build, host OS, and runtime or device for each run
 
 ## 3b. Risk-area validations — Before RC
@@ -75,7 +86,8 @@ the set queries together, and check app identifier, OS version, and device famil
 - [ ] tvOS — `tvOS-Swift`
 - [ ] watchOS — `watchOS-Swift`
 - [ ] visionOS — `visionOS-Swift`
-- [ ] macOS — `macOS-Swift` (after GA — macOS betas can't be tested)
+- [ ] macOS — `macOS-Swift` (compile against the beta SDK; runtime-test on a matching beta or RC host when available, otherwise mark it blocked)
+- [ ] On iOS, repeat the smoke pass with a `Release` configuration and confirm crash symbolication, offline delivery, Session Replay, and profiling; enable SDK debug logging and investigate new warnings
 
 ## 3d. Test-debt audit — Before RC
 
@@ -87,15 +99,17 @@ the set queries together, and check app identifier, OS version, and device famil
 
 Keep all RC work in this checklist so it has one owner.
 
-- [ ] Run the full beta-Xcode CI matrix against the RC Xcode and runtimes, including analyzer, unit-test, and critical-UI jobs
+- [ ] Run the full beta-Xcode CI matrix against the RC Xcode and runtimes, including unit-test, UI-test, and critical-UI jobs
+- [ ] Run `make analyze` manually with the RC Xcode unless beta-Xcode analyzer CI exists
 - [ ] Repeat what CI doesn't cover: samples, crash E2E, xcframeworks, and the phase 3c telemetry check
 - [ ] Triage everything that changed since the first beta
 
 ## 5. Make new-OS CI required — GA
 
-- [ ] Only require jobs that have been stable — a job still red or flaky isn't ready
+- [ ] Only promote jobs that have been stable — a job still red or flaky isn't ready
 - [ ] Every remaining failure in the new-OS jobs has a triage outcome
-- [ ] Make new-OS jobs required, retire the previous generation from the blocking set
+- [ ] Remove `continue_on_error` from stable new-OS matrix entries and confirm failures propagate to the required aggregate checks
+- [ ] Keep older supported-runtime jobs; retire only entries that the test matrix no longer needs
 
 ## 6. Check customer data — GA + 30 days
 
@@ -116,7 +130,7 @@ Start validation here — where the SDK has broken before, plus the areas we kee
 - **Session Replay masking** — the most fragile area, two years running. Liquid Glass silently broke SwiftUI masking in iOS 26 ([#6390](https://github.com/getsentry/sentry-cocoa/issues/6390)). iOS 27 changed UIKit and SwiftUI rendering internals ([#8768](https://github.com/getsentry/sentry-cocoa/pull/8768)), and a masking fixture that had reliably produced clipping regions produced none ([#8744](https://github.com/getsentry/sentry-cocoa/pull/8744)). Check the touch overlay and Replay's network capture too.
 - **Simulator image paths** — xOS 27 runtimes moved to a cryptex mount; our duplicate-SDK validator scanned them on the shared queue and starved launch profiling ([#8576](https://github.com/getsentry/sentry-cocoa/pull/8576)).
 - **Runtime discovery and swizzling** — Apple's Swift networking rewrite prompted a full `NSURLSession` census; it found no swizzling change was needed ([#8127](https://github.com/getsentry/sentry-cocoa/issues/8127)). The `AsyncImage` HTTP-caching follow-up remains open ([#8739](https://github.com/getsentry/sentry-cocoa/issues/8739)).
-- **Swift compiler and language mode** — each Xcode can introduce stricter concurrency diagnostics, new warnings, and source breaks before runtime tests start. Exercise Swift 6 consumers with `iOS-Swift6` and `iOS-Cocoapods-Swift6`, plus the dedicated build target for any major-version work in flight.
+- **Swift compiler and language mode** — each Xcode can introduce stricter concurrency diagnostics, new warnings, and source breaks before runtime tests start. Exercise the `iOS-Swift6` consumer, plus the dedicated build target for any major-version work in flight.
 - **Downstream hybrid SDKs** — React Native, Flutter, .NET, and Unity consume this SDK and its private APIs on their own release schedules. Warn and validate them before changing deployment targets, build products, or shared API.
 - **App start and prewarming** — needs a physical device without a debugger, and Apple offers no public trigger or detection API, so it can't be reproduced naturally; inject `ActivePrewarm=1` against a suspended process instead ([#8129](https://github.com/getsentry/sentry-cocoa/issues/8129)). The harness and results live on branch [`test/os-27-prewarm`](https://github.com/getsentry/sentry-cocoa/tree/test/os-27-prewarm) — `Samples/OS27-Prewarm` on `main` is an empty shell.
 - **Samples** — each new Xcode flags newly deprecated API, malformed XcodeGen refs, and missing platform assets ([#8724](https://github.com/getsentry/sentry-cocoa/pull/8724)).

@@ -5,6 +5,10 @@
 internal import _SentryPrivate
 import UIKit
 
+/// On visionOS, screenshots capture only the content of UIKit windows (2D Scenes).
+/// Content rendered in immersive spaces or volumetric windows via RealityKit is not
+/// included because the UIKit drawing APIs operate on the 2D view layer and have no
+/// access to the compositor's 3D scene graph.
 @objcMembers
 @_spi(Private) public class SentryScreenshotSource: NSObject {
     private let photographer: SentryViewPhotographer

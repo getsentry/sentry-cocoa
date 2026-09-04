@@ -101,10 +101,12 @@ class SentryFileManagerTests: XCTestCase {
     
     private var fixture: Fixture!
     private var sut: SentryFileManager!
+    private var originalDateProvider: SentryCurrentDateProvider!
     
     override func setUpWithError() throws {
         try super.setUpWithError()
         fixture = try Fixture()
+        originalDateProvider = SentryDependencyContainer.sharedInstance().dateProvider
         SentryDependencyContainer.sharedInstance().dateProvider = fixture.currentDateProvider
         
         sut = try fixture.getSut()
@@ -124,6 +126,7 @@ class SentryFileManagerTests: XCTestCase {
         #if !SDK_V10
         sut.deleteAbnormalSession()
         #endif // !SDK_V10
+        SentryDependencyContainer.sharedInstance().dateProvider = originalDateProvider
     }
     
     func testInitDoesNotOverrideDirectories() throws {
@@ -595,6 +598,60 @@ class SentryFileManagerTests: XCTestCase {
         sut.storeCrashedSession(expectedSession)
         let actualSession = sut.readCrashedSession()
         XCTAssertTrue(expectedSession.distinctId == actualSession?.distinctId)
+    }
+
+    func testStoreAndReadCurrentSession_whenPendingUnhandled_shouldKeepPendingUnhandled() throws {
+        // -- Arrange --
+        let expectedSession = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
+        expectedSession.markPendingUnhandled()
+
+        // -- Act --
+        sut.storeCurrentSession(expectedSession)
+        let actualSession = try XCTUnwrap(sut.readCurrentSession())
+
+        // -- Assert --
+        XCTAssertTrue(actualSession.pendingUnhandled)
+        XCTAssertEqual(SentrySessionStatus.ok, actualSession.status)
+    }
+
+    func testStoreAndReadCurrentSession_whenNotPendingUnhandled_shouldNotBePendingUnhandled() throws {
+        // -- Arrange --
+        let expectedSession = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
+
+        // -- Act --
+        sut.storeCurrentSession(expectedSession)
+        let actualSession = try XCTUnwrap(sut.readCurrentSession())
+
+        // -- Assert --
+        XCTAssertFalse(actualSession.pendingUnhandled)
+    }
+
+#if !SDK_V10
+    func testStoreAndReadAbnormalSession_whenPendingUnhandled_shouldKeepPendingUnhandled() throws {
+        // -- Arrange --
+        let expectedSession = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
+        expectedSession.markPendingUnhandled()
+
+        // -- Act --
+        sut.storeAbnormalSession(expectedSession)
+        let actualSession = try XCTUnwrap(sut.readAbnormalSession())
+
+        // -- Assert --
+        XCTAssertTrue(actualSession.pendingUnhandled)
+    }
+#endif // !SDK_V10
+
+    func testStoreAndReadCrashedSession_whenPendingUnhandled_shouldKeepPendingUnhandled() throws {
+        // -- Arrange --
+        let expectedSession = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
+        expectedSession.markPendingUnhandled()
+
+        // -- Act --
+        sut.storeCrashedSession(expectedSession)
+        let actualSession = try XCTUnwrap(sut.readCrashedSession())
+
+        // -- Assert --
+        XCTAssertTrue(actualSession.pendingUnhandled)
     }
     
     func testStoreDeleteCurrentSession() {

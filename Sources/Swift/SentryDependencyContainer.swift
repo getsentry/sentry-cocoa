@@ -517,7 +517,9 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             paramLock.synchronized { _screenshotSource = newValue }
         }
     }
+#endif
 
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     private var _sessionReplayBreadcrumbConverter: SentryReplayBreadcrumbConverter?
     var sessionReplayBreadcrumbConverter: SentryReplayBreadcrumbConverter {
         get { getLazyVar(\._sessionReplayBreadcrumbConverter) { SentrySRDefaultBreadcrumbConverter() } }
@@ -639,6 +641,8 @@ protocol Hub {
     func configureScope(_ callback: @escaping (Scope) -> Void)
     func storeEnvelope(_ envelope: SentryEnvelope)
     func captureEnvelope(_ envelope: SentryEnvelope)
+    func captureNonTerminatingEnvelope(_ envelope: SentryEnvelope)
+    func updateSessionForDroppedEventNonTerminating(unhandled: Bool)
     func captureErrorEvent(event: Event)
     func setTrace(_ traceId: SentryId, spanId: SpanId)
     var currentOptions: Options? { get }
@@ -668,6 +672,14 @@ private struct DefaultHub: Hub {
 
     func captureEnvelope(_ envelope: SentryEnvelope) {
         SentrySDKInternal.currentHub().capture(envelope)
+    }
+
+    func captureNonTerminatingEnvelope(_ envelope: SentryEnvelope) {
+        SentrySDKInternal.currentHub().captureNonTerminating(envelope)
+    }
+
+    func updateSessionForDroppedEventNonTerminating(unhandled: Bool) {
+        SentrySDKInternal.currentHub().updateSessionForDroppedEventNonTerminating(unhandled: unhandled)
     }
 
     func captureErrorEvent(event: Event) {
@@ -742,13 +754,17 @@ protocol ScreenshotIntegrationProvider {
 }
 
 extension SentryDependencyContainer: ScreenshotIntegrationProvider { }
+#endif
 
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 protocol ViewHierarchyProviderProvider {
     var viewHierarchyProvider: SentryViewHierarchyProvider? { get }
 }
 
 extension SentryDependencyContainer: ViewHierarchyProviderProvider { }
+#endif
 
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 protocol SessionReplayCaptureSchedulerProvider {
     var sessionReplayCaptureScheduler: SentrySessionReplayRunLoopCaptureScheduler { get }
 }
