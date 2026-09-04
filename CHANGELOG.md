@@ -32,6 +32,7 @@
 - Log a warning when `SentrySDK.start` is called again without `close()`. Reinitialization still runs and remains unsupported (#8928)
 - Add `SentrySDK.internal.envelope.captureNonTerminating` for hybrid SDKs, which keeps the current session running and reports it with the `unhandled` status when an unhandled exception doesn't terminate the process (#8654)
 - Add `SentrySDK.internal.envelope.updateSessionForDroppedEventNonTerminating` so hybrid SDKs can update the native session when an error is dropped by sampling, without sending an envelope (#8907)
+- Expose continuous profiling configuration on `SentryObjCOptions` via `configureProfiling` and `SentryObjCProfileOptions` (#8937)
 
 ### Fixes
 
