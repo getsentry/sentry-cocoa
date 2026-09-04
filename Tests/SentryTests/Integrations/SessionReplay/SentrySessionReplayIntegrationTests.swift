@@ -815,17 +815,45 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertTrue(redactBuilder.containsIgnoreClass(AnotherLabel.self))
     }
     
+    #if SDK_V10
+    func testReplayState_whenBuffering_shouldExposeIdAndBufferingState() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 0, errorSampleRate: 1)
+        let sut = try getSut()
+        let replayId = try XCTUnwrap(sut.currentReplayId)
+
+        // -- Act & Assert --
+        XCTAssertTrue(sut.isCurrentReplayBuffering)
+        XCTAssertEqual(SentrySDK.internal.replay.replayId, replayId.sentryIdString)
+        XCTAssertTrue(SentrySDK.internal.replay.isBuffering)
+    }
+    #endif // SDK_V10
+
     func testStop() throws {
         startSDK(sessionSampleRate: 1, errorSampleRate: 1)
         let sut = try getSut()
         let sessionReplay = sut.sessionReplay
+        #if SDK_V10
+        let replayId = try XCTUnwrap(sut.currentReplayId)
+        #endif // SDK_V10
         XCTAssertTrue(sessionReplay?.isRunning ?? false)
+        #if SDK_V10
+        XCTAssertFalse(sut.isCurrentReplayBuffering)
+        XCTAssertEqual(SentrySDK.internal.replay.replayId, replayId.sentryIdString)
+        XCTAssertFalse(SentrySDK.internal.replay.isBuffering)
+        #endif // SDK_V10
         
         SentrySDK.replay.stop()
         waitForReplayCommand()
         
         XCTAssertFalse(sessionReplay?.isRunning ?? true)
         XCTAssertNil(sut.sessionReplay)
+        #if SDK_V10
+        XCTAssertNil(sut.currentReplayId)
+        XCTAssertFalse(sut.isCurrentReplayBuffering)
+        XCTAssertNil(SentrySDK.internal.replay.replayId)
+        XCTAssertFalse(SentrySDK.internal.replay.isBuffering)
+        #endif // SDK_V10
     }
     
     func testStartWithIdleSessionReplay() throws {
@@ -1316,6 +1344,10 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         }
         XCTAssertNil(replayId)
         XCTAssertNil(sut.sessionReplay)
+        #if SDK_V10
+        XCTAssertNil(sut.currentReplayId)
+        XCTAssertFalse(sut.isCurrentReplayBuffering)
+        #endif // SDK_V10
     }
 
     private func createLastSessionReplay(

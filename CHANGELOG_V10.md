@@ -17,6 +17,7 @@
   - Add HTTP header and cookie filtering for failed requests using `options.dataCollection` (#8460)
   - Scrub sensitive Session Replay request and response body values, replacing unparseable bodies with `[Filtered]` (#8547)
 - Add `beforeSendTransaction` to modify or drop transaction events before sending (#8745)
+- Expose active Session Replay IDs and buffering state to hybrid SDKs (#8864)
 
 ### Breaking Changes
 

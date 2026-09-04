@@ -9,11 +9,15 @@ public struct SentryInternalReplayApi {
 
     typealias Dependencies = HubProvider & ReplayIntegrationProviderProvider
 
+    #if !SDK_V10
     private let hub: Hub
+    #endif // !SDK_V10
     private let replayIntegrationProvider: ReplayIntegrationProvider
 
     init(dependencies: Dependencies) {
+        #if !SDK_V10
         self.hub = dependencies.hub
+        #endif // !SDK_V10
         self.replayIntegrationProvider = dependencies.replayIntegrationProvider
     }
 
@@ -66,6 +70,19 @@ public struct SentryInternalReplayApi {
         replayIntegrationProvider.getReplayIntegration()?.captureReplay() ?? false
     }
 
+    #if SDK_V10
+    /// The active integration's replay ID, available in both session and buffer modes.
+    public var replayId: String? {
+        replayIntegrationProvider.getReplayIntegration()?.currentReplayId?.sentryIdString
+    }
+
+    /// Whether the active replay is in buffer mode.
+    ///
+    /// Returns `false` when no replay is active.
+    public var isBuffering: Bool {
+        replayIntegrationProvider.getReplayIntegration()?.isCurrentReplayBuffering ?? false
+    }
+    #else
     /// The current replay ID, or `nil` if no replay is active.
     public var replayId: String? {
         var result: String?
@@ -74,6 +91,7 @@ public struct SentryInternalReplayApi {
         }
         return result
     }
+    #endif // SDK_V10
 
     /// Adds classes to the replay ignore list.
     public func addIgnoreClasses(_ classes: [AnyClass]) {

@@ -36,8 +36,19 @@ SENTRY_NO_INIT
 /// Captures a replay event. Returns @c YES if the replay was captured.
 - (BOOL)capture;
 
+#    if SDK_V10
+/// The active integration's replay ID, available in both session and buffer modes.
+#    else
 /// The current replay ID, or @c nil if no replay is active.
+#    endif // SDK_V10
 @property (nonatomic, readonly, nullable) NSString *replayId;
+
+#    if SDK_V10
+/// Whether the active replay is in buffer mode.
+///
+/// Returns @c NO when no replay is active.
+@property (nonatomic, readonly) BOOL isBuffering;
+#    endif // SDK_V10
 
 /// Adds classes to the replay ignore list.
 - (void)addIgnoreClasses:(NSArray<Class> *)classes;
