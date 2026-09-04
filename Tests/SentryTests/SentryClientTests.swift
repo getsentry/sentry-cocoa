@@ -1750,6 +1750,94 @@ final class SentryClientTests: XCTestCase {
         XCTAssertTrue(sentAttachments.isEmpty)
     }
 
+    func testCaptureEventWithHint_userProvidedHintFlowsToBeforeSendWithHint() throws {
+        // -- Arrange --
+        var receivedHint: Hint?
+        let sut = fixture.getSut(configureOptions: { options in
+            options.beforeSendWithHint = { event, hint in
+                receivedHint = hint
+                return event
+            }
+        })
+        let hint = Hint()
+        hint.setHintValue("user-value", forKey: "custom-key")
+
+        // -- Act --
+        sut.capture(event: Event(), scope: Scope(), hint: hint)
+
+        // -- Assert --
+        let received = try XCTUnwrap(receivedHint)
+        XCTAssertEqual(received.hintValue(forKey: "custom-key") as? String, "user-value")
+    }
+
+    func testCaptureErrorWithHint_userProvidedHintFlowsToBeforeSendWithHint() throws {
+        // -- Arrange --
+        let error = NSError(domain: "test", code: 7)
+        var receivedHint: Hint?
+        let sut = fixture.getSut(configureOptions: { options in
+            options.beforeSendWithHint = { event, hint in
+                receivedHint = hint
+                return event
+            }
+        })
+        let hint = Hint()
+        hint.setHintValue(42, forKey: "retry-count")
+
+        // -- Act --
+        sut.capture(error: error, scope: Scope(), hint: hint)
+
+        // -- Assert --
+        let received = try XCTUnwrap(receivedHint)
+        XCTAssertEqual(received.hintValue(forKey: "retry-count") as? Int, 42)
+        let originalError = try XCTUnwrap(received.originalError as NSError?)
+        XCTAssertEqual(originalError.domain, "test")
+        XCTAssertEqual(originalError.code, 7)
+    }
+
+    func testCaptureExceptionWithHint_userProvidedHintFlowsToBeforeSendWithHint() throws {
+        // -- Arrange --
+        let exception = NSException(name: .genericException, reason: "test")
+        var receivedHint: Hint?
+        let sut = fixture.getSut(configureOptions: { options in
+            options.beforeSendWithHint = { event, hint in
+                receivedHint = hint
+                return event
+            }
+        })
+        let hint = Hint()
+        hint.setHintValue(true, forKey: "is-retry")
+
+        // -- Act --
+        sut.capture(exception: exception, scope: Scope(), hint: hint)
+
+        // -- Assert --
+        let received = try XCTUnwrap(receivedHint)
+        XCTAssertEqual(received.hintValue(forKey: "is-retry") as? Bool, true)
+        XCTAssertEqual(received.originalException, exception)
+    }
+
+    func testCaptureMessageWithHint_userProvidedHintFlowsToBeforeSendWithHint() throws {
+        // -- Arrange --
+        var receivedHint: Hint?
+        let sut = fixture.getSut(configureOptions: { options in
+            options.beforeSendWithHint = { event, hint in
+                receivedHint = hint
+                return event
+            }
+        })
+        let hint = Hint()
+        hint.setHintValue("source-module", forKey: "origin")
+
+        // -- Act --
+        sut.capture(message: "test message", scope: Scope(), hint: hint)
+
+        // -- Assert --
+        let received = try XCTUnwrap(receivedHint)
+        XCTAssertEqual(received.hintValue(forKey: "origin") as? String, "source-module")
+        XCTAssertNil(received.originalError)
+        XCTAssertNil(received.originalException)
+    }
+
     func testBeforeSendTransaction_ReadTags() throws {
         // Arrange
         let transaction = fixture.transaction
