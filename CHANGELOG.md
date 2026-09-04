@@ -26,13 +26,6 @@
   - `pause()` suspends recording until `resume()` and remains paused across background and foreground transitions and automatic replay restarts in the same process.
   - `resume()` continues the same manually paused replay.
   - `flush()` sends the current replay data to Sentry, or starts a full-session replay when recording is stopped.
-
-### Improvements
-
-- Install idle Session Replay recovery infrastructure at zero sample rates. (#8865)
-
-### Features
-
 - Copy `app.vitals.start.type` and `app.vitals.start.screen` onto standalone `app.start` children, including `app.start.extended` and user descendants (#8888)
 - Add `maxFeatureFlags` option to configure how many feature flag evaluations the scope retains, matching sentry-java. Defaults to 100 (#8858)
 - Log a warning when `SentrySDK.start` is called again without `close()`. Reinitialization still runs and remains unsupported (#8928)
@@ -188,15 +181,12 @@
 ### Fixes
 
 - Fix rate limiting all data categories when data category rate-limit is active. (#8324)
+- Fix EXC_BAD_ACCESS in SentryNetworkTracker caused by repeated reads of the volatile `NSURLSessionTask.currentRequest` property (#8058)
 
 ### Features
 
 - Record log_byte client reports (#8186)
 - Add scope feature flag API (#8147)
-
-### Fixes
-
-- Fix EXC_BAD_ACCESS in SentryNetworkTracker caused by repeated reads of the volatile `NSURLSessionTask.currentRequest` property (#8058)
 
 ## 9.19.1
 
@@ -2227,14 +2217,11 @@ This bug caused unhandled/crash events to have the unhandled property and mach i
 
 - Add `reportAccessibilityIdentifier` option (#4183)
 - Record dropped spans (#4172)
+- Collect only unique UIWindow references (#4159)
 
 ### Fixes
 
 - Session replay crash when writing the replay (#4186)
-
-### Features
-
-- Collect only unique UIWindow references (#4159)
 
 ### Deprecated
 
@@ -3042,8 +3029,6 @@ This change might mark 3rd party library frames as in-app, which the SDK previou
 
 This version adds a dependency on Swift.
 We renamed the default branch from `master` to `main`. We are going to keep the `master` branch for backwards compatibility for package managers pointing to the `master` branch.
-
-### Features
 
 - Properly demangle Swift class name (#2162)
 - Change view hierarchy attachment format to JSON (#2491)
