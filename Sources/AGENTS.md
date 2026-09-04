@@ -31,7 +31,6 @@
 - Prefer `SentryDependencyContainer` providers for SDK-owned dependencies
 - Use `getLazyVar` or `getOptionalLazyVar` for lazily-created defaults
 - Override dependencies through `SentryDependencyContainer.sharedInstance()` in tests
-- Do not use `PrivateSentrySDKOnly` for test injection when a provider fits
 - Do not add static shared service singletons
 - Put lifecycle-owned shared services in [`SentryDependencyContainer`](Swift/SentryDependencyContainer.swift)
 - When process-lifetime hooks require global access, use a narrow proxy with synchronized weak lifecycle targets, following [`SentryNetworkTrackerProxy`](Swift/Integrations/Performance/Network/SentryNetworkTrackerProxy.swift)
@@ -48,7 +47,6 @@
 - Do not add `@objc`, `NSObject` inheritance, `NS_SWIFT_NAME`, or Objective-C wrappers unless an existing contract or identified consumer requires Objective-C support
 - Use `@_spi(Private)` for unstable API consumed by hybrid SDKs
 - Keep `@_spi(Private)` out of public headers
-- Document `PrivateSentrySDKOnly` instability in headerdocs
 - Use `SENTRY_NO_INIT` for types that must not be publicly instantiated
 - Follow [`develop-docs/SENTRY-OBJC.md`](../develop-docs/SENTRY-OBJC.md) for wrappers and API placement
 

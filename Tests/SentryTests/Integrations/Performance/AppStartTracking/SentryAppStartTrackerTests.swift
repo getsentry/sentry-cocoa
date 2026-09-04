@@ -582,7 +582,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
     }
     
     private func hybridAppStart() {
-        PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = true
+        SentrySDKInternal.appStartMeasurementHybridSDKMode = true
 
         givenProcessStartTimestamp()
 

@@ -27,7 +27,6 @@
     {
       "parallelizable" : false,
       "skippedTests" : [
-        "PrivateSentrySDKOnlyTests\/testProfilingStartAndCollect()",
         "SentryANRTrackerTests\/testANRButAppInBackground_NoANR()",
         "SentryANRTrackerTests\/testMultipleListeners()",
         "SentryCoreDataTrackerTests\/testFetchRequestBackgroundThread()",

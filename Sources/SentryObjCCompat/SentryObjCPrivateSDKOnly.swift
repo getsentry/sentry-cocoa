@@ -8,19 +8,12 @@ import Foundation
 
 @objc(SentryObjCPrivateSDKOnly) public final class SentryObjCPrivateSDKOnly: NSObject {
 
-    // swiftlint:disable:next todo
-    // TODO: Replace selector dispatch with direct calls once PrivateSentrySDKOnly is migrated to Swift.
-    // SentryEnvelope is forward-declared in ObjC headers but defined in Swift, making ObjC methods
-    // that use it unavailable through the Swift importer. Selector dispatch is a workaround.
-
     @objc public static func storeEnvelope(_ envelope: SentryObjCEnvelope) {
-        let cls = PrivateSentrySDKOnly.self as AnyObject
-        _ = cls.perform(NSSelectorFromString("storeEnvelope:"), with: envelope.wrapped)
+        SentrySDK.internal.envelope.store(envelope.wrapped)
     }
 
     @objc public static func captureEnvelope(_ envelope: SentryObjCEnvelope) {
-        let cls = PrivateSentrySDKOnly.self as AnyObject
-        _ = cls.perform(NSSelectorFromString("captureEnvelope:"), with: envelope.wrapped)
+        SentrySDK.internal.envelope.capture(envelope.wrapped)
     }
 
     @objc public static func envelopeWithData(_ data: Data) -> SentryObjCEnvelope? {
@@ -29,56 +22,56 @@ import Foundation
     }
 
     @objc public static func setSdkName(_ sdkName: String, andVersionString versionString: String) {
-        PrivateSentrySDKOnly.setSdkName(sdkName, andVersionString: versionString)
+        SentrySDK.internal.sdk.setName(sdkName, version: versionString)
     }
 
     @objc public static func setSdkName(_ sdkName: String) {
-        PrivateSentrySDKOnly.setSdkName(sdkName)
+        SentrySDK.internal.sdk.name = sdkName
     }
 
     @objc public static func getSdkName() -> String {
-        PrivateSentrySDKOnly.getSdkName()
+        SentrySDK.internal.sdk.name
     }
 
     @objc public static func getSdkVersionString() -> String {
-        PrivateSentrySDKOnly.getSdkVersionString()
+        SentrySDK.internal.sdk.versionString
     }
 
     @objc public static func addSdkPackage(_ name: String, version: String) {
-        PrivateSentrySDKOnly.addSdkPackage(name, version: version)
+        SentrySDK.internal.sdk.addPackage(name: name, version: version)
     }
 
     @objc public static func getExtraContext() -> [String: Any] {
-        PrivateSentrySDKOnly.getExtraContext() as? [String: Any] ?? [:]
+        SentrySDK.internal.sdk.extraContext
     }
 
     @objc public static func setTrace(_ traceId: SentryObjCId, spanId: SentryObjCSpanId) {
-        PrivateSentrySDKOnly.setTrace(traceId.wrapped, spanId: spanId.wrapped)
+        SentrySDK.internal.setTrace(traceId.wrapped, spanId: spanId.wrapped)
     }
 
     @objc public static var installationID: String {
-        PrivateSentrySDKOnly.installationID
+        SentrySDK.internal.sdk.installationID
     }
 
     @objc public static var appStartMeasurementHybridSDKMode: Bool {
-        get { PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode }
-        set { PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = newValue }
+        get { SentrySDK.internal.appStart.hybridSDKMode }
+        set { SentrySDK.internal.appStart.hybridSDKMode = newValue }
     }
 
     @objc public static func userWithDictionary(_ dictionary: [String: Any]) -> SentryObjCUser {
-        SentryObjCUser(PrivateSentrySDKOnly.user(with: dictionary))
+        SentryObjCUser(SentrySDK.internal.user.fromDictionary(dictionary))
     }
 
     @objc public static func breadcrumbWithDictionary(_ dictionary: [String: Any]) -> SentryObjCBreadcrumb {
-        SentryObjCBreadcrumb(PrivateSentrySDKOnly.breadcrumb(with: dictionary))
+        SentryObjCBreadcrumb(SentrySDK.internal.breadcrumbs.fromDictionary(dictionary))
     }
 
     @objc public static func setLogOutput(_ output: @escaping (String) -> Void) {
-        PrivateSentrySDKOnly.setLogOutput(output)
+        SentrySDK.internal.setLogOutput(output)
     }
 
     @objc public static func ignoreNextSignal(_ signum: Int32) {
-        PrivateSentrySDKOnly.ignoreNextSignal(signum)
+        SentrySDK.internal.ignoreNextSignal(signum)
     }
 }
 

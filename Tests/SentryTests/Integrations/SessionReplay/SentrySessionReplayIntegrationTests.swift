@@ -613,7 +613,10 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
 
         try createLastSessionReplay(writeSessionInfo: false)
         startSDK(sessionSampleRate: 1, errorSampleRate: 1)
-        PrivateSentrySDKOnly.configureSessionReplay(with: CustomBreadcrumbConverter(), screenshotProvider: nil)
+        SentrySDK.internal.replay.configure(
+            breadcrumbConverter: CustomBreadcrumbConverter(),
+            screenshotProvider: nil
+        )
 
         let client = SentryClientInternal(options: try XCTUnwrap(SentrySDK.startOption))
         let scope = Scope()
@@ -1086,8 +1089,10 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         }
         
         startSDK(sessionSampleRate: 1, errorSampleRate: 0)
-        PrivateSentrySDKOnly.configureSessionReplay(with: CustomBreadcrumbConverter(),
-                                                    screenshotProvider: CustomImageProvider())
+        SentrySDK.internal.replay.configure(
+            breadcrumbConverter: CustomBreadcrumbConverter(),
+            screenshotProvider: CustomImageProvider()
+        )
         let sut = try getSut()
         
         XCTAssertTrue(sut.sessionReplay?.screenshotProvider is CustomImageProvider)
@@ -1104,7 +1109,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         startSDK(sessionSampleRate: 1, errorSampleRate: 0)
         
         let sut = try getSut()
-        PrivateSentrySDKOnly.setReplayTags(["someOption": "someValue"])
+        SentrySDK.internal.replay.setTags(["someOption": "someValue"])
         
         let sessionReplay = try XCTUnwrap(sut.sessionReplay)
         XCTAssertEqual(sessionReplay.replayTags?["someOption"] as? String, "someValue")

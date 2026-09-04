@@ -35,7 +35,7 @@ class TestCleanup: NSObject {
         SentrySDKInternal.startInvocations = 0
         SentrySDKInternal.setDetectedStartUpCrash(false)
         SentrySDK.setStart(with: nil)
-        PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = false
+        SentrySDKInternal.appStartMeasurementHybridSDKMode = false
         SentryDependencyContainer.sharedInstance().networkTracker.disable()
 
         SentrySDKLog.setDefaultTestLogConfiguration()
@@ -70,7 +70,7 @@ class TestCleanup: NSObject {
 #endif // os(iOS) || os(macOS)
 
         #if os(iOS) || os(tvOS) || os(visionOS)
-        PrivateSentrySDKOnly.onAppStartMeasurementAvailable = nil
+        SentrySDKInternal.onAppStartMeasurementAvailable = nil
         SentrySDKInternal.setAppStartMeasurement(nil)
         #endif // os(iOS) || os(tvOS) || os(visionOS)
 
