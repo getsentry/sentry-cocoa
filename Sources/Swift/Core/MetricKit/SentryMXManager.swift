@@ -166,6 +166,8 @@ final class SentryMXManager: NSObject, MXMetricManagerSubscriber {
         }
 
         let hangDuration = measurementFormatter.string(from: diagnostic.hangDuration)
+        let hangDurationMilliseconds = diagnostic.hangDuration.converted(to: .milliseconds).value
+        let level: SentryLevel = hangDurationMilliseconds > 500 ? .error : .warning
 
         captureEvent(
             handled: true,
@@ -174,11 +176,12 @@ final class SentryMXManager: NSObject, MXMetricManagerSubscriber {
             exceptionMechanism: hangDiagnosticMechanism,
             timeStampBegin: timestamp,
             diagnostic: diagnostic,
-            useFullCallStackTree: true
+            useFullCallStackTree: true,
+            level: level
         )
     }
 
-    func captureEvent(handled: Bool, exceptionValue: String, exceptionType: String, exceptionMechanism: String, timeStampBegin: Date, diagnostic: MXDiagnostic & CallStackTreeProviding, useFullCallStackTree: Bool = false) {
+    func captureEvent(handled: Bool, exceptionValue: String, exceptionType: String, exceptionMechanism: String, timeStampBegin: Date, diagnostic: MXDiagnostic & CallStackTreeProviding, useFullCallStackTree: Bool = false, level: SentryLevel? = nil) {
         let callStackTree: SentryMXCallStackTree
         do {
             let data = diagnostic.callStackTree.jsonRepresentation()
@@ -188,7 +191,7 @@ final class SentryMXManager: NSObject, MXMetricManagerSubscriber {
             return
         }
 
-        let event = Event(level: handled ? .warning : .error)
+        let event = Event(level: level ?? (handled ? .warning : .error))
         event.timestamp = timeStampBegin
 
         let mechanism = Mechanism(type: exceptionMechanism)
