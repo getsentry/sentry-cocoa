@@ -756,13 +756,15 @@ protocol ScreenshotIntegrationProvider {
 extension SentryDependencyContainer: ScreenshotIntegrationProvider { }
 #endif
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 protocol ViewHierarchyProviderProvider {
     var viewHierarchyProvider: SentryViewHierarchyProvider? { get }
 }
 
 extension SentryDependencyContainer: ViewHierarchyProviderProvider { }
+#endif
 
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
 protocol SessionReplayCaptureSchedulerProvider {
     var sessionReplayCaptureScheduler: SentrySessionReplayRunLoopCaptureScheduler { get }
 }

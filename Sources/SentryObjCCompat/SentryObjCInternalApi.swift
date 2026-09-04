@@ -62,11 +62,13 @@ import Foundation
         SentryObjCInternalScreenshotApi(wrapped.value.screenshot)
     }
 
-    #if (os(iOS) || os(tvOS))
+    #if (os(iOS) || os(tvOS) || os(visionOS))
     @objc public var viewHierarchy: SentryObjCInternalViewHierarchyApi {
         SentryObjCInternalViewHierarchyApi(wrapped.value.viewHierarchy)
     }
+    #endif
 
+    #if (os(iOS) || os(tvOS))
     @objc public var replay: SentryObjCInternalReplayApi {
         SentryObjCInternalReplayApi(wrapped.value.replay)
     }

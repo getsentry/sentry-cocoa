@@ -21,9 +21,7 @@
 @class SentryObjCInternalPerformanceApi;
 @class SentryObjCInternalScreenApi;
 @class SentryObjCInternalScreenshotApi;
-#    if !TARGET_OS_VISION
 @class SentryObjCInternalViewHierarchyApi;
-#    endif
 #endif
 #if SENTRY_OBJC_REPLAY_SUPPORTED
 @class SentryObjCInternalReplayApi;
@@ -81,10 +79,8 @@ SENTRY_NO_INIT
 /// Screenshot capture.
 @property (nonatomic, readonly) SentryObjCInternalScreenshotApi *screenshot;
 
-#    if !TARGET_OS_VISION
 /// View hierarchy capture.
 @property (nonatomic, readonly) SentryObjCInternalViewHierarchyApi *viewHierarchy;
-#    endif
 #endif
 
 #if SENTRY_OBJC_REPLAY_SUPPORTED
