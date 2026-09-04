@@ -8,6 +8,7 @@
 
 ### Fixes
 
+- Prevent Session Replay video encoding from reusing pixel buffers retained by AVFoundation. (#8950)
 - Classify MetricKit hangs over 500 ms as errors. (#8948)
 
 ## 9.27.0
