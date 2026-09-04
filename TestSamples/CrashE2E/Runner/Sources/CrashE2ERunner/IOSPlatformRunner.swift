@@ -95,9 +95,9 @@ final class IOSPlatformRunner {
             try fail("iOS app did not terminate for scenario: \(scenario.rawValue)")
         }
 
-        try assertAttachmentPayloadIfNeeded(
+        try CrashTimeAttachmentsAsserter.assertPayloadIfNeeded(
             scenario: scenario,
-            container: container,
+            cacheDirectory: container.appendingPathComponent("Library/Caches", isDirectory: true),
             platform: "ios"
         )
         try drainPreviousCrash(for: scenario)
@@ -216,11 +216,4 @@ final class IOSPlatformRunner {
         config.reporter.iOSBundleID
     }
 
-    private func assertAttachmentPayloadIfNeeded(
-        scenario: Scenario, container: URL, platform: String
-    ) throws {
-        guard scenario == .crashTimeAttachments else { return }
-        let cacheDir = container.appendingPathComponent("Library/Caches", isDirectory: true)
-        try CrashTimeAttachmentsAsserter.assert(cacheDirectory: cacheDir, platform: platform)
-    }
 }

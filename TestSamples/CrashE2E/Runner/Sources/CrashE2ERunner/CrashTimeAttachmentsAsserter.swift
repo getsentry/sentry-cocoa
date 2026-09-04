@@ -19,6 +19,11 @@ enum CrashTimeAttachmentsAsserter {
     /// - Parameters:
     ///   - cacheDirectory: SDK cache directory (`options.cacheDirectoryPath`).
     ///   - platform: Human-readable platform label for assertion messages.
+    static func assertPayloadIfNeeded(scenario: Scenario, cacheDirectory: URL, platform: String) throws {
+        guard scenario == .crashTimeAttachments else { return }
+        try assert(cacheDirectory: cacheDirectory, platform: platform)
+    }
+
     static func assert(cacheDirectory: URL, platform: String) throws {
         let installDir = try findInstallDirectory(under: cacheDirectory, platform: platform)
         try assert(installDir: installDir, platform: platform)

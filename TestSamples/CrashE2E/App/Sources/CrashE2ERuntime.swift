@@ -89,7 +89,7 @@ enum CrashE2ERuntime {
         loadBinaryImageBeforeSDKIfNeeded()
         startConfiguredSDK()
         CrashE2EScopePopulation.populateIfNeeded()
-        CrashE2EAttachmentsSetup.setupIfNeeded()
+        logCrashTimeAttachmentsHookIfNeeded()
         NSLog("CrashE2E - SDK started")
     }
 
@@ -150,7 +150,7 @@ enum CrashE2ERuntime {
         SentrySDK.close()
         startConfiguredSDK()
         CrashE2EScopePopulation.populateIfNeeded()
-        CrashE2EAttachmentsSetup.setupIfNeeded()
+        logCrashTimeAttachmentsHookIfNeeded()
         NSLog("CrashE2E - SDK restarted")
     }
 
@@ -205,6 +205,11 @@ enum CrashE2ERuntime {
         NSLog("CrashE2E - triggering managed runtime signal before SentrySDK.start")
         SentrySDK.crash()
         abortBecausePreSDKScenarioReturned()
+    }
+
+    private static func logCrashTimeAttachmentsHookIfNeeded() {
+        guard configuration.scenario == .crashTimeAttachments else { return }
+        NSLog("CrashE2E - crash-time-attachments uses the SDK SENTRY_CRASH_E2E screenshot hook")
     }
 
     private static func installIgnoredSignalHandlerIfNeeded() {

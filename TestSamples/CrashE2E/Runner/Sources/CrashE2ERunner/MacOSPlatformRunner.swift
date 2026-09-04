@@ -50,7 +50,8 @@ final class MacOSPlatformRunner {
 
         try runCrashLaunch(scenario, executable: executable, cacheDir: cacheDir,
                            markerPath: markerPath, derivedDataPath: derivedDataPath)
-        try assertAttachmentPayloadIfNeeded(scenario: scenario, cacheDir: cacheDir, platform: "macos")
+        try CrashTimeAttachmentsAsserter.assertPayloadIfNeeded(
+            scenario: scenario, cacheDirectory: cacheDir, platform: "macos")
         try runDrainLaunch(scenario, executable: executable, cacheDir: cacheDir,
                            derivedDataPath: derivedDataPath)
         try ScenarioEventAsserter.assertScenarioEvent(
@@ -121,13 +122,6 @@ final class MacOSPlatformRunner {
             }
             log("macOS non-crash process exited with \(result.summary).")
         }
-    }
-
-    private func assertAttachmentPayloadIfNeeded(
-        scenario: Scenario, cacheDir: URL, platform: String
-    ) throws {
-        guard scenario == .crashTimeAttachments else { return }
-        try CrashTimeAttachmentsAsserter.assert(cacheDirectory: cacheDir, platform: platform)
     }
 
     private func runDrainLaunch(_ scenario: Scenario, executable: URL, cacheDir: URL,
