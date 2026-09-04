@@ -1,4 +1,5 @@
 #if SDK_V10
+internal import _SentryPrivate
 internal import KSCrashRecording
 internal import KSCrashRecordingCore
 import Foundation
@@ -25,8 +26,19 @@ extension SentryKSCrash {
     /// Monitor ID is `SentryAttachments` so KSCrash looks up this plugin's marker.
     final class AttachmentsMonitor: NSObject, MonitorPlugin, @unchecked Sendable {
 
+        typealias Context = UnsafeMutableRawPointer?
+        typealias InitCallback = @convention(c) (UnsafeMutablePointer<KSCrash_ExceptionHandlerCallbacks>?, Context) -> Void
+        typealias MonitorIDCallback = @convention(c) (Context) -> UnsafePointer<CChar>?
+        typealias MonitorFlagsCallback = @convention(c) (Context) -> KSCrashMonitorFlag
+        typealias SetEnabledCallback = @convention(c) (Bool, Context) -> Void
+        typealias IsEnabledCallback = @convention(c) (Context) -> Bool
+        typealias AddContextualInfoCallback = @convention(c) (UnsafeMutablePointer<KSCrash_MonitorContext>?, Context) -> Void
+        typealias NotifyCallback = @convention(c) (Context) -> Void
+        typealias StitchCallback = @convention(c) (
+            CFDictionary?, UnsafePointer<CChar>?, KSCrashSidecarScope, Context
+        ) -> Unmanaged<CFDictionary>?
+
         static let attachmentsReportKey = "attachments"
-        static var monitorID: String { Layout.monitorID }
 
         /// Commit token written to the KSCrash sidecar path after payload files exist.
         ///
@@ -60,7 +72,7 @@ extension SentryKSCrash {
         /// KSCrash cleanup only removes `<reportID>.ksscr`; Sentry removes this directory
         /// after the report is captured into an envelope.
         struct Layout {
-            static let monitorID = "SentryAttachments"
+            static let monitorID = String(cString: sentrykscrash_attachmentsMonitorID)
             static let payloadDirectoryName = "SentryAttachments"
             static let sidecarsDirectoryName = "Sidecars"
 
@@ -168,7 +180,7 @@ extension SentryKSCrash {
 
         private let state = SentryMutex(MonitorState())
 
-        private let _monitorId: UnsafeMutablePointer<CChar> = strdup(Layout.monitorID)
+        private let _monitorId: UnsafeMutablePointer<CChar> = strdup(sentrykscrash_attachmentsMonitorID)
 
         /// Writes screenshot files into the per-report payload directory. Invoked on the crash
         /// thread after the JSON report is on disk; must not hop to the main queue.
@@ -192,24 +204,30 @@ extension SentryKSCrash {
         }
 
         // MARK: - Callbacks
-        let apiInitCallback: @convention(c) (UnsafeMutablePointer<KSCrash_ExceptionHandlerCallbacks>?, UnsafeMutableRawPointer?) -> Void = { callbacks, context in
+        private static let apiInitCallback: InitCallback = { callbacks, context in
             SentryKSCrash.AttachmentsMonitor.from(context)?.callbacks = callbacks?.pointee
         }
 
-        let monitorIDCallback: @convention(c) (UnsafeMutableRawPointer?) -> UnsafePointer<CChar>? = { context in
+        private static let monitorIDCallback: MonitorIDCallback = { context in
             guard let monitor = SentryKSCrash.AttachmentsMonitor.from(context) else { return nil }
             return UnsafePointer(monitor._monitorId)
         }
 
-        let setEnabledCallback: @convention(c) (Bool, UnsafeMutableRawPointer?) -> Void = { isEnabled, context in
+        private static let monitorFlagsCallback: MonitorFlagsCallback = { _ in KSCrashMonitorFlagPlugin }
+
+        private static let setEnabledCallback: SetEnabledCallback = { isEnabled, context in
             SentryKSCrash.AttachmentsMonitor.from(context)?.enabled = isEnabled
         }
 
-        let isEnabledCallback: @convention(c) (UnsafeMutableRawPointer?) -> Bool = { context in
+        private static let isEnabledCallback: IsEnabledCallback = { context in
             SentryKSCrash.AttachmentsMonitor.from(context)?.enabled ?? false
         }
 
-        let createStitchedReportCallback: @convention(c) (CFDictionary?, UnsafePointer<CChar>?, KSCrashSidecarScope, UnsafeMutableRawPointer?) -> Unmanaged<CFDictionary>? = { reportDict, sidecarPath, scope, context in
+        private static let addContextualInfoCallback: AddContextualInfoCallback = { _, _ in }
+
+        private static let notifyPostSystemEnableCallback: NotifyCallback = { _ in }
+
+        private static let createStitchedReportCallback: StitchCallback = { reportDict, sidecarPath, scope, context in
             guard let reportDict else { return nil }
             guard let monitor = SentryKSCrash.AttachmentsMonitor.from(context) else {
                 return Unmanaged.passRetained(reportDict)
@@ -228,26 +246,25 @@ extension SentryKSCrash.AttachmentsMonitor {
     func initAPI() {
         api.initialize(
             to: KSCrashMonitorAPI(
-                    context: nil,
-                    init: apiInitCallback,
-                    monitorId: monitorIDCallback,
-                    monitorFlags: { _ in KSCrashMonitorFlagPlugin },
-                    setEnabled: setEnabledCallback,
-                    isEnabled: isEnabledCallback,
-                    addContextualInfoToEvent: { _, _ in },
-                    notifyPostMonitorsEnabled: nil,
-                    notifyPostSystemEnable: { _ in },
-                    writeInReportSection: nil,
-                    createStitchedReport: createStitchedReportCallback
-                )
+                context: nil,
+                init: Self.apiInitCallback,
+                monitorId: Self.monitorIDCallback,
+                monitorFlags: Self.monitorFlagsCallback,
+                setEnabled: Self.setEnabledCallback,
+                isEnabled: Self.isEnabledCallback,
+                addContextualInfoToEvent: Self.addContextualInfoCallback,
+                notifyPostMonitorsEnabled: nil,
+                notifyPostSystemEnable: Self.notifyPostSystemEnableCallback,
+                writeInReportSection: nil,
+                createStitchedReport: Self.createStitchedReportCallback
+            )
         )
-
         api.pointee.context = Unmanaged.passUnretained(self).toOpaque()
     }
 
-    static func from(_ context: UnsafeMutableRawPointer?) -> SentryKSCrash.AttachmentsMonitor? {
+    static func from(_ context: Context) -> AttachmentsMonitor? {
         guard let context else { return nil }
-        return Unmanaged<SentryKSCrash.AttachmentsMonitor>.fromOpaque(context).takeUnretainedValue()
+        return Unmanaged<AttachmentsMonitor>.fromOpaque(context).takeUnretainedValue()
     }
 }
 
@@ -265,7 +282,6 @@ extension SentryKSCrash.AttachmentsMonitor {
 }
 
 // MARK: - Crash-time capture
-
 extension SentryKSCrash.AttachmentsMonitor {
     func handleDidWriteReport(reportID: Int64) {
         guard
@@ -323,7 +339,6 @@ extension SentryKSCrash.AttachmentsMonitor {
         var pathBuffer = [CChar](repeating: 0, count: Int(PATH_MAX))
         let copied = pathBuffer.withUnsafeMutableBufferPointer { buffer -> Bool in
             guard let base = buffer.baseAddress else { return false }
-
             return getReportSidecarPath(self._monitorId, reportID, base, buffer.count)
         }
 
@@ -337,7 +352,6 @@ extension SentryKSCrash.AttachmentsMonitor {
 }
 
 // MARK: - Next-launch stitch
-
 extension SentryKSCrash.AttachmentsMonitor {
     /// Injects sibling payload paths under `"attachments"`. Sidecar bytes are only the marker.
     func stitchedReport(

@@ -21,6 +21,9 @@ void sentrykscrash_isWritingReport(const KSCrash_ExceptionHandlingPlan *_Nonnull
 void sentrykscrash_didWriteReport(
     const KSCrash_ExceptionHandlingPlan *_Nonnull const plan, int64_t reportID);
 
+/** KSCrash plugin ID for crash-time attachments. Must match the Swift monitor ID. */
+extern const char *const _Nonnull sentrykscrash_attachmentsMonitorID;
+
 /** Looks up the SentryAttachments plugin and captures crash-time attachments. */
 void sentrykscrash_attachments_handleDidWriteReport(void *_Nullable context, int64_t reportID);
 

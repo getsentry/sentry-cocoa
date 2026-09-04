@@ -5,6 +5,8 @@
 #    include "SentryScopeSyncC.h"
 #    include <stddef.h>
 
+const char *const sentrykscrash_attachmentsMonitorID = "SentryAttachments";
+
 static void
 writeScopeBreadcrumbs(const KSCrashReportWriter *const writer, SentryCrashScope *scope)
 {
@@ -114,7 +116,7 @@ sentrykscrash_didWriteReport(const KSCrash_ExceptionHandlingPlan *const plan, in
         return;
     }
 
-    const KSCrashMonitorAPI *api = kscm_getMonitor("SentryAttachments");
+    const KSCrashMonitorAPI *api = kscm_getMonitor(sentrykscrash_attachmentsMonitorID);
     if (api != NULL) {
         sentrykscrash_attachments_handleDidWriteReport(api->context, reportID);
     }
