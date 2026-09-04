@@ -15,7 +15,7 @@ nobody re-runs the sweep by hand for every beta.
 
 One task per phase. Platforms and suites are acceptance criteria inside a task, not separate issues.
 
-````markdown
+```markdown
 > Risk areas and triage rules: `develop-docs/ANNUAL_OS_COMPATIBILITY.md`
 
 ## 1. Triage Apple's changes — First beta
@@ -45,13 +45,11 @@ nothing forces you to look — but phase 5 can only require what's already green
 
 Run all of these on beta Xcode and the new iOS runtime. Point the shell at them first, for example:
 
-```bash
-export DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer
-export IOS_SIMULATOR_OS=<new-iOS-version>
-export IOS_DEVICE_NAME="iPhone 16 Pro"
-export IOS_DEVICE_ID=<booted-simulator-UDID>
-xcodebuild -version
-```
+    export DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer
+    export IOS_SIMULATOR_OS=<new-iOS-version>
+    export IOS_DEVICE_NAME="iPhone 16 Pro"
+    export IOS_DEVICE_ID=<booted-simulator-UDID>
+    xcodebuild -version
 
 - [ ] `make build` + `make test`
 - [ ] `make analyze`
@@ -114,7 +112,7 @@ project already feels finished — and it has slipped every year it's been tried
 - [ ] Compare per-feature event volume on the new OS against the previous generation
 - [ ] Spot-check quality: symbolicated frames, app-start durations, replays, span trees
 - [ ] File an issue for anything that stopped reporting or reports malformed data
-````
+```
 
 ## Known Risk Areas
 
