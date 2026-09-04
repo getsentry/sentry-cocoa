@@ -36,20 +36,13 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     private var replayRecovery: SessionReplayRecovery?
     private var backgroundForegroundObserver: SentrySessionReplayBackgroundForegroundObserver?
 
-    /// Written by `pause`/`resume` (application lifecycle, usually the main thread) and read
-    /// from the reachability queue in `connectivityChanged`.
-    private let isApplicationStatePaused = SentryMutex<Bool>(false)
+    private let isManuallyPaused = SentryMutex(false)
 
     /// Getter to get the current application at runtime
     ///
     /// When initializing the Sentry SDK from ``SwiftUI/App.init`` the ``UIKit/UIApplication.shared`` returns `nil`, therefore we need to
     /// dynamically get it later, even if the application is not changing during the life-time of the app
     private let getApplication: () -> SentryApplication?
-
-    /// We need to use this variable to identify whether rate limiting was ever activated for session replay
-    /// in this session, instead of always looking for the rate status in `SentryRateLimits`. This is the
-    /// easiest way to ensure segment 0 will always reach the server, because session replay needs segment 0.
-    private var rateLimited = false
 
     /// Indicates that session replay should start once the SDK can resolve a usable application
     /// window. This is needed because SDK startup can run before `UIApplication.shared` or a
@@ -63,11 +56,6 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     // MARK: - Initialization
 
     required convenience init?(with options: Options, dependencies: SentryDependencyContainer) {
-        guard options.sessionReplay.sessionSampleRate > 0 || options.sessionReplay.onErrorSampleRate > 0 else {
-            SentrySDKLog.debug("Not going to enable SentrySessionReplayIntegration because sample rates are 0.")
-            return nil
-        }
-
         self.init(nonOptionalWith: options, dependencies: dependencies)
     }
     
@@ -103,7 +91,6 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         
         super.init()
 
-        isApplicationStatePaused.withLock { $0 = getApplication()?.mainThread_isActive == false }
         self.backgroundForegroundObserver = SentrySessionReplayBackgroundForegroundObserver(integration: self)
         
         self.replayRecovery = SessionReplayRecovery(
@@ -134,8 +121,8 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         notificationCenter.removeObserver(self, name: UIScene.didActivateNotification, object: nil)
         notificationCenter.removeObserver(self, name: UIApplication.didBecomeActiveNotification, object: nil)
         SentrySDKInternal.currentHub().unregisterSessionListener(self)
-        touchTracker = nil
         stopCurrentReplay()
+        touchTracker = nil
     }
 
     deinit {
@@ -199,7 +186,6 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
 
     public func sentrySessionStarted(session: SentrySession) {
         SentrySDKLog.debug("[Session Replay] Session started")
-        rateLimited = false
         startSession()
     }
 
@@ -267,13 +253,11 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
 
     @objc private func applicationDidBecomeActiveHandler(_ notification: Notification) {
         SentrySDKLog.debug("[Session Replay] Application did become active, starting replay")
-        isApplicationStatePaused.withLock { $0 = false }
         runReplayForAvailableWindow()
     }
 
     @objc private func sceneDidActivateHandler(_ notification: Notification) {
         SentrySDKLog.debug("[Session Replay] Scene is available, starting replay")
-        isApplicationStatePaused.withLock { $0 = false }
         runReplayForAvailableWindow()
     }
 
@@ -315,14 +299,20 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
             dateProvider: dateProvider, delegate: self, captureScheduler: captureScheduler)
 
         self.sessionReplay = newSessionReplay
+        touchTracker?.enable()
         newSessionReplay.start(rootView: rootView, fullSession: fullSession)
         addBackgroundForegroundObservers()
-        if isApplicationStatePaused.withLock({ $0 }) {
+        if isManuallyPaused.withLock({ $0 }) || getApplication()?.mainThread_isActive == false {
             newSessionReplay.pause()
         }
         
         if let replayId = newSessionReplay.sessionReplayId {
-            replayFileManager.saveCurrentSessionInfo(replayId, path: sessionDocs.path, options: replayOptions)
+            replayFileManager.saveCurrentSessionInfo(
+                replayId,
+                path: sessionDocs.path,
+                options: replayOptions,
+                replayType: fullSession ? .session : .buffer
+            )
         }
     }
     
@@ -372,6 +362,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
 
     private func stopCurrentReplay() {
         sessionReplay?.pause()
+        touchTracker?.disable()
         removeBackgroundForegroundObservers()
         sessionReplay = nil
     }
@@ -380,35 +371,52 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     
     @objc public func pause() {
         SentrySDKLog.debug("[Session Replay] Pausing session")
-        isApplicationStatePaused.withLock { $0 = true }
+        isManuallyPaused.withLock { $0 = true }
         sessionReplay?.pause()
     }
 
     @objc public func resume() {
         SentrySDKLog.debug("[Session Replay] Resuming session")
-        isApplicationStatePaused.withLock { $0 = false }
+        isManuallyPaused.withLock { $0 = false }
+        guard getApplication()?.mainThread_isActive != false else { return }
         sessionReplay?.resume()
     }
 
     @objc public func start() {
         SentrySDKLog.debug("[Session Replay] Starting session")
-        if rateLimited {
-            SentrySDKLog.warning("[Session Replay] This session was rate limited. Not starting session replay until next app session")
-            return
-        }
-        if let replay = sessionReplay {
-            if !replay.isFullSession {
-                replay.captureReplay(replayType: .session)
+        start(fullSession: true)
+    }
+
+    @objc public func startBuffering() {
+        SentrySDKLog.debug("[Session Replay] Starting buffer")
+        start(fullSession: false)
+    }
+
+    @objc public func flush() {
+        SentrySDKLog.debug("[Session Replay] Flushing session")
+        guard let sessionReplay else {
+            if isPendingStart {
+                startedAsFullSession = true
+                return
             }
-            return
+            return start(fullSession: true, resetManualPause: false)
         }
-        startedAsFullSession = true
+        sessionReplay.flush()
+    }
+
+    private func start(fullSession: Bool, resetManualPause: Bool = true) {
+        guard sessionReplay == nil && !isPendingStart else { return }
+        if resetManualPause {
+            isManuallyPaused.withLock { $0 = false }
+        }
+        startedAsFullSession = fullSession
         isPendingStart = true
         runReplayForAvailableWindow()
     }
 
     @objc public func stop() {
         SentrySDKLog.debug("[Session Replay] Stopping session")
+        isManuallyPaused.withLock { $0 = false }
         cancelPendingStartAndStopCurrentReplay()
     }
 
@@ -464,8 +472,9 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         SentrySDKLog.debug("[Session Replay] New segment with replay event, eventId: \(replayEvent.eventId), segmentId: \(replayEvent.segmentId)")
 
         if rateLimits.isRateLimitActive(.replay) || rateLimits.isRateLimitActive(.all) {
-            rateLimited = true
-            stop()
+            replayProcessingQueue.dispatchAsyncOnMainQueueIfNotMainThread { [weak self] in
+                self?.cancelPendingStartAndStopCurrentReplay()
+            }
             return
         }
         guard let timestamp = replayEvent.timestamp else { 
@@ -478,6 +487,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
 
     public func sessionReplayStarted(replayId: SentryId) {
         SentrySDKLog.debug("[Session Replay] Session replay started with replayId: \(replayId.sentryIdString)")
+        replayFileManager.updateCurrentReplayType(.session, replayId: replayId)
         SentrySDKInternal.currentHub().configureScope { scope in scope.replayId = replayId.sentryIdString }
     }
 
@@ -485,6 +495,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         SentrySDKLog.debug("[Session Replay] Session replay ended")
         isPendingStart = false
         SentrySDKInternal.currentHub().configureScope { scope in scope.replayId = nil }
+        touchTracker?.disable()
         removeBackgroundForegroundObservers()
         sessionReplay = nil
     }
@@ -502,11 +513,24 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     // MARK: - SentryReachabilityObserver
     public func connectivityChanged(_ connected: Bool, typeDescription: String) {
         SentrySDKLog.debug("[Session Replay] Connectivity changed to: \(connected ? "connected" : "disconnected"), type: \(typeDescription)")
-        if connected {
-            sessionReplay?.resumeSessionMode(restartCaptureScheduler: !isApplicationStatePaused.withLock({ $0 }))
-        } else {
-            sessionReplay?.pauseSessionMode()
+        replayProcessingQueue.dispatchAsyncOnMainQueueIfNotMainThread { [weak self] in
+            guard let self else { return }
+            if connected {
+                let shouldRestartCaptureScheduler = !isManuallyPaused.withLock({ $0 }) && getApplication()?.mainThread_isActive != false
+                sessionReplay?.resumeSessionMode(restartCaptureScheduler: shouldRestartCaptureScheduler)
+            } else {
+                sessionReplay?.pauseSessionMode()
+            }
         }
+    }
+
+    fileprivate func onAppBackgrounded() {
+        sessionReplay?.pause()
+    }
+
+    fileprivate func onAppForegrounded() {
+        guard !isManuallyPaused.withLock({ $0 }) else { return }
+        sessionReplay?.resume()
     }
     
     // MARK: - Test only
@@ -538,11 +562,11 @@ private final class SentrySessionReplayBackgroundForegroundObserver: NSObject {
     }
 
     @objc func pause(_ notification: Notification) {
-        integration?.pause()
+        integration?.onAppBackgrounded()
     }
 
     @objc func resume(_ notification: Notification) {
-        integration?.resume()
+        integration?.onAppForegrounded()
     }
 }
 

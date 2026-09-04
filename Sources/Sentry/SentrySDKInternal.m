@@ -65,6 +65,7 @@ static BOOL _detectedStartUpCrash;
  */
 static NSUInteger startInvocations;
 static NSDate *_Nullable startTimestamp = nil;
+static BOOL sdkStarted;
 
 + (void)initialize
 {
@@ -72,6 +73,7 @@ static NSDate *_Nullable startTimestamp = nil;
         sentrySDKappStartMeasurementLock = [[NSObject alloc] init];
         currentHubLock = [[NSObject alloc] init];
         startInvocations = 0;
+        sdkStarted = NO;
         _detectedStartUpCrash = NO;
     }
 }
@@ -274,6 +276,18 @@ static NSDate *_Nullable startTimestamp = nil;
 #if SDK_V10
     (void)sentry_cxa_throw_compatibility_linker_anchor();
 #endif
+
+    BOOL alreadyStarted = NO;
+    @synchronized(currentHubLock) {
+        alreadyStarted = sdkStarted;
+        sdkStarted = YES;
+    }
+    if (alreadyStarted) {
+        SENTRY_LOG_WARN(@"The Sentry SDK has already been started. Calling start again without "
+                        @"close() may lead to undefined behavior.");
+    }
+
+    [self setStartOptions:options];
 
     [SentrySDKLogSupport configure:options.debug diagnosticLevel:options.diagnosticLevel];
 
@@ -674,6 +688,10 @@ static NSDate *_Nullable startTimestamp = nil;
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
         [SentryDependencyContainer reset];
+
+        @synchronized(currentHubLock) {
+            sdkStarted = NO;
+        }
     }];
     SENTRY_LOG_DEBUG(@"SDK closed!");
 }

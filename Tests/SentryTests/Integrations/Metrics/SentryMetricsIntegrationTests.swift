@@ -13,18 +13,19 @@ class SentryMetricsIntegrationTests: XCTestCase {
 
     // MARK: - Tests
 
-    func testStartSDK_whenIntegrationIsNotEnabled_shouldNotBeInstalled() {
+    func testStartSDK_whenEnableMetricsIsFalse_shouldStillBeInstalled() {
         // -- Arrange --
-        // SDK not enabled in startSDK call
+        // enableMetrics is a legacy compatibility option and must not prevent install so
+        // manual metric APIs keep working.
 
         // -- Act --
         startSDK(isEnabled: false)
 
         // -- Assert --
-        XCTAssertEqual(SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().count, 0)
+        XCTAssertTrue(SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().contains("Metrics"))
     }
 
-    func testStartSDK_whenIntegrationIsEnabled_shouldBeInstalled() {
+    func testStartSDK_whenMetricsIsEnabled_shouldInstallMetricsIntegration() {
         // -- Arrange --
         // SDK enabled in startSDK call
 
@@ -32,7 +33,7 @@ class SentryMetricsIntegrationTests: XCTestCase {
         startSDK(isEnabled: true)
 
         // -- Assert --
-        XCTAssertEqual(SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().first, "Metrics")
+        XCTAssertTrue(SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().contains("Metrics"))
     }
 
     func testAddMetric_whenMetricAdded_shouldForwardToTelemetryProcessor() throws {

@@ -1,11 +1,46 @@
 # Changelog
 
-## Unreleased
+## 9.27.0
+
+> [!NOTE]
+> `enableLogs` and `enableMetrics` are now deprecated and will be removed in the next major version. Manual log and metric capture is no longer gated by these flags.
+
+### Improvements
+
+- Install idle Session Replay recovery infrastructure at zero sample rates. (#8865)
+- Manual log and metrics APIs are no longer gated by behind `enableLogs` / `enableMetrics` (#8918)
+
+### Features
+
+- Add manual Session Replay controls through `SentrySDK.replay`. (#8868)
+  - Explicit `start()` and `startBuffering()` calls bypass the configured replay sample rates; sampling still controls automatic startup.
+  - `start()` starts a full-session replay and does nothing if one is already recording.
+  - `startBuffering()` keeps a rolling buffer that is sent on `flush()` or an error, then continues in session mode.
+  - `stop()` ends the current replay; the next `start()` creates a new replay session.
+  - `pause()` suspends recording until `resume()` and remains paused across background and foreground transitions and automatic replay restarts in the same process.
+  - `resume()` continues the same manually paused replay.
+  - `flush()` sends the current replay data to Sentry, or starts a full-session replay when recording is stopped.
+
+### Improvements
+
+- Install idle Session Replay recovery infrastructure at zero sample rates. (#8865)
 
 ### Features
 
 - Copy `app.vitals.start.type` and `app.vitals.start.screen` onto standalone `app.start` children, including `app.start.extended` and user descendants (#8888)
 - Add `maxFeatureFlags` option to configure how many feature flag evaluations the scope retains, matching sentry-java. Defaults to 100 (#8858)
+- Log a warning when `SentrySDK.start` is called again without `close()`. Reinitialization still runs and remains unsupported (#8928)
+- Add `SentrySDK.internal.envelope.captureNonTerminating` for hybrid SDKs, which keeps the current session running and reports it with the `unhandled` status when an unhandled exception doesn't terminate the process (#8654)
+- Add `SentrySDK.internal.envelope.updateSessionForDroppedEventNonTerminating` so hybrid SDKs can update the native session when an error is dropped by sampling, without sending an envelope (#8907)
+
+### Fixes
+
+- Silence spurious ERROR log in `SentryCrashCxaThrowSwapper` for empty sections (#8915)
+- Stop recording touch events while Session Replay is paused. (#8887)
+
+### Internal
+
+- Add visionOS support to internal screen APIs (#8913)
 
 ## 9.26.1
 

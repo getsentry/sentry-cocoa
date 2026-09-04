@@ -364,11 +364,57 @@ jobs:
         uses: ./.github/actions/ci-diagnostics
         if: ${{ failure() || cancelled() }}
 
-  check-debug-without-UIKit:
-    name: Check no UIKit linkage (DebugWithoutUIKit)
+  check-ui-framework-linkage:
+    name: ${{ matrix.name }}
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
     runs-on: macos-26
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: "Check no UIKit linkage (DebugWithoutUIKit)"
+            configuration: DebugWithoutUIKit
+            module: SentryWithoutUIKit
+            linkage: unlinked
+            platform: iOS
+            framework: UIKit
+            derived-data: uikit-check-build
+          - name: "Check no UIKit linkage (ReleaseWithoutUIKit)"
+            configuration: ReleaseWithoutUIKit
+            module: SentryWithoutUIKit
+            linkage: unlinked
+            platform: iOS
+            framework: UIKit
+            derived-data: uikit-check-build
+          - name: "Check UIKit linkage (Debug)"
+            configuration: Debug
+            module: Sentry
+            linkage: linked
+            platform: iOS
+            framework: UIKit
+            derived-data: uikit-check-build
+          - name: "Check UIKit linkage (Release)"
+            configuration: Release
+            module: Sentry
+            linkage: linked
+            platform: iOS
+            framework: UIKit
+            derived-data: uikit-check-build
+          - name: "Check AppKit linkage (Release)"
+            configuration: Release
+            module: Sentry
+            linkage: linked
+            platform: macOS
+            framework: AppKit
+            derived-data: appkit-check-build
+          - name: "Check no AppKit linkage (ReleaseWithoutUIKit)"
+            configuration: ReleaseWithoutUIKit
+            module: SentryWithoutUIKit
+            linkage: unlinked
+            platform: macOS
+            framework: AppKit
+            derived-data: no-appkit-check-build
     steps:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
@@ -383,234 +429,36 @@ jobs:
         id: resolve-test-destination
         uses: ./.github/actions/resolve-test-destination
         with:
-          platform: iOS
+          platform: ${{ matrix.platform }}
 
-      - name: Build for Debug
+      - name: Build for ${{ matrix.configuration }}
         env:
           REF: ${{ github.ref }}
           IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
           IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
-          ./scripts/sentry-xcodebuild.sh \
-            --platform iOS \
-            --os "$IOS_SIMULATOR_OS" \
-            --ref "${REF}" \
-            --command build \
-            --device "$IOS_DEVICE_NAME" \
-            --configuration DebugWithoutUIKit \
-            --derived-data uikit-check-build
+          ARGS=(
+            --platform "${{ matrix.platform }}"
+            --ref "${REF}"
+            --command build
+            --configuration "${{ matrix.configuration }}"
+            --derived-data "${{ matrix.derived-data }}"
+          )
+          if [ "${{ matrix.platform }}" = "iOS" ]; then
+            ARGS+=(--os "$IOS_SIMULATOR_OS" --device "$IOS_DEVICE_NAME")
+          else
+            ARGS+=(--os latest)
+          fi
+          ./scripts/sentry-xcodebuild.sh "${ARGS[@]}"
 
-      - name: Ensure UIKit is not linked
-        run: ./scripts/check-ui-framework-linkage.sh --configuration DebugWithoutUIKit --derived-data uikit-check-build --linkage unlinked --module SentryWithoutUIKit
-
-      - name: Run CI Diagnostics
-        uses: ./.github/actions/ci-diagnostics
-        if: ${{ failure() || cancelled() }}
-
-  check-release-without-UIKit:
-    name: Check no UIKit linkage (ReleaseWithoutUIKit)
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
-    needs: files-changed
-    runs-on: macos-26
-    steps:
-      - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Setup Xcode
-        id: setup-xcode
-        uses: ./.github/actions/setup-xcode
-        with:
-          version: "26"
-
-      - name: Resolve test destination
-        id: resolve-test-destination
-        uses: ./.github/actions/resolve-test-destination
-        with:
-          platform: iOS
-
-      - name: Build for Release
-        env:
-          REF: ${{ github.ref }}
-          IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
-          IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
-        run: |
-          ./scripts/sentry-xcodebuild.sh \
-            --platform iOS \
-            --os "$IOS_SIMULATOR_OS" \
-            --ref "${REF}" \
-            --command build \
-            --device "$IOS_DEVICE_NAME" \
-            --configuration ReleaseWithoutUIKit \
-            --derived-data uikit-check-build
-
-      - name: Ensure UIKit is not linked
-        run: ./scripts/check-ui-framework-linkage.sh --configuration ReleaseWithoutUIKit --derived-data uikit-check-build --linkage unlinked --module SentryWithoutUIKit
-
-      - name: Run CI Diagnostics
-        uses: ./.github/actions/ci-diagnostics
-        if: ${{ failure() || cancelled() }}
-
-  check-debug-with-UIKit:
-    name: Check UIKit linkage (Debug)
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
-    needs: files-changed
-    runs-on: macos-26
-    steps:
-      - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Setup Xcode
-        id: setup-xcode
-        uses: ./.github/actions/setup-xcode
-        with:
-          version: "26"
-
-      - name: Resolve test destination
-        id: resolve-test-destination
-        uses: ./.github/actions/resolve-test-destination
-        with:
-          platform: iOS
-
-      - name: Build for Debug
-        env:
-          REF: ${{ github.ref }}
-          IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
-          IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
-        run: |
-          ./scripts/sentry-xcodebuild.sh \
-            --platform iOS \
-            --os "$IOS_SIMULATOR_OS" \
-            --ref "${REF}" \
-            --command build \
-            --device "$IOS_DEVICE_NAME" \
-            --configuration Debug \
-            --derived-data uikit-check-build
-
-      - name: Ensure UIKit is linked
-        run: ./scripts/check-ui-framework-linkage.sh --configuration Debug --derived-data uikit-check-build --linkage linked --module Sentry
-
-      - name: Run CI Diagnostics
-        uses: ./.github/actions/ci-diagnostics
-        if: ${{ failure() || cancelled() }}
-
-  check-release-with-UIKit:
-    name: Check UIKit linkage (Release)
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
-    needs: files-changed
-    runs-on: macos-26
-    steps:
-      - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Setup Xcode
-        id: setup-xcode
-        uses: ./.github/actions/setup-xcode
-        with:
-          version: "26"
-
-      - name: Resolve test destination
-        id: resolve-test-destination
-        uses: ./.github/actions/resolve-test-destination
-        with:
-          platform: iOS
-
-      - name: Build for Release
-        env:
-          REF: ${{ github.ref }}
-          IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
-          IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
-        run: |
-          ./scripts/sentry-xcodebuild.sh \
-            --platform iOS \
-            --os "$IOS_SIMULATOR_OS" \
-            --ref "${REF}" \
-            --command build \
-            --device "$IOS_DEVICE_NAME" \
-            --configuration Release \
-            --derived-data uikit-check-build
-
-      - name: Ensure UIKit is linked
-        run: ./scripts/check-ui-framework-linkage.sh --configuration Release --derived-data uikit-check-build --linkage linked --module Sentry
-
-      - name: Run CI Diagnostics
-        uses: ./.github/actions/ci-diagnostics
-        if: ${{ failure() || cancelled() }}
-
-  check-release-with-AppKit:
-    name: Check AppKit linkage (Release)
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
-    needs: files-changed
-    runs-on: macos-26
-    steps:
-      - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Setup Xcode
-        id: setup-xcode
-        uses: ./.github/actions/setup-xcode
-        with:
-          version: "26"
-
-      - name: Resolve test destination
-        id: resolve-test-destination
-        uses: ./.github/actions/resolve-test-destination
-        with:
-          platform: macOS
-
-      - name: Build for Release
-        env:
-          REF: ${{ github.ref }}
-        run: |
-          ./scripts/sentry-xcodebuild.sh \
-            --platform macOS \
-            --os latest \
-            --ref "${REF}" \
-            --command build \
-            --configuration Release \
-            --derived-data appkit-check-build
-
-      - name: Ensure AppKit is linked
-        run: ./scripts/check-ui-framework-linkage.sh --configuration Release --derived-data appkit-check-build --linkage linked --module Sentry --framework AppKit
-
-      - name: Run CI Diagnostics
-        uses: ./.github/actions/ci-diagnostics
-        if: ${{ failure() || cancelled() }}
-
-  check-release-without-AppKit:
-    name: Check no AppKit linkage (ReleaseWithoutUIKit)
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
-    needs: files-changed
-    runs-on: macos-26
-    steps:
-      - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Setup Xcode
-        id: setup-xcode
-        uses: ./.github/actions/setup-xcode
-        with:
-          version: "26"
-
-      - name: Resolve test destination
-        id: resolve-test-destination
-        uses: ./.github/actions/resolve-test-destination
-        with:
-          platform: macOS
-
-      - name: Build for Release
-        env:
-          REF: ${{ github.ref }}
-        run: |
-          ./scripts/sentry-xcodebuild.sh \
-            --platform macOS \
-            --os latest \
-            --ref "${REF}" \
-            --command build \
-            --configuration ReleaseWithoutUIKit \
-            --derived-data no-appkit-check-build
-
-      - name: Ensure AppKit is not linked
-        run: ./scripts/check-ui-framework-linkage.sh --configuration ReleaseWithoutUIKit --derived-data no-appkit-check-build --linkage unlinked --module SentryWithoutUIKit --framework AppKit
+      - name: Ensure ${{ matrix.framework }} is ${{ matrix.linkage }}
+        run: >-
+          ./scripts/check-ui-framework-linkage.sh
+          --configuration "${{ matrix.configuration }}"
+          --derived-data "${{ matrix.derived-data }}"
+          --linkage "${{ matrix.linkage }}"
+          --module "${{ matrix.module }}"
+          --framework "${{ matrix.framework }}"
 
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
@@ -679,12 +527,7 @@ jobs:
         check-macOS-CLI-Xcode-no-UI-framework,
         build-distribution,
         build-spm,
-        check-debug-without-UIKit,
-        check-release-without-UIKit,
-        check-debug-with-UIKit,
-        check-release-with-UIKit,
-        check-release-with-AppKit,
-        check-release-without-AppKit,
+        check-ui-framework-linkage,
         check-compiling-async-safe-logs,
         run-full-ci-gate,
       ]
