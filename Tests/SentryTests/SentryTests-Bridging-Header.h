@@ -27,7 +27,6 @@
 #import "Helper/ExceptionCatcher.h"
 #import "NSData+Unzip.h"
 #import "NSMutableDictionary+Sentry.h"
-#import "PrivateSentrySDKOnly.h"
 #import "Sentry/Sentry-Swift.h"
 #if !SDK_V10
 #    import "SentryANRTrackerV1.h"

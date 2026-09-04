@@ -73,7 +73,7 @@ SentrySDK (public API)
 
 - Public API changes, including public Swift symbols, `@objc` members, and Objective-C public headers, require `make generate-public-api` and committing changes to `sdk_api.json` or `sdk_api_sentryswiftui.json`
 - Public APIs that require Objective-C support must also be exposed through `SentryObjC` and `SentryObjCCompat`
-- Treat changes to `@_spi(Private)` and `PrivateSentrySDKOnly` as compatibility-sensitive for React Native, Flutter, .NET, and Unity
+- Treat changes to `@_spi(Private)` as compatibility-sensitive for React Native, Flutter, .NET, and Unity
 - Event enrichment changes should be checked with Sentry MCP `search_events` when an environment is available
 - Transport changes should verify envelope ingestion when an environment is available
 - Capture and transport changes should be checked for regressions with Sentry MCP `search_issues` when an environment is available
