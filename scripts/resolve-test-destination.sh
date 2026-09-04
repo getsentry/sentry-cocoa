@@ -78,19 +78,38 @@ else
             TEST_DEVICE="Apple TV"
             ;;
         watchOS)
-            # Pick the newest Apple Watch available in the resolved watchOS runtime.
-            # Watch names include parenthetical sizes (e.g. "Apple Watch Ultra 3 (49mm)")
-            # so we strip from the UUID pattern `(XXXX-...) (State)` rather than the
-            # first `(`, which would lose the size.
+            # WatchKit schemes fail to match iPhone-paired watches by
+            # platform=watchOS Simulator,name=... (xcodebuild reports them as
+            # DVTiPhoneSimulator). Prefer unpaired watches from simctl pairs;
+            # fall back to the newest watch in the runtime if every watch is paired.
+            #
+            # OS=latest (the no --os default) is not a simctl runtime id, so
+            # resolve it to the newest watchOS runtime that has devices.
             OS_MM=$(echo "$TEST_OS" | awk -F. '{print $1"."$2}')
-            TEST_DEVICE=$(xcrun simctl list devices available 2>/dev/null \
-                | awk -v platform="watchOS" -v version="$OS_MM" '
-                    $0 ~ "^-- " platform " " version " --" { in_section = 1; next }
-                    in_section { if (/^-- /) exit; print }' \
-                | grep -E "Apple Watch" \
-                | sed -E 's/^[[:space:]]+//; s/ \([A-F0-9-]+\) \([A-Za-z]+\)[[:space:]]*$//' \
-                | sort -V \
-                | tail -n1) || TEST_DEVICE=""
+            devices_json=$(xcrun simctl list devices available -j 2>/dev/null || echo '{"devices":{}}')
+            if [[ ! "$OS_MM" =~ ^[0-9]+\.[0-9]+$ ]]; then
+                OS_MM=$(printf '%s\n' "$devices_json" \
+                    | jq -r '.devices | keys[] | select(test("watchOS-[0-9]+-[0-9]+")) | capture("watchOS-(?<v>[0-9]+-[0-9]+)") | .v' \
+                    | tr '-' '.' \
+                    | sort -V | tail -n1 || true)
+            fi
+            OS_KEY=$(echo "$OS_MM" | tr '.' '-')
+            paired_json=$(xcrun simctl list pairs -j 2>/dev/null \
+                | jq -c '[.pairs[].watch.udid] // []' 2>/dev/null \
+                || echo '[]')
+            TEST_DEVICE=$(printf '%s\n' "$devices_json" \
+                | jq -r --arg key "$OS_KEY" --argjson paired "$paired_json" '
+                    [
+                      .devices
+                      | to_entries[]
+                      | select(.key | endswith("watchOS-" + $key))
+                      | .value[]
+                      | select(.isAvailable != false)
+                      | {name, unpaired: ((.udid as $id | ($paired | index($id)) == null))}
+                    ] as $watches
+                    | ($watches | map(select(.unpaired)) | if length > 0 then . else $watches end)
+                    | .[].name
+                ' 2>/dev/null | sort -V | tail -n1 || true)
             ;;
         visionOS)
             TEST_DEVICE="Apple Vision Pro"

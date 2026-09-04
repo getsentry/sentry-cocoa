@@ -2,6 +2,18 @@
 @_spi(Private) @testable import Sentry
 import XCTest
 
+#if !os(tvOS) && !os(watchOS) && !os(visionOS)
+private final class BlockingMetricProfiler: SentryMetricProfiler {
+    let recordMetricsStarted = DispatchSemaphore(value: 0)
+    let continueRecordingMetrics = DispatchSemaphore(value: 0)
+
+    override func recordMetrics() {
+        recordMetricsStarted.signal()
+        continueRecordingMetrics.wait()
+    }
+}
+#endif
+
 class PrivateSentrySDKOnlyTests: XCTestCase {
 
     override func tearDown() {
@@ -34,6 +46,45 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
 
         XCTFail("Profiler did not collect at least two samples")
         return false
+    }
+    #endif
+
+    #if !os(tvOS) && !os(watchOS) && !os(visionOS)
+    func testGetCurrentProfiler_whenProfilerLockHeld_shouldWaitForLock() throws {
+        // -- Arrange --
+        XCTAssertTrue(SentryTraceProfiler.start(withTracer: SentryId()))
+        let profiler = try XCTUnwrap(SentryTraceProfiler.getCurrentProfiler())
+        let blockingMetricProfiler = BlockingMetricProfiler(mode: .trace)
+        profiler.metricProfiler = blockingMetricProfiler
+
+        let getCurrentProfilerStarted = DispatchSemaphore(value: 0)
+        let getCurrentProfilerFinished = DispatchSemaphore(value: 0)
+
+        // -- Act --
+        DispatchQueue.global().async {
+            SentryTraceProfiler.recordMetrics()
+        }
+        XCTAssertEqual(blockingMetricProfiler.recordMetricsStarted.wait(timeout: .now() + 1), .success)
+
+        DispatchQueue.global().async {
+            getCurrentProfilerStarted.signal()
+            _ = SentryTraceProfiler.getCurrentProfiler()
+            getCurrentProfilerFinished.signal()
+        }
+        // Confirm the worker is scheduled before using a short timeout to detect lock blocking.
+        // Otherwise, an unscheduled worker could make an unlocked getter appear blocked.
+        XCTAssertEqual(getCurrentProfilerStarted.wait(timeout: .now() + 1), .success)
+
+        let getCurrentProfilerWhileLocked = getCurrentProfilerFinished.wait(timeout: .now() + 0.1)
+        blockingMetricProfiler.continueRecordingMetrics.signal()
+
+        // -- Assert --
+        XCTAssertEqual(getCurrentProfilerWhileLocked, .timedOut)
+        // An early return consumes the semaphore signal and already fails the assertion above.
+        // Only wait again when the getter was blocked to avoid a second misleading failure.
+        if getCurrentProfilerWhileLocked == .timedOut {
+            XCTAssertEqual(getCurrentProfilerFinished.wait(timeout: .now() + 1), .success)
+        }
     }
     #endif
 
