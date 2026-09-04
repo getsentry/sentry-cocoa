@@ -240,6 +240,9 @@
 		62E59A532E8FB70000DB7A7B /* SentryTracePropagation.h in Headers */ = {isa = PBXBuildFile; fileRef = 62E59A522E8FB70000DB7A7B /* SentryTracePropagation.h */; };
 		62E59A5A2E8FB85300DB7A7B /* SentryTracePropagation.m in Sources */ = {isa = PBXBuildFile; fileRef = 62E59A592E8FB85300DB7A7B /* SentryTracePropagation.m */; };
 		62E75EB92E152953002EC91B /* InvocationsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62E75EB82E152953002EC91B /* InvocationsTests.swift */; };
+		D49005020000000000000001 /* TestClientWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D49005010000000000000001 /* TestClientWrapperTests.swift */; };
+		D49005020000000000000002 /* TestHubWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D49005010000000000000002 /* TestHubWrapperTests.swift */; };
+		D49005020000000000000003 /* ClearTestStateWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D49005010000000000000003 /* ClearTestStateWrapperTests.swift */; };
 		6304360A1EC0595B00C4D3FA /* SentryNSDataUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 630436081EC0595B00C4D3FA /* SentryNSDataUtils.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		6304360B1EC0595B00C4D3FA /* SentryNSDataUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 630436091EC0595B00C4D3FA /* SentryNSDataUtils.m */; };
 		630436101EC0600A00C4D3FA /* SentrySerializable.h in Headers */ = {isa = PBXBuildFile; fileRef = 6304360F1EC0600A00C4D3FA /* SentrySerializable.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -600,6 +603,9 @@
 		99D8A0C9D3752A409F7FA461 /* SentryCrashInstallation+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 63FE706920DA4C1000CDBAE8 /* SentryCrashInstallation+Private.h */; };
 		9CEAF11A69A1466D0B3752A7 /* SentryCrashStackCursor.c in Sources */ = {isa = PBXBuildFile; fileRef = 63FE703B20DA4C1000CDBAE8 /* SentryCrashStackCursor.c */; };
 		9D251FC2837DC1D2927204E5 /* InvocationsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62E75EB82E152953002EC91B /* InvocationsTests.swift */; };
+		D49005030000000000000001 /* TestClientWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D49005010000000000000001 /* TestClientWrapperTests.swift */; };
+		D49005030000000000000002 /* TestHubWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D49005010000000000000002 /* TestHubWrapperTests.swift */; };
+		D49005030000000000000003 /* ClearTestStateWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D49005010000000000000003 /* ClearTestStateWrapperTests.swift */; };
 		9D672574473AC0D7468415F0 /* SentryProfilingSwiftHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = FAE2DAB72E1F317900262307 /* SentryProfilingSwiftHelpers.m */; };
 		9ED212BA7CE4FA201B641B28 /* SentryCrashMonitor_NSException_StackCursor.m in Sources */ = {isa = PBXBuildFile; fileRef = 928C66A72F27CCF000BA58DD /* SentryCrashMonitor_NSException_StackCursor.m */; };
 		9F5950B32F3503A9AE31B6DE /* SentryMsgPackSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = D83D079A2B7F9D1C00CC9674 /* SentryMsgPackSerializer.m */; };
@@ -1343,6 +1349,9 @@
 		62E59A522E8FB70000DB7A7B /* SentryTracePropagation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryTracePropagation.h; path = include/SentryTracePropagation.h; sourceTree = "<group>"; };
 		62E59A592E8FB85300DB7A7B /* SentryTracePropagation.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryTracePropagation.m; sourceTree = "<group>"; };
 		62E75EB82E152953002EC91B /* InvocationsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvocationsTests.swift; sourceTree = "<group>"; };
+		D49005010000000000000001 /* TestClientWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestClientWrapperTests.swift; sourceTree = "<group>"; };
+		D49005010000000000000002 /* TestHubWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestHubWrapperTests.swift; sourceTree = "<group>"; };
+		D49005010000000000000003 /* ClearTestStateWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClearTestStateWrapperTests.swift; sourceTree = "<group>"; };
 		630436081EC0595B00C4D3FA /* SentryNSDataUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryNSDataUtils.h; path = include/SentryNSDataUtils.h; sourceTree = "<group>"; };
 		630436091EC0595B00C4D3FA /* SentryNSDataUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryNSDataUtils.m; sourceTree = "<group>"; };
 		6304360D1EC05CEF00C4D3FA /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk/usr/lib/libz.tbd; sourceTree = DEVELOPER_DIR; };
@@ -1830,6 +1839,24 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		D49005040000000000000001 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			publicHeaders = (
+				SourcesObjC/include/SentryTestClientWrapper.h,
+				SourcesObjC/include/SentryTestHubWrapper.h,
+				SourcesObjC/include/SentryTestStateWrapper.h,
+			);
+			target = 8431F00929B284F200D8DC56 /* SentryTestUtils */;
+		};
+		D49005040000000000000002 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			publicHeaders = (
+				SourcesObjC/include/SentryTestClientWrapper.h,
+				SourcesObjC/include/SentryTestHubWrapper.h,
+				SourcesObjC/include/SentryTestStateWrapper.h,
+			);
+			target = 1C2FEF2649BB40C532CF4441 /* SentryTestUtilsV10 */;
+		};
 		3CFC66F92FF50344004005B4 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			additionalCompilerFlagsByRelativePath = {
@@ -2058,7 +2085,7 @@
 		D4CB395D2F6AEEE6005250F2 /* SentryObjC */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (D4CB399B2F6AEF99005250F2 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, D49B440B302E0DA500FF88D3 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = SentryObjC; sourceTree = "<group>"; };
 		D4CB39972F6AEF01005250F2 /* SentryObjCCompat */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = SentryObjCCompat; sourceTree = "<group>"; };
 		FA2111C32F22CE8C00DFFABE /* Swift */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Swift; sourceTree = "<group>"; };
-		FAB1188E2F4633F40000CC24 /* SentryTestUtils */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = SentryTestUtils; sourceTree = "<group>"; };
+		FAB1188E2F4633F40000CC24 /* SentryTestUtils */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (D49005040000000000000001 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, D49005040000000000000002 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = SentryTestUtils; sourceTree = "<group>"; };
 		FAB1CB682F458C680000CC24 /* SentryTests */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (FAB1CD142F458DA50000CC24 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, 3CFC66F92FF50344004005B4 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = SentryTests; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
@@ -3113,6 +3140,9 @@
 			children = (
 				D4411DD42E02B74100EA4987 /* ArrayAccessesTests.swift */,
 				62E75EB82E152953002EC91B /* InvocationsTests.swift */,
+				D49005010000000000000003 /* ClearTestStateWrapperTests.swift */,
+				D49005010000000000000001 /* TestClientWrapperTests.swift */,
+				D49005010000000000000002 /* TestHubWrapperTests.swift */,
 				D4CBA2512DE06D1600581618 /* TestConstantTests.swift */,
 				624729172DE5980500DFEE00 /* TestCurrentDateProviderTests.swift */,
 				D44B16712DE464A9006DBDB3 /* TestDispatchFactoryTests.swift */,
@@ -5051,6 +5081,9 @@
 				58640BA25F6B3039735BCA7E /* TestDispatchFactoryTests.swift in Sources */,
 				6C31EDE5A16AC3C71DF49682 /* TestNSNotificationCenterWrapperTests.swift in Sources */,
 				9D251FC2837DC1D2927204E5 /* InvocationsTests.swift in Sources */,
+				D49005030000000000000003 /* ClearTestStateWrapperTests.swift in Sources */,
+				D49005030000000000000001 /* TestClientWrapperTests.swift in Sources */,
+				D49005030000000000000002 /* TestHubWrapperTests.swift in Sources */,
 				097CACB838680DA09F3380D4 /* TestInfoPlistWrapperTests.swift in Sources */,
 				09FEF56506F10EEB581DD5C5 /* TestConstantTests.swift in Sources */,
 			);
@@ -5116,6 +5149,9 @@
 				D44B16722DE464AD006DBDB3 /* TestDispatchFactoryTests.swift in Sources */,
 				D4EE12D22DE9AC3800385BAF /* TestNSNotificationCenterWrapperTests.swift in Sources */,
 				62E75EB92E152953002EC91B /* InvocationsTests.swift in Sources */,
+				D49005020000000000000003 /* ClearTestStateWrapperTests.swift in Sources */,
+				D49005020000000000000001 /* TestClientWrapperTests.swift in Sources */,
+				D49005020000000000000002 /* TestHubWrapperTests.swift in Sources */,
 				D4599F8F2E99113E0045BB95 /* TestInfoPlistWrapperTests.swift in Sources */,
 				D4CBA2532DE06D1600581618 /* TestConstantTests.swift in Sources */,
 			);
@@ -5846,6 +5882,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D8BD2E27292D1F7300D96C6A /* SDK.xcconfig */;
 			buildSettings = {
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/SentryTestUtils/SourcesObjC/include";
 				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
 				OTHER_CFLAGS = (
 					"-Wnullable-to-nonnull-conversion",
@@ -5915,6 +5952,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D8BD2E27292D1F7300D96C6A /* SDK.xcconfig */;
 			buildSettings = {
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/SentryTestUtils/SourcesObjC/include";
 				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
 				OTHER_CFLAGS = (
 					"-Wnullable-to-nonnull-conversion",
@@ -6417,6 +6455,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D8BD2E27292D1F7300D96C6A /* SDK.xcconfig */;
 			buildSettings = {
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/SentryTestUtils/SourcesObjC/include";
 				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
 				OTHER_CFLAGS = (
 					"-Wnullable-to-nonnull-conversion",
@@ -6656,6 +6695,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D8BD2E27292D1F7300D96C6A /* SDK.xcconfig */;
 			buildSettings = {
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/SentryTestUtils/SourcesObjC/include";
 				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
 				OTHER_CFLAGS = (
 					"-Wnullable-to-nonnull-conversion",
@@ -6670,6 +6710,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D8BD2E27292D1F7300D96C6A /* SDK.xcconfig */;
 			buildSettings = {
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/SentryTestUtils/SourcesObjC/include";
 				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
 				OTHER_CFLAGS = (
 					"-Wnullable-to-nonnull-conversion",
@@ -7042,6 +7083,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D8BD2E27292D1F7300D96C6A /* SDK.xcconfig */;
 			buildSettings = {
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/SentryTestUtils/SourcesObjC/include";
 				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
 				OTHER_CFLAGS = (
 					"-Wnullable-to-nonnull-conversion",
@@ -7219,6 +7261,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D8BD2E27292D1F7300D96C6A /* SDK.xcconfig */;
 			buildSettings = {
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/SentryTestUtils/SourcesObjC/include";
 				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
 				OTHER_CFLAGS = (
 					"-Wnullable-to-nonnull-conversion",
@@ -7701,6 +7744,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D8BD2E27292D1F7300D96C6A /* SDK.xcconfig */;
 			buildSettings = {
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/SentryTestUtils/SourcesObjC/include";
 				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
 				OTHER_CFLAGS = (
 					"-Wnullable-to-nonnull-conversion",
@@ -12651,6 +12695,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D8BD2E27292D1F7300D96C6A /* SDK.xcconfig */;
 			buildSettings = {
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/SentryTestUtils/SourcesObjC/include";
 				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
 				OTHER_CFLAGS = (
 					"-Wnullable-to-nonnull-conversion",
