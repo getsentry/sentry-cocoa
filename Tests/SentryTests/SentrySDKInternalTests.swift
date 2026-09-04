@@ -544,6 +544,7 @@ class SentrySDKInternalTests: XCTestCase {
 #endif
 
 #if !SDK_V10
+    @available(*, deprecated, message: "Testing deprecated App Hang tracking API")
     func testResumeAndPauseAppHangTracking() throws {
         if SentryDependencyContainer.sharedInstance().debuggerStatusProvider.isBeingTraced {
             throw XCTSkip("This test only works when the debugger is NOT attached, because it requires the SentryANRTrackingIntegration being installed, which the SDK only installs if the debugger is not attached.")
@@ -570,6 +571,7 @@ class SentrySDKInternalTests: XCTestCase {
         XCTAssertEqual(1, client.captureEventWithScopeInvocations.count, "The SDK should capture an AppHang after resuming the tracking, but it didn't.")
     }
 
+    @available(*, deprecated, message: "Testing deprecated App Hang tracking API")
     func testResumeAndPauseAppHangTracking_ANRTrackingNotInstalled() {
         SentrySDK.start { options in
             options.dsn = SentrySDKInternalTests.dsnAsString

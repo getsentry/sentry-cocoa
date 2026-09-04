@@ -383,15 +383,27 @@
     #endif
 
     #if !SDK_V10
+    var enableReportNonFullyBlockingAppHangsValue = true
+
     /// When enabled the SDK reports non-fully-blocking app hangs. A non-fully-blocking app hang is when
     /// the app appears stuck to the user but can still render a few frames.
     ///
     /// @note The default is @c true.
-    @objc public var enableReportNonFullyBlockingAppHangs: Bool = true
+    /// - Deprecated: App Hang tracking can produce less relevant stack traces and false positives.
+    ///   Migrate to MetricKit for system-provided hang diagnostics.
+    @objc public var enableReportNonFullyBlockingAppHangs: Bool {
+        get {
+            enableReportNonFullyBlockingAppHangsValue
+        }
+        @available(*, deprecated, message: "App Hang tracking is deprecated and will be removed in v10 because it can produce less relevant stack traces and false positives. Migrate to MetricKit for system-provided hang diagnostics.")
+        set {
+            enableReportNonFullyBlockingAppHangsValue = newValue
+        }
+    }
 
     // swiftlint:disable:next missing_docs
     @_spi(Private) @objc public func isAppHangTrackingDisabled() -> Bool {
-        !enableAppHangTracking || appHangTimeoutInterval <= 0
+        !enableAppHangTrackingValue || appHangTimeoutInterval <= 0
     }
     #endif // !SDK_V10
 
@@ -545,6 +557,8 @@
     @objc public var sendClientReports: Bool = true
 
     #if !SDK_V10
+    var enableAppHangTrackingValue = true
+
     /// When enabled, the SDK tracks when the application stops responding for a specific amount of
     /// time defined by the @c appHangTimeoutInterval option.
     ///
@@ -563,13 +577,23 @@
     ///
     /// @note The default is @c true.
     /// @note App Hang tracking is automatically disabled if a debugger is attached.
-    @objc public var enableAppHangTracking: Bool = true
+    /// - Deprecated: App Hang tracking can produce less relevant stack traces and false positives.
+    ///   Migrate to MetricKit for system-provided hang diagnostics.
+    @objc public var enableAppHangTracking: Bool {
+        get {
+            enableAppHangTrackingValue
+        }
+        @available(*, deprecated, message: "App Hang tracking is deprecated and will be removed in v10 because it can produce less relevant stack traces and false positives. Migrate to MetricKit for system-provided hang diagnostics.")
+        set {
+            enableAppHangTrackingValue = newValue
+        }
+    }
     #endif // !SDK_V10
 
-    /// The minimum amount of time an app should be unresponsive to be classified as an App Hanging.
+    /// The minimum amount of time the app must be unresponsive before the SDK considers it hung.
+    /// In v10, the SDK still uses this threshold internally to classify watchdog terminations.
     /// @note The actual amount may be a little longer.
-    /// @note Avoid using values lower than 100ms, which may cause a lot of app hangs events being
-    /// transmitted.
+    /// @note Avoid using values lower than 100ms, which may cause false-positive hang detection.
     /// @note The default value is 2 seconds.
     @objc public var appHangTimeoutInterval: TimeInterval = 2.0
 

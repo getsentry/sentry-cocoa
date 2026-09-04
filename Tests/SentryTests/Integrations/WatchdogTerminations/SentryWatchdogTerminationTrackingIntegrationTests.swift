@@ -71,14 +71,20 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
             SentrySDKInternal.setCurrentHub(hub)
         }
 
-        func getSut(enableNewHangTracker: Bool = false) -> SentryWatchdogTerminationTrackingIntegration<SentryDependencyContainer>? {
-            let container = SentryDependencyContainer.sharedInstance()
-            let options = options
-#if !SDK_V10
-            options.experimental.enableWatchdogTerminationsV2 = enableNewHangTracker
-#endif
-            return SentryWatchdogTerminationTrackingIntegration(with: options, dependencies: container)
+        func getSut() -> SentryWatchdogTerminationTrackingIntegration<SentryDependencyContainer>? {
+            SentryWatchdogTerminationTrackingIntegration(
+                with: options,
+                dependencies: SentryDependencyContainer.sharedInstance()
+            )
         }
+
+#if !SDK_V10
+        @available(*, deprecated, message: "Testing deprecated watchdog terminations V2 option")
+        func getSut(enableNewHangTracker: Bool) -> SentryWatchdogTerminationTrackingIntegration<SentryDependencyContainer>? {
+            options.experimental.enableWatchdogTerminationsV2 = enableNewHangTracker
+            return getSut()
+        }
+#endif
     }
 
     private var fixture: Fixture!
@@ -334,6 +340,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
     }
     #endif // !SDK_V10
 
+    @available(*, deprecated, message: "Testing deprecated watchdog terminations V2 option")
     func testANRDetected_NewHangTracker_UpdatesAppStateToTrue() throws {
         // -- Arrange --
         fixture.sysctl.internalIsBeingTraced = false
@@ -362,6 +369,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
     }
     #endif // !SDK_V10
 
+    @available(*, deprecated, message: "Testing deprecated watchdog terminations V2 option")
     func testANRStopped_NewHangTracker_UpdatesAppStateToFalse() throws {
         // -- Arrange --
         fixture.sysctl.internalIsBeingTraced = false
@@ -376,6 +384,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertFalse(appState.isANROngoing)
     }
 
+    @available(*, deprecated, message: "Testing deprecated watchdog terminations V2 option")
     func testHangObserver_DurationBelowThreshold_DoesNotUpdateAppState() throws {
         // -- Arrange --
         let mockDelayTracker = MockRunLoopDelayTracker()
@@ -401,6 +410,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertNotNil(integration)
     }
 
+    @available(*, deprecated, message: "Testing deprecated watchdog terminations V2 option")
     func testHangObserver_DurationAboveThreshold_UpdatesAppState() throws {
         // -- Arrange --
         let mockDelayTracker = MockRunLoopDelayTracker()
@@ -426,6 +436,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertNotNil(integration)
     }
 
+    @available(*, deprecated, message: "Testing deprecated watchdog terminations V2 option")
     func testHangObserver_DurationBelowThreshold_HangStopped_DoesNotUpdateAppState() throws {
         // -- Arrange --
         let mockDelayTracker = MockRunLoopDelayTracker()

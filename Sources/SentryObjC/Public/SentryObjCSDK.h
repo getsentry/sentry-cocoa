@@ -404,11 +404,23 @@ NS_ASSUME_NONNULL_BEGIN
  * Pauses sending detected app hangs to Sentry.
  * @note This method doesn't close the detection of app hangs. Instead, the app hang detection
  * will ignore detected app hangs until you call @c resumeAppHangTracking.
+ * @deprecated App Hang tracking can produce less relevant stack traces and false positives.
+ * Migrate to MetricKit for system-provided hang diagnostics.
  */
-+ (void)pauseAppHangTracking;
++ (void)pauseAppHangTracking
+    __attribute__((deprecated("App Hang tracking is deprecated and will be removed in v10 because "
+                              "it can produce less relevant stack traces and false positives. "
+                              "Migrate to MetricKit for system-provided hang diagnostics.")));
 
-/// Resumes sending detected app hangs to Sentry.
-+ (void)resumeAppHangTracking;
+/**
+ * Resumes sending detected app hangs to Sentry.
+ * @deprecated App Hang tracking can produce less relevant stack traces and false positives.
+ * Migrate to MetricKit for system-provided hang diagnostics.
+ */
++ (void)resumeAppHangTracking
+    __attribute__((deprecated("App Hang tracking is deprecated and will be removed in v10 because "
+                              "it can produce less relevant stack traces and false positives. "
+                              "Migrate to MetricKit for system-provided hang diagnostics.")));
 #endif
 
 /**

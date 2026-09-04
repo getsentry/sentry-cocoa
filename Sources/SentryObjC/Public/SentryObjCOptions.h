@@ -430,15 +430,20 @@ NS_ASSUME_NONNULL_BEGIN
  * time defined by the @c appHangTimeoutInterval option.
  * @note The default is @c YES.
  * @note App Hang tracking is automatically disabled if a debugger is attached.
+ * @deprecated App Hang tracking can produce less relevant stack traces and false positives.
+ * Migrate to MetricKit for system-provided hang diagnostics.
  */
-@property (nonatomic) BOOL enableAppHangTracking;
+@property (nonatomic) BOOL enableAppHangTracking
+    __attribute__((deprecated("App Hang tracking is deprecated and will be removed in v10 because "
+                              "it can produce less relevant stack traces and false positives. "
+                              "Migrate to MetricKit for system-provided hang diagnostics.")));
 #endif // !SDK_V10
 
 /**
- * The minimum amount of time an app should be unresponsive to be classified as an App Hang.
+ * The minimum amount of time the app must be unresponsive before the SDK considers it hung.
+ * In v10, the SDK still uses this threshold internally to classify watchdog terminations.
  * @note The actual amount may be a little longer.
- * @note Avoid using values lower than 100ms, which may cause a lot of app hang events being
- * transmitted.
+ * @note Avoid using values lower than 100ms, which may cause false-positive hang detection.
  * @note The default value is 2 seconds.
  */
 @property (nonatomic) NSTimeInterval appHangTimeoutInterval;
@@ -622,8 +627,13 @@ NS_ASSUME_NONNULL_BEGIN
  * When enabled, the SDK reports non-fully-blocking app hangs. A non-fully-blocking app hang is
  * when the app appears stuck to the user but can still render a few frames.
  * @note The default is @c YES.
+ * @deprecated App Hang tracking can produce less relevant stack traces and false positives.
+ * Migrate to MetricKit for system-provided hang diagnostics.
  */
-@property (nonatomic) BOOL enableReportNonFullyBlockingAppHangs;
+@property (nonatomic) BOOL enableReportNonFullyBlockingAppHangs
+    __attribute__((deprecated("App Hang tracking is deprecated and will be removed in v10 because "
+                              "it can produce less relevant stack traces and false positives. "
+                              "Migrate to MetricKit for system-provided hang diagnostics.")));
 #    endif // !SDK_V10
 
 #endif

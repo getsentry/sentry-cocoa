@@ -609,14 +609,20 @@
 #if !SDK_V10
 - (void)testPauseAppHangTracking_shouldNotCrash
 {
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     // -- Act & Assert (no crash) --
     [SentryObjCSDK pauseAppHangTracking];
+#    pragma clang diagnostic pop
 }
 
 - (void)testResumeAppHangTracking_shouldNotCrash
 {
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     // -- Act & Assert (no crash) --
     [SentryObjCSDK resumeAppHangTracking];
+#    pragma clang diagnostic pop
 }
 #endif
 

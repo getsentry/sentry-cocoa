@@ -389,6 +389,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     }
     #endif // !SDK_V10
 
+    @available(*, deprecated, message: "Testing deprecated watchdog terminations V2 option")
     func testWatchdogTerminationsV2_shouldAddFeature() throws {
 #if !SDK_V10 || ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK)
         // -- Arrange --
@@ -408,6 +409,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     }
 
 #if !SDK_V10
+    @available(*, deprecated, message: "Testing deprecated watchdog terminations V2 option")
     func testEnableWatchdogTerminationsV2_isDisabled_shouldNotAddFeature() throws {
         // -- Arrange --
         let options = Options()

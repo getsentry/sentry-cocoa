@@ -250,10 +250,12 @@ import Foundation
     #endif
 
     #if !SDK_V10
+    @available(*, deprecated, message: "App Hang tracking is deprecated and will be removed in v10 because it can produce less relevant stack traces and false positives. Migrate to MetricKit for system-provided hang diagnostics.")
     @objc public static func pauseAppHangTracking() {
         SentrySDK.pauseAppHangTracking()
     }
 
+    @available(*, deprecated, message: "App Hang tracking is deprecated and will be removed in v10 because it can produce less relevant stack traces and false positives. Migrate to MetricKit for system-provided hang diagnostics.")
     @objc public static func resumeAppHangTracking() {
         SentrySDK.resumeAppHangTracking()
     }

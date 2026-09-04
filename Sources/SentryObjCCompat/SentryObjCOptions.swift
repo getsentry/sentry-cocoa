@@ -378,6 +378,7 @@ import Foundation
     #if !SDK_V10
     @objc public var enableReportNonFullyBlockingAppHangs: Bool {
         get { wrapped.enableReportNonFullyBlockingAppHangs }
+        @available(*, deprecated, message: "App Hang tracking is deprecated and will be removed in v10 because it can produce less relevant stack traces and false positives. Migrate to MetricKit for system-provided hang diagnostics.")
         set { wrapped.enableReportNonFullyBlockingAppHangs = newValue }
     }
     #endif // !SDK_V10
@@ -475,6 +476,7 @@ import Foundation
     #if !SDK_V10
     @objc public var enableAppHangTracking: Bool {
         get { wrapped.enableAppHangTracking }
+        @available(*, deprecated, message: "App Hang tracking is deprecated and will be removed in v10 because it can produce less relevant stack traces and false positives. Migrate to MetricKit for system-provided hang diagnostics.")
         set { wrapped.enableAppHangTracking = newValue }
     }
     #endif // !SDK_V10

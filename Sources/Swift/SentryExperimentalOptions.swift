@@ -14,8 +14,20 @@ public final class SentryExperimentalOptions: NSObject {
     public var enableUnhandledCPPExceptionsV2 = false
 
     #if !SDK_V10
+    @nonobjc var enableWatchdogTerminationsV2Value = false
+
     /// When enabled, the SDK uses a more efficient mechanism for detecting watchdog terminations.
-    public var enableWatchdogTerminationsV2 = false
+    /// - Deprecated: This option will be removed in v10, where the improved watchdog termination
+    ///   tracking mechanism is enabled by default.
+    public var enableWatchdogTerminationsV2: Bool {
+        get {
+            enableWatchdogTerminationsV2Value
+        }
+        @available(*, deprecated, message: "enableWatchdogTerminationsV2 is deprecated and will be removed in v10, where the improved watchdog termination tracking mechanism is enabled by default.")
+        set {
+            enableWatchdogTerminationsV2Value = newValue
+        }
+    }
     #endif
 
     /**
