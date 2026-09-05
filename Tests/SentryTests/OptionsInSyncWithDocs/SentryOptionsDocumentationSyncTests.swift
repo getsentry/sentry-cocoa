@@ -36,7 +36,7 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         #endif
 
         // Session replay (documented at https://docs.sentry.io/platforms/apple/session-replay/)
-        #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         options.insert("sessionReplay")
         #endif
 

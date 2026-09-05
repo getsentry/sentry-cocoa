@@ -2383,7 +2383,7 @@ final class SentryClientTests: XCTestCase {
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SDK_V10
         expectedIntegrations.append("FramesTracking")
 #endif // os(iOS) || os(tvOS)
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         expectedIntegrations.append("SessionReplay")
 #endif
         #if SDK_V10

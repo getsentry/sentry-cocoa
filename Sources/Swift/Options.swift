@@ -348,6 +348,8 @@
     /// @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
     /// configurations even when targeting iOS or tvOS platforms.
     /// @note Default value is @c false.
+    /// - Note: On visionOS, only UIKit window content (2D Scenes) is captured. Content in
+    ///   immersive spaces or volumetric windows rendered via RealityKit is not included.
     @objc public var attachScreenshot: Bool = false
 
     /// Settings to configure screenshot attachments.
@@ -359,6 +361,8 @@
     /// @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
     /// configurations even when targeting iOS or tvOS platforms.
     /// @note Default value is @c false.
+    /// - Note: On visionOS, only the UIKit window hierarchy (2D Scenes) is captured. Views in
+    ///   immersive spaces or volumetric windows rendered via RealityKit are not included.
     @objc public var attachViewHierarchy: Bool = false
 
     /// @brief If enabled, view hierarchy attachment will contain view `accessibilityIdentifier`.
@@ -421,9 +425,12 @@
 
     #endif
 
-    #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+    #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
     /// Configuration options for Session Replay.
+    /// - Note: On visionOS, session replay captures only UIKit window content (2D Scenes).
+    ///   Content in immersive spaces or volumetric windows rendered via RealityKit is not
+    ///   included. Touch indicators reflect indirect input only.
     @objc public var sessionReplay = SentryReplayOptions()
 
     #endif

@@ -999,7 +999,10 @@ class SentryHubTests: XCTestCase {
             }
         }
 
-        wait(for: [expectation], timeout: 5.0)
+        // This verifies session synchronization, not capture performance. CPU-constrained visionOS
+        // runners have exceeded five seconds, so use a generous timeout that still detects a
+        // deadlock before the overall test runner timeout.
+        wait(for: [expectation], timeout: 30.0)
 
         // Assert
         let session = try XCTUnwrap(sut.session)
@@ -1027,7 +1030,10 @@ class SentryHubTests: XCTestCase {
             }
         }
 
-        wait(for: [expectation], timeout: 5.0)
+        // This verifies session synchronization, not capture performance. CPU-constrained visionOS
+        // runners have exceeded five seconds, so use a generous timeout that still detects a
+        // deadlock before the overall test runner timeout.
+        wait(for: [expectation], timeout: 30.0)
 
         // Assert
         let session = try XCTUnwrap(sut.session)

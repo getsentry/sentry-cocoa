@@ -1,7 +1,11 @@
 #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
-#if os(iOS) || os(tvOS)
+#if os(iOS) || os(tvOS) || os(visionOS)
 
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import UIKit
 
 @_spi(Private) public class TestSentryViewRenderer: NSObject, SentryViewRenderer {
@@ -26,5 +30,5 @@ import UIKit
     }
 }
 
-#endif // os(iOS) || os(tvOS)
+#endif // os(iOS) || os(tvOS) || os(visionOS)
 #endif // canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK

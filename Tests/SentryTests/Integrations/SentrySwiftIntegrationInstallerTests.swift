@@ -5,7 +5,7 @@ import XCTest
 final class SentrySwiftIntegrationInstallerTests: XCTestCase {
 
     private var expectedDefaultIntegrationCount: Int {
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         // Replay + Metrics
         return 2
 #else
@@ -56,7 +56,7 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         XCTAssertEqual(testHub.installedIntegrations().count, expectedDefaultIntegrationCount + 1)
         XCTAssertTrue(names.contains("SentrySwiftAsyncIntegration"))
         XCTAssertTrue(names.contains("SentryMetricsIntegration"))
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         XCTAssertTrue(names.contains("SentrySessionReplayIntegration"))
 #endif
     }

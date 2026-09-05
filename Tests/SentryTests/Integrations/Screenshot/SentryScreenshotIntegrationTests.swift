@@ -1,4 +1,4 @@
-#if os(iOS) || os(tvOS)
+#if os(iOS) || os(tvOS) || os(visionOS)
 
 @_spi(Private) @testable import Sentry
 @_spi(Private) @testable import SentryTestUtils
@@ -270,4 +270,4 @@ class SentryScreenshotIntegrationTests: XCTestCase {
     
 }
 
-#endif // os(iOS) || os(tvOS)
+#endif // os(iOS) || os(tvOS) || os(visionOS)

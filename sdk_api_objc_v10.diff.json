@@ -192,6 +192,13 @@
     },
     {
       "kind": "ObjCMethodDecl",
+      "name": "lifecycle",
+      "parent": "SentryObjCProfileOptions",
+      "returnType": "SentryObjCProfileLifecycle",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
       "name": "mode",
       "parent": "SentryObjCDataCollectionKeyValueCollectionBehavior",
       "returnType": "SentryObjCDataCollectionKeyValueCollectionMode",
@@ -341,6 +348,12 @@
       "name": "level",
       "parent": "SentryObjCLog",
       "type": "SentryObjCLogLevel"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "lifecycle",
+      "parent": "SentryObjCProfileOptions",
+      "type": "SentryObjCProfileLifecycle"
     },
     {
       "kind": "ObjCPropertyDecl",
@@ -668,6 +681,13 @@
     },
     {
       "kind": "ObjCMethodDecl",
+      "name": "lifecycle",
+      "parent": "SentryObjCProfileOptions",
+      "returnType": "enum SentryObjCProfileLifecycle",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
       "name": "mode",
       "parent": "SentryObjCDataCollectionKeyValueCollectionBehavior",
       "returnType": "enum SentryObjCDataCollectionKeyValueCollectionMode",
@@ -831,6 +851,12 @@
       "name": "level",
       "parent": "SentryObjCLog",
       "type": "enum SentryObjCLogLevel"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "lifecycle",
+      "parent": "SentryObjCProfileOptions",
+      "type": "enum SentryObjCProfileLifecycle"
     },
     {
       "kind": "ObjCPropertyDecl",
