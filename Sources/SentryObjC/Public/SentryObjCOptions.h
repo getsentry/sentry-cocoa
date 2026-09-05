@@ -639,7 +639,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #endif
 
-#if (TARGET_OS_IOS || TARGET_OS_TV) && SENTRY_OBJC_HAS_UIKIT
+#if (TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION) && SENTRY_OBJC_HAS_UIKIT
 
 /// Configuration options for Session Replay.
 @property (nonatomic, strong) SentryObjCReplayOptions *sessionReplay;

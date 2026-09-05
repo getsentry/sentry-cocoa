@@ -23,16 +23,9 @@ public struct SentryInternalApi {
         & SentryInternalPerformanceApi.Dependencies
         & SentryInternalScreenApi.Dependencies
         & SentryInternalScreenshotApi.Dependencies
-    #if (os(iOS) || os(tvOS))
-    typealias Dependencies = UIDependencies
         & SentryInternalViewHierarchyApi.Dependencies
         & SentryInternalReplayApi.Dependencies
-    #elseif os(visionOS)
     typealias Dependencies = UIDependencies
-        & SentryInternalViewHierarchyApi.Dependencies
-    #else
-    typealias Dependencies = UIDependencies
-    #endif
 #else
     typealias Dependencies = BaseDependencies
 #endif
@@ -74,18 +67,14 @@ public struct SentryInternalApi {
     /// Screen name tracking for hybrid SDKs.
     public let screen: SentryInternalScreenApi
 
-    /// Screenshot capture for hybrid SDKs.
-    public let screenshot: SentryInternalScreenshotApi
-
-    #if (os(iOS) || os(tvOS) || os(visionOS))
-    /// View hierarchy capture for hybrid SDKs.
-    public let viewHierarchy: SentryInternalViewHierarchyApi
-    #endif
-
-    #if (os(iOS) || os(tvOS))
     /// Session replay for hybrid SDKs.
     public let replay: SentryInternalReplayApi
-    #endif
+
+    /// View hierarchy capture for hybrid SDKs.
+    public let viewHierarchy: SentryInternalViewHierarchyApi
+
+    /// Screenshot capture for hybrid SDKs.
+    public let screenshot: SentryInternalScreenshotApi
 #endif
 
 #if !(os(watchOS) || os(tvOS) || os(visionOS))
@@ -140,13 +129,9 @@ public struct SentryInternalApi {
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         self.performance = SentryInternalPerformanceApi(dependencies: dependencies)
         self.screen = SentryInternalScreenApi(dependencies: dependencies)
-        self.screenshot = SentryInternalScreenshotApi(dependencies: dependencies)
-        #if (os(iOS) || os(tvOS) || os(visionOS))
-        self.viewHierarchy = SentryInternalViewHierarchyApi(dependencies: dependencies)
-        #endif
-        #if (os(iOS) || os(tvOS))
         self.replay = SentryInternalReplayApi(dependencies: dependencies)
-        #endif
+        self.viewHierarchy = SentryInternalViewHierarchyApi(dependencies: dependencies)
+        self.screenshot = SentryInternalScreenshotApi(dependencies: dependencies)
 #endif
 #if !(os(watchOS) || os(tvOS) || os(visionOS))
         self.profiling = SentryInternalProfilingApi()

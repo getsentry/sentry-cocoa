@@ -5,7 +5,7 @@ private enum SentryNetworkTrackingSwizzleKeys {
     static let resume = SentryTypedSwizzle.Key()
     static let state = SentryTypedSwizzle.Key()
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     static let dataTaskWithRequest = SentryTypedSwizzle.Key()
     static let dataTaskWithURL = SentryTypedSwizzle.Key()
 #endif
@@ -52,7 +52,7 @@ final class SentryNetworkTrackingIntegration<Dependencies: NetworkTrackerProvide
         SentryNetworkTrackerProxy.shared.setTarget(networkTracker)
         Self.swizzleURLSessionTasks()
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         if options.sessionReplay.networkDetailHasUrls {
             Self.swizzleDataTaskWithRequestForResponseCapture()
             Self.swizzleDataTaskWithURLForResponseCapture()
@@ -114,7 +114,7 @@ final class SentryNetworkTrackingIntegration<Dependencies: NetworkTrackerProvide
         }
     }
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     private static func swizzleDataTaskWithRequestForResponseCapture() {
         SentryTypedSwizzle.instanceMethod(
             in: URLSession.self,

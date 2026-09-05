@@ -2,7 +2,7 @@
 internal import _SentryPrivate
 import Foundation
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 /// Provides session replay access for hybrid SDKs.
 public struct SentryInternalReplayApi {

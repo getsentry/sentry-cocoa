@@ -108,7 +108,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     var windowFactoryOverride: SentryUserFeedbackWindowFactory?
 #endif
 #endif
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     var sessionReplayCaptureScheduler: SentrySessionReplayRunLoopCaptureScheduler = DefaultSentrySessionReplayRunLoopCaptureScheduler()
 #endif
     @objc public func application() -> SentryApplication? {
@@ -519,7 +519,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     }
 #endif
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     private var _sessionReplayBreadcrumbConverter: SentryReplayBreadcrumbConverter?
     var sessionReplayBreadcrumbConverter: SentryReplayBreadcrumbConverter {
         get { getLazyVar(\._sessionReplayBreadcrumbConverter) { SentrySRDefaultBreadcrumbConverter() } }
@@ -764,7 +764,7 @@ protocol ViewHierarchyProviderProvider {
 extension SentryDependencyContainer: ViewHierarchyProviderProvider { }
 #endif
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 protocol SessionReplayCaptureSchedulerProvider {
     var sessionReplayCaptureScheduler: SentrySessionReplayRunLoopCaptureScheduler { get }
 }

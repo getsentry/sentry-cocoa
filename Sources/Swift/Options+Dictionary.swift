@@ -211,7 +211,7 @@ extension Options {
         #endif // !SDK_V10
         #endif
 
-        #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         if let sessionReplay = dictionary["sessionReplay"] as? [String: Any] {
             self.sessionReplay = SentryReplayOptions(dictionary: sessionReplay)
         }

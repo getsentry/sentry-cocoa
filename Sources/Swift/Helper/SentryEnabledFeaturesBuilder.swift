@@ -27,7 +27,7 @@ import Foundation
             features.append("persistingTracesWhenCrashing")
         }
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         if options.sessionReplay.enableViewRendererV2 {
             // We keep the old name for backwards compatibility of the telemetry data.
             features.append("experimentalViewRenderer")
@@ -76,7 +76,7 @@ import Foundation
             features.append("uiViewControllerInitSwizzling")
         }
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         if options.attachViewHierarchy {
             features.append("viewHierarchy")
         }
