@@ -1226,6 +1226,20 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "captureError:withHint:",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "captureError:withHint:scopeBlock:",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "captureError:withScope:",
     "parent": "SentryObjCClient",
     "returnType": "SentryObjCId * _Nonnull",
@@ -1241,6 +1255,20 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "captureError:withScope:",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "captureError:withScope:hint:",
+    "parent": "SentryObjCHub",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "captureError:withScope:hint:",
     "parent": "SentryObjCSDK",
     "returnType": "SentryObjCId * _Nonnull",
     "instance": false
@@ -1282,6 +1310,20 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "captureEvent:withHint:",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "captureEvent:withHint:scopeBlock:",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "captureEvent:withScope:",
     "parent": "SentryObjCClient",
     "returnType": "SentryObjCId * _Nonnull",
@@ -1297,6 +1339,20 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "captureEvent:withScope:",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "captureEvent:withScope:hint:",
+    "parent": "SentryObjCHub",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "captureEvent:withScope:hint:",
     "parent": "SentryObjCSDK",
     "returnType": "SentryObjCId * _Nonnull",
     "instance": false
@@ -1338,6 +1394,20 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "captureException:withHint:",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "captureException:withHint:scopeBlock:",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "captureException:withScope:",
     "parent": "SentryObjCClient",
     "returnType": "SentryObjCId * _Nonnull",
@@ -1353,6 +1423,20 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "captureException:withScope:",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "captureException:withScope:hint:",
+    "parent": "SentryObjCHub",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "captureException:withScope:hint:",
     "parent": "SentryObjCSDK",
     "returnType": "SentryObjCId * _Nonnull",
     "instance": false
@@ -1415,6 +1499,20 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "captureMessage:withHint:",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "captureMessage:withHint:scopeBlock:",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "captureMessage:withScope:",
     "parent": "SentryObjCClient",
     "returnType": "SentryObjCId * _Nonnull",
@@ -1430,6 +1528,20 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "captureMessage:withScope:",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "captureMessage:withScope:hint:",
+    "parent": "SentryObjCHub",
+    "returnType": "SentryObjCId * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "captureMessage:withScope:hint:",
     "parent": "SentryObjCSDK",
     "returnType": "SentryObjCId * _Nonnull",
     "instance": false

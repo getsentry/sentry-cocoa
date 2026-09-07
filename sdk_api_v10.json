@@ -43071,6 +43071,48 @@
             "children": [
               {
                 "kind": "TypeNominal",
+                "name": "Error",
+                "printedName": "any Swift.Error",
+                "usr": "s:s5ErrorP"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Hint",
+                "printedName": "Sentry.Hint",
+                "usr": "c:@M@Sentry@objc(cs)SentryHint"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Scope",
+                "printedName": "Sentry.Scope",
+                "usr": "c:objc(cs)SentryScope"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryId",
+                "printedName": "Sentry.SentryId",
+                "usr": "c:objc(cs)SentryId"
+              }
+            ],
+            "declAttributes": [
+              "DiscardableResult",
+              "Final",
+              "ObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A3HubC7capture5error5scope4hintSo0A2IdCs5Error_p_So0A5ScopeCAA4HintCtF",
+            "moduleName": "Sentry",
+            "name": "capture",
+            "objc_name": "captureError:withScope:hint:",
+            "printedName": "capture(error:scope:hint:)",
+            "usr": "c:@M@Sentry@objc(cs)SentryHub(im)captureError:withScope:hint:"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
                 "name": "Event",
                 "printedName": "Sentry.Event",
                 "usr": "c:objc(cs)SentryEvent"
@@ -43137,6 +43179,48 @@
             "children": [
               {
                 "kind": "TypeNominal",
+                "name": "Event",
+                "printedName": "Sentry.Event",
+                "usr": "c:objc(cs)SentryEvent"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Hint",
+                "printedName": "Sentry.Hint",
+                "usr": "c:@M@Sentry@objc(cs)SentryHint"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Scope",
+                "printedName": "Sentry.Scope",
+                "usr": "c:objc(cs)SentryScope"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryId",
+                "printedName": "Sentry.SentryId",
+                "usr": "c:objc(cs)SentryId"
+              }
+            ],
+            "declAttributes": [
+              "DiscardableResult",
+              "Final",
+              "ObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A3HubC7capture5event5scope4hintSo0A2IdCSo0A5EventC_So0A5ScopeCAA4HintCtF",
+            "moduleName": "Sentry",
+            "name": "capture",
+            "objc_name": "captureEvent:withScope:hint:",
+            "printedName": "capture(event:scope:hint:)",
+            "usr": "c:@M@Sentry@objc(cs)SentryHub(im)captureEvent:withScope:hint:"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
                 "name": "NSException",
                 "printedName": "Foundation.NSException",
                 "usr": "c:objc(cs)NSException"
@@ -43198,6 +43282,48 @@
             "objc_name": "captureException:withScope:",
             "printedName": "capture(exception:scope:)",
             "usr": "c:@M@Sentry@objc(cs)SentryHub(im)captureException:withScope:"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Hint",
+                "printedName": "Sentry.Hint",
+                "usr": "c:@M@Sentry@objc(cs)SentryHint"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "NSException",
+                "printedName": "Foundation.NSException",
+                "usr": "c:objc(cs)NSException"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Scope",
+                "printedName": "Sentry.Scope",
+                "usr": "c:objc(cs)SentryScope"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryId",
+                "printedName": "Sentry.SentryId",
+                "usr": "c:objc(cs)SentryId"
+              }
+            ],
+            "declAttributes": [
+              "DiscardableResult",
+              "Final",
+              "ObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A3HubC7capture9exception5scope4hintSo0A2IdCSo11NSExceptionC_So0A5ScopeCAA4HintCtF",
+            "moduleName": "Sentry",
+            "name": "capture",
+            "objc_name": "captureException:withScope:hint:",
+            "printedName": "capture(exception:scope:hint:)",
+            "usr": "c:@M@Sentry@objc(cs)SentryHub(im)captureException:withScope:hint:"
           },
           {
             "children": [
@@ -43292,6 +43418,48 @@
             "objc_name": "captureMessage:withScope:",
             "printedName": "capture(message:scope:)",
             "usr": "c:@M@Sentry@objc(cs)SentryHub(im)captureMessage:withScope:"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Hint",
+                "printedName": "Sentry.Hint",
+                "usr": "c:@M@Sentry@objc(cs)SentryHint"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Scope",
+                "printedName": "Sentry.Scope",
+                "usr": "c:objc(cs)SentryScope"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryId",
+                "printedName": "Sentry.SentryId",
+                "usr": "c:objc(cs)SentryId"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declAttributes": [
+              "DiscardableResult",
+              "Final",
+              "ObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A3HubC7capture7message5scope4hintSo0A2IdCSS_So0A5ScopeCAA4HintCtF",
+            "moduleName": "Sentry",
+            "name": "capture",
+            "objc_name": "captureMessage:withScope:hint:",
+            "printedName": "capture(message:scope:hint:)",
+            "usr": "c:@M@Sentry@objc(cs)SentryHub(im)captureMessage:withScope:hint:"
           },
           {
             "children": [
@@ -60163,6 +60331,101 @@
               },
               {
                 "kind": "TypeNominal",
+                "name": "Hint",
+                "printedName": "Sentry.Hint",
+                "usr": "c:@M@Sentry@objc(cs)SentryHint"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryId",
+                "printedName": "Sentry.SentryId",
+                "usr": "c:objc(cs)SentryId"
+              }
+            ],
+            "declAttributes": [
+              "DiscardableResult"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A3SDKO7capture5error4hintSo0A2IdCs5Error_p_AA4HintCtFZ",
+            "moduleName": "Sentry",
+            "name": "capture",
+            "printedName": "capture(error:hint:)",
+            "static": true,
+            "usr": "s:6Sentry0A3SDKO7capture5error4hintSo0A2IdCs5Error_p_AA4HintCtFZ"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "Void",
+                    "printedName": "Swift.Void"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Scope",
+                    "printedName": "Sentry.Scope",
+                    "usr": "c:objc(cs)SentryScope"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.Scope) -> Swift.Void"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Error",
+                "printedName": "any Swift.Error",
+                "usr": "s:s5ErrorP"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Hint",
+                "printedName": "Sentry.Hint",
+                "usr": "c:@M@Sentry@objc(cs)SentryHint"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryId",
+                "printedName": "Sentry.SentryId",
+                "usr": "c:objc(cs)SentryId"
+              }
+            ],
+            "declAttributes": [
+              "DiscardableResult"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A3SDKO7capture5error4hint5blockSo0A2IdCs5Error_p_AA4HintCySo0A5ScopeCctFZ",
+            "moduleName": "Sentry",
+            "name": "capture",
+            "printedName": "capture(error:hint:block:)",
+            "static": true,
+            "usr": "s:6Sentry0A3SDKO7capture5error4hint5blockSo0A2IdCs5Error_p_AA4HintCySo0A5ScopeCctFZ"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Error",
+                "printedName": "any Swift.Error",
+                "usr": "s:s5ErrorP"
+              },
+              {
+                "kind": "TypeNominal",
                 "name": "Scope",
                 "printedName": "Sentry.Scope",
                 "usr": "c:objc(cs)SentryScope"
@@ -60187,6 +60450,47 @@
             "printedName": "capture(error:scope:)",
             "static": true,
             "usr": "s:6Sentry0A3SDKO7capture5error5scopeSo0A2IdCs5Error_p_So0A5ScopeCtFZ"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Error",
+                "printedName": "any Swift.Error",
+                "usr": "s:s5ErrorP"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Hint",
+                "printedName": "Sentry.Hint",
+                "usr": "c:@M@Sentry@objc(cs)SentryHint"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Scope",
+                "printedName": "Sentry.Scope",
+                "usr": "c:objc(cs)SentryScope"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryId",
+                "printedName": "Sentry.SentryId",
+                "usr": "c:objc(cs)SentryId"
+              }
+            ],
+            "declAttributes": [
+              "DiscardableResult"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A3SDKO7capture5error5scope4hintSo0A2IdCs5Error_p_So0A5ScopeCAA4HintCtFZ",
+            "moduleName": "Sentry",
+            "name": "capture",
+            "printedName": "capture(error:scope:hint:)",
+            "static": true,
+            "usr": "s:6Sentry0A3SDKO7capture5error5scope4hintSo0A2IdCs5Error_p_So0A5ScopeCAA4HintCtFZ"
           },
           {
             "children": [
@@ -60316,6 +60620,101 @@
               },
               {
                 "kind": "TypeNominal",
+                "name": "Hint",
+                "printedName": "Sentry.Hint",
+                "usr": "c:@M@Sentry@objc(cs)SentryHint"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryId",
+                "printedName": "Sentry.SentryId",
+                "usr": "c:objc(cs)SentryId"
+              }
+            ],
+            "declAttributes": [
+              "DiscardableResult"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A3SDKO7capture5event4hintSo0A2IdCSo0A5EventC_AA4HintCtFZ",
+            "moduleName": "Sentry",
+            "name": "capture",
+            "printedName": "capture(event:hint:)",
+            "static": true,
+            "usr": "s:6Sentry0A3SDKO7capture5event4hintSo0A2IdCSo0A5EventC_AA4HintCtFZ"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "Void",
+                    "printedName": "Swift.Void"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Scope",
+                    "printedName": "Sentry.Scope",
+                    "usr": "c:objc(cs)SentryScope"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.Scope) -> Swift.Void"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Event",
+                "printedName": "Sentry.Event",
+                "usr": "c:objc(cs)SentryEvent"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Hint",
+                "printedName": "Sentry.Hint",
+                "usr": "c:@M@Sentry@objc(cs)SentryHint"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryId",
+                "printedName": "Sentry.SentryId",
+                "usr": "c:objc(cs)SentryId"
+              }
+            ],
+            "declAttributes": [
+              "DiscardableResult"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A3SDKO7capture5event4hint5blockSo0A2IdCSo0A5EventC_AA4HintCySo0A5ScopeCctFZ",
+            "moduleName": "Sentry",
+            "name": "capture",
+            "printedName": "capture(event:hint:block:)",
+            "static": true,
+            "usr": "s:6Sentry0A3SDKO7capture5event4hint5blockSo0A2IdCSo0A5EventC_AA4HintCySo0A5ScopeCctFZ"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Event",
+                "printedName": "Sentry.Event",
+                "usr": "c:objc(cs)SentryEvent"
+              },
+              {
+                "kind": "TypeNominal",
                 "name": "Scope",
                 "printedName": "Sentry.Scope",
                 "usr": "c:objc(cs)SentryScope"
@@ -60340,6 +60739,47 @@
             "printedName": "capture(event:scope:)",
             "static": true,
             "usr": "s:6Sentry0A3SDKO7capture5event5scopeSo0A2IdCSo0A5EventC_So0A5ScopeCtFZ"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Event",
+                "printedName": "Sentry.Event",
+                "usr": "c:objc(cs)SentryEvent"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Hint",
+                "printedName": "Sentry.Hint",
+                "usr": "c:@M@Sentry@objc(cs)SentryHint"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Scope",
+                "printedName": "Sentry.Scope",
+                "usr": "c:objc(cs)SentryScope"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryId",
+                "printedName": "Sentry.SentryId",
+                "usr": "c:objc(cs)SentryId"
+              }
+            ],
+            "declAttributes": [
+              "DiscardableResult"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A3SDKO7capture5event5scope4hintSo0A2IdCSo0A5EventC_So0A5ScopeCAA4HintCtFZ",
+            "moduleName": "Sentry",
+            "name": "capture",
+            "printedName": "capture(event:scope:hint:)",
+            "static": true,
+            "usr": "s:6Sentry0A3SDKO7capture5event5scope4hintSo0A2IdCSo0A5EventC_So0A5ScopeCAA4HintCtFZ"
           },
           {
             "children": [
@@ -60463,6 +60903,101 @@
             "children": [
               {
                 "kind": "TypeNominal",
+                "name": "Hint",
+                "printedName": "Sentry.Hint",
+                "usr": "c:@M@Sentry@objc(cs)SentryHint"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "NSException",
+                "printedName": "Foundation.NSException",
+                "usr": "c:objc(cs)NSException"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryId",
+                "printedName": "Sentry.SentryId",
+                "usr": "c:objc(cs)SentryId"
+              }
+            ],
+            "declAttributes": [
+              "DiscardableResult"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A3SDKO7capture9exception4hintSo0A2IdCSo11NSExceptionC_AA4HintCtFZ",
+            "moduleName": "Sentry",
+            "name": "capture",
+            "printedName": "capture(exception:hint:)",
+            "static": true,
+            "usr": "s:6Sentry0A3SDKO7capture9exception4hintSo0A2IdCSo11NSExceptionC_AA4HintCtFZ"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "Void",
+                    "printedName": "Swift.Void"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Scope",
+                    "printedName": "Sentry.Scope",
+                    "usr": "c:objc(cs)SentryScope"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.Scope) -> Swift.Void"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Hint",
+                "printedName": "Sentry.Hint",
+                "usr": "c:@M@Sentry@objc(cs)SentryHint"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "NSException",
+                "printedName": "Foundation.NSException",
+                "usr": "c:objc(cs)NSException"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryId",
+                "printedName": "Sentry.SentryId",
+                "usr": "c:objc(cs)SentryId"
+              }
+            ],
+            "declAttributes": [
+              "DiscardableResult"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A3SDKO7capture9exception4hint5blockSo0A2IdCSo11NSExceptionC_AA4HintCySo0A5ScopeCctFZ",
+            "moduleName": "Sentry",
+            "name": "capture",
+            "printedName": "capture(exception:hint:block:)",
+            "static": true,
+            "usr": "s:6Sentry0A3SDKO7capture9exception4hint5blockSo0A2IdCSo11NSExceptionC_AA4HintCySo0A5ScopeCctFZ"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
                 "name": "NSException",
                 "printedName": "Foundation.NSException",
                 "usr": "c:objc(cs)NSException"
@@ -60493,6 +61028,47 @@
             "printedName": "capture(exception:scope:)",
             "static": true,
             "usr": "s:6Sentry0A3SDKO7capture9exception5scopeSo0A2IdCSo11NSExceptionC_So0A5ScopeCtFZ"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Hint",
+                "printedName": "Sentry.Hint",
+                "usr": "c:@M@Sentry@objc(cs)SentryHint"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "NSException",
+                "printedName": "Foundation.NSException",
+                "usr": "c:objc(cs)NSException"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Scope",
+                "printedName": "Sentry.Scope",
+                "usr": "c:objc(cs)SentryScope"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryId",
+                "printedName": "Sentry.SentryId",
+                "usr": "c:objc(cs)SentryId"
+              }
+            ],
+            "declAttributes": [
+              "DiscardableResult"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A3SDKO7capture9exception5scope4hintSo0A2IdCSo11NSExceptionC_So0A5ScopeCAA4HintCtFZ",
+            "moduleName": "Sentry",
+            "name": "capture",
+            "printedName": "capture(exception:scope:hint:)",
+            "static": true,
+            "usr": "s:6Sentry0A3SDKO7capture9exception5scope4hintSo0A2IdCSo11NSExceptionC_So0A5ScopeCAA4HintCtFZ"
           },
           {
             "children": [
@@ -60641,6 +61217,101 @@
             "children": [
               {
                 "kind": "TypeNominal",
+                "name": "Hint",
+                "printedName": "Sentry.Hint",
+                "usr": "c:@M@Sentry@objc(cs)SentryHint"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryId",
+                "printedName": "Sentry.SentryId",
+                "usr": "c:objc(cs)SentryId"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declAttributes": [
+              "DiscardableResult"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A3SDKO7capture7message4hintSo0A2IdCSS_AA4HintCtFZ",
+            "moduleName": "Sentry",
+            "name": "capture",
+            "printedName": "capture(message:hint:)",
+            "static": true,
+            "usr": "s:6Sentry0A3SDKO7capture7message4hintSo0A2IdCSS_AA4HintCtFZ"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "Void",
+                    "printedName": "Swift.Void"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Scope",
+                    "printedName": "Sentry.Scope",
+                    "usr": "c:objc(cs)SentryScope"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.Scope) -> Swift.Void"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Hint",
+                "printedName": "Sentry.Hint",
+                "usr": "c:@M@Sentry@objc(cs)SentryHint"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryId",
+                "printedName": "Sentry.SentryId",
+                "usr": "c:objc(cs)SentryId"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declAttributes": [
+              "DiscardableResult"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A3SDKO7capture7message4hint5blockSo0A2IdCSS_AA4HintCySo0A5ScopeCctFZ",
+            "moduleName": "Sentry",
+            "name": "capture",
+            "printedName": "capture(message:hint:block:)",
+            "static": true,
+            "usr": "s:6Sentry0A3SDKO7capture7message4hint5blockSo0A2IdCSS_AA4HintCySo0A5ScopeCctFZ"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
                 "name": "Scope",
                 "printedName": "Sentry.Scope",
                 "usr": "c:objc(cs)SentryScope"
@@ -60671,6 +61342,47 @@
             "printedName": "capture(message:scope:)",
             "static": true,
             "usr": "s:6Sentry0A3SDKO7capture7message5scopeSo0A2IdCSS_So0A5ScopeCtFZ"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Hint",
+                "printedName": "Sentry.Hint",
+                "usr": "c:@M@Sentry@objc(cs)SentryHint"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Scope",
+                "printedName": "Sentry.Scope",
+                "usr": "c:objc(cs)SentryScope"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryId",
+                "printedName": "Sentry.SentryId",
+                "usr": "c:objc(cs)SentryId"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declAttributes": [
+              "DiscardableResult"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A3SDKO7capture7message5scope4hintSo0A2IdCSS_So0A5ScopeCAA4HintCtFZ",
+            "moduleName": "Sentry",
+            "name": "capture",
+            "printedName": "capture(message:scope:hint:)",
+            "static": true,
+            "usr": "s:6Sentry0A3SDKO7capture7message5scope4hintSo0A2IdCSS_So0A5ScopeCAA4HintCtFZ"
           },
           {
             "children": [
