@@ -146,7 +146,7 @@ class SentrySDKTests: XCTestCase {
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SDK_V10
         expectedIntegrations.append("SentryFramesTrackingIntegration")
 #endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SDK_V10
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         expectedIntegrations.append("SentrySessionReplayIntegration")
 #endif
         #if SDK_V10
@@ -470,7 +470,7 @@ class SentrySDKTests: XCTestCase {
 
         // Metrics always installs so the manual metrics API keeps working.
         // Replay is only installed if session replay is supported.
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         assertIntegrationsInstalled(integrations: ["SentryMetricsIntegration", "SentrySessionReplayIntegration"])
 #else
         assertIntegrationsInstalled(integrations: ["SentryMetricsIntegration"])

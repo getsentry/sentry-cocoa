@@ -1,4 +1,4 @@
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 #if SWIFT_PACKAGE
 @_spi(Private) @testable import SentrySwift
@@ -21,4 +21,4 @@
         )
     }
 }
-#endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK

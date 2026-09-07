@@ -49,7 +49,7 @@ private struct AnyIntegration {
             .init(SwiftAsyncIntegration.self)
         ]
 
-        #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         integrations.append(.init(SentrySessionReplayIntegration.self))
         #endif
 
@@ -87,8 +87,11 @@ private struct AnyIntegration {
         integrations.append(.init(UserFeedbackIntegration.self))
         #endif
 
-        #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         integrations.append(.init(SentryScreenshotIntegration.self))
+        #endif
+
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         integrations.append(.init(SentryViewHierarchyIntegration.self))
         #endif
 

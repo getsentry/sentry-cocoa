@@ -16,7 +16,7 @@ protocol SentryNetworkTrackerProtocol: AnyObject {
 
     func urlSessionTaskResume(_ sessionTask: URLSessionTask)
     func urlSessionTask(_ sessionTask: URLSessionTask, setState newState: URLSessionTask.State)
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     func captureResponseDetails(_ data: Data, response: URLResponse, request requestURL: URL, task: URLSessionTask)
 #endif
 }
@@ -275,7 +275,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             return
         }
 
-        #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         if let urlString = sessionTask.originalRequest?.url?.absoluteString,
            isNetworkDetailCaptureEnabled(for: urlString, options: options) {
             captureRequestDetails(
@@ -339,7 +339,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         }
     }
 
-    #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+    #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     func captureResponseDetails(_ data: Data, response: URLResponse, request requestURL: URL, task: URLSessionTask) {
         let urlString = requestURL.absoluteString
         guard let options = hub.currentOptions,
@@ -564,7 +564,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             data["http.fragment"] = fragment
         }
 
-        #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         // Store the raw object. SentrySRDefaultBreadcrumbConverter serializes it when read.
         if let networkDetails = sessionTask.networkDetails {
             data[SentryReplayNetworkDetails.replayNetworkDetailsKey] = networkDetails
@@ -660,7 +660,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
 
     // MARK: - Session Replay network details
 
-    #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+    #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     private func isNetworkDetailCaptureEnabled(for urlString: String, options: Options) -> Bool {
         options.sessionReplay.isNetworkDetailCaptureEnabled(for: urlString)
     }
