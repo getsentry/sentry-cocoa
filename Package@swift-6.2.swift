@@ -346,6 +346,14 @@ targets += [
         swiftSettings: [
             .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"]))
         ] + v10SwiftSettings
+    ),
+    .testTarget(
+        name: "SentryObjCCompatTests",
+        dependencies: ["SentryObjCCompat", "SentrySwift", "SentryTestUtils"],
+        path: "Tests/SentryObjCCompatTests",
+        swiftSettings: [
+            .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"]))
+        ] + v10SwiftSettings
     )
 ]
 

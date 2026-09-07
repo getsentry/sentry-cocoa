@@ -26,6 +26,47 @@ Test can either be ran inside from Xcode or via
 make test
 ```
 
+### SwiftPM Objective-C Wrapper Tests
+
+`SentryObjCCompatTests` uses the same sources as the Xcode-project V9 and V10 suites, including their platform guards and V10-only skips. Its package target depends on `SentryObjCCompat`, `SentrySwift`, and `SentryTestUtils`; test-support targets are not part of any published SDK product. The existing `SWIFT_PACKAGE` imports select the source-built SDK rather than the binary `Sentry` module.
+
+For local macOS tests:
+
+```sh
+swift test -Xswiftc -DSENTRY_TEST -Xcc -DSENTRY_TEST=1 --filter SentryObjCCompatTests
+SDK_V10=1 swift test -Xswiftc -DSENTRY_TEST -Xcc -DSENTRY_TEST=1 --filter SentryObjCCompatTests
+# Swift 6.1+ also supports the V10 trait:
+swift test --traits V10 -Xswiftc -DSENTRY_TEST -Xcc -DSENTRY_TEST=1 --filter SentryObjCCompatTests
+```
+
+Package schemes do not inherit the Xcode project's SDK test configurations. Supply test flags to both compilers, including SDK dependencies, only for test invocations. Do not add them to the manifests or normal consumer builds. The [Distribution Tests job](../.github/workflows/test.yml) runs both default and `SDK_V10=1` package modes with the `TestCI` equivalents: Swift `SENTRY_TEST_CI`, and Objective-C/C/C++ `DEBUG=1 SENTRY_TEST=1 SENTRY_TEST_CI=1`.
+
+For `xcodebuild`, first prepare a temporary source-only package to avoid duplicate outputs from the binary distribution variants. Keep the checked-in manifests unchanged:
+
+```sh
+package_dir="$(mktemp -d)"
+rsync -a Package*.swift Sources SentryTestUtils SentryTestUtilsTests Tests "$package_dir/"
+for manifest in "$package_dir"/Package*.swift; do
+  ./scripts/prepare-package.sh --package-file "$manifest" --remove-binary-targets true
+done
+```
+
+From that temporary directory, run the package workspace tests (prefix the command with `SDK_V10=1` for V10):
+
+```sh
+status=0
+xcodebuild test -workspace . -scheme Sentry-Package \
+  -destination 'platform=macOS' \
+  -only-testing:SentryObjCCompatTests \
+  'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SENTRY_TEST' \
+  'GCC_PREPROCESSOR_DEFINITIONS=$(inherited) DEBUG=1 SENTRY_TEST=1' \
+  > package-tests.log 2>&1 || status=$?
+grep -E 'Executed|error:|TEST SUCCEEDED|TEST FAILED' package-tests.log
+(test "$status" -eq 0)
+```
+
+Use an available iOS simulator destination to include the user-feedback configuration tests. Compare test identifiers and skips with the existing `SentryObjCTests` / `SentryObjCTestsV10` Xcode schemes, filtering to `SentryObjCCompatTests` / `SentryObjCCompatTestsV10` respectively. The deprecated custom-button test is compiled only in V9; the five V10-only enum conversion tests are discovered but skipped in V9.
+
 ### Unit Tests with Thread Sanitizer
 
 CI runs the unit tests for one job with thread sanitizer enabled to detect race conditions.
