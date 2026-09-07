@@ -1750,6 +1750,7 @@ final class SentryClientTests: XCTestCase {
         XCTAssertTrue(sentAttachments.isEmpty)
     }
 
+    @available(*, deprecated, message: "Testing deprecated beforeSendWithHint API")
     func testCaptureEventWithHint_userProvidedHintFlowsToBeforeSendWithHint() throws {
         // -- Arrange --
         var receivedHint: Hint?
@@ -1770,6 +1771,7 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(received.hintValue(forKey: "custom-key") as? String, "user-value")
     }
 
+    @available(*, deprecated, message: "Testing deprecated beforeSendWithHint API")
     func testCaptureErrorWithHint_userProvidedHintFlowsToBeforeSendWithHint() throws {
         // -- Arrange --
         let error = NSError(domain: "test", code: 7)
@@ -1794,6 +1796,7 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(originalError.code, 7)
     }
 
+    @available(*, deprecated, message: "Testing deprecated beforeSendWithHint API")
     func testCaptureExceptionWithHint_userProvidedHintFlowsToBeforeSendWithHint() throws {
         // -- Arrange --
         let exception = NSException(name: .genericException, reason: "test")
@@ -1816,6 +1819,7 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(received.originalException, exception)
     }
 
+    @available(*, deprecated, message: "Testing deprecated beforeSendWithHint API")
     func testCaptureMessageWithHint_userProvidedHintFlowsToBeforeSendWithHint() throws {
         // -- Arrange --
         var receivedHint: Hint?

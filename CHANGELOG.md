@@ -7,6 +7,7 @@
 - Add a `device.event` breadcrumb (`SYSTEM_CLOCK_CHANGE`) when the system clock changes, for example due to a manual time change or NTP sync (#8946)
 - Add Hints API with `beforeSendWithHint` and `beforeBreadcrumbWithHint` callbacks (#8942)
 - Add hint parameter to public capture methods on `SentrySDK` (#8955)
+- Auto-populate HTTP request and response on hints for network breadcrumbs and HTTP client errors (#8965)
 
 ### Fixes
 

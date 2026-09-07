@@ -116,6 +116,7 @@ private class MockHub: Hub {
     }
 
     func captureErrorEvent(event: Event) {}
+    func captureErrorEvent(event: Event, hint: Hint) {}
     func setTrace(_ traceId: SentryId, spanId: SpanId) {}
     var currentOptions: Options? { options }
     var options: Options { Options() }

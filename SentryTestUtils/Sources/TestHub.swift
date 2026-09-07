@@ -45,9 +45,18 @@ public class TestHub: SentryHubInternal {
     }
 
     @_spi(Private) public var capturedErrorEvents = Invocations<Event>()
+    @_spi(Private) public var capturedErrorHints = Invocations<Hint>()
     public override func captureErrorEvent(event: Event) -> SentryId {
         self.capturedErrorEvents.record((event))
 
+        return event.eventId
+    }
+
+    public override func captureErrorEvent(_ event: Event, withHint hint: Any?) -> SentryId {
+        self.capturedErrorEvents.record(event)
+        if let hint = hint as? Hint {
+            self.capturedErrorHints.record(hint)
+        }
         return event.eventId
     }
 

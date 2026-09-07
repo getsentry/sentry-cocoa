@@ -47,6 +47,7 @@ final class SentryInternalScopeApiTests: XCTestCase {
         func updateSessionForDroppedEventNonTerminating(unhandled: Bool) {}
 
         func captureErrorEvent(event: Event) {}
+        func captureErrorEvent(event: Event, hint: Hint) {}
 
         func setTrace(_ traceId: SentryId, spanId: SpanId) {}
 
