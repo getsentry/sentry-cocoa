@@ -697,22 +697,6 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
         event.level = level;
     }
 
-    id<SentrySpan> span;
-
-    if (self.span != nil) {
-        @synchronized(_spanLock) {
-            span = self.span;
-        }
-
-        // Span could be nil as we do the first check outside the synchronize
-        if (span != nil) {
-            if (![event.type isEqualToString:SentryEnvelopeItemTypes.transaction] &&
-                [span isKindOfClass:[SentryTracer class]]) {
-                event.transaction = [[(SentryTracer *)span transactionContext] name];
-            }
-        }
-    }
-
     NSMutableDictionary *newContext = [self context].mutableCopy;
     BOOL isRegularEvent
         = event.type == nil || [event.type isEqualToString:SentryEnvelopeItemTypes.event];
@@ -727,9 +711,9 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
                                       intoDictionary:newContext];
     }
 
-    newContext[@"trace"] = [self buildTraceContext:span];
-
     event.context = newContext;
+    // The span getter acquires _spanLock, so this read needs no outer lock.
+    [self applySpan:self.span toEvent:SENTRY_UNWRAP_NULLABLE(SentryEvent, event)];
     return event;
 }
 
@@ -811,6 +795,25 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
         }
 
         event.context = mergedContext;
+    }
+
+    id<SentrySpan> span = self.span;
+    if (span != nil && !event.isFatalEvent
+        && ![event.type isEqualToString:SentryEnvelopeItemTypes.transaction]) {
+        [self applySpan:span toEvent:event];
+    }
+}
+
+- (void)applySpan:(nullable id<SentrySpan>)span toEvent:(SentryEvent *)event
+{
+    NSMutableDictionary *context =
+        [NSMutableDictionary dictionaryWithDictionary:event.context ?: @{}];
+    context[@"trace"] = [self buildTraceContext:span];
+    event.context = context;
+
+    SentryTracer *tracer = [SentryTracer getTracer:span];
+    if (tracer != nil && ![event.type isEqualToString:SentryEnvelopeItemTypes.transaction]) {
+        event.transaction = tracer.transactionContext.name;
     }
 }
 
