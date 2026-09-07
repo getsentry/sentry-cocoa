@@ -36,12 +36,14 @@ For local package tests on macOS, run from the repository root:
 swift test -Xswiftc -DSENTRY_TEST -Xcc -DSENTRY_TEST=1
 ```
 
-For `xcodebuild test` with the `Sentry-Package` scheme, append these command-line build settings, as the [Distribution Tests job](../.github/workflows/test.yml) does:
+For CI, `xcodebuild test` with the `Sentry-Package` scheme should mirror the project's `TestCI` configuration, as the [Distribution Tests job](../.github/workflows/test.yml) does:
 
 ```sh
-'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SENTRY_TEST' \
-'GCC_PREPROCESSOR_DEFINITIONS=$(inherited) SENTRY_TEST=1'
+'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SENTRY_TEST_CI' \
+'GCC_PREPROCESSOR_DEFINITIONS=$(inherited) DEBUG=1 SENTRY_TEST=1 SENTRY_TEST_CI=1'
 ```
+
+The different flag sets are intentional: `TestCI` defines only `SENTRY_TEST_CI` for Swift, but `DEBUG`, `SENTRY_TEST`, and `SENTRY_TEST_CI` for Objective-C/C/C++. Local testing can continue to use `SENTRY_TEST` as shown above.
 
 The flags must apply to the SDK dependencies as well as the test targets. Defining them only on a package `.testTarget` is insufficient. Keep them scoped to SDK test invocations rather than defining them unconditionally, or for all Debug builds, in `Package.swift`: they change SDK behavior and must not affect normal consumer builds or third-party integration tests.
 
