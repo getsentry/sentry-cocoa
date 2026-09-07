@@ -351,12 +351,14 @@ sentrykscrash_attachments_capture(int64_t reportID)
         return;
     }
 
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("Calling screenshot writer for %s", payloadDirectory);
     g_screenshotWriter(payloadDirectory);
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("Screenshot writer returned for %s", payloadDirectory);
 
     if (!directoryHasFiles(payloadDirectory)) {
         SENTRY_ASYNC_SAFE_LOG_DEBUG("No attachment files written for reportID %" PRId64
-                                    ", removing payload directory",
-            reportID);
+                                    ", removing payload directory %s",
+            reportID, payloadDirectory);
         rmdir(payloadDirectory);
         return;
     }
@@ -372,6 +374,18 @@ sentrykscrash_attachments_handleDidWriteReport(void *context, int64_t reportID)
 {
     (void)context;
     sentrykscrash_attachments_capture(reportID);
+}
+
+void
+sentrykscrash_attachments_log(const char *message)
+{
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("%s", message != NULL ? message : "(null)");
+}
+
+void
+sentrykscrash_attachments_log_i(const char *message, int value)
+{
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("%s: %d", message != NULL ? message : "", value);
 }
 
 #endif // SDK_V10

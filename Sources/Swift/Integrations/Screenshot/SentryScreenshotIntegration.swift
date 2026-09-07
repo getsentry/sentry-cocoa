@@ -7,12 +7,18 @@ internal import _SentryPrivate
 private weak var globalScreenshotSource: SentryScreenshotSource?
 
 #if SENTRY_DISABLE_SENTRYCRASH_V10
-private let kscrashWriteCrashTimeScreenshots: @convention(c) (UnsafePointer<CChar>) -> Void = { path in
-    writeCrashTimeScreenshots(path)
+private func writeCrashTimeScreenshots(_ path: UnsafePointer<CChar>) {
+    sentrykscrash_attachments_log("screenshot writer: enter")
+    guard let source = globalScreenshotSource else {
+        sentrykscrash_attachments_log("screenshot writer: source is nil")
+        return
+    }
+    source.saveScreenShots(String(cString: path))
+    sentrykscrash_attachments_log("screenshot writer: returned")
 }
 
-private func writeCrashTimeScreenshots(_ path: UnsafePointer<CChar>) {
-    globalScreenshotSource?.saveScreenShots(String(cString: path))
+private let kscrashWriteCrashTimeScreenshots: @convention(c) (UnsafePointer<CChar>) -> Void = { path in
+    writeCrashTimeScreenshots(path)
 }
 #endif
 

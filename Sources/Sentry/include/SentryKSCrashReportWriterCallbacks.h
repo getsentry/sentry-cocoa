@@ -36,6 +36,10 @@ void sentrykscrash_attachments_setSidecarPathProvider(
 /** Crash-time capture. No Swift, no locks, no heap. */
 void sentrykscrash_attachments_capture(int64_t reportID);
 
+/** Async-signal-safe log into `Caches/io.sentry/async.log`. */
+void sentrykscrash_attachments_log(const char *_Nonnull message);
+void sentrykscrash_attachments_log_i(const char *_Nonnull message, int value);
+
 void sentrykscrash_attachments_handleDidWriteReport(void *_Nullable context, int64_t reportID);
 
 #    ifdef __cplusplus
