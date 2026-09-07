@@ -6,6 +6,7 @@
 import _SentryPrivate
 import Foundation
 import SentryTestUtilsObjC
+import XCTest
 
 public class TestHub: SentryTestHubWrapper {
 
@@ -48,6 +49,7 @@ public class TestHub: SentryTestHubWrapper {
     @_spi(Private) public var capturedEventsWithScopes = Invocations<(event: Event, scope: Scope, additionalEnvelopeItems: [SentryEnvelopeItem])>()
     public override func wrapper_capture(event: Event, scope: Scope, additionalEnvelopeItems: [Any]) -> SentryId {
         guard let additionalEnvelopeItems = additionalEnvelopeItems as? [SentryEnvelopeItem] else {
+            XCTFail("TestHub.wrapper_capture: Expected [SentryEnvelopeItem], got \(additionalEnvelopeItems.map { type(of: $0) })")
             return event.eventId
         }
         self.capturedEventsWithScopes.record((event, scope, additionalEnvelopeItems))

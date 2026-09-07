@@ -30,6 +30,22 @@ final class TestHubWrapperTests: XCTestCase {
         XCTAssertTrue(invocation.additionalEnvelopeItems.isEmpty)
     }
 
+    func testCaptureEvent_whenBridgeReceivesWrongItemType_shouldReportFailure() {
+        // -- Arrange --
+        let hub = TestHub(testClient: nil, scope: Scope())
+        let event = Event()
+        var eventId: SentryId?
+
+        // -- Act --
+        XCTExpectFailure("Invalid envelope items must fail the test") {
+            eventId = hub.wrapper_capture(event: event, scope: Scope(), additionalEnvelopeItems: [NSObject()])
+        }
+
+        // -- Assert --
+        XCTAssertEqual(eventId, event.eventId)
+        XCTAssertEqual(hub.capturedEventsWithScopes.count, 0)
+    }
+
     func testSetTestSession_whenCapturingErrorEnvelope_shouldAttachSessionUpdate() throws {
         // -- Arrange --
         let options = Options.noIntegrations()

@@ -49,9 +49,11 @@ class TestCleanup: NSObject {
         #if os(iOS) || os(tvOS) || os(visionOS)
 
         setenv("ActivePrewarm", "0", 1)
+        #if !SENTRY_NO_UI_FRAMEWORK
         SentryAppStartTracker.load()
         SentryDependencyContainer.sharedInstance().uiViewControllerPerformanceTracker.alwaysWaitForFullDisplay = false
         SentryDependencyContainer.sharedInstance().swizzleWrapper.removeAllCallbacks()
+        #endif // !SENTRY_NO_UI_FRAMEWORK
         SentryDependencyContainer.sharedInstance().fileManager?.clearDiskState()
 
         #endif // os(iOS) || os(tvOS) || os(visionOS)
@@ -59,9 +61,9 @@ class TestCleanup: NSObject {
         SentryDependencyContainer.reset()
         wrapper_clearPerformanceTracker()
 
-#if os(iOS) || os(tvOS) || os(visionOS)
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         SentryAppStartMeasurementProvider.reset()
-#endif // os(iOS) || os(tvOS) || os(visionOS)
+#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 #if os(iOS) || os(macOS)
         wrapper_resetProfilingState()

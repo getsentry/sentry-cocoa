@@ -26,6 +26,25 @@ Test can either be ran inside from Xcode or via
 make test
 ```
 
+### SwiftPM SDK Tests
+
+SDK tests require `SENTRY_TEST` or `SENTRY_TEST_CI` in both Swift and Objective-C/C/C++ compilation. The Xcode project's `Test`, `TestV10`, and `TestCI` configurations supply these flags through [SDK.xcconfig](../Sources/Configuration/SDK.xcconfig), but SwiftPM does not inherit those configurations. `DEBUG` and `@testable import` alone do not enable all SDK test helpers, such as `SentryAppStartMeasurementProvider.reset()`.
+
+For local package tests on macOS, run from the repository root:
+
+```sh
+swift test -Xswiftc -DSENTRY_TEST -Xcc -DSENTRY_TEST=1
+```
+
+For `xcodebuild test` with the `Sentry-Package` scheme, append these command-line build settings, as the [Distribution Tests job](../.github/workflows/test.yml) does:
+
+```sh
+'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SENTRY_TEST' \
+'GCC_PREPROCESSOR_DEFINITIONS=$(inherited) SENTRY_TEST=1'
+```
+
+The flags must apply to the SDK dependencies as well as the test targets. Defining them only on a package `.testTarget` is insufficient. Keep them scoped to SDK test invocations rather than defining them unconditionally, or for all Debug builds, in `Package.swift`: they change SDK behavior and must not affect normal consumer builds or third-party integration tests.
+
 ### Unit Tests with Thread Sanitizer
 
 CI runs the unit tests for one job with thread sanitizer enabled to detect race conditions.

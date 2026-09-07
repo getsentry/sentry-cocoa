@@ -122,7 +122,21 @@ jobs:
           OS_VERSION: "18.5"
           PLATFORM: "iOS"
         run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
-      - run: set -o pipefail && NSUnbufferedIO=YES xcodebuild test -workspace . -scheme Sentry-Package -sdk iphonesimulator -destination 'platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro' | tee raw-test-output-distribution.log | xcbeautify --preserve-unbeautified
+      - name: Run Distribution Tests
+        # Package schemes do not inherit the project's Test configuration. SDK dependencies also
+        # need the test flags so helpers such as SentryAppStartMeasurementProvider.reset are available.
+        run: |
+          set -o pipefail
+          # Xcode, not the shell, must expand $(inherited).
+          # shellcheck disable=SC2016
+          NSUnbufferedIO=YES xcodebuild test \
+            -workspace . \
+            -scheme Sentry-Package \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro' \
+            'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SENTRY_TEST' \
+            'GCC_PREPROCESSOR_DEFINITIONS=$(inherited) SENTRY_TEST=1' \
+            2>&1 | tee raw-test-output-distribution.log | xcbeautify --preserve-unbeautified
       - name: Upload Distribution Test Logs
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() || cancelled() }}

@@ -6,6 +6,10 @@ This document covers the build system and configuration details for the Sentry C
 
 - XCConfig files in `Sources/Configuration/` for SDK settings; settings should not be modified in pbxproj files
 
+## SDK Test Configurations
+
+The Xcode project's `Test`, `TestV10`, and `TestCI` configurations enable SDK test helpers through `SENTRY_TEST` or `SENTRY_TEST_CI` in [SDK.xcconfig](../Sources/Configuration/SDK.xcconfig). SwiftPM package tests must supply these flags explicitly at the call site; see [SwiftPM SDK Tests](TEST.md#swiftpm-sdk-tests). Do not add the test flags to normal package builds.
+
 ## UIKit Linking Control
 
 Some customers would like to not link UIKit for various reasons. Either they simply may not want to use our UIKit functionality, or they actually cannot link to it in certain circumstances, like a File Provider app extension.
