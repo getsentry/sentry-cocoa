@@ -73,10 +73,10 @@ final class SentryKSCrashAttachmentsMonitorTests: XCTestCase {
         // -- Arrange --
         let reportID: Int64 = 0xAB
         let monitor = try makeMonitor(reportID: reportID)
-        sentrykscrash_attachments_setScreenshotWriter(testWritePNG)
+        monitor.setScreenshotWriter(testWritePNG)
 
         // -- Act --
-        monitor.handleDidWriteReport(reportID: reportID)
+        sentrykscrash_attachments_capture(reportID)
 
         // -- Assert --
         let screenshotURL = payloadDirectory(reportID: reportID).appendingPathComponent("screenshot.png")
@@ -89,10 +89,10 @@ final class SentryKSCrashAttachmentsMonitorTests: XCTestCase {
         // -- Arrange --
         let reportID: Int64 = 1
         let monitor = try makeMonitor(reportID: reportID)
-        sentrykscrash_attachments_setScreenshotWriter(testWriteNothing)
+        monitor.setScreenshotWriter(testWriteNothing)
 
         // -- Act --
-        monitor.handleDidWriteReport(reportID: reportID)
+        sentrykscrash_attachments_capture(reportID)
 
         // -- Assert --
         XCTAssertFalse(FileManager.default.fileExists(atPath: markerURL(reportID: reportID).path))
@@ -104,10 +104,10 @@ final class SentryKSCrashAttachmentsMonitorTests: XCTestCase {
         let reportID: Int64 = 1
         let monitor = try makeMonitor(reportID: reportID)
         monitor.enabled = false
-        sentrykscrash_attachments_setScreenshotWriter(testCountWrites)
+        monitor.setScreenshotWriter(testCountWrites)
 
         // -- Act --
-        monitor.handleDidWriteReport(reportID: reportID)
+        sentrykscrash_attachments_capture(reportID)
 
         // -- Assert --
         XCTAssertEqual(testWriterCalls, 0)
@@ -118,8 +118,8 @@ final class SentryKSCrashAttachmentsMonitorTests: XCTestCase {
         // -- Arrange --
         let reportID: Int64 = 0xCD
         let monitor = try makeMonitor(reportID: reportID)
-        sentrykscrash_attachments_setScreenshotWriter(testWritePNG)
-        monitor.handleDidWriteReport(reportID: reportID)
+        monitor.setScreenshotWriter(testWritePNG)
+        sentrykscrash_attachments_capture(reportID)
         let original = ["report": ["id": "1"]] as NSDictionary
 
         // -- Act --
@@ -139,8 +139,8 @@ final class SentryKSCrashAttachmentsMonitorTests: XCTestCase {
         // -- Arrange --
         let reportID: Int64 = 0xEF
         let monitor = try makeMonitor(reportID: reportID)
-        sentrykscrash_attachments_setScreenshotWriter(testWriteArbitraryFiles)
-        monitor.handleDidWriteReport(reportID: reportID)
+        monitor.setScreenshotWriter(testWriteArbitraryFiles)
+        sentrykscrash_attachments_capture(reportID)
         let original = ["report": ["id": "1"]] as NSDictionary
 
         // -- Act --
@@ -171,8 +171,8 @@ final class SentryKSCrashAttachmentsMonitorTests: XCTestCase {
         // -- Arrange --
         let reportID: Int64 = 3
         let monitor = try makeMonitor(reportID: reportID)
-        sentrykscrash_attachments_setScreenshotWriter(testWritePNG)
-        monitor.handleDidWriteReport(reportID: reportID)
+        monitor.setScreenshotWriter(testWritePNG)
+        sentrykscrash_attachments_capture(reportID)
         let original = ["ok": true] as NSDictionary
 
         // -- Act --
@@ -180,25 +180,6 @@ final class SentryKSCrashAttachmentsMonitorTests: XCTestCase {
 
         // -- Assert --
         XCTAssertNil(result["attachments"])
-    }
-
-    func testHandleDidWriteReportFromContext_shouldCapture() throws {
-        // -- Arrange --
-        let reportID: Int64 = 9
-        let monitor = try makeMonitor(reportID: reportID)
-        sentrykscrash_attachments_setScreenshotWriter(testWritePNG)
-
-        // -- Act --
-        SentryKSCrash.AttachmentsMonitor.from(monitor.api.pointee.context)?
-            .handleDidWriteReport(reportID: reportID)
-
-        // -- Assert --
-        XCTAssertTrue(
-            FileManager.default.fileExists(
-                atPath: payloadDirectory(reportID: reportID).appendingPathComponent("screenshot.png").path
-            )
-        )
-        XCTAssertTrue(SentryKSCrash.AttachmentsMonitor.Marker.isValid(at: markerURL(reportID: reportID)))
     }
 
     func testRemoveConsumedPayloadDirectories_whenPathIsOwned_shouldDeletePayloadDirectory() throws {

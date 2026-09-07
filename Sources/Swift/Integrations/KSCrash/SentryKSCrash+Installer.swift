@@ -46,8 +46,7 @@ extension SentryKSCrash {
         /// Adds additional user information to the crash handler
         func setUserInfo(_ userInfo: [String: Any])
 
-        /// Sets the crash-time screenshot writer. Receives the per-report payload directory.
-        /// Invoked on the crash thread after the JSON report is on disk; must not hop to main.
+        /// Registers the crash-time screenshot writer on the attachments monitor.
         /// Pass `nil` to disable screenshot capture.
         func setScreenshotProvider(_ provider: SentryKSCrashAttachmentsScreenshotWriter?)
 
@@ -217,7 +216,7 @@ extension SentryKSCrash {
         }
 
         func setScreenshotProvider(_ provider: SentryKSCrashAttachmentsScreenshotWriter?) {
-            sentrykscrash_attachments_setScreenshotWriter(provider)
+            Self.attachmentsMonitor.setScreenshotWriter(provider)
         }
     }
 }

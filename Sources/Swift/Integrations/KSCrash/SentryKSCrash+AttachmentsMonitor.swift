@@ -7,8 +7,10 @@ import Foundation
 // MARK: - Monitor
 
 extension SentryKSCrash {
-    /// KSCrash plugin that captures crash-time attachments after the JSON report is on disk
-    /// and stitches payload paths into the report on the next launch.
+    /// KSCrash plugin for crash attachments.
+    ///
+    /// Owns setup (enable, sidecar path, screenshot writer callback) and
+    /// next-launch stitch. Crash-time capture is C (`sentrykscrash_attachments_capture`).
     ///
     /// On-disk layout:
     /// ```
@@ -238,12 +240,9 @@ extension SentryKSCrash.AttachmentsMonitor {
             sentrykscrash_attachments_setSidecarPathProvider(newValue?.getReportSidecarPath)
         }
     }
-}
 
-// MARK: - Crash-time capture
-extension SentryKSCrash.AttachmentsMonitor {
-    func handleDidWriteReport(reportID: Int64) {
-        sentrykscrash_attachments_capture(reportID)
+    func setScreenshotWriter(_ writer: SentryKSCrashAttachmentsScreenshotWriter?) {
+        sentrykscrash_attachments_setScreenshotWriter(writer)
     }
 }
 
