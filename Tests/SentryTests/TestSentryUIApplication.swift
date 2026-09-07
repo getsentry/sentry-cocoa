@@ -33,9 +33,13 @@ final class TestSentryUIApplication: SentryApplication {
     }
     
     var _relevantViewControllerNames: [String]?
+    var relevantViewControllerNamesProvider: (() -> [String]?)?
     func relevantViewControllersNames() -> [String]? {
         if let _relevantViewControllerNames {
             return _relevantViewControllerNames
+        }
+        if let relevantViewControllerNamesProvider {
+            return relevantViewControllerNamesProvider()
         }
         return UIApplication.shared.relevantViewControllersNames()
     }

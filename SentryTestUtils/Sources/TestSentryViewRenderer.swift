@@ -1,5 +1,5 @@
 #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
-#if os(iOS) || os(tvOS)
+#if os(iOS) || os(tvOS) || os(visionOS)
 
 #if SWIFT_PACKAGE
 @_spi(Private) @testable import SentrySwift
@@ -30,5 +30,5 @@ import UIKit
     }
 }
 
-#endif // os(iOS) || os(tvOS)
+#endif // os(iOS) || os(tvOS) || os(visionOS)
 #endif // canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK

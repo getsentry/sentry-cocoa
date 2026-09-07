@@ -2,7 +2,7 @@
 @_spi(Private) @testable import Sentry
 import XCTest
 
-#if os(iOS) || os(tvOS)
+#if os(iOS) || os(tvOS) || os(visionOS)
 class SentryViewHierarchyProviderTests: XCTestCase {
     private static let mockWindowScene: UIWindowScene = MockUIWindowScene()
     private static let viewHierarchyMaxDepth = 90

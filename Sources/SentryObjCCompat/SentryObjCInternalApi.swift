@@ -58,19 +58,17 @@ import Foundation
         SentryObjCInternalScreenApi(wrapped.value.screen)
     }
 
-    #if (os(iOS) || os(tvOS))
-    @objc public var screenshot: SentryObjCInternalScreenshotApi {
-        SentryObjCInternalScreenshotApi(wrapped.value.screenshot)
+    @objc public var replay: SentryObjCInternalReplayApi {
+        SentryObjCInternalReplayApi(wrapped.value.replay)
     }
 
     @objc public var viewHierarchy: SentryObjCInternalViewHierarchyApi {
         SentryObjCInternalViewHierarchyApi(wrapped.value.viewHierarchy)
     }
 
-    @objc public var replay: SentryObjCInternalReplayApi {
-        SentryObjCInternalReplayApi(wrapped.value.replay)
+    @objc public var screenshot: SentryObjCInternalScreenshotApi {
+        SentryObjCInternalScreenshotApi(wrapped.value.screenshot)
     }
-    #endif
 #endif
 
 #if !(os(watchOS) || os(tvOS) || os(visionOS))

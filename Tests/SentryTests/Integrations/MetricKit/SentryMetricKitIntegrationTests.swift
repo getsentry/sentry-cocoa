@@ -255,6 +255,45 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             try assertNotPerThread(exceptionType: "MXHangDiagnostic", exceptionValue: "MXHangDiagnostic hangDuration:6.6 sec", exceptionMechanism: "mx_hang_diagnostic")
     }
 
+    func testHangDiagnostic_shouldSetLevelBasedOnDuration() throws {
+        // -- Arrange --
+        givenSDKWithHubWithScope()
+        let options = Options()
+        options.enableMetricKit = true
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+
+        let payload = TestMXDiagnosticPayload()
+        let callStackTree = TestMXCallStackTree()
+        callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/not-per-thread-only-one-frame")
+
+        let majorHang = TestMXHangDiagnostic()
+        majorHang.overrides.callStackTree = callStackTree
+        majorHang.overrides.hangDuration = Measurement(value: 251, unit: .milliseconds)
+
+        let severeThresholdHang = TestMXHangDiagnostic()
+        severeThresholdHang.overrides.callStackTree = callStackTree
+        severeThresholdHang.overrides.hangDuration = Measurement(value: 500, unit: .milliseconds)
+
+        let severeHang = TestMXHangDiagnostic()
+        severeHang.overrides.callStackTree = callStackTree
+        severeHang.overrides.hangDuration = Measurement(value: 501, unit: .milliseconds)
+
+        let criticalHang = TestMXHangDiagnostic()
+        criticalHang.overrides.callStackTree = callStackTree
+        criticalHang.overrides.hangDuration = Measurement(value: 1_001, unit: .milliseconds)
+
+        payload.overrides.hangDiagnostic = [majorHang, severeThresholdHang, severeHang, criticalHang]
+
+        // -- Act --
+        sut.mxManager.didReceive([payload])
+
+        // -- Assert --
+        let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient)
+        let invocations = client.captureEventWithScopeInvocations.invocations
+        XCTAssertEqual(4, invocations.count)
+        XCTAssertEqual([.warning, .warning, .error, .error], invocations.map(\.event.level))
+    }
+
     private func givenSDKWithHubWithScope() {
         let scope = Scope()
         scope.addBreadcrumb(TestData.crumb)
@@ -412,6 +451,7 @@ class TestMXDiskWriteExceptionDiagnostic: MXDiskWriteExceptionDiagnostic {
 class TestMXHangDiagnostic: MXHangDiagnostic {
     struct Override {
         var callStackTree = TestMXCallStackTree()
+        var hangDuration = Measurement(value: 6.6, unit: UnitDuration.seconds)
     }
 
     public var overrides = Override()
@@ -421,7 +461,7 @@ class TestMXHangDiagnostic: MXHangDiagnostic {
     }
 
     override var hangDuration: Measurement<UnitDuration> {
-        return Measurement(value: 6.6, unit: .seconds)
+        return overrides.hangDuration
     }
 }
 

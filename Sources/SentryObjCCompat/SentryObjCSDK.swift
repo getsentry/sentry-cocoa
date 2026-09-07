@@ -17,7 +17,7 @@ import Foundation
         SentrySDK.isEnabled
     }
 
-    #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS))
+    #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS) || os(visionOS))
     @objc public static var replay: SentryObjCReplayApi {
         SentryObjCReplayApi(SentrySDK.replay)
     }
