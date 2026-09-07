@@ -14,6 +14,8 @@
 - Prevent relevant view controller traversal from recursively loading parent views and invoking `viewDidLoad` twice when tracing is enabled. (#8941)
 - Classify MetricKit hangs over 500 ms as errors. (#8948)
 - Prevent Session Replay video encoding from reusing pixel buffers retained by AVFoundation. (#8950)
+- Mark the fabricated `mach` and `signal` crash mechanisms as `synthetic` so an Apple crash groups with the identical crash reported by the other Sentry SDKs, and so a mach-caught and a signal-caught report of the same bug no longer split into two issues (#8919)
+- Set `mechanism.handled` to `false` on crash reports that carry no mach context, which previously left it unset (#8919)
 
 ## 9.27.0
 
@@ -46,8 +48,6 @@
 
 - Silence spurious ERROR log in `SentryCrashCxaThrowSwapper` for empty sections (#8915)
 - Stop recording touch events while Session Replay is paused. (#8887)
-- Mark the fabricated `mach` and `signal` crash mechanisms as `synthetic` so an Apple crash groups with the identical crash reported by the other Sentry SDKs, and so a mach-caught and a signal-caught report of the same bug no longer split into two issues (#8919)
-- Set `mechanism.handled` to `false` on crash reports that carry no mach context, which previously left it unset (#8919)
 - Synchronize access to the current trace profiler in debug and test builds. (#8936)
 
 ### Internal
