@@ -113,17 +113,15 @@ extension SentryKSCrash {
             }
 
             static func files(in payloadDirectory: URL) -> [URL] {
-                guard let contents = try? FileManager.default.contentsOfDirectory(
-                    at: payloadDirectory,
-                    includingPropertiesForKeys: [.isRegularFileKey],
-                    options: [.skipsHiddenFiles]
-                ) else {
-                    SentrySDKLog.debug("Failed to list attachment files in \(payloadDirectory.path)")
+                do {
+                    return try FileManager.default.contentsOfDirectory(
+                        at: payloadDirectory,
+                        includingPropertiesForKeys: nil,
+                        options: [.skipsHiddenFiles]
+                    )
+                } catch {
+                    SentrySDKLog.debug("Failed to list attachment files in \(payloadDirectory.path): \(error)")
                     return []
-                }
-
-                return contents.filter { url in
-                    (try? url.resourceValues(forKeys: [.isRegularFileKey]).isRegularFile) ?? false
                 }
             }
 
