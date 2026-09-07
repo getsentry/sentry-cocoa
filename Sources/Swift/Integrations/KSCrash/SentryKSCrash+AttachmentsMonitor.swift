@@ -10,7 +10,7 @@ extension SentryKSCrash {
     /// KSCrash plugin that captures crash-time attachments after the JSON report is on disk
     /// and stitches payload paths into the report on the next launch.
     ///
-    /// Layout:
+    /// On-disk layout:
     /// ```
     /// <installDir>/
     ///   Sidecars/SentryAttachments/<reportID>.ksscr   // stitch gate, not the payload
@@ -22,10 +22,7 @@ extension SentryKSCrash {
     /// Attachments are arbitrary files, so they cannot live in the sidecar without unpacking
     /// at stitch time. They live in a Sentry-owned sibling directory. After the crash report
     /// is captured into an envelope, Sentry deletes that payload directory; KSCrash will not.
-    ///
-    /// Monitor ID is `SentryAttachments` so KSCrash looks up this plugin's marker.
     final class AttachmentsMonitor: NSObject, MonitorPlugin, @unchecked Sendable {
-
         typealias Context = UnsafeMutableRawPointer?
         typealias InitCallback = @convention(c) (UnsafeMutablePointer<KSCrash_ExceptionHandlerCallbacks>?, Context) -> Void
         typealias MonitorIDCallback = @convention(c) (Context) -> UnsafePointer<CChar>?
@@ -43,35 +40,38 @@ extension SentryKSCrash {
 
         /// Commit token written to the KSCrash sidecar path after payload files exist.
         ///
-        /// KSCrash's stitch gate is existence of this `.ksscr` file, so this write cannot
-        /// be replaced by moving attachments under `Sidecars/`. Written last: no marker
-        /// means stitch never runs. Magic (`0xDEADBEEF`) and version reject truncated or
-        /// foreign files; crash-time I/O can die after creating the path.
+        /// Presence of this file is evidence that attachments were correctly written to disk
+        /// and without this file KSCrash will not call `createStitchedReport`.
+        /// Crash-time I/O can die after creating the path, so write a known marker
         struct Marker {
             static let version: UInt8 = 1
-            static let magic: [UInt8] = [0xDE, 0xAD, 0xBE, 0xEF] // 0xDEADBEEF
+            static let magic: [UInt8] = [0xDE, 0xAD, 0xBE, 0xEF]
+
+            private static var header: Data = {
+                var bytes = Data(capacity: magic.count + 1)
+                bytes.append(contentsOf: magic)
+                bytes.append(version)
+
+                return bytes
+            }()
 
             static func write(to sidecarPath: URL) {
-                var bytes = magic
-                bytes.append(version)
-                try? Data(bytes).write(to: sidecarPath, options: .atomic)
+                try? header.write(to: sidecarPath, options: .atomic)
             }
 
             static func isValid(at sidecarPath: URL) -> Bool {
-                guard let data = try? Data(contentsOf: sidecarPath),
-                      data.count >= magic.count + 1
+                guard
+                    let data = try? Data(contentsOf: sidecarPath),
+                    data == header
                 else {
                     return false
                 }
-                let header = [UInt8](data.prefix(magic.count))
-                guard header == magic else { return false }
-                return data[magic.count] == version
+
+                return true
             }
         }
 
-        /// Payload lives in a Sentry-owned sibling of `Sidecars/`, not under it.
-        /// KSCrash cleanup only removes `<reportID>.ksscr`; Sentry removes this directory
-        /// after the report is captured into an envelope.
+        /// Pathing layout and management of crash attachments
         struct Layout {
             static let monitorID = String(cString: sentrykscrash_attachmentsMonitorID)
             static let payloadDirectoryName = "SentryAttachments"
@@ -94,34 +94,7 @@ extension SentryKSCrash {
                     .appendingPathComponent(reportIDHex, isDirectory: true)
             }
 
-            /// Deletes owned payload directories after their files have been copied into an
-            /// envelope. Ignores paths that are not `.../SentryAttachments/<16-hex-report-id>/...`.
-            static func removeConsumedPayloadDirectories(forAttachmentPaths paths: [String]) {
-                var directories = Set<URL>()
-                for path in paths {
-                    let directory = URL(fileURLWithPath: path).deletingLastPathComponent()
-                    let reportIDHex = directory.lastPathComponent
-                    guard reportIDHex.count == 16,
-                          reportIDHex.allSatisfy(\.isHexDigit),
-                          directory.deletingLastPathComponent().lastPathComponent == payloadDirectoryName
-                    else {
-                        continue
-                    }
-                    directories.insert(directory)
-                }
-                for directory in directories {
-                    try? FileManager.default.removeItem(at: directory)
-                }
-            }
-        }
-
-        enum ScreenshotFiles {
-            static let primaryName = "screenshot.png"
-            static let numberedPrefix = "screenshot-"
-            static let fileExtension = "png"
-            static let pngSignature: [UInt8] = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]
-
-            static func paths(in payloadDirectory: URL) -> [URL] {
+            static func files(in payloadDirectory: URL) -> [URL] {
                 guard let contents = try? FileManager.default.contentsOfDirectory(
                     at: payloadDirectory,
                     includingPropertiesForKeys: [.isRegularFileKey],
@@ -130,39 +103,26 @@ extension SentryKSCrash {
                     return []
                 }
 
-                var ranked: [(rank: Int, url: URL)] = []
-                for url in contents {
-                    let isFile = (try? url.resourceValues(forKeys: [.isRegularFileKey]).isRegularFile) ?? false
-                    guard isFile, let rank = rank(for: url.lastPathComponent) else { continue }
-                    guard hasPNGSignature(at: url) else { continue }
-                    ranked.append((rank, url))
+                return contents.filter { url in
+                    (try? url.resourceValues(forKeys: [.isRegularFileKey]).isRegularFile) ?? false
                 }
-                return ranked.sorted { lhs, rhs in
-                    if lhs.rank != rhs.rank { return lhs.rank < rhs.rank }
-                    return lhs.url.path < rhs.url.path
-                }.map(\.url)
             }
 
-            private static func rank(for fileName: String) -> Int? {
-                if fileName == primaryName {
-                    return 1
-                }
-                let suffix = ".\(fileExtension)"
-                guard fileName.hasPrefix(numberedPrefix), fileName.hasSuffix(suffix) else {
-                    return nil
-                }
-                let digits = fileName.dropFirst(numberedPrefix.count).dropLast(suffix.count)
-                guard let value = Int(digits), value >= 2 else { return nil }
-                return value
-            }
+            static func removeConsumedPayloadDirectories(for attachmentPaths: [String]) {
+                let directories = attachmentPaths
+                    .map { URL(fileURLWithPath: $0).deletingLastPathComponent() }
+                    .filter { path in
+                        let id = path.lastPathComponent
 
-            private static func hasPNGSignature(at url: URL) -> Bool {
-                guard let data = try? Data(contentsOf: url),
-                      data.count >= pngSignature.count
-                else {
-                    return false
-                }
-                return [UInt8](data.prefix(pngSignature.count)) == pngSignature
+                        return id.count == 16 &&
+                            id.allSatisfy(\.isHexDigit) &&
+                            path.deletingLastPathComponent().lastPathComponent == payloadDirectoryName
+                    }
+                    .reduce(into: Set<URL>()) { partialResult, item in
+                        partialResult.insert(item)
+                    }
+
+                directories.forEach { try? FileManager.default.removeItem(at: $0) }
             }
         }
 
@@ -311,8 +271,8 @@ extension SentryKSCrash.AttachmentsMonitor {
 
         screenshotProvider(payloadDirectory)
 
-        let screenshots = ScreenshotFiles.paths(in: payloadDirectory)
-        guard !screenshots.isEmpty else {
+        let attachments = Layout.files(in: payloadDirectory)
+        guard !attachments.isEmpty else {
             try? FileManager.default.removeItem(at: payloadDirectory)
             return
         }
@@ -358,7 +318,7 @@ extension SentryKSCrash.AttachmentsMonitor {
             return Unmanaged.passRetained(reportDict)
         }
 
-        let incoming = ScreenshotFiles.paths(in: payloadDirectory).map(\.path)
+        let incoming = Layout.files(in: payloadDirectory).map(\.path)
         guard !incoming.isEmpty else {
             return Unmanaged.passRetained(reportDict)
         }

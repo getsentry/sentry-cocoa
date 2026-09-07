@@ -106,6 +106,36 @@ final class SentryKSCrashAttachmentsMonitorTests: XCTestCase {
         XCTAssertEqual(result["report"] as? [String: String], ["id": "1"])
     }
 
+    func testStitchedReport_whenPayloadHasArbitraryFiles_shouldInjectAllPaths() throws {
+        // -- Arrange --
+        let reportID: Int64 = 0xEF
+        let monitor = try makeMonitor(reportID: reportID)
+        monitor.screenshotProvider = { directory in
+            let files = [
+                "screenshot.png": Data("shot".utf8),
+                "view-hierarchy.json": Data("hierarchy".utf8)
+            ]
+            for (name, data) in files {
+                do {
+                    try data.write(to: directory.appendingPathComponent(name))
+                } catch {
+                    XCTFail("Failed to write \(name): \(error)")
+                }
+            }
+        }
+        monitor.handleDidWriteReport(reportID: reportID)
+        let original = ["report": ["id": "1"]] as NSDictionary
+
+        // -- Act --
+        let result = stitchedReport(monitor, report: original, reportID: reportID, scope: KSCrashSidecarScopeReport)
+
+        // -- Assert --
+        let attachments = try XCTUnwrap(result["attachments"] as? [String])
+        let names = Set(attachments.map { URL(fileURLWithPath: $0).lastPathComponent })
+        XCTAssertEqual(names, ["screenshot.png", "view-hierarchy.json"])
+        XCTAssertTrue(SentryKSCrash.AttachmentsMonitor.Marker.isValid(at: markerURL(reportID: reportID)))
+    }
+
     func testStitchedReport_whenMarkerMissing_shouldReturnOriginalReport() throws {
         // -- Arrange --
         let reportID: Int64 = 2
@@ -164,7 +194,7 @@ final class SentryKSCrashAttachmentsMonitorTests: XCTestCase {
 
         // -- Act --
         SentryKSCrash.AttachmentsMonitor.Layout.removeConsumedPayloadDirectories(
-            forAttachmentPaths: [file.path]
+            for: [file.path]
         )
 
         // -- Assert --
@@ -183,7 +213,7 @@ final class SentryKSCrashAttachmentsMonitorTests: XCTestCase {
 
         // -- Act --
         SentryKSCrash.AttachmentsMonitor.Layout.removeConsumedPayloadDirectories(
-            forAttachmentPaths: [first.path, second.path]
+            for: [first.path, second.path]
         )
 
         // -- Assert --
@@ -199,7 +229,7 @@ final class SentryKSCrashAttachmentsMonitorTests: XCTestCase {
 
         // -- Act --
         SentryKSCrash.AttachmentsMonitor.Layout.removeConsumedPayloadDirectories(
-            forAttachmentPaths: [file.path]
+            for: [file.path]
         )
 
         // -- Assert --
