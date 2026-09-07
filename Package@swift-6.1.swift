@@ -338,7 +338,11 @@ targets += [
         swiftSettings: [
             .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"]))
         ] + v10SwiftSettings
-    ),
+    )
+]
+
+// Separate test declarations to stay within Swift 6.1's type-checking budget.
+targets += [
     .testTarget(
         name: "SentryTestUtilsTests",
         dependencies: ["SentrySwift", "SentryTestUtils"],

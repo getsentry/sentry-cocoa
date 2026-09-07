@@ -8,7 +8,7 @@ This document covers the build system and configuration details for the Sentry C
 
 ## SwiftPM Test Targets
 
-All active package manifests include `SentryObjCCompatTests` alongside the test utility suite, without adding test-support targets to SDK products. Both default and V10 builds are supported. Package-workspace tests require explicit SDK test compiler flags and source-only package preparation; see [SwiftPM Objective-C Wrapper Tests](TEST.md#swiftpm-objective-c-wrapper-tests).
+All active package manifests include `SentryObjCCompatTests` alongside the test utility suite, without adding test-support targets to SDK products. Both default and V10 builds are supported. Package-workspace tests require explicit SDK test compiler flags, the opt-in `Tests/Configuration/SwiftPM.xcconfig`, and source-only package preparation; see [SwiftPM Objective-C Wrapper Tests](TEST.md#swiftpm-objective-c-wrapper-tests). See [compiler settings and intentional differences](TEST.md#compiler-settings-and-intentional-differences) for the aligned diagnostics/features and the differences from framework builds.
 
 ## UIKit Linking Control
 
