@@ -114,6 +114,7 @@ SentryProfiler *_Nullable _threadUnsafe_gTraceProfiler;
 #    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 + (SentryProfiler *_Nullable)getCurrentProfiler
 {
+    std::lock_guard<std::mutex> l(_threadUnsafe_gTraceProfilerLock);
     return _threadUnsafe_gTraceProfiler;
 }
 

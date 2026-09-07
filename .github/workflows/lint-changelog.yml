@@ -1,0 +1,66 @@
+name: Lint Changelog
+
+on:
+  push:
+    branches:
+      - main
+      - v8.x
+
+  pull_request:
+
+# Concurrency configuration:
+# - We use workflow-specific concurrency groups to prevent multiple lint runs on the same code,
+#   as linting checks are deterministic and don't require parallel validation.
+# - For pull requests, we cancel in-progress runs when new commits are pushed since only the latest
+#   linting matters for merge decisions.
+# - For main branch pushes, we never cancel so every push is checked.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  files-changed:
+    name: Detect File Changes
+    runs-on: ubuntu-latest
+    outputs:
+      run_lint_changelog_for_prs: ${{ steps.changes.outputs.run_lint_changelog_for_prs }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Get changed files
+        id: changes
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        with:
+          token: ${{ github.token }}
+          filters: .github/file-filters.yml
+
+  lint:
+    name: Lint
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_lint_changelog_for_prs == 'true'
+    needs: files-changed
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: Homebrew/actions/setup-homebrew@3cdb78d0f62ad29dd32de765782654f4eedea607 # 2026.08.31.1
+      - name: Install markdownlint-cli2
+        run: brew install markdownlint-cli2
+      - name: Check changelog structure
+        run: make check-changelog
+
+  lint-changelog-required-check:
+    needs:
+      [
+        files-changed,
+        lint,
+      ]
+    name: Lint Changelog
+    # This is necessary since a failed/skipped dependent job would cause this job to be skipped
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      # If any jobs we depend on fails gets cancelled or times out, this job will fail.
+      # Skipped jobs are not considered failures.
+      - name: Check for failures
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "One of the changelog lint jobs has failed." && exit 1

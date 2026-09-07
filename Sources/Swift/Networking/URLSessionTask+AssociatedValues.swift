@@ -18,7 +18,7 @@ final class URLSessionTaskNetworkTrackerState {
         var hasBreadcrumb = false
         var isDuplicate = false
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         var networkDetails: SentryReplayNetworkDetails?
 #endif
     }
@@ -71,7 +71,7 @@ extension URLSessionTask {
         withNetworkTrackerState { $0.startDate }
     }
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     var networkDetails: SentryReplayNetworkDetails? {
         existingNetworkTrackerState?.values.withLock { $0.networkDetails }
     }

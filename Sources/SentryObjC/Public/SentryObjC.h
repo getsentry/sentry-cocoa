@@ -14,6 +14,7 @@
 #    import "SentryObjCLastRunStatus.h"
 #    import "SentryObjCLevel.h"
 #    import "SentryObjCLogLevel.h"
+#    import "SentryObjCProfileLifecycle.h"
 #    import "SentryObjCReplayQuality.h"
 #    import "SentryObjCSampleDecision.h"
 #    import "SentryObjCSpanStatus.h"
@@ -24,6 +25,7 @@
 #    import <SentryObjC/SentryObjCLastRunStatus.h>
 #    import <SentryObjC/SentryObjCLevel.h>
 #    import <SentryObjC/SentryObjCLogLevel.h>
+#    import <SentryObjC/SentryObjCProfileLifecycle.h>
 #    import <SentryObjC/SentryObjCReplayQuality.h>
 #    import <SentryObjC/SentryObjCSampleDecision.h>
 #    import <SentryObjC/SentryObjCSpanStatus.h>
@@ -155,6 +157,7 @@
 #if !__has_include(<SentryObjC/SentryObjCDefines.h>)
 #    import "SentryObjCExperimentalOptions.h"
 #    import "SentryObjCOptions.h"
+#    import "SentryObjCProfileOptions.h"
 #    import "SentryObjCReplayOptions.h"
 #    import "SentryObjCUserFeedbackConfiguration.h"
 #    import "SentryObjCUserFeedbackFormConfiguration.h"
@@ -163,6 +166,7 @@
 #else
 #    import <SentryObjC/SentryObjCExperimentalOptions.h>
 #    import <SentryObjC/SentryObjCOptions.h>
+#    import <SentryObjC/SentryObjCProfileOptions.h>
 #    import <SentryObjC/SentryObjCReplayOptions.h>
 #    import <SentryObjC/SentryObjCUserFeedbackConfiguration.h>
 #    import <SentryObjC/SentryObjCUserFeedbackFormConfiguration.h>

@@ -10,7 +10,11 @@ final class SentryMetricKitIntegration<Dependencies>: NSObject, SwiftIntegration
             return nil
         }
 
-        mxManager = SentryMXManager(inAppLogic: SentryInAppLogic(inAppIncludes: options.inAppIncludes), attachDiagnosticAsAttachment: options.enableMetricKitRawPayload)
+        mxManager = SentryMXManager(
+            inAppLogic: SentryInAppLogic(inAppIncludes: options.inAppIncludes),
+            attachDiagnosticAsAttachment: options.enableMetricKitRawPayload,
+            enabledDiagnostics: [.cpuException, .diskWriteException, .hang]
+        )
         super.init()
 
         mxManager.receiveReports()

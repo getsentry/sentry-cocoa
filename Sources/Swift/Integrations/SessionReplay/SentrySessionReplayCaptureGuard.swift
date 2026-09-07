@@ -1,5 +1,5 @@
 import Foundation
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
 /// Inspects the view hierarchy to detect ongoing activity (user interactions or animations)

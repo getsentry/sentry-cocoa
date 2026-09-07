@@ -65,13 +65,9 @@ targets:
       Release: App/Configurations/macOS-Swift.xcconfig
       Test: App/Configurations/macOS-Swift.xcconfig
       TestCI: App/Configurations/macOS-Swift.xcconfig
-    postCompileScripts:
-      - script: ../Shared/inject-git-info.sh
-        name: Inject Git Information into Info.plist
-        basedOnDependencyAnalysis: false
     postBuildScripts:
-      - script: ../Shared/reset-git-info.sh
-        name: Reset Git Fields in Info.plist
+      - script: INFOPLIST_FILE="${TARGET_BUILD_DIR}/${INFOPLIST_PATH}" ../Shared/inject-git-info.sh
+        name: Inject Git Information into Info.plist
         basedOnDependencyAnalysis: false
   macOS-Swift-UITests:
     type: bundle.ui-testing
@@ -147,13 +143,9 @@ targets:
       Release: App/Configurations/macOS-Swift-Other.xcconfig
       Test: App/Configurations/macOS-Swift-Other.xcconfig
       TestCI: App/Configurations/macOS-Swift-Other.xcconfig
-    postCompileScripts:
-      - script: ../Shared/inject-git-info.sh
-        name: Inject Git Information into Info.plist
-        basedOnDependencyAnalysis: false
     postBuildScripts:
-      - script: ../Shared/reset-git-info.sh
-        name: Reset Git Fields in Info.plist
+      - script: INFOPLIST_FILE="${TARGET_BUILD_DIR}/${INFOPLIST_PATH}" ../Shared/inject-git-info.sh
+        name: Inject Git Information into Info.plist
         basedOnDependencyAnalysis: false
   macOS-Swift-Sandboxed:
     type: application
@@ -195,13 +187,9 @@ targets:
       Release: App/Configurations/macOS-Swift-Sandboxed.xcconfig
       Test: App/Configurations/macOS-Swift-Sandboxed.xcconfig
       TestCI: App/Configurations/macOS-Swift-Sandboxed.xcconfig
-    postCompileScripts:
-      - script: ../Shared/inject-git-info.sh
-        name: Inject Git Information into Info.plist
-        basedOnDependencyAnalysis: false
     postBuildScripts:
-      - script: ../Shared/reset-git-info.sh
-        name: Reset Git Fields in Info.plist
+      - script: INFOPLIST_FILE="${TARGET_BUILD_DIR}/${INFOPLIST_PATH}" ../Shared/inject-git-info.sh
+        name: Inject Git Information into Info.plist
         basedOnDependencyAnalysis: false
   macOS-Swift-Sandboxed-Other:
     type: application
@@ -243,13 +231,9 @@ targets:
       Release: App/Configurations/macOS-Swift-Sandboxed-Other.xcconfig
       Test: App/Configurations/macOS-Swift-Sandboxed-Other.xcconfig
       TestCI: App/Configurations/macOS-Swift-Sandboxed-Other.xcconfig
-    postCompileScripts:
-      - script: ../Shared/inject-git-info.sh
-        name: Inject Git Information into Info.plist
-        basedOnDependencyAnalysis: false
     postBuildScripts:
-      - script: ../Shared/reset-git-info.sh
-        name: Reset Git Fields in Info.plist
+      - script: INFOPLIST_FILE="${TARGET_BUILD_DIR}/${INFOPLIST_PATH}" ../Shared/inject-git-info.sh
+        name: Inject Git Information into Info.plist
         basedOnDependencyAnalysis: false
 schemes:
   macOS-Swift:

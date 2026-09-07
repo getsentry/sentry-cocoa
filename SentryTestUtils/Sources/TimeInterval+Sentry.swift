@@ -1,3 +1,5 @@
+import Foundation
+
 public extension TimeInterval {
     func toNanoSeconds() -> UInt64 {
         return UInt64(self * Double(NSEC_PER_SEC))

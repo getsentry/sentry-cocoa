@@ -73,6 +73,8 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
 run_distribution_tests_for_prs: &run_distribution_tests_for_prs
   - "Sources/SentryDistribution/**"
   - "Sources/SentryDistributionTests/**"
+  - "SentryTestUtils/**"
+  - "SentryTestUtilsTests/**"
 
   # GH Actions
   - ".github/workflows/test.yml"
@@ -310,6 +312,23 @@ run_lint_dprint_for_prs: &run_lint_dprint_for_prs
   # Formatting
   - "dprint.json"
 
+run_lint_changelog_for_prs: &run_lint_changelog_for_prs
+  - "CHANGELOG*.md"
+
+  # GH Actions
+  - ".github/workflows/lint-changelog.yml"
+  - ".github/file-filters.yml"
+
+  # Check configuration and scripts
+  - ".markdownlint-cli2.jsonc"
+  - "scripts/check-changelog.sh"
+  - "scripts/markdownlint/**"
+  - "scripts/ci-utils.sh"
+
+  # Build configuration
+  - "Makefile"
+  - "Brewfile*"
+
 run_lint_xcode_analyze_for_prs: &run_lint_xcode_analyze_for_prs
   - "Sources/Configuration/**"
   - "Sources/include/**"
@@ -353,6 +372,8 @@ run_v10_for_prs: &run_v10_for_prs
   - "Sources/SentrySwiftUI/**"
   - "Sources/Swift/**"
   - "Tests/**"
+  - "SentryTestUtils/**"
+  - "SentryTestUtilsTests/**"
 
   # GH Actions
   - ".github/workflows/build-v10.yml"

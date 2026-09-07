@@ -2,7 +2,7 @@
 import SentryTestUtils
 import XCTest
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 class SentryInternalReplayApiIntegrationTests: XCTestCase {
 

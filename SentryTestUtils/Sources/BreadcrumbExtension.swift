@@ -1,4 +1,8 @@
+#if SWIFT_PACKAGE
+@_spi(Private) import SentrySwift
+#else
 import Sentry
+#endif
 public extension Breadcrumb {
     static func navigation(screen: String, date: Date? = nil) -> Breadcrumb {
         let result = Breadcrumb(level: .info, category: "navigation")

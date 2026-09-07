@@ -5,6 +5,18 @@
 > [!WARNING]
 > Native crashes now set `mechanism.synthetic`, which takes the mach exception name (`EXC_BAD_ACCESS`) or signal name (`SIGSEGV`) out of the grouping hash. Expect a one-time regrouping as your app adopts this version: existing crash issues stop receiving events and new ones open. Crashes that differ only by signal at the same stacktrace now share one issue. The mach and signal detail stays on `mechanism.meta`.
 
+### Features
+
+- Add a `device.event` breadcrumb (`SYSTEM_CLOCK_CHANGE`) when the system clock changes, for example due to a manual time change or NTP sync (#8946)
+
+### Fixes
+
+- Prevent relevant view controller traversal from recursively loading parent views and invoking `viewDidLoad` twice when tracing is enabled. (#8941)
+- Classify MetricKit hangs over 500 ms as errors. (#8948)
+- Prevent Session Replay video encoding from reusing pixel buffers retained by AVFoundation. (#8950)
+
+## 9.27.0
+
 > [!NOTE]
 > `enableLogs` and `enableMetrics` are now deprecated and will be removed in the next major version. Manual log and metric capture is no longer gated by these flags.
 
@@ -25,8 +37,10 @@
   - `flush()` sends the current replay data to Sentry, or starts a full-session replay when recording is stopped.
 - Copy `app.vitals.start.type` and `app.vitals.start.screen` onto standalone `app.start` children, including `app.start.extended` and user descendants (#8888)
 - Add `maxFeatureFlags` option to configure how many feature flag evaluations the scope retains, matching sentry-java. Defaults to 100 (#8858)
+- Log a warning when `SentrySDK.start` is called again without `close()`. Reinitialization still runs and remains unsupported (#8928)
 - Add `SentrySDK.internal.envelope.captureNonTerminating` for hybrid SDKs, which keeps the current session running and reports it with the `unhandled` status when an unhandled exception doesn't terminate the process (#8654)
 - Add `SentrySDK.internal.envelope.updateSessionForDroppedEventNonTerminating` so hybrid SDKs can update the native session when an error is dropped by sampling, without sending an envelope (#8907)
+- Expose continuous profiling configuration on `SentryObjCOptions` via `configureProfiling` and `SentryObjCProfileOptions` (#8937)
 
 ### Fixes
 
@@ -34,6 +48,7 @@
 - Stop recording touch events while Session Replay is paused. (#8887)
 - Mark the fabricated `mach` and `signal` crash mechanisms as `synthetic` so an Apple crash groups with the identical crash reported by the other Sentry SDKs, and so a mach-caught and a signal-caught report of the same bug no longer split into two issues (#8919)
 - Set `mechanism.handled` to `false` on crash reports that carry no mach context, which previously left it unset (#8919)
+- Synchronize access to the current trace profiler in debug and test builds. (#8936)
 
 ### Internal
 
@@ -177,15 +192,12 @@
 ### Fixes
 
 - Fix rate limiting all data categories when data category rate-limit is active. (#8324)
+- Fix EXC_BAD_ACCESS in SentryNetworkTracker caused by repeated reads of the volatile `NSURLSessionTask.currentRequest` property (#8058)
 
 ### Features
 
 - Record log_byte client reports (#8186)
 - Add scope feature flag API (#8147)
-
-### Fixes
-
-- Fix EXC_BAD_ACCESS in SentryNetworkTracker caused by repeated reads of the volatile `NSURLSessionTask.currentRequest` property (#8058)
 
 ## 9.19.1
 
@@ -2216,14 +2228,11 @@ This bug caused unhandled/crash events to have the unhandled property and mach i
 
 - Add `reportAccessibilityIdentifier` option (#4183)
 - Record dropped spans (#4172)
+- Collect only unique UIWindow references (#4159)
 
 ### Fixes
 
 - Session replay crash when writing the replay (#4186)
-
-### Features
-
-- Collect only unique UIWindow references (#4159)
 
 ### Deprecated
 
@@ -3031,8 +3040,6 @@ This change might mark 3rd party library frames as in-app, which the SDK previou
 
 This version adds a dependency on Swift.
 We renamed the default branch from `master` to `main`. We are going to keep the `master` branch for backwards compatibility for package managers pointing to the `master` branch.
-
-### Features
 
 - Properly demangle Swift class name (#2162)
 - Change view hierarchy attachment format to JSON (#2491)
