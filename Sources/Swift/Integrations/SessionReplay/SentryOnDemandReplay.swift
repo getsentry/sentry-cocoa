@@ -1,6 +1,6 @@
 // swiftlint:disable file_length type_body_length missing_docs
 #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
-#if os(iOS) || os(tvOS)
+#if os(iOS) || os(tvOS) || os(visionOS)
 
 internal import _SentryPrivate
 import AVFoundation

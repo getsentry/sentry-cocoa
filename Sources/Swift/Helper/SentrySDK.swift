@@ -32,7 +32,7 @@ extension SentrySDK {
         return SentrySDKInternal.isEnabled
     }
 
-    #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS))
+    #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS) || os(visionOS))
     /// API to control session replay
     #if !SDK_V10
     @objc

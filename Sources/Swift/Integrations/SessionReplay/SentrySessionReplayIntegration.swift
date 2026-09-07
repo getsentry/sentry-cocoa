@@ -1,7 +1,7 @@
 // swiftlint:disable missing_docs file_length
 internal import _SentryPrivate
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
 typealias SessionReplayIntegrationScope = NotificationCenterProvider & RateLimitsProvider & CurrentDateProvider & RandomProvider & FileManagerProvider & DebuggerStatusProviderProvider & ReachabilityProvider & GlobalEventProcessorProvider & DispatchQueueWrapperProvider & ApplicationProvider & DispatchFactoryProvider & SessionReplayCaptureSchedulerProvider & SessionReplayBreadcrumbConverterProvider
