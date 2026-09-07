@@ -6,9 +6,11 @@ import CoreGraphics
 import Foundation
 import UIKit
 
+#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
 protocol SentryAppendablePixelBuffer {
     func append(image: UIImage, presentationTime: CMTime) -> Bool
 }
+extension SentryPixelBuffer: SentryAppendablePixelBuffer {}
 
 protocol SentryPixelBufferAdapter {
     var pixelBufferPool: CVPixelBufferPool? { get }
@@ -16,11 +18,20 @@ protocol SentryPixelBufferAdapter {
 }
 
 extension AVAssetWriterInputPixelBufferAdaptor: SentryPixelBufferAdapter {}
+#else
+typealias SentryAppendablePixelBuffer = SentryPixelBuffer
+typealias SentryPixelBufferAdapter = AVAssetWriterInputPixelBufferAdaptor
+#endif
 
-final class SentryPixelBuffer: SentryAppendablePixelBuffer {
+final class SentryPixelBuffer {
+
+    // MARK: - State
+
     private let rgbColorSpace = CGColorSpaceCreateDeviceRGB()
     private let size: CGSize
     private let pixelBufferAdapter: SentryPixelBufferAdapter
+
+    // MARK: - Initializers
 
     convenience init?(size: CGSize, videoWriterInput: AVAssetWriterInput) {
         // AVFoundation requires a complete buffer description before it can create the pool.
@@ -56,7 +67,10 @@ final class SentryPixelBuffer: SentryAppendablePixelBuffer {
         }
 
         // AVFoundation retains appended buffers while encoding, so later frames need independent storage.
-        guard draw(image: image, into: pixelBuffer) else { return false }
+        guard draw(image: image, into: pixelBuffer) else {
+            SentrySDKLog.error("[Session Replay] Failed to write image to pixel buffer")
+            return false
+        }
         return pixelBufferAdapter.append(pixelBuffer, withPresentationTime: presentationTime)
     }
 
