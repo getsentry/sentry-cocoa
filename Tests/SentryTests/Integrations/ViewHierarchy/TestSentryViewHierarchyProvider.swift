@@ -1,6 +1,6 @@
 @_spi(Private) @testable import Sentry
 
-#if os(iOS) || os(tvOS)
+#if os(iOS) || os(tvOS) || os(visionOS)
 
 class TestSentryViewHierarchyProvider: SentryViewHierarchyProvider {
 
@@ -23,4 +23,4 @@ class TestSentryViewHierarchyProvider: SentryViewHierarchyProvider {
     }
 }
 
-#endif // os(iOS) || os(tvOS)
+#endif // os(iOS) || os(tvOS) || os(visionOS)

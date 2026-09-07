@@ -1,7 +1,7 @@
 // swiftlint:disable missing_docs
 import Foundation
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 /// Provides view hierarchy capture for hybrid SDKs.
 public struct SentryInternalViewHierarchyApi {

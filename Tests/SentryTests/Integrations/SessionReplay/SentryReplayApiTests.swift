@@ -3,7 +3,7 @@
 import Foundation
 import XCTest
 
-#if os(iOS) || os(tvOS)
+#if os(iOS) || os(tvOS) || os(visionOS)
 
 class SentryReplayApiTests: XCTestCase {
     override func tearDown() {

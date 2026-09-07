@@ -371,11 +371,43 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
         XCTAssertTrue(didCallRemoveObserver, "Stop didn't call remove observer for UIApplicationSignificantTimeChangeNotification")
     }
 
+    func testSystemClockDidChange_whenNotificationPosted_shouldAddBreadcrumb() throws {
+        // -- Arrange --
+        sut = fixture.getSut(currentDevice: nil)
+
+        // -- Act --
+        fixture.notificationCenterWrapper.post(Notification(name: NSNotification.Name.NSSystemClockDidChange, object: nil))
+
+        // -- Assert --
+        XCTAssertEqual(1, fixture.delegate.addCrumbInvocations.count)
+
+        let crumb = try XCTUnwrap(fixture.delegate.addCrumbInvocations.invocations.element(at: 0))
+
+        XCTAssertEqual("device.event", crumb.category)
+        XCTAssertEqual("system", crumb.type)
+        XCTAssertEqual(SentryLevel.info, crumb.level)
+
+        let data = try XCTUnwrap(crumb.data, "no breadcrumb.data")
+        XCTAssertEqual("SYSTEM_CLOCK_CHANGE", data["action"] as? String)
+    }
+
+    func testSystemClockDidChange_whenStopped_shouldNotAddBreadcrumb() {
+        // -- Arrange --
+        sut = fixture.getSut(currentDevice: nil)
+
+        // -- Act --
+        sut.stop()
+        fixture.notificationCenterWrapper.post(Notification(name: NSNotification.Name.NSSystemClockDidChange, object: nil))
+
+        // -- Assert --
+        XCTAssertEqual(0, fixture.delegate.addCrumbInvocations.count)
+    }
+
     func testStopCallsSpecificRemoveObserverMethods() {
         sut = fixture.getSut(currentDevice: nil)
         sut.stop()
-        // 8 system event observers + 2 lifecycle observers (didEnterBackground, willEnterForeground)
-        XCTAssertEqual(fixture.notificationCenterWrapper.removeObserverWithNameAndObjectInvocations.count, 10)
+        // 9 system event observers + 2 lifecycle observers (didEnterBackground, willEnterForeground)
+        XCTAssertEqual(fixture.notificationCenterWrapper.removeObserverWithNameAndObjectInvocations.count, 11)
     }
 
     // MARK: - Lifecycle Tests
@@ -386,8 +418,8 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
 
         fixture.notificationCenterWrapper.post(Notification(name: UIApplication.didEnterBackgroundNotification))
 
-        // Should have removed all 8 system event observers
-        XCTAssertEqual(fixture.notificationCenterWrapper.removeObserverWithNameAndObjectInvocations.count, 8)
+        // Should have removed all 9 system event observers
+        XCTAssertEqual(fixture.notificationCenterWrapper.removeObserverWithNameAndObjectInvocations.count, 9)
     }
 
     func testForegroundResubscribesToSystemEvents() {
@@ -400,8 +432,8 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
         // Then come back to foreground
         fixture.notificationCenterWrapper.post(Notification(name: UIApplication.willEnterForegroundNotification))
 
-        // Should have re-registered system event observers (8 on iOS: battery x2, orientation, keyboard x2, screenshot, timezone, significant time)
-        XCTAssertEqual(fixture.notificationCenterWrapper.addObserverWithObjectInvocations.count, 8)
+        // Should have re-registered system event observers (9 on iOS: battery x2, orientation, keyboard x2, screenshot, timezone, significant time, system clock)
+        XCTAssertEqual(fixture.notificationCenterWrapper.addObserverWithObjectInvocations.count, 9)
     }
 
     func testRepeatedBackgroundDoesNotDoubleUnsubscribe() {
