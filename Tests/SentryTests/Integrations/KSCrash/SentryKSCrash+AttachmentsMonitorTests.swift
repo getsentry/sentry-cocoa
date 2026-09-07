@@ -8,6 +8,32 @@ private enum AttachmentsMonitorTestRoot {
     nonisolated(unsafe) static var installDir: URL?
 }
 
+private nonisolated(unsafe) var testPNGBytes = Data()
+private nonisolated(unsafe) var testWriterCalls = 0
+
+private let testWritePNG: @convention(c) (UnsafePointer<CChar>) -> Void = { path in
+    let url = URL(fileURLWithPath: String(cString: path)).appendingPathComponent("screenshot.png")
+    FileManager.default.createFile(atPath: url.path, contents: testPNGBytes)
+}
+
+private let testWriteNothing: @convention(c) (UnsafePointer<CChar>) -> Void = { _ in }
+
+private let testCountWrites: @convention(c) (UnsafePointer<CChar>) -> Void = { _ in
+    testWriterCalls += 1
+}
+
+private let testWriteArbitraryFiles: @convention(c) (UnsafePointer<CChar>) -> Void = { path in
+    let dir = URL(fileURLWithPath: String(cString: path))
+    FileManager.default.createFile(
+        atPath: dir.appendingPathComponent("screenshot.png").path,
+        contents: Data("shot".utf8)
+    )
+    FileManager.default.createFile(
+        atPath: dir.appendingPathComponent("view-hierarchy.json").path,
+        contents: Data("hierarchy".utf8)
+    )
+}
+
 final class SentryKSCrashAttachmentsMonitorTests: XCTestCase {
     private static let pngBytes: [UInt8] = [
         0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
@@ -29,9 +55,13 @@ final class SentryKSCrashAttachmentsMonitorTests: XCTestCase {
             .appendingPathComponent("kscrash-screenshot-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: installDir, withIntermediateDirectories: true)
         AttachmentsMonitorTestRoot.installDir = installDir
+        testPNGBytes = Data(Self.pngBytes)
+        testWriterCalls = 0
     }
 
     override func tearDownWithError() throws {
+        sentrykscrash_attachments_setScreenshotWriter(nil)
+        sentrykscrash_attachments_setEnabled(false)
         AttachmentsMonitorTestRoot.installDir = nil
         if let installDir, FileManager.default.fileExists(atPath: installDir.path) {
             try FileManager.default.removeItem(at: installDir)
@@ -43,7 +73,7 @@ final class SentryKSCrashAttachmentsMonitorTests: XCTestCase {
         // -- Arrange --
         let reportID: Int64 = 0xAB
         let monitor = try makeMonitor(reportID: reportID)
-        monitor.screenshotProvider = writePNGProvider()
+        sentrykscrash_attachments_setScreenshotWriter(testWritePNG)
 
         // -- Act --
         monitor.handleDidWriteReport(reportID: reportID)
@@ -59,7 +89,7 @@ final class SentryKSCrashAttachmentsMonitorTests: XCTestCase {
         // -- Arrange --
         let reportID: Int64 = 1
         let monitor = try makeMonitor(reportID: reportID)
-        monitor.screenshotProvider = { _ in }
+        sentrykscrash_attachments_setScreenshotWriter(testWriteNothing)
 
         // -- Act --
         monitor.handleDidWriteReport(reportID: reportID)
@@ -74,14 +104,13 @@ final class SentryKSCrashAttachmentsMonitorTests: XCTestCase {
         let reportID: Int64 = 1
         let monitor = try makeMonitor(reportID: reportID)
         monitor.enabled = false
-        var providerCalls = 0
-        monitor.screenshotProvider = { _ in providerCalls += 1 }
+        sentrykscrash_attachments_setScreenshotWriter(testCountWrites)
 
         // -- Act --
         monitor.handleDidWriteReport(reportID: reportID)
 
         // -- Assert --
-        XCTAssertEqual(providerCalls, 0)
+        XCTAssertEqual(testWriterCalls, 0)
         XCTAssertFalse(FileManager.default.fileExists(atPath: markerURL(reportID: reportID).path))
     }
 
@@ -89,7 +118,7 @@ final class SentryKSCrashAttachmentsMonitorTests: XCTestCase {
         // -- Arrange --
         let reportID: Int64 = 0xCD
         let monitor = try makeMonitor(reportID: reportID)
-        monitor.screenshotProvider = writePNGProvider()
+        sentrykscrash_attachments_setScreenshotWriter(testWritePNG)
         monitor.handleDidWriteReport(reportID: reportID)
         let original = ["report": ["id": "1"]] as NSDictionary
 
@@ -110,19 +139,7 @@ final class SentryKSCrashAttachmentsMonitorTests: XCTestCase {
         // -- Arrange --
         let reportID: Int64 = 0xEF
         let monitor = try makeMonitor(reportID: reportID)
-        monitor.screenshotProvider = { directory in
-            let files = [
-                "screenshot.png": Data("shot".utf8),
-                "view-hierarchy.json": Data("hierarchy".utf8)
-            ]
-            for (name, data) in files {
-                do {
-                    try data.write(to: directory.appendingPathComponent(name))
-                } catch {
-                    XCTFail("Failed to write \(name): \(error)")
-                }
-            }
-        }
+        sentrykscrash_attachments_setScreenshotWriter(testWriteArbitraryFiles)
         monitor.handleDidWriteReport(reportID: reportID)
         let original = ["report": ["id": "1"]] as NSDictionary
 
@@ -154,7 +171,7 @@ final class SentryKSCrashAttachmentsMonitorTests: XCTestCase {
         // -- Arrange --
         let reportID: Int64 = 3
         let monitor = try makeMonitor(reportID: reportID)
-        monitor.screenshotProvider = writePNGProvider()
+        sentrykscrash_attachments_setScreenshotWriter(testWritePNG)
         monitor.handleDidWriteReport(reportID: reportID)
         let original = ["ok": true] as NSDictionary
 
@@ -169,7 +186,7 @@ final class SentryKSCrashAttachmentsMonitorTests: XCTestCase {
         // -- Arrange --
         let reportID: Int64 = 9
         let monitor = try makeMonitor(reportID: reportID)
-        monitor.screenshotProvider = writePNGProvider()
+        sentrykscrash_attachments_setScreenshotWriter(testWritePNG)
 
         // -- Act --
         SentryKSCrash.AttachmentsMonitor.from(monitor.api.pointee.context)?
@@ -237,17 +254,6 @@ final class SentryKSCrashAttachmentsMonitorTests: XCTestCase {
     }
 
     // MARK: - Helpers
-
-    private func writePNGProvider() -> SentryKSCrash.AttachmentsMonitor.CrashTimeWriter {
-        { directory in
-            let url = directory.appendingPathComponent("screenshot.png")
-            do {
-                try Data(Self.pngBytes).write(to: url)
-            } catch {
-                XCTFail("Failed to write screenshot PNG: \(error)")
-            }
-        }
-    }
 
     private func makeMonitor(reportID: Int64) throws -> SentryKSCrash.AttachmentsMonitor {
         let sidecar = markerURL(reportID: reportID)

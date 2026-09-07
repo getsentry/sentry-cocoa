@@ -34,7 +34,6 @@ extension SentryKSCrash {
         typealias StitchCallback = @convention(c) (
             CFDictionary?, UnsafePointer<CChar>?, KSCrashSidecarScope, Context
         ) -> Unmanaged<CFDictionary>?
-        typealias CrashTimeWriter = (URL) -> Void
 
         static let attachmentsReportKey = "attachments"
 
@@ -137,16 +136,6 @@ extension SentryKSCrash {
         private let state = SentryMutex(MonitorState())
 
         private let _monitorId: UnsafeMutablePointer<CChar> = strdup(sentrykscrash_attachmentsMonitorID)
-
-        /// Screenshot writer invoked from C on the crash thread. Must not hop to main.
-        var screenshotProvider: CrashTimeWriter? {
-            didSet {
-                attachmentsCrashTimeWriter = screenshotProvider
-                sentrykscrash_attachments_setScreenshotWriter(
-                    screenshotProvider == nil ? nil : attachmentsCrashTimeWrite
-                )
-            }
-        }
 
         let api: UnsafeMutablePointer<KSCrashMonitorAPI>
 
@@ -312,9 +301,4 @@ extension SentryKSCrash.AttachmentsMonitor {
     }
 }
 
-private nonisolated(unsafe) var attachmentsCrashTimeWriter: SentryKSCrash.AttachmentsMonitor.CrashTimeWriter?
-
-private let attachmentsCrashTimeWrite: @convention(c) (UnsafePointer<CChar>) -> Void = { path in
-    attachmentsCrashTimeWriter?(URL(fileURLWithPath: String(cString: path)))
-}
 #endif

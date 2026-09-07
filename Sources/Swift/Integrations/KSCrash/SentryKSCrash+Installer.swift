@@ -49,7 +49,7 @@ extension SentryKSCrash {
         /// Sets the crash-time screenshot writer. Receives the per-report payload directory.
         /// Invoked on the crash thread after the JSON report is on disk; must not hop to main.
         /// Pass `nil` to disable screenshot capture.
-        func setScreenshotProvider(_ provider: AttachmentsMonitor.CrashTimeWriter?)
+        func setScreenshotProvider(_ provider: SentryKSCrashAttachmentsScreenshotWriter?)
 
         #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
         /// The fatal NSException handler installed by the active crash backend.
@@ -216,8 +216,8 @@ extension SentryKSCrash {
             }
         }
 
-        func setScreenshotProvider(_ provider: AttachmentsMonitor.CrashTimeWriter?) {
-            Self.attachmentsMonitor.screenshotProvider = provider
+        func setScreenshotProvider(_ provider: SentryKSCrashAttachmentsScreenshotWriter?) {
+            sentrykscrash_attachments_setScreenshotWriter(provider)
         }
     }
 }

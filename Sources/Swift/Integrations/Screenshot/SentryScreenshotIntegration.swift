@@ -6,6 +6,13 @@ internal import _SentryPrivate
 // nor we want to continue using the DependencyContainer
 private weak var globalScreenshotSource: SentryScreenshotSource?
 
+#if SENTRY_DISABLE_SENTRYCRASH_V10
+#else
+private let kscrashWriteCrashTimeScreenshots: @convention(c) (UnsafePointer<CChar>) -> Void = { path in
+    globalScreenshotSource?.saveScreenShots(String(cString: path))
+}
+#endif
+
 final class SentryScreenshotIntegration<Dependencies: ScreenshotIntegrationProvider>: NSObject, SwiftIntegration, SentryClientAttachmentProcessor {
     private let options: Options
     private let screenshotSource: SentryScreenshotSource
@@ -40,9 +47,9 @@ final class SentryScreenshotIntegration<Dependencies: ScreenshotIntegrationProvi
             globalScreenshotSource?.saveScreenShots(reportPath)
         }
 #else
-        SentryDependencyContainer.sharedInstance().getKSCrashInstaller().setScreenshotProvider { directory in
-            globalScreenshotSource?.saveScreenShots(directory.path)
-        }
+        SentryDependencyContainer.sharedInstance().getKSCrashInstaller().setScreenshotProvider(
+            kscrashWriteCrashTimeScreenshots
+        )
 #endif
     }
 

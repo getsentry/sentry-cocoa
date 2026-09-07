@@ -1,6 +1,12 @@
 #if SDK_V10 && SENTRY_CRASH_E2E
 import Foundation
 
+private nonisolated(unsafe) var crashE2EScreenshotPNG = Data()
+private let crashE2EWriteScreenshot: @convention(c) (UnsafePointer<CChar>) -> Void = { path in
+    let url = URL(fileURLWithPath: String(cString: path)).appendingPathComponent("screenshot.png")
+    try? crashE2EScreenshotPNG.write(to: url)
+}
+
 extension SentryKSCrash {
     /// CrashE2E-only fault injection and synchronization for stored-report delivery.
     ///
@@ -111,12 +117,9 @@ extension SentryKSCrash {
                 0x33, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E,
                 0x44, 0xAE, 0x42, 0x60, 0x82
             ]
-            let pngData = Data(pngBytes)
+            crashE2EScreenshotPNG = Data(pngBytes)
             SentryDependencyContainer.sharedInstance().getKSCrashInstaller()
-                .setScreenshotProvider { directory in
-                    let url = directory.appendingPathComponent("screenshot.png")
-                    try? pngData.write(to: url, options: .atomic)
-                }
+                .setScreenshotProvider(crashE2EWriteScreenshot)
         }
     }
 }
