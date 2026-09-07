@@ -71,7 +71,14 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - "Brewfile*"
 
 run_distribution_tests_for_prs: &run_distribution_tests_for_prs
-  - "Sources/**"
+  - "Sources/SentryDistribution/**"
+  - "Sources/SentryDistributionTests/**"
+  - "Sources/Sentry/**"
+  - "Sources/Swift/**"
+  - "Sources/SentryCrash/**"
+  - "Sources/SentryObjC/**"
+  - "Sources/SentryObjCCompat/**"
+  - "Sources/include/**"
   - "Tests/SentryObjCCompatTests/**"
   - "SentryTestUtils/**"
   - "SentryTestUtilsTests/**"
