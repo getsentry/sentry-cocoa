@@ -74,7 +74,6 @@ extension SentryKSCrash {
             }
         }
 
-        /// Pathing layout and management of crash attachments
         struct Layout {
             static let monitorID = String(cString: sentrykscrash_attachmentsMonitorID)
             static let payloadDirectoryName = "SentryAttachments"
@@ -151,6 +150,8 @@ extension SentryKSCrash {
         }
 
         private let state = SentryMutex(MonitorState())
+        private var captureEnabled = false
+        private var captureCallbacks: KSCrash_ExceptionHandlerCallbacks?
 
         private let _monitorId: UnsafeMutablePointer<CChar> = strdup(sentrykscrash_attachmentsMonitorID)
 
@@ -158,11 +159,8 @@ extension SentryKSCrash {
         /// thread after the JSON report is on disk; must not hop to the main queue.
         var screenshotProvider: CrashTimeWriter?
 
-        // MARK: - MonitorPlugin
-
         let api: UnsafeMutablePointer<KSCrashMonitorAPI>
 
-        // MARK: - Lifecycle
         override init() {
             self.api = UnsafeMutablePointer<KSCrashMonitorAPI>.allocate(capacity: 1)
             super.init()
@@ -176,7 +174,6 @@ extension SentryKSCrash {
             free(_monitorId)
         }
 
-        // MARK: - Callbacks
         private static let apiInitCallback: InitCallback = { callbacks, context in
             SentryKSCrash.AttachmentsMonitor.from(context)?.callbacks = callbacks?.pointee
         }
@@ -248,23 +245,28 @@ extension SentryKSCrash.AttachmentsMonitor {
     }
 }
 
-// MARK: - Locking Helpers
 extension SentryKSCrash.AttachmentsMonitor {
     var enabled: Bool {
         get { state.withLock { $0.enabled } }
-        set { state.withLock { $0.enabled = newValue } }
+        set {
+            state.withLock { $0.enabled = newValue }
+            captureEnabled = newValue
+        }
     }
 
     var callbacks: KSCrash_ExceptionHandlerCallbacks? {
         get { state.withLock { $0.callbacks } }
-        set { state.withLock { $0.callbacks = newValue } }
+        set {
+            state.withLock { $0.callbacks = newValue }
+            captureCallbacks = newValue
+        }
     }
 }
 
 // MARK: - Crash-time capture
 extension SentryKSCrash.AttachmentsMonitor {
     func handleDidWriteReport(reportID: Int64) {
-        guard enabled else {
+        guard captureEnabled else {
             SentrySDKLog.debug("Not running handleDidWriteReport for reportID: \(reportID) because monitor is not enabled")
             return
         }
@@ -312,7 +314,7 @@ extension SentryKSCrash.AttachmentsMonitor {
     }
 
     func sidecarPath(for reportID: Int64) -> URL? {
-        guard let getReportSidecarPath = callbacks?.getReportSidecarPath else {
+        guard let getReportSidecarPath = captureCallbacks?.getReportSidecarPath else {
             SentrySDKLog.debug("Failed to get report sidecar path for reportID: \(reportID) because getReportSidecarPath is unavailable")
             return nil
         }
