@@ -4,7 +4,7 @@
 
 ### Deprecations
 
-- Deprecate legacy App Hang tracking because it can produce less relevant stack traces and false positives. Migrate to MetricKit for system-provided hang diagnostics. The `appHangTimeoutInterval` option remains supported for watchdog termination classification. (#8944)
+- Deprecate legacy App Hang tracking because it can produce less relevant stack traces and false positives. Enable the MetricKit integration for system-provided hang diagnostics. The `appHangTimeoutInterval` option remains supported for watchdog termination classification. (#8944)
 
 ### Features
 

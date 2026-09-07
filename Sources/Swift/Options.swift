@@ -394,12 +394,12 @@
     ///
     /// @note The default is @c true.
     /// - Deprecated: App Hang tracking can produce less relevant stack traces and false positives.
-    ///   Migrate to MetricKit for system-provided hang diagnostics.
+    ///   Enable the MetricKit integration for system-provided hang diagnostics.
     @objc public var enableReportNonFullyBlockingAppHangs: Bool {
         get {
             enableReportNonFullyBlockingAppHangsValue
         }
-        @available(*, deprecated, message: "App Hang tracking is deprecated and will be removed in v10 because it can produce less relevant stack traces and false positives. Migrate to MetricKit for system-provided hang diagnostics.")
+        @available(*, deprecated, message: "App Hang tracking is deprecated and will be removed in v10 because it can produce less relevant stack traces and false positives. Enable the MetricKit integration for system-provided hang diagnostics.", renamed: "enableMetricKit")
         set {
             enableReportNonFullyBlockingAppHangsValue = newValue
         }
@@ -585,12 +585,12 @@
     /// @note The default is @c true.
     /// @note App Hang tracking is automatically disabled if a debugger is attached.
     /// - Deprecated: App Hang tracking can produce less relevant stack traces and false positives.
-    ///   Migrate to MetricKit for system-provided hang diagnostics.
+    ///   Enable the MetricKit integration for system-provided hang diagnostics.
     @objc public var enableAppHangTracking: Bool {
         get {
             enableAppHangTrackingValue
         }
-        @available(*, deprecated, message: "App Hang tracking is deprecated and will be removed in v10 because it can produce less relevant stack traces and false positives. Migrate to MetricKit for system-provided hang diagnostics.")
+        @available(*, deprecated, message: "App Hang tracking is deprecated and will be removed in v10 because it can produce less relevant stack traces and false positives. Enable the MetricKit integration for system-provided hang diagnostics.", renamed: "enableMetricKit")
         set {
             enableAppHangTrackingValue = newValue
         }

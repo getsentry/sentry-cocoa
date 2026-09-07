@@ -442,12 +442,13 @@ NS_ASSUME_NONNULL_BEGIN
  * @note The default is @c YES.
  * @note App Hang tracking is automatically disabled if a debugger is attached.
  * @deprecated App Hang tracking can produce less relevant stack traces and false positives.
- * Migrate to MetricKit for system-provided hang diagnostics.
+ * Enable the MetricKit integration for system-provided hang diagnostics.
  */
-@property (nonatomic) BOOL enableAppHangTracking
-    __attribute__((deprecated("App Hang tracking is deprecated and will be removed in v10 because "
-                              "it can produce less relevant stack traces and false positives. "
-                              "Migrate to MetricKit for system-provided hang diagnostics.")));
+@property (nonatomic) BOOL enableAppHangTracking __attribute__((
+    deprecated("App Hang tracking is deprecated and will be removed in v10 because "
+               "it can produce less relevant stack traces and false positives. "
+               "Enable the MetricKit integration for system-provided hang diagnostics.",
+        "enableMetricKit")));
 #endif // !SDK_V10
 
 /**
@@ -639,12 +640,13 @@ NS_ASSUME_NONNULL_BEGIN
  * when the app appears stuck to the user but can still render a few frames.
  * @note The default is @c YES.
  * @deprecated App Hang tracking can produce less relevant stack traces and false positives.
- * Migrate to MetricKit for system-provided hang diagnostics.
+ * Enable the MetricKit integration for system-provided hang diagnostics.
  */
-@property (nonatomic) BOOL enableReportNonFullyBlockingAppHangs
-    __attribute__((deprecated("App Hang tracking is deprecated and will be removed in v10 because "
-                              "it can produce less relevant stack traces and false positives. "
-                              "Migrate to MetricKit for system-provided hang diagnostics.")));
+@property (nonatomic) BOOL enableReportNonFullyBlockingAppHangs __attribute__((
+    deprecated("App Hang tracking is deprecated and will be removed in v10 because "
+               "it can produce less relevant stack traces and false positives. "
+               "Enable the MetricKit integration for system-provided hang diagnostics.",
+        "enableMetricKit")));
 #    endif // !SDK_V10
 
 #endif
