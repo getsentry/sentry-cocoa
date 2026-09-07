@@ -299,6 +299,20 @@ import Foundation
         set { wrapped.enablePersistingTracesWhenCrashing = newValue }
     }
 
+#if os(iOS) || os(macOS)
+    @objc public var configureProfiling: ((SentryObjCProfileOptions) -> Void)? {
+        didSet {
+            if let configureProfiling {
+                wrapped.configureProfiling = { profiling in
+                    configureProfiling(SentryObjCProfileOptions(profiling))
+                }
+            } else {
+                wrapped.configureProfiling = nil
+            }
+        }
+    }
+#endif // os(iOS) || os(macOS)
+
     @objc public var initialScope: ((SentryObjCScope) -> SentryObjCScope) = { return $0 } {
         didSet {
             let initialScope = initialScope
@@ -385,7 +399,7 @@ import Foundation
 
     #endif
 
-    #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+    #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
     @objc public var sessionReplay: SentryObjCReplayOptions {
         get { SentryObjCReplayOptions(wrapped.sessionReplay) }
