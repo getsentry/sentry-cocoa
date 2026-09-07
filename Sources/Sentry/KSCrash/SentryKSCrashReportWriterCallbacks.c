@@ -1,11 +1,20 @@
 #if SDK_V10
 
 #    include "SentryKSCrashReportWriterCallbacks.h"
-#    include "KSCrashMonitor.h"
 #    include "SentryAsyncSafeLog.h"
+#    include "SentryFileIO.h"
 #    include "SentryScopeSyncC.h"
+#    include <dirent.h>
+#    include <errno.h>
+#    include <fcntl.h>
 #    include <inttypes.h>
-#    include <stddef.h>
+#    include <limits.h>
+#    include <stdatomic.h>
+#    include <stdbool.h>
+#    include <stdio.h>
+#    include <string.h>
+#    include <sys/stat.h>
+#    include <unistd.h>
 
 const char *const sentrykscrash_attachmentsMonitorID = "SentryAttachments";
 
@@ -149,15 +158,8 @@ sentrykscrash_didWriteReport(const KSCrash_ExceptionHandlingPlan *const plan, in
         return;
     }
 
-    const KSCrashMonitorAPI *api = kscm_getMonitor(sentrykscrash_attachmentsMonitorID);
-    if (api == NULL) {
-        SENTRY_ASYNC_SAFE_LOG_DEBUG(
-            "Skipping crash attachments: SentryAttachments monitor not found");
-        return;
-    }
-
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Capturing crash attachments for reportID %" PRId64, reportID);
-    sentrykscrash_attachments_handleDidWriteReport(api->context, reportID);
+    sentrykscrash_attachments_capture(reportID);
 
 #    if SENTRY_DISABLE_SENTRYCRASH_V10
     // KSCRASH_TODO(GH-8273, GH-8532): Capture crash-time view hierarchy into the report
@@ -168,6 +170,208 @@ sentrykscrash_didWriteReport(const KSCrash_ExceptionHandlingPlan *const plan, in
     // KSCRASH_TODO(GH-8735): Persist the active transaction bound to the scope. Acceptance:
     // SCV10-027 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
 #    endif
+}
+
+static atomic_bool g_attachmentsEnabled = false;
+static SentryKSCrashAttachmentsScreenshotWriter g_screenshotWriter;
+static KSCrashReportSidecarPathProviderFunc g_getSidecarPath;
+
+static const unsigned char kMarkerHeader[] = { 0xDE, 0xAD, 0xBE, 0xEF, 1 };
+
+void
+sentrykscrash_attachments_setEnabled(bool enabled)
+{
+    atomic_store_explicit(&g_attachmentsEnabled, enabled, memory_order_release);
+}
+
+void
+sentrykscrash_attachments_setScreenshotWriter(SentryKSCrashAttachmentsScreenshotWriter writer)
+{
+    g_screenshotWriter = writer;
+}
+
+void
+sentrykscrash_attachments_setSidecarPathProvider(KSCrashReportSidecarPathProviderFunc provider)
+{
+    g_getSidecarPath = provider;
+}
+
+static bool
+isHexChar(char c)
+{
+    return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
+}
+
+static bool
+makePath(char *path)
+{
+    for (char *p = path + 1; *p != '\0'; p++) {
+        if (*p != '/') {
+            continue;
+        }
+        *p = '\0';
+        if (mkdir(path, 0755) != 0 && errno != EEXIST) {
+            *p = '/';
+            return false;
+        }
+        *p = '/';
+    }
+    if (mkdir(path, 0755) != 0 && errno != EEXIST) {
+        return false;
+    }
+    return true;
+}
+
+/** `.../Sidecars/SentryAttachments/<16-hex>.ksscr` → `.../SentryAttachments/<16-hex>/` */
+static bool
+payloadDirectoryFromSidecar(const char *sidecarPath, char *out, size_t outSize)
+{
+    char buf[PATH_MAX];
+    if (strlcpy(buf, sidecarPath, sizeof(buf)) >= sizeof(buf)) {
+        return false;
+    }
+
+    char *fileSlash = strrchr(buf, '/');
+    if (fileSlash == NULL) {
+        return false;
+    }
+    *fileSlash = '\0';
+    const char *fileName = fileSlash + 1;
+    if (strlen(fileName) != 22 || strcmp(fileName + 16, ".ksscr") != 0) {
+        return false;
+    }
+    char reportIDHex[17];
+    memcpy(reportIDHex, fileName, 16);
+    reportIDHex[16] = '\0';
+    for (int i = 0; i < 16; i++) {
+        if (!isHexChar(reportIDHex[i])) {
+            return false;
+        }
+    }
+
+    char *monitorSlash = strrchr(buf, '/');
+    if (monitorSlash == NULL || strcmp(monitorSlash + 1, "SentryAttachments") != 0) {
+        return false;
+    }
+    *monitorSlash = '\0';
+
+    char *sidecarsSlash = strrchr(buf, '/');
+    if (sidecarsSlash == NULL || strcmp(sidecarsSlash + 1, "Sidecars") != 0) {
+        return false;
+    }
+    *sidecarsSlash = '\0';
+
+    int written = snprintf(out, outSize, "%s/SentryAttachments/%s", buf, reportIDHex);
+    return written > 0 && (size_t)written < outSize;
+}
+
+static bool
+directoryHasFiles(const char *path)
+{
+    DIR *dir = opendir(path);
+    if (dir == NULL) {
+        return false;
+    }
+    bool found = false;
+    struct dirent *entry;
+    while ((entry = readdir(dir)) != NULL) {
+        if (entry->d_name[0] == '.') {
+            continue;
+        }
+        found = true;
+        break;
+    }
+    closedir(dir);
+    return found;
+}
+
+static bool
+writeMarker(const char *sidecarPath)
+{
+    int fd = open(sidecarPath, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    if (fd < 0) {
+        SENTRY_ASYNC_SAFE_LOG_DEBUG(
+            "Failed to open attachments marker %s: %s", sidecarPath, SENTRY_STRERROR_R(errno));
+        return false;
+    }
+    bool ok = sentryFileIO_writeBytesToFD(fd, kMarkerHeader, sizeof(kMarkerHeader));
+    if (ok && fsync(fd) != 0) {
+        ok = false;
+    }
+    close(fd);
+    return ok;
+}
+
+void
+sentrykscrash_attachments_capture(int64_t reportID)
+{
+    if (!atomic_load_explicit(&g_attachmentsEnabled, memory_order_acquire)) {
+        SENTRY_ASYNC_SAFE_LOG_DEBUG(
+            "Not capturing attachments for reportID %" PRId64 ": monitor is not enabled", reportID);
+        return;
+    }
+    if (reportID <= 0) {
+        SENTRY_ASYNC_SAFE_LOG_DEBUG(
+            "Not capturing attachments: invalid reportID %" PRId64, reportID);
+        return;
+    }
+    if (g_screenshotWriter == NULL) {
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Not capturing attachments for reportID %" PRId64
+                                    ": screenshot writer is not set",
+            reportID);
+        return;
+    }
+    if (g_getSidecarPath == NULL) {
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Not capturing attachments for reportID %" PRId64
+                                    ": sidecar path provider is missing",
+            reportID);
+        return;
+    }
+
+    char sidecarPath[PATH_MAX];
+    if (!g_getSidecarPath(
+            sentrykscrash_attachmentsMonitorID, reportID, sidecarPath, sizeof(sidecarPath))) {
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Not capturing attachments for reportID %" PRId64
+                                    ": sidecar path is unavailable",
+            reportID);
+        return;
+    }
+
+    char payloadDirectory[PATH_MAX];
+    if (!payloadDirectoryFromSidecar(sidecarPath, payloadDirectory, sizeof(payloadDirectory))) {
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Not capturing attachments for reportID %" PRId64
+                                    ": payload directory could not be derived from %s",
+            reportID, sidecarPath);
+        return;
+    }
+
+    if (!makePath(payloadDirectory)) {
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Failed to create payload directory %s: %s", payloadDirectory,
+            SENTRY_STRERROR_R(errno));
+        return;
+    }
+
+    g_screenshotWriter(payloadDirectory);
+
+    if (!directoryHasFiles(payloadDirectory)) {
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("No attachment files written for reportID %" PRId64
+                                    ", removing payload directory",
+            reportID);
+        rmdir(payloadDirectory);
+        return;
+    }
+
+    if (!writeMarker(sidecarPath)) {
+        return;
+    }
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("Wrote attachments marker for reportID %" PRId64, reportID);
+}
+
+void
+sentrykscrash_attachments_handleDidWriteReport(void *context, int64_t reportID)
+{
+    (void)context;
+    sentrykscrash_attachments_capture(reportID);
 }
 
 #endif // SDK_V10

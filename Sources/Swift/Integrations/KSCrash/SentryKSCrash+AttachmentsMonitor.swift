@@ -54,21 +54,6 @@ extension SentryKSCrash {
                 return bytes
             }()
 
-            static func initialize() {
-                _ = header
-            }
-
-            @discardableResult
-            static func write(to sidecarPath: URL) -> Bool {
-                do {
-                    try header.write(to: sidecarPath, options: [])
-                    return true
-                } catch {
-                    SentrySDKLog.debug("Failed to write attachments marker at \(sidecarPath.path): \(error)")
-                    return false
-                }
-            }
-
             static func isValid(at sidecarPath: URL) -> Bool {
                 (try? Data(contentsOf: sidecarPath)) == header
             }
@@ -150,14 +135,18 @@ extension SentryKSCrash {
         }
 
         private let state = SentryMutex(MonitorState())
-        private var captureEnabled = false
-        private var captureCallbacks: KSCrash_ExceptionHandlerCallbacks?
 
         private let _monitorId: UnsafeMutablePointer<CChar> = strdup(sentrykscrash_attachmentsMonitorID)
 
-        /// Writes screenshot files into the per-report payload directory. Invoked on the crash
-        /// thread after the JSON report is on disk; must not hop to the main queue.
-        var screenshotProvider: CrashTimeWriter?
+        /// Screenshot writer invoked from C on the crash thread. Must not hop to main.
+        var screenshotProvider: CrashTimeWriter? {
+            didSet {
+                attachmentsCrashTimeWriter = screenshotProvider
+                sentrykscrash_attachments_setScreenshotWriter(
+                    screenshotProvider == nil ? nil : attachmentsCrashTimeWrite
+                )
+            }
+        }
 
         let api: UnsafeMutablePointer<KSCrashMonitorAPI>
 
@@ -165,7 +154,6 @@ extension SentryKSCrash {
             self.api = UnsafeMutablePointer<KSCrashMonitorAPI>.allocate(capacity: 1)
             super.init()
             initAPI()
-            Marker.initialize()
         }
 
         deinit {
@@ -250,7 +238,7 @@ extension SentryKSCrash.AttachmentsMonitor {
         get { state.withLock { $0.enabled } }
         set {
             state.withLock { $0.enabled = newValue }
-            captureEnabled = newValue
+            sentrykscrash_attachments_setEnabled(newValue)
         }
     }
 
@@ -258,7 +246,7 @@ extension SentryKSCrash.AttachmentsMonitor {
         get { state.withLock { $0.callbacks } }
         set {
             state.withLock { $0.callbacks = newValue }
-            captureCallbacks = newValue
+            sentrykscrash_attachments_setSidecarPathProvider(newValue?.getReportSidecarPath)
         }
     }
 }
@@ -266,71 +254,7 @@ extension SentryKSCrash.AttachmentsMonitor {
 // MARK: - Crash-time capture
 extension SentryKSCrash.AttachmentsMonitor {
     func handleDidWriteReport(reportID: Int64) {
-        guard captureEnabled else {
-            SentrySDKLog.debug("Not running handleDidWriteReport for reportID: \(reportID) because monitor is not enabled")
-            return
-        }
-        guard reportID > 0 else {
-            SentrySDKLog.debug("Not running handleDidWriteReport for reportID: \(reportID) because reportID is not valid")
-            return
-        }
-        guard let screenshotProvider else {
-            SentrySDKLog.debug("Not running handleDidWriteReport for reportID: \(reportID) because screenshotProvider was not set")
-            return
-        }
-        guard let sidecarPath = sidecarPath(for: reportID) else {
-            SentrySDKLog.debug("Not running handleDidWriteReport for reportID: \(reportID) because sidecar path is unavailable")
-            return
-        }
-        guard let payloadDirectory = Layout.payloadDirectory(from: sidecarPath) else {
-            SentrySDKLog.debug("Not running handleDidWriteReport for reportID: \(reportID) because payload directory could not be derived")
-            return
-        }
-
-        do {
-            try FileManager.default.createDirectory(
-                at: payloadDirectory,
-                withIntermediateDirectories: true
-            )
-        } catch {
-            SentrySDKLog.debug("Failed to create directory: \(payloadDirectory)")
-            return
-        }
-
-        screenshotProvider(payloadDirectory)
-
-        let attachments = Layout.files(in: payloadDirectory)
-        guard !attachments.isEmpty else {
-            SentrySDKLog.debug("No attachment files written for reportID: \(reportID), removing payload directory")
-            try? FileManager.default.removeItem(at: payloadDirectory)
-            return
-        }
-
-        // Last on purpose: without this file KSCrash will not stitch the report.
-        guard Marker.write(to: sidecarPath) else {
-            return
-        }
-        SentrySDKLog.debug("Wrote attachments marker for reportID: \(reportID) with \(attachments.count) file(s)")
-    }
-
-    func sidecarPath(for reportID: Int64) -> URL? {
-        guard let getReportSidecarPath = captureCallbacks?.getReportSidecarPath else {
-            SentrySDKLog.debug("Failed to get report sidecar path for reportID: \(reportID) because getReportSidecarPath is unavailable")
-            return nil
-        }
-
-        var pathBuffer = [CChar](repeating: 0, count: Int(PATH_MAX))
-        let copied = pathBuffer.withUnsafeMutableBufferPointer { buffer -> Bool in
-            guard let base = buffer.baseAddress else { return false }
-            return getReportSidecarPath(self._monitorId, reportID, base, buffer.count)
-        }
-
-        guard copied else {
-            SentrySDKLog.debug("Failed to get report sidecar path for reportID: \(reportID)")
-            return nil
-        }
-
-        return URL(fileURLWithPath: String(cString: pathBuffer))
+        sentrykscrash_attachments_capture(reportID)
     }
 }
 
@@ -388,12 +312,9 @@ extension SentryKSCrash.AttachmentsMonitor {
     }
 }
 
-@_cdecl("sentrykscrash_attachments_handleDidWriteReport")
-func sentrykscrash_attachments_handleDidWriteReport(_ context: UnsafeMutableRawPointer?, _ reportID: Int64) {
-    guard let monitor = SentryKSCrash.AttachmentsMonitor.from(context) else {
-        SentrySDKLog.debug("Not running handleDidWriteReport for reportID: \(reportID) because monitor context is nil")
-        return
-    }
-    monitor.handleDidWriteReport(reportID: reportID)
+private nonisolated(unsafe) var attachmentsCrashTimeWriter: SentryKSCrash.AttachmentsMonitor.CrashTimeWriter?
+
+private let attachmentsCrashTimeWrite: @convention(c) (UnsafePointer<CChar>) -> Void = { path in
+    attachmentsCrashTimeWriter?(URL(fileURLWithPath: String(cString: path)))
 }
 #endif

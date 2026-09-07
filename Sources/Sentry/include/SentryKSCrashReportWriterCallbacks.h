@@ -6,6 +6,7 @@
 #    include "KSCrashMonitorContext.h"
 #    include "KSCrashReportWriter.h"
 #    include "KSCrashReportWriterCallbacks.h"
+#    include <stdbool.h>
 #    include <stdint.h>
 
 #    ifdef __cplusplus
@@ -24,7 +25,17 @@ void sentrykscrash_didWriteReport(
 /** KSCrash plugin ID for crash-time attachments. Must match the Swift monitor ID. */
 extern const char *const _Nonnull sentrykscrash_attachmentsMonitorID;
 
-/** Looks up the SentryAttachments plugin and captures crash-time attachments. */
+typedef void (*SentryKSCrashAttachmentsScreenshotWriter)(const char *_Nonnull payloadDirectory);
+
+void sentrykscrash_attachments_setEnabled(bool enabled);
+void sentrykscrash_attachments_setScreenshotWriter(
+    SentryKSCrashAttachmentsScreenshotWriter _Nullable writer);
+void sentrykscrash_attachments_setSidecarPathProvider(
+    KSCrashReportSidecarPathProviderFunc _Nullable provider);
+
+/** Crash-time capture. No Swift, no locks, no heap. */
+void sentrykscrash_attachments_capture(int64_t reportID);
+
 void sentrykscrash_attachments_handleDidWriteReport(void *_Nullable context, int64_t reportID);
 
 #    ifdef __cplusplus
