@@ -658,9 +658,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     return [self sendEvent:event withSession:session withScope:scope hint:hint];
 }
 
-// The hint's attachments must already be populated by every caller, either directly through
-// populateHintAttachments:scope:isFatalEvent: or before running prepareEvent, so that
-// beforeSendWithHint can add and remove attachments.
 - (SentryId *)sendEvent:(SentryEvent *)event
             withSession:(nullable SentrySession *)session
               withScope:(SentryScope *)scope
@@ -1138,7 +1135,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         if (self.options.beforeSendWithHint != nil) {
             event
                 = self.options.beforeSendWithHint(SENTRY_UNWRAP_NULLABLE(SentryEvent, event), hint);
-        } else if (nil != self.options.beforeSend) {
+        } else if (self.options.beforeSend != nil) {
             event = self.options.beforeSend(SENTRY_UNWRAP_NULLABLE(SentryEvent, event));
         }
         if (event == nil) {
