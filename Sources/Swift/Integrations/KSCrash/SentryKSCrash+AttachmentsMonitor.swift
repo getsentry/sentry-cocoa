@@ -47,31 +47,30 @@ extension SentryKSCrash {
             static let version: UInt8 = 1
             static let magic: [UInt8] = [0xDE, 0xAD, 0xBE, 0xEF]
 
-            private static var header: Data = {
+            private static let header: Data = {
                 var bytes = Data(capacity: magic.count + 1)
                 bytes.append(contentsOf: magic)
                 bytes.append(version)
-
                 return bytes
             }()
 
-            static func write(to sidecarPath: URL) {
+            static func initialize() {
+                _ = header
+            }
+
+            @discardableResult
+            static func write(to sidecarPath: URL) -> Bool {
                 do {
-                    try header.write(to: sidecarPath, options: .atomic)
+                    try header.write(to: sidecarPath, options: [])
+                    return true
                 } catch {
                     SentrySDKLog.debug("Failed to write attachments marker at \(sidecarPath.path): \(error)")
+                    return false
                 }
             }
 
             static func isValid(at sidecarPath: URL) -> Bool {
-                guard
-                    let data = try? Data(contentsOf: sidecarPath),
-                    data == header
-                else {
-                    return false
-                }
-
-                return true
+                (try? Data(contentsOf: sidecarPath)) == header
             }
         }
 
@@ -170,6 +169,7 @@ extension SentryKSCrash {
             self.api = UnsafeMutablePointer<KSCrashMonitorAPI>.allocate(capacity: 1)
             super.init()
             initAPI()
+            Marker.initialize()
         }
 
         deinit {
@@ -307,7 +307,9 @@ extension SentryKSCrash.AttachmentsMonitor {
         }
 
         // Last on purpose: without this file KSCrash will not stitch the report.
-        Marker.write(to: sidecarPath)
+        guard Marker.write(to: sidecarPath) else {
+            return
+        }
         SentrySDKLog.debug("Wrote attachments marker for reportID: \(reportID) with \(attachments.count) file(s)")
     }
 
