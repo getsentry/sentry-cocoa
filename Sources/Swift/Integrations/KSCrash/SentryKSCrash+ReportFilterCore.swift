@@ -175,7 +175,7 @@ extension SentryKSCrash {
         private static func removeConsumedPayloads(from report: [AnyHashable: Any]) {
             let paths = report[SentryKSCrash.AttachmentsMonitor.attachmentsReportKey] as? [String] ?? []
             SentryKSCrash.AttachmentsMonitor.Layout.removeConsumedPayloadDirectories(
-                for: paths
+                for: paths.map { URL(fileURLWithPath: $0) }
             )
         }
 

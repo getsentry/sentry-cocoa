@@ -56,7 +56,11 @@ extension SentryKSCrash {
             }()
 
             static func write(to sidecarPath: URL) {
-                try? header.write(to: sidecarPath, options: .atomic)
+                do {
+                    try header.write(to: sidecarPath, options: .atomic)
+                } catch {
+                    SentrySDKLog.debug("Failed to write attachments marker at \(sidecarPath.path): \(error)")
+                }
             }
 
             static func isValid(at sidecarPath: URL) -> Bool {
@@ -80,13 +84,28 @@ extension SentryKSCrash {
             /// `.../Sidecars/SentryAttachments/<reportID>.ksscr` → `.../SentryAttachments/<reportID>/`
             static func payloadDirectory(from sidecarPath: URL) -> URL? {
                 let monitorDirectory = sidecarPath.deletingLastPathComponent()
-                guard monitorDirectory.lastPathComponent == monitorID else { return nil }
+                guard monitorDirectory.lastPathComponent == monitorID else {
+                    SentrySDKLog.debug(
+                        "Not deriving payload directory because monitor directory is \(monitorDirectory.lastPathComponent), expected \(monitorID)"
+                    )
+                    return nil
+                }
 
                 let sidecarsDirectory = monitorDirectory.deletingLastPathComponent()
-                guard sidecarsDirectory.lastPathComponent == sidecarsDirectoryName else { return nil }
+                guard sidecarsDirectory.lastPathComponent == sidecarsDirectoryName else {
+                    SentrySDKLog.debug(
+                        "Not deriving payload directory because sidecars directory is \(sidecarsDirectory.lastPathComponent), expected \(sidecarsDirectoryName)"
+                    )
+                    return nil
+                }
 
                 let reportIDHex = sidecarPath.deletingPathExtension().lastPathComponent
-                guard reportIDHex.count == 16 else { return nil }
+                guard reportIDHex.count == 16 else {
+                    SentrySDKLog.debug(
+                        "Not deriving payload directory because report id '\(reportIDHex)' is not 16 hex characters"
+                    )
+                    return nil
+                }
 
                 return sidecarsDirectory
                     .deletingLastPathComponent()
@@ -100,6 +119,7 @@ extension SentryKSCrash {
                     includingPropertiesForKeys: [.isRegularFileKey],
                     options: [.skipsHiddenFiles]
                 ) else {
+                    SentrySDKLog.debug("Failed to list attachment files in \(payloadDirectory.path)")
                     return []
                 }
 
@@ -108,9 +128,9 @@ extension SentryKSCrash {
                 }
             }
 
-            static func removeConsumedPayloadDirectories(for attachmentPaths: [String]) {
+            static func removeConsumedPayloadDirectories(for attachmentPaths: [URL]) {
                 let directories = attachmentPaths
-                    .map { URL(fileURLWithPath: $0).deletingLastPathComponent() }
+                    .map { $0.deletingLastPathComponent() }
                     .filter { path in
                         let id = path.lastPathComponent
 
@@ -164,7 +184,10 @@ extension SentryKSCrash {
         }
 
         private static let monitorIDCallback: MonitorIDCallback = { context in
-            guard let monitor = SentryKSCrash.AttachmentsMonitor.from(context) else { return nil }
+            guard let monitor = SentryKSCrash.AttachmentsMonitor.from(context) else {
+                SentrySDKLog.debug("Attachments monitor context is nil when reading monitor ID")
+                return nil
+            }
             return UnsafePointer(monitor._monitorId)
         }
 
@@ -183,8 +206,12 @@ extension SentryKSCrash {
         private static let notifyPostSystemEnableCallback: NotifyCallback = { _ in }
 
         private static let createStitchedReportCallback: StitchCallback = { reportDict, sidecarPath, scope, context in
-            guard let reportDict else { return nil }
+            guard let reportDict else {
+                SentrySDKLog.debug("Not stitching attachments because KSCrash report dictionary is nil")
+                return nil
+            }
             guard let monitor = SentryKSCrash.AttachmentsMonitor.from(context) else {
+                SentrySDKLog.debug("Not stitching attachments because monitor context is nil")
                 return Unmanaged.passRetained(reportDict)
             }
             return monitor.stitchedReport(
@@ -251,11 +278,12 @@ extension SentryKSCrash.AttachmentsMonitor {
             SentrySDKLog.debug("Not running handleDidWriteReport for reportID: \(reportID) because screenshotProvider was not set")
             return
         }
-        guard
-            let sidecarPath = sidecarPath(for: reportID),
-            let payloadDirectory = Layout.payloadDirectory(from: sidecarPath)
-        else {
-            SentrySDKLog.debug("Failed to get report sidecar or payload path for reportID: \(reportID)")
+        guard let sidecarPath = sidecarPath(for: reportID) else {
+            SentrySDKLog.debug("Not running handleDidWriteReport for reportID: \(reportID) because sidecar path is unavailable")
+            return
+        }
+        guard let payloadDirectory = Layout.payloadDirectory(from: sidecarPath) else {
+            SentrySDKLog.debug("Not running handleDidWriteReport for reportID: \(reportID) because payload directory could not be derived")
             return
         }
 
@@ -273,16 +301,21 @@ extension SentryKSCrash.AttachmentsMonitor {
 
         let attachments = Layout.files(in: payloadDirectory)
         guard !attachments.isEmpty else {
+            SentrySDKLog.debug("No attachment files written for reportID: \(reportID), removing payload directory")
             try? FileManager.default.removeItem(at: payloadDirectory)
             return
         }
 
         // Last on purpose: without this file KSCrash will not stitch the report.
         Marker.write(to: sidecarPath)
+        SentrySDKLog.debug("Wrote attachments marker for reportID: \(reportID) with \(attachments.count) file(s)")
     }
 
     func sidecarPath(for reportID: Int64) -> URL? {
-        guard let getReportSidecarPath = callbacks?.getReportSidecarPath else { return nil }
+        guard let getReportSidecarPath = callbacks?.getReportSidecarPath else {
+            SentrySDKLog.debug("Failed to get report sidecar path for reportID: \(reportID) because getReportSidecarPath is unavailable")
+            return nil
+        }
 
         var pathBuffer = [CChar](repeating: 0, count: Int(PATH_MAX))
         let copied = pathBuffer.withUnsafeMutableBufferPointer { buffer -> Bool in
@@ -307,19 +340,29 @@ extension SentryKSCrash.AttachmentsMonitor {
         sidecarPath: UnsafePointer<CChar>?,
         scope: KSCrashSidecarScope
     ) -> Unmanaged<CFDictionary> {
-        guard scope == KSCrashSidecarScopeReport, let sidecarPath else {
+        guard scope == KSCrashSidecarScopeReport else {
+            SentrySDKLog.debug("Not stitching attachments because sidecar scope is not report")
+            return Unmanaged.passRetained(reportDict)
+        }
+        guard let sidecarPath else {
+            SentrySDKLog.debug("Not stitching attachments because sidecar path is nil")
             return Unmanaged.passRetained(reportDict)
         }
 
         let sidecar = URL(fileURLWithPath: String(cString: sidecarPath))
-        guard Marker.isValid(at: sidecar),
-              let payloadDirectory = Layout.payloadDirectory(from: sidecar)
-        else {
+        guard Marker.isValid(at: sidecar) else {
+            SentrySDKLog.debug("Not stitching attachments because marker is missing or invalid at \(sidecar.path)")
+            return Unmanaged.passRetained(reportDict)
+        }
+        guard let payloadDirectory = Layout.payloadDirectory(from: sidecar) else {
+            SentrySDKLog.debug("Not stitching attachments because payload directory could not be derived from \(sidecar.path)")
             return Unmanaged.passRetained(reportDict)
         }
 
         let incoming = Layout.files(in: payloadDirectory).map(\.path)
+
         guard !incoming.isEmpty else {
+            SentrySDKLog.debug("Not stitching attachments because payload directory is empty at \(payloadDirectory.path)")
             return Unmanaged.passRetained(reportDict)
         }
 
@@ -332,17 +375,23 @@ extension SentryKSCrash.AttachmentsMonitor {
             seen.insert(path)
         }
         guard merged != existing else {
+            SentrySDKLog.debug("Not stitching attachments because report already contains the payload paths")
             return Unmanaged.passRetained(reportDict)
         }
 
         let stitched = NSMutableDictionary(dictionary: original)
         stitched[Self.attachmentsReportKey] = merged
+        SentrySDKLog.debug("Stitched \(incoming.count) attachment path(s) into crash report")
         return Unmanaged.passRetained(stitched as CFDictionary)
     }
 }
 
 @_cdecl("sentrykscrash_attachments_handleDidWriteReport")
 func sentrykscrash_attachments_handleDidWriteReport(_ context: UnsafeMutableRawPointer?, _ reportID: Int64) {
-    SentryKSCrash.AttachmentsMonitor.from(context)?.handleDidWriteReport(reportID: reportID)
+    guard let monitor = SentryKSCrash.AttachmentsMonitor.from(context) else {
+        SentrySDKLog.debug("Not running handleDidWriteReport for reportID: \(reportID) because monitor context is nil")
+        return
+    }
+    monitor.handleDidWriteReport(reportID: reportID)
 }
 #endif

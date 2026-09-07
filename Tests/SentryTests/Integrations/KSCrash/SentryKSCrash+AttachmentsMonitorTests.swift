@@ -194,7 +194,7 @@ final class SentryKSCrashAttachmentsMonitorTests: XCTestCase {
 
         // -- Act --
         SentryKSCrash.AttachmentsMonitor.Layout.removeConsumedPayloadDirectories(
-            for: [file.path]
+            for: [file]
         )
 
         // -- Assert --
@@ -213,7 +213,7 @@ final class SentryKSCrashAttachmentsMonitorTests: XCTestCase {
 
         // -- Act --
         SentryKSCrash.AttachmentsMonitor.Layout.removeConsumedPayloadDirectories(
-            for: [first.path, second.path]
+            for: [first, second]
         )
 
         // -- Assert --
@@ -229,7 +229,7 @@ final class SentryKSCrashAttachmentsMonitorTests: XCTestCase {
 
         // -- Act --
         SentryKSCrash.AttachmentsMonitor.Layout.removeConsumedPayloadDirectories(
-            for: [file.path]
+            for: [file]
         )
 
         // -- Assert --

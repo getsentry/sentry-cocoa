@@ -2,7 +2,9 @@
 
 #    include "SentryKSCrashReportWriterCallbacks.h"
 #    include "KSCrashMonitor.h"
+#    include "SentryAsyncSafeLog.h"
 #    include "SentryScopeSyncC.h"
+#    include <inttypes.h>
 #    include <stddef.h>
 
 const char *const sentrykscrash_attachmentsMonitorID = "SentryAttachments";
@@ -43,6 +45,7 @@ writeScope(const KSCrashReportWriter *const writer)
 {
     SentryCrashScope *scope = sentrycrash_scopesync_getScope();
     if (scope == NULL) {
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Skipping scope write: no synced scope");
         return;
     }
 
@@ -88,38 +91,73 @@ void
 sentrykscrash_willWriteReport(
     KSCrash_ExceptionHandlingPlan *const plan, const struct KSCrash_MonitorContext *context)
 {
-    (void)plan;
     (void)context;
+    if (plan == NULL) {
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("willWriteReport: plan is NULL");
+        return;
+    }
+
+    SENTRY_ASYNC_SAFE_LOG_TRACE(
+        "willWriteReport isFatal=%d isCleanExit=%d crashedDuringExceptionHandling=%d",
+        plan->isFatal, plan->isCleanExit, plan->crashedDuringExceptionHandling);
 }
 
 void
 sentrykscrash_isWritingReport(
     const KSCrash_ExceptionHandlingPlan *const plan, const KSCrashReportWriter *const writer)
 {
+    SENTRY_ASYNC_SAFE_LOG_TRACE("isWritingReport");
     if (writer == NULL) {
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Skipping scope write: writer is NULL");
         return;
     }
 
     // Recrash: only record enough to diagnose the handler itself.
     if (plan != NULL && plan->crashedDuringExceptionHandling) {
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Skipping scope write: crashed during exception handling");
         return;
     }
 
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("Writing SDK scope into crash report");
     writeScope(writer);
 }
 
 void
 sentrykscrash_didWriteReport(const KSCrash_ExceptionHandlingPlan *const plan, int64_t reportID)
 {
-    if (plan == NULL || !plan->isFatal || plan->isCleanExit || plan->crashedDuringExceptionHandling
-        || reportID <= 0) {
+    SENTRY_ASYNC_SAFE_LOG_TRACE("didWriteReport reportID=%" PRId64, reportID);
+    if (plan == NULL) {
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Skipping crash attachments: plan is NULL");
+        return;
+    }
+    if (!plan->isFatal) {
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Skipping crash attachments: exception is not fatal");
+        return;
+    }
+    if (plan->isCleanExit) {
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Skipping crash attachments: clean exit");
+        return;
+    }
+    if (plan->crashedDuringExceptionHandling) {
+        SENTRY_ASYNC_SAFE_LOG_DEBUG(
+            "Skipping crash attachments: crashed during exception handling");
+        return;
+    }
+    if (reportID <= 0) {
+        SENTRY_ASYNC_SAFE_LOG_DEBUG(
+            "Skipping crash attachments: invalid reportID %" PRId64, reportID);
         return;
     }
 
     const KSCrashMonitorAPI *api = kscm_getMonitor(sentrykscrash_attachmentsMonitorID);
-    if (api != NULL) {
-        sentrykscrash_attachments_handleDidWriteReport(api->context, reportID);
+    if (api == NULL) {
+        SENTRY_ASYNC_SAFE_LOG_DEBUG(
+            "Skipping crash attachments: SentryAttachments monitor not found");
+        return;
     }
+
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("Capturing crash attachments for reportID %" PRId64, reportID);
+    sentrykscrash_attachments_handleDidWriteReport(api->context, reportID);
 
 #    if SENTRY_DISABLE_SENTRYCRASH_V10
     // KSCRASH_TODO(GH-8273, GH-8532): Capture crash-time view hierarchy into the report
