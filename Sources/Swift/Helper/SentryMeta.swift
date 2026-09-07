@@ -7,7 +7,7 @@ import Foundation
     ///
     /// `Utils/VersionBump` rewrites this during releases by matching the declaration below, so keep
     /// it on a single line and keep this the first version-shaped literal in the file.
-    @objc public static var versionString = "9.26.1"
+    @objc public static var versionString = "9.27.0"
 
     /// The SDK name reported to Sentry, e.g. `sentry.cocoa`.
     @objc public static var sdkName = "sentry.cocoa"

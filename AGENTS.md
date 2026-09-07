@@ -98,3 +98,4 @@ SentrySDK (public API)
 - Keep affected headerdocs, comments, maintainer docs, and specification compliance in sync with behavior changes
 - Append changelog entries to the end of their section
 - Place changelog alerts after `## Version` and before section headings
+- Each `##` version, including Unreleased, may only have one `###` heading of a given name
