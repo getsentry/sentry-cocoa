@@ -24,7 +24,8 @@ usage() {
     log_notice "  -m, --mode <add|remove> Add or remove the trait on YAML specs"
     log_notice "  -s, --spec <path>       XcodeGen YAML spec (all Samples/ specs when omitted)"
     log_notice "  -g, --generate          Copy each spec, add the trait, run xcodegen,"
-    log_notice "                          then delete the copy so committed YAML is unchanged"
+    log_notice "                          then delete the copy so committed YAML is unchanged."
+    log_notice "                          For V10, also define SDK_V10 on every app target"
     exit 1
 }
 
@@ -106,6 +107,20 @@ add_trait() {
         "$1"
 }
 
+# Package traits compile Sentry and SentrySampleShared with SDK_V10. App,
+# extension, and UI-test targets still need the flag on their own settings so
+# #if SDK_V10 in sample source matches the linked SDK after switch-v10.
+add_sdk_v10_flags() {
+    # $(inherited) must stay literal for Xcode; do not let the shell expand it.
+    # shellcheck disable=SC2016
+    yq -i '
+        .targets[] |= (
+            .settings.base.SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) SDK_V10" |
+            .settings.base.GCC_PREPROCESSOR_DEFINITIONS = "$(inherited) SDK_V10=1"
+        )
+    ' "$1"
+}
+
 remove_trait() {
     yq -i \
         "(.packages[] | select(has(\"path\"))).traits |= ((. // []) - [\"${TRAIT}\"]) | del(.packages[].traits | select(length == 0))" \
@@ -155,6 +170,9 @@ generate_from_spec() {
     trap 'rm -f "'"$tmp"'"' EXIT
     cp "$spec" "$tmp"
     add_trait "$tmp"
+    if [[ "$TRAIT" == "V10" ]]; then
+        add_sdk_v10_flags "$tmp"
+    fi
     begin_group "generate with trait '$TRAIT': $spec"
     xcodegen --spec "$tmp"
     log_info "  Generated"
