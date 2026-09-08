@@ -277,6 +277,38 @@ final class SentryWithCurrentScopeIntegrationTests: XCTestCase {
         XCTAssertEqual(envelopeTrace.traceId, span.traceId)
     }
 
+    func testWithCurrentScope_whenSpanHasNoTracer_shouldNotInheritUnrelatedTransactionName() throws {
+        // -- Arrange --
+        let transaction = SentryTracer(transactionContext: TransactionContext(name: "hub transaction", operation: "test"), hub: nil)
+        SentrySDKInternal.currentHub().scope.span = transaction
+        let context = SpanContext(operation: "test")
+        #if os(iOS) || os(tvOS) || os(visionOS)
+        let span = SentrySpanInternal(context: context, framesTracker: nil)
+        #else
+        let span = SentrySpanInternal(context: context)
+        #endif
+        defer {
+            span.finish()
+            transaction.finish()
+        }
+        let currentScope = SentrySDK.internal.scope.createScope()
+        currentScope.span = span
+        XCTAssertNil(span.tracer)
+        XCTAssertNotEqual(span.traceId, transaction.traceId)
+
+        // -- Act --
+        SentrySDK.internal.scope.withCurrentScope(currentScope) {
+            SentrySDK.capture(event: Event())
+        }
+
+        // -- Assert --
+        let captured = try XCTUnwrap(fixture.transportAdapter.sendEventWithTraceStateInvocations.last)
+        let trace = try XCTUnwrap(captured.event.context?["trace"])
+        XCTAssertEqual(trace["trace_id"] as? String, span.traceId.sentryIdString)
+        XCTAssertEqual(trace["span_id"] as? String, span.spanId.sentrySpanIdString)
+        XCTAssertNil(captured.event.transaction)
+    }
+
     func testWithCurrentScope_whenChildSpanIsBound_shouldCorrelateLog() throws {
         // -- Arrange --
         var capturedLog: SentryLog?
