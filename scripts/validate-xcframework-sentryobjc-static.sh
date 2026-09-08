@@ -61,17 +61,20 @@ if [ ${#STATIC_LIBRARIES[@]} -eq 0 ]; then
 fi
 
 for static_library in "${STATIC_LIBRARIES[@]}"; do
-    if ! nm_output="$(nm -ap "$static_library")"; then
-        log_error "Could not inspect static library debug maps: $static_library"
+    if ! nm -ap "$static_library" \
+        | awk '$5 == "OSO" { found = 1 } END { exit found }'; then
+        log_error "Static library contains debug-map references to external object files: $static_library"
         exit 1
     fi
-    if grep ' OSO ' <<< "$nm_output" > /dev/null; then
-        log_error "Static library contains debug-map references to external object files: $static_library"
+
+    if ! xcrun dwarfdump --show-section-sizes "$static_library" \
+        | awk '$1 == "Total" && $2 == "Size:" && $3 > 0 { found = 1 } END { exit !found }'; then
+        log_error "Static library does not contain full DWARF debug information: $static_library"
         exit 1
     fi
 done
 
-log_info "SentryObjC static libraries contain no external debug maps"
+log_info "SentryObjC static libraries contain full DWARF debug information"
 
 if [ "$BUILD_CONSUMER" = false ]; then
     exit 0

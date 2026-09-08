@@ -97,7 +97,7 @@ if [ "$VARIANT" = "dynamic" ] || [ "$VARIANT" = "both" ]; then
     for sdk in "${sdk_list[@]}"; do
         "$SCRIPT_DIR/build-dynamic-framework-sentryobjc.sh" \
             --sdk "$sdk" \
-            --static-lib "$OUTPUT_DIR/lib/SentryObjC/$sdk/libSentryObjC-Debug.a" \
+            --static-lib "$OUTPUT_DIR/lib/SentryObjC/$sdk/libSentryObjC.a" \
             --headers "$HEADERS_DIR" \
             --output-dir "$OUTPUT_DIR"
     done

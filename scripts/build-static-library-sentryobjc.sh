@@ -3,8 +3,7 @@
 # Builds a single SentryObjC static library slice via SPM.
 #
 # Archives the SentryObjC SPM scheme for a given SDK and merges its target
-# objects into two libraries: a stripped static distribution and an unstripped
-# intermediate used to generate the dynamic framework dSYM.
+# objects, including their full DWARF debug information, into libSentryObjC.a.
 
 set -euo pipefail
 
@@ -91,52 +90,85 @@ set -o pipefail && NSUnbufferedIO=YES xcodebuild archive \
     -derivedDataPath "$DERIVED_DATA" \
     SKIP_INSTALL=NO \
     BUILD_LIBRARY_FOR_DISTRIBUTION=YES \
+    DEBUG_INFORMATION_FORMAT=dwarf \
+    CLANG_ENABLE_MODULE_DEBUGGING=NO \
+    OTHER_SWIFT_FLAGS="-Xfrontend -no-clang-module-breadcrumbs" \
     CODE_SIGNING_REQUIRED=NO \
     CODE_SIGN_IDENTITY= \
     ENABLE_CODE_COVERAGE=NO \
     2>&1 | tee "$ARCHIVE_DIR/$SDK.log" | xcbeautify --preserve-unbeautified
 end_group
 
-objects=()
-while IFS= read -r -d '' object; do
-    objects+=( "$object" )
-done < <(find "$archive_path/Products" -type f -name "*.o" -print0)
+link_file_list_root="$DERIVED_DATA/Build/Intermediates.noindex/ArchiveIntermediates/$SCHEME/IntermediateBuildFilesPath"
+architectures=()
+while IFS= read -r -d '' link_file_list; do
+    architecture="$(basename "$(dirname "$link_file_list")")"
+    if [ ${#architectures[@]} -eq 0 ] || [[ " ${architectures[*]} " != *" $architecture "* ]]; then
+        architectures+=( "$architecture" )
+    fi
+done < <(find "$link_file_list_root" -type f -name "*.LinkFileList" -print0)
 
-if [ ${#objects[@]} -eq 0 ]; then
-    log_error "No object files found under $archive_path/Products"
+if [ ${#architectures[@]} -eq 0 ]; then
+    log_error "No link file lists found under $link_file_list_root"
     exit 1
 fi
 
 archive_dir="$LIB_DIR/$SDK"
-debug_static_lib="$archive_dir/libSentryObjC-Debug.a"
+thin_archive_dir="$archive_dir/thin-archives"
 static_lib="$archive_dir/libSentryObjC.a"
-stripped_objects_dir="$archive_dir/stripped-objects"
-rm -rf "$stripped_objects_dir"
-mkdir -p "$stripped_objects_dir"
+rm -rf "$thin_archive_dir"
+mkdir -p "$thin_archive_dir"
 
-begin_group "Create static libraries for $SDK"
-log_info "  Objects:      ${#objects[@]} files"
-log_info "  Debug output: $debug_static_lib"
-libtool -static -no_warning_for_no_symbols -o "$debug_static_lib" "${objects[@]}"
+thin_archives=()
+for architecture in "${architectures[@]}"; do
+    object_file_list="$thin_archive_dir/$architecture.filelist"
+    object_dir="$thin_archive_dir/$architecture-objects"
+    : > "$object_file_list"
+    mkdir -p "$object_dir"
 
-stripped_objects=()
-for object in "${objects[@]}"; do
-    if nm -gU "$object" | grep . > /dev/null; then
-        stripped_object="$stripped_objects_dir/${object##*/}"
-        cp "$object" "$stripped_object"
-        strip -S "$stripped_object"
-        stripped_objects+=( "$stripped_object" )
+    object_count=0
+    while IFS= read -r -d '' link_file_list; do
+        target_build_dir="$(dirname "$(dirname "$(dirname "$link_file_list")")")"
+        target_name="$(basename "$target_build_dir" .build)"
+        while IFS= read -r object; do
+            if [ ! -f "$object" ]; then
+                log_error "Object file not found: $object"
+                exit 1
+            fi
+
+            staged_object="$object_dir/$target_name-${object##*/}"
+            if [ -e "$staged_object" ]; then
+                log_error "Duplicate object file name in $target_name: ${object##*/}"
+                exit 1
+            fi
+            cp "$object" "$staged_object"
+            printf '%s\n' "$staged_object" >> "$object_file_list"
+            object_count=$((object_count + 1))
+        done < "$link_file_list"
+    done < <(find "$link_file_list_root" \
+        -path "*/Objects-normal/$architecture/*.LinkFileList" -type f -print0)
+
+    if [ "$object_count" -eq 0 ]; then
+        log_error "No object files found for $architecture"
+        exit 1
     fi
+
+    thin_archive="$thin_archive_dir/libSentryObjC-$architecture.a"
+    begin_group "Create $architecture static library for $SDK"
+    log_info "  Objects: $object_count files"
+    log_info "  Output:  $thin_archive"
+    libtool -static -no_warning_for_no_symbols \
+        -filelist "$object_file_list" \
+        -o "$thin_archive"
+    end_group
+    thin_archives+=( "$thin_archive" )
 done
 
-if [ ${#stripped_objects[@]} -eq 0 ]; then
-    log_error "No object files with global symbols found under $archive_path/Products"
-    exit 1
-fi
-
-log_info "  Static output: $static_lib"
-libtool -static -no_warning_for_no_symbols -o "$static_lib" "${stripped_objects[@]}"
+begin_group "Create universal static library for $SDK"
+log_info "  Architectures: ${architectures[*]}"
+log_info "  Output:        $static_lib"
+lipo -create "${thin_archives[@]}" -output "$static_lib"
 end_group
 
-log_info "Static slice built: $static_lib"
-log_info "Dynamic-linking intermediate built: $debug_static_lib"
+rm -rf "$thin_archive_dir"
+log_info "Static slice with full DWARF built: $static_lib"
