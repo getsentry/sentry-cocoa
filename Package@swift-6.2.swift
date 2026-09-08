@@ -303,6 +303,7 @@ targets += [
 ]
 // END:OBJC_WRAPPER
 
+// Swift 6.1 needs smaller expressions to type-check the test targets.
 targets += [
     .target(
         name: "SentryTestUtilsObjC",
@@ -328,7 +329,9 @@ targets += [
             // The profiler mocks use C++ standard-library types such as std::vector.
             .linkedLibrary("c++")
         ]
-    ),
+    )
+]
+targets += [
     .target(
         name: "SentryTestUtils",
         dependencies: [
@@ -353,6 +356,24 @@ targets += [
     )
 ]
 
+// Match SDK.xcconfig's Test/TestCI defines on source/test targets, including Swift's Clang importer.
+for target in targets where target.type == .regular || target.type == .test {
+    target.swiftSettings = (target.swiftSettings ?? []) + [
+        .define("SENTRY_TEST", .when(traits: ["_SentryTest"])),
+        .define("SENTRY_TEST_CI", .when(traits: ["_SentryTestCI"]))
+    ]
+    target.cSettings = (target.cSettings ?? []) + [
+        .define("DEBUG", to: "1", .when(traits: ["_SentryTest", "_SentryTestCI"])),
+        .define("SENTRY_TEST", to: "1", .when(traits: ["_SentryTest", "_SentryTestCI"])),
+        .define("SENTRY_TEST_CI", to: "1", .when(traits: ["_SentryTestCI"]))
+    ]
+    target.cxxSettings = (target.cxxSettings ?? []) + [
+        .define("DEBUG", to: "1", .when(traits: ["_SentryTest", "_SentryTestCI"])),
+        .define("SENTRY_TEST", to: "1", .when(traits: ["_SentryTest", "_SentryTestCI"])),
+        .define("SENTRY_TEST_CI", to: "1", .when(traits: ["_SentryTestCI"]))
+    ]
+}
+
 let packageDependencies: [Package.Dependency] = [
     .package(url: "https://github.com/kstenerud/KSCrash.git", from: "2.6.0")
 ]
@@ -364,7 +385,9 @@ let package = Package(
     traits: [
         .init(name: "NoUIFramework", description: "Build without UIKit/AppKit/SwiftUI framework linkage. Use for command-line tools or contexts where UI frameworks are unavailable."),
         .init(name: "V10", description: "Enable SDK V10 API changes, including the upstream KSCrash integration."),
-        .init(name: "_SentryInternalUITestSupport", description: "Internal support for Sentry's sample UI tests. Do not enable in production.")
+        .init(name: "_SentryInternalUITestSupport", description: "Internal support for Sentry's sample UI tests. Do not enable in production."),
+        .init(name: "_SentryTest", description: "Internal SDK unit-test support for local development. Changes SDK behavior; not for consumers or production builds."),
+        .init(name: "_SentryTestCI", description: "Internal SDK unit-test support for CI. Changes SDK behavior; not for consumers or production builds.")
     ],
     dependencies: packageDependencies,
     targets: targets,
