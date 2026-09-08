@@ -511,6 +511,231 @@ final class SentryBreadcrumbTrackerTests: XCTestCase {
         XCTAssertNil(data["is_window_rootViewController"])
     }
 
+    func testExtractData_whenChildLabelHasText_shouldAddLabel() {
+        // -- Arrange --
+        let view = UIView()
+        let label = UILabel()
+        label.text = "Child text"
+        view.addSubview(label)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(from: view, includeAccessibilityIdentifier: true)
+
+        // -- Assert --
+        XCTAssertEqual(data["label"] as? String, "Child text")
+    }
+
+    func testExtractData_whenAccessibilityIdentifierExists_shouldNotAddLabel() {
+        // -- Arrange --
+        let view = UIView()
+        view.accessibilityIdentifier = "identifier"
+        let label = UILabel()
+        label.text = "Child text"
+        view.addSubview(label)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(from: view, includeAccessibilityIdentifier: true)
+
+        // -- Assert --
+        XCTAssertEqual(data["accessibilityIdentifier"] as? String, "identifier")
+        XCTAssertNil(data["label"])
+    }
+
+    func testExtractData_whenButtonHasTitle_shouldNotAddLabel() {
+        // -- Arrange --
+        let button = UIButton()
+        button.setTitle("Button title", for: .normal)
+        let label = UILabel()
+        label.text = "Child text"
+        button.addSubview(label)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(from: button, includeAccessibilityIdentifier: true)
+
+        // -- Assert --
+        XCTAssertEqual(data["title"] as? String, "Button title")
+        XCTAssertNil(data["label"])
+    }
+
+    func testExtractData_whenMultipleChildLabelsHaveText_shouldJoinNonEmptyText() {
+        // -- Arrange --
+        let view = UIView()
+        for text in ["  First  ", "   ", "Second"] {
+            let label = UILabel()
+            label.text = text
+            view.addSubview(label)
+        }
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(from: view, includeAccessibilityIdentifier: true)
+
+        // -- Assert --
+        XCTAssertEqual(data["label"] as? String, "First Second")
+    }
+
+    func testExtractData_whenChildButtonHasTitle_shouldAddTitleOnce() {
+        // -- Arrange --
+        let view = UIView()
+        let button = UIButton()
+        button.setTitle("Button title", for: .normal)
+        view.addSubview(button)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(from: view, includeAccessibilityIdentifier: true)
+
+        // -- Assert --
+        XCTAssertEqual(data["label"] as? String, "Button title")
+    }
+
+    func testExtractData_whenTitledChildButtonHasCustomLabel_shouldAddBothTexts() {
+        // -- Arrange --
+        let view = UIView()
+        let button = UIButton()
+        button.setTitle("Button title", for: .normal)
+        let label = UILabel()
+        label.text = "Detail"
+        button.addSubview(label)
+        view.addSubview(button)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(from: view, includeAccessibilityIdentifier: true)
+
+        // -- Assert --
+        XCTAssertEqual(data["label"] as? String, "Button title Detail")
+    }
+
+    func testExtractData_whenChildLabelHasNestedLabel_shouldAddBothTexts() {
+        // -- Arrange --
+        let view = UIView()
+        let parentLabel = UILabel()
+        parentLabel.text = "Parent"
+        let childLabel = UILabel()
+        childLabel.text = "Child"
+        parentLabel.addSubview(childLabel)
+        view.addSubview(parentLabel)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(from: view, includeAccessibilityIdentifier: true)
+
+        // -- Assert --
+        XCTAssertEqual(data["label"] as? String, "Parent Child")
+    }
+
+    func testExtractData_whenAllChildLabelsAreEmpty_shouldNotAddLabel() {
+        // -- Arrange --
+        let view = UIView()
+        for text in [nil, "", "   "] {
+            let label = UILabel()
+            label.text = text
+            view.addSubview(label)
+        }
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(from: view, includeAccessibilityIdentifier: true)
+
+        // -- Assert --
+        XCTAssertNil(data["label"])
+    }
+
+    func testExtractData_whenLabelHasMaximumCharacterCount_shouldNotTruncateLabel() {
+        // -- Arrange --
+        let view = UIView()
+        let label = UILabel()
+        label.text = String(repeating: "e\u{301}", count: 64)
+        view.addSubview(label)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(from: view, includeAccessibilityIdentifier: true)
+
+        // -- Assert --
+        XCTAssertEqual(data["label"] as? String, String(repeating: "e\u{301}", count: 64))
+    }
+
+    func testExtractData_whenLabelIsAtThirdChildLevel_shouldAddLabel() {
+        // -- Arrange --
+        let view = UIView()
+        let firstLevel = UIView()
+        let secondLevel = UIView()
+        let label = UILabel()
+        label.text = "Third level"
+        secondLevel.addSubview(label)
+        firstLevel.addSubview(secondLevel)
+        view.addSubview(firstLevel)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(from: view, includeAccessibilityIdentifier: true)
+
+        // -- Assert --
+        XCTAssertEqual(data["label"] as? String, "Third level")
+    }
+
+    func testExtractData_whenLabelIsAtFourthChildLevel_shouldNotAddLabel() {
+        // -- Arrange --
+        let view = UIView()
+        let firstLevel = UIView()
+        let secondLevel = UIView()
+        let thirdLevel = UIView()
+        let label = UILabel()
+        label.text = "Fourth level"
+        thirdLevel.addSubview(label)
+        secondLevel.addSubview(thirdLevel)
+        firstLevel.addSubview(secondLevel)
+        view.addSubview(firstLevel)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(from: view, includeAccessibilityIdentifier: true)
+
+        // -- Assert --
+        XCTAssertNil(data["label"])
+    }
+
+    func testExtractData_whenFiveSiblingLabelsHaveText_shouldAddAllLabels() {
+        // -- Arrange --
+        let view = UIView()
+        for text in ["First", "Second", "Third", "Fourth", "Fifth"] {
+            let label = UILabel()
+            label.text = text
+            view.addSubview(label)
+        }
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(from: view, includeAccessibilityIdentifier: true)
+
+        // -- Assert --
+        XCTAssertEqual(data["label"] as? String, "First Second Third Fourth Fifth")
+    }
+
+    func testExtractData_whenTextIsInSixthSibling_shouldNotAddLabel() {
+        // -- Arrange --
+        let view = UIView()
+        for _ in 0..<5 {
+            view.addSubview(UIView())
+        }
+        let label = UILabel()
+        label.text = "Sixth sibling"
+        view.addSubview(label)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(from: view, includeAccessibilityIdentifier: true)
+
+        // -- Assert --
+        XCTAssertNil(data["label"])
+    }
+
+    func testExtractData_whenLabelExceedsMaximumCharacterCount_shouldTruncateLabel() {
+        // -- Arrange --
+        let view = UIView()
+        let label = UILabel()
+        label.text = String(repeating: "e\u{301}", count: 65)
+        view.addSubview(label)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(from: view, includeAccessibilityIdentifier: true)
+
+        // -- Assert --
+        XCTAssertEqual(data["label"] as? String, String(repeating: "e\u{301}", count: 64) + "...")
+    }
+
     private class TestEvent: UIEvent {
         let touchedView: UIView?
         class TestEndTouch: UITouch {
