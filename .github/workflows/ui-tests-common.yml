@@ -16,6 +16,16 @@ on:
         description: "Xcode version"
         required: true
         type: string
+      allow_prerelease:
+        description: "Whether prerelease Xcode versions can be selected"
+        required: false
+        default: false
+        type: boolean
+      continue_on_error:
+        description: "Whether test failures should be non-blocking"
+        required: false
+        default: false
+        type: boolean
       build_with_make:
         description: "Build with make"
         required: false
@@ -56,6 +66,7 @@ jobs:
     name: UI Tests Common
     runs-on: ${{ fromJSON(format('["bitrise_pool_name:{0}"]', inputs.macos_version)) }}
     timeout-minutes: 40
+    continue-on-error: ${{ inputs.continue_on_error }}
     steps:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
@@ -91,6 +102,7 @@ jobs:
         uses: ./.github/actions/setup-xcode
         with:
           version: ${{ inputs.xcode_version }}
+          allow-prerelease: ${{ inputs.allow_prerelease }}
 
       - name: Resolve test destination
         id: resolve-test-destination
@@ -125,10 +137,6 @@ jobs:
       - run: make xcode-ci
         if: ${{ inputs.build_with_make }}
 
-      - name: Add Microphone permissions
-        continue-on-error: true
-        uses: ./.github/actions/add-microphone-permissions
-
       - name: Download XCFramework
         if: ${{ inputs.needs_xcframework }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
@@ -158,7 +166,7 @@ jobs:
           fi
 
       - name: Publish Test Report
-        uses: mikepenz/action-junit-report@d9f48fc87bc235f7e214acf696ca5abc0a986f16 # v6.4.2
+        uses: mikepenz/action-junit-report@a9170d5795813c01ab4901ffb045b52bab4ab09d # v6.5.0
         if: ${{ failure() || (github.run_attempt > 1 && steps.run_fastlane.outcome != 'skipped') }}
         with:
           report_paths: build/reports/*junit.xml

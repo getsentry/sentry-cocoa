@@ -40,9 +40,6 @@ extern "C" {
  */
 #define SentryCrashSC_STACK_OVERFLOW_THRESHOLD 150
 
-/** A special marker frame being yielded as `address` to denote a chained async stacktrace. */
-#define SentryCrashSC_ASYNC_MARKER (UINTPTR_MAX - 1234)
-
 typedef struct {
     /** Current address in the stack trace. */
     uintptr_t address;

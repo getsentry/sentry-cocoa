@@ -437,6 +437,7 @@
     XCTAssertTrue(options.sendClientReports);
 }
 
+#if !SDK_V10
 - (void)testEnableAppHangTracking_whenSetToYes_shouldReturnYes
 {
     // -- Arrange --
@@ -448,6 +449,7 @@
     // -- Assert --
     XCTAssertTrue(options.enableAppHangTracking);
 }
+#endif // !SDK_V10
 
 - (void)testEnableAutoBreadcrumbTracking_whenSetToYes_shouldReturnYes
 {
@@ -569,6 +571,27 @@
 
     // -- Assert --
     XCTAssertEqual(options.maxBreadcrumbs, 50u);
+}
+
+- (void)testMaxFeatureFlags_whenSet_shouldReturnValue
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    options.maxFeatureFlags = 2000;
+
+    // -- Assert --
+    XCTAssertEqual(options.maxFeatureFlags, 2000u);
+}
+
+- (void)testMaxFeatureFlags_whenNotSet_shouldReturnDefault
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Assert --
+    XCTAssertEqual(options.maxFeatureFlags, 100u);
 }
 
 - (void)testMaxCacheItems_whenSet_shouldReturnValue
@@ -1241,6 +1264,7 @@
     XCTAssertTrue(options.enablePreWarmedAppStartTracing);
 }
 
+#    if !SDK_V10
 - (void)testEnableReportNonFullyBlockingAppHangs_whenSetToYes_shouldReturnYes
 {
     // -- Arrange --
@@ -1252,6 +1276,7 @@
     // -- Assert --
     XCTAssertTrue(options.enableReportNonFullyBlockingAppHangs);
 }
+#    endif // !SDK_V10
 
 #endif
 

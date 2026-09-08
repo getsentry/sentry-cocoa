@@ -124,6 +124,16 @@
     /// @note Default is 100.
     @objc public var maxBreadcrumbs: UInt = 100
 
+    /// How many feature flag evaluations do you want to keep in memory on the scope?
+    /// @discussion Events record the most recent, unique feature flag evaluations. When the limit is
+    /// exceeded, the SDK drops the oldest evaluations. Increase this if your app evaluates a large
+    /// number of flags and you want more of them attached to your events. Set it to @c 0 to stop
+    /// recording feature flag evaluations on the scope.
+    /// @note Spans always track the first 10 feature flags evaluated within the span, independent of
+    /// this option.
+    /// @note Default is 100.
+    @objc public var maxFeatureFlags: UInt = 100
+
     /// When enabled, the SDK adds breadcrumbs for each network request. As this feature uses swizzling,
     /// disabling enableSwizzling also disables this feature.
     /// @discussion If you want to enable or disable network tracking for performance monitoring, please
@@ -138,6 +148,18 @@
     /// This block can be used to modify the event before it will be serialized and sent.
     @objc public var beforeSend: SentryBeforeSendEventCallback?
 
+    /// This block can be used to modify the event with access to the hint before it will be sent.
+    /// If set, this takes precedence over ``beforeSend``.
+    ///
+    /// - Warning: Deprecated. This is a transitional API: in the next major version, the hint
+    ///   parameter will be added to ``beforeSend`` directly and this callback will be removed.
+    @objc public var beforeSendWithHint: ((Event, Hint) -> Event?)? {
+        get { _beforeSendWithHint }
+        @available(*, deprecated, message: "In the next major version, the hint parameter will be added to `beforeSend` directly and this callback will be removed. Use this only to adopt hints ahead of the next major version.")
+        set { _beforeSendWithHint = newValue }
+    }
+    private var _beforeSendWithHint: ((Event, Hint) -> Event?)?
+
     #if SDK_V10
     /// This block can be used to modify a transaction before it will be serialized and sent.
     @objc public var beforeSendTransaction: ((Transaction) -> Transaction?)?
@@ -148,10 +170,15 @@
     @objc public var beforeSendSpan: SentryBeforeSendSpanCallback?
 
     #if !SDK_V10
-    /// When enabled, the SDK sends logs to Sentry. Logs can be captured using the SentrySDK.logger
-    /// API, which provides structured logging with attributes.
-    /// @note Default value is @c false.
-    /// @note In v10 and later, logs are always enabled. Remove this option when upgrading.
+    /// Legacy option kept for compatibility until the next major release.
+    ///
+    /// Manual log capture through ``SentrySDK/logger`` (and opt-in logging integrations that
+    /// forward through it) is not gated by this flag. Setting it to `false` does not drop
+    /// those logs.
+    ///
+    /// - Note: Default value is `false`.
+    /// - Note: In v10 and later, this option is removed and logs are always enabled.
+    /// - Warning: Deprecated. This option will be removed in the next major version.
     @objc public var enableLogs: Bool = false
     #endif // !SDK_V10
 
@@ -161,6 +188,18 @@
 
     /// This block can be used to modify the breadcrumb before it will be serialized and sent.
     @objc public var beforeBreadcrumb: SentryBeforeBreadcrumbCallback?
+
+    /// This block can be used to modify the breadcrumb with access to the hint before it is added.
+    /// If set, this takes precedence over ``beforeBreadcrumb``.
+    ///
+    /// - Warning: Deprecated. This is a transitional API: in the next major version, the hint
+    ///   parameter will be added to ``beforeBreadcrumb`` directly and this callback will be removed.
+    @objc public var beforeBreadcrumbWithHint: ((Breadcrumb, Hint) -> Breadcrumb?)? {
+        get { _beforeBreadcrumbWithHint }
+        @available(*, deprecated, message: "In the next major version, the hint parameter will be added to `beforeBreadcrumb` directly and this callback will be removed. Use this only to adopt hints ahead of the next major version.")
+        set { _beforeBreadcrumbWithHint = newValue }
+    }
+    private var _beforeBreadcrumbWithHint: ((Breadcrumb, Hint) -> Breadcrumb?)?
 
     /// You can use this callback to decide if the SDK should capture a screenshot or not. Return @c true
     /// if the SDK should capture a screenshot, return @c false if not. This callback doesn't work for
@@ -309,6 +348,8 @@
     /// @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
     /// configurations even when targeting iOS or tvOS platforms.
     /// @note Default value is @c false.
+    /// - Note: On visionOS, only UIKit window content (2D Scenes) is captured. Content in
+    ///   immersive spaces or volumetric windows rendered via RealityKit is not included.
     @objc public var attachScreenshot: Bool = false
 
     /// Settings to configure screenshot attachments.
@@ -320,6 +361,8 @@
     /// @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
     /// configurations even when targeting iOS or tvOS platforms.
     /// @note Default value is @c false.
+    /// - Note: On visionOS, only the UIKit window hierarchy (2D Scenes) is captured. Views in
+    ///   immersive spaces or volumetric windows rendered via RealityKit are not included.
     @objc public var attachViewHierarchy: Bool = false
 
     /// @brief If enabled, view hierarchy attachment will contain view `accessibilityIdentifier`.
@@ -367,6 +410,7 @@
     @objc public var enableStandaloneAppStartTracing: Bool = false
     #endif
 
+    #if !SDK_V10
     /// When enabled the SDK reports non-fully-blocking app hangs. A non-fully-blocking app hang is when
     /// the app appears stuck to the user but can still render a few frames.
     ///
@@ -377,12 +421,16 @@
     @_spi(Private) @objc public func isAppHangTrackingDisabled() -> Bool {
         !enableAppHangTracking || appHangTimeoutInterval <= 0
     }
+    #endif // !SDK_V10
 
     #endif
 
-    #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+    #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
     /// Configuration options for Session Replay.
+    /// - Note: On visionOS, session replay captures only UIKit window content (2D Scenes).
+    ///   Content in immersive spaces or volumetric windows rendered via RealityKit is not
+    ///   included. Touch indicators reflect indirect input only.
     @objc public var sessionReplay = SentryReplayOptions()
 
     #endif
@@ -527,6 +575,7 @@
     /// @see <https://develop.sentry.dev/sdk/client-reports/>
     @objc public var sendClientReports: Bool = true
 
+    #if !SDK_V10
     /// When enabled, the SDK tracks when the application stops responding for a specific amount of
     /// time defined by the @c appHangTimeoutInterval option.
     ///
@@ -546,6 +595,7 @@
     /// @note The default is @c true.
     /// @note App Hang tracking is automatically disabled if a debugger is attached.
     @objc public var enableAppHangTracking: Bool = true
+    #endif // !SDK_V10
 
     /// The minimum amount of time an app should be unresponsive to be classified as an App Hanging.
     /// @note The actual amount may be a little longer.
@@ -760,9 +810,13 @@
 
     // MARK: - Integration: Metrics
 
-    /// When enabled, the SDK sends metrics to Sentry. Metrics can be captured using the ``SentrySDK/metrics``
-    /// API, which allows you to send, view and query counters, gauges and measurements.
-    /// @note Default value is @c true.
+    /// Legacy option kept for compatibility until the next major release.
+    ///
+    /// Manual metric capture through ``SentrySDK/metrics`` is not gated by this flag. Setting it
+    /// to `false` does not drop those metrics.
+    ///
+    /// - Note: Default value is `true`.
+    /// - Warning: Deprecated. This option will be removed in the next major version.
     @objc public var enableMetrics: Bool = true
 
     /// Use this callback to drop or modify a metric before the SDK sends it to Sentry. Return nil to

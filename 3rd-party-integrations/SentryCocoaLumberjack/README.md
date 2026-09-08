@@ -26,7 +26,6 @@ import CocoaLumberjackSwift
 
 SentrySDK.start { options in
     options.dsn = "YOUR_DSN"
-    options.enableLogs = true
 }
 
 DDLog.add(SentryCocoaLumberjackLogger(), with: .info)

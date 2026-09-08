@@ -1,3 +1,4 @@
+#if !SDK_V10
 @_spi(Private) @testable import Sentry
 import XCTest
 
@@ -37,3 +38,4 @@ final class MockANRTrackerDelegate: SentryANRTrackerDelegate {
     func anrStopped(result: Sentry.SentryANRStoppedResult?) {
     }
 }
+#endif

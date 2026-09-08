@@ -105,7 +105,7 @@ private final class TestNetworkTracker: SentryNetworkTrackerProtocol {
     func urlSessionTask(_ sessionTask: URLSessionTask, setState newState: URLSessionTask.State) {}
     func urlSessionTaskCompleted(_ sessionTask: URLSessionTask, error: Error?) {}
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     func captureResponseDetails(_ data: Data, response: URLResponse, request requestURL: URL, task: URLSessionTask) {}
 #endif
 }

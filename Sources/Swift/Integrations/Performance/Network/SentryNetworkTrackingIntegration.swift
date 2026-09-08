@@ -52,7 +52,7 @@ final class SentryNetworkTrackingIntegration<Dependencies: NetworkTrackerProvide
         Self.swizzleURLSessionTasks()
         Self.swizzleNewLoaderURLSessionTasks()
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         if options.sessionReplay.networkDetailHasUrls {
             Self.swizzleDataTaskWithRequestForResponseCapture()
             Self.swizzleDataTaskWithURLForResponseCapture()
@@ -240,7 +240,7 @@ private extension SentryNetworkTrackingIntegration {
             var task: URLSessionDataTask?
             let wrappedHandler = completionHandler.map { completionHandler in
                 { data, response, error in
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
                     if error == nil, let data, let response, let requestURL = request.url, let task {
                         SentryNetworkTrackerProxy.shared.target?.captureResponseDetails(
                             data,
@@ -281,7 +281,7 @@ private extension SentryNetworkTrackingIntegration {
             var task: URLSessionDataTask?
             let wrappedHandler = completionHandler.map { completionHandler in
                 { data, response, error in
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
                     if error == nil, let data, let response, let task {
                         SentryNetworkTrackerProxy.shared.target?.captureResponseDetails(
                             data,
@@ -309,7 +309,7 @@ private extension SentryNetworkTrackingIntegration {
         }
     }
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     private static func swizzleDataTaskWithRequestForResponseCapture() {
         swizzleDataTaskWithRequest(in: URLSession.self, completeTask: false)
     }

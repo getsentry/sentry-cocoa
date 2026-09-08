@@ -1,7 +1,7 @@
 @testable import Sentry
 import XCTest
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 class SentryInternalScreenApiTests: XCTestCase {
 
@@ -44,6 +44,8 @@ private class MockHub: Hub {
 
     func storeEnvelope(_ envelope: SentryEnvelope) {}
     func captureEnvelope(_ envelope: SentryEnvelope) {}
+    func captureNonTerminatingEnvelope(_ envelope: SentryEnvelope) {}
+    func updateSessionForDroppedEventNonTerminating(unhandled: Bool) {}
     func captureErrorEvent(event: Event) {}
     func setTrace(_ traceId: SentryId, spanId: SpanId) {}
     var currentOptions: Options? { options }

@@ -1,3 +1,4 @@
+#if !SDK_V10
 // swiftlint:disable missing_docs
 @_spi(Private) @objc public final class SentryHangTrackerIntegrationObjC: NSObject, SwiftIntegration {
 
@@ -27,3 +28,4 @@
     }
 }
 // swiftlint:enable missing_docs
+#endif

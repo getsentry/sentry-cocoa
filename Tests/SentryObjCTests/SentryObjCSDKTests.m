@@ -606,6 +606,7 @@
     [SentryObjCSDK reportFullyDisplayed];
 }
 
+#if !SDK_V10
 - (void)testPauseAppHangTracking_shouldNotCrash
 {
     // -- Act & Assert (no crash) --
@@ -617,6 +618,7 @@
     // -- Act & Assert (no crash) --
     [SentryObjCSDK resumeAppHangTracking];
 }
+#endif
 
 #pragma mark - Flush
 
@@ -711,6 +713,22 @@
 
     // -- Assert --
     XCTAssertNotNil(replayApi);
+}
+
+- (void)testReplayControls_shouldBeCallable
+{
+    SentryObjCReplayApi *replayApi = SentryObjCSDK.replay;
+
+    [replayApi start];
+    [replayApi startBuffering];
+    [replayApi pause];
+    [replayApi resume];
+    [replayApi flush];
+    [replayApi stop];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Replay commands executed"];
+    dispatch_async(dispatch_get_main_queue(), ^{ [expectation fulfill]; });
+    [self waitForExpectations:@[ expectation ] timeout:1];
 }
 #endif
 

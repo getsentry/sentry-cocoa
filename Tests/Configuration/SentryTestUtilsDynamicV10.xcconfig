@@ -1,0 +1,3 @@
+#include "SentryTestUtilsDynamic.xcconfig"
+
+IMPLICIT_DEPENDENCY_DOMAIN = SentryV10

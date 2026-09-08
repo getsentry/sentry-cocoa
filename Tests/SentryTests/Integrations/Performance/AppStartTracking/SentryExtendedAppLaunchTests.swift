@@ -295,6 +295,39 @@ class SentryExtendedAppLaunchTests: XCTestCase {
         XCTAssertEqual(childSpan["op"] as? String, "app.init")
     }
 
+    func testFinish_whenScreenSet_extendedAndUserDescendantsHaveVitals() throws {
+        let hub = setUpIntegrationHub()
+        let manager = SentryExtendedAppLaunchManager()
+        manager.extend()
+        let extendedSpan = try XCTUnwrap(manager.extendedAppStartSpan())
+
+        SentryAppStartMeasurementProvider.setAppStartScreen("MainViewController")
+        addTeardownBlock { SentryAppStartMeasurementProvider.reset() }
+
+        let measurement = createMeasurement(type: .cold, duration: 0.5)
+        StandaloneTransactionStrategy(extendedAppLaunchManager: manager).report(measurement, traceId: SentryId())
+
+        let child = extendedSpan.startChild(operation: "app.init", description: "fetch remote config")
+        let grandchild = child.startChild(operation: "app.init.db", description: "load cache")
+        grandchild.finish()
+        child.finish()
+        manager.finish()
+
+        let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
+        let spans = try XCTUnwrap(serialized["spans"] as? [[String: Any]])
+
+        let descriptions = ["Extended App Start", "fetch remote config", "load cache"]
+        for description in descriptions {
+            let match = try XCTUnwrap(
+                spans.first { ($0["description"] as? String) == description },
+                "Missing span \(description)"
+            )
+            let data = match["data"] as? [String: Any]
+            XCTAssertEqual(data?["app.vitals.start.type"] as? String, "cold", description)
+            XCTAssertEqual(data?["app.vitals.start.screen"] as? String, "MainViewController", description)
+        }
+    }
+
     func testExtend_finishingReturnedSpan_capturesTransaction() throws {
         let hub = setUpIntegrationHub()
         let manager = SentryExtendedAppLaunchManager()

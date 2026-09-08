@@ -1,5 +1,5 @@
 // swiftlint:disable file_length type_body_length force_try force_unwrapping unused_optional_binding private_outlet
-@_spi(Private) import Sentry
+@_spi(Private) import SentrySwift
 import AuthenticationServices
 import Foundation
 import PhotosUI
@@ -32,7 +32,7 @@ class ExtraViewController: UIViewController {
         }
 
         Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
-            self.framesLabel?.text = "Frames Total:\(PrivateSentrySDKOnly.currentScreenFrames.total) Slow:\(PrivateSentrySDKOnly.currentScreenFrames.slow) Frozen:\(PrivateSentrySDKOnly.currentScreenFrames.frozen)"
+            self.framesLabel?.text = "Frames Total:\(SentrySDK.internal.performance.currentScreenFrames.total) Slow:\(SentrySDK.internal.performance.currentScreenFrames.slow) Frozen:\(SentrySDK.internal.performance.currentScreenFrames.frozen)"
         }
     }
 
@@ -119,7 +119,9 @@ class ExtraViewController: UIViewController {
     }
 
     @IBAction func getPasteBoardString(_ sender: Any) {
+        #if !SDK_V10
         SentrySDK.pauseAppHangTracking()
+        #endif // !SDK_V10
 
         // Getting the pasteboard string asks for permission
         // and the SDK would detect an ANR if we don't pause it.
@@ -130,7 +132,9 @@ class ExtraViewController: UIViewController {
             SentrySDK.capture(message: clipboard)
         }
 
+        #if !SDK_V10
         SentrySDK.resumeAppHangTracking()
+        #endif // !SDK_V10
     }
 
     @IBAction func start100Threads(_ sender: UIButton) {

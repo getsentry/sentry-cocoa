@@ -1,4 +1,4 @@
-import Sentry
+import SentrySwift
 import SwiftUI
 
 struct ContentView: View {

@@ -138,22 +138,24 @@ class SentrySDKTests: XCTestCase {
             "SentryMetricsIntegration",
             "SentryNetworkTrackingIntegration"
         ]
+#if !SDK_V10
         if !SentryDependencyContainer.sharedInstance().debuggerStatusProvider.isBeingTraced {
             expectedIntegrations.append("SentryANRTrackingIntegration")
         }
-#if os(iOS) || os(tvOS) || os(visionOS)
+#endif
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SDK_V10
         expectedIntegrations.append("SentryFramesTrackingIntegration")
-#endif // os(iOS) || os(tvOS)
+#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SDK_V10
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        expectedIntegrations.append("SentrySessionReplayIntegration")
+#endif
         #if SDK_V10
         expectedIntegrations.append("SentryKSCrashIntegration")
         #else
         expectedIntegrations.append("SentryCrashIntegration")
         #endif
-        #if SDK_V10 && !SENTRY_DISABLE_SENTRYCRASH_V10
+        #if SDK_V10
         expectedIntegrations.append("SentrySwiftAsyncIntegration")
-        #elseif SDK_V10
-        // KSCRASH_TODO(GH-8725): V10 temporarily omits the Swift async integration.
-        // Acceptance: SCV10-011 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
         #endif
 #if canImport(MetricKit) && !os(tvOS) && SDK_V10
         expectedIntegrations.append("SentryMetricKitIntegration")
@@ -242,6 +244,93 @@ class SentrySDKTests: XCTestCase {
         }
 
         XCTAssertFalse(SentrySDK.isEnabled)
+    }
+
+    func testStart_whenCalledTwiceWithoutClose_shouldReinitialize() {
+        // -- Arrange --
+        SentrySDK.start(options: fixture.options)
+
+        let secondOptions = Options.noIntegrations()
+        secondOptions.dsn = TestConstants.dsnAsString(username: "second-start")
+
+        // -- Act --
+        SentrySDK.start(options: secondOptions)
+
+        // -- Assert --
+        XCTAssertEqual(2, SentrySDKInternal.startInvocations)
+        XCTAssertEqual(secondOptions, SentrySDK.startOption)
+        XCTAssertEqual(secondOptions.dsn, SentrySDKInternal.currentHub().getClient()?.options.dsn)
+        XCTAssertTrue(SentrySDK.isEnabled)
+    }
+
+    func testStart_whenCalledTwiceWithoutClose_shouldLogWarning() throws {
+        // -- Arrange --
+        let oldOutput = SentrySDKLog.getLogOutput()
+        defer {
+            SentrySDKLog.setOutput(oldOutput)
+        }
+        let logOutput = TestLogOutput()
+        SentrySDKLog.setLogOutput(logOutput)
+
+        SentrySDK.start { options in
+            options.dsn = SentrySDKTests.dsnAsString
+            options.debug = true
+            options.diagnosticLevel = .warning
+            options.removeAllIntegrations()
+        }
+
+        // -- Act --
+        SentrySDK.start { options in
+            options.dsn = TestConstants.dsnAsString(username: "second-start")
+            options.debug = true
+            options.diagnosticLevel = .warning
+            options.removeAllIntegrations()
+        }
+
+        // -- Assert --
+        let expectedLogMessage = "The Sentry SDK has already been started. Calling start again without close() may lead to undefined behavior."
+        XCTAssertTrue(
+            logOutput.loggedMessages.contains { $0.contains(expectedLogMessage) },
+            "Expected a warning about a duplicate start, got: \(logOutput.loggedMessages)"
+        )
+        XCTAssertEqual(2, SentrySDKInternal.startInvocations)
+    }
+
+    func testStart_whenCalledTwiceWithConfigureOptions_shouldRunSecondConfigureBlock() {
+        // -- Arrange --
+        SentrySDK.start(options: fixture.options)
+        var didRunSecondConfigure = false
+
+        // -- Act --
+        SentrySDK.start { options in
+            didRunSecondConfigure = true
+            options.dsn = TestConstants.dsnAsString(username: "second-configure")
+            options.removeAllIntegrations()
+        }
+
+        // -- Assert --
+        XCTAssertTrue(didRunSecondConfigure)
+        XCTAssertEqual(2, SentrySDKInternal.startInvocations)
+        XCTAssertEqual(
+            TestConstants.dsnAsString(username: "second-configure"),
+            SentrySDK.startOption?.dsn
+        )
+    }
+
+    func testStart_whenCalledAfterClose_shouldStartAgain() {
+        // -- Arrange --
+        SentrySDK.start(options: fixture.options)
+        SentrySDK.close()
+
+        XCTAssertFalse(SentrySDK.isEnabled)
+
+        // -- Act --
+        SentrySDK.start(options: fixture.options)
+
+        // -- Assert --
+        XCTAssertTrue(SentrySDK.isEnabled)
+        XCTAssertEqual(2, SentrySDKInternal.startInvocations)
+        XCTAssertEqual(fixture.options, SentrySDK.startOption)
     }
 
     #if !SDK_V10
@@ -379,7 +468,13 @@ class SentrySDKTests: XCTestCase {
             options.removeAllIntegrations()
         }
 
-        assertIntegrationsInstalled(integrations: [])
+        // Metrics always installs so the manual metrics API keeps working.
+        // Replay is only installed if session replay is supported.
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        assertIntegrationsInstalled(integrations: ["SentryMetricsIntegration", "SentrySessionReplayIntegration"])
+#else
+        assertIntegrationsInstalled(integrations: ["SentryMetricsIntegration"])
+#endif
     }
 
     func testGlobalOptions() {
@@ -683,13 +778,14 @@ extension SentrySDKTests {
         SentryDependencyContainer.sharedInstance().processInfoWrapper = testProcessInfoWrapper
     }
     
-    private func assertIntegrationsInstalled(integrations: [String]) {
-        XCTAssertEqual(integrations.count, SentrySDKInternal.currentHub().installedIntegrations().count)
+    private func assertIntegrationsInstalled(integrations: [String], file: StaticString = #file, line: UInt = #line) {
+        let hub = SentrySDKInternal.currentHub()
+        XCTAssertEqual(integrations.count, hub.installedIntegrations().count, file: file, line: line)
         integrations.forEach { integration in
             if let integrationClass = NSClassFromString(integration) {
-                XCTAssertTrue(SentrySDKInternal.currentHub().isIntegrationInstalled(integrationClass), "\(integration) not installed")
+                XCTAssertTrue(hub.isIntegrationInstalled(integrationClass), "\(integration) not installed", file: file, line: line)
             } else {
-                XCTAssertTrue(SentrySDKInternal.currentHub().hasIntegration(integration), "\(integration) not installed with legacy ObjC API nor Swift")
+                XCTAssertTrue(hub.hasIntegration(integration), "\(integration) not installed with legacy ObjC API nor Swift", file: file, line: line)
             }
         }
     }

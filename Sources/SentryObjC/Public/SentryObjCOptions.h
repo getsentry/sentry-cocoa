@@ -17,10 +17,12 @@
 @class SentryObjCDataCollectionOptions;
 #endif
 @class SentryObjCEvent;
+@class SentryObjCHint;
 @class SentryObjCExperimentalOptions;
 @class SentryObjCHttpStatusCodeRange;
 @class SentryObjCLog;
 @class SentryObjCMetric;
+@class SentryObjCProfileOptions;
 @class SentryObjCReplayOptions;
 @class SentryObjCSamplingContext;
 @class SentryObjCScope;
@@ -115,6 +117,17 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSUInteger maxBreadcrumbs;
 
 /**
+ * How many feature flag evaluations do you want to keep in memory on the scope?
+ * @discussion Events record the most recent, unique feature flag evaluations. When the limit is
+ * exceeded, the SDK drops the oldest evaluations. Set it to @c 0 to stop recording feature flag
+ * evaluations on the scope.
+ * @note Spans always track the first 10 feature flags evaluated within the span, independent of
+ * this option.
+ * @note Default is 100.
+ */
+@property (nonatomic) NSUInteger maxFeatureFlags;
+
+/**
  * When enabled, the SDK adds breadcrumbs for each network request. As this feature uses
  * swizzling, disabling @c enableSwizzling also disables this feature.
  * @note Default value is @c YES.
@@ -130,10 +143,21 @@ NS_ASSUME_NONNULL_BEGIN
 /// This block can be used to modify the event before it will be serialized and sent.
 @property (nonatomic, copy, nullable) SentryObjCEvent *_Nullable (^beforeSend)(SentryObjCEvent *);
 
+/// This block can be used to modify the event with access to the hint before it will be sent.
+/// If set, this takes precedence over @c beforeSend.
+/// @warning Deprecated. This is a transitional API: in the next major version, the hint parameter
+/// will be added to @c beforeSend directly and this callback will be removed.
+@property (nonatomic, copy, nullable) SentryObjCEvent *_Nullable (^beforeSendWithHint)
+    (SentryObjCEvent *, SentryObjCHint *) DEPRECATED_MSG_ATTRIBUTE(
+        "In the next major version, the hint parameter will be added to "
+        "beforeSend directly and this callback will be removed. Use this only "
+        "to adopt hints ahead of the next major version.");
+
 #if SDK_V10
 /// This block can be used to modify a transaction before it will be serialized and sent.
 @property (nonatomic, copy, nullable) SentryObjCTransaction *_Nullable (^beforeSendTransaction)
     (SentryObjCTransaction *);
+
 #endif // SDK_V10
 
 /**
@@ -144,10 +168,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 #if !SDK_V10
 /**
- * When enabled, the SDK sends logs to Sentry. Logs can be captured using the
- * @c SentryObjCSDK.logger API, which provides structured logging with attributes.
+ * Legacy option kept for compatibility until the next major release.
+ *
+ * Manual log capture through @c SentryObjCSDK.logger (and opt-in logging integrations that
+ * forward through it) is not gated by this flag. Setting it to @c NO does not drop those logs.
  * @note Default value is @c NO.
- * @note In v10 and later, logs are always enabled. Remove this option when upgrading.
+ * @note In v10 and later, this option is removed and logs are always enabled.
  */
 @property (nonatomic) BOOL enableLogs;
 #endif // !SDK_V10
@@ -155,6 +181,16 @@ NS_ASSUME_NONNULL_BEGIN
 /// This block can be used to modify the breadcrumb before it will be serialized and sent.
 @property (nonatomic, copy, nullable) SentryObjCBreadcrumb *_Nullable (^beforeBreadcrumb)
     (SentryObjCBreadcrumb *);
+
+/// This block can be used to modify the breadcrumb with access to the hint before it is added.
+/// If set, this takes precedence over @c beforeBreadcrumb.
+/// @warning Deprecated. This is a transitional API: in the next major version, the hint parameter
+/// will be added to @c beforeBreadcrumb directly and this callback will be removed.
+@property (nonatomic, copy, nullable) SentryObjCBreadcrumb *_Nullable (^beforeBreadcrumbWithHint)
+    (SentryObjCBreadcrumb *, SentryObjCHint *)
+        DEPRECATED_MSG_ATTRIBUTE("In the next major version, the hint parameter will be added to "
+                                 "beforeBreadcrumb directly and this callback will be removed. Use "
+                                 "this only to adopt hints ahead of the next major version.");
 
 /// This block can be used to modify or drop a log before it will be sent. Return @c nil to drop the
 /// log.
@@ -288,6 +324,16 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic) BOOL enablePersistingTracesWhenCrashing;
 
+#if SENTRY_OBJC_PROFILING_SUPPORTED
+/**
+ * A block that configures continuous profiling.
+ * @warning Continuous profiling is an experimental feature and may still contain bugs.
+ * @note Profiling is automatically disabled if a thread sanitizer is attached.
+ */
+@property (nonatomic, copy, nullable) void (^configureProfiling)
+    (SentryObjCProfileOptions *profiling);
+#endif
+
 /**
  * A block that configures the initial scope when starting the SDK.
  * The block receives a suggested default scope. You can either configure and return this,
@@ -411,6 +457,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic) BOOL sendClientReports;
 
+#if !SDK_V10
 /**
  * When enabled, the SDK tracks when the application stops responding for a specific amount of
  * time defined by the @c appHangTimeoutInterval option.
@@ -418,6 +465,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @note App Hang tracking is automatically disabled if a debugger is attached.
  */
 @property (nonatomic) BOOL enableAppHangTracking;
+#endif // !SDK_V10
 
 /**
  * The minimum amount of time an app should be unresponsive to be classified as an App Hang.
@@ -534,7 +582,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) SentryObjCExperimentalOptions *experimental;
 
 /**
- * When enabled, the SDK sends metrics to Sentry.
+ * Legacy option kept for compatibility until the next major release.
+ *
+ * Manual metric capture through the metrics API is not gated by this flag. Setting it to
+ * @c NO does not drop those metrics.
  * @note Default value is @c YES.
  */
 @property (nonatomic) BOOL enableMetrics;
@@ -599,16 +650,18 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) BOOL enableStandaloneAppStartTracing;
 #    endif // !SDK_V10
 
+#    if !SDK_V10
 /**
  * When enabled, the SDK reports non-fully-blocking app hangs. A non-fully-blocking app hang is
  * when the app appears stuck to the user but can still render a few frames.
  * @note The default is @c YES.
  */
 @property (nonatomic) BOOL enableReportNonFullyBlockingAppHangs;
+#    endif // !SDK_V10
 
 #endif
 
-#if (TARGET_OS_IOS || TARGET_OS_TV) && SENTRY_OBJC_HAS_UIKIT
+#if (TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION) && SENTRY_OBJC_HAS_UIKIT
 
 /// Configuration options for Session Replay.
 @property (nonatomic, strong) SentryObjCReplayOptions *sessionReplay;

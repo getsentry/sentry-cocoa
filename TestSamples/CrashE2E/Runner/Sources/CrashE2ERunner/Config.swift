@@ -99,6 +99,7 @@ enum Scenario: String, CaseIterable {
     case swiftAsyncCPPExceptionV2Off = "swift-async-cpp-exception-v2-off"
     case swiftAsyncCPPExceptionV2On = "swift-async-cpp-exception-v2-on"
     case ksCrashPerReportRetry = "kscrash-per-report-retry"
+    case crashTimeScope = "crash-time-scope"
 
     static let defaultScenarios: [Scenario] = [
         .signal,
@@ -128,7 +129,8 @@ enum Scenario: String, CaseIterable {
     static let ksCrashDefaultScenarios = defaultScenarios + [
         .cppExceptionV2DynamicImage,
         .unityCxaThrowV2,
-        .ksCrashPerReportRetry
+        .ksCrashPerReportRetry,
+        .crashTimeScope
     ]
 
     var requiresManagedRuntimeBuild: Bool {
@@ -139,7 +141,7 @@ enum Scenario: String, CaseIterable {
         case .signal, .nsException, .nsExceptionSubclass, .cppExceptionV1, .cppExceptionV2,
              .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2, .objcObject,
              .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal, .swiftAsyncCPPExceptionV2Off,
-             .swiftAsyncCPPExceptionV2On, .ksCrashPerReportRetry:
+             .swiftAsyncCPPExceptionV2On, .ksCrashPerReportRetry, .crashTimeScope:
             return false
         }
     }
@@ -153,7 +155,8 @@ enum Scenario: String, CaseIterable {
              .objcObjectAfterCaughtCPP, .binaryImages, .managedRuntimeSignalChain,
              .managedRuntimePreSDKSignal,
              .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
-             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashPerReportRetry:
+             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashPerReportRetry,
+             .crashTimeScope:
             return true
         }
     }
@@ -166,14 +169,15 @@ enum Scenario: String, CaseIterable {
              .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2, .objcObject,
              .objcObjectAfterCaughtCPP, .binaryImages, .managedRuntimeSignalChain,
              .managedRuntimeReinitSignal,
-             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashPerReportRetry:
+             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashPerReportRetry,
+             .crashTimeScope:
             return true
         }
     }
 
     var requiresKSCrash: Bool {
         self == .cppExceptionV2DynamicImage || self == .unityCxaThrowV2
-            || self == .ksCrashPerReportRetry
+            || self == .ksCrashPerReportRetry || self == .crashTimeScope
     }
 
     var requiresCrashE2ETestHook: Bool {

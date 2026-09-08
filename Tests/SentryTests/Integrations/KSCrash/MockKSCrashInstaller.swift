@@ -35,7 +35,8 @@ final class MockKSCrashInstaller: SentryKSCrash.Installing {
             installPath: String,
             monitors: MonitorType,
             enableMemoryIntrospection: Bool,
-            enableSwapCxaThrow: Bool
+            enableSwapCxaThrow: Bool,
+            enableSwiftAsyncStackTraces: Bool
         )
     ] = []
     public var uninstallCallCount = 0
@@ -48,6 +49,9 @@ final class MockKSCrashInstaller: SentryKSCrash.Installing {
     public var sendAllReportsProcessingSessions: [SentryKSCrash.ReportProcessingSession] = []
     public var onSendAllReports: (() -> Void)?
     public var setUserInfoInvocations: [[String: Any]] = []
+    #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
+    public var uncaughtExceptionHandler: (@convention(c) (NSException) -> Void)?
+    #endif
 
     public init() {}
 
@@ -55,14 +59,16 @@ final class MockKSCrashInstaller: SentryKSCrash.Installing {
         installPath: String,
         monitors: MonitorType,
         enableMemoryIntrospection: Bool,
-        enableSwapCxaThrow: Bool
+        enableSwapCxaThrow: Bool,
+        enableSwiftAsyncStackTraces: Bool
     ) throws {
         installCalls.append(
             (
                 installPath: installPath,
                 monitors: monitors,
                 enableMemoryIntrospection: enableMemoryIntrospection,
-                enableSwapCxaThrow: enableSwapCxaThrow
+                enableSwapCxaThrow: enableSwapCxaThrow,
+                enableSwiftAsyncStackTraces: enableSwiftAsyncStackTraces
             )
         )
         if let error = shouldThrow { throw error }

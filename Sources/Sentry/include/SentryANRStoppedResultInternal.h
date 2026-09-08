@@ -1,4 +1,6 @@
-#import <Foundation/Foundation.h>
+#if !SDK_V10
+
+#    import <Foundation/Foundation.h>
 
 @interface SentryANRStoppedResultInternal : NSObject
 
@@ -10,3 +12,5 @@
                         maxDuration:(NSTimeInterval)maxDuration;
 
 @end
+
+#endif // !SDK_V10

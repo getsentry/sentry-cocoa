@@ -1,4 +1,6 @@
-#import "SentryDefines.h"
+#if !SDK_V10
+
+#    import "SentryDefines.h"
 
 @class SentryOptions;
 @protocol SentryApplicationStateProvider;
@@ -38,3 +40,5 @@ SENTRY_NO_INIT
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif // !SDK_V10

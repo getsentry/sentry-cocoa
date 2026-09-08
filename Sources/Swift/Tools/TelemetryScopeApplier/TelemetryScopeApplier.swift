@@ -15,7 +15,8 @@ protocol TelemetryScopeApplier {
 
     func addAttributesToItem<Item: TelemetryItem, Metadata: TelemetryScopeMetadata>(
         _ item: inout Item,
-        metadata: Metadata
+        metadata: Metadata,
+        currentScope: (any TelemetryScopeApplier)?
     )
 }
 
@@ -28,7 +29,8 @@ extension TelemetryScopeApplier {
 
     func addAttributesToItem<Item: TelemetryItem, Metadata: TelemetryScopeMetadata>(
         _ item: inout Item,
-        metadata: Metadata
+        metadata: Metadata,
+        currentScope: (any TelemetryScopeApplier)? = nil
     ) {
         // Extract attributesDict once to avoid multiple getter/setter calls on computed property
         // Each inout parameter access triggers both getter and setter, which is expensive for
@@ -40,6 +42,12 @@ extension TelemetryScopeApplier {
         addDeviceAttributes(to: &attributes)
         addUserAttributes(to: &attributes, metadata: metadata)
         addReplayAttributes(to: &attributes)
+        // Custom attributes never override existing keys, so applying the thread-local current
+        // scope before the global scope yields: item > current scope > global scope. Only custom
+        // attributes are taken from the current scope; trace correlation, user, replay, and the
+        // other reserved attributes above always come from `self` (the global scope), so the
+        // current scope can't clobber the active span.
+        currentScope?.addScopeAttributes(to: &attributes)
         addScopeAttributes(to: &attributes)
         addDefaultUserIdIfNeeded(to: &attributes, metadata: metadata)
 

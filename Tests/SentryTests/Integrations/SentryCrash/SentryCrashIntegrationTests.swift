@@ -202,6 +202,24 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         assertCrashedSessionStored(expected: expectedCrashedSession)
     }
 
+    func testEndSessionAsCrashed_WithPendingUnhandledCurrentSession_EndsSessionAsCrashed() throws {
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
+        // -- Arrange --
+        _ = givenPendingUnhandledCurrentSession()
+        SentrySDKInternal.setCurrentHub(fixture.hub)
+
+        try advanceTime(bySeconds: 10)
+
+        // -- Act --
+        _ = try fixture.getSut()
+
+        // -- Assert --
+        let crashedSession = try XCTUnwrap(fixture.client.fileManager.readCrashedSession())
+        XCTAssertEqual(SentrySessionStatus.crashed, crashedSession.status)
+        XCTAssertNil(fixture.client.fileManager.readCurrentSession())
+    }
+
     #if os(iOS) || os(tvOS)
     func testEndSessionAsCrashed_WhenOOM_WithCurrentSession() throws {
         try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
@@ -391,6 +409,29 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let appHangEventTimestamp = try XCTUnwrap(appHangEvent.timestamp)
         let sessionEndTimestamp = try XCTUnwrap(actualSession.timestamp)
         XCTAssertEqual(appHangEventTimestamp.timeIntervalSince1970, sessionEndTimestamp.timeIntervalSince1970, accuracy: 0.001)
+    }
+
+    func testEndSessionAsAbnormal_AppHangEventWithPendingUnhandledSession_EndsSessionAsAbnormal() throws {
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
+        // -- Arrange --
+        SentrySDKInternal.setCurrentHub(fixture.hub)
+        let sentryCrash = fixture.sentryCrash
+        sentryCrash.internalCrashedLastLaunch = false
+
+        _ = givenPendingUnhandledCurrentSession()
+
+        let fileManager = fixture.client.fileManager
+        fileManager.storeAppHang(Event())
+
+        // -- Act --
+        _ = try fixture.getSut(crashWrapper: sentryCrash)
+
+        // -- Assert --
+        let actualSession = try XCTUnwrap(fileManager.readAbnormalSession())
+        XCTAssertEqual(SentrySessionStatus.abnormal, actualSession.status)
+        XCTAssertNil(fileManager.readCurrentSession())
+        XCTAssertNil(fileManager.readCrashedSession())
     }
 
     func testEndSessionAsAbnormal_AppHangEventAndCrash_EndsSessionAsCrashed() throws {
@@ -871,6 +912,14 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     private func givenCurrentSession() -> SentrySession {
         // serialize sets the timestamp
         let session = SentrySession(jsonObject: fixture.session.serialize())!
+        fixture.client.fileManager.storeCurrentSession(session)
+        return session
+    }
+
+    private func givenPendingUnhandledCurrentSession() -> SentrySession {
+        // serialize sets the timestamp
+        let session = SentrySession(jsonObject: fixture.session.serialize())!
+        session.markPendingUnhandled()
         fixture.client.fileManager.storeCurrentSession(session)
         return session
     }

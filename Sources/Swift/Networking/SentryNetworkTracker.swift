@@ -17,7 +17,7 @@ protocol SentryNetworkTrackerProtocol: AnyObject {
     func urlSessionTaskResume(_ sessionTask: URLSessionTask)
     func urlSessionTask(_ sessionTask: URLSessionTask, setState newState: URLSessionTask.State)
     func urlSessionTaskCompleted(_ sessionTask: URLSessionTask, error: Error?)
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     func captureResponseDetails(_ data: Data, response: URLResponse, request requestURL: URL, task: URLSessionTask)
 #endif
 }
@@ -41,12 +41,17 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
     private let hub: Hub
     private let threadInspector: SentryThreadInspector
 
-    // We accept races when toggling these flags to avoid acquiring locks for many parallel HTTP
-    // requests. This matches the Objective-C implementation's deliberate performance tradeoff.
-    private(set) var isNetworkTrackingEnabled = false
-    private(set) var isNetworkBreadcrumbEnabled = false
-    private(set) var isCaptureFailedRequestsEnabled = false
-    private(set) var isGraphQLOperationTrackingEnabled = false
+    // All network tracker feature flags share a single synchronization boundary so that hot paths
+    // observing several flags read one consistent snapshot, and disable() resets the whole set
+    // atomically. See https://github.com/getsentry/sentry-cocoa/issues/8592.
+    private struct NetworkTrackerState {
+        var isNetworkTrackingEnabled = false
+        var isNetworkBreadcrumbEnabled = false
+        var isCaptureFailedRequestsEnabled = false
+        var isGraphQLOperationTrackingEnabled = false
+    }
+
+    private let state = SentryMutex(NetworkTrackerState())
 
     // MARK: - Initializers
 
@@ -59,26 +64,44 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
     // MARK: - Public API
 
     func enableNetworkTracking() {
-        isNetworkTrackingEnabled = true
+        state.withLock { $0.isNetworkTrackingEnabled = true }
     }
 
     func enableNetworkBreadcrumbs() {
-        isNetworkBreadcrumbEnabled = true
+        state.withLock { $0.isNetworkBreadcrumbEnabled = true }
     }
 
     func enableCaptureFailedRequests() {
-        isCaptureFailedRequestsEnabled = true
+        state.withLock { $0.isCaptureFailedRequestsEnabled = true }
     }
 
     func enableGraphQLOperationTracking() {
-        isGraphQLOperationTrackingEnabled = true
+        state.withLock { $0.isGraphQLOperationTrackingEnabled = true }
     }
 
     func disable() {
-        isNetworkTrackingEnabled = false
-        isNetworkBreadcrumbEnabled = false
-        isCaptureFailedRequestsEnabled = false
-        isGraphQLOperationTrackingEnabled = false
+        state.withLock { state in
+            state.isNetworkTrackingEnabled = false
+            state.isNetworkBreadcrumbEnabled = false
+            state.isCaptureFailedRequestsEnabled = false
+            state.isGraphQLOperationTrackingEnabled = false
+        }
+    }
+
+    var isNetworkTrackingEnabled: Bool {
+        state.withLock { $0.isNetworkTrackingEnabled }
+    }
+
+    var isNetworkBreadcrumbEnabled: Bool {
+        state.withLock { $0.isNetworkBreadcrumbEnabled }
+    }
+
+    var isCaptureFailedRequestsEnabled: Bool {
+        state.withLock { $0.isCaptureFailedRequestsEnabled }
+    }
+
+    var isGraphQLOperationTrackingEnabled: Bool {
+        state.withLock { $0.isGraphQLOperationTrackingEnabled }
     }
 
     // MARK: - URL Session Handling
@@ -115,6 +138,8 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             return
         }
 
+        let featureState = state.withLock { $0 }
+
         let isUntracked = sessionTask.withNetworkTrackerState { state in
             guard case .idle = state.spanState else {
                 return false
@@ -130,7 +155,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         }
 
         // Register the request start date only on first resume so suspend/resume cycles preserve it.
-        if isNetworkBreadcrumbEnabled {
+        if featureState.isNetworkBreadcrumbEnabled {
             let startDate = dateProvider.date()
             sessionTask.withNetworkTrackerState {
                 if $0.startDate == nil {
@@ -139,7 +164,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             }
         }
 
-        guard isNetworkTrackingEnabled else {
+        guard featureState.isNetworkTrackingEnabled else {
             addTraceWithoutTransaction(to: sessionTask)
             return
         }
@@ -263,7 +288,10 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         error: Error?,
         captureRequest: Bool
     ) {
-        if !isNetworkTrackingEnabled && !isNetworkBreadcrumbEnabled && !isCaptureFailedRequestsEnabled {
+        let featureState = state.withLock { $0 }
+        if !featureState.isNetworkTrackingEnabled
+            && !featureState.isNetworkBreadcrumbEnabled
+            && !featureState.isCaptureFailedRequestsEnabled {
             return
         }
 
@@ -275,7 +303,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             return
         }
 
-        #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         if let urlString = sessionTask.originalRequest?.url?.absoluteString,
            isNetworkDetailCaptureEnabled(for: urlString, options: options) {
             captureRequestDetails(
@@ -329,9 +357,18 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         //   - running → completed/canceling (normal completion or cancellation)
         //   - suspended → canceling (task cancelled while suspended)
         if captureRequest {
-            captureFailedRequest(for: sessionTask, currentRequest: currentRequest, options: options)
-            addBreadcrumb(for: sessionTask, currentRequest: currentRequest, options: options)
-
+            captureFailedRequest(
+                for: sessionTask,
+                currentRequest: currentRequest,
+                options: options,
+                featureState: featureState
+            )
+            addBreadcrumb(
+                for: sessionTask,
+                currentRequest: currentRequest,
+                options: options,
+                featureState: featureState
+            )
         }
 
         if let networkSpan {
@@ -339,7 +376,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         }
     }
 
-    #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+    #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     func captureResponseDetails(_ data: Data, response: URLResponse, request requestURL: URL, task: URLSessionTask) {
         let urlString = requestURL.absoluteString
         guard let options = hub.currentOptions,
@@ -379,8 +416,13 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
 
     // MARK: - Failed requests
 
-    private func captureFailedRequest(for sessionTask: URLSessionTask, currentRequest: URLRequest, options: Options) {
-        guard isCaptureFailedRequestsEnabled else {
+    private func captureFailedRequest(
+        for sessionTask: URLSessionTask,
+        currentRequest: URLRequest,
+        options: Options,
+        featureState: NetworkTrackerState
+    ) {
+        guard featureState.isCaptureFailedRequestsEnabled else {
             SentrySDKLog.debug("captureFailedRequestsEnabled is disabled, not capturing HTTP Client errors.")
             return
         }
@@ -479,7 +521,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         }
 
         var context: [String: [String: Any]] = ["response": responseContext]
-        if isGraphQLOperationTrackingEnabled,
+        if featureState.isGraphQLOperationTrackingEnabled,
            let operationName = URLSessionTaskHelper.getGraphQLOperationName(from: sessionTask) {
             context["graphql"] = ["operation_name": operationName]
         }
@@ -497,8 +539,13 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
     // MARK: - Breadcrumbs
 
     // swiftlint:disable:next function_body_length
-    private func addBreadcrumb(for sessionTask: URLSessionTask, currentRequest: URLRequest, options: Options) {
-        guard isNetworkBreadcrumbEnabled else {
+    private func addBreadcrumb(
+        for sessionTask: URLSessionTask,
+        currentRequest: URLRequest,
+        options: Options,
+        featureState: NetworkTrackerState
+    ) {
+        guard featureState.isNetworkBreadcrumbEnabled else {
             return
         }
 
@@ -541,7 +588,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             data["status_code"] = responseStatusCode
             data["reason"] = HTTPURLResponse.localizedString(forStatusCode: responseStatusCode)
 
-            if isGraphQLOperationTrackingEnabled,
+            if featureState.isGraphQLOperationTrackingEnabled,
                let operationName = URLSessionTaskHelper.getGraphQLOperationName(from: sessionTask) {
                 data["graphql_operation_name"] = operationName
             }
@@ -554,7 +601,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             data["http.fragment"] = fragment
         }
 
-        #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         // Store the raw object. SentrySRDefaultBreadcrumbConverter serializes it when read.
         if let networkDetails = sessionTask.networkDetails {
             data[SentryReplayNetworkDetails.replayNetworkDetailsKey] = networkDetails
@@ -654,7 +701,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
 
     // MARK: - Session Replay network details
 
-    #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+    #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     private func isNetworkDetailCaptureEnabled(for urlString: String, options: Options) -> Bool {
         options.sessionReplay.isNetworkDetailCaptureEnabled(for: urlString)
     }

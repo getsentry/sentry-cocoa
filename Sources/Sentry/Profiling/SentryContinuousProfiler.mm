@@ -165,7 +165,7 @@ _sentry_unsafe_stopTimerAndCleanup()
         return;
     }
 
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(SENTRY_UI_TEST_SUPPORT)
     // we want to allow immediately stopping a continuous profile for a UI test, since those
     // currently only test launch profiles, and there is no reliable way to make the UI test
     // wait until the continuous profile chunk would finish (behavior introduced in
@@ -177,7 +177,7 @@ _sentry_unsafe_stopTimerAndCleanup()
         _sentry_unsafe_stopTimerAndCleanup();
         return;
     }
-#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(SENTRY_UI_TEST_SUPPORT)
 
     SENTRY_LOG_DEBUG(@"Stopping continuous profiler after current chunk completes.");
     _stopCalled = YES;

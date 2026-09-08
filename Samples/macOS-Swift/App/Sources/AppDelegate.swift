@@ -1,6 +1,6 @@
 import Cocoa
-import Sentry
 import SentrySampleShared
+import SentrySwift
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {

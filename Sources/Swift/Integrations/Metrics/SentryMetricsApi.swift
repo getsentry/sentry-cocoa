@@ -7,6 +7,7 @@ protocol SentryMetricsApiDependencies {
     var isSDKEnabled: Bool { get }
     var scope: Scope { get }
     var dateProvider: SentryCurrentDateProvider { get }
+    var currentScopeStorage: SentryCurrentScopeStorage { get }
 
     /// The integration is nullable, meaning if it's not installed or not enabled, it will return nil
     var metricsIntegration: Integration? { get }
@@ -44,7 +45,7 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
             return
         }
         guard let integration = dependencies.metricsIntegration else {
-            SentrySDKLog.warning("Metric '\(name)' was not captured because metrics are disabled. Enable metrics by setting 'options.enableMetrics = true' when starting the SDK.")
+            SentrySDKLog.warning("Metric '\(name)' was not captured because the metrics integration is not installed.")
             return
         }
 
@@ -74,7 +75,8 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
                 attributable.asSentryAttributeContent
             }
         )
-        integration.addMetric(metric, scope: dependencies.scope)
+        let currentScope = dependencies.currentScopeStorage.scope()
+        integration.addMetric(metric, scope: dependencies.scope, currentScope: currentScope)
     }
 }
 

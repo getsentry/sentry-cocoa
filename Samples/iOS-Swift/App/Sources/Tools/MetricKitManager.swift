@@ -1,6 +1,6 @@
 import Foundation
 import MetricKit
-import Sentry
+import SentrySwift
 
 class MetricKitManager: NSObject, MXMetricManagerSubscriber {
     func receiveReports() {

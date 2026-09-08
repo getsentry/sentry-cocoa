@@ -1,6 +1,6 @@
 internal import _SentryPrivate
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 typealias SentryViewHierarchyIntegrationProvider = ViewHierarchyProviderProvider & ClientProvider
 
@@ -71,17 +71,19 @@ final class SentryViewHierarchyIntegration<Dependencies: SentryViewHierarchyInte
             return attachments
         }
 
-#if os(iOS)
+#if os(iOS) || os(visionOS)
         if event.isMetricKitEvent() {
             return attachments
         }
 #endif
 
+        #if !SDK_V10
         // If the event is an App hanging event, we can't take the
         // view hierarchy because the main thread is blocked.
         if event.isAppHangEvent {
             return attachments
         }
+        #endif // !SDK_V10
 
         if let beforeCaptureViewHierarchy = options.beforeCaptureViewHierarchy,
            !beforeCaptureViewHierarchy(event) {

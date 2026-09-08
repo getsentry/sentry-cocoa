@@ -12,6 +12,7 @@
 #import "SentryThread.h"
 #import "SentryUser.h"
 #import <XCTest/XCTest.h>
+#import <stdint.h>
 @import Sentry;
 
 @interface SentryCrashReportConverterTests : XCTestCase
@@ -670,6 +671,51 @@
     [self testBreadcrumb:@"Resources/breadcrumb_sdk_scope"];
 }
 
+- (void)testConvertReport_whenSentrySdkScopeIsNestedInUser_shouldLiftScopeFields
+{
+    // -- Arrange --
+    NSDictionary *mockReport = @{
+        @"user" : @ {
+            @"release" : @"app@1.0+1",
+            @"sentry_sdk_scope" : @ {
+                @"dist" : @"crash-e2e-dist",
+                @"environment" : @"crash-e2e-environment",
+                @"user" : @ { @"id" : @"crash-e2e-scope-user" },
+                @"extra" : @ { @"crash_e2e_extra" : @"crash-e2e-extra-value" },
+                @"tags" : @ { @"crash_e2e_tag" : @"crash-e2e-tag-value" },
+                @"context" : @ { @"crash_e2e" : @ { @"marker" : @"crash-e2e-context" } },
+                @"breadcrumbs" : @[ @{
+                    @"category" : @"crash-e2e",
+                    @"message" : @"crash-e2e-breadcrumb",
+                    @"type" : @"debug",
+                    @"level" : @"info"
+                } ]
+            }
+        },
+        @"crash" : @ { @"threads" : @[], @"error" : @ { @"type" : @"signal" } },
+        @"binary_images" : @[],
+        @"system" : @ { @"application_stats" : @ { @"application_in_foreground" : @YES } }
+    };
+
+    // -- Act --
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:mockReport inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    // -- Assert --
+    XCTAssertEqualObjects(event.releaseName, @"app@1.0+1");
+    XCTAssertEqualObjects(event.dist, @"crash-e2e-dist");
+    XCTAssertEqualObjects(event.environment, @"crash-e2e-environment");
+    XCTAssertEqualObjects(event.user.userId, @"crash-e2e-scope-user");
+    XCTAssertEqualObjects(event.extra[@"crash_e2e_extra"], @"crash-e2e-extra-value");
+    XCTAssertEqualObjects(event.tags[@"crash_e2e_tag"], @"crash-e2e-tag-value");
+    XCTAssertEqualObjects(event.context[@"crash_e2e"][@"marker"], @"crash-e2e-context");
+    XCTAssertEqual(event.breadcrumbs.count, 1u);
+    XCTAssertEqualObjects(event.breadcrumbs.firstObject.category, @"crash-e2e");
+    XCTAssertEqualObjects(event.breadcrumbs.firstObject.message, @"crash-e2e-breadcrumb");
+    XCTAssertNil(reportConverter.userContext[@"sentry_sdk_scope"]);
+}
+
 #pragma mark private helper
 
 - (SentryEvent *)eventFromNSExceptionUserInfo:(id)userInfo
@@ -889,6 +935,41 @@
     XCTAssertEqual(event.threads.count, 1);
     XCTAssertNil(event.threads.firstObject.threadId);
     XCTAssertEqual(event.threads.firstObject.isMain.boolValue, NO);
+}
+
+- (void)testLegacyAsyncStackTraceMarker_whenConvertingPersistedReport_shouldPreserveStackStart
+{
+    // -- Arrange --
+    NSDictionary *report = @{
+        @"crash" : @ {
+            @"threads" : @[ @{
+                @"index" : @0,
+                @"crashed" : @NO,
+                @"current_thread" : @NO,
+                @"backtrace" : @ {
+                    @"contents" : @[
+                        @{ @"instruction_addr" : @0x1000, @"symbol_addr" : @0x1000 },
+                        @{ @"instruction_addr" : @(UINTPTR_MAX - 1234) },
+                        @{ @"instruction_addr" : @0x2000, @"symbol_addr" : @0x2000 },
+                    ]
+                }
+            } ],
+            @"error" : @ { @"type" : @"signal" }
+        },
+        @"binary_images" : @[],
+        @"system" : @ { @"application_stats" : @ { @"application_in_foreground" : @YES } }
+    };
+
+    // -- Act --
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:report inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    // -- Assert --
+    NSArray<SentryFrame *> *frames = event.threads.firstObject.stacktrace.frames;
+    XCTAssertEqual(frames.count, 2);
+    XCTAssertNil(frames.firstObject.stackStart);
+    XCTAssertEqualObjects(frames.lastObject.stackStart, @YES);
 }
 
 - (void)testThreadWithInvalidIndexTypes_ShouldReturnNil

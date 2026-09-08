@@ -22,10 +22,12 @@ import Foundation
         set { wrapped.enableUnhandledCPPExceptionsV2 = newValue }
     }
 
+    #if !SDK_V10
     @objc public var enableWatchdogTerminationsV2: Bool {
         get { wrapped.enableWatchdogTerminationsV2 }
         set { wrapped.enableWatchdogTerminationsV2 = newValue }
     }
+    #endif
 
     @objc public var enableUIViewControllerInitSwizzling: Bool {
         get { wrapped.enableUIViewControllerInitSwizzling }

@@ -1,5 +1,9 @@
 import Foundation
+#if SWIFT_PACKAGE
+@_spi(Private) import SentrySwift
+#else
 import Sentry
+#endif
 
 public extension Options {
     
@@ -9,7 +13,9 @@ public extension Options {
         enableAutoPerformanceTracing = false
         enableCrashHandler = false
         swiftAsyncStacktraces = false
+        #if !SDK_V10
         enableAppHangTracking = false
+        #endif // !SDK_V10
         enableNetworkTracking = false
         enableNetworkBreadcrumbs = false
         enableCaptureFailedRequests = false

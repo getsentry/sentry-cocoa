@@ -25,29 +25,31 @@
 // THE SOFTWARE.
 //
 
-#include "SentryCrashFileUtils.h"
+#if !SDK_V10
 
-#include "SentryAsyncSafeLog.h"
+#    include "SentryCrashFileUtils.h"
 
-#include <dirent.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <unistd.h>
+#    include "SentryAsyncSafeLog.h"
+
+#    include <dirent.h>
+#    include <errno.h>
+#    include <fcntl.h>
+#    include <stdint.h>
+#    include <stdio.h>
+#    include <stdlib.h>
+#    include <string.h>
+#    include <sys/stat.h>
+#    include <unistd.h>
 
 /** Buffer size to use in the "writeFmt" functions.
  * If the formatted output length would exceed this value, it is truncated.
  */
-#ifndef SentryCrashFU_WriteFmtBufferSize
-#    define SentryCrashFU_WriteFmtBufferSize 1024
-#endif
+#    ifndef SentryCrashFU_WriteFmtBufferSize
+#        define SentryCrashFU_WriteFmtBufferSize 1024
+#    endif
 
 // ============================================================================
-#pragma mark - Utility -
+#    pragma mark - Utility -
 // ============================================================================
 
 static bool
@@ -225,7 +227,7 @@ deletePathContents(const char *path, bool deleteTopLevelPathAlso)
 }
 
 // ============================================================================
-#pragma mark - API -
+#    pragma mark - API -
 // ============================================================================
 
 const char *
@@ -718,3 +720,5 @@ sentrycrashfu_closeBufferedReader(SentryCrashBufferedReader *reader)
         reader->fd = -1;
     }
 }
+
+#endif // !SDK_V10

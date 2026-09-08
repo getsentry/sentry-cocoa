@@ -1,13 +1,15 @@
-#import "SentryANRTrackerV2.h"
+#if !SDK_V10
 
-#if SENTRY_HAS_UIKIT
+#    import "SentryANRTrackerV2.h"
 
-#    import "SentryANRStoppedResultInternal.h"
-#    import "SentryANRTrackerInternalDelegate.h"
-#    import "SentryLogC.h"
-#    import "SentrySwift.h"
-#    import "SentryTime.h"
-#    import <stdatomic.h>
+#    if SENTRY_HAS_UIKIT
+
+#        import "SentryANRStoppedResultInternal.h"
+#        import "SentryANRTrackerInternalDelegate.h"
+#        import "SentryLogC.h"
+#        import "SentrySwift.h"
+#        import "SentryTime.h"
+#        import <stdatomic.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -333,4 +335,6 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
 
 NS_ASSUME_NONNULL_END
 
-#endif // SENTRY_HAS_UIKIT
+#    endif // SENTRY_HAS_UIKIT
+
+#endif // !SDK_V10

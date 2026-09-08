@@ -1,6 +1,7 @@
-@_spi(Private) import Sentry
-import Sentry
+@_spi(Private) import SentrySwift
+import _SentryPrivate
 import SentrySampleShared
+import SentrySwift
 import UserNotifications
 
 class NotificationService: UNNotificationServiceExtension {
@@ -46,17 +47,19 @@ class NotificationService: UNNotificationServiceExtension {
             options.debug = true
             SentrySDKWrapper.shared.configureDataCollection(options)
 
+            #if !SDK_V10
             // App Hang Tracking must be enabled, but should not be installed
             options.enableAppHangTracking = true
+            #endif // !SDK_V10
         }
     }
 
     var isANRInstalled: Bool {
-        isSentryEnabled && SentrySDKInternal.trimmedInstalledIntegrationNames().contains("ANRTracking")
+        isSentryEnabled && SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().contains("ANRTracking")
     }
 
     var isWatchdogInstalled: Bool {
-        isSentryEnabled && SentrySDKInternal.trimmedInstalledIntegrationNames().contains("WatchdogTerminationTracking")
+        isSentryEnabled && SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().contains("WatchdogTerminationTracking")
     }
 
     var isSentryEnabled: Bool {

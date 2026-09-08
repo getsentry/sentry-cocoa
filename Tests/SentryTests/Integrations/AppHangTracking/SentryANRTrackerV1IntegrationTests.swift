@@ -1,3 +1,4 @@
+#if !SDK_V10
 @_spi(Private) @testable import Sentry
 import XCTest
 
@@ -30,3 +31,4 @@ final class SentryANRTrackerV1IntegrationTests: XCTestCase {
 }
 
 #endif // os(iOS) || os(tvOS)
+#endif // !SDK_V10

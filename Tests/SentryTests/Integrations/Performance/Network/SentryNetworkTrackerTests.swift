@@ -196,6 +196,50 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertTrue(breadcrumbs?.isEmpty ?? true)
     }
 
+    func testDisableDisablesAllFeatureFlags() {
+        let sut = fixture.getSut()
+
+        XCTAssertTrue(sut.isNetworkTrackingEnabled)
+        XCTAssertTrue(sut.isNetworkBreadcrumbEnabled)
+        XCTAssertTrue(sut.isCaptureFailedRequestsEnabled)
+        XCTAssertTrue(sut.isGraphQLOperationTrackingEnabled)
+
+        sut.disable()
+
+        XCTAssertFalse(sut.isNetworkTrackingEnabled)
+        XCTAssertFalse(sut.isNetworkBreadcrumbEnabled)
+        XCTAssertFalse(sut.isCaptureFailedRequestsEnabled)
+        XCTAssertFalse(sut.isGraphQLOperationTrackingEnabled)
+    }
+
+    func testFeatureFlagsCanBeEnabledIndependently() {
+        let sut = TestNetworkTracker(
+            options: fixture.options,
+            dependencies: SentryDependencyContainer.sharedInstance()
+        )
+
+        XCTAssertFalse(sut.isNetworkTrackingEnabled)
+        XCTAssertFalse(sut.isNetworkBreadcrumbEnabled)
+        XCTAssertFalse(sut.isCaptureFailedRequestsEnabled)
+        XCTAssertFalse(sut.isGraphQLOperationTrackingEnabled)
+
+        sut.enableNetworkTracking()
+
+        XCTAssertTrue(sut.isNetworkTrackingEnabled)
+        XCTAssertFalse(sut.isNetworkBreadcrumbEnabled)
+        XCTAssertFalse(sut.isCaptureFailedRequestsEnabled)
+        XCTAssertFalse(sut.isGraphQLOperationTrackingEnabled)
+
+        sut.enableNetworkBreadcrumbs()
+        sut.enableCaptureFailedRequests()
+        sut.enableGraphQLOperationTracking()
+
+        XCTAssertTrue(sut.isNetworkTrackingEnabled)
+        XCTAssertTrue(sut.isNetworkBreadcrumbEnabled)
+        XCTAssertTrue(sut.isCaptureFailedRequestsEnabled)
+        XCTAssertTrue(sut.isGraphQLOperationTrackingEnabled)
+    }
+
     func testDisabledTracker() throws {
         let sut = fixture.getSut()
         sut.disable()
@@ -2447,6 +2491,8 @@ private final class NetworkTrackerTestHub: Hub {
 
     func storeEnvelope(_ envelope: SentryEnvelope) {}
     func captureEnvelope(_ envelope: SentryEnvelope) {}
+    func captureNonTerminatingEnvelope(_ envelope: SentryEnvelope) {}
+    func updateSessionForDroppedEventNonTerminating(unhandled: Bool) {}
     func captureErrorEvent(event: Event) {}
     func setTrace(_ traceId: SentryId, spanId: SpanId) {}
 }

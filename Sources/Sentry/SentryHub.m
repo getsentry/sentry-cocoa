@@ -36,6 +36,8 @@ NS_ASSUME_NONNULL_BEGIN
           scopeContextEnricher:(id<SentryScopeContextEnricher>)scopeContextEnricher
               andDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue;
 
+- (nullable SentrySession *)updateSessionForDroppedEventNonTerminating:(BOOL)unhandled;
+
 @end
 
 @implementation SentryHubInternal {
@@ -142,8 +144,8 @@ NS_ASSUME_NONNULL_BEGIN
         [self captureSession:session];
         newSession = session;
     }
-    [lastSession
-        endSessionExitedWithTimestamp:[SentryDependencyContainer.sharedInstance.dateProvider date]];
+    [lastSession endSessionNormallyWithTimestamp:[SentryDependencyContainer.sharedInstance
+                                                         .dateProvider date]];
     [self captureSession:lastSession];
 
     [self notifySessionStarted:newSession];
@@ -168,7 +170,7 @@ NS_ASSUME_NONNULL_BEGIN
         SENTRY_LOG_DEBUG(@"No session to end with timestamp.");
         return;
     }
-    [currentSession endSessionExitedWithTimestamp:timestamp];
+    [currentSession endSessionNormallyWithTimestamp:timestamp];
     [self captureSession:currentSession];
 
     [self notifySessionEnded:currentSession];
@@ -238,8 +240,8 @@ NS_ASSUME_NONNULL_BEGIN
             timestamp = session.started;
             [session endSessionAbnormalWithTimestamp:SENTRY_UNWRAP_NULLABLE(NSDate, timestamp)];
         } else {
-            SENTRY_LOG_DEBUG(@"Closing cached session as exited.");
-            [session endSessionExitedWithTimestamp:SENTRY_UNWRAP_NULLABLE(NSDate, timestamp)];
+            SENTRY_LOG_DEBUG(@"Closing cached session normally.");
+            [session endSessionNormallyWithTimestamp:SENTRY_UNWRAP_NULLABLE(NSDate, timestamp)];
         }
         [self deleteCurrentSession];
         [client captureSession:session];
@@ -330,7 +332,7 @@ NS_ASSUME_NONNULL_BEGIN
     return !client.isDisabled && self.client == client;
 }
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !SDK_V10
 
 /**
  * This method expects an abnormal session already stored to disk. For more info checkout: @c
@@ -364,7 +366,7 @@ NS_ASSUME_NONNULL_BEGIN
     [fileManager deleteAbnormalSession];
 }
 
-#endif // SENTRY_HAS_UIKIT
+#endif // SENTRY_HAS_UIKIT && !SDK_V10
 
 - (void)captureTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope
 {
@@ -621,6 +623,42 @@ NS_ASSUME_NONNULL_BEGIN
     return SentryId.empty;
 }
 
+- (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *)scope hint:(id)hint
+{
+    SentryClientInternal *client = self.client;
+    if (client != nil) {
+        return [client captureEvent:event withScope:scope hint:hint];
+    }
+    return SentryId.empty;
+}
+
+- (SentryId *)captureError:(NSError *)error withScope:(SentryScope *)scope hint:(id)hint
+{
+    SentryClientInternal *client = self.client;
+    if (client != nil) {
+        return [client captureError:error withScope:scope hint:hint];
+    }
+    return SentryId.empty;
+}
+
+- (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *)scope hint:(id)hint
+{
+    SentryClientInternal *client = self.client;
+    if (client != nil) {
+        return [client captureException:exception withScope:scope hint:hint];
+    }
+    return SentryId.empty;
+}
+
+- (SentryId *)captureMessage:(NSString *)message withScope:(SentryScope *)scope hint:(id)hint
+{
+    SentryClientInternal *client = self.client;
+    if (client != nil) {
+        return [client captureMessage:message withScope:scope hint:hint];
+    }
+    return SentryId.empty;
+}
+
 - (SentryId *)captureErrorEvent:(SentryEvent *)event
 {
     SentryScope *scope = self.scope;
@@ -660,9 +698,14 @@ NS_ASSUME_NONNULL_BEGIN
         return;
     }
     SentryBreadcrumb *_Nullable nullableCrumb = crumb;
-    SentryBeforeBreadcrumbCallback callback = [options beforeBreadcrumb];
-    if (callback != nil) {
-        nullableCrumb = callback(crumb);
+    if (options.beforeBreadcrumbWithHint != nil) {
+        SentryHint *hint = [[SentryHint alloc] init];
+        nullableCrumb = options.beforeBreadcrumbWithHint(crumb, hint);
+    } else {
+        SentryBeforeBreadcrumbCallback callback = [options beforeBreadcrumb];
+        if (callback != nil) {
+            nullableCrumb = callback(crumb);
+        }
     }
     if (nullableCrumb == nil) {
         SENTRY_LOG_DEBUG(@"Discarded Breadcrumb in `beforeBreadcrumb`");
@@ -693,7 +736,9 @@ NS_ASSUME_NONNULL_BEGIN
         if (_scope == nil) {
             SentryClientInternal *client = self.client;
             if (client != nil) {
-                _scope = [[SentryScope alloc] initWithMaxBreadcrumbs:client.options.maxBreadcrumbs];
+                _scope =
+                    [[SentryScope alloc] initWithMaxBreadcrumbs:client.options.maxBreadcrumbs
+                                                maxFeatureFlags:client.options.maxFeatureFlags];
             } else {
                 _scope = [[SentryScope alloc] init];
             }
@@ -820,6 +865,65 @@ NS_ASSUME_NONNULL_BEGIN
     // If captured envelope contains not handled errors, these are not going to crash the app and
     // we should create new session.
     [client captureEnvelope:[self updateSessionState:envelope startNewSession:YES]];
+}
+
+/**
+ * Needed by hybrid SDKs such as Flutter, where an unhandled exception doesn't terminate the
+ * process. Instead of ending the session as crashed, this keeps the session running and marks it,
+ * so it ends as unhandled.
+ *
+ * Session side effects are the same as -updateSessionForDroppedEventNonTerminating:;
+ * this method also sends the envelope.
+ */
+- (void)captureNonTerminatingEnvelope:(id)envelope
+{
+    SentryClientInternal *client = self.client;
+    if (client == nil) {
+        return;
+    }
+
+    [client captureEnvelope:[self updateSessionStateForNonTerminatingEnvelope:envelope]];
+}
+
+- (SentryEnvelope *)updateSessionStateForNonTerminatingEnvelope:(SentryEnvelope *)envelope
+{
+    BOOL handled = YES;
+    if (![self envelopeContainsEventWithErrorOrHigher:envelope.items wasHandled:&handled]) {
+        return envelope;
+    }
+
+    SentrySession *currentSession = [self updateSessionForDroppedEventNonTerminating:!handled];
+    if (currentSession == nil) {
+        return envelope;
+    }
+
+    // The session stays open, so it's sent as an intermediate update with the incremented error
+    // count. It's sent again with its terminal status when it ends.
+    NSMutableArray<SentryEnvelopeItem *> *itemsToSend =
+        [[NSMutableArray alloc] initWithArray:envelope.items];
+    [itemsToSend addObject:[[SentryEnvelopeItem alloc] initWithSession:currentSession]];
+    return [[SentryEnvelope alloc] initWithHeader:envelope.header items:itemsToSend];
+}
+
+/**
+ * Updates the current session for a non-terminating hybrid error.
+ * Does not capture an envelope. Hybrid SDKs should call this when an error is dropped by sampling.
+ */
+- (nullable SentrySession *)updateSessionForDroppedEventNonTerminating:(BOOL)unhandled
+{
+    SentrySession *currentSession;
+    @synchronized(_sessionLock) {
+        // Marking before incrementing, because incrementing persists the session.
+        if (unhandled) {
+            [_session markPendingUnhandled];
+        }
+        currentSession = [self incrementSessionErrors];
+        if (currentSession != nil) {
+            SENTRY_LOG_DEBUG(@"Updating session for non-terminating event: %@",
+                [self createSessionDebugString:currentSession]);
+        }
+    }
+    return currentSession;
 }
 
 - (SentryEnvelope *)updateSessionState:(SentryEnvelope *)envelope

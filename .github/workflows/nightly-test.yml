@@ -26,6 +26,7 @@ jobs:
       runs-on: ${{ matrix.runs-on }}
       should_skip: false
       xcode: ${{matrix.xcode}}
+      allow_prerelease: ${{matrix.allow_prerelease || false}}
       platform: ${{matrix.platform}}
       timeout: ${{matrix.timeout || 20}}
       device: ${{matrix.device}}
@@ -44,6 +45,13 @@ jobs:
           - name: watchOS 26 Sentry
             runs-on: tahoe
             xcode: "26"
+            platform: "watchOS"
+            timeout: 30
+
+          - name: watchOS 27 Sentry
+            runs-on: xcode-beta
+            xcode: "27"
+            allow_prerelease: true
             platform: "watchOS"
             timeout: 30
 

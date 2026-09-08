@@ -66,8 +66,36 @@ class SentryTouchTrackerTests: XCTestCase {
     
     private var referenceDate = Date(timeIntervalSinceReferenceDate: 0)
     
-    private func getSut(dispatchQueue: SentryDispatchQueueWrapper = TestSentryDispatchQueueWrapper()) -> SentryTouchTracker {
-        return SentryTouchTracker(dateProvider: dateprovider, scale: 1, dispatchQueue: dispatchQueue)
+    private func getSut(
+        dispatchQueue: SentryDispatchQueueWrapper = TestSentryDispatchQueueWrapper(),
+        enabled: Bool = true
+    ) -> SentryTouchTracker {
+        let sut = SentryTouchTracker(dateProvider: dateprovider, scale: 1, dispatchQueue: dispatchQueue)
+        if enabled {
+            sut.enable()
+        }
+        return sut
+    }
+
+    func testTrackTouchFromEvent_whenDisabled_shouldNotBufferEvents() {
+        let sut = getSut(enabled: false)
+        let event = MockUIEvent(timestamp: 3)
+        event.addTouch(MockUITouch(phase: .began, location: CGPoint(x: 100, y: 100)))
+
+        sut.trackTouchFrom(event: event)
+
+        XCTAssertTrue(sut.replayEvents(from: referenceDate, until: referenceDate.addingTimeInterval(5)).isEmpty)
+    }
+
+    func testTrackTouchFromEvent_whenEnabled_shouldBufferEvents() {
+        let sut = getSut(enabled: false)
+        let event = MockUIEvent(timestamp: 3)
+        event.addTouch(MockUITouch(phase: .began, location: CGPoint(x: 100, y: 100)))
+
+        sut.enable()
+        sut.trackTouchFrom(event: event)
+
+        XCTAssertEqual(sut.replayEvents(from: referenceDate, until: referenceDate.addingTimeInterval(5)).count, 1)
     }
     
     func testTrackTouchFromEvent() {

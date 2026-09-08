@@ -2,7 +2,7 @@
 internal import _SentryPrivate
 import Foundation
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 /// Provides session replay access for hybrid SDKs.
 public struct SentryInternalReplayApi {
@@ -15,6 +15,36 @@ public struct SentryInternalReplayApi {
     init(dependencies: Dependencies) {
         self.hub = dependencies.hub
         self.replayIntegrationProvider = dependencies.replayIntegrationProvider
+    }
+
+    /// Starts a new replay session if Replay is inactive.
+    public func start() {
+        SentrySDK.replay.start()
+    }
+
+    /// Starts Replay in buffer mode if Replay is inactive.
+    public func startBuffering() {
+        SentrySDK.replay.startBuffering()
+    }
+
+    /// Pauses the current replay.
+    public func pause() {
+        SentrySDK.replay.pause()
+    }
+
+    /// Resumes a replay paused with ``pause()``.
+    public func resume() {
+        SentrySDK.replay.resume()
+    }
+
+    /// Flushes buffered replay data or starts a new replay session if Replay is inactive.
+    public func flush() {
+        SentrySDK.replay.flush()
+    }
+
+    /// Stops the current replay.
+    public func stop() {
+        SentrySDK.replay.stop()
     }
 
     /// Configures the session replay with a custom breadcrumb converter

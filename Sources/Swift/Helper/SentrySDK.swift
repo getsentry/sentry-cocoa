@@ -32,7 +32,7 @@ extension SentrySDK {
         return SentrySDKInternal.isEnabled
     }
 
-    #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS))
+    #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS) || os(visionOS))
     /// API to control session replay
     #if !SDK_V10
     @objc
@@ -92,7 +92,8 @@ extension SentrySDK {
     ///
     /// ## Requirements
     ///
-    /// To disable metrics, set ``Options/enableMetrics`` to `false`.
+    /// ``Options/enableMetrics`` is kept for compatibility until the next major release and does
+    /// not gate this manual API.
     ///
     /// - Important: The Metrics API has been designed and optimized for Swift. Objective-C support is
     ///   currently not available. If you need Objective-C support, please see the issue
@@ -105,19 +106,21 @@ extension SentrySDK {
     /// set a valid DSN.
     /// - note: Call this method on the main thread. When calling it from a background thread, the
     /// SDK starts on the main thread async.
+    /// - note: If `start` is called again without `close()` in between, the SDK logs a warning and
+    /// still reinitializes. Reinitialization is unsupported and may lead to undefined behavior.
     #if !SDK_V10
     @objc
     #endif
     public static func start(options: Options) {
-        // We save the options before checking for Xcode preview because
-        // we will use this options in the preview
-        setStart(with: options)
         guard SentryDependencyContainer.sharedInstance().processInfoWrapper
             .environment["XCODE_RUNNING_FOR_PREVIEWS"] != "1" else {
             // Using NSLog because SentryLog was not initialized yet.
             NSLog("[SENTRY] [WARNING] SentrySDK not started. Running from Xcode preview.")
+            // We save the options because we will use them in the preview.
+            setStart(with: options)
             return
         }
+
         SentrySDKInternal.start(options: options)
     }
 
@@ -125,6 +128,8 @@ extension SentrySDK {
     /// set a valid DSN.
     /// - note: Call this method on the main thread. When calling it from a background thread, the
     /// SDK starts on the main thread async.
+    /// - note: If `start` is called again without `close()` in between, the SDK logs a warning and
+    /// still reinitializes. Reinitialization is unsupported and may lead to undefined behavior.
     #if !SDK_V10
     @objc
     #endif
@@ -182,6 +187,37 @@ extension SentrySDK {
     @discardableResult public static func capture(event: Event, attachAllThreads: Bool) -> SentryId {
         event.attachAllThreadsOverride = NSNumber(value: attachAllThreads)
         return SentrySDKInternal.capture(event: event)
+    }
+
+    /// Captures a manually created event and sends it to Sentry with a user-provided hint.
+    /// The hint is passed to `beforeSend` callbacks, allowing inspection and modification.
+    /// - parameter event: The event to send to Sentry.
+    /// - parameter hint: The hint providing additional context for callbacks.
+    /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
+    @discardableResult public static func capture(event: Event, hint: Hint) -> SentryId {
+        return SentrySDKInternal.capture(event: event, scope: SentrySDKInternal.currentHub().scope, hint: hint)
+    }
+
+    /// Captures a manually created event and sends it to Sentry with a user-provided hint.
+    /// Only the data in this scope object will be added to the event. The global scope will be ignored.
+    /// - parameter event: The event to send to Sentry.
+    /// - parameter scope: The scope containing event metadata.
+    /// - parameter hint: The hint providing additional context for callbacks.
+    /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
+    @discardableResult public static func capture(event: Event, scope: Scope, hint: Hint) -> SentryId {
+        return SentrySDKInternal.capture(event: event, scope: scope, hint: hint)
+    }
+
+    /// Captures a manually created event and sends it to Sentry with a user-provided hint.
+    /// Maintains the global scope but mutates scope data for only this call.
+    /// - parameter event: The event to send to Sentry.
+    /// - parameter hint: The hint providing additional context for callbacks.
+    /// - parameter block: The block mutating the scope only for this call.
+    /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
+    @discardableResult public static func capture(event: Event, hint: Hint, block: @escaping (Scope) -> Void) -> SentryId {
+        let scope = Scope(scope: SentrySDKInternal.currentHub().scope)
+        block(scope)
+        return SentrySDKInternal.capture(event: event, scope: scope, hint: hint)
     }
 
     // MARK: - Transaction Management
@@ -303,6 +339,37 @@ extension SentrySDK {
         return hub.captureError(error as NSError, with: hub.scope, attachAllThreads: NSNumber(value: attachAllThreads))
     }
 
+    /// Captures an error event and sends it to Sentry with a user-provided hint.
+    /// The hint is passed to `beforeSend` callbacks, allowing inspection and modification.
+    /// - parameter error: The error to send to Sentry.
+    /// - parameter hint: The hint providing additional context for callbacks.
+    /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
+    @discardableResult public static func capture(error: Error, hint: Hint) -> SentryId {
+        return SentrySDKInternal.capture(error: error as NSError, scope: SentrySDKInternal.currentHub().scope, hint: hint)
+    }
+
+    /// Captures an error event and sends it to Sentry with a user-provided hint.
+    /// Only the data in this scope object will be added to the event. The global scope will be ignored.
+    /// - parameter error: The error to send to Sentry.
+    /// - parameter scope: The scope containing event metadata.
+    /// - parameter hint: The hint providing additional context for callbacks.
+    /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
+    @discardableResult public static func capture(error: Error, scope: Scope, hint: Hint) -> SentryId {
+        return SentrySDKInternal.capture(error: error as NSError, scope: scope, hint: hint)
+    }
+
+    /// Captures an error event and sends it to Sentry with a user-provided hint.
+    /// Maintains the global scope but mutates scope data for only this call.
+    /// - parameter error: The error to send to Sentry.
+    /// - parameter hint: The hint providing additional context for callbacks.
+    /// - parameter block: The block mutating the scope only for this call.
+    /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
+    @discardableResult public static func capture(error: Error, hint: Hint, block: @escaping (Scope) -> Void) -> SentryId {
+        let scope = Scope(scope: SentrySDKInternal.currentHub().scope)
+        block(scope)
+        return SentrySDKInternal.capture(error: error as NSError, scope: scope, hint: hint)
+    }
+
     // MARK: - Exception Capture
 
     /// Captures an exception event and sends it to Sentry.
@@ -353,6 +420,37 @@ extension SentrySDK {
         return hub.capture(exception, with: hub.scope, attachAllThreads: NSNumber(value: attachAllThreads))
     }
 
+    /// Captures an exception event and sends it to Sentry with a user-provided hint.
+    /// The hint is passed to `beforeSend` callbacks, allowing inspection and modification.
+    /// - parameter exception: The exception to send to Sentry.
+    /// - parameter hint: The hint providing additional context for callbacks.
+    /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
+    @discardableResult public static func capture(exception: NSException, hint: Hint) -> SentryId {
+        return SentrySDKInternal.capture(exception: exception, scope: SentrySDKInternal.currentHub().scope, hint: hint)
+    }
+
+    /// Captures an exception event and sends it to Sentry with a user-provided hint.
+    /// Only the data in this scope object will be added to the event. The global scope will be ignored.
+    /// - parameter exception: The exception to send to Sentry.
+    /// - parameter scope: The scope containing event metadata.
+    /// - parameter hint: The hint providing additional context for callbacks.
+    /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
+    @discardableResult public static func capture(exception: NSException, scope: Scope, hint: Hint) -> SentryId {
+        return SentrySDKInternal.capture(exception: exception, scope: scope, hint: hint)
+    }
+
+    /// Captures an exception event and sends it to Sentry with a user-provided hint.
+    /// Maintains the global scope but mutates scope data for only this call.
+    /// - parameter exception: The exception to send to Sentry.
+    /// - parameter hint: The hint providing additional context for callbacks.
+    /// - parameter block: The block mutating the scope only for this call.
+    /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
+    @discardableResult public static func capture(exception: NSException, hint: Hint, block: @escaping (Scope) -> Void) -> SentryId {
+        let scope = Scope(scope: SentrySDKInternal.currentHub().scope)
+        block(scope)
+        return SentrySDKInternal.capture(exception: exception, scope: scope, hint: hint)
+    }
+
     // MARK: - Message Capture
 
     /// Captures a message event and sends it to Sentry.
@@ -401,6 +499,37 @@ extension SentrySDK {
     @discardableResult public static func capture(message: String, attachAllThreads: Bool) -> SentryId {
         let hub = SentrySDKInternal.currentHub()
         return hub.captureMessage(message, with: hub.scope, attachAllThreads: NSNumber(value: attachAllThreads))
+    }
+
+    /// Captures a message event and sends it to Sentry with a user-provided hint.
+    /// The hint is passed to `beforeSend` callbacks, allowing inspection and modification.
+    /// - parameter message: The message to send to Sentry.
+    /// - parameter hint: The hint providing additional context for callbacks.
+    /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
+    @discardableResult public static func capture(message: String, hint: Hint) -> SentryId {
+        return SentrySDKInternal.capture(message: message, scope: SentrySDKInternal.currentHub().scope, hint: hint)
+    }
+
+    /// Captures a message event and sends it to Sentry with a user-provided hint.
+    /// Only the data in this scope object will be added to the event. The global scope will be ignored.
+    /// - parameter message: The message to send to Sentry.
+    /// - parameter scope: The scope containing event metadata.
+    /// - parameter hint: The hint providing additional context for callbacks.
+    /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
+    @discardableResult public static func capture(message: String, scope: Scope, hint: Hint) -> SentryId {
+        return SentrySDKInternal.capture(message: message, scope: scope, hint: hint)
+    }
+
+    /// Captures a message event and sends it to Sentry with a user-provided hint.
+    /// Maintains the global scope but mutates scope data for only this call.
+    /// - parameter message: The message to send to Sentry.
+    /// - parameter hint: The hint providing additional context for callbacks.
+    /// - parameter block: The block mutating the scope only for this call.
+    /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
+    @discardableResult public static func capture(message: String, hint: Hint, block: @escaping (Scope) -> Void) -> SentryId {
+        let scope = Scope(scope: SentrySDKInternal.currentHub().scope)
+        block(scope)
+        return SentrySDKInternal.capture(message: message, scope: scope, hint: hint)
     }
 
     /// Captures user feedback that was manually gathered and sends it to Sentry.
@@ -657,24 +786,22 @@ extension SentrySDK {
 
     // MARK: - App Hang Tracking
 
+#if !SDK_V10
     /// Pauses sending detected app hangs to Sentry.
     ///
     /// This method doesn't close the detection of app hangs. Instead, the app hang detection
     /// will ignore detected app hangs until you call `resumeAppHangTracking`.
-    #if !SDK_V10
     @objc
-    #endif
     public static func pauseAppHangTracking() {
         SentrySDKInternal.pauseAppHangTracking()
     }
 
     /// Resumes sending detected app hangs to Sentry.
-    #if !SDK_V10
     @objc
-    #endif
     public static func resumeAppHangTracking() {
         SentrySDKInternal.resumeAppHangTracking()
     }
+#endif
 
     /// Waits synchronously for the SDK to flush out all queued and cached items for up to the specified
     /// timeout in seconds. If there is no internet connection, the function returns immediately. The SDK

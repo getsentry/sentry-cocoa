@@ -22,7 +22,10 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
             "orgId", // Docs PR: https://github.com/getsentry/sentry-docs/pull/16983
             "effectiveOrgId", // @_spi(Private) - internal computed property, not a user-facing option
             "enableMetrics", // Promoted to GA in https://github.com/getsentry/sentry-cocoa/pull/7843; docs update pending
-            "beforeSendMetric" // Promoted to GA in https://github.com/getsentry/sentry-cocoa/pull/7843; docs update pending
+            "beforeSendMetric", // Promoted to GA in https://github.com/getsentry/sentry-cocoa/pull/7843; docs update pending
+            "maxFeatureFlags", // Docs update pending
+            "beforeSendWithHint", // Deprecated in favor of adding hint to beforeSend in v10
+            "beforeBreadcrumbWithHint" // Deprecated in favor of adding hint to beforeBreadcrumb in v10
         ]
 
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
@@ -33,7 +36,7 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         #endif
 
         // Session replay (documented at https://docs.sentry.io/platforms/apple/session-replay/)
-        #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         options.insert("sessionReplay")
         #endif
 

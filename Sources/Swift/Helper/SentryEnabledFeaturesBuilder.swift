@@ -27,7 +27,7 @@ import Foundation
             features.append("persistingTracesWhenCrashing")
         }
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         if options.sessionReplay.enableViewRendererV2 {
             // We keep the old name for backwards compatibility of the telemetry data.
             features.append("experimentalViewRenderer")
@@ -52,6 +52,10 @@ import Foundation
         if options.enableMetrics {
             features.append("metrics")
         }
+        if options.maxFeatureFlags != defaultMaxScopeFeatureFlags {
+            // Only tracking if modified from the default
+            features.append("maxFeatureFlags")
+        }
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         #if SDK_V10
         features.append("standaloneAppStartTracing")
@@ -61,14 +65,18 @@ import Foundation
         }
         #endif // SDK_V10
         #endif // os(iOS) || os(tvOS) || os(visionOS)
+        #if !SDK_V10
         if options.experimental.enableWatchdogTerminationsV2 {
             features.append("watchdogTerminationsV2")
         }
+        #elseif (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        features.append("watchdogTerminationsV2")
+        #endif
         if options.experimental.enableUIViewControllerInitSwizzling {
             features.append("uiViewControllerInitSwizzling")
         }
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         if options.attachViewHierarchy {
             features.append("viewHierarchy")
         }

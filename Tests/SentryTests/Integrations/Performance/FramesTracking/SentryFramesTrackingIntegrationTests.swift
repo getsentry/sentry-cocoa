@@ -60,6 +60,7 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
         XCTAssertNotNil(sut?.tracker)
     }
 
+    #if !SDK_V10
     func testAppHangEnabled_MeasuresFrames() {
         let options = fixture.options
         let sut = SentryFramesTrackingIntegration(with: options, dependencies: fixture.dependencies)
@@ -82,6 +83,7 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
 
         XCTAssertNil(sut)
     }
+    #endif // !SDK_V10
 
     func testZeroTracesSampleRate_DoesNotMeasureFrames() {
         let options = fixture.options
@@ -100,7 +102,9 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
         let options = fixture.options
         options.tracesSampleRate = 0.1
         options.enableAutoPerformanceTracing = false
+        #if !SDK_V10
         options.enableAppHangTracking = false
+        #endif // !SDK_V10
         options.enableWatchdogTerminationTracking = false
         let sut = SentryFramesTrackingIntegration(with: options, dependencies: fixture.dependencies)
         defer {
@@ -130,6 +134,7 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
     }
 
     func testUninstall() throws {
+        fixture.options.tracesSampleRate = 0.1
         let sut = try XCTUnwrap(SentryFramesTrackingIntegration(with: fixture.options, dependencies: fixture.dependencies))
 
         SentryDependencyContainer.sharedInstance().framesTracker.setDisplayLinkWrapper(fixture.displayLink)

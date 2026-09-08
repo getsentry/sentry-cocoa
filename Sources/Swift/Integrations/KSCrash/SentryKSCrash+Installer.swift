@@ -11,12 +11,14 @@ extension SentryKSCrash {
         ///   - monitors: Monitor types to enable.
         ///   - enableMemoryIntrospection: Whether to introspect memory contents during a crash.
         ///   - enableSwapCxaThrow: Whether to swap `__cxa_throw` for better C++ stacks.
+        ///   - enableSwiftAsyncStackTraces: Whether to stitch Swift async frames into current-thread captures.
         /// - Throws: Any error from `KSCrash.installWithConfiguration(_:error:)`.
         func install(
             installPath: String,
             monitors: MonitorType,
             enableMemoryIntrospection: Bool,
-            enableSwapCxaThrow: Bool
+            enableSwapCxaThrow: Bool,
+            enableSwiftAsyncStackTraces: Bool
         ) throws
 
         /// Uninstall the crash handler for the current SDK lifecycle.
@@ -43,6 +45,11 @@ extension SentryKSCrash {
 
         /// Adds additional user information to the crash handler
         func setUserInfo(_ userInfo: [String: Any])
+
+        #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
+        /// The fatal NSException handler installed by the active crash backend.
+        var uncaughtExceptionHandler: (@convention(c) (NSException) -> Void)? { get }
+        #endif
     }
 
     /// Configures and installs a crash handler.
@@ -55,25 +62,30 @@ extension SentryKSCrash {
             installPath: String,
             monitors: MonitorType,
             enableMemoryIntrospection: Bool,
-            enableSwapCxaThrow: Bool
+            enableSwapCxaThrow: Bool,
+            enableSwiftAsyncStackTraces: Bool
         ) throws {
             let config = KSCrashConfiguration()
             config.installPath = installPath
             config.monitors = monitors
             config.enableMemoryIntrospection = enableMemoryIntrospection
             config.enableSwapCxaThrow = enableSwapCxaThrow
+            config.enableSwiftAsyncStackTraces = enableSwiftAsyncStackTraces
             config.reportStoreConfiguration.reportCleanupPolicy = .onSuccess
             #if SENTRY_CRASH_E2E
             config.userInfoJSON = SentryKSCrash.CrashE2ETestHook.reportUserInfo
             #endif
+
+            config.willWriteReportCallback = sentrykscrash_willWriteReport
+            config.isWritingReportCallback = sentrykscrash_isWritingReport
+            config.didWriteReportCallback = sentrykscrash_didWriteReport
+
 #if SENTRY_DISABLE_SENTRYCRASH_V10
-            // KSCRASH_TODO(GH-8276, GH-8758): No KSCrash report-writing callback copies the
-            // SDK-owned scope mirror into sentry_sdk_scope. Acceptance: SCV10-014 in
+            // KSCRASH_TODO(GH-8273, GH-8532, GH-8801, GH-8735): didWriteReport is installed but
+            // still a no-op. Screenshots, view hierarchy, replay checkpoint, and active-trace
+            // persistence belong in sentrykscrash_didWriteReport. Acceptance: SCV10-008,
+            // SCV10-009, SCV10-010, SCV10-027, and SCV10-039 in
             // SENTRYCRASH_V10_MIGRATION_LEDGER.md.
-#endif
-#if SENTRY_DISABLE_SENTRYCRASH_V10
-            // KSCRASH_TODO(GH-8801): No KSCrash crash/report callback writes the session-replay
-            // recovery checkpoint. Acceptance: SCV10-039 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
 #endif
             do {
                 try KSCrash.shared.install(with: config)
@@ -156,6 +168,12 @@ extension SentryKSCrash {
 
         var crashedLastLaunch: Bool { KSCrash.shared.crashedLastLaunch }
         var activeDurationSinceLastCrash: TimeInterval { KSCrash.shared.activeDurationSinceLastCrash }
+
+        #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
+        var uncaughtExceptionHandler: (@convention(c) (NSException) -> Void)? {
+            KSCrash.shared.uncaughtExceptionHandler
+        }
+        #endif
 
         func setUserInfo(_ userInfo: [String: Any]) {
             guard installed else {

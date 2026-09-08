@@ -1,4 +1,4 @@
-#if os(iOS) || os(tvOS)
+#if os(iOS) || os(tvOS) || os(visionOS)
 
 @_spi(Private) @testable import Sentry
 @_spi(Private) @testable import SentryTestUtils
@@ -243,6 +243,7 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         
     }
     
+    #if !SDK_V10
     func test_backgroundForAppHangs() throws {
         let sut = try fixture.getSut()
         defer {
@@ -265,7 +266,8 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         
         wait(for: [ex], timeout: 1)
     }
+    #endif // !SDK_V10
     
 }
 
-#endif // os(iOS) || os(tvOS)
+#endif // os(iOS) || os(tvOS) || os(visionOS)

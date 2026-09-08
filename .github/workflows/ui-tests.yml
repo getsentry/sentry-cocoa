@@ -92,6 +92,7 @@ jobs:
           - ios_17
           - ios_18
           - ios_26
+          - ios_27
         include:
           - job_id: ios_17
             name: iOS 17
@@ -112,12 +113,23 @@ jobs:
             runs_on: tahoe
             xcode: "26"
             platform: "iOS"
+
+          # TODO: Remove continue_on_error once Xcode 27 and the iOS 27 simulator runtime are stable.
+          - job_id: ios_27
+            name: iOS 27
+            runs_on: xcode-beta
+            xcode: "27"
+            allow_prerelease: true
+            continue_on_error: true
+            platform: "iOS"
     with:
       fastlane_command: ui_tests_ios_swift
       files_suffix: _xcode_${{matrix.xcode}}-${{matrix.device}}
       build_with_make: true
       macos_version: ${{matrix.runs_on}}
       xcode_version: ${{ matrix.xcode}}
+      allow_prerelease: ${{matrix.allow_prerelease || false}}
+      continue_on_error: ${{matrix.continue_on_error || false}}
       test-destination-os: ${{matrix.test_destination_os}}
       platform: ${{matrix.platform}}
       device: ${{matrix.device}}
@@ -135,6 +147,25 @@ jobs:
       platform: iOS
       files_suffix: _swift6_
 
+  ui-tests-macos-swift:
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_for_prs == 'true'
+    needs: files-changed
+    name: Test macOS Swift V1 # Up the version with every change to keep track of flaky tests
+    runs-on: ["bitrise_pool_name:tahoe"]
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "26"
+      - run: make init-ci-build
+      - name: Run macOS UI tests
+        run: make test-sample-macOS-Swift-ui
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
+        if: failure()
+
   # This check validates that either UI tests passed or were skipped, which allows us
   # to make UI tests a required check with only running the UI tests when required.
   # So, we don't have to run UI tests, for example, for unrelated changes.
@@ -146,6 +177,7 @@ jobs:
         ui-tests-swift-ui,
         ui-tests-swift,
         ui-tests-swift6,
+        ui-tests-macos-swift,
         run-full-ci-gate,
       ]
     name: UI Tests - Check

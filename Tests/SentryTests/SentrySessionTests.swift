@@ -21,7 +21,7 @@ class SentrySessionTestsSwift: XCTestCase {
     func testEndSession() {
         let session = SentrySession(releaseName: "0.1.0", distinctId: "some-id")
         let date = currentDateProvider.date().addingTimeInterval(1)
-        session.endExited(withTimestamp: date)
+        session.endNormally(withTimestamp: date)
         
         XCTAssertEqual(1, session.duration)
         XCTAssertEqual(date, session.timestamp)
@@ -82,7 +82,7 @@ class SentrySessionTestsSwift: XCTestCase {
         // Duration is set when the session ends and must survive serialization.
         let session = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
         let endDate = currentDateProvider.date().addingTimeInterval(2)
-        session.endExited(withTimestamp: endDate)
+        session.endNormally(withTimestamp: endDate)
 
         // -- Act --
         let json = session.serialize()
@@ -114,6 +114,7 @@ class SentrySessionTestsSwift: XCTestCase {
         testStatus(status: SentrySessionStatus.exited, statusAsString: "exited")
         testStatus(status: SentrySessionStatus.crashed, statusAsString: "crashed")
         testStatus(status: SentrySessionStatus.abnormal, statusAsString: "abnormal")
+        testStatus(status: SentrySessionStatus.unhandled, statusAsString: "unhandled")
     }
     
     func testInitWithJson_IfJsonMissesField_SessionIsNil() {
@@ -253,7 +254,7 @@ class SentrySessionTestsSwift: XCTestCase {
     func testSerializeExtraFieldsEndedSessionWithNilStatus() throws {
         let expected = SentrySession(releaseName: "io.sentry@5.0.0-test", distinctId: "some-id")
         let timestamp = Date()
-        expected.endExited(withTimestamp: timestamp)
+        expected.endNormally(withTimestamp: timestamp)
         expected.environment = "prod"
         let json = expected.serialize()
         let actual = try XCTUnwrap(SentrySession(jsonObject: json))
@@ -275,7 +276,7 @@ class SentrySessionTestsSwift: XCTestCase {
     func testSerializeErrorIncremented() throws {
         let expected = SentrySession(releaseName: "", distinctId: "some-id")
         expected.incrementErrors()
-        expected.endExited(withTimestamp: Date())
+        expected.endNormally(withTimestamp: Date())
         let json = expected.serialize()
         let actual = try XCTUnwrap(SentrySession(jsonObject: json))
 
@@ -321,10 +322,187 @@ class SentrySessionTestsSwift: XCTestCase {
         XCTAssertEqual(0, session.errors)
         XCTAssertEqual(SentrySessionStatus.ok, session.status)
         XCTAssertEqual(1, session.sequence)
-        session.endExited(withTimestamp: Date())
+        session.endNormally(withTimestamp: Date())
         XCTAssertEqual(0, session.errors)
         XCTAssertEqual(SentrySessionStatus.exited, session.status)
         XCTAssertEqual(2, session.sequence)
+    }
+
+    // MARK: - Pending Unhandled
+
+    func testInitDefaultValues_whenNewSession_shouldNotBePendingUnhandled() {
+        // -- Arrange & Act --
+        let session = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
+
+        // -- Assert --
+        XCTAssertFalse(session.pendingUnhandled)
+    }
+
+    func testMarkPendingUnhandled_shouldKeepStatusOkAndNotChangeSequenceOrErrors() {
+        // -- Arrange --
+        let session = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
+
+        // -- Act --
+        session.markPendingUnhandled()
+
+        // -- Assert --
+        XCTAssertTrue(session.pendingUnhandled)
+        XCTAssertEqual(SentrySessionStatus.ok, session.status)
+        XCTAssertEqual(1, session.sequence)
+        XCTAssertEqual(0, session.errors)
+        XCTAssertTrue(session.flagInit?.boolValue ?? false)
+    }
+
+    func testMarkPendingUnhandled_whenCalledTwice_shouldStayPending() {
+        // -- Arrange --
+        let session = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
+
+        // -- Act --
+        session.markPendingUnhandled()
+        session.markPendingUnhandled()
+
+        // -- Assert --
+        XCTAssertTrue(session.pendingUnhandled)
+        XCTAssertEqual(1, session.sequence)
+    }
+
+    func testEndNormally_whenPendingUnhandled_shouldEndAsUnhandled() {
+        // -- Arrange --
+        let session = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
+        session.incrementErrors()
+        session.markPendingUnhandled()
+        let timestamp = currentDateProvider.date().addingTimeInterval(3)
+
+        // -- Act --
+        session.endNormally(withTimestamp: timestamp)
+
+        // -- Assert --
+        XCTAssertEqual(SentrySessionStatus.unhandled, session.status)
+        XCTAssertEqual(timestamp, session.timestamp)
+        XCTAssertEqual(3, session.duration)
+        XCTAssertEqual(1, session.errors)
+    }
+
+    func testEndCrashed_whenPendingUnhandled_shouldEndAsCrashed() {
+        // -- Arrange --
+        let session = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
+        session.markPendingUnhandled()
+
+        // -- Act --
+        session.endCrashed(withTimestamp: currentDateProvider.date())
+
+        // -- Assert --
+        XCTAssertEqual(SentrySessionStatus.crashed, session.status)
+    }
+
+    func testEndAbnormal_whenPendingUnhandled_shouldEndAsAbnormal() {
+        // -- Arrange --
+        let session = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
+        session.markPendingUnhandled()
+
+        // -- Act --
+        session.endAbnormal(withTimestamp: currentDateProvider.date())
+
+        // -- Assert --
+        XCTAssertEqual(SentrySessionStatus.abnormal, session.status)
+    }
+
+    func testCopy_whenPendingUnhandled_shouldCopyPendingUnhandled() throws {
+        // -- Arrange --
+        let session = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
+        session.markPendingUnhandled()
+
+        // -- Act --
+        let copiedSession = try XCTUnwrap(session.copy() as? SentrySession)
+
+        // -- Assert --
+        XCTAssertTrue(copiedSession.pendingUnhandled)
+    }
+
+    func testSerialize_whenPendingUnhandled_shouldNotAddPendingUnhandled() {
+        // -- Arrange --
+        let session = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
+        session.markPendingUnhandled()
+
+        // -- Act --
+        let jsonDict = session.serialize()
+
+        // -- Assert --
+        XCTAssertNil(jsonDict["pending_unhandled"])
+    }
+
+    func testSerializeForPersistence_whenPendingUnhandled_shouldAddPendingUnhandled() {
+        // -- Arrange --
+        let session = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
+        session.markPendingUnhandled()
+
+        // -- Act --
+        let jsonDict = session.serializeForPersistence()
+
+        // -- Assert --
+        XCTAssertEqual(true, jsonDict["pending_unhandled"] as? Bool)
+    }
+
+    func testSerializeForPersistence_whenNotPendingUnhandled_shouldNotAddPendingUnhandled() {
+        // -- Arrange --
+        let session = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
+
+        // -- Act --
+        let jsonDict = session.serializeForPersistence()
+
+        // -- Assert --
+        XCTAssertNil(jsonDict["pending_unhandled"])
+    }
+
+    func testInitWithJson_whenPendingUnhandled_shouldSetPendingUnhandled() throws {
+        // -- Arrange --
+        let session = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
+        session.markPendingUnhandled()
+        let jsonDict = session.serializeForPersistence()
+
+        // -- Act --
+        let actual = try XCTUnwrap(SentrySession(jsonObject: jsonDict))
+
+        // -- Assert --
+        XCTAssertTrue(actual.pendingUnhandled)
+    }
+
+    func testInitWithJson_whenPendingUnhandledMissing_shouldNotBePendingUnhandled() throws {
+        // -- Arrange --
+        let session = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
+        let jsonDict = session.serialize()
+
+        // -- Act --
+        let actual = try XCTUnwrap(SentrySession(jsonObject: jsonDict))
+
+        // -- Assert --
+        XCTAssertFalse(actual.pendingUnhandled)
+    }
+
+    func testInitWithJson_whenPendingUnhandledIsString_shouldNotBePendingUnhandled() throws {
+        // -- Arrange --
+        let session = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
+        var jsonDict = session.serialize()
+        jsonDict["pending_unhandled"] = "true"
+
+        // -- Act --
+        let actual = try XCTUnwrap(SentrySession(jsonObject: jsonDict))
+
+        // -- Assert --
+        XCTAssertFalse(actual.pendingUnhandled)
+    }
+
+    func testInitWithJson_whenPendingUnhandledAndEndNormally_shouldEndAsUnhandled() throws {
+        // -- Arrange --
+        let session = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
+        session.markPendingUnhandled()
+        let restored = try XCTUnwrap(SentrySession(jsonObject: session.serializeForPersistence()))
+
+        // -- Act --
+        restored.endNormally(withTimestamp: currentDateProvider.date())
+
+        // -- Assert --
+        XCTAssertEqual(SentrySessionStatus.unhandled, restored.status)
     }
 }
 
@@ -340,7 +518,8 @@ extension SentrySession {
             || duration != session.duration
             || releaseName != session.releaseName
             || environment != session.environment
-            || flagInit != session.flagInit {
+            || flagInit != session.flagInit
+            || pendingUnhandled != session.pendingUnhandled {
             return false
         }
         return true

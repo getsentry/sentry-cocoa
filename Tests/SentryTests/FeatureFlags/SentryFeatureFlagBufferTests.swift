@@ -141,6 +141,90 @@ final class SentryFeatureFlagBufferTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(spanData["flag.evaluation.second"] as? Bool), true)
     }
 
+    func testScopeBuffer_whenNoMaxSizeGiven_shouldRetainOneHundredEvaluations() {
+        // -- Arrange --
+        let sut = SentryFeatureFlagBuffer.scopeBuffer()
+
+        // -- Act --
+        for index in 0..<150 {
+            sut.add(name: "flag-\(index)", value: true)
+        }
+
+        // -- Assert --
+        XCTAssertEqual(sut.allEvaluations.count, 100)
+    }
+
+    func testScopeBuffer_whenMaxSizeGiven_shouldRetainMostRecentEvaluations() {
+        // -- Arrange --
+        let sut = SentryFeatureFlagBuffer.scopeBuffer(maxSize: 5)
+
+        // -- Act --
+        for index in 0..<10 {
+            sut.add(name: "flag-\(index)", value: true)
+        }
+
+        // -- Assert --
+        XCTAssertEqual(
+            sut.allEvaluations.map(\.flag),
+            ["flag-5", "flag-6", "flag-7", "flag-8", "flag-9"]
+        )
+    }
+
+    func testScopeBuffer_whenMaxSizeIsZero_shouldRetainNothing() throws {
+        // -- Arrange --
+        let sut = SentryFeatureFlagBuffer.scopeBuffer(maxSize: 0)
+
+        // -- Act --
+        sut.add(name: "first", value: true)
+
+        // -- Assert --
+        XCTAssertEqual(sut.allEvaluations.count, 0)
+        XCTAssertNil(sut.serializeForContext())
+    }
+
+    func testScopeBuffer_whenMaxSizeIsLarge_shouldRetainAllEvaluations() throws {
+        // -- Arrange --
+        let sut = SentryFeatureFlagBuffer.scopeBuffer(maxSize: 2_000)
+
+        // -- Act --
+        for index in 0..<2_000 {
+            sut.add(name: "flag-\(index)", value: true)
+        }
+
+        // -- Assert --
+        let context = try XCTUnwrap(sut.serializeForContext())
+        let values = try XCTUnwrap(context["values"] as? [[String: Any]])
+        XCTAssertEqual(values.count, 2_000)
+    }
+
+    func testScopeBuffer_whenReevaluatingExistingFlag_shouldNotConsumeAnotherSlot() {
+        // -- Arrange --
+        let sut = SentryFeatureFlagBuffer.scopeBuffer(maxSize: 2)
+        sut.add(name: "first", value: true)
+        sut.add(name: "second", value: true)
+
+        // -- Act --
+        sut.add(name: "first", value: false)
+
+        // -- Assert --
+        XCTAssertEqual(sut.allEvaluations.map(\.flag), ["second", "first"])
+        XCTAssertEqual(sut.allEvaluations.last?.result, .boolean(false))
+    }
+
+    func testCopy_whenBufferHasCustomMaxSize_shouldPreserveMaxSize() {
+        // -- Arrange --
+        let sut = SentryFeatureFlagBuffer.scopeBuffer(maxSize: 2)
+        sut.add(name: "first", value: true)
+        sut.add(name: "second", value: true)
+
+        // -- Act --
+        let copy = sut.copy()
+        copy.add(name: "third", value: true)
+
+        // -- Assert --
+        XCTAssertEqual(copy.allEvaluations.map(\.flag), ["second", "third"])
+    }
+
     func testCopy_whenMutatingCopy_shouldNotMutateOriginal() {
         // -- Arrange --
         let sut = SentryFeatureFlagBuffer(maxSize: 3, overflowBehavior: .dropOldest)

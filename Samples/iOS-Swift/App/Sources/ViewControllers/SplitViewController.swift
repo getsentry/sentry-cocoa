@@ -1,6 +1,6 @@
 import Foundation
-import Sentry
 import SentrySampleShared
+import SentrySwift
 import UIKit
 
 class SplitViewController: UISplitViewController {

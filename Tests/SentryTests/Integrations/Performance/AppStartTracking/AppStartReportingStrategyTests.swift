@@ -259,6 +259,30 @@ class AppStartReportingStrategyTests: XCTestCase {
         XCTAssertNil(extra?["app.vitals.start.screen"])
     }
 
+    func testReport_whenScreenNameSet_shouldCopyTypeAndScreenOntoChildSpans() throws {
+        let hub = setUpIntegrationHub()
+        let measurement = createMeasurement(type: .cold)
+        SentryAppStartMeasurementProvider.setAppStartScreen("MainViewController")
+        addTeardownBlock { SentryAppStartMeasurementProvider.reset() }
+
+        StandaloneTransactionStrategy(extendedAppLaunchManager: SentryExtendedAppLaunchManager()).report(measurement, traceId: SentryId())
+
+        let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
+        let spans = try XCTUnwrap(serialized["spans"] as? [[String: Any]])
+        try assertAppStartVitals(on: spans, type: "cold", screen: "MainViewController")
+    }
+
+    func testReport_whenNoScreenNameSet_shouldCopyTypeButNotScreenOntoChildSpans() throws {
+        let hub = setUpIntegrationHub()
+        let measurement = createMeasurement(type: .warm)
+
+        StandaloneTransactionStrategy(extendedAppLaunchManager: SentryExtendedAppLaunchManager()).report(measurement, traceId: SentryId())
+
+        let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
+        let spans = try XCTUnwrap(serialized["spans"] as? [[String: Any]])
+        try assertAppStartVitals(on: spans, type: "warm", screen: nil)
+    }
+
     func testReport_shouldSetStartReasonToLaunch() throws {
 
         let hub = setUpIntegrationHub()
@@ -447,6 +471,43 @@ class AppStartReportingStrategyTests: XCTestCase {
         let end = span["timestamp"] as? TimeInterval ?? 0
         XCTAssertEqual(start, expectedStart, accuracy: 0.001, file: file, line: line)
         XCTAssertEqual(end, expectedEnd, accuracy: 0.001, file: file, line: line)
+    }
+
+    private func assertAppStartVitals(
+        on spans: [[String: Any]],
+        type: String,
+        screen: String?,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) throws {
+        XCTAssertFalse(spans.isEmpty, "Expected child spans", file: file, line: line)
+        for span in spans {
+            let data = span["data"] as? [String: Any]
+            let op = span["op"] as? String ?? ""
+            XCTAssertEqual(
+                data?["app.vitals.start.type"] as? String,
+                type,
+                "Missing or wrong type on \(op)",
+                file: file,
+                line: line
+            )
+            if let screen {
+                XCTAssertEqual(
+                    data?["app.vitals.start.screen"] as? String,
+                    screen,
+                    "Missing or wrong screen on \(op)",
+                    file: file,
+                    line: line
+                )
+            } else {
+                XCTAssertNil(
+                    data?["app.vitals.start.screen"],
+                    "Screen should be omitted on \(op)",
+                    file: file,
+                    line: line
+                )
+            }
+        }
     }
 }
 
