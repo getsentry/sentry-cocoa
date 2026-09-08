@@ -766,6 +766,15 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
     }
 
     private func isNewLoaderTask(_ task: URLSessionTask) -> Bool {
+        // Both loaders expose tasks through the public URLSessionTask API, but their private
+        // Objective-C runtime implementations have different class hierarchies.
+        // Classic loader task classes inherit from URLSessionTask and expose the private setState:
+        // transition that we swizzle to observe completion.
+        //
+        // The Network.framework loader's task classes do neither, so we can only observe their
+        // completion by wrapping the public factory completion handler.
+        // Detecting that hierarchy here prevents us from starting spans for new-loader tasks whose
+        // completion we cannot observe, which would leave those spans unfinished.
         var currentClass: AnyClass? = type(of: task)
         while let candidate = currentClass {
             if candidate === URLSessionTask.self {

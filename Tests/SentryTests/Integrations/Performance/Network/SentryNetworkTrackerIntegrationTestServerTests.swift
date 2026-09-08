@@ -469,14 +469,22 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
     }
 
 #if compiler(>=6.1)
-    private func assertNetworkTracking(usesClassicLoadingMode: Bool) throws {
+    private func assertNetworkTracking(
+        usesClassicLoadingMode: Bool,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) throws {
         // -- Arrange --
         guard #available(macOS 15.4, iOS 18.4, tvOS 18.4, watchOS 11.4, visionOS 2.4, *) else {
             throw XCTSkip("The selected OS does not support choosing the URLSession HTTP loader.")
         }
 
         try ensureTestServerIsRunning()
-        let url = try XCTUnwrap(URL(string: "http://localhost:8081/echo-sentry-trace"))
+        let url = try XCTUnwrap(
+            URL(string: "http://localhost:8081/echo-sentry-trace"),
+            file: file,
+            line: line
+        )
         let requestCompleted = expectationAllowingOverFulfill(description: "Request completed")
         let configuration = URLSessionConfiguration.ephemeral
         configuration.usesClassicLoadingMode = usesClassicLoadingMode
@@ -484,14 +492,18 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         defer { session.finishTasksAndInvalidate() }
 
         startSDK()
-        let transaction = try XCTUnwrap(SentrySDK.startTransaction(
-            name: "Test Transaction",
-            operation: "TEST",
-            bindToScope: true
-        ) as? SentryTracer)
+        let transaction = try XCTUnwrap(
+            SentrySDK.startTransaction(
+                name: "Test Transaction",
+                operation: "TEST",
+                bindToScope: true
+            ) as? SentryTracer,
+            file: file,
+            line: line
+        )
         let responseBody = SentryMutex<String?>(nil)
         let task = session.dataTask(with: url) { data, _, error in
-            self.assertNetworkError(error)
+            self.assertNetworkError(error, file: file, line: line)
             responseBody.withLock { $0 = String(data: data ?? Data(), encoding: .utf8) }
             requestCompleted.fulfill()
         }
@@ -511,19 +523,36 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         let networkSpan: Span
         if usesClassicLoadingMode {
             let responseTraceHeader = responseBody.withLock { $0 }
-            networkSpan = try XCTUnwrap(children.first {
-                $0.toTraceHeader().value() == responseTraceHeader
-            })
+            networkSpan = try XCTUnwrap(
+                children.first {
+                    $0.toTraceHeader().value() == responseTraceHeader
+                },
+                file: file,
+                line: line
+            )
         } else {
-            networkSpan = try XCTUnwrap(children.first)
-            XCTAssertEqual(responseBody.withLock { $0 }, "(NO-HEADER)")
+            networkSpan = try XCTUnwrap(children.first, file: file, line: line)
+            XCTAssertEqual(responseBody.withLock { $0 }, "(NO-HEADER)", file: file, line: line)
         }
-        XCTAssertTrue(networkSpan.isFinished)
-        XCTAssertEqual(networkSpan.data["http.response.status_code"] as? NSNumber, 200)
+        XCTAssertTrue(networkSpan.isFinished, file: file, line: line)
+        XCTAssertEqual(
+            networkSpan.data["http.response.status_code"] as? NSNumber,
+            200,
+            file: file,
+            line: line
+        )
     }
 
-    private func assertDownloadTracking(usesClassicLoadingMode: Bool) throws {
-        try assertTaskTracking(usesClassicLoadingMode: usesClassicLoadingMode) { session, url, completion in
+    private func assertDownloadTracking(
+        usesClassicLoadingMode: Bool,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) throws {
+        try assertTaskTracking(
+            usesClassicLoadingMode: usesClassicLoadingMode,
+            file: file,
+            line: line
+        ) { session, url, completion in
             session.downloadTask(with: url) { location, _, error in
                 guard let location else {
                     return completion(nil, error)
@@ -538,8 +567,16 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         }
     }
 
-    private func assertUploadTracking(usesClassicLoadingMode: Bool) throws {
-        try assertTaskTracking(usesClassicLoadingMode: usesClassicLoadingMode) { session, url, completion in
+    private func assertUploadTracking(
+        usesClassicLoadingMode: Bool,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) throws {
+        try assertTaskTracking(
+            usesClassicLoadingMode: usesClassicLoadingMode,
+            file: file,
+            line: line
+        ) { session, url, completion in
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
             return session.uploadTask(with: request, from: Data("test".utf8)) { data, _, error in
@@ -550,6 +587,8 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
 
     private func assertTaskTracking(
         usesClassicLoadingMode: Bool,
+        file: StaticString = #file,
+        line: UInt = #line,
         makeTask: (URLSession, URL, @escaping (String?, Error?) -> Void) -> URLSessionTask
     ) throws {
         guard #available(macOS 15.4, iOS 18.4, tvOS 18.4, watchOS 11.4, visionOS 2.4, *) else {
@@ -557,7 +596,11 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         }
 
         try ensureTestServerIsRunning()
-        let url = try XCTUnwrap(URL(string: "http://localhost:8081/echo-sentry-trace"))
+        let url = try XCTUnwrap(
+            URL(string: "http://localhost:8081/echo-sentry-trace"),
+            file: file,
+            line: line
+        )
         let requestCompleted = expectationAllowingOverFulfill(description: "Request completed")
         let configuration = URLSessionConfiguration.ephemeral
         configuration.usesClassicLoadingMode = usesClassicLoadingMode
@@ -565,14 +608,18 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         defer { session.finishTasksAndInvalidate() }
 
         startSDK()
-        let transaction = try XCTUnwrap(SentrySDK.startTransaction(
-            name: "Test Transaction",
-            operation: "TEST",
-            bindToScope: true
-        ) as? SentryTracer)
+        let transaction = try XCTUnwrap(
+            SentrySDK.startTransaction(
+                name: "Test Transaction",
+                operation: "TEST",
+                bindToScope: true
+            ) as? SentryTracer,
+            file: file,
+            line: line
+        )
         let responseBody = SentryMutex<String?>(nil)
         let task = makeTask(session, url) { body, error in
-            self.assertNetworkError(error)
+            self.assertNetworkError(error, file: file, line: line)
             responseBody.withLock { $0 = body }
             requestCompleted.fulfill()
         }
@@ -583,22 +630,39 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         let networkSpan: Span
         if usesClassicLoadingMode {
             let responseTraceHeader = responseBody.withLock { $0 }
-            networkSpan = try XCTUnwrap(transaction.children.first {
-                $0.toTraceHeader().value() == responseTraceHeader
-            })
+            networkSpan = try XCTUnwrap(
+                transaction.children.first {
+                    $0.toTraceHeader().value() == responseTraceHeader
+                },
+                file: file,
+                line: line
+            )
         } else {
-            networkSpan = try XCTUnwrap(transaction.children.first)
-            XCTAssertEqual(responseBody.withLock { $0 }, "(NO-HEADER)")
+            networkSpan = try XCTUnwrap(transaction.children.first, file: file, line: line)
+            XCTAssertEqual(responseBody.withLock { $0 }, "(NO-HEADER)", file: file, line: line)
         }
-        XCTAssertTrue(networkSpan.isFinished)
-        XCTAssertEqual(networkSpan.data["http.response.status_code"] as? NSNumber, 200)
+        XCTAssertTrue(networkSpan.isFinished, file: file, line: line)
+        XCTAssertEqual(
+            networkSpan.data["http.response.status_code"] as? NSNumber,
+            200,
+            file: file,
+            line: line
+        )
     }
 
 #endif
 
-    private func assertNetworkError(_ error: Error?) {
+    private func assertNetworkError(
+        _ error: Error?,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) {
         if error != nil {
-            XCTFail("Failed to complete request : \(String(describing: error))")
+            XCTFail(
+                "Failed to complete request : \(String(describing: error))",
+                file: file,
+                line: line
+            )
         }
     }
 
