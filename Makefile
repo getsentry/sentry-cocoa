@@ -606,6 +606,9 @@ build-xcframework-sentryobjc-static:
 	@echo "--> Creating SentryObjC-Static xcframework (SDKs: $(SDKS))"
 	./scripts/build-xcframework-sentryobjc.sh --sdks "$(SDKS)"
 	./scripts/validate-xcframework.sh --xcframework "SentryObjC-Static.xcframework"
+	./scripts/validate-xcframework-sentryobjc-static.sh \
+		--xcframework "SentryObjC-Static.xcframework" \
+		--build-consumer
 	./scripts/compress-xcframework.sh --xcframework "SentryObjC-Static.xcframework"
 
 ## Build SentryObjC-Dynamic XCFramework locally for one or more SDKs

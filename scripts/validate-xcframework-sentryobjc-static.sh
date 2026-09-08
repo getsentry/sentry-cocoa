@@ -6,10 +6,12 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/ci-utils.sh"
 
 XCFRAMEWORK_PATH=""
+BUILD_CONSUMER=false
 
 usage() {
-    log_notice "Usage: $0 --xcframework <path>"
+    log_notice "Usage: $0 --xcframework <path> [--build-consumer]"
     log_notice "  --xcframework <path>    SentryObjC static XCFramework to validate (required)"
+    log_notice "  --build-consumer        Build the macOS CMake consumer and fail on warnings"
     exit 1
 }
 
@@ -21,6 +23,10 @@ while [[ $# -gt 0 ]]; do
             fi
             XCFRAMEWORK_PATH="$2"
             shift 2
+            ;;
+        --build-consumer)
+            BUILD_CONSUMER=true
+            shift
             ;;
         -h|--help)
             usage
@@ -55,11 +61,21 @@ if [ ${#STATIC_LIBRARIES[@]} -eq 0 ]; then
 fi
 
 for static_library in "${STATIC_LIBRARIES[@]}"; do
-    if nm -ap "$static_library" | grep ' OSO ' > /dev/null; then
+    if ! nm_output="$(nm -ap "$static_library")"; then
+        log_error "Could not inspect static library debug maps: $static_library"
+        exit 1
+    fi
+    if grep ' OSO ' <<< "$nm_output" > /dev/null; then
         log_error "Static library contains debug-map references to external object files: $static_library"
         exit 1
     fi
 done
+
+log_info "SentryObjC static libraries contain no external debug maps"
+
+if [ "$BUILD_CONSUMER" = false ]; then
+    exit 0
+fi
 
 MACOS_LIBRARY="$XCFRAMEWORK_PATH/macos-arm64_x86_64/libSentryObjC.a"
 if [ ! -f "$MACOS_LIBRARY" ]; then
