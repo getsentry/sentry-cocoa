@@ -263,6 +263,7 @@ run_release_for_prs: &run_release_for_prs
   - "Package*.swift"
 
   # Sample projects
+  - "Samples/macOS-ObjectiveC-Static-CMake/**"
   - "Samples/macOS-SPM-CommandLine/**"
   - "Samples/SPM-Dynamic/**"
 

@@ -1,0 +1,93 @@
+#!/bin/bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=./ci-utils.sh disable=SC1091
+source "$SCRIPT_DIR/ci-utils.sh"
+
+XCFRAMEWORK_PATH=""
+
+usage() {
+    log_notice "Usage: $0 --xcframework <path>"
+    log_notice "  --xcframework <path>    SentryObjC static XCFramework to validate (required)"
+    exit 1
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --xcframework)
+            if [ $# -lt 2 ]; then
+                usage
+            fi
+            XCFRAMEWORK_PATH="$2"
+            shift 2
+            ;;
+        -h|--help)
+            usage
+            ;;
+        *)
+            log_error "Unknown argument: $1"
+            usage
+            ;;
+    esac
+done
+
+if [ -z "$XCFRAMEWORK_PATH" ]; then
+    log_error "Error: --xcframework is required"
+    usage
+fi
+
+if [ ! -d "$XCFRAMEWORK_PATH" ]; then
+    log_error "XCFramework path does not exist: $XCFRAMEWORK_PATH"
+    exit 1
+fi
+
+XCFRAMEWORK_PATH="$(cd "$XCFRAMEWORK_PATH" && pwd)"
+STATIC_LIBRARIES=()
+while IFS= read -r -d '' static_library; do
+    STATIC_LIBRARIES+=( "$static_library" )
+done < <(find "$XCFRAMEWORK_PATH" -mindepth 2 -maxdepth 2 \
+    -name "libSentryObjC.a" -type f -print0)
+
+if [ ${#STATIC_LIBRARIES[@]} -eq 0 ]; then
+    log_error "No SentryObjC static libraries found in $XCFRAMEWORK_PATH"
+    exit 1
+fi
+
+for static_library in "${STATIC_LIBRARIES[@]}"; do
+    if nm -ap "$static_library" | grep ' OSO ' > /dev/null; then
+        log_error "Static library contains debug-map references to external object files: $static_library"
+        exit 1
+    fi
+done
+
+MACOS_LIBRARY="$XCFRAMEWORK_PATH/macos-arm64_x86_64/libSentryObjC.a"
+if [ ! -f "$MACOS_LIBRARY" ]; then
+    log_notice "No macOS slice found, skipping the CMake consumer build"
+    exit 0
+fi
+
+REPOSITORY_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+BUILD_DIR="$(mktemp -d "${TMPDIR:-/tmp}/sentryobjc-static-cmake.XXXXXX")"
+trap 'rm -rf "$BUILD_DIR"' EXIT
+
+cmake \
+    -S "$REPOSITORY_ROOT/Samples/macOS-ObjectiveC-Static-CMake" \
+    -B "$BUILD_DIR" \
+    -G Xcode \
+    -DSENTRY_OBJC_STATIC_XCFRAMEWORK="$XCFRAMEWORK_PATH"
+
+set -o pipefail
+if ! cmake --build "$BUILD_DIR" --config Release 2>&1 \
+    | awk '{ print } /warning:/ { found = 1 } END { exit found }'; then
+    log_error "CMake consumer build failed or emitted warnings"
+    exit 1
+fi
+
+DSYM_PATH="$BUILD_DIR/Release/macOS-ObjectiveC-Static-CMake.dSYM"
+if [ ! -d "$DSYM_PATH" ]; then
+    log_error "CMake consumer dSYM was not generated"
+    exit 1
+fi
+
+log_info "SentryObjC static library builds without debug-symbol warnings"

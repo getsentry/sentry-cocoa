@@ -938,6 +938,19 @@ build-sample-macOS-CLI-Xcode:
 		-destination 'platform=macOS' \
 		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
 
+## Build the macOS-ObjectiveC-Static-CMake sample
+#
+# Builds a release-mode Objective-C CLI with CMake and SentryObjC-Static.
+# Set SENTRY_OBJC_STATIC_XCFRAMEWORK to test an unpacked local XCFramework.
+.PHONY: build-sample-macOS-ObjectiveC-Static-CMake
+build-sample-macOS-ObjectiveC-Static-CMake:
+	cmake \
+		-S Samples/macOS-ObjectiveC-Static-CMake \
+		-B Samples/macOS-ObjectiveC-Static-CMake/build \
+		-G Xcode \
+		$(if $(SENTRY_OBJC_STATIC_XCFRAMEWORK),-DSENTRY_OBJC_STATIC_XCFRAMEWORK="$(abspath $(SENTRY_OBJC_STATIC_XCFRAMEWORK))",-USENTRY_OBJC_STATIC_XCFRAMEWORK)
+	cmake --build Samples/macOS-ObjectiveC-Static-CMake/build --config Release
+
 ## Build the visionOS-SwiftUI-SPM sample app
 #
 # Builds the visionOS SentrySPM sample app for the visionOS Simulator.
