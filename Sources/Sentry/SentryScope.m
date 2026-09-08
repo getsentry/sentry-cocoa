@@ -807,7 +807,7 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
 - (void)applySpan:(nullable id<SentrySpan>)span toEvent:(SentryEvent *)event
 {
     NSMutableDictionary *context =
-        [NSMutableDictionary dictionaryWithDictionary:event.context ?: @{}];
+        [NSMutableDictionary dictionaryWithDictionary:event.context ?: @{ }];
     context[@"trace"] = [self buildTraceContext:span];
     event.context = context;
 
