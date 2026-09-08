@@ -57,9 +57,9 @@ swift test -Xswiftc -DSENTRY_TEST -Xcc -DSENTRY_TEST=1
 swift test -Xswiftc -DSENTRY_TEST_CI -Xcc -DDEBUG=1 -Xcc -DSENTRY_TEST=1 -Xcc -DSENTRY_TEST_CI=1
 ```
 
-### SwiftPM Objective-C Wrapper Tests
+To run a specific suite, append `--filter <test-target>`, for example `--filter SentryObjCCompatTests`.
 
-`SentryObjCCompatTests` reuses the project's V9/V10 test sources and platform guards. To run only these tests, append `--filter SentryObjCCompatTests` to the commands above.
+#### Package tests with xcodebuild
 
 For project-equivalent compilation or simulator/device tests, use `xcodebuild`. It cannot select root-package traits from the command line, so explicit test flags are still required. Prepare and test a temporary source-only package to avoid duplicate binary outputs:
 
@@ -75,7 +75,6 @@ status=0
 xcodebuild test -workspace "$package_dir" -scheme Sentry-Package \
   -configuration Test \
   -destination 'platform=macOS' \
-  -only-testing:SentryObjCCompatTests \
   -xcconfig "$package_test_config" \
   'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SENTRY_TEST' \
   'GCC_PREPROCESSOR_DEFINITIONS=$(inherited) DEBUG=1 SENTRY_TEST=1' \
@@ -85,8 +84,8 @@ grep -E 'Executed|error:|TEST SUCCEEDED|TEST FAILED' "$package_dir/package-tests
 ```
 
 - Prefix `xcodebuild` with `SDK_V10=1` for V10.
-- Use an available iOS simulator destination to include user-feedback configuration tests.
-- Remove `-only-testing` to run all package suites.
+- Use an available iOS simulator destination for iOS-specific tests.
+- Limit a run with `-only-testing:<test-target>`, for example `-only-testing:SentryObjCCompatTests`.
 - CI uses `TestCI` and the corresponding definitions from the table above; see the [Distribution Tests job](../.github/workflows/test.yml).
 
 #### Compiler settings and project parity
