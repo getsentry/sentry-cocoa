@@ -13,6 +13,7 @@ protocol SentryUserFeedbackFormViewModelDelegate: NSObjectProtocol {
 
 @objcMembers
 @_spi(Private) public class SentryUserFeedbackFormViewModel: NSObject {
+    // The backend uses Python code-point length, which matches Swift Unicode scalars.
     static let maxMessageLength = 4_096
 
     let config: SentryUserFeedbackConfiguration
@@ -131,7 +132,7 @@ protocol SentryUserFeedbackFormViewModelDelegate: NSObjectProtocol {
 
     lazy var messageCharacterCountLabel = {
         let label = UILabel(frame: .zero)
-        label.font = UIFont.preferredFont(forTextStyle: .caption1)
+        label.font = config.theme.scaledFont(style: .caption1)
         label.adjustsFontForContentSizeCategory = true
         label.textAlignment = .right
         label.accessibilityIdentifier = "io.sentry.feedback.form.message-character-count"
@@ -418,7 +419,7 @@ extension SentryUserFeedbackFormViewModel {
     }
 
     private func updateMessageCharacterCount(label: UILabel) {
-        let count = messageTextView.text.unicodeScalars.count
+        let count = messageTextView.text?.unicodeScalars.count ?? 0
         label.text = "\(count) / \(Self.maxMessageLength)"
         label.accessibilityLabel = "\(count) of \(Self.maxMessageLength) characters used"
         label.textColor = count > Self.maxMessageLength ? config.theme.errorColor : config.theme.foreground

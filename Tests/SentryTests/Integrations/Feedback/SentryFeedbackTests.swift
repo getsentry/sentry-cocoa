@@ -487,6 +487,37 @@ class SentryFeedbackTests: XCTestCase {
         }
     }
 
+    func testValidate_whenDecomposedMessageIsAtMaximumScalarLength_shouldSucceed() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = String(repeating: "e\u{301}", count: 2_048)
+
+        // -- Act --
+        let result = sut.viewModel.validate()
+
+        // -- Assert --
+        guard case .success = result else {
+            return XCTFail("Expected 4096 Unicode scalars to validate.")
+        }
+    }
+
+    func testValidate_whenDecomposedMessageExceedsMaximumScalarLength_shouldFail() throws {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = String(repeating: "e\u{301}", count: 2_048) + "a"
+
+        // -- Act --
+        let result = sut.viewModel.validate()
+
+        // -- Assert --
+        guard case .failure(let error) = result else {
+            return XCTFail("Expected 4097 Unicode scalars to fail validation.")
+        }
+        XCTAssertEqual(error.errorDescription, "The description must not exceed 4096 characters.")
+    }
+
     func testValidate_whenRequiredFieldsAreMissingAndMessageIsTooLong_shouldReportMissingFields() throws {
         // -- Arrange --
         let config = SentryUserFeedbackConfiguration()
@@ -532,6 +563,31 @@ class SentryFeedbackTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(sut.viewModel.messageCharacterCountLabel.text, "4097 / 4096")
         XCTAssertEqual(sut.viewModel.messageCharacterCountLabel.textColor, config.theme.errorColor)
+    }
+
+    func testMessageCharacterCount_whenTextIsNil_shouldShowZero() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = nil
+
+        // -- Act --
+        sut.viewModel.updateMessageCharacterCount()
+
+        // -- Assert --
+        XCTAssertEqual(sut.viewModel.messageCharacterCountLabel.text, "0 / 4096")
+    }
+
+    func testMessageCharacterCount_whenFontFamilyConfigured_shouldUseThemeFont() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        config.theme.fontFamily = "Helvetica"
+
+        // -- Act --
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+
+        // -- Assert --
+        XCTAssertEqual(sut.viewModel.messageCharacterCountLabel.font.familyName, "Helvetica")
     }
 
 #if !targetEnvironment(macCatalyst)
