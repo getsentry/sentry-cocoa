@@ -1,7 +1,6 @@
 #include "../../../Shared/Config/_Common.xcconfig"
 
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.iOS-Swift.ActionExtension
-INFOPLIST_FILE = ActionExtension/Configurations/Info.plist
 
 SWIFT_OBJC_BRIDGING_HEADER = Shared/Headers/iOS-Swift-Bridging-Header.h
 
