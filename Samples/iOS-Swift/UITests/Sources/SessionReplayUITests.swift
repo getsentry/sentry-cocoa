@@ -48,6 +48,9 @@ final class SessionReplayUITests: BaseUITest {
         guard #available(iOS 16.0, *) else {
             throw XCTSkip("Session Replay requires iOS 16 or later.")
         }
+#if SDK_V10
+        throw XCTSkip("Replay masking fixture test is excluded under SDK_V10 (KSCrash startup on iOS 26 delays view presentation beyond the 5 s element-existence timeout).")
+#endif // SDK_V10
 
         // -- Arrange --
         launchApp(env: [SentrySDKOverrides.Replay.sessionSampleRate.rawValue: "1"])

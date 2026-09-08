@@ -162,6 +162,46 @@ import Foundation
         helper.capture(message: message, scope: scope)
     }
 
+    /// Captures a manually created event and sends it to Sentry with a user-provided hint.
+    /// - Parameters:
+    ///   - event: The event to send to Sentry.
+    ///   - scope: The scope containing event metadata.
+    ///   - hint: The hint providing additional context for callbacks.
+    /// - Returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
+    @discardableResult @objc(captureEvent:withScope:hint:) public func capture(event: Event, scope: Scope, hint: Hint) -> SentryId {
+        helper.capture(event: event, scope: scope, hint: hint)
+    }
+
+    /// Captures an error event and sends it to Sentry with a user-provided hint.
+    /// - Parameters:
+    ///   - error: The error to send to Sentry.
+    ///   - scope: The scope containing event metadata.
+    ///   - hint: The hint providing additional context for callbacks.
+    /// - Returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
+    @discardableResult @objc(captureError:withScope:hint:) public func capture(error: Error, scope: Scope, hint: Hint) -> SentryId {
+        helper.capture(error: error, scope: scope, hint: hint)
+    }
+
+    /// Captures an exception event and sends it to Sentry with a user-provided hint.
+    /// - Parameters:
+    ///   - exception: The exception to send to Sentry.
+    ///   - scope: The scope containing event metadata.
+    ///   - hint: The hint providing additional context for callbacks.
+    /// - Returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
+    @discardableResult @objc(captureException:withScope:hint:) public func capture(exception: NSException, scope: Scope, hint: Hint) -> SentryId {
+        helper.capture(exception: exception, scope: scope, hint: hint)
+    }
+
+    /// Captures a message event and sends it to Sentry with a user-provided hint.
+    /// - Parameters:
+    ///   - message: The message to send to Sentry.
+    ///   - scope: The scope containing event metadata.
+    ///   - hint: The hint providing additional context for callbacks.
+    /// - Returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
+    @discardableResult @objc(captureMessage:withScope:hint:) public func capture(message: String, scope: Scope, hint: Hint) -> SentryId {
+        helper.capture(message: message, scope: scope, hint: hint)
+    }
+
     /// Captures a new-style user feedback and sends it to Sentry.
     /// - Parameter feedback: The user feedback to send to Sentry.
     @objc(captureFeedback:) public func capture(feedback: SentryFeedback) {

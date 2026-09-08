@@ -17,6 +17,7 @@
 @class SentryObjCDataCollectionOptions;
 #endif
 @class SentryObjCEvent;
+@class SentryObjCHint;
 @class SentryObjCExperimentalOptions;
 @class SentryObjCHttpStatusCodeRange;
 @class SentryObjCLog;
@@ -142,10 +143,21 @@ NS_ASSUME_NONNULL_BEGIN
 /// This block can be used to modify the event before it will be serialized and sent.
 @property (nonatomic, copy, nullable) SentryObjCEvent *_Nullable (^beforeSend)(SentryObjCEvent *);
 
+/// This block can be used to modify the event with access to the hint before it will be sent.
+/// If set, this takes precedence over @c beforeSend.
+/// @warning Deprecated. This is a transitional API: in the next major version, the hint parameter
+/// will be added to @c beforeSend directly and this callback will be removed.
+@property (nonatomic, copy, nullable) SentryObjCEvent *_Nullable (^beforeSendWithHint)
+    (SentryObjCEvent *, SentryObjCHint *) DEPRECATED_MSG_ATTRIBUTE(
+        "In the next major version, the hint parameter will be added to "
+        "beforeSend directly and this callback will be removed. Use this only "
+        "to adopt hints ahead of the next major version.");
+
 #if SDK_V10
 /// This block can be used to modify a transaction before it will be serialized and sent.
 @property (nonatomic, copy, nullable) SentryObjCTransaction *_Nullable (^beforeSendTransaction)
     (SentryObjCTransaction *);
+
 #endif // SDK_V10
 
 /**
@@ -156,12 +168,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 #if !SDK_V10
 /**
- * Legacy option kept for compatibility until the next major release.
- *
- * Manual log capture through @c SentryObjCSDK.logger (and opt-in logging integrations that
- * forward through it) is not gated by this flag. Setting it to @c NO does not drop those logs.
+ * When enabled, the SDK sends logs to Sentry. Logs can be captured using the
+ * @c SentryObjCSDK.logger API, which provides structured logging with attributes.
  * @note Default value is @c NO.
- * @note In v10 and later, this option is removed and logs are always enabled.
+ * @note In v10 and later, logs are always enabled. Remove this option when upgrading.
  */
 @property (nonatomic) BOOL enableLogs;
 #endif // !SDK_V10
@@ -169,6 +179,16 @@ NS_ASSUME_NONNULL_BEGIN
 /// This block can be used to modify the breadcrumb before it will be serialized and sent.
 @property (nonatomic, copy, nullable) SentryObjCBreadcrumb *_Nullable (^beforeBreadcrumb)
     (SentryObjCBreadcrumb *);
+
+/// This block can be used to modify the breadcrumb with access to the hint before it is added.
+/// If set, this takes precedence over @c beforeBreadcrumb.
+/// @warning Deprecated. This is a transitional API: in the next major version, the hint parameter
+/// will be added to @c beforeBreadcrumb directly and this callback will be removed.
+@property (nonatomic, copy, nullable) SentryObjCBreadcrumb *_Nullable (^beforeBreadcrumbWithHint)
+    (SentryObjCBreadcrumb *, SentryObjCHint *)
+        DEPRECATED_MSG_ATTRIBUTE("In the next major version, the hint parameter will be added to "
+                                 "beforeBreadcrumb directly and this callback will be removed. Use "
+                                 "this only to adopt hints ahead of the next major version.");
 
 /// This block can be used to modify or drop a log before it will be sent. Return @c nil to drop the
 /// log.
@@ -560,10 +580,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) SentryObjCExperimentalOptions *experimental;
 
 /**
- * Legacy option kept for compatibility until the next major release.
- *
- * Manual metric capture through the metrics API is not gated by this flag. Setting it to
- * @c NO does not drop those metrics.
+ * When enabled, the SDK sends metrics to Sentry.
  * @note Default value is @c YES.
  */
 @property (nonatomic) BOOL enableMetrics;
