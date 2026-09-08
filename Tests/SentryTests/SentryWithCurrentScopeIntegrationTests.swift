@@ -249,6 +249,34 @@ final class SentryWithCurrentScopeIntegrationTests: XCTestCase {
         XCTAssertEqual(envelopeTrace.sampleRate, "1.000000")
     }
 
+    func testWithCurrentScope_whenSpanHasNoTracer_shouldCorrelateErrorEnvelope() throws {
+        // -- Arrange --
+        let context = SpanContext(operation: "test")
+        #if os(iOS) || os(tvOS) || os(visionOS)
+        let span = SentrySpanInternal(context: context, framesTracker: nil)
+        #else
+        let span = SentrySpanInternal(context: context)
+        #endif
+        defer { span.finish() }
+        let currentScope = SentrySDK.internal.scope.createScope()
+        currentScope.span = span
+        XCTAssertNil(span.tracer)
+        XCTAssertNotEqual(span.traceId, SentrySDKInternal.currentHub().scope.propagationContextTraceId)
+
+        // -- Act --
+        SentrySDK.internal.scope.withCurrentScope(currentScope) {
+            SentrySDK.capture(error: NSError(domain: "test", code: 1))
+        }
+
+        // -- Assert --
+        let captured = try XCTUnwrap(fixture.transportAdapter.sendEventWithTraceStateInvocations.last)
+        let trace = try XCTUnwrap(captured.event.context?["trace"])
+        XCTAssertEqual(trace["trace_id"] as? String, span.traceId.sentryIdString)
+        XCTAssertEqual(trace["span_id"] as? String, span.spanId.sentrySpanIdString)
+        let envelopeTrace = try XCTUnwrap(captured.traceContext)
+        XCTAssertEqual(envelopeTrace.traceId, span.traceId)
+    }
+
     func testWithCurrentScope_whenChildSpanIsBound_shouldCorrelateLog() throws {
         // -- Arrange --
         var capturedLog: SentryLog?
