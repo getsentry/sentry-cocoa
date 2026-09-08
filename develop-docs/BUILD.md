@@ -12,7 +12,7 @@ The Xcode project's `Test`, `TestV10`, and `TestCI` configurations enable SDK te
 
 ## SwiftPM Test Targets
 
-All active package manifests include `SentryObjCCompatTests` alongside the test utility suite, without adding test-support targets to SDK products. Both default and V10 builds are supported. Package-workspace tests require explicit SDK test compiler flags, the opt-in `Tests/Configuration/SwiftPM.xcconfig`, and source-only package preparation; see [SwiftPM Objective-C Wrapper Tests](TEST.md#swiftpm-objective-c-wrapper-tests). See [compiler settings and intentional differences](TEST.md#compiler-settings-and-intentional-differences) for the aligned diagnostics/features and the differences from framework builds.
+All active package manifests include `SentryObjCCompatTests` alongside the test utility suite, without adding test-support targets to SDK products. Both default and V10 builds are supported. Wrapper Swift compiler features are declared in the manifests for both builds and tests. Project-equivalent package-workspace tests use `-configuration Test` (or `TestCI`) with the opt-in `Tests/Configuration/SwiftPM.xcconfig` to match test compilation, library evolution, and Sentry-owned targets' diagnostics without overriding dependency warning policies. They also require explicit SDK test compiler flags and source-only package preparation; see [SwiftPM Objective-C Wrapper Tests](TEST.md#swiftpm-objective-c-wrapper-tests) and [compiler settings and project parity](TEST.md#compiler-settings-and-project-parity).
 
 ## UIKit Linking Control
 

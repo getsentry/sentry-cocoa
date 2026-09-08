@@ -134,11 +134,12 @@ jobs:
         run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
       - name: Run package tests
         run: |
-          # Match TestCI flags and applicable diagnostics/features; see develop-docs/TEST.md.
+          # Match project test compilation and diagnostics; see develop-docs/TEST.md.
           status=0
           # Xcode, not the shell, expands $(inherited).
           # shellcheck disable=SC2016
           NSUnbufferedIO=YES xcodebuild test -workspace . -scheme Sentry-Package \
+            -configuration TestCI \
             -sdk iphonesimulator -destination 'platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro' \
             -xcconfig Tests/Configuration/SwiftPM.xcconfig \
             'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SENTRY_TEST_CI' \
