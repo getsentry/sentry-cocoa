@@ -13,6 +13,7 @@
 @class SentryObjCBreadcrumb;
 @class SentryObjCEvent;
 @class SentryObjCFeedbackApi;
+@class SentryObjCHint;
 @class SentryObjCId;
 @class SentryObjCLogger;
 @class SentryObjCMetricsApi;
@@ -136,6 +137,38 @@ NS_ASSUME_NONNULL_BEGIN
 + (SentryObjCId *)captureEvent:(SentryObjCEvent *)event attachAllThreads:(BOOL)attachAllThreads;
 
 /**
+ * Captures a manually created event and sends it to Sentry with a user-provided hint.
+ * @param event The event to send to Sentry.
+ * @param hint The hint providing additional context for callbacks.
+ * @return The @c SentryObjCId of the event or an empty ID if the event is not sent.
+ */
++ (SentryObjCId *)captureEvent:(SentryObjCEvent *)event withHint:(SentryObjCHint *)hint;
+
+/**
+ * Captures a manually created event and sends it to Sentry with a user-provided hint.
+ * Only the data in this scope object will be added to the event.
+ * @param event The event to send to Sentry.
+ * @param scope The scope containing event metadata.
+ * @param hint The hint providing additional context for callbacks.
+ * @return The @c SentryObjCId of the event or an empty ID if the event is not sent.
+ */
++ (SentryObjCId *)captureEvent:(SentryObjCEvent *)event
+                     withScope:(SentryObjCScope *)scope
+                          hint:(SentryObjCHint *)hint;
+
+/**
+ * Captures a manually created event and sends it to Sentry with a user-provided hint.
+ * Maintains the global scope but mutates scope data for only this call.
+ * @param event The event to send to Sentry.
+ * @param hint The hint providing additional context for callbacks.
+ * @param block The block mutating the scope only for this call.
+ * @return The @c SentryObjCId of the event or an empty ID if the event is not sent.
+ */
++ (SentryObjCId *)captureEvent:(SentryObjCEvent *)event
+                      withHint:(SentryObjCHint *)hint
+                    scopeBlock:(void (^)(SentryObjCScope *))block;
+
+/**
  * Creates a transaction, binds it to the hub and returns the instance.
  * @param name The transaction name.
  * @param operation Short code identifying the type of operation the span is measuring.
@@ -227,6 +260,38 @@ NS_ASSUME_NONNULL_BEGIN
 + (SentryObjCId *)captureError:(NSError *)error attachAllThreads:(BOOL)attachAllThreads;
 
 /**
+ * Captures an error event and sends it to Sentry with a user-provided hint.
+ * @param error The error to send to Sentry.
+ * @param hint The hint providing additional context for callbacks.
+ * @return The @c SentryObjCId of the event or an empty ID if the event is not sent.
+ */
++ (SentryObjCId *)captureError:(NSError *)error withHint:(SentryObjCHint *)hint;
+
+/**
+ * Captures an error event and sends it to Sentry with a user-provided hint.
+ * Only the data in this scope object will be added to the event.
+ * @param error The error to send to Sentry.
+ * @param scope The scope containing event metadata.
+ * @param hint The hint providing additional context for callbacks.
+ * @return The @c SentryObjCId of the event or an empty ID if the event is not sent.
+ */
++ (SentryObjCId *)captureError:(NSError *)error
+                     withScope:(SentryObjCScope *)scope
+                          hint:(SentryObjCHint *)hint;
+
+/**
+ * Captures an error event and sends it to Sentry with a user-provided hint.
+ * Maintains the global scope but mutates scope data for only this call.
+ * @param error The error to send to Sentry.
+ * @param hint The hint providing additional context for callbacks.
+ * @param block The block mutating the scope only for this call.
+ * @return The @c SentryObjCId of the event or an empty ID if the event is not sent.
+ */
++ (SentryObjCId *)captureError:(NSError *)error
+                      withHint:(SentryObjCHint *)hint
+                    scopeBlock:(void (^)(SentryObjCScope *))block;
+
+/**
  * Captures an exception event and sends it to Sentry.
  * @param exception The exception to send to Sentry.
  * @return The @c SentryObjCId of the event or an empty ID if the event is not sent.
@@ -262,6 +327,38 @@ NS_ASSUME_NONNULL_BEGIN
 + (SentryObjCId *)captureException:(NSException *)exception attachAllThreads:(BOOL)attachAllThreads;
 
 /**
+ * Captures an exception event and sends it to Sentry with a user-provided hint.
+ * @param exception The exception to send to Sentry.
+ * @param hint The hint providing additional context for callbacks.
+ * @return The @c SentryObjCId of the event or an empty ID if the event is not sent.
+ */
++ (SentryObjCId *)captureException:(NSException *)exception withHint:(SentryObjCHint *)hint;
+
+/**
+ * Captures an exception event and sends it to Sentry with a user-provided hint.
+ * Only the data in this scope object will be added to the event.
+ * @param exception The exception to send to Sentry.
+ * @param scope The scope containing event metadata.
+ * @param hint The hint providing additional context for callbacks.
+ * @return The @c SentryObjCId of the event or an empty ID if the event is not sent.
+ */
++ (SentryObjCId *)captureException:(NSException *)exception
+                         withScope:(SentryObjCScope *)scope
+                              hint:(SentryObjCHint *)hint;
+
+/**
+ * Captures an exception event and sends it to Sentry with a user-provided hint.
+ * Maintains the global scope but mutates scope data for only this call.
+ * @param exception The exception to send to Sentry.
+ * @param hint The hint providing additional context for callbacks.
+ * @param block The block mutating the scope only for this call.
+ * @return The @c SentryObjCId of the event or an empty ID if the event is not sent.
+ */
++ (SentryObjCId *)captureException:(NSException *)exception
+                          withHint:(SentryObjCHint *)hint
+                        scopeBlock:(void (^)(SentryObjCScope *))block;
+
+/**
  * Captures a message event and sends it to Sentry.
  * @param message The message to send to Sentry.
  * @return The @c SentryObjCId of the event or an empty ID if the event is not sent.
@@ -295,6 +392,38 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The @c SentryObjCId of the event or an empty ID if the event is not sent.
  */
 + (SentryObjCId *)captureMessage:(NSString *)message attachAllThreads:(BOOL)attachAllThreads;
+
+/**
+ * Captures a message event and sends it to Sentry with a user-provided hint.
+ * @param message The message to send to Sentry.
+ * @param hint The hint providing additional context for callbacks.
+ * @return The @c SentryObjCId of the event or an empty ID if the event is not sent.
+ */
++ (SentryObjCId *)captureMessage:(NSString *)message withHint:(SentryObjCHint *)hint;
+
+/**
+ * Captures a message event and sends it to Sentry with a user-provided hint.
+ * Only the data in this scope object will be added to the event.
+ * @param message The message to send to Sentry.
+ * @param scope The scope containing event metadata.
+ * @param hint The hint providing additional context for callbacks.
+ * @return The @c SentryObjCId of the event or an empty ID if the event is not sent.
+ */
++ (SentryObjCId *)captureMessage:(NSString *)message
+                       withScope:(SentryObjCScope *)scope
+                            hint:(SentryObjCHint *)hint;
+
+/**
+ * Captures a message event and sends it to Sentry with a user-provided hint.
+ * Maintains the global scope but mutates scope data for only this call.
+ * @param message The message to send to Sentry.
+ * @param hint The hint providing additional context for callbacks.
+ * @param block The block mutating the scope only for this call.
+ * @return The @c SentryObjCId of the event or an empty ID if the event is not sent.
+ */
++ (SentryObjCId *)captureMessage:(NSString *)message
+                        withHint:(SentryObjCHint *)hint
+                      scopeBlock:(void (^)(SentryObjCScope *))block;
 
 /**
  * Captures user feedback and sends it to Sentry.

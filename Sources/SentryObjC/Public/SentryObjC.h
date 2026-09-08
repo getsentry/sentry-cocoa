@@ -81,6 +81,7 @@
 #    import "SentryObjCAttachment.h"
 #    import "SentryObjCBreadcrumb.h"
 #    import "SentryObjCException.h"
+#    import "SentryObjCHint.h"
 #    import "SentryObjCMechanism.h"
 #    import "SentryObjCStacktrace.h"
 #    import "SentryObjCThread.h"
@@ -89,6 +90,7 @@
 #    import <SentryObjC/SentryObjCAttachment.h>
 #    import <SentryObjC/SentryObjCBreadcrumb.h>
 #    import <SentryObjC/SentryObjCException.h>
+#    import <SentryObjC/SentryObjCHint.h>
 #    import <SentryObjC/SentryObjCMechanism.h>
 #    import <SentryObjC/SentryObjCStacktrace.h>
 #    import <SentryObjC/SentryObjCThread.h>
