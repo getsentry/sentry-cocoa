@@ -504,6 +504,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                                    hint:(SentryHint *)hint
 {
     [self populateHintAttachments:hint scope:scope isFatalEvent:NO];
+    hint.attachments = [self processAttachmentsForEvent:event attachments:hint.attachments];
     SentryEvent *preparedEvent = [self prepareEvent:event
                                           withScope:scope
                              alwaysAttachStacktrace:YES
@@ -626,6 +627,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                        hint:(SentryHint *)hint
 {
     [self populateHintAttachments:hint scope:scope isFatalEvent:isFatalEvent];
+    hint.attachments = [self processAttachmentsForEvent:event attachments:hint.attachments];
     SentryEvent *preparedEvent = [self prepareEvent:event
                                           withScope:scope
                              alwaysAttachStacktrace:alwaysAttachStacktrace
@@ -638,12 +640,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     SentryTraceContext *traceContext = [self getTraceStateWithEvent:event withScope:scope];
 
-    NSArray<SentryAttachment *> *attachments = [self processAttachmentsForEvent:preparedEvent
-                                                                    attachments:hint.attachments];
-
     [self.transportAdapter sendEvent:preparedEvent
                         traceContext:traceContext
-                         attachments:attachments
+                         attachments:hint.attachments
              additionalEnvelopeItems:additionalEnvelopeItems];
 
     return preparedEvent.eventId;
@@ -667,8 +666,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         return SentryId.empty;
     }
 
-    NSArray<SentryAttachment *> *attachments = [self processAttachmentsForEvent:event
-                                                                    attachments:hint.attachments];
+    NSArray<SentryAttachment *> *attachments = hint.attachments;
 
     if (event.isFatalEvent && event.context[@"replay"] &&
         [event.context[@"replay"] isKindOfClass:NSDictionary.class]) {
