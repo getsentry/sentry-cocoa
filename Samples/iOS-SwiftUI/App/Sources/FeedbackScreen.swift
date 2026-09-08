@@ -4,7 +4,9 @@ import SwiftUI
 struct FeedbackScreen: View {
     @State private var isFeedbackModifierPresented = false
     @State private var isFeedbackFormViewPresented = false
+#if !SDK_V10
     @State private var isFeedbackWidgetVisible = false
+#endif // !SDK_V10
 
     var body: some View {
         VStack(spacing: 16) {
@@ -25,6 +27,7 @@ struct FeedbackScreen: View {
             }
             .buttonStyle(.borderedProminent)
 
+#if !SDK_V10
             Button(isFeedbackWidgetVisible ? "Hide Widget (Deprecated)" : "Show Widget (Deprecated)") {
                 if isFeedbackWidgetVisible {
                     SentrySDK.feedback.hideWidget()
@@ -34,6 +37,7 @@ struct FeedbackScreen: View {
                 isFeedbackWidgetVisible.toggle()
             }
             .buttonStyle(.borderedProminent)
+#endif // !SDK_V10
 
             Text("This screen demonstrates presenting feedback with the SwiftUI view modifier, the form view, the convenience API, and the deprecated feedback widget in a SwiftUI app.")
                 .font(.footnote)

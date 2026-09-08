@@ -26,20 +26,66 @@ Test can either be ran inside from Xcode or via
 make test
 ```
 
+### SwiftPM SDK Tests
+
+SDK tests require `SENTRY_TEST` or `SENTRY_TEST_CI` in both Swift and Objective-C/C/C++ compilation. The Xcode project's `Test`, `TestV10`, and `TestCI` configurations supply these flags through [SDK.xcconfig](../Sources/Configuration/SDK.xcconfig), but SwiftPM does not inherit those configurations. `DEBUG` and `@testable import` alone do not enable all SDK test helpers, such as `SentryAppStartMeasurementProvider.reset()`.
+
+For package tests on macOS with Swift 6.1+, run from the repository root:
+
+```sh
+swift test --traits _SentryTest
+# Use the CI test definitions instead of the local test definitions:
+swift test --traits _SentryTestCI
+# Select V10 through the environment or its trait:
+SDK_V10=1 swift test --traits _SentryTest
+swift test --traits V10,_SentryTest
+```
+
+`Package@swift-6.1.swift` and `Package@swift-6.2.swift` provide two opt-in traits matching the test compiler definitions in `SDK.xcconfig`:
+
+| Trait           | Swift definitions | Objective-C/C/C++ definitions            |
+| --------------- | ----------------- | ---------------------------------------- |
+| `_SentryTest`   | `SENTRY_TEST`     | `DEBUG=1 SENTRY_TEST=1`                  |
+| `_SentryTestCI` | `SENTRY_TEST_CI`  | `DEBUG=1 SENTRY_TEST=1 SENTRY_TEST_CI=1` |
+
+These definitions apply to the source-built SDK and test targets, including Swift's Clang importer. `_SentryTestCI` does not implicitly enable `_SentryTest`, preserving the distinct Swift definitions of `Test` and `TestCI`. Neither trait changes prebuilt binaries.
+
+> [!WARNING]
+> Both traits are disabled by default and intended only for SDK development. They change SDK behavior and must not be enabled in consumer or production builds. The underscore is a naming convention, not access control: SwiftPM traits are publicly visible.
+
+Swift 6.0 continues to use explicit compiler flags:
+
+```sh
+swift test -Xswiftc -DSENTRY_TEST -Xcc -DSENTRY_TEST=1
+SDK_V10=1 swift test -Xswiftc -DSENTRY_TEST -Xcc -DSENTRY_TEST=1
+# CI equivalents:
+swift test -Xswiftc -DSENTRY_TEST_CI -Xcc -DDEBUG=1 -Xcc -DSENTRY_TEST=1 -Xcc -DSENTRY_TEST_CI=1
+```
+
+Simulator/device tests still use `xcodebuild`; `swift test` runs these tests on the local Mac. `xcodebuild` has no equivalent to `swift test --traits` for selecting traits on the root package, so package-workspace tests still need explicit compiler flags, even with Swift 6.1+. For CI, `xcodebuild test` with the `Sentry-Package` scheme continues to mirror the project's `TestCI` configuration, as the [Distribution Tests job](../.github/workflows/test.yml) does:
+
+```sh
+'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SENTRY_TEST_CI' \
+'GCC_PREPROCESSOR_DEFINITIONS=$(inherited) DEBUG=1 SENTRY_TEST=1 SENTRY_TEST_CI=1'
+```
+
+The different flag sets are intentional: `TestCI` defines only `SENTRY_TEST_CI` for Swift, but `DEBUG`, `SENTRY_TEST`, and `SENTRY_TEST_CI` for Objective-C/C/C++. Local testing can continue to use `SENTRY_TEST` as shown above.
+
+The flags must apply to the SDK dependencies as well as the test targets. Defining them only on a package `.testTarget` is insufficient. Keep them scoped to SDK test invocations rather than defining them unconditionally, or for all Debug builds, in `Package.swift`: they change SDK behavior and must not affect normal consumer builds or third-party integration tests.
+
 ### SwiftPM Objective-C Wrapper Tests
 
 `SentryObjCCompatTests` uses the same sources as the Xcode-project V9 and V10 suites, including their platform guards and V10-only skips. Its package target depends on `SentryObjCCompat`, `SentrySwift`, and `SentryTestUtils`; test-support targets are not part of any published SDK product. The existing `SWIFT_PACKAGE` imports select the source-built SDK rather than the binary `Sentry` module.
 
-For local macOS tests:
+For local macOS tests with Swift 6.1+:
 
 ```sh
-swift test -Xswiftc -DSENTRY_TEST -Xcc -DSENTRY_TEST=1 --filter SentryObjCCompatTests
-SDK_V10=1 swift test -Xswiftc -DSENTRY_TEST -Xcc -DSENTRY_TEST=1 --filter SentryObjCCompatTests
-# Swift 6.1+ also supports the V10 trait:
-swift test --traits V10 -Xswiftc -DSENTRY_TEST -Xcc -DSENTRY_TEST=1 --filter SentryObjCCompatTests
+swift test --traits _SentryTest --filter SentryObjCCompatTests
+SDK_V10=1 swift test --traits _SentryTest --filter SentryObjCCompatTests
+swift test --traits V10,_SentryTest --filter SentryObjCCompatTests
 ```
 
-Package schemes do not inherit the Xcode project's SDK test configurations. Supply test flags to both compilers, including SDK dependencies, only for test invocations. Do not add them to the manifests or normal consumer builds. The [Distribution Tests job](../.github/workflows/test.yml) runs both default and `SDK_V10=1` package modes with the `TestCI` equivalents: Swift `SENTRY_TEST_CI`, and Objective-C/C/C++ `DEBUG=1 SENTRY_TEST=1 SENTRY_TEST_CI=1`.
+For Swift 6.0, use the explicit compiler flags from [SwiftPM SDK Tests](#swiftpm-sdk-tests) and append `--filter SentryObjCCompatTests`. The [Distribution Tests job](../.github/workflows/test.yml) runs both default and `SDK_V10=1` package modes with the `TestCI` equivalents described there.
 
 For `xcodebuild`, first prepare a temporary source-only package to avoid duplicate outputs from the binary distribution variants. Keep the checked-in manifests unchanged:
 

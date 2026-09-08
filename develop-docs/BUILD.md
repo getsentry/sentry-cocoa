@@ -6,6 +6,10 @@ This document covers the build system and configuration details for the Sentry C
 
 - XCConfig files in `Sources/Configuration/` for SDK settings; settings should not be modified in pbxproj files
 
+## SDK Test Configurations
+
+The Xcode project's `Test`, `TestV10`, and `TestCI` configurations enable SDK test helpers through `SENTRY_TEST` or `SENTRY_TEST_CI` in [SDK.xcconfig](../Sources/Configuration/SDK.xcconfig). Swift 6.1+ provides the opt-in `_SentryTest` and `_SentryTestCI` traits for local `swift test` invocations. Swift 6.0 and `xcodebuild` package-workspace tests continue to supply these flags explicitly at the call site; see [SwiftPM SDK Tests](TEST.md#swiftpm-sdk-tests). Do not enable test traits or flags in normal package builds.
+
 ## SwiftPM Test Targets
 
 All active package manifests include `SentryObjCCompatTests` alongside the test utility suite, without adding test-support targets to SDK products. Both default and V10 builds are supported. Package-workspace tests require explicit SDK test compiler flags and source-only package preparation; see [SwiftPM Objective-C Wrapper Tests](TEST.md#swiftpm-objective-c-wrapper-tests).

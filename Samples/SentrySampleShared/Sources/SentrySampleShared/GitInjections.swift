@@ -1,4 +1,5 @@
 import Foundation
+import SentryObjC
 import SentrySwift
 
 extension Bundle {
@@ -13,17 +14,27 @@ extension Bundle {
     }
 }
 
-public func injectGitInformation(scope: Scope) {
+private func gitInformationTags() -> [String: String] {
+    var tags: [String: String] = [:]
     if let commitHash = Bundle.main.gitCommitHash {
-        scope.setTag(value: "\(commitHash)\(Bundle.main.gitStatusClean ? "" : "-dirty")", key: "git-commit-hash")
+        tags["git-commit-hash"] = "\(commitHash)\(Bundle.main.gitStatusClean ? "" : "-dirty")"
     }
     if let branchName = Bundle.main.gitBranchName {
-        scope.setTag(value: branchName, key: "git-branch-name")
+        tags["git-branch-name"] = branchName
+    }
+    return tags
+}
+
+public func injectGitInformation(scope: Scope) {
+    for (key, value) in gitInformationTags() {
+        scope.setTag(value: value, key: key)
     }
 }
 
 public class GitInjector: NSObject {
-    @objc public static func objc_injectGitInformation(into scope: Scope) {
-        injectGitInformation(scope: scope)
+    @objc public static func objc_injectGitInformation(into scope: SentryObjCScope) {
+        for (key, value) in gitInformationTags() {
+            scope.setTagValue(value, forKey: key)
+        }
     }
 }
