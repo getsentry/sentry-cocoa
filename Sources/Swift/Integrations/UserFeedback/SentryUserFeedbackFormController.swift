@@ -229,14 +229,18 @@ extension SentryUserFeedbackFormController: SentryUserFeedbackFormViewModelDeleg
                 }
             }
 
-            guard case let SentryUserFeedbackFormViewModel.InputError.validationError(missing, _) = error,
-                let errorDescription = error.errorDescription else {
+            guard let errorDescription = error.errorDescription else {
                 SentrySDKLog.warning("Unexpected error type.")
                 presentAlert(message: config.formConfig.unexpectedErrorText, errorCode: 2, info: [NSLocalizedDescriptionKey: "Client error: ."])
                 return
             }
 
-            presentAlert(message: errorDescription, errorCode: 1, info: ["missing_fields": missing, NSLocalizedDescriptionKey: "The user did not complete the feedback form."])
+            switch error {
+            case .validationError(let missing, _):
+                presentAlert(message: errorDescription, errorCode: 1, info: ["missing_fields": missing, NSLocalizedDescriptionKey: "The user did not complete the feedback form."])
+            case .messageTooLong:
+                presentAlert(message: errorDescription, errorCode: 1, info: [NSLocalizedDescriptionKey: errorDescription])
+            }
         }
     }
 
@@ -313,6 +317,7 @@ extension SentryUserFeedbackFormController: UITextViewDelegate {
     /// Updates validation state when the feedback message changes.
     public func textViewDidChange(_ textView: UITextView) {
         viewModel.messageTextViewPlaceholder.isHidden = textView.text != ""
+        viewModel.updateMessageCharacterCount()
         viewModel.updateSubmitButtonAccessibilityHint()
     }
 }

@@ -13,6 +13,8 @@ protocol SentryUserFeedbackFormViewModelDelegate: NSObjectProtocol {
 
 @objcMembers
 @_spi(Private) public class SentryUserFeedbackFormViewModel: NSObject {
+    static let maxMessageLength = 4_096
+
     let config: SentryUserFeedbackConfiguration
     unowned let controller: SentryUserFeedbackFormController
     weak var delegate: SentryUserFeedbackFormViewModelDelegate?
@@ -126,6 +128,16 @@ protocol SentryUserFeedbackFormViewModelDelegate: NSObjectProtocol {
         textView.accessibilityIdentifier = "io.sentry.feedback.form.message"
         return textView
     }()
+
+    lazy var messageCharacterCountLabel = {
+        let label = UILabel(frame: .zero)
+        label.font = UIFont.preferredFont(forTextStyle: .caption1)
+        label.adjustsFontForContentSizeCategory = true
+        label.textAlignment = .right
+        label.accessibilityIdentifier = "io.sentry.feedback.form.message-character-count"
+        updateMessageCharacterCount(label: label)
+        return label
+    }()
     
     lazy var screenshotImageView = {
         let iv = UIImageView()
@@ -227,6 +239,7 @@ protocol SentryUserFeedbackFormViewModelDelegate: NSObjectProtocol {
         
         let messageAndScreenshotStack = UIStackView(arrangedSubviews: [
             self.messageTextView,
+            self.messageCharacterCountLabel,
             self.addScreenshotButton,
             self.removeScreenshotStack
         ])
@@ -399,6 +412,17 @@ extension SentryUserFeedbackFormViewModel {
         case .failure(let error): submitButton.accessibilityHint = error.errorDescription
         }
     }
+
+    func updateMessageCharacterCount() {
+        updateMessageCharacterCount(label: messageCharacterCountLabel)
+    }
+
+    private func updateMessageCharacterCount(label: UILabel) {
+        let count = messageTextView.text.unicodeScalars.count
+        label.text = "\(count) / \(Self.maxMessageLength)"
+        label.accessibilityLabel = "\(count) of \(Self.maxMessageLength) characters used"
+        label.textColor = count > Self.maxMessageLength ? config.theme.errorColor : config.theme.foreground
+    }
     
     func themeElements() {
         [fullNameTextField, emailTextField].forEach {
@@ -499,7 +523,9 @@ extension SentryUserFeedbackFormViewModel {
         }
         
         // include the message they'll submit
+        var messageLength = 0
         if let message = messageTextView.textOrNil {
+            messageLength = message.unicodeScalars.count
             hint.append("with message: \(message)")
         } else {
             missing.append(config.formConfig.messageLabel.lowercased())
@@ -510,17 +536,24 @@ extension SentryUserFeedbackFormViewModel {
             let result = SentryUserFeedbackFormValidation.failure(InputError.validationError(missingFields: missing, localizedError: localizedError))
             return result
         }
+
+        guard messageLength <= Self.maxMessageLength else {
+            return .failure(.messageTooLong(maximumLength: Self.maxMessageLength))
+        }
         
         return SentryUserFeedbackFormValidation.success(hint.joined(separator: " ").appending("."))
     }
     
     enum InputError: LocalizedError {
         case validationError(missingFields: [String], localizedError: String)
+        case messageTooLong(maximumLength: Int)
         
         var description: String {
             switch self {
             case .validationError(_, let localizedError):
                 return localizedError
+            case .messageTooLong(let maximumLength):
+                return "The description must not exceed \(maximumLength) characters."
             }
         }
         
