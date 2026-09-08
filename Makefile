@@ -702,7 +702,6 @@ build-samples: \
 	build-sample-macOS-SwiftUI \
 	build-sample-macOS-SwiftUI-SPM \
 	build-sample-SDK-Size \
-	build-sample-SessionReplay-CameraTest \
 	build-sample-SPM \
 	build-sample-tvOS-Swift \
 	build-sample-tvOS-SwiftUI-SPM \
@@ -892,18 +891,6 @@ build-sample-iOS15-SwiftUI:
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme iOS15-SwiftUI \
-		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
-		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
-
-## Build the SessionReplay-CameraTest sample app
-#
-# Builds the SessionReplay-CameraTest sample app for the iOS Simulator.
-.PHONY: build-sample-SessionReplay-CameraTest
-build-sample-SessionReplay-CameraTest:
-	xcodegen --spec Samples/SessionReplay-CameraTest/SessionReplay-CameraTest.yml
-	set -o pipefail && xcodebuild \
-		-workspace Sentry.xcworkspace \
-		-scheme SessionReplay-CameraTest \
 		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
 		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
 
@@ -1694,7 +1681,6 @@ xcode: xcode-ci
 # Run a specific sample with make xcode-ci-<name>, e.g. make xcode-ci-iOS-Swift.
 .PHONY: xcode-ci
 xcode-ci: xcode-ci-SPM \
-	xcode-ci-SessionReplay-CameraTest \
 	xcode-ci-iOS-ObjectiveC \
 	xcode-ci-iOS-ObjectiveC-Dynamic \
 	xcode-ci-iOS-ObjectiveC-Static \
@@ -1722,10 +1708,6 @@ xcode-ci: xcode-ci-SPM \
 .PHONY: xcode-ci-SPM
 xcode-ci-SPM:
 	xcodegen --spec Samples/SPM/SPM.yml
-
-.PHONY: xcode-ci-SessionReplay-CameraTest
-xcode-ci-SessionReplay-CameraTest:
-	xcodegen --spec Samples/SessionReplay-CameraTest/SessionReplay-CameraTest.yml
 
 .PHONY: xcode-ci-iOS-ObjectiveC
 xcode-ci-iOS-ObjectiveC:

@@ -41,6 +41,19 @@ final class SessionReplayUITests: BaseUITest {
         XCTAssertTrue(cameraUIElement.waitForExistence(timeout: 5))
     }
 
+    func testCameraPreview_whenOpened_shouldDisplayReplayFixture() {
+        // -- Arrange --
+        launchApp(env: [SentrySDKOverrides.Replay.sessionSampleRate.rawValue: "1"])
+        app.buttons["Extra"].tap()
+
+        // -- Act --
+        app.buttons["show-camera-preview"].tap()
+
+        // -- Assert --
+        XCTAssertTrue(app.otherElements["session-replay-camera-preview"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["BACKGROUND"].exists)
+    }
+
     /// Exercises real app UI through Session Replay capture, renderer V2 redaction, and local PNG storage.
     /// The test launches with 100% sampling, opens a mixed UIKit and SwiftUI fixture, maps each
     /// accessibility element into the captured frame, and verifies default and explicit mask/unmask pixels.

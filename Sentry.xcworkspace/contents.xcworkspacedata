@@ -56,9 +56,6 @@
          location = "group:Samples/iOS-SwiftUI-Widgets/iOS-SwiftUI-Widgets.xcodeproj">
       </FileRef>
       <FileRef
-         location = "group:Samples/SessionReplay-CameraTest/SessionReplay-CameraTest.xcodeproj">
-      </FileRef>
-      <FileRef
          location = "group:Samples/visionOS-Swift/visionOS-Swift.xcodeproj">
       </FileRef>
       <FileRef

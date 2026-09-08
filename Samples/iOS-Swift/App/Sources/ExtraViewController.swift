@@ -412,6 +412,10 @@ class ExtraViewController: UIViewController {
         SentrySDK.feedback.hideWidget()
     }
 
+    @IBAction func showCameraPreviewAction(_ sender: Any) {
+        navigationController?.pushViewController(SessionReplayCameraPreviewViewController(), animated: true)
+    }
+
     @IBAction func showCameraUIAction(_ sender: Any) {
         // We need to check if the camera is available, otherwise simulators running on a Mac Mini (device without any
         // built-in camera) would crash with this error:
