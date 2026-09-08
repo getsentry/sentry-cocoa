@@ -15946,6 +15946,103 @@
                     "children": [
                       {
                         "kind": "TypeNominal",
+                        "name": "HTTPURLResponse",
+                        "printedName": "Foundation.HTTPURLResponse",
+                        "usr": "c:objc(cs)NSHTTPURLResponse"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Foundation.HTTPURLResponse?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry4HintC12httpResponseSo17NSHTTPURLResponseCSgvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "c:@M@Sentry@objc(cs)SentryHint(im)httpResponse"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "HTTPURLResponse",
+                        "printedName": "Foundation.HTTPURLResponse",
+                        "usr": "c:objc(cs)NSHTTPURLResponse"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Foundation.HTTPURLResponse?",
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry4HintC12httpResponseSo17NSHTTPURLResponseCSgvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "objc_name": "setHttpResponse:",
+                "printedName": "Set()",
+                "usr": "c:@M@Sentry@objc(cs)SentryHint(im)setHttpResponse:"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "HTTPURLResponse",
+                    "printedName": "Foundation.HTTPURLResponse",
+                    "usr": "c:objc(cs)NSHTTPURLResponse"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Foundation.HTTPURLResponse?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "kind": "Var",
+            "mangledName": "$s6Sentry4HintC12httpResponseSo17NSHTTPURLResponseCSgvp",
+            "moduleName": "Sentry",
+            "name": "httpResponse",
+            "printedName": "httpResponse",
+            "usr": "c:@M@Sentry@objc(cs)SentryHint(py)httpResponse"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
                         "name": "Error",
                         "printedName": "any Swift.Error",
                         "usr": "s:s5ErrorP"
@@ -16130,6 +16227,103 @@
             "name": "originalException",
             "printedName": "originalException",
             "usr": "c:@M@Sentry@objc(cs)SentryHint(py)originalException"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "URLRequest",
+                        "printedName": "Foundation.URLRequest",
+                        "usr": "s:10Foundation10URLRequestV"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Foundation.URLRequest?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry4HintC10urlRequest10Foundation10URLRequestVSgvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "c:@M@Sentry@objc(cs)SentryHint(im)urlRequest"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "URLRequest",
+                        "printedName": "Foundation.URLRequest",
+                        "usr": "s:10Foundation10URLRequestV"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Foundation.URLRequest?",
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry4HintC10urlRequest10Foundation10URLRequestVSgvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "objc_name": "setUrlRequest:",
+                "printedName": "Set()",
+                "usr": "c:@M@Sentry@objc(cs)SentryHint(im)setUrlRequest:"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "URLRequest",
+                    "printedName": "Foundation.URLRequest",
+                    "usr": "s:10Foundation10URLRequestV"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Foundation.URLRequest?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "kind": "Var",
+            "mangledName": "$s6Sentry4HintC10urlRequest10Foundation10URLRequestVSgvp",
+            "moduleName": "Sentry",
+            "name": "urlRequest",
+            "printedName": "urlRequest",
+            "usr": "c:@M@Sentry@objc(cs)SentryHint(py)urlRequest"
           }
         ],
         "conformances": [
