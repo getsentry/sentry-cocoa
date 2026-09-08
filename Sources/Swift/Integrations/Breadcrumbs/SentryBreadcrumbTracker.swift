@@ -267,6 +267,13 @@ import Cocoa
             result["title"] = title
         }
 
+        if result["accessibilityIdentifier"] == nil,
+           result["title"] == nil {
+            if let label = SentryChildTextExtractor.extract(from: view) {
+                result["label"] = label
+            }
+        }
+
         return result
     }
 
@@ -302,6 +309,52 @@ import Cocoa
     }
 #endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 }
+
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+private enum SentryChildTextExtractor {
+    private static let maximumTextLength = 64
+    private static let maximumDepth = 3
+    private static let maximumSiblings = 5
+
+    static func extract(from view: UIView) -> String? {
+        var parts = [String]()
+        collectText(from: view.subviews, depth: 1, parts: &parts)
+        let text = parts.joined(separator: " ").trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !text.isEmpty else { return nil }
+        guard text.count > maximumTextLength else { return text }
+        return String(text.prefix(maximumTextLength)) + "..."
+    }
+
+    private static func collectText(
+        from views: [UIView],
+        depth: Int,
+        excluding excludedView: UIView? = nil,
+        parts: inout [String]
+    ) {
+        guard depth <= maximumDepth else { return }
+        var visitedSiblings = 0
+        for view in views {
+            if let excludedView = excludedView, view === excludedView {
+                continue
+            }
+            guard visitedSiblings < maximumSiblings else { break }
+            visitedSiblings += 1
+
+            let text = (view as? UIButton)?.titleLabel?.text ?? (view as? UILabel)?.text
+            if let text = text?.trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty {
+                parts.append(text)
+            }
+
+            collectText(
+                from: view.subviews,
+                depth: depth + 1,
+                excluding: (view as? UIButton)?.titleLabel,
+                parts: &parts
+            )
+        }
+    }
+}
+#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 extension SentryBreadcrumbTracker: SentryReachabilityObserver {
     @objc
