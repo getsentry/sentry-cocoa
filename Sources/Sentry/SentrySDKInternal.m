@@ -440,6 +440,26 @@ static BOOL sdkStarted;
     return [SentrySDKInternal.currentHub captureMessage:message withScope:scope];
 }
 
++ (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *)scope hint:(id)hint
+{
+    return [SentrySDKInternal.currentHub captureEvent:event withScope:scope hint:hint];
+}
+
++ (SentryId *)captureError:(NSError *)error withScope:(SentryScope *)scope hint:(id)hint
+{
+    return [SentrySDKInternal.currentHub captureError:error withScope:scope hint:hint];
+}
+
++ (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *)scope hint:(id)hint
+{
+    return [SentrySDKInternal.currentHub captureException:exception withScope:scope hint:hint];
+}
+
++ (SentryId *)captureMessage:(NSString *)message withScope:(SentryScope *)scope hint:(id)hint
+{
+    return [SentrySDKInternal.currentHub captureMessage:message withScope:scope hint:hint];
+}
+
 /**
  * Needed by hybrid SDKs as react-native to synchronously capture an envelope.
  */
