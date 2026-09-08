@@ -169,9 +169,10 @@ public struct SentrySDKWrapper {
             options.sampleRate = NSNumber(value: sampleRate)
         }
         options.attachAllThreads = SentrySDKOverrides.Events.attachAllThreads.boolValue
-        options.beforeSend = {
+        options.beforeSendWithHint = { event, hint in
             guard !SentrySDKOverrides.Events.rejectAll.boolValue else { return nil }
-            return $0
+            Self.logHint(hint, callback: "beforeSendWithHint")
+            return event
         }
         options.beforeSendSpan = { span in
             guard !SentrySDKOverrides.Spans.rejectAll.boolValue else { return nil }
@@ -302,10 +303,9 @@ public struct SentrySDKWrapper {
         options.enableSpotlight = SentrySDKOverrides.Spotlight.enable.boolValue
     #endif // targetEnvironment(simulator)
 
-        options.beforeBreadcrumb = { breadcrumb in
-            //Raising notifications when a new breadcrumb is created in order to use this information
-            //to validate whether proper breadcrumb are being created in the right places.
+        options.beforeBreadcrumbWithHint = { breadcrumb, hint in
             NotificationCenter.default.post(name: .init("io.sentry.newbreadcrumb"), object: breadcrumb)
+            Self.logHint(hint, callback: "beforeBreadcrumbWithHint")
             return breadcrumb
         }
 
@@ -455,6 +455,21 @@ public struct SentrySDKWrapper {
         return rawValue
             .replacingOccurrences(of: "--io.sentry.", with: "")
             .replacingOccurrences(of: ".", with: "_")
+    }
+
+    static func logHint(_ hint: Hint, callback: String) {
+        if let error = hint.originalError {
+            print("[Sentry] [\(callback)] originalError: \(error)")
+        }
+        if let exception = hint.originalException {
+            print("[Sentry] [\(callback)] originalException: \(exception)")
+        }
+        if !hint.attachments.isEmpty {
+            print("[Sentry] [\(callback)] attachments: \(hint.attachments.count)")
+        }
+        if let source = hint.hintValue(forKey: "source") {
+            print("[Sentry] [\(callback)] source: \(source)")
+        }
     }
 }
 

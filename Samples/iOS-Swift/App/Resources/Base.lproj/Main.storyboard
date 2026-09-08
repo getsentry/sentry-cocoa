@@ -994,8 +994,16 @@
                                                             <action selector="captureErrorInSwiftAsync:" destination="QmU-DD-itF" eventType="touchUpInside" id="a1s-yn-act"/>
                                                         </connections>
                                                     </button>
-                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Llv-Yz-cwF">
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hNt-4w-qR7" userLabel="Capture Error With Hint">
                                                         <rect key="frame" x="0.0" y="56" width="196.66666666666666" height="28"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                        <state key="normal" title="Capture Error With Hint"/>
+                                                        <connections>
+                                                            <action selector="captureErrorWithHint:" destination="QmU-DD-itF" eventType="touchUpInside" id="hNt-4w-act"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Llv-Yz-cwF">
+                                                        <rect key="frame" x="0.0" y="84" width="196.66666666666666" height="28"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                         <state key="normal" title="Capture NSException"/>
                                                         <connections>
