@@ -808,12 +808,21 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
 {
     NSMutableDictionary *context =
         [NSMutableDictionary dictionaryWithDictionary:event.context ?: @{ }];
+    NSString *previousTraceId = context[@"trace"][@"trace_id"];
     context[@"trace"] = [self buildTraceContext:span];
     event.context = context;
 
+    if ([event.type isEqualToString:SentryEnvelopeItemTypes.transaction]) {
+        return;
+    }
+
     SentryTracer *tracer = [SentryTracer getTracer:span];
-    if (tracer != nil && ![event.type isEqualToString:SentryEnvelopeItemTypes.transaction]) {
+    if (tracer != nil) {
         event.transaction = tracer.transactionContext.name;
+    } else if (span != nil && previousTraceId != nil
+        && ![previousTraceId isEqual:context[@"trace"][@"trace_id"]]) {
+        // A name from another trace must not survive when the new span has no tracer.
+        event.transaction = nil;
     }
 }
 
