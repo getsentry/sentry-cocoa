@@ -7,6 +7,7 @@ final class SessionReplayCameraPreviewViewController: UIViewController {
     private let captureQueue = DispatchQueue(label: "io.sentry.session-replay-camera-preview")
     private let previewView = CameraPreviewView()
     private let errorLabel = UILabel()
+    private var isCaptureSessionConfigured = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -18,6 +19,24 @@ final class SessionReplayCameraPreviewViewController: UIViewController {
         setupPreviewView()
         setupErrorLabel()
         setupCameraPreviewSession()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        guard isCaptureSessionConfigured else { return }
+        captureQueue.async { [captureSession] in
+            captureSession.startRunning()
+        }
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+
+        guard isCaptureSessionConfigured else { return }
+        captureQueue.async { [captureSession] in
+            captureSession.stopRunning()
+        }
     }
 
     private func setupBackgroundLabel() {
@@ -87,9 +106,7 @@ final class SessionReplayCameraPreviewViewController: UIViewController {
 
         captureSession.addInput(videoInput)
         previewView.videoPreviewLayer.session = captureSession
-        captureQueue.async { [captureSession] in
-            captureSession.startRunning()
-        }
+        isCaptureSessionConfigured = true
     }
 }
 
