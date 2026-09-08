@@ -34,7 +34,7 @@ let package = Package(
             name: "SentrySampleShared",
             dependencies: [
                 .product(name: "SentrySPM", package: "Sentry"),
-                .product(name: "SentryObjC", package: "Sentry", condition: .when(traits: ["V10"]))
+                .product(name: "SentryObjC", package: "Sentry")
             ],
             path: "Sources/SentrySampleShared",
             resources: [
