@@ -1857,9 +1857,9 @@ xcode: xcode-ci
 
 ## Switch sample Xcode projects to SDK V10 mode
 #
-# Copies each sample XcodeGen YAML, adds the V10 package trait with yq,
-# and regenerates the Xcode project from that copy. Committed YAML is
-# left unchanged. Skips binary and NoUIFramework samples.
+# Copies each sample XcodeGen YAML, adds the V10 package trait and app-target
+# SDK_V10 compiler flags with yq, and regenerates the Xcode project from that
+# copy. Committed YAML is left unchanged. Skips binary and NoUIFramework samples.
 .PHONY: switch-v10
 switch-v10:
 	scripts/set-xcodegen-package-traits.sh --trait V10 --generate
