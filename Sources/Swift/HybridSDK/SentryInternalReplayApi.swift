@@ -76,8 +76,7 @@ public struct SentryInternalReplayApi {
         // buffer (on-error) replay is recording it stays nil, so fall back to
         // the id assigned when recording started.
         if result == nil {
-            result = replayIntegrationProvider.getReplayIntegration()?
-                .sessionReplay?.sessionReplayId?.sentryIdString
+            result = hub.getSessionReplayId()
         }
         return result
     }

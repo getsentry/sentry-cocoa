@@ -50,6 +50,10 @@ final class SentryInternalScopeApiTests: XCTestCase {
 
         func setTrace(_ traceId: SentryId, spanId: SpanId) {}
 
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        func getSessionReplayId() -> String? { nil }
+#endif
+
         var currentOptions: Options? { nil }
 
         var options: Options { Options() }

@@ -494,10 +494,10 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     public func sessionReplayEnded() {
         SentrySDKLog.debug("[Session Replay] Session replay ended")
         isPendingStart = false
+        sessionReplay = nil
         SentrySDKInternal.currentHub().configureScope { scope in scope.replayId = nil }
         touchTracker?.disable()
         removeBackgroundForegroundObservers()
-        sessionReplay = nil
     }
 
     public func breadcrumbsForSessionReplay() -> [Breadcrumb] {

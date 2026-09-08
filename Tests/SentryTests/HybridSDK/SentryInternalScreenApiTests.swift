@@ -48,6 +48,7 @@ private class MockHub: Hub {
     func updateSessionForDroppedEventNonTerminating(unhandled: Bool) {}
     func captureErrorEvent(event: Event) {}
     func setTrace(_ traceId: SentryId, spanId: SpanId) {}
+    func getSessionReplayId() -> String? { nil }
     var currentOptions: Options? { options }
     var options: Options { Options() }
     var scope: Scope { Scope() }

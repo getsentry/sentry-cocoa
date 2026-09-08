@@ -2495,6 +2495,9 @@ private final class NetworkTrackerTestHub: Hub {
     func updateSessionForDroppedEventNonTerminating(unhandled: Bool) {}
     func captureErrorEvent(event: Event) {}
     func setTrace(_ traceId: SentryId, spanId: SpanId) {}
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    func getSessionReplayId() -> String? { nil }
+#endif
 }
 
 private final class NetworkTrackerTestSpan: NSObject, Span {
