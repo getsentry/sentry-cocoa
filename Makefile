@@ -723,7 +723,6 @@ build-samples-v10: \
 	build-sample-v10-iOS-ObjectiveCpp-NoModules \
 	build-sample-v10-iOS-Swift \
 	build-sample-v10-iOS-SwiftUI \
-	build-sample-v10-SessionReplay-CameraTest \
 	build-sample-v10-SPM \
 	build-sample-v10-macOS-Swift \
 	build-sample-v10-macOS-SwiftUI \
@@ -779,18 +778,6 @@ build-sample-v10-iOS-ObjectiveCpp-NoModules:
 		-workspace Sentry.xcworkspace \
 		-scheme iOS-ObjectiveCpp-NoModules \
 		-configuration Debug \
-		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
-		CODE_SIGNING_ALLOWED="NO" \
-		$(V10_SDK_FLAGS) \
-		build | xcbeautify --preserve-unbeautified
-
-## Build the SessionReplay-CameraTest sample app with the V10 trait
-.PHONY: build-sample-v10-SessionReplay-CameraTest
-build-sample-v10-SessionReplay-CameraTest:
-	scripts/set-xcodegen-package-traits.sh --trait V10 --generate --spec Samples/SessionReplay-CameraTest/SessionReplay-CameraTest.yml
-	set -o pipefail && xcodebuild \
-		-workspace Sentry.xcworkspace \
-		-scheme SessionReplay-CameraTest \
 		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
 		CODE_SIGNING_ALLOWED="NO" \
 		$(V10_SDK_FLAGS) \
