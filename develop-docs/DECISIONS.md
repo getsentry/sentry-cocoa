@@ -38,6 +38,7 @@
 - [34. Session Replay Network Details: Body Capture Strategy](#34-session-replay-network-details-body-capture-strategy)
 - [35. KSCrash Migration Strategy: Dual Integrations on `main`](#35-kscrash-migration-strategy-dual-integrations-on-main)
 - [36. Breadcrumb persistence durability and caller latency](#36-breadcrumb-persistence-durability-and-caller-latency)
+- [37. Strip DWARF from prebuilt SentryObjC static binaries](#37-strip-dwarf-from-prebuilt-sentryobjc-static-binaries)
 
 ---
 
@@ -837,3 +838,28 @@ Contributors: @philprime, @itaybre, @NinjaLikesCheez, @philipphofmann
 Reports of watchdog breadcrumb file writes causing app hangs showed that average filesystem write performance does not account for tail latency. We serialize and persist breadcrumbs on a serial utility queue so a blocked filesystem operation cannot block the thread adding a breadcrumb; see https://github.com/getsentry/sentry-cocoa/issues/7794.
 
 This preserves the order of completed persistence operations but can lose any breadcrumbs still queued when the OS abruptly terminates the process. Watchdog and OOM terminations do not provide a final callback in which the SDK can safely perform a synchronous flush, so a crash-time synchronous fallback cannot restore this durability guarantee. This aligns with the [crash-safe telemetry buffer guidance for abnormal process termination](https://develop.sentry.dev/sdk/foundations/processing/telemetry-processor/mobile-telemetry-processor/#abnormal-process-termination). We accept this trade-off to prevent breadcrumb persistence from causing an app hang.
+
+## 37. Strip DWARF from prebuilt SentryObjC static binaries
+
+Date: September 8, 2026
+Contributors: @philprime, @itaybre, @NinjaLikesCheez, @supervacuus
+
+`SentryObjC-Static.xcframework` contained debug-map entries that referenced object files in the CI build directory, but those object files were not included in the distributed artifact. Consumers therefore received warnings when generating their application's dSYM, and the references could not provide usable debug information. These DWARF references are distinct from the Mach-O symbol table required for linking.
+
+We decided to remove all DWARF debug information from the prebuilt static SentryObjC binary instead of embedding portable DWARF in every archived object file. A static library cannot ship a final reusable dSYM because addresses are assigned when the consumer links their application. Embedding portable DWARF would allow the consumer's linker to include SentryObjC debug information in the application's dSYM, but measurements showed a disproportionate distribution cost:
+
+| Artifact                |  Stripped | Full DWARF |          Increase |
+| ----------------------- | --------: | ---------: | ----------------: |
+| Raw logical XCFramework | 158.99 MB |  521.79 MB | 362.80 MB, 228.2% |
+| Compressed ZIP          |  37.99 MB |  138.08 MB | 100.09 MB, 263.4% |
+
+The compressed release artifact would be 3.63 times larger. SwiftPM downloads declared remote binary targets during package resolution, so this cost would affect every consumer rather than only users who need SentryObjC debug information. The existing prebuilt static Sentry framework already disables debug information due to the same class of non-redistributable module-debugging references.
+
+We accept that SentryObjC frames from this prebuilt static artifact cannot be symbolicated using DWARF. Dynamic frameworks continue to ship separate dSYMs. Consumers and downstream SDKs that require complete debug information should prefer building from source. If sufficient demand arises, we can reconsider publishing a separate debug-enabled binary artifact or repository without increasing downloads for all other users.
+
+Related links:
+
+- https://github.com/getsentry/sentry-cocoa/issues/8966
+- https://github.com/getsentry/sentry-cocoa/pull/8979
+- https://github.com/getsentry/sentry-cocoa/pull/8987
+- https://github.com/getsentry/sentry-cocoa/pull/3800
