@@ -34,12 +34,17 @@ class SentryInternalReplayApiIntegrationTests: XCTestCase {
 
     /// Starts the SDK in buffer (on-error) mode only, so no replay is sent and
     /// the scope's `replayId` stays nil while a buffered replay is recording.
+    /// `cacheDirectoryPath` is required so the replay can create its session
+    /// directory, and starting a session triggers the replay to begin recording
+    /// in a headless test environment.
     private func startSDKBuffering() {
         SentrySDK.start { options in
             options.dsn = SentryInternalReplayApiIntegrationTests.dsnAsString
+            options.cacheDirectoryPath = FileManager.default.temporaryDirectory.path
             options.removeAllIntegrations()
             options.sessionReplay = SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 1)
         }
+        SentrySDKInternal.currentHub().startSession()
     }
 
     private func getReplayIntegration() throws -> SentrySessionReplayIntegration {
@@ -121,10 +126,11 @@ class SentryInternalReplayApiIntegrationTests: XCTestCase {
             throw XCTSkip("Session replay requires iOS/tvOS 16+")
         }
 
-        // -- Arrange: a window so buffer recording can start --
+        // -- Arrange: a window and reachability so buffer recording can start --
         let uiApplication = TestSentryUIApplication()
         uiApplication.windows = [UIWindow()]
         SentryDependencyContainer.sharedInstance().applicationOverride = uiApplication
+        SentryDependencyContainer.sharedInstance().reachability = TestSentryReachability()
 
         startSDKBuffering()
 
