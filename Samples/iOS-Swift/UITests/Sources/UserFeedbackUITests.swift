@@ -30,6 +30,7 @@ class UserFeedbackUITests: BaseUITest {
 }
 
 extension UserFeedbackUITests {
+#if !SDK_V10
     private func launchAppWithDeprecatedWidget(args: [String] = [], env: [String: String] = [:]) {
         var launchArguments = args
         if !launchArguments.contains(SentrySDKOverrides.Feedback.disableAutoInject.rawValue) {
@@ -357,6 +358,8 @@ extension UserFeedbackUITests {
         XCTAssertEqual(try XCTUnwrap(messageTextView.value as? String), "", "The UITextView shouldn't have any initial text functioning as a placeholder; as UITextView has no placeholder property, the \"placeholder\" is a label on top of it.")
     }
     
+#endif // !SDK_V10
+
     // MARK: Tests validating screenshot functionality
     
     func testAddingScreenshots() throws {
@@ -389,6 +392,7 @@ extension UserFeedbackUITests {
         try assertEnvelopeContents(testMessage)
     }
     
+#if !SDK_V10
     // MARK: Tests validating error cases
     
     func testSubmitWithNoFieldsFilledDefault() throws {
@@ -556,6 +560,7 @@ extension UserFeedbackUITests {
         app.buttons["io.sentry.ui-test.button.hide-widget"].tap()
         XCTAssertFalse(widgetButton.isHittable)
     }
+#endif // !SDK_V10
 }
 
 // MARK: UI Element access
