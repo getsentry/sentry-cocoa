@@ -623,6 +623,42 @@ NS_ASSUME_NONNULL_BEGIN
     return SentryId.empty;
 }
 
+- (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *)scope hint:(id)hint
+{
+    SentryClientInternal *client = self.client;
+    if (client != nil) {
+        return [client captureEvent:event withScope:scope hint:hint];
+    }
+    return SentryId.empty;
+}
+
+- (SentryId *)captureError:(NSError *)error withScope:(SentryScope *)scope hint:(id)hint
+{
+    SentryClientInternal *client = self.client;
+    if (client != nil) {
+        return [client captureError:error withScope:scope hint:hint];
+    }
+    return SentryId.empty;
+}
+
+- (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *)scope hint:(id)hint
+{
+    SentryClientInternal *client = self.client;
+    if (client != nil) {
+        return [client captureException:exception withScope:scope hint:hint];
+    }
+    return SentryId.empty;
+}
+
+- (SentryId *)captureMessage:(NSString *)message withScope:(SentryScope *)scope hint:(id)hint
+{
+    SentryClientInternal *client = self.client;
+    if (client != nil) {
+        return [client captureMessage:message withScope:scope hint:hint];
+    }
+    return SentryId.empty;
+}
+
 - (SentryId *)captureErrorEvent:(SentryEvent *)event
 {
     SentryScope *scope = self.scope;
@@ -662,9 +698,14 @@ NS_ASSUME_NONNULL_BEGIN
         return;
     }
     SentryBreadcrumb *_Nullable nullableCrumb = crumb;
-    SentryBeforeBreadcrumbCallback callback = [options beforeBreadcrumb];
-    if (callback != nil) {
-        nullableCrumb = callback(crumb);
+    if (options.beforeBreadcrumbWithHint != nil) {
+        SentryHint *hint = [[SentryHint alloc] init];
+        nullableCrumb = options.beforeBreadcrumbWithHint(crumb, hint);
+    } else {
+        SentryBeforeBreadcrumbCallback callback = [options beforeBreadcrumb];
+        if (callback != nil) {
+            nullableCrumb = callback(crumb);
+        }
     }
     if (nullableCrumb == nil) {
         SENTRY_LOG_DEBUG(@"Discarded Breadcrumb in `beforeBreadcrumb`");
