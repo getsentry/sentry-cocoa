@@ -14,7 +14,7 @@
 - Classify MetricKit hangs over 500 ms as errors. (#8948)
 - Add hint parameter to public capture methods on `SentrySDK` (#8943)
 - Prevent Session Replay video encoding from reusing pixel buffers retained by AVFoundation. (#8950)
-- Remove invalid debug-map references from `SentryObjC-Static` XCFrameworks to prevent `dsymutil` missing-object warnings. (#8979)
+- Include full DWARF debug information in `SentryObjC-Static` XCFrameworks to prevent `dsymutil` missing-object warnings. (#8987)
 
 ## 9.27.0
 
