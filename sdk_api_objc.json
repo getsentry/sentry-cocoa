@@ -1555,6 +1555,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "captureNonTerminating:",
+    "parent": "SentryObjCInternalEnvelopeApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "category",
     "parent": "SentryObjCBreadcrumb",
     "returnType": "NSString * _Nonnull",
@@ -8838,6 +8845,13 @@
     "name": "unmaskedViewClasses",
     "parent": "SentryObjCReplayOptions",
     "returnType": "NSArray<Class> * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "updateSessionForDroppedEventNonTerminating:",
+    "parent": "SentryObjCInternalEnvelopeApi",
+    "returnType": "void",
     "instance": true
   },
   {
