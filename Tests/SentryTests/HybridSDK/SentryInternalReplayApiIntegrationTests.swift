@@ -126,6 +126,15 @@ class SentryInternalReplayApiIntegrationTests: XCTestCase {
             throw XCTSkip("Session replay requires iOS/tvOS 16+")
         }
 
+        #if targetEnvironment(macCatalyst)
+        if #available(macCatalyst 26.0, *) {
+            throw XCTSkip(
+                "Creating UIWindow in an unhosted Mac Catalyst test throws "
+                    + "NSInternalInconsistencyException on macOS 26 and later."
+            )
+        }
+        #endif
+
         // -- Arrange: a window and reachability so buffer recording can start --
         let uiApplication = TestSentryUIApplication()
         uiApplication.windows = [UIWindow()]
