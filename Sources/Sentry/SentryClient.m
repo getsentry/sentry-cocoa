@@ -655,6 +655,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 {
     SentryHint *hint = [[SentryHint alloc] init];
     [self populateHintAttachments:hint scope:scope isFatalEvent:event.isFatalEvent];
+    hint.attachments = [self processAttachmentsForEvent:event attachments:hint.attachments];
     return [self sendEvent:event withSession:session withScope:scope hint:hint];
 }
 
