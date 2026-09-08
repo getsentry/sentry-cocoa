@@ -61,7 +61,10 @@ if [ ${#STATIC_LIBRARIES[@]} -eq 0 ]; then
 fi
 
 for static_library in "${STATIC_LIBRARIES[@]}"; do
-    if ! nm_output="$(nm -ap "$static_library")"; then
+    # Universal XCFramework slices contain more than the host architecture, so inspect every
+    # architecture explicitly. `-a` includes STABS entries, where OSO records identify the
+    # producer's object files that dsymutil would otherwise try to load from unavailable CI paths.
+    if ! nm_output="$(nm -arch all -ap "$static_library")"; then
         log_error "Could not inspect static library debug maps: $static_library"
         exit 1
     fi

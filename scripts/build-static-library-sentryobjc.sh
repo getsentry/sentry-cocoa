@@ -117,13 +117,22 @@ mkdir -p "$stripped_objects_dir"
 begin_group "Create static libraries for $SDK"
 log_info "  Objects:      ${#objects[@]} files"
 log_info "  Debug output: $debug_static_lib"
+# The dynamic framework build uses this unstripped archive to generate its separate dSYM.
+# It is an intermediate and is not distributed as the static SentryObjC binary.
 libtool -static -no_warning_for_no_symbols -o "$debug_static_lib" "${objects[@]}"
 
 stripped_objects=()
 for object in "${objects[@]}"; do
-    if nm -gU "$object" | grep . > /dev/null; then
+    # Simulator and Catalyst objects can contain multiple architectures. Keep the object if any
+    # architecture defines a global symbol. `-gU` selects defined external symbols, while `-j`
+    # prints only their names. `-arch all` also prints headings that must not count as symbols.
+    if nm -arch all -gjU "$object" 2> /dev/null \
+        | grep -v ' (for architecture .*):$' \
+        | grep . > /dev/null; then
         stripped_object="$stripped_objects_dir/${object##*/}"
         cp "$object" "$stripped_object"
+        # Remove STABS and DWARF debug-map entries that refer to producer-only CI paths, while
+        # retaining the symbols needed to link the static library into a consumer's product.
         strip -S "$stripped_object"
         stripped_objects+=( "$stripped_object" )
     fi
