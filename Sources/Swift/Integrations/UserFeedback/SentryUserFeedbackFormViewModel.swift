@@ -136,6 +136,7 @@ protocol SentryUserFeedbackFormViewModelDelegate: NSObjectProtocol {
         label.adjustsFontForContentSizeCategory = true
         label.textAlignment = .right
         label.accessibilityIdentifier = "io.sentry.feedback.form.message-character-count"
+        label.accessibilityTraits.insert(.updatesFrequently)
         updateMessageCharacterCount(label: label)
         return label
     }()

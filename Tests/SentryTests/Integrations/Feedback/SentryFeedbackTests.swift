@@ -548,6 +548,7 @@ class SentryFeedbackTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(sut.viewModel.messageCharacterCountLabel.text, "2 / 4096")
         XCTAssertEqual(sut.viewModel.messageCharacterCountLabel.accessibilityLabel, "2 of 4096 characters used")
+        XCTAssertTrue(sut.viewModel.messageCharacterCountLabel.accessibilityTraits.contains(.updatesFrequently))
         XCTAssertEqual(sut.viewModel.messageCharacterCountLabel.textColor, config.theme.foreground)
     }
 
