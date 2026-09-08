@@ -218,9 +218,6 @@ jobs:
           - scheme: macOS-SwiftUI
             make-target: build-sample-v10-macOS-SwiftUI
             platform: macOS
-          - scheme: SessionReplay-CameraTest
-            make-target: build-sample-v10-SessionReplay-CameraTest
-            platform: iOS
           - scheme: iOS-Swift
             make-target: build-sample-v10-iOS-Swift
             platform: iOS

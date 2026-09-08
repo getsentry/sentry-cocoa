@@ -1325,6 +1325,15 @@
                                                                             <action selector="showGalleryUIAction:" destination="VqS-l1-kwe" eventType="touchUpInside" id="DPJ-Cg-5La"/>
                                                                         </connections>
                                                                     </button>
+                                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xcp-cp-rvw" userLabel="Camera Preview">
+                                                                        <rect key="frame" x="131.33333333333334" y="0.0" width="65.333333333333329" height="28"/>
+                                                                        <accessibility key="accessibilityConfiguration" identifier="show-camera-preview"/>
+                                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                                        <state key="normal" title="Preview"/>
+                                                                        <connections>
+                                                                            <action selector="showCameraPreviewAction:" destination="VqS-l1-kwe" eventType="touchUpInside" id="xcp-cp-act"/>
+                                                                        </connections>
+                                                                    </button>
                                                                 </subviews>
                                                             </stackView>
                                                             <stackView opaque="NO" contentMode="scaleToFill" distribution="fillProportionally" translatesAutoresizingMaskIntoConstraints="NO" id="mOm-Ca-55v">
