@@ -1,5 +1,8 @@
 // swift-tools-version:6.1
 
+// Package targets and build settings must stay in a single manifest.
+// swiftlint:disable file_length
+
 #if canImport(Darwin)
 import Darwin.C
 #elseif canImport(Glibc)
@@ -350,6 +353,14 @@ targets += [
         name: "SentryTestUtilsTests",
         dependencies: ["SentrySwift", "SentryTestUtils"],
         path: "SentryTestUtilsTests/Sources",
+        swiftSettings: [
+            .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"]))
+        ] + v10SwiftSettings
+    ),
+    .testTarget(
+        name: "SentryObjCCompatTests",
+        dependencies: ["SentryObjCCompat", "SentrySwift", "SentryTestUtils"],
+        path: "Tests/SentryObjCCompatTests",
         swiftSettings: [
             .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"]))
         ] + v10SwiftSettings

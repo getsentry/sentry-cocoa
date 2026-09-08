@@ -310,6 +310,12 @@ targets += [
         dependencies: ["SentrySwift", "SentryTestUtils"],
         path: "SentryTestUtilsTests/Sources",
         swiftSettings: v10SwiftSettings
+    ),
+    .testTarget(
+        name: "SentryObjCCompatTests",
+        dependencies: ["SentryObjCCompat", "SentrySwift", "SentryTestUtils"],
+        path: "Tests/SentryObjCCompatTests",
+        swiftSettings: v10SwiftSettings
     )
 ]
 

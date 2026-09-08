@@ -89,8 +89,18 @@ jobs:
         if: failure()
 
   distribution-tests:
-    name: Distribution Tests
+    name: Distribution Tests ${{ matrix.mode }}
     runs-on: macos-15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - mode: V9
+            sdk-v10: "0"
+          - mode: V10
+            sdk-v10: "1"
+    env:
+      SDK_V10: ${{ matrix.sdk-v10 }}
     # Don't run this on release branches, cause the SPM Package.swift points to the unreleased versions.
     # Also, skip when PR changes don't require running tests to save CI time.
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_distribution_tests_for_prs == 'true')
@@ -122,26 +132,24 @@ jobs:
           OS_VERSION: "18.5"
           PLATFORM: "iOS"
         run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
-      - name: Run Distribution Tests
-        # Package schemes do not inherit the project's TestCI configuration. Mirror its test flags
-        # for SDK dependencies so helpers such as SentryAppStartMeasurementProvider.reset are available.
+      - name: Run package tests
         run: |
-          set -o pipefail
-          # Xcode, not the shell, must expand $(inherited).
+          # Match TestCI for both the tests and their SDK dependencies; package schemes do not inherit it.
+          status=0
+          # Xcode, not the shell, expands $(inherited).
           # shellcheck disable=SC2016
-          NSUnbufferedIO=YES xcodebuild test \
-            -workspace . \
-            -scheme Sentry-Package \
-            -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro' \
+          NSUnbufferedIO=YES xcodebuild test -workspace . -scheme Sentry-Package \
+            -sdk iphonesimulator -destination 'platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro' \
             'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SENTRY_TEST_CI' \
             'GCC_PREPROCESSOR_DEFINITIONS=$(inherited) DEBUG=1 SENTRY_TEST=1 SENTRY_TEST_CI=1' \
-            2>&1 | tee raw-test-output-distribution.log | xcbeautify --preserve-unbeautified
+            > raw-test-output-distribution.log 2>&1 || status=$?
+          xcbeautify --preserve-unbeautified < raw-test-output-distribution.log
+          exit "$status"
       - name: Upload Distribution Test Logs
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() || cancelled() }}
         with:
-          name: raw-test-output-distribution
+          name: raw-test-output-distribution-${{ matrix.mode }}
           path: |
             raw-test-output-distribution.log
 
