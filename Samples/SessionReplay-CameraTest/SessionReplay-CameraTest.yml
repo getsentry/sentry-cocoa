@@ -54,13 +54,9 @@ targets:
     configFiles:
       Debug: Configurations/SessionReplay-CameraTest.xcconfig
       Release: Configurations/SessionReplay-CameraTest.xcconfig
-    postCompileScripts:
-      - script: ../Shared/inject-git-info.sh
-        name: Inject Git Information into Info.plist
-        basedOnDependencyAnalysis: false
     postBuildScripts:
-      - script: ../Shared/reset-git-info.sh
-        name: Reset Git Fields in Info.plist
+      - script: INFOPLIST_FILE="${TARGET_BUILD_DIR}/${INFOPLIST_PATH}" ../Shared/inject-git-info.sh
+        name: Inject Git Information into Info.plist
         basedOnDependencyAnalysis: false
     entitlements:
       path: Configurations/SessionReplay-CameraTest.entitlements
