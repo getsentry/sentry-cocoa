@@ -582,13 +582,12 @@ final class TelemetryScopeApplierTests: XCTestCase {
         XCTAssertEqual(item.attributesDict["sentry.sdk.name"], .string(SentryMeta.sdkName))
     }
 
-    func testApplyToItem_withCurrentScope_shouldUseTraceCorrelationFromGlobalScope() {
+    func testApplyToItem_whenBothScopesHaveSpans_shouldUseCurrentScopeSpan() {
         // -- Arrange --
-        let globalTraceId = SentryId()
-        let currentTraceId = SentryId()
-        let span = TestSpan(spanId: SentryId())
-        let scope = TestScope(propagationContextTraceId: globalTraceId)
-        let currentScope = TestScope(propagationContextTraceId: currentTraceId, span: span)
+        let globalSpan = TestSpan(spanId: SentryId())
+        let currentSpan = TestSpan(spanId: SentryId())
+        let scope = TestScope(propagationContextTraceId: SentryId(), span: globalSpan)
+        let currentScope = TestScope(propagationContextTraceId: SentryId(), span: currentSpan)
         let metadata = createTestMetadata()
         var item = createTestItem()
 
@@ -596,10 +595,8 @@ final class TelemetryScopeApplierTests: XCTestCase {
         scope.addAttributesToItem(&item, metadata: metadata, currentScope: currentScope)
 
         // -- Assert --
-        // The current scope contributes custom attributes only; trace correlation must come
-        // from the global scope so the current scope can't clobber the active span.
-        XCTAssertEqual(item.traceId, globalTraceId)
-        XCTAssertNil(item.spanId)
+        XCTAssertEqual(item.traceId, currentSpan.traceId)
+        XCTAssertEqual(item.spanId, currentSpan.spanId)
     }
 
     // MARK: - Default User ID Tests

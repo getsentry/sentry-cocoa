@@ -1,16 +1,6 @@
 #include "../../../Shared/Config/_Common.xcconfig"
 
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sentry-cocoa.samples.iOS-SwiftUI-Widgets
-CODE_SIGN_ENTITLEMENTS = App/Configurations/Entitlements.entitlements
-
-GENERATE_INFOPLIST_FILE = YES
-INFOPLIST_KEY_NSSupportsLiveActivities = YES
-INFOPLIST_KEY_NSSupportsLiveActivitiesFrequentUpdates = YES
-INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES
-INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES
-INFOPLIST_KEY_UILaunchScreen_Generation = YES
-INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
-INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
 
 IPHONEOS_DEPLOYMENT_TARGET = 18.0
 TARGETED_DEVICE_FAMILY = 1,2
