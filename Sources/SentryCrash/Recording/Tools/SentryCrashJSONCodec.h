@@ -188,6 +188,13 @@ int sentrycrashjson_addUIntegerElement(
 int sentrycrashjson_addFloatingPointElement(
     SentryCrashJSONEncodeContext *context, const char *name, double value);
 
+/** Add a floating point element without using stdio formatting.
+ *
+ * This is intended for crash-handler paths. Finite values are encoded with six significant digits.
+ */
+int sentrycrashjson_addFloatingPointElementAsyncSafe(
+    SentryCrashJSONEncodeContext *context, const char *name, double value);
+
 /** Add a null element.
  *
  * @param context The encoding context.
