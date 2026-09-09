@@ -499,6 +499,11 @@ static BOOL sdkStarted;
 
 + (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {
+    [self addBreadcrumb:crumb withHint:nil];
+}
+
++ (void)addBreadcrumb:(SentryBreadcrumb *)crumb withHint:(id _Nullable)hint
+{
     if (![SentrySDKInternal isEnabled]) {
         // We must log with level fatal because only fatal messages get logged even when the SDK
         // isn't started. We've seen multiple times that users try to add a breadcrumb before
@@ -510,7 +515,7 @@ static BOOL sdkStarted;
             @"the SDK before adding breadcrumbs.");
     }
 
-    [SentrySDKInternal.currentHub addBreadcrumb:crumb];
+    [SentrySDKInternal.currentHub addBreadcrumb:crumb withHint:hint];
 }
 
 + (void)configureScope:(void (^)(SentryScope *scope))callback

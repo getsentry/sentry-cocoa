@@ -1,6 +1,0 @@
-#include "../../Shared/Config/_Common.xcconfig"
-
-PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.SessionReplay-CameraTest
-
-SUPPORTED_PLATFORMS = iphoneos iphonesimulator
-IPHONEOS_DEPLOYMENT_TARGET = 15.0
