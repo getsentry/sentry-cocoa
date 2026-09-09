@@ -1,8 +1,8 @@
 #if SDK_V10
 
 #    include "SentryKSCrashReportWriterCallbacks.h"
+#    include "KSFileUtils.h"
 #    include "SentryAsyncSafeLog.h"
-#    include "SentryFileIO.h"
 #    include "SentryScopeSyncC.h"
 #    include <dirent.h>
 #    include <errno.h>
@@ -202,6 +202,7 @@ isHexChar(char c)
     return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
 }
 
+/** In-place mkdir -p. KSCrash's ksfu_makePath uses strdup, so it is not crash-safe. */
 static bool
 makePath(char *path)
 {
@@ -222,6 +223,18 @@ makePath(char *path)
     return true;
 }
 
+/** Null-terminate at the last `/` and return the last path component. */
+static const char *
+truncateLastPathEntry(char *path)
+{
+    const char *entry = ksfu_lastPathEntry(path);
+    if (entry == path) {
+        return NULL;
+    }
+    ((char *)(entry - 1))[0] = '\0';
+    return entry;
+}
+
 /** `.../Sidecars/SentryAttachments/<16-hex>.ksscr` → `.../SentryAttachments/<16-hex>/` */
 static bool
 payloadDirectoryFromSidecar(const char *sidecarPath, char *out, size_t outSize)
@@ -231,12 +244,10 @@ payloadDirectoryFromSidecar(const char *sidecarPath, char *out, size_t outSize)
         return false;
     }
 
-    char *fileSlash = strrchr(buf, '/');
-    if (fileSlash == NULL) {
+    const char *fileName = truncateLastPathEntry(buf);
+    if (fileName == NULL) {
         return false;
     }
-    *fileSlash = '\0';
-    const char *fileName = fileSlash + 1;
     if (strlen(fileName) != 22 || strcmp(fileName + 16, ".ksscr") != 0) {
         return false;
     }
@@ -249,17 +260,15 @@ payloadDirectoryFromSidecar(const char *sidecarPath, char *out, size_t outSize)
         }
     }
 
-    char *monitorSlash = strrchr(buf, '/');
-    if (monitorSlash == NULL || strcmp(monitorSlash + 1, "SentryAttachments") != 0) {
+    const char *monitorName = truncateLastPathEntry(buf);
+    if (monitorName == NULL || strcmp(monitorName, "SentryAttachments") != 0) {
         return false;
     }
-    *monitorSlash = '\0';
 
-    char *sidecarsSlash = strrchr(buf, '/');
-    if (sidecarsSlash == NULL || strcmp(sidecarsSlash + 1, "Sidecars") != 0) {
+    const char *sidecarsName = truncateLastPathEntry(buf);
+    if (sidecarsName == NULL || strcmp(sidecarsName, "Sidecars") != 0) {
         return false;
     }
-    *sidecarsSlash = '\0';
 
     int written = snprintf(out, outSize, "%s/SentryAttachments/%s", buf, reportIDHex);
     return written > 0 && (size_t)written < outSize;
@@ -294,7 +303,7 @@ writeMarker(const char *sidecarPath)
             "Failed to open attachments marker %s: %s", sidecarPath, SENTRY_STRERROR_R(errno));
         return false;
     }
-    bool ok = sentryFileIO_writeBytesToFD(fd, kMarkerHeader, sizeof(kMarkerHeader));
+    bool ok = ksfu_writeBytesToFD(fd, (const char *)kMarkerHeader, (int)sizeof(kMarkerHeader));
     if (ok && fsync(fd) != 0) {
         ok = false;
     }
