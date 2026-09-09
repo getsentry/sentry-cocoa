@@ -649,6 +649,10 @@ protocol Hub {
     var currentOptions: Options? { get }
     var options: Options { get }
     var scope: Scope { get }
+
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    func getSessionReplayId() -> String?
+#endif
 }
 
 protocol HubProvider {
@@ -709,6 +713,11 @@ private struct DefaultHub: Hub {
         SentrySDKInternal.currentHub().scope
     }
 
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    func getSessionReplayId() -> String? {
+        SentrySDKInternal.currentHub().getSessionReplayId()
+    }
+#endif
 }
 
 extension SentryDependencyContainer: HubProvider {

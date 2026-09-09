@@ -17,6 +17,10 @@
 - Prevent Session Replay video encoding from reusing pixel buffers retained by AVFoundation. (#8950)
 - Prevent deadlock when a signal interrupts memory allocation by avoiding thread-local storage and unsafe formatting during signal handling. (#8271)
 
+### Internal
+
+- Fix `SentrySDK.internal.replay.replayId` returning nil for buffered replays (#8976)
+
 ## 9.27.0
 
 > [!NOTE]
