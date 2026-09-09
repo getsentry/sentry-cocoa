@@ -422,7 +422,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         return;
     }
 
-    SentryTraceContext *traceContext = [self getTraceStateWithEvent:transaction withScope:scope];
+    SentryTraceContext *traceContext = [self getTraceStateWithEvent:transaction
+                                                          withScope:scope
+                                                       currentScope:nil];
 
     [self.transportAdapter storeEvent:preparedEvent traceContext:traceContext];
 }
@@ -551,14 +553,16 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (nullable SentryTraceContext *)getTraceStateWithEvent:(SentryEvent *)event
                                               withScope:(SentryScope *)scope
+                                           currentScope:(nullable SentryScope *)currentScope
 {
+    id<SentrySpan> currentScopeSpan = currentScope.span;
     id<SentrySpan> span;
     if ([event isKindOfClass:[SentryTransaction class]]) {
         span = [(SentryTransaction *)event trace];
     } else {
         // Even envelopes without transactions can contain the trace state, allowing Sentry to
         // eventually sample attachments belonging to a transaction.
-        span = scope.span;
+        span = currentScopeSpan ?: scope.span;
     }
 
     SentryTracer *tracer = [SentryTracer getTracer:span];
@@ -567,7 +571,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     if (event.error || event.exceptions.count > 0) {
-        return [[SentryTraceContext alloc] initWithTraceId:scope.propagationContext.traceId
+        SentryId *traceId = currentScopeSpan.traceId ?: scope.propagationContext.traceId;
+        return [[SentryTraceContext alloc] initWithTraceId:traceId
                                                    options:self.options
                                                   replayId:scope.replayId];
     }
@@ -636,7 +641,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         return SentryId.empty;
     }
 
-    SentryTraceContext *traceContext = [self getTraceStateWithEvent:event withScope:scope];
+    SentryTraceContext *traceContext =
+        [self getTraceStateWithEvent:event
+                           withScope:scope
+                        currentScope:isFatalEvent ? nil : [self.currentScopeStorage scope]];
 
     NSArray<SentryAttachment *> *attachments = [self processAttachmentsForEvent:preparedEvent
                                                                     attachments:hint.attachments];
@@ -676,7 +684,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         scope.replayId = replay[@"replay_id"];
     }
 
-    SentryTraceContext *traceContext = [self getTraceStateWithEvent:event withScope:scope];
+    SentryTraceContext *traceContext =
+        [self getTraceStateWithEvent:event
+                           withScope:scope
+                        currentScope:event.isFatalEvent ? nil : [self.currentScopeStorage scope]];
 
     if (session == nil) {
         [self.transportAdapter sendEvent:event traceContext:traceContext attachments:attachments];
@@ -820,7 +831,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         return;
     }
 
-    SentryTraceContext *traceContext = [self getTraceStateWithEvent:preparedEvent withScope:scope];
+    SentryTraceContext *traceContext = [self getTraceStateWithEvent:preparedEvent
+                                                          withScope:scope
+                                                       currentScope:currentScope];
 
     NSMutableArray<SentryAttachment *> *allAttachments = [NSMutableArray array];
     [allAttachments addObjectsFromArray:scope.attachments];

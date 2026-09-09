@@ -99,6 +99,7 @@ enum Scenario: String, CaseIterable {
     case swiftAsyncCPPExceptionV2Off = "swift-async-cpp-exception-v2-off"
     case swiftAsyncCPPExceptionV2On = "swift-async-cpp-exception-v2-on"
     case ksCrashPerReportRetry = "kscrash-per-report-retry"
+    case mallocZoneLockedSignal = "malloc-zone-locked-signal"
     case crashTimeScope = "crash-time-scope"
     case crashTimeAttachments = "crash-time-attachments"
 
@@ -143,8 +144,8 @@ enum Scenario: String, CaseIterable {
         case .signal, .nsException, .nsExceptionSubclass, .cppExceptionV1, .cppExceptionV2,
              .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2, .objcObject,
              .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal, .swiftAsyncCPPExceptionV2Off,
-             .swiftAsyncCPPExceptionV2On, .ksCrashPerReportRetry, .crashTimeScope,
-             .crashTimeAttachments:
+             .swiftAsyncCPPExceptionV2On, .ksCrashPerReportRetry, .mallocZoneLockedSignal,
+             .crashTimeScope, .crashTimeAttachments:
             return false
         }
     }
@@ -159,7 +160,7 @@ enum Scenario: String, CaseIterable {
              .managedRuntimePreSDKSignal,
              .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
              .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashPerReportRetry,
-             .crashTimeScope, .crashTimeAttachments:
+             .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments:
             return true
         }
     }
@@ -173,7 +174,7 @@ enum Scenario: String, CaseIterable {
              .objcObjectAfterCaughtCPP, .binaryImages, .managedRuntimeSignalChain,
              .managedRuntimeReinitSignal,
              .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashPerReportRetry,
-             .crashTimeScope, .crashTimeAttachments:
+             .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments:
             return true
         }
     }

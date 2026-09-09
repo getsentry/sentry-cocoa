@@ -60,7 +60,8 @@ enum EventAssertions {
                                     platform: platform, scenario: scenario)
         case .signal, .binaryImages, .managedRuntimeSignalChain, .managedRuntimePreSDKSignal,
              .managedRuntimeClosedSignal, .managedRuntimeReinitSignal, .nsException,
-             .nsExceptionSubclass, .ksCrashPerReportRetry, .crashTimeScope, .crashTimeAttachments:
+             .nsExceptionSubclass, .ksCrashPerReportRetry, .mallocZoneLockedSignal,
+             .crashTimeScope, .crashTimeAttachments:
             try assertCrashedThread(threadValues, expectedThreadID: exceptionThreadID,
                                     platform: platform, scenario: scenario)
         case .ignoredSignal:
@@ -104,8 +105,8 @@ enum EventAssertions {
         let eventContext = dictionary(event["contexts"])
         switch scenario {
         case .signal, .binaryImages, .managedRuntimeSignalChain, .managedRuntimePreSDKSignal,
-             .managedRuntimeClosedSignal, .managedRuntimeReinitSignal, .crashTimeScope,
-             .crashTimeAttachments:
+             .managedRuntimeClosedSignal, .managedRuntimeReinitSignal, .mallocZoneLockedSignal,
+             .crashTimeScope, .crashTimeAttachments:
             try assertSignalScenario(
                 scenario, firstException: firstException,
                 mechanism: mechanism,
