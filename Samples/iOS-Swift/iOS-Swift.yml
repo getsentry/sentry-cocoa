@@ -69,14 +69,78 @@ targets:
       Release: App/Configurations/iOS-Swift.xcconfig
       Test: App/Configurations/iOS-Swift.xcconfig
       TestCI: App/Configurations/iOS-Swift.xcconfig
-    postCompileScripts:
-      - script: ../Shared/inject-git-info.sh
+    postBuildScripts:
+      - script: INFOPLIST_FILE="${TARGET_BUILD_DIR}/${INFOPLIST_PATH}" ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
         basedOnDependencyAnalysis: false
-    postBuildScripts:
-      - script: ../Shared/reset-git-info.sh
-        name: Reset Git Fields in Info.plist
-        basedOnDependencyAnalysis: false
+      - script: |
+          # This script is responsible for uploading debug symbols and source context for Sentry.
+          if [[ "$(uname -m)" == arm64 ]]; then
+            export PATH="/opt/homebrew/bin:$PATH"
+          fi
+
+          if which sentry-cli >/dev/null; then
+            export SENTRY_ORG=sentry-sdks
+            export SENTRY_PROJECT=sentry-cocoa
+            ERROR=$(sentry-cli debug-files upload --include-sources "$DWARF_DSYM_FOLDER_PATH" 2>&1 >/dev/null)
+            if [ ! $? -eq 0 ]; then
+              echo "info: sentry-cli - $ERROR"
+            fi
+          else
+            echo "info: sentry-cli not installed, download from https://github.com/getsentry/sentry-cli/releases"
+          fi
+        name: Upload Debug Symbols to Sentry
+        inputFiles:
+          - ${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}
+    entitlements:
+      path: App/Configurations/iOS-Swift.entitlements
+      properties:
+        aps-environment: development
+        com.apple.developer.siri: true
+        com.apple.security.app-sandbox: true
+        com.apple.security.network.client: true
+    info:
+      path: App/Configurations/Info.plist
+      properties:
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        GIT_BRANCH: <branch>
+        GIT_COMMIT_HASH: <sha>
+        GIT_STATUS_CLEAN: <status>
+        ITSAppUsesNonExemptEncryption: false
+        LSRequiresIPhoneOS: true
+        NSCameraUsageDescription: Testing camera permissions
+        NSFaceIDUsageDescription: $(PRODUCT_NAME) Authentication with TouchId or FaceID for testing purposes of the Sentry Cocoa SDK.
+        NSLocationAlwaysAndWhenInUseUsageDescription: Testing location permissions
+        NSLocationAlwaysUsageDescription: Testing location permissions
+        NSLocationWhenInUseUsageDescription: Testing location permissions
+        NSSiriUsageDescription: Testing app intents
+        NSSupportsSiriKit: true
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+          UISceneConfigurations:
+            UIWindowSceneSessionRoleApplication:
+              - UISceneConfigurationName: Default Configuration
+                UISceneDelegateClassName: $(PRODUCT_MODULE_NAME).SceneDelegate
+                UISceneStoryboardFile: Main
+        UIBackgroundModes:
+          - remote-notification
+        UILaunchStoryboardName: LaunchScreen
+        UIMainStoryboardFile: Main
+        UIRequiredDeviceCapabilities:
+          - armv7
+        UIRequiresFullScreen: true
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+          - UIInterfaceOrientationPortraitUpsideDown
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UIUserInterfaceStyle: Light
   iOS-Swift-AppClip:
     type: application.on-demand-install-capable
     platform: auto
@@ -117,14 +181,72 @@ targets:
       Release: AppClip/Configurations/iOS-Swift-AppClip.xcconfig
       Test: AppClip/Configurations/iOS-Swift-AppClip.xcconfig
       TestCI: AppClip/Configurations/iOS-Swift-AppClip.xcconfig
-    postCompileScripts:
-      - script: ../Shared/inject-git-info.sh
+    postBuildScripts:
+      - script: INFOPLIST_FILE="${TARGET_BUILD_DIR}/${INFOPLIST_PATH}" ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
         basedOnDependencyAnalysis: false
-    postBuildScripts:
-      - script: ../Shared/reset-git-info.sh
-        name: Reset Git Fields in Info.plist
-        basedOnDependencyAnalysis: false
+      - script: |
+          # This script is responsible for uploading debug symbols and source context for Sentry.
+          if [[ "$(uname -m)" == arm64 ]]; then
+            export PATH="/opt/homebrew/bin:$PATH"
+          fi
+
+          if which sentry-cli >/dev/null; then
+            export SENTRY_ORG=sentry-sdks
+            export SENTRY_PROJECT=sentry-cocoa
+            ERROR=$(sentry-cli debug-files upload --include-sources "$DWARF_DSYM_FOLDER_PATH" 2>&1 >/dev/null)
+            if [ ! $? -eq 0 ]; then
+              echo "info: sentry-cli - $ERROR"
+            fi
+          else
+            echo "info: sentry-cli not installed, download from https://github.com/getsentry/sentry-cli/releases"
+          fi
+        name: Upload Debug Symbols to Sentry
+        inputFiles:
+          - ${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}
+    entitlements:
+      path: AppClip/Configurations/Entitlements.entitlements
+      properties:
+        com.apple.developer.parent-application-identifiers:
+          - $(AppIdentifierPrefix)io.sentry.sample.iOS-Swift
+    info:
+      path: AppClip/Configurations/Info.plist
+      properties:
+        CFBundleDisplayName: iOS-Swift
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        GIT_BRANCH: <branch>
+        GIT_COMMIT_HASH: <sha>
+        GIT_STATUS_CLEAN: <status>
+        LSRequiresIPhoneOS: true
+        NSAppClip:
+          NSAppClipRequestEphemeralUserNotification: false
+          NSAppClipRequestLocationConfirmation: false
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: true
+          UISceneConfigurations:
+            UIWindowSceneSessionRoleApplication:
+              - UISceneConfigurationName: Default Configuration
+                UISceneDelegateClassName: $(PRODUCT_MODULE_NAME).SceneDelegate
+                UISceneStoryboardFile: Main
+        UIApplicationSupportsIndirectInputEvents: true
+        UILaunchStoryboardName: LaunchScreen
+        UIMainStoryboardFile: Main
+        UIRequiresFullScreen: true
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+          - UIInterfaceOrientationPortraitUpsideDown
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UISupportedInterfaceOrientations~iphone:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
   iOS-Swift-UITests:
     type: bundle.ui-testing
     platform: auto
@@ -165,6 +287,9 @@ targets:
       Release: UITests/Configurations/iOS-Swift-UITests.xcconfig
       Test: UITests/Configurations/iOS-Swift-UITests.xcconfig
       TestCI: UITests/Configurations/iOS-Swift-UITests.xcconfig
+    info:
+      path: UITests/Configurations/Info.plist
+      properties: {}
   iOS-Swift-ShareExtension:
     type: app-extension
     platform: auto
@@ -204,6 +329,24 @@ targets:
       Release: ShareExtension/Configurations/iOS-Swift-ShareExtension.xcconfig
       Test: ShareExtension/Configurations/iOS-Swift-ShareExtension.xcconfig
       TestCI: ShareExtension/Configurations/iOS-Swift-ShareExtension.xcconfig
+    info:
+      path: ShareExtension/Configurations/Info.plist
+      properties:
+        CFBundleDisplayName: $(PRODUCT_NAME)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        GIT_BRANCH: <branch>
+        GIT_COMMIT_HASH: <sha>
+        GIT_STATUS_CLEAN: <status>
+        NSExtension:
+          NSExtensionAttributes:
+            NSExtensionActivationRule:
+              NSExtensionActivationSupportsFileWithMaxCount: 1
+              NSExtensionActivationSupportsImageWithMaxCount: 1
+              NSExtensionActivationSupportsText: true
+              NSExtensionActivationSupportsWebURLWithMaxCount: 1
+          NSExtensionMainStoryboard: MainInterface
+          NSExtensionPointIdentifier: com.apple.share-services
   iOS-Swift-ActionExtension:
     type: app-extension
     platform: auto
@@ -243,6 +386,23 @@ targets:
       Release: ActionExtension/Configurations/iOS-Swift-ActionExtension.xcconfig
       Test: ActionExtension/Configurations/iOS-Swift-ActionExtension.xcconfig
       TestCI: ActionExtension/Configurations/iOS-Swift-ActionExtension.xcconfig
+    info:
+      path: ActionExtension/Configurations/Info.plist
+      properties:
+        CFBundleDisplayName: $(PRODUCT_NAME)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        GIT_BRANCH: <branch>
+        GIT_COMMIT_HASH: <sha>
+        GIT_STATUS_CLEAN: <status>
+        NSExtension:
+          NSExtensionAttributes:
+            NSExtensionActivationRule:
+              NSExtensionActivationSupportsImageWithMaxCount: 1
+              NSExtensionActivationSupportsText: true
+              NSExtensionActivationSupportsWebURLWithMaxCount: 1
+          NSExtensionPointIdentifier: com.apple.ui-services
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).ActionViewController
   iOS-Swift-IntentExtension:
     type: app-extension
     platform: auto
@@ -282,6 +442,24 @@ targets:
       Release: IntentExtension/Configurations/iOS-Swift-IntentExtension.xcconfig
       Test: IntentExtension/Configurations/iOS-Swift-IntentExtension.xcconfig
       TestCI: IntentExtension/Configurations/iOS-Swift-IntentExtension.xcconfig
+    info:
+      path: IntentExtension/Configurations/Info.plist
+      properties:
+        CFBundleDisplayName: $(PRODUCT_NAME)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        GIT_BRANCH: <branch>
+        GIT_COMMIT_HASH: <sha>
+        GIT_STATUS_CLEAN: <status>
+        NSExtension:
+          NSExtensionAttributes:
+            IntentsRestrictedWhileLocked: []
+            IntentsSupported:
+              - INSendMessageIntent
+              - INSearchForMessagesIntent
+              - INSetMessageAttributeIntent
+          NSExtensionPointIdentifier: com.apple.intents-service
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).IntentHandler
   iOS-Swift-NotificationServiceExtension:
     type: app-extension
     platform: auto
@@ -321,6 +499,18 @@ targets:
       Release: NotificationServiceExtension/Configurations/iOS-Swift-NotificationServiceExtension.xcconfig
       Test: NotificationServiceExtension/Configurations/iOS-Swift-NotificationServiceExtension.xcconfig
       TestCI: NotificationServiceExtension/Configurations/iOS-Swift-NotificationServiceExtension.xcconfig
+    info:
+      path: NotificationServiceExtension/Configurations/Info.plist
+      properties:
+        CFBundleDisplayName: $(PRODUCT_NAME)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        GIT_BRANCH: <branch>
+        GIT_COMMIT_HASH: <sha>
+        GIT_STATUS_CLEAN: <status>
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.usernotifications.service
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).NotificationService
 schemes:
   iOS-Swift:
     templates:
