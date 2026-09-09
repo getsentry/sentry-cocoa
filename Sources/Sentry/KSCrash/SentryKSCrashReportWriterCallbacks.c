@@ -270,6 +270,7 @@ payloadDirectoryFromSidecar(const char *sidecarPath, char *out, size_t outSize)
         return false;
     }
 
+    // not async-signal safe but accepted
     int written = snprintf(out, outSize, "%s/SentryAttachments/%s", buf, reportIDHex);
     return written > 0 && (size_t)written < outSize;
 }
@@ -277,20 +278,20 @@ payloadDirectoryFromSidecar(const char *sidecarPath, char *out, size_t outSize)
 static bool
 directoryHasFiles(const char *path)
 {
-    DIR *dir = opendir(path);
+    DIR *dir = opendir(path); // not async-signal safe but accepted
     if (dir == NULL) {
         return false;
     }
     bool found = false;
     struct dirent *entry;
-    while ((entry = readdir(dir)) != NULL) {
+    while ((entry = readdir(dir)) != NULL) { // not async-signal safe but accepted
         if (entry->d_name[0] == '.') {
             continue;
         }
         found = true;
         break;
     }
-    closedir(dir);
+    closedir(dir); // not async-signal safe but accepted
     return found;
 }
 
@@ -361,6 +362,7 @@ sentrykscrash_attachments_capture(int64_t reportID)
     }
 
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Calling screenshot writer for %s", payloadDirectory);
+    // not async-signal safe but accepted
     g_screenshotWriter(payloadDirectory);
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Screenshot writer returned for %s", payloadDirectory);
 
