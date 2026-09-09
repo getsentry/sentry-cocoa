@@ -62,14 +62,6 @@ targets:
     info:
       path: Resources/Info.plist
       properties:
-        CFBundleDevelopmentRegion: $(DEVELOPMENT_LANGUAGE)
-        CFBundleExecutable: $(EXECUTABLE_NAME)
-        CFBundleIdentifier: $(PRODUCT_BUNDLE_IDENTIFIER)
-        CFBundleInfoDictionaryVersion: "6.0"
-        CFBundleName: $(PRODUCT_NAME)
-        CFBundlePackageType: $(PRODUCT_BUNDLE_PACKAGE_TYPE)
-        CFBundleShortVersionString: "1.0"
-        CFBundleVersion: "1"
         GIT_BRANCH: <branch>
         GIT_COMMIT_HASH: <sha>
         GIT_STATUS_CLEAN: <status>
@@ -110,14 +102,6 @@ targets:
         GIT_BRANCH: <branch>
         GIT_COMMIT_HASH: <sha>
         GIT_STATUS_CLEAN: <status>
-        CFBundleDevelopmentRegion: $(DEVELOPMENT_LANGUAGE)
-        CFBundleExecutable: $(EXECUTABLE_NAME)
-        CFBundleIdentifier: $(PRODUCT_BUNDLE_IDENTIFIER)
-        CFBundleInfoDictionaryVersion: "6.0"
-        CFBundleName: $(PRODUCT_NAME)
-        CFBundlePackageType: APPL
-        CFBundleShortVersionString: "1.0"
-        CFBundleVersion: "1"
     postBuildScripts:
       - script: INFOPLIST_FILE="${TARGET_BUILD_DIR}/${INFOPLIST_PATH}" ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist

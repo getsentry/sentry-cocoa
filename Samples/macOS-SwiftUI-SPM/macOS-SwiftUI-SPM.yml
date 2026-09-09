@@ -36,14 +36,6 @@ targets:
         GIT_BRANCH: <branch>
         GIT_COMMIT_HASH: <sha>
         GIT_STATUS_CLEAN: <status>
-        CFBundleDevelopmentRegion: $(DEVELOPMENT_LANGUAGE)
-        CFBundleExecutable: $(EXECUTABLE_NAME)
-        CFBundleIdentifier: $(PRODUCT_BUNDLE_IDENTIFIER)
-        CFBundleInfoDictionaryVersion: "6.0"
-        CFBundleName: $(PRODUCT_NAME)
-        CFBundlePackageType: APPL
-        CFBundleShortVersionString: "1.0"
-        CFBundleVersion: "1"
     entitlements:
       path: Resources/Entitlements.entitlements
       properties:

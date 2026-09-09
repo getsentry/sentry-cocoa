@@ -92,14 +92,6 @@ targets:
     info:
       path: App/Configurations/Info.plist
       properties:
-        CFBundleDevelopmentRegion: $(DEVELOPMENT_LANGUAGE)
-        CFBundleExecutable: $(EXECUTABLE_NAME)
-        CFBundleIdentifier: $(PRODUCT_BUNDLE_IDENTIFIER)
-        CFBundleInfoDictionaryVersion: "6.0"
-        CFBundleName: $(PRODUCT_NAME)
-        CFBundlePackageType: $(PRODUCT_BUNDLE_PACKAGE_TYPE)
-        CFBundleShortVersionString: "1.0"
-        CFBundleVersion: "1"
         GIT_BRANCH: <branch>
         GIT_COMMIT_HASH: <sha>
         GIT_STATUS_CLEAN: <status>
@@ -163,15 +155,7 @@ targets:
       TestCI: UITests/Configurations/iOS-SwiftUI-UITests.xcconfig
     info:
       path: UITests/Configurations/Info.plist
-      properties:
-        CFBundleDevelopmentRegion: $(DEVELOPMENT_LANGUAGE)
-        CFBundleExecutable: $(EXECUTABLE_NAME)
-        CFBundleIdentifier: $(PRODUCT_BUNDLE_IDENTIFIER)
-        CFBundleInfoDictionaryVersion: "6.0"
-        CFBundleName: $(PRODUCT_NAME)
-        CFBundlePackageType: $(PRODUCT_BUNDLE_PACKAGE_TYPE)
-        CFBundleShortVersionString: "1.0"
-        CFBundleVersion: "1"
+      properties: {}
 schemes:
   iOS-SwiftUI:
     templates:
