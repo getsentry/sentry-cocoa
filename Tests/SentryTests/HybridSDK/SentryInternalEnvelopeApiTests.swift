@@ -116,7 +116,11 @@ private class MockHub: Hub {
     }
 
     func captureErrorEvent(event: Event) {}
+    func captureErrorEvent(event: Event, hint: Hint) {}
     func setTrace(_ traceId: SentryId, spanId: SpanId) {}
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    func getSessionReplayId() -> String? { nil }
+#endif
     var currentOptions: Options? { options }
     var options: Options { Options() }
     var scope: Scope { Scope() }

@@ -61,14 +61,58 @@ targets:
       Release: App/Configurations/iOS-SwiftUI.xcconfig
       Test: App/Configurations/iOS-SwiftUI.xcconfig
       TestCI: App/Configurations/iOS-SwiftUI.xcconfig
-    postCompileScripts:
-      - script: ../Shared/inject-git-info.sh
+    postBuildScripts:
+      - script: INFOPLIST_FILE="${TARGET_BUILD_DIR}/${INFOPLIST_PATH}" ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
         basedOnDependencyAnalysis: false
-    postBuildScripts:
-      - script: ../Shared/reset-git-info.sh
-        name: Reset Git Fields in Info.plist
-        basedOnDependencyAnalysis: false
+      - script: |
+          # This script is responsible for uploading debug symbols and source context for Sentry.
+          if [[ "$(uname -m)" == arm64 ]]; then
+            export PATH="/opt/homebrew/bin:$PATH"
+          fi
+
+          if which sentry-cli >/dev/null; then
+            export SENTRY_ORG=sentry-sdks
+            export SENTRY_PROJECT=sentry-cocoa
+            ERROR=$(sentry-cli debug-files upload --include-sources "$DWARF_DSYM_FOLDER_PATH" 2>&1 >/dev/null)
+            if [ ! $? -eq 0 ]; then
+              echo "info: sentry-cli - $ERROR"
+            fi
+          else
+            echo "info: sentry-cli not installed, download from https://github.com/getsentry/sentry-cli/releases"
+          fi
+        name: Upload Debug Symbols to Sentry
+        inputFiles:
+          - ${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}
+    entitlements:
+      path: App/Configurations/iOS-SwiftUI.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.network.client: true
+    info:
+      path: App/Configurations/Info.plist
+      properties:
+        GIT_BRANCH: <branch>
+        GIT_COMMIT_HASH: <sha>
+        GIT_STATUS_CLEAN: <status>
+        LSRequiresIPhoneOS: true
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: true
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: true
+        UIApplicationSupportsIndirectInputEvents: true
+        UILaunchScreen: {}
+        UIRequiredDeviceCapabilities:
+          - armv7
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
   iOS-SwiftUI-UITests:
     type: bundle.ui-testing
     platform: auto
@@ -109,6 +153,9 @@ targets:
       Release: UITests/Configurations/iOS-SwiftUI-UITests.xcconfig
       Test: UITests/Configurations/iOS-SwiftUI-UITests.xcconfig
       TestCI: UITests/Configurations/iOS-SwiftUI-UITests.xcconfig
+    info:
+      path: UITests/Configurations/Info.plist
+      properties: {}
 schemes:
   iOS-SwiftUI:
     templates:

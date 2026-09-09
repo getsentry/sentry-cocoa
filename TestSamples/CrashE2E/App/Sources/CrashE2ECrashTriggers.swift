@@ -30,6 +30,9 @@ enum CrashE2ECrashTriggers {
             CrashE2ERuntime.closeAndRestartSDK()
             SentrySDK.crash()
             abortBecauseScenarioReturned(scenario)
+        case .mallocZoneLockedSignal:
+            CrashE2ETriggerMallocZoneLockedSignal()
+            abortBecauseScenarioReturned(scenario)
         case .nsException, .nsExceptionSubclass, .cppExceptionV1, .cppExceptionV2,
              .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .unityCxaThrow,
              .unityCxaThrowV2, .objcObject, .objcObjectAfterCaughtCPP, .ksCrashRetryReportA,
@@ -84,7 +87,7 @@ enum CrashE2ECrashTriggers {
             abortBecauseScenarioReturned(scenario)
         case .signal, .cppExceptionV2DynamicImage, .binaryImages, .ignoredSignal,
              .managedRuntimeSignalChain, .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
-             .crashTimeScope:
+             .mallocZoneLockedSignal, .crashTimeScope:
             abortBecauseScenarioReturned(scenario)
         }
     }

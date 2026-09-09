@@ -24,6 +24,14 @@ NS_ASSUME_NONNULL_BEGIN
 /// The original @c NSException that triggered the event capture, if any.
 @property (nonatomic, strong, nullable) NSException *originalException;
 
+/// The @c NSURLRequest associated with the event or breadcrumb, if it originated from a network
+/// operation.
+@property (nonatomic, strong, nullable) NSURLRequest *urlRequest;
+
+/// The @c NSHTTPURLResponse associated with the event or breadcrumb, if it originated from a
+/// network operation.
+@property (nonatomic, strong, nullable) NSHTTPURLResponse *httpResponse;
+
 /**
  * The attachments that will be sent alongside the event.
  *

@@ -644,10 +644,15 @@ protocol Hub {
     func captureNonTerminatingEnvelope(_ envelope: SentryEnvelope)
     func updateSessionForDroppedEventNonTerminating(unhandled: Bool)
     func captureErrorEvent(event: Event)
+    func captureErrorEvent(event: Event, hint: Hint)
     func setTrace(_ traceId: SentryId, spanId: SpanId)
     var currentOptions: Options? { get }
     var options: Options { get }
     var scope: Scope { get }
+
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    func getSessionReplayId() -> String?
+#endif
 }
 
 protocol HubProvider {
@@ -686,6 +691,10 @@ private struct DefaultHub: Hub {
         SentrySDKInternal.currentHub().captureErrorEvent(event: event)
     }
 
+    func captureErrorEvent(event: Event, hint: Hint) {
+        SentrySDKInternal.currentHub().captureErrorEvent(event, withHint: hint)
+    }
+
     func setTrace(_ traceId: SentryId, spanId: SpanId) {
         SentrySDKInternal.currentHub().configureScope { scope in
             scope.setPropagationContext(traceId: traceId, spanId: spanId)
@@ -704,6 +713,11 @@ private struct DefaultHub: Hub {
         SentrySDKInternal.currentHub().scope
     }
 
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    func getSessionReplayId() -> String? {
+        SentrySDKInternal.currentHub().getSessionReplayId()
+    }
+#endif
 }
 
 extension SentryDependencyContainer: HubProvider {

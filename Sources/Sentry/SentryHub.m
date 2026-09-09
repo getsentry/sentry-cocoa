@@ -670,6 +670,20 @@ NS_ASSUME_NONNULL_BEGIN
     return SentryId.empty;
 }
 
+- (SentryId *)captureErrorEvent:(SentryEvent *)event withHint:(id _Nullable)hint
+{
+    SentryScope *scope = self.scope;
+    SentryClientInternal *client = self.client;
+
+    if (client != nil) {
+        SentryHint *resolvedHint = hint ?: [[SentryHint alloc] init];
+        return [client captureEventIncrementingSessionErrorCount:event
+                                                       withScope:scope
+                                                            hint:resolvedHint];
+    }
+    return SentryId.empty;
+}
+
 - (void)captureFeedback:(SentryFeedback *)feedback
 {
     SentryClientInternal *client = self.client;
@@ -693,14 +707,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {
+    [self addBreadcrumb:crumb withHint:nil];
+}
+
+- (void)addBreadcrumb:(SentryBreadcrumb *)crumb withHint:(id _Nullable)hint
+{
     SentryOptions *options = [[self client] options];
     if (options.maxBreadcrumbs < 1) {
         return;
     }
     SentryBreadcrumb *_Nullable nullableCrumb = crumb;
     if (options.beforeBreadcrumbWithHint != nil) {
-        SentryHint *hint = [[SentryHint alloc] init];
-        nullableCrumb = options.beforeBreadcrumbWithHint(crumb, hint);
+        SentryHint *resolvedHint = hint ?: [[SentryHint alloc] init];
+        nullableCrumb = options.beforeBreadcrumbWithHint(crumb, resolvedHint);
     } else {
         SentryBeforeBreadcrumbCallback callback = [options beforeBreadcrumb];
         if (callback != nil) {

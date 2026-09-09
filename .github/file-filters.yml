@@ -73,6 +73,13 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
 run_distribution_tests_for_prs: &run_distribution_tests_for_prs
   - "Sources/SentryDistribution/**"
   - "Sources/SentryDistributionTests/**"
+  - "Sources/Sentry/**"
+  - "Sources/Swift/**"
+  - "Sources/SentryCrash/**"
+  - "Sources/SentryObjC/**"
+  - "Sources/SentryObjCCompat/**"
+  - "Sources/include/**"
+  - "Tests/SentryObjCCompatTests/**"
   - "SentryTestUtils/**"
   - "SentryTestUtilsTests/**"
 
@@ -390,6 +397,10 @@ run_v10_for_prs: &run_v10_for_prs
   - "scripts/ci-utils.sh"
   - "scripts/sentry-xcodebuild.sh"
   - "scripts/verify-v10-sentrycrash-*.sh"
+  - "scripts/generate-sample-v10.sh"
+  - "scripts/set-xcodegen-package-traits.sh"
+  - "scripts/set-xcodegen-compiler-flags.sh"
+  - "scripts/swap-xcodegen-product-name.sh"
 
   # Project files
   - "Sentry.xcodeproj/**"

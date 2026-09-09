@@ -47,7 +47,9 @@ private class MockHub: Hub {
     func captureNonTerminatingEnvelope(_ envelope: SentryEnvelope) {}
     func updateSessionForDroppedEventNonTerminating(unhandled: Bool) {}
     func captureErrorEvent(event: Event) {}
+    func captureErrorEvent(event: Event, hint: Hint) {}
     func setTrace(_ traceId: SentryId, spanId: SpanId) {}
+    func getSessionReplayId() -> String? { nil }
     var currentOptions: Options? { options }
     var options: Options { Options() }
     var scope: Scope { Scope() }
