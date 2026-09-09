@@ -737,7 +737,7 @@ V10_SDK_FLAGS = GCC_PREPROCESSOR_DEFINITIONS='$$(inherited) SDK_V10=1' SWIFT_ACT
 ## Build the iOS-Swift sample app with the V10 trait
 .PHONY: build-sample-v10-iOS-Swift
 build-sample-v10-iOS-Swift:
-	scripts/set-xcodegen-package-traits.sh --trait V10 --generate --spec Samples/iOS-Swift/iOS-Swift.yml
+	scripts/generate-sample-v10.sh --spec Samples/iOS-Swift/iOS-Swift.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme iOS-Swift \
@@ -749,7 +749,7 @@ build-sample-v10-iOS-Swift:
 ## Build the iOS-SwiftUI sample app with the V10 trait
 .PHONY: build-sample-v10-iOS-SwiftUI
 build-sample-v10-iOS-SwiftUI:
-	scripts/set-xcodegen-package-traits.sh --trait V10 --generate --spec Samples/iOS-SwiftUI/iOS-SwiftUI.yml
+	scripts/generate-sample-v10.sh --spec Samples/iOS-SwiftUI/iOS-SwiftUI.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme iOS-SwiftUI \
@@ -761,7 +761,7 @@ build-sample-v10-iOS-SwiftUI:
 ## Build the iOS-ObjectiveC sample app with the V10 trait
 .PHONY: build-sample-v10-iOS-ObjectiveC
 build-sample-v10-iOS-ObjectiveC:
-	scripts/set-xcodegen-package-traits.sh --trait V10 --generate --spec Samples/iOS-ObjectiveC/iOS-ObjectiveC.yml
+	scripts/generate-sample-v10.sh --spec Samples/iOS-ObjectiveC/iOS-ObjectiveC.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme iOS-ObjectiveC \
@@ -773,7 +773,7 @@ build-sample-v10-iOS-ObjectiveC:
 ## Build the iOS-ObjectiveCpp-NoModules sample app with the V10 trait
 .PHONY: build-sample-v10-iOS-ObjectiveCpp-NoModules
 build-sample-v10-iOS-ObjectiveCpp-NoModules:
-	scripts/set-xcodegen-package-traits.sh --trait V10 --generate --spec Samples/iOS-ObjectiveCpp-NoModules/iOS-ObjectiveCpp-NoModules.yml
+	scripts/generate-sample-v10.sh --spec Samples/iOS-ObjectiveCpp-NoModules/iOS-ObjectiveCpp-NoModules.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme iOS-ObjectiveCpp-NoModules \
@@ -786,7 +786,7 @@ build-sample-v10-iOS-ObjectiveCpp-NoModules:
 ## Build the SPM sample app with the V10 trait
 .PHONY: build-sample-v10-SPM
 build-sample-v10-SPM:
-	scripts/set-xcodegen-package-traits.sh --trait V10 --generate --spec Samples/SPM/SPM.yml
+	scripts/generate-sample-v10.sh --spec Samples/SPM/SPM.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme SPM \
@@ -797,7 +797,7 @@ build-sample-v10-SPM:
 ## Build the DistributionSample app with the V10 trait
 .PHONY: build-sample-v10-DistributionSample
 build-sample-v10-DistributionSample:
-	scripts/set-xcodegen-package-traits.sh --trait V10 --generate --spec Samples/DistributionSample/DistributionSample.yml
+	scripts/generate-sample-v10.sh --spec Samples/DistributionSample/DistributionSample.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme DistributionSample \
@@ -808,7 +808,7 @@ build-sample-v10-DistributionSample:
 ## Build the macOS-Swift sample app with the V10 trait
 .PHONY: build-sample-v10-macOS-Swift
 build-sample-v10-macOS-Swift:
-	scripts/set-xcodegen-package-traits.sh --trait V10 --generate --spec Samples/macOS-Swift/macOS-Swift.yml
+	scripts/generate-sample-v10.sh --spec Samples/macOS-Swift/macOS-Swift.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme macOS-Swift \
@@ -819,7 +819,7 @@ build-sample-v10-macOS-Swift:
 ## Build the macOS-SwiftUI sample app with the V10 trait
 .PHONY: build-sample-v10-macOS-SwiftUI
 build-sample-v10-macOS-SwiftUI:
-	scripts/set-xcodegen-package-traits.sh --trait V10 --generate --spec Samples/macOS-SwiftUI/macOS-SwiftUI.yml
+	scripts/generate-sample-v10.sh --spec Samples/macOS-SwiftUI/macOS-SwiftUI.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme macOS-SwiftUI \
@@ -830,7 +830,7 @@ build-sample-v10-macOS-SwiftUI:
 ## Build the tvOS-Swift sample app with the V10 trait
 .PHONY: build-sample-v10-tvOS-Swift
 build-sample-v10-tvOS-Swift:
-	scripts/set-xcodegen-package-traits.sh --trait V10 --generate --spec Samples/tvOS-Swift/tvOS-Swift.yml
+	scripts/generate-sample-v10.sh --spec Samples/tvOS-Swift/tvOS-Swift.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme tvOS-Swift \
@@ -842,7 +842,7 @@ build-sample-v10-tvOS-Swift:
 ## Build the visionOS-Swift sample app with the V10 trait
 .PHONY: build-sample-v10-visionOS-Swift
 build-sample-v10-visionOS-Swift:
-	scripts/set-xcodegen-package-traits.sh --trait V10 --generate --spec Samples/visionOS-Swift/visionOS-Swift.yml
+	scripts/generate-sample-v10.sh --spec Samples/visionOS-Swift/visionOS-Swift.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme visionOS-Swift \
@@ -854,7 +854,7 @@ build-sample-v10-visionOS-Swift:
 ## Build the watchOS-Swift sample app with the V10 trait
 .PHONY: build-sample-v10-watchOS-Swift
 build-sample-v10-watchOS-Swift:
-	scripts/set-xcodegen-package-traits.sh --trait V10 --generate --spec Samples/watchOS-Swift/watchOS-Swift.yml
+	scripts/generate-sample-v10.sh --spec Samples/watchOS-Swift/watchOS-Swift.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme 'watchOS-Swift WatchKit App' \
@@ -1831,12 +1831,15 @@ xcode: xcode-ci
 
 ## Switch sample Xcode projects to SDK V10 mode
 #
-# Copies each sample XcodeGen YAML, adds the V10 package trait and app-target
-# SDK_V10 compiler flags with yq, and regenerates the Xcode project from that
-# copy. Committed YAML is left unchanged. Skips binary and NoUIFramework samples.
+# Copies each sample XcodeGen YAML, sets the V10 package trait and app-target
+# SDK_V10 compiler flags, rewrites SentrySPM product refs to Sentry, and
+# regenerates the Xcode project from that copy. Committed YAML is left
+# unchanged. Skips binary and NoUIFramework samples. Opens the workspace with
+# SDK_V10=1 so SwiftPM exports the source-built product as Sentry.
 .PHONY: switch-v10
 switch-v10:
-	scripts/set-xcodegen-package-traits.sh --trait V10 --generate
+	scripts/generate-sample-v10.sh --product SentrySPM --with Sentry
+	SDK_V10=1 xed Sentry.xcworkspace
 
 ## Switch sample Xcode projects back to default (non-V10) mode
 #
