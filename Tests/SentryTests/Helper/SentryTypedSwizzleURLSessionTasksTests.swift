@@ -27,6 +27,81 @@ final class SentryTypedSwizzleURLSessionTasksTests: XCTestCase {
         XCTAssertEqual(target.receivedState, .completed)
     }
 
+    func testInstanceMethod_whenDownloadTaskMethod_shouldWrapCompletionAndReturnOriginalResult() {
+        // -- Arrange --
+        let key = SentryTypedSwizzle.Key()
+        let target = TypedSwizzleTransferTaskTarget()
+        let url = URL(string: "https://example.com/original")!
+        let replacementURL = URL(string: "https://example.com/replacement")!
+        var completionLocation: URL?
+        let method = SentrySwizzleMethod<TypedSwizzleTransferTaskTarget, SentryDownloadTaskURLArguments, URLSessionDownloadTask>(
+            selector: #selector(TypedSwizzleTransferTaskTarget.makeDownloadTask(_:completionHandler:)),
+            receiver: TypedSwizzleTransferTaskTarget.self,
+            signature: .init(returnType: .object, arguments: [.object, .selector, .object, .block])
+        )
+
+        // -- Act --
+        let installed = SentryTypedSwizzle.instanceMethod(
+            in: TypedSwizzleTransferTaskTarget.self,
+            method: method,
+            mode: .always,
+            key: key
+        ) { _, receivedURL, completionHandler, original in
+            XCTAssertEqual(receivedURL, url)
+            let wrappedCompletion: SentryDownloadTaskCompletionHandler = { _, response, error in
+                completionHandler?(replacementURL, response, error)
+            }
+            return original(replacementURL, wrappedCompletion)
+        }
+        let result = target.makeDownloadTask(url) { location, _, _ in
+            completionLocation = location
+        }
+
+        // -- Assert --
+        XCTAssertTrue(installed)
+        XCTAssertIdentical(result, target.downloadTask)
+        XCTAssertEqual(target.receivedURL, replacementURL)
+        XCTAssertEqual(completionLocation, replacementURL)
+    }
+
+    func testInstanceMethod_whenUploadTaskMethod_shouldWrapCompletionAndReturnOriginalResult() {
+        // -- Arrange --
+        let key = SentryTypedSwizzle.Key()
+        let target = TypedSwizzleTransferTaskTarget()
+        let request = URLRequest(url: URL(string: "https://example.com/original")!)
+        let replacementRequest = URLRequest(url: URL(string: "https://example.com/replacement")!)
+        let data = Data("original".utf8)
+        let replacementData = Data("replacement".utf8)
+        var completionData: Data?
+        let method = SentrySwizzleMethod<TypedSwizzleTransferTaskTarget, SentryUploadTaskDataArguments, URLSessionUploadTask>(
+            selector: #selector(TypedSwizzleTransferTaskTarget.makeUploadTask(_:data:completionHandler:)),
+            receiver: TypedSwizzleTransferTaskTarget.self,
+            signature: .init(returnType: .object, arguments: [.object, .selector, .object, .object, .block])
+        )
+
+        // -- Act --
+        let installed = SentryTypedSwizzle.instanceMethod(
+            in: TypedSwizzleTransferTaskTarget.self,
+            method: method,
+            mode: .always,
+            key: key
+        ) { _, receivedRequest, receivedData, completionHandler, original in
+            XCTAssertEqual(receivedRequest, request)
+            XCTAssertEqual(receivedData, data)
+            return original(replacementRequest, replacementData, completionHandler)
+        }
+        let result = target.makeUploadTask(request, data: data) { result, _, _ in
+            completionData = result
+        }
+
+        // -- Assert --
+        XCTAssertTrue(installed)
+        XCTAssertIdentical(result, target.uploadTask)
+        XCTAssertEqual(target.receivedRequest, replacementRequest)
+        XCTAssertEqual(target.receivedData, replacementData)
+        XCTAssertEqual(completionData, replacementData)
+    }
+
     func testInstanceMethod_whenRequestDataTaskMethod_shouldWrapCompletionAndReturnOriginalResult() throws {
         // -- Arrange --
         let key = SentryTypedSwizzle.Key()
@@ -276,6 +351,37 @@ final class SentryTypedSwizzleURLSessionTasksTests: XCTestCase {
 
         // -- Assert --
         XCTAssertFalse(installed)
+    }
+}
+
+private final class TypedSwizzleTransferTaskTarget: NSObject {
+    let downloadTask = URLSession.shared.downloadTask(with: URL(string: "https://example.com")!)
+    let uploadTask = URLSession.shared.uploadTask(
+        with: URLRequest(url: URL(string: "https://example.com")!),
+        from: Data()
+    )
+    private(set) var receivedURL: URL?
+    private(set) var receivedRequest: URLRequest?
+    private(set) var receivedData: Data?
+
+    @objc dynamic func makeDownloadTask(
+        _ url: URL,
+        completionHandler: SentryDownloadTaskCompletionHandler?
+    ) -> URLSessionDownloadTask {
+        receivedURL = url
+        completionHandler?(url, nil, nil)
+        return downloadTask
+    }
+
+    @objc dynamic func makeUploadTask(
+        _ request: URLRequest,
+        data: Data?,
+        completionHandler: SentryDataTaskCompletionHandler?
+    ) -> URLSessionUploadTask {
+        receivedRequest = request
+        receivedData = data
+        completionHandler?(data, nil, nil)
+        return uploadTask
     }
 }
 

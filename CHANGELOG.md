@@ -15,6 +15,7 @@
 - Classify MetricKit hangs over 500 ms as errors. (#8948)
 - Add hint parameter to public capture methods on `SentrySDK` (#8943)
 - Prevent Session Replay video encoding from reusing pixel buffers retained by AVFoundation. (#8950)
+- Support the new URLSession HTTP loader for automatic network instrumentation (#8845)
 
 ## 9.27.0
 

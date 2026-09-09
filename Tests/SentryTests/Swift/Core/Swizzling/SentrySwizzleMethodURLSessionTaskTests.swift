@@ -72,6 +72,30 @@ final class SentrySwizzleMethodURLSessionTaskTests: XCTestCase {
         XCTAssertTrue(result)
     }
 
+    func testURLSessionDownloadTaskWithURL_shouldDescribeDownloadTaskSignature() {
+        // -- Act --
+        let method = SentrySwizzleMethod<URLSession, SentryDownloadTaskURLArguments, URLSessionDownloadTask>
+            .urlSessionDownloadTaskWithURL(URLSession.self)
+
+        // -- Assert --
+        XCTAssertEqual(method.selector, #selector(URLSession.downloadTask(with:completionHandler:)
+            as (URLSession) -> (URL, @escaping @Sendable (URL?, URLResponse?, Error?) -> Void) -> URLSessionDownloadTask))
+        XCTAssertTrue(method.receiver == URLSession.self)
+        XCTAssertEqual(method.signature.description, "@@:@@?")
+    }
+
+    func testURLSessionUploadTaskWithData_shouldDescribeUploadTaskSignature() {
+        // -- Act --
+        let method = SentrySwizzleMethod<URLSession, SentryUploadTaskDataArguments, URLSessionUploadTask>
+            .urlSessionUploadTaskWithData(URLSession.self)
+
+        // -- Assert --
+        XCTAssertEqual(method.selector, #selector(URLSession.uploadTask(with:from:completionHandler:)
+            as (URLSession) -> (URLRequest, Data?, @escaping @Sendable (Data?, URLResponse?, Error?) -> Void) -> URLSessionUploadTask))
+        XCTAssertTrue(method.receiver == URLSession.self)
+        XCTAssertEqual(method.signature.description, "@@:@@@?")
+    }
+
     func testURLSessionDataTaskWithURL_shouldDescribeDataTaskSignature() {
         // -- Act --
         let method = SentrySwizzleMethod<URLSession, SentryDataTaskURLArguments, URLSessionDataTask>
