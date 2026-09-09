@@ -130,6 +130,10 @@ for object in "${objects[@]}"; do
         | grep -v ' (for architecture .*):$' \
         | grep . > /dev/null; then
         stripped_object="$stripped_objects_dir/${object##*/}"
+        if [ -e "$stripped_object" ]; then
+            log_error "Duplicate product object basename: ${object##*/}"
+            exit 1
+        fi
         cp "$object" "$stripped_object"
         # Remove STABS and DWARF debug-map entries that refer to producer-only CI paths, while
         # retaining the symbols needed to link the static library into a consumer's product.

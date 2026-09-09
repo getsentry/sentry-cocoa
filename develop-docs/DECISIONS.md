@@ -855,7 +855,7 @@ We decided to remove all DWARF debug information from the prebuilt static Sentry
 
 The compressed release artifact would be 3.63 times larger. SwiftPM downloads declared remote binary targets during package resolution, so this cost would affect every consumer rather than only users who need SentryObjC debug information. The existing prebuilt static Sentry framework already disables debug information due to the same class of non-redistributable module-debugging references.
 
-We accept that SentryObjC frames from this prebuilt static artifact cannot be symbolicated using DWARF. Dynamic frameworks continue to ship separate dSYMs. Consumers and downstream SDKs that require complete debug information should prefer building from source. If sufficient demand arises, we can reconsider publishing a separate debug-enabled binary artifact or repository without increasing downloads for all other users.
+We accept that SentryObjC frames from this prebuilt static artifact cannot receive source-level DWARF symbolication, including file and line information or inline call frames. Linker symbols remain available when they survive the consumer's final link, allowing Symbolicator's Mach-O symbol-table fallback to provide function-name + offset symbolication. Dynamic frameworks continue to ship separate dSYMs. Consumers and downstream SDKs that require complete debug information should prefer building from source. If sufficient demand arises, we can reconsider publishing a separate debug-enabled binary artifact or repository without increasing downloads for all other users.
 
 Related links:
 

@@ -109,4 +109,22 @@ if [ ! -d "$DSYM_PATH" ]; then
     exit 1
 fi
 
+dsym_binary="$DSYM_PATH/Contents/Resources/DWARF/macOS-ObjectiveC-Static-CMake"
+
+if ! dsym_symbols="$(nm -arch all -gjU "$dsym_binary")"; then
+    log_error "Could not inspect consumer dSYM symbols"
+    exit 1
+fi
+
+expected_symbols=(
+    "_sentrycrash_install"
+    '_OBJC_CLASS_$_SentryObjCSDK'
+)
+
+for symbol in "${expected_symbols[@]}"; do
+    if ! grep -Fx "$symbol" <<< "$dsym_symbols" > /dev/null; then
+        log_error "Expected symbol missing from consumer dSYM: $symbol"
+        exit 1
+    fi
+done
 log_info "SentryObjC static library builds without debug-symbol warnings"
