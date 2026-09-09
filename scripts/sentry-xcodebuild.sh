@@ -27,6 +27,7 @@ ONLY_TESTING=""
 WORKSPACE="Sentry.xcworkspace"
 SDK=""
 RAW_DESTINATION=""
+OVERRIDE_XCCONFIG=""
 FOR_AGENTS="${FOR_AGENTS:-false}"
 
 usage() {
@@ -52,6 +53,7 @@ OPTIONS:
     --sdk <sdk>                      SDK override (e.g. iphoneos, watchos)
     --destination <dest>             Raw xcodebuild destination string (bypasses
                                       --platform resolution)
+    --xcconfig <path>                Build settings override file
 
 EXAMPLES:
     $(basename "$0") -p iOS -c test
@@ -123,12 +125,26 @@ while [[ $# -gt 0 ]]; do
             RAW_DESTINATION="$2"
             shift 2
             ;;
+        --xcconfig)
+            OVERRIDE_XCCONFIG="$2"
+            shift 2
+            ;;
         *)
             log_error "Unknown option: $1"
             usage
             ;;
     esac
 done
+
+if [ -n "$OVERRIDE_XCCONFIG" ] && [ ! -f "$OVERRIDE_XCCONFIG" ]; then
+    log_error "--xcconfig file does not exist: $OVERRIDE_XCCONFIG"
+    usage
+fi
+
+XCCONFIG_ARGS=()
+if [ -n "$OVERRIDE_XCCONFIG" ]; then
+    XCCONFIG_ARGS=(-xcconfig "$OVERRIDE_XCCONFIG")
+fi
 
 if [ -z "$DEVICE" ]; then
     case $PLATFORM in
@@ -255,6 +271,7 @@ if [ $RUN_BUILD == true ]; then
     [[ -n "$CONFIGURATION" ]] && BUILD_ARGS+=(-configuration "$CONFIGURATION")
     BUILD_ARGS+=(-destination "$DESTINATION")
     [[ -n "$DERIVED_DATA_PATH" ]] && BUILD_ARGS+=(-derivedDataPath "$DERIVED_DATA_PATH")
+    BUILD_ARGS+=("${XCCONFIG_ARGS[@]+${XCCONFIG_ARGS[@]}}")
 
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
         "${BUILD_ARGS[@]}" \
@@ -294,6 +311,7 @@ if [ $RUN_BUILD_FOR_TESTING == true ]; then
     )
     [[ -n "$CONFIGURATION" ]] && BFT_ARGS+=(-configuration "$CONFIGURATION")
     BFT_ARGS+=(-destination "$DESTINATION")
+    BFT_ARGS+=("${XCCONFIG_ARGS[@]+${XCCONFIG_ARGS[@]}}")
 
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
         "${BFT_ARGS[@]}" \
@@ -320,6 +338,7 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
     [[ -n "$CONFIGURATION" ]] && TWB_ARGS+=(-configuration "$CONFIGURATION")
     TWB_ARGS+=(-destination "$DESTINATION")
     TWB_ARGS+=(-resultBundlePath "$RESULT_BUNDLE_PATH")
+    TWB_ARGS+=("${XCCONFIG_ARGS[@]+${XCCONFIG_ARGS[@]}}")
 
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
         "${TWB_ARGS[@]}" \

@@ -1,7 +1,6 @@
 #if SDK_V10
-// swiftlint:disable:next no_implementation_only_import
-@_implementationOnly import KSCrashRecording
 internal import _SentryPrivate
+internal import KSCrashRecording
 import Foundation
 
 // MARK: - Integration
@@ -12,17 +11,21 @@ extension SentryKSCrash {
     /// Mach exceptions, signals, C++ exceptions, and NSExceptions.
     /// KSCrash unconditionally adds its required infrastructure monitors on top of
     /// the crash detectors passed here.
-    static let productionSafeMonitors: UInt = MonitorType([
+    static let productionSafeMonitors: MonitorType = [
         .machException,
         .signal,
         .cppException,
         .nsException
-    ]).rawValue
+    ]
 
     final class Integration<Dependencies: DependencyProvider>: NSObject, SwiftIntegration {
         private weak var options: Options?
         private let installer: Dependencies.Installing
+        private var scopeConfiguration: SentryKSCrash.Scope.Configuration?
         private let reportProcessingSession = ReportProcessingSession()
+        #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
+        private let nsExceptionHandlerOwner = NSObject()
+        #endif
 
         // MARK: - Initialization
 
@@ -45,24 +48,44 @@ extension SentryKSCrash {
                     installPath: installPath.path,
                     monitors: productionSafeMonitors,
                     enableMemoryIntrospection: options.enableMemoryIntrospection,
-                    enableSwapCxaThrow: options.experimental.enableUnhandledCPPExceptionsV2
+                    enableSwapCxaThrow: options.experimental.enableUnhandledCPPExceptionsV2,
+                    enableSwiftAsyncStackTraces: options.swiftAsyncStacktraces
                 )
             } catch {
                 SentrySDKLog.error("KSCrash install failed: \(error)")
                 return nil
             }
 
-            // KSCRASH_TODO: Preserve SentryCrashIntegration's macOS AppKit NSException forwarding.
-            // SentryUncaughtNSExceptions currently routes reportException:/_crashOnException:
-            // through SentryNSExceptionCaptureHelper to SentryCrashSwift. Replace that direct
-            // dependency with an active-backend facade and supply KSCrash's uncaughtExceptionHandler.
-            // The reporter-neutral macOS CrashE2E ns-exception scenario is the acceptance test.
-            // Tracked in https://github.com/getsentry/sentry-cocoa/issues/8529.
+            self.scopeConfiguration = SentryKSCrash.Scope.Configuration(
+                installer: installer,
+                options: options
+            )
 
-            // KSCRASH_TODO: Restore previous-run session handling for watchdog terminations and
-            // fatal app hangs through reporter-neutral coordination. It must run before automatic
-            // session tracking and the corresponding event processing.
-            // Tracked in https://github.com/getsentry/sentry-cocoa/issues/8674.
+            #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
+            SentryNSExceptionCaptureHelper.setUncaughtExceptionHandler(
+                installer.uncaughtExceptionHandler,
+                owner: nsExceptionHandlerOwner
+            )
+            if options.enableSwizzling && options.enableUncaughtNSExceptionReporting {
+                SentryUncaughtNSExceptions.configureCrashOnExceptions()
+                SentryUncaughtNSExceptions.swizzleNSApplicationReportException()
+                SentryUncaughtNSExceptions.swizzleNSApplicationCrashOnException()
+            }
+            #endif
+
+#if SENTRY_DISABLE_SENTRYCRASH_V10
+            // KSCRASH_TODO(GH-8276, GH-8756): Installer setUserInfo drops nested containers from
+            // the retained scope configuration. Acceptance: SCV10-015 in the migration ledger.
+            // KSCRASH_TODO(GH-8674): V10 handles actual crashes below but omits previous-run
+            // watchdog and fatal-app-hang session finalization. Acceptance: SCV10-025 in the ledger.
+            // KSCRASH_TODO(GH-8735): V10 does not register a callback to persist an active trace
+            // when crashing. Acceptance: SCV10-027 in the migration ledger.
+            // KSCRASH_TODO(GH-8797): V10 has no early KSCrash signal preloader, so managed-runtime
+            // handler ordering is not preserved. Acceptance: SCV10-033 in the migration ledger.
+            // KSCRASH_TODO(GH-8652): V10 intentionally ignores enableSigtermReporting while its
+            // public API removal is pending. Acceptance: SCV10-031 in the migration ledger.
+#endif
+
             if installer.crashedLastLaunch {
                 SentrySDKInternal.fatalDetected = true
 
@@ -74,6 +97,10 @@ extension SentryKSCrash {
                 )
             }
 
+            processStoredReports(options: options, dependencies: dependencies)
+        }
+
+        private func processStoredReports(options: Options, dependencies: Dependencies) {
             let reportProcessor = SentryStoredCrashReportProcessor(
                 inAppLogic: SentryInAppLogic(inAppIncludes: options.inAppIncludes),
                 currentHubProvider: { SentrySDKInternal.currentHub() },
@@ -114,7 +141,15 @@ extension SentryKSCrash {
         }
 
         func uninstall() {
+#if SENTRY_DISABLE_SENTRYCRASH_V10
+            // KSCRASH_TODO(GH-8536): V10 cancels report processing and updates query state, but the
+            // process-lifetime KSCrash recorder remains active. Acceptance: SCV10-032 in
+            // SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+#endif
             reportProcessingSession.cancel()
+            #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
+            SentryNSExceptionCaptureHelper.clearUncaughtExceptionHandler(forOwner: nsExceptionHandlerOwner)
+            #endif
             installer.uninstall()
         }
 

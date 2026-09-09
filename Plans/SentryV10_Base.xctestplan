@@ -673,9 +673,6 @@
         "SentryCrashTests\/test_getScreenshots_TwoFiles",
         "SentryCrashTests\/test_install",
         "SentryCrashTests\/test_installFailsWithNilBasePath",
-        "SentryCrashUUIDConversionTests",
-        "SentryCrashUUIDConversionTests\/testConvertBinaryImageUUID()",
-        "SentryCrashUUIDConversionTests\/testConvertBinaryImageUUID_EndsWithNullTerminated()",
         "SentryFileManagerTests\/testCreateDirectoryIfNotExists_successful_shouldNotLogError()",
         "SentryHttpTransportFlushIntegrationTests",
         "SentryHttpTransportTests\/testFlush_WhenNoInternet_BlocksAndFinishes()",
@@ -699,6 +696,33 @@
         "containerPath" : "container:Sentry.xcodeproj",
         "identifier" : "3CFC66DE2FF50342004005B4",
         "name" : "SentryTestsV10"
+      }
+    },
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:Sentry.xcodeproj",
+        "identifier" : "C7B25B4B511857C68344B040",
+        "name" : "SentryTestUtilsTestsV10"
+      }
+    },
+    {
+      "parallelizable" : false,
+      "skippedTests" : [
+        "SentryObjCInternalProfilingApiIntegrationTests\/testCollect_shouldContainTransactionInfo"
+      ],
+      "target" : {
+        "containerPath" : "container:Sentry.xcodeproj",
+        "identifier" : "D49BE46B302DFF3500FF88D3",
+        "name" : "SentryObjCTestsV10"
+      }
+    },
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:Sentry.xcodeproj",
+        "identifier" : "D49BE437302DFF3200FF88D3",
+        "name" : "SentryObjCCompatTestsV10"
       }
     }
   ],

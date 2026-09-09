@@ -13,7 +13,7 @@
 #    import <mach/port.h>
 #    import <mutex>
 
-#    if defined(DEBUG)
+#    if defined(DEBUG) || defined(SENTRY_UI_TEST_SUPPORT)
 #        include <execinfo.h>
 #    endif
 
@@ -125,10 +125,12 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
         if (backtrace.threadMetadata.priority != -1 && metadata[@"priority"] == nil) {
             metadata[@"priority"] = @(backtrace.threadMetadata.priority);
         }
-#    if defined(DEBUG)
+#    if defined(DEBUG) || defined(SENTRY_UI_TEST_SUPPORT)
         const auto symbols
             = backtrace_symbols(reinterpret_cast<void *const *>(backtrace.addresses.data()),
                 static_cast<int>(backtrace.addresses.size()));
+#    endif // defined(DEBUG) || defined(SENTRY_UI_TEST_SUPPORT)
+#    if defined(DEBUG)
         const auto *backtraceFunctionNames = [NSMutableArray<NSString *> array];
 #    endif // defined(DEBUG)
 
@@ -141,12 +143,14 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
             if (frameIndex == nil) {
                 const auto frame = [NSMutableDictionary<NSString *, id> dictionary];
                 frame[@"instruction_addr"] = instructionAddress;
-#    if defined(DEBUG)
+#    if defined(DEBUG) || defined(SENTRY_UI_TEST_SUPPORT)
                 const auto functionName
                     = parseBacktraceSymbolsFunctionName(symbols[backtraceAddressIdx]);
                 frame[@"function"] = functionName;
+#    endif // defined(DEBUG) || defined(SENTRY_UI_TEST_SUPPORT)
+#    if defined(DEBUG)
                 [backtraceFunctionNames addObject:functionName];
-#    endif
+#    endif // defined(DEBUG)
                 const auto newFrameIndex = @(state.frames.count);
                 [stack addObject:newFrameIndex];
                 state.frameIndexLookup[instructionAddress] = newFrameIndex;
@@ -155,9 +159,9 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
                 [stack addObject:SENTRY_UNWRAP_NULLABLE(NSNumber, frameIndex)];
             }
         }
-#    if defined(DEBUG)
+#    if defined(DEBUG) || defined(SENTRY_UI_TEST_SUPPORT)
         free(symbols);
-#    endif // defined(DEBUG)
+#    endif // defined(DEBUG) || defined(SENTRY_UI_TEST_SUPPORT)
 
         const auto sample = sentry_profilerSampleWithStack(stack, backtrace.absoluteTimestamp,
             sentry_getDate().timeIntervalSince1970, backtrace.threadMetadata.threadID, state);

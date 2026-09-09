@@ -120,7 +120,7 @@ class SentryProfileTestFixture {
     
     public struct MockMetric {
         public var cpuUsage: NSNumber
-        public var memoryFootprint: SentryRAMBytes
+        public var memoryFootprint: NSNumber
         public var cpuEnergyUsage: NSNumber
         public var readingsPerBatch: Int
         
@@ -128,7 +128,7 @@ class SentryProfileTestFixture {
         var memoryFootprintError: NSError?
         var cpuEnergyUsageError: NSError?
         
-        public init(cpuUsage: NSNumber = 66.6, memoryFootprint: SentryRAMBytes = 123_456, cpuEnergyUsage: NSNumber = 5, readingsPerBatch: Int = 3) {
+        public init(cpuUsage: NSNumber = 66.6, memoryFootprint: NSNumber = 123_456, cpuEnergyUsage: NSNumber = 5, readingsPerBatch: Int = 3) {
             self.cpuUsage = cpuUsage
             self.memoryFootprint = memoryFootprint
             self.cpuEnergyUsage = cpuEnergyUsage

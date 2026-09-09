@@ -6,13 +6,37 @@ internal import Sentry
 #endif
 import Foundation
 
-#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS))
+#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS) || os(visionOS))
 
 @objc(SentryObjCInternalReplayApi) public final class SentryObjCInternalReplayApi: NSObject {
     private let wrapped: Box<SentryInternalReplayApi>
 
     internal init(_ wrapped: SentryInternalReplayApi) {
         self.wrapped = Box(wrapped)
+    }
+
+    @objc public func start() {
+        wrapped.value.start()
+    }
+
+    @objc public func startBuffering() {
+        wrapped.value.startBuffering()
+    }
+
+    @objc public func pause() {
+        wrapped.value.pause()
+    }
+
+    @objc public func resume() {
+        wrapped.value.resume()
+    }
+
+    @objc public func flush() {
+        wrapped.value.flush()
+    }
+
+    @objc public func stop() {
+        wrapped.value.stop()
     }
 
     @objc public func capture() -> Bool {

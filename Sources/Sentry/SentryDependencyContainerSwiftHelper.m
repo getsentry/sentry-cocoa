@@ -40,6 +40,15 @@
     return options.environment;
 }
 
++ (BOOL)enableLogs:(SentryOptions *)options
+{
+#if SDK_V10
+    return YES;
+#else
+    return options.enableLogs;
+#endif // SDK_V10
+}
+
 + (NSArray<NSString *> *)enabledFeatures:(SentryOptions *)options
 {
     return [SentryEnabledFeaturesBuilder getEnabledFeaturesWithOptions:options];

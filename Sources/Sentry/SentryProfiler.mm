@@ -93,7 +93,7 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
 
 + (void)load
 {
-#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(SENTRY_UI_TEST_SUPPORT)
     // we want to allow starting a launch profile from here for UI tests, but not unit tests
     if (NSProcessInfo.processInfo.environment[@"--io.sentry.ui-test.test-name"] == nil) {
         return;
@@ -103,7 +103,7 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
     // development, to remove any launch config files that might be present before launching the app
     // initially, however we need to make sure to remove stale versions of the file before it gets
     // used to potentially start a launch profile that shouldn't have started, so we check here for
-    // this
+    // this. This is runtime-gated and safe to compile in unconditionally.
     if ([NSProcessInfo.processInfo.arguments containsObject:@"--io.sentry.special.wipe-data"]) {
         removeSentryStaticBasePath();
     }
@@ -171,11 +171,17 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
     // profiles because it isn't needed for anything else
 
     BOOL autoPerformanceTracingDisabled = sentry_autoPerformanceTracingDisabled();
+#        if SDK_V10
+    if (autoPerformanceTracingDisabled) {
+        sentry_stopFramesTracker();
+    }
+#        else
     BOOL appHangsDisabled = sentry_appHangsDisabled();
 
     if (autoPerformanceTracingDisabled && appHangsDisabled) {
         sentry_stopFramesTracker();
     }
+#        endif // SDK_V10
 #    endif // SENTRY_HAS_UIKIT
 
     _samplingProfiler->stopSampling();

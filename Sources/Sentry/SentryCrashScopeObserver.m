@@ -1,13 +1,14 @@
-#import "SentryLevelMapper.h"
-#import "SentrySwift.h"
-#import <SentryBreadcrumb.h>
-#import <SentryCrashJSONCodec.h>
-#import <SentryCrashJSONCodecObjC.h>
-#import <SentryCrashScopeObserver.h>
-#import <SentryLogC.h>
-#import <SentryNSDataUtils.h>
-#import <SentryScopeSyncC.h>
-#import <SentryUser.h>
+#if !SDK_V10
+
+#    import "SentrySwift.h"
+#    import <SentryBreadcrumb.h>
+#    import <SentryCrashJSONCodec.h>
+#    import <SentryCrashJSONCodecObjC.h>
+#    import <SentryCrashScopeObserver.h>
+#    import <SentryLogC.h>
+#    import <SentryNSDataUtils.h>
+#    import <SentryScopeSyncC.h>
+#    import <SentryUser.h>
 
 @implementation SentryCrashScopeObserver
 
@@ -85,7 +86,7 @@
         return;
     }
 
-    NSString *levelAsString = nameForSentryLevel(level);
+    NSString *levelAsString = [SentryLevelHelper nameForLevel:level];
     NSData *json = [self toJSONEncodedCString:levelAsString];
 
     sentrycrash_scopesync_setLevel([json bytes]);
@@ -171,3 +172,5 @@
 }
 
 @end
+
+#endif // !SDK_V10

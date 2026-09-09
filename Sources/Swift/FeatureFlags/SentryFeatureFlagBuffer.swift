@@ -1,6 +1,7 @@
 // swiftlint:disable missing_docs
 
-private let maxScopeFeatureFlags = 100
+// Keep in sync with the default of Options.maxFeatureFlags.
+let defaultMaxScopeFeatureFlags = 100
 private let maxSpanFeatureFlags = 10
 
 final class SentryFeatureFlagBuffer {
@@ -27,11 +28,15 @@ final class SentryFeatureFlagBuffer {
         state.withLock { Self.rebuildIndexes(&$0) }
     }
 
-    static func scopeBuffer() -> SentryFeatureFlagBuffer {
+    /// Creates the buffer backing a scope.
+    ///
+    /// - Parameter maxSize: How many unique evaluations to retain. Defaults to the 100 the spec
+    ///   prescribes; configurable through `Options.maxFeatureFlags`.
+    static func scopeBuffer(maxSize: Int = defaultMaxScopeFeatureFlags) -> SentryFeatureFlagBuffer {
         SentryFeatureFlagBuffer(
-            // Error events record the 100 most recent, unique feature flag evaluations.
+            // Error events record the most recent, unique feature flag evaluations.
             // https://develop.sentry.dev/sdk/foundations/client/integrations/feature-flags/#tracking-feature-flag-evaluations
-            maxSize: maxScopeFeatureFlags,
+            maxSize: maxSize,
             overflowBehavior: .dropOldest
         )
     }

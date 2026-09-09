@@ -3,7 +3,6 @@
 @protocol SentryCurrentDateProvider;
 @protocol SentryRandomProtocol;
 @protocol SentryEventContextEnricher;
-@protocol SentryCrashReporter;
 
 @class SentryDispatchQueueWrapper;
 @class SentryDefaultThreadInspector;
@@ -25,7 +24,6 @@ NS_ASSUME_NONNULL_BEGIN
                          locale:(NSLocale *)locale
                        timezone:(NSTimeZone *)timezone
            eventContextEnricher:(id<SentryEventContextEnricher>)eventContextEnricher
-                   crashWrapper:(id<SentryCrashReporter>)crashWrapper
                binaryImageCache:(SentryBinaryImageCache *)binaryImageCache
            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 

@@ -68,7 +68,7 @@ class SentryInternalDebugApiTests: XCTestCase {
 
     func testImagesForAddresses_shouldPopulateRawAddresses() {
         // -- Arrange --
-        let cache = SentryBinaryImageCache()
+        let cache = SentryBinaryImageCache(provider: NoOpBinaryImageProvider())
         cache.start(false)
         let uuid: [UInt8] = [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
                              0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10]
@@ -95,7 +95,7 @@ class SentryInternalDebugApiTests: XCTestCase {
 
     func testImagesForAddresses_whenVmAddressIsZero_shouldSetRawToZero() {
         // -- Arrange --
-        let cache = SentryBinaryImageCache()
+        let cache = SentryBinaryImageCache(provider: NoOpBinaryImageProvider())
         cache.start(false)
         let uuid: [UInt8] = [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
                              0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10]
@@ -132,6 +132,12 @@ class SentryInternalDebugApiTests: XCTestCase {
 }
 
 // MARK: - Mock
+
+private final class NoOpBinaryImageProvider: SentryBinaryImageProvider {
+    func start(registry: SentryBinaryImageRegistry) { }
+    func refresh() { }
+    func stop() { }
+}
 
 private struct MockDebugProvider: DebugImageProvider, BinaryImageCacheProvider {
     var debugImageProvider: SentryDebugImageProvider

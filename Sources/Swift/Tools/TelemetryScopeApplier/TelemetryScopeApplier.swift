@@ -15,7 +15,8 @@ protocol TelemetryScopeApplier {
 
     func addAttributesToItem<Item: TelemetryItem, Metadata: TelemetryScopeMetadata>(
         _ item: inout Item,
-        metadata: Metadata
+        metadata: Metadata,
+        currentScope: (any TelemetryScopeApplier)?
     )
 }
 
@@ -28,7 +29,8 @@ extension TelemetryScopeApplier {
 
     func addAttributesToItem<Item: TelemetryItem, Metadata: TelemetryScopeMetadata>(
         _ item: inout Item,
-        metadata: Metadata
+        metadata: Metadata,
+        currentScope: (any TelemetryScopeApplier)? = nil
     ) {
         // Extract attributesDict once to avoid multiple getter/setter calls on computed property
         // Each inout parameter access triggers both getter and setter, which is expensive for
@@ -40,6 +42,10 @@ extension TelemetryScopeApplier {
         addDeviceAttributes(to: &attributes)
         addUserAttributes(to: &attributes, metadata: metadata)
         addReplayAttributes(to: &attributes)
+        // Custom attributes never override existing keys, so applying the thread-local current
+        // scope before the global scope yields: item > current scope > global scope. User,
+        // replay, and the other reserved attributes above still come from the global scope.
+        currentScope?.addScopeAttributes(to: &attributes)
         addScopeAttributes(to: &attributes)
         addDefaultUserIdIfNeeded(to: &attributes, metadata: metadata)
 
@@ -55,8 +61,9 @@ extension TelemetryScopeApplier {
         // See also:
         // - https://develop.sentry.dev/sdk/telemetry/logs/#log-envelope-item-payload
         // - https://develop.sentry.dev/sdk/telemetry/logs/#tracing
-        item.traceId = span?.traceId ?? propagationContextTraceId
-        item.spanId = span?.spanId
+        let effectiveSpan = currentScope?.span ?? span
+        item.traceId = effectiveSpan?.traceId ?? propagationContextTraceId
+        item.spanId = effectiveSpan?.spanId
     }
 
     private func addDefaultAttributes(to attributes: inout [String: SentryAttributeContent], metadata: any TelemetryScopeMetadata) {

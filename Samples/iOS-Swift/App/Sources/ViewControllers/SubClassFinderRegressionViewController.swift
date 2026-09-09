@@ -1,4 +1,5 @@
 import SentrySampleShared
+import SentrySwift
 import UIKit
 
 #if canImport(RoomPlan)

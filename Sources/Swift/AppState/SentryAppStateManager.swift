@@ -7,14 +7,14 @@ import UIKit
 
 @_spi(Private) @objc public final class SentryAppStateManager: NSObject {
 
-    typealias Dependencies = CrashWrapperProvider
+    typealias Dependencies = DebuggerStatusProviderProvider
         & FileManagerProvider
         & SysctlProvider
         & DispatchQueueWrapperProvider
         & NotificationCenterProvider
 
     private let releaseName: String?
-    private let crashWrapper: SentryCrashReporter
+    private let debuggerStatusProvider: SentryDebuggerStatusProvider
     private let fileManager: SentryFileManager?
     private let sysctlWrapper: SentrySysctl
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
@@ -28,16 +28,16 @@ import UIKit
 
     init(releaseName: String?, dependencies: Dependencies) {
         self.releaseName = releaseName
-        crashWrapper = dependencies.crashWrapper
+        debuggerStatusProvider = dependencies.debuggerStatusProvider
         fileManager = dependencies.fileManager
         sysctlWrapper = dependencies.sysctlWrapper
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         dispatchQueue = dependencies.dispatchQueueWrapper
         notificationCenter = dependencies.notificationCenterWrapper
         let lock = NSRecursiveLock()
-        let buildCurrentAppState = { [crashWrapper, releaseName, sysctlWrapper] in
+        let buildCurrentAppState = { [debuggerStatusProvider, releaseName, sysctlWrapper] in
             // Is the current process being traced or not? If it is a debugger is attached.
-            let isDebugging = crashWrapper.isBeingTraced
+            let isDebugging = debuggerStatusProvider.isBeingTraced
 
             let device = UIDevice.current
             let vendorId = device.identifierForVendor?.uuidString
@@ -65,7 +65,7 @@ import UIKit
     /// scenarios where the current app state needs specific values (e.g., nil vendorId).
     init(releaseName: String?, customBuildCurrentAppState: @escaping () -> SentryAppState, dependencies: Dependencies) {
         self.releaseName = releaseName
-        crashWrapper = dependencies.crashWrapper
+        debuggerStatusProvider = dependencies.debuggerStatusProvider
         fileManager = dependencies.fileManager
         sysctlWrapper = dependencies.sysctlWrapper
         dispatchQueue = dependencies.dispatchQueueWrapper

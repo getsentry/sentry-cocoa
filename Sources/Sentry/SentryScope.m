@@ -6,7 +6,6 @@
 #import "SentryEvent+Private.h"
 #import "SentryInternalDefines.h"
 #import "SentryLevel.h"
-#import "SentryLevelMapper.h"
 #import "SentryLogC.h"
 #import "SentryScope+Private.h"
 #import "SentryScope+PrivateSwift.h"
@@ -65,6 +64,16 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
         _propagationContextLock = [[NSObject alloc] init];
         self.observers = [[NSMutableArray alloc] init];
         self.propagationContext = [[SentryPropagationContext alloc] init];
+    }
+    return self;
+}
+
+- (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
+                       maxFeatureFlags:(NSInteger)maxFeatureFlags
+{
+    if (self = [self initWithMaxBreadcrumbs:maxBreadcrumbs]) {
+        _featureFlagBuffer =
+            [SentryFeatureFlagBufferWrapper scopeBufferWithMaxSize:MAX(0, maxFeatureFlags)];
     }
     return self;
 }
@@ -582,7 +591,7 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
 
     SentryLevel level = self.levelEnum;
     if (level != kSentryLevelNone) {
-        [serializedData setValue:nameForSentryLevel(level) forKey:@"level"];
+        [serializedData setValue:[SentryLevelHelper nameForLevel:level] forKey:@"level"];
     }
     NSArray *crumbs = [self serializeBreadcrumbs];
     if (crumbs.count > 0) {
@@ -688,22 +697,6 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
         event.level = level;
     }
 
-    id<SentrySpan> span;
-
-    if (self.span != nil) {
-        @synchronized(_spanLock) {
-            span = self.span;
-        }
-
-        // Span could be nil as we do the first check outside the synchronize
-        if (span != nil) {
-            if (![event.type isEqualToString:SentryEnvelopeItemTypes.transaction] &&
-                [span isKindOfClass:[SentryTracer class]]) {
-                event.transaction = [[(SentryTracer *)span transactionContext] name];
-            }
-        }
-    }
-
     NSMutableDictionary *newContext = [self context].mutableCopy;
     BOOL isRegularEvent
         = event.type == nil || [event.type isEqualToString:SentryEnvelopeItemTypes.event];
@@ -718,10 +711,119 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
                                       intoDictionary:newContext];
     }
 
-    newContext[@"trace"] = [self buildTraceContext:span];
-
     event.context = newContext;
+    // The span getter acquires _spanLock, so this read needs no outer lock.
+    [self applySpan:self.span toEvent:SENTRY_UNWRAP_NULLABLE(SentryEvent, event)];
     return event;
+}
+
+- (void)overlayOnEvent:(SentryEvent *)event maxBreadcrumb:(NSUInteger)maxBreadcrumbs
+{
+    if (!event) {
+        return;
+    }
+
+    NSDictionary<NSString *, NSString *> *overlayTags = [self tags];
+    if (overlayTags.count > 0) {
+        NSMutableDictionary *mergedTags =
+            [NSMutableDictionary dictionaryWithDictionary:event.tags ?: @{ }];
+        [mergedTags addEntriesFromDictionary:overlayTags];
+        event.tags = mergedTags;
+    }
+
+    NSDictionary<NSString *, id> *overlayExtras = [self extras];
+    if (overlayExtras.count > 0) {
+        NSMutableDictionary *mergedExtras =
+            [NSMutableDictionary dictionaryWithDictionary:event.extra ?: @{ }];
+        [mergedExtras addEntriesFromDictionary:overlayExtras];
+        event.extra = mergedExtras;
+    }
+
+    SentryUser *overlayUser = self.userObject.copy;
+    if (overlayUser != nil) {
+        event.user = overlayUser;
+    }
+
+    NSArray *overlayFingerprint = [self fingerprints];
+    if (overlayFingerprint.count > 0) {
+        event.fingerprint = [overlayFingerprint copy];
+    }
+
+    NSArray<SentryBreadcrumb *> *overlayBreadcrumbs = [self breadcrumbs];
+    if (overlayBreadcrumbs.count > 0) {
+        NSMutableArray *mergedBreadcrumbs =
+            [NSMutableArray arrayWithArray:event.breadcrumbs ?: @[]];
+        for (SentryBreadcrumb *crumb in overlayBreadcrumbs) {
+            if ([mergedBreadcrumbs indexOfObjectIdenticalTo:crumb] == NSNotFound) {
+                [mergedBreadcrumbs addObject:crumb];
+            }
+        }
+        if (mergedBreadcrumbs.count > maxBreadcrumbs) {
+            NSRange keepRange
+                = NSMakeRange(mergedBreadcrumbs.count - maxBreadcrumbs, maxBreadcrumbs);
+            event.breadcrumbs = [mergedBreadcrumbs subarrayWithRange:keepRange];
+        } else {
+            event.breadcrumbs = mergedBreadcrumbs;
+        }
+    }
+
+    NSString *overlayDist = self.distString;
+    if (overlayDist != nil) {
+        event.dist = overlayDist;
+    }
+
+    NSString *overlayEnvironment = self.environmentString;
+    if (overlayEnvironment != nil) {
+        event.environment = overlayEnvironment;
+    }
+
+    SentryLevel overlayLevel = self.levelEnum;
+    if (overlayLevel != kSentryLevelNone) {
+        event.level = overlayLevel;
+    }
+
+    NSDictionary<NSString *, NSDictionary<NSString *, id> *> *overlayContext = [self context];
+    if (overlayContext.count > 0) {
+        NSMutableDictionary *mergedContext =
+            [NSMutableDictionary dictionaryWithDictionary:event.context ?: @{ }];
+        [SentryDictionary mergeEntriesFromDictionary:overlayContext intoDictionary:mergedContext];
+
+        BOOL isRegularEvent
+            = event.type == nil || [event.type isEqualToString:SentryEnvelopeItemTypes.event];
+        if (!isRegularEvent) {
+            [mergedContext removeObjectForKey:@"flags"];
+        }
+
+        event.context = mergedContext;
+    }
+
+    id<SentrySpan> span = self.span;
+    if (span != nil && !event.isFatalEvent
+        && ![event.type isEqualToString:SentryEnvelopeItemTypes.transaction]) {
+        [self applySpan:span toEvent:event];
+    }
+}
+
+- (void)applySpan:(nullable id<SentrySpan>)span toEvent:(SentryEvent *)event
+{
+    NSMutableDictionary *context =
+        [NSMutableDictionary dictionaryWithDictionary:event.context ?: @{ }];
+    NSString *previousTraceId = context[@"trace"][@"trace_id"];
+    context[@"trace"] = [self buildTraceContext:span];
+    event.context = context;
+
+    if ([event.type isEqualToString:SentryEnvelopeItemTypes.transaction]) {
+        return;
+    }
+
+    SentryTracer *tracer = [SentryTracer getTracer:span];
+    if (tracer != nil) {
+        event.transaction = tracer.transactionContext.name;
+    } else if (span != nil && previousTraceId != nil
+        && ![previousTraceId isEqual:context[@"trace"][@"trace_id"]]) {
+        // A name from another trace must not survive when the new span has no tracer.
+        event.transaction = nil;
+    }
 }
 
 - (void)addScopeObserver:(SENTRY_SWIFT_MIGRATION_ID(id<SentryScopeObserver>))observer

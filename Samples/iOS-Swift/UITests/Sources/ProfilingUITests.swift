@@ -1,5 +1,5 @@
-import Sentry
 import SentrySampleShared
+import SentrySwift
 import XCTest
 
 // swiftlint:disable function_body_length todo

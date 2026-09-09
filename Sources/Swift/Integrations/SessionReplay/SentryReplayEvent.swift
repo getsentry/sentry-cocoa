@@ -29,7 +29,7 @@ import Foundation
         self.segmentId = segmentId
         
         super.init()
-        SentryEventSwiftHelper.setEventIdString(eventId.sentryIdString, event: self)
+        self.eventId = eventId
         self.type = "replay_video"
     }
     
@@ -41,7 +41,7 @@ import Foundation
         var result = super.serialize()
         result["urls"] = urls
         result["replay_start_timestamp"] = replayStartTimestamp.timeIntervalSince1970
-        result["replay_id"] = SentryEventSwiftHelper.getEventIdString(self)
+        result["replay_id"] = self.eventId.sentryIdString
         result["segment_id"] = segmentId
         result["replay_type"] = replayType.toString()
         return result

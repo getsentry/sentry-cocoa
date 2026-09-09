@@ -9,20 +9,20 @@ final class SentryAppStateManagerTests: XCTestCase {
     private static let dsnAsString = TestConstants.dsnForTestCase(type: SentryAppStateManagerTests.self)
 
     private final class MockDependencies: SentryAppStateManager.Dependencies {
-        let crashWrapper: SentryCrashReporter
+        let debuggerStatusProvider: SentryDebuggerStatusProvider
         let fileManager: SentryFileManager?
         let sysctlWrapper: SentrySysctl
         let dispatchQueueWrapper: SentryDispatchQueueWrapper
         let notificationCenterWrapper: SentryNSNotificationCenterWrapper
 
         init(
-            crashWrapper: SentryCrashReporter,
+            debuggerStatusProvider: SentryDebuggerStatusProvider,
             fileManager: SentryFileManager,
             sysctlWrapper: SentrySysctl,
             dispatchQueueWrapper: SentryDispatchQueueWrapper,
             notificationCenterWrapper: SentryNSNotificationCenterWrapper
         ) {
-            self.crashWrapper = crashWrapper
+            self.debuggerStatusProvider = debuggerStatusProvider
             self.fileManager = fileManager
             self.sysctlWrapper = sysctlWrapper
             self.dispatchQueueWrapper = dispatchQueueWrapper
@@ -37,6 +37,7 @@ final class SentryAppStateManagerTests: XCTestCase {
         let currentDate = TestCurrentDateProvider()
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         let notificationCenterWrapper = TestNSNotificationCenterWrapper()
+        let sysctl = TestSysctl()
         let dependencies: MockDependencies
 
         init() throws {
@@ -50,9 +51,9 @@ final class SentryAppStateManagerTests: XCTestCase {
                 dispatchQueueWrapper: dispatchQueue
             ))
             dependencies = MockDependencies(
-                crashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo),
+                debuggerStatusProvider: sysctl,
                 fileManager: fileManager,
-                sysctlWrapper: TestSysctl(),
+                sysctlWrapper: sysctl,
                 dispatchQueueWrapper: dispatchQueue,
                 notificationCenterWrapper: notificationCenterWrapper
             )
@@ -86,6 +87,14 @@ final class SentryAppStateManagerTests: XCTestCase {
 
         sut.start()
         XCTAssertNotNil(fixture.fileManager.readAppState())
+    }
+
+    func testBuildCurrentAppState_whenDebuggerAttached_shouldMarkStateAsDebugging() {
+        fixture.sysctl.internalIsBeingTraced = true
+
+        let appState = sut.buildCurrentAppState()
+
+        XCTAssertTrue(appState.isDebugging)
     }
 
     func testStartOnlyRunsLogicWhenStartCountBecomesOne() {

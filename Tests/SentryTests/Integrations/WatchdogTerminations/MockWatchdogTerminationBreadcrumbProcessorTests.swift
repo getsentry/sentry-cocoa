@@ -91,4 +91,13 @@ class MockWatchdogTerminationBreadcrumbProcessorTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(sut.clearBreadcrumbsInvocations.count, 3)
     }
+
+    func testFlushAndClose_shouldRecordInvocation() {
+        // -- Act --
+        sut.flushAndClose()
+
+        // -- Assert --
+        XCTAssertEqual(sut.flushAndCloseInvocations.count, 1)
+    }
+
 }

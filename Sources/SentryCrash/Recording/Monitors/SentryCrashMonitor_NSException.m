@@ -25,19 +25,21 @@
 // THE SOFTWARE.
 //
 
-#import "SentryCrashMonitor_NSException.h"
-#import "SentryCrash.h"
-#include "SentryCrashID.h"
-#include "SentryCrashMonitorContext.h"
-#import "SentryCrashMonitor_NSException_StackCursor.h"
-#import "SentryCrashStackCursor.h"
-#include "SentryCrashThread.h"
-#import "SentrySwift.h"
+#if !SDK_V10
 
-#import "SentryLogC.h"
+#    import "SentryCrashMonitor_NSException.h"
+#    import "SentryCrash.h"
+#    include "SentryCrashID.h"
+#    include "SentryCrashMonitorContext.h"
+#    import "SentryCrashMonitor_NSException_StackCursor.h"
+#    import "SentryCrashStackCursor.h"
+#    include "SentryCrashThread.h"
+#    import "SentrySwift.h"
+
+#    import "SentryLogC.h"
 
 // ============================================================================
-#pragma mark - Globals -
+#    pragma mark - Globals -
 // ============================================================================
 
 static volatile bool g_isEnabled = 0;
@@ -51,7 +53,7 @@ static NSUncaughtExceptionHandler *g_previousUncaughtExceptionHandler;
 static SentryCrashBridge *g_bridge = nil;
 
 // ============================================================================
-#pragma mark - Callbacks -
+#    pragma mark - Callbacks -
 // ============================================================================
 
 /** Our custom exception handler.
@@ -114,7 +116,7 @@ handleUncaughtException(NSException *exception)
 }
 
 // ============================================================================
-#pragma mark - API -
+#    pragma mark - API -
 // ============================================================================
 
 void
@@ -158,3 +160,5 @@ sentrycrashcm_nsexception_getAPI(void)
     static SentryCrashMonitorAPI api = { .setEnabled = setEnabled, .isEnabled = isEnabled };
     return &api;
 }
+
+#endif // !SDK_V10

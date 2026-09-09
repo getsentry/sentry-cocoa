@@ -1,8 +1,10 @@
-#import "SentryANRTrackerV1.h"
-#import "SentryANRTrackerInternalDelegate.h"
-#import "SentryLogC.h"
-#import "SentrySwift.h"
-#import <stdatomic.h>
+#if !SDK_V10
+
+#    import "SentryANRTrackerV1.h"
+#    import "SentryANRTrackerInternalDelegate.h"
+#    import "SentryLogC.h"
+#    import "SentrySwift.h"
+#    import <stdatomic.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -15,7 +17,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
 
 @interface SentryANRTrackerV1 ()
 
-@property (nonatomic, strong) id<SentryCrashReporter> crashWrapper;
+@property (nonatomic, strong) id<SentryApplicationStateProvider> applicationStateProvider;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, strong) SentryThreadWrapper *threadWrapper;
 @property (nonatomic, strong) NSHashTable<id<SentryANRTrackerInternalDelegate>> *listeners;
@@ -30,21 +32,21 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
 
 - (instancetype)initWithTimeoutInterval:(NSTimeInterval)timeoutInterval
 {
-    return
-        [self initWithTimeoutInterval:timeoutInterval
-                         crashWrapper:SentryDependencyContainer.sharedInstance.crashWrapper
-                 dispatchQueueWrapper:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
-                        threadWrapper:SentryDependencyContainer.sharedInstance.threadWrapper];
+    return [self
+         initWithTimeoutInterval:timeoutInterval
+        applicationStateProvider:SentryDependencyContainer.sharedInstance.applicationStateProvider
+            dispatchQueueWrapper:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
+                   threadWrapper:SentryDependencyContainer.sharedInstance.threadWrapper];
 }
 
 - (instancetype)initWithTimeoutInterval:(NSTimeInterval)timeoutInterval
-                           crashWrapper:(id<SentryCrashReporter>)crashWrapper
+               applicationStateProvider:(id<SentryApplicationStateProvider>)applicationStateProvider
                    dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                           threadWrapper:(SentryThreadWrapper *)threadWrapper
 {
     if (self = [super init]) {
         self.timeoutInterval = timeoutInterval;
-        self.crashWrapper = crashWrapper;
+        self.applicationStateProvider = applicationStateProvider;
         self.dispatchQueueWrapper = dispatchQueueWrapper;
         self.threadWrapper = threadWrapper;
         self.listeners = [NSHashTable weakObjectsHashTable];
@@ -130,7 +132,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
 
             atomic_store_explicit(&reported, true, memory_order_relaxed);
 
-            if (![self.crashWrapper isApplicationInForeground]) {
+            if (![self.applicationStateProvider isApplicationInForeground]) {
                 SENTRY_LOG_DEBUG(@"Ignoring ANR because the app is in the background");
                 continue;
             }
@@ -220,3 +222,5 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif // !SDK_V10

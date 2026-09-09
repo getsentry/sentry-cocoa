@@ -25,12 +25,14 @@
 // THE SOFTWARE.
 //
 
-#import "SentryCrashReportFilterBasic.h"
-#import "SentryCrashNSErrorUtil.h"
-#import "SentryCrashVarArgs.h"
-#import "SentryDictionaryDeepSearch.h"
+#if !SDK_V10
 
-#import "SentryLogC.h"
+#    import "SentryCrashReportFilterBasic.h"
+#    import "SentryCrashNSErrorUtil.h"
+#    import "SentryCrashVarArgs.h"
+#    import "SentryDictionaryDeepSearch.h"
+
+#    import "SentryLogC.h"
 
 @implementation SentryCrashReportFilterPassthrough
 
@@ -517,3 +519,5 @@
 }
 
 @end
+
+#endif // !SDK_V10

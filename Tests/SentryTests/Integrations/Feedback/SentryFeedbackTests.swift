@@ -582,7 +582,6 @@ class SentryFeedbackTests: XCTestCase {
             locale: Locale(identifier: "en_US"),
             timezone: try XCTUnwrap(TimeZone(identifier: "Europe/Vienna")),
             eventContextEnricher: TestEventContextEnricher(),
-            crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper,
             binaryImageCache: SentryDependencyContainer.sharedInstance().binaryImageCache,
             dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
         )
@@ -630,7 +629,6 @@ class SentryFeedbackTests: XCTestCase {
             locale: Locale(identifier: "en_US"),
             timezone: try XCTUnwrap(TimeZone(identifier: "Europe/Vienna")),
             eventContextEnricher: TestEventContextEnricher(),
-            crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper,
             binaryImageCache: SentryDependencyContainer.sharedInstance().binaryImageCache,
             dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
         )
@@ -678,7 +676,6 @@ class SentryFeedbackTests: XCTestCase {
             locale: Locale(identifier: "en_US"),
             timezone: try XCTUnwrap(TimeZone(identifier: "Europe/Vienna")),
             eventContextEnricher: TestEventContextEnricher(),
-            crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper,
             binaryImageCache: SentryDependencyContainer.sharedInstance().binaryImageCache,
             dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
         )

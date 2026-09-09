@@ -55,6 +55,9 @@ SENTRY_NO_INIT
  *
  * @discussion Call this method on the main thread. When calling it from a background thread, the
  * SDK starts on the main thread async.
+ *
+ * If @c start is called again without @c close in between, the SDK logs a warning and still
+ * reinitializes. Reinitialization is unsupported and may lead to undefined behavior.
  */
 + (void)startWithOptions:(SentryOptionsObjC *)options NS_SWIFT_NAME(start(options:));
 
@@ -242,6 +245,54 @@ SENTRY_NO_INIT
               withScopeBlock:(void (^)(SentryScope *scope))block
     NS_SWIFT_NAME(capture(message:block:));
 
+/**
+ * Captures a manually created event and sends it to Sentry with a user-provided hint.
+ * @param event The event to send to Sentry.
+ * @param scope The scope containing event metadata.
+ * @param hint The hint providing additional context for callbacks.
+ * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
+ */
++ (SentryId *)captureEvent:(SentryEvent *)event
+                 withScope:(SentryScope *)scope
+                      hint:(SENTRY_SWIFT_MIGRATION_ID(SentryHint))hint
+    NS_SWIFT_NAME(capture(event:scope:hint:));
+
+/**
+ * Captures an error event and sends it to Sentry with a user-provided hint.
+ * @param error The error to send to Sentry.
+ * @param scope The scope containing event metadata.
+ * @param hint The hint providing additional context for callbacks.
+ * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
+ */
++ (SentryId *)captureError:(NSError *)error
+                 withScope:(SentryScope *)scope
+                      hint:(SENTRY_SWIFT_MIGRATION_ID(SentryHint))hint
+    NS_SWIFT_NAME(capture(error:scope:hint:));
+
+/**
+ * Captures an exception event and sends it to Sentry with a user-provided hint.
+ * @param exception The exception to send to Sentry.
+ * @param scope The scope containing event metadata.
+ * @param hint The hint providing additional context for callbacks.
+ * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
+ */
++ (SentryId *)captureException:(NSException *)exception
+                     withScope:(SentryScope *)scope
+                          hint:(SENTRY_SWIFT_MIGRATION_ID(SentryHint))hint
+    NS_SWIFT_NAME(capture(exception:scope:hint:));
+
+/**
+ * Captures a message event and sends it to Sentry with a user-provided hint.
+ * @param message The message to send to Sentry.
+ * @param scope The scope containing event metadata.
+ * @param hint The hint providing additional context for callbacks.
+ * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
+ */
++ (SentryId *)captureMessage:(NSString *)message
+                   withScope:(SentryScope *)scope
+                        hint:(SENTRY_SWIFT_MIGRATION_ID(SentryHint))hint
+    NS_SWIFT_NAME(capture(message:scope:hint:));
+
 + (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
                       withEventId:(NSString *)feedbackEventId
                       attachments:(NSArray<SentryAttachment *> *)feedbackAttachments;
@@ -258,6 +309,9 @@ SENTRY_NO_INIT
  * @param crumb The Breadcrumb to add to the current Scope of the current Hub.
  */
 + (void)addBreadcrumb:(SentryBreadcrumb *)crumb NS_SWIFT_NAME(addBreadcrumb(_:));
+
++ (void)addBreadcrumb:(SentryBreadcrumb *)crumb
+             withHint:(SENTRY_SWIFT_MIGRATION_ID(SentryHint)_Nullable)hint;
 
 /**
  * Use this method to modify the current Scope of the current Hub. The SDK uses the Scope to attach
@@ -338,6 +392,7 @@ SENTRY_NO_INIT
  */
 + (void)reportFullyDisplayed;
 
+#if !SDK_V10
 /**
  * Pauses sending detected app hangs to Sentry.
  *
@@ -350,6 +405,7 @@ SENTRY_NO_INIT
  * Resumes sending detected app hangs to Sentry.
  */
 + (void)resumeAppHangTracking;
+#endif
 
 /**
  * Waits synchronously for the SDK to flush out all queued and cached items for up to the specified

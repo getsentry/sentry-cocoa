@@ -25,67 +25,71 @@
 // THE SOFTWARE.
 //
 
-#include "SentryCrashReport.h"
+#if !SDK_V10
 
-#include "SentryCrashBinaryImageCache.h"
-#include "SentryCrashCPU.h"
-#include "SentryCrashCachedData.h"
-#include "SentryCrashDynamicLinker.h"
-#include "SentryCrashFileUtils.h"
-#include "SentryCrashJSONCodec.h"
-#include "SentryCrashMach.h"
-#include "SentryCrashMemory.h"
-#include "SentryCrashObjC.h"
-#include "SentryCrashReportFields.h"
-#include "SentryCrashReportVersion.h"
-#include "SentryCrashReportWriter.h"
-#include "SentryCrashSignalInfo.h"
-#include "SentryCrashStackCursor_Backtrace.h"
-#include "SentryCrashStackCursor_MachineContext.h"
-#include "SentryCrashString.h"
-#include "SentryCrashThread.h"
-#include "SentryCrashUUIDConversion.h"
-#include "SentryInternalCDefines.h"
-#include "SentryScopeSyncC.h"
+#    include "SentryCrashReport.h"
 
-#include "SentryAsyncSafeLog.h"
+#    include "SentryCrashBinaryImageCache.h"
+#    include "SentryCrashCPU.h"
+#    include "SentryCrashCachedData.h"
+#    include "SentryCrashDynamicLinker.h"
+#    include "SentryCrashFileUtils.h"
+#    include "SentryCrashJSONCodec.h"
+#    include "SentryCrashMach.h"
+#    include "SentryCrashMemory.h"
+#    include "SentryCrashObjC.h"
+#    include "SentryCrashReportFields.h"
+#    include "SentryCrashReportVersion.h"
+#    include "SentryCrashReportWriter.h"
+#    include "SentryCrashSignalInfo.h"
+#    include "SentryCrashStackCursor_Backtrace.h"
+#    include "SentryCrashStackCursor_MachineContext.h"
+#    include "SentryCrashString.h"
+#    include "SentryCrashThread.h"
+#    include "SentryCrashUUIDConversion.h"
+#    include "SentryInternalCDefines.h"
+#    include "SentryScopeSyncC.h"
 
-#include <errno.h>
-#include <fcntl.h>
-#include <pthread.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
+#    include "SentryAsyncSafeLog.h"
+
+#    include <errno.h>
+#    include <fcntl.h>
+#    include <pthread.h>
+#    include <stdio.h>
+#    include <stdlib.h>
+#    include <string.h>
+#    include <unistd.h>
 
 // ============================================================================
-#pragma mark - Constants -
+#    pragma mark - Constants -
 // ============================================================================
 
 /** Default number of objects, subobjects, and ivars to record from a memory loc
  */
-#define kDefaultMemorySearchDepth 15
+#    define kDefaultMemorySearchDepth 15
 
 /** How far to search the stack (in pointer sized jumps) for notable data. */
-#define kStackNotableSearchBackDistance 20
-#define kStackNotableSearchForwardDistance 10
+#    define kStackNotableSearchBackDistance 20
+#    define kStackNotableSearchForwardDistance 10
 
 /** How much of the stack to dump (in pointer sized jumps). */
-#define kStackContentsPushedDistance 20
-#define kStackContentsPoppedDistance 10
-#define kStackContentsTotalDistance (kStackContentsPushedDistance + kStackContentsPoppedDistance)
+#    define kStackContentsPushedDistance 20
+#    define kStackContentsPoppedDistance 10
+#    define kStackContentsTotalDistance                                                            \
+        (kStackContentsPushedDistance + kStackContentsPoppedDistance)
 
 /** The minimum length for a valid string. */
-#define kMinStringLength 4
+#    define kMinStringLength 4
 
 // ============================================================================
-#pragma mark - JSON Encoding -
+#    pragma mark - JSON Encoding -
 // ============================================================================
 
-#define getJsonContext(REPORT_WRITER) ((SentryCrashJSONEncodeContext *)((REPORT_WRITER)->context))
+#    define getJsonContext(REPORT_WRITER)                                                          \
+        ((SentryCrashJSONEncodeContext *)((REPORT_WRITER)->context))
 
 // ============================================================================
-#pragma mark - Runtime Config -
+#    pragma mark - Runtime Config -
 // ============================================================================
 
 typedef struct {
@@ -107,7 +111,7 @@ typedef struct {
 static const char *g_userInfoJSON;
 static SentryCrash_IntrospectionRules g_introspectionRules;
 
-#pragma mark Callbacks
+#    pragma mark Callbacks
 
 static void
 addBooleanElement(
@@ -321,7 +325,7 @@ addJSONData(const char *restrict const data, const int length, void *restrict us
 }
 
 // ============================================================================
-#pragma mark - Utility -
+#    pragma mark - Utility -
 // ============================================================================
 
 /** Check if a memory address points to a valid null terminated UTF-8 string.
@@ -379,7 +383,7 @@ getStackCursor(const SentryCrash_MonitorContext *const crash,
 }
 
 // ============================================================================
-#pragma mark - Report Writing -
+#    pragma mark - Report Writing -
 // ============================================================================
 
 /** Write the contents of a memory location.
@@ -802,7 +806,7 @@ writeAddressReferencedByString(
     writeMemoryContents(writer, key, (uintptr_t)address, &limit);
 }
 
-#pragma mark Backtrace
+#    pragma mark Backtrace
 
 /** Write a backtrace to the report.
  *
@@ -835,7 +839,7 @@ writeBacktrace(const SentryCrashReportWriter *const writer, const char *const ke
     writer->endContainer(writer);
 }
 
-#pragma mark Stack
+#    pragma mark Stack
 
 /** Write a dump of the stack contents to the report.
  *
@@ -932,7 +936,7 @@ writeNotableStackContents(const SentryCrashReportWriter *const writer,
     }
 }
 
-#pragma mark Registers
+#    pragma mark Registers
 
 /** Write the contents of all regular registers to the report.
  *
@@ -1040,7 +1044,7 @@ writeNotableRegisters(const SentryCrashReportWriter *const writer,
     }
 }
 
-#pragma mark Thread-specific
+#    pragma mark Thread-specific
 
 /** Write any notable addresses in the stack or registers to the report.
  *
@@ -1160,7 +1164,7 @@ writeAllThreads(const SentryCrashReportWriter *const writer, const char *const k
     writer->endContainer(writer);
 }
 
-#pragma mark Global Report Data
+#    pragma mark Global Report Data
 
 /** Write information about a binary image to the report.
  *
@@ -1256,7 +1260,7 @@ writeError(const SentryCrashReportWriter *const writer, const char *const key,
 {
     writer->beginObject(writer, key);
     {
-#if SENTRY_HOST_APPLE
+#    if SENTRY_HOST_APPLE
         writer->beginObject(writer, SentryCrashField_Mach);
         {
             const char *machExceptionName = sentrycrashmach_exceptionName(crash->mach.type);
@@ -1276,7 +1280,7 @@ writeError(const SentryCrashReportWriter *const writer, const char *const key,
                 writer, SentryCrashField_Subcode, (size_t)crash->mach.subcode);
         }
         writer->endContainer(writer);
-#endif
+#    endif
         writer->beginObject(writer, SentryCrashField_Signal);
         {
             const char *sigName = sentrycrashsignal_signalName(crash->signal.signum);
@@ -1445,7 +1449,7 @@ writeRecrash(
     writer->addJSONFileElement(writer, key, crashReportPath, true);
 }
 
-#pragma mark Setup
+#    pragma mark Setup
 
 /** Prepare a report writer for use.
  *
@@ -1478,7 +1482,7 @@ prepareReportWriter(
 }
 
 // ============================================================================
-#pragma mark - Main API -
+#    pragma mark - Main API -
 // ============================================================================
 
 void
@@ -1815,3 +1819,5 @@ sentrycrashreport_setDoNotIntrospectClasses(const char **doNotIntrospectClasses,
         free(oldClasses);
     }
 }
+
+#endif // !SDK_V10

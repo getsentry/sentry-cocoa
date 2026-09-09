@@ -1,5 +1,5 @@
 // swiftlint:disable function_body_length force_try
-import Sentry
+import SentrySwift
 import UIKit
 
 class MetricsViewController: UIViewController {

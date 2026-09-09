@@ -58,9 +58,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)isFatalEventCaptureResultTerminal:(SentryId *)eventId client:(SentryClientInternal *)client;
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !SDK_V10
 - (void)captureFatalAppHangEvent:(SentryEvent *)event;
-#endif // SENTRY_HAS_UIKIT
+#endif // SENTRY_HAS_UIKIT && !SDK_V10
 
 - (void)closeCachedSessionWithTimestamp:(NSDate *_Nullable)timestamp;
 
@@ -76,6 +76,12 @@ NS_ASSUME_NONNULL_BEGIN
     NS_SWIFT_NAME(capture(event:scope:additionalEnvelopeItems:));
 
 - (SentryId *)captureErrorEvent:(SentryEvent *)event NS_SWIFT_NAME(captureErrorEvent(event:));
+
+- (SentryId *)captureErrorEvent:(SentryEvent *)event
+                       withHint:(SENTRY_SWIFT_MIGRATION_ID(SentryHint)_Nullable)hint;
+
+- (void)addBreadcrumb:(SentryBreadcrumb *)crumb
+             withHint:(SENTRY_SWIFT_MIGRATION_ID(SentryHint)_Nullable)hint;
 
 - (SentryId *)captureError:(NSError *)error
                  withScope:(SentryScope *)scope

@@ -6,7 +6,10 @@ import Foundation
 @_spi(Private)
 @objc
 public protocol SentryLogScopeApplier {
-    func applyScope(_ scope: Scope, toLog log: SentryLog) -> SentryLog
+    /// Applies the scope to the log. Custom attribute precedence: log > current scope > global
+    /// scope. The current scope's span takes precedence for trace correlation. User and the
+    /// other reserved attributes come from `scope`.
+    func applyScope(_ scope: Scope, currentScope: Scope?, toLog log: SentryLog) -> SentryLog
 }
 
 @_spi(Private)
@@ -19,9 +22,9 @@ public class SentryDefaultLogScopeApplier: NSObject, SentryLogScopeApplier {
         self.metadata = SentryDefaultScopeApplyingMetadata(environment: environment, releaseName: releaseName, cacheDirectoryPath: cacheDirectoryPath, shouldAddDefaultUserId: shouldAddDefaultUserId)
     }
 
-    @objc public func applyScope(_ scope: Scope, toLog log: SentryLog) -> SentryLog {
+    @objc public func applyScope(_ scope: Scope, currentScope: Scope?, toLog log: SentryLog) -> SentryLog {
         var mutableLog = log
-        scope.addAttributesToItem(&mutableLog, metadata: metadata)
+        scope.addAttributesToItem(&mutableLog, metadata: metadata, currentScope: currentScope)
         return mutableLog
     }
 }

@@ -41,6 +41,20 @@ class SentryMetricsApiE2ETests: XCTestCase {
         XCTAssertEqual(client.testMetricsBuffer.addInvocations.count, 0)
     }
 
+    func testCount_withMetricsDisabled_shouldStillCreateMetric() throws {
+        // -- Arrange --
+        // enableMetrics must not gate the manual metrics API.
+        let client = try givenSdkWithHub(isMetricsEnabled: false)
+
+        // -- Act --
+        SentrySDK.metrics.count(key: "test.metric", value: 1)
+
+        // -- Assert --
+        let metric = try XCTUnwrap(client.testMetricsBuffer.addInvocations.first)
+        XCTAssertEqual(metric.name, "test.metric")
+        XCTAssertEqual(metric.value, .counter(1))
+    }
+
     func testCount_withZeroValue_shouldCreateMetric() throws {
         // -- Arrange --
         let client = try givenSdkWithHub()
@@ -121,6 +135,20 @@ class SentryMetricsApiE2ETests: XCTestCase {
         XCTAssertEqual(client.testMetricsBuffer.addInvocations.count, 0)
     }
 
+    func testDistribution_withMetricsDisabled_shouldStillCreateMetric() throws {
+        // -- Arrange --
+        // enableMetrics must not gate the manual metrics API.
+        let client = try givenSdkWithHub(isMetricsEnabled: false)
+
+        // -- Act --
+        SentrySDK.metrics.distribution(key: "test.metric", value: 1.0)
+
+        // -- Assert --
+        let metric = try XCTUnwrap(client.testMetricsBuffer.addInvocations.first)
+        XCTAssertEqual(metric.name, "test.metric")
+        XCTAssertEqual(metric.value, .distribution(1.0))
+    }
+
     func testDistribution_withNegativeValue_shouldCreateMetric() throws {
         // -- Arrange --
         let client = try givenSdkWithHub()
@@ -184,6 +212,20 @@ class SentryMetricsApiE2ETests: XCTestCase {
         XCTAssertEqual(client.testMetricsBuffer.addInvocations.count, 0)
     }
 
+    func testGauge_withMetricsDisabled_shouldStillCreateMetric() throws {
+        // -- Arrange --
+        // enableMetrics must not gate the manual metrics API.
+        let client = try givenSdkWithHub(isMetricsEnabled: false)
+
+        // -- Act --
+        SentrySDK.metrics.gauge(key: "test.metric", value: 1.0)
+
+        // -- Assert --
+        let metric = try XCTUnwrap(client.testMetricsBuffer.addInvocations.first)
+        XCTAssertEqual(metric.name, "test.metric")
+        XCTAssertEqual(metric.value, .gauge(1.0))
+    }
+
     func testGauge_withNegativeValue_shouldCreateMetric() throws {
         // -- Arrange --
         let client = try givenSdkWithHub()
@@ -224,22 +266,25 @@ class SentryMetricsApiE2ETests: XCTestCase {
     // MARK: - Helpers
 
     @discardableResult
-    private func givenSdkWithHub() throws -> E2EMetricsTestClient {
+    private func givenSdkWithHub(isMetricsEnabled: Bool = true) throws -> E2EMetricsTestClient {
         let options = Options()
         options.dsn = TestConstants.dsnForTestCase(type: Self.self)
         options.removeAllIntegrations()
+        options.enableMetrics = isMetricsEnabled
 
         let client = try XCTUnwrap(E2EMetricsTestClient(options: options))
         let hub = SentryHubInternal(
             client: client,
             andScope: Scope(),
-            andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo),
+            activeCrashReporterState: TestSentryCrashReporterState(),
             andDispatchQueue: SentryDispatchQueueWrapper()
         )
 
         SentrySDK.setStart(with: options)
         SentrySDKInternal.setCurrentHub(hub)
 
+        // Always install the metrics integration. enableMetrics is a legacy option and must
+        // not prevent manual metric capture.
         let dependencies = SentryDependencyContainer.sharedInstance()
         let integration = try XCTUnwrap(
             SentryMetricsIntegration<SentryDependencyContainer>(

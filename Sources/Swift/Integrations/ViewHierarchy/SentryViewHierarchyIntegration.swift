@@ -1,6 +1,6 @@
 internal import _SentryPrivate
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 typealias SentryViewHierarchyIntegrationProvider = ViewHierarchyProviderProvider & ClientProvider
 
@@ -34,16 +34,27 @@ final class SentryViewHierarchyIntegration<Dependencies: SentryViewHierarchyInte
         viewHierarchyProvider.reportAccessibilityIdentifier = options.reportAccessibilityIdentifier
         client.addAttachmentProcessor(self)
 
+#if !SENTRY_DISABLE_SENTRYCRASH_V10
         sentrycrash_setSaveViewHierarchy { path in
             guard let path = path else { return }
             let reportPath = String(cString: path)
             let filePath = (reportPath as NSString).appendingPathComponent("view-hierarchy.json")
             SentryDependencyContainer.sharedInstance().viewHierarchyProvider?.saveViewHierarchy(filePath)
         }
+#else
+        // KSCRASH_TODO(GH-8273, GH-8532): Nonfatal view hierarchies still work, but V10 does not
+        // register a fatal-crash view-hierarchy callback. Acceptance: SCV10-009 in
+        // SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+#endif
     }
 
     func uninstall() {
+#if !SENTRY_DISABLE_SENTRYCRASH_V10
         sentrycrash_setSaveViewHierarchy(nil)
+#else
+        // KSCRASH_TODO(GH-8273, GH-8532): V10 has no fatal-crash view-hierarchy callback to remove.
+        // Acceptance: SCV10-009 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+#endif
         client?.removeAttachmentProcessor(self)
     }
 
@@ -60,17 +71,19 @@ final class SentryViewHierarchyIntegration<Dependencies: SentryViewHierarchyInte
             return attachments
         }
 
-#if os(iOS)
+#if os(iOS) || os(visionOS)
         if event.isMetricKitEvent() {
             return attachments
         }
 #endif
 
+        #if !SDK_V10
         // If the event is an App hanging event, we can't take the
         // view hierarchy because the main thread is blocked.
         if event.isAppHangEvent {
             return attachments
         }
+        #endif // !SDK_V10
 
         if let beforeCaptureViewHierarchy = options.beforeCaptureViewHierarchy,
            !beforeCaptureViewHierarchy(event) {

@@ -1,3 +1,4 @@
+#if !SDK_V10
 // swiftlint:disable missing_docs
 internal import _SentryPrivate
 
@@ -110,3 +111,4 @@ private final class CrashReportFilterBridge: NSObject, SentryCrashReportFilter {
     }
 }
 // swiftlint:enable missing_docs
+#endif // !SDK_V10

@@ -1,6 +1,6 @@
 import Foundation
-import Sentry
 import SentrySampleShared
+import SentrySwift
 import UIKit
 
 // swiftlint:disable private_outlet
@@ -82,6 +82,23 @@ class ErrorsViewController: UIViewController {
                 // The scope in this callback is a clone of the current scope
                 // It contains all data but mutations only influence the event being sent
                 scope.setTag(value: "value", key: "myTag")
+            }
+        }
+    }
+
+    @IBAction func captureErrorWithHint(_ sender: UIButton) {
+        highlightButton(sender)
+        let hint = Hint()
+        hint.setHintValue("ErrorsViewController", forKey: "source")
+        hint.setHintValue(["button": "captureErrorWithHint"], forKey: "context")
+        hint.attachments = [
+            Attachment(data: Data("hint log entry".utf8), filename: "hint.txt")
+        ]
+        do {
+            try RandomErrorGenerator.generate()
+        } catch {
+            SentrySDK.capture(error: error, hint: hint) { scope in
+                scope.setTag(value: "true", key: "hasHint")
             }
         }
     }

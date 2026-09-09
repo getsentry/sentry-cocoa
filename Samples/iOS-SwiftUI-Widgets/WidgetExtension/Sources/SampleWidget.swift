@@ -1,5 +1,6 @@
-import Sentry
+import _SentryPrivate
 import SentrySampleShared
+import SentrySwift
 import SwiftUI
 import WidgetKit
 
@@ -37,7 +38,7 @@ fileprivate struct SampleWidgetEntryView: View {
     }
 
     var isANRInstalled: Bool {
-        return isSentryEnabled && SentrySDKInternal.trimmedInstalledIntegrationNames().contains("ANRTracking")
+        return isSentryEnabled && SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().contains("ANRTracking")
     }
 
     var isSentryEnabled: Bool {
@@ -76,8 +77,10 @@ private struct Provider: AppIntentTimelineProvider {
             options.debug = true
             SentrySDKWrapper.shared.configureDataCollection(options)
 
+            #if !SDK_V10
             // App Hang Tracking must be enabled, but should not be installed
             options.enableAppHangTracking = true
+            #endif // !SDK_V10
         }
     }
 }

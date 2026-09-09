@@ -29,9 +29,11 @@
 using sentry_cxa_throw_type = void (*)(void *, std::type_info *, void (*)(void *));
 using dynamic_image_call_type = void (*)(void (*)(void));
 using dynamic_image_crash_type = void (*)(void);
+using dynamic_image_cpp_exception_type = void (*)(void);
 
 static dynamic_image_call_type g_beforeDynamicImageCall = nullptr;
 static dynamic_image_crash_type g_afterDynamicImageCrash = nullptr;
+static dynamic_image_cpp_exception_type g_afterDynamicImageCPPException = nullptr;
 
 static NSString *
 CrashE2EFindLoadedImage(const char *path)
@@ -86,6 +88,15 @@ extern "C" NSString *_Nullable CrashE2ELoadDynamicBinaryImage(const char *path, 
             return nil;
         }
         g_afterDynamicImageCrash = crash;
+
+        auto cppException = reinterpret_cast<dynamic_image_cpp_exception_type>(
+            dlsym(handle, "CrashE2EDynamicImageThrowCPPException"));
+        if (cppException == nullptr) {
+            NSLog(@"CrashE2E - failed to dlsym CrashE2EDynamicImageThrowCPPException in %s: %s",
+                path, dlerror());
+            return nil;
+        }
+        g_afterDynamicImageCPPException = cppException;
     }
 
     NSString *loadedImage = CrashE2EFindLoadedImage(path);
@@ -113,6 +124,17 @@ CrashE2ETriggerDynamicBinaryImageCrash(void)
     __builtin_unreachable();
 }
 
+extern "C" __attribute__((noinline, disable_tail_calls)) void
+CrashE2ETriggerDynamicCPPException(void)
+{
+    if (g_afterDynamicImageCPPException == nullptr) {
+        NSLog(@"CrashE2E - dynamic C++ exception function is not loaded");
+        abort();
+    }
+    g_afterDynamicImageCPPException();
+    __builtin_unreachable();
+}
+
 static void
 CrashE2EDestroyRuntimeError(void *exception)
 {
@@ -132,14 +154,10 @@ CrashE2EFakeManagedRuntimeSignalHandler(int signal, siginfo_t *info, void *conte
         (void)bytesWritten;
     }
 
-    // The intended chain is managed runtime -> SentryCrash/KSCrash -> system. This fake handler
-    // stands in for .NET/Mono after SentryCrash's preload constructor has installed the early
-    // signal handler.
-    //
-    // KSCRASH_TODO: SentryV10 still compiles that SentryCrash constructor, so a green marker
-    // currently proves only that the fake handler ran, not that a KSCrash-owned preloader/plugin
-    // established the intended order. Rectify this when managed-runtime handling moves to KSCrash.
-    // Tracked in https://github.com/getsentry/sentry-cocoa/issues/8528.
+    // The intended chain is managed runtime -> crash reporter -> system. This fake handler stands
+    // in for .NET/Mono after the reporter's early signal handler has been installed. SentryCrash
+    // provides that preloader; KSCrash does not yet, so its managed-runtime scenarios expose the
+    // missing handler ordering.
     //
     // Recoverable managed faults are intentionally out of scope: with the correct
     // order, the managed runtime handles them without ever calling Sentry. This handler forwards
@@ -220,10 +238,10 @@ CrashE2ETriggerUnitySentryCxaThrow(void)
     // symbol resolution order. Calling the named symbol here validates the Sentry Cocoa side of
     // that chaining contract without asserting crash-backend internals.
     //
-    // The scenario intentionally runs with Sentry Cocoa's C++ V2 option disabled because Sentry
-    // Unity does not enable that option today. This means current SentryCrash reports inherit the
-    // legacy/V1 monitor's missing-crashed-thread caveats. Those caveats are not KSCrash parity
-    // requirements; the migration must preserve the Sentry-named symbols, not the V1 report shape.
+    // The option-off scenario matches Sentry Unity, which does not enable Sentry Cocoa's C++ V2
+    // option today. Its KSCrash-only companion enables V2 to verify that the same handoff does not
+    // recurse when throw-site swapping is active. Legacy V1 missing-crashed-thread behavior is not
+    // a KSCrash parity requirement; the migration must preserve the named symbols, not that shape.
     auto sentryCxaThrow
         = reinterpret_cast<sentry_cxa_throw_type>(dlsym(RTLD_DEFAULT, "__sentry_cxa_throw"));
     if (sentryCxaThrow == nullptr) {

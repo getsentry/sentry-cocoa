@@ -58,7 +58,7 @@ class SentrySDKInternalTests: XCTestCase {
             scope.setTag(value: "value", key: "key")
 
             client = try XCTUnwrap(TestClient(options: options))
-            hub = SentryHubInternal(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo), andDispatchQueue: SentryDispatchQueueWrapper())
+            hub = SentryHubInternal(client: client, andScope: scope, activeCrashReporterState: TestSentryCrashReporterState(), andDispatchQueue: SentryDispatchQueueWrapper())
 
             feedback = SentryFeedback(message: "Again really?", name: "Tim Apple", email: "tim@apple.com")
 
@@ -70,7 +70,11 @@ class SentrySDKInternalTests: XCTestCase {
                 dateProvider: currentDate,
                 dispatchQueueWrapper: dispatchQueueWrapper
             ))
-            let breadcrumbProcessor = SentryDefaultWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
+            let breadcrumbProcessor = SentryDefaultWatchdogTerminationBreadcrumbProcessor(
+                maxBreadcrumbs: 10,
+                fileManager: fileManager,
+                dispatchQueueWrapper: dispatchQueueWrapper
+            )
             scopePersistentStore = try XCTUnwrap(TestSentryScopePersistentStore(fileManager: fileManager))
             let attributesProcessor = SentryWatchdogTerminationAttributesProcessor(
                 withDispatchQueueWrapper: dispatchQueueWrapper,
@@ -379,6 +383,22 @@ class SentrySDKInternalTests: XCTestCase {
         XCTAssertEqual(1, SentrySDKInternal.startInvocations)
     }
 
+    func testStart_whenCalledTwiceWithoutClose_shouldReinitialize() {
+        // -- Arrange --
+        SentrySDKInternal.start(options: fixture.options)
+
+        let secondOptions = Options.noIntegrations()
+        secondOptions.dsn = TestConstants.dsnAsString(username: "second-internal-start")
+
+        // -- Act --
+        SentrySDKInternal.start(options: secondOptions)
+
+        // -- Assert --
+        XCTAssertEqual(2, SentrySDKInternal.startInvocations)
+        XCTAssertEqual(secondOptions.dsn, SentrySDKInternal.currentHub().getClient()?.options.dsn)
+        XCTAssertEqual(secondOptions.dsn, SentrySDKInternal.options?.dsn)
+    }
+
     func testSDKStartTimestamp() {
         let currentDateProvider = TestCurrentDateProvider()
         SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
@@ -444,7 +464,11 @@ class SentrySDKInternalTests: XCTestCase {
         }
 
         let hub = SentrySDKInternal.currentHub()
-        XCTAssertEqual(2, hub.installedIntegrations().count)
+        var expectedIntegrationCount = 2 // SwiftAsync plus the always-installed Metrics integration.
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        expectedIntegrationCount += 1
+#endif
+        XCTAssertEqual(expectedIntegrationCount, hub.installedIntegrations().count)
         SentrySDK.close()
         XCTAssertEqual(0, hub.installedIntegrations().count)
         assertIntegrationsInstalled(integrations: [])
@@ -535,8 +559,9 @@ class SentrySDKInternalTests: XCTestCase {
     }
 #endif
 
+#if !SDK_V10
     func testResumeAndPauseAppHangTracking() throws {
-        if SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced {
+        if SentryDependencyContainer.sharedInstance().debuggerStatusProvider.isBeingTraced {
             throw XCTSkip("This test only works when the debugger is NOT attached, because it requires the SentryANRTrackingIntegration being installed, which the SDK only installs if the debugger is not attached.")
         }
 
@@ -574,6 +599,8 @@ class SentrySDKInternalTests: XCTestCase {
         SentrySDK.pauseAppHangTracking()
         SentrySDK.resumeAppHangTracking()
     }
+
+#endif // !SDK_V10
 
     func testClose_SetsClientToNil() {
         SentrySDK.start { options in
@@ -736,8 +763,12 @@ class SentrySDKInternalTests: XCTestCase {
         options.dsn = SentrySDKInternalTests.dsnAsString
 
         let fileManager = try TestFileManager(options: options, dateProvider: fixture.currentDate, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
-        let breadcrumbProcessor = SentryDefaultWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        let breadcrumbProcessor = SentryDefaultWatchdogTerminationBreadcrumbProcessor(
+            maxBreadcrumbs: 10,
+            fileManager: fileManager,
+            dispatchQueueWrapper: dispatchQueueWrapper
+        )
         let scopePersistentStore = try XCTUnwrap(TestSentryScopePersistentStore(fileManager: fileManager))
         let attributesProcessor = SentryWatchdogTerminationAttributesProcessor(
             withDispatchQueueWrapper: dispatchQueueWrapper,

@@ -2,15 +2,65 @@
 
 ## Unreleased
 
-> [!IMPORTANT]
-> This release removes the options `enableLogs` and `enableMetrics` from `Options`. Use `beforeSendLog` or `beforeSendMetric` to drop logs or metrics.
->
-> We recognize that removing these options in a minor release is disruptive. We made this tradeoff deliberately because enabling Logs and Metrics by default will help most users successfully adopt these features.
+### Features
 
-### Breaking Changes
+- Add a `device.event` breadcrumb (`SYSTEM_CLOCK_CHANGE`) when the system clock changes, for example due to a manual time change or NTP sync (#8946)
+- Add Hints API with `beforeSendWithHint` and `beforeBreadcrumbWithHint` callbacks (#8942)
+- Add hint parameter to public capture methods on `SentrySDK` (#8955)
+- Auto-populate HTTP request and response on hints for network breadcrumbs and HTTP client errors (#8967)
 
-- Remove `options.enableLogs` to remove explicit opt-in for Logs. If you need to disable logs, use `beforeSendLog` to drop all logs (#8769)
-- Remove `options.enableMetrics` to remove opt-out of Metrics. If you need to disable metrics, use `beforeSendMetric` to drop all metrics (#8785)
+### Fixes
+
+- Prevent relevant view controller traversal from recursively loading parent views and invoking `viewDidLoad` twice when tracing is enabled. (#8941)
+- Classify MetricKit hangs over 500 ms as errors. (#8948)
+- Add hint parameter to public capture methods on `SentrySDK` (#8943)
+- Prevent Session Replay video encoding from reusing pixel buffers retained by AVFoundation. (#8950)
+
+## 9.27.0
+
+> [!NOTE]
+> `enableLogs` and `enableMetrics` are now deprecated and will be removed in the next major version. Manual log and metric capture is no longer gated by these flags.
+
+### Improvements
+
+- Install idle Session Replay recovery infrastructure at zero sample rates. (#8865)
+- Manual log and metrics APIs are no longer gated by behind `enableLogs` / `enableMetrics` (#8918)
+
+### Features
+
+- Add manual Session Replay controls through `SentrySDK.replay`. (#8868)
+  - Explicit `start()` and `startBuffering()` calls bypass the configured replay sample rates; sampling still controls automatic startup.
+  - `start()` starts a full-session replay and does nothing if one is already recording.
+  - `startBuffering()` keeps a rolling buffer that is sent on `flush()` or an error, then continues in session mode.
+  - `stop()` ends the current replay; the next `start()` creates a new replay session.
+  - `pause()` suspends recording until `resume()` and remains paused across background and foreground transitions and automatic replay restarts in the same process.
+  - `resume()` continues the same manually paused replay.
+  - `flush()` sends the current replay data to Sentry, or starts a full-session replay when recording is stopped.
+- Copy `app.vitals.start.type` and `app.vitals.start.screen` onto standalone `app.start` children, including `app.start.extended` and user descendants (#8888)
+- Add `maxFeatureFlags` option to configure how many feature flag evaluations the scope retains, matching sentry-java. Defaults to 100 (#8858)
+- Log a warning when `SentrySDK.start` is called again without `close()`. Reinitialization still runs and remains unsupported (#8928)
+- Add `SentrySDK.internal.envelope.captureNonTerminating` for hybrid SDKs, which keeps the current session running and reports it with the `unhandled` status when an unhandled exception doesn't terminate the process (#8654)
+- Add `SentrySDK.internal.envelope.updateSessionForDroppedEventNonTerminating` so hybrid SDKs can update the native session when an error is dropped by sampling, without sending an envelope (#8907)
+- Expose continuous profiling configuration on `SentryObjCOptions` via `configureProfiling` and `SentryObjCProfileOptions` (#8937)
+
+### Fixes
+
+- Silence spurious ERROR log in `SentryCrashCxaThrowSwapper` for empty sections (#8915)
+- Stop recording touch events while Session Replay is paused. (#8887)
+- Synchronize access to the current trace profiler in debug and test builds. (#8936)
+
+### Internal
+
+- Add visionOS support to internal screen APIs (#8913)
+
+## 9.26.1
+
+### Fixes
+
+- Prevent duplicate automatic HTTP spans and breadcrumbs for URLSession task wrappers (#8846)
+- Prevent breadcrumb persistence for watchdog termination events from blocking the calling thread (#8653)
+- Fix data races when reading and updating network tracker feature flags (#8832)
+- Avoid lossy JPEG compression for user feedback screenshot fallbacks from non-previewable formats (#8876)
 
 ### Fixes
 
@@ -145,15 +195,12 @@
 ### Fixes
 
 - Fix rate limiting all data categories when data category rate-limit is active. (#8324)
+- Fix EXC_BAD_ACCESS in SentryNetworkTracker caused by repeated reads of the volatile `NSURLSessionTask.currentRequest` property (#8058)
 
 ### Features
 
 - Record log_byte client reports (#8186)
 - Add scope feature flag API (#8147)
-
-### Fixes
-
-- Fix EXC_BAD_ACCESS in SentryNetworkTracker caused by repeated reads of the volatile `NSURLSessionTask.currentRequest` property (#8058)
 
 ## 9.19.1
 
@@ -2184,14 +2231,11 @@ This bug caused unhandled/crash events to have the unhandled property and mach i
 
 - Add `reportAccessibilityIdentifier` option (#4183)
 - Record dropped spans (#4172)
+- Collect only unique UIWindow references (#4159)
 
 ### Fixes
 
 - Session replay crash when writing the replay (#4186)
-
-### Features
-
-- Collect only unique UIWindow references (#4159)
 
 ### Deprecated
 
@@ -2999,8 +3043,6 @@ This change might mark 3rd party library frames as in-app, which the SDK previou
 
 This version adds a dependency on Swift.
 We renamed the default branch from `master` to `main`. We are going to keep the `master` branch for backwards compatibility for package managers pointing to the `master` branch.
-
-### Features
 
 - Properly demangle Swift class name (#2162)
 - Change view hierarchy attachment format to JSON (#2491)

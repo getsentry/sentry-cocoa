@@ -25,11 +25,13 @@
 // THE SOFTWARE.
 //
 
-#import <XCTest/XCTest.h>
+#if !SDK_V10
 
-#import "FileBasedTestCase.h"
-#import "SentryAsyncSafeLog.h"
-#import "SentryCrashSysCtl.h"
+#    import <XCTest/XCTest.h>
+
+#    import "FileBasedTestCase.h"
+#    import "SentryAsyncSafeLog.h"
+#    import "SentryCrashSysCtl.h"
 
 @interface SentryCrashSysCtl_Tests : FileBasedTestCase
 @end
@@ -477,3 +479,5 @@
 }
 
 @end
+
+#endif // !SDK_V10

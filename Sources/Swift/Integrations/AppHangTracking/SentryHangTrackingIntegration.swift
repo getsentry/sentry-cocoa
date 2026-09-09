@@ -1,3 +1,4 @@
+#if !SDK_V10
 // swiftlint:disable missing_docs
 internal import _SentryPrivate
 import Foundation
@@ -5,7 +6,7 @@ import Foundation
 import UIKit
 #endif
 
-typealias HangTrackingIntegrationScope = DispatchQueueWrapperProvider & CrashWrapperProvider & CrashReporterStateProvider & ExtensionDetectorProvider & DebugImageProvider & ThreadInspectorProvider & FileManagerProvider & ANRTrackerBuilder
+typealias HangTrackingIntegrationScope = DispatchQueueWrapperProvider & DebuggerStatusProviderProvider & CrashReporterStateProvider & ExtensionDetectorProvider & DebugImageProvider & ThreadInspectorProvider & FileManagerProvider & ANRTrackerBuilder
 
 final class SentryHangTrackingIntegration<Dependencies: HangTrackingIntegrationScope>: NSObject, SwiftIntegration, SentryANRTrackerDelegate {
 
@@ -26,7 +27,7 @@ final class SentryHangTrackingIntegration<Dependencies: HangTrackingIntegrationS
         guard options.enableAppHangTracking && options.appHangTimeoutInterval > 0 else {
             return nil
         }
-        guard !dependencies.crashWrapper.isBeingTraced else {
+        guard !dependencies.debuggerStatusProvider.isBeingTraced else {
             return nil
         }
         // Extension detection
@@ -204,3 +205,4 @@ final class SentryHangTrackingIntegration<Dependencies: HangTrackingIntegrationS
     #endif
 }
 // swiftlint:enable missing_docs
+#endif

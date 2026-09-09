@@ -14,6 +14,9 @@
     [SentryObjCSDK startWithConfigureOptions:^(SentryObjCOptions *options) {
         options.dsn = @"https://key@sentry.io/123";
         options.enableCrashHandler = NO;
+#if !SDK_V10
+        options.enableLogs = YES;
+#endif // !SDK_V10
         options.beforeSendLog = ^SentryObjCLog *(SentryObjCLog *log) {
             weakSelf.capturedLog = log;
             return log;
@@ -856,5 +859,25 @@
     XCTAssertNotNil(self.capturedLog.body);
     XCTAssertNil(self.capturedLog.attributes[@"sentry.message.template"]);
 }
+
+#if !SDK_V10
+#    pragma mark - logs disabled
+
+- (void)testLoggerMethod_whenLogsDisabled_shouldNotCrash
+{
+    // -- Arrange --
+    [SentryObjCSDK close];
+    [SentryObjCSDK startWithConfigureOptions:^(SentryObjCOptions *options) {
+        options.dsn = @"https://key@sentry.io/123";
+        options.enableCrashHandler = NO;
+        options.enableLogs = NO;
+    }];
+
+    // -- Act & Assert (no crash) --
+    [SentryObjCSDK.logger info:@"should not crash"];
+    [SentryObjCSDK.logger debugWithFormat:@"User %@ count %d", @"test", 5];
+    [SentryObjCSDK.logger debugWithAttributes:@{ @"k" : @"v" } format:@"Val: %f", 1.0];
+}
+#endif // !SDK_V10
 
 @end

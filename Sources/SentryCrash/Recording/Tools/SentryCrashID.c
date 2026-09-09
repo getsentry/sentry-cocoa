@@ -23,8 +23,10 @@
 // THE SOFTWARE.
 //
 
-#include <stdio.h>
-#include <uuid/uuid.h>
+#if !SDK_V10
+
+#    include <stdio.h>
+#    include <uuid/uuid.h>
 
 void
 sentrycrashid_generate(char *destinationBuffer37Bytes)
@@ -38,3 +40,5 @@ sentrycrashid_generate(char *destinationBuffer37Bytes)
         (unsigned)uuid[9], (unsigned)uuid[10], (unsigned)uuid[11], (unsigned)uuid[12],
         (unsigned)uuid[13], (unsigned)uuid[14], (unsigned)uuid[15]);
 }
+
+#endif // !SDK_V10

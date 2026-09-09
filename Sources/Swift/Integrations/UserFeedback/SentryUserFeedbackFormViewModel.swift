@@ -73,7 +73,7 @@ protocol SentryUserFeedbackFormViewModelDelegate: NSObjectProtocol {
         field.autocapitalizationType = .words
         field.returnKeyType = .done
         if config.formConfig.useSentryUser {
-            field.text = sentry_getCurrentUser()?.name
+            field.text = SentrySDKInternal.currentHub().scope.userObject?.name
         }
         return field
     }()
@@ -94,7 +94,7 @@ protocol SentryUserFeedbackFormViewModelDelegate: NSObjectProtocol {
         field.autocapitalizationType = .none
         field.returnKeyType = .done
         if config.formConfig.useSentryUser {
-            field.text = sentry_getCurrentUser()?.email
+            field.text = SentrySDKInternal.currentHub().scope.userObject?.email
         }
         return field
     }()

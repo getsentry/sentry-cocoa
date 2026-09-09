@@ -458,14 +458,52 @@ final class SentryMetricsApiTests: XCTestCase {
         XCTAssertEqual(metric.attributes["core_count"]?.anyValue as? Int, 8, "core_count attribute value should match")
         XCTAssertEqual(try XCTUnwrap(metric.attributes["utilization"]?.anyValue as? Double), 0.755, accuracy: 0.001, "utilization attribute value should match")
     }
+
+    // MARK: - withCurrentScope
+
+    func testCount_withCurrentScope_passesCurrentScopeToIntegration() throws {
+        let storage = SentryCurrentScopeStorage()
+        let currentScope = Scope()
+        currentScope.setTag(value: "scoped", key: "tag")
+
+        let dependencies = MockMetricsApiDependencies(
+            isSDKEnabled: true,
+            scope: Scope(),
+            metricsIntegration: MockMetricsIntegration(),
+            currentScopeStorage: storage
+        )
+        let sut = SentryMetricsApi(dependencies: dependencies)
+
+        storage.withScope(currentScope) {
+            sut.count(key: "test.count")
+        }
+
+        let invocation = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first)
+        XCTAssertNotNil(invocation.currentScope)
+        XCTAssertEqual(invocation.currentScope?.tags["tag"], "scoped")
+    }
+
+    func testCount_withoutCurrentScope_passesNil() throws {
+        let dependencies = MockMetricsApiDependencies(
+            isSDKEnabled: true,
+            scope: Scope(),
+            metricsIntegration: MockMetricsIntegration()
+        )
+        let sut = SentryMetricsApi(dependencies: dependencies)
+
+        sut.count(key: "test.count")
+
+        let invocation = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first)
+        XCTAssertNil(invocation.currentScope)
+    }
 }
 
 // MARK: - Mock Dependencies
 
 fileprivate struct MockMetricsIntegration: SentryMetricsIntegrationProtocol {
-    var addMetricInvocations = Invocations<(SentryMetric, Scope)>()
-    func addMetric(_ metric: Sentry.SentryMetric, scope: Scope) {
-        addMetricInvocations.record((metric, scope))
+    var addMetricInvocations = Invocations<(metric: SentryMetric, scope: Scope, currentScope: Scope?)>()
+    func addMetric(_ metric: Sentry.SentryMetric, scope: Scope, currentScope: Scope? = nil) {
+        addMetricInvocations.record((metric, scope, currentScope))
     }
 }
 
@@ -473,17 +511,20 @@ fileprivate struct MockMetricsApiDependencies: SentryMetricsApiDependencies {
     let isSDKEnabled: Bool
     let scope: Scope
     let dateProvider: SentryCurrentDateProvider
+    let currentScopeStorage: SentryCurrentScopeStorage
     let metricsIntegration: MockMetricsIntegration?
 
     init(
         isSDKEnabled: Bool,
         scope: Scope,
         metricsIntegration: MockMetricsIntegration?,
-        dateProvider: SentryCurrentDateProvider = TestCurrentDateProvider()
+        dateProvider: SentryCurrentDateProvider = TestCurrentDateProvider(),
+        currentScopeStorage: SentryCurrentScopeStorage = SentryCurrentScopeStorage()
     ) {
         self.isSDKEnabled = isSDKEnabled
         self.scope = scope
         self.dateProvider = dateProvider
+        self.currentScopeStorage = currentScopeStorage
         self.metricsIntegration = metricsIntegration
     }
 }

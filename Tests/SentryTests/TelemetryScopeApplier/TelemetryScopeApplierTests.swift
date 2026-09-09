@@ -514,6 +514,91 @@ final class TelemetryScopeApplierTests: XCTestCase {
         XCTAssertEqual(item.attributesDict["custom.key"], .string("item.value"))
     }
 
+    // MARK: - Current Scope Attributes Tests
+
+    func testApplyToItem_withCurrentScope_shouldAddCurrentScopeAttributes() {
+        // -- Arrange --
+        let scope = TestScope(propagationContextTraceId: SentryId())
+        var currentScope = TestScope(propagationContextTraceId: SentryId())
+        currentScope.attributes = ["current.key": "current.value"]
+        let metadata = createTestMetadata()
+        var item = createTestItem()
+
+        // -- Act --
+        scope.addAttributesToItem(&item, metadata: metadata, currentScope: currentScope)
+
+        // -- Assert --
+        XCTAssertEqual(item.attributesDict["current.key"], .string("current.value"))
+    }
+
+    func testApplyToItem_whenItemHasCurrentScopeKey_shouldKeepItemValue() {
+        // -- Arrange --
+        let scope = TestScope(propagationContextTraceId: SentryId())
+        var currentScope = TestScope(propagationContextTraceId: SentryId())
+        currentScope.attributes = ["custom.key": "current.value"]
+        let metadata = createTestMetadata()
+        var item = createTestItem()
+        item.attributesDict["custom.key"] = .string("item.value")
+
+        // -- Act --
+        scope.addAttributesToItem(&item, metadata: metadata, currentScope: currentScope)
+
+        // -- Assert --
+        XCTAssertEqual(item.attributesDict["custom.key"], .string("item.value"))
+    }
+
+    func testApplyToItem_whenCurrentScopeAndScopeShareKey_shouldPreferCurrentScopeValue() {
+        // -- Arrange --
+        var scope = TestScope(propagationContextTraceId: SentryId())
+        scope.attributes = ["shared.key": "global.value", "global.key": "global.value"]
+        var currentScope = TestScope(propagationContextTraceId: SentryId())
+        currentScope.attributes = ["shared.key": "current.value"]
+        let metadata = createTestMetadata()
+        var item = createTestItem()
+
+        // -- Act --
+        scope.addAttributesToItem(&item, metadata: metadata, currentScope: currentScope)
+
+        // -- Assert --
+        XCTAssertEqual(item.attributesDict["shared.key"], .string("current.value"))
+        XCTAssertEqual(item.attributesDict["global.key"], .string("global.value"),
+                       "Non-conflicting global scope attributes should still be applied")
+    }
+
+    func testApplyToItem_whenCurrentScopeSetsReservedKey_shouldKeepSystemValue() {
+        // SDK-derived default attributes are authoritative; scope-provided values with the same
+        // key never override them, regardless of which scope they come from.
+        // -- Arrange --
+        let scope = TestScope(propagationContextTraceId: SentryId())
+        var currentScope = TestScope(propagationContextTraceId: SentryId())
+        currentScope.attributes = ["sentry.sdk.name": "fake-sdk-name"]
+        let metadata = createTestMetadata()
+        var item = createTestItem()
+
+        // -- Act --
+        scope.addAttributesToItem(&item, metadata: metadata, currentScope: currentScope)
+
+        // -- Assert --
+        XCTAssertEqual(item.attributesDict["sentry.sdk.name"], .string(SentryMeta.sdkName))
+    }
+
+    func testApplyToItem_whenBothScopesHaveSpans_shouldUseCurrentScopeSpan() {
+        // -- Arrange --
+        let globalSpan = TestSpan(spanId: SentryId())
+        let currentSpan = TestSpan(spanId: SentryId())
+        let scope = TestScope(propagationContextTraceId: SentryId(), span: globalSpan)
+        let currentScope = TestScope(propagationContextTraceId: SentryId(), span: currentSpan)
+        let metadata = createTestMetadata()
+        var item = createTestItem()
+
+        // -- Act --
+        scope.addAttributesToItem(&item, metadata: metadata, currentScope: currentScope)
+
+        // -- Assert --
+        XCTAssertEqual(item.traceId, currentSpan.traceId)
+        XCTAssertEqual(item.spanId, currentSpan.spanId)
+    }
+
     // MARK: - Default User ID Tests
 
     func testApplyToItem_withoutUserAndWithInstallationId_shouldAddInstallationIdAsUserId() {

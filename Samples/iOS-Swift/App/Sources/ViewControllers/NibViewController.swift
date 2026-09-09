@@ -1,6 +1,6 @@
 import Foundation
-import Sentry
 import SentrySampleShared
+import SentrySwift
 import UIKit
 
 // swiftlint:disable private_outlet

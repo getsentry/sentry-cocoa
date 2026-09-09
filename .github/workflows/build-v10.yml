@@ -26,10 +26,20 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Get changed files
         id: changes
-        uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         with:
           token: ${{ github.token }}
           filters: .github/file-filters.yml
+
+  verify-v10-source-contract:
+    name: Verify Source Contract
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_v10_for_prs == 'true'
+    needs: files-changed
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Verify source contract
+        run: ./scripts/verify-v10-sentrycrash-source-contract.sh
 
   build-v10:
     name: Build V10 ${{ matrix.platform }}
@@ -42,16 +52,22 @@ jobs:
         include:
           - platform: iOS
             make-target: build-ios-v10
+            objects-configuration: DebugV10-iphonesimulator
           - platform: macOS
             make-target: build-macos-v10
+            objects-configuration: DebugV10
           - platform: Catalyst
             make-target: build-catalyst-v10
+            objects-configuration: DebugV10-maccatalyst
           - platform: tvOS
             make-target: build-tvos-v10
+            objects-configuration: DebugV10-appletvsimulator
           - platform: visionOS
             make-target: build-visionos-v10
+            objects-configuration: DebugV10-xrsimulator
           - platform: watchOS
             make-target: build-watchos-v10
+            objects-configuration: DebugV10-watchsimulator
 
     steps:
       - name: Warm CoreSimulator
@@ -80,6 +96,24 @@ jobs:
           WATCHOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.watchos-simulator-os }}
           WATCHOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: make ${{ matrix.make-target }}
+
+      - name: Verify SentryCrash source allowlist
+        run: |
+          objects_path="$(find "$HOME/Library/Developer/Xcode/DerivedData" -type d -path '*/Sentry.build/${{ matrix.objects-configuration }}/SentryV10.build/Objects-normal' -print -quit)"
+          if [[ -z "$objects_path" ]]; then
+            echo "::error::Could not find SentryV10 object output"
+            exit 1
+          fi
+          ./scripts/verify-v10-sentrycrash-objects.sh --build-path "$objects_path"
+
+      - name: Verify SentryCrash framework contract
+        run: |
+          framework_path="$(find "$HOME/Library/Developer/Xcode/DerivedData" -type d -path '*/Build/Products/${{ matrix.objects-configuration }}/Sentry.framework' -print -quit)"
+          if [[ -z "$framework_path" ]]; then
+            echo "::error::Could not find the SentryV10 framework output"
+            exit 1
+          fi
+          ./scripts/verify-v10-sentrycrash-framework.sh --framework-path "$framework_path"
 
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
@@ -129,21 +163,127 @@ jobs:
         with:
           version: "26"
           resolve-simulators: "false"
-      - name: Build with environment
+      - name: Build Swift with environment
         if: matrix.mode == 'environment'
         env:
           SDK_V10: "1"
         run: swift build --target SentrySwift --scratch-path .build/v10-environment
-      - name: Build with trait
+      - name: Build source SDK with environment
+        if: matrix.mode == 'environment'
+        env:
+          SDK_V10: "1"
+        run: |
+          swift build --target SentryObjCInternal --scratch-path .build/v10-environment
+          swift build --target SentryTestUtils --scratch-path .build/v10-environment
+          ./scripts/verify-v10-sentrycrash-objects.sh --build-path .build/v10-environment
+      - name: Build Swift with trait
         if: matrix.mode == 'trait'
         run: swift build --target SentrySwift --traits V10 --scratch-path .build/v10-trait
-      - name: Build base manifest
+      - name: Verify SentryCrash sources with trait
+        if: matrix.mode == 'trait'
+        run: |
+          swift build --target SentryObjCInternal --traits V10 --scratch-path .build/v10-trait
+          swift build --target SentryTestUtils --traits V10 --scratch-path .build/v10-trait
+          ./scripts/verify-v10-sentrycrash-objects.sh \
+            --build-path .build/v10-trait \
+            --allow-empty-translation-units
+      - name: Build Swift with base manifest
         if: matrix.mode == 'base-manifest'
         env:
           SDK_V10: "1"
         run: |
           rm Package@swift-6.1.swift Package@swift-6.2.swift
           swift build --target SentrySwift --scratch-path .build/v10-base-manifest
+      - name: Build source SDK with base manifest
+        if: matrix.mode == 'base-manifest'
+        env:
+          SDK_V10: "1"
+        run: |
+          swift build --target SentryObjCInternal --scratch-path .build/v10-base-manifest
+          swift build --target SentryTestUtils --scratch-path .build/v10-base-manifest
+          ./scripts/verify-v10-sentrycrash-objects.sh --build-path .build/v10-base-manifest
+
+  build-v10-samples:
+    name: Sample V10 ${{ matrix.scheme }}
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_v10_for_prs == 'true'
+    needs: files-changed
+    runs-on: macos-26
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - scheme: watchOS-Swift WatchKit App
+            make-target: build-sample-v10-watchOS-Swift
+            platform: watchOS
+          - scheme: macOS-SwiftUI
+            make-target: build-sample-v10-macOS-SwiftUI
+            platform: macOS
+          - scheme: iOS-Swift
+            make-target: build-sample-v10-iOS-Swift
+            platform: iOS
+          - scheme: macOS-Swift
+            make-target: build-sample-v10-macOS-Swift
+            platform: macOS
+          - scheme: tvOS-Swift
+            make-target: build-sample-v10-tvOS-Swift
+            platform: tvOS
+          - scheme: visionOS-Swift
+            make-target: build-sample-v10-visionOS-Swift
+            platform: visionOS
+          - scheme: iOS-SwiftUI
+            make-target: build-sample-v10-iOS-SwiftUI
+            platform: iOS
+          - scheme: iOS-ObjectiveC
+            make-target: build-sample-v10-iOS-ObjectiveC
+            platform: iOS
+          - scheme: iOS-ObjectiveCpp-NoModules
+            make-target: build-sample-v10-iOS-ObjectiveCpp-NoModules
+            platform: iOS
+          - scheme: SPM
+            make-target: build-sample-v10-SPM
+            platform: macOS
+          - scheme: DistributionSample
+            make-target: build-sample-v10-DistributionSample
+            platform: macOS
+    steps:
+      - name: Warm CoreSimulator
+        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Remove binary targets from Package.swift
+        run: ./scripts/prepare-package.sh --remove-binary-targets true
+      - name: Setup Xcode
+        id: setup-xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "26"
+      - name: Resolve test destination
+        id: resolve-test-destination
+        uses: ./.github/actions/resolve-test-destination
+        with:
+          platform: ${{ matrix.platform }}
+      - run: make init-ci-build
+      - run: make ${{ matrix.make-target }}
+        env:
+          IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
+          IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          TVOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.tvos-simulator-os }}
+          TVOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          VISIONOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.visionos-simulator-os }}
+          VISIONOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          WATCHOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.watchos-simulator-os }}
+          WATCHOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+
+      - name: Archiving Raw Build Logs
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: raw-build-output-v10-${{matrix.scheme}}
+          path: |
+            raw-build-output.log
+
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
+        if: ${{ failure() || cancelled() }}
 
   build-v10-required-check:
     needs:
@@ -151,7 +291,9 @@ jobs:
         files-changed,
         build-v10,
         build-v10-spm,
+        build-v10-samples,
         verify-no-binary-targets,
+        verify-v10-source-contract,
         run-full-ci-gate,
       ]
     name: Build V10

@@ -53,7 +53,8 @@
     XCTAssertFalse(options.enableUnhandledCPPExceptionsV2);
 }
 
-#pragma mark - enableWatchdogTerminationsV2
+#if !SDK_V10
+#    pragma mark - enableWatchdogTerminationsV2
 
 - (void)testEnableWatchdogTerminationsV2_whenDefault_shouldBeFalse
 {
@@ -75,5 +76,6 @@
     // -- Assert --
     XCTAssertTrue(options.enableWatchdogTerminationsV2);
 }
+#endif
 
 @end

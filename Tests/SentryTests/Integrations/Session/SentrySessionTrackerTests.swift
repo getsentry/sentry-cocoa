@@ -12,7 +12,7 @@ class SentrySessionTrackerTests: XCTestCase {
         let options: Options
         let currentDateProvider = TestCurrentDateProvider()
         let client: TestClient!
-        let sentryCrash: TestSentryCrashWrapper
+        let crashReporterState: TestSentryCrashReporterState
 
         #if os(iOS) || os(tvOS) || os(visionOS)
         let _application: TestSentryUIApplication
@@ -37,7 +37,7 @@ class SentrySessionTrackerTests: XCTestCase {
 
             client = TestClient(options: options)
             
-            sentryCrash = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
+            crashReporterState = TestSentryCrashReporterState()
 
             #if os(iOS) || os(tvOS) || os(visionOS)
             _application = TestSentryUIApplication()
@@ -62,7 +62,7 @@ class SentrySessionTrackerTests: XCTestCase {
         }
         
         func setNewHubToSDK() {
-            let hub = SentryHubInternal(client: client, andScope: nil, andCrashWrapper: self.sentryCrash, andDispatchQueue: SentryDispatchQueueWrapper())
+            let hub = SentryHubInternal(client: client, andScope: nil, activeCrashReporterState: crashReporterState, andDispatchQueue: SentryDispatchQueueWrapper())
             SentrySDKInternal.setCurrentHub(hub)
         }
     }
@@ -598,7 +598,7 @@ class SentrySessionTrackerTests: XCTestCase {
         // macOS does not have a `applicationDidEnterBackground` method, so we can't observe the app state.
         fixture._application.setIsActive(false)
         #endif
-        fixture.sentryCrash.internalCrashedLastLaunch = true
+        fixture.crashReporterState.internalCrashedLastLaunch = true
     }
 
     private func advanceTime(bySeconds: TimeInterval) {

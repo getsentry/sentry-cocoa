@@ -6,7 +6,7 @@ internal import Sentry
 #endif
 import Foundation
 
-#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS))
+#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS) || os(visionOS))
 import UIKit
 
 @objc(SentryObjCReplayApi) public final class SentryObjCReplayApi: NSObject {
@@ -34,6 +34,14 @@ import UIKit
 
     @objc public func start() {
         wrapped.start()
+    }
+
+    @objc public func startBuffering() {
+        wrapped.startBuffering()
+    }
+
+    @objc public func flush() {
+        wrapped.flush()
     }
 
     @objc public func stop() {

@@ -25,18 +25,20 @@
 // THE SOFTWARE.
 //
 
-#import "SentryCrashInstallation.h"
-#import "SentryAsyncSafeLog.h"
-#import "SentryCrash.h"
-#import "SentryCrashInstallation+Private.h"
-#import "SentryCrashJSONCodecObjC.h"
-#import "SentryCrashNSErrorUtil.h"
-#import "SentryCrashReportFilterBasic.h"
-#import "SentrySwift.h"
-#import <objc/runtime.h>
+#if !SDK_V10
+
+#    import "SentryCrashInstallation.h"
+#    import "SentryAsyncSafeLog.h"
+#    import "SentryCrash.h"
+#    import "SentryCrashInstallation+Private.h"
+#    import "SentryCrashJSONCodecObjC.h"
+#    import "SentryCrashNSErrorUtil.h"
+#    import "SentryCrashReportFilterBasic.h"
+#    import "SentrySwift.h"
+#    import <objc/runtime.h>
 
 /** Max number of properties that can be defined for writing to the report */
-#define kMaxProperties 500
+#    define kMaxProperties 500
 
 static CrashHandlerData *g_crashHandlerData;
 
@@ -224,3 +226,5 @@ sentry_crashCallback(const SentryCrashReportWriter *writer)
 }
 
 @end
+
+#endif // !SDK_V10

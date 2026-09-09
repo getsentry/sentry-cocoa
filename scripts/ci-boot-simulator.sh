@@ -8,6 +8,7 @@
 # - https://github.com/actions/runner-images/blob/main/images/macos/macos-14-Readme.md
 # - https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md
 # - https://github.com/actions/runner-images/blob/main/images/macos/macos-26-arm64-Readme.md
+# - https://github.com/actions/runner-images/blob/main/images/macos/xcode-27-arm64-Readme.md
 
 set -euo pipefail
 
@@ -142,7 +143,8 @@ begin_group "Device Discovery"
 log_info "Searching for simulator: $SIMULATOR running $PLATFORM_NAME $PLATFORM_VERSION"
 
 # simctl device headers use major.minor (e.g. "-- iOS 26.4 --") even for
-# hotfix versions like 26.4.1. Extract major.minor for section matching.
+# hotfix versions like 26.4.1. Use the section only to find a candidate, then
+# validate the booted device's exact runtime version below.
 VERSION_MM=$(echo "$PLATFORM_VERSION" | awk -F. '{print $1"."$2}')
 
 UDID=$(xcrun simctl list devices available | \
@@ -196,15 +198,33 @@ for attempt in $(seq 1 $MAX_BOOT_ATTEMPTS); do
         log_info "Simulator boot command executed successfully"
     fi
     
-    # Open Simulator app UI (only on first attempt)
+    # Open the selected simulator UI on the first attempt so CI screenshots show relevant device state.
     if [ "$attempt" -eq 1 ]; then
-        log_info "Opening Simulator app UI"
-        SIMULATOR_APP_PATH="$(xcode-select -p)/Applications/Simulator.app"
-        if ! open "$SIMULATOR_APP_PATH"; then
-            log_error "Failed to open Simulator app at $SIMULATOR_APP_PATH"
-            exit 1
+        DEVELOPER_DIR="$(xcode-select -p)"
+        SIMULATOR_APP_PATH="$DEVELOPER_DIR/Applications/Simulator.app"
+        DEVICE_HUB_APP_PATH="$(dirname "$DEVELOPER_DIR")/Applications/DeviceHub.app"
+
+        if [ -d "$SIMULATOR_APP_PATH" ]; then
+            log_info "Opening Simulator app UI"
+            if ! open "$SIMULATOR_APP_PATH"; then
+                log_error "Failed to open Simulator app at $SIMULATOR_APP_PATH"
+                exit 1
+            fi
+            log_info "Simulator app opened successfully"
+        elif [ -d "$DEVICE_HUB_APP_PATH" ]; then
+            log_info "Opening Device Hub for simulator $UDID"
+            if ! open "$DEVICE_HUB_APP_PATH"; then
+                log_error "Failed to open Device Hub at $DEVICE_HUB_APP_PATH"
+                exit 1
+            fi
+            if ! open "devices://device/open?id=$UDID"; then
+                log_error "Failed to focus simulator $UDID in Device Hub"
+                exit 1
+            fi
+            log_info "Device Hub opened successfully"
+        else
+            log_info "No simulator UI app is bundled with this Xcode; continuing with simctl"
         fi
-        log_info "Simulator app opened successfully"
     fi
     
     # Wait for simulator to fully boot with timeout
@@ -232,6 +252,16 @@ for attempt in $(seq 1 $MAX_BOOT_ATTEMPTS); do
         log_info "Will retry booting simulator..."
     fi
 done
+
+ACTUAL_PLATFORM_VERSION=$(xcrun simctl getenv "$UDID" SIMULATOR_RUNTIME_VERSION)
+if [ "$ACTUAL_PLATFORM_VERSION" != "$PLATFORM_VERSION" ]; then
+    log_error "Booted simulator $UDID runs $PLATFORM_NAME $ACTUAL_PLATFORM_VERSION, expected $PLATFORM_VERSION"
+    exit 1
+fi
+
+log_info "Validated simulator runtime: $PLATFORM_NAME $ACTUAL_PLATFORM_VERSION (UDID: $UDID)"
+set_output "device-udid" "$UDID"
+set_output "platform-version" "$ACTUAL_PLATFORM_VERSION"
 
 end_group
 

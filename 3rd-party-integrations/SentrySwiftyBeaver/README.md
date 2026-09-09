@@ -25,6 +25,7 @@ import SwiftyBeaver
 
 SentrySDK.start { options in
     options.dsn = "YOUR_DSN"
+    options.logsEnabled = true
 }
 
 let log = SwiftyBeaver.self

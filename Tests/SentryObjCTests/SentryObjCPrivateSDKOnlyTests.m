@@ -17,6 +17,7 @@
 
 - (void)tearDown
 {
+    SentryObjCPrivateSDKOnly.appStartMeasurementHybridSDKMode = NO;
     [SentryObjCSDK close];
     [super tearDown];
 }

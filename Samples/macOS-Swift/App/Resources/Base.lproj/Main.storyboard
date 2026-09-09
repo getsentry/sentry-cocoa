@@ -910,7 +910,7 @@
                                                                     <action selector="startProfile:" target="XfG-lQ-9wD" id="dhO-rC-e2o"/>
                                                                 </connections>
                                                             </buttonCell>
-                                                            <accessibility identifier="io.sentry.ios-swift.ui-test.button.stop-continuous-profiler"/>
+                                                            <accessibility identifier="io.sentry.ios-swift.ui-tests.button.start-continuous-profiler"/>
                                                         </button>
                                                         <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="g56-6u-NUj">
                                                             <rect key="frame" x="251" y="110" width="95" height="24"/>

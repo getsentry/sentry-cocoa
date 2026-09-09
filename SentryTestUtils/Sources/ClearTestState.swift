@@ -1,5 +1,11 @@
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
 import Foundation
+import SentryTestUtilsObjC
 
 public func clearTestState() {
     TestCleanup.clearTestState()
@@ -29,7 +35,7 @@ class TestCleanup: NSObject {
         assert(Thread.isMainThread, "You must call clearTestState on the main thread.")
         
         SentrySDK.close()
-        SentrySDKInternal.setCurrentHub(nil)
+        wrapper_setCurrentHub(nil)
         SentrySDKInternal.lastRunStatusCalled = false
         SentrySDKInternal.fatalDetected = false
         SentrySDKInternal.startInvocations = 0
@@ -43,30 +49,24 @@ class TestCleanup: NSObject {
         #if os(iOS) || os(tvOS) || os(visionOS)
 
         setenv("ActivePrewarm", "0", 1)
+        #if !SENTRY_NO_UI_FRAMEWORK
         SentryAppStartTracker.load()
         SentryDependencyContainer.sharedInstance().uiViewControllerPerformanceTracker.alwaysWaitForFullDisplay = false
         SentryDependencyContainer.sharedInstance().swizzleWrapper.removeAllCallbacks()
+        #endif // !SENTRY_NO_UI_FRAMEWORK
         SentryDependencyContainer.sharedInstance().fileManager?.clearDiskState()
 
         #endif // os(iOS) || os(tvOS) || os(visionOS)
         
         SentryDependencyContainer.reset()
-        SentryPerformanceTracker.shared.clear()
+        wrapper_clearPerformanceTracker()
 
-#if os(iOS) || os(tvOS) || os(visionOS)
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         SentryAppStartMeasurementProvider.reset()
-#endif // os(iOS) || os(tvOS) || os(visionOS)
+#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 #if os(iOS) || os(macOS)
-        _sentry_threadUnsafe_traceProfileTimeoutTimer = nil
-        SentryTraceProfiler.getCurrentProfiler()?.stop(for: SentryProfilerTruncationReason.normal)
-        SentryTraceProfiler.resetConcurrencyTracking()
-        removeAppLaunchProfilingConfigFile()
-        sentry_stopAndDiscardLaunchProfileTracer(nil)
-
-        if SentryContinuousProfiler.isCurrentlyProfiling() {
-            SentryContinuousProfiler.stopTimerAndCleanup()
-        }
+        wrapper_resetProfilingState()
 #endif // os(iOS) || os(macOS)
 
         #if os(iOS) || os(tvOS) || os(visionOS)

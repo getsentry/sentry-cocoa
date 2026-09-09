@@ -18,13 +18,17 @@ let defaultApplicationProvider: () -> SentryApplication? = {
 }
 
 // MARK: - Extensions
-
 extension SentryFileManager: SentryFileManagerProtocol { }
+
+#if !SDK_V10
 @_spi(Private) extension SentryANRTrackerV1: SentryANRTrackerInternalProtocol { }
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 @_spi(Private) extension SentryANRTrackerV2: SentryANRTrackerInternalProtocol { }
+#endif
+#endif
 
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 @_spi(Private) extension SentryDelayedFramesTracker: SentryDelayedFramesTrackerWrapper {
     func getFramesDelay(_ startSystemTimestamp: UInt64, endSystemTimestamp: UInt64, isRunning: Bool, slowFrameThreshold: CFTimeInterval) -> SentryFramesDelayResult {
         let objcResult = getFramesDelayObjC(startSystemTimestamp, endSystemTimestamp: endSystemTimestamp, isRunning: isRunning, slowFrameThreshold: slowFrameThreshold)
@@ -104,7 +108,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     var windowFactoryOverride: SentryUserFeedbackWindowFactory?
 #endif
 #endif
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     var sessionReplayCaptureScheduler: SentrySessionReplayRunLoopCaptureScheduler = DefaultSentrySessionReplayRunLoopCaptureScheduler()
 #endif
     @objc public func application() -> SentryApplication? {
@@ -123,6 +127,8 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         return SessionTracker(options: options, applicationProvider: defaultApplicationProvider, dateProvider: dateProvider, notificationCenter: notificationCenterWrapper, dispatchQueue: sessionDispatchQueue)
     }
 
+    @objc public var currentScopeStorage = SentryCurrentScopeStorage()
+
     @objc public var dispatchQueueWrapper = Dependencies.dispatchQueueWrapper
     @objc public var random = Dependencies.random
     @objc public var threadWrapper = Dependencies.threadWrapper
@@ -130,6 +136,14 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     @objc public var dateProvider: SentryCurrentDateProvider = Dependencies.dateProvider
     @objc public var notificationCenterWrapper = Dependencies.notificationCenterWrapper
     @objc public var processInfoWrapper = Dependencies.processInfoWrapper
+    private static var isSimulatorBuild: Bool {
+#if targetEnvironment(simulator)
+        true
+#else
+        false
+#endif
+    }
+#if !SDK_V10
     private var _crashWrapper: SentryCrashReporter?
     @objc public lazy var crashWrapper: SentryCrashReporter = getLazyVar(\._crashWrapper) {
         let bridge = SentryCrashBridge(
@@ -137,8 +151,9 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             dateProvider: self.dateProvider,
             crashReporter: self.crashReporter
         )
-        return SentryDefaultCrashReporter(processInfoWrapper: Dependencies.processInfoWrapper, bridge: bridge)
+        return SentryDefaultCrashReporter(bridge: bridge)
     }
+#endif // !SDK_V10
 #if SENTRY_TEST || SENTRY_TEST_CI
     var activeCrashReporterStateOverride: SentryCrashReporterState?
 #endif
@@ -172,6 +187,20 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         currentDateProvider: Dependencies.dateProvider)
     @objc public var reachability = SentryReachability()
     @objc public var sysctlWrapper = Dependencies.sysctlWrapper
+    var debuggerStatusProvider: SentryDebuggerStatusProvider { sysctlWrapper }
+    private var _applicationStateProvider: SentryApplicationStateProvider?
+    @objc public var applicationStateProvider: SentryApplicationStateProvider {
+        get {
+            getLazyVar(\._applicationStateProvider) {
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+                self.threadsafeApplication
+#else
+                SentryAlwaysForegroundApplicationStateProvider()
+#endif
+            }
+        }
+        set { paramLock.synchronized { _applicationStateProvider = newValue } }
+    }
     @objc public var debugImageProvider = Dependencies.debugImageProvider
     @objc public var objcRuntimeWrapper: SentryObjCRuntimeWrapper = SentryDefaultObjCRuntimeWrapper()
     var extensionDetector: SentryExtensionDetector = {
@@ -191,15 +220,69 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         SentryDefaultAppHangTracker(runLoopDelayTracker: self.runLoopDelayTracker)
     }()
 
+    private var _memoryMetricsProvider: SentryMemoryMetricsProvider?
+    var memoryMetricsProvider: SentryMemoryMetricsProvider {
+        get {
+            getLazyVar(\._memoryMetricsProvider) {
+                SentryDefaultMemoryMetricsProvider()
+            }
+        }
+        set { paramLock.synchronized { _memoryMetricsProvider = newValue } }
+    }
+
+    private var _systemInfoProvider: SentrySystemInfoProvider?
+    var systemInfoProvider: SentrySystemInfoProvider {
+        getLazyVar(\._systemInfoProvider) {
+#if !os(watchOS) && !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
+            let vendorIdentifierProvider: (() -> UUID?)? = {
+                Dependencies.uiDeviceWrapper.currentDevice.identifierForVendor
+            }
+#else
+            let vendorIdentifierProvider: (() -> UUID?)? = nil
+#endif
+            return SentryDefaultSystemInfoProvider(
+                memoryMetricsProvider: self.memoryMetricsProvider,
+                binaryImageCache: Dependencies.binaryImageCache,
+                dateProvider: self.dateProvider,
+                vendorIdentifierProvider: vendorIdentifierProvider
+            )
+        }
+    }
+
+    private var _scopeContextEnricher: SentryScopeContextEnricher?
+    @objc public var scopeContextEnricher: SentryScopeContextEnricher {
+        getLazyVar(\._scopeContextEnricher) {
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK && !targetEnvironment(macCatalyst)
+            let osVersionProvider = { Dependencies.uiDeviceWrapper.getSystemVersion() }
+#else
+            let osVersionProvider = {
+                let version = ProcessInfo.processInfo.operatingSystemVersion
+                return "\(version.majorVersion).\(version.minorVersion).\(version.patchVersion)"
+            }
+#endif
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+            let screenSizeProvider = { SentryDependencyContainerSwiftHelper.activeScreenSize() }
+#else
+            let screenSizeProvider = { CGSize.zero }
+#endif
+            return SentryDefaultScopeContextEnricher(
+                processInfoWrapper: Dependencies.processInfoWrapper,
+                systemInfoProvider: self.systemInfoProvider,
+                osVersionProvider: osVersionProvider,
+                screenSizeProvider: screenSizeProvider
+            )
+        }
+    }
+
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
     private var _extraContextProvider: SentryExtraContextProvider?
     @objc public lazy var extraContextProvider: SentryExtraContextProvider = getLazyVar(\._extraContextProvider) {
-        SentryExtraContextProvider(crashWrapper: self.crashWrapper, processInfoWrapper: Dependencies.processInfoWrapper, deviceWrapper: Dependencies.uiDeviceWrapper)
+        SentryExtraContextProvider(memoryMetricsProvider: self.memoryMetricsProvider, processInfoWrapper: Dependencies.processInfoWrapper, deviceWrapper: Dependencies.uiDeviceWrapper)
     }
 #else
     private var _extraContextProvider: SentryExtraContextProvider?
     @objc public lazy var extraContextProvider: SentryExtraContextProvider = getLazyVar(\._extraContextProvider) {
-        SentryExtraContextProvider(crashWrapper: self.crashWrapper, processInfoWrapper: Dependencies.processInfoWrapper)
+        SentryExtraContextProvider(memoryMetricsProvider: self.memoryMetricsProvider, processInfoWrapper: Dependencies.processInfoWrapper)
     }
 #endif
 
@@ -248,11 +331,23 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         SentryViewHierarchyProvider(dispatchQueueWrapper: dispatchQueueWrapper, applicationProvider: defaultApplicationProvider)
     }
 
-    @objc public func getWatchdogTerminationScopeObserverWithOptions(_ options: Options) -> SentryScopeObserver {
-         return SentryWatchdogTerminationScopeObserver(
-            breadcrumbProcessor: SentryDefaultWatchdogTerminationBreadcrumbProcessor(
-                maxBreadcrumbs: Int(options.maxBreadcrumbs)),
-            attributesProcessor: watchdogTerminationAttributesProcessor)
+    private var _watchdogTerminationBreadcrumbProcessor: SentryWatchdogTerminationBreadcrumbProcessor?
+    func getWatchdogTerminationBreadcrumbProcessor(_ options: Options) -> SentryWatchdogTerminationBreadcrumbProcessor? {
+        getOptionalLazyVar(\._watchdogTerminationBreadcrumbProcessor) {
+            guard let fileManager = fileManager else {
+                SentrySDKLog.fatal("File manager is not available")
+                return nil
+            }
+
+            return SentryDefaultWatchdogTerminationBreadcrumbProcessor(
+                maxBreadcrumbs: Int(options.maxBreadcrumbs),
+                fileManager: fileManager,
+                dispatchQueueWrapper: dispatchFactory.createUtilityQueue(
+                    "io.sentry.watchdog-termination-tracking.breadcrumbs-processor",
+                    relativePriority: 0
+                )
+            )
+        }
     }
 
     private var terminationTracker: SentryWatchdogTerminationTracker?
@@ -273,8 +368,8 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 
             let logic = SentryWatchdogTerminationLogic(
                 options: options,
-                crashAdapter: crashWrapper,
                 activeCrashReporterState: activeCrashReporterState,
+                isSimulatorBuild: Self.isSimulatorBuild,
                 appStateManager: appStateManager
             )
             return SentryWatchdogTerminationTracker(
@@ -323,7 +418,6 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         return SentryAppStartTracker(
             dispatchQueueWrapper: SentryDispatchQueueWrapper(),
             appStateManager: appStateManager,
-            framesTracker: framesTracker,
             enablePreWarmedAppStartTracing: options.enablePreWarmedAppStartTracing,
             dateProvider: dateProvider,
             sysctlWrapper: sysctlWrapper,
@@ -357,6 +451,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     }
 #endif
 
+#if !SDK_V10
     private var crashIntegrationSessionHandler: SentryCrashIntegrationSessionHandler?
     func getCrashIntegrationSessionBuilder(_ options: Options, bridge: SentryCrashBridge) -> SentryCrashIntegrationSessionHandler? {
         getOptionalLazyVar(\.crashIntegrationSessionHandler) {
@@ -369,8 +464,8 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
             let watchdogLogic = SentryWatchdogTerminationLogic(
                 options: options,
-                crashAdapter: crashWrapper,
                 activeCrashReporterState: activeCrashReporterState,
+                isSimulatorBuild: Self.isSimulatorBuild,
                 appStateManager: appStateManager
             )
             return SentryCrashIntegrationSessionHandler(
@@ -384,8 +479,9 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 #endif
         }
     }
+#endif // !SDK_V10
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     private var _screenshotSource: SentryScreenshotSource?
     // Computed property (not a `lazy var`): a `lazy var` caches its first value
     // forever. If `screenshotSource` is first accessed before `startOptions` is
@@ -421,7 +517,9 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             paramLock.synchronized { _screenshotSource = newValue }
         }
     }
+#endif
 
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     private var _sessionReplayBreadcrumbConverter: SentryReplayBreadcrumbConverter?
     var sessionReplayBreadcrumbConverter: SentryReplayBreadcrumbConverter {
         get { getLazyVar(\._sessionReplayBreadcrumbConverter) { SentrySRDefaultBreadcrumbConverter() } }
@@ -451,11 +549,14 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         let release = self.startOptions?.releaseName
         return SentryAppStateManager(releaseName: release, dependencies: self)
     }
+#if !SDK_V10
     private var _crashReporter: SentryCrashSwift?
     @objc public lazy var crashReporter = getLazyVar(\._crashReporter) {
         SentryCrashSwift(with: self.startOptions?.cacheDirectoryPath)
     }
+#endif // !SDK_V10
 
+    #if !SDK_V10
     private var anrTracker: SentryANRTracker?
     @objc public func getANRTracker(_ timeout: TimeInterval) -> SentryANRTracker {
         getLazyVar(\.anrTracker) {
@@ -466,7 +567,9 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         #endif
         }
     }
+    #endif
 
+#if !SDK_V10
     private var crashInstallationReporter: SentryCrashInstallationReporter?
     func getCrashInstallationReporter(_ options: Options) -> SentryCrashInstallationReporter {
         getLazyVar(\.crashInstallationReporter) {
@@ -479,6 +582,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             )
         }
     }
+#endif // !SDK_V10
 
     func getCoreDataTracker(_ options: Options) -> SentryCoreDataTracker {
         let threadInspector = SentryDefaultThreadInspector(options: options)
@@ -537,7 +641,10 @@ protocol Hub {
     func configureScope(_ callback: @escaping (Scope) -> Void)
     func storeEnvelope(_ envelope: SentryEnvelope)
     func captureEnvelope(_ envelope: SentryEnvelope)
+    func captureNonTerminatingEnvelope(_ envelope: SentryEnvelope)
+    func updateSessionForDroppedEventNonTerminating(unhandled: Bool)
     func captureErrorEvent(event: Event)
+    func captureErrorEvent(event: Event, hint: Hint)
     func setTrace(_ traceId: SentryId, spanId: SpanId)
     var currentOptions: Options? { get }
     var options: Options { get }
@@ -546,6 +653,10 @@ protocol Hub {
 
 protocol HubProvider {
     var hub: Hub { get }
+}
+
+protocol CurrentScopeStorageProvider {
+    var currentScopeStorage: SentryCurrentScopeStorage { get }
 }
 
 /// DefaultHub is a temporary abstraction around the ``SentryHubInternal.h``
@@ -564,8 +675,20 @@ private struct DefaultHub: Hub {
         SentrySDKInternal.currentHub().capture(envelope)
     }
 
+    func captureNonTerminatingEnvelope(_ envelope: SentryEnvelope) {
+        SentrySDKInternal.currentHub().captureNonTerminating(envelope)
+    }
+
+    func updateSessionForDroppedEventNonTerminating(unhandled: Bool) {
+        SentrySDKInternal.currentHub().updateSessionForDroppedEventNonTerminating(unhandled: unhandled)
+    }
+
     func captureErrorEvent(event: Event) {
         SentrySDKInternal.currentHub().captureErrorEvent(event: event)
+    }
+
+    func captureErrorEvent(event: Event, hint: Hint) {
+        SentrySDKInternal.currentHub().captureErrorEvent(event, withHint: hint)
     }
 
     func setTrace(_ traceId: SentryId, spanId: SpanId) {
@@ -585,11 +708,14 @@ private struct DefaultHub: Hub {
     var scope: Scope {
         SentrySDKInternal.currentHub().scope
     }
+
 }
 
 extension SentryDependencyContainer: HubProvider {
     var hub: Hub { DefaultHub() }
 }
+
+extension SentryDependencyContainer: CurrentScopeStorageProvider {}
 
 protocol DateProviderProvider {
     var dateProvider: SentryCurrentDateProvider { get }
@@ -627,19 +753,23 @@ protocol FramesTrackingProvider {
 extension SentryDependencyContainer: FramesTrackingProvider { }
 #endif
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 protocol ScreenshotIntegrationProvider {
     var screenshotSource: SentryScreenshotSource? { get }
 }
 
 extension SentryDependencyContainer: ScreenshotIntegrationProvider { }
+#endif
 
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 protocol ViewHierarchyProviderProvider {
     var viewHierarchyProvider: SentryViewHierarchyProvider? { get }
 }
 
 extension SentryDependencyContainer: ViewHierarchyProviderProvider { }
+#endif
 
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 protocol SessionReplayCaptureSchedulerProvider {
     var sessionReplayCaptureScheduler: SentrySessionReplayRunLoopCaptureScheduler { get }
 }
@@ -768,10 +898,10 @@ protocol ReachabilityProvider {
 }
 extension SentryDependencyContainer: ReachabilityProvider {}
 
-protocol CrashWrapperProvider {
-    var crashWrapper: SentryCrashReporter { get }
+protocol DebuggerStatusProviderProvider {
+    var debuggerStatusProvider: SentryDebuggerStatusProvider { get }
 }
-extension SentryDependencyContainer: CrashWrapperProvider {}
+extension SentryDependencyContainer: DebuggerStatusProviderProvider {}
 
 protocol SysctlProvider {
     var sysctlWrapper: SentrySysctl { get }
@@ -878,10 +1008,12 @@ protocol ThreadInspectorProvider {
 }
 extension SentryDependencyContainer: ThreadInspectorProvider { }
 
+#if !SDK_V10
 protocol ANRTrackerBuilder {
     func getANRTracker(_ interval: TimeInterval) -> SentryANRTracker
 }
 extension SentryDependencyContainer: ANRTrackerBuilder { }
+#endif
 
 protocol ProcessInfoProvider {
     var processInfoWrapper: SentryProcessInfoSource { get }
@@ -894,15 +1026,20 @@ protocol AppStateManagerProvider {
 extension SentryDependencyContainer: AppStateManagerProvider { }
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-protocol WatchdogTerminationScopeObserverBuilder {
-    func getWatchdogTerminationScopeObserverWithOptions(_ options: Options) -> SentryScopeObserver
-}
-extension SentryDependencyContainer: WatchdogTerminationScopeObserverBuilder { }
-
 protocol WatchdogTerminationTrackerBuilder {
     func getWatchdogTerminationTracker(_ options: Options) -> SentryWatchdogTerminationTracker?
 }
 extension SentryDependencyContainer: WatchdogTerminationTrackerBuilder {}
+
+protocol WatchdogTerminationAttributesProcessorProvider {
+    var watchdogTerminationAttributesProcessor: SentryWatchdogTerminationAttributesProcessor { get }
+}
+extension SentryDependencyContainer: WatchdogTerminationAttributesProcessorProvider {}
+
+protocol WatchdogTerminationBreadcrumbProcessorProvider {
+    func getWatchdogTerminationBreadcrumbProcessor(_ options: Options) -> SentryWatchdogTerminationBreadcrumbProcessor?
+}
+extension SentryDependencyContainer: WatchdogTerminationBreadcrumbProcessorProvider {}
 #endif
 
 protocol NetworkTrackerProvider {
@@ -910,6 +1047,7 @@ protocol NetworkTrackerProvider {
 }
 extension SentryDependencyContainer: NetworkTrackerProvider {}
 
+#if !SDK_V10
 protocol SentryCrashReporterProvider {
     var crashReporter: SentryCrashSwift { get }
 }
@@ -924,6 +1062,7 @@ protocol CrashInstallationReporterBuilder {
     func getCrashInstallationReporter(_ options: Options) -> SentryCrashInstallationReporter
 }
 extension SentryDependencyContainer: CrashInstallationReporterBuilder {}
+#endif // !SDK_V10
 
 protocol SentryCoreDataSwizzlingProvider {
     var coreDataSwizzling: SentryCoreDataSwizzling { get }

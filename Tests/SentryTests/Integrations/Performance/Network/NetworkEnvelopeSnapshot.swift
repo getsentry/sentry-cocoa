@@ -51,6 +51,8 @@ struct NetworkEnvelopeSnapshot {
         let platformResource = "\(resource)-ios"
 #elseif os(tvOS)
         let platformResource = "\(resource)-tvos"
+#elseif os(watchOS)
+        let platformResource = "\(resource)-watchos"
 #elseif os(visionOS)
         let platformResource = "\(resource)-visionos"
 #elseif os(macOS)

@@ -5,7 +5,7 @@ import Sentry
 enum CrashE2ECrashTriggers {
     static func trigger(_ scenario: CrashE2EScenario) -> Never {
         switch scenario {
-        case .signal, .managedRuntimeSignalChain:
+        case .signal, .managedRuntimeSignalChain, .crashTimeScope:
             SentrySDK.crash()
             abortBecauseScenarioReturned(scenario)
         case .binaryImages:
@@ -13,6 +13,12 @@ enum CrashE2ECrashTriggers {
             CrashE2ERuntime.loadBinaryImageAfterSDKForCrashScenario()
             Thread.sleep(forTimeInterval: 0.5)
             CrashE2ETriggerDynamicBinaryImageCrash()
+            abortBecauseScenarioReturned(scenario)
+        case .cppExceptionV2DynamicImage:
+            Thread.sleep(forTimeInterval: 2.0)
+            CrashE2ERuntime.loadCPPExceptionImageAfterSDK()
+            Thread.sleep(forTimeInterval: 0.5)
+            CrashE2ETriggerDynamicCPPException()
             abortBecauseScenarioReturned(scenario)
         case .ignoredSignal:
             triggerIgnoredSignal()
@@ -24,14 +30,15 @@ enum CrashE2ECrashTriggers {
             CrashE2ERuntime.closeAndRestartSDK()
             SentrySDK.crash()
             abortBecauseScenarioReturned(scenario)
-        case .nsException, .nsExceptionSubclass, .cppExceptionV1, .cppExceptionV2,
-             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .unityCxaThrow,
-             .objcObject, .objcObjectAfterCaughtCPP, .ksCrashRetryReportA, .ksCrashRetryReportB,
-             .idle, .drain, .managedRuntimePreSDKSignal:
-            triggerExceptionScenario(scenario)
         case .mallocZoneLockedSignal:
             CrashE2ETriggerMallocZoneLockedSignal()
             abortBecauseScenarioReturned(scenario)
+        case .nsException, .nsExceptionSubclass, .cppExceptionV1, .cppExceptionV2,
+             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .unityCxaThrow,
+             .unityCxaThrowV2, .objcObject, .objcObjectAfterCaughtCPP, .ksCrashRetryReportA,
+             .ksCrashRetryReportB,
+             .idle, .drain, .managedRuntimePreSDKSignal:
+            triggerExceptionScenario(scenario)
         }
     }
 
@@ -62,7 +69,7 @@ enum CrashE2ECrashTriggers {
             abortBecauseScenarioReturned(scenario)
         case .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On:
             triggerSwiftAsyncCPPException(scenario)
-        case .unityCxaThrow:
+        case .unityCxaThrow, .unityCxaThrowV2:
             CrashE2ETriggerUnitySentryCxaThrow()
             abortBecauseScenarioReturned(scenario)
         case .objcObject:
@@ -78,8 +85,9 @@ enum CrashE2ECrashTriggers {
             abortBecauseScenarioReturned(scenario)
         case .idle, .drain, .managedRuntimePreSDKSignal:
             abortBecauseScenarioReturned(scenario)
-        case .signal, .binaryImages, .ignoredSignal, .managedRuntimeSignalChain,
-             .managedRuntimeClosedSignal, .managedRuntimeReinitSignal, .mallocZoneLockedSignal:
+        case .signal, .cppExceptionV2DynamicImage, .binaryImages, .ignoredSignal,
+             .managedRuntimeSignalChain, .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
+             .mallocZoneLockedSignal, .crashTimeScope:
             abortBecauseScenarioReturned(scenario)
         }
     }

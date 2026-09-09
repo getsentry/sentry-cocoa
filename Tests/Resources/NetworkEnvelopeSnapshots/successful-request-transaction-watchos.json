@@ -1,0 +1,183 @@
+{
+  "header": {
+    "event_id": "<event-id>",
+    "sdk": {
+      "features": "<features>",
+      "integrations": "<integrations>",
+      "name": "sentry.cocoa",
+      "packages": [],
+      "settings": {
+        "infer_ip": "never"
+      },
+      "version": "<sdk-version>"
+    },
+    "trace": {
+      "environment": "test",
+      "public_key": "SentryNetworkTrackerIntegrationTestServerTests.testSuccessfulRequest_whenTransactionFinishes_shouldMatchEnvelopeSnapshot()",
+      "release": "io.sentry.network-envelope-snapshot@1.0.0+1",
+      "sample_rand": "<sample-rand>",
+      "sample_rate": "1.000000",
+      "sampled": "true",
+      "trace_id": "<trace-id>",
+      "transaction": "Network Envelope Snapshot"
+    }
+  },
+  "items": [
+    {
+      "header": {
+        "length": "<length>",
+        "type": "transaction"
+      },
+      "payload": {
+        "contexts": {
+          "app": {
+            "app_build": "<runtime-value>",
+            "app_id": "<runtime-value>",
+            "app_identifier": "<runtime-value>",
+            "app_memory": "<runtime-value>",
+            "app_name": "<runtime-value>",
+            "app_start_time": "<runtime-value>",
+            "app_version": "<runtime-value>",
+            "build_type": "<runtime-value>",
+            "device_app_hash": "<runtime-value>"
+          },
+          "culture": {
+            "calendar": "<runtime-value>",
+            "display_name": "<runtime-value>",
+            "is_24_hour_format": "<runtime-value>",
+            "locale": "<runtime-value>",
+            "timezone": "<runtime-value>"
+          },
+          "device": {
+            "arch": "<runtime-value>",
+            "family": "<runtime-value>",
+            "free_memory": "<runtime-value>",
+            "locale": "<runtime-value>",
+            "low_power_mode": "<runtime-value>",
+            "memory_size": "<runtime-value>",
+            "model": "<runtime-value>",
+            "model_id": "<runtime-value>",
+            "processor_count": "<runtime-value>",
+            "simulator": "<runtime-value>",
+            "thermal_state": "<runtime-value>",
+            "usable_memory": "<runtime-value>"
+          },
+          "os": {
+            "build": "<runtime-value>",
+            "kernel_version": "<runtime-value>",
+            "name": "<runtime-value>",
+            "rooted": "<runtime-value>",
+            "version": "<runtime-value>"
+          },
+          "trace": {
+            "data": {
+              "thread.id": "<thread-id>",
+              "thread.name": "main"
+            },
+            "op": "test.network",
+            "origin": "manual",
+            "sampled": true,
+            "span_id": "<span-id>",
+            "start_timestamp": "<timestamp>",
+            "status": "ok",
+            "timestamp": "<timestamp>",
+            "trace_id": "<trace-id>",
+            "type": "trace"
+          }
+        },
+        "dist": "<runtime-value>",
+        "environment": "test",
+        "event_id": "<event-id>",
+        "extra": {
+          "thread.id": "<thread-id>",
+          "thread.name": "main"
+        },
+        "platform": "cocoa",
+        "release": "io.sentry.network-envelope-snapshot@1.0.0+1",
+        "sdk": {
+          "features": "<features>",
+          "integrations": "<integrations>",
+          "name": "sentry.cocoa",
+          "packages": [],
+          "settings": {
+            "infer_ip": "never"
+          },
+          "version": "<sdk-version>"
+        },
+        "spans": [
+          {
+            "data": {
+              "http.request.method": "GET",
+              "http.response.status_code": 200,
+              "thread.id": "<thread-id>",
+              "thread.name": "main",
+              "type": "fetch",
+              "url": "http://localhost:8081/echo-sentry-trace"
+            },
+            "description": "GET http://localhost:8081/echo-sentry-trace",
+            "op": "http.client",
+            "origin": "auto.http.ns_url_session",
+            "parent_span_id": "<span-id>",
+            "sampled": true,
+            "span_id": "<span-id>",
+            "start_timestamp": "<timestamp>",
+            "status": "ok",
+            "timestamp": "<timestamp>",
+            "trace_id": "<trace-id>",
+            "type": "trace"
+          },
+          {
+            "data": {
+              "http.request.method": "GET",
+              "thread.id": "<thread-id>",
+              "type": "fetch",
+              "url": "http://localhost:8081/echo-sentry-trace"
+            },
+            "description": "GET http://localhost:8081/echo-sentry-trace",
+            "op": "http.client",
+            "origin": "auto.http.ns_url_session",
+            "parent_span_id": "<span-id>",
+            "sampled": true,
+            "span_id": "<span-id>",
+            "start_timestamp": "<timestamp>",
+            "status": "unknown_error",
+            "timestamp": "<timestamp>",
+            "trace_id": "<trace-id>",
+            "type": "trace"
+          },
+          {
+            "data": {
+              "http.request.method": "GET",
+              "http.response.status_code": 200,
+              "thread.id": "<thread-id>",
+              "type": "fetch",
+              "url": "http://localhost:8081/echo-sentry-trace"
+            },
+            "description": "GET http://localhost:8081/echo-sentry-trace",
+            "op": "http.client",
+            "origin": "auto.http.ns_url_session",
+            "parent_span_id": "<span-id>",
+            "sampled": true,
+            "span_id": "<span-id>",
+            "start_timestamp": "<timestamp>",
+            "status": "ok",
+            "timestamp": "<timestamp>",
+            "trace_id": "<trace-id>",
+            "type": "trace"
+          }
+        ],
+        "start_timestamp": "<timestamp>",
+        "tags": {},
+        "timestamp": "<timestamp>",
+        "transaction": "Network Envelope Snapshot",
+        "transaction_info": {
+          "source": "custom"
+        },
+        "type": "transaction",
+        "user": {
+          "id": "<id>"
+        }
+      }
+    }
+  ]
+}

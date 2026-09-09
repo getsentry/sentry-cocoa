@@ -417,7 +417,9 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 
 - (NSArray<id<SentrySpan>> *)children
 {
-    return [_children copy];
+    @synchronized(_children) {
+        return [_children copy];
+    }
 }
 
 - (void)setMeasurement:(NSString *)name value:(NSNumber *)value
@@ -802,14 +804,23 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
                 ? [NSString stringWithFormat:@"%@.prewarmed", appContextType]
                 : appContextType;
             if (isStandalone) {
+                NSString *screen = [SentryAppStartMeasurementProvider consumeAppStartScreen];
                 [self setDataValue:durationMs forKey:vitalsType];
                 [self setDataValue:durationMs forKey:SentrySpanDataKeyAppVitalsStartValue];
                 [self setDataValue:appStartType forKey:SentrySpanDataKeyAppVitalsStartType];
                 [self setDataValue:@(appStartMeasurement.isPreWarmed)
                             forKey:SentrySpanDataKeyAppVitalsStartPrewarmed];
-                [self setDataValue:[SentryAppStartMeasurementProvider consumeAppStartScreen]
-                            forKey:SentrySpanDataKeyAppVitalsStartScreen];
+                if (screen != nil) {
+                    [self setDataValue:screen forKey:SentrySpanDataKeyAppVitalsStartScreen];
+                }
                 [self setDataValue:@"launch" forKey:SentrySpanDataKeyAppVitalsStartReason];
+
+                for (id<SentrySpan> span in transaction.spans) {
+                    [span setDataValue:appStartType forKey:SentrySpanDataKeyAppVitalsStartType];
+                    if (screen != nil) {
+                        [span setDataValue:screen forKey:SentrySpanDataKeyAppVitalsStartScreen];
+                    }
+                }
             } else {
                 [self setMeasurement:legacyType value:durationMs];
             }

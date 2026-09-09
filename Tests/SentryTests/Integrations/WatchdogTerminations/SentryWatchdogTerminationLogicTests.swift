@@ -10,7 +10,7 @@ class SentryWatchdogTerminationLogicTests: XCTestCase {
     
     private struct Fixture {
         let options: Options
-        let crashWrapper: TestSentryCrashWrapper
+        let crashReporterState = TestSentryCrashReporterState()
         let fileManager: SentryFileManager
         let sysctl: TestSysctl
         let dispatchQueue: TestSentryDispatchQueueWrapper
@@ -27,16 +27,14 @@ class SentryWatchdogTerminationLogicTests: XCTestCase {
             dispatchQueue = TestSentryDispatchQueueWrapper()
             let dateProvider = TestCurrentDateProvider()
             fileManager = try XCTUnwrap(SentryFileManager(options: options, dateProvider: dateProvider, dispatchQueueWrapper: dispatchQueue))
-            
-            crashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
         }
         
         func getSut(
             customCurrentAppState: SentryAppState? = nil,
-            activeCrashReporterState: SentryCrashReporterState? = nil
+            activeCrashReporterState: SentryCrashReporterState? = nil,
+            isSimulatorBuild: Bool = false
         ) -> SentryWatchdogTerminationLogic {
             let dependencies = SentryDependencyContainer.sharedInstance()
-            dependencies.crashWrapper = crashWrapper
             dependencies.fileManager = fileManager
             dependencies.sysctlWrapper = sysctl
             dependencies.dispatchQueueWrapper = dispatchQueue
@@ -57,8 +55,8 @@ class SentryWatchdogTerminationLogicTests: XCTestCase {
             
             return SentryWatchdogTerminationLogic(
                 options: options,
-                crashAdapter: crashWrapper,
-                activeCrashReporterState: activeCrashReporterState ?? crashWrapper,
+                activeCrashReporterState: activeCrashReporterState ?? crashReporterState,
+                isSimulatorBuild: isSimulatorBuild,
                 appStateManager: appStateManager
             )
         }
@@ -140,9 +138,8 @@ class SentryWatchdogTerminationLogicTests: XCTestCase {
     
     func testIsWatchdogTermination_whenSimulatorBuild_shouldReturnFalse() {
         // -- Arrange --
-        fixture.crashWrapper.internalIsSimulatorBuild = true
         fixture.storePreviousAppState(fixture.createAppState())
-        let sut = fixture.getSut()
+        let sut = fixture.getSut(isSimulatorBuild: true)
         
         // -- Act --
         let result = sut.isWatchdogTermination()
@@ -291,7 +288,7 @@ class SentryWatchdogTerminationLogicTests: XCTestCase {
     
     func testIsWatchdogTermination_whenActiveCrashReporterCrashedLastLaunch_shouldReturnFalse() {
         // -- Arrange --
-        let activeCrashReporterState = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
+        let activeCrashReporterState = TestSentryCrashReporterState()
         activeCrashReporterState.internalCrashedLastLaunch = true
         fixture.storePreviousAppState(fixture.createAppState())
         let currentAppState = fixture.createAppState()
@@ -304,7 +301,7 @@ class SentryWatchdogTerminationLogicTests: XCTestCase {
         let result = sut.isWatchdogTermination()
         
         // -- Assert --
-        XCTAssertFalse(fixture.crashWrapper.crashedLastLaunch)
+        XCTAssertFalse(fixture.crashReporterState.crashedLastLaunch)
         XCTAssertFalse(result)
     }
     

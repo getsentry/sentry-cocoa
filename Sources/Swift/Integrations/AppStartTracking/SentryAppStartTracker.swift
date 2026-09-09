@@ -15,7 +15,7 @@ extension SentryAppStartTrackerHelper: AppStartInfoProvider {}
 /// After reboot of the device, the app is not in memory and no process exists. Warm start: When the
 /// app recently terminated, the app is partially in memory and no process exists.
 @_spi(Private) @objc
-public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener {
+public final class SentryAppStartTracker: NSObject {
 
     // MARK: - Static Properties
 
@@ -32,7 +32,9 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
 
     let dispatchQueue: SentryDispatchQueueWrapper
     let appStateManager: SentryAppStateManager
+    #if !SDK_V10
     private let framesTracker: SentryFramesTracker
+    #endif
     private let enablePreWarmedAppStartTracing: Bool
     private let reportingStrategy: AppStartReportingStrategy
     let extendedAppLaunchManager: SentryExtendedAppLaunchManager
@@ -55,7 +57,6 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
     init(
         dispatchQueueWrapper: SentryDispatchQueueWrapper,
         appStateManager: SentryAppStateManager,
-        framesTracker: SentryFramesTracker,
         enablePreWarmedAppStartTracing: Bool,
         dateProvider: SentryCurrentDateProvider,
         sysctlWrapper: SentrySysctl,
@@ -64,7 +65,6 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
     ) {
         self.dispatchQueue = dispatchQueueWrapper
         self.appStateManager = appStateManager
-        self.framesTracker = framesTracker
         self.enablePreWarmedAppStartTracing = enablePreWarmedAppStartTracing
         self.extendedAppLaunchManager = extendedAppLaunchManager
         self.reportingStrategy = StandaloneTransactionStrategy(extendedAppLaunchManager: extendedAppLaunchManager)
@@ -172,15 +172,18 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
             object: nil
         )
 
+        #if !SDK_V10
         if !(reportingStrategy is StandaloneTransactionStrategy) {
             framesTracker.removeListener(self)
         }
+        #endif
 
         #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
         isRunning = false
         #endif
     }
 
+    #if !SDK_V10
     // MARK: - SentryFramesTrackerListener
 
     /// This is when the first frame is drawn.
@@ -188,6 +191,7 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
     public func framesTrackerHasNewFrame(_ newFrameDate: Date) {
         buildAppStartMeasurement(newFrameDate)
     }
+    #endif
 
     // MARK: - Private Methods
     // swiftlint:disable function_body_length
@@ -354,5 +358,9 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
         SentryAppStartMeasurementProvider.setAppStartTrace(nil)
     }
 }
+
+#if !SDK_V10
+extension SentryAppStartTracker: SentryFramesTrackerListener {}
+#endif
 
 #endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK

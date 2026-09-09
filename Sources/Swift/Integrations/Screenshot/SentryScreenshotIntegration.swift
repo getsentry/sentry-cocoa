@@ -1,6 +1,6 @@
 internal import _SentryPrivate
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 // We need to use a global variable because C doesn't allow capturing var
 // nor we want to continue using the DependencyContainer
@@ -33,16 +33,27 @@ final class SentryScreenshotIntegration<Dependencies: ScreenshotIntegrationProvi
         }
 
         globalScreenshotSource = screenshotSource
+#if !SENTRY_DISABLE_SENTRYCRASH_V10
         sentrycrash_setSaveScreenshots { path in
             guard let path = path else { return }
             let reportPath = String(cString: path)
             globalScreenshotSource?.saveScreenShots(reportPath)
         }
+#else
+        // KSCRASH_TODO(GH-8273, GH-8532): Nonfatal screenshots still work, but V10 does not
+        // register a fatal-crash screenshot callback. Acceptance: SCV10-008 in
+        // SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+#endif
     }
 
     func uninstall() {
         globalScreenshotSource = nil
+#if !SENTRY_DISABLE_SENTRYCRASH_V10
         sentrycrash_setSaveScreenshots(nil)
+#else
+        // KSCRASH_TODO(GH-8273, GH-8532): V10 has no fatal-crash screenshot callback to remove.
+        // Acceptance: SCV10-008 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+#endif
         client?.removeAttachmentProcessor(self)
     }
 
@@ -61,17 +72,19 @@ final class SentryScreenshotIntegration<Dependencies: ScreenshotIntegrationProvi
             return attachments
         }
 
-#if os(iOS)
+#if os(iOS) || os(visionOS)
         if event.isMetricKitEvent() {
             return attachments
         }
 #endif
 
+        #if !SDK_V10
         // If the event is an App hanging event, we can't take the
         // screenshot because the main thread is blocked.
         if event.isAppHangEvent {
             return attachments
         }
+        #endif // !SDK_V10
 
         if let beforeCaptureScreenshot = options.beforeCaptureScreenshot,
            !beforeCaptureScreenshot(event) {

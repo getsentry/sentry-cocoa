@@ -1,0 +1,33 @@
+{
+  "configurations" : [
+    {
+      "id" : "9D0E0539-D723-4BF3-9CA1-6143A8AB29D5",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "performanceAntipatternCheckerEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:Sentry.xcodeproj",
+        "identifier" : "D49BE46B302DFF3500FF88D3",
+        "name" : "SentryObjCTestsV10"
+      }
+    },
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:Sentry.xcodeproj",
+        "identifier" : "D49BE437302DFF3200FF88D3",
+        "name" : "SentryObjCCompatTestsV10"
+      }
+    }
+  ],
+  "version" : 1
+}

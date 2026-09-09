@@ -86,6 +86,11 @@ import Foundation
         set { wrapped.maxBreadcrumbs = newValue }
     }
 
+    @objc public var maxFeatureFlags: UInt {
+        get { wrapped.maxFeatureFlags }
+        set { wrapped.maxFeatureFlags = newValue }
+    }
+
     @objc public var enableNetworkBreadcrumbs: Bool {
         get { wrapped.enableNetworkBreadcrumbs }
         set { wrapped.enableNetworkBreadcrumbs = newValue }
@@ -108,6 +113,28 @@ import Foundation
             }
         }
     }
+
+    /// This block can be used to modify the event with access to the hint before it will be sent.
+    /// If set, this takes precedence over `beforeSend`.
+    ///
+    /// - Warning: Deprecated. This is a transitional API: in the next major version, the hint
+    ///   parameter will be added to `beforeSend` directly and this callback will be removed.
+    @objc public var beforeSendWithHint: ((SentryObjCEvent, SentryObjCHint) -> SentryObjCEvent?)? {
+        get { _beforeSendWithHint }
+        @available(*, deprecated, message: "In the next major version, the hint parameter will be added to `beforeSend` directly and this callback will be removed. Use this only to adopt hints ahead of the next major version.")
+        set {
+            _beforeSendWithHint = newValue
+            if let beforeSendWithHint = newValue {
+                wrapped.beforeSendWithHint = { event, hint in
+                    guard let result = beforeSendWithHint(SentryObjCEvent(event), SentryObjCHint(hint)) else { return nil }
+                    return result.wrapped
+                }
+            } else {
+                wrapped.beforeSendWithHint = nil
+            }
+        }
+    }
+    private var _beforeSendWithHint: ((SentryObjCEvent, SentryObjCHint) -> SentryObjCEvent?)?
 
     #if SDK_V10
     @objc public var beforeSendTransaction: ((SentryObjCTransaction) -> SentryObjCTransaction?)? {
@@ -139,6 +166,13 @@ import Foundation
         }
     }
 
+    #if !SDK_V10
+    @objc public var enableLogs: Bool {
+        get { wrapped.enableLogs }
+        set { wrapped.enableLogs = newValue }
+    }
+    #endif // !SDK_V10
+
     @objc public var beforeBreadcrumb: ((SentryObjCBreadcrumb) -> SentryObjCBreadcrumb?)? {
         didSet {
             if let beforeBreadcrumb = beforeBreadcrumb {
@@ -151,6 +185,28 @@ import Foundation
             }
         }
     }
+
+    /// This block can be used to modify the breadcrumb with access to the hint before it is added.
+    /// If set, this takes precedence over `beforeBreadcrumb`.
+    ///
+    /// - Warning: Deprecated. This is a transitional API: in the next major version, the hint
+    ///   parameter will be added to `beforeBreadcrumb` directly and this callback will be removed.
+    @objc public var beforeBreadcrumbWithHint: ((SentryObjCBreadcrumb, SentryObjCHint) -> SentryObjCBreadcrumb?)? {
+        get { _beforeBreadcrumbWithHint }
+        @available(*, deprecated, message: "In the next major version, the hint parameter will be added to `beforeBreadcrumb` directly and this callback will be removed. Use this only to adopt hints ahead of the next major version.")
+        set {
+            _beforeBreadcrumbWithHint = newValue
+            if let beforeBreadcrumbWithHint = newValue {
+                wrapped.beforeBreadcrumbWithHint = { crumb, hint in
+                    guard let result = beforeBreadcrumbWithHint(SentryObjCBreadcrumb(crumb), SentryObjCHint(hint)) else { return nil }
+                    return result.wrapped
+                }
+            } else {
+                wrapped.beforeBreadcrumbWithHint = nil
+            }
+        }
+    }
+    private var _beforeBreadcrumbWithHint: ((SentryObjCBreadcrumb, SentryObjCHint) -> SentryObjCBreadcrumb?)?
 
     @objc public var beforeSendLog: ((SentryObjCLog) -> SentryObjCLog?)? {
         didSet {
@@ -287,6 +343,20 @@ import Foundation
         set { wrapped.enablePersistingTracesWhenCrashing = newValue }
     }
 
+#if os(iOS) || os(macOS)
+    @objc public var configureProfiling: ((SentryObjCProfileOptions) -> Void)? {
+        didSet {
+            if let configureProfiling {
+                wrapped.configureProfiling = { profiling in
+                    configureProfiling(SentryObjCProfileOptions(profiling))
+                }
+            } else {
+                wrapped.configureProfiling = nil
+            }
+        }
+    }
+#endif // os(iOS) || os(macOS)
+
     @objc public var initialScope: ((SentryObjCScope) -> SentryObjCScope) = { return $0 } {
         didSet {
             let initialScope = initialScope
@@ -363,14 +433,16 @@ import Foundation
     }
     #endif
 
+    #if !SDK_V10
     @objc public var enableReportNonFullyBlockingAppHangs: Bool {
         get { wrapped.enableReportNonFullyBlockingAppHangs }
         set { wrapped.enableReportNonFullyBlockingAppHangs = newValue }
     }
+    #endif // !SDK_V10
 
     #endif
 
-    #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+    #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
     @objc public var sessionReplay: SentryObjCReplayOptions {
         get { SentryObjCReplayOptions(wrapped.sessionReplay) }
@@ -458,10 +530,12 @@ import Foundation
         set { wrapped.sendClientReports = newValue }
     }
 
+    #if !SDK_V10
     @objc public var enableAppHangTracking: Bool {
         get { wrapped.enableAppHangTracking }
         set { wrapped.enableAppHangTracking = newValue }
     }
+    #endif // !SDK_V10
 
     @objc public var appHangTimeoutInterval: TimeInterval {
         get { wrapped.appHangTimeoutInterval }
@@ -557,6 +631,11 @@ import Foundation
     @objc public var experimental: SentryObjCExperimentalOptions {
         get { SentryObjCExperimentalOptions(wrapped.experimental) }
         set { wrapped.experimental = newValue.wrapped }
+    }
+
+    @objc public var enableMetrics: Bool {
+        get { wrapped.enableMetrics }
+        set { wrapped.enableMetrics = newValue }
     }
 }
 // swiftlint:enable file_length missing_docs type_body_length

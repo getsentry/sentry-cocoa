@@ -45,18 +45,17 @@ INTERMEDIATES_DIR="$TMP_DIR/intermediates"
 AST_JSON="$TMP_DIR/ast.json"
 
 # Step 1: Build the source package to generate the SentryObjCCompat-Swift.h header.
-BUILD_CONFIGURATION="$CONFIGURATION"
-SDK_V10_VALUE=0
+SCHEME="SentryObjC"
+SDK_V10=""
 if [ "$CONFIGURATION" = "ReleaseV10" ]; then
-    BUILD_CONFIGURATION="Release"
-    SDK_V10_VALUE=1
+    SDK_V10=1
 fi
 
-log_info "Building SentryObjC package (configuration: $BUILD_CONFIGURATION, SDK_V10: $SDK_V10_VALUE)"
-SDK_V10="$SDK_V10_VALUE" xcodebuild build \
+log_info "Building $SCHEME package (configuration: $CONFIGURATION)"
+SDK_V10="$SDK_V10" xcodebuild build \
     -workspace "$PROJECT_ROOT" \
-    -scheme SentryObjC \
-    -configuration "$BUILD_CONFIGURATION" \
+    -scheme "$SCHEME" \
+    -configuration "$CONFIGURATION" \
     -sdk iphoneos \
     -destination "generic/platform=iOS" \
     CODE_SIGNING_ALLOWED=NO \

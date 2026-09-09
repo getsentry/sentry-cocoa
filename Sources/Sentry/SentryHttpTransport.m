@@ -1,5 +1,4 @@
 #import "SentryHttpTransport.h"
-#import "SentryDiscardReasonMapper.h"
 #import "SentryEnvelopeRateLimit.h"
 #import "SentryEvent.h"
 #import "SentryInternalDefines.h"
@@ -153,7 +152,7 @@
     }
 
     NSString *key = [NSString stringWithFormat:@"%@:%@",
-        [SentryDataCategoryMapper nameFor:category], nameForSentryDiscardReason(reason)];
+        [SentryDataCategoryMapper nameFor:category], [SentryDiscardReasonMapper nameFor:reason]];
 
     @synchronized(self.discardedEvents) {
         SentryDiscardedEvent *event = self.discardedEvents[key];
@@ -162,7 +161,7 @@
         }
 
         event =
-            [[SentryDiscardedEvent alloc] initWithReason:nameForSentryDiscardReason(reason)
+            [[SentryDiscardedEvent alloc] initWithReason:[SentryDiscardReasonMapper nameFor:reason]
                                                 category:[SentryDataCategoryMapper nameFor:category]
                                                 quantity:quantity];
 

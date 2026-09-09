@@ -25,50 +25,52 @@
 // THE SOFTWARE.
 //
 
-#include "SentryCrashJSONCodec.h"
-#include "SentryCrashString.h"
+#if !SDK_V10
 
-#include <ctype.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <inttypes.h>
-#include <limits.h>
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
+#    include "SentryCrashJSONCodec.h"
+#    include "SentryCrashString.h"
+
+#    include <ctype.h>
+#    include <errno.h>
+#    include <fcntl.h>
+#    include <inttypes.h>
+#    include <limits.h>
+#    include <math.h>
+#    include <stdio.h>
+#    include <stdlib.h>
+#    include <string.h>
+#    include <unistd.h>
 
 // ============================================================================
-#pragma mark - Configuration -
+#    pragma mark - Configuration -
 // ============================================================================
 
 /** Set to 1 if you're also compiling SentryAsyncSafeLog and want to use it here
  */
-#ifndef SentryCrashJSONCODEC_UseKSLogger
-#    define SentryCrashJSONCODEC_UseKSLogger 1
-#endif
+#    ifndef SentryCrashJSONCODEC_UseKSLogger
+#        define SentryCrashJSONCODEC_UseKSLogger 1
+#    endif
 
-#if SentryCrashJSONCODEC_UseKSLogger
-#    include "SentryAsyncSafeLog.h"
-#else
-#    define SENTRY_ASYNC_SAFE_LOG_DEBUG(FMT, ...)
-#endif
+#    if SentryCrashJSONCODEC_UseKSLogger
+#        include "SentryAsyncSafeLog.h"
+#    else
+#        define SENTRY_ASYNC_SAFE_LOG_DEBUG(FMT, ...)
+#    endif
 
 /** The work buffer size to use when escaping string values.
  * There's little reason to change this since nothing ever gets truncated.
  */
-#ifndef SentryCrashJSONCODEC_WorkBufferSize
-#    define SentryCrashJSONCODEC_WorkBufferSize 512
-#endif
+#    ifndef SentryCrashJSONCODEC_WorkBufferSize
+#        define SentryCrashJSONCODEC_WorkBufferSize 512
+#    endif
 
 // ============================================================================
-#pragma mark - Helpers -
+#    pragma mark - Helpers -
 // ============================================================================
 
 // Compiler hints for "if" statements
-#define likely_if(x) if (__builtin_expect(x, 1))
-#define unlikely_if(x) if (__builtin_expect(x, 0))
+#    define likely_if(x) if (__builtin_expect(x, 1))
+#    define unlikely_if(x) if (__builtin_expect(x, 0))
 
 /** Used for writing hex string values. */
 static char g_hexNybbles[]
@@ -94,7 +96,7 @@ sentrycrashjson_stringForError(const int error)
 }
 
 // ============================================================================
-#pragma mark - Encode -
+#    pragma mark - Encode -
 // ============================================================================
 
 /** Add JSON encoded data to an external handler.
@@ -108,7 +110,8 @@ sentrycrashjson_stringForError(const int error)
  *
  * @return SentryCrashJSON_OK if the data was handled successfully.
  */
-#define addJSONData(CONTEXT, DATA, LENGTH) (CONTEXT)->addJSONData(DATA, LENGTH, (CONTEXT)->userData)
+#    define addJSONData(CONTEXT, DATA, LENGTH)                                                     \
+        (CONTEXT)->addJSONData(DATA, LENGTH, (CONTEXT)->userData)
 
 /** Escape a string portion for use with JSON and send to data handler.
  *
@@ -591,10 +594,10 @@ sentrycrashjson_endEncode(SentryCrashJSONEncodeContext *const context)
 }
 
 // ============================================================================
-#pragma mark - Decode -
+#    pragma mark - Decode -
 // ============================================================================
 
-#define INV 0x11111
+#    define INV 0x11111
 
 typedef struct {
     /** Pointer to current work area in the buffer. */
@@ -916,10 +919,10 @@ static int decodeElement(const char *const name, SentryCrashJSONDecodeContext *c
  *
  * @param CONTEXT The decoding context.
  */
-#define SKIP_WHITESPACE(CONTEXT)                                                                   \
-    while (CONTEXT->bufferPtr < CONTEXT->bufferEnd && isspace(*CONTEXT->bufferPtr)) {              \
-        CONTEXT->bufferPtr++;                                                                      \
-    }
+#    define SKIP_WHITESPACE(CONTEXT)                                                               \
+        while (CONTEXT->bufferPtr < CONTEXT->bufferEnd && isspace(*CONTEXT->bufferPtr)) {          \
+            CONTEXT->bufferPtr++;                                                                  \
+        }
 
 /** Check if a character is valid for representing part of a floating point
  * number.
@@ -1647,3 +1650,5 @@ sentrycrashjson_addJSONElement(SentryCrashJSONEncodeContext *const encodeContext
 
     return result;
 }
+
+#endif // !SDK_V10

@@ -10,11 +10,18 @@
 #import "SentryProfilingConditionals.h"
 #import "SentryReplayApi.h"
 #import "SentrySamplingContext.h"
+#import "SentryScope+Private.h"
 #import "SentryScope.h"
 #import "SentrySerialization.h"
 #import "SentrySpanInternal.h"
 #import "SentrySwift.h"
 #import "SentryTransactionContext.h"
+
+#if SDK_V10
+// Keep the dlsym-only Unity C++ ABI compatibility symbols in static links.
+extern const void *_Nonnull sentry_cxa_throw_compatibility_linker_anchor(void)
+    __attribute__((visibility("hidden")));
+#endif
 
 #if TARGET_OS_OSX
 #    import "SentryCrashExceptionApplication.h"
@@ -52,6 +59,7 @@ static BOOL _detectedStartUpCrash;
  */
 static NSUInteger startInvocations;
 static NSDate *_Nullable startTimestamp = nil;
+static BOOL sdkStarted;
 
 + (void)initialize
 {
@@ -59,6 +67,7 @@ static NSDate *_Nullable startTimestamp = nil;
         sentrySDKappStartMeasurementLock = [[NSObject alloc] init];
         currentHubLock = [[NSObject alloc] init];
         startInvocations = 0;
+        sdkStarted = NO;
         _detectedStartUpCrash = NO;
     }
 }
@@ -211,6 +220,22 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (void)startWithOptions:(SentryOptions *)options
 {
+#if SDK_V10
+    (void)sentry_cxa_throw_compatibility_linker_anchor();
+#endif
+
+    BOOL alreadyStarted = NO;
+    @synchronized(currentHubLock) {
+        alreadyStarted = sdkStarted;
+        sdkStarted = YES;
+    }
+    if (alreadyStarted) {
+        SENTRY_LOG_WARN(@"The Sentry SDK has already been started. Calling start again without "
+                        @"close() may lead to undefined behavior.");
+    }
+
+    [self setStartOptions:options];
+
     [SentrySDKLogSupport configure:options.debug diagnosticLevel:options.diagnosticLevel];
 
     // We accept the tradeoff that the SDK might not be fully initialized directly after
@@ -241,8 +266,9 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentryDependencyContainer.sharedInstance
             .scopePersistentStore moveAllCurrentStateToPreviousState];
 
-    SentryScope *scope
-        = options.initialScope([[SentryScope alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs]);
+    SentryScope *scope = options.initialScope(
+        [[SentryScope alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs
+                                    maxFeatureFlags:options.maxFeatureFlags]);
 
     SENTRY_LOG_DEBUG(@"Dispatching init work required to run on main thread.");
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
@@ -261,7 +287,6 @@ static NSDate *_Nullable startTimestamp = nil;
                                                                       andScope:scope];
             [SentrySDKInternal setCurrentHub:hub];
 
-            [SentryDependencyContainer.sharedInstance.crashWrapper startBinaryImageCache];
             [SentryDependencyContainer.sharedInstance.binaryImageCache start:options.debug];
 
             [SentrySDKInternal installIntegrations];
@@ -294,14 +319,14 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentrySDKInternal.currentHub captureFatalEvent:event withScope:scope];
 }
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !SDK_V10
 
 + (void)captureFatalAppHangEvent:(SentryEvent *)event
 {
     [SentrySDKInternal.currentHub captureFatalAppHangEvent:event];
 }
 
-#endif // SENTRY_HAS_UIKIT
+#endif // SENTRY_HAS_UIKIT && !SDK_V10
 
 + (SentryId *)captureEvent:(SentryEvent *)event
 {
@@ -415,6 +440,26 @@ static NSDate *_Nullable startTimestamp = nil;
     return [SentrySDKInternal.currentHub captureMessage:message withScope:scope];
 }
 
++ (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *)scope hint:(id)hint
+{
+    return [SentrySDKInternal.currentHub captureEvent:event withScope:scope hint:hint];
+}
+
++ (SentryId *)captureError:(NSError *)error withScope:(SentryScope *)scope hint:(id)hint
+{
+    return [SentrySDKInternal.currentHub captureError:error withScope:scope hint:hint];
+}
+
++ (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *)scope hint:(id)hint
+{
+    return [SentrySDKInternal.currentHub captureException:exception withScope:scope hint:hint];
+}
+
++ (SentryId *)captureMessage:(NSString *)message withScope:(SentryScope *)scope hint:(id)hint
+{
+    return [SentrySDKInternal.currentHub captureMessage:message withScope:scope hint:hint];
+}
+
 /**
  * Needed by hybrid SDKs as react-native to synchronously capture an envelope.
  */
@@ -454,6 +499,11 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {
+    [self addBreadcrumb:crumb withHint:nil];
+}
+
++ (void)addBreadcrumb:(SentryBreadcrumb *)crumb withHint:(id _Nullable)hint
+{
     if (![SentrySDKInternal isEnabled]) {
         // We must log with level fatal because only fatal messages get logged even when the SDK
         // isn't started. We've seen multiple times that users try to add a breadcrumb before
@@ -465,7 +515,7 @@ static NSDate *_Nullable startTimestamp = nil;
             @"the SDK before adding breadcrumbs.");
     }
 
-    [SentrySDKInternal.currentHub addBreadcrumb:crumb];
+    [SentrySDKInternal.currentHub addBreadcrumb:crumb withHint:hint];
 }
 
 + (void)configureScope:(void (^)(SentryScope *scope))callback
@@ -544,6 +594,7 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentrySDKInternal.currentHub reportFullyDisplayed];
 }
 
+#if !SDK_V10
 + (void)pauseAppHangTracking
 {
     SentryHangTrackerIntegrationObjC *anrTrackingIntegration
@@ -561,6 +612,7 @@ static NSDate *_Nullable startTimestamp = nil;
 
     [anrTrackingIntegration resumeAppHangTracking];
 }
+#endif
 
 + (void)flush:(NSTimeInterval)timeout
 {
@@ -601,7 +653,6 @@ static NSDate *_Nullable startTimestamp = nil;
         fatalDetected = NO;
         lastRunStatusCalled = NO;
 
-        [SentryDependencyContainer.sharedInstance.crashWrapper stopBinaryImageCache];
         [SentryDependencyContainer.sharedInstance.binaryImageCache stop];
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
@@ -609,6 +660,10 @@ static NSDate *_Nullable startTimestamp = nil;
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
         [SentryDependencyContainer reset];
+
+        @synchronized(currentHubLock) {
+            sdkStarted = NO;
+        }
     }];
     SENTRY_LOG_DEBUG(@"SDK closed!");
 }

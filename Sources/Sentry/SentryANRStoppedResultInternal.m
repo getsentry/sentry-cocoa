@@ -1,4 +1,6 @@
-#import "SentryANRStoppedResultInternal.h"
+#if !SDK_V10
+
+#    import "SentryANRStoppedResultInternal.h"
 
 @implementation SentryANRStoppedResultInternal
 
@@ -14,3 +16,5 @@
 }
 
 @end
+
+#endif // !SDK_V10

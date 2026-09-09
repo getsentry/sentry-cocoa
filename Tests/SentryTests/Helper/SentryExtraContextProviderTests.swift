@@ -5,7 +5,7 @@ import XCTest
 final class SentryExtraContextProviderTests: XCTestCase {
 
     private class Fixture {
-        let crashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
+        let memoryMetricsProvider = TestSentryMemoryMetricsProvider()
 #if os(iOS)
         let deviceWrapper = TestSentryUIDeviceWrapper()
 #endif // os(iOS)
@@ -14,12 +14,12 @@ final class SentryExtraContextProviderTests: XCTestCase {
         func getSut() -> SentryExtraContextProvider {
             #if os(iOS)
             return SentryExtraContextProvider(
-                    crashWrapper: crashWrapper,
+                    memoryMetricsProvider: memoryMetricsProvider,
                     processInfoWrapper: processWrapper,
                     deviceWrapper: deviceWrapper)
             #else
             return SentryExtraContextProvider(
-                    crashWrapper: crashWrapper,
+                    memoryMetricsProvider: memoryMetricsProvider,
                     processInfoWrapper: processWrapper)
             #endif // os(iOS)
 
@@ -41,15 +41,15 @@ final class SentryExtraContextProviderTests: XCTestCase {
     
     func testExtraCrashInfo() throws {
         let sut = fixture.getSut()
-        fixture.crashWrapper.internalFreeMemorySize = 123_456
-        fixture.crashWrapper.internalAppMemorySize = 234_567
+        fixture.memoryMetricsProvider.freeMemorySize = 123_456
+        fixture.memoryMetricsProvider.appMemorySize = 234_567
         
         let actualContext = sut.getExtraContext()
         let device = actualContext["device"] as? [String: Any]
         let app = actualContext["app"] as? [String: Any]
         
-        XCTAssertEqual(device?["free_memory"] as? UInt64, fixture.crashWrapper.internalFreeMemorySize)
-        XCTAssertEqual(app?["app_memory"] as? UInt64, fixture.crashWrapper.internalAppMemorySize)
+        XCTAssertEqual(device?["free_memory"] as? UInt64, fixture.memoryMetricsProvider.freeMemorySize)
+        XCTAssertEqual(app?["app_memory"] as? UInt64, fixture.memoryMetricsProvider.appMemorySize)
     }
     
     func testExtraDeviceInfo() throws {

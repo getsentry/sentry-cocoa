@@ -2,6 +2,18 @@
 @_spi(Private) @testable import Sentry
 import XCTest
 
+#if !os(tvOS) && !os(watchOS) && !os(visionOS)
+private final class BlockingMetricProfiler: SentryMetricProfiler {
+    let recordMetricsStarted = DispatchSemaphore(value: 0)
+    let continueRecordingMetrics = DispatchSemaphore(value: 0)
+
+    override func recordMetrics() {
+        recordMetricsStarted.signal()
+        continueRecordingMetrics.wait()
+    }
+}
+#endif
+
 class PrivateSentrySDKOnlyTests: XCTestCase {
 
     override func tearDown() {
@@ -14,6 +26,67 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         SentrySdkPackage.resetPackageManager()
         SentryExtraPackages.clear()
     }
+
+    #if !os(tvOS) && !os(watchOS) && !os(visionOS)
+    // CPU-constrained CI runners can delay the sampling thread beyond any fixed sleep, so wait for
+    // the samples the serializer actually requires. A short polling interval avoids busy-spinning
+    // and is used instead of XCTNSPredicateExpectation, which was observed to add about one second
+    // to every profiling test before reevaluating its predicate.
+    private func waitForProfilerSamples() -> Bool {
+        let deadline = ProcessInfo.processInfo.systemUptime + 5
+        repeat {
+            if let profiler = SentryTraceProfiler.getCurrentProfiler(),
+               let profile = profiler.state.copyProfilingData()["profile"] as? [String: Any],
+               let samples = profile["samples"] as? [Any],
+               samples.count >= 2 {
+                return true
+            }
+            Thread.sleep(forTimeInterval: 0.01)
+        } while ProcessInfo.processInfo.systemUptime < deadline
+
+        XCTFail("Profiler did not collect at least two samples")
+        return false
+    }
+    #endif
+
+    #if !os(tvOS) && !os(watchOS) && !os(visionOS)
+    func testGetCurrentProfiler_whenProfilerLockHeld_shouldWaitForLock() throws {
+        // -- Arrange --
+        XCTAssertTrue(SentryTraceProfiler.start(withTracer: SentryId()))
+        let profiler = try XCTUnwrap(SentryTraceProfiler.getCurrentProfiler())
+        let blockingMetricProfiler = BlockingMetricProfiler(mode: .trace)
+        profiler.metricProfiler = blockingMetricProfiler
+
+        let getCurrentProfilerStarted = DispatchSemaphore(value: 0)
+        let getCurrentProfilerFinished = DispatchSemaphore(value: 0)
+
+        // -- Act --
+        DispatchQueue.global().async {
+            SentryTraceProfiler.recordMetrics()
+        }
+        XCTAssertEqual(blockingMetricProfiler.recordMetricsStarted.wait(timeout: .now() + 1), .success)
+
+        DispatchQueue.global().async {
+            getCurrentProfilerStarted.signal()
+            _ = SentryTraceProfiler.getCurrentProfiler()
+            getCurrentProfilerFinished.signal()
+        }
+        // Confirm the worker is scheduled before using a short timeout to detect lock blocking.
+        // Otherwise, an unscheduled worker could make an unlocked getter appear blocked.
+        XCTAssertEqual(getCurrentProfilerStarted.wait(timeout: .now() + 1), .success)
+
+        let getCurrentProfilerWhileLocked = getCurrentProfilerFinished.wait(timeout: .now() + 0.1)
+        blockingMetricProfiler.continueRecordingMetrics.signal()
+
+        // -- Assert --
+        XCTAssertEqual(getCurrentProfilerWhileLocked, .timedOut)
+        // An early return consumes the semaphore signal and already fails the assertion above.
+        // Only wait again when the getter was blocked to avoid a second misleading failure.
+        if getCurrentProfilerWhileLocked == .timedOut {
+            XCTAssertEqual(getCurrentProfilerFinished.wait(timeout: .now() + 1), .success)
+        }
+    }
+    #endif
 
     func testStoreEnvelope() {
         let client = TestClient(options: Options())
@@ -272,8 +345,11 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
 
         let startTime = PrivateSentrySDKOnly.startProfiler(forTrace: traceIdA)
         XCTAssertGreaterThan(startTime, 0)
-        Thread.sleep(forTimeInterval: 0.2)
-        let payload = PrivateSentrySDKOnly.collectProfileBetween(startTime, and: startTime + 200_000_000, forTrace: traceIdA)
+        guard waitForProfilerSamples() else {
+            return
+        }
+        let endTime = SentryDependencyContainer.sharedInstance().dateProvider.systemTime()
+        let payload = PrivateSentrySDKOnly.collectProfileBetween(startTime, and: endTime, forTrace: traceIdA)
         XCTAssertNotNil(payload)
         XCTAssertEqual(payload?["platform"] as? String, "cocoa")
         

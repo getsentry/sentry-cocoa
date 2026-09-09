@@ -13,8 +13,10 @@ public final class SentryExperimentalOptions: NSObject {
      */
     public var enableUnhandledCPPExceptionsV2 = false
 
+    #if !SDK_V10
     /// When enabled, the SDK uses a more efficient mechanism for detecting watchdog terminations.
     public var enableWatchdogTerminationsV2 = false
+    #endif
 
     /**
      * Reduces SDK start overhead by swizzling each `UIViewController` subclass lazily, the first

@@ -17,7 +17,8 @@ class SentryHubTests: XCTestCase {
         let message = "some message"
         let event: Event
         let currentDateProvider = TestCurrentDateProvider()
-        let sentryCrashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
+        let crashReporterState = TestSentryCrashReporterState()
+        let scopeContextEnricher = TestSentryScopeContextEnricher()
         let fileManager: SentryFileManager
         let crashedSession: SentrySession
         let abnormalSession: SentrySession
@@ -61,7 +62,7 @@ class SentryHubTests: XCTestCase {
         }
         
         func getSut(_ options: Options, _ scope: Scope? = nil) -> SentryHubInternal {
-            let hub = SentryHubInternal(client: client, andScope: scope, andCrashWrapper: sentryCrashWrapper, andDispatchQueue: dispatchQueueWrapper)
+            let hub = SentryHubInternal(client: client, andScope: scope, activeCrashReporterState: crashReporterState, scopeContextEnricher: scopeContextEnricher, andDispatchQueue: dispatchQueueWrapper)
             hub.bindClient(client)
             return hub
         }
@@ -88,7 +89,9 @@ class SentryHubTests: XCTestCase {
         fixture = try Fixture()
         fixture.fileManager.deleteCurrentSession()
         fixture.fileManager.deleteCrashedSession()
+        #if !SDK_V10
         fixture.fileManager.deleteAbnormalSession()
+        #endif // !SDK_V10
         fixture.fileManager.deleteAppState()
         fixture.fileManager.deleteTimestampLastInForeground()
         fixture.fileManager.deleteAllEnvelopes()
@@ -98,7 +101,9 @@ class SentryHubTests: XCTestCase {
         super.tearDown()
         fixture.fileManager.deleteCurrentSession()
         fixture.fileManager.deleteCrashedSession()
+        #if !SDK_V10
         fixture.fileManager.deleteAbnormalSession()
+        #endif // !SDK_V10
         fixture.fileManager.deleteAppState()
         fixture.fileManager.deleteTimestampLastInForeground()
         fixture.fileManager.deleteAllEnvelopes()
@@ -188,6 +193,32 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(values.element(at: 0)?["result"] as? Bool, true)
     }
 
+    func testFeatureFlagCapLimit_withDefaultMaxFeatureFlags() throws {
+        let hub = fixture.getSut(fixture.options)
+
+        for index in 0...100 {
+            hub.scope.addFeatureFlag(name: "flag-\(index)", result: true)
+        }
+
+        let values = try featureFlagValues(from: hub.scope)
+        XCTAssertEqual(values.count, 100)
+        XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "flag-1")
+    }
+
+    func testFeatureFlagOverDefaultLimit_whenMaxFeatureFlagsRaised() throws {
+        let options = fixture.options
+        options.maxFeatureFlags = 200
+        let hub = fixture.getSut(options)
+
+        for index in 0..<200 {
+            hub.scope.addFeatureFlag(name: "flag-\(index)", result: true)
+        }
+
+        let values = try featureFlagValues(from: hub.scope)
+        XCTAssertEqual(values.count, 200)
+        XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "flag-0")
+    }
+
     func testBreadcrumbOverDefaultLimit() {
         let hub = fixture.getSut(withMaxBreadcrumbs: 200)
         
@@ -218,82 +249,14 @@ class SentryHubTests: XCTestCase {
         XCTAssertNotNil(hub.scope.contextDictionary["app"])
     }
 
-    func testScopeEnriched_WithNoRuntime() throws {
-        // Arrange
-        let processInfoWrapper = MockSentryProcessInfo()
-        processInfoWrapper.overrides.isiOSAppOnMac = false
-        processInfoWrapper.overrides.isMacCatalystApp = false
-        let container = SentryDependencyContainer.sharedInstance()
-        let bridge = SentryCrashBridge(
-            notificationCenterWrapper: container.notificationCenterWrapper,
-            dateProvider: container.dateProvider,
-            crashReporter: container.crashReporter
-        )
-        let crashWrapper = SentryDefaultCrashReporter(processInfoWrapper: processInfoWrapper, bridge: bridge)
-        
-        // Act
-        let hub = SentryHubInternal(client: nil, andScope: Scope(), andCrashWrapper: crashWrapper, andDispatchQueue: TestSentryDispatchQueueWrapper())
-
-        // Assert
-        XCTAssertNil(hub.scope.contextDictionary["runtime"])
-    }
-
-    func testScopeEnriched_WithRuntime_isiOSAppOnMac() throws {
-        // Arrange
-        let processInfoWrapper = MockSentryProcessInfo()
-        processInfoWrapper.overrides.isiOSAppOnMac = true
-        processInfoWrapper.overrides.isMacCatalystApp = false
-        SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfoWrapper
-        let container = SentryDependencyContainer.sharedInstance()
-        let bridge = SentryCrashBridge(
-            notificationCenterWrapper: container.notificationCenterWrapper,
-            dateProvider: container.dateProvider,
-            crashReporter: container.crashReporter
-        )
-        let crashWrapper = SentryDefaultCrashReporter(processInfoWrapper: processInfoWrapper, bridge: bridge)
-        
-        // Act
-        let hub = SentryHubInternal(client: nil, andScope: Scope(), andCrashWrapper: crashWrapper, andDispatchQueue: TestSentryDispatchQueueWrapper())
-        
-        // Assert
-        let runtimeContext = try XCTUnwrap (hub.scope.contextDictionary["runtime"] as? [String: String])
-        
-        XCTAssertEqual(runtimeContext["name"], "iOS App on Mac")
-        XCTAssertEqual(runtimeContext["raw_description"], "ios-app-on-mac")
-    }
-
-    func testScopeEnriched_WithRuntime_isMacCatalystApp() throws {
-        // Arrange
-        let processInfoWrapper = MockSentryProcessInfo()
-        processInfoWrapper.overrides.isiOSAppOnMac = false
-        processInfoWrapper.overrides.isMacCatalystApp = true
-        SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfoWrapper
-        let container = SentryDependencyContainer.sharedInstance()
-        let bridge = SentryCrashBridge(
-            notificationCenterWrapper: container.notificationCenterWrapper,
-            dateProvider: container.dateProvider,
-            crashReporter: container.crashReporter
-        )
-        let crashWrapper = SentryDefaultCrashReporter(processInfoWrapper: processInfoWrapper, bridge: bridge)
-        
-        // Act
-        let hub = SentryHubInternal(client: nil, andScope: Scope(), andCrashWrapper: crashWrapper, andDispatchQueue: TestSentryDispatchQueueWrapper())
-
-        // Assert
-        let runtimeContext = try XCTUnwrap (hub.scope.contextDictionary["runtime"] as? [String: String])
-        XCTAssertEqual(runtimeContext["name"], "Mac Catalyst App")
-        XCTAssertEqual(runtimeContext["raw_description"], "mac-catalyst-app")
-    }
-
     func testScopeNotEnriched_WhenScopeIsNil() {
         _ = fixture.getSut()
-     
-        XCTAssertFalse(fixture.sentryCrashWrapper.enrichScopeCalled)
+        XCTAssertFalse(fixture.scopeContextEnricher.enrichScopeCalled)
     }
-    
+
     func testScopeEnriched_WhenCreatingDefaultScope() {
         let hub = SentryHubInternal(client: nil, andScope: nil)
-        
+
         let scope = hub.scope
         XCTAssertFalse(scope.contextDictionary.allValues.isEmpty)
         XCTAssertNotNil(scope.contextDictionary["os"])
@@ -317,7 +280,84 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(1, scopeBreadcrumbs?.count)
         XCTAssertEqual(crumbMessage, scopeBreadcrumbs?.first?["message"] as? String)
     }
-    
+
+    // MARK: - beforeBreadcrumbWithHint
+
+    @available(*, deprecated, message: "Testing deprecated beforeBreadcrumbWithHint API")
+    func testBeforeBreadcrumbWithHint_shouldReceiveHint() {
+        // -- Arrange --
+        var receivedHint: Hint?
+        let options = fixture.options
+        options.beforeBreadcrumbWithHint = { crumb, hint in
+            receivedHint = hint
+            return crumb
+        }
+        let hub = fixture.getSut(options)
+
+        // -- Act --
+        hub.add(fixture.crumb)
+
+        // -- Assert --
+        XCTAssertNotNil(receivedHint)
+        XCTAssertNotNil(hub.scope.serialize()["breadcrumbs"])
+    }
+
+    @available(*, deprecated, message: "Testing deprecated beforeBreadcrumbWithHint API")
+    func testBeforeBreadcrumbWithHint_shouldTakePrecedenceOverBeforeBreadcrumb() {
+        // -- Arrange --
+        var beforeBreadcrumbCalled = false
+        var beforeBreadcrumbWithHintCalled = false
+        let options = fixture.options
+        options.beforeBreadcrumb = { crumb in
+            beforeBreadcrumbCalled = true
+            return crumb
+        }
+        options.beforeBreadcrumbWithHint = { crumb, _ in
+            beforeBreadcrumbWithHintCalled = true
+            return crumb
+        }
+        let hub = fixture.getSut(options)
+
+        // -- Act --
+        hub.add(fixture.crumb)
+
+        // -- Assert --
+        XCTAssertTrue(beforeBreadcrumbWithHintCalled)
+        XCTAssertFalse(beforeBreadcrumbCalled)
+    }
+
+    @available(*, deprecated, message: "Testing deprecated beforeBreadcrumbWithHint API")
+    func testBeforeBreadcrumbWithHint_whenReturnsNil_shouldDropBreadcrumb() {
+        // -- Arrange --
+        let options = fixture.options
+        options.beforeBreadcrumbWithHint = { _, _ in nil }
+        let hub = fixture.getSut(options)
+
+        // -- Act --
+        hub.add(fixture.crumb)
+
+        // -- Assert --
+        XCTAssertNil(hub.scope.serialize()["breadcrumbs"])
+    }
+
+    func testBeforeBreadcrumb_whenWithHintIsNil_shouldFallBack() {
+        // -- Arrange --
+        var beforeBreadcrumbCalled = false
+        let options = fixture.options
+        options.beforeBreadcrumb = { crumb in
+            beforeBreadcrumbCalled = true
+            return crumb
+        }
+        let hub = fixture.getSut(options)
+
+        // -- Act --
+        hub.add(fixture.crumb)
+
+        // -- Assert --
+        XCTAssertTrue(beforeBreadcrumbCalled)
+        XCTAssertNotNil(hub.scope.serialize()["breadcrumbs"])
+    }
+
     func testAddUserToTheScope() throws {
         let client = SentryClientInternal(
             options: fixture.options,
@@ -959,7 +999,10 @@ class SentryHubTests: XCTestCase {
             }
         }
 
-        wait(for: [expectation], timeout: 5.0)
+        // This verifies session synchronization, not capture performance. CPU-constrained visionOS
+        // runners have exceeded five seconds, so use a generous timeout that still detects a
+        // deadlock before the overall test runner timeout.
+        wait(for: [expectation], timeout: 30.0)
 
         // Assert
         let session = try XCTUnwrap(sut.session)
@@ -987,7 +1030,10 @@ class SentryHubTests: XCTestCase {
             }
         }
 
-        wait(for: [expectation], timeout: 5.0)
+        // This verifies session synchronization, not capture performance. CPU-constrained visionOS
+        // runners have exceeded five seconds, so use a generous timeout that still detects a
+        // deadlock before the overall test runner timeout.
+        wait(for: [expectation], timeout: 30.0)
 
         // Assert
         let session = try XCTUnwrap(sut.session)
@@ -1028,9 +1074,8 @@ class SentryHubTests: XCTestCase {
 
     func testCloseCachedSession_whenActiveCrashReporterCrashedLastLaunch_shouldPreserveCurrentSession() {
         // -- Arrange --
-        let activeCrashReporterState = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
+        let activeCrashReporterState = TestSentryCrashReporterState()
         activeCrashReporterState.internalCrashedLastLaunch = true
-        SentryDependencyContainer.sharedInstance().crashWrapper = fixture.sentryCrashWrapper
         SentryDependencyContainer.sharedInstance().activeCrashReporterStateOverride = activeCrashReporterState
         let sut = SentryHubInternal(client: fixture.client, andScope: nil)
         let currentSession = SentrySession(releaseName: "1.0.0", distinctId: "test-installation")
@@ -1040,7 +1085,7 @@ class SentryHubTests: XCTestCase {
         sut.closeCachedSession(withTimestamp: fixture.currentDateProvider.date())
 
         // -- Assert --
-        XCTAssertFalse(fixture.sentryCrashWrapper.crashedLastLaunch)
+        XCTAssertFalse(fixture.crashReporterState.crashedLastLaunch)
         XCTAssertEqual(fixture.client.fileManager.readCurrentSession()?.sessionId, currentSession.sessionId)
         XCTAssertEqual(fixture.client.captureSessionInvocations.count, 0)
     }
@@ -1201,7 +1246,7 @@ class SentryHubTests: XCTestCase {
         assertNoEventsSent()
     }
     
-#if os(iOS) || os(tvOS)
+#if (os(iOS) || os(tvOS)) && !SDK_V10
     func testCaptureFatalAppHangEvent_AbnormalSessionExists() {
         // Arrange
         sut = fixture.getSut(fixture.options, fixture.scope)
@@ -1297,7 +1342,7 @@ class SentryHubTests: XCTestCase {
         // Assert
         assertNoEventsSent()
     }
-#endif // os(iOS) || os(tvOS)
+#endif // (os(iOS) || os(tvOS)) && !SDK_V10
 
     func testCaptureEnvelope_WithEventWithError() throws {
         sut.startSession()
@@ -1436,6 +1481,296 @@ class SentryHubTests: XCTestCase {
         let endSession = sut.session
         
         XCTAssertEqual(beginSession, endSession)
+    }
+
+    func testStoreEnvelope_WithUnhandledException_KeepsCrashedStatus() throws {
+        // -- Arrange --
+        sut.startSession()
+        fixture.currentDateProvider.setDate(date: Date(timeIntervalSince1970: 2))
+
+        // -- Act --
+        sut.store(givenUnhandledExceptionEnvelope())
+
+        // -- Assert --
+        let envelope = try XCTUnwrap(fixture.client.storedEnvelopeInvocations.first)
+        let sessionItem = try XCTUnwrap(envelope.items.first(where: { $0.header.type == "session" }))
+        let json = try XCTUnwrap(try JSONSerialization.jsonObject(with: XCTUnwrap(sessionItem.data)) as? [String: Any])
+
+        XCTAssertEqual("crashed", json["status"] as? String)
+    }
+
+    // MARK: - captureNonTerminating
+
+    func testCaptureNonTerminating_whenUnhandledException_shouldKeepSessionOkAndPendingUnhandled() throws {
+        // -- Arrange --
+        sut.startSession()
+
+        // -- Act --
+        sut.captureNonTerminating(givenUnhandledExceptionEnvelope())
+
+        // -- Assert --
+        let session = try XCTUnwrap(sut.session)
+        XCTAssertEqual(SentrySessionStatus.ok, session.status)
+        XCTAssertTrue(session.pendingUnhandled)
+        XCTAssertEqual(1, session.errors)
+    }
+
+    func testCaptureNonTerminating_whenUnhandledException_shouldKeepSameSessionAndNotStartNewOne() throws {
+        // -- Arrange --
+        sut.startSession()
+        let sessionIdBefore = try XCTUnwrap(sut.session?.sessionId)
+        let capturedSessionsBefore = fixture.client.captureSessionInvocations.count
+
+        // -- Act --
+        sut.captureNonTerminating(givenUnhandledExceptionEnvelope())
+
+        // -- Assert --
+        XCTAssertEqual(sessionIdBefore, try XCTUnwrap(sut.session?.sessionId))
+        XCTAssertEqual(capturedSessionsBefore, fixture.client.captureSessionInvocations.count)
+    }
+
+    func testCaptureNonTerminating_whenUnhandledException_shouldAttachStillRunningSessionToEnvelope() throws {
+        // -- Arrange --
+        sut.startSession()
+
+        // -- Act --
+        sut.captureNonTerminating(givenUnhandledExceptionEnvelope())
+
+        // -- Assert --
+        XCTAssertEqual(1, fixture.client.captureEnvelopeInvocations.count)
+        let capturedEnvelope = try XCTUnwrap(fixture.client.captureEnvelopeInvocations.first)
+        let sessionItem = try XCTUnwrap(capturedEnvelope.items.first(where: { $0.header.type == "session" }))
+        let sentSession = try XCTUnwrap(SentrySerializationSwift.session(with: try XCTUnwrap(sessionItem.data)))
+
+        // The session is still running, so it's only an intermediate update. It gets the unhandled
+        // status when it ends.
+        XCTAssertEqual(SentrySessionStatus.ok, sentSession.status)
+        XCTAssertEqual(1, sentSession.errors)
+    }
+
+    func testCaptureNonTerminating_whenUnhandledException_shouldNotSendPendingUnhandledFlagToSentry() throws {
+        // -- Arrange --
+        sut.startSession()
+
+        // -- Act --
+        sut.captureNonTerminating(givenUnhandledExceptionEnvelope())
+
+        // -- Assert --
+        let capturedEnvelope = try XCTUnwrap(fixture.client.captureEnvelopeInvocations.first)
+        let sessionItem = try XCTUnwrap(capturedEnvelope.items.first(where: { $0.header.type == "session" }))
+        let json = try XCTUnwrap(try JSONSerialization.jsonObject(with: try XCTUnwrap(sessionItem.data)) as? [String: Any])
+
+        XCTAssertNil(json["pending_unhandled"])
+    }
+
+    func testCaptureNonTerminating_whenUnhandledException_shouldPersistPendingSession() throws {
+        // -- Arrange --
+        sut.startSession()
+
+        // -- Act --
+        sut.captureNonTerminating(givenUnhandledExceptionEnvelope())
+
+        // -- Assert --
+        let persistedSession = try XCTUnwrap(fixture.fileManager.readCurrentSession())
+        XCTAssertTrue(persistedSession.pendingUnhandled)
+        XCTAssertEqual(SentrySessionStatus.ok, persistedSession.status)
+        XCTAssertEqual(1, persistedSession.errors)
+    }
+
+    func testCaptureNonTerminating_whenUnhandledExceptionTwice_shouldIncrementErrorsTwiceAndStayPending() throws {
+        // -- Arrange --
+        sut.startSession()
+
+        // -- Act --
+        sut.captureNonTerminating(givenUnhandledExceptionEnvelope())
+        sut.captureNonTerminating(givenUnhandledExceptionEnvelope())
+
+        // -- Assert --
+        let session = try XCTUnwrap(sut.session)
+        XCTAssertEqual(2, session.errors)
+        XCTAssertTrue(session.pendingUnhandled)
+        XCTAssertEqual(SentrySessionStatus.ok, session.status)
+    }
+
+    func testCaptureNonTerminating_whenUnhandledExceptionAndSessionEnds_shouldEndSessionAsUnhandled() throws {
+        // -- Arrange --
+        sut.startSession()
+        sut.captureNonTerminating(givenUnhandledExceptionEnvelope())
+
+        // -- Act --
+        sut.endSession()
+
+        // -- Assert --
+        let endedSession = try XCTUnwrap(fixture.client.captureSessionInvocations.last)
+        XCTAssertEqual(SentrySessionStatus.unhandled, endedSession.status)
+        XCTAssertEqual(1, endedSession.errors)
+    }
+
+    func testCaptureNonTerminating_whenUnhandledExceptionAndNewSessionStarts_shouldEndPreviousSessionAsUnhandled() throws {
+        // -- Arrange --
+        sut.startSession()
+        let pendingSessionId = try XCTUnwrap(sut.session?.sessionId)
+        sut.captureNonTerminating(givenUnhandledExceptionEnvelope())
+
+        // -- Act --
+        sut.startSession()
+
+        // -- Assert --
+        let endedSession = try XCTUnwrap(fixture.client.captureSessionInvocations.last)
+        XCTAssertEqual(pendingSessionId, endedSession.sessionId)
+        XCTAssertEqual(SentrySessionStatus.unhandled, endedSession.status)
+        XCTAssertEqual(1, endedSession.errors)
+
+        let newSession = try XCTUnwrap(sut.session)
+        XCTAssertNotEqual(pendingSessionId, newSession.sessionId)
+        XCTAssertEqual(SentrySessionStatus.ok, newSession.status)
+        XCTAssertFalse(newSession.pendingUnhandled)
+    }
+
+    func testCaptureNonTerminating_whenHandledException_shouldAttachSessionAndNotBePendingUnhandled() throws {
+        // -- Arrange --
+        sut.startSession()
+        let event = TestData.event
+        event.level = .error
+        event.exceptions = [TestData.exception]
+
+        // -- Act --
+        sut.captureNonTerminating(SentryEnvelope(event: event))
+
+        // -- Assert --
+        try assertSessionWithIncrementedErrorCountedAdded()
+        let session = try XCTUnwrap(sut.session)
+        XCTAssertFalse(session.pendingUnhandled)
+        XCTAssertEqual(SentrySessionStatus.ok, session.status)
+
+        let persistedSession = try XCTUnwrap(fixture.fileManager.readCurrentSession())
+        XCTAssertEqual(1, persistedSession.errors)
+        XCTAssertFalse(persistedSession.pendingUnhandled)
+    }
+
+    func testCaptureNonTerminating_whenHandledExceptionAndSessionEnds_shouldEndSessionAsExited() throws {
+        // -- Arrange --
+        sut.startSession()
+        let event = TestData.event
+        event.level = .error
+        event.exceptions = [TestData.exception]
+        sut.captureNonTerminating(SentryEnvelope(event: event))
+
+        // -- Act --
+        sut.endSession()
+
+        // -- Assert --
+        let endedSession = try XCTUnwrap(fixture.client.captureSessionInvocations.last)
+        XCTAssertEqual(SentrySessionStatus.exited, endedSession.status)
+    }
+
+    func testCaptureNonTerminating_whenWarningLevel_shouldSendOriginalEnvelope() throws {
+        // -- Arrange --
+        sut.startSession()
+        let event = TestData.event
+        event.level = .warning
+
+        // -- Act --
+        sut.captureNonTerminating(SentryEnvelope(event: event))
+
+        // -- Assert --
+        try assertNoSessionAddedToCapturedEnvelope()
+        XCTAssertFalse(try XCTUnwrap(sut.session).pendingUnhandled)
+    }
+
+    func testCaptureNonTerminating_whenNoSessionStarted_shouldSendOriginalEnvelope() throws {
+        // -- Arrange --
+        let envelope = givenUnhandledExceptionEnvelope()
+
+        // -- Act --
+        sut.captureNonTerminating(envelope)
+
+        // -- Assert --
+        try assertNoSessionAddedToCapturedEnvelope()
+        XCTAssertIdentical(envelope, fixture.client.captureEnvelopeInvocations.first)
+    }
+
+    func testCaptureNonTerminating_whenClientNil_shouldNotCaptureEnvelope() {
+        // -- Arrange --
+        sut.bindClient(nil)
+
+        // -- Act --
+        sut.captureNonTerminating(givenUnhandledExceptionEnvelope())
+
+        // -- Assert --
+        assertNoEnvelopesCaptured()
+    }
+
+    func testCaptureNonTerminating_whenPendingSessionCached_shouldCloseCachedSessionAsUnhandled() throws {
+        // -- Arrange --
+        sut.startSession()
+        sut.captureNonTerminating(givenUnhandledExceptionEnvelope())
+        // Simulate a new launch by dropping the in-memory session, keeping only the persisted one.
+        sut.session = nil
+
+        // -- Act --
+        sut.closeCachedSession(withTimestamp: fixture.currentDateProvider.date())
+
+        // -- Assert --
+        let closedSession = try XCTUnwrap(fixture.client.captureSessionInvocations.last)
+        XCTAssertEqual(SentrySessionStatus.unhandled, closedSession.status)
+    }
+
+    func testCaptureNonTerminating_whenPendingSessionCachedWithoutTimestamp_shouldCloseCachedSessionAsAbnormal() throws {
+        // -- Arrange --
+        sut.startSession()
+        sut.captureNonTerminating(givenUnhandledExceptionEnvelope())
+        sut.session = nil
+
+        // -- Act --
+        sut.closeCachedSession(withTimestamp: nil)
+
+        // -- Assert --
+        let closedSession = try XCTUnwrap(fixture.client.captureSessionInvocations.last)
+        XCTAssertEqual(SentrySessionStatus.abnormal, closedSession.status)
+    }
+
+    // MARK: - updateSessionForDroppedEventNonTerminating
+
+    func testUpdateSessionForDroppedEventNonTerminating_whenUnhandled_shouldKeepSessionOkAndNotCaptureEnvelope() throws {
+        // -- Arrange --
+        sut.startSession()
+        let sessionIdBefore = try XCTUnwrap(sut.session?.sessionId)
+
+        // -- Act --
+        sut.updateSessionForDroppedEventNonTerminating(unhandled: true)
+
+        // -- Assert --
+        let session = try XCTUnwrap(sut.session)
+        XCTAssertEqual(SentrySessionStatus.ok, session.status)
+        XCTAssertTrue(session.pendingUnhandled)
+        XCTAssertEqual(1, session.errors)
+        XCTAssertEqual(sessionIdBefore, session.sessionId)
+        assertNoEnvelopesCaptured()
+    }
+
+    func testUpdateSessionForDroppedEventNonTerminating_whenHandled_shouldIncrementErrorsAndNotCaptureEnvelope() throws {
+        // -- Arrange --
+        sut.startSession()
+
+        // -- Act --
+        sut.updateSessionForDroppedEventNonTerminating(unhandled: false)
+
+        // -- Assert --
+        let session = try XCTUnwrap(sut.session)
+        XCTAssertFalse(session.pendingUnhandled)
+        XCTAssertEqual(SentrySessionStatus.ok, session.status)
+        XCTAssertEqual(1, session.errors)
+        assertNoEnvelopesCaptured()
+    }
+
+    func testUpdateSessionForDroppedEventNonTerminating_whenNoSessionStarted_shouldNotCaptureEnvelope() {
+        // -- Act --
+        sut.updateSessionForDroppedEventNonTerminating(unhandled: true)
+
+        // -- Assert --
+        XCTAssertNil(sut.session)
+        assertNoEnvelopesCaptured()
     }
     
 #if os(iOS) || os(tvOS)
@@ -1593,12 +1928,14 @@ class SentryHubTests: XCTestCase {
         XCTAssertIdentical(integration, installedIntegration)
     }
     
+#if !SDK_V10
     func testGetInstalledIntegration_ReturnsNilIfNotFound() {
         let integration = EmptyIntegration()
         sut.addInstalledIntegration(integration, name: "EmptyIntegration")
         
         XCTAssertNil(sut.getInstalledIntegration(SentryHangTrackerIntegrationObjC.self))
     }
+#endif
     
     func testEventContainsOnlyHandledErrors() {
         let sut = fixture.getSut()
@@ -1663,6 +2000,14 @@ class SentryHubTests: XCTestCase {
         sut.capture(SentryEnvelope(event: event))
     }
 
+    private func givenUnhandledExceptionEnvelope() -> SentryEnvelope {
+        let event = TestData.event
+        event.level = .error
+        event.exceptions = [TestData.exception]
+        event.exceptions?.first?.mechanism?.handled = false
+        return SentryEnvelope(event: event)
+    }
+
     private func captureFatalEventWithoutExceptionMechanism() throws {
         let event = TestData.event
         event.level = SentryLevel.fatal
@@ -1671,17 +2016,19 @@ class SentryHubTests: XCTestCase {
     }
     
     private func givenCrashedSession() {
-        fixture.sentryCrashWrapper.internalCrashedLastLaunch = true
+        fixture.crashReporterState.internalCrashedLastLaunch = true
         fixture.fileManager.storeCrashedSession(fixture.crashedSession)
         sut.closeCachedSession(withTimestamp: fixture.currentDateProvider.date())
         sut.startSession()
     }
     
+    #if !SDK_V10
     private func givenAbnormalSession() {
         fixture.fileManager.storeAbnormalSession(fixture.abnormalSession)
         sut.closeCachedSession(withTimestamp: fixture.currentDateProvider.date())
         sut.startSession()
     }
+    #endif // !SDK_V10
     
     private func givenAutoSessionTrackingDisabled() {
         let options = fixture.options

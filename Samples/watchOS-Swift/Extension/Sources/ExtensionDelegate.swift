@@ -1,5 +1,5 @@
-import Sentry
 import SentrySampleShared
+import SentrySwift
 import WatchKit
 
 class ExtensionDelegate: NSObject, WKExtensionDelegate {

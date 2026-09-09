@@ -1,8 +1,10 @@
-#import "SentryDefines.h"
+#if !SDK_V10
 
-#if SENTRY_HAS_UIKIT
+#    import "SentryDefines.h"
 
-@protocol SentryCrashReporter;
+#    if SENTRY_HAS_UIKIT
+
+@protocol SentryApplicationStateProvider;
 @class SentryDispatchQueueWrapper;
 @class SentryThreadWrapper;
 @class SentryFramesTracker;
@@ -26,7 +28,7 @@ SENTRY_NO_INIT
 - (instancetype)initWithTimeoutInterval:(NSTimeInterval)timeoutInterval;
 
 - (instancetype)initWithTimeoutInterval:(NSTimeInterval)timeoutInterval
-                           crashWrapper:(id<SentryCrashReporter>)crashWrapper
+               applicationStateProvider:(id<SentryApplicationStateProvider>)applicationStateProvider
                    dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                           threadWrapper:(SentryThreadWrapper *)threadWrapper
                           framesTracker:(SentryFramesTracker *)framesTracker;
@@ -39,4 +41,6 @@ SENTRY_NO_INIT
 
 NS_ASSUME_NONNULL_END
 
-#endif // SENTRY_HAS_UIKIT
+#    endif // SENTRY_HAS_UIKIT
+
+#endif // !SDK_V10

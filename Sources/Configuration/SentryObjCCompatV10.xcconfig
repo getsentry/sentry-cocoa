@@ -1,0 +1,2 @@
+#include "SentryObjCCompat.xcconfig"
+#include "SentryObjCV10Common.xcconfig"

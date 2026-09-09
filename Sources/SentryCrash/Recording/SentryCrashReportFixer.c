@@ -25,17 +25,19 @@
 // THE SOFTWARE.
 //
 
-#include "SentryAsyncSafeLog.h"
-#include "SentryCrashDate.h"
-#include "SentryCrashJSONCodec.h"
-#include "SentryCrashReportFields.h"
-#include "SentryInternalCDefines.h"
+#if !SDK_V10
 
-#include <stdlib.h>
-#include <string.h>
+#    include "SentryAsyncSafeLog.h"
+#    include "SentryCrashDate.h"
+#    include "SentryCrashJSONCodec.h"
+#    include "SentryCrashReportFields.h"
+#    include "SentryInternalCDefines.h"
 
-#define MAX_DEPTH 100
-#define MAX_NAME_LENGTH 100
+#    include <stdlib.h>
+#    include <string.h>
+
+#    define MAX_DEPTH 100
+#    define MAX_NAME_LENGTH 100
 
 static char *datePaths[][MAX_DEPTH] = {
     { "", SentryCrashField_Report, SentryCrashField_Timestamp },
@@ -295,3 +297,5 @@ sentrycrashcrf_fixupCrashReport(const char *crashReport)
     }
     return fixedReport;
 }
+
+#endif // !SDK_V10

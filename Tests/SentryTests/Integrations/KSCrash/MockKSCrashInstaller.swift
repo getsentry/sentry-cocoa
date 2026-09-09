@@ -1,6 +1,7 @@
 #if SDK_V10
 @_spi(Private) import SentryTestUtils
 @_spi(Private) @testable import Sentry
+internal import KSCrashRecording
 
 final class MockKSCrashDependencies: SentryKSCrash.DependencyProvider {
     typealias Installing = MockKSCrashInstaller
@@ -32,9 +33,10 @@ final class MockKSCrashInstaller: SentryKSCrash.Installing {
     public var installCalls: [
         (
             installPath: String,
-            monitors: UInt,
+            monitors: MonitorType,
             enableMemoryIntrospection: Bool,
-            enableSwapCxaThrow: Bool
+            enableSwapCxaThrow: Bool,
+            enableSwiftAsyncStackTraces: Bool
         )
     ] = []
     public var uninstallCallCount = 0
@@ -47,21 +49,26 @@ final class MockKSCrashInstaller: SentryKSCrash.Installing {
     public var sendAllReportsProcessingSessions: [SentryKSCrash.ReportProcessingSession] = []
     public var onSendAllReports: (() -> Void)?
     public var setUserInfoInvocations: [[String: Any]] = []
+    #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
+    public var uncaughtExceptionHandler: (@convention(c) (NSException) -> Void)?
+    #endif
 
     public init() {}
 
     public func install(
         installPath: String,
-        monitors: UInt,
+        monitors: MonitorType,
         enableMemoryIntrospection: Bool,
-        enableSwapCxaThrow: Bool
+        enableSwapCxaThrow: Bool,
+        enableSwiftAsyncStackTraces: Bool
     ) throws {
         installCalls.append(
             (
                 installPath: installPath,
                 monitors: monitors,
                 enableMemoryIntrospection: enableMemoryIntrospection,
-                enableSwapCxaThrow: enableSwapCxaThrow
+                enableSwapCxaThrow: enableSwapCxaThrow,
+                enableSwiftAsyncStackTraces: enableSwiftAsyncStackTraces
             )
         )
         if let error = shouldThrow { throw error }

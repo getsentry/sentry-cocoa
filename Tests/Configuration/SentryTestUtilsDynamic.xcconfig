@@ -1,0 +1,7 @@
+#include "../../Sources/Configuration/DeploymentTargets.xcconfig"
+
+HEADER_SEARCH_PATHS = $(SRCROOT)/Sources/Sentry/include/**
+
+PRODUCT_MODULE_NAME = SentryTestUtilsDynamic
+PRODUCT_NAME = $(PRODUCT_MODULE_NAME)
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.$(PRODUCT_MODULE_NAME)

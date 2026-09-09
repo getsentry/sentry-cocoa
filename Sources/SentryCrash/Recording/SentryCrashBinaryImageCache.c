@@ -1,22 +1,24 @@
-#include "SentryCrashBinaryImageCache.h"
-#include "SentryAsyncSafeLog.h"
-#include "SentryCrashBinaryImageCacheState.h"
-#include "SentryCrashDynamicLinker.h"
-#include <dispatch/dispatch.h>
-#include <mach-o/dyld.h>
-#include <mach-o/dyld_images.h>
-#include <stdatomic.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
+#if !SDK_V10
 
-#define MAX_DYLD_IMAGES SENTRYCRASHBIC_MAX_DYLD_IMAGES
+#    include "SentryCrashBinaryImageCache.h"
+#    include "SentryAsyncSafeLog.h"
+#    include "SentryCrashBinaryImageCacheState.h"
+#    include "SentryCrashDynamicLinker.h"
+#    include <dispatch/dispatch.h>
+#    include <mach-o/dyld.h>
+#    include <mach-o/dyld_images.h>
+#    include <stdatomic.h>
+#    include <stdio.h>
+#    include <stdlib.h>
+#    include <string.h>
+#    include <unistd.h>
+
+#    define MAX_DYLD_IMAGES SENTRYCRASHBIC_MAX_DYLD_IMAGES
 
 // Entry lifecycle states
-#define IMAGE_EMPTY 0 // Slot reserved but data not written, or write failed
-#define IMAGE_READY 1 // Published, visible to readers
-#define IMAGE_REMOVED 3 // Image was unloaded
+#    define IMAGE_EMPTY 0 // Slot reserved but data not written, or write failed
+#    define IMAGE_READY 1 // Published, visible to readers
+#    define IMAGE_REMOVED 3 // Image was unloaded
 
 static SentryCrashBinaryImageCacheState g_defaultCache = {
     .addImageCallback = &_dyld_register_func_for_add_image,
@@ -56,14 +58,14 @@ static inline void
 callBeforeAddImageCallback(SentryCrashBinaryImageCacheState *cache)
 {
     // we need this callback only for test verification, it is a noop in prod
-#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
     void (*cb)(void) = cache->beforeAddImageCallback;
     if (cb != NULL) {
         cb();
     }
-#else
+#    else
     (void)cache;
-#endif
+#    endif
 }
 
 static void
@@ -242,11 +244,11 @@ sentrycrashbic_startCache(void)
     // recorded all the load addresses of images yet. We think this is an acceptable tradeoff to not
     // block app launch, since it's always possible to crash early in app launch before Sentry can
     // capture the crash.
-#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
     startCacheImpl();
-#else
+#    else
     dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{ startCacheImpl(); });
-#endif
+#    endif
 }
 
 void
@@ -256,7 +258,7 @@ sentrycrashbic_stopCache(void)
     // images so crashes can still be symbolicated even if higher-level consumers temporarily stop.
 }
 
-#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 void
 sentrycrashbic_setActiveCacheState(SentryCrashBinaryImageCacheState *cache)
 {
@@ -265,7 +267,7 @@ sentrycrashbic_setActiveCacheState(SentryCrashBinaryImageCacheState *cache)
     }
     atomic_store_explicit(&g_activeCache, cache, memory_order_release);
 }
-#endif
+#    endif
 
 void
 sentrycrashbic_registerAddedCallback(sentrycrashbic_cacheChangeCallback callback)
@@ -293,3 +295,5 @@ sentrycrashbic_registerRemovedCallback(sentrycrashbic_cacheChangeCallback callba
     SentryCrashBinaryImageCacheState *cache = currentCache();
     atomic_store_explicit(&cache->removedCallback, callback, memory_order_release);
 }
+
+#endif // !SDK_V10

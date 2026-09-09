@@ -49,25 +49,27 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "SentryCrashCxaThrowSwapper.h"
+#if !SDK_V10
 
-#include <dlfcn.h>
-#include <errno.h>
-#include <execinfo.h>
-#include <mach-o/dyld.h>
-#include <mach-o/nlist.h>
-#include <mach/mach.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/mman.h>
-#include <sys/types.h>
-#include <unistd.h>
+#    include "SentryCrashCxaThrowSwapper.h"
 
-#include "SentryAsyncSafeLog.h"
-#include "SentryCrashMach-O.h"
-#include "SentryCrashPlatformSpecificDefines.h"
+#    include <dlfcn.h>
+#    include <errno.h>
+#    include <execinfo.h>
+#    include <mach-o/dyld.h>
+#    include <mach-o/nlist.h>
+#    include <mach/mach.h>
+#    include <stdint.h>
+#    include <stdio.h>
+#    include <stdlib.h>
+#    include <string.h>
+#    include <sys/mman.h>
+#    include <sys/types.h>
+#    include <unistd.h>
+
+#    include "SentryAsyncSafeLog.h"
+#    include "SentryCrashMach-O.h"
+#    include "SentryCrashPlatformSpecificDefines.h"
 
 typedef struct {
     uintptr_t image_dli_fbase_address;
@@ -191,7 +193,7 @@ addPair(SentryCrashImageToOriginalCxaThrowPair pair)
 static void
 __cxa_throw_decorator(void *thrown_exception, void *tinfo, void (*dest)(void *))
 {
-#define REQUIRED_FRAMES 2
+#    define REQUIRED_FRAMES 2
 
     if (g_cxa_throw_handler != NULL) {
         SENTRY_ASYNC_SAFE_LOG_DEBUG(
@@ -244,6 +246,18 @@ perform_rebinding_with_section(const section_t *dataSection, intptr_t slide, nli
 
     uint32_t *indirect_symbol_indices = indirect_symtab + dataSection->reserved1;
     void **indirect_symbol_bindings = (void **)((uintptr_t)slide + dataSection->addr);
+
+    if (dataSection->size == 0) {
+        SENTRY_ASYNC_SAFE_LOG_TRACE(
+            "Skipping empty section %s,%s", dataSection->segname, dataSection->sectname);
+        return;
+    }
+
+    if (indirect_symbol_bindings == NULL) {
+        SENTRY_ASYNC_SAFE_LOG_TRACE("Skipping section %s,%s with a NULL indirect symbol bindings",
+            dataSection->segname, dataSection->sectname);
+        return;
+    }
 
     // The SEG_DATA_CONST is read-only by default, so we need to make it writable
     // before we can modify the indirect symbol bindings.
@@ -497,3 +511,5 @@ sentrycrashct_is_cxa_throw_swapped(void)
 {
     return g_cxa_throw_handler != NULL;
 }
+
+#endif // !SDK_V10

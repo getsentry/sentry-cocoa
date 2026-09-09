@@ -33,7 +33,6 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         let currentDate = TestCurrentDateProvider()
         let sysctl = TestSysctl()
         let fileManager: SentryFileManager
-        let crashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
         let appStateManager: SentryAppStateManager
         var displayLinkWrapper = TestDisplayLinkWrapper()
         let framesTracker: SentryFramesTracker
@@ -66,7 +65,6 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
             ))
 
             let dependencies = SentryDependencyContainer.sharedInstance()
-            dependencies.crashWrapper = crashWrapper
             dependencies.fileManager = fileManager
             dependencies.sysctlWrapper = sysctl
             dependencies.dispatchQueueWrapper = dispatchQueue
@@ -94,7 +92,6 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
             let sut = SentryAppStartTracker(
                 dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
                 appStateManager: appStateManager,
-                framesTracker: framesTracker,
                 enablePreWarmedAppStartTracing: enablePreWarmedAppStartTracing,
                 dateProvider: SentryDependencyContainer.sharedInstance().dateProvider,
                 sysctlWrapper: SentryDependencyContainer.sharedInstance().sysctlWrapper,
