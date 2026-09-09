@@ -72,6 +72,11 @@ for static_library in "${STATIC_LIBRARIES[@]}"; do
         log_error "Static library contains debug-map references to external object files: $static_library"
         exit 1
     fi
+    if ! grep -F -- '-[SentryObjCLogger(FormatString) infoWithFormat:]' \
+        <<< "$nm_output" > /dev/null; then
+        log_error "Static library is missing SentryObjCLogger format methods: $static_library"
+        exit 1
+    fi
 done
 
 log_info "SentryObjC static libraries contain no external debug maps"
@@ -118,7 +123,7 @@ fi
 
 expected_symbols=(
     "_sentrycrash_install"
-    '_OBJC_CLASS_$_SentryObjCSDK'
+    "_OBJC_CLASS_\$_SentryObjCSDK"
 )
 
 for symbol in "${expected_symbols[@]}"; do

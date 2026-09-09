@@ -123,29 +123,19 @@ libtool -static -no_warning_for_no_symbols -o "$debug_static_lib" "${objects[@]}
 
 stripped_objects=()
 for object in "${objects[@]}"; do
-    # Simulator and Catalyst objects can contain multiple architectures. Keep the object if any
-    # architecture defines a global symbol. `-gU` selects defined external symbols, while `-j`
-    # prints only their names. `-arch all` also prints headings that must not count as symbols.
-    if nm -arch all -gjU "$object" 2> /dev/null \
-        | grep -v ' (for architecture .*):$' \
-        | grep . > /dev/null; then
-        stripped_object="$stripped_objects_dir/${object##*/}"
-        if [ -e "$stripped_object" ]; then
-            log_error "Duplicate product object basename: ${object##*/}"
-            exit 1
-        fi
-        cp "$object" "$stripped_object"
-        # Remove STABS and DWARF debug-map entries that refer to producer-only CI paths, while
-        # retaining the symbols needed to link the static library into a consumer's product.
-        strip -S "$stripped_object"
-        stripped_objects+=( "$stripped_object" )
+    stripped_object="$stripped_objects_dir/${object##*/}"
+    if [ -e "$stripped_object" ]; then
+        log_error "Duplicate product object basename: ${object##*/}"
+        exit 1
     fi
+    cp "$object" "$stripped_object"
+    # Remove STABS and DWARF debug-map entries that refer to producer-only CI paths, while
+    # retaining all linkable content, including Objective-C categories without global symbols.
+    if nm -arch all -ap "$stripped_object" 2> /dev/null | grep ' OSO ' > /dev/null; then
+        strip -S "$stripped_object"
+    fi
+    stripped_objects+=( "$stripped_object" )
 done
-
-if [ ${#stripped_objects[@]} -eq 0 ]; then
-    log_error "No object files with global symbols found under $archive_path/Products"
-    exit 1
-fi
 
 log_info "  Static output: $static_lib"
 libtool -static -no_warning_for_no_symbols -o "$static_lib" "${stripped_objects[@]}"
