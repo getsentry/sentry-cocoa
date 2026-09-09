@@ -16,7 +16,10 @@
         options.enableCrashHandler = NO;
         options.enableAutoPerformanceTracing = NO;
 #    if !SDK_V10
+#        pragma clang diagnostic push
+#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
         options.enableAppHangTracking = NO;
+#        pragma clang diagnostic pop
 #    endif // !SDK_V10
         options.enableWatchdogTerminationTracking = NO;
         options.enableSwizzling = NO;

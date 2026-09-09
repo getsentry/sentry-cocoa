@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Deprecations
+
+- Deprecate legacy App Hang tracking because it can produce less relevant stack traces and false positives. Enable the MetricKit integration for system-provided hang diagnostics. The `appHangTimeoutInterval` option remains supported for watchdog termination classification. (#8944)
+
 ### Features
 
 - Add a `device.event` breadcrumb (`SYSTEM_CLOCK_CHANGE`) when the system clock changes, for example due to a manual time change or NTP sync (#8946)
