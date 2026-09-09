@@ -443,6 +443,7 @@ run_build_for_prs: &run_build_for_prs
 run_testflight_for_prs: &run_testflight_for_prs
   - ".github/workflows/testflight.yml"
   - ".github/file-filters.yml"
+  - "Samples/iOS-Swift/**"
 
   # Scripts & actions
   - "scripts/ci-select-xcode.sh"
