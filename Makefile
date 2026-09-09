@@ -606,6 +606,9 @@ build-xcframework-sentryobjc-static:
 	@echo "--> Creating SentryObjC-Static xcframework (SDKs: $(SDKS))"
 	./scripts/build-xcframework-sentryobjc.sh --sdks "$(SDKS)"
 	./scripts/validate-xcframework.sh --xcframework "SentryObjC-Static.xcframework"
+	./scripts/validate-xcframework-sentryobjc-static.sh \
+		--xcframework "SentryObjC-Static.xcframework" \
+		--build-consumer
 	./scripts/compress-xcframework.sh --xcframework "SentryObjC-Static.xcframework"
 
 ## Build SentryObjC-Dynamic XCFramework locally for one or more SDKs
@@ -923,6 +926,19 @@ build-sample-macOS-CLI-Xcode:
 		-configuration Debug \
 		-destination 'platform=macOS' \
 		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the macOS-ObjectiveC-Static-CMake sample
+#
+# Builds a release-mode Objective-C CLI with CMake and SentryObjC-Static.
+# Set SENTRY_OBJC_STATIC_XCFRAMEWORK to test an unpacked local XCFramework.
+.PHONY: build-sample-macOS-ObjectiveC-Static-CMake
+build-sample-macOS-ObjectiveC-Static-CMake:
+	cmake \
+		-S Samples/macOS-ObjectiveC-Static-CMake \
+		-B Samples/macOS-ObjectiveC-Static-CMake/build \
+		-G Xcode \
+		$(if $(SENTRY_OBJC_STATIC_XCFRAMEWORK),-DSENTRY_OBJC_STATIC_XCFRAMEWORK="$(abspath $(SENTRY_OBJC_STATIC_XCFRAMEWORK))",-USENTRY_OBJC_STATIC_XCFRAMEWORK)
+	cmake --build Samples/macOS-ObjectiveC-Static-CMake/build --config Release
 
 ## Build the visionOS-SwiftUI-SPM sample app
 #

@@ -2,8 +2,9 @@
 #
 # Builds a single SentryObjC static library slice via SPM.
 #
-# Archives the SentryObjC SPM scheme for a given SDK, collects the per-target
-# object files, and merges them with libtool into a single libSentryObjC.a.
+# Archives the SentryObjC SPM scheme for a given SDK and merges its target
+# objects into two libraries: a stripped static distribution and an unstripped
+# intermediate used to generate the dynamic framework dSYM.
 
 set -euo pipefail
 
@@ -97,8 +98,8 @@ set -o pipefail && NSUnbufferedIO=YES xcodebuild archive \
 end_group
 
 objects=()
-while IFS= read -r -d '' obj; do
-    objects+=( "$obj" )
+while IFS= read -r -d '' object; do
+    objects+=( "$object" )
 done < <(find "$archive_path/Products" -type f -name "*.o" -print0)
 
 if [ ${#objects[@]} -eq 0 ]; then
@@ -106,13 +107,39 @@ if [ ${#objects[@]} -eq 0 ]; then
     exit 1
 fi
 
-static_lib="$LIB_DIR/$SDK/libSentryObjC.a"
-mkdir -p "$(dirname "$static_lib")"
+archive_dir="$LIB_DIR/$SDK"
+debug_static_lib="$archive_dir/libSentryObjC-Debug.a"
+static_lib="$archive_dir/libSentryObjC.a"
+stripped_objects_dir="$archive_dir/stripped-objects"
+rm -rf "$stripped_objects_dir"
+mkdir -p "$stripped_objects_dir"
 
-begin_group "Create static library for $SDK"
-log_info "  Objects: ${#objects[@]} files"
-log_info "  Output:  $static_lib"
-libtool -static -o "$static_lib" "${objects[@]}"
+begin_group "Create static libraries for $SDK"
+log_info "  Objects:      ${#objects[@]} files"
+log_info "  Debug output: $debug_static_lib"
+# The dynamic framework build uses this unstripped archive to generate its separate dSYM.
+# It is an intermediate and is not distributed as the static SentryObjC binary.
+libtool -static -no_warning_for_no_symbols -o "$debug_static_lib" "${objects[@]}"
+
+stripped_objects=()
+for object in "${objects[@]}"; do
+    stripped_object="$stripped_objects_dir/${object##*/}"
+    if [ -e "$stripped_object" ]; then
+        log_error "Duplicate product object basename: ${object##*/}"
+        exit 1
+    fi
+    cp "$object" "$stripped_object"
+    # Remove STABS and DWARF debug-map entries that refer to producer-only CI paths, while
+    # retaining all linkable content, including Objective-C categories without global symbols.
+    if nm -arch all -ap "$stripped_object" 2> /dev/null | grep ' OSO ' > /dev/null; then
+        strip -S "$stripped_object"
+    fi
+    stripped_objects+=( "$stripped_object" )
+done
+
+log_info "  Static output: $static_lib"
+libtool -static -no_warning_for_no_symbols -o "$static_lib" "${stripped_objects[@]}"
 end_group
 
-log_info "Slice $SDK built: $static_lib"
+log_info "Static slice built: $static_lib"
+log_info "Dynamic-linking intermediate built: $debug_static_lib"

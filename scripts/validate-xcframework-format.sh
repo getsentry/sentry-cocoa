@@ -171,7 +171,12 @@ while IFS= read -r platform_dir; do
         frameworks=$(find "$platform_dir" -name "*.framework" -type d)
 
         if [ -z "$frameworks" ]; then
-            log_warning "No .framework directories found in $platform_name"
+            static_libraries=$(find "$platform_dir" -maxdepth 1 -name "*.a" -type f)
+            if [ -n "$static_libraries" ]; then
+                log_info "Static library slice found"
+            else
+                log_warning "No framework or static library found in $platform_name"
+            fi
         else
             while IFS= read -r framework; do
                 if [ -n "$framework" ]; then

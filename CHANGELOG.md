@@ -17,6 +17,7 @@
 - Add hint parameter to public capture methods on `SentrySDK` (#8943)
 - Prevent Session Replay video encoding from reusing pixel buffers retained by AVFoundation. (#8950)
 - Prevent deadlock when a signal interrupts memory allocation by avoiding thread-local storage and unsafe formatting during signal handling. (#8271)
+- Remove invalid DWARF references from `SentryObjC-Static` XCFrameworks to prevent `dsymutil` missing-object warnings. (#8979)
 
 ### Internal
 
