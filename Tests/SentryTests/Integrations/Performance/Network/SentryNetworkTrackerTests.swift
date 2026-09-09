@@ -2290,6 +2290,44 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertNil(fixture.hub.capturedEventsWithScopes.first)
     }
 
+    func testCaptureHTTPClientError_hintContainsRequestAndResponse() throws {
+        let sut = fixture.getSut()
+        let task = createDataTask()
+        let response = try createResponse(code: 500)
+        task.setResponse(response)
+
+        sut.urlSessionTask(task, setState: .completed)
+
+        XCTAssertEqual(fixture.hub.capturedErrorHints.count, 1)
+        let hint = try XCTUnwrap(fixture.hub.capturedErrorHints.first)
+        XCTAssertNotNil(hint.urlRequest)
+        XCTAssertEqual(hint.urlRequest?.url, SentryNetworkTrackerTests.fullUrl)
+        let httpResponse = try XCTUnwrap(hint.httpResponse)
+        XCTAssertEqual(httpResponse.statusCode, 500)
+    }
+
+    @available(*, deprecated, message: "Testing deprecated beforeBreadcrumbWithHint API")
+    func testNetworkBreadcrumb_hintContainsRequestAndResponse() throws {
+        var receivedHint: Hint?
+        fixture.options.beforeBreadcrumbWithHint = { breadcrumb, hint in
+            receivedHint = hint
+            return breadcrumb
+        }
+
+        let sut = fixture.getSut()
+        let task = createDataTask()
+        let response = try createResponse(code: 200)
+        task.setResponse(response)
+
+        sut.urlSessionTask(task, setState: .completed)
+
+        let hint = try XCTUnwrap(receivedHint)
+        XCTAssertNotNil(hint.urlRequest)
+        XCTAssertEqual(hint.urlRequest?.url, SentryNetworkTrackerTests.fullUrl)
+        let httpResponse = try XCTUnwrap(hint.httpResponse)
+        XCTAssertEqual(httpResponse.statusCode, 200)
+    }
+
     private func setTaskState(_ task: URLSessionTaskMock, state: URLSessionTask.State) throws {
         fixture.getSut().urlSessionTask(try XCTUnwrap(task as? URLSessionTask), setState: state)
         task.state = state
@@ -2494,6 +2532,7 @@ private final class NetworkTrackerTestHub: Hub {
     func captureNonTerminatingEnvelope(_ envelope: SentryEnvelope) {}
     func updateSessionForDroppedEventNonTerminating(unhandled: Bool) {}
     func captureErrorEvent(event: Event) {}
+    func captureErrorEvent(event: Event, hint: Hint) {}
     func setTrace(_ traceId: SentryId, spanId: SpanId) {}
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     func getSessionReplayId() -> String? { nil }

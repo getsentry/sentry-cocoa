@@ -2920,6 +2920,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "httpResponse",
+    "parent": "SentryObjCHint",
+    "returnType": "NSHTTPURLResponse * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "hybridSDKMode",
     "parent": "SentryObjCInternalAppStartApi",
     "returnType": "BOOL",
@@ -6623,6 +6630,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setHttpResponse:",
+    "parent": "SentryObjCHint",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setHybridSDKMode:",
     "parent": "SentryObjCInternalAppStartApi",
     "returnType": "void",
@@ -7897,6 +7911,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setUrlRequest:",
+    "parent": "SentryObjCHint",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setUrlSession:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
@@ -8859,6 +8880,13 @@
     "name": "url",
     "parent": "SentryObjCRequest",
     "returnType": "NSString * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "urlRequest",
+    "parent": "SentryObjCHint",
+    "returnType": "NSURLRequest * _Nullable",
     "instance": true
   },
   {
@@ -10075,6 +10103,12 @@
     "name": "hour",
     "parent": "SentryObjCUnit",
     "type": "SentryObjCUnit * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "httpResponse",
+    "parent": "SentryObjCHint",
+    "type": "NSHTTPURLResponse * _Nullable"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -11677,6 +11711,12 @@
     "name": "url",
     "parent": "SentryObjCRequest",
     "type": "NSString * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "urlRequest",
+    "parent": "SentryObjCHint",
+    "type": "NSURLRequest * _Nullable"
   },
   {
     "kind": "ObjCPropertyDecl",

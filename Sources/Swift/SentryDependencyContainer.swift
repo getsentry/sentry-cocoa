@@ -644,6 +644,7 @@ protocol Hub {
     func captureNonTerminatingEnvelope(_ envelope: SentryEnvelope)
     func updateSessionForDroppedEventNonTerminating(unhandled: Bool)
     func captureErrorEvent(event: Event)
+    func captureErrorEvent(event: Event, hint: Hint)
     func setTrace(_ traceId: SentryId, spanId: SpanId)
     var currentOptions: Options? { get }
     var options: Options { get }
@@ -688,6 +689,10 @@ private struct DefaultHub: Hub {
 
     func captureErrorEvent(event: Event) {
         SentrySDKInternal.currentHub().captureErrorEvent(event: event)
+    }
+
+    func captureErrorEvent(event: Event, hint: Hint) {
+        SentrySDKInternal.currentHub().captureErrorEvent(event, withHint: hint)
     }
 
     func setTrace(_ traceId: SentryId, spanId: SpanId) {
