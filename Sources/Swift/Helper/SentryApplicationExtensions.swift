@@ -74,6 +74,8 @@ extension SentryApplication {
     /// Crash-time window access. Must not hop to main; KSCrash has suspended other threads.
     public func collectWindowsOnCurrentThread() -> [UIWindow] {
         var windows = Set<UIWindow>()
+
+        // For each active scene we get the window
         for scene in connectedScenes {
             if scene.activationState == .foregroundActive {
                 if
@@ -86,7 +88,15 @@ extension SentryApplication {
             }
         }
 
-        if let optionalWindow = delegate?.window, let window = optionalWindow {
+        // If no scenes are given, we try to find the window of the application delegate
+        guard let delegate else {
+            SentrySDKLog.debug("No application delegate found.")
+            return Array(windows)
+        }
+
+        // If scenes are not used, we fallback to the default UIApplicationDelegate.window.
+        // The property is of type UIWindow?? so we need to unwrap both optional layers.
+        if let optionalWindow = delegate.window, let window = optionalWindow {
             windows.insert(window)
         }
         return Array(windows)
