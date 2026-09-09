@@ -8,6 +8,7 @@
 - Add Hints API with `beforeSendWithHint` and `beforeBreadcrumbWithHint` callbacks (#8942)
 - Add hint parameter to public capture methods on `SentrySDK` (#8955)
 - Auto-populate HTTP request and response on hints for network breadcrumbs and HTTP client errors (#8967)
+- Include screenshot and view hierarchy attachments in `hint.attachments` before `beforeSendWithHint` runs (#8989)
 
 ### Fixes
 
