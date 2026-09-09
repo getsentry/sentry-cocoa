@@ -15,6 +15,7 @@
 - Classify MetricKit hangs over 500 ms as errors. (#8948)
 - Add hint parameter to public capture methods on `SentrySDK` (#8943)
 - Prevent Session Replay video encoding from reusing pixel buffers retained by AVFoundation. (#8950)
+- Prevent deadlock when a signal interrupts memory allocation by avoiding thread-local storage and unsafe formatting during signal handling. (#8271)
 
 ## 9.27.0
 
@@ -61,10 +62,6 @@
 - Prevent breadcrumb persistence for watchdog termination events from blocking the calling thread (#8653)
 - Fix data races when reading and updating network tracker feature flags (#8832)
 - Avoid lossy JPEG compression for user feedback screenshot fallbacks from non-previewable formats (#8876)
-
-### Fixes
-
-- Prevent deadlock when a signal interrupts memory allocation by avoiding thread-local storage and unsafe formatting during signal handling. (#8271)
 
 ## 9.26.0
 
