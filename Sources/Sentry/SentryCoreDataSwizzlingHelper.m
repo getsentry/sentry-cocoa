@@ -1,5 +1,4 @@
 #import "SentryCoreDataSwizzlingHelper.h"
-#import "SentryCoreDataTracker.h"
 #import "SentrySwift.h"
 #import "SentrySwizzle.h"
 #import <CoreData/CoreData.h>
