@@ -7,6 +7,9 @@ internal import _SentryPrivate
 private weak var globalScreenshotSource: SentryScreenshotSource?
 
 #if SENTRY_DISABLE_SENTRYCRASH_V10
+// KSCRASH_TODO(GH-8273, GH-8532): V10 crash-time screenshots use this KSCrash
+// writer instead of sentrycrash_setSaveScreenshots. Acceptance: SCV10-008 in
+// SENTRYCRASH_V10_MIGRATION_LEDGER.md.
 private let crashTimeScreenshotWriter: @convention(c) (UnsafePointer<CChar>) -> Void = { path in
     sentrykscrash_attachments_log("screenshot writer: enter")
     guard let source = globalScreenshotSource else {
@@ -52,6 +55,8 @@ final class SentryScreenshotIntegration<Dependencies: ScreenshotIntegrationProvi
             globalScreenshotSource?.saveScreenShots(reportPath)
         }
 #else
+        // KSCRASH_TODO(GH-8273, GH-8532): V10 registers the KSCrash attachments
+        // writer. Acceptance: SCV10-008 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
         SentryDependencyContainer.sharedInstance().getKSCrashInstaller().setScreenshotProvider(
             crashTimeScreenshotWriter
         )
@@ -63,6 +68,8 @@ final class SentryScreenshotIntegration<Dependencies: ScreenshotIntegrationProvi
 #if !SENTRY_DISABLE_SENTRYCRASH_V10
         sentrycrash_setSaveScreenshots(nil)
 #else
+        // KSCRASH_TODO(GH-8273, GH-8532): V10 clears the KSCrash attachments writer.
+        // Acceptance: SCV10-008 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
         SentryDependencyContainer.sharedInstance().getKSCrashInstaller().setScreenshotProvider(nil)
 #endif
         client?.removeAttachmentProcessor(self)
