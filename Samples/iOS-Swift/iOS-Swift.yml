@@ -212,6 +212,7 @@ targets:
     info:
       path: AppClip/Configurations/Info.plist
       properties:
+        CFBundlePackageType: APPL
         CFBundleDisplayName: iOS-Swift
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
