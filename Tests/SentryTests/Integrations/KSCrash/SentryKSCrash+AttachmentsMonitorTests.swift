@@ -61,7 +61,8 @@ final class SentryKSCrashAttachmentsMonitorTests: XCTestCase {
 
     override func tearDownWithError() throws {
         sentrykscrash_attachments_setScreenshotWriter(nil)
-        sentrykscrash_attachments_setEnabled(false)
+        sentrykscrash_attachments_setEnabled(false, nil)
+        sentrykscrash_attachments_setSidecarPathProvider(nil)
         AttachmentsMonitorTestRoot.installDir = nil
         if let installDir, FileManager.default.fileExists(atPath: installDir.path) {
             try FileManager.default.removeItem(at: installDir)
@@ -103,7 +104,7 @@ final class SentryKSCrashAttachmentsMonitorTests: XCTestCase {
         // -- Arrange --
         let reportID: Int64 = 1
         let monitor = try makeMonitor(reportID: reportID)
-        monitor.enabled = false
+        sentrykscrash_attachments_setEnabled(false, nil)
         monitor.setScreenshotWriter(testCountWrites)
 
         // -- Act --
@@ -234,6 +235,79 @@ final class SentryKSCrashAttachmentsMonitorTests: XCTestCase {
         XCTAssertTrue(FileManager.default.fileExists(atPath: file.path))
     }
 
+    func testRemoveOrphanedPayloadDirectories_whenSomeReportIDsRemain_shouldDeleteOnlyUnkeptDirectories() throws {
+        // -- Arrange --
+        let keptID: Int64 = 0x21
+        let orphanID: Int64 = 0x22
+        let keptDirectory = payloadDirectory(reportID: keptID)
+        let orphanDirectory = payloadDirectory(reportID: orphanID)
+        try FileManager.default.createDirectory(at: keptDirectory, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: orphanDirectory, withIntermediateDirectories: true)
+        try Data([0x01]).write(to: keptDirectory.appendingPathComponent("screenshot.png"))
+        try Data([0x02]).write(to: orphanDirectory.appendingPathComponent("screenshot.png"))
+        let unrelated = installDir.appendingPathComponent("other", isDirectory: true)
+        try FileManager.default.createDirectory(at: unrelated, withIntermediateDirectories: true)
+
+        // -- Act --
+        SentryKSCrash.AttachmentsMonitor.Layout.removeOrphanedPayloadDirectories(
+            at: installDir,
+            keeping: [keptID]
+        )
+
+        // -- Assert --
+        XCTAssertTrue(FileManager.default.fileExists(atPath: keptDirectory.path))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: orphanDirectory.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: unrelated.path))
+    }
+
+    func testRemoveOrphanedPayloadDirectories_whenKeepingIsEmpty_shouldDeleteOwnedDirectories() throws {
+        // -- Arrange --
+        let directory = payloadDirectory(reportID: 0x23)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        try Data([0x01]).write(to: directory.appendingPathComponent("screenshot.png"))
+
+        // -- Act --
+        SentryKSCrash.AttachmentsMonitor.Layout.removeOrphanedPayloadDirectories(
+            at: installDir,
+            keeping: []
+        )
+
+        // -- Assert --
+        XCTAssertFalse(FileManager.default.fileExists(atPath: directory.path))
+    }
+
+    func testRemoveOrphanedPayloadDirectories_whenNameIsNotReportIDHex_shouldNotDelete() throws {
+        // -- Arrange --
+        let directory = installDir
+            .appendingPathComponent("SentryAttachments", isDirectory: true)
+            .appendingPathComponent("not-a-report-id", isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+
+        // -- Act --
+        SentryKSCrash.AttachmentsMonitor.Layout.removeOrphanedPayloadDirectories(
+            at: installDir,
+            keeping: []
+        )
+
+        // -- Assert --
+        XCTAssertTrue(FileManager.default.fileExists(atPath: directory.path))
+    }
+
+    func testRemoveOrphanedPayloadDirectories_whenPayloadRootIsMissing_shouldNoOp() {
+        // -- Act --
+        SentryKSCrash.AttachmentsMonitor.Layout.removeOrphanedPayloadDirectories(
+            at: installDir,
+            keeping: []
+        )
+
+        // -- Assert --
+        XCTAssertFalse(
+            FileManager.default.fileExists(
+                atPath: installDir.appendingPathComponent("SentryAttachments").path
+            )
+        )
+    }
+
     // MARK: - Helpers
 
     private func makeMonitor(reportID: Int64) throws -> SentryKSCrash.AttachmentsMonitor {
@@ -244,9 +318,8 @@ final class SentryKSCrashAttachmentsMonitorTests: XCTestCase {
         )
 
         let monitor = SentryKSCrash.AttachmentsMonitor()
-        monitor.enabled = true
-        var callbacks = KSCrash_ExceptionHandlerCallbacks()
-        callbacks.getReportSidecarPath = { _, id, pathBuffer, length in
+        sentrykscrash_attachments_setEnabled(true, nil)
+        sentrykscrash_attachments_setSidecarPathProvider { _, id, pathBuffer, length in
             guard let pathBuffer, let root = AttachmentsMonitorTestRoot.installDir else { return false }
             let path = SentryKSCrashAttachmentsMonitorTests.markerURL(installDir: root, reportID: id).path
             return path.withCString { source in
@@ -256,7 +329,6 @@ final class SentryKSCrashAttachmentsMonitorTests: XCTestCase {
                 return true
             }
         }
-        monitor.callbacks = callbacks
         return monitor
     }
 

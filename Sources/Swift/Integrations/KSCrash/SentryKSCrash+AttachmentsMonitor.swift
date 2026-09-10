@@ -22,8 +22,8 @@ extension SentryKSCrash {
     /// The sidecar path is one file. KSCrash only calls `createStitchedReport` when
     /// that `.ksscr` exists, and only deletes that file when the report is deleted.
     /// Attachments are arbitrary files, so they cannot live in the sidecar without unpacking
-    /// at stitch time. They live in a Sentry-owned sibling directory. After the crash report
-    /// is captured into an envelope, Sentry deletes that payload directory; KSCrash will not.
+    /// at stitch time. They live in a Sentry-owned sibling directory. KSCrash deletes the report
+    /// and `.ksscr` marker; Sentry sweeps leftover payload directories after delivery.
     final class AttachmentsMonitor: NSObject, MonitorPlugin, @unchecked Sendable {
         typealias Context = UnsafeMutableRawPointer?
         typealias InitCallback = @convention(c) (UnsafeMutablePointer<KSCrash_ExceptionHandlerCallbacks>?, Context) -> Void
@@ -116,8 +116,7 @@ extension SentryKSCrash {
                     .filter { path in
                         let id = path.lastPathComponent
 
-                        return id.count == 16 &&
-                            id.allSatisfy(\.isHexDigit) &&
+                        return isReportIDHex(id) &&
                             path.deletingLastPathComponent().lastPathComponent == payloadDirectoryName
                     }
                     .reduce(into: Set<URL>()) { partialResult, item in
@@ -125,6 +124,49 @@ extension SentryKSCrash {
                     }
 
                 directories.forEach { try? FileManager.default.removeItem(at: $0) }
+            }
+
+            static func removeOrphanedPayloadDirectories(at installPath: URL, keeping reportIDs: Set<Int64>) {
+                let root = installPath.appendingPathComponent(payloadDirectoryName, isDirectory: true)
+                guard FileManager.default.fileExists(atPath: root.path) else {
+                    return
+                }
+
+                let kept = Set(reportIDs.map(reportIDHex))
+                let directories: [URL]
+                do {
+                    directories = try FileManager.default.contentsOfDirectory(
+                        at: root,
+                        includingPropertiesForKeys: [.isDirectoryKey],
+                        options: [.skipsHiddenFiles]
+                    )
+                    .filter { (try? $0.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true }
+                    .filter { isReportIDHex($0.lastPathComponent) }
+                    .filter { !kept.contains($0.lastPathComponent.lowercased()) }
+                } catch {
+                    SentrySDKLog.debug(
+                        "Failed to list attachment payload directories in \(root.path): \(error)"
+                    )
+                    return
+                }
+
+                directories.forEach { url in
+                    do {
+                        try FileManager.default.removeItem(at: url)
+                    } catch {
+                        SentrySDKLog.debug(
+                            "Failed to remove orphaned attachment payload directory \(url.path): \(error)"
+                        )
+                    }
+                }
+            }
+
+            static func reportIDHex(_ reportID: Int64) -> String {
+                String(format: "%016llx", UInt64(bitPattern: reportID))
+            }
+
+            private static func isReportIDHex(_ name: String) -> Bool {
+                name.count == 16 && name.allSatisfy(\.isHexDigit)
             }
         }
 

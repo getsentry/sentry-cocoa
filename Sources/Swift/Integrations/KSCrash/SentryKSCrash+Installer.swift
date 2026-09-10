@@ -61,6 +61,7 @@ extension SentryKSCrash {
         private static let startupCrashFlushDuration: TimeInterval = 5
 
         private(set) var installed = false
+        private var installPath: URL?
 
         /// KSCrash copies plugins only on the first process-lifetime install, so this monitor
         /// must outlive any single SDK lifecycle.
@@ -103,6 +104,8 @@ extension SentryKSCrash {
                 // The crash handler is already running — treat this as success.
                 SentrySDKLog.debug("KSCrash already installed; continuing.")
             }
+
+            self.installPath = URL(fileURLWithPath: installPath, isDirectory: true)
             installed = true
             #if SENTRY_CRASH_E2E
             SentryKSCrash.CrashE2ETestHook.installSyntheticScreenshotProvider()
@@ -143,6 +146,7 @@ extension SentryKSCrash {
             // Send one report per invocation so those decisions never retain an already captured
             // report, then continue with the remaining report IDs regardless of each result while
             // this integration's processing session remains active.
+            let installPath = self.installPath
             let reportStoreSender = SentryKSCrash.ReportStoreSender(
                 sendReport: { reportID, onCompletion in
                     reportStore.sendReport(
@@ -152,8 +156,16 @@ extension SentryKSCrash {
                         onCompletion(filteredReports?.count ?? 0, error)
                     }
                 },
-                cleanupOrphanedRunSidecars: {
+                cleanupOrphanedSidecars: {
                     reportStore.cleanupOrphanedRunSidecars()
+                    // KSCrash deletes reports and `.ksscr` markers, not Sentry-owned payload
+                    // dirs. Remaining report IDs still need their attachments for a later retry.
+                    if let installPath {
+                        SentryKSCrash.AttachmentsMonitor.Layout.removeOrphanedPayloadDirectories(
+                            at: installPath,
+                            keeping: Set(reportStore.reportIDs.map { $0.int64Value })
+                        )
+                    }
                     #if SENTRY_CRASH_E2E
                     SentryKSCrash.CrashE2ETestHook.markReportProcessingComplete()
                     #endif
