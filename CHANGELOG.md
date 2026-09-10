@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add mask-aware label capture for interaction breadcrumbs. (#9011)
+
 ### Fixes
 
 - Store the binary image cache in zero-fill memory to reduce the SDK binary size. (#9003)
