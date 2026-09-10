@@ -90,7 +90,6 @@ extension SentryApplication {
 
         // If no scenes are given, we try to find the window of the application delegate
         guard let delegate else {
-            SentrySDKLog.debug("No application delegate found.")
             return Array(windows)
         }
 
