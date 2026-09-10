@@ -201,7 +201,6 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [HangingRequestProtocol.self]
         let session = URLSession(configuration: configuration)
-        defer { session.invalidateAndCancel() }
 
         let url = try XCTUnwrap(URL(string: "https://request.test/hang"))
         weak var weakTask: URLSessionTask?
@@ -217,6 +216,16 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         }
 
         // -- Assert --
+        // Invalidate so the session drops its own reference to the finished task.
+        session.invalidateAndCancel()
+        // The terminal setState: transition autoreleases the task on a CFNetwork thread whose pool
+        // this test does not drain, so deallocation can lag completion. Poll instead of asserting
+        // immediately; an unbalanced retain never releases and fails this wait. A short interval
+        // avoids busy-spinning and the ~1s penalty of XCTNSPredicateExpectation.
+        let deadline = ProcessInfo.processInfo.systemUptime + 5
+        while weakTask != nil && ProcessInfo.processInfo.systemUptime < deadline {
+            Thread.sleep(forTimeInterval: 0.01)
+        }
         XCTAssertNil(weakTask)
     }
 
