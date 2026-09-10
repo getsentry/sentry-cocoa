@@ -8,7 +8,7 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         SentryAppStartMeasurementProvider.reset()
-        PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = false
+        SentrySDKInternal.appStartMeasurementHybridSDKMode = false
         SentrySDKInternal.setAppStartMeasurement(nil)
     }
 
@@ -62,7 +62,7 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
         SentrySDKInternal.setAppStartMeasurement(
             buildAppStartMeasurement(type: .cold, appStartTimestamp: appStartTimestamp, duration: appStartDuration)
         )
-        PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = true
+        SentrySDKInternal.appStartMeasurementHybridSDKMode = true
         let transactionStart = appStartTimestamp.addingTimeInterval(appStartDuration)
 
         // -- Act --

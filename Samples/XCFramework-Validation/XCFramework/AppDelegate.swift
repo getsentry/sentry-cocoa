@@ -12,7 +12,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             options.sessionTrackingIntervalMillis = 5_000
         }
         
-        print(PrivateSentrySDKOnly.getSdkName())
+        print(SentrySDK.internal.sdk.name)
         
         return true
     }

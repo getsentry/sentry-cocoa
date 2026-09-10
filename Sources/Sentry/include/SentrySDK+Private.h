@@ -55,6 +55,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (nullable SentryAppStartMeasurement *)getAppStartMeasurement;
 
+@property (nullable, nonatomic, class, copy) void (^onAppStartMeasurementAvailable)
+    (SentryAppStartMeasurement *_Nullable);
+@property (nonatomic, class) BOOL appStartMeasurementHybridSDKMode;
+
+#if SENTRY_HAS_UIKIT
+@property (nonatomic, class) BOOL framesTrackingMeasurementHybridSDKMode;
+#endif // SENTRY_HAS_UIKIT
+
 @property (nonatomic, class) NSUInteger startInvocations;
 @property (nullable, nonatomic, class) NSDate *startTimestamp;
 

@@ -354,7 +354,7 @@ class SentrySDKInternalTests: XCTestCase {
         let appStartMeasurement = TestData.getAppStartMeasurement(type: .warm)
 
         var callbackCalled = false
-        PrivateSentrySDKOnly.onAppStartMeasurementAvailable = { measurement in
+        SentrySDKInternal.onAppStartMeasurementAvailable = { measurement in
             XCTAssertEqual(appStartMeasurement, measurement)
             callbackCalled = true
         }

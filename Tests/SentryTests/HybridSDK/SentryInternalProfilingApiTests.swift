@@ -1,4 +1,5 @@
-@testable import Sentry
+@_spi(Private) import SentryTestUtils
+@_spi(Private) @testable import Sentry
 import XCTest
 
 #if !(os(watchOS) || os(tvOS) || os(visionOS))
@@ -15,6 +16,32 @@ class SentryInternalProfilingApiTests: XCTestCase {
         let startTime = sut.start(for: traceId)
         XCTAssertGreaterThan(startTime, 0)
         sut.discard(for: traceId)
+    }
+
+    func testStart_shouldCaptureTimestampBeforeProfilerStarts() {
+        // -- Arrange --
+        let dependencyContainer = SentryDependencyContainer.sharedInstance()
+        let originalDateProvider = dependencyContainer.dateProvider
+        let originalDispatchFactory = dependencyContainer.dispatchFactory
+        let dateProvider = TestCurrentDateProvider()
+        let dispatchFactory = TestDispatchFactory()
+        dispatchFactory.vendedSourceHandler = { _ in
+            dateProvider.advanceBy(nanoseconds: 1)
+        }
+        dependencyContainer.dateProvider = dateProvider
+        dependencyContainer.dispatchFactory = dispatchFactory
+        let traceId = SentryId()
+        defer {
+            sut.discard(for: traceId)
+            dependencyContainer.dateProvider = originalDateProvider
+            dependencyContainer.dispatchFactory = originalDispatchFactory
+        }
+
+        // -- Act --
+        let startTime = sut.start(for: traceId)
+
+        // -- Assert --
+        XCTAssertEqual(startTime, 0)
     }
 
     func testStart_withoutSDK_multipleCalls_shouldAllReturnNonZero() {

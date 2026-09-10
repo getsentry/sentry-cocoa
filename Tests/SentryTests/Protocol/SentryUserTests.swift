@@ -4,7 +4,7 @@ import XCTest
 class SentryUserTests: XCTestCase {
 
     func testInitWithDictionary() {
-        let dict: [AnyHashable: Any] = [
+        let dict: [String: Any] = [
             "id": "fixture-id",
             "email": "fixture-email",
             "username": "fixture-username",
@@ -19,7 +19,7 @@ class SentryUserTests: XCTestCase {
             ],
             "foo": "bar" // Unknown
         ]
-        let user = PrivateSentrySDKOnly.user(with: dict)
+        let user = SentrySDK.internal.user.fromDictionary(dict)
 
         XCTAssertEqual(user.userId, "fixture-id")
         XCTAssertEqual(user.email, "fixture-email")
@@ -33,7 +33,7 @@ class SentryUserTests: XCTestCase {
     }
 
     func testInitWithDictionary_GeoRoundTrip() {
-        let dict: [AnyHashable: Any] = [
+        let dict: [String: Any] = [
             "id": "user-1",
             "geo": [
                 "city": "San Francisco",
@@ -41,7 +41,7 @@ class SentryUserTests: XCTestCase {
                 "region": "California"
             ]
         ]
-        let user = PrivateSentrySDKOnly.user(with: dict)
+        let user = SentrySDK.internal.user.fromDictionary(dict)
         let serialized = user.serialize()
 
         let geo = serialized["geo"] as? [String: Any]

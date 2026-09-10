@@ -47,7 +47,6 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 
 // Headers here are to be used by Hybrid SDKs
 // Be careful when using them
-#    import <Sentry/PrivateSentrySDKOnly.h>
 #    import <Sentry/PrivatesHeader.h>
 #    import <Sentry/SentryAppStartMeasurement.h>
 #    import <Sentry/SentrySessionReplayHybridSDK.h>
