@@ -6,15 +6,70 @@
 
 - Add a `device.event` breadcrumb (`SYSTEM_CLOCK_CHANGE`) when the system clock changes, for example due to a manual time change or NTP sync (#8946)
 - Add Hints API with `beforeSendWithHint` and `beforeBreadcrumbWithHint` callbacks (#8942)
+
+  Use hints to inspect the original source material that produced an event or breadcrumb, and to
+  add or remove attachments before they are sent:
+
+  ```swift
+  SentrySDK.start { options in
+      options.beforeSendWithHint = { event, hint in
+          if let error = hint.originalError as? NSError,
+             error.domain == NSURLErrorDomain {
+              return nil // drop network errors
+          }
+          return event
+      }
+      options.beforeBreadcrumbWithHint = { breadcrumb, hint in
+          if hint.urlRequest?.url?.host == "internal.example.com" {
+              return nil // redact internal traffic
+          }
+          return breadcrumb
+      }
+  }
+  ```
+
 - Add hint parameter to public capture methods on `SentrySDK` (#8955)
+
+  Pass a `Hint` when capturing events or errors to attach metadata that `beforeSendWithHint`
+  can inspect:
+
+  ```swift
+  let hint = Hint()
+  hint.setHintValue("checkout", forKey: "flow")
+  SentrySDK.capture(error: error, hint: hint)
+  ```
+
 - Auto-populate HTTP request and response on hints for network breadcrumbs and HTTP client errors (#8967)
+
+  Network breadcrumbs and HTTP client error events now include the originating `URLRequest` and
+  `HTTPURLResponse` on the hint, so callbacks can inspect status codes, headers, or URLs:
+
+  ```swift
+  options.beforeBreadcrumbWithHint = { breadcrumb, hint in
+      if let statusCode = hint.httpResponse?.statusCode,
+         statusCode == 401 {
+          breadcrumb.level = .warning
+      }
+      return breadcrumb
+  }
+  ```
+
 - Include screenshot and view hierarchy attachments in `hint.attachments` before `beforeSendWithHint` runs (#8989)
+
+  Screenshot and view hierarchy attachments are now available in `hint.attachments` when
+  `beforeSendWithHint` is called, so they can be inspected or removed:
+
+  ```swift
+  options.beforeSendWithHint = { event, hint in
+      hint.attachments = hint.attachments.filter { $0.filename != "screenshot.png" }
+      return event
+  }
+  ```
 
 ### Fixes
 
 - Prevent relevant view controller traversal from recursively loading parent views and invoking `viewDidLoad` twice when tracing is enabled. (#8941)
 - Classify MetricKit hangs over 500 ms as errors. (#8948)
-- Add hint parameter to public capture methods on `SentrySDK` (#8943)
 - Prevent Session Replay video encoding from reusing pixel buffers retained by AVFoundation. (#8950)
 - Prevent deadlock when a signal interrupts memory allocation by avoiding thread-local storage and unsafe formatting during signal handling. (#8271)
 - Remove invalid DWARF references from `SentryObjC-Static` XCFrameworks to prevent `dsymutil` missing-object warnings. (#8979)
