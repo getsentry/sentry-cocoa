@@ -176,11 +176,21 @@ static atomic_bool g_attachmentsEnabled = false;
 static _Atomic(SentryKSCrashAttachmentsScreenshotWriter) g_screenshotWriter;
 static _Atomic(KSCrashReportSidecarPathProviderFunc) g_getSidecarPath;
 
+_Static_assert(ATOMIC_BOOL_LOCK_FREE == 2, "Crash-handler enabled state must be lock-free");
+
 static const unsigned char kMarkerHeader[] = { 0xDE, 0xAD, 0xBE, 0xEF, 1 };
 
-void
-sentrykscrash_attachments_setEnabled(bool enabled)
+bool
+sentrykscrash_attachments_isEnabled(void *context)
 {
+    (void)context;
+    return atomic_load_explicit(&g_attachmentsEnabled, memory_order_acquire);
+}
+
+void
+sentrykscrash_attachments_setEnabled(bool enabled, void *context)
+{
+    (void)context;
     atomic_store_explicit(&g_attachmentsEnabled, enabled, memory_order_release);
 }
 

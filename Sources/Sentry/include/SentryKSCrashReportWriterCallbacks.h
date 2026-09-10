@@ -27,7 +27,8 @@ extern const char *const _Nonnull sentrykscrash_attachmentsMonitorID;
 
 typedef void (*SentryKSCrashAttachmentsScreenshotWriter)(const char *_Nonnull payloadDirectory);
 
-void sentrykscrash_attachments_setEnabled(bool enabled);
+bool sentrykscrash_attachments_isEnabled(void *_Nullable context);
+void sentrykscrash_attachments_setEnabled(bool enabled, void *_Nullable context);
 void sentrykscrash_attachments_setScreenshotWriter(
     SentryKSCrashAttachmentsScreenshotWriter _Nullable writer);
 void sentrykscrash_attachments_setSidecarPathProvider(

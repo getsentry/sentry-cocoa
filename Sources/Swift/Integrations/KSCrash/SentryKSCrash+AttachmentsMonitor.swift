@@ -128,15 +128,6 @@ extension SentryKSCrash {
             }
         }
 
-        // MARK: - State
-
-        struct MonitorState {
-            var enabled: Bool = false
-            var callbacks: KSCrash_ExceptionHandlerCallbacks?
-        }
-
-        private let state = SentryMutex(MonitorState())
-
         private let _monitorId: UnsafeMutablePointer<CChar> = strdup(sentrykscrash_attachmentsMonitorID)
 
         let api: UnsafeMutablePointer<KSCrashMonitorAPI>
@@ -153,8 +144,8 @@ extension SentryKSCrash {
             free(_monitorId)
         }
 
-        private static let apiInitCallback: InitCallback = { callbacks, context in
-            SentryKSCrash.AttachmentsMonitor.from(context)?.callbacks = callbacks?.pointee
+        private static let apiInitCallback: InitCallback = { callbacks, _ in
+            sentrykscrash_attachments_setSidecarPathProvider(callbacks?.pointee.getReportSidecarPath)
         }
 
         private static let monitorIDCallback: MonitorIDCallback = { context in
@@ -166,14 +157,6 @@ extension SentryKSCrash {
         }
 
         private static let monitorFlagsCallback: MonitorFlagsCallback = { _ in KSCrashMonitorFlagPlugin }
-
-        private static let setEnabledCallback: SetEnabledCallback = { isEnabled, context in
-            SentryKSCrash.AttachmentsMonitor.from(context)?.enabled = isEnabled
-        }
-
-        private static let isEnabledCallback: IsEnabledCallback = { context in
-            SentryKSCrash.AttachmentsMonitor.from(context)?.enabled ?? false
-        }
 
         private static let addContextualInfoCallback: AddContextualInfoCallback = { _, _ in }
 
@@ -206,8 +189,8 @@ extension SentryKSCrash.AttachmentsMonitor {
                 init: Self.apiInitCallback,
                 monitorId: Self.monitorIDCallback,
                 monitorFlags: Self.monitorFlagsCallback,
-                setEnabled: Self.setEnabledCallback,
-                isEnabled: Self.isEnabledCallback,
+                setEnabled: sentrykscrash_attachments_setEnabled,
+                isEnabled: sentrykscrash_attachments_isEnabled,
                 addContextualInfoToEvent: Self.addContextualInfoCallback,
                 notifyPostMonitorsEnabled: nil,
                 notifyPostSystemEnable: Self.notifyPostSystemEnableCallback,
@@ -225,22 +208,6 @@ extension SentryKSCrash.AttachmentsMonitor {
 }
 
 extension SentryKSCrash.AttachmentsMonitor {
-    var enabled: Bool {
-        get { state.withLock { $0.enabled } }
-        set {
-            state.withLock { $0.enabled = newValue }
-            sentrykscrash_attachments_setEnabled(newValue)
-        }
-    }
-
-    var callbacks: KSCrash_ExceptionHandlerCallbacks? {
-        get { state.withLock { $0.callbacks } }
-        set {
-            state.withLock { $0.callbacks = newValue }
-            sentrykscrash_attachments_setSidecarPathProvider(newValue?.getReportSidecarPath)
-        }
-    }
-
     func setScreenshotWriter(_ writer: SentryKSCrashAttachmentsScreenshotWriter?) {
         sentrykscrash_attachments_setScreenshotWriter(writer)
     }
