@@ -36,7 +36,15 @@ final class SentryAutoBreadcrumbTrackingIntegration<Dependencies: AutoBreadcrumb
         #else
         let reportAccessibilityIdentifier = false
 #endif // os(iOS) && !SENTRY_NO_UI_FRAMEWORK
-        let breadcrumbTracker = SentryBreadcrumbTracker(reportAccessibilityIdentifier: reportAccessibilityIdentifier)
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        let enableBreadcrumbTextExtraction = options.enableBreadcrumbTextExtraction
+#else
+        let enableBreadcrumbTextExtraction = false
+#endif
+        let breadcrumbTracker = SentryBreadcrumbTracker(
+            reportAccessibilityIdentifier: reportAccessibilityIdentifier,
+            enableBreadcrumbTextExtraction: enableBreadcrumbTextExtraction
+        )
         self.breadcrumbTracker = breadcrumbTracker
         breadcrumbTracker.start(with: self)
 
