@@ -161,6 +161,65 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         XCTAssertEqual(1, breadcrumbs?.count)
     }
 
+    /// Runs a real request through our `resume` and `setState:` swizzles, which now take an
+    /// autoreleased reference to the task, and verifies the swizzled path still tracks the request.
+    /// A custom URLProtocol answers offline so the request completes deterministically. The exact
+    /// breadcrumb count is platform dependent (the SDK swizzles more than one class in the task
+    /// hierarchy on iOS), so this asserts a network breadcrumb for the request was recorded rather
+    /// than a specific count.
+    func testResume_whenRequestCompletes_recordsHTTPBreadcrumbForRequest() throws {
+        // -- Arrange --
+        startSDK()
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [RespondingRequestProtocol.self]
+        let session = URLSession(configuration: configuration)
+        defer { session.invalidateAndCancel() }
+
+        let urlString = "https://request.test/ok"
+        let url = try XCTUnwrap(URL(string: urlString))
+        let completed = expectation(description: "Task completed")
+        let task = session.dataTask(with: url) { _, _, _ in completed.fulfill() }
+
+        // -- Act --
+        task.resume()
+        wait(for: [completed], timeout: 5)
+
+        // -- Assert --
+        let scope = SentrySDKInternal.currentHub().scope
+        let breadcrumbs = try XCTUnwrap(Dynamic(scope).breadcrumbArray as [Breadcrumb]?)
+        let httpBreadcrumb = try XCTUnwrap(breadcrumbs.first { $0.category == "http" })
+        XCTAssertEqual(httpBreadcrumb.data?["url"] as? String, urlString)
+    }
+
+    /// Verifies the lifetime fix balances its retain: the `resume`/`setState:` swizzles take an
+    /// autoreleased reference to the task, so once the task completes and the autorelease pool
+    /// drains, the task is deallocated rather than leaked. A regression that retained without
+    /// autoreleasing would keep `weakTask` alive here.
+    func testResumeThenCancel_whenSwizzled_doesNotLeakTask() throws {
+        // -- Arrange --
+        startSDK()
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [HangingRequestProtocol.self]
+        let session = URLSession(configuration: configuration)
+        defer { session.invalidateAndCancel() }
+
+        let url = try XCTUnwrap(URL(string: "https://request.test/hang"))
+        weak var weakTask: URLSessionTask?
+
+        // -- Act --
+        autoreleasepool {
+            let completed = expectation(description: "Task completed")
+            let task = session.dataTask(with: url) { _, _, _ in completed.fulfill() }
+            weakTask = task
+            task.resume()
+            task.cancel()
+            wait(for: [completed], timeout: 5)
+        }
+
+        // -- Assert --
+        XCTAssertNil(weakTask)
+    }
+
     func testCaptureFailedRequestsDisabled_WhenSwizzlingDisabled() {
         fixture.options.enableSwizzling = false
         fixture.options.enableCaptureFailedRequests = true
@@ -254,6 +313,63 @@ class BlockAllRequestsProtocol: URLProtocol {
         } else {
             XCTFail("Couldn't block request because client was nil.")
         }
+    }
+
+    override func stopLoading() {
+
+    }
+}
+
+/// Keeps every request in flight without ever completing it, so the task stays in the `running`
+/// state until it is cancelled. Cancelling then drives the `running -> canceling` transition used by
+/// the tests above, entirely offline.
+class HangingRequestProtocol: URLProtocol {
+
+    override class func canInit(with request: URLRequest) -> Bool {
+        return true
+    }
+
+    override class func canInit(with task: URLSessionTask) -> Bool {
+        return true
+    }
+
+    override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+        return request
+    }
+
+    override func startLoading() {
+        // Intentionally empty: never notify the client so the request stays in flight until cancel.
+    }
+
+    override func stopLoading() {
+
+    }
+}
+
+/// Answers every request offline with a 200 response and an empty body, so the task completes
+/// through a single `running -> completed` transition without touching the network.
+class RespondingRequestProtocol: URLProtocol {
+
+    override class func canInit(with request: URLRequest) -> Bool {
+        return true
+    }
+
+    override class func canInit(with task: URLSessionTask) -> Bool {
+        return true
+    }
+
+    override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+        return request
+    }
+
+    override func startLoading() {
+        guard let client, let url = request.url,
+            let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: "HTTP/1.1", headerFields: nil) else {
+            return
+        }
+        client.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+        client.urlProtocol(self, didLoad: Data())
+        client.urlProtocolDidFinishLoading(self)
     }
 
     override func stopLoading() {
