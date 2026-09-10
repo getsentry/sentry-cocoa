@@ -89,4 +89,24 @@ class SentryBreadcrumbTrackingIntegrationTests: XCTestCase {
         XCTAssertEqual(crumb.category, try XCTUnwrap(breadcrumbs[0]["category"] as? String))
         XCTAssertEqual(crumb.type, try XCTUnwrap(breadcrumbs[0]["type"] as? String))
     }
+
+#if os(iOS)
+    func testInit_whenBreadcrumbTextExtractionDisabled_shouldPassOptionToTracker() throws {
+        // -- Arrange --
+        let options = fixture.defaultOptions
+        options.enableBreadcrumbTextExtraction = false
+
+        // -- Act --
+        let sut = try fixture.getSut(options: options)
+        defer {
+            sut.uninstall()
+        }
+        let tracker = try XCTUnwrap(
+            Mirror(reflecting: sut).descendant("breadcrumbTracker") as? SentryBreadcrumbTracker
+        )
+
+        // -- Assert --
+        XCTAssertFalse(tracker.enableBreadcrumbTextExtraction)
+    }
+#endif
 }

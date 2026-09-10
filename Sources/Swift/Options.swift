@@ -372,6 +372,13 @@
     /// @note Default value is @c true.
     @objc public var reportAccessibilityIdentifier: Bool = true
 
+    /// When enabled, the SDK extracts text from child views to label interaction breadcrumbs.
+    /// Disable this option if visible text in your app can contain PII.
+    /// @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
+    /// configurations even when targeting iOS or tvOS platforms.
+    /// @note Default value is @c true.
+    @objc public var enableBreadcrumbTextExtraction: Bool = true
+
     /// When enabled, the SDK creates transactions for UI events like buttons clicks, switch toggles,
     /// and other ui elements that uses UIControl @c sendAction:to:forEvent:
     /// @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
