@@ -488,7 +488,7 @@ final class SentryUIRedactBuilder {
         var forceIgnore = false
         for current in hierarchy.reversed() {
             if isViewSubtreeIgnored(current) {
-                return !forceIgnore && !shouldIgnore(view: current)
+                return forceRedact || (!forceIgnore && !shouldIgnore(view: current))
             }
 
             let explicitlyMasked = SentryRedactViewHelper.shouldMaskView(current)

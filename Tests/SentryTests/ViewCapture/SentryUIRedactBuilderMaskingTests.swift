@@ -189,5 +189,27 @@ final class SentryUIRedactBuilderMaskingTests: XCTestCase {
         // -- Assert --
         XCTAssertFalse(result)
     }
+
+    func testIsViewMaskedForTextExtraction_whenExcludedUnmaskedViewHasMaskedAncestor_shouldReturnTrue() {
+        // -- Arrange --
+        let ancestor = UIView()
+        let excludedView = MaskedContainerView()
+        let view = UIView()
+        ancestor.addSubview(excludedView)
+        excludedView.addSubview(view)
+        SentryRedactViewHelper.maskView(ancestor)
+        SentryRedactViewHelper.unmaskView(excludedView)
+        let sut = SentryUIRedactBuilder(options: TestRedactOptions(
+            maskAllText: false,
+            maskAllImages: false,
+            excludedViewClasses: [type(of: excludedView).description()]
+        ))
+
+        // -- Act --
+        let result = sut.isViewMaskedForTextExtraction(view)
+
+        // -- Assert --
+        XCTAssertTrue(result)
+    }
 }
 #endif
