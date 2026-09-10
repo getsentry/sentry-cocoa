@@ -617,6 +617,81 @@ final class SentryBreadcrumbTrackerTests: XCTestCase {
         XCTAssertEqual(data["label"] as? String, "Configured title")
     }
 
+    @available(iOS 15.0, tvOS 15.0, *)
+    func testExtractData_whenButtonHasStateAndConfigurationTitles_shouldPreferCurrentTitle() {
+        // -- Arrange --
+        let view = UIView()
+        var configuration = UIButton.Configuration.plain()
+        configuration.title = "Configured title"
+        let button = UIButton(configuration: configuration)
+        button.setTitle("Current title", for: .normal)
+        view.addSubview(button)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(from: view, includeAccessibilityIdentifier: true)
+
+        // -- Assert --
+        XCTAssertEqual(data["label"] as? String, "Current title")
+    }
+
+    func testExtractData_whenChildButtonHasAttributedTitleAtMaximumDepth_shouldAddTitle() {
+        // -- Arrange --
+        let view = UIView()
+        let firstLevel = UIView()
+        let secondLevel = UIView()
+        let button = UIButton()
+        button.setAttributedTitle(NSAttributedString(string: "Attributed title"), for: .normal)
+        secondLevel.addSubview(button)
+        firstLevel.addSubview(secondLevel)
+        view.addSubview(firstLevel)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(from: view, includeAccessibilityIdentifier: true)
+
+        // -- Assert --
+        XCTAssertEqual(data["label"] as? String, "Attributed title")
+    }
+
+    @available(iOS 15.0, tvOS 15.0, *)
+    func testExtractData_whenChildButtonHasAttributedConfigurationTitleAtMaximumDepth_shouldAddTitle() {
+        // -- Arrange --
+        let view = UIView()
+        let firstLevel = UIView()
+        let secondLevel = UIView()
+        var configuration = UIButton.Configuration.plain()
+        configuration.attributedTitle = AttributedString("Attributed configuration title")
+        let button = UIButton(configuration: configuration)
+        secondLevel.addSubview(button)
+        firstLevel.addSubview(secondLevel)
+        view.addSubview(firstLevel)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(from: view, includeAccessibilityIdentifier: true)
+
+        // -- Assert --
+        XCTAssertEqual(data["label"] as? String, "Attributed configuration title")
+    }
+
+    @available(iOS 15.0, tvOS 15.0, *)
+    func testExtractData_whenConfigurationTitleLabelIsUnavailable_shouldAddTitleOnce() {
+        // -- Arrange --
+        let view = UIView()
+        let button = ButtonWithoutTitleLabel()
+        var configuration = UIButton.Configuration.plain()
+        configuration.title = "Configured title"
+        button.configuration = configuration
+        let internalLabel = UILabel()
+        internalLabel.text = "Configured title"
+        button.addSubview(internalLabel)
+        view.addSubview(button)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(from: view, includeAccessibilityIdentifier: true)
+
+        // -- Assert --
+        XCTAssertEqual(data["label"] as? String, "Configured title")
+    }
+
     func testExtractData_whenButtonTitleLabelIsNestedInWrapper_shouldAddTitleOnce() throws {
         // -- Arrange --
         let view = UIView()
@@ -770,6 +845,36 @@ final class SentryBreadcrumbTrackerTests: XCTestCase {
         XCTAssertNil(data["label"])
     }
 
+    func testExtractData_whenTextIsAtTotalViewBudget_shouldAddLabel() {
+        // -- Arrange --
+        let view = UIView()
+        addBudgetFiller(to: view, finalLeafCount: 3)
+        let label = UILabel()
+        label.text = "At budget"
+        view.addSubview(label)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(from: view, includeAccessibilityIdentifier: true)
+
+        // -- Assert --
+        XCTAssertEqual(data["label"] as? String, "At budget")
+    }
+
+    func testExtractData_whenTextIsOutsideTotalViewBudget_shouldNotAddLabel() {
+        // -- Arrange --
+        let view = UIView()
+        addBudgetFiller(to: view, finalLeafCount: 4)
+        let label = UILabel()
+        label.text = "Outside budget"
+        view.addSubview(label)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(from: view, includeAccessibilityIdentifier: true)
+
+        // -- Assert --
+        XCTAssertNil(data["label"])
+    }
+
     func testExtractData_whenLabelExceedsMaximumCharacterCount_shouldTruncateLabel() {
         // -- Arrange --
         let view = UIView()
@@ -782,6 +887,23 @@ final class SentryBreadcrumbTrackerTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(data["label"] as? String, String(repeating: "e\u{301}", count: 64) + "...")
+    }
+
+    private func addBudgetFiller(to view: UIView, finalLeafCount: Int) {
+        let firstLevel = UIView()
+        for index in 0..<5 {
+            let secondLevel = UIView()
+            let leafCount = index == 4 ? finalLeafCount : 5
+            for _ in 0..<leafCount {
+                secondLevel.addSubview(UIView())
+            }
+            firstLevel.addSubview(secondLevel)
+        }
+        view.addSubview(firstLevel)
+    }
+
+    private final class ButtonWithoutTitleLabel: UIButton {
+        override var titleLabel: UILabel? { nil }
     }
 
     private class TestEvent: UIEvent {
