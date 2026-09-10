@@ -34,7 +34,11 @@ void sentrykscrash_attachments_setScreenshotWriter(
 void sentrykscrash_attachments_setSidecarPathProvider(
     KSCrashReportSidecarPathProviderFunc _Nullable provider);
 
-/** Crash-time capture. No Swift, no locks, no heap. */
+/**
+ * This is accepted as not being a async-signal-safe operation.
+ * It represents a best-effort attempt at grabbing useful information before the application is
+ * terminated.
+ */
 void sentrykscrash_attachments_capture(int64_t reportID);
 
 /** Async-signal-safe log into `Caches/io.sentry/async.log`. */
