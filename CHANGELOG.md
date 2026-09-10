@@ -15,7 +15,7 @@
 - Classify MetricKit hangs over 500 ms as errors. (#8948)
 - Add hint parameter to public capture methods on `SentrySDK` (#8943)
 - Prevent Session Replay video encoding from reusing pixel buffers retained by AVFoundation. (#8950)
-- Store the binary image cache in zero-fill memory to reduce the SDK binary size. (PR-ID)
+- Store the binary image cache in zero-fill memory to reduce the SDK binary size. (#9003)
 
 ## 9.27.0
 
