@@ -1842,6 +1842,62 @@ final class SentryClientTests: XCTestCase {
         XCTAssertNil(received.originalException)
     }
 
+    @available(*, deprecated, message: "Testing deprecated beforeSendWithHint API")
+    func testBeforeSendWithHint_shouldReceiveProcessorAttachments() throws {
+        // -- Arrange --
+        let processorAttachment = Attachment(data: Data("screenshot".utf8), filename: "screenshot.png")
+        var receivedAttachments = [Attachment]()
+        let sut = fixture.getSut(configureOptions: { options in
+            options.beforeSendWithHint = { event, hint in
+                receivedAttachments = hint.attachments
+                return event
+            }
+        })
+        let processor = TestAttachmentProcessor { atts, _ in
+            var result = atts
+            result.append(processorAttachment)
+            return result
+        }
+        sut.addAttachmentProcessor(processor)
+
+        let event = Event(level: .error)
+        event.exceptions = [Exception(value: "test", type: "test")]
+
+        // -- Act --
+        sut.capture(event: event, scope: Scope())
+
+        // -- Assert --
+        XCTAssertTrue(receivedAttachments.contains(processorAttachment))
+    }
+
+    @available(*, deprecated, message: "Testing deprecated beforeSendWithHint API")
+    func testBeforeSendWithHint_removingProcessorAttachment_shouldNotSend() throws {
+        // -- Arrange --
+        let processorAttachment = Attachment(data: Data("screenshot".utf8), filename: "screenshot.png")
+        let sut = fixture.getSut(configureOptions: { options in
+            options.beforeSendWithHint = { event, hint in
+                hint.attachments.removeAll { $0 === processorAttachment }
+                return event
+            }
+        })
+        let processor = TestAttachmentProcessor { atts, _ in
+            var result = atts
+            result.append(processorAttachment)
+            return result
+        }
+        sut.addAttachmentProcessor(processor)
+
+        let event = Event(level: .error)
+        event.exceptions = [Exception(value: "test", type: "test")]
+
+        // -- Act --
+        sut.capture(event: event, scope: Scope())
+
+        // -- Assert --
+        let sentAttachments = fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.attachments ?? []
+        XCTAssertFalse(sentAttachments.contains(processorAttachment))
+    }
+
     func testBeforeSendTransaction_ReadTags() throws {
         // Arrange
         let transaction = fixture.transaction

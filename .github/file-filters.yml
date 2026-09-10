@@ -270,6 +270,7 @@ run_release_for_prs: &run_release_for_prs
   - "Package*.swift"
 
   # Sample projects
+  - "Samples/macOS-ObjectiveC-Static-CMake/**"
   - "Samples/macOS-SPM-CommandLine/**"
   - "Samples/SPM-Dynamic/**"
 
@@ -396,6 +397,10 @@ run_v10_for_prs: &run_v10_for_prs
   - "scripts/ci-utils.sh"
   - "scripts/sentry-xcodebuild.sh"
   - "scripts/verify-v10-sentrycrash-*.sh"
+  - "scripts/generate-sample-v10.sh"
+  - "scripts/set-xcodegen-package-traits.sh"
+  - "scripts/set-xcodegen-compiler-flags.sh"
+  - "scripts/swap-xcodegen-product-name.sh"
 
   # Project files
   - "Sentry.xcodeproj/**"
@@ -439,6 +444,7 @@ run_build_for_prs: &run_build_for_prs
 run_testflight_for_prs: &run_testflight_for_prs
   - ".github/workflows/testflight.yml"
   - ".github/file-filters.yml"
+  - "Samples/iOS-Swift/**"
 
   # Scripts & actions
   - "scripts/ci-select-xcode.sh"

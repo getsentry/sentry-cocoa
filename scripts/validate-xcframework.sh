@@ -46,3 +46,10 @@ fi
 "$SCRIPT_DIR/validate-xcframework-architectures.sh" --xcframework "$XCFRAMEWORK_PATH"
 "$SCRIPT_DIR/validate-xcframework-symbols.sh" --xcframework "$XCFRAMEWORK_PATH"
 "$SCRIPT_DIR/validate-xcframework-info-plist.sh" --xcframework "$XCFRAMEWORK_PATH"
+
+sentryobjc_static_library="$(find "$XCFRAMEWORK_PATH" -mindepth 2 -maxdepth 2 \
+    -name "libSentryObjC.a" -type f -print -quit)"
+if [ -n "$sentryobjc_static_library" ]; then
+    bash "$SCRIPT_DIR/validate-xcframework-sentryobjc-static.sh" \
+        --xcframework "$XCFRAMEWORK_PATH"
+fi

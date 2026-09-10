@@ -72,6 +72,12 @@ public struct SentryInternalReplayApi {
         hub.configureScope { scope in
             result = scope.replayId
         }
+        // The scope's `replayId` is only set once a replay is sent. While a
+        // buffer (on-error) replay is recording it stays nil, so fall back to
+        // the id assigned when recording started.
+        if result == nil {
+            result = hub.getSessionReplayId()
+        }
         return result
     }
 
