@@ -318,7 +318,7 @@ private enum SentryChildTextExtractor {
 
     static func extract(from view: UIView) -> String? {
         var parts = [String]()
-        collectText(from: view.subviews, depth: 1, parts: &parts)
+        collectText(from: view.subviews, depth: 1, excluding: [], parts: &parts)
         let text = parts.joined(separator: " ").trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return nil }
         guard text.count > maximumTextLength else { return text }
@@ -328,30 +328,42 @@ private enum SentryChildTextExtractor {
     private static func collectText(
         from views: [UIView],
         depth: Int,
-        excluding excludedView: UIView? = nil,
+        excluding excludedViews: Set<ObjectIdentifier>,
         parts: inout [String]
     ) {
         guard depth <= maximumDepth else { return }
         var visitedSiblings = 0
         for view in views {
-            if let excludedView = excludedView, view === excludedView {
+            if excludedViews.contains(ObjectIdentifier(view)) {
                 continue
             }
             guard visitedSiblings < maximumSiblings else { break }
             visitedSiblings += 1
 
-            let text = (view as? UIButton)?.titleLabel?.text ?? (view as? UILabel)?.text
-            if let text = text?.trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty {
+            var excludedViews = excludedViews
+            if let button = view as? UIButton, let title = title(from: button) {
+                parts.append(title)
+                if let titleLabel = button.titleLabel {
+                    excludedViews.insert(ObjectIdentifier(titleLabel))
+                }
+            } else if let text = (view as? UILabel)?.text?.trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty {
                 parts.append(text)
             }
 
-            collectText(
-                from: view.subviews,
-                depth: depth + 1,
-                excluding: (view as? UIButton)?.titleLabel,
-                parts: &parts
-            )
+            collectText(from: view.subviews, depth: depth + 1, excluding: excludedViews, parts: &parts)
         }
+    }
+
+    private static func title(from button: UIButton) -> String? {
+        if let title = button.currentTitle?.trimmingCharacters(in: .whitespacesAndNewlines), !title.isEmpty {
+            return title
+        }
+        if #available(iOS 15.0, tvOS 15.0, *),
+           let title = button.configuration?.title?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !title.isEmpty {
+            return title
+        }
+        return nil
     }
 }
 #endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
