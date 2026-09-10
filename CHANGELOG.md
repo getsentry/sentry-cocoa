@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Store the binary image cache in zero-fill memory to reduce the SDK binary size. (#9003)
+
 ## 9.28.0
 
 ### Features
@@ -73,7 +79,6 @@
 - Prevent Session Replay video encoding from reusing pixel buffers retained by AVFoundation. (#8950)
 - Prevent deadlock when a signal interrupts memory allocation by avoiding thread-local storage and unsafe formatting during signal handling. (#8271)
 - Remove invalid DWARF references from `SentryObjC-Static` XCFrameworks to prevent `dsymutil` missing-object warnings. (#8979)
-- Store the binary image cache in zero-fill memory to reduce the SDK binary size. (#9003)
 
 ### Internal
 
