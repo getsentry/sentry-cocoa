@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+> [!WARNING]
+> Native crashes now set `mechanism.synthetic`, which takes the mach exception name (`EXC_BAD_ACCESS`) or signal name (`SIGSEGV`) out of the grouping hash. Expect a one-time regrouping as your app adopts this version: existing crash issues stop receiving events and new ones open. Crashes that differ only by signal at the same stacktrace now share one issue. The mach and signal detail stays on `mechanism.meta`.
+
+### Fixes
+
+- Mark the fabricated `mach` and `signal` crash mechanisms as `synthetic` so an Apple crash groups with the identical crash reported by the other Sentry SDKs, and so a mach-caught and a signal-caught report of the same bug no longer split into two issues (#9003)
+- Set `mechanism.handled` to `false` on crash reports that carry no mach context, which previously left it unset (#9003)
+
 ## 9.28.0
 
 ### Features
