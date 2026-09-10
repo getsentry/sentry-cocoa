@@ -5,6 +5,7 @@
 ### Fixes
 
 - Store the binary image cache in zero-fill memory to reduce the SDK binary size. (#9003)
+- Fix crash in `[NSURLSessionTask cancel]` when cancelling an in-flight task with swizzling enabled (#9009)
 
 ## 9.28.0
 
