@@ -173,8 +173,8 @@ sentrykscrash_didWriteReport(const KSCrash_ExceptionHandlingPlan *const plan, in
 }
 
 static atomic_bool g_attachmentsEnabled = false;
-static SentryKSCrashAttachmentsScreenshotWriter g_screenshotWriter;
-static KSCrashReportSidecarPathProviderFunc g_getSidecarPath;
+static _Atomic(SentryKSCrashAttachmentsScreenshotWriter) g_screenshotWriter;
+static _Atomic(KSCrashReportSidecarPathProviderFunc) g_getSidecarPath;
 
 static const unsigned char kMarkerHeader[] = { 0xDE, 0xAD, 0xBE, 0xEF, 1 };
 
@@ -187,13 +187,13 @@ sentrykscrash_attachments_setEnabled(bool enabled)
 void
 sentrykscrash_attachments_setScreenshotWriter(SentryKSCrashAttachmentsScreenshotWriter writer)
 {
-    g_screenshotWriter = writer;
+    atomic_store_explicit(&g_screenshotWriter, writer, memory_order_release);
 }
 
 void
 sentrykscrash_attachments_setSidecarPathProvider(KSCrashReportSidecarPathProviderFunc provider)
 {
-    g_getSidecarPath = provider;
+    atomic_store_explicit(&g_getSidecarPath, provider, memory_order_release);
 }
 
 static bool
@@ -325,13 +325,20 @@ sentrykscrash_attachments_capture(int64_t reportID)
             "Not capturing attachments: invalid reportID %" PRId64, reportID);
         return;
     }
-    if (g_screenshotWriter == NULL) {
+
+    SentryKSCrashAttachmentsScreenshotWriter writer
+        = atomic_load_explicit(&g_screenshotWriter, memory_order_acquire);
+    if (writer == NULL) {
         SENTRY_ASYNC_SAFE_LOG_DEBUG("Not capturing attachments for reportID %" PRId64
                                     ": screenshot writer is not set",
             reportID);
         return;
     }
-    if (g_getSidecarPath == NULL) {
+
+    KSCrashReportSidecarPathProviderFunc getSidecarPath
+        = atomic_load_explicit(&g_getSidecarPath, memory_order_acquire);
+
+    if (getSidecarPath == NULL) {
         SENTRY_ASYNC_SAFE_LOG_DEBUG("Not capturing attachments for reportID %" PRId64
                                     ": sidecar path provider is missing",
             reportID);
@@ -339,7 +346,7 @@ sentrykscrash_attachments_capture(int64_t reportID)
     }
 
     char sidecarPath[PATH_MAX];
-    if (!g_getSidecarPath(
+    if (!getSidecarPath(
             sentrykscrash_attachmentsMonitorID, reportID, sidecarPath, sizeof(sidecarPath))) {
         SENTRY_ASYNC_SAFE_LOG_DEBUG("Not capturing attachments for reportID %" PRId64
                                     ": sidecar path is unavailable",
@@ -363,7 +370,7 @@ sentrykscrash_attachments_capture(int64_t reportID)
 
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Calling screenshot writer for %s", payloadDirectory);
     // not async-signal safe but accepted
-    g_screenshotWriter(payloadDirectory);
+    writer(payloadDirectory);
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Screenshot writer returned for %s", payloadDirectory);
 
     if (!directoryHasFiles(payloadDirectory)) {
