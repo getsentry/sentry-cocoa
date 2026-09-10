@@ -6,7 +6,9 @@
 
 #    import "SentryBacktrace.hpp"
 #    import "SentryThreadHandle.hpp"
+#    import "SentryThreadSnapshot.h"
 
+#    import <atomic>
 #    import <cmath>
 #    import <dlfcn.h>
 #    import <iostream>
@@ -122,6 +124,25 @@ threadEntry(void *ptr)
     return nullptr;
 }
 
+struct BusyThreadContext {
+    std::atomic_bool ready { false };
+    std::atomic_bool initialized { false };
+};
+
+void *
+busyThreadEntry(void *ptr)
+{
+    auto context = reinterpret_cast<BusyThreadContext *>(ptr);
+    const bool initialized = pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, nullptr) == 0
+        && pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, nullptr) == 0;
+    context->initialized.store(initialized, std::memory_order_relaxed);
+    context->ready.store(true, std::memory_order_release);
+    if (initialized) {
+        cancelLoop();
+    }
+    return nullptr;
+}
+
 /** Returns the size of a primitive array at compile time. */
 template <std::size_t N, class T>
 constexpr std::size_t
@@ -189,6 +210,48 @@ countof(Array &)
     XCTAssertEqual(a(addresses, &reachedEndOfStack, 1, 0), static_cast<unsigned long>(1));
     XCTAssertFalse(reachedEndOfStack);
     XCTAssertEqual(addresses[1], 0x8BADF00D);
+}
+
+- (void)testEnumerateBacktraces_whenSuspensionAdmissionBusy_shouldSkipRemoteCapture
+{
+    // -- Arrange --
+    BusyThreadContext context;
+    pthread_t thread;
+    int createResult = pthread_create(&thread, nullptr, busyThreadEntry, &context);
+    XCTAssertEqual(createResult, 0);
+    if (createResult != 0) {
+        return;
+    }
+    while (!context.ready.load(std::memory_order_acquire)) { }
+    if (!context.initialized.load(std::memory_order_relaxed)) {
+        XCTAssertEqual(pthread_join(thread, nullptr), 0);
+        XCTFail(@"Could not initialize the busy worker");
+        return;
+    }
+    ThreadMetadataCache cache;
+    bool foundThread = false;
+    bool acquiredAdmission = sentryThreadSuspensionTryAcquire();
+    XCTAssertTrue(acquiredAdmission);
+    if (!acquiredAdmission) {
+        XCTAssertEqual(pthread_cancel(thread), 0);
+        XCTAssertEqual(pthread_join(thread, nullptr), 0);
+        return;
+    }
+
+    // -- Act --
+    for (int i = 0; i < 3; i++) {
+        enumerateBacktracesForAllThreads(
+            [&](auto &backtrace) {
+                foundThread |= backtrace.threadMetadata.threadID == pthread_mach_thread_np(thread);
+            },
+            &cache);
+    }
+    sentryThreadSuspensionRelease();
+    XCTAssertEqual(pthread_cancel(thread), 0);
+    XCTAssertEqual(pthread_join(thread, nullptr), 0);
+
+    // -- Assert --
+    XCTAssertFalse(foundThread);
 }
 
 - (void)testCollectsMultiThreadBacktrace

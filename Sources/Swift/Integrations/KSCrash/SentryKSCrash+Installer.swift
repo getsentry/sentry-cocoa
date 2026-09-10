@@ -87,6 +87,9 @@ extension SentryKSCrash {
             // SCV10-009, SCV10-010, SCV10-027, and SCV10-039 in
             // SENTRYCRASH_V10_MIGRATION_LEDGER.md.
 #endif
+            sentryThreadInspectionWillInstallCrashHandler()
+            var inspectionInstallationSucceeded = false
+            defer { sentryThreadInspectionDidInstallCrashHandler(inspectionInstallationSucceeded) }
             do {
                 try KSCrash.shared.install(with: config)
             } catch let error as NSError
@@ -96,6 +99,7 @@ extension SentryKSCrash {
                 // The crash handler is already running — treat this as success.
                 SentrySDKLog.debug("KSCrash already installed; continuing.")
             }
+            inspectionInstallationSucceeded = true
             installed = true
         }
 

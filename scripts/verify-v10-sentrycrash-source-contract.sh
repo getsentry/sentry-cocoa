@@ -324,16 +324,22 @@ if grep -qE '^#if[[:space:]]+!SDK_V10[[:space:]]*$' Sources/Sentry/SentryScopeSy
   record_error "SDK-owned SentryScopeSyncC.c must not have a whole-file V10 guard"
 fi
 
-allowlist_assignment=$(grep '^SENTRYCRASH_V10_RETAINED_TOOL_SOURCE_FILE_NAMES = ' "$TOOLS_ALLOWLIST_PATH")
-read -r -a retained_tool_sources <<< "${allowlist_assignment#*= }"
-for source_name in "${retained_tool_sources[@]}"; do
+allowlist_assignment=$(grep '^SENTRYCRASH_V10_RETAINED_TOOL_SOURCE_FILE_NAMES =[[:space:]]*' "$TOOLS_ALLOWLIST_PATH")
+allowlist_value=${allowlist_assignment#*=}
+allowlist_value=${allowlist_value# }
+retained_tool_sources=()
+if [[ -n "$allowlist_value" ]]; then
+  read -r -a retained_tool_sources <<< "$allowlist_value"
+fi
+for source_name in "${retained_tool_sources[@]+${retained_tool_sources[@]}}"; do
   if ! grep -Fq "$source_name" "$LEDGER_PATH"; then
     record_error "Retained Tool source is missing from the migration ledger: $source_name"
   fi
 done
 log_notice "Verified ${#retained_tool_sources[@]} retained Tool sources are documented"
+retained_tool_source_list=${retained_tool_sources[*]-}
 
-if grep -Fqw 'SentryCrashSysCtl.c' <<< "${retained_tool_sources[*]}"; then
+if grep -Fqw 'SentryCrashSysCtl.c' <<< "$retained_tool_source_list"; then
   record_error "V10 must not retain SentryCrashSysCtl.c after the neutral process-time migration"
 fi
 if grep -qE '^[[:space:]]*#import[[:space:]]+[<\"]SentryCrashSysCtl\.h[>\"]' Sources/Sentry/SentrySysctlObjC.m; then
@@ -350,7 +356,7 @@ if ! grep -q '#.*import "SentryJSONStreamWriter.h"' Sources/Sentry/SentryViewHie
   record_error "The neutral view-hierarchy serializer and its focused contract tests must remain present"
 fi
 for removed_tool in SentryCrashFileUtils.c SentryCrashJSONCodec.c; do
-  if grep -Fqw "$removed_tool" <<< "${retained_tool_sources[*]}"; then
+  if grep -Fqw "$removed_tool" <<< "$retained_tool_source_list"; then
     record_error "V10 must not retain $removed_tool after the neutral view-hierarchy migration"
   fi
 done

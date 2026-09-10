@@ -1,43 +1,47 @@
-#import "SentryCrashThread.h"
-#import "SentryDefines.h"
-#import "SentryOptionsObjC.h"
+#if SDK_V10
+#    include "SentryThreadSnapshot.h"
+#else
+#    import "SentryCrashStackCursor.h"
+#    import "SentryCrashThread.h"
+#endif
 #import <Foundation/Foundation.h>
 
-@class SentryStacktrace;
 @class SentryStacktraceBuilder;
-@class SentryThread;
 
-@protocol SentryCrashMachineContextWrapper;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-NS_ASSUME_NONNULL_BEGIN
+SentryStacktraceBuilder *_Nonnull sentryDefaultThreadInspectorCreateStacktraceBuilder(
+    NSArray<NSString *> *_Nonnull inAppIncludes);
 
-@interface SentryDefaultThreadInspector : NSObject
-SENTRY_NO_INIT
+#if !SDK_V10
+typedef struct SentryDefaultThreadInspectorThreadInfoBuffer
+    SentryDefaultThreadInspectorThreadInfoBuffer;
 
-- (id)initWithStacktraceBuilder:(SentryStacktraceBuilder *)stacktraceBuilder
-       andMachineContextWrapper:(id<SentryCrashMachineContextWrapper>)machineContextWrapper;
+SentryDefaultThreadInspectorThreadInfoBuffer *_Nullable sentryDefaultThreadInspectorCaptureThreads(
+    void);
 
-- (instancetype)initWithOptions:(SentryOptionsObjC *_Nullable)options;
+void sentryDefaultThreadInspectorFreeThreadInfoBuffer(
+    SentryDefaultThreadInspectorThreadInfoBuffer *_Nullable buffer);
 
-- (nullable SentryStacktrace *)stacktraceForCurrentThreadAsyncUnsafe;
+unsigned int sentryDefaultThreadInspectorGetThreadCount(
+    const SentryDefaultThreadInspectorThreadInfoBuffer *_Nonnull buffer);
 
-/**
- * Gets current threads with the stacktrace only for the current thread. Frames from the SentrySDK
- * are not included. For more details checkout SentryStacktraceBuilder.
- * The first thread in the result is always the main thread.
- */
-- (NSArray<SentryThread *> *)getCurrentThreads;
+SentryCrashThread sentryDefaultThreadInspectorGetCurrentThread(
+    const SentryDefaultThreadInspectorThreadInfoBuffer *_Nonnull buffer);
 
-/**
- * Gets current threads with stacktrace,
- * this will pause every thread in order to be possible to retrieve this information.
- * Frames from the SentrySDK are not included. For more details checkout SentryStacktraceBuilder.
- * The first thread in the result is always the main thread.
- */
-- (NSArray<SentryThread *> *)getCurrentThreadsWithStackTrace;
+SentryCrashThread sentryDefaultThreadInspectorGetThread(
+    const SentryDefaultThreadInspectorThreadInfoBuffer *_Nonnull buffer, unsigned int index);
 
-- (nullable NSString *)getThreadName:(SentryCrashThread)thread;
+SentryCrashStackEntry *_Nonnull sentryDefaultThreadInspectorGetStackEntries(
+    SentryDefaultThreadInspectorThreadInfoBuffer *_Nonnull buffer, unsigned int index);
 
-@end
+unsigned int sentryDefaultThreadInspectorGetStackLength(
+    const SentryDefaultThreadInspectorThreadInfoBuffer *_Nonnull buffer, unsigned int index);
 
-NS_ASSUME_NONNULL_END
+#endif // !SDK_V10
+
+#ifdef __cplusplus
+}
+#endif

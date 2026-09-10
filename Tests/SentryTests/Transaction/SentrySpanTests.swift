@@ -4,6 +4,14 @@ import XCTest
 
 class SentrySpanTests: XCTestCase {
     private var logOutput: TestLogOutput!
+
+    private func currentThreadID() -> UInt {
+#if SDK_V10
+        sentryThreadInspectionCurrentThread()
+#else
+        sentrycrashthread_self()
+#endif
+    }
     private var fixture: Fixture!
     
     private class Fixture {
@@ -214,7 +222,7 @@ class SentrySpanTests: XCTestCase {
         let span = fixture.getSut()
         XCTAssertEqual("main", try XCTUnwrap(span.data["thread.name"] as? String))
         
-        let threadId = sentrycrashthread_self()
+        let threadId = currentThreadID()
         XCTAssertEqual(NSNumber(value: threadId), try XCTUnwrap(span.data["thread.id"] as? NSNumber))
     }
     
@@ -222,14 +230,14 @@ class SentrySpanTests: XCTestCase {
         let expect = expectation(description: "Thread must be called.")
         
         var spanData: [String: Any]?
-        var threadId: SentryCrashThread?
+        var threadId: UInt?
         let threadName = "test-thread-name"
         Thread.detachNewThread {
             Thread.current.name = threadName
             
             let span = self.fixture.getSut()
             spanData = span.data
-            threadId = sentrycrashthread_self()
+            threadId = self.currentThreadID()
             
             expect.fulfill()
         }
@@ -244,13 +252,13 @@ class SentrySpanTests: XCTestCase {
         let expect = expectation(description: "Thread must be called.")
         
         var spanData: [String: Any]?
-        var threadId: SentryCrashThread?
+        var threadId: UInt?
         Thread.detachNewThread {
             Thread.current.name = ""
             
             let span = self.fixture.getSut()
             spanData = span.data
-            threadId = sentrycrashthread_self()
+            threadId = self.currentThreadID()
             
             expect.fulfill()
         }

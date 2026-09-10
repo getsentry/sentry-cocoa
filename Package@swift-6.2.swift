@@ -20,6 +20,16 @@ func envFlag(_ name: String) -> Bool {
 let enableV10 = envFlag("SDK_V10")
 // SwiftPM has no source include override; CI audits this complement against the Xcode allowlist.
 let v10ExcludedSentryCrashToolSources = [
+    "SentryCrash/Recording/Tools/SentryCrashCPU.c",
+    "SentryCrash/Recording/Tools/SentryCrashCPU_arm.c",
+    "SentryCrash/Recording/Tools/SentryCrashCPU_arm64.c",
+    "SentryCrash/Recording/Tools/SentryCrashCPU_x86_32.c",
+    "SentryCrash/Recording/Tools/SentryCrashCPU_x86_64.c",
+    "SentryCrash/Recording/Tools/SentryCrashMachineContext.c",
+    "SentryCrash/Recording/Tools/SentryCrashMemory.c",
+    "SentryCrash/Recording/Tools/SentryCrashStackCursor.c",
+    "SentryCrash/Recording/Tools/SentryCrashStackCursor_MachineContext.c",
+    "SentryCrash/Recording/Tools/SentryCrashThread.c",
     "SentryCrash/Recording/Tools/SentryCrashCxaThrowSwapper.c",
     "SentryCrash/Recording/Tools/SentryCrashDate.c",
     "SentryCrash/Recording/Tools/SentryCrashDebug.c",
@@ -386,7 +396,7 @@ for target in targets where target.type == .regular || target.type == .test {
 }
 
 let packageDependencies: [Package.Dependency] = [
-    .package(url: "https://github.com/kstenerud/KSCrash.git", from: "2.6.0")
+    .package(url: "https://github.com/supervacuus/KSCrash.git", revision: "391bf0a9569b6c1aa9df30b3fa4bcabbc0a07e7a")
 ]
 
 let package = Package(

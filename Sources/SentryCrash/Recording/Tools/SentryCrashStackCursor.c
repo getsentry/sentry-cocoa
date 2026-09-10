@@ -23,11 +23,13 @@
 // THE SOFTWARE.
 //
 
-#include "SentryCrashStackCursor.h"
-#include "SentryCrashCPU.h"
-#include <stdlib.h>
+#if !SDK_V10
 
-#include "SentryAsyncSafeLog.h"
+#    include "SentryCrashStackCursor.h"
+#    include "SentryCrashCPU.h"
+#    include <stdlib.h>
+
+#    include "SentryAsyncSafeLog.h"
 
 static bool
 g_advanceCursor(__unused SentryCrashStackCursor *cursor)
@@ -55,3 +57,5 @@ sentrycrashsc_initCursor(SentryCrashStackCursor *cursor,
     cursor->resetCursor = resetCursor != NULL ? resetCursor : sentrycrashsc_resetCursor;
     cursor->resetCursor(cursor);
 }
+
+#endif // !SDK_V10
