@@ -47,10 +47,9 @@ internal enum SentryChildTextExtractor {
             var excludedTexts = excludingTexts
             if let button = view as? UIButton, let title = title(from: button) {
                 parts.append(title)
+                excludedTexts.insert(title)
                 if let titleLabel = button.titleLabel {
                     excludedViews.insert(ObjectIdentifier(titleLabel))
-                } else {
-                    excludedTexts.insert(title)
                 }
             } else if let text = (view as? UILabel)?.text?.trimmingCharacters(in: .whitespacesAndNewlines),
                       !text.isEmpty,
