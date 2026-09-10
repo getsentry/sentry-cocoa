@@ -70,6 +70,8 @@ final class SentryUIRedactBuilder {
 
     // MARK: - Properties
 
+    private let maskAllText: Bool
+
     /// This is a wrapper which marks it's direct children to be ignored
     private var ignoreContainerClassIdentifier: ObjectIdentifier?
 
@@ -140,6 +142,7 @@ final class SentryUIRedactBuilder {
     /// - note: On iOS, views such as `WKWebView` and `UIWebView` are always redacted, and controls like
     ///   `UISlider` and `UISwitch` are ignored by default.
     init(options: SentryRedactOptions) { // swiftlint:disable:this function_body_length
+        maskAllText = options.maskAllText
         var redactClasses = Set<ClassIdentifier>()
         var redactLayers = Set<String>()
 
@@ -469,6 +472,40 @@ final class SentryUIRedactBuilder {
 
         // The swiftUI type needs to appear first in the list so it always gets masked
         return (otherRegions + swiftUIRedact).reversed()
+    }
+
+    func isViewMaskedForTextExtraction(_ view: UIView) -> Bool {
+        guard !maskAllText else { return true }
+
+        var hierarchy: [UIView] = []
+        var currentView: UIView? = view
+        while let current = currentView {
+            hierarchy.append(current)
+            currentView = current.superview
+        }
+
+        var forceRedact = false
+        var forceIgnore = false
+        for current in hierarchy.reversed() {
+            if isViewSubtreeIgnored(current) {
+                return !forceIgnore && !shouldIgnore(view: current)
+            }
+
+            let explicitlyMasked = SentryRedactViewHelper.shouldMaskView(current)
+            let instanceUnmasked = SentryRedactViewHelper.shouldUnmask(current)
+            let ignore = !forceRedact
+                && (shouldIgnore(view: current) || (forceIgnore && !explicitlyMasked))
+            let redact = forceRedact
+                || shouldRedact(view: current)
+                || SentryRedactViewHelper.shouldRedactSwiftUI(current)
+
+            if !ignore && redact {
+                forceRedact = true
+            } else if instanceUnmasked {
+                forceIgnore = true
+            }
+        }
+        return forceRedact
     }
 
     private func shouldIgnore(view: UIView) -> Bool {
