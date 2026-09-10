@@ -4,9 +4,9 @@ import Foundation
 private enum SentryNetworkTrackingSwizzleKeys {
     static let resume = SentryTypedSwizzle.Key()
     static let state = SentryTypedSwizzle.Key()
+    static let dataTaskWithRequest = SentryTypedSwizzle.Key()
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-    static let dataTaskWithRequest = SentryTypedSwizzle.Key()
     static let dataTaskWithURL = SentryTypedSwizzle.Key()
 #endif
 }
@@ -52,9 +52,12 @@ final class SentryNetworkTrackingIntegration<Dependencies: NetworkTrackerProvide
         SentryNetworkTrackerProxy.shared.setTarget(networkTracker)
         Self.swizzleURLSessionTasks()
 
+        // Inject trace-propagation headers at task-creation time so we don't mutate the live task's
+        // currentRequest on resume. Applies to request-based data tasks on all platforms.
+        Self.swizzleDataTaskWithRequest()
+
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         if options.sessionReplay.networkDetailHasUrls {
-            Self.swizzleDataTaskWithRequestForResponseCapture()
             Self.swizzleDataTaskWithURLForResponseCapture()
         }
 #endif
@@ -114,14 +117,18 @@ final class SentryNetworkTrackingIntegration<Dependencies: NetworkTrackerProvide
         }
     }
 
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-    private static func swizzleDataTaskWithRequestForResponseCapture() {
+    private static func swizzleDataTaskWithRequest() {
         SentryTypedSwizzle.instanceMethod(
             in: URLSession.self,
             method: .urlSessionDataTaskWithRequest(URLSession.self),
             mode: .oncePerClassAndSuperclasses,
             key: SentryNetworkTrackingSwizzleKeys.dataTaskWithRequest
         ) { _, request, completionHandler, original in
+            // Inject trace-propagation headers before the task is created. Falls back to the
+            // unchanged request when there is no target, so this is safe for every request.
+            let request = SentryNetworkTrackerProxy.shared.target?.injectTraceHeaders(intoRequest: request) ?? request
+
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
             var task: URLSessionDataTask?
             var wrappedHandler: SentryDataTaskCompletionHandler?
             if let completionHandler {
@@ -140,9 +147,13 @@ final class SentryNetworkTrackingIntegration<Dependencies: NetworkTrackerProvide
             let originalTask = original(request, wrappedHandler)
             task = originalTask
             return originalTask
+#else
+            return original(request, completionHandler)
+#endif
         }
     }
 
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     private static func swizzleDataTaskWithURLForResponseCapture() {
         SentryTypedSwizzle.instanceMethod(
             in: URLSession.self,

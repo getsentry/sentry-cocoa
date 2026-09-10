@@ -16,6 +16,7 @@ protocol SentryNetworkTrackerProtocol: AnyObject {
 
     func urlSessionTaskResume(_ sessionTask: URLSessionTask)
     func urlSessionTask(_ sessionTask: URLSessionTask, setState newState: URLSessionTask.State)
+    func injectTraceHeaders(intoRequest request: URLRequest) -> URLRequest
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     func captureResponseDetails(_ data: Data, response: URLResponse, request requestURL: URL, task: URLSessionTask)
 #endif
@@ -756,6 +757,52 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         }
 
         return urlHost == apiHost && url.path.contains(apiURL.path)
+    }
+
+    /// Injects trace-propagation headers into a request at task-creation time.
+    ///
+    /// This is the creation-time counterpart to the resume-time injection below. It mutates the
+    /// caller's request value before any task exists, so it never calls `setCurrentRequest:` on a
+    /// live task. Headers reflect the current scope's trace context (the active span's trace header
+    /// when there is a tracer, otherwise the propagation context). Requests to Sentry's own backend
+    /// and requests that do not match `tracePropagationTargets` are left unchanged.
+    func injectTraceHeaders(intoRequest request: URLRequest) -> URLRequest {
+        guard let options = hub.currentOptions, let url = request.url else {
+            return request
+        }
+        if isSentryRequestOnStateChange(url, options: options) {
+            return request
+        }
+
+        guard let mutableRequest = (request as NSURLRequest).mutableCopy() as? NSMutableURLRequest else {
+            return request
+        }
+
+        let scope = hub.scope
+        if let span = scope.span, let tracer = SentryTracer.getTracer(span) {
+            SentryTracePropagation.addTraceHeaderFields(
+                toMutableRequest: mutableRequest,
+                baggage: tracer.traceContext?.toBaggage(),
+                traceHeader: span.toTraceHeader(),
+                propagateTraceparent: options.enablePropagateTraceparent,
+                tracePropagationTargets: options.tracePropagationTargets
+            )
+        } else {
+            let baggage = SentryTraceContextSwiftHelper.baggage(
+                traceId: scope.propagationContextTraceId.sentryIdString,
+                options: options,
+                replayId: scope.replayId
+            )
+            SentryTracePropagation.addTraceHeaderFields(
+                toMutableRequest: mutableRequest,
+                baggage: baggage,
+                traceHeader: scope.propagationContextTraceHeader,
+                propagateTraceparent: options.enablePropagateTraceparent,
+                tracePropagationTargets: options.tracePropagationTargets
+            )
+        }
+
+        return mutableRequest as URLRequest
     }
 
     private func addTraceWithoutTransaction(to task: URLSessionTask) {

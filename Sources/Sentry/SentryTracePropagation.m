@@ -22,6 +22,12 @@ static NSString *const SENTRY_TRACEPARENT = @"traceparent";
         return;
     }
 
+    // When the trace header is already present it was injected at task-creation time
+    // (see addTraceHeaderFieldsToMutableRequest:...). Skip mutating the live task entirely.
+    if ([request valueForHTTPHeaderField:SENTRY_TRACE_HEADER] != nil) {
+        return;
+    }
+
     if (![SentryTracePropagation isTargetMatch:SENTRY_UNWRAP_NULLABLE(NSURL, request.URL)
                                    withTargets:tracePropagationTargets ?: @[]]) {
         SENTRY_LOG_DEBUG(
@@ -51,6 +57,34 @@ static NSString *const SENTRY_TRACEPARENT = @"traceparent";
             = (void *)[sessionTask methodForSelector:setCurrentRequestSelector];
         func(sessionTask, setCurrentRequestSelector, newRequest);
     }
+}
+
++ (void)addTraceHeaderFieldsToMutableRequest:(NSMutableURLRequest *)request
+                                     baggage:(nullable SentryBaggage *)baggage
+                                 traceHeader:(SentryTraceHeader *)traceHeader
+                        propagateTraceparent:(BOOL)propagateTraceparent
+                     tracePropagationTargets:(NSArray *_Nullable)tracePropagationTargets
+{
+    if (![SentryTracePropagation isTargetMatch:SENTRY_UNWRAP_NULLABLE(NSURL, request.URL)
+                                   withTargets:tracePropagationTargets ?: @[]]) {
+        SENTRY_LOG_DEBUG(
+            @"Not adding trace_id and baggage headers for %@", request.URL.absoluteString);
+        return;
+    }
+
+    NSString *baggageHeader = @"";
+    if (baggage != nil) {
+        NSString *_Nullable rawHeader = [request valueForHTTPHeaderField:SENTRY_BAGGAGE_HEADER];
+        NSDictionary *originalBaggage = [SentryBaggageSerialization decode:rawHeader ?: @""];
+        if (originalBaggage[@"sentry-trace_id"] == nil) {
+            baggageHeader = [baggage toHTTPHeaderWithOriginalBaggage:originalBaggage];
+        }
+    }
+
+    [SentryTracePropagation addHeaderFieldsToRequest:request
+                                         traceHeader:traceHeader
+                                       baggageHeader:baggageHeader
+                                propagateTraceparent:propagateTraceparent];
 }
 
 + (void)addHeaderFieldsToRequest:(NSMutableURLRequest *)request

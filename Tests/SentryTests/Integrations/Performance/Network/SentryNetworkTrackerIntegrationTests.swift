@@ -161,6 +161,43 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         XCTAssertEqual(1, breadcrumbs?.count)
     }
 
+    /// Creation-time trace-header injection: a request-based data task carries the trace headers on
+    /// its `currentRequest` as soon as it is created, before `resume`, without mutating a live task.
+    func testDataTaskWithRequest_injectsTraceHeadersAtCreation_beforeResume() throws {
+        // -- Arrange --
+        startSDK()
+        let session = URLSession(configuration: .ephemeral)
+        defer { session.invalidateAndCancel() }
+        let request = URLRequest(url: try XCTUnwrap(URL(string: "https://example.com/api")))
+
+        // -- Act --
+        let task = session.dataTask(with: request) { _, _, _ in }
+        defer { task.cancel() }
+
+        // -- Assert --
+        let currentRequest = try XCTUnwrap(task.currentRequest)
+        XCTAssertNotNil(currentRequest.value(forHTTPHeaderField: "sentry-trace"))
+        XCTAssertNotNil(currentRequest.value(forHTTPHeaderField: "baggage"))
+    }
+
+    /// Requests that do not match `tracePropagationTargets` are left untouched at creation time.
+    func testDataTaskWithRequest_whenTargetDoesNotMatch_doesNotInjectTraceHeaders() throws {
+        // -- Arrange --
+        fixture.options.tracePropagationTargets = ["^https://tracing.example.com"]
+        startSDK()
+        let session = URLSession(configuration: .ephemeral)
+        defer { session.invalidateAndCancel() }
+        let request = URLRequest(url: try XCTUnwrap(URL(string: "https://other.example.com/api")))
+
+        // -- Act --
+        let task = session.dataTask(with: request) { _, _, _ in }
+        defer { task.cancel() }
+
+        // -- Assert --
+        let currentRequest = try XCTUnwrap(task.currentRequest)
+        XCTAssertNil(currentRequest.value(forHTTPHeaderField: "sentry-trace"))
+    }
+
     func testCaptureFailedRequestsDisabled_WhenSwizzlingDisabled() {
         fixture.options.enableSwizzling = false
         fixture.options.enableCaptureFailedRequests = true

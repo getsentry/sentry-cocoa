@@ -104,6 +104,8 @@ private final class TestNetworkTracker: SentryNetworkTrackerProtocol {
 
     func urlSessionTask(_ sessionTask: URLSessionTask, setState newState: URLSessionTask.State) {}
 
+    func injectTraceHeaders(intoRequest request: URLRequest) -> URLRequest { request }
+
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     func captureResponseDetails(_ data: Data, response: URLResponse, request requestURL: URL, task: URLSessionTask) {}
 #endif
