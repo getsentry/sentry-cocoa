@@ -1,3 +1,5 @@
+#if !SDK_V10
+// V9 compatibility coverage. V10 exercises the neutral provider in its own suite.
 @_spi(Private) @testable import Sentry
 import SentryTestUtils
 import XCTest
@@ -325,3 +327,4 @@ private class TestMachineContextWrapper: NSObject, SentryCrashMachineContextWrap
         return thread == mainThread
     }
 }
+#endif

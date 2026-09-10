@@ -1,3 +1,4 @@
+#if !SDK_V10
 // Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  sentrycrashmemory_Tests.m
@@ -25,10 +26,10 @@
 // THE SOFTWARE.
 //
 
-#import <XCTest/XCTest.h>
+#    import <XCTest/XCTest.h>
 
-#import "SentryCrashMemory.h"
-#import "TestThread.h"
+#    import "SentryCrashMemory.h"
+#    import "TestThread.h"
 
 @interface SentryCrashMemory_Tests : XCTestCase
 @end
@@ -94,3 +95,5 @@
 }
 
 @end
+
+#endif // !SDK_V10

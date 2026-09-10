@@ -2,7 +2,6 @@
 #import "NSMutableDictionary+Sentry.h"
 #import "SentryAttachment.h"
 #import "SentryClient+Private.h"
-#import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryDefaultTelemetryProcessorTransport.h"
 #import "SentryDefaultThreadInspector.h"

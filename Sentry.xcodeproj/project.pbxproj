@@ -7,6 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		879900020000000000000001 /* SentryThreadSnapshot.c in Sources */ = {isa = PBXBuildFile; fileRef = 879900010000000000000001 /* SentryThreadSnapshot.c */; };
+		879900020000000000000002 /* SentryThreadSnapshotKSCrash.c in Sources */ = {isa = PBXBuildFile; fileRef = 879900010000000000000002 /* SentryThreadSnapshotKSCrash.c */; };
+		879900020000000000000003 /* SentryThreadSnapshot.h in Headers */ = {isa = PBXBuildFile; fileRef = 879900010000000000000003 /* SentryThreadSnapshot.h */; };
+		879900020000000000000011 /* SentryThreadSnapshot.c in Sources */ = {isa = PBXBuildFile; fileRef = 879900010000000000000001 /* SentryThreadSnapshot.c */; };
+		879900020000000000000012 /* SentryThreadSnapshotKSCrash.c in Sources */ = {isa = PBXBuildFile; fileRef = 879900010000000000000002 /* SentryThreadSnapshotKSCrash.c */; };
+		879900020000000000000013 /* SentryThreadSnapshot.h in Headers */ = {isa = PBXBuildFile; fileRef = 879900010000000000000003 /* SentryThreadSnapshot.h */; };
+		879900020000000000000021 /* SentryMemory.c in Sources */ = {isa = PBXBuildFile; fileRef = 879900010000000000000021 /* SentryMemory.c */; };
+		879900020000000000000022 /* SentryMemory.h in Headers */ = {isa = PBXBuildFile; fileRef = 879900010000000000000022 /* SentryMemory.h */; };
+		879900020000000000000031 /* SentryMemory.c in Sources */ = {isa = PBXBuildFile; fileRef = 879900010000000000000021 /* SentryMemory.c */; };
+		879900020000000000000032 /* SentryMemory.h in Headers */ = {isa = PBXBuildFile; fileRef = 879900010000000000000022 /* SentryMemory.h */; };
 		00869022F38618F86148232F /* SentryCrashMonitor_NSException.h in Headers */ = {isa = PBXBuildFile; fileRef = 63FE6FFC20DA4C1000CDBAE8 /* SentryCrashMonitor_NSException.h */; };
 		01C768BF9BC4B2DA2C7173BF /* SentryCrashReportVersion.h in Headers */ = {isa = PBXBuildFile; fileRef = 63FE704A20DA4C1000CDBAE8 /* SentryCrashReportVersion.h */; };
 		01F8480438964E6B9718EC9F /* SentryAppStartMeasurementProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = A71411BCABB1428EB4403ADF /* SentryAppStartMeasurementProvider.m */; };
@@ -1278,6 +1288,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		879900010000000000000001 /* SentryThreadSnapshot.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = SentryThreadSnapshot.c; sourceTree = "<group>"; };
+		879900010000000000000002 /* SentryThreadSnapshotKSCrash.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = SentryThreadSnapshotKSCrash.c; sourceTree = "<group>"; };
+		879900010000000000000003 /* SentryThreadSnapshot.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryThreadSnapshot.h; path = include/SentryThreadSnapshot.h; sourceTree = "<group>"; };
+		879900010000000000000021 /* SentryMemory.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = SentryMemory.c; sourceTree = "<group>"; };
+		879900010000000000000022 /* SentryMemory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryMemory.h; path = include/SentryMemory.h; sourceTree = "<group>"; };
 		0354A22A2A134D9C003C3A04 /* SentryProfilerState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryProfilerState.h; path = Sources/Sentry/include/SentryProfilerState.h; sourceTree = SOURCE_ROOT; };
 		035E73C727D56757005EEB11 /* SentryBacktraceTests.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SentryBacktraceTests.mm; sourceTree = "<group>"; };
 		035E73C927D57398005EEB11 /* SentryThreadHandleTests.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SentryThreadHandleTests.mm; sourceTree = "<group>"; };
@@ -2463,6 +2478,11 @@
 				7BA61CBE247CEA8100C130A8 /* SentryFormatter.h */,
 				7BA61CC7247D125400C130A8 /* SentryDefaultThreadInspector.h */,
 				7BA61CC9247D128B00C130A8 /* SentryDefaultThreadInspector.m */,
+				879900010000000000000001 /* SentryThreadSnapshot.c */,
+				879900010000000000000002 /* SentryThreadSnapshotKSCrash.c */,
+				879900010000000000000003 /* SentryThreadSnapshot.h */,
+				879900010000000000000021 /* SentryMemory.c */,
+				879900010000000000000022 /* SentryMemory.h */,
 				7B7D872B2486480B00D2ECFF /* SentryStacktraceBuilder.h */,
 				7B7D872D2486482600D2ECFF /* SentryStacktraceBuilder.m */,
 				7B14089524878F090035403D /* SentryCrashStackEntryMapper.h */,
@@ -3527,6 +3547,8 @@
 				63FE709520DA4C1000CDBAE8 /* SentryCrashReportFilterBasic.h in Headers */,
 				7B7D873424864C6600D2ECFF /* SentryCrashDefaultMachineContextWrapper.h in Headers */,
 				7BA61CC8247D125400C130A8 /* SentryDefaultThreadInspector.h in Headers */,
+				879900020000000000000003 /* SentryThreadSnapshot.h in Headers */,
+				879900020000000000000022 /* SentryMemory.h in Headers */,
 				63FE713320DA4C1100CDBAE8 /* SentryCrashCPU.h in Headers */,
 				6271ADF32BA06D9B0098D2E9 /* SentryInternalSerializable.h in Headers */,
 				D8853C842833EABC00700D64 /* SentryANRTrackerV1.h in Headers */,
@@ -3815,6 +3837,8 @@
 				69233122282F27391CC27B64 /* SentryCrashReportFilterBasic.h in Headers */,
 				A6ED768122358CC831DDBF19 /* SentryCrashDefaultMachineContextWrapper.h in Headers */,
 				2F6D0BFEC4980798559B1A7D /* SentryDefaultThreadInspector.h in Headers */,
+				879900020000000000000013 /* SentryThreadSnapshot.h in Headers */,
+				879900020000000000000032 /* SentryMemory.h in Headers */,
 				C279DBBFE52A2999B3D74390 /* SentryCrashCPU.h in Headers */,
 				5FD453C8920A9A949807E56E /* SentryInternalSerializable.h in Headers */,
 				DB9BE72F3A78290A7CD67961 /* SentryANRTrackerV1.h in Headers */,
@@ -4684,6 +4708,9 @@
 				63FE713B20DA4C1100CDBAE8 /* SentryCrashFileUtils.c in Sources */,
 				63FE716920DA4C1100CDBAE8 /* SentryCrashStackCursor.c in Sources */,
 				7BA61CCA247D128B00C130A8 /* SentryDefaultThreadInspector.m in Sources */,
+				879900020000000000000001 /* SentryThreadSnapshot.c in Sources */,
+				879900020000000000000002 /* SentryThreadSnapshotKSCrash.c in Sources */,
+				879900020000000000000021 /* SentryMemory.c in Sources */,
 				63FE718D20DA4C1100CDBAE8 /* SentryCrashReportStore.c in Sources */,
 				ACC82C7ED1B5414FAD0BB26C /* SentryDefaultTelemetryProcessorTransport.m in Sources */,
 				63FE712920DA4C1000CDBAE8 /* SentryCrashCPU_arm.c in Sources */,
@@ -4917,6 +4944,9 @@
 				1220C7DFB9CB9E3C7658D53D /* SentryCrashFileUtils.c in Sources */,
 				9CEAF11A69A1466D0B3752A7 /* SentryCrashStackCursor.c in Sources */,
 				AB19BEEF19D22375FCE646D3 /* SentryDefaultThreadInspector.m in Sources */,
+				879900020000000000000011 /* SentryThreadSnapshot.c in Sources */,
+				879900020000000000000012 /* SentryThreadSnapshotKSCrash.c in Sources */,
+				879900020000000000000031 /* SentryMemory.c in Sources */,
 				674845D69661D75E31151562 /* SentryCrashReportStore.c in Sources */,
 				4694776C9EFEB40B24B09929 /* SentryDefaultTelemetryProcessorTransport.m in Sources */,
 				A77E7415125AADFF6E53BB0E /* SentryCrashCPU_arm.c in Sources */,
@@ -14088,10 +14118,10 @@
 /* Begin XCRemoteSwiftPackageReference section */
 		7D3AA95A0088413F8CF3F65A /* XCRemoteSwiftPackageReference "KSCrash" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/kstenerud/KSCrash.git";
+			repositoryURL = "https://github.com/supervacuus/KSCrash.git";
 			requirement = {
-				kind = exactVersion;
-				version = 2.6.0;
+				kind = revision;
+				revision = 391bf0a9569b6c1aa9df30b3fa4bcabbc0a07e7a;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
