@@ -587,6 +587,54 @@ final class SentryBreadcrumbTrackerTests: XCTestCase {
         XCTAssertEqual(data["label"] as? String, "Button title")
     }
 
+    func testExtractData_whenChildButtonHasNoTitle_shouldNotCreateSubviews() {
+        // -- Arrange --
+        let view = UIView()
+        let button = UIButton()
+        view.addSubview(button)
+        let subviewCount = button.subviews.count
+
+        // -- Act --
+        _ = SentryBreadcrumbTracker.extractData(from: view, includeAccessibilityIdentifier: true)
+
+        // -- Assert --
+        XCTAssertEqual(button.subviews.count, subviewCount)
+    }
+
+    @available(iOS 15.0, tvOS 15.0, *)
+    func testExtractData_whenChildButtonHasConfigurationTitle_shouldAddTitleOnce() {
+        // -- Arrange --
+        let view = UIView()
+        var configuration = UIButton.Configuration.plain()
+        configuration.title = "Configured title"
+        let button = UIButton(configuration: configuration)
+        view.addSubview(button)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(from: view, includeAccessibilityIdentifier: true)
+
+        // -- Assert --
+        XCTAssertEqual(data["label"] as? String, "Configured title")
+    }
+
+    func testExtractData_whenButtonTitleLabelIsNestedInWrapper_shouldAddTitleOnce() throws {
+        // -- Arrange --
+        let view = UIView()
+        let button = UIButton()
+        button.setTitle("Button title", for: .normal)
+        let titleLabel = try XCTUnwrap(button.titleLabel)
+        let wrapper = UIView()
+        wrapper.addSubview(titleLabel)
+        button.addSubview(wrapper)
+        view.addSubview(button)
+
+        // -- Act --
+        let data = SentryBreadcrumbTracker.extractData(from: view, includeAccessibilityIdentifier: true)
+
+        // -- Assert --
+        XCTAssertEqual(data["label"] as? String, "Button title")
+    }
+
     func testExtractData_whenTitledChildButtonHasCustomLabel_shouldAddBothTexts() {
         // -- Arrange --
         let view = UIView()
