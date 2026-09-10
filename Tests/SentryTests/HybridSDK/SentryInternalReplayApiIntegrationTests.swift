@@ -104,6 +104,26 @@ class SentryInternalReplayApiIntegrationTests: XCTestCase {
         XCTAssertNil(SentrySDK.internal.replay.replayId)
     }
 
+    #if SDK_V10
+    func testReplayId_whenOnlySetOnScope_shouldReturnNil() {
+        startSDKWithReplay()
+
+        // -- Arrange --
+        SentrySDKInternal.currentHub().scope.replayId = Self.validReplayId
+
+        // -- Act & Assert --
+        XCTAssertNil(SentrySDK.internal.replay.replayId)
+    }
+
+    // MARK: - isBuffering
+
+    func testIsBuffering_withoutReplay_shouldReturnFalse() {
+        startSDKWithoutReplay()
+
+        // -- Act & Assert --
+        XCTAssertFalse(SentrySDK.internal.replay.isBuffering)
+    }
+    #else
     func testReplayId_whenSetOnScope_shouldReturnReplayId() {
         startSDKWithReplay()
 
@@ -116,6 +136,7 @@ class SentryInternalReplayApiIntegrationTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(result, Self.validReplayId)
     }
+    #endif // SDK_V10
 
     func testReplayId_whenBufferRecording_shouldFallBackToSessionReplayId() throws {
         // A buffer (on-error) replay is recording: the scope's `replayId` is nil,

@@ -1,3 +1,4 @@
+#import <SentryObjC/SentryObjCInternalReplayApi.h>
 @import SentryObjC;
 @import XCTest;
 
@@ -60,6 +61,15 @@
     // -- Assert --
     XCTAssertNil(replayId);
 }
+
+#    if SDK_V10
+#        pragma mark - isBuffering
+
+- (void)testIsBuffering_withoutReplay_shouldReturnNO
+{
+    XCTAssertFalse(SentryObjCSDK.internal.replay.isBuffering);
+}
+#    endif // SDK_V10
 
 #    pragma mark - addIgnoreClasses
 
