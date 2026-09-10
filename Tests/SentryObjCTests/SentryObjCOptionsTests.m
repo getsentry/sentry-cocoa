@@ -1228,6 +1228,18 @@
     XCTAssertTrue(options.reportAccessibilityIdentifier);
 }
 
+- (void)testEnableBreadcrumbTextExtraction_whenSetToNo_shouldReturnNo
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    options.enableBreadcrumbTextExtraction = NO;
+
+    // -- Assert --
+    XCTAssertFalse(options.enableBreadcrumbTextExtraction);
+}
+
 - (void)testEnableUserInteractionTracing_whenSetToYes_shouldReturnYes
 {
     // -- Arrange --

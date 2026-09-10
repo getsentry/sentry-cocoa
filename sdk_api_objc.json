@@ -2136,6 +2136,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "enableBreadcrumbTextExtraction",
+    "parent": "SentryObjCOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "enableCaptureFailedRequests",
     "parent": "SentryObjCOptions",
     "returnType": "BOOL",
@@ -6189,6 +6196,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setEnableBreadcrumbTextExtraction:",
+    "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setEnableCaptureFailedRequests:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
@@ -9633,6 +9647,12 @@
   {
     "kind": "ObjCPropertyDecl",
     "name": "enableAutoSessionTracking",
+    "parent": "SentryObjCOptions",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "enableBreadcrumbTextExtraction",
     "parent": "SentryObjCOptions",
     "type": "BOOL"
   },
