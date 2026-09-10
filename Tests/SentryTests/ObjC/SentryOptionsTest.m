@@ -1001,6 +1001,11 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     [self testBooleanField:@"reportAccessibilityIdentifier" defaultValue:YES];
 }
 
+- (void)testEnableBreadcrumbTextExtraction
+{
+    [self testBooleanField:@"enableBreadcrumbTextExtraction" defaultValue:YES];
+}
+
 - (void)testEnableUserInteractionTracing
 {
     [self testBooleanField:@"enableUserInteractionTracing" defaultValue:YES];
