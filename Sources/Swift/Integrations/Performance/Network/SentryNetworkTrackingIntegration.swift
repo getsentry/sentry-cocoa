@@ -127,6 +127,10 @@ final class SentryNetworkTrackingIntegration<Dependencies: NetworkTrackerProvide
     /// autoreleased reference: the extra retain is established before the concurrent release and is
     /// balanced only when the pool drains, after the Objective-C method returns, so `cancel` never
     /// messages a freed task (see https://github.com/getsentry/sentry-cocoa/issues/8917).
+    ///
+    /// The retain must outlive the enclosing Objective-C method, so it relies on the caller's
+    /// autorelease pool. Do not wrap the swizzle body in a local `@autoreleasepool`: that would
+    /// balance the retain before `cancel` returns and reintroduce the crash.
     private static func keepTaskAliveDuringSwizzle(_ task: URLSessionTask) {
         _ = Unmanaged.passRetained(task).autorelease()
     }
