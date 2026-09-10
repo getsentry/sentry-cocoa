@@ -27,10 +27,7 @@ extension SentryKSCrash {
     final class AttachmentsMonitor: NSObject, MonitorPlugin, @unchecked Sendable {
         typealias Context = UnsafeMutableRawPointer?
         typealias InitCallback = @convention(c) (UnsafeMutablePointer<KSCrash_ExceptionHandlerCallbacks>?, Context) -> Void
-        typealias MonitorIDCallback = @convention(c) (Context) -> UnsafePointer<CChar>?
         typealias MonitorFlagsCallback = @convention(c) (Context) -> KSCrashMonitorFlag
-        typealias SetEnabledCallback = @convention(c) (Bool, Context) -> Void
-        typealias IsEnabledCallback = @convention(c) (Context) -> Bool
         typealias AddContextualInfoCallback = @convention(c) (UnsafeMutablePointer<KSCrash_MonitorContext>?, Context) -> Void
         typealias NotifyCallback = @convention(c) (Context) -> Void
         typealias StitchCallback = @convention(c) (
@@ -170,8 +167,6 @@ extension SentryKSCrash {
             }
         }
 
-        private let _monitorId: UnsafeMutablePointer<CChar> = strdup(sentrykscrash_attachmentsMonitorID)
-
         let api: UnsafeMutablePointer<KSCrashMonitorAPI>
 
         override init() {
@@ -183,19 +178,10 @@ extension SentryKSCrash {
         deinit {
             api.deinitialize(count: 1)
             api.deallocate()
-            free(_monitorId)
         }
 
         private static let apiInitCallback: InitCallback = { callbacks, _ in
             sentrykscrash_attachments_setSidecarPathProvider(callbacks?.pointee.getReportSidecarPath)
-        }
-
-        private static let monitorIDCallback: MonitorIDCallback = { context in
-            guard let monitor = SentryKSCrash.AttachmentsMonitor.from(context) else {
-                SentrySDKLog.debug("Attachments monitor context is nil when reading monitor ID")
-                return nil
-            }
-            return UnsafePointer(monitor._monitorId)
         }
 
         private static let monitorFlagsCallback: MonitorFlagsCallback = { _ in KSCrashMonitorFlagPlugin }
@@ -229,7 +215,7 @@ extension SentryKSCrash.AttachmentsMonitor {
             to: KSCrashMonitorAPI(
                 context: nil,
                 init: Self.apiInitCallback,
-                monitorId: Self.monitorIDCallback,
+                monitorId: sentrykscrash_attachments_monitorId,
                 monitorFlags: Self.monitorFlagsCallback,
                 setEnabled: sentrykscrash_attachments_setEnabled,
                 isEnabled: sentrykscrash_attachments_isEnabled,

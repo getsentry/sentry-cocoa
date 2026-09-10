@@ -180,6 +180,13 @@ _Static_assert(ATOMIC_BOOL_LOCK_FREE == 2, "Crash-handler enabled state must be 
 
 static const unsigned char kMarkerHeader[] = { 0xDE, 0xAD, 0xBE, 0xEF, 1 };
 
+const char *
+sentrykscrash_attachments_monitorId(void *context)
+{
+    (void)context;
+    return sentrykscrash_attachmentsMonitorID;
+}
+
 bool
 sentrykscrash_attachments_isEnabled(void *context)
 {
