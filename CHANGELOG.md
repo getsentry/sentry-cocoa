@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Store the binary image cache in zero-fill memory to reduce the SDK binary size. (#9003)
+
 ## 9.28.0
 
 ### Features
