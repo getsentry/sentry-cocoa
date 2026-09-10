@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add `enableBreadcrumbTextExtraction` to control interaction breadcrumb child-text extraction. (#9010)
+
 ### Fixes
 
 - Store the binary image cache in zero-fill memory to reduce the SDK binary size. (#9003)
