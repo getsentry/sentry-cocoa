@@ -83,7 +83,7 @@ import UIKit
             let name = index == 0 ? "screenshot.png" : "screenshot-\(index + 1).png"
             let fileName = (imagesDirectoryPath as NSString).appendingPathComponent(name)
             do {
-                try data.write(to: URL(fileURLWithPath: fileName), options: [])
+                try data.write(to: URL(fileURLWithPath: fileName), options: .atomic)
 #if SDK_V10
                 sentrykscrash_attachments_log_i("saveScreenShots: wrote png bytes", Int32(data.count))
 #endif
