@@ -19,6 +19,14 @@ final class SentryBreadcrumbTrackerTests: XCTestCase {
     }
     
 #if os(iOS) || os(tvOS)
+    func testInit_whenUsingLegacyInitializer_shouldEnableBreadcrumbTextExtraction() {
+        // -- Act --
+        let sut = SentryBreadcrumbTracker(reportAccessibilityIdentifier: true)
+
+        // -- Assert --
+        XCTAssertTrue(sut.enableBreadcrumbTextExtraction)
+    }
+
     func testStopRemovesSwizzleSendAction() {
         let sut = SentryBreadcrumbTracker(reportAccessibilityIdentifier: true)
 
