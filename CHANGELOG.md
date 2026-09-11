@@ -17,6 +17,7 @@
 ### Deprecations
 
 - Deprecate legacy App Hang tracking because it can produce less relevant stack traces and false positives. Enable the MetricKit integration for system-provided hang diagnostics by setting `options.enableMetricKit = true`. The `appHangTimeoutInterval` option remains supported for watchdog termination classification. (#8944)
+- Reset `appHangTimeoutInterval` values of 0 or lower to the default of 2 seconds, which previously spun the app hang tracker thread in a busy loop (#9020)
 
 ## 9.28.0
 
