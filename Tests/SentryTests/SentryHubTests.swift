@@ -471,6 +471,100 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(context?.sampleRate, 0.51)
     }
     
+    func testStartTransaction_whenParentSampledWithParentSampleRateAndRand_shouldInheritParentSampleRateAndRand() throws {
+        // -- Arrange --
+        let transactionContext = TransactionContext(
+            name: fixture.transactionName,
+            operation: fixture.transactionOperation,
+            trace: SentryId(),
+            spanId: SpanId(),
+            parentSpanId: SpanId(),
+            parentSampled: .yes,
+            parentSampleRate: 0.25,
+            parentSampleRand: 0.1234
+        )
+
+        // -- Act --
+        let span = fixture.getSut().startTransaction(transactionContext: transactionContext)
+
+        // -- Assert --
+        let tracer = try XCTUnwrap(span as? SentryTracer)
+        XCTAssertEqual(tracer.sampled, .yes)
+        XCTAssertEqual(tracer.transactionContext.sampleRate, 0.25)
+        XCTAssertEqual(tracer.transactionContext.sampleRand, 0.1234)
+    }
+
+    func testStartTransaction_whenParentNotSampledWithParentSampleRateAndRand_shouldInheritParentSampleRateAndRand() throws {
+        // -- Arrange --
+        let transactionContext = TransactionContext(
+            name: fixture.transactionName,
+            operation: fixture.transactionOperation,
+            trace: SentryId(),
+            spanId: SpanId(),
+            parentSpanId: SpanId(),
+            parentSampled: .no,
+            parentSampleRate: 0.25,
+            parentSampleRand: 0.9876
+        )
+
+        // -- Act --
+        let span = fixture.getSut().startTransaction(transactionContext: transactionContext)
+
+        // -- Assert --
+        let tracer = try XCTUnwrap(span as? SentryTracer)
+        XCTAssertEqual(tracer.sampled, .no)
+        XCTAssertEqual(tracer.transactionContext.sampleRate, 0.25)
+        XCTAssertEqual(tracer.transactionContext.sampleRand, 0.9876)
+    }
+
+    func testStartTransaction_whenParentSampledWithoutParentSampleRateAndRand_shouldUseContextSampleRateAndRand() throws {
+        // -- Arrange --
+        let transactionContext = TransactionContext(
+            name: fixture.transactionName,
+            operation: fixture.transactionOperation,
+            trace: SentryId(),
+            spanId: SpanId(),
+            parentSpanId: SpanId(),
+            parentSampled: .yes,
+            parentSampleRate: nil,
+            parentSampleRand: nil
+        )
+        transactionContext.sampleRate = 0.5
+        transactionContext.sampleRand = 0.75
+
+        // -- Act --
+        let span = fixture.getSut().startTransaction(transactionContext: transactionContext)
+
+        // -- Assert --
+        let tracer = try XCTUnwrap(span as? SentryTracer)
+        XCTAssertEqual(tracer.sampled, .yes)
+        XCTAssertEqual(tracer.transactionContext.sampleRate, 0.5)
+        XCTAssertEqual(tracer.transactionContext.sampleRand, 0.75)
+    }
+
+    func testStartTransaction_whenParentSampledWithParentSampleRateAndRand_shouldPropagateThemInTraceContext() throws {
+        // -- Arrange --
+        let transactionContext = TransactionContext(
+            name: fixture.transactionName,
+            operation: fixture.transactionOperation,
+            trace: SentryId(),
+            spanId: SpanId(),
+            parentSpanId: SpanId(),
+            parentSampled: .yes,
+            parentSampleRate: 0.25,
+            parentSampleRand: 0.1234
+        )
+        let tracer = try XCTUnwrap(fixture.getSut().startTransaction(transactionContext: transactionContext) as? SentryTracer)
+
+        // -- Act --
+        let traceContext = try XCTUnwrap(TraceContext(tracer: tracer, scope: Scope(), options: fixture.options))
+
+        // -- Assert --
+        XCTAssertEqual(traceContext.sampled, "true")
+        XCTAssertEqual(traceContext.sampleRate, "0.250000")
+        XCTAssertEqual(traceContext.sampleRand, "0.123400")
+    }
+
     func testStartTransactionNotSamplingUsingSampleRate() {
         assertSampler(expected: .no) { options in
             options.tracesSampleRate = 0.49
