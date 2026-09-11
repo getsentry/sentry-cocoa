@@ -79,6 +79,7 @@
 
 ### Fixes
 
+- Resolve the application state at `UIApplicationDidFinishLaunchingNotification` when the SDK starts before `UIApplication` exists, such as from a SwiftUI `App.init`. A process launched in the background (for example for HealthKit background delivery) was treated as active for its whole lifetime, which let the app hang tracker report fatal app hangs with an idle main thread (#8988)
 - Prevent relevant view controller traversal from recursively loading parent views and invoking `viewDidLoad` twice when tracing is enabled. (#8941)
 - Classify MetricKit hangs over 500 ms as errors. (#8948)
 - Prevent Session Replay video encoding from reusing pixel buffers retained by AVFoundation. (#8950)
