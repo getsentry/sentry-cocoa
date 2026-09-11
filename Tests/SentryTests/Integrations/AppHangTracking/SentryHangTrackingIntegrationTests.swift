@@ -101,13 +101,12 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertNil(result)
     }
     
-    func test_appHangsTimeoutInterval_Zero() {
-        let options = Options()
-        options.enableAppHangTracking = true
+    func test_appHangsTimeoutInterval_Zero_ResetsToDefault() {
         options.appHangTimeoutInterval = 0
         
-        let result = hangTracker(with: options)
-        XCTAssertNil(result)
+        XCTAssertEqual(2.0, options.appHangTimeoutInterval)
+        givenInitializedTracker()
+        XCTAssertNotNil(sut)
     }
 
 #if os(macOS)
