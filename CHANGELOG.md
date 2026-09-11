@@ -8,8 +8,6 @@
 ### Fixes
 
 - Store the binary image cache in zero-fill memory to reduce the SDK binary size. (#9003)
-- Mark the fabricated `mach` and `signal` crash mechanisms as `synthetic` so an Apple crash groups with the identical crash reported by the other Sentry SDKs, and so a mach-caught and a signal-caught report of the same bug no longer split into two issues (#9003)
-- Set `mechanism.handled` to `false` on crash reports that carry no mach context, which previously left it unset (#9003)
 - Mark the fabricated `mach` and `signal` crash mechanisms as `synthetic` so an Apple crash groups with the identical crash reported by the other Sentry SDKs (#9004)
 - Set `mechanism.handled` to `false` on crash reports without mach context, which previously left it unset (#9004)
 
