@@ -74,12 +74,12 @@ import Foundation
     }
     #endif
 
-    #if !os(watchOS)
+    #if !os(watchOS) && !SDK_V10
     @objc public var enableSigtermReporting: Bool {
         get { wrapped.enableSigtermReporting }
         set { wrapped.enableSigtermReporting = newValue }
     }
-    #endif
+    #endif // !os(watchOS) && !SDK_V10
 
     @objc public var maxBreadcrumbs: UInt {
         get { wrapped.maxBreadcrumbs }
