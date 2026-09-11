@@ -364,7 +364,13 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         sessionReplay?.pause()
         touchTracker?.disable()
         removeBackgroundForegroundObservers()
+        // Clear the replay first because the replay ID getter falls back to it when the scope ID is nil.
+        // Reversing this order could briefly return the ID of the replay that just stopped.
         sessionReplay = nil
+        // Clear the scope's replayId so events captured after a manual stop() are not associated with a
+        // replay that is no longer recording. This mirrors sessionReplayEnded(), which is only reached on
+        // the maximum-duration teardown path and never for a manual stop().
+        SentrySDKInternal.currentHub().configureScope { scope in scope.replayId = nil }
     }
 
     // MARK: - API Exposed to ObjC
