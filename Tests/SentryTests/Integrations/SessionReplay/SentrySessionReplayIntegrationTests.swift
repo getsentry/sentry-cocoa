@@ -1318,6 +1318,33 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertNil(sut.sessionReplay)
     }
 
+    func testReplayIdAndSessionReplayCleared_whenStopped() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+
+        var replayId: String?
+        SentrySDKInternal.currentHub().configureScope { scope in
+            replayId = scope.replayId
+        }
+        XCTAssertNotNil(replayId)
+
+        // -- Act --
+        sut.stop()
+
+        // -- Assert --
+        // The scope's replayId is the value serialized as `replay_id` onto captured events, so
+        // clearing it ensures events captured after stop() are not linked to the stopped replay.
+        var serializedReplayId: Any?
+        SentrySDKInternal.currentHub().configureScope { scope in
+            replayId = scope.replayId
+            serializedReplayId = scope.serialize()["replay_id"]
+        }
+        XCTAssertNil(replayId)
+        XCTAssertNil(serializedReplayId)
+        XCTAssertNil(sut.sessionReplay)
+    }
+
     func testSessionReplayEnded_whenReplayIdIsCleared_shouldClearSessionReplayFirst() throws {
         // -- Arrange --
         startSDK(sessionSampleRate: 1, errorSampleRate: 0)
