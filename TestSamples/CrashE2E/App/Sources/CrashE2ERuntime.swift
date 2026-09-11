@@ -17,6 +17,7 @@ enum CrashE2EScenario: String {
     case objcObjectAfterCaughtCPP = "objc-object-after-caught-cpp"
     case binaryImages = "binary-images"
     case ignoredSignal = "ignored-signal"
+    case sigterm
     case managedRuntimeSignalChain = "managed-runtime-signal-chain"
     case managedRuntimePreSDKSignal = "managed-runtime-pre-sdk-signal"
     case managedRuntimeClosedSignal = "managed-runtime-closed-signal"
@@ -89,6 +90,7 @@ enum CrashE2ERuntime {
         installFakeManagedRuntimeHandlerIfNeeded()
         loadBinaryImageBeforeSDKIfNeeded()
         startConfiguredSDK()
+        writeLastRunMarkerIfNeeded()
         CrashE2EScopePopulation.populateIfNeeded()
         logCrashTimeAttachmentsHookIfNeeded()
         NSLog("CrashE2E - SDK started")
@@ -108,6 +110,8 @@ enum CrashE2ERuntime {
             }
         case .managedRuntimePreSDKSignal:
             abortBecausePreSDKScenarioReturned()
+        case .sigterm:
+            waitForExternalSigterm()
         case .signal, .nsException, .nsExceptionSubclass, .cppExceptionV1, .cppExceptionV2,
              .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2, .objcObject,
              .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal, .managedRuntimeSignalChain,
@@ -133,6 +137,8 @@ enum CrashE2ERuntime {
             sleepThenExit(configuration.exitAfterSeconds ?? 3.0)
         case .managedRuntimePreSDKSignal:
             abortBecausePreSDKScenarioReturned()
+        case .sigterm:
+            waitForExternalSigtermSynchronously()
         case .signal, .nsException, .nsExceptionSubclass, .cppExceptionV1, .cppExceptionV2,
              .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2, .objcObject,
              .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal, .managedRuntimeSignalChain,
@@ -225,7 +231,7 @@ enum CrashE2ERuntime {
             installFakeManagedRuntimeHandler()
         case .idle, .drain, .signal, .nsException, .nsExceptionSubclass, .cppExceptionV1,
              .cppExceptionV2, .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2,
-             .objcObject, .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal,
+             .objcObject, .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal, .sigterm,
              .managedRuntimePreSDKSignal, .swiftAsyncCPPExceptionV2Off,
              .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA, .ksCrashRetryReportB,
              .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments:
@@ -308,16 +314,7 @@ enum CrashE2ERuntime {
     }
 
     private static func binaryImageMarkerURL() throws -> URL {
-        if let cacheDirectoryPath = configuration.cacheDirectoryPath {
-            return URL(fileURLWithPath: cacheDirectoryPath, isDirectory: true)
-                .appendingPathComponent("crash-e2e-binary-images.json")
-        }
-
-        let caches = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)
-        guard let cacheURL = caches.first else {
-            throw CocoaError(.fileNoSuchFile)
-        }
-        return cacheURL.appendingPathComponent("crash-e2e-binary-images.json")
+        try cacheMarkerURL(named: "crash-e2e-binary-images.json")
     }
 
     private static func installFakeManagedRuntimeHandler() {

@@ -64,7 +64,7 @@ enum EventAssertions {
              .crashTimeScope, .crashTimeAttachments:
             try assertCrashedThread(threadValues, expectedThreadID: exceptionThreadID,
                                     platform: platform, scenario: scenario)
-        case .ignoredSignal:
+        case .ignoredSignal, .sigterm:
             return
         }
     }
@@ -147,8 +147,9 @@ enum EventAssertions {
                                                      scenario: scenario)
             }
 
-        case .ignoredSignal, .ksCrashPerReportRetry:
-            // The multi-launch KSCrash retry scenario has aggregate assertions in its own asserter.
+        case .ignoredSignal, .ksCrashPerReportRetry, .sigterm:
+            // The multi-launch KSCrash retry scenario has aggregate assertions in its own asserter,
+            // and the no-event scenarios never reach this point.
             return
         }
     }

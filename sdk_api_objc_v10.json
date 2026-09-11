@@ -2362,13 +2362,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "enableSigtermReporting",
-    "parent": "SentryObjCOptions",
-    "returnType": "BOOL",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "enableSpotlight",
     "parent": "SentryObjCOptions",
     "returnType": "BOOL",
@@ -6443,13 +6436,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "setEnableSigtermReporting:",
-    "parent": "SentryObjCOptions",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "setEnableSpotlight:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
@@ -9884,12 +9870,6 @@
     "kind": "ObjCPropertyDecl",
     "name": "enableScreenshot",
     "parent": "SentryObjCUserFeedbackFormConfiguration",
-    "type": "BOOL"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
-    "name": "enableSigtermReporting",
-    "parent": "SentryObjCOptions",
     "type": "BOOL"
   },
   {
