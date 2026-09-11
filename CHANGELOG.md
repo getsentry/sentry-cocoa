@@ -2,10 +2,15 @@
 
 ## Unreleased
 
+> [!WARNING]
+> Native crashes now set `mechanism.synthetic`, which takes the mach exception name (`EXC_BAD_ACCESS`) or signal name (`SIGSEGV`) out of the grouping hash. Expect a one-time regrouping as your app adopts this version: existing crash issues stop receiving events and new ones open. Crashes that differ only by signal at the same stacktrace now share one issue. The mach and signal detail stays on `mechanism.meta`.
+
 ### Fixes
 
 - Store the binary image cache in zero-fill memory to reduce the SDK binary size. (#9003)
 - Clear the scope's `replayId` when Session Replay is stopped manually, so events captured after `stop()` are no longer linked to a replay that is no longer recording (#9017)
+- Mark the fabricated `mach` and `signal` crash mechanisms as `synthetic` so an Apple crash groups with the identical crash reported by the other Sentry SDKs (#9004)
+- Set `mechanism.handled` to `false` on crash reports without mach context, which previously left it unset (#9004)
 
 ## 9.28.0
 
