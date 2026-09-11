@@ -62,6 +62,8 @@ targets:
       base:
         PRODUCT_NAME: CrashE2E-iOS-KSCrash
         PRODUCT_BUNDLE_IDENTIFIER: io.sentry.tests.CrashE2E.KSCrash.iOS
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SDK_V10"
+        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
 
   CrashE2E-macOS:
     type: tool
@@ -109,7 +111,8 @@ targets:
       base:
         PRODUCT_NAME: CrashE2E-macOS-KSCrash
         PRODUCT_BUNDLE_IDENTIFIER: io.sentry.tests.CrashE2E.KSCrash.macOS
-        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) CRASH_E2E_MACOS_CLI"
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) CRASH_E2E_MACOS_CLI SDK_V10"
+        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) SDK_V10=1"
 
   CrashE2EDynamicImageBefore-iOS:
     type: library.dynamic
