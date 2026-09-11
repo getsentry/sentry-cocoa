@@ -23,14 +23,13 @@ public func sentry_finishAndSaveTransaction() {
 // MARK: - Dependency Provider
 
 /// Provides dependencies for `SentryCrashIntegration`.
-typealias CrashIntegrationProvider = SentryCrashReporterProvider & CrashIntegrationSessionHandlerBuilder & CrashInstallationReporterBuilder & DateProviderProvider & NotificationCenterProvider
+typealias CrashIntegrationProvider = SentryCrashReporterProvider & CrashWrapperProvider & PreviousRunSessionFinalizerBuilder & CrashInstallationReporterBuilder & DateProviderProvider & NotificationCenterProvider
 
 // MARK: - SentryCrashIntegration
 
 final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSObject, SwiftIntegration {
 
     private weak var options: Options?
-    private var sessionHandler: SentryCrashIntegrationSessionHandler?
     private var scopeObserver: SentryCrashScopeObserver?
     private var crashReporter: SentryCrashSwift
     private var installation: SentryCrashInstallationReporter?
@@ -63,13 +62,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         // Configure memory introspection based on options
         crashReporter.introspectMemory = options.enableMemoryIntrospection
 
-        self.sessionHandler = dependencies.getCrashIntegrationSessionBuilder(options, bridge: bridge)
         self.scopeObserver = SentryCrashScopeObserver(maxBreadcrumbs: Int(options.maxBreadcrumbs))
-
-        guard self.sessionHandler != nil, self.scopeObserver != nil else {
-            SentrySDKLog.warning("Failed to initialize SentryCrashIntegration dependencies")
-            return nil
-        }
 
         var enableSigtermReporting = false
         #if !os(watchOS)
@@ -175,20 +168,16 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
             sentrycrashcm_cppexception_enable_swap_cxa_throw()
         }
 
-        // We need to send the crashed event together with the crashed session in the same envelope
-        // to have proper statistics in release health. To achieve this we need both synchronously
-        // in the hub. The crashed event is converted from a SentryCrashReport to an event in
-        // SentryCrashReportSink and then passed to the SDK on a background thread. This process is
-        // started with installing this integration. We need to end and delete the previous session
-        // before being able to start a new session for the AutoSessionTrackingIntegration. The
-        // SentryCrashIntegration is installed before the AutoSessionTrackingIntegration so there is
-        // no guarantee if the crashed event is created before or after the
-        // AutoSessionTrackingIntegration. By ending the previous session and storing it as crashed
-        // in here we have the guarantee once the crashed event is sent to the hub it is already
-        // there and the AutoSessionTrackingIntegration can work properly.
-        //
-        // This is a pragmatic and not the most optimal place for this logic.
-        self.sessionHandler?.endCurrentSessionIfRequired()
+        // Finalize the previous session before report processing or auto session tracking
+        // can start, so the first fatal event can attach the crashed session.
+        if let options = self.options {
+            let finalizer = dependencies.getPreviousRunSessionFinalizer(
+                options: options,
+                crashedLastLaunch: dependencies.crashWrapper.crashedLastLaunch,
+                activeDurationSinceLastCrash: dependencies.crashWrapper.activeDurationSinceLastCrash
+            )
+            finalizer?.finalizeIfNeeded()
+        }
 
         // We only need to send all reports on the first initialization of SentryCrash. If
         // SentryCrash was deactivated there are no new reports to send. Furthermore, the
