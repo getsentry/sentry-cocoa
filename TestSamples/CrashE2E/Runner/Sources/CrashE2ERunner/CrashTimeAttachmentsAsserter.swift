@@ -6,6 +6,7 @@ import Foundation
 /// verifies the on-disk evidence before the drain launch cleans it up:
 ///
 /// - `<installDir>/SentryAttachments/<reportID_hex>/screenshot*.png` — a valid PNG file
+/// - `<installDir>/SentryAttachments/<reportID_hex>/view-hierarchy.json` — view hierarchy JSON
 /// - `<installDir>/Sidecars/SentryAttachments/<reportID_hex>.ksscr` — a valid Sentry marker
 ///
 /// The asserter locates the payload directory by scanning `SentryAttachments/` for the most
@@ -42,6 +43,7 @@ enum CrashTimeAttachmentsAsserter {
         let reportIDHex = payloadDir.lastPathComponent
 
         try assertScreenshotFile(in: payloadDir, platform: platform)
+        try assertViewHierarchyFile(in: payloadDir, platform: platform)
         try assertMarkerFile(in: sidecarsDir, reportIDHex: reportIDHex, platform: platform)
 
         log("✅ \(platform)/crash-time-attachments payload assertions passed (report \(reportIDHex)).")
@@ -74,6 +76,33 @@ enum CrashTimeAttachmentsAsserter {
             "Envelope screenshot does not have a PNG signature for \(platform)/crash-time-attachments"
         )
         log("  envelope screenshot: \(screenshot.filename ?? "screenshot.png") (\(screenshot.payload.count) bytes) ✓")
+
+        let viewHierarchies = attachments.filter { attachment in
+            (attachment.filename ?? "") == "view-hierarchy.json"
+        }
+        try EventAssertions.assert(
+            !viewHierarchies.isEmpty,
+            "Expected view-hierarchy.json on the crash envelope for \(platform)/crash-time-attachments, "
+                + "found \(attachments.map { $0.filename ?? "<unnamed>" })"
+        )
+
+        let viewHierarchy = viewHierarchies[0]
+        try EventAssertions.assert(
+            viewHierarchy.attachmentType == "event.view_hierarchy",
+            "Expected event.view_hierarchy type for view-hierarchy.json "
+                + "on \(platform)/crash-time-attachments, found \(viewHierarchy.attachmentType ?? "nil")"
+        )
+        let viewHierarchyObject = try JSONSerialization.jsonObject(with: viewHierarchy.payload)
+        guard let viewHierarchyJSON = viewHierarchyObject as? [String: Any] else {
+            try fail(
+                "Expected view-hierarchy.json envelope payload to be a JSON object for \(platform)/crash-time-attachments"
+            )
+        }
+        try EventAssertions.assert(
+            viewHierarchyJSON["rendering_system"] as? String == "UIKIT",
+            "Expected rendering_system UIKIT on view-hierarchy.json for \(platform)/crash-time-attachments"
+        )
+        log("  envelope view hierarchy: \(viewHierarchy.payload.count) bytes ✓")
     }
 
     // MARK: - Install directory
@@ -162,6 +191,29 @@ enum CrashTimeAttachmentsAsserter {
             "Screenshot file does not have a PNG signature for \(platform)/crash-time-attachments: \(screenshotURL.path)"
         )
         log("  screenshot: \(screenshotURL.lastPathComponent) (\(data.count) bytes) ✓")
+    }
+
+    // MARK: - View hierarchy
+
+    private static func assertViewHierarchyFile(in payloadDir: URL, platform: String) throws {
+        let viewHierarchyURL = payloadDir.appendingPathComponent("view-hierarchy.json")
+        try EventAssertions.assert(
+            FileManager.default.fileExists(atPath: viewHierarchyURL.path),
+            "Expected view-hierarchy.json in \(payloadDir.path) for \(platform)/crash-time-attachments"
+        )
+
+        let data = try Data(contentsOf: viewHierarchyURL)
+        let object = try JSONSerialization.jsonObject(with: data)
+        guard let json = object as? [String: Any] else {
+            try fail(
+                "Expected view-hierarchy.json to be a JSON object for \(platform)/crash-time-attachments: \(viewHierarchyURL.path)"
+            )
+        }
+        try EventAssertions.assert(
+            json["rendering_system"] as? String == "UIKIT",
+            "Expected rendering_system UIKIT in \(viewHierarchyURL.path) for \(platform)/crash-time-attachments"
+        )
+        log("  view hierarchy: \(viewHierarchyURL.lastPathComponent) (\(data.count) bytes) ✓")
     }
 
     // MARK: - Marker
