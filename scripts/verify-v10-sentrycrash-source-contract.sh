@@ -226,7 +226,6 @@ sdk_owned_excluded_sources=(
   Sources/Swift/Integrations/SentryCrash/SentryCrashBridge.swift
   Sources/Swift/Integrations/SentryCrash/SentryCrashInstallationReporter.swift
   Sources/Swift/Integrations/SentryCrash/SentryCrashIntegration.swift
-  Sources/Swift/Integrations/SentryCrash/SentryCrashIntegrationSessionHandler.swift
   Sources/Swift/SentryCrash/SentryCrashSwift.swift
   Sources/Swift/SentryCrash/SentryDefaultCrashReporter.swift
 )
