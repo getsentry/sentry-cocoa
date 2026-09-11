@@ -5,6 +5,7 @@
 ### Fixes
 
 - Store the binary image cache in zero-fill memory to reduce the SDK binary size. (#9003)
+- Inherit `parentSampleRate` and `parentSampleRand` when a transaction continues a trace whose parent already made the sampling decision, so the propagated dynamic sampling context keeps the trace's `sample_rate` and `sample_rand`. (#9014)
 
 ## 9.28.0
 
