@@ -92,6 +92,7 @@ enum Scenario: String, CaseIterable {
     case objcObjectAfterCaughtCPP = "objc-object-after-caught-cpp"
     case binaryImages = "binary-images"
     case ignoredSignal = "ignored-signal"
+    case sigterm
     case managedRuntimeSignalChain = "managed-runtime-signal-chain"
     case managedRuntimePreSDKSignal = "managed-runtime-pre-sdk-signal"
     case managedRuntimeClosedSignal = "managed-runtime-closed-signal"
@@ -120,6 +121,10 @@ enum Scenario: String, CaseIterable {
         .objcObjectAfterCaughtCPP,
         .binaryImages,
         .ignoredSignal,
+        // SIGTERM is a graceful-shutdown request, not a crash. Both reporters must let the process
+        // terminate without writing a report or an event, and the next launch must not be
+        // classified as crashed. V9 honors enableSigtermReporting (off here); V10 has no option.
+        .sigterm,
         .managedRuntimeSignalChain,
         .managedRuntimePreSDKSignal,
         .managedRuntimeClosedSignal,
@@ -143,9 +148,9 @@ enum Scenario: String, CaseIterable {
             return true
         case .signal, .nsException, .nsExceptionSubclass, .cppExceptionV1, .cppExceptionV2,
              .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2, .objcObject,
-             .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal, .swiftAsyncCPPExceptionV2Off,
-             .swiftAsyncCPPExceptionV2On, .ksCrashPerReportRetry, .mallocZoneLockedSignal,
-             .crashTimeScope, .crashTimeAttachments:
+             .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal, .sigterm,
+             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashPerReportRetry,
+             .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments:
             return false
         }
     }
@@ -160,14 +165,14 @@ enum Scenario: String, CaseIterable {
              .managedRuntimePreSDKSignal,
              .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
              .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashPerReportRetry,
-             .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments:
+             .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments, .sigterm:
             return true
         }
     }
 
     var expectsEvent: Bool {
         switch self {
-        case .managedRuntimePreSDKSignal, .managedRuntimeClosedSignal, .ignoredSignal:
+        case .managedRuntimePreSDKSignal, .managedRuntimeClosedSignal, .ignoredSignal, .sigterm:
             return false
         case .signal, .nsException, .nsExceptionSubclass, .cppExceptionV1, .cppExceptionV2,
              .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2, .objcObject,

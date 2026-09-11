@@ -37,6 +37,7 @@
   - Remove the `enableAppHangTracking` and `enableReportNonFullyBlockingAppHangs` options
   - Remove the `pauseAppHangTracking` and `resumeAppHangTracking` APIs
   - Remove the `enableWatchdogTerminationsV2` option; watchdog termination tracking always uses the run-loop-based tracker
+- Remove `enableSigtermReporting`; KSCrash treats `SIGTERM` as a clean exit and never reports it as a crash (#9019)
 
 ### Fixes
 

@@ -43,6 +43,8 @@ extension SentryKSCrash {
             // To match KSCrash & SentryCrash, we need to add 'KSCrash/<bundlename>' to the cacheDirectoryPath
             let installPath = Self.installPath(for: options.cacheDirectoryPath, bundleInfo: Bundle.main.infoDictionary)
 
+            // SIGTERM is deliberately not configurable here. KSCrash catches and re-raises it as a
+            // clean exit without writing a report.
             do {
                 try installer.install(
                     installPath: installPath.path,
@@ -82,8 +84,6 @@ extension SentryKSCrash {
             // when crashing. Acceptance: SCV10-027 in the migration ledger.
             // KSCRASH_TODO(GH-8797): V10 has no early KSCrash signal preloader, so managed-runtime
             // handler ordering is not preserved. Acceptance: SCV10-033 in the migration ledger.
-            // KSCRASH_TODO(GH-8652): V10 intentionally ignores enableSigtermReporting while its
-            // public API removal is pending. Acceptance: SCV10-031 in the migration ledger.
 #endif
 
             if installer.crashedLastLaunch {
