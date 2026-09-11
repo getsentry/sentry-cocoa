@@ -44,13 +44,13 @@ import UIKit
         return SentryViewHierarchyProviderHelper.appViewHierarchy(from: windows, reportAccessibilityIdentifier: reportAccessibilityIdentifier)
     }
     
-    /// Save the current view hierarchy to `filePath`.
-    ///
-    /// This function does not dispatch window collection to the main thread.
-    /// The caller should be aware of that. Crash-time capture uses this path, and
-    /// hopping to main would freeze because KSCrash has suspended other threads.
     @discardableResult @objc(saveViewHierarchy:) public func saveViewHierarchy(_ filePath: String) -> Bool {
+#if SDK_V10
+        // Crash-time: do not hop to main. KSCrash has suspended other threads.
         let windows = applicationProvider()?.collectWindowsOnCurrentThread() ?? []
+#else
+        let windows = applicationProvider()?.getWindows() ?? []
+#endif
         return SentryViewHierarchyProviderHelper.saveViewHierarchy(filePath, windows: windows, reportAccessibilityIdentifier: reportAccessibilityIdentifier)
     }
 }

@@ -67,12 +67,12 @@ final class SentryViewHierarchyIntegration<Dependencies: SentryViewHierarchyInte
     }
 
     func uninstall() {
-        globalViewHierarchyProvider = nil
 #if !SENTRY_DISABLE_SENTRYCRASH_V10
         sentrycrash_setSaveViewHierarchy(nil)
 #else
         SentryDependencyContainer.sharedInstance().getKSCrashInstaller().setViewHierarchyProvider(nil)
 #endif
+        globalViewHierarchyProvider = nil
         client?.removeAttachmentProcessor(self)
     }
 

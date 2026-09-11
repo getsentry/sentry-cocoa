@@ -351,6 +351,7 @@ class SentryViewHierarchyProviderTests: XCTestCase {
         XCTAssertFalse(self.fixture.sut.saveViewHierarchy(""))
     }
 
+#if SDK_V10
     func testSaveViewHierarchy_whenOnlyGetWindowsHookIsSet_shouldNotUseIt() throws {
         // -- Arrange --
         let window = makeWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
@@ -368,6 +369,71 @@ class SentryViewHierarchyProviderTests: XCTestCase {
             "{\"rendering_system\":\"UIKIT\",\"windows\":[]}"
         )
     }
+
+    func testSaveViewHierarchy_whenMainThreadBlocked_shouldWriteHierarchyFromCurrentThread() throws {
+        // -- Arrange --
+        XCTAssertTrue(Thread.isMainThread)
+
+        let window = makeWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        window.accessibilityIdentifier = "WindowId"
+        fixture.applicationDelegate.window = window
+        fixture.uiApplication.appDelegate = fixture.applicationDelegate
+
+        let path = FileManager.default.temporaryDirectory
+            .appendingPathComponent("view-\(UUID().uuidString).json").path
+        defer { XCTAssertNoThrow(try FileManager.default.removeItem(atPath: path)) }
+        let sut = fixture.sut
+
+        final class SaveState: @unchecked Sendable {
+            let condition = NSCondition()
+            var mainIsWaiting = false
+            var saveDone = false
+            var saved = false
+        }
+        let state = SaveState()
+
+        // -- Act --
+        DispatchQueue.global(qos: .userInitiated).async {
+            state.condition.lock()
+            while !state.mainIsWaiting {
+                state.condition.wait()
+            }
+            state.condition.unlock()
+
+            let result = sut.saveViewHierarchy(path)
+
+            state.condition.lock()
+            state.saved = result
+            state.saveDone = true
+            state.condition.broadcast()
+            state.condition.unlock()
+        }
+
+        let deadline = Date().addingTimeInterval(1)
+        state.condition.lock()
+        state.mainIsWaiting = true
+        state.condition.broadcast()
+        while !state.saveDone {
+            if !state.condition.wait(until: deadline) {
+                state.condition.unlock()
+                XCTFail("saveViewHierarchy timed out while the main thread was blocked")
+                return
+            }
+        }
+        let didSave = state.saved
+        state.condition.unlock()
+
+        // -- Assert --
+        XCTAssertTrue(didSave)
+        let object = try XCTUnwrap(
+            JSONSerialization.jsonObject(with: try Data(contentsOf: URL(fileURLWithPath: path))) as? [String: Any]
+        )
+        XCTAssertEqual(object["rendering_system"] as? String, "UIKIT")
+        let windows = try XCTUnwrap(object["windows"] as? [[String: Any]])
+        XCTAssertEqual(windows.count, 1)
+        XCTAssertEqual(windows.first?["identifier"] as? String, "WindowId")
+    }
+#endif // SDK_V10
 
     func test_invalidSerializationReturnsNil() {
         let window = makeWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
