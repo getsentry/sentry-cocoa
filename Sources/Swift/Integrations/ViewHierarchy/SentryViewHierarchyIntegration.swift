@@ -9,6 +9,9 @@ typealias SentryViewHierarchyIntegrationProvider = ViewHierarchyProviderProvider
 private weak var globalViewHierarchyProvider: SentryViewHierarchyProvider?
 
 #if SENTRY_DISABLE_SENTRYCRASH_V10
+// KSCRASH_TODO(GH-8273, GH-8532): V10 crash-time view hierarchy uses this KSCrash
+// writer instead of sentrycrash_setSaveViewHierarchy. Acceptance: SCV10-009 in
+// SENTRYCRASH_V10_MIGRATION_LEDGER.md.
 private let crashTimeViewHierarchyWriter: @convention(c) (UnsafePointer<CChar>) -> Void = { path in
     sentrykscrash_attachments_log("view-hierarchy writer: enter")
     guard let provider = globalViewHierarchyProvider else {
@@ -60,6 +63,8 @@ final class SentryViewHierarchyIntegration<Dependencies: SentryViewHierarchyInte
             globalViewHierarchyProvider?.saveViewHierarchy(filePath)
         }
 #else
+        // KSCRASH_TODO(GH-8273, GH-8532): V10 registers the KSCrash attachments
+        // writer. Acceptance: SCV10-009 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
         SentryDependencyContainer.sharedInstance().getKSCrashInstaller().setViewHierarchyProvider(
             crashTimeViewHierarchyWriter
         )
@@ -70,6 +75,8 @@ final class SentryViewHierarchyIntegration<Dependencies: SentryViewHierarchyInte
 #if !SENTRY_DISABLE_SENTRYCRASH_V10
         sentrycrash_setSaveViewHierarchy(nil)
 #else
+        // KSCRASH_TODO(GH-8273, GH-8532): V10 clears the KSCrash attachments writer.
+        // Acceptance: SCV10-009 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
         SentryDependencyContainer.sharedInstance().getKSCrashInstaller().setViewHierarchyProvider(nil)
 #endif
         globalViewHierarchyProvider = nil
