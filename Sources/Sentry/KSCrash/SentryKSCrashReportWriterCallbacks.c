@@ -211,6 +211,25 @@ sentrykscrash_attachments_setViewHierarchyWriter(SentryKSCrashAttachmentsViewHie
     atomic_store_explicit(&g_viewHierarchyWriter, writer, memory_order_release);
 }
 
+#    if SENTRY_TEST || SENTRY_TEST_CI
+bool
+sentrykscrash_attachments_hasViewHierarchyWriter(void)
+{
+    return atomic_load_explicit(&g_viewHierarchyWriter, memory_order_acquire) != NULL;
+}
+
+void
+sentrykscrash_attachments_invokeViewHierarchyWriter(const char *payloadDirectory)
+{
+    SentryKSCrashAttachmentsViewHierarchyWriter writer
+        = atomic_load_explicit(&g_viewHierarchyWriter, memory_order_acquire);
+    if (writer == NULL || payloadDirectory == NULL) {
+        return;
+    }
+    writer(payloadDirectory);
+}
+#    endif // SENTRY_TEST || SENTRY_TEST_CI
+
 void
 sentrykscrash_attachments_setSidecarPathProvider(KSCrashReportSidecarPathProviderFunc provider)
 {

@@ -32,6 +32,9 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         fixture = Fixture()
 
         SentryDependencyContainer.sharedInstance().viewHierarchyProvider = fixture.viewHierarchyProvider
+#if SENTRY_DISABLE_SENTRYCRASH_V10
+        sentrykscrash_attachments_setViewHierarchyWriter(nil)
+#endif
     }
 
     override func tearDown() {
@@ -81,6 +84,67 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         XCTAssertFalse(sentrycrash_hasSaveViewHierarchyCallback())
 #endif
     }
+
+#if SENTRY_DISABLE_SENTRYCRASH_V10
+    func testInstall_whenAttachViewHierarchyDisabled_shouldNotRegisterCrashWriter() {
+        // -- Arrange --
+        SentrySDK.start {
+            $0.removeAllIntegrations()
+            $0.attachViewHierarchy = false
+        }
+        defer {
+            SentrySDK.close()
+        }
+
+        // -- Assert --
+        XCTAssertFalse(sentrykscrash_attachments_hasViewHierarchyWriter())
+    }
+
+    func testInstall_whenAttachViewHierarchyEnabled_shouldRegisterCrashWriter() {
+        // -- Arrange --
+        SentrySDK.start {
+            $0.removeAllIntegrations()
+            $0.attachViewHierarchy = true
+        }
+        defer {
+            SentrySDK.close()
+        }
+
+        // -- Assert --
+        XCTAssertTrue(sentrykscrash_attachments_hasViewHierarchyWriter())
+    }
+
+    func testUninstall_whenSDKCloses_shouldClearCrashWriter() {
+        // -- Arrange --
+        SentrySDK.start {
+            $0.removeAllIntegrations()
+            $0.attachViewHierarchy = true
+        }
+
+        // -- Act --
+        SentrySDK.close()
+
+        // -- Assert --
+        XCTAssertFalse(sentrykscrash_attachments_hasViewHierarchyWriter())
+    }
+
+    func testCrashTimeWriter_whenInvoked_shouldSaveViewHierarchyToPayloadDirectory() {
+        // -- Arrange --
+        SentrySDK.start {
+            $0.removeAllIntegrations()
+            $0.attachViewHierarchy = true
+        }
+        defer {
+            SentrySDK.close()
+        }
+
+        // -- Act --
+        sentrykscrash_attachments_invokeViewHierarchyWriter("/test/path")
+
+        // -- Assert --
+        XCTAssertEqual("/test/path/view-hierarchy.json", fixture.viewHierarchyProvider.saveFilePathUsed)
+    }
+#endif
 
     func test_integrationAddFileName() {
         SentrySDK.start {

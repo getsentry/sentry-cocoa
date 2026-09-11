@@ -38,6 +38,14 @@ void sentrykscrash_attachments_setViewHierarchyWriter(
 void sentrykscrash_attachments_setSidecarPathProvider(
     KSCrashReportSidecarPathProviderFunc _Nullable provider);
 
+#    if SENTRY_TEST || SENTRY_TEST_CI
+/** For testing. True when a view-hierarchy writer is registered. */
+bool sentrykscrash_attachments_hasViewHierarchyWriter(void);
+
+/** For testing. Invokes the registered view-hierarchy writer, if any. */
+void sentrykscrash_attachments_invokeViewHierarchyWriter(const char *_Nonnull payloadDirectory);
+#    endif // SENTRY_TEST || SENTRY_TEST_CI
+
 /**
  * This is accepted as not being a async-signal-safe operation.
  * It represents a best-effort attempt at grabbing useful information before the application is
