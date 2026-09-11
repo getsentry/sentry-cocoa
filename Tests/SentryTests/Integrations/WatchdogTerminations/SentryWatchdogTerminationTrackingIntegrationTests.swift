@@ -448,6 +448,29 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let appState = try XCTUnwrap(fixture.fileManager.readAppState())
         // Since hangStarted was never called (duration was below threshold), isANROngoing should still be false
         XCTAssertFalse(appState.isANROngoing)
+    }
+
+    func testHangObserver_ZeroAppHangTimeoutInterval_UsesDefaultThreshold() throws {
+        // -- Arrange --
+        let mockDelayTracker = MockRunLoopDelayTracker()
+        let dependencies = MockDependenciesWithControllableDelayTracker(delayTracker: mockDelayTracker)
+
+        let options = fixture.options
+        // 0 is invalid; the SDK resets it to the default of 2 seconds.
+        options.appHangTimeoutInterval = 0
+#if !SDK_V10
+        options.experimental.enableWatchdogTerminationsV2 = true
+#endif
+
+        // -- Act --
+        let integration = SentryWatchdogTerminationTrackingIntegration(with: options, dependencies: dependencies)
+
+        // A delay below the default threshold of 2 seconds must not be reported as a hang.
+        mockDelayTracker.simulateDelay(duration: 0.5, ongoing: true)
+
+        // -- Assert --
+        let appState = try XCTUnwrap(fixture.fileManager.readAppState())
+        XCTAssertFalse(appState.isANROngoing)
         XCTAssertNotNil(integration)
     }
 
