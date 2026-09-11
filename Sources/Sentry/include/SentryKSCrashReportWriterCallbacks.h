@@ -26,12 +26,15 @@ void sentrykscrash_didWriteReport(
 extern const char *const _Nonnull sentrykscrash_attachmentsMonitorID;
 
 typedef void (*SentryKSCrashAttachmentsScreenshotWriter)(const char *_Nonnull payloadDirectory);
+typedef void (*SentryKSCrashAttachmentsViewHierarchyWriter)(const char *_Nonnull payloadDirectory);
 
 const char *_Nullable sentrykscrash_attachments_monitorId(void *_Nullable context);
 bool sentrykscrash_attachments_isEnabled(void *_Nullable context);
 void sentrykscrash_attachments_setEnabled(bool enabled, void *_Nullable context);
 void sentrykscrash_attachments_setScreenshotWriter(
     SentryKSCrashAttachmentsScreenshotWriter _Nullable writer);
+void sentrykscrash_attachments_setViewHierarchyWriter(
+    SentryKSCrashAttachmentsViewHierarchyWriter _Nullable writer);
 void sentrykscrash_attachments_setSidecarPathProvider(
     KSCrashReportSidecarPathProviderFunc _Nullable provider);
 

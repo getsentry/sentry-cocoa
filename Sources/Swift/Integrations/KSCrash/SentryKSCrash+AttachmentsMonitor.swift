@@ -9,14 +9,15 @@ import Foundation
 extension SentryKSCrash {
     /// KSCrash plugin for crash attachments.
     ///
-    /// Owns setup (enable, sidecar path, screenshot writer callback) and
+    /// Owns setup (enable, sidecar path, writer callbacks) and
     /// next-launch stitch. Crash-time capture is C (`sentrykscrash_attachments_capture`).
     ///
     /// On-disk layout:
     /// ```
     /// <installDir>/
     ///   Sidecars/SentryAttachments/<reportID>.ksscr   // stitch gate, not the payload
-    ///   SentryAttachments/<reportID>/screenshot.png   // envelope files
+    ///   SentryAttachments/<reportID>/screenshot.png
+    ///   SentryAttachments/<reportID>/view-hierarchy.json
     /// ```
     ///
     /// The sidecar path is one file. KSCrash only calls `createStitchedReport` when
@@ -238,6 +239,10 @@ extension SentryKSCrash.AttachmentsMonitor {
 extension SentryKSCrash.AttachmentsMonitor {
     func setScreenshotWriter(_ writer: SentryKSCrashAttachmentsScreenshotWriter?) {
         sentrykscrash_attachments_setScreenshotWriter(writer)
+    }
+
+    func setViewHierarchyWriter(_ writer: SentryKSCrashAttachmentsViewHierarchyWriter?) {
+        sentrykscrash_attachments_setViewHierarchyWriter(writer)
     }
 }
 

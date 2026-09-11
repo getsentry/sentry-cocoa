@@ -18,6 +18,7 @@
   - Scrub sensitive Session Replay request and response body values, replacing unparseable bodies with `[Filtered]` (#8547)
 - Add `beforeSendTransaction` to modify or drop transaction events before sending (#8745)
 - Attach crash screenshots via KSCrash sidecar in `SentryV10` (#8986)
+- Attach crash view hierarchy via KSCrash sidecar in `SentryV10`
 
 ### Breaking Changes
 

@@ -7,6 +7,13 @@ private let crashE2EWriteScreenshot: @convention(c) (UnsafePointer<CChar>) -> Vo
     try? crashE2EScreenshotPNG.write(to: url)
 }
 
+private nonisolated(unsafe) var crashE2EViewHierarchyJSON = Data()
+private let crashE2EWriteViewHierarchy: @convention(c) (UnsafePointer<CChar>) -> Void = { path in
+    let url = URL(fileURLWithPath: String(cString: path))
+        .appendingPathComponent("view-hierarchy.json")
+    try? crashE2EViewHierarchyJSON.write(to: url)
+}
+
 extension SentryKSCrash {
     /// CrashE2E-only fault injection and synchronization for stored-report delivery.
     ///
@@ -100,10 +107,11 @@ extension SentryKSCrash {
             return false
         }
 
-        /// Installs a synthetic crash-time screenshot provider for the `crash-time-attachments`
-        /// E2E scenario. The provider writes a minimal 1×1 red PNG into the payload directory so
-        /// the file can be verified on disk without a real UIKit screen capture.
-        static func installSyntheticScreenshotProvider() {
+        /// Installs synthetic crash-time attachment writers for the `crash-time-attachments`
+        /// E2E scenario. The writers place a minimal 1×1 red PNG and a tiny view-hierarchy JSON
+        /// into the payload directory so the files can be verified on disk without a real UIKit
+        /// capture.
+        static func installSyntheticAttachmentProviders() {
             guard argumentValue(after: "--scenario") == "crash-time-attachments" else { return }
             // Minimal valid 1×1 red PNG (67 bytes).
             let pngBytes: [UInt8] = [
@@ -118,8 +126,12 @@ extension SentryKSCrash {
                 0x44, 0xAE, 0x42, 0x60, 0x82
             ]
             crashE2EScreenshotPNG = Data(pngBytes)
-            SentryDependencyContainer.sharedInstance().getKSCrashInstaller()
-                .setScreenshotProvider(crashE2EWriteScreenshot)
+            crashE2EViewHierarchyJSON = Data(
+                #"{"rendering_system":"UIKIT","windows":[]}"#.utf8
+            )
+            let installer = SentryDependencyContainer.sharedInstance().getKSCrashInstaller()
+            installer.setScreenshotProvider(crashE2EWriteScreenshot)
+            installer.setViewHierarchyProvider(crashE2EWriteViewHierarchy)
         }
     }
 }

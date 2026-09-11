@@ -10,9 +10,16 @@ class SentryViewHierarchyProviderTests: XCTestCase {
 
     private class Fixture {
         let uiApplication = TestSentryUIApplication()
+        let applicationDelegate = TestApplicationDelegate()
 
         var sut: SentryViewHierarchyProvider {
             return SentryViewHierarchyProvider(dispatchQueueWrapper: SentryDispatchQueueWrapper(), applicationProvider: { self.uiApplication })
+        }
+
+        func setCrashTimeWindow(_ window: UIWindow) {
+            applicationDelegate.window = window
+            uiApplication.appDelegate = applicationDelegate
+            uiApplication.windows = [window]
         }
     }
 
@@ -293,7 +300,7 @@ class SentryViewHierarchyProviderTests: XCTestCase {
         let window = makeWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         window.accessibilityIdentifier = "WindowId"
 
-        fixture.uiApplication.windows = [window]
+        fixture.setCrashTimeWindow(window)
 
         let path = FileManager.default.temporaryDirectory.appendingPathComponent("view.json").path
         self.fixture.sut.saveViewHierarchy(path)
@@ -306,7 +313,7 @@ class SentryViewHierarchyProviderTests: XCTestCase {
     func test_ViewHierarchy_memoryAndFileSerializersHaveParity() throws {
         let window = makeWindow(frame: CGRect(x: 1.25, y: -2.5, width: 20.75, height: 30))
         window.accessibilityIdentifier = "quoted \" identifier \\ newline\n😀"
-        fixture.uiApplication.windows = [window]
+        fixture.setCrashTimeWindow(window)
 
         let memoryData = try XCTUnwrap(fixture.sut.appViewHierarchy())
         let path = FileManager.default.temporaryDirectory
@@ -323,7 +330,7 @@ class SentryViewHierarchyProviderTests: XCTestCase {
         let window = makeWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         window.accessibilityIdentifier = "WindowId"
 
-        fixture.uiApplication.windows = [window]
+        fixture.setCrashTimeWindow(window)
 
         let path = FileManager.default.temporaryDirectory.appendingPathComponent("view.json").path
         let sut = self.fixture.sut
@@ -339,9 +346,27 @@ class SentryViewHierarchyProviderTests: XCTestCase {
         let window = makeWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         window.accessibilityIdentifier = "WindowId"
 
-        fixture.uiApplication.windows = [window]
+        fixture.setCrashTimeWindow(window)
 
         XCTAssertFalse(self.fixture.sut.saveViewHierarchy(""))
+    }
+
+    func testSaveViewHierarchy_whenOnlyGetWindowsHookIsSet_shouldNotUseIt() throws {
+        // -- Arrange --
+        let window = makeWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        window.accessibilityIdentifier = "WindowId"
+        fixture.uiApplication.windows = [window]
+        let path = FileManager.default.temporaryDirectory.appendingPathComponent("view.json").path
+        defer { XCTAssertNoThrow(try FileManager.default.removeItem(atPath: path)) }
+
+        // -- Act --
+        XCTAssertTrue(fixture.sut.saveViewHierarchy(path))
+
+        // -- Assert --
+        XCTAssertEqual(
+            try String(contentsOfFile: path),
+            "{\"rendering_system\":\"UIKIT\",\"windows\":[]}"
+        )
     }
 
     func test_invalidSerializationReturnsNil() {

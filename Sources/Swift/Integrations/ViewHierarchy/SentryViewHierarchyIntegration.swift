@@ -4,6 +4,23 @@ internal import _SentryPrivate
 
 typealias SentryViewHierarchyIntegrationProvider = ViewHierarchyProviderProvider & ClientProvider
 
+// We need to use a global variable because C doesn't allow capturing var
+// nor we want to continue using the DependencyContainer
+private weak var globalViewHierarchyProvider: SentryViewHierarchyProvider?
+
+#if SENTRY_DISABLE_SENTRYCRASH_V10
+private let crashTimeViewHierarchyWriter: @convention(c) (UnsafePointer<CChar>) -> Void = { path in
+    sentrykscrash_attachments_log("view-hierarchy writer: enter")
+    guard let provider = globalViewHierarchyProvider else {
+        sentrykscrash_attachments_log("view-hierarchy writer: provider is nil")
+        return
+    }
+    let filePath = (String(cString: path) as NSString).appendingPathComponent("view-hierarchy.json")
+    provider.saveViewHierarchy(filePath)
+    sentrykscrash_attachments_log("view-hierarchy writer: returned")
+}
+#endif
+
 final class SentryViewHierarchyIntegration<Dependencies: SentryViewHierarchyIntegrationProvider>: NSObject, SwiftIntegration, SentryClientAttachmentProcessor {
     private let options: Options
     private let viewHierarchyProvider: SentryViewHierarchyProvider
@@ -34,26 +51,27 @@ final class SentryViewHierarchyIntegration<Dependencies: SentryViewHierarchyInte
         viewHierarchyProvider.reportAccessibilityIdentifier = options.reportAccessibilityIdentifier
         client.addAttachmentProcessor(self)
 
+        globalViewHierarchyProvider = viewHierarchyProvider
 #if !SENTRY_DISABLE_SENTRYCRASH_V10
         sentrycrash_setSaveViewHierarchy { path in
             guard let path = path else { return }
             let reportPath = String(cString: path)
             let filePath = (reportPath as NSString).appendingPathComponent("view-hierarchy.json")
-            SentryDependencyContainer.sharedInstance().viewHierarchyProvider?.saveViewHierarchy(filePath)
+            globalViewHierarchyProvider?.saveViewHierarchy(filePath)
         }
 #else
-        // KSCRASH_TODO(GH-8273, GH-8532): Nonfatal view hierarchies still work, but V10 does not
-        // register a fatal-crash view-hierarchy callback. Acceptance: SCV10-009 in
-        // SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+        SentryDependencyContainer.sharedInstance().getKSCrashInstaller().setViewHierarchyProvider(
+            crashTimeViewHierarchyWriter
+        )
 #endif
     }
 
     func uninstall() {
+        globalViewHierarchyProvider = nil
 #if !SENTRY_DISABLE_SENTRYCRASH_V10
         sentrycrash_setSaveViewHierarchy(nil)
 #else
-        // KSCRASH_TODO(GH-8273, GH-8532): V10 has no fatal-crash view-hierarchy callback to remove.
-        // Acceptance: SCV10-009 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+        SentryDependencyContainer.sharedInstance().getKSCrashInstaller().setViewHierarchyProvider(nil)
 #endif
         client?.removeAttachmentProcessor(self)
     }
