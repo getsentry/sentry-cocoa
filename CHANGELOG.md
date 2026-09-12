@@ -15,6 +15,7 @@
 
 ### Features
 
+- Add child text labels to UIKit interaction breadcrumbs when the tapped view has no accessibility identifier or button title. (#8974)
 - Add a `device.event` breadcrumb (`SYSTEM_CLOCK_CHANGE`) when the system clock changes, for example due to a manual time change or NTP sync (#8946)
 - Add Hints API with `beforeSendWithHint` and `beforeBreadcrumbWithHint` callbacks (#8942)
 
