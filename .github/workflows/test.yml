@@ -134,12 +134,14 @@ jobs:
         run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
       - name: Run package tests
         run: |
-          # Match TestCI for both the tests and their SDK dependencies; package schemes do not inherit it.
+          # Match project test compilation and diagnostics; see develop-docs/TEST.md.
           status=0
           # Xcode, not the shell, expands $(inherited).
           # shellcheck disable=SC2016
           NSUnbufferedIO=YES xcodebuild test -workspace . -scheme Sentry-Package \
+            -configuration TestCI \
             -sdk iphonesimulator -destination 'platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro' \
+            -xcconfig Tests/Configuration/SwiftPM.xcconfig \
             'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SENTRY_TEST_CI' \
             'GCC_PREPROCESSOR_DEFINITIONS=$(inherited) DEBUG=1 SENTRY_TEST=1 SENTRY_TEST_CI=1' \
             > raw-test-output-distribution.log 2>&1 || status=$?
@@ -150,8 +152,7 @@ jobs:
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-test-output-distribution-${{ matrix.mode }}
-          path: |
-            raw-test-output-distribution.log
+          path: raw-test-output-distribution.log
 
   # This matrix runs only the unit tests requiring the test server.
   # We do this to speed up the other unit test jobs and to avoid running the

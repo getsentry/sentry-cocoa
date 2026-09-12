@@ -46,6 +46,24 @@ let v10CxxSettings: [CXXSetting] = enableV10
     ? [.define("SDK_V10", to: "1"), .define("SENTRY_DISABLE_SENTRYCRASH_V10", to: "1")]
     : []
 
+// Match the wrapper targets' compiler settings in Sentry.xcodeproj.
+var objcCompatSwiftSettings: [SwiftSetting] = []
+#if compiler(>=6.1)
+objcCompatSwiftSettings.append(.enableUpcomingFeature("MemberImportVisibility"))
+#endif
+
+// Older Xcodes ignore approachable concurrency. Some individual features already exist in
+// older compilers, so gate the group to avoid enabling a subset that the project does not.
+#if compiler(>=6.2)
+objcCompatSwiftSettings += [
+    .enableUpcomingFeature("DisableOutwardActorInference"),
+    .enableUpcomingFeature("GlobalActorIsolatedTypesUsability"),
+    .enableUpcomingFeature("InferIsolatedConformances"),
+    .enableUpcomingFeature("InferSendableFromCaptures"),
+    .enableUpcomingFeature("NonisolatedNonsendingByDefault")
+]
+#endif
+
 var products: [Product] = [
     .library(name: "SentryDistribution", targets: ["SentryDistribution"])
 ]
@@ -259,7 +277,7 @@ targets += [
         dependencies: ["SentryObjCInternal"],
         path: "Sources/SentryObjCCompat",
         cSettings: v10CSettings,
-        swiftSettings: v10SwiftSettings
+        swiftSettings: v10SwiftSettings + objcCompatSwiftSettings
     ),
     .target(
         name: "SentryObjC",
@@ -315,7 +333,7 @@ targets += [
         name: "SentryObjCCompatTests",
         dependencies: ["SentryObjCCompat", "SentrySwift", "SentryTestUtils"],
         path: "Tests/SentryObjCCompatTests",
-        swiftSettings: v10SwiftSettings
+        swiftSettings: v10SwiftSettings + objcCompatSwiftSettings
     )
 ]
 
