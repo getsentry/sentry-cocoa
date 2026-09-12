@@ -456,6 +456,164 @@ class SentryFeedbackTests: XCTestCase {
         XCTAssertEqual(attachments[2].contentType, "video/mp4")
     }
 
+    func testValidate_whenMessageExceedsMaximumLength_shouldReturnSpecificError() throws {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = String(repeating: "a", count: 4_097)
+
+        // -- Act --
+        let result = sut.viewModel.validate()
+
+        // -- Assert --
+        guard case .failure(let error) = result else {
+            return XCTFail("Expected an over-limit message to fail validation.")
+        }
+        XCTAssertEqual(error.errorDescription, "The description must not exceed 4096 characters.")
+    }
+
+    func testValidate_whenMessageIsAtMaximumLength_shouldSucceed() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = String(repeating: "a", count: 4_096)
+
+        // -- Act --
+        let result = sut.viewModel.validate()
+
+        // -- Assert --
+        guard case .success = result else {
+            return XCTFail("Expected a message at the limit to validate.")
+        }
+    }
+
+    func testValidate_whenDecomposedMessageIsAtMaximumScalarLength_shouldSucceed() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = String(repeating: "e\u{301}", count: 2_048)
+
+        // -- Act --
+        let result = sut.viewModel.validate()
+
+        // -- Assert --
+        guard case .success = result else {
+            return XCTFail("Expected 4096 Unicode scalars to validate.")
+        }
+    }
+
+    func testValidate_whenDecomposedMessageExceedsMaximumScalarLength_shouldFail() throws {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = String(repeating: "e\u{301}", count: 2_048) + "a"
+
+        // -- Act --
+        let result = sut.viewModel.validate()
+
+        // -- Assert --
+        guard case .failure(let error) = result else {
+            return XCTFail("Expected 4097 Unicode scalars to fail validation.")
+        }
+        XCTAssertEqual(error.errorDescription, "The description must not exceed 4096 characters.")
+    }
+
+    func testValidate_whenRequiredFieldsAreMissingAndMessageIsTooLong_shouldReportMissingFields() throws {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        config.formConfig.isNameRequired = true
+        config.formConfig.isEmailRequired = true
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = String(repeating: "a", count: 4_097)
+
+        // -- Act --
+        let result = sut.viewModel.validate()
+
+        // -- Assert --
+        guard case .failure(let error) = result else {
+            return XCTFail("Expected missing required fields to fail validation.")
+        }
+        XCTAssertEqual(error.errorDescription, "You must provide all required information before submitting. Please check the following fields: name and email.")
+    }
+
+    func testMessageCharacterCount_whenTextChanges_shouldCountUnicodeScalars() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = "e\u{301}"
+
+        // -- Act --
+        sut.textViewDidChange(sut.viewModel.messageTextView)
+
+        // -- Assert --
+        XCTAssertEqual(sut.viewModel.messageCharacterCountLabel.text, "2 / 4096")
+        XCTAssertEqual(sut.viewModel.messageCharacterCountLabel.accessibilityLabel, "2 of 4096 characters used")
+        XCTAssertTrue(sut.viewModel.messageCharacterCountLabel.accessibilityTraits.contains(.updatesFrequently))
+        XCTAssertEqual(sut.viewModel.messageCharacterCountLabel.textColor, config.theme.foreground)
+    }
+
+    func testMessageCharacterCount_whenMessageExceedsMaximumLength_shouldUseErrorColor() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = String(repeating: "a", count: 4_097)
+
+        // -- Act --
+        sut.textViewDidChange(sut.viewModel.messageTextView)
+
+        // -- Assert --
+        XCTAssertEqual(sut.viewModel.messageCharacterCountLabel.text, "4097 / 4096")
+        XCTAssertEqual(sut.viewModel.messageCharacterCountLabel.textColor, config.theme.errorColor)
+    }
+
+    func testMessageCharacterCount_whenTextIsNil_shouldShowZero() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = nil
+
+        // -- Act --
+        sut.viewModel.updateMessageCharacterCount()
+
+        // -- Assert --
+        XCTAssertEqual(sut.viewModel.messageCharacterCountLabel.text, "0 / 4096")
+    }
+
+    func testMessageCharacterCount_whenFontFamilyConfigured_shouldUseThemeFont() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        config.theme.fontFamily = "Helvetica"
+
+        // -- Act --
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+
+        // -- Assert --
+        XCTAssertEqual(sut.viewModel.messageCharacterCountLabel.font.familyName, "Helvetica")
+    }
+
+#if !targetEnvironment(macCatalyst)
+    func testSubmitFeedback_whenMessageExceedsMaximumLength_shouldPresentSpecificError() throws {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        config.animations = false
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = String(repeating: "a", count: 4_097)
+        let window = UIWindow(windowScene: Self.mockWindowScene)
+        window.rootViewController = sut
+        window.makeKeyAndVisible()
+        addTeardownBlock { [window] in
+            window.isHidden = true
+        }
+
+        // -- Act --
+        sut.submitFeedback()
+
+        // -- Assert --
+        let alert = try XCTUnwrap(sut.presentedViewController as? UIAlertController)
+        XCTAssertEqual(alert.message, "The description must not exceed 4096 characters.")
+    }
+#endif
+
     private let inputCombinations: [FeedbackTestCase] = [
         // base case: don't require name or email, don't input a name or email, don't input a message or screenshot
         (config: (requiresName: false, requiresEmail: false, nameInput: nil, emailInput: nil, messageInput: nil, includeScreenshot: false), shouldValidate: false, expectedSubmitButtonAccessibilityHint: "You must provide all required information before submitting. Please check the following field: description."),

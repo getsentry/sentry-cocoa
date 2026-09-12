@@ -88,6 +88,9 @@
 ### Internal
 
 - Fix `SentrySDK.internal.replay.replayId` returning nil for buffered replays (#8976)
+- Mark the fabricated `mach` and `signal` crash mechanisms as `synthetic` so an Apple crash groups with the identical crash reported by the other Sentry SDKs, and so a mach-caught and a signal-caught report of the same bug no longer split into two issues (#8919)
+- Set `mechanism.handled` to `false` on crash reports that carry no mach context, which previously left it unset (#8919)
+- Prevent managed user feedback from submitting messages longer than 4096 Unicode scalars, and show the limit in the feedback form. (#8973)
 
 ## 9.27.0
 
