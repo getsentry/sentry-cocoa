@@ -448,6 +448,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let appState = try XCTUnwrap(fixture.fileManager.readAppState())
         // Since hangStarted was never called (duration was below threshold), isANROngoing should still be false
         XCTAssertFalse(appState.isANROngoing)
+        XCTAssertNotNil(integration)
     }
 
     func testHangObserver_ZeroAppHangTimeoutInterval_UsesDefaultThreshold() throws {
