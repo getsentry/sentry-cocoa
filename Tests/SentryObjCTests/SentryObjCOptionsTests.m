@@ -642,6 +642,30 @@
     XCTAssertEqualWithAccuracy(options.appHangTimeoutInterval, 5.0, 0.001);
 }
 
+- (void)testAppHangTimeoutInterval_whenSetToZero_shouldReturnDefault
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    options.appHangTimeoutInterval = 0;
+
+    // -- Assert --
+    XCTAssertEqualWithAccuracy(options.appHangTimeoutInterval, 2.0, 0.001);
+}
+
+- (void)testAppHangTimeoutInterval_whenSetToNegative_shouldReturnDefault
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    options.appHangTimeoutInterval = -1.0;
+
+    // -- Assert --
+    XCTAssertEqualWithAccuracy(options.appHangTimeoutInterval, 2.0, 0.001);
+}
+
 - (void)testSampleRate_whenSet_shouldReturnValue
 {
     // -- Arrange --

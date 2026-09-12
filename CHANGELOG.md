@@ -10,6 +10,7 @@
 - Store the binary image cache in zero-fill memory to reduce the SDK binary size. (#9003)
 - Mark the fabricated `mach` and `signal` crash mechanisms as `synthetic` so an Apple crash groups with the identical crash reported by the other Sentry SDKs (#9004)
 - Set `mechanism.handled` to `false` on crash reports without mach context, which previously left it unset (#9004)
+- Reset `appHangTimeoutInterval` values of 0 or lower to the default of 2 seconds, which previously spun the app hang tracker thread in a busy loop (#9020)
 
 ## 9.28.0
 
