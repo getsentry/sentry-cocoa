@@ -329,7 +329,7 @@ extension SentryBreadcrumbTracker {
         if let button = view as? UIButton,
            let title = button.currentTitle,
            !title.isEmpty,
-           redactBuilder?.isViewMaskedForTextExtraction(view) != true {
+           redactBuilder?.isViewMaskedForTextExtraction(view) == false {
             result["title"] = title
         }
 
