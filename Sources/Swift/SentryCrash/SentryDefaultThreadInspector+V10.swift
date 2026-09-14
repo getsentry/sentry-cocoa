@@ -31,11 +31,11 @@ final class SentrySystemThreadSnapshotProvider {
 
     func capture(stacks: Bool) -> [SentryCapturedThread] {
         var buffer = SentryThreadSnapshotBuffer()
+        defer { sentryThreadSnapshotSystemDestroy(&buffer) }
         guard sentryThreadSnapshotSystemCapture(stacks, requiresCrashHandler, &buffer) else {
             SentrySDKLog.debug("Thread snapshot capture unavailable.")
             return []
         }
-        defer { sentryThreadSnapshotSystemDestroy(&buffer) }
 
         // The C entry point has resumed every owned suspension and released enumeration rights.
         // Only now may Swift allocate, decode names, and copy instruction addresses.
