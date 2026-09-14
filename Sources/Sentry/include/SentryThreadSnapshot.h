@@ -9,73 +9,103 @@
 extern "C" {
 #endif
 
-// These are backend storage bounds, not independent SDK policy. They are mirrored here to keep
-// backend headers/types out of the neutral boundary. The adapter statically checks both values;
-// update these mirrors with the backend if those checks fail after an upgrade.
-
-// Source: KSCrashRecordingCore/include/KSStackCursor.h, KSSC_MAX_STACK_DEPTH.
-// KSBacktrace.c clamps remote-thread capture to 512 addresses. Its truncation check probes one
-// additional frame without writing it into the output buffer. This is NOT the separate 150-frame
-// KSSC_STACK_OVERFLOW_THRESHOLD classification, which does not stop the walk. Current-thread
-// capture uses KSCrash's self-thread cursor and its own internal storage bound instead.
+/**
+ * Maximum number of instruction addresses stored for a remote thread.
+ *
+ * This mirrors KSCrash's `KSSC_MAX_STACK_DEPTH`, not an independent SDK policy. KSCrash may probe
+ * one additional frame to report truncation, but never writes it to this array. Its separate
+ * stack-overflow classification threshold does not limit capture. Current-thread capture uses a
+ * different KSCrash path and bound. The KSCrash adapter statically verifies this value.
+ */
 #define SENTRY_THREAD_SNAPSHOT_MAX_FRAMES 512
 
-// Source: Darwin <mach/thread_info.h>, thread_extended_info_data_t.pth_name (MAXTHREADNAMESIZE).
-// The 64-byte field includes the NUL terminator: at most 63 name bytes, not 63 Unicode characters.
-// XNU bsd/kern/proc_info.c (PROC_SELFSET_THREADNAME) rejects longer pthread_setname_np requests
-// with ENAMETOOLONG rather than truncating them. libpthread/src/pthread.c updates its same-sized
-// cached name only after the kernel accepts the name, so this field holds the complete pthread
-// name; there is no longer cached pthread name to recover. Failed setters leave the old name
-// intact.
+/**
+ * Storage size in bytes for a copied thread name, including its NUL terminator.
+ *
+ * This mirrors Darwin's `thread_extended_info_data_t.pth_name` (`MAXTHREADNAMESIZE`), allowing at
+ * most 63 name bytes. The KSCrash adapter statically verifies this value.
+ */
 #define SENTRY_THREAD_SNAPSHOT_NAME_LENGTH 64
 
+/** Describes the final stack-capture result for one enumerated thread. */
 typedef enum {
+    /** Stack capture was disabled by the caller or SDK readiness policy. */
     SentryThreadCaptureNotRequested,
+    /** The current thread is delegated to the SDK's current-thread stack provider. */
     SentryThreadCaptureCurrent,
+    /** The backend identified this as an infrastructure thread that must not be suspended. */
     SentryThreadCaptureReserved,
+    /** No remote frames are available; `wasSuspended` indicates whether unwind was attempted. */
     SentryThreadCaptureUnavailable,
+    /** Remote capture produced one or more instruction addresses. */
     SentryThreadCaptureSucceeded,
 } SentryThreadCaptureStatus;
 
+/** Metadata and optional remote stack for one enumerated thread. */
 typedef struct {
+    /** Backend identity. The record does not retain an associated thread right or lifetime. */
     uintptr_t thread;
-    // Preserve enumeration ordinal separately from the Mach identity. Existing event IDs use it.
+    /** Zero-based enumeration ordinal, kept separate because existing event IDs use this value. */
     size_t index;
     bool isMain;
     bool isCurrent;
     SentryThreadCaptureStatus status;
-    // True when this inspection successfully acquired a suspension. Retained as capture metadata;
-    // the driver always makes one balancing resume attempt before returning.
+    /**
+     * True exactly when `suspend` succeeded. In that case `captureSuspended` and the balancing
+     * `resume` were each called once before capture returned. For an unavailable stack, this
+     * distinguishes a failed unwind from admission or suspension failure.
+     */
     bool wasSuspended;
+    /** Truncation reported by the backend for an attempted remote unwind. */
     bool isTruncated;
+    /** Number of valid addresses; never exceeds the array capacity and is nonzero on success. */
     size_t frameCount;
-    // Youngest to oldest. Model conversion/reversal happens after capture returns.
+    /** Valid prefix is ordered youngest to oldest; model conversion reverses it after capture. */
     uintptr_t addresses[SENTRY_THREAD_SNAPSHOT_MAX_FRAMES];
+    /** Always NUL-terminated after successful enumeration; empty when name lookup fails. */
     char name[SENTRY_THREAD_SNAPSHOT_NAME_LENGTH];
 } SentryThreadSnapshot;
 
+/** Owned array returned by capture. A zero count has a NULL `threads` pointer. */
 typedef struct {
     size_t count;
     SentryThreadSnapshot *threads;
 } SentryThreadSnapshotBuffer;
 
-// Process-wide, nonblocking admission shared by the SDK's nonfatal bulk-inspection and profiler
-// suspension paths. An owner acquires before its first thread_suspend and releases only after its
-// final balancing thread_resume attempt. Contenders must skip remote capture rather than wait: the
-// owner may have suspended them.
+/**
+ * Process-wide, nonblocking admission shared by nonfatal bulk inspection and profiling.
+ *
+ * Acquisition returns immediately. Remote-suspension paths acquire before their first suspension.
+ * A caller that acquires admission must release it exactly once, after its final balancing resume
+ * attempt. A contender must skip remote suspension rather than wait because the current owner may
+ * already have suspended the contending thread.
+ */
 bool sentryThreadSuspensionTryAcquire(void);
 void sentryThreadSuspensionRelease(void);
 
-// C-only backend seam. No backend types cross this boundary.
-// Successful enumerate owns its list until releaseList, including on allocation/size failure.
-// Failed enumerate must not transfer any ownership.
-// threadAt returns an identity kept alive by that list. The driver resolves all identities,
-// metadata, policy, and reserved-thread membership before suspending anything. From the first
-// successful suspend through the final resume attempt it calls only suspend, captureSuspended, and
-// resume; those callbacks may not allocate, message ObjC/Swift, or acquire blocking locks.
-// captureSuspended must not change the target's suspension count. resume is called exactly once for
-// each successful suspend, including when unwinding fails. Caller serializes captures and must not
-// enter while another environment is suspended by this inspection path.
+/**
+ * C-only backend interface; no backend-specific type crosses the snapshot boundary.
+ *
+ * All callbacks except `canCapture` are required. A successful `enumerate` transfers ownership of
+ * its list to the driver, which calls `releaseList` exactly once on every later path, including
+ * size or allocation failure. A failed `enumerate` transfers no ownership. Identities returned by
+ * `threadAt` must remain valid until `releaseList`.
+ *
+ * The driver has three callback phases:
+ *
+ * 1. Prepare: enumerate, allocate, evaluate policy, and resolve thread metadata.
+ * 2. Suspend: call only suspend, captureSuspended, and resume from the first successful suspension
+ *    through the final balancing resume attempt. These callbacks must not allocate, message
+ *    Objective-C or Swift, or acquire a blocking lock.
+ * 3. Finish: copy names and release the enumeration list after admission has been released.
+ *
+ * A successful `suspend` transfers one suspension to the driver. The driver calls
+ * `captureSuspended` once and `resume` once for that target, even when unwind fails.
+ * `captureSuspended` must not change suspension counts or write more than `capacity` addresses;
+ * return values above `capacity` are treated as capture failure. `name` must not write more than
+ * its capacity. Memory returned by `allocate` is later passed to `deallocate` with the same
+ * context.
+ */
 typedef struct {
     void *context;
     bool (*enumerate)(void *context, void **list, size_t *count);
@@ -83,7 +113,7 @@ typedef struct {
     uintptr_t (*threadAt)(void *context, void *list, size_t index);
     uintptr_t (*currentThread)(void *context);
     uintptr_t (*mainThread)(void *context);
-    // Optional startup policy, evaluated AFTER enumeration and BEFORE any target suspension.
+    /** Optional readiness policy, evaluated after enumeration and before any suspension. */
     bool (*canCapture)(void *context);
     bool (*isReserved)(void *context, uintptr_t thread);
     bool (*suspend)(void *context, uintptr_t thread);
@@ -95,38 +125,76 @@ typedef struct {
     void (*deallocate)(void *context, void *allocation);
 } SentryThreadSnapshotBackend;
 
-// Output is empty on failure. An empty successful enumeration does not allocate.
-// Each record remains present even if capture fails or is skipped. No fixed thread-count cutoff.
-// A process-wide admission contender retains records but does not attempt remote suspension.
-// Otherwise, eligible targets are suspended sequentially, then all successfully suspended targets
-// are unwound while that set remains stopped, and finally each acquired suspension is balanced.
-// This is not literally atomic: the inspecting/current thread, reserved threads, failed targets,
-// and targets not present in the enumeration can continue running. Every unwind is best effort from
-// an arbitrary instruction boundary. The caller owns output until destroy, using the same backend
-// allocator pair. Output must not already own a buffer. Raw KSCrash callers must coordinate monitor
-// installation themselves. SDK callers use SystemCapture below: it checks readiness after
-// enumeration and falls back to metadata/current-thread-only capture while the required
-// installation is pending.
+/**
+ * Captures one record for every thread returned by the backend, without a fixed thread-count limit.
+ *
+ * Preparation and allocation finish before any suspension. When stacks are enabled, the driver
+ * tries process-wide admission without waiting, suspends each eligible remote target sequentially,
+ * unwinds every successfully suspended target while that set remains stopped, and then attempts
+ * every balancing resume before releasing admission. Name lookup and result consumption happen
+ * afterward.
+ *
+ * Suspension is not atomic: the current thread, reserved threads, targets that fail to suspend,
+ * threads created after enumeration, and external activity may continue running. Every unwind is
+ * therefore best effort from an arbitrary instruction boundary.
+ *
+ * Returns false only for enumeration, result-size, or allocation failure; `output` is then empty.
+ * Per-thread suspension and unwind failures still return a record with the corresponding status;
+ * name failure leaves the record's name empty. A successful empty enumeration does not allocate.
+ * The caller owns a successful output until `sentryThreadSnapshotDestroy` and must pass the same
+ * backend allocator and context. On entry, `output` must not own an existing buffer.
+ */
 bool sentryThreadSnapshotCapture(const SentryThreadSnapshotBackend *backend, bool captureStacks,
     SentryThreadSnapshotBuffer *output);
+
+/** Releases an owned output buffer and resets it to empty. Safe to call on an empty buffer. */
 void sentryThreadSnapshotDestroy(
     const SentryThreadSnapshotBackend *backend, SentryThreadSnapshotBuffer *output);
 
-// Raw backend for C contract tests; callers must observe the installation precondition above.
+/**
+ * Returns the raw KSCrash backend without SDK installation-readiness policy.
+ *
+ * Intended for C contract tests and callers that independently ensure monitor installation cannot
+ * race reserved-thread discovery.
+ */
 SentryThreadSnapshotBackend sentryThreadSnapshotKSCrashBackend(void);
 
-// SDK entry points. Names and result/model consumption must occur outside any owned suspension.
+/**
+ * SDK capture entry point using the KSCrash backend and process-lifetime readiness policy.
+ *
+ * Readiness is evaluated after enumeration. If remote capture is unsafe, capture still succeeds
+ * with thread metadata but does not attempt remote suspension. Callers may consume names, records,
+ * and models only after this function returns.
+ */
 bool sentryThreadSnapshotSystemCapture(
     bool captureStacks, bool requiresCrashHandler, SentryThreadSnapshotBuffer *output);
+
+/** Releases an SDK capture buffer and resets it to empty. */
 void sentryThreadSnapshotSystemDestroy(SentryThreadSnapshotBuffer *output);
+
+/** Copies the kernel thread name into `buffer`; returns false when it cannot be read. */
 bool sentryThreadSnapshotCopyName(uintptr_t thread, char *buffer, size_t capacity);
-// Narrow current-thread identity capability for consumers that do not inspect stacks.
+
+/** Returns the backend identity for the calling thread without inspecting its stack. */
 uintptr_t sentryThreadInspectionCurrentThread(void);
 
-// Serialized installer lifecycle. Successful publication has process lifetime: SDK close() must
-// not clear it because the KSCrash recorder remains installed across SDK lifecycles.
+/**
+ * Publishes serialized crash-handler installation state to remote capture.
+ *
+ * The installer calls `WillInstall` immediately before each attempt and `DidInstall` afterward. A
+ * failed initial installation restores the not-installed state. Successful installation is
+ * process-lifetime state and must survive SDK close because KSCrash remains installed across SDK
+ * lifecycles.
+ */
 void sentryThreadInspectionWillInstallCrashHandler(void);
 void sentryThreadInspectionDidInstallCrashHandler(bool succeeded);
+
+/**
+ * Returns whether remote capture is safe for the caller's crash-handler requirement.
+ *
+ * Capture is allowed after successful installation. Before installation it is allowed only when
+ * the caller does not require a crash handler. It is always rejected while installation is active.
+ */
 bool sentryThreadInspectionCanCaptureRemote(bool requiresCrashHandler);
 
 #ifdef __cplusplus
