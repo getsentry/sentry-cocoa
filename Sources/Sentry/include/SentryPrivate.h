@@ -78,6 +78,8 @@
 #import "SentryNSDataSwizzlingHelper.h"
 #import "SentryNSFileManagerSwizzlingHelper.h"
 #import "SentryPerformanceTracker.h"
+#import "SentryProfileCollector.h"
+#import "SentryProfiledTracerConcurrency.h"
 #import "SentryProfiler+Private.h"
 #import "SentrySDKInternal.h"
 #import "SentrySanitizerUtils.h"
@@ -98,3 +100,4 @@
 #import "SentryTransactionContext+Private.h"
 #import "SentryUIViewControllerSwizzlingHelper.h"
 #import "SentryUncaughtNSExceptions.h"
+#import "SentryUser+Private.h"
