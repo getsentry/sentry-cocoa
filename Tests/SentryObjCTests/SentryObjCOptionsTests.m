@@ -1173,10 +1173,13 @@
     SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
 
     // -- Act --
+#        pragma clang diagnostic push
+#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
     options.enableSigtermReporting = YES;
 
     // -- Assert --
     XCTAssertTrue(options.enableSigtermReporting);
+#        pragma clang diagnostic pop
 }
 
 #    endif // SDK_V10
