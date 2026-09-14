@@ -78,6 +78,8 @@ init-local:
 # Installs tools needed for CI build tasks using Brewfile-ci-build.
 .PHONY: init-ci-build
 init-ci-build:
+# Temporarily remove applesimutils and wix-incubator/brew as they aren't homebrew 7 compatible
+# and bitrise installs them on their stacks...
 	brew uninstall applesimutils || true
 	brew untap wix-incubator/brew || true
 	brew update
@@ -88,6 +90,8 @@ init-ci-build:
 # Installs tools needed to run CI format tasks locally using Brewfile-ci-format.
 .PHONY: init-ci-format
 init-ci-format:
+# Temporarily remove applesimutils and wix-incubator/brew as they aren't homebrew 7 compatible
+# and bitrise installs them on their stacks...
 	brew uninstall applesimutils || true
 	brew untap wix-incubator/brew || true
 	brew update
