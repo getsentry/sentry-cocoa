@@ -1491,4 +1491,98 @@
     XCTAssertEqualObjects(messages.firstObject, unrelatedCrashInfo);
 }
 
+#pragma mark - mechanism.synthetic
+
+- (void)testMachException_shouldBeSynthetic
+{
+    // -- Act --
+    SentryException *exception = [self firstExceptionOfReport:@"Resources/crash-report-1"];
+
+    // -- Assert --
+    XCTAssertEqualObjects(exception.mechanism.type, @"mach");
+    XCTAssertEqualObjects(exception.mechanism.synthetic, @(YES));
+}
+
+- (void)testSignalException_shouldBeSynthetic
+{
+    // -- Act --
+    SentryException *exception = [self firstExceptionOfReport:@"Resources/Abort"];
+
+    // -- Assert --
+    XCTAssertEqualObjects(exception.mechanism.type, @"signal");
+    XCTAssertEqualObjects(exception.mechanism.synthetic, @(YES));
+}
+
+- (void)testNSException_shouldNotBeSynthetic
+{
+    // -- Act --
+    SentryException *exception = [self firstExceptionOfReport:@"Resources/NSException"];
+
+    // -- Assert --
+    // An NSException was really thrown, so its type is genuine identity.
+    XCTAssertEqualObjects(exception.mechanism.type, @"nsexception");
+    XCTAssertNil(exception.mechanism.synthetic);
+}
+
+- (void)testCPPException_shouldNotBeSynthetic
+{
+    // -- Act --
+    SentryException *exception = [self firstExceptionOfReport:@"Resources/CPPException"];
+
+    // -- Assert --
+    XCTAssertEqualObjects(exception.mechanism.type, @"cpp_exception");
+    XCTAssertNil(exception.mechanism.synthetic);
+}
+
+- (void)testUserReportedException_shouldNotBeSynthetic
+{
+    // -- Act --
+    SentryException *exception = [self firstExceptionOfReport:@"Resources/ReactNative"];
+
+    // -- Assert --
+    // The type of a user-reported exception is supplied by the caller and is genuine.
+    XCTAssertEqualObjects(exception.mechanism.type, @"user");
+    XCTAssertNil(exception.mechanism.synthetic);
+}
+
+- (void)testSignalWithoutMachContext_shouldStillSetSyntheticAndHandled
+{
+    // -- Act --
+    // crash-sigterm has no mach context, which used to leave both flags unset.
+    SentryException *exception = [self firstExceptionOfReport:@"Resources/crash-sigterm"];
+
+    // -- Assert --
+    XCTAssertEqualObjects(exception.mechanism.type, @"signal");
+    XCTAssertEqualObjects(exception.mechanism.synthetic, @(YES));
+    XCTAssertEqualObjects(exception.mechanism.handled, @(NO));
+    XCTAssertNil(exception.mechanism.meta.machException);
+}
+
+- (void)testSyntheticMachException_shouldKeepSignalAndMachDetailOnMeta
+{
+    // -- Act --
+    // Dropping the type from grouping must not drop the underlying detail.
+    SentryException *exception = [self firstExceptionOfReport:@"Resources/crash-report-1"];
+
+    // -- Assert --
+    XCTAssertEqualObjects(exception.mechanism.synthetic, @(YES));
+    XCTAssertEqualObjects(exception.mechanism.meta.machException[@"name"], @"EXC_BAD_ACCESS");
+    NSString *signalNumber =
+        [NSString stringWithFormat:@"%@", exception.mechanism.meta.signal[@"number"]];
+    XCTAssertEqualObjects(signalNumber, @"10");
+}
+
+- (SentryException *)firstExceptionOfReport:(NSString *)path
+{
+    NSDictionary *report = [self getCrashReport:path];
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:report inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+    XCTAssertNotNil(event);
+    SentryException *exception = event.exceptions.firstObject;
+    XCTAssertNotNil(exception);
+    XCTAssertNotNil(exception.mechanism);
+    return exception;
+}
+
 @end
