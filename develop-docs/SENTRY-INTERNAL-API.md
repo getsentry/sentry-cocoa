@@ -360,5 +360,5 @@ SentryObjCSpanId *spanId = [[SentryObjCSpanId alloc] initWithValue:spanString];
 ## Testing
 
 - One ObjC integration test file per sub-object in `Tests/SentryObjCTests/` verifies the ObjC wrapper compiles and delegates correctly.
-- Swift unit tests in `Tests/SentryTests/HybridSDK/` for each `SentryInternal*Api` type, covering the same scenarios as the existing `PrivateSentrySDKOnlyTests.swift`.
+- Swift unit tests in `Tests/SentryTests/HybridSDK/` cover each `SentryInternal*Api` type. `SentryInternalApiTests.swift` preserves the legacy facade's behavioral tests through the structured API.
 - `PrivateSentrySDKOnly` deprecation warnings compile cleanly (no errors, only warnings).
