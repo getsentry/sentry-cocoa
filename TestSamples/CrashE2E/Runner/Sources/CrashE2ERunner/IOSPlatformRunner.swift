@@ -95,6 +95,11 @@ final class IOSPlatformRunner {
             try fail("iOS app did not terminate for scenario: \(scenario.rawValue)")
         }
 
+        try CrashTimeAttachmentsAsserter.assertPayloadIfNeeded(
+            scenario: scenario,
+            cacheDirectory: container.appendingPathComponent("Library/Caches", isDirectory: true),
+            platform: "ios"
+        )
         try drainPreviousCrash(for: scenario)
         try ScenarioEventAsserter.assertScenarioEvent(
             scenario,
@@ -210,4 +215,5 @@ final class IOSPlatformRunner {
     var bundleID: String {
         config.reporter.iOSBundleID
     }
+
 }

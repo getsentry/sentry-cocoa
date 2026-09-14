@@ -14,7 +14,7 @@ final class SentryKSCrashReportStoreSenderTests: XCTestCase {
             sendReport: { reportID, _ in
                 sentReportIDs.append(reportID)
             },
-            cleanupOrphanedRunSidecars: {
+            cleanupOrphanedSidecars: {
                 cleanupInvocationCount += 1
             },
             processingSession: processingSession
@@ -47,7 +47,7 @@ final class SentryKSCrashReportStoreSenderTests: XCTestCase {
                 sentReportIDs.append(reportID)
                 pendingCompletions.append(onCompletion)
             },
-            cleanupOrphanedRunSidecars: {
+            cleanupOrphanedSidecars: {
                 cleanupInvocationCount += 1
             },
             processingSession: processingSession
@@ -112,7 +112,7 @@ final class SentryKSCrashReportStoreSenderTests: XCTestCase {
                 sentReportIDs.append(reportID)
                 pendingCompletions.append((reportID, onCompletion))
             },
-            cleanupOrphanedRunSidecars: {
+            cleanupOrphanedSidecars: {
                 cleanupInvocationCount += 1
             },
             processingSession: processingSession
@@ -180,7 +180,7 @@ final class SentryKSCrashReportStoreSenderTests: XCTestCase {
                 sentReportIDs.append(reportID)
                 pendingCompletion = onCompletion
             },
-            cleanupOrphanedRunSidecars: {
+            cleanupOrphanedSidecars: {
                 cleanupInvocationCount += 1
             },
             processingSession: processingSession
@@ -210,7 +210,7 @@ final class SentryKSCrashReportStoreSenderTests: XCTestCase {
             sendReport: { reportID, _ in
                 sentReportIDs.append(reportID)
             },
-            cleanupOrphanedRunSidecars: {
+            cleanupOrphanedSidecars: {
                 cleanupInvocationCount += 1
             },
             processingSession: processingSession
@@ -243,7 +243,7 @@ final class SentryKSCrashReportStoreSenderTests: XCTestCase {
                 deliveryEvents.append("report-\(reportID)")
                 onCompletion(1, nil)
             },
-            cleanupOrphanedRunSidecars: {
+            cleanupOrphanedSidecars: {
                 cleanupInvocationCount += 1
             },
             processingSession: processingSession
@@ -277,7 +277,7 @@ final class SentryKSCrashReportStoreSenderTests: XCTestCase {
                 deliveryEvents.append("report-\(reportID)")
                 pendingCompletions.append(onCompletion)
             },
-            cleanupOrphanedRunSidecars: {
+            cleanupOrphanedSidecars: {
                 cleanupInvocationCount += 1
             },
             processingSession: processingSession

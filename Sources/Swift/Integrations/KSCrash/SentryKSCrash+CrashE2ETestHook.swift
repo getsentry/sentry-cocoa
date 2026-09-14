@@ -1,6 +1,12 @@
 #if SDK_V10 && SENTRY_CRASH_E2E
 import Foundation
 
+private nonisolated(unsafe) var crashE2EScreenshotPNG = Data()
+private let crashE2EWriteScreenshot: @convention(c) (UnsafePointer<CChar>) -> Void = { path in
+    let url = URL(fileURLWithPath: String(cString: path)).appendingPathComponent("screenshot.png")
+    try? crashE2EScreenshotPNG.write(to: url)
+}
+
 extension SentryKSCrash {
     /// CrashE2E-only fault injection and synchronization for stored-report delivery.
     ///
@@ -92,6 +98,28 @@ extension SentryKSCrash {
                 return array.contains { contains(marker: marker, in: $0) }
             }
             return false
+        }
+
+        /// Installs a synthetic crash-time screenshot provider for the `crash-time-attachments`
+        /// E2E scenario. The provider writes a minimal 1×1 red PNG into the payload directory so
+        /// the file can be verified on disk without a real UIKit screen capture.
+        static func installSyntheticScreenshotProvider() {
+            guard argumentValue(after: "--scenario") == "crash-time-attachments" else { return }
+            // Minimal valid 1×1 red PNG (67 bytes).
+            let pngBytes: [UInt8] = [
+                0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
+                0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52,
+                0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
+                0x08, 0x02, 0x00, 0x00, 0x00, 0x90, 0x77, 0x53,
+                0xDE, 0x00, 0x00, 0x00, 0x0C, 0x49, 0x44, 0x41,
+                0x54, 0x08, 0xD7, 0x63, 0xF8, 0xCF, 0xC0, 0x00,
+                0x00, 0x00, 0x02, 0x00, 0x01, 0xE2, 0x21, 0xBC,
+                0x33, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E,
+                0x44, 0xAE, 0x42, 0x60, 0x82
+            ]
+            crashE2EScreenshotPNG = Data(pngBytes)
+            SentryDependencyContainer.sharedInstance().getKSCrashInstaller()
+                .setScreenshotProvider(crashE2EWriteScreenshot)
         }
     }
 }

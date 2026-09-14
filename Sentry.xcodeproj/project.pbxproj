@@ -631,6 +631,7 @@
 		A809949058837D09D26F3D47 /* SentryNSDataUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 630436081EC0595B00C4D3FA /* SentryNSDataUtils.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		A8AFFCCD29069C3E00967CD7 /* SentryHttpStatusCodeRange.h in Headers */ = {isa = PBXBuildFile; fileRef = A8AFFCCC29069C3E00967CD7 /* SentryHttpStatusCodeRange.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A8AFFCCF2906C03700967CD7 /* SentryRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = A8AFFCCE2906C03700967CD7 /* SentryRequest.h */; settings = {ATTRIBUTES = (Public, ); }; };
+
 		A8F17B2E2901765900990B25 /* SentryRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = A8F17B2D2901765900990B25 /* SentryRequest.m */; };
 		A8F17B342902870300990B25 /* SentryHttpStatusCodeRange.m in Sources */ = {isa = PBXBuildFile; fileRef = A8F17B332902870300990B25 /* SentryHttpStatusCodeRange.m */; };
 		A9C1E0A227C1454B86F8AC88 /* SentrySamplerDecisionHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 55A6C82292034DB0A38BC74C /* SentrySamplerDecisionHelper.h */; };

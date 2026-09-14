@@ -27,6 +27,7 @@ enum CrashE2EScenario: String {
     case ksCrashRetryReportB = "kscrash-retry-report-b"
     case mallocZoneLockedSignal = "malloc-zone-locked-signal"
     case crashTimeScope = "crash-time-scope"
+    case crashTimeAttachments = "crash-time-attachments"
 }
 
 struct CrashE2EConfiguration {
@@ -89,6 +90,7 @@ enum CrashE2ERuntime {
         loadBinaryImageBeforeSDKIfNeeded()
         startConfiguredSDK()
         CrashE2EScopePopulation.populateIfNeeded()
+        logCrashTimeAttachmentsHookIfNeeded()
         NSLog("CrashE2E - SDK started")
     }
 
@@ -111,7 +113,7 @@ enum CrashE2ERuntime {
              .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal, .managedRuntimeSignalChain,
              .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
              .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA,
-             .ksCrashRetryReportB, .mallocZoneLockedSignal, .crashTimeScope:
+             .ksCrashRetryReportB, .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments:
             NSLog("CrashE2E - will trigger scenario: \(configuration.scenario.rawValue)")
             scheduleCrashAfterProcessingCompletesIfRequested()
         }
@@ -136,7 +138,7 @@ enum CrashE2ERuntime {
              .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal, .managedRuntimeSignalChain,
              .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
              .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA,
-             .ksCrashRetryReportB, .mallocZoneLockedSignal, .crashTimeScope:
+             .ksCrashRetryReportB, .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments:
             NSLog("CrashE2E - will trigger scenario synchronously: \(configuration.scenario.rawValue)")
             waitForProcessingCompletionOrAbort()
             Thread.sleep(forTimeInterval: 0.5)
@@ -149,6 +151,7 @@ enum CrashE2ERuntime {
         SentrySDK.close()
         startConfiguredSDK()
         CrashE2EScopePopulation.populateIfNeeded()
+        logCrashTimeAttachmentsHookIfNeeded()
         NSLog("CrashE2E - SDK restarted")
     }
 
@@ -205,6 +208,11 @@ enum CrashE2ERuntime {
         abortBecausePreSDKScenarioReturned()
     }
 
+    private static func logCrashTimeAttachmentsHookIfNeeded() {
+        guard configuration.scenario == .crashTimeAttachments else { return }
+        NSLog("CrashE2E - crash-time-attachments uses the SDK SENTRY_CRASH_E2E screenshot hook")
+    }
+
     private static func installIgnoredSignalHandlerIfNeeded() {
         guard configuration.scenario == .ignoredSignal else { return }
         NSLog("CrashE2E - installing SIG_IGN for SIGPIPE before SentrySDK.start")
@@ -220,7 +228,7 @@ enum CrashE2ERuntime {
              .objcObject, .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal,
              .managedRuntimePreSDKSignal, .swiftAsyncCPPExceptionV2Off,
              .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA, .ksCrashRetryReportB,
-             .mallocZoneLockedSignal, .crashTimeScope:
+             .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments:
             return
         }
     }
