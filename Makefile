@@ -78,6 +78,7 @@ init-local:
 # Installs tools needed for CI build tasks using Brewfile-ci-build.
 .PHONY: init-ci-build
 init-ci-build:
+	brew untap wix-incubator/brew
 	brew update
 	brew bundle --file Brewfile-ci-build
 
@@ -86,6 +87,7 @@ init-ci-build:
 # Installs tools needed to run CI format tasks locally using Brewfile-ci-format.
 .PHONY: init-ci-format
 init-ci-format:
+	brew untap wix-incubator/brew
 	brew update
 	brew bundle --file Brewfile-ci-format
 
