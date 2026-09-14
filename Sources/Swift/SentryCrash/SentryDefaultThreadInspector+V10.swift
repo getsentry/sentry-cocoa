@@ -46,10 +46,8 @@ final class SentrySystemThreadSnapshotProvider {
                     Self.decodeName($0)
                 }
             }
-            let hasStack = snapshot.status == SentryThreadCaptureSucceeded
-                || snapshot.status == SentryThreadCaptureUnavailable
             let frameCount = snapshot.frameCount
-            let addresses: [UInt]? = hasStack ? withUnsafePointer(to: &snapshot.addresses) { pointer in
+            let addresses: [UInt]? = snapshot.wasSuspended ? withUnsafePointer(to: &snapshot.addresses) { pointer in
                 pointer.withMemoryRebound(to: UInt.self, capacity: Int(SENTRY_THREAD_SNAPSHOT_MAX_FRAMES)) {
                     Array(UnsafeBufferPointer(start: $0, count: frameCount))
                 }

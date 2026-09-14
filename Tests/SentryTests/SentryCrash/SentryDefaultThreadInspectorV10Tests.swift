@@ -156,9 +156,9 @@ final class SentryDefaultThreadInspectorV10Tests: XCTestCase {
             XCTAssertTrue(threads.contains {
                 $0.current == true && !($0.stacktrace?.frames.isEmpty ?? true)
             })
-            XCTAssertTrue(threads.allSatisfy {
-                $0.current == true || ($0.stacktrace?.frames.isEmpty ?? true)
-            })
+            for thread in threads where thread.current != true {
+                XCTAssertNil(thread.stacktrace)
+            }
         }
     }
 
