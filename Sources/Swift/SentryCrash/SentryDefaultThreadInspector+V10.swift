@@ -47,7 +47,7 @@ final class SentrySystemThreadSnapshotProvider {
                 }
             }
             let frameCount = snapshot.frameCount
-            let addresses: [UInt]? = snapshot.wasSuspended ? withUnsafePointer(to: &snapshot.addresses) { pointer in
+            let addresses: [UInt]? = snapshot.status == SentryThreadCaptureSucceeded && frameCount > 0 ? withUnsafePointer(to: &snapshot.addresses) { pointer in
                 pointer.withMemoryRebound(to: UInt.self, capacity: Int(SENTRY_THREAD_SNAPSHOT_MAX_FRAMES)) {
                     Array(UnsafeBufferPointer(start: $0, count: frameCount))
                 }
@@ -128,7 +128,7 @@ extension SentrySystemThreadSnapshotProvider: SentryThreadSnapshotProviding { }
                 thread.name = snapshot.name
                 if snapshot.isCurrent {
                     thread.stacktrace = stacktraceBuilder.buildStacktraceForCurrentThread()
-                } else if stacks, let addresses = snapshot.addresses {
+                } else if stacks, let addresses = snapshot.addresses, !addresses.isEmpty {
                     thread.stacktrace = stacktraceBuilder.buildStackTrace(fromAddresses: addresses.map { NSNumber(value: $0) })
                 }
                 // Truncation remains available at the neutral boundary. SentryStacktrace has no

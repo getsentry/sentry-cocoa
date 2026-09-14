@@ -77,7 +77,7 @@ final class SentryDefaultThreadInspectorV10Tests: XCTestCase {
         XCTAssertTrue(frames.allSatisfy { $0.symbolAddress == nil })
     }
 
-    func testThreads_whenCaptureSkippedOrUnavailable_shouldKeepMetadata() throws {
+    func testThreads_whenCaptureSkippedOrUnavailable_shouldKeepMetadataWithoutStacktrace() throws {
         // -- Arrange --
         let provider = MockSnapshotProvider([
             SentryCapturedThread(id: 1, index: 0, isMain: false, isCurrent: false, name: nil, addresses: nil),
@@ -94,7 +94,7 @@ final class SentryDefaultThreadInspectorV10Tests: XCTestCase {
         XCTAssertNil(try XCTUnwrap(threads.first).name)
         let unavailable = try XCTUnwrap(threads.element(at: 1))
         XCTAssertEqual(unavailable.name, "exited")
-        XCTAssertTrue(try XCTUnwrap(unavailable.stacktrace).frames.isEmpty)
+        XCTAssertNil(unavailable.stacktrace)
     }
 
     func testCurrentThreads_whenRemoteAddressesPresent_shouldOnlyAttachCurrentStack() throws {
