@@ -32,9 +32,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         fixture = Fixture()
 
         SentryDependencyContainer.sharedInstance().viewHierarchyProvider = fixture.viewHierarchyProvider
-#if SENTRY_DISABLE_SENTRYCRASH_V10
-        // KSCRASH_TODO(GH-8273, GH-8532): V10 uses the KSCrash attachments writer.
-        // Acceptance: SCV10-009 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+#if SDK_V10
         sentrykscrash_attachments_setViewHierarchyWriter(nil)
 #endif
     }
@@ -55,10 +53,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         }
 
         XCTAssertEqual(SentrySDKInternal.currentHub().getClient()?.attachmentProcessors.count, 0)
-#if !SENTRY_DISABLE_SENTRYCRASH_V10
-        // KSCRASH_TODO(GH-8273, GH-8532): V9 callback install. V10 uses the KSCrash
-        // attachments writer instead. Acceptance: SCV10-009 in
-        // SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+#if !SDK_V10
         XCTAssertFalse(sentrycrash_hasSaveViewHierarchyCallback())
 #endif
     }
@@ -73,10 +68,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         }
 
         XCTAssertEqual(SentrySDKInternal.currentHub().getClient()?.attachmentProcessors.count, 1)
-#if !SENTRY_DISABLE_SENTRYCRASH_V10
-        // KSCRASH_TODO(GH-8273, GH-8532): V9 callback install. V10 uses the KSCrash
-        // attachments writer instead. Acceptance: SCV10-009 in
-        // SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+#if !SDK_V10
         XCTAssertTrue(sentrycrash_hasSaveViewHierarchyCallback())
 #endif
     }
@@ -88,17 +80,12 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         }
         SentrySDK.close()
         XCTAssertNil(SentrySDKInternal.currentHub().getClient()?.attachmentProcessors)
-#if !SENTRY_DISABLE_SENTRYCRASH_V10
-        // KSCRASH_TODO(GH-8273, GH-8532): V9 callback install. V10 uses the KSCrash
-        // attachments writer instead. Acceptance: SCV10-009 in
-        // SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+#if !SDK_V10
         XCTAssertFalse(sentrycrash_hasSaveViewHierarchyCallback())
 #endif
     }
 
-#if SENTRY_DISABLE_SENTRYCRASH_V10
-    // KSCRASH_TODO(GH-8273, GH-8532): V10 crash-writer install/uninstall tests.
-    // Acceptance: SCV10-009 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+#if SDK_V10
     func testInstall_whenAttachViewHierarchyDisabled_shouldNotRegisterCrashWriter() {
         // -- Arrange --
         SentrySDK.start {
