@@ -71,7 +71,7 @@ extension Options {
         // clean exit and never reports it as a crash, so there is nothing to configure.
         #if !os(watchOS) && !SDK_V10
         if let enableSigtermReporting = boolValue(dictionary["enableSigtermReporting"]) {
-            self.enableSigtermReporting = enableSigtermReporting
+            self._enableSigtermReporting = enableSigtermReporting
         }
         #endif // !os(watchOS) && !SDK_V10
 

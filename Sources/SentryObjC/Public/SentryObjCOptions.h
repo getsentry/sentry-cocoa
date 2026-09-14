@@ -694,7 +694,10 @@ NS_ASSUME_NONNULL_BEGIN
  * @note Removed in v10. KSCrash always catches @c SIGTERM, records a clean exit, and never writes
  * a crash report for it.
  */
-@property (nonatomic) BOOL enableSigtermReporting;
+@property (nonatomic) BOOL enableSigtermReporting
+    __attribute__((deprecated("This property will be removed in v10. KSCrash always catches "
+                              "SIGTERM, records a clean exit, and never writes a crash report "
+                              "for it.")));
 
 #endif // !TARGET_OS_WATCH && !SDK_V10
 

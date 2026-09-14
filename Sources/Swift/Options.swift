@@ -122,7 +122,12 @@
     /// @note The default value is @c false.
     /// @note Removed in v10. KSCrash always catches `SIGTERM`, records a clean exit, and never
     /// writes a crash report for it.
-    @objc public var enableSigtermReporting: Bool = false
+    @available(*, deprecated, message: "This property will be removed in v10. KSCrash always catches SIGTERM, records a clean exit, and never writes a crash report for it.")
+    @objc public var enableSigtermReporting: Bool {
+        get { _enableSigtermReporting }
+        set { _enableSigtermReporting = newValue }
+    }
+    var _enableSigtermReporting: Bool = false
     #endif // !os(watchOS) && !SDK_V10
 
     /// When enabled, the SDK introspects memory contents during a crash.
