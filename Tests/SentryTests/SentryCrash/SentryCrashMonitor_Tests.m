@@ -1,3 +1,4 @@
+#if !SDK_V10
 // Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashMonitor_Tests.m
@@ -25,10 +26,10 @@
 // THE SOFTWARE.
 //
 
-#import <XCTest/XCTest.h>
+#    import <XCTest/XCTest.h>
 
-#import "SentryCrashMonitor.h"
-#import "SentryCrashMonitorContext.h"
+#    import "SentryCrashMonitor.h"
+#    import "SentryCrashMonitorContext.h"
 
 @interface SentryCrashMonitor_Tests : XCTestCase
 @end
@@ -56,3 +57,5 @@
 }
 
 @end
+
+#endif // !SDK_V10
