@@ -402,7 +402,7 @@ private extension SentryCoreDataTracker {
     func fetchManagedObjectContext<T>(_ context: NSManagedObjectContext, request: NSFetchRequest<T>, isErrorNil: Bool = false, originalImp: (NSFetchRequest<T>, NSErrorPointer) -> [T]?) throws -> [Any] {
         
         var error: NSError?
-        var result: [Any]
+        var result: [Any]?
         
         if isErrorNil {
             result = __managedObjectContext(context, execute: request as! NSFetchRequest<NSFetchRequestResult>, error: nil) { fetchRequest, errorOut in
@@ -419,7 +419,7 @@ private extension SentryCoreDataTracker {
             throw er
         }
     
-        return result
+        return result ?? []
     }
     
 }

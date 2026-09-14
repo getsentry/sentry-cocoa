@@ -1,4 +1,4 @@
-#import "SentryCoreDataTracker.h"
+#import "SentrySwift.h"
 #import <CoreData/CoreData.h>
 
 NS_ASSUME_NONNULL_BEGIN
