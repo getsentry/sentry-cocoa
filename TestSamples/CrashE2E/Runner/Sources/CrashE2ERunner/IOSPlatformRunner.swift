@@ -95,9 +95,15 @@ final class IOSPlatformRunner {
             try fail("iOS app did not terminate for scenario: \(scenario.rawValue)")
         }
 
+        let cacheDirectory = container.appendingPathComponent("Library/Caches", isDirectory: true)
         try CrashTimeAttachmentsAsserter.assertPayloadIfNeeded(
             scenario: scenario,
-            cacheDirectory: container.appendingPathComponent("Library/Caches", isDirectory: true),
+            cacheDirectory: cacheDirectory,
+            platform: "ios"
+        )
+        try CrashTimeReplayAsserter.assertCheckpointIfNeeded(
+            scenario: scenario,
+            cacheDirectory: cacheDirectory,
             platform: "ios"
         )
         try drainPreviousCrash(for: scenario)
@@ -181,6 +187,9 @@ final class IOSPlatformRunner {
         )
         try fileManager.removeItemIfExists(
             at: cacheRoot.appendingPathComponent("KSCrash", isDirectory: true)
+        )
+        try fileManager.removeItemIfExists(
+            at: cacheRoot.appendingPathComponent("crash-e2e-replay-checkpoint")
         )
     }
 

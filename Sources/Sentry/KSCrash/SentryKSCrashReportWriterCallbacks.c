@@ -4,6 +4,7 @@
 #    include "KSFileUtils.h"
 #    include "SentryAsyncSafeLog.h"
 #    include "SentryScopeSyncC.h"
+#    include "SentrySessionReplaySyncC.h"
 #    include <dirent.h>
 #    include <errno.h>
 #    include <fcntl.h>
@@ -136,38 +137,61 @@ sentrykscrash_didWriteReport(const KSCrash_ExceptionHandlingPlan *const plan, in
 {
     SENTRY_ASYNC_SAFE_LOG_TRACE("didWriteReport reportID=%" PRId64, reportID);
     if (plan == NULL) {
-        SENTRY_ASYNC_SAFE_LOG_DEBUG("Skipping crash attachments: plan is NULL");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Skipping crash-time work: plan is NULL");
         return;
     }
     if (!plan->isFatal) {
-        SENTRY_ASYNC_SAFE_LOG_DEBUG("Skipping crash attachments: exception is not fatal");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Skipping crash-time work: exception is not fatal");
         return;
     }
     if (plan->isCleanExit) {
-        SENTRY_ASYNC_SAFE_LOG_DEBUG("Skipping crash attachments: clean exit");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Skipping crash-time work: clean exit");
         return;
     }
     if (plan->crashedDuringExceptionHandling) {
-        SENTRY_ASYNC_SAFE_LOG_DEBUG(
-            "Skipping crash attachments: crashed during exception handling");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Skipping crash-time work: crashed during exception handling");
         return;
     }
     if (reportID <= 0) {
         SENTRY_ASYNC_SAFE_LOG_DEBUG(
-            "Skipping crash attachments: invalid reportID %" PRId64, reportID);
+            "Skipping crash-time work: invalid reportID %" PRId64, reportID);
         return;
     }
+
+    // V9 writes this from SentryCrashC.onCrash immediately after the report and before
+    // screenshots/view hierarchy. Those captures are not async-signal-safe and may crash
+    // the handler; writing the checkpoint first keeps recovery state even if later capture
+    // dies. writeInfo uses open/write/close (not async-signal-safe, same as V9) but does
+    // not hop to the main thread. Other threads are already suspended.
+    SENTRY_ASYNC_SAFE_LOG_DEBUG(
+        "Writing session-replay recovery checkpoint for reportID %" PRId64, reportID);
+    sentrySessionReplaySync_writeInfo();
 
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Capturing crash attachments for reportID %" PRId64, reportID);
     sentrykscrash_attachments_capture(reportID);
 
 #    if SENTRY_DISABLE_SENTRYCRASH_V10
-    // KSCRASH_TODO(GH-8801): Write the session-replay recovery checkpoint after the report
-    // is on disk. Acceptance: SCV10-039 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
     // KSCRASH_TODO(GH-8735): Persist the active transaction bound to the scope. Acceptance:
     // SCV10-027 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
 #    endif
 }
+
+#    if SENTRY_TEST || SENTRY_TEST_CI
+void
+sentrykscrash_test_invokeDidWriteReport(
+    bool isFatal, bool isCleanExit, bool crashedDuringExceptionHandling, int64_t reportID)
+{
+    KSCrash_ExceptionHandlingPlan plan = {
+        .shouldRecordAllThreads = false,
+        .shouldWriteReport = true,
+        .isFatal = isFatal,
+        .isCleanExit = isCleanExit,
+        .requiresAsyncSafety = true,
+        .crashedDuringExceptionHandling = crashedDuringExceptionHandling,
+    };
+    sentrykscrash_didWriteReport(&plan, reportID);
+}
+#    endif // SENTRY_TEST || SENTRY_TEST_CI
 
 static atomic_bool g_attachmentsEnabled = false;
 static _Atomic(SentryKSCrashAttachmentsScreenshotWriter) g_screenshotWriter;
