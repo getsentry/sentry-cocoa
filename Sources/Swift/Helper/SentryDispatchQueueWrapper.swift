@@ -48,7 +48,8 @@ protocol SentryDispatchQueueWrapperProtocol {
         internalWrapper.dispatchAsync(block)
     }
     
-    func dispatchSync(_ block: @escaping () -> Void) {
+    @objc(dispatchSync:)
+    public func dispatchSync(_ block: @escaping () -> Void) {
         internalWrapper.dispatchSync(block)
     }
     

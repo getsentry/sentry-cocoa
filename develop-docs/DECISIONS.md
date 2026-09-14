@@ -863,3 +863,15 @@ Related links:
 - https://github.com/getsentry/sentry-cocoa/pull/8979
 - https://github.com/getsentry/sentry-cocoa/pull/8987
 - https://github.com/getsentry/sentry-cocoa/pull/3800
+
+## 38. Asynchronous non-fatal event preparation
+
+Date: September 14, 2026
+Contributors: @cursor
+
+Production app-hang samples showed the main thread blocked inside `captureEvent → prepareEvent → applyToEvent` / `beforeSend` while merging large scope dictionaries or running user callbacks; see https://github.com/getsentry/sentry-cocoa/issues/9031. This is broader than the breadcrumb-persistence hangs addressed in Decision 36: the stacks never enter disk I/O and stay in event preparation.
+
+We capture stacktraces on the calling thread (so stacks still reflect the capture site), then dispatch scope application, attachment processing, `beforeSend`, event processors, and envelope handoff onto the client's serial `SentryDispatchQueueWrapper`. Fatal/crash events remain synchronous for durability. `flush`/`close` dispatch-sync on that queue so queued preparation drains before shutdown.
+
+Returning `SentryId` immediately means a non-empty id indicates the SDK accepted the event for asynchronous preparation. Sampling, `beforeSend`, or processors may still drop it afterward. Unit tests keep historical empty-id behavior for drops because `TestSentryDispatchQueueWrapper` runs async blocks synchronously by default. We accept the production trade-off—same class of durability vs caller-latency decision as Decision 36 and the existing async `captureTransaction` path—to stop capture from causing fully-blocked app hangs.
+

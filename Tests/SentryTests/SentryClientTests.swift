@@ -1454,6 +1454,62 @@ final class SentryClientTests: XCTestCase {
         assertNoEventSent()
     }
 
+    func testCaptureEvent_whenPreparationIsAsync_shouldNotBlockCallerWithPrepareWork() throws {
+        // -- Arrange --
+        fixture.dispatchQueue.dispatchAsyncExecutesBlock = false
+        let sut = fixture.getSut()
+        let asyncCountBeforeCapture = fixture.dispatchQueue.dispatchAsyncInvocations.count
+
+        // -- Act --
+        let eventId = sut.capture(message: fixture.messageAsString)
+
+        // -- Assert --
+        // Stacktrace capture returns immediately with the event id; preparation is queued.
+        eventId.assertIsNotEmpty()
+        XCTAssertEqual(fixture.dispatchQueue.dispatchAsyncInvocations.count, asyncCountBeforeCapture + 1)
+        assertNoEventSent()
+
+        // -- Act --
+        fixture.dispatchQueue.invokeLastDispatchAsync()
+
+        // -- Assert --
+        XCTAssertEqual(1, fixture.transportAdapter.sendEventWithTraceStateInvocations.count)
+        let sentEvent = try XCTUnwrap(fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.event)
+        XCTAssertEqual(eventId, sentEvent.eventId)
+    }
+
+    func testCaptureEvent_whenPreparationIsAsyncAndBeforeSendDrops_shouldNotSendAfterDrain() {
+        // -- Arrange --
+        fixture.dispatchQueue.dispatchAsyncExecutesBlock = false
+        let sut = fixture.getSut(configureOptions: { options in
+            options.beforeSend = { _ in return nil }
+        })
+
+        // -- Act --
+        let eventId = sut.capture(message: fixture.messageAsString)
+        fixture.dispatchQueue.invokeLastDispatchAsync()
+
+        // -- Assert --
+        // With a real async queue the caller may already have observed a non-empty id before the
+        // drop. The test wrapper runs the queued work synchronously when invoked, after which the
+        // event must not be sent.
+        eventId.assertIsNotEmpty()
+        assertNoEventSent()
+        assertLostEventRecorded(category: .error, reason: .beforeSend)
+    }
+
+    func testFlush_shouldDispatchSyncToDrainPendingEventPreparation() {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        let syncCountBeforeFlush = fixture.dispatchQueue.dispatchSyncInvocations.count
+
+        // -- Act --
+        sut.flush(timeout: 1.0)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.dispatchQueue.dispatchSyncInvocations.count, syncCountBeforeFlush + 1)
+    }
+
     func testBeforeSendReturnsNil_LostEventRecorded() {
         beforeSendReturnsNil { $0.capture(message: fixture.messageAsString) }
 
