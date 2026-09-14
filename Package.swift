@@ -329,7 +329,7 @@ targets += [
     )
 ]
 
-let packageDependencies: [Package.Dependency] = enableV10 ? [.package(url: "https://github.com/supervacuus/KSCrash.git", revision: "391bf0a9569b6c1aa9df30b3fa4bcabbc0a07e7a")] : []
+let packageDependencies: [Package.Dependency] = enableV10 ? [.package(url: "https://github.com/getsentry/KSCrash.git", revision: "391bf0a9569b6c1aa9df30b3fa4bcabbc0a07e7a")] : []
 
 let package = Package(
     name: "Sentry",

@@ -14119,7 +14119,7 @@
 /* Begin XCRemoteSwiftPackageReference section */
 		7D3AA95A0088413F8CF3F65A /* XCRemoteSwiftPackageReference "KSCrash" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/supervacuus/KSCrash.git";
+			repositoryURL = "https://github.com/getsentry/KSCrash.git";
 			requirement = {
 				kind = revision;
 				revision = 391bf0a9569b6c1aa9df30b3fa4bcabbc0a07e7a;

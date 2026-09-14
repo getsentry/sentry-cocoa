@@ -2,7 +2,7 @@
 
 A focused macOS SwiftPM package compiling the **same production C sources** as the V10 SDK. Its source/header entries are relative symlinks into `Sources/Sentry/`, not a second implementation. The test package itself is not included in SDK release targets.
 
-KSCrash #913 is merged into `develop`, which is incompatible with the SDK's 2.6 report APIs. The harness and SDK pin the reviewed compatible backport at `supervacuus/KSCrash` revision `391bf0a9569b6c1aa9df30b3fa4bcabbc0a07e7a`.
+KSCrash #913 is merged into `develop`, which is incompatible with the SDK's 2.6 report APIs. The harness and SDK pin the reviewed compatible backport at `getsentry/KSCrash` revision `391bf0a9569b6c1aa9df30b3fa4bcabbc0a07e7a`.
 
 ## Run
 
