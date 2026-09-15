@@ -54,6 +54,18 @@ NS_ASSUME_NONNULL_BEGIN
                                            byteCategory:(SentryDataCategory)byteCategory
                                          byteCountBlock:(NSUInteger (^)(void))byteCountBlock;
 
+- (void)attachStacktraceToEvent:(SentryEvent *)event
+         alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+                   isFatalEvent:(BOOL)isFatalEvent;
+
+- (SentryId *)prepareAndSendEvent:(SentryEvent *)event
+                        withScope:(SentryScope *)scope
+           alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+                     isFatalEvent:(BOOL)isFatalEvent
+          additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
+                             hint:(SentryHint *)hint
+           incrementSessionErrors:(BOOL)incrementSessionErrors;
+
 @end
 
 NSString *const DropSessionLogMessage = @"Session has no release name. Won't send it.";
@@ -505,25 +517,13 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                               withScope:(SentryScope *)scope
                                                    hint:(SentryHint *)hint
 {
-    [self populateHintAttachments:hint scope:scope isFatalEvent:NO];
-    hint.attachments = [self processAttachmentsForEvent:event attachments:hint.attachments];
-    SentryEvent *preparedEvent = [self prepareEvent:event
-                                          withScope:scope
-                             alwaysAttachStacktrace:YES
-                                       isFatalEvent:NO
-                                               hint:hint];
-
-    if (preparedEvent != nil) {
-        SentrySession *session = nil;
-        id<SentrySessionDelegate> delegate = self.sessionDelegate;
-        if (delegate != nil) {
-            session = [delegate incrementSessionErrors];
-        }
-
-        return [self sendEvent:preparedEvent withSession:session withScope:scope hint:hint];
-    }
-
-    return SentryId.empty;
+    return [self prepareAndSendEvent:event
+                           withScope:scope
+              alwaysAttachStacktrace:YES
+                        isFatalEvent:NO
+             additionalEnvelopeItems:@[]
+                                hint:hint
+              incrementSessionErrors:YES];
 }
 
 - (SentryId *)sendEvent:(SentryEvent *)event
@@ -631,29 +631,139 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
                        hint:(SentryHint *)hint
 {
-    [self populateHintAttachments:hint scope:scope isFatalEvent:isFatalEvent];
-    hint.attachments = [self processAttachmentsForEvent:event attachments:hint.attachments];
-    SentryEvent *preparedEvent = [self prepareEvent:event
-                                          withScope:scope
-                             alwaysAttachStacktrace:alwaysAttachStacktrace
-                                       isFatalEvent:isFatalEvent
-                                               hint:hint];
+    return [self prepareAndSendEvent:event
+                           withScope:scope
+              alwaysAttachStacktrace:alwaysAttachStacktrace
+                        isFatalEvent:isFatalEvent
+             additionalEnvelopeItems:additionalEnvelopeItems
+                                hint:hint
+              incrementSessionErrors:NO];
+}
 
-    if (preparedEvent == nil) {
+/**
+ * Attaches threads/stacktraces and debug images on the calling thread. This must run before any
+ * async hop so captured stacks reflect the thread that initiated capture.
+ */
+- (void)attachStacktraceToEvent:(SentryEvent *)event
+         alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+                   isFatalEvent:(BOOL)isFatalEvent
+{
+    BOOL eventIsNotATransaction
+        = event.type == nil || ![event.type isEqualToString:SentryEnvelopeItemTypes.transaction];
+    BOOL eventIsNotReplay
+        = event.type == nil || ![event.type isEqualToString:SentryEnvelopeItemTypes.replayVideo];
+    BOOL eventIsNotUserFeedback
+        = event.type == nil || ![event.type isEqualToString:SentryEnvelopeItemTypes.feedback];
+
+    // We don't want to attach debug meta and stacktraces for transactions, replays or user
+    // feedback.
+    if (!(eventIsNotATransaction && eventIsNotReplay && eventIsNotUserFeedback)) {
+        return;
+    }
+
+    BOOL shouldAttachStacktrace = alwaysAttachStacktrace || self.options.attachStacktrace
+        || (nil != event.exceptions && [event.exceptions count] > 0);
+
+    BOOL threadsNotAttached = !(nil != event.threads && event.threads.count > 0);
+
+    if (!isFatalEvent && shouldAttachStacktrace && threadsNotAttached) {
+        BOOL attachAll = event.attachAllThreadsOverride != nil
+            ? event.attachAllThreadsOverride.boolValue
+            : self.options.attachAllThreads;
+
+        if (attachAll) {
+            event.threads = [self.threadInspector getCurrentThreadsWithStackTrace];
+        } else {
+            event.threads = [self.threadInspector getCurrentThreads];
+        }
+    }
+
+    BOOL debugMetaNotAttached = !(nil != event.debugMeta && event.debugMeta.count > 0);
+    if (!isFatalEvent && shouldAttachStacktrace && debugMetaNotAttached && event.threads != nil) {
+        event.debugMeta = [self.debugImageProvider
+            getDebugImagesFromCacheForThreads:SENTRY_UNWRAP_NULLABLE(
+                                                  NSArray<SentryThread *>, event.threads)];
+    }
+}
+
+- (SentryId *)prepareAndSendEvent:(SentryEvent *)event
+                        withScope:(SentryScope *)scope
+           alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+                     isFatalEvent:(BOOL)isFatalEvent
+          additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
+                             hint:(SentryHint *)hint
+           incrementSessionErrors:(BOOL)incrementSessionErrors
+{
+    if ([self isDisabled]) {
+        [self logDisabledMessage];
         return SentryId.empty;
     }
 
-    SentryTraceContext *traceContext =
-        [self getTraceStateWithEvent:event
-                           withScope:scope
-                        currentScope:isFatalEvent ? nil : [self.currentScopeStorage scope]];
+    // Stacktraces must be captured on the calling thread before any async hop.
+    [self attachStacktraceToEvent:event
+           alwaysAttachStacktrace:alwaysAttachStacktrace
+                     isFatalEvent:isFatalEvent];
 
-    [self.transportAdapter sendEvent:preparedEvent
-                        traceContext:traceContext
-                         attachments:hint.attachments
-             additionalEnvelopeItems:additionalEnvelopeItems];
+    SentryId * (^prepareAndSendBlock)(void) = ^{
+        [self populateHintAttachments:hint scope:scope isFatalEvent:isFatalEvent];
+        hint.attachments = [self processAttachmentsForEvent:event attachments:hint.attachments];
+        SentryEvent *preparedEvent = [self prepareEvent:event
+                                              withScope:scope
+                                 alwaysAttachStacktrace:alwaysAttachStacktrace
+                                           isFatalEvent:isFatalEvent
+                                                   hint:hint];
 
-    return preparedEvent.eventId;
+        if (preparedEvent == nil) {
+            return SentryId.empty;
+        }
+
+        SentrySession *session = nil;
+        if (incrementSessionErrors) {
+            id<SentrySessionDelegate> delegate = self.sessionDelegate;
+            if (delegate != nil) {
+                session = [delegate incrementSessionErrors];
+            }
+        }
+
+        if (session != nil) {
+            return [self sendEvent:preparedEvent withSession:session withScope:scope hint:hint];
+        }
+
+        SentryTraceContext *traceContext =
+            [self getTraceStateWithEvent:event
+                               withScope:scope
+                            currentScope:isFatalEvent ? nil : [self.currentScopeStorage scope]];
+
+        [self.transportAdapter sendEvent:preparedEvent
+                            traceContext:traceContext
+                             attachments:hint.attachments
+                 additionalEnvelopeItems:additionalEnvelopeItems];
+
+        return preparedEvent.eventId;
+    };
+
+    // Fatal events stay synchronous so crash reporting remains durable. Non-fatal capture can
+    // originate on the main thread; preparing the event (scope merge, beforeSend, processors)
+    // is expensive enough to trigger fully-blocked app hangs, so move that work off the caller.
+    // See https://github.com/getsentry/sentry-cocoa/issues/9031
+    if (isFatalEvent) {
+        return prepareAndSendBlock();
+    }
+
+    // Keep a strong reference to self for queued preparation. A weak reference could drop events
+    // if the client is released while work is still queued; flush/close drain this queue first.
+    __block SentryId *resultId = event.eventId;
+    [self.dispatchQueueWrapper dispatchAsyncWithBlock:^{
+        SentryId *sentId = prepareAndSendBlock();
+        // When the test dispatch wrapper runs blocks synchronously, preparation finishes before
+        // capture returns, so update the returned id if the event was dropped. In production this
+        // races the return below and callers may observe a non-empty id for a later-dropped event.
+        resultId = sentId;
+    }];
+
+    // A non-empty id means the SDK accepted the event for asynchronous preparation; sampling,
+    // beforeSend, or processors may still drop it afterward.
+    return resultId;
 }
 
 - (SentryId *)sendEvent:(SentryEvent *)event
@@ -893,6 +1003,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (void)flush:(NSTimeInterval)timeout
 {
+    // Drain queued event preparation so flush/close wait for in-flight capture work.
+    [self.dispatchQueueWrapper dispatchSync:^{ }];
+
     NSTimeInterval forwardingTelemetryDataDuration = [self.telemetryProcessor forwardTelemetryData];
     // Calculate remaining timeout for transport flush.
     // We subtract the time already spent capturing logs to respect the overall timeout.
@@ -1005,34 +1118,13 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     [self setSdk:SENTRY_UNWRAP_NULLABLE(SentryEvent, event)];
 
-    // We don't want to attach debug meta and stacktraces for transactions, replays or user
-    // feedback.
-    if (eventIsNotATransaction && eventIsNotReplay && eventIsNotUserFeedback) {
-        BOOL shouldAttachStacktrace = alwaysAttachStacktrace || self.options.attachStacktrace
-            || (nil != event.exceptions && [event.exceptions count] > 0);
-
-        BOOL threadsNotAttached = !(nil != event.threads && event.threads.count > 0);
-
-        if (!isFatalEvent && shouldAttachStacktrace && threadsNotAttached) {
-            BOOL attachAll = event.attachAllThreadsOverride != nil
-                ? event.attachAllThreadsOverride.boolValue
-                : self.options.attachAllThreads;
-
-            if (attachAll) {
-                event.threads = [self.threadInspector getCurrentThreadsWithStackTrace];
-            } else {
-                event.threads = [self.threadInspector getCurrentThreads];
-            }
-        }
-
-        BOOL debugMetaNotAttached = !(nil != event.debugMeta && event.debugMeta.count > 0);
-        if (!isFatalEvent && shouldAttachStacktrace && debugMetaNotAttached
-            && event.threads != nil) {
-            event.debugMeta = [self.debugImageProvider
-                getDebugImagesFromCacheForThreads:SENTRY_UNWRAP_NULLABLE(
-                                                      NSArray<SentryThread *>, event.threads)];
-        }
-    }
+    // Stacktraces and debug images are attached on the calling thread before prepareEvent runs
+    // (see attachStacktraceToEvent:). prepareEvent may still be invoked directly (replays,
+    // feedback, crash transactions); attach again here when threads are missing so those paths
+    // keep working.
+    [self attachStacktraceToEvent:SENTRY_UNWRAP_NULLABLE(SentryEvent, event)
+           alwaysAttachStacktrace:alwaysAttachStacktrace
+                     isFatalEvent:isFatalEvent];
 
 #if SENTRY_HAS_UIKIT
     if (!isFatalEvent && eventIsNotReplay) {
@@ -1527,8 +1619,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                          byteCountBlock:(NSUInteger (^)(void))byteCountBlock
 {
     // Offload to a background queue: serializing the item to determine its byte size is too
-    // expensive to run inline in a beforeSend callback, which runs on the calling thread and must
-    // stay fast.
+    // expensive to run inline in a beforeSend callback, which runs on the event-capture queue and
+    // must stay fast.
     __weak SentryClientInternal *weakSelf = self;
     [self.dispatchQueueWrapper dispatchAsyncWithBlock:^{
         SentryClientInternal *strongSelf = weakSelf;

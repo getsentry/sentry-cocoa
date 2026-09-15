@@ -37,7 +37,9 @@ SENTRY_NO_INIT
 /**
  * Captures a manually created event and sends it to Sentry.
  * @param event The event to send to Sentry.
- * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
+ * @return The @c SentryId of the event or @c SentryId.empty if the event is not accepted for
+ * sending. Non-fatal capture prepares the event asynchronously; a non-empty id means the event was
+ * queued and may still be dropped by sampling, @c beforeSend, or event processors.
  */
 - (SentryId *)captureEvent:(SentryEvent *)event NS_SWIFT_NAME(capture(event:));
 

@@ -7,6 +7,7 @@
 
 ### Fixes
 
+- Prepare and send non-fatal events asynchronously so `capture` on the main thread no longer runs scope merging, `beforeSend`, and event processors inline, which could fully block the UI and trigger app hangs (#9033)
 - Store the binary image cache in zero-fill memory to reduce the SDK binary size. (#9003)
 - Clear the scope's `replayId` when Session Replay is stopped manually, so events captured after `stop()` are no longer linked to a replay that is no longer recording (#9017)
 - Mark the fabricated `mach` and `signal` crash mechanisms as `synthetic` so an Apple crash groups with the identical crash reported by the other Sentry SDKs (#9004)
