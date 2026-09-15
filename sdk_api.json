@@ -25348,7 +25348,6 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC22enableSigtermReportingSbvg",
                 "moduleName": "Sentry",
@@ -25376,11 +25375,11 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC22enableSigtermReportingSbvs",
                 "moduleName": "Sentry",
                 "name": "Set",
+                "objc_name": "setEnableSigtermReporting:",
                 "printedName": "Set()",
                 "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setEnableSigtermReporting:"
               }
@@ -25394,12 +25393,12 @@
               }
             ],
             "declAttributes": [
+              "Available",
               "Final",
-              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "hasStorage": true,
+            "deprecated": true,
             "kind": "Var",
             "mangledName": "$s6Sentry7OptionsC22enableSigtermReportingSbvp",
             "moduleName": "Sentry",
