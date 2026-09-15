@@ -96,8 +96,6 @@ jobs:
             config: Debug
           - scheme: macOS-SwiftUI
             config: Debug
-          - scheme: SessionReplay-CameraTest
-            config: Debug
           - scheme: iOS-Swift
             config: Debug
           - scheme: macOS-Swift

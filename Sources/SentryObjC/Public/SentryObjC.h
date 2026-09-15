@@ -81,6 +81,7 @@
 #    import "SentryObjCAttachment.h"
 #    import "SentryObjCBreadcrumb.h"
 #    import "SentryObjCException.h"
+#    import "SentryObjCHint.h"
 #    import "SentryObjCMechanism.h"
 #    import "SentryObjCStacktrace.h"
 #    import "SentryObjCThread.h"
@@ -89,6 +90,7 @@
 #    import <SentryObjC/SentryObjCAttachment.h>
 #    import <SentryObjC/SentryObjCBreadcrumb.h>
 #    import <SentryObjC/SentryObjCException.h>
+#    import <SentryObjC/SentryObjCHint.h>
 #    import <SentryObjC/SentryObjCMechanism.h>
 #    import <SentryObjC/SentryObjCStacktrace.h>
 #    import <SentryObjC/SentryObjCThread.h>
@@ -239,11 +241,9 @@
 #if !__has_include(<SentryObjC/SentryObjCDefines.h>)
 #    import "SentryObjCClient.h"
 #    import "SentryObjCHub.h"
-#    import "SentryObjCPrivateSDKOnly.h"
 #    import "SentryObjCSDK.h"
 #else
 #    import <SentryObjC/SentryObjCClient.h>
 #    import <SentryObjC/SentryObjCHub.h>
-#    import <SentryObjC/SentryObjCPrivateSDKOnly.h>
 #    import <SentryObjC/SentryObjCSDK.h>
 #endif

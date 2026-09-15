@@ -57,8 +57,8 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
         }
 
         var mutableMetric = metric
-        // Custom attribute precedence: caller > current scope > global scope. Trace correlation,
-        // user, and the other reserved attributes come from the global scope only.
+        // Custom attribute precedence: caller > current scope > global scope. User and the
+        // other reserved attributes come from the global scope only.
         scope.addAttributesToItem(&mutableMetric, metadata: self.scopeMetaData, currentScope: currentScope)
 
         if let beforeSendMetric = beforeSendMetric {

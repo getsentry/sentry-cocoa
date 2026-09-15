@@ -452,7 +452,11 @@ class SentryOnDemandReplayTests: XCTestCase {
         let imagePath = outputPath
             .appendingPathComponent("\(start.timeIntervalSinceReferenceDate)")
             .appendingPathExtension("png")
-        try UIImage.add.pngData()?.write(to: imagePath)
+        let imageData = UIGraphicsImageRenderer(size: CGSize(width: 10, height: 10)).pngData { ctx in
+            UIColor.red.setFill()
+            ctx.fill(CGRect(x: 0, y: 0, width: 10, height: 10))
+        }
+        try imageData.write(to: imagePath)
 
         sut.frames = [
             SentryReplayFrame(imagePath: imagePath.path, time: start, screenName: nil, image: nil)
@@ -495,7 +499,11 @@ class SentryOnDemandReplayTests: XCTestCase {
         let imagePath = outputPath
             .appendingPathComponent("\(start.timeIntervalSinceReferenceDate)")
             .appendingPathExtension("png")
-        try UIImage.add.pngData()?.write(to: imagePath)
+        let imageData = UIGraphicsImageRenderer(size: CGSize(width: 10, height: 10)).pngData { ctx in
+            UIColor.red.setFill()
+            ctx.fill(CGRect(x: 0, y: 0, width: 10, height: 10))
+        }
+        try imageData.write(to: imagePath)
 
         // -- Act --
         let sut = SentryOnDemandReplay(

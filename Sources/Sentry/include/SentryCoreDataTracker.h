@@ -8,7 +8,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryCoreDataTracker : NSObject
 SENTRY_NO_INIT
 
-- (instancetype)initWithThreadInspector:(SentryDefaultThreadInspector *)threadInspector
+- (instancetype)initWithThreadInspector:(SENTRY_SWIFT_MIGRATION_ID(
+                                            SentryDefaultThreadInspector))threadInspector
                      processInfoWrapper:
                          (SENTRY_SWIFT_MIGRATION_ID(id<SentryProcessInfoSource>))processInfoWrapper;
 

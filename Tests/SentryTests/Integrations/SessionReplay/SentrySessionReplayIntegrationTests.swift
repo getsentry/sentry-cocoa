@@ -613,7 +613,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
 
         try createLastSessionReplay(writeSessionInfo: false)
         startSDK(sessionSampleRate: 1, errorSampleRate: 1)
-        PrivateSentrySDKOnly.configureSessionReplay(with: CustomBreadcrumbConverter(), screenshotProvider: nil)
+        SentrySDK.internal.replay.configure(breadcrumbConverter: CustomBreadcrumbConverter(), screenshotProvider: nil)
 
         let client = SentryClientInternal(options: try XCTUnwrap(SentrySDK.startOption))
         let scope = Scope()
@@ -1086,8 +1086,8 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         }
         
         startSDK(sessionSampleRate: 1, errorSampleRate: 0)
-        PrivateSentrySDKOnly.configureSessionReplay(with: CustomBreadcrumbConverter(),
-                                                    screenshotProvider: CustomImageProvider())
+        SentrySDK.internal.replay.configure(breadcrumbConverter: CustomBreadcrumbConverter(),
+                                            screenshotProvider: CustomImageProvider())
         let sut = try getSut()
         
         XCTAssertTrue(sut.sessionReplay?.screenshotProvider is CustomImageProvider)
@@ -1104,7 +1104,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         startSDK(sessionSampleRate: 1, errorSampleRate: 0)
         
         let sut = try getSut()
-        PrivateSentrySDKOnly.setReplayTags(["someOption": "someValue"])
+        SentrySDK.internal.replay.setTags(["someOption": "someValue"])
         
         let sessionReplay = try XCTUnwrap(sut.sessionReplay)
         XCTAssertEqual(sessionReplay.replayTags?["someOption"] as? String, "someValue")
@@ -1318,6 +1318,54 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertNil(sut.sessionReplay)
     }
 
+    func testReplayIdAndSessionReplayCleared_whenStopped() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+
+        var replayId: String?
+        SentrySDKInternal.currentHub().configureScope { scope in
+            replayId = scope.replayId
+        }
+        XCTAssertNotNil(replayId)
+
+        // -- Act --
+        sut.stop()
+
+        // -- Assert --
+        // The scope's replayId is the value serialized as `replay_id` onto captured events, so
+        // clearing it ensures events captured after stop() are not linked to the stopped replay.
+        var serializedReplayId: Any?
+        SentrySDKInternal.currentHub().configureScope { scope in
+            replayId = scope.replayId
+            serializedReplayId = scope.serialize()["replay_id"]
+        }
+        XCTAssertNil(replayId)
+        XCTAssertNil(serializedReplayId)
+        XCTAssertNil(sut.sessionReplay)
+    }
+
+    func testSessionReplayEnded_whenReplayIdIsCleared_shouldClearSessionReplayFirst() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+        let scope = ReplayIdClearObservingScope()
+        scope.replayId = SentryId().sentryIdString
+        let client = SentryClientInternal(options: try XCTUnwrap(SentrySDK.startOption))
+        SentrySDKInternal.setCurrentHub(SentryHubInternal(client: client, andScope: scope))
+
+        var sessionReplayWasCleared = false
+        scope.onReplayIdCleared = {
+            sessionReplayWasCleared = sut.sessionReplay == nil
+        }
+
+        // -- Act --
+        sut.sessionReplayEnded()
+
+        // -- Assert --
+        XCTAssertTrue(sessionReplayWasCleared)
+    }
+
     private func createLastSessionReplay(
         writeSessionInfo: Bool = true,
         errorSampleRate: Double = 1,
@@ -1397,6 +1445,18 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     private func currentReplayInfo() throws -> [String: Any] {
         let data = try Data(contentsOf: URL(fileURLWithPath: replayFolder() + "/replay.current"))
         return try XCTUnwrap(SentrySerialization.deserializeDictionary(fromJsonData: data) as? [String: Any])
+    }
+}
+
+private final class ReplayIdClearObservingScope: Scope {
+    var onReplayIdCleared: (() -> Void)?
+
+    override var replayId: String? {
+        didSet {
+            if replayId == nil {
+                onReplayIdCleared?()
+            }
+        }
     }
 }
 

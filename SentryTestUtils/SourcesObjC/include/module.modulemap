@@ -1,0 +1,5 @@
+module SentryTestUtilsObjC {
+    header "SentryTestClientWrapper.h"
+    header "SentryTestHubWrapper.h"
+    header "SentryTestStateWrapper.h"
+}

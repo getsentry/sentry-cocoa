@@ -9,6 +9,20 @@
     },
     {
       "kind": "ObjCMethodDecl",
+      "name": "beforeBreadcrumbWithHint",
+      "parent": "SentryObjCOptions",
+      "returnType": "DEPRECATED_MSG_ATTRIBUTE SentryObjCBreadcrumb * _Nullable (^)(SentryObjCBreadcrumb * _Nonnull, SentryObjCHint * _Nonnull)",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "beforeSendWithHint",
+      "parent": "SentryObjCOptions",
+      "returnType": "DEPRECATED_MSG_ATTRIBUTE SentryObjCEvent * _Nullable (^)(SentryObjCEvent * _Nonnull, SentryObjCHint * _Nonnull)",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
       "name": "boolean:",
       "parent": "SentryObjCAttributeContent",
       "returnType": "instancetype _Nonnull",
@@ -68,13 +82,6 @@
       "name": "gauge:",
       "parent": "SentryObjCMetricValue",
       "returnType": "instancetype _Nonnull",
-      "instance": false
-    },
-    {
-      "kind": "ObjCMethodDecl",
-      "name": "getExtraContext",
-      "parent": "SentryObjCPrivateSDKOnly",
-      "returnType": "NSDictionary * _Nonnull",
       "instance": false
     },
     {
@@ -225,6 +232,18 @@
     },
     {
       "kind": "ObjCPropertyDecl",
+      "name": "beforeBreadcrumbWithHint",
+      "parent": "SentryObjCOptions",
+      "type": "DEPRECATED_MSG_ATTRIBUTE SentryObjCBreadcrumb * _Nullable (^)(SentryObjCBreadcrumb * _Nonnull, SentryObjCHint * _Nonnull)"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "beforeSendWithHint",
+      "parent": "SentryObjCOptions",
+      "type": "DEPRECATED_MSG_ATTRIBUTE SentryObjCEvent * _Nullable (^)(SentryObjCEvent * _Nonnull, SentryObjCHint * _Nonnull)"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
       "name": "diagnosticLevel",
       "parent": "SentryObjCOptions",
       "type": "SentryObjCLevel"
@@ -342,6 +361,20 @@
     },
     {
       "kind": "ObjCMethodDecl",
+      "name": "beforeBreadcrumbWithHint",
+      "parent": "SentryObjCOptions",
+      "returnType": "SentryObjCBreadcrumb * _Nullable (^ _Nullable)(SentryObjCBreadcrumb * _Nonnull, SentryObjCHint * _Nonnull)",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "beforeSendWithHint",
+      "parent": "SentryObjCOptions",
+      "returnType": "SentryObjCEvent * _Nullable (^ _Nullable)(SentryObjCEvent * _Nonnull, SentryObjCHint * _Nonnull)",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
       "name": "boolean:",
       "parent": "SentryObjCAttributeContent",
       "returnType": "SentryObjCAttributeContent * _Nonnull",
@@ -405,13 +438,6 @@
     },
     {
       "kind": "ObjCMethodDecl",
-      "name": "getExtraContext",
-      "parent": "SentryObjCPrivateSDKOnly",
-      "returnType": "NSDictionary<NSString *,id> * _Nonnull",
-      "instance": false
-    },
-    {
-      "kind": "ObjCMethodDecl",
       "name": "init",
       "parent": "SentryObjCInternalBreadcrumbApi",
       "returnType": "instancetype _Nonnull",
@@ -428,13 +454,6 @@
       "kind": "ObjCMethodDecl",
       "name": "init",
       "parent": "SentryObjCInternalUserApi",
-      "returnType": "instancetype _Nonnull",
-      "instance": true
-    },
-    {
-      "kind": "ObjCMethodDecl",
-      "name": "init",
-      "parent": "SentryObjCPrivateSDKOnly",
       "returnType": "instancetype _Nonnull",
       "instance": true
     },
@@ -639,6 +658,18 @@
       "name": "attachmentType",
       "parent": "SentryObjCAttachment",
       "type": "enum SentryObjCAttachmentType"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "beforeBreadcrumbWithHint",
+      "parent": "SentryObjCOptions",
+      "type": "SentryObjCBreadcrumb * _Nullable (^ _Nullable)(SentryObjCBreadcrumb * _Nonnull, SentryObjCHint * _Nonnull)"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "beforeSendWithHint",
+      "parent": "SentryObjCOptions",
+      "type": "SentryObjCEvent * _Nullable (^ _Nullable)(SentryObjCEvent * _Nonnull, SentryObjCHint * _Nonnull)"
     },
     {
       "kind": "ObjCPropertyDecl",
