@@ -8,6 +8,7 @@
 - `working`: V10 has a positive route and test.
 - `temporary`: V10 behavior is reduced; keep `SENTRY_DISABLE_SENTRYCRASH_V10` until the acceptance test passes.
 - `decision`: product or compatibility semantics must be confirmed before changing the route.
+- Every `KSCRASH_TODO` must reference at least one GitHub issue, for example `KSCRASH_TODO(GH-1234): description`; `scripts/verify-v10-sentrycrash-source-contract.sh` enforces this.
 - V10 compile-out tracker: [#8528](https://github.com/getsentry/sentry-cocoa/issues/8528).
 - Repository-wide removal after V9 retirement: [#8319](https://github.com/getsentry/sentry-cocoa/issues/8319).
 - Downstream SPI audit: [#8738](https://github.com/getsentry/sentry-cocoa/issues/8738).

@@ -148,7 +148,7 @@ public final class SentryAppStartTracker: NSObject {
             SentryAppStartMeasurementProvider.setAppStartTrace(traceId)
         }
 
-        if PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode {
+        if SentrySDKInternal.appStartMeasurementHybridSDKMode {
             buildAppStartMeasurement(dateProvider.date())
         }
 
@@ -264,7 +264,7 @@ public final class SentryAppStartTracker: NSObject {
             // didBecomeVisibleNotification. Therefore, we can't set the
             // didFinishLaunchingTimestamp, and we can't calculate the appStartDuration. Instead,
             // the SDK provides the information we know and leaves the rest to the HybridSDKs.
-            if PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode {
+            if SentrySDKInternal.appStartMeasurementHybridSDKMode {
                 finalDidFinishLaunchingTimestamp = Date(timeIntervalSinceReferenceDate: 0)
                 finalAppStartDuration = 0
             }
