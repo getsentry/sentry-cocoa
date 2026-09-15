@@ -210,7 +210,7 @@ enum CrashE2ERuntime {
 
     private static func logCrashTimeAttachmentsHookIfNeeded() {
         guard configuration.scenario == .crashTimeAttachments else { return }
-        NSLog("CrashE2E - crash-time-attachments uses the SDK SENTRY_CRASH_E2E screenshot hook")
+        NSLog("CrashE2E - crash-time-attachments uses the SDK SENTRY_CRASH_E2E attachment hook")
     }
 
     private static func installIgnoredSignalHandlerIfNeeded() {

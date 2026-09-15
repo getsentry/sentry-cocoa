@@ -50,6 +50,7 @@ final class MockKSCrashInstaller: SentryKSCrash.Installing {
     public var onSendAllReports: (() -> Void)?
     public var setUserInfoInvocations: [[String: Any]] = []
     public var screenshotProvider: SentryKSCrashAttachmentsScreenshotWriter?
+    public var viewHierarchyProvider: SentryKSCrashAttachmentsViewHierarchyWriter?
     #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
     public var uncaughtExceptionHandler: (@convention(c) (NSException) -> Void)?
     #endif
@@ -87,6 +88,10 @@ final class MockKSCrashInstaller: SentryKSCrash.Installing {
 
     public func setScreenshotProvider(_ provider: SentryKSCrashAttachmentsScreenshotWriter?) {
         screenshotProvider = provider
+    }
+
+    public func setViewHierarchyProvider(_ provider: SentryKSCrashAttachmentsViewHierarchyWriter?) {
+        viewHierarchyProvider = provider
     }
 
     public func sendAllReports(
