@@ -98,6 +98,7 @@ final class SentryNetworkTrackingIntegration<Dependencies: NetworkTrackerProvide
                 mode: .oncePerClassAndSuperclasses,
                 key: SentryNetworkTrackingSwizzleKeys.resume
             ) { task, original in
+                keepTaskAliveDuringSwizzle(task)
                 SentryNetworkTrackerProxy.shared.target?.urlSessionTaskResume(task)
                 original()
             }
@@ -108,10 +109,30 @@ final class SentryNetworkTrackingIntegration<Dependencies: NetworkTrackerProvide
                 mode: .oncePerClassAndSuperclasses,
                 key: SentryNetworkTrackingSwizzleKeys.state
             ) { task, state, original in
+                keepTaskAliveDuringSwizzle(task)
                 SentryNetworkTrackerProxy.shared.target?.urlSessionTask(task, setState: state)
                 original(state)
             }
         }
+    }
+
+    /// Extends the task's lifetime to the end of the current autorelease pool so it cannot be
+    /// deallocated while the Objective-C method our swizzle runs inside is still executing.
+    ///
+    /// `-[NSURLSessionTask cancel]` calls `setState:` and then keeps messaging the task, for example
+    /// `[self workQueue]`, without retaining it. A caller that holds the task through an unretained
+    /// pointer, such as .NET's `NSUrlSessionHandler`, can drop its last reference from another thread
+    /// while `cancel` is still running, freeing the task mid-cancel. Because our `resume` and
+    /// `setState:` swizzles run synchronously inside those methods and widen that window, we take an
+    /// autoreleased reference: the extra retain is established before the concurrent release and is
+    /// balanced only when the pool drains, after the Objective-C method returns, so `cancel` never
+    /// messages a freed task (see https://github.com/getsentry/sentry-cocoa/issues/8917).
+    ///
+    /// The retain must outlive the enclosing Objective-C method, so it relies on the caller's
+    /// autorelease pool. Do not wrap the swizzle body in a local `@autoreleasepool`: that would
+    /// balance the retain before `cancel` returns and reintroduce the crash.
+    private static func keepTaskAliveDuringSwizzle(_ task: URLSessionTask) {
+        _ = Unmanaged.passRetained(task).autorelease()
     }
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
