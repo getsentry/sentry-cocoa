@@ -560,10 +560,16 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     private var anrTracker: SentryANRTracker?
     @objc public func getANRTracker(_ timeout: TimeInterval) -> SentryANRTracker {
         getLazyVar(\.anrTracker) {
+            // A timeout of 0 or less would make the tracker thread spin in a busy loop.
+            var safeTimeout = timeout
+            if safeTimeout <= 0 {
+                SentrySDKLog.warning("Invalid ANRTracked timeout interval: The value must be greater than 0.")
+                safeTimeout = Options.defaultAppHangTimeoutInterval
+            }
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-            SentryANRTracker(helper: SentryANRTrackerV2(timeoutInterval: timeout))
+            return SentryANRTracker(helper: SentryANRTrackerV2(timeoutInterval: safeTimeout))
         #else
-            SentryANRTracker(helper: SentryANRTrackerV1(timeoutInterval: timeout))
+            return SentryANRTracker(helper: SentryANRTrackerV1(timeoutInterval: safeTimeout))
         #endif
         }
     }

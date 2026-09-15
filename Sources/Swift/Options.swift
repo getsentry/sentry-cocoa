@@ -597,12 +597,24 @@
     @objc public var enableAppHangTracking: Bool = true
     #endif // !SDK_V10
 
+    static let defaultAppHangTimeoutInterval: TimeInterval = 2.0
+
     /// The minimum amount of time an app should be unresponsive to be classified as an App Hanging.
     /// @note The actual amount may be a little longer.
     /// @note Avoid using values lower than 100ms, which may cause a lot of app hangs events being
     /// transmitted.
+    /// @note The value needs to be greater than @c 0. When setting a value of @c 0 or lower, the SDK
+    /// sets it to the default.
     /// @note The default value is 2 seconds.
-    @objc public var appHangTimeoutInterval: TimeInterval = 2.0
+    @objc public var appHangTimeoutInterval: TimeInterval = defaultAppHangTimeoutInterval {
+        didSet {
+            guard appHangTimeoutInterval > 0 else {
+                SentrySDKLog.warning("Invalid appHangTimeoutInterval \(appHangTimeoutInterval). The value must be greater than 0. Setting it to the default of \(Self.defaultAppHangTimeoutInterval) seconds.")
+                appHangTimeoutInterval = Self.defaultAppHangTimeoutInterval
+                return
+            }
+        }
+    }
 
     /// When enabled, the SDK adds breadcrumbs for various system events.
     /// @note Default value is @c true.
