@@ -625,6 +625,45 @@ class SentryScopeSwiftTests: XCTestCase {
                        actual?.context as? [String: [String: String]])
     }
 
+    func testApplyToEvent_whenTransactionTracerIsUnbound_shouldPopulateTransactionTrace() throws {
+        // -- Arrange --
+        let scope = Scope()
+        let tracer = SentryTracer(transactionContext: TransactionContext(name: "Tap", operation: "ui.action.click"), hub: nil)
+        tracer.finish(status: .cancelled)
+        let transaction = Transaction(trace: tracer, children: [])
+        transaction.context = ["custom": ["key": "value"]]
+        scope.span = tracer
+        scope.span = nil
+
+        // -- Act --
+        let actual = scope.applyTo(event: transaction, maxBreadcrumbs: 10)
+
+        // -- Assert --
+        let trace = try XCTUnwrap(actual?.context?["trace"])
+        XCTAssertEqual(trace["op"] as? String, "ui.action.click")
+        XCTAssertEqual(trace["trace_id"] as? String, tracer.traceId.sentryIdString)
+        XCTAssertEqual(trace["span_id"] as? String, tracer.spanId.sentrySpanIdString)
+        XCTAssertEqual(trace["status"] as? String, "cancelled")
+        XCTAssertEqual(actual?.context?["custom"]?["key"] as? String, "value")
+    }
+
+    func testApplyToEvent_whenAnotherSpanIsBound_shouldUseTransactionTrace() throws {
+        // -- Arrange --
+        let scope = Scope()
+        let tracer = SentryTracer(transactionContext: TransactionContext(name: "Tap", operation: "ui.action.click"), hub: nil)
+        let transaction = Transaction(trace: tracer, children: [])
+        scope.span = SentryTracer(transactionContext: TransactionContext(name: "Other", operation: "other.operation"), hub: nil)
+
+        // -- Act --
+        let actual = scope.applyTo(event: transaction, maxBreadcrumbs: 10)
+
+        // -- Assert --
+        let trace = try XCTUnwrap(actual?.context?["trace"])
+        XCTAssertEqual(trace["op"] as? String, "ui.action.click")
+        XCTAssertEqual(trace["trace_id"] as? String, tracer.traceId.sentryIdString)
+        XCTAssertEqual(trace["span_id"] as? String, tracer.spanId.sentrySpanIdString)
+    }
+
     func testApplyToEvent_EventWithError_contextHasTrace() {
         let event = fixture.event
         event.exceptions = [Exception(value: "Error", type: "Exception")]

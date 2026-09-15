@@ -1472,6 +1472,39 @@ final class SentryClientTests: XCTestCase {
         assertLostEventRecorded(category: .transaction, reason: .beforeSend)
     }
 
+    func testCaptureTransaction_whenTracerIsUnbound_shouldAllowFilteringByTraceOperation() throws {
+        // -- Arrange --
+        let scope = Scope()
+        let tracer = SentryTracer(transactionContext: TransactionContext(name: "Tap", operation: "ui.action.click"), hub: nil)
+        tracer.finish()
+        let transaction = Transaction(trace: tracer, children: [])
+        scope.span = tracer
+        scope.span = nil
+        var callbackCalled = false
+        let sut = fixture.getSut(configureOptions: { options in
+#if SDK_V10
+            options.beforeSendTransaction = { event in
+                callbackCalled = true
+                return event.context?["trace"]?["op"] as? String == "ui.action.click" ? nil : event
+            }
+#else
+            options.beforeSend = { event in
+                callbackCalled = true
+                return event.context?["trace"]?["op"] as? String == "ui.action.click" ? nil : event
+            }
+#endif // SDK_V10
+        })
+
+        // -- Act --
+        let eventId = sut.capture(event: transaction, scope: scope)
+
+        // -- Assert --
+        XCTAssertTrue(callbackCalled)
+        XCTAssertEqual(eventId, SentryId.empty)
+        assertNoEventSent()
+        assertLostEventRecorded(category: .transaction, reason: .beforeSend)
+    }
+
     func testCaptureTransaction_whenBeforeSendIsSet_shouldNotInvokeBeforeSend() throws {
 #if !SDK_V10
         throw XCTSkip("Test skipped for non SDK_V10")
