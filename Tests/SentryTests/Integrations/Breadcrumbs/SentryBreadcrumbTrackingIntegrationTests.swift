@@ -89,4 +89,27 @@ class SentryBreadcrumbTrackingIntegrationTests: XCTestCase {
         XCTAssertEqual(crumb.category, try XCTUnwrap(breadcrumbs[0]["category"] as? String))
         XCTAssertEqual(crumb.type, try XCTUnwrap(breadcrumbs[0]["type"] as? String))
     }
+
+#if os(iOS)
+    func testInit_whenReplayMaskingConfigured_shouldPassRedactBuilderToTracker() throws {
+        // -- Arrange --
+        let options = fixture.defaultOptions
+        options.sessionReplay.maskAllText = true
+
+        // -- Act --
+        let sut = try fixture.getSut(options: options)
+        defer {
+            sut.uninstall()
+        }
+        let tracker = try XCTUnwrap(
+            Mirror(reflecting: sut).descendant("breadcrumbTracker") as? SentryBreadcrumbTracker
+        )
+        let redactBuilder = try XCTUnwrap(
+            Mirror(reflecting: tracker).descendant("redactBuilder") as? SentryUIRedactBuilder
+        )
+
+        // -- Assert --
+        XCTAssertTrue(redactBuilder.isViewMaskedForTextExtraction(UIView()))
+    }
+#endif
 }
