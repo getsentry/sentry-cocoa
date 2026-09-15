@@ -2,9 +2,6 @@
 
 ## Unreleased
 
-### Deprecations
-
-- Deprecate legacy App Hang tracking because it can produce less relevant stack traces and false positives. Enable the MetricKit integration for system-provided hang diagnostics. The `appHangTimeoutInterval` option remains supported for watchdog termination classification. (#8944)
 > [!WARNING]
 > Native crashes now set `mechanism.synthetic`, which takes the mach exception name (`EXC_BAD_ACCESS`) or signal name (`SIGSEGV`) out of the grouping hash. Expect a one-time regrouping as your app adopts this version: existing crash issues stop receiving events and new ones open. Crashes that differ only by signal at the same stacktrace now share one issue. The mach and signal detail stays on `mechanism.meta`.
 
@@ -14,6 +11,10 @@
 - Clear the scope's `replayId` when Session Replay is stopped manually, so events captured after `stop()` are no longer linked to a replay that is no longer recording (#9017)
 - Mark the fabricated `mach` and `signal` crash mechanisms as `synthetic` so an Apple crash groups with the identical crash reported by the other Sentry SDKs (#9004)
 - Set `mechanism.handled` to `false` on crash reports without mach context, which previously left it unset (#9004)
+
+### Deprecations
+
+- Deprecate legacy App Hang tracking because it can produce less relevant stack traces and false positives. Enable the MetricKit integration for system-provided hang diagnostics by setting `options.enableMetricKit = true`. The `appHangTimeoutInterval` option remains supported for watchdog termination classification. (#8944)
 
 ## 9.28.0
 
