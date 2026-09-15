@@ -173,7 +173,7 @@ let sentrySwiftTarget: Target = .target(
         "_SentryPrivate",
         "SentryHeaders",
         .product(
-            name: "Installations",
+            name: "Recording",
             package: "KSCrash",
             condition: kscrashDependencyCondition
         ),
