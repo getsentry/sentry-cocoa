@@ -17,6 +17,12 @@ final class SentryObjCCompatSDKTrackingTests: XCTestCase {
     }
 
     func testEnvelopeHeaderAfterObjCStart_usesObjCSdkName() throws {
+        #if os(visionOS) && targetEnvironment(simulator)
+        if ProcessInfo.processInfo.operatingSystemVersion.majorVersion == 27 {
+            throw XCTSkip("Full SDK start is too slow on visionOS 27 simulator")
+        }
+        #endif
+
         SentryObjCSDK.start { options in
             options.dsn = "https://key@sentry.io/123"
             options.enableCrashHandler = false

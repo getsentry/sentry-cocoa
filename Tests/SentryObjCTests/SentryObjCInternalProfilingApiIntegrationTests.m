@@ -17,6 +17,14 @@
     return;
 #    endif
 
+#    if TARGET_OS_VISION && TARGET_OS_SIMULATOR
+    NSOperatingSystemVersion version = [[NSProcessInfo processInfo] operatingSystemVersion];
+    if (version.majorVersion == 27) {
+        XCTSkip(@"Full SDK start is too slow on visionOS 27 simulator");
+        return;
+    }
+#    endif
+
     [SentryObjCSDK startWithConfigureOptions:^(SentryObjCOptions *options) {
         options.dsn = @"https://key@sentry.io/123";
         options.enableCrashHandler = NO;

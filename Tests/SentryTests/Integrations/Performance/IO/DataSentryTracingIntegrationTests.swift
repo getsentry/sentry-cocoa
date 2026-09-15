@@ -120,8 +120,13 @@ class DataSentryTracingIntegrationTests: XCTestCase {
 
     private var fixture: Fixture!
 
-    override func setUp() {
-        super.setUp()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        #if os(visionOS) && targetEnvironment(simulator)
+        if ProcessInfo.processInfo.operatingSystemVersion.majorVersion == 27 {
+            throw XCTSkip("SDK start with file I/O tracing is too slow on visionOS 27 simulator")
+        }
+        #endif
         fixture = Fixture()
     }
 
