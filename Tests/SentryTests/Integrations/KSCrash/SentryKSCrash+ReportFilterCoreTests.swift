@@ -17,11 +17,15 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
         var onBeforeCaptureGate: (() -> Void)?
         var onCaptureCommitted: (() -> Void)?
         var capturedReportCount = 0
+        var processError: (any Error)?
 
         func process(
             report: [AnyHashable: Any],
             beforeCapture: @escaping () -> (any Error)?
         ) throws {
+            if let processError {
+                throw processError
+            }
             onBeforeCaptureGate?()
             if let error = beforeCapture() {
                 throw error

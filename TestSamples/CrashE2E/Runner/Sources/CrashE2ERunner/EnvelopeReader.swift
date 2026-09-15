@@ -1,8 +1,15 @@
 import Foundation
 
+struct EnvelopeAttachment {
+    let filename: String?
+    let attachmentType: String?
+    let payload: Data
+}
+
 struct ExceptionEventEnvelope {
     let sourceURL: URL
     let event: [String: Any]
+    let attachments: [EnvelopeAttachment]
 }
 
 enum EnvelopeReader {
@@ -16,15 +23,13 @@ enum EnvelopeReader {
         var events: [ExceptionEventEnvelope] = []
 
         for url in fileURLs {
-            let contents = try String(contentsOf: url, encoding: .utf8)
-            let lines = contents.split(separator: "\n", omittingEmptySubsequences: false)
-            for lineSubsequence in lines {
-                let line = String(lineSubsequence).trimmingCharacters(in: .whitespacesAndNewlines)
-                guard !line.isEmpty, let data = line.data(using: .utf8) else { continue }
-                guard let object = try? JSONSerialization.jsonObject(with: data),
-                      let event = object as? [String: Any],
-                      isExceptionEvent(event) else { continue }
-                events.append(ExceptionEventEnvelope(sourceURL: url, event: event))
+            let data = try Data(contentsOf: url)
+            let items = envelopeItems(in: data)
+            let attachments = items.compactMap(attachment(from:))
+            for event in items.compactMap(exceptionEvent(from:)) {
+                events.append(
+                    ExceptionEventEnvelope(sourceURL: url, event: event, attachments: attachments)
+                )
             }
         }
 
@@ -49,6 +54,66 @@ enum EnvelopeReader {
             }
         }
         return urls.sorted { $0.path < $1.path }
+    }
+
+    private struct EnvelopeItem {
+        let header: [String: Any]
+        let payload: Data
+    }
+
+    private static func envelopeItems(in data: Data) -> [EnvelopeItem] {
+        var offset = 0
+        guard readLine(in: data, offset: &offset) != nil else { return [] }
+
+        var items: [EnvelopeItem] = []
+        while offset < data.count {
+            guard let headerData = readLine(in: data, offset: &offset),
+                  let header = try? JSONSerialization.jsonObject(with: headerData) as? [String: Any]
+            else {
+                break
+            }
+            let length = header["length"] as? Int ?? 0
+            guard offset + length <= data.count else { break }
+            let payload = data.subdata(in: offset..<(offset + length))
+            offset += length
+            if offset < data.count, data[offset] == UInt8(ascii: "\n") {
+                offset += 1
+            }
+            items.append(EnvelopeItem(header: header, payload: payload))
+        }
+        return items
+    }
+
+    private static func exceptionEvent(from item: EnvelopeItem) -> [String: Any]? {
+        guard item.header["type"] as? String == "event",
+              let object = try? JSONSerialization.jsonObject(with: item.payload),
+              let event = object as? [String: Any],
+              isExceptionEvent(event)
+        else {
+            return nil
+        }
+        return event
+    }
+
+    private static func attachment(from item: EnvelopeItem) -> EnvelopeAttachment? {
+        guard item.header["type"] as? String == "attachment" else { return nil }
+        return EnvelopeAttachment(
+            filename: item.header["filename"] as? String,
+            attachmentType: item.header["attachment_type"] as? String,
+            payload: item.payload
+        )
+    }
+
+    private static func readLine(in data: Data, offset: inout Int) -> Data? {
+        guard offset < data.count else { return nil }
+        if let newline = data[offset...].firstIndex(of: UInt8(ascii: "\n")) {
+            let line = data[offset..<newline]
+            offset = newline + 1
+            return Data(line)
+        }
+        let line = data[offset...]
+        offset = data.count
+        return Data(line)
     }
 
     private static func isExceptionEvent(_ event: [String: Any]) -> Bool {

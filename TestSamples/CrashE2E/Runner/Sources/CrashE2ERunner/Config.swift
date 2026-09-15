@@ -101,6 +101,7 @@ enum Scenario: String, CaseIterable {
     case ksCrashPerReportRetry = "kscrash-per-report-retry"
     case mallocZoneLockedSignal = "malloc-zone-locked-signal"
     case crashTimeScope = "crash-time-scope"
+    case crashTimeAttachments = "crash-time-attachments"
 
     static let defaultScenarios: [Scenario] = [
         .signal,
@@ -131,7 +132,8 @@ enum Scenario: String, CaseIterable {
         .cppExceptionV2DynamicImage,
         .unityCxaThrowV2,
         .ksCrashPerReportRetry,
-        .crashTimeScope
+        .crashTimeScope,
+        .crashTimeAttachments
     ]
 
     var requiresManagedRuntimeBuild: Bool {
@@ -143,7 +145,7 @@ enum Scenario: String, CaseIterable {
              .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2, .objcObject,
              .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal, .swiftAsyncCPPExceptionV2Off,
              .swiftAsyncCPPExceptionV2On, .ksCrashPerReportRetry, .mallocZoneLockedSignal,
-             .crashTimeScope:
+             .crashTimeScope, .crashTimeAttachments:
             return false
         }
     }
@@ -158,7 +160,7 @@ enum Scenario: String, CaseIterable {
              .managedRuntimePreSDKSignal,
              .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
              .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashPerReportRetry,
-             .mallocZoneLockedSignal, .crashTimeScope:
+             .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments:
             return true
         }
     }
@@ -172,7 +174,7 @@ enum Scenario: String, CaseIterable {
              .objcObjectAfterCaughtCPP, .binaryImages, .managedRuntimeSignalChain,
              .managedRuntimeReinitSignal,
              .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashPerReportRetry,
-             .mallocZoneLockedSignal, .crashTimeScope:
+             .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments:
             return true
         }
     }
@@ -180,10 +182,11 @@ enum Scenario: String, CaseIterable {
     var requiresKSCrash: Bool {
         self == .cppExceptionV2DynamicImage || self == .unityCxaThrowV2
             || self == .ksCrashPerReportRetry || self == .crashTimeScope
+            || self == .crashTimeAttachments
     }
 
     var requiresCrashE2ETestHook: Bool {
-        self == .ksCrashPerReportRetry
+        self == .ksCrashPerReportRetry || self == .crashTimeAttachments
     }
 }
 

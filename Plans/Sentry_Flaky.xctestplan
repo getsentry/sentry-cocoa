@@ -16,7 +16,7 @@
   "testTargets" : [
     {
       "selectedTests" : [
-        "PrivateSentrySDKOnlyTests\/testProfilingStartAndCollect()",
+        "SentryInternalApiTests\/testProfilingStartAndCollect()",
         "SentryCrashBinaryImageCacheTests\/testRemoveImageAddAgain",
         "SentryCrashBinaryImageCacheTests\/testRemoveImageFromBeginning",
         "SentryCrashBinaryImageCacheTests\/testRemoveImageFromTail",

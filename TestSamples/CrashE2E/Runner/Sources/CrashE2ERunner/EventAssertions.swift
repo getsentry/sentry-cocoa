@@ -61,7 +61,7 @@ enum EventAssertions {
         case .signal, .binaryImages, .managedRuntimeSignalChain, .managedRuntimePreSDKSignal,
              .managedRuntimeClosedSignal, .managedRuntimeReinitSignal, .nsException,
              .nsExceptionSubclass, .ksCrashPerReportRetry, .mallocZoneLockedSignal,
-             .crashTimeScope:
+             .crashTimeScope, .crashTimeAttachments:
             try assertCrashedThread(threadValues, expectedThreadID: exceptionThreadID,
                                     platform: platform, scenario: scenario)
         case .ignoredSignal:
@@ -106,7 +106,7 @@ enum EventAssertions {
         switch scenario {
         case .signal, .binaryImages, .managedRuntimeSignalChain, .managedRuntimePreSDKSignal,
              .managedRuntimeClosedSignal, .managedRuntimeReinitSignal, .mallocZoneLockedSignal,
-             .crashTimeScope:
+             .crashTimeScope, .crashTimeAttachments:
             try assertSignalScenario(
                 scenario, firstException: firstException,
                 mechanism: mechanism,
