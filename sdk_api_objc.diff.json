@@ -86,13 +86,6 @@
     },
     {
       "kind": "ObjCMethodDecl",
-      "name": "getExtraContext",
-      "parent": "SentryObjCPrivateSDKOnly",
-      "returnType": "NSDictionary * _Nonnull",
-      "instance": false
-    },
-    {
-      "kind": "ObjCMethodDecl",
       "name": "integer:",
       "parent": "SentryObjCAttributeContent",
       "returnType": "instancetype _Nonnull",
@@ -445,13 +438,6 @@
     },
     {
       "kind": "ObjCMethodDecl",
-      "name": "getExtraContext",
-      "parent": "SentryObjCPrivateSDKOnly",
-      "returnType": "NSDictionary<NSString *,id> * _Nonnull",
-      "instance": false
-    },
-    {
-      "kind": "ObjCMethodDecl",
       "name": "init",
       "parent": "SentryObjCInternalBreadcrumbApi",
       "returnType": "instancetype _Nonnull",
@@ -468,13 +454,6 @@
       "kind": "ObjCMethodDecl",
       "name": "init",
       "parent": "SentryObjCInternalUserApi",
-      "returnType": "instancetype _Nonnull",
-      "instance": true
-    },
-    {
-      "kind": "ObjCMethodDecl",
-      "name": "init",
-      "parent": "SentryObjCPrivateSDKOnly",
       "returnType": "instancetype _Nonnull",
       "instance": true
     },

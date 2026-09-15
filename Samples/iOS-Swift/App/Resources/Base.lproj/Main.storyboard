@@ -994,8 +994,16 @@
                                                             <action selector="captureErrorInSwiftAsync:" destination="QmU-DD-itF" eventType="touchUpInside" id="a1s-yn-act"/>
                                                         </connections>
                                                     </button>
-                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Llv-Yz-cwF">
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hNt-4w-qR7" userLabel="Capture Error With Hint">
                                                         <rect key="frame" x="0.0" y="56" width="196.66666666666666" height="28"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                        <state key="normal" title="Capture Error With Hint"/>
+                                                        <connections>
+                                                            <action selector="captureErrorWithHint:" destination="QmU-DD-itF" eventType="touchUpInside" id="hNt-4w-act"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Llv-Yz-cwF">
+                                                        <rect key="frame" x="0.0" y="84" width="196.66666666666666" height="28"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                         <state key="normal" title="Capture NSException"/>
                                                         <connections>
@@ -1323,6 +1331,15 @@
                                                                         <state key="normal" title="Gallery"/>
                                                                         <connections>
                                                                             <action selector="showGalleryUIAction:" destination="VqS-l1-kwe" eventType="touchUpInside" id="DPJ-Cg-5La"/>
+                                                                        </connections>
+                                                                    </button>
+                                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xcp-cp-rvw" userLabel="Camera Preview">
+                                                                        <rect key="frame" x="131.33333333333334" y="0.0" width="65.333333333333329" height="28"/>
+                                                                        <accessibility key="accessibilityConfiguration" identifier="show-camera-preview"/>
+                                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                                        <state key="normal" title="Preview"/>
+                                                                        <connections>
+                                                                            <action selector="showCameraPreviewAction:" destination="VqS-l1-kwe" eventType="touchUpInside" id="xcp-cp-act"/>
                                                                         </connections>
                                                                     </button>
                                                                 </subviews>

@@ -77,6 +77,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (SentryId *)captureErrorEvent:(SentryEvent *)event NS_SWIFT_NAME(captureErrorEvent(event:));
 
+- (SentryId *)captureErrorEvent:(SentryEvent *)event
+                       withHint:(SENTRY_SWIFT_MIGRATION_ID(SentryHint)_Nullable)hint;
+
+- (void)addBreadcrumb:(SentryBreadcrumb *)crumb
+             withHint:(SENTRY_SWIFT_MIGRATION_ID(SentryHint)_Nullable)hint;
+
 - (SentryId *)captureError:(NSError *)error
                  withScope:(SentryScope *)scope
           attachAllThreads:(nullable NSNumber *)attachAllThreads;

@@ -61,6 +61,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (SentryId *)captureEventIncrementingSessionErrorCount:(SentryEvent *)event
                                               withScope:(SentryScope *)scope;
 
+- (SentryId *)captureEventIncrementingSessionErrorCount:(SentryEvent *)event
+                                              withScope:(SentryScope *)scope
+                                                   hint:(SentryHint *)hint;
+
 - (SentryId *)captureError:(NSError *)error
                  withScope:(SentryScope *)scope
           attachAllThreads:(nullable NSNumber *)attachAllThreads

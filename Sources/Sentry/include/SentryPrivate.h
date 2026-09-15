@@ -57,6 +57,10 @@
 #import "SentryCoreDataTracker.h"
 #import "SentryCrash.h"
 #import "SentryCrashDebug.h"
+#if !SDK_V10
+#    import "SentryCrashDefaultMachineContextWrapper.h"
+#    import "SentryCrashMachineContextWrapper.h"
+#endif
 #import "SentryCrashInstallation+Private.h"
 #import "SentryCrashInstallation.h"
 #import "SentryCrashMonitor_AppState.h"
@@ -78,6 +82,8 @@
 #import "SentryNSDataSwizzlingHelper.h"
 #import "SentryNSFileManagerSwizzlingHelper.h"
 #import "SentryPerformanceTracker.h"
+#import "SentryProfileCollector.h"
+#import "SentryProfiledTracerConcurrency.h"
 #import "SentryProfiler+Private.h"
 #import "SentrySDKInternal.h"
 #import "SentrySanitizerUtils.h"
@@ -86,6 +92,7 @@
 #import "SentrySerialization.h"
 #import "SentrySpanDataKey.h"
 #import "SentrySpanOperation.h"
+#import "SentryStacktraceBuilder.h"
 #import "SentryStoredCrashReportProcessor.h"
 #import "SentrySysctlObjC.h"
 #import "SentryTimeToDisplayTracker.h"
@@ -98,3 +105,4 @@
 #import "SentryTransactionContext+Private.h"
 #import "SentryUIViewControllerSwizzlingHelper.h"
 #import "SentryUncaughtNSExceptions.h"
+#import "SentryUser+Private.h"

@@ -215,6 +215,189 @@ final class SentryWithCurrentScopeIntegrationTests: XCTestCase {
         XCTAssertEqual(capturedLog?.attributes["log_tag"]?.value as? String, "log-scoped")
     }
 
+    func testWithCurrentScope_whenChildSpanIsBound_shouldCorrelateEventAndEnvelope() throws {
+        // -- Arrange --
+        let context = TransactionContext(name: "local transaction", operation: "test", sampled: .yes, sampleRate: 1, sampleRand: 0.5)
+        let transaction = SentryTracer(transactionContext: context, hub: nil)
+        let child = transaction.startChild(operation: "test.child")
+        defer {
+            child.finish()
+            transaction.finish()
+        }
+        let currentScope = SentrySDK.internal.scope.createScope()
+        currentScope.span = child
+        currentScope.setTag(value: "current", key: "scope")
+        let globalScope = SentrySDKInternal.currentHub().scope
+        XCTAssertNil(globalScope.span)
+        XCTAssertNotEqual(child.traceId, globalScope.propagationContextTraceId)
+        XCTAssertNotEqual(child.spanId, transaction.spanId)
+
+        // -- Act --
+        SentrySDK.internal.scope.withCurrentScope(currentScope) {
+            SentrySDK.capture(event: Event())
+        }
+
+        // -- Assert --
+        let captured = try XCTUnwrap(fixture.transportAdapter.sendEventWithTraceStateInvocations.last)
+        XCTAssertEqual(captured.event.tags?["scope"], "current")
+        let trace = try XCTUnwrap(captured.event.context?["trace"])
+        XCTAssertEqual(trace["trace_id"] as? String, child.traceId.sentryIdString)
+        XCTAssertEqual(trace["span_id"] as? String, child.spanId.sentrySpanIdString)
+        let envelopeTrace = try XCTUnwrap(captured.traceContext)
+        XCTAssertEqual(envelopeTrace.traceId, child.traceId)
+        XCTAssertEqual(envelopeTrace.sampled, "true")
+        XCTAssertEqual(envelopeTrace.sampleRate, "1.000000")
+    }
+
+    func testWithCurrentScope_whenSpanHasNoTracer_shouldCorrelateErrorEnvelope() throws {
+        // -- Arrange --
+        let context = SpanContext(operation: "test")
+        #if os(iOS) || os(tvOS) || os(visionOS)
+        let span = SentrySpanInternal(context: context, framesTracker: nil)
+        #else
+        let span = SentrySpanInternal(context: context)
+        #endif
+        defer { span.finish() }
+        let currentScope = SentrySDK.internal.scope.createScope()
+        currentScope.span = span
+        XCTAssertNil(span.tracer)
+        XCTAssertNotEqual(span.traceId, SentrySDKInternal.currentHub().scope.propagationContextTraceId)
+
+        // -- Act --
+        SentrySDK.internal.scope.withCurrentScope(currentScope) {
+            SentrySDK.capture(error: NSError(domain: "test", code: 1))
+        }
+
+        // -- Assert --
+        let captured = try XCTUnwrap(fixture.transportAdapter.sendEventWithTraceStateInvocations.last)
+        let trace = try XCTUnwrap(captured.event.context?["trace"])
+        XCTAssertEqual(trace["trace_id"] as? String, span.traceId.sentryIdString)
+        XCTAssertEqual(trace["span_id"] as? String, span.spanId.sentrySpanIdString)
+        let envelopeTrace = try XCTUnwrap(captured.traceContext)
+        XCTAssertEqual(envelopeTrace.traceId, span.traceId)
+    }
+
+    func testWithCurrentScope_whenSpanHasNoTracer_shouldNotInheritUnrelatedTransactionName() throws {
+        // -- Arrange --
+        let transaction = SentryTracer(transactionContext: TransactionContext(name: "hub transaction", operation: "test"), hub: nil)
+        SentrySDKInternal.currentHub().scope.span = transaction
+        let context = SpanContext(operation: "test")
+        #if os(iOS) || os(tvOS) || os(visionOS)
+        let span = SentrySpanInternal(context: context, framesTracker: nil)
+        #else
+        let span = SentrySpanInternal(context: context)
+        #endif
+        defer {
+            span.finish()
+            transaction.finish()
+        }
+        let currentScope = SentrySDK.internal.scope.createScope()
+        currentScope.span = span
+        XCTAssertNil(span.tracer)
+        XCTAssertNotEqual(span.traceId, transaction.traceId)
+
+        // -- Act --
+        SentrySDK.internal.scope.withCurrentScope(currentScope) {
+            SentrySDK.capture(event: Event())
+        }
+
+        // -- Assert --
+        let captured = try XCTUnwrap(fixture.transportAdapter.sendEventWithTraceStateInvocations.last)
+        let trace = try XCTUnwrap(captured.event.context?["trace"])
+        XCTAssertEqual(trace["trace_id"] as? String, span.traceId.sentryIdString)
+        XCTAssertEqual(trace["span_id"] as? String, span.spanId.sentrySpanIdString)
+        XCTAssertNil(captured.event.transaction)
+    }
+
+    func testWithCurrentScope_whenChildSpanIsBound_shouldCorrelateLog() throws {
+        // -- Arrange --
+        var capturedLog: SentryLog?
+        #if !SDK_V10
+        fixture.options.enableLogs = true
+        #endif // !SDK_V10
+        fixture.options.beforeSendLog = { log in
+            capturedLog = log
+            return log
+        }
+        let client = try fixture.getSut()
+        let hub = SentryHubInternal(
+            client: client,
+            andScope: Scope(),
+            activeCrashReporterState: TestSentryCrashReporterState(),
+            andDispatchQueue: SentryDispatchQueueWrapper()
+        )
+        SentrySDKInternal.setCurrentHub(hub)
+        let transaction = SentryTracer(transactionContext: TransactionContext(name: "local transaction", operation: "test"), hub: nil)
+        let child = transaction.startChild(operation: "test.child")
+        defer {
+            child.finish()
+            transaction.finish()
+        }
+        let currentScope = SentrySDK.internal.scope.createScope()
+        currentScope.span = child
+        currentScope.setAttribute(value: "current", key: "scope")
+        XCTAssertNil(hub.scope.span)
+        XCTAssertNotEqual(child.traceId, hub.scope.propagationContextTraceId)
+        XCTAssertNotEqual(child.spanId, transaction.spanId)
+
+        // -- Act --
+        SentrySDK.internal.scope.withCurrentScope(currentScope) {
+            SentrySDK.logger.info("scoped log")
+        }
+
+        // -- Assert --
+        let log = try XCTUnwrap(capturedLog)
+        XCTAssertEqual(log.body, "scoped log")
+        XCTAssertEqual(log.attributes["scope"]?.value as? String, "current")
+        XCTAssertEqual(log.traceId, child.traceId)
+        XCTAssertEqual(log.spanId, child.spanId)
+    }
+
+    func testWithCurrentScope_whenChildSpanIsBound_shouldCorrelateMetrics() throws {
+        // -- Arrange --
+        var capturedMetrics: [SentryMetric] = []
+        fixture.options.beforeSendMetric = { metric in
+            capturedMetrics.append(metric)
+            return metric
+        }
+        let hub = SentrySDKInternal.currentHub()
+        let integration = try XCTUnwrap(
+            SentryMetricsIntegration<SentryDependencyContainer>(
+                with: fixture.options,
+                dependencies: SentryDependencyContainer.sharedInstance()
+            ) as Any as? SentryIntegrationProtocol
+        )
+        hub.addInstalledIntegration(integration, name: SentryMetricsIntegration<SentryDependencyContainer>.name)
+        let transaction = SentryTracer(transactionContext: TransactionContext(name: "local transaction", operation: "test"), hub: nil)
+        let child = transaction.startChild(operation: "test.child")
+        defer {
+            child.finish()
+            transaction.finish()
+        }
+        let currentScope = SentrySDK.internal.scope.createScope()
+        currentScope.span = child
+        currentScope.setAttribute(value: "current", key: "scope")
+        XCTAssertNil(hub.scope.span)
+        XCTAssertNotEqual(child.traceId, hub.scope.propagationContextTraceId)
+        XCTAssertNotEqual(child.spanId, transaction.spanId)
+
+        // -- Act --
+        SentrySDK.internal.scope.withCurrentScope(currentScope) {
+            SentrySDK.metrics.count(key: "scoped.counter", value: 1)
+            SentrySDK.metrics.gauge(key: "scoped.gauge", value: 2)
+            SentrySDK.metrics.distribution(key: "scoped.distribution", value: 3)
+        }
+
+        // -- Assert --
+        XCTAssertEqual(capturedMetrics.map(\.name), ["scoped.counter", "scoped.gauge", "scoped.distribution"])
+        XCTAssertEqual(capturedMetrics.map(\.value), [.counter(1), .gauge(2), .distribution(3)])
+        for metric in capturedMetrics {
+            XCTAssertEqual(metric.attributes["scope"], .string("current"), metric.name)
+            XCTAssertEqual(metric.traceId, child.traceId, metric.name)
+            XCTAssertEqual(metric.spanId, child.spanId, metric.name)
+        }
+    }
+
     // MARK: - Helpers
 
     private func lastSentEvent() -> Event? {

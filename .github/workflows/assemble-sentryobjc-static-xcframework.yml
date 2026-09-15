@@ -93,6 +93,12 @@ jobs:
         run: |
           ./scripts/validate-xcframework.sh --xcframework "SentryObjC-Static.xcframework"
 
+      - name: Validate CMake consumer
+        run: |
+          ./scripts/validate-xcframework-sentryobjc-static.sh \
+            --xcframework "SentryObjC-Static.xcframework" \
+            --build-consumer
+
       - name: Compress XCFramework
         env:
           SIGNED: ${{ inputs.signed }}

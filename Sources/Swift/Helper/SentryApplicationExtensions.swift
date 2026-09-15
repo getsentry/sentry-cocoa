@@ -64,36 +64,40 @@ extension SentryApplication {
     // This cannot be declared with @objc so until we delete more ObjC code it needs a separate
     // function than the objc visible one.
     public func internal_getWindows() -> [UIWindow]? {
-        var windows = Set<UIWindow>()
+        var windows: [UIWindow] = []
         Dependencies.dispatchQueueWrapper.dispatchSyncOnMainQueue({ [weak self] in
-            guard let self else { return }
+            windows = self?.collectWindowsOnCurrentThread() ?? []
+        }, timeout: 0.01)
+        return windows
+    }
 
-            // For each active scene we get the window
-            let scenes = self.connectedScenes
-            for scene in scenes {
-                if scene.activationState == .foregroundActive {
-                    if
-                        let delegate = scene.delegate as? UIWindowSceneDelegate,
-                        let window = delegate.window {
-                        if let window {
-                            windows.insert(window)
-                        }
+    /// Crash-time window access. Must not hop to main; KSCrash has suspended other threads.
+    public func collectWindowsOnCurrentThread() -> [UIWindow] {
+        var windows = Set<UIWindow>()
+
+        // For each active scene we get the window
+        for scene in connectedScenes {
+            if scene.activationState == .foregroundActive {
+                if
+                    let delegate = scene.delegate as? UIWindowSceneDelegate,
+                    let window = delegate.window {
+                    if let window {
+                        windows.insert(window)
                     }
                 }
             }
+        }
 
-            // If no scenes are given, we try to find the window of the application delegate
-            guard let delegate else {
-                SentrySDKLog.debug("No application delegate found.")
-                return
-            }
+        // If no scenes are given, we try to find the window of the application delegate
+        guard let delegate else {
+            return Array(windows)
+        }
 
-            // If scenes are not used, we fallback to the default UIApplicationDelegate.window.
-            // The property is of type UIWindow?? so we need to unwrap both optional layers.
-            if let optionalWindow = delegate.window, let window = optionalWindow {
-                windows.insert(window)
-            }
-        }, timeout: 0.01)
+        // If scenes are not used, we fallback to the default UIApplicationDelegate.window.
+        // The property is of type UIWindow?? so we need to unwrap both optional layers.
+        if let optionalWindow = delegate.window, let window = optionalWindow {
+            windows.insert(window)
+        }
         return Array(windows)
     }
     

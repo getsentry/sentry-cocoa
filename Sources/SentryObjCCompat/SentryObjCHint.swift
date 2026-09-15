@@ -35,6 +35,16 @@ import Foundation
         set { wrapped.originalException = newValue }
     }
 
+    @objc public var urlRequest: URLRequest? {
+        get { wrapped.urlRequest }
+        set { wrapped.urlRequest = newValue }
+    }
+
+    @objc public var httpResponse: HTTPURLResponse? {
+        get { wrapped.httpResponse }
+        set { wrapped.httpResponse = newValue }
+    }
+
     @objc public var attachments: [SentryObjCAttachment] {
         get { wrapped.attachments.map { SentryObjCAttachment($0) } }
         set { wrapped.attachments = newValue.map(\.wrapped) }

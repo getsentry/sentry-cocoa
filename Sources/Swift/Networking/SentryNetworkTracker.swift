@@ -527,7 +527,12 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         }
         event.context = context
 
-        _ = hub.captureErrorEvent(event: event)
+        let hint = Hint()
+        hint.urlRequest = currentRequest
+        if let httpResponse = sessionTask.response as? HTTPURLResponse {
+            hint.httpResponse = httpResponse
+        }
+        _ = hub.captureErrorEvent(event: event, hint: hint)
     }
 
     private func containsStatusCode(_ statusCode: Int, options: Options) -> Bool {
@@ -610,7 +615,13 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
 
         let breadcrumb = Breadcrumb(level: level, category: "http", data: data)
         breadcrumb.type = "http"
-        SentrySDKInternal.addBreadcrumb(breadcrumb)
+
+        let hint = Hint()
+        hint.urlRequest = currentRequest
+        if let httpResponse = sessionTask.response as? HTTPURLResponse {
+            hint.httpResponse = httpResponse
+        }
+        SentrySDKInternal.add(breadcrumb, withHint: hint)
     }
 
     // MARK: - Span status

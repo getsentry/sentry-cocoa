@@ -1849,6 +1849,24 @@ addJSONData(const char *data, int length, void *userData)
     [self expectEquivalentJSONData:encodedData toJSON:expectedJson];
 }
 
+- (void)testAsyncSafeDoubleEncode_DoubleLimits
+{
+    const char *expectedJson = "{\"min\":-1.79769e308,\"max\":1.79769e308}";
+
+    NSMutableData *encodedData = [NSMutableData data];
+    SentryCrashJSONEncodeContext context = { 0 };
+    sentrycrashjson_beginEncode(&context, false, addJSONData, (__bridge void *)(encodedData));
+    sentrycrashjson_beginObject(&context, NULL);
+    XCTAssertEqual(sentrycrashjson_addFloatingPointElementAsyncSafe(&context, "min", -DBL_MAX),
+        SentryCrashJSON_OK);
+    XCTAssertEqual(sentrycrashjson_addFloatingPointElementAsyncSafe(&context, "max", DBL_MAX),
+        SentryCrashJSON_OK);
+    sentrycrashjson_endContainer(&context);
+    sentrycrashjson_endEncode(&context);
+
+    [self expectEquivalentJSONData:encodedData toJSON:expectedJson];
+}
+
 - (void)testFastIntEncode_Int64Limits
 {
     const char *expectedJson = "{\"min\":-9223372036854775808,\"max\":9223372036854775807}";
