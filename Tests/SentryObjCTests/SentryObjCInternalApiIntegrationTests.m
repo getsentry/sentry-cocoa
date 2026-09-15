@@ -12,6 +12,15 @@ static NSString *const kTestDSN = @"https://key@sentry.io/123";
 - (void)setUp
 {
     [super setUp];
+
+#if TARGET_OS_VISION && TARGET_OS_SIMULATOR
+    NSOperatingSystemVersion version = [[NSProcessInfo processInfo] operatingSystemVersion];
+    if (version.majorVersion == 27) {
+        XCTSkip(@"Full SDK start is too slow on visionOS 27 simulator (rdar://FB…)");
+        return;
+    }
+#endif
+
     [SentryObjCSDK startWithConfigureOptions:^(SentryObjCOptions *options) {
         options.dsn = kTestDSN;
         options.enableCrashHandler = NO;
