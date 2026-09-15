@@ -1136,6 +1136,14 @@
                 "printedName": "Swift.Void"
               },
               {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Event",
+                    "printedName": "Sentry.Event",
+                    "usr": "c:objc(cs)SentryEvent"
+                  }
+                ],
                 "kind": "TypeNominal",
                 "name": "Paren",
                 "printedName": "(Sentry.Event)",
