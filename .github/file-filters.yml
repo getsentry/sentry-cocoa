@@ -410,6 +410,18 @@ run_v10_for_prs: &run_v10_for_prs
   # Build configuration
   - "Makefile"
 
+run_thread_inspection_harness_for_prs:
+  - "Sources/Sentry/SentryThreadSnapshot.c"
+  - "Sources/Sentry/SentryThreadSnapshotKSCrash.c"
+  - "Sources/Sentry/include/SentryThreadSnapshot.h"
+  - "Tests/ThreadInspectionHarness/**"
+
+  # GH Actions
+  - ".github/workflows/test-v10.yml"
+  - ".github/file-filters.yml"
+  - ".github/actions/setup-xcode/**"
+  - ".github/actions/ci-diagnostics/**"
+
 run_build_for_prs: &run_build_for_prs
   - "Sources/**"
   - "Samples/**"

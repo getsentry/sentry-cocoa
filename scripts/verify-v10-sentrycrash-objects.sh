@@ -66,15 +66,19 @@ if [[ ! -f "$ALLOWLIST_PATH" ]]; then
   exit 1
 fi
 
-allowlist_assignment_count=$(grep -c "^${ALLOWLIST_SETTING} = " "$ALLOWLIST_PATH" || true)
+allowlist_assignment_count=$(grep -c "^${ALLOWLIST_SETTING} =[[:space:]]*" "$ALLOWLIST_PATH" || true)
 if [[ "$allowlist_assignment_count" -ne 1 ]]; then
   log_error "Expected exactly one $ALLOWLIST_SETTING assignment in $ALLOWLIST_PATH"
   exit 1
 fi
 
-allowlist_assignment=$(grep "^${ALLOWLIST_SETTING} = " "$ALLOWLIST_PATH")
-allowlist_value=${allowlist_assignment#*= }
-read -r -a ALLOWED_SOURCE_NAMES <<< "$allowlist_value"
+allowlist_assignment=$(grep "^${ALLOWLIST_SETTING} =[[:space:]]*" "$ALLOWLIST_PATH")
+allowlist_value=${allowlist_assignment#*=}
+allowlist_value=${allowlist_value# }
+ALLOWED_SOURCE_NAMES=()
+if [[ -n "$allowlist_value" ]]; then
+  read -r -a ALLOWED_SOURCE_NAMES <<< "$allowlist_value"
+fi
 
 contains_value() {
   local expected="$1"
@@ -89,7 +93,7 @@ contains_value() {
 }
 
 validated_allowed_source_names=()
-for source_name in "${ALLOWED_SOURCE_NAMES[@]}"; do
+for source_name in "${ALLOWED_SOURCE_NAMES[@]+${ALLOWED_SOURCE_NAMES[@]}}"; do
   if contains_value "$source_name" "${validated_allowed_source_names[@]+${validated_allowed_source_names[@]}}"; then
     log_error "Duplicate V10 SentryCrash Tool source allowlist entry: $source_name"
     exit 1
@@ -100,11 +104,6 @@ for source_name in "${ALLOWED_SOURCE_NAMES[@]}"; do
   fi
   validated_allowed_source_names+=("$source_name")
 done
-
-if [[ ${#validated_allowed_source_names[@]} -eq 0 ]]; then
-  log_error "V10 SentryCrash Tool source allowlist is empty"
-  exit 1
-fi
 
 SOURCE_PATHS=()
 XCODE_OBJECT_NAMES=()
@@ -156,7 +155,7 @@ is_allowed_source() {
   source_name=$(basename "$source_path")
 
   [[ "$source_path" == "$TOOLS_SOURCE_PATH/$source_name" ]] \
-    && contains_value "$source_name" "${validated_allowed_source_names[@]}"
+    && contains_value "$source_name" "${validated_allowed_source_names[@]+${validated_allowed_source_names[@]}}"
 }
 
 candidate_object_count=0
@@ -209,11 +208,15 @@ while IFS= read -r -d '' object_path; do
 done < <(find "$BUILD_PATH" -type f -name '*.o' -print0)
 
 if [[ $candidate_object_count -eq 0 ]]; then
-  log_error "No SentryCrash source objects found under $BUILD_PATH; the audit did not run"
-  exit 1
+  if [[ ${#validated_allowed_source_names[@]} -eq 0 ]]; then
+    log_notice "Verified no SentryCrash source objects are present"
+  else
+    log_error "No SentryCrash source objects found under $BUILD_PATH; the audit did not run"
+    exit 1
+  fi
 fi
 
-for source_name in "${validated_allowed_source_names[@]}"; do
+for source_name in "${validated_allowed_source_names[@]+${validated_allowed_source_names[@]}}"; do
   if ! contains_value "$source_name" "${compiled_allowed_source_names[@]+${compiled_allowed_source_names[@]}}"; then
     log_error "Allowlisted V10 SentryCrash Tool source did not compile: $source_name"
     violation_count=$((violation_count + 1))
