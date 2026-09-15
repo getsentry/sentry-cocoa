@@ -99,6 +99,9 @@ extension SentryKSCrash {
             // hierarchy but not replay checkpoint or the active trace. Acceptance:
             // SCV10-027 and SCV10-039 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
 #endif
+            sentryThreadInspectionWillInstallCrashHandler()
+            var inspectionInstallationSucceeded = false
+            defer { sentryThreadInspectionDidInstallCrashHandler(inspectionInstallationSucceeded) }
             do {
                 try KSCrash.shared.install(with: config)
             } catch let error as NSError
@@ -108,8 +111,8 @@ extension SentryKSCrash {
                 // The crash handler is already running — treat this as success.
                 SentrySDKLog.debug("KSCrash already installed; continuing.")
             }
-
             self.installPath = URL(fileURLWithPath: installPath, isDirectory: true)
+            inspectionInstallationSucceeded = true
             installed = true
             #if SENTRY_CRASH_E2E
             SentryKSCrash.CrashE2ETestHook.installSyntheticAttachmentProviders()
