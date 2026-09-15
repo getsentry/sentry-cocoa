@@ -355,8 +355,8 @@ These features were added by Sentry and do not exist in upstream KSCrash:
    - `sentrycrash_setSaveTransaction(callback)` -- saves active tracing transaction at crash time
    - Callback defined with `@_cdecl` in Swift
 
-3. **Session Replay Integration** (in `SentryCrashC.c` / V10 `sentrykscrash_didWriteReport`)
-   - `sentrySessionReplaySync_writeInfo()` called during the crash callback after the report is on disk and before screenshot/view-hierarchy capture. Not async-signal-safe (`open`/`write`/`close`), same as V9; does not hop to the main thread.
+3. **Session Replay Integration** (in `SentryCrashC.c`)
+   - `sentrySessionReplaySync_writeInfo()` called during crash callback
 
 4. **Binary Image Cache Hooks** (`SentryCrashBinaryImageCache.c`)
    - `sentry_setRegisterFuncForAddImage/RemoveImage()` for custom dyld tracking
