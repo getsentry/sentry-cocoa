@@ -196,12 +196,7 @@ extension SentryTypedSwizzle {
         method: SentrySwizzleMethod<Receiver, SentryDownloadTaskURLArguments, URLSessionDownloadTask>,
         mode: SentrySwizzleMode,
         key: Key,
-        interceptor: @escaping (
-            Receiver,
-            URL,
-            SentryDownloadTaskCompletionHandler?,
-            @escaping (URL, SentryDownloadTaskCompletionHandler?) -> URLSessionDownloadTask
-        ) -> URLSessionDownloadTask
+        interceptor: @escaping (Receiver, URL, SentryDownloadTaskCompletionHandler?, @escaping (URL, SentryDownloadTaskCompletionHandler?) -> URLSessionDownloadTask) -> URLSessionDownloadTask
     ) -> Bool {
         guard validate(in: classToSwizzle, method: method) else {
             return false
@@ -217,12 +212,7 @@ extension SentryTypedSwizzle {
                 let callOriginal: (AnyObject, URL, SentryDownloadTaskCompletionHandler?) -> URLSessionDownloadTask = { receiver, url, completionHandler in
                     let original = unsafeBitCast(
                         getOriginal(),
-                        to: (@convention(c) (
-                            AnyObject,
-                            Selector,
-                            URL,
-                            SentryDownloadTaskCompletionHandler?
-                        ) -> URLSessionDownloadTask).self
+                        to: (@convention(c) (AnyObject, Selector, URL, SentryDownloadTaskCompletionHandler?) -> URLSessionDownloadTask).self
                     )
                     return original(receiver, method.selector, url, completionHandler)
                 }
@@ -235,11 +225,7 @@ extension SentryTypedSwizzle {
                 return interceptor(typedReceiver, url, completionHandler) { forwardedURL, forwardedCompletionHandler in
                     callOriginal(receiver, forwardedURL, forwardedCompletionHandler)
                 }
-            } as @convention(block) (
-                AnyObject,
-                URL,
-                SentryDownloadTaskCompletionHandler?
-            ) -> URLSessionDownloadTask
+            } as @convention(block) (AnyObject, URL, SentryDownloadTaskCompletionHandler?) -> URLSessionDownloadTask
         }
     }
 
@@ -249,13 +235,7 @@ extension SentryTypedSwizzle {
         method: SentrySwizzleMethod<Receiver, SentryUploadTaskDataArguments, URLSessionUploadTask>,
         mode: SentrySwizzleMode,
         key: Key,
-        interceptor: @escaping (
-            Receiver,
-            URLRequest,
-            Data?,
-            SentryDataTaskCompletionHandler?,
-            @escaping (URLRequest, Data?, SentryDataTaskCompletionHandler?) -> URLSessionUploadTask
-        ) -> URLSessionUploadTask
+        interceptor: @escaping (Receiver, URLRequest, Data?, SentryDataTaskCompletionHandler?, @escaping (URLRequest, Data?, SentryDataTaskCompletionHandler?) -> URLSessionUploadTask) -> URLSessionUploadTask
     ) -> Bool {
         guard validate(in: classToSwizzle, method: method) else {
             return false
@@ -290,12 +270,7 @@ extension SentryTypedSwizzle {
                 return interceptor(typedReceiver, request, data, completionHandler) { forwardedRequest, forwardedData, forwardedCompletionHandler in
                     callOriginal(receiver, forwardedRequest, forwardedData, forwardedCompletionHandler)
                 }
-            } as @convention(block) (
-                AnyObject,
-                URLRequest,
-                Data?,
-                SentryDataTaskCompletionHandler?
-            ) -> URLSessionUploadTask
+            } as @convention(block) (AnyObject, URLRequest, Data?, SentryDataTaskCompletionHandler?) -> URLSessionUploadTask
         }
     }
 }

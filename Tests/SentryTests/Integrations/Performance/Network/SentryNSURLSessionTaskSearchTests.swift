@@ -11,6 +11,43 @@ class SentryNSURLSessionTaskSearchTests: XCTestCase {
     }
 
 #if compiler(>=6.1)
+    func testURLSessionTasks_whenUsingClassicLoader_shouldInheritFromURLSessionTask() throws {
+        // -- Arrange --
+        let configuration = try loaderConfiguration(usesClassicLoadingMode: true)
+
+        // -- Act --
+        let hierarchies = try taskClassHierarchies(configuration: configuration)
+
+        // -- Assert --
+        for hierarchy in hierarchies {
+            XCTAssertTrue(
+                hierarchy.contains { $0 === URLSessionTask.self },
+                "Classic loader task hierarchy changed: \(hierarchy.map(NSStringFromClass)). "
+                    + "Reevaluate SentryDefaultNetworkTracker.isNewLoaderTask."
+            )
+        }
+    }
+
+    func testURLSessionTasks_whenUsingNewLoader_shouldMatchPlatformTaskInheritance() throws {
+        // -- Arrange --
+        let configuration = try loaderConfiguration(usesClassicLoadingMode: false)
+
+        // -- Act --
+        let hierarchies = try taskClassHierarchies(configuration: configuration)
+
+        // -- Assert --
+        for hierarchy in hierarchies {
+            let inheritsFromURLSessionTask = hierarchy.contains { $0 === URLSessionTask.self }
+            let message = "New loader task hierarchy changed: \(hierarchy.map(NSStringFromClass)). "
+                + "Reevaluate SentryDefaultNetworkTracker.isNewLoaderTask."
+#if os(watchOS)
+            XCTAssertTrue(inheritsFromURLSessionTask, message)
+#else
+            XCTAssertFalse(inheritsFromURLSessionTask, message)
+#endif
+        }
+    }
+
     func testURLSessionTask_whenUsingClassicLoader_shouldUseTrackedClasses() throws {
         let configuration = try loaderConfiguration(usesClassicLoadingMode: true)
         let classes = urlSessionTaskClassesToTrack(configuration: configuration)
@@ -79,6 +116,32 @@ class SentryNSURLSessionTaskSearchTests: XCTestCase {
     // MARK: - Helpers
 
 #if compiler(>=6.1)
+
+    private func taskClassHierarchies(configuration: URLSessionConfiguration) throws -> [[AnyClass]] {
+        let session = URLSession(configuration: configuration)
+        let url = try XCTUnwrap(URL(string: "https://example.com"))
+        let tasks: [URLSessionTask] = [
+            session.dataTask(with: url),
+            session.downloadTask(with: url),
+            session.uploadTask(with: URLRequest(url: url), from: Data())
+        ]
+        defer {
+            tasks.forEach { $0.cancel() }
+            session.finishTasksAndInvalidate()
+        }
+
+        // Swift casts accept both loaders' tasks as URLSessionTask, so inspect the actual
+        // Objective-C superclass chain used by SentryDefaultNetworkTracker.isNewLoaderTask.
+        return tasks.map { task in
+            var hierarchy = [AnyClass]()
+            var currentClass: AnyClass? = type(of: task)
+            while let candidate = currentClass {
+                hierarchy.append(candidate)
+                currentClass = class_getSuperclass(candidate)
+            }
+            return hierarchy
+        }
+    }
 
     private func assertClassicLoaderInheritsURLSessionImplementation(
         selector: Selector,
