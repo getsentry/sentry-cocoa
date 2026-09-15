@@ -11,6 +11,7 @@
 - Clear the scope's `replayId` when Session Replay is stopped manually, so events captured after `stop()` are no longer linked to a replay that is no longer recording (#9017)
 - Mark the fabricated `mach` and `signal` crash mechanisms as `synthetic` so an Apple crash groups with the identical crash reported by the other Sentry SDKs (#9004)
 - Set `mechanism.handled` to `false` on crash reports without mach context, which previously left it unset (#9004)
+- Support the new URLSession HTTP loader for automatic network instrumentation (#8845)
 
 ## 9.28.0
 
@@ -83,7 +84,6 @@
 - Prevent relevant view controller traversal from recursively loading parent views and invoking `viewDidLoad` twice when tracing is enabled. (#8941)
 - Classify MetricKit hangs over 500 ms as errors. (#8948)
 - Prevent Session Replay video encoding from reusing pixel buffers retained by AVFoundation. (#8950)
-- Support the new URLSession HTTP loader for automatic network instrumentation (#8845)
 - Prevent deadlock when a signal interrupts memory allocation by avoiding thread-local storage and unsafe formatting during signal handling. (#8271)
 - Remove invalid DWARF references from `SentryObjC-Static` XCFrameworks to prevent `dsymutil` missing-object warnings. (#8979)
 
