@@ -626,6 +626,9 @@ class SentryScopeSwiftTests: XCTestCase {
     }
 
     func testApplyToEvent_whenTransactionTracerIsUnbound_shouldPopulateTransactionTrace() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for non SDK_V10")
+#else
         // -- Arrange --
         let scope = Scope()
         let tracer = SentryTracer(transactionContext: TransactionContext(name: "Tap", operation: "ui.action.click"), hub: nil)
@@ -645,9 +648,13 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(trace["span_id"] as? String, tracer.spanId.sentrySpanIdString)
         XCTAssertEqual(trace["status"] as? String, "cancelled")
         XCTAssertEqual(actual?.context?["custom"]?["key"] as? String, "value")
+#endif // !SDK_V10
     }
 
     func testApplyToEvent_whenAnotherSpanIsBound_shouldUseTransactionTrace() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for non SDK_V10")
+#else
         // -- Arrange --
         let scope = Scope()
         let tracer = SentryTracer(transactionContext: TransactionContext(name: "Tap", operation: "ui.action.click"), hub: nil)
@@ -662,6 +669,7 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(trace["op"] as? String, "ui.action.click")
         XCTAssertEqual(trace["trace_id"] as? String, tracer.traceId.sentryIdString)
         XCTAssertEqual(trace["span_id"] as? String, tracer.spanId.sentrySpanIdString)
+#endif // !SDK_V10
     }
 
     func testApplyToEvent_EventWithError_contextHasTrace() {

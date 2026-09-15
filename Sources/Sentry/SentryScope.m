@@ -12,7 +12,9 @@
 #import "SentrySpanInternal.h"
 #import "SentrySwift.h"
 #import "SentryTracer.h"
-#import "SentryTransaction+Private.h"
+#if SDK_V10
+#    import "SentryTransaction+Private.h"
+#endif // SDK_V10
 #import "SentryTransactionContext.h"
 #import "SentryUser.h"
 
@@ -810,6 +812,7 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
     NSMutableDictionary *context =
         [NSMutableDictionary dictionaryWithDictionary:event.context ?: @{ }];
     NSString *previousTraceId = context[@"trace"][@"trace_id"];
+#if SDK_V10
     if ([event.type isEqualToString:SentryEnvelopeItemTypes.transaction] &&
         [event isKindOfClass:[SentryTransaction class]]) {
         // Transaction capture is asynchronous, so the scope may no longer hold its tracer.
@@ -818,6 +821,9 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
     } else {
         context[@"trace"] = [self buildTraceContext:span];
     }
+#else
+    context[@"trace"] = [self buildTraceContext:span];
+#endif // SDK_V10
     event.context = context;
 
     if ([event.type isEqualToString:SentryEnvelopeItemTypes.transaction]) {
