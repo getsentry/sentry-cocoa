@@ -14,7 +14,7 @@ private final class BlockingMetricProfiler: SentryMetricProfiler {
 }
 #endif
 
-class PrivateSentrySDKOnlyTests: XCTestCase {
+class SentryInternalApiTests: XCTestCase {
 
     override func tearDown() {
         super.tearDown()
@@ -93,7 +93,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         SentrySDKInternal.setCurrentHub(TestHub(client: client, andScope: nil))
 
         let envelope = TestConstants.envelope
-        PrivateSentrySDKOnly.store(envelope)
+        SentrySDK.internal.envelope.store(envelope)
 
         XCTAssertEqual(1, client?.storedEnvelopeInvocations.count)
         XCTAssertEqual(envelope, client?.storedEnvelopeInvocations.first)
@@ -107,7 +107,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         let sessionToBeCrashed = hub.session
 
         let envelope = getUnhandledExceptionEnvelope()
-        PrivateSentrySDKOnly.store(envelope)
+        SentrySDK.internal.envelope.store(envelope)
         
         let storedEnvelope = client?.storedEnvelopeInvocations.first
         let attachedSessionData = try XCTUnwrap(XCTUnwrap(storedEnvelope).items.last?.data)
@@ -124,7 +124,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         SentrySDKInternal.setCurrentHub(TestHub(client: client, andScope: nil))
 
         let envelope = TestConstants.envelope
-        PrivateSentrySDKOnly.capture(envelope)
+        SentrySDK.internal.envelope.capture(envelope)
 
         XCTAssertEqual(1, client?.captureEnvelopeInvocations.count)
         XCTAssertEqual(envelope, client?.captureEnvelopeInvocations.first)
@@ -138,7 +138,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         let sessionToBeCrashed = hub.session
 
         let envelope = getUnhandledExceptionEnvelope()
-        PrivateSentrySDKOnly.capture(envelope)
+        SentrySDK.internal.envelope.capture(envelope)
 
         let capturedEnvelope = client?.captureEnvelopeInvocations.first
         let attachedSessionData = try XCTUnwrap(XCTUnwrap(capturedEnvelope).items.last?.data)
@@ -152,52 +152,52 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     }
 
     func testSetSdkName() {
-        let originalName = PrivateSentrySDKOnly.getSdkName()
+        let originalName = SentrySDK.internal.sdk.name
         let name = "Some SDK name"
         let originalVersion = SentryMeta.versionString
         XCTAssertNotEqual(originalVersion, "")
 
-        PrivateSentrySDKOnly.setSdkName(name)
+        SentrySDK.internal.sdk.name = name
         XCTAssertEqual(SentryMeta.sdkName, name)
         XCTAssertEqual(SentryMeta.versionString, originalVersion)
-        XCTAssertEqual(PrivateSentrySDKOnly.getSdkName(), name)
-        XCTAssertEqual(PrivateSentrySDKOnly.getSdkVersionString(), originalVersion)
+        XCTAssertEqual(SentrySDK.internal.sdk.name, name)
+        XCTAssertEqual(SentrySDK.internal.sdk.versionString, originalVersion)
 
-        PrivateSentrySDKOnly.setSdkName(originalName)
+        SentrySDK.internal.sdk.name = originalName
         XCTAssertEqual(SentryMeta.sdkName, originalName)
         XCTAssertEqual(SentryMeta.versionString, originalVersion)
-        XCTAssertEqual(PrivateSentrySDKOnly.getSdkName(), originalName)
-        XCTAssertEqual(PrivateSentrySDKOnly.getSdkVersionString(), originalVersion)
+        XCTAssertEqual(SentrySDK.internal.sdk.name, originalName)
+        XCTAssertEqual(SentrySDK.internal.sdk.versionString, originalVersion)
     }
 
     func testSetSdkNameAndVersion() {
-        let originalName = PrivateSentrySDKOnly.getSdkName()
-        let originalVersion = PrivateSentrySDKOnly.getSdkVersionString()
+        let originalName = SentrySDK.internal.sdk.name
+        let originalVersion = SentrySDK.internal.sdk.versionString
         let name = "Some SDK name"
         let version = "1.2.3.4"
 
-        PrivateSentrySDKOnly.setSdkName(name, andVersionString: version)
+        SentrySDK.internal.sdk.setName(name, version: version)
         XCTAssertEqual(SentryMeta.sdkName, name)
         XCTAssertEqual(SentryMeta.versionString, version)
-        XCTAssertEqual(PrivateSentrySDKOnly.getSdkName(), name)
-        XCTAssertEqual(PrivateSentrySDKOnly.getSdkVersionString(), version)
+        XCTAssertEqual(SentrySDK.internal.sdk.name, name)
+        XCTAssertEqual(SentrySDK.internal.sdk.versionString, version)
 
-        PrivateSentrySDKOnly.setSdkName(originalName, andVersionString: originalVersion)
+        SentrySDK.internal.sdk.setName(originalName, version: originalVersion)
         XCTAssertEqual(SentryMeta.sdkName, originalName)
         XCTAssertEqual(SentryMeta.versionString, originalVersion)
-        XCTAssertEqual(PrivateSentrySDKOnly.getSdkName(), originalName)
-        XCTAssertEqual(PrivateSentrySDKOnly.getSdkVersionString(), originalVersion)
+        XCTAssertEqual(SentrySDK.internal.sdk.name, originalName)
+        XCTAssertEqual(SentrySDK.internal.sdk.versionString, originalVersion)
 
     }
 
     func testEnvelopeWithData() throws {
         let itemData = Data("{}\n{\"length\":0,\"type\":\"attachment\"}\n".utf8)
-        XCTAssertNotNil(PrivateSentrySDKOnly.envelope(with: itemData))
+        XCTAssertNotNil(SentrySDK.internal.envelope.deserialize(from: itemData))
     }
     
     func testEnvelopeWithDataLengthGtZero() throws {
         let itemData = Data("{}\n{\"length\":1,\"type\":\"attachment\"}\n".utf8)
-        XCTAssertNil(PrivateSentrySDKOnly.envelope(with: itemData))
+        XCTAssertNil(SentrySDK.internal.envelope.deserialize(from: itemData))
     }
 
     #if canImport(UIKit) && !os(watchOS)
@@ -205,10 +205,10 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         let appStartMeasurement = TestData.getAppStartMeasurement(type: .warm, runtimeInitSystemTimestamp: 1)
         SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
 
-        XCTAssertEqual(appStartMeasurement, PrivateSentrySDKOnly.appStartMeasurement)
+        XCTAssertEqual(appStartMeasurement, SentrySDK.internal.appStart.measurement)
 
         SentrySDKInternal.setAppStartMeasurement(nil)
-        XCTAssertNil(PrivateSentrySDKOnly.appStartMeasurement)
+        XCTAssertNil(SentrySDK.internal.appStart.measurement)
     }
 
     func testGetAppStartMeasurementWithSpansCold() throws {
@@ -216,7 +216,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
             TestData.getAppStartMeasurement(type: .cold, runtimeInitSystemTimestamp: 1)
         )
 
-        let actualAppStartMeasurement = try XCTUnwrap(PrivateSentrySDKOnly.appStartMeasurementWithSpans())
+        let actualAppStartMeasurement = try XCTUnwrap(SentrySDK.internal.appStart.measurementWithSpans)
         XCTAssertEqual(try XCTUnwrap(actualAppStartMeasurement["type"] as? String), "cold")
         XCTAssertEqual(try XCTUnwrap(actualAppStartMeasurement["is_pre_warmed"] as? Int), 0)
         let spans = try XCTUnwrap(actualAppStartMeasurement["spans"] as? NSArray)
@@ -235,7 +235,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
                 preWarmed: true)
         )
 
-        let actualAppStartMeasurement = try XCTUnwrap(PrivateSentrySDKOnly.appStartMeasurementWithSpans())
+        let actualAppStartMeasurement = try XCTUnwrap(SentrySDK.internal.appStart.measurementWithSpans)
         XCTAssertEqual(try XCTUnwrap(actualAppStartMeasurement["type"] as? String), "warm")
         XCTAssertEqual( try XCTUnwrap(actualAppStartMeasurement["is_pre_warmed"] as? Int), 1)
 
@@ -274,7 +274,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
                 sdkStartTimestamp: Date(timeIntervalSince1970: 10))
         )
 
-        let actualAppStartMeasurement = try XCTUnwrap(PrivateSentrySDKOnly.appStartMeasurementWithSpans())
+        let actualAppStartMeasurement = try XCTUnwrap(SentrySDK.internal.appStart.measurementWithSpans)
             
         XCTAssertTrue(actualAppStartMeasurement["app_start_timestamp_ms"] is NSNumber)
         XCTAssertTrue(actualAppStartMeasurement["runtime_init_timestamp_ms"] is NSNumber)
@@ -289,15 +289,15 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     #endif
 
     func testGetInstallationId() throws {
-        let options = PrivateSentrySDKOnly.options
-        XCTAssertEqual(SentryInstallation.id(withCacheDirectoryPath: options.cacheDirectoryPath), PrivateSentrySDKOnly.installationID)
+        let options = SentrySDK.internal.options
+        XCTAssertEqual(SentryInstallation.id(withCacheDirectoryPath: options.cacheDirectoryPath), SentrySDK.internal.sdk.installationID)
     }
 
     func testSendAppStartMeasurement() {
-        XCTAssertFalse(PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode)
+        XCTAssertFalse(SentrySDK.internal.appStart.hybridSDKMode)
 
-        PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = true
-        XCTAssertTrue(PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode)
+        SentrySDK.internal.appStart.hybridSDKMode = true
+        XCTAssertTrue(SentrySDK.internal.appStart.hybridSDKMode)
     }
 
     func testOptions() {
@@ -306,19 +306,19 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         let client = TestClient(options: options)
         SentrySDKInternal.setCurrentHub(TestHub(client: client, andScope: nil))
 
-        XCTAssertEqual(PrivateSentrySDKOnly.options, options)
+        XCTAssertEqual(SentrySDK.internal.options, options)
     }
 
     func testDefaultOptions() throws {
-        XCTAssertNotNil(PrivateSentrySDKOnly.options)
-        let defaultOptions = PrivateSentrySDKOnly.options
+        XCTAssertNotNil(SentrySDK.internal.options)
+        let defaultOptions = SentrySDK.internal.options
         XCTAssertNil(defaultOptions.dsn)
         XCTAssertEqual(defaultOptions.enabled, true)
     }
 
     #if !os(tvOS) && !os(watchOS) && !os(visionOS)
     /**
-      * Smoke Tests profiling via PrivateSentrySDKOnly. Actual profiling unit tests are done elsewhere.
+      * Smoke Tests profiling via SentrySDK.internal.profiling. Actual profiling unit tests are done elsewhere.
      */
     func testProfilingStartAndCollect() throws {
         let image = DebugMeta()
@@ -343,13 +343,13 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
 
         let traceIdA = SentryId()
 
-        let startTime = PrivateSentrySDKOnly.startProfiler(forTrace: traceIdA)
+        let startTime = SentrySDK.internal.profiling.start(for: traceIdA)
         XCTAssertGreaterThan(startTime, 0)
         guard waitForProfilerSamples() else {
             return
         }
         let endTime = SentryDependencyContainer.sharedInstance().dateProvider.systemTime()
-        let payload = PrivateSentrySDKOnly.collectProfileBetween(startTime, and: endTime, forTrace: traceIdA)
+        let payload = SentrySDK.internal.profiling.collect(between: startTime, and: endTime, for: traceIdA)
         XCTAssertNotNil(payload)
         XCTAssertEqual(payload?["platform"] as? String, "cocoa")
         
@@ -384,14 +384,14 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
 
         let traceIdA = SentryId()
 
-        let startTime = PrivateSentrySDKOnly.startProfiler(forTrace: traceIdA)
+        let startTime = SentrySDK.internal.profiling.start(for: traceIdA)
         XCTAssertGreaterThan(startTime, 0)
         Thread.sleep(forTimeInterval: 0.2)
-        PrivateSentrySDKOnly.discardProfiler(forTrace: traceIdA)
+        SentrySDK.internal.profiling.discard(for: traceIdA)
         // how can we test that that this fails with an NCAssert failure?
         //        XCTAssertThrowsError(
-        //            PrivateSentrySDKOnly.collectProfileBetween(
-        //            startTime, and: startTime + 200_000_000, forTrace: traceIdA)
+        //            SentrySDK.internal.profiling.collect(
+        //            between: startTime, and: startTime + 200_000_000, for: traceIdA)
         //        ) { error in
         //            XCTAssertTrue(error is NSException)
         //        }
@@ -401,9 +401,9 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     #if os(iOS) || os(tvOS)
 
     func testIsFramesTrackingRunning() {
-        XCTAssertFalse(PrivateSentrySDKOnly.isFramesTrackingRunning)
+        XCTAssertFalse(SentrySDK.internal.performance.isFramesTrackingRunning)
         SentryDependencyContainer.sharedInstance().framesTracker.start()
-        XCTAssertTrue(PrivateSentrySDKOnly.isFramesTrackingRunning)
+        XCTAssertTrue(SentrySDK.internal.performance.isFramesTrackingRunning)
     }
 
     func testGetFrames() {
@@ -419,7 +419,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         let normal = 100
         displayLink.renderFrames(slow, frozen, normal)
 
-        let currentFrames = PrivateSentrySDKOnly.currentScreenFrames
+        let currentFrames = SentrySDK.internal.performance.currentScreenFrames
         XCTAssertEqual(UInt(slow + frozen + normal), currentFrames.total)
         XCTAssertEqual(UInt(frozen), currentFrames.frozen)
         XCTAssertEqual(UInt(slow), currentFrames.slow)
@@ -453,14 +453,14 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         let newIMP = imp_implementationWithBlock(block)
         method_setImplementation(originalMethod, newIMP)      
 
-        PrivateSentrySDKOnly.captureReplay()
+        SentrySDK.internal.replay.capture()
 
         XCTAssertTrue(didCallCaptureReplay, "Expected SentrySessionReplayIntegration.captureReplay to be called")
         method_setImplementation(originalMethod, originalIMP)
     }
 
     func testGetReplayIdShouldBeNil() {
-        XCTAssertNil(PrivateSentrySDKOnly.getReplayId())
+        XCTAssertNil(SentrySDK.internal.replay.replayId)
     }
 
     func testGetReplayIdShouldExist() {
@@ -469,7 +469,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         scope.replayId = VALID_REPLAY_ID
         SentrySDKInternal.setCurrentHub(TestHub(client: client, andScope: scope))
 
-        XCTAssertEqual(PrivateSentrySDKOnly.getReplayId(), VALID_REPLAY_ID)
+        XCTAssertEqual(SentrySDK.internal.replay.replayId, VALID_REPLAY_ID)
     }
 
     func testAddReplayIgnoreClassesShouldNotFailWhenReplayIsAvailable() {
@@ -477,7 +477,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         options.sessionReplay = .init()
         SentrySDKInternal.start(options: options)
 
-        PrivateSentrySDKOnly.addReplayIgnoreClasses([UILabel.self])
+        SentrySDK.internal.replay.addIgnoreClasses([UILabel.self])
     }
 
     func testAddReplayRedactShouldNotFailWhenReplayIsAvailable() {
@@ -485,7 +485,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         options.sessionReplay = .init()
         SentrySDKInternal.start(options: options)
 
-        PrivateSentrySDKOnly.addReplayRedactClasses([UILabel.self])
+        SentrySDK.internal.replay.addRedactClasses([UILabel.self])
     }
 
     func testAddIgnoreContainer() throws {
@@ -496,7 +496,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
             $0.sessionReplay = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
         }
 
-        PrivateSentrySDKOnly.setIgnoreContainerClass(IgnoreContainer.self)
+        SentrySDK.internal.replay.setIgnoreContainerClass(IgnoreContainer.self)
 
         let replayIntegration = try getFirstIntegrationAsReplay()
 
@@ -512,7 +512,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
             $0.sessionReplay = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
         }
 
-        PrivateSentrySDKOnly.setRedactContainerClass(RedactContainer.self)
+        SentrySDK.internal.replay.setRedactContainerClass(RedactContainer.self)
 
         let replayIntegration = try getFirstIntegrationAsReplay()
 
@@ -528,8 +528,8 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     #endif // SENTRY_TARGET_REPLAY_SUPPORTED
 
     func testAddExtraSdkPackages() throws {
-        PrivateSentrySDKOnly.addSdkPackage("package1", version: "version1")
-        PrivateSentrySDKOnly.addSdkPackage("package2", version: "version2")
+        SentrySDK.internal.sdk.addPackage(name: "package1", version: "version1")
+        SentrySDK.internal.sdk.addPackage(name: "package2", version: "version2")
 
         // In swift the order is not guaranteed
         let packages = try SentrySdkInfo.global().packages.sorted { package1, package2 in
@@ -568,7 +568,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         SentrySDKInternal.setCurrentHub(hub)
         
         // -- Act --
-        PrivateSentrySDKOnly.setTrace(traceId, spanId: spanId)
+        SentrySDK.internal.setTrace(traceId, spanId: spanId)
         
         // -- Assert --        
         XCTAssertEqual(scope.propagationContext.traceId, traceId)

@@ -98,7 +98,7 @@
     [SentryObjCSDK close];
 
     // -- Assert --
-    XCTAssertEqualObjects([SentryObjCPrivateSDKOnly getSdkName], @"sentry.cocoa");
+    XCTAssertEqualObjects(SentryObjCSDK.internal.sdk.name, @"sentry.cocoa");
 }
 
 - (void)testIsEnabled_whenStarted_shouldReturnTrue

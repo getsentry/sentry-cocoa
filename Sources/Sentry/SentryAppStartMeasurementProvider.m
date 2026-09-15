@@ -2,7 +2,6 @@
 
 #if SENTRY_HAS_UIKIT
 
-#    import "PrivateSentrySDKOnly.h"
 #    import "SentryAppStartMeasurement.h"
 #    import "SentryId.h"
 #    import "SentryInternalCDefines.h"
@@ -49,7 +48,7 @@ static NSString *_Nullable appStartScreen;
     }
 
     // Hybrid SDKs send the app start measurement themselves.
-    if (PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode) {
+    if (SentrySDKInternal.appStartMeasurementHybridSDKMode) {
         SENTRY_LOG_DEBUG(@"Not returning app start measurements because hybrid SDK will do it in "
                          @"its own routine.");
         return nil;

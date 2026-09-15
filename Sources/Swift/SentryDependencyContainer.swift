@@ -865,7 +865,8 @@ protocol InstallationIdProvider {
 
 struct DefaultInstallationIdProvider: InstallationIdProvider {
     var installationID: String {
-        PrivateSentrySDKOnly.installationID
+        let options = SentrySDKInternal.currentHub().getClient()?.getOptions() as? Options ?? Options()
+        return SentryInstallation.id(withCacheDirectoryPath: options.cacheDirectoryPath)
     }
 }
 
@@ -964,7 +965,7 @@ protocol BreadcrumbDeserializer {
 
 struct DefaultBreadcrumbDeserializer: BreadcrumbDeserializer {
     func breadcrumb(from dictionary: [String: Any]) -> Breadcrumb {
-        PrivateSentrySDKOnly.breadcrumb(with: dictionary)
+        Breadcrumb(dictionary: dictionary)
     }
 }
 
@@ -982,7 +983,7 @@ protocol UserDeserializer {
 
 struct DefaultUserDeserializer: UserDeserializer {
     func user(from dictionary: [String: Any]) -> User {
-        PrivateSentrySDKOnly.user(with: dictionary)
+        User(dictionary: dictionary)
     }
 }
 
