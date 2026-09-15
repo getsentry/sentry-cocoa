@@ -1,0 +1,1 @@
+../../../../Sources/Sentry/SentryThreadSnapshot.c

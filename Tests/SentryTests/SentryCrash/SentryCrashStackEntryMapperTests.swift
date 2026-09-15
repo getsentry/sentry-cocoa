@@ -1,3 +1,4 @@
+#if !SDK_V10
 @_spi(Private) import SentryTestUtils
 @_spi(Private) @testable import Sentry
 import XCTest
@@ -68,3 +69,4 @@ class SentryCrashStackEntryMapperTests: XCTestCase {
         return binaryImage
     }
 }
+#endif // !SDK_V10
