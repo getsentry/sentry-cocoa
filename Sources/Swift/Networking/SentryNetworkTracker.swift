@@ -16,6 +16,7 @@ protocol SentryNetworkTrackerProtocol: AnyObject {
 
     func urlSessionTaskResume(_ sessionTask: URLSessionTask)
     func urlSessionTask(_ sessionTask: URLSessionTask, setState newState: URLSessionTask.State)
+    func urlSessionTaskCompleted(_ sessionTask: URLSessionTask, error: Error?)
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     func captureResponseDetails(_ data: Data, response: URLResponse, request requestURL: URL, task: URLSessionTask)
 #endif
@@ -125,6 +126,10 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         // object if the task completes on another thread between repeated accesses.
         guard let currentRequest = sessionTask.currentRequest,
               let url = currentRequest.url else {
+            return
+        }
+
+        if isNewLoaderTask(sessionTask), !sessionTask.usesNewLoaderCompletionHandler {
             return
         }
 
@@ -260,6 +265,29 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
     }
 
     func urlSessionTask(_ sessionTask: URLSessionTask, setState newState: URLSessionTask.State) {
+        completeURLSessionTask(
+            sessionTask,
+            state: newState,
+            error: sessionTask.error,
+            captureRequest: sessionTask.state == .running || sessionTask.state == .suspended
+        )
+    }
+
+    func urlSessionTaskCompleted(_ sessionTask: URLSessionTask, error: Error?) {
+        completeURLSessionTask(
+            sessionTask,
+            state: (error as? URLError)?.code == .cancelled ? .canceling : .completed,
+            error: error,
+            captureRequest: true
+        )
+    }
+
+    private func completeURLSessionTask(
+        _ sessionTask: URLSessionTask,
+        state newState: URLSessionTask.State,
+        error: Error?,
+        captureRequest: Bool
+    ) {
         let featureState = state.withLock { $0 }
         if !featureState.isNetworkTrackingEnabled
             && !featureState.isNetworkBreadcrumbEnabled
@@ -302,7 +330,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
 
         let responseStatusCode = urlResponseStatusCode(sessionTask.response)
         let completion = URLSessionTaskNetworkTrackerState.SpanCompletion(
-            status: status(for: sessionTask, state: newState),
+            status: status(for: sessionTask, state: newState, error: error),
             responseStatusCode: responseStatusCode == -1 ? nil : responseStatusCode
         )
 
@@ -328,10 +356,19 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         // still reflects the previous state. We check for Running and Suspended to cover:
         //   - running → completed/canceling (normal completion or cancellation)
         //   - suspended → canceling (task cancelled while suspended)
-        if sessionTask.state == .running || sessionTask.state == .suspended {
-            captureFailedRequest(for: sessionTask, currentRequest: currentRequest, options: options, featureState: featureState)
-            addBreadcrumb(for: sessionTask, currentRequest: currentRequest, options: options, featureState: featureState)
-
+        if captureRequest {
+            captureFailedRequest(
+                for: sessionTask,
+                currentRequest: currentRequest,
+                options: options,
+                featureState: featureState
+            )
+            addBreadcrumb(
+                for: sessionTask,
+                currentRequest: currentRequest,
+                options: options,
+                featureState: featureState
+            )
         }
 
         if let networkSpan {
@@ -346,6 +383,13 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
               isNetworkDetailCaptureEnabled(for: urlString, options: options) else {
             return
         }
+
+        // New-loader tasks have no setState: hook to initialize details before this callback.
+        captureRequestDetails(
+            for: task,
+            networkCaptureBodies: options.sessionReplay.networkCaptureBodies,
+            networkRequestHeaders: options.sessionReplay.networkRequestHeaders
+        )
 
         guard let details = task.networkDetails else {
             SentrySDKLog.warning("[NetworkCapture] No SentryReplayNetworkDetails found for \(urlString) - skipping response capture")
@@ -604,12 +648,16 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         (response as? HTTPURLResponse)?.statusCode ?? -1
     }
 
-    func status(for task: URLSessionTask, state: URLSessionTask.State) -> SentrySpanStatus {
+    func status(
+        for task: URLSessionTask,
+        state: URLSessionTask.State,
+        error: Error? = nil
+    ) -> SentrySpanStatus {
         switch state {
         case .canceling:
             return .cancelled
         case .completed:
-            if task.error != nil {
+            if error != nil || task.error != nil {
                 return .unknownError
             }
             return spanStatus(forHTTPResponseStatusCode: urlResponseStatusCode(task.response))
@@ -733,6 +781,28 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         }
 
         return url.host == apiHost && url.path.contains(apiURL.path)
+    }
+
+    private func isNewLoaderTask(_ task: URLSessionTask) -> Bool {
+        // Both loaders expose tasks through the public URLSessionTask API, but their private
+        // Objective-C runtime implementations have different class hierarchies.
+        // Classic loader task classes inherit from URLSessionTask and expose the private setState:
+        // transition that we swizzle to observe completion.
+        //
+        // The Network.framework loader does not inherit from URLSessionTask or use its state
+        // transition. It can copy swizzled methods from URLSessionTask during initialization, so
+        // the presence of setState: alone cannot identify the loader. We observe new-loader
+        // completion by wrapping the public factory completion handler instead.
+        // Detecting that hierarchy here prevents us from starting spans for new-loader tasks whose
+        // completion we cannot observe, which would leave those spans unfinished.
+        var currentClass: AnyClass? = type(of: task)
+        while let candidate = currentClass {
+            if candidate === URLSessionTask.self {
+                return false
+            }
+            currentClass = class_getSuperclass(candidate)
+        }
+        return true
     }
 
     private func isDuplicateTask(_ request: URLRequest, currentSpan: Span?) -> Bool {
