@@ -8,7 +8,7 @@ The Swift entry point is `SentrySDK.internal`. Its extension is defined in [`Sou
 
 Objective-C consumers use `SentryObjCSDK.internal`. Its declaration is in [`Sources/SentryObjC/Public/SentryObjCSDK.h`](../Sources/SentryObjC/Public/SentryObjCSDK.h), and its implementation is in [`Sources/SentryObjCCompat/SentryObjCSDK.swift`](../Sources/SentryObjCCompat/SentryObjCSDK.swift).
 
-The legacy `PrivateSentrySDKOnly` class and header have been removed. Swift consumers should use `import Sentry` and the structured APIs above. Objective-C consumers should import `<SentryObjC/SentryObjC.h>`. The separate `SentryObjCPrivateSDKOnly` compatibility API remains available and delegates to the structured Swift APIs.
+The legacy `PrivateSentrySDKOnly` and `SentryObjCPrivateSDKOnly` classes and headers have been removed. Swift consumers should use `import Sentry` and `SentrySDK.internal`. Objective-C consumers should import `<SentryObjC/SentryObjC.h>` and use `SentryObjCSDK.internal`.
 
 ## Finding an API
 

@@ -1,13 +1,31 @@
-@testable import Sentry
+@_spi(Private) import SentryTestUtils
+@_spi(Private) @testable import Sentry
 import XCTest
 
 #if !(os(watchOS) || os(tvOS) || os(visionOS))
 
 class SentryInternalProfilingApiTests: XCTestCase {
 
-    private let sut = SentryInternalProfilingApi()
+    private let sut = SentryInternalProfilingApi(dependencies: SentryDependencyContainer.sharedInstance())
 
     // MARK: - start
+
+    func testStart_whenDateProviderIsInjected_shouldReturnItsSystemTime() {
+        // -- Arrange --
+        let dateProvider = TestCurrentDateProvider()
+        dateProvider.advanceBy(nanoseconds: 123_456)
+        let dependencies = SentryDependencyContainer()
+        dependencies.dateProvider = dateProvider
+        let api = SentryInternalApi(dependencies: dependencies)
+        let traceId = SentryId()
+        defer { api.profiling.discard(for: traceId) }
+
+        // -- Act --
+        let startTime = api.profiling.start(for: traceId)
+
+        // -- Assert --
+        XCTAssertEqual(startTime, 123_456)
+    }
 
     func testStart_withoutSDK_shouldReturnNonZero() {
         // Profiler uses kernel APIs and can start without the SDK.

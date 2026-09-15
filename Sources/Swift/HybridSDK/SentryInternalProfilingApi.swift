@@ -7,13 +7,19 @@ import Foundation
 /// Provides profiling operations for hybrid SDKs.
 public struct SentryInternalProfilingApi {
 
-    init() {}
+    typealias Dependencies = DateProviderProvider
+
+    private let dateProvider: SentryCurrentDateProvider
+
+    init(dependencies: Dependencies) {
+        self.dateProvider = dependencies.dateProvider
+    }
 
     /// Starts a profiler session for the given trace ID.
     /// Returns the system time when the profiler session started.
     public func start(for traceId: SentryId) -> UInt64 {
         SentryTraceProfiler.start(withTracer: traceId)
-        return SentryDependencyContainer.sharedInstance().dateProvider.systemTime()
+        return dateProvider.systemTime()
     }
 
     /// Collects profiler data between the given system times for the trace.
