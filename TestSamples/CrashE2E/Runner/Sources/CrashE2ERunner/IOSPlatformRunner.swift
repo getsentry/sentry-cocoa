@@ -80,6 +80,10 @@ final class IOSPlatformRunner {
             try runKSCrashRetryScenario(container: container)
             return
         }
+        if scenario == .sigterm {
+            try runSigtermScenario(container: container)
+            return
+        }
 
         let markerPath = managedRuntimeMarkerPath(for: scenario, container: container)
         if let markerPath {
@@ -112,7 +116,7 @@ final class IOSPlatformRunner {
         }
     }
 
-    private func drainPreviousCrash(for scenario: Scenario) throws {
+    func drainPreviousCrash(for scenario: Scenario) throws {
         log("Relaunching iOS app to drain previous crash.")
         let result = try launchApp(arguments: ["--scenario", "drain", "--exit-after", "3"])
         try assertLaunchSucceeded(result, scenario: scenario, launchType: "drain")
@@ -181,6 +185,9 @@ final class IOSPlatformRunner {
         )
         try fileManager.removeItemIfExists(
             at: cacheRoot.appendingPathComponent("KSCrash", isDirectory: true)
+        )
+        try fileManager.removeItemIfExists(
+            at: cacheRoot.appendingPathComponent("SentryCrash", isDirectory: true)
         )
     }
 

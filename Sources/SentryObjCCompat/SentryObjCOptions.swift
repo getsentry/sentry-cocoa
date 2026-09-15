@@ -74,12 +74,13 @@ import Foundation
     }
     #endif
 
-    #if !os(watchOS)
+    #if !os(watchOS) && !SDK_V10
+    @available(*, deprecated, message: "This property will be removed in v10. KSCrash always catches SIGTERM, records a clean exit, and never writes a crash report for it.")
     @objc public var enableSigtermReporting: Bool {
         get { wrapped.enableSigtermReporting }
         set { wrapped.enableSigtermReporting = newValue }
     }
-    #endif
+    #endif // !os(watchOS) && !SDK_V10
 
     @objc public var maxBreadcrumbs: UInt {
         get { wrapped.maxBreadcrumbs }

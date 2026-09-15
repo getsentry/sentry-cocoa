@@ -105,7 +105,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
     private func startCrashHandler(options: Options, dependencies: Dependencies) {
         var enableSigtermReporting = false
         #if !os(watchOS)
-        enableSigtermReporting = options.enableSigtermReporting
+        enableSigtermReporting = options._enableSigtermReporting
         #endif
 
         var enableReportingUncaughtExceptions = false
