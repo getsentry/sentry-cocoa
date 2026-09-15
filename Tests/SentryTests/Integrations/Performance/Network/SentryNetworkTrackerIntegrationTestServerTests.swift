@@ -16,6 +16,16 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
     }
 
 #if compiler(>=6.1)
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    func testDataTaskWithURL_whenUsingNewLoader_shouldCaptureReplayResponse() throws {
+        try assertNewLoaderReplayResponse(useURLRequest: false)
+    }
+
+    func testDataTaskWithRequest_whenUsingNewLoader_shouldCaptureReplayResponse() throws {
+        try assertNewLoaderReplayResponse(useURLRequest: true)
+    }
+#endif
+
     func testDataTask_whenUsingClassicLoader_shouldTrackRequest() throws {
         try assertNetworkTracking(usesClassicLoadingMode: true)
     }
@@ -469,6 +479,55 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
     }
 
 #if compiler(>=6.1)
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    private func assertNewLoaderReplayResponse(
+        useURLRequest: Bool,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) throws {
+        // -- Arrange --
+        guard #available(iOS 18.4, tvOS 18.4, visionOS 2.4, *) else {
+            throw XCTSkip("The selected OS does not support choosing the URLSession HTTP loader.")
+        }
+        try ensureTestServerIsRunning()
+        let url = try XCTUnwrap(URL(string: "http://localhost:8081/echo-sentry-trace"))
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.usesClassicLoadingMode = false
+        let session = URLSession(configuration: configuration)
+        defer { session.finishTasksAndInvalidate() }
+        startSDK { options in
+            options.enableNetworkBreadcrumbs = true
+            options.sessionReplay.networkDetailAllowUrls = ["localhost"]
+            options.sessionReplay.networkCaptureBodies = true
+            options.sessionReplay.networkResponseHeaders = ["Content-Type"]
+        }
+        let requestCompleted = expectation(description: "Request completed")
+        let completion: @Sendable (Data?, URLResponse?, Error?) -> Void = { data, response, error in
+            XCTAssertNil(error, file: file, line: line)
+            XCTAssertEqual(String(data: data ?? Data(), encoding: .utf8), "(NO-HEADER)", file: file, line: line)
+            XCTAssertEqual((response as? HTTPURLResponse)?.statusCode, 200, file: file, line: line)
+            requestCompleted.fulfill()
+        }
+        let task = useURLRequest
+            ? session.dataTask(with: URLRequest(url: url), completionHandler: completion)
+            : session.dataTask(with: url, completionHandler: completion)
+
+        // -- Act --
+        task.resume()
+        wait(for: [requestCompleted], timeout: 10)
+
+        // -- Assert --
+        let details = try XCTUnwrap(task.networkDetails, file: file, line: line).serialize()
+        XCTAssertEqual(details["statusCode"] as? Int, 200, file: file, line: line)
+        XCTAssertEqual(details["responseBodySize"] as? Int, Data("(NO-HEADER)".utf8).count, file: file, line: line)
+        let response = try XCTUnwrap(details["response"] as? [String: Any], file: file, line: line)
+        let headers = try XCTUnwrap(response["headers"] as? [String: String], file: file, line: line)
+        XCTAssertEqual(headers["Content-Type"], "text/plain; charset=utf-8", file: file, line: line)
+        let body = try XCTUnwrap(response["body"] as? [String: Any], file: file, line: line)
+        XCTAssertEqual(body["body"] as? String, SentryTestSetup.isV10 ? "[Filtered]" : "(NO-HEADER)", file: file, line: line)
+    }
+#endif
+
     private func assertNetworkTracking(
         usesClassicLoadingMode: Bool,
         file: StaticString = #file,

@@ -384,6 +384,13 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             return
         }
 
+        // New-loader tasks have no setState: hook to initialize details before this callback.
+        captureRequestDetails(
+            for: task,
+            networkCaptureBodies: options.sessionReplay.networkCaptureBodies,
+            networkRequestHeaders: options.sessionReplay.networkRequestHeaders
+        )
+
         guard let details = task.networkDetails else {
             SentrySDKLog.warning("[NetworkCapture] No SentryReplayNetworkDetails found for \(urlString) - skipping response capture")
             return
@@ -782,8 +789,10 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         // Classic loader task classes inherit from URLSessionTask and expose the private setState:
         // transition that we swizzle to observe completion.
         //
-        // The Network.framework loader's task classes do neither, so we can only observe their
-        // completion by wrapping the public factory completion handler.
+        // The Network.framework loader does not inherit from URLSessionTask or use its state
+        // transition. It can copy swizzled methods from URLSessionTask during initialization, so
+        // the presence of setState: alone cannot identify the loader. We observe new-loader
+        // completion by wrapping the public factory completion handler instead.
         // Detecting that hierarchy here prevents us from starting spans for new-loader tasks whose
         // completion we cannot observe, which would leave those spans unfinished.
         var currentClass: AnyClass? = type(of: task)

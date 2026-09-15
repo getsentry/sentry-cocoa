@@ -57,17 +57,34 @@ class SentryNSURLSessionTaskSearchTests: XCTestCase {
     }
 
     func testURLSessionTask_whenUsingNewLoader_shouldMatchPlatformTrackingSupport() throws {
+        // -- Arrange --
         let configuration = try loaderConfiguration(usesClassicLoadingMode: false)
+#if !os(watchOS)
+        let selector = NSSelectorFromString("setState:")
+        let classicMethod = try XCTUnwrap(class_getInstanceMethod(URLSessionTask.self, selector))
+        let classicImplementation = method_getImplementation(classicMethod)
+#endif
+
+        // -- Act --
         let classes = urlSessionTaskClassesToTrack(configuration: configuration)
 
+        // -- Assert --
 #if os(watchOS)
         XCTAssertEqual(classes.count, 1)
         XCTAssertTrue(classes.first === URLSessionTask.self)
 #else
-        XCTAssertTrue(
-            classes.isEmpty,
-            "The new loader now exposes a setState: implementation. Reevaluate network tracking support."
-        )
+        // Network.framework copies swizzled URLSessionTask methods when the new loader first
+        // initializes. A copied setter is not a native state transition hook, so its presence
+        // depends on whether the SDK started before the first new-loader session was created.
+        for taskClass in classes {
+            let method = try XCTUnwrap(class_getInstanceMethod(taskClass, selector))
+            XCTAssertEqual(
+                method_getImplementation(method),
+                classicImplementation,
+                "The new loader now exposes an independent setState: implementation on \(NSStringFromClass(taskClass)). "
+                    + "Reevaluate network tracking support."
+            )
+        }
 #endif
     }
 
