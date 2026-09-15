@@ -6,22 +6,21 @@ import XCTest
 
 class SentryInternalProfilingApiTests: XCTestCase {
 
-    private let sut = SentryInternalProfilingApi(dependencies: SentryDependencyContainer.sharedInstance())
+    private let mockDateProvider = TestCurrentDateProvider()
+    private lazy var sut = SentryInternalProfilingApi(
+        dependencies: MockProfilingDependencies(dateProvider: mockDateProvider)
+    )
 
     // MARK: - start
 
     func testStart_whenDateProviderIsInjected_shouldReturnItsSystemTime() {
         // -- Arrange --
-        let dateProvider = TestCurrentDateProvider()
-        dateProvider.advanceBy(nanoseconds: 123_456)
-        let dependencies = SentryDependencyContainer()
-        dependencies.dateProvider = dateProvider
-        let api = SentryInternalApi(dependencies: dependencies)
+        mockDateProvider.advanceBy(nanoseconds: 123_456)
         let traceId = SentryId()
-        defer { api.profiling.discard(for: traceId) }
+        defer { sut.discard(for: traceId) }
 
         // -- Act --
-        let startTime = api.profiling.start(for: traceId)
+        let startTime = sut.start(for: traceId)
 
         // -- Assert --
         XCTAssertEqual(startTime, 123_456)
@@ -29,21 +28,31 @@ class SentryInternalProfilingApiTests: XCTestCase {
 
     func testStart_withoutSDK_shouldReturnNonZero() {
         // Profiler uses kernel APIs and can start without the SDK.
+        mockDateProvider.advanceBy(nanoseconds: 123_456)
         let traceId = SentryId()
         let startTime = sut.start(for: traceId)
         XCTAssertGreaterThan(startTime, 0)
         sut.discard(for: traceId)
     }
 
-    func testStart_withoutSDK_multipleCalls_shouldAllReturnNonZero() {
+    func testStart_withoutSDK_multipleCalls_shouldReturnCurrentSystemTime() {
+        // -- Arrange --
+        mockDateProvider.advanceBy(nanoseconds: 123_456)
         let traceA = SentryId()
         let traceB = SentryId()
+        defer {
+            sut.discard(for: traceA)
+            sut.discard(for: traceB)
+        }
+
+        // -- Act --
         let startA = sut.start(for: traceA)
+        mockDateProvider.advanceBy(nanoseconds: 654_321)
         let startB = sut.start(for: traceB)
-        XCTAssertGreaterThan(startA, 0)
-        XCTAssertGreaterThan(startB, 0)
-        sut.discard(for: traceA)
-        sut.discard(for: traceB)
+
+        // -- Assert --
+        XCTAssertEqual(startA, 123_456)
+        XCTAssertEqual(startB, 777_777)
     }
 
     // MARK: - collect
@@ -80,6 +89,10 @@ class SentryInternalProfilingApiTests: XCTestCase {
     func testDiscard_withUnknownTraceId_shouldNotCrash() {
         sut.discard(for: SentryId())
     }
+}
+
+private struct MockProfilingDependencies: DateProviderProvider {
+    var dateProvider: SentryCurrentDateProvider
 }
 
 #endif
