@@ -615,6 +615,13 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) BOOL reportAccessibilityIdentifier;
 
 /**
+ * When enabled, the SDK extracts text from child views to label interaction breadcrumbs.
+ * Disable this option if visible text in your app can contain PII.
+ * @note Default value is @c YES.
+ */
+@property (nonatomic) BOOL enableBreadcrumbTextExtraction;
+
+/**
  * When enabled, the SDK creates transactions for UI events like button clicks, switch toggles,
  * and other UI elements that use UIControl @c sendAction:to:forEvent:.
  * @note Default value is @c YES.

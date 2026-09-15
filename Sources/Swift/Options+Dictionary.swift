@@ -192,6 +192,10 @@ extension Options {
             self.reportAccessibilityIdentifier = reportAccessibilityIdentifier
         }
 
+        if let enableBreadcrumbTextExtraction = boolValue(dictionary["enableBreadcrumbTextExtraction"]) {
+            self.enableBreadcrumbTextExtraction = enableBreadcrumbTextExtraction
+        }
+
         if let enableUserInteractionTracing = boolValue(dictionary["enableUserInteractionTracing"]) {
             self.enableUserInteractionTracing = enableUserInteractionTracing
         }

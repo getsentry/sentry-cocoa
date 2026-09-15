@@ -21,13 +21,22 @@ import Cocoa
     
     private weak var delegate: SentryBreadcrumbDelegate?
     private let reportAccessibilityIdentifier: Bool
+    let enableBreadcrumbTextExtraction: Bool
     
     // Store notification observer tokens for cleanup
     private var notificationObservers: [NSObjectProtocol] = []
     
     @objc(initReportAccessibilityIdentifier:)
-    init(reportAccessibilityIdentifier: Bool) {
+    convenience init(reportAccessibilityIdentifier: Bool) {
+        self.init(
+            reportAccessibilityIdentifier: reportAccessibilityIdentifier,
+            enableBreadcrumbTextExtraction: true
+        )
+    }
+
+    init(reportAccessibilityIdentifier: Bool, enableBreadcrumbTextExtraction: Bool) {
         self.reportAccessibilityIdentifier = reportAccessibilityIdentifier
+        self.enableBreadcrumbTextExtraction = enableBreadcrumbTextExtraction
         super.init()
     }
     
