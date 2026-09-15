@@ -1,22 +1,23 @@
-#import <XCTest/XCTest.h>
+#if !SDK_V10
+#    import <XCTest/XCTest.h>
 
-#import "SentryCrashMachineContext.h"
-#import "SentryCrashMachineContext_Apple.h"
-#import "SentryCrashStackCursor_MachineContext.h"
-#import "TestThread.h"
-#import <mach/mach.h>
-#if defined(__arm64__)
-#    import <mach/arm/thread_status.h>
-#endif
+#    import "SentryCrashMachineContext.h"
+#    import "SentryCrashMachineContext_Apple.h"
+#    import "SentryCrashStackCursor_MachineContext.h"
+#    import "TestThread.h"
+#    import <mach/mach.h>
+#    if defined(__arm64__)
+#        import <mach/arm/thread_status.h>
+#    endif
 
-#if !TARGET_OS_WATCH
+#    if !TARGET_OS_WATCH
 
 @interface SentryCrashMachineContextTests : XCTestCase
 @end
 
 @implementation SentryCrashMachineContextTests
 
-#    if defined(__arm64__)
+#        if defined(__arm64__)
 - (void)testStackCursor_WhenProgramCounterIsZero_ShouldRecoverLinkRegisterFrames
 {
     // -- Arrange --
@@ -49,7 +50,7 @@
     XCTAssertTrue(cursor.advanceCursor(&cursor), @"Should continue walking from FP");
     XCTAssertEqual(cursor.stackEntry.address, frameReturnAddress);
 }
-#    endif
+#        endif
 
 - (void)testGetContextForThread_NonCrashedContext_DoesNotPopulateThreadList
 {
@@ -191,4 +192,6 @@
 
 @end
 
-#endif
+#    endif
+
+#endif // !SDK_V10

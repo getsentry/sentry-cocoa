@@ -1,18 +1,21 @@
-#import "SentryCrashDefaultMachineContextWrapper.h"
-#import "SentryCrashDynamicLinker.h"
-#import "SentryCrashMachineContext.h"
-#import "SentryCrashMachineContextWrapper.h"
-#import "SentryCrashStackCursor.h"
-#import "SentryCrashStackCursor_SelfThread.h"
-#import "SentryCrashThread.h"
-#import "SentryFormatter.h"
-#import "SentryFrame.h"
-#import "SentryStacktrace.h"
-#import "SentryStacktraceBuilder.h"
-#import "SentryThread.h"
-#import <Foundation/Foundation.h>
-#include <execinfo.h>
-#include <pthread.h>
+#import "SentryDefines.h"
+
+#if !SDK_V10
+#    import "SentryCrashDefaultMachineContextWrapper.h"
+#    import "SentryCrashDynamicLinker.h"
+#    import "SentryCrashMachineContext.h"
+#    import "SentryCrashMachineContextWrapper.h"
+#    import "SentryCrashStackCursor.h"
+#    import "SentryCrashStackCursor_SelfThread.h"
+#    import "SentryCrashThread.h"
+#    import "SentryFormatter.h"
+#    import "SentryFrame.h"
+#    import "SentryStacktrace.h"
+#    import "SentryStacktraceBuilder.h"
+#    import "SentryThread.h"
+#    import <Foundation/Foundation.h>
+#    include <execinfo.h>
+#    include <pthread.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -56,3 +59,4 @@ SentryCrashThread mainThreadID;
 @end
 
 NS_ASSUME_NONNULL_END
+#endif // !SDK_V10

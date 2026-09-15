@@ -1,3 +1,4 @@
+#if !SDK_V10
 // Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashCPU_Tests.m
@@ -25,15 +26,15 @@
 // THE SOFTWARE.
 //
 
-#import <XCTest/XCTest.h>
+#    import <XCTest/XCTest.h>
 
-#import "SentryCrashCPU.h"
-#import "SentryCrashMachineContext.h"
-#import "TestThread.h"
+#    import "SentryCrashCPU.h"
+#    import "SentryCrashMachineContext.h"
+#    import "TestThread.h"
 
-#import <mach/mach.h>
+#    import <mach/mach.h>
 
-#if !TARGET_OS_WATCH
+#    if !TARGET_OS_WATCH
 
 @interface SentryCrashCPU_Tests : XCTestCase
 @end
@@ -114,4 +115,6 @@
 }
 
 @end
-#endif
+#    endif
+
+#endif // !SDK_V10
