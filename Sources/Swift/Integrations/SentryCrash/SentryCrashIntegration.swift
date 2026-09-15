@@ -37,7 +37,6 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
 
     // MARK: - Initialization
 
-    // swiftlint:disable function_body_length
     init?(with options: Options, dependencies: Dependencies) {
         guard options.enableCrashHandler else {
             SentrySDKLog.debug("Not going to enable \(Self.name) because enableCrashHandler is disabled.")
@@ -64,25 +63,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
 
         self.scopeObserver = SentryCrashScopeObserver(maxBreadcrumbs: Int(options.maxBreadcrumbs))
 
-        var enableSigtermReporting = false
-        #if !os(watchOS)
-        enableSigtermReporting = options.enableSigtermReporting
-        #endif
-
-        var enableUncaughtNSExceptionReporting = false
-        #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
-        if options.enableSwizzling {
-            enableUncaughtNSExceptionReporting = options.enableUncaughtNSExceptionReporting
-        }
-        #endif
-
-        startCrashHandler(
-            cacheDirectory: options.cacheDirectoryPath,
-            enableSigtermReporting: enableSigtermReporting,
-            enableReportingUncaughtExceptions: enableUncaughtNSExceptionReporting,
-            enableCppExceptionsV2: options.experimental.enableUnhandledCPPExceptionsV2,
-            dependencies: dependencies
-        )
+        startCrashHandler(options: options, dependencies: dependencies)
 
         configureScope()
 
@@ -90,7 +71,6 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
             configureTracingWhenCrashing()
         }
     }
-    // swiftlint:enable function_body_length
 
     // MARK: - SwiftIntegration
 
@@ -122,21 +102,22 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
 
     // MARK: - Crash Handler
 
-    private func startCrashHandler(
-        cacheDirectory: String,
-        enableSigtermReporting: Bool,
-        enableReportingUncaughtExceptions: Bool,
-        enableCppExceptionsV2: Bool,
-        dependencies: Dependencies
-    ) {
+    private func startCrashHandler(options: Options, dependencies: Dependencies) {
+        var enableSigtermReporting = false
+        #if !os(watchOS)
+        enableSigtermReporting = options.enableSigtermReporting
+        #endif
+
+        var enableReportingUncaughtExceptions = false
+        #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
+        if options.enableSwizzling {
+            enableReportingUncaughtExceptions = options.enableUncaughtNSExceptionReporting
+        }
+        #endif
+
         var canSendReports = false
 
         if installation == nil {
-            guard let options = self.options else {
-                SentrySDKLog.debug("No options found, skipping crash handler initialization")
-                return
-            }
-
             self.installation = dependencies.getCrashInstallationReporter(options)
             // Inject bridge into installation so it can access crashReporter
             installation?.setBridgeObject(bridge)
@@ -145,7 +126,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
 
         sentrycrashcm_setEnableSigtermReporting(enableSigtermReporting)
 
-        installation?.install(cacheDirectory)
+        installation?.install(options.cacheDirectoryPath)
 
         // The crash reporter has loaded its state from disk. Set these flags so
         // SentrySDK.lastRunStatus returns a definitive answer and the integration
@@ -163,21 +144,19 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         }
         #endif
 
-        if enableCppExceptionsV2 {
+        if options.experimental.enableUnhandledCPPExceptionsV2 {
             SentrySDKLog.debug("Enabling CppExceptionsV2 by swapping cxa_throw.")
             sentrycrashcm_cppexception_enable_swap_cxa_throw()
         }
 
         // Finalize the previous session before report processing or auto session tracking
         // can start, so the first fatal event can attach the crashed session.
-        if let options = self.options {
-            let finalizer = dependencies.getPreviousRunSessionFinalizer(
-                options: options,
-                crashedLastLaunch: dependencies.crashWrapper.crashedLastLaunch,
-                activeDurationSinceLastCrash: dependencies.crashWrapper.activeDurationSinceLastCrash
-            )
-            finalizer?.finalizeIfNeeded()
-        }
+        let finalizer = dependencies.getPreviousRunSessionFinalizer(
+            options: options,
+            crashedLastLaunch: dependencies.crashWrapper.crashedLastLaunch,
+            activeDurationSinceLastCrash: dependencies.crashWrapper.activeDurationSinceLastCrash
+        )
+        finalizer?.finalizeIfNeeded()
 
         // We only need to send all reports on the first initialization of SentryCrash. If
         // SentryCrash was deactivated there are no new reports to send. Furthermore, the
