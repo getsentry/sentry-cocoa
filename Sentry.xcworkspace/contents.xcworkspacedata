@@ -3,63 +3,63 @@
    version = "1.0">
    <Group
       location = "container:"
-      name = "Samples">
+      name = "TestApps">
       <FileRef
-         location = "group:Samples/Shared">
+         location = "group:TestApps/Shared">
       </FileRef>
       <FileRef
-         location = "group:Samples/README.md">
+         location = "group:TestApps/README.md">
       </FileRef>
       <FileRef
-         location = "group:Samples/DistributionSample/DistributionSample.xcodeproj">
+         location = "group:TestApps/DistributionSample/DistributionSample.xcodeproj">
       </FileRef>
       <FileRef
-         location = "group:Samples/SPM/SPM.xcodeproj">
+         location = "group:TestApps/SPM/SPM.xcodeproj">
       </FileRef>
       <FileRef
-         location = "group:Samples/watchOS-Swift/watchOS-Swift.xcodeproj">
+         location = "group:TestApps/watchOS-Swift/watchOS-Swift.xcodeproj">
       </FileRef>
       <FileRef
-         location = "group:Samples/iOS15-SwiftUI/iOS15-SwiftUI.xcodeproj">
+         location = "group:TestApps/iOS15-SwiftUI/iOS15-SwiftUI.xcodeproj">
       </FileRef>
       <FileRef
-         location = "group:Samples/iOS-SwiftUI/iOS-SwiftUI.xcodeproj">
+         location = "group:TestApps/iOS-SwiftUI/iOS-SwiftUI.xcodeproj">
       </FileRef>
       <FileRef
-         location = "group:Samples/tvOS-Swift/tvOS-Swift.xcodeproj">
+         location = "group:TestApps/tvOS-Swift/tvOS-Swift.xcodeproj">
       </FileRef>
       <FileRef
-         location = "group:Samples/macOS-SwiftUI/macOS-SwiftUI.xcodeproj">
+         location = "group:TestApps/macOS-SwiftUI/macOS-SwiftUI.xcodeproj">
       </FileRef>
       <FileRef
-         location = "group:Samples/macOS-Swift/macOS-Swift.xcodeproj">
+         location = "group:TestApps/macOS-Swift/macOS-Swift.xcodeproj">
       </FileRef>
       <FileRef
-         location = "group:Samples/iOS-ObjectiveC/iOS-ObjectiveC.xcodeproj">
+         location = "group:TestApps/iOS-ObjectiveC/iOS-ObjectiveC.xcodeproj">
       </FileRef>
       <FileRef
-         location = "group:Samples/iOS-ObjectiveC-Dynamic/iOS-ObjectiveC-Dynamic.xcodeproj">
+         location = "group:TestApps/iOS-ObjectiveC-Dynamic/iOS-ObjectiveC-Dynamic.xcodeproj">
       </FileRef>
       <FileRef
-         location = "group:Samples/iOS-ObjectiveC-Static/iOS-ObjectiveC-Static.xcodeproj">
+         location = "group:TestApps/iOS-ObjectiveC-Static/iOS-ObjectiveC-Static.xcodeproj">
       </FileRef>
       <FileRef
-         location = "group:Samples/iOS-ObjectiveCpp-NoModules/iOS-ObjectiveCpp-NoModules.xcodeproj">
+         location = "group:TestApps/iOS-ObjectiveCpp-NoModules/iOS-ObjectiveCpp-NoModules.xcodeproj">
       </FileRef>
       <FileRef
-         location = "group:Samples/iOS-Swift/iOS-Swift.xcodeproj">
+         location = "group:TestApps/iOS-Swift/iOS-Swift.xcodeproj">
       </FileRef>
       <FileRef
-         location = "group:Samples/iOS-Swift6/iOS-Swift6.xcodeproj">
+         location = "group:TestApps/iOS-Swift6/iOS-Swift6.xcodeproj">
       </FileRef>
       <FileRef
-         location = "group:Samples/iOS-SwiftUI-Widgets/iOS-SwiftUI-Widgets.xcodeproj">
+         location = "group:TestApps/iOS-SwiftUI-Widgets/iOS-SwiftUI-Widgets.xcodeproj">
       </FileRef>
       <FileRef
-         location = "group:Samples/visionOS-Swift/visionOS-Swift.xcodeproj">
+         location = "group:TestApps/visionOS-Swift/visionOS-Swift.xcodeproj">
       </FileRef>
       <FileRef
-         location = "group:Samples/SDK-Size/SDK-Size.xcodeproj">
+         location = "group:TestApps/SDK-Size/SDK-Size.xcodeproj">
       </FileRef>
    </Group>
    <FileRef

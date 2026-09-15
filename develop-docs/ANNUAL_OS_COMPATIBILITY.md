@@ -60,7 +60,7 @@ Run all of these on beta Xcode and the new iOS runtime. Point the shell at them 
 - [ ] `make build` + `make test`
 - [ ] `make analyze`
 - [ ] If major-version work is in flight, run its dedicated build and test targets
-- [ ] `make build-samples` (must be warning-free — and diff its list against `ls Samples/`, it misses directories), `make test-samples-ui`, `make test-ui-critical`
+- [ ] `make build-testapps` (must be warning-free — and diff its list against `ls TestApps/`, it misses directories), `make test-testapps-ui`, `make test-ui-critical`
 - [ ] `./TestSamples/CrashE2E/run-crash-e2e.sh --platform all` (manual — `all` selects only iOS and macOS, not all Apple platforms; `test-crash-e2e.yml` runs it in CI only with the stable Xcode)
 - [ ] `./TestSamples/SwiftUICrashTest/test-crash-and-relaunch.sh --device-id "$IOS_DEVICE_ID" --os-version "$IOS_SIMULATOR_OS"`
 - [ ] `make build-xcframework-dynamic` + `make build-xcframework-static`
@@ -75,9 +75,9 @@ Run all of these on beta Xcode and the new iOS runtime. Point the shell at them 
 
 ## 3c. Runtime telemetry check — First beta
 
-Launch each sample on the new runtime, exercise its actions, and confirm in Sentry that the events
+Launch each test app on the new runtime, exercise its actions, and confirm in Sentry that the events
 arrive intact — message, error with a tag, exception, breadcrumbs, transaction with child spans,
-navigation and load spans, metrics. Stamp every sample with the same cycle-unique build number so
+navigation and load spans, metrics. Stamp every test app with the same cycle-unique build number so
 the set queries together, and check app identifier, OS version, and device family on one full event.
 
 - [ ] iOS — `iOS-Swift`
@@ -133,7 +133,7 @@ Start validation here — where the SDK has broken before, plus the areas we kee
 - **Swift compiler and language mode** — each Xcode can introduce stricter concurrency diagnostics, new warnings, and source breaks before runtime tests start. Exercise the `iOS-Swift6` consumer, plus the dedicated build target for any major-version work in flight.
 - **Downstream hybrid SDKs** — React Native, Flutter, .NET, and Unity consume this SDK and its private APIs on their own release schedules. Warn and validate them before changing deployment targets, build products, or shared API.
 - **App start and prewarming** — needs a physical device without a debugger, and Apple offers no public trigger or detection API, so it can't be reproduced naturally; inject `ActivePrewarm=1` against a suspended process instead ([#8129](https://github.com/getsentry/sentry-cocoa/issues/8129)). The harness and results live on branch [`test/os-27-prewarm`](https://github.com/getsentry/sentry-cocoa/tree/test/os-27-prewarm) — `Samples/OS27-Prewarm` on `main` is an empty shell.
-- **Samples** — each new Xcode flags newly deprecated API, malformed XcodeGen refs, and missing platform assets ([#8724](https://github.com/getsentry/sentry-cocoa/pull/8724)).
+- **Test Apps** — each new Xcode flags newly deprecated API, malformed XcodeGen refs, and missing platform assets ([#8724](https://github.com/getsentry/sentry-cocoa/pull/8724)).
 
 ## Deciding What to Test
 
@@ -157,7 +157,7 @@ Do the exhaustive feature-by-platform sweep only when the UI or runtime foundati
 
 ## Finding Triage
 
-Applies to tests and samples alike:
+Applies to tests and test apps alike:
 
 | Beta   | Stable | Meaning              | Action                                    |
 | ------ | ------ | -------------------- | ----------------------------------------- |
@@ -166,7 +166,7 @@ Applies to tests and samples alike:
 | passes | fails  | Stable-only breakage | File a follow-up; unrelated to this cycle |
 
 Warnings count the same way. In a public header a new deprecation reaches customer builds; in a
-sample it's an early signal that Apple deprecated something we still use, and build noise hides
+test app it's an early signal that Apple deprecated something we still use, and build noise hides
 real breakage. Either way a beta-only warning is a finding, not noise to defer
 ([#8124](https://github.com/getsentry/sentry-cocoa/issues/8124)).
 

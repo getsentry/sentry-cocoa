@@ -14,7 +14,7 @@ on:
 #   which would waste CI resources without providing additional value.
 # - For pull requests, we cancel in-progress builds when new commits are pushed since only the
 #   latest commit's build results matter for merge decisions.
-# - For main branch pushes, we never cancel builds to ensure all release and sample builds complete,
+# - For main branch pushes, we never cancel builds to ensure all release and test app builds complete,
 #   as broken builds on main could block releases and affect downstream consumers.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -54,11 +54,11 @@ jobs:
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       # As the DistributionSample project uses local SPM, xcodebuild resolves SPM dependencies for all
-      # sample projects. The Package.swift references binary targets, which in release branch commits points
-      # to non-existent download URLs. This creates chicken-egg failures when building these sample apps for
-      # a release commit build. When building these sample apps for a release commit, xcodebuild tries to
+      # test app projects. The Package.swift references binary targets, which in release branch commits points
+      # to non-existent download URLs. This creates chicken-egg failures when building these test apps for
+      # a release commit build. When building these test apps for a release commit, xcodebuild tries to
       # resolve all SPM dependencies, including the binary targets pointing to these non-existent URLs.  The
-      # sample projects don't use SPM for including Sentry. Only the DistributionSample uses local SPM.
+      # test app projects don't use SPM for including Sentry. Only the DistributionSample uses local SPM.
       # Therefore, we only keep the local DistributionSample reference in the Package.swift as a workaround.
       - name: Only keep distribution lib and target in Package.swift
         run: ./scripts/prepare-package.sh --remove-binary-targets true
@@ -82,15 +82,15 @@ jobs:
         uses: ./.github/actions/ci-diagnostics
         if: ${{ failure() || cancelled() }}
 
-  build-sample:
-    name: Sample ${{ matrix.scheme }} ${{ matrix.config }}
+  build-testapp:
+    name: Test App ${{ matrix.scheme }} ${{ matrix.config }}
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
     runs-on: macos-26
     strategy:
       fail-fast: false
       matrix:
-        # other sample projects are built in ui-tests
+        # other test app projects are built in ui-tests
         include:
           - scheme: watchOS-Swift WatchKit App
             config: Debug
@@ -119,7 +119,7 @@ jobs:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      # Some sample projects use local SPM references. xcodebuild resolves SPM dependencies for the
+      # Some test app projects use local SPM references. xcodebuild resolves SPM dependencies for the
       # workspace, so Package.swift binary targets can be resolved even when building another scheme.
       # On release branches these binary target URLs point to artifacts that do not exist yet, causing
       # release commit builds to fail before the artifacts are published.
@@ -156,9 +156,9 @@ jobs:
         uses: ./.github/actions/ci-diagnostics
         if: ${{ failure() || cancelled() }}
 
-  build-sample-binary:
-    name: Sample ${{ matrix.scheme }} ${{ matrix.config }}
-    # These samples depend on SentryObjC binary targets whose URLs point to
+  build-testapp-binary:
+    name: Test App ${{ matrix.scheme }} ${{ matrix.config }}
+    # These test apps depend on SentryObjC binary targets whose URLs point to
     # unpublished artifacts on release branches.
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true')
     needs: files-changed
@@ -200,8 +200,8 @@ jobs:
         uses: ./.github/actions/ci-diagnostics
         if: ${{ failure() || cancelled() }}
 
-  build-sample-spm:
-    name: Sample SPM ${{ matrix.name }}
+  build-testapp-spm:
+    name: Test App SPM ${{ matrix.name }}
     # Don't run this on release branches, cause the SPM Package.swift points to the unreleased versions.
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true')
     needs: files-changed
@@ -211,15 +211,15 @@ jobs:
       matrix:
         include:
           - name: iOS
-            make-target: build-sample-iOS-SwiftUI-SPM
+            make-target: build-testapp-iOS-SwiftUI-SPM
           - name: watchOS
-            make-target: build-sample-watchOS-SwiftUI-SPM
+            make-target: build-testapp-watchOS-SwiftUI-SPM
           - name: tvOS
-            make-target: build-sample-tvOS-SwiftUI-SPM
+            make-target: build-testapp-tvOS-SwiftUI-SPM
           - name: macOS
-            make-target: build-sample-macOS-SwiftUI-SPM
+            make-target: build-testapp-macOS-SwiftUI-SPM
           - name: visionOS
-            make-target: build-sample-visionOS-SwiftUI-SPM
+            make-target: build-testapp-visionOS-SwiftUI-SPM
     steps:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
@@ -240,7 +240,7 @@ jobs:
 
       - run: make init-ci-build
 
-      - name: Build Sample
+      - name: Build Test App
         run: make ${{ matrix.make-target }}
         env:
           IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
@@ -270,10 +270,10 @@ jobs:
       - run: make init-ci-build
       - run: make xcode-ci-macOS-CLI-Xcode
 
-      - name: Build macOS-CLI-Xcode sample
+      - name: Build macOS-CLI-Xcode test app
         run: |
           set -o pipefail && xcodebuild \
-            -project "Samples/macOS-CLI-Xcode/macOS-CLI-Xcode.xcodeproj" \
+            -project "TestApps/macOS-CLI-Xcode/macOS-CLI-Xcode.xcodeproj" \
             -scheme macOS-CLI-Xcode \
             -configuration Debug \
             -destination 'platform=macOS' \
@@ -519,9 +519,9 @@ jobs:
       [
         files-changed,
         ios-swift-release,
-        build-sample,
-        build-sample-binary,
-        build-sample-spm,
+        build-testapp,
+        build-testapp-binary,
+        build-testapp-spm,
         check-macOS-CLI-Xcode-no-UI-framework,
         build-distribution,
         build-spm,

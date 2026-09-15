@@ -335,4 +335,4 @@ Sources/
 
 - [Issue #6342](https://github.com/getsentry/sentry-cocoa/issues/6342) — original feature request
 - [Issue #4543](https://github.com/getsentry/sentry-cocoa/issues/4543) — problem documentation
-- `Samples/iOS-ObjectiveCpp-NoModules/` — sample app demonstrating usage
+- `TestApps/iOS-ObjectiveCpp-NoModules/` — test app demonstrating usage
