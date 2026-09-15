@@ -417,8 +417,9 @@
     /// the app appears stuck to the user but can still render a few frames.
     ///
     /// @note The default is @c true.
+    ///
     /// - Deprecated: App Hang tracking can produce less relevant stack traces and false positives.
-    ///   Enable the MetricKit integration for system-provided hang diagnostics.
+    ///   Enable the MetricKit integration using ``SentrySDKOptions/enableMetricKit`` for system-provided hang diagnostics.
     @objc public var enableReportNonFullyBlockingAppHangs: Bool {
         get {
             enableReportNonFullyBlockingAppHangsValue
@@ -608,8 +609,9 @@
     ///
     /// @note The default is @c true.
     /// @note App Hang tracking is automatically disabled if a debugger is attached.
+    ///
     /// - Deprecated: App Hang tracking can produce less relevant stack traces and false positives.
-    ///   Enable the MetricKit integration for system-provided hang diagnostics.
+    ///   Enable the MetricKit integration using ``SentrySDKOptions/enableMetricKit`` for system-provided hang diagnostics.
     @objc public var enableAppHangTracking: Bool {
         get {
             enableAppHangTrackingValue

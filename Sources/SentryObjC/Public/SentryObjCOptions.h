@@ -467,7 +467,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) BOOL enableAppHangTracking __attribute__((
     deprecated("App Hang tracking is deprecated and will be removed in v10 because "
                "it can produce less relevant stack traces and false positives. "
-               "Enable the MetricKit integration for system-provided hang diagnostics.",
+               "Enable the MetricKit integration using ``SentrySDKOptions/enableMetricKit`` for "
+               "system-provided hang diagnostics.",
         "enableMetricKit")));
 #endif // !SDK_V10
 
@@ -662,7 +663,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) BOOL enableReportNonFullyBlockingAppHangs __attribute__((
     deprecated("App Hang tracking is deprecated and will be removed in v10 because "
                "it can produce less relevant stack traces and false positives. "
-               "Enable the MetricKit integration for system-provided hang diagnostics.",
+               "Enable the MetricKit integration using ``SentrySDKOptions/enableMetricKit`` for "
+               "system-provided hang diagnostics.",
         "enableMetricKit")));
 #    endif // !SDK_V10
 
