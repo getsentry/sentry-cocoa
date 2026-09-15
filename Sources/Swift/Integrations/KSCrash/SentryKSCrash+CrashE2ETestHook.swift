@@ -1,4 +1,5 @@
 #if SDK_V10 && SENTRY_CRASH_E2E
+internal import _SentryPrivate
 import Foundation
 
 private nonisolated(unsafe) var crashE2EScreenshotPNG = Data()
@@ -132,6 +133,29 @@ extension SentryKSCrash {
             let installer = SentryDependencyContainer.sharedInstance().getKSCrashInstaller()
             installer.setScreenshotProvider(crashE2EWriteScreenshot)
             installer.setViewHierarchyProvider(crashE2EWriteViewHierarchy)
+        }
+
+        /// Seeds session-replay sync state so `sentrykscrash_didWriteReport` can persist a
+        /// recovery checkpoint during the `crash-time-replay` scenario.
+        static func installReplayCheckpointIfNeeded() {
+            guard argumentValue(after: "--scenario") == "crash-time-replay" else { return }
+            guard let path = replayCheckpointPath() else {
+                SentrySDKLog.error("CrashE2E could not resolve the replay checkpoint path.")
+                return
+            }
+            sentrySessionReplaySync_start(path, 1)
+            sentrySessionReplaySync_updateInfo(7, 123.5)
+        }
+
+        private static func replayCheckpointPath() -> String? {
+            if let cacheDir = argumentValue(after: "--cache-dir") {
+                return URL(fileURLWithPath: cacheDir)
+                    .appendingPathComponent("crash-e2e-replay-checkpoint")
+                    .path
+            }
+            return FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first?
+                .appendingPathComponent("crash-e2e-replay-checkpoint")
+                .path
         }
     }
 }

@@ -130,7 +130,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         let currentInfo = try currentReplayInfo()
         XCTAssertEqual(currentInfo["replayType"] as? String, "buffer")
 
-        sentrySessionReplaySync_writeInfo()
+        writeReplayCheckpointFromCrashCallback()
         var crashInfo = SentryCrashReplay()
         let sessionPath = try XCTUnwrap(currentInfo["path"] as? String)
         let crashInfoPath = "\(replayFolder())/\(sessionPath)/crashInfo"
@@ -1404,7 +1404,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
             if writeSessionInfo {
                 sentrySessionReplaySync_updateInfo(1, Double(4))
             }
-            sentrySessionReplaySync_writeInfo()
+            writeReplayCheckpointFromCrashCallback()
             if crashSafeReplayType == nil {
                 let crashInfoURL = URL(fileURLWithPath: "\(sessionFolder)/crashInfo")
                 let legacySize = MemoryLayout<UInt32>.size + MemoryLayout<Double>.size
@@ -1445,6 +1445,16 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     private func currentReplayInfo() throws -> [String: Any] {
         let data = try Data(contentsOf: URL(fileURLWithPath: replayFolder() + "/replay.current"))
         return try XCTUnwrap(SentrySerialization.deserializeDictionary(fromJsonData: data) as? [String: Any])
+    }
+
+    /// V9 persists the checkpoint from `SentryCrashC.onCrash`; V10 goes through KSCrash
+    /// `didWriteReport` instead of calling `writeInfo` directly.
+    private func writeReplayCheckpointFromCrashCallback() {
+#if SDK_V10
+        sentrykscrash_test_invokeDidWriteReport(true, false, false, 1)
+#else
+        sentrySessionReplaySync_writeInfo()
+#endif
     }
 }
 

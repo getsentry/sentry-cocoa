@@ -52,6 +52,8 @@ final class MacOSPlatformRunner {
                            markerPath: markerPath, derivedDataPath: derivedDataPath)
         try CrashTimeAttachmentsAsserter.assertPayloadIfNeeded(
             scenario: scenario, cacheDirectory: cacheDir, platform: "macos")
+        try CrashTimeReplayAsserter.assertCheckpointIfNeeded(
+            scenario: scenario, cacheDirectory: cacheDir, platform: "macos")
         try runDrainLaunch(scenario, executable: executable, cacheDir: cacheDir,
                            derivedDataPath: derivedDataPath)
         try ScenarioEventAsserter.assertScenarioEvent(
