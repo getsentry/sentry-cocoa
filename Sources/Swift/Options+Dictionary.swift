@@ -206,7 +206,7 @@ extension Options {
 
         #if !SDK_V10
         if let enableReportNonFullyBlockingAppHangs = boolValue(dictionary["enableReportNonFullyBlockingAppHangs"]) {
-            self.enableReportNonFullyBlockingAppHangs = enableReportNonFullyBlockingAppHangs
+            self.enableReportNonFullyBlockingAppHangsValue = enableReportNonFullyBlockingAppHangs
         }
         #endif // !SDK_V10
         #endif
@@ -219,7 +219,7 @@ extension Options {
 
         #if !SDK_V10
         if let enableAppHangTracking = boolValue(dictionary["enableAppHangTracking"]) {
-            self.enableAppHangTracking = enableAppHangTracking
+            self.enableAppHangTrackingValue = enableAppHangTracking
         }
         #endif // !SDK_V10
 

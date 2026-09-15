@@ -61,8 +61,11 @@
     // -- Arrange --
     SentryObjCExperimentalOptions *options = [[SentryObjCExperimentalOptions alloc] init];
 
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     // -- Assert --
     XCTAssertFalse(options.enableWatchdogTerminationsV2);
+#    pragma clang diagnostic pop
 }
 
 - (void)testEnableWatchdogTerminationsV2_whenSetToYes_shouldReturnTrue
@@ -70,11 +73,14 @@
     // -- Arrange --
     SentryObjCExperimentalOptions *options = [[SentryObjCExperimentalOptions alloc] init];
 
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     // -- Act --
     options.enableWatchdogTerminationsV2 = YES;
 
     // -- Assert --
     XCTAssertTrue(options.enableWatchdogTerminationsV2);
+#    pragma clang diagnostic pop
 }
 #endif
 
