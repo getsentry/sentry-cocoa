@@ -28,6 +28,8 @@ public final class SentryFeedback: NSObject {
     /// The event id that this feedback is associated with, like a crash report.
     var associatedEventId: SentryId?
 
+    @nonobjc var replayId: SentryId?
+
     /// - parameters:
     ///   - associatedEventId: The ID for an event you'd like associated with the feedback.
     ///   - attachments: Attachment objects for any files to include with the feedback.
@@ -65,6 +67,9 @@ extension SentryFeedback {
             dict["associated_event_id"] = associatedEventId.sentryIdString
         }
         dict["source"] = source.serialize
+        if let replayId = replayId {
+            dict["replay_id"] = replayId.sentryIdString
+        }
         
         return dict
     }
