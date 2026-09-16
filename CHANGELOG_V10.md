@@ -54,3 +54,4 @@
 - Restore binary images and `debug_meta` in `SentryV10` with KSCrash RecordingCore (#8798)
 - Restore macOS AppKit NSException forwarding in `SentryV10` (#8874)
 - Honor `swiftAsyncStacktraces` in `SentryV10` with KSCrash (#8856)
+- Populate `beforeSendTransaction` trace context from the transaction's own tracer, preserving its `op`, trace IDs, and status when the scope span is cleared or replaced. V9 `beforeSend` behavior is unchanged (#9040)
