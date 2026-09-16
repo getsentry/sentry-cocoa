@@ -82,6 +82,7 @@ enum Reporter: String, CaseIterable {
 enum Scenario: String, CaseIterable {
     case signal
     case nsException = "ns-exception"
+    case nsExceptionRethrow = "ns-exception-rethrow"
     case nsExceptionSubclass = "ns-exception-subclass"
     case cppExceptionV1 = "cpp-exception-v1"
     case cppExceptionV2 = "cpp-exception-v2"
@@ -107,6 +108,7 @@ enum Scenario: String, CaseIterable {
     static let defaultScenarios: [Scenario] = [
         .signal,
         .nsException,
+        .nsExceptionRethrow,
         .nsExceptionSubclass,
         // Keep the public option-off path reporter-neutral. KSCrash should continue reporting an
         // uncaught C++ exception without throw-site swapping even though it has no "V1" backend.
@@ -146,40 +148,20 @@ enum Scenario: String, CaseIterable {
         case .managedRuntimeSignalChain, .managedRuntimePreSDKSignal, .managedRuntimeClosedSignal,
              .managedRuntimeReinitSignal:
             return true
-        case .signal, .nsException, .nsExceptionSubclass, .cppExceptionV1, .cppExceptionV2,
-             .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2, .objcObject,
-             .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal, .sigterm,
-             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashPerReportRetry,
-             .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments:
+        default:
             return false
         }
     }
 
     var expectsCrashTermination: Bool {
-        switch self {
-        case .ignoredSignal:
-            return false
-        case .signal, .nsException, .nsExceptionSubclass, .cppExceptionV1, .cppExceptionV2,
-             .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2, .objcObject,
-             .objcObjectAfterCaughtCPP, .binaryImages, .managedRuntimeSignalChain,
-             .managedRuntimePreSDKSignal,
-             .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
-             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashPerReportRetry,
-             .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments, .sigterm:
-            return true
-        }
+        self != .ignoredSignal
     }
 
     var expectsEvent: Bool {
         switch self {
         case .managedRuntimePreSDKSignal, .managedRuntimeClosedSignal, .ignoredSignal, .sigterm:
             return false
-        case .signal, .nsException, .nsExceptionSubclass, .cppExceptionV1, .cppExceptionV2,
-             .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2, .objcObject,
-             .objcObjectAfterCaughtCPP, .binaryImages, .managedRuntimeSignalChain,
-             .managedRuntimeReinitSignal,
-             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashPerReportRetry,
-             .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments:
+        default:
             return true
         }
     }

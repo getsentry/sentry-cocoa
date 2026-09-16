@@ -7,6 +7,7 @@ enum CrashE2EScenario: String {
     case drain
     case signal
     case nsException = "ns-exception"
+    case nsExceptionRethrow = "ns-exception-rethrow"
     case nsExceptionSubclass = "ns-exception-subclass"
     case cppExceptionV1 = "cpp-exception-v1"
     case cppExceptionV2 = "cpp-exception-v2"
@@ -88,6 +89,7 @@ enum CrashE2ERuntime {
         triggerPreSDKSignalIfNeeded()
         installIgnoredSignalHandlerIfNeeded()
         installFakeManagedRuntimeHandlerIfNeeded()
+        installUncaughtNSExceptionMarkerIfNeeded()
         loadBinaryImageBeforeSDKIfNeeded()
         startConfiguredSDK()
         writeLastRunMarkerIfNeeded()
@@ -112,10 +114,10 @@ enum CrashE2ERuntime {
             abortBecausePreSDKScenarioReturned()
         case .sigterm:
             waitForExternalSigterm()
-        case .signal, .nsException, .nsExceptionSubclass, .cppExceptionV1, .cppExceptionV2,
-             .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2, .objcObject,
-             .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal, .managedRuntimeSignalChain,
-             .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
+        case .signal, .nsException, .nsExceptionRethrow, .nsExceptionSubclass, .cppExceptionV1,
+             .cppExceptionV2, .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2,
+             .objcObject, .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal,
+             .managedRuntimeSignalChain, .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
              .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA,
              .ksCrashRetryReportB, .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments:
             NSLog("CrashE2E - will trigger scenario: \(configuration.scenario.rawValue)")
@@ -139,10 +141,10 @@ enum CrashE2ERuntime {
             abortBecausePreSDKScenarioReturned()
         case .sigterm:
             waitForExternalSigtermSynchronously()
-        case .signal, .nsException, .nsExceptionSubclass, .cppExceptionV1, .cppExceptionV2,
-             .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2, .objcObject,
-             .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal, .managedRuntimeSignalChain,
-             .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
+        case .signal, .nsException, .nsExceptionRethrow, .nsExceptionSubclass, .cppExceptionV1,
+             .cppExceptionV2, .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2,
+             .objcObject, .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal,
+             .managedRuntimeSignalChain, .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
              .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA,
              .ksCrashRetryReportB, .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments:
             NSLog("CrashE2E - will trigger scenario synchronously: \(configuration.scenario.rawValue)")
@@ -219,6 +221,19 @@ enum CrashE2ERuntime {
         NSLog("CrashE2E - crash-time-attachments uses the SDK SENTRY_CRASH_E2E screenshot hook")
     }
 
+    private static func installUncaughtNSExceptionMarkerIfNeeded() {
+        guard configuration.scenario == .nsExceptionRethrow else { return }
+        let markerURL: URL
+        if let cacheDirectoryPath = configuration.cacheDirectoryPath {
+            markerURL = URL(fileURLWithPath: cacheDirectoryPath, isDirectory: true)
+                .appendingPathComponent("crash-e2e-uncaught-nsexception.marker")
+        } else {
+            markerURL = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+                .appendingPathComponent("crash-e2e-uncaught-nsexception.marker")
+        }
+        CrashE2EInstallUncaughtNSExceptionMarker(markerURL.path)
+    }
+
     private static func installIgnoredSignalHandlerIfNeeded() {
         guard configuration.scenario == .ignoredSignal else { return }
         NSLog("CrashE2E - installing SIG_IGN for SIGPIPE before SentrySDK.start")
@@ -229,12 +244,7 @@ enum CrashE2ERuntime {
         switch configuration.scenario {
         case .managedRuntimeSignalChain, .managedRuntimeClosedSignal, .managedRuntimeReinitSignal:
             installFakeManagedRuntimeHandler()
-        case .idle, .drain, .signal, .nsException, .nsExceptionSubclass, .cppExceptionV1,
-             .cppExceptionV2, .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2,
-             .objcObject, .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal, .sigterm,
-             .managedRuntimePreSDKSignal, .swiftAsyncCPPExceptionV2Off,
-             .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA, .ksCrashRetryReportB,
-             .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments:
+        default:
             return
         }
     }
