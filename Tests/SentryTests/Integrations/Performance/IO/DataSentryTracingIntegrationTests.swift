@@ -132,8 +132,7 @@ class DataSentryTracingIntegrationTests: XCTestCase {
 
     override func tearDownWithError() throws {
         super.tearDown()
-        // fixture is nil when setUpWithError skipped the test
-        try fixture?.tearDown()
+        try fixture.tearDown()
     }
 
     // MARK: - Data.init(contentsOfWithSentryTracing:)
