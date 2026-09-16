@@ -26,13 +26,8 @@ class SentryScreenshotSourceTests: XCTestCase {
     
     private var fixture: Fixture!
     
-    override func setUpWithError() throws {
-        try super.setUpWithError()
-        #if os(visionOS) && targetEnvironment(simulator)
-        if ProcessInfo.processInfo.operatingSystemVersion.majorVersion == 27 {
-            throw XCTSkip("UIKit window operations are too slow on visionOS 27 simulator")
-        }
-        #endif
+    override func setUp() {
+        super.setUp()
         fixture = Fixture()
         SentryDependencyContainer.sharedInstance().applicationOverride = fixture.uiApplication
     }

@@ -120,13 +120,8 @@ class DataSentryTracingIntegrationTests: XCTestCase {
 
     private var fixture: Fixture!
 
-    override func setUpWithError() throws {
-        try super.setUpWithError()
-        #if os(visionOS) && targetEnvironment(simulator)
-        if ProcessInfo.processInfo.operatingSystemVersion.majorVersion == 27 {
-            throw XCTSkip("SDK start with file I/O tracing is too slow on visionOS 27 simulator")
-        }
-        #endif
+    override func setUp() {
+        super.setUp()
         fixture = Fixture()
     }
 
@@ -246,6 +241,12 @@ class DataSentryTracingIntegrationTests: XCTestCase {
     }
 
     func testInitContentsOfWithSentryTracing_fileIsIgnored_shouldNotTraceManually() throws {
+        #if os(visionOS) && targetEnvironment(simulator)
+        if ProcessInfo.processInfo.operatingSystemVersion.majorVersion == 27 {
+            throw XCTSkip("File I/O tracing start is too slow on visionOS 27 simulator")
+        }
+        #endif
+
         // -- Arrange --
         let _ = try fixture.getSut(testName: self.name)
         let parentTransaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true) as? SentryTracer)
