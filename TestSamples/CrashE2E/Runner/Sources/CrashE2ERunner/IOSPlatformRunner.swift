@@ -99,15 +99,22 @@ final class IOSPlatformRunner {
             try fail("iOS app did not terminate for scenario: \(scenario.rawValue)")
         }
 
+        let cacheRoot = container.appendingPathComponent("Library/Caches", isDirectory: true)
         try CrashTimeAttachmentsAsserter.assertPayloadIfNeeded(
             scenario: scenario,
-            cacheDirectory: container.appendingPathComponent("Library/Caches", isDirectory: true),
+            cacheDirectory: cacheRoot,
             platform: "ios"
+        )
+        try RethrownNSExceptionAsserter.assertCrashLaunchEvidenceIfNeeded(
+            scenario: scenario,
+            cacheRoot: cacheRoot,
+            platform: "ios",
+            artifactsDir: config.artifactsDir
         )
         try drainPreviousCrash(for: scenario)
         try ScenarioEventAsserter.assertScenarioEvent(
             scenario,
-            cacheRoot: container.appendingPathComponent("Library/Caches", isDirectory: true),
+            cacheRoot: cacheRoot,
             platform: "ios",
             artifactsDir: config.artifactsDir
         )

@@ -60,6 +60,12 @@ final class MacOSPlatformRunner {
                            markerPath: markerPath, derivedDataPath: derivedDataPath)
         try CrashTimeAttachmentsAsserter.assertPayloadIfNeeded(
             scenario: scenario, cacheDirectory: cacheDir, platform: "macos")
+        try RethrownNSExceptionAsserter.assertCrashLaunchEvidenceIfNeeded(
+            scenario: scenario,
+            cacheRoot: cacheDir,
+            platform: "macos",
+            artifactsDir: config.artifactsDir
+        )
         try runDrainLaunch(scenario, executable: executable, cacheDir: cacheDir,
                            derivedDataPath: derivedDataPath)
         try ScenarioEventAsserter.assertScenarioEvent(
