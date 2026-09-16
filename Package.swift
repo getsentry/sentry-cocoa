@@ -161,7 +161,7 @@ let sentrySwiftTarget: Target = .target(
 
 if enableV10 {
     sentrySwiftTarget.dependencies += [
-        .product(name: "Installations", package: "KSCrash"),
+        .product(name: "Recording", package: "KSCrash"),
         .product(name: "RecordingCore", package: "KSCrash")
     ]
 }
