@@ -68,6 +68,8 @@ final class MacOSPlatformRunner {
             platform: "macos",
             artifactsDir: config.artifactsDir
         )
+        try MemoryIntrospectionAsserter.assertStoredReportIfNeeded(
+            scenario: scenario, cacheRoot: cacheDir, platform: "macos")
         try runDrainLaunch(scenario, executable: executable, cacheDir: cacheDir,
                            derivedDataPath: derivedDataPath)
         try ScenarioEventAsserter.assertScenarioEvent(

@@ -116,6 +116,11 @@ final class IOSPlatformRunner {
             platform: "ios",
             artifactsDir: config.artifactsDir
         )
+        try MemoryIntrospectionAsserter.assertStoredReportIfNeeded(
+            scenario: scenario,
+            cacheRoot: cacheRoot,
+            platform: "ios"
+        )
         try drainPreviousCrash(for: scenario)
         try ScenarioEventAsserter.assertScenarioEvent(
             scenario,

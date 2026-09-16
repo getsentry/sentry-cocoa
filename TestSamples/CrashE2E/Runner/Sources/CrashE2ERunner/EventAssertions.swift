@@ -62,7 +62,8 @@ enum EventAssertions {
              .managedRuntimeClosedSignal, .managedRuntimeReinitSignal, .nsException,
              .nsExceptionRethrow, .nsExceptionSubclass, .ksCrashPerReportRetry,
              .mallocZoneLockedSignal,
-             .crashTimeScope, .crashTimeAttachments, .crashTimeReplay:
+             .crashTimeScope, .crashTimeAttachments, .crashTimeReplay,
+             .memoryIntrospectionEnabled, .memoryIntrospectionDisabled, .memoryIntrospectionDefault:
             try assertCrashedThread(threadValues, expectedThreadID: exceptionThreadID,
                                     platform: platform, scenario: scenario)
         case .ignoredSignal, .sigterm:
@@ -107,7 +108,8 @@ enum EventAssertions {
         switch scenario {
         case .signal, .binaryImages, .managedRuntimeSignalChain, .managedRuntimePreSDKSignal,
              .managedRuntimeClosedSignal, .managedRuntimeReinitSignal, .mallocZoneLockedSignal,
-             .crashTimeScope, .crashTimeAttachments, .crashTimeReplay:
+             .crashTimeScope, .crashTimeAttachments, .crashTimeReplay,
+             .memoryIntrospectionEnabled, .memoryIntrospectionDisabled, .memoryIntrospectionDefault:
             try assertSignalScenario(
                 scenario, firstException: firstException,
                 mechanism: mechanism,
@@ -118,6 +120,8 @@ enum EventAssertions {
             if scenario == .crashTimeScope {
                 try CrashTimeScopeAssertions.assert(event, platform: platform, scenario: scenario)
             }
+            try MemoryIntrospectionAsserter.assertEventIfNeeded(
+                scenario: scenario, event: event, firstException: firstException, platform: platform)
 
         case .nsException, .nsExceptionRethrow, .nsExceptionSubclass:
             try assertNSExceptionScenario(
