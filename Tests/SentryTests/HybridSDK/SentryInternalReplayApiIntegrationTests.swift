@@ -118,12 +118,6 @@ class SentryInternalReplayApiIntegrationTests: XCTestCase {
     }
 
     func testReplayId_whenBufferRecording_shouldFallBackToSessionReplayId() throws {
-        #if os(visionOS) && targetEnvironment(simulator)
-        if ProcessInfo.processInfo.operatingSystemVersion.majorVersion == 27 {
-            throw XCTSkip("Session replay start is too slow on visionOS 27 simulator")
-        }
-        #endif
-
         // A buffer (on-error) replay is recording: the scope's `replayId` is nil,
         // but the integration already has an id. The API must surface it so an
         // event can be linked before the replay is flushed.
