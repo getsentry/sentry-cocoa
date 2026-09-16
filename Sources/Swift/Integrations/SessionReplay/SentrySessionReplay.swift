@@ -343,6 +343,19 @@ private struct SessionSegmentState {
         return true
     }
 
+    @nonobjc func captureForFeedback() -> SentryId? {
+        // Serialize form and manual API triggers with the main-thread capture lifecycle.
+        runOnMainThreadSync {
+            guard isRunning else { return nil }
+            if isFullSession {
+                flush()
+            } else if !captureReplay() {
+                return nil
+            }
+            return sessionReplayId
+        }
+    }
+
     func flush() {
         if isFullSession {
             guard isRunning else { return }

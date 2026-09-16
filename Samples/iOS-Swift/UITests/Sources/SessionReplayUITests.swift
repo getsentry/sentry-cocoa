@@ -1,3 +1,6 @@
+// swiftlint:disable file_length
+
+@_spi(Private) import SentrySwift
 import SentrySampleShared
 import UIKit
 import XCTest
@@ -142,6 +145,122 @@ final class SessionReplayUITests: BaseUITest {
         }
 
         XCTAssertTrue(app.buttons["replay-control-start"].exists)
+    }
+
+    func testFeedbackForm_whenSubmitted_shouldReferenceReplayCapturedOnOpening() throws {
+        // -- Arrange --
+        let cachesURL = try launchAppWithBufferedReplay()
+        XCTAssertTrue(try cachedEnvelopes(in: cachesURL, containing: "replay_video").isEmpty)
+
+        // -- Act --
+        app.buttons["Show Fallback"].tap()
+
+        // -- Assert --
+        let replay = try waitForEnvelope(in: cachesURL, containing: "replay_video")
+        let replayId = try XCTUnwrap(replay.header.eventId?.sentryIdString)
+        XCTAssertFalse(try XCTUnwrap(replay.items.first?.data).isEmpty)
+        XCTAssertTrue(app.buttons["io.sentry.feedback.form.submit"].exists)
+        XCTAssertTrue(try cachedEnvelopes(in: cachesURL, containing: "feedback").isEmpty)
+
+        // -- Act --
+        let message = app.textViews["io.sentry.feedback.form.message"]
+        message.tap()
+        message.typeText("Replay captured before submitting feedback")
+        app.buttons["io.sentry.feedback.form.submit"].tap()
+
+        // -- Assert --
+        let envelope = try waitForEnvelope(in: cachesURL, containing: "feedback")
+        let item = try XCTUnwrap(envelope.items.first { $0.type() == "feedback" })
+        let data = try XCTUnwrap(item.data)
+        let event = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        let contexts = try XCTUnwrap(event["contexts"] as? [String: Any])
+        let feedback = try XCTUnwrap(contexts["feedback"] as? [String: Any])
+        XCTAssertEqual(feedback["message"] as? String, "Replay captured before submitting feedback")
+        XCTAssertEqual(feedback["replay_id"] as? String, replayId)
+        let replayContext = try XCTUnwrap(contexts["replay"] as? [String: Any])
+        XCTAssertEqual(replayContext["replay_id"] as? String, replayId)
+    }
+
+    func testFeedbackForm_whenCanceled_shouldKeepReplayCapturedOnOpening() throws {
+        // -- Arrange --
+        let cachesURL = try launchAppWithBufferedReplay()
+        XCTAssertTrue(try cachedEnvelopes(in: cachesURL, containing: "replay_video").isEmpty)
+
+        // -- Act --
+        app.buttons["Show Fallback"].tap()
+
+        // -- Assert --
+        let replay = try waitForEnvelope(in: cachesURL, containing: "replay_video")
+        let replayId = try XCTUnwrap(replay.header.eventId?.sentryIdString)
+        XCTAssertFalse(try XCTUnwrap(replay.items.first?.data).isEmpty)
+        XCTAssertTrue(app.buttons["io.sentry.feedback.form.cancel"].exists)
+        XCTAssertTrue(try cachedEnvelopes(in: cachesURL, containing: "feedback").isEmpty)
+
+        // -- Act --
+        app.buttons["io.sentry.feedback.form.cancel"].tap()
+
+        // -- Assert --
+        XCTAssertTrue(app.buttons["Show Fallback"].waitForExistence(timeout: 5))
+        let replays = try cachedEnvelopes(in: cachesURL, containing: "replay_video")
+        XCTAssertTrue(replays.contains { $0.header.eventId?.sentryIdString == replayId })
+        XCTAssertTrue(try cachedEnvelopes(in: cachesURL, containing: "feedback").isEmpty)
+    }
+
+    private func launchAppWithBufferedReplay() throws -> URL {
+        guard #available(iOS 16.0, *) else {
+            throw XCTSkip("Session Replay requires iOS 16 or later.")
+        }
+        launchApp(args: [
+            SentrySDKOverrides.Performance.disableTracing.rawValue,
+            SentrySDKOverrides.NetworkTracking.disableFailedRequestTracking.rawValue,
+            SentrySDKOverrides.AppHangs.disableTracking.rawValue,
+            SentrySDKOverrides.Feedback.noAnimations.rawValue,
+            SentrySDKOverrides.Feedback.noScreenshots.rawValue
+        ], env: [
+            // Package builds may omit test-only transport guards. Keep uploads local and envelopes cached.
+            SentrySDKOverrides.Special.dsn.rawValue: "http://public@127.0.0.1:9/1",
+            SentrySDKOverrides.Replay.sessionSampleRate.rawValue: "0",
+            SentrySDKOverrides.Replay.onErrorSampleRate.rawValue: "1"
+        ])
+        app.buttons["Extra"].tap()
+        app.buttons["io.sentry.ui-test.button.get-application-support-directory"].tap()
+        let field = app.textFields["io.sentry.ui-test.text-field.data-marshaling.extras"]
+        let applicationSupportPath = try XCTUnwrap(field.value as? String)
+        let cachesURL = URL(fileURLWithPath: applicationSupportPath)
+            .deletingLastPathComponent()
+            .appendingPathComponent("Caches", isDirectory: true)
+
+        app.buttons["More"].tap()
+        app.tables.staticTexts["Feedback"].tap()
+        XCTAssertTrue(app.buttons["Show Fallback"].waitForExistence(timeout: 5))
+        // Wait for real buffered frames rather than relying on a fixed startup delay.
+        _ = try waitForReplayFrame(in: cachesURL, capturedAfter: Date().addingTimeInterval(1))
+        return cachesURL
+    }
+
+    private func cachedEnvelopes(in cachesURL: URL, containing type: String) throws -> [SentryEnvelope] {
+        let enumerator = try XCTUnwrap(FileManager.default.enumerator(
+            at: cachesURL.appendingPathComponent("io.sentry", isDirectory: true),
+            includingPropertiesForKeys: nil
+        ))
+        return try enumerator.compactMap { entry -> SentryEnvelope? in
+            guard let url = entry as? URL, url.deletingLastPathComponent().lastPathComponent == "envelopes" else {
+                return nil
+            }
+            let data = try Data(contentsOf: url)
+            let envelope = try XCTUnwrap(SentrySerializationSwift.envelope(with: data))
+            return envelope.items.contains { $0.type() == type } ? envelope : nil
+        }
+    }
+
+    private func waitForEnvelope(in cachesURL: URL, containing type: String) throws -> SentryEnvelope {
+        var envelope: SentryEnvelope?
+        let captured = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+            envelope = try? self.cachedEnvelopes(in: cachesURL, containing: type).first
+            return envelope != nil
+        }, object: nil)
+        XCTAssertEqual(XCTWaiter.wait(for: [captured], timeout: 15), .completed, "Expected a cached \(type) envelope")
+        return try XCTUnwrap(envelope)
     }
 
     private func waitForReplayFrame(in cachesURL: URL, capturedAfter date: Date) throws -> UIImage {
@@ -358,3 +477,5 @@ private enum ReplayFrameError: Error {
     case notFound(URL)
     case unreadablePixel(CGPoint)
 }
+
+// swiftlint:enable file_length

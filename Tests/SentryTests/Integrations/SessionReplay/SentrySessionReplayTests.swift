@@ -505,6 +505,65 @@ class SentrySessionReplayTests: XCTestCase {
         assertFullSession(sut, expected: true)
     }
 
+    func testCaptureForFeedback_whenBuffering_shouldFlushPrecedingBufferBeforeVideoCompletes() throws {
+        // -- Arrange --
+        let fixture = Fixture()
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 1))
+        sut.start(rootView: fixture.rootView, fullSession: false)
+        fixture.dateProvider.advance(by: 60)
+        fixture.replayMaker.deferCreateVideoCompletion = true
+        let openingTime = fixture.dateProvider.date()
+
+        // -- Act --
+        let replayId = sut.captureForFeedback()
+
+        // -- Assert --
+        XCTAssertEqual(replayId, sut.sessionReplayId)
+        XCTAssertTrue(sut.isFullSession)
+        XCTAssertNil(fixture.lastReplayEvent)
+        let capture = try XCTUnwrap(fixture.replayMaker.lastCallToCreateVideo)
+        XCTAssertEqual(capture.beginning, openingTime.addingTimeInterval(-30.5))
+        XCTAssertEqual(capture.end, openingTime)
+    }
+
+    func testCaptureForFeedback_whenFullSession_shouldFlushCurrentSegmentWithoutChangingReplay() throws {
+        // -- Arrange --
+        let fixture = Fixture()
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 0))
+        sut.start(rootView: fixture.rootView, fullSession: true)
+        let replayId = try XCTUnwrap(sut.sessionReplayId)
+        let start = fixture.dateProvider.date()
+        fixture.dateProvider.advance(by: 2)
+        fixture.isFullSession = false // Any attempt to sample again would be rejected.
+
+        // -- Act --
+        let capturedReplayId = sut.captureForFeedback()
+
+        // -- Assert --
+        XCTAssertEqual(capturedReplayId, replayId)
+        XCTAssertTrue(sut.isRunning)
+        let capture = try XCTUnwrap(fixture.replayMaker.lastCallToCreateVideo)
+        XCTAssertEqual(capture.beginning, start)
+        XCTAssertEqual(capture.end, start.addingTimeInterval(2))
+        XCTAssertEqual(fixture.lastReplayEvent?.replayType, .session)
+    }
+
+    func testCaptureForFeedback_whenPaused_shouldNotFlushOrResume() {
+        // -- Arrange --
+        let fixture = Fixture()
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 1))
+        sut.start(rootView: fixture.rootView, fullSession: false)
+        sut.pause()
+
+        // -- Act --
+        let replayId = sut.captureForFeedback()
+
+        // -- Assert --
+        XCTAssertNil(replayId)
+        XCTAssertFalse(sut.isRunning)
+        XCTAssertNil(fixture.replayMaker.lastCallToCreateVideo)
+    }
+
     func testFlush_shouldKeepSessionReplayTypeForFollowingSegments() throws {
         // -- Arrange --
         let fixture = Fixture()
