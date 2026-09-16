@@ -164,6 +164,33 @@ jobs:
             --derived-data-root "$HOME/Library/Developer/Xcode/DerivedData" \
             --output-dir sentrytests-metadata
 
+      # TEMPORARY DEBUG (revert before merge): sample the xctest process while
+      # tests run to find what blocks on the visionOS 27 simulator.
+      - name: Start xctest sampler
+        if: ${{ inputs.platform == 'visionOS' }}
+        run: |
+          mkdir -p xctest-samples
+          {
+            xcodebuild -version
+            sw_vers
+            xcrun simctl list runtimes
+          } > xctest-samples/env.txt 2>&1
+          cat > xctest-samples/sampler.sh <<'SAMPLER'
+          START=$(date +%s)
+          END=$(( START + 3000 ))
+          while [ "$(date +%s)" -lt "$END" ]; do
+            PID=$(pgrep -f "XRSimulator.platform.*xctest" | head -n1)
+            if [ -n "$PID" ]; then
+              T=$(( $(date +%s) - START ))
+              sample "$PID" 5 -mayDie -file "xctest-samples/t${T}s-pid${PID}.txt" > /dev/null 2>&1 || true
+              echo "sampled pid $PID at +${T}s"
+            fi
+            sleep 25
+          done
+          SAMPLER
+          nohup bash xctest-samples/sampler.sh > xctest-samples/sampler.log 2>&1 &
+          echo "sampler started"
+
       # Run Flaky Tests TestPlan which has a retry mechanism on failure.
       # We intentionally run these before the other test plan to fail early.
       # Use a separate result bundle name to avoid conflicts with the regular test run.
@@ -213,6 +240,26 @@ jobs:
             --configuration TestCI \
             --scheme "$SCHEME" \
             --result-bundle results.xcresult
+
+      # TEMPORARY DEBUG (revert before merge)
+      - name: Collect xctest samples
+        if: ${{ always() && inputs.platform == 'visionOS' }}
+        run: |
+          UDID=$(xcrun simctl list devices booted -j | jq -r '[.devices[][] | select(.state == "Booted")][0].udid')
+          if [ -n "$UDID" ] && [ "$UDID" != "null" ]; then
+            xcrun simctl spawn "$UDID" log show --last 50m --predicate 'process == "xctest"' --style compact > xctest-samples/sim-xctest-log.txt 2>&1 || true
+            xcrun simctl spawn "$UDID" log show --last 50m --predicate 'eventMessage CONTAINS[c] "timed out" OR eventMessage CONTAINS[c] "timeout"' --style compact > xctest-samples/sim-timeouts-log.txt 2>&1 || true
+          fi
+          cat xctest-samples/sampler.log || true
+          find xctest-samples -maxdepth 1 -type f | sort | head -60
+
+      - name: Upload xctest samples
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: ${{ always() && inputs.platform == 'visionOS' }}
+        with:
+          name: xctest-samples-${{ inputs.platform }}-xcode-${{ inputs.xcode }}
+          path: xctest-samples/**
+          if-no-files-found: warn
 
       - name: Publish Test Report
         id: publish_test_report
