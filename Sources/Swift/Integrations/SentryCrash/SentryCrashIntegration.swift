@@ -73,7 +73,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
 
         var enableSigtermReporting = false
         #if !os(watchOS)
-        enableSigtermReporting = options.enableSigtermReporting
+        enableSigtermReporting = options._enableSigtermReporting
         #endif
 
         var enableUncaughtNSExceptionReporting = false

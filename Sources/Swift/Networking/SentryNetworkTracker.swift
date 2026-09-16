@@ -729,12 +729,14 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         networkCaptureBodies: Bool,
         networkRequestHeaders: [String]
     ) {
-        guard let request = sessionTask.currentRequest else {
+        // Completion may be the first capture for new-loader tasks, after currentRequest has
+        // changed on a redirect. Keep the method, headers, and body from the same initial request.
+        guard let request = sessionTask.originalRequest ?? sessionTask.currentRequest else {
             return
         }
 
         let details = sessionTask.withNetworkTrackerState { state -> SentryReplayNetworkDetails? in
-            // Capture the initial request only. currentRequest can change after redirects.
+            // Capture the initial request only.
             guard state.networkDetails == nil else {
                 return nil
             }
@@ -747,9 +749,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             return
         }
 
-        // Prefer originalRequest.httpBody because currentRequest can reflect redirects and its body
-        // can be nil while the task is in flight.
-        let rawBody = sessionTask.originalRequest?.httpBody ?? request.httpBody
+        let rawBody = request.httpBody
         let requestSize = rawBody.map { NSNumber(value: $0.count) }
 
         // Safe: passing the whole dictionary, not a case-sensitive single-header lookup.

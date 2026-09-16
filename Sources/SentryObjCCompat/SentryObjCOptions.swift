@@ -74,12 +74,13 @@ import Foundation
     }
     #endif
 
-    #if !os(watchOS)
+    #if !os(watchOS) && !SDK_V10
+    @available(*, deprecated, message: "This property will be removed in v10. KSCrash always catches SIGTERM, records a clean exit, and never writes a crash report for it.")
     @objc public var enableSigtermReporting: Bool {
         get { wrapped.enableSigtermReporting }
         set { wrapped.enableSigtermReporting = newValue }
     }
-    #endif
+    #endif // !os(watchOS) && !SDK_V10
 
     @objc public var maxBreadcrumbs: UInt {
         get { wrapped.maxBreadcrumbs }
@@ -436,6 +437,7 @@ import Foundation
     #if !SDK_V10
     @objc public var enableReportNonFullyBlockingAppHangs: Bool {
         get { wrapped.enableReportNonFullyBlockingAppHangs }
+        @available(*, deprecated, message: "App Hang tracking is deprecated and will be removed in v10 because it can produce less relevant stack traces and false positives. Enable the MetricKit integration for system-provided hang diagnostics.", renamed: "enableMetricKit")
         set { wrapped.enableReportNonFullyBlockingAppHangs = newValue }
     }
     #endif // !SDK_V10
@@ -533,6 +535,7 @@ import Foundation
     #if !SDK_V10
     @objc public var enableAppHangTracking: Bool {
         get { wrapped.enableAppHangTracking }
+        @available(*, deprecated, message: "App Hang tracking is deprecated and will be removed in v10 because it can produce less relevant stack traces and false positives. Enable the MetricKit integration for system-provided hang diagnostics.", renamed: "enableMetricKit")
         set { wrapped.enableAppHangTracking = newValue }
     }
     #endif // !SDK_V10
