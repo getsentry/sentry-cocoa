@@ -1,8 +1,16 @@
 {
   "$schema": "https://develop.sentry.dev/schemas/spec-compliance.json",
   "sdk": "sentry-cocoa",
-  "last_updated": "2026-08-04",
+  "last_updated": "2026-09-16",
   "specs": {
+    "sdk/telemetry/feedbacks": {
+      "version": "0.0.0",
+      "sections": {
+        "session-replay-flush": "1.4.0",
+        "replay-widget-sampling-timing": "1.4.0",
+        "replay-manual-api-sampling-timing": "1.4.0"
+      }
+    },
     "sdk/foundations/client/data-collection": {
       "version": "0.10.0",
       "sections": {

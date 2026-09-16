@@ -11,6 +11,7 @@
 - Clear the scope's `replayId` when Session Replay is stopped manually, so events captured after `stop()` are no longer linked to a replay that is no longer recording (#9017)
 - Mark the fabricated `mach` and `signal` crash mechanisms as `synthetic` so an Apple crash groups with the identical crash reported by the other Sentry SDKs (#9004)
 - Set `mechanism.handled` to `false` on crash reports without mach context, which previously left it unset (#9004)
+- Sample and flush Session Replay when the feedback form opens or feedback is captured manually, preserving the form's opening-time replay association even if the session changes before submission (#9046)
 
 ## 9.28.0
 

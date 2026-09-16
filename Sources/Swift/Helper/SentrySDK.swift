@@ -533,6 +533,8 @@ extension SentrySDK {
     }
 
     /// Captures user feedback that was manually gathered and sends it to Sentry.
+    /// An active Session Replay is sampled and flushed during capture, using `onErrorSampleRate`
+    /// in buffer mode, and its ID is associated with the feedback.
     /// - warning: This is an experimental feature and may still have bugs.
     /// - parameter feedback: The feedback to send to Sentry.
     /// - note: If you'd prefer not to build the UI required to gather the feedback from the user,
