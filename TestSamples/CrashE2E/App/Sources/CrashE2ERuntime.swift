@@ -7,6 +7,7 @@ enum CrashE2EScenario: String {
     case drain
     case signal
     case nsException = "ns-exception"
+    case nsExceptionRethrow = "ns-exception-rethrow"
     case cppExceptionV1 = "cpp-exception-v1"
     case cppExceptionV2 = "cpp-exception-v2"
     case unityCxaThrow = "unity-cxa-throw"
@@ -71,6 +72,7 @@ enum CrashE2ERuntime {
         triggerPreSDKSignalIfNeeded()
         installIgnoredSignalHandlerIfNeeded()
         installFakeManagedRuntimeHandlerIfNeeded()
+        installUncaughtNSExceptionMarkerIfNeeded()
         loadBinaryImageBeforeSDKIfNeeded()
         startConfiguredSDK()
         NSLog("CrashE2E - SDK started")
@@ -86,8 +88,9 @@ enum CrashE2ERuntime {
             scheduleExitIfRequested(defaultDelay: 3.0)
         case .managedRuntimePreSDKSignal:
             abortBecausePreSDKScenarioReturned()
-        case .signal, .nsException, .cppExceptionV1, .cppExceptionV2, .unityCxaThrow, .objcObject,
-             .binaryImages, .ignoredSignal, .managedRuntimeSignalChain, .managedRuntimeClosedSignal,
+        case .signal, .nsException, .nsExceptionRethrow, .cppExceptionV1, .cppExceptionV2,
+             .unityCxaThrow, .objcObject, .binaryImages, .ignoredSignal, .managedRuntimeSignalChain,
+             .managedRuntimeClosedSignal,
              .managedRuntimeReinitSignal, .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On:
             NSLog("CrashE2E - will trigger scenario: \(configuration.scenario.rawValue)")
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
@@ -106,8 +109,9 @@ enum CrashE2ERuntime {
             sleepThenExit(configuration.exitAfterSeconds ?? 3.0)
         case .managedRuntimePreSDKSignal:
             abortBecausePreSDKScenarioReturned()
-        case .signal, .nsException, .cppExceptionV1, .cppExceptionV2, .unityCxaThrow, .objcObject,
-             .binaryImages, .ignoredSignal, .managedRuntimeSignalChain, .managedRuntimeClosedSignal,
+        case .signal, .nsException, .nsExceptionRethrow, .cppExceptionV1, .cppExceptionV2,
+             .unityCxaThrow, .objcObject, .binaryImages, .ignoredSignal, .managedRuntimeSignalChain,
+             .managedRuntimeClosedSignal,
              .managedRuntimeReinitSignal, .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On:
             NSLog("CrashE2E - will trigger scenario synchronously: \(configuration.scenario.rawValue)")
             Thread.sleep(forTimeInterval: 0.5)
@@ -163,6 +167,19 @@ enum CrashE2ERuntime {
         abortBecausePreSDKScenarioReturned()
     }
 
+    private static func installUncaughtNSExceptionMarkerIfNeeded() {
+        guard configuration.scenario == .nsExceptionRethrow else { return }
+        let markerURL: URL
+        if let cacheDirectoryPath = configuration.cacheDirectoryPath {
+            markerURL = URL(fileURLWithPath: cacheDirectoryPath, isDirectory: true)
+                .appendingPathComponent("crash-e2e-uncaught-nsexception.marker")
+        } else {
+            markerURL = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+                .appendingPathComponent("crash-e2e-uncaught-nsexception.marker")
+        }
+        CrashE2EInstallUncaughtNSExceptionMarker(markerURL.path)
+    }
+
     private static func installIgnoredSignalHandlerIfNeeded() {
         guard configuration.scenario == .ignoredSignal else { return }
         NSLog("CrashE2E - installing SIG_IGN for SIGPIPE before SentrySDK.start")
@@ -173,8 +190,9 @@ enum CrashE2ERuntime {
         switch configuration.scenario {
         case .managedRuntimeSignalChain, .managedRuntimeClosedSignal, .managedRuntimeReinitSignal:
             installFakeManagedRuntimeHandler()
-        case .idle, .drain, .signal, .nsException, .cppExceptionV1, .cppExceptionV2, .unityCxaThrow,
-             .objcObject, .binaryImages, .ignoredSignal, .managedRuntimePreSDKSignal,
+        case .idle, .drain, .signal, .nsException, .nsExceptionRethrow, .cppExceptionV1,
+             .cppExceptionV2, .unityCxaThrow, .objcObject, .binaryImages, .ignoredSignal,
+             .managedRuntimePreSDKSignal,
              .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On:
             return
         }

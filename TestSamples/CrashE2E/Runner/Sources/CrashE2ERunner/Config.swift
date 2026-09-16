@@ -35,6 +35,7 @@ enum Platform: String {
 enum Scenario: String, CaseIterable {
     case signal
     case nsException = "ns-exception"
+    case nsExceptionRethrow = "ns-exception-rethrow"
     case cppExceptionV1 = "cpp-exception-v1"
     case cppExceptionV2 = "cpp-exception-v2"
     case unityCxaThrow = "unity-cxa-throw"
@@ -76,7 +77,8 @@ enum Scenario: String, CaseIterable {
         case .managedRuntimeSignalChain, .managedRuntimePreSDKSignal, .managedRuntimeClosedSignal,
              .managedRuntimeReinitSignal:
             return true
-        case .signal, .nsException, .cppExceptionV1, .cppExceptionV2, .unityCxaThrow, .objcObject,
+        case .signal, .nsException, .nsExceptionRethrow, .cppExceptionV1, .cppExceptionV2,
+             .unityCxaThrow, .objcObject,
              .binaryImages, .ignoredSignal, .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On:
             return false
         }
@@ -86,7 +88,8 @@ enum Scenario: String, CaseIterable {
         switch self {
         case .ignoredSignal:
             return false
-        case .signal, .nsException, .cppExceptionV1, .cppExceptionV2, .unityCxaThrow, .objcObject,
+        case .signal, .nsException, .nsExceptionRethrow, .cppExceptionV1, .cppExceptionV2,
+             .unityCxaThrow, .objcObject,
              .binaryImages, .managedRuntimeSignalChain, .managedRuntimePreSDKSignal,
              .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
              .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On:
@@ -98,8 +101,8 @@ enum Scenario: String, CaseIterable {
         switch self {
         case .managedRuntimePreSDKSignal, .managedRuntimeClosedSignal, .ignoredSignal:
             return false
-        case .signal, .nsException, .cppExceptionV1, .cppExceptionV2, .unityCxaThrow, .objcObject,
-             .binaryImages, .managedRuntimeSignalChain, .managedRuntimeReinitSignal,
+        case .signal, .nsException, .nsExceptionRethrow, .cppExceptionV1, .cppExceptionV2,
+             .unityCxaThrow, .objcObject, .binaryImages, .managedRuntimeSignalChain, .managedRuntimeReinitSignal,
              .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On:
             return true
         }

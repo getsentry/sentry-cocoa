@@ -41,6 +41,9 @@ final class MacOSPlatformRunner {
         log("macOS scenario: \(scenario.rawValue)")
         try runCrashLaunch(scenario, executable: executable, cacheDir: cacheDir,
                            markerPath: markerPath, derivedDataPath: derivedDataPath)
+        try RethrownNSExceptionAsserter.assertCrashLaunchEvidenceIfNeeded(
+            scenario: scenario, cacheRoot: cacheDir, platform: "macos",
+            artifactsDir: config.artifactsDir)
         try runDrainLaunch(scenario, executable: executable, cacheDir: cacheDir,
                            derivedDataPath: derivedDataPath)
         try ScenarioEventAsserter.assertScenarioEvent(

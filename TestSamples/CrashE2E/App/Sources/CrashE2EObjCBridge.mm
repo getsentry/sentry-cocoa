@@ -24,6 +24,16 @@ using dynamic_image_crash_type = void (*)(void);
 
 static dynamic_image_call_type g_beforeDynamicImageCall = nullptr;
 static dynamic_image_crash_type g_afterDynamicImageCrash = nullptr;
+static int g_uncaughtNSExceptionMarkerFD = -1;
+
+static void
+CrashE2EUncaughtNSExceptionMarker(__unused NSException *exception)
+{
+    static const char marker[] = "uncaught-handler-called\n";
+    if (g_uncaughtNSExceptionMarkerFD >= 0) {
+        (void)write(g_uncaughtNSExceptionMarkerFD, marker, sizeof(marker) - 1);
+    }
+}
 
 static NSString *
 CrashE2EFindLoadedImage(const char *path)
@@ -175,6 +185,32 @@ CrashE2EInstallFakeManagedRuntimeSignalHandler(const char *markerPath)
         NSLog(@"CrashE2E - failed to install fake managed runtime signal handler");
         abort();
     }
+}
+
+extern "C" void
+CrashE2EInstallUncaughtNSExceptionMarker(const char *markerPath)
+{
+    g_uncaughtNSExceptionMarkerFD = open(markerPath, O_CREAT | O_WRONLY | O_TRUNC, 0600);
+    if (g_uncaughtNSExceptionMarkerFD < 0) {
+        NSLog(@"CrashE2E - failed to open uncaught NSException marker: %s", markerPath);
+        abort();
+    }
+    NSSetUncaughtExceptionHandler(&CrashE2EUncaughtNSExceptionMarker);
+}
+
+extern "C" __attribute__((noinline)) void
+CrashE2ETriggerRethrownNSException(void)
+{
+    @try {
+        [[NSException exceptionWithName:@"CrashE2ERethrownNSException"
+                                 reason:@"Crash E2E caught and rethrown NSException"
+                               userInfo:@ { @"scenario" : @"ns-exception-rethrow" }]
+            raise];
+    } @catch (__unused NSException *exception) {
+        // A bare @throw in an Objective-C catch lowers to objc_exception_rethrow.
+        @throw;
+    }
+    abort();
 }
 
 extern "C" void

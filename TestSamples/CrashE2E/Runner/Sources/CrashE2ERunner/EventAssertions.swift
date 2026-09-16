@@ -55,7 +55,8 @@ enum EventAssertions {
             try assertCrashedThread(threadValues, expectedThreadID: exceptionThreadID,
                                     platform: platform, scenario: scenario)
         case .signal, .binaryImages, .managedRuntimeSignalChain, .managedRuntimePreSDKSignal,
-             .managedRuntimeClosedSignal, .managedRuntimeReinitSignal, .nsException:
+             .managedRuntimeClosedSignal, .managedRuntimeReinitSignal, .nsException,
+             .nsExceptionRethrow:
             try assertCrashedThread(threadValues, expectedThreadID: exceptionThreadID,
                                     platform: platform, scenario: scenario)
         case .ignoredSignal:
@@ -109,6 +110,12 @@ enum EventAssertions {
         case .nsException:
             try assert(string(firstException["type"]) == "CrashE2ENSException",
                        "Expected NSException type for \(platform)/ns-exception")
+
+        case .nsExceptionRethrow:
+            try assert(string(firstException["type"]) == "CrashE2ERethrownNSException",
+                       "Expected NSException type for \(platform)/ns-exception-rethrow")
+            try assert(string(mechanism["type"]) == "nsexception",
+                       "Expected NSException mechanism for \(platform)/ns-exception-rethrow")
 
         case .cppExceptionV1, .cppExceptionV2, .swiftAsyncCPPExceptionV2Off:
             try assertCPPException(firstException, mechanism: mechanism, platform: platform,

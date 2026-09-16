@@ -24,7 +24,8 @@ enum CrashE2ECrashTriggers {
             CrashE2ERuntime.closeAndRestartSDK()
             SentrySDK.crash()
             abortBecauseScenarioReturned(scenario)
-        case .nsException, .cppExceptionV1, .cppExceptionV2, .swiftAsyncCPPExceptionV2Off,
+        case .nsException, .nsExceptionRethrow, .cppExceptionV1, .cppExceptionV2,
+             .swiftAsyncCPPExceptionV2Off,
              .swiftAsyncCPPExceptionV2On, .unityCxaThrow, .objcObject, .idle, .drain,
              .managedRuntimePreSDKSignal:
             triggerExceptionScenario(scenario)
@@ -39,6 +40,9 @@ enum CrashE2ECrashTriggers {
                 reason: "Crash E2E uncaught NSException",
                 userInfo: ["scenario": scenario.rawValue]
             ).raise()
+            abortBecauseScenarioReturned(scenario)
+        case .nsExceptionRethrow:
+            CrashE2ETriggerRethrownNSException()
             abortBecauseScenarioReturned(scenario)
         case .cppExceptionV1, .cppExceptionV2:
             CrashE2ETriggerCPPException()
