@@ -400,7 +400,7 @@ jobs:
           # so the job takes 30+ minutes. tahoe-xl still hits it but the wait is ~5 minutes.
           # See https://github.com/getsentry/sentry-cocoa/pull/9043 for the investigation.
           - name: visionOS 27 Sentry
-            runs-on: tahoe-xl
+            runs-on: tahoe-27-xxl
             xcode: "27"
             platform: "visionOS"
             timeout: 60
