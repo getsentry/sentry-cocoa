@@ -394,8 +394,13 @@ jobs:
             timeout: 30
 
           # visionOS 27
+          # On tahoe-27 the visionOS 27 simulator's backboardd deadlocks in CoreAudio init
+          # ("Initialize: RPC timeout. Apparently deadlocked. Aborting now.") and the first
+          # CADisplayLink/UIWindow in every test process blocks ~10 minutes until it aborts,
+          # so the job takes 30+ minutes. tahoe-xl still hits it but the wait is ~5 minutes.
+          # See https://github.com/getsentry/sentry-cocoa/pull/9043 for the investigation.
           - name: visionOS 27 Sentry
-            runs-on: tahoe-27
+            runs-on: tahoe-xl
             xcode: "27"
             platform: "visionOS"
             timeout: 60
