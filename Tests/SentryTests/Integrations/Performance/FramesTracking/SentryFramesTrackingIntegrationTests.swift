@@ -86,6 +86,7 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
     }
     #endif // !SDK_V10
 
+    @available(*, deprecated, message: "Testing deprecated App Hang tracking option")
     func testZeroTracesSampleRate_DoesNotMeasureFrames() {
         let options = fixture.options
         options.tracesSampleRate = 0.0

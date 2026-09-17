@@ -462,6 +462,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertNotNil(integration)
     }
 
+    @available(*, deprecated, message: "Testing deprecated watchdog terminations V2 option")
     func testHangObserver_ZeroAppHangTimeoutInterval_UsesDefaultThreshold() throws {
         // -- Arrange --
         let mockDelayTracker = MockRunLoopDelayTracker()
