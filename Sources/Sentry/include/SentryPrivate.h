@@ -54,7 +54,6 @@
 #import "SentryBreadcrumb+Private.h"
 #import "SentryContinuousProfiler.h"
 #import "SentryCoreDataSwizzlingHelper.h"
-#import "SentryCoreDataTracker.h"
 #import "SentryCrash.h"
 #import "SentryCrashDebug.h"
 #if !SDK_V10

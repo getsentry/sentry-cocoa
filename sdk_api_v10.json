@@ -338,6 +338,13 @@
         "declKind": "Import",
         "kind": "Import",
         "moduleName": "Sentry",
+        "name": "CoreData",
+        "printedName": "CoreData"
+      },
+      {
+        "declKind": "Import",
+        "kind": "Import",
+        "moduleName": "Sentry",
         "name": "CoreGraphics",
         "printedName": "CoreGraphics"
       },

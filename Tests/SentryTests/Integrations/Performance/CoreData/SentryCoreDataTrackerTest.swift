@@ -306,6 +306,120 @@ class SentryCoreDataTrackerTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(transaction.children.first).status, .internalError)
     }
     
+    func testFetch_whenOriginalFails_shouldForwardErrorAndNilResult() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        let transaction = try startTransaction()
+        let request = NSFetchRequest<NSFetchRequestResult>(entityName: "TestEntity")
+        let expectedError = NSError(domain: "CoreDataTrackerTests", code: 42)
+        var error: NSError?
+        var calls = 0
+
+        // -- Act --
+        let result = sut.managedObjectContext(fixture.context, executeFetchRequest: request, error: &error) { forwardedRequest, errorOut in
+            calls += 1
+            XCTAssertTrue(forwardedRequest === request)
+            XCTAssertFalse(transaction.children.first?.isFinished ?? true)
+            errorOut?.pointee = expectedError
+            return nil
+        }
+
+        // -- Assert --
+        XCTAssertEqual(calls, 1)
+        XCTAssertNil(result)
+        XCTAssertTrue(error === expectedError)
+        let span = try XCTUnwrap(transaction.children.first)
+        XCTAssertEqual(span.status, .internalError)
+        XCTAssertEqual(span.data["read_count"] as? Int, 0)
+        XCTAssertTrue(span.isFinished)
+    }
+
+    func testFetch_whenNoSpan_shouldForwardOriginalResult() {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        let request = NSFetchRequest<NSFetchRequestResult>(entityName: "TestEntity")
+        let expectedResult = NSArray(object: fixture.testEntity())
+        var calls = 0
+
+        // -- Act --
+        let result = sut.managedObjectContext(fixture.context, executeFetchRequest: request, error: nil) { forwardedRequest, error in
+            calls += 1
+            XCTAssertTrue(forwardedRequest === request)
+            XCTAssertNil(error)
+            return expectedResult
+        }
+
+        // -- Assert --
+        XCTAssertEqual(calls, 1)
+        XCTAssertTrue(result === expectedResult)
+    }
+
+    func testFetch_whenOriginalReturnsEmptyArray_shouldFinishSuccessfully() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        let transaction = try startTransaction()
+        let request = NSFetchRequest<NSFetchRequestResult>(entityName: "TestEntity")
+        let expectedResult = NSArray()
+
+        // -- Act --
+        let result = sut.managedObjectContext(fixture.context, executeFetchRequest: request, error: nil) { _, _ in
+            expectedResult
+        }
+
+        // -- Assert --
+        XCTAssertTrue(result === expectedResult)
+        let span = try XCTUnwrap(transaction.children.first)
+        XCTAssertEqual(span.status, .ok)
+        XCTAssertEqual(span.data["read_count"] as? Int, 0)
+    }
+
+    func testSave_whenOriginalFails_shouldForwardErrorAndCaptureChangesBeforeSaving() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        let transaction = try startTransaction()
+        fixture.context.inserted = [fixture.testEntity()]
+        let expectedError = NSError(domain: "CoreDataTrackerTests", code: 42)
+        var error: NSError?
+        var calls = 0
+
+        // -- Act --
+        let result = sut.managedObjectContext(fixture.context, save: &error) { [self] errorOut in
+            calls += 1
+            XCTAssertFalse(transaction.children.first?.isFinished ?? true)
+            self.fixture.context.inserted = []
+            errorOut?.pointee = expectedError
+            return false
+        }
+
+        // -- Assert --
+        XCTAssertFalse(result)
+        XCTAssertEqual(calls, 1)
+        XCTAssertTrue(error === expectedError)
+        let span = try XCTUnwrap(transaction.children.first)
+        XCTAssertEqual(span.spanDescription, "INSERTED 1 'TestEntity'")
+        XCTAssertEqual(span.data["operations"] as? [String: [String: Int]], ["INSERTED": ["TestEntity": 1]])
+        XCTAssertEqual(span.status, .internalError)
+        XCTAssertTrue(span.isFinished)
+    }
+
+    func testSave_whenNoSpan_shouldStillCallOriginal() {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        fixture.context.inserted = [fixture.testEntity()]
+        var calls = 0
+
+        // -- Act --
+        let result = sut.managedObjectContext(fixture.context, save: nil) { error in
+            calls += 1
+            XCTAssertNil(error)
+            return false
+        }
+
+        // -- Assert --
+        XCTAssertFalse(result)
+        XCTAssertEqual(calls, 1)
+    }
+
     func test_Save_NoChanges() throws {
         let sut = fixture.getSut()
         
@@ -399,27 +513,29 @@ private extension SentryCoreDataTrackerTests {
 
 private extension SentryCoreDataTracker {
     
+    @discardableResult
+    func saveManagedObjectContext(withNilError context: NSManagedObjectContext, originalImp: (NSErrorPointer) -> Bool) -> Bool {
+        managedObjectContext(context, save: nil, originalImp: originalImp)
+    }
+
     func fetchManagedObjectContext<T>(_ context: NSManagedObjectContext, request: NSFetchRequest<T>, isErrorNil: Bool = false, originalImp: (NSFetchRequest<T>, NSErrorPointer) -> [T]?) throws -> [Any] {
-        
         var error: NSError?
-        var result: [Any]
-        
+        let result: NSArray?
         if isErrorNil {
-            result = __managedObjectContext(context, execute: request as! NSFetchRequest<NSFetchRequestResult>, error: nil) { fetchRequest, errorOut in
-                return originalImp(fetchRequest as! NSFetchRequest<T>, errorOut)
+            result = managedObjectContext(context, executeFetchRequest: request as! NSFetchRequest<NSFetchRequestResult>, error: nil) { fetchRequest, errorOut in
+                XCTAssertNil(errorOut)
+                return originalImp(fetchRequest as! NSFetchRequest<T>, errorOut).map { $0 as NSArray }
             }
-            
         } else {
-            result = __managedObjectContext(context, execute: request as! NSFetchRequest<NSFetchRequestResult>, error: &error) { fetchRequest, errorOut in
-                return originalImp(fetchRequest as! NSFetchRequest<T>, errorOut)
+            result = managedObjectContext(context, executeFetchRequest: request as! NSFetchRequest<NSFetchRequestResult>, error: &error) { fetchRequest, errorOut in
+                return originalImp(fetchRequest as! NSFetchRequest<T>, errorOut).map { $0 as NSArray }
             }
         }
-        
-        if let er = error {
-            throw er
+        if let error {
+            throw error
         }
-    
-        return result
+        // The former nonnull NSArray import bridged a nil result to an empty Swift array.
+        return result as? [Any] ?? []
     }
     
 }
