@@ -121,7 +121,6 @@
 #import "SentryTestObjCRuntimeWrapper.h"
 #import "SentryThread.h"
 #import "SentryTime.h"
-#import "SentryTimeToDisplayTracker.h"
 #import "SentryTraceOrigin.h"
 #import "SentryTracePropagation.h"
 #import "SentryTracer+Private.h"
