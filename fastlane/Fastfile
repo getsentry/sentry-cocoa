@@ -11,6 +11,7 @@ platform :ios do
   ios_swift_intent_extension_infoplist_path = "./Samples/iOS-Swift/IntentExtension/Configurations/Info.plist"
   ios_swift_action_extension_infoplist_path = "./Samples/iOS-Swift/ActionExtension/Configurations/Info.plist"
   ios_swift_notification_service_extension_infoplist_path = "./Samples/iOS-Swift/NotificationServiceExtension/Configurations/Info.plist"
+  ios_swift_keyboard_extension_infoplist_path = "./Samples/iOS-Swift/KeyboardExtension/Configurations/Info.plist"
 
   # Helper method to run tests with common configuration
   def run_ui_tests(scheme:, result_bundle_name:, device: nil, address_sanitizer: false, app_identifier: nil)
@@ -92,6 +93,11 @@ platform :ios do
     )
     set_info_plist_value(
       path: ios_swift_notification_service_extension_infoplist_path,
+      key: "CFBundleShortVersionString",
+      value: new_version
+    )
+    set_info_plist_value(
+      path: ios_swift_keyboard_extension_infoplist_path,
       key: "CFBundleShortVersionString",
       value: new_version
     )

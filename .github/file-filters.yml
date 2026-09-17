@@ -468,6 +468,10 @@ run_testflight_for_prs: &run_testflight_for_prs
   - ".github/actions/setup-xcode/**"
   - "scripts/ci-utils.sh"
 
+  # Build configuration
+  - "fastlane/**"
+  - "Makefile"
+
 run_testflight_for_pushes: &run_testflight_for_pushes
   - "Sources/Configuration/**"
   - "Sources/include/**"
