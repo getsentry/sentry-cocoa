@@ -123,7 +123,8 @@ platform :ios do
         "io.sentry.sample.iOS-Swift.ShareExtension",
         "io.sentry.sample.iOS-Swift.IntentExtension",
         "io.sentry.sample.iOS-Swift.ActionExtension",
-        "io.sentry.sample.iOS-Swift.NotificationServiceExtension"
+        "io.sentry.sample.iOS-Swift.NotificationServiceExtension",
+        "io.sentry.sample.iOS-Swift.KeyboardExtension"
       ],
       readonly: true
     )
@@ -139,7 +140,8 @@ platform :ios do
         "io.sentry.sample.iOS-Swift.ShareExtension",
         "io.sentry.sample.iOS-Swift.IntentExtension",
         "io.sentry.sample.iOS-Swift.ActionExtension",
-        "io.sentry.sample.iOS-Swift.NotificationServiceExtension"
+        "io.sentry.sample.iOS-Swift.NotificationServiceExtension",
+        "io.sentry.sample.iOS-Swift.KeyboardExtension"
       ],
       readonly: true
     )
@@ -160,7 +162,8 @@ platform :ios do
           "io.sentry.sample.iOS-Swift.ShareExtension",
           "io.sentry.sample.iOS-Swift.IntentExtension",
           "io.sentry.sample.iOS-Swift.ActionExtension",
-          "io.sentry.sample.iOS-Swift.NotificationServiceExtension"
+          "io.sentry.sample.iOS-Swift.NotificationServiceExtension",
+          "io.sentry.sample.iOS-Swift.KeyboardExtension"
         ],
       )
     end
@@ -205,7 +208,8 @@ platform :ios do
           "io.sentry.sample.iOS-Swift.ShareExtension",
           "io.sentry.sample.iOS-Swift.IntentExtension",
           "io.sentry.sample.iOS-Swift.ActionExtension",
-          "io.sentry.sample.iOS-Swift.NotificationServiceExtension"
+          "io.sentry.sample.iOS-Swift.NotificationServiceExtension",
+          "io.sentry.sample.iOS-Swift.KeyboardExtension"
         ]
       )
     end
@@ -237,6 +241,7 @@ platform :ios do
         "io.sentry.sample.iOS-Swift.IntentExtension",
         "io.sentry.sample.iOS-Swift.ActionExtension",
         "io.sentry.sample.iOS-Swift.NotificationServiceExtension",
+        "io.sentry.sample.iOS-Swift.KeyboardExtension",
         "io.sentry.iOS-Swift-UITests.xctrunner"
       ],
     )
@@ -420,7 +425,8 @@ platform :ios do
       "io.sentry.sample.iOS-Swift.ShareExtension",
       "io.sentry.sample.iOS-Swift.IntentExtension",
       "io.sentry.sample.iOS-Swift.ActionExtension",
-      "io.sentry.sample.iOS-Swift.NotificationServiceExtension"
+      "io.sentry.sample.iOS-Swift.NotificationServiceExtension",
+      "io.sentry.sample.iOS-Swift.KeyboardExtension"
     ]
     sync_code_signing(
       type: "development",
