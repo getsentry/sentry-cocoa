@@ -129,7 +129,8 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             return
         }
 
-        if isNewLoaderTask(sessionTask), !sessionTask.usesNewLoaderCompletionHandler {
+        if options.experimental.enableNewURLLoaderSwizzling,
+           isNewLoaderTask(sessionTask), !sessionTask.usesNewLoaderCompletionHandler {
             return
         }
 
@@ -274,6 +275,9 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
     }
 
     func urlSessionTaskCompleted(_ sessionTask: URLSessionTask, error: Error?) {
+        guard hub.currentOptions?.experimental.enableNewURLLoaderSwizzling == true else {
+            return
+        }
         completeURLSessionTask(
             sessionTask,
             state: (error as? URLError)?.code == .cancelled ? .canceling : .completed,
@@ -384,12 +388,14 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             return
         }
 
-        // New-loader tasks have no setState: hook to initialize details before this callback.
-        captureRequestDetails(
-            for: task,
-            networkCaptureBodies: options.sessionReplay.networkCaptureBodies,
-            networkRequestHeaders: options.sessionReplay.networkRequestHeaders
-        )
+        if options.experimental.enableNewURLLoaderSwizzling {
+            // New-loader tasks have no setState: hook to initialize details before this callback.
+            captureRequestDetails(
+                for: task,
+                networkCaptureBodies: options.sessionReplay.networkCaptureBodies,
+                networkRequestHeaders: options.sessionReplay.networkRequestHeaders
+            )
+        }
 
         guard let details = task.networkDetails else {
             SentrySDKLog.warning("[NetworkCapture] No SentryReplayNetworkDetails found for \(urlString) - skipping response capture")

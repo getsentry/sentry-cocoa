@@ -804,6 +804,7 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         let options = Options()
         options.dsn = TestConstants.dsnAsString(username: "SentryNetworkTrackerIntegrationTestServerTests.\(function)")
         options.tracesSampleRate = 1.0
+        options.experimental.enableNewURLLoaderSwizzling = true
 
         configureOptions?(options)
 

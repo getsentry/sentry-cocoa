@@ -6,6 +6,8 @@ private enum SentryNetworkTrackingSwizzleKeys {
     static let state = SentryTypedSwizzle.Key()
     static let dataTaskWithRequest = SentryTypedSwizzle.Key()
     static let dataTaskWithURL = SentryTypedSwizzle.Key()
+    static let dataTaskWithRequestForResponseCapture = SentryTypedSwizzle.Key()
+    static let dataTaskWithURLForResponseCapture = SentryTypedSwizzle.Key()
     static let downloadTaskWithURL = SentryTypedSwizzle.Key()
     static let uploadTaskWithData = SentryTypedSwizzle.Key()
 }
@@ -48,9 +50,14 @@ final class SentryNetworkTrackingIntegration<Dependencies: NetworkTrackerProvide
         // Swizzling is idempotent because each method uses a stable key with
         // oncePerClassAndSuperclasses. On SDK restart, existing swizzles remain installed and the
         // proxy routes them to this new tracker instead.
-        SentryNetworkTrackerProxy.shared.setTarget(networkTracker)
+        SentryNetworkTrackerProxy.shared.setTarget(
+            networkTracker,
+            enableNewURLLoaderSwizzling: options.experimental.enableNewURLLoaderSwizzling
+        )
         Self.swizzleURLSessionTasks()
-        Self.swizzleNewLoaderURLSessionTasks()
+        if options.experimental.enableNewURLLoaderSwizzling {
+            Self.swizzleNewLoaderURLSessionTasks()
+        }
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         if options.sessionReplay.networkDetailHasUrls {
@@ -169,8 +176,11 @@ private extension SentryNetworkTrackingIntegration {
             mode: .oncePerClassAndSuperclasses,
             key: SentryNetworkTrackingSwizzleKeys.resume
         ) { task, original in
+            guard let tracker = SentryNetworkTrackerProxy.shared.newLoaderTarget else {
+                return original()
+            }
             keepTaskAliveDuringSwizzle(task)
-            SentryNetworkTrackerProxy.shared.target?.urlSessionTaskResume(task)
+            tracker.urlSessionTaskResume(task)
             original()
         }
 
@@ -203,11 +213,14 @@ private extension SentryNetworkTrackingIntegration {
             mode: .oncePerClassAndSuperclasses,
             key: SentryNetworkTrackingSwizzleKeys.downloadTaskWithURL
         ) { _, url, completionHandler, original in
+            guard SentryNetworkTrackerProxy.shared.newLoaderTarget != nil else {
+                return original(url, completionHandler)
+            }
             var task: URLSessionDownloadTask?
             let wrappedHandler = completionHandler.map { completionHandler in
                 { location, response, error in
                     if let task {
-                        SentryNetworkTrackerProxy.shared.target?.urlSessionTaskCompleted(
+                        SentryNetworkTrackerProxy.shared.newLoaderTarget?.urlSessionTaskCompleted(
                             task,
                             error: error
                         )
@@ -229,11 +242,14 @@ private extension SentryNetworkTrackingIntegration {
             mode: .oncePerClassAndSuperclasses,
             key: SentryNetworkTrackingSwizzleKeys.uploadTaskWithData
         ) { _, request, data, completionHandler, original in
+            guard SentryNetworkTrackerProxy.shared.newLoaderTarget != nil else {
+                return original(request, data, completionHandler)
+            }
             var task: URLSessionUploadTask?
             let wrappedHandler = completionHandler.map { completionHandler in
                 { responseData, response, error in
                     if let task {
-                        SentryNetworkTrackerProxy.shared.target?.urlSessionTaskCompleted(
+                        SentryNetworkTrackerProxy.shared.newLoaderTarget?.urlSessionTaskCompleted(
                             task,
                             error: error
                         )
@@ -256,14 +272,23 @@ private extension SentryNetworkTrackingIntegration {
             in: sessionClass,
             method: .urlSessionDataTaskWithRequest(URLSession.self),
             mode: .oncePerClassAndSuperclasses,
-            key: SentryNetworkTrackingSwizzleKeys.dataTaskWithRequest
+            key: completeTask
+                ? SentryNetworkTrackingSwizzleKeys.dataTaskWithRequest
+                : SentryNetworkTrackingSwizzleKeys.dataTaskWithRequestForResponseCapture
         ) { _, request, completionHandler, original in
+            if completeTask, SentryNetworkTrackerProxy.shared.newLoaderTarget == nil {
+                return original(request, completionHandler)
+            }
             var task: URLSessionDataTask?
             let wrappedHandler = completionHandler.map { completionHandler in
                 { data, response, error in
+                    let proxy = SentryNetworkTrackerProxy.shared
+                    guard let tracker = completeTask ? proxy.newLoaderTarget : proxy.target else {
+                        return completionHandler(data, response, error)
+                    }
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
                     if error == nil, let data, let response, let requestURL = request.url, let task {
-                        SentryNetworkTrackerProxy.shared.target?.captureResponseDetails(
+                        tracker.captureResponseDetails(
                             data,
                             response: response,
                             request: requestURL,
@@ -272,7 +297,7 @@ private extension SentryNetworkTrackingIntegration {
                     }
 #endif
                     if completeTask, let task {
-                        SentryNetworkTrackerProxy.shared.target?.urlSessionTaskCompleted(
+                        tracker.urlSessionTaskCompleted(
                             task,
                             error: error
                         )
@@ -297,14 +322,23 @@ private extension SentryNetworkTrackingIntegration {
             in: sessionClass,
             method: .urlSessionDataTaskWithURL(URLSession.self),
             mode: .oncePerClassAndSuperclasses,
-            key: SentryNetworkTrackingSwizzleKeys.dataTaskWithURL
+            key: completeTask
+                ? SentryNetworkTrackingSwizzleKeys.dataTaskWithURL
+                : SentryNetworkTrackingSwizzleKeys.dataTaskWithURLForResponseCapture
         ) { _, url, completionHandler, original in
+            if completeTask, SentryNetworkTrackerProxy.shared.newLoaderTarget == nil {
+                return original(url, completionHandler)
+            }
             var task: URLSessionDataTask?
             let wrappedHandler = completionHandler.map { completionHandler in
                 { data, response, error in
+                    let proxy = SentryNetworkTrackerProxy.shared
+                    guard let tracker = completeTask ? proxy.newLoaderTarget : proxy.target else {
+                        return completionHandler(data, response, error)
+                    }
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
                     if error == nil, let data, let response, let task {
-                        SentryNetworkTrackerProxy.shared.target?.captureResponseDetails(
+                        tracker.captureResponseDetails(
                             data,
                             response: response,
                             request: url,
@@ -313,7 +347,7 @@ private extension SentryNetworkTrackingIntegration {
                     }
 #endif
                     if completeTask, let task {
-                        SentryNetworkTrackerProxy.shared.target?.urlSessionTaskCompleted(
+                        tracker.urlSessionTaskCompleted(
                             task,
                             error: error
                         )

@@ -32,6 +32,28 @@ final class SentryNetworkTrackerProxyTests: XCTestCase {
         XCTAssertEqual(secondTracker.resumeInvocations, 1)
     }
 
+    func testNewLoaderTarget_whenOptInChanges_shouldOnlyForwardWhileEnabled() {
+        // -- Arrange --
+        let sut = SentryNetworkTrackerProxy()
+        let tracker = TestNetworkTracker()
+        let task = URLSession.shared.dataTask(with: URL(string: "https://example.com")!)
+        defer { task.cancel() }
+
+        // -- Act --
+        sut.setTarget(tracker)
+        sut.newLoaderTarget?.urlSessionTaskResume(task)
+        sut.setTarget(tracker, enableNewURLLoaderSwizzling: true)
+        sut.newLoaderTarget?.urlSessionTaskResume(task)
+        sut.setTarget(tracker, enableNewURLLoaderSwizzling: false)
+        sut.newLoaderTarget?.urlSessionTaskResume(task)
+        sut.target?.urlSessionTaskResume(task)
+
+        // -- Assert --
+        XCTAssertEqual(tracker.resumeInvocations, 2)
+        XCTAssertNil(sut.newLoaderTarget)
+        XCTAssertIdentical(sut.target, tracker)
+    }
+
     func testTarget_shouldNotRetainTarget() {
         // -- Arrange --
         let sut = SentryNetworkTrackerProxy()

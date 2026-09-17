@@ -84,6 +84,19 @@ class SentryNetworkTrackerTests: XCTestCase {
         try assertCompletedSpan(task, span)
     }
 
+    func testURLSessionTaskCompleted_whenNewLoaderDisabled_shouldNotFinishSpan() throws {
+        // -- Arrange --
+        let task = createDataTask()
+        let span = try XCTUnwrap(spanForTask(task: task))
+        let tracker = fixture.getSut()
+
+        // -- Act --
+        tracker.urlSessionTaskCompleted(task, error: nil)
+
+        // -- Assert --
+        XCTAssertFalse(span.isFinished)
+    }
+
     func test_CallResumeTwice_OneSpan() {
         let task = createDataTask()
 
@@ -880,8 +893,23 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(headers["X-Request"], "original")
     }
 
+    func testCaptureResponseDetails_whenNewLoaderDisabled_shouldNotInitializeRequestDetails() throws {
+        // -- Arrange --
+        fixture.options.sessionReplay.networkDetailAllowUrls = ["www.domain.com"]
+        let tracker = fixture.getSut()
+        let task = createDataTask()
+        let response = try createResponse(code: 200)
+
+        // -- Act --
+        tracker.captureResponseDetails(Data(), response: response, request: Self.fullUrl, task: task)
+
+        // -- Assert --
+        XCTAssertNil(task.networkDetails)
+    }
+
     func testCaptureRequestDetails_whenFirstCapturedAfterRedirect_shouldKeepOriginalRequest() throws {
         // -- Arrange --
+        fixture.options.experimental.enableNewURLLoaderSwizzling = true
         let originalURL = try XCTUnwrap(URL(string: "https://api.example.com/users"))
         let redirectedURL = try XCTUnwrap(URL(string: "https://api.example.com/redirected"))
         fixture.options.sessionReplay.networkDetailAllowUrls = ["api.example.com"]
