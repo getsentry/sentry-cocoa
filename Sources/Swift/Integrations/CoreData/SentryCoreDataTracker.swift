@@ -6,11 +6,9 @@ import CoreData
 @_spi(Private) @objc public final class SentryCoreDataTracker: NSObject {
     private let predicateDescriptor = SentryPredicateDescriptor()
     private let threadInspector: SentryDefaultThreadInspector
-    private let processInfoWrapper: SentryProcessInfoSource
 
-    @objc public init(threadInspector: SentryDefaultThreadInspector, processInfoWrapper: SentryProcessInfoSource) {
+    @objc public init(threadInspector: SentryDefaultThreadInspector) {
         self.threadInspector = threadInspector
-        self.processInfoWrapper = processInfoWrapper
         super.init()
     }
 

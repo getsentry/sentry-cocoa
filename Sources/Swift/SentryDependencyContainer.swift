@@ -590,10 +590,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 
     func getCoreDataTracker(_ options: Options) -> SentryCoreDataTracker {
         let threadInspector = SentryDefaultThreadInspector(options: options)
-        return SentryCoreDataTracker(
-            threadInspector: threadInspector,
-            processInfoWrapper: processInfoWrapper
-        )
+        return SentryCoreDataTracker(threadInspector: threadInspector)
     }
 
 #if SDK_V10
