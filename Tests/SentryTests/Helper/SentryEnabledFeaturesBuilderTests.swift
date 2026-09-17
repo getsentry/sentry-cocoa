@@ -265,6 +265,30 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         XCTAssertFalse(features.contains("fileManagerSwizzling"))
     }
 
+    func testEnableNewURLLoaderSwizzling_whenEnabled_shouldAddFeature() {
+        // -- Arrange --
+        let options = Options()
+        options.experimental.enableNewURLLoaderSwizzling = true
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertTrue(features.contains("newURLLoaderSwizzling"))
+    }
+
+    func testEnableNewURLLoaderSwizzling_whenDisabled_shouldNotAddFeature() {
+        // -- Arrange --
+        let options = Options()
+        options.experimental.enableNewURLLoaderSwizzling = false
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("newURLLoaderSwizzling"))
+    }
+
     func testEnableUnhandledCPPExceptionsV2_shouldAddFeature() throws {
         // -- Arrange --
         let options = Options()
