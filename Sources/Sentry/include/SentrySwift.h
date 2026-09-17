@@ -2,7 +2,6 @@
 #define SentrySwift_h
 
 #ifdef __cplusplus
-#    import <CoreData/CoreData.h>
 #    if __has_include(<MetricKit/MetricKit.h>)
 #        import <MetricKit/MetricKit.h>
 #    endif
