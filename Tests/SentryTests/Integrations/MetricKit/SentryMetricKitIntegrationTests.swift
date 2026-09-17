@@ -51,7 +51,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         let sut = SentryMXManager(
             inAppLogic: SentryInAppLogic(inAppIncludes: []),
             attachDiagnosticAsAttachment: false,
-            enabledDiagnostics: [.crashDiagnostics]
+            enabledDiagnostics: [.crash]
         )
 
         let payload = TestMXDiagnosticPayload()
@@ -72,7 +72,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         let sut = SentryMXManager(
             inAppLogic: SentryInAppLogic(inAppIncludes: []),
             attachDiagnosticAsAttachment: false,
-            enabledDiagnostics: [.crashDiagnostics]
+            enabledDiagnostics: [.crash]
         )
         let payload = TestMXDiagnosticPayload()
         let callStackTree = TestMXCallStackTree()
