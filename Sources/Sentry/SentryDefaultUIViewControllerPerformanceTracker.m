@@ -11,15 +11,11 @@
 #    import "SentrySpanId.h"
 #    import "SentrySpanOperation.h"
 #    import "SentrySwift.h"
-#    import "SentryTimeToDisplayTracker.h"
 #    import "SentryTraceOrigin.h"
 #    import "SentryTracer.h"
 #    import "SentryWeakMap.h"
 #    import <UIKit/UIKit.h>
 #    import <objc/runtime.h>
-
-@interface SentryTimeToDisplayTracker () <SentryInitialDisplayReporting>
-@end
 
 @interface SentrySwiftUISpanHelper () <SentryInitialDisplayReporting>
 @end
