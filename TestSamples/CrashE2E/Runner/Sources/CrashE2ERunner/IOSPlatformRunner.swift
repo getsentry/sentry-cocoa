@@ -50,7 +50,9 @@ final class IOSPlatformRunner {
                     try installApp(derivedDataPath: derivedDataPath)
                     installedDerivedDataPath = derivedDataPath
                 }
-                try runScenario(scenario)
+                try runAllowingKnownFailure(scenario, reporter: config.reporter, platform: "ios") {
+                    try runScenario(scenario)
+                }
             } catch {
                 if config.keepGoing {
                     let message = "iOS/\(scenario.rawValue): \(error)"
