@@ -1,17 +1,6 @@
-import Foundation
-
 #if os(iOS) || os(macOS) || os(visionOS)
-
+import Foundation
 import MetricKit
-
-protocol CallStackTreeProviding {
-    var callStackTree: MXCallStackTree { get }
-}
-
-extension MXCrashDiagnostic: CallStackTreeProviding { }
-extension MXDiskWriteExceptionDiagnostic: CallStackTreeProviding { }
-extension MXCPUExceptionDiagnostic: CallStackTreeProviding { }
-extension MXHangDiagnostic: CallStackTreeProviding { }
 
 #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
 protocol SentryMetricManager {
@@ -197,7 +186,7 @@ extension SentryMXManager: MXMetricManagerSubscriber {
         diagnosticReport: Diagnostic,
         exceptionValue: String,
         timeStampBegin: Date,
-        diagnostic: MXDiagnostic & CallStackTreeProviding,
+        diagnostic: MXDiagnostic & SentryMetricKit.CallStackTreeProviding,
         useFullCallStackTree: Bool = false,
         level: SentryLevel? = nil
     ) {
