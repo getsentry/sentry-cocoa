@@ -80,28 +80,43 @@ final class SentryMXManager: NSObject {
     }
 
     func receiveReports() {
+        SentrySDKLog.info("Started receiving reports from MetricKit")
         metricManager.add(self)
     }
 
     func pauseReports() {
+        SentrySDKLog.info("Paused receiving reports from MetricKit")
         metricManager.remove(self)
     }
 }
 
 extension SentryMXManager: MXMetricManagerSubscriber {
     func didReceive(_ payloads: [MXDiagnosticPayload]) {
+        SentrySDKLog.info("Received \(payloads.count) MetricKit diagnostic payloads")
         payloads.forEach { payload in
-            payload.crashDiagnostics?.forEach { diagnostic in
-                process(crashDiagnostic: diagnostic, timestamp: payload.timeStampBegin)
+            if let diagnostics = payload.crashDiagnostics {
+                SentrySDKLog.info("Received \(diagnostics.count) MetricKit crash diagnostics")
+                diagnostics.forEach { diagnostic in
+                    process(crashDiagnostic: diagnostic, timestamp: payload.timeStampBegin)
+                }
             }
-            payload.diskWriteExceptionDiagnostics?.forEach { diagnostic in
-                process(diskWriteExceptionDiagnostic: diagnostic, timestamp: payload.timeStampBegin)
+            if let diagnostics = payload.diskWriteExceptionDiagnostics {
+                SentrySDKLog.info("Received \(diagnostics.count) MetricKit disk write exception diagnostics")
+                diagnostics.forEach { diagnostic in
+                    process(diskWriteExceptionDiagnostic: diagnostic, timestamp: payload.timeStampBegin)
+                }
             }
-            payload.cpuExceptionDiagnostics?.forEach { diagnostic in
-                process(cpuExceptionDiagnostic: diagnostic, timestamp: payload.timeStampBegin)
+            if let diagnostics = payload.cpuExceptionDiagnostics {
+                SentrySDKLog.info("Received \(diagnostics.count) MetricKit CPU exception diagnostics")
+                diagnostics.forEach { diagnostic in
+                    process(cpuExceptionDiagnostic: diagnostic, timestamp: payload.timeStampBegin)
+                }
             }
-            payload.hangDiagnostics?.forEach { diagnostic in
-                process(hangDiagnostic: diagnostic, timestamp: payload.timeStampBegin)
+            if let diagnostics = payload.hangDiagnostics {
+                SentrySDKLog.info("Received \(diagnostics.count) MetricKit hang diagnostics")
+                diagnostics.forEach { diagnostic in
+                    process(hangDiagnostic: diagnostic, timestamp: payload.timeStampBegin)
+                }
             }
         }
     }
@@ -111,6 +126,7 @@ extension SentryMXManager: MXMetricManagerSubscriber {
             SentrySDKLog.debug("Crash diagnostic are not enabled, skipping payload")
             return
         }
+        SentrySDKLog.debug("Processing crash diagnostic at timestamp: \(timestamp)")
 
         let exceptionType = String(describing: diagnostic.exceptionType)
         let code = String(describing: diagnostic.exceptionCode)
@@ -130,6 +146,7 @@ extension SentryMXManager: MXMetricManagerSubscriber {
             SentrySDKLog.debug("Disk write exception diagnostics are not enabled, skipping payload")
             return
         }
+        SentrySDKLog.debug("Processing disk write exception diagnostic at timestamp: \(timestamp)")
 
         let totalWritesCaused = measurementFormatter.string(from: diagnostic.totalWritesCaused)
 
@@ -147,6 +164,7 @@ extension SentryMXManager: MXMetricManagerSubscriber {
             SentrySDKLog.debug("CPU exception diagnostics are not enabled, skipping payload")
             return
         }
+        SentrySDKLog.debug("Processing CPU exception diagnostic at timestamp: \(timestamp)")
 
         let totalCPUTime = measurementFormatter.string(from: diagnostic.totalCPUTime)
         let totalSampledTime = measurementFormatter.string(from: diagnostic.totalSampledTime)
@@ -165,6 +183,7 @@ extension SentryMXManager: MXMetricManagerSubscriber {
             SentrySDKLog.debug("Hang diagnostics are not enabled, skipping payload")
             return
         }
+        SentrySDKLog.debug("Processing hang diagnostic at timestamp: \(timestamp)")
 
         let hangDuration = measurementFormatter.string(from: diagnostic.hangDuration)
         let hangDurationMilliseconds = diagnostic.hangDuration.converted(to: .milliseconds).value
