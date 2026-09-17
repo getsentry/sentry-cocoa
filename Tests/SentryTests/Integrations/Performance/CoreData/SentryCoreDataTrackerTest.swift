@@ -24,10 +24,7 @@ class SentryCoreDataTrackerTests: XCTestCase {
             SentryDependencyContainer.sharedInstance().debugImageProvider = imageProvider
 
             threadInspector.allThreads = [TestData.thread2]
-            let processInfoWrapper = MockSentryProcessInfo()
-            processInfoWrapper.overrides.processDirectoryPath = "sentrytest"
-
-            return SentryCoreDataTracker(threadInspector: threadInspector, processInfoWrapper: processInfoWrapper)
+            return SentryCoreDataTracker(threadInspector: threadInspector)
         }
 
         func testEntity() -> TestEntity {
