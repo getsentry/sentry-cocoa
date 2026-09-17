@@ -53,6 +53,35 @@
     XCTAssertFalse(options.enableUnhandledCPPExceptionsV2);
 }
 
+#pragma mark - enableNewURLLoaderSwizzling
+
+- (void)testEnableNewURLLoaderSwizzling_whenDefault_shouldBeFalse
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Assert --
+    XCTAssertFalse(options.experimental.enableNewURLLoaderSwizzling);
+}
+
+- (void)testEnableNewURLLoaderSwizzling_whenToggled_shouldRetainValue
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    options.experimental.enableNewURLLoaderSwizzling = YES;
+
+    // -- Assert --
+    XCTAssertTrue(options.experimental.enableNewURLLoaderSwizzling);
+
+    // -- Act --
+    options.experimental.enableNewURLLoaderSwizzling = NO;
+
+    // -- Assert --
+    XCTAssertFalse(options.experimental.enableNewURLLoaderSwizzling);
+}
+
 #if !SDK_V10
 #    pragma mark - enableWatchdogTerminationsV2
 

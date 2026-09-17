@@ -13,6 +13,15 @@ public final class SentryExperimentalOptions: NSObject {
      */
     public var enableUnhandledCPPExceptionsV2 = false
 
+    /// Enables swizzling for automatic network instrumentation of the new URLSession HTTP loader.
+    /// Requires `Options.enableSwizzling` and an enabled network tracking feature.
+    /// Classic-loader instrumentation is unaffected by this option.
+    ///
+    /// Disabled by default while this experimental instrumentation is being tested.
+    /// Configure this option before starting the SDK. Installed swizzles remain for the process
+    /// lifetime, but bypass new-loader instrumentation if the SDK restarts with this option disabled.
+    public var enableNewURLLoaderSwizzling = false
+
     #if !SDK_V10
     @nonobjc var enableWatchdogTerminationsV2Value = false
 

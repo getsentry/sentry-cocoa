@@ -2293,6 +2293,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "enableNewURLLoaderSwizzling",
+    "parent": "SentryObjCExperimentalOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "enableOnShake",
     "parent": "SentryObjCFeedbackApi",
     "returnType": "void",
@@ -6325,6 +6332,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setEnableNewURLLoaderSwizzling:",
+    "parent": "SentryObjCExperimentalOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setEnablePersistingTracesWhenCrashing:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
@@ -9715,6 +9729,12 @@
     "kind": "ObjCPropertyDecl",
     "name": "enableNetworkTracking",
     "parent": "SentryObjCOptions",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "enableNewURLLoaderSwizzling",
+    "parent": "SentryObjCExperimentalOptions",
     "type": "BOOL"
   },
   {
