@@ -2,7 +2,26 @@
 internal import _SentryPrivate
 import CoreData
 
-// Exposed to Objective-C for SentryCoreDataSwizzlingHelper.
+#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+protocol SentryCoreDataTrackerProtocol: AnyObject {
+    func managedObjectContext(
+        _ context: NSManagedObjectContext,
+        executeFetchRequest request: NSFetchRequest<NSFetchRequestResult>,
+        error: NSErrorPointer,
+        originalImp: (NSFetchRequest<NSFetchRequestResult>, NSErrorPointer) -> NSArray?
+    ) -> NSArray?
+
+    func managedObjectContext(
+        _ context: NSManagedObjectContext,
+        save error: NSErrorPointer,
+        originalImp: (NSErrorPointer) -> Bool
+    ) -> Bool
+}
+extension SentryCoreDataTracker: SentryCoreDataTrackerProtocol {}
+#else
+typealias SentryCoreDataTrackerProtocol = SentryCoreDataTracker
+#endif
+
 @_spi(Private) @objc public final class SentryCoreDataTracker: NSObject {
     private let predicateDescriptor = SentryPredicateDescriptor()
     private let threadInspector: SentryDefaultThreadInspector

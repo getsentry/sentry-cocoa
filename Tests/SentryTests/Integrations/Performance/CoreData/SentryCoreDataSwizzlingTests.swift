@@ -1,39 +1,42 @@
-@_spi(Private) import _SentryPrivate
 @_spi(Private) @testable import Sentry
 import CoreData
 import Foundation
 import SentryTestUtils
 import XCTest
 
-// MARK: - Tests
-
-final class SentryCoreDataSwizzlingHelperTests: XCTestCase {
-
+final class SentryCoreDataSwizzlingTests: XCTestCase {
     private var coreDataStack: TestCoreDataStack!
     private var mockTracker: MockCoreDataTracker!
+    private var integration: SentryCoreDataTrackingIntegration<CoreDataTestDependencies>?
 
     override func setUpWithError() throws {
         super.setUp()
-
         coreDataStack = try TestCoreDataStack(databaseFilename: "db-swizzling-\(UUID().uuidString).sqlite")
         mockTracker = MockCoreDataTracker()
     }
 
     override func tearDownWithError() throws {
-        SentryCoreDataSwizzlingHelper.stop()
-        XCTAssertFalse(SentryCoreDataSwizzlingHelper.swizzlingActive(), "Swizzling should be inactive after stop called")
-
+        integration?.uninstall()
+        integration = nil
+        XCTAssertFalse(isTrackingActive, "Swizzling should be inactive after stop called")
         try coreDataStack.reset()
-
         super.tearDown()
     }
 
-    private func swizzle() {
-        SentryCoreDataSwizzlingHelper.swizzle(withTracker: mockTracker as Any)
-        XCTAssertTrue(SentryCoreDataSwizzlingHelper.swizzlingActive(), "Swizzling should be active after swizzle call")
+    private var isTrackingActive: Bool {
+        SentryCoreDataTrackerProxy.shared.target != nil
     }
 
-    // MARK: - Fetch Tests
+    private func makeIntegration(tracker: MockCoreDataTracker) -> SentryCoreDataTrackingIntegration<CoreDataTestDependencies>? {
+        let options = Options()
+        options.tracesSampleRate = 1
+        return SentryCoreDataTrackingIntegration(with: options, dependencies: CoreDataTestDependencies(tracker: tracker))
+    }
+
+    private func swizzle() {
+        integration = makeIntegration(tracker: mockTracker)
+        XCTAssertTrue(isTrackingActive, "Swizzling should be active after swizzle call")
+    }
 
     func testFetch_whenSwizzled_shouldCallTracker() throws {
         // -- Arrange --
@@ -65,20 +68,16 @@ final class SentryCoreDataSwizzlingHelperTests: XCTestCase {
         // -- Arrange --
         swizzle()
         let fetch = NSFetchRequest<TestEntity>(entityName: "TestEntity")
-
-        // Verify swizzling is working first
         _ = try coreDataStack.managedObjectContext.fetch(fetch)
         XCTAssertEqual(mockTracker.fetchCalls.count, 1, "Should track call when swizzled")
 
         // -- Act --
-        SentryCoreDataSwizzlingHelper.stop()
+        integration?.uninstall()
         _ = try coreDataStack.managedObjectContext.fetch(fetch)
 
         // -- Assert --
         XCTAssertEqual(mockTracker.fetchCalls.count, 1, "Should not track new calls after stop called")
     }
-
-    // MARK: - Save Tests
 
     func testSave_whenSwizzled_shouldCallTracker() throws {
         // -- Arrange --
@@ -116,8 +115,7 @@ final class SentryCoreDataSwizzlingHelperTests: XCTestCase {
         try coreDataStack.managedObjectContext.save()
 
         // -- Assert --
-        // The tracker should still be called, but it will detect there are no changes
-        // and not create a span. We're just testing the swizzling calls the tracker.
+        // The tracker detects unchanged contexts, not the swizzle.
         XCTAssertEqual(mockTracker.saveCalls.count, 1, "Should call tracker even with no changes")
     }
 
@@ -126,13 +124,11 @@ final class SentryCoreDataSwizzlingHelperTests: XCTestCase {
         swizzle()
         let entity1: TestEntity = coreDataStack.getEntity()
         entity1.field1 = "First Update"
-
-        // Verify swizzling is working first
         try coreDataStack.managedObjectContext.save()
         XCTAssertEqual(mockTracker.saveCalls.count, 1, "Should track call when swizzled")
 
         // -- Act --
-        SentryCoreDataSwizzlingHelper.stop()
+        integration?.uninstall()
         let entity2: TestEntity = coreDataStack.getEntity()
         entity2.field1 = "Second Update"
         try coreDataStack.managedObjectContext.save()
@@ -141,45 +137,36 @@ final class SentryCoreDataSwizzlingHelperTests: XCTestCase {
         XCTAssertEqual(mockTracker.saveCalls.count, 1, "Should not track new calls after stop called")
     }
 
-    // MARK: - Swizzling State Tests
-
     func testSwizzlingActive_whenSwizzled_shouldBeTrue() {
         // -- Arrange & Act --
         swizzle()
 
         // -- Assert --
-        XCTAssertTrue(SentryCoreDataSwizzlingHelper.swizzlingActive(), "Swizzling should be active after swizzle call")
+        XCTAssertTrue(isTrackingActive, "Swizzling should be active after swizzle call")
     }
 
     func testSwizzlingActive_whenStopCalled_shouldBeFalse() {
         // -- Arrange --
         swizzle()
-        XCTAssertTrue(SentryCoreDataSwizzlingHelper.swizzlingActive(), "Swizzling should initially be active")
+        XCTAssertTrue(isTrackingActive, "Swizzling should initially be active")
 
         // -- Act --
-        SentryCoreDataSwizzlingHelper.stop()
+        integration?.uninstall()
 
         // -- Assert --
-        XCTAssertFalse(SentryCoreDataSwizzlingHelper.swizzlingActive(), "Swizzling should be inactive after stop called")
-
-        // Re-enable for proper tearDown
-        SentryCoreDataSwizzlingHelper.swizzle(withTracker: mockTracker as Any)
+        XCTAssertFalse(isTrackingActive, "Swizzling should be inactive after stop called")
+        swizzle()
     }
-
-    // MARK: - Stop Tests
 
     func testStop_whenCalledMultipleTimes_shouldNotCrash() {
         // -- Arrange --
         swizzle()
 
         // -- Act & Assert --
-        // Should not crash when stop called multiple times
-        SentryCoreDataSwizzlingHelper.stop()
-        SentryCoreDataSwizzlingHelper.stop()
-        SentryCoreDataSwizzlingHelper.stop()
+        integration?.uninstall()
+        integration?.uninstall()
+        integration?.uninstall()
     }
-
-    // MARK: - Multiple Operations
 
     func testMultipleOperations_whenSwizzled_shouldRecordAllCalls() throws {
         // -- Arrange --
@@ -199,11 +186,72 @@ final class SentryCoreDataSwizzlingHelperTests: XCTestCase {
         XCTAssertEqual(mockTracker.fetchCalls.count, 2, "Should record two fetch calls")
         XCTAssertEqual(mockTracker.saveCalls.count, 1, "Should record one save call")
     }
+
+    func testInstall_whenRepeated_shouldNotStackInterceptors() throws {
+        // -- Arrange --
+        swizzle()
+        let first = integration
+        swizzle()
+
+        // -- Act --
+        _ = try coreDataStack.managedObjectContext.fetch(NSFetchRequest<TestEntity>(entityName: "TestEntity"))
+        try coreDataStack.managedObjectContext.save()
+
+        // -- Assert --
+        XCTAssertNotNil(first)
+        XCTAssertEqual(mockTracker.fetchCalls.count, 1)
+        XCTAssertEqual(mockTracker.saveCalls.count, 1)
+    }
+
+    func testUninstall_whenOlderIntegrationStops_shouldKeepNewTracker() throws {
+        // -- Arrange --
+        swizzle()
+        let first = try XCTUnwrap(integration)
+        let replacement = MockCoreDataTracker()
+        integration = makeIntegration(tracker: replacement)
+
+        // -- Act --
+        first.uninstall()
+        _ = try coreDataStack.managedObjectContext.fetch(NSFetchRequest<TestEntity>(entityName: "TestEntity"))
+        try coreDataStack.managedObjectContext.save()
+
+        // -- Assert --
+        XCTAssertEqual(mockTracker.fetchCalls.count, 0)
+        XCTAssertEqual(mockTracker.saveCalls.count, 0)
+        XCTAssertEqual(replacement.fetchCalls.count, 1)
+        XCTAssertEqual(replacement.saveCalls.count, 1)
+    }
+
+    func testInstall_whenTrackerLifetimeEnds_shouldNotRetainTrackerAndShouldForward() throws {
+        // -- Arrange --
+        weak var weakTracker: MockCoreDataTracker?
+        autoreleasepool {
+            let tracker = MockCoreDataTracker()
+            weakTracker = tracker
+            integration = makeIntegration(tracker: tracker)
+            integration = nil
+        }
+
+        // -- Act --
+        let result = try coreDataStack.managedObjectContext.fetch(NSFetchRequest<TestEntity>(entityName: "TestEntity"))
+        try coreDataStack.managedObjectContext.save()
+
+        // -- Assert --
+        XCTAssertNil(weakTracker)
+        XCTAssertFalse(isTrackingActive)
+        XCTAssertTrue(result.isEmpty)
+    }
 }
 
-// MARK: - Mock Tracker
+private struct CoreDataTestDependencies: SentryCoreDataTrackerBuilder {
+    let tracker: MockCoreDataTracker
 
-private class MockCoreDataTracker: NSObject {
+    func getCoreDataTracker(_ options: Options) -> SentryCoreDataTrackerProtocol {
+        tracker
+    }
+}
+
+private final class MockCoreDataTracker: SentryCoreDataTrackerProtocol {
     struct FetchCall {
         let entityName: String?
     }
@@ -215,20 +263,20 @@ private class MockCoreDataTracker: NSObject {
     var fetchCalls: [FetchCall] = []
     var saveCalls: [SaveCall] = []
 
-    @objc func managedObjectContext(
+    func managedObjectContext(
         _ context: NSManagedObjectContext,
         executeFetchRequest request: NSFetchRequest<NSFetchRequestResult>,
         error: NSErrorPointer,
-        originalImp: @escaping (NSFetchRequest<NSFetchRequestResult>, NSErrorPointer) -> [Any]?
-    ) -> [Any]? {
+        originalImp: (NSFetchRequest<NSFetchRequestResult>, NSErrorPointer) -> NSArray?
+    ) -> NSArray? {
         fetchCalls.append(FetchCall(entityName: request.entityName))
         return originalImp(request, error)
     }
 
-    @objc func managedObjectContext(
+    func managedObjectContext(
         _ context: NSManagedObjectContext,
         save error: NSErrorPointer,
-        originalImp: @escaping (NSErrorPointer) -> Bool
+        originalImp: (NSErrorPointer) -> Bool
     ) -> Bool {
         saveCalls.append(SaveCall(hasChanges: context.hasChanges))
         return originalImp(error)

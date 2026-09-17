@@ -206,7 +206,6 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     var extensionDetector: SentryExtensionDetector = {
         SentryExtensionDetector(infoPlistWrapper: Dependencies.infoPlistWrapper)
     }()
-    var coreDataSwizzling = SentryCoreDataSwizzling()
     lazy var networkTracker: SentryNetworkTrackerProtocol = {
         SentryDefaultNetworkTracker(options: self.startOptions, dependencies: self)
     }()
@@ -588,7 +587,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     }
 #endif // !SDK_V10
 
-    func getCoreDataTracker(_ options: Options) -> SentryCoreDataTracker {
+    func getCoreDataTracker(_ options: Options) -> SentryCoreDataTrackerProtocol {
         let threadInspector = SentryDefaultThreadInspector(options: options)
         return SentryCoreDataTracker(threadInspector: threadInspector)
     }
@@ -1084,11 +1083,6 @@ protocol CrashInstallationReporterBuilder {
 extension SentryDependencyContainer: CrashInstallationReporterBuilder {}
 #endif // !SDK_V10
 
-protocol SentryCoreDataSwizzlingProvider {
-    var coreDataSwizzling: SentryCoreDataSwizzling { get }
-}
-extension SentryDependencyContainer: SentryCoreDataSwizzlingProvider {}
-
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 protocol SentryUIDeviceWrapperProvider {
     var uiDeviceWrapper: SentryUIDeviceWrapper { get }
@@ -1118,7 +1112,7 @@ extension SentryDependencyContainer: SentryAppStartTrackerBuilder {}
 #endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 protocol SentryCoreDataTrackerBuilder {
-    func getCoreDataTracker(_ options: Options) -> SentryCoreDataTracker
+    func getCoreDataTracker(_ options: Options) -> SentryCoreDataTrackerProtocol
 }
 extension SentryDependencyContainer: SentryCoreDataTrackerBuilder {}
 
