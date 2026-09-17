@@ -27,6 +27,43 @@ final class MockKSCrashDependencies: SentryKSCrash.DependencyProvider {
     func getKSCrashInstaller() -> MockKSCrashInstaller {
         return kscrashInstaller
     }
+
+    func getPreviousRunSessionFinalizer(
+        options: Options,
+        crashedLastLaunch: Bool,
+        activeDurationSinceLastCrash: TimeInterval
+    ) -> PreviousRunSessionFinalizer? {
+        guard let fileManager else { return nil }
+        let container = SentryDependencyContainer.sharedInstance()
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        let watchdogLogic = SentryWatchdogTerminationLogic(
+            options: options,
+            activeCrashReporterState: container.activeCrashReporterState,
+            isSimulatorBuild: {
+#if targetEnvironment(simulator)
+                true
+#else
+                false
+#endif
+            }(),
+            appStateManager: container.appStateManager
+        )
+        return PreviousRunSessionFinalizer(
+            crashedLastLaunch: crashedLastLaunch,
+            activeDurationSinceLastCrash: activeDurationSinceLastCrash,
+            watchdogTerminationLogic: watchdogLogic,
+            fileManager: fileManager,
+            dateProvider: dateProvider
+        )
+#else
+        return PreviousRunSessionFinalizer(
+            crashedLastLaunch: crashedLastLaunch,
+            activeDurationSinceLastCrash: activeDurationSinceLastCrash,
+            fileManager: fileManager,
+            dateProvider: dateProvider
+        )
+#endif
+    }
 }
 
 final class MockKSCrashInstaller: SentryKSCrash.Installing {

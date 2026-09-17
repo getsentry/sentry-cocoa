@@ -737,6 +737,7 @@ build-samples-v10: \
 	build-sample-v10-iOS-Swift \
 	build-sample-v10-iOS-SwiftUI \
 	build-sample-v10-SPM \
+	build-sample-v10-macOS-CLI-Xcode \
 	build-sample-v10-macOS-Swift \
 	build-sample-v10-macOS-SwiftUI \
 	build-sample-v10-tvOS-Swift \
@@ -814,6 +815,19 @@ build-sample-v10-DistributionSample:
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme DistributionSample \
+		CODE_SIGNING_ALLOWED="NO" \
+		$(V10_SDK_FLAGS) \
+		build | xcbeautify --preserve-unbeautified
+
+## Build the macOS-CLI-Xcode sample with the V10 and NoUIFramework traits
+.PHONY: build-sample-v10-macOS-CLI-Xcode
+build-sample-v10-macOS-CLI-Xcode:
+	scripts/generate-sample-v10.sh --spec Samples/macOS-CLI-Xcode/macOS-CLI-Xcode.yml
+	set -o pipefail && xcodebuild \
+		-project "Samples/macOS-CLI-Xcode/macOS-CLI-Xcode.xcodeproj" \
+		-scheme macOS-CLI-Xcode \
+		-configuration Debug \
+		-destination 'platform=macOS' \
 		CODE_SIGNING_ALLOWED="NO" \
 		$(V10_SDK_FLAGS) \
 		build | xcbeautify --preserve-unbeautified

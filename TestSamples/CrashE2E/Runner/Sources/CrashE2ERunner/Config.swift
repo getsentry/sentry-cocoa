@@ -82,6 +82,7 @@ enum Reporter: String, CaseIterable {
 enum Scenario: String, CaseIterable {
     case signal
     case nsException = "ns-exception"
+    case nsExceptionRethrow = "ns-exception-rethrow"
     case nsExceptionSubclass = "ns-exception-subclass"
     case cppExceptionV1 = "cpp-exception-v1"
     case cppExceptionV2 = "cpp-exception-v2"
@@ -92,6 +93,7 @@ enum Scenario: String, CaseIterable {
     case objcObjectAfterCaughtCPP = "objc-object-after-caught-cpp"
     case binaryImages = "binary-images"
     case ignoredSignal = "ignored-signal"
+    case sigterm
     case managedRuntimeSignalChain = "managed-runtime-signal-chain"
     case managedRuntimePreSDKSignal = "managed-runtime-pre-sdk-signal"
     case managedRuntimeClosedSignal = "managed-runtime-closed-signal"
@@ -107,6 +109,7 @@ enum Scenario: String, CaseIterable {
     static let defaultScenarios: [Scenario] = [
         .signal,
         .nsException,
+        .nsExceptionRethrow,
         .nsExceptionSubclass,
         // Keep the public option-off path reporter-neutral. KSCrash should continue reporting an
         // uncaught C++ exception without throw-site swapping even though it has no "V1" backend.
@@ -121,6 +124,10 @@ enum Scenario: String, CaseIterable {
         .objcObjectAfterCaughtCPP,
         .binaryImages,
         .ignoredSignal,
+        // SIGTERM is a graceful-shutdown request, not a crash. Both reporters must let the process
+        // terminate without writing a report or an event, and the next launch must not be
+        // classified as crashed. V9 honors enableSigtermReporting (off here); V10 has no option.
+        .sigterm,
         .managedRuntimeSignalChain,
         .managedRuntimePreSDKSignal,
         .managedRuntimeClosedSignal,
@@ -143,40 +150,20 @@ enum Scenario: String, CaseIterable {
         case .managedRuntimeSignalChain, .managedRuntimePreSDKSignal, .managedRuntimeClosedSignal,
              .managedRuntimeReinitSignal:
             return true
-        case .signal, .nsException, .nsExceptionSubclass, .cppExceptionV1, .cppExceptionV2,
-             .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2, .objcObject,
-             .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal, .swiftAsyncCPPExceptionV2Off,
-             .swiftAsyncCPPExceptionV2On, .ksCrashPerReportRetry, .mallocZoneLockedSignal,
-             .crashTimeScope, .crashTimeAttachments, .crashTimeReplay:
+        default:
             return false
         }
     }
 
     var expectsCrashTermination: Bool {
-        switch self {
-        case .ignoredSignal:
-            return false
-        case .signal, .nsException, .nsExceptionSubclass, .cppExceptionV1, .cppExceptionV2,
-             .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2, .objcObject,
-             .objcObjectAfterCaughtCPP, .binaryImages, .managedRuntimeSignalChain,
-             .managedRuntimePreSDKSignal,
-             .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
-             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashPerReportRetry,
-             .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments, .crashTimeReplay:
-            return true
-        }
+        self != .ignoredSignal
     }
 
     var expectsEvent: Bool {
         switch self {
-        case .managedRuntimePreSDKSignal, .managedRuntimeClosedSignal, .ignoredSignal:
+        case .managedRuntimePreSDKSignal, .managedRuntimeClosedSignal, .ignoredSignal, .sigterm:
             return false
-        case .signal, .nsException, .nsExceptionSubclass, .cppExceptionV1, .cppExceptionV2,
-             .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2, .objcObject,
-             .objcObjectAfterCaughtCPP, .binaryImages, .managedRuntimeSignalChain,
-             .managedRuntimeReinitSignal,
-             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashPerReportRetry,
-             .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments, .crashTimeReplay:
+        default:
             return true
         }
     }

@@ -42,7 +42,6 @@
 #import "SentryClient+Private.h"
 #import "SentryClient+TestInit.h"
 #import "SentryClient.h"
-#import "SentryCoreDataTracker+Test.h"
 #import "SentryCrash+Test.h"
 #import "SentryCrashBinaryImageCache+Test.h"
 #import "SentryCrashBinaryImageCache.h"

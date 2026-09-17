@@ -451,35 +451,39 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     }
 #endif
 
-#if !SDK_V10
-    private var crashIntegrationSessionHandler: SentryCrashIntegrationSessionHandler?
-    func getCrashIntegrationSessionBuilder(_ options: Options, bridge: SentryCrashBridge) -> SentryCrashIntegrationSessionHandler? {
-        getOptionalLazyVar(\.crashIntegrationSessionHandler) {
-
-            guard let fileManager = fileManager else {
-                SentrySDKLog.fatal("File manager is not available")
-                return nil
-            }
+    func getPreviousRunSessionFinalizer(
+        options: Options,
+        crashedLastLaunch: Bool,
+        activeDurationSinceLastCrash: TimeInterval
+    ) -> PreviousRunSessionFinalizer? {
+        guard let fileManager = fileManager else {
+            SentrySDKLog.fatal("File manager is not available")
+            return nil
+        }
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-            let watchdogLogic = SentryWatchdogTerminationLogic(
-                options: options,
-                activeCrashReporterState: activeCrashReporterState,
-                isSimulatorBuild: Self.isSimulatorBuild,
-                appStateManager: appStateManager
-            )
-            return SentryCrashIntegrationSessionHandler(
-                crashWrapper: crashWrapper,
-                watchdogTerminationLogic: watchdogLogic,
-                fileManager: fileManager,
-                bridge: bridge
-            )
+        let watchdogLogic = SentryWatchdogTerminationLogic(
+            options: options,
+            activeCrashReporterState: activeCrashReporterState,
+            isSimulatorBuild: Self.isSimulatorBuild,
+            appStateManager: appStateManager
+        )
+        return PreviousRunSessionFinalizer(
+            crashedLastLaunch: crashedLastLaunch,
+            activeDurationSinceLastCrash: activeDurationSinceLastCrash,
+            watchdogTerminationLogic: watchdogLogic,
+            fileManager: fileManager,
+            dateProvider: dateProvider
+        )
 #else
-            return SentryCrashIntegrationSessionHandler(crashWrapper: crashWrapper, fileManager: fileManager, bridge: bridge)
+        return PreviousRunSessionFinalizer(
+            crashedLastLaunch: crashedLastLaunch,
+            activeDurationSinceLastCrash: activeDurationSinceLastCrash,
+            fileManager: fileManager,
+            dateProvider: dateProvider
+        )
 #endif
-        }
     }
-#endif // !SDK_V10
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     private var _screenshotSource: SentryScreenshotSource?
@@ -586,10 +590,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 
     func getCoreDataTracker(_ options: Options) -> SentryCoreDataTracker {
         let threadInspector = SentryDefaultThreadInspector(options: options)
-        return SentryCoreDataTracker(
-            threadInspector: threadInspector,
-            processInfoWrapper: processInfoWrapper
-        )
+        return SentryCoreDataTracker(threadInspector: threadInspector)
     }
 
 #if SDK_V10
@@ -865,7 +866,8 @@ protocol InstallationIdProvider {
 
 struct DefaultInstallationIdProvider: InstallationIdProvider {
     var installationID: String {
-        PrivateSentrySDKOnly.installationID
+        let options = SentrySDKInternal.currentHub().getClient()?.getOptions() as? Options ?? Options()
+        return SentryInstallation.id(withCacheDirectoryPath: options.cacheDirectoryPath)
     }
 }
 
@@ -964,7 +966,7 @@ protocol BreadcrumbDeserializer {
 
 struct DefaultBreadcrumbDeserializer: BreadcrumbDeserializer {
     func breadcrumb(from dictionary: [String: Any]) -> Breadcrumb {
-        PrivateSentrySDKOnly.breadcrumb(with: dictionary)
+        Breadcrumb(dictionary: dictionary)
     }
 }
 
@@ -982,7 +984,7 @@ protocol UserDeserializer {
 
 struct DefaultUserDeserializer: UserDeserializer {
     func user(from dictionary: [String: Any]) -> User {
-        PrivateSentrySDKOnly.user(with: dictionary)
+        User(dictionary: dictionary)
     }
 }
 
@@ -1034,6 +1036,15 @@ protocol AppStateManagerProvider {
 }
 extension SentryDependencyContainer: AppStateManagerProvider { }
 
+protocol PreviousRunSessionFinalizerBuilder {
+    func getPreviousRunSessionFinalizer(
+        options: Options,
+        crashedLastLaunch: Bool,
+        activeDurationSinceLastCrash: TimeInterval
+    ) -> PreviousRunSessionFinalizer?
+}
+extension SentryDependencyContainer: PreviousRunSessionFinalizerBuilder {}
+
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 protocol WatchdogTerminationTrackerBuilder {
     func getWatchdogTerminationTracker(_ options: Options) -> SentryWatchdogTerminationTracker?
@@ -1062,10 +1073,10 @@ protocol SentryCrashReporterProvider {
 }
 extension SentryDependencyContainer: SentryCrashReporterProvider {}
 
-protocol CrashIntegrationSessionHandlerBuilder {
-    func getCrashIntegrationSessionBuilder(_ options: Options, bridge: SentryCrashBridge) -> SentryCrashIntegrationSessionHandler?
+protocol CrashWrapperProvider {
+    var crashWrapper: SentryCrashReporter { get }
 }
-extension SentryDependencyContainer: CrashIntegrationSessionHandlerBuilder {}
+extension SentryDependencyContainer: CrashWrapperProvider {}
 
 protocol CrashInstallationReporterBuilder {
     func getCrashInstallationReporter(_ options: Options) -> SentryCrashInstallationReporter

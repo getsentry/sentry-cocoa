@@ -807,10 +807,12 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     feedbackEvent.eventId = [[SentryId alloc] initWithUUIDString:feedbackEventId];
     feedbackEvent.type = SentryEnvelopeItemTypes.feedback;
 
-    NSString *replayId = currentScope.replayId ?: scope.replayId;
+    NSString *replayId = serializedFeedback[@"replay_id"] ?: currentScope.replayId ?: scope.replayId;
     NSUInteger optionalItems = (scope.span == nil ? 0 : 1) + (replayId == nil ? 0 : 1);
     NSMutableDictionary *context = [NSMutableDictionary dictionaryWithCapacity:1 + optionalItems];
-    context[@"feedback"] = serializedFeedback;
+    NSMutableDictionary *feedbackContext = [serializedFeedback mutableCopy];
+    feedbackContext[@"replay_id"] = replayId;
+    context[@"feedback"] = feedbackContext;
 
     if (replayId != nil) {
         NSMutableDictionary *replayContext = [NSMutableDictionary dictionaryWithCapacity:1];

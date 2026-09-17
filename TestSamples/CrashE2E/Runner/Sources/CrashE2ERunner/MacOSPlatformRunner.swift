@@ -47,6 +47,14 @@ final class MacOSPlatformRunner {
             )
             return
         }
+        if scenario == .sigterm {
+            try runSigtermScenario(
+                executable: executable,
+                cacheDir: cacheDir,
+                derivedDataPath: derivedDataPath
+            )
+            return
+        }
 
         try runCrashLaunch(scenario, executable: executable, cacheDir: cacheDir,
                            markerPath: markerPath, derivedDataPath: derivedDataPath)
@@ -54,6 +62,12 @@ final class MacOSPlatformRunner {
             scenario: scenario, cacheDirectory: cacheDir, platform: "macos")
         try CrashTimeReplayAsserter.assertCheckpointIfNeeded(
             scenario: scenario, cacheDirectory: cacheDir, platform: "macos")
+        try RethrownNSExceptionAsserter.assertCrashLaunchEvidenceIfNeeded(
+            scenario: scenario,
+            cacheRoot: cacheDir,
+            platform: "macos",
+            artifactsDir: config.artifactsDir
+        )
         try runDrainLaunch(scenario, executable: executable, cacheDir: cacheDir,
                            derivedDataPath: derivedDataPath)
         try ScenarioEventAsserter.assertScenarioEvent(
@@ -126,8 +140,8 @@ final class MacOSPlatformRunner {
         }
     }
 
-    private func runDrainLaunch(_ scenario: Scenario, executable: URL, cacheDir: URL,
-                                derivedDataPath: URL) throws {
+    func runDrainLaunch(_ scenario: Scenario, executable: URL, cacheDir: URL,
+                        derivedDataPath: URL) throws {
         log("Relaunching macOS app to drain previous crash.")
         let drainLog = config.artifactsDir.appendingPathComponent("macos-\(scenario.rawValue)-drain.log")
         let result = try processRunner.run(
@@ -141,6 +155,9 @@ final class MacOSPlatformRunner {
         )
         if result.timedOut {
             try fail("macOS drain app did not terminate for scenario: \(scenario.rawValue) (\(result.summary))")
+        }
+        if !result.succeeded {
+            try fail("macOS drain app failed for scenario: \(scenario.rawValue) (\(result.summary)); see \(drainLog.path)")
         }
     }
 }
