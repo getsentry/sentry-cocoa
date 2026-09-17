@@ -159,10 +159,12 @@ sentrykscrash_didWriteReport(const KSCrash_ExceptionHandlingPlan *const plan, in
     }
 
     // V9 writes this from SentryCrashC.onCrash immediately after the report and before
-    // screenshots/view hierarchy. Those captures are not async-signal-safe and may crash
-    // the handler; writing the checkpoint first keeps recovery state even if later capture
-    // dies. writeInfo uses open/write/close (not async-signal-safe, same as V9) but does
-    // not hop to the main thread. Other threads are already suspended.
+    // screenshots/view hierarchy. Those captures may crash the handler; writing the
+    // checkpoint first keeps recovery state even if later capture dies.
+    // writeInfo() uses unsynchronized access to global crashReplay, heap allocations, and there
+    // is no atomic publish of the whole state (a live update can tear between segmentId and
+    // lastSegmentEnd. Ordinary mutexes cannot synchronize with this handler. Same as V9; not fixed
+    // here.
     SENTRY_ASYNC_SAFE_LOG_DEBUG(
         "Writing session-replay recovery checkpoint for reportID %" PRId64, reportID);
     sentrySessionReplaySync_writeInfo();
