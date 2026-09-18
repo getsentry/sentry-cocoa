@@ -119,7 +119,7 @@ enum Scenario: String, CaseIterable {
         // compatibility shim in V1/fallback context. Preserve the shim, not V1's weak report shape.
         .unityCxaThrow,
         // Runs with C++ V2 enabled and strict modern-backend assertions. Current SentryCrash is
-        // expected to fail this scenario; use --keep-going to continue the default run.
+        // expected to fail this scenario; see Scenario.knownFailureReason(for:).
         .objcObject,
         .objcObjectAfterCaughtCPP,
         .binaryImages,

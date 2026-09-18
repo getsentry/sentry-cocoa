@@ -86,9 +86,6 @@ extension SentryKSCrash {
             config.enableSwiftAsyncStackTraces = enableSwiftAsyncStackTraces
             config.reportStoreConfiguration.reportCleanupPolicy = .onSuccess
             config.plugins = [Self.attachmentsMonitor]
-            #if SENTRY_CRASH_E2E
-            config.userInfoJSON = SentryKSCrash.CrashE2ETestHook.reportUserInfo
-            #endif
 
             config.willWriteReportCallback = sentrykscrash_willWriteReport
             config.isWritingReportCallback = sentrykscrash_isWritingReport

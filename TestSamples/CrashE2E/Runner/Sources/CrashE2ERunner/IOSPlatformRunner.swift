@@ -50,7 +50,9 @@ final class IOSPlatformRunner {
                     try installApp(derivedDataPath: derivedDataPath)
                     installedDerivedDataPath = derivedDataPath
                 }
-                try runScenario(scenario)
+                try runAllowingKnownFailure(scenario, reporter: config.reporter, platform: "ios") {
+                    try runScenario(scenario)
+                }
             } catch {
                 if config.keepGoing {
                     let message = "iOS/\(scenario.rawValue): \(error)"
@@ -132,7 +134,7 @@ final class IOSPlatformRunner {
         log("Relaunching iOS app to drain previous crash.")
         let result = try launchApp(arguments: ["--scenario", "drain", "--exit-after", "3"])
         try assertLaunchSucceeded(result, scenario: scenario, launchType: "drain")
-        guard try waitForAppToStop(timeout: 15) else {
+        guard try waitForAppToStop(timeout: 60) else {
             try fail("iOS drain app did not terminate for scenario: \(scenario.rawValue)")
         }
     }

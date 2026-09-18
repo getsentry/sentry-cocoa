@@ -61,7 +61,7 @@ Run all of these on beta Xcode and the new iOS runtime. Point the shell at them 
 - [ ] `make analyze`
 - [ ] If major-version work is in flight, run its dedicated build and test targets
 - [ ] `make build-samples` (must be warning-free — and diff its list against `ls Samples/`, it misses directories), `make test-samples-ui`, `make test-ui-critical`
-- [ ] `./TestSamples/CrashE2E/run-crash-e2e.sh --platform all` (manual — `all` selects only iOS and macOS, not all Apple platforms; nothing in CI runs it)
+- [ ] `./TestSamples/CrashE2E/run-crash-e2e.sh --platform all` (manual — `all` selects only iOS and macOS, not all Apple platforms; `test-crash-e2e.yml` runs it in CI only with the stable Xcode)
 - [ ] `./TestSamples/SwiftUICrashTest/test-crash-and-relaunch.sh --device-id "$IOS_DEVICE_ID" --os-version "$IOS_SIMULATOR_OS"`
 - [ ] `make build-xcframework-dynamic` + `make build-xcframework-static`
 - [ ] Triage every error and warning: does it also happen on stable Xcode?

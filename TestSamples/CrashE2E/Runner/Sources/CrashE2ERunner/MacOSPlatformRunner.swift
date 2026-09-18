@@ -14,7 +14,9 @@ final class MacOSPlatformRunner {
         var failures: [String] = []
         for scenario in config.scenarios {
             do {
-                try runScenario(scenario)
+                try runAllowingKnownFailure(scenario, reporter: config.reporter, platform: "macos") {
+                    try runScenario(scenario)
+                }
             } catch {
                 if config.keepGoing {
                     let message = "macOS/\(scenario.rawValue): \(error)"

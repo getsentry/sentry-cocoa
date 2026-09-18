@@ -9,6 +9,14 @@ struct KSCrashRetryScenarioConstants {
         "--io.sentry.crash-e2e-kscrash-retryable-marker"
     static let processingCompleteMarkerArgument =
         "--io.sentry.crash-e2e-kscrash-processing-complete"
+
+    /// KSCrash derives report IDs from the wall-clock second in which it is installed. Two
+    /// processes installing within the same second produce the same ID, and the second crash
+    /// report is dropped because its file already exists. Keep the two crashing launches in
+    /// different seconds so the scenario tests per-report retry instead of that collision.
+    static func waitForDistinctReportID() {
+        Thread.sleep(forTimeInterval: 1.1)
+    }
 }
 
 enum KSCrashRetryScenarioAsserter {
@@ -42,9 +50,12 @@ enum KSCrashRetryScenarioAsserter {
                                      artifactsDir: URL) throws {
         let events = try EnvelopeReader.exceptionEvents(in: cacheRoot)
         let markedEvents = try events.map { envelope -> (marker: String, event: [String: Any]) in
+            // The app throws an NSException carrying the marker in its userInfo, which the report
+            // converter maps to the "user info" context. KSCrash's own userInfo can't carry it
+            // because scope sync replaces it with the serialized scope.
             let contexts = envelope.event["contexts"] as? [String: Any]
-            let retryContext = contexts?["crash_e2e_kscrash_retry"] as? [String: Any]
-            guard let marker = retryContext?["report"] as? String else {
+            let exceptionUserInfo = contexts?["user info"] as? [String: Any]
+            guard let marker = exceptionUserInfo?["crash_e2e_kscrash_report"] as? String else {
                 try fail(
                     "Expected CrashE2E KSCrash marker in envelope event from \(envelope.sourceURL.path)"
                 )
