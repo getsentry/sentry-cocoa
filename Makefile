@@ -638,6 +638,26 @@ build-xcframework-sentryobjc-dynamic:
 	./scripts/validate-xcframework.sh --xcframework "SentryObjC-Dynamic.xcframework"
 	./scripts/compress-xcframework.sh --xcframework "SentryObjC-Dynamic.xcframework"
 
+## Build V10 SentryObjC XCFrameworks locally for debugging downstream SDKs
+#
+# Builds SentryObjC with SDK_V10=1, which embeds KSCrash, and packages headers
+# with every SDK_V10 gate resolved. Not a release artifact. Output lands in
+# SentryObjC-Static.xcframework and SentryObjC-Dynamic.xcframework, replacing
+# any V9 output.
+#
+# SDKS is a comma-separated list of SDK names. Defaults to all SDKS.
+#
+# Examples:
+#   make build-xcframework-sentryobjc-v10 SDKS=iphonesimulator
+#   make build-xcframework-sentryobjc-v10 SDKS=iphoneos,iphonesimulator,macosx
+.PHONY: build-xcframework-sentryobjc-v10
+build-xcframework-sentryobjc-v10:
+	@echo "--> Creating V10 SentryObjC xcframeworks (SDKs: $(SDKS))"
+	./scripts/build-xcframework-sentryobjc.sh --sdks "$(SDKS)" --variant both --v10 \
+		--output-dir XCFrameworkBuildPath/V10
+	./scripts/validate-xcframework.sh --xcframework "SentryObjC-Static.xcframework"
+	./scripts/validate-xcframework.sh --xcframework "SentryObjC-Dynamic.xcframework"
+
 ## Build V10 Dynamic XCFramework
 #
 # Builds the V10 SDK as a dynamic xcframework. Overrides the arm64e xcconfig
