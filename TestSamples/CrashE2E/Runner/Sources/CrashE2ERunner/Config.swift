@@ -105,6 +105,9 @@ enum Scenario: String, CaseIterable {
     case crashTimeScope = "crash-time-scope"
     case crashTimeAttachments = "crash-time-attachments"
     case crashTimeReplay = "crash-time-replay"
+    case memoryIntrospectionEnabled = "memory-introspection-enabled"
+    case memoryIntrospectionDisabled = "memory-introspection-disabled"
+    case memoryIntrospectionDefault = "memory-introspection-default"
 
     static let defaultScenarios: [Scenario] = [
         .signal,
@@ -133,7 +136,13 @@ enum Scenario: String, CaseIterable {
         .managedRuntimeClosedSignal,
         .managedRuntimeReinitSignal,
         .swiftAsyncCPPExceptionV2Off,
-        .swiftAsyncCPPExceptionV2On
+        .swiftAsyncCPPExceptionV2On,
+        // enableMemoryIntrospection must reach the crash-time writer of both reporters. A marker
+        // string that only memory introspection can discover must appear in the stored report and
+        // event when enabled, and be absent when disabled or left at the default.
+        .memoryIntrospectionEnabled,
+        .memoryIntrospectionDisabled,
+        .memoryIntrospectionDefault
     ]
 
     static let ksCrashDefaultScenarios = defaultScenarios + [

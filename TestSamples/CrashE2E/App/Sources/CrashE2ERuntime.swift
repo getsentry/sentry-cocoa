@@ -31,6 +31,9 @@ enum CrashE2EScenario: String {
     case crashTimeScope = "crash-time-scope"
     case crashTimeAttachments = "crash-time-attachments"
     case crashTimeReplay = "crash-time-replay"
+    case memoryIntrospectionEnabled = "memory-introspection-enabled"
+    case memoryIntrospectionDisabled = "memory-introspection-disabled"
+    case memoryIntrospectionDefault = "memory-introspection-default"
 }
 
 struct CrashE2EConfiguration {
@@ -122,7 +125,8 @@ enum CrashE2ERuntime {
              .managedRuntimeSignalChain, .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
              .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA,
              .ksCrashRetryReportB, .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments,
-             .crashTimeReplay:
+             .crashTimeReplay,
+             .memoryIntrospectionEnabled, .memoryIntrospectionDisabled, .memoryIntrospectionDefault:
             NSLog("CrashE2E - will trigger scenario: \(configuration.scenario.rawValue)")
             scheduleCrashAfterProcessingCompletesIfRequested()
         }
@@ -150,7 +154,8 @@ enum CrashE2ERuntime {
              .managedRuntimeSignalChain, .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
              .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA,
              .ksCrashRetryReportB, .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments,
-             .crashTimeReplay:
+             .crashTimeReplay,
+             .memoryIntrospectionEnabled, .memoryIntrospectionDisabled, .memoryIntrospectionDefault:
             NSLog("CrashE2E - will trigger scenario synchronously: \(configuration.scenario.rawValue)")
             waitForProcessingCompletionOrAbort()
             Thread.sleep(forTimeInterval: 0.5)
@@ -204,6 +209,14 @@ enum CrashE2ERuntime {
                 options.swiftAsyncStacktraces = false
             } else if configuration.scenario == .swiftAsyncCPPExceptionV2On {
                 options.swiftAsyncStacktraces = true
+            }
+
+            // The default scenario intentionally leaves the option untouched so it verifies the
+            // public default rather than an explicit value.
+            if configuration.scenario == .memoryIntrospectionEnabled {
+                options.enableMemoryIntrospection = true
+            } else if configuration.scenario == .memoryIntrospectionDisabled {
+                options.enableMemoryIntrospection = false
             }
 
             if let cacheDirectoryPath = configuration.cacheDirectoryPath {

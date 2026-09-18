@@ -34,6 +34,9 @@ enum CrashE2ECrashTriggers {
         case .mallocZoneLockedSignal:
             CrashE2ETriggerMallocZoneLockedSignal()
             abortBecauseScenarioReturned(scenario)
+        case .memoryIntrospectionEnabled, .memoryIntrospectionDisabled, .memoryIntrospectionDefault:
+            CrashE2ETriggerMemoryIntrospectionMarkerCrash()
+            abortBecauseScenarioReturned(scenario)
         case .nsException, .nsExceptionRethrow, .nsExceptionSubclass, .cppExceptionV1,
              .cppExceptionV2, .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .unityCxaThrow,
              .unityCxaThrowV2, .objcObject, .objcObjectAfterCaughtCPP, .ksCrashRetryReportA,
@@ -81,7 +84,8 @@ enum CrashE2ECrashTriggers {
             abortBecauseScenarioReturned(scenario)
         case .signal, .cppExceptionV2DynamicImage, .binaryImages, .ignoredSignal,
              .managedRuntimeSignalChain, .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
-             .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments, .crashTimeReplay:
+             .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments, .crashTimeReplay,
+             .memoryIntrospectionEnabled, .memoryIntrospectionDisabled, .memoryIntrospectionDefault:
             abortBecauseScenarioReturned(scenario)
         }
     }
