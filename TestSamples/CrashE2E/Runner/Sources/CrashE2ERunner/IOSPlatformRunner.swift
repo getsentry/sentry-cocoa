@@ -105,6 +105,11 @@ final class IOSPlatformRunner {
             cacheDirectory: cacheRoot,
             platform: "ios"
         )
+        try CrashTimeReplayAsserter.assertCheckpointIfNeeded(
+            scenario: scenario,
+            cacheDirectory: cacheRoot,
+            platform: "ios"
+        )
         try RethrownNSExceptionAsserter.assertCrashLaunchEvidenceIfNeeded(
             scenario: scenario,
             cacheRoot: cacheRoot,
@@ -195,6 +200,9 @@ final class IOSPlatformRunner {
         )
         try fileManager.removeItemIfExists(
             at: cacheRoot.appendingPathComponent("SentryCrash", isDirectory: true)
+        )
+        try fileManager.removeItemIfExists(
+            at: cacheRoot.appendingPathComponent("crash-e2e-replay-checkpoint")
         )
     }
 

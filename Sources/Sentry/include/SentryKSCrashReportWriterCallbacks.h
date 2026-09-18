@@ -44,6 +44,10 @@ bool sentrykscrash_attachments_hasViewHierarchyWriter(void);
 
 /** For testing. Invokes the registered view-hierarchy writer, if any. */
 void sentrykscrash_attachments_invokeViewHierarchyWriter(const char *_Nonnull payloadDirectory);
+
+/** For testing. Invokes `sentrykscrash_didWriteReport` with a synthesized plan. */
+void sentrykscrash_test_invokeDidWriteReport(
+    bool isFatal, bool isCleanExit, bool crashedDuringExceptionHandling, int64_t reportID);
 #    endif // SENTRY_TEST || SENTRY_TEST_CI
 
 /**
