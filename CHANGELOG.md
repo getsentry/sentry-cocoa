@@ -2,6 +2,10 @@
 
 ## 9.30.1
 
+### Features
+
+- Add experimental `enableBreadcrumbTextExtraction` opt-in for interaction breadcrumb child-text extraction. (#9010)
+
 ### Fixes
 
 - Fix app freeze during crash handling when attaching a crash-time screenshot or view hierarchy with a Swift (MainActor) scene delegate under UIScene (#9282)
@@ -60,9 +64,6 @@
 
 > [!WARNING]
 > Native crashes now set `mechanism.synthetic`, which takes the mach exception name (`EXC_BAD_ACCESS`) or signal name (`SIGSEGV`) out of the grouping hash. Expect a one-time regrouping as your app adopts this version: existing crash issues stop receiving events and new ones open. Crashes that differ only by signal at the same stacktrace now share one issue. The mach and signal detail stays on `mechanism.meta`.
-### Features
-
-- Add `enableBreadcrumbTextExtraction` to control interaction breadcrumb child-text extraction. (#9010)
 
 ### Fixes
 
