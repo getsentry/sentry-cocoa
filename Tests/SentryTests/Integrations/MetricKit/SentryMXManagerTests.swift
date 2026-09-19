@@ -1,10 +1,7 @@
 @_spi(Private) @testable import Sentry
+import MetricKit
 import SentryTestUtils
 import XCTest
-
-#if os(iOS) || os(macOS) || os(visionOS)
-
-import MetricKit
 
 final class SentryMXManagerTests: XCTestCase {
     
@@ -18,8 +15,8 @@ final class SentryMXManagerTests: XCTestCase {
         let sut = SentryMXManager(
             inAppLogic: SentryInAppLogic(inAppIncludes: []),
             attachDiagnosticAsAttachment: false,
-            enabledDiagnostics: SentryMXManager.DiagnosticMetric.all
-                .subtracting(disableCrashDiagnostics ? [.crashDiagnostics] : [])
+            enabledDiagnostics: SentryMXManager.Diagnostic.all
+                .subtracting(disableCrashDiagnostics ? [.crash] : [])
         )
 
         return sut
@@ -86,5 +83,3 @@ class TestMXDiagnosticPayload: MXDiagnosticPayload {
         return overrides.timeStampBegin
     }
 }
-
-#endif
