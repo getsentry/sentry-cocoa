@@ -5,7 +5,9 @@ import UIKit
 #endif
 
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
-typealias AutoBreadcrumbTrackingIntegrationProvider = SentryUIDeviceWrapperProvider & FileManagerProvider & NotificationCenterProvider
+typealias AutoBreadcrumbTrackingIntegrationProvider = SentryUIDeviceWrapperProvider & FileManagerProvider & NotificationCenterProvider & ReplayIntegrationProviderProvider
+#elseif (os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+typealias AutoBreadcrumbTrackingIntegrationProvider = FileManagerProvider & ReplayIntegrationProviderProvider
 #else
 typealias AutoBreadcrumbTrackingIntegrationProvider = FileManagerProvider
 #endif
@@ -37,9 +39,16 @@ final class SentryAutoBreadcrumbTrackingIntegration<Dependencies: AutoBreadcrumb
         let reportAccessibilityIdentifier = false
 #endif // os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        let isSessionReplayConfigured = options.sessionReplay.sessionSampleRate > 0
+            || options.sessionReplay.onErrorSampleRate > 0
+        let replayIntegrationProvider = dependencies.replayIntegrationProvider
         let breadcrumbTracker = SentryBreadcrumbTracker(
             reportAccessibilityIdentifier: reportAccessibilityIdentifier,
-            redactOptions: options.sessionReplay
+            redactOptions: options.sessionReplay,
+            shouldApplyRedaction: {
+                isSessionReplayConfigured
+                    || replayIntegrationProvider.getReplayIntegration()?.sessionReplay != nil
+            }
         )
 #else
         let breadcrumbTracker = SentryBreadcrumbTracker(

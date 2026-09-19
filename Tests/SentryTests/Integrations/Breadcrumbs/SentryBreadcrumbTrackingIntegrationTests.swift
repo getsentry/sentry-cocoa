@@ -91,10 +91,9 @@ class SentryBreadcrumbTrackingIntegrationTests: XCTestCase {
     }
 
 #if os(iOS)
-    func testInit_whenReplayMaskingConfigured_shouldPassRedactBuilderToTracker() throws {
+    func testInit_whenReplayIsDisabled_shouldDisableRedaction() throws {
         // -- Arrange --
         let options = fixture.defaultOptions
-        options.sessionReplay.maskAllText = true
 
         // -- Act --
         let sut = try fixture.getSut(options: options)
@@ -104,12 +103,51 @@ class SentryBreadcrumbTrackingIntegrationTests: XCTestCase {
         let tracker = try XCTUnwrap(
             Mirror(reflecting: sut).descendant("breadcrumbTracker") as? SentryBreadcrumbTracker
         )
-        let redactBuilder = try XCTUnwrap(
-            Mirror(reflecting: tracker).descendant("redactBuilder") as? SentryUIRedactBuilder
-        )
+        let button = UIButton()
+        button.setTitle("Visible title", for: .normal)
 
         // -- Assert --
-        XCTAssertTrue(redactBuilder.isViewMaskedForTextExtraction(UIView()))
+        XCTAssertEqual(tracker.extractData(from: button)["title"] as? String, "Visible title")
+    }
+
+    func testInit_whenReplaySessionSamplingIsEnabled_shouldEnableRedaction() throws {
+        // -- Arrange --
+        let options = fixture.defaultOptions
+        options.sessionReplay.sessionSampleRate = 1
+
+        // -- Act --
+        let sut = try fixture.getSut(options: options)
+        defer {
+            sut.uninstall()
+        }
+        let tracker = try XCTUnwrap(
+            Mirror(reflecting: sut).descendant("breadcrumbTracker") as? SentryBreadcrumbTracker
+        )
+        let button = UIButton()
+        button.setTitle("Sensitive title", for: .normal)
+
+        // -- Assert --
+        XCTAssertNil(tracker.extractData(from: button)["title"])
+    }
+
+    func testInit_whenReplayOnErrorSamplingIsEnabled_shouldEnableRedaction() throws {
+        // -- Arrange --
+        let options = fixture.defaultOptions
+        options.sessionReplay.onErrorSampleRate = 1
+
+        // -- Act --
+        let sut = try fixture.getSut(options: options)
+        defer {
+            sut.uninstall()
+        }
+        let tracker = try XCTUnwrap(
+            Mirror(reflecting: sut).descendant("breadcrumbTracker") as? SentryBreadcrumbTracker
+        )
+        let button = UIButton()
+        button.setTitle("Sensitive title", for: .normal)
+
+        // -- Assert --
+        XCTAssertNil(tracker.extractData(from: button)["title"])
     }
 #endif
 }
