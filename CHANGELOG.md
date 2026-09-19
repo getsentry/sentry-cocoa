@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add experimental `enableBreadcrumbTextExtraction` opt-in for interaction breadcrumb child-text extraction. (#9010)
+
 ### Fixes
 
 - Parse crash reports whose NSException reason exceeds the previous 150KB JSON string buffer, and truncate the exception value to 512 characters so the event stays within the 1MiB ingestion limit (#9256)
@@ -56,9 +60,6 @@
 
 > [!WARNING]
 > Native crashes now set `mechanism.synthetic`, which takes the mach exception name (`EXC_BAD_ACCESS`) or signal name (`SIGSEGV`) out of the grouping hash. Expect a one-time regrouping as your app adopts this version: existing crash issues stop receiving events and new ones open. Crashes that differ only by signal at the same stacktrace now share one issue. The mach and signal detail stays on `mechanism.meta`.
-### Features
-
-- Add `enableBreadcrumbTextExtraction` to control interaction breadcrumb child-text extraction. (#9010)
 
 ### Fixes
 

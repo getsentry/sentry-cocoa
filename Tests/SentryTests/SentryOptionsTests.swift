@@ -23,6 +23,16 @@ final class SentryOptionsTests: XCTestCase {
         XCTAssertFalse(options.experimental.enableNewURLLoaderSwizzling)
     }
 
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    func testEnableBreadcrumbTextExtraction_whenDefault_shouldBeFalse() {
+        // -- Arrange --
+        let options = Options()
+
+        // -- Assert --
+        XCTAssertFalse(options.experimental.enableBreadcrumbTextExtraction)
+    }
+#endif
+
     // MARK: - Data Collection
 
     func testDataCollection_whenInitialized_shouldUseDefault() throws {
