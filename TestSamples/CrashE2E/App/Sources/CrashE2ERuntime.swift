@@ -7,6 +7,7 @@ enum CrashE2EScenario: String {
     case drain
     case signal
     case nsException = "ns-exception"
+    case nsExceptionRethrow = "ns-exception-rethrow"
     case nsExceptionSubclass = "ns-exception-subclass"
     case cppExceptionV1 = "cpp-exception-v1"
     case cppExceptionV2 = "cpp-exception-v2"
@@ -17,6 +18,7 @@ enum CrashE2EScenario: String {
     case objcObjectAfterCaughtCPP = "objc-object-after-caught-cpp"
     case binaryImages = "binary-images"
     case ignoredSignal = "ignored-signal"
+    case sigterm
     case managedRuntimeSignalChain = "managed-runtime-signal-chain"
     case managedRuntimePreSDKSignal = "managed-runtime-pre-sdk-signal"
     case managedRuntimeClosedSignal = "managed-runtime-closed-signal"
@@ -28,6 +30,10 @@ enum CrashE2EScenario: String {
     case mallocZoneLockedSignal = "malloc-zone-locked-signal"
     case crashTimeScope = "crash-time-scope"
     case crashTimeAttachments = "crash-time-attachments"
+    case crashTimeReplay = "crash-time-replay"
+    case memoryIntrospectionEnabled = "memory-introspection-enabled"
+    case memoryIntrospectionDisabled = "memory-introspection-disabled"
+    case memoryIntrospectionDefault = "memory-introspection-default"
 }
 
 struct CrashE2EConfiguration {
@@ -77,6 +83,7 @@ struct CrashE2EConfiguration {
     }
 }
 
+// swiftlint:disable type_body_length
 enum CrashE2ERuntime {
     static let configuration = CrashE2EConfiguration.fromProcessInfo()
     private static var binaryImageBeforeSDKPath: String?
@@ -87,10 +94,12 @@ enum CrashE2ERuntime {
         triggerPreSDKSignalIfNeeded()
         installIgnoredSignalHandlerIfNeeded()
         installFakeManagedRuntimeHandlerIfNeeded()
+        installUncaughtNSExceptionMarkerIfNeeded()
         loadBinaryImageBeforeSDKIfNeeded()
         startConfiguredSDK()
+        writeLastRunMarkerIfNeeded()
         CrashE2EScopePopulation.populateIfNeeded()
-        logCrashTimeAttachmentsHookIfNeeded()
+        logCrashTimeHooksIfNeeded()
         NSLog("CrashE2E - SDK started")
     }
 
@@ -108,12 +117,16 @@ enum CrashE2ERuntime {
             }
         case .managedRuntimePreSDKSignal:
             abortBecausePreSDKScenarioReturned()
-        case .signal, .nsException, .nsExceptionSubclass, .cppExceptionV1, .cppExceptionV2,
-             .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2, .objcObject,
-             .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal, .managedRuntimeSignalChain,
-             .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
+        case .sigterm:
+            waitForExternalSigterm()
+        case .signal, .nsException, .nsExceptionRethrow, .nsExceptionSubclass, .cppExceptionV1,
+             .cppExceptionV2, .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2,
+             .objcObject, .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal,
+             .managedRuntimeSignalChain, .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
              .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA,
-             .ksCrashRetryReportB, .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments:
+             .ksCrashRetryReportB, .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments,
+             .crashTimeReplay,
+             .memoryIntrospectionEnabled, .memoryIntrospectionDisabled, .memoryIntrospectionDefault:
             NSLog("CrashE2E - will trigger scenario: \(configuration.scenario.rawValue)")
             scheduleCrashAfterProcessingCompletesIfRequested()
         }
@@ -133,12 +146,16 @@ enum CrashE2ERuntime {
             sleepThenExit(configuration.exitAfterSeconds ?? 3.0)
         case .managedRuntimePreSDKSignal:
             abortBecausePreSDKScenarioReturned()
-        case .signal, .nsException, .nsExceptionSubclass, .cppExceptionV1, .cppExceptionV2,
-             .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2, .objcObject,
-             .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal, .managedRuntimeSignalChain,
-             .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
+        case .sigterm:
+            waitForExternalSigtermSynchronously()
+        case .signal, .nsException, .nsExceptionRethrow, .nsExceptionSubclass, .cppExceptionV1,
+             .cppExceptionV2, .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2,
+             .objcObject, .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal,
+             .managedRuntimeSignalChain, .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
              .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA,
-             .ksCrashRetryReportB, .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments:
+             .ksCrashRetryReportB, .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments,
+             .crashTimeReplay,
+             .memoryIntrospectionEnabled, .memoryIntrospectionDisabled, .memoryIntrospectionDefault:
             NSLog("CrashE2E - will trigger scenario synchronously: \(configuration.scenario.rawValue)")
             waitForProcessingCompletionOrAbort()
             Thread.sleep(forTimeInterval: 0.5)
@@ -151,7 +168,7 @@ enum CrashE2ERuntime {
         SentrySDK.close()
         startConfiguredSDK()
         CrashE2EScopePopulation.populateIfNeeded()
-        logCrashTimeAttachmentsHookIfNeeded()
+        logCrashTimeHooksIfNeeded()
         NSLog("CrashE2E - SDK restarted")
     }
 
@@ -194,6 +211,14 @@ enum CrashE2ERuntime {
                 options.swiftAsyncStacktraces = true
             }
 
+            // The default scenario intentionally leaves the option untouched so it verifies the
+            // public default rather than an explicit value.
+            if configuration.scenario == .memoryIntrospectionEnabled {
+                options.enableMemoryIntrospection = true
+            } else if configuration.scenario == .memoryIntrospectionDisabled {
+                options.enableMemoryIntrospection = false
+            }
+
             if let cacheDirectoryPath = configuration.cacheDirectoryPath {
                 options.cacheDirectoryPath = cacheDirectoryPath
             }
@@ -208,9 +233,28 @@ enum CrashE2ERuntime {
         abortBecausePreSDKScenarioReturned()
     }
 
-    private static func logCrashTimeAttachmentsHookIfNeeded() {
-        guard configuration.scenario == .crashTimeAttachments else { return }
-        NSLog("CrashE2E - crash-time-attachments uses the SDK SENTRY_CRASH_E2E screenshot hook")
+    private static func logCrashTimeHooksIfNeeded() {
+        switch configuration.scenario {
+        case .crashTimeAttachments:
+            NSLog("CrashE2E - crash-time-attachments uses the SDK SENTRY_CRASH_E2E attachment hook")
+        case .crashTimeReplay:
+            NSLog("CrashE2E - crash-time-replay uses the SDK SENTRY_CRASH_E2E replay checkpoint hook")
+        default:
+            return
+        }
+    }
+
+    private static func installUncaughtNSExceptionMarkerIfNeeded() {
+        guard configuration.scenario == .nsExceptionRethrow else { return }
+        let markerURL: URL
+        if let cacheDirectoryPath = configuration.cacheDirectoryPath {
+            markerURL = URL(fileURLWithPath: cacheDirectoryPath, isDirectory: true)
+                .appendingPathComponent("crash-e2e-uncaught-nsexception.marker")
+        } else {
+            markerURL = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+                .appendingPathComponent("crash-e2e-uncaught-nsexception.marker")
+        }
+        CrashE2EInstallUncaughtNSExceptionMarker(markerURL.path)
     }
 
     private static func installIgnoredSignalHandlerIfNeeded() {
@@ -223,12 +267,7 @@ enum CrashE2ERuntime {
         switch configuration.scenario {
         case .managedRuntimeSignalChain, .managedRuntimeClosedSignal, .managedRuntimeReinitSignal:
             installFakeManagedRuntimeHandler()
-        case .idle, .drain, .signal, .nsException, .nsExceptionSubclass, .cppExceptionV1,
-             .cppExceptionV2, .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2,
-             .objcObject, .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal,
-             .managedRuntimePreSDKSignal, .swiftAsyncCPPExceptionV2Off,
-             .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA, .ksCrashRetryReportB,
-             .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments:
+        default:
             return
         }
     }
@@ -308,16 +347,7 @@ enum CrashE2ERuntime {
     }
 
     private static func binaryImageMarkerURL() throws -> URL {
-        if let cacheDirectoryPath = configuration.cacheDirectoryPath {
-            return URL(fileURLWithPath: cacheDirectoryPath, isDirectory: true)
-                .appendingPathComponent("crash-e2e-binary-images.json")
-        }
-
-        let caches = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)
-        guard let cacheURL = caches.first else {
-            throw CocoaError(.fileNoSuchFile)
-        }
-        return cacheURL.appendingPathComponent("crash-e2e-binary-images.json")
+        try cacheMarkerURL(named: "crash-e2e-binary-images.json")
     }
 
     private static func installFakeManagedRuntimeHandler() {
@@ -351,6 +381,7 @@ enum CrashE2ERuntime {
         Darwin.exit(0)
     }
 }
+// swiftlint:enable type_body_length
 
 enum CrashE2EScopePopulation {
     static func populateIfNeeded() {

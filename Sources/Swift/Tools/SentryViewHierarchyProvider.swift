@@ -45,7 +45,12 @@ import UIKit
     }
     
     @discardableResult @objc(saveViewHierarchy:) public func saveViewHierarchy(_ filePath: String) -> Bool {
+#if SDK_V10
+        // Crash-time: do not hop to main. KSCrash has suspended other threads.
+        let windows = applicationProvider()?.collectWindowsOnCurrentThread() ?? []
+#else
         let windows = applicationProvider()?.getWindows() ?? []
+#endif
         return SentryViewHierarchyProviderHelper.saveViewHierarchy(filePath, windows: windows, reportAccessibilityIdentifier: reportAccessibilityIdentifier)
     }
 }

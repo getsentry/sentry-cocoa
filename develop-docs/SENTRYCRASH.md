@@ -155,13 +155,12 @@ SentrySDK.start(options:)
     → SentryCrashIntegration.init (if enableCrashHandler = true)
       ├── Create SentryCrashWrapper
       ├── Create SentryCrashScopeObserver
-      ├── Create SentryCrashIntegrationSessionHandler
       ├── startCrashHandler():
       │   ├── sentrycrashcm_setEnableSigtermReporting()
       │   ├── SentryCrashInstallationReporter.install(cacheDirectory)
       │   │   └── C: sentrycrash_install(appName, installPath)
       │   ├── sentrycrashcm_cppexception_enable_swap_cxa_throw() (if enabled)
-      │   ├── sessionHandler.endCurrentSessionIfRequired()
+      │   ├── PreviousRunSessionFinalizer.finalizeIfNeeded()
       │   └── installation.sendAllReports() ← sends pending crash reports
       ├── configureScope():
       │   ├── Serialize scope → crashReporter.userInfo → sentrycrash_setUserInfoJSON()

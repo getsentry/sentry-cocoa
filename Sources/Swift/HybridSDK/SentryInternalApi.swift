@@ -19,15 +19,19 @@ public struct SentryInternalApi {
         & SentryInternalScopeApi.Dependencies
         & OptionsDeserializerProvider
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-    typealias UIDependencies = BaseDependencies
+    typealias PlatformDependencies = BaseDependencies
         & SentryInternalPerformanceApi.Dependencies
         & SentryInternalScreenApi.Dependencies
         & SentryInternalScreenshotApi.Dependencies
         & SentryInternalViewHierarchyApi.Dependencies
         & SentryInternalReplayApi.Dependencies
-    typealias Dependencies = UIDependencies
 #else
-    typealias Dependencies = BaseDependencies
+    typealias PlatformDependencies = BaseDependencies
+#endif
+#if !(os(watchOS) || os(tvOS) || os(visionOS))
+    typealias Dependencies = PlatformDependencies & SentryInternalProfilingApi.Dependencies
+#else
+    typealias Dependencies = PlatformDependencies
 #endif
 
     /// SDK metadata and configuration.
@@ -134,7 +138,7 @@ public struct SentryInternalApi {
         self.screenshot = SentryInternalScreenshotApi(dependencies: dependencies)
 #endif
 #if !(os(watchOS) || os(tvOS) || os(visionOS))
-        self.profiling = SentryInternalProfilingApi()
+        self.profiling = SentryInternalProfilingApi(dependencies: dependencies)
 #endif
     }
 }
