@@ -173,6 +173,11 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     private func registerEventProcessor(dependencies: SessionReplayIntegrationScope) {
         dependencies.globalEventProcessor.add { [weak self] event in
             guard let self = self else { return event }
+            // Feedback capture resolves its replay before processing, including the form's
+            // opening-time association. Do not replace it with the current session's ID.
+            if event.type == SentryEnvelopeItemTypes.feedback {
+                return event
+            }
             if event.isFatalEvent {
                 self.replayRecovery?.resumePreviousSessionReplay(event)
             } else {
@@ -429,6 +434,13 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     @objc @discardableResult public func captureReplay() -> Bool {
         SentrySDKLog.debug("[Session Replay] Capturing replay")
         return sessionReplay?.captureReplay() ?? false 
+    }
+
+    /// Samples and flushes the active replay for feedback, returning its association when captured.
+    @objc public func captureReplayForFeedback() -> SentryId? {
+        guard let sessionReplay = sessionReplay else { return nil }
+        guard sessionReplay.isFullSession || replayOptions.onErrorSampleRate > 0 else { return nil }
+        return sessionReplay.captureForFeedback()
     }
 
     @objc public func configureReplayWith(_ breadcrumbConverter: SentryReplayBreadcrumbConverter?, screenshotProvider: SentryViewScreenshotProvider?) {

@@ -4,6 +4,7 @@
 #    include "KSFileUtils.h"
 #    include "SentryAsyncSafeLog.h"
 #    include "SentryScopeSyncC.h"
+#    include "SentrySessionReplaySyncC.h"
 #    include <dirent.h>
 #    include <errno.h>
 #    include <fcntl.h>
@@ -136,44 +137,67 @@ sentrykscrash_didWriteReport(const KSCrash_ExceptionHandlingPlan *const plan, in
 {
     SENTRY_ASYNC_SAFE_LOG_TRACE("didWriteReport reportID=%" PRId64, reportID);
     if (plan == NULL) {
-        SENTRY_ASYNC_SAFE_LOG_DEBUG("Skipping crash attachments: plan is NULL");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Skipping crash-time work: plan is NULL");
         return;
     }
     if (!plan->isFatal) {
-        SENTRY_ASYNC_SAFE_LOG_DEBUG("Skipping crash attachments: exception is not fatal");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Skipping crash-time work: exception is not fatal");
         return;
     }
     if (plan->isCleanExit) {
-        SENTRY_ASYNC_SAFE_LOG_DEBUG("Skipping crash attachments: clean exit");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Skipping crash-time work: clean exit");
         return;
     }
     if (plan->crashedDuringExceptionHandling) {
-        SENTRY_ASYNC_SAFE_LOG_DEBUG(
-            "Skipping crash attachments: crashed during exception handling");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Skipping crash-time work: crashed during exception handling");
         return;
     }
     if (reportID <= 0) {
         SENTRY_ASYNC_SAFE_LOG_DEBUG(
-            "Skipping crash attachments: invalid reportID %" PRId64, reportID);
+            "Skipping crash-time work: invalid reportID %" PRId64, reportID);
         return;
     }
+
+    // V9 writes this from SentryCrashC.onCrash immediately after the report and before
+    // screenshots/view hierarchy. Those captures may crash the handler; writing the
+    // checkpoint first keeps recovery state even if later capture dies.
+    // writeInfo() uses unsynchronized access to global crashReplay, heap allocations, and there
+    // is no atomic publish of the whole state (a live update can tear between segmentId and
+    // lastSegmentEnd. Ordinary mutexes cannot synchronize with this handler. Same as V9; not fixed
+    // here.
+    SENTRY_ASYNC_SAFE_LOG_DEBUG(
+        "Writing session-replay recovery checkpoint for reportID %" PRId64, reportID);
+    sentrySessionReplaySync_writeInfo();
 
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Capturing crash attachments for reportID %" PRId64, reportID);
     sentrykscrash_attachments_capture(reportID);
 
 #    if SENTRY_DISABLE_SENTRYCRASH_V10
-    // KSCRASH_TODO(GH-8273, GH-8532): Capture crash-time view hierarchy into the report
-    // attachment directory. Acceptance: SCV10-009 and SCV10-010 in
-    // SENTRYCRASH_V10_MIGRATION_LEDGER.md.
-    // KSCRASH_TODO(GH-8801): Write the session-replay recovery checkpoint after the report
-    // is on disk. Acceptance: SCV10-039 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
     // KSCRASH_TODO(GH-8735): Persist the active transaction bound to the scope. Acceptance:
     // SCV10-027 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
 #    endif
 }
 
+#    if SENTRY_TEST || SENTRY_TEST_CI
+void
+sentrykscrash_test_invokeDidWriteReport(
+    bool isFatal, bool isCleanExit, bool crashedDuringExceptionHandling, int64_t reportID)
+{
+    KSCrash_ExceptionHandlingPlan plan = {
+        .shouldRecordAllThreads = false,
+        .shouldWriteReport = true,
+        .isFatal = isFatal,
+        .isCleanExit = isCleanExit,
+        .requiresAsyncSafety = true,
+        .crashedDuringExceptionHandling = crashedDuringExceptionHandling,
+    };
+    sentrykscrash_didWriteReport(&plan, reportID);
+}
+#    endif // SENTRY_TEST || SENTRY_TEST_CI
+
 static atomic_bool g_attachmentsEnabled = false;
 static _Atomic(SentryKSCrashAttachmentsScreenshotWriter) g_screenshotWriter;
+static _Atomic(SentryKSCrashAttachmentsViewHierarchyWriter) g_viewHierarchyWriter;
 static _Atomic(KSCrashReportSidecarPathProviderFunc) g_getSidecarPath;
 
 _Static_assert(ATOMIC_BOOL_LOCK_FREE == 2, "Crash-handler enabled state must be lock-free");
@@ -206,6 +230,31 @@ sentrykscrash_attachments_setScreenshotWriter(SentryKSCrashAttachmentsScreenshot
 {
     atomic_store_explicit(&g_screenshotWriter, writer, memory_order_release);
 }
+
+void
+sentrykscrash_attachments_setViewHierarchyWriter(SentryKSCrashAttachmentsViewHierarchyWriter writer)
+{
+    atomic_store_explicit(&g_viewHierarchyWriter, writer, memory_order_release);
+}
+
+#    if SENTRY_TEST || SENTRY_TEST_CI
+bool
+sentrykscrash_attachments_hasViewHierarchyWriter(void)
+{
+    return atomic_load_explicit(&g_viewHierarchyWriter, memory_order_acquire) != NULL;
+}
+
+void
+sentrykscrash_attachments_invokeViewHierarchyWriter(const char *payloadDirectory)
+{
+    SentryKSCrashAttachmentsViewHierarchyWriter writer
+        = atomic_load_explicit(&g_viewHierarchyWriter, memory_order_acquire);
+    if (writer == NULL || payloadDirectory == NULL) {
+        return;
+    }
+    writer(payloadDirectory);
+}
+#    endif // SENTRY_TEST || SENTRY_TEST_CI
 
 void
 sentrykscrash_attachments_setSidecarPathProvider(KSCrashReportSidecarPathProviderFunc provider)
@@ -343,11 +392,13 @@ sentrykscrash_attachments_capture(int64_t reportID)
         return;
     }
 
-    SentryKSCrashAttachmentsScreenshotWriter writer
+    SentryKSCrashAttachmentsScreenshotWriter screenshotWriter
         = atomic_load_explicit(&g_screenshotWriter, memory_order_acquire);
-    if (writer == NULL) {
+    SentryKSCrashAttachmentsViewHierarchyWriter viewHierarchyWriter
+        = atomic_load_explicit(&g_viewHierarchyWriter, memory_order_acquire);
+    if (screenshotWriter == NULL && viewHierarchyWriter == NULL) {
         SENTRY_ASYNC_SAFE_LOG_DEBUG("Not capturing attachments for reportID %" PRId64
-                                    ": screenshot writer is not set",
+                                    ": no attachment writers are set",
             reportID);
         return;
     }
@@ -385,10 +436,18 @@ sentrykscrash_attachments_capture(int64_t reportID)
         return;
     }
 
-    SENTRY_ASYNC_SAFE_LOG_DEBUG("Calling screenshot writer for %s", payloadDirectory);
-    // not async-signal safe but accepted
-    writer(payloadDirectory);
-    SENTRY_ASYNC_SAFE_LOG_DEBUG("Screenshot writer returned for %s", payloadDirectory);
+    if (screenshotWriter != NULL) {
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Calling screenshot writer for %s", payloadDirectory);
+        // not async-signal safe but accepted
+        screenshotWriter(payloadDirectory);
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Screenshot writer returned for %s", payloadDirectory);
+    }
+    if (viewHierarchyWriter != NULL) {
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Calling view-hierarchy writer for %s", payloadDirectory);
+        // not async-signal safe but accepted
+        viewHierarchyWriter(payloadDirectory);
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("View-hierarchy writer returned for %s", payloadDirectory);
+    }
 
     if (!directoryHasFiles(payloadDirectory)) {
         SENTRY_ASYNC_SAFE_LOG_DEBUG("No attachment files written for reportID %" PRId64

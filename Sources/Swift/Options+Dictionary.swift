@@ -67,11 +67,13 @@ extension Options {
         }
         #endif
 
-        #if !os(watchOS)
+        // V10 intentionally ignores the "enableSigtermReporting" key: KSCrash treats SIGTERM as a
+        // clean exit and never reports it as a crash, so there is nothing to configure.
+        #if !os(watchOS) && !SDK_V10
         if let enableSigtermReporting = boolValue(dictionary["enableSigtermReporting"]) {
-            self.enableSigtermReporting = enableSigtermReporting
+            self._enableSigtermReporting = enableSigtermReporting
         }
-        #endif
+        #endif // !os(watchOS) && !SDK_V10
 
         if let maxBreadcrumbs = dictionary["maxBreadcrumbs"] as? NSNumber {
             self.maxBreadcrumbs = maxBreadcrumbs.uintValue
@@ -210,7 +212,7 @@ extension Options {
 
         #if !SDK_V10
         if let enableReportNonFullyBlockingAppHangs = boolValue(dictionary["enableReportNonFullyBlockingAppHangs"]) {
-            self.enableReportNonFullyBlockingAppHangs = enableReportNonFullyBlockingAppHangs
+            self.enableReportNonFullyBlockingAppHangsValue = enableReportNonFullyBlockingAppHangs
         }
         #endif // !SDK_V10
         #endif
@@ -223,7 +225,7 @@ extension Options {
 
         #if !SDK_V10
         if let enableAppHangTracking = boolValue(dictionary["enableAppHangTracking"]) {
-            self.enableAppHangTracking = enableAppHangTracking
+            self.enableAppHangTrackingValue = enableAppHangTracking
         }
         #endif // !SDK_V10
 

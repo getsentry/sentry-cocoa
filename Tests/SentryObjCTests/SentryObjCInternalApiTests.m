@@ -1,10 +1,10 @@
 @import SentryObjC;
 @import XCTest;
 
-@interface SentryObjCPrivateSDKOnlyTests : XCTestCase
+@interface SentryObjCInternalApiTests : XCTestCase
 @end
 
-@implementation SentryObjCPrivateSDKOnlyTests
+@implementation SentryObjCInternalApiTests
 
 - (void)setUp
 {
@@ -17,7 +17,7 @@
 
 - (void)tearDown
 {
-    SentryObjCPrivateSDKOnly.appStartMeasurementHybridSDKMode = NO;
+    SentryObjCSDK.internal.appStart.hybridSDKMode = NO;
     [SentryObjCSDK close];
     [super tearDown];
 }
@@ -27,7 +27,7 @@
 - (void)testGetSdkName_shouldContainSentry
 {
     // -- Act --
-    NSString *name = [SentryObjCPrivateSDKOnly getSdkName];
+    NSString *name = SentryObjCSDK.internal.sdk.name;
 
     // -- Assert --
     XCTAssertNotNil(name);
@@ -39,7 +39,7 @@
 - (void)testGetSdkVersionString_shouldReturnSemverLikeString
 {
     // -- Act --
-    NSString *version = [SentryObjCPrivateSDKOnly getSdkVersionString];
+    NSString *version = SentryObjCSDK.internal.sdk.versionString;
 
     // -- Assert --
     XCTAssertNotNil(version);
@@ -51,36 +51,36 @@
 - (void)testSetSdkNameAndVersion_shouldPersistRoundTrip
 {
     // -- Arrange --
-    NSString *originalName = [SentryObjCPrivateSDKOnly getSdkName];
-    NSString *originalVersion = [SentryObjCPrivateSDKOnly getSdkVersionString];
+    NSString *originalName = SentryObjCSDK.internal.sdk.name;
+    NSString *originalVersion = SentryObjCSDK.internal.sdk.versionString;
 
     // -- Act --
-    [SentryObjCPrivateSDKOnly setSdkName:@"test.sdk" andVersionString:@"1.0.0"];
+    [SentryObjCSDK.internal.sdk setName:@"test.sdk" version:@"1.0.0"];
 
     // -- Assert --
-    XCTAssertEqualObjects([SentryObjCPrivateSDKOnly getSdkName], @"test.sdk");
-    XCTAssertEqualObjects([SentryObjCPrivateSDKOnly getSdkVersionString], @"1.0.0");
+    XCTAssertEqualObjects(SentryObjCSDK.internal.sdk.name, @"test.sdk");
+    XCTAssertEqualObjects(SentryObjCSDK.internal.sdk.versionString, @"1.0.0");
 
     // -- Cleanup --
-    [SentryObjCPrivateSDKOnly setSdkName:originalName andVersionString:originalVersion];
+    [SentryObjCSDK.internal.sdk setName:originalName version:originalVersion];
 }
 
 - (void)testSetSdkName_shouldPreserveVersion
 {
     // -- Arrange --
-    NSString *originalName = [SentryObjCPrivateSDKOnly getSdkName];
-    NSString *originalVersion = [SentryObjCPrivateSDKOnly getSdkVersionString];
+    NSString *originalName = SentryObjCSDK.internal.sdk.name;
+    NSString *originalVersion = SentryObjCSDK.internal.sdk.versionString;
 
     // -- Act --
-    [SentryObjCPrivateSDKOnly setSdkName:@"test.sdk"];
+    SentryObjCSDK.internal.sdk.name = @"test.sdk";
 
     // -- Assert --
-    XCTAssertEqualObjects([SentryObjCPrivateSDKOnly getSdkName], @"test.sdk");
-    XCTAssertEqualObjects([SentryObjCPrivateSDKOnly getSdkVersionString], originalVersion,
+    XCTAssertEqualObjects(SentryObjCSDK.internal.sdk.name, @"test.sdk");
+    XCTAssertEqualObjects(SentryObjCSDK.internal.sdk.versionString, originalVersion,
         @"Version should be preserved when only setting the name");
 
     // -- Cleanup --
-    [SentryObjCPrivateSDKOnly setSdkName:originalName];
+    SentryObjCSDK.internal.sdk.name = originalName;
 }
 
 #pragma mark - SDK packages
@@ -88,7 +88,7 @@
 - (void)testAddSdkPackage_shouldNotCrash
 {
     // -- Act & Assert (no crash) --
-    [SentryObjCPrivateSDKOnly addSdkPackage:@"test-package" version:@"1.0"];
+    [SentryObjCSDK.internal.sdk addPackageName:@"test-package" version:@"1.0"];
 }
 
 #pragma mark - Extra context
@@ -96,7 +96,7 @@
 - (void)testGetExtraContext_shouldReturnDictionary
 {
     // -- Act --
-    NSDictionary *ctx = [SentryObjCPrivateSDKOnly getExtraContext];
+    NSDictionary *ctx = SentryObjCSDK.internal.sdk.extraContext;
 
     // -- Assert --
     XCTAssertNotNil(ctx);
@@ -111,7 +111,7 @@
     SentryObjCSpanId *spanId = [[SentryObjCSpanId alloc] init];
 
     // -- Act & Assert (no crash) --
-    [SentryObjCPrivateSDKOnly setTrace:traceId spanId:spanId];
+    [SentryObjCSDK.internal setTrace:traceId spanId:spanId];
 }
 
 #pragma mark - Installation ID
@@ -119,8 +119,8 @@
 - (void)testInstallationID_shouldReturnConsistentValue
 {
     // -- Act --
-    NSString *first = SentryObjCPrivateSDKOnly.installationID;
-    NSString *second = SentryObjCPrivateSDKOnly.installationID;
+    NSString *first = SentryObjCSDK.internal.sdk.installationID;
+    NSString *second = SentryObjCSDK.internal.sdk.installationID;
 
     // -- Assert --
     XCTAssertNotNil(first);
@@ -133,17 +133,16 @@
 - (void)testAppStartMeasurementHybridSDKMode_initialValueIsFalse
 {
     // -- Assert --
-    XCTAssertFalse(
-        SentryObjCPrivateSDKOnly.appStartMeasurementHybridSDKMode, @"Initial value should be NO");
+    XCTAssertFalse(SentryObjCSDK.internal.appStart.hybridSDKMode, @"Initial value should be NO");
 }
 
 - (void)testAppStartMeasurementHybridSDKMode_whenSet_shouldReturnValue
 {
     // -- Act --
-    SentryObjCPrivateSDKOnly.appStartMeasurementHybridSDKMode = YES;
+    SentryObjCSDK.internal.appStart.hybridSDKMode = YES;
 
     // -- Assert --
-    XCTAssertTrue(SentryObjCPrivateSDKOnly.appStartMeasurementHybridSDKMode);
+    XCTAssertTrue(SentryObjCSDK.internal.appStart.hybridSDKMode);
 }
 
 #pragma mark - User and breadcrumb from dictionary
@@ -151,7 +150,7 @@
 - (void)testUserWithDictionary_shouldReturnUserWithMatchingId
 {
     // -- Act --
-    SentryObjCUser *user = [SentryObjCPrivateSDKOnly userWithDictionary:@{ @"id" : @"u1" }];
+    SentryObjCUser *user = [SentryObjCSDK.internal.user fromDictionary:@{ @"id" : @"u1" }];
 
     // -- Assert --
     XCTAssertNotNil(user);
@@ -162,7 +161,7 @@
 {
     // -- Act --
     SentryObjCBreadcrumb *crumb =
-        [SentryObjCPrivateSDKOnly breadcrumbWithDictionary:@{ @"category" : @"test" }];
+        [SentryObjCSDK.internal.breadcrumbs fromDictionary:@{ @"category" : @"test" }];
 
     // -- Assert --
     XCTAssertNotNil(crumb);
@@ -174,7 +173,7 @@
 - (void)testSetLogOutput_shouldNotCrash
 {
     // -- Act & Assert (no crash) --
-    [SentryObjCPrivateSDKOnly setLogOutput:^(NSString *msg) { (void)msg; }];
+    [SentryObjCSDK.internal setLogOutput:^(NSString *msg) { (void)msg; }];
 }
 
 #pragma mark - Signal handling
@@ -182,7 +181,7 @@
 - (void)testIgnoreNextSignal_shouldNotCrash
 {
     // -- Act & Assert (no crash) --
-    [SentryObjCPrivateSDKOnly ignoreNextSignal:0];
+    [SentryObjCSDK.internal ignoreNextSignal:0];
 }
 
 #pragma mark - Envelope
@@ -193,7 +192,7 @@
     NSData *emptyData = [[NSData alloc] init];
 
     // -- Act --
-    SentryObjCEnvelope *envelope = [SentryObjCPrivateSDKOnly envelopeWithData:emptyData];
+    SentryObjCEnvelope *envelope = [SentryObjCSDK.internal.envelope deserializeFrom:emptyData];
 
     // -- Assert --
     XCTAssertNil(envelope);
@@ -206,7 +205,7 @@
     NSData *data = [rawData dataUsingEncoding:NSUTF8StringEncoding];
 
     // -- Act --
-    SentryObjCEnvelope *envelope = [SentryObjCPrivateSDKOnly envelopeWithData:data];
+    SentryObjCEnvelope *envelope = [SentryObjCSDK.internal.envelope deserializeFrom:data];
 
     // -- Assert --
     XCTAssertNotNil(envelope);
@@ -232,7 +231,7 @@
     XCTAssertEqual(envelope.items.count, 1U);
 
     // -- Act & Assert (no crash) --
-    [SentryObjCPrivateSDKOnly storeEnvelope:envelope];
+    [SentryObjCSDK.internal.envelope store:envelope];
 }
 
 - (void)testCaptureEnvelope_shouldNotCrash
@@ -252,7 +251,7 @@
     XCTAssertEqual(envelope.items.count, 1U);
 
     // -- Act & Assert (no crash) --
-    [SentryObjCPrivateSDKOnly captureEnvelope:envelope];
+    [SentryObjCSDK.internal.envelope capture:envelope];
 }
 
 @end

@@ -18,6 +18,8 @@
   - Scrub sensitive Session Replay request and response body values, replacing unparseable bodies with `[Filtered]` (#8547)
 - Add `beforeSendTransaction` to modify or drop transaction events before sending (#8745)
 - Attach crash screenshots via KSCrash sidecar in `SentryV10` (#8986)
+- Attach crash view hierarchy via KSCrash sidecar in `SentryV10` (#9018)
+- Write session replay recovery checkpoints from KSCrash in `SentryV10` (#9038)
 
 ### Breaking Changes
 
@@ -37,6 +39,7 @@
   - Remove the `enableAppHangTracking` and `enableReportNonFullyBlockingAppHangs` options
   - Remove the `pauseAppHangTracking` and `resumeAppHangTracking` APIs
   - Remove the `enableWatchdogTerminationsV2` option; watchdog termination tracking always uses the run-loop-based tracker
+- Remove `enableSigtermReporting`; KSCrash treats `SIGTERM` as a clean exit and never reports it as a crash (#9019)
 
 ### Fixes
 
@@ -53,3 +56,4 @@
 - Restore binary images and `debug_meta` in `SentryV10` with KSCrash RecordingCore (#8798)
 - Restore macOS AppKit NSException forwarding in `SentryV10` (#8874)
 - Honor `swiftAsyncStacktraces` in `SentryV10` with KSCrash (#8856)
+- Populate `beforeSendTransaction` trace context from the transaction's own tracer, preserving its `op`, trace IDs, and status when the scope span is cleared or replaced. V9 `beforeSend` behavior is unchanged (#9040)

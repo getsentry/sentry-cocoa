@@ -5,7 +5,8 @@ import Sentry
 enum CrashE2ECrashTriggers {
     static func trigger(_ scenario: CrashE2EScenario) -> Never {
         switch scenario {
-        case .signal, .managedRuntimeSignalChain, .crashTimeScope, .crashTimeAttachments:
+        case .signal, .managedRuntimeSignalChain, .crashTimeScope, .crashTimeAttachments,
+             .crashTimeReplay:
             SentrySDK.crash()
             abortBecauseScenarioReturned(scenario)
         case .binaryImages:
@@ -33,27 +34,22 @@ enum CrashE2ECrashTriggers {
         case .mallocZoneLockedSignal:
             CrashE2ETriggerMallocZoneLockedSignal()
             abortBecauseScenarioReturned(scenario)
-        case .nsException, .nsExceptionSubclass, .cppExceptionV1, .cppExceptionV2,
-             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .unityCxaThrow,
+        case .memoryIntrospectionEnabled, .memoryIntrospectionDisabled, .memoryIntrospectionDefault:
+            CrashE2ETriggerMemoryIntrospectionMarkerCrash()
+            abortBecauseScenarioReturned(scenario)
+        case .nsException, .nsExceptionRethrow, .nsExceptionSubclass, .cppExceptionV1,
+             .cppExceptionV2, .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .unityCxaThrow,
              .unityCxaThrowV2, .objcObject, .objcObjectAfterCaughtCPP, .ksCrashRetryReportA,
              .ksCrashRetryReportB,
-             .idle, .drain, .managedRuntimePreSDKSignal:
+             .idle, .drain, .managedRuntimePreSDKSignal, .sigterm:
             triggerExceptionScenario(scenario)
         }
     }
 
     private static func triggerExceptionScenario(_ scenario: CrashE2EScenario) -> Never {
         switch scenario {
-        case .nsException:
-            NSException(
-                name: NSExceptionName("CrashE2ENSException"),
-                reason: "Crash E2E uncaught NSException",
-                userInfo: ["scenario": scenario.rawValue]
-            ).raise()
-            abortBecauseScenarioReturned(scenario)
-        case .nsExceptionSubclass:
-            CrashE2ETriggerNSExceptionSubclass()
-            abortBecauseScenarioReturned(scenario)
+        case .nsException, .nsExceptionRethrow, .nsExceptionSubclass:
+            triggerNSExceptionScenario(scenario)
         case .ksCrashRetryReportA, .ksCrashRetryReportB:
             let marker = scenario == .ksCrashRetryReportA
                 ? "crash-e2e-kscrash-report-a"
@@ -83,13 +79,33 @@ enum CrashE2ECrashTriggers {
             // Objective-C object must replace that cursor rather than report the stale C++ stack.
             CrashE2ETriggerObjCObjectAfterCaughtCPPException()
             abortBecauseScenarioReturned(scenario)
-        case .idle, .drain, .managedRuntimePreSDKSignal:
+        case .idle, .drain, .managedRuntimePreSDKSignal, .sigterm:
+            // SIGTERM is delivered by the runner, never triggered from inside the app.
             abortBecauseScenarioReturned(scenario)
         case .signal, .cppExceptionV2DynamicImage, .binaryImages, .ignoredSignal,
              .managedRuntimeSignalChain, .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
-             .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments:
+             .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments, .crashTimeReplay,
+             .memoryIntrospectionEnabled, .memoryIntrospectionDisabled, .memoryIntrospectionDefault:
             abortBecauseScenarioReturned(scenario)
         }
+    }
+
+    private static func triggerNSExceptionScenario(_ scenario: CrashE2EScenario) -> Never {
+        switch scenario {
+        case .nsException:
+            NSException(
+                name: NSExceptionName("CrashE2ENSException"),
+                reason: "Crash E2E uncaught NSException",
+                userInfo: ["scenario": scenario.rawValue]
+            ).raise()
+        case .nsExceptionRethrow:
+            CrashE2ETriggerRethrownNSException()
+        case .nsExceptionSubclass:
+            CrashE2ETriggerNSExceptionSubclass()
+        default:
+            break
+        }
+        abortBecauseScenarioReturned(scenario)
     }
 
     private static func triggerIgnoredSignal() -> Never {

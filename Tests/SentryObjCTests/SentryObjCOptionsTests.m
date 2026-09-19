@@ -443,11 +443,14 @@
     // -- Arrange --
     SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
 
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     // -- Act --
     options.enableAppHangTracking = YES;
 
     // -- Assert --
     XCTAssertTrue(options.enableAppHangTracking);
+#    pragma clang diagnostic pop
 }
 #endif // !SDK_V10
 
@@ -1147,6 +1150,25 @@
 #pragma mark - Platform-conditional properties
 
 #if !TARGET_OS_WATCH
+#    if SDK_V10
+
+- (void)testEnableSigtermReporting_whenV10_shouldNotExist
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    BOOL respondsToGetter =
+        [options respondsToSelector:NSSelectorFromString(@"enableSigtermReporting")];
+    BOOL respondsToSetter =
+        [options respondsToSelector:NSSelectorFromString(@"setEnableSigtermReporting:")];
+
+    // -- Assert --
+    XCTAssertFalse(respondsToGetter);
+    XCTAssertFalse(respondsToSetter);
+}
+
+#    else
 
 - (void)testEnableSigtermReporting_whenSetToYes_shouldReturnYes
 {
@@ -1154,13 +1176,17 @@
     SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
 
     // -- Act --
+#        pragma clang diagnostic push
+#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
     options.enableSigtermReporting = YES;
 
     // -- Assert --
     XCTAssertTrue(options.enableSigtermReporting);
+#        pragma clang diagnostic pop
 }
 
-#endif
+#    endif // SDK_V10
+#endif // !TARGET_OS_WATCH
 
 #if TARGET_OS_OSX && !SENTRY_NO_UI_FRAMEWORK
 
@@ -1282,11 +1308,14 @@
     // -- Arrange --
     SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
 
+#        pragma clang diagnostic push
+#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
     // -- Act --
     options.enableReportNonFullyBlockingAppHangs = YES;
 
     // -- Assert --
     XCTAssertTrue(options.enableReportNonFullyBlockingAppHangs);
+#        pragma clang diagnostic pop
 }
 #    endif // !SDK_V10
 
