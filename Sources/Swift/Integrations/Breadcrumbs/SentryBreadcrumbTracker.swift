@@ -267,6 +267,13 @@ import Cocoa
             result["title"] = title
         }
 
+        if result["accessibilityIdentifier"] == nil,
+           result["title"] == nil {
+            if let label = SentryChildTextExtractor.extract(from: view) {
+                result["label"] = label
+            }
+        }
+
         return result
     }
 
