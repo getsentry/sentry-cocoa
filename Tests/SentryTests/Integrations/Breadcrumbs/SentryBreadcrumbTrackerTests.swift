@@ -419,6 +419,27 @@ final class SentryBreadcrumbTrackerTests: XCTestCase {
         XCTAssertEqual(result["accessibilityIdentifier"] as? String, "safe-id")
     }
 
+    func testExtractData_whenMaskAllTextAndButtonIsExplicitlyUnmasked_shouldIncludeButtonTitle() {
+        // -- Arrange --
+        let button = UIButton()
+        button.setTitle("Visible title", for: .normal)
+        SentryRedactViewHelper.unmaskView(button)
+        let redactBuilder = SentryUIRedactBuilder(options: TestRedactOptions(
+            maskAllText: true,
+            maskAllImages: false
+        ))
+
+        // -- Act --
+        let result = SentryBreadcrumbTracker.extractData(
+            from: button,
+            includeAccessibilityIdentifier: false,
+            redactBuilder: redactBuilder
+        )
+
+        // -- Assert --
+        XCTAssertEqual(result["title"] as? String, "Visible title")
+    }
+
     func testExtractData_whenAncestorIsMasked_shouldOmitButtonTitle() {
         // -- Arrange --
         let ancestor = UIView()
@@ -543,6 +564,31 @@ final class SentryBreadcrumbTrackerTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(beforeReplayStarts["title"] as? String, "Sensitive title")
         XCTAssertNil(afterReplayStarts["title"])
+    }
+
+    func testExtractData_whenActiveReplayBuilderChanges_shouldUseLatestRedactionState() {
+        // -- Arrange --
+        let button = UIButton()
+        button.setTitle("Sensitive title", for: .normal)
+        let activeReplayBuilder = SentryUIRedactBuilder(options: TestRedactOptions(
+            maskAllText: false,
+            maskAllImages: false
+        ))
+        let tracker = SentryBreadcrumbTracker(
+            reportAccessibilityIdentifier: false,
+            redactOptions: TestRedactOptions(maskAllText: false, maskAllImages: false),
+            shouldApplyRedaction: { true },
+            redactBuilderProvider: { activeReplayBuilder }
+        )
+
+        // -- Act --
+        let initial = tracker.extractData(from: button)
+        activeReplayBuilder.addRedactClass(UILabel.self)
+        let redacted = tracker.extractData(from: button)
+
+        // -- Assert --
+        XCTAssertEqual(initial["title"] as? String, "Sensitive title")
+        XCTAssertNil(redacted["title"])
     }
 
     func testBreadcrumbViewControllerCustomScreenName() throws {

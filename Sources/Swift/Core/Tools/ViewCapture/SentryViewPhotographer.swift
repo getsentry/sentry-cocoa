@@ -35,6 +35,10 @@ import UIKit
 
     var renderer: SentryViewRenderer
 
+    var redactBuilderForTextExtraction: SentryUIRedactBuilder {
+        redactBuilder
+    }
+
     /// Creates a view photographer used to convert a view hierarchy to an image.
     ///
     /// - Parameters:
