@@ -48,6 +48,7 @@
 
 > [!CAUTION]
 > **Known issue:** This release can crash apps statically linking the SDK without `-ObjC` with `-[SentryEvent isMetricKitEvent]: unrecognized selector`, even when MetricKit is disabled. Add `-ObjC` to the app target's linker flags, preserving `$(inherited)`, or pin to **9.29.0** until a fix is released. See [#9154](https://github.com/getsentry/sentry-cocoa/issues/9154).
+- Add mask-aware label capture for interaction breadcrumbs. (#9011)
 
 ### Fixes
 
@@ -64,9 +65,6 @@
 
 > [!WARNING]
 > Native crashes now set `mechanism.synthetic`, which takes the mach exception name (`EXC_BAD_ACCESS`) or signal name (`SIGSEGV`) out of the grouping hash. Expect a one-time regrouping as your app adopts this version: existing crash issues stop receiving events and new ones open. Crashes that differ only by signal at the same stacktrace now share one issue. The mach and signal detail stays on `mechanism.meta`.
-### Features
-
-- Add mask-aware label capture for interaction breadcrumbs. (#9011)
 
 ### Fixes
 

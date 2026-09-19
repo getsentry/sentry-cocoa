@@ -24,6 +24,7 @@ import Cocoa
     let enableBreadcrumbTextExtraction: Bool
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     private let redactBuilder: SentryUIRedactBuilder?
+    private let shouldApplyRedaction: () -> Bool
 #endif
     
     // Store notification observer tokens for cleanup
@@ -42,6 +43,7 @@ import Cocoa
         self.enableBreadcrumbTextExtraction = enableBreadcrumbTextExtraction
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         self.redactBuilder = nil
+        self.shouldApplyRedaction = { false }
 #endif
         super.init()
     }
@@ -58,11 +60,13 @@ import Cocoa
     init(
         reportAccessibilityIdentifier: Bool,
         enableBreadcrumbTextExtraction: Bool,
-        redactOptions: SentryRedactOptions
+        redactOptions: SentryRedactOptions,
+        shouldApplyRedaction: @escaping () -> Bool = { true }
     ) {
         self.reportAccessibilityIdentifier = reportAccessibilityIdentifier
         self.enableBreadcrumbTextExtraction = enableBreadcrumbTextExtraction
         self.redactBuilder = SentryUIRedactBuilder(options: redactOptions)
+        self.shouldApplyRedaction = shouldApplyRedaction
         super.init()
     }
 #endif
@@ -256,11 +260,7 @@ import Cocoa
                     for touch in event.allTouches ?? [] {
                         if let view = touch.view,
                            touch.phase == .cancelled || touch.phase == .ended {
-                            data = Self.extractData(
-                                from: view,
-                                includeAccessibilityIdentifier: self.reportAccessibilityIdentifier,
-                                redactBuilder: self.redactBuilder
-                            )
+                            data = self.extractData(from: view)
                         }
                     }
                 }
@@ -331,6 +331,14 @@ import Cocoa
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 extension SentryBreadcrumbTracker {
+    func extractData(from view: UIView) -> [String: Any] {
+        Self.extractData(
+            from: view,
+            includeAccessibilityIdentifier: reportAccessibilityIdentifier,
+            redactBuilder: shouldApplyRedaction() ? redactBuilder : nil
+        )
+    }
+
     static func extractData(
         from view: UIView,
         includeAccessibilityIdentifier: Bool,
@@ -351,7 +359,7 @@ extension SentryBreadcrumbTracker {
         if let button = view as? UIButton,
            let title = button.currentTitle,
            !title.isEmpty,
-           redactBuilder?.isViewMaskedForTextExtraction(view) == false {
+           redactBuilder?.isViewMaskedForTextExtraction(button.titleLabel ?? button) != true {
             result["title"] = title
         }
 
