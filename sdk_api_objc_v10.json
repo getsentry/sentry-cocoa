@@ -2195,13 +2195,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "enableBreadcrumbTextExtraction",
-    "parent": "SentryObjCOptions",
-    "returnType": "BOOL",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "enableCaptureFailedRequests",
     "parent": "SentryObjCOptions",
     "returnType": "BOOL",
@@ -2295,6 +2288,13 @@
     "kind": "ObjCMethodDecl",
     "name": "enableNetworkTracking",
     "parent": "SentryObjCOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "enableBreadcrumbTextExtraction",
+    "parent": "SentryObjCExperimentalOptions",
     "returnType": "BOOL",
     "instance": true
   },
@@ -6241,13 +6241,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "setEnableBreadcrumbTextExtraction:",
-    "parent": "SentryObjCOptions",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "setEnableCaptureFailedRequests:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
@@ -6341,6 +6334,13 @@
     "kind": "ObjCMethodDecl",
     "name": "setEnableNetworkTracking:",
     "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setEnableBreadcrumbTextExtraction:",
+    "parent": "SentryObjCExperimentalOptions",
     "returnType": "void",
     "instance": true
   },
@@ -9663,12 +9663,6 @@
   },
   {
     "kind": "ObjCPropertyDecl",
-    "name": "enableBreadcrumbTextExtraction",
-    "parent": "SentryObjCOptions",
-    "type": "BOOL"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
     "name": "enableCaptureFailedRequests",
     "parent": "SentryObjCOptions",
     "type": "BOOL"
@@ -9749,6 +9743,12 @@
     "kind": "ObjCPropertyDecl",
     "name": "enableNetworkTracking",
     "parent": "SentryObjCOptions",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "enableBreadcrumbTextExtraction",
+    "parent": "SentryObjCExperimentalOptions",
     "type": "BOOL"
   },
   {

@@ -27,6 +27,13 @@ import Foundation
         set { wrapped.enableNewURLLoaderSwizzling = newValue }
     }
 
+    #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    @objc public var enableBreadcrumbTextExtraction: Bool {
+        get { wrapped.enableBreadcrumbTextExtraction }
+        set { wrapped.enableBreadcrumbTextExtraction = newValue }
+    }
+    #endif
+
     #if !SDK_V10
     @objc public var enableWatchdogTerminationsV2: Bool {
         get { wrapped.enableWatchdogTerminationsV2 }

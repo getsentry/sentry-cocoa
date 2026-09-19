@@ -1,5 +1,6 @@
 @import SentryObjC;
 @import XCTest;
+#import <TargetConditionals.h>
 
 @interface SentryObjCExperimentalOptionsTests : XCTestCase
 @end
@@ -81,6 +82,37 @@
     // -- Assert --
     XCTAssertFalse(options.experimental.enableNewURLLoaderSwizzling);
 }
+
+#if (TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION) && SENTRY_OBJC_HAS_UIKIT
+#    pragma mark - enableBreadcrumbTextExtraction
+
+- (void)testEnableBreadcrumbTextExtraction_whenDefault_shouldBeFalse
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Assert --
+    XCTAssertFalse(options.experimental.enableBreadcrumbTextExtraction);
+}
+
+- (void)testEnableBreadcrumbTextExtraction_whenToggled_shouldRetainValue
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    options.experimental.enableBreadcrumbTextExtraction = YES;
+
+    // -- Assert --
+    XCTAssertTrue(options.experimental.enableBreadcrumbTextExtraction);
+
+    // -- Act --
+    options.experimental.enableBreadcrumbTextExtraction = NO;
+
+    // -- Assert --
+    XCTAssertFalse(options.experimental.enableBreadcrumbTextExtraction);
+}
+#endif
 
 #if !SDK_V10
 #    pragma mark - enableWatchdogTerminationsV2

@@ -38,6 +38,9 @@ import Foundation
         if options.sessionReplay.networkDetailHasUrls {
             features.append("replayNetworkDetails")
         }
+        if options.experimental.enableBreadcrumbTextExtraction {
+            features.append("breadcrumbTextExtraction")
+        }
 #endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
 
         if options.enableDataSwizzling {

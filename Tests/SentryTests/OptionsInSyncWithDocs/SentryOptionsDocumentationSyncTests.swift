@@ -37,7 +37,6 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
 
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         options.insert("screenshot")
-        options.insert("enableBreadcrumbTextExtraction") // Docs update pending
         #if !SDK_V10
         options.insert("enableStandaloneAppStartTracing")
         #endif

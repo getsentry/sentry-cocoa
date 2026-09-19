@@ -412,11 +412,6 @@ import Foundation
         set { wrapped.reportAccessibilityIdentifier = newValue }
     }
 
-    @objc public var enableBreadcrumbTextExtraction: Bool {
-        get { wrapped.enableBreadcrumbTextExtraction }
-        set { wrapped.enableBreadcrumbTextExtraction = newValue }
-    }
-
     @objc public var enableUserInteractionTracing: Bool {
         get { wrapped.enableUserInteractionTracing }
         set { wrapped.enableUserInteractionTracing = newValue }
