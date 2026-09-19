@@ -13,10 +13,8 @@ SPECS=()
 PRODUCT=""
 WITH=""
 
-# Binary XCFramework samples cannot enable V10. macOS-CLI-Xcode uses the
-# NoUIFramework trait and must not pick up V10 from a bulk generate.
+# Binary XCFramework samples cannot enable V10.
 SKIP_SPECS=(
-    "macOS-CLI-Xcode.yml"
     "iOS-ObjectiveC-Dynamic.yml"
     "iOS-ObjectiveC-Static.yml"
 )

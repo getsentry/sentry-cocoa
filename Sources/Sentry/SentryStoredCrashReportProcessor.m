@@ -85,8 +85,7 @@ NSErrorDomain const SentryStoredCrashReportProcessorErrorDomain
         }
 
         SentryScope *scope = [[SentryScope alloc] initWithScope:hub.scope];
-        // KSCrash stitch injects crash-time screenshot paths under this key. View hierarchy
-        // paths are not produced yet (GH-8532 / SCV10-009).
+        // KSCrash stitch injects crash-time screenshot and view-hierarchy paths under this key.
         for (NSString *attachmentPath in report[SENTRYCRASH_REPORT_ATTACHMENTS_ITEM] ?: @[]) {
             [scope addCrashReportAttachmentInPath:attachmentPath];
         }

@@ -285,6 +285,44 @@ jobs:
         uses: ./.github/actions/ci-diagnostics
         if: ${{ failure() || cancelled() }}
 
+  check-v10-macOS-CLI-Xcode-no-UI-framework:
+    name: Verify CLI UI Linkage
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_v10_for_prs == 'true'
+    needs: files-changed
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Remove binary targets from Package.swift
+        run: ./scripts/prepare-package.sh --remove-binary-targets true
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "26"
+          resolve-simulators: "false"
+
+      - run: make init-ci-build
+      - run: scripts/generate-sample-v10.sh --spec Samples/macOS-CLI-Xcode/macOS-CLI-Xcode.yml
+
+      - name: Build macOS-CLI-Xcode sample
+        run: |
+          set -o pipefail && xcodebuild \
+            -project "Samples/macOS-CLI-Xcode/macOS-CLI-Xcode.xcodeproj" \
+            -scheme macOS-CLI-Xcode \
+            -configuration Debug \
+            -destination 'platform=macOS' \
+            -derivedDataPath "$GITHUB_WORKSPACE/cli-xcode-build" \
+            CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+      - name: Ensure CLI binary does not link AppKit
+        run: ./scripts/check-ui-framework-linkage.sh --configuration Debug --derived-data "$GITHUB_WORKSPACE/cli-xcode-build" --linkage unlinked --module macOS-CLI-Xcode --framework AppKit
+
+      - name: Ensure CLI binary does not link UIKit
+        run: ./scripts/check-ui-framework-linkage.sh --configuration Debug --derived-data "$GITHUB_WORKSPACE/cli-xcode-build" --linkage unlinked --module macOS-CLI-Xcode --framework UIKit
+
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
+        if: ${{ failure() || cancelled() }}
+
   build-v10-required-check:
     needs:
       [
@@ -292,6 +330,7 @@ jobs:
         build-v10,
         build-v10-spm,
         build-v10-samples,
+        check-v10-macOS-CLI-Xcode-no-UI-framework,
         verify-no-binary-targets,
         verify-v10-source-contract,
         run-full-ci-gate,

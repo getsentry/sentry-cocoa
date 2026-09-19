@@ -170,11 +170,13 @@
 }
 
 #if !TARGET_OS_WATCH
+#    if !SDK_V10
 - (void)testEnableSigtermReporting
 {
     [self testBooleanField:@"enableSigtermReporting" defaultValue:NO];
 }
-#endif
+#    endif // !SDK_V10
+#endif // !TARGET_OS_WATCH
 
 - (void)testValidEnabled
 {
