@@ -475,13 +475,15 @@ final class SentryUIRedactBuilder {
     }
 
     func isViewMaskedForTextExtraction(_ view: UIView) -> Bool {
-        guard !maskAllText else { return true }
-
         var hierarchy: [UIView] = []
         var currentView: UIView? = view
         while let current = currentView {
             hierarchy.append(current)
             currentView = current.superview
+        }
+
+        if maskAllText && !hierarchy.contains(where: shouldIgnore(view:)) {
+            return true
         }
 
         var forceRedact = false

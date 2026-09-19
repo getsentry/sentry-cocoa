@@ -25,6 +25,7 @@ import Cocoa
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     private let redactBuilder: SentryUIRedactBuilder?
     private let shouldApplyRedaction: () -> Bool
+    private let redactBuilderProvider: () -> SentryUIRedactBuilder?
 #endif
     
     // Store notification observer tokens for cleanup
@@ -44,6 +45,7 @@ import Cocoa
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         self.redactBuilder = nil
         self.shouldApplyRedaction = { false }
+        self.redactBuilderProvider = { nil }
 #endif
         super.init()
     }
@@ -61,12 +63,14 @@ import Cocoa
         reportAccessibilityIdentifier: Bool,
         enableBreadcrumbTextExtraction: Bool,
         redactOptions: SentryRedactOptions,
-        shouldApplyRedaction: @escaping () -> Bool = { true }
+        shouldApplyRedaction: @escaping () -> Bool = { true },
+        redactBuilderProvider: @escaping () -> SentryUIRedactBuilder? = { nil }
     ) {
         self.reportAccessibilityIdentifier = reportAccessibilityIdentifier
         self.enableBreadcrumbTextExtraction = enableBreadcrumbTextExtraction
         self.redactBuilder = SentryUIRedactBuilder(options: redactOptions)
         self.shouldApplyRedaction = shouldApplyRedaction
+        self.redactBuilderProvider = redactBuilderProvider
         super.init()
     }
 #endif
@@ -335,7 +339,7 @@ extension SentryBreadcrumbTracker {
         Self.extractData(
             from: view,
             includeAccessibilityIdentifier: reportAccessibilityIdentifier,
-            redactBuilder: shouldApplyRedaction() ? redactBuilder : nil
+            redactBuilder: shouldApplyRedaction() ? (redactBuilderProvider() ?? redactBuilder) : nil
         )
     }
 
