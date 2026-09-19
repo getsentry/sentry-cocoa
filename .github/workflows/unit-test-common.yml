@@ -83,14 +83,6 @@ jobs:
           version: ${{ inputs.xcode }}
           allow-prerelease: ${{ inputs.allow_prerelease }}
 
-      - name: Install simulator runtime
-        if: ${{ inputs.test-destination-os == '17.5' && inputs.platform == 'tvOS' }}
-        timeout-minutes: 5
-        env:
-          PLATFORM: ${{ inputs.platform }}
-          OS_VERSION: ${{ inputs.test-destination-os }}
-        run: ./scripts/ci-install-simulator-runtime.sh --platform "$PLATFORM" --os-version "$OS_VERSION"
-
       - name: Resolve test destination
         id: resolve-test-destination
         uses: ./.github/actions/resolve-test-destination

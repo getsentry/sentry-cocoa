@@ -27,7 +27,6 @@
 #import "Helper/ExceptionCatcher.h"
 #import "NSData+Unzip.h"
 #import "NSMutableDictionary+Sentry.h"
-#import "PrivateSentrySDKOnly.h"
 #import "Sentry/Sentry-Swift.h"
 #if !SDK_V10
 #    import "SentryANRTrackerV1.h"
@@ -43,7 +42,6 @@
 #import "SentryClient+Private.h"
 #import "SentryClient+TestInit.h"
 #import "SentryClient.h"
-#import "SentryCoreDataTracker+Test.h"
 #import "SentryCrash+Test.h"
 #import "SentryCrashBinaryImageCache+Test.h"
 #import "SentryCrashBinaryImageCache.h"
@@ -122,7 +120,6 @@
 #import "SentryTestObjCRuntimeWrapper.h"
 #import "SentryThread.h"
 #import "SentryTime.h"
-#import "SentryTimeToDisplayTracker.h"
 #import "SentryTraceOrigin.h"
 #import "SentryTracePropagation.h"
 #import "SentryTracer+Private.h"

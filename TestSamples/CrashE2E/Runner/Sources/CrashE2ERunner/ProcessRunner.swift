@@ -57,6 +57,27 @@ private struct ProcessIOContext {
     }
 }
 
+/// A process started with `ProcessRunner.start` that the caller can signal before waiting on it.
+final class RunningProcess {
+    fileprivate let process: Process
+    fileprivate let ioContext: ProcessIOContext
+    fileprivate let semaphore: DispatchSemaphore
+    fileprivate let tool: String
+    fileprivate let arguments: [String]
+
+    fileprivate init(process: Process, ioContext: ProcessIOContext, semaphore: DispatchSemaphore,
+                     tool: String, arguments: [String]) {
+        self.process = process
+        self.ioContext = ioContext
+        self.semaphore = semaphore
+        self.tool = tool
+        self.arguments = arguments
+    }
+
+    var processIdentifier: Int32 { process.processIdentifier }
+    var isRunning: Bool { process.isRunning }
+}
+
 final class ProcessRunner {
     private let fileManager = FileManager.default
     private let baseEnvironment: [String: String]
@@ -87,13 +108,44 @@ final class ProcessRunner {
              environment additionalEnvironment: [String: String] = [:], captureOutput: Bool = false,
              outputFile: URL? = nil, timeout: TimeInterval? = nil,
              allowFailure: Bool = false) throws -> ProcessResult {
-        let process = try makeProcess(tool, arguments, workingDirectory, additionalEnvironment)
-        let ioContext = try configureOutput(for: process, captureOutput: captureOutput, outputFile: outputFile)
-        let timedOut = try runAndWait(process, ioContext: ioContext, tool: tool, timeout: timeout)
-        let result = resultFor(process, tool: tool, arguments: arguments, ioContext: ioContext,
-                               timedOut: timedOut, timeout: timeout)
+        let running = try start(tool, arguments, workingDirectory: workingDirectory,
+                                environment: additionalEnvironment, captureOutput: captureOutput,
+                                outputFile: outputFile)
+        let result = wait(for: running, timeout: timeout)
         try validate(result, allowFailure: allowFailure)
         return result
+    }
+
+    /// Starts the process without waiting for it. Callers must finish with `wait(for:timeout:)`
+    /// so output handles are closed and the termination status is collected.
+    func start(_ tool: String, _ arguments: [String], workingDirectory: URL? = nil,
+               environment additionalEnvironment: [String: String] = [:], captureOutput: Bool = false,
+               outputFile: URL? = nil) throws -> RunningProcess {
+        let process = try makeProcess(tool, arguments, workingDirectory, additionalEnvironment)
+        let ioContext = try configureOutput(for: process, captureOutput: captureOutput, outputFile: outputFile)
+        let semaphore = DispatchSemaphore(value: 0)
+        process.terminationHandler = { _ in semaphore.signal() }
+
+        do {
+            try process.run()
+        } catch {
+            ioContext.closeOpenHandles()
+            removeTemporaryDirectory(for: ioContext)
+            throw CrashE2EFailure(message: "Failed to run \(tool): \(error)")
+        }
+
+        return RunningProcess(process: process, ioContext: ioContext, semaphore: semaphore,
+                              tool: tool, arguments: arguments)
+    }
+
+    /// Waits for a process started with `start`. On timeout the process is terminated and the
+    /// result is flagged as timed out.
+    func wait(for running: RunningProcess, timeout: TimeInterval?) -> ProcessResult {
+        let timedOut = wait(for: running.process, semaphore: running.semaphore, timeout: timeout)
+        running.process.terminationHandler = nil
+        running.ioContext.closeOpenHandles()
+        return resultFor(running.process, tool: running.tool, arguments: running.arguments,
+                         ioContext: running.ioContext, timedOut: timedOut, timeout: timeout)
     }
 
     private func makeProcess(_ tool: String, _ arguments: [String], _ workingDirectory: URL?,
@@ -142,25 +194,6 @@ final class ProcessRunner {
         process.standardError = stderrHandle
         return ProcessIOContext(openHandles: [stdoutHandle, stderrHandle], stdoutURL: stdoutURL,
                                 stderrURL: stderrURL, temporaryDirectory: directory)
-    }
-
-    private func runAndWait(_ process: Process, ioContext: ProcessIOContext, tool: String,
-                            timeout: TimeInterval?) throws -> Bool {
-        let semaphore = DispatchSemaphore(value: 0)
-        process.terminationHandler = { _ in semaphore.signal() }
-
-        do {
-            try process.run()
-        } catch {
-            ioContext.closeOpenHandles()
-            removeTemporaryDirectory(for: ioContext)
-            throw CrashE2EFailure(message: "Failed to run \(tool): \(error)")
-        }
-
-        let timedOut = wait(for: process, semaphore: semaphore, timeout: timeout)
-        process.terminationHandler = nil
-        ioContext.closeOpenHandles()
-        return timedOut
     }
 
     private func wait(for process: Process, semaphore: DispatchSemaphore, timeout: TimeInterval?) -> Bool {

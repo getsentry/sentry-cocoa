@@ -224,6 +224,115 @@ class SentryNetworkTrackingIntegrationSwiftTests: XCTestCase {
         wait(for: [requestCancelled, requestCompleted], timeout: 1)
     }
 
+#if compiler(>=6.1)
+    func testNewLoaderSwizzling_whenDefault_shouldNotWrapCompletionHandlers() throws {
+        // -- Arrange --
+        guard #available(macOS 15.4, iOS 18.4, tvOS 18.4, watchOS 11.4, visionOS 2.4, *) else {
+            throw XCTSkip("The selected OS does not support choosing the URLSession HTTP loader.")
+        }
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.usesClassicLoadingMode = false
+        let session = URLSession(configuration: configuration)
+        defer { session.invalidateAndCancel() }
+        let options = Options()
+        let integration = try XCTUnwrap(SentryNetworkTrackingIntegration(
+            with: options,
+            dependencies: SentryDependencyContainer.sharedInstance()
+        ))
+        defer { integration.uninstall() }
+        let url = try XCTUnwrap(URL(string: "https://request.invalid/"))
+
+        // -- Act --
+        let tasks: [URLSessionTask] = [
+            session.dataTask(with: url) { _, _, _ in },
+            session.dataTask(with: URLRequest(url: url)) { _, _, _ in },
+            session.downloadTask(with: url) { _, _, _ in },
+            session.uploadTask(with: URLRequest(url: url), from: Data()) { _, _, _ in }
+        ]
+        defer { tasks.forEach { $0.cancel() } }
+
+        // -- Assert --
+        for task in tasks {
+            XCTAssertFalse(task.usesNewLoaderCompletionHandler)
+        }
+    }
+
+    func testResume_whenNewLoaderExistsBeforeSDKStart_shouldTrackAcrossRestart() throws {
+        // -- Arrange --
+        guard #available(macOS 15.4, iOS 18.4, tvOS 18.4, watchOS 11.4, visionOS 2.4, *) else {
+            throw XCTSkip("The selected OS does not support choosing the URLSession HTTP loader.")
+        }
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.usesClassicLoadingMode = false
+        let session = URLSession(configuration: configuration)
+        defer { session.invalidateAndCancel() }
+        let url = try XCTUnwrap(URL(string: "https://request.invalid/"))
+        let probe = session.dataTask(with: url)
+        defer { probe.cancel() }
+
+        let oldDebug = SentrySDKLog.isDebug
+        let oldLevel = SentrySDKLog.diagnosticLevel
+        let oldOutput = SentrySDKLog.getLogOutput()
+        defer {
+            SentrySDK.close()
+            SentrySDKLogSupport.configure(oldDebug, diagnosticLevel: oldLevel)
+            SentrySDKLog.setOutput(oldOutput)
+        }
+        let logOutput = TestLogOutput()
+        SentrySDKLog.setLogOutput(logOutput)
+        let options = Options()
+        options.dsn = TestConstants.dsnAsString(username: #function)
+        options.removeAllIntegrations()
+        options.enableAutoPerformanceTracing = true
+        options.enableNetworkTracking = true
+        options.tracesSampleRate = 1.0
+        options.debug = true
+        options.diagnosticLevel = .error
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        options.sessionReplay.networkDetailAllowUrls = ["request.invalid"]
+#endif
+
+        for enabled in [false, true, true, false, true] {
+            // -- Act --
+            options.enabled = true
+            options.experimental.enableNewURLLoaderSwizzling = enabled
+            SentrySDK.start(options: options)
+            let transaction = try XCTUnwrap(SentrySDK.startTransaction(
+                name: "New loader before SDK start",
+                operation: "test",
+                bindToScope: true
+            ) as? SentryTracer)
+            let completed = expectation(description: "Tasks completed")
+            completed.expectedFulfillmentCount = 4
+            let tasks: [URLSessionTask] = [
+                session.dataTask(with: url) { _, _, _ in completed.fulfill() },
+                session.dataTask(with: URLRequest(url: url)) { _, _, _ in completed.fulfill() },
+                session.downloadTask(with: url) { _, _, _ in completed.fulfill() },
+                session.uploadTask(with: URLRequest(url: url), from: Data()) { _, _, _ in completed.fulfill() }
+            ]
+            for task in tasks {
+#if !os(watchOS)
+                XCTAssertEqual(task.usesNewLoaderCompletionHandler, enabled)
+#endif
+                task.resume()
+                task.cancel()
+            }
+            wait(for: [completed], timeout: 5)
+
+            // -- Assert --
+            XCTAssertFalse(logOutput.loggedMessages.contains { $0.contains("Swizzle receiver mismatch") })
+            if enabled {
+                XCTAssertEqual(transaction.children.count, 4)
+                for span in transaction.children {
+                    XCTAssertEqual(span.operation, "http.client")
+                    XCTAssertTrue(span.isFinished)
+                }
+            }
+            SentrySDK.close()
+        }
+    }
+#endif
+
     func test_IntegrationName() {
         XCTAssertEqual(SentryNetworkTrackingIntegration<SentryDependencyContainer>.name, "SentryNetworkTrackingIntegration")
     }

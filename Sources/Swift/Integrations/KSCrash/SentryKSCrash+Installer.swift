@@ -50,6 +50,10 @@ extension SentryKSCrash {
         /// Pass `nil` to disable screenshot capture.
         func setScreenshotProvider(_ provider: SentryKSCrashAttachmentsScreenshotWriter?)
 
+        /// Registers the crash-time view-hierarchy writer on the attachments monitor.
+        /// Pass `nil` to disable view-hierarchy capture.
+        func setViewHierarchyProvider(_ provider: SentryKSCrashAttachmentsViewHierarchyWriter?)
+
         #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
         /// The fatal NSException handler installed by the active crash backend.
         var uncaughtExceptionHandler: (@convention(c) (NSException) -> Void)? { get }
@@ -91,9 +95,9 @@ extension SentryKSCrash {
             config.didWriteReportCallback = sentrykscrash_didWriteReport
 
 #if SENTRY_DISABLE_SENTRYCRASH_V10
-            // KSCRASH_TODO(GH-8273, GH-8532, GH-8801, GH-8735): didWriteReport captures screenshots
-            // but not view hierarchy, replay checkpoint, or the active trace. Acceptance:
-            // SCV10-009, SCV10-027, and SCV10-039 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+            // KSCRASH_TODO(GH-8735): didWriteReport captures screenshots, view hierarchy,
+            // and the replay checkpoint, but not the active trace. Acceptance:
+            // SCV10-027 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
 #endif
             sentryThreadInspectionWillInstallCrashHandler()
             var inspectionInstallationSucceeded = false
@@ -111,7 +115,8 @@ extension SentryKSCrash {
             inspectionInstallationSucceeded = true
             installed = true
             #if SENTRY_CRASH_E2E
-            SentryKSCrash.CrashE2ETestHook.installSyntheticScreenshotProvider()
+            SentryKSCrash.CrashE2ETestHook.installSyntheticAttachmentProviders()
+            SentryKSCrash.CrashE2ETestHook.installReplayCheckpointIfNeeded()
             #endif
         }
 
@@ -232,6 +237,10 @@ extension SentryKSCrash {
 
         func setScreenshotProvider(_ provider: SentryKSCrashAttachmentsScreenshotWriter?) {
             Self.attachmentsMonitor.setScreenshotWriter(provider)
+        }
+
+        func setViewHierarchyProvider(_ provider: SentryKSCrashAttachmentsViewHierarchyWriter?) {
+            Self.attachmentsMonitor.setViewHierarchyWriter(provider)
         }
     }
 }

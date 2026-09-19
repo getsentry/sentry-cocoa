@@ -30,7 +30,7 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
     }
     
     override func tearDown() {
-        PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode = false
+        SentrySDK.internal.performance.framesTrackingHybridSDKMode = false
         // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
         super.tearDown()
@@ -98,6 +98,7 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
         XCTAssertNil(sut)
     }
 
+    @available(*, deprecated, message: "Testing deprecated App Hang tracking option")
     func testAutoPerformanceTrackingDisabled_DoesNotMeasureFrames() {
         let options = fixture.options
         options.tracesSampleRate = 0.1
@@ -116,9 +117,9 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
 
     func test_HybridSDKEnables_MeasureFrames() {
         // -- Arrange --
-        let original = PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode
-        PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode = true
-        defer { PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode = original }
+        let original = SentrySDK.internal.performance.framesTrackingHybridSDKMode
+        SentrySDK.internal.performance.framesTrackingHybridSDKMode = true
+        defer { SentrySDK.internal.performance.framesTrackingHybridSDKMode = original }
 
         // -- Act --
 

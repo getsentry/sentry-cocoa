@@ -34,6 +34,16 @@ using dynamic_image_cpp_exception_type = void (*)(void);
 static dynamic_image_call_type g_beforeDynamicImageCall = nullptr;
 static dynamic_image_crash_type g_afterDynamicImageCrash = nullptr;
 static dynamic_image_cpp_exception_type g_afterDynamicImageCPPException = nullptr;
+static int g_uncaughtNSExceptionMarkerFD = -1;
+
+static void
+CrashE2EUncaughtNSExceptionMarker(__unused NSException *exception)
+{
+    static const char marker[] = "uncaught-handler-called\n";
+    if (g_uncaughtNSExceptionMarkerFD >= 0) {
+        (void)write(g_uncaughtNSExceptionMarkerFD, marker, sizeof(marker) - 1);
+    }
+}
 
 static NSString *
 CrashE2EFindLoadedImage(const char *path)
@@ -211,6 +221,31 @@ CrashE2EInstallFakeManagedRuntimeSignalHandler(const char *markerPath)
 }
 
 extern "C" void
+CrashE2EInstallUncaughtNSExceptionMarker(const char *markerPath)
+{
+    g_uncaughtNSExceptionMarkerFD = open(markerPath, O_CREAT | O_WRONLY | O_TRUNC, 0600);
+    if (g_uncaughtNSExceptionMarkerFD < 0) {
+        NSLog(@"CrashE2E - failed to open uncaught NSException marker: %s", markerPath);
+        abort();
+    }
+    NSSetUncaughtExceptionHandler(&CrashE2EUncaughtNSExceptionMarker);
+}
+
+extern "C" __attribute__((noinline)) void
+CrashE2ETriggerRethrownNSException(void)
+{
+    @try {
+        [[NSException exceptionWithName:@"CrashE2ERethrownNSException"
+                                 reason:@"Crash E2E caught and rethrown NSException"
+                               userInfo:@ { @"scenario" : @"ns-exception-rethrow" }] raise];
+    } @catch (__unused NSException *exception) {
+        // A bare @throw in an Objective-C catch lowers to objc_exception_rethrow.
+        @throw;
+    }
+    abort();
+}
+
+extern "C" void
 CrashE2ETriggerNSExceptionSubclass(void)
 {
     [[CrashE2ENSExceptionSubclass exceptionWithName:@"CrashE2ENSExceptionSubclass"
@@ -308,5 +343,29 @@ CrashE2ETriggerMallocZoneLockedSignal(void)
     }
 
     NSLog(@"CrashE2E - malloc-zone-locked signal returned with error %d", result);
+    abort();
+}
+
+// Keep in sync with MemoryIntrospectionAsserter.marker in the runner. The marker is deliberately
+// absent from logs, exception reasons, and scope so memory introspection is its only path into the
+// crash report. The zero-filled tail keeps the crash-time string validation's fixed-size read
+// inside readable memory.
+static char g_memoryIntrospectionMarker[512] = "crash-e2e-memory-introspection-marker";
+
+__attribute__((noinline, disable_tail_calls)) static void
+CrashE2ECrashWithIntrospectableMarker(const char *marker)
+{
+    // The marker stays in the first argument register and in a stack slot next to the stack
+    // pointer at the fault, covering both the register and stack scans of memory introspection.
+    const char *volatile stackMarker = marker;
+    volatile int *invalidAddress = nullptr;
+    *invalidAddress = stackMarker != nullptr ? 1 : 0;
+    __builtin_unreachable();
+}
+
+extern "C" void
+CrashE2ETriggerMemoryIntrospectionMarkerCrash(void)
+{
+    CrashE2ECrashWithIntrospectableMarker(g_memoryIntrospectionMarker);
     abort();
 }

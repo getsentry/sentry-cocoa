@@ -1,10 +1,18 @@
 #if SDK_V10 && SENTRY_CRASH_E2E
+internal import _SentryPrivate
 import Foundation
 
 private nonisolated(unsafe) var crashE2EScreenshotPNG = Data()
 private let crashE2EWriteScreenshot: @convention(c) (UnsafePointer<CChar>) -> Void = { path in
     let url = URL(fileURLWithPath: String(cString: path)).appendingPathComponent("screenshot.png")
     try? crashE2EScreenshotPNG.write(to: url)
+}
+
+private nonisolated(unsafe) var crashE2EViewHierarchyJSON = Data()
+private let crashE2EWriteViewHierarchy: @convention(c) (UnsafePointer<CChar>) -> Void = { path in
+    let url = URL(fileURLWithPath: String(cString: path))
+        .appendingPathComponent("view-hierarchy.json")
+    try? crashE2EViewHierarchyJSON.write(to: url)
 }
 
 extension SentryKSCrash {
@@ -100,10 +108,11 @@ extension SentryKSCrash {
             return false
         }
 
-        /// Installs a synthetic crash-time screenshot provider for the `crash-time-attachments`
-        /// E2E scenario. The provider writes a minimal 1×1 red PNG into the payload directory so
-        /// the file can be verified on disk without a real UIKit screen capture.
-        static func installSyntheticScreenshotProvider() {
+        /// Installs synthetic crash-time attachment writers for the `crash-time-attachments`
+        /// E2E scenario. The writers place a minimal 1×1 red PNG and a tiny view-hierarchy JSON
+        /// into the payload directory so the files can be verified on disk without a real UIKit
+        /// capture.
+        static func installSyntheticAttachmentProviders() {
             guard argumentValue(after: "--scenario") == "crash-time-attachments" else { return }
             // Minimal valid 1×1 red PNG (67 bytes).
             let pngBytes: [UInt8] = [
@@ -118,8 +127,35 @@ extension SentryKSCrash {
                 0x44, 0xAE, 0x42, 0x60, 0x82
             ]
             crashE2EScreenshotPNG = Data(pngBytes)
-            SentryDependencyContainer.sharedInstance().getKSCrashInstaller()
-                .setScreenshotProvider(crashE2EWriteScreenshot)
+            crashE2EViewHierarchyJSON = Data(
+                #"{"rendering_system":"UIKIT","windows":[]}"#.utf8
+            )
+            let installer = SentryDependencyContainer.sharedInstance().getKSCrashInstaller()
+            installer.setScreenshotProvider(crashE2EWriteScreenshot)
+            installer.setViewHierarchyProvider(crashE2EWriteViewHierarchy)
+        }
+
+        /// Seeds session-replay sync state so `sentrykscrash_didWriteReport` can persist a
+        /// recovery checkpoint during the `crash-time-replay` scenario.
+        static func installReplayCheckpointIfNeeded() {
+            guard argumentValue(after: "--scenario") == "crash-time-replay" else { return }
+            guard let path = replayCheckpointPath() else {
+                SentrySDKLog.error("CrashE2E could not resolve the replay checkpoint path.")
+                return
+            }
+            sentrySessionReplaySync_start(path, 1)
+            sentrySessionReplaySync_updateInfo(7, 123.5)
+        }
+
+        private static func replayCheckpointPath() -> String? {
+            if let cacheDir = argumentValue(after: "--cache-dir") {
+                return URL(fileURLWithPath: cacheDir)
+                    .appendingPathComponent("crash-e2e-replay-checkpoint")
+                    .path
+            }
+            return FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first?
+                .appendingPathComponent("crash-e2e-replay-checkpoint")
+                .path
         }
     }
 }
