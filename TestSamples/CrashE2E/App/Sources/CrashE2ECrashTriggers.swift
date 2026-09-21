@@ -5,7 +5,8 @@ import Sentry
 enum CrashE2ECrashTriggers {
     static func trigger(_ scenario: CrashE2EScenario) -> Never {
         switch scenario {
-        case .signal, .managedRuntimeSignalChain, .crashTimeScope, .crashTimeAttachments:
+        case .signal, .managedRuntimeSignalChain, .crashTimeScope, .crashTimeAttachments,
+             .crashTimeReplay:
             SentrySDK.crash()
             abortBecauseScenarioReturned(scenario)
         case .binaryImages:
@@ -32,6 +33,9 @@ enum CrashE2ECrashTriggers {
             abortBecauseScenarioReturned(scenario)
         case .mallocZoneLockedSignal:
             CrashE2ETriggerMallocZoneLockedSignal()
+            abortBecauseScenarioReturned(scenario)
+        case .memoryIntrospectionEnabled, .memoryIntrospectionDisabled, .memoryIntrospectionDefault:
+            CrashE2ETriggerMemoryIntrospectionMarkerCrash()
             abortBecauseScenarioReturned(scenario)
         case .nsException, .nsExceptionRethrow, .nsExceptionSubclass, .cppExceptionV1,
              .cppExceptionV2, .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .unityCxaThrow,
@@ -80,7 +84,8 @@ enum CrashE2ECrashTriggers {
             abortBecauseScenarioReturned(scenario)
         case .signal, .cppExceptionV2DynamicImage, .binaryImages, .ignoredSignal,
              .managedRuntimeSignalChain, .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
-             .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments:
+             .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments, .crashTimeReplay,
+             .memoryIntrospectionEnabled, .memoryIntrospectionDisabled, .memoryIntrospectionDefault:
             abortBecauseScenarioReturned(scenario)
         }
     }

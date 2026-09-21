@@ -100,17 +100,7 @@ final class IOSPlatformRunner {
         }
 
         let cacheRoot = container.appendingPathComponent("Library/Caches", isDirectory: true)
-        try CrashTimeAttachmentsAsserter.assertPayloadIfNeeded(
-            scenario: scenario,
-            cacheDirectory: cacheRoot,
-            platform: "ios"
-        )
-        try RethrownNSExceptionAsserter.assertCrashLaunchEvidenceIfNeeded(
-            scenario: scenario,
-            cacheRoot: cacheRoot,
-            platform: "ios",
-            artifactsDir: config.artifactsDir
-        )
+        try assertCrashLaunchArtifacts(for: scenario, cacheRoot: cacheRoot)
         try drainPreviousCrash(for: scenario)
         try ScenarioEventAsserter.assertScenarioEvent(
             scenario,
@@ -121,6 +111,30 @@ final class IOSPlatformRunner {
         if let markerPath {
             try ManagedRuntimeSignalMarker.assertExists(at: markerPath, platform: "ios")
         }
+    }
+
+    private func assertCrashLaunchArtifacts(for scenario: Scenario, cacheRoot: URL) throws {
+        try CrashTimeAttachmentsAsserter.assertPayloadIfNeeded(
+            scenario: scenario,
+            cacheDirectory: cacheRoot,
+            platform: "ios"
+        )
+        try CrashTimeReplayAsserter.assertCheckpointIfNeeded(
+            scenario: scenario,
+            cacheDirectory: cacheRoot,
+            platform: "ios"
+        )
+        try RethrownNSExceptionAsserter.assertCrashLaunchEvidenceIfNeeded(
+            scenario: scenario,
+            cacheRoot: cacheRoot,
+            platform: "ios",
+            artifactsDir: config.artifactsDir
+        )
+        try MemoryIntrospectionAsserter.assertStoredReportIfNeeded(
+            scenario: scenario,
+            cacheRoot: cacheRoot,
+            platform: "ios"
+        )
     }
 
     func drainPreviousCrash(for scenario: Scenario) throws {
@@ -195,6 +209,9 @@ final class IOSPlatformRunner {
         )
         try fileManager.removeItemIfExists(
             at: cacheRoot.appendingPathComponent("SentryCrash", isDirectory: true)
+        )
+        try fileManager.removeItemIfExists(
+            at: cacheRoot.appendingPathComponent("crash-e2e-replay-checkpoint")
         )
     }
 
