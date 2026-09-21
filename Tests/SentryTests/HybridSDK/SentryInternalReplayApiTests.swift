@@ -72,6 +72,17 @@ class SentryInternalReplayApiTests: XCTestCase {
     func testSetTags_beforeStart_shouldNotCrash() {
         sut.setTags(["key": "value"])
     }
+
+    // MARK: - registerTraceId
+
+    func testRegisterTraceId_beforeStart_shouldNotCrash() {
+        sut.registerTraceId(SentryId().sentryIdString)
+    }
+
+    func testRegisterTraceId_withMalformedId_beforeStart_shouldNotCrash() {
+        sut.registerTraceId("not-a-valid-trace-id")
+        sut.registerTraceId("")
+    }
 }
 
 #endif

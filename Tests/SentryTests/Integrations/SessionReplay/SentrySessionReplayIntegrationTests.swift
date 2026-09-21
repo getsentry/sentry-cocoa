@@ -99,6 +99,55 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertFalse(try XCTUnwrap(sut.getTouchTracker()).isEnabled)
     }
 
+    func testGlobalEventProcessor_whenEventHasTraceContext_shouldRegisterTraceIdOnRecordingReplay() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 0, errorSampleRate: 1)
+        let replay = try XCTUnwrap(getSut().sessionReplay)
+        let traceId = SentryId().sentryIdString
+
+        let event = Event()
+        event.context = ["trace": ["trace_id": traceId]]
+
+        // -- Act --
+        // Run the event through the real global event processor chain, which includes the
+        // Session Replay integration's processor that extracts the trace id (#7964).
+        globalEventProcessor.reportAll(event)
+
+        // -- Assert --
+        XCTAssertEqual(replay.getCollectedTraceIdsTestOnly(), [traceId])
+    }
+
+    func testGlobalEventProcessor_whenReplayVideoEvent_shouldNotRegisterTraceId() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 0, errorSampleRate: 1)
+        let replay = try XCTUnwrap(getSut().sessionReplay)
+
+        let event = Event()
+        event.type = SentryEnvelopeItemTypes.replayVideo
+        event.context = ["trace": ["trace_id": SentryId().sentryIdString]]
+
+        // -- Act --
+        globalEventProcessor.reportAll(event)
+
+        // -- Assert --
+        // A replay_video event carries no trace of its own, so it must not associate a trace id.
+        XCTAssertTrue(replay.getCollectedTraceIdsTestOnly().isEmpty)
+    }
+
+    func testGlobalEventProcessor_whenEventHasNoTraceContext_shouldNotRegisterTraceId() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 0, errorSampleRate: 1)
+        let replay = try XCTUnwrap(getSut().sessionReplay)
+
+        let event = Event()
+
+        // -- Act --
+        globalEventProcessor.reportAll(event)
+
+        // -- Assert --
+        XCTAssertTrue(replay.getCollectedTraceIdsTestOnly().isEmpty)
+    }
+
     func testCaptureFeedback_whenBuffering_shouldCaptureReplayAndAssociateFeedback() throws {
         // -- Arrange --
         var capturedEvent: Event?

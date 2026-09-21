@@ -23,6 +23,15 @@ import Foundation
      */
     public var urls: [String]?
 
+    /**
+     * Hexadecimal trace IDs collected during the duration of the replay segment.
+     *
+     * Populated from traces captured natively while the segment recorded and from
+     * IDs registered by hybrid SDKs via `SentrySDK.internal.replay.registerTraceId(_:)`.
+     * Serialized under `trace_ids`.
+     */
+    public var traceIds: [String]?
+
     public init(eventId: SentryId, replayStartTimestamp: Date, replayType: SentryReplayType, segmentId: Int) {
         self.replayStartTimestamp = replayStartTimestamp
         self.replayType = replayType
@@ -40,6 +49,10 @@ import Foundation
     @_spi(Private) public override func serialize() -> [String: Any] {
         var result = super.serialize()
         result["urls"] = urls
+        // Omit `trace_ids` entirely when empty; the buffer is left nil for segments without traces.
+        if let traceIds = traceIds, !traceIds.isEmpty {
+            result["trace_ids"] = traceIds
+        }
         result["replay_start_timestamp"] = replayStartTimestamp.timeIntervalSince1970
         result["replay_id"] = self.eventId.sentryIdString
         result["segment_id"] = segmentId

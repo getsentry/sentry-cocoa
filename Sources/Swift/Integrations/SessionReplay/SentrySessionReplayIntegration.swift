@@ -178,6 +178,13 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
             if event.type == SentryEnvelopeItemTypes.feedback {
                 return event
             }
+            // Associate the event's trace with the recording replay segment (#7964). Runs for
+            // errors and transactions alike, since the trace context is populated for both by the
+            // time global processors run. Skip replay_video events, which carry no trace of their own.
+            if event.type != SentryEnvelopeItemTypes.replayVideo,
+                let traceId = event.context?["trace"]?["trace_id"] as? String {
+                self.sessionReplay?.registerTraceId(traceId)
+            }
             if event.isFatalEvent {
                 self.replayRecovery?.resumePreviousSessionReplay(event)
             } else {
@@ -458,7 +465,15 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
 
     @objc public func setReplayTags(_ tags: [String: Any]) {
         SentrySDKLog.debug("[Session Replay] Setting replay tags: \(tags)")
-        sessionReplay?.replayTags = tags 
+        sessionReplay?.replayTags = tags
+    }
+
+    /// Registers a trace ID (hex string) with the current replay segment.
+    ///
+    /// No-op when no replay is recording. Reachable from hybrid SDKs through
+    /// `SentrySDK.internal.replay.registerTraceId(_:)`.
+    @objc public func registerReplayTraceId(_ traceId: String) {
+        sessionReplay?.registerTraceId(traceId)
     }
 
     @objc public func showMaskPreview(_ opacity: Float) {
