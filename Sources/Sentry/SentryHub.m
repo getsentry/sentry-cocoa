@@ -336,7 +336,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * This method expects an abnormal session already stored to disk. For more info checkout: @c
- * SentryCrashIntegrationSessionHandler
+ * PreviousRunSessionFinalizer
  */
 - (void)captureFatalAppHangEvent:(SentryEvent *)event
 {
