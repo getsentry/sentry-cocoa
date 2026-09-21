@@ -6,7 +6,7 @@ See //Samples/README.md for more information about how to use the sample apps to
 
 ## Tests
 
-The tests depend on our test server. To run the automated tests, you first need to have the server running locally with
+Only the TestServer plans require the local test server. Start it before running those tests and stop it afterward with `make -C test-server stop`:
 
 ```sh
 make -C test-server start-debug
@@ -28,132 +28,17 @@ make test
 
 ### SwiftPM SDK Tests
 
-SDK tests need test definitions in both the SDK and test targets; `DEBUG` and `@testable import` alone are insufficient. **Run the main `SentryTests` suite through the package workspace below.** Plain `swift test` neither discovers its Objective-C/Objective-C++ tests nor applies the Xcode test plans.
+SwiftPM mirrors the Xcode SDK test suites in V9 and V10. The main suite is split into `SentryTests` (Swift) and `SentryTestsObjC` (Objective-C/Objective-C++), with separate cross-language support targets.
 
-For the Swift-only support suites on macOS with Swift 6.1+, run from the repository root (append `--filter SentryTestUtilsTests` or `--filter SentryObjCCompatTests` to each command):
+Use `xcodebuild` for the mixed-language suite. Native `swift test` supports the Swift-only support suites, but does not discover Objective-C tests or apply Xcode test plans. For commands and compiler settings, follow the [CI workflow](../.github/workflows/test.yml) and [SwiftPM test configuration](../Tests/Configuration/SwiftPM.xcconfig).
 
-```sh
-swift test --traits _SentryTest
-swift test --traits _SentryTestCI
-# V10: select through the environment or trait.
-SDK_V10=1 swift test --traits _SentryTest
-swift test --traits V10,_SentryTest
-```
+When adding or changing tests:
 
-The traits match [SDK.xcconfig](../Sources/Configuration/SDK.xcconfig), including Swift's Clang importer:
-
-| Trait           | Swift definitions | Objective-C/C/C++ definitions            |
-| --------------- | ----------------- | ---------------------------------------- |
-| `_SentryTest`   | `SENTRY_TEST`     | `DEBUG=1 SENTRY_TEST=1`                  |
-| `_SentryTestCI` | `SENTRY_TEST_CI`  | `DEBUG=1 SENTRY_TEST=1 SENTRY_TEST_CI=1` |
-
-`_SentryTestCI` does not enable `_SentryTest`. Neither trait changes prebuilt binaries.
-
-> [!WARNING]
-> Test traits and flags change SDK behavior. Enable them only for SDK tests, never unconditionally in manifests or consumer builds. The underscore does not make traits private.
-
-Swift 6.0 requires explicit flags instead (prefix either command with `SDK_V10=1` for V10):
-
-```sh
-swift test -Xswiftc -DSENTRY_TEST -Xcc -DSENTRY_TEST=1
-swift test -Xswiftc -DSENTRY_TEST_CI -Xcc -DDEBUG=1 -Xcc -DSENTRY_TEST=1 -Xcc -DSENTRY_TEST_CI=1
-```
-
-These Swift-only invocations are not a substitute for the mixed-language package-workspace inventory or routed test runs.
-
-#### Package tests with xcodebuild
-
-For project-equivalent compilation or simulator/device tests, use `xcodebuild`. It cannot select root-package traits from the command line, so explicit test flags are still required. Prepare and test a temporary source-only package to avoid duplicate binary outputs:
-
-```sh
-package_dir="$(mktemp -d)"
-package_test_config="$PWD/Tests/Configuration/SwiftPM.xcconfig"
-rsync -a Package*.swift Sources SentryTestUtils SentryTestUtilsTests SentryTestUtilsDynamic Tests "$package_dir/"
-for manifest in "$package_dir"/Package*.swift; do
-  ./scripts/prepare-package.sh --package-file "$manifest" --remove-binary-targets true
-done
-
-# Use SentryV10_Base.xctestplan and SDK_V10=1 together for V10.
-python3 scripts/spm-test-plan.py --plan Plans/Sentry_Base.xctestplan > "$package_dir/test-arguments.txt"
-test_arguments=()
-while IFS= read -r argument; do test_arguments+=("$argument"); done < "$package_dir/test-arguments.txt"
-
-status=0
-xcodebuild test -workspace "$package_dir" -scheme Sentry-Package \
-  -configuration Test \
-  -destination 'platform=macOS' \
-  -xcconfig "$package_test_config" \
-  "${test_arguments[@]}" -collect-test-diagnostics never \
-  'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SENTRY_TEST' \
-  'GCC_PREPROCESSOR_DEFINITIONS=$(inherited) DEBUG=1 SENTRY_TEST=1' \
-  > "$package_dir/package-tests.log" 2>&1 || status=$?
-grep -E 'Executed|error:|TEST SUCCEEDED|TEST FAILED' "$package_dir/package-tests.log"
-(test "$status" -eq 0)
-```
-
-- Prefix `xcodebuild` with `SDK_V10=1` for V10.
-- Use an available iOS simulator destination for iOS-specific tests.
-- Limit a run with `-only-testing:<test-target>`, for example `-only-testing:SentryObjCCompatTests`.
-- CI uses `TestCI` and the corresponding definitions from the table above; see the [Distribution Tests job](../.github/workflows/test.yml).
-
-#### Main suite boundaries and routing
-
-| Package target            | Xcode inventory                                                 |
-| ------------------------- | --------------------------------------------------------------- |
-| `SentryTests`             | Swift tests from `SentryTests` / `SentryTestsV10`               |
-| `SentryTestsObjC`         | Objective-C and Objective-C++ tests from the same Xcode targets |
-| `SentryTestsObjCHelpers`  | Same-target ObjC helpers and test-only private declarations     |
-| `SentryTestsSwiftHelpers` | Swift helpers called by ObjC tests; shared test resources       |
-
-All three active manifests use the same split. Swift files use directory discovery; assign new Clang files to the explicit test/helper lists. `SDK_V10=1` applies the project's source exclusions, including synchronized-group exceptions. No test or support target is reachable from a published SDK product.
-
-The package does not use `SentryTests-Bridging-Header.h` or import `SentryTests-Swift.h`. Test-only named categories and adapters in `Tests/SentryTestsSupport` bridge selectors whose Swift-owned argument types cannot cross a Clang module boundary. `Bundle.sentryTestResources` and `SentryTestResources.bundle` share the resource bundle while retaining the Xcode lookup path.
-
-`SentryTestUtilsDynamic/Package.swift` exports only the separately loaded view-controller fixture. It must remain a **dynamic product of a separate package**: depending on an ordinary target in the root package would link the fixture into the test image and invalidate the swizzling assertions.
-
-`spm-test-plan.py` reads the existing plans rather than maintaining a second skip list:
-
-- **Base:** `Sentry_Base.xctestplan` or `SentryV10_Base.xctestplan`; excludes flaky, disabled, and server tests exactly as the project does.
-- **Flaky:** `Sentry_Flaky.xctestplan`; selects only migrated entries and retains three retry attempts. There is no V10 flaky plan in the project.
-- **Server:** `Sentry_TestServer.xctestplan` or `SentryV10_TestServer.xctestplan`. Start the test server immediately before running this selection and stop it afterward, including on failure. Prefer macOS, as for the project server jobs.
-
-For local iOS runs on a non-English simulator, add `-testLanguage en -testRegion US` to localize the test process (some assertions inspect English error descriptions). This does not change the simulator's system settings. Use separate derived-data and dependency-checkout directories for concurrent V9/V10 runs; SwiftPM can otherwise remove a checkout needed by the other mode.
-
-Use the generated arguments in the workspace command above. Do not combine plan-wide `-only-testing` arguments with a narrower selector expecting an intersection: Xcode unions them. For a focused run, replace the generated selection with the desired selectors. Unmigrated profiler, ObjC public API, sample UI, performance, and duplicated-SDK targets remain in their existing Xcode plans.
-
-#### Inventory checks
-
-Audit each manifest in default and `SDK_V10=1` modes after changing source membership:
-
-```sh
-swift package dump-package > /tmp/sentry-package.json
-python3 scripts/spm-test-plan.py --audit-manifest /tmp/sentry-package.json
-SDK_V10=1 swift package dump-package > /tmp/sentry-package-v10.json
-python3 scripts/spm-test-plan.py --audit-manifest /tmp/sentry-package-v10.json --v10
-python3 scripts/test_spm_test_plan.py
-```
-
-The audit checks every applicable source against the Xcode synchronized group, V10 xcconfig and membership exceptions, single-language ownership, and product isolation. To compare **discovered test methods**, build both workspaces for the same platform/configuration and use `xcodebuild test-without-building -enumerate-tests -test-enumeration-format json -test-enumeration-output-path <path>`. Do not apply plan skips during enumeration. Normalize and compare:
-
-```sh
-python3 scripts/spm-test-plan.py --normalize /tmp/project-tests.json > /tmp/project-tests.txt
-python3 scripts/spm-test-plan.py --normalize /tmp/package-tests.json > /tmp/package-tests.txt
-diff -u /tmp/project-tests.txt /tmp/package-tests.txt
-```
-
-Normalization maps `SentryTestsObjC` and `SentryTestsV10` to `SentryTests`, strips module qualification from class names and trailing `()` from method names, and fails on duplicates or empty/failed enumeration. Other suites are excluded from this comparison. Compare pass/skip results separately using matching plans.
-
-#### Compiler settings and project parity
-
-Plain `swift test` uses SwiftPM's debug and ABI defaults. The opt-in [SwiftPM test configuration](../Tests/Configuration/SwiftPM.xcconfig) aligns package-workspace tests with the project:
-
-- **Test compilation:** `Test`/`TestCI` omit automatic Swift `DEBUG`, preserve manifest definitions, and use unoptimized, testable Sentry builds. Do not substitute `Debug`.
-- **Target settings:** Wrappers and wrapper tests use whole-module compilation. `SentrySwift` and `SentryObjCCompat` use library evolution and verify their textual interfaces, including on older Xcode toolchains.
-- **Diagnostics:** Sentry-owned targets use warnings-as-errors; dependencies retain their own settings. Avoid global `-Xswiftc -warnings-as-errors` or `-Xcc -Werror` overrides.
-
-Wrapper language features live in the manifests: `MemberImportVisibility` with Swift 6.1+, approachable concurrency with Swift 6.2+. They apply to ordinary builds and tests, while the xcconfig remains test-only. See its comments for setting-specific rationale.
-
-The package still checks warnings in legacy `SentryCrashSysCtl.c`, unlike the project. When changing settings, compare actual compiler commands, interface-verification results, and V9/V10 test identifiers and pass/skip outcomes. Confirm dependency diagnostics and ordinary consumer builds remain unchanged.
+- Keep source membership, compiler conditions, and V10 exclusions consistent across all active package manifests and the Xcode targets. Swift sources are discovered automatically; add Objective-C/Objective-C++ sources to the explicit test or helper lists.
+- Keep test helpers out of published SDK products. Put package-only cross-language declarations in `Tests/SentryTestsSupport`, rather than relying on Xcode bridging or generated Swift headers.
+- Use `Bundle.sentryTestResources` or `SentryTestResources.bundle` for shared resources. Keep external-image fixtures in the separate dynamic `SentryTestUtilsDynamic` package.
+- Treat the [existing test plans](../Plans) as the source of truth for Base, Flaky, and TestServer selections and skips. Use [spm-test-plan.py](../scripts/spm-test-plan.py) for package routing and inventory checks instead of duplicating those rules.
+- Preserve test discovery and behavior in both build systems and SDK modes. Apply test definitions to SDK and test targets, including Swift's Clang importer, without changing dependency settings or consumer builds. Test traits and flags must remain opt-in.
 
 ### Unit Tests with Thread Sanitizer
 
