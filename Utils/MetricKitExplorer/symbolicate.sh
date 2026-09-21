@@ -11,6 +11,7 @@ ORG="${SENTRY_ORG:-}"
 PROJECT="${SENTRY_PROJECT:-}"
 ARCH=""
 LOCAL_SYMBOLS=()
+DEVICE_SYMBOLS=""
 LOCAL_ONLY=false
 DEBUG=false
 SENTRY_READY=false
@@ -33,7 +34,7 @@ Options:
     -p, --project <slug>      Project (default: SENTRY_PROJECT or CLI default)
     -a, --arch <name>         Architecture override (default: matching debug file)
     -c, --cache-dir <path>    Downloaded symbol cache (default: $CACHE_DIR)
-    -l, --local-symbols <path> Local binary, .app, .dSYM, or build directory (repeatable)
+    -l, --local-symbols <path> Fallback binary, .app, .dSYM, or directory (repeatable)
     -L, --local-only          Use only local symbols, without remote API calls
     -v, --verbose             Log timestamped progress and elapsed time to stderr
     -h, --help                Show this help
@@ -42,8 +43,9 @@ Frames without matching or accessible symbols retain their original addresses.
 HTTP 403 is a warning. Other API failures stop processing without writing output.
 Binary architectures are taken from UUID-matched debug files, not the device architecture.
 Local dSYMs are preferred over local binaries. Local files are used in place, not cached.
-With no --local-symbols paths, sentry-cli searches its well-known local locations.
-With explicit paths, discovery is restricted to those paths.
+Report device/OS metadata selects an exact local Xcode iOS device-symbol cache first.
+Unmatched images fall back to --local-symbols paths. No broad filesystem search is used.
+Without local matches, --local-only leaves frames unresolved.
 Without --local-only, unresolved UUIDs fall back to sentry api.
 EOF
 }
@@ -212,7 +214,7 @@ find_local_symbols() {
     [[ ${#ids[@]} -gt 0 ]] || return 0
     started=$SECONDS
     debug "Starting local discovery for ${#ids[@]} UUIDs using sentry-cli debug-files find."
-    sentry-cli debug-files find --no-cwd --type dsym --json "$@" "${ids[@]}" \
+    sentry-cli debug-files find --no-cwd --no-well-known --type dsym --json "$@" "${ids[@]}" \
         >"$TEMP_DIR/found.json" || status=$?
     debug "Local discovery finished in $((SECONDS - started))s (exit $status, 1 means partial/missing matches)."
     [[ "$status" -le 1 ]] || fail "Local symbol discovery failed (sentry-cli exit $status)."
@@ -223,25 +225,57 @@ find_local_symbols() {
         debug "Inspecting local symbols: $path"
         sentry-cli debug-files check --json "$path" >"$TEMP_DIR/local-check.json" ||
             fail "Cannot inspect local symbols: $path"
-        jq -c --arg path "$path" --arg arch "$ARCH" --slurpfile groups "$TEMP_DIR/groups.jsonl" '
+        jq -c --arg path "$path" --arg arch "$ARCH" --rawfile pending "$TEMP_DIR/pending-uuids.txt" '
             select(.type == "dsym" and .is_usable) |
             (.features | split(",") | map(gsub("^ +| +$"; ""))) as $features |
             select(any($features[]; . == "debug" or . == "symtab")) |
             .variants[] | {uuid: (.debug_id | ascii_downcase), arch, path: $path,
                 priority: (if $features | index("debug") != null then 0 else 1 end)} |
-            select(($arch == "" or .arch == $arch) and (.uuid as $id | any($groups[]; .uuid == $id)))
+            select(($arch == "" or .arch == $arch) and (.uuid as $id | ($pending | split("\n") | index($id)) != null))
         ' "$TEMP_DIR/local-check.json" >>"$TEMP_DIR/local-symbols.jsonl"
     done <"$TEMP_DIR/found-paths"
 }
 
-# The finder returns the first match per UUID. Search supplied dSYM bundles first
-# so an app binary does not mask richer debug information in a sibling bundle.
-# Leave file recognition, UUID lookup and well-known locations to sentry-cli.
+# Metadata narrows the cache search, but UUID checks still establish image identity.
+# Validate components before constructing a path from an external report. The
+# device architecture selects its cache only, never the architecture for atos.
+discover_device_symbols() {
+    local relative_path path
+    relative_path="$(jq -r '
+        .diagnosticMetaData? | objects |
+        select(.deviceType? | strings | test("^(iPhone|iPad|iPod)[0-9]+,[0-9]+$")) |
+        select(.platformArchitecture? | IN("arm64", "arm64e", "armv7", "armv7s")) |
+        . as $metadata | .osVersion? | strings |
+        capture("^iPhone OS (?<version>[0-9]+(?:\\.[0-9]+)*) \\((?<build>[A-Za-z0-9]+)\\)$") |
+        "\($metadata.deviceType) \(.version) (\(.build))/\($metadata.platformArchitecture)/Symbols"
+    ' "$REPORT")"
+    if [[ -z "$relative_path" ]]; then
+        debug "Device metadata is missing or unsupported. Skipping automatic device-symbol discovery."
+        return
+    fi
+    path="$HOME/Library/Developer/Xcode/iOS DeviceSupport/$relative_path"
+    debug "Device-symbol cache inferred from report: $relative_path"
+    if [[ ! -d "$path" ]]; then
+        debug "No matching Xcode device symbols at: $path"
+        return
+    fi
+    debug "Found matching Xcode device symbols: $path"
+    DEVICE_SYMBOLS="$path"
+}
+
+# Resolve the exact device cache before trying explicit fallbacks. Within those
+# fallbacks, prefer dSYM bundles so an app binary cannot mask richer debug info.
+# All searches are bounded: no paths means no local symbol matches.
 index_local_symbols() {
     local path
     local paths=() dsym_paths=()
     : >"$TEMP_DIR/local-symbols.jsonl"
     : >"$TEMP_DIR/dsym-paths"
+    discover_device_symbols
+    if [[ -n "$DEVICE_SYMBOLS" ]]; then
+        debug "Searching inferred device symbols first: $DEVICE_SYMBOLS"
+        find_local_symbols --path "$DEVICE_SYMBOLS"
+    fi
     for path in ${LOCAL_SYMBOLS[@]+"${LOCAL_SYMBOLS[@]}"}; do
         [[ "$path" = /* ]] || path="$PWD/$path"
         paths+=(--path "$path")
@@ -256,14 +290,13 @@ index_local_symbols() {
     if [[ ${#paths[@]} -gt 0 ]]; then
         if [[ ${#dsym_paths[@]} -gt 0 ]]; then
             debug "Searching dSYM bundles first ($((${#dsym_paths[@]} / 2)) paths)."
-            find_local_symbols --no-well-known "${dsym_paths[@]}"
+            find_local_symbols "${dsym_paths[@]}"
         fi
-        debug "Searching explicit local paths only (${#LOCAL_SYMBOLS[@]} paths)."
+        debug "Searching explicit fallback paths (${#LOCAL_SYMBOLS[@]} paths)."
         for path in "${LOCAL_SYMBOLS[@]}"; do debug "Search path: $path"; done
-        find_local_symbols --no-well-known "${paths[@]}"
-    else
-        debug "Searching well-known local locations. This can be slow for missing UUIDs. Use --local-symbols to restrict the search."
-        find_local_symbols
+        find_local_symbols "${paths[@]}"
+    elif [[ -z "$DEVICE_SYMBOLS" ]]; then
+        debug "No device cache or fallback paths available. Leaving local matches unresolved."
     fi
     jq -s 'unique_by([.uuid, .arch, .path])' "$TEMP_DIR/local-symbols.jsonl" >"$TEMP_DIR/local-symbols.json"
     if $DEBUG; then
