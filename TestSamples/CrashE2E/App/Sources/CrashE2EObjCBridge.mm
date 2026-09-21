@@ -345,3 +345,27 @@ CrashE2ETriggerMallocZoneLockedSignal(void)
     NSLog(@"CrashE2E - malloc-zone-locked signal returned with error %d", result);
     abort();
 }
+
+// Keep in sync with MemoryIntrospectionAsserter.marker in the runner. The marker is deliberately
+// absent from logs, exception reasons, and scope so memory introspection is its only path into the
+// crash report. The zero-filled tail keeps the crash-time string validation's fixed-size read
+// inside readable memory.
+static char g_memoryIntrospectionMarker[512] = "crash-e2e-memory-introspection-marker";
+
+__attribute__((noinline, disable_tail_calls)) static void
+CrashE2ECrashWithIntrospectableMarker(const char *marker)
+{
+    // The marker stays in the first argument register and in a stack slot next to the stack
+    // pointer at the fault, covering both the register and stack scans of memory introspection.
+    const char *volatile stackMarker = marker;
+    volatile int *invalidAddress = nullptr;
+    *invalidAddress = stackMarker != nullptr ? 1 : 0;
+    __builtin_unreachable();
+}
+
+extern "C" void
+CrashE2ETriggerMemoryIntrospectionMarkerCrash(void)
+{
+    CrashE2ECrashWithIntrospectableMarker(g_memoryIntrospectionMarker);
+    abort();
+}
