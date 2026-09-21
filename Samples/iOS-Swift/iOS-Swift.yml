@@ -64,6 +64,7 @@ targets:
       - target: iOS-Swift-ActionExtension
       - target: iOS-Swift-IntentExtension
       - target: iOS-Swift-NotificationServiceExtension
+      - target: iOS-Swift-KeyboardExtension
     configFiles:
       Debug: App/Configurations/iOS-Swift.xcconfig
       Release: App/Configurations/iOS-Swift.xcconfig
@@ -512,6 +513,41 @@ targets:
         NSExtension:
           NSExtensionPointIdentifier: com.apple.usernotifications.service
           NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).NotificationService
+  iOS-Swift-KeyboardExtension:
+    type: app-extension
+    platform: auto
+    sources:
+      - path: KeyboardExtension/Sources
+        type: group
+        group: KeyboardExtension
+      - path: KeyboardExtension/Configurations
+        type: group
+        group: KeyboardExtension
+        buildPhase: none
+    dependencies:
+      - package: Sentry
+        product: SentrySPM
+      - package: SentrySampleShared
+        product: SentrySampleShared
+    configFiles:
+      Debug: KeyboardExtension/Configurations/iOS-Swift-KeyboardExtension.xcconfig
+      Release: KeyboardExtension/Configurations/iOS-Swift-KeyboardExtension.xcconfig
+      Test: KeyboardExtension/Configurations/iOS-Swift-KeyboardExtension.xcconfig
+      TestCI: KeyboardExtension/Configurations/iOS-Swift-KeyboardExtension.xcconfig
+    info:
+      path: KeyboardExtension/Configurations/Info.plist
+      properties:
+        CFBundleDisplayName: Sentry Keyboard
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionAttributes:
+            IsASCIICapable: false
+            PrefersRightToLeft: false
+            PrimaryLanguage: en-US
+            RequestsOpenAccess: true
+          NSExtensionPointIdentifier: com.apple.keyboard-service
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).KeyboardViewController
 schemes:
   iOS-Swift:
     templates:
@@ -548,5 +584,12 @@ schemes:
     build:
       targets:
         iOS-Swift-NotificationServiceExtension: all
+    run:
+      config: Debug
+  iOS-Swift-KeyboardExtension:
+    build:
+      targets:
+        iOS-Swift: all
+        iOS-Swift-KeyboardExtension: all
     run:
       config: Debug
