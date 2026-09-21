@@ -126,8 +126,8 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Use @c includeLocalVariables instead.
  */
-@property (nonatomic) BOOL enableMemoryIntrospection
-    DEPRECATED_MSG_ATTRIBUTE("Use includeLocalVariables instead.");
+@property (nonatomic)
+    BOOL enableMemoryIntrospection DEPRECATED_MSG_ATTRIBUTE("Use includeLocalVariables instead.");
 
 /**
  * How many breadcrumbs do you want to keep in memory?
