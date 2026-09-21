@@ -8,6 +8,7 @@ extension MacOSPlatformRunner {
             cacheDir: cacheDir,
             derivedDataPath: derivedDataPath
         )
+        KSCrashRetryScenarioConstants.waitForDistinctReportID()
         try prepareKSCrashRetryReportB(
             executable: executable,
             cacheDir: cacheDir,

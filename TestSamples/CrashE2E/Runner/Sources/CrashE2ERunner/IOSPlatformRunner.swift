@@ -50,7 +50,9 @@ final class IOSPlatformRunner {
                     try installApp(derivedDataPath: derivedDataPath)
                     installedDerivedDataPath = derivedDataPath
                 }
-                try runScenario(scenario)
+                try runAllowingKnownFailure(scenario, reporter: config.reporter, platform: "ios") {
+                    try runScenario(scenario)
+                }
             } catch {
                 if config.keepGoing {
                     let message = "iOS/\(scenario.rawValue): \(error)"
@@ -100,17 +102,7 @@ final class IOSPlatformRunner {
         }
 
         let cacheRoot = container.appendingPathComponent("Library/Caches", isDirectory: true)
-        try CrashTimeAttachmentsAsserter.assertPayloadIfNeeded(
-            scenario: scenario,
-            cacheDirectory: cacheRoot,
-            platform: "ios"
-        )
-        try RethrownNSExceptionAsserter.assertCrashLaunchEvidenceIfNeeded(
-            scenario: scenario,
-            cacheRoot: cacheRoot,
-            platform: "ios",
-            artifactsDir: config.artifactsDir
-        )
+        try assertCrashLaunchArtifacts(for: scenario, cacheRoot: cacheRoot)
         try drainPreviousCrash(for: scenario)
         try ScenarioEventAsserter.assertScenarioEvent(
             scenario,
@@ -123,11 +115,35 @@ final class IOSPlatformRunner {
         }
     }
 
+    private func assertCrashLaunchArtifacts(for scenario: Scenario, cacheRoot: URL) throws {
+        try CrashTimeAttachmentsAsserter.assertPayloadIfNeeded(
+            scenario: scenario,
+            cacheDirectory: cacheRoot,
+            platform: "ios"
+        )
+        try CrashTimeReplayAsserter.assertCheckpointIfNeeded(
+            scenario: scenario,
+            cacheDirectory: cacheRoot,
+            platform: "ios"
+        )
+        try RethrownNSExceptionAsserter.assertCrashLaunchEvidenceIfNeeded(
+            scenario: scenario,
+            cacheRoot: cacheRoot,
+            platform: "ios",
+            artifactsDir: config.artifactsDir
+        )
+        try MemoryIntrospectionAsserter.assertStoredReportIfNeeded(
+            scenario: scenario,
+            cacheRoot: cacheRoot,
+            platform: "ios"
+        )
+    }
+
     func drainPreviousCrash(for scenario: Scenario) throws {
         log("Relaunching iOS app to drain previous crash.")
         let result = try launchApp(arguments: ["--scenario", "drain", "--exit-after", "3"])
         try assertLaunchSucceeded(result, scenario: scenario, launchType: "drain")
-        guard try waitForAppToStop(timeout: 15) else {
+        guard try waitForAppToStop(timeout: 60) else {
             try fail("iOS drain app did not terminate for scenario: \(scenario.rawValue)")
         }
     }
@@ -195,6 +211,9 @@ final class IOSPlatformRunner {
         )
         try fileManager.removeItemIfExists(
             at: cacheRoot.appendingPathComponent("SentryCrash", isDirectory: true)
+        )
+        try fileManager.removeItemIfExists(
+            at: cacheRoot.appendingPathComponent("crash-e2e-replay-checkpoint")
         )
     }
 

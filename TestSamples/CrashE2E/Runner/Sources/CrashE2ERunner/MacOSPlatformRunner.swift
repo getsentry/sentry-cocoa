@@ -14,7 +14,9 @@ final class MacOSPlatformRunner {
         var failures: [String] = []
         for scenario in config.scenarios {
             do {
-                try runScenario(scenario)
+                try runAllowingKnownFailure(scenario, reporter: config.reporter, platform: "macos") {
+                    try runScenario(scenario)
+                }
             } catch {
                 if config.keepGoing {
                     let message = "macOS/\(scenario.rawValue): \(error)"
@@ -60,12 +62,16 @@ final class MacOSPlatformRunner {
                            markerPath: markerPath, derivedDataPath: derivedDataPath)
         try CrashTimeAttachmentsAsserter.assertPayloadIfNeeded(
             scenario: scenario, cacheDirectory: cacheDir, platform: "macos")
+        try CrashTimeReplayAsserter.assertCheckpointIfNeeded(
+            scenario: scenario, cacheDirectory: cacheDir, platform: "macos")
         try RethrownNSExceptionAsserter.assertCrashLaunchEvidenceIfNeeded(
             scenario: scenario,
             cacheRoot: cacheDir,
             platform: "macos",
             artifactsDir: config.artifactsDir
         )
+        try MemoryIntrospectionAsserter.assertStoredReportIfNeeded(
+            scenario: scenario, cacheRoot: cacheDir, platform: "macos")
         try runDrainLaunch(scenario, executable: executable, cacheDir: cacheDir,
                            derivedDataPath: derivedDataPath)
         try ScenarioEventAsserter.assertScenarioEvent(

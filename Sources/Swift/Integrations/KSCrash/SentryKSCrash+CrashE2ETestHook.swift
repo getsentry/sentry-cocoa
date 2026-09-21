@@ -1,4 +1,5 @@
 #if SDK_V10 && SENTRY_CRASH_E2E
+internal import _SentryPrivate
 import Foundation
 
 private nonisolated(unsafe) var crashE2EScreenshotPNG = Data()
@@ -25,23 +26,6 @@ extension SentryKSCrash {
         private static let processingCompleteMarkerArgument =
             "--io.sentry.crash-e2e-kscrash-processing-complete"
         private static let errorDomain = "io.sentry.crash-e2e-kscrash"
-
-        static var reportUserInfo: [String: Any]? {
-            let marker: String
-            switch argumentValue(after: "--scenario") {
-            case "kscrash-retry-report-a":
-                marker = "crash-e2e-kscrash-report-a"
-            case "kscrash-retry-report-b":
-                marker = "crash-e2e-kscrash-report-b"
-            default:
-                return nil
-            }
-            return [
-                "context": [
-                    "crash_e2e_kscrash_retry": ["report": marker]
-                ]
-            ]
-        }
 
         static func retryableProcessingError(for report: [AnyHashable: Any]) -> (any Error)? {
             guard let marker = argumentValue(after: retryableMarkerArgument),
@@ -132,6 +116,29 @@ extension SentryKSCrash {
             let installer = SentryDependencyContainer.sharedInstance().getKSCrashInstaller()
             installer.setScreenshotProvider(crashE2EWriteScreenshot)
             installer.setViewHierarchyProvider(crashE2EWriteViewHierarchy)
+        }
+
+        /// Seeds session-replay sync state so `sentrykscrash_didWriteReport` can persist a
+        /// recovery checkpoint during the `crash-time-replay` scenario.
+        static func installReplayCheckpointIfNeeded() {
+            guard argumentValue(after: "--scenario") == "crash-time-replay" else { return }
+            guard let path = replayCheckpointPath() else {
+                SentrySDKLog.error("CrashE2E could not resolve the replay checkpoint path.")
+                return
+            }
+            sentrySessionReplaySync_start(path, 1)
+            sentrySessionReplaySync_updateInfo(7, 123.5)
+        }
+
+        private static func replayCheckpointPath() -> String? {
+            if let cacheDir = argumentValue(after: "--cache-dir") {
+                return URL(fileURLWithPath: cacheDir)
+                    .appendingPathComponent("crash-e2e-replay-checkpoint")
+                    .path
+            }
+            return FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first?
+                .appendingPathComponent("crash-e2e-replay-checkpoint")
+                .path
         }
     }
 }

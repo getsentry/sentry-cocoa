@@ -99,6 +99,10 @@ extension SentryMXCallStack {
 
 extension SentryMXFrame {
     func toDebugMeta() -> [DebugMeta] {
+        // MetricKit can omit binary metadata while still providing a frame's address and samples.
+        guard let binaryUUID else {
+            return subFrames?.flatMap { $0.toDebugMeta() } ?? []
+        }
         let result = DebugMeta()
         result.type = "macho"
         result.debugID = binaryUUID.uuidString
@@ -127,7 +131,7 @@ extension SentryMXFrame {
         let frame = Frame()
         frame.package = binaryName
         frame.instructionAddress = sentry_formatHexAddressUInt64Swift(address)
-        if offsetIntoBinaryTextSegment >= 0 && offsetIntoBinaryTextSegment < address {
+        if binaryUUID != nil && offsetIntoBinaryTextSegment >= 0 && offsetIntoBinaryTextSegment < address {
             frame.imageAddress = sentry_formatHexAddressUInt64Swift(address - UInt64(offsetIntoBinaryTextSegment))
         }
 
@@ -143,7 +147,7 @@ private extension MXSample.MXFrame {
         let frame = Frame()
         frame.package = binaryName
         frame.instructionAddress = sentry_formatHexAddressUInt64Swift(address)
-        if offsetIntoBinaryTextSegment >= 0 && offsetIntoBinaryTextSegment < address {
+        if binaryUUID != nil && offsetIntoBinaryTextSegment >= 0 && offsetIntoBinaryTextSegment < address {
             frame.imageAddress = sentry_formatHexAddressUInt64Swift(address - UInt64(offsetIntoBinaryTextSegment))
         }
         return frame

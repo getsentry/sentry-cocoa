@@ -30,6 +30,10 @@ enum CrashE2EScenario: String {
     case mallocZoneLockedSignal = "malloc-zone-locked-signal"
     case crashTimeScope = "crash-time-scope"
     case crashTimeAttachments = "crash-time-attachments"
+    case crashTimeReplay = "crash-time-replay"
+    case memoryIntrospectionEnabled = "memory-introspection-enabled"
+    case memoryIntrospectionDisabled = "memory-introspection-disabled"
+    case memoryIntrospectionDefault = "memory-introspection-default"
 }
 
 struct CrashE2EConfiguration {
@@ -79,6 +83,7 @@ struct CrashE2EConfiguration {
     }
 }
 
+// swiftlint:disable type_body_length
 enum CrashE2ERuntime {
     static let configuration = CrashE2EConfiguration.fromProcessInfo()
     private static var binaryImageBeforeSDKPath: String?
@@ -94,7 +99,7 @@ enum CrashE2ERuntime {
         startConfiguredSDK()
         writeLastRunMarkerIfNeeded()
         CrashE2EScopePopulation.populateIfNeeded()
-        logCrashTimeAttachmentsHookIfNeeded()
+        logCrashTimeHooksIfNeeded()
         NSLog("CrashE2E - SDK started")
     }
 
@@ -119,7 +124,9 @@ enum CrashE2ERuntime {
              .objcObject, .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal,
              .managedRuntimeSignalChain, .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
              .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA,
-             .ksCrashRetryReportB, .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments:
+             .ksCrashRetryReportB, .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments,
+             .crashTimeReplay,
+             .memoryIntrospectionEnabled, .memoryIntrospectionDisabled, .memoryIntrospectionDefault:
             NSLog("CrashE2E - will trigger scenario: \(configuration.scenario.rawValue)")
             scheduleCrashAfterProcessingCompletesIfRequested()
         }
@@ -146,7 +153,9 @@ enum CrashE2ERuntime {
              .objcObject, .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal,
              .managedRuntimeSignalChain, .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
              .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA,
-             .ksCrashRetryReportB, .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments:
+             .ksCrashRetryReportB, .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments,
+             .crashTimeReplay,
+             .memoryIntrospectionEnabled, .memoryIntrospectionDisabled, .memoryIntrospectionDefault:
             NSLog("CrashE2E - will trigger scenario synchronously: \(configuration.scenario.rawValue)")
             waitForProcessingCompletionOrAbort()
             Thread.sleep(forTimeInterval: 0.5)
@@ -159,7 +168,7 @@ enum CrashE2ERuntime {
         SentrySDK.close()
         startConfiguredSDK()
         CrashE2EScopePopulation.populateIfNeeded()
-        logCrashTimeAttachmentsHookIfNeeded()
+        logCrashTimeHooksIfNeeded()
         NSLog("CrashE2E - SDK restarted")
     }
 
@@ -202,6 +211,14 @@ enum CrashE2ERuntime {
                 options.swiftAsyncStacktraces = true
             }
 
+            // The default scenario intentionally leaves the option untouched so it verifies the
+            // public default rather than an explicit value.
+            if configuration.scenario == .memoryIntrospectionEnabled {
+                options.enableMemoryIntrospection = true
+            } else if configuration.scenario == .memoryIntrospectionDisabled {
+                options.enableMemoryIntrospection = false
+            }
+
             if let cacheDirectoryPath = configuration.cacheDirectoryPath {
                 options.cacheDirectoryPath = cacheDirectoryPath
             }
@@ -216,9 +233,15 @@ enum CrashE2ERuntime {
         abortBecausePreSDKScenarioReturned()
     }
 
-    private static func logCrashTimeAttachmentsHookIfNeeded() {
-        guard configuration.scenario == .crashTimeAttachments else { return }
-        NSLog("CrashE2E - crash-time-attachments uses the SDK SENTRY_CRASH_E2E attachment hook")
+    private static func logCrashTimeHooksIfNeeded() {
+        switch configuration.scenario {
+        case .crashTimeAttachments:
+            NSLog("CrashE2E - crash-time-attachments uses the SDK SENTRY_CRASH_E2E attachment hook")
+        case .crashTimeReplay:
+            NSLog("CrashE2E - crash-time-replay uses the SDK SENTRY_CRASH_E2E replay checkpoint hook")
+        default:
+            return
+        }
     }
 
     private static func installUncaughtNSExceptionMarkerIfNeeded() {
@@ -358,26 +381,4 @@ enum CrashE2ERuntime {
         Darwin.exit(0)
     }
 }
-
-enum CrashE2EScopePopulation {
-    static func populateIfNeeded() {
-        guard CrashE2ERuntime.configuration.scenario == .crashTimeScope else { return }
-
-        SentrySDK.configureScope { scope in
-            let user = User(userId: "crash-e2e-scope-user")
-            user.email = "crash-e2e-scope@example.com"
-            user.username = "crash-e2e-scope"
-            scope.setUser(user)
-            scope.setTag(value: "crash-e2e-tag-value", key: "crash_e2e_tag")
-            scope.setExtra(value: "crash-e2e-extra-value", key: "crash_e2e_extra")
-            scope.setContext(value: ["marker": "crash-e2e-context"], key: "crash_e2e")
-            scope.setDist("crash-e2e-dist")
-            scope.setEnvironment("crash-e2e-environment")
-
-            let breadcrumb = Breadcrumb(level: .info, category: "crash-e2e")
-            breadcrumb.type = "debug"
-            breadcrumb.message = "crash-e2e-breadcrumb"
-            scope.addBreadcrumb(breadcrumb)
-        }
-    }
-}
+// swiftlint:enable type_body_length

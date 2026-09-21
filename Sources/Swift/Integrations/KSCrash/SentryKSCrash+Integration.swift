@@ -76,8 +76,6 @@ extension SentryKSCrash {
             #endif
 
 #if SENTRY_DISABLE_SENTRYCRASH_V10
-            // KSCRASH_TODO(GH-8276, GH-8756): Installer setUserInfo drops nested containers from
-            // the retained scope configuration. Acceptance: SCV10-015 in the migration ledger.
             // KSCRASH_TODO(GH-8735): V10 does not register a callback to persist an active trace
             // when crashing. Acceptance: SCV10-027 in the migration ledger.
             // KSCRASH_TODO(GH-8797): V10 has no early KSCrash signal preloader, so managed-runtime

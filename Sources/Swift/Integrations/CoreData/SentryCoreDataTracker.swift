@@ -1,4 +1,3 @@
-// swiftlint:disable missing_docs
 internal import _SentryPrivate
 import CoreData
 
@@ -22,17 +21,15 @@ extension SentryCoreDataTracker: SentryCoreDataTrackerProtocol {}
 typealias SentryCoreDataTrackerProtocol = SentryCoreDataTracker
 #endif
 
-@_spi(Private) @objc public final class SentryCoreDataTracker: NSObject {
+final class SentryCoreDataTracker {
     private let predicateDescriptor = SentryPredicateDescriptor()
     private let threadInspector: SentryDefaultThreadInspector
 
-    @objc public init(threadInspector: SentryDefaultThreadInspector) {
+    init(threadInspector: SentryDefaultThreadInspector) {
         self.threadInspector = threadInspector
-        super.init()
     }
 
-    @objc(managedObjectContext:executeFetchRequest:error:originalImp:)
-    public func managedObjectContext(
+    func managedObjectContext(
         _ context: NSManagedObjectContext,
         executeFetchRequest request: NSFetchRequest<NSFetchRequestResult>,
         error: NSErrorPointer,
@@ -75,8 +72,7 @@ typealias SentryCoreDataTrackerProtocol = SentryCoreDataTracker
         }
     }
 
-    @objc(managedObjectContext:save:originalImp:)
-    public func managedObjectContext(
+    func managedObjectContext(
         _ context: NSManagedObjectContext,
         save error: NSErrorPointer,
         originalImp original: (NSErrorPointer) -> Bool
@@ -186,4 +182,3 @@ typealias SentryCoreDataTrackerProtocol = SentryCoreDataTracker
         }.joined(separator: ", ")
     }
 }
-// swiftlint:enable missing_docs
