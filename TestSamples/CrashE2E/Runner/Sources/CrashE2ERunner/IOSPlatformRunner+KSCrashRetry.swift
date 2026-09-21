@@ -11,6 +11,7 @@ extension IOSPlatformRunner {
         )
 
         try prepareKSCrashRetryReportA(cacheRoot: cacheRoot)
+        KSCrashRetryScenarioConstants.waitForDistinctReportID()
         try prepareKSCrashRetryReportB(cacheRoot: cacheRoot)
         try runFirstKSCrashRetryDrain(cacheRoot: cacheRoot)
         try runSecondKSCrashRetryDrain(cacheRoot: cacheRoot)
