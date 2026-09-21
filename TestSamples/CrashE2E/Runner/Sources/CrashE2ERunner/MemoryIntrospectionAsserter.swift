@@ -1,6 +1,6 @@
 import Foundation
 
-/// Verifies that `options.enableMemoryIntrospection` controls crash-time memory introspection.
+/// Verifies that `options.includeLocalVariables` controls crash-time memory introspection.
 ///
 /// The app crashes while a pointer to a marker C string sits in a CPU register and in a stack slot
 /// next to the stack pointer. The marker never reaches logs, exception reasons, or scope, so only
@@ -65,10 +65,10 @@ enum MemoryIntrospectionAsserter {
 
     /// Returns nil for scenarios unrelated to memory introspection.
     private static func expectsMarker(for scenario: Scenario) -> Bool? {
-        if scenario == .memoryIntrospectionEnabled {
+        if scenario == .memoryIntrospectionEnabled || scenario == .memoryIntrospectionDefault {
             return true
         }
-        if scenario == .memoryIntrospectionDisabled || scenario == .memoryIntrospectionDefault {
+        if scenario == .memoryIntrospectionDisabled {
             return false
         }
         return nil

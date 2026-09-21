@@ -15,6 +15,25 @@ final class SentryOptionsTests: XCTestCase {
 #endif
     }
 
+    func testIncludeLocalVariables_whenDefault_shouldBeTrue() {
+        // -- Arrange --
+        let options = Options()
+
+        // -- Assert --
+        XCTAssertTrue(options.includeLocalVariables)
+    }
+
+    func testEnableMemoryIntrospection_whenSet_shouldForwardToIncludeLocalVariables() {
+        // -- Arrange --
+        let options = Options()
+
+        // -- Act --
+        options.enableMemoryIntrospection = false
+
+        // -- Assert --
+        XCTAssertFalse(options.includeLocalVariables)
+    }
+
     func testEnableNewURLLoaderSwizzling_whenDefault_shouldBeFalse() {
         // -- Arrange --
         let options = Options()

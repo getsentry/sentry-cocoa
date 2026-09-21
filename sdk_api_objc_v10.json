@@ -3994,6 +3994,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "includeLocalVariables",
+    "parent": "SentryObjCOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "initialScope",
     "parent": "SentryObjCOptions",
     "returnType": "SentryObjCScope * _Nonnull (^ _Nonnull)(SentryObjCScope * _Nonnull)",
@@ -6733,6 +6740,13 @@
     "kind": "ObjCMethodDecl",
     "name": "setInApp:",
     "parent": "SentryObjCFrame",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setIncludeLocalVariables:",
+    "parent": "SentryObjCOptions",
     "returnType": "void",
     "instance": true
   },
@@ -10174,6 +10188,12 @@
     "name": "inAppIncludes",
     "parent": "SentryObjCOptions",
     "type": "NSArray<NSString *> * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "includeLocalVariables",
+    "parent": "SentryObjCOptions",
+    "type": "BOOL"
   },
   {
     "kind": "ObjCPropertyDecl",

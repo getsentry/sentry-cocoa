@@ -214,9 +214,9 @@ enum CrashE2ERuntime {
             // The default scenario intentionally leaves the option untouched so it verifies the
             // public default rather than an explicit value.
             if configuration.scenario == .memoryIntrospectionEnabled {
-                options.enableMemoryIntrospection = true
+                options.includeLocalVariables = true
             } else if configuration.scenario == .memoryIntrospectionDisabled {
-                options.enableMemoryIntrospection = false
+                options.includeLocalVariables = false
             }
 
             if let cacheDirectoryPath = configuration.cacheDirectoryPath {

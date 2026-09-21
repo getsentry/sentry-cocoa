@@ -151,11 +151,11 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         assertContext(context: context)
     }
 
-    func testEnableMemoryIntrospection_whenTrue_shouldSetIntrospectMemoryOnCrashReporter() throws {
+    func testIncludeLocalVariables_whenTrue_shouldEnableMemoryIntrospection() throws {
         try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
         // Arrange
-        fixture.options.enableMemoryIntrospection = true
+        fixture.options.includeLocalVariables = true
 
         // Act
         _ = try fixture.getSut()
@@ -164,11 +164,11 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         XCTAssertTrue(SentryDependencyContainer.sharedInstance().crashReporter.introspectMemory)
     }
 
-    func testEnableMemoryIntrospection_whenFalse_shouldSetIntrospectMemoryOnCrashReporter() throws {
+    func testIncludeLocalVariables_whenFalse_shouldDisableMemoryIntrospection() throws {
         try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
         // Arrange
-        fixture.options.enableMemoryIntrospection = false
+        fixture.options.includeLocalVariables = false
 
         // Act
         _ = try fixture.getSut()
@@ -177,7 +177,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         XCTAssertFalse(SentryDependencyContainer.sharedInstance().crashReporter.introspectMemory)
     }
 
-    func testEnableMemoryIntrospection_defaultValue_shouldBeFalse() throws {
+    func testIncludeLocalVariables_whenDefault_shouldEnableMemoryIntrospection() throws {
         try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
         // Arrange - use default options value
@@ -185,8 +185,8 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         // Act
         _ = try fixture.getSut()
 
-        // Assert - should be false by default
-        XCTAssertFalse(SentryDependencyContainer.sharedInstance().crashReporter.introspectMemory)
+        // Assert
+        XCTAssertTrue(SentryDependencyContainer.sharedInstance().crashReporter.introspectMemory)
     }
 
     func testEndSessionAsCrashed_WithCurrentSession() throws {

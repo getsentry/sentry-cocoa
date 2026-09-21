@@ -137,9 +137,9 @@ enum Scenario: String, CaseIterable {
         .managedRuntimeReinitSignal,
         .swiftAsyncCPPExceptionV2Off,
         .swiftAsyncCPPExceptionV2On,
-        // enableMemoryIntrospection must reach the crash-time writer of both reporters. A marker
-        // string that only memory introspection can discover must appear in the stored report and
-        // event when enabled, and be absent when disabled or left at the default.
+        // includeLocalVariables must reach the crash-time writer of both reporters. A marker string
+        // that only memory introspection can discover must appear in the stored report and event
+        // when enabled or left at the default, and be absent when disabled.
         .memoryIntrospectionEnabled,
         .memoryIntrospectionDisabled,
         .memoryIntrospectionDefault

@@ -2,10 +2,18 @@
 
 ## Unreleased
 
+### Features
+
+- Add `includeLocalVariables` to control local variable values in crash reports. It defaults to `true`, following the SDK specification. (#9087)
+
 ### Fixes
 
 - Add experimental support for the new URLSession HTTP loader for automatic network instrumentation, preserving original request details in Session Replay after redirects. Opt in with `options.experimental.enableNewURLLoaderSwizzling = true` (disabled by default) (#8845)
 - Preserve MetricKit diagnostics containing frames without a binary UUID instead of dropping the entire diagnostic (#9080)
+
+### Deprecations
+
+- Deprecate `enableMemoryIntrospection` in favor of `includeLocalVariables`. (#9087)
 
 ## 9.29.0
 

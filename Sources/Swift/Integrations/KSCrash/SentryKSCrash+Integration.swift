@@ -49,7 +49,7 @@ extension SentryKSCrash {
                 try installer.install(
                     installPath: installPath.path,
                     monitors: productionSafeMonitors,
-                    enableMemoryIntrospection: options.enableMemoryIntrospection,
+                    enableMemoryIntrospection: options.includeLocalVariables,
                     enableSwapCxaThrow: options.experimental.enableUnhandledCPPExceptionsV2,
                     enableSwiftAsyncStackTraces: options.swiftAsyncStacktraces
                 )

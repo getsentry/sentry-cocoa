@@ -59,7 +59,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         crashReporter.setBridge(bridge)
 
         // Configure memory introspection based on options
-        crashReporter.introspectMemory = options.enableMemoryIntrospection
+        crashReporter.introspectMemory = options.includeLocalVariables
 
         self.scopeObserver = SentryCrashScopeObserver(maxBreadcrumbs: Int(options.maxBreadcrumbs))
 

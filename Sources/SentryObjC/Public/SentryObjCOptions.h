@@ -112,16 +112,22 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) BOOL enableCrashHandler;
 
 /**
- * When enabled, the SDK introspects memory contents during a crash.
- * Any Objective-C objects or C strings near the stack pointer or referenced by
- * CPU registers or exceptions will be recorded in the crash report, along with
- * their contents. This can help diagnose crashes, but may include sensitive data in memory.
+ * When enabled, the SDK includes local variable values in crash reports where possible.
+ * On Apple platforms, this uses memory introspection to find Objective-C objects and C strings
+ * near the stack pointer or referenced by CPU registers or exceptions. This can help diagnose
+ * crashes, but may include sensitive data from memory.
  *
  * Disabling this will also disable the automatic 'memory corruption' diagnosis for crashes.
  *
- * @note Default value is @c NO.
+ * @note Default value is @c YES.
  */
-@property (nonatomic) BOOL enableMemoryIntrospection;
+@property (nonatomic) BOOL includeLocalVariables;
+
+/**
+ * Use @c includeLocalVariables instead.
+ */
+@property (nonatomic) BOOL enableMemoryIntrospection
+    DEPRECATED_MSG_ATTRIBUTE("Use includeLocalVariables instead.");
 
 /**
  * How many breadcrumbs do you want to keep in memory?

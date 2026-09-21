@@ -24637,7 +24637,6 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC25enableMemoryIntrospectionSbvg",
                 "moduleName": "Sentry",
@@ -24665,7 +24664,6 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC25enableMemoryIntrospectionSbvs",
                 "moduleName": "Sentry",
@@ -24683,18 +24681,18 @@
               }
             ],
             "declAttributes": [
+              "Available",
               "Final",
-              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "hasStorage": true,
             "kind": "Var",
             "mangledName": "$s6Sentry7OptionsC25enableMemoryIntrospectionSbvp",
             "moduleName": "Sentry",
             "name": "enableMemoryIntrospection",
             "printedName": "enableMemoryIntrospection",
-            "usr": "c:@M@Sentry@objc(cs)SentryOptions(py)enableMemoryIntrospection"
+            "usr": "c:@M@Sentry@objc(cs)SentryOptions(py)enableMemoryIntrospection",
+            "deprecated": true
           },
           {
             "accessors": [
@@ -26315,6 +26313,82 @@
             "name": "inAppIncludes",
             "printedName": "inAppIncludes",
             "usr": "c:@M@Sentry@objc(cs)SentryOptions(py)inAppIncludes"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry7OptionsC21includeLocalVariablesSbvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)includeLocalVariables"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry7OptionsC21includeLocalVariablesSbvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setIncludeLocalVariables:"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasStorage",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry7OptionsC21includeLocalVariablesSbvp",
+            "moduleName": "Sentry",
+            "name": "includeLocalVariables",
+            "printedName": "includeLocalVariables",
+            "usr": "c:@M@Sentry@objc(cs)SentryOptions(py)includeLocalVariables"
           },
           {
             "accessors": [

@@ -10,7 +10,7 @@ final class SentryOptionsDictionaryTests: XCTestCase {
             "environment": "staging",
             "release": "1.2.3",
             "sampleRate": 0.25,
-            "enableMemoryIntrospection": true
+            "includeLocalVariables": false
         ]
 
         // -- Act --
@@ -23,7 +23,7 @@ final class SentryOptionsDictionaryTests: XCTestCase {
         XCTAssertEqual(options.environment, "staging")
         XCTAssertEqual(options.releaseName, "1.2.3")
         XCTAssertEqual(options.sampleRate?.doubleValue, 0.25)
-        XCTAssertTrue(options.enableMemoryIntrospection)
+        XCTAssertFalse(options.includeLocalVariables)
     }
 
     func testInitWithDictionary_whenBeforeSendTransactionIsBlock_shouldSetCallback() throws {
@@ -44,7 +44,7 @@ final class SentryOptionsDictionaryTests: XCTestCase {
     #endif // SDK_V10
     }
 
-    func testInitWithDictionary_whenMemoryIntrospectionNotSet_shouldDefaultToFalse() throws {
+    func testInitWithDictionary_whenIncludeLocalVariablesNotSet_shouldDefaultToTrue() throws {
         // -- Arrange --
         let dictionary: [String: Any] = [
             "dsn": "https://username:password@sentry.io/1"
@@ -54,6 +54,35 @@ final class SentryOptionsDictionaryTests: XCTestCase {
         let options = try Options(dictionary: dictionary)
 
         // -- Assert --
-        XCTAssertFalse(options.enableMemoryIntrospection)
+        XCTAssertTrue(options.includeLocalVariables)
+    }
+
+    func testInitWithDictionary_whenLegacyMemoryIntrospectionSet_shouldPopulateLocalVariables() throws {
+        // -- Arrange --
+        let dictionary: [String: Any] = [
+            "dsn": "https://username:password@sentry.io/1",
+            "enableMemoryIntrospection": false
+        ]
+
+        // -- Act --
+        let options = try Options(dictionary: dictionary)
+
+        // -- Assert --
+        XCTAssertFalse(options.includeLocalVariables)
+    }
+
+    func testInitWithDictionary_whenBothLocalVariableKeysSet_shouldPreferNewKey() throws {
+        // -- Arrange --
+        let dictionary: [String: Any] = [
+            "dsn": "https://username:password@sentry.io/1",
+            "includeLocalVariables": true,
+            "enableMemoryIntrospection": false
+        ]
+
+        // -- Act --
+        let options = try Options(dictionary: dictionary)
+
+        // -- Assert --
+        XCTAssertTrue(options.includeLocalVariables)
     }
 }

@@ -229,6 +229,27 @@
     XCTAssertTrue(options.enableCrashHandler);
 }
 
+- (void)testIncludeLocalVariables_whenDefault_shouldReturnYes
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Assert --
+    XCTAssertTrue(options.includeLocalVariables);
+}
+
+- (void)testIncludeLocalVariables_whenSetToNo_shouldReturnNo
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    options.includeLocalVariables = NO;
+
+    // -- Assert --
+    XCTAssertFalse(options.includeLocalVariables);
+}
+
 - (void)testEnableNetworkBreadcrumbs_whenSetToYes_shouldReturnYes
 {
     // -- Arrange --

@@ -69,7 +69,7 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         let installer = MockKSCrashInstaller()
         let deps = MockKSCrashDependencies(installer: installer)
         let options = makeOptions()
-        options.enableMemoryIntrospection = true
+        options.includeLocalVariables = true
 
         // -- Act --
         _ = SentryKSCrash.Integration(with: options, dependencies: deps)
@@ -84,7 +84,7 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         let installer = MockKSCrashInstaller()
         let deps = MockKSCrashDependencies(installer: installer)
         let options = makeOptions()
-        options.enableMemoryIntrospection = false
+        options.includeLocalVariables = false
 
         // -- Act --
         _ = SentryKSCrash.Integration(with: options, dependencies: deps)

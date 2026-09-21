@@ -62,9 +62,15 @@ import Foundation
         set { wrapped.enableCrashHandler = newValue }
     }
 
+    @objc public var includeLocalVariables: Bool {
+        get { wrapped.includeLocalVariables }
+        set { wrapped.includeLocalVariables = newValue }
+    }
+
+    @available(*, deprecated, renamed: "includeLocalVariables")
     @objc public var enableMemoryIntrospection: Bool {
-        get { wrapped.enableMemoryIntrospection }
-        set { wrapped.enableMemoryIntrospection = newValue }
+        get { wrapped.includeLocalVariables }
+        set { wrapped.includeLocalVariables = newValue }
     }
 
     #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK

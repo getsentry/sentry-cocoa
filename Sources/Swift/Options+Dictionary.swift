@@ -323,8 +323,9 @@ extension Options {
         }
         #endif // SDK_V10
 
-        if let enableMemoryIntrospection = boolValue(dictionary["enableMemoryIntrospection"]) {
-            self.enableMemoryIntrospection = enableMemoryIntrospection
+        if let includeLocalVariables = boolValue(dictionary["includeLocalVariables"])
+            ?? boolValue(dictionary["enableMemoryIntrospection"]) {
+            self.includeLocalVariables = includeLocalVariables
         }
     }
 
