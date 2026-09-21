@@ -24668,6 +24668,7 @@
                 "mangledName": "$s6Sentry7OptionsC25enableMemoryIntrospectionSbvs",
                 "moduleName": "Sentry",
                 "name": "Set",
+                "objc_name": "setEnableMemoryIntrospection:",
                 "printedName": "Set()",
                 "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setEnableMemoryIntrospection:"
               }
@@ -24686,13 +24687,13 @@
               "ObjC"
             ],
             "declKind": "Var",
+            "deprecated": true,
             "kind": "Var",
             "mangledName": "$s6Sentry7OptionsC25enableMemoryIntrospectionSbvp",
             "moduleName": "Sentry",
             "name": "enableMemoryIntrospection",
             "printedName": "enableMemoryIntrospection",
-            "usr": "c:@M@Sentry@objc(cs)SentryOptions(py)enableMemoryIntrospection",
-            "deprecated": true
+            "usr": "c:@M@Sentry@objc(cs)SentryOptions(py)enableMemoryIntrospection"
           },
           {
             "accessors": [

@@ -3028,6 +3028,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "includeLocalVariables",
+    "parent": "SentryObjCOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "includeViewTypeInSubtreeTraversal:",
     "parent": "SentryObjCReplayOptions",
     "returnType": "void",
@@ -3990,13 +3997,6 @@
     "name": "initWithValue:type:",
     "parent": "SentryObjCException",
     "returnType": "instancetype _Nonnull",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "includeLocalVariables",
-    "parent": "SentryObjCOptions",
-    "returnType": "BOOL",
     "instance": true
   },
   {
