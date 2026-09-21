@@ -1,0 +1,6 @@
+module SentryProfilerTestSupport {
+    header "SentryProfilerTestSupport.h"
+    textual header "SentryAsyncSafeLog.h"
+    textual header "SentryProfilerTestSupport+ObjCpp.h"
+    export *
+}

@@ -120,7 +120,7 @@ The harness covers:
 
 Workers use condition variables and are joined; readiness does not depend on sleeps. The Mach observer resolves the original function pointers before suspension and is linked only into the test bundle.
 
-SDK-level model, ordering, and contention tests live in `Tests/SentryTests/SentryCrash/SentryDefaultThreadInspectorV10Tests.swift`. `Tests/SentryProfilerTests/SentryBacktraceTests.mm` verifies profiler behavior while admission is busy. V9 behavior remains covered by `SentryDefaultThreadInspectorTests`.
+SDK-level model, ordering, and contention tests live in `Tests/SentryTests/SentryCrash/SentryDefaultThreadInspectorV10Tests.swift`. `Tests/SentryProfilerTests/ObjC/SentryBacktraceTests.mm` verifies profiler behavior while admission is busy. V9 behavior remains covered by `SentryDefaultThreadInspectorTests`.
 
 ## Bounds and Lifecycle
 

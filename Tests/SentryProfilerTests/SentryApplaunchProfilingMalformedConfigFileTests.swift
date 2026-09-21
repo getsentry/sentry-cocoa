@@ -1,11 +1,18 @@
+#if SWIFT_PACKAGE
+@_spi(Private) import SentrySwift
+import _SentryPrivate
+import SentryProfilerTestSupport
+#endif
 import SentryTestUtils
 import XCTest
 
-#if os(iOS) || os(macOS)
+#if (!SWIFT_PACKAGE || !SDK_V10) && (os(iOS) || os(macOS))
 class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
     override func setUp() {
         super.setUp()
         removeAppLaunchProfilingConfigFile()
+        // These tests write directly, without SDK startup creating the cache directory first.
+        XCTAssertTrue(ensureLaunchProfileConfigDirectoryExists())
     }
 
     override func tearDown() {

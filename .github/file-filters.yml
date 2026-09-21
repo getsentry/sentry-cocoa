@@ -80,6 +80,11 @@ run_distribution_tests_for_prs: &run_distribution_tests_for_prs
   - "Sources/SentryObjCCompat/**"
   - "Sources/include/**"
   - "Tests/SentryObjCCompatTests/**"
+  - "Tests/SentryProfilerTests/**"
+  - "Tests/SentryProfilerTestSupport/**"
+  # Private declarations imported by the package profiler support module.
+  - "Tests/SentryTests/*.h"
+  - "Plans/Sentry_Base.xctestplan"
   - "Tests/Configuration/**"
   - "SentryTestUtils/**"
   - "SentryTestUtilsTests/**"
@@ -95,6 +100,7 @@ run_distribution_tests_for_prs: &run_distribution_tests_for_prs
 
   # Project files
   - "Package*.swift"
+  - "Sentry.xcodeproj/**"
 
 run_api_stability_for_prs: &run_api_stability_for_prs
   - "Sources/Configuration/**"

@@ -1,10 +1,16 @@
 // swiftlint:disable file_length
 
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+import _SentryPrivate
+import SentryProfilerTestSupport
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
-#if os(iOS) || os(macOS)
+#if (!SWIFT_PACKAGE || !SDK_V10) && (os(iOS) || os(macOS))
 /// Validate stopping behavior of launch profiles that run with one set of configured options, where the SDK is started on that launch with a different set of options, to validate that the configured options persisted to disk from the previous launch are the ones used to determine how/when to stop the profiler, and not the new options currently in memory
 final class SentryAppStartProfilingConfigurationChangeTests: XCTestCase {
     private var fixture: SentryProfileTestFixture!

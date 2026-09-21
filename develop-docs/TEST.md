@@ -71,9 +71,19 @@ for manifest in "$package_dir"/Package*.swift; do
   ./scripts/prepare-package.sh --package-file "$manifest" --remove-binary-targets true
 done
 
+profiler_skips=()
+if [[ "${SDK_V10:-0}" != "1" ]]; then
+  # Match Plans/Sentry_Base.xctestplan.
+  profiler_skips=(
+    '-skip-testing:SentryProfilerTests/SentryContinuousProfilerTests/testStoppingProfilerTransmitsLastFullChunk()'
+    '-skip-testing:SentryProfilerTestsObjC/SentryProfilerTests/testProfilerMutationDuringSlicing'
+  )
+fi
+
 status=0
 xcodebuild test -workspace "$package_dir" -scheme Sentry-Package \
-  -configuration Test \
+  -configuration Test -parallel-testing-enabled NO \
+  "${profiler_skips[@]}" \
   -destination 'platform=macOS' \
   -xcconfig "$package_test_config" \
   'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SENTRY_TEST' \
@@ -83,10 +93,20 @@ grep -E 'Executed|error:|TEST SUCCEEDED|TEST FAILED' "$package_dir/package-tests
 (test "$status" -eq 0)
 ```
 
-- Prefix `xcodebuild` with `SDK_V10=1` for V10.
+- For V10, run `export SDK_V10=1` before the commands above.
 - Use an available iOS simulator destination for iOS-specific tests.
 - Limit a run with `-only-testing:<test-target>`, for example `-only-testing:SentryObjCCompatTests`.
 - CI uses `TestCI` and the corresponding definitions from the table above; see the [Distribution Tests job](../.github/workflows/test.yml).
+
+#### Profiler tests
+
+The profiler suite is V9-only. Use the package-workspace command above with both selectors:
+
+```sh
+-only-testing:SentryProfilerTests -only-testing:SentryProfilerTestsObjC
+```
+
+Use `xcodebuild`, not `swift test`, to include the Objective-C/Objective-C++ tests. Keep the `Test`/`TestCI` configuration, base-plan skips, and disabled parallelization from the command above.
 
 #### Compiler settings and project parity
 

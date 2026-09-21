@@ -136,10 +136,19 @@ jobs:
         run: |
           # Match project test compilation and diagnostics; see develop-docs/TEST.md.
           status=0
+          profiler_skips=()
+          if [[ "$SDK_V10" != "1" ]]; then
+            # Match the profiler exclusions in Plans/Sentry_Base.xctestplan.
+            profiler_skips=(
+              '-skip-testing:SentryProfilerTests/SentryContinuousProfilerTests/testStoppingProfilerTransmitsLastFullChunk()'
+              '-skip-testing:SentryProfilerTestsObjC/SentryProfilerTests/testProfilerMutationDuringSlicing'
+            )
+          fi
           # Xcode, not the shell, expands $(inherited).
           # shellcheck disable=SC2016
           NSUnbufferedIO=YES xcodebuild test -workspace . -scheme Sentry-Package \
-            -configuration TestCI \
+            -configuration TestCI -parallel-testing-enabled NO \
+            "${profiler_skips[@]}" \
             -sdk iphonesimulator -destination 'platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro' \
             -xcconfig Tests/Configuration/SwiftPM.xcconfig \
             'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SENTRY_TEST_CI' \

@@ -347,6 +347,36 @@ targets += [
     )
 ]
 
+// Match the entire V9-only Xcode profiler suite, including its wrapper tests.
+// Traits cannot remove targets, so source guards also exclude this suite when V10 is selected.
+if !enableV10 {
+    targets += [
+        .target(
+            name: "SentryProfilerTestSupport",
+            dependencies: ["SentryObjCInternal", "_SentryPrivate", "SentryTestUtilsObjCpp"],
+            path: "Tests/SentryProfilerTestSupport",
+            cSettings: v10CSettings
+        ),
+        .testTarget(
+            name: "SentryProfilerTests",
+            dependencies: ["SentrySwift", "SentryTestUtils", "SentryProfilerTestSupport"],
+            path: "Tests/SentryProfilerTests",
+            exclude: ["ObjC"],
+            swiftSettings: v10SwiftSettings
+        ),
+        .testTarget(
+            name: "SentryProfilerTestsObjC",
+            dependencies: ["SentryObjCInternal", "SentryProfilerTestSupport", "SentryTestUtilsObjCpp"],
+            path: "Tests/SentryProfilerTests/ObjC",
+            cSettings: v10CSettings,
+            // Xcode disables C++ modules for package test bundles by default. The ObjC++
+            // tests import SentrySwift's generated Objective-C interface as a Clang module.
+            cxxSettings: [.unsafeFlags(["-fcxx-modules"])] + v10CxxSettings,
+            linkerSettings: [.linkedLibrary("c++")]
+        )
+    ]
+}
+
 let packageDependencies: [Package.Dependency] = enableV10 ? [.package(url: "https://github.com/getsentry/KSCrash.git", revision: "391bf0a9569b6c1aa9df30b3fa4bcabbc0a07e7a")] : []
 
 let package = Package(

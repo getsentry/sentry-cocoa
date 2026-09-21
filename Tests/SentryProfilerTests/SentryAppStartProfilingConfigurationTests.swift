@@ -1,8 +1,14 @@
+#if SWIFT_PACKAGE
+@_spi(Private) import SentrySwift
+import _SentryPrivate
+import SentryProfilerTestSupport
+#else
 @_spi(Private) import Sentry
+#endif
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-#if os(iOS) || os(macOS)
+#if (!SWIFT_PACKAGE || !SDK_V10) && (os(iOS) || os(macOS))
 
 /// Trace sample rates (tracing v2) affects continuous profiling v2
 /// - `tracesSampleRate`
