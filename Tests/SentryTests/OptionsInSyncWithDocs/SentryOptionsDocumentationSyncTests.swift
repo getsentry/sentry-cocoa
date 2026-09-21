@@ -24,6 +24,7 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
             "enableMetrics", // Promoted to GA in https://github.com/getsentry/sentry-cocoa/pull/7843; docs update pending
             "beforeSendMetric", // Promoted to GA in https://github.com/getsentry/sentry-cocoa/pull/7843; docs update pending
             "maxFeatureFlags", // Docs update pending
+            "includeLocalVariables", // Docs update pending
             "beforeSendWithHint", // Deprecated in favor of adding hint to beforeSend in v10
             "beforeBreadcrumbWithHint" // Deprecated in favor of adding hint to beforeBreadcrumb in v10
         ]
