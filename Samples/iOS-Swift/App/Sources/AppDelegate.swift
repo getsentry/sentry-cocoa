@@ -4,8 +4,6 @@ import UIKit
 // swiftlint:disable force_cast force_try force_unwrapping
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-    private var randomDistributionTimer: Timer?
-
     var args: [String] {
         ProcessInfo.processInfo.arguments
     }
@@ -42,8 +40,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         SentrySDKWrapper.shared.startSentry()
         
-        metricKit.receiveReports()
-        
         return true
     }
 
@@ -52,16 +48,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
         return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
     }
-    
-    func applicationWillTerminate(_ application: UIApplication) {
-        metricKit.pauseReports()
-        
-        randomDistributionTimer?.invalidate()
-        randomDistributionTimer = nil
-    }
-    
-    // Workaround for 'Stored properties cannot be marked potentially unavailable with '@available''
-    private var metricKit = MetricKitManager()
     
     /**
      * previously tried putting this in an AppDelegate.load override in ObjC, but it wouldn't run until
