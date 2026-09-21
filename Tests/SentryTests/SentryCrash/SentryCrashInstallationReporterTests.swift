@@ -1,5 +1,12 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+import _SentryPrivate
+import SentryObjCInternal
+import SentryTestsObjCHelpers
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
 class SentryCrashInstallationReporterTests: XCTestCase {
@@ -92,11 +99,11 @@ class SentryCrashInstallationReporterTests: XCTestCase {
         
         sut = SentryCrashInstallationReporter(inAppLogic: SentryInAppLogic(inAppIncludes: []), crashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo), dispatchQueue: TestSentryDispatchQueueWrapper())
         let container = SentryDependencyContainer.sharedInstance()
-        sut.bridge = SentryCrashBridge(
+        sut.setBridgeObject(SentryCrashBridge(
             notificationCenterWrapper: container.notificationCenterWrapper,
             dateProvider: container.dateProvider,
             crashReporter: container.crashReporter
-        )
+        ))
         // Reset global SentryCrash state so install() fully reinitializes the report store path,
         // even if a previous test class left g_installed = 1.
         sentrycrash_uninstall()

@@ -1,5 +1,12 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+import _SentryPrivate
+import SentryObjCInternal
+import SentryTestsObjCHelpers
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
 /// You have to start the test server before running this test. You can do this by calling
@@ -780,6 +787,9 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
     // swiftlint:enable avoid_dispatch_groups_in_tests
 
     private func configureEnvelopeSnapshotOptions(_ options: Options) {
+        // Match the snapshots' installation metadata even when this is the first SwiftPM test.
+        // tearDown already resets it; do not let discovery order determine the initial value.
+        SentrySdkPackage.resetPackageManager()
         options.enableAutoSessionTracking = false
         options.enableAutoBreadcrumbTracking = false
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK

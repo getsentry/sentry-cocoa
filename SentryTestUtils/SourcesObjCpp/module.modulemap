@@ -1,0 +1,9 @@
+module SentryTestUtilsObjCpp {
+    header "SentryProfilerMocksSwiftCompatible.h"
+    export *
+
+    explicit module Cxx {
+        requires cplusplus
+        header "SentryProfilerMocks.h"
+    }
+}

@@ -1,5 +1,12 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+import _SentryPrivate
+import SentryObjCInternal
+import SentryTestsObjCHelpers
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import Foundation
 import XCTest
 
@@ -502,7 +509,7 @@ final class SentryMetricsApiTests: XCTestCase {
 
 fileprivate struct MockMetricsIntegration: SentryMetricsIntegrationProtocol {
     var addMetricInvocations = Invocations<(metric: SentryMetric, scope: Scope, currentScope: Scope?)>()
-    func addMetric(_ metric: Sentry.SentryMetric, scope: Scope, currentScope: Scope? = nil) {
+    func addMetric(_ metric: SentryMetric, scope: Scope, currentScope: Scope? = nil) {
         addMetricInvocations.record((metric, scope, currentScope))
     }
 }

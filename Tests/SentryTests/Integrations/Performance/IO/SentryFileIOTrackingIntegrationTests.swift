@@ -1,5 +1,12 @@
 import Foundation
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+import _SentryPrivate
+import SentryObjCInternal
+import SentryTestsObjCHelpers
+#else
 import Sentry
+#endif
 import SentryTestUtils
 import XCTest
 
@@ -268,7 +275,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
     }
     
     private func getBigFilePath() -> String? {
-        let bundle = Bundle(for: type(of: self))
+        let bundle = Bundle.sentryTestResources
         
         return bundle.path(forResource: "Resources/fatal-error-binary-images-message2", ofType: "json")
         ?? bundle.path(forResource: "fatal-error-binary-images-message2", ofType: "json")

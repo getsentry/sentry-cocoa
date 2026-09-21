@@ -11,6 +11,11 @@ SWIFT_OPTIMIZATION_LEVEL = $(SENTRY_PACKAGE_TEST_SWIFT_OPTIMIZATION_$(PROJECT_NA
 GCC_OPTIMIZATION_LEVEL = $(SENTRY_PACKAGE_TEST_C_OPTIMIZATION_$(PROJECT_NAME):default=$(inherited))
 ENABLE_TESTABILITY = $(SENTRY_PACKAGE_TEST_ENABLE_TESTABILITY_$(PROJECT_NAME):default=$(inherited))
 
+// This data-only bundle preserves the project's Resources/ paths. Xcode 16 treats that
+// directory name as a macOS bundle layout when signing an iOS bundle. It has no executable.
+SENTRY_PACKAGE_TEST_CODE_SIGNING_Sentry_Sentry_SentryTestsSwiftHelpers = NO
+CODE_SIGNING_ALLOWED = $(SENTRY_PACKAGE_TEST_CODE_SIGNING_$(PROJECT_NAME)_$(TARGET_NAME):default=$(inherited))
+
 SENTRY_PACKAGE_TEST_COMPILATION_MODE_SentryObjCCompat = wholemodule
 SENTRY_PACKAGE_TEST_COMPILATION_MODE_SentryObjCCompatTests = wholemodule
 SWIFT_COMPILATION_MODE = $(SENTRY_PACKAGE_TEST_COMPILATION_MODE_$(TARGET_NAME):default=$(SENTRY_PACKAGE_TEST_COMPILATION_MODE_$(PROJECT_NAME):default=$(inherited)))

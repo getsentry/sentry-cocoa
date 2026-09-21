@@ -1,4 +1,11 @@
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+import _SentryPrivate
+import SentryObjCInternal
+import SentryTestsObjCHelpers
+#else
 @_spi(Private) @testable import Sentry
+#endif
 @_spi(Private) @testable import SentryTestUtils
 import Foundation
 import XCTest
@@ -11,10 +18,10 @@ final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase
             clearClientWithoutCapturing()
         }
 
-        public override func captureFatalEvent(
+        public override func wrapper_captureFatalEvent(
             _ event: Event,
-            with session: SentrySession,
-            with scope: Scope
+            session: Any,
+            scope: Scope
         ) -> SentryId {
             clearClientWithoutCapturing()
         }
@@ -31,10 +38,10 @@ final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase
             closeWithoutCapturing()
         }
 
-        public override func captureFatalEvent(
+        public override func wrapper_captureFatalEvent(
             _ event: Event,
-            with session: SentrySession,
-            with scope: Scope
+            session: Any,
+            scope: Scope
         ) -> SentryId {
             closeWithoutCapturing()
         }
@@ -50,10 +57,10 @@ final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase
             SentryId.empty
         }
 
-        public override func captureFatalEvent(
+        public override func wrapper_captureFatalEvent(
             _ event: Event,
-            with session: SentrySession,
-            with scope: Scope
+            session: Any,
+            scope: Scope
         ) -> SentryId {
             SentryId.empty
         }

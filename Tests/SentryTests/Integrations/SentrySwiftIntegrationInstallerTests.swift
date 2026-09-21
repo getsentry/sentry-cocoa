@@ -1,5 +1,12 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+import _SentryPrivate
+import SentryObjCInternal
+import SentryTestsObjCHelpers
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
 final class SentrySwiftIntegrationInstallerTests: XCTestCase {
@@ -54,7 +61,7 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         // Assert
         let names = try XCTUnwrap(testHub.installedIntegrationNames())
         XCTAssertEqual(names.count, expectedDefaultIntegrationCount + 1)
-        XCTAssertEqual(testHub.installedIntegrations().count, expectedDefaultIntegrationCount + 1)
+        XCTAssertEqual(testInstalledIntegrations(testHub).count, expectedDefaultIntegrationCount + 1)
         XCTAssertTrue(names.contains("SentrySwiftAsyncIntegration"))
         XCTAssertTrue(names.contains("SentryMetricsIntegration"))
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
@@ -94,6 +101,6 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(testHub.installedIntegrationNames().count, expectedDefaultIntegrationCount)
-        XCTAssertEqual(testHub.installedIntegrations().count, expectedDefaultIntegrationCount)
+        XCTAssertEqual(testInstalledIntegrations(testHub).count, expectedDefaultIntegrationCount)
     }
 }

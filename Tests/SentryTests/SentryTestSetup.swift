@@ -1,3 +1,9 @@
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+import _SentryPrivate
+import SentryObjCInternal
+import SentryTestsObjCHelpers
+#endif
 // This currently exists because we needed to duplicate the test target to link the SentryV10 variant
 // Once SentryCrash is removed, we should also remove this.
 enum SentryTestSetup {
@@ -17,10 +23,10 @@ enum SentryTestSetup {
         #endif
     }
 
-    // The duplicated V10 test target has a distinct module name. Some UIEventTracker tests
-    // assert on symbols that include the module name.
+    // Xcode duplicates the V10 test target; SwiftPM keeps one module in both modes.
+    // Some error-description and UIEventTracker tests assert on qualified symbols.
     static var testPrefix: String {
-        #if SDK_V10
+        #if SDK_V10 && !SWIFT_PACKAGE
         "SentryTestsV10"
         #else
         "SentryTests"

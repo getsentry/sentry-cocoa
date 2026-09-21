@@ -80,9 +80,16 @@ run_distribution_tests_for_prs: &run_distribution_tests_for_prs
   - "Sources/SentryObjCCompat/**"
   - "Sources/include/**"
   - "Tests/SentryObjCCompatTests/**"
+  - "Tests/SentryTests/**"
+  - "Tests/SentryTestsSupport/**"
+  - "Tests/Resources/**"
   - "Tests/Configuration/**"
   - "SentryTestUtils/**"
   - "SentryTestUtilsTests/**"
+  - "SentryTestUtilsDynamic/**"
+  - "Plans/Sentry*.xctestplan"
+  - "scripts/spm-test-plan.py"
+  - "scripts/test_spm_test_plan.py"
 
   # GH Actions
   - ".github/workflows/test.yml"

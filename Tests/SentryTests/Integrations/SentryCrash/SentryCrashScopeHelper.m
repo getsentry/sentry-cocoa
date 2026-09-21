@@ -1,6 +1,6 @@
 #import "SentryCrashScopeHelper.h"
 #import "SentryCrashScopeObserver.h"
-#import <Sentry/Sentry-Swift.h>
+#import "SentrySwift.h"
 
 @interface SentryCrashScopeObserver (SentryScopeObserver)
 @end

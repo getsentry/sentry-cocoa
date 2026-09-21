@@ -394,7 +394,7 @@
     // Test sentrycrashsysctl_getProcessInfo with non-existent PID
     // Use a very large PID that definitely doesn't exist (max PID is typically 99999)
     struct kinfo_proc procInfo = { { { { 0 } } } };
-    bool procInfoSuccess = sentrycrashsysctl_getProcessInfo(999999999, &procInfo);
+    (void)sentrycrashsysctl_getProcessInfo(999999999, &procInfo);
     // Note: On macOS, sysctl may succeed even for non-existent PIDs, returning empty data.
     // If it fails, the function will log using SENTRY_STRERROR_R(errno).
     // We verify the error handling path exists and correctly uses SENTRY_STRERROR_R

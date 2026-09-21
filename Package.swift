@@ -1,5 +1,8 @@
 // swift-tools-version:6.0
 
+// Package targets and build settings must stay in a single manifest.
+// swiftlint:disable file_length
+
 #if canImport(Darwin)
 import Darwin.C
 #elseif canImport(Glibc)
@@ -347,7 +350,241 @@ targets += [
     )
 ]
 
-let packageDependencies: [Package.Dependency] = enableV10 ? [.package(url: "https://github.com/getsentry/KSCrash.git", revision: "391bf0a9569b6c1aa9df30b3fa4bcabbc0a07e7a")] : []
+// Swift tests use directory discovery. A new Clang source must be assigned to one of
+// these language-specific targets; the inventory audit detects omissions.
+let sentryTestClangFiles = [
+    "Categories/SentrySanitizerUtils+Tests.m",
+    "Helper/ExceptionCatcher.m",
+    "Helper/SentryAsyncSafeLog.m",
+    "Helper/SentryDeviceTests.m",
+    "Helper/SentryJSONStreamWriterTests.m",
+    "Helper/SentryLogTestHelper.m",
+    "Helper/SentryMigrateSessionInitTests.m",
+    "Helper/SentrySerializationNilTests.m",
+    "Helper/SentrySwizzleTests.m",
+    "Helper/SentryTestObjCRuntimeWrapper.m",
+    "Helper/SentryTimeTests.m",
+    "Integrations/KSCrash/SentryCxaThrowCompatibilityTests.mm",
+    "Integrations/Performance/IO/SentryFileIOTrackingIntegrationObjCTests.m",
+    "Integrations/Performance/Network/URLSessionTaskMock.m",
+    "Integrations/Performance/SentryInitializeForGettingSubclassesNotCalled.m",
+    "Integrations/SentryCrash/SentryCrashScopeHelper.m",
+    "Integrations/SentryCrash/SentryTestIntegration.m",
+    "Integrations/SessionReplay/SentryFileIOTests.m",
+    "Integrations/SessionReplay/SentryReplayOptionsObjcTests.m",
+    "Integrations/SessionReplay/SentrySessionReplaySyncCTests.m",
+    "MockUIScene.m",
+    "Networking/NSData+Unzip.m",
+    "Networking/SentryDispatchFactoryTests.m",
+    "Networking/SentryDispatchQueueWrapperTests.m",
+    "Networking/SentryDsnTests.m",
+    "Protocol/SentryAppState+Equality.m",
+    "Protocol/SentryAttachment+Equality.m",
+    "Protocol/SentryMessage+Equality.m",
+    "SentryCrash/Container+DeepSearch_Tests.m",
+    "SentryCrash/FileBasedTestCase.m",
+    "SentryCrash/RFC3339UTFString_Tests.m",
+    "SentryCrash/SentryCrashBinaryImageCacheTestHelper.m",
+    "SentryCrash/SentryCrashBinaryImageCacheTests.m",
+    "SentryCrash/SentryCrashCPU_Tests.m",
+    "SentryCrash/SentryCrashCachedData_Tests.m",
+    "SentryCrash/SentryCrashCxaThrowSwapper_Tests.mm",
+    "SentryCrash/SentryCrashDebug_Tests.m",
+    "SentryCrash/SentryCrashDynamicLinkerTests.m",
+    "SentryCrash/SentryCrashDynamicLinker_Tests.m",
+    "SentryCrash/SentryCrashFileUtils_Tests.m",
+    "SentryCrash/SentryCrashJSONCodec_Tests.m",
+    "SentryCrash/SentryCrashMach-OTests.m",
+    "SentryCrash/SentryCrashMach_Tests.m",
+    "SentryCrash/SentryCrashMachineContextTests.m",
+    "SentryCrash/SentryCrashMemory_Tests.m",
+    "SentryCrash/SentryCrashMonitor_AppState_Tests.m",
+    "SentryCrash/SentryCrashMonitor_CppException_Tests.mm",
+    "SentryCrash/SentryCrashMonitor_NSException_StackCursor_Tests.m",
+    "SentryCrash/SentryCrashMonitor_NSException_Tests.m",
+    "SentryCrash/SentryCrashMonitor_Signal_Tests.m",
+    "SentryCrash/SentryCrashMonitor_Tests.m",
+    "SentryCrash/SentryCrashNSErrorUtilTests.m",
+    "SentryCrash/SentryCrashObjC_Tests.m",
+    "SentryCrash/SentryCrashReportFilter_Tests.m",
+    "SentryCrash/SentryCrashReportFixer_Tests.m",
+    "SentryCrash/SentryCrashReportStore_Tests.m",
+    "SentryCrash/SentryCrashSignalInfo_Tests.m",
+    "SentryCrash/SentryCrashString_Tests.m",
+    "SentryCrash/SentryCrashSysCtl_Tests.m",
+    "SentryCrash/SentryCrashTests.m",
+    "SentryCrash/TestThread.m",
+    "SentryCrash/XCTestCase+SentryCrash.m",
+    "SentryCrashReportConverterTests.m",
+    "SentryInterfacesTests.m",
+    "SentryMsgPackSerializerTests.m",
+    "SentryNSDataCompressionTests.m",
+    "SentryOptionsTest.m",
+    "SentryScope+Equality.m",
+    "SentryScopeTests.m",
+    "SentryTests.m",
+    "Swift/Tools/SentryDictionaryDecoderObjCTests.m",
+    "TestUtils/SentryBooleanSerialization.m",
+    "TestUtils/SentryClassRegistrator.m",
+    "TestUtils/SentryInvalidJSONString.m",
+    "Transaction/SentryTracer+Test.m",
+    "Transaction/TestSentrySpan.m"
+]
+let sentryTestObjCHelpers = [
+    "Categories/SentrySanitizerUtils+Tests.m",
+    "Helper/ExceptionCatcher.m",
+    "Helper/SentryLogTestHelper.m",
+    "Helper/SentryTestObjCRuntimeWrapper.m",
+    "Integrations/Performance/Network/URLSessionTaskMock.m",
+    "Integrations/Performance/SentryInitializeForGettingSubclassesNotCalled.m",
+    "Integrations/SentryCrash/SentryCrashScopeHelper.m",
+    "Integrations/SentryCrash/SentryTestIntegration.m",
+    "MockUIScene.m",
+    "Networking/NSData+Unzip.m",
+    "Protocol/SentryAppState+Equality.m",
+    "Protocol/SentryAttachment+Equality.m",
+    "Protocol/SentryMessage+Equality.m",
+    "SentryCrash/FileBasedTestCase.m",
+    "SentryCrash/SentryCrashBinaryImageCacheTestHelper.m",
+    "SentryCrash/TestThread.m",
+    "SentryCrash/XCTestCase+SentryCrash.m",
+    "SentryScope+Equality.m",
+    "TestUtils/SentryBooleanSerialization.m",
+    "TestUtils/SentryClassRegistrator.m",
+    "TestUtils/SentryInvalidJSONString.m",
+    "Transaction/SentryTracer+Test.m",
+    "Transaction/TestSentrySpan.m"
+]
+let sentryTestSwiftHelpers = ["TestUtils/SentryDictionaryDecoderObjCHelper.swift", "TestUtils/SentryTestResources.swift", "Helper/UrlSessionDelegateSpy.swift"]
+// Matches SentryTestsV10.xcconfig plus the V10 synchronized-group membership exceptions.
+let sentryTestV10Exclusions: [String] = [
+    "Integrations/Performance/SwizzlingCallTests.swift",
+    "Integrations/Performance/UIViewController/SentryUIViewControllerPerformanceTrackerTests.swift",
+    "Integrations/Performance/UIViewController/SentryUIViewControllerSwizzlingTests.swift",
+    "Integrations/Performance/UIViewController/SentryVCTrackerLaunchProfilingTests.swift",
+    "Integrations/SentryCrash/SentryCrashIntegrationTests.swift",
+    "Integrations/SentryCrash/SentryCrashReportTests.swift",
+    "Integrations/SentryCrash/SentryCrashScopeHelper.m",
+    "Integrations/SentryCrash/SentryCrashScopeObserverTests.swift",
+    "Integrations/SentryCrash/SentryTestIntegration.m",
+    "Integrations/SentryCrash/SentryUncaughtNSExceptionsTests.swift",
+    "Integrations/Session/SentrySessionGeneratorTests.swift",
+    "Recording/SentryCrashCTests.swift",
+    "SentryCrash/Container+DeepSearch_Tests.m",
+    "SentryCrash/RFC3339UTFString_Tests.m",
+    "SentryCrash/SentryCrashBinaryImageCacheTestHelper.m",
+    "SentryCrash/SentryCrashBinaryImageCacheTests.m",
+    "SentryCrash/SentryCrashCachedData_Tests.m",
+    "SentryCrash/SentryCrashCxaThrowSwapper_Tests.mm",
+    "SentryCrash/SentryCrashDebug_Tests.m",
+    "SentryCrash/SentryCrashDoctorTests.swift",
+    "SentryCrash/SentryCrashDynamicLinkerTests.m",
+    "SentryCrash/SentryCrashDynamicLinker_Tests.m",
+    "SentryCrash/SentryCrashFileUtils_Tests.m",
+    "SentryCrash/SentryCrashInstallationReporterTests.swift",
+    "SentryCrash/SentryCrashInstallationTests.swift",
+    "SentryCrash/SentryCrashJSONCodec_Tests.m",
+    "SentryCrash/SentryCrashMach-OTests.m",
+    "SentryCrash/SentryCrashMach_Tests.m",
+    "SentryCrash/SentryCrashMonitor_AppState_Tests.m",
+    "SentryCrash/SentryCrashMonitor_CppException_Tests.mm",
+    "SentryCrash/SentryCrashMonitor_NSException_StackCursor_Tests.m",
+    "SentryCrash/SentryCrashMonitor_NSException_Tests.m",
+    "SentryCrash/SentryCrashMonitor_Signal_Tests.m",
+    "SentryCrash/SentryCrashMonitor_Tests.m",
+    "SentryCrash/SentryCrashNSErrorUtilTests.m",
+    "SentryCrash/SentryCrashObjC_Tests.m",
+    "SentryCrash/SentryCrashReportFilter_Tests.m",
+    "SentryCrash/SentryCrashReportFixer_Tests.m",
+    "SentryCrash/SentryCrashReportSinkTests.swift",
+    "SentryCrash/SentryCrashReportStore_Tests.m",
+    "SentryCrash/SentryCrashSignalInfo_Tests.m",
+    "SentryCrash/SentryCrashStackCursorSelfThreadTests.swift",
+    "SentryCrash/SentryCrashString_Tests.m",
+    "SentryCrash/SentryCrashSysCtl_Tests.m",
+    "SentryCrash/SentryCrashTests.m",
+    "SentryCrashExceptionApplicationTests.swift"
+]
+func sentryTestSources(_ files: [String]) -> [String] {
+    files.filter { file in
+        !enableV10 || !sentryTestV10Exclusions.contains(file)
+    }.map { "SentryTests/" + $0 }
+}
+let sentryTestHeaderPaths = [
+    "SentryTests", "SentryTests/Helper", "SentryTests/Networking", "SentryTests/Protocol",
+    "SentryTests/SentryCrash", "SentryTests/TestUtils", "SentryTests/Transaction",
+    "SentryTests/Integrations/Performance", "SentryTests/Integrations/Performance/Network",
+    "SentryTests/Integrations/SentryCrash", "SentryTests/Categories",
+    "../SentryTestUtils/Headers", "../Sources/Sentry", "../Sources/Sentry/include", "../Sources/SentryCrash/Recording",
+    "../Sources/SentryCrash/Recording/Tools", "../Sources/SentryCrash/Recording/Monitors",
+    "../Sources/SentryCrash/Reporting/Filters", "../Sources/SentryCrash/Reporting/Filters/Tools",
+    "../Sources/SentryCrash/Installations"
+]
+let sentryTestCSettings = sentryTestHeaderPaths.map { CSetting.headerSearchPath($0) } + v10CSettings
+let sentryTestCxxSettings = sentryTestHeaderPaths.map { CXXSetting.headerSearchPath($0) } + v10CxxSettings
+let sentryTestDependencies: [Target.Dependency] = [
+    "SentrySwift", "SentryObjCInternal", "_SentryPrivate", "SentryTestUtils",
+    "SentryTestsObjCHelpers", "SentryTestsSwiftHelpers"
+]
+// Exclude neighboring suites rather than moving sources out of the synchronized Xcode group.
+let sentryTestExcludes = [
+    "AGENTS.md", "Configuration", "DuplicatedSDKTest", "Perf", "README.md", "SentryObjCCompatTests",
+    "SentryObjCTests", "SentryProfilerTests", "ThreadInspectionHarness", "ThreadSanitizer.sup",
+    "SentryTests/Info.plist", "SentryTests/SentryTests-Bridging-Header.h",
+    "SentryTests/OptionsInSyncWithDocs/README.md"
+]
+targets += [
+    .target(
+        name: "SentryTestsObjCHelpers",
+        dependencies: ["SentrySwift", "SentryObjCInternal", "_SentryPrivate", "SentryTestUtilsObjC", "SentryTestUtilsObjCpp", "SentryTestsSwiftHelpers"],
+        path: "Tests",
+        exclude: sentryTestExcludes,
+        sources: sentryTestSources(sentryTestObjCHelpers) + ["SentryTestsSupport/SentryTestsBridge.m"],
+        publicHeadersPath: "SentryTestsSupport/include",
+        cSettings: sentryTestCSettings,
+        linkerSettings: [.linkedLibrary("z")]
+    ),
+    .target(
+        name: "SentryTestsSwiftHelpers",
+        dependencies: ["SentrySwift"],
+        path: "Tests",
+        exclude: sentryTestExcludes,
+        sources: sentryTestSources(sentryTestSwiftHelpers),
+        resources: [.copy("Resources"), .copy("SentryTests/Helper/InfoPlist/TestInfoPlist.plist")],
+        swiftSettings: v10SwiftSettings
+    )
+]
+let sentrySwiftTestExcludedSources = sentryTestClangFiles + sentryTestSwiftHelpers + (enableV10 ? sentryTestV10Exclusions : [])
+let sentrySwiftTestExcludes = sentryTestExcludes + ["SentryTestsSupport", "SentryTests/Helper/InfoPlist/TestInfoPlist.plist"] +
+    Set(sentrySwiftTestExcludedSources).sorted().map { "SentryTests/" + $0 }
+targets += [
+    .testTarget(
+        name: "SentryTests",
+        dependencies: sentryTestDependencies + [.product(name: "SentryTestUtilsDynamic", package: "SentryTestUtilsDynamic")],
+        path: "Tests",
+        exclude: sentrySwiftTestExcludes,
+        sources: ["SentryTests"],
+        // SwiftPM does not define SWIFT_PACKAGE for Swift's Clang importer.
+        cSettings: [.define("SWIFT_PACKAGE", to: "1")] + v10CSettings,
+        swiftSettings: v10SwiftSettings + [.enableUpcomingFeature("BareSlashRegexLiterals")]
+    )
+]
+targets += [
+    .testTarget(
+        name: "SentryTestsObjC",
+        dependencies: sentryTestDependencies,
+        path: "Tests",
+        exclude: sentryTestExcludes,
+        sources: sentryTestSources(sentryTestClangFiles.filter { !sentryTestObjCHelpers.contains($0) }),
+        cSettings: sentryTestCSettings,
+        cxxSettings: sentryTestCxxSettings,
+        linkerSettings: [.linkedLibrary("c++")]
+    )
+]
+
+var packageDependencies: [Package.Dependency] = enableV10 ? [.package(url: "https://github.com/getsentry/KSCrash.git", revision: "391bf0a9569b6c1aa9df30b3fa4bcabbc0a07e7a")] : []
+
+packageDependencies.append(.package(path: "SentryTestUtilsDynamic"))
 
 let package = Package(
     name: "Sentry",

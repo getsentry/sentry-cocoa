@@ -1,5 +1,12 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+import _SentryPrivate
+import SentryObjCInternal
+import SentryTestsObjCHelpers
+#else
 @_spi(Private) @testable import Sentry
+#endif
 // swiftlint:disable file_length
 import Foundation
 import XCTest
@@ -65,7 +72,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     }
 
     private func sessionReplayIntegration() -> SentrySessionReplayIntegration? {
-        return SentrySDKInternal.currentHub().installedIntegrations()
+        return testInstalledIntegrations(SentrySDKInternal.currentHub())
             .first { $0 is SentrySessionReplayIntegration } as? SentrySessionReplayIntegration
     }
 
@@ -1286,13 +1293,13 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     
     func testPersistScreenshotProviderAndBreadcrumbConverter() throws {
         class CustomImageProvider: NSObject, SentryViewScreenshotProvider {
-            func image(view: UIView, onComplete: @escaping Sentry.ScreenshotCallback) {
+            func image(view: UIView, onComplete: @escaping ScreenshotCallback) {
                 onComplete(UIImage())
             }
         }
         
         class CustomBreadcrumbConverter: NSObject, SentryReplayBreadcrumbConverter {
-            func convert(from breadcrumb: Breadcrumb) -> (any Sentry.SentryRRWebEventProtocol)? {
+            func convert(from breadcrumb: Breadcrumb) -> (any SentryRRWebEventProtocol)? {
                 return nil
             }
         }

@@ -110,6 +110,7 @@ jobs:
       - name: Prepare Package.swift
         shell: bash
         run: |
+          python3 scripts/test_spm_test_plan.py
           # Swift 6.1+ and 6.2+ uses Package@swift-6.1.swift and Package@swift-6.2.swift; hide it so prepare-package's
           # modified Package.swift is used (avoids "Multiple commands produce" from
           # unmodified binary targets in the 6.1 and 6.2 manifests).
@@ -125,6 +126,15 @@ jobs:
             --remove-duplicate true \
             --change-path false \
             --remove-binary-targets true
+      - name: Run SwiftPM support tests
+        run: |
+          # Filtering still compiles SentryTests. Exercise Swift's Clang importer without
+          # Xcode's implicit definitions or a command-line SWIFT_PACKAGE workaround.
+          status=0
+          swift test -Xswiftc -DSENTRY_TEST -Xcc -DSENTRY_TEST=1 --filter SentryTestUtilsTests \
+            > raw-test-output-swiftpm-cli.log 2>&1 || status=$?
+          xcbeautify --preserve-unbeautified < raw-test-output-swiftpm-cli.log
+          exit "$status"
       - name: Ensure required runtime is loaded
         # Ideally we will not need this, but CI sometimes is failing to load some runtimes, this will ensure they are loaded
         timeout-minutes: 5 # 5 minutes timeout
@@ -134,7 +144,16 @@ jobs:
         run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
       - name: Run package tests
         run: |
-          # Match project test compilation and diagnostics; see develop-docs/TEST.md.
+          # Match project routing, compilation and diagnostics; see develop-docs/TEST.md.
+          plan=Plans/Sentry_Base.xctestplan
+          if [[ "$SDK_V10" == "1" ]]; then plan=Plans/SentryV10_Base.xctestplan; fi
+          swift package dump-package > package-test-manifest.json
+          audit_arguments=()
+          if [[ "$SDK_V10" == "1" ]]; then audit_arguments+=(--v10); fi
+          python3 scripts/spm-test-plan.py --audit-manifest package-test-manifest.json "${audit_arguments[@]}"
+          python3 scripts/spm-test-plan.py --plan "$plan" > package-test-arguments.txt
+          test_arguments=()
+          while IFS= read -r argument; do test_arguments+=("$argument"); done < package-test-arguments.txt
           status=0
           # Xcode, not the shell, expands $(inherited).
           # shellcheck disable=SC2016
@@ -142,6 +161,7 @@ jobs:
             -configuration TestCI \
             -sdk iphonesimulator -destination 'platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro' \
             -xcconfig Tests/Configuration/SwiftPM.xcconfig \
+            "${test_arguments[@]}" -only-testing:SentryDistributionTests \
             'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SENTRY_TEST_CI' \
             'GCC_PREPROCESSOR_DEFINITIONS=$(inherited) DEBUG=1 SENTRY_TEST=1 SENTRY_TEST_CI=1' \
             > raw-test-output-distribution.log 2>&1 || status=$?
@@ -152,7 +172,9 @@ jobs:
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-test-output-distribution-${{ matrix.mode }}
-          path: raw-test-output-distribution.log
+          path: |
+            raw-test-output-distribution.log
+            raw-test-output-swiftpm-cli.log
 
   # This matrix runs only the unit tests requiring the test server.
   # We do this to speed up the other unit test jobs and to avoid running the

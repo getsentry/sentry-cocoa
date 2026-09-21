@@ -3,7 +3,11 @@
 #import "SentryScope.h"
 #import "SentryUser.h"
 #import <XCTest/XCTest.h>
+#if SWIFT_PACKAGE
+@import SentrySwift;
+#else
 @import Sentry;
+#endif
 
 @interface SentryScopeTests : XCTestCase
 

@@ -1,3 +1,10 @@
+#if SWIFT_PACKAGE
+@import SentryTestsSwiftHelpers;
+#    define SENTRY_TEST_RESOURCE_BUNDLE [SentryTestResources bundle]
+#else
+#    define SENTRY_TEST_RESOURCE_BUNDLE [NSBundle bundleForClass:self.class]
+#endif
+
 // Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashMonitor_AppState_Tests.m
@@ -149,9 +156,8 @@
 - (void)testInitWithWrongCrashState
 {
     NSString *stateFile = [self.tempPath stringByAppendingPathComponent:@"state.json"];
-    NSString *jsonPath =
-        [[NSBundle bundleForClass:self.class] pathForResource:@"Resources/CrashState_wrong"
-                                                       ofType:@"json"];
+    NSString *jsonPath = [SENTRY_TEST_RESOURCE_BUNDLE pathForResource:@"Resources/CrashState_wrong"
+                                                               ofType:@"json"];
     NSData *jsonData = [NSData dataWithContentsOfURL:[NSURL fileURLWithPath:jsonPath]];
     [jsonData writeToFile:stateFile atomically:true];
 
@@ -174,9 +180,9 @@
 - (void)testInitWithUnsupportedFields
 {
     NSString *stateFile = [self.tempPath stringByAppendingPathComponent:@"state.json"];
-    NSString *jsonPath = [[NSBundle bundleForClass:self.class]
-        pathForResource:@"Resources/CrashState_unsupported_fields"
-                 ofType:@"json"];
+    NSString *jsonPath =
+        [SENTRY_TEST_RESOURCE_BUNDLE pathForResource:@"Resources/CrashState_unsupported_fields"
+                                              ofType:@"json"];
     NSData *jsonData = [NSData dataWithContentsOfURL:[NSURL fileURLWithPath:jsonPath]];
     [jsonData writeToFile:stateFile atomically:true];
 
@@ -189,8 +195,8 @@
 {
     NSString *stateFile = [self.tempPath stringByAppendingPathComponent:@"state.json"];
     NSString *jsonPath =
-        [[NSBundle bundleForClass:self.class] pathForResource:@"Resources/CrashState_legacy_1"
-                                                       ofType:@"json"];
+        [SENTRY_TEST_RESOURCE_BUNDLE pathForResource:@"Resources/CrashState_legacy_1"
+                                              ofType:@"json"];
     NSData *jsonData = [NSData dataWithContentsOfURL:[NSURL fileURLWithPath:jsonPath]];
     [jsonData writeToFile:stateFile atomically:true];
 

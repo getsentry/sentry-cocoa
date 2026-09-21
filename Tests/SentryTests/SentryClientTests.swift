@@ -1,5 +1,12 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+import _SentryPrivate
+import SentryObjCInternal
+import SentryTestsObjCHelpers
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
 extension SentryClientInternal {
@@ -3091,7 +3098,7 @@ final class SentryClientTests: XCTestCase {
         let replayRecording = SentryReplayRecording(segmentId: 2, size: 200, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 930, width: 390, extraEvents: [])
 
         //Not a video url, but its ok for test the envelope
-        let movieUrl = try XCTUnwrap(Bundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json"))
+        let movieUrl = try XCTUnwrap(Bundle.sentryTestResources.url(forResource: "Resources/raw", withExtension: "json"))
 
         sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl, with: Scope())
         let envelope = fixture.transport.sentEnvelopes.first
@@ -3107,7 +3114,7 @@ final class SentryClientTests: XCTestCase {
         let replayEvent = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(), replayType: .session, segmentId: 2)
         let replayRecording = SentryReplayRecording(segmentId: 3, size: 200, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 930, width: 390, extraEvents: [])
 
-        let movieUrl = try XCTUnwrap(Bundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json"))
+        let movieUrl = try XCTUnwrap(Bundle.sentryTestResources.url(forResource: "Resources/raw", withExtension: "json"))
         sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl, with: Scope())
 
         //Nothing should be captured because beforeSend returned a non ReplayEvent
@@ -3123,7 +3130,7 @@ final class SentryClientTests: XCTestCase {
         let replayEvent = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(), replayType: .session, segmentId: 2)
         let replayRecording = SentryReplayRecording(segmentId: 3, size: 200, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 930, width: 390, extraEvents: [])
 
-        let movieUrl = try XCTUnwrap(Bundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json"))
+        let movieUrl = try XCTUnwrap(Bundle.sentryTestResources.url(forResource: "Resources/raw", withExtension: "json"))
         sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl, with: Scope())
 
         //Nothing should be captured because beforeSend returned nil
@@ -3152,7 +3159,7 @@ final class SentryClientTests: XCTestCase {
         let replayRecording = SentryReplayRecording(segmentId: 2, size: 200, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 930, width: 390, extraEvents: [])
 
         //Not a video url, but its ok for test the envelope
-        let movieUrl = try XCTUnwrap(Bundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json"))
+        let movieUrl = try XCTUnwrap(Bundle.sentryTestResources.url(forResource: "Resources/raw", withExtension: "json"))
 
         let scope = Scope()
         scope.addBreadcrumb(Breadcrumb(level: .debug, category: "Test Breadcrumb"))
@@ -3171,7 +3178,7 @@ final class SentryClientTests: XCTestCase {
         let replayRecording = SentryReplayRecording(segmentId: 2, size: 200, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 930, width: 390, extraEvents: [])
 
         //Not a video url, but its ok for test the envelope
-        let movieUrl = try XCTUnwrap(Bundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json"))
+        let movieUrl = try XCTUnwrap(Bundle.sentryTestResources.url(forResource: "Resources/raw", withExtension: "json"))
 
         let scope = Scope()
         scope.addBreadcrumb(Breadcrumb(level: .debug, category: "Test Breadcrumb"))
@@ -3499,6 +3506,14 @@ final class SentryClientTests: XCTestCase {
 
 extension SentryClientTests {
 
+    #if SWIFT_PACKAGE
+    final class SentryTestSessionDelegate: SentryTestSessionDelegateBridge {
+        init(handler: @escaping () -> SentrySession?) {
+            super.init()
+            self.handler = handler
+        }
+    }
+    #else
     final class SentryTestSessionDelegate: NSObject, SentrySessionDelegate {
         private let handler: () -> SentrySession?
 
@@ -3510,6 +3525,7 @@ extension SentryClientTests {
             handler()
         }
     }
+    #endif
 
     private func givenEventWithDebugMeta() -> Event {
         let event = Event(level: SentryLevel.fatal)
