@@ -1,7 +1,10 @@
 @_spi(Private) @testable import Sentry
-import MetricKit
 import SentryTestUtils
 import XCTest
+
+#if os(iOS) || os(macOS) || os(visionOS)
+
+import MetricKit
 
 final class SentryMXManagerTests: XCTestCase {
     
@@ -83,3 +86,5 @@ class TestMXDiagnosticPayload: MXDiagnosticPayload {
         return overrides.timeStampBegin
     }
 }
+
+#endif

@@ -172,6 +172,59 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual(diagnostic.jsonRepresentationInvocations.count, 0)
     }
 
+    func testDidReceive_whenMalformedHangPrecedesValidHang_shouldCaptureBothWithSeparateAttachments() throws {
+        // -- Arrange --
+        let scope = Scope()
+        scope.addAttachment(TestData.dataAttachment)
+        givenSdkWithHub(scope: scope)
+        let options = Options()
+        options.enableMetricKit = true
+        options.enableMetricKitRawPayload = true
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+
+        let malformedDiagnostic = TestMXHangDiagnostic()
+        malformedDiagnostic.overrides.callStackTree.overrides.jsonRepresentation = Data(#"{"callStacks":"unexpected"}"#.utf8)
+        let malformedJSON = Data(#"{"hangDuration":"6.6 sec","callStackTree":{"callStacks":"unexpected"}}"#.utf8)
+        malformedDiagnostic.overrides.jsonRepresentation = malformedJSON
+
+        let validDiagnostic = TestMXHangDiagnostic()
+        let validCallStackJSON = try contentsOfResource("MetricKitCallstacks/not-per-thread-only-one-frame")
+        validDiagnostic.overrides.callStackTree.overrides.jsonRepresentation = validCallStackJSON
+        let validJSON = try JSONSerialization.data(withJSONObject: [
+            "hangDuration": "6.6 sec",
+            "callStackTree": try JSONSerialization.jsonObject(with: validCallStackJSON)
+        ])
+        validDiagnostic.overrides.jsonRepresentation = validJSON
+
+        let payload = TestMXDiagnosticPayload()
+        payload.overrides.hangDiagnostic = [malformedDiagnostic, validDiagnostic]
+        payload.overrides.timeStampBegin = timeStampBegin
+
+        // -- Act --
+        sut.mxManager.didReceive([payload])
+
+        // -- Assert --
+        let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient)
+        let captures = client.captureEventWithScopeInvocations.invocations
+        XCTAssertEqual(captures.count, 2)
+        let malformedCapture = try XCTUnwrap(captures.first)
+        let validCapture = try XCTUnwrap(captures.element(at: 1))
+        XCTAssertNil(malformedCapture.event.threads)
+        XCTAssertNil(malformedCapture.event.exceptions?.first?.stacktrace)
+        let validFrames = try XCTUnwrap(validCapture.event.exceptions?.first?.stacktrace?.frames)
+        XCTAssertFalse(validFrames.isEmpty)
+
+        for (capture, expectedJSON) in [(malformedCapture, malformedJSON), (validCapture, validJSON)] {
+            XCTAssertEqual(capture.event.timestamp, timeStampBegin)
+            let attachments = capture.scope.attachments.filter { $0.filename == "MXDiagnosticPayload.json" }
+            XCTAssertEqual(attachments.count, 1)
+            XCTAssertEqual(attachments.first?.data, expectedJSON)
+        }
+        XCTAssertFalse(scope.attachments.contains { $0.filename == "MXDiagnosticPayload.json" })
+        XCTAssertEqual(malformedDiagnostic.jsonRepresentationInvocations.count, 1)
+        XCTAssertEqual(validDiagnostic.jsonRepresentationInvocations.count, 1)
+    }
+
     func testDontAttachDiagnosticAsAttachment() throws {
             givenSDKWithHubWithScope()
 
