@@ -100,6 +100,20 @@ final class IOSPlatformRunner {
         }
 
         let cacheRoot = container.appendingPathComponent("Library/Caches", isDirectory: true)
+        try assertCrashLaunchArtifacts(for: scenario, cacheRoot: cacheRoot)
+        try drainPreviousCrash(for: scenario)
+        try ScenarioEventAsserter.assertScenarioEvent(
+            scenario,
+            cacheRoot: cacheRoot,
+            platform: "ios",
+            artifactsDir: config.artifactsDir
+        )
+        if let markerPath {
+            try ManagedRuntimeSignalMarker.assertExists(at: markerPath, platform: "ios")
+        }
+    }
+
+    private func assertCrashLaunchArtifacts(for scenario: Scenario, cacheRoot: URL) throws {
         try CrashTimeAttachmentsAsserter.assertPayloadIfNeeded(
             scenario: scenario,
             cacheDirectory: cacheRoot,
@@ -121,16 +135,6 @@ final class IOSPlatformRunner {
             cacheRoot: cacheRoot,
             platform: "ios"
         )
-        try drainPreviousCrash(for: scenario)
-        try ScenarioEventAsserter.assertScenarioEvent(
-            scenario,
-            cacheRoot: cacheRoot,
-            platform: "ios",
-            artifactsDir: config.artifactsDir
-        )
-        if let markerPath {
-            try ManagedRuntimeSignalMarker.assertExists(at: markerPath, platform: "ios")
-        }
     }
 
     func drainPreviousCrash(for scenario: Scenario) throws {
