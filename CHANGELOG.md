@@ -6,6 +6,7 @@
 
 - Add experimental support for the new URLSession HTTP loader for automatic network instrumentation, preserving original request details in Session Replay after redirects. Opt in with `options.experimental.enableNewURLLoaderSwizzling = true` (disabled by default) (#8845)
 - Preserve MetricKit diagnostics containing frames without a binary UUID instead of dropping the entire diagnostic (#9080)
+- Retain raw MetricKit diagnostic attachments when call-stack decoding fails and `enableMetricKitRawPayload` is enabled, without attaching unrelated current-thread stack traces (#9070)
 
 ## 9.29.0
 

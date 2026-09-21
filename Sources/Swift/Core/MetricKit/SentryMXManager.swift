@@ -228,12 +228,12 @@ extension SentryMXManager: MXMetricManagerSubscriber {
                 isHandled: handled
             )
         } catch {
-            SentrySDKLog.fatal("Failed to decode call stack tree from MeticKit payload: \(error)")
+            SentrySDKLog.error("Failed to decode call stack tree from MetricKit payload: \(error)")
 
-            // Only surface decoding events if add diagnostics payloads is enabled as they are non actionable
-            // without a stack trace nor raw data
+            // Without a decoded stack trace, retain the event only when its raw diagnostic can
+            // be attached so the decoding failure can be investigated.
             guard attachDiagnosticAsAttachment else {
-                SentrySDKLog.error("Adding diagnostics as attachments is disable, ignoring payload")
+                SentrySDKLog.debug("Raw MetricKit diagnostic attachments are disabled, ignoring payload")
                 return
             }
         }

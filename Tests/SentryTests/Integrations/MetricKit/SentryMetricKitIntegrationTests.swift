@@ -112,6 +112,66 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             }
     }
 
+    func testDidReceive_whenHangDecodingFailsAndRawPayloadEnabled_shouldCaptureRawDiagnostic() throws {
+        // -- Arrange --
+        givenSDKWithHubWithScope()
+        let options = Options()
+        options.enableMetricKit = true
+        options.enableMetricKitRawPayload = true
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+        let diagnostic = TestMXHangDiagnostic()
+        diagnostic.overrides.callStackTree.overrides.jsonRepresentation = Data(#"{"callStacks":"unexpected"}"#.utf8)
+        let rawDiagnostic = Data(#"{"hangDuration":"6.6 sec","callStackTree":{"callStacks":"unexpected"}}"#.utf8)
+        diagnostic.overrides.jsonRepresentation = rawDiagnostic
+        let payload = TestMXDiagnosticPayload()
+        payload.overrides.hangDiagnostic = [diagnostic]
+        payload.overrides.timeStampBegin = timeStampBegin
+
+        // -- Act --
+        sut.mxManager.didReceive([payload])
+
+        // -- Assert --
+        try assertEventWithScopeCaptured { event, scope, _ in
+            let event = try XCTUnwrap(event)
+            XCTAssertEqual(event.timestamp, timeStampBegin)
+            XCTAssertEqual(event.level, .error)
+            let exception = try XCTUnwrap(event.exceptions?.first)
+            XCTAssertEqual(exception.type, "MXHangDiagnostic")
+            XCTAssertEqual(exception.value, "MXHangDiagnostic hangDuration:6.6 sec")
+            XCTAssertEqual(exception.mechanism?.type, "mx_hang_diagnostic")
+            XCTAssertEqual(exception.mechanism?.handled, true)
+            XCTAssertEqual(exception.mechanism?.synthetic, true)
+            XCTAssertNil(exception.stacktrace)
+            XCTAssertNil(exception.threadId)
+            XCTAssertNil(event.threads)
+            XCTAssertNil(event.debugMeta)
+            let attachments = try XCTUnwrap(scope?.attachments.filter { $0.filename == "MXDiagnosticPayload.json" })
+            XCTAssertEqual(attachments.count, 1)
+            XCTAssertEqual(attachments.first?.data, rawDiagnostic)
+        }
+        XCTAssertEqual(diagnostic.jsonRepresentationInvocations.count, 1)
+    }
+
+    func testDidReceive_whenHangDecodingFailsAndRawPayloadDisabled_shouldDropDiagnostic() throws {
+        // -- Arrange --
+        givenSDKWithHubWithScope()
+        let options = Options()
+        options.enableMetricKit = true
+        options.enableMetricKitRawPayload = false
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+        let diagnostic = TestMXHangDiagnostic()
+        diagnostic.overrides.callStackTree.overrides.jsonRepresentation = Data(#"{"callStacks":"unexpected"}"#.utf8)
+        let payload = TestMXDiagnosticPayload()
+        payload.overrides.hangDiagnostic = [diagnostic]
+
+        // -- Act --
+        sut.mxManager.didReceive([payload])
+
+        // -- Assert --
+        assertNothingCaptured()
+        XCTAssertEqual(diagnostic.jsonRepresentationInvocations.count, 0)
+    }
+
     func testDontAttachDiagnosticAsAttachment() throws {
             givenSDKWithHubWithScope()
 
@@ -452,9 +512,16 @@ class TestMXHangDiagnostic: MXHangDiagnostic {
     struct Override {
         var callStackTree = TestMXCallStackTree()
         var hangDuration = Measurement(value: 6.6, unit: UnitDuration.seconds)
+        var jsonRepresentation: Data?
     }
 
     public var overrides = Override()
+    let jsonRepresentationInvocations = Invocations<Void>()
+
+    override func jsonRepresentation() -> Data {
+        jsonRepresentationInvocations.record(())
+        return overrides.jsonRepresentation ?? super.jsonRepresentation()
+    }
 
     override var callStackTree: MXCallStackTree {
         return overrides.callStackTree

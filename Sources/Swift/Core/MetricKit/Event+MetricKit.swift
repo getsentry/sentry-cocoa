@@ -1,3 +1,4 @@
+#if os(iOS) || os(macOS) || os(visionOS)
 extension Event {
     // swiftlint:disable:next missing_docs
     @objc @_spi(Private) public func isMetricKitEvent() -> Bool {
@@ -5,6 +6,7 @@ extension Event {
             return false
         }
 
-        return SentryMXManager.Diagnostic.all.contains { $0.exceptionType == mechanism.type }
+        return SentryMXManager.Diagnostic.all.contains { $0.mechanism == mechanism.type }
     }
 }
+#endif
