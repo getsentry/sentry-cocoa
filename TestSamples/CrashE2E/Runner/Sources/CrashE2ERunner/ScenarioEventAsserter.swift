@@ -3,6 +3,13 @@ import Foundation
 enum ScenarioEventAsserter {
     static func assertScenarioEvent(_ scenario: Scenario, cacheRoot: URL,
                                     platform: String, artifactsDir: URL) throws {
+        if scenario == .crashTimeReplayAttachmentCrash {
+            // Recrash after writeInfo() is the point of this scenario. The checkpoint is
+            // asserted before drain; the converted event is not a happy-path SIGSEGV.
+            log("Skipping drain event assertions for \(platform)/\(scenario.rawValue).")
+            return
+        }
+
         let events = try EnvelopeReader.exceptionEvents(in: cacheRoot)
         if !scenario.expectsEvent {
             guard events.isEmpty else {
