@@ -3,7 +3,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=./scripts/ci-utils.sh disable=SC1091
-source "$SCRIPT_DIR/ci-utils.sh"
+source "$SCRIPT_DIR/../../scripts/ci-utils.sh"
 
 REPORT=""
 OUTPUT=""
@@ -21,7 +21,7 @@ usage() {
 Usage: $(basename "$0") --report <path-to-json> [OPTIONS]
 
 Find local symbols or download matching Sentry symbols, then use atos to enrich JSON.
-Open the result in scripts/metrickit-flamegraphs.html. No server is required.
+Open the result in Utils/MetricKitExplorer/index.html. No server is required.
 The input report is never modified. Existing output files are not overwritten.
 Requires macOS developer tools, decimal-enabled jq, and sentry-cli for local discovery.
 Remote fallback additionally requires authenticated sentry CLI 0.45.0+ and download access.

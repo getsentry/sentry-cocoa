@@ -8,6 +8,7 @@ This is a collection of documents that can help you develop for the SentrySDK.
 - SWIFT.md: how we handle the intricacies when mixing Swift and ObjC/++
 - SWIZZLING.md: how to add and apply a typed method swizzle
 - TEST.md: unit testing, UI testing and static/runtime analysis
+- [MetricKit Flamegraph Explorer](../Utils/MetricKitExplorer/README.md): inspect and symbolicate MetricKit call stacks using local artifacts, Xcode device symbols, or Sentry debug files
 - BUILD.md: how we configure and build our SDK deliverables
 - RELEASE.md: our release processes and best practices
 - ANNUAL_OS_COMPATIBILITY.md: yearly playbook for validating the SDK against the new Apple OS generation
