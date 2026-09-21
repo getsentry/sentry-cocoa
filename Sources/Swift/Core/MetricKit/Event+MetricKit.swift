@@ -5,6 +5,6 @@ extension Event {
             return false
         }
 
-        return SentryMXManager.Diagnostic.all.contains { $0.exceptionType == mechanism.type }
+        return SentryMXManager.Diagnostic.all.contains { $0.mechanism == mechanism.type }
     }
 }
