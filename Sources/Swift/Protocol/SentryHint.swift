@@ -14,6 +14,8 @@ public final class Hint: NSObject {
     private struct State {
         var originalError: Error?
         var originalException: NSException?
+        var urlRequest: URLRequest?
+        var httpResponse: HTTPURLResponse?
         var attachments: [Attachment] = []
         var extra: [String: Any] = [:]
     }
@@ -30,6 +32,18 @@ public final class Hint: NSObject {
     public var originalException: NSException? {
         get { state.withLock { $0.originalException } }
         set { state.withLock { $0.originalException = newValue } }
+    }
+
+    /// The `URLRequest` associated with the event or breadcrumb, if it originated from a network operation.
+    public var urlRequest: URLRequest? {
+        get { state.withLock { $0.urlRequest } }
+        set { state.withLock { $0.urlRequest = newValue } }
+    }
+
+    /// The `HTTPURLResponse` associated with the event or breadcrumb, if it originated from a network operation.
+    public var httpResponse: HTTPURLResponse? {
+        get { state.withLock { $0.httpResponse } }
+        set { state.withLock { $0.httpResponse = newValue } }
     }
 
     /// The attachments that will be sent alongside the event.

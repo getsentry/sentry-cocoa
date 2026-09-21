@@ -99,6 +99,218 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertFalse(try XCTUnwrap(sut.getTouchTracker()).isEnabled)
     }
 
+    func testCaptureFeedback_whenBuffering_shouldCaptureReplayAndAssociateFeedback() throws {
+        // -- Arrange --
+        var capturedEvent: Event?
+        startSDK(sessionSampleRate: 0, errorSampleRate: 1)
+        globalEventProcessor.add { event in
+            guard event.type == "feedback" else { return event }
+            capturedEvent = event
+            return nil
+        }
+        let replay = try XCTUnwrap(getSut().sessionReplay)
+        let replayId = try XCTUnwrap(replay.sessionReplayId).sentryIdString
+
+        // -- Act --
+        SentrySDK.capture(feedback: SentryFeedback(message: "Something went wrong", name: nil, email: nil))
+
+        // -- Assert --
+        XCTAssertTrue(replay.isFullSession)
+        XCTAssertEqual(capturedEvent?.context?["feedback"]?["replay_id"] as? String, replayId)
+        XCTAssertEqual(capturedEvent?.context?["replay"]?["replay_id"] as? String, replayId)
+    }
+
+    func testCaptureFeedback_whenCalledOnClient_shouldNotCaptureGlobalReplay() throws {
+        // -- Arrange --
+        var capturedEvent: Event?
+        startSDK(sessionSampleRate: 0, errorSampleRate: 1)
+        let client = try XCTUnwrap(SentrySDKInternal.currentHub().client())
+        let replay = try XCTUnwrap(getSut().sessionReplay)
+        globalEventProcessor.add { event in
+            guard event.type == "feedback" else { return event }
+            capturedEvent = event
+            return nil
+        }
+
+        // -- Act --
+        client.captureSerializedFeedback(
+            ["message": "Feedback"], withEventId: SentryId().sentryIdString,
+            attachments: [], scope: Scope())
+
+        // -- Assert --
+        XCTAssertNotNil(capturedEvent)
+        XCTAssertFalse(replay.isFullSession)
+        XCTAssertNil(capturedEvent?.context?["feedback"]?["replay_id"])
+    }
+
+    func testCaptureFeedback_whenHubHasNoReplayIntegration_shouldNotCaptureOtherHubsReplay() throws {
+        // -- Arrange --
+        var capturedEvent: Event?
+        startSDK(sessionSampleRate: 0, errorSampleRate: 1)
+        let client = try XCTUnwrap(SentrySDKInternal.currentHub().client())
+        let hub = SentryHubInternal(client: client, andScope: Scope())
+        let replay = try XCTUnwrap(getSut().sessionReplay)
+        globalEventProcessor.add { event in
+            guard event.type == "feedback" else { return event }
+            capturedEvent = event
+            return nil
+        }
+
+        // -- Act --
+        hub.captureSerializedFeedback(
+            ["message": "Feedback"], withEventId: SentryId().sentryIdString, attachments: [])
+
+        // -- Assert --
+        XCTAssertNotNil(capturedEvent)
+        XCTAssertFalse(replay.isFullSession)
+        XCTAssertNil(capturedEvent?.context?["feedback"]?["replay_id"])
+    }
+
+    func testCaptureFeedback_whenReplayDisabled_shouldNotAssociateReplay() {
+        // -- Arrange --
+        var capturedEvent: Event?
+        startSDK(sessionSampleRate: 0, errorSampleRate: 0)
+        globalEventProcessor.add { event in
+            guard event.type == "feedback" else { return event }
+            capturedEvent = event
+            return nil
+        }
+
+        // -- Act --
+        SentrySDK.capture(feedback: SentryFeedback(message: "Feedback", name: nil, email: nil))
+
+        // -- Assert --
+        XCTAssertNotNil(capturedEvent)
+        XCTAssertNil(capturedEvent?.context?["feedback"]?["replay_id"])
+        XCTAssertNil(capturedEvent?.context?["replay"])
+    }
+
+    func testCaptureFeedback_whenSamplingRejectsBuffer_shouldNotAssociateReplay() throws {
+        // -- Arrange --
+        var capturedEvent: Event?
+        SentryDependencyContainer.sharedInstance().random = TestRandom(value: 0.9)
+        startSDK(sessionSampleRate: 0, errorSampleRate: 0.5)
+        globalEventProcessor.add { event in
+            guard event.type == "feedback" else { return event }
+            capturedEvent = event
+            return nil
+        }
+
+        // -- Act --
+        SentrySDK.capture(feedback: SentryFeedback(message: "Feedback", name: nil, email: nil, source: .custom))
+
+        // -- Assert --
+        XCTAssertFalse(try XCTUnwrap(getSut().sessionReplay).isFullSession)
+        XCTAssertNotNil(capturedEvent)
+        XCTAssertNil(capturedEvent?.context?["feedback"]?["replay_id"])
+        XCTAssertNil(capturedEvent?.context?["replay"])
+    }
+
+    func testCaptureFeedback_whenBufferManuallyStartedWithZeroRate_shouldNotSampleReplay() throws {
+        // -- Arrange --
+        SentryDependencyContainer.sharedInstance().random = TestRandom(value: 0)
+        startSDK(sessionSampleRate: 0, errorSampleRate: 0)
+        let integration = try getSut()
+        integration.startBuffering()
+        waitForReplayCommand()
+        globalEventProcessor.add { event in event.type == "feedback" ? nil : event }
+
+        // -- Act --
+        SentrySDK.capture(feedback: SentryFeedback(message: "Feedback", name: nil, email: nil))
+
+        // -- Assert --
+        XCTAssertFalse(try XCTUnwrap(integration.sessionReplay).isFullSession)
+    }
+
+    #if os(iOS)
+    func testFeedbackForm_whenOpenedWithoutSubmitting_shouldCaptureReplay() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 0, errorSampleRate: 1)
+        let replay = try XCTUnwrap(getSut().sessionReplay)
+        let form = SentryUserFeedbackFormController()
+
+        // -- Act --
+        form.beginAppearanceTransition(true, animated: false)
+        form.endAppearanceTransition()
+
+        // -- Assert --
+        XCTAssertTrue(replay.isFullSession)
+    }
+
+    func testFeedbackForm_whenReplayChangesBeforeSubmission_shouldKeepOpeningReplayId() throws {
+        // -- Arrange --
+        var capturedEvent: Event?
+        startSDK(sessionSampleRate: 0, errorSampleRate: 1)
+        globalEventProcessor.add { event in
+            guard event.type == "feedback" else { return event }
+            capturedEvent = event
+            return nil
+        }
+        let replayId = try XCTUnwrap(getSut().sessionReplay?.sessionReplayId).sentryIdString
+        let form = SentryUserFeedbackFormController()
+        form.beginAppearanceTransition(true, animated: false)
+        form.endAppearanceTransition()
+        form.viewModel.messageTextView.text = "Something went wrong"
+        SentrySDKInternal.currentHub().endSession()
+        SentrySDKInternal.currentHub().startSession()
+
+        // -- Act --
+        form.submitFeedback()
+
+        // -- Assert --
+        XCTAssertEqual(capturedEvent?.context?["feedback"]?["replay_id"] as? String, replayId)
+        XCTAssertEqual(capturedEvent?.context?["replay"]?["replay_id"] as? String, replayId)
+        XCTAssertFalse(try XCTUnwrap(getSut().sessionReplay).isFullSession)
+    }
+    func testFeedbackForm_whenOpeningSampleRejected_shouldKeepBufferIdWithoutResampling() throws {
+        // -- Arrange --
+        var capturedEvent: Event?
+        let random = TestRandom(value: 0.9)
+        SentryDependencyContainer.sharedInstance().random = random
+        startSDK(sessionSampleRate: 0, errorSampleRate: 0.5)
+        globalEventProcessor.add { event in
+            guard event.type == "feedback" else { return event }
+            capturedEvent = event
+            return nil
+        }
+        let form = SentryUserFeedbackFormController()
+        form.beginAppearanceTransition(true, animated: false)
+        form.endAppearanceTransition()
+        form.viewModel.messageTextView.text = "Feedback"
+        let replayId = try XCTUnwrap(getSut().sessionReplay?.sessionReplayId).sentryIdString
+        random.value = 0
+
+        // -- Act --
+        form.beginAppearanceTransition(true, animated: false)
+        form.endAppearanceTransition()
+        form.submitFeedback()
+
+        // -- Assert --
+        XCTAssertFalse(try XCTUnwrap(getSut().sessionReplay).isFullSession)
+        XCTAssertEqual(capturedEvent?.context?["feedback"]?["replay_id"] as? String, replayId)
+        XCTAssertEqual(capturedEvent?.context?["replay"]?["replay_id"] as? String, replayId)
+    }
+
+    func testFeedbackForm_whenReopenedAfterRejection_shouldSampleAgain() throws {
+        // -- Arrange --
+        let random = TestRandom(value: 0.9)
+        SentryDependencyContainer.sharedInstance().random = random
+        startSDK(sessionSampleRate: 0, errorSampleRate: 0.5)
+        let form = SentryUserFeedbackFormController()
+        form.beginAppearanceTransition(true, animated: false)
+        form.endAppearanceTransition()
+        form.presentationControllerDidDismiss(UIPresentationController(presentedViewController: form, presenting: nil))
+        random.value = 0
+
+        // -- Act --
+        form.beginAppearanceTransition(true, animated: false)
+        form.endAppearanceTransition()
+
+        // -- Assert --
+        XCTAssertTrue(try XCTUnwrap(getSut().sessionReplay).isFullSession)
+    }
+    #endif
+
     func testInstallFullSessionReplay() {
         startSDK(sessionSampleRate: 1, errorSampleRate: 0)
 
@@ -130,7 +342,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         let currentInfo = try currentReplayInfo()
         XCTAssertEqual(currentInfo["replayType"] as? String, "buffer")
 
-        sentrySessionReplaySync_writeInfo()
+        writeReplayCheckpointFromCrashCallback()
         var crashInfo = SentryCrashReplay()
         let sessionPath = try XCTUnwrap(currentInfo["path"] as? String)
         let crashInfoPath = "\(replayFolder())/\(sessionPath)/crashInfo"
@@ -613,7 +825,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
 
         try createLastSessionReplay(writeSessionInfo: false)
         startSDK(sessionSampleRate: 1, errorSampleRate: 1)
-        PrivateSentrySDKOnly.configureSessionReplay(with: CustomBreadcrumbConverter(), screenshotProvider: nil)
+        SentrySDK.internal.replay.configure(breadcrumbConverter: CustomBreadcrumbConverter(), screenshotProvider: nil)
 
         let client = SentryClientInternal(options: try XCTUnwrap(SentrySDK.startOption))
         let scope = Scope()
@@ -1086,8 +1298,8 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         }
         
         startSDK(sessionSampleRate: 1, errorSampleRate: 0)
-        PrivateSentrySDKOnly.configureSessionReplay(with: CustomBreadcrumbConverter(),
-                                                    screenshotProvider: CustomImageProvider())
+        SentrySDK.internal.replay.configure(breadcrumbConverter: CustomBreadcrumbConverter(),
+                                            screenshotProvider: CustomImageProvider())
         let sut = try getSut()
         
         XCTAssertTrue(sut.sessionReplay?.screenshotProvider is CustomImageProvider)
@@ -1104,7 +1316,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         startSDK(sessionSampleRate: 1, errorSampleRate: 0)
         
         let sut = try getSut()
-        PrivateSentrySDKOnly.setReplayTags(["someOption": "someValue"])
+        SentrySDK.internal.replay.setTags(["someOption": "someValue"])
         
         let sessionReplay = try XCTUnwrap(sut.sessionReplay)
         XCTAssertEqual(sessionReplay.replayTags?["someOption"] as? String, "someValue")
@@ -1318,6 +1530,54 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertNil(sut.sessionReplay)
     }
 
+    func testReplayIdAndSessionReplayCleared_whenStopped() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+
+        var replayId: String?
+        SentrySDKInternal.currentHub().configureScope { scope in
+            replayId = scope.replayId
+        }
+        XCTAssertNotNil(replayId)
+
+        // -- Act --
+        sut.stop()
+
+        // -- Assert --
+        // The scope's replayId is the value serialized as `replay_id` onto captured events, so
+        // clearing it ensures events captured after stop() are not linked to the stopped replay.
+        var serializedReplayId: Any?
+        SentrySDKInternal.currentHub().configureScope { scope in
+            replayId = scope.replayId
+            serializedReplayId = scope.serialize()["replay_id"]
+        }
+        XCTAssertNil(replayId)
+        XCTAssertNil(serializedReplayId)
+        XCTAssertNil(sut.sessionReplay)
+    }
+
+    func testSessionReplayEnded_whenReplayIdIsCleared_shouldClearSessionReplayFirst() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+        let scope = ReplayIdClearObservingScope()
+        scope.replayId = SentryId().sentryIdString
+        let client = SentryClientInternal(options: try XCTUnwrap(SentrySDK.startOption))
+        SentrySDKInternal.setCurrentHub(SentryHubInternal(client: client, andScope: scope))
+
+        var sessionReplayWasCleared = false
+        scope.onReplayIdCleared = {
+            sessionReplayWasCleared = sut.sessionReplay == nil
+        }
+
+        // -- Act --
+        sut.sessionReplayEnded()
+
+        // -- Assert --
+        XCTAssertTrue(sessionReplayWasCleared)
+    }
+
     private func createLastSessionReplay(
         writeSessionInfo: Bool = true,
         errorSampleRate: Double = 1,
@@ -1356,7 +1616,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
             if writeSessionInfo {
                 sentrySessionReplaySync_updateInfo(1, Double(4))
             }
-            sentrySessionReplaySync_writeInfo()
+            writeReplayCheckpointFromCrashCallback()
             if crashSafeReplayType == nil {
                 let crashInfoURL = URL(fileURLWithPath: "\(sessionFolder)/crashInfo")
                 let legacySize = MemoryLayout<UInt32>.size + MemoryLayout<Double>.size
@@ -1397,6 +1657,28 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     private func currentReplayInfo() throws -> [String: Any] {
         let data = try Data(contentsOf: URL(fileURLWithPath: replayFolder() + "/replay.current"))
         return try XCTUnwrap(SentrySerialization.deserializeDictionary(fromJsonData: data) as? [String: Any])
+    }
+
+    /// V9 persists the checkpoint from `SentryCrashC.onCrash`; V10 goes through KSCrash
+    /// `didWriteReport` instead of calling `writeInfo` directly.
+    private func writeReplayCheckpointFromCrashCallback() {
+#if SDK_V10
+        sentrykscrash_test_invokeDidWriteReport(true, false, false, 1)
+#else
+        sentrySessionReplaySync_writeInfo()
+#endif
+    }
+}
+
+private final class ReplayIdClearObservingScope: Scope {
+    var onReplayIdCleared: (() -> Void)?
+
+    override var replayId: String? {
+        didSet {
+            if replayId == nil {
+                onReplayIdCleared?()
+            }
+        }
     }
 }
 

@@ -17,8 +17,8 @@ public struct SentryInternalPerformanceApi {
 
     /// Whether frames tracking is operating in hybrid SDK mode.
     public var framesTrackingHybridSDKMode: Bool {
-        get { PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode }
-        nonmutating set { PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode = newValue }
+        get { SentrySDKInternal.framesTrackingMeasurementHybridSDKMode }
+        nonmutating set { SentrySDKInternal.framesTrackingMeasurementHybridSDKMode = newValue }
     }
 
     /// Whether frames tracking is currently running.

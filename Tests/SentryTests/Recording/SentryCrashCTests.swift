@@ -1,3 +1,4 @@
+#if !SDK_V10
 @testable import Sentry
 import XCTest
 
@@ -317,3 +318,4 @@ final class SentryCrashCTests: XCTestCase {
         return decodedReport
     }
 }
+#endif // !SDK_V10

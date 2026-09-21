@@ -7,8 +7,8 @@ import Foundation
 @objc
 public protocol SentryLogScopeApplier {
     /// Applies the scope to the log. Custom attribute precedence: log > current scope > global
-    /// scope. Trace correlation, user, and the other reserved attributes always come from
-    /// `scope`, so the thread-local current scope can't clobber the hub scope's active span.
+    /// scope. The current scope's span takes precedence for trace correlation. User and the
+    /// other reserved attributes come from `scope`.
     func applyScope(_ scope: Scope, currentScope: Scope?, toLog log: SentryLog) -> SentryLog
 }
 

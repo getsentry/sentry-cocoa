@@ -86,6 +86,23 @@ class ErrorsViewController: UIViewController {
         }
     }
 
+    @IBAction func captureErrorWithHint(_ sender: UIButton) {
+        highlightButton(sender)
+        let hint = Hint()
+        hint.setHintValue("ErrorsViewController", forKey: "source")
+        hint.setHintValue(["button": "captureErrorWithHint"], forKey: "context")
+        hint.attachments = [
+            Attachment(data: Data("hint log entry".utf8), filename: "hint.txt")
+        ]
+        do {
+            try RandomErrorGenerator.generate()
+        } catch {
+            SentrySDK.capture(error: error, hint: hint) { scope in
+                scope.setTag(value: "true", key: "hasHint")
+            }
+        }
+    }
+
     @IBAction func captureErrorInSwiftAsync(_ sender: UIButton) {
         highlightButton(sender)
         Task {

@@ -1,10 +1,6 @@
 #include "../../../Shared/Config/_Common.xcconfig"
 
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sentry-cocoa.samples.iOS-SwiftUI-Widgets.LiveActivity
-INFOPLIST_FILE = LiveActivity/Configurations/Info.plist
-CODE_SIGN_ENTITLEMENTS = LiveActivity/Configurations/Entitlements.entitlements
-
-GENERATE_INFOPLIST_FILE = NO
 
 IPHONEOS_DEPLOYMENT_TARGET = 18.0
 TARGETED_DEVICE_FAMILY = 1,2

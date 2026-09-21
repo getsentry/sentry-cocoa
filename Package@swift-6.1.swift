@@ -20,6 +20,16 @@ func envFlag(_ name: String) -> Bool {
 let enableV10 = envFlag("SDK_V10")
 // SwiftPM has no source include override; CI audits this complement against the Xcode allowlist.
 let v10ExcludedSentryCrashToolSources = [
+    "SentryCrash/Recording/Tools/SentryCrashCPU.c",
+    "SentryCrash/Recording/Tools/SentryCrashCPU_arm.c",
+    "SentryCrash/Recording/Tools/SentryCrashCPU_arm64.c",
+    "SentryCrash/Recording/Tools/SentryCrashCPU_x86_32.c",
+    "SentryCrash/Recording/Tools/SentryCrashCPU_x86_64.c",
+    "SentryCrash/Recording/Tools/SentryCrashMachineContext.c",
+    "SentryCrash/Recording/Tools/SentryCrashMemory.c",
+    "SentryCrash/Recording/Tools/SentryCrashStackCursor.c",
+    "SentryCrash/Recording/Tools/SentryCrashStackCursor_MachineContext.c",
+    "SentryCrash/Recording/Tools/SentryCrashThread.c",
     "SentryCrash/Recording/Tools/SentryCrashCxaThrowSwapper.c",
     "SentryCrash/Recording/Tools/SentryCrashDate.c",
     "SentryCrash/Recording/Tools/SentryCrashDebug.c",
@@ -109,38 +119,38 @@ if !enableV10 {
     targets += [
         .binaryTarget(
             name: "Sentry",
-            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.27.0/Sentry.xcframework.zip",
-            checksum: "7bc6d6666db31423a18e44b9e612ac600f919928f0e7f72ac5f5804882a82ab5" //Sentry-Static
+            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.29.0/Sentry.xcframework.zip",
+            checksum: "63fe5a7258097fded9ef485bbb1d8e80e1e91d419ee6d8a6ad405454b5b50fef" //Sentry-Static
         ),
         .binaryTarget(
             name: "Sentry-Dynamic",
-            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.27.0/Sentry-Dynamic.xcframework.zip",
-            checksum: "a626e812cd507380ebac5b13429876e361f557a7f680a2e84d3e03b5bdaadf49" //Sentry-Dynamic
+            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.29.0/Sentry-Dynamic.xcframework.zip",
+            checksum: "2922a9e7744679aa1964076ae6fb8726a23187f2dff999a17ce3959281db3d61" //Sentry-Dynamic
         ),
         .binaryTarget(
             name: "Sentry-Dynamic-WithARM64e",
-            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.27.0/Sentry-Dynamic-WithARM64e.xcframework.zip",
-            checksum: "c7fc8185ad66e8312b950d866b8a0026e4bf804f1d865838ec7058e2be202f8f" //Sentry-Dynamic-WithARM64e
+            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.29.0/Sentry-Dynamic-WithARM64e.xcframework.zip",
+            checksum: "2aaaa95b5a476345205313a0eb4e01a7828d7196902864945cc453250ddd3d46" //Sentry-Dynamic-WithARM64e
         ),
         .binaryTarget(
             name: "Sentry-WithoutUIKitOrAppKit",
-            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.27.0/Sentry-WithoutUIKitOrAppKit.xcframework.zip",
-            checksum: "afcb217c9ebb90320a20a7bc1601f55e17b85d9176f11c8d75a387cd0dbc2677" //Sentry-WithoutUIKitOrAppKit
+            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.29.0/Sentry-WithoutUIKitOrAppKit.xcframework.zip",
+            checksum: "ae6585bbfc4d262702c2f725f524d4c542105054c3f4995677a1a30b651b27df" //Sentry-WithoutUIKitOrAppKit
         ),
         .binaryTarget(
             name: "Sentry-WithoutUIKitOrAppKit-WithARM64e",
-            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.27.0/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip",
-            checksum: "e9ac7a052fd0981f0310768c94b54038e8fa25b867208acf46015da47e5f1cea" //Sentry-WithoutUIKitOrAppKit-WithARM64e
+            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.29.0/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip",
+            checksum: "0017c1c0dbdbc763283ee6567bad961f6864a9c16d710252d54c6eaf4ec604e2" //Sentry-WithoutUIKitOrAppKit-WithARM64e
         ),
         .binaryTarget(
             name: "SentryObjC-Dynamic",
-            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.27.0/SentryObjC-Dynamic.xcframework.zip",
-            checksum: "bb95905aebe9ae68e148f8be93340230bde4caf51b8e090e952cba96948d0091" //SentryObjC-Dynamic
+            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.29.0/SentryObjC-Dynamic.xcframework.zip",
+            checksum: "dfed1c41a2b91256e52c2b7cfcc3d3c911c6f4204a07426c3e3098b7990b045f" //SentryObjC-Dynamic
         ),
         .binaryTarget(
             name: "SentryObjC-Static",
-            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.27.0/SentryObjC-Static.xcframework.zip",
-            checksum: "2fc8c25afb25fed644e7f0bcf5689e5e3efa1e8a155799f6957ced5f7fc59940" //SentryObjC-Static
+            url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.29.0/SentryObjC-Static.xcframework.zip",
+            checksum: "b8107f3f60b635d6f38d8c7a51f8cc62a5753f9631ae36adc1b8299dd51b3800" //SentryObjC-Static
         ),
         .target(
             name: "SentrySwiftUI",
@@ -181,7 +191,7 @@ let sentrySwiftTarget: Target = .target(
         "_SentryPrivate",
         "SentryHeaders",
         .product(
-            name: "Installations",
+            name: "Recording",
             package: "KSCrash",
             condition: kscrashDependencyCondition
         ),
@@ -408,7 +418,7 @@ for target in targets where target.type == .regular || target.type == .test {
 }
 
 let packageDependencies: [Package.Dependency] = [
-    .package(url: "https://github.com/kstenerud/KSCrash.git", from: "2.6.0")
+    .package(url: "https://github.com/getsentry/KSCrash.git", revision: "391bf0a9569b6c1aa9df30b3fa4bcabbc0a07e7a")
 ]
 
 let package = Package(

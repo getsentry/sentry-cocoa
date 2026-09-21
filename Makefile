@@ -78,14 +78,24 @@ init-local:
 # Installs tools needed for CI build tasks using Brewfile-ci-build.
 .PHONY: init-ci-build
 init-ci-build:
-	brew update && brew bundle --file Brewfile-ci-build
+# Temporarily remove applesimutils and wix-incubator/brew as they aren't homebrew 7 compatible
+# and bitrise installs them on their stacks...
+	brew uninstall applesimutils || true
+	brew untap wix-incubator/brew || true
+	brew update
+	brew bundle --file Brewfile-ci-build
 
 ## Install CI format dependencies
 #
 # Installs tools needed to run CI format tasks locally using Brewfile-ci-format.
 .PHONY: init-ci-format
 init-ci-format:
-	brew update && brew bundle --file Brewfile-ci-format
+# Temporarily remove applesimutils and wix-incubator/brew as they aren't homebrew 7 compatible
+# and bitrise installs them on their stacks...
+	brew uninstall applesimutils || true
+	brew untap wix-incubator/brew || true
+	brew update
+	brew bundle --file Brewfile-ci-format
 
 ## Update tooling versions
 #
@@ -606,6 +616,9 @@ build-xcframework-sentryobjc-static:
 	@echo "--> Creating SentryObjC-Static xcframework (SDKs: $(SDKS))"
 	./scripts/build-xcframework-sentryobjc.sh --sdks "$(SDKS)"
 	./scripts/validate-xcframework.sh --xcframework "SentryObjC-Static.xcframework"
+	./scripts/validate-xcframework-sentryobjc-static.sh \
+		--xcframework "SentryObjC-Static.xcframework" \
+		--build-consumer
 	./scripts/compress-xcframework.sh --xcframework "SentryObjC-Static.xcframework"
 
 ## Build SentryObjC-Dynamic XCFramework locally for one or more SDKs
@@ -724,6 +737,7 @@ build-samples-v10: \
 	build-sample-v10-iOS-Swift \
 	build-sample-v10-iOS-SwiftUI \
 	build-sample-v10-SPM \
+	build-sample-v10-macOS-CLI-Xcode \
 	build-sample-v10-macOS-Swift \
 	build-sample-v10-macOS-SwiftUI \
 	build-sample-v10-tvOS-Swift \
@@ -737,7 +751,7 @@ V10_SDK_FLAGS = GCC_PREPROCESSOR_DEFINITIONS='$$(inherited) SDK_V10=1' SWIFT_ACT
 ## Build the iOS-Swift sample app with the V10 trait
 .PHONY: build-sample-v10-iOS-Swift
 build-sample-v10-iOS-Swift:
-	scripts/set-xcodegen-package-traits.sh --trait V10 --generate --spec Samples/iOS-Swift/iOS-Swift.yml
+	scripts/generate-sample-v10.sh --spec Samples/iOS-Swift/iOS-Swift.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme iOS-Swift \
@@ -749,7 +763,7 @@ build-sample-v10-iOS-Swift:
 ## Build the iOS-SwiftUI sample app with the V10 trait
 .PHONY: build-sample-v10-iOS-SwiftUI
 build-sample-v10-iOS-SwiftUI:
-	scripts/set-xcodegen-package-traits.sh --trait V10 --generate --spec Samples/iOS-SwiftUI/iOS-SwiftUI.yml
+	scripts/generate-sample-v10.sh --spec Samples/iOS-SwiftUI/iOS-SwiftUI.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme iOS-SwiftUI \
@@ -761,7 +775,7 @@ build-sample-v10-iOS-SwiftUI:
 ## Build the iOS-ObjectiveC sample app with the V10 trait
 .PHONY: build-sample-v10-iOS-ObjectiveC
 build-sample-v10-iOS-ObjectiveC:
-	scripts/set-xcodegen-package-traits.sh --trait V10 --generate --spec Samples/iOS-ObjectiveC/iOS-ObjectiveC.yml
+	scripts/generate-sample-v10.sh --spec Samples/iOS-ObjectiveC/iOS-ObjectiveC.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme iOS-ObjectiveC \
@@ -773,7 +787,7 @@ build-sample-v10-iOS-ObjectiveC:
 ## Build the iOS-ObjectiveCpp-NoModules sample app with the V10 trait
 .PHONY: build-sample-v10-iOS-ObjectiveCpp-NoModules
 build-sample-v10-iOS-ObjectiveCpp-NoModules:
-	scripts/set-xcodegen-package-traits.sh --trait V10 --generate --spec Samples/iOS-ObjectiveCpp-NoModules/iOS-ObjectiveCpp-NoModules.yml
+	scripts/generate-sample-v10.sh --spec Samples/iOS-ObjectiveCpp-NoModules/iOS-ObjectiveCpp-NoModules.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme iOS-ObjectiveCpp-NoModules \
@@ -786,7 +800,7 @@ build-sample-v10-iOS-ObjectiveCpp-NoModules:
 ## Build the SPM sample app with the V10 trait
 .PHONY: build-sample-v10-SPM
 build-sample-v10-SPM:
-	scripts/set-xcodegen-package-traits.sh --trait V10 --generate --spec Samples/SPM/SPM.yml
+	scripts/generate-sample-v10.sh --spec Samples/SPM/SPM.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme SPM \
@@ -797,7 +811,7 @@ build-sample-v10-SPM:
 ## Build the DistributionSample app with the V10 trait
 .PHONY: build-sample-v10-DistributionSample
 build-sample-v10-DistributionSample:
-	scripts/set-xcodegen-package-traits.sh --trait V10 --generate --spec Samples/DistributionSample/DistributionSample.yml
+	scripts/generate-sample-v10.sh --spec Samples/DistributionSample/DistributionSample.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme DistributionSample \
@@ -805,10 +819,23 @@ build-sample-v10-DistributionSample:
 		$(V10_SDK_FLAGS) \
 		build | xcbeautify --preserve-unbeautified
 
+## Build the macOS-CLI-Xcode sample with the V10 and NoUIFramework traits
+.PHONY: build-sample-v10-macOS-CLI-Xcode
+build-sample-v10-macOS-CLI-Xcode:
+	scripts/generate-sample-v10.sh --spec Samples/macOS-CLI-Xcode/macOS-CLI-Xcode.yml
+	set -o pipefail && xcodebuild \
+		-project "Samples/macOS-CLI-Xcode/macOS-CLI-Xcode.xcodeproj" \
+		-scheme macOS-CLI-Xcode \
+		-configuration Debug \
+		-destination 'platform=macOS' \
+		CODE_SIGNING_ALLOWED="NO" \
+		$(V10_SDK_FLAGS) \
+		build | xcbeautify --preserve-unbeautified
+
 ## Build the macOS-Swift sample app with the V10 trait
 .PHONY: build-sample-v10-macOS-Swift
 build-sample-v10-macOS-Swift:
-	scripts/set-xcodegen-package-traits.sh --trait V10 --generate --spec Samples/macOS-Swift/macOS-Swift.yml
+	scripts/generate-sample-v10.sh --spec Samples/macOS-Swift/macOS-Swift.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme macOS-Swift \
@@ -819,7 +846,7 @@ build-sample-v10-macOS-Swift:
 ## Build the macOS-SwiftUI sample app with the V10 trait
 .PHONY: build-sample-v10-macOS-SwiftUI
 build-sample-v10-macOS-SwiftUI:
-	scripts/set-xcodegen-package-traits.sh --trait V10 --generate --spec Samples/macOS-SwiftUI/macOS-SwiftUI.yml
+	scripts/generate-sample-v10.sh --spec Samples/macOS-SwiftUI/macOS-SwiftUI.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme macOS-SwiftUI \
@@ -830,7 +857,7 @@ build-sample-v10-macOS-SwiftUI:
 ## Build the tvOS-Swift sample app with the V10 trait
 .PHONY: build-sample-v10-tvOS-Swift
 build-sample-v10-tvOS-Swift:
-	scripts/set-xcodegen-package-traits.sh --trait V10 --generate --spec Samples/tvOS-Swift/tvOS-Swift.yml
+	scripts/generate-sample-v10.sh --spec Samples/tvOS-Swift/tvOS-Swift.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme tvOS-Swift \
@@ -842,7 +869,7 @@ build-sample-v10-tvOS-Swift:
 ## Build the visionOS-Swift sample app with the V10 trait
 .PHONY: build-sample-v10-visionOS-Swift
 build-sample-v10-visionOS-Swift:
-	scripts/set-xcodegen-package-traits.sh --trait V10 --generate --spec Samples/visionOS-Swift/visionOS-Swift.yml
+	scripts/generate-sample-v10.sh --spec Samples/visionOS-Swift/visionOS-Swift.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme visionOS-Swift \
@@ -854,7 +881,7 @@ build-sample-v10-visionOS-Swift:
 ## Build the watchOS-Swift sample app with the V10 trait
 .PHONY: build-sample-v10-watchOS-Swift
 build-sample-v10-watchOS-Swift:
-	scripts/set-xcodegen-package-traits.sh --trait V10 --generate --spec Samples/watchOS-Swift/watchOS-Swift.yml
+	scripts/generate-sample-v10.sh --spec Samples/watchOS-Swift/watchOS-Swift.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme 'watchOS-Swift WatchKit App' \
@@ -923,6 +950,19 @@ build-sample-macOS-CLI-Xcode:
 		-configuration Debug \
 		-destination 'platform=macOS' \
 		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the macOS-ObjectiveC-Static-CMake sample
+#
+# Builds a release-mode Objective-C CLI with CMake and SentryObjC-Static.
+# Set SENTRY_OBJC_STATIC_XCFRAMEWORK to test an unpacked local XCFramework.
+.PHONY: build-sample-macOS-ObjectiveC-Static-CMake
+build-sample-macOS-ObjectiveC-Static-CMake:
+	cmake \
+		-S Samples/macOS-ObjectiveC-Static-CMake \
+		-B Samples/macOS-ObjectiveC-Static-CMake/build \
+		-G Xcode \
+		$(if $(SENTRY_OBJC_STATIC_XCFRAMEWORK),-DSENTRY_OBJC_STATIC_XCFRAMEWORK="$(abspath $(SENTRY_OBJC_STATIC_XCFRAMEWORK))",-USENTRY_OBJC_STATIC_XCFRAMEWORK)
+	cmake --build Samples/macOS-ObjectiveC-Static-CMake/build --config Release
 
 ## Build the visionOS-SwiftUI-SPM sample app
 #
@@ -1831,12 +1871,15 @@ xcode: xcode-ci
 
 ## Switch sample Xcode projects to SDK V10 mode
 #
-# Copies each sample XcodeGen YAML, adds the V10 package trait and app-target
-# SDK_V10 compiler flags with yq, and regenerates the Xcode project from that
-# copy. Committed YAML is left unchanged. Skips binary and NoUIFramework samples.
+# Copies each sample XcodeGen YAML, sets the V10 package trait and app-target
+# SDK_V10 compiler flags, rewrites SentrySPM product refs to Sentry, and
+# regenerates the Xcode project from that copy. Committed YAML is left
+# unchanged. Skips binary and NoUIFramework samples. Opens the workspace with
+# SDK_V10=1 so SwiftPM exports the source-built product as Sentry.
 .PHONY: switch-v10
 switch-v10:
-	scripts/set-xcodegen-package-traits.sh --trait V10 --generate
+	scripts/generate-sample-v10.sh --product SentrySPM --with Sentry
+	SDK_V10=1 xed Sentry.xcworkspace
 
 ## Switch sample Xcode projects back to default (non-V10) mode
 #

@@ -60,10 +60,13 @@ enum EventAssertions {
                                     platform: platform, scenario: scenario)
         case .signal, .binaryImages, .managedRuntimeSignalChain, .managedRuntimePreSDKSignal,
              .managedRuntimeClosedSignal, .managedRuntimeReinitSignal, .nsException,
-             .nsExceptionSubclass, .ksCrashPerReportRetry, .crashTimeScope:
+             .nsExceptionRethrow, .nsExceptionSubclass, .ksCrashPerReportRetry,
+             .mallocZoneLockedSignal,
+             .crashTimeScope, .crashTimeAttachments, .crashTimeReplay,
+             .memoryIntrospectionEnabled, .memoryIntrospectionDisabled, .memoryIntrospectionDefault:
             try assertCrashedThread(threadValues, expectedThreadID: exceptionThreadID,
                                     platform: platform, scenario: scenario)
-        case .ignoredSignal:
+        case .ignoredSignal, .sigterm:
             return
         }
     }
@@ -104,7 +107,9 @@ enum EventAssertions {
         let eventContext = dictionary(event["contexts"])
         switch scenario {
         case .signal, .binaryImages, .managedRuntimeSignalChain, .managedRuntimePreSDKSignal,
-             .managedRuntimeClosedSignal, .managedRuntimeReinitSignal, .crashTimeScope:
+             .managedRuntimeClosedSignal, .managedRuntimeReinitSignal, .mallocZoneLockedSignal,
+             .crashTimeScope, .crashTimeAttachments, .crashTimeReplay,
+             .memoryIntrospectionEnabled, .memoryIntrospectionDisabled, .memoryIntrospectionDefault:
             try assertSignalScenario(
                 scenario, firstException: firstException,
                 mechanism: mechanism,
@@ -115,13 +120,17 @@ enum EventAssertions {
             if scenario == .crashTimeScope {
                 try CrashTimeScopeAssertions.assert(event, platform: platform, scenario: scenario)
             }
+            try MemoryIntrospectionAsserter.assertEventIfNeeded(
+                scenario: scenario, event: event, firstException: firstException, platform: platform)
 
-        case .nsException, .nsExceptionSubclass:
-            let expectedType = scenario == .nsExceptionSubclass
-                ? "CrashE2ENSExceptionSubclass" : "CrashE2ENSException"
-            try assertNSException(firstException, eventContext: eventContext,
-                                  expectedType: expectedType, platform: platform,
-                                  scenario: scenario)
+        case .nsException, .nsExceptionRethrow, .nsExceptionSubclass:
+            try assertNSExceptionScenario(
+                scenario,
+                firstException: firstException,
+                mechanism: mechanism,
+                eventContext: eventContext,
+                platform: platform
+            )
 
         case .cppExceptionV1, .cppExceptionV2, .swiftAsyncCPPExceptionV2Off,
              .swiftAsyncCPPExceptionV2On, .unityCxaThrow, .unityCxaThrowV2:
@@ -145,9 +154,34 @@ enum EventAssertions {
                                                      scenario: scenario)
             }
 
-        case .ignoredSignal, .ksCrashPerReportRetry:
-            // The multi-launch KSCrash retry scenario has aggregate assertions in its own asserter.
+        case .ignoredSignal, .ksCrashPerReportRetry, .sigterm:
+            // The multi-launch KSCrash retry scenario has aggregate assertions in its own asserter,
+            // and the no-event scenarios never reach this point.
             return
+        }
+    }
+
+    private static func assertNSExceptionScenario(
+        _ scenario: Scenario,
+        firstException: [String: Any],
+        mechanism: [String: Any],
+        eventContext: [String: Any],
+        platform: String
+    ) throws {
+        let expectedTypes: [Scenario: String] = [
+            .nsException: "CrashE2ENSException",
+            .nsExceptionRethrow: "CrashE2ERethrownNSException",
+            .nsExceptionSubclass: "CrashE2ENSExceptionSubclass"
+        ]
+        guard let expectedType = expectedTypes[scenario] else {
+            try fail("Unexpected NSException scenario: \(scenario.rawValue)")
+        }
+        try assertNSException(firstException, eventContext: eventContext,
+                              expectedType: expectedType, platform: platform,
+                              scenario: scenario)
+        if scenario == .nsExceptionRethrow {
+            try assert(string(mechanism["type"]) == "nsexception",
+                       "Expected NSException mechanism for \(platform)/\(scenario.rawValue)")
         }
     }
 

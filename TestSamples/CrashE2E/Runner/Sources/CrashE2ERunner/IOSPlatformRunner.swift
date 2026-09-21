@@ -80,6 +80,10 @@ final class IOSPlatformRunner {
             try runKSCrashRetryScenario(container: container)
             return
         }
+        if scenario == .sigterm {
+            try runSigtermScenario(container: container)
+            return
+        }
 
         let markerPath = managedRuntimeMarkerPath(for: scenario, container: container)
         if let markerPath {
@@ -95,10 +99,12 @@ final class IOSPlatformRunner {
             try fail("iOS app did not terminate for scenario: \(scenario.rawValue)")
         }
 
+        let cacheRoot = container.appendingPathComponent("Library/Caches", isDirectory: true)
+        try assertCrashLaunchArtifacts(for: scenario, cacheRoot: cacheRoot)
         try drainPreviousCrash(for: scenario)
         try ScenarioEventAsserter.assertScenarioEvent(
             scenario,
-            cacheRoot: container.appendingPathComponent("Library/Caches", isDirectory: true),
+            cacheRoot: cacheRoot,
             platform: "ios",
             artifactsDir: config.artifactsDir
         )
@@ -107,7 +113,31 @@ final class IOSPlatformRunner {
         }
     }
 
-    private func drainPreviousCrash(for scenario: Scenario) throws {
+    private func assertCrashLaunchArtifacts(for scenario: Scenario, cacheRoot: URL) throws {
+        try CrashTimeAttachmentsAsserter.assertPayloadIfNeeded(
+            scenario: scenario,
+            cacheDirectory: cacheRoot,
+            platform: "ios"
+        )
+        try CrashTimeReplayAsserter.assertCheckpointIfNeeded(
+            scenario: scenario,
+            cacheDirectory: cacheRoot,
+            platform: "ios"
+        )
+        try RethrownNSExceptionAsserter.assertCrashLaunchEvidenceIfNeeded(
+            scenario: scenario,
+            cacheRoot: cacheRoot,
+            platform: "ios",
+            artifactsDir: config.artifactsDir
+        )
+        try MemoryIntrospectionAsserter.assertStoredReportIfNeeded(
+            scenario: scenario,
+            cacheRoot: cacheRoot,
+            platform: "ios"
+        )
+    }
+
+    func drainPreviousCrash(for scenario: Scenario) throws {
         log("Relaunching iOS app to drain previous crash.")
         let result = try launchApp(arguments: ["--scenario", "drain", "--exit-after", "3"])
         try assertLaunchSucceeded(result, scenario: scenario, launchType: "drain")
@@ -177,6 +207,12 @@ final class IOSPlatformRunner {
         try fileManager.removeItemIfExists(
             at: cacheRoot.appendingPathComponent("KSCrash", isDirectory: true)
         )
+        try fileManager.removeItemIfExists(
+            at: cacheRoot.appendingPathComponent("SentryCrash", isDirectory: true)
+        )
+        try fileManager.removeItemIfExists(
+            at: cacheRoot.appendingPathComponent("crash-e2e-replay-checkpoint")
+        )
     }
 
     private func dataContainer() throws -> URL {
@@ -210,4 +246,5 @@ final class IOSPlatformRunner {
     var bundleID: String {
         config.reporter.iOSBundleID
     }
+
 }

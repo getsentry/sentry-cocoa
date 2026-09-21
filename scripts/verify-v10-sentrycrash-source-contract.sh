@@ -7,6 +7,11 @@ set -euo pipefail
 # Verifies:
 # - Every production and test migration-marker block has a KSCRASH_TODO, durable GH tracker, and
 #   acceptance ID that exists in the migration ledger.
+# - Every KSCRASH_TODO in SDK, test, and sample sources, including those outside migration-marker
+#   blocks, uses `KSCRASH_TODO(GH-1234[, GH-5678]): description`. Misspelled or differently cased
+#   markers are reported too. Later in the V10 cycle this should warn about any remaining
+#   KSCRASH_TODO, then fail on them, and be removed after V10
+#   (https://github.com/getsentry/sentry-cocoa/issues/8777).
 # - Every SDK-owned source that imports or calls a legacy-shaped dependency is represented in the
 #   ledger. Historical names are audit input, not automatic evidence of legacy ownership.
 # - The reviewed SDK-owned V10 exclusions are exact and agree across Xcode and all SwiftPM
@@ -169,6 +174,40 @@ verify_marker_blocks() {
 verify_marker_blocks Sources production
 verify_marker_blocks Tests/SentryTests test
 
+verify_kscrash_todos() {
+  # Matches loose spellings such as KSCRASH_TODO, KSCrash-TODO, and `kscrash todo`.
+  local loose_pattern='kscrash[_ -]?todo'
+  local valid_pattern='KSCRASH_TODO\(GH-[0-9]+(, GH-[0-9]+)*\): [^[:space:]]'
+  local todo_count=0
+  local malformed_count=0
+
+  while IFS= read -r match; do
+    [[ -z "$match" ]] && continue
+
+    source_path=${match%%:*}
+    remainder=${match#*:}
+    line_number=${remainder%%:*}
+    content=${remainder#*:}
+
+    # A line can hold several markers, so every loose occurrence must be well formed.
+    loose_occurrences=$(grep -oiE "$loose_pattern" <<< "$content" | wc -l | tr -d ' ')
+    valid_occurrences=$(grep -oE "$valid_pattern" <<< "$content" | wc -l | tr -d ' ' || true)
+    todo_count=$((todo_count + loose_occurrences))
+
+    if [[ "$valid_occurrences" -ne "$loose_occurrences" ]]; then
+      malformed_count=$((malformed_count + 1))
+      record_error "KSCRASH_TODO must use 'KSCRASH_TODO(GH-1234): description': $source_path:$line_number"
+    fi
+  done < <(git grep --untracked -nIiE "$loose_pattern" -- \
+    '*.h' '*.hpp' '*.c' '*.cc' '*.cpp' '*.m' '*.mm' '*.swift' || true)
+
+  if [[ $malformed_count -eq 0 ]]; then
+    log_notice "Verified $todo_count KSCRASH_TODO markers reference a GH tracker"
+  fi
+}
+
+verify_kscrash_todos
+
 legacy_headers_path=$(mktemp)
 dependency_files_path=$(mktemp)
 trap 'rm -f "$legacy_headers_path" "$dependency_files_path"' EXIT
@@ -226,7 +265,6 @@ sdk_owned_excluded_sources=(
   Sources/Swift/Integrations/SentryCrash/SentryCrashBridge.swift
   Sources/Swift/Integrations/SentryCrash/SentryCrashInstallationReporter.swift
   Sources/Swift/Integrations/SentryCrash/SentryCrashIntegration.swift
-  Sources/Swift/Integrations/SentryCrash/SentryCrashIntegrationSessionHandler.swift
   Sources/Swift/SentryCrash/SentryCrashSwift.swift
   Sources/Swift/SentryCrash/SentryDefaultCrashReporter.swift
 )
@@ -324,16 +362,22 @@ if grep -qE '^#if[[:space:]]+!SDK_V10[[:space:]]*$' Sources/Sentry/SentryScopeSy
   record_error "SDK-owned SentryScopeSyncC.c must not have a whole-file V10 guard"
 fi
 
-allowlist_assignment=$(grep '^SENTRYCRASH_V10_RETAINED_TOOL_SOURCE_FILE_NAMES = ' "$TOOLS_ALLOWLIST_PATH")
-read -r -a retained_tool_sources <<< "${allowlist_assignment#*= }"
-for source_name in "${retained_tool_sources[@]}"; do
+allowlist_assignment=$(grep '^SENTRYCRASH_V10_RETAINED_TOOL_SOURCE_FILE_NAMES =[[:space:]]*' "$TOOLS_ALLOWLIST_PATH")
+allowlist_value=${allowlist_assignment#*=}
+allowlist_value=${allowlist_value# }
+retained_tool_sources=()
+if [[ -n "$allowlist_value" ]]; then
+  read -r -a retained_tool_sources <<< "$allowlist_value"
+fi
+for source_name in "${retained_tool_sources[@]+${retained_tool_sources[@]}}"; do
   if ! grep -Fq "$source_name" "$LEDGER_PATH"; then
     record_error "Retained Tool source is missing from the migration ledger: $source_name"
   fi
 done
 log_notice "Verified ${#retained_tool_sources[@]} retained Tool sources are documented"
+retained_tool_source_list=${retained_tool_sources[*]-}
 
-if grep -Fqw 'SentryCrashSysCtl.c' <<< "${retained_tool_sources[*]}"; then
+if grep -Fqw 'SentryCrashSysCtl.c' <<< "$retained_tool_source_list"; then
   record_error "V10 must not retain SentryCrashSysCtl.c after the neutral process-time migration"
 fi
 if grep -qE '^[[:space:]]*#import[[:space:]]+[<\"]SentryCrashSysCtl\.h[>\"]' Sources/Sentry/SentrySysctlObjC.m; then
@@ -350,7 +394,7 @@ if ! grep -q '#.*import "SentryJSONStreamWriter.h"' Sources/Sentry/SentryViewHie
   record_error "The neutral view-hierarchy serializer and its focused contract tests must remain present"
 fi
 for removed_tool in SentryCrashFileUtils.c SentryCrashJSONCodec.c; do
-  if grep -Fqw "$removed_tool" <<< "${retained_tool_sources[*]}"; then
+  if grep -Fqw "$removed_tool" <<< "$retained_tool_source_list"; then
     record_error "V10 must not retain $removed_tool after the neutral view-hierarchy migration"
   fi
 done

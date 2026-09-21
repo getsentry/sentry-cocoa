@@ -1472,6 +1472,67 @@ final class SentryClientTests: XCTestCase {
         assertLostEventRecorded(category: .transaction, reason: .beforeSend)
     }
 
+    func testCaptureTransaction_whenTracerIsUnbound_shouldAllowFilteringByTraceOperation() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for non SDK_V10")
+#else
+        // -- Arrange --
+        let scope = Scope()
+        let tracer = SentryTracer(transactionContext: TransactionContext(name: "Tap", operation: "ui.action.click"), hub: nil)
+        tracer.finish()
+        let transaction = Transaction(trace: tracer, children: [])
+        scope.span = tracer
+        scope.span = nil
+        var callbackCalled = false
+        let sut = fixture.getSut(configureOptions: { options in
+            options.beforeSendTransaction = { event in
+                callbackCalled = true
+                return event.context?["trace"]?["op"] as? String == "ui.action.click" ? nil : event
+            }
+        })
+
+        // -- Act --
+        let eventId = sut.capture(event: transaction, scope: scope)
+
+        // -- Assert --
+        XCTAssertTrue(callbackCalled)
+        XCTAssertEqual(eventId, SentryId.empty)
+        assertNoEventSent()
+        assertLostEventRecorded(category: .transaction, reason: .beforeSend)
+#endif // !SDK_V10
+    }
+
+    func testCaptureTransaction_whenTracerIsUnbound_shouldPreserveLegacyBeforeSendContext() throws {
+#if SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+#else
+        // -- Arrange --
+        let scope = Scope()
+        let tracer = SentryTracer(transactionContext: TransactionContext(name: "Tap", operation: "ui.action.click"), hub: nil)
+        tracer.finish()
+        let transaction = Transaction(trace: tracer, children: [])
+        scope.span = tracer
+        scope.span = nil
+        var callbackTrace: [String: Any]?
+        let sut = fixture.getSut(configureOptions: { options in
+            options.beforeSend = { event in
+                callbackTrace = event.context?["trace"]
+                return event
+            }
+        })
+
+        // -- Act --
+        sut.capture(event: transaction, scope: scope)
+
+        // -- Assert --
+        let trace = try XCTUnwrap(callbackTrace)
+        XCTAssertNil(trace["op"])
+        XCTAssertEqual(trace["trace_id"] as? String, scope.propagationContext.traceId.sentryIdString)
+        XCTAssertEqual(trace["span_id"] as? String, scope.propagationContext.spanId.sentrySpanIdString)
+        XCTAssertIdentical(transaction, try lastSentEvent())
+#endif // SDK_V10
+    }
+
     func testCaptureTransaction_whenBeforeSendIsSet_shouldNotInvokeBeforeSend() throws {
 #if !SDK_V10
         throw XCTSkip("Test skipped for non SDK_V10")
@@ -1840,6 +1901,62 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(received.hintValue(forKey: "origin") as? String, "source-module")
         XCTAssertNil(received.originalError)
         XCTAssertNil(received.originalException)
+    }
+
+    @available(*, deprecated, message: "Testing deprecated beforeSendWithHint API")
+    func testBeforeSendWithHint_shouldReceiveProcessorAttachments() throws {
+        // -- Arrange --
+        let processorAttachment = Attachment(data: Data("screenshot".utf8), filename: "screenshot.png")
+        var receivedAttachments = [Attachment]()
+        let sut = fixture.getSut(configureOptions: { options in
+            options.beforeSendWithHint = { event, hint in
+                receivedAttachments = hint.attachments
+                return event
+            }
+        })
+        let processor = TestAttachmentProcessor { atts, _ in
+            var result = atts
+            result.append(processorAttachment)
+            return result
+        }
+        sut.addAttachmentProcessor(processor)
+
+        let event = Event(level: .error)
+        event.exceptions = [Exception(value: "test", type: "test")]
+
+        // -- Act --
+        sut.capture(event: event, scope: Scope())
+
+        // -- Assert --
+        XCTAssertTrue(receivedAttachments.contains(processorAttachment))
+    }
+
+    @available(*, deprecated, message: "Testing deprecated beforeSendWithHint API")
+    func testBeforeSendWithHint_removingProcessorAttachment_shouldNotSend() throws {
+        // -- Arrange --
+        let processorAttachment = Attachment(data: Data("screenshot".utf8), filename: "screenshot.png")
+        let sut = fixture.getSut(configureOptions: { options in
+            options.beforeSendWithHint = { event, hint in
+                hint.attachments.removeAll { $0 === processorAttachment }
+                return event
+            }
+        })
+        let processor = TestAttachmentProcessor { atts, _ in
+            var result = atts
+            result.append(processorAttachment)
+            return result
+        }
+        sut.addAttachmentProcessor(processor)
+
+        let event = Event(level: .error)
+        event.exceptions = [Exception(value: "test", type: "test")]
+
+        // -- Act --
+        sut.capture(event: event, scope: Scope())
+
+        // -- Assert --
+        let sentAttachments = fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.attachments ?? []
+        XCTAssertFalse(sentAttachments.contains(processorAttachment))
     }
 
     func testBeforeSendTransaction_ReadTags() throws {
@@ -2526,7 +2643,7 @@ final class SentryClientTests: XCTestCase {
         fixture.getSut().capture(message: "any message")
 
         let actual = try lastSentEvent()
-        let options = PrivateSentrySDKOnly.options
+        let options = SentrySDK.internal.options
         XCTAssertEqual(SentryInstallation.id(withCacheDirectoryPath: options.cacheDirectoryPath), actual.user?.userId)
     }
 

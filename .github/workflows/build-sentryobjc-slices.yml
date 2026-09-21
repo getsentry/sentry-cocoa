@@ -79,7 +79,7 @@ jobs:
           fi
           ./scripts/build-dynamic-framework-sentryobjc.sh \
             --sdk "$SDK" \
-            --static-lib "XCFrameworkBuildPath/lib/SentryObjC/$SDK/libSentryObjC.a" \
+            --static-lib "XCFrameworkBuildPath/lib/SentryObjC/$SDK/libSentryObjC-Debug.a" \
             --headers "Sources/SentryObjC/Public" \
             --output-dir XCFrameworkBuildPath \
             "${version_args[@]}"

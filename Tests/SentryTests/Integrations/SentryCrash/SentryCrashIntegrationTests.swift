@@ -1066,6 +1066,10 @@ class MockCrashDependencies: CrashIntegrationProvider {
         self.mockedFileManager = fileManager
     }
 
+    var crashWrapper: SentryCrashReporter {
+        mockedCrashWrapper
+    }
+
     var appStateManager: Sentry.SentryAppStateManager {
         SentryDependencyContainer.sharedInstance().appStateManager
     }
@@ -1074,7 +1078,11 @@ class MockCrashDependencies: CrashIntegrationProvider {
         mockedFileManager ?? SentryDependencyContainer.sharedInstance().fileManager
     }
 
-    func getCrashIntegrationSessionBuilder(_ options: Sentry.Options, bridge: SentryCrashBridge) -> Sentry.SentryCrashIntegrationSessionHandler? {
+    func getPreviousRunSessionFinalizer(
+        options: Sentry.Options,
+        crashedLastLaunch: Bool,
+        activeDurationSinceLastCrash: TimeInterval
+    ) -> PreviousRunSessionFinalizer? {
         guard let fileManager else {
             return nil
         }
@@ -1082,14 +1090,20 @@ class MockCrashDependencies: CrashIntegrationProvider {
         let watchdogLogic = SentryWatchdogTerminationLogic(options: options,
                                                    crashAdapter: mockedCrashWrapper,
                                                    appStateManager: appStateManager)
-        return SentryCrashIntegrationSessionHandler(
-            crashWrapper: mockedCrashWrapper,
+        return PreviousRunSessionFinalizer(
+            crashedLastLaunch: crashedLastLaunch,
+            activeDurationSinceLastCrash: activeDurationSinceLastCrash,
             watchdogTerminationLogic: watchdogLogic,
             fileManager: fileManager,
-            bridge: bridge
+            dateProvider: dateProvider
         )
 #else
-        return SentryCrashIntegrationSessionHandler(crashWrapper: mockedCrashWrapper, fileManager: fileManager, bridge: bridge)
+        return PreviousRunSessionFinalizer(
+            crashedLastLaunch: crashedLastLaunch,
+            activeDurationSinceLastCrash: activeDurationSinceLastCrash,
+            fileManager: fileManager,
+            dateProvider: dateProvider
+        )
 #endif
     }
 

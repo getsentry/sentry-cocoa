@@ -43,10 +43,8 @@ extension TelemetryScopeApplier {
         addUserAttributes(to: &attributes, metadata: metadata)
         addReplayAttributes(to: &attributes)
         // Custom attributes never override existing keys, so applying the thread-local current
-        // scope before the global scope yields: item > current scope > global scope. Only custom
-        // attributes are taken from the current scope; trace correlation, user, replay, and the
-        // other reserved attributes above always come from `self` (the global scope), so the
-        // current scope can't clobber the active span.
+        // scope before the global scope yields: item > current scope > global scope. User,
+        // replay, and the other reserved attributes above still come from the global scope.
         currentScope?.addScopeAttributes(to: &attributes)
         addScopeAttributes(to: &attributes)
         addDefaultUserIdIfNeeded(to: &attributes, metadata: metadata)
@@ -63,8 +61,9 @@ extension TelemetryScopeApplier {
         // See also:
         // - https://develop.sentry.dev/sdk/telemetry/logs/#log-envelope-item-payload
         // - https://develop.sentry.dev/sdk/telemetry/logs/#tracing
-        item.traceId = span?.traceId ?? propagationContextTraceId
-        item.spanId = span?.spanId
+        let effectiveSpan = currentScope?.span ?? span
+        item.traceId = effectiveSpan?.traceId ?? propagationContextTraceId
+        item.spanId = effectiveSpan?.spanId
     }
 
     private func addDefaultAttributes(to attributes: inout [String: SentryAttributeContent], metadata: any TelemetryScopeMetadata) {

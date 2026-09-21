@@ -173,20 +173,20 @@ int sentry_asyncLogSetFileName(const char *filename, bool overwrite);
  * the value of the entire expression, allowing the macro to be used directly in function
  * calls like: SENTRY_ASYNC_SAFE_LOG_ERROR("Error: %s", SENTRY_STRERROR_R(errno));
  *
- * IMPORTANT: Uses thread-local storage to ensure the pointer remains valid after the macro
- * completes while maintaining thread safety. This is necessary because the macro is used
- * as a function argument, and stack-allocated buffers would be deallocated before the
- * function (e.g., vsnprintf) reads them. Thread-local storage ensures each thread has
- * its own buffer, preventing race conditions.
+ * The buffer is allocated on the caller's stack and remains valid until the caller returns.
+ * This avoids lazy thread-local storage allocation, which may acquire the malloc lock when
+ * called from a signal handler on an unmanaged thread.
  *
  * @param ERRNUM The error number (e.g., errno).
- * @return Pointer to a thread-local buffer containing the error string.
+ * @return Pointer to a caller-stack buffer containing the error string.
  */
 #define SENTRY_STRERROR_R(ERRNUM)                                                                  \
     ({                                                                                             \
-        static __thread char __strerror_buf[SENTRY_STRERROR_R_BUFFER_SIZE];                        \
-        if (strerror_r((ERRNUM), __strerror_buf, sizeof(__strerror_buf)) != 0) {                   \
-            snprintf(__strerror_buf, sizeof(__strerror_buf), "Unknown error %d", (ERRNUM));        \
+        const int __strerror_errnum = (ERRNUM);                                                    \
+        char *__strerror_buf = (char *)__builtin_alloca(SENTRY_STRERROR_R_BUFFER_SIZE);            \
+        if (strerror_r(__strerror_errnum, __strerror_buf, SENTRY_STRERROR_R_BUFFER_SIZE) != 0) {   \
+            snprintf(__strerror_buf, SENTRY_STRERROR_R_BUFFER_SIZE, "Unknown error %d",            \
+                __strerror_errnum);                                                                \
         }                                                                                          \
         __strerror_buf;                                                                            \
     })

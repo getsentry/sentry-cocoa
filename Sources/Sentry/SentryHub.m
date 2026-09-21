@@ -336,7 +336,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * This method expects an abnormal session already stored to disk. For more info checkout: @c
- * SentryCrashIntegrationSessionHandler
+ * PreviousRunSessionFinalizer
  */
 - (void)captureFatalAppHangEvent:(SentryEvent *)event
 {
@@ -670,12 +670,25 @@ NS_ASSUME_NONNULL_BEGIN
     return SentryId.empty;
 }
 
+- (SentryId *)captureErrorEvent:(SentryEvent *)event withHint:(id _Nullable)hint
+{
+    SentryScope *scope = self.scope;
+    SentryClientInternal *client = self.client;
+
+    if (client != nil) {
+        SentryHint *resolvedHint = hint ?: [[SentryHint alloc] init];
+        return [client captureEventIncrementingSessionErrorCount:event
+                                                       withScope:scope
+                                                            hint:resolvedHint];
+    }
+    return SentryId.empty;
+}
+
 - (void)captureFeedback:(SentryFeedback *)feedback
 {
-    SentryClientInternal *client = self.client;
-    if (client != nil) {
-        [client captureFeedback:feedback withScope:self.scope];
-    }
+    [self captureSerializedFeedback:[feedback serialize]
+                        withEventId:feedback.eventId.sentryIdString
+                        attachments:[feedback attachmentsForEnvelope]];
 }
 
 - (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
@@ -684,6 +697,19 @@ NS_ASSUME_NONNULL_BEGIN
 {
     SentryClientInternal *client = self.client;
     if (client != nil) {
+#if SENTRY_TARGET_REPLAY_SUPPORTED
+        if (!client.isDisabled && serializedFeedback[@"replay_id"] == nil) {
+            SentrySessionReplayIntegration *replayIntegration
+                = (SentrySessionReplayIntegration *)[self
+                    getInstalledIntegration:SentrySessionReplayIntegration.class];
+            SentryId *replayId = [replayIntegration captureReplayForFeedback];
+            if (replayId != nil) {
+                NSMutableDictionary *feedbackWithReplay = [serializedFeedback mutableCopy];
+                feedbackWithReplay[@"replay_id"] = replayId.sentryIdString;
+                serializedFeedback = feedbackWithReplay;
+            }
+        }
+#endif
         [client captureSerializedFeedback:serializedFeedback
                               withEventId:feedbackEventId
                               attachments:feedbackAttachments
@@ -693,14 +719,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {
+    [self addBreadcrumb:crumb withHint:nil];
+}
+
+- (void)addBreadcrumb:(SentryBreadcrumb *)crumb withHint:(id _Nullable)hint
+{
     SentryOptions *options = [[self client] options];
     if (options.maxBreadcrumbs < 1) {
         return;
     }
     SentryBreadcrumb *_Nullable nullableCrumb = crumb;
     if (options.beforeBreadcrumbWithHint != nil) {
-        SentryHint *hint = [[SentryHint alloc] init];
-        nullableCrumb = options.beforeBreadcrumbWithHint(crumb, hint);
+        SentryHint *resolvedHint = hint ?: [[SentryHint alloc] init];
+        nullableCrumb = options.beforeBreadcrumbWithHint(crumb, resolvedHint);
     } else {
         SentryBeforeBreadcrumbCallback callback = [options beforeBreadcrumb];
         if (callback != nil) {

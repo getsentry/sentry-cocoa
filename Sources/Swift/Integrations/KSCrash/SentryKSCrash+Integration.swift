@@ -5,7 +5,7 @@ import Foundation
 
 // MARK: - Integration
 extension SentryKSCrash {
-    typealias DependencyProvider = SentryKSCrash.InstallerProvider & DateProviderProvider & DispatchQueueWrapperProvider & FileManagerProvider
+    typealias DependencyProvider = SentryKSCrash.InstallerProvider & DateProviderProvider & DispatchQueueWrapperProvider & FileManagerProvider & PreviousRunSessionFinalizerBuilder
 
     /// Crash detectors matching SentryCrash's production monitor set:
     /// Mach exceptions, signals, C++ exceptions, and NSExceptions.
@@ -43,6 +43,8 @@ extension SentryKSCrash {
             // To match KSCrash & SentryCrash, we need to add 'KSCrash/<bundlename>' to the cacheDirectoryPath
             let installPath = Self.installPath(for: options.cacheDirectoryPath, bundleInfo: Bundle.main.infoDictionary)
 
+            // SIGTERM is deliberately not configurable here. KSCrash catches and re-raises it as a
+            // clean exit without writing a report.
             do {
                 try installer.install(
                     installPath: installPath.path,
@@ -76,26 +78,22 @@ extension SentryKSCrash {
 #if SENTRY_DISABLE_SENTRYCRASH_V10
             // KSCRASH_TODO(GH-8276, GH-8756): Installer setUserInfo drops nested containers from
             // the retained scope configuration. Acceptance: SCV10-015 in the migration ledger.
-            // KSCRASH_TODO(GH-8674): V10 handles actual crashes below but omits previous-run
-            // watchdog and fatal-app-hang session finalization. Acceptance: SCV10-025 in the ledger.
             // KSCRASH_TODO(GH-8735): V10 does not register a callback to persist an active trace
             // when crashing. Acceptance: SCV10-027 in the migration ledger.
             // KSCRASH_TODO(GH-8797): V10 has no early KSCrash signal preloader, so managed-runtime
             // handler ordering is not preserved. Acceptance: SCV10-033 in the migration ledger.
-            // KSCRASH_TODO(GH-8652): V10 intentionally ignores enableSigtermReporting while its
-            // public API removal is pending. Acceptance: SCV10-031 in the migration ledger.
 #endif
 
             if installer.crashedLastLaunch {
                 SentrySDKInternal.fatalDetected = true
-
-                // Persist the previous session before report processing or auto session tracking
-                // can start, so the first fatal event can attach the crashed session.
-                endPreviousSessionAsCrashed(
-                    activeDurationSinceLastCrash: installer.activeDurationSinceLastCrash,
-                    dependencies: dependencies
-                )
             }
+
+            let finalizer = dependencies.getPreviousRunSessionFinalizer(
+                options: options,
+                crashedLastLaunch: installer.crashedLastLaunch,
+                activeDurationSinceLastCrash: installer.activeDurationSinceLastCrash
+            )
+            finalizer?.finalizeIfNeeded()
 
             processStoredReports(options: options, dependencies: dependencies)
         }
@@ -113,26 +111,6 @@ extension SentryKSCrash {
                 dispatchQueue: dependencies.dispatchQueueWrapper,
                 processingSession: reportProcessingSession
             )
-        }
-
-        private func endPreviousSessionAsCrashed(
-            activeDurationSinceLastCrash: TimeInterval,
-            dependencies: Dependencies
-        ) {
-            guard let fileManager = dependencies.fileManager else {
-                SentrySDKLog.warning("File manager is unavailable; cannot persist the crashed session.")
-                return
-            }
-            guard let session = fileManager.readCurrentSession() else {
-                SentrySDKLog.debug("No current session found to end as crashed.")
-                return
-            }
-
-            let crashTimestamp = dependencies.dateProvider.date()
-                .addingTimeInterval(-activeDurationSinceLastCrash)
-            session.endCrashed(withTimestamp: crashTimestamp)
-            fileManager.storeCrashedSession(session)
-            fileManager.deleteCurrentSession()
         }
 
         // MARK: - SwiftIntegration
