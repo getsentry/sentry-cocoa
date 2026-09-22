@@ -535,7 +535,6 @@ import Foundation
     #if !SDK_V10
     @objc public var enableAppHangTracking: Bool {
         get { wrapped.enableAppHangTracking }
-        @available(*, deprecated, message: "App Hang tracking is deprecated and will be removed in v10 because it can produce less relevant stack traces and false positives. Enable the MetricKit integration for system-provided hang diagnostics.", renamed: "enableMetricKit")
         set { wrapped.enableAppHangTracking = newValue }
     }
     #endif // !SDK_V10

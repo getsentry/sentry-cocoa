@@ -23683,6 +23683,7 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC21enableAppHangTrackingSbvg",
                 "moduleName": "Sentry",
@@ -23706,17 +23707,15 @@
                   }
                 ],
                 "declAttributes": [
-                  "Available",
                   "Final",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "deprecated": true,
+                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC21enableAppHangTrackingSbvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setEnableAppHangTracking:",
                 "printedName": "Set()",
                 "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setEnableAppHangTracking:"
               }
@@ -23731,9 +23730,11 @@
             ],
             "declAttributes": [
               "Final",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
+            "hasStorage": true,
             "kind": "Var",
             "mangledName": "$s6Sentry7OptionsC21enableAppHangTrackingSbvp",
             "moduleName": "Sentry",

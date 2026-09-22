@@ -474,15 +474,11 @@ NS_ASSUME_NONNULL_BEGIN
  * time defined by the @c appHangTimeoutInterval option.
  * @note The default is @c YES.
  * @note App Hang tracking is automatically disabled if a debugger is attached.
- * @deprecated App Hang tracking can produce less relevant stack traces and false positives.
+ * @note App Hang tracking is deprecated because it can produce less relevant stack traces and
+ * false positives. It will be removed in v10. Set this option to @c NO to opt out until then.
  * Enable the MetricKit integration for system-provided hang diagnostics.
  */
-@property (nonatomic) BOOL enableAppHangTracking __attribute__((
-    deprecated("App Hang tracking is deprecated and will be removed in v10 because "
-               "it can produce less relevant stack traces and false positives. "
-               "Enable the MetricKit integration using ``SentrySDKOptions/enableMetricKit`` for "
-               "system-provided hang diagnostics.",
-        "enableMetricKit")));
+@property (nonatomic) BOOL enableAppHangTracking;
 #endif // !SDK_V10
 
 /**
