@@ -20,6 +20,7 @@
 - Attach crash screenshots via KSCrash sidecar in `SentryV10` (#8986)
 - Attach crash view hierarchy via KSCrash sidecar in `SentryV10` (#9018)
 - Write session replay recovery checkpoints from KSCrash in `SentryV10` (#9038)
+- Add a `Hint` parameter to `beforeSendTransaction` to inspect and edit the attachments sent with a transaction (#9099)
 
 ### Breaking Changes
 

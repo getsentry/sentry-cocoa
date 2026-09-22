@@ -168,8 +168,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 #if SDK_V10
 /// This block can be used to modify a transaction before it will be serialized and sent.
+/// Return @c nil to drop the transaction.
+/// The hint carries the attachments that will be sent with the transaction and any values passed
+/// at capture time. The list left in the hint when the callback returns is what the SDK sends.
 @property (nonatomic, copy, nullable) SentryObjCTransaction *_Nullable (^beforeSendTransaction)
-    (SentryObjCTransaction *);
+    (SentryObjCTransaction *, SentryObjCHint *);
 
 #endif // SDK_V10
 

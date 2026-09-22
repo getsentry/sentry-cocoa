@@ -1120,7 +1120,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 #if SDK_V10
     if (eventIsATransactionClass && event != nil) {
         if (self.options.beforeSendTransaction != nil) {
-            event = self.options.beforeSendTransaction((SentryTransaction *)event);
+            event = self.options.beforeSendTransaction((SentryTransaction *)event, hint);
         }
         if (event == nil) {
             [self recordLost:NO reason:SentryDiscardReasonBeforeSend];

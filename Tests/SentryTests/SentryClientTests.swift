@@ -1485,7 +1485,7 @@ final class SentryClientTests: XCTestCase {
         scope.span = nil
         var callbackCalled = false
         let sut = fixture.getSut(configureOptions: { options in
-            options.beforeSendTransaction = { event in
+            options.beforeSendTransaction = { event, _ in
                 callbackCalled = true
                 return event.context?["trace"]?["op"] as? String == "ui.action.click" ? nil : event
             }
@@ -1561,7 +1561,7 @@ final class SentryClientTests: XCTestCase {
         // -- Arrange --
         var beforeSendTransactionCalled = false
         let sut = fixture.getSut(configureOptions: { options in
-            options.beforeSendTransaction = { event in
+            options.beforeSendTransaction = { event, _ in
                 beforeSendTransactionCalled = true
                 return event
             }
@@ -1582,7 +1582,7 @@ final class SentryClientTests: XCTestCase {
         // -- Arrange --
         let returnedTransaction = Transaction(trace: fixture.trace, children: [])
         let sut = fixture.getSut(configureOptions: { options in
-            options.beforeSendTransaction = { (_: Transaction) -> Transaction? in returnedTransaction }
+            options.beforeSendTransaction = { (_: Transaction, _: Hint) -> Transaction? in returnedTransaction }
         })
 
         // -- Act --
@@ -1622,6 +1622,107 @@ final class SentryClientTests: XCTestCase {
         let actual = try lastSentEvent()
         XCTAssertEqual([], actual.debugMeta)
         XCTAssertEqual([], actual.threads)
+    }
+
+    // MARK: - beforeSendTransaction hint
+
+    func testCaptureTransaction_whenScopeHasAttachments_shouldReceiveThemInBeforeSendTransactionHint() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for non SDK_V10")
+#else
+        // -- Arrange --
+        let scopeAttachment = Attachment(data: Data("scope-data".utf8), filename: "scope.txt")
+        let scope = Scope()
+        scope.addAttachment(scopeAttachment)
+        var receivedAttachments = [Attachment]()
+        let sut = fixture.getSut(configureOptions: { options in
+            options.beforeSendTransaction = { transaction, hint in
+                receivedAttachments = hint.attachments
+                return transaction
+            }
+        })
+
+        // -- Act --
+        sut.capture(event: fixture.transaction, scope: scope)
+
+        // -- Assert --
+        XCTAssertTrue(receivedAttachments.contains(scopeAttachment))
+#endif // !SDK_V10
+    }
+
+    func testCaptureTransaction_whenBeforeSendTransactionAddsAttachment_shouldIncludeInSentEnvelope() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for non SDK_V10")
+#else
+        // -- Arrange --
+        let scopeAttachment = Attachment(data: Data("scope-data".utf8), filename: "scope.txt")
+        let scope = Scope()
+        scope.addAttachment(scopeAttachment)
+        let hintAttachment = Attachment(data: Data("hint-data".utf8), filename: "hint.txt")
+        let sut = fixture.getSut(configureOptions: { options in
+            options.beforeSendTransaction = { transaction, hint in
+                hint.attachments.append(hintAttachment)
+                return transaction
+            }
+        })
+
+        // -- Act --
+        sut.capture(event: fixture.transaction, scope: scope)
+
+        // -- Assert --
+        let sentAttachments = fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.attachments ?? []
+        XCTAssertTrue(sentAttachments.contains(hintAttachment))
+        XCTAssertTrue(sentAttachments.contains(scopeAttachment))
+#endif // !SDK_V10
+    }
+
+    func testCaptureTransaction_whenBeforeSendTransactionRemovesAttachment_shouldNotIncludeInSentEnvelope() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for non SDK_V10")
+#else
+        // -- Arrange --
+        let scopeAttachment = Attachment(data: Data("scope-data".utf8), filename: "scope.txt")
+        let scope = Scope()
+        scope.addAttachment(scopeAttachment)
+        let sut = fixture.getSut(configureOptions: { options in
+            options.beforeSendTransaction = { transaction, hint in
+                hint.attachments.removeAll { $0 === scopeAttachment }
+                return transaction
+            }
+        })
+
+        // -- Act --
+        sut.capture(event: fixture.transaction, scope: scope)
+
+        // -- Assert --
+        let sentAttachments = fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.attachments ?? []
+        XCTAssertTrue(sentAttachments.isEmpty)
+#endif // !SDK_V10
+    }
+
+    func testCaptureTransaction_whenHintPassed_shouldFlowToBeforeSendTransaction() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for non SDK_V10")
+#else
+        // -- Arrange --
+        var receivedHint: Hint?
+        let sut = fixture.getSut(configureOptions: { options in
+            options.beforeSendTransaction = { transaction, hint in
+                receivedHint = hint
+                return transaction
+            }
+        })
+        let hint = Hint()
+        hint.setHintValue("user-value", forKey: "custom-key")
+
+        // -- Act --
+        sut.capture(event: fixture.transaction, scope: Scope(), hint: hint)
+
+        // -- Assert --
+        let received = try XCTUnwrap(receivedHint)
+        XCTAssertIdentical(received, hint)
+        XCTAssertEqual(received.hintValue(forKey: "custom-key") as? String, "user-value")
+#endif // !SDK_V10
     }
 
     // MARK: - beforeSendWithHint
@@ -3556,7 +3657,7 @@ extension SentryClientTests {
         callback: @escaping (Transaction) -> Transaction?
     ) {
 #if SDK_V10
-        options.beforeSendTransaction = callback
+        options.beforeSendTransaction = { transaction, _ in callback(transaction) }
 #else
         options.beforeSend = { event in
             guard let transaction = event as? Transaction else {

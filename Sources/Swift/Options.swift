@@ -182,7 +182,12 @@
 
     #if SDK_V10
     /// This block can be used to modify a transaction before it will be serialized and sent.
-    @objc public var beforeSendTransaction: ((Transaction) -> Transaction?)?
+    /// Return `nil` to drop the transaction.
+    ///
+    /// The hint carries the attachments that will be sent with the transaction and any values
+    /// passed at capture time. The list left in ``Hint/attachments`` when the callback returns is
+    /// what the SDK sends, so attachments can be both added and removed in the callback.
+    @objc public var beforeSendTransaction: ((Transaction, Hint) -> Transaction?)?
     #endif // SDK_V10
 
     /// Use this callback to drop or modify a span before the SDK sends it to Sentry. Return nil to

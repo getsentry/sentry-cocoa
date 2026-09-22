@@ -825,8 +825,8 @@
     SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
 
     // -- Act --
-    options.beforeSendTransaction
-        = ^SentryObjCTransaction *_Nullable(SentryObjCTransaction *transaction)
+    options.beforeSendTransaction = ^SentryObjCTransaction *_Nullable(
+        SentryObjCTransaction *transaction, SentryObjCHint *hint)
     {
         return transaction;
     };
