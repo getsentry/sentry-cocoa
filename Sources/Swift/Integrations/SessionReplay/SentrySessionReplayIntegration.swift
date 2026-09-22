@@ -178,20 +178,37 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
             if event.type == SentryEnvelopeItemTypes.feedback {
                 return event
             }
-            // Associate the event's trace with the recording replay segment (#7964). Runs for
-            // errors and transactions alike, since the trace context is populated for both by the
-            // time global processors run. Skip replay_video events, which carry no trace of their own.
-            if event.type != SentryEnvelopeItemTypes.replayVideo,
-                let traceId = event.context?["trace"]?["trace_id"] as? String {
-                self.sessionReplay?.registerTraceId(traceId)
-            }
             if event.isFatalEvent {
+                // A crash belongs to the previous session, which is recovered and sent separately.
+                // Don't register its trace on the current session's replay: the crash's persisted
+                // trace would be attached to the wrong (new) segment while the recovered replay
+                // never receives it.
                 self.replayRecovery?.resumePreviousSessionReplay(event)
             } else {
+                // Associate the event's trace with the recording replay segment (#7964), so replays
+                // can be searched by trace ID. Skip replay_video events, which carry no trace of
+                // their own.
+                if event.type != SentryEnvelopeItemTypes.replayVideo,
+                    let traceId = traceId(for: event) {
+                    self.sessionReplay?.registerTraceId(traceId)
+                }
                 self.sessionReplay?.captureReplayFor(event: event)
             }
             return event
         }
+    }
+
+    /// The trace ID (hex string) an event belongs to, for associating it with the replay segment.
+    ///
+    /// Transactions are read from the transaction's own trace: by the time global processors run,
+    /// the tracer has been removed from the scope, so on the v9 build the event's `context["trace"]`
+    /// holds the idle propagation trace rather than the transaction's. Other events (e.g. errors)
+    /// carry the correct trace in their context, populated by the scope before processors run.
+    private func traceId(for event: Event) -> String? {
+        if let transaction = event as? Transaction {
+            return transaction.trace.traceId.sentryIdString
+        }
+        return event.context?["trace"]?["trace_id"] as? String
     }
 
     // MARK: - Session Listener
