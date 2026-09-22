@@ -98,7 +98,7 @@ grep -E 'Executed|error:|TEST SUCCEEDED|TEST FAILED' "$package_dir/package-tests
 - For V10, run `export SDK_V10=1` before the commands above.
 - Use an available iOS simulator destination for iOS-specific tests.
 - Limit a run with `-only-testing:<test-target>`, for example `-only-testing:SentryObjCCompatTests`.
-- CI uses `TestCI` and the corresponding definitions from the table above; see the [Distribution Tests job](../.github/workflows/test.yml).
+- CI uses `TestCI` and the corresponding definitions from the table above. The [Distribution Tests job](../.github/workflows/test.yml) selects Xcode 26 on `macos-26` and resolves the iOS simulator runtime and device from that toolchain.
 - Keep shared Base exclusions consistent between project and package plans, mapping methods to the Swift or Objective-C package target. Project Base, Flaky, and TestServer plans remain unchanged.
 - Pass TSAN's suppression path explicitly: Xcode 16 does not expand package test-plan build-setting paths correctly.
 

@@ -205,7 +205,7 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
         XCTAssertFalse(appLaunchProfileConfigFileExists())
     }
 
-    func testMalformedConfigFile_EmptyConfigFile_DoesNotStartProfilingButKeepsFile() throws {
+    func testMalformedConfigFile_EmptyConfigFile_DoesNotStartProfilingAndRemovesFile() throws {
         // Create an empty but valid plist file
         let configDict: [String: Any] = [:]
 

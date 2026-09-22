@@ -90,7 +90,7 @@ jobs:
 
   distribution-tests:
     name: Distribution Tests ${{ matrix.mode }}
-    runs-on: macos-15
+    runs-on: macos-26
     strategy:
       fail-fast: false
       matrix:
@@ -110,6 +110,15 @@ jobs:
     needs: files-changed
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Select Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "26"
+      - name: Resolve test destination
+        id: resolve-test-destination
+        uses: ./.github/actions/resolve-test-destination
+        with:
+          platform: iOS
       - name: Prepare Package.swift
         shell: bash
         run: |
@@ -132,13 +141,16 @@ jobs:
         # Ideally we will not need this, but CI sometimes is failing to load some runtimes, this will ensure they are loaded
         timeout-minutes: 5 # 5 minutes timeout
         env:
-          OS_VERSION: "18.5"
+          OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           PLATFORM: "iOS"
         run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
       - name: Run package tests
+        env:
+          TEST_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          TEST_DEVICE: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
           # Native Base plans include distribution tests; see develop-docs/TEST.md.
-          # Package plan build-setting expansion is empty on Xcode 16; forward TSAN's absolute path.
+          # Forward an absolute TSAN suppression path for package tests.
           status=0
           # Xcode, not the shell, expands $(inherited).
           # shellcheck disable=SC2016
@@ -146,7 +158,7 @@ jobs:
           NSUnbufferedIO=YES xcodebuild test -workspace . -scheme SentrySPM \
             -configuration TestCI -parallel-testing-enabled NO \
             -testPlan "$TEST_PLAN" \
-            -sdk iphonesimulator -destination 'platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro' \
+            -sdk iphonesimulator -destination "platform=iOS Simulator,OS=$TEST_OS,name=$TEST_DEVICE" \
             -xcconfig Tests/Configuration/SwiftPM.xcconfig \
             'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SENTRY_TEST_CI' \
             'GCC_PREPROCESSOR_DEFINITIONS=$(inherited) DEBUG=1 SENTRY_TEST=1 SENTRY_TEST_CI=1' \

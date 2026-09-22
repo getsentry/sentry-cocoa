@@ -96,7 +96,11 @@ run_distribution_tests_for_prs: &run_distribution_tests_for_prs
   - ".github/workflows/test.yml"
   - ".github/file-filters.yml"
 
-  # Scripts
+  # Scripts & actions
+  - ".github/actions/setup-xcode/**"
+  - ".github/actions/resolve-test-destination/**"
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/resolve-test-destination.sh"
   - "scripts/ci-ensure-runtime-loaded.sh"
   - "scripts/ci-utils.sh"
   - "scripts/prepare-package.sh"
