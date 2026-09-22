@@ -115,6 +115,7 @@ run_case() {
     CURRENT_CASE="$1"
     export PATH="$FIXTURE_DIR/api-bin:$OFFLINE_PATH"
     : >"$FIXTURE_DIR/calls"
+    : >"$FIXTURE_DIR/legacy-calls"
     "$1"
     TEST_COUNT=$((TEST_COUNT + 1))
 }
@@ -170,6 +171,46 @@ test_output_and_argument_validation() {
     expect_failure unknown-option /bin/bash "$SCRIPT" --bogus
     cmp "$FIXTURE_DIR/original.json" "$FIXTURE_DIR/report.json"
     cmp "$FIXTURE_DIR/original.json" "$FIXTURE_DIR/report.symbolicated.json"
+}
+
+# Scenario: explicitly replace default and custom output files
+# Given existing output files containing stale data
+# When local-only symbolication runs with --force
+# Then the output is replaced with the complete symbolicated report
+test_force_output() {
+    local output
+    export PATH="$OFFLINE_PATH"
+    for output in "$FIXTURE_DIR/report.symbolicated.json" "$FIXTURE_DIR/forced output.json"; do
+        printf 'stale output\n' >"$output"
+        if [[ "$output" = "$FIXTURE_DIR/report.symbolicated.json" ]]; then
+            /bin/bash "$SCRIPT" -r "$FIXTURE_DIR/report.json" -l "$FIXTURE_DIR/app.dSYM" --local-only --force >"$FIXTURE_DIR/force.log" 2>&1
+        else
+            /bin/bash "$SCRIPT" -r "$FIXTURE_DIR/report.json" -o "$output" -l "$FIXTURE_DIR/app.dSYM" --local-only --force >"$FIXTURE_DIR/force.log" 2>&1
+        fi
+        assert_symbolicated "$output"
+    done
+}
+
+# Scenario: force never replaces the input or writes through symlinks
+test_force_output_safety() {
+    local output
+    ln "$FIXTURE_DIR/report.json" "$FIXTURE_DIR/input-hardlink.json"
+    ln -s "$FIXTURE_DIR/absent-target.json" "$FIXTURE_DIR/dangling-output.json"
+    for output in "$FIXTURE_DIR/report.json" "$FIXTURE_DIR/output-link.json" "$FIXTURE_DIR/input-hardlink.json" "$FIXTURE_DIR/dangling-output.json" "$FIXTURE_DIR/empty"; do
+        expect_failure force-unsafe remote -o "$output" --force --local-only
+    done
+    cmp "$FIXTURE_DIR/original.json" "$FIXTURE_DIR/report.json"
+    [[ -L "$FIXTURE_DIR/output-link.json" && -L "$FIXTURE_DIR/dangling-output.json" ]]
+    [[ ! -e "$FIXTURE_DIR/absent-target.json" ]]
+    [[ -z "$(ls -A "$FIXTURE_DIR/empty")" ]]
+}
+
+# Scenario: a failed forced run leaves existing output intact
+test_force_failure_preserves_output() {
+    cp "$FIXTURE_DIR/original.json" "$FIXTURE_DIR/force-failure.json"
+    expect_failure force-failure env LEGACY_MODE=failure /bin/bash "$SCRIPT" -r "$FIXTURE_DIR/report.json" -o "$FIXTURE_DIR/force-failure.json" -l "$FIXTURE_DIR/app.dSYM" --local-only --force
+    grep -q 'Local symbol discovery failed' "$FIXTURE_DIR/force-failure.log"
+    cmp "$FIXTURE_DIR/original.json" "$FIXTURE_DIR/force-failure.json"
 }
 
 # Scenario Outline: unavailable remote symbols leave frames unresolved
@@ -320,16 +361,17 @@ test_fully_local_without_remote_cli() {
     [[ "$(count_resolved "$FIXTURE_DIR/all-local.symbolicated.json")" = 2 ]]
 }
 
-# Scenario: prioritize the exact device-symbol cache over explicit fallbacks
+# Scenario: prioritize explicit paths over automatic device discovery
 # Given matching device metadata, its cache, and explicit app/system dSYMs
 # When local-only symbolication runs
-# Then the device cache resolves system frames before explicit fallbacks resolve app frames
+# Then explicit symbols resolve both images before automatic discovery
 # And the device architecture does not override the actual image architecture
-test_device_cache_precedence() {
+test_explicit_device_precedence() {
     export PATH="$OFFLINE_PATH"
     /bin/bash "$SCRIPT" -r "$FIXTURE_DIR/device-report.json" -o "$FIXTURE_DIR/device.json" -l "$FIXTURE_DIR/system/app.dSYM" -l "$FIXTURE_DIR/app.dSYM" -L -v >"$FIXTURE_DIR/device.log" 2>&1
-    [[ "$(count_resolved "$FIXTURE_DIR/device.json")" = 4 ]] || fail 'Automatic device discovery must resolve app and system images'
-    grep 'Using local symbols' "$FIXTURE_DIR/device.log" | grep -Fq "$SYMBOLS/SystemImage" || fail 'Automatic device symbols must precede explicit fallback paths'
+    [[ "$(count_resolved "$FIXTURE_DIR/device.json")" = 4 ]] || fail 'Explicit symbols must resolve app and system images'
+    grep 'Using local symbols' "$FIXTURE_DIR/device.log" | grep -Fq "$FIXTURE_DIR/system/app.dSYM/Contents/Resources/DWARF/app" || fail 'Explicit symbols must precede automatic device discovery'
+    assert_absent 'Using local symbols.*SystemImage' "$FIXTURE_DIR/device.log"
     assert_preserved "$FIXTURE_DIR/device-report.json" "$FIXTURE_DIR/device.json"
 }
 
@@ -374,6 +416,87 @@ test_manual_device_fallback() {
     [[ "$(count_resolved "$FIXTURE_DIR/manual-device.json")" = 4 ]]
 }
 
+# Scenario: automatically resolve build products, preferring dSYMs to binaries
+# Given matching artifacts in Derived Data, with spaces in their paths
+# When local-only symbolication runs without explicit paths
+# Then dSYMs supply source locations, with binaries used when no dSYM exists
+test_automatic_derived_data() {
+    local kind auto_home products
+    export PATH="$OFFLINE_PATH"
+    for kind in dsym binary; do
+        auto_home="$FIXTURE_DIR/derived $kind home"
+        products="$auto_home/Library/Developer/Xcode/DerivedData/My App-build/Build/Products/Debug-iphoneos"
+        mkdir -p "$products/My App.app"
+        cp "$FIXTURE_DIR/app" "$products/My App.app/app"
+        if [[ "$kind" = dsym ]]; then
+            cp -R "$FIXTURE_DIR/app.dSYM" "$products/My App.app.dSYM"
+        fi
+        HOME="$auto_home" /bin/bash "$SCRIPT" -r "$FIXTURE_DIR/report.json" -o "$FIXTURE_DIR/derived-$kind.json" -L -v >"$FIXTURE_DIR/derived-$kind.log" 2>&1
+        [[ "$(count_resolved "$FIXTURE_DIR/derived-$kind.json")" = 2 ]] || fail "Derived Data $kind must resolve app frames"
+        assert_preserved "$FIXTURE_DIR/original.json" "$FIXTURE_DIR/derived-$kind.json"
+        if [[ "$kind" = dsym ]]; then
+            assert_symbolicated "$FIXTURE_DIR/derived-$kind.json"
+            grep 'Using local symbols' "$FIXTURE_DIR/derived-$kind.log" | grep -Fq 'My App.app.dSYM/Contents/Resources/DWARF/app'
+        fi
+    done
+}
+
+# Scenario: explicit matches skip automatic discovery entirely
+# Given all images match explicit symbols and Derived Data also contains matches
+# When symbolication runs without the remote CLI
+# Then only the explicit dSYM is searched and used
+test_explicit_skips_automatic_discovery() {
+    local auto_home="$FIXTURE_DIR/explicit home" products
+    products="$auto_home/Library/Developer/Xcode/DerivedData/App-build/Build/Products"
+    mkdir -p "$products"
+    cp -R "$FIXTURE_DIR/app.dSYM" "$products/app.dSYM"
+    jq --arg uuid "$FIXTURE_UUID" '.callStackTree.callStacks[0].callStackRootFrames[0].subFrames |= map(select((.binaryUUID|ascii_downcase)==$uuid))' "$FIXTURE_DIR/report.json" >"$FIXTURE_DIR/explicit-report.json"
+    export PATH="$OFFLINE_PATH"
+    HOME="$auto_home" /bin/bash "$SCRIPT" -r "$FIXTURE_DIR/explicit-report.json" -o "$FIXTURE_DIR/explicit.json" -l "$FIXTURE_DIR/app.dSYM" -v >"$FIXTURE_DIR/explicit.log" 2>&1
+    [[ "$(count_resolved "$FIXTURE_DIR/explicit.json")" = 2 ]]
+    [[ "$(grep -c '^debug-files find ' "$FIXTURE_DIR/legacy-calls")" = 1 ]]
+    assert_absent -E 'DerivedData|iOS DeviceSupport' "$FIXTURE_DIR/legacy-calls"
+    assert_absent 'Scanning local path.*DerivedData' "$FIXTURE_DIR/explicit.log"
+}
+
+# Scenario: automatic searches are bounded and require UUID/architecture matches
+# Given matching symbols outside Build/Products and a wrong-UUID binary inside it
+# When discovery runs, or the architecture override mismatches an automatic dSYM
+# Then frames remain unchanged
+test_derived_data_scope_and_identity() {
+    local auto_home="$FIXTURE_DIR/derived scope home" derived
+    derived="$auto_home/Library/Developer/Xcode/DerivedData/App-build"
+    mkdir -p "$derived/Index.noindex" "$derived/Build/Products"
+    cp -R "$FIXTURE_DIR/app.dSYM" "$derived/Index.noindex/app.dSYM"
+    cp "$FIXTURE_DIR/system/app" "$derived/Build/Products/app"
+    HOME="$auto_home" /bin/bash "$SCRIPT" -r "$FIXTURE_DIR/report.json" -o "$FIXTURE_DIR/derived-scope.json" -L >"$FIXTURE_DIR/derived-scope.log" 2>&1
+    cmp "$FIXTURE_DIR/original.json" "$FIXTURE_DIR/derived-scope.json"
+    grep '^debug-files find ' "$FIXTURE_DIR/legacy-calls" | grep -Fq "$derived/Build/Products"
+    assert_absent 'Index.noindex' "$FIXTURE_DIR/legacy-calls"
+    cp -R "$FIXTURE_DIR/app.dSYM" "$derived/Build/Products/app.dSYM"
+    HOME="$auto_home" /bin/bash "$SCRIPT" -r "$FIXTURE_DIR/report.json" -o "$FIXTURE_DIR/derived-arch.json" -L -a i386 >"$FIXTURE_DIR/derived-arch.log" 2>&1
+    cmp "$FIXTURE_DIR/original.json" "$FIXTURE_DIR/derived-arch.json"
+}
+
+# Scenario: batch only unresolved images across multiple Derived Data projects
+# Given explicit app symbols and automatic system symbols in two build directories
+# When local-only symbolication runs
+# Then both images resolve, and Derived Data lookup excludes the explicit UUID
+test_derived_data_remaining_images() {
+    local auto_home="$FIXTURE_DIR/derived remaining home" derived products
+    derived="$auto_home/Library/Developer/Xcode/DerivedData"
+    products="$derived/System-build/Build/Products/Debug-iphoneos"
+    mkdir -p "$products" "$derived/Other-build/Build/Products"
+    cp -R "$FIXTURE_DIR/system/app.dSYM" "$products/System.dSYM"
+    HOME="$auto_home" /bin/bash "$SCRIPT" -r "$FIXTURE_DIR/device-report.json" -o "$FIXTURE_DIR/derived-remaining.json" -l "$FIXTURE_DIR/app.dSYM" -L >"$FIXTURE_DIR/derived-remaining.log" 2>&1
+    [[ "$(count_resolved "$FIXTURE_DIR/derived-remaining.json")" = 4 ]]
+    assert_preserved "$FIXTURE_DIR/device-report.json" "$FIXTURE_DIR/derived-remaining.json"
+    grep '^debug-files find .*DerivedData' "$FIXTURE_DIR/legacy-calls" >"$FIXTURE_DIR/derived-calls"
+    assert_absent "$FIXTURE_UUID" "$FIXTURE_DIR/derived-calls"
+    [[ "$(wc -l <"$FIXTURE_DIR/derived-calls" | tr -d ' ')" = 2 ]]
+    grep -Fq -- "--path $derived/Other-build/Build/Products --path $derived/System-build/Build/Products" "$FIXTURE_DIR/derived-calls"
+}
+
 # Scenario: do not search the machine when no local paths are available
 # Given no device metadata and no explicit fallback paths
 # When local-only symbolication runs with a finder that would fail if invoked
@@ -400,6 +523,9 @@ run_case test_remote_resolution
 run_case test_cache_reuse
 run_case test_verbose_progress
 run_case test_output_and_argument_validation
+run_case test_force_output
+run_case test_force_output_safety
+run_case test_force_failure_preserves_output
 run_case test_unavailable_remote_symbols
 run_case test_corrupt_download
 run_case test_remote_prerequisite_failures
@@ -412,7 +538,11 @@ run_case test_repeated_local_paths
 run_case test_architecture_mismatch
 run_case test_local_discovery_failures
 run_case test_fully_local_without_remote_cli
-run_case test_device_cache_precedence
+run_case test_automatic_derived_data
+run_case test_explicit_skips_automatic_discovery
+run_case test_derived_data_scope_and_identity
+run_case test_derived_data_remaining_images
+run_case test_explicit_device_precedence
 run_case test_automatic_device_symbols
 run_case test_device_metadata_fallback
 run_case test_manual_device_fallback

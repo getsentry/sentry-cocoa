@@ -13,6 +13,7 @@ ARCH=""
 LOCAL_SYMBOLS=()
 DEVICE_SYMBOLS=""
 LOCAL_ONLY=false
+FORCE=false
 DEBUG=false
 SENTRY_READY=false
 CACHE_DIR="$HOME/Library/Caches/io.sentry.tools.metrickit-explorer/dsyms"
@@ -23,7 +24,7 @@ Usage: $(basename "$0") --report <path-to-json> [OPTIONS]
 
 Find local symbols or download matching Sentry symbols, then use atos to enrich JSON.
 Open the result in Utils/MetricKitExplorer/index.html. No server is required.
-The input report is never modified. Existing output files are not overwritten.
+The input report is never modified. Existing output files require --force to overwrite.
 Requires macOS developer tools, decimal-enabled jq, and sentry-cli for local discovery.
 Remote fallback additionally requires authenticated sentry CLI 0.45.0+ and download access.
 
@@ -34,8 +35,9 @@ Options:
     -p, --project <slug>      Project (default: SENTRY_PROJECT or CLI default)
     -a, --arch <name>         Architecture override (default: matching debug file)
     -c, --cache-dir <path>    Downloaded symbol cache (default: $CACHE_DIR)
-    -l, --local-symbols <path> Fallback binary, .app, .dSYM, or directory (repeatable)
+    -l, --local-symbols <path> Search this binary, .app, .dSYM, or directory first (repeatable)
     -L, --local-only          Use only local symbols, without remote API calls
+        --force               Overwrite existing output (never the input or symlinks)
     -v, --verbose             Log timestamped progress and elapsed time to stderr
     -h, --help                Show this help
 
@@ -43,8 +45,9 @@ Frames without matching or accessible symbols retain their original addresses.
 HTTP 403 is a warning. Other API failures stop processing without writing output.
 Binary architectures are taken from UUID-matched debug files, not the device architecture.
 Local dSYMs are preferred over local binaries. Local files are used in place, not cached.
-Report device/OS metadata selects an exact local Xcode iOS device-symbol cache first.
-Unmatched images fall back to --local-symbols paths. No broad filesystem search is used.
+Explicit --local-symbols paths are searched first, then an exact Xcode device-symbol cache.
+Remaining UUIDs are searched in ~/Library/Developer/Xcode/DerivedData/*/Build/Products.
+Only unresolved UUIDs are searched at each stage. No broad filesystem search is used.
 Without local matches, --local-only leaves frames unresolved.
 Without --local-only, unresolved UUIDs fall back to sentry api.
 EOF
@@ -73,6 +76,10 @@ while [[ $# -gt 0 ]]; do
         LOCAL_ONLY=true
         shift
         ;;
+    --force)
+        FORCE=true
+        shift
+        ;;
     -v | --verbose)
         DEBUG=true
         shift
@@ -94,15 +101,24 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Fail before network requests if the report cannot be read or the output would
-# replace an existing file, including the original report or a symlink to it.
+# Fail before network requests for unsafe output paths. Even --force must not
+# replace the original report (including hard links) or write through symlinks.
+validate_output() {
+    [[ ! "$OUTPUT" -ef "$REPORT" ]] || fail "Output must not replace the input report: $OUTPUT"
+    [[ ! -L "$OUTPUT" ]] || fail "Output must not be a symlink: $OUTPUT"
+    if [[ -e "$OUTPUT" ]]; then
+        $FORCE || fail "Output already exists: $OUTPUT (use --force to overwrite)"
+        [[ -f "$OUTPUT" ]] || fail "Output must be a regular file: $OUTPUT"
+    fi
+}
+
 [[ -n "$REPORT" ]] || fail "--report is required (see --help)"
 [[ "$REPORT" = /* ]] || REPORT="$PWD/$REPORT"
 [[ -f "$REPORT" ]] || fail "Report does not exist: $REPORT"
 OUTPUT="${OUTPUT:-${REPORT%.json}.symbolicated.json}"
 [[ "$OUTPUT" = /* ]] || OUTPUT="$PWD/$OUTPUT"
 [[ "$CACHE_DIR" = /* ]] || CACHE_DIR="$PWD/$CACHE_DIR"
-[[ ! -e "$OUTPUT" && ! -L "$OUTPUT" ]] || fail "Output already exists: $OUTPUT"
+validate_output
 [[ -d "$(dirname "$OUTPUT")" ]] || fail "Output directory does not exist."
 
 for local_path in ${LOCAL_SYMBOLS[@]+"${LOCAL_SYMBOLS[@]}"}; do
@@ -201,15 +217,19 @@ validate_symbols() {
         fail "Symbols do not match UUID $binary_uuid and architecture $binary_arch: $1"
 }
 
+pending_local_uuids() {
+    jq -r --slurpfile matches "$TEMP_DIR/local-symbols.jsonl" '
+        select(.uuid as $id | all($matches[]; .uuid != $id)) | .uuid
+    ' "$TEMP_DIR/groups.jsonl"
+}
+
 # Batch the remaining UUIDs rather than scanning the same locations per frame.
 # Exit 1 means some UUIDs were not found, but stdout still contains usable matches.
 # Accept that only with a valid JSON array, so real CLI errors are not hidden.
 find_local_symbols() {
     local id path started status=0
     local ids=()
-    jq -r --slurpfile matches "$TEMP_DIR/local-symbols.jsonl" '
-        select(.uuid as $id | all($matches[]; .uuid != $id)) | .uuid
-    ' "$TEMP_DIR/groups.jsonl" >"$TEMP_DIR/pending-uuids.txt"
+    pending_local_uuids >"$TEMP_DIR/pending-uuids.txt"
     while IFS= read -r id; do ids+=("$id"); done <"$TEMP_DIR/pending-uuids.txt"
     [[ ${#ids[@]} -gt 0 ]] || return 0
     started=$SECONDS
@@ -263,21 +283,15 @@ discover_device_symbols() {
     DEVICE_SYMBOLS="$path"
 }
 
-# Resolve the exact device cache before trying explicit fallbacks. Within those
-# fallbacks, prefer dSYM bundles so an app binary cannot mask richer debug info.
-# All searches are bounded: no paths means no local symbol matches.
-index_local_symbols() {
+# Prefer dSYMs within each search tier so binaries cannot mask richer debug info.
+search_local_paths() {
     local path
     local paths=() dsym_paths=()
-    : >"$TEMP_DIR/local-symbols.jsonl"
+    [[ $# -gt 0 && -n "$(pending_local_uuids)" ]] || return 0
     : >"$TEMP_DIR/dsym-paths"
-    discover_device_symbols
-    if [[ -n "$DEVICE_SYMBOLS" ]]; then
-        debug "Searching inferred device symbols first: $DEVICE_SYMBOLS"
-        find_local_symbols --path "$DEVICE_SYMBOLS"
-    fi
-    for path in ${LOCAL_SYMBOLS[@]+"${LOCAL_SYMBOLS[@]}"}; do
+    for path in "$@"; do
         [[ "$path" = /* ]] || path="$PWD/$path"
+        debug "Search path: $path"
         paths+=(--path "$path")
         if [[ -d "$path" ]]; then
             debug "Scanning local path for dSYM bundles: $path"
@@ -287,16 +301,35 @@ index_local_symbols() {
         fi
     done
     while IFS= read -r -d '' path; do dsym_paths+=(--path "$path"); done <"$TEMP_DIR/dsym-paths"
-    if [[ ${#paths[@]} -gt 0 ]]; then
-        if [[ ${#dsym_paths[@]} -gt 0 ]]; then
-            debug "Searching dSYM bundles first ($((${#dsym_paths[@]} / 2)) paths)."
-            find_local_symbols "${dsym_paths[@]}"
+    if [[ ${#dsym_paths[@]} -gt 0 ]]; then
+        debug "Searching dSYM bundles first ($((${#dsym_paths[@]} / 2)) paths)."
+        find_local_symbols "${dsym_paths[@]}"
+    fi
+    find_local_symbols "${paths[@]}"
+}
+
+# Explicit paths are the fast path. Automatic discovery only visits bounded
+# locations for UUIDs still missing, never Derived Data indexes or intermediates.
+index_local_symbols() {
+    local path
+    local derived_paths=()
+    : >"$TEMP_DIR/local-symbols.jsonl"
+    debug "Searching explicit symbol paths first."
+    search_local_paths ${LOCAL_SYMBOLS[@]+"${LOCAL_SYMBOLS[@]}"}
+    if [[ -n "$(pending_local_uuids)" ]]; then
+        discover_device_symbols
+        if [[ -n "$DEVICE_SYMBOLS" ]]; then
+            debug "Searching inferred device symbols: $DEVICE_SYMBOLS"
+            find_local_symbols --path "$DEVICE_SYMBOLS"
         fi
-        debug "Searching explicit fallback paths (${#LOCAL_SYMBOLS[@]} paths)."
-        for path in "${LOCAL_SYMBOLS[@]}"; do debug "Search path: $path"; done
-        find_local_symbols "${paths[@]}"
-    elif [[ -z "$DEVICE_SYMBOLS" ]]; then
-        debug "No device cache or fallback paths available. Leaving local matches unresolved."
+    fi
+    if [[ -n "$(pending_local_uuids)" ]]; then
+        for path in "$HOME/Library/Developer/Xcode/DerivedData/"*/Build/Products; do
+            [[ -d "$path" ]] || continue
+            derived_paths+=("$path")
+        done
+        debug "Searching Derived Data build products (${#derived_paths[@]} paths)."
+        search_local_paths ${derived_paths[@]+"${derived_paths[@]}"}
     fi
     jq -s 'unique_by([.uuid, .arch, .path])' "$TEMP_DIR/local-symbols.jsonl" >"$TEMP_DIR/local-symbols.json"
     if $DEBUG; then
@@ -483,10 +516,16 @@ COUNTS="$(jq -r '
     "\(map(select(.symbolication.function? != null)) | length)/\(length)"
 ' "$TEMP_DIR/report.json")"
 
-# noclobber protects the input and any output created while symbolication was running.
+# Recheck paths in case they changed during symbolication. Publish forced output
+# only after processing succeeds, leaving the previous report intact on failure.
 debug "Writing output: $OUTPUT ($COUNTS frames symbolicated)."
-(
-    set -o noclobber
-    cat "$TEMP_DIR/report.json" >"$OUTPUT"
-)
+validate_output
+if $FORCE; then
+    mv -f "$TEMP_DIR/report.json" "$OUTPUT"
+else
+    (
+        set -o noclobber
+        cat "$TEMP_DIR/report.json" >"$OUTPUT"
+    )
+fi
 log_notice "Symbolicated $COUNTS frames. Wrote $OUTPUT"

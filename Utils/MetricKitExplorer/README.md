@@ -53,22 +53,26 @@ Replace the example paths with your report and a matching build artifact:
 
 The output defaults to `MXDiagnosticPayload.symbolicated.json` beside the input. Open this output with the same viewer.
 
-`--local-symbols` accepts a Mach-O binary, `.app`, `.dSYM`, or build directory. Repeat the option to supply fallback locations for images not found in the automatically selected device-symbol cache. Within these fallback paths, dSYM bundles are searched before other local artifacts. Local files are used in place rather than copied into a cache.
+`--local-symbols` accepts a Mach-O binary, `.app`, `.dSYM`, or build directory. These explicit paths are searched first for the fastest lookup. Repeat the option to supply several locations. Within these paths, dSYM bundles are searched before other local artifacts. Local files are used in place rather than copied into a cache.
+
+Explicit paths are optional. For UUIDs still unresolved after explicit paths and device-symbol discovery, the script automatically searches `~/Library/Developer/Xcode/DerivedData/*/Build/Products`, preferring dSYMs before app/framework binaries. It does not scan Derived Data indexes, intermediates, or package sources. Each lookup batches unresolved UUIDs, and later search stages are skipped when all images match. Use `--local-symbols` for custom Derived Data locations.
+
+Automatic discovery still requires the exact captured build to exist locally. A newer build of the same app generally has different UUIDs.
 
 > [!NOTE]
 > Symbols must match the image UUID from the captured report. Rebuilding the same source code or finding a binary with the same name is not sufficient. Architecture is inferred from the matching artifact, not from the report's device architecture. For example, an `arm64e` device report can contain an `arm64` app binary.
 
 ## Include Apple framework and system symbols
 
-The script first uses `diagnosticMetaData.deviceType`, `osVersion`, and `platformArchitecture` to locate the exact Xcode iOS device-symbol cache. For example, a report identifying `iPhone13,2`, `iPhone OS 27.0 (24A437)`, and `arm64e` selects:
+After searching explicit paths, the script uses `diagnosticMetaData.deviceType`, `osVersion`, and `platformArchitecture` to locate the exact Xcode iOS device-symbol cache for unresolved images. For example, a report identifying `iPhone13,2`, `iPhone OS 27.0 (24A437)`, and `arm64e` selects:
 
 ```text
 ~/Library/Developer/Xcode/iOS DeviceSupport/iPhone13,2 27.0 (24A437)/arm64e/Symbols
 ```
 
-If that directory exists, its symbols are searched first. No extra flag is needed. The device architecture selects the cache directory only, not the architecture used to symbolicate app frames.
+If that directory exists, its symbols are searched before Derived Data. No extra flag is needed. The device architecture selects the cache directory only, not the architecture used to symbolicate app frames.
 
-If the metadata is absent or unsupported, the cache is missing, or an image is not found there, the script tries the supplied `--local-symbols` paths. You can provide an alternative device-symbol location explicitly:
+If the metadata is absent or unsupported, the cache is missing, or an image is not found there, discovery continues with Derived Data. You can provide an alternative device-symbol location explicitly to search it first:
 
 ```sh
 ./Utils/MetricKitExplorer/symbolicate.sh \
@@ -82,7 +86,7 @@ If the metadata is absent or unsupported, the cache is missing, or an image is n
 
 The script checks each image's UUID and architecture before using its symbols. Merely matching the OS marketing version is not sufficient. System symbols often provide function names without source files or line numbers, and some frames may remain unresolved even with the matching cache.
 
-The script never performs a broad filesystem or well-known-location search. If neither automatic discovery nor explicit fallback paths provide symbols, frames remain unresolved with `--local-only`. Without `--local-only`, the existing Sentry fallback applies.
+The script never performs a broad filesystem search. Discovery proceeds through explicit paths, the exact device-symbol cache, and Derived Data build products, in that order. If these do not provide matching symbols, frames remain unresolved with `--local-only`. Without `--local-only`, the existing Sentry fallback applies.
 
 ## Fall back to Sentry debug files
 
@@ -113,7 +117,7 @@ Use `--cache-dir` to select another location. Cached files are validated again b
 
 ## Output and diagnostics
 
-- The input report is never modified. Existing output files, including symlinks, are never overwritten. Choose a new `--output` path for another run.
+- The input report is never modified. Existing output files require `--force` to overwrite, or you can choose a new `--output` path. Even with `--force`, the input report, links to it, symlinks, and non-regular files cannot be used as output. Failed processing leaves existing output intact.
 - Resolved frames receive a `symbolication` object with `function` and, when available, `file` and `line`. Original nesting, sample counts, metadata, address literals, and unresolved frames are preserved in the output JSON.
 - `--verbose` / `-v` writes timestamped progress to stderr, including search scope, image progress, cache hits and misses, API activity, `atos` timings, and the final result. It does not enable CLI HTTP tracing or dump credentials and response bodies.
 - Use `--arch` only when you need an explicit architecture override. Normally the matching symbols determine the correct architecture for each image.
