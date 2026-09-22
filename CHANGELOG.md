@@ -14,6 +14,7 @@
 
 ### Fixes
 
+- Prepare and send non-fatal events asynchronously so `capture` on the main thread no longer runs scope merging, `beforeSend`, and event processors inline, which could fully block the UI and trigger app hangs (#9033)
 - Store the binary image cache in zero-fill memory to reduce the SDK binary size. (#9003)
 - Fix crash in `[NSURLSessionTask cancel]` when cancelling an in-flight task with swizzling enabled (#9009)
 - Clear the scope's `replayId` when Session Replay is stopped manually, so events captured after `stop()` are no longer linked to a replay that is no longer recording (#9017)

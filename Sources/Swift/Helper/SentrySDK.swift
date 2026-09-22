@@ -143,7 +143,9 @@ extension SentrySDK {
 
     /// Captures a manually created event and sends it to Sentry.
     /// - parameter event: The event to send to Sentry.
-    /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
+    /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not accepted for
+    /// sending. Non-fatal capture prepares the event asynchronously; a non-empty id means the event
+    /// was queued and may still be dropped by sampling, `beforeSend`, or event processors.
     #if !SDK_V10
     @objc(captureEvent:)
     #endif
