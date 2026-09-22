@@ -39,6 +39,7 @@
 - [35. KSCrash Migration Strategy: Dual Integrations on `main`](#35-kscrash-migration-strategy-dual-integrations-on-main)
 - [36. Breadcrumb persistence durability and caller latency](#36-breadcrumb-persistence-durability-and-caller-latency)
 - [37. Strip DWARF from prebuilt SentryObjC static binaries](#37-strip-dwarf-from-prebuilt-sentryobjc-static-binaries)
+- [38. Keep opt-out flags free of deprecation warnings](#38-keep-opt-out-flags-free-of-deprecation-warnings)
 
 ---
 
@@ -863,3 +864,18 @@ Related links:
 - https://github.com/getsentry/sentry-cocoa/pull/8979
 - https://github.com/getsentry/sentry-cocoa/pull/8987
 - https://github.com/getsentry/sentry-cocoa/pull/3800
+
+## 38. Keep opt-out flags free of deprecation warnings
+
+Date: September 22, 2026
+Contributors: @philprime, @NinjaLikesCheez, @chrisaigner
+
+We decided to remove the compiler deprecation annotations from `enableAppHangTracking` in the [Swift options](../Sources/Swift/Options.swift) and its Objective-C wrappers while keeping the documentation about App Hang tracking's deprecation and removal in v10.
+
+Deprecation warnings normally encourage users to stop using an API. App Hang tracking is enabled by default, however, so users must continue setting `enableAppHangTracking` to `false` to opt out until the next major release removes the feature. Removing that assignment would re-enable tracking. Enabling MetricKit does not replace the opt-out, so a compiler warning or automatic rename to `enableMetricKit` is not actionable migration guidance.
+
+Keep opt-out flags usable without compiler deprecation warnings while they remain necessary to disable a deprecated feature. Document the planned removal and recommended alternative instead. This change preserves the existing default and runtime behavior.
+
+Related links:
+
+- https://github.com/getsentry/sentry-cocoa/issues/9093
