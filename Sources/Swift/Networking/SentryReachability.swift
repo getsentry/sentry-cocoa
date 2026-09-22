@@ -6,6 +6,7 @@ import Network
 enum SentryConnectivity: Int {
     case cellular
     case wiFi
+    case ethernet
     case none
 
     func toString() -> String {
@@ -14,9 +15,20 @@ enum SentryConnectivity: Int {
             return "cellular"
         case .wiFi:
             return "wifi"
+        case .ethernet:
+            return "ethernet"
         case .none:
             return "none"
         }
+    }
+
+    /// Describes the connectivity and, for cellular connections with a known network technology,
+    /// the generation of that technology, for example `cellular_5g`.
+    func toString(cellularTechnology: SentryCellularNetworkTechnology?) -> String {
+        guard self == .cellular, let cellularTechnology else {
+            return toString()
+        }
+        return "\(toString())_\(cellularTechnology.rawValue)"
     }
 }
 
@@ -29,8 +41,10 @@ public protocol SentryReachabilityObserver: NSObjectProtocol {
 @_spi(Private) @objc
 public class SentryReachability: NSObject {
     private var reachabilityObservers = NSHashTable<SentryReachabilityObserver>.weakObjects()
-    private var currentConnectivity: SentryConnectivity = .none
+    /// The connectivity of the last known network path, or `nil` while no path has been reported yet.
+    private var currentConnectivity: SentryConnectivity?
     private var pathMonitor: NWPathMonitor?
+    private var cellularNetworkTechnologyProvider: SentryCellularNetworkTechnologyProviding = SentryCellularNetworkTechnologyProvider()
     private let reachabilityQueue: DispatchQueue = DispatchQueue(label: "io.sentry.cocoa.connectivity", qos: .background, attributes: [])
     private let observersLock = NSRecursiveLock()
     
@@ -75,7 +89,7 @@ public class SentryReachability: NSObject {
         }
 #endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
         
-        self.currentConnectivity = .none
+        self.currentConnectivity = nil
         let pathMonitor = NWPathMonitor()
         pathMonitor.pathUpdateHandler = { [weak self, weak pathMonitor] path in
             guard let self, let pathMonitor, self.isCurrentPathMonitor(pathMonitor) else {
@@ -85,6 +99,13 @@ public class SentryReachability: NSObject {
         }
         self.pathMonitor = pathMonitor
         pathMonitor.start(queue: self.reachabilityQueue)
+
+        // Starting the provider talks to a system service, which must not block the thread calling
+        // into the SDK, so it runs on the same queue as the path monitor.
+        let cellularNetworkTechnologyProvider = self.cellularNetworkTechnologyProvider
+        reachabilityQueue.async {
+            cellularNetworkTechnologyProvider.startMonitoring()
+        }
     }
     
     @objc(removeObserver:)
@@ -125,6 +146,17 @@ public class SentryReachability: NSObject {
             monitor.cancel()
             pathMonitor = nil
         }
+        currentConnectivity = nil
+        cellularNetworkTechnologyProvider.stopMonitoring()
+    }
+
+    /// The connection type of the last known network path, for example `wifi`, `ethernet`,
+    /// `cellular`, or `cellular_5g`, and `nil` while the SDK isn't monitoring connectivity.
+    var currentConnectionType: String? {
+        guard let connectivity = observersLock.synchronized({ currentConnectivity }) else {
+            return nil
+        }
+        return connectivity.toString(cellularTechnology: cellularNetworkTechnologyProvider.currentTechnology)
     }
     
     func isCurrentPathMonitor(_ pathMonitor: NWPathMonitor) -> Bool {
@@ -155,12 +187,14 @@ public class SentryReachability: NSObject {
 #if canImport(UIKit)
         if path.usesInterfaceType(.cellular) {
             return .cellular
-        } else {
-            return .wiFi
         }
-#else
-        return .wiFi
 #endif // canImport(UIKit)
+        if path.usesInterfaceType(.wiredEthernet) {
+            return .ethernet
+        }
+        // Paths that neither use cellular nor wired ethernet, such as VPN interfaces, have
+        // historically been reported as Wi-Fi, which is the most likely interface type.
+        return .wiFi
     }
     
     fileprivate func connectivityCallback(_ connectivity: SentryConnectivity) {
@@ -185,19 +219,20 @@ public class SentryReachability: NSObject {
             return
         }
         
-        currentConnectivity = connectivity
-        guard connectivityShouldReportChange(previousConnectivity, currentConnectivity) else {
+        observersLock.synchronized { currentConnectivity = connectivity }
+        guard connectivityShouldReportChange(previousConnectivity ?? .none, connectivity) else {
             return
         }
         
         let connected = connectivity != .none
+        let typeDescription = connectivity.toString(cellularTechnology: cellularNetworkTechnologyProvider.currentTechnology)
         
         // Notify observers outside the lock to avoid deadlock.
         // Observers may call back into SDK code that needs other locks (e.g., SentryDependencyContainer.instanceLock).
-        SentrySDKLog.debug("Notifying observers with connected: \(connected), connectivity: \(connectivity.toString())")
+        SentrySDKLog.debug("Notifying observers with connected: \(connected), connectivity: \(typeDescription)")
         for observer in observersToNotify {
             SentrySDKLog.debug("Notifying \(observer)")
-            observer.connectivityChanged(connected, typeDescription: connectivity.toString())
+            observer.connectivityChanged(connected, typeDescription: typeDescription)
         }
         SentrySDKLog.debug("Finished notifying observers.")
     }
@@ -223,6 +258,10 @@ extension SentryReachability {
         SentrySDKLog.debug("Setting ignore actual callback to \(value)")
         ignoreActualCallback = value
     }
+
+    func setCellularNetworkTechnologyProvider(_ provider: SentryCellularNetworkTechnologyProviding) {
+        cellularNetworkTechnologyProvider = provider
+    }
     
     func triggerConnectivityCallback(_ connectivity: SentryConnectivity) {
         connectivityCallback(connectivity)
@@ -232,6 +271,10 @@ extension SentryReachability {
 class SentryReachabilityTestHelper: NSObject {
     static func stringForSentryConnectivity(_ type: SentryConnectivity) -> String {
         type.toString()
+    }
+
+    static func stringForSentryConnectivity(_ type: SentryConnectivity, cellularTechnology: SentryCellularNetworkTechnology?) -> String {
+        type.toString(cellularTechnology: cellularTechnology)
     }
 }
 #endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI

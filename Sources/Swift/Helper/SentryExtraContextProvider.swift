@@ -10,19 +10,22 @@ internal import _SentryPrivate
     
     private let memoryMetricsProvider: SentryMemoryMetricsProvider
     private let processInfoWrapper: SentryProcessInfoSource
+    private let reachability: SentryReachability
     
     #if (os(iOS)) && !SENTRY_NO_UI_FRAMEWORK
     private let deviceWrapper: SentryUIDeviceWrapper
 
-    init(memoryMetricsProvider: SentryMemoryMetricsProvider, processInfoWrapper: SentryProcessInfoSource, deviceWrapper: SentryUIDeviceWrapper) {
+    init(memoryMetricsProvider: SentryMemoryMetricsProvider, processInfoWrapper: SentryProcessInfoSource, deviceWrapper: SentryUIDeviceWrapper, reachability: SentryReachability) {
         self.memoryMetricsProvider = memoryMetricsProvider
         self.processInfoWrapper = processInfoWrapper
         self.deviceWrapper = deviceWrapper
+        self.reachability = reachability
     }
     #else
-    init(memoryMetricsProvider: SentryMemoryMetricsProvider, processInfoWrapper: SentryProcessInfoSource) {
+    init(memoryMetricsProvider: SentryMemoryMetricsProvider, processInfoWrapper: SentryProcessInfoSource, reachability: SentryReachability) {
         self.memoryMetricsProvider = memoryMetricsProvider
         self.processInfoWrapper = processInfoWrapper
+        self.reachability = reachability
     }
     #endif
     
@@ -54,6 +57,12 @@ internal import _SentryPrivate
         }
 
         extraDeviceContext["low_power_mode"] = NSNumber(value: processInfoWrapper.isLowPowerModeEnabled)
+
+        // The connection type is only known while the SDK monitors connectivity, which it does as
+        // long as it has a transport.
+        if let connectionType = reachability.currentConnectionType {
+            extraDeviceContext["connection_type"] = connectionType
+        }
         
         #if (os(iOS)) && !SENTRY_NO_UI_FRAMEWORK
         if deviceWrapper.orientation != .unknown {

@@ -48,6 +48,7 @@
           },
           "device": {
             "arch": "<runtime-value>",
+            "connection_type": "<runtime-value>",
             "family": "<runtime-value>",
             "free_memory": "<runtime-value>",
             "locale": "<runtime-value>",

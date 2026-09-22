@@ -54,6 +54,7 @@
             "processor_count": "<runtime-value>",
             "thermal_state": "<runtime-value>",
             "arch": "<runtime-value>",
+            "connection_type": "<runtime-value>",
             "family": "<runtime-value>",
             "memory_size": "<runtime-value>",
             "model": "<runtime-value>",

@@ -58,6 +58,7 @@
             "processor_count": "<runtime-value>",
             "thermal_state": "<runtime-value>",
             "arch": "<runtime-value>",
+            "connection_type": "<runtime-value>",
             "family": "<runtime-value>",
             "mac_catalyst_app": "<runtime-value>",
             "memory_size": "<runtime-value>",

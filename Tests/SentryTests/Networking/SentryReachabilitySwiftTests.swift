@@ -1,4 +1,5 @@
 @_spi(Private) @testable import Sentry
+import SentryTestUtils
 import XCTest
 
 class TestSentryReachabilityObserver: NSObject, SentryReachabilityObserver {
@@ -14,6 +15,22 @@ class TestSentryReachabilityObserver: NSObject, SentryReachabilityObserver {
         print("Received connectivity notification: \(connected); type: \(typeDescription)")
         connectivityChangedInvocations += 1
         onReachabilityChanged?(connected, typeDescription)
+    }
+}
+
+class TestSentryCellularNetworkTechnologyProvider: SentryCellularNetworkTechnologyProviding {
+    var currentTechnology: SentryCellularNetworkTechnology?
+    var onStartMonitoring: (() -> Void)?
+    let startMonitoringInvocations = Invocations<Void>()
+    let stopMonitoringInvocations = Invocations<Void>()
+
+    func startMonitoring() {
+        startMonitoringInvocations.record(Void())
+        onStartMonitoring?()
+    }
+
+    func stopMonitoring() {
+        stopMonitoringInvocations.record(Void())
     }
 }
 
@@ -41,9 +58,109 @@ final class SentryReachabilitySwiftTests: XCTestCase {
     func testConnectivityRepresentations() {
         XCTAssertEqual("none", SentryReachabilityTestHelper.stringForSentryConnectivity(.none))
         XCTAssertEqual("wifi", SentryReachabilityTestHelper.stringForSentryConnectivity(.wiFi))
+        XCTAssertEqual("ethernet", SentryReachabilityTestHelper.stringForSentryConnectivity(.ethernet))
         #if canImport(UIKit)
         XCTAssertEqual("cellular", SentryReachabilityTestHelper.stringForSentryConnectivity(.cellular))
         #endif
+    }
+
+    func testConnectivityRepresentations_withCellularTechnology_shouldOnlyRefineCellular() {
+        // -- Arrange --
+        let technologies: [SentryCellularNetworkTechnology: String] = [
+            .secondGeneration: "cellular_2g",
+            .thirdGeneration: "cellular_3g",
+            .fourthGeneration: "cellular_4g",
+            .fifthGeneration: "cellular_5g"
+        ]
+
+        for (technology, expected) in technologies {
+            // -- Act & Assert --
+            XCTAssertEqual(expected, SentryReachabilityTestHelper.stringForSentryConnectivity(.cellular, cellularTechnology: technology))
+        }
+
+        // A known technology must not leak into the other connectivity types.
+        XCTAssertEqual("wifi", SentryReachabilityTestHelper.stringForSentryConnectivity(.wiFi, cellularTechnology: .fifthGeneration))
+        XCTAssertEqual("ethernet", SentryReachabilityTestHelper.stringForSentryConnectivity(.ethernet, cellularTechnology: .fifthGeneration))
+        XCTAssertEqual("none", SentryReachabilityTestHelper.stringForSentryConnectivity(.none, cellularTechnology: .fifthGeneration))
+        XCTAssertEqual("cellular", SentryReachabilityTestHelper.stringForSentryConnectivity(.cellular, cellularTechnology: nil))
+    }
+
+    func testConnectivityChanged_whenCellularTechnologyIsKnown_shouldReportItInTypeDescription() throws {
+        // -- Arrange --
+        let technologyProvider = TestSentryCellularNetworkTechnologyProvider()
+        technologyProvider.currentTechnology = .fifthGeneration
+        reachability.setCellularNetworkTechnologyProvider(technologyProvider)
+
+        var typeDescriptions = [String]()
+        let observer = TestSentryReachabilityObserver()
+        observer.onReachabilityChanged = { _, typeDescription in
+            typeDescriptions.append(typeDescription)
+        }
+        reachability.add(observer)
+
+        // -- Act --
+        reachability.triggerConnectivityCallback(.cellular)
+        technologyProvider.currentTechnology = nil
+        reachability.triggerConnectivityCallback(.wiFi)
+        reachability.triggerConnectivityCallback(.cellular)
+
+        // -- Assert --
+        XCTAssertEqual(["cellular_5g", "wifi", "cellular"], typeDescriptions)
+    }
+
+    func testCurrentConnectionType_whenNotMonitoring_shouldBeNil() {
+        // -- Act & Assert --
+        XCTAssertNil(reachability.currentConnectionType)
+    }
+
+    func testCurrentConnectionType_whenCellularTechnologyIsKnown_shouldIncludeIt() {
+        // -- Arrange --
+        let technologyProvider = TestSentryCellularNetworkTechnologyProvider()
+        technologyProvider.currentTechnology = .fourthGeneration
+        reachability.setCellularNetworkTechnologyProvider(technologyProvider)
+        let observer = TestSentryReachabilityObserver()
+        reachability.add(observer)
+
+        // -- Act --
+        reachability.triggerConnectivityCallback(.cellular)
+
+        // -- Assert --
+        XCTAssertEqual("cellular_4g", reachability.currentConnectionType)
+        XCTAssertEqual(1, observer.connectivityChangedInvocations)
+    }
+
+    func testCurrentConnectionType_whenAllObserversAreRemoved_shouldBeNil() {
+        // -- Arrange --
+        let observer = TestSentryReachabilityObserver()
+        reachability.add(observer)
+        reachability.triggerConnectivityCallback(.wiFi)
+        let connectionTypeWhileMonitoring = reachability.currentConnectionType
+
+        // -- Act --
+        reachability.remove(observer)
+
+        // -- Assert --
+        XCTAssertEqual("wifi", connectionTypeWhileMonitoring)
+        XCTAssertNil(reachability.currentConnectionType)
+    }
+
+    func testAdd_whenFirstObserverIsAdded_shouldMonitorCellularNetworkTechnology() {
+        // -- Arrange --
+        reachability.skipRegisteringActualCallbacks = false
+        let technologyProvider = TestSentryCellularNetworkTechnologyProvider()
+        reachability.setCellularNetworkTechnologyProvider(technologyProvider)
+        let startedMonitoring = expectation(description: "Started monitoring the cellular network technology")
+        technologyProvider.onStartMonitoring = { startedMonitoring.fulfill() }
+        let observer = TestSentryReachabilityObserver()
+
+        // -- Act --
+        reachability.add(observer)
+        wait(for: [startedMonitoring], timeout: 1.0)
+        reachability.remove(observer)
+
+        // -- Assert --
+        XCTAssertEqual(1, technologyProvider.startMonitoringInvocations.count)
+        XCTAssertEqual(1, technologyProvider.stopMonitoringInvocations.count)
     }
     
     func testMultipleReachabilityObservers() {
