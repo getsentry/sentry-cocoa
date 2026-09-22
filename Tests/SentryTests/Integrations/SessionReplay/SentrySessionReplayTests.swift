@@ -541,6 +541,32 @@ class SentrySessionReplayTests: XCTestCase {
         XCTAssertEqual(segment.traceIds?.count, 100)
     }
 
+    func testRegisterTraceId_whenOverCap_shouldEvictOldestAndKeepNewest() throws {
+        // A buffer replay drains only on flush, so the triggering event's trace (registered last)
+        // must survive the cap. The oldest is evicted instead of dropping the newest.
+        // -- Arrange --
+        let fixture = Fixture()
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
+        sut.start(rootView: fixture.rootView, fullSession: true)
+        let oldest = SentryId()
+        let trigger = SentryId()
+
+        // -- Act --
+        sut.registerTraceId(oldest)
+        for _ in 0..<99 { // fill the cap: oldest + 99 = 100
+            sut.registerTraceId(SentryId())
+        }
+        sut.registerTraceId(trigger) // 101st: evicts `oldest`
+        captureFullSessionSegment(fixture)
+
+        // -- Assert --
+        let segment = try XCTUnwrap(fixture.lastReplayEvent)
+        let traceIds = try XCTUnwrap(segment.traceIds)
+        XCTAssertEqual(traceIds.count, 100)
+        XCTAssertTrue(traceIds.contains(trigger), "The newest (triggering) trace must be retained")
+        XCTAssertFalse(traceIds.contains(oldest), "The oldest trace must be evicted at the cap")
+    }
+
     func testRegisterTraceId_afterSegmentCaptured_shouldClearBufferForNextSegment() throws {
         // -- Arrange --
         let fixture = Fixture()

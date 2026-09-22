@@ -138,8 +138,9 @@ private struct SessionSegmentState {
 
     private let state = SentryMutex(State())
 
-    /// Maximum number of trace IDs collected per replay segment, matching sentry-java's
-    /// `MAX_CONTEXT_VALUES`. Registrations beyond this cap are dropped for the current segment.
+    /// Maximum number of trace IDs retained for the current (not-yet-sent) segment, matching
+    /// sentry-java's `MAX_CONTEXT_VALUES`. At the cap the oldest ID is evicted so the most recent
+    /// registrations, including a buffered replay's triggering trace, are always kept.
     static let maxTraceIds = 100
 
     /// Trace IDs collected for the current (not-yet-sent) replay segment.
@@ -320,19 +321,23 @@ private struct SessionSegmentState {
     ///
     /// This is the single path shared by native auto-collection and the hybrid
     /// `SentrySDK.internal.replay.registerTraceId(_:)` API. `SentryId.empty` is ignored, matching
-    /// sentry-java. Duplicate IDs are ignored and no more than ``maxTraceIds`` are kept per segment.
-    /// Safe to call from any thread.
+    /// sentry-java. Duplicate IDs are ignored; at most ``maxTraceIds`` are kept, evicting the oldest
+    /// so the most recent traces survive the cap. Safe to call from any thread.
     func registerTraceId(_ traceId: SentryId) {
         guard traceId != SentryId.empty else {
             SentrySDKLog.debug("[Session Replay] Ignoring empty trace ID")
             return
         }
         traceIdBuffer.withLock { buffer in
-            guard buffer.count < SentrySessionReplay.maxTraceIds else {
-                SentrySDKLog.debug("[Session Replay] Reached maximum trace IDs for segment, dropping: \(traceId.sentryIdString)")
-                return
-            }
             guard !buffer.contains(where: { $0 == traceId }) else { return }
+            // A buffer (on-error) replay accumulates trace IDs for the whole recording and only
+            // drains on flush, so at the cap we must evict the *oldest* rather than drop the new
+            // one: the triggering event's trace arrives last, and it is the ID used to find the
+            // replay. Keeping the most recent ``maxTraceIds`` guarantees that trace survives.
+            if buffer.count >= SentrySessionReplay.maxTraceIds {
+                let evicted = buffer.removeFirst()
+                SentrySDKLog.debug("[Session Replay] Reached maximum trace IDs for segment, evicting oldest: \(evicted.sentryIdString)")
+            }
             buffer.append(traceId)
         }
     }
