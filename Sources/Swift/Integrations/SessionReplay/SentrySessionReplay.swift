@@ -833,7 +833,7 @@ private struct SessionSegmentState {
             return collected
         }
         if !traceIds.isEmpty {
-            replayEvent.traceIds = traceIds.map { $0.sentryIdString }
+            replayEvent.traceIds = traceIds
         }
 
         let breadcrumbs = delegate?.breadcrumbsForSessionReplay() ?? []

@@ -505,7 +505,7 @@ class SentrySessionReplayTests: XCTestCase {
 
         // -- Assert --
         let segment = try XCTUnwrap(fixture.lastReplayEvent)
-        XCTAssertEqual(segment.traceIds, [traceId.sentryIdString])
+        XCTAssertEqual(segment.traceIds, [traceId])
     }
 
     func testRegisterTraceId_whenBufferModeErrorCaptured_shouldIncludeTraceId() throws {
@@ -521,7 +521,7 @@ class SentrySessionReplayTests: XCTestCase {
 
         // -- Assert --
         let segment = try XCTUnwrap(fixture.lastReplayEvent)
-        XCTAssertEqual(segment.traceIds, [traceId.sentryIdString])
+        XCTAssertEqual(segment.traceIds, [traceId])
     }
 
     func testRegisterTraceId_whenMoreThan100Registered_shouldCapAt100() throws {
@@ -557,7 +557,7 @@ class SentrySessionReplayTests: XCTestCase {
         let secondSegment = try XCTUnwrap(fixture.lastReplayEvent)
 
         // -- Assert --
-        XCTAssertEqual(firstSegment.traceIds, [traceId.sentryIdString])
+        XCTAssertEqual(firstSegment.traceIds, [traceId])
         XCTAssertNil(secondSegment.traceIds)
     }
 
@@ -590,7 +590,7 @@ class SentrySessionReplayTests: XCTestCase {
 
         // -- Assert --
         let segment = try XCTUnwrap(fixture.lastReplayEvent)
-        XCTAssertEqual(segment.traceIds, [traceId.sentryIdString])
+        XCTAssertEqual(segment.traceIds, [traceId])
     }
 
     func testRegisterTraceId_whenCalledConcurrently_shouldBeThreadSafe() throws {
@@ -618,7 +618,7 @@ class SentrySessionReplayTests: XCTestCase {
         // Capped at 100; the assertion is primarily that concurrent access neither crashes nor
         // corrupts the buffer (would trip the thread sanitizer otherwise).
         XCTAssertEqual(segment.traceIds?.count, 100)
-        let registered = Set(ids.map { $0.sentryIdString })
+        let registered = Set(ids)
         XCTAssertTrue(try XCTUnwrap(segment.traceIds).allSatisfy { registered.contains($0) })
     }
 

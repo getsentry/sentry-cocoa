@@ -24,14 +24,14 @@ class SentryReplayEventTests: XCTestCase {
     func testSerialize_whenTraceIdsSet_shouldIncludeTraceIds() {
         // -- Arrange --
         let sut = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(timeIntervalSince1970: 1), replayType: .buffer, segmentId: 0)
-        let traceIds = [SentryId().sentryIdString, SentryId().sentryIdString]
+        let traceIds = [SentryId(), SentryId()]
         sut.traceIds = traceIds
 
         // -- Act --
         let result = sut.serialize()
 
         // -- Assert --
-        XCTAssertEqual(result["trace_ids"] as? [String], traceIds)
+        XCTAssertEqual(result["trace_ids"] as? [String], traceIds.map { $0.sentryIdString })
     }
 
     func testSerialize_whenTraceIdsNil_shouldOmitTraceIds() {

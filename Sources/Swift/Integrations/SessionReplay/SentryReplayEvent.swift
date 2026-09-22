@@ -24,13 +24,13 @@ import Foundation
     public var urls: [String]?
 
     /**
-     * Hexadecimal trace IDs collected during the duration of the replay segment.
+     * Trace IDs collected during the duration of the replay segment.
      *
      * Populated from traces captured natively while the segment recorded and from
      * IDs registered by hybrid SDKs via `SentrySDK.internal.replay.registerTraceId(_:)`.
-     * Serialized under `trace_ids`.
+     * Serialized under `trace_ids` as 32-character hexadecimal strings.
      */
-    public var traceIds: [String]?
+    public var traceIds: [SentryId]?
 
     public init(eventId: SentryId, replayStartTimestamp: Date, replayType: SentryReplayType, segmentId: Int) {
         self.replayStartTimestamp = replayStartTimestamp
@@ -51,7 +51,7 @@ import Foundation
         result["urls"] = urls
         // Omit `trace_ids` entirely when empty; the buffer is left nil for segments without traces.
         if let traceIds = traceIds, !traceIds.isEmpty {
-            result["trace_ids"] = traceIds
+            result["trace_ids"] = traceIds.map { $0.sentryIdString }
         }
         result["replay_start_timestamp"] = replayStartTimestamp.timeIntervalSince1970
         result["replay_id"] = self.eventId.sentryIdString
