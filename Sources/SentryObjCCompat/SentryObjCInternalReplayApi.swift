@@ -66,6 +66,10 @@ import Foundation
     @objc public func setTags(_ tags: [String: Any]) {
         wrapped.value.setTags(tags)
     }
+
+    @objc public func registerTraceId(_ traceId: String) {
+        wrapped.value.registerTraceId(traceId)
+    }
 }
 
 #endif

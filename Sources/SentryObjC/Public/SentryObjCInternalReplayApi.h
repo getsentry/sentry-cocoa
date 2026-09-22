@@ -54,6 +54,9 @@ SENTRY_NO_INIT
 /// Sets tags on the current replay session.
 - (void)setTags:(NSDictionary<NSString *, id> *)tags;
 
+/// Registers a trace ID with the current replay segment.
+- (void)registerTraceId:(NSString *)traceId;
+
 @end
 
 NS_ASSUME_NONNULL_END
