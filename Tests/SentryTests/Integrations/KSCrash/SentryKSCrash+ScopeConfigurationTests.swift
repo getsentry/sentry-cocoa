@@ -59,6 +59,53 @@ final class SentryKSCrashScopeConfigurationTests: XCTestCase {
         XCTAssertEqual(userInfo["environment"] as? String, "options-environment")
     }
 
+    func testInit_whenScopeHasNestedFields_shouldSeedScopeSync() throws {
+        // -- Arrange --
+        let scope = Scope()
+        let extras: [String: Any] = [
+            "crash_e2e_extra": "crash-e2e-extra-value",
+            "nested": ["key": "value"]
+        ]
+        scope.setExtras(extras)
+        scope.setTag(value: "tag-value", key: "language")
+        scope.setUser(User(userId: "user-1"))
+        scope.setContext(value: ["custom": "context-value"], key: "custom")
+        scope.setLevel(.warning)
+        let breadcrumb = Breadcrumb(level: .info, category: "started")
+        breadcrumb.message = "seeded-crumb"
+        scope.addBreadcrumb(breadcrumb)
+        setCurrentHub(scope: scope)
+
+        // -- Act --
+        _ = SentryKSCrash.Scope.Configuration(
+            installer: MockKSCrashInstaller(),
+            options: Options()
+        )
+
+        // -- Assert --
+        let extrasJSON = try XCTUnwrap(getScopeJson { $0.extras })
+        XCTAssertTrue(extrasJSON.contains("crash_e2e_extra"), extrasJSON)
+        XCTAssertTrue(extrasJSON.contains("crash-e2e-extra-value"), extrasJSON)
+        XCTAssertTrue(extrasJSON.contains("nested"), extrasJSON)
+
+        let tagsJSON = try XCTUnwrap(getScopeJson { $0.tags })
+        XCTAssertTrue(tagsJSON.contains("language"), tagsJSON)
+        XCTAssertTrue(tagsJSON.contains("tag-value"), tagsJSON)
+
+        let userJSON = try XCTUnwrap(getScopeJson { $0.user })
+        XCTAssertTrue(userJSON.contains("user-1"), userJSON)
+
+        let contextJSON = try XCTUnwrap(getScopeJson { $0.context })
+        XCTAssertTrue(contextJSON.contains("context-value"), contextJSON)
+
+        XCTAssertEqual("\"warning\"", getScopeJson { $0.level })
+
+        let crashScope = sentrycrash_scopesync_getScope().pointee
+        XCTAssertEqual(1, crashScope.currentCrumb)
+        let breadcrumbJSON = String(cString: try XCTUnwrap(crashScope.breadcrumbs?.pointee))
+        XCTAssertTrue(breadcrumbJSON.contains("seeded-crumb"), breadcrumbJSON)
+    }
+
     func testInit_shouldAddObserverToScope() {
         // -- Arrange --
         let scope = Scope()

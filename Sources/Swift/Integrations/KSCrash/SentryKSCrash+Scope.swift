@@ -48,7 +48,27 @@ extension SentryKSCrash.Scope {
                 userInfo.removeValue(forKey: "attributes")
                 installer.setUserInfo(userInfo)
 
+                // add(_:) only observes later mutations. Seed current nested fields into
+                // SentryScopeSyncC because KSCrash userInfo only stores scalars.
                 outerScope.add(observer)
+                seedObserver(from: outerScope)
+            }
+        }
+
+        private func seedObserver(from scope: Scope) {
+            observer.setUser(scope.userObject)
+            observer.setTags(scope.tags)
+            observer.setExtras(scope.extraDictionary as? [String: Any])
+            observer.setContext(scope.contextDictionary as? [String: [String: Any]])
+            observer.setEnvironment(scope.environmentString)
+            observer.setDist(scope.distString)
+            observer.setFingerprint(scope.fingerprintArray as? [String])
+            observer.setLevel(scope.levelEnum)
+            if let traceContext = scope.serialize()["traceContext"] as? [String: Any] {
+                observer.setTraceContext(traceContext)
+            }
+            for breadcrumb in scope.breadcrumbs() {
+                observer.addSerializedBreadcrumb(breadcrumb.serialize())
             }
         }
 

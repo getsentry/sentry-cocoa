@@ -98,7 +98,7 @@ enum CrashE2ERuntime {
         loadBinaryImageBeforeSDKIfNeeded()
         startConfiguredSDK()
         writeLastRunMarkerIfNeeded()
-        CrashE2EScopePopulation.populateIfNeeded()
+        CrashE2EScopePopulation.populateLiveIfNeeded()
         logCrashTimeHooksIfNeeded()
         NSLog("CrashE2E - SDK started")
     }
@@ -167,7 +167,7 @@ enum CrashE2ERuntime {
         NSLog("CrashE2E - closing and restarting SDK")
         SentrySDK.close()
         startConfiguredSDK()
-        CrashE2EScopePopulation.populateIfNeeded()
+        CrashE2EScopePopulation.populateLiveIfNeeded()
         logCrashTimeHooksIfNeeded()
         NSLog("CrashE2E - SDK restarted")
     }
@@ -189,6 +189,10 @@ enum CrashE2ERuntime {
             if configuration.scenario == .crashTimeScope {
                 options.environment = "crash-e2e-environment"
                 options.dist = "crash-e2e-dist"
+                options.initialScope = { scope in
+                    CrashE2EScopePopulation.applyInitial(to: scope)
+                    return scope
+                }
             }
 
             // Keep cpp-exception-v1 in the public option-off configuration for both reporters.
