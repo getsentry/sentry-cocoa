@@ -60,18 +60,7 @@ final class MacOSPlatformRunner {
 
         try runCrashLaunch(scenario, executable: executable, cacheDir: cacheDir,
                            markerPath: markerPath, derivedDataPath: derivedDataPath)
-        try CrashTimeAttachmentsAsserter.assertPayloadIfNeeded(
-            scenario: scenario, cacheDirectory: cacheDir, platform: "macos")
-        try CrashTimeReplayAsserter.assertCheckpointIfNeeded(
-            scenario: scenario, cacheDirectory: cacheDir, platform: "macos")
-        try RethrownNSExceptionAsserter.assertCrashLaunchEvidenceIfNeeded(
-            scenario: scenario,
-            cacheRoot: cacheDir,
-            platform: "macos",
-            artifactsDir: config.artifactsDir
-        )
-        try MemoryIntrospectionAsserter.assertStoredReportIfNeeded(
-            scenario: scenario, cacheRoot: cacheDir, platform: "macos")
+        try assertCrashLaunchArtifacts(scenario, cacheDir: cacheDir)
         try runDrainLaunch(scenario, executable: executable, cacheDir: cacheDir,
                            derivedDataPath: derivedDataPath)
         try ScenarioEventAsserter.assertScenarioEvent(
@@ -114,6 +103,27 @@ final class MacOSPlatformRunner {
             arguments += ["--managed-handler-marker", markerPath.path]
         }
         return arguments
+    }
+
+    private func assertCrashLaunchArtifacts(_ scenario: Scenario, cacheDir: URL) throws {
+        try CrashTimeAttachmentsAsserter.assertPayloadIfNeeded(
+            scenario: scenario, cacheDirectory: cacheDir, platform: "macos")
+        try CrashTimeReplayAsserter.assertCheckpointIfNeeded(
+            scenario: scenario, cacheDirectory: cacheDir, platform: "macos")
+        try RethrownNSExceptionAsserter.assertCrashLaunchEvidenceIfNeeded(
+            scenario: scenario,
+            cacheRoot: cacheDir,
+            platform: "macos",
+            artifactsDir: config.artifactsDir
+        )
+        try MemoryIntrospectionAsserter.assertStoredReportIfNeeded(
+            scenario: scenario, cacheRoot: cacheDir, platform: "macos")
+        try StoredCrashReports.copyUndrained(
+            from: cacheDir,
+            platform: "macos",
+            scenario: scenario,
+            artifactsDir: config.artifactsDir
+        )
     }
 
     private func runCrashLaunch(_ scenario: Scenario, executable: URL, cacheDir: URL,
