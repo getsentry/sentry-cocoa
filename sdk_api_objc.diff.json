@@ -11,14 +11,14 @@
       "kind": "ObjCMethodDecl",
       "name": "beforeBreadcrumbWithHint",
       "parent": "SentryObjCOptions",
-      "returnType": "DEPRECATED_MSG_ATTRIBUTE(\"In the next major version, the hint parameter will be added to \"\n                                 \"beforeBreadcrumb directly and this callback will be removed. Use \"\n                                 \"this only to adopt hints ahead of the next major version.\") SentryObjCBreadcrumb * _Nullable (^)(SentryObjCBreadcrumb * _Nonnull, SentryObjCHint * _Nonnull)",
+      "returnType": "DEPRECATED_MSG_ATTRIBUTE SentryObjCBreadcrumb * _Nullable (^)(SentryObjCBreadcrumb * _Nonnull, SentryObjCHint * _Nonnull)",
       "instance": true
     },
     {
       "kind": "ObjCMethodDecl",
       "name": "beforeSendWithHint",
       "parent": "SentryObjCOptions",
-      "returnType": "DEPRECATED_MSG_ATTRIBUTE(\n        \"In the next major version, the hint parameter will be added to \"\n        \"beforeSend directly and this callback will be removed. Use this only \"\n        \"to adopt hints ahead of the next major version.\") SentryObjCEvent * _Nullable (^)(SentryObjCEvent * _Nonnull, SentryObjCHint * _Nonnull)",
+      "returnType": "DEPRECATED_MSG_ATTRIBUTE SentryObjCEvent * _Nullable (^)(SentryObjCEvent * _Nonnull, SentryObjCHint * _Nonnull)",
       "instance": true
     },
     {
@@ -234,13 +234,13 @@
       "kind": "ObjCPropertyDecl",
       "name": "beforeBreadcrumbWithHint",
       "parent": "SentryObjCOptions",
-      "type": "DEPRECATED_MSG_ATTRIBUTE(\"In the next major version, the hint parameter will be added to \"\n                                 \"beforeBreadcrumb directly and this callback will be removed. Use \"\n                                 \"this only to adopt hints ahead of the next major version.\") SentryObjCBreadcrumb * _Nullable (^)(SentryObjCBreadcrumb * _Nonnull, SentryObjCHint * _Nonnull)"
+      "type": "DEPRECATED_MSG_ATTRIBUTE SentryObjCBreadcrumb * _Nullable (^)(SentryObjCBreadcrumb * _Nonnull, SentryObjCHint * _Nonnull)"
     },
     {
       "kind": "ObjCPropertyDecl",
       "name": "beforeSendWithHint",
       "parent": "SentryObjCOptions",
-      "type": "DEPRECATED_MSG_ATTRIBUTE(\n        \"In the next major version, the hint parameter will be added to \"\n        \"beforeSend directly and this callback will be removed. Use this only \"\n        \"to adopt hints ahead of the next major version.\") SentryObjCEvent * _Nullable (^)(SentryObjCEvent * _Nonnull, SentryObjCHint * _Nonnull)"
+      "type": "DEPRECATED_MSG_ATTRIBUTE SentryObjCEvent * _Nullable (^)(SentryObjCEvent * _Nonnull, SentryObjCHint * _Nonnull)"
     },
     {
       "kind": "ObjCPropertyDecl",
@@ -580,7 +580,7 @@
       "kind": "ObjCMethodDecl",
       "name": "onCrashedLastRun",
       "parent": "SentryObjCOptions",
-      "returnType": "SWIFT_DEPRECATED_MSG(\"Use onLastRunStatusDetermined instead.\") void (^)(SentryObjCEvent * _Nonnull)",
+      "returnType": "SWIFT_DEPRECATED_MSG void (^)(SentryObjCEvent * _Nonnull)",
       "instance": true
     },
     {
@@ -729,7 +729,7 @@
       "kind": "ObjCPropertyDecl",
       "name": "onCrashedLastRun",
       "parent": "SentryObjCOptions",
-      "type": "SWIFT_DEPRECATED_MSG(\"Use onLastRunStatusDetermined instead.\") void (^)(SentryObjCEvent * _Nonnull)"
+      "type": "SWIFT_DEPRECATED_MSG void (^)(SentryObjCEvent * _Nonnull)"
     },
     {
       "kind": "ObjCPropertyDecl",
