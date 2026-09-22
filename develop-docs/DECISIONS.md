@@ -868,7 +868,7 @@ Related links:
 ## 38. Keep opt-out flags free of deprecation warnings
 
 Date: September 22, 2026
-Contributors: @philprime, @NinjaLikesCheez, @chrisaigner
+Contributors: @philprime, @NinjaLikesCheez, @christophaigner
 
 We decided to remove the compiler deprecation annotations from `enableAppHangTracking` in the [Swift options](../Sources/Swift/Options.swift) and its Objective-C wrappers while keeping the documentation about App Hang tracking's deprecation and removal in v10.
 
