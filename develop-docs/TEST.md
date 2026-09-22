@@ -120,7 +120,7 @@ Plain `swift test` uses SwiftPM's debug and ABI defaults. The opt-in [SwiftPM te
 - **Target settings:** Wrappers and wrapper tests use whole-module compilation. `SentrySwift` and `SentryObjCCompat` use library evolution and verify their textual interfaces, including on older Xcode toolchains.
 - **Diagnostics:** Sentry-owned targets use warnings-as-errors; dependencies retain their own settings. Avoid global `-Xswiftc -warnings-as-errors` or `-Xcc -Werror` overrides.
 
-Wrapper language features live in the manifests: `MemberImportVisibility` with Swift 6.1+, approachable concurrency with Swift 6.2+. They apply to ordinary builds and tests, while the xcconfig remains test-only. See its comments for setting-specific rationale.
+Wrapper language features live in the manifests: `MemberImportVisibility` and approachable concurrency are enabled unconditionally, as both are available in the oldest supported Xcode (26, Swift 6.2). They apply to ordinary builds and tests, while the xcconfig remains test-only. See its comments for setting-specific rationale.
 
 The package still checks warnings in legacy `SentryCrashSysCtl.c`, unlike the project. When changing settings, compare actual compiler commands, interface-verification results, and V9/V10 test identifiers and pass/skip outcomes. Confirm dependency diagnostics and ordinary consumer builds remain unchanged.
 

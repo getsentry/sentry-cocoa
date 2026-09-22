@@ -57,22 +57,14 @@ let v10CxxSettings: [CXXSetting] = enableV10
     : []
 
 // Match the wrapper targets' compiler settings in Sentry.xcodeproj.
-var objcCompatSwiftSettings: [SwiftSetting] = []
-#if compiler(>=6.1)
-objcCompatSwiftSettings.append(.enableUpcomingFeature("MemberImportVisibility"))
-#endif
-
-// Older Xcodes ignore approachable concurrency. Some individual features already exist in
-// older compilers, so gate the group to avoid enabling a subset that the project does not.
-#if compiler(>=6.2)
-objcCompatSwiftSettings += [
+let objcCompatSwiftSettings: [SwiftSetting] = [
+    .enableUpcomingFeature("MemberImportVisibility"),
     .enableUpcomingFeature("DisableOutwardActorInference"),
     .enableUpcomingFeature("GlobalActorIsolatedTypesUsability"),
     .enableUpcomingFeature("InferIsolatedConformances"),
     .enableUpcomingFeature("InferSendableFromCaptures"),
     .enableUpcomingFeature("NonisolatedNonsendingByDefault")
 ]
-#endif
 
 var products: [Product] = [
     .library(name: "SentryDistribution", targets: ["SentryDistribution"])
