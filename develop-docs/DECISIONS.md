@@ -39,6 +39,7 @@
 - [35. KSCrash Migration Strategy: Dual Integrations on `main`](#35-kscrash-migration-strategy-dual-integrations-on-main)
 - [36. Breadcrumb persistence durability and caller latency](#36-breadcrumb-persistence-durability-and-caller-latency)
 - [37. Strip DWARF from prebuilt SentryObjC static binaries](#37-strip-dwarf-from-prebuilt-sentryobjc-static-binaries)
+- [38. Native SwiftPM test plans](#38-native-swiftpm-test-plans)
 
 ---
 
@@ -863,3 +864,22 @@ Related links:
 - https://github.com/getsentry/sentry-cocoa/pull/8979
 - https://github.com/getsentry/sentry-cocoa/pull/8987
 - https://github.com/getsentry/sentry-cocoa/pull/3800
+
+## 38. Native SwiftPM test plans
+
+Date: September 22, 2026
+Contributors: @denrase
+
+Package CI previously translated project test plans into command-line selections and audited source ownership on every run. We replaced that routing with a checked-in `SentrySPM` scheme and native V9/V10 Base plans. This keeps test selection in Xcode's supported configuration instead of maintaining a separate execution-time translator, inventory checker, or generator.
+
+A clean source-only package discovers the shared scheme and both plans on Xcode 16.4 and 27. One-off comparisons confirmed identical discovered identifiers and disabled states across all five included suites in both SDK modes. Source-ownership and SDK-product-isolation audits passed for all three active manifests in both modes. These migration checks do not become permanent CI infrastructure.
+
+Package targets retain their names across SDK modes; CI explicitly pairs `SDK_V10` with the matching plan. Plans include whole targets with static skips, enable coverage, and disable target parallelization. The invocation also disables parallel testing. Plans pin English/US to match CI's localized-error assertions; command-line language overrides are ignored by Xcode 16.4 with these native plans. Source-only preparation and opt-in compiler settings remain necessary and unchanged. Xcode 16.4's package provider does not expand test-plan build-setting paths correctly, so the invocation passes the absolute TSAN suppression path through `TEST_RUNNER_TSAN_OPTIONS`; a temporary runtime probe verified the resulting `TSAN_OPTIONS` and file existence in both modes.
+
+This migrates only the existing package Base/distribution selection. Project Base, Flaky, TestServer, profiler, public Objective-C API, and sample/UI coverage remain unchanged. Until their execution moves, shared Base skip-policy changes must be reflected in both project and package plans. We accept that small configuration duplication rather than introducing synchronization tooling.
+
+Related links:
+
+- [Package test commands and compiler settings](TEST.md#swiftpm-sdk-tests)
+- [Shared package scheme](../.swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme)
+- [Package CI](../.github/workflows/test.yml)

@@ -30,14 +30,22 @@ make test
 
 SwiftPM mirrors the Xcode SDK test suites in V9 and V10. The main suite is split into `SentryTests` (Swift) and `SentryTestsObjC` (Objective-C/Objective-C++), with separate cross-language support targets.
 
-Use `xcodebuild` for the mixed-language suite. Native `swift test` supports the Swift-only support suites, but does not discover Objective-C tests or apply Xcode test plans. For commands and compiler settings, follow the [CI workflow](../.github/workflows/test.yml) and [SwiftPM test configuration](../Tests/Configuration/SwiftPM.xcconfig).
+Use `xcodebuild` for the mixed-language suite. Native `swift test` supports the Swift-only support suites, but does not discover Objective-C tests or apply Xcode test plans.
+
+The shared [SentrySPM scheme](../.swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme) uses `SentrySPM_Base` with `SDK_V10=0` (default), or `SentrySPM_Base_v10` with `SDK_V10=1`. Select the matching plan with `-testPlan`.
+
+Follow the [CI workflow](../.github/workflows/test.yml) for source-only preparation and test commands, using an installed simulator. Prepare a disposable checkout or copy: preparation rewrites the manifests to avoid conflicting binary/source products.
+
+#### Package Compiler Settings and Coverage Boundary
+
+Keep CI's `TestCI` configuration, explicit compiler definitions, and [SwiftPM.xcconfig](../Tests/Configuration/SwiftPM.xcconfig); package schemes do not inherit `SDK.xcconfig`. Package plans cover Base plus distribution tests. Existing project-based Base, Flaky, and TestServer jobs remain unchanged.
 
 When adding or changing tests:
 
 - Keep source membership, compiler conditions, and V10 exclusions consistent across all active package manifests and the Xcode targets. Swift sources are discovered automatically; add Objective-C/Objective-C++ sources to the explicit test or helper lists.
 - Keep test helpers out of published SDK products. Put package-only cross-language declarations in `Tests/SentryTestsSupport`, rather than relying on Xcode bridging or generated Swift headers.
 - Use `Bundle.sentryTestResources` or `SentryTestResources.bundle` for shared resources. Keep external-image fixtures in the separate dynamic `SentryTestUtilsDynamic` package.
-- Treat the [existing test plans](../Plans) as the source of truth for Base, Flaky, and TestServer selections and skips. Use [spm-test-plan.py](../scripts/spm-test-plan.py) for package routing and inventory checks instead of duplicating those rules.
+- Keep Base skips consistent between project and package plans, mapping each skip to its Swift or Objective-C package target. Preserve V10 exclusions.
 - Preserve test discovery and behavior in both build systems and SDK modes. Apply test definitions to SDK and test targets, including Swift's Clang importer, without changing dependency settings or consumer builds. Test traits and flags must remain opt-in.
 
 ### Unit Tests with Thread Sanitizer

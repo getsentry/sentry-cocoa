@@ -12,7 +12,7 @@ The Xcode project's `Test`, `TestV10`, and `TestCI` configurations enable SDK te
 
 ## SwiftPM Test Targets
 
-SwiftPM test targets are separate from published SDK products. See [SwiftPM SDK Tests](TEST.md#swiftpm-sdk-tests) for local and CI commands, V9/V10 modes, and [compiler settings and project parity](TEST.md#compiler-settings-and-project-parity).
+SwiftPM test targets are separate from published SDK products. The shared `SentrySPM` scheme uses native V9/V10 Base test plans. See [SwiftPM SDK Tests](TEST.md#swiftpm-sdk-tests) for source-only preparation and complete local/CI commands, and [package compiler settings and coverage boundary](TEST.md#package-compiler-settings-and-coverage-boundary) for opt-in test definitions and the remaining project-based jobs.
 
 ## UIKit Linking Control
 

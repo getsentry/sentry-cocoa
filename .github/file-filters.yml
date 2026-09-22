@@ -59,6 +59,7 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - "test-server/**"
   - "**/*.xctestplan"
   - "Plans/**"
+  - ".swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme"
 
   # Project files
   - "Sentry.xcodeproj/**"
@@ -88,8 +89,7 @@ run_distribution_tests_for_prs: &run_distribution_tests_for_prs
   - "SentryTestUtilsTests/**"
   - "SentryTestUtilsDynamic/**"
   - "Plans/Sentry*.xctestplan"
-  - "scripts/spm-test-plan.py"
-  - "scripts/test_spm_test_plan.py"
+  - ".swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme"
 
   # GH Actions
   - ".github/workflows/test.yml"
@@ -438,6 +438,7 @@ run_thread_inspection_harness_for_prs:
 run_build_for_prs: &run_build_for_prs
   - "Sources/**"
   - "Samples/**"
+  - ".swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme"
 
   # GH Actions
   - ".github/workflows/build.yml"
