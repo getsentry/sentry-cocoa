@@ -1,5 +1,12 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+import _SentryPrivate
+import SentryObjCInternal
+import SentryTestsObjCHelpers
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
 // swiftlint:disable file_length
@@ -468,9 +475,9 @@ class SentrySDKInternalTests: XCTestCase {
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         expectedIntegrationCount += 1
 #endif
-        XCTAssertEqual(expectedIntegrationCount, hub.installedIntegrations().count)
+        XCTAssertEqual(expectedIntegrationCount, testInstalledIntegrations(hub).count)
         SentrySDK.close()
-        XCTAssertEqual(0, hub.installedIntegrations().count)
+        XCTAssertEqual(0, testInstalledIntegrations(hub).count)
         assertIntegrationsInstalled(integrations: [])
     }
 
@@ -994,7 +1001,7 @@ private extension SentrySDKInternalTests {
     }
 
     func assertIntegrationsInstalled(integrations: [String]) {
-        XCTAssertEqual(integrations.count, SentrySDKInternal.currentHub().installedIntegrations().count)
+        XCTAssertEqual(integrations.count, testInstalledIntegrations(SentrySDKInternal.currentHub()).count)
         integrations.forEach { integration in
             if let integrationClass = NSClassFromString(integration) {
                 XCTAssertTrue(SentrySDKInternal.currentHub().isIntegrationInstalled(integrationClass), "\(integration) not installed")

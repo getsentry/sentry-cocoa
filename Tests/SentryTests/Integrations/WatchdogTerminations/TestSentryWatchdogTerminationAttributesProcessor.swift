@@ -1,5 +1,12 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+import _SentryPrivate
+import SentryObjCInternal
+import SentryTestsObjCHelpers
+#else
 @_spi(Private) @testable import Sentry
+#endif
 
 // Note: This file should ideally live in SentryTestUtils, but this would lead to circular imports.
 // When refactoring the project structure, consider moving this to SentryTestUtils.

@@ -1,4 +1,11 @@
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+import _SentryPrivate
+import SentryObjCInternal
+import SentryTestsObjCHelpers
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
 /// Snapshot testing for network envelopes.
@@ -75,7 +82,7 @@ struct NetworkEnvelopeSnapshot {
         line: UInt = #line
     ) throws {
         let resource = resourceName(for: resource)
-        guard let expectedURL = Bundle(for: type(of: testCase)).url(
+        guard let expectedURL = Bundle.sentryTestResources.url(
             forResource: "\(resourceDirectory)/\(resource)",
             withExtension: "json"
         ) else {

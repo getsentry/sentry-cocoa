@@ -1,3 +1,9 @@
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+import _SentryPrivate
+import SentryObjCInternal
+import SentryTestsObjCHelpers
+#endif
 import XCTest
 
 //Run swizzled function because if one of those funcions does not

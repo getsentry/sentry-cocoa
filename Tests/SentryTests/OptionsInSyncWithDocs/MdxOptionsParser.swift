@@ -1,3 +1,9 @@
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+import _SentryPrivate
+import SentryObjCInternal
+import SentryTestsObjCHelpers
+#endif
 /// Parses MDX content to extract SdkOption names.
 ///
 /// Matches patterns like `<SdkOption name="optionName">` or `<SdkOption name='optionName'>`.

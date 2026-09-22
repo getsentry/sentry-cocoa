@@ -2,7 +2,12 @@
 #import "SentryOptions+Tests.h"
 #import "SentrySDKInternal.h"
 #import "SentrySpanInternal.h"
-#import "SentryTests-Swift.h"
+#import "SentrySwift.h"
+#if SWIFT_PACKAGE
+@import SentryTestsSwiftHelpers;
+#else
+#    import "SentryTests-Swift.h"
+#endif
 #import <XCTest/XCTest.h>
 
 @interface SentryOptionsTest : XCTestCase

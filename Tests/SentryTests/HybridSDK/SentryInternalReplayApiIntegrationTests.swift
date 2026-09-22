@@ -1,4 +1,11 @@
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+import _SentryPrivate
+import SentryObjCInternal
+import SentryTestsObjCHelpers
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import SentryTestUtils
 import XCTest
 
@@ -48,7 +55,7 @@ class SentryInternalReplayApiIntegrationTests: XCTestCase {
     }
 
     private func getReplayIntegration() throws -> SentrySessionReplayIntegration {
-        try XCTUnwrap(SentrySDKInternal.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration)
+        try XCTUnwrap(testInstalledIntegrations(SentrySDKInternal.currentHub()).first as? SentrySessionReplayIntegration)
     }
 
     // MARK: - Accessor

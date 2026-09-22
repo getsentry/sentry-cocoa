@@ -1,5 +1,12 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+import _SentryPrivate
+import SentryObjCInternal
+import SentryTestsObjCHelpers
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
 // swiftlint:disable file_length
@@ -1417,12 +1424,22 @@ class SentryHubTests: XCTestCase {
             var replayRecording: SentryReplayRecording?
             var videoUrl: URL?
             var scope: Scope?
+            #if SWIFT_PACKAGE
+            // The original selector's Swift-owned arguments are opaque across Clang modules.
+            override func capture(_ replayEvent: Any, replayRecording: Any, video: URL, with scope: Scope) {
+                self.replayEvent = packageTestCast(replayEvent)
+                self.replayRecording = packageTestCast(replayRecording)
+                self.videoUrl = video
+                self.scope = scope
+            }
+            #else
             override func capture(_ replayEvent: SentryReplayEvent, replayRecording: SentryReplayRecording, video videoURL: URL, with scope: Scope) {
                 self.replayEvent = replayEvent
                 self.replayRecording = replayRecording
                 self.videoUrl = videoURL
                 self.scope = scope
             }
+            #endif
         }
         let mockClient = SentryClientMockReplay(options: fixture.options)
         
@@ -1878,7 +1895,7 @@ class SentryHubTests: XCTestCase {
 
         wait(for: [expectation], timeout: 5.0)
 
-        XCTAssertEqual(innerLoopAmount * outerLoopAmount, sut.installedIntegrations().count)
+        XCTAssertEqual(innerLoopAmount * outerLoopAmount, testInstalledIntegrations(sut).count)
         XCTAssertEqual(innerLoopAmount * outerLoopAmount, sut.installedIntegrationNames().count)
         
     }
@@ -1905,8 +1922,8 @@ class SentryHubTests: XCTestCase {
                     sut.isIntegrationInstalled(EmptyIntegration.self)
                     sut.getInstalledIntegration(EmptyIntegration.self)
                 }
-                XCTAssertLessThanOrEqual(0, sut.installedIntegrations().count)
-                sut.installedIntegrations().forEach { XCTAssertNotNil($0) }
+                XCTAssertLessThanOrEqual(0, testInstalledIntegrations(sut).count)
+                testInstalledIntegrations(sut).forEach { XCTAssertNotNil($0) }
                 
                 XCTAssertLessThanOrEqual(0, sut.installedIntegrationNames().count)
                 sut.installedIntegrationNames().forEach { XCTAssertNotNil($0) }
@@ -2222,7 +2239,7 @@ class TestTimeToDisplayTracker: SentryTimeToDisplayTracker {
 #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
 #if os(iOS) || os(tvOS)
 private class MockScreenshotProvider: NSObject, SentryViewScreenshotProvider {
-    func image(view: UIView, onComplete: @escaping Sentry.ScreenshotCallback) {
+    func image(view: UIView, onComplete: @escaping ScreenshotCallback) {
         onComplete(UIImage())
     }
 }
@@ -2237,8 +2254,8 @@ private class MockReplayDelegate: NSObject, SentrySessionReplayDelegate {
 }
 
 private class MockReplayMaker: NSObject, SentryReplayVideoMaker {
-    func createVideoInBackgroundWith(beginning: Date, end: Date, completion: @escaping ([Sentry.SentryVideoInfo]) -> Void) {}
-    func createVideoWith(beginning: Date, end: Date) -> [Sentry.SentryVideoInfo] { return [] }
+    func createVideoInBackgroundWith(beginning: Date, end: Date, completion: @escaping ([SentryVideoInfo]) -> Void) {}
+    func createVideoWith(beginning: Date, end: Date) -> [SentryVideoInfo] { return [] }
     func addFrameAsync(timestamp: Date, maskedViewImage: UIImage, forScreen: String?) {}
     func releaseFramesUntil(_ date: Date) {}
 }

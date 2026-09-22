@@ -1,3 +1,9 @@
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+import _SentryPrivate
+import SentryObjCInternal
+import SentryTestsObjCHelpers
+#endif
 import Foundation
 
 /**
@@ -50,7 +56,7 @@ class TestBundle {
     /// Locates the TestInfoPlist.plist file in the test bundle
     /// - Returns: URL to the plist file, or nil if not found
     private static func locateTestInfoPlist() -> URL? {
-        let testBundle = Bundle(for: TestBundle.self)
+        let testBundle = Bundle.sentryTestResources
         
         // Try with subdirectory first
         if let url = testBundle.url(forResource: "TestInfoPlist", withExtension: "plist", subdirectory: "Helper/InfoPlist") {

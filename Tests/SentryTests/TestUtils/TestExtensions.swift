@@ -1,9 +1,15 @@
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+import _SentryPrivate
+import SentryObjCInternal
+import SentryTestsObjCHelpers
+#endif
 import Foundation
 import XCTest
 
 extension XCTest {
     func contentsOfResource(_ resource: String, ofType: String = "json") throws -> Data {
-        let path = Bundle(for: type(of: self)).path(forResource: "Resources/\(resource)", ofType: "json")
+        let path = Bundle.sentryTestResources.path(forResource: "Resources/\(resource)", ofType: "json")
         return try Data(contentsOf: URL(fileURLWithPath: path ?? ""))
     }
 }

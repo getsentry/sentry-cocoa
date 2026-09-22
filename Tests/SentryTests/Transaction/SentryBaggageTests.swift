@@ -1,6 +1,13 @@
 import _SentryPrivate
 import Foundation
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+import _SentryPrivate
+import SentryObjCInternal
+import SentryTestsObjCHelpers
+#else
 import Sentry
+#endif
 import XCTest
 
 class SentryBaggageTests: XCTestCase {

@@ -1,5 +1,12 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+import _SentryPrivate
+import SentryObjCInternal
+import SentryTestsObjCHelpers
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
 class SentrySDKTests: XCTestCase {
@@ -780,7 +787,7 @@ extension SentrySDKTests {
     
     private func assertIntegrationsInstalled(integrations: [String], file: StaticString = #file, line: UInt = #line) {
         let hub = SentrySDKInternal.currentHub()
-        XCTAssertEqual(integrations.count, hub.installedIntegrations().count, file: file, line: line)
+        XCTAssertEqual(integrations.count, testInstalledIntegrations(hub).count, file: file, line: line)
         integrations.forEach { integration in
             if let integrationClass = NSClassFromString(integration) {
                 XCTAssertTrue(hub.isIntegrationInstalled(integrationClass), "\(integration) not installed", file: file, line: line)

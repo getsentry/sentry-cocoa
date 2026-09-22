@@ -1,5 +1,12 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+import _SentryPrivate
+import SentryObjCInternal
+import SentryTestsObjCHelpers
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import Foundation
 import XCTest
 
@@ -39,7 +46,7 @@ class SentryReplayApiTests: XCTestCase {
         // Assert
         wait(for: [commandExpectation], timeout: 1)
         XCTAssertTrue(mockReplayIntegration.startCalled)
-        XCTAssertEqual(mockHub.installedIntegrations().count, 1) // No new integration added
+        XCTAssertEqual(testInstalledIntegrations(mockHub).count, 1) // No new integration added
     }
 
     func testCommands_fromBackgroundThread_shouldExecuteOnMainThreadInCallOrder() throws {
@@ -87,7 +94,7 @@ class SentryReplayApiTests: XCTestCase {
         sut.startBuffering()
         waitForMainQueue()
 
-        XCTAssertFalse(hub.installedIntegrations().contains { $0 is SentrySessionReplayIntegration })
+        XCTAssertFalse(testInstalledIntegrations(hub).contains { $0 is SentrySessionReplayIntegration })
         XCTAssertEqual(logOutput.loggedMessages.filter { $0.contains("Session Replay integration is not installed") }.count, 1)
     }
 
@@ -99,7 +106,7 @@ class SentryReplayApiTests: XCTestCase {
         sut.flush()
         waitForMainQueue()
 
-        XCTAssertFalse(hub.installedIntegrations().contains { $0 is SentrySessionReplayIntegration })
+        XCTAssertFalse(testInstalledIntegrations(hub).contains { $0 is SentrySessionReplayIntegration })
     }
 
     private func setHubWithoutReplayIntegration() {

@@ -1,3 +1,10 @@
+#if SWIFT_PACKAGE
+@import SentryTestsSwiftHelpers;
+#    define SENTRY_TEST_RESOURCE_BUNDLE [SentryTestResources bundle]
+#else
+#    define SENTRY_TEST_RESOURCE_BUNDLE [NSBundle bundleForClass:self.class]
+#endif
+
 // Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SenTestCase+SentryCrash.m
@@ -56,7 +63,7 @@
                               error:&error];
     XCTAssertNil(error, @"");
 
-    NSString *bundlePath = [[NSBundle bundleForClass:[self class]] resourcePath];
+    NSString *bundlePath = [SENTRY_TEST_RESOURCE_BUNDLE resourcePath];
     NSArray *files = [fm contentsOfDirectoryAtPath:bundlePath error:&error];
     XCTAssertNil(error, @"");
 

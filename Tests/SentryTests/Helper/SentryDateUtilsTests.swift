@@ -1,3 +1,9 @@
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+import _SentryPrivate
+import SentryObjCInternal
+import SentryTestsObjCHelpers
+#endif
 import XCTest
 
 final class SentryDateUtilsTests: XCTestCase {

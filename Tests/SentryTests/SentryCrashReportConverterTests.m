@@ -1,3 +1,10 @@
+#if SWIFT_PACKAGE
+@import SentryTestsSwiftHelpers;
+#    define SENTRY_TEST_RESOURCE_BUNDLE [SentryTestResources bundle]
+#else
+#    define SENTRY_TEST_RESOURCE_BUNDLE [NSBundle bundleForClass:self.class]
+#endif
+
 #import "SentryBreadcrumb.h"
 #import "SentryCrashReportConverter.h"
 #import "SentryDateUtils.h"
@@ -13,7 +20,11 @@
 #import "SentryUser.h"
 #import <XCTest/XCTest.h>
 #import <stdint.h>
+#if SWIFT_PACKAGE
+@import SentrySwift;
+#else
 @import Sentry;
+#endif
 
 @interface SentryCrashReportConverterTests : XCTestCase
 
@@ -792,7 +803,7 @@
 
 - (NSDictionary *)getCrashReport:(NSString *)path
 {
-    NSString *jsonPath = [[NSBundle bundleForClass:self.class] pathForResource:path ofType:@"json"];
+    NSString *jsonPath = [SENTRY_TEST_RESOURCE_BUNDLE pathForResource:path ofType:@"json"];
     if (jsonPath == nil) {
         XCTFail(@"Was unable to find crash report in resources for path: '%@'", path);
         return @{ };

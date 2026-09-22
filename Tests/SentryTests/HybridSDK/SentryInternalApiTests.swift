@@ -1,5 +1,12 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+import _SentryPrivate
+import SentryObjCInternal
+import SentryTestsObjCHelpers
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
 #if !os(tvOS) && !os(watchOS) && !os(visionOS)
@@ -521,7 +528,7 @@ class SentryInternalApiTests: XCTestCase {
     }
 
     private func getFirstIntegrationAsReplay() throws -> SentrySessionReplayIntegration {
-        return try XCTUnwrap(SentrySDKInternal.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration)
+        return try XCTUnwrap(testInstalledIntegrations(SentrySDKInternal.currentHub()).first as? SentrySessionReplayIntegration)
     }
     
     private let VALID_REPLAY_ID = "0eac7ab503354dd5819b03e263627a29"

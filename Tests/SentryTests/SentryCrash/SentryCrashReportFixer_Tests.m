@@ -1,3 +1,10 @@
+#if SWIFT_PACKAGE
+@import SentryTestsSwiftHelpers;
+#    define SENTRY_TEST_RESOURCE_BUNDLE [SentryTestResources bundle]
+#else
+#    define SENTRY_TEST_RESOURCE_BUNDLE [NSBundle bundleForClass:self.class]
+#endif
+
 #import "SentryCrashReportFixer.h"
 #import <XCTest/XCTest.h>
 
@@ -23,7 +30,7 @@
 
 - (void)testLoadCrash
 {
-    NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+    NSBundle *bundle = SENTRY_TEST_RESOURCE_BUNDLE;
     NSString *rawPath = [bundle pathForResource:@"Resources/raw" ofType:@"json"];
     NSData *rawData = [NSData dataWithContentsOfFile:rawPath];
     char *fixedBytes = sentrycrashcrf_fixupCrashReport(rawData.bytes);
