@@ -405,8 +405,8 @@ run_v10_for_prs: &run_v10_for_prs
   - "scripts/check-ui-framework-linkage.sh"
   - "scripts/prepare-package.sh"
 
-  # Samples
-  - "Samples/macOS-CLI-Xcode/**"
+  # TestApps
+  - "TestApps/macOS-CLI-Xcode/**"
 
   # Project files
   - "Sentry.xcodeproj/**"
@@ -424,7 +424,7 @@ run_crash_e2e_for_prs:
   - "Sources/SentryCppHelper/**"
   - "Sources/SentryCrash/**"
   - "Sources/Swift/**"
-  - "TestSamples/CrashE2E/**"
+  - "TestApps/CrashE2E/**"
 
   # GH Actions
   - ".github/workflows/test-crash-e2e.yml"
@@ -656,7 +656,9 @@ run_ui_tests_critical_for_prs: &run_ui_tests_critical_for_prs
   - "Sources/SentryObjCCompat/**"
   - "Sources/SentrySwiftUI/**"
   - "Sources/Swift/**"
-  - "TestSamples/**"
+  - "TestApps/CrashE2E/**"
+  - "TestApps/SwiftUICrashTest/**"
+  - "TestApps/SwiftUITestSample/**"
 
   # GH Actions
   - ".github/workflows/ui-tests-critical.yml"

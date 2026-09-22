@@ -110,8 +110,8 @@ TestApps/watchOS-Swift/watchOS-Swift.xcodeproj
 !/TestApps/XCFramework-Validation/XCFramework/Info.plist
 /TestApps/**/*.entitlements
 
-TestSamples/SwiftUICrashTest/SwiftUICrashTest.xcodeproj
-TestSamples/SwiftUITestSample/SwiftUITestSample.xcodeproj
+TestApps/SwiftUICrashTest/SwiftUICrashTest.xcodeproj
+TestApps/SwiftUITestSample/SwiftUITestSample.xcodeproj
 
 *.xcframework*
 

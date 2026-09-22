@@ -61,8 +61,8 @@ Run all of these on beta Xcode and the new iOS runtime. Point the shell at them 
 - [ ] `make analyze`
 - [ ] If major-version work is in flight, run its dedicated build and test targets
 - [ ] `make build-testapps` (must be warning-free — and diff its list against `ls TestApps/`, it misses directories), `make test-testapps-ui`, `make test-ui-critical`
-- [ ] `./TestSamples/CrashE2E/run-crash-e2e.sh --platform all` (manual — `all` selects only iOS and macOS, not all Apple platforms; `test-crash-e2e.yml` runs it in CI only with the stable Xcode)
-- [ ] `./TestSamples/SwiftUICrashTest/test-crash-and-relaunch.sh --device-id "$IOS_DEVICE_ID" --os-version "$IOS_SIMULATOR_OS"`
+- [ ] `./TestApps/CrashE2E/run-crash-e2e.sh --platform all` (manual — `all` selects only iOS and macOS, not all Apple platforms; `test-crash-e2e.yml` runs it in CI only with the stable Xcode)
+- [ ] `./TestApps/SwiftUICrashTest/test-crash-and-relaunch.sh --device-id "$IOS_DEVICE_ID" --os-version "$IOS_SIMULATOR_OS"`
 - [ ] `make build-xcframework-dynamic` + `make build-xcframework-static`
 - [ ] Triage every error and warning: does it also happen on stable Xcode?
 - [ ] When beta validation confirms a user-facing breaking change, open and pin a public warning issue (for example, [#8113](https://github.com/getsentry/sentry-cocoa/issues/8113)) as soon as possible; include the current and new requirements, target release, rationale, impact, and fallback SDK version
@@ -101,7 +101,7 @@ Keep all RC work in this checklist so it has one owner.
 
 - [ ] Run the full beta-Xcode CI matrix against the RC Xcode and runtimes, including unit-test, UI-test, and critical-UI jobs
 - [ ] Run `make analyze` manually with the RC Xcode unless beta-Xcode analyzer CI exists
-- [ ] Repeat what CI doesn't cover: samples, crash E2E, xcframeworks, and the phase 3c telemetry check
+- [ ] Repeat what CI doesn't cover: test apps, crash E2E, xcframeworks, and the phase 3c telemetry check
 - [ ] Triage everything that changed since the first beta
 
 ## 5. Make new-OS CI required — GA

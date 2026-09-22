@@ -61,20 +61,16 @@
       <FileRef
          location = "group:TestApps/SDK-Size/SDK-Size.xcodeproj">
       </FileRef>
+      <FileRef
+         location = "group:TestApps/SwiftUITestSample/SwiftUITestSample.xcodeproj">
+      </FileRef>
+      <FileRef
+         location = "group:TestApps/SwiftUICrashTest/SwiftUICrashTest.xcodeproj">
+      </FileRef>
    </Group>
    <FileRef
       location = "group:Sentry.xcodeproj">
    </FileRef>
-   <Group
-      location = "container:"
-      name = "TestSamples">
-      <FileRef
-         location = "group:TestSamples/SwiftUITestSample/SwiftUITestSample.xcodeproj">
-      </FileRef>
-      <FileRef
-         location = "group:TestSamples/SwiftUICrashTest/SwiftUICrashTest.xcodeproj">
-      </FileRef>
-   </Group>
    <FileSystemSynchronizedGroup
       location = "group:Utils"
       name = "Utils">

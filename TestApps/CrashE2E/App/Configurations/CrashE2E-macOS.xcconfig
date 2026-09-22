@@ -1,4 +1,4 @@
-#include "../../../Common.xcconfig"
+#include "_Common.xcconfig"
 
 PRODUCT_NAME = CrashE2E-macOS
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.tests.CrashE2E.macOS

@@ -20,7 +20,7 @@ struct Directories {
             .deletingLastPathComponent() // Runner
             .deletingLastPathComponent() // CrashE2E
         let repoRoot = crashE2EDir
-            .deletingLastPathComponent() // TestSamples
+            .deletingLastPathComponent() // TestApps
             .deletingLastPathComponent() // repo root
         return Directories(crashE2EDir: crashE2EDir, repoRoot: repoRoot)
     }

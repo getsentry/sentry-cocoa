@@ -301,12 +301,12 @@ jobs:
           resolve-simulators: "false"
 
       - run: make init-ci-build
-      - run: scripts/generate-sample-v10.sh --spec Samples/macOS-CLI-Xcode/macOS-CLI-Xcode.yml
+      - run: scripts/generate-testapp-v10.sh --spec TestApps/macOS-CLI-Xcode/macOS-CLI-Xcode.yml
 
-      - name: Build macOS-CLI-Xcode sample
+      - name: Build macOS-CLI-Xcode test app
         run: |
           set -o pipefail && xcodebuild \
-            -project "Samples/macOS-CLI-Xcode/macOS-CLI-Xcode.xcodeproj" \
+            -project "TestApps/macOS-CLI-Xcode/macOS-CLI-Xcode.xcodeproj" \
             -scheme macOS-CLI-Xcode \
             -configuration Debug \
             -destination 'platform=macOS' \

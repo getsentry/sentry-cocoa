@@ -2009,11 +2009,11 @@ xcode-ci-SDK-Size:
 
 .PHONY: xcode-ci-SwiftUITestSample
 xcode-ci-SwiftUITestSample:
-	xcodegen --spec TestSamples/SwiftUITestSample/SwiftUITestSample.yml
+	xcodegen --spec TestApps/SwiftUITestSample/SwiftUITestSample.yml
 
 .PHONY: xcode-ci-SwiftUICrashTest
 xcode-ci-SwiftUICrashTest:
-	xcodegen --spec TestSamples/SwiftUICrashTest/SwiftUICrashTest.yml
+	xcodegen --spec TestApps/SwiftUICrashTest/SwiftUICrashTest.yml
 
 # ============================================================================
 # HELP & DOCUMENTATION
