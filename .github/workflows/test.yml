@@ -119,24 +119,9 @@ jobs:
         uses: ./.github/actions/resolve-test-destination
         with:
           platform: iOS
-      - name: Prepare Package.swift
+      - name: Prepare test packages
         shell: bash
-        run: |
-          # Swift 6.1+ and 6.2+ uses Package@swift-6.1.swift and Package@swift-6.2.swift; hide it so prepare-package's
-          # modified Package.swift is used (avoids "Multiple commands produce" from
-          # unmodified binary targets in the 6.1 and 6.2 manifests).
-          if [[ -f Package@swift-6.1.swift ]]; then
-            mv Package@swift-6.1.swift Package@swift-6.1.swift.bak
-          fi
-          if [[ -f Package@swift-6.2.swift ]]; then
-            mv Package@swift-6.2.swift Package@swift-6.2.swift.bak
-          fi
-          ./scripts/prepare-package.sh \
-            --package-file Package.swift \
-            --is-pr "${{ github.event_name == 'pull_request' }}" \
-            --remove-duplicate true \
-            --change-path false \
-            --remove-binary-targets true
+        run: ./scripts/prepare-package.sh --remove-binary-targets true
       - name: Ensure required runtime is loaded
         # Ideally we will not need this, but CI sometimes is failing to load some runtimes, this will ensure they are loaded
         timeout-minutes: 5 # 5 minutes timeout
@@ -150,11 +135,9 @@ jobs:
           TEST_DEVICE: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
           # Native Base plans include distribution tests; see develop-docs/TEST.md.
-          # Forward an absolute TSAN suppression path for package tests.
           status=0
           # Xcode, not the shell, expands $(inherited).
           # shellcheck disable=SC2016
-          TEST_RUNNER_TSAN_OPTIONS="suppressions=$PWD/Sources/Resources/ThreadSanitizer.sup" \
           NSUnbufferedIO=YES xcodebuild test -workspace . -scheme SentrySPM \
             -configuration TestCI -parallel-testing-enabled NO \
             -testPlan "$TEST_PLAN" \

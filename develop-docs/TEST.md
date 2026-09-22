@@ -28,7 +28,7 @@ make test
 
 ### SwiftPM SDK Tests
 
-SDK tests need test definitions in both the SDK and test targets; `DEBUG` and `@testable import` alone are insufficient. For local macOS tests with Swift 6.1+, run from the repository root:
+SDK tests need test definitions in both the SDK and test targets; `DEBUG` and `@testable import` alone are insufficient. For local macOS tests with Xcode 26 or newer, run from the repository root:
 
 ```sh
 swift test --traits _SentryTest
@@ -49,13 +49,6 @@ The traits match [SDK.xcconfig](../Sources/Configuration/SDK.xcconfig), includin
 
 > [!WARNING]
 > Test traits and flags change SDK behavior. Enable them only for SDK tests, never unconditionally in manifests or consumer builds. The underscore does not make traits private.
-
-Swift 6.0 requires explicit flags instead (prefix either command with `SDK_V10=1` for V10):
-
-```sh
-swift test -Xswiftc -DSENTRY_TEST -Xcc -DSENTRY_TEST=1
-swift test -Xswiftc -DSENTRY_TEST_CI -Xcc -DDEBUG=1 -Xcc -DSENTRY_TEST=1 -Xcc -DSENTRY_TEST_CI=1
-```
 
 To run a specific suite, append `--filter <test-target>`, for example `--filter SentryObjCCompatTests`.
 
@@ -82,7 +75,6 @@ if [[ "${SDK_V10:-0}" == "1" ]]; then
 fi
 
 status=0
-TEST_RUNNER_TSAN_OPTIONS="suppressions=$package_dir/Sources/Resources/ThreadSanitizer.sup" \
 xcodebuild test -workspace "$package_dir" -scheme SentrySPM \
   -configuration Test -parallel-testing-enabled NO \
   -testPlan "$test_plan" \
@@ -98,9 +90,8 @@ grep -E 'Executed|error:|TEST SUCCEEDED|TEST FAILED' "$package_dir/package-tests
 - For V10, run `export SDK_V10=1` before the commands above.
 - Use an available iOS simulator destination for iOS-specific tests.
 - Limit a run with `-only-testing:<test-target>`, for example `-only-testing:SentryObjCCompatTests`.
-- CI uses `TestCI` and the corresponding definitions from the table above. The [Distribution Tests job](../.github/workflows/test.yml) selects Xcode 26 on `macos-26` and resolves the iOS simulator runtime and device from that toolchain.
+- CI uses `TestCI` and the corresponding definitions from the table above. The [Distribution Tests job](../.github/workflows/test.yml) prepares all package manifests, selects Xcode 26 on `macos-26`, and resolves the iOS simulator runtime and device from that toolchain.
 - Keep shared Base exclusions consistent between project and package plans, mapping methods to the Swift or Objective-C package target. Project Base, Flaky, and TestServer plans remain unchanged.
-- Pass TSAN's suppression path explicitly: Xcode 16 does not expand package test-plan build-setting paths correctly.
 
 #### Profiler tests
 
@@ -117,7 +108,7 @@ Use `xcodebuild`, not `swift test`, to include the Objective-C/Objective-C++ tes
 Plain `swift test` uses SwiftPM's debug and ABI defaults. The opt-in [SwiftPM test configuration](../Tests/Configuration/SwiftPM.xcconfig) aligns package-workspace tests with the project:
 
 - **Test compilation:** `Test`/`TestCI` omit automatic Swift `DEBUG`, preserve manifest definitions, and use unoptimized, testable Sentry builds. Do not substitute `Debug`.
-- **Target settings:** Wrappers and wrapper tests use whole-module compilation. `SentrySwift` and `SentryObjCCompat` use library evolution and verify their textual interfaces, including on older Xcode toolchains.
+- **Target settings:** Wrappers and wrapper tests use whole-module compilation. `SentrySwift` and `SentryObjCCompat` use library evolution and verify their textual interfaces.
 - **Diagnostics:** Sentry-owned targets use warnings-as-errors; dependencies retain their own settings. Avoid global `-Xswiftc -warnings-as-errors` or `-Xcc -Werror` overrides.
 
 Wrapper language features live in the manifests: `MemberImportVisibility` and approachable concurrency are enabled unconditionally, as both are available in the oldest supported Xcode (26, Swift 6.2). They apply to ordinary builds and tests, while the xcconfig remains test-only. See its comments for setting-specific rationale.
