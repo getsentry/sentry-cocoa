@@ -27,23 +27,6 @@ extension SentryKSCrash {
             "--io.sentry.crash-e2e-kscrash-processing-complete"
         private static let errorDomain = "io.sentry.crash-e2e-kscrash"
 
-        static var reportUserInfo: [String: Any]? {
-            let marker: String
-            switch argumentValue(after: "--scenario") {
-            case "kscrash-retry-report-a":
-                marker = "crash-e2e-kscrash-report-a"
-            case "kscrash-retry-report-b":
-                marker = "crash-e2e-kscrash-report-b"
-            default:
-                return nil
-            }
-            return [
-                "context": [
-                    "crash_e2e_kscrash_retry": ["report": marker]
-                ]
-            ]
-        }
-
         static func retryableProcessingError(for report: [AnyHashable: Any]) -> (any Error)? {
             guard let marker = argumentValue(after: retryableMarkerArgument),
                   contains(marker: marker, in: report) else {
