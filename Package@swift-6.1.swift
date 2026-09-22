@@ -420,7 +420,9 @@ if !enableV10 {
             name: "SentryProfilerTestsObjC",
             dependencies: ["SentryObjCInternal", "SentryProfilerTestSupport", "SentryTestUtilsObjCpp"],
             path: "Tests/SentryProfilerTests/ObjC",
-            cSettings: v10CSettings,
+            cSettings: [
+                .headerSearchPath("../../../Sources/Sentry")
+            ] + v10CSettings,
             // Xcode disables C++ modules for package test bundles by default. The ObjC++
             // tests import SentrySwift's generated Objective-C interface as a Clang module.
             cxxSettings: [.unsafeFlags(["-fcxx-modules"])] + v10CxxSettings,
