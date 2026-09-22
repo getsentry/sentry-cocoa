@@ -97,10 +97,13 @@ jobs:
         include:
           - mode: V9
             sdk-v10: "0"
+            test-plan: SentrySPM_Base
           - mode: V10
             sdk-v10: "1"
+            test-plan: SentrySPM_Base_v10
     env:
       SDK_V10: ${{ matrix.sdk-v10 }}
+      TEST_PLAN: ${{ matrix.test-plan }}
     # Don't run this on release branches, cause the SPM Package.swift points to the unreleased versions.
     # Also, skip when PR changes don't require running tests to save CI time.
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_distribution_tests_for_prs == 'true')
@@ -134,21 +137,15 @@ jobs:
         run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
       - name: Run package tests
         run: |
-          # Match project test compilation and diagnostics; see develop-docs/TEST.md.
+          # Native Base plans include distribution tests; see develop-docs/TEST.md.
+          # Package plan build-setting expansion is empty on Xcode 16; forward TSAN's absolute path.
           status=0
-          profiler_skips=()
-          if [[ "$SDK_V10" != "1" ]]; then
-            # Match the profiler exclusions in Plans/Sentry_Base.xctestplan.
-            profiler_skips=(
-              '-skip-testing:SentryProfilerTests/SentryContinuousProfilerTests/testStoppingProfilerTransmitsLastFullChunk()'
-              '-skip-testing:SentryProfilerTestsObjC/SentryProfilerTests/testProfilerMutationDuringSlicing'
-            )
-          fi
           # Xcode, not the shell, expands $(inherited).
           # shellcheck disable=SC2016
-          NSUnbufferedIO=YES xcodebuild test -workspace . -scheme Sentry-Package \
+          TEST_RUNNER_TSAN_OPTIONS="suppressions=$PWD/Sources/Resources/ThreadSanitizer.sup" \
+          NSUnbufferedIO=YES xcodebuild test -workspace . -scheme SentrySPM \
             -configuration TestCI -parallel-testing-enabled NO \
-            "${profiler_skips[@]}" \
+            -testPlan "$TEST_PLAN" \
             -sdk iphonesimulator -destination 'platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro' \
             -xcconfig Tests/Configuration/SwiftPM.xcconfig \
             'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SENTRY_TEST_CI' \

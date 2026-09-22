@@ -61,29 +61,31 @@ To run a specific suite, append `--filter <test-target>`, for example `--filter 
 
 #### Package tests with xcodebuild
 
-For project-equivalent compilation or simulator/device tests, use `xcodebuild`. It cannot select root-package traits from the command line, so explicit test flags are still required. Prepare and test a temporary source-only package to avoid duplicate binary outputs:
+For project-equivalent compilation or simulator/device tests, use `xcodebuild` with the shared [SentrySPM scheme](../.swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme). Select `SentrySPM_Base` for V9 or `SentrySPM_Base_v10` with `SDK_V10=1`. These native plans include all current package test targets, with profiler tests only in V9. `swift test` does not apply Xcode test plans.
+
+`xcodebuild` cannot select root-package traits from the command line, so explicit test flags are still required. Prepare and test a temporary source-only package to avoid duplicate binary outputs:
 
 ```sh
 package_dir="$(mktemp -d)"
 package_test_config="$PWD/Tests/Configuration/SwiftPM.xcconfig"
-rsync -a Package*.swift Sources SentryTestUtils SentryTestUtilsTests Tests "$package_dir/"
+rsync -a Package*.swift Sources SentryTestUtils SentryTestUtilsTests Tests Plans "$package_dir/"
+package_schemes=.swiftpm/xcode/xcshareddata/xcschemes
+mkdir -p "$package_dir/$package_schemes"
+cp "$package_schemes/SentrySPM.xcscheme" "$package_dir/$package_schemes/"
 for manifest in "$package_dir"/Package*.swift; do
   ./scripts/prepare-package.sh --package-file "$manifest" --remove-binary-targets true
 done
 
-profiler_skips=()
-if [[ "${SDK_V10:-0}" != "1" ]]; then
-  # Match Plans/Sentry_Base.xctestplan.
-  profiler_skips=(
-    '-skip-testing:SentryProfilerTests/SentryContinuousProfilerTests/testStoppingProfilerTransmitsLastFullChunk()'
-    '-skip-testing:SentryProfilerTestsObjC/SentryProfilerTests/testProfilerMutationDuringSlicing'
-  )
+test_plan=SentrySPM_Base
+if [[ "${SDK_V10:-0}" == "1" ]]; then
+  test_plan=SentrySPM_Base_v10
 fi
 
 status=0
-xcodebuild test -workspace "$package_dir" -scheme Sentry-Package \
+TEST_RUNNER_TSAN_OPTIONS="suppressions=$package_dir/Sources/Resources/ThreadSanitizer.sup" \
+xcodebuild test -workspace "$package_dir" -scheme SentrySPM \
   -configuration Test -parallel-testing-enabled NO \
-  "${profiler_skips[@]}" \
+  -testPlan "$test_plan" \
   -destination 'platform=macOS' \
   -xcconfig "$package_test_config" \
   'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SENTRY_TEST' \
@@ -97,6 +99,8 @@ grep -E 'Executed|error:|TEST SUCCEEDED|TEST FAILED' "$package_dir/package-tests
 - Use an available iOS simulator destination for iOS-specific tests.
 - Limit a run with `-only-testing:<test-target>`, for example `-only-testing:SentryObjCCompatTests`.
 - CI uses `TestCI` and the corresponding definitions from the table above; see the [Distribution Tests job](../.github/workflows/test.yml).
+- Keep shared Base exclusions consistent between project and package plans, mapping methods to the Swift or Objective-C package target. Project Base, Flaky, and TestServer plans remain unchanged.
+- Pass TSAN's suppression path explicitly: Xcode 16 does not expand package test-plan build-setting paths correctly.
 
 #### Profiler tests
 
@@ -106,7 +110,7 @@ The profiler suite is V9-only. Use the package-workspace command above with both
 -only-testing:SentryProfilerTests -only-testing:SentryProfilerTestsObjC
 ```
 
-Use `xcodebuild`, not `swift test`, to include the Objective-C/Objective-C++ tests. Keep the `Test`/`TestCI` configuration, base-plan skips, and disabled parallelization from the command above.
+Use `xcodebuild`, not `swift test`, to include the Objective-C/Objective-C++ tests. Keep the `Test`/`TestCI` configuration, `SentrySPM_Base` plan, and disabled parallelization from the command above. The plan carries the two existing profiler exclusions; the project's Flaky plan continues to run `testStoppingProfilerTransmitsLastFullChunk()`.
 
 #### Compiler settings and project parity
 

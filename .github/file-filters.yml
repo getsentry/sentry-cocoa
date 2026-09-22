@@ -59,6 +59,7 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - "test-server/**"
   - "**/*.xctestplan"
   - "Plans/**"
+  - ".swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme"
 
   # Project files
   - "Sentry.xcodeproj/**"
@@ -85,6 +86,8 @@ run_distribution_tests_for_prs: &run_distribution_tests_for_prs
   # Private declarations imported by the package profiler support module.
   - "Tests/SentryTests/*.h"
   - "Plans/Sentry_Base.xctestplan"
+  - "Plans/SentrySPM_*.xctestplan"
+  - ".swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme"
   - "Tests/Configuration/**"
   - "SentryTestUtils/**"
   - "SentryTestUtilsTests/**"
@@ -469,6 +472,7 @@ run_thread_inspection_harness_for_prs:
 run_build_for_prs: &run_build_for_prs
   - "Sources/**"
   - "Samples/**"
+  - ".swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme"
 
   # GH Actions
   - ".github/workflows/build.yml"
