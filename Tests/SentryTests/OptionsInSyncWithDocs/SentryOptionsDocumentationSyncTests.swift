@@ -29,7 +29,6 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         ]
 
         #if !SDK_V10
-        options.insert("enableAppHangTrackingValue") // Internal backing for deprecated enableAppHangTracking
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         options.insert("enableReportNonFullyBlockingAppHangsValue") // Internal backing for deprecated enableReportNonFullyBlockingAppHangs
         #endif
