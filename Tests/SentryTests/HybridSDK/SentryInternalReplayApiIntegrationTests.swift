@@ -221,15 +221,15 @@ class SentryInternalReplayApiIntegrationTests: XCTestCase {
         startSDKWithoutReplay()
 
         // -- Act & Assert (no-op, no crash across the hybrid boundary) --
-        SentrySDK.internal.replay.registerTraceId(SentryId().sentryIdString)
+        SentrySDK.internal.replay.registerTraceId(SentryId())
     }
 
     func testRegisterTraceId_withReplayEnabled_shouldNotCrash() {
         startSDKWithReplay()
 
         // -- Act & Assert (no active recording in test env; routing must not crash) --
-        SentrySDK.internal.replay.registerTraceId(SentryId().sentryIdString)
-        SentrySDK.internal.replay.registerTraceId("not-a-valid-trace-id")
+        SentrySDK.internal.replay.registerTraceId(SentryId())
+        SentrySDK.internal.replay.registerTraceId(SentryId.empty)
     }
 
     func testRegisterTraceId_whenBufferRecording_shouldRouteToRecordingReplay() throws {
@@ -262,7 +262,7 @@ class SentryInternalReplayApiIntegrationTests: XCTestCase {
         let sessionReplay = try XCTUnwrap(integration.sessionReplay, "Buffer replay should be recording")
 
         // -- Act & Assert: registering through the public API reaches the live recording replay --
-        SentrySDK.internal.replay.registerTraceId(Self.validReplayId)
+        SentrySDK.internal.replay.registerTraceId(SentryId(uuidString: Self.validReplayId))
         XCTAssertTrue(sessionReplay.isRunning)
     }
 }

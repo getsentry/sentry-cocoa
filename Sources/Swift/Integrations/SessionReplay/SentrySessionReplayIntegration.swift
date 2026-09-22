@@ -198,17 +198,21 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         }
     }
 
-    /// The trace ID (hex string) an event belongs to, for associating it with the replay segment.
+    /// The trace ID an event belongs to, for associating it with the replay segment.
     ///
     /// Transactions are read from the transaction's own trace: by the time global processors run,
     /// the tracer has been removed from the scope, so on the v9 build the event's `context["trace"]`
     /// holds the idle propagation trace rather than the transaction's. Other events (e.g. errors)
     /// carry the correct trace in their context, populated by the scope before processors run.
-    private func traceId(for event: Event) -> String? {
+    private func traceId(for event: Event) -> SentryId? {
         if let transaction = event as? Transaction {
-            return transaction.trace.traceId.sentryIdString
+            return transaction.trace.traceId
         }
-        return event.context?["trace"]?["trace_id"] as? String
+        guard let hexString = event.context?["trace"]?["trace_id"] as? String else {
+            return nil
+        }
+        let traceId = SentryId(uuidString: hexString)
+        return traceId == SentryId.empty ? nil : traceId
     }
 
     // MARK: - Session Listener
@@ -485,11 +489,11 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         sessionReplay?.replayTags = tags
     }
 
-    /// Registers a trace ID (hex string) with the current replay segment.
+    /// Registers a trace ID with the current replay segment.
     ///
     /// No-op when no replay is recording. Reachable from hybrid SDKs through
     /// `SentrySDK.internal.replay.registerTraceId(_:)`.
-    @objc public func registerReplayTraceId(_ traceId: String) {
+    @objc public func registerReplayTraceId(_ traceId: SentryId) {
         sessionReplay?.registerTraceId(traceId)
     }
 

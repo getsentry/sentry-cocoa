@@ -67,8 +67,8 @@ import Foundation
         wrapped.value.setTags(tags)
     }
 
-    @objc public func registerTraceId(_ traceId: String) {
-        wrapped.value.registerTraceId(traceId)
+    @objc public func registerTraceId(_ traceId: SentryObjCId) {
+        wrapped.value.registerTraceId(traceId.wrapped)
     }
 }
 

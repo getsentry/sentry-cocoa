@@ -497,7 +497,7 @@ class SentrySessionReplayTests: XCTestCase {
         let fixture = Fixture()
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
         sut.start(rootView: fixture.rootView, fullSession: true)
-        let traceId = SentryId().sentryIdString
+        let traceId = SentryId()
 
         // -- Act --
         sut.registerTraceId(traceId)
@@ -505,7 +505,7 @@ class SentrySessionReplayTests: XCTestCase {
 
         // -- Assert --
         let segment = try XCTUnwrap(fixture.lastReplayEvent)
-        XCTAssertEqual(segment.traceIds, [traceId])
+        XCTAssertEqual(segment.traceIds, [traceId.sentryIdString])
     }
 
     func testRegisterTraceId_whenBufferModeErrorCaptured_shouldIncludeTraceId() throws {
@@ -513,7 +513,7 @@ class SentrySessionReplayTests: XCTestCase {
         let fixture = Fixture()
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 1))
         sut.start(rootView: fixture.rootView, fullSession: false)
-        let traceId = SentryId().sentryIdString
+        let traceId = SentryId()
 
         // -- Act --
         sut.registerTraceId(traceId)
@@ -521,7 +521,7 @@ class SentrySessionReplayTests: XCTestCase {
 
         // -- Assert --
         let segment = try XCTUnwrap(fixture.lastReplayEvent)
-        XCTAssertEqual(segment.traceIds, [traceId])
+        XCTAssertEqual(segment.traceIds, [traceId.sentryIdString])
     }
 
     func testRegisterTraceId_whenMoreThan100Registered_shouldCapAt100() throws {
@@ -532,7 +532,7 @@ class SentrySessionReplayTests: XCTestCase {
 
         // -- Act --
         for _ in 0..<150 {
-            sut.registerTraceId(SentryId().sentryIdString)
+            sut.registerTraceId(SentryId())
         }
         captureFullSessionSegment(fixture)
 
@@ -546,7 +546,7 @@ class SentrySessionReplayTests: XCTestCase {
         let fixture = Fixture()
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
         sut.start(rootView: fixture.rootView, fullSession: true)
-        let traceId = SentryId().sentryIdString
+        let traceId = SentryId()
 
         // -- Act --
         sut.registerTraceId(traceId)
@@ -557,20 +557,18 @@ class SentrySessionReplayTests: XCTestCase {
         let secondSegment = try XCTUnwrap(fixture.lastReplayEvent)
 
         // -- Assert --
-        XCTAssertEqual(firstSegment.traceIds, [traceId])
+        XCTAssertEqual(firstSegment.traceIds, [traceId.sentryIdString])
         XCTAssertNil(secondSegment.traceIds)
     }
 
-    func testRegisterTraceId_whenMalformedOrEmpty_shouldIgnore() throws {
+    func testRegisterTraceId_whenEmpty_shouldIgnore() throws {
         // -- Arrange --
         let fixture = Fixture()
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
         sut.start(rootView: fixture.rootView, fullSession: true)
 
         // -- Act --
-        sut.registerTraceId("not-a-valid-trace-id")
-        sut.registerTraceId("")
-        sut.registerTraceId(SentryId.empty.sentryIdString)
+        sut.registerTraceId(SentryId.empty)
         captureFullSessionSegment(fixture)
 
         // -- Assert --
@@ -583,7 +581,7 @@ class SentrySessionReplayTests: XCTestCase {
         let fixture = Fixture()
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
         sut.start(rootView: fixture.rootView, fullSession: true)
-        let traceId = SentryId().sentryIdString
+        let traceId = SentryId()
 
         // -- Act --
         sut.registerTraceId(traceId)
@@ -592,7 +590,7 @@ class SentrySessionReplayTests: XCTestCase {
 
         // -- Assert --
         let segment = try XCTUnwrap(fixture.lastReplayEvent)
-        XCTAssertEqual(segment.traceIds, [traceId])
+        XCTAssertEqual(segment.traceIds, [traceId.sentryIdString])
     }
 
     func testRegisterTraceId_whenCalledConcurrently_shouldBeThreadSafe() throws {
@@ -600,7 +598,7 @@ class SentrySessionReplayTests: XCTestCase {
         let fixture = Fixture()
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
         sut.start(rootView: fixture.rootView, fullSession: true)
-        let ids = (0..<200).map { _ in SentryId().sentryIdString }
+        let ids = (0..<200).map { _ in SentryId() }
 
         // -- Act --
         let queue = DispatchQueue(label: "io.sentry.test.trace-id", attributes: .concurrent)
@@ -620,7 +618,7 @@ class SentrySessionReplayTests: XCTestCase {
         // Capped at 100; the assertion is primarily that concurrent access neither crashes nor
         // corrupts the buffer (would trip the thread sanitizer otherwise).
         XCTAssertEqual(segment.traceIds?.count, 100)
-        let registered = Set(ids)
+        let registered = Set(ids.map { $0.sentryIdString })
         XCTAssertTrue(try XCTUnwrap(segment.traceIds).allSatisfy { registered.contains($0) })
     }
 

@@ -43887,9 +43887,9 @@
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
+                "name": "SentryId",
+                "printedName": "Sentry.SentryId",
+                "usr": "c:objc(cs)SentryId"
               },
               {
                 "kind": "TypeNominal",
@@ -43900,11 +43900,11 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A17InternalReplayApiV15registerTraceIdyySSF",
+            "mangledName": "$s6Sentry0A17InternalReplayApiV15registerTraceIdyySo0aG0CF",
             "moduleName": "Sentry",
             "name": "registerTraceId",
             "printedName": "registerTraceId(_:)",
-            "usr": "s:6Sentry0A17InternalReplayApiV15registerTraceIdyySSF"
+            "usr": "s:6Sentry0A17InternalReplayApiV15registerTraceIdyySo0aG0CF"
           },
           {
             "children": [
