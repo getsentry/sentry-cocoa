@@ -1685,7 +1685,31 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertTrue(breadcrumbs?.isEmpty ?? true)
     }
 
-    func testResume_whenDuplicateTaskResumesAfterMatchingSpanFinishes_shouldTrackTask() throws {
+    func testResume_whenTaskCarriesCancelledNetworkSpanHeader_shouldIgnoreDuplicateTask() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        let transaction = try XCTUnwrap(startTransaction() as? SentryTracer)
+        let originalTask = createDataTask()
+        sut.urlSessionTaskResume(originalTask)
+        let originalSpan = try XCTUnwrap(transaction.children.first)
+        let forwardedRequest = try XCTUnwrap(originalTask.currentRequest)
+        try setTaskState(originalTask, state: .canceling)
+        let duplicateTask = createDataTask { _ in forwardedRequest }
+
+        // -- Act --
+        sut.urlSessionTaskResume(duplicateTask)
+        duplicateTask.setResponse(try createResponse(code: 200))
+        try setTaskState(duplicateTask, state: .completed)
+
+        // -- Assert --
+        XCTAssertEqual(transaction.children.count, 1)
+        XCTAssertTrue(originalSpan.isFinished)
+        XCTAssertEqual(originalSpan.status, .cancelled)
+        let breadcrumbs = try XCTUnwrap(Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?)
+        XCTAssertEqual(breadcrumbs.count, 1)
+    }
+
+    func testResume_whenDuplicateTaskResumesAfterMatchingSpanFinishes_shouldIgnoreDuplicateTask() throws {
         // -- Arrange --
         let sut = fixture.getSut()
         let transaction = try XCTUnwrap(startTransaction() as? SentryTracer)
@@ -1711,10 +1735,10 @@ class SentryNetworkTrackerTests: XCTestCase {
         try setTaskState(duplicateTask, state: .completed)
 
         // -- Assert --
-        XCTAssertEqual(transaction.children.count, 2)
-        XCTAssertTrue(try XCTUnwrap(transaction.children.last).isFinished)
+        XCTAssertEqual(transaction.children.count, 1)
+        XCTAssertTrue(originalSpan.isFinished)
         let breadcrumbs = try XCTUnwrap(Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?)
-        XCTAssertEqual(breadcrumbs.count, 2)
+        XCTAssertEqual(breadcrumbs.count, 1)
     }
 
     func testTraceHeader() throws {
