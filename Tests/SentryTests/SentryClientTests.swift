@@ -1725,6 +1725,88 @@ final class SentryClientTests: XCTestCase {
 #endif // !SDK_V10
     }
 
+    func testFinishTracer_whenBeforeSendTransactionIsSet_shouldReceiveHintWithScopeAttachments() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for non SDK_V10")
+#else
+        // -- Arrange --
+        let scopeAttachment = Attachment(data: Data("scope-data".utf8), filename: "scope.txt")
+        let scope = Scope()
+        scope.addAttachment(scopeAttachment)
+        var receivedAttachments: [Attachment]?
+        let sut = fixture.getSut(configureOptions: { options in
+            options.tracesSampleRate = 1.0
+            options.beforeSendTransaction = { transaction, hint in
+                receivedAttachments = hint.attachments
+                return transaction
+            }
+        })
+        let hub = SentryHubInternal(
+            client: sut,
+            andScope: scope,
+            activeCrashReporterState: TestSentryCrashReporterState(),
+            scopeContextEnricher: TestSentryScopeContextEnricher(),
+            andDispatchQueue: fixture.dispatchQueue
+        )
+        let tracer = hub.startTransaction(transactionContext: TransactionContext(
+            name: "Tap",
+            operation: "ui.action.click",
+            sampled: .yes,
+            sampleRate: nil,
+            sampleRand: nil
+        ))
+
+        // -- Act --
+        tracer.finish()
+
+        // -- Assert --
+        XCTAssertEqual(try XCTUnwrap(receivedAttachments), [scopeAttachment])
+        XCTAssertEqual(fixture.transportAdapter.sendEventWithTraceStateInvocations.count, 1)
+        let sentAttachments = fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.attachments ?? []
+        XCTAssertEqual(sentAttachments, [scopeAttachment])
+#endif // !SDK_V10
+    }
+
+    func testFinishTracer_whenBeforeSendTransactionReturnsNil_shouldNotSendTransactionOrAttachments() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for non SDK_V10")
+#else
+        // -- Arrange --
+        let scope = Scope()
+        scope.addAttachment(Attachment(data: Data("scope-data".utf8), filename: "scope.txt"))
+        var callbackCalled = false
+        let sut = fixture.getSut(configureOptions: { options in
+            options.tracesSampleRate = 1.0
+            options.beforeSendTransaction = { _, _ in
+                callbackCalled = true
+                return nil
+            }
+        })
+        let hub = SentryHubInternal(
+            client: sut,
+            andScope: scope,
+            activeCrashReporterState: TestSentryCrashReporterState(),
+            scopeContextEnricher: TestSentryScopeContextEnricher(),
+            andDispatchQueue: fixture.dispatchQueue
+        )
+        let tracer = hub.startTransaction(transactionContext: TransactionContext(
+            name: "Tap",
+            operation: "ui.action.click",
+            sampled: .yes,
+            sampleRate: nil,
+            sampleRand: nil
+        ))
+
+        // -- Act --
+        tracer.finish()
+
+        // -- Assert --
+        XCTAssertTrue(callbackCalled)
+        assertNoEventSent()
+        assertLostEventRecorded(category: .transaction, reason: .beforeSend)
+#endif // !SDK_V10
+    }
+
     // MARK: - beforeSendWithHint
 
     @available(*, deprecated, message: "Testing deprecated beforeSendWithHint API")
