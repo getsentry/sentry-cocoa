@@ -5,6 +5,25 @@ import Foundation
 internal import _SentryPrivate
 import UIKit
 
+private func isPythonFeedbackWhitespace(_ scalar: Unicode.Scalar) -> Bool {
+    switch scalar.value {
+    case 0x0009 ... 0x000D,
+         0x001C ... 0x0020,
+         0x0085,
+         0x00A0,
+         0x1680,
+         0x2000 ... 0x200A,
+         0x2028,
+         0x2029,
+         0x202F,
+         0x205F,
+         0x3000:
+        return true
+    default:
+        return false
+    }
+}
+
 protocol SentryUserFeedbackFormViewModelDelegate: NSObjectProtocol {
     func selectScreenshot()
     func submitFeedback()
@@ -13,12 +32,17 @@ protocol SentryUserFeedbackFormViewModelDelegate: NSObjectProtocol {
 
 @objcMembers
 @_spi(Private) public class SentryUserFeedbackFormViewModel: NSObject {
+    // The backend uses Python code-point length, which matches Swift Unicode scalars.
+    static let maxMessageLength = 4_096
+    static let messageCountVisibilityThreshold = 3_687
+
     let config: SentryUserFeedbackConfiguration
     unowned let controller: SentryUserFeedbackFormController
     weak var delegate: SentryUserFeedbackFormViewModelDelegate?
     let screenshot: UIImage?
     // UIImage doesn't preserve the attachment's encoded bytes or metadata.
     private var selectedScreenshotAttachment: Attachment?
+    private var wasMessageOverLimit: Bool?
     
     static let dateFormatter = {
         let formatter = DateFormatter()
@@ -126,6 +150,16 @@ protocol SentryUserFeedbackFormViewModelDelegate: NSObjectProtocol {
         textView.accessibilityIdentifier = "io.sentry.feedback.form.message"
         return textView
     }()
+
+    lazy var messageCharacterCountLabel = {
+        let label = UILabel(frame: .zero)
+        label.font = config.theme.scaledFont(style: .caption1)
+        label.adjustsFontForContentSizeCategory = true
+        label.textAlignment = .right
+        label.accessibilityIdentifier = "io.sentry.feedback.form.message-character-count"
+        updateMessageCharacterCount(label: label)
+        return label
+    }()
     
     lazy var screenshotImageView = {
         let iv = UIImageView()
@@ -227,6 +261,7 @@ protocol SentryUserFeedbackFormViewModelDelegate: NSObjectProtocol {
         
         let messageAndScreenshotStack = UIStackView(arrangedSubviews: [
             self.messageTextView,
+            self.messageCharacterCountLabel,
             self.addScreenshotButton,
             self.removeScreenshotStack
         ])
@@ -399,6 +434,27 @@ extension SentryUserFeedbackFormViewModel {
         case .failure(let error): submitButton.accessibilityHint = error.errorDescription
         }
     }
+
+    func updateMessageCharacterCount() {
+        updateMessageCharacterCount(label: messageCharacterCountLabel)
+    }
+
+    private func updateMessageCharacterCount(label: UILabel) {
+        let count = messageTextView.text?.unicodeScalars.count ?? 0
+        let isOverLimit = count > Self.maxMessageLength
+        label.text = "\(count) / \(Self.maxMessageLength)"
+        label.accessibilityLabel = "\(count) of \(Self.maxMessageLength) characters used"
+        label.textColor = isOverLimit ? config.theme.errorColor : config.theme.foreground
+        label.isHidden = count < Self.messageCountVisibilityThreshold
+
+        if let wasMessageOverLimit, wasMessageOverLimit != isOverLimit {
+            let announcement = isOverLimit
+                ? InputError.messageTooLong(maximumLength: Self.maxMessageLength).description
+                : "Message length is valid."
+            UIAccessibility.post(notification: .announcement, argument: announcement)
+        }
+        wasMessageOverLimit = isOverLimit
+    }
     
     func themeElements() {
         [fullNameTextField, emailTextField].forEach {
@@ -499,7 +555,9 @@ extension SentryUserFeedbackFormViewModel {
         }
         
         // include the message they'll submit
-        if let message = messageTextView.textOrNil {
+        var messageLength = 0
+        if let message = messageTextView.nonWhitespaceTextOrNil {
+            messageLength = message.unicodeScalars.count
             hint.append("with message: \(message)")
         } else {
             missing.append(config.formConfig.messageLabel.lowercased())
@@ -510,17 +568,24 @@ extension SentryUserFeedbackFormViewModel {
             let result = SentryUserFeedbackFormValidation.failure(InputError.validationError(missingFields: missing, localizedError: localizedError))
             return result
         }
+
+        guard messageLength <= Self.maxMessageLength else {
+            return .failure(.messageTooLong(maximumLength: Self.maxMessageLength))
+        }
         
         return SentryUserFeedbackFormValidation.success(hint.joined(separator: " ").appending("."))
     }
     
     enum InputError: LocalizedError {
         case validationError(missingFields: [String], localizedError: String)
+        case messageTooLong(maximumLength: Int)
         
         var description: String {
             switch self {
             case .validationError(_, let localizedError):
                 return localizedError
+            case .messageTooLong(let maximumLength):
+                return "Shorten your message to \(maximumLength) characters or fewer."
             }
         }
         
@@ -563,6 +628,12 @@ extension UITextView {
             SentrySDKLog.warning("This branch should be unreachable. UITextField reported .hasText = true but couldn't provide .text in a conditional unwrap.")
             return nil
         }
+        return text
+    }
+
+    var nonWhitespaceTextOrNil: String? {
+        guard let text = textOrNil else { return nil }
+        guard text.unicodeScalars.contains(where: { !isPythonFeedbackWhitespace($0) }) else { return nil }
         return text
     }
 }

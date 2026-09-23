@@ -58,6 +58,103 @@ NS_ASSUME_NONNULL_BEGIN
 
 NSString *const DropSessionLogMessage = @"Session has no release name. Won't send it.";
 
+static NSUInteger const SentryMaximumFeedbackMessageScalarCount = 4096;
+
+static BOOL
+sentry_isPythonFeedbackWhitespace(uint32_t scalar)
+{
+    switch (scalar) {
+    case 0x0009 ... 0x000D:
+    case 0x001C ... 0x0020:
+    case 0x0085:
+    case 0x00A0:
+    case 0x1680:
+    case 0x2000 ... 0x200A:
+    case 0x2028:
+    case 0x2029:
+    case 0x202F:
+    case 0x205F:
+    case 0x3000:
+        return YES;
+    default:
+        return NO;
+    }
+}
+
+static BOOL
+sentry_isValidFeedbackMessage(NSString *value)
+{
+    NSData *utf32 = [value dataUsingEncoding:NSUTF32LittleEndianStringEncoding
+                        allowLossyConversion:NO];
+    if (utf32 == nil || utf32.length % sizeof(uint32_t) != 0) {
+        return NO;
+    }
+
+    NSUInteger scalarCount = utf32.length / sizeof(uint32_t);
+    if (scalarCount > SentryMaximumFeedbackMessageScalarCount) {
+        return NO;
+    }
+
+    const uint8_t *bytes = utf32.bytes;
+    for (NSUInteger offset = 0; offset < utf32.length; offset += sizeof(uint32_t)) {
+        uint32_t scalar = (uint32_t)bytes[offset] | ((uint32_t)bytes[offset + 1] << 8)
+            | ((uint32_t)bytes[offset + 2] << 16) | ((uint32_t)bytes[offset + 3] << 24);
+        if (!sentry_isPythonFeedbackWhitespace(scalar)) {
+            return YES;
+        }
+    }
+
+    return NO;
+}
+
+static BOOL
+sentry_isValidUUIDString(NSString *value)
+{
+    if ([[NSUUID alloc] initWithUUIDString:value] != nil) {
+        return YES;
+    }
+    if (value.length != 32) {
+        return NO;
+    }
+
+    NSMutableString *dashed = [NSMutableString stringWithCapacity:36];
+    for (NSUInteger i = 0; i < value.length; i++) {
+        if (i == 8 || i == 12 || i == 16 || i == 20) {
+            [dashed appendString:@"-"];
+        }
+        [dashed appendFormat:@"%C", [value characterAtIndex:i]];
+    }
+    return [[NSUUID alloc] initWithUUIDString:dashed] != nil;
+}
+
+static BOOL
+sentry_isValidFeedbackEvent(SentryEvent *event)
+{
+    id feedbackValue = event.context[@"feedback"];
+    if (![feedbackValue isKindOfClass:[NSDictionary class]]) {
+        return NO;
+    }
+    NSDictionary *feedback = (NSDictionary *)feedbackValue;
+
+    id messageValue = feedback[@"message"];
+    if (![messageValue isKindOfClass:[NSString class]]) {
+        return NO;
+    }
+    NSString *message = (NSString *)messageValue;
+    if (!sentry_isValidFeedbackMessage(message)) {
+        return NO;
+    }
+
+    id associatedEventId = feedback[@"associated_event_id"];
+    if (associatedEventId != nil
+        && (![associatedEventId isKindOfClass:[NSString class]]
+            || !sentry_isValidUUIDString((NSString *)associatedEventId))) {
+        return NO;
+    }
+
+    return YES;
+}
+
 @implementation SentryClientInternal
 
 - (_Nullable instancetype)initWithOptions:(SentryOptions *)options
@@ -839,6 +936,15 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                        currentScope:currentScope];
 
     if (preparedEvent == nil) {
+        return;
+    }
+
+    // Validate after event processors have produced the final feedback payload and before
+    // transport.
+    if (!sentry_isValidFeedbackEvent(preparedEvent)) {
+        SENTRY_LOG_ERROR(@"Feedback payload is invalid and will not be sent.");
+        [self recordLostEvent:SentryDataCategoryFeedback
+                       reason:SentryDiscardReasonInsufficientData];
         return;
     }
 

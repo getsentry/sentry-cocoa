@@ -2818,6 +2818,94 @@ final class SentryClientTests: XCTestCase {
         assertNothingSent()
     }
 
+    func testCaptureFeedback_withWhitespaceOnlyMessage_shouldNotSend() {
+        let sut = fixture.getSut()
+        let feedback = SentryFeedback(message: " \n\t ", name: nil, email: nil)
+
+        sut.capture(feedback: feedback, scope: fixture.scope)
+
+        assertNothingSent()
+        assertLostEventRecorded(category: .feedback, reason: .insufficientData)
+    }
+
+    func testCaptureFeedback_withPythonWhitespaceControlOnlyMessage_shouldNotSend() {
+        let sut = fixture.getSut()
+        let feedback = SentryFeedback(message: "\u{1C}", name: nil, email: nil)
+
+        sut.capture(feedback: feedback, scope: fixture.scope)
+
+        assertNothingSent()
+        assertLostEventRecorded(category: .feedback, reason: .insufficientData)
+    }
+
+    func testCaptureFeedback_withZeroWidthSpaceMessage_shouldSend() {
+        let sut = fixture.getSut()
+        let feedback = SentryFeedback(message: "\u{200B}", name: nil, email: nil)
+
+        sut.capture(feedback: feedback, scope: fixture.scope)
+
+        XCTAssertEqual(fixture.transportAdapter.sendEventWithTraceStateInvocations.count, 1)
+        XCTAssertTrue(fixture.transport.recordLostEvents.isEmpty)
+    }
+
+    func testCaptureFeedback_withMessageOverMaximumScalarLength_shouldNotSend() {
+        let sut = fixture.getSut()
+        let feedback = SentryFeedback(
+            message: String(repeating: "e\u{301}", count: 2_048) + "a",
+            name: nil,
+            email: nil
+        )
+
+        sut.capture(feedback: feedback, scope: fixture.scope)
+
+        assertNothingSent()
+        assertLostEventRecorded(category: .feedback, reason: .insufficientData)
+    }
+
+    func testCaptureFeedback_withMessageAtMaximumScalarLength_shouldSend() {
+        let sut = fixture.getSut()
+        let feedback = SentryFeedback(
+            message: String(repeating: "e\u{301}", count: 2_048),
+            name: nil,
+            email: nil
+        )
+
+        sut.capture(feedback: feedback, scope: fixture.scope)
+
+        XCTAssertEqual(fixture.transportAdapter.sendEventWithTraceStateInvocations.count, 1)
+        XCTAssertTrue(fixture.transport.recordLostEvents.isEmpty)
+    }
+
+    func testCaptureFeedback_whenEventProcessorInvalidatesMessage_shouldNotSend() {
+        let sut = fixture.getSut()
+        SentryDependencyContainer.sharedInstance().globalEventProcessor.add { event in
+            var feedbackContext = event.context?["feedback"] ?? [:]
+            feedbackContext["message"] = "   "
+            event.context?["feedback"] = feedbackContext
+            return event
+        }
+
+        sut.capture(feedback: fixture.feedback, scope: fixture.scope)
+
+        assertNothingSent()
+        assertLostEventRecorded(category: .feedback, reason: .insufficientData)
+    }
+
+    func testCaptureFeedback_whenEventProcessorAddsInvalidAssociatedEventId_shouldNotSend() {
+        let sut = fixture.getSut()
+        SentryDependencyContainer.sharedInstance().globalEventProcessor.add { event in
+            var feedbackContext = event.context?["feedback"] ?? [:]
+            feedbackContext["associated_event_id"] = "not-a-uuid"
+            event.context?["feedback"] = feedbackContext
+            return event
+        }
+
+        sut.capture(feedback: fixture.feedback, scope: fixture.scope)
+
+        assertNothingSent()
+        assertLostEventRecorded(category: .feedback, reason: .insufficientData)
+    }
+
     func testCaptureFeedback_WithEmptyEventId() throws {
         let sut = fixture.getSut()
         XCTAssertTrue(fixture.transportAdapter.sendEventWithTraceStateInvocations.isEmpty)
