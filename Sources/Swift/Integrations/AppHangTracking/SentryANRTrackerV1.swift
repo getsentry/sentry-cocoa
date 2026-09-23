@@ -1,27 +1,23 @@
 #if !SDK_V10
 import Foundation
 
-/// Detects app hangs by checking whether the main thread executes a periodically scheduled block.
+/// Detects app hangs with a dedicated watchdog thread that periodically schedules work on the main thread.
 final class SentryANRTrackerV1: SentryANRTrackerInternalProtocol {
     private enum Lifecycle {
-        case notRunning, starting, running, stopping
-    }
-
-    private struct State {
-        var lifecycle: Lifecycle = .notRunning
-        let listeners = NSHashTable<AnyObject>.weakObjects()
+        case notRunning, running, starting, stopping
     }
 
     private struct PollState {
-        var ticksSinceUIUpdate = 0
+        var ticksSinceUIUpdate: Int32 = 0
         var reported = false
     }
 
-    private let state = SentryMutex(State())
     private let applicationStateProvider: SentryApplicationStateProvider
     private let dispatchQueueWrapper: SentryDispatchQueueWrapper
     private let threadWrapper: SentryThreadWrapper
+    private let listeners = SentryMutex(NSHashTable<AnyObject>.weakObjects())
     private let timeoutInterval: TimeInterval
+    private let threadState = SentryMutex<Lifecycle>(.notRunning)
 
     convenience init(timeoutInterval: TimeInterval) {
         let dependencies = SentryDependencyContainer.sharedInstance()
@@ -41,124 +37,134 @@ final class SentryANRTrackerV1: SentryANRTrackerInternalProtocol {
         self.threadWrapper = threadWrapper
     }
 
+    // Keep the watchdog flow together to make the Objective-C conversion directly comparable.
+    // swiftlint:disable:next function_body_length
     private func detectANRs() {
         let threadID = UUID()
-        let shouldRun = state.withLock { state in
+        let shouldRun = threadState.withLock { state in
             threadWrapper.threadStarted(threadID)
-            guard state.lifecycle == .starting else {
+            if state != .starting {
                 threadWrapper.threadFinished(threadID)
                 return false
             }
             Thread.current.name = "io.sentry.app-hang-tracker"
-            state.lifecycle = .running
+            state = .running
             return true
         }
         guard shouldRun else { return }
 
-        defer {
-            state.withLock { state in
-                state.lifecycle = .notRunning
-                threadWrapper.threadFinished(threadID)
-            }
-        }
-
-        watchMainThread()
-    }
-
-    private func watchMainThread() {
         let pollState = SentryMutex(PollState())
-        let reportThreshold = 5
+        let reportThreshold: Int32 = 5
         let sleepInterval = timeoutInterval / Double(reportThreshold)
         let dateProvider = SentryDependencyContainer.sharedInstance().dateProvider
 
-        // Stopping the thread can take up to sleepInterval.
-        while state.withLock({ $0.lifecycle == .running }) {
-            let blockDeadline = dateProvider.date().addingTimeInterval(timeoutInterval)
-            pollState.withLock { $0.ticksSinceUIUpdate += 1 }
+        // Cancelling the thread can take up to sleepInterval.
+        while true {
+            if threadState.withLock({ $0 != .running }) {
+                break
+            }
 
-            dispatchQueueWrapper.dispatchAsyncOnMainQueueIfNotMainThread { [weak self] in
-                guard let self else { return }
-                let wasReported = pollState.withLock { state in
-                    state.ticksSinceUIUpdate = 0
-                    let wasReported = state.reported
-                    state.reported = false
-                    return wasReported
-                }
-                if wasReported {
+            let blockDeadline = dateProvider.date().addingTimeInterval(timeoutInterval)
+            pollState.withLock { $0.ticksSinceUIUpdate &+= 1 }
+
+            // Preserve the original block ownership and ordering of the individual atomic operations.
+            dispatchQueueWrapper.dispatchAsyncOnMainQueueIfNotMainThread { [self] in
+                pollState.withLock { $0.ticksSinceUIUpdate = 0 }
+                let isReported = pollState.withLock { $0.reported }
+                if isReported {
                     SentrySDKLog.warning("ANR stopped.")
-                    // Keep listener work off the main thread so it cannot appear in a captured hang stack.
-                    dispatchQueueWrapper.dispatchAsync { [weak self] in
-                        self?.anrStopped()
+                    // While an ANR stack trace is being captured, the hang may stop simultaneously.
+                    // Offload listener work so it cannot appear in that stack on the main thread.
+                    dispatchQueueWrapper.dispatchAsync { [self] in
+                        anrStopped()
                     }
                 }
+                pollState.withLock { $0.reported = false }
             }
 
             threadWrapper.sleep(forTimeInterval: sleepInterval)
 
             // A suspended app can wake much later than expected. Do not report that as an app hang.
-            let delta = dateProvider.date().timeIntervalSince(blockDeadline)
-            if delta >= timeoutInterval {
-                SentrySDKLog.debug("Ignoring ANR because the delta is too big: \(delta).")
+            let deltaFromNowToBlockDeadline = dateProvider.date().timeIntervalSince(blockDeadline)
+            if deltaFromNowToBlockDeadline >= timeoutInterval {
+                SentrySDKLog.debug("Ignoring ANR because the delta is too big: \(deltaFromNowToBlockDeadline).")
                 continue
             }
 
-            let shouldReport = pollState.withLock { state in
-                guard state.ticksSinceUIUpdate >= reportThreshold, !state.reported else { return false }
-                state.reported = true
-                return true
-            }
-            if shouldReport {
-                guard applicationStateProvider.isApplicationInForeground else {
+            let isReported = pollState.withLock { $0.reported }
+            let currentTicks = pollState.withLock { $0.ticksSinceUIUpdate }
+            if currentTicks >= reportThreshold && !isReported {
+                pollState.withLock { $0.reported = true }
+
+                if !applicationStateProvider.isApplicationInForeground {
                     SentrySDKLog.debug("Ignoring ANR because the app is in the background")
                     continue
                 }
                 SentrySDKLog.warning("ANR detected.")
-                for listener in listenersSnapshot() {
-                    listener.anrDetected(.unknown)
-                }
+                anrDetected()
             }
+        }
+
+        threadState.withLock { state in
+            state = .notRunning
+            threadWrapper.threadFinished(threadID)
         }
     }
 
-    private func listenersSnapshot() -> [SentryANRTrackerInternalDelegate] {
-        state.withLock { $0.listeners.allObjects.compactMap { $0 as? SentryANRTrackerInternalDelegate } }
+    private func anrDetected() {
+        let localListeners = listeners.withLock {
+            $0.allObjects.compactMap { $0 as? SentryANRTrackerInternalDelegate }
+        }
+        for target in localListeners {
+            target.anrDetected(.unknown)
+        }
     }
 
     private func anrStopped() {
-        for listener in listenersSnapshot() {
-            // V1 intentionally does not measure duration. V2 provides duration bounds.
-            listener.anrStopped(nil)
+        let targets = listeners.withLock {
+            $0.allObjects.compactMap { $0 as? SentryANRTrackerInternalDelegate }
+        }
+        for target in targets {
+            // V1 intentionally does not measure duration because V2 replaces it.
+            target.anrStopped(nil)
         }
     }
 
     func addListener(_ listener: SentryANRTrackerInternalDelegate) {
-        let shouldStart = state.withLock { state in
-            state.listeners.add(listener)
-            guard state.lifecycle == .notRunning else { return false }
-            state.lifecycle = .starting
-            return true
-        }
-        if shouldStart {
-            // Retain the tracker for the watchdog thread's lifetime, as NSThread's target did.
-            Thread.detachNewThread { [self] in
-                detectANRs()
+        listeners.withLock { listeners in
+            listeners.add(listener)
+            threadState.withLock { state in
+                if listeners.count > 0 && state == .notRunning {
+                    state = .starting
+                    // NSThread retained its target. Keep that lifetime and start under the same locks.
+                    Thread.detachNewThread { [self] in
+                        detectANRs()
+                    }
+                }
             }
         }
     }
 
     func removeListener(_ listener: SentryANRTrackerInternalDelegate) {
-        state.withLock { state in
-            state.listeners.remove(listener)
-            if state.listeners.count == 0 {
-                state.lifecycle = .stopping
+        listeners.withLock { listeners in
+            listeners.remove(listener)
+            if listeners.count == 0 {
+                stop()
             }
         }
     }
 
     func clear() {
-        state.withLock { state in
-            state.listeners.removeAllObjects()
-            state.lifecycle = .stopping
+        listeners.withLock { listeners in
+            listeners.removeAllObjects()
+            stop()
+        }
+    }
+
+    private func stop() {
+        threadState.withLock { state in
+            SentrySDKLog.info("Stopping ANR detection")
+            state = .stopping
         }
     }
 }
