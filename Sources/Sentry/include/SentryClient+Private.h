@@ -44,11 +44,6 @@ NS_ASSUME_NONNULL_BEGIN
                     withSession:(SentrySession *)session
                       withScope:(SentryScope *)scope;
 
-- (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
-                      withEventId:(NSString *)feedbackEventId
-                      attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
-                            scope:(SentryScope *)scope;
-
 - (void)saveCrashTransaction:(SentryTransaction *)transaction
                    withScope:(SentryScope *)scope
     NS_SWIFT_NAME(saveCrashTransaction(transaction:scope:));
@@ -98,11 +93,6 @@ NS_ASSUME_NONNULL_BEGIN
                         hint:(nullable SentryHint *)hint
     NS_SWIFT_NAME(capture(message:scope:hint:));
 
-- (void)captureReplayEvent:(SentryReplayEvent *)replayEvent
-           replayRecording:(SentryReplayRecording *)replayRecording
-                     video:(NSURL *)videoURL
-                 withScope:(SentryScope *)scope;
-
 - (void)captureSession:(SentrySession *)session NS_SWIFT_NAME(capture(session:));
 
 /**
@@ -142,6 +132,26 @@ NS_ASSUME_NONNULL_BEGIN
 /// Records a dropped trace metric. Boxed in `SentryMetricObjC` (typed `id`, same header/Swift
 /// constraint as `getTelemetryProcessor` above) because `SentryMetric` is a Swift struct.
 - (void)recordDroppedTraceMetricInClientReport:(SENTRY_SWIFT_MIGRATION_ID(SentryMetricObjC))metric;
+
+@end
+
+@interface SentryClientInternal (ReplayAndFeedback)
+
+- (void)captureReplayEvent:(SentryReplayEvent *)replayEvent
+           replayRecording:(SentryReplayRecording *)replayRecording
+                     video:(NSURL *)videoURL
+                 withScope:(SentryScope *)scope;
+
+- (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
+                      withEventId:(NSString *)feedbackEventId
+                      attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
+                            scope:(SentryScope *)scope
+                     currentScope:(nullable SentryScope *)currentScope;
+
+- (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
+                      withEventId:(NSString *)feedbackEventId
+                      attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
+                            scope:(SentryScope *)scope;
 
 @end
 
