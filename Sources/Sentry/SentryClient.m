@@ -3,6 +3,7 @@
 #import "SentryAttachment.h"
 #import "SentryClient+ErrorEvents.h"
 #import "SentryClient+Private.h"
+#import "SentryClient+Telemetry.h"
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryDefaultTelemetryProcessorTransport.h"
 #import "SentryDefaultThreadInspector.h"
@@ -45,15 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) id<SentryRandomProtocol> random;
 @property (nonatomic, strong) NSLocale *locale;
 @property (nonatomic, strong) NSTimeZone *timezone;
-@property (nonatomic, strong) id<SentryLogScopeApplier> logScopeApplier;
-@property (nonatomic, strong) id<SentryObjCTelemetryProcessor> telemetryProcessor;
 @property (nonatomic, strong) id<SentryEventContextEnricher> eventContextEnricher;
-@property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
-@property (nonatomic, strong) SentryCurrentScopeStorage *currentScopeStorage;
-
-- (void)recordDroppedItemInClientReportWithItemCategory:(SentryDataCategory)itemCategory
-                                           byteCategory:(SentryDataCategory)byteCategory
-                                         byteCountBlock:(NSUInteger (^)(void))byteCountBlock;
 
 @end
 
@@ -1367,89 +1360,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     return processedAttachments;
-}
-
-- (void)_swiftCaptureLog:(NSObject *)log withScope:(SentryScope *)scope
-{
-    SentryScope *cs = [self.currentScopeStorage scope];
-    [self _swiftCaptureLog:log withScope:scope currentScope:cs];
-}
-
-- (void)_swiftCaptureLog:(NSObject *)log
-               withScope:(SentryScope *)scope
-            currentScope:(nullable SentryScope *)currentScope
-{
-    if ([self isDisabled]) {
-        [self logDisabledMessage];
-        return;
-    }
-
-    if (![log isKindOfClass:[SentryLog class]]) {
-        return;
-    }
-
-    // Custom attribute precedence: caller > current scope > global scope. Trace correlation,
-    // user, and the other reserved attributes come from the global scope only.
-    SentryLog *enrichedLog = [self.logScopeApplier applyScope:scope
-                                                 currentScope:currentScope
-                                                        toLog:(SentryLog *)log];
-    SentryLog *logToSend = enrichedLog;
-
-    if (self.options.beforeSendLog != nil) {
-        logToSend = self.options.beforeSendLog(enrichedLog);
-        if (logToSend == nil) {
-            SENTRY_LOG_DEBUG(@"Log dropped by beforeSendLog callback.");
-            [self recordDroppedLogInClientReport:enrichedLog];
-            return;
-        }
-    }
-
-    [self.telemetryProcessor addLog:logToSend];
-}
-
-- (void)recordDroppedLogInClientReport:(SentryLog *)log
-{
-    [self recordDroppedItemInClientReportWithItemCategory:SentryDataCategoryLogItem
-                                             byteCategory:SentryDataCategoryLogByte
-                                           byteCountBlock:^NSUInteger {
-                                               return [SentryLogClientReport
-                                                   serializedByteCountForLog:log];
-                                           }];
-}
-
-- (void)recordDroppedTraceMetricInClientReport:(SentryMetricObjC *)metric
-{
-    [self recordDroppedItemInClientReportWithItemCategory:SentryDataCategoryTraceMetric
-                                             byteCategory:SentryDataCategoryTraceMetricByte
-                                           byteCountBlock:^NSUInteger {
-                                               return [metric serializedByteCount];
-                                           }];
-}
-
-- (void)recordDroppedItemInClientReportWithItemCategory:(SentryDataCategory)itemCategory
-                                           byteCategory:(SentryDataCategory)byteCategory
-                                         byteCountBlock:(NSUInteger (^)(void))byteCountBlock
-{
-    // Offload to a background queue: serializing the item to determine its byte size is too
-    // expensive to run inline in a beforeSend callback, which runs on the calling thread and must
-    // stay fast.
-    __weak SentryClientInternal *weakSelf = self;
-    [self.dispatchQueueWrapper dispatchAsyncWithBlock:^{
-        SentryClientInternal *strongSelf = weakSelf;
-        if (strongSelf == nil) {
-            return;
-        }
-        NSUInteger byteCount = byteCountBlock();
-        [strongSelf recordLostEvent:itemCategory reason:SentryDiscardReasonBeforeSend];
-        [strongSelf recordLostEvent:byteCategory
-                             reason:SentryDiscardReasonBeforeSend
-                           quantity:byteCount];
-    }];
-}
-
-- (id)getTelemetryProcessor
-{
-    return self.telemetryProcessor;
 }
 
 @end
