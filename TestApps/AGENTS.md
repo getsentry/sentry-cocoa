@@ -1,4 +1,4 @@
-# TestApps
+# Test Apps
 
 > Scope: `TestApps/**`. Also follow [root instructions](../AGENTS.md).
 
@@ -61,7 +61,7 @@ For each test app, you can:
 | `make test-testapp-<name>-ui`   | Run specific test app UI tests (e.g., `iOS-Swift-ui`)                                                                             |
 | `make test-ui-critical`         | Run critical UI test suites for validation                                                                                        |
 
-## TestApps with UI Tests
+## Test Apps with UI Tests
 
 The following test apps have UI test suites:
 

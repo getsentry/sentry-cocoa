@@ -270,7 +270,7 @@ run_release_for_prs: &run_release_for_prs
   - "Sentry.xcodeproj/**"
   - "Package*.swift"
 
-  # Test Apps projects
+  # Test Apps
   - "TestApps/macOS-ObjectiveC-Static-CMake/**"
   - "TestApps/macOS-SPM-CommandLine/**"
   - "TestApps/SPM-Dynamic/**"
@@ -405,7 +405,7 @@ run_v10_for_prs: &run_v10_for_prs
   - "scripts/check-ui-framework-linkage.sh"
   - "scripts/prepare-package.sh"
 
-  # TestApps
+  # Test Apps
   - "TestApps/macOS-CLI-Xcode/**"
 
   # Project files
@@ -593,8 +593,7 @@ run_apple_binaries_archive_for_prs: &run_apple_binaries_archive_for_prs
   - "scripts/ci-utils.sh"
   - "distribution/**"
 
-run_3rd_party_integrations_archive_for_prs:
-  &run_3rd_party_integrations_archive_for_prs
+run_3rd_party_integrations_archive_for_prs: &run_3rd_party_integrations_archive_for_prs
   - ".github/workflows/3rd-party-integrations-archive.yml"
   - ".github/file-filters.yml"
   - "scripts/create-3rd-party-integration-archive.sh"
@@ -632,7 +631,7 @@ run_ui_tests_for_prs: &run_ui_tests_for_prs
   - "**/*.xctestplan"
   - "Plans/**"
 
-  # Test Apps projects
+  # Test Apps
   - "TestApps/iOS-SwiftUI/**"
   - "TestApps/iOS-Swift/**"
   - "TestApps/iOS-Swift6/**"
