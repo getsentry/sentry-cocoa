@@ -48,27 +48,28 @@ extension SentryKSCrash.Scope {
                 userInfo.removeValue(forKey: "attributes")
                 installer.setUserInfo(userInfo)
 
-                // add(_:) only observes later mutations. Seed current nested fields into
-                // SentryScopeSyncC because KSCrash userInfo only stores scalars.
-                outerScope.add(observer)
-                seedObserver(from: outerScope)
-            }
-        }
+                // add(_:) only observes later mutations. Seed current nested fields
+                // into SentryScopeSyncC because KSCrash userInfo only stores scalars.
+                observer.setUser(outerScope.userObject)
+                observer.setTags(outerScope.tags)
+                observer.setExtras(outerScope.extras())
+                observer.setContext(outerScope.context())
+                observer.setEnvironment(outerScope.environmentString)
+                observer.setDist(outerScope.distString)
+                observer.setFingerprint(outerScope.fingerprints())
+                observer.setLevel(outerScope.levelEnum)
+                if let traceContext = userInfo["traceContext"] as? [String: Any] {
+                    observer.setTraceContext(traceContext)
+                }
 
-        private func seedObserver(from scope: Scope) {
-            observer.setUser(scope.userObject)
-            observer.setTags(scope.tags)
-            observer.setExtras(scope.extraDictionary as? [String: Any])
-            observer.setContext(scope.contextDictionary as? [String: [String: Any]])
-            observer.setEnvironment(scope.environmentString)
-            observer.setDist(scope.distString)
-            observer.setFingerprint(scope.fingerprintArray as? [String])
-            observer.setLevel(scope.levelEnum)
-            if let traceContext = scope.serialize()["traceContext"] as? [String: Any] {
-                observer.setTraceContext(traceContext)
-            }
-            for breadcrumb in scope.breadcrumbs() {
-                observer.addSerializedBreadcrumb(breadcrumb.serialize())
+                // Hold the breadcrumb lock across replay + subscribe so a concurrent
+                // addBreadcrumb cannot land ahead of history or be dropped.
+                outerScope.performWithBreadcrumbsLocked {
+                    for breadcrumb in outerScope.breadcrumbs() {
+                        self.observer.addSerializedBreadcrumb(breadcrumb.serialize())
+                    }
+                    outerScope.add(self.observer)
+                }
             }
         }
 

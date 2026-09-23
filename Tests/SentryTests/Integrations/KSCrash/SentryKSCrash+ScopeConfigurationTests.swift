@@ -104,6 +104,11 @@ final class SentryKSCrashScopeConfigurationTests: XCTestCase {
         XCTAssertEqual(1, crashScope.currentCrumb)
         let breadcrumbJSON = String(cString: try XCTUnwrap(crashScope.breadcrumbs?.pointee))
         XCTAssertTrue(breadcrumbJSON.contains("seeded-crumb"), breadcrumbJSON)
+
+        let liveBreadcrumb = Breadcrumb(level: .info, category: "live")
+        liveBreadcrumb.message = "live-crumb"
+        scope.addBreadcrumb(liveBreadcrumb)
+        XCTAssertEqual(2, sentrycrash_scopesync_getScope().pointee.currentCrumb)
     }
 
     func testInit_shouldAddObserverToScope() {
