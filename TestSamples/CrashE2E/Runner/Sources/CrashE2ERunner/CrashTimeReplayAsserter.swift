@@ -13,15 +13,20 @@ enum CrashTimeReplayAsserter {
     private static let expectedReplayType: UInt32 = 1
 
     static func assertCheckpointIfNeeded(scenario: Scenario, cacheDirectory: URL, platform: String) throws {
-        guard scenario == .crashTimeReplay else { return }
-        try assert(cacheDirectory: cacheDirectory, platform: platform)
+        switch scenario {
+        case .crashTimeReplay, .crashTimeReplayAttachmentCrash:
+            try assert(cacheDirectory: cacheDirectory, platform: platform, scenario: scenario)
+        default:
+            return
+        }
     }
 
-    static func assert(cacheDirectory: URL, platform: String) throws {
+    static func assert(cacheDirectory: URL, platform: String, scenario: Scenario = .crashTimeReplay) throws {
         let url = cacheDirectory.appendingPathComponent(fileName)
+        let label = "\(platform)/\(scenario.rawValue)"
         guard FileManager.default.fileExists(atPath: url.path) else {
             try fail(
-                "Expected replay recovery checkpoint at \(url.path) for \(platform)/crash-time-replay"
+                "Expected replay recovery checkpoint at \(url.path) for \(label)"
             )
         }
 
@@ -32,7 +37,7 @@ enum CrashTimeReplayAsserter {
         let expectedSize = segmentSize + timestampSize + typeSize
         guard data.count >= expectedSize else {
             try fail(
-                "Replay checkpoint is too small for \(platform)/crash-time-replay: \(data.count) bytes at \(url.path)"
+                "Replay checkpoint is too small for \(label): \(data.count) bytes at \(url.path)"
             )
         }
 
@@ -42,21 +47,21 @@ enum CrashTimeReplayAsserter {
 
         guard segmentId == expectedSegmentId else {
             try fail(
-                "Expected replay checkpoint segmentId \(expectedSegmentId) for \(platform)/crash-time-replay, found \(segmentId)"
+                "Expected replay checkpoint segmentId \(expectedSegmentId) for \(label), found \(segmentId)"
             )
         }
         guard lastSegmentEnd == expectedLastSegmentEnd else {
             try fail(
-                "Expected replay checkpoint lastSegmentEnd \(expectedLastSegmentEnd) for \(platform)/crash-time-replay, found \(lastSegmentEnd)"
+                "Expected replay checkpoint lastSegmentEnd \(expectedLastSegmentEnd) for \(label), found \(lastSegmentEnd)"
             )
         }
         guard replayType == expectedReplayType else {
             try fail(
-                "Expected replay checkpoint replayType \(expectedReplayType) for \(platform)/crash-time-replay, found \(replayType)"
+                "Expected replay checkpoint replayType \(expectedReplayType) for \(label), found \(replayType)"
             )
         }
 
-        log("✅ \(platform)/crash-time-replay checkpoint assertions passed.")
+        log("✅ \(label) checkpoint assertions passed.")
     }
 
     private static func readValue<T>(from data: Data, at offset: Int) -> T {

@@ -22,6 +22,9 @@ void sentrykscrash_isWritingReport(const KSCrash_ExceptionHandlingPlan *_Nonnull
 void sentrykscrash_didWriteReport(
     const KSCrash_ExceptionHandlingPlan *_Nonnull const plan, int64_t reportID);
 
+typedef void (*SentryKSCrashSaveTransactionCallback)(void);
+void sentrykscrash_setSaveTransaction(SentryKSCrashSaveTransactionCallback _Nullable callback);
+
 /** KSCrash plugin ID for crash-time attachments. Must match the Swift monitor ID. */
 extern const char *const _Nonnull sentrykscrash_attachmentsMonitorID;
 
@@ -48,6 +51,12 @@ void sentrykscrash_attachments_invokeViewHierarchyWriter(const char *_Nonnull pa
 /** For testing. Invokes `sentrykscrash_didWriteReport` with a synthesized plan. */
 void sentrykscrash_test_invokeDidWriteReport(
     bool isFatal, bool isCleanExit, bool crashedDuringExceptionHandling, int64_t reportID);
+
+/** For testing. True when a save-transaction callback is registered. */
+bool sentrykscrash_hasSaveTransaction(void);
+
+/** For testing. Invokes the registered save-transaction callback, if any. */
+void sentrykscrash_invokeSaveTransaction(void);
 #    endif // SENTRY_TEST || SENTRY_TEST_CI
 
 /**

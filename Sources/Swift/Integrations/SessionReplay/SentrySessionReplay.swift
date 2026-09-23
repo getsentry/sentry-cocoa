@@ -138,6 +138,21 @@ private struct SessionSegmentState {
 
     private let state = SentryMutex(State())
 
+    /// Maximum number of trace IDs retained for the current (not-yet-sent) segment, matching
+    /// sentry-java's `MAX_CONTEXT_VALUES`. At the cap the oldest ID is evicted so the most recent
+    /// registrations, including a buffered replay's triggering trace, are always kept.
+    static let maxTraceIds = 100
+
+    /// Trace IDs collected for the current (not-yet-sent) replay segment.
+    ///
+    /// Written from arbitrary threads: natively while enriching captured events and by hybrid
+    /// SDKs through `SentrySDK.internal.replay.registerTraceId(_:)`. Drained when a segment is
+    /// captured: in session mode each segment carries the traces registered since the previous one;
+    /// a buffer (on-error) flush that emits several segments at once attaches all buffered traces to
+    /// the first segment. Either way the replay is searchable by those trace IDs.
+    /// Guarded independently of `state` because it is a distinct concern with its own callers.
+    private let traceIdBuffer = SentryMutex<[SentryId]>([])
+
     private let replayOptions: SentryReplayOptions
     private let replayMaker: SentryReplayVideoMaker
     private let dateProvider: SentryCurrentDateProvider
@@ -301,6 +316,38 @@ private struct SessionSegmentState {
         guard restartCaptureScheduler else { return }
         resume()
     }
+
+    /// Registers a trace ID with the current replay segment.
+    ///
+    /// This is the single path shared by native auto-collection and the hybrid
+    /// `SentrySDK.internal.replay.registerTraceId(_:)` API. `SentryId.empty` is ignored, matching
+    /// sentry-java. Duplicate IDs are ignored; at most ``maxTraceIds`` are kept, evicting the oldest
+    /// so the most recent traces survive the cap. Safe to call from any thread.
+    func registerTraceId(_ traceId: SentryId) {
+        guard traceId != SentryId.empty else {
+            SentrySDKLog.debug("[Session Replay] Ignoring empty trace ID")
+            return
+        }
+        traceIdBuffer.withLock { buffer in
+            guard !buffer.contains(where: { $0 == traceId }) else { return }
+            // A buffer (on-error) replay accumulates trace IDs for the whole recording and only
+            // drains on flush, so at the cap we must evict the *oldest* rather than drop the new
+            // one: the triggering event's trace arrives last, and it is the ID used to find the
+            // replay. Keeping the most recent ``maxTraceIds`` guarantees that trace survives.
+            if buffer.count >= SentrySessionReplay.maxTraceIds {
+                let evicted = buffer.removeFirst()
+                SentrySDKLog.debug("[Session Replay] Reached maximum trace IDs for segment, evicting oldest: \(evicted.sentryIdString)")
+            }
+            buffer.append(traceId)
+        }
+    }
+
+#if SENTRY_TEST || SENTRY_TEST_CI
+    /// The trace IDs currently buffered for the not-yet-sent segment, as hex strings.
+    func getCollectedTraceIdsTestOnly() -> [String] {
+        traceIdBuffer.withLock { $0.map { $0.sentryIdString } }
+    }
+#endif
 
     public func captureReplayFor(event: Event) {
         SentrySDKLog.debug("[Session Replay] Capturing replay for event: \(event)")
@@ -782,6 +829,17 @@ private struct SessionSegmentState {
         replayEvent.sdk = self.replayOptions.sdkInfo
         replayEvent.timestamp = video.end
         replayEvent.urls = video.screens
+
+        // Drain the per-segment trace-id buffer so each segment reports only the traces seen
+        // during its window. Left nil (omitted from the payload) when no traces were collected.
+        let traceIds = traceIdBuffer.withLock { buffer -> [SentryId] in
+            let collected = buffer
+            buffer.removeAll()
+            return collected
+        }
+        if !traceIds.isEmpty {
+            replayEvent.traceIds = traceIds
+        }
 
         let breadcrumbs = delegate?.breadcrumbsForSessionReplay() ?? []
 

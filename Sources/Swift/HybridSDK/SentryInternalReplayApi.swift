@@ -105,6 +105,21 @@ public struct SentryInternalReplayApi {
     public func setTags(_ tags: [String: Any]) {
         replayIntegrationProvider.getReplayIntegration()?.setReplayTags(tags)
     }
+
+    /// Registers a trace ID with the current replay segment.
+    ///
+    /// The trace ID is added to the `trace_ids` of the next replay segment sent, in
+    /// both session and buffer (on-error) modes. `SentryId.empty` and duplicates are
+    /// ignored, and at most 100 IDs are kept per segment.
+    ///
+    /// Safe to call from any thread. When Session Replay is disabled or not
+    /// recording, this is a no-op.
+    ///
+    /// Introduced in cocoa 9.30.0 for hybrid SDKs (React Native, Flutter). Name and
+    /// semantics are stable once released.
+    public func registerTraceId(_ traceId: SentryId) {
+        replayIntegrationProvider.getReplayIntegration()?.registerReplayTraceId(traceId)
+    }
 }
 
 #endif
