@@ -126,6 +126,11 @@ final class IOSPlatformRunner {
             cacheDirectory: cacheRoot,
             platform: "ios"
         )
+        try CrashTimeReplayAsserter.assertCaptureRecrashIfNeeded(
+            scenario: scenario,
+            cacheDirectory: cacheRoot,
+            platform: "ios"
+        )
         try RethrownNSExceptionAsserter.assertCrashLaunchEvidenceIfNeeded(
             scenario: scenario,
             cacheRoot: cacheRoot,

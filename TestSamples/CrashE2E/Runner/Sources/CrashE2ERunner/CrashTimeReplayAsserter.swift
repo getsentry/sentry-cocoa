@@ -21,6 +21,35 @@ enum CrashTimeReplayAsserter {
         }
     }
 
+    static func assertCaptureRecrashIfNeeded(
+        scenario: Scenario, cacheDirectory: URL, platform: String
+    ) throws {
+        guard scenario == .crashTimeReplayAttachmentCrash else { return }
+
+        let reports = try StoredCrashReports.urls(in: cacheDirectory)
+        let label = "\(platform)/\(scenario.rawValue)"
+        guard reports.count == 1,
+              let report = try JSONSerialization.jsonObject(
+                  with: Data(contentsOf: reports[0])
+              ) as? [String: Any],
+              let original = report["recrash_report"] as? [String: Any] else {
+            try fail("Expected a stored KSCrash recrash report for \(label)")
+        }
+
+        func signalName(_ report: [String: Any]) -> String? {
+            let crash = report["crash"] as? [String: Any]
+            let error = crash?["error"] as? [String: Any]
+            return (error?["signal"] as? [String: Any])?["name"] as? String
+        }
+
+        try EventAssertions.assert(
+            signalName(original) == "SIGSEGV" && signalName(report) == "SIGABRT",
+            "Expected original SIGSEGV followed by attachment-writer SIGABRT for \(label), "
+                + "found \(signalName(original) ?? "nil") then \(signalName(report) ?? "nil")"
+        )
+        log("✅ \(label) capture recrash assertions passed.")
+    }
+
     static func assert(cacheDirectory: URL, platform: String, scenario: Scenario = .crashTimeReplay) throws {
         let url = cacheDirectory.appendingPathComponent(fileName)
         let label = "\(platform)/\(scenario.rawValue)"
