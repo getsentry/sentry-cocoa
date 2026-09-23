@@ -63,11 +63,11 @@ internal import _SentryPrivate
         // `network.connection.type`, so `connection_effective_type` mirrors
         // `network.connection.effective_type` the same way.
         // https://getsentry.github.io/sentry-conventions/attributes/network/
-        if let connectionType = reachability.currentConnectionType {
-            extraDeviceContext["connection_type"] = connectionType
-        }
-        if let connectionEffectiveType = reachability.currentConnectionEffectiveType {
-            extraDeviceContext["connection_effective_type"] = connectionEffectiveType
+        if let connection = reachability.currentConnection {
+            extraDeviceContext["connection_type"] = connection.type
+            if let effectiveType = connection.effectiveType {
+                extraDeviceContext["connection_effective_type"] = effectiveType
+            }
         }
         
         #if (os(iOS)) && !SENTRY_NO_UI_FRAMEWORK

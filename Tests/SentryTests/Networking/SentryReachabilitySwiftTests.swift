@@ -113,8 +113,8 @@ final class SentryReachabilitySwiftTests: XCTestCase {
         reachability.triggerConnectivityCallback(.cellular)
 
         // -- Assert --
-        XCTAssertEqual("cellular", reachability.currentConnectionType)
-        XCTAssertEqual("4g", reachability.currentConnectionEffectiveType)
+        XCTAssertEqual("cellular", reachability.currentConnection?.type)
+        XCTAssertEqual("4g", reachability.currentConnection?.effectiveType)
     }
 
     func testCurrentConnectionEffectiveType_whenNotCellular_shouldBeNil() {
@@ -129,14 +129,14 @@ final class SentryReachabilitySwiftTests: XCTestCase {
         reachability.triggerConnectivityCallback(.wiFi)
 
         // -- Assert --
-        XCTAssertEqual("wifi", reachability.currentConnectionType)
-        XCTAssertNil(reachability.currentConnectionEffectiveType)
+        XCTAssertEqual("wifi", reachability.currentConnection?.type)
+        XCTAssertNil(reachability.currentConnection?.effectiveType)
     }
 #endif // os(iOS) && !targetEnvironment(macCatalyst)
 
     func testCurrentConnectionType_whenNotMonitoring_shouldBeNil() {
         // -- Act & Assert --
-        XCTAssertNil(reachability.currentConnectionType)
+        XCTAssertNil(reachability.currentConnection)
     }
 
     func testCurrentConnectionType_whenAllObserversAreRemoved_shouldBeNil() {
@@ -144,14 +144,14 @@ final class SentryReachabilitySwiftTests: XCTestCase {
         let observer = TestSentryReachabilityObserver()
         reachability.add(observer)
         reachability.triggerConnectivityCallback(.wiFi)
-        let connectionTypeWhileMonitoring = reachability.currentConnectionType
+        let connectionTypeWhileMonitoring = reachability.currentConnection?.type
 
         // -- Act --
         reachability.remove(observer)
 
         // -- Assert --
         XCTAssertEqual("wifi", connectionTypeWhileMonitoring)
-        XCTAssertNil(reachability.currentConnectionType)
+        XCTAssertNil(reachability.currentConnection)
     }
 
 #if os(iOS) && !targetEnvironment(macCatalyst)

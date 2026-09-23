@@ -157,23 +157,27 @@ public class SentryReachability: NSObject {
         stopMonitoringCellularNetworkTechnology()
     }
 
-    /// The connection type of the last known network path, for example `wifi`, `ethernet` or
-    /// `cellular`, and `nil` while the SDK isn't monitoring connectivity.
-    var currentConnectionType: String? {
-        observersLock.synchronized { currentConnectivity }?.toString()
-    }
-
-    /// The generation of the cellular network technology currently used for data, for example `5g`.
-    /// `nil` unless the device is on a cellular connection with a known technology.
-    var currentConnectionEffectiveType: String? {
+    /// The last known network path, and `nil` while the SDK isn't monitoring connectivity.
+    ///
+    /// `type` is the connection type, for example `wifi`, `ethernet` or `cellular`. `effectiveType`
+    /// is the generation of the cellular network technology, for example `5g`, and is `nil` unless
+    /// the path is cellular with a known technology.
+    ///
+    /// Both are read under one lock, so they always describe the same path instead of straddling a
+    /// connectivity change.
+    var currentConnection: (type: String, effectiveType: String?)? {
+        observersLock.synchronized {
+            guard let connectivity = currentConnectivity else {
+                return nil
+            }
+            var effectiveType: String?
 #if os(iOS) && !targetEnvironment(macCatalyst)
-        guard observersLock.synchronized({ currentConnectivity }) == .cellular else {
-            return nil
-        }
-        return cellularNetworkTechnologyProvider.currentTechnology?.rawValue
-#else
-        return nil
+            if connectivity == .cellular {
+                effectiveType = cellularNetworkTechnologyProvider.currentTechnology?.rawValue
+            }
 #endif // os(iOS) && !targetEnvironment(macCatalyst)
+            return (connectivity.toString(), effectiveType)
+        }
     }
     
     func isCurrentPathMonitor(_ pathMonitor: NWPathMonitor) -> Bool {
