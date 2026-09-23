@@ -145,4 +145,50 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@interface SentryClientInternal (EventSending)
+
+- (SentryId *)sendEvent:(SentryEvent *)event
+                 withScope:(SentryScope *)scope
+    alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace;
+
+- (SentryId *)sendEvent:(SentryEvent *)event
+                 withScope:(SentryScope *)scope
+    alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+                      hint:(SentryHint *)hint;
+
+- (SentryId *)sendEvent:(SentryEvent *)event
+                 withScope:(SentryScope *)scope
+    alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+              isFatalEvent:(BOOL)isFatalEvent;
+
+- (SentryId *)sendEvent:(SentryEvent *)event
+                 withScope:(SentryScope *)scope
+    alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+              isFatalEvent:(BOOL)isFatalEvent
+                      hint:(SentryHint *)hint;
+
+- (SentryId *)sendEvent:(SentryEvent *)event
+                  withScope:(SentryScope *)scope
+     alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+               isFatalEvent:(BOOL)isFatalEvent
+    additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems;
+
+- (SentryId *)sendEvent:(SentryEvent *)event
+                  withScope:(SentryScope *)scope
+     alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+               isFatalEvent:(BOOL)isFatalEvent
+    additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
+                       hint:(SentryHint *)hint;
+
+- (SentryId *)sendEvent:(SentryEvent *)event
+            withSession:(nullable SentrySession *)session
+              withScope:(SentryScope *)scope;
+
+- (SentryId *)sendEvent:(SentryEvent *)event
+            withSession:(nullable SentrySession *)session
+              withScope:(SentryScope *)scope
+                   hint:(SentryHint *)hint;
+
+@end
+
 NS_ASSUME_NONNULL_END
