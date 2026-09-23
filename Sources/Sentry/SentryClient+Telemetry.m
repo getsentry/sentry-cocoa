@@ -2,6 +2,11 @@
 #import "SentryLogC.h"
 #import "SentrySwift.h"
 
+__attribute__((visibility("hidden"))) void
+sentry_client_telemetry_linker_anchor(void)
+{
+}
+
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryClientInternal (Telemetry)

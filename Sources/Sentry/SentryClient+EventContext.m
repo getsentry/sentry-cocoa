@@ -9,6 +9,11 @@
 #import "SentryTransaction+Private.h"
 #import "SentryUser.h"
 
+__attribute__((visibility("hidden"))) void
+sentry_client_event_context_linker_anchor(void)
+{
+}
+
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryClientInternal (EventContext)

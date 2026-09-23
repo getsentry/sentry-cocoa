@@ -41,6 +41,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol SentryEventContextEnricher;
 
+extern void sentry_client_error_events_linker_anchor(void) __attribute__((visibility("hidden")));
+extern void sentry_client_event_context_linker_anchor(void) __attribute__((visibility("hidden")));
+extern void sentry_client_replay_and_feedback_linker_anchor(void)
+    __attribute__((visibility("hidden")));
+extern void sentry_client_telemetry_linker_anchor(void) __attribute__((visibility("hidden")));
+
 @interface SentryClientInternal ()
 
 @property (nonatomic, strong) SentryTransportAdapter *transportAdapter;
@@ -142,6 +148,13 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
             currentScopeStorage:(SentryCurrentScopeStorage *)currentScopeStorage
 {
     if (self = [super init]) {
+        // Pull category object files out of static archives even when the consumer links without
+        // -ObjC. Objective-C message sends alone do not create linker references to categories.
+        sentry_client_error_events_linker_anchor();
+        sentry_client_event_context_linker_anchor();
+        sentry_client_replay_and_feedback_linker_anchor();
+        sentry_client_telemetry_linker_anchor();
+
         _isEnabled = YES;
         self.options = options;
         self.transportAdapter = transportAdapter;

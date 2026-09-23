@@ -6,6 +6,11 @@
 #import "SentrySwift.h"
 #import "SentryTraceContext.h"
 
+__attribute__((visibility("hidden"))) void
+sentry_client_replay_and_feedback_linker_anchor(void)
+{
+}
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryClientInternal ()

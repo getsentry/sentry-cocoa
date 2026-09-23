@@ -8,6 +8,11 @@
 #import "SentrySanitizerUtils.h"
 #import "SentrySwift.h"
 
+__attribute__((visibility("hidden"))) void
+sentry_client_error_events_linker_anchor(void)
+{
+}
+
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryClientInternal (ErrorEvents)
