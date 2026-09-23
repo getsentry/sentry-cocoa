@@ -93,4 +93,4 @@ to internal SDK Swift code, as `SentrySDKInfo.h`. To solve this problem we have 
 
 ## Converting to Swift
 
-Converting internal ObjC classes to Swift needs to be done following a partial order. The scripts in `SwiftConversion` generate this ordering and can be used to guide ObjC to Swift conversions.
+Converting internal ObjC classes to Swift needs to be done following a partial order. The scripts in `Utils/SwiftConversion` generate this ordering and can be used to guide ObjC to Swift conversions.
