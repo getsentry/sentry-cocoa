@@ -117,21 +117,6 @@ NS_ASSUME_NONNULL_BEGIN
     return exception;
 }
 
-- (void)setUserInfo:(NSDictionary *_Nullable)userInfo withEvent:(SentryEvent *_Nullable)event
-{
-    if (nil != event && nil != userInfo && userInfo.count > 0) {
-        NSMutableDictionary *context;
-        if (event.context == nil) {
-            context = [[NSMutableDictionary alloc] init];
-            event.context = context;
-        } else {
-            context = [event.context mutableCopy];
-        }
-
-        [context setValue:sentry_sanitize_dictionary(userInfo) forKey:@"user info"];
-    }
-}
-
 @end
 
 NS_ASSUME_NONNULL_END

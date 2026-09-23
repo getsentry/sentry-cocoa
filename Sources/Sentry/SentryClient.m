@@ -1170,6 +1170,21 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     event.sdk = [SentrySdkInfoObjC optionsToDict:self.options];
 }
 
+- (void)setUserInfo:(NSDictionary *_Nullable)userInfo withEvent:(SentryEvent *_Nullable)event
+{
+    if (nil != event && nil != userInfo && userInfo.count > 0) {
+        NSMutableDictionary *context;
+        if (event.context == nil) {
+            context = [[NSMutableDictionary alloc] init];
+            event.context = context;
+        } else {
+            context = [event.context mutableCopy];
+        }
+
+        [context setValue:sentry_sanitize_dictionary(userInfo) forKey:@"user info"];
+    }
+}
+
 - (void)setUserIdIfNoUserSet:(SentryEvent *)event
 {
 #if SDK_V10
