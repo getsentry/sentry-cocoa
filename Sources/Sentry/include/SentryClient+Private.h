@@ -38,32 +38,15 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, weak, nullable) id<SentrySessionDelegate> sessionDelegate;
 
-- (SentryId *)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
-
-- (SentryId *)captureFatalEvent:(SentryEvent *)event
-                    withSession:(SentrySession *)session
-                      withScope:(SentryScope *)scope;
-
 - (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
                       withEventId:(NSString *)feedbackEventId
                       attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
                             scope:(SentryScope *)scope;
 
-- (void)saveCrashTransaction:(SentryTransaction *)transaction
-                   withScope:(SentryScope *)scope
-    NS_SWIFT_NAME(saveCrashTransaction(transaction:scope:));
-
 - (SentryId *)captureEvent:(SentryEvent *)event
                   withScope:(SentryScope *)scope
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
     NS_SWIFT_NAME(capture(event:scope:additionalEnvelopeItems:));
-
-- (SentryId *)captureEventIncrementingSessionErrorCount:(SentryEvent *)event
-                                              withScope:(SentryScope *)scope;
-
-- (SentryId *)captureEventIncrementingSessionErrorCount:(SentryEvent *)event
-                                              withScope:(SentryScope *)scope
-                                                   hint:(SentryHint *)hint;
 
 - (SentryId *)captureError:(NSError *)error
                  withScope:(SentryScope *)scope
@@ -103,8 +86,6 @@ NS_ASSUME_NONNULL_BEGIN
                      video:(NSURL *)videoURL
                  withScope:(SentryScope *)scope;
 
-- (void)captureSession:(SentrySession *)session NS_SWIFT_NAME(capture(session:));
-
 /**
  * Needed by hybrid SDKs as react-native to synchronously store an envelope to disk.
  */
@@ -142,6 +123,29 @@ NS_ASSUME_NONNULL_BEGIN
 /// Records a dropped trace metric. Boxed in `SentryMetricObjC` (typed `id`, same header/Swift
 /// constraint as `getTelemetryProcessor` above) because `SentryMetric` is a Swift struct.
 - (void)recordDroppedTraceMetricInClientReport:(SENTRY_SWIFT_MIGRATION_ID(SentryMetricObjC))metric;
+
+@end
+
+@interface SentryClientInternal (SessionsAndCrashes)
+
+- (SentryId *)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
+
+- (SentryId *)captureFatalEvent:(SentryEvent *)event
+                    withSession:(SentrySession *)session
+                      withScope:(SentryScope *)scope;
+
+- (void)saveCrashTransaction:(SentryTransaction *)transaction
+                   withScope:(SentryScope *)scope
+    NS_SWIFT_NAME(saveCrashTransaction(transaction:scope:));
+
+- (SentryId *)captureEventIncrementingSessionErrorCount:(SentryEvent *)event
+                                              withScope:(SentryScope *)scope;
+
+- (SentryId *)captureEventIncrementingSessionErrorCount:(SentryEvent *)event
+                                              withScope:(SentryScope *)scope
+                                                   hint:(SentryHint *)hint;
+
+- (void)captureSession:(SentrySession *)session NS_SWIFT_NAME(capture(session:));
 
 @end
 

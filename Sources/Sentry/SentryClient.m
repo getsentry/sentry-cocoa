@@ -386,49 +386,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     hint.attachments = allAttachments;
 }
 
-- (SentryId *)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope
-{
-    SentryHint *hint = [[SentryHint alloc] init];
-    return [self sendEvent:event
-                     withScope:scope
-        alwaysAttachStacktrace:NO
-                  isFatalEvent:YES
-                          hint:hint];
-}
-
-- (SentryId *)captureFatalEvent:(SentryEvent *)event
-                    withSession:(SentrySession *)session
-                      withScope:(SentryScope *)scope
-{
-    SentryHint *hint = [[SentryHint alloc] init];
-    [self populateHintAttachments:hint scope:scope isFatalEvent:YES];
-    hint.attachments = [self processAttachmentsForEvent:event attachments:hint.attachments];
-    SentryEvent *preparedEvent = [self prepareEvent:event
-                                          withScope:scope
-                             alwaysAttachStacktrace:NO
-                                       isFatalEvent:YES
-                                               hint:hint];
-    return [self sendEvent:preparedEvent withSession:session withScope:scope hint:hint];
-}
-
-- (void)saveCrashTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope
-{
-    SentryEvent *preparedEvent = [self prepareEvent:transaction
-                                          withScope:scope
-                             alwaysAttachStacktrace:NO
-                                       isFatalEvent:NO];
-
-    if (preparedEvent == nil) {
-        return;
-    }
-
-    SentryTraceContext *traceContext = [self getTraceStateWithEvent:transaction
-                                                          withScope:scope
-                                                       currentScope:nil];
-
-    [self.transportAdapter storeEvent:preparedEvent traceContext:traceContext];
-}
-
 - (SentryId *)captureEvent:(SentryEvent *)event
 {
     return [self captureEvent:event withScope:[[SentryScope alloc] init]];
@@ -492,38 +449,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
     event.message = [[SentryMessage alloc] initWithFormatted:message];
     return [self sendEvent:event withScope:scope alwaysAttachStacktrace:NO hint:resolvedHint];
-}
-
-- (SentryId *)captureEventIncrementingSessionErrorCount:(SentryEvent *)event
-                                              withScope:(SentryScope *)scope
-{
-    SentryHint *hint = [[SentryHint alloc] init];
-    return [self captureEventIncrementingSessionErrorCount:event withScope:scope hint:hint];
-}
-
-- (SentryId *)captureEventIncrementingSessionErrorCount:(SentryEvent *)event
-                                              withScope:(SentryScope *)scope
-                                                   hint:(SentryHint *)hint
-{
-    [self populateHintAttachments:hint scope:scope isFatalEvent:NO];
-    hint.attachments = [self processAttachmentsForEvent:event attachments:hint.attachments];
-    SentryEvent *preparedEvent = [self prepareEvent:event
-                                          withScope:scope
-                             alwaysAttachStacktrace:YES
-                                       isFatalEvent:NO
-                                               hint:hint];
-
-    if (preparedEvent != nil) {
-        SentrySession *session = nil;
-        id<SentrySessionDelegate> delegate = self.sessionDelegate;
-        if (delegate != nil) {
-            session = [delegate incrementSessionErrors];
-        }
-
-        return [self sendEvent:preparedEvent withSession:session withScope:scope hint:hint];
-    }
-
-    return SentryId.empty;
 }
 
 - (SentryId *)sendEvent:(SentryEvent *)event
@@ -708,19 +633,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                          attachments:attachments];
 
     return event.eventId;
-}
-
-- (void)captureSession:(SentrySession *)session
-{
-    if (nil == session.releaseName || [session.releaseName length] == 0) {
-        SENTRY_LOG_DEBUG(DropSessionLogMessage);
-        return;
-    }
-
-    SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithSession:session];
-    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:[SentryEnvelopeHeader empty]
-                                                           singleItem:item];
-    [self captureEnvelope:envelope];
 }
 
 - (void)captureReplayEvent:(SentryReplayEvent *)replayEvent
