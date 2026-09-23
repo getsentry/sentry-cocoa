@@ -107,6 +107,16 @@ public class SentryReachability: NSObject {
             cellularNetworkTechnologyProvider.startMonitoring()
         }
     }
+
+    /// Starting and stopping the cellular network technology monitoring both go through the serial
+    /// reachability queue, so an observer that is removed before the queued start ran still ends up
+    /// with the monitoring stopped instead of leaking it for the lifetime of this instance.
+    private func stopMonitoringCellularNetworkTechnology() {
+        let cellularNetworkTechnologyProvider = self.cellularNetworkTechnologyProvider
+        reachabilityQueue.async {
+            cellularNetworkTechnologyProvider.stopMonitoring()
+        }
+    }
     
     @objc(removeObserver:)
     public func remove(_ observer: SentryReachabilityObserver) {
@@ -147,7 +157,7 @@ public class SentryReachability: NSObject {
             pathMonitor = nil
         }
         currentConnectivity = nil
-        cellularNetworkTechnologyProvider.stopMonitoring()
+        stopMonitoringCellularNetworkTechnology()
     }
 
     /// The connection type of the last known network path, for example `wifi`, `ethernet`,

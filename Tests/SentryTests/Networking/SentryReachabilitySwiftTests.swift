@@ -21,16 +21,27 @@ class TestSentryReachabilityObserver: NSObject, SentryReachabilityObserver {
 class TestSentryCellularNetworkTechnologyProvider: SentryCellularNetworkTechnologyProviding {
     var currentTechnology: SentryCellularNetworkTechnology?
     var onStartMonitoring: (() -> Void)?
-    let startMonitoringInvocations = Invocations<Void>()
-    let stopMonitoringInvocations = Invocations<Void>()
+    var onStopMonitoring: (() -> Void)?
+
+    /// Records starts and stops in one list, so tests can assert their order and not only their count.
+    let monitoringInvocations = Invocations<String>()
+
+    var startMonitoringCount: Int {
+        monitoringInvocations.invocations.filter { $0 == "start" }.count
+    }
+
+    var stopMonitoringCount: Int {
+        monitoringInvocations.invocations.filter { $0 == "stop" }.count
+    }
 
     func startMonitoring() {
-        startMonitoringInvocations.record(Void())
+        monitoringInvocations.record("start")
         onStartMonitoring?()
     }
 
     func stopMonitoring() {
-        stopMonitoringInvocations.record(Void())
+        monitoringInvocations.record("stop")
+        onStopMonitoring?()
     }
 }
 
@@ -151,16 +162,43 @@ final class SentryReachabilitySwiftTests: XCTestCase {
         reachability.setCellularNetworkTechnologyProvider(technologyProvider)
         let startedMonitoring = expectation(description: "Started monitoring the cellular network technology")
         technologyProvider.onStartMonitoring = { startedMonitoring.fulfill() }
+        let stoppedMonitoring = expectation(description: "Stopped monitoring the cellular network technology")
+        stoppedMonitoring.assertForOverFulfill = false
+        technologyProvider.onStopMonitoring = { stoppedMonitoring.fulfill() }
         let observer = TestSentryReachabilityObserver()
 
         // -- Act --
         reachability.add(observer)
         wait(for: [startedMonitoring], timeout: 1.0)
         reachability.remove(observer)
+        wait(for: [stoppedMonitoring], timeout: 1.0)
 
         // -- Assert --
-        XCTAssertEqual(1, technologyProvider.startMonitoringInvocations.count)
-        XCTAssertEqual(1, technologyProvider.stopMonitoringInvocations.count)
+        XCTAssertEqual(["start", "stop"], technologyProvider.monitoringInvocations.invocations)
+    }
+
+    /// Starting the monitoring is queued on the reachability queue, so removing the last observer
+    /// right after adding it must not leave the monitoring running.
+    func testRemove_whenLastObserverIsRemovedBeforeMonitoringStarted_shouldStopMonitoring() {
+        // -- Arrange --
+        reachability.skipRegisteringActualCallbacks = false
+        let technologyProvider = TestSentryCellularNetworkTechnologyProvider()
+        reachability.setCellularNetworkTechnologyProvider(technologyProvider)
+        let stoppedMonitoring = expectation(description: "Stopped monitoring the cellular network technology")
+        stoppedMonitoring.assertForOverFulfill = false
+        technologyProvider.onStopMonitoring = { stoppedMonitoring.fulfill() }
+        let observer = TestSentryReachabilityObserver()
+
+        // -- Act --
+        // Removing without waiting for the queued start to run.
+        reachability.add(observer)
+        reachability.remove(observer)
+        wait(for: [stoppedMonitoring], timeout: 1.0)
+
+        // -- Assert --
+        XCTAssertEqual(1, technologyProvider.startMonitoringCount)
+        XCTAssertEqual(1, technologyProvider.stopMonitoringCount)
+        XCTAssertEqual("stop", technologyProvider.monitoringInvocations.last)
     }
     
     func testMultipleReachabilityObservers() {
