@@ -30,6 +30,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@interface SentryClientInternal (Attachments)
+
+- (void)populateHintAttachments:(SentryHint *)hint
+                          scope:(SentryScope *)scope
+                   isFatalEvent:(BOOL)isFatalEvent;
+
+- (NSArray<SentryAttachment *> *)processAttachmentsForEvent:(SentryEvent *)event
+                                                attachments:
+                                                    (NSArray<SentryAttachment *> *)attachments;
+
+- (void)addAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor;
+- (void)removeAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor;
+
+@end
+
 @interface SentryClientInternal ()
 
 @property (nonatomic, strong)
@@ -116,9 +131,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)recordLostEvent:(SentryDataCategory)category
                  reason:(SentryDiscardReason)reason
                quantity:(NSUInteger)quantity;
-
-- (void)addAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor;
-- (void)removeAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor;
 
 - (void)_swiftCaptureLog:(NSObject *)log withScope:(SentryScope *)scope;
 
