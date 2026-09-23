@@ -5,35 +5,16 @@ import Foundation
 /// Detects fully and non-fully blocking app hangs from frame delays on a dedicated watchdog thread.
 final class SentryANRTrackerV2: SentryANRTrackerInternalProtocol {
     private enum Lifecycle {
-        case notRunning, starting, running, stopping
+        case notRunning, running, starting, stopping
     }
 
-    private struct State {
-        var lifecycle: Lifecycle = .notRunning
-        let listeners = NSHashTable<AnyObject>.weakObjects()
-    }
-
-    /// Only accessed by the watchdog thread.
-    private struct DetectionState {
-        var reported = false
-        var lastStopped: UInt64
-        var lastStarted: UInt64 = 0
-        var wasInBackground = false
-        var wentToBackground: UInt64 = 0
-        var accumulatedBackgroundTime: UInt64 = 0
-    }
-
-    private let state = SentryMutex(State())
     private let applicationStateProvider: SentryApplicationStateProvider
     private let dispatchQueueWrapper: SentryDispatchQueueWrapper
     private let threadWrapper: SentryThreadWrapper
+    private let listeners = SentryMutex(NSHashTable<AnyObject>.weakObjects())
     private let framesTracker: SentryFramesTracker
     private let timeoutInterval: TimeInterval
-    private let sleepInterval: TimeInterval
-    private let sleepIntervalInNanos: UInt64
-    private let timeoutIntervalInNanos: UInt64
-    private let appHangStoppedInterval: UInt64
-    private let appHangStoppedFrameDelayThreshold: TimeInterval
+    private let threadState = SentryMutex<Lifecycle>(.notRunning)
 
     convenience init(timeoutInterval: TimeInterval) {
         let dependencies = SentryDependencyContainer.sharedInstance()
@@ -54,169 +35,203 @@ final class SentryANRTrackerV2: SentryANRTrackerInternalProtocol {
         self.dispatchQueueWrapper = dispatchQueueWrapper
         self.threadWrapper = threadWrapper
         self.framesTracker = framesTracker
-        sleepInterval = timeoutInterval / 5
-        sleepIntervalInNanos = timeIntervalToNanoseconds(sleepInterval)
-        timeoutIntervalInNanos = timeIntervalToNanoseconds(timeoutInterval)
-        appHangStoppedInterval = timeIntervalToNanoseconds(sleepInterval * 2)
-        appHangStoppedFrameDelayThreshold = nanosecondsToTimeInterval(appHangStoppedInterval) * 0.2
     }
 
+    // Keep the watchdog flow together to make the Objective-C conversion directly comparable.
+    // swiftlint:disable:next function_body_length cyclomatic_complexity
     private func detectANRs() {
         let threadID = UUID()
-        let shouldRun = state.withLock { state in
+        let shouldRun = threadState.withLock { state in
             threadWrapper.threadStarted(threadID)
-            guard state.lifecycle == .starting else {
+            if state != .starting {
                 threadWrapper.threadFinished(threadID)
                 return false
             }
             Thread.current.name = "io.sentry.app-hang-tracker"
-            state.lifecycle = .running
+            state = .running
             return true
         }
         guard shouldRun else { return }
 
-        defer {
-            state.withLock { state in
-                state.lifecycle = .notRunning
-                threadWrapper.threadFinished(threadID)
-            }
-        }
-        watchFrames()
-    }
-
-    private func watchFrames() {
         let dateProvider = SentryDependencyContainer.sharedInstance().dateProvider
-        // Preserve the unsigned timestamp arithmetic used by the Objective-C implementation.
-        var detection = DetectionState(lastStopped: dateProvider.systemTime() &- timeoutIntervalInNanos)
+        var reported = false
 
-        // Stopping the thread can take up to sleepInterval.
-        while state.withLock({ $0.lifecycle == .running }) {
+        let reportThreshold = 5
+        let sleepInterval = timeoutInterval / Double(reportThreshold)
+        let sleepIntervalInNanos = timeIntervalToNanoseconds(sleepInterval)
+        let timeoutIntervalInNanos = timeIntervalToNanoseconds(timeoutInterval)
+        let appHangStoppedInterval = timeIntervalToNanoseconds(sleepInterval * 2)
+        let appHangStoppedFrameDelayThreshold = nanosecondsToTimeInterval(appHangStoppedInterval) * 0.2
+
+        // Preserve the unsigned timestamp arithmetic used by the Objective-C implementation.
+        var lastAppHangStoppedSystemTime = dateProvider.systemTime() &- timeoutIntervalInNanos
+        var lastAppHangStartedSystemTime: UInt64 = 0
+
+        // Exclude background time from an ongoing hang's duration while system time keeps ticking.
+        var wasInBackground = false
+        var wentToBackgroundSystemTime: UInt64 = 0
+        var accumulatedBackgroundTime: UInt64 = 0
+
+        // Cancelling the thread can take up to sleepInterval.
+        while true {
+            if threadState.withLock({ $0 != .running }) {
+                break
+            }
+
             let sleepDeadline = dateProvider.date().addingTimeInterval(timeoutInterval)
             threadWrapper.sleep(forTimeInterval: sleepInterval)
-            guard state.withLock({ $0.lifecycle == .running }) else { break }
 
-            guard applicationStateProvider.isApplicationInForeground else {
+            if threadState.withLock({ $0 != .running }) {
+                break
+            }
+
+            let isInForeground = applicationStateProvider.isApplicationInForeground
+            if !isInForeground {
                 SentrySDKLog.debug("Ignoring potential app hangs because the app is in the background")
-                if detection.reported && !detection.wasInBackground {
-                    detection.wasInBackground = true
-                    detection.wentToBackground = dateProvider.systemTime()
+                if reported && !wasInBackground {
+                    wasInBackground = true
+                    wentToBackgroundSystemTime = dateProvider.systemTime()
                 }
                 continue
             }
-            if detection.reported && detection.wasInBackground {
-                detection.accumulatedBackgroundTime &+= dateProvider.systemTime() &- detection.wentToBackground
-                detection.wasInBackground = false
+
+            if reported && wasInBackground {
+                let backgroundTime = dateProvider.systemTime() &- wentToBackgroundSystemTime
+                accumulatedBackgroundTime &+= backgroundTime
+                wasInBackground = false
             }
 
             // A suspended app can wake much later than expected. Do not report that as an app hang.
-            let delta = dateProvider.date().timeIntervalSince(sleepDeadline)
-            if delta >= timeoutInterval {
-                SentrySDKLog.debug("Ignoring App Hang because the delta is too big: \(delta).")
+            let deltaFromNowToSleepDeadline = dateProvider.date().timeIntervalSince(sleepDeadline)
+            if deltaFromNowToSleepDeadline >= timeoutInterval {
+                SentrySDKLog.debug("Ignoring App Hang because the delta is too big: \(deltaFromNowToSleepDeadline).")
                 continue
             }
 
-            let now = dateProvider.systemTime()
-            if detection.reported {
-                checkForRecovery(at: now, detection: &detection)
-            } else {
-                checkForHang(at: now, dateProvider: dateProvider, detection: &detection)
+            let nowSystemTime = dateProvider.systemTime()
+            if reported {
+                let framesDelayStartSystemTime = nowSystemTime &- appHangStoppedInterval
+                let framesDelay = framesTracker.getFramesDelay(framesDelayStartSystemTime, endSystemTimestamp: nowSystemTime)
+                if framesDelay.delayDuration == -1 {
+                    continue
+                }
+
+                let appHangStopped = framesDelay.delayDuration < appHangStoppedFrameDelayThreshold
+                if appHangStopped {
+                    SentrySDKLog.debug("App hang stopped.")
+
+                    // Polling can detect the beginning and end up to one sleep interval late.
+                    // Subtract background time, during which system time continues to tick.
+                    let elapsedSystemTime = nowSystemTime &- lastAppHangStartedSystemTime
+                    let foregroundElapsedTime = elapsedSystemTime > accumulatedBackgroundTime
+                        ? elapsedSystemTime - accumulatedBackgroundTime : 0
+                    let appHangDurationNanos = timeoutIntervalInNanos &+ foregroundElapsedTime
+                    let appHangDurationMinimum = nanosecondsToTimeInterval(appHangDurationNanos &- sleepIntervalInNanos)
+                    let appHangDurationMaximum = nanosecondsToTimeInterval(appHangDurationNanos &+ sleepIntervalInNanos)
+
+                    lastAppHangStoppedSystemTime = nowSystemTime
+                    reported = false
+                    wasInBackground = false
+                    accumulatedBackgroundTime = 0
+
+                    // Keep listener work off both the watchdog and main threads.
+                    dispatchQueueWrapper.dispatchAsync { [self] in
+                        anrStopped(appHangDurationMinimum, to: appHangDurationMaximum)
+                    }
+                }
+                continue
+            }
+
+            let lastAppHangLongEnoughInPastThreshold = lastAppHangStoppedSystemTime &+ timeoutIntervalInNanos
+            if dateProvider.systemTime() < lastAppHangLongEnoughInPastThreshold {
+                SentrySDKLog.debug("Ignoring app hang cause one happened recently.")
+                continue
+            }
+
+            let frameDelayStartSystemTime = nowSystemTime &- timeoutIntervalInNanos
+            let framesDelayForTimeInterval = framesTracker.getFramesDelay(frameDelayStartSystemTime, endSystemTimestamp: nowSystemTime)
+            if framesDelayForTimeInterval.delayDuration == -1 {
+                continue
+            }
+
+            let framesDelayForTimeIntervalInNanos = timeIntervalToNanoseconds(framesDelayForTimeInterval.delayDuration)
+            let isFullyBlocking = framesDelayForTimeInterval.framesContributingToDelayCount == 1
+            if isFullyBlocking && framesDelayForTimeIntervalInNanos >= timeoutIntervalInNanos {
+                SentrySDKLog.warning("App Hang detected: fully-blocking.")
+                reported = true
+                lastAppHangStartedSystemTime = dateProvider.systemTime()
+                anrDetected(.fullyBlocking)
+            }
+
+            let nonFullyBlockingFramesDelayThreshold = timeoutInterval * 0.99
+            if !isFullyBlocking && framesDelayForTimeInterval.delayDuration > nonFullyBlockingFramesDelayThreshold {
+                SentrySDKLog.warning("App Hang detected: non-fully-blocking.")
+                reported = true
+                lastAppHangStartedSystemTime = dateProvider.systemTime()
+                anrDetected(.nonFullyBlocking)
             }
         }
-    }
 
-    private func checkForRecovery(at now: UInt64, detection: inout DetectionState) {
-        let framesDelay = framesTracker.getFramesDelay(now &- appHangStoppedInterval, endSystemTimestamp: now)
-        guard framesDelay.delayDuration != -1,
-              framesDelay.delayDuration < appHangStoppedFrameDelayThreshold else { return }
-
-        SentrySDKLog.debug("App hang stopped.")
-        let elapsed = now &- detection.lastStarted
-        // Exclude every background period from the ongoing hang's duration.
-        let foregroundElapsed = elapsed > detection.accumulatedBackgroundTime
-            ? elapsed - detection.accumulatedBackgroundTime : 0
-        let duration = timeoutIntervalInNanos &+ foregroundElapsed
-        // Polling can detect the beginning and end up to one sleep interval late.
-        let minimum = nanosecondsToTimeInterval(duration &- sleepIntervalInNanos)
-        let maximum = nanosecondsToTimeInterval(duration &+ sleepIntervalInNanos)
-
-        detection.lastStopped = now
-        detection.reported = false
-        detection.wasInBackground = false
-        detection.accumulatedBackgroundTime = 0
-
-        // Keep listener work off both the watchdog and main threads.
-        dispatchQueueWrapper.dispatchAsync { [weak self] in
-            self?.anrStopped(minimum: minimum, maximum: maximum)
+        threadState.withLock { state in
+            state = .notRunning
+            threadWrapper.threadFinished(threadID)
         }
     }
 
-    private func checkForHang(at now: UInt64, dateProvider: SentryCurrentDateProvider, detection: inout DetectionState) {
-        guard dateProvider.systemTime() >= detection.lastStopped &+ timeoutIntervalInNanos else {
-            SentrySDKLog.debug("Ignoring app hang cause one happened recently.")
-            return
+    private func anrDetected(_ type: SentryANRType) {
+        let localListeners = listeners.withLock {
+            $0.allObjects.compactMap { $0 as? SentryANRTrackerInternalDelegate }
         }
-        let framesDelay = framesTracker.getFramesDelay(now &- timeoutIntervalInNanos, endSystemTimestamp: now)
-        guard framesDelay.delayDuration != -1 else { return }
-
-        let fullyBlocking = framesDelay.framesContributingToDelayCount == 1
-        let type: SentryANRType
-        if fullyBlocking && timeIntervalToNanoseconds(framesDelay.delayDuration) >= timeoutIntervalInNanos {
-            SentrySDKLog.warning("App Hang detected: fully-blocking.")
-            type = .fullyBlocking
-        } else if !fullyBlocking && framesDelay.delayDuration > timeoutInterval * 0.99 {
-            SentrySDKLog.warning("App Hang detected: non-fully-blocking.")
-            type = .nonFullyBlocking
-        } else {
-            return
-        }
-
-        detection.reported = true
-        detection.lastStarted = dateProvider.systemTime()
-        for listener in listenersSnapshot() {
-            listener.anrDetected(type)
+        for target in localListeners {
+            target.anrDetected(type)
         }
     }
 
-    private func listenersSnapshot() -> [SentryANRTrackerInternalDelegate] {
-        state.withLock { $0.listeners.allObjects.compactMap { $0 as? SentryANRTrackerInternalDelegate } }
-    }
-
-    private func anrStopped(minimum: TimeInterval, maximum: TimeInterval) {
-        let listeners = listenersSnapshot()
-        let result = SentryANRStoppedResultInternal(minDuration: minimum, maxDuration: maximum)
-        for listener in listeners {
-            listener.anrStopped(result)
+    private func anrStopped(_ hangDurationMinimum: TimeInterval, to hangDurationMaximum: TimeInterval) {
+        let targets = listeners.withLock {
+            $0.allObjects.compactMap { $0 as? SentryANRTrackerInternalDelegate }
+        }
+        let result = SentryANRStoppedResultInternal(minDuration: hangDurationMinimum, maxDuration: hangDurationMaximum)
+        for target in targets {
+            target.anrStopped(result)
         }
     }
 
     func addListener(_ listener: SentryANRTrackerInternalDelegate) {
-        let shouldStart = state.withLock { state in
-            state.listeners.add(listener)
-            guard state.lifecycle == .notRunning else { return false }
-            state.lifecycle = .starting
-            return true
-        }
-        if shouldStart {
-            // Retain the tracker for the watchdog thread's lifetime, as NSThread's target did.
-            Thread.detachNewThread { [self] in
-                detectANRs()
+        listeners.withLock { listeners in
+            listeners.add(listener)
+            threadState.withLock { state in
+                if listeners.count > 0 && state == .notRunning {
+                    state = .starting
+                    // NSThread retained its target. Keep that lifetime and start under the same locks.
+                    Thread.detachNewThread { [self] in
+                        detectANRs()
+                    }
+                }
             }
         }
     }
 
     func removeListener(_ listener: SentryANRTrackerInternalDelegate) {
-        state.withLock { state in
-            state.listeners.remove(listener)
-            if state.listeners.count == 0 {
-                state.lifecycle = .stopping
+        listeners.withLock { listeners in
+            listeners.remove(listener)
+            if listeners.count == 0 {
+                stop()
             }
         }
     }
 
     func clear() {
-        state.withLock { state in
-            state.listeners.removeAllObjects()
-            state.lifecycle = .stopping
+        listeners.withLock { listeners in
+            listeners.removeAllObjects()
+            stop()
+        }
+    }
+
+    private func stop() {
+        threadState.withLock { state in
+            SentrySDKLog.info("Stopping App Hang detection")
+            state = .stopping
         }
     }
 }
