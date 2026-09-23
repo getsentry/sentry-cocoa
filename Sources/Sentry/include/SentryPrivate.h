@@ -100,6 +100,7 @@
 #import "SentryTraceOrigin.h"
 #import "SentryTraceProfiler.h"
 #import "SentryTracePropagation.h"
+#import "SentryTransaction+Private.h"
 #import "SentryTransactionContext+Private.h"
 #import "SentryUIViewControllerSwizzlingHelper.h"
 #import "SentryUncaughtNSExceptions.h"

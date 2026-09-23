@@ -13,15 +13,49 @@ enum CrashTimeReplayAsserter {
     private static let expectedReplayType: UInt32 = 1
 
     static func assertCheckpointIfNeeded(scenario: Scenario, cacheDirectory: URL, platform: String) throws {
-        guard scenario == .crashTimeReplay else { return }
-        try assert(cacheDirectory: cacheDirectory, platform: platform)
+        switch scenario {
+        case .crashTimeReplay, .crashTimeReplayAttachmentCrash:
+            try assert(cacheDirectory: cacheDirectory, platform: platform, scenario: scenario)
+        default:
+            return
+        }
     }
 
-    static func assert(cacheDirectory: URL, platform: String) throws {
+    static func assertCaptureRecrashIfNeeded(
+        scenario: Scenario, cacheDirectory: URL, platform: String
+    ) throws {
+        guard scenario == .crashTimeReplayAttachmentCrash else { return }
+
+        let reports = try StoredCrashReports.urls(in: cacheDirectory)
+        let label = "\(platform)/\(scenario.rawValue)"
+        guard reports.count == 1,
+              let report = try JSONSerialization.jsonObject(
+                  with: Data(contentsOf: reports[0])
+              ) as? [String: Any],
+              let original = report["recrash_report"] as? [String: Any] else {
+            try fail("Expected a stored KSCrash recrash report for \(label)")
+        }
+
+        func signalName(_ report: [String: Any]) -> String? {
+            let crash = report["crash"] as? [String: Any]
+            let error = crash?["error"] as? [String: Any]
+            return (error?["signal"] as? [String: Any])?["name"] as? String
+        }
+
+        try EventAssertions.assert(
+            signalName(original) == "SIGSEGV" && signalName(report) == "SIGABRT",
+            "Expected original SIGSEGV followed by attachment-writer SIGABRT for \(label), "
+                + "found \(signalName(original) ?? "nil") then \(signalName(report) ?? "nil")"
+        )
+        log("✅ \(label) capture recrash assertions passed.")
+    }
+
+    static func assert(cacheDirectory: URL, platform: String, scenario: Scenario = .crashTimeReplay) throws {
         let url = cacheDirectory.appendingPathComponent(fileName)
+        let label = "\(platform)/\(scenario.rawValue)"
         guard FileManager.default.fileExists(atPath: url.path) else {
             try fail(
-                "Expected replay recovery checkpoint at \(url.path) for \(platform)/crash-time-replay"
+                "Expected replay recovery checkpoint at \(url.path) for \(label)"
             )
         }
 
@@ -32,7 +66,7 @@ enum CrashTimeReplayAsserter {
         let expectedSize = segmentSize + timestampSize + typeSize
         guard data.count >= expectedSize else {
             try fail(
-                "Replay checkpoint is too small for \(platform)/crash-time-replay: \(data.count) bytes at \(url.path)"
+                "Replay checkpoint is too small for \(label): \(data.count) bytes at \(url.path)"
             )
         }
 
@@ -42,21 +76,21 @@ enum CrashTimeReplayAsserter {
 
         guard segmentId == expectedSegmentId else {
             try fail(
-                "Expected replay checkpoint segmentId \(expectedSegmentId) for \(platform)/crash-time-replay, found \(segmentId)"
+                "Expected replay checkpoint segmentId \(expectedSegmentId) for \(label), found \(segmentId)"
             )
         }
         guard lastSegmentEnd == expectedLastSegmentEnd else {
             try fail(
-                "Expected replay checkpoint lastSegmentEnd \(expectedLastSegmentEnd) for \(platform)/crash-time-replay, found \(lastSegmentEnd)"
+                "Expected replay checkpoint lastSegmentEnd \(expectedLastSegmentEnd) for \(label), found \(lastSegmentEnd)"
             )
         }
         guard replayType == expectedReplayType else {
             try fail(
-                "Expected replay checkpoint replayType \(expectedReplayType) for \(platform)/crash-time-replay, found \(replayType)"
+                "Expected replay checkpoint replayType \(expectedReplayType) for \(label), found \(replayType)"
             )
         }
 
-        log("✅ \(platform)/crash-time-replay checkpoint assertions passed.")
+        log("✅ \(label) checkpoint assertions passed.")
     }
 
     private static func readValue<T>(from data: Data, at offset: Int) -> T {

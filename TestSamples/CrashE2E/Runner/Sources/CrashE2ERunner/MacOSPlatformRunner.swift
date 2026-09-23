@@ -110,6 +110,8 @@ final class MacOSPlatformRunner {
             scenario: scenario, cacheDirectory: cacheDir, platform: "macos")
         try CrashTimeReplayAsserter.assertCheckpointIfNeeded(
             scenario: scenario, cacheDirectory: cacheDir, platform: "macos")
+        try CrashTimeReplayAsserter.assertCaptureRecrashIfNeeded(
+            scenario: scenario, cacheDirectory: cacheDir, platform: "macos")
         try RethrownNSExceptionAsserter.assertCrashLaunchEvidenceIfNeeded(
             scenario: scenario,
             cacheRoot: cacheDir,

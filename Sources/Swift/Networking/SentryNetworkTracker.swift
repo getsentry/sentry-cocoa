@@ -817,10 +817,12 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             return false
         }
 
+        // watchOS can resume an internal task copy after the original task has been cancelled.
+        // Its forwarded trace header still identifies the same request even when that span is
+        // already finished. Restrict matching to our automatic HTTP spans, not caller-owned spans.
         return tracer.children.contains { child in
             child.origin == SentryTraceOriginAutoHttpNSURLSession
                 && child.toTraceHeader().value() == traceHeader
-                && !child.isFinished
         }
     }
 

@@ -23683,6 +23683,7 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC21enableAppHangTrackingSbvg",
                 "moduleName": "Sentry",
@@ -23706,17 +23707,15 @@
                   }
                 ],
                 "declAttributes": [
-                  "Available",
                   "Final",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "deprecated": true,
+                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC21enableAppHangTrackingSbvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setEnableAppHangTracking:",
                 "printedName": "Set()",
                 "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setEnableAppHangTracking:"
               }
@@ -23731,9 +23730,11 @@
             ],
             "declAttributes": [
               "Final",
+              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
+            "hasStorage": true,
             "kind": "Var",
             "mangledName": "$s6Sentry7OptionsC21enableAppHangTrackingSbvp",
             "moduleName": "Sentry",
@@ -43882,6 +43883,29 @@
             "name": "pause",
             "printedName": "pause()",
             "usr": "s:6Sentry0A17InternalReplayApiV5pauseyyF"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryId",
+                "printedName": "Sentry.SentryId",
+                "usr": "c:objc(cs)SentryId"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A17InternalReplayApiV15registerTraceIdyySo0aG0CF",
+            "moduleName": "Sentry",
+            "name": "registerTraceId",
+            "printedName": "registerTraceId(_:)",
+            "usr": "s:6Sentry0A17InternalReplayApiV15registerTraceIdyySo0aG0CF"
           },
           {
             "children": [
