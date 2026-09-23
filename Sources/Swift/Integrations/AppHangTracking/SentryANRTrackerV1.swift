@@ -2,7 +2,7 @@
 import Foundation
 
 /// Detects app hangs with a dedicated watchdog thread that periodically schedules work on the main thread.
-final class SentryANRTrackerV1: SentryANRTrackerInternalProtocol {
+final class SentryANRTrackerV1: NSObject, SentryANRTrackerInternalProtocol {
     private enum Lifecycle {
         case notRunning, running, starting, stopping
     }
@@ -15,9 +15,14 @@ final class SentryANRTrackerV1: SentryANRTrackerInternalProtocol {
     private let applicationStateProvider: SentryApplicationStateProvider
     private let dispatchQueueWrapper: SentryDispatchQueueWrapper
     private let threadWrapper: SentryThreadWrapper
-    private let listeners = SentryMutex(NSHashTable<AnyObject>.weakObjects())
+    private let listenerState = SentryMutex(NSHashTable<AnyObject>.weakObjects())
     private let timeoutInterval: TimeInterval
     private let threadState = SentryMutex<Lifecycle>(.notRunning)
+
+    // Preserve the original Objective-C getter used by the existing deallocation tests.
+    @objc private var listeners: NSHashTable<AnyObject> {
+        listenerState.withLock { $0 }
+    }
 
     convenience init(timeoutInterval: TimeInterval) {
         let dependencies = SentryDependencyContainer.sharedInstance()
@@ -35,6 +40,7 @@ final class SentryANRTrackerV1: SentryANRTrackerInternalProtocol {
         self.applicationStateProvider = applicationStateProvider
         self.dispatchQueueWrapper = dispatchQueueWrapper
         self.threadWrapper = threadWrapper
+        super.init()
     }
 
     // Keep the watchdog flow together to make the Objective-C conversion directly comparable.
@@ -112,7 +118,7 @@ final class SentryANRTrackerV1: SentryANRTrackerInternalProtocol {
     }
 
     private func anrDetected() {
-        let localListeners = listeners.withLock {
+        let localListeners = listenerState.withLock {
             $0.allObjects.compactMap { $0 as? SentryANRTrackerInternalDelegate }
         }
         for target in localListeners {
@@ -121,7 +127,7 @@ final class SentryANRTrackerV1: SentryANRTrackerInternalProtocol {
     }
 
     private func anrStopped() {
-        let targets = listeners.withLock {
+        let targets = listenerState.withLock {
             $0.allObjects.compactMap { $0 as? SentryANRTrackerInternalDelegate }
         }
         for target in targets {
@@ -131,7 +137,7 @@ final class SentryANRTrackerV1: SentryANRTrackerInternalProtocol {
     }
 
     func addListener(_ listener: SentryANRTrackerInternalDelegate) {
-        listeners.withLock { listeners in
+        listenerState.withLock { listeners in
             listeners.add(listener)
             threadState.withLock { state in
                 if listeners.count > 0 && state == .notRunning {
@@ -146,7 +152,7 @@ final class SentryANRTrackerV1: SentryANRTrackerInternalProtocol {
     }
 
     func removeListener(_ listener: SentryANRTrackerInternalDelegate) {
-        listeners.withLock { listeners in
+        listenerState.withLock { listeners in
             listeners.remove(listener)
             if listeners.count == 0 {
                 stop()
@@ -155,7 +161,7 @@ final class SentryANRTrackerV1: SentryANRTrackerInternalProtocol {
     }
 
     func clear() {
-        listeners.withLock { listeners in
+        listenerState.withLock { listeners in
             listeners.removeAllObjects()
             stop()
         }

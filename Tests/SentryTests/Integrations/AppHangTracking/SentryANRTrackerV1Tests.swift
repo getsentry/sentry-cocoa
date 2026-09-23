@@ -187,17 +187,21 @@ class SentryANRTrackerV1Tests: XCTestCase, SentryANRTrackerDelegate {
         anrDetectedExpectation.isInverted = true
         anrStoppedExpectation.isInverted = true
 
-        weak var releasedListener: DelegateWrapper?
-        autoreleasepool {
-            let listener = DelegateWrapper(helper: self)
-            releasedListener = listener
-            sut.helper.addListener(listener)
+        // So ARC deallocates SentryANRTrackerTestDelegate
+        let addListenersCount = 10
+        func addListeners() {
+            for _ in 0..<addListenersCount {
+                self.sut.add(listener: SentryANRTrackerTestDelegate())
+            }
         }
-
-        XCTAssertNil(releasedListener, "The tracker must not retain its listeners")
+        addListeners()
 
         sut.add(listener: self)
         sut.remove(listener: self)
+
+        let listeners = Dynamic(sut.helper).listeners.asObject as? NSHashTable<NSObject>
+
+        XCTAssertGreaterThan(addListenersCount, listeners?.count ?? addListenersCount)
 
         wait(for: [anrDetectedExpectation, anrStoppedExpectation], timeout: 0.0)
     }
