@@ -43,6 +43,7 @@ final class SentryKSCrashReplayCheckpointTests: XCTestCase {
         sentrykscrash_attachments_setViewHierarchyWriter(nil)
         sentrykscrash_attachments_setEnabled(false, nil)
         sentrykscrash_attachments_setSidecarPathProvider(nil)
+        sentrykscrash_setSaveTransaction(nil)
     }
 
     override func tearDownWithError() throws {

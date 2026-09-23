@@ -91,11 +91,6 @@ extension SentryKSCrash {
             config.isWritingReportCallback = sentrykscrash_isWritingReport
             config.didWriteReportCallback = sentrykscrash_didWriteReport
 
-#if SENTRY_DISABLE_SENTRYCRASH_V10
-            // KSCRASH_TODO(GH-8735): didWriteReport captures screenshots, view hierarchy,
-            // and the replay checkpoint, but not the active trace. Acceptance:
-            // SCV10-027 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
-#endif
             sentryThreadInspectionWillInstallCrashHandler()
             var inspectionInstallationSucceeded = false
             defer { sentryThreadInspectionDidInstallCrashHandler(inspectionInstallationSucceeded) }
