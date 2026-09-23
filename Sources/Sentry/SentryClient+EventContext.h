@@ -4,8 +4,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryClientInternal ()
 
-@property (nonatomic, strong) NSLocale *locale;
-@property (nonatomic, strong) NSTimeZone *timezone;
+- (NSLocale *)locale;
+- (NSTimeZone *)timezone;
 
 @end
 
