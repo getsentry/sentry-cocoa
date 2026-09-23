@@ -883,16 +883,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     [self.transportAdapter recordLostEvent:category reason:reason quantity:quantity];
 }
 
-- (SentryEvent *_Nullable)prepareEvent:(SentryEvent *)event
-                             withScope:(SentryScope *)scope
-                alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
-{
-    return [self prepareEvent:event
-                     withScope:scope
-        alwaysAttachStacktrace:alwaysAttachStacktrace
-                  isFatalEvent:NO];
-}
-
 - (void)flush:(NSTimeInterval)timeout
 {
     NSTimeInterval forwardingTelemetryDataDuration = [self.telemetryProcessor forwardTelemetryData];
@@ -909,49 +899,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     _isEnabled = NO;
     [self flush:self.options.shutdownTimeInterval];
     SENTRY_LOG_DEBUG(@"Closed the Client.");
-}
-
-- (SentryEvent *_Nullable)prepareEvent:(SentryEvent *_Nullable)event
-                             withScope:(SentryScope *)scope
-                alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
-                          isFatalEvent:(BOOL)isFatalEvent
-{
-    SentryHint *hint = [[SentryHint alloc] init];
-    return [self prepareEvent:event
-                     withScope:scope
-        alwaysAttachStacktrace:alwaysAttachStacktrace
-                  isFatalEvent:isFatalEvent
-                          hint:hint];
-}
-
-- (SentryEvent *_Nullable)prepareEvent:(SentryEvent *_Nullable)event
-                             withScope:(SentryScope *)scope
-                alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
-                          isFatalEvent:(BOOL)isFatalEvent
-                                  hint:(SentryHint *)hint
-{
-    SentryScope *cs = [self.currentScopeStorage scope];
-    return [self prepareEvent:event
-                     withScope:scope
-        alwaysAttachStacktrace:alwaysAttachStacktrace
-                  isFatalEvent:isFatalEvent
-                  currentScope:cs
-                          hint:hint];
-}
-
-- (SentryEvent *_Nullable)prepareEvent:(SentryEvent *_Nullable)event
-                             withScope:(SentryScope *)scope
-                alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
-                          isFatalEvent:(BOOL)isFatalEvent
-                          currentScope:(SentryScope *_Nullable)currentScope
-{
-    SentryHint *hint = [[SentryHint alloc] init];
-    return [self prepareEvent:event
-                     withScope:scope
-        alwaysAttachStacktrace:alwaysAttachStacktrace
-                  isFatalEvent:isFatalEvent
-                  currentScope:currentScope
-                          hint:hint];
 }
 
 - (SentryEvent *_Nullable)prepareEvent:(SentryEvent *_Nullable)event
@@ -1220,28 +1167,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     return event;
 }
 
-- (void)recordPartiallyDroppedSpans:(SentryTransaction *)transaction
-                         withReason:(SentryDiscardReason)reason
-               withCurrentSpanCount:(NSUInteger *)currentSpanCount
-{
-    // If some spans got removed we still report them as dropped
-    NSUInteger spanCountAfter = transaction.spans.count;
-    NSUInteger droppedSpanCount = *currentSpanCount - spanCountAfter;
-    if (droppedSpanCount > 0) {
-        [self recordLostSpanWithReason:reason quantity:droppedSpanCount];
-    }
-    *currentSpanCount = spanCountAfter;
-}
-
-- (BOOL)isSampled:(NSNumber *_Nullable)sampleRate
-{
-    if (sampleRate == nil) {
-        return NO;
-    }
-
-    return [self.random nextNumber] <= sampleRate.doubleValue ? NO : YES;
-}
-
 - (BOOL)isDisabled
 {
     return !_isEnabled || !self.options.enabled || nil == self.options.parsedDsn;
@@ -1250,19 +1175,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 - (void)logDisabledMessage
 {
     SENTRY_LOG_DEBUG(@"SDK disabled or no DSN set. Won't do anything.");
-}
-
-- (SentryEvent *_Nullable)callEventProcessors:(SentryEvent *)event
-{
-    SentryGlobalEventProcessor *globalEventProcessor
-        = SentryDependencyContainer.sharedInstance.globalEventProcessor;
-
-    SentryEvent *newEvent = [globalEventProcessor reportAll:event];
-    if (newEvent == nil) {
-        SENTRY_LOG_DEBUG(@"SentryScope callEventProcessors: An event processor decided to "
-                         @"remove this event.");
-    }
-    return newEvent;
 }
 
 - (void)setSdk:(SentryEvent *)event
@@ -1423,20 +1335,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     block(dict);
     context[key] = dict;
     event.context = context;
-}
-
-- (void)recordLost:(BOOL)eventIsNotATransaction reason:(SentryDiscardReason)reason
-{
-    if (eventIsNotATransaction) {
-        [self recordLostEvent:SentryDataCategoryError reason:reason];
-    } else {
-        [self recordLostEvent:SentryDataCategoryTransaction reason:reason];
-    }
-}
-
-- (void)recordLostSpanWithReason:(SentryDiscardReason)reason quantity:(NSUInteger)quantity
-{
-    [self recordLostEvent:SentryDataCategorySpan reason:reason quantity:quantity];
 }
 
 - (void)addAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor
