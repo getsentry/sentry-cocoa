@@ -59,9 +59,15 @@ internal import _SentryPrivate
         extraDeviceContext["low_power_mode"] = NSNumber(value: processInfoWrapper.isLowPowerModeEnabled)
 
         // The connection type is only known while the SDK monitors connectivity, which it does as
-        // long as it has a transport.
+        // long as it has a transport. `connection_type` is the device context alias of
+        // `network.connection.type`, so `connection_effective_type` mirrors
+        // `network.connection.effective_type` the same way.
+        // https://getsentry.github.io/sentry-conventions/attributes/network/
         if let connectionType = reachability.currentConnectionType {
             extraDeviceContext["connection_type"] = connectionType
+        }
+        if let connectionEffectiveType = reachability.currentConnectionEffectiveType {
+            extraDeviceContext["connection_effective_type"] = connectionEffectiveType
         }
         
         #if (os(iOS)) && !SENTRY_NO_UI_FRAMEWORK

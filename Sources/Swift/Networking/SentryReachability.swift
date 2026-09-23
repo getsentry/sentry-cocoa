@@ -21,15 +21,6 @@ enum SentryConnectivity: Int {
             return "none"
         }
     }
-
-    /// Describes the connectivity and, for cellular connections with a known network technology,
-    /// the generation of that technology, for example `cellular_5g`.
-    func toString(cellularTechnology: SentryCellularNetworkTechnology?) -> String {
-        guard self == .cellular, let cellularTechnology else {
-            return toString()
-        }
-        return "\(toString())_\(cellularTechnology.rawValue)"
-    }
 }
 
 @_spi(Private) @objc
@@ -44,7 +35,9 @@ public class SentryReachability: NSObject {
     /// The connectivity of the last known network path, or `nil` while no path has been reported yet.
     private var currentConnectivity: SentryConnectivity?
     private var pathMonitor: NWPathMonitor?
+#if os(iOS) && !targetEnvironment(macCatalyst)
     private var cellularNetworkTechnologyProvider: SentryCellularNetworkTechnologyProviding = SentryCellularNetworkTechnologyProvider()
+#endif // os(iOS) && !targetEnvironment(macCatalyst)
     private let reachabilityQueue: DispatchQueue = DispatchQueue(label: "io.sentry.cocoa.connectivity", qos: .background, attributes: [])
     private let observersLock = NSRecursiveLock()
     
@@ -100,22 +93,26 @@ public class SentryReachability: NSObject {
         self.pathMonitor = pathMonitor
         pathMonitor.start(queue: self.reachabilityQueue)
 
+#if os(iOS) && !targetEnvironment(macCatalyst)
         // Starting the provider talks to a system service, which must not block the thread calling
         // into the SDK, so it runs on the same queue as the path monitor.
         let cellularNetworkTechnologyProvider = self.cellularNetworkTechnologyProvider
         reachabilityQueue.async {
             cellularNetworkTechnologyProvider.startMonitoring()
         }
+#endif // os(iOS) && !targetEnvironment(macCatalyst)
     }
 
     /// Starting and stopping the cellular network technology monitoring both go through the serial
     /// reachability queue, so an observer that is removed before the queued start ran still ends up
     /// with the monitoring stopped instead of leaking it for the lifetime of this instance.
     private func stopMonitoringCellularNetworkTechnology() {
+#if os(iOS) && !targetEnvironment(macCatalyst)
         let cellularNetworkTechnologyProvider = self.cellularNetworkTechnologyProvider
         reachabilityQueue.async {
             cellularNetworkTechnologyProvider.stopMonitoring()
         }
+#endif // os(iOS) && !targetEnvironment(macCatalyst)
     }
     
     @objc(removeObserver:)
@@ -160,13 +157,23 @@ public class SentryReachability: NSObject {
         stopMonitoringCellularNetworkTechnology()
     }
 
-    /// The connection type of the last known network path, for example `wifi`, `ethernet`,
-    /// `cellular`, or `cellular_5g`, and `nil` while the SDK isn't monitoring connectivity.
+    /// The connection type of the last known network path, for example `wifi`, `ethernet` or
+    /// `cellular`, and `nil` while the SDK isn't monitoring connectivity.
     var currentConnectionType: String? {
-        guard let connectivity = observersLock.synchronized({ currentConnectivity }) else {
+        observersLock.synchronized { currentConnectivity }?.toString()
+    }
+
+    /// The generation of the cellular network technology currently used for data, for example `5g`.
+    /// `nil` unless the device is on a cellular connection with a known technology.
+    var currentConnectionEffectiveType: String? {
+#if os(iOS) && !targetEnvironment(macCatalyst)
+        guard observersLock.synchronized({ currentConnectivity }) == .cellular else {
             return nil
         }
-        return connectivity.toString(cellularTechnology: cellularNetworkTechnologyProvider.currentTechnology)
+        return cellularNetworkTechnologyProvider.currentTechnology?.rawValue
+#else
+        return nil
+#endif // os(iOS) && !targetEnvironment(macCatalyst)
     }
     
     func isCurrentPathMonitor(_ pathMonitor: NWPathMonitor) -> Bool {
@@ -235,7 +242,7 @@ public class SentryReachability: NSObject {
         }
         
         let connected = connectivity != .none
-        let typeDescription = connectivity.toString(cellularTechnology: cellularNetworkTechnologyProvider.currentTechnology)
+        let typeDescription = connectivity.toString()
         
         // Notify observers outside the lock to avoid deadlock.
         // Observers may call back into SDK code that needs other locks (e.g., SentryDependencyContainer.instanceLock).
@@ -269,9 +276,11 @@ extension SentryReachability {
         ignoreActualCallback = value
     }
 
+#if os(iOS) && !targetEnvironment(macCatalyst)
     func setCellularNetworkTechnologyProvider(_ provider: SentryCellularNetworkTechnologyProviding) {
         cellularNetworkTechnologyProvider = provider
     }
+#endif // os(iOS) && !targetEnvironment(macCatalyst)
     
     func triggerConnectivityCallback(_ connectivity: SentryConnectivity) {
         connectivityCallback(connectivity)
@@ -281,10 +290,6 @@ extension SentryReachability {
 class SentryReachabilityTestHelper: NSObject {
     static func stringForSentryConnectivity(_ type: SentryConnectivity) -> String {
         type.toString()
-    }
-
-    static func stringForSentryConnectivity(_ type: SentryConnectivity, cellularTechnology: SentryCellularNetworkTechnology?) -> String {
-        type.toString(cellularTechnology: cellularTechnology)
     }
 }
 #endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI

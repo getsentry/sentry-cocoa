@@ -1,8 +1,9 @@
-import Foundation
-
+// CoreTelephony only exists on iOS, so this whole file is gated instead of standing in a no-op
+// implementation on the other platforms. SentryReachability gates its usage the same way.
 #if os(iOS) && !targetEnvironment(macCatalyst)
+
 import CoreTelephony
-#endif // os(iOS) && !targetEnvironment(macCatalyst)
+import Foundation
 
 /// The generation of the cellular network technology a device currently uses for data.
 enum SentryCellularNetworkTechnology: String {
@@ -13,7 +14,7 @@ enum SentryCellularNetworkTechnology: String {
 }
 
 #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
-protocol SentryCellularNetworkTechnologyProviding: AnyObject {
+protocol SentryCellularNetworkTechnologyProviding {
     /// The technology of the cellular network currently used for data, or `nil` when it is unknown,
     /// not being monitored, or not exposed by the platform.
     var currentTechnology: SentryCellularNetworkTechnology? { get }
@@ -27,14 +28,12 @@ extension SentryCellularNetworkTechnologyProvider: SentryCellularNetworkTechnolo
 typealias SentryCellularNetworkTechnologyProviding = SentryCellularNetworkTechnologyProvider
 #endif // SENTRY_TEST || SENTRY_TEST_CI || DEBUG
 
-#if os(iOS) && !targetEnvironment(macCatalyst)
-
 /// Reports the cellular network technology of the data service via `CoreTelephony`.
 ///
 /// The value is cached and refreshed when the radio access technology changes, because reading it
 /// from `CoreTelephony` communicates with a system service and must not happen while capturing an
 /// event.
-final class SentryCellularNetworkTechnologyProvider {
+struct SentryCellularNetworkTechnologyProvider {
 
     private struct State {
         /// Set before `CoreTelephony` is set up, so concurrent callers can't both start monitoring
@@ -94,12 +93,15 @@ final class SentryCellularNetworkTechnologyProvider {
         // must not happen while holding it.
         let networkInfo = CTTelephonyNetworkInfo()
         let technology = Self.technology(from: networkInfo)
+        // Capturing the mutex instead of self keeps this a value type: the storage is shared, so
+        // the observer sees the same state the provider does.
+        let state = self.state
         let observerToken = notificationCenter.addObserver(
             forName: .CTServiceRadioAccessTechnologyDidChange,
             object: nil,
             queue: notificationQueue
-        ) { [weak self] _ in
-            self?.refreshTechnology()
+        ) { _ in
+            Self.refreshTechnology(in: state)
         }
 
         let didStoreMonitoring = state.withLock { state -> Bool in
@@ -133,13 +135,13 @@ final class SentryCellularNetworkTechnologyProvider {
         SentrySDKLog.debug("Stopped monitoring the cellular network technology.")
     }
 
-    private func refreshTechnology() {
+    private static func refreshTechnology(in state: SentryMutex<State>) {
         guard let networkInfo = state.withLock({ $0.networkInfo }) else {
             return
         }
         // Reading the radio access technology talks to a system service, so it happens outside the
         // lock that capturing an event uses.
-        let technology = Self.technology(from: networkInfo)
+        let technology = technology(from: networkInfo)
         state.withLock { state in
             guard state.isMonitoring else {
                 return
@@ -195,16 +197,6 @@ final class SentryCellularNetworkTechnologyProvider {
             return nil
         }
     }
-}
-
-#else
-
-/// `CoreTelephony` is only available on iOS, so the cellular network technology can't be
-/// determined on the other platforms.
-final class SentryCellularNetworkTechnologyProvider {
-    var currentTechnology: SentryCellularNetworkTechnology? { nil }
-    func startMonitoring() {}
-    func stopMonitoring() {}
 }
 
 #endif // os(iOS) && !targetEnvironment(macCatalyst)
