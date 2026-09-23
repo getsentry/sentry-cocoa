@@ -114,6 +114,7 @@ extension SentryKSCrash {
             #if SENTRY_CRASH_E2E
             SentryKSCrash.CrashE2ETestHook.installSyntheticAttachmentProviders()
             SentryKSCrash.CrashE2ETestHook.installReplayCheckpointIfNeeded()
+            SentryKSCrash.CrashE2ETestHook.installFailingAttachmentProviderIfNeeded()
             #endif
         }
 

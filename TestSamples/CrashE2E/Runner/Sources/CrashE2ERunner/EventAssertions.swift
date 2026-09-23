@@ -66,7 +66,7 @@ enum EventAssertions {
              .memoryIntrospectionEnabled, .memoryIntrospectionDisabled, .memoryIntrospectionDefault:
             try assertCrashedThread(threadValues, expectedThreadID: exceptionThreadID,
                                     platform: platform, scenario: scenario)
-        case .ignoredSignal, .sigterm:
+        case .ignoredSignal, .sigterm, .crashTimeReplayAttachmentCrash:
             return
         }
     }
@@ -154,9 +154,10 @@ enum EventAssertions {
                                                      scenario: scenario)
             }
 
-        case .ignoredSignal, .ksCrashPerReportRetry, .sigterm:
+        case .ignoredSignal, .ksCrashPerReportRetry, .sigterm, .crashTimeReplayAttachmentCrash:
             // The multi-launch KSCrash retry scenario has aggregate assertions in its own asserter,
-            // and the no-event scenarios never reach this point.
+            // and the no-event scenarios never reach this point. Attachment-crash proves the
+            // pre-drain checkpoint, not a happy-path drain event.
             return
         }
     }
