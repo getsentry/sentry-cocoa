@@ -105,6 +105,7 @@ enum Scenario: String, CaseIterable {
     case crashTimeScope = "crash-time-scope"
     case crashTimeAttachments = "crash-time-attachments"
     case crashTimeReplay = "crash-time-replay"
+    case crashTimeReplayAttachmentCrash = "crash-time-replay-attachment-crash"
     case memoryIntrospectionEnabled = "memory-introspection-enabled"
     case memoryIntrospectionDisabled = "memory-introspection-disabled"
     case memoryIntrospectionDefault = "memory-introspection-default"
@@ -151,7 +152,8 @@ enum Scenario: String, CaseIterable {
         .ksCrashPerReportRetry,
         .crashTimeScope,
         .crashTimeAttachments,
-        .crashTimeReplay
+        .crashTimeReplay,
+        .crashTimeReplayAttachmentCrash
     ]
 
     var requiresManagedRuntimeBuild: Bool {
@@ -181,10 +183,12 @@ enum Scenario: String, CaseIterable {
         self == .cppExceptionV2DynamicImage || self == .unityCxaThrowV2
             || self == .ksCrashPerReportRetry || self == .crashTimeScope
             || self == .crashTimeAttachments || self == .crashTimeReplay
+            || self == .crashTimeReplayAttachmentCrash
     }
 
     var requiresCrashE2ETestHook: Bool {
         self == .ksCrashPerReportRetry || self == .crashTimeAttachments || self == .crashTimeReplay
+            || self == .crashTimeReplayAttachmentCrash
     }
 }
 

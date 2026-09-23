@@ -1,7 +1,9 @@
 #import "SentryClient.h"
 #import "NSMutableDictionary+Sentry.h"
 #import "SentryAttachment.h"
+#import "SentryClient+ErrorEvents.h"
 #import "SentryClient+Private.h"
+#import "SentryClient+Telemetry.h"
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryDefaultTelemetryProcessorTransport.h"
 #import "SentryDefaultThreadInspector.h"
@@ -33,6 +35,8 @@
 #    import <UIKit/UIKit.h>
 #endif
 
+#import "SentryClient+EventContext.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol SentryEventContextEnricher;
@@ -44,15 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) id<SentryRandomProtocol> random;
 @property (nonatomic, strong) NSLocale *locale;
 @property (nonatomic, strong) NSTimeZone *timezone;
-@property (nonatomic, strong) id<SentryLogScopeApplier> logScopeApplier;
-@property (nonatomic, strong) id<SentryObjCTelemetryProcessor> telemetryProcessor;
 @property (nonatomic, strong) id<SentryEventContextEnricher> eventContextEnricher;
-@property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
-@property (nonatomic, strong) SentryCurrentScopeStorage *currentScopeStorage;
-
-- (void)recordDroppedItemInClientReportWithItemCategory:(SentryDataCategory)itemCategory
-                                           byteCategory:(SentryDataCategory)byteCategory
-                                         byteCountBlock:(NSUInteger (^)(void))byteCountBlock;
 
 @end
 
@@ -238,18 +234,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     return [self captureEventIncrementingSessionErrorCount:event withScope:scope hint:hint];
 }
 
-- (SentryEvent *)buildExceptionEvent:(NSException *)exception
-{
-    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
-    SentryException *sentryException = [[SentryException alloc] initWithValue:exception.reason
-                                                                         type:exception.name];
-
-    event.exceptions = @[ sentryException ];
-
-    [self setUserInfo:exception.userInfo withEvent:event];
-    return event;
-}
-
 - (SentryId *)captureError:(NSError *)error
 {
     return [self captureError:error withScope:[[SentryScope alloc] init]];
@@ -268,99 +252,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     event.attachAllThreadsOverride = attachAllThreads;
     SentryHint *hint = [[SentryHint alloc] initWithError:error];
     return [self captureEventIncrementingSessionErrorCount:event withScope:scope hint:hint];
-}
-
-- (SentryEvent *)buildErrorEvent:(NSError *)error
-{
-    SentryEvent *event = [[SentryEvent alloc] initWithError:error];
-
-    // flatten any recursive description of underlying errors into a list, to ultimately report them
-    // as a list of exceptions with error mechanisms, sorted oldest to newest (so, the leaf node
-    // underlying error as oldest, with the root as the newest)
-    NSMutableArray<NSError *> *errors = [NSMutableArray<NSError *> arrayWithObject:error];
-    NSError *underlyingError;
-    if ([error.userInfo[NSUnderlyingErrorKey] isKindOfClass:[NSError class]]) {
-        underlyingError = error.userInfo[NSUnderlyingErrorKey];
-    } else if (error.userInfo[NSUnderlyingErrorKey] != nil) {
-        SENTRY_LOG_WARN(@"Invalid value for NSUnderlyingErrorKey in user info. Data at key: %@. "
-                        @"Class type: %@.",
-            error.userInfo[NSUnderlyingErrorKey], [error.userInfo[NSUnderlyingErrorKey] class]);
-    }
-
-    while (underlyingError != nil) {
-        [errors addObject:underlyingError];
-
-        if ([underlyingError.userInfo[NSUnderlyingErrorKey] isKindOfClass:[NSError class]]) {
-            underlyingError = underlyingError.userInfo[NSUnderlyingErrorKey];
-        } else {
-            if (underlyingError.userInfo[NSUnderlyingErrorKey] != nil) {
-                SENTRY_LOG_WARN(@"Invalid value for NSUnderlyingErrorKey in user info. Data at "
-                                @"key: %@. Class type: %@.",
-                    underlyingError.userInfo[NSUnderlyingErrorKey],
-                    [underlyingError.userInfo[NSUnderlyingErrorKey] class]);
-            }
-            underlyingError = nil;
-        }
-    }
-
-    NSMutableArray<SentryException *> *exceptions = [NSMutableArray<SentryException *> array];
-    [errors enumerateObjectsWithOptions:NSEnumerationReverse
-                             usingBlock:^(NSError *_Nonnull nextError, NSUInteger __unused idx,
-                                 BOOL *_Nonnull __unused stop) {
-                                 [exceptions addObject:[self exceptionForError:nextError]];
-                             }];
-
-    event.exceptions = exceptions;
-
-    // Once the UI displays the mechanism data we can remove the userInfo from the event.context
-    // using only the root error's userInfo.
-    [self setUserInfo:sentry_sanitize_dictionary(error.userInfo) withEvent:event];
-
-    return event;
-}
-
-- (SentryException *)exceptionForError:(NSError *)error
-{
-    NSString *exceptionValue;
-
-    // If the error has a debug description, use that.
-    NSString *customExceptionValue = [[error userInfo] valueForKey:NSDebugDescriptionErrorKey];
-
-    NSString *swiftErrorDescription = nil;
-    // SwiftNativeNSError is the subclass of NSError used to represent bridged native Swift errors,
-    // see
-    // https://github.com/apple/swift/blob/067e4ec50147728f2cb990dbc7617d66692c1554/stdlib/public/runtime/ErrorObject.mm#L63-L73
-    NSString *errorClass = NSStringFromClass(error.class);
-    if ([errorClass containsString:@"SwiftNativeNSError"]) {
-        swiftErrorDescription = [SwiftDescriptor getSwiftErrorDescription:error];
-    }
-
-    if (customExceptionValue != nil) {
-        exceptionValue =
-            [NSString stringWithFormat:@"%@ (Code: %ld)", customExceptionValue, (long)error.code];
-    } else if (swiftErrorDescription != nil) {
-        exceptionValue =
-            [NSString stringWithFormat:@"%@ (Code: %ld)", swiftErrorDescription, (long)error.code];
-    } else {
-        exceptionValue = [NSString stringWithFormat:@"Code: %ld", (long)error.code];
-    }
-    SentryException *exception = [[SentryException alloc] initWithValue:exceptionValue
-                                                                   type:error.domain];
-
-    // Sentry uses the error domain and code on the mechanism for grouping
-    SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:@"NSError"];
-    SentryMechanismContext *mechanismMeta = [[SentryMechanismContext alloc] init];
-    mechanismMeta.error = [[SentryNSError alloc] initWithDomain:error.domain code:error.code];
-    mechanism.meta = mechanismMeta;
-    // The description of the error can be especially useful for error from swift that
-    // use a simple enum.
-    mechanism.desc = error.description;
-
-    NSDictionary<NSString *, id> *userInfo = sentry_sanitize_dictionary(error.userInfo);
-    mechanism.data = userInfo;
-    exception.mechanism = mechanism;
-
-    return exception;
 }
 
 - (SentryId *)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope
@@ -700,55 +591,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     [self captureEnvelope:envelope];
 }
 
-- (void)captureReplayEvent:(SentryReplayEvent *)replayEvent
-           replayRecording:(SentryReplayRecording *)replayRecording
-                     video:(NSURL *)videoURL
-                 withScope:(SentryScope *)scope
-{
-    replayEvent = (SentryReplayEvent *)[self prepareEvent:replayEvent
-                                                withScope:scope
-                                   alwaysAttachStacktrace:NO];
-
-    if (replayEvent == nil) {
-        SENTRY_LOG_DEBUG(@"The replay event was filtered out in prepare event. "
-                         @"The replay was discarded.");
-        return;
-    }
-
-    // Only check the type of the returned event, as the instance could be changed in the event
-    // preprocessor and before-send handlers.
-    if (![replayEvent isKindOfClass:SentryReplayEvent.class]) {
-        SENTRY_LOG_ERROR(@"The event preprocessor didn't update the replay event in place. The "
-                         @"replay was discarded.");
-        return;
-    }
-
-    SentryEnvelopeItem *videoEnvelopeItem =
-        [[SentryEnvelopeItem alloc] initWithReplayEvent:replayEvent
-                                        replayRecording:replayRecording
-                                                  video:videoURL];
-
-    if (videoEnvelopeItem == nil) {
-        SENTRY_LOG_ERROR(@"The Session Replay segment will not be sent to Sentry because an "
-                         @"Envelope Item could not be created.");
-        // Record a counted lost event in case preparing the event (e.g. encoding the event) failed.
-        // This is used to determine if replay events are missing due to an error in the SDK.
-        [self recordLostEvent:SentryDataCategoryReplay
-                       reason:SentryDiscardReasonInsufficientData
-                     quantity:1];
-        return;
-    }
-
-    // Hybrid SDKs may override the sdk info for a replay Event,
-    // the same SDK should be used for the envelope header.
-    SentryEnvelopeHeader *envelopeHeader =
-        [[SentryEnvelopeHeader alloc] initWithId:replayEvent.eventId sdkInfo:replayEvent.sdk];
-
-    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader
-                                                                items:@[ videoEnvelopeItem ]];
-    [self captureEnvelope:envelope];
-}
-
 - (void)captureEnvelope:(SentryEnvelope *)envelope
 {
     if ([self isDisabled]) {
@@ -765,80 +607,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     [self captureSerializedFeedback:[feedback serialize]
                         withEventId:feedback.eventId.sentryIdString
                         attachments:[feedback attachmentsForEnvelope]
-                              scope:scope
-                       currentScope:cs];
-}
-
-- (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
-                      withEventId:(NSString *)feedbackEventId
-                      attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
-                            scope:(SentryScope *)scope
-                     currentScope:(nullable SentryScope *)currentScope
-{
-    if ([self isDisabled]) {
-        [self logDisabledMessage];
-        return;
-    }
-
-    SentryEvent *feedbackEvent = [[SentryEvent alloc] init];
-    feedbackEvent.eventId = [[SentryId alloc] initWithUUIDString:feedbackEventId];
-    feedbackEvent.type = SentryEnvelopeItemTypes.feedback;
-
-    NSString *replayId = serializedFeedback[@"replay_id"] ?: currentScope.replayId ?: scope.replayId;
-    NSUInteger optionalItems = (scope.span == nil ? 0 : 1) + (replayId == nil ? 0 : 1);
-    NSMutableDictionary *context = [NSMutableDictionary dictionaryWithCapacity:1 + optionalItems];
-    NSMutableDictionary *feedbackContext = [serializedFeedback mutableCopy];
-    feedbackContext[@"replay_id"] = replayId;
-    context[@"feedback"] = feedbackContext;
-
-    if (replayId != nil) {
-        NSMutableDictionary *replayContext = [NSMutableDictionary dictionaryWithCapacity:1];
-        replayContext[@"replay_id"] = replayId;
-        context[@"replay"] = replayContext;
-    }
-
-    feedbackEvent.context = context;
-
-    SentryEvent *preparedEvent = [self prepareEvent:feedbackEvent
-                                          withScope:scope
-                             alwaysAttachStacktrace:NO
-                                       isFatalEvent:NO
-                                       currentScope:currentScope];
-
-    if (preparedEvent == nil) {
-        return;
-    }
-
-    SentryTraceContext *traceContext = [self getTraceStateWithEvent:preparedEvent
-                                                          withScope:scope
-                                                       currentScope:currentScope];
-
-    NSMutableArray<SentryAttachment *> *allAttachments = [NSMutableArray array];
-    [allAttachments addObjectsFromArray:scope.attachments];
-    for (SentryAttachment *attachment in currentScope.attachments) {
-        if ([allAttachments indexOfObjectIdenticalTo:attachment] == NSNotFound) {
-            [allAttachments addObject:attachment];
-        }
-    }
-    NSArray<SentryAttachment *> *attachments = [[self processAttachmentsForEvent:preparedEvent
-                                                                     attachments:allAttachments]
-        arrayByAddingObjectsFromArray:feedbackAttachments];
-
-    [self.transportAdapter sendEvent:preparedEvent
-                        traceContext:traceContext
-                         attachments:attachments
-             additionalEnvelopeItems:@[]];
-}
-
-- (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
-                      withEventId:(NSString *)feedbackEventId
-                      attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
-                            scope:(SentryScope *)scope
-{
-    SentryScope *cs = [self.currentScopeStorage scope];
-    [self captureSerializedFeedback:serializedFeedback
-                        withEventId:feedbackEventId
-                        attachments:feedbackAttachments
                               scope:scope
                        currentScope:cs];
 }
@@ -1242,15 +1010,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     return newEvent;
 }
 
-- (void)setSdk:(SentryEvent *)event
-{
-    if (event.sdk) {
-        return;
-    }
-
-    event.sdk = [SentrySdkInfoObjC optionsToDict:self.options];
-}
-
 - (void)setUserInfo:(NSDictionary *_Nullable)userInfo withEvent:(SentryEvent *_Nullable)event
 {
     if (nil != event && nil != userInfo && userInfo.count > 0) {
@@ -1266,142 +1025,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 }
 
-- (void)setUserIdIfNoUserSet:(SentryEvent *)event
-{
-#if SDK_V10
-    if (!self.options.dataCollectionObjC.userInfo) {
-        return;
-    }
-#endif // SDK_V10
-    // We only want to set the id if the customer didn't set a user so we at least set something to
-    // identify the user.
-    if (event.user == nil) {
-        SentryUser *user = [[SentryUser alloc] init];
-        user.userId = [SentryInstallation idWithCacheDirectoryPath:self.options.cacheDirectoryPath];
-        event.user = user;
-    }
-}
-
-- (BOOL)isWatchdogTermination:(SentryEvent *)event isFatalEvent:(BOOL)isFatalEvent
-{
-    if (!isFatalEvent) {
-        return NO;
-    }
-
-    if (event.exceptions == nil || event.exceptions.count != 1) {
-        return NO;
-    }
-
-    SentryException *exception = event.exceptions[0];
-    return exception.mechanism != nil &&
-        [exception.mechanism.type isEqualToString:SentryWatchdogTerminationConstants.MechanismType];
-}
-
-- (void)applyCultureContextToEvent:(SentryEvent *)event
-{
-    [self modifyContext:event
-                    key:@"culture"
-                  block:^(NSMutableDictionary *culture) {
-                      culture[@"calendar"] = [self.locale
-                          localizedStringForCalendarIdentifier:self.locale.calendarIdentifier];
-                      culture[@"display_name"] = [self.locale
-                          localizedStringForLocaleIdentifier:self.locale.localeIdentifier];
-                      culture[@"locale"] = self.locale.localeIdentifier;
-                      culture[@"is_24_hour_format"] = @([SentryLocale timeIs24HourFormat]);
-                      culture[@"timezone"] = self.timezone.name;
-                  }];
-}
-
-- (void)applyExtraDeviceContextToEvent:(SentryEvent *)event
-{
-    NSDictionary *extraContext =
-        [SentryDependencyContainer.sharedInstance.extraContextProvider getExtraContext];
-    [self modifyContext:event
-                    key:SENTRY_CONTEXT_DEVICE_KEY
-                  block:^(NSMutableDictionary *device) {
-                      if (extraContext[SENTRY_CONTEXT_DEVICE_KEY] != nil &&
-                          [extraContext[SENTRY_CONTEXT_DEVICE_KEY]
-                              isKindOfClass:NSDictionary.class]) {
-                          [device addEntriesFromDictionary:extraContext[SENTRY_CONTEXT_DEVICE_KEY]
-                                  ?: @ { }];
-                      }
-                  }];
-
-    [self modifyContext:event
-                    key:SENTRY_CONTEXT_APP_KEY
-                  block:^(NSMutableDictionary *app) {
-                      if (extraContext[SENTRY_CONTEXT_APP_KEY] != nil &&
-                          [extraContext[SENTRY_CONTEXT_APP_KEY] isKindOfClass:NSDictionary.class]) {
-                          [app addEntriesFromDictionary:extraContext[SENTRY_CONTEXT_APP_KEY]
-                                  ?: @ { }];
-                      }
-                  }];
-}
-
-#if SENTRY_HAS_UIKIT
-- (void)applyCurrentViewNamesToEventContext:(SentryEvent *)event withScope:(SentryScope *)scope
-{
-    [self modifyContext:event
-                    key:@"app"
-                  block:^(NSMutableDictionary *app) {
-                      if ([event isKindOfClass:[SentryTransaction class]]) {
-                          SentryTransaction *transaction = (SentryTransaction *)event;
-                          if ([transaction.viewNames count] > 0) {
-                              app[@"view_names"] = transaction.viewNames;
-                          }
-                      } else {
-                          if (scope.currentScreen != nil) {
-                              app[@"view_names"] =
-                                  @[ SENTRY_UNWRAP_NULLABLE(NSString, scope.currentScreen) ];
-                          } else {
-                              app[@"view_names"] = [SentryDependencyContainer.sharedInstance
-                                      .application relevantViewControllersNames];
-                          }
-                      }
-                  }];
-}
-#endif // SENTRY_HAS_UIKIT
-
-- (void)removeExtraDeviceContextFromEvent:(SentryEvent *)event
-{
-    [self modifyContext:event
-                    key:SENTRY_CONTEXT_DEVICE_KEY
-                  block:^(NSMutableDictionary *device) {
-                      [device removeObjectForKey:SentryDeviceContextFreeMemoryKey];
-                      [device removeObjectForKey:@"orientation"];
-                      [device removeObjectForKey:@"charging"];
-                      [device removeObjectForKey:@"battery_level"];
-                      [device removeObjectForKey:@"thermal_state"];
-                  }];
-
-    [self modifyContext:event
-                    key:@"app"
-                  block:^(NSMutableDictionary *app) {
-                      [app removeObjectForKey:SentryDeviceContextAppMemoryKey];
-                  }];
-}
-
-- (void)modifyContext:(SentryEvent *)event
-                  key:(NSString *)key
-                block:(void (^)(NSMutableDictionary *))block
-{
-    if (event.context == nil || event.context.count == 0) {
-        return;
-    }
-
-    NSMutableDictionary *context = [[NSMutableDictionary alloc]
-        initWithDictionary:SENTRY_UNWRAP_NULLABLE(NSDictionary, event.context)];
-    NSMutableDictionary *dict
-        = event.context[key] != nil && [event.context[key] isKindOfClass:[NSDictionary class]]
-        ? [[NSMutableDictionary alloc]
-              initWithDictionary:SENTRY_UNWRAP_NULLABLE(NSDictionary, context[key])]
-        : [NSMutableDictionary dictionary];
-
-    block(dict);
-    context[key] = dict;
-    event.context = context;
-}
-
 - (void)recordLost:(BOOL)eventIsNotATransaction reason:(SentryDiscardReason)reason
 {
     if (eventIsNotATransaction) {
@@ -1414,89 +1037,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 - (void)recordLostSpanWithReason:(SentryDiscardReason)reason quantity:(NSUInteger)quantity
 {
     [self recordLostEvent:SentryDataCategorySpan reason:reason quantity:quantity];
-}
-
-- (void)_swiftCaptureLog:(NSObject *)log withScope:(SentryScope *)scope
-{
-    SentryScope *cs = [self.currentScopeStorage scope];
-    [self _swiftCaptureLog:log withScope:scope currentScope:cs];
-}
-
-- (void)_swiftCaptureLog:(NSObject *)log
-               withScope:(SentryScope *)scope
-            currentScope:(nullable SentryScope *)currentScope
-{
-    if ([self isDisabled]) {
-        [self logDisabledMessage];
-        return;
-    }
-
-    if (![log isKindOfClass:[SentryLog class]]) {
-        return;
-    }
-
-    // Custom attribute precedence: caller > current scope > global scope. Trace correlation,
-    // user, and the other reserved attributes come from the global scope only.
-    SentryLog *enrichedLog = [self.logScopeApplier applyScope:scope
-                                                 currentScope:currentScope
-                                                        toLog:(SentryLog *)log];
-    SentryLog *logToSend = enrichedLog;
-
-    if (self.options.beforeSendLog != nil) {
-        logToSend = self.options.beforeSendLog(enrichedLog);
-        if (logToSend == nil) {
-            SENTRY_LOG_DEBUG(@"Log dropped by beforeSendLog callback.");
-            [self recordDroppedLogInClientReport:enrichedLog];
-            return;
-        }
-    }
-
-    [self.telemetryProcessor addLog:logToSend];
-}
-
-- (void)recordDroppedLogInClientReport:(SentryLog *)log
-{
-    [self recordDroppedItemInClientReportWithItemCategory:SentryDataCategoryLogItem
-                                             byteCategory:SentryDataCategoryLogByte
-                                           byteCountBlock:^NSUInteger {
-                                               return [SentryLogClientReport
-                                                   serializedByteCountForLog:log];
-                                           }];
-}
-
-- (void)recordDroppedTraceMetricInClientReport:(SentryMetricObjC *)metric
-{
-    [self recordDroppedItemInClientReportWithItemCategory:SentryDataCategoryTraceMetric
-                                             byteCategory:SentryDataCategoryTraceMetricByte
-                                           byteCountBlock:^NSUInteger {
-                                               return [metric serializedByteCount];
-                                           }];
-}
-
-- (void)recordDroppedItemInClientReportWithItemCategory:(SentryDataCategory)itemCategory
-                                           byteCategory:(SentryDataCategory)byteCategory
-                                         byteCountBlock:(NSUInteger (^)(void))byteCountBlock
-{
-    // Offload to a background queue: serializing the item to determine its byte size is too
-    // expensive to run inline in a beforeSend callback, which runs on the calling thread and must
-    // stay fast.
-    __weak SentryClientInternal *weakSelf = self;
-    [self.dispatchQueueWrapper dispatchAsyncWithBlock:^{
-        SentryClientInternal *strongSelf = weakSelf;
-        if (strongSelf == nil) {
-            return;
-        }
-        NSUInteger byteCount = byteCountBlock();
-        [strongSelf recordLostEvent:itemCategory reason:SentryDiscardReasonBeforeSend];
-        [strongSelf recordLostEvent:byteCategory
-                             reason:SentryDiscardReasonBeforeSend
-                           quantity:byteCount];
-    }];
-}
-
-- (id)getTelemetryProcessor
-{
-    return self.telemetryProcessor;
 }
 
 @end

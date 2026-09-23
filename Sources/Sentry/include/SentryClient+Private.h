@@ -59,11 +59,6 @@ NS_ASSUME_NONNULL_BEGIN
                     withSession:(SentrySession *)session
                       withScope:(SentryScope *)scope;
 
-- (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
-                      withEventId:(NSString *)feedbackEventId
-                      attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
-                            scope:(SentryScope *)scope;
-
 - (void)saveCrashTransaction:(SentryTransaction *)transaction
                    withScope:(SentryScope *)scope
     NS_SWIFT_NAME(saveCrashTransaction(transaction:scope:));
@@ -113,11 +108,6 @@ NS_ASSUME_NONNULL_BEGIN
                         hint:(nullable SentryHint *)hint
     NS_SWIFT_NAME(capture(message:scope:hint:));
 
-- (void)captureReplayEvent:(SentryReplayEvent *)replayEvent
-           replayRecording:(SentryReplayRecording *)replayRecording
-                     video:(NSURL *)videoURL
-                 withScope:(SentryScope *)scope;
-
 - (void)captureSession:(SentrySession *)session NS_SWIFT_NAME(capture(session:));
 
 /**
@@ -132,8 +122,6 @@ NS_ASSUME_NONNULL_BEGIN
                  reason:(SentryDiscardReason)reason
                quantity:(NSUInteger)quantity;
 
-- (void)_swiftCaptureLog:(NSObject *)log withScope:(SentryScope *)scope;
-
 /// Exposed so Swift (e.g. metrics) can reuse it to drop data when the client is disabled.
 /// Broader than `isEnabled` in `SentryClient.h`: `isEnabled` only reflects `close`,
 /// while `isDisabled` also returns YES for `options.enabled == false` or no DSN.
@@ -142,6 +130,12 @@ NS_ASSUME_NONNULL_BEGIN
 /// Logs a debug message that data is dropped because the client is disabled. Exposed so Swift
 /// (e.g. metrics) logs the same message as event/envelope capture when dropping data.
 - (void)logDisabledMessage;
+
+@end
+
+@interface SentryClientInternal (Telemetry)
+
+- (void)_swiftCaptureLog:(NSObject *)log withScope:(SentryScope *)scope;
 
 /// Exposes the Telemetry Processor so Swift code can forward metrics directly without crossing the
 /// ObjC boundary. SentryMetric is a Swift struct and cannot be passed through ObjC methods, so
@@ -154,6 +148,26 @@ NS_ASSUME_NONNULL_BEGIN
 /// Records a dropped trace metric. Boxed in `SentryMetricObjC` (typed `id`, same header/Swift
 /// constraint as `getTelemetryProcessor` above) because `SentryMetric` is a Swift struct.
 - (void)recordDroppedTraceMetricInClientReport:(SENTRY_SWIFT_MIGRATION_ID(SentryMetricObjC))metric;
+
+@end
+
+@interface SentryClientInternal (ReplayAndFeedback)
+
+- (void)captureReplayEvent:(SentryReplayEvent *)replayEvent
+           replayRecording:(SentryReplayRecording *)replayRecording
+                     video:(NSURL *)videoURL
+                 withScope:(SentryScope *)scope;
+
+- (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
+                      withEventId:(NSString *)feedbackEventId
+                      attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
+                            scope:(SentryScope *)scope
+                     currentScope:(nullable SentryScope *)currentScope;
+
+- (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
+                      withEventId:(NSString *)feedbackEventId
+                      attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
+                            scope:(SentryScope *)scope;
 
 @end
 

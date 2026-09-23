@@ -2,6 +2,8 @@ import Darwin
 import Foundation
 import Sentry
 
+// swiftlint:disable file_length
+
 enum CrashE2EScenario: String {
     case idle
     case drain
@@ -31,6 +33,7 @@ enum CrashE2EScenario: String {
     case crashTimeScope = "crash-time-scope"
     case crashTimeAttachments = "crash-time-attachments"
     case crashTimeReplay = "crash-time-replay"
+    case crashTimeReplayAttachmentCrash = "crash-time-replay-attachment-crash"
     case memoryIntrospectionEnabled = "memory-introspection-enabled"
     case memoryIntrospectionDisabled = "memory-introspection-disabled"
     case memoryIntrospectionDefault = "memory-introspection-default"
@@ -125,7 +128,7 @@ enum CrashE2ERuntime {
              .managedRuntimeSignalChain, .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
              .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA,
              .ksCrashRetryReportB, .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments,
-             .crashTimeReplay,
+             .crashTimeReplay, .crashTimeReplayAttachmentCrash,
              .memoryIntrospectionEnabled, .memoryIntrospectionDisabled, .memoryIntrospectionDefault:
             NSLog("CrashE2E - will trigger scenario: \(configuration.scenario.rawValue)")
             scheduleCrashAfterProcessingCompletesIfRequested()
@@ -154,7 +157,7 @@ enum CrashE2ERuntime {
              .managedRuntimeSignalChain, .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
              .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA,
              .ksCrashRetryReportB, .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments,
-             .crashTimeReplay,
+             .crashTimeReplay, .crashTimeReplayAttachmentCrash,
              .memoryIntrospectionEnabled, .memoryIntrospectionDisabled, .memoryIntrospectionDefault:
             NSLog("CrashE2E - will trigger scenario synchronously: \(configuration.scenario.rawValue)")
             waitForProcessingCompletionOrAbort()
@@ -239,6 +242,10 @@ enum CrashE2ERuntime {
             NSLog("CrashE2E - crash-time-attachments uses the SDK SENTRY_CRASH_E2E attachment hook")
         case .crashTimeReplay:
             NSLog("CrashE2E - crash-time-replay uses the SDK SENTRY_CRASH_E2E replay checkpoint hook")
+        case .crashTimeReplayAttachmentCrash:
+            NSLog(
+                "CrashE2E - crash-time-replay-attachment-crash uses the SDK SENTRY_CRASH_E2E replay checkpoint and failing attachment hooks"
+            )
         default:
             return
         }
