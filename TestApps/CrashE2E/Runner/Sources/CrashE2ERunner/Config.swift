@@ -181,7 +181,7 @@ enum Scenario: String, CaseIterable {
 
     var requiresKSCrash: Bool {
         self == .cppExceptionV2DynamicImage || self == .unityCxaThrowV2
-            || self == .ksCrashPerReportRetry || self == .crashTimeScope
+            || self == .ksCrashPerReportRetry
             || self == .crashTimeAttachments || self == .crashTimeReplay
             || self == .crashTimeReplayAttachmentCrash
     }
