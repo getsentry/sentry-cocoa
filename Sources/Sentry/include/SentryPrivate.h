@@ -38,9 +38,6 @@
 
 // Headers that also import SentryDefines should be at the end of this list
 // otherwise it wont compile
-#if !SDK_V10
-#    import "SentryANRTrackerV2.h"
-#endif
 #import "SentryAppStartMeasurement+Private.h"
 #import "SentryAppStartMeasurementProvider.h"
 #import "SentryAppStartTrackerHelper.h"

@@ -670,23 +670,18 @@ final class SentryANRTrackerV2Tests: XCTestCase {
 
         let listener = SentryANRTrackerV2TestDelegate(shouldANRBeDetected: false, shouldStoppedBeCalled: false)
 
-        // So ARC deallocates SentryANRTrackerTestDelegate
-        let addListenersCount = 10
-        func addListeners() {
-            for _ in 0..<addListenersCount {
-                sut.add(listener: SentryANRTrackerV2TestDelegate())
-            }
+        weak var releasedListener: DelegateWrapper?
+        autoreleasepool {
+            let wrapper = DelegateWrapper(helper: listener)
+            releasedListener = wrapper
+            sut.helper.addListener(wrapper)
         }
-        addListeners()
+        XCTAssertNil(releasedListener, "The tracker must not retain its listeners")
 
         sut.add(listener: listener)
         sut.remove(listener: listener)
 
         triggerFullyBlockingAppHang(currentDate)
-
-        let listeners = Dynamic(sut.helper).listeners.asObject as? NSHashTable<NSObject>
-
-        XCTAssertGreaterThan(addListenersCount, listeners?.count ?? addListenersCount)
 
         wait(for: [listener.anrDetectedExpectation, listener.anrStoppedExpectation], timeout: self.waitTimeout)
     }
