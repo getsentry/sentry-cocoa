@@ -1,0 +1,290 @@
+# yaml-language-server: $schema=../../schema/xcodegen.schema.json
+
+name: tvOS-Swift
+include:
+  - ../Shared/feature-flags.yml
+createIntermediateGroups: true
+generateEmptyDirectories: true
+configs:
+  Debug: debug
+  Test: debug
+  TestCI: debug
+  Release: release
+packages:
+  Sentry:
+    path: ../..
+  SentrySampleShared:
+    path: ../SentrySampleShared
+options:
+  bundleIdPrefix: io.sentry
+  defaultSourceDirectoryType: syncedFolder
+targets:
+  tvOS-Swift:
+    type: application
+    platform: auto
+    sources:
+      # Sources
+      - path: App/Sources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      # Resources
+      - path: App/Resources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/TestAppAssets.xcassets
+        group: App/Resources
+      - path: Shared/TVAssets.xcassets
+        group: App/Resources
+      # Configurations
+      - path: App/Configurations
+        type: group
+        group: App
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/Config
+        type: group
+        group: App/Configurations
+        buildPhase: none
+      - path: tvOS-Swift.yml
+        group: App/Configurations
+        buildPhase: none
+      - path: ../../Plans/tvOS-Swift_Base.xctestplan
+        group: App/Configurations
+        buildPhase: none
+    dependencies:
+      - package: Sentry
+        product: SentrySPM
+      - package: SentrySampleShared
+        product: SentrySampleShared
+    configFiles:
+      Debug: App/Configurations/tvOS-Swift.xcconfig
+      Release: App/Configurations/tvOS-Swift.xcconfig
+      Test: App/Configurations/tvOS-Swift.xcconfig
+      TestCI: App/Configurations/tvOS-Swift.xcconfig
+    postBuildScripts:
+      - script: INFOPLIST_FILE="${TARGET_BUILD_DIR}/${INFOPLIST_PATH}" ../Shared/inject-git-info.sh
+        name: Inject Git Information into Info.plist
+        basedOnDependencyAnalysis: false
+      - script: |
+          # This script is responsible for uploading debug symbols and source context for Sentry.
+          if [[ "$(uname -m)" == arm64 ]]; then
+            export PATH="/opt/homebrew/bin:$PATH"
+          fi
+
+          if which sentry-cli >/dev/null; then
+            export SENTRY_ORG=sentry-sdks
+            export SENTRY_PROJECT=sentry-cocoa
+            ERROR=$(sentry-cli debug-files upload --include-sources "$DWARF_DSYM_FOLDER_PATH" 2>&1 >/dev/null)
+            if [ ! $? -eq 0 ]; then
+              echo "info: sentry-cli - $ERROR"
+            fi
+          else
+            echo "info: sentry-cli not installed, download from https://github.com/getsentry/sentry-cli/releases"
+          fi
+        name: Upload Debug Symbols to Sentry
+        inputFiles:
+          - ${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}
+    entitlements:
+      path: App/Configurations/tvOS-Swift.entitlements
+      properties: {}
+    info:
+      path: App/Configurations/Info.plist
+      properties:
+        GIT_BRANCH: <branch>
+        GIT_COMMIT_HASH: <sha>
+        GIT_STATUS_CLEAN: <status>
+        LSRequiresIPhoneOS: true
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+          UISceneConfigurations:
+            UIWindowSceneSessionRoleApplication:
+              - UISceneConfigurationName: Default Configuration
+                UISceneDelegateClassName: $(PRODUCT_MODULE_NAME).SceneDelegate
+        UILaunchStoryboardName: LaunchScreen
+        UIRequiredDeviceCapabilities:
+          - arm64
+        UIUserInterfaceStyle: Automatic
+  tvOS-SBSwift:
+    type: application
+    platform: auto
+    sources:
+      # Sources
+      - path: AppSBSwift/Sources
+        type: group
+        group: AppSBSwift
+        excludes:
+          - "**/.gitkeep"
+      # Resources
+      - path: AppSBSwift/Resources
+        type: group
+        group: AppSBSwift
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/TestAppAssets.xcassets
+        group: App/Resources
+      - path: Shared/TVAssets.xcassets
+        group: App/Resources
+      # Configurations
+      - path: AppSBSwift/Configurations
+        type: group
+        group: AppSBSwift
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/Config
+        type: group
+        group: App/Configurations
+        buildPhase: none
+      - path: ../../Plans/tvOS-SBSwift_Base.xctestplan
+        group: AppSBSwift/Configurations
+        buildPhase: none
+    dependencies:
+      - package: Sentry
+        product: SentrySPM
+      - package: SentrySampleShared
+        product: SentrySampleShared
+    configFiles:
+      Debug: AppSBSwift/Configurations/tvOS-SBSwift.xcconfig
+      Release: AppSBSwift/Configurations/tvOS-SBSwift.xcconfig
+      Test: AppSBSwift/Configurations/tvOS-SBSwift.xcconfig
+      TestCI: AppSBSwift/Configurations/tvOS-SBSwift.xcconfig
+    postBuildScripts:
+      - script: INFOPLIST_FILE="${TARGET_BUILD_DIR}/${INFOPLIST_PATH}" ../Shared/inject-git-info.sh
+        name: Inject Git Information into Info.plist
+        basedOnDependencyAnalysis: false
+      - script: |
+          # This script is responsible for uploading debug symbols and source context for Sentry.
+          if [[ "$(uname -m)" == arm64 ]]; then
+            export PATH="/opt/homebrew/bin:$PATH"
+          fi
+
+          if which sentry-cli >/dev/null; then
+            export SENTRY_ORG=sentry-sdks
+            export SENTRY_PROJECT=sentry-cocoa
+            ERROR=$(sentry-cli debug-files upload --include-sources "$DWARF_DSYM_FOLDER_PATH" 2>&1 >/dev/null)
+            if [ ! $? -eq 0 ]; then
+              echo "info: sentry-cli - $ERROR"
+            fi
+          else
+            echo "info: sentry-cli not installed, download from https://github.com/getsentry/sentry-cli/releases"
+          fi
+        name: Upload Debug Symbols to Sentry
+        inputFiles:
+          - ${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}
+    entitlements:
+      path: AppSBSwift/Configurations/tvOS-SBSwift.entitlements
+      properties: {}
+    info:
+      path: AppSBSwift/Configurations/Info.plist
+      properties:
+        GIT_BRANCH: <branch>
+        GIT_COMMIT_HASH: <sha>
+        GIT_STATUS_CLEAN: <status>
+        LSRequiresIPhoneOS: true
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+          UISceneConfigurations:
+            UIWindowSceneSessionRoleApplication:
+              - UISceneConfigurationName: Default Configuration
+                UISceneDelegateClassName: $(PRODUCT_MODULE_NAME).SceneDelegate
+                UISceneStoryboardFile: Main
+        UILaunchStoryboardName: LaunchScreen
+        UIRequiredDeviceCapabilities:
+          - arm64
+        UIUserInterfaceStyle: Automatic
+  tvOS-Swift-UITests:
+    type: bundle.ui-testing
+    platform: auto
+    dependencies:
+      - package: SentrySampleShared
+        product: SentrySampleShared
+      - package: SentrySampleShared
+        product: SentrySampleUITestShared
+    sources:
+      # Sources
+      - path: UITests/Sources
+        type: group
+        group: UITests
+        excludes:
+          - "**/.gitkeep"
+      # Configurations
+      - path: UITests/Configurations
+        type: group
+        group: UITests
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/Config
+        type: group
+        group: App/Configurations
+        buildPhase: none
+    configFiles:
+      Debug: UITests/Configurations/tvOS-Swift-UITests.xcconfig
+      Release: UITests/Configurations/tvOS-Swift-UITests.xcconfig
+      Test: UITests/Configurations/tvOS-Swift-UITests.xcconfig
+      TestCI: UITests/Configurations/tvOS-Swift-UITests.xcconfig
+    info:
+      path: UITests/Configurations/Info.plist
+      properties: {}
+  tvOS-SBSwift-UITests:
+    type: bundle.ui-testing
+    platform: auto
+    dependencies:
+      - package: SentrySampleShared
+        product: SentrySampleShared
+      - package: SentrySampleShared
+        product: SentrySampleUITestShared
+    sources:
+      # Sources
+      - path: AppSBSwift-UITests/Sources
+        type: group
+        group: AppSBSwift-UITests
+        excludes:
+          - "**/.gitkeep"
+      # Configurations
+      - path: AppSBSwift-UITests/Configurations
+        type: group
+        group: AppSBSwift-UITests
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/Config
+        type: group
+        group: App/Configurations
+        buildPhase: none
+    configFiles:
+      Debug: AppSBSwift-UITests/Configurations/tvOS-SBSwift-UITests.xcconfig
+      Release: AppSBSwift-UITests/Configurations/tvOS-SBSwift-UITests.xcconfig
+      Test: AppSBSwift-UITests/Configurations/tvOS-SBSwift-UITests.xcconfig
+      TestCI: AppSBSwift-UITests/Configurations/tvOS-SBSwift-UITests.xcconfig
+    info:
+      path: AppSBSwift-UITests/Configurations/Info.plist
+      properties: {}
+schemes:
+  tvOS-Swift:
+    templates:
+      - TestAppScheme
+    build:
+      targets:
+        tvOS-Swift: all
+        tvOS-Swift-UITests: test
+    test:
+      config: Test
+      testPlans:
+        - path: ../../Plans/tvOS-Swift_Base.xctestplan
+  tvOS-SBSwift:
+    templates:
+      - TestAppScheme
+    build:
+      targets:
+        tvOS-Swift: all
+        tvOS-Swift-UITests: test
+    test:
+      config: Test
+      testPlans:
+        - path: ../../Plans/tvOS-SBSwift_Base.xctestplan

@@ -12,7 +12,7 @@ on:
 # - We use workflow-specific concurrency groups to prevent multiple Objective-C conversion analysis runs,
 #   as these analyze code conversion progress and generate tracking reports.
 # - For pull requests, we cancel in-progress runs when new commits are pushed since only the
-#   latest conversion analysis matters for tracking progress on SwiftConversion changes.
+#   latest conversion analysis matters for tracking progress on Utils/SwiftConversion changes.
 # - For main branch pushes, we never cancel conversion analysis to ensure we maintain accurate
 #   tracking of our Objective-C to Swift conversion progress across the entire project.
 concurrency:
@@ -52,29 +52,17 @@ jobs:
       - name: Install Graphviz
         run: brew install graphviz
 
-      - name: Run Objective-C conversion analyzer
-        working-directory: SwiftConversion
-        run: |
-          ruby objc_conversion_analyzer.rb
-
-      - name: Generate Graphviz DOT file
-        working-directory: SwiftConversion
-        run: |
-          ruby generate_graphviz.rb
-
-      - name: Convert DOT to SVG
-        working-directory: SwiftConversion
-        run: |
-          dot -Tsvg objc_dependencies_topo.dot -o objc_dependencies_topo.svg
+      - name: Generate Swift conversion diagram
+        run: make generate-swift-conversion-diagram
 
       - name: Upload analysis artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: objc-conversion-analysis
           path: |
-            SwiftConversion/objc_conversion_analysis.json
-            SwiftConversion/objc_dependencies_topo.dot
-            SwiftConversion/objc_dependencies_topo.svg
+            Utils/SwiftConversion/objc_conversion_analysis.json
+            Utils/SwiftConversion/objc_dependencies_topo.dot
+            Utils/SwiftConversion/objc_dependencies_topo.svg
           retention-days: 30
 
       - name: Run CI Diagnostics

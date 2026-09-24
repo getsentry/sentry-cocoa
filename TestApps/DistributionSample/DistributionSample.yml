@@ -1,0 +1,77 @@
+# yaml-language-server: $schema=../../schema/xcodegen.schema.json
+
+name: DistributionSample
+createIntermediateGroups: true
+generateEmptyDirectories: true
+configs:
+  Debug: debug
+  Release: release
+options:
+  bundleIdPrefix: io.sentry.sample.
+  defaultSourceDirectoryType: syncedFolder
+packages:
+  Sentry:
+    path: ../../
+targets:
+  DistributionSample:
+    type: application
+    platform: auto
+    sources:
+      # Sources
+      - path: App/Sources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      # Resources
+      - path: App/Resources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      # Configurations
+      - path: App/Configurations
+        type: group
+        group: App
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: DistributionSample.yml
+        group: App/Configurations
+        buildPhase: none
+    dependencies:
+      - package: Sentry
+        products:
+          - SentryDistribution
+    configFiles:
+      Debug: App/Configurations/DistributionSample.xcconfig
+      Release: App/Configurations/DistributionSample.xcconfig
+    info:
+      path: App/Configurations/Info.plist
+      properties:
+        GIT_BRANCH: <branch>
+        GIT_COMMIT_HASH: <sha>
+        GIT_STATUS_CLEAN: <status>
+        LSRequiresIPhoneOS: true
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: true
+        UIApplicationSupportsIndirectInputEvents: true
+        UILaunchScreen: {}
+        UIRequiredDeviceCapabilities:
+          - armv7
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+schemes:
+  DistributionSample:
+    templates:
+      - TestAppScheme
+    build:
+      targets:
+        DistributionSample: all

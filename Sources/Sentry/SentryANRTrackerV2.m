@@ -4,8 +4,6 @@
 
 #    if SENTRY_HAS_UIKIT
 
-#        import "SentryANRStoppedResultInternal.h"
-#        import "SentryANRTrackerInternalDelegate.h"
 #        import "SentryLogC.h"
 #        import "SentrySwift.h"
 #        import "SentryTime.h"
@@ -238,7 +236,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
 
             reported = YES;
             lastAppHangStartedSystemTime = dateProvider.systemTime;
-            [self ANRDetected:kSentryANRTypeFullyBlocking];
+            [self ANRDetected:SentryANRTypeFullyBlocking];
         }
 
         NSTimeInterval nonFullyBlockingFramesDelayThreshold = self.timeoutInterval * 0.99;
@@ -249,7 +247,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
 
             reported = YES;
             lastAppHangStartedSystemTime = dateProvider.systemTime;
-            [self ANRDetected:kSentryANRTypeNonFullyBlocking];
+            [self ANRDetected:SentryANRTypeNonFullyBlocking];
         }
     }
 
@@ -259,7 +257,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
     }
 }
 
-- (void)ANRDetected:(SentryANRTypeInternal)type
+- (void)ANRDetected:(SentryANRType)type
 {
     NSArray *localListeners;
     @synchronized(self.listeners) {

@@ -96,7 +96,7 @@ BUILD_DIR="$(mktemp -d "${TMPDIR:-/tmp}/sentryobjc-static-cmake.XXXXXX")"
 trap 'rm -rf "$BUILD_DIR"' EXIT
 
 cmake \
-    -S "$REPOSITORY_ROOT/Samples/macOS-ObjectiveC-Static-CMake" \
+    -S "$REPOSITORY_ROOT/TestApps/macOS-ObjectiveC-Static-CMake" \
     -B "$BUILD_DIR" \
     -G Xcode \
     -DSENTRY_OBJC_STATIC_XCFRAMEWORK="$XCFRAMEWORK_PATH"

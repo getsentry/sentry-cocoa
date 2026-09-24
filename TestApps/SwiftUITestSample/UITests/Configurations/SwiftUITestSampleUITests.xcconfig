@@ -1,0 +1,13 @@
+#include "../../../Shared/Config/_Common.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SwiftUITestSampleUITests
+
+GENERATE_INFOPLIST_FILE = YES
+
+// Only for testing
+IPHONEOS_DEPLOYMENT_TARGET = 16.0
+COPY_PHASE_STRIP = NO
+TARGETED_DEVICE_FAMILY = 1,2
+
+SUPPORTED_PLATFORMS = iphoneos iphonesimulator
+TEST_TARGET_NAME = SwiftUITestSample
