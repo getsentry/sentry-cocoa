@@ -2312,6 +2312,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "enableUnhandledCPPExceptionsV2",
+    "parent": "SentryObjCOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "enableUserInteractionTracing",
     "parent": "SentryObjCOptions",
     "returnType": "BOOL",
@@ -6323,6 +6330,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setEnableUnhandledCPPExceptionsV2:",
+    "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setEnableUserInteractionTracing:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
@@ -9698,6 +9712,12 @@
     "kind": "ObjCPropertyDecl",
     "name": "enableUnhandledCPPExceptionsV2",
     "parent": "SentryObjCExperimentalOptions",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "enableUnhandledCPPExceptionsV2",
+    "parent": "SentryObjCOptions",
     "type": "BOOL"
   },
   {

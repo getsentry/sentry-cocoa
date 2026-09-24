@@ -40,12 +40,13 @@
     /// @note Default is @c false.
     @objc public var debug: Bool = false
 
-    /// Minimum LogLevel to be used if debug is enabled.
     #if SDK_V10
-    /// @note Default is kSentryLevelWarning.
+    /// Minimum LogLevel to be used if debug is enabled.
+    /// @note Default is ``SentryLevel.warning``.
     @objc public var diagnosticLevel: SentryLevel = .warning
     #else
-    /// @note Default is kSentryLevelDebug.
+    /// Minimum LogLevel to be used if debug is enabled.
+    /// @note Default is ``SentryLevel.debug``.
     @objc public var diagnosticLevel: SentryLevel = .debug
     #endif // SDK_V10
 
@@ -129,6 +130,17 @@
     }
     var _enableSigtermReporting: Bool = false
     #endif // !os(watchOS) && !SDK_V10
+
+    /// Enables a more reliable way to report unhandled C++ exceptions.
+    ///
+    /// This approach hooks into all instances of the `__cxa_throw` function, which provides a more comprehensive and consistent exception handling across an app’s runtime, regardless of the number of C++ modules or how they’re linked. It helps in obtaining accurate stack traces.
+    ///
+    /// - Note: The mechanism of hooking into `__cxa_throw` could cause issues with symbolication on iOS due to caching of symbol references.
+    /// - Note: Disabled by default in both v9 and v10 because of the potential symbolication issues.
+    @objc public var enableUnhandledCPPExceptionsV2: Bool {
+        get { experimental.unhandledCPPExceptionsV2Enabled }
+        set { experimental.unhandledCPPExceptionsV2Enabled = newValue }
+    }
 
     /// When enabled, the SDK introspects memory contents during a crash.
     /// Any Objective-C objects or C strings near the stack pointer or referenced by
@@ -289,9 +301,15 @@
     /// @note Default is @c true.
     @objc public var enableAutoSessionTracking: Bool = true
 
+    #if SDK_V10
+    /// Whether to attach the top level `operationName` node of HTTP json requests to HTTP breadcrumbs
+    /// @note Default is @c true.
+    @objc public var enableGraphQLOperationTracking: Bool = true
+    #else
     /// Whether to attach the top level `operationName` node of HTTP json requests to HTTP breadcrumbs
     /// @note Default is @c false.
     @objc public var enableGraphQLOperationTracking: Bool = false
+    #endif // SDK_V10
 
     /// Whether to enable Watchdog Termination tracking or not.
     /// @note This feature requires the SentryCrashIntegration being enabled, otherwise it would
@@ -341,8 +359,6 @@
     /// https://docs.sentry.io/platforms/apple/performance/
     @objc public var enableAutoPerformanceTracing: Bool = true
 
-    /// WARNING: This is an experimental feature and may still have bugs.
-    ///
     /// When enabled, the SDK finishes the ongoing transaction bound to the scope and links them to the
     /// crash event when your app crashes. The SDK skips adding profiles to increase the chance of
     /// keeping the transaction.
@@ -375,7 +391,6 @@
     /// Settings to configure screenshot attachments.
     @objc public var screenshot: SentryViewScreenshotOptions = SentryViewScreenshotOptions()
 
-    /// @warning This is an experimental feature and may still have bugs.
     /// @brief Automatically attaches a textual representation of the view hierarchy when capturing an
     /// error event.
     /// @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
@@ -485,10 +500,17 @@
     /// @note The default is @c true.
     @objc public var enableDataSwizzling: Bool = true
 
+#if SDK_V10
+    /// When enabled, the SDK tracks performance for file IO operations with NSFileManager if auto
+    /// performance tracking and enableSwizzling are enabled.
+    /// @note The default is @c true.
+    @objc public var enableFileManagerSwizzling: Bool = true
+#else
     /// When enabled, the SDK tracks performance for file IO operations with NSFileManager if auto
     /// performance tracking and enableSwizzling are enabled.
     /// @note The default is @c false.
     @objc public var enableFileManagerSwizzling: Bool = false
+#endif // SDK_V10
 
     /// Indicates the percentage of the tracing data that is collected.
     /// @discussion Specifying @c 0 or @c nil discards all trace data, @c 1.0 collects all trace data,
@@ -739,28 +761,24 @@
 
     #endif
 
-    /// @warning This is an experimental feature and may still have bugs.
     /// @brief By enabling this, every UIViewController tracing transaction will wait
     /// for a call to @c SentrySDK.reportFullyDisplayed().
     /// @discussion Use this in conjunction with @c enableUIViewControllerTracing.
     /// If @c SentrySDK.reportFullyDisplayed() is not called, the transaction will finish
     /// automatically after 30 seconds and the `Time to full display` Span will be
     /// finished with @c DeadlineExceeded status.
-    /// @note Default value is `false`.
+    /// @note Default value is `false`, as it requires explicit calls to @c SentrySDK.reportFullyDisplayed().
     @objc public var enableTimeToFullDisplayTracing: Bool = false
 
-    /// This feature is only available from Xcode 13 and from macOS 12.0, iOS 15.0, tvOS 15.0,
-    /// watchOS 8.0.
-    ///
-    /// @brief Stitches the call to Swift Async functions in one consecutive stack trace.
-    /// @note Default value is @c true in v10, @c false in earlier versions.
-    @objc public var swiftAsyncStacktraces: Bool = {
-        #if SDK_V10
-        return true
-        #else
-        return false
-        #endif // SDK_V10
-    }()
+    #if SDK_V10
+    /// Stitches the call to Swift Async functions in one consecutive stack trace.
+    /// @note Default value is @c true
+    @objc public var swiftAsyncStacktraces: Bool = true
+    #else
+    /// Stitches the call to Swift Async functions in one consecutive stack trace.
+    /// @note Default value is @c false
+    @objc public var swiftAsyncStacktraces: Bool = false
+    #endif
 
     /// The path to store SDK data, like events, transactions, profiles, raw crash data, etc. We
     /// recommend only changing this when the default, e.g., in security environments, can't be accessed.
@@ -859,6 +877,7 @@
 
     // MARK: - Integration: Metrics
 
+#if !SDK_V10
     /// Legacy option kept for compatibility until the next major release.
     ///
     /// Manual metric capture through ``SentrySDK/metrics`` is not gated by this flag. Setting it
@@ -867,6 +886,7 @@
     /// - Note: Default value is `true`.
     /// - Warning: Deprecated. This option will be removed in the next major version.
     @objc public var enableMetrics: Bool = true
+#endif // !SDK_V10
 
     /// Use this callback to drop or modify a metric before the SDK sends it to Sentry. Return nil to
     /// drop the metric.

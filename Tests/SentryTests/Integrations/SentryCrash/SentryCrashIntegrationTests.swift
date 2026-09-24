@@ -670,7 +670,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         defer { sentrycrashct_unswap_cxa_throw() }
 
         let options = Options()
-        options.experimental.enableUnhandledCPPExceptionsV2 = true
+        options.enableUnhandledCPPExceptionsV2 = true
         options.enableCrashHandler = true
 
         let (_, _) = try givenSutWithGlobalHubAndCrashWrapper(options)
@@ -686,7 +686,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         defer { sentrycrashct_unswap_cxa_throw() }
 
         let options = Options()
-        options.experimental.enableUnhandledCPPExceptionsV2 = false
+        options.enableUnhandledCPPExceptionsV2 = false
         options.enableCrashHandler = true
 
         // Act

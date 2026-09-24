@@ -144,7 +144,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         }
         #endif
 
-        if options.experimental.enableUnhandledCPPExceptionsV2 {
+        if options.enableUnhandledCPPExceptionsV2 {
             SentrySDKLog.debug("Enabling CppExceptionsV2 by swapping cxa_throw.")
             sentrycrashcm_cppexception_enable_swap_cxa_throw()
         }

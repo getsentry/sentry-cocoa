@@ -41,6 +41,8 @@
   - Remove the `pauseAppHangTracking` and `resumeAppHangTracking` APIs
   - Remove the `enableWatchdogTerminationsV2` option; watchdog termination tracking always uses the run-loop-based tracker
 - Remove `enableSigtermReporting`; KSCrash treats `SIGTERM` as a clean exit and never reports it as a crash (#9019)
+- Enable `enableGraphQLOperationTracking` and `enableFileManagerSwizzling` by default (#9134)
+- Remove the legacy `enableMetrics` option. Metrics remain available without an enable flag, and `beforeSendMetric` can still modify or drop metrics (#9134)
 
 ### Fixes
 
