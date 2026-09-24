@@ -45,6 +45,13 @@
 
 ### Fixes
 
+- Migrate managed-runtime signal handling and SDK-close report-persistence lifecycle to `SentryV10` (#9051)
+  - Use a SDK-side Signal plugin and a generic KSCrash Mach exception mask so managed faults reach the runtime first and don't report as native crashes.
+  - Keep per-thread, one-shot signal suppression for hybrid SDKs.
+  - Keep process-lifetime handlers installed while suppressing report persistence after close and reactivating it on restart.
+  - Restore predecessor handlers when signal installation is interrupted or fails.
+  - Keep alternate stacks and safely clean up early installation failures.
+  - Validate and publish crash callbacks once, without replacing callbacks used by an active handler.
 - Compile only explicitly allowlisted shared SentryCrash tools in V10
 - Restore foreground app-hang detection and debugger-aware behavior in V10
 - Disambiguate V9 and V10 target dependencies in Xcode builds

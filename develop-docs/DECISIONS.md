@@ -40,6 +40,7 @@
 - [36. Breadcrumb persistence durability and caller latency](#36-breadcrumb-persistence-durability-and-caller-latency)
 - [37. Strip DWARF from prebuilt SentryObjC static binaries](#37-strip-dwarf-from-prebuilt-sentryobjc-static-binaries)
 - [38. Keep opt-out flags free of deprecation warnings](#38-keep-opt-out-flags-free-of-deprecation-warnings)
+- [39. Own managed-runtime signal interoperability downstream](#39-own-managed-runtime-signal-interoperability-downstream)
 
 ---
 
@@ -879,3 +880,23 @@ Keep opt-out flags usable without compiler deprecation warnings while they remai
 Related links:
 
 - https://github.com/getsentry/sentry-cocoa/issues/9093
+
+## 39. Own managed-runtime signal interoperability downstream
+
+Date: September 21, 2026
+Contributors: @philprime, @itaybre, @NinjaLikesCheez, @supervacuus
+
+For managed-runtime builds, use an SDK-side replacement Signal monitor plus a generic configurable
+KSCrash Mach-exception mask. Keep constructor preinstallation, per-thread one-shot suppression, and
+SDK lifecycle report-persistence policy downstream rather than adding managed-runtime APIs or a
+Sentry-specific global recording gate to KSCrash. Ordinary builds keep KSCrash's built-in Signal
+monitor. Both build modes keep handlers installed for process lifetime and apply SDK lifecycle policy
+through a downstream atomic read by `willWriteReport`, which controls persistence rather than global
+event handling.
+
+This limits the upstream API to generic crash-detector configuration while making Sentry responsible
+for maintaining and validating its Signal monitor.
+
+See [the maintenance procedure](KSCrash_MANAGED_SIGNAL_PLUGIN_MAINTENANCE.md),
+[managed signal interoperability](https://github.com/getsentry/sentry-cocoa/issues/8797), and
+[SDK-close lifecycle behavior](https://github.com/getsentry/sentry-cocoa/issues/8536).
