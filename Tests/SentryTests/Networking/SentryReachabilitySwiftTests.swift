@@ -157,10 +157,10 @@ final class SentryReachabilitySwiftTests: XCTestCase {
         XCTAssertNil(reachability.currentConnection)
     }
 
-    func testConnectivityChanged_whenAllObserversWereDeallocated_shouldStopMonitoring() {
+    func testConnectivityChanged_whenAllObserversWereDeallocated_shouldForgetTheConnection() {
         // -- Arrange --
-        // Observers are held weakly, so one that goes away without remove(_:) must not leave the
-        // monitoring running with a connection from when it was still there.
+        // Observers are held weakly, so one that goes away without remove(_:) must not leave a
+        // connection from when it was still there.
         autoreleasepool {
             let observer = TestSentryReachabilityObserver()
             reachability.add(observer)
