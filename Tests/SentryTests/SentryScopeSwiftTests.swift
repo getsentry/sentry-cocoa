@@ -1160,7 +1160,36 @@ class SentryScopeSwiftTests: XCTestCase {
             observer.crumbs
         )
     }
-    
+
+    func testPerformWithBreadcrumbsLocked_whenSeedingThenAddingObserver_shouldReplayExistingThenAcceptNewOnce() throws {
+        // -- Arrange --
+        let sut = Scope()
+        let existing = TestData.crumb
+        existing.message = "existing"
+        sut.addBreadcrumb(existing)
+        let observer = fixture.observer
+
+        // -- Act --
+        sut.performWithBreadcrumbsLocked {
+            for breadcrumb in sut.breadcrumbs() {
+                observer.addSerializedBreadcrumb(breadcrumb.serialize())
+            }
+            sut.add(observer)
+        }
+        let live = TestData.crumb
+        live.message = "live"
+        sut.addBreadcrumb(live)
+
+        // -- Assert --
+        XCTAssertEqual(
+            [
+                try XCTUnwrap(existing.serialize() as? [String: AnyHashable]),
+                try XCTUnwrap(live.serialize() as? [String: AnyHashable])
+            ],
+            observer.crumbs
+        )
+    }
+
     func testScopeObserver_clearBreadcrumb() {
         let sut = Scope()
         let observer = fixture.observer

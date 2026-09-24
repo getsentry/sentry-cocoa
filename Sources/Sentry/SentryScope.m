@@ -874,6 +874,13 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
     }
 }
 
+- (void)performWithBreadcrumbsLocked:(void(NS_NOESCAPE ^)(void))block
+{
+    @synchronized(_breadcrumbArray) {
+        block();
+    }
+}
+
 /**
  * Syncs the feature flag buffer into context and notifies observers.
  * Must be called while synchronized on _contextDictionary.
