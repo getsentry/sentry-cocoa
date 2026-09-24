@@ -1573,10 +1573,12 @@ test-testapp-iOS-ObjectiveC-ui: xcode-ci-iOS-ObjectiveC
 .PHONY: test-testapp-macOS-Swift-ui
 test-testapp-macOS-Swift-ui: xcode-ci-macOS-Swift
 	@echo "--> Running macOS-Swift UI tests"
+	rm -rf macos-swift-ui-results.xcresult
 	set -o pipefail && xcodebuild test \
 		-workspace Sentry.xcworkspace \
 		-scheme macOS-Swift \
 		-testPlan macOS-Swift_Base \
+		-resultBundlePath macos-swift-ui-results.xcresult \
 		CODE_SIGNING_ALLOWED="YES" \
 		CODE_SIGNING_REQUIRED="YES" \
 		CODE_SIGN_STYLE="Manual" \
