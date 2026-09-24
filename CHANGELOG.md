@@ -11,6 +11,7 @@
 - Prevent duplicate HTTP spans and breadcrumbs when watchOS resumes an internal URLSession task copy after the original request finishes (#9095)
 - Remove the compiler deprecation warning for `enableAppHangTracking` so applications can continue opting out of App Hang tracking until its removal in v10 (#9094)
 - Reset `appHangTimeoutInterval` values of 0 or lower to the default of 2 seconds, which previously spun the app hang tracker thread in a busy loop (#9020)
+- Release App Hang tracking listener wrappers when listeners are removed (#9127)
 
 ## 9.29.0
 

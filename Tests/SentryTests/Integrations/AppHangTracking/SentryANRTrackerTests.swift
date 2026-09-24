@@ -49,6 +49,22 @@ final class SentryANRTrackerTests: XCTestCase {
         XCTAssertNil(receivedResult)
     }
 
+    func testRemove_whenListenerRegistered_shouldReleaseWrapper() {
+        // -- Arrange --
+        let tracker = SentryANRTracker(helper: MockSentryANRTrackerHelper())
+        let delegate = MockANRTrackerDelegate()
+        tracker.add(listener: delegate)
+        weak var wrapper: DelegateWrapper?
+        wrapper = tracker.mapping[ObjectIdentifier(delegate)]
+        XCTAssertNotNil(wrapper)
+
+        // -- Act --
+        tracker.remove(listener: delegate)
+
+        // -- Assert --
+        XCTAssertNil(wrapper)
+    }
+
     func testRemovesDeallocatedDelegates() throws {
         let helper = MockSentryANRTrackerHelper()
         let tracker = SentryANRTracker(helper: helper)

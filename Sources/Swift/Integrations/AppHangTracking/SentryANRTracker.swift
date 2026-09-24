@@ -31,7 +31,7 @@ protocol SentryANRTrackerInternalProtocol {
     }
 
     @objc(removeListener:) public func remove(listener: SentryANRTrackerDelegate) {
-        guard let mapped = mapping[ObjectIdentifier(listener)] else {
+        guard let mapped = mapping.removeValue(forKey: ObjectIdentifier(listener)) else {
             return
         }
         helper.removeListener(mapped)
