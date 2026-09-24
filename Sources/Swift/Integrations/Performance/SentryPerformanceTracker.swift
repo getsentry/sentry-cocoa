@@ -26,9 +26,9 @@ import Foundation
         activeSpan = sentry_launchTracer
 #endif
         if activeSpan == nil {
-            objc_sync_enter(activeSpanStack)
-            activeSpan = activeSpanStack.lastObject as? Span
-            objc_sync_exit(activeSpanStack)
+            synchronized(activeSpanStack) { [self] in
+                activeSpan = activeSpanStack.lastObject as? Span
+            }
         }
 
         let newSpan: Span?
@@ -76,9 +76,9 @@ import Foundation
             SentrySDKLog.error("startSpanWithName:operation: spanId is nil.")
             return SpanId.empty
         }
-        objc_sync_enter(spans)
-        spans[spanId] = newSpan
-        objc_sync_exit(spans)
+        synchronized(spans) { [self] in
+            spans[spanId] = newSpan
+        }
         return spanId
     }
 
@@ -114,34 +114,34 @@ import Foundation
 
     /// Returns the ID of the active span.
     @objc public func activeSpanId() -> SpanId? {
-        objc_sync_enter(activeSpanStack)
-        defer { objc_sync_exit(activeSpanStack) }
-        return (activeSpanStack.lastObject as? Span)?.spanId
+        synchronized(activeSpanStack) { [self] in
+            (activeSpanStack.lastObject as? Span)?.spanId
+        }
     }
 
     /// Pushes a tracked span onto the active stack, returning whether it was found.
     @discardableResult
     @objc public func pushActiveSpan(_ spanId: SpanId) -> Bool {
         SentrySDKLog.debug("Pushing active span \(spanId.sentrySpanIdString)")
-        objc_sync_enter(spans)
-        let span = spans[spanId] as? Span
-        objc_sync_exit(spans)
+        let span = synchronized(spans) { [self] in
+            spans[spanId] as? Span
+        }
 
         guard let span = span else {
             SentrySDKLog.debug("No span found with ID \(spanId.sentrySpanIdString)")
             return false
         }
-        objc_sync_enter(activeSpanStack)
-        activeSpanStack.add(span)
-        objc_sync_exit(activeSpanStack)
+        synchronized(activeSpanStack) { [self] in
+            activeSpanStack.add(span)
+        }
         return true
     }
 
     /// Removes the most recently activated span.
     @objc public func popActiveSpan() {
-        objc_sync_enter(activeSpanStack)
-        defer { objc_sync_exit(activeSpanStack) }
-        activeSpanStack.removeLastObject()
+        synchronized(activeSpanStack) { [self] in
+            activeSpanStack.removeLastObject()
+        }
     }
 
     /// Finishes a span successfully, waiting for children if it is a transaction.
@@ -153,28 +153,29 @@ import Foundation
     /// Finishes a span with the given status, waiting for children if it is a transaction.
     @objc(finishSpan:withStatus:)
     public func finishSpan(_ spanId: SpanId, with status: SentrySpanStatus) {
-        objc_sync_enter(spans)
-        let span = spans[spanId] as? Span
-        // Automatic tracers may have no other owner. Retain them until tracerDidFinish.
-        if !(span is SentryTracer) {
-            spans.removeObject(forKey: spanId)
+        let span = synchronized(spans) { [self] in
+            let span = spans[spanId] as? Span
+            // Automatic tracers may have no other owner. Retain them until tracerDidFinish.
+            if !(span is SentryTracer) {
+                spans.removeObject(forKey: spanId)
+            }
+            return span
         }
-        objc_sync_exit(spans)
         span?.finish(status: status)
     }
 
     /// Returns whether the span is still tracked.
     @objc public func isSpanAlive(_ spanId: SpanId) -> Bool {
-        objc_sync_enter(spans)
-        defer { objc_sync_exit(spans) }
-        return spans[spanId] != nil
+        synchronized(spans) { [self] in
+            spans[spanId] != nil
+        }
     }
 
     /// Returns the tracked span for an ID.
     @objc public func getSpan(_ spanId: SpanId) -> Span? {
-        objc_sync_enter(spans)
-        defer { objc_sync_exit(spans) }
-        return spans[spanId] as? Span
+        synchronized(spans) { [self] in
+            spans[spanId] as? Span
+        }
     }
 
     /// Returns whether a span with the given ID exists.
@@ -184,9 +185,9 @@ import Foundation
 
     /// Returns the most recently activated span.
     @objc public func getActiveSpan() -> Span? {
-        objc_sync_enter(activeSpanStack)
-        defer { objc_sync_exit(activeSpanStack) }
-        return activeSpanStack.lastObject as? Span
+        synchronized(activeSpanStack) { [self] in
+            activeSpanStack.lastObject as? Span
+        }
     }
 
     /// Clears tracked and active spans.
@@ -196,10 +197,17 @@ import Foundation
     }
 
     @objc func tracerDidFinish(_ tracer: SentryTracer) {
-        objc_sync_enter(spans)
-        defer { objc_sync_exit(spans) }
-        spans.removeObject(forKey: tracer.spanId)
+        synchronized(spans) { [self] in
+            spans.removeObject(forKey: tracer.spanId)
+        }
     }
+}
+
+// Temporary local equivalent of Objective-C @synchronized for this conversion.
+private func synchronized<T>(_ object: AnyObject, operation: () throws -> T) rethrows -> T {
+    objc_sync_enter(object)
+    defer { objc_sync_exit(object) }
+    return try operation()
 }
 
 // The public Swift type cannot expose a conformance imported from _SentryPrivate.
