@@ -241,6 +241,10 @@ public class SentryReachability: NSObject {
             () -> ([SentryReachabilityObserver], SentryConnectivity?) in
             let observers = reachabilityObservers.allObjects
             guard !observers.isEmpty else {
+                // Observers are held weakly, so the last one can disappear without remove(_:).
+                // Without this the path monitor would keep running and currentConnection would
+                // keep reporting the connectivity from when observers still existed.
+                stopMonitoring()
                 return ([], nil)
             }
             let previousConnectivity = currentConnectivity
