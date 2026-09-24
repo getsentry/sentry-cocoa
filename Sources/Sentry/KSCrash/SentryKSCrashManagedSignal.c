@@ -449,13 +449,6 @@ sentrykscrash_managedSignalNotify(void *context)
     (void)context;
 }
 
-#    else
-
-static void
-sentrykscrash_managedSignalInstall(void)
-{
-}
-
 #    endif // SENTRY_HAS_SIGNAL
 
 // SENTRY MANAGED SIGNAL DIFFERENCE BEGIN: plugin registration and pre-SDK anchor ownership.
@@ -508,7 +501,7 @@ sentrykscrash_ignoreNextSignal(int signal)
 #    endif
 }
 
-#    ifdef SENTRY_CRASH_MANAGED_RUNTIME
+#    if defined(SENTRY_CRASH_MANAGED_RUNTIME) && SENTRY_HAS_SIGNAL
 /** Install the downstream-owned chain anchor before Mono/.NET initializes. */
 __attribute__((constructor)) static void
 sentrykscrash_prepareManagedSignalMonitor(void)
