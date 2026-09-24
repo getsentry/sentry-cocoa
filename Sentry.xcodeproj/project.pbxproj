@@ -148,6 +148,9 @@
 		3BDF23F2CE50D29CFE2BBD06 /* SentrySwizzle.m in Sources */ = {isa = PBXBuildFile; fileRef = 639889BA1EDED18400EA7442 /* SentrySwizzle.m */; };
 		3C0B2C89E044195F8220E78E /* SentrySamplingProfiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03F84D3027DD4191008FE43F /* SentrySamplingProfiler.cpp */; };
 		3CB64C903029D35800ED9B67 /* Recording in Frameworks */ = {isa = PBXBuildFile; productRef = 3CB64C8F3029D35800ED9B67 /* Recording */; };
+		BCE05CEB1000000000000004 /* Recording in Frameworks */ = {isa = PBXBuildFile; productRef = 3CB64C8F3029D35800ED9B67 /* Recording */; };
+		BCE05CEB1000000000000001 /* SentryKSCrashManagedSignal.c in Sources */ = {isa = PBXBuildFile; fileRef = BCE05CEB1000000000000003 /* SentryKSCrashManagedSignal.c */; };
+		BCE05CEB1000000000000002 /* SentryKSCrashManagedSignal.c in Sources */ = {isa = PBXBuildFile; fileRef = BCE05CEB1000000000000003 /* SentryKSCrashManagedSignal.c */; };
 		3CBD19E23046D57400569F6D /* SentryKSCrashReportWriterCallbacks.c in Sources */ = {isa = PBXBuildFile; fileRef = 3CBD19E03046D57400569F6D /* SentryKSCrashReportWriterCallbacks.c */; };
 		3CBD19E33046D57400569F6D /* SentryKSCrashReportWriterCallbacks.c in Sources */ = {isa = PBXBuildFile; fileRef = 3CBD19E03046D57400569F6D /* SentryKSCrashReportWriterCallbacks.c */; };
 		3CFC66E72FF50342004005B4 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0787B53CA34AC1B3CF256F35 /* Sentry.framework */; settings = {ATTRIBUTES = (Required, ); }; };
@@ -1306,6 +1309,7 @@
 		37D207F61D348FDFC964BCE0 /* SentryV10.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = SentryV10.xcconfig; sourceTree = "<group>"; };
 		39E8EC52F2DE50F4089613E2 /* SentrySwiftUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SentrySwiftUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3BE337C2FC7CB5AC55D2FDAA /* libSentryTestUtils.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libSentryTestUtils.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		BCE05CEB1000000000000003 /* SentryKSCrashManagedSignal.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = SentryKSCrashManagedSignal.c; sourceTree = "<group>"; };
 		3CBD19E03046D57400569F6D /* SentryKSCrashReportWriterCallbacks.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = SentryKSCrashReportWriterCallbacks.c; sourceTree = "<group>"; };
 		3CFC66F72FF50342004005B4 /* SentryTestsV10.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SentryTestsV10.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3CFC66F82FF50343004005B4 /* SentryTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "SentryTests-Info.plist"; sourceTree = "<group>"; };
@@ -2095,6 +2099,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BCE05CEB1000000000000004 /* Recording in Frameworks */,
 				3CFC66E72FF50342004005B4 /* Sentry.framework in Frameworks */,
 				467A1D8F4EEE3F79809F3F7A /* libSentryTestUtils.a in Frameworks */,
 			);
@@ -2265,6 +2270,7 @@
 		3CBD19E13046D57400569F6D /* KSCrash */ = {
 			isa = PBXGroup;
 			children = (
+				BCE05CEB1000000000000003 /* SentryKSCrashManagedSignal.c */,
 				3CBD19E03046D57400569F6D /* SentryKSCrashReportWriterCallbacks.c */,
 			);
 			path = KSCrash;
@@ -3871,6 +3877,9 @@
 				FAB1CB682F458C680000CC24 /* SentryTests */,
 			);
 			name = SentryTestsV10;
+			packageProductDependencies = (
+				3CB64C8F3029D35800ED9B67 /* Recording */,
+			);
 			productName = "Tests-iOS";
 			productReference = 3CFC66F72FF50342004005B4 /* SentryTestsV10.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -4736,6 +4745,7 @@
 				63FE714120DA4C1100CDBAE8 /* SentryCrashDate.c in Sources */,
 				D43B26DA2D70A612007747FD /* SentrySpanDataKey.m in Sources */,
 				63FE70DB20DA4C1000CDBAE8 /* SentryCrashMonitor_System.m in Sources */,
+				BCE05CEB1000000000000002 /* SentryKSCrashManagedSignal.c in Sources */,
 				3CBD19E33046D57400569F6D /* SentryKSCrashReportWriterCallbacks.c in Sources */,
 				63FE713120DA4C1100CDBAE8 /* SentryCrashDynamicLinker.c in Sources */,
 				928C66A92F27CCF000BA58DD /* SentryCrashMonitor_NSException_StackCursor.m in Sources */,
@@ -4844,6 +4854,7 @@
 				1238DF7922E9CBD16A4A62CA /* SentryCrashScopeObserver.m in Sources */,
 				32232D58C9A6629EC064F913 /* SentryAppStartMeasurement.m in Sources */,
 				D431C8BB301251A000A2F0DE /* SentryObjCExceptionHelper.m in Sources */,
+				BCE05CEB1000000000000001 /* SentryKSCrashManagedSignal.c in Sources */,
 				3CBD19E23046D57400569F6D /* SentryKSCrashReportWriterCallbacks.c in Sources */,
 				D4B000013012600000000001 /* SentryTraceContextSwiftHelper.m in Sources */,
 				FF35F5FDB86024EBD89EC583 /* SentryCrashReport.c in Sources */,
@@ -14045,7 +14056,7 @@
 			repositoryURL = "https://github.com/getsentry/KSCrash.git";
 			requirement = {
 				kind = revision;
-				revision = 391bf0a9569b6c1aa9df30b3fa4bcabbc0a07e7a;
+				revision = 18a633dec20c265f03386294f9d82d208bb13094;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

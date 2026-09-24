@@ -443,21 +443,32 @@ The tracking issue [sentry-cocoa #5619](https://github.com/getsentry/sentry-coco
 
 ## Managed Runtime Interop
 
-When sentry-cocoa is embedded in a managed runtime (e.g. .NET/Mono via sentry-dotnet), SentryCrash must install signal handlers **before** the managed runtime to ensure the correct chain order:
+When sentry-cocoa is embedded in a managed runtime (e.g. .NET/Mono via sentry-dotnet), its native crash backend must install signal handlers **before** the managed runtime to ensure the correct chain order:
 
 ```mermaid
 flowchart LR
-  Signal --> Runtime["Managed runtime"] --> SentryCrash --> System["System default"]
+  Signal --> Runtime["Managed runtime"] --> Reporter["SentryCrash / KSCrash"] --> System["System default"]
 ```
 
-This order allows the managed runtime to convert certain signals (e.g. `SIGSEGV` for null reference) into managed exceptions, while real native crashes are chained to SentryCrash.
+This order allows the managed runtime to convert certain signals (e.g. `SIGSEGV` for null reference) into managed exceptions, while real native crashes are chained to the active crash backend.
 
-The `SENTRY_CRASH_MANAGED_RUNTIME` compile flag, set by downstream SDKs, enables this behavior. The `onPreload()` constructor (`__attribute__((constructor))`) in `SentryCrashC.c` runs before `main()`, ensuring signal handlers are in place before the managed runtime initializes. Normal SDK initialization from managed code would be too late, as the runtime's handlers are already installed by that point. With this flag, the signal handler lifecycle changes:
+The `SENTRY_CRASH_MANAGED_RUNTIME` compile flag, set by downstream SDKs, enables this behavior. A constructor (`__attribute__((constructor))`) runs before `main()`, ensuring the active backend's signal handlers are in place before the managed runtime initializes. Normal SDK initialization from managed code would be too late, as the runtime's handlers are already installed by that point.
 
-- `installSignalHandler()` is a no-op if already installed, preventing `start()` from overwriting `g_previousSignalHandlers` with the managed runtime's handler.
-- `uninstallSignalHandler()` is a no-op, preserving the chain across `close()`/`start()` cycles. `g_isEnabled` controls whether crashes are processed or passed through.
-- When disabled, `handleSignal()` restores the previous handler for that signal before re-raising to avoid looping.
-- The constructor does not set `g_isEnabled`, so `enableCrashHandler = false` is respected.
+- V9's constructor in `SentryCrashC.c` preloads the SentryCrash signal monitor.
+- V10 uses a Sentry-owned replacement Signal plugin. Its constructor installs the early chain anchor,
+  and KSCrash installation adopts that state instead of enabling the built-in Signal monitor above
+  the runtime.
+- V10 uses KSCrash's generic Mach exception-mask configuration to leave `EXC_BAD_ACCESS` and
+  `EXC_ARITHMETIC` to the signal layer so the runtime can convert managed faults first.
+- Neither constructor enables recording, so pre-SDK signals and `enableCrashHandler = false` do not
+  produce reports.
+- `SentrySDK.close()` atomically suppresses persistence through KSCrash's `willWriteReport` callback
+  without removing process-lifetime handlers. Reinitialization reenables the same chain.
+- `ignoreNextSignal` delegates to the active backend's per-thread, one-shot suppression route,
+  preventing a managed exception that ends in a signal from also producing a native report.
+
+See [KSCrash Managed Signal Plugin Maintenance](KSCrash_MANAGED_SIGNAL_PLUGIN_MAINTENANCE.md) for the
+ownership boundary and KSCrash upgrade procedure.
 
 Related: [#6193](https://github.com/getsentry/sentry-cocoa/pull/6193), [sentry-dotnet#3954](https://github.com/getsentry/sentry-dotnet/issues/3954)
 

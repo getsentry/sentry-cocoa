@@ -11,9 +11,6 @@ extension Scenario {
             // These run with C++ V2 enabled and strict modern-backend assertions, which the
             // SentryCrash C++ monitor does not meet for thrown Objective-C objects.
             return "SentryCrash does not report thrown Objective-C objects with the modern report shape"
-        case (.ksCrash, .managedRuntimeClosedSignal):
-            // SCV10-032 in develop-docs/SENTRYCRASH_V10_MIGRATION_LEDGER.md.
-            return "KSCrash keeps recording after SentrySDK.close() (GH-8536)"
         default:
             return nil
         }

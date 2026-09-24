@@ -71,6 +71,13 @@ extension SentryKSCrash {
         /// must outlive any single SDK lifecycle.
         private static let attachmentsMonitor = SentryKSCrash.AttachmentsMonitor()
 
+        /// Replaces KSCrash's built-in Signal monitor so the constructor-installed handler stays
+        /// below Mono/.NET for the entire process lifetime.
+        private final class ManagedSignalMonitor: NSObject, MonitorPlugin, @unchecked Sendable {
+            let api = sentrykscrash_managedSignalMonitorAPI()
+        }
+        private static let managedSignalMonitor = ManagedSignalMonitor()
+
         func install(
             installPath: String,
             monitors: MonitorType,
@@ -80,12 +87,18 @@ extension SentryKSCrash {
         ) throws {
             let config = KSCrashConfiguration()
             config.installPath = installPath
-            config.monitors = monitors
+            let managedRuntimeBuild = sentrykscrash_isManagedRuntimeBuild()
+            config.monitors = managedRuntimeBuild ? monitors.subtracting(.signal) : monitors
+            if managedRuntimeBuild {
+                config.machExceptionMask = sentrykscrash_managedMachExceptionMask()
+            }
             config.enableMemoryIntrospection = enableMemoryIntrospection
             config.enableSwapCxaThrow = enableSwapCxaThrow
             config.enableSwiftAsyncStackTraces = enableSwiftAsyncStackTraces
             config.reportStoreConfiguration.reportCleanupPolicy = .onSuccess
-            config.plugins = [Self.attachmentsMonitor]
+            config.plugins = managedRuntimeBuild
+                ? [Self.attachmentsMonitor, Self.managedSignalMonitor]
+                : [Self.attachmentsMonitor]
 
             config.willWriteReportCallback = sentrykscrash_willWriteReport
             config.isWritingReportCallback = sentrykscrash_isWritingReport
@@ -104,6 +117,7 @@ extension SentryKSCrash {
                 SentrySDKLog.debug("KSCrash already installed; continuing.")
             }
             self.installPath = URL(fileURLWithPath: installPath, isDirectory: true)
+            sentrykscrash_setReportPersistenceEnabled(true)
             inspectionInstallationSucceeded = true
             installed = true
             #if SENTRY_CRASH_E2E
@@ -114,11 +128,8 @@ extension SentryKSCrash {
         }
 
         func uninstall() {
-#if SENTRY_DISABLE_SENTRYCRASH_V10
-            // KSCRASH_TODO(GH-8536): KSCrash cannot currently be uninstalled in-process, so only
-            // this SDK lifecycle's query state is cleared. Acceptance: SCV10-032 in
-            // SENTRYCRASH_V10_MIGRATION_LEDGER.md.
-#endif
+            guard installed else { return }
+            sentrykscrash_setReportPersistenceEnabled(false)
             installed = false
         }
 

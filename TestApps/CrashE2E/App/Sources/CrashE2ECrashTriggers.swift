@@ -4,9 +4,12 @@ import Sentry
 
 enum CrashE2ECrashTriggers {
     static func trigger(_ scenario: CrashE2EScenario) -> Never {
+        prepareSDKLifecycle(for: scenario)
+
         switch scenario {
-        case .signal, .managedRuntimeSignalChain, .crashTimeScope, .crashTimeAttachments,
-             .crashTimeReplay, .crashTimeReplayAttachmentCrash:
+        case .signal, .closedSignal, .reinitSignal, .managedRuntimeSignalChain,
+             .managedRuntimeClosedSignal, .managedRuntimeReinitSignal, .crashTimeScope,
+             .crashTimeAttachments, .crashTimeReplay, .crashTimeReplayAttachmentCrash:
             SentrySDK.crash()
             abortBecauseScenarioReturned(scenario)
         case .binaryImages:
@@ -23,22 +26,19 @@ enum CrashE2ECrashTriggers {
             abortBecauseScenarioReturned(scenario)
         case .ignoredSignal:
             triggerIgnoredSignal()
-        case .managedRuntimeClosedSignal:
-            SentrySDK.close()
-            SentrySDK.crash()
-            abortBecauseScenarioReturned(scenario)
-        case .managedRuntimeReinitSignal:
-            CrashE2ERuntime.closeAndRestartSDK()
-            SentrySDK.crash()
-            abortBecauseScenarioReturned(scenario)
+        case .managedRuntimeHandledSignal:
+            triggerManagedRuntimeHandledSignal()
+        case .managedRuntimeIgnoreNextSignalSwift, .managedRuntimeIgnoreNextSignalObjC:
+            triggerManagedRuntimeIgnoredSignal(scenario)
         case .mallocZoneLockedSignal:
             CrashE2ETriggerMallocZoneLockedSignal()
             abortBecauseScenarioReturned(scenario)
         case .memoryIntrospectionEnabled, .memoryIntrospectionDisabled, .memoryIntrospectionDefault:
             CrashE2ETriggerMemoryIntrospectionMarkerCrash()
             abortBecauseScenarioReturned(scenario)
-        case .nsException, .nsExceptionRethrow, .nsExceptionSubclass, .cppExceptionV1,
-             .cppExceptionV2, .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .unityCxaThrow,
+        case .nsException, .nsExceptionRethrow, .nsExceptionSubclass, .closedNSException,
+             .cppExceptionV1, .cppExceptionV2, .swiftAsyncCPPExceptionV2Off,
+             .swiftAsyncCPPExceptionV2On, .unityCxaThrow,
              .unityCxaThrowV2, .objcObject, .objcObjectAfterCaughtCPP, .ksCrashRetryReportA,
              .ksCrashRetryReportB,
              .idle, .drain, .managedRuntimePreSDKSignal, .sigterm:
@@ -46,9 +46,20 @@ enum CrashE2ECrashTriggers {
         }
     }
 
+    private static func prepareSDKLifecycle(for scenario: CrashE2EScenario) {
+        switch scenario {
+        case .closedSignal, .closedNSException, .managedRuntimeClosedSignal:
+            SentrySDK.close()
+        case .reinitSignal, .managedRuntimeReinitSignal:
+            CrashE2ERuntime.closeAndRestartSDK()
+        default:
+            return
+        }
+    }
+
     private static func triggerExceptionScenario(_ scenario: CrashE2EScenario) -> Never {
         switch scenario {
-        case .nsException, .nsExceptionRethrow, .nsExceptionSubclass:
+        case .nsException, .nsExceptionRethrow, .nsExceptionSubclass, .closedNSException:
             triggerNSExceptionScenario(scenario)
         case .ksCrashRetryReportA, .ksCrashRetryReportB:
             let marker = scenario == .ksCrashRetryReportA
@@ -83,9 +94,11 @@ enum CrashE2ECrashTriggers {
             // SIGTERM is delivered by the runner, never triggered from inside the app.
             abortBecauseScenarioReturned(scenario)
         case .signal, .cppExceptionV2DynamicImage, .binaryImages, .ignoredSignal,
-             .managedRuntimeSignalChain, .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
-             .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments, .crashTimeReplay,
-             .crashTimeReplayAttachmentCrash,
+             .closedSignal, .reinitSignal, .managedRuntimeSignalChain,
+             .managedRuntimeHandledSignal, .managedRuntimeIgnoreNextSignalSwift,
+             .managedRuntimeIgnoreNextSignalObjC, .managedRuntimeClosedSignal,
+             .managedRuntimeReinitSignal, .mallocZoneLockedSignal, .crashTimeScope,
+             .crashTimeAttachments, .crashTimeReplay, .crashTimeReplayAttachmentCrash,
              .memoryIntrospectionEnabled, .memoryIntrospectionDisabled, .memoryIntrospectionDefault:
             abortBecauseScenarioReturned(scenario)
         }
@@ -93,7 +106,7 @@ enum CrashE2ECrashTriggers {
 
     private static func triggerNSExceptionScenario(_ scenario: CrashE2EScenario) -> Never {
         switch scenario {
-        case .nsException:
+        case .nsException, .closedNSException:
             NSException(
                 name: NSExceptionName("CrashE2ENSException"),
                 reason: "Crash E2E uncaught NSException",
@@ -114,6 +127,28 @@ enum CrashE2ECrashTriggers {
         raise(SIGPIPE)
         NSLog("CrashE2E - ignored SIGPIPE did not terminate the process")
         exit(0)
+    }
+
+    private static func triggerManagedRuntimeHandledSignal() -> Never {
+        NSLog("CrashE2E - raising SIGSEGV for the fake managed runtime to consume")
+        raise(SIGSEGV)
+        NSLog("CrashE2E - fake managed runtime consumed SIGSEGV")
+        exit(0)
+    }
+
+    private static func triggerManagedRuntimeIgnoredSignal(_ scenario: CrashE2EScenario) -> Never {
+        switch scenario {
+        case .managedRuntimeIgnoreNextSignalSwift:
+            NSLog("CrashE2E - suppressing the next SIGSEGV through the Swift SPI")
+            SentrySDK.internal.ignoreNextSignal(SIGSEGV)
+        case .managedRuntimeIgnoreNextSignalObjC:
+            NSLog("CrashE2E - suppressing the next SIGSEGV through the ObjC SPI")
+            CrashE2EIgnoreNextSignalThroughObjC(SIGSEGV)
+        default:
+            abortBecauseScenarioReturned(scenario)
+        }
+        raise(SIGSEGV)
+        abortBecauseScenarioReturned(scenario)
     }
 
     private static func triggerSwiftAsyncCPPException(_ scenario: CrashE2EScenario) -> Never {

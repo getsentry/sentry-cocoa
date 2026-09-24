@@ -58,15 +58,17 @@ enum EventAssertions {
                        "Expected exception thread id for \(platform)/\(scenario.rawValue)")
             try assertCrashedThread(threadValues, expectedThreadID: exceptionThreadID,
                                     platform: platform, scenario: scenario)
-        case .signal, .binaryImages, .managedRuntimeSignalChain, .managedRuntimePreSDKSignal,
-             .managedRuntimeClosedSignal, .managedRuntimeReinitSignal, .nsException,
-             .nsExceptionRethrow, .nsExceptionSubclass, .ksCrashPerReportRetry,
-             .mallocZoneLockedSignal,
-             .crashTimeScope, .crashTimeAttachments, .crashTimeReplay,
+        case .signal, .reinitSignal, .binaryImages, .managedRuntimeSignalChain,
+             .managedRuntimePreSDKSignal, .managedRuntimeClosedSignal,
+             .managedRuntimeReinitSignal, .nsException, .nsExceptionRethrow, .nsExceptionSubclass,
+             .ksCrashPerReportRetry, .mallocZoneLockedSignal, .crashTimeScope,
+             .crashTimeAttachments, .crashTimeReplay,
              .memoryIntrospectionEnabled, .memoryIntrospectionDisabled, .memoryIntrospectionDefault:
             try assertCrashedThread(threadValues, expectedThreadID: exceptionThreadID,
                                     platform: platform, scenario: scenario)
-        case .ignoredSignal, .sigterm, .crashTimeReplayAttachmentCrash:
+        case .ignoredSignal, .closedSignal, .closedNSException, .managedRuntimeHandledSignal,
+             .managedRuntimeIgnoreNextSignalSwift, .managedRuntimeIgnoreNextSignalObjC, .sigterm,
+             .crashTimeReplayAttachmentCrash:
             return
         }
     }
@@ -106,9 +108,9 @@ enum EventAssertions {
                                                      cacheRoot: URL) throws {
         let eventContext = dictionary(event["contexts"])
         switch scenario {
-        case .signal, .binaryImages, .managedRuntimeSignalChain, .managedRuntimePreSDKSignal,
-             .managedRuntimeClosedSignal, .managedRuntimeReinitSignal, .mallocZoneLockedSignal,
-             .crashTimeScope, .crashTimeAttachments, .crashTimeReplay,
+        case .signal, .reinitSignal, .binaryImages, .managedRuntimeSignalChain,
+             .managedRuntimePreSDKSignal, .managedRuntimeClosedSignal,
+             .managedRuntimeReinitSignal, .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments, .crashTimeReplay,
              .memoryIntrospectionEnabled, .memoryIntrospectionDisabled, .memoryIntrospectionDefault:
             try assertSignalScenario(
                 scenario, firstException: firstException,
@@ -154,7 +156,9 @@ enum EventAssertions {
                                                      scenario: scenario)
             }
 
-        case .ignoredSignal, .ksCrashPerReportRetry, .sigterm, .crashTimeReplayAttachmentCrash:
+        case .ignoredSignal, .closedSignal, .closedNSException, .managedRuntimeHandledSignal,
+             .managedRuntimeIgnoreNextSignalSwift, .managedRuntimeIgnoreNextSignalObjC,
+             .ksCrashPerReportRetry, .sigterm, .crashTimeReplayAttachmentCrash:
             // The multi-launch KSCrash retry scenario has aggregate assertions in its own asserter,
             // and the no-event scenarios never reach this point. Attachment-crash proves the
             // pre-drain checkpoint, not a happy-path drain event.
