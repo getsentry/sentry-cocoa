@@ -1,6 +1,6 @@
+@_spi(Private) import SentrySwift
 import _SentryPrivate
 import Foundation
-import SentrySwift
 import SwiftUI
 
 struct FormScreen: View {

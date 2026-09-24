@@ -1,5 +1,5 @@
+@_spi(Private) import SentrySwift
 import _SentryPrivate
-import SentrySwift
 import SwiftUI
 
 class DataBag {
