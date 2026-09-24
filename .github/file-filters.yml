@@ -185,7 +185,8 @@ run_sentrycrash_import_ratchet_for_prs:
   - "Brewfile*"
 
 run_objc_conversion_analysis_for_prs: &run_objc_conversion_analysis_for_prs
-  - "SwiftConversion/**"
+  - "Utils/SwiftConversion/**"
+  - "Makefile"
 
   # GH Actions
   - ".github/workflows/objc-conversion-analysis.yml"

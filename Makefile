@@ -1828,6 +1828,15 @@ analyze:
 generate-public-api:
 	./scripts/update-api.sh
 
+## Generate the Objective-C to Swift conversion diagram
+#
+# Requires Ruby and Graphviz. Writes JSON, DOT, and SVG files to Utils/SwiftConversion.
+.PHONY: generate-swift-conversion-diagram
+generate-swift-conversion-diagram:
+	ruby -C Utils/SwiftConversion objc_conversion_analyzer.rb
+	ruby -C Utils/SwiftConversion generate_graphviz.rb
+	dot -Tsvg Utils/SwiftConversion/objc_dependencies_topo.dot -o Utils/SwiftConversion/objc_dependencies_topo.svg
+
 # ============================================================================
 # VERSION MANAGEMENT
 # ============================================================================

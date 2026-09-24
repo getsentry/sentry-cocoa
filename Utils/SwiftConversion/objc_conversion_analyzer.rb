@@ -4,7 +4,7 @@ require 'set'
 require 'json'
 
 class ObjCConversionAnalyzer
-  def initialize(include_dir = '../Sources/Sentry/include')
+  def initialize(include_dir = '../../Sources/Sentry/include')
     @include_dir = include_dir
     @header_files = []
     @dependencies = {}
