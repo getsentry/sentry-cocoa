@@ -10,6 +10,7 @@
 - Retain raw MetricKit diagnostic attachments when call-stack decoding fails and `enableMetricKitRawPayload` is enabled, without attaching unrelated current-thread stack traces (#9070)
 - Prevent duplicate HTTP spans and breadcrumbs when watchOS resumes an internal URLSession task copy after the original request finishes (#9095)
 - Remove the compiler deprecation warning for `enableAppHangTracking` so applications can continue opting out of App Hang tracking until its removal in v10 (#9094)
+- Reset `appHangTimeoutInterval` values of 0 or lower to the default of 2 seconds, which previously spun the app hang tracker thread in a busy loop (#9020)
 
 ## 9.29.0
 
@@ -28,7 +29,6 @@
 ### Deprecations
 
 - Deprecate legacy App Hang tracking because it can produce less relevant stack traces and false positives. Enable the MetricKit integration for system-provided hang diagnostics by setting `options.enableMetricKit = true`. The `appHangTimeoutInterval` option remains supported for watchdog termination classification. (#8944)
-- Reset `appHangTimeoutInterval` values of 0 or lower to the default of 2 seconds, which previously spun the app hang tracker thread in a busy loop (#9020)
 
 ## 9.28.0
 
