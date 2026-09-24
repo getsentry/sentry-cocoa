@@ -142,6 +142,7 @@ jobs:
           # shellcheck disable=SC2016
           NSUnbufferedIO=YES xcodebuild test -workspace . -scheme Sentry-Package \
             -configuration TestCI \
+            -resultBundlePath results.xcresult \
             -sdk iphonesimulator -destination 'platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro' \
             -xcconfig Tests/Configuration/SwiftPM.xcconfig \
             'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SENTRY_TEST_CI' \
@@ -155,6 +156,13 @@ jobs:
         with:
           name: raw-test-output-distribution-${{ matrix.mode }}
           path: raw-test-output-distribution.log
+
+      - name: Archiving Test Results
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: result-bundle-distribution-${{ matrix.mode }}
+          path: results.xcresult
 
   # This matrix runs only the unit tests requiring the test server.
   # We do this to speed up the other unit test jobs and to avoid running the
@@ -257,6 +265,13 @@ jobs:
             raw-build-output.log
             raw-build-for-testing-output.log
             raw-test-output.log
+
+      - name: Archiving Test Results
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: result-bundle-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
+          path: results.xcresult
 
       - name: Archiving Crash Logs
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
