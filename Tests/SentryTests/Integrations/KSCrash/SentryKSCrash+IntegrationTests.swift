@@ -45,6 +45,35 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         return options
     }
 
+    func testConfiguredMonitors_whenManagedRuntimeBuild_shouldDisableMachAndBuiltInSignal() {
+        // -- Arrange --
+        let requested = SentryKSCrash.productionSafeMonitors
+        let expected = requested.subtracting([.machException, .signal])
+
+        // -- Act --
+        let actual = SentryKSCrash.Installer.configuredMonitors(
+            requested,
+            managedRuntimeBuild: true
+        )
+
+        // -- Assert --
+        XCTAssertEqual(actual, expected)
+    }
+
+    func testConfiguredMonitors_whenOrdinaryBuild_shouldPreserveRequestedMonitors() {
+        // -- Arrange --
+        let requested = SentryKSCrash.productionSafeMonitors
+
+        // -- Act --
+        let actual = SentryKSCrash.Installer.configuredMonitors(
+            requested,
+            managedRuntimeBuild: false
+        )
+
+        // -- Assert --
+        XCTAssertEqual(actual, requested)
+    }
+
     func testInstall_whenCrashHandlerEnabled_shouldSendReportsWithoutDispatchingInstaller() throws {
         // -- Arrange --
         let installer = MockKSCrashInstaller()

@@ -48,7 +48,6 @@ static void testBeforeAtomicStore(const volatile void *object);
                 __c11_atomic_store(object, value, order);                                          \
             } while (0)
 #        define sentrykscrash_isManagedRuntimeBuild test_isManagedRuntimeBuild
-#        define sentrykscrash_managedMachExceptionMask test_managedMachExceptionMask
 #        define sentrykscrash_managedSignalMonitorAPI test_managedSignalMonitorAPI
 #        define sentrykscrash_ignoreNextSignal test_ignoreNextSignal
 #        pragma push_macro("SENTRY_CRASH_MANAGED_RUNTIME")
@@ -65,7 +64,6 @@ static void testBeforeAtomicStore(const volatile void *object);
 #        undef kssc_initWithUnwind
 #        pragma pop_macro("atomic_store_explicit")
 #        undef sentrykscrash_isManagedRuntimeBuild
-#        undef sentrykscrash_managedMachExceptionMask
 #        undef sentrykscrash_managedSignalMonitorAPI
 #        undef sentrykscrash_ignoreNextSignal
 
@@ -768,22 +766,6 @@ exerciseIgnoredSignalOnWorker(void *value)
 
     // -- Assert --
     XCTAssertFalse(managed);
-}
-
-- (void)testManagedMachExceptionMask_shouldLeaveManagedFaultsToSignalLayer
-{
-    // -- Act --
-    const uint32_t mask = test_managedMachExceptionMask();
-
-    // -- Assert --
-#        if defined(__APPLE__)
-    XCTAssertEqual(
-        mask, (uint32_t)(EXC_MASK_BAD_INSTRUCTION | EXC_MASK_SOFTWARE | EXC_MASK_BREAKPOINT));
-    XCTAssertEqual(mask & EXC_MASK_BAD_ACCESS, 0u);
-    XCTAssertEqual(mask & EXC_MASK_ARITHMETIC, 0u);
-#        else
-    XCTAssertEqual(mask, 0u);
-#        endif
 }
 
 - (void)testManagedSignalMonitorAPI_shouldExposeStandardSignalIdentityAndPluginFlags

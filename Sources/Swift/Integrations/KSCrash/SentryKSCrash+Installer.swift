@@ -78,6 +78,16 @@ extension SentryKSCrash {
         }
         private static let managedSignalMonitor = ManagedSignalMonitor()
 
+        static func configuredMonitors(
+            _ monitors: MonitorType,
+            managedRuntimeBuild: Bool
+        ) -> MonitorType {
+            guard managedRuntimeBuild else { return monitors }
+            // The managed runtime must receive faults before native crash capture. The plugin
+            // replaces Signal, while Mach is disabled rather than configured with a partial mask.
+            return monitors.subtracting([.machException, .signal])
+        }
+
         func install(
             installPath: String,
             monitors: MonitorType,
@@ -88,10 +98,10 @@ extension SentryKSCrash {
             let config = KSCrashConfiguration()
             config.installPath = installPath
             let managedRuntimeBuild = sentrykscrash_isManagedRuntimeBuild()
-            config.monitors = managedRuntimeBuild ? monitors.subtracting(.signal) : monitors
-            if managedRuntimeBuild {
-                config.machExceptionMask = sentrykscrash_managedMachExceptionMask()
-            }
+            config.monitors = Self.configuredMonitors(
+                monitors,
+                managedRuntimeBuild: managedRuntimeBuild
+            )
             config.enableMemoryIntrospection = enableMemoryIntrospection
             config.enableSwapCxaThrow = enableSwapCxaThrow
             config.enableSwiftAsyncStackTraces = enableSwiftAsyncStackTraces
