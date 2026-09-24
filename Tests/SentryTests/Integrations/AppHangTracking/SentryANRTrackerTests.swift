@@ -12,7 +12,7 @@ final class SentryANRTrackerTests: XCTestCase {
 
         // -- Act --
         for type in types {
-            wrapper.anrDetected(type)
+            wrapper.anrDetected(type: type)
         }
 
         // -- Assert --
@@ -23,13 +23,14 @@ final class SentryANRTrackerTests: XCTestCase {
         // -- Arrange --
         let delegate = MockANRTrackerDelegate()
         let wrapper = DelegateWrapper(helper: delegate)
-        let result = SentryANRStoppedResultInternal(minDuration: 1.25, maxDuration: 2.75)
+        let result = SentryANRStoppedResult(minDuration: 1.25, maxDuration: 2.75)
 
         // -- Act --
-        wrapper.anrStopped(result)
+        wrapper.anrStopped(result: result)
 
         // -- Assert --
         let receivedResult = try XCTUnwrap(XCTUnwrap(delegate.stoppedResults.first))
+        XCTAssertTrue(receivedResult === result)
         XCTAssertEqual(receivedResult.minDuration, 1.25)
         XCTAssertEqual(receivedResult.maxDuration, 2.75)
     }
@@ -40,12 +41,28 @@ final class SentryANRTrackerTests: XCTestCase {
         let wrapper = DelegateWrapper(helper: delegate)
 
         // -- Act --
-        wrapper.anrStopped(nil)
+        wrapper.anrStopped(result: nil)
 
         // -- Assert --
         XCTAssertEqual(delegate.stoppedResults.count, 1)
         let receivedResult = try XCTUnwrap(delegate.stoppedResults.first)
         XCTAssertNil(receivedResult)
+    }
+
+    func testRemove_whenListenerRegistered_shouldReleaseWrapper() {
+        // -- Arrange --
+        let tracker = SentryANRTracker(helper: MockSentryANRTrackerHelper())
+        let delegate = MockANRTrackerDelegate()
+        tracker.add(listener: delegate)
+        weak var wrapper: DelegateWrapper?
+        wrapper = tracker.mapping[ObjectIdentifier(delegate)]
+        XCTAssertNotNil(wrapper)
+
+        // -- Act --
+        tracker.remove(listener: delegate)
+
+        // -- Assert --
+        XCTAssertNil(wrapper)
     }
 
     func testRemovesDeallocatedDelegates() throws {
@@ -64,10 +81,10 @@ final class SentryANRTrackerTests: XCTestCase {
 }
 
 final class MockSentryANRTrackerHelper: SentryANRTrackerInternalProtocol {
-    func addListener(_ listender: any SentryANRTrackerInternalDelegate) {
+    func addListener(_ listener: any SentryANRTrackerDelegate) {
     }
     
-    func removeListener(_ listener: any SentryANRTrackerInternalDelegate) {
+    func removeListener(_ listener: any SentryANRTrackerDelegate) {
     }
     
     func clear() {

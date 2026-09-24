@@ -1,12 +1,11 @@
 #if !SDK_V10
 // swiftlint:disable missing_docs
-internal import _SentryPrivate
 import Foundation
 
 // The V1/V2 tracker will conform to this
 protocol SentryANRTrackerInternalProtocol {
-    func addListener(_ listender: SentryANRTrackerInternalDelegate)
-    func removeListener(_ listener: SentryANRTrackerInternalDelegate)
+    func addListener(_ listener: SentryANRTrackerDelegate)
+    func removeListener(_ listener: SentryANRTrackerDelegate)
 
     /// Only used for tests.
     func clear()
@@ -21,8 +20,6 @@ protocol SentryANRTrackerInternalProtocol {
         self.helper = helper
     }
 
-    // Since this is public to ObjC it can only use parameters defined in Swift
-    // We have to convert the Swift type to the internal ObjC type.
     @objc(addListener:) public func add(listener: SentryANRTrackerDelegate) {
         // Remove entries that no longer have the weak reference
         mapping = mapping.filter { _, value in
@@ -34,7 +31,7 @@ protocol SentryANRTrackerInternalProtocol {
     }
 
     @objc(removeListener:) public func remove(listener: SentryANRTrackerDelegate) {
-        guard let mapped = mapping[ObjectIdentifier(listener)] else {
+        guard let mapped = mapping.removeValue(forKey: ObjectIdentifier(listener)) else {
             return
         }
         helper.removeListener(mapped)
@@ -45,13 +42,15 @@ protocol SentryANRTrackerInternalProtocol {
     }
 }
 
-final class DelegateWrapper: NSObject, SentryANRTrackerInternalDelegate {
-    func anrDetected(_ type: SentryANRType) {
+// Keep a separate weak listener object so removal during the delegate's deinit does not
+// pass the deallocating delegate through the tracker's Objective-C weak hash table.
+final class DelegateWrapper: NSObject, SentryANRTrackerDelegate {
+    func anrDetected(type: SentryANRType) {
         helper?.anrDetected(type: type)
     }
 
-    func anrStopped(_ result: SentryANRStoppedResultInternal?) {
-        helper?.anrStopped(result: result.map { SentryANRStoppedResult(minDuration: $0.minDuration, maxDuration: $0.maxDuration ) })
+    func anrStopped(result: SentryANRStoppedResult?) {
+        helper?.anrStopped(result: result)
     }
 
     weak var helper: SentryANRTrackerDelegate?

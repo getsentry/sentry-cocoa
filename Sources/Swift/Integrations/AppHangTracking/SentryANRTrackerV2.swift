@@ -180,24 +180,24 @@ final class SentryANRTrackerV2: SentryANRTrackerInternalProtocol {
 
     private func anrDetected(_ type: SentryANRType) {
         let localListeners = listeners.withLock {
-            $0.allObjects.compactMap { $0 as? SentryANRTrackerInternalDelegate }
+            $0.allObjects.compactMap { $0 as? SentryANRTrackerDelegate }
         }
         for target in localListeners {
-            target.anrDetected(type)
+            target.anrDetected(type: type)
         }
     }
 
     private func anrStopped(_ hangDurationMinimum: TimeInterval, to hangDurationMaximum: TimeInterval) {
         let targets = listeners.withLock {
-            $0.allObjects.compactMap { $0 as? SentryANRTrackerInternalDelegate }
+            $0.allObjects.compactMap { $0 as? SentryANRTrackerDelegate }
         }
-        let result = SentryANRStoppedResultInternal(minDuration: hangDurationMinimum, maxDuration: hangDurationMaximum)
+        let result = SentryANRStoppedResult(minDuration: hangDurationMinimum, maxDuration: hangDurationMaximum)
         for target in targets {
-            target.anrStopped(result)
+            target.anrStopped(result: result)
         }
     }
 
-    func addListener(_ listener: SentryANRTrackerInternalDelegate) {
+    func addListener(_ listener: SentryANRTrackerDelegate) {
         listeners.withLock { listeners in
             listeners.add(listener)
             threadState.withLock { state in
@@ -212,7 +212,7 @@ final class SentryANRTrackerV2: SentryANRTrackerInternalProtocol {
         }
     }
 
-    func removeListener(_ listener: SentryANRTrackerInternalDelegate) {
+    func removeListener(_ listener: SentryANRTrackerDelegate) {
         listeners.withLock { listeners in
             listeners.remove(listener)
             if listeners.count == 0 {
