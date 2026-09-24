@@ -155,6 +155,8 @@ final class SentryReachabilitySwiftTests: XCTestCase {
     }
 
 #if os(iOS) && !targetEnvironment(macCatalyst)
+    /// The provider is started and stopped on a background-QoS queue, which a loaded CI machine can
+    /// starve for a while, so the waits are generous.
     func testAdd_whenFirstObserverIsAdded_shouldMonitorCellularNetworkTechnology() {
         // -- Arrange --
         reachability.skipRegisteringActualCallbacks = false
@@ -169,9 +171,9 @@ final class SentryReachabilitySwiftTests: XCTestCase {
 
         // -- Act --
         reachability.add(observer)
-        wait(for: [startedMonitoring], timeout: 1.0)
+        wait(for: [startedMonitoring], timeout: 10.0)
         reachability.remove(observer)
-        wait(for: [stoppedMonitoring], timeout: 1.0)
+        wait(for: [stoppedMonitoring], timeout: 10.0)
 
         // -- Assert --
         XCTAssertEqual(["start", "stop"], technologyProvider.monitoringInvocations.invocations)
@@ -195,7 +197,7 @@ final class SentryReachabilitySwiftTests: XCTestCase {
         // Removing without waiting for the queued start to run.
         reachability.add(observer)
         reachability.remove(observer)
-        wait(for: [stoppedMonitoring], timeout: 1.0)
+        wait(for: [stoppedMonitoring], timeout: 10.0)
 
         // -- Assert --
         XCTAssertEqual(1, technologyProvider.startMonitoringCount)
