@@ -525,7 +525,7 @@ See AGENTS.md (Testing Instructions) for the convention: test class names follow
 
 - **Crash-time code** — Use `SENTRY_ASYNC_SAFE_LOG_*` macros in the crash path; ensure async-safe logging is enabled so output is visible (e.g. to stderr or the configured async-safe log destination). Do not use `NSLog` or `printf` in code that can run in signal context.
 - **Written reports** — Reports are stored under the installation path (cache directory passed to `sentrycrash_install()`). Inspect the JSON files written by `sentrycrashreport_writeStandardReport()` to verify report structure and field values; the format is described in [Crash Report Format and Data Structures](#crash-report-format-and-data-structures).
-- **Simulating a crash** — Use a sample app (e.g. in `Samples/`) and trigger a crash (e.g. `abort()`, uncaught NSException, or a null dereference) to exercise the full pipeline from detection to report write to next-launch send.
+- **Simulating a crash** — Use a test app (e.g. in `TestApps/`) and trigger a crash (e.g. `abort()`, uncaught NSException, or a null dereference) to exercise the full pipeline from detection to report write to next-launch send.
 
 **Adopting upstream KSCrash changes**
 

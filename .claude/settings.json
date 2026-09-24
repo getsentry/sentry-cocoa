@@ -75,7 +75,7 @@
       "Bash(make build-tvos)",
       "Bash(make build-visionos)",
       "Bash(make build-watchos)",
-      "Bash(make build-xcframework-sample)",
+      "Bash(make build-xcframework-testapp)",
       "Bash(make build-xcframework-dynamic)",
       "Bash(make build-xcframework-dynamic-arm64e)",
       "Bash(make build-xcframework-static)",

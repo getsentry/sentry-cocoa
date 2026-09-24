@@ -114,7 +114,7 @@ jobs:
 
       - name: Run SwiftUI Crash Test
         run: |
-          ./TestSamples/SwiftUICrashTest/test-crash-and-relaunch.sh \
+          ./TestApps/SwiftUICrashTest/test-crash-and-relaunch.sh \
             --device-id "${{ steps.boot-simulator.outputs.device-udid }}" \
             --os-version "${{ steps.boot-simulator.outputs.platform-version }}" \
             --screenshots-dir "swiftui-crash-test-screenshots"

@@ -156,7 +156,7 @@ jobs:
           version: "26"
       - run: make init-ci-build
       - name: Run macOS UI tests
-        run: make test-sample-macOS-Swift-ui
+        run: make test-testapp-macOS-Swift-ui
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
         if: failure()
