@@ -138,6 +138,13 @@ jobs:
             raw-build-for-testing-output.log
             raw-test-output.log
 
+      - name: Archiving Test Results
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: result-bundle-v10-${{ matrix.platform }}
+          path: results.xcresult
+
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
         if: ${{ failure() || cancelled() }}
@@ -292,6 +299,13 @@ jobs:
             raw-build-output.log
             raw-build-for-testing-output.log
             raw-test-output.log
+
+      - name: Archiving Test Results
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: result-bundle-v10-test-server-${{ matrix.platform }}
+          path: results.xcresult
 
       - name: Archiving Crash Logs
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
