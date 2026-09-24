@@ -15,7 +15,7 @@ For more detailed information, see `develop-docs/README.md`.
 
 Run `make init` to get started. This will install `pre-commit`, `bundler` and `Homebrew` and their managed dependencies (see `Gemfile` and `Brewfile`).
 
-Please use `Sentry.xcworkspace` as the entry point when opening the project in Xcode. It also contains all samples for different environments.
+Please use `Sentry.xcworkspace` as the entry point when opening the project in Xcode. It also contains all test apps for different environments.
 
 ## PR reviews
 
@@ -79,7 +79,7 @@ This means if homebrew updates the [formula](https://formulae.brew.sh/formula/) 
 
 ## Linting
 
-We use [Swiftlint](https://github.com/realm/SwiftLint) and Clang-Format. For SwiftLint, we keep a multiple config files for the tests and samples, cause some rules don't make sense for testing and sample code. To run all the linters locally execute:
+We use [Swiftlint](https://github.com/realm/SwiftLint) and Clang-Format. For SwiftLint, we keep a multiple config files for the tests and test apps, cause some rules don't make sense for testing and test app code. To run all the linters locally execute:
 
 ```sh
 make lint

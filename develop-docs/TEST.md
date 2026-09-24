@@ -1,8 +1,8 @@
 # Testing
 
-## Sample Apps
+## Test Apps
 
-See //Samples/README.md for more information about how to use the sample apps to test SDK functionality.
+See //TestApps/README.md for more information about how to use these apps to test SDK functionality.
 
 ## Tests
 
@@ -142,7 +142,7 @@ When using `xcodebuild` to run tests, only the default test plan is executed unl
 
 #### Test Plan Organization
 
-Test plans are stored in the repository root since they are shared between sample apps and SDK targets.
+Test plans are stored in the repository root since they are shared between test apps and SDK targets.
 This central location makes them easily accessible while maintaining the relationship between plans and schemes.
 
 #### UI Test Recording
@@ -198,7 +198,7 @@ func testColdStart_shouldSetMeasurement() {
 
 ## Performance benchmarking
 
-Once daily and for every PR via [Github action](../.github/workflows/benchmarking.yml), the benchmark runs in Sauce Labs, on a [high-end device](https://github.com/getsentry/sentry/blob/8986f81e19f63ee370b1649e08630c9b946c87ed/src/sentry/profiles/device.py#L43-L49) we categorize. Benchmarks run from an XCUITest (`iOS-Benchmarking` target) using the iOS-Swift sample app, under the `iOS-Benchmarking` scheme. [`PerformanceViewController`](../Samples/iOS-Swift/ViewControllers/PerformanceViewController.swift) provides a start and stop button for controlling when the benchmarking runs, and a text field to marshal observations from within the test harness app into the test runner app. There, we assert that the P90 of all trials remains under 5%. We also print the raw results to the test runner's console logs for postprocessing into reports with `//scripts/process-benchmark-raw-results.py`.
+Once daily and for every PR via [Github action](../.github/workflows/benchmarking.yml), the benchmark runs in Sauce Labs, on a [high-end device](https://github.com/getsentry/sentry/blob/8986f81e19f63ee370b1649e08630c9b946c87ed/src/sentry/profiles/device.py#L43-L49) we categorize. Benchmarks run from an XCUITest (`iOS-Benchmarking` target) using the iOS-Swift test app, under the `iOS-Benchmarking` scheme. [`PerformanceViewController`](../TestApps/iOS-Swift/ViewControllers/PerformanceViewController.swift) provides a start and stop button for controlling when the benchmarking runs, and a text field to marshal observations from within the test harness app into the test runner app. There, we assert that the P90 of all trials remains under 5%. We also print the raw results to the test runner's console logs for postprocessing into reports with `//scripts/process-benchmark-raw-results.py`.
 
 ### Test procedure
 

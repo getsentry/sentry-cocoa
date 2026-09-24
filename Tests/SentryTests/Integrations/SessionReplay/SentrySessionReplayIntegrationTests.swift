@@ -99,6 +99,92 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertFalse(try XCTUnwrap(sut.getTouchTracker()).isEnabled)
     }
 
+    func testGlobalEventProcessor_whenEventHasTraceContext_shouldRegisterTraceIdOnRecordingReplay() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 0, errorSampleRate: 1)
+        let replay = try XCTUnwrap(getSut().sessionReplay)
+        let traceId = SentryId().sentryIdString
+
+        let event = Event()
+        event.context = ["trace": ["trace_id": traceId]]
+
+        // -- Act --
+        // Run the event through the real global event processor chain, which includes the
+        // Session Replay integration's processor that extracts the trace id (#7964).
+        globalEventProcessor.reportAll(event)
+
+        // -- Assert --
+        XCTAssertEqual(replay.getCollectedTraceIdsTestOnly(), [traceId])
+    }
+
+    func testGlobalEventProcessor_whenReplayVideoEvent_shouldNotRegisterTraceId() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 0, errorSampleRate: 1)
+        let replay = try XCTUnwrap(getSut().sessionReplay)
+
+        let event = Event()
+        event.type = SentryEnvelopeItemTypes.replayVideo
+        event.context = ["trace": ["trace_id": SentryId().sentryIdString]]
+
+        // -- Act --
+        globalEventProcessor.reportAll(event)
+
+        // -- Assert --
+        // A replay_video event carries no trace of its own, so it must not associate a trace id.
+        XCTAssertTrue(replay.getCollectedTraceIdsTestOnly().isEmpty)
+    }
+
+    func testGlobalEventProcessor_whenEventHasNoTraceContext_shouldNotRegisterTraceId() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 0, errorSampleRate: 1)
+        let replay = try XCTUnwrap(getSut().sessionReplay)
+
+        let event = Event()
+
+        // -- Act --
+        globalEventProcessor.reportAll(event)
+
+        // -- Assert --
+        XCTAssertTrue(replay.getCollectedTraceIdsTestOnly().isEmpty)
+    }
+
+    func testGlobalEventProcessor_whenTransaction_shouldRegisterTransactionsOwnTraceId() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 0, errorSampleRate: 1)
+        let replay = try XCTUnwrap(getSut().sessionReplay)
+
+        // By the time global processors run the tracer has been removed from the scope, so a
+        // transaction's `context["trace"]` holds the idle propagation trace, not the transaction's
+        // own. The integration must read the transaction's own trace instead (#7964).
+        let tracer = SentryTracer(context: SpanContext(operation: "test"), framesTracker: nil)
+        let transaction = Transaction(trace: tracer, children: [])
+        transaction.context = ["trace": ["trace_id": SentryId().sentryIdString]]
+
+        // -- Act --
+        globalEventProcessor.reportAll(transaction)
+
+        // -- Assert --
+        XCTAssertEqual(replay.getCollectedTraceIdsTestOnly(), [tracer.traceId.sentryIdString])
+    }
+
+    func testGlobalEventProcessor_whenFatalEvent_shouldNotRegisterTraceIdOnCurrentReplay() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 1, errorSampleRate: 1)
+        let replay = try XCTUnwrap(getSut().sessionReplay)
+
+        let crash = Event(error: NSError(domain: "Error", code: 1))
+        crash.context = ["trace": ["trace_id": SentryId().sentryIdString]]
+        crash.isFatalEvent = true
+
+        // -- Act --
+        globalEventProcessor.reportAll(crash)
+
+        // -- Assert --
+        // A crash belongs to the previous session, recovered and sent separately, so its trace
+        // must not be attached to the current session's replay segment.
+        XCTAssertTrue(replay.getCollectedTraceIdsTestOnly().isEmpty)
+    }
+
     func testCaptureFeedback_whenBuffering_shouldCaptureReplayAndAssociateFeedback() throws {
         // -- Arrange --
         var capturedEvent: Event?

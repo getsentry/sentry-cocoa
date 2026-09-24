@@ -691,6 +691,90 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(event.threads, actual.threads)
     }
 
+#if os(iOS) || os(macOS) || os(visionOS)
+    func testCaptureEvent_whenHangDecodingFails_shouldSendRawDiagnosticWithoutCurrentStacktrace() throws {
+        // -- Arrange --
+        let sut = fixture.getSut(configureOptions: { options in
+            options.enableMetricKit = true
+            options.enableMetricKitRawPayload = true
+            options.attachStacktrace = true
+        })
+        let hub = SentryHubInternal(client: sut, andScope: Scope(), activeCrashReporterState: TestSentryCrashReporterState(), andDispatchQueue: TestSentryDispatchQueueWrapper())
+        SentrySDK.setStart(with: sut.options)
+        SentrySDKInternal.setCurrentHub(hub)
+        let integration = try XCTUnwrap(SentryMetricKitIntegration(with: sut.options, dependencies: ()))
+        let diagnostic = TestMXHangDiagnostic()
+        diagnostic.overrides.callStackTree.overrides.jsonRepresentation = Data(#"{"callStacks":"unexpected"}"#.utf8)
+        let rawDiagnostic = Data(#"{"hangDuration":"6.6 sec","callStackTree":{"callStacks":"unexpected"}}"#.utf8)
+        diagnostic.overrides.jsonRepresentation = rawDiagnostic
+        let payload = TestMXDiagnosticPayload()
+        payload.overrides.hangDiagnostic = [diagnostic]
+
+        // -- Act --
+        integration.mxManager.didReceive([payload])
+
+        // -- Assert --
+        XCTAssertEqual(fixture.transportAdapter.sendEventWithTraceStateInvocations.count, 1)
+        let capture = try XCTUnwrap(fixture.transportAdapter.sendEventWithTraceStateInvocations.first)
+        XCTAssertNil(capture.event.threads)
+        XCTAssertNil(capture.event.debugMeta)
+        XCTAssertNil(capture.event.exceptions?.first?.stacktrace)
+        XCTAssertEqual(capture.event.exceptions?.first?.mechanism?.type, "mx_hang_diagnostic")
+        XCTAssertEqual(capture.attachments.count, 1)
+        let attachment = try XCTUnwrap(capture.attachments.first)
+        XCTAssertEqual(attachment.filename, "MXDiagnosticPayload.json")
+        XCTAssertEqual(attachment.data, rawDiagnostic)
+    }
+
+    func testCaptureEvent_whenMetricKitHasNoStacktrace_shouldNotAttachCurrentThreads() throws {
+        // -- Arrange --
+        let sut = fixture.getSut(configureOptions: { options in
+            options.attachStacktrace = true
+            options.attachAllThreads = true
+        })
+
+        for mechanism in ["MXCrashDiagnostic", "mx_disk_write_exception", "mx_cpu_exception", "mx_hang_diagnostic"] {
+            let event = Event(level: .warning)
+            let exception = Exception(value: "Diagnostic without a decoded call stack", type: "MetricKit")
+            exception.mechanism = Mechanism(type: mechanism)
+            event.exceptions = [exception]
+
+            // -- Act --
+            sut.capture(event: event)
+
+            // -- Assert --
+            let actual = try lastSentEvent()
+            XCTAssertNil(actual.threads, mechanism)
+            XCTAssertNil(actual.debugMeta, mechanism)
+            XCTAssertNil(actual.exceptions?.first?.stacktrace, mechanism)
+            XCTAssertEqual(actual.exceptions?.first?.mechanism?.type, mechanism)
+        }
+    }
+
+    func testCaptureEvent_whenMetricKitHasStacktrace_shouldPreserveDiagnosticData() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        let event = givenEventWithThreads()
+        event.debugMeta = [TestData.debugImage]
+        let exception = Exception(value: "Hang diagnostic", type: "MXHangDiagnostic")
+        exception.mechanism = Mechanism(type: "mx_hang_diagnostic")
+        exception.stacktrace = event.threads?.first?.stacktrace
+        event.exceptions = [exception]
+        let threads = event.threads
+        let debugMeta = event.debugMeta
+        let stacktrace = exception.stacktrace
+
+        // -- Act --
+        sut.capture(event: event)
+
+        // -- Assert --
+        let actual = try lastSentEvent()
+        XCTAssertEqual(actual.threads, threads)
+        XCTAssertEqual(actual.debugMeta, debugMeta)
+        XCTAssertEqual(actual.exceptions?.first?.stacktrace, stacktrace)
+    }
+#endif
+
     func testCaptureEventWithAttachStacktrace() throws {
         let event = Event(level: SentryLevel.fatal)
         event.message = fixture.message

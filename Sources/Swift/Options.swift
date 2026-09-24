@@ -457,7 +457,7 @@
 
     // swiftlint:disable:next missing_docs
     @_spi(Private) @objc public func isAppHangTrackingDisabled() -> Bool {
-        !enableAppHangTrackingValue || appHangTimeoutInterval <= 0
+        !enableAppHangTracking || appHangTimeoutInterval <= 0
     }
     #endif // !SDK_V10
 
@@ -614,8 +614,6 @@
     @objc public var sendClientReports: Bool = true
 
     #if !SDK_V10
-    var enableAppHangTrackingValue = true
-
     /// When enabled, the SDK tracks when the application stops responding for a specific amount of
     /// time defined by the @c appHangTimeoutInterval option.
     ///
@@ -635,25 +633,30 @@
     /// @note The default is @c true.
     /// @note App Hang tracking is automatically disabled if a debugger is attached.
     ///
-    /// - Deprecated: App Hang tracking can produce less relevant stack traces and false positives.
+    /// - Deprecated: App Hang tracking can produce less relevant stack traces and false positives
+    ///   and will be removed in v10. Set this option to @c false to opt out until then.
     ///   Enable the MetricKit integration using ``SentrySDKOptions/enableMetricKit`` for system-provided hang diagnostics.
-    @objc public var enableAppHangTracking: Bool {
-        get {
-            enableAppHangTrackingValue
-        }
-        @available(*, deprecated, message: "App Hang tracking is deprecated and will be removed in v10 because it can produce less relevant stack traces and false positives. Enable the MetricKit integration for system-provided hang diagnostics.", renamed: "enableMetricKit")
-        set {
-            enableAppHangTrackingValue = newValue
-        }
-    }
+    @objc public var enableAppHangTracking: Bool = true
     #endif // !SDK_V10
+
+    static let defaultAppHangTimeoutInterval: TimeInterval = 2.0
 
     /// The minimum amount of time the app must be unresponsive before the SDK considers it hung.
     /// In v10, the SDK still uses this threshold internally to classify watchdog terminations.
     /// @note The actual amount may be a little longer.
     /// @note Avoid using values lower than 100ms, which may cause false-positive hang detection.
+    /// @note The value needs to be greater than @c 0. When setting a value of @c 0 or lower, the SDK
+    /// sets it to the default.
     /// @note The default value is 2 seconds.
-    @objc public var appHangTimeoutInterval: TimeInterval = 2.0
+    @objc public var appHangTimeoutInterval: TimeInterval = defaultAppHangTimeoutInterval {
+        didSet {
+            guard appHangTimeoutInterval > 0 else {
+                SentrySDKLog.warning("Invalid appHangTimeoutInterval \(appHangTimeoutInterval). The value must be greater than 0. Setting it to the default of \(Self.defaultAppHangTimeoutInterval) seconds.")
+                appHangTimeoutInterval = Self.defaultAppHangTimeoutInterval
+                return
+            }
+        }
+    }
 
     /// When enabled, the SDK adds breadcrumbs for various system events.
     /// @note Default value is @c true.

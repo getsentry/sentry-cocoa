@@ -203,8 +203,8 @@ jobs:
           swift build --target SentryTestUtils --scratch-path .build/v10-base-manifest
           ./scripts/verify-v10-sentrycrash-objects.sh --build-path .build/v10-base-manifest
 
-  build-v10-samples:
-    name: Sample V10 ${{ matrix.scheme }}
+  build-v10-testapps:
+    name: Test App V10 ${{ matrix.scheme }}
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_v10_for_prs == 'true'
     needs: files-changed
     runs-on: macos-26
@@ -213,37 +213,37 @@ jobs:
       matrix:
         include:
           - scheme: watchOS-Swift WatchKit App
-            make-target: build-sample-v10-watchOS-Swift
+            make-target: build-testapp-v10-watchOS-Swift
             platform: watchOS
           - scheme: macOS-SwiftUI
-            make-target: build-sample-v10-macOS-SwiftUI
+            make-target: build-testapp-v10-macOS-SwiftUI
             platform: macOS
           - scheme: iOS-Swift
-            make-target: build-sample-v10-iOS-Swift
+            make-target: build-testapp-v10-iOS-Swift
             platform: iOS
           - scheme: macOS-Swift
-            make-target: build-sample-v10-macOS-Swift
+            make-target: build-testapp-v10-macOS-Swift
             platform: macOS
           - scheme: tvOS-Swift
-            make-target: build-sample-v10-tvOS-Swift
+            make-target: build-testapp-v10-tvOS-Swift
             platform: tvOS
           - scheme: visionOS-Swift
-            make-target: build-sample-v10-visionOS-Swift
+            make-target: build-testapp-v10-visionOS-Swift
             platform: visionOS
           - scheme: iOS-SwiftUI
-            make-target: build-sample-v10-iOS-SwiftUI
+            make-target: build-testapp-v10-iOS-SwiftUI
             platform: iOS
           - scheme: iOS-ObjectiveC
-            make-target: build-sample-v10-iOS-ObjectiveC
+            make-target: build-testapp-v10-iOS-ObjectiveC
             platform: iOS
           - scheme: iOS-ObjectiveCpp-NoModules
-            make-target: build-sample-v10-iOS-ObjectiveCpp-NoModules
+            make-target: build-testapp-v10-iOS-ObjectiveCpp-NoModules
             platform: iOS
           - scheme: SPM
-            make-target: build-sample-v10-SPM
+            make-target: build-testapp-v10-SPM
             platform: macOS
           - scheme: DistributionSample
-            make-target: build-sample-v10-DistributionSample
+            make-target: build-testapp-v10-DistributionSample
             platform: macOS
     steps:
       - name: Warm CoreSimulator
@@ -301,12 +301,12 @@ jobs:
           resolve-simulators: "false"
 
       - run: make init-ci-build
-      - run: scripts/generate-sample-v10.sh --spec Samples/macOS-CLI-Xcode/macOS-CLI-Xcode.yml
+      - run: scripts/generate-testapp-v10.sh --spec TestApps/macOS-CLI-Xcode/macOS-CLI-Xcode.yml
 
-      - name: Build macOS-CLI-Xcode sample
+      - name: Build macOS-CLI-Xcode test app
         run: |
           set -o pipefail && xcodebuild \
-            -project "Samples/macOS-CLI-Xcode/macOS-CLI-Xcode.xcodeproj" \
+            -project "TestApps/macOS-CLI-Xcode/macOS-CLI-Xcode.xcodeproj" \
             -scheme macOS-CLI-Xcode \
             -configuration Debug \
             -destination 'platform=macOS' \
@@ -329,7 +329,7 @@ jobs:
         files-changed,
         build-v10,
         build-v10-spm,
-        build-v10-samples,
+        build-v10-testapps,
         check-v10-macOS-CLI-Xcode-no-UI-framework,
         verify-no-binary-targets,
         verify-v10-source-contract,

@@ -5296,6 +5296,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "registerTraceId:",
+    "parent": "SentryObjCInternalReplayApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "registers",
     "parent": "SentryObjCStacktrace",
     "returnType": "NSDictionary<NSString *,NSString *> * _Nonnull",

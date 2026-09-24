@@ -37,6 +37,12 @@ static NSString *const SENTRY_CONTEXT_APP_KEY = @"app";
 
 - (NSArray<SentryBreadcrumb *> *)breadcrumbs;
 
+- (NSDictionary<NSString *, id> *)extras;
+
+- (NSDictionary<NSString *, NSDictionary<NSString *, id> *> *)context;
+
+- (NSArray<NSString *> *)fingerprints;
+
 - (NSDictionary<NSString *, id> *_Nullable)getContextForKey:(NSString *)key;
 
 /**
@@ -46,6 +52,14 @@ static NSString *const SENTRY_CONTEXT_APP_KEY = @"app";
  */
 - (void)addScopeObserver:(SENTRY_SWIFT_MIGRATION_ID(id<SentryScopeObserver>))observer
     NS_SWIFT_NAME(add(_:));
+
+/**
+ * Runs @c block while holding the breadcrumb lock, so @c addBreadcrumb: waits.
+ * Used to replay existing crumbs and attach an observer without a concurrent
+ * crumb being dropped or inserted ahead of the replay.
+ */
+- (void)performWithBreadcrumbsLocked:(void(NS_NOESCAPE ^)(void))block
+    NS_SWIFT_NAME(performWithBreadcrumbsLocked(_:));
 
 - (void)overlayOnEvent:(SentryEvent *)event maxBreadcrumb:(NSUInteger)maxBreadcrumbs;
 

@@ -72,7 +72,7 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
         XCTAssertNotNil(sut?.tracker)
     }
 
-    func testAppHangEnabled_ButIntervalZero_DoestNotMeasuresFrames() {
+    func testAppHangEnabled_ButIntervalZero_ResetsToDefaultAndMeasuresFrames() {
         let options = fixture.options
         options.appHangTimeoutInterval = 0.0
         options.enableWatchdogTerminationTracking = false
@@ -81,14 +81,18 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
             sut?.uninstall()
         }
 
-        XCTAssertNil(sut)
+        XCTAssertEqual(2.0, options.appHangTimeoutInterval)
+        XCTAssertNotNil(sut)
     }
     #endif // !SDK_V10
 
+    @available(*, deprecated, message: "Testing deprecated App Hang tracking option")
     func testZeroTracesSampleRate_DoesNotMeasureFrames() {
         let options = fixture.options
         options.tracesSampleRate = 0.0
-        options.appHangTimeoutInterval = 0.0
+        #if !SDK_V10
+        options.enableAppHangTracking = false
+        #endif // !SDK_V10
         options.enableWatchdogTerminationTracking = false
         let sut = SentryFramesTrackingIntegration(with: options, dependencies: fixture.dependencies)
         defer {

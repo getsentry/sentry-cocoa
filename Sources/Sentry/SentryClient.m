@@ -1018,6 +1018,12 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         BOOL shouldAttachStacktrace = alwaysAttachStacktrace || self.options.attachStacktrace
             || (nil != event.exceptions && [event.exceptions count] > 0);
 
+#if SENTRY_HAS_METRIC_KIT
+        // MetricKit diagnostics describe past events. Current threads and images cannot fill in
+        // missing diagnostic data, including when the call stack tree could not be decoded.
+        shouldAttachStacktrace = shouldAttachStacktrace && ![event isMetricKitEvent];
+#endif
+
         BOOL threadsNotAttached = !(nil != event.threads && event.threads.count > 0);
 
         if (!isFatalEvent && shouldAttachStacktrace && threadsNotAttached) {
