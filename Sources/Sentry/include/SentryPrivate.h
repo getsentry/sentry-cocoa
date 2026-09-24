@@ -4,10 +4,6 @@
 
 // Sentry internal headers that are needed for swift code; you cannot import headers that depend on
 // public interfaces here
-#if !SDK_V10
-#    import "SentryANRStoppedResultInternal.h"
-#    import "SentryANRTrackerInternalDelegate.h"
-#endif
 #import "SentryClient+Private.h"
 #import "SentryCrashAsync.h"
 #if !SDK_V10

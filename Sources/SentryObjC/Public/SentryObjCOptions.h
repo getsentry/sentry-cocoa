@@ -486,6 +486,8 @@ NS_ASSUME_NONNULL_BEGIN
  * In v10, the SDK still uses this threshold internally to classify watchdog terminations.
  * @note The actual amount may be a little longer.
  * @note Avoid using values lower than 100ms, which may cause false-positive hang detection.
+ * @note The value must be greater than @c 0. When setting a value of @c 0 or lower, the SDK sets it
+ * to the default.
  * @note The default value is 2 seconds.
  */
 @property (nonatomic) NSTimeInterval appHangTimeoutInterval;

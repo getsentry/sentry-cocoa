@@ -93,7 +93,7 @@ jobs:
           else
             ARGS+=(--platform macos)
           fi
-          ./TestSamples/CrashE2E/run-crash-e2e.sh "${ARGS[@]}" 2>&1 | tee raw-crash-e2e-output.log
+          ./TestApps/CrashE2E/run-crash-e2e.sh "${ARGS[@]}" 2>&1 | tee raw-crash-e2e-output.log
 
       - name: Archiving Crash E2E Artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
@@ -102,7 +102,7 @@ jobs:
           name: crash-e2e-${{ matrix.reporter }}-${{ matrix.platform }}
           path: |
             raw-crash-e2e-output.log
-            TestSamples/CrashE2E/artifacts/**
+            TestApps/CrashE2E/artifacts/**
 
       - name: Archiving Crash Logs
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7

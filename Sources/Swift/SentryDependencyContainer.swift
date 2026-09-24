@@ -21,10 +21,28 @@ let defaultApplicationProvider: () -> SentryApplication? = {
 extension SentryFileManager: SentryFileManagerProtocol { }
 
 #if !SDK_V10
-@_spi(Private) extension SentryANRTrackerV1: SentryANRTrackerInternalProtocol { }
+// Listener registration uses id in the Objective-C headers until the trackers move to Swift.
+// Keep the Swift-facing helper protocol strongly typed.
+@_spi(Private) extension SentryANRTrackerV1: SentryANRTrackerInternalProtocol {
+    func addListener(_ listener: SentryANRTrackerInternalDelegate) {
+        addListener(listener as Any)
+    }
+
+    func removeListener(_ listener: SentryANRTrackerInternalDelegate) {
+        removeListener(listener as Any)
+    }
+}
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-@_spi(Private) extension SentryANRTrackerV2: SentryANRTrackerInternalProtocol { }
+@_spi(Private) extension SentryANRTrackerV2: SentryANRTrackerInternalProtocol {
+    func addListener(_ listener: SentryANRTrackerInternalDelegate) {
+        addListener(listener as Any)
+    }
+
+    func removeListener(_ listener: SentryANRTrackerInternalDelegate) {
+        removeListener(listener as Any)
+    }
+}
 #endif
 #endif
 
@@ -563,10 +581,16 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     private var anrTracker: SentryANRTracker?
     @objc public func getANRTracker(_ timeout: TimeInterval) -> SentryANRTracker {
         getLazyVar(\.anrTracker) {
+            // A timeout of 0 or less would make the tracker thread spin in a busy loop.
+            var safeTimeout = timeout
+            if safeTimeout <= 0 {
+                SentrySDKLog.warning("Invalid ANRTracked timeout interval: The value must be greater than 0.")
+                safeTimeout = Options.defaultAppHangTimeoutInterval
+            }
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-            SentryANRTracker(helper: SentryANRTrackerV2(timeoutInterval: timeout))
+            return SentryANRTracker(helper: SentryANRTrackerV2(timeoutInterval: safeTimeout))
         #else
-            SentryANRTracker(helper: SentryANRTrackerV1(timeoutInterval: timeout))
+            return SentryANRTracker(helper: SentryANRTrackerV1(timeoutInterval: safeTimeout))
         #endif
         }
     }
