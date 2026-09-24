@@ -71,10 +71,18 @@ sentry_sampleTrace(SentrySamplingContext *context, SentryOptions *_Nullable opti
 
     // check the _parent_ transaction's sampling decision, if any
     if (context.transactionContext.parentSampled != kSentrySampleDecisionUndecided) {
-        return
-            [[SentrySamplerDecision alloc] initWithDecision:context.transactionContext.parentSampled
-                                              forSampleRate:context.transactionContext.sampleRate
-                                             withSampleRand:context.transactionContext.sampleRand];
+        // The decision is inherited from the parent, so the sample rate and random value the head
+        // of the trace froze into its dynamic sampling context must be inherited with it. They end
+        // up in this transaction's outgoing baggage, and Relay relies on `sample_rand` being the
+        // same across the whole trace to reach a consistent keep-or-drop decision.
+        SentryTransactionContext *transactionContext = context.transactionContext;
+        NSNumber *_Nullable sampleRate
+            = transactionContext.parentSampleRate ?: transactionContext.sampleRate;
+        NSNumber *_Nullable sampleRand
+            = transactionContext.parentSampleRand ?: transactionContext.sampleRand;
+        return [[SentrySamplerDecision alloc] initWithDecision:transactionContext.parentSampled
+                                                 forSampleRate:sampleRate
+                                                withSampleRand:sampleRand];
     }
 
     return _sentry_calcSampleFromNumericalRate(options.tracesSampleRate);

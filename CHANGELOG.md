@@ -10,6 +10,7 @@
 - Retain raw MetricKit diagnostic attachments when call-stack decoding fails and `enableMetricKitRawPayload` is enabled, without attaching unrelated current-thread stack traces (#9070)
 - Prevent duplicate HTTP spans and breadcrumbs when watchOS resumes an internal URLSession task copy after the original request finishes (#9095)
 - Remove the compiler deprecation warning for `enableAppHangTracking` so applications can continue opting out of App Hang tracking until its removal in v10 (#9094)
+- Inherit `parentSampleRate` and `parentSampleRand` when a transaction continues a trace whose parent already made the sampling decision, so the propagated dynamic sampling context keeps the trace's `sample_rate` and `sample_rand`. (#9014)
 
 ## 9.29.0
 
