@@ -1,24 +1,9 @@
 #if os(iOS) && !targetEnvironment(macCatalyst)
 
+@_spi(Private) import SentryTestUtils
 @_spi(Private) @testable import Sentry
 import CoreTelephony
 import XCTest
-
-/// Records the queue the provider observes on, which decides whether CoreTelephony is read on the
-/// main thread.
-private final class SpyNotificationCenter: NotificationCenter, @unchecked Sendable {
-    var addObserverQueues = [OperationQueue?]()
-
-    override func addObserver(
-        forName name: NSNotification.Name?,
-        object obj: Any?,
-        queue: OperationQueue?,
-        using block: @escaping @Sendable (Notification) -> Void
-    ) -> NSObjectProtocol {
-        addObserverQueues.append(queue)
-        return super.addObserver(forName: name, object: obj, queue: queue, using: block)
-    }
-}
 
 final class SentryCellularNetworkTechnologyProviderTests: XCTestCase {
 
@@ -32,7 +17,7 @@ final class SentryCellularNetworkTechnologyProviderTests: XCTestCase {
 
         for radioAccessTechnology in radioAccessTechnologies {
             // -- Act --
-            let technology = SentryCellularNetworkTechnologyProvider.technology(forRadioAccessTechnology: radioAccessTechnology)
+            let technology = SentryCellularNetworkTechnology(radioAccessTechnology: radioAccessTechnology)
 
             // -- Assert --
             XCTAssertEqual(technology, .secondGeneration, "Unexpected technology for \(radioAccessTechnology)")
@@ -53,7 +38,7 @@ final class SentryCellularNetworkTechnologyProviderTests: XCTestCase {
 
         for radioAccessTechnology in radioAccessTechnologies {
             // -- Act --
-            let technology = SentryCellularNetworkTechnologyProvider.technology(forRadioAccessTechnology: radioAccessTechnology)
+            let technology = SentryCellularNetworkTechnology(radioAccessTechnology: radioAccessTechnology)
 
             // -- Assert --
             XCTAssertEqual(technology, .thirdGeneration, "Unexpected technology for \(radioAccessTechnology)")
@@ -62,7 +47,7 @@ final class SentryCellularNetworkTechnologyProviderTests: XCTestCase {
 
     func testTechnologyForRadioAccessTechnology_whenLTE_shouldReturnFourthGeneration() {
         // -- Act --
-        let technology = SentryCellularNetworkTechnologyProvider.technology(forRadioAccessTechnology: CTRadioAccessTechnologyLTE)
+        let technology = SentryCellularNetworkTechnology(radioAccessTechnology: CTRadioAccessTechnologyLTE)
 
         // -- Assert --
         XCTAssertEqual(technology, .fourthGeneration)
@@ -77,7 +62,7 @@ final class SentryCellularNetworkTechnologyProviderTests: XCTestCase {
 
         for radioAccessTechnology in radioAccessTechnologies {
             // -- Act --
-            let technology = SentryCellularNetworkTechnologyProvider.technology(forRadioAccessTechnology: radioAccessTechnology)
+            let technology = SentryCellularNetworkTechnology(radioAccessTechnology: radioAccessTechnology)
 
             // -- Assert --
             XCTAssertEqual(technology, .fifthGeneration, "Unexpected technology for \(radioAccessTechnology)")
@@ -86,7 +71,7 @@ final class SentryCellularNetworkTechnologyProviderTests: XCTestCase {
 
     func testTechnologyForRadioAccessTechnology_whenUnknownTechnology_shouldReturnNil() {
         // -- Act --
-        let technology = SentryCellularNetworkTechnologyProvider.technology(forRadioAccessTechnology: "CTRadioAccessTechnology6G")
+        let technology = SentryCellularNetworkTechnology(radioAccessTechnology: "CTRadioAccessTechnology6G")
 
         // -- Assert --
         XCTAssertNil(technology)
@@ -100,53 +85,25 @@ final class SentryCellularNetworkTechnologyProviderTests: XCTestCase {
         XCTAssertNil(sut.currentTechnology)
     }
 
-    func testStartMonitoring_shouldObserveOnANonMainQueue() throws {
+    func testRadioAccessTechnologyChanged_shouldBeHandledOffThePostingThread() throws {
         // -- Arrange --
-        let notificationCenter = SpyNotificationCenter()
-        let sut = SentryCellularNetworkTechnologyProvider(notificationCenter: notificationCenter)
-
-        // -- Act --
-        sut.startMonitoring()
-        defer { sut.stopMonitoring() }
-
-        // -- Assert --
-        // Radio access technology notifications are posted on whichever thread the system picks,
-        // so observing without a queue would read CoreTelephony on the main thread.
-        XCTAssertEqual(1, notificationCenter.addObserverQueues.count)
-        let queue = try XCTUnwrap(notificationCenter.addObserverQueues.first.flatMap { $0 })
-        XCTAssertNotEqual(queue, OperationQueue.main)
-        XCTAssertEqual(1, queue.maxConcurrentOperationCount)
-        let underlyingQueue = try XCTUnwrap(queue.underlyingQueue)
-        XCTAssertNotEqual(underlyingQueue.label, DispatchQueue.main.label)
-    }
-
-    func testNotificationQueue_shouldDeliverOffTheMainThread() {
-        // -- Arrange --
+        // The notification arrives on whichever thread posts it, so reading CoreTelephony has to
+        // be moved to the provider's own queue instead of running there.
         let notificationCenter = NotificationCenter()
-        let sut = SentryCellularNetworkTechnologyProvider(notificationCenter: notificationCenter)
+        let dispatchQueue = TestSentryDispatchQueueWrapper()
+        let sut = SentryCellularNetworkTechnologyProvider(
+            notificationCenter: notificationCenter,
+            dispatchQueue: dispatchQueue
+        )
         sut.startMonitoring()
         defer { sut.stopMonitoring() }
-
-        let handled = expectation(description: "Radio access technology change handled")
-        var handledOnMainThread = true
-        // Asserts the queue itself delivers off the main thread. That the provider actually uses
-        // it is covered by testStartMonitoring_shouldObserveOnANonMainQueue.
-        let observerToken = notificationCenter.addObserver(
-            forName: .CTServiceRadioAccessTechnologyDidChange,
-            object: nil,
-            queue: sut.notificationQueue
-        ) { _ in
-            handledOnMainThread = Thread.isMainThread
-            handled.fulfill()
-        }
-        defer { notificationCenter.removeObserver(observerToken) }
+        let dispatchesBefore = dispatchQueue.dispatchAsyncInvocations.count
 
         // -- Act --
         notificationCenter.post(name: .CTServiceRadioAccessTechnologyDidChange, object: nil)
 
         // -- Assert --
-        wait(for: [handled], timeout: 5.0)
-        XCTAssertFalse(handledOnMainThread)
+        XCTAssertEqual(dispatchesBefore + 1, dispatchQueue.dispatchAsyncInvocations.count)
     }
 
     /// The simulator and CI machines have no cellular modem, so we can only assert that starting and

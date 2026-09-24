@@ -56,9 +56,27 @@ final class SentryReachabilitySwiftTests: XCTestCase {
         // Ignore the actual reachability callbacks, cause we call the callbacks manually.
         // Otherwise, the actual reachability callbacks are called during later unrelated tests causing
         // flakes.
-        reachability = SentryReachability()
+        reachability = makeReachability()
+    }
+
+    private func makeReachability() -> SentryReachability {
+        configured(SentryReachability())
+    }
+
+#if os(iOS) && !targetEnvironment(macCatalyst)
+    /// The cellular technology provider is injected, so a test that needs to control it replaces
+    /// the whole instance instead of reaching into it.
+    private func makeReachability(
+        technologyProvider: TestSentryCellularNetworkTechnologyProvider
+    ) -> SentryReachability {
+        configured(SentryReachability(cellularNetworkTechnologyProvider: technologyProvider))
+    }
+#endif // os(iOS) && !targetEnvironment(macCatalyst)
+
+    private func configured(_ reachability: SentryReachability) -> SentryReachability {
         reachability.skipRegisteringActualCallbacks = true
         reachability.setReachabilityIgnoreActualCallback(true)
+        return reachability
     }
     
     override func tearDown() {
@@ -84,7 +102,7 @@ final class SentryReachabilitySwiftTests: XCTestCase {
         // documented connectivity values.
         let technologyProvider = TestSentryCellularNetworkTechnologyProvider()
         technologyProvider.currentTechnology = .fifthGeneration
-        reachability.setCellularNetworkTechnologyProvider(technologyProvider)
+        reachability = makeReachability(technologyProvider: technologyProvider)
 
         var typeDescriptions = [String]()
         let observer = TestSentryReachabilityObserver()
@@ -105,7 +123,7 @@ final class SentryReachabilitySwiftTests: XCTestCase {
         // -- Arrange --
         let technologyProvider = TestSentryCellularNetworkTechnologyProvider()
         technologyProvider.currentTechnology = .fourthGeneration
-        reachability.setCellularNetworkTechnologyProvider(technologyProvider)
+        reachability = makeReachability(technologyProvider: technologyProvider)
         let observer = TestSentryReachabilityObserver()
         reachability.add(observer)
 
@@ -121,7 +139,7 @@ final class SentryReachabilitySwiftTests: XCTestCase {
         // -- Arrange --
         let technologyProvider = TestSentryCellularNetworkTechnologyProvider()
         technologyProvider.currentTechnology = .fifthGeneration
-        reachability.setCellularNetworkTechnologyProvider(technologyProvider)
+        reachability = makeReachability(technologyProvider: technologyProvider)
         let observer = TestSentryReachabilityObserver()
         reachability.add(observer)
 
@@ -159,9 +177,9 @@ final class SentryReachabilitySwiftTests: XCTestCase {
     /// starve for a while, so the waits are generous.
     func testAdd_whenFirstObserverIsAdded_shouldMonitorCellularNetworkTechnology() {
         // -- Arrange --
-        reachability.skipRegisteringActualCallbacks = false
         let technologyProvider = TestSentryCellularNetworkTechnologyProvider()
-        reachability.setCellularNetworkTechnologyProvider(technologyProvider)
+        reachability = makeReachability(technologyProvider: technologyProvider)
+        reachability.skipRegisteringActualCallbacks = false
         let startedMonitoring = expectation(description: "Started monitoring the cellular network technology")
         technologyProvider.onStartMonitoring = { startedMonitoring.fulfill() }
         let stoppedMonitoring = expectation(description: "Stopped monitoring the cellular network technology")
@@ -185,9 +203,9 @@ final class SentryReachabilitySwiftTests: XCTestCase {
     /// right after adding it must not leave the monitoring running.
     func testRemove_whenLastObserverIsRemovedBeforeMonitoringStarted_shouldStopMonitoring() {
         // -- Arrange --
-        reachability.skipRegisteringActualCallbacks = false
         let technologyProvider = TestSentryCellularNetworkTechnologyProvider()
-        reachability.setCellularNetworkTechnologyProvider(technologyProvider)
+        reachability = makeReachability(technologyProvider: technologyProvider)
+        reachability.skipRegisteringActualCallbacks = false
         let stoppedMonitoring = expectation(description: "Stopped monitoring the cellular network technology")
         stoppedMonitoring.assertForOverFulfill = false
         technologyProvider.onStopMonitoring = { stoppedMonitoring.fulfill() }

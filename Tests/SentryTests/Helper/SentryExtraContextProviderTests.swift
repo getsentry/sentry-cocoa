@@ -10,7 +10,7 @@ final class SentryExtraContextProviderTests: XCTestCase {
         let deviceWrapper = TestSentryUIDeviceWrapper()
 #endif // os(iOS)
         let processWrapper = MockSentryProcessInfo()
-        let reachability = SentryReachability()
+        var reachability = SentryReachability()
 
         func getSut() -> SentryExtraContextProvider {
             #if os(iOS)
@@ -129,12 +129,12 @@ final class SentryExtraContextProviderTests: XCTestCase {
 #if os(iOS) && !targetEnvironment(macCatalyst)
     func testConnectionEffectiveType_whenOnCellularWithKnownTechnology_shouldBeSet() throws {
         // -- Arrange --
+        let technologyProvider = TestSentryCellularNetworkTechnologyProvider()
+        technologyProvider.currentTechnology = .fifthGeneration
+        fixture.reachability = SentryReachability(cellularNetworkTechnologyProvider: technologyProvider)
         let sut = fixture.getSut()
         fixture.reachability.skipRegisteringActualCallbacks = true
         fixture.reachability.setReachabilityIgnoreActualCallback(true)
-        let technologyProvider = TestSentryCellularNetworkTechnologyProvider()
-        technologyProvider.currentTechnology = .fifthGeneration
-        fixture.reachability.setCellularNetworkTechnologyProvider(technologyProvider)
         let observer = TestSentryReachabilityObserver()
         fixture.reachability.add(observer)
         fixture.reachability.triggerConnectivityCallback(.cellular)

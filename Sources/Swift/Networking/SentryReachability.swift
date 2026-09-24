@@ -36,7 +36,12 @@ public class SentryReachability: NSObject {
     private var currentConnectivity: SentryConnectivity?
     private var pathMonitor: NWPathMonitor?
 #if os(iOS) && !targetEnvironment(macCatalyst)
-    private var cellularNetworkTechnologyProvider: SentryCellularNetworkTechnologyProviding = SentryCellularNetworkTechnologyProvider()
+    private let cellularNetworkTechnologyProvider: SentryCellularNetworkTechnologyProviding
+
+    init(cellularNetworkTechnologyProvider: SentryCellularNetworkTechnologyProviding = SentryCellularNetworkTechnologyProvider()) {
+        self.cellularNetworkTechnologyProvider = cellularNetworkTechnologyProvider
+        super.init()
+    }
 #endif // os(iOS) && !targetEnvironment(macCatalyst)
     private let reachabilityQueue: DispatchQueue = DispatchQueue(label: "io.sentry.cocoa.connectivity", qos: .background, attributes: [])
     private let observersLock = NSRecursiveLock()
@@ -95,7 +100,8 @@ public class SentryReachability: NSObject {
 
 #if os(iOS) && !targetEnvironment(macCatalyst)
         // Starting the provider talks to a system service, which must not block the thread calling
-        // into the SDK, so it runs on the same queue as the path monitor.
+        // into the SDK, so it runs on the same queue as the path monitor. The provider is never
+        // nil; it is copied into a local only to keep self out of the escaping block.
         let cellularNetworkTechnologyProvider = self.cellularNetworkTechnologyProvider
         reachabilityQueue.async {
             cellularNetworkTechnologyProvider.startMonitoring()
@@ -229,8 +235,17 @@ public class SentryReachability: NSObject {
         //
         // By copying the observers list and releasing observersLock before notifying, we ensure this method
         // never holds observersLock while calling observer code that might acquire other locks.
+        // Reading the observers and swapping the connectivity in one critical section keeps a
+        // stopMonitoring that lands in between from being undone by the write.
         let (observersToNotify, previousConnectivity) = observersLock.synchronized {
-            (reachabilityObservers.allObjects, currentConnectivity)
+            () -> ([SentryReachabilityObserver], SentryConnectivity?) in
+            let observers = reachabilityObservers.allObjects
+            guard !observers.isEmpty else {
+                return ([], nil)
+            }
+            let previousConnectivity = currentConnectivity
+            currentConnectivity = connectivity
+            return (observers, previousConnectivity)
         }
         
         SentrySDKLog.debug("Entered synchronized region of SentryConnectivityCallback with connectivity: \(connectivity.toString())")
@@ -240,7 +255,6 @@ public class SentryReachability: NSObject {
             return
         }
         
-        observersLock.synchronized { currentConnectivity = connectivity }
         guard connectivityShouldReportChange(previousConnectivity ?? .none, connectivity) else {
             return
         }
@@ -280,12 +294,6 @@ extension SentryReachability {
         ignoreActualCallback = value
     }
 
-#if os(iOS) && !targetEnvironment(macCatalyst)
-    func setCellularNetworkTechnologyProvider(_ provider: SentryCellularNetworkTechnologyProviding) {
-        cellularNetworkTechnologyProvider = provider
-    }
-#endif // os(iOS) && !targetEnvironment(macCatalyst)
-    
     func triggerConnectivityCallback(_ connectivity: SentryConnectivity) {
         connectivityCallback(connectivity)
     }
