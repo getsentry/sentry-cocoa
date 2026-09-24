@@ -21,18 +21,8 @@ let defaultApplicationProvider: () -> SentryApplication? = {
 extension SentryFileManager: SentryFileManagerProtocol { }
 
 #if !SDK_V10
-// Listener registration uses id in the Objective-C headers until the trackers move to Swift.
+// V2 listener registration uses id in the Objective-C header until it moves to Swift.
 // Keep the Swift-facing helper protocol strongly typed.
-@_spi(Private) extension SentryANRTrackerV1: SentryANRTrackerInternalProtocol {
-    func addListener(_ listener: SentryANRTrackerInternalDelegate) {
-        addListener(listener as Any)
-    }
-
-    func removeListener(_ listener: SentryANRTrackerInternalDelegate) {
-        removeListener(listener as Any)
-    }
-}
-
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 @_spi(Private) extension SentryANRTrackerV2: SentryANRTrackerInternalProtocol {
     func addListener(_ listener: SentryANRTrackerInternalDelegate) {

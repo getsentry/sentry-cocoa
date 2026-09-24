@@ -29,7 +29,6 @@
 #import "NSMutableDictionary+Sentry.h"
 #import "Sentry/Sentry-Swift.h"
 #if !SDK_V10
-#    import "SentryANRTrackerV1.h"
 #    import "SentryANRTrackerV2.h"
 #endif
 #import "SentryAppStartMeasurement+Private.h"
