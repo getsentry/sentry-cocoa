@@ -1,0 +1,5 @@
+module SentryProfilerTestSupport {
+    header "SentryProfilerTestSupport.h"
+    textual header "SentryProfilerTestSupport+ObjCpp.h"
+    export *
+}

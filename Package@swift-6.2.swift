@@ -73,22 +73,14 @@ let kscrashDependencyCondition: TargetDependencyCondition? = enableV10
     : .when(traits: ["V10"])
 
 // Match the wrapper targets' compiler settings in Sentry.xcodeproj.
-var objcCompatSwiftSettings: [SwiftSetting] = []
-#if compiler(>=6.1)
-objcCompatSwiftSettings.append(.enableUpcomingFeature("MemberImportVisibility"))
-#endif
-
-// Older Xcodes ignore approachable concurrency. Some individual features already exist in
-// older compilers, so gate the group to avoid enabling a subset that the project does not.
-#if compiler(>=6.2)
-objcCompatSwiftSettings += [
+let objcCompatSwiftSettings: [SwiftSetting] = [
+    .enableUpcomingFeature("MemberImportVisibility"),
     .enableUpcomingFeature("DisableOutwardActorInference"),
     .enableUpcomingFeature("GlobalActorIsolatedTypesUsability"),
     .enableUpcomingFeature("InferIsolatedConformances"),
     .enableUpcomingFeature("InferSendableFromCaptures"),
     .enableUpcomingFeature("NonisolatedNonsendingByDefault")
 ]
-#endif
 
 var products: [Product] = [
     .library(name: "SentryDistribution", targets: ["SentryDistribution"])
@@ -394,6 +386,38 @@ targets += [
         ] + v10SwiftSettings + objcCompatSwiftSettings
     )
 ]
+
+// Match the entire V9-only Xcode profiler suite, including its wrapper tests.
+// Traits cannot remove targets, so source guards also exclude this suite when V10 is selected.
+if !enableV10 {
+    targets += [
+        .target(
+            name: "SentryProfilerTestSupport",
+            dependencies: ["SentryObjCInternal", "_SentryPrivate", "SentryTestUtilsObjCpp"],
+            path: "Tests/SentryProfilerTestSupport",
+            cSettings: v10CSettings
+        ),
+        .testTarget(
+            name: "SentryProfilerTests",
+            dependencies: ["SentrySwift", "SentryTestUtils", "SentryProfilerTestSupport"],
+            path: "Tests/SentryProfilerTests",
+            exclude: ["ObjC"],
+            swiftSettings: v10SwiftSettings
+        ),
+        .testTarget(
+            name: "SentryProfilerTestsObjC",
+            dependencies: ["SentryObjCInternal", "SentryProfilerTestSupport", "SentryTestUtilsObjCpp"],
+            path: "Tests/SentryProfilerTests/ObjC",
+            cSettings: [
+                .headerSearchPath("../../../Sources/Sentry")
+            ] + v10CSettings,
+            // Xcode disables C++ modules for package test bundles by default. The ObjC++
+            // tests import SentrySwift's generated Objective-C interface as a Clang module.
+            cxxSettings: [.unsafeFlags(["-fcxx-modules"])] + v10CxxSettings,
+            linkerSettings: [.linkedLibrary("c++")]
+        )
+    ]
+}
 
 // Match SDK.xcconfig's Test/TestCI defines on source/test targets, including Swift's Clang importer.
 for target in targets where target.type == .regular || target.type == .test {

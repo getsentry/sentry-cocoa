@@ -40,6 +40,7 @@
 - [36. Breadcrumb persistence durability and caller latency](#36-breadcrumb-persistence-durability-and-caller-latency)
 - [37. Strip DWARF from prebuilt SentryObjC static binaries](#37-strip-dwarf-from-prebuilt-sentryobjc-static-binaries)
 - [38. Keep opt-out flags free of deprecation warnings](#38-keep-opt-out-flags-free-of-deprecation-warnings)
+- [39. Native SwiftPM test plans](#39-native-swiftpm-test-plans)
 
 ---
 
@@ -879,3 +880,20 @@ Keep opt-out flags usable without compiler deprecation warnings while they remai
 Related links:
 
 - https://github.com/getsentry/sentry-cocoa/issues/9093
+
+## 39. Native SwiftPM test plans
+
+Date: September 22, 2026
+Contributors: @denrase, @NinjaLikesCheez
+
+The profiler migration needs method-level exclusions matching the Xcode project's Base plan. SwiftPM manifest exclusions operate on files, while command-line skips duplicate test selection in CI and local instructions. We use a checked-in `SentrySPM` scheme and native V9/V10 Base plans to keep selection in Xcode's supported test configuration instead.
+
+The plans include whole package test targets with static skips, enable coverage, pin English/US, and disable target parallelization. Invocations also disable parallel testing and pair `SDK_V10` with the matching plan. Profiler targets are included only in the V9 plan. Source-only preparation and opt-in compiler settings remain necessary; package schemes do not inherit the project's SDK configuration.
+
+Existing project Base, Flaky, and TestServer coverage remains unchanged. Until those suites move, shared Base skip-policy changes must be reflected in both project and package plans. We accept that small configuration duplication rather than introducing synchronization tooling. Further package test migrations should extend these plans rather than add CI selection logic.
+
+Related links:
+
+- [Package test commands](TEST.md#package-tests-with-xcodebuild)
+- [Shared package scheme](../.swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme)
+- [Profiler migration](https://github.com/getsentry/sentry-cocoa/pull/9086)

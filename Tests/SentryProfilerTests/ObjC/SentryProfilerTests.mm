@@ -1,14 +1,18 @@
-#import "SentryProfilingConditionals.h"
+#import "SentryProfilerTestConditionals.h"
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#if SENTRY_PROFILER_TESTS_SUPPORTED
 
-#    import "SentryContinuousProfiler+Test.h"
+#    if SWIFT_PACKAGE
+#        import "SentryProfilerTestSupport+ObjCpp.h"
+#    else
+#        import "SentryContinuousProfiler+Test.h"
+#        import "SentryProfilerSerialization+Test.h"
+#    endif
 #    import "SentryEvent+Private.h"
-#    import "SentryHub+Test.h"
+#    import "SentryHub.h"
 #    import "SentryProfileTimeseries.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfilerMocks.h"
-#    import "SentryProfilerSerialization+Test.h"
 #    import "SentryProfilerState+ObjCpp.h"
 #    import "SentrySwift.h"
 #    import "SentryThread.h"
@@ -294,4 +298,4 @@ using namespace sentry::profiling;
 
 @end
 
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+#endif // SENTRY_PROFILER_TESTS_SUPPORTED

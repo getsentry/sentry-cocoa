@@ -20,12 +20,6 @@ SENTRY_PACKAGE_BUILD_FOR_DISTRIBUTION_SentrySwift = YES
 SENTRY_PACKAGE_BUILD_FOR_DISTRIBUTION_SentryObjCCompat = YES
 BUILD_LIBRARY_FOR_DISTRIBUTION = $(SENTRY_PACKAGE_BUILD_FOR_DISTRIBUTION_$(TARGET_NAME):default=$(inherited))
 
-// Implicit interface verification (used by Xcode 16.4) otherwise drops the parent compiler's
-// Clang arguments, including SwiftPM's generated module maps and test macros. Preserve that context.
-SENTRY_PACKAGE_OTHER_SWIFT_FLAGS_SentrySwift = -Xfrontend -strict-implicit-module-context
-SENTRY_PACKAGE_OTHER_SWIFT_FLAGS_SentryObjCCompat = -Xfrontend -strict-implicit-module-context
-OTHER_SWIFT_FLAGS = $(inherited) $(SENTRY_PACKAGE_OTHER_SWIFT_FLAGS_$(TARGET_NAME))
-
 // -xcconfig applies to dependency projects too. Keep their diagnostic policy inherited;
 // SwiftPM dependencies can use -suppress-warnings, which conflicts with -warnings-as-errors.
 SENTRY_PACKAGE_WARNINGS_Sentry = YES

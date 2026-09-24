@@ -49,14 +49,14 @@
  */
 #define SENTRY_ASYNC_SAFE_LOG_ALSO_WRITE_TO_CONSOLE 0
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 static char g_logFilename[1024];
 

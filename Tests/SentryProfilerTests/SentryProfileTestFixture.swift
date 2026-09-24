@@ -1,13 +1,23 @@
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+import SentryProfilerTestSupport
+#else
 @_spi(Private) @testable import Sentry
+#endif
 @_spi(Private) @testable import SentryTestUtils
 import _SentryPrivate
 import XCTest
 
-#if os(iOS) || os(macOS)
+#if (!SWIFT_PACKAGE || !SDK_V10) && (os(iOS) || os(macOS))
 
-#if !os(macOS)
+#if SWIFT_PACKAGE
+// The Xcode bridging header exposes the ObjC enum at module scope.
+typealias SentryProfileLifecycle = SentryProfileOptions.SentryProfileLifecycle
+#endif
+
+#if !os(macOS) && !SWIFT_PACKAGE
 class TestDelayedWrapper: SentryDelayedFramesTracker {}
-#endif // !os(macOS)
+#endif
 
 class SentryProfileTestFixture {
     struct ThreadMetadata {

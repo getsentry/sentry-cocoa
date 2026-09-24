@@ -38,6 +38,16 @@ playground.xcworkspace
 # Swift Package Manager
 .build/
 .swiftpm
+# Share only the root package scheme; keep generated and personal package state ignored.
+!/.swiftpm/
+/.swiftpm/*
+!/.swiftpm/xcode/
+/.swiftpm/xcode/*
+!/.swiftpm/xcode/xcshareddata/
+/.swiftpm/xcode/xcshareddata/*
+!/.swiftpm/xcode/xcshareddata/xcschemes/
+/.swiftpm/xcode/xcshareddata/xcschemes/*
+!/.swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme
 Packages
 
 # Carthage
