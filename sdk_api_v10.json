@@ -22708,20 +22708,33 @@
                             "usr": "s:Sq"
                           },
                           {
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Hint",
+                                "printedName": "Sentry.Hint",
+                                "usr": "c:@M@Sentry@objc(cs)SentryHint"
+                              },
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Transaction",
+                                "printedName": "Sentry.Transaction",
+                                "usr": "c:objc(cs)SentryTransaction"
+                              }
+                            ],
                             "kind": "TypeNominal",
-                            "name": "Transaction",
-                            "printedName": "Sentry.Transaction",
-                            "usr": "c:objc(cs)SentryTransaction"
+                            "name": "Tuple",
+                            "printedName": "(Sentry.Transaction, Sentry.Hint)"
                           }
                         ],
                         "kind": "TypeFunc",
                         "name": "Function",
-                        "printedName": "(Sentry.Transaction) -> Sentry.Transaction?"
+                        "printedName": "(Sentry.Transaction, Sentry.Hint) -> Sentry.Transaction?"
                       }
                     ],
                     "kind": "TypeNominal",
                     "name": "Optional",
-                    "printedName": "((Sentry.Transaction) -> Sentry.Transaction?)?",
+                    "printedName": "((Sentry.Transaction, Sentry.Hint) -> Sentry.Transaction?)?",
                     "usr": "s:Sq"
                   }
                 ],
@@ -22732,7 +22745,7 @@
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry7OptionsC21beforeSendTransactionSo0aE0CSgAFcSgvg",
+                "mangledName": "$s6Sentry7OptionsC21beforeSendTransactionSo0aE0CSgAF_AA4HintCtcSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
                 "printedName": "Get()",
@@ -22760,20 +22773,33 @@
                             "usr": "s:Sq"
                           },
                           {
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Hint",
+                                "printedName": "Sentry.Hint",
+                                "usr": "c:@M@Sentry@objc(cs)SentryHint"
+                              },
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Transaction",
+                                "printedName": "Sentry.Transaction",
+                                "usr": "c:objc(cs)SentryTransaction"
+                              }
+                            ],
                             "kind": "TypeNominal",
-                            "name": "Transaction",
-                            "printedName": "Sentry.Transaction",
-                            "usr": "c:objc(cs)SentryTransaction"
+                            "name": "Tuple",
+                            "printedName": "(Sentry.Transaction, Sentry.Hint)"
                           }
                         ],
                         "kind": "TypeFunc",
                         "name": "Function",
-                        "printedName": "(Sentry.Transaction) -> Sentry.Transaction?"
+                        "printedName": "(Sentry.Transaction, Sentry.Hint) -> Sentry.Transaction?"
                       }
                     ],
                     "kind": "TypeNominal",
                     "name": "Optional",
-                    "printedName": "((Sentry.Transaction) -> Sentry.Transaction?)?",
+                    "printedName": "((Sentry.Transaction, Sentry.Hint) -> Sentry.Transaction?)?",
                     "usr": "s:Sq"
                   },
                   {
@@ -22789,7 +22815,7 @@
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry7OptionsC21beforeSendTransactionSo0aE0CSgAFcSgvs",
+                "mangledName": "$s6Sentry7OptionsC21beforeSendTransactionSo0aE0CSgAF_AA4HintCtcSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
                 "printedName": "Set()",
@@ -22816,20 +22842,33 @@
                         "usr": "s:Sq"
                       },
                       {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Hint",
+                            "printedName": "Sentry.Hint",
+                            "usr": "c:@M@Sentry@objc(cs)SentryHint"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Transaction",
+                            "printedName": "Sentry.Transaction",
+                            "usr": "c:objc(cs)SentryTransaction"
+                          }
+                        ],
                         "kind": "TypeNominal",
-                        "name": "Transaction",
-                        "printedName": "Sentry.Transaction",
-                        "usr": "c:objc(cs)SentryTransaction"
+                        "name": "Tuple",
+                        "printedName": "(Sentry.Transaction, Sentry.Hint)"
                       }
                     ],
                     "kind": "TypeFunc",
                     "name": "Function",
-                    "printedName": "(Sentry.Transaction) -> Sentry.Transaction?"
+                    "printedName": "(Sentry.Transaction, Sentry.Hint) -> Sentry.Transaction?"
                   }
                 ],
                 "kind": "TypeNominal",
                 "name": "Optional",
-                "printedName": "((Sentry.Transaction) -> Sentry.Transaction?)?",
+                "printedName": "((Sentry.Transaction, Sentry.Hint) -> Sentry.Transaction?)?",
                 "usr": "s:Sq"
               }
             ],
@@ -22842,7 +22881,7 @@
             "declKind": "Var",
             "hasStorage": true,
             "kind": "Var",
-            "mangledName": "$s6Sentry7OptionsC21beforeSendTransactionSo0aE0CSgAFcSgvp",
+            "mangledName": "$s6Sentry7OptionsC21beforeSendTransactionSo0aE0CSgAF_AA4HintCtcSgvp",
             "moduleName": "Sentry",
             "name": "beforeSendTransaction",
             "printedName": "beforeSendTransaction",

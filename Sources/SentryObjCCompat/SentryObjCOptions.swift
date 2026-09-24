@@ -138,11 +138,11 @@ import Foundation
     private var _beforeSendWithHint: ((SentryObjCEvent, SentryObjCHint) -> SentryObjCEvent?)?
 
     #if SDK_V10
-    @objc public var beforeSendTransaction: ((SentryObjCTransaction) -> SentryObjCTransaction?)? {
+    @objc public var beforeSendTransaction: ((SentryObjCTransaction, SentryObjCHint) -> SentryObjCTransaction?)? {
         didSet {
             if let beforeSendTransaction = beforeSendTransaction {
-                wrapped.beforeSendTransaction = { transaction in
-                    guard let result = beforeSendTransaction(SentryObjCTransaction(transaction)) else {
+                wrapped.beforeSendTransaction = { transaction, hint in
+                    guard let result = beforeSendTransaction(SentryObjCTransaction(transaction), SentryObjCHint(hint)) else {
                         return nil
                     }
                     return result.wrappedTransaction

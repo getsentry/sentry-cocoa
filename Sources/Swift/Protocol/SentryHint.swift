@@ -3,7 +3,7 @@
 /// A hint flows alongside the event through the capture pipeline, giving ``Options/beforeSendWithHint``
 /// and ``Options/beforeBreadcrumbWithHint`` callbacks access to the raw source material that produced
 /// the event — such as the original `NSError` or `NSException` — and the list of attachments that will
-/// be sent with it.
+/// be sent with it. In the next major version, `beforeSendTransaction` receives the hint as well.
 ///
 /// ## Thread Safety
 /// All property access is guarded by a mutex. It is safe to read and write from any queue.
