@@ -139,6 +139,9 @@ NS_SWIFT_NAME(Scope)
 /**
  * Adds an attachment to the Scope's list of attachments. The SDK adds the attachment to every event
  * sent to Sentry.
+ * @note The SDK doesn't add scope attachments to fatal events, such as crashes or watchdog
+ * terminations, because those are captured on the next app launch and the scope's attachments
+ * belong to that later run. Use @c beforeSendWithHint to attach files to fatal events.
  * @param attachment The attachment to add to the Scope's list of attachments.
  */
 - (void)addAttachment:(SentryAttachment *)attachment NS_SWIFT_NAME(addAttachment(_:));
