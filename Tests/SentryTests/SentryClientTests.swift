@@ -3174,6 +3174,31 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(["key": "value"], savedEvent.tags)
     }
 
+    func testSaveCrashTransaction_whenScopeHasAttachments_shouldReceiveThemInBeforeSendTransactionHint() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for non SDK_V10")
+#else
+        // -- Arrange --
+        let scopeAttachment = Attachment(data: Data("scope-data".utf8), filename: "scope.txt")
+        let scope = Scope()
+        scope.addAttachment(scopeAttachment)
+        var receivedAttachments: [Attachment]?
+        let sut = fixture.getSut(configureOptions: { options in
+            options.beforeSendTransaction = { transaction, hint in
+                receivedAttachments = hint.attachments
+                return transaction
+            }
+        })
+
+        // -- Act --
+        sut.saveCrashTransaction(transaction: fixture.transaction, scope: scope)
+
+        // -- Assert --
+        XCTAssertEqual(try XCTUnwrap(receivedAttachments), [scopeAttachment])
+        XCTAssertEqual(fixture.transportAdapter.storeEventInvocations.count, 1)
+#endif // !SDK_V10
+    }
+
     func testSaveCrashTransaction_DisabledClient_StoresNothing() throws {
         let transaction = fixture.transaction
 
