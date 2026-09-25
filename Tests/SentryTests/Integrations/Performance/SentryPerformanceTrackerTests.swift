@@ -341,6 +341,165 @@ class SentryPerformanceTrackerTests: XCTestCase {
         XCTAssertNil(sut.activeSpanId())
     }
     
+    func testActivateSpan_whenSpanIdIsUnknown_shouldPreserveActiveSpanAndExecuteBlockOnce() {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        let spanId = startSpan(tracker: sut)
+        let unknownSpanId = SpanId()
+        var blockCalls = 0
+
+        sut.activateSpan(spanId) {
+            // -- Act --
+            sut.activateSpan(unknownSpanId) {
+                blockCalls += 1
+
+                // -- Assert --
+                XCTAssertEqual(sut.activeSpanId(), spanId)
+            }
+            XCTAssertEqual(sut.activeSpanId(), spanId)
+        }
+        XCTAssertEqual(blockCalls, 1)
+        XCTAssertNil(sut.activeSpanId())
+        XCTAssertFalse(sut.hasSpan(unknownSpanId))
+    }
+
+    func testFinishSpan_whenSpanIdIsUnknown_shouldLeaveTrackedSpansUnchanged() {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        let spanId = startSpan(tracker: sut)
+        let unknownSpanId = SpanId()
+
+        // -- Act --
+        sut.finishSpan(unknownSpanId)
+        sut.finishSpan(unknownSpanId, with: .cancelled)
+
+        // -- Assert --
+        XCTAssertTrue(sut.hasSpan(spanId))
+        XCTAssertFalse(sut.isSpanAlive(unknownSpanId))
+        XCTAssertNil(sut.getSpan(unknownSpanId))
+        XCTAssertEqual(sut.getSpan(spanId)?.isFinished, false)
+    }
+
+    func testPushActiveSpan_whenSpanIdIsUnknown_shouldNotChangeStack() {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        let spanId = startSpan(tracker: sut)
+        XCTAssertTrue(sut.pushActiveSpan(spanId))
+
+        // -- Act --
+        let pushed = sut.pushActiveSpan(SpanId())
+
+        // -- Assert --
+        XCTAssertFalse(pushed)
+        XCTAssertEqual(sut.activeSpanId(), spanId)
+        sut.popActiveSpan()
+        XCTAssertNil(sut.activeSpanId())
+    }
+
+    func testFinishSpan_whenChildIsUnfinished_shouldRetainTracerUntilChildFinishes() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        let parentId = startSpan(tracker: sut)
+        let parent = try XCTUnwrap(sut.getSpan(parentId))
+        var childId: SpanId!
+        sut.activateSpan(parentId) {
+            childId = self.startSpan(tracker: sut)
+        }
+        let child = try XCTUnwrap(sut.getSpan(childId))
+
+        // -- Act --
+        sut.finishSpan(parentId, with: .cancelled)
+
+        // -- Assert --
+        XCTAssertFalse(parent.isFinished)
+        XCTAssertTrue(sut.isSpanAlive(parentId))
+        XCTAssertIdentical(sut.getSpan(parentId), parent)
+        XCTAssertFalse(child.isFinished)
+
+        // -- Act --
+        sut.finishSpan(childId)
+
+        // -- Assert --
+        XCTAssertTrue(child.isFinished)
+        XCTAssertTrue(parent.isFinished)
+        XCTAssertEqual(parent.status, .cancelled)
+        XCTAssertFalse(sut.isSpanAlive(parentId))
+        XCTAssertFalse(sut.isSpanAlive(childId))
+    }
+
+    func testFinishSpan_whenOnlyChildFinishes_shouldWaitForExplicitParentFinish() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        let parentId = startSpan(tracker: sut)
+        let parent = try XCTUnwrap(sut.getSpan(parentId))
+        var childId: SpanId!
+        sut.activateSpan(parentId) {
+            childId = self.startSpan(tracker: sut)
+        }
+
+        // -- Act --
+        sut.finishSpan(childId)
+
+        // -- Assert --
+        XCTAssertFalse(parent.isFinished)
+        XCTAssertTrue(sut.isSpanAlive(parentId))
+        XCTAssertFalse(sut.isSpanAlive(childId))
+
+        // -- Act --
+        sut.finishSpan(parentId)
+
+        // -- Assert --
+        XCTAssertTrue(parent.isFinished)
+        XCTAssertFalse(sut.isSpanAlive(parentId))
+    }
+
+#if canImport(UIKit) && (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+    func testStartSpan_whenAppStartTraceIdExists_shouldConsumeItForFirstRootOnly() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        let traceId = SentryId()
+        SentryAppStartMeasurementProvider.setAppStartTrace(traceId)
+        defer { SentryAppStartMeasurementProvider.setAppStartTrace(nil) }
+
+        // -- Act --
+        let firstId = startSpan(tracker: sut)
+        let first = try XCTUnwrap(sut.getSpan(firstId))
+
+        // -- Assert --
+        XCTAssertEqual(first.traceId, traceId)
+        XCTAssertNil(SentryAppStartMeasurementProvider.appStartTraceId())
+
+        // -- Act --
+        let secondId = startSpan(tracker: sut)
+        let second = try XCTUnwrap(sut.getSpan(secondId))
+
+        // -- Assert --
+        XCTAssertNotEqual(second.traceId, traceId)
+    }
+
+    func testStartSpan_whenActiveSpanExists_shouldNotConsumeAppStartTraceId() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        let parentId = startSpan(tracker: sut)
+        let parent = try XCTUnwrap(sut.getSpan(parentId))
+        let traceId = SentryId()
+        SentryAppStartMeasurementProvider.setAppStartTrace(traceId)
+        defer { SentryAppStartMeasurementProvider.setAppStartTrace(nil) }
+        var childId: SpanId!
+
+        // -- Act --
+        sut.activateSpan(parentId) {
+            childId = self.startSpan(tracker: sut)
+        }
+
+        // -- Assert --
+        let child = try XCTUnwrap(sut.getSpan(childId))
+        XCTAssertEqual(child.traceId, parent.traceId)
+        XCTAssertEqual(child.parentSpanId, parentId)
+        XCTAssertEqual(SentryAppStartMeasurementProvider.appStartTraceId(), traceId)
+    }
+#endif
+
     private func getSpans(tracker: SentryPerformanceTracker) -> [SpanId: Span] {
         let result = Dynamic(tracker).spans as [SpanId: Span]?
         return result!
