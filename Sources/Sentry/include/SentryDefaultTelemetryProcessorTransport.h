@@ -1,5 +1,4 @@
 #import "SentryDefines.h"
-#import "SentrySwift.h"
 
 @class SentryTransportAdapter;
 
@@ -9,10 +8,11 @@ NS_ASSUME_NONNULL_BEGIN
  * Default implementation of SentryTelemetryProcessorTransport that sends telemetry envelopes
  * through the transport layer.
  */
-@interface SentryDefaultTelemetryProcessorTransport : NSObject <SentryTelemetryProcessorTransport>
+@interface SentryDefaultTelemetryProcessorTransport : NSObject
 SENTRY_NO_INIT
 
-- (instancetype)initWithTransportAdapter:(SentryTransportAdapter *)transportAdapter;
+- (instancetype)initWithTransportAdapter:(SENTRY_SWIFT_MIGRATION_ID(
+                                             SentryTransportAdapter))transportAdapter;
 
 @end
 

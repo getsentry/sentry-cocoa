@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
                            name:(NSString *)name;
 - (void)removeAllIntegrations;
 
-- (SentryClientInternal *_Nullable)client;
+- (SENTRY_SWIFT_MIGRATION_ID(SentryClientInternal)_Nullable)client NS_REFINED_FOR_SWIFT;
 
 - (void)captureFatalEvent:(SentryEvent *)event;
 
@@ -56,7 +56,8 @@ NS_ASSUME_NONNULL_BEGIN
  * Returns YES when a fatal-event capture was accepted or intentionally discarded. Returns NO when
  * the snapshotted client became unavailable, making the capture retryable.
  */
-- (BOOL)isFatalEventCaptureResultTerminal:(SentryId *)eventId client:(SentryClientInternal *)client;
+- (BOOL)isFatalEventCaptureResultTerminal:(SentryId *)eventId
+                                   client:(SENTRY_SWIFT_MIGRATION_ID(SentryClientInternal))client;
 
 #if SENTRY_HAS_UIKIT && !SDK_V10
 - (void)captureFatalAppHangEvent:(SentryEvent *)event;

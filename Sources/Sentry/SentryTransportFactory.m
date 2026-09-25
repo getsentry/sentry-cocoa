@@ -95,4 +95,15 @@ NS_ASSUME_NONNULL_BEGIN
 }
 @end
 
+NSArray *
+sentry_clientCreateTransports(
+    id options, id dateProvider, id fileManager, id rateLimits, id reachability)
+{
+    return [SentryTransportFactory initTransports:options
+                                     dateProvider:dateProvider
+                                sentryFileManager:fileManager
+                                       rateLimits:rateLimits
+                                     reachability:reachability];
+}
+
 NS_ASSUME_NONNULL_END

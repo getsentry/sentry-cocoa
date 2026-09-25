@@ -17,8 +17,6 @@
 
 #import "SentryAppStartMeasurement+Private.h"
 #import "SentryAppStartTrackerHelper.h"
-#import "SentryClient+Private.h"
-#import "SentryClient+TestInit.h"
 #import "SentryCrash+Test.h"
 #import "SentryCrashCachedData.h"
 #import "SentryCrashInstallation+Private.h"

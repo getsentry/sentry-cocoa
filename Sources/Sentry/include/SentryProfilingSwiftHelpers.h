@@ -1,3 +1,4 @@
+#import "SentryDefines.h"
 #import "SentryProfilingConditionals.h"
 #import <Foundation/Foundation.h>
 
@@ -19,9 +20,10 @@ NS_ASSUME_NONNULL_BEGIN
 extern "C" {
 #endif
 
-BOOL sentry_isContinuousProfilingEnabled(SentryClientInternal *client);
-BOOL sentry_isProfilingCorrelatedToTraces(SentryClientInternal *client);
-SentryProfileOptions *_Nullable sentry_getProfiling(SentryClientInternal *client);
+BOOL sentry_isContinuousProfilingEnabled(SENTRY_SWIFT_MIGRATION_ID(SentryClientInternal) client);
+BOOL sentry_isProfilingCorrelatedToTraces(SENTRY_SWIFT_MIGRATION_ID(SentryClientInternal) client);
+SentryProfileOptions *_Nullable sentry_getProfiling(
+    SENTRY_SWIFT_MIGRATION_ID(SentryClientInternal) client);
 NSString *sentry_stringFromSentryID(SentryId *sentryID);
 NSDate *sentry_getDate(void);
 uint64_t sentry_getSystemTime(void);

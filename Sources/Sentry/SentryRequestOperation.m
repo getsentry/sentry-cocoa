@@ -1,5 +1,4 @@
 #import "SentryRequestOperation.h"
-#import "SentryClient.h"
 #import "SentryError.h"
 #import "SentryHub.h"
 #import "SentryInternalDefines.h"
@@ -34,7 +33,9 @@ NS_ASSUME_NONNULL_BEGIN
 
                   // We only have these if's here because of performance reasons
                   SENTRY_LOG_DEBUG(@"Request status: %ld", (long)statusCode);
-                  if ([SentrySDKInternal.currentHub getClient].options.debug == YES) {
+                  if (((SentryClientInternal *)[SentrySDKInternal.currentHub getClient])
+                          .options.debug
+                      == YES) {
                       SENTRY_LOG_DEBUG(@"Request response: %@",
                           data != nil
                               ? [[NSString alloc] initWithData:SENTRY_UNWRAP_NULLABLE(NSData, data)

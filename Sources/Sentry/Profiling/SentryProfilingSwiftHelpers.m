@@ -1,7 +1,6 @@
 #import "SentryProfilingSwiftHelpers.h"
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    import "SentryClient.h"
 #    import "SentryDependencyContainerSwiftHelper.h"
 #    import "SentryHub.h"
 #    import "SentryInternalDefines.h"
@@ -13,20 +12,20 @@
 #    import "SentrySwift.h"
 
 BOOL
-sentry_isContinuousProfilingEnabled(SentryClientInternal *client)
+sentry_isContinuousProfilingEnabled(id client)
 {
-    return [client.options isContinuousProfilingEnabled];
+    return [((SentryClientInternal *)client).options isContinuousProfilingEnabled];
 }
 
 BOOL
-sentry_isProfilingCorrelatedToTraces(SentryClientInternal *client)
+sentry_isProfilingCorrelatedToTraces(id client)
 {
-    return [client.options isProfilingCorrelatedToTraces];
+    return [((SentryClientInternal *)client).options isProfilingCorrelatedToTraces];
 }
 
-SentryProfileOptions *_Nullable sentry_getProfiling(SentryClientInternal *client)
+SentryProfileOptions *_Nullable sentry_getProfiling(id client)
 {
-    return client.options.profiling;
+    return ((SentryClientInternal *)client).options.profiling;
 }
 
 NSString *
@@ -167,7 +166,8 @@ sentry_scheduledTimerWithTarget(
 BOOL
 sentry_appHangsDisabled(void)
 {
-    SentryOptions *options = [[[SentrySDKInternal currentHub] getClient] options];
+    SentryOptions *options
+        = ((SentryClientInternal *)[[SentrySDKInternal currentHub] getClient]).options;
     if (options == nil) {
         return NO;
     }
@@ -177,7 +177,8 @@ sentry_appHangsDisabled(void)
 BOOL
 sentry_autoPerformanceTracingDisabled(void)
 {
-    SentryOptions *options = [[[SentrySDKInternal currentHub] getClient] options];
+    SentryOptions *options
+        = ((SentryClientInternal *)[[SentrySDKInternal currentHub] getClient]).options;
     if (options == nil) {
         return YES;
     }

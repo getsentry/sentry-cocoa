@@ -27033,7 +27033,6 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC16onCrashedLastRunySo0A5EventCcSgvg",
                 "moduleName": "Sentry",
@@ -27095,11 +27094,11 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC16onCrashedLastRunySo0A5EventCcSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
+                "objc_name": "setOnCrashedLastRun:",
                 "printedName": "Set()",
                 "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setOnCrashedLastRun:"
               }
@@ -27149,13 +27148,10 @@
             "declAttributes": [
               "Available",
               "Final",
-              "HasInitialValue",
-              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
             "deprecated": true,
-            "hasStorage": true,
             "kind": "Var",
             "mangledName": "$s6Sentry7OptionsC16onCrashedLastRunySo0A5EventCcSgvp",
             "moduleName": "Sentry",

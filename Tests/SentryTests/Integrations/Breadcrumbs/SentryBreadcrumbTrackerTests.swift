@@ -1,5 +1,5 @@
+@_spi(Private) import SentryTestUtils
 @_spi(Private) @testable import Sentry
-import SentryTestUtils
 import XCTest
 
 final class SentryBreadcrumbTrackerTests: XCTestCase {

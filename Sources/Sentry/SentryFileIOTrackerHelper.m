@@ -1,5 +1,4 @@
 #import "SentryFileIOTrackerHelper.h"
-#import "SentryClient+Private.h"
 #import "SentryFrame.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
@@ -309,7 +308,8 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 
 - (BOOL)ignoreFile:(NSString *)path
 {
-    SentryFileManager *fileManager = [SentrySDKInternal.currentHub getClient].fileManager;
+    SentryFileManager *fileManager
+        = ((SentryClientInternal *)[SentrySDKInternal.currentHub getClient]).fileManager;
     return fileManager.sentryPath != nil && [path hasPrefix:fileManager.sentryPath];
 }
 

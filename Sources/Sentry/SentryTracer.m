@@ -1,4 +1,3 @@
-#import "SentryClient.h"
 #import "SentryEvent+Private.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalCDefines.h"
@@ -404,9 +403,10 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
     if (_traceContext == nil) {
         @synchronized(self) {
             if (_traceContext == nil) {
-                _traceContext = [[SentryTraceContext alloc] initWithTracer:self
-                                                                     scope:_hub.scope
-                                                                   options:_hub.client.options
+                _traceContext = [[SentryTraceContext alloc]
+                    initWithTracer:self
+                             scope:_hub.scope
+                           options:((SentryClientInternal *)_hub.client).options
                         ?: SentrySDKInternal.options]; // We should remove static classes and
                                                        // always inject dependencies.
             }

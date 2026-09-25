@@ -241,7 +241,11 @@
     /// @warning It is not guaranteed that this is called on the main thread.
     /// @note Crash reporting is automatically disabled if a debugger is attached.
     @available(*, deprecated, message: "Use onLastRunStatusDetermined instead, which is called regardless of whether the app crashed.")
-    @objc public var onCrashedLastRun: SentryOnCrashedLastRunCallback?
+    @objc public var onCrashedLastRun: SentryOnCrashedLastRunCallback? {
+        get { _onCrashedLastRun }
+        set { _onCrashedLastRun = newValue }
+    }
+    var _onCrashedLastRun: SentryOnCrashedLastRunCallback?
     #endif
 
     /// A block called shortly after the initialization of the SDK when the crash status of the
