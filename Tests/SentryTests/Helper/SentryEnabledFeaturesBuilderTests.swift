@@ -289,6 +289,32 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         XCTAssertFalse(features.contains("newURLLoaderSwizzling"))
     }
 
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    func testEnableBreadcrumbTextExtraction_whenEnabled_shouldAddFeature() {
+        // -- Arrange --
+        let options = Options()
+        options.experimental.enableBreadcrumbTextExtraction = true
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertTrue(features.contains("breadcrumbTextExtraction"))
+    }
+
+    func testEnableBreadcrumbTextExtraction_whenDisabled_shouldNotAddFeature() {
+        // -- Arrange --
+        let options = Options()
+        options.experimental.enableBreadcrumbTextExtraction = false
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("breadcrumbTextExtraction"))
+    }
+#endif
+
     func testEnableUnhandledCPPExceptionsV2_shouldAddFeature() throws {
         // -- Arrange --
         let options = Options()
