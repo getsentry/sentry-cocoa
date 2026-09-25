@@ -1910,15 +1910,19 @@ xcode: xcode-ci
 .PHONY: switch-v10
 switch-v10:
 	scripts/generate-testapp-v10.sh --product SentrySPM --with Sentry
+	@killall Xcode 2>/dev/null || true
 	SDK_V10=1 xed Sentry.xcworkspace
 
 ## Switch testapp Xcode projects back to default (non-V10) mode
 #
 # Regenerates testapp Xcode projects from the committed XcodeGen YAML,
 # discarding any V10 trait that switch-v10 applied to the projects.
+# Opens the workspace without SDK_V10 so SwiftPM exports SentrySPM.
 .PHONY: switch-v9
 switch-v9:
 	$(MAKE) xcode-ci
+	@killall Xcode 2>/dev/null || true
+	xed Sentry.xcworkspace
 
 ## Generate all testapp Xcode projects
 #

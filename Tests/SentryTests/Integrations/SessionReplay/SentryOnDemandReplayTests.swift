@@ -112,6 +112,23 @@ class SentryOnDemandReplayTests: XCTestCase {
         }
     }
     
+    func testCreateVideoWith_whenCalledOffProcessingQueue_shouldHopToProcessingQueue() {
+        // -- Arrange --
+        let processingQueue = TestSentryDispatchQueueWrapper()
+        let sut = SentryOnDemandReplay(
+            outputPath: outputPath.path,
+            processingQueue: processingQueue,
+            assetWorkerQueue: TestSentryDispatchQueueWrapper()
+        )
+        let start = Date(timeIntervalSinceReferenceDate: 0)
+
+        // -- Act --
+        _ = sut.createVideoWith(beginning: start, end: start.addingTimeInterval(1))
+
+        // -- Assert --
+        XCTAssertEqual(processingQueue.dispatchSyncInvocations.count, 1)
+    }
+
     func testGenerateVideo() throws {
         // -- Arrange --
         let sut = getSut()

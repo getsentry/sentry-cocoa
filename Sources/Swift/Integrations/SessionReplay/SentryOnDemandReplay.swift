@@ -26,6 +26,7 @@ func removeReplayFile(at fileURL: URL) {
 
     private let _outputPath: String
     private var _totalFrames = 0
+    private static let processingQueueKey = DispatchSpecificKey<UInt8>()
     private let processingQueue: SentryDispatchQueueWrapper
     private let assetWorkerQueue: SentryDispatchQueueWrapper
     private var _frames = [SentryReplayFrame]()
@@ -54,6 +55,21 @@ func removeReplayFile(at fileURL: URL) {
         self._outputPath = outputPath
         self.processingQueue = processingQueue
         self.assetWorkerQueue = assetWorkerQueue
+        super.init()
+        // Marks this queue so `createVideoWith` can hop when needed without deadlocking if
+        // it is already running there. AVAssetWriter callbacks run on `assetWorkerQueue`.
+        processingQueue.queue.setSpecific(key: Self.processingQueueKey, value: 1)
+    }
+
+    private func runOnProcessingQueue(_ work: @escaping () -> [SentryVideoInfo]) -> [SentryVideoInfo] {
+        if DispatchQueue.getSpecific(key: Self.processingQueueKey) != nil {
+            return work()
+        }
+        var result: [SentryVideoInfo] = []
+        processingQueue.dispatchSync {
+            result = work()
+        }
+        return result
     }
 
     deinit {
@@ -197,96 +213,96 @@ func removeReplayFile(at fileURL: URL) {
             completion(videos)
         }
     }
-    
+
     // swiftlint:disable:next function_body_length cyclomatic_complexity
     public func createVideoWith(beginning: Date, end: Date) -> [SentryVideoInfo] {
-        SentrySDKLog.debug("[Session Replay] Creating video with beginning: \(beginning), end: \(end)")
+        runOnProcessingQueue { [self] in
+            SentrySDKLog.debug("[Session Replay] Creating video with beginning: \(beginning), end: \(end)")
 
-        // Note: In previous implementations this method was wrapped by a sync call to the processing queue.
-        // As this method is already called from the processing queue, we must remove the sync call.
-        guard end > beginning else { return [] }
+            guard end > beginning else { return [] }
 
-        // Select the frames in the half-open window [beginning, end). When captures were skipped,
-        // hold the last frame captured before the window at the window start so the segment still
-        // begins with the correct screen state.
-        var videoFrames = _frames.filter { $0.time >= beginning && $0.time < end }
-        if let firstFrame = videoFrames.first {
-            if firstFrame.time > beginning {
-                let frameToHold = frameBefore(beginning) ?? firstFrame
-                // Preserve any in-memory image when anchoring a prior frame at the window start.
-                videoFrames.insert(frameToHold.withTime(beginning), at: 0)
-            }
-        } else if let previousFrame = frameBefore(beginning) {
-            videoFrames = [previousFrame.withTime(beginning)]
-        } else {
-            return []
-        }
-
-        var frameCount = 0
-
-        var videos = [SentryVideoInfo]()
-
-        while frameCount < videoFrames.count {
-            let frame = videoFrames[frameCount]
-            let outputFileURL = URL(fileURLWithPath: _outputPath)
-                .appendingPathComponent("\(frame.time.timeIntervalSinceReferenceDate)")
-                .appendingPathExtension("mp4")
-
-            let group = DispatchGroup()
-            var currentError: Error?
-
-            group.enter()
-            let frameProcessor = self.renderVideo(with: videoFrames, fromIndex: frameCount, until: end, at: outputFileURL) { result in
-                switch result {
-                case .success(let videoResult):
-                    // Set the frame count/offset to the new index that is returned by the completion block.
-                    // This is important to avoid processing the same frame multiple times.
-                    frameCount = videoResult.finalFrameIndex
-                    SentrySDKLog.debug("[Session Replay] Finished rendering video, frame count moved to: \(frameCount)")
-
-                    // Append the video info to the videos array.
-                    // In case no video info is returned, skip the segment.
-                    if let videoInfo = videoResult.info {
-                        videos.append(videoInfo)
-                    }
-                case .failure(let error):
-                    SentrySDKLog.error("[Session Replay] Failed to render video with error: \(error)")
-                    currentError = error
+            // Select the frames in the half-open window [beginning, end). When captures were skipped,
+            // hold the last frame captured before the window at the window start so the segment still
+            // begins with the correct screen state.
+            var videoFrames = _frames.filter { $0.time >= beginning && $0.time < end }
+            if let firstFrame = videoFrames.first {
+                if firstFrame.time > beginning {
+                    let frameToHold = frameBefore(beginning) ?? firstFrame
+                    // Preserve any in-memory image when anchoring a prior frame at the window start.
+                    videoFrames.insert(frameToHold.withTime(beginning), at: 0)
                 }
-                group.leave()
+            } else if let previousFrame = frameBefore(beginning) {
+                videoFrames = [previousFrame.withTime(beginning)]
+            } else {
+                return []
             }
 
-            // Calling group.wait will block the `processingQueue` until the video rendering completes or a timeout occurs.
-            // It is imporant that the renderVideo completion block signals the group.
-            // The queue used by render video must have a higher priority than the processing queue to reduce thread inversion.
-            // Otherwise, it could lead to queue starvation and a deadlock/timeout.
-            guard group.wait(timeout: .now() + 10) == .success else {
-                SentrySDKLog.error("[Session Replay] Timeout while waiting for video rendering to finish, returning \(videos.count) videos")
-                // Tear down the stalled writer so AVFoundation releases the media-data-ready
-                // callback. The callback retains the frame processor and its frames (including
-                // in-memory images), which would otherwise stay alive for the process lifetime.
-                // Cancel on the asset worker queue to serialize with any in-flight processing.
-                if let frameProcessor = frameProcessor {
-                    assetWorkerQueue.dispatchAsync {
-                        frameProcessor.cancel()
+            var frameCount = 0
+
+            var videos = [SentryVideoInfo]()
+
+            while frameCount < videoFrames.count {
+                let frame = videoFrames[frameCount]
+                let outputFileURL = URL(fileURLWithPath: _outputPath)
+                    .appendingPathComponent("\(frame.time.timeIntervalSinceReferenceDate)")
+                    .appendingPathExtension("mp4")
+
+                let group = DispatchGroup()
+                var currentError: Error?
+
+                group.enter()
+                let frameProcessor = self.renderVideo(with: videoFrames, fromIndex: frameCount, until: end, at: outputFileURL) { result in
+                    switch result {
+                    case .success(let videoResult):
+                        // Set the frame count/offset to the new index that is returned by the completion block.
+                        // This is important to avoid processing the same frame multiple times.
+                        frameCount = videoResult.finalFrameIndex
+                        SentrySDKLog.debug("[Session Replay] Finished rendering video, frame count moved to: \(frameCount)")
+
+                        // Append the video info to the videos array.
+                        // In case no video info is returned, skip the segment.
+                        if let videoInfo = videoResult.info {
+                            videos.append(videoInfo)
+                        }
+                    case .failure(let error):
+                        SentrySDKLog.error("[Session Replay] Failed to render video with error: \(error)")
+                        currentError = error
                     }
+                    group.leave()
                 }
-                return videos
+
+                // Calling group.wait will block the `processingQueue` until the video rendering completes or a timeout occurs.
+                // It is imporant that the renderVideo completion block signals the group.
+                // The queue used by render video must have a higher priority than the processing queue to reduce thread inversion.
+                // Otherwise, it could lead to queue starvation and a deadlock/timeout.
+                guard group.wait(timeout: .now() + 10) == .success else {
+                    SentrySDKLog.error("[Session Replay] Timeout while waiting for video rendering to finish, returning \(videos.count) videos")
+                    // Tear down the stalled writer so AVFoundation releases the media-data-ready
+                    // callback. The callback retains the frame processor and its frames (including
+                    // in-memory images), which would otherwise stay alive for the process lifetime.
+                    // Cancel on the asset worker queue to serialize with any in-flight processing.
+                    if let frameProcessor = frameProcessor {
+                        assetWorkerQueue.dispatchAsync {
+                            frameProcessor.cancel()
+                        }
+                    }
+                    return videos
+                }
+
+                // If there was an error, log it and exit the loop.
+                if let error = currentError {
+                    // Until v8.50.2 the error was propagated to the completion block, discarding any generated video.
+                    // Instead this will "silently" fail by only logging the error and returning the successfully generated videos.
+                    SentrySDKLog.error("[Session Replay] Error while rendering video: \(error), returning \(videos.count) videos")
+                    return videos
+                }
+
+                SentrySDKLog.debug("[Session Replay] Finished rendering video, frame count moved to: \(frameCount)")
             }
 
-            // If there was an error, log it and exit the loop.
-            if let error = currentError {
-                // Until v8.50.2 the error was propagated to the completion block, discarding any generated video.
-                // Instead this will "silently" fail by only logging the error and returning the successfully generated videos.
-                SentrySDKLog.error("[Session Replay] Error while rendering video: \(error), returning \(videos.count) videos")
-                return videos
-            }
-
-            SentrySDKLog.debug("[Session Replay] Finished rendering video, frame count moved to: \(frameCount)")
+            SentrySDKLog.debug("[Session Replay] Finished creating video with \(videos.count) segments")
+            return videos
         }
-
-        SentrySDKLog.debug("[Session Replay] Finished creating video with \(videos.count) segments")
-        return videos
     }
 
     private func frameBefore(_ date: Date) -> SentryReplayFrame? {
