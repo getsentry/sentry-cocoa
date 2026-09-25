@@ -2,6 +2,10 @@
 
 ## 9.29.1
 
+### Features
+
+- Add mask-aware label capture for interaction breadcrumbs. (#9011)
+
 ### Fixes
 
 - Add experimental support for the new URLSession HTTP loader for automatic network instrumentation, preserving original request details in Session Replay after redirects. Opt in with `options.experimental.enableNewURLLoaderSwizzling = true` (disabled by default) (#8845)
