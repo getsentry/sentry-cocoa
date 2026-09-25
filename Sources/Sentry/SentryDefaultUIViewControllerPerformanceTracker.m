@@ -6,7 +6,6 @@
 #    import "SentryAppStartMeasurementProvider.h"
 #    import "SentryHub.h"
 #    import "SentryLogC.h"
-#    import "SentryPerformanceTracker.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySpanId.h"
 #    import "SentrySpanOperation.h"
@@ -89,7 +88,7 @@
 
 @implementation SentryDefaultUIViewControllerPerformanceTracker
 
-- (instancetype)initWithTracker:(SentryPerformanceTracker *)tracker
+- (instancetype)initWithTracker:(SENTRY_SWIFT_MIGRATION_ID(SentryPerformanceTracker))tracker
 {
     if (self = [super init]) {
         self.tracker = tracker;
