@@ -1889,6 +1889,17 @@ validate-xcframework-symbols:
 	@echo "--> Validating XCFramework symbol consistency"
 	./scripts/validate-xcframework-symbols.sh --xcframework "$(XCFRAMEWORK)"
 
+## Validate Objective-C category layout in static XCFrameworks
+#
+# Rejects category-bearing archive members without a co-located type definition.
+#
+# Usage:
+#   make validate-xcframework-objc-categories XCFRAMEWORK=Sentry.xcframework
+.PHONY: validate-xcframework-objc-categories
+validate-xcframework-objc-categories:
+	@echo "--> Validating XCFramework Objective-C categories"
+	./scripts/validate-xcframework-objc-categories.sh --xcframework "$(XCFRAMEWORK)"
+
 # ============================================================================
 # XCODE PROJECT GENERATION
 # ============================================================================

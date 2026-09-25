@@ -776,6 +776,7 @@ run_3rd_party_integrations_tests_for_prs: &run_3rd_party_integrations_tests_for_
   - "scripts/ci-diagnostics.sh"
   - "scripts/prepare-package.sh"
   - "scripts/build-xcframework-variant.sh"
+  - "scripts/validate-xcframework*.sh"
 
   # Project files
   - "Package*.swift"
