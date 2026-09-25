@@ -21,14 +21,15 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
             "strictTraceContinuation", // Docs PR: https://github.com/getsentry/sentry-docs/pull/16983
             "orgId", // Docs PR: https://github.com/getsentry/sentry-docs/pull/16983
             "effectiveOrgId", // @_spi(Private) - internal computed property, not a user-facing option
-            "enableMetrics", // Promoted to GA in https://github.com/getsentry/sentry-cocoa/pull/7843; docs update pending
             "beforeSendMetric", // Promoted to GA in https://github.com/getsentry/sentry-cocoa/pull/7843; docs update pending
             "maxFeatureFlags", // Docs update pending
+            "enableUnhandledCPPExceptionsV2", // Promoted from experimental options; docs update pending
             "beforeSendWithHint", // Deprecated in favor of adding hint to beforeSend in v10
             "beforeBreadcrumbWithHint" // Deprecated in favor of adding hint to beforeBreadcrumb in v10
         ]
 
         #if !SDK_V10
+        options.insert("enableMetrics") // Promoted to GA in https://github.com/getsentry/sentry-cocoa/pull/7843; docs update pending
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         options.insert("enableReportNonFullyBlockingAppHangsValue") // Internal backing for deprecated enableReportNonFullyBlockingAppHangs
         #endif

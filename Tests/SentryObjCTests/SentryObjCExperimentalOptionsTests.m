@@ -19,6 +19,9 @@
 
 #pragma mark - enableUnhandledCPPExceptionsV2
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
 - (void)testEnableUnhandledCPPExceptionsV2_whenDefault_shouldBeFalse
 {
     // -- Arrange --
@@ -52,6 +55,26 @@
     // -- Assert --
     XCTAssertFalse(options.enableUnhandledCPPExceptionsV2);
 }
+
+- (void)testEnableUnhandledCPPExceptionsV2_whenChanged_shouldShareValueWithTopLevelOption
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    options.experimental.enableUnhandledCPPExceptionsV2 = YES;
+
+    // -- Assert --
+    XCTAssertTrue(options.enableUnhandledCPPExceptionsV2);
+
+    // -- Act --
+    options.enableUnhandledCPPExceptionsV2 = NO;
+
+    // -- Assert --
+    XCTAssertFalse(options.experimental.enableUnhandledCPPExceptionsV2);
+}
+
+#pragma clang diagnostic pop
 
 #pragma mark - enableNewURLLoaderSwizzling
 

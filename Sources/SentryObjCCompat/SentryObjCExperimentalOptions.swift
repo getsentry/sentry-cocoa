@@ -17,6 +17,7 @@ import Foundation
         self.wrapped = SentryExperimentalOptions()
     }
 
+    @available(*, deprecated, renamed: "SentryObjCOptions.enableUnhandledCPPExceptionsV2")
     @objc public var enableUnhandledCPPExceptionsV2: Bool {
         get { wrapped.enableUnhandledCPPExceptionsV2 }
         set { wrapped.enableUnhandledCPPExceptionsV2 = newValue }

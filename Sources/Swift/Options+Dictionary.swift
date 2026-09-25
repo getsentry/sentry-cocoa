@@ -61,6 +61,10 @@ extension Options {
             self.enableCrashHandler = enableCrashHandler
         }
 
+        if let enableUnhandledCPPExceptionsV2 = boolValue(dictionary["enableUnhandledCPPExceptionsV2"]) {
+            self.enableUnhandledCPPExceptionsV2 = enableUnhandledCPPExceptionsV2
+        }
+
         #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
         if let enableUncaughtNSExceptionReporting = boolValue(dictionary["enableUncaughtNSExceptionReporting"]) {
             self.enableUncaughtNSExceptionReporting = enableUncaughtNSExceptionReporting
@@ -89,9 +93,11 @@ extension Options {
         }
         #endif // !SDK_V10
 
+        #if !SDK_V10
         if let enableMetrics = boolValue(dictionary["enableMetrics"]) {
             self.enableMetrics = enableMetrics
         }
+        #endif // !SDK_V10
 
         if let enableNetworkBreadcrumbs = boolValue(dictionary["enableNetworkBreadcrumbs"]) {
             self.enableNetworkBreadcrumbs = enableNetworkBreadcrumbs
@@ -235,6 +241,10 @@ extension Options {
 
         if let enableFileIOTracing = boolValue(dictionary["enableFileIOTracing"]) {
             self.enableFileIOTracing = enableFileIOTracing
+        }
+
+        if let enableFileManagerSwizzling = boolValue(dictionary["enableFileManagerSwizzling"]) {
+            self.enableFileManagerSwizzling = enableFileManagerSwizzling
         }
 
         if let tracesSampleRate = dictionary["tracesSampleRate"] as? NSNumber {
