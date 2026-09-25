@@ -26,12 +26,25 @@ expect_violation() {
     local name="$1"
     local file="$TMP/${name}.swift"
     cat >"$file"
-    if run_lint "$file" >/dev/null 2>&1; then
+    local output
+    output="$(run_lint "$file" 2>&1)" && {
         echo "FAIL $name: expected a standalone_objc_extension violation" >&2
         failures=$((failures + 1))
-    else
-        echo "OK   $name (violation)"
+        return
+    }
+    if ! grep -q "standalone_objc_extension" <<<"$output"; then
+        echo "FAIL $name: missing standalone_objc_extension in output" >&2
+        echo "$output" >&2
+        failures=$((failures + 1))
+        return
     fi
+    if ! grep -q "Triggering code:" <<<"$output"; then
+        echo "FAIL $name: missing triggering code in output" >&2
+        echo "$output" >&2
+        failures=$((failures + 1))
+        return
+    fi
+    echo "OK   $name (violation)"
 }
 
 expect_clean() {

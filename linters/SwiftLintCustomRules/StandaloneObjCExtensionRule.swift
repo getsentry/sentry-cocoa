@@ -145,7 +145,17 @@ private extension StandaloneObjCExtensionRule {
                 ) else {
                     continue
                 }
-                violations.append(ext.positionAfterSkippingLeadingTrivia)
+                violations.append(
+                    ReasonedRuleViolation(
+                        position: ext.positionAfterSkippingLeadingTrivia,
+                        reason: """
+                            An @objc extension (or an extension with @objc members) in a file with no \
+                            class, struct, enum, or actor is stripped from static builds\n\n\
+                            Triggering code:\n\
+                            \(ext.triggerSnippet)
+                            """
+                    )
+                )
             }
 
             return .skipChildren
@@ -193,6 +203,13 @@ private func flatten(_ members: MemberBlockItemListSyntax) -> [DeclSyntax] {
 }
 
 private extension ExtensionDeclSyntax {
+    var triggerSnippet: String {
+        let lines = trimmedDescription.split(separator: "\n", omittingEmptySubsequences: false)
+            .prefix(12)
+            .map(String.init)
+        return lines.joined(separator: "\n")
+    }
+
     func isObjCCategory(protocolNames: Set<String>, objcProtocolNames: Set<String>) -> Bool {
         if let name = extendedType.simpleName, protocolNames.contains(name) {
             return false
