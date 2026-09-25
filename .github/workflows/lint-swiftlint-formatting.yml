@@ -50,6 +50,27 @@ jobs:
         uses: ./.github/actions/ci-diagnostics
         if: failure()
 
+  check-objc-extensions:
+    name: Check ObjC Extensions
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_lint_swiftlint_for_prs == 'true'
+    needs: files-changed
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: bazel-contrib/setup-bazel@c5acdfb288317d0b5c0bbd7a396a3dc868bb0f86 # v0.19.0
+        with:
+          bazelisk-cache: true
+          disk-cache: ${{ github.workflow }}
+          repository-cache: true
+      - name: Test SwiftLint extra rules
+        run: make test-swiftlint-custom-rules
+      - name: Check standalone @objc extensions
+        run: make check-objc-standalone-extensions
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
+        if: failure()
+
   # This check validates that either lint passed or was skipped, which allows us
   # to make lint-swiftlint a required check with only running the lint when required.
   # So, we don't have to run lint-swiftlint, for example, for unrelated changes.
@@ -58,6 +79,7 @@ jobs:
       [
         files-changed,
         lint,
+        check-objc-extensions,
       ]
     name: Lint SwiftLint
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped

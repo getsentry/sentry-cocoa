@@ -1666,15 +1666,31 @@ check-objc-banned-patterns:
 		--rule avoid_all_header_fields --pattern 'all(HTTP)?HeaderFields' \
 		--message "$(AVOID_ALL_HEADER_FIELDS_MSG)"
 
+## Check Swift files for @objc extensions that would be stripped from static builds
+#
+# Builds SwiftLint with extra rules via Bazel (linters/SwiftLintCustomRules).
+# Requires bazelisk; the first run compiles SwiftLint and is slow.
+.PHONY: check-objc-standalone-extensions
+check-objc-standalone-extensions:
+	./linters/SwiftLintCustomRules/run.sh
+
+## Test Bazel-built SwiftLint extra rules
+#
+# Runs fixture cases for standalone_objc_extension.
+.PHONY: test-swiftlint-custom-rules
+test-swiftlint-custom-rules:
+	./linters/SwiftLintCustomRules/test.sh
+
 ## Run linting checks on all files
 #
-# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, Objective-C banned-pattern checks, changelog checks, actionlint, and dprint checks without modifying files.
+# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, Objective-C banned-pattern checks, standalone @objc extension checks, changelog checks, actionlint, and dprint checks without modifying files.
 .PHONY: lint
 lint:
 	@echo "--> Running Swiftlint and Clang-Format"
 	./scripts/check-clang-format.py -r Sources Tests
 	"$(MAKE)" check-objc-id-usage
 	"$(MAKE)" check-objc-banned-patterns
+	"$(MAKE)" check-objc-standalone-extensions
 	swiftlint --strict --quiet
 	dprint check "**/*.{md,json,yaml,yml}"
 	"$(MAKE)" check-changelog
@@ -1682,7 +1698,7 @@ lint:
 
 ## Run linting checks on staged files only
 #
-# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, Objective-C banned-pattern checks, changelog checks, and dprint checks on staged files only.
+# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, Objective-C banned-pattern checks, standalone @objc extension checks, changelog checks, and dprint checks on staged files only.
 .PHONY: lint-staged
 lint-staged:
 	@echo "--> Running Swiftlint, dprint, and Clang-Format on staged files"
@@ -1700,6 +1716,7 @@ lint-staged:
 		done; \
 	fi
 	@if [ -n "$(STAGED_SWIFT_FILES)" ]; then \
+		./linters/SwiftLintCustomRules/run.sh $(STAGED_SWIFT_FILES) || exit 1; \
 		swiftlint --strict --quiet $(STAGED_SWIFT_FILES); \
 	fi
 	@if [ -n "$(STAGED_DPRINT_FILES)" ]; then \

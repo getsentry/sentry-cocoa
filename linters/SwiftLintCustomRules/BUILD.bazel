@@ -1,0 +1,8 @@
+filegroup(
+    name = "extra_rules",
+    srcs = [
+        "ExtraRules.swift",
+        "StandaloneObjCExtensionRule.swift",
+    ],
+    visibility = ["//visibility:public"],
+)

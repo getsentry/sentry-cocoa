@@ -1,6 +1,13 @@
 import Foundation
 import ObjectiveC
 
+// This is needed because a file that only contains an @objc extension will get automatically stripped out
+// in static builds. We need to either use the -all_load linker flag (which has downsides of app size increases)
+// or make sure that every file containing objc categories/extensions also have a concrete type that
+// is referenced.
+// swiftlint:disable:next missing_docs
+@_spi(Private) @objc public final class PlaceholderOptionsDictionaryClass: NSObject { }
+
 extension Options {
     /// Initializes options from a dictionary, primarily for hybrid SDK configuration.
     @_spi(Private) public convenience init(dictionary: [String: Any]) throws {
