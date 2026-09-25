@@ -20,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryHubInternal : NSObject
 SENTRY_NO_INIT
 
-- (instancetype)initWithClient:(SentryClientInternal *_Nullable)client
+- (instancetype)initWithClient:(SENTRY_SWIFT_MIGRATION_ID(SentryClientInternal)_Nullable)client
                       andScope:(SentryScope *_Nullable)scope;
 
 /**
@@ -239,7 +239,7 @@ SENTRY_NO_INIT
 /**
  * Returns a client if there is a bound client on the Hub.
  */
-- (SentryClientInternal *_Nullable)getClient;
+- (SENTRY_SWIFT_MIGRATION_ID(SentryClientInternal)_Nullable)getClient NS_REFINED_FOR_SWIFT;
 
 /**
  * Returns either the current scope or a new one if it was @c nil .
@@ -249,7 +249,7 @@ SENTRY_NO_INIT
 /**
  * Binds a different client to the hub.
  */
-- (void)bindClient:(SentryClientInternal *_Nullable)client;
+- (void)bindClient:(SENTRY_SWIFT_MIGRATION_ID(SentryClientInternal)_Nullable)client;
 
 /**
  * Checks if integration is activated.

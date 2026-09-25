@@ -2,9 +2,10 @@
 // the Public headers directory.
 #import "SentryProfilingConditionals.h"
 
+#import <Foundation/Foundation.h>
+
 // Sentry internal headers that are needed for swift code; you cannot import headers that depend on
 // public interfaces here
-#import "SentryClient+Private.h"
 #import "SentryCrashAsync.h"
 #if !SDK_V10
 #    import "SentryCrashBinaryImageCache.h"
@@ -60,6 +61,7 @@
 #import "SentryCrashReportSink.h"
 #import "SentryCrashScopeObserver.h"
 #import "SentryDateUtils.h"
+#import "SentryDefaultTelemetryProcessorTransport.h"
 #import "SentryDefaultThreadInspector.h"
 #import "SentryDefaultUIViewControllerPerformanceTracker.h"
 #import "SentryDelayedFramesTracker.h"
@@ -93,6 +95,7 @@
 #import "SentryTracePropagation.h"
 #import "SentryTransaction+Private.h"
 #import "SentryTransactionContext+Private.h"
+#import "SentryTransportFactory.h"
 #import "SentryUIViewControllerSwizzlingHelper.h"
 #import "SentryUncaughtNSExceptions.h"
 #import "SentryUser+Private.h"

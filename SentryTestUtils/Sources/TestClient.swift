@@ -9,9 +9,9 @@ import SentryTestUtilsObjC
 import XCTest
 
 /// `open` because subclassed in test targets, e.g. to override `getTelemetryProcessor()`.
-open class TestClient: SentryTestClientWrapper {
+@_spi(Private) open class TestClient: SentryClientInternal {
 
-    public override init?(options: NSObject) {
+    public convenience init?(options: NSObject) {
         guard let options = options as? Options else {
             XCTFail("TestClient.init: Expected Options, got \(type(of: options))")
             return nil
@@ -29,7 +29,7 @@ open class TestClient: SentryTestClientWrapper {
             return nil
         }
 
-        super.init(
+        self.init(
             options: options,
             dateProvider: TestCurrentDateProvider(),
             transportAdapter: TestTransportAdapter(transports: [TestTransport()], options: options),
@@ -45,72 +45,10 @@ open class TestClient: SentryTestClientWrapper {
         )
     }
 
-    // Without this override we get a fatal error: use of unimplemented initializer
-    // see https://stackoverflow.com/questions/28187261/ios-swift-fatal-error-use-of-unimplemented-initializer-init
-    public override init(
-        options: NSObject,
-        dateProvider: Any,
-        transportAdapter: Any,
-        fileManager: Any,
-        threadInspector: Any,
-        debugImageProvider: Any,
-        random: Any,
-        locale: Locale,
-        timezone: TimeZone,
-        eventContextEnricher: Any,
-        binaryImageCache: Any,
-        dispatchQueueWrapper: Any
-    ) {
-        super.init(
-            options: options,
-            dateProvider: dateProvider,
-            transportAdapter: transportAdapter,
-            fileManager: fileManager,
-            threadInspector: threadInspector,
-            debugImageProvider: debugImageProvider,
-            random: random,
-            locale: locale,
-            timezone: timezone,
-            eventContextEnricher: eventContextEnricher,
-            binaryImageCache: binaryImageCache,
-            dispatchQueueWrapper: dispatchQueueWrapper
-        )
-    }
-
-    @_spi(Private) @nonobjc public convenience init(
-        options: NSObject,
-        dateProvider: SentryCurrentDateProvider,
-        transportAdapter: SentryTransportAdapter,
-        fileManager: SentryFileManager,
-        threadInspector: SentryDefaultThreadInspector,
-        debugImageProvider: SentryDebugImageProvider,
-        random: SentryRandomProtocol,
-        locale: Locale,
-        timezone: TimeZone,
-        eventContextEnricher: SentryEventContextEnricher,
-        binaryImageCache: SentryBinaryImageCache,
-        dispatchQueueWrapper: SentryDispatchQueueWrapper
-    ) {
-        self.init(
-            options: options,
-            dateProvider: dateProvider as Any,
-            transportAdapter: transportAdapter as Any,
-            fileManager: fileManager as Any,
-            threadInspector: threadInspector as Any,
-            debugImageProvider: debugImageProvider as Any,
-            random: random as Any,
-            locale: locale,
-            timezone: timezone,
-            eventContextEnricher: eventContextEnricher as Any,
-            binaryImageCache: binaryImageCache as Any,
-            dispatchQueueWrapper: dispatchQueueWrapper as Any
-        )
-    }
-    
     @_spi(Private)
     public var captureSessionInvocations = Invocations<SentrySession>()
     @_spi(Private)
-    public override func wrapper_capture(session: Any) {
+    public func wrapper_capture(session: Any) {
         guard let session = session as? SentrySession else {
             XCTFail("TestClient.wrapper_capture(session:): Expected SentrySession, got \(type(of: session))")
             return
@@ -125,7 +63,7 @@ open class TestClient: SentryTestClientWrapper {
     }
     
     @_spi(Private) public var captureEventWithScopeInvocations = Invocations<(event: Event, scope: Scope, additionalEnvelopeItems: [SentryEnvelopeItem])>()
-    public override func wrapper_capture(event: Event, scope: Scope, additionalEnvelopeItems: [Any]) -> SentryId {
+    public func wrapper_capture(event: Event, scope: Scope, additionalEnvelopeItems: [Any]) -> SentryId {
         guard let additionalEnvelopeItems = additionalEnvelopeItems as? [SentryEnvelopeItem] else {
             XCTFail("TestClient.wrapper_capture: Expected [SentryEnvelopeItem], got \(additionalEnvelopeItems.map { type(of: $0) })")
             return event.eventId
@@ -217,7 +155,7 @@ open class TestClient: SentryTestClientWrapper {
     @_spi(Private)
     public var captureFatalEventWithSessionInvocations = Invocations<(event: Event, session: SentrySession, scope: Scope)>()
     @_spi(Private)
-    public override func wrapper_captureFatalEvent(_ event: Event, session: Any, scope: Scope) -> SentryId {
+    public func wrapper_captureFatalEvent(_ event: Event, session: Any, scope: Scope) -> SentryId {
         guard let session = session as? SentrySession else {
             XCTFail("TestClient.wrapper_captureFatalEvent: Expected SentrySession, got \(type(of: session))")
             return event.eventId
@@ -232,7 +170,7 @@ open class TestClient: SentryTestClientWrapper {
     }
     
     public var captureFeedbackInvocations = Invocations<(SentryFeedback, Scope)>()
-    public override func wrapper_capture(feedback: Any, scope: Scope) {
+    public func wrapper_capture(feedback: Any, scope: Scope) {
         guard let feedback = feedback as? SentryFeedback else {
             XCTFail("TestClient.wrapper_capture(feedback:scope:): Expected SentryFeedback, got \(type(of: feedback))")
             return
@@ -246,7 +184,7 @@ open class TestClient: SentryTestClientWrapper {
     }
     
     @_spi(Private) public var captureEnvelopeInvocations = Invocations<SentryEnvelope>()
-    @_spi(Private) public override func wrapper_capture(envelope: Any) {
+    @_spi(Private) public func wrapper_capture(envelope: Any) {
         guard let envelope = envelope as? SentryEnvelope else {
             XCTFail("TestClient.wrapper_capture(envelope:): Expected SentryEnvelope, got \(type(of: envelope))")
             return
@@ -255,7 +193,7 @@ open class TestClient: SentryTestClientWrapper {
     }
     
     @_spi(Private) public var storedEnvelopeInvocations = Invocations<SentryEnvelope>()
-    @_spi(Private) public override func wrapper_store(envelope: Any) {
+    @_spi(Private) public func wrapper_store(envelope: Any) {
         guard let envelope = envelope as? SentryEnvelope else {
             XCTFail("TestClient.wrapper_store: Expected SentryEnvelope, got \(type(of: envelope))")
             return
@@ -264,7 +202,7 @@ open class TestClient: SentryTestClientWrapper {
     }
     
     @_spi(Private) public var recordLostEvents = Invocations<(category: SentryDataCategory, reason: SentryDiscardReason)>()
-    public override func wrapper_recordLostEvent(_ category: UInt, reason: UInt) {
+    public func wrapper_recordLostEvent(_ category: UInt, reason: UInt) {
         guard let category = SentryDataCategory(rawValue: category),
               let reason = SentryDiscardReason(rawValue: reason) else {
             XCTFail("TestClient.wrapper_recordLostEvent: Invalid category \(category) or reason \(reason)")
@@ -274,7 +212,7 @@ open class TestClient: SentryTestClientWrapper {
     }
 
     @_spi(Private) public var recordLostEventsWithQauntity = Invocations<(category: SentryDataCategory, reason: SentryDiscardReason, quantity: UInt)>()
-    public override func wrapper_recordLostEvent(_ category: UInt, reason: UInt, quantity: UInt) {
+    public func wrapper_recordLostEvent(_ category: UInt, reason: UInt, quantity: UInt) {
         guard let category = SentryDataCategory(rawValue: category),
               let reason = SentryDiscardReason(rawValue: reason) else {
             XCTFail("TestClient.wrapper_recordLostEvent(_:reason:quantity:): Invalid category \(category) or reason \(reason)")
@@ -294,4 +232,36 @@ open class TestClient: SentryTestClientWrapper {
             captureLogInvocations.record((castLog, scope))
         }
     }
+    public override func capture(session: SentrySession) {
+        wrapper_capture(session: session)
+    }
+
+    public override func capture(event: Event, scope: Scope, additionalEnvelopeItems: [SentryEnvelopeItem]) -> SentryId {
+        wrapper_capture(event: event, scope: scope, additionalEnvelopeItems: additionalEnvelopeItems)
+    }
+
+    public override func captureFatalEvent(_ event: Event, with session: SentrySession, with scope: Scope) -> SentryId {
+        wrapper_captureFatalEvent(event, session: session, scope: scope)
+    }
+
+    public override func capture(feedback: SentryFeedback, scope: Scope) {
+        wrapper_capture(feedback: feedback, scope: scope)
+    }
+
+    public override func captureEnvelope(_ envelope: SentryEnvelope) {
+        wrapper_capture(envelope: envelope)
+    }
+
+    public override func store(_ envelope: SentryEnvelope) {
+        wrapper_store(envelope: envelope)
+    }
+
+    public override func recordLostEvent(_ category: SentryDataCategory, reason: SentryDiscardReason) {
+        wrapper_recordLostEvent(category.rawValue, reason: reason.rawValue)
+    }
+
+    public override func recordLostEvent(_ category: SentryDataCategory, reason: SentryDiscardReason, quantity: UInt) {
+        wrapper_recordLostEvent(category.rawValue, reason: reason.rawValue, quantity: quantity)
+    }
+
 }

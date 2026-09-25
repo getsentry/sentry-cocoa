@@ -1,7 +1,7 @@
+#import "SentrySwift.h"
 @import XCTest;
 @import Sentry;
 @import SentryTestUtilsDynamic;
-#import "SentryClient.h"
 #import "SentryProfilingSwiftHelpers.h"
 
 @interface SentryProfilingSwiftHelpersTests : XCTestCase

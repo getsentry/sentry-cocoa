@@ -302,3 +302,14 @@ import Foundation
     }
     #endif
 }
+
+// The Objective-C hub cannot import the Swift client declaration in its own module.
+extension SentryHubInternal {
+    func getClient() -> SentryClientInternal? {
+        __getClient() as? SentryClientInternal
+    }
+
+    func client() -> SentryClientInternal? {
+        __client() as? SentryClientInternal
+    }
+}

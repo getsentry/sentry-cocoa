@@ -1,3 +1,4 @@
+#import "SentryDefines.h"
 #import <Foundation/Foundation.h>
 
 @import _SentryPrivate;
@@ -10,7 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface SentryTestHubWrapper : SentryHubInternal
 
-- (instancetype)initWithClient:(SentryClientInternal *_Nullable)client
+- (instancetype)initWithClient:(SENTRY_SWIFT_MIGRATION_ID(SentryClientInternal)_Nullable)client
                       andScope:(SentryScope *_Nullable)scope;
 
 - (SentryId *)wrapper_captureEvent:(SentryEvent *)event

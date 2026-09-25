@@ -1,4 +1,4 @@
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 @class SentryFileManager;
 @class SentryOptions;
@@ -19,5 +19,12 @@ NS_SWIFT_NAME(TransportInitializer)
                                     reachability:(SentryReachability *)reachability;
 
 @end
+
+// Swift cannot see this factory's Swift-defined parameter types through the ObjC module.
+NSArray *sentry_clientCreateTransports(SENTRY_SWIFT_MIGRATION_ID(SentryOptions) options,
+    SENTRY_SWIFT_MIGRATION_ID(id<SentryCurrentDateProvider>) dateProvider,
+    SENTRY_SWIFT_MIGRATION_ID(SentryFileManager) fileManager,
+    SENTRY_SWIFT_MIGRATION_ID(id<SentryRateLimits>) rateLimits,
+    SENTRY_SWIFT_MIGRATION_ID(SentryReachability) reachability);
 
 NS_ASSUME_NONNULL_END

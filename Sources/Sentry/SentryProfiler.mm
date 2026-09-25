@@ -1,7 +1,6 @@
 #import "SentryProfiler+Private.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-#    import "SentryClient+Private.h"
 #    import "SentryContinuousProfiler.h"
 #    import "SentryDependencyContainerSwiftHelper.h"
 #    import "SentryFileManagerHelper.h"

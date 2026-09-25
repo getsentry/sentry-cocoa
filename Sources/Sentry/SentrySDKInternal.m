@@ -1,7 +1,6 @@
 #import "SentrySDKInternal.h"
 #import "SentryAppStartMeasurement.h"
 #import "SentryBreadcrumb.h"
-#import "SentryClient+Private.h"
 #import "SentryCrash.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
@@ -637,7 +636,8 @@ static BOOL sdkStarted;
         // Gatekeeper
         return;
     }
-    SentryOptions *options = [SentrySDKInternal.currentHub getClient].options;
+    SentryOptions *options
+        = ((SentryClientInternal *)[SentrySDKInternal.currentHub getClient]).options;
 
     [SentrySwiftIntegrationInstaller installWith:options];
 }
@@ -739,7 +739,7 @@ static BOOL sdkStarted;
     @synchronized(currentHubLock) {
         localCurrentHub = currentHub;
     }
-    SentryOptions *options = localCurrentHub.client.options;
+    SentryOptions *options = ((SentryClientInternal *)localCurrentHub.client).options;
     if (options == nil) {
         SENTRY_LOG_WARN(@"Cannot start profiling when options are nil.");
         return;
@@ -800,7 +800,7 @@ static BOOL sdkStarted;
     @synchronized(currentHubLock) {
         localCurrentHub = currentHub;
     }
-    SentryOptions *options = localCurrentHub.client.options;
+    SentryOptions *options = ((SentryClientInternal *)localCurrentHub.client).options;
     if (options == nil) {
         SENTRY_LOG_WARN(@"Cannot stop profiling when options are nil.");
         return;

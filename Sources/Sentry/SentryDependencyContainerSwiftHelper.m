@@ -1,5 +1,4 @@
 #import "SentryDependencyContainerSwiftHelper.h"
-#import "SentryClient+Private.h"
 #import "SentryHub+Private.h"
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"
@@ -85,7 +84,7 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 + (BOOL)hasProfilingOptions
 {
-    return SentrySDKInternal.currentHub.client.options.profiling != nil;
+    return ((SentryClientInternal *)SentrySDKInternal.currentHub.client).options.profiling != nil;
 }
 #endif
 

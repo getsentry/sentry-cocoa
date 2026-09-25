@@ -64,7 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable instancetype)initWithTracer:(SentryTracer *)tracer
                                   scope:(nullable SentryScope *)scope
-                                options:(SentryOptions *)options;
+                                options:(SENTRY_SWIFT_MIGRATION_ID(SentryOptions))options;
 
 /**
  * Initializes a SentryTraceContext with data from a traceId, options and replayId.
@@ -74,7 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  @param replayId The current session replay.
  */
 - (instancetype)initWithTraceId:(SentryId *)traceId
-                        options:(SentryOptions *)options
+                        options:(SENTRY_SWIFT_MIGRATION_ID(SentryOptions))options
                        replayId:(nullable NSString *)replayId;
 
 @end

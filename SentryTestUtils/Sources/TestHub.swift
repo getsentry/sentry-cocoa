@@ -10,7 +10,7 @@ import XCTest
 
 public class TestHub: SentryTestHubWrapper {
 
-    public convenience init(testClient: TestClient?, scope: Scope?) {
+    @_spi(Private) public convenience init(testClient: TestClient?, scope: Scope?) {
         self.init(client: testClient, andScope: scope)
     }
 

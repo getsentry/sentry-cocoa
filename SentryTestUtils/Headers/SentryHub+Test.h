@@ -11,12 +11,12 @@ NS_ASSUME_NONNULL_BEGIN
 /** Expose the internal test init for testing. */
 @interface SentryHubInternal ()
 
-- (instancetype)initWithClient:(SentryClientInternal *_Nullable)client
+- (instancetype)initWithClient:(SENTRY_SWIFT_MIGRATION_ID(SentryClientInternal)_Nullable)client
                       andScope:(SentryScope *_Nullable)scope
       activeCrashReporterState:(id<SentryCrashReporterState>)activeCrashReporterState
               andDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue;
 
-- (instancetype)initWithClient:(SentryClientInternal *_Nullable)client
+- (instancetype)initWithClient:(SENTRY_SWIFT_MIGRATION_ID(SentryClientInternal)_Nullable)client
                       andScope:(SentryScope *_Nullable)scope
       activeCrashReporterState:(id<SentryCrashReporterState>)activeCrashReporterState
           scopeContextEnricher:(id<SentryScopeContextEnricher>)scopeContextEnricher

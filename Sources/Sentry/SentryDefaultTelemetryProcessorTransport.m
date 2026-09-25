@@ -3,7 +3,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryDefaultTelemetryProcessorTransport ()
+@interface SentryDefaultTelemetryProcessorTransport () <SentryTelemetryProcessorTransport>
 
 @property (nonatomic, strong) SentryTransportAdapter *transportAdapter;
 

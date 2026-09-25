@@ -1,12 +1,12 @@
 #import "SentryBreadcrumb+Private.h"
 #import "SentryBreadcrumb.h"
-#import "SentryClient.h"
 #import "SentryDateUtils.h"
 #import "SentryEvent.h"
 #import "SentryHub.h"
 #import "SentryMessage.h"
 #import "SentryOptions+Tests.h"
 #import "SentrySDK+Private.h"
+#import "SentrySwift.h"
 #import <XCTest/XCTest.h>
 @import Sentry;
 
