@@ -1196,10 +1196,75 @@ final class SentryClientTests: XCTestCase {
 
         eventId.assertIsNotEmpty()
 
-        let event = try lastSentEventWithAttachment()
+        let event = try lastSentEvent()
         XCTAssertEqual(fixture.event.eventId, event.eventId)
         XCTAssertEqual(fixture.event.message, event.message)
         XCTAssertNil(event.tags, "Tags from scope must not be applied to crash events.")
+    }
+
+    func testCaptureFatalEvent_whenScopeHasAttachments_shouldNotSendScopeAttachments() throws {
+        // -- Arrange --
+        let scope = fixture.scope
+
+        // -- Act --
+        let eventId = fixture.getSut().captureFatalEvent(fixture.event, with: scope)
+
+        // -- Assert --
+        eventId.assertIsNotEmpty()
+        let arguments = try XCTUnwrap(fixture.transportAdapter.sendEventWithTraceStateInvocations.last)
+        XCTAssertEqual(arguments.attachments, [], "Scope attachments belong to the current app run and must not be applied to fatal events from a previous run.")
+    }
+
+    func testCaptureFatalEventWithSession_whenScopeHasAttachments_shouldNotSendScopeAttachments() throws {
+        // -- Arrange --
+        let scope = fixture.scope
+
+        // -- Act --
+        let eventId = fixture.getSut().captureFatalEvent(fixture.event, with: fixture.session, with: scope)
+
+        // -- Assert --
+        eventId.assertIsNotEmpty()
+        let arguments = try XCTUnwrap(fixture.transportAdapter.sentEventsWithSessionTraceState.last)
+        XCTAssertEqual(arguments.attachments, [], "Scope attachments belong to the current app run and must not be applied to fatal events from a previous run.")
+    }
+
+    func testCaptureFatalEvent_whenScopeHasCrashReportAttachment_shouldSendOnlyCrashReportAttachment() throws {
+        // -- Arrange --
+        let scope = fixture.scope
+        let tempFile = FileManager.default.temporaryDirectory.appendingPathComponent("crash-screenshot.png")
+        try Data("data".utf8).write(to: tempFile)
+        scope.addCrashReportAttachment(inPath: tempFile.path)
+
+        // -- Act --
+        let eventId = fixture.getSut().captureFatalEvent(fixture.event, with: scope)
+
+        // -- Assert --
+        eventId.assertIsNotEmpty()
+        let arguments = try XCTUnwrap(fixture.transportAdapter.sendEventWithTraceStateInvocations.last)
+        XCTAssertEqual(arguments.attachments.count, 1)
+        XCTAssertEqual(arguments.attachments.first?.filename, "crash-screenshot.png")
+        XCTAssertEqual(arguments.attachments.first?.path, tempFile.path)
+    }
+
+    @available(*, deprecated, message: "Testing deprecated beforeSendWithHint API")
+    func testCaptureFatalEvent_whenBeforeSendWithHintAddsAttachment_shouldSendHintAttachment() throws {
+        // -- Arrange --
+        let scope = fixture.scope
+        let hintAttachment = Attachment(data: Data("hint".utf8), filename: "hint.txt")
+        let sut = fixture.getSut(configureOptions: { options in
+            options.beforeSendWithHint = { event, hint in
+                hint.attachments.append(hintAttachment)
+                return event
+            }
+        })
+
+        // -- Act --
+        let eventId = sut.captureFatalEvent(fixture.event, with: scope)
+
+        // -- Assert --
+        eventId.assertIsNotEmpty()
+        let arguments = try XCTUnwrap(fixture.transportAdapter.sendEventWithTraceStateInvocations.last)
+        XCTAssertEqual(arguments.attachments, [hintAttachment])
     }
 
 #if os(iOS) || os(tvOS) || os(visionOS)
@@ -1225,7 +1290,7 @@ final class SentryClientTests: XCTestCase {
         _ = fixture.getSut().captureFatalEvent(oomEvent, with: fixture.scope)
 
         // Assert
-        let event = try lastSentEventWithAttachment()
+        let event = try lastSentEvent()
         XCTAssertEqual(oomEvent.eventId, event.eventId)
 
         let deviceContext = try XCTUnwrap(event.context?["device"] as? [String: Any])
@@ -1305,7 +1370,7 @@ final class SentryClientTests: XCTestCase {
 
         fixture.getSut().captureFatalEvent(event, with: fixture.scope)
 
-        let actual = try lastSentEventWithAttachment()
+        let actual = try lastSentEvent()
         XCTAssertNil(actual.threads)
         XCTAssertNil(actual.debugMeta)
     }
@@ -1320,7 +1385,7 @@ final class SentryClientTests: XCTestCase {
         fixture.getSut().captureFatalEvent(event, with: fixture.scope)
 
         // Assert
-        let actual = try lastSentEventWithAttachment()
+        let actual = try lastSentEvent()
         XCTAssertEqual(actual.context?.count, 1)
         XCTAssertEqual(actual.context?["my"] as? [String: String], expectedMyContext)
     }
@@ -3323,10 +3388,12 @@ final class SentryClientTests: XCTestCase {
 
         scope.addCrashReportAttachment(inPath: tempFile.path)
 
-        XCTAssertEqual(scope.attachments.count, 1)
-        XCTAssertEqual(scope.attachments.first?.filename, "view-hierarchy.json")
-        XCTAssertEqual(scope.attachments.first?.contentType, "application/json")
-        XCTAssertEqual(scope.attachments.first?.attachmentType, .viewHierarchy)
+        XCTAssertEqual(scope.attachments.count, 0)
+        XCTAssertEqual(scope.crashReportAttachments.count, 1)
+        let attachment = try XCTUnwrap(scope.crashReportAttachments.first)
+        XCTAssertEqual(attachment.filename, "view-hierarchy.json")
+        XCTAssertEqual(attachment.contentType, "application/json")
+        XCTAssertEqual(attachment.attachmentType, .viewHierarchy)
     }
 
     func testCaptureEvent_withAdditionalEnvelopeItem() throws {

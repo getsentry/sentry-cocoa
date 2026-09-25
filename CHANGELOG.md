@@ -4,6 +4,7 @@
 
 ### Fixes
 
+- Stop sending scope attachments with crashes and other fatal events captured from a previous app run, because those attachments belong to the current run. Use `beforeSendWithHint` to attach files to fatal events (#9153)
 - Prevent an `isMetricKitEvent` unrecognized selector crash when statically linking the SDK without `-ObjC`, including when MetricKit is disabled (#9155)
 
 ## 9.29.1

@@ -120,7 +120,8 @@ class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
         let report = ["attachments": ["file.png"]]
         fixture.sut.filterReports([report]) { _, _, _ in
             self.assertFatalEventWithScope { _, scope in
-                XCTAssertEqual(scope?.attachments.count, 1)
+                XCTAssertEqual(scope?.attachments.count, 0)
+                XCTAssertEqual(scope?.crashReportAttachments.count, 1)
             }
         }
     }
