@@ -1002,6 +1002,21 @@ build-testapp-iOS-Swift:
 		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
 		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
 
+# Static consumer tests require an already-built Sentry XCFramework, not the source package.
+STATIC_SDK_DERIVED_DATA ?= $(CURDIR)/XCFrameworkBuildPath/StaticConsumerDerivedData
+
+## Build the static SDK consumer testapp
+#
+# Uses the Sentry binary package product. CI patches it to the current build artifact.
+.PHONY: build-testapp-iOS-Swift-Static-NoObjC
+build-testapp-iOS-Swift-Static-NoObjC: xcode-ci-iOS-Swift-Static-NoObjC
+	set -o pipefail && xcodebuild build \
+		-workspace Sentry.xcworkspace \
+		-scheme iOS-Swift-Static-NoObjC -configuration Release \
+		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
+		-derivedDataPath "$(STATIC_SDK_DERIVED_DATA)" \
+		CODE_SIGNING_ALLOWED=NO 2>&1 | tee raw-static-sdk-build-output.log | xcbeautify --preserve-unbeautified
+
 ## Build the iOS-Swift6 test app
 #
 # Builds the iOS-Swift6 test app for the iOS Simulator.
@@ -1519,6 +1534,19 @@ test-testapp-iOS-Swift-ui: xcode-ci-iOS-Swift
 		CODE_SIGNING_ALLOWED="NO" \
 		'ARCHS=$$(ARCHS_STANDARD)' 2>&1 | xcbeautify --preserve-unbeautified
 
+## Run the static SDK consumer UI tests
+#
+# Exercises the release static binary without -ObjC or source-package dependencies.
+.PHONY: test-testapp-iOS-Swift-Static-NoObjC-ui
+test-testapp-iOS-Swift-Static-NoObjC-ui: xcode-ci-iOS-Swift-Static-NoObjC
+	set -o pipefail && xcodebuild test \
+		-workspace Sentry.xcworkspace \
+		-scheme iOS-Swift-Static-NoObjC -configuration Test \
+		-testPlan iOS-Swift-Static-NoObjC_Base \
+		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
+		-derivedDataPath "$(STATIC_SDK_DERIVED_DATA)" \
+		CODE_SIGNING_ALLOWED=NO 2>&1 | tee raw-static-sdk-test-output.log | xcbeautify --preserve-unbeautified
+
 ## Run iOS-SwiftUI testapp UI tests
 #
 # Generates the iOS-SwiftUI project and runs its UI tests.
@@ -1909,6 +1937,7 @@ xcode-ci: xcode-ci-SPM \
 	xcode-ci-iOS-ObjectiveC-Static \
 	xcode-ci-iOS-ObjectiveCpp-NoModules \
 	xcode-ci-iOS-Swift \
+	xcode-ci-iOS-Swift-Static-NoObjC \
 	xcode-ci-iOS-Swift6 \
 	xcode-ci-iOS-SwiftUI \
 	xcode-ci-iOS-SwiftUI-SPM \
@@ -1951,6 +1980,10 @@ xcode-ci-iOS-ObjectiveCpp-NoModules:
 .PHONY: xcode-ci-iOS-Swift
 xcode-ci-iOS-Swift:
 	xcodegen --spec TestApps/iOS-Swift/iOS-Swift.yml
+
+.PHONY: xcode-ci-iOS-Swift-Static-NoObjC
+xcode-ci-iOS-Swift-Static-NoObjC:
+	xcodegen --spec TestApps/iOS-Swift-Static-NoObjC/iOS-Swift-Static-NoObjC.yml
 
 .PHONY: xcode-ci-iOS-Swift6
 xcode-ci-iOS-Swift6:

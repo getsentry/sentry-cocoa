@@ -1,0 +1,23 @@
+{
+  "configurations": [
+    {
+      "id": "645360DF-0879-4CE1-91D3-07AC6D915455",
+      "name": "Static consumer",
+      "options": {}
+    }
+  ],
+  "defaultOptions": {
+    "codeCoverage": false,
+    "uiTestingScreenshotsLifetime": "keepNever"
+  },
+  "testTargets": [
+    {
+      "target": {
+        "containerPath": "container:iOS-Swift-Static-NoObjC.xcodeproj",
+        "identifier": "DFE825FA3E1034AD3F88AF17",
+        "name": "iOS-Swift-Static-NoObjC-UITests"
+      }
+    }
+  ],
+  "version": 1
+}

@@ -1,0 +1,157 @@
+# yaml-language-server: $schema=../../schema/xcodegen.schema.json
+
+name: iOS-Swift-Static-NoObjC
+include:
+  - ../Shared/feature-flags.yml
+createIntermediateGroups: true
+generateEmptyDirectories: true
+configs:
+  Debug: debug
+  Test: debug
+  TestCI: debug
+  Release: release
+packages:
+  Sentry:
+    path: ../..
+options:
+  bundleIdPrefix: io.sentry.sample
+targets:
+  iOS-Swift-Static-NoObjC:
+    type: application
+    platform: iOS
+    sources:
+      # Sources
+      - path: App/Sources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+          - "**/Info.plist"
+      # Resources
+      - path: App/Resources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/TestAppAssets.xcassets
+        group: App/Resources
+      # Configurations
+      - path: App/Configurations
+        type: group
+        group: App
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/Config
+        type: group
+        group: App/Configurations
+        buildPhase: none
+      - path: iOS-Swift-Static-NoObjC.yml
+        group: App/Configurations
+        buildPhase: none
+    dependencies:
+      # Select the precompiled binary, not the SentrySPM source product or shared sample helpers.
+      - package: Sentry
+        product: Sentry
+    configFiles:
+      Debug: App/Configurations/iOS-Swift-Static-NoObjC.xcconfig
+      Test: App/Configurations/iOS-Swift-Static-NoObjC.xcconfig
+      TestCI: App/Configurations/iOS-Swift-Static-NoObjC.xcconfig
+      Release: App/Configurations/iOS-Swift-Static-NoObjC.xcconfig
+    postBuildScripts:
+      - script: INFOPLIST_FILE="${TARGET_BUILD_DIR}/${INFOPLIST_PATH}" ../Shared/inject-git-info.sh
+        name: Inject Git Information into Info.plist
+        basedOnDependencyAnalysis: false
+      - script: |
+          # This script is responsible for uploading debug symbols and source context for Sentry.
+          if [[ "$(uname -m)" == arm64 ]]; then
+            export PATH="/opt/homebrew/bin:$PATH"
+          fi
+
+          if which sentry-cli >/dev/null; then
+            export SENTRY_ORG=sentry-sdks
+            export SENTRY_PROJECT=sentry-cocoa
+            ERROR=$(sentry-cli debug-files upload --include-sources "$DWARF_DSYM_FOLDER_PATH" 2>&1 >/dev/null)
+            if [ ! $? -eq 0 ]; then
+              echo "info: sentry-cli - $ERROR"
+            fi
+          else
+            echo "info: sentry-cli not installed, download from https://github.com/getsentry/sentry-cli/releases"
+          fi
+        name: Upload Debug Symbols to Sentry
+        inputFiles:
+          - ${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}
+    entitlements:
+      path: App/Configurations/iOS-Swift.entitlements
+      properties:
+        aps-environment: development
+        com.apple.developer.siri: true
+        com.apple.security.app-sandbox: true
+        com.apple.security.network.client: true
+    info:
+      path: App/Configurations/Info.plist
+      properties:
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        GIT_BRANCH: <branch>
+        GIT_COMMIT_HASH: <sha>
+        GIT_STATUS_CLEAN: <status>
+        ITSAppUsesNonExemptEncryption: false
+        LSRequiresIPhoneOS: true
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+          UISceneConfigurations:
+            UIWindowSceneSessionRoleApplication:
+              - UISceneConfigurationName: Default Configuration
+                UISceneDelegateClassName: $(PRODUCT_MODULE_NAME).SceneDelegate
+                UISceneStoryboardFile: Main
+        UILaunchStoryboardName: LaunchScreen
+        UIMainStoryboardFile: Main
+  iOS-Swift-Static-NoObjC-UITests:
+    type: bundle.ui-testing
+    platform: auto
+    sources:
+      # Sources
+      - path: UITests/Sources
+        type: group
+        group: UITests
+        excludes:
+          - "**/.gitkeep"
+      # Resources
+      - path: UITests/Resources
+        type: group
+        group: UITests
+        excludes:
+          - "**/.gitkeep"
+      # Configurations
+      - path: ../../Plans/iOS-Swift-Static-NoObjC_Base.xctestplan
+        group: UITests/Configurations
+        buildPhase: none
+      - path: UITests/Configurations
+        type: group
+        group: UITests
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/Config
+        type: group
+        group: App/Configurations
+        buildPhase: none
+    configFiles:
+      Debug: UITests/Configurations/iOS-Swift-Static-NoObjC-UITests.xcconfig
+      Test: UITests/Configurations/iOS-Swift-Static-NoObjC-UITests.xcconfig
+      TestCI: UITests/Configurations/iOS-Swift-Static-NoObjC-UITests.xcconfig
+      Release: UITests/Configurations/iOS-Swift-Static-NoObjC-UITests.xcconfig
+    info:
+      path: UITests/Configurations/Info.plist
+      properties: {}
+schemes:
+  iOS-Swift-Static-NoObjC:
+    build:
+      targets:
+        iOS-Swift-Static-NoObjC: all
+        iOS-Swift-Static-NoObjC-UITests: test
+    test:
+      config: Test
+      testPlans:
+        - path: ../../Plans/iOS-Swift-Static-NoObjC_Base.xctestplan
