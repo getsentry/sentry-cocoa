@@ -89,12 +89,24 @@ assemble-sentryobjc-dynamic-xcframework (single job, depends on all slices)
 
 5. **Dynamic XCFramework assembly.** `xcodebuild -create-xcframework` takes the per-SDK `.framework` bundles to produce `SentryObjC-Dynamic.xcframework`.
 
+## V10 builds
+
+`scripts/build-xcframework-sentryobjc.sh --v10` builds the V10 SDK for local debugging of downstream SDKs. It is not a release artifact and has no CI job.
+
+- Exports `SDK_V10=1` so `Package.swift` adds the KSCrash dependency and the V10 defines. The KSCrash objects land in the archive products and are merged into `libSentryObjC.a`
+- Copies the public headers through `unifdef -DSDK_V10=1` so the packaged headers match the binary. Consumers such as bindings generators do not define `SDK_V10`
+- Writes to the same `SentryObjC-Static.xcframework` and `SentryObjC-Dynamic.xcframework` paths as a V9 build so downstream build scripts pick it up unchanged
+
+> [!WARNING]
+> The dynamic framework exports the embedded KSCrash symbols. They are an implementation detail without packaged headers. Downstream SDKs must not link against them or add a second copy of KSCrash.
+
 ## Makefile targets
 
 | Target                                          | Description                                                              |
 | ----------------------------------------------- | ------------------------------------------------------------------------ |
 | `build-xcframework-sentryobjc-static SDKS=...`  | Build static xcframework via SPM pipeline                                |
 | `build-xcframework-sentryobjc-dynamic SDKS=...` | Build dynamic xcframework (static slices → re-link as dylibs → assemble) |
+| `build-xcframework-sentryobjc-v10 SDKS=...`     | Build static and dynamic V10 (KSCrash) xcframeworks for local debugging  |
 
 ## Relationship to the generic pipeline
 

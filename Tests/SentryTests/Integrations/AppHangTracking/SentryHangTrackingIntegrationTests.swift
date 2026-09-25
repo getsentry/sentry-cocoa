@@ -349,21 +349,40 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
 #endif // os(iOS) || os(tvOS)
 
     func testDealloc_CallsUninstall() throws {
-        givenInitializedTracker()
-        
-        // // So ARC deallocates the SentryANRTrackingIntegration
-        func initIntegration() {
-            self.fixture.sysctl.internalIsBeingTraced = false
-            let _ = hangTracker(with: self.options)
+        // -- Arrange --
+        let threadWrapper = SentryTestThreadWrapper()
+        let sleepStarted = expectation(description: "Watchdog started")
+        let resumeSleep = DispatchSemaphore(value: 0)
+        let didSleep = SentryMutex(false)
+        threadWrapper.blockWhenSleeping = {
+            let firstSleep = didSleep.withLock { didSleep in
+                defer { didSleep = true }
+                return !didSleep
+            }
+            if firstSleep {
+                sleepStarted.fulfill()
+                resumeSleep.wait()
+            }
         }
-        
-        initIntegration()
-        
-        let tracker = SentryDependencyContainer.sharedInstance().getANRTracker(self.options.appHangTimeoutInterval)
-        
-        let listeners = try XCTUnwrap(Dynamic(tracker.helper).listeners.asObject as? NSHashTable<NSObject>)
-        
-        XCTAssertEqual(1, listeners.count)
+        SentryDependencyContainer.sharedInstance().threadWrapper = threadWrapper
+        givenInitializedTracker()
+        let tracker = try XCTUnwrap(sut?.tracker)
+        defer {
+            tracker.clear()
+            resumeSleep.signal()
+        }
+        wait(for: [sleepStarted], timeout: 5)
+        weak var releasedIntegration: SentryHangTrackingIntegration<SentryDependencyContainer>?
+        releasedIntegration = sut
+
+        // -- Act --
+        sut = nil
+        resumeSleep.signal()
+
+        // -- Assert --
+        XCTAssertNil(releasedIntegration)
+        wait(for: [threadWrapper.threadFinishedExpectation], timeout: 5)
+        XCTAssertTrue(threadWrapper.threads.isEmpty)
     }
     
 #if os(iOS) || os(tvOS)

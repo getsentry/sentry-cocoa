@@ -418,10 +418,15 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (void)saveCrashTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope
 {
+    // Populate the hint so beforeSendTransaction sees the same attachments as for regular
+    // transactions. Attachments are only informational here because storeEvent doesn't send them.
+    SentryHint *hint = [[SentryHint alloc] init];
+    [self populateHintAttachments:hint scope:scope isFatalEvent:NO];
     SentryEvent *preparedEvent = [self prepareEvent:transaction
                                           withScope:scope
                              alwaysAttachStacktrace:NO
-                                       isFatalEvent:NO];
+                                       isFatalEvent:NO
+                                               hint:hint];
 
     if (preparedEvent == nil) {
         return;
@@ -1131,7 +1136,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 #if SDK_V10
     if (eventIsATransactionClass && event != nil) {
         if (self.options.beforeSendTransaction != nil) {
-            event = self.options.beforeSendTransaction((SentryTransaction *)event);
+            event = self.options.beforeSendTransaction((SentryTransaction *)event, hint);
         }
         if (event == nil) {
             [self recordLost:NO reason:SentryDiscardReasonBeforeSend];

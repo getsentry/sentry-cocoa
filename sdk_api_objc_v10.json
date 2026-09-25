@@ -1098,7 +1098,7 @@
     "kind": "ObjCMethodDecl",
     "name": "beforeSendTransaction",
     "parent": "SentryObjCOptions",
-    "returnType": "SentryObjCTransaction * _Nullable (^ _Nullable)(SentryObjCTransaction * _Nonnull)",
+    "returnType": "SentryObjCTransaction * _Nullable (^ _Nullable)(SentryObjCTransaction * _Nonnull, SentryObjCHint * _Nonnull)",
     "instance": true
   },
   {
@@ -9256,7 +9256,7 @@
     "kind": "ObjCPropertyDecl",
     "name": "beforeSendTransaction",
     "parent": "SentryObjCOptions",
-    "type": "SentryObjCTransaction * _Nullable (^ _Nullable)(SentryObjCTransaction * _Nonnull)"
+    "type": "SentryObjCTransaction * _Nullable (^ _Nullable)(SentryObjCTransaction * _Nonnull, SentryObjCHint * _Nonnull)"
   },
   {
     "kind": "ObjCPropertyDecl",
