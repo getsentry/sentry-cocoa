@@ -3182,9 +3182,10 @@ final class SentryClientTests: XCTestCase {
 
         XCTAssertEqual(scope.attachments.count, 0)
         XCTAssertEqual(scope.crashReportAttachments.count, 1)
-        XCTAssertEqual(scope.crashReportAttachments.first?.filename, "view-hierarchy.json")
-        XCTAssertEqual(scope.crashReportAttachments.first?.contentType, "application/json")
-        XCTAssertEqual(scope.crashReportAttachments.first?.attachmentType, .viewHierarchy)
+        let attachment = try XCTUnwrap(scope.crashReportAttachments.first)
+        XCTAssertEqual(attachment.filename, "view-hierarchy.json")
+        XCTAssertEqual(attachment.contentType, "application/json")
+        XCTAssertEqual(attachment.attachmentType, .viewHierarchy)
     }
 
     func testCaptureEvent_withAdditionalEnvelopeItem() throws {
