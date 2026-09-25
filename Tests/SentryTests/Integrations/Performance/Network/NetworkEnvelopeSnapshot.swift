@@ -25,11 +25,14 @@ import XCTest
 struct NetworkEnvelopeSnapshot {
     /// Paths that may be missing from the envelope without failing the comparison.
     ///
-    /// Only for values whose presence legitimately differs per platform. Everything else must be
-    /// present, even if its value is a placeholder. Differences between the v9 and V10 payloads
+    /// Only for values whose presence legitimately differs per platform or that the SDK reports on
+    /// a best-effort basis. Everything else must be present, even if its value is a placeholder. Differences between the v9 and V10 payloads
     /// belong in the separate `-v10` snapshot instead, so both variants stay strictly compared.
     private static let optionalPaths: Set<String> = {
-        var paths = Set<String>()
+        // The connection type is only known once the SDK's connectivity monitoring reported a
+        // network path. These tests replace the transport that registers the monitoring, so the
+        // value can be gone by the time the envelope is captured.
+        var paths = Set<String>(["$.items[0].payload.contexts.device.connection_type"])
 #if os(macOS)
         paths.formUnion([
             "$.items[0].payload.contexts.app.in_foreground",

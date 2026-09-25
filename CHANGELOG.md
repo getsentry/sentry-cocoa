@@ -2,6 +2,10 @@
 
 ## 9.29.1
 
+### Features
+
+- Add `connection_type` to the device context of events, which reports `wifi`, `ethernet`, `cellular`, or `none`. On iOS, cellular connections additionally report the network technology in `connection_effective_type`, for example `4g` or `5g` (#9097)
+
 ### Fixes
 
 - Add experimental support for the new URLSession HTTP loader for automatic network instrumentation, preserving original request details in Session Replay after redirects. Opt in with `options.experimental.enableNewURLLoaderSwizzling = true` (disabled by default) (#8845)

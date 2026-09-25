@@ -10,17 +10,20 @@ final class SentryExtraContextProviderTests: XCTestCase {
         let deviceWrapper = TestSentryUIDeviceWrapper()
 #endif // os(iOS)
         let processWrapper = MockSentryProcessInfo()
-        
+        var reachability = SentryReachability()
+
         func getSut() -> SentryExtraContextProvider {
             #if os(iOS)
             return SentryExtraContextProvider(
                     memoryMetricsProvider: memoryMetricsProvider,
                     processInfoWrapper: processWrapper,
-                    deviceWrapper: deviceWrapper)
+                    deviceWrapper: deviceWrapper,
+                    reachability: reachability)
             #else
             return SentryExtraContextProvider(
                     memoryMetricsProvider: memoryMetricsProvider,
-                    processInfoWrapper: processWrapper)
+                    processInfoWrapper: processWrapper,
+                    reachability: reachability)
             #endif // os(iOS)
 
         }
@@ -89,6 +92,64 @@ final class SentryExtraContextProviderTests: XCTestCase {
 
         XCTAssertTrue(try XCTUnwrap(device["low_power_mode"] as? Bool))
     }
+
+    func testConnectionType_whenReachabilityIsNotMonitoring_shouldNotBeSet() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+
+        // -- Act --
+        let actualContext = sut.getExtraContext()
+
+        // -- Assert --
+        let device = try XCTUnwrap(actualContext["device"] as? [String: Any])
+        XCTAssertNil(device["connection_type"])
+    }
+
+    func testConnectionType_whenReachabilityKnowsTheConnection_shouldBeSet() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        fixture.reachability.skipRegisteringActualCallbacks = true
+        fixture.reachability.setReachabilityIgnoreActualCallback(true)
+        let observer = TestSentryReachabilityObserver()
+        fixture.reachability.add(observer)
+        fixture.reachability.triggerConnectivityCallback(.wiFi)
+
+        // -- Act --
+        let actualContext = sut.getExtraContext()
+
+        // -- Assert --
+        let device = try XCTUnwrap(actualContext["device"] as? [String: Any])
+        XCTAssertEqual(try XCTUnwrap(device["connection_type"] as? String), "wifi")
+        // Only cellular connections have a network technology.
+        XCTAssertNil(device["connection_effective_type"])
+
+        fixture.reachability.removeAllObservers()
+    }
+
+#if os(iOS) && !targetEnvironment(macCatalyst)
+    func testConnectionEffectiveType_whenOnCellularWithKnownTechnology_shouldBeSet() throws {
+        // -- Arrange --
+        let technologyProvider = TestSentryCellularNetworkTechnologyProvider()
+        technologyProvider.currentTechnology = .fifthGeneration
+        fixture.reachability = SentryReachability(cellularNetworkTechnologyProvider: technologyProvider)
+        let sut = fixture.getSut()
+        fixture.reachability.skipRegisteringActualCallbacks = true
+        fixture.reachability.setReachabilityIgnoreActualCallback(true)
+        let observer = TestSentryReachabilityObserver()
+        fixture.reachability.add(observer)
+        fixture.reachability.triggerConnectivityCallback(.cellular)
+
+        // -- Act --
+        let actualContext = sut.getExtraContext()
+
+        // -- Assert --
+        let device = try XCTUnwrap(actualContext["device"] as? [String: Any])
+        XCTAssertEqual(try XCTUnwrap(device["connection_type"] as? String), "cellular")
+        XCTAssertEqual(try XCTUnwrap(device["connection_effective_type"] as? String), "5g")
+
+        fixture.reachability.removeAllObservers()
+    }
+#endif // os(iOS) && !targetEnvironment(macCatalyst)
 
     func testLowPowerModeDisabled() throws {
         let sut = fixture.getSut()
