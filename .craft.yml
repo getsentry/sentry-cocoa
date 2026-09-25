@@ -1,6 +1,15 @@
-minVersion: 0.23.1
+minVersion: 2.21.3
 changelogPolicy: auto
 preReleaseCommand: bash ./scripts/bump.sh
+# Craft looks up artifacts on the workflow runs of the release commit. The
+# 'Upload XCFrameworks' workflow re-uploads the XCFrameworks built in the
+# 'Release' workflow on every push to a release branch so the artifact is
+# associated with the release commit. See release-upload-xcframework.yml.
+artifactProvider:
+  name: github
+  config:
+    artifacts:
+      Upload XCFrameworks: xcframeworks
 targets:
   - name: github
     excludeNames: /\.tgz$/
