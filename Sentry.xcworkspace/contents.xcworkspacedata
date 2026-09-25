@@ -50,6 +50,9 @@
          location = "group:TestApps/iOS-Swift/iOS-Swift.xcodeproj">
       </FileRef>
       <FileRef
+         location = "group:TestApps/iOS-Swift-Static-NoObjC/iOS-Swift-Static-NoObjC.xcodeproj">
+      </FileRef>
+      <FileRef
          location = "group:TestApps/iOS-Swift6/iOS-Swift6.xcodeproj">
       </FileRef>
       <FileRef

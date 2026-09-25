@@ -40,6 +40,11 @@ on:
         required: false
         default: false
         type: boolean
+      use_binary_package:
+        description: "Patch the package to consume the downloaded static XCFramework."
+        required: false
+        default: false
+        type: boolean
       test-destination-os:
         description: "Test destination OS"
         required: false
@@ -142,10 +147,14 @@ jobs:
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: xcframework-${{github.sha}}-sentry-static
-          path: XCFrameworkBuildPath/
+          path: ${{ inputs.use_binary_package && '.' || 'XCFrameworkBuildPath/' }}
+
+      - name: Prepare binary package
+        if: ${{ inputs.use_binary_package }}
+        run: ./scripts/prepare-package.sh --remove-duplicate true --change-path true
 
       - name: Unzip XCFramework
-        if: ${{ inputs.needs_xcframework }}
+        if: ${{ inputs.needs_xcframework && !inputs.use_binary_package }}
         run: |
           unzip -o XCFrameworkBuildPath/Sentry.xcframework.zip -d XCFrameworkBuildPath/
 

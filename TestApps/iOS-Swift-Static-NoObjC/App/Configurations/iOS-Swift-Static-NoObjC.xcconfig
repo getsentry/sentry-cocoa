@@ -1,0 +1,9 @@
+#include "../../../Shared/Config/_Common.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.iOS-Swift-Static-NoObjC
+SUPPORTED_PLATFORMS = iphoneos iphonesimulator
+IPHONEOS_DEPLOYMENT_TARGET = 15.0
+
+// Deliberately exercise ordinary static consumers without category-loading workarounds.
+OTHER_LDFLAGS = -lc++
+DEAD_CODE_STRIPPING = YES

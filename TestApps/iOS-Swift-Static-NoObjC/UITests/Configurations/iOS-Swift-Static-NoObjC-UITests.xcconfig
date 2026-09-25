@@ -1,0 +1,6 @@
+#include "../../../Shared/Config/_Common.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.iOS-Swift-Static-NoObjC-UITests
+SUPPORTED_PLATFORMS = iphoneos iphonesimulator
+IPHONEOS_DEPLOYMENT_TARGET = 15.0
+TEST_TARGET_NAME = iOS-Swift-Static-NoObjC

@@ -142,6 +142,40 @@ jobs:
       platform: iOS
       files_suffix: _swift6_
 
+  build-static-consumer-sdk:
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_for_prs == 'true'
+    needs: files-changed
+    name: Build Static SDK
+    uses: ./.github/workflows/build-xcframework-variant-slices.yml
+    with:
+      name: Sentry
+      macho-type: staticlib
+      variant-id: sentry-static
+      sdk-list: '["iphonesimulator"]'
+
+  assemble-static-consumer-sdk:
+    needs: build-static-consumer-sdk
+    name: Assemble Static SDK
+    uses: ./.github/workflows/assemble-xcframework-variant.yml
+    with:
+      scheme: Sentry
+      variant-id: sentry-static
+      sdks: iphonesimulator
+
+  ui-tests-swift-static-no-objc:
+    needs: assemble-static-consumer-sdk
+    name: Test Static Swift
+    uses: ./.github/workflows/ui-tests-common.yml
+    with:
+      fastlane_command: ui_tests_ios_swift_static_no_objc
+      xcode_version: "16"
+      build_with_make: true
+      needs_xcframework: true
+      use_binary_package: true
+      macos_version: sequoia
+      platform: iOS
+      files_suffix: _swift_static_no_objc_
+
   ui-tests-macos-swift:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_for_prs == 'true'
     needs: files-changed
@@ -172,6 +206,9 @@ jobs:
         ui-tests-swift-ui,
         ui-tests-swift,
         ui-tests-swift6,
+        build-static-consumer-sdk,
+        assemble-static-consumer-sdk,
+        ui-tests-swift-static-no-objc,
         ui-tests-macos-swift,
         run-full-ci-gate,
       ]

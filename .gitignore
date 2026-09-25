@@ -88,6 +88,7 @@ TestApps/iOS-ObjectiveC-Dynamic/iOS-ObjectiveC-Dynamic.xcodeproj
 TestApps/iOS-ObjectiveC-Static/iOS-ObjectiveC-Static.xcodeproj
 TestApps/iOS-ObjectiveCpp-NoModules/iOS-ObjectiveCpp-NoModules.xcodeproj
 TestApps/iOS-Swift/iOS-Swift.xcodeproj
+TestApps/iOS-Swift-Static-NoObjC/iOS-Swift-Static-NoObjC.xcodeproj
 TestApps/iOS-Swift6/iOS-Swift6.xcodeproj
 TestApps/iOS-SwiftUI-SPM/iOS-SwiftUI-SPM.xcodeproj
 TestApps/iOS-SwiftUI-Widgets/iOS-SwiftUI-Widgets.xcodeproj

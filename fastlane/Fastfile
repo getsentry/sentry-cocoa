@@ -313,6 +313,15 @@ platform :ios do
     )
   end
 
+  lane :ui_tests_ios_swift_static_no_objc do |options|
+    run_ui_tests(
+      scheme: "iOS-Swift-Static-NoObjC",
+      result_bundle_name: "ui_tests_ios_swift_static_no_objc",
+      device: options[:device],
+      app_identifier: "io.sentry.sample.iOS-Swift-Static-NoObjC"
+    )
+  end
+
   lane :ui_tests_ios_objc do |options|
     run_ui_tests(
       scheme: "iOS-ObjectiveC",
