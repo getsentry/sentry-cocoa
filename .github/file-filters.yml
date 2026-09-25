@@ -715,6 +715,9 @@ run_lint_swiftlint_for_prs: &run_lint_swiftlint_for_prs
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
 
+  # Custom SwiftLint extra rules (Bazel)
+  - "linters/SwiftLintCustomRules/**"
+
   # Project files
   - "Sentry.xcodeproj/**"
 

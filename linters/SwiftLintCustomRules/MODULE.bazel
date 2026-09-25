@@ -1,0 +1,10 @@
+module(
+    name = "sentry_cocoa_swiftlint_custom_rules",
+    version = "0.0.0",
+)
+
+# Keep this in sync with scripts/.swiftlint-version and Homebrew SwiftLint.
+bazel_dep(name = "swiftlint", version = "0.65.1", repo_name = "SwiftLint")
+
+extra_rules = use_extension("@SwiftLint//bazel:extensions.bzl", "extra_rules")
+extra_rules.setup(srcs = "//:extra_rules")
