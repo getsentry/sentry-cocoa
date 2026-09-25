@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Session Replay: Always encode crash-recovery video on the replay processing queue, including when startup-crash report processing runs on the SDK init thread
+- Session Replay: Always encode crash-recovery video on the replay processing queue, including when startup-crash report processing runs on the SDK init thread (#9158)
 
 ## 9.29.1
 
