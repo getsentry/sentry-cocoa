@@ -8,7 +8,7 @@
 
 ## 9.29.1
 
-> [!IMPORTANT]
+> [!CAUTION]
 > **Known issue:** This release can crash apps statically linking the SDK without `-ObjC` with `-[SentryEvent isMetricKitEvent]: unrecognized selector`, even when MetricKit is disabled. Add `-ObjC` to the app target's linker flags, preserving `$(inherited)`, or pin to **9.29.0** until a fix is released. See [#9154](https://github.com/getsentry/sentry-cocoa/issues/9154).
 
 ### Fixes
