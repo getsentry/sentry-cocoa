@@ -3,6 +3,7 @@
 #    include "SentryKSCrashReportWriterCallbacks.h"
 #    include "KSFileUtils.h"
 #    include "SentryAsyncSafeLog.h"
+#    include "SentryInternalCDefines.h"
 #    include "SentryScopeSyncC.h"
 #    include "SentrySessionReplaySyncC.h"
 #    include <dirent.h>
@@ -16,6 +17,22 @@
 #    include <string.h>
 #    include <sys/stat.h>
 #    include <unistd.h>
+
+static atomic_bool g_reportPersistenceEnabled = false;
+
+_Static_assert(ATOMIC_BOOL_LOCK_FREE == 2, "Report-persistence state must be lock-free");
+
+void
+sentrykscrash_setReportPersistenceEnabled(bool enabled)
+{
+    atomic_store_explicit(&g_reportPersistenceEnabled, enabled, memory_order_release);
+}
+
+bool
+sentrykscrash_isReportPersistenceEnabled(void)
+{
+    return atomic_load_explicit(&g_reportPersistenceEnabled, memory_order_acquire);
+}
 
 const char *const sentrykscrash_attachmentsMonitorID = "SentryAttachments";
 
@@ -115,9 +132,17 @@ sentrykscrash_willWriteReport(
         return;
     }
 
-    SENTRY_ASYNC_SAFE_LOG_TRACE(
-        "willWriteReport isFatal=%d isCleanExit=%d crashedDuringExceptionHandling=%d",
-        plan->isFatal, plan->isCleanExit, plan->crashedDuringExceptionHandling);
+    if (!sentrykscrash_isReportPersistenceEnabled()) {
+        // KSCrash's handlers intentionally survive SDK close. Apply SDK lifecycle policy at the
+        // last generic point before persistence so Signal, Mach, C++, and NSException all agree.
+        plan->shouldWriteReport = false;
+        plan->shouldRecordAllThreads = false;
+    }
+
+    SENTRY_ASYNC_SAFE_LOG_TRACE("willWriteReport shouldWriteReport=%d isFatal=%d isCleanExit=%d "
+                                "crashedDuringExceptionHandling=%d",
+        plan->shouldWriteReport, plan->isFatal, plan->isCleanExit,
+        plan->crashedDuringExceptionHandling);
 }
 
 void

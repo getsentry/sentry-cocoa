@@ -85,11 +85,6 @@ extension SentryKSCrash {
             }
             #endif
 
-#if SENTRY_DISABLE_SENTRYCRASH_V10
-            // KSCRASH_TODO(GH-8797): V10 has no early KSCrash signal preloader, so managed-runtime
-            // handler ordering is not preserved. Acceptance: SCV10-033 in the migration ledger.
-#endif
-
             configureTracingWhenCrashing(options)
 
             if installer.crashedLastLaunch {
@@ -132,11 +127,6 @@ extension SentryKSCrash {
         }
 
         func uninstall() {
-#if SENTRY_DISABLE_SENTRYCRASH_V10
-            // KSCRASH_TODO(GH-8536): V10 cancels report processing and updates query state, but the
-            // process-lifetime KSCrash recorder remains active. Acceptance: SCV10-032 in
-            // SENTRYCRASH_V10_MIGRATION_LEDGER.md.
-#endif
             sentrykscrash_setSaveTransaction(nil)
             reportProcessingSession.cancel()
             #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK

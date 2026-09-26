@@ -3,6 +3,7 @@
 
 #if SDK_V10
 
+#    include "KSCrashMonitorAPI.h"
 #    include "KSCrashMonitorContext.h"
 #    include "KSCrashReportWriter.h"
 #    include "KSCrashReportWriterCallbacks.h"
@@ -24,6 +25,10 @@ void sentrykscrash_didWriteReport(
 
 typedef void (*SentryKSCrashSaveTransactionCallback)(void);
 void sentrykscrash_setSaveTransaction(SentryKSCrashSaveTransactionCallback _Nullable callback);
+
+/** Activate or deactivate report persistence without removing process-lifetime handlers. */
+void sentrykscrash_setReportPersistenceEnabled(bool enabled);
+bool sentrykscrash_isReportPersistenceEnabled(void);
 
 /** KSCrash plugin ID for crash-time attachments. Must match the Swift monitor ID. */
 extern const char *const _Nonnull sentrykscrash_attachmentsMonitorID;
