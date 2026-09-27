@@ -107,6 +107,29 @@ final class SentryThreadsafeApplicationTests: XCTestCase {
         XCTAssertTrue(sut.isApplicationInForeground)
     }
 
+    func testApplicationBecomesAvailableBeforeLaunchObserverIsRegistered_shouldResolveState() {
+        // UIApplication finished launching after the first availability check but before the
+        // didFinishLaunching observer was registered, so the notification is never received.
+        let notificationCenterWrapper = TestNSNotificationCenterWrapper()
+        let application = TestSentryUIApplication()
+        application.unsafeApplicationState = .background
+        var providerCalls = 0
+        let sut = SentryThreadsafeApplication(applicationProvider: {
+            providerCalls += 1
+            return providerCalls > 1 ? application : nil
+        }, notificationCenter: notificationCenterWrapper)
+
+        XCTAssertEqual(.background, sut.applicationState)
+        XCTAssertFalse(sut.isApplicationInForeground)
+
+        notificationCenterWrapper.post(Notification(name: UIApplication.didBecomeActiveNotification))
+        XCTAssertEqual(.active, sut.applicationState)
+
+        application.unsafeApplicationState = .background
+        notificationCenterWrapper.post(Notification(name: UIApplication.didFinishLaunchingNotification))
+        XCTAssertEqual(.active, sut.applicationState)
+    }
+
     func testApplicationNilAtInitAndAtLaunch_shouldKeepActiveDefault() {
         let notificationCenterWrapper = TestNSNotificationCenterWrapper()
         let sut = SentryThreadsafeApplication(applicationProvider: { nil }, notificationCenter: notificationCenterWrapper)

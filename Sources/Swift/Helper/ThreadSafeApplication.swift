@@ -33,7 +33,7 @@ final class SentryAlwaysForegroundApplicationStateProvider: NSObject, SentryAppl
             // initialize the state when the UIApplication was null so it kept a default value of 0
             // which happens to be defined to be `active`. That default is only correct for a
             // foreground launch: a process the system launches in the background, for example for
-            // HealthKit background delivery or a background URLSession, never posts
+            // background fetch or a background URLSession, never posts
             // `didBecomeActive` or `didEnterBackground`, so nothing would ever correct it and the
             // SDK would treat the whole background lifetime as foreground. The real state is read
             // once UIApplication is up, at `didFinishLaunchingNotification`.
@@ -48,6 +48,15 @@ final class SentryAlwaysForegroundApplicationStateProvider: NSObject, SentryAppl
         notificationCenter.addObserver(self, selector: #selector(didBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
         if !applicationIsAvailable {
             notificationCenter.addObserver(self, selector: #selector(didFinishLaunching), name: UIApplication.didFinishLaunchingNotification, object: nil)
+            // UIApplication may have finished launching between the check above and registering the
+            // observer, in which case the notification was already posted and will not be received.
+            // Checking again after registering closes that window: either the notification is still
+            // to come, or the application is available now and its state can be read directly.
+            if let application = applicationProvider() {
+                notificationCenter.removeObserver(self, name: UIApplication.didFinishLaunchingNotification, object: nil)
+                let launchState = application.unsafeApplicationState
+                state.withLock { $0 = launchState }
+            }
         }
     }
     
