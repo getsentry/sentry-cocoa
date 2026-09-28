@@ -1,6 +1,8 @@
 module SentryTestUtilsObjCpp {
     header "SentryProfilerMocksSwiftCompatible.h"
-    // C++ mocks are imported textually by Objective-C++ tests, never by Swift's Clang importer.
+    // These headers are also used by ObjC++ tests without importing a Swift-only ObjC umbrella.
+    textual header "SentryContinuousProfiler+Test.h"
     textual header "SentryProfilerMocks.h"
+    textual header "SentryTraceProfiler+Test.h"
     export *
 }

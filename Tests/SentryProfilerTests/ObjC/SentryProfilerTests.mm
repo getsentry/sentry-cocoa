@@ -2,17 +2,13 @@
 
 #if SENTRY_PROFILER_TESTS_SUPPORTED
 
-#    if SWIFT_PACKAGE
-#        import "SentryProfilerTestSupport+ObjCpp.h"
-#    else
-#        import "SentryContinuousProfiler+Test.h"
-#        import "SentryProfilerSerialization+Test.h"
-#    endif
+#    import "SentryContinuousProfiler+Test.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryHub.h"
 #    import "SentryProfileTimeseries.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfilerMocks.h"
+#    import "SentryProfilerSerialization+Test.h"
 #    import "SentryProfilerState+ObjCpp.h"
 #    import "SentrySwift.h"
 #    import "SentryThread.h"

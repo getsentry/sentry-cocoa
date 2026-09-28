@@ -1,6 +1,6 @@
-#import "SentryProfilerTestSupport.h"
+#import "SentryTestProfilerWrapper.h"
 
-#if !SDK_V10 && SENTRY_TARGET_PROFILING_SUPPORTED
+#if SWIFT_PACKAGE && !SDK_V10 && SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentrySwift.h"
 
 void

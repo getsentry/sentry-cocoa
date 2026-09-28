@@ -1,7 +1,7 @@
 #if SWIFT_PACKAGE
 @_spi(Private) import SentrySwift
 import _SentryPrivate
-import SentryProfilerTestSupport
+import SentryTestUtilsObjC
 #endif
 import SentryTestUtils
 import XCTest

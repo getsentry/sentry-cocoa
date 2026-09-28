@@ -95,6 +95,8 @@ grep -E 'Executed|error:|TEST SUCCEEDED|TEST FAILED' "$package_dir/package-tests
 
 #### Profiler tests
 
+SwiftPM profiler tests use the existing `SentryTestUtilsObjC` and `SentryTestUtilsObjCpp` targets. The package-only adapters live in `SentryTestProfilerWrapper`; shared test headers live in the helpers' exposed header directories rather than being reached through relative imports. `SentryProfilerSerialization+Test.h` remains SDK-owned in `Sources/Sentry/include` because the implementation also uses it; it is not added to the SDK's module header. Xcode project tests continue to use their bridging header.
+
 The profiler suite is V9-only. Use the package-workspace command above with both selectors:
 
 ```sh

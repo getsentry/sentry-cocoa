@@ -82,9 +82,6 @@ run_distribution_tests_for_prs: &run_distribution_tests_for_prs
   - "Sources/include/**"
   - "Tests/SentryObjCCompatTests/**"
   - "Tests/SentryProfilerTests/**"
-  - "Tests/SentryProfilerTestSupport/**"
-  # Private declarations imported by the package profiler support module.
-  - "Tests/SentryTests/*.h"
   - "Plans/Sentry_Base.xctestplan"
   - "Plans/SentrySPM_*.xctestplan"
   - ".swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme"

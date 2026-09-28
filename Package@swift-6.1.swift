@@ -330,7 +330,7 @@ targets += [
 targets += [
     .target(
         name: "SentryTestUtilsObjC",
-        dependencies: ["SentryObjCInternal", "SentrySwift", "_SentryPrivate", "SentryHeaders"],
+        dependencies: ["SentryObjCInternal", "SentrySwift", "_SentryPrivate", "SentryHeaders", "SentryTestUtilsObjCpp"],
         path: "SentryTestUtils/SourcesObjC",
         publicHeadersPath: "include",
         cSettings: [
@@ -395,22 +395,16 @@ targets += [
 // Traits cannot remove targets, so source guards also exclude this suite when V10 is selected.
 if !enableV10 {
     targets += [
-        .target(
-            name: "SentryProfilerTestSupport",
-            dependencies: ["SentryObjCInternal", "_SentryPrivate", "SentryTestUtilsObjCpp"],
-            path: "Tests/SentryProfilerTestSupport",
-            cSettings: v10CSettings
-        ),
         .testTarget(
             name: "SentryProfilerTests",
-            dependencies: ["SentrySwift", "SentryTestUtils", "SentryProfilerTestSupport"],
+            dependencies: ["SentrySwift", "SentryTestUtils", "SentryTestUtilsObjC", "SentryTestUtilsObjCpp"],
             path: "Tests/SentryProfilerTests",
             exclude: ["ObjC"],
             swiftSettings: v10SwiftSettings
         ),
         .testTarget(
             name: "SentryProfilerTestsObjC",
-            dependencies: ["SentryObjCInternal", "SentryProfilerTestSupport", "SentryTestUtilsObjCpp"],
+            dependencies: ["SentryObjCInternal", "SentryTestUtilsObjCpp"],
             path: "Tests/SentryProfilerTests/ObjC",
             cSettings: [
                 .headerSearchPath("../../../Sources/Sentry")
