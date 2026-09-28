@@ -62,7 +62,7 @@ jobs:
         with:
           module-root: linters/SwiftLintCustomRules
           bazelisk-cache: true
-          disk-cache: ${{ github.workflow }}
+          disk-cache: true
           repository-cache: linters/SwiftLintCustomRules/MODULE.bazel.lock
           external-cache: true
           cache-save: ${{ github.event_name != 'pull_request' }}
