@@ -41,6 +41,19 @@ struct StandaloneObjCExtensionRuleTests {
             public convenience init?(dictionary: [String: Any], didFailWithError error: NSErrorPointer) {}
         }
         """,
+        "extension Foo { @objc var bar: Int { 0 } }",
+        "extension Foo { @objc subscript(i: Int) -> Int { 0 } }",
+        "extension Foo { @objc class func bar() {} }",
+        "extension Foo { @objc static func bar() {} }",
+        """
+        extension Foo {
+        #if os(iOS)
+            @objc func bar() {}
+        #endif
+        }
+        """,
+        "@_spi(Private) @objc public extension Foo {}",
+        "package extension Foo { @objc func bar() {} }",
     ])
     func flagsStandaloneCategory(_ code: String) {
         let violations = lint(code)
@@ -67,6 +80,14 @@ struct StandaloneObjCExtensionRuleTests {
         """,
         "extension Foo { func bar() {} }",
         "extension Foo { @objc class Nested: NSObject {} }",
+        """
+        enum Dummy { case a }
+        @objc extension Foo {}
+        """,
+        """
+        actor Dummy {}
+        @objc extension Foo {}
+        """,
     ])
     func allowsNonCategoryOrAnchoredFile(_ code: String) {
         #expect(lint(code).isEmpty)
