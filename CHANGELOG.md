@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Send envelopes captured during a connectivity-triggered cache drain without waiting for another trigger (#9171)
+
 ## 9.29.2
 
 ### Fixes
