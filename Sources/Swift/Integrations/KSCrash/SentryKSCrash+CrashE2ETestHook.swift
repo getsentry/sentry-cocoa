@@ -15,6 +15,13 @@ private let crashE2EWriteViewHierarchy: @convention(c) (UnsafePointer<CChar>) ->
     try? crashE2EViewHierarchyJSON.write(to: url)
 }
 
+/// Fatal crash on the KSCrash handler thread. Must not return: a returning writer
+/// would still let `writeInfo()` run after capture if the two calls were swapped.
+private let crashE2EFatalScreenshotWriter: @convention(c) (UnsafePointer<CChar>) -> Void = { _ in
+    sentrykscrash_attachments_log("crash-e2e: screenshot writer crashing")
+    abort()
+}
+
 extension SentryKSCrash {
     /// CrashE2E-only fault injection and synchronization for stored-report delivery.
     ///
@@ -119,15 +126,28 @@ extension SentryKSCrash {
         }
 
         /// Seeds session-replay sync state so `sentrykscrash_didWriteReport` can persist a
-        /// recovery checkpoint during the `crash-time-replay` scenario.
+        /// recovery checkpoint during the `crash-time-replay` scenarios.
         static func installReplayCheckpointIfNeeded() {
-            guard argumentValue(after: "--scenario") == "crash-time-replay" else { return }
+            switch argumentValue(after: "--scenario") {
+            case "crash-time-replay", "crash-time-replay-attachment-crash":
+                break
+            default:
+                return
+            }
             guard let path = replayCheckpointPath() else {
                 SentrySDKLog.error("CrashE2E could not resolve the replay checkpoint path.")
                 return
             }
             sentrySessionReplaySync_start(path, 1)
             sentrySessionReplaySync_updateInfo(7, 123.5)
+        }
+
+        static func installFailingAttachmentProviderIfNeeded() {
+            guard argumentValue(after: "--scenario") == "crash-time-replay-attachment-crash" else {
+                return
+            }
+            let installer = SentryDependencyContainer.sharedInstance().getKSCrashInstaller()
+            installer.setScreenshotProvider(crashE2EFatalScreenshotWriter)
         }
 
         private static func replayCheckpointPath() -> String? {

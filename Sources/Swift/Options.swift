@@ -182,7 +182,12 @@
 
     #if SDK_V10
     /// This block can be used to modify a transaction before it will be serialized and sent.
-    @objc public var beforeSendTransaction: ((Transaction) -> Transaction?)?
+    /// Return `nil` to drop the transaction.
+    ///
+    /// The hint carries the attachments that will be sent with the transaction and any values
+    /// passed at capture time. The list left in ``Hint/attachments`` when the callback returns is
+    /// what the SDK sends, so attachments can be both added and removed in the callback.
+    @objc public var beforeSendTransaction: ((Transaction, Hint) -> Transaction?)?
     #endif // SDK_V10
 
     /// Use this callback to drop or modify a span before the SDK sends it to Sentry. Return nil to
@@ -634,12 +639,24 @@
     @objc public var enableAppHangTracking: Bool = true
     #endif // !SDK_V10
 
+    static let defaultAppHangTimeoutInterval: TimeInterval = 2.0
+
     /// The minimum amount of time the app must be unresponsive before the SDK considers it hung.
     /// In v10, the SDK still uses this threshold internally to classify watchdog terminations.
     /// @note The actual amount may be a little longer.
     /// @note Avoid using values lower than 100ms, which may cause false-positive hang detection.
+    /// @note The value needs to be greater than @c 0. When setting a value of @c 0 or lower, the SDK
+    /// sets it to the default.
     /// @note The default value is 2 seconds.
-    @objc public var appHangTimeoutInterval: TimeInterval = 2.0
+    @objc public var appHangTimeoutInterval: TimeInterval = defaultAppHangTimeoutInterval {
+        didSet {
+            guard appHangTimeoutInterval > 0 else {
+                SentrySDKLog.warning("Invalid appHangTimeoutInterval \(appHangTimeoutInterval). The value must be greater than 0. Setting it to the default of \(Self.defaultAppHangTimeoutInterval) seconds.")
+                appHangTimeoutInterval = Self.defaultAppHangTimeoutInterval
+                return
+            }
+        }
+    }
 
     /// When enabled, the SDK adds breadcrumbs for various system events.
     /// @note Default value is @c true.

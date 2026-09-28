@@ -761,6 +761,36 @@ class SentryScopeSwiftTests: XCTestCase {
         
         XCTAssertEqual(0, scope.attachments.count)
     }
+
+    func testInitWithScope_whenCrashReportAttachmentsExist_shouldCopyThemSeparately() throws {
+        // -- Arrange --
+        let scope = Scope()
+        scope.addAttachment(TestData.fileAttachment)
+        scope.addCrashReportAttachment(inPath: "/tmp/crash-screenshot.png")
+
+        // -- Act --
+        let cloned = Scope(scope: scope)
+
+        // -- Assert --
+        XCTAssertEqual(cloned.attachments.count, 1)
+        XCTAssertEqual(cloned.attachments.first?.filename, TestData.fileAttachment.filename)
+        XCTAssertEqual(cloned.crashReportAttachments.count, 1)
+        XCTAssertEqual(cloned.crashReportAttachments.first?.path, "/tmp/crash-screenshot.png")
+    }
+
+    func testClearAttachments_whenCrashReportAttachmentsExist_shouldKeepThem() {
+        // -- Arrange --
+        let scope = Scope()
+        scope.addAttachment(TestData.fileAttachment)
+        scope.addCrashReportAttachment(inPath: "/tmp/crash-screenshot.png")
+
+        // -- Act --
+        scope.clearAttachments()
+
+        // -- Assert --
+        XCTAssertEqual(scope.attachments.count, 0)
+        XCTAssertEqual(scope.crashReportAttachments.count, 1)
+    }
     
     // With this test we test if modifications from multiple threads don't lead to a crash.
     func testModifyingFromMultipleThreads() {
@@ -1160,7 +1190,36 @@ class SentryScopeSwiftTests: XCTestCase {
             observer.crumbs
         )
     }
-    
+
+    func testPerformWithBreadcrumbsLocked_whenSeedingThenAddingObserver_shouldReplayExistingThenAcceptNewOnce() throws {
+        // -- Arrange --
+        let sut = Scope()
+        let existing = TestData.crumb
+        existing.message = "existing"
+        sut.addBreadcrumb(existing)
+        let observer = fixture.observer
+
+        // -- Act --
+        sut.performWithBreadcrumbsLocked {
+            for breadcrumb in sut.breadcrumbs() {
+                observer.addSerializedBreadcrumb(breadcrumb.serialize())
+            }
+            sut.add(observer)
+        }
+        let live = TestData.crumb
+        live.message = "live"
+        sut.addBreadcrumb(live)
+
+        // -- Assert --
+        XCTAssertEqual(
+            [
+                try XCTUnwrap(existing.serialize() as? [String: AnyHashable]),
+                try XCTUnwrap(live.serialize() as? [String: AnyHashable])
+            ],
+            observer.crumbs
+        )
+    }
+
     func testScopeObserver_clearBreadcrumb() {
         let sut = Scope()
         let observer = fixture.observer

@@ -30,7 +30,7 @@ updates:
       - "dependencies"
 
   - package-ecosystem: "swift"
-    directory: "/Samples/macOS-CLI"
+    directory: "/TestApps/macOS-CLI"
     schedule:
       interval: weekly
     labels:
