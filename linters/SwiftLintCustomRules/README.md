@@ -15,7 +15,7 @@ From the repository root:
 # Lint Sources (also invoked by make lint / CI)
 make check-objc-standalone-extensions
 
-# Fixture tests for standalone_objc_extension
+# Swift Testing cases for standalone_objc_extension
 make test-swiftlint-custom-rules
 ```
 

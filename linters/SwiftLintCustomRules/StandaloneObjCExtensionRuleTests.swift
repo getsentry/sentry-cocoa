@@ -1,0 +1,82 @@
+import SwiftLintCore
+import SwiftLintExtraRules
+import Testing
+
+@Suite
+struct StandaloneObjCExtensionRuleTests {
+    @Test(arguments: [
+        "@objc extension Foo {}",
+        "extension Foo { @objc func bar() {} }",
+        """
+        extension Foo {
+            @objc func bar() {}
+        }
+        """,
+        """
+        extension Foo { @objc
+            func bar() {}
+        }
+        """,
+        """
+        @objc
+        @available(iOS 13, *)
+        extension Foo {}
+        """,
+        """
+        @objc protocol P {}
+        extension Foo: P {}
+        """,
+        """
+        protocol P {}
+        @objc protocol Q {}
+        extension Foo: P & Q {}
+        """,
+        """
+        @objc protocol P {}
+        extension Foo: @retroactive P {}
+        """,
+        """
+        extension Options {
+            @objc(initWithDictionary:didFailWithError:)
+            public convenience init?(dictionary: [String: Any], didFailWithError error: NSErrorPointer) {}
+        }
+        """,
+    ])
+    func flagsStandaloneCategory(_ code: String) {
+        let violations = lint(code)
+        #expect(!violations.isEmpty)
+        #expect(violations.contains { $0.reason.contains("Triggering code:") })
+    }
+
+    @Test(arguments: [
+        """
+        @objc class Dummy: NSObject {}
+        @objc extension Foo {}
+        """,
+        """
+        nonisolated(unsafe) class Dummy: NSObject {}
+        @objc extension Foo {}
+        """,
+        """
+        struct Dummy {}
+        @objc extension Foo {}
+        """,
+        """
+        @objc protocol P { func x() }
+        extension P { func x() {} }
+        """,
+        "extension Foo { func bar() {} }",
+        "extension Foo { @objc class Nested: NSObject {} }",
+    ])
+    func allowsNonCategoryOrAnchoredFile(_ code: String) {
+        #expect(lint(code).isEmpty)
+    }
+
+    private func lint(_ code: String) -> [StyleViolation] {
+        rule.validate(file: SwiftLintFile(contents: code))
+    }
+}
+
+private let rule: any Rule = extraRules()
+    .first { $0.description.identifier == "standalone_objc_extension" }!
+    .init()
