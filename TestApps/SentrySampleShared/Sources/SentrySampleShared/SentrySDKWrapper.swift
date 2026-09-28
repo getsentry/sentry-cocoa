@@ -344,9 +344,14 @@ public struct SentrySDKWrapper {
 
         options.enableFileManagerSwizzling = !SentrySDKOverrides.FileIO.disableFileManagerSwizzling.boolValue
 
+        #if SDK_V10
+        options.enableUnhandledCPPExceptionsV2 =
+            !SentrySDKOverrides.Crash.disableUnhandledCPPExceptionsV2.boolValue
+        #else
         // Experimental features
         options.experimental.enableUnhandledCPPExceptionsV2 =
             !SentrySDKOverrides.Crash.disableUnhandledCPPExceptionsV2.boolValue
+        #endif // SDK_V10
         #if !SDK_V10
         options.experimental.enableWatchdogTerminationsV2 =
             !SentrySDKOverrides.WatchdogTerminations.disableV2.boolValue

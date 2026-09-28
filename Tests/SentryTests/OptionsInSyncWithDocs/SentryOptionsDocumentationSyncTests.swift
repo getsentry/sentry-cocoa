@@ -57,6 +57,7 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         #endif
 
         #if SDK_V10
+        options.insert("enableUnhandledCPPExceptionsV2") // Stable in v10; docs update pending
         options.insert("beforeSendTransaction") // Docs update pending
         options.insert("dataCollection") // Docs update pending
         options.insert("dataCollectionObjC") // @_spi(Private) - internal Objective-C bridge

@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Keep `enableUnhandledCPPExceptionsV2` under `options.experimental`, non-deprecated and disabled by default, reverting its promotion to stable configuration in #9134 (#9175).
+- Keep `enableUnhandledCPPExceptionsV2` under `options.experimental` in v9, non-deprecated and disabled by default, reverting its promotion to stable configuration in #9134 (#9175).
 
 ## 9.29.2
 

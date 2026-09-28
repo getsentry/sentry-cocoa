@@ -2364,7 +2364,7 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "enableUnhandledCPPExceptionsV2",
-    "parent": "SentryObjCExperimentalOptions",
+    "parent": "SentryObjCOptions",
     "returnType": "BOOL",
     "instance": true
   },
@@ -6396,7 +6396,7 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setEnableUnhandledCPPExceptionsV2:",
-    "parent": "SentryObjCExperimentalOptions",
+    "parent": "SentryObjCOptions",
     "returnType": "void",
     "instance": true
   },
@@ -9781,7 +9781,7 @@
   {
     "kind": "ObjCPropertyDecl",
     "name": "enableUnhandledCPPExceptionsV2",
-    "parent": "SentryObjCExperimentalOptions",
+    "parent": "SentryObjCOptions",
     "type": "BOOL"
   },
   {

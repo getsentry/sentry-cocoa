@@ -5,18 +5,17 @@ NS_ASSUME_NONNULL_BEGIN
 /// versions.
 @interface SentryObjCExperimentalOptions : NSObject
 
+#if !SDK_V10
 /**
- * A more reliable way to report unhandled C++ exceptions.
- *
- * This approach hooks into all instances of the @c __cxa_throw function, which provides a more
- * comprehensive and consistent exception handling across an app's runtime, regardless of the number
- * of C++ modules or how they're linked. It helps in obtaining accurate stack traces.
- *
- * @note The mechanism of hooking into @c __cxa_throw could cause issues with symbolication on iOS
- * due to caching of symbol references.
- * @warning This is an experimental feature and is therefore disabled by default.
+ * Captures C++ exception stack traces at the throw site by hooking @c __cxa_throw.
+ * The v9 SentryCrash implementation remains experimental because of unresolved safety and
+ * symbolication concerns. When @c NO, unhandled C++ exceptions are still captured through
+ * @c std::terminate when crash handling is enabled, but stacks may not identify the throw site.
+ * @warning Disabled by default. Use and monitor this experimental implementation with care.
+ * @see https://github.com/getsentry/sentry-cocoa/issues/5309
  */
 @property (nonatomic) BOOL enableUnhandledCPPExceptionsV2;
+#endif // !SDK_V10
 
 /**
  * Enables swizzling for automatic network instrumentation of the new URLSession HTTP loader.

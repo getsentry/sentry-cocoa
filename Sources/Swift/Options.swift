@@ -131,6 +131,18 @@
     var _enableSigtermReporting: Bool = false
     #endif // !os(watchOS) && !SDK_V10
 
+    #if SDK_V10
+    /// Captures C++ exception stack traces at the throw site by hooking `__cxa_throw`.
+    ///
+    /// This uses KSCrash's implementation, not the experimental SentryCrash implementation in v9.
+    /// When `false`, unhandled C++ exceptions are still captured through `std::terminate` when
+    /// crash handling is enabled, but their stack traces may not identify the original throw site.
+    ///
+    /// - Note: Defaults to `false` to preserve the existing capture mode. Enabling throw-site
+    ///   capture by default is a separate rollout decision, not a limitation on API stability.
+    @objc public var enableUnhandledCPPExceptionsV2: Bool = false
+    #endif // SDK_V10
+
     /// When enabled, the SDK introspects memory contents during a crash.
     /// Any Objective-C objects or C strings near the stack pointer or referenced by
     /// CPU registers or exceptions will be recorded in the crash report, along with

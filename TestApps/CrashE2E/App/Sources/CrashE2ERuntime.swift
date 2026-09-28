@@ -221,7 +221,11 @@ enum CrashE2ERuntime {
                 || configuration.scenario == .objcObjectAfterCaughtCPP
                 || configuration.scenario == .swiftAsyncCPPExceptionV2Off
                 || configuration.scenario == .swiftAsyncCPPExceptionV2On {
+                #if SDK_V10
+                options.enableUnhandledCPPExceptionsV2 = true
+                #else
                 options.experimental.enableUnhandledCPPExceptionsV2 = true
+                #endif // SDK_V10
             }
 
             if configuration.scenario == .swiftAsyncCPPExceptionV2Off {

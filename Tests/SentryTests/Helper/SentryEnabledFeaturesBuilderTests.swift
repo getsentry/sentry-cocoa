@@ -292,7 +292,11 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     func testEnableUnhandledCPPExceptionsV2_shouldAddFeature() throws {
         // -- Arrange --
         let options = Options()
+        #if SDK_V10
+        options.enableUnhandledCPPExceptionsV2 = true
+        #else
         options.experimental.enableUnhandledCPPExceptionsV2 = true
+        #endif // SDK_V10
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
@@ -304,7 +308,11 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     func testEnableUnhandledCPPExceptionsV2_isDisabled_shouldNotAddFeature() throws {
         // -- Arrange --
         let options = Options()
+        #if SDK_V10
+        options.enableUnhandledCPPExceptionsV2 = false
+        #else
         options.experimental.enableUnhandledCPPExceptionsV2 = false
+        #endif // SDK_V10
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
@@ -372,18 +380,30 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
 
         // -- Assert --
+        #if SDK_V10
+        XCTAssertFalse(options.enableUnhandledCPPExceptionsV2)
+        #else
         XCTAssertFalse(options.experimental.enableUnhandledCPPExceptionsV2)
+        #endif // SDK_V10
         XCTAssertFalse(features.contains("unhandledCPPExceptionsV2"))
     }
 
-    func testEnableUnhandledCPPExceptionsV2_whenExperimentalOptionIsDisabled_shouldRemoveFeature() {
+    func testEnableUnhandledCPPExceptionsV2_whenOptionIsDisabled_shouldRemoveFeature() {
         // -- Arrange --
         let options = Options()
+        #if SDK_V10
+        options.enableUnhandledCPPExceptionsV2 = true
+        #else
         options.experimental.enableUnhandledCPPExceptionsV2 = true
+        #endif // SDK_V10
         XCTAssertTrue(SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options).contains("unhandledCPPExceptionsV2"))
 
         // -- Act --
+        #if SDK_V10
+        options.enableUnhandledCPPExceptionsV2 = false
+        #else
         options.experimental.enableUnhandledCPPExceptionsV2 = false
+        #endif // SDK_V10
 
         // -- Assert --
         XCTAssertFalse(SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options).contains("unhandledCPPExceptionsV2"))
