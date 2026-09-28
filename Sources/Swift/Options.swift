@@ -72,6 +72,18 @@
     /// Controls the flush duration when calling SentrySDK/close.
     @objc public var shutdownTimeInterval: TimeInterval = 2.0
 
+    #if SDK_V10
+    /// When enabled, the SDK sends crashes to Sentry.
+    /// @note Disabling this feature disables the SentryWatchdogTerminationTrackingIntegration,
+    /// because SentryWatchdogTerminationTrackingIntegration would falsely report every crash as watchdog
+    /// termination.
+    /// @note Default value is @c true.
+    /// @note Crash reporting is automatically disabled if a debugger is attached.
+    /// @note `SIGTERM` is not a crash. The crash handler catches and re-raises it so the process
+    /// still terminates, but it writes no crash report, sends no event, and does not classify the
+    /// next launch as crashed.
+    @objc public var enableCrashHandler: Bool = true
+    #else
     /// When enabled, the SDK sends crashes to Sentry.
     /// @note Disabling this feature disables the SentryWatchdogTerminationTrackingIntegration,
     /// because SentryWatchdogTerminationTrackingIntegration would falsely report every crash as watchdog
@@ -79,6 +91,7 @@
     /// @note Default value is @c true.
     /// @note Crash reporting is automatically disabled if a debugger is attached.
     @objc public var enableCrashHandler: Bool = true
+    #endif // SDK_V10
 
     #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
     /// When enabled, the SDK captures uncaught NSExceptions. As this feature uses swizzling, disabling
@@ -97,7 +110,7 @@
     @objc public var enableUncaughtNSExceptionReporting: Bool = false
     #endif
 
-    #if !os(watchOS)
+    #if !os(watchOS) && !SDK_V10
     /// When enabled, the SDK reports SIGTERM signals to Sentry.
     ///
     /// It's crucial for developers to understand that the OS sends a SIGTERM to their app as a prelude
@@ -107,8 +120,15 @@
     /// watchdog terminations, or when the OS updates your app.
     ///
     /// @note The default value is @c false.
-    @objc public var enableSigtermReporting: Bool = false
-    #endif
+    /// @note Removed in v10. KSCrash always catches `SIGTERM`, records a clean exit, and never
+    /// writes a crash report for it.
+    @available(*, deprecated, message: "This property will be removed in v10. KSCrash always catches SIGTERM, records a clean exit, and never writes a crash report for it.")
+    @objc public var enableSigtermReporting: Bool {
+        get { _enableSigtermReporting }
+        set { _enableSigtermReporting = newValue }
+    }
+    var _enableSigtermReporting: Bool = false
+    #endif // !os(watchOS) && !SDK_V10
 
     /// When enabled, the SDK introspects memory contents during a crash.
     /// Any Objective-C objects or C strings near the stack pointer or referenced by
@@ -162,7 +182,12 @@
 
     #if SDK_V10
     /// This block can be used to modify a transaction before it will be serialized and sent.
-    @objc public var beforeSendTransaction: ((Transaction) -> Transaction?)?
+    /// Return `nil` to drop the transaction.
+    ///
+    /// The hint carries the attachments that will be sent with the transaction and any values
+    /// passed at capture time. The list left in ``Hint/attachments`` when the callback returns is
+    /// what the SDK sends, so attachments can be both added and removed in the callback.
+    @objc public var beforeSendTransaction: ((Transaction, Hint) -> Transaction?)?
     #endif // SDK_V10
 
     /// Use this callback to drop or modify a span before the SDK sends it to Sentry. Return nil to
@@ -411,11 +436,24 @@
     #endif
 
     #if !SDK_V10
+    var enableReportNonFullyBlockingAppHangsValue = true
+
     /// When enabled the SDK reports non-fully-blocking app hangs. A non-fully-blocking app hang is when
     /// the app appears stuck to the user but can still render a few frames.
     ///
     /// @note The default is @c true.
-    @objc public var enableReportNonFullyBlockingAppHangs: Bool = true
+    ///
+    /// - Deprecated: App Hang tracking can produce less relevant stack traces and false positives.
+    ///   Enable the MetricKit integration using ``SentrySDKOptions/enableMetricKit`` for system-provided hang diagnostics.
+    @objc public var enableReportNonFullyBlockingAppHangs: Bool {
+        get {
+            enableReportNonFullyBlockingAppHangsValue
+        }
+        @available(*, deprecated, message: "App Hang tracking is deprecated and will be removed in v10 because it can produce less relevant stack traces and false positives. Enable the MetricKit integration for system-provided hang diagnostics.", renamed: "enableMetricKit")
+        set {
+            enableReportNonFullyBlockingAppHangsValue = newValue
+        }
+    }
 
     // swiftlint:disable:next missing_docs
     @_spi(Private) @objc public func isAppHangTrackingDisabled() -> Bool {
@@ -594,15 +632,31 @@
     ///
     /// @note The default is @c true.
     /// @note App Hang tracking is automatically disabled if a debugger is attached.
+    ///
+    /// - Deprecated: App Hang tracking can produce less relevant stack traces and false positives
+    ///   and will be removed in v10. Set this option to @c false to opt out until then.
+    ///   Enable the MetricKit integration using ``SentrySDKOptions/enableMetricKit`` for system-provided hang diagnostics.
     @objc public var enableAppHangTracking: Bool = true
     #endif // !SDK_V10
 
-    /// The minimum amount of time an app should be unresponsive to be classified as an App Hanging.
+    static let defaultAppHangTimeoutInterval: TimeInterval = 2.0
+
+    /// The minimum amount of time the app must be unresponsive before the SDK considers it hung.
+    /// In v10, the SDK still uses this threshold internally to classify watchdog terminations.
     /// @note The actual amount may be a little longer.
-    /// @note Avoid using values lower than 100ms, which may cause a lot of app hangs events being
-    /// transmitted.
+    /// @note Avoid using values lower than 100ms, which may cause false-positive hang detection.
+    /// @note The value needs to be greater than @c 0. When setting a value of @c 0 or lower, the SDK
+    /// sets it to the default.
     /// @note The default value is 2 seconds.
-    @objc public var appHangTimeoutInterval: TimeInterval = 2.0
+    @objc public var appHangTimeoutInterval: TimeInterval = defaultAppHangTimeoutInterval {
+        didSet {
+            guard appHangTimeoutInterval > 0 else {
+                SentrySDKLog.warning("Invalid appHangTimeoutInterval \(appHangTimeoutInterval). The value must be greater than 0. Setting it to the default of \(Self.defaultAppHangTimeoutInterval) seconds.")
+                appHangTimeoutInterval = Self.defaultAppHangTimeoutInterval
+                return
+            }
+        }
+    }
 
     /// When enabled, the SDK adds breadcrumbs for various system events.
     /// @note Default value is @c true.

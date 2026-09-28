@@ -533,6 +533,8 @@ extension SentrySDK {
     }
 
     /// Captures user feedback that was manually gathered and sends it to Sentry.
+    /// An active Session Replay is sampled and flushed during capture, using `onErrorSampleRate`
+    /// in buffer mode, and its ID is associated with the feedback.
     /// - warning: This is an experimental feature and may still have bugs.
     /// - parameter feedback: The feedback to send to Sentry.
     /// - note: If you'd prefer not to build the UI required to gather the feedback from the user,
@@ -791,14 +793,20 @@ extension SentrySDK {
     ///
     /// This method doesn't close the detection of app hangs. Instead, the app hang detection
     /// will ignore detected app hangs until you call `resumeAppHangTracking`.
-    @objc
-    public static func pauseAppHangTracking() {
+    ///
+    /// - Deprecated: App Hang tracking can produce less relevant stack traces and false positives.
+    ///   Enable the MetricKit integration using ``SentrySDKOptions/enableMetricKit`` for system-provided hang diagnostics.
+    @available(*, deprecated, message: "App Hang tracking is deprecated and will be removed in v10 because it can produce less relevant stack traces and false positives. Enable the MetricKit integration for system-provided hang diagnostics.")
+    @objc public static func pauseAppHangTracking() {
         SentrySDKInternal.pauseAppHangTracking()
     }
 
     /// Resumes sending detected app hangs to Sentry.
-    @objc
-    public static func resumeAppHangTracking() {
+    ///
+    /// - Deprecated: App Hang tracking can produce less relevant stack traces and false positives.
+    ///   Enable the MetricKit integration using ``SentrySDKOptions/enableMetricKit`` for system-provided hang diagnostics.
+    @available(*, deprecated, message: "App Hang tracking is deprecated and will be removed in v10 because it can produce less relevant stack traces and false positives. Enable the MetricKit integration for system-provided hang diagnostics.")
+    @objc public static func resumeAppHangTracking() {
         SentrySDKInternal.resumeAppHangTracking()
     }
 #endif

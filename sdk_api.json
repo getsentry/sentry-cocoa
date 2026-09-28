@@ -381,6 +381,13 @@
         "declKind": "Import",
         "kind": "Import",
         "moduleName": "Sentry",
+        "name": "CoreData",
+        "printedName": "CoreData"
+      },
+      {
+        "declKind": "Import",
+        "kind": "Import",
+        "moduleName": "Sentry",
         "name": "CoreGraphics",
         "printedName": "CoreGraphics"
       },
@@ -20925,10 +20932,17 @@
                 "accessorKind": "get",
                 "children": [
                   {
-                    "kind": "TypeNominal",
-                    "name": "Double",
-                    "printedName": "Swift.Double",
-                    "usr": "s:Sd"
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Double",
+                        "printedName": "Swift.Double",
+                        "usr": "s:Sd"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "TimeInterval",
+                    "printedName": "Foundation.TimeInterval"
                   }
                 ],
                 "declAttributes": [
@@ -20936,7 +20950,6 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC22appHangTimeoutIntervalSdvg",
                 "moduleName": "Sentry",
@@ -20948,10 +20961,17 @@
                 "accessorKind": "set",
                 "children": [
                   {
-                    "kind": "TypeNominal",
-                    "name": "Double",
-                    "printedName": "Swift.Double",
-                    "usr": "s:Sd"
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Double",
+                        "printedName": "Swift.Double",
+                        "usr": "s:Sd"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "TimeInterval",
+                    "printedName": "Foundation.TimeInterval"
                   },
                   {
                     "kind": "TypeNominal",
@@ -20964,30 +20984,35 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC22appHangTimeoutIntervalSdvs",
                 "moduleName": "Sentry",
                 "name": "Set",
+                "objc_name": "setAppHangTimeoutInterval:",
                 "printedName": "Set()",
                 "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setAppHangTimeoutInterval:"
               }
             ],
             "children": [
               {
-                "kind": "TypeNominal",
-                "name": "Double",
-                "printedName": "Swift.Double",
-                "usr": "s:Sd"
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Double",
+                    "printedName": "Swift.Double",
+                    "usr": "s:Sd"
+                  }
+                ],
+                "kind": "TypeNameAlias",
+                "name": "TimeInterval",
+                "printedName": "Foundation.TimeInterval"
               }
             ],
             "declAttributes": [
               "Final",
-              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "hasStorage": true,
             "kind": "Var",
             "mangledName": "$s6Sentry7OptionsC22appHangTimeoutIntervalSdvp",
             "moduleName": "Sentry",
@@ -25272,7 +25297,6 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC36enableReportNonFullyBlockingAppHangsSbvg",
                 "moduleName": "Sentry",
@@ -25296,15 +25320,17 @@
                   }
                 ],
                 "declAttributes": [
+                  "Available",
                   "Final",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
+                "deprecated": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC36enableReportNonFullyBlockingAppHangsSbvs",
                 "moduleName": "Sentry",
                 "name": "Set",
+                "objc_name": "setEnableReportNonFullyBlockingAppHangs:",
                 "printedName": "Set()",
                 "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setEnableReportNonFullyBlockingAppHangs:"
               }
@@ -25319,11 +25345,9 @@
             ],
             "declAttributes": [
               "Final",
-              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "hasStorage": true,
             "kind": "Var",
             "mangledName": "$s6Sentry7OptionsC36enableReportNonFullyBlockingAppHangsSbvp",
             "moduleName": "Sentry",
@@ -25348,7 +25372,6 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC22enableSigtermReportingSbvg",
                 "moduleName": "Sentry",
@@ -25376,11 +25399,11 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC22enableSigtermReportingSbvs",
                 "moduleName": "Sentry",
                 "name": "Set",
+                "objc_name": "setEnableSigtermReporting:",
                 "printedName": "Set()",
                 "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setEnableSigtermReporting:"
               }
@@ -25394,12 +25417,12 @@
               }
             ],
             "declAttributes": [
+              "Available",
               "Final",
-              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "hasStorage": true,
+            "deprecated": true,
             "kind": "Var",
             "mangledName": "$s6Sentry7OptionsC22enableSigtermReportingSbvp",
             "moduleName": "Sentry",
@@ -37863,6 +37886,82 @@
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry0A19ExperimentalOptionsC27enableNewURLLoaderSwizzlingSbvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(im)enableNewURLLoaderSwizzling"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A19ExperimentalOptionsC27enableNewURLLoaderSwizzlingSbvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(im)setEnableNewURLLoaderSwizzling:"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasStorage",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A19ExperimentalOptionsC27enableNewURLLoaderSwizzlingSbvp",
+            "moduleName": "Sentry",
+            "name": "enableNewURLLoaderSwizzling",
+            "printedName": "enableNewURLLoaderSwizzling",
+            "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(py)enableNewURLLoaderSwizzling"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
                 "mangledName": "$s6Sentry0A19ExperimentalOptionsC35enableUIViewControllerInitSwizzlingSbvg",
                 "moduleName": "Sentry",
                 "name": "Get",
@@ -38013,7 +38112,6 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A19ExperimentalOptionsC28enableWatchdogTerminationsV2Sbvg",
                 "moduleName": "Sentry",
@@ -38037,15 +38135,17 @@
                   }
                 ],
                 "declAttributes": [
+                  "Available",
                   "Final",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
+                "deprecated": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A19ExperimentalOptionsC28enableWatchdogTerminationsV2Sbvs",
                 "moduleName": "Sentry",
                 "name": "Set",
+                "objc_name": "setEnableWatchdogTerminationsV2:",
                 "printedName": "Set()",
                 "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(im)setEnableWatchdogTerminationsV2:"
               }
@@ -38060,11 +38160,9 @@
             ],
             "declAttributes": [
               "Final",
-              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "hasStorage": true,
             "kind": "Var",
             "mangledName": "$s6Sentry0A19ExperimentalOptionsC28enableWatchdogTerminationsV2Sbvp",
             "moduleName": "Sentry",
@@ -43803,6 +43901,29 @@
             "name": "pause",
             "printedName": "pause()",
             "usr": "s:6Sentry0A17InternalReplayApiV5pauseyyF"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryId",
+                "printedName": "Sentry.SentryId",
+                "usr": "c:objc(cs)SentryId"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A17InternalReplayApiV15registerTraceIdyySo0aG0CF",
+            "moduleName": "Sentry",
+            "name": "registerTraceId",
+            "printedName": "registerTraceId(_:)",
+            "usr": "s:6Sentry0A17InternalReplayApiV15registerTraceIdyySo0aG0CF"
           },
           {
             "children": [
@@ -59224,10 +59345,12 @@
               }
             ],
             "declAttributes": [
+              "Available",
               "Final",
               "ObjC"
             ],
             "declKind": "Func",
+            "deprecated": true,
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",
@@ -59270,10 +59393,12 @@
               }
             ],
             "declAttributes": [
+              "Available",
               "Final",
               "ObjC"
             ],
             "declKind": "Func",
+            "deprecated": true,
             "funcSelfKind": "NonMutating",
             "isFromExtension": true,
             "kind": "Function",

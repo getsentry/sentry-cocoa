@@ -1098,7 +1098,7 @@
     "kind": "ObjCMethodDecl",
     "name": "beforeSendTransaction",
     "parent": "SentryObjCOptions",
-    "returnType": "SentryObjCTransaction * _Nullable (^ _Nullable)(SentryObjCTransaction * _Nonnull)",
+    "returnType": "SentryObjCTransaction * _Nullable (^ _Nullable)(SentryObjCTransaction * _Nonnull, SentryObjCHint * _Nonnull)",
     "instance": true
   },
   {
@@ -2293,6 +2293,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "enableNewURLLoaderSwizzling",
+    "parent": "SentryObjCExperimentalOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "enableOnShake",
     "parent": "SentryObjCFeedbackApi",
     "returnType": "void",
@@ -2323,13 +2330,6 @@
     "kind": "ObjCMethodDecl",
     "name": "enableScreenshot",
     "parent": "SentryObjCUserFeedbackFormConfiguration",
-    "returnType": "BOOL",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "enableSigtermReporting",
-    "parent": "SentryObjCOptions",
     "returnType": "BOOL",
     "instance": true
   },
@@ -5296,6 +5296,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "registerTraceId:",
+    "parent": "SentryObjCInternalReplayApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "registers",
     "parent": "SentryObjCStacktrace",
     "returnType": "NSDictionary<NSString *,NSString *> * _Nonnull",
@@ -6332,6 +6339,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setEnableNewURLLoaderSwizzling:",
+    "parent": "SentryObjCExperimentalOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setEnablePersistingTracesWhenCrashing:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
@@ -6355,13 +6369,6 @@
     "kind": "ObjCMethodDecl",
     "name": "setEnableScreenshot:",
     "parent": "SentryObjCUserFeedbackFormConfiguration",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "setEnableSigtermReporting:",
-    "parent": "SentryObjCOptions",
     "returnType": "void",
     "instance": true
   },
@@ -9249,7 +9256,7 @@
     "kind": "ObjCPropertyDecl",
     "name": "beforeSendTransaction",
     "parent": "SentryObjCOptions",
-    "type": "SentryObjCTransaction * _Nullable (^ _Nullable)(SentryObjCTransaction * _Nonnull)"
+    "type": "SentryObjCTransaction * _Nullable (^ _Nullable)(SentryObjCTransaction * _Nonnull, SentryObjCHint * _Nonnull)"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -9733,6 +9740,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "enableNewURLLoaderSwizzling",
+    "parent": "SentryObjCExperimentalOptions",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "enablePersistingTracesWhenCrashing",
     "parent": "SentryObjCOptions",
     "type": "BOOL"
@@ -9753,12 +9766,6 @@
     "kind": "ObjCPropertyDecl",
     "name": "enableScreenshot",
     "parent": "SentryObjCUserFeedbackFormConfiguration",
-    "type": "BOOL"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
-    "name": "enableSigtermReporting",
-    "parent": "SentryObjCOptions",
     "type": "BOOL"
   },
   {

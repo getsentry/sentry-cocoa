@@ -4,10 +4,6 @@
 
 // Sentry internal headers that are needed for swift code; you cannot import headers that depend on
 // public interfaces here
-#if !SDK_V10
-#    import "SentryANRStoppedResultInternal.h"
-#    import "SentryANRTrackerInternalDelegate.h"
-#endif
 #import "SentryClient+Private.h"
 #import "SentryCrashAsync.h"
 #if !SDK_V10
@@ -42,10 +38,6 @@
 
 // Headers that also import SentryDefines should be at the end of this list
 // otherwise it wont compile
-#if !SDK_V10
-#    import "SentryANRTrackerV1.h"
-#    import "SentryANRTrackerV2.h"
-#endif
 #import "SentryAppStartMeasurement+Private.h"
 #import "SentryAppStartMeasurementProvider.h"
 #import "SentryAppStartTrackerHelper.h"
@@ -53,8 +45,6 @@
 #import "SentryAttachment+Private.h"
 #import "SentryBreadcrumb+Private.h"
 #import "SentryContinuousProfiler.h"
-#import "SentryCoreDataSwizzlingHelper.h"
-#import "SentryCoreDataTracker.h"
 #import "SentryCrash.h"
 #import "SentryCrashDebug.h"
 #if !SDK_V10
@@ -78,10 +68,10 @@
 #import "SentryEvent+Private.h"
 #import "SentryFileIOTrackerHelper.h"
 #import "SentryFileManagerHelper.h"
+#import "SentryLaunchProfiling.h"
 #import "SentryMsgPackSerializer.h"
 #import "SentryNSDataSwizzlingHelper.h"
 #import "SentryNSFileManagerSwizzlingHelper.h"
-#import "SentryPerformanceTracker.h"
 #import "SentryProfileCollector.h"
 #import "SentryProfiledTracerConcurrency.h"
 #import "SentryProfiler+Private.h"
@@ -95,13 +85,13 @@
 #import "SentryStacktraceBuilder.h"
 #import "SentryStoredCrashReportProcessor.h"
 #import "SentrySysctlObjC.h"
-#import "SentryTimeToDisplayTracker.h"
 #import "SentryTraceContext+Private.h"
 #import "SentryTraceContextSwiftHelper.h"
 #import "SentryTraceHeader.h"
 #import "SentryTraceOrigin.h"
 #import "SentryTraceProfiler.h"
 #import "SentryTracePropagation.h"
+#import "SentryTransaction+Private.h"
 #import "SentryTransactionContext+Private.h"
 #import "SentryUIViewControllerSwizzlingHelper.h"
 #import "SentryUncaughtNSExceptions.h"

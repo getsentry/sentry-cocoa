@@ -34,6 +34,15 @@ private let testWriteArbitraryFiles: @convention(c) (UnsafePointer<CChar>) -> Vo
     )
 }
 
+private let testWriteJSON: @convention(c) (UnsafePointer<CChar>) -> Void = { path in
+    let url = URL(fileURLWithPath: String(cString: path))
+        .appendingPathComponent("view-hierarchy.json")
+    FileManager.default.createFile(
+        atPath: url.path,
+        contents: Data(#"{"rendering_system":"UIKIT","windows":[]}"#.utf8)
+    )
+}
+
 final class SentryKSCrashAttachmentsMonitorTests: XCTestCase {
     private static let pngBytes: [UInt8] = [
         0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
@@ -61,6 +70,7 @@ final class SentryKSCrashAttachmentsMonitorTests: XCTestCase {
 
     override func tearDownWithError() throws {
         sentrykscrash_attachments_setScreenshotWriter(nil)
+        sentrykscrash_attachments_setViewHierarchyWriter(nil)
         sentrykscrash_attachments_setEnabled(false, nil)
         sentrykscrash_attachments_setSidecarPathProvider(nil)
         AttachmentsMonitorTestRoot.installDir = nil
@@ -84,6 +94,62 @@ final class SentryKSCrashAttachmentsMonitorTests: XCTestCase {
         XCTAssertTrue(FileManager.default.fileExists(atPath: screenshotURL.path))
         XCTAssertEqual(try Data(contentsOf: screenshotURL), Data(Self.pngBytes))
         XCTAssertTrue(SentryKSCrash.AttachmentsMonitor.Marker.isValid(at: markerURL(reportID: reportID)))
+    }
+
+    func testHandleDidWriteReport_whenViewHierarchyWriterWritesJSON_shouldWritePayloadAndMarker() throws {
+        // -- Arrange --
+        let reportID: Int64 = 0xAC
+        let monitor = try makeMonitor(reportID: reportID)
+        monitor.setViewHierarchyWriter(testWriteJSON)
+
+        // -- Act --
+        sentrykscrash_attachments_capture(reportID)
+
+        // -- Assert --
+        let viewHierarchyURL = payloadDirectory(reportID: reportID)
+            .appendingPathComponent("view-hierarchy.json")
+        XCTAssertTrue(FileManager.default.fileExists(atPath: viewHierarchyURL.path))
+        XCTAssertEqual(
+            try Data(contentsOf: viewHierarchyURL),
+            Data(#"{"rendering_system":"UIKIT","windows":[]}"#.utf8)
+        )
+        XCTAssertTrue(SentryKSCrash.AttachmentsMonitor.Marker.isValid(at: markerURL(reportID: reportID)))
+    }
+
+    func testHandleDidWriteReport_whenBothWritersSet_shouldWriteBothFilesAndMarker() throws {
+        // -- Arrange --
+        let reportID: Int64 = 0xAD
+        let monitor = try makeMonitor(reportID: reportID)
+        monitor.setScreenshotWriter(testWritePNG)
+        monitor.setViewHierarchyWriter(testWriteJSON)
+
+        // -- Act --
+        sentrykscrash_attachments_capture(reportID)
+
+        // -- Assert --
+        let payloadDir = payloadDirectory(reportID: reportID)
+        XCTAssertTrue(
+            FileManager.default.fileExists(atPath: payloadDir.appendingPathComponent("screenshot.png").path)
+        )
+        XCTAssertTrue(
+            FileManager.default.fileExists(
+                atPath: payloadDir.appendingPathComponent("view-hierarchy.json").path
+            )
+        )
+        XCTAssertTrue(SentryKSCrash.AttachmentsMonitor.Marker.isValid(at: markerURL(reportID: reportID)))
+    }
+
+    func testHandleDidWriteReport_whenNoWritersSet_shouldNotCapture() throws {
+        // -- Arrange --
+        let reportID: Int64 = 0xAE
+        _ = try makeMonitor(reportID: reportID)
+
+        // -- Act --
+        sentrykscrash_attachments_capture(reportID)
+
+        // -- Assert --
+        XCTAssertFalse(FileManager.default.fileExists(atPath: markerURL(reportID: reportID).path))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: payloadDirectory(reportID: reportID).path))
     }
 
     func testHandleDidWriteReport_whenProviderWritesNothing_shouldNotWriteMarker() throws {

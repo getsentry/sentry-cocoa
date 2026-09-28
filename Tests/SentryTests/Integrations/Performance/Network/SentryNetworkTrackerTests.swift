@@ -84,6 +84,19 @@ class SentryNetworkTrackerTests: XCTestCase {
         try assertCompletedSpan(task, span)
     }
 
+    func testURLSessionTaskCompleted_whenNewLoaderDisabled_shouldNotFinishSpan() throws {
+        // -- Arrange --
+        let task = createDataTask()
+        let span = try XCTUnwrap(spanForTask(task: task))
+        let tracker = fixture.getSut()
+
+        // -- Act --
+        tracker.urlSessionTaskCompleted(task, error: nil)
+
+        // -- Assert --
+        XCTAssertFalse(span.isFinished)
+    }
+
     func test_CallResumeTwice_OneSpan() {
         let task = createDataTask()
 
@@ -880,6 +893,72 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(headers["X-Request"], "original")
     }
 
+    func testCaptureResponseDetails_whenNewLoaderDisabled_shouldNotInitializeRequestDetails() throws {
+        // -- Arrange --
+        fixture.options.sessionReplay.networkDetailAllowUrls = ["www.domain.com"]
+        let tracker = fixture.getSut()
+        let task = createDataTask()
+        let response = try createResponse(code: 200)
+
+        // -- Act --
+        tracker.captureResponseDetails(Data(), response: response, request: Self.fullUrl, task: task)
+
+        // -- Assert --
+        XCTAssertNil(task.networkDetails)
+    }
+
+    func testCaptureRequestDetails_whenFirstCapturedAfterRedirect_shouldKeepOriginalRequest() throws {
+        // -- Arrange --
+        fixture.options.experimental.enableNewURLLoaderSwizzling = true
+        let originalURL = try XCTUnwrap(URL(string: "https://api.example.com/users"))
+        let redirectedURL = try XCTUnwrap(URL(string: "https://api.example.com/redirected"))
+        fixture.options.sessionReplay.networkDetailAllowUrls = ["api.example.com"]
+        fixture.options.sessionReplay.networkRequestHeaders = ["X-Request"]
+        fixture.options.sessionReplay.networkCaptureBodies = true
+        let tracker = fixture.getSut()
+
+        var originalRequest = URLRequest(url: originalURL)
+        originalRequest.httpMethod = "POST"
+        originalRequest.httpBody = Data(#"{"name":"original"}"#.utf8)
+        originalRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        originalRequest.setValue("original", forHTTPHeaderField: "X-Request")
+
+        var redirectedRequest = URLRequest(url: redirectedURL)
+        redirectedRequest.httpMethod = "GET"
+        redirectedRequest.setValue("text/plain", forHTTPHeaderField: "Content-Type")
+        redirectedRequest.setValue("redirected", forHTTPHeaderField: "X-Request")
+        let response = try XCTUnwrap(HTTPURLResponse(
+            url: redirectedURL, statusCode: 200, httpVersion: nil, headerFields: nil
+        ))
+
+        for captureResponse in [true, false] {
+            let task = URLSessionDataTaskMock(request: originalRequest)
+            task.setCurrentRequest(redirectedRequest)
+            task.setResponse(response)
+
+            // -- Act --
+            // New-loader tasks reach completion without a setState: request capture.
+            if captureResponse {
+                tracker.captureResponseDetails(Data(), response: response, request: originalURL, task: task)
+            }
+            tracker.urlSessionTaskCompleted(task, error: nil)
+
+            // -- Assert --
+            let details = try XCTUnwrap(task.networkDetails).serialize()
+            XCTAssertEqual(details["method"] as? String, "POST")
+            let request = try XCTUnwrap(details["request"] as? [String: Any])
+            let headers = try XCTUnwrap(request["headers"] as? [String: String])
+            XCTAssertEqual(headers["X-Request"], "original")
+            XCTAssertEqual(headers["Content-Type"], "application/json")
+            let body = try XCTUnwrap(request["body"] as? [String: Any])
+            let parsedBody = try XCTUnwrap(body["body"] as? [String: Any])
+            XCTAssertEqual(parsedBody["name"] as? String, "original")
+            if captureResponse {
+                XCTAssertEqual(details["statusCode"] as? Int, 200)
+            }
+        }
+    }
+
     /// Regression test for #8388: `captureResponseDetails` must read the response `Content-Type`
     /// case-insensitively. HTTP/2 and HTTP/3 lowercase field names, so the server sends
     /// `content-type`. If the tracker reverts to the case-sensitive `allHeaderFields["Content-Type"]`
@@ -1606,7 +1685,31 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertTrue(breadcrumbs?.isEmpty ?? true)
     }
 
-    func testResume_whenDuplicateTaskResumesAfterMatchingSpanFinishes_shouldTrackTask() throws {
+    func testResume_whenTaskCarriesCancelledNetworkSpanHeader_shouldIgnoreDuplicateTask() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        let transaction = try XCTUnwrap(startTransaction() as? SentryTracer)
+        let originalTask = createDataTask()
+        sut.urlSessionTaskResume(originalTask)
+        let originalSpan = try XCTUnwrap(transaction.children.first)
+        let forwardedRequest = try XCTUnwrap(originalTask.currentRequest)
+        try setTaskState(originalTask, state: .canceling)
+        let duplicateTask = createDataTask { _ in forwardedRequest }
+
+        // -- Act --
+        sut.urlSessionTaskResume(duplicateTask)
+        duplicateTask.setResponse(try createResponse(code: 200))
+        try setTaskState(duplicateTask, state: .completed)
+
+        // -- Assert --
+        XCTAssertEqual(transaction.children.count, 1)
+        XCTAssertTrue(originalSpan.isFinished)
+        XCTAssertEqual(originalSpan.status, .cancelled)
+        let breadcrumbs = try XCTUnwrap(Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?)
+        XCTAssertEqual(breadcrumbs.count, 1)
+    }
+
+    func testResume_whenDuplicateTaskResumesAfterMatchingSpanFinishes_shouldIgnoreDuplicateTask() throws {
         // -- Arrange --
         let sut = fixture.getSut()
         let transaction = try XCTUnwrap(startTransaction() as? SentryTracer)
@@ -1632,10 +1735,10 @@ class SentryNetworkTrackerTests: XCTestCase {
         try setTaskState(duplicateTask, state: .completed)
 
         // -- Assert --
-        XCTAssertEqual(transaction.children.count, 2)
-        XCTAssertTrue(try XCTUnwrap(transaction.children.last).isFinished)
+        XCTAssertEqual(transaction.children.count, 1)
+        XCTAssertTrue(originalSpan.isFinished)
         let breadcrumbs = try XCTUnwrap(Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?)
-        XCTAssertEqual(breadcrumbs.count, 2)
+        XCTAssertEqual(breadcrumbs.count, 1)
     }
 
     func testTraceHeader() throws {

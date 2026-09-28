@@ -173,13 +173,46 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     private func registerEventProcessor(dependencies: SessionReplayIntegrationScope) {
         dependencies.globalEventProcessor.add { [weak self] event in
             guard let self = self else { return event }
+            // Feedback capture resolves its replay before processing, including the form's
+            // opening-time association. Do not replace it with the current session's ID.
+            if event.type == SentryEnvelopeItemTypes.feedback {
+                return event
+            }
             if event.isFatalEvent {
+                // A crash belongs to the previous session, which is recovered and sent separately.
+                // Don't register its trace on the current session's replay: the crash's persisted
+                // trace would be attached to the wrong (new) segment while the recovered replay
+                // never receives it.
                 self.replayRecovery?.resumePreviousSessionReplay(event)
             } else {
+                // Associate the event's trace with the recording replay segment (#7964), so replays
+                // can be searched by trace ID. Skip replay_video events, which carry no trace of
+                // their own.
+                if event.type != SentryEnvelopeItemTypes.replayVideo,
+                    let traceId = traceId(for: event) {
+                    self.sessionReplay?.registerTraceId(traceId)
+                }
                 self.sessionReplay?.captureReplayFor(event: event)
             }
             return event
         }
+    }
+
+    /// The trace ID an event belongs to, for associating it with the replay segment.
+    ///
+    /// Transactions are read from the transaction's own trace: by the time global processors run,
+    /// the tracer has been removed from the scope, so on the v9 build the event's `context["trace"]`
+    /// holds the idle propagation trace rather than the transaction's. Other events (e.g. errors)
+    /// carry the correct trace in their context, populated by the scope before processors run.
+    private func traceId(for event: Event) -> SentryId? {
+        if let transaction = event as? Transaction {
+            return transaction.trace.traceId
+        }
+        guard let hexString = event.context?["trace"]?["trace_id"] as? String else {
+            return nil
+        }
+        let traceId = SentryId(uuidString: hexString)
+        return traceId == SentryId.empty ? nil : traceId
     }
 
     // MARK: - Session Listener
@@ -431,6 +464,13 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         return sessionReplay?.captureReplay() ?? false 
     }
 
+    /// Samples and flushes the active replay for feedback, returning its association when captured.
+    @objc public func captureReplayForFeedback() -> SentryId? {
+        guard let sessionReplay = sessionReplay else { return nil }
+        guard sessionReplay.isFullSession || replayOptions.onErrorSampleRate > 0 else { return nil }
+        return sessionReplay.captureForFeedback()
+    }
+
     @objc public func configureReplayWith(_ breadcrumbConverter: SentryReplayBreadcrumbConverter?, screenshotProvider: SentryViewScreenshotProvider?) {
         SentrySDKLog.debug("[Session Replay] Configuring replay")
         if let bc = breadcrumbConverter {
@@ -446,7 +486,15 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
 
     @objc public func setReplayTags(_ tags: [String: Any]) {
         SentrySDKLog.debug("[Session Replay] Setting replay tags: \(tags)")
-        sessionReplay?.replayTags = tags 
+        sessionReplay?.replayTags = tags
+    }
+
+    /// Registers a trace ID with the current replay segment.
+    ///
+    /// No-op when no replay is recording. Reachable from hybrid SDKs through
+    /// `SentrySDK.internal.replay.registerTraceId(_:)`.
+    @objc public func registerReplayTraceId(_ traceId: SentryId) {
+        sessionReplay?.registerTraceId(traceId)
     }
 
     @objc public func showMaskPreview(_ opacity: Float) {

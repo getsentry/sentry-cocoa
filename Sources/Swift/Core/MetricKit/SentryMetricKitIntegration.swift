@@ -29,4 +29,18 @@ final class SentryMetricKitIntegration<Dependencies>: NSObject, SwiftIntegration
     }
 }
 
+// Keep this extension with the integration so static links retain its Objective-C category
+// even when MetricKit is disabled. A standalone extension file can be omitted without -ObjC,
+// leaving SentryClient's isMetricKitEvent message with no implementation.
+extension Event {
+    // swiftlint:disable:next missing_docs
+    @objc @_spi(Private) public func isMetricKitEvent() -> Bool {
+        guard let mechanism = exceptions?.first?.mechanism, exceptions?.count == 1 else {
+            return false
+        }
+
+        return SentryMXManager.Diagnostic.all.contains { $0.mechanism == mechanism.type }
+    }
+}
+
 #endif

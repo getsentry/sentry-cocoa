@@ -338,6 +338,13 @@
         "declKind": "Import",
         "kind": "Import",
         "moduleName": "Sentry",
+        "name": "CoreData",
+        "printedName": "CoreData"
+      },
+      {
+        "declKind": "Import",
+        "kind": "Import",
+        "moduleName": "Sentry",
         "name": "CoreGraphics",
         "printedName": "CoreGraphics"
       },
@@ -20882,10 +20889,17 @@
                 "accessorKind": "get",
                 "children": [
                   {
-                    "kind": "TypeNominal",
-                    "name": "Double",
-                    "printedName": "Swift.Double",
-                    "usr": "s:Sd"
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Double",
+                        "printedName": "Swift.Double",
+                        "usr": "s:Sd"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "TimeInterval",
+                    "printedName": "Foundation.TimeInterval"
                   }
                 ],
                 "declAttributes": [
@@ -20893,7 +20907,6 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC22appHangTimeoutIntervalSdvg",
                 "moduleName": "Sentry",
@@ -20905,10 +20918,17 @@
                 "accessorKind": "set",
                 "children": [
                   {
-                    "kind": "TypeNominal",
-                    "name": "Double",
-                    "printedName": "Swift.Double",
-                    "usr": "s:Sd"
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Double",
+                        "printedName": "Swift.Double",
+                        "usr": "s:Sd"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "TimeInterval",
+                    "printedName": "Foundation.TimeInterval"
                   },
                   {
                     "kind": "TypeNominal",
@@ -20921,30 +20941,35 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC22appHangTimeoutIntervalSdvs",
                 "moduleName": "Sentry",
                 "name": "Set",
+                "objc_name": "setAppHangTimeoutInterval:",
                 "printedName": "Set()",
                 "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setAppHangTimeoutInterval:"
               }
             ],
             "children": [
               {
-                "kind": "TypeNominal",
-                "name": "Double",
-                "printedName": "Swift.Double",
-                "usr": "s:Sd"
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Double",
+                    "printedName": "Swift.Double",
+                    "usr": "s:Sd"
+                  }
+                ],
+                "kind": "TypeNameAlias",
+                "name": "TimeInterval",
+                "printedName": "Foundation.TimeInterval"
               }
             ],
             "declAttributes": [
               "Final",
-              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "hasStorage": true,
             "kind": "Var",
             "mangledName": "$s6Sentry7OptionsC22appHangTimeoutIntervalSdvp",
             "moduleName": "Sentry",
@@ -22683,20 +22708,33 @@
                             "usr": "s:Sq"
                           },
                           {
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Hint",
+                                "printedName": "Sentry.Hint",
+                                "usr": "c:@M@Sentry@objc(cs)SentryHint"
+                              },
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Transaction",
+                                "printedName": "Sentry.Transaction",
+                                "usr": "c:objc(cs)SentryTransaction"
+                              }
+                            ],
                             "kind": "TypeNominal",
-                            "name": "Transaction",
-                            "printedName": "Sentry.Transaction",
-                            "usr": "c:objc(cs)SentryTransaction"
+                            "name": "Tuple",
+                            "printedName": "(Sentry.Transaction, Sentry.Hint)"
                           }
                         ],
                         "kind": "TypeFunc",
                         "name": "Function",
-                        "printedName": "(Sentry.Transaction) -> Sentry.Transaction?"
+                        "printedName": "(Sentry.Transaction, Sentry.Hint) -> Sentry.Transaction?"
                       }
                     ],
                     "kind": "TypeNominal",
                     "name": "Optional",
-                    "printedName": "((Sentry.Transaction) -> Sentry.Transaction?)?",
+                    "printedName": "((Sentry.Transaction, Sentry.Hint) -> Sentry.Transaction?)?",
                     "usr": "s:Sq"
                   }
                 ],
@@ -22707,7 +22745,7 @@
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry7OptionsC21beforeSendTransactionSo0aE0CSgAFcSgvg",
+                "mangledName": "$s6Sentry7OptionsC21beforeSendTransactionSo0aE0CSgAF_AA4HintCtcSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
                 "printedName": "Get()",
@@ -22735,20 +22773,33 @@
                             "usr": "s:Sq"
                           },
                           {
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Hint",
+                                "printedName": "Sentry.Hint",
+                                "usr": "c:@M@Sentry@objc(cs)SentryHint"
+                              },
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Transaction",
+                                "printedName": "Sentry.Transaction",
+                                "usr": "c:objc(cs)SentryTransaction"
+                              }
+                            ],
                             "kind": "TypeNominal",
-                            "name": "Transaction",
-                            "printedName": "Sentry.Transaction",
-                            "usr": "c:objc(cs)SentryTransaction"
+                            "name": "Tuple",
+                            "printedName": "(Sentry.Transaction, Sentry.Hint)"
                           }
                         ],
                         "kind": "TypeFunc",
                         "name": "Function",
-                        "printedName": "(Sentry.Transaction) -> Sentry.Transaction?"
+                        "printedName": "(Sentry.Transaction, Sentry.Hint) -> Sentry.Transaction?"
                       }
                     ],
                     "kind": "TypeNominal",
                     "name": "Optional",
-                    "printedName": "((Sentry.Transaction) -> Sentry.Transaction?)?",
+                    "printedName": "((Sentry.Transaction, Sentry.Hint) -> Sentry.Transaction?)?",
                     "usr": "s:Sq"
                   },
                   {
@@ -22764,7 +22815,7 @@
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry7OptionsC21beforeSendTransactionSo0aE0CSgAFcSgvs",
+                "mangledName": "$s6Sentry7OptionsC21beforeSendTransactionSo0aE0CSgAF_AA4HintCtcSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
                 "printedName": "Set()",
@@ -22791,20 +22842,33 @@
                         "usr": "s:Sq"
                       },
                       {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Hint",
+                            "printedName": "Sentry.Hint",
+                            "usr": "c:@M@Sentry@objc(cs)SentryHint"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Transaction",
+                            "printedName": "Sentry.Transaction",
+                            "usr": "c:objc(cs)SentryTransaction"
+                          }
+                        ],
                         "kind": "TypeNominal",
-                        "name": "Transaction",
-                        "printedName": "Sentry.Transaction",
-                        "usr": "c:objc(cs)SentryTransaction"
+                        "name": "Tuple",
+                        "printedName": "(Sentry.Transaction, Sentry.Hint)"
                       }
                     ],
                     "kind": "TypeFunc",
                     "name": "Function",
-                    "printedName": "(Sentry.Transaction) -> Sentry.Transaction?"
+                    "printedName": "(Sentry.Transaction, Sentry.Hint) -> Sentry.Transaction?"
                   }
                 ],
                 "kind": "TypeNominal",
                 "name": "Optional",
-                "printedName": "((Sentry.Transaction) -> Sentry.Transaction?)?",
+                "printedName": "((Sentry.Transaction, Sentry.Hint) -> Sentry.Transaction?)?",
                 "usr": "s:Sq"
               }
             ],
@@ -22817,7 +22881,7 @@
             "declKind": "Var",
             "hasStorage": true,
             "kind": "Var",
-            "mangledName": "$s6Sentry7OptionsC21beforeSendTransactionSo0aE0CSgAFcSgvp",
+            "mangledName": "$s6Sentry7OptionsC21beforeSendTransactionSo0aE0CSgAF_AA4HintCtcSgvp",
             "moduleName": "Sentry",
             "name": "beforeSendTransaction",
             "printedName": "beforeSendTransaction",
@@ -25296,82 +25360,6 @@
             "name": "enablePropagateTraceparent",
             "printedName": "enablePropagateTraceparent",
             "usr": "c:@M@Sentry@objc(cs)SentryOptions(py)enablePropagateTraceparent"
-          },
-          {
-            "accessors": [
-              {
-                "accessorKind": "get",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Bool",
-                    "printedName": "Swift.Bool",
-                    "usr": "s:Sb"
-                  }
-                ],
-                "declAttributes": [
-                  "Final",
-                  "ObjC"
-                ],
-                "declKind": "Accessor",
-                "implicit": true,
-                "kind": "Accessor",
-                "mangledName": "$s6Sentry7OptionsC22enableSigtermReportingSbvg",
-                "moduleName": "Sentry",
-                "name": "Get",
-                "printedName": "Get()",
-                "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)enableSigtermReporting"
-              },
-              {
-                "accessorKind": "set",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Bool",
-                    "printedName": "Swift.Bool",
-                    "usr": "s:Sb"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "declAttributes": [
-                  "Final",
-                  "ObjC"
-                ],
-                "declKind": "Accessor",
-                "implicit": true,
-                "kind": "Accessor",
-                "mangledName": "$s6Sentry7OptionsC22enableSigtermReportingSbvs",
-                "moduleName": "Sentry",
-                "name": "Set",
-                "printedName": "Set()",
-                "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setEnableSigtermReporting:"
-              }
-            ],
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Bool",
-                "printedName": "Swift.Bool",
-                "usr": "s:Sb"
-              }
-            ],
-            "declAttributes": [
-              "Final",
-              "HasStorage",
-              "ObjC"
-            ],
-            "declKind": "Var",
-            "hasStorage": true,
-            "kind": "Var",
-            "mangledName": "$s6Sentry7OptionsC22enableSigtermReportingSbvp",
-            "moduleName": "Sentry",
-            "name": "enableSigtermReporting",
-            "printedName": "enableSigtermReporting",
-            "usr": "c:@M@Sentry@objc(cs)SentryOptions(py)enableSigtermReporting"
           },
           {
             "accessors": [
@@ -38641,6 +38629,82 @@
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry0A19ExperimentalOptionsC27enableNewURLLoaderSwizzlingSbvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(im)enableNewURLLoaderSwizzling"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A19ExperimentalOptionsC27enableNewURLLoaderSwizzlingSbvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(im)setEnableNewURLLoaderSwizzling:"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasStorage",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A19ExperimentalOptionsC27enableNewURLLoaderSwizzlingSbvp",
+            "moduleName": "Sentry",
+            "name": "enableNewURLLoaderSwizzling",
+            "printedName": "enableNewURLLoaderSwizzling",
+            "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(py)enableNewURLLoaderSwizzling"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
                 "mangledName": "$s6Sentry0A19ExperimentalOptionsC35enableUIViewControllerInitSwizzlingSbvg",
                 "moduleName": "Sentry",
                 "name": "Get",
@@ -44457,6 +44521,29 @@
             "name": "pause",
             "printedName": "pause()",
             "usr": "s:6Sentry0A17InternalReplayApiV5pauseyyF"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryId",
+                "printedName": "Sentry.SentryId",
+                "usr": "c:objc(cs)SentryId"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A17InternalReplayApiV15registerTraceIdyySo0aG0CF",
+            "moduleName": "Sentry",
+            "name": "registerTraceId",
+            "printedName": "registerTraceId(_:)",
+            "usr": "s:6Sentry0A17InternalReplayApiV15registerTraceIdyySo0aG0CF"
           },
           {
             "children": [

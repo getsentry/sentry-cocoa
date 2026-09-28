@@ -22,9 +22,15 @@ import Foundation
         set { wrapped.enableUnhandledCPPExceptionsV2 = newValue }
     }
 
+    @objc public var enableNewURLLoaderSwizzling: Bool {
+        get { wrapped.enableNewURLLoaderSwizzling }
+        set { wrapped.enableNewURLLoaderSwizzling = newValue }
+    }
+
     #if !SDK_V10
     @objc public var enableWatchdogTerminationsV2: Bool {
         get { wrapped.enableWatchdogTerminationsV2 }
+        @available(*, deprecated, message: "enableWatchdogTerminationsV2 is deprecated and will be removed in v10, where the improved watchdog termination tracking mechanism is enabled by default.")
         set { wrapped.enableWatchdogTerminationsV2 = newValue }
     }
     #endif

@@ -2207,6 +2207,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "enableNewURLLoaderSwizzling",
+    "parent": "SentryObjCExperimentalOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "enableOnShake",
     "parent": "SentryObjCFeedbackApi",
     "returnType": "void",
@@ -5175,6 +5182,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "registerTraceId:",
+    "parent": "SentryObjCInternalReplayApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "registers",
     "parent": "SentryObjCStacktrace",
     "returnType": "NSDictionary<NSString *,NSString *> * _Nonnull",
@@ -6206,6 +6220,13 @@
     "kind": "ObjCMethodDecl",
     "name": "setEnableNetworkTracking:",
     "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setEnableNewURLLoaderSwizzling:",
+    "parent": "SentryObjCExperimentalOptions",
     "returnType": "void",
     "instance": true
   },
@@ -9593,6 +9614,12 @@
     "kind": "ObjCPropertyDecl",
     "name": "enableNetworkTracking",
     "parent": "SentryObjCOptions",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "enableNewURLLoaderSwizzling",
+    "parent": "SentryObjCExperimentalOptions",
     "type": "BOOL"
   },
   {

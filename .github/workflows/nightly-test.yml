@@ -49,7 +49,7 @@ jobs:
             timeout: 30
 
           - name: watchOS 27 Sentry
-            runs-on: xcode-beta
+            runs-on: tahoe-27
             xcode: "27"
             allow_prerelease: true
             platform: "watchOS"

@@ -20,7 +20,7 @@ struct SentryMXCallStack: Decodable {
 }
 
 struct SentryMXFrame: Decodable {
-    let binaryUUID: UUID
+    let binaryUUID: UUID?
     let offsetIntoBinaryTextSegment: Int
     let binaryName: String?
     let address: UInt64

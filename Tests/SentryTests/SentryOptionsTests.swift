@@ -15,6 +15,14 @@ final class SentryOptionsTests: XCTestCase {
 #endif
     }
 
+    func testEnableNewURLLoaderSwizzling_whenDefault_shouldBeFalse() {
+        // -- Arrange --
+        let options = Options()
+
+        // -- Assert --
+        XCTAssertFalse(options.experimental.enableNewURLLoaderSwizzling)
+    }
+
     // MARK: - Data Collection
 
     func testDataCollection_whenInitialized_shouldUseDefault() throws {

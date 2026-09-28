@@ -48,8 +48,8 @@ import UIKit
 ///     dateProvider: dateProvider,
 ///     crashReporter: crashReporter
 /// )
-/// // Passed to SentryCrashWrapper, SentryCrashIntegrationSessionHandler,
-/// // and the underlying SentryCrash / SentryCrashInstallation instances.
+/// // Passed to SentryCrashWrapper and the underlying SentryCrash /
+/// // SentryCrashInstallation instances.
 /// ```
 @objc @_spi(Private) public final class SentryCrashBridge: NSObject {
 

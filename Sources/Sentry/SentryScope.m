@@ -12,6 +12,9 @@
 #import "SentrySpanInternal.h"
 #import "SentrySwift.h"
 #import "SentryTracer.h"
+#if SDK_V10
+#    import "SentryTransaction+Private.h"
+#endif // SDK_V10
 #import "SentryTransactionContext.h"
 #import "SentryUser.h"
 
@@ -25,6 +28,13 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
 @property (atomic) NSUInteger currentBreadcrumbIndex;
 
 @property (atomic, strong) NSMutableArray<SentryAttachment *> *attachmentArray;
+
+/**
+ * Attachments the SDK captured at crash time, such as screenshots and the view hierarchy. These are
+ * kept apart from user attachments because fatal events must only carry attachments that belong to
+ * the crashed app run.
+ */
+@property (atomic, strong) NSMutableArray<SentryAttachment *> *crashReportAttachmentArray;
 
 @property (nonatomic, retain) NSMutableArray<id<SentryScopeObserver>> *observers;
 
@@ -56,6 +66,7 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
         self.extraDictionary = [[NSMutableDictionary alloc] init];
         self.contextDictionary = [[NSMutableDictionary alloc] init];
         self.attachmentArray = [[NSMutableArray alloc] init];
+        self.crashReportAttachmentArray = [[NSMutableArray alloc] init];
         self.fingerprintArray = [[NSMutableArray alloc] init];
         self.attributesDictionary = [[NSMutableDictionary alloc] init];
         _featureFlagBuffer = [SentryFeatureFlagBufferWrapper scopeBuffer];
@@ -103,6 +114,7 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
         [_breadcrumbArray addObjectsFromArray:crumbs];
         [_fingerprintArray addObjectsFromArray:[scope fingerprints]];
         [_attachmentArray addObjectsFromArray:[scope attachments]];
+        [_crashReportAttachmentArray addObjectsFromArray:[scope crashReportAttachments]];
         [_attributesDictionary addEntriesFromDictionary:[scope attributes]];
 
         self.propagationContext = scope.propagationContext;
@@ -496,14 +508,17 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
 
 - (void)addCrashReportAttachmentInPath:(NSString *)filePath
 {
+    SentryAttachment *attachment;
     if ([filePath.lastPathComponent isEqualToString:@"view-hierarchy.json"]) {
-        [self addAttachment:[[SentryAttachment alloc]
-                                  initWithPath:filePath
-                                      filename:@"view-hierarchy.json"
-                                   contentType:@"application/json"
-                                attachmentType:kSentryAttachmentTypeViewHierarchy]];
+        attachment = [[SentryAttachment alloc] initWithPath:filePath
+                                                   filename:@"view-hierarchy.json"
+                                                contentType:@"application/json"
+                                             attachmentType:kSentryAttachmentTypeViewHierarchy];
     } else {
-        [self addAttachment:[[SentryAttachment alloc] initWithPath:filePath]];
+        attachment = [[SentryAttachment alloc] initWithPath:filePath];
+    }
+    @synchronized(_crashReportAttachmentArray) {
+        [_crashReportAttachmentArray addObject:attachment];
     }
 }
 
@@ -518,6 +533,13 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
 {
     @synchronized(_attachmentArray) {
         return _attachmentArray.copy;
+    }
+}
+
+- (NSArray<SentryAttachment *> *)crashReportAttachments
+{
+    @synchronized(_crashReportAttachmentArray) {
+        return _crashReportAttachmentArray.copy;
     }
 }
 
@@ -809,7 +831,18 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
     NSMutableDictionary *context =
         [NSMutableDictionary dictionaryWithDictionary:event.context ?: @{ }];
     NSString *previousTraceId = context[@"trace"][@"trace_id"];
+#if SDK_V10
+    if ([event.type isEqualToString:SentryEnvelopeItemTypes.transaction] &&
+        [event isKindOfClass:[SentryTransaction class]]) {
+        // Transaction capture is asynchronous, so the scope may no longer hold its tracer.
+        // Use the same trace as transaction serialization, including in before-send callbacks.
+        context[@"trace"] = [((SentryTransaction *)event).trace serialize];
+    } else {
+        context[@"trace"] = [self buildTraceContext:span];
+    }
+#else
     context[@"trace"] = [self buildTraceContext:span];
+#endif // SDK_V10
     event.context = context;
 
     if ([event.type isEqualToString:SentryEnvelopeItemTypes.transaction]) {
@@ -857,6 +890,13 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
         @synchronized(_observersLock) {
             [self.observers addObject:observer];
         }
+    }
+}
+
+- (void)performWithBreadcrumbsLocked:(void(NS_NOESCAPE ^)(void))block
+{
+    @synchronized(_breadcrumbArray) {
+        block();
     }
 }
 

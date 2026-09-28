@@ -46,6 +46,9 @@ import Foundation
         if options.enableFileManagerSwizzling {
             features.append("fileManagerSwizzling")
         }
+        if options.experimental.enableNewURLLoaderSwizzling {
+            features.append("newURLLoaderSwizzling")
+        }
         if options.experimental.enableUnhandledCPPExceptionsV2 {
             features.append("unhandledCPPExceptionsV2")
         }

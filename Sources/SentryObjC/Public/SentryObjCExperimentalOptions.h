@@ -18,9 +18,27 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic) BOOL enableUnhandledCPPExceptionsV2;
 
+/**
+ * Enables swizzling for automatic network instrumentation of the new URLSession HTTP loader.
+ * Requires @c enableSwizzling and an enabled network tracking feature.
+ * Classic-loader instrumentation is unaffected by this option.
+ *
+ * @warning This is an experimental feature and is disabled by default.
+ * @note Configure this option before starting the SDK. Installed swizzles remain for the process
+ * lifetime, but bypass new-loader instrumentation if the SDK restarts with this option disabled.
+ */
+@property (nonatomic) BOOL enableNewURLLoaderSwizzling;
+
 #if !SDK_V10
-/// When enabled, the SDK uses a more efficient mechanism for detecting watchdog terminations.
-@property (nonatomic) BOOL enableWatchdogTerminationsV2;
+/**
+ * When enabled, the SDK uses a more efficient mechanism for detecting watchdog terminations.
+ * @deprecated This option will be removed in v10, where the improved watchdog termination tracking
+ * mechanism is enabled by default.
+ */
+@property (nonatomic) BOOL enableWatchdogTerminationsV2
+    __attribute__((deprecated("enableWatchdogTerminationsV2 is deprecated and will be removed in "
+                              "v10, where the improved watchdog termination tracking mechanism is "
+                              "enabled by default.")));
 #endif
 
 /**

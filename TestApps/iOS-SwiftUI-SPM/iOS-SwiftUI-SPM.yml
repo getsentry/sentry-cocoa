@@ -1,0 +1,144 @@
+# yaml-language-server: $schema=../../schema/xcodegen.schema.json
+#
+# This test app demonstrates using the SentrySPM product (compile-from-source via SPM)
+# instead of the pre-built xcframework binary. It uses a local package reference to the
+# sentry-cocoa repo so changes to the SDK source are immediately reflected.
+
+name: iOS-SwiftUI-SPM
+createIntermediateGroups: true
+generateEmptyDirectories: true
+configs:
+  Debug: debug
+  Release: release
+packages:
+  Sentry:
+    path: ../..
+fileGroups:
+  - iOS-SwiftUI-SPM.yml
+options:
+  bundleIdPrefix: io.sentry
+targets:
+  iOS-SwiftUI-SPM:
+    type: application
+    platform: iOS
+    deploymentTarget: "15.0"
+    sources:
+      - Sources
+    dependencies:
+      - package: Sentry
+        product: SentrySPM
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.sentry.iOS-SwiftUI-SPM
+        SWIFT_VERSION: "5.0"
+    postBuildScripts:
+      - script: INFOPLIST_FILE="${TARGET_BUILD_DIR}/${INFOPLIST_PATH}" ../Shared/inject-git-info.sh
+        name: Inject Git Information into Info.plist
+        basedOnDependencyAnalysis: false
+      - script: |
+          # This script is responsible for uploading debug symbols and source context for Sentry.
+          if [[ "$(uname -m)" == arm64 ]]; then
+            export PATH="/opt/homebrew/bin:$PATH"
+          fi
+
+          if which sentry-cli >/dev/null; then
+            export SENTRY_ORG=sentry-sdks
+            export SENTRY_PROJECT=sentry-cocoa
+            ERROR=$(sentry-cli debug-files upload --include-sources "$DWARF_DSYM_FOLDER_PATH" 2>&1 >/dev/null)
+            if [ ! $? -eq 0 ]; then
+              echo "info: sentry-cli - $ERROR"
+            fi
+          else
+            echo "info: sentry-cli not installed, download from https://github.com/getsentry/sentry-cli/releases"
+          fi
+        name: Upload Debug Symbols to Sentry
+        inputFiles:
+          - ${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}
+    entitlements:
+      path: Resources/Entitlements.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.network.client: true
+    info:
+      path: Resources/Info.plist
+      properties:
+        GIT_BRANCH: <branch>
+        GIT_COMMIT_HASH: <sha>
+        GIT_STATUS_CLEAN: <status>
+        LSRequiresIPhoneOS: true
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: true
+        UIApplicationSupportsIndirectInputEvents: true
+        UILaunchScreen: {}
+        UIRequiredDeviceCapabilities:
+          - armv7
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+  watchOS-SwiftUI-SPM:
+    type: application
+    platform: watchOS
+    deploymentTarget: "9.0"
+    sources:
+      - Sources-watchOS
+    dependencies:
+      - package: Sentry
+        product: SentrySPM
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.sentry.watchOS-SwiftUI-SPM
+        SWIFT_VERSION: "5.0"
+    info:
+      path: Resources/watchOS-Info.plist
+      properties:
+        CFBundleDisplayName: watchOS-SwiftUI-SPM
+        WKApplication: true
+        GIT_BRANCH: <branch>
+        GIT_COMMIT_HASH: <sha>
+        GIT_STATUS_CLEAN: <status>
+    postBuildScripts:
+      - script: INFOPLIST_FILE="${TARGET_BUILD_DIR}/${INFOPLIST_PATH}" ../Shared/inject-git-info.sh
+        name: Inject Git Information into Info.plist
+        basedOnDependencyAnalysis: false
+      - script: |
+          # This script is responsible for uploading debug symbols and source context for Sentry.
+          if [[ "$(uname -m)" == arm64 ]]; then
+            export PATH="/opt/homebrew/bin:$PATH"
+          fi
+
+          if which sentry-cli >/dev/null; then
+            export SENTRY_ORG=sentry-sdks
+            export SENTRY_PROJECT=sentry-cocoa
+            ERROR=$(sentry-cli debug-files upload --include-sources "$DWARF_DSYM_FOLDER_PATH" 2>&1 >/dev/null)
+            if [ ! $? -eq 0 ]; then
+              echo "info: sentry-cli - $ERROR"
+            fi
+          else
+            echo "info: sentry-cli not installed, download from https://github.com/getsentry/sentry-cli/releases"
+          fi
+        name: Upload Debug Symbols to Sentry
+        inputFiles:
+          - ${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}
+schemes:
+  iOS-SwiftUI-SPM:
+    build:
+      targets:
+        iOS-SwiftUI-SPM: all
+    run:
+      config: Debug
+    archive:
+      config: Release
+  watchOS-SwiftUI-SPM:
+    build:
+      targets:
+        watchOS-SwiftUI-SPM: all
+    run:
+      config: Debug
+    archive:
+      config: Release

@@ -69,6 +69,21 @@ struct SentrySwizzleMethod<Receiver: AnyObject, Arguments, Result> {
         /// An Objective-C object reference.
         case object
 
+        /// A pointer to an autoreleasing Objective-C object reference, such as `NSError **`.
+        case objectPointer
+
+        /// The Objective-C `bool` type.
+        case bool
+
+        /// The platform's Objective-C `BOOL` representation.
+        static var objcBool: Self {
+            #if arch(x86_64) && (os(macOS) || targetEnvironment(macCatalyst))
+            return .signedInteger(MemoryLayout<CChar>.size)
+            #else
+            return .bool
+            #endif
+        }
+
         /// An Objective-C selector.
         case selector
 
@@ -86,6 +101,7 @@ struct SentrySwizzleMethod<Receiver: AnyObject, Arguments, Result> {
             [
                 "v": .void,
                 "@": .object,
+                "B": .bool,
                 ":": .selector
             ]
         }
@@ -106,6 +122,8 @@ struct SentrySwizzleMethod<Receiver: AnyObject, Arguments, Result> {
             switch self {
             case .void: return "v"
             case .object: return "@"
+            case .objectPointer: return "^@"
+            case .bool: return "B"
             case .selector: return ":"
             case .block: return "@?"
             case .signedInteger(let size): return "signed-int\(size * 8)"
@@ -121,6 +139,11 @@ struct SentrySwizzleMethod<Receiver: AnyObject, Arguments, Result> {
         /// - Parameter encoding: The type encoding returned by the Objective-C runtime.
         init(encoding: String) {
             let normalized = encoding.drop(while: { "rnNoORV".contains($0) })
+
+            if normalized == "^@" || normalized.hasPrefix("^@\"") {
+                self = .objectPointer
+                return
+            }
 
             if normalized.hasPrefix("@?") {
                 self = .block
@@ -147,7 +170,7 @@ struct SentrySwizzleMethod<Receiver: AnyObject, Arguments, Result> {
         /// - Returns: `true` when both values represent the same supported ABI type.
         func matches(_ actual: ABIType) -> Bool {
             switch (self, actual) {
-            case (.void, .void), (.object, .object), (.selector, .selector), (.block, .block):
+            case (.void, .void), (.object, .object), (.objectPointer, .objectPointer), (.bool, .bool), (.selector, .selector), (.block, .block):
                 return true
             case (.signedInteger(let expectedSize), .signedInteger(let actualSize)):
                 return expectedSize == actualSize

@@ -89,6 +89,18 @@ NS_ASSUME_NONNULL_BEGIN
 /// Controls the flush duration when calling @c SentryObjCSDK.close.
 @property (nonatomic) NSTimeInterval shutdownTimeInterval;
 
+#if SDK_V10
+/**
+ * When enabled, the SDK sends crashes to Sentry.
+ * @note Disabling this feature disables watchdog termination tracking, because it would falsely
+ * report every crash as watchdog termination.
+ * @note Default value is @c YES.
+ * @note Crash reporting is automatically disabled if a debugger is attached.
+ * @note @c SIGTERM is not a crash. The crash handler catches and re-raises it so the process
+ * still terminates, but it writes no crash report, sends no event, and does not classify the
+ * next launch as crashed.
+ */
+#else
 /**
  * When enabled, the SDK sends crashes to Sentry.
  * @note Disabling this feature disables watchdog termination tracking, because it would falsely
@@ -96,6 +108,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @note Default value is @c YES.
  * @note Crash reporting is automatically disabled if a debugger is attached.
  */
+#endif // SDK_V10
 @property (nonatomic) BOOL enableCrashHandler;
 
 /**
@@ -155,8 +168,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 #if SDK_V10
 /// This block can be used to modify a transaction before it will be serialized and sent.
+/// Return @c nil to drop the transaction.
+/// The hint carries the attachments that will be sent with the transaction and any values passed
+/// at capture time. The list left in the hint when the callback returns is what the SDK sends.
 @property (nonatomic, copy, nullable) SentryObjCTransaction *_Nullable (^beforeSendTransaction)
-    (SentryObjCTransaction *);
+    (SentryObjCTransaction *, SentryObjCHint *);
 
 #endif // SDK_V10
 
@@ -461,15 +477,20 @@ NS_ASSUME_NONNULL_BEGIN
  * time defined by the @c appHangTimeoutInterval option.
  * @note The default is @c YES.
  * @note App Hang tracking is automatically disabled if a debugger is attached.
+ * @note App Hang tracking is deprecated because it can produce less relevant stack traces and
+ * false positives. It will be removed in v10. Set this option to @c NO to opt out until then.
+ * Enable the MetricKit integration for system-provided hang diagnostics.
  */
 @property (nonatomic) BOOL enableAppHangTracking;
 #endif // !SDK_V10
 
 /**
- * The minimum amount of time an app should be unresponsive to be classified as an App Hang.
+ * The minimum amount of time the app must be unresponsive before the SDK considers it hung.
+ * In v10, the SDK still uses this threshold internally to classify watchdog terminations.
  * @note The actual amount may be a little longer.
- * @note Avoid using values lower than 100ms, which may cause a lot of app hang events being
- * transmitted.
+ * @note Avoid using values lower than 100ms, which may cause false-positive hang detection.
+ * @note The value must be greater than @c 0. When setting a value of @c 0 or lower, the SDK sets it
+ * to the default.
  * @note The default value is 2 seconds.
  */
 @property (nonatomic) NSTimeInterval appHangTimeoutInterval;
@@ -650,8 +671,15 @@ NS_ASSUME_NONNULL_BEGIN
  * When enabled, the SDK reports non-fully-blocking app hangs. A non-fully-blocking app hang is
  * when the app appears stuck to the user but can still render a few frames.
  * @note The default is @c YES.
+ * @deprecated App Hang tracking can produce less relevant stack traces and false positives.
+ * Enable the MetricKit integration for system-provided hang diagnostics.
  */
-@property (nonatomic) BOOL enableReportNonFullyBlockingAppHangs;
+@property (nonatomic) BOOL enableReportNonFullyBlockingAppHangs __attribute__((
+    deprecated("App Hang tracking is deprecated and will be removed in v10 because "
+               "it can produce less relevant stack traces and false positives. "
+               "Enable the MetricKit integration using ``SentrySDKOptions/enableMetricKit`` for "
+               "system-provided hang diagnostics.",
+        "enableMetricKit")));
 #    endif // !SDK_V10
 
 #endif
@@ -673,15 +701,20 @@ NS_ASSUME_NONNULL_BEGIN
 
 #endif
 
-#if !TARGET_OS_WATCH
+#if !TARGET_OS_WATCH && !SDK_V10
 
 /**
  * When enabled, the SDK reports SIGTERM signals.
  * @note Default value is @c NO.
+ * @note Removed in v10. KSCrash always catches @c SIGTERM, records a clean exit, and never writes
+ * a crash report for it.
  */
-@property (nonatomic) BOOL enableSigtermReporting;
+@property (nonatomic) BOOL enableSigtermReporting
+    __attribute__((deprecated("This property will be removed in v10. KSCrash always catches "
+                              "SIGTERM, records a clean exit, and never writes a crash report "
+                              "for it.")));
 
-#endif
+#endif // !TARGET_OS_WATCH && !SDK_V10
 
 #if __has_include(<MetricKit/MetricKit.h>) && !TARGET_OS_TV
 

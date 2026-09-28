@@ -625,6 +625,53 @@ class SentryScopeSwiftTests: XCTestCase {
                        actual?.context as? [String: [String: String]])
     }
 
+    func testApplyToEvent_whenTransactionTracerIsUnbound_shouldPopulateTransactionTrace() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for non SDK_V10")
+#else
+        // -- Arrange --
+        let scope = Scope()
+        let tracer = SentryTracer(transactionContext: TransactionContext(name: "Tap", operation: "ui.action.click"), hub: nil)
+        tracer.finish(status: .cancelled)
+        let transaction = Transaction(trace: tracer, children: [])
+        transaction.context = ["custom": ["key": "value"]]
+        scope.span = tracer
+        scope.span = nil
+
+        // -- Act --
+        let actual = scope.applyTo(event: transaction, maxBreadcrumbs: 10)
+
+        // -- Assert --
+        let trace = try XCTUnwrap(actual?.context?["trace"])
+        XCTAssertEqual(trace["op"] as? String, "ui.action.click")
+        XCTAssertEqual(trace["trace_id"] as? String, tracer.traceId.sentryIdString)
+        XCTAssertEqual(trace["span_id"] as? String, tracer.spanId.sentrySpanIdString)
+        XCTAssertEqual(trace["status"] as? String, "cancelled")
+        XCTAssertEqual(actual?.context?["custom"]?["key"] as? String, "value")
+#endif // !SDK_V10
+    }
+
+    func testApplyToEvent_whenAnotherSpanIsBound_shouldUseTransactionTrace() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for non SDK_V10")
+#else
+        // -- Arrange --
+        let scope = Scope()
+        let tracer = SentryTracer(transactionContext: TransactionContext(name: "Tap", operation: "ui.action.click"), hub: nil)
+        let transaction = Transaction(trace: tracer, children: [])
+        scope.span = SentryTracer(transactionContext: TransactionContext(name: "Other", operation: "other.operation"), hub: nil)
+
+        // -- Act --
+        let actual = scope.applyTo(event: transaction, maxBreadcrumbs: 10)
+
+        // -- Assert --
+        let trace = try XCTUnwrap(actual?.context?["trace"])
+        XCTAssertEqual(trace["op"] as? String, "ui.action.click")
+        XCTAssertEqual(trace["trace_id"] as? String, tracer.traceId.sentryIdString)
+        XCTAssertEqual(trace["span_id"] as? String, tracer.spanId.sentrySpanIdString)
+#endif // !SDK_V10
+    }
+
     func testApplyToEvent_EventWithError_contextHasTrace() {
         let event = fixture.event
         event.exceptions = [Exception(value: "Error", type: "Exception")]
@@ -713,6 +760,36 @@ class SentryScopeSwiftTests: XCTestCase {
         scope.clearAttachments()
         
         XCTAssertEqual(0, scope.attachments.count)
+    }
+
+    func testInitWithScope_whenCrashReportAttachmentsExist_shouldCopyThemSeparately() throws {
+        // -- Arrange --
+        let scope = Scope()
+        scope.addAttachment(TestData.fileAttachment)
+        scope.addCrashReportAttachment(inPath: "/tmp/crash-screenshot.png")
+
+        // -- Act --
+        let cloned = Scope(scope: scope)
+
+        // -- Assert --
+        XCTAssertEqual(cloned.attachments.count, 1)
+        XCTAssertEqual(cloned.attachments.first?.filename, TestData.fileAttachment.filename)
+        XCTAssertEqual(cloned.crashReportAttachments.count, 1)
+        XCTAssertEqual(cloned.crashReportAttachments.first?.path, "/tmp/crash-screenshot.png")
+    }
+
+    func testClearAttachments_whenCrashReportAttachmentsExist_shouldKeepThem() {
+        // -- Arrange --
+        let scope = Scope()
+        scope.addAttachment(TestData.fileAttachment)
+        scope.addCrashReportAttachment(inPath: "/tmp/crash-screenshot.png")
+
+        // -- Act --
+        scope.clearAttachments()
+
+        // -- Assert --
+        XCTAssertEqual(scope.attachments.count, 0)
+        XCTAssertEqual(scope.crashReportAttachments.count, 1)
     }
     
     // With this test we test if modifications from multiple threads don't lead to a crash.
@@ -1113,7 +1190,36 @@ class SentryScopeSwiftTests: XCTestCase {
             observer.crumbs
         )
     }
-    
+
+    func testPerformWithBreadcrumbsLocked_whenSeedingThenAddingObserver_shouldReplayExistingThenAcceptNewOnce() throws {
+        // -- Arrange --
+        let sut = Scope()
+        let existing = TestData.crumb
+        existing.message = "existing"
+        sut.addBreadcrumb(existing)
+        let observer = fixture.observer
+
+        // -- Act --
+        sut.performWithBreadcrumbsLocked {
+            for breadcrumb in sut.breadcrumbs() {
+                observer.addSerializedBreadcrumb(breadcrumb.serialize())
+            }
+            sut.add(observer)
+        }
+        let live = TestData.crumb
+        live.message = "live"
+        sut.addBreadcrumb(live)
+
+        // -- Assert --
+        XCTAssertEqual(
+            [
+                try XCTUnwrap(existing.serialize() as? [String: AnyHashable]),
+                try XCTUnwrap(live.serialize() as? [String: AnyHashable])
+            ],
+            observer.crumbs
+        )
+    }
+
     func testScopeObserver_clearBreadcrumb() {
         let sut = Scope()
         let observer = fixture.observer

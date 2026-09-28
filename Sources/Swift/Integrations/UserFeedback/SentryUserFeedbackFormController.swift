@@ -18,7 +18,8 @@ extension SentryUserFeedbackFormDelegate {
 /// A view controller that displays the Sentry user feedback form.
 ///
 /// If the managed User Feedback integration is installed, the SDK temporarily hides the feedback widget while this
-/// controller is visible.
+/// controller is visible. When the form opens, an active Session Replay is sampled and flushed
+/// using `onErrorSampleRate` in buffer mode, even if the user later cancels the form.
 ///
 /// - warning: This is an experimental feature and may still have bugs.
 @available(iOSApplicationExtension, unavailable)
@@ -34,6 +35,7 @@ public final class SentryUserFeedbackFormController: UIViewController {
         case didClose
     }
     private var formLifecycleState: FormLifecycleState = .idle
+    private var openingReplayId: SentryId?
     lazy var viewModel = SentryUserFeedbackFormViewModel(config: config, controller: self, screenshot: screenshot)
 
     /// Creates a feedback form controller using the global configuration from `SentryOptions.configureUserFeedback`.
@@ -215,6 +217,7 @@ extension SentryUserFeedbackFormController: SentryUserFeedbackFormViewModelDeleg
         switch viewModel.validate() {
         case .success:
             let feedback = viewModel.feedbackObject()
+            feedback.replayId = openingReplayId
             SentrySDKLog.debug("Sending user feedback")
             if let block = config.onSubmitSuccess {
                 block(feedback.dataDictionary())
@@ -265,6 +268,11 @@ extension SentryUserFeedbackFormController {
 
         guard case .willOpen = formLifecycleState else { return }
         formLifecycleState = .didOpen
+        let replayIntegration = SentrySDKInternal.currentHub().getInstalledIntegration(SentrySessionReplayIntegration.self)
+            as? SentrySessionReplayIntegration
+        _ = replayIntegration?.captureReplayForFeedback()
+        // Match Android by retaining the buffer's ID even when sampling rejects capture.
+        openingReplayId = replayIntegration?.sessionReplay?.sessionReplayId
         config.onFormOpen?()
     }
 

@@ -39,6 +39,7 @@
 - [35. KSCrash Migration Strategy: Dual Integrations on `main`](#35-kscrash-migration-strategy-dual-integrations-on-main)
 - [36. Breadcrumb persistence durability and caller latency](#36-breadcrumb-persistence-durability-and-caller-latency)
 - [37. Strip DWARF from prebuilt SentryObjC static binaries](#37-strip-dwarf-from-prebuilt-sentryobjc-static-binaries)
+- [38. Keep opt-out flags free of deprecation warnings](#38-keep-opt-out-flags-free-of-deprecation-warnings)
 
 ---
 
@@ -138,7 +139,7 @@ We release experimental SentrySwiftUI cocoa package with the version 8.0.0 becau
 Date: March 20th, 2023
 Contributors: @brustolin, @philipphofmann
 
-Some private headers add a dependency of a public header, when those private headers are used in a sample project, or referenced from a hybrid SDK, it is treated as part of the project using it, therefore, if it points to a header that is not part of said project, a compilation error will occur. To solve this we make use of `__has_include` to try to point to the SDK version of the header, or to fallback to the direct reference when compiling the SDK.
+Some private headers add a dependency of a public header, when those private headers are used in a test app project, or referenced from a hybrid SDK, it is treated as part of the project using it, therefore, if it points to a header that is not part of said project, a compilation error will occur. To solve this we make use of `__has_include` to try to point to the SDK version of the header, or to fallback to the direct reference when compiling the SDK.
 
 ## 11. Tracking package managers
 
@@ -863,3 +864,18 @@ Related links:
 - https://github.com/getsentry/sentry-cocoa/pull/8979
 - https://github.com/getsentry/sentry-cocoa/pull/8987
 - https://github.com/getsentry/sentry-cocoa/pull/3800
+
+## 38. Keep opt-out flags free of deprecation warnings
+
+Date: September 22, 2026
+Contributors: @philprime, @NinjaLikesCheez, @christophaigner
+
+We decided to remove the compiler deprecation annotations from `enableAppHangTracking` in the [Swift options](../Sources/Swift/Options.swift) and its Objective-C wrappers while keeping the documentation about App Hang tracking's deprecation and removal in v10.
+
+Deprecation warnings normally encourage users to stop using an API. App Hang tracking is enabled by default, however, so users must continue setting `enableAppHangTracking` to `false` to opt out until the next major release removes the feature. Removing that assignment would re-enable tracking. Enabling MetricKit does not replace the opt-out, so a compiler warning or automatic rename to `enableMetricKit` is not actionable migration guidance.
+
+Keep opt-out flags usable without compiler deprecation warnings while they remain necessary to disable a deprecated feature. Document the planned removal and recommended alternative instead. This change preserves the existing default and runtime behavior.
+
+Related links:
+
+- https://github.com/getsentry/sentry-cocoa/issues/9093

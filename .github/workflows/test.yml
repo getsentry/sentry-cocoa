@@ -90,15 +90,17 @@ jobs:
 
   distribution-tests:
     name: Distribution Tests ${{ matrix.mode }}
-    runs-on: macos-15
+    runs-on: ${{ matrix.runs-on }}
     strategy:
       fail-fast: false
       matrix:
         include:
           - mode: V9
             sdk-v10: "0"
+            runs-on: macos-15
           - mode: V10
             sdk-v10: "1"
+            runs-on: ["bitrise_pool_name:sequoia"]
     env:
       SDK_V10: ${{ matrix.sdk-v10 }}
     # Don't run this on release branches, cause the SPM Package.swift points to the unreleased versions.
@@ -134,12 +136,15 @@ jobs:
         run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
       - name: Run package tests
         run: |
-          # Match TestCI for both the tests and their SDK dependencies; package schemes do not inherit it.
+          # Match project test compilation and diagnostics; see develop-docs/TEST.md.
           status=0
           # Xcode, not the shell, expands $(inherited).
           # shellcheck disable=SC2016
           NSUnbufferedIO=YES xcodebuild test -workspace . -scheme Sentry-Package \
+            -configuration TestCI \
+            -resultBundlePath results.xcresult \
             -sdk iphonesimulator -destination 'platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro' \
+            -xcconfig Tests/Configuration/SwiftPM.xcconfig \
             'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SENTRY_TEST_CI' \
             'GCC_PREPROCESSOR_DEFINITIONS=$(inherited) DEBUG=1 SENTRY_TEST=1 SENTRY_TEST_CI=1' \
             > raw-test-output-distribution.log 2>&1 || status=$?
@@ -150,8 +155,14 @@ jobs:
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-test-output-distribution-${{ matrix.mode }}
-          path: |
-            raw-test-output-distribution.log
+          path: raw-test-output-distribution.log
+
+      - name: Archiving Test Results
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: result-bundle-distribution-${{ matrix.mode }}
+          path: results.xcresult
 
   # This matrix runs only the unit tests requiring the test server.
   # We do this to speed up the other unit test jobs and to avoid running the
@@ -255,6 +266,13 @@ jobs:
             raw-build-for-testing-output.log
             raw-test-output.log
 
+      - name: Archiving Test Results
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: result-bundle-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
+          path: results.xcresult
+
       - name: Archiving Crash Logs
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() || cancelled() }}
@@ -283,8 +301,6 @@ jobs:
       timeout: ${{matrix.timeout || 20}}
       should_skip: ${{ github.event_name == 'pull_request' && needs.files-changed.outputs.run_unit_tests_for_prs != 'true' }}
       xcode: ${{matrix.xcode}}
-      allow_prerelease: ${{matrix.allow_prerelease || false}}
-      continue_on_error: ${{matrix.continue_on_error || false}}
       platform: ${{matrix.platform}}
       device: ${{matrix.device || ''}}
       scheme: "Sentry"
@@ -305,15 +321,10 @@ jobs:
             xcode: "26"
             platform: "iOS"
 
-          # The xcode-beta Bitrise pool includes Xcode 27 and the matching simulator runtimes:
-          # https://docs.bitrise.io/en/bitrise-platform/infrastructure/build-stacks/macos-stack-update-policy
-          # TODO: Remove continue_on_error once Xcode 27 and the xOS 27 simulator runtimes are stable.
           # iOS 27
           - name: iOS 27 Sentry
-            runs-on: xcode-beta
+            runs-on: tahoe-27
             xcode: "27"
-            allow_prerelease: true
-            continue_on_error: true
             platform: "iOS"
 
           # We don't run the unit tests on macOS 13 cause we run them on all on GH actions available iOS versions.
@@ -338,8 +349,11 @@ jobs:
             xcode: "26"
             platform: "macOS"
 
-          # We can compile with Xcode 27 and the macOS 27 SDK, but can't run macOS 27 tests because
-          # the xcode-beta Bitrise runner uses macOS 26 and macOS has no simulator.
+          # macOS 27
+          - name: macOS 27 Sentry
+            runs-on: xcode-beta # golden gate
+            xcode: "27"
+            platform: "macOS"
 
           # Catalyst. We test the latest version, as the risk something breaking on Catalyst and not
           # on an older iOS or macOS version is low.
@@ -362,8 +376,11 @@ jobs:
             xcode: "26"
             platform: "Catalyst"
 
-          # We can compile Catalyst with Xcode 27 and SDK 27, but can't test against a macOS 27 runtime
-          # because Catalyst tests execute on the xcode-beta Bitrise runner's macOS 26 host.
+          # Catalyst 27
+          - name: Catalyst 27 Sentry
+            runs-on: xcode-beta
+            xcode: "27"
+            platform: "Catalyst"
 
           # We don't run the unit tests on tvOS 16 cause we run them on all on GH actions available iOS versions.
           # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, tvOS 15 or tvOS 16 is minimal.
@@ -382,10 +399,8 @@ jobs:
 
           # tvOS 27
           - name: tvOS 27 Sentry
-            runs-on: xcode-beta
+            runs-on: tahoe-27
             xcode: "27"
-            allow_prerelease: true
-            continue_on_error: true
             platform: "tvOS"
             device: "Apple TV 4K (3rd generation)"
 
@@ -397,11 +412,14 @@ jobs:
             timeout: 30
 
           # visionOS 27
+          # On tahoe-27 the visionOS 27 simulator's backboardd deadlocks in CoreAudio init
+          # ("Initialize: RPC timeout. Apparently deadlocked. Aborting now.") and the first
+          # CADisplayLink/UIWindow in every test process blocks ~10 minutes until it aborts,
+          # so the job takes 30+ minutes. tahoe-xl still hits it but the wait is ~5 minutes.
+          # See https://github.com/getsentry/sentry-cocoa/pull/9043 for the investigation.
           - name: visionOS 27 Sentry
-            runs-on: xcode-beta
+            runs-on: tahoe-xl
             xcode: "27"
-            allow_prerelease: true
-            continue_on_error: true
             platform: "visionOS"
             timeout: 60
 

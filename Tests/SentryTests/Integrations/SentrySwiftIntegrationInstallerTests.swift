@@ -21,6 +21,7 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
     }
 
     // We are not testing `SwiftAsyncIntegration`, but use it as an example for an installed integration
+    @available(*, deprecated, message: "Testing deprecated App Hang tracking option")
     func testInstall_AddsInstalledIntegrations() throws {
         // Arrange
         let options = Options()
@@ -61,6 +62,7 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
 #endif
     }
 
+    @available(*, deprecated, message: "Testing deprecated App Hang tracking option")
     func testInstall_WithDisabledIntegration_DoesNotAddIntegration() {
         // Arrange
         let options = Options()

@@ -1,0 +1,76 @@
+// Opt in with xcodebuild test -configuration Test (or TestCI) -xcconfig <path>.
+// Never include this in consumer builds. Package schemes do not inherit SDK.xcconfig.
+// Named test configurations omit SwiftPM's automatic Swift DEBUG without replacing manifest
+// definitions. Xcode otherwise gives them release defaults, so restore the project's test settings
+// for the Sentry package only. Dependencies retain their own optimization and testability settings.
+SENTRY_PACKAGE_TEST_SWIFT_OPTIMIZATION_Sentry = -Onone
+SENTRY_PACKAGE_TEST_C_OPTIMIZATION_Sentry = 0
+SENTRY_PACKAGE_TEST_ENABLE_TESTABILITY_Sentry = YES
+SENTRY_PACKAGE_TEST_COMPILATION_MODE_Sentry = singlefile
+SWIFT_OPTIMIZATION_LEVEL = $(SENTRY_PACKAGE_TEST_SWIFT_OPTIMIZATION_$(PROJECT_NAME):default=$(inherited))
+GCC_OPTIMIZATION_LEVEL = $(SENTRY_PACKAGE_TEST_C_OPTIMIZATION_$(PROJECT_NAME):default=$(inherited))
+ENABLE_TESTABILITY = $(SENTRY_PACKAGE_TEST_ENABLE_TESTABILITY_$(PROJECT_NAME):default=$(inherited))
+
+SENTRY_PACKAGE_TEST_COMPILATION_MODE_SentryObjCCompat = wholemodule
+SENTRY_PACKAGE_TEST_COMPILATION_MODE_SentryObjCCompatTests = wholemodule
+SWIFT_COMPILATION_MODE = $(SENTRY_PACKAGE_TEST_COMPILATION_MODE_$(TARGET_NAME):default=$(SENTRY_PACKAGE_TEST_COMPILATION_MODE_$(PROJECT_NAME):default=$(inherited)))
+
+// Match the frameworks' resilient ABI and verify their emitted textual interfaces.
+SENTRY_PACKAGE_BUILD_FOR_DISTRIBUTION_SentrySwift = YES
+SENTRY_PACKAGE_BUILD_FOR_DISTRIBUTION_SentryObjCCompat = YES
+BUILD_LIBRARY_FOR_DISTRIBUTION = $(SENTRY_PACKAGE_BUILD_FOR_DISTRIBUTION_$(TARGET_NAME):default=$(inherited))
+
+// Implicit interface verification (used by Xcode 16.4) otherwise drops the parent compiler's
+// Clang arguments, including SwiftPM's generated module maps and test macros. Preserve that context.
+SENTRY_PACKAGE_OTHER_SWIFT_FLAGS_SentrySwift = -Xfrontend -strict-implicit-module-context
+SENTRY_PACKAGE_OTHER_SWIFT_FLAGS_SentryObjCCompat = -Xfrontend -strict-implicit-module-context
+OTHER_SWIFT_FLAGS = $(inherited) $(SENTRY_PACKAGE_OTHER_SWIFT_FLAGS_$(TARGET_NAME))
+
+// -xcconfig applies to dependency projects too. Keep their diagnostic policy inherited;
+// SwiftPM dependencies can use -suppress-warnings, which conflicts with -warnings-as-errors.
+SENTRY_PACKAGE_WARNINGS_Sentry = YES
+SENTRY_PACKAGE_WARNING_ERRORS_Sentry = YES_ERROR
+SENTRY_PACKAGE_UNINITIALIZED_WARNINGS_Sentry = YES_AGGRESSIVE
+SWIFT_TREAT_WARNINGS_AS_ERRORS = $(SENTRY_PACKAGE_WARNINGS_$(PROJECT_NAME):default=$(inherited))
+GCC_TREAT_WARNINGS_AS_ERRORS = $(SENTRY_PACKAGE_WARNINGS_$(PROJECT_NAME):default=$(inherited))
+
+// Match the applicable Clang diagnostics in SDK.xcconfig for Sentry-owned targets only.
+CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = $(SENTRY_PACKAGE_WARNINGS_$(PROJECT_NAME):default=$(inherited))
+CLANG_WARN_COMMA = $(SENTRY_PACKAGE_WARNINGS_$(PROJECT_NAME):default=$(inherited))
+CLANG_WARN_DOCUMENTATION_COMMENTS = $(SENTRY_PACKAGE_WARNINGS_$(PROJECT_NAME):default=$(inherited))
+CLANG_WARN_EMPTY_BODY = $(SENTRY_PACKAGE_WARNINGS_$(PROJECT_NAME):default=$(inherited))
+CLANG_WARN_INFINITE_RECURSION = $(SENTRY_PACKAGE_WARNINGS_$(PROJECT_NAME):default=$(inherited))
+CLANG_WARN_INT_CONVERSION = $(SENTRY_PACKAGE_WARNINGS_$(PROJECT_NAME):default=$(inherited))
+CLANG_WARN_NON_LITERAL_NULL_CONVERSION = $(SENTRY_PACKAGE_WARNINGS_$(PROJECT_NAME):default=$(inherited))
+CLANG_WARN_STRICT_PROTOTYPES = $(SENTRY_PACKAGE_WARNINGS_$(PROJECT_NAME):default=$(inherited))
+CLANG_WARN_UNREACHABLE_CODE = $(SENTRY_PACKAGE_WARNINGS_$(PROJECT_NAME):default=$(inherited))
+GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = $(SENTRY_PACKAGE_WARNINGS_$(PROJECT_NAME):default=$(inherited))
+GCC_WARN_64_TO_32_BIT_CONVERSION = $(SENTRY_PACKAGE_WARNINGS_$(PROJECT_NAME):default=$(inherited))
+GCC_WARN_ABOUT_RETURN_TYPE = $(SENTRY_PACKAGE_WARNING_ERRORS_$(PROJECT_NAME):default=$(inherited))
+GCC_WARN_UNINITIALIZED_AUTOS = $(SENTRY_PACKAGE_UNINITIALIZED_WARNINGS_$(PROJECT_NAME):default=$(inherited))
+GCC_WARN_UNUSED_FUNCTION = $(SENTRY_PACKAGE_WARNINGS_$(PROJECT_NAME):default=$(inherited))
+GCC_WARN_UNUSED_VARIABLE = $(SENTRY_PACKAGE_WARNINGS_$(PROJECT_NAME):default=$(inherited))
+CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = $(SENTRY_PACKAGE_WARNINGS_$(PROJECT_NAME):default=$(inherited))
+CLANG_WARN_DIRECT_OBJC_ISA_USAGE = $(SENTRY_PACKAGE_WARNING_ERRORS_$(PROJECT_NAME):default=$(inherited))
+CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = $(SENTRY_PACKAGE_WARNINGS_$(PROJECT_NAME):default=$(inherited))
+CLANG_WARN_OBJC_LITERAL_CONVERSION = $(SENTRY_PACKAGE_WARNINGS_$(PROJECT_NAME):default=$(inherited))
+CLANG_WARN_OBJC_ROOT_CLASS = $(SENTRY_PACKAGE_WARNING_ERRORS_$(PROJECT_NAME):default=$(inherited))
+CLANG_WARN_RANGE_LOOP_ANALYSIS = $(SENTRY_PACKAGE_WARNINGS_$(PROJECT_NAME):default=$(inherited))
+CLANG_WARN_SUSPICIOUS_MOVE = $(SENTRY_PACKAGE_WARNINGS_$(PROJECT_NAME):default=$(inherited))
+CLANG_WARN__DUPLICATE_METHOD_MATCH = $(SENTRY_PACKAGE_WARNINGS_$(PROJECT_NAME):default=$(inherited))
+GCC_WARN_UNDECLARED_SELECTOR = $(SENTRY_PACKAGE_WARNINGS_$(PROJECT_NAME):default=$(inherited))
+
+// Qualify target-specific diagnostics by package as well, preserving all other targets' settings.
+SENTRY_PACKAGE_CONVERSION_WARNINGS_Sentry_SentryObjCInternal = YES
+SENTRY_PACKAGE_CONVERSION_WARNINGS_Sentry_SentryTestUtilsObjCpp = YES
+CLANG_WARN_BOOL_CONVERSION = $(SENTRY_PACKAGE_CONVERSION_WARNINGS_$(PROJECT_NAME)_$(TARGET_NAME):default=$(inherited))
+CLANG_WARN_CONSTANT_CONVERSION = $(SENTRY_PACKAGE_CONVERSION_WARNINGS_$(PROJECT_NAME)_$(TARGET_NAME):default=$(inherited))
+CLANG_WARN_ENUM_CONVERSION = $(SENTRY_PACKAGE_CONVERSION_WARNINGS_$(PROJECT_NAME)_$(TARGET_NAME):default=$(inherited))
+
+SENTRY_PACKAGE_SDK_WARNINGS_Sentry_SentryObjCInternal = YES
+SENTRY_PACKAGE_SDK_WARNINGS_Sentry_SentryTestUtilsObjCpp = NO
+CLANG_WARN_FLOAT_CONVERSION = $(SENTRY_PACKAGE_SDK_WARNINGS_$(PROJECT_NAME)_$(TARGET_NAME):default=$(inherited))
+GCC_WARN_SHADOW = $(SENTRY_PACKAGE_SDK_WARNINGS_$(PROJECT_NAME)_$(TARGET_NAME):default=$(inherited))
+SENTRY_PACKAGE_OTHER_CFLAGS_Sentry_SentryObjCInternal = -Wnullable-to-nonnull-conversion -Wnullability-completeness
+SENTRY_PACKAGE_OTHER_CFLAGS_Sentry_SentryTestUtilsObjCpp = -Wall -Wextra
+OTHER_CFLAGS = $(inherited) $(SENTRY_PACKAGE_OTHER_CFLAGS_$(PROJECT_NAME)_$(TARGET_NAME))

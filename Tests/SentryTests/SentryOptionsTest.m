@@ -170,11 +170,13 @@
 }
 
 #if !TARGET_OS_WATCH
+#    if !SDK_V10
 - (void)testEnableSigtermReporting
 {
     [self testBooleanField:@"enableSigtermReporting" defaultValue:NO];
 }
-#endif
+#    endif // !SDK_V10
+#endif // !TARGET_OS_WATCH
 
 - (void)testValidEnabled
 {
@@ -1059,6 +1061,31 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     XCTAssertEqual(2, options.appHangTimeoutInterval);
 }
 
+- (void)testAppHangsTimeout_WhenPositive_KeepsValue
+{
+    SentryOptions *options = [self getValidOptions:@{ @"appHangTimeoutInterval" : @4.5 }];
+    XCTAssertEqual(4.5, options.appHangTimeoutInterval);
+}
+
+- (void)testAppHangsTimeout_WhenZero_ResetsToDefault
+{
+    SentryOptions *options = [self getValidOptions:@{ @"appHangTimeoutInterval" : @0 }];
+    XCTAssertEqual(2, options.appHangTimeoutInterval);
+}
+
+- (void)testAppHangsTimeout_WhenNegative_ResetsToDefault
+{
+    SentryOptions *options = [self getValidOptions:@{ @"appHangTimeoutInterval" : @-1 }];
+    XCTAssertEqual(2, options.appHangTimeoutInterval);
+}
+
+- (void)testAppHangsTimeout_WhenSetToZero_ResetsToDefault
+{
+    SentryOptions *options = [self getValidOptions:@{ }];
+    options.appHangTimeoutInterval = 0;
+    XCTAssertEqual(2, options.appHangTimeoutInterval);
+}
+
 - (void)testEnableNetworkTracking
 {
     [self testBooleanField:@"enableNetworkTracking"];
@@ -1332,15 +1359,17 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 #if SENTRY_HAS_UIKIT && !SDK_V10
 - (void)testIsAppHangTrackingDisabled_WhenOptionDisabled
 {
-    SentryOptions *options = [self getValidOptions:@{ @"appHangTimeoutInterval" : @0 }];
+    SentryOptions *options = [self getValidOptions:@{ @"enableAppHangTracking" : @NO }];
     XCTAssertTrue(options.isAppHangTrackingDisabled);
 }
 
-- (void)testIsAppHangTrackingDisabled_WhenOnlyAppHangTimeoutIntervalZero
+- (void)testIsAppHangTrackingDisabled_WhenAppHangTimeoutIntervalZero
 {
+    // Setting appHangTimeoutInterval to 0 is invalid and resets it to the default, so it does not
+    // disable app hang tracking.
     SentryOptions *options =
         [self getValidOptions:@{ @"enableAppHangTracking" : @YES, @"appHangTimeoutInterval" : @0 }];
-    XCTAssertTrue(options.isAppHangTrackingDisabled);
+    XCTAssertFalse(options.isAppHangTrackingDisabled);
 }
 #endif // SENTRY_HAS_UIKIT && !SDK_V10
 

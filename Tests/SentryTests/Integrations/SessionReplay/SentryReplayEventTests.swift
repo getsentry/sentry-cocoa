@@ -20,4 +20,40 @@ class SentryReplayEventTests: XCTestCase {
         XCTAssertEqual(result["segment_id"] as? Int, 3)
         XCTAssertEqual(result["replay_type"] as? String, "buffer")
     }
+
+    func testSerialize_whenTraceIdsSet_shouldIncludeTraceIds() {
+        // -- Arrange --
+        let sut = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(timeIntervalSince1970: 1), replayType: .buffer, segmentId: 0)
+        let traceIds = [SentryId(), SentryId()]
+        sut.traceIds = traceIds
+
+        // -- Act --
+        let result = sut.serialize()
+
+        // -- Assert --
+        XCTAssertEqual(result["trace_ids"] as? [String], traceIds.map { $0.sentryIdString })
+    }
+
+    func testSerialize_whenTraceIdsNil_shouldOmitTraceIds() {
+        // -- Arrange --
+        let sut = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(timeIntervalSince1970: 1), replayType: .buffer, segmentId: 0)
+
+        // -- Act --
+        let result = sut.serialize()
+
+        // -- Assert --
+        XCTAssertNil(result["trace_ids"])
+    }
+
+    func testSerialize_whenTraceIdsEmpty_shouldOmitTraceIds() {
+        // -- Arrange --
+        let sut = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(timeIntervalSince1970: 1), replayType: .buffer, segmentId: 0)
+        sut.traceIds = []
+
+        // -- Act --
+        let result = sut.serialize()
+
+        // -- Assert --
+        XCTAssertNil(result["trace_ids"])
+    }
 }

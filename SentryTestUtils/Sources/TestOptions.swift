@@ -1,9 +1,9 @@
-import Foundation
 #if SWIFT_PACKAGE
-@_spi(Private) import SentrySwift
+@_spi(Private) @testable import SentrySwift
 #else
-import Sentry
+@_spi(Private) @testable import Sentry
 #endif
+import Foundation
 
 public extension Options {
     
