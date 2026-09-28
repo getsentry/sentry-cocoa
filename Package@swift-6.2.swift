@@ -414,7 +414,7 @@ for target in targets where target.type == .regular || target.type == .test {
 }
 
 let packageDependencies: [Package.Dependency] = [
-    .package(url: "https://github.com/getsentry/KSCrash.git", revision: "391bf0a9569b6c1aa9df30b3fa4bcabbc0a07e7a")
+    .package(url: "https://github.com/getsentry/KSCrash.git", revision: "18a633dec20c265f03386294f9d82d208bb13094")
 ]
 
 let package = Package(
