@@ -18,7 +18,7 @@
 }
 
 #if !SDK_V10
-#pragma mark - enableUnhandledCPPExceptionsV2
+#    pragma mark - enableUnhandledCPPExceptionsV2
 
 - (void)testEnableUnhandledCPPExceptionsV2_whenDefault_shouldBeFalse
 {
