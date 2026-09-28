@@ -275,7 +275,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Whether to attach the top level @c operationName node of HTTP JSON requests to HTTP
  * breadcrumbs.
- * @note Default is @c YES in v10, @c NO in earlier versions.
+ * @note Default is @c NO.
  */
 @property (nonatomic) BOOL enableGraphQLOperationTracking;
 
