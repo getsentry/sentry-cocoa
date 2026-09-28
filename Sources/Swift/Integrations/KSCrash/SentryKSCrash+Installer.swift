@@ -88,6 +88,24 @@ extension SentryKSCrash {
             return monitors.subtracting([.machException, .signal])
         }
 
+        static func installCrashHandler(_ operation: () throws -> Void) throws {
+            // KSCrash activates monitors before install returns. Enable persistence first so a
+            // crash _during_ installation is not suppressed by the SDK lifecycle callback.
+            sentrykscrash_setReportPersistenceEnabled(true)
+            do {
+                try operation()
+            } catch let error as NSError
+                        where error.domain == "KSCrashErrorDomain" && error.code == 1 /* KSCrashInstallErrorAlreadyInstalled */ {
+                // KSCrash holds a process-lifetime C flag, so install() fails on every
+                // subsequent call within the same process (usually tests and SDK re-init).
+                // The crash handler is already running, so we treat this as success.
+                SentrySDKLog.debug("KSCrash already installed; continuing.")
+            } catch {
+                sentrykscrash_setReportPersistenceEnabled(false)
+                throw error
+            }
+        }
+
         func install(
             installPath: String,
             monitors: MonitorType,
@@ -117,17 +135,10 @@ extension SentryKSCrash {
             sentryThreadInspectionWillInstallCrashHandler()
             var inspectionInstallationSucceeded = false
             defer { sentryThreadInspectionDidInstallCrashHandler(inspectionInstallationSucceeded) }
-            do {
+            try Self.installCrashHandler {
                 try KSCrash.shared.install(with: config)
-            } catch let error as NSError
-                        where error.domain == "KSCrashErrorDomain" && error.code == 1 /* KSCrashInstallErrorAlreadyInstalled */ {
-                // KSCrash holds a process-lifetime C flag, so install() fails on every
-                // subsequent call within the same process (common during tests and SDK re-init).
-                // The crash handler is already running — treat this as success.
-                SentrySDKLog.debug("KSCrash already installed; continuing.")
             }
             self.installPath = URL(fileURLWithPath: installPath, isDirectory: true)
-            sentrykscrash_setReportPersistenceEnabled(true)
             inspectionInstallationSucceeded = true
             installed = true
             #if SENTRY_CRASH_E2E
