@@ -538,6 +538,7 @@
     XCTAssertTrue(options.strictTraceContinuation);
 }
 
+#if !SDK_V10
 - (void)testEnableMetrics_whenSetToYes_shouldReturnYes
 {
     // -- Arrange --
@@ -548,6 +549,27 @@
 
     // -- Assert --
     XCTAssertTrue(options.enableMetrics);
+}
+
+#endif // !SDK_V10
+
+- (void)testEnableUnhandledCPPExceptionsV2_whenToggled_shouldRetainValue
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+    XCTAssertFalse(options.enableUnhandledCPPExceptionsV2);
+
+    // -- Act --
+    options.enableUnhandledCPPExceptionsV2 = YES;
+
+    // -- Assert --
+    XCTAssertTrue(options.enableUnhandledCPPExceptionsV2);
+
+    // -- Act --
+    options.enableUnhandledCPPExceptionsV2 = NO;
+
+    // -- Assert --
+    XCTAssertFalse(options.enableUnhandledCPPExceptionsV2);
 }
 
 #pragma mark - Numeric properties
