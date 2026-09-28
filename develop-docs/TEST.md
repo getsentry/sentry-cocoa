@@ -52,6 +52,8 @@ The traits match [SDK.xcconfig](../Sources/Configuration/SDK.xcconfig), includin
 
 To run a specific suite, append `--filter <test-target>`, for example `--filter SentryObjCCompatTests`.
 
+Use `xcodebuild`, not `swift test`, to include Objective-C/Objective-C++ package tests.
+
 #### Package tests with xcodebuild
 
 For project-equivalent compilation or simulator/device tests, use `xcodebuild` with the shared [SentrySPM scheme](../.swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme). Select `SentrySPM_Base` for V9 or `SentrySPM_Base_v10` with `SDK_V10=1`. These native plans include all current package test targets, with profiler tests only in V9. `swift test` does not apply Xcode test plans.
@@ -92,18 +94,6 @@ grep -E 'Executed|error:|TEST SUCCEEDED|TEST FAILED' "$package_dir/package-tests
 - Limit a run with `-only-testing:<test-target>`, for example `-only-testing:SentryObjCCompatTests`.
 - CI uses `TestCI` and the corresponding definitions from the table above. The [Distribution Tests job](../.github/workflows/test.yml) prepares all package manifests, selects Xcode 26 on `macos-26`, and resolves the iOS simulator runtime and device from that toolchain.
 - Keep shared Base exclusions consistent between project and package plans, mapping methods to the Swift or Objective-C package target. Project Base, Flaky, and TestServer plans remain unchanged.
-
-#### Profiler tests
-
-SwiftPM profiler tests use the existing `SentryTestUtilsObjC` and `SentryTestUtilsObjCpp` targets. The package-only adapters live in `SentryTestProfilerWrapper`; shared test headers live in the helpers' exposed header directories rather than being reached through relative imports. `SentryProfilerSerialization+Test.h` remains SDK-owned in `Sources/Sentry/include` because the implementation also uses it; it is not added to the SDK's module header. Xcode project tests continue to use their bridging header.
-
-The profiler suite is V9-only. Use the package-workspace command above with both selectors:
-
-```sh
--only-testing:SentryProfilerTests -only-testing:SentryProfilerTestsObjC
-```
-
-Use `xcodebuild`, not `swift test`, to include the Objective-C/Objective-C++ tests. Keep the `Test`/`TestCI` configuration, `SentrySPM_Base` plan, and disabled parallelization from the command above. The plan carries the two existing profiler exclusions; the project's Flaky plan continues to run `testStoppingProfilerTransmitsLastFullChunk()`.
 
 #### Compiler settings and project parity
 
