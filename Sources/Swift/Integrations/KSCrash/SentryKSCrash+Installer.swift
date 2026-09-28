@@ -74,7 +74,7 @@ extension SentryKSCrash {
         /// Replaces KSCrash's built-in Signal monitor so the constructor-installed handler stays
         /// below Mono/.NET for the entire process lifetime.
         private final class ManagedSignalMonitor: NSObject, MonitorPlugin, @unchecked Sendable {
-            let api = sentrykscrash_managedSignalMonitorAPI()
+            let api = sentrykscrash_managedSignal_getAPI()
         }
         private static let managedSignalMonitor = ManagedSignalMonitor()
 

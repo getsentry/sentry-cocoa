@@ -95,7 +95,7 @@ _Static_assert(ATOMIC_POINTER_LOCK_FREE == 2, "Signal-handler list publication m
 _Static_assert(__atomic_always_lock_free(sizeof(uintptr_t), 0),
     "Signal-handler thread identity must be lock-free");
 
-static void sentrykscrash_managedSignalRestoreHandlers(void);
+static void sentrykscrash_managedSignal_restoreHandlers(void);
 
 // SENTRY MANAGED SIGNAL DIFFERENCE BEGIN: downstream per-thread, one-shot suppression.
 static void
@@ -138,7 +138,7 @@ sentrykscrash_consumeIgnoredSignal(int signal)
 // SENTRY MANAGED SIGNAL DIFFERENCE END
 
 static void
-sentrykscrash_managedSignalRestoreHandlersUpTo(const int *signals, int count)
+sentrykscrash_managedSignal_restoreHandlersUpTo(const int *signals, int count)
 {
     for (int i = 0; i < count; i++) {
         if (g_managedSignal.previousHandlers[i].sa_handler != SIG_IGN) {
@@ -151,7 +151,7 @@ sentrykscrash_managedSignalRestoreHandlersUpTo(const int *signals, int count)
 // before its own predecessor is restored. Restore that immutable entry directly before re-raising;
 // duplicate sigaction calls write the same value and never require signal-path coordination.
 static void
-sentrykscrash_managedSignalRestoreHandler(int signal)
+sentrykscrash_managedSignal_restoreHandler(int signal)
 {
     const int *signals = kssignal_fatalSignals();
     const int count
@@ -168,7 +168,7 @@ sentrykscrash_managedSignalRestoreHandler(int signal)
 // SENTRY MANAGED SIGNAL DIFFERENCE END
 
 static void
-sentrykscrash_managedSignalHandler(int signal, siginfo_t *signalInfo, void *userContext)
+sentrykscrash_managedSignal_handleSignal(int signal, siginfo_t *signalInfo, void *userContext)
 {
     // SENTRY MANAGED SIGNAL DIFFERENCE BEGIN: an anchor may run before KSCrash adopts it.
     const bool ignored = sentrykscrash_consumeIgnoredSignal(signal);
@@ -208,8 +208,8 @@ sentrykscrash_managedSignalHandler(int signal, siginfo_t *signalInfo, void *user
 
     // Keep the constructor-installed anchor for the process lifetime, but a fatal delivery is a
     // one-way path: restore the system predecessor before forwarding exactly as KSCrash does.
-    sentrykscrash_managedSignalRestoreHandlers();
-    sentrykscrash_managedSignalRestoreHandler(signal);
+    sentrykscrash_managedSignal_restoreHandlers();
+    sentrykscrash_managedSignal_restoreHandler(signal);
     raise(signal);
 }
 
@@ -217,7 +217,7 @@ sentrykscrash_managedSignalHandler(int signal, siginfo_t *signalInfo, void *user
 // SENTRY MANAGED SIGNAL DIFFERENCE BEGIN: only used before any anchor has become reachable.
 // After exposure, even a failed install retains its allocations: handlers may still use them.
 static void
-sentrykscrash_managedSignalReleaseUnusedStack(bool registered)
+sentrykscrash_managedSignal_releaseUnusedStack(bool registered)
 {
     if (g_managedSignal.signalStack.ss_sp == NULL) {
         return;
@@ -249,7 +249,7 @@ sentrykscrash_managedSignalReleaseUnusedStack(bool registered)
 #        endif
 
 static void
-sentrykscrash_managedSignalInstall(void)
+sentrykscrash_managedSignal_install(void)
 {
     SentryManagedSignalInstalledState expected = SentryManagedSignalNotInstalled;
     if (!atomic_compare_exchange_strong_explicit(&g_managedSignal.installedState, &expected,
@@ -291,7 +291,7 @@ sentrykscrash_managedSignalInstall(void)
     action.sa_flags |= SA_64REGSET;
 #        endif
     sigemptyset(&action.sa_mask);
-    action.sa_sigaction = sentrykscrash_managedSignalHandler;
+    action.sa_sigaction = sentrykscrash_managedSignal_handleSignal;
 
     // SENTRY MANAGED SIGNAL DIFFERENCE BEGIN: publish the captured prefix before exposing each
     // anchor, not Installed before capturing any predecessors. A signal can interrupt sigaction
@@ -330,7 +330,7 @@ sentrykscrash_managedSignalInstall(void)
     return;
 
 failed:
-    sentrykscrash_managedSignalRestoreHandlers();
+    sentrykscrash_managedSignal_restoreHandlers();
     atomic_store_explicit(
         &g_managedSignal.installedState, SentryManagedSignalFailedInstall, memory_order_release);
     if (!handlersExposed) {
@@ -340,14 +340,14 @@ failed:
         free(g_managedSignal.previousHandlers);
         g_managedSignal.previousHandlers = NULL;
 #        if SENTRY_HAS_SIGNAL_STACK
-        sentrykscrash_managedSignalReleaseUnusedStack(stackRegistered);
+        sentrykscrash_managedSignal_releaseUnusedStack(stackRegistered);
 #        endif
     }
     // SENTRY MANAGED SIGNAL DIFFERENCE END
 }
 
 static void
-sentrykscrash_managedSignalRestoreHandlers(void)
+sentrykscrash_managedSignal_restoreHandlers(void)
 {
     // SENTRY MANAGED SIGNAL DIFFERENCE BEGIN: an anchor can run before installation finishes.
     SentryManagedSignalInstalledState expected
@@ -355,7 +355,7 @@ sentrykscrash_managedSignalRestoreHandlers(void)
     while (expected == SentryManagedSignalInstalling || expected == SentryManagedSignalInstalled) {
         if (atomic_compare_exchange_strong_explicit(&g_managedSignal.installedState, &expected,
                 SentryManagedSignalUninstalled, memory_order_acq_rel, memory_order_acquire)) {
-            sentrykscrash_managedSignalRestoreHandlersUpTo(kssignal_fatalSignals(),
+            sentrykscrash_managedSignal_restoreHandlersUpTo(kssignal_fatalSignals(),
                 atomic_load_explicit(
                     &g_managedSignal.restorableHandlerCount, memory_order_acquire));
             return;
@@ -365,7 +365,7 @@ sentrykscrash_managedSignalRestoreHandlers(void)
 }
 
 static void
-sentrykscrash_managedSignalInit(KSCrash_ExceptionHandlerCallbacks *callbacks, void *context)
+sentrykscrash_managedSignal_init(KSCrash_ExceptionHandlerCallbacks *callbacks, void *context)
 {
     (void)context;
     if (callbacks == NULL) {
@@ -393,7 +393,7 @@ sentrykscrash_managedSignalInit(KSCrash_ExceptionHandlerCallbacks *callbacks, vo
 }
 
 static const char *
-sentrykscrash_managedSignalMonitorId(void *context)
+sentrykscrash_managedSignal_monitorId(void *context)
 {
     (void)context;
     // Preserve KSCrash's standard signal report section and converter behavior.
@@ -401,24 +401,24 @@ sentrykscrash_managedSignalMonitorId(void *context)
 }
 
 static KSCrashMonitorFlag
-sentrykscrash_managedSignalFlags(void *context)
+sentrykscrash_managedSignal_monitorFlags(void *context)
 {
     (void)context;
     return KSCrashMonitorFlagAsyncSafe | KSCrashMonitorFlagPlugin;
 }
 
 static void
-sentrykscrash_managedSignalSetEnabled(bool enabled, void *context)
+sentrykscrash_managedSignal_setEnabled(bool enabled, void *context)
 {
     (void)context;
     atomic_store_explicit(&g_managedSignal.enabled, enabled, memory_order_release);
     if (enabled) {
-        sentrykscrash_managedSignalInstall();
+        sentrykscrash_managedSignal_install();
     }
 }
 
 static bool
-sentrykscrash_managedSignalIsEnabled(void *context)
+sentrykscrash_managedSignal_isEnabled(void *context)
 {
     (void)context;
     return atomic_load_explicit(&g_managedSignal.enabled, memory_order_acquire)
@@ -427,14 +427,15 @@ sentrykscrash_managedSignalIsEnabled(void *context)
 }
 
 static void
-sentrykscrash_managedSignalAddContext(KSCrash_MonitorContext *eventContext, void *context)
+sentrykscrash_managedSignal_addContextualInfoToEvent(
+    KSCrash_MonitorContext *eventContext, void *context)
 {
     (void)eventContext;
     (void)context;
 }
 
 static void
-sentrykscrash_managedSignalNotify(void *context)
+sentrykscrash_managedSignal_notify(void *context)
 {
     (void)context;
 }
@@ -443,18 +444,18 @@ sentrykscrash_managedSignalNotify(void *context)
 
 // SENTRY MANAGED SIGNAL DIFFERENCE BEGIN: plugin registration and pre-SDK anchor ownership.
 KSCrashMonitorAPI *
-sentrykscrash_managedSignalMonitorAPI(void)
+sentrykscrash_managedSignal_getAPI(void)
 {
     static KSCrashMonitorAPI api = {
 #    if SENTRY_HAS_SIGNAL
-        .init = sentrykscrash_managedSignalInit,
-        .monitorId = sentrykscrash_managedSignalMonitorId,
-        .monitorFlags = sentrykscrash_managedSignalFlags,
-        .setEnabled = sentrykscrash_managedSignalSetEnabled,
-        .isEnabled = sentrykscrash_managedSignalIsEnabled,
-        .addContextualInfoToEvent = sentrykscrash_managedSignalAddContext,
-        .notifyPostMonitorsEnabled = sentrykscrash_managedSignalNotify,
-        .notifyPostSystemEnable = sentrykscrash_managedSignalNotify,
+        .init = sentrykscrash_managedSignal_init,
+        .monitorId = sentrykscrash_managedSignal_monitorId,
+        .monitorFlags = sentrykscrash_managedSignal_monitorFlags,
+        .setEnabled = sentrykscrash_managedSignal_setEnabled,
+        .isEnabled = sentrykscrash_managedSignal_isEnabled,
+        .addContextualInfoToEvent = sentrykscrash_managedSignal_addContextualInfoToEvent,
+        .notifyPostMonitorsEnabled = sentrykscrash_managedSignal_notify,
+        .notifyPostSystemEnable = sentrykscrash_managedSignal_notify,
 #    endif
     };
     return &api;
@@ -496,7 +497,7 @@ sentrykscrash_ignoreNextSignal(int signal)
 __attribute__((constructor)) static void
 sentrykscrash_prepareManagedSignalMonitor(void)
 {
-    sentrykscrash_managedSignalInstall();
+    sentrykscrash_managedSignal_install();
 }
 #    endif
 

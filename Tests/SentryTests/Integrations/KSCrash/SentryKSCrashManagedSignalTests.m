@@ -48,7 +48,7 @@ static void testBeforeAtomicStore(const volatile void *object);
                 __c11_atomic_store(object, value, order);                                          \
             } while (0)
 #        define sentrykscrash_isManagedRuntimeBuild test_isManagedRuntimeBuild
-#        define sentrykscrash_managedSignalMonitorAPI test_managedSignalMonitorAPI
+#        define sentrykscrash_managedSignal_getAPI test_managedSignal_getAPI
 #        define sentrykscrash_ignoreNextSignal test_ignoreNextSignal
 #        pragma push_macro("SENTRY_CRASH_MANAGED_RUNTIME")
 #        undef SENTRY_CRASH_MANAGED_RUNTIME
@@ -64,7 +64,7 @@ static void testBeforeAtomicStore(const volatile void *object);
 #        undef kssc_initWithUnwind
 #        pragma pop_macro("atomic_store_explicit")
 #        undef sentrykscrash_isManagedRuntimeBuild
-#        undef sentrykscrash_managedSignalMonitorAPI
+#        undef sentrykscrash_managedSignal_getAPI
 #        undef sentrykscrash_ignoreNextSignal
 
 static struct {
@@ -188,7 +188,7 @@ testDeliverSignal(int signal)
     }
 #        endif
     siginfo_t info = { .si_signo = signal };
-    sentrykscrash_managedSignalHandler(signal, &info, NULL);
+    sentrykscrash_managedSignal_handleSignal(signal, &info, NULL);
 #        if SENTRY_HAS_SIGNAL_STACK
     g_testStack.current.ss_flags = previousFlags;
 #        endif
@@ -226,7 +226,7 @@ testNotifyA(thread_t thread, KSCrash_ExceptionHandlingRequirements requirements)
     g_testCallbacks.requirements = requirements;
     if (g_testCallbacks.reinitializeDuringNotify) {
         KSCrash_ExceptionHandlerCallbacks replacement = testCallbacksB();
-        sentrykscrash_managedSignalInit(&replacement, NULL);
+        sentrykscrash_managedSignal_init(&replacement, NULL);
     }
     return g_testCallbacks.returnNull ? NULL : &g_testCallbacks.context;
 }
@@ -314,7 +314,7 @@ initializeCallbacksConcurrently(void *value)
     pthread_mutex_unlock(&worker->gate->mutex);
 
     for (int i = 0; i < 32; i++) {
-        sentrykscrash_managedSignalInit(&worker->callbacks, NULL);
+        sentrykscrash_managedSignal_init(&worker->callbacks, NULL);
     }
     return NULL;
 }
@@ -327,7 +327,7 @@ testBeforeAtomicStore(const volatile void *object)
         if (g_testCallbacks.reinitializeBeforePublication) {
             g_testCallbacks.reinitializeBeforePublication = false;
             KSCrash_ExceptionHandlerCallbacks replacement = testCallbacksB();
-            sentrykscrash_managedSignalInit(&replacement, NULL);
+            sentrykscrash_managedSignal_init(&replacement, NULL);
             g_testCallbacks.readyAfterReinitialization
                 = atomic_load_explicit(&g_managedSignal.callbacksReady, memory_order_acquire);
         }
@@ -364,14 +364,14 @@ testSigaction(int signal, const struct sigaction *action, struct sigaction *prev
         return 0;
     }
     g_testSignals.writeCalls++;
-    const bool installing = action->sa_sigaction == sentrykscrash_managedSignalHandler;
+    const bool installing = action->sa_sigaction == sentrykscrash_managedSignal_handleSignal;
     if (installing && signal == g_testSignals.installFailureSignal) {
         errno = EINVAL;
         return -1;
     }
     if (installing) {
         g_testSignals.installCalls++;
-        g_testSignals.enabledDuringInstall |= sentrykscrash_managedSignalIsEnabled(NULL);
+        g_testSignals.enabledDuringInstall |= sentrykscrash_managedSignal_isEnabled(NULL);
     }
     const bool deliver = installing && g_testSignals.installCalls == g_testSignals.deliverOnInstall;
     if (deliver && g_testSignals.deliverBeforeInstall) {
@@ -379,7 +379,7 @@ testSigaction(int signal, const struct sigaction *action, struct sigaction *prev
         testDeliverSignal(kssignal_fatalSignals()[0]);
     }
     const bool restoring
-        = !installing && action->sa_sigaction != sentrykscrash_managedSignalHandler;
+        = !installing && action->sa_sigaction != sentrykscrash_managedSignal_handleSignal;
     const bool deliverDuringRestore = restoring && !g_testSignals.deliveringDuringRestore
         && g_testSignals.nestedSignal != 0
         && ++g_testSignals.restoreWriteCalls == g_testSignals.deliverOnRestoreWrite;
@@ -481,8 +481,8 @@ probeRealStack(void *value)
         return NULL;
     }
     probe->queryInitialResult = sigaltstack(NULL, &probe->initial);
-    sentrykscrash_managedSignalSetEnabled(true, NULL);
-    probe->enabled = sentrykscrash_managedSignalIsEnabled(NULL);
+    sentrykscrash_managedSignal_setEnabled(true, NULL);
+    probe->enabled = sentrykscrash_managedSignal_isEnabled(NULL);
     probe->queryAfterResult = sigaltstack(NULL, &probe->after);
     stack_t restore = probe->before;
     if ((restore.ss_flags & SS_DISABLE) && restore.ss_size < MINSIGSTKSZ) {
@@ -588,7 +588,7 @@ exerciseIgnoredSignalOnWorker(void *value)
     g_testSignals.deliverOnInstall = 1;
 
     // -- Act --
-    sentrykscrash_managedSignalSetEnabled(true, NULL);
+    sentrykscrash_managedSignal_setEnabled(true, NULL);
 
     // -- Assert --
     XCTAssertEqual(g_testSignals.raiseCalls, 1);
@@ -596,7 +596,7 @@ exerciseIgnoredSignalOnWorker(void *value)
     [self assertOriginalHandlers:g_testSignals.actionsAtRaise];
     [self assertOriginalHandlers:g_testSignals.actions];
     XCTAssertEqual(g_testSignals.installCalls, 1);
-    XCTAssertFalse(sentrykscrash_managedSignalIsEnabled(NULL));
+    XCTAssertFalse(sentrykscrash_managedSignal_isEnabled(NULL));
 }
 
 - (void)testInstall_whenSignalArrivesAfterLastHandler_shouldNotPublishInstalled
@@ -605,13 +605,13 @@ exerciseIgnoredSignalOnWorker(void *value)
     g_testSignals.deliverOnInstall = kssignal_numFatalSignals();
 
     // -- Act --
-    sentrykscrash_managedSignalSetEnabled(true, NULL);
+    sentrykscrash_managedSignal_setEnabled(true, NULL);
 
     // -- Assert --
     XCTAssertEqual(g_testSignals.raiseCalls, 1);
     [self assertOriginalHandlers:g_testSignals.actionsAtRaise];
     [self assertOriginalHandlers:g_testSignals.actions];
-    XCTAssertFalse(sentrykscrash_managedSignalIsEnabled(NULL));
+    XCTAssertFalse(sentrykscrash_managedSignal_isEnabled(NULL));
 }
 
 - (void)testInstall_whenSignalArrivesDuringSigaction_shouldRollBackInFlightHandler
@@ -621,21 +621,21 @@ exerciseIgnoredSignalOnWorker(void *value)
     g_testSignals.deliverBeforeInstall = true;
 
     // -- Act --
-    sentrykscrash_managedSignalSetEnabled(true, NULL);
+    sentrykscrash_managedSignal_setEnabled(true, NULL);
 
     // -- Assert --
     XCTAssertEqual(g_testSignals.raiseCalls, 1);
     [self assertOriginalHandlers:g_testSignals.actionsAtRaise];
     [self assertOriginalHandlers:g_testSignals.actions];
     XCTAssertEqual(g_testSignals.installCalls, 2);
-    XCTAssertFalse(sentrykscrash_managedSignalIsEnabled(NULL));
+    XCTAssertFalse(sentrykscrash_managedSignal_isEnabled(NULL));
 }
 
 - (void)
     testHandler_whenSecondSignalArrivesBetweenRestoreWrites_shouldRestoreItsPredecessorBeforeReraise
 {
     // -- Arrange --
-    sentrykscrash_managedSignalSetEnabled(true, NULL);
+    sentrykscrash_managedSignal_setEnabled(true, NULL);
     g_testSignals.deliverOnRestoreWrite = 1;
     g_testSignals.nestedSignal = kssignal_fatalSignals()[1];
 
@@ -656,7 +656,7 @@ exerciseIgnoredSignalOnWorker(void *value)
 - (void)testHandler_whenOwnPredecessorRestoreIsInFlight_shouldRestoreItBeforeReraise
 {
     // -- Arrange --
-    sentrykscrash_managedSignalSetEnabled(true, NULL);
+    sentrykscrash_managedSignal_setEnabled(true, NULL);
     g_testSignals.deliverOnRestoreWrite = 1;
     g_testSignals.deliverBeforeRestoreWrite = true;
     g_testSignals.nestedSignal = kssignal_fatalSignals()[0];
@@ -678,7 +678,7 @@ exerciseIgnoredSignalOnWorker(void *value)
 - (void)testInstall_whenSuccessful_shouldPublishEnabledOnlyAfterAllHandlersAreInstalled
 {
     // -- Arrange --
-    KSCrashMonitorAPI *api = test_managedSignalMonitorAPI();
+    KSCrashMonitorAPI *api = test_managedSignal_getAPI();
 
     // -- Act --
     api->setEnabled(true, NULL);
@@ -689,7 +689,7 @@ exerciseIgnoredSignalOnWorker(void *value)
     XCTAssertEqual(g_testSignals.installCalls, kssignal_numFatalSignals());
     for (int i = 0; i < kssignal_numFatalSignals(); i++) {
         XCTAssertEqual(g_testSignals.actions[kssignal_fatalSignals()[i]].sa_sigaction,
-            &sentrykscrash_managedSignalHandler);
+            &sentrykscrash_managedSignal_handleSignal);
     }
 }
 
@@ -699,11 +699,11 @@ exerciseIgnoredSignalOnWorker(void *value)
     g_testSignals.queryFailureSignal = kssignal_fatalSignals()[1];
 
     // -- Act --
-    sentrykscrash_managedSignalSetEnabled(true, NULL);
+    sentrykscrash_managedSignal_setEnabled(true, NULL);
 
     // -- Assert --
     [self assertOriginalHandlers:g_testSignals.actions];
-    XCTAssertFalse(sentrykscrash_managedSignalIsEnabled(NULL));
+    XCTAssertFalse(sentrykscrash_managedSignal_isEnabled(NULL));
 }
 
 - (void)testInstall_whenHandlerInstallFails_shouldRollBackAndPreserveAllPredecessors
@@ -712,12 +712,12 @@ exerciseIgnoredSignalOnWorker(void *value)
     g_testSignals.installFailureSignal = kssignal_fatalSignals()[1];
 
     // -- Act --
-    sentrykscrash_managedSignalSetEnabled(true, NULL);
+    sentrykscrash_managedSignal_setEnabled(true, NULL);
 
     // -- Assert --
     [self assertOriginalHandlers:g_testSignals.actions];
     XCTAssertEqual(g_testSignals.installCalls, 1);
-    XCTAssertFalse(sentrykscrash_managedSignalIsEnabled(NULL));
+    XCTAssertFalse(sentrykscrash_managedSignal_isEnabled(NULL));
 }
 
 - (void)testInstall_whenSignalIsIgnored_shouldLeaveItIgnoredDuringInstallAndRestore
@@ -728,9 +728,9 @@ exerciseIgnoredSignalOnWorker(void *value)
     g_testSignals.actions[signal] = g_testSignals.originals[signal];
 
     // -- Act --
-    sentrykscrash_managedSignalSetEnabled(true, NULL);
+    sentrykscrash_managedSignal_setEnabled(true, NULL);
     const struct sigaction ignoredAction = g_testSignals.actions[signal];
-    sentrykscrash_managedSignalRestoreHandlers();
+    sentrykscrash_managedSignal_restoreHandlers();
 
     // -- Assert --
     XCTAssertEqual(ignoredAction.sa_handler, SIG_IGN);
@@ -741,10 +741,10 @@ exerciseIgnoredSignalOnWorker(void *value)
 - (void)testSetEnabled_whenToggledAfterPreinstall_shouldAdoptWithoutReplacingHandlers
 {
     // -- Arrange --
-    sentrykscrash_managedSignalInstall();
+    sentrykscrash_managedSignal_install();
     const int writeCalls = g_testSignals.writeCalls;
     KSCrash_ExceptionHandlerCallbacks callbacks = testCallbacksA();
-    KSCrashMonitorAPI *api = test_managedSignalMonitorAPI();
+    KSCrashMonitorAPI *api = test_managedSignal_getAPI();
 
     // -- Act --
     api->init(&callbacks, NULL);
@@ -771,7 +771,7 @@ exerciseIgnoredSignalOnWorker(void *value)
 - (void)testManagedSignalMonitorAPI_shouldExposeStandardSignalIdentityAndPluginFlags
 {
     // -- Arrange --
-    KSCrashMonitorAPI *api = test_managedSignalMonitorAPI();
+    KSCrashMonitorAPI *api = test_managedSignal_getAPI();
 
     // -- Act --
     const char *monitorId = api->monitorId(NULL);
@@ -889,7 +889,7 @@ exerciseIgnoredSignalOnWorker(void *value)
 - (void)testInit_whenNull_shouldRemainUnpublished
 {
     // -- Act --
-    sentrykscrash_managedSignalInit(NULL, NULL);
+    sentrykscrash_managedSignal_init(NULL, NULL);
 
     // -- Assert --
     XCTAssertFalse(atomic_load(&g_managedSignal.callbacksReady));
@@ -904,9 +904,9 @@ exerciseIgnoredSignalOnWorker(void *value)
     KSCrash_ExceptionHandlerCallbacks valid = testCallbacksA();
 
     // -- Act --
-    sentrykscrash_managedSignalInit(&incomplete, NULL);
+    sentrykscrash_managedSignal_init(&incomplete, NULL);
     const bool incompletePublished = atomic_load(&g_managedSignal.callbacksReady);
-    sentrykscrash_managedSignalInit(&valid, NULL);
+    sentrykscrash_managedSignal_init(&valid, NULL);
 
     // -- Assert --
     XCTAssertFalse(incompletePublished);
@@ -923,9 +923,9 @@ exerciseIgnoredSignalOnWorker(void *value)
     KSCrash_ExceptionHandlerCallbacks valid = testCallbacksA();
 
     // -- Act --
-    sentrykscrash_managedSignalInit(&incomplete, NULL);
+    sentrykscrash_managedSignal_init(&incomplete, NULL);
     const bool incompletePublished = atomic_load(&g_managedSignal.callbacksReady);
-    sentrykscrash_managedSignalInit(&valid, NULL);
+    sentrykscrash_managedSignal_init(&valid, NULL);
 
     // -- Assert --
     XCTAssertFalse(incompletePublished);
@@ -941,7 +941,7 @@ exerciseIgnoredSignalOnWorker(void *value)
     KSCrash_ExceptionHandlerCallbacks callbacks = testCallbacksA();
 
     // -- Act --
-    sentrykscrash_managedSignalInit(&callbacks, NULL);
+    sentrykscrash_managedSignal_init(&callbacks, NULL);
     callbacks = testCallbacksB();
 
     // -- Assert --
@@ -949,7 +949,7 @@ exerciseIgnoredSignalOnWorker(void *value)
     XCTAssertEqual(g_managedSignal.callbacks.notify, &testNotifyA);
     XCTAssertEqual(g_managedSignal.callbacks.handle, &testHandleA);
     XCTAssertTrue(atomic_load(&g_managedSignal.callbacksReady));
-    XCTAssertFalse(sentrykscrash_managedSignalIsEnabled(NULL));
+    XCTAssertFalse(sentrykscrash_managedSignal_isEnabled(NULL));
     XCTAssertEqual(atomic_load(&g_managedSignal.installedState), SentryManagedSignalNotInstalled);
     XCTAssertEqual(g_testSignals.writeCalls, 0);
     XCTAssertEqual(g_testAllocations.count, 0u);
@@ -959,29 +959,29 @@ exerciseIgnoredSignalOnWorker(void *value)
 {
     // -- Arrange --
     KSCrash_ExceptionHandlerCallbacks callbacks = testCallbacksA();
-    sentrykscrash_managedSignalInit(&callbacks, NULL);
-    sentrykscrash_managedSignalSetEnabled(true, NULL);
+    sentrykscrash_managedSignal_init(&callbacks, NULL);
+    sentrykscrash_managedSignal_setEnabled(true, NULL);
     const int writes = g_testSignals.writeCalls;
 
     // -- Act --
-    sentrykscrash_managedSignalInit(&callbacks, NULL);
+    sentrykscrash_managedSignal_init(&callbacks, NULL);
 
     // -- Assert --
     XCTAssertEqual(atomic_load(&g_testCallbacks.publications), 1);
     XCTAssertEqual(g_testSignals.writeCalls, writes);
-    XCTAssertTrue(sentrykscrash_managedSignalIsEnabled(NULL));
+    XCTAssertTrue(sentrykscrash_managedSignal_isEnabled(NULL));
 }
 
 - (void)testInit_whenRepeatedWithInvalidTable_shouldKeepPublishedCallbacks
 {
     // -- Arrange --
     KSCrash_ExceptionHandlerCallbacks callbacks = testCallbacksA();
-    sentrykscrash_managedSignalInit(&callbacks, NULL);
+    sentrykscrash_managedSignal_init(&callbacks, NULL);
     KSCrash_ExceptionHandlerCallbacks incomplete = { 0 };
 
     // -- Act --
-    sentrykscrash_managedSignalInit(&incomplete, NULL);
-    sentrykscrash_managedSignalInit(NULL, NULL);
+    sentrykscrash_managedSignal_init(&incomplete, NULL);
+    sentrykscrash_managedSignal_init(NULL, NULL);
 
     // -- Assert --
     XCTAssertTrue(atomic_load(&g_managedSignal.callbacksReady));
@@ -995,11 +995,11 @@ exerciseIgnoredSignalOnWorker(void *value)
     // -- Arrange --
     KSCrash_ExceptionHandlerCallbacks callbacks = testCallbacksA();
     KSCrash_ExceptionHandlerCallbacks replacement = testCallbacksB();
-    sentrykscrash_managedSignalInit(&callbacks, NULL);
-    sentrykscrash_managedSignalSetEnabled(true, NULL);
+    sentrykscrash_managedSignal_init(&callbacks, NULL);
+    sentrykscrash_managedSignal_setEnabled(true, NULL);
 
     // -- Act --
-    sentrykscrash_managedSignalInit(&replacement, NULL);
+    sentrykscrash_managedSignal_init(&replacement, NULL);
     testDeliverSignal(SIGSEGV);
 
     // -- Assert --
@@ -1014,8 +1014,8 @@ exerciseIgnoredSignalOnWorker(void *value)
 {
     // -- Arrange --
     KSCrash_ExceptionHandlerCallbacks callbacks = testCallbacksA();
-    sentrykscrash_managedSignalInit(&callbacks, NULL);
-    sentrykscrash_managedSignalSetEnabled(true, NULL);
+    sentrykscrash_managedSignal_init(&callbacks, NULL);
+    sentrykscrash_managedSignal_setEnabled(true, NULL);
     g_testCallbacks.reinitializeDuringNotify = true;
 
     // -- Act --
@@ -1079,12 +1079,12 @@ exerciseIgnoredSignalOnWorker(void *value)
 - (void)testInit_whenSignalArrivesBeforePublication_shouldForwardWithoutCallingCallbacks
 {
     // -- Arrange --
-    sentrykscrash_managedSignalSetEnabled(true, NULL);
+    sentrykscrash_managedSignal_setEnabled(true, NULL);
     KSCrash_ExceptionHandlerCallbacks callbacks = testCallbacksA();
     g_testCallbacks.deliverBeforePublication = true;
 
     // -- Act --
-    sentrykscrash_managedSignalInit(&callbacks, NULL);
+    sentrykscrash_managedSignal_init(&callbacks, NULL);
 
     // -- Assert --
     XCTAssertFalse(g_testCallbacks.deliverBeforePublication); // The boundary was exercised.
@@ -1094,7 +1094,7 @@ exerciseIgnoredSignalOnWorker(void *value)
     XCTAssertEqual(g_testSignals.raiseCalls, 1);
     [self assertOriginalHandlers:g_testSignals.actionsAtRaise];
     XCTAssertTrue(atomic_load(&g_managedSignal.callbacksReady));
-    XCTAssertFalse(sentrykscrash_managedSignalIsEnabled(NULL));
+    XCTAssertFalse(sentrykscrash_managedSignal_isEnabled(NULL));
 }
 
 - (void)testInit_whenReenteredBeforePublication_shouldKeepPendingPairWithoutPublishingEarly
@@ -1104,7 +1104,7 @@ exerciseIgnoredSignalOnWorker(void *value)
     g_testCallbacks.reinitializeBeforePublication = true;
 
     // -- Act --
-    sentrykscrash_managedSignalInit(&callbacks, NULL);
+    sentrykscrash_managedSignal_init(&callbacks, NULL);
 
     // -- Assert --
     XCTAssertFalse(g_testCallbacks.reinitializeBeforePublication);
@@ -1118,7 +1118,7 @@ exerciseIgnoredSignalOnWorker(void *value)
 - (void)testHandler_whenEnabledBeforeInitialization_shouldOnlyForward
 {
     // -- Arrange --
-    sentrykscrash_managedSignalSetEnabled(true, NULL);
+    sentrykscrash_managedSignal_setEnabled(true, NULL);
 
     // -- Act --
     testDeliverSignal(SIGSEGV);
@@ -1134,8 +1134,8 @@ exerciseIgnoredSignalOnWorker(void *value)
 {
     // -- Arrange --
     KSCrash_ExceptionHandlerCallbacks callbacks = testCallbacksA();
-    sentrykscrash_managedSignalInit(&callbacks, NULL);
-    sentrykscrash_managedSignalSetEnabled(true, NULL);
+    sentrykscrash_managedSignal_init(&callbacks, NULL);
+    sentrykscrash_managedSignal_setEnabled(true, NULL);
 
     // -- Act --
     testDeliverSignal(SIGSEGV);
@@ -1161,8 +1161,8 @@ exerciseIgnoredSignalOnWorker(void *value)
 {
     // -- Arrange --
     KSCrash_ExceptionHandlerCallbacks callbacks = testCallbacksA();
-    sentrykscrash_managedSignalInit(&callbacks, NULL);
-    sentrykscrash_managedSignalSetEnabled(true, NULL);
+    sentrykscrash_managedSignal_init(&callbacks, NULL);
+    sentrykscrash_managedSignal_setEnabled(true, NULL);
     g_testCallbacks.returnNull = true;
 
     // -- Act --
@@ -1180,8 +1180,8 @@ exerciseIgnoredSignalOnWorker(void *value)
 {
     // -- Arrange --
     KSCrash_ExceptionHandlerCallbacks callbacks = testCallbacksA();
-    sentrykscrash_managedSignalInit(&callbacks, NULL);
-    sentrykscrash_managedSignalSetEnabled(true, NULL);
+    sentrykscrash_managedSignal_init(&callbacks, NULL);
+    sentrykscrash_managedSignal_setEnabled(true, NULL);
     g_testCallbacks.context.requirements.shouldExitImmediately = true;
 
     // -- Act --
@@ -1199,8 +1199,8 @@ exerciseIgnoredSignalOnWorker(void *value)
 {
     // -- Arrange --
     KSCrash_ExceptionHandlerCallbacks callbacks = testCallbacksA();
-    sentrykscrash_managedSignalInit(&callbacks, NULL);
-    sentrykscrash_managedSignalSetEnabled(true, NULL);
+    sentrykscrash_managedSignal_init(&callbacks, NULL);
+    sentrykscrash_managedSignal_setEnabled(true, NULL);
 
     // -- Act --
     testDeliverSignal(SIGTERM);
@@ -1291,10 +1291,10 @@ exerciseIgnoredSignalOnWorker(void *value)
     g_testStack.current = (stack_t) { .ss_sp = g_hostStack, .ss_size = sizeof(g_hostStack) };
 
     // -- Act --
-    sentrykscrash_managedSignalSetEnabled(true, NULL);
+    sentrykscrash_managedSignal_setEnabled(true, NULL);
 
     // -- Assert --
-    XCTAssertTrue(sentrykscrash_managedSignalIsEnabled(NULL));
+    XCTAssertTrue(sentrykscrash_managedSignal_isEnabled(NULL));
     XCTAssertEqual(g_testStack.current.ss_sp, (void *)g_hostStack);
     XCTAssertEqual(g_testStack.current.ss_size, sizeof(g_hostStack));
     XCTAssertEqual(g_testStack.writes, 0);
@@ -1309,10 +1309,10 @@ exerciseIgnoredSignalOnWorker(void *value)
     };
 
     // -- Act --
-    sentrykscrash_managedSignalSetEnabled(true, NULL);
+    sentrykscrash_managedSignal_setEnabled(true, NULL);
 
     // -- Assert --
-    XCTAssertTrue(sentrykscrash_managedSignalIsEnabled(NULL));
+    XCTAssertTrue(sentrykscrash_managedSignal_isEnabled(NULL));
     XCTAssertEqual(g_testStack.current.ss_sp, (void *)g_hostStack);
     XCTAssertEqual(g_testStack.current.ss_flags, SS_ONSTACK);
     XCTAssertEqual(g_testStack.writes, 0);
@@ -1325,8 +1325,8 @@ exerciseIgnoredSignalOnWorker(void *value)
     XCTAssertEqual(g_testStack.current.ss_flags, SS_DISABLE);
 
     // -- Act --
-    sentrykscrash_managedSignalSetEnabled(true, NULL);
-    sentrykscrash_managedSignalSetEnabled(false, NULL);
+    sentrykscrash_managedSignal_setEnabled(true, NULL);
+    sentrykscrash_managedSignal_setEnabled(false, NULL);
 
     // -- Assert --
     XCTAssertNotEqual(g_testStack.current.ss_sp, NULL);
@@ -1343,10 +1343,10 @@ exerciseIgnoredSignalOnWorker(void *value)
     g_testStack.failQueryOnCall = 1;
 
     // -- Act --
-    sentrykscrash_managedSignalSetEnabled(true, NULL);
+    sentrykscrash_managedSignal_setEnabled(true, NULL);
 
     // -- Assert --
-    XCTAssertFalse(sentrykscrash_managedSignalIsEnabled(NULL));
+    XCTAssertFalse(sentrykscrash_managedSignal_isEnabled(NULL));
     [self assertOriginalHandlers:g_testSignals.actions];
     XCTAssertEqual(g_testStack.writes, 0);
     XCTAssertEqual(liveAllocations(), 0u);
@@ -1358,10 +1358,10 @@ exerciseIgnoredSignalOnWorker(void *value)
     g_testAllocations.failMalloc = true;
 
     // -- Act --
-    sentrykscrash_managedSignalSetEnabled(true, NULL);
+    sentrykscrash_managedSignal_setEnabled(true, NULL);
 
     // -- Assert --
-    XCTAssertFalse(sentrykscrash_managedSignalIsEnabled(NULL));
+    XCTAssertFalse(sentrykscrash_managedSignal_isEnabled(NULL));
     [self assertOriginalHandlers:g_testSignals.actions];
     XCTAssertEqual(g_testStack.writes, 0);
     XCTAssertEqual(liveAllocations(), 0u);
@@ -1373,10 +1373,10 @@ exerciseIgnoredSignalOnWorker(void *value)
     g_testStack.failRegistration = true;
 
     // -- Act --
-    sentrykscrash_managedSignalSetEnabled(true, NULL);
+    sentrykscrash_managedSignal_setEnabled(true, NULL);
 
     // -- Assert --
-    XCTAssertFalse(sentrykscrash_managedSignalIsEnabled(NULL));
+    XCTAssertFalse(sentrykscrash_managedSignal_isEnabled(NULL));
     [self assertOriginalHandlers:g_testSignals.actions];
     XCTAssertEqual(g_testStack.current.ss_flags, SS_DISABLE);
     XCTAssertEqual(liveAllocations(), 0u);
@@ -1388,10 +1388,10 @@ exerciseIgnoredSignalOnWorker(void *value)
     g_testAllocations.failCalloc = true;
 
     // -- Act --
-    sentrykscrash_managedSignalSetEnabled(true, NULL);
+    sentrykscrash_managedSignal_setEnabled(true, NULL);
 
     // -- Assert --
-    XCTAssertFalse(sentrykscrash_managedSignalIsEnabled(NULL));
+    XCTAssertFalse(sentrykscrash_managedSignal_isEnabled(NULL));
     [self assertOriginalHandlers:g_testSignals.actions];
     XCTAssertEqual(g_testStack.current.ss_flags, SS_DISABLE);
     XCTAssertEqual(liveAllocations(), 0u);
@@ -1403,10 +1403,10 @@ exerciseIgnoredSignalOnWorker(void *value)
     g_testSignals.queryFailureSignal = kssignal_fatalSignals()[0];
 
     // -- Act --
-    sentrykscrash_managedSignalSetEnabled(true, NULL);
+    sentrykscrash_managedSignal_setEnabled(true, NULL);
 
     // -- Assert --
-    XCTAssertFalse(sentrykscrash_managedSignalIsEnabled(NULL));
+    XCTAssertFalse(sentrykscrash_managedSignal_isEnabled(NULL));
     [self assertOriginalHandlers:g_testSignals.actions];
     XCTAssertEqual(g_testStack.current.ss_flags, SS_DISABLE);
     XCTAssertEqual(liveAllocations(), 0u);
@@ -1418,10 +1418,10 @@ exerciseIgnoredSignalOnWorker(void *value)
     g_testSignals.installFailureSignal = kssignal_fatalSignals()[0];
 
     // -- Act --
-    sentrykscrash_managedSignalSetEnabled(true, NULL);
+    sentrykscrash_managedSignal_setEnabled(true, NULL);
 
     // -- Assert --
-    XCTAssertFalse(sentrykscrash_managedSignalIsEnabled(NULL));
+    XCTAssertFalse(sentrykscrash_managedSignal_isEnabled(NULL));
     [self assertOriginalHandlers:g_testSignals.actions];
     XCTAssertEqual(g_testStack.current.ss_flags, SS_DISABLE);
     XCTAssertEqual(liveAllocations(), 0u);
@@ -1433,10 +1433,10 @@ exerciseIgnoredSignalOnWorker(void *value)
     g_testSignals.installFailureSignal = kssignal_fatalSignals()[1];
 
     // -- Act --
-    sentrykscrash_managedSignalSetEnabled(true, NULL);
+    sentrykscrash_managedSignal_setEnabled(true, NULL);
 
     // -- Assert --
-    XCTAssertFalse(sentrykscrash_managedSignalIsEnabled(NULL));
+    XCTAssertFalse(sentrykscrash_managedSignal_isEnabled(NULL));
     [self assertOriginalHandlers:g_testSignals.actions];
     XCTAssertEqual(g_testStack.current.ss_sp, g_managedSignal.signalStack.ss_sp);
     XCTAssertEqual(g_testStack.current.ss_flags, 0);
@@ -1449,7 +1449,7 @@ exerciseIgnoredSignalOnWorker(void *value)
     g_testSignals.deliverOnInstall = 1;
 
     // -- Act --
-    sentrykscrash_managedSignalSetEnabled(true, NULL);
+    sentrykscrash_managedSignal_setEnabled(true, NULL);
 
     // -- Assert --
     XCTAssertEqual(g_testSignals.raiseCalls, 1);
@@ -1462,7 +1462,7 @@ exerciseIgnoredSignalOnWorker(void *value)
 - (void)testHandler_whenOnOwnedStack_shouldRestoreHandlersWithoutDetachingOrFreeingStack
 {
     // -- Arrange --
-    sentrykscrash_managedSignalSetEnabled(true, NULL);
+    sentrykscrash_managedSignal_setEnabled(true, NULL);
 
     // -- Act --
     testDeliverSignal(kssignal_fatalSignals()[0]);
@@ -1482,10 +1482,10 @@ exerciseIgnoredSignalOnWorker(void *value)
     g_testStack.failDisable = true;
 
     // -- Act --
-    sentrykscrash_managedSignalSetEnabled(true, NULL);
+    sentrykscrash_managedSignal_setEnabled(true, NULL);
 
     // -- Assert --
-    XCTAssertFalse(sentrykscrash_managedSignalIsEnabled(NULL));
+    XCTAssertFalse(sentrykscrash_managedSignal_isEnabled(NULL));
     XCTAssertEqual(g_testStack.current.ss_sp, g_managedSignal.signalStack.ss_sp);
     XCTAssertEqual(g_testStack.current.ss_flags, 0);
     XCTAssertEqual(liveAllocations(), 1u); // Still registered, but the unused table is released.
@@ -1498,10 +1498,10 @@ exerciseIgnoredSignalOnWorker(void *value)
     g_testStack.failQueryOnCall = 2;
 
     // -- Act --
-    sentrykscrash_managedSignalSetEnabled(true, NULL);
+    sentrykscrash_managedSignal_setEnabled(true, NULL);
 
     // -- Assert --
-    XCTAssertFalse(sentrykscrash_managedSignalIsEnabled(NULL));
+    XCTAssertFalse(sentrykscrash_managedSignal_isEnabled(NULL));
     XCTAssertEqual(g_testStack.current.ss_sp, g_managedSignal.signalStack.ss_sp);
     XCTAssertEqual(liveAllocations(), 1u);
 }
@@ -1513,10 +1513,10 @@ exerciseIgnoredSignalOnWorker(void *value)
     g_testStack.replaceOnHandlerQueryFailure = true;
 
     // -- Act --
-    sentrykscrash_managedSignalSetEnabled(true, NULL);
+    sentrykscrash_managedSignal_setEnabled(true, NULL);
 
     // -- Assert --
-    XCTAssertFalse(sentrykscrash_managedSignalIsEnabled(NULL));
+    XCTAssertFalse(sentrykscrash_managedSignal_isEnabled(NULL));
     XCTAssertEqual(g_testStack.current.ss_sp, (void *)g_replacementStack);
     XCTAssertEqual(g_testStack.current.ss_size, sizeof(g_replacementStack));
     XCTAssertEqual(g_testStack.current.ss_flags, 0);
@@ -1531,10 +1531,10 @@ exerciseIgnoredSignalOnWorker(void *value)
     g_testSignals.queryFailureSignal = kssignal_fatalSignals()[0];
 
     // -- Act --
-    sentrykscrash_managedSignalSetEnabled(true, NULL);
+    sentrykscrash_managedSignal_setEnabled(true, NULL);
 
     // -- Assert --
-    XCTAssertFalse(sentrykscrash_managedSignalIsEnabled(NULL));
+    XCTAssertFalse(sentrykscrash_managedSignal_isEnabled(NULL));
     XCTAssertEqual(g_testStack.current.ss_sp, (void *)g_hostStack);
     XCTAssertEqual(g_testStack.writes, 0);
     XCTAssertEqual(liveAllocations(), 0u);

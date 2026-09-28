@@ -14,7 +14,7 @@ extern "C" {
 bool sentrykscrash_isManagedRuntimeBuild(void);
 
 /** The replacement Signal monitor used by managed-runtime builds. */
-KSCrashMonitorAPI *_Nonnull sentrykscrash_managedSignalMonitorAPI(void);
+KSCrashMonitorAPI *_Nonnull sentrykscrash_managedSignal_getAPI(void);
 
 /** Consume the next delivery's token on this thread, suppressing its report only if it matches. */
 void sentrykscrash_ignoreNextSignal(int signal);
