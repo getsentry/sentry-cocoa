@@ -56,6 +56,18 @@ struct StandaloneObjCExtensionRule: Rule {
                 extension P { func x() {} }
                 """),
             Example(code: "extension Foo { @objc class Nested: NSObject {} }"),
+            Example(code: """
+                #if os(iOS)
+                class Dummy {}
+                @objc extension Foo {}
+                #endif
+                """),
+            Example(code: """
+                class Dummy {}
+                #if os(iOS)
+                @objc extension Foo {}
+                #endif
+                """),
         ],
         triggeringExamples: [
             Example(code: "↓@objc extension Foo {}"),
@@ -111,6 +123,19 @@ struct StandaloneObjCExtensionRule: Rule {
                 typealias Foo = Int
                 ↓@objc extension Bar {}
                 """),
+            Example(code: """
+                #if os(iOS)
+                class Dummy {}
+                #else
+                ↓@objc extension Foo {}
+                #endif
+                """),
+            Example(code: """
+                #if os(iOS)
+                class Dummy {}
+                #endif
+                ↓@objc extension Foo {}
+                """),
         ]
     )
 }
@@ -118,8 +143,14 @@ struct StandaloneObjCExtensionRule: Rule {
 private extension StandaloneObjCExtensionRule {
     final class Visitor: ViolationsSyntaxVisitor<ConfigurationType> {
         override func visit(_ node: SourceFileSyntax) -> SyntaxVisitorContinueKind {
-            let decls = flatten(node.statements)
+            var reported: Set<Int> = []
+            for decls in configurations(node.statements) {
+                recordViolations(in: decls, reported: &reported)
+            }
+            return .skipChildren
+        }
 
+        private func recordViolations(in decls: [DeclSyntax], reported: inout Set<Int>) {
             let protocolNames = Set(decls.compactMap { ProtocolDeclSyntax($0)?.name.text })
             let objcProtocolNames = Set(decls.compactMap { decl -> String? in
                 guard let proto = ProtocolDeclSyntax(decl), proto.attributes.containsObjC else {
@@ -135,7 +166,7 @@ private extension StandaloneObjCExtensionRule {
             }
 
             guard !hasConcreteType else {
-                return .skipChildren
+                return
             }
 
             for decl in decls {
@@ -145,9 +176,13 @@ private extension StandaloneObjCExtensionRule {
                 ) else {
                     continue
                 }
+                let position = ext.positionAfterSkippingLeadingTrivia
+                guard reported.insert(position.utf8Offset).inserted else {
+                    continue
+                }
                 violations.append(
                     ReasonedRuleViolation(
-                        position: ext.positionAfterSkippingLeadingTrivia,
+                        position: position,
                         reason: """
                             An @objc extension (or an extension with @objc members) in a file with no \
                             class, struct, enum, or actor is stripped from static builds\n\n\
@@ -157,9 +192,47 @@ private extension StandaloneObjCExtensionRule {
                     )
                 )
             }
-
-            return .skipChildren
         }
+    }
+}
+
+/// Builds alternative top-level declaration lists without evaluating `#if` conditions.
+/// Each clause's children are one alternative so a type in one branch cannot hide a
+/// category in another. `#if` without `#else` also has an empty alternative.
+private func configurations(_ statements: CodeBlockItemListSyntax) -> [[DeclSyntax]] {
+    var configs: [[DeclSyntax]] = [[]]
+    for item in statements {
+        if let ifConfig = IfConfigDeclSyntax(item.item) {
+            let alternatives = configurations(ifConfig)
+            configs = configs.flatMap { prefix in
+                alternatives.map { prefix + $0 }
+            }
+        } else if let decl = DeclSyntax(item.item) {
+            configs = configs.map { $0 + [decl] }
+        }
+    }
+    return configs
+}
+
+private func configurations(_ config: IfConfigDeclSyntax) -> [[DeclSyntax]] {
+    var alternatives: [[DeclSyntax]] = []
+    for clause in config.clauses {
+        alternatives.append(contentsOf: configurations(clause))
+    }
+    if config.clauses.allSatisfy({ $0.condition != nil }) {
+        alternatives.append([])
+    }
+    return alternatives
+}
+
+private func configurations(_ clause: IfConfigClauseSyntax) -> [[DeclSyntax]] {
+    switch clause.elements {
+    case .statements(let statements)?:
+        return configurations(statements)
+    case .decls(let members)?:
+        return [flatten(members)]
+    default:
+        return [[]]
     }
 }
 
@@ -178,16 +251,20 @@ private func flatten(_ statements: CodeBlockItemListSyntax) -> [DeclSyntax] {
 private func flatten(_ config: IfConfigDeclSyntax) -> [DeclSyntax] {
     var decls: [DeclSyntax] = []
     for clause in config.clauses {
-        switch clause.elements {
-        case .statements(let statements)?:
-            decls.append(contentsOf: flatten(statements))
-        case .decls(let members)?:
-            decls.append(contentsOf: flatten(members))
-        default:
-            break
-        }
+        decls.append(contentsOf: flatten(clause))
     }
     return decls
+}
+
+private func flatten(_ clause: IfConfigClauseSyntax) -> [DeclSyntax] {
+    switch clause.elements {
+    case .statements(let statements)?:
+        return flatten(statements)
+    case .decls(let members)?:
+        return flatten(members)
+    default:
+        return []
+    }
 }
 
 private func flatten(_ members: MemberBlockItemListSyntax) -> [DeclSyntax] {

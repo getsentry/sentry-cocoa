@@ -93,6 +93,47 @@ struct StandaloneObjCExtensionRuleTests {
         #expect(lint(code).isEmpty)
     }
 
+    @Test func flagsCategoryInOtherIfConfigBranch() {
+        let code = """
+        #if os(iOS)
+        class Dummy {}
+        #else
+        @objc extension Foo {}
+        #endif
+        """
+        #expect(!lint(code).isEmpty)
+    }
+
+    @Test func flagsCategoryWhenAnchorIsOnlyInIfConfig() {
+        let code = """
+        #if os(iOS)
+        class Dummy {}
+        #endif
+        @objc extension Foo {}
+        """
+        #expect(!lint(code).isEmpty)
+    }
+
+    @Test func allowsCategoryAnchoredInSameIfConfigBranch() {
+        let code = """
+        #if os(iOS)
+        class Dummy {}
+        @objc extension Foo {}
+        #endif
+        """
+        #expect(lint(code).isEmpty)
+    }
+
+    @Test func allowsCategoryWhenAnchorIsOutsideIfConfig() {
+        let code = """
+        class Dummy {}
+        #if os(iOS)
+        @objc extension Foo {}
+        #endif
+        """
+        #expect(lint(code).isEmpty)
+    }
+
     private func lint(_ code: String) -> [StyleViolation] {
         rule.validate(file: SwiftLintFile(contents: code))
     }
