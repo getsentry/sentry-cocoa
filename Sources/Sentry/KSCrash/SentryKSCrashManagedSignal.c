@@ -79,7 +79,7 @@ static struct {
     atomic_int restorableHandlerCount;
     // SENTRY MANAGED SIGNAL DIFFERENCE END
     atomic_bool enabled;
-    // One initializer owns the copy; readers use only the separately published readiness flag.
+    // One initializer owns the callback copy; the readiness flag publishes it to readers.
     atomic_bool callbacksClaimed;
     atomic_bool callbacksReady;
 #        if SENTRY_HAS_SIGNAL_STACK
