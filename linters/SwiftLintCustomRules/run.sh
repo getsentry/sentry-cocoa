@@ -9,7 +9,7 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 CONFIG="$SCRIPT_DIR/.swiftlint.yml"
 
 if ! command -v bazel >/dev/null 2>&1; then
-    echo "error: bazel (bazelisk) is required. Run 'brew install bazelisk' or 'make init-ci-format'." >&2
+    echo "error: bazel (bazelisk) is required. Run 'brew install bazelisk' or 'make init'." >&2
     exit 1
 fi
 
@@ -26,10 +26,11 @@ else
     done
 fi
 
-cd "$SCRIPT_DIR"
+pushd "$SCRIPT_DIR"
 bazel build @SwiftLint//:swiftlint
-exec "$SCRIPT_DIR/bazel-bin/external/swiftlint+/swiftlint" \
+bazel @SwiftLint//:swiftlint -- \
     --config "$CONFIG" \
     --strict \
     --quiet \
     "${paths[@]}"
+popd
