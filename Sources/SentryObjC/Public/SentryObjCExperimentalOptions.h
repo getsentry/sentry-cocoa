@@ -1,4 +1,9 @@
 #import <Foundation/Foundation.h>
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCDefines.h"
+#else
+#    import <SentryObjC/SentryObjCDefines.h>
+#endif
 NS_ASSUME_NONNULL_BEGIN
 
 /// Options for experimental features that are subject to change or may be removed in future
@@ -28,6 +33,16 @@ NS_ASSUME_NONNULL_BEGIN
  * lifetime, but bypass new-loader instrumentation if the SDK restarts with this option disabled.
  */
 @property (nonatomic) BOOL enableNewURLLoaderSwizzling;
+
+#if (TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION) && SENTRY_OBJC_HAS_UIKIT
+/**
+ * Enables extracting text from child views to label interaction breadcrumbs.
+ *
+ * @warning This is an experimental feature and is disabled by default because visible text can
+ * contain sensitive data.
+ */
+@property (nonatomic) BOOL enableBreadcrumbTextExtraction;
+#endif
 
 #if !SDK_V10
 /**

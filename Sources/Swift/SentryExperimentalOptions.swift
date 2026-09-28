@@ -22,6 +22,13 @@ public final class SentryExperimentalOptions: NSObject {
     /// lifetime, but bypass new-loader instrumentation if the SDK restarts with this option disabled.
     public var enableNewURLLoaderSwizzling = false
 
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    /// Enables extracting text from child views to label interaction breadcrumbs.
+    ///
+    /// This feature is disabled by default because visible text can contain sensitive data.
+    public var enableBreadcrumbTextExtraction = false
+#endif
+
     #if !SDK_V10
     @nonobjc var enableWatchdogTerminationsV2Value = false
 

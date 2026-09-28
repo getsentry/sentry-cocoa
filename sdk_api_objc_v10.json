@@ -2293,6 +2293,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "enableBreadcrumbTextExtraction",
+    "parent": "SentryObjCExperimentalOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "enableNewURLLoaderSwizzling",
     "parent": "SentryObjCExperimentalOptions",
     "returnType": "BOOL",
@@ -6339,6 +6346,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setEnableBreadcrumbTextExtraction:",
+    "parent": "SentryObjCExperimentalOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setEnableNewURLLoaderSwizzling:",
     "parent": "SentryObjCExperimentalOptions",
     "returnType": "void",
@@ -9736,6 +9750,12 @@
     "kind": "ObjCPropertyDecl",
     "name": "enableNetworkTracking",
     "parent": "SentryObjCOptions",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "enableBreadcrumbTextExtraction",
+    "parent": "SentryObjCExperimentalOptions",
     "type": "BOOL"
   },
   {

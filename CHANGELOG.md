@@ -12,6 +12,10 @@
 > [!CAUTION]
 > **Known issue:** This release can crash apps statically linking the SDK without `-ObjC` with `-[SentryEvent isMetricKitEvent]: unrecognized selector`, even when MetricKit is disabled. Add `-ObjC` to the app target's linker flags, preserving `$(inherited)`, or pin to **9.29.0** until a fix is released. See [#9154](https://github.com/getsentry/sentry-cocoa/issues/9154).
 
+### Features
+
+- Add experimental `enableBreadcrumbTextExtraction` opt-in for interaction breadcrumb child-text extraction. (#9010)
+
 ### Fixes
 
 - Add experimental support for the new URLSession HTTP loader for automatic network instrumentation, preserving original request details in Session Replay after redirects. Opt in with `options.experimental.enableNewURLLoaderSwizzling = true` (disabled by default) (#8845)
