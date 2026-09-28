@@ -60,6 +60,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: bazel-contrib/setup-bazel@c5acdfb288317d0b5c0bbd7a396a3dc868bb0f86 # v0.19.0
         with:
+          module-root: linters/SwiftLintCustomRules
           bazelisk-cache: true
           disk-cache: ${{ github.workflow }}
           repository-cache: linters/SwiftLintCustomRules/MODULE.bazel.lock
