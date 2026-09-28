@@ -206,10 +206,13 @@ sentrykscrash_managedSignal_handleSignal(int signal, siginfo_t *signalInfo, void
         }
     }
 
-    // Keep the constructor-installed anchor for the process lifetime, but a fatal delivery is a
-    // one-way path: restore the system predecessor before forwarding exactly as KSCrash does.
+    // Restore original handlers only: don't free the signal stack while we're
+    // executing on it, and don't call free() which isn't async-signal-safe.
     sentrykscrash_managedSignal_restoreHandlers();
+    // SENTRY MANAGED SIGNAL DIFFERENCE BEGIN: a nested handler may interrupt the serial
+    // restoration before this signal's predecessor is restored, so restore it again here.
     sentrykscrash_managedSignal_restoreHandler(signal);
+    // SENTRY MANAGED SIGNAL DIFFERENCE END
     raise(signal);
 }
 
