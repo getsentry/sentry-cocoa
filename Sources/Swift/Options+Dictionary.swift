@@ -125,6 +125,10 @@ extension Options {
             self.sampleRate = sampleRate
         }
 
+        if let enableFatalEventSampling = boolValue(dictionary["enableFatalEventSampling"]) {
+            self.enableFatalEventSampling = enableFatalEventSampling
+        }
+
         if let enableAutoSessionTracking = boolValue(dictionary["enableAutoSessionTracking"]) {
             self.enableAutoSessionTracking = enableAutoSessionTracking
         }

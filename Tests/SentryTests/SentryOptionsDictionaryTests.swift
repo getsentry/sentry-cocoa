@@ -10,6 +10,7 @@ final class SentryOptionsDictionaryTests: XCTestCase {
             "environment": "staging",
             "release": "1.2.3",
             "sampleRate": 0.25,
+            "enableFatalEventSampling": false,
             "enableMemoryIntrospection": true
         ]
 
@@ -23,6 +24,7 @@ final class SentryOptionsDictionaryTests: XCTestCase {
         XCTAssertEqual(options.environment, "staging")
         XCTAssertEqual(options.releaseName, "1.2.3")
         XCTAssertEqual(options.sampleRate?.doubleValue, 0.25)
+        XCTAssertFalse(options.enableFatalEventSampling)
         XCTAssertTrue(options.enableMemoryIntrospection)
     }
 
