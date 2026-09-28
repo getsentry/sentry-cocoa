@@ -292,7 +292,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     func testEnableUnhandledCPPExceptionsV2_shouldAddFeature() throws {
         // -- Arrange --
         let options = Options()
-        options.enableUnhandledCPPExceptionsV2 = true
+        options.experimental.enableUnhandledCPPExceptionsV2 = true
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
@@ -304,7 +304,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     func testEnableUnhandledCPPExceptionsV2_isDisabled_shouldNotAddFeature() throws {
         // -- Arrange --
         let options = Options()
-        options.enableUnhandledCPPExceptionsV2 = false
+        options.experimental.enableUnhandledCPPExceptionsV2 = false
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
@@ -364,31 +364,28 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         XCTAssertFalse(features.contains("graphQLOperationTracking"))
     }
 
-    @available(*, deprecated, message: "Testing the legacy experimental option")
-    func testEnableUnhandledCPPExceptionsV2_whenLegacyOptionIsEnabled_shouldAddFeature() {
+    func testEnableUnhandledCPPExceptionsV2_whenDefault_shouldNotAddFeature() {
         // -- Arrange --
         let options = Options()
-        options.experimental.enableUnhandledCPPExceptionsV2 = true
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
 
         // -- Assert --
-        XCTAssertTrue(options.enableUnhandledCPPExceptionsV2)
-        XCTAssertTrue(features.contains("unhandledCPPExceptionsV2"))
+        XCTAssertFalse(options.experimental.enableUnhandledCPPExceptionsV2)
+        XCTAssertFalse(features.contains("unhandledCPPExceptionsV2"))
     }
 
-    @available(*, deprecated, message: "Testing the legacy experimental option")
-    func testEnableUnhandledCPPExceptionsV2_whenTopLevelOptionChanges_shouldUpdateLegacyOption() {
+    func testEnableUnhandledCPPExceptionsV2_whenExperimentalOptionIsDisabled_shouldRemoveFeature() {
         // -- Arrange --
         let options = Options()
         options.experimental.enableUnhandledCPPExceptionsV2 = true
+        XCTAssertTrue(SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options).contains("unhandledCPPExceptionsV2"))
 
         // -- Act --
-        options.enableUnhandledCPPExceptionsV2 = false
+        options.experimental.enableUnhandledCPPExceptionsV2 = false
 
         // -- Assert --
-        XCTAssertFalse(options.experimental.enableUnhandledCPPExceptionsV2)
         XCTAssertFalse(SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options).contains("unhandledCPPExceptionsV2"))
     }
 

@@ -14,12 +14,9 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @note The mechanism of hooking into @c __cxa_throw could cause issues with symbolication on iOS
  * due to caching of symbol references.
- * @deprecated Use @c SentryObjCOptions.enableUnhandledCPPExceptionsV2 instead.
- * This alias will be removed in the next minor release.
+ * @warning This is an experimental feature and is therefore disabled by default.
  */
-@property (nonatomic) BOOL enableUnhandledCPPExceptionsV2 DEPRECATED_MSG_ATTRIBUTE(
-    "Use SentryObjCOptions.enableUnhandledCPPExceptionsV2 instead. "
-    "This alias will be removed in the next minor release.");
+@property (nonatomic) BOOL enableUnhandledCPPExceptionsV2;
 
 /**
  * Enables swizzling for automatic network instrumentation of the new URLSession HTTP loader.

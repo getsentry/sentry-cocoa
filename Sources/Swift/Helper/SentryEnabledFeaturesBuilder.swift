@@ -14,7 +14,7 @@ import Foundation
         var features: [String] = []
 
         // -- Feature: Errors --
-        if options.enableUnhandledCPPExceptionsV2 {
+        if options.experimental.enableUnhandledCPPExceptionsV2 {
             features.append("unhandledCPPExceptionsV2")
         }
         if options.swiftAsyncStacktraces {

@@ -131,17 +131,6 @@
     var _enableSigtermReporting: Bool = false
     #endif // !os(watchOS) && !SDK_V10
 
-    /// Enables a more reliable way to report unhandled C++ exceptions.
-    ///
-    /// This approach hooks into all instances of the `__cxa_throw` function, which provides a more comprehensive and consistent exception handling across an app’s runtime, regardless of the number of C++ modules or how they’re linked. It helps in obtaining accurate stack traces.
-    ///
-    /// - Note: The mechanism of hooking into `__cxa_throw` could cause issues with symbolication on iOS due to caching of symbol references.
-    /// - Note: Disabled by default because of the potential symbolication issues.
-    @objc public var enableUnhandledCPPExceptionsV2: Bool {
-        get { experimental.unhandledCPPExceptionsV2Enabled }
-        set { experimental.unhandledCPPExceptionsV2Enabled = newValue }
-    }
-
     /// When enabled, the SDK introspects memory contents during a crash.
     /// Any Objective-C objects or C strings near the stack pointer or referenced by
     /// CPU registers or exceptions will be recorded in the crash report, along with

@@ -62,11 +62,6 @@ import Foundation
         set { wrapped.enableCrashHandler = newValue }
     }
 
-    @objc public var enableUnhandledCPPExceptionsV2: Bool {
-        get { wrapped.enableUnhandledCPPExceptionsV2 }
-        set { wrapped.enableUnhandledCPPExceptionsV2 = newValue }
-    }
-
     @objc public var enableMemoryIntrospection: Bool {
         get { wrapped.enableMemoryIntrospection }
         set { wrapped.enableMemoryIntrospection = newValue }

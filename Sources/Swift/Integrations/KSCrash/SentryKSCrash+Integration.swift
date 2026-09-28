@@ -60,7 +60,7 @@ extension SentryKSCrash {
                     installPath: installPath.path,
                     monitors: productionSafeMonitors,
                     enableMemoryIntrospection: options.enableMemoryIntrospection,
-                    enableSwapCxaThrow: options.enableUnhandledCPPExceptionsV2,
+                    enableSwapCxaThrow: options.experimental.enableUnhandledCPPExceptionsV2,
                     enableSwiftAsyncStackTraces: options.swiftAsyncStacktraces
                 )
             } catch {

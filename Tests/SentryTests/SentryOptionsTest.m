@@ -208,11 +208,6 @@
     XCTAssertEqual([maxBreadcrumbs unsignedIntValue], options.maxBreadcrumbs);
 }
 
-- (void)testInitWithDictionary_whenUnhandledCPPExceptionsV2IsConfigured_shouldApplyValue
-{
-    [self testBooleanField:@"enableUnhandledCPPExceptionsV2" defaultValue:NO];
-}
-
 - (void)testInitWithDictionary_whenFileManagerSwizzlingIsConfigured_shouldApplyValue
 {
 #if SDK_V10
