@@ -301,15 +301,9 @@
     /// @note Default is @c true.
     @objc public var enableAutoSessionTracking: Bool = true
 
-    #if SDK_V10
-    /// Whether to attach the top level `operationName` node of HTTP json requests to HTTP breadcrumbs
-    /// @note Default is @c true.
-    @objc public var enableGraphQLOperationTracking: Bool = true
-    #else
     /// Whether to attach the top level `operationName` node of HTTP json requests to HTTP breadcrumbs
     /// @note Default is @c false.
     @objc public var enableGraphQLOperationTracking: Bool = false
-    #endif // SDK_V10
 
     /// Whether to enable Watchdog Termination tracking or not.
     /// @note This feature requires the SentryCrashIntegration being enabled, otherwise it would

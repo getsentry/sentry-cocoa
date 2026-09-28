@@ -258,11 +258,7 @@
 
 - (void)testEnableGraphQLOperationTracking
 {
-#if SDK_V10
-    [self testBooleanField:@"enableGraphQLOperationTracking" defaultValue:YES];
-#else
     [self testBooleanField:@"enableGraphQLOperationTracking" defaultValue:NO];
-#endif // SDK_V10
 }
 
 - (void)testSendClientReports

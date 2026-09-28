@@ -13,9 +13,9 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         // -- Assert --
 #if SDK_V10
     #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-        XCTAssertEqual(features, ["swiftAsyncStacktraces", "standaloneAppStartTracing", "dataSwizzling", "fileManagerSwizzling", "captureFailedRequests", "graphQLOperationTracking", "metrics", "experimentalViewRenderer", "watchdogTerminationsV2"])
+        XCTAssertEqual(features, ["swiftAsyncStacktraces", "standaloneAppStartTracing", "dataSwizzling", "fileManagerSwizzling", "captureFailedRequests", "metrics", "experimentalViewRenderer", "watchdogTerminationsV2"])
     #else
-        XCTAssertEqual(features, ["swiftAsyncStacktraces", "dataSwizzling", "fileManagerSwizzling", "captureFailedRequests", "graphQLOperationTracking", "metrics"])
+        XCTAssertEqual(features, ["swiftAsyncStacktraces", "dataSwizzling", "fileManagerSwizzling", "captureFailedRequests", "metrics"])
     #endif
 #else
     #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
