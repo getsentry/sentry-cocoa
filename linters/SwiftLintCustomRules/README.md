@@ -27,9 +27,9 @@ Suppress a file with `// swiftlint:disable standalone_objc_extension`.
 
 ## Adding a rule
 
-1. Add a `@SwiftSyntaxRule` type next to `StandaloneObjCExtensionRule.swift`.
-2. Register it in `ExtraRules.swift`.
-3. Add the file to the `extra_rules` filegroup in `BUILD.bazel`.
+1. Add a `@SwiftSyntaxRule` type under `Sources/`.
+2. Register it in `Sources/ExtraRules.swift`.
+3. Add tests under `Tests/`.
 4. Keep the SwiftLint module version in `MODULE.bazel` in sync with
    `scripts/.swiftlint-version`. `make update-versions` / `make init` patches
    both; `make check-versions` fails if they drift.
