@@ -458,8 +458,8 @@ The `SENTRY_CRASH_MANAGED_RUNTIME` compile flag, set by downstream SDKs, enables
 - V10 uses a Sentry-owned replacement Signal plugin. Its constructor installs the early chain anchor,
   and KSCrash installation adopts that state instead of enabling the built-in Signal monitor above
   the runtime.
-- V10 uses KSCrash's generic Mach exception-mask configuration to leave `EXC_BAD_ACCESS` and
-  `EXC_ARITHMETIC` to the signal layer so the runtime can convert managed faults first.
+- V10 disables KSCrash's built-in Mach monitor so faults reach the signal layer and the runtime can
+  convert managed faults first. Ordinary builds continue to use the Mach monitor.
 - Neither constructor enables recording, so pre-SDK signals and `enableCrashHandler = false` do not
   produce reports.
 - `SentrySDK.close()` atomically suppresses persistence through KSCrash's `willWriteReport` callback

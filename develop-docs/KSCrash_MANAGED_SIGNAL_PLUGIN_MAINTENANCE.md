@@ -28,8 +28,8 @@ changes:
   handler could reference them
 - Sentry's SDK-close report-persistence policy is enforced by the downstream
   `willWriteReport` callback
-- managed builds configure KSCrash's generic Mach exception mask so `EXC_BAD_ACCESS` and
-  `EXC_ARITHMETIC` reach the managed runtime's signal path
+- managed builds disable KSCrash's built-in Mach monitor so native faults reach the managed
+  runtime's signal path
 
 sentry-cocoa owns the native adapter and fake-handler contract tests. Downstream SDKs own validation
 with their real .NET/Mono/AOT runtime. sentry-cocoa must not add a managed runtime merely for these
@@ -39,8 +39,7 @@ tests.
 
 The current dependency and Signal-monitor synchronization baseline is the getsentry 2.6 backport
 revision `18a633dec20c265f03386294f9d82d208bb13094`. Its `KSCrashMonitor_Signal.c` is byte-identical
-to the previously reviewed dependency revision; the added reserved-thread lookup, configurable Mach
-exception mask, and C++ swapper page-protection fix do not modify that monitor.
+to the previously reviewed dependency revision.
 
 Keep the SDK implementation structurally close to the corresponding KSCrash Signal monitor:
 

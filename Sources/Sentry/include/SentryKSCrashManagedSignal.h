@@ -5,7 +5,6 @@
 
 #    include "KSCrashMonitorAPI.h"
 #    include <stdbool.h>
-#    include <stdint.h>
 
 #    ifdef __cplusplus
 extern "C" {
@@ -13,9 +12,6 @@ extern "C" {
 
 /** Whether this binary was compiled for managed-runtime signal interop. */
 bool sentrykscrash_isManagedRuntimeBuild(void);
-
-/** Mach exceptions retained by managed-runtime builds; excludes faults converted by Mono/.NET. */
-uint32_t sentrykscrash_managedMachExceptionMask(void);
 
 /** The replacement Signal monitor used by managed-runtime builds. */
 KSCrashMonitorAPI *_Nonnull sentrykscrash_managedSignalMonitorAPI(void);

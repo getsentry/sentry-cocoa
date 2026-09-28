@@ -49,16 +49,6 @@ sentrykscrash_isManagedRuntimeBuild(void)
 #    endif
 }
 
-uint32_t
-sentrykscrash_managedMachExceptionMask(void)
-{
-#    if defined(__APPLE__)
-    return EXC_MASK_BAD_INSTRUCTION | EXC_MASK_SOFTWARE | EXC_MASK_BREAKPOINT;
-#    else
-    return 0;
-#    endif
-}
-
 // SENTRY MANAGED SIGNAL DIFFERENCE END
 
 #    if SENTRY_HAS_SIGNAL
