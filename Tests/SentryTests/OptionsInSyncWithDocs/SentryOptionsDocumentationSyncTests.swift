@@ -1,3 +1,6 @@
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#endif
 import XCTest
 
 /// This test validates that all public properties in Options.swift have corresponding

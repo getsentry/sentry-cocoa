@@ -1,3 +1,6 @@
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#endif
 class TestRedactOptions: SentryRedactOptions {
     var maskedViewClasses: [AnyClass]
     var unmaskedViewClasses: [AnyClass]

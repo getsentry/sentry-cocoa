@@ -1,6 +1,11 @@
 #if !SDK_V10
 // V9 compatibility coverage. V10 exercises the neutral provider in its own suite.
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+import SentryTestsObjCHelpers
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import SentryTestUtils
 import XCTest
 

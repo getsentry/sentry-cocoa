@@ -1,4 +1,11 @@
+#if SWIFT_PACKAGE
+#if canImport(UIKit)
+import UIKit
+#endif
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import Foundation
 
 #if os(iOS) || os(tvOS)

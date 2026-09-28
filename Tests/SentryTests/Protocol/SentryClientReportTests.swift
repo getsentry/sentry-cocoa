@@ -1,6 +1,12 @@
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) import Sentry
+#endif
 @_spi(Private) import SentryTestUtils
+#if !SWIFT_PACKAGE
 @testable import Sentry
+#endif
 import XCTest
 
 class SentryClientReportTests: XCTestCase {

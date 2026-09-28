@@ -13,7 +13,11 @@
 #import "SentryUser.h"
 #import <XCTest/XCTest.h>
 #import <stdint.h>
+#if SWIFT_PACKAGE
+@import SentrySwift;
+#else
 @import Sentry;
+#endif
 
 @interface SentryCrashReportConverterTests : XCTestCase
 
