@@ -25,11 +25,9 @@ if [[ -f "$SWIFTLINT_MODULE_BAZEL" ]]; then
     sed -i '' -E \
         's/(bazel_dep\(name = "swiftlint", version = ")[^"]+(")/\1'"$SWIFTLINT_VERSION"'\2/' \
         "$SWIFTLINT_MODULE_BAZEL"
-    if command -v bazel >/dev/null 2>&1; then
-        (cd ../linters/SwiftLintCustomRules && bazel mod tidy)
-    else
-        echo "warning: bazel not found; skipped linters/SwiftLintCustomRules/MODULE.bazel.lock update" >&2
-    fi
+    # Refresh the lockfile so CI Bazel builds stay in sync with the Homebrew
+    # SwiftLint version. `bazel mod deps` is the documented lockfile update.
+    (cd ../linters/SwiftLintCustomRules && bazel mod deps --lockfile_mode=update)
 fi
 
 xcodegen --version | awk -F ': ' '{print $2}' > .xcodegen-version

@@ -37,4 +37,5 @@ Suppress a file with `// swiftlint:disable standalone_objc_extension`.
 3. Add tests under `Tests/`.
 4. Keep the SwiftLint module version in `MODULE.bazel` in sync with
    `scripts/.swiftlint-version`. `make update-versions` / `make init` patches
-   both; `make check-versions` fails if they drift.
+   `MODULE.bazel` and regenerates `MODULE.bazel.lock`; `make check-versions`
+   fails if the module version drifts.
