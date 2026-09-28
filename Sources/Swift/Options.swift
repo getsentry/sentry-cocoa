@@ -290,6 +290,10 @@
     }
     var _sampleRate: NSNumber? = 1
 
+    /// Controls whether fatal events are subject to `sampleRate`.
+    /// @note Default is `true`.
+    @objc public var enableFatalEventSampling: Bool = true
+
     /// Whether to enable automatic session tracking or not.
     /// @note Default is @c true.
     @objc public var enableAutoSessionTracking: Bool = true

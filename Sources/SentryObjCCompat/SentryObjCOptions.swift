@@ -292,6 +292,11 @@ import Foundation
         set { wrapped.sampleRate = newValue }
     }
 
+    @objc public var enableFatalEventSampling: Bool {
+        get { wrapped.enableFatalEventSampling }
+        set { wrapped.enableFatalEventSampling = newValue }
+    }
+
     @objc public var enableAutoSessionTracking: Bool {
         get { wrapped.enableAutoSessionTracking }
         set { wrapped.enableAutoSessionTracking = newValue }

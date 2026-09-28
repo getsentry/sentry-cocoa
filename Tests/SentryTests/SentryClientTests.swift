@@ -2618,6 +2618,18 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(eventId, actual.eventId)
     }
 
+    func testFatalEventSamplingDisabled_FatalEventNotSampled() throws {
+        fixture.random.value = 0.51
+
+        let eventId = fixture.getSut(configureOptions: { options in
+            options.sampleRate = 0.5
+            options.enableFatalEventSampling = false
+        }).captureFatalEvent(fixture.event, with: fixture.scope)
+
+        eventId.assertIsNotEmpty()
+        XCTAssertEqual(eventId, try lastSentEvent().eventId)
+    }
+
     func testEventSampled_RecordsLostEvent() {
         fixture.getSut(configureOptions: { options in
             options.sampleRate = 0.00

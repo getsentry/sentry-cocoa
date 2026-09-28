@@ -262,6 +262,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong, nullable) NSNumber *sampleRate;
 
 /**
+ * Controls whether fatal events are subject to @c sampleRate.
+ * @note Default is @c YES.
+ */
+@property (nonatomic) BOOL enableFatalEventSampling;
+
+/**
  * Whether to enable automatic session tracking or not.
  * @note Default is @c YES.
  */
