@@ -1,11 +1,27 @@
 # Changelog
 
-## Unreleased
+## 9.29.2
+
+### Fixes
+
+- Stop sending scope attachments with crashes and other fatal events captured from a previous app run, because those attachments belong to the current run. Use `beforeSendWithHint` to attach files to fatal events (#9153)
+- Prevent an `isMetricKitEvent` unrecognized selector crash when statically linking the SDK without `-ObjC`, including when MetricKit is disabled (#9155)
+
+## 9.29.1
+
+> [!CAUTION]
+> **Known issue:** This release can crash apps statically linking the SDK without `-ObjC` with `-[SentryEvent isMetricKitEvent]: unrecognized selector`, even when MetricKit is disabled. Add `-ObjC` to the app target's linker flags, preserving `$(inherited)`, or pin to **9.29.0** until a fix is released. See [#9154](https://github.com/getsentry/sentry-cocoa/issues/9154).
 
 ### Fixes
 
 - Add experimental support for the new URLSession HTTP loader for automatic network instrumentation, preserving original request details in Session Replay after redirects. Opt in with `options.experimental.enableNewURLLoaderSwizzling = true` (disabled by default) (#8845)
 - Preserve MetricKit diagnostics containing frames without a binary UUID instead of dropping the entire diagnostic (#9080)
+- Session Replay: Populate `trace_ids` in replay events to enable searching replays by trace ID (#9092)
+- Retain raw MetricKit diagnostic attachments when call-stack decoding fails and `enableMetricKitRawPayload` is enabled, without attaching unrelated current-thread stack traces (#9070)
+- Prevent duplicate HTTP spans and breadcrumbs when watchOS resumes an internal URLSession task copy after the original request finishes (#9095)
+- Remove the compiler deprecation warning for `enableAppHangTracking` so applications can continue opting out of App Hang tracking until its removal in v10 (#9094)
+- Reset `appHangTimeoutInterval` values of 0 or lower to the default of 2 seconds, which previously spun the app hang tracker thread in a busy loop (#9020)
+- Release App Hang tracking listener wrappers when listeners are removed (#9127)
 
 ## 9.29.0
 

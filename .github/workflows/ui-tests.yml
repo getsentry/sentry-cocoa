@@ -145,7 +145,7 @@ jobs:
   ui-tests-macos-swift:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_for_prs == 'true'
     needs: files-changed
-    name: Test macOS Swift V1 # Up the version with every change to keep track of flaky tests
+    name: Test macOS Swift V2 # Up the version with every change to keep track of flaky tests
     runs-on: ["bitrise_pool_name:tahoe"]
     timeout-minutes: 20
     steps:
@@ -156,7 +156,13 @@ jobs:
           version: "26"
       - run: make init-ci-build
       - name: Run macOS UI tests
-        run: make test-sample-macOS-Swift-ui
+        run: make test-testapp-macOS-Swift-ui
+      - name: Archiving Test Results
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: result-bundle-macos-swift-ui
+          path: macos-swift-ui-results.xcresult
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
         if: failure()

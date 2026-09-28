@@ -14,7 +14,7 @@ public extension Options {
         enableCrashHandler = false
         swiftAsyncStacktraces = false
         #if !SDK_V10
-        enableAppHangTrackingValue = false
+        enableAppHangTracking = false
         #endif // !SDK_V10
         enableNetworkTracking = false
         enableNetworkBreadcrumbs = false

@@ -1,17 +1,6 @@
-import Foundation
-
 #if os(iOS) || os(macOS) || os(visionOS)
-
+import Foundation
 import MetricKit
-
-protocol CallStackTreeProviding {
-    var callStackTree: MXCallStackTree { get }
-}
-
-extension MXCrashDiagnostic: CallStackTreeProviding { }
-extension MXDiskWriteExceptionDiagnostic: CallStackTreeProviding { }
-extension MXCPUExceptionDiagnostic: CallStackTreeProviding { }
-extension MXHangDiagnostic: CallStackTreeProviding { }
 
 #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
 protocol SentryMetricManager {
@@ -91,28 +80,43 @@ final class SentryMXManager: NSObject {
     }
 
     func receiveReports() {
+        SentrySDKLog.info("Started receiving reports from MetricKit")
         metricManager.add(self)
     }
 
     func pauseReports() {
+        SentrySDKLog.info("Paused receiving reports from MetricKit")
         metricManager.remove(self)
     }
 }
 
 extension SentryMXManager: MXMetricManagerSubscriber {
     func didReceive(_ payloads: [MXDiagnosticPayload]) {
+        SentrySDKLog.info("Received \(payloads.count) MetricKit diagnostic payloads")
         payloads.forEach { payload in
-            payload.crashDiagnostics?.forEach { diagnostic in
-                process(crashDiagnostic: diagnostic, timestamp: payload.timeStampBegin)
+            if let diagnostics = payload.crashDiagnostics {
+                SentrySDKLog.info("Received \(diagnostics.count) MetricKit crash diagnostics")
+                diagnostics.forEach { diagnostic in
+                    process(crashDiagnostic: diagnostic, timestamp: payload.timeStampBegin)
+                }
             }
-            payload.diskWriteExceptionDiagnostics?.forEach { diagnostic in
-                process(diskWriteExceptionDiagnostic: diagnostic, timestamp: payload.timeStampBegin)
+            if let diagnostics = payload.diskWriteExceptionDiagnostics {
+                SentrySDKLog.info("Received \(diagnostics.count) MetricKit disk write exception diagnostics")
+                diagnostics.forEach { diagnostic in
+                    process(diskWriteExceptionDiagnostic: diagnostic, timestamp: payload.timeStampBegin)
+                }
             }
-            payload.cpuExceptionDiagnostics?.forEach { diagnostic in
-                process(cpuExceptionDiagnostic: diagnostic, timestamp: payload.timeStampBegin)
+            if let diagnostics = payload.cpuExceptionDiagnostics {
+                SentrySDKLog.info("Received \(diagnostics.count) MetricKit CPU exception diagnostics")
+                diagnostics.forEach { diagnostic in
+                    process(cpuExceptionDiagnostic: diagnostic, timestamp: payload.timeStampBegin)
+                }
             }
-            payload.hangDiagnostics?.forEach { diagnostic in
-                process(hangDiagnostic: diagnostic, timestamp: payload.timeStampBegin)
+            if let diagnostics = payload.hangDiagnostics {
+                SentrySDKLog.info("Received \(diagnostics.count) MetricKit hang diagnostics")
+                diagnostics.forEach { diagnostic in
+                    process(hangDiagnostic: diagnostic, timestamp: payload.timeStampBegin)
+                }
             }
         }
     }
@@ -122,6 +126,7 @@ extension SentryMXManager: MXMetricManagerSubscriber {
             SentrySDKLog.debug("Crash diagnostic are not enabled, skipping payload")
             return
         }
+        SentrySDKLog.debug("Processing crash diagnostic at timestamp: \(timestamp)")
 
         let exceptionType = String(describing: diagnostic.exceptionType)
         let code = String(describing: diagnostic.exceptionCode)
@@ -141,6 +146,7 @@ extension SentryMXManager: MXMetricManagerSubscriber {
             SentrySDKLog.debug("Disk write exception diagnostics are not enabled, skipping payload")
             return
         }
+        SentrySDKLog.debug("Processing disk write exception diagnostic at timestamp: \(timestamp)")
 
         let totalWritesCaused = measurementFormatter.string(from: diagnostic.totalWritesCaused)
 
@@ -158,6 +164,7 @@ extension SentryMXManager: MXMetricManagerSubscriber {
             SentrySDKLog.debug("CPU exception diagnostics are not enabled, skipping payload")
             return
         }
+        SentrySDKLog.debug("Processing CPU exception diagnostic at timestamp: \(timestamp)")
 
         let totalCPUTime = measurementFormatter.string(from: diagnostic.totalCPUTime)
         let totalSampledTime = measurementFormatter.string(from: diagnostic.totalSampledTime)
@@ -176,6 +183,7 @@ extension SentryMXManager: MXMetricManagerSubscriber {
             SentrySDKLog.debug("Hang diagnostics are not enabled, skipping payload")
             return
         }
+        SentrySDKLog.debug("Processing hang diagnostic at timestamp: \(timestamp)")
 
         let hangDuration = measurementFormatter.string(from: diagnostic.hangDuration)
         let hangDurationMilliseconds = diagnostic.hangDuration.converted(to: .milliseconds).value
@@ -197,20 +205,11 @@ extension SentryMXManager: MXMetricManagerSubscriber {
         diagnosticReport: Diagnostic,
         exceptionValue: String,
         timeStampBegin: Date,
-        diagnostic: MXDiagnostic & CallStackTreeProviding,
+        diagnostic: MXDiagnostic & SentryMetricKit.CallStackTreeProviding,
         useFullCallStackTree: Bool = false,
         level: SentryLevel? = nil
     ) {
-        let callStackTree: SentryMXCallStackTree
-        do {
-            let data = diagnostic.callStackTree.jsonRepresentation()
-            callStackTree = try SentryMXCallStackTree.from(data: data)
-        } catch {
-            SentrySDKLog.error("Failed to create SentryMXCallStackTree from MXDiagnostic: \(error)")
-            return
-        }
-
-        let event = Event(level: level ?? (handled ? .warning : .error))
+        var event = Event(level: level ?? (handled ? .warning : .error))
         event.timestamp = timeStampBegin
 
         let mechanism = Mechanism(type: diagnosticReport.mechanism)
@@ -221,49 +220,69 @@ extension SentryMXManager: MXMetricManagerSubscriber {
         exception.mechanism = mechanism
         event.exceptions = [exception]
 
-        capture(
-            event: event,
-            handled: handled,
-            callStackTree: callStackTree,
-            diagnosticJSON: diagnostic.jsonRepresentation(),
-            useFullCallStackTree: useFullCallStackTree
-        )
-    }
+        do {
+            try apply(
+                callStackTree: diagnostic.callStackTree,
+                toEvent: &event,
+                useFullCallStackTree: useFullCallStackTree,
+                isHandled: handled
+            )
+        } catch {
+            SentrySDKLog.error("Failed to decode call stack tree from MetricKit payload: \(error)")
 
-    private func capture(
-        event: Event,
-        handled: Bool,
-        callStackTree: SentryMXCallStackTree,
-        diagnosticJSON: Data,
-        useFullCallStackTree: Bool = false
-    ) {
-        let debugMeta = callStackTree.toDebugMeta()
-        let threads: [SentryThread]
-        if useFullCallStackTree {
-            // For hang diagnostics, use the flattened tree to preserve all samples
-            threads = callStackTree.flattenedBacktrace(inAppLogic: inAppLogic, handled: handled)
-        } else {
-            threads = callStackTree.sentryMXBacktrace(inAppLogic: inAppLogic, handled: handled)
+            // Without a decoded stack trace, retain the event only when its raw diagnostic can
+            // be attached so the decoding failure can be investigated.
+            guard attachDiagnosticAsAttachment else {
+                SentrySDKLog.debug("Raw MetricKit diagnostic attachments are disabled, ignoring payload")
+                return
+            }
         }
-        // First look for the crashing thread, but for events that were not a crash (like a hang) take the first thread
-        // since those events only report one thread
-        let exceptionThread = threads.first { $0.crashed?.boolValue == true } ?? threads.first
-        event.debugMeta = debugMeta
-        event.threads = threads
 
-        if let exceptionThread, let exception = event.exceptions?[0] {
-            exception.stacktrace = exceptionThread.stacktrace
-            exception.threadId = exceptionThread.threadId
-        }
         // The crash event can be way from the past. We don't want to impact the current session.
         // Therefore we don't call captureFatalEvent.
+        SentrySDKLog.debug("Capturing MetricKit payload event for diagnostic: \(diagnosticReport)")
         if attachDiagnosticAsAttachment {
+            let diagnosticJSON = diagnostic.jsonRepresentation()
             SentrySDK.capture(event: event) { scope in
                 scope.addAttachment(Attachment(data: diagnosticJSON, filename: "MXDiagnosticPayload.json"))
             }
         } else {
             SentrySDK.capture(event: event)
         }
+        SentrySDKLog.debug("Captured MetricKit payload as event")
+    }
+
+    private func apply(callStackTree: MXCallStackTree, toEvent event: inout Event, useFullCallStackTree: Bool, isHandled: Bool) throws {
+        SentrySDKLog.debug("Applying MetricKit call stack tree to event with id: \(event.eventId)")
+        guard let exception = event.exceptions?.first else {
+            SentrySDKLog.warning("MetricKit event does not have an exception set, skipping call stack tree decoding")
+            return
+        }
+
+        let encodedCallStackTree = callStackTree.jsonRepresentation()
+        let decodedCallStackTree = try SentryMXCallStackTree.from(data: encodedCallStackTree)
+
+        let debugMeta = decodedCallStackTree.toDebugMeta()
+        let threads: [SentryThread]
+        if useFullCallStackTree {
+            // For hang diagnostics, use the flattened tree to preserve all samples
+            threads = decodedCallStackTree.flattenedBacktrace(inAppLogic: inAppLogic, handled: isHandled)
+        } else {
+            threads = decodedCallStackTree.sentryMXBacktrace(inAppLogic: inAppLogic, handled: isHandled)
+        }
+
+        // First look for the crashing thread, but for events that were not a crash (like a hang) take the first thread
+        // since those events only report one thread
+        let exceptionThread = threads.first { $0.crashed?.boolValue == true } ?? threads.first
+        event.debugMeta = debugMeta
+        event.threads = threads
+
+        guard let exceptionThread else {
+            SentrySDKLog.warning("MetricKit call stack threads are empty")
+            return
+        }
+        exception.stacktrace = exceptionThread.stacktrace
+        exception.threadId = exceptionThread.threadId
     }
 }
 

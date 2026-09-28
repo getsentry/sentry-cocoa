@@ -698,6 +698,90 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(event.threads, actual.threads)
     }
 
+#if os(iOS) || os(macOS) || os(visionOS)
+    func testCaptureEvent_whenHangDecodingFails_shouldSendRawDiagnosticWithoutCurrentStacktrace() throws {
+        // -- Arrange --
+        let sut = fixture.getSut(configureOptions: { options in
+            options.enableMetricKit = true
+            options.enableMetricKitRawPayload = true
+            options.attachStacktrace = true
+        })
+        let hub = SentryHubInternal(client: sut, andScope: Scope(), activeCrashReporterState: TestSentryCrashReporterState(), andDispatchQueue: TestSentryDispatchQueueWrapper())
+        SentrySDK.setStart(with: sut.options)
+        SentrySDKInternal.setCurrentHub(hub)
+        let integration = try XCTUnwrap(SentryMetricKitIntegration(with: sut.options, dependencies: ()))
+        let diagnostic = TestMXHangDiagnostic()
+        diagnostic.overrides.callStackTree.overrides.jsonRepresentation = Data(#"{"callStacks":"unexpected"}"#.utf8)
+        let rawDiagnostic = Data(#"{"hangDuration":"6.6 sec","callStackTree":{"callStacks":"unexpected"}}"#.utf8)
+        diagnostic.overrides.jsonRepresentation = rawDiagnostic
+        let payload = TestMXDiagnosticPayload()
+        payload.overrides.hangDiagnostic = [diagnostic]
+
+        // -- Act --
+        integration.mxManager.didReceive([payload])
+
+        // -- Assert --
+        XCTAssertEqual(fixture.transportAdapter.sendEventWithTraceStateInvocations.count, 1)
+        let capture = try XCTUnwrap(fixture.transportAdapter.sendEventWithTraceStateInvocations.first)
+        XCTAssertNil(capture.event.threads)
+        XCTAssertNil(capture.event.debugMeta)
+        XCTAssertNil(capture.event.exceptions?.first?.stacktrace)
+        XCTAssertEqual(capture.event.exceptions?.first?.mechanism?.type, "mx_hang_diagnostic")
+        XCTAssertEqual(capture.attachments.count, 1)
+        let attachment = try XCTUnwrap(capture.attachments.first)
+        XCTAssertEqual(attachment.filename, "MXDiagnosticPayload.json")
+        XCTAssertEqual(attachment.data, rawDiagnostic)
+    }
+
+    func testCaptureEvent_whenMetricKitHasNoStacktrace_shouldNotAttachCurrentThreads() throws {
+        // -- Arrange --
+        let sut = fixture.getSut(configureOptions: { options in
+            options.attachStacktrace = true
+            options.attachAllThreads = true
+        })
+
+        for mechanism in ["MXCrashDiagnostic", "mx_disk_write_exception", "mx_cpu_exception", "mx_hang_diagnostic"] {
+            let event = Event(level: .warning)
+            let exception = Exception(value: "Diagnostic without a decoded call stack", type: "MetricKit")
+            exception.mechanism = Mechanism(type: mechanism)
+            event.exceptions = [exception]
+
+            // -- Act --
+            sut.capture(event: event)
+
+            // -- Assert --
+            let actual = try lastSentEvent()
+            XCTAssertNil(actual.threads, mechanism)
+            XCTAssertNil(actual.debugMeta, mechanism)
+            XCTAssertNil(actual.exceptions?.first?.stacktrace, mechanism)
+            XCTAssertEqual(actual.exceptions?.first?.mechanism?.type, mechanism)
+        }
+    }
+
+    func testCaptureEvent_whenMetricKitHasStacktrace_shouldPreserveDiagnosticData() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        let event = givenEventWithThreads()
+        event.debugMeta = [TestData.debugImage]
+        let exception = Exception(value: "Hang diagnostic", type: "MXHangDiagnostic")
+        exception.mechanism = Mechanism(type: "mx_hang_diagnostic")
+        exception.stacktrace = event.threads?.first?.stacktrace
+        event.exceptions = [exception]
+        let threads = event.threads
+        let debugMeta = event.debugMeta
+        let stacktrace = exception.stacktrace
+
+        // -- Act --
+        sut.capture(event: event)
+
+        // -- Assert --
+        let actual = try lastSentEvent()
+        XCTAssertEqual(actual.threads, threads)
+        XCTAssertEqual(actual.debugMeta, debugMeta)
+        XCTAssertEqual(actual.exceptions?.first?.stacktrace, stacktrace)
+    }
+#endif
+
     func testCaptureEventWithAttachStacktrace() throws {
         let event = Event(level: SentryLevel.fatal)
         event.message = fixture.message
@@ -1119,10 +1203,75 @@ final class SentryClientTests: XCTestCase {
 
         eventId.assertIsNotEmpty()
 
-        let event = try lastSentEventWithAttachment()
+        let event = try lastSentEvent()
         XCTAssertEqual(fixture.event.eventId, event.eventId)
         XCTAssertEqual(fixture.event.message, event.message)
         XCTAssertNil(event.tags, "Tags from scope must not be applied to crash events.")
+    }
+
+    func testCaptureFatalEvent_whenScopeHasAttachments_shouldNotSendScopeAttachments() throws {
+        // -- Arrange --
+        let scope = fixture.scope
+
+        // -- Act --
+        let eventId = fixture.getSut().captureFatalEvent(fixture.event, with: scope)
+
+        // -- Assert --
+        eventId.assertIsNotEmpty()
+        let arguments = try XCTUnwrap(fixture.transportAdapter.sendEventWithTraceStateInvocations.last)
+        XCTAssertEqual(arguments.attachments, [], "Scope attachments belong to the current app run and must not be applied to fatal events from a previous run.")
+    }
+
+    func testCaptureFatalEventWithSession_whenScopeHasAttachments_shouldNotSendScopeAttachments() throws {
+        // -- Arrange --
+        let scope = fixture.scope
+
+        // -- Act --
+        let eventId = fixture.getSut().captureFatalEvent(fixture.event, with: fixture.session, with: scope)
+
+        // -- Assert --
+        eventId.assertIsNotEmpty()
+        let arguments = try XCTUnwrap(fixture.transportAdapter.sentEventsWithSessionTraceState.last)
+        XCTAssertEqual(arguments.attachments, [], "Scope attachments belong to the current app run and must not be applied to fatal events from a previous run.")
+    }
+
+    func testCaptureFatalEvent_whenScopeHasCrashReportAttachment_shouldSendOnlyCrashReportAttachment() throws {
+        // -- Arrange --
+        let scope = fixture.scope
+        let tempFile = FileManager.default.temporaryDirectory.appendingPathComponent("crash-screenshot.png")
+        try Data("data".utf8).write(to: tempFile)
+        scope.addCrashReportAttachment(inPath: tempFile.path)
+
+        // -- Act --
+        let eventId = fixture.getSut().captureFatalEvent(fixture.event, with: scope)
+
+        // -- Assert --
+        eventId.assertIsNotEmpty()
+        let arguments = try XCTUnwrap(fixture.transportAdapter.sendEventWithTraceStateInvocations.last)
+        XCTAssertEqual(arguments.attachments.count, 1)
+        XCTAssertEqual(arguments.attachments.first?.filename, "crash-screenshot.png")
+        XCTAssertEqual(arguments.attachments.first?.path, tempFile.path)
+    }
+
+    @available(*, deprecated, message: "Testing deprecated beforeSendWithHint API")
+    func testCaptureFatalEvent_whenBeforeSendWithHintAddsAttachment_shouldSendHintAttachment() throws {
+        // -- Arrange --
+        let scope = fixture.scope
+        let hintAttachment = Attachment(data: Data("hint".utf8), filename: "hint.txt")
+        let sut = fixture.getSut(configureOptions: { options in
+            options.beforeSendWithHint = { event, hint in
+                hint.attachments.append(hintAttachment)
+                return event
+            }
+        })
+
+        // -- Act --
+        let eventId = sut.captureFatalEvent(fixture.event, with: scope)
+
+        // -- Assert --
+        eventId.assertIsNotEmpty()
+        let arguments = try XCTUnwrap(fixture.transportAdapter.sendEventWithTraceStateInvocations.last)
+        XCTAssertEqual(arguments.attachments, [hintAttachment])
     }
 
 #if os(iOS) || os(tvOS) || os(visionOS)
@@ -1148,7 +1297,7 @@ final class SentryClientTests: XCTestCase {
         _ = fixture.getSut().captureFatalEvent(oomEvent, with: fixture.scope)
 
         // Assert
-        let event = try lastSentEventWithAttachment()
+        let event = try lastSentEvent()
         XCTAssertEqual(oomEvent.eventId, event.eventId)
 
         let deviceContext = try XCTUnwrap(event.context?["device"] as? [String: Any])
@@ -1228,7 +1377,7 @@ final class SentryClientTests: XCTestCase {
 
         fixture.getSut().captureFatalEvent(event, with: fixture.scope)
 
-        let actual = try lastSentEventWithAttachment()
+        let actual = try lastSentEvent()
         XCTAssertNil(actual.threads)
         XCTAssertNil(actual.debugMeta)
     }
@@ -1243,7 +1392,7 @@ final class SentryClientTests: XCTestCase {
         fixture.getSut().captureFatalEvent(event, with: fixture.scope)
 
         // Assert
-        let actual = try lastSentEventWithAttachment()
+        let actual = try lastSentEvent()
         XCTAssertEqual(actual.context?.count, 1)
         XCTAssertEqual(actual.context?["my"] as? [String: String], expectedMyContext)
     }
@@ -1492,7 +1641,7 @@ final class SentryClientTests: XCTestCase {
         scope.span = nil
         var callbackCalled = false
         let sut = fixture.getSut(configureOptions: { options in
-            options.beforeSendTransaction = { event in
+            options.beforeSendTransaction = { event, _ in
                 callbackCalled = true
                 return event.context?["trace"]?["op"] as? String == "ui.action.click" ? nil : event
             }
@@ -1568,7 +1717,7 @@ final class SentryClientTests: XCTestCase {
         // -- Arrange --
         var beforeSendTransactionCalled = false
         let sut = fixture.getSut(configureOptions: { options in
-            options.beforeSendTransaction = { event in
+            options.beforeSendTransaction = { event, _ in
                 beforeSendTransactionCalled = true
                 return event
             }
@@ -1589,7 +1738,7 @@ final class SentryClientTests: XCTestCase {
         // -- Arrange --
         let returnedTransaction = Transaction(trace: fixture.trace, children: [])
         let sut = fixture.getSut(configureOptions: { options in
-            options.beforeSendTransaction = { (_: Transaction) -> Transaction? in returnedTransaction }
+            options.beforeSendTransaction = { (_: Transaction, _: Hint) -> Transaction? in returnedTransaction }
         })
 
         // -- Act --
@@ -1629,6 +1778,189 @@ final class SentryClientTests: XCTestCase {
         let actual = try lastSentEvent()
         XCTAssertEqual([], actual.debugMeta)
         XCTAssertEqual([], actual.threads)
+    }
+
+    // MARK: - beforeSendTransaction hint
+
+    func testCaptureTransaction_whenScopeHasAttachments_shouldReceiveThemInBeforeSendTransactionHint() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for non SDK_V10")
+#else
+        // -- Arrange --
+        let scopeAttachment = Attachment(data: Data("scope-data".utf8), filename: "scope.txt")
+        let scope = Scope()
+        scope.addAttachment(scopeAttachment)
+        var receivedAttachments = [Attachment]()
+        let sut = fixture.getSut(configureOptions: { options in
+            options.beforeSendTransaction = { transaction, hint in
+                receivedAttachments = hint.attachments
+                return transaction
+            }
+        })
+
+        // -- Act --
+        sut.capture(event: fixture.transaction, scope: scope)
+
+        // -- Assert --
+        XCTAssertTrue(receivedAttachments.contains(scopeAttachment))
+#endif // !SDK_V10
+    }
+
+    func testCaptureTransaction_whenBeforeSendTransactionAddsAttachment_shouldIncludeInSentEnvelope() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for non SDK_V10")
+#else
+        // -- Arrange --
+        let scopeAttachment = Attachment(data: Data("scope-data".utf8), filename: "scope.txt")
+        let scope = Scope()
+        scope.addAttachment(scopeAttachment)
+        let hintAttachment = Attachment(data: Data("hint-data".utf8), filename: "hint.txt")
+        let sut = fixture.getSut(configureOptions: { options in
+            options.beforeSendTransaction = { transaction, hint in
+                hint.attachments.append(hintAttachment)
+                return transaction
+            }
+        })
+
+        // -- Act --
+        sut.capture(event: fixture.transaction, scope: scope)
+
+        // -- Assert --
+        let sentAttachments = fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.attachments ?? []
+        XCTAssertTrue(sentAttachments.contains(hintAttachment))
+        XCTAssertTrue(sentAttachments.contains(scopeAttachment))
+#endif // !SDK_V10
+    }
+
+    func testCaptureTransaction_whenBeforeSendTransactionRemovesAttachment_shouldNotIncludeInSentEnvelope() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for non SDK_V10")
+#else
+        // -- Arrange --
+        let scopeAttachment = Attachment(data: Data("scope-data".utf8), filename: "scope.txt")
+        let scope = Scope()
+        scope.addAttachment(scopeAttachment)
+        let sut = fixture.getSut(configureOptions: { options in
+            options.beforeSendTransaction = { transaction, hint in
+                hint.attachments.removeAll { $0 === scopeAttachment }
+                return transaction
+            }
+        })
+
+        // -- Act --
+        sut.capture(event: fixture.transaction, scope: scope)
+
+        // -- Assert --
+        let sentAttachments = fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.attachments ?? []
+        XCTAssertTrue(sentAttachments.isEmpty)
+#endif // !SDK_V10
+    }
+
+    func testCaptureTransaction_whenHintPassed_shouldFlowToBeforeSendTransaction() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for non SDK_V10")
+#else
+        // -- Arrange --
+        var receivedHint: Hint?
+        let sut = fixture.getSut(configureOptions: { options in
+            options.beforeSendTransaction = { transaction, hint in
+                receivedHint = hint
+                return transaction
+            }
+        })
+        let hint = Hint()
+        hint.setHintValue("user-value", forKey: "custom-key")
+
+        // -- Act --
+        sut.capture(event: fixture.transaction, scope: Scope(), hint: hint)
+
+        // -- Assert --
+        let received = try XCTUnwrap(receivedHint)
+        XCTAssertIdentical(received, hint)
+        XCTAssertEqual(received.hintValue(forKey: "custom-key") as? String, "user-value")
+#endif // !SDK_V10
+    }
+
+    func testFinishTracer_whenBeforeSendTransactionIsSet_shouldReceiveHintWithScopeAttachments() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for non SDK_V10")
+#else
+        // -- Arrange --
+        let scopeAttachment = Attachment(data: Data("scope-data".utf8), filename: "scope.txt")
+        let scope = Scope()
+        scope.addAttachment(scopeAttachment)
+        var receivedAttachments: [Attachment]?
+        let sut = fixture.getSut(configureOptions: { options in
+            options.tracesSampleRate = 1.0
+            options.beforeSendTransaction = { transaction, hint in
+                receivedAttachments = hint.attachments
+                return transaction
+            }
+        })
+        let hub = SentryHubInternal(
+            client: sut,
+            andScope: scope,
+            activeCrashReporterState: TestSentryCrashReporterState(),
+            scopeContextEnricher: TestSentryScopeContextEnricher(),
+            andDispatchQueue: fixture.dispatchQueue
+        )
+        let tracer = hub.startTransaction(transactionContext: TransactionContext(
+            name: "Tap",
+            operation: "ui.action.click",
+            sampled: .yes,
+            sampleRate: nil,
+            sampleRand: nil
+        ))
+
+        // -- Act --
+        tracer.finish()
+
+        // -- Assert --
+        XCTAssertEqual(try XCTUnwrap(receivedAttachments), [scopeAttachment])
+        XCTAssertEqual(fixture.transportAdapter.sendEventWithTraceStateInvocations.count, 1)
+        let sentAttachments = fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.attachments ?? []
+        XCTAssertEqual(sentAttachments, [scopeAttachment])
+#endif // !SDK_V10
+    }
+
+    func testFinishTracer_whenBeforeSendTransactionReturnsNil_shouldNotSendTransactionOrAttachments() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for non SDK_V10")
+#else
+        // -- Arrange --
+        let scope = Scope()
+        scope.addAttachment(Attachment(data: Data("scope-data".utf8), filename: "scope.txt"))
+        var callbackCalled = false
+        let sut = fixture.getSut(configureOptions: { options in
+            options.tracesSampleRate = 1.0
+            options.beforeSendTransaction = { _, _ in
+                callbackCalled = true
+                return nil
+            }
+        })
+        let hub = SentryHubInternal(
+            client: sut,
+            andScope: scope,
+            activeCrashReporterState: TestSentryCrashReporterState(),
+            scopeContextEnricher: TestSentryScopeContextEnricher(),
+            andDispatchQueue: fixture.dispatchQueue
+        )
+        let tracer = hub.startTransaction(transactionContext: TransactionContext(
+            name: "Tap",
+            operation: "ui.action.click",
+            sampled: .yes,
+            sampleRate: nil,
+            sampleRand: nil
+        ))
+
+        // -- Act --
+        tracer.finish()
+
+        // -- Assert --
+        XCTAssertTrue(callbackCalled)
+        assertNoEventSent()
+        assertLostEventRecorded(category: .transaction, reason: .beforeSend)
+#endif // !SDK_V10
     }
 
     // MARK: - beforeSendWithHint
@@ -2998,6 +3330,31 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(["key": "value"], savedEvent.tags)
     }
 
+    func testSaveCrashTransaction_whenScopeHasAttachments_shouldReceiveThemInBeforeSendTransactionHint() throws {
+#if !SDK_V10
+        throw XCTSkip("Test skipped for non SDK_V10")
+#else
+        // -- Arrange --
+        let scopeAttachment = Attachment(data: Data("scope-data".utf8), filename: "scope.txt")
+        let scope = Scope()
+        scope.addAttachment(scopeAttachment)
+        var receivedAttachments: [Attachment]?
+        let sut = fixture.getSut(configureOptions: { options in
+            options.beforeSendTransaction = { transaction, hint in
+                receivedAttachments = hint.attachments
+                return transaction
+            }
+        })
+
+        // -- Act --
+        sut.saveCrashTransaction(transaction: fixture.transaction, scope: scope)
+
+        // -- Assert --
+        XCTAssertEqual(try XCTUnwrap(receivedAttachments), [scopeAttachment])
+        XCTAssertEqual(fixture.transportAdapter.storeEventInvocations.count, 1)
+#endif // !SDK_V10
+    }
+
     func testSaveCrashTransaction_DisabledClient_StoresNothing() throws {
         let transaction = fixture.transaction
 
@@ -3038,10 +3395,12 @@ final class SentryClientTests: XCTestCase {
 
         scope.addCrashReportAttachment(inPath: tempFile.path)
 
-        XCTAssertEqual(scope.attachments.count, 1)
-        XCTAssertEqual(scope.attachments.first?.filename, "view-hierarchy.json")
-        XCTAssertEqual(scope.attachments.first?.contentType, "application/json")
-        XCTAssertEqual(scope.attachments.first?.attachmentType, .viewHierarchy)
+        XCTAssertEqual(scope.attachments.count, 0)
+        XCTAssertEqual(scope.crashReportAttachments.count, 1)
+        let attachment = try XCTUnwrap(scope.crashReportAttachments.first)
+        XCTAssertEqual(attachment.filename, "view-hierarchy.json")
+        XCTAssertEqual(attachment.contentType, "application/json")
+        XCTAssertEqual(attachment.attachmentType, .viewHierarchy)
     }
 
     func testCaptureEvent_withAdditionalEnvelopeItem() throws {
@@ -3572,7 +3931,7 @@ extension SentryClientTests {
         callback: @escaping (Transaction) -> Transaction?
     ) {
 #if SDK_V10
-        options.beforeSendTransaction = callback
+        options.beforeSendTransaction = { transaction, _ in callback(transaction) }
 #else
         options.beforeSend = { event in
             guard let transaction = event as? Transaction else {

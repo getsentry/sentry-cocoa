@@ -221,7 +221,7 @@ extension Options {
 
         #if !SDK_V10
         if let enableAppHangTracking = boolValue(dictionary["enableAppHangTracking"]) {
-            self.enableAppHangTrackingValue = enableAppHangTracking
+            self.enableAppHangTracking = enableAppHangTracking
         }
         #endif // !SDK_V10
 

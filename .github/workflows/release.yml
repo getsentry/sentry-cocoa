@@ -205,7 +205,7 @@ jobs:
       - name: Strip expectedSignature attributes from XCFramework project
         if: ${{ github.event_name == 'pull_request' }}
         run: make strip-xcframework-expected-signature
-      - run: make build-xcframework-sample
+      - run: make build-xcframework-testapp
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
         if: failure()
@@ -253,7 +253,7 @@ jobs:
           version: "16"
           resolve-simulators: "false"
       - run: swift build
-        working-directory: Samples/macOS-SPM-CommandLine
+        working-directory: TestApps/macOS-SPM-CommandLine
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
         if: failure()
@@ -298,7 +298,7 @@ jobs:
           version: "16"
           resolve-simulators: "false"
       - run: swift build
-        working-directory: Samples/SPM-Dynamic
+        working-directory: TestApps/SPM-Dynamic
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
         if: failure()
@@ -387,7 +387,7 @@ jobs:
           version: "16"
           resolve-simulators: "false"
       - run: set -o pipefail && NSUnbufferedIO=YES xcodebuild build -scheme visionOS-SPM -sdk xros -destination 'generic/platform=xros' | tee raw-build-output-spm-visionOS.log | xcbeautify --preserve-unbeautified
-        working-directory: Samples/visionOS-SPM
+        working-directory: TestApps/visionOS-SPM
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
         if: failure()
@@ -432,7 +432,7 @@ jobs:
           version: "16"
           resolve-simulators: "false"
       - name: Setup Ruby
-        uses: ruby/setup-ruby@984c0c890880bbf811283d6f09c4607c62d210a4 # v1.323.0
+        uses: ruby/setup-ruby@e8944e80fb94b20106697132f8c20c665fab29e9 # v1.325.0
         with:
           bundler-cache: true
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -553,7 +553,7 @@ jobs:
           GITHUB_RUN_ID: ${{ github.run_id }}
 
       - name: Prepare release
-        uses: getsentry/craft@55694f8bf3a0fd051e21a877f57b4c0dd8e946bb # v2
+        uses: getsentry/craft@b5451aa5604f399ebaef98c0850bece7d062e288 # v2
         env:
           GITHUB_TOKEN: ${{ steps.token.outputs.token }}
         with:

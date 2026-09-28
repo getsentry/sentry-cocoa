@@ -19,6 +19,14 @@
 
 const char *const sentrykscrash_attachmentsMonitorID = "SentryAttachments";
 
+static _Atomic(SentryKSCrashSaveTransactionCallback) g_saveTransaction;
+
+void
+sentrykscrash_setSaveTransaction(SentryKSCrashSaveTransactionCallback callback)
+{
+    atomic_store_explicit(&g_saveTransaction, callback, memory_order_release);
+}
+
 static void
 writeScopeBreadcrumbs(const KSCrashReportWriter *const writer, SentryCrashScope *scope)
 {
@@ -172,10 +180,16 @@ sentrykscrash_didWriteReport(const KSCrash_ExceptionHandlingPlan *const plan, in
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Capturing crash attachments for reportID %" PRId64, reportID);
     sentrykscrash_attachments_capture(reportID);
 
-#    if SENTRY_DISABLE_SENTRYCRASH_V10
-    // KSCRASH_TODO(GH-8735): Persist the active transaction bound to the scope. Acceptance:
-    // SCV10-027 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
-#    endif
+    // V9 calls g_saveTransaction after screenshots/view hierarchy, and only when the
+    // handler itself did not crash. Same here: persist last so a crash during this
+    // callback still leaves the report, replay checkpoint, and attachments.
+    SentryKSCrashSaveTransactionCallback saveTransaction
+        = atomic_load_explicit(&g_saveTransaction, memory_order_acquire);
+    if (saveTransaction != NULL) {
+        SENTRY_ASYNC_SAFE_LOG_DEBUG(
+            "Persisting active transaction for reportID %" PRId64, reportID);
+        saveTransaction();
+    }
 }
 
 #    if SENTRY_TEST || SENTRY_TEST_CI
@@ -192,6 +206,22 @@ sentrykscrash_test_invokeDidWriteReport(
         .crashedDuringExceptionHandling = crashedDuringExceptionHandling,
     };
     sentrykscrash_didWriteReport(&plan, reportID);
+}
+
+bool
+sentrykscrash_hasSaveTransaction(void)
+{
+    return atomic_load_explicit(&g_saveTransaction, memory_order_acquire) != NULL;
+}
+
+void
+sentrykscrash_invokeSaveTransaction(void)
+{
+    SentryKSCrashSaveTransactionCallback callback
+        = atomic_load_explicit(&g_saveTransaction, memory_order_acquire);
+    if (callback != NULL) {
+        callback();
+    }
 }
 #    endif // SENTRY_TEST || SENTRY_TEST_CI
 

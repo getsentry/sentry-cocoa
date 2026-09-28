@@ -5,13 +5,13 @@ platform :ios do
     ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] = "10" # sometimes running xcodebuild commands is slow on CI runners. give them more time than the default of 10 seconds. see https://github.com/fastlane-old/gym/issues/188#issuecomment-190320592 and https://docs.fastlane.tools/advanced/lanes/
   end
 
-  ios_swift_infoplist_path = "./Samples/iOS-Swift/App/Configurations/Info.plist"
-  ios_swift_clip_infoplist_path = "./Samples/iOS-Swift/AppClip/Configurations/Info.plist"
-  ios_swift_share_extension_infoplist_path = "./Samples/iOS-Swift/ShareExtension/Configurations/Info.plist"
-  ios_swift_intent_extension_infoplist_path = "./Samples/iOS-Swift/IntentExtension/Configurations/Info.plist"
-  ios_swift_action_extension_infoplist_path = "./Samples/iOS-Swift/ActionExtension/Configurations/Info.plist"
-  ios_swift_notification_service_extension_infoplist_path = "./Samples/iOS-Swift/NotificationServiceExtension/Configurations/Info.plist"
-  ios_swift_keyboard_extension_infoplist_path = "./Samples/iOS-Swift/KeyboardExtension/Configurations/Info.plist"
+  ios_swift_infoplist_path = "./TestApps/iOS-Swift/App/Configurations/Info.plist"
+  ios_swift_clip_infoplist_path = "./TestApps/iOS-Swift/AppClip/Configurations/Info.plist"
+  ios_swift_share_extension_infoplist_path = "./TestApps/iOS-Swift/ShareExtension/Configurations/Info.plist"
+  ios_swift_intent_extension_infoplist_path = "./TestApps/iOS-Swift/IntentExtension/Configurations/Info.plist"
+  ios_swift_action_extension_infoplist_path = "./TestApps/iOS-Swift/ActionExtension/Configurations/Info.plist"
+  ios_swift_notification_service_extension_infoplist_path = "./TestApps/iOS-Swift/NotificationServiceExtension/Configurations/Info.plist"
+  ios_swift_keyboard_extension_infoplist_path = "./TestApps/iOS-Swift/KeyboardExtension/Configurations/Info.plist"
 
   # Helper method to run tests with common configuration
   def run_ui_tests(scheme:, result_bundle_name:, device: nil, address_sanitizer: false, app_identifier: nil)
@@ -49,7 +49,7 @@ platform :ios do
   lane :bump_build_number do
     increment_build_number(
       build_number: ENV["FASTLANE_BUILD_NUMBER"],
-      xcodeproj: "./Samples/iOS-Swift/iOS-Swift.xcodeproj"
+      xcodeproj: "./TestApps/iOS-Swift/iOS-Swift.xcodeproj"
     )
   end
 
@@ -57,14 +57,14 @@ platform :ios do
   # for App Store Connect. If we are on a preview we to remove these suffixes.
   lane :remove_preview_version_suffixes do
     version = get_version_number(
-      xcodeproj: "Samples/iOS-Swift/iOS-Swift.xcodeproj",
+      xcodeproj: "TestApps/iOS-Swift/iOS-Swift.xcodeproj",
       target: "iOS-Swift"
       )
     new_version = version.split("-", -1)[0]
 
     # We also need to replace the MARKETING_VERSION otherwise the build will fail with
     # error: The CFBundleShortVersionString of an App Clip ('8.9.0-beta.1') must match that of its containing parent app ('8.9.0').
-    sh "sed -i '' 's/MARKETING_VERSION = #{version}/MARKETING_VERSION = #{new_version}/g' ../Samples/iOS-Swift/iOS-Swift.xcodeproj/project.pbxproj"
+    sh "sed -i '' 's/MARKETING_VERSION = #{version}/MARKETING_VERSION = #{new_version}/g' ../TestApps/iOS-Swift/iOS-Swift.xcodeproj/project.pbxproj"
 
     set_info_plist_value(
       path: ios_swift_infoplist_path,
@@ -222,7 +222,7 @@ platform :ios do
 
     # Using the project instead of the workspace allows us to avoid resolving SPM dependencies.
     build_app(
-      project: "Samples/iOS-Swift/iOS-Swift.xcodeproj",
+      project: "TestApps/iOS-Swift/iOS-Swift.xcodeproj",
       scheme: "iOS-Swift",
       derived_data_path: "DerivedData",
       skip_archive: true,
@@ -487,7 +487,7 @@ lane :build_ios_for_size_analysis do |options|
 end
 
 # SKIP_SPM_RESOLUTION_NOTE:
-# We skip Swift Package resolution in these lanes because the samples embed the locally built
+# We skip Swift Package resolution in these lanes because the test apps embed the locally built
 # Sentry.framework. When `Package.swift` points to upcoming release artefacts the resolver would
 # fail before the build starts. Skipping resolution keeps CI green while release assets are still
 # being published.

@@ -138,11 +138,11 @@ import Foundation
     private var _beforeSendWithHint: ((SentryObjCEvent, SentryObjCHint) -> SentryObjCEvent?)?
 
     #if SDK_V10
-    @objc public var beforeSendTransaction: ((SentryObjCTransaction) -> SentryObjCTransaction?)? {
+    @objc public var beforeSendTransaction: ((SentryObjCTransaction, SentryObjCHint) -> SentryObjCTransaction?)? {
         didSet {
             if let beforeSendTransaction = beforeSendTransaction {
-                wrapped.beforeSendTransaction = { transaction in
-                    guard let result = beforeSendTransaction(SentryObjCTransaction(transaction)) else {
+                wrapped.beforeSendTransaction = { transaction, hint in
+                    guard let result = beforeSendTransaction(SentryObjCTransaction(transaction), SentryObjCHint(hint)) else {
                         return nil
                     }
                     return result.wrappedTransaction
@@ -535,7 +535,6 @@ import Foundation
     #if !SDK_V10
     @objc public var enableAppHangTracking: Bool {
         get { wrapped.enableAppHangTracking }
-        @available(*, deprecated, message: "App Hang tracking is deprecated and will be removed in v10 because it can produce less relevant stack traces and false positives. Enable the MetricKit integration for system-provided hang diagnostics.", renamed: "enableMetricKit")
         set { wrapped.enableAppHangTracking = newValue }
     }
     #endif // !SDK_V10

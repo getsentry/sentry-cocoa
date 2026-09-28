@@ -1,0 +1,108 @@
+# yaml-language-server: $schema=../../schema/xcodegen.schema.json
+
+name: visionOS-Swift
+include:
+  - ../Shared/feature-flags.yml
+createIntermediateGroups: true
+generateEmptyDirectories: true
+configs:
+  Debug: debug
+  Test: debug
+  TestCI: debug
+  Release: release
+packages:
+  Sentry:
+    path: ../..
+  SentrySampleShared:
+    path: ../SentrySampleShared
+options:
+  bundleIdPrefix: io.sentry
+  defaultSourceDirectoryType: syncedFolder
+targets:
+  visionOS-Swift:
+    type: application
+    platform: auto
+    sources:
+      # Sources
+      - path: App/Sources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      # Resources
+      - path: App/Resources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/TestAppAssets.xcassets
+        group: App/Resources
+      # Configurations
+      - path: App/Configurations
+        type: group
+        group: App
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/Config
+        type: group
+        group: App/Configurations
+        buildPhase: none
+      - path: visionOS-Swift.yml
+        group: App/Configurations
+        buildPhase: none
+    dependencies:
+      - package: Sentry
+        product: SentrySPM
+      - package: SentrySampleShared
+        product: SentrySampleShared
+    configFiles:
+      Debug: App/Configurations/visionOS-Swift.xcconfig
+      Release: App/Configurations/visionOS-Swift.xcconfig
+      Test: App/Configurations/visionOS-Swift.xcconfig
+      TestCI: App/Configurations/visionOS-Swift.xcconfig
+    postBuildScripts:
+      - script: INFOPLIST_FILE="${TARGET_BUILD_DIR}/${INFOPLIST_PATH}" ../Shared/inject-git-info.sh
+        name: Inject Git Information into Info.plist
+        basedOnDependencyAnalysis: false
+      - script: |
+          # This script is responsible for uploading debug symbols and source context for Sentry.
+          if [[ "$(uname -m)" == arm64 ]]; then
+            export PATH="/opt/homebrew/bin:$PATH"
+          fi
+
+          if which sentry-cli >/dev/null; then
+            export SENTRY_ORG=sentry-sdks
+            export SENTRY_PROJECT=sentry-cocoa
+            ERROR=$(sentry-cli debug-files upload --include-sources "$DWARF_DSYM_FOLDER_PATH" 2>&1 >/dev/null)
+            if [ ! $? -eq 0 ]; then
+              echo "info: sentry-cli - $ERROR"
+            fi
+          else
+            echo "info: sentry-cli not installed, download from https://github.com/getsentry/sentry-cli/releases"
+          fi
+        name: Upload Debug Symbols to Sentry
+        inputFiles:
+          - ${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}
+    entitlements:
+      path: App/Configurations/visionOS-Swift.entitlements
+      properties: {}
+    info:
+      path: App/Configurations/Info.plist
+      properties:
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        GIT_BRANCH: <branch>
+        GIT_COMMIT_HASH: <sha>
+        GIT_STATUS_CLEAN: <status>
+        UIApplicationSceneManifest:
+          UIApplicationPreferredDefaultSceneSessionRole: UIWindowSceneSessionRoleApplication
+          UIApplicationSupportsMultipleScenes: true
+          UISceneConfigurations: {}
+schemes:
+  visionOS-Swift:
+    templates:
+      - TestAppScheme
+    build:
+      targets:
+        visionOS-Swift: all

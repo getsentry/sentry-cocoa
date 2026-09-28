@@ -5,7 +5,7 @@ import _SentryPrivate
 import SentryObjCInternal
 import SentryTestsObjCHelpers
 #else
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 #endif
 import XCTest
 

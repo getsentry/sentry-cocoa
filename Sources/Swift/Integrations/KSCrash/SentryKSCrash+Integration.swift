@@ -3,6 +3,16 @@ internal import _SentryPrivate
 internal import KSCrashRecording
 import Foundation
 
+/// Best-effort crash-time persistence of the span bound to the current scope.
+private let persistTraceWhenCrashing: @convention(c) () -> Void = {
+    let scope = SentrySDKInternal.currentHub().scope as Scope
+    guard let span = scope.getCastedInternalSpan() else {
+        SentrySDKLog.debug("No span found in current scope, skipping transaction finish and save")
+        return
+    }
+    span.tracer?.finishForCrash()
+}
+
 // MARK: - Integration
 extension SentryKSCrash {
     typealias DependencyProvider = SentryKSCrash.InstallerProvider & DateProviderProvider & DispatchQueueWrapperProvider & FileManagerProvider & PreviousRunSessionFinalizerBuilder
@@ -76,11 +86,11 @@ extension SentryKSCrash {
             #endif
 
 #if SENTRY_DISABLE_SENTRYCRASH_V10
-            // KSCRASH_TODO(GH-8735): V10 does not register a callback to persist an active trace
-            // when crashing. Acceptance: SCV10-027 in the migration ledger.
             // KSCRASH_TODO(GH-8797): V10 has no early KSCrash signal preloader, so managed-runtime
             // handler ordering is not preserved. Acceptance: SCV10-033 in the migration ledger.
 #endif
+
+            configureTracingWhenCrashing(options)
 
             if installer.crashedLastLaunch {
                 SentrySDKInternal.fatalDetected = true
@@ -94,6 +104,11 @@ extension SentryKSCrash {
             finalizer?.finalizeIfNeeded()
 
             processStoredReports(options: options, dependencies: dependencies)
+        }
+
+        private func configureTracingWhenCrashing(_ options: Options) {
+            guard options.enablePersistingTracesWhenCrashing else { return }
+            sentrykscrash_setSaveTransaction(persistTraceWhenCrashing)
         }
 
         private func processStoredReports(options: Options, dependencies: Dependencies) {
@@ -122,6 +137,7 @@ extension SentryKSCrash {
             // process-lifetime KSCrash recorder remains active. Acceptance: SCV10-032 in
             // SENTRYCRASH_V10_MIGRATION_LEDGER.md.
 #endif
+            sentrykscrash_setSaveTransaction(nil)
             reportProcessingSession.cancel()
             #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
             SentryNSExceptionCaptureHelper.clearUncaughtExceptionHandler(forOwner: nsExceptionHandlerOwner)

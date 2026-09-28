@@ -81,16 +81,16 @@ jobs:
           version: "26"
           resolve-simulators: "false"
       - name: Setup Ruby
-        uses: ruby/setup-ruby@984c0c890880bbf811283d6f09c4607c62d210a4 # v1.323.0
+        uses: ruby/setup-ruby@e8944e80fb94b20106697132f8c20c665fab29e9 # v1.325.0
         with:
           bundler-cache: true
 
       # As the DistributionSample project uses local SPM, xcodebuild resolves SPM dependencies for all
-      # sample projects. The Package.swift references binary targets, which in release branch commits points
-      # to non-existent download URLs. This creates chicken-egg failures when building these sample apps for
-      # a release commit build. When building these sample apps for a release commit, xcodebuild tries to
+      # test app projects. The Package.swift references binary targets, which in release branch commits points
+      # to non-existent download URLs. This creates chicken-egg failures when building these test apps for
+      # a release commit build. When building these test apps for a release commit, xcodebuild tries to
       # resolve all SPM dependencies, including the binary targets pointing to these non-existent URLs.  The
-      # sample projects don't use SPM for including Sentry. Only the DistributionSample uses local SPM.
+      # test app projects don't use SPM for including Sentry. Only the DistributionSample uses local SPM.
       # Therefore, we only keep the local DistributionSample reference in the Package.swift as a workaround.
       - name: Only keep distribution lib and target in Package.swift
         run: ./scripts/prepare-package.sh --remove-binary-targets true
