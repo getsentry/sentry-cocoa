@@ -1230,13 +1230,20 @@ class SentryHttpTransportTests: XCTestCase {
             dispatchQueueWrapper: fixture.dispatchQueueWrapper
         )
         let transportQueue = SentryDispatchQueueWrapper()
+        let transportQueueKey = DispatchSpecificKey<Bool>()
+        transportQueue.queue.setSpecific(key: transportQueueKey, value: true)
         sut = try fixture.getSut(fileManager: fileManager, dispatchQueueWrapper: transportQueue)
 
         let scanStarted = expectation(description: "Connectivity drain found no envelopes")
         let scanFinished = expectation(description: "Connectivity drain returned")
         let resumeScan = DispatchSemaphore(value: 0)
+        let captureStored = DispatchSemaphore(value: 0)
         fileManager.onEmptyScan = {
             scanStarted.fulfill()
+            if DispatchQueue.getSpecific(key: transportQueueKey) == nil {
+                XCTAssertEqual(.success, captureStored.wait(timeout: .now() + 5))
+                XCTAssertEqual(1, fileManager.getAllEnvelopes().count)
+            }
             _ = resumeScan.wait(timeout: .now() + 5)
         }
 
@@ -1249,13 +1256,7 @@ class SentryHttpTransportTests: XCTestCase {
         wait(for: [scanStarted], timeout: 5)
 
         sut.send(envelope: fixture.eventEnvelope)
-        let captureStored = expectation(description: "Capture stored its envelope")
-        transportQueue.dispatchAsync { captureStored.fulfill() }
-        // A serialized connectivity drain may occupy the queue until the scan is released.
-        let captureCompletedBeforeScan = XCTWaiter.wait(for: [captureStored], timeout: 0.5) == .completed
-        if captureCompletedBeforeScan {
-            XCTAssertEqual(1, fileManager.getAllEnvelopes().count)
-        }
+        transportQueue.dispatchAsync { captureStored.signal() }
         resumeScan.signal()
         wait(for: [scanFinished], timeout: 5)
         let queueDrained = expectation(description: "Transport queue processed the capture")
