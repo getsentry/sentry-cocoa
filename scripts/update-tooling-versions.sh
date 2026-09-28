@@ -17,7 +17,21 @@ case "$CLANG_FORMAT_VERSION_STR" in
     *)                    echo "$CLANG_FORMAT_VERSION_STR" | awk '{print $3}' > .clang-format-version ;;
 esac
 
-swiftlint version > .swiftlint-version
+SWIFTLINT_VERSION=$(swiftlint version)
+echo "$SWIFTLINT_VERSION" > .swiftlint-version
+
+SWIFTLINT_MODULE_BAZEL="../linters/SwiftLintCustomRules/MODULE.bazel"
+if [[ -f "$SWIFTLINT_MODULE_BAZEL" ]]; then
+    sed -i '' -E \
+        's/(bazel_dep\(name = "swiftlint", version = ")[^"]+(")/\1'"$SWIFTLINT_VERSION"'\2/' \
+        "$SWIFTLINT_MODULE_BAZEL"
+    if command -v bazel >/dev/null 2>&1; then
+        (cd ../linters/SwiftLintCustomRules && bazel mod tidy)
+    else
+        echo "warning: bazel not found; skipped linters/SwiftLintCustomRules/MODULE.bazel.lock update" >&2
+    fi
+fi
+
 xcodegen --version | awk -F ': ' '{print $2}' > .xcodegen-version
 
 # -- End Script --

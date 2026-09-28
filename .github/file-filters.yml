@@ -208,6 +208,8 @@ run_auto_update_tools_for_prs: &run_auto_update_tools_for_prs
   - "scripts/.clang-format-version"
   - "scripts/.swiftlint-version"
   - "scripts/.xcodegen-version"
+  - "linters/SwiftLintCustomRules/MODULE.bazel"
+  - "linters/SwiftLintCustomRules/MODULE.bazel.lock"
 
   # Scripts
   - "scripts/check-tooling-versions.sh"

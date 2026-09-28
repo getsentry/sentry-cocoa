@@ -106,7 +106,10 @@ jobs:
         if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
         with:
           token: ${{ steps.app_token.outputs.token }}
-          add-paths: scripts/.swiftlint-version
+          add-paths: |
+            scripts/.swiftlint-version
+            linters/SwiftLintCustomRules/MODULE.bazel
+            linters/SwiftLintCustomRules/MODULE.bazel.lock
           branch: github-actions/auto-update-tools-swiftlint
           commit-message: "chore(deps): Update swiftlint version"
           delete-branch: true

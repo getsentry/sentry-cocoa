@@ -31,4 +31,5 @@ Suppress a file with `// swiftlint:disable standalone_objc_extension`.
 2. Register it in `ExtraRules.swift`.
 3. Add the file to the `extra_rules` filegroup in `BUILD.bazel`.
 4. Keep the SwiftLint module version in `MODULE.bazel` in sync with
-   `scripts/.swiftlint-version`.
+   `scripts/.swiftlint-version`. `make update-versions` / `make init` patches
+   both; `make check-versions` fails if they drift.
