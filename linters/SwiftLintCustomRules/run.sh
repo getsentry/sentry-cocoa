@@ -1,6 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
+# Lint the Cocoa SDK with the Bazel-built SwiftLint extra-rules binary.
+# Tests live under Tests/ and run via `bazel test //:StandaloneObjCExtensionRuleTests`.
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 CONFIG="$SCRIPT_DIR/.swiftlint.yml"

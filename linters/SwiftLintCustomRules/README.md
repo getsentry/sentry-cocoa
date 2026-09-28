@@ -1,21 +1,26 @@
 # SwiftLint custom rules
 
-Native SwiftLint extra rules compiled into SwiftLint via Bazel. The workspace
-lives here so Bazel files stay out of the repository root.
+Native SwiftLint extra rules compiled into SwiftLint via Bazel.
 
-Homebrew SwiftLint cannot load these rules. `make check-objc-standalone-extensions`
-builds `@SwiftLint//:swiftlint` with the extra rules and runs only
-`standalone_objc_extension`.
+```text
+Sources/   Rule implementations (globbed into extra_rules)
+Tests/     Swift Testing (bazel test //:StandaloneObjCExtensionRuleTests)
+run.sh     Lints the Cocoa SDK Sources/ with the extra-rules binary
+```
+
+Homebrew SwiftLint cannot load extra rules. `make check-objc-standalone-extensions`
+builds `@SwiftLint//:swiftlint` and runs only `standalone_objc_extension` against
+the SDK (default: repo `Sources/`).
 
 ## Commands
 
 From the repository root:
 
 ```sh
-# Lint Sources (also invoked by make lint / CI)
+# Lint the Cocoa SDK (make lint / CI)
 make check-objc-standalone-extensions
 
-# Swift Testing cases for standalone_objc_extension
+# Swift Testing for extra rules
 make test-swiftlint-custom-rules
 ```
 
