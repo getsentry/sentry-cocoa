@@ -1679,7 +1679,7 @@ check-objc-standalone-extensions:
 # Runs Swift Testing cases for standalone_objc_extension.
 .PHONY: test-swiftlint-custom-rules
 test-swiftlint-custom-rules:
-	cd linters/SwiftLintCustomRules && bazel test //:StandaloneObjCExtensionRuleTests
+	cd linters/SwiftLintCustomRules && bazel test //:StandaloneObjCExtensionRuleTests --test_output=all
 
 ## Run linting checks on all files
 #

@@ -10,6 +10,7 @@ swift_test(
     name = "StandaloneObjCExtensionRuleTests",
     srcs = glob(["Tests/**/*.swift"]),
     module_name = "StandaloneObjCExtensionRuleTests",
+    size = "small",
     deps = [
         "@SwiftLint//:SwiftLintExtraRules",
     ],
