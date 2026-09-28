@@ -28,7 +28,7 @@ fi
 
 pushd "$SCRIPT_DIR"
 bazel build @SwiftLint//:swiftlint
-bazel @SwiftLint//:swiftlint -- \
+bazel run @SwiftLint//:swiftlint -- \
     --config "$CONFIG" \
     --strict \
     --quiet \
