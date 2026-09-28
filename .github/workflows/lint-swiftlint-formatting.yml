@@ -64,6 +64,7 @@ jobs:
           bazelisk-cache: true
           disk-cache: ${{ github.workflow }}
           repository-cache: linters/SwiftLintCustomRules/MODULE.bazel.lock
+          cache-save: ${{ github.event_name != 'pull_request' }}
       - name: Test SwiftLint extra rules
         run: make test-swiftlint-custom-rules
       - name: Check standalone @objc extensions
