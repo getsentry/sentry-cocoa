@@ -213,6 +213,18 @@
 {
     [self testBooleanField:@"enableUnhandledCPPExceptionsV2" defaultValue:NO];
 }
+#else
+- (void)testInitWithDictionary_whenUnhandledCPPExceptionsV2IsEnabled_shouldEnableExperimentalOption
+{
+    // -- Arrange --
+    NSDictionary *dictionary = @{ @"enableUnhandledCPPExceptionsV2" : @YES };
+
+    // -- Act --
+    SentryOptions *options = [self getValidOptions:dictionary];
+
+    // -- Assert --
+    XCTAssertTrue(options.experimental.enableUnhandledCPPExceptionsV2);
+}
 #endif // SDK_V10
 
 - (void)testInitWithDictionary_whenFileManagerSwizzlingIsConfigured_shouldApplyValue

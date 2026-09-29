@@ -2,9 +2,20 @@
 
 ## Unreleased
 
+### Features
+
+- Promote the following options to stable, supported configuration without changing their defaults (#9134):
+  - `enablePersistingTracesWhenCrashing`: remains disabled by default
+  - `attachViewHierarchy`: remains disabled by default.
+  - `enableTimeToFullDisplayTracing`: remains disabled by default because applications must explicitly call `SentrySDK.reportFullyDisplayed()`.
+  - `swiftAsyncStacktraces`: disabled by default
+  - `enableGraphQLOperationTracking`: disabled by default
+  - `enableFileManagerSwizzling`: disabled by default
+- Support `enableFileManagerSwizzling` in dictionary-based options initialization (#9134).
+
 ### Fixes
 
-- Keep `enableUnhandledCPPExceptionsV2` under `options.experimental` in v9, non-deprecated and disabled by default, reverting its promotion to stable configuration in #9134 (#9175).
+- Keep `enableUnhandledCPPExceptionsV2` under `options.experimental` in v9, non-deprecated and disabled by default, reverting its promotion to stable configuration in #9134. Support this option in dictionary-based initialization (#9175).
 
 ## 9.29.2
 
@@ -17,17 +28,6 @@
 
 > [!CAUTION]
 > **Known issue:** This release can crash apps statically linking the SDK without `-ObjC` with `-[SentryEvent isMetricKitEvent]: unrecognized selector`, even when MetricKit is disabled. Add `-ObjC` to the app target's linker flags, preserving `$(inherited)`, or pin to **9.29.0** until a fix is released. See [#9154](https://github.com/getsentry/sentry-cocoa/issues/9154).
-
-### Features
-
-- Promote the following options to stable, supported configuration without changing their defaults (#9134):
-  - `enablePersistingTracesWhenCrashing`: remains disabled by default
-  - `attachViewHierarchy`: remains disabled by default.
-  - `enableTimeToFullDisplayTracing`: remains disabled by default because applications must explicitly call `SentrySDK.reportFullyDisplayed()`.
-  - `swiftAsyncStacktraces`: disabled by default
-  - `enableGraphQLOperationTracking`: disabled by default
-  - `enableFileManagerSwizzling`: disabled by default
-- Support `enableFileManagerSwizzling` in dictionary-based options initialization (#9134).
 
 ### Fixes
 

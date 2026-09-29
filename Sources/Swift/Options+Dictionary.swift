@@ -61,11 +61,13 @@ extension Options {
             self.enableCrashHandler = enableCrashHandler
         }
 
-        #if SDK_V10
         if let enableUnhandledCPPExceptionsV2 = boolValue(dictionary["enableUnhandledCPPExceptionsV2"]) {
+            #if SDK_V10
             self.enableUnhandledCPPExceptionsV2 = enableUnhandledCPPExceptionsV2
+            #else
+            self.experimental.enableUnhandledCPPExceptionsV2 = enableUnhandledCPPExceptionsV2
+            #endif // SDK_V10
         }
-        #endif // SDK_V10
 
         #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
         if let enableUncaughtNSExceptionReporting = boolValue(dictionary["enableUncaughtNSExceptionReporting"]) {
