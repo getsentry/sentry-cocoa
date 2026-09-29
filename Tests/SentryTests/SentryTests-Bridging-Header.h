@@ -93,7 +93,9 @@
 #import "SentryNSURLSessionTaskSearch.h"
 #import "SentryNoOpSpan.h"
 #import "SentryPerformanceTracker+Testing.h"
-#import "SentryPerformanceTracker.h"
+#if __has_include("SentryPerformanceTracker.h")
+#    import "SentryPerformanceTracker.h"
+#endif
 #import "SentryProfilingConditionals.h"
 #import "SentryQueueableRequestManager.h"
 #import "SentrySDK+Private.h"

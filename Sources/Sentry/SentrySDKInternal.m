@@ -310,7 +310,6 @@ static BOOL sdkStarted;
     [PlaceholderSentryApplication class];
     [PlaceholderProcessInfoClass class];
     [PlaceholderNotificationCenterClass class];
-    [PlaceholderMetricKitEventClass class];
     [PlaceholderOptionsDictionaryClass class];
     [PlaceholderReplayNetworkDetailsClass class];
 

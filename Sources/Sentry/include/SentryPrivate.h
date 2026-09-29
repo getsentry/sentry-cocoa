@@ -17,6 +17,7 @@
 #import "SentryHub+Private.h"
 #import "SentryHub+SwiftPrivate.h"
 #if SDK_V10
+#    import "SentryKSCrashManagedSignal.h"
 #    import "SentryKSCrashReportWriterCallbacks.h"
 #endif // SDK_V10
 #import "SentryNSDataSwizzlingHelper.h"
@@ -72,7 +73,6 @@
 #import "SentryMsgPackSerializer.h"
 #import "SentryNSDataSwizzlingHelper.h"
 #import "SentryNSFileManagerSwizzlingHelper.h"
-#import "SentryPerformanceTracker.h"
 #import "SentryProfileCollector.h"
 #import "SentryProfiledTracerConcurrency.h"
 #import "SentryProfiler+Private.h"

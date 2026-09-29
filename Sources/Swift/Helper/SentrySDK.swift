@@ -90,15 +90,6 @@ extension SentrySDK {
     /// )
     /// ```
     ///
-    /// ## Requirements
-    ///
-    /// ``Options/enableMetrics`` is kept for compatibility until the next major release and does
-    /// not gate this manual API.
-    ///
-    /// - Important: The Metrics API has been designed and optimized for Swift. Objective-C support is
-    ///   currently not available. If you need Objective-C support, please see the issue
-    ///   https://github.com/getsentry/sentry-cocoa/issues/6342 for progress.
-    ///
     /// - SeeAlso: For complete documentation, visit https://docs.sentry.io/platforms/apple/metrics/
     public static var metrics: SentryMetricsApiProtocol = SentryMetricsApi(dependencies: SentryDependencyContainer.sharedInstance())
 

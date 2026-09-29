@@ -1,7 +1,8 @@
-#import "SentryPerformanceTracker.h"
-#import "SentrySpanId.h"
-#import "SentrySpanInternal.h"
-#import "SentryTracer.h"
+#if __has_include("SentryPerformanceTracker.h")
+#    import "SentryPerformanceTracker.h"
+#    import "SentrySpanId.h"
+#    import "SentrySpanInternal.h"
+#    import "SentryTracer.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -12,3 +13,4 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+#endif
