@@ -13,6 +13,7 @@ excluded:
   - .git/**
   - XCFrameworkBuildPath/**
   - 3rd-party-integrations/**/Packages/sentry-cocoa
+  - linters
   # Exclude auto-generated files from test app builds
   - "**/Build/Intermediates.noindex/iOS-Swift.build/**/DerivedSources/**"
   - "**/Build/Intermediates.noindex/iOS-SwiftClip.build/**/DerivedSources/**"

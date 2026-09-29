@@ -15,6 +15,10 @@
 - Add `connection_type` to the device context of events, which reports `wifi`, `ethernet`, `cellular`, or `none` (#9097).
   On iOS, cellular connections additionally report the network technology in `connection_effective_type`, for example `4g` or `5g`.
 
+### Fixes
+
+- Keep standalone `@objc` extensions in static builds by adding referenced dummy `NSObject` subclasses, and lint for this with a SwiftSyntax SwiftLint extra rule (#9160)
+
 ## 9.29.2
 
 ### Fixes

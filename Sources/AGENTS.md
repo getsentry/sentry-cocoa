@@ -16,6 +16,7 @@
 - Default to `internal` and expose only intentional SDK API as `public`
 - Prefer `private` over `fileprivate`
 - Mark classes `final` unless designed for subclassing
+- Do not put an `@objc` extension in a file by itself; static linkers strip those object files. Add a dummy `@objc` `NSObject` subclass in the same file and reference it from `SentrySDKInternal` (see `PlaceholderProcessInfoClass`). Enforced by `standalone_objc_extension` in `linters/SwiftLintCustomRules`
 
 ### Error Handling and Closures
 
