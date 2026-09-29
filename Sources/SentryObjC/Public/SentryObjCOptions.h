@@ -739,11 +739,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 #if __has_include(<MetricKit/MetricKit.h>) && !TARGET_OS_TV
 
+#    if SDK_V10
 /**
  * When enabled, the SDK collects @c MXDiskWriteExceptionDiagnostic, @c MXCPUExceptionDiagnostic,
  * and @c MXHangDiagnostic from MetricKit and converts them to Sentry events.
  * @note Default value is @c YES.
  */
+#    else
+/**
+ * When enabled, the SDK collects @c MXDiskWriteExceptionDiagnostic, @c MXCPUExceptionDiagnostic,
+ * and @c MXHangDiagnostic from MetricKit and converts them to Sentry events.
+ * @note Default value is @c NO.
+ */
+#    endif // SDK_V10
 @property (nonatomic) BOOL enableMetricKit;
 
 /**
