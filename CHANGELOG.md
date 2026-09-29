@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Preserve full resolution when masking feedback screenshots, while keeping error, crash, and Session Replay screenshots at 1× (#9179)
+- Preserve full resolution when masking feedback, error, and crash screenshots, including screenshots captured through the React Native bridge, without changing Session Replay resolution or redactions (#9179)
 
 ## 9.29.2
 

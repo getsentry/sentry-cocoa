@@ -82,6 +82,7 @@ import UIKit
             // Moving it to a background thread to avoid blocking the main thread, therefore reducing the performance
             // impact/lag of the user interface.
             let maskStart = dateProvider.getAbsoluteTime()
+            // Keep Replay and its masking preview at 1× without increasing per-frame memory or encoding work.
             let maskedScreenshot = maskRenderer.maskScreenshot(screenshot: renderedScreenshot, size: viewSize, masking: redactRegions, scale: 1)
             let maskEnd = dateProvider.getAbsoluteTime()
 
@@ -99,13 +100,8 @@ import UIKit
         return TimeInterval(end - start) / TimeInterval(NSEC_PER_SEC)
     }
 
-    /// Captures a redacted image at 1× for existing screenshot consumers.
+    /// Captures a redacted still image at the renderer's original scale.
     public func image(view: UIView) -> UIImage {
-        image(view: view, preservingScale: false)
-    }
-
-    /// Feedback opts into the rendered scale without changing error, crash, or hybrid screenshots.
-    @nonobjc func image(view: UIView, preservingScale: Bool) -> UIImage {
         let viewSize = view.bounds.size
         let redactRegions = redactBuilder.redactRegionsFor(view: view)
         let renderedScreenshot = renderer.render(view: view)
@@ -113,7 +109,7 @@ import UIKit
             screenshot: renderedScreenshot,
             size: viewSize,
             masking: redactRegions,
-            scale: preservingScale ? renderedScreenshot.scale : 1
+            scale: renderedScreenshot.scale
         )
     }
 

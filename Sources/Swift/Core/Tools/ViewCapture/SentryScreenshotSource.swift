@@ -32,7 +32,7 @@ import UIKit
         super.init()
     }
 
-    /// Get a redacted 1× screenshot of every open window in the app.
+    /// Get a redacted screenshot of every open window in the app, preserving the rendered image scale.
     /// - Returns: An array of UIImage instances.
     public func appScreenshotsFromMainThread() -> [UIImage] {
         var result: [UIImage] = []
@@ -44,7 +44,7 @@ import UIKit
         return result
     }
 
-    /// Get a redacted 1× screenshot of every open window in the app as PNG data.
+    /// Get a redacted screenshot of every open window in the app, preserving the rendered pixel dimensions.
     /// - Returns: An array of Data instances containing PNG images.
     public func appScreenshotDatasFromMainThread() -> [Data] {
         var result: [Data] = []
@@ -56,7 +56,7 @@ import UIKit
         return result
     }
 
-    /// Save redacted 1× app screenshots in the given directory.
+    /// Save redacted app screenshots at their rendered resolution in the given directory.
     /// If an app has more than one screen, one image for each screen will be saved.
     /// - Parameter imagesDirectoryPath: The path where the images should be saved.
     public func saveScreenShots(_ imagesDirectoryPath: String) {
@@ -106,13 +106,7 @@ import UIKit
         pngData(from: appScreenshots())
     }
 
-    /// Called on the main thread by the feedback screenshot trigger. The scale choice is
-    /// per capture so sharing this source cannot change later error or crash screenshots.
-    @nonobjc func feedbackScreenshot() -> UIImage? {
-        screenshots(from: SentryDependencyContainerSwiftHelper.windows() ?? [], preservingScale: true).first
-    }
-
-    private func screenshots(from windows: [UIWindow], preservingScale: Bool = false) -> [UIImage] {
+    private func screenshots(from windows: [UIWindow]) -> [UIImage] {
         var result: [UIImage] = []
         result.reserveCapacity(windows.count)
 
@@ -122,9 +116,7 @@ import UIKit
                 continue
             }
 
-            let img = preservingScale
-                ? photographer.image(view: window, preservingScale: true)
-                : photographer.image(view: window)
+            let img = photographer.image(view: window)
             if img.size.width > 0 && img.size.height > 0 {
                 result.append(img)
             }

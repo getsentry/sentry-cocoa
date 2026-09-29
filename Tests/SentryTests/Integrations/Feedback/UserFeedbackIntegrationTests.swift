@@ -988,8 +988,8 @@ final class UserFeedbackIntegrationTests: XCTestCase {
                 enableMaskRendererV2: false))
         }
 
-        override func feedbackScreenshot() -> UIImage? {
-            return screenshots.first
+        override func appScreenshots() -> [UIImage] {
+            return screenshots
         }
     }
 
