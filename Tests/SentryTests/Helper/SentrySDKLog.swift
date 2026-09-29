@@ -1,4 +1,8 @@
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 
 //Exposing internal/test functions from SentrySDKLog
 extension Sentry.SentrySDKLog {

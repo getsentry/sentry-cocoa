@@ -1,6 +1,10 @@
 #if os(iOS) || os(tvOS) || os(visionOS)
 
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) import Sentry
+#endif
 
 /**
  * Function to call through to save a view hierarchy, which can be passed around
