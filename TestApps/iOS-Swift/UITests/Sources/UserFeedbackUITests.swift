@@ -30,6 +30,26 @@ class UserFeedbackUITests: BaseUITest {
 }
 
 extension UserFeedbackUITests {
+    func testSimulateScreenshot_whenTapped_shouldPresentFeedbackWithScreenshot() {
+        // -- Arrange --
+        launchApp(env: [
+            SentrySDKOverrides.Special.dsn.rawValue: "http://public@127.0.0.1:9/1"
+        ], activateBeforeLaunch: false)
+        defer { app.terminate() }
+        app.buttons["More"].tap()
+        app.tables.staticTexts["Feedback"].tap()
+        let simulateScreenshotButton = app.buttons["Simulate Screenshot"]
+        XCTAssertTrue(simulateScreenshotButton.waitForExistence(timeout: 5))
+
+        // -- Act --
+        simulateScreenshotButton.tap()
+
+        // -- Assert --
+        XCTAssertTrue(cancelButton.waitForExistence(timeout: 5))
+        XCTAssertTrue(messageTextView.exists)
+        XCTAssertTrue(removeScreenshotButton.exists)
+    }
+
 #if !SDK_V10
     private func launchAppWithDeprecatedWidget(args: [String] = [], env: [String: String] = [:]) {
         var launchArguments = args

@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Preserve full resolution when masking feedback, error, and crash screenshots, without changing Session Replay resolution or redactions (#9179)
+
 ## 9.29.2
 
 ### Fixes

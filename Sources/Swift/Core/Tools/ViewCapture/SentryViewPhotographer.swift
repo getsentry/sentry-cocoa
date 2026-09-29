@@ -82,7 +82,7 @@ import UIKit
             // Moving it to a background thread to avoid blocking the main thread, therefore reducing the performance
             // impact/lag of the user interface.
             let maskStart = dateProvider.getAbsoluteTime()
-            let maskedScreenshot = maskRenderer.maskScreenshot(screenshot: renderedScreenshot, size: viewSize, masking: redactRegions)
+            let maskedScreenshot = maskRenderer.maskScreenshot(screenshot: renderedScreenshot, size: viewSize, masking: redactRegions, scale: 1)
             let maskEnd = dateProvider.getAbsoluteTime()
 
             let metadata = SentryViewPhotographerScreenshotMetadata(
@@ -99,13 +99,17 @@ import UIKit
         return TimeInterval(end - start) / TimeInterval(NSEC_PER_SEC)
     }
 
+    /// Captures a redacted still image at the renderer's original scale.
     public func image(view: UIView) -> UIImage {
         let viewSize = view.bounds.size
         let redactRegions = redactBuilder.redactRegionsFor(view: view)
         let renderedScreenshot = renderer.render(view: view)
-        let maskedScreenshot = maskRenderer.maskScreenshot(screenshot: renderedScreenshot, size: viewSize, masking: redactRegions)
-
-        return maskedScreenshot
+        return maskRenderer.maskScreenshot(
+            screenshot: renderedScreenshot,
+            size: viewSize,
+            masking: redactRegions,
+            scale: renderedScreenshot.scale
+        )
     }
 
     @objc(addIgnoreClasses:)
