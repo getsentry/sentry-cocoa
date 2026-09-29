@@ -107,6 +107,12 @@ public class SentryReachability: NSObject {
 #endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
         
         self.currentConnectivity = nil
+        // A monitor from an earlier observer can still be running: observers are held weakly, so
+        // the last one can disappear without remove(_:), and nothing cancels the monitor then.
+        // A started NWPathMonitor stays alive without cancel(), even with no strong reference to
+        // it, so replacing the reference below would leave it reporting paths for the lifetime of
+        // the process.
+        pathMonitor?.cancel()
         let pathMonitor = NWPathMonitor()
         pathMonitor.pathUpdateHandler = { [weak self, weak pathMonitor] path in
             guard let self, let pathMonitor, self.isCurrentPathMonitor(pathMonitor) else {

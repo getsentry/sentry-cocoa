@@ -71,6 +71,28 @@ struct SentryCellularNetworkTechnologyProvider {
         var networkInfo: CTTelephonyNetworkInfo?
         var technology: SentryCellularNetworkTechnology?
         var observerToken: NSObjectProtocol?
+        /// `CTTelephonyNetworkInfo` holds its delegate weakly, so the only strong reference to it
+        /// is this one.
+        var dataServiceObserver: DataServiceObserver?
+    }
+
+    /// Reports when the data service moves to another SIM.
+    ///
+    /// The radio access technology notification only covers a service changing its technology, so
+    /// on a dual-SIM device the cached value would otherwise keep the previous SIM's generation
+    /// until an unrelated radio change. `CTTelephonyNetworkInfo` requires an object here, which is
+    /// why this is a class and not a closure.
+    private final class DataServiceObserver: NSObject, CTTelephonyNetworkInfoDelegate {
+        private let onChange: () -> Void
+
+        init(onChange: @escaping () -> Void) {
+            self.onChange = onChange
+            super.init()
+        }
+
+        func dataServiceIdentifierDidChange(_ identifier: String) {
+            onChange()
+        }
     }
 
     private let state = SentryMutex(State())
@@ -112,8 +134,8 @@ struct SentryCellularNetworkTechnologyProvider {
         // must not happen while holding it.
         let networkInfo = CTTelephonyNetworkInfo()
         let technology = Self.technology(from: networkInfo)
-        // Capturing the mutex instead of self keeps this a value type: the storage is shared, so
-        // the observer sees the same state the provider does.
+        // The mutex and the queue are copied into locals to keep `self` out of the escaping
+        // blocks below.
         let state = self.state
         let dispatchQueue = self.dispatchQueue
         let observerToken = notificationCenter.addObserver(
@@ -127,6 +149,14 @@ struct SentryCellularNetworkTechnologyProvider {
                 Self.refreshTechnology(in: state)
             }
         }
+        let dataServiceObserver = DataServiceObserver {
+            // The delegate callbacks arrive on a queue of CoreTelephony's choosing, so the work
+            // moves to ours, as the notification above does.
+            dispatchQueue.dispatchAsync {
+                Self.refreshTechnology(in: state)
+            }
+        }
+        networkInfo.delegate = dataServiceObserver
 
         let didStoreMonitoring = state.withLock { state -> Bool in
             // stopMonitoring can run while CoreTelephony is being set up above.
@@ -134,6 +164,7 @@ struct SentryCellularNetworkTechnologyProvider {
             state.networkInfo = networkInfo
             state.technology = technology
             state.observerToken = observerToken
+            state.dataServiceObserver = dataServiceObserver
             return true
         }
         guard didStoreMonitoring else {
@@ -146,11 +177,10 @@ struct SentryCellularNetworkTechnologyProvider {
 
     func stopMonitoring() {
         let observerToken = state.withLock { state -> NSObjectProtocol? in
-            state.isMonitoring = false
             let observerToken = state.observerToken
-            state.observerToken = nil
-            state.networkInfo = nil
-            state.technology = nil
+            // Resetting the whole struct is cheaper to read than clearing each field, and it
+            // releases the network info together with its delegate.
+            state = State()
             return observerToken
         }
         if let observerToken {
