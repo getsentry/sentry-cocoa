@@ -29,6 +29,13 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
 
 @property (atomic, strong) NSMutableArray<SentryAttachment *> *attachmentArray;
 
+/**
+ * Attachments the SDK captured at crash time, such as screenshots and the view hierarchy. These are
+ * kept apart from user attachments because fatal events must only carry attachments that belong to
+ * the crashed app run.
+ */
+@property (atomic, strong) NSMutableArray<SentryAttachment *> *crashReportAttachmentArray;
+
 @property (nonatomic, retain) NSMutableArray<id<SentryScopeObserver>> *observers;
 
 @property (atomic, strong) NSMutableArray<SentryBreadcrumb *> *breadcrumbArray;
@@ -59,6 +66,7 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
         self.extraDictionary = [[NSMutableDictionary alloc] init];
         self.contextDictionary = [[NSMutableDictionary alloc] init];
         self.attachmentArray = [[NSMutableArray alloc] init];
+        self.crashReportAttachmentArray = [[NSMutableArray alloc] init];
         self.fingerprintArray = [[NSMutableArray alloc] init];
         self.attributesDictionary = [[NSMutableDictionary alloc] init];
         _featureFlagBuffer = [SentryFeatureFlagBufferWrapper scopeBuffer];
@@ -106,6 +114,7 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
         [_breadcrumbArray addObjectsFromArray:crumbs];
         [_fingerprintArray addObjectsFromArray:[scope fingerprints]];
         [_attachmentArray addObjectsFromArray:[scope attachments]];
+        [_crashReportAttachmentArray addObjectsFromArray:[scope crashReportAttachments]];
         [_attributesDictionary addEntriesFromDictionary:[scope attributes]];
 
         self.propagationContext = scope.propagationContext;
@@ -499,14 +508,17 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
 
 - (void)addCrashReportAttachmentInPath:(NSString *)filePath
 {
+    SentryAttachment *attachment;
     if ([filePath.lastPathComponent isEqualToString:@"view-hierarchy.json"]) {
-        [self addAttachment:[[SentryAttachment alloc]
-                                  initWithPath:filePath
-                                      filename:@"view-hierarchy.json"
-                                   contentType:@"application/json"
-                                attachmentType:kSentryAttachmentTypeViewHierarchy]];
+        attachment = [[SentryAttachment alloc] initWithPath:filePath
+                                                   filename:@"view-hierarchy.json"
+                                                contentType:@"application/json"
+                                             attachmentType:kSentryAttachmentTypeViewHierarchy];
     } else {
-        [self addAttachment:[[SentryAttachment alloc] initWithPath:filePath]];
+        attachment = [[SentryAttachment alloc] initWithPath:filePath];
+    }
+    @synchronized(_crashReportAttachmentArray) {
+        [_crashReportAttachmentArray addObject:attachment];
     }
 }
 
@@ -521,6 +533,13 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
 {
     @synchronized(_attachmentArray) {
         return _attachmentArray.copy;
+    }
+}
+
+- (NSArray<SentryAttachment *> *)crashReportAttachments
+{
+    @synchronized(_crashReportAttachmentArray) {
+        return _crashReportAttachmentArray.copy;
     }
 }
 

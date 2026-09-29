@@ -366,13 +366,18 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 // The hint's attachments must be populated before prepareEvent runs the beforeSendWithHint
 // callback, so the callback can add and remove attachments. After the callback returns, the
 // hint's attachment list is authoritative and is what the SDK sends.
+//
+// Fatal events are captured on the launch after the crash, so the scope's attachments belong to
+// the current app run and not to the crashed one. Only attachments the SDK captured at crash time
+// are sent with fatal events; the beforeSendWithHint callback can still add more.
 - (void)populateHintAttachments:(SentryHint *)hint
                           scope:(SentryScope *)scope
                    isFatalEvent:(BOOL)isFatalEvent
 {
     NSMutableArray<SentryAttachment *> *allAttachments =
-        [NSMutableArray arrayWithArray:scope.attachments];
+        [NSMutableArray arrayWithArray:scope.crashReportAttachments];
     if (!isFatalEvent) {
+        [allAttachments addObjectsFromArray:scope.attachments];
         SentryScope *cs = [self.currentScopeStorage scope];
         if (cs != nil) {
             for (SentryAttachment *attachment in cs.attachments) {

@@ -6,7 +6,29 @@
 
 - Session Replay: Always encode crash-recovery video on the replay processing queue, including when startup-crash report processing runs on the SDK init thread (#9158)
 
+## 9.29.2
+
+### Fixes
+
+- Stop sending scope attachments with crashes and other fatal events captured from a previous app run, because those attachments belong to the current run. Use `beforeSendWithHint` to attach files to fatal events (#9153)
+- Prevent an `isMetricKitEvent` unrecognized selector crash when statically linking the SDK without `-ObjC`, including when MetricKit is disabled (#9155)
+
 ## 9.29.1
+
+> [!CAUTION]
+> **Known issue:** This release can crash apps statically linking the SDK without `-ObjC` with `-[SentryEvent isMetricKitEvent]: unrecognized selector`, even when MetricKit is disabled. Add `-ObjC` to the app target's linker flags, preserving `$(inherited)`, or pin to **9.29.0** until a fix is released. See [#9154](https://github.com/getsentry/sentry-cocoa/issues/9154).
+
+### Features
+
+- Promote the following options to stable, supported configuration without changing their defaults (#9134):
+  - `enableUnhandledCPPExceptionsV2`: now available directly on `Options`, disabled by default because hooking `__cxa_throw` can cause symbolication issues on iOS. `experimental.enableUnhandledCPPExceptionsV2` remains a deprecated alias, with a rename annotation, until the next minor release.
+  - `enablePersistingTracesWhenCrashing`: remains disabled by default
+  - `attachViewHierarchy`: remains disabled by default.
+  - `enableTimeToFullDisplayTracing`: remains disabled by default because applications must explicitly call `SentrySDK.reportFullyDisplayed()`.
+  - `swiftAsyncStacktraces`: disabled by default
+  - `enableGraphQLOperationTracking`: disabled by default
+  - `enableFileManagerSwizzling`: disabled by default
+- Support `enableUnhandledCPPExceptionsV2` and `enableFileManagerSwizzling` in dictionary-based options initialization (#9134).
 
 ### Fixes
 
