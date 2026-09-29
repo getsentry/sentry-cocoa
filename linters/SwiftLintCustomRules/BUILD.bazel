@@ -1,0 +1,17 @@
+load("@build_bazel_rules_swift//swift:swift.bzl", "swift_test")
+
+filegroup(
+    name = "extra_rules",
+    srcs = glob(["Sources/**/*.swift"]),
+    visibility = ["//visibility:public"],
+)
+
+swift_test(
+    name = "StandaloneObjCExtensionRuleTests",
+    srcs = glob(["Tests/**/*.swift"]),
+    module_name = "StandaloneObjCExtensionRuleTests",
+    size = "small",
+    deps = [
+        "@SwiftLint//:SwiftLintExtraRules",
+    ],
+)

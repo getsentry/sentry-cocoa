@@ -61,6 +61,15 @@ jobs:
             platform: "visionOS"
             timeout: 30
 
+          # visionOS 27 is slow because of a backboardd deadlock in the simulator, so test.yml
+          # skips it on pull requests and only runs it on pushes to main and release branches.
+          # See the visionOS 27 comment in test.yml for details.
+          - name: visionOS 27 Sentry
+            runs-on: tahoe-xl
+            xcode: "27"
+            platform: "visionOS"
+            timeout: 60
+
   slack-notification:
     name: Slack Notification
     needs: [unit-tests]

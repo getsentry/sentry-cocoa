@@ -111,13 +111,15 @@ NS_ASSUME_NONNULL_BEGIN
 #endif // SDK_V10
 @property (nonatomic) BOOL enableCrashHandler;
 
+#if SDK_V10
 /**
- * Enables more reliable reporting of unhandled C++ exceptions by hooking all instances of
- * @c __cxa_throw, regardless of how C++ modules are linked.
- * @note Disabled by default because hooking @c __cxa_throw can cause symbolication issues on
- * iOS due to caching of symbol references.
+ * Captures C++ exception stack traces at the throw site by hooking @c __cxa_throw.
+ * When @c NO, unhandled C++ exceptions are still captured through @c std::terminate when crash
+ * handling is enabled, but their stacks may not identify the original throw site.
+ * @note Defaults to @c NO to preserve the existing capture mode.
  */
 @property (nonatomic) BOOL enableUnhandledCPPExceptionsV2;
+#endif // SDK_V10
 
 /**
  * When enabled, the SDK introspects memory contents during a crash.

@@ -218,6 +218,8 @@ run_auto_update_tools_for_prs: &run_auto_update_tools_for_prs
   - "scripts/.clang-format-version"
   - "scripts/.swiftlint-version"
   - "scripts/.xcodegen-version"
+  - "linters/SwiftLintCustomRules/MODULE.bazel"
+  - "linters/SwiftLintCustomRules/MODULE.bazel.lock"
 
   # Scripts
   - "scripts/check-tooling-versions.sh"
@@ -725,6 +727,9 @@ run_lint_swiftlint_for_prs: &run_lint_swiftlint_for_prs
   - ".github/actions/setup-xcode/**"
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
+
+  # Custom SwiftLint extra rules (Bazel)
+  - "linters/SwiftLintCustomRules/**"
 
   # Project files
   - "Sentry.xcodeproj/**"
