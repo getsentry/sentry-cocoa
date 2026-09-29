@@ -136,7 +136,7 @@
     /// This approach hooks into all instances of the `__cxa_throw` function, which provides a more comprehensive and consistent exception handling across an app’s runtime, regardless of the number of C++ modules or how they’re linked. It helps in obtaining accurate stack traces.
     ///
     /// - Note: The mechanism of hooking into `__cxa_throw` could cause issues with symbolication on iOS due to caching of symbol references.
-    /// - Note: Disabled by default in both v9 and v10 because of the potential symbolication issues.
+    /// - Note: Disabled by default because of the potential symbolication issues.
     @objc public var enableUnhandledCPPExceptionsV2: Bool {
         get { experimental.unhandledCPPExceptionsV2Enabled }
         set { experimental.unhandledCPPExceptionsV2Enabled = newValue }
@@ -658,7 +658,7 @@
     static let defaultAppHangTimeoutInterval: TimeInterval = 2.0
 
     /// The minimum amount of time the app must be unresponsive before the SDK considers it hung.
-    /// In v10, the SDK still uses this threshold internally to classify watchdog terminations.
+    /// The SDK also uses this threshold to classify watchdog terminations.
     /// @note The actual amount may be a little longer.
     /// @note Avoid using values lower than 100ms, which may cause false-positive hang detection.
     /// @note The value needs to be greater than @c 0. When setting a value of @c 0 or lower, the SDK
@@ -736,6 +736,7 @@
 
     #if canImport(MetricKit) && !os(tvOS)
 
+    #if SDK_V10
     /// Use this feature to enable the Sentry MetricKit integration.
     ///
     /// @brief When enabled, the SDK sends @c MXDiskWriteExceptionDiagnostic, @c MXCPUExceptionDiagnostic
@@ -743,14 +744,19 @@
     /// @c MXHangDiagnostic to Sentry. The SDK supports this feature from iOS 15 and later and macOS 12
     /// and later because, on these versions, @c MetricKit delivers diagnostic reports immediately, which
     /// allows the Sentry SDK to apply the current data from the scope.
-    /// @note Default value is @c true in v10, @c false in earlier versions.
-    @objc public var enableMetricKit: Bool = {
-        #if SDK_V10
-        return true
-        #else
-        return false
-        #endif // SDK_V10
-    }()
+    /// @note Default value is @c true.
+    @objc public var enableMetricKit: Bool = true
+    #else
+    /// Use this feature to enable the Sentry MetricKit integration.
+    ///
+    /// @brief When enabled, the SDK sends @c MXDiskWriteExceptionDiagnostic, @c MXCPUExceptionDiagnostic
+    /// and
+    /// @c MXHangDiagnostic to Sentry. The SDK supports this feature from iOS 15 and later and macOS 12
+    /// and later because, on these versions, @c MetricKit delivers diagnostic reports immediately, which
+    /// allows the Sentry SDK to apply the current data from the scope.
+    /// @note Default value is @c false.
+    @objc public var enableMetricKit: Bool = false
+    #endif // SDK_V10
 
     /// When enabled, the SDK adds the raw MXDiagnosticPayloads as an attachment to the converted
     /// SentryEvent. You need to enable @c enableMetricKit for this flag to work.
