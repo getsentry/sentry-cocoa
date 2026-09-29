@@ -78,24 +78,14 @@ init-local:
 # Installs tools needed for CI build tasks using Brewfile-ci-build.
 .PHONY: init-ci-build
 init-ci-build:
-# Temporarily remove applesimutils and wix-incubator/brew as they aren't homebrew 7 compatible
-# and bitrise installs them on their stacks...
-	brew uninstall applesimutils || true
-	brew untap wix-incubator/brew || true
-	brew update
-	brew bundle --file Brewfile-ci-build
+	brew update && brew bundle --file Brewfile-ci-build
 
 ## Install CI format dependencies
 #
 # Installs tools needed to run CI format tasks locally using Brewfile-ci-format.
 .PHONY: init-ci-format
 init-ci-format:
-# Temporarily remove applesimutils and wix-incubator/brew as they aren't homebrew 7 compatible
-# and bitrise installs them on their stacks...
-	brew uninstall applesimutils || true
-	brew untap wix-incubator/brew || true
-	brew update
-	brew bundle --file Brewfile-ci-format
+	brew update && brew bundle --file Brewfile-ci-format
 
 ## Update tooling versions
 #
@@ -637,6 +627,26 @@ build-xcframework-sentryobjc-dynamic:
 	./scripts/build-xcframework-sentryobjc.sh --sdks "$(SDKS)" --variant dynamic
 	./scripts/validate-xcframework.sh --xcframework "SentryObjC-Dynamic.xcframework"
 	./scripts/compress-xcframework.sh --xcframework "SentryObjC-Dynamic.xcframework"
+
+## Build V10 SentryObjC XCFrameworks locally for debugging downstream SDKs
+#
+# Builds SentryObjC with SDK_V10=1, which embeds KSCrash, and packages headers
+# with every SDK_V10 gate resolved. Not a release artifact. Output lands in
+# SentryObjC-Static.xcframework and SentryObjC-Dynamic.xcframework, replacing
+# any V9 output.
+#
+# SDKS is a comma-separated list of SDK names. Defaults to all SDKS.
+#
+# Examples:
+#   make build-xcframework-sentryobjc-v10 SDKS=iphonesimulator
+#   make build-xcframework-sentryobjc-v10 SDKS=iphoneos,iphonesimulator,macosx
+.PHONY: build-xcframework-sentryobjc-v10
+build-xcframework-sentryobjc-v10:
+	@echo "--> Creating V10 SentryObjC xcframeworks (SDKs: $(SDKS))"
+	./scripts/build-xcframework-sentryobjc.sh --sdks "$(SDKS)" --variant both --v10 \
+		--output-dir XCFrameworkBuildPath/V10
+	./scripts/validate-xcframework.sh --xcframework "SentryObjC-Static.xcframework"
+	./scripts/validate-xcframework.sh --xcframework "SentryObjC-Dynamic.xcframework"
 
 ## Build V10 Dynamic XCFramework
 #
@@ -1573,10 +1583,12 @@ test-testapp-iOS-ObjectiveC-ui: xcode-ci-iOS-ObjectiveC
 .PHONY: test-testapp-macOS-Swift-ui
 test-testapp-macOS-Swift-ui: xcode-ci-macOS-Swift
 	@echo "--> Running macOS-Swift UI tests"
+	rm -rf macos-swift-ui-results.xcresult
 	set -o pipefail && xcodebuild test \
 		-workspace Sentry.xcworkspace \
 		-scheme macOS-Swift \
 		-testPlan macOS-Swift_Base \
+		-resultBundlePath macos-swift-ui-results.xcresult \
 		CODE_SIGNING_ALLOWED="YES" \
 		CODE_SIGNING_REQUIRED="YES" \
 		CODE_SIGN_STYLE="Manual" \

@@ -62,6 +62,11 @@ import Foundation
         set { wrapped.enableCrashHandler = newValue }
     }
 
+    @objc public var enableUnhandledCPPExceptionsV2: Bool {
+        get { wrapped.enableUnhandledCPPExceptionsV2 }
+        set { wrapped.enableUnhandledCPPExceptionsV2 = newValue }
+    }
+
     @objc public var enableMemoryIntrospection: Bool {
         get { wrapped.enableMemoryIntrospection }
         set { wrapped.enableMemoryIntrospection = newValue }
@@ -138,11 +143,11 @@ import Foundation
     private var _beforeSendWithHint: ((SentryObjCEvent, SentryObjCHint) -> SentryObjCEvent?)?
 
     #if SDK_V10
-    @objc public var beforeSendTransaction: ((SentryObjCTransaction) -> SentryObjCTransaction?)? {
+    @objc public var beforeSendTransaction: ((SentryObjCTransaction, SentryObjCHint) -> SentryObjCTransaction?)? {
         didSet {
             if let beforeSendTransaction = beforeSendTransaction {
-                wrapped.beforeSendTransaction = { transaction in
-                    guard let result = beforeSendTransaction(SentryObjCTransaction(transaction)) else {
+                wrapped.beforeSendTransaction = { transaction, hint in
+                    guard let result = beforeSendTransaction(SentryObjCTransaction(transaction), SentryObjCHint(hint)) else {
                         return nil
                     }
                     return result.wrappedTransaction
@@ -635,9 +640,11 @@ import Foundation
         set { wrapped.experimental = newValue.wrapped }
     }
 
+    #if !SDK_V10
     @objc public var enableMetrics: Bool {
         get { wrapped.enableMetrics }
         set { wrapped.enableMetrics = newValue }
     }
+    #endif // !SDK_V10
 }
 // swiftlint:enable file_length missing_docs type_body_length

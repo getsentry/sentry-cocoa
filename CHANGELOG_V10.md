@@ -20,6 +20,7 @@
 - Attach crash screenshots via KSCrash sidecar in `SentryV10` (#8986)
 - Attach crash view hierarchy via KSCrash sidecar in `SentryV10` (#9018)
 - Write session replay recovery checkpoints from KSCrash in `SentryV10` (#9038)
+- Add a `Hint` parameter to `beforeSendTransaction` to inspect and edit the attachments sent with a transaction (#9099)
 - Persist the active transaction when crashing in `SentryV10` (#8735)
 
 ### Breaking Changes
@@ -41,9 +42,18 @@
   - Remove the `pauseAppHangTracking` and `resumeAppHangTracking` APIs
   - Remove the `enableWatchdogTerminationsV2` option; watchdog termination tracking always uses the run-loop-based tracker
 - Remove `enableSigtermReporting`; KSCrash treats `SIGTERM` as a clean exit and never reports it as a crash (#9019)
+- Enable `enableFileManagerSwizzling` by default (#9134)
+- Remove the legacy `enableMetrics` option. Metrics remain available without an enable flag, and `beforeSendMetric` can still modify or drop metrics (#9134)
 
 ### Fixes
 
+- Migrate managed-runtime signal handling and SDK-close report-persistence lifecycle to `SentryV10` (#9051)
+  - Use a SDK-side Signal plugin and disable KSCrash's Mach monitor so managed faults reach the runtime first and don't report as native crashes.
+  - Keep per-thread, one-shot signal suppression for hybrid SDKs.
+  - Keep process-lifetime handlers installed while suppressing report persistence after close and reactivating it on restart.
+  - Restore predecessor handlers when signal installation is interrupted or fails.
+  - Keep alternate stacks and safely clean up early installation failures.
+  - Validate and publish crash callbacks once, without replacing callbacks used by an active handler.
 - Compile only explicitly allowlisted shared SentryCrash tools in V10
 - Restore foreground app-hang detection and debugger-aware behavior in V10
 - Disambiguate V9 and V10 target dependencies in Xcode builds
@@ -58,3 +68,4 @@
 - Restore macOS AppKit NSException forwarding in `SentryV10` (#8874)
 - Honor `swiftAsyncStacktraces` in `SentryV10` with KSCrash (#8856)
 - Populate `beforeSendTransaction` trace context from the transaction's own tracer, preserving its `op`, trace IDs, and status when the scope span is cleared or replaced. V9 `beforeSend` behavior is unchanged (#9040)
+- Seed extras, tags, user, context, breadcrumbs, and other nested scope fields into KSCrash crash reports at install time, instead of relying on KSCrash user info scalars

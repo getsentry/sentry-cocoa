@@ -103,6 +103,12 @@ final class IOSPlatformRunner {
 
         let cacheRoot = container.appendingPathComponent("Library/Caches", isDirectory: true)
         try assertCrashLaunchArtifacts(for: scenario, cacheRoot: cacheRoot)
+        try StoredCrashReports.copyUndrained(
+            from: cacheRoot,
+            platform: "ios",
+            scenario: scenario,
+            artifactsDir: config.artifactsDir
+        )
         try drainPreviousCrash(for: scenario)
         try ScenarioEventAsserter.assertScenarioEvent(
             scenario,

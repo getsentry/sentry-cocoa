@@ -1,6 +1,28 @@
 # Changelog
 
-## Unreleased
+## 9.29.2
+
+### Fixes
+
+- Stop sending scope attachments with crashes and other fatal events captured from a previous app run, because those attachments belong to the current run. Use `beforeSendWithHint` to attach files to fatal events (#9153)
+- Prevent an `isMetricKitEvent` unrecognized selector crash when statically linking the SDK without `-ObjC`, including when MetricKit is disabled (#9155)
+
+## 9.29.1
+
+> [!CAUTION]
+> **Known issue:** This release can crash apps statically linking the SDK without `-ObjC` with `-[SentryEvent isMetricKitEvent]: unrecognized selector`, even when MetricKit is disabled. Add `-ObjC` to the app target's linker flags, preserving `$(inherited)`, or pin to **9.29.0** until a fix is released. See [#9154](https://github.com/getsentry/sentry-cocoa/issues/9154).
+
+### Features
+
+- Promote the following options to stable, supported configuration without changing their defaults (#9134):
+  - `enableUnhandledCPPExceptionsV2`: now available directly on `Options`, disabled by default because hooking `__cxa_throw` can cause symbolication issues on iOS. `experimental.enableUnhandledCPPExceptionsV2` remains a deprecated alias, with a rename annotation, until the next minor release.
+  - `enablePersistingTracesWhenCrashing`: remains disabled by default
+  - `attachViewHierarchy`: remains disabled by default.
+  - `enableTimeToFullDisplayTracing`: remains disabled by default because applications must explicitly call `SentrySDK.reportFullyDisplayed()`.
+  - `swiftAsyncStacktraces`: disabled by default
+  - `enableGraphQLOperationTracking`: disabled by default
+  - `enableFileManagerSwizzling`: disabled by default
+- Support `enableUnhandledCPPExceptionsV2` and `enableFileManagerSwizzling` in dictionary-based options initialization (#9134).
 
 ### Features
 
@@ -14,6 +36,8 @@
 - Retain raw MetricKit diagnostic attachments when call-stack decoding fails and `enableMetricKitRawPayload` is enabled, without attaching unrelated current-thread stack traces (#9070)
 - Prevent duplicate HTTP spans and breadcrumbs when watchOS resumes an internal URLSession task copy after the original request finishes (#9095)
 - Remove the compiler deprecation warning for `enableAppHangTracking` so applications can continue opting out of App Hang tracking until its removal in v10 (#9094)
+- Reset `appHangTimeoutInterval` values of 0 or lower to the default of 2 seconds, which previously spun the app hang tracker thread in a busy loop (#9020)
+- Release App Hang tracking listener wrappers when listeners are removed (#9127)
 
 ## 9.29.0
 
@@ -32,7 +56,6 @@
 ### Deprecations
 
 - Deprecate legacy App Hang tracking because it can produce less relevant stack traces and false positives. Enable the MetricKit integration for system-provided hang diagnostics by setting `options.enableMetricKit = true`. The `appHangTimeoutInterval` option remains supported for watchdog termination classification. (#8944)
-- Reset `appHangTimeoutInterval` values of 0 or lower to the default of 2 seconds, which previously spun the app hang tracker thread in a busy loop (#9020)
 
 ## 9.28.0
 

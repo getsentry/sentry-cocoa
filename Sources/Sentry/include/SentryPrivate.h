@@ -17,6 +17,7 @@
 #import "SentryHub+Private.h"
 #import "SentryHub+SwiftPrivate.h"
 #if SDK_V10
+#    import "SentryKSCrashManagedSignal.h"
 #    import "SentryKSCrashReportWriterCallbacks.h"
 #endif // SDK_V10
 #import "SentryNSDataSwizzlingHelper.h"
@@ -38,10 +39,6 @@
 
 // Headers that also import SentryDefines should be at the end of this list
 // otherwise it wont compile
-#if !SDK_V10
-#    import "SentryANRTrackerV1.h"
-#    import "SentryANRTrackerV2.h"
-#endif
 #import "SentryAppStartMeasurement+Private.h"
 #import "SentryAppStartMeasurementProvider.h"
 #import "SentryAppStartTrackerHelper.h"
@@ -76,7 +73,6 @@
 #import "SentryMsgPackSerializer.h"
 #import "SentryNSDataSwizzlingHelper.h"
 #import "SentryNSFileManagerSwizzlingHelper.h"
-#import "SentryPerformanceTracker.h"
 #import "SentryProfileCollector.h"
 #import "SentryProfiledTracerConcurrency.h"
 #import "SentryProfiler+Private.h"

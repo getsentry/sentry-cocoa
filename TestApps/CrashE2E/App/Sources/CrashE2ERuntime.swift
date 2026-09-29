@@ -21,7 +21,13 @@ enum CrashE2EScenario: String {
     case binaryImages = "binary-images"
     case ignoredSignal = "ignored-signal"
     case sigterm
+    case closedSignal = "closed-signal"
+    case reinitSignal = "reinit-signal"
+    case closedNSException = "closed-ns-exception"
     case managedRuntimeSignalChain = "managed-runtime-signal-chain"
+    case managedRuntimeHandledSignal = "managed-runtime-handled-signal"
+    case managedRuntimeIgnoreNextSignalSwift = "managed-runtime-ignore-next-signal-swift"
+    case managedRuntimeIgnoreNextSignalObjC = "managed-runtime-ignore-next-signal-objc"
     case managedRuntimePreSDKSignal = "managed-runtime-pre-sdk-signal"
     case managedRuntimeClosedSignal = "managed-runtime-closed-signal"
     case managedRuntimeReinitSignal = "managed-runtime-reinit-signal"
@@ -101,7 +107,7 @@ enum CrashE2ERuntime {
         loadBinaryImageBeforeSDKIfNeeded()
         startConfiguredSDK()
         writeLastRunMarkerIfNeeded()
-        CrashE2EScopePopulation.populateIfNeeded()
+        CrashE2EScopePopulation.populateLiveIfNeeded()
         logCrashTimeHooksIfNeeded()
         NSLog("CrashE2E - SDK started")
     }
@@ -125,9 +131,12 @@ enum CrashE2ERuntime {
         case .signal, .nsException, .nsExceptionRethrow, .nsExceptionSubclass, .cppExceptionV1,
              .cppExceptionV2, .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2,
              .objcObject, .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal,
-             .managedRuntimeSignalChain, .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
-             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA,
-             .ksCrashRetryReportB, .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments,
+             .closedSignal, .reinitSignal, .closedNSException, .managedRuntimeSignalChain,
+             .managedRuntimeHandledSignal, .managedRuntimeIgnoreNextSignalSwift,
+             .managedRuntimeIgnoreNextSignalObjC, .managedRuntimeClosedSignal,
+             .managedRuntimeReinitSignal, .swiftAsyncCPPExceptionV2Off,
+             .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA, .ksCrashRetryReportB,
+             .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments,
              .crashTimeReplay, .crashTimeReplayAttachmentCrash,
              .memoryIntrospectionEnabled, .memoryIntrospectionDisabled, .memoryIntrospectionDefault:
             NSLog("CrashE2E - will trigger scenario: \(configuration.scenario.rawValue)")
@@ -154,9 +163,12 @@ enum CrashE2ERuntime {
         case .signal, .nsException, .nsExceptionRethrow, .nsExceptionSubclass, .cppExceptionV1,
              .cppExceptionV2, .cppExceptionV2DynamicImage, .unityCxaThrow, .unityCxaThrowV2,
              .objcObject, .objcObjectAfterCaughtCPP, .binaryImages, .ignoredSignal,
-             .managedRuntimeSignalChain, .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
-             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA,
-             .ksCrashRetryReportB, .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments,
+             .closedSignal, .reinitSignal, .closedNSException, .managedRuntimeSignalChain,
+             .managedRuntimeHandledSignal, .managedRuntimeIgnoreNextSignalSwift,
+             .managedRuntimeIgnoreNextSignalObjC, .managedRuntimeClosedSignal,
+             .managedRuntimeReinitSignal, .swiftAsyncCPPExceptionV2Off,
+             .swiftAsyncCPPExceptionV2On, .ksCrashRetryReportA, .ksCrashRetryReportB,
+             .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments,
              .crashTimeReplay, .crashTimeReplayAttachmentCrash,
              .memoryIntrospectionEnabled, .memoryIntrospectionDisabled, .memoryIntrospectionDefault:
             NSLog("CrashE2E - will trigger scenario synchronously: \(configuration.scenario.rawValue)")
@@ -170,7 +182,7 @@ enum CrashE2ERuntime {
         NSLog("CrashE2E - closing and restarting SDK")
         SentrySDK.close()
         startConfiguredSDK()
-        CrashE2EScopePopulation.populateIfNeeded()
+        CrashE2EScopePopulation.populateLiveIfNeeded()
         logCrashTimeHooksIfNeeded()
         NSLog("CrashE2E - SDK restarted")
     }
@@ -192,6 +204,10 @@ enum CrashE2ERuntime {
             if configuration.scenario == .crashTimeScope {
                 options.environment = "crash-e2e-environment"
                 options.dist = "crash-e2e-dist"
+                options.initialScope = { scope in
+                    CrashE2EScopePopulation.applyInitial(to: scope)
+                    return scope
+                }
             }
 
             // Keep cpp-exception-v1 in the public option-off configuration for both reporters.
@@ -205,7 +221,7 @@ enum CrashE2ERuntime {
                 || configuration.scenario == .objcObjectAfterCaughtCPP
                 || configuration.scenario == .swiftAsyncCPPExceptionV2Off
                 || configuration.scenario == .swiftAsyncCPPExceptionV2On {
-                options.experimental.enableUnhandledCPPExceptionsV2 = true
+                options.enableUnhandledCPPExceptionsV2 = true
             }
 
             if configuration.scenario == .swiftAsyncCPPExceptionV2Off {
@@ -272,7 +288,11 @@ enum CrashE2ERuntime {
 
     private static func installFakeManagedRuntimeHandlerIfNeeded() {
         switch configuration.scenario {
-        case .managedRuntimeSignalChain, .managedRuntimeClosedSignal, .managedRuntimeReinitSignal:
+        case .managedRuntimeHandledSignal:
+            installFakeManagedRuntimeHandler(forwardSignal: false)
+        case .managedRuntimeSignalChain, .managedRuntimeIgnoreNextSignalSwift,
+             .managedRuntimeIgnoreNextSignalObjC, .managedRuntimeClosedSignal,
+             .managedRuntimeReinitSignal:
             installFakeManagedRuntimeHandler()
         default:
             return
@@ -357,12 +377,14 @@ enum CrashE2ERuntime {
         try cacheMarkerURL(named: "crash-e2e-binary-images.json")
     }
 
-    private static func installFakeManagedRuntimeHandler() {
+    private static func installFakeManagedRuntimeHandler(forwardSignal: Bool = true) {
         guard let markerPath = configuration.managedHandlerMarkerPath else {
             NSLog("CrashE2E - missing managed runtime handler marker path")
             Darwin.abort()
         }
-        markerPath.withCString { CrashE2EInstallFakeManagedRuntimeSignalHandler($0) }
+        markerPath.withCString {
+            CrashE2EInstallFakeManagedRuntimeSignalHandler($0, forwardSignal ? 1 : 0)
+        }
     }
 
     private static func abortBecausePreSDKScenarioReturned() -> Never {

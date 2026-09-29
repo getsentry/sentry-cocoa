@@ -48,7 +48,28 @@ extension SentryKSCrash.Scope {
                 userInfo.removeValue(forKey: "attributes")
                 installer.setUserInfo(userInfo)
 
-                outerScope.add(observer)
+                // add(_:) only observes later mutations. Seed current nested fields
+                // into SentryScopeSyncC because KSCrash userInfo only stores scalars.
+                observer.setUser(outerScope.userObject)
+                observer.setTags(outerScope.tags)
+                observer.setExtras(outerScope.extras())
+                observer.setContext(outerScope.context())
+                observer.setEnvironment(outerScope.environmentString)
+                observer.setDist(outerScope.distString)
+                observer.setFingerprint(outerScope.fingerprints())
+                observer.setLevel(outerScope.levelEnum)
+                if let traceContext = userInfo["traceContext"] as? [String: Any] {
+                    observer.setTraceContext(traceContext)
+                }
+
+                // Hold the breadcrumb lock across replay + subscribe so a concurrent
+                // addBreadcrumb cannot land ahead of history or be dropped.
+                outerScope.performWithBreadcrumbsLocked {
+                    for breadcrumb in outerScope.breadcrumbs() {
+                        self.observer.addSerializedBreadcrumb(breadcrumb.serialize())
+                    }
+                    outerScope.add(self.observer)
+                }
             }
         }
 

@@ -1,6 +1,10 @@
 #import "SentryTestStateWrapper.h"
 
-#import "SentryPerformanceTracker.h"
+#if __has_include("SentryPerformanceTracker.h")
+#    import "SentryPerformanceTracker.h"
+#else
+#    import "SentrySwift.h"
+#endif
 #import "SentryProfilingConditionals.h"
 #import "SentrySDKInternal.h"
 

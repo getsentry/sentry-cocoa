@@ -28,10 +28,6 @@
 #import "NSData+Unzip.h"
 #import "NSMutableDictionary+Sentry.h"
 #import "Sentry/Sentry-Swift.h"
-#if !SDK_V10
-#    import "SentryANRTrackerV1.h"
-#    import "SentryANRTrackerV2.h"
-#endif
 #import "SentryAppStartMeasurement+Private.h"
 #import "SentryAppStartMeasurementProvider.h"
 #import "SentryAttachment+Private.h"
@@ -97,7 +93,9 @@
 #import "SentryNSURLSessionTaskSearch.h"
 #import "SentryNoOpSpan.h"
 #import "SentryPerformanceTracker+Testing.h"
-#import "SentryPerformanceTracker.h"
+#if __has_include("SentryPerformanceTracker.h")
+#    import "SentryPerformanceTracker.h"
+#endif
 #import "SentryProfilingConditionals.h"
 #import "SentryQueueableRequestManager.h"
 #import "SentrySDK+Private.h"
