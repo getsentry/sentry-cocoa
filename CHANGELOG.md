@@ -18,6 +18,7 @@
 ### Fixes
 
 - Keep standalone `@objc` extensions in static builds by adding referenced dummy `NSObject` subclasses, and lint for this with a SwiftSyntax SwiftLint extra rule (#9160)
+- Send envelopes captured during a connectivity-triggered cache drain without waiting for another trigger (#9171)
 
 ## 9.29.2
 
