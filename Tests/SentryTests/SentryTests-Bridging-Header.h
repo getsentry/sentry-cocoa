@@ -21,7 +21,7 @@
 
 @import _SentryPrivate;
 
-#import "Helper/ExceptionCatcher.h"
+#import "ExceptionCatcher.h"
 #import "NSData+Unzip.h"
 #import "NSMutableDictionary+Sentry.h"
 #import "Sentry/Sentry-Swift.h"

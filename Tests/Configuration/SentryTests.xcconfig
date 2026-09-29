@@ -15,3 +15,5 @@ ALWAYS_SEARCH_USER_PATHS = NO
 CLANG_ENABLE_OBJC_ARC = YES
 CLANG_ENABLE_MODULES = YES
 OTHER_CFLAGS = -Wall -Wextra
+// Test equality categories now live in the static test-utils library.
+OTHER_LDFLAGS = $(inherited) -ObjC

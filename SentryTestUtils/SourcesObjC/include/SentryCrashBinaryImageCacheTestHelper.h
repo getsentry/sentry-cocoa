@@ -1,17 +1,21 @@
 #ifndef SentryCrashBinaryImageCacheTestHelper_h
 #define SentryCrashBinaryImageCacheTestHelper_h
 
-#include "SentryCrashBinaryImageCache+Test.h"
+#if !SDK_V10
 
-#ifdef __cplusplus
+#    include "SentryCrashBinaryImageCache+Test.h"
+
+#    ifdef __cplusplus
 extern "C" {
-#endif
+#    endif
 
 void sentrycrashbic_useFreshTestCacheState(void);
 void sentrycrashbic_useDefaultCacheState(void);
 
-#ifdef __cplusplus
+#    ifdef __cplusplus
 }
-#endif
+#    endif
+
+#endif // !SDK_V10
 
 #endif /* SentryCrashBinaryImageCacheTestHelper_h */
