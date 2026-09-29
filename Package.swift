@@ -299,7 +299,12 @@ targets += [
         dependencies: ["SentryObjCInternal", "SentrySwift", "_SentryPrivate", "SentryHeaders", "SentryTestUtilsObjCpp"],
         path: "SentryTestUtils/SourcesObjC",
         publicHeadersPath: "include",
-        cSettings: v10CSettings
+        cSettings: [.headerSearchPath(".")] + v10CSettings,
+        linkerSettings: [
+            .linkedLibrary("z"),
+            // Equality categories have no referenced symbols to pull them out of a static archive.
+            .unsafeFlags(["-Xlinker", "-ObjC"])
+        ]
     ),
     .target(
         name: "SentryTestUtilsObjCpp",

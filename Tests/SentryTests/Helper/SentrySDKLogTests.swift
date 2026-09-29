@@ -1,6 +1,7 @@
 @_spi(Private) import SentryTestUtils
 #if SWIFT_PACKAGE
 @_spi(Private) @testable import SentrySwift
+import SentryTestUtilsObjC
 #else
 @_spi(Private) @testable import Sentry
 #endif
@@ -94,7 +95,7 @@ class SentrySDKLogTests: XCTestCase {
         
         sentryLogErrorWithMacro("error")
         
-        XCTAssertEqual(["[Sentry] [error] [\(timeIntervalSince1970)] [SentryLogTestHelper:20] error"], logOutput.loggedMessages)
+        XCTAssertEqual(["[Sentry] [error] [\(timeIntervalSince1970)] [SentryLogTestHelper:21] error"], logOutput.loggedMessages)
     }
     
     func testMacroDoesNotEvaluateArgs_WhenNotMessageNotLogged() {

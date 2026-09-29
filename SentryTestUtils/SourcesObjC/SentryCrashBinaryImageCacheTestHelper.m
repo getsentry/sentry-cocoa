@@ -1,7 +1,8 @@
 #import "SentryCrashBinaryImageCacheTestHelper.h"
-#import "SentryCrashBinaryImageCacheState.h"
+#if !SDK_V10
+#    import "SentryCrashBinaryImageCacheState.h"
 
-#include <string.h>
+#    include <string.h>
 
 static SentryCrashBinaryImageCacheState test_cache_state;
 
@@ -25,3 +26,5 @@ sentrycrashbic_useDefaultCacheState(void)
 {
     sentrycrashbic_setActiveCacheState(NULL);
 }
+
+#endif

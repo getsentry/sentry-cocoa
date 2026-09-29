@@ -334,8 +334,14 @@ targets += [
         path: "SentryTestUtils/SourcesObjC",
         publicHeadersPath: "include",
         cSettings: [
+            .headerSearchPath("."),
             .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
-        ] + v10CSettings
+        ] + v10CSettings,
+        linkerSettings: [
+            .linkedLibrary("z"),
+            // Equality categories have no referenced symbols to pull them out of a static archive.
+            .unsafeFlags(["-Xlinker", "-ObjC"])
+        ]
     ),
     .target(
         name: "SentryTestUtilsObjCpp",

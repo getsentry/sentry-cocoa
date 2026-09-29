@@ -1,9 +1,10 @@
 #if SWIFT_PACKAGE
 @_spi(Private) @testable import SentrySwift
+import SentryTestUtilsObjC
 #else
 @_spi(Private) import Sentry
 #endif
-import SentryTestUtils
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 class SentryCrashScopeObserverTests: XCTestCase {
