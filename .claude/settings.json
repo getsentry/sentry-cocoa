@@ -136,18 +136,7 @@
       "mcp__sentry__analyze_issue_with_seer",
       "mcp__sentry__search_docs",
       "mcp__sentry__get_doc",
-      "mcp__sentry__find_releases",
-      "mcp__XcodeBuildMCP__session_show_defaults",
-      "mcp__XcodeBuildMCP__session_set_defaults",
-      "mcp__XcodeBuildMCP__session_clear_defaults",
-      "mcp__XcodeBuildMCP__list_sims",
-      "mcp__XcodeBuildMCP__list_schemes",
-      "mcp__XcodeBuildMCP__show_build_settings",
-      "mcp__XcodeBuildMCP__discover_projs",
-      "mcp__XcodeBuildMCP__screenshot",
-      "mcp__XcodeBuildMCP__snapshot_ui",
-      "mcp__XcodeBuildMCP__get_sim_app_path",
-      "mcp__XcodeBuildMCP__get_app_bundle_id"
+      "mcp__sentry__find_releases"
     ],
     "deny": []
   }

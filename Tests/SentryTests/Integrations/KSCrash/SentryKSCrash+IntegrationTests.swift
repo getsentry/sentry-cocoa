@@ -29,6 +29,7 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         try super.setUpWithError()
         SentrySDKInternal.fatalDetected = false
         sentrykscrash_setSaveTransaction(nil)
+        sentrykscrash_setReportPersistenceEnabled(false)
         cacheDirectoryPath = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString)
             .path
@@ -37,6 +38,7 @@ class SentryKSCrashIntegrationTests: XCTestCase {
     override func tearDownWithError() throws {
         SentrySDKInternal.fatalDetected = false
         sentrykscrash_setSaveTransaction(nil)
+        sentrykscrash_setReportPersistenceEnabled(false)
         if FileManager.default.fileExists(atPath: cacheDirectoryPath) {
             try FileManager.default.removeItem(atPath: cacheDirectoryPath)
         }
@@ -48,6 +50,83 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         options.enableCrashHandler = enableCrashHandler
         options.cacheDirectoryPath = cacheDirectoryPath
         return options
+    }
+
+    func testInstallCrashHandler_whenHandlersCanRun_shouldEnablePersistence() throws {
+        // -- Arrange --
+        var persistenceEnabledWhenHandlersCanRun = false
+
+        // -- Act --
+        try SentryKSCrash.Installer.installCrashHandler {
+            persistenceEnabledWhenHandlersCanRun = sentrykscrash_isReportPersistenceEnabled()
+        }
+
+        // -- Assert --
+        XCTAssertTrue(persistenceEnabledWhenHandlersCanRun)
+        XCTAssertTrue(sentrykscrash_isReportPersistenceEnabled())
+    }
+
+    func testInstallCrashHandler_whenInstallationFails_shouldDisablePersistence() {
+        // -- Arrange --
+        let expectedError = NSError(domain: "TestKSCrash", code: -1)
+        var persistenceEnabledWhenHandlersCanRun = false
+
+        // -- Act --
+        XCTAssertThrowsError(
+            try SentryKSCrash.Installer.installCrashHandler {
+                persistenceEnabledWhenHandlersCanRun = sentrykscrash_isReportPersistenceEnabled()
+                throw expectedError
+            }
+        ) { actualError in
+            XCTAssertEqual((actualError as NSError).domain, expectedError.domain)
+            XCTAssertEqual((actualError as NSError).code, expectedError.code)
+        }
+
+        // -- Assert --
+        XCTAssertTrue(persistenceEnabledWhenHandlersCanRun)
+        XCTAssertFalse(sentrykscrash_isReportPersistenceEnabled())
+    }
+
+    func testInstallCrashHandler_whenKSCrashIsAlreadyInstalled_shouldKeepPersistenceEnabled() throws {
+        // -- Arrange --
+        let alreadyInstalledError = NSError(domain: "KSCrashErrorDomain", code: 1)
+
+        // -- Act --
+        try SentryKSCrash.Installer.installCrashHandler {
+            throw alreadyInstalledError
+        }
+
+        // -- Assert --
+        XCTAssertTrue(sentrykscrash_isReportPersistenceEnabled())
+    }
+
+    func testConfiguredMonitors_whenManagedRuntimeBuild_shouldDisableMachAndBuiltInSignal() {
+        // -- Arrange --
+        let requested = SentryKSCrash.productionSafeMonitors
+        let expected = requested.subtracting([.machException, .signal])
+
+        // -- Act --
+        let actual = SentryKSCrash.Installer.configuredMonitors(
+            requested,
+            managedRuntimeBuild: true
+        )
+
+        // -- Assert --
+        XCTAssertEqual(actual, expected)
+    }
+
+    func testConfiguredMonitors_whenOrdinaryBuild_shouldPreserveRequestedMonitors() {
+        // -- Arrange --
+        let requested = SentryKSCrash.productionSafeMonitors
+
+        // -- Act --
+        let actual = SentryKSCrash.Installer.configuredMonitors(
+            requested,
+            managedRuntimeBuild: false
+        )
+
+        // -- Assert --
+        XCTAssertEqual(actual, requested)
     }
 
     func testInstall_whenCrashHandlerEnabled_shouldSendReportsWithoutDispatchingInstaller() throws {

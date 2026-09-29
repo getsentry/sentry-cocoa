@@ -25824,6 +25824,79 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry7OptionsC30enableUnhandledCPPExceptionsV2Sbvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)enableUnhandledCPPExceptionsV2"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry7OptionsC30enableUnhandledCPPExceptionsV2Sbvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "objc_name": "setEnableUnhandledCPPExceptionsV2:",
+                "printedName": "Set()",
+                "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setEnableUnhandledCPPExceptionsV2:"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "kind": "Var",
+            "mangledName": "$s6Sentry7OptionsC30enableUnhandledCPPExceptionsV2Sbvp",
+            "moduleName": "Sentry",
+            "name": "enableUnhandledCPPExceptionsV2",
+            "printedName": "enableUnhandledCPPExceptionsV2",
+            "usr": "c:@M@Sentry@objc(cs)SentryOptions(py)enableUnhandledCPPExceptionsV2"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry7OptionsC28enableUserInteractionTracingSbvg",
@@ -38036,7 +38109,6 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A19ExperimentalOptionsC30enableUnhandledCPPExceptionsV2Sbvg",
                 "moduleName": "Sentry",
@@ -38064,11 +38136,11 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A19ExperimentalOptionsC30enableUnhandledCPPExceptionsV2Sbvs",
                 "moduleName": "Sentry",
                 "name": "Set",
+                "objc_name": "setEnableUnhandledCPPExceptionsV2:",
                 "printedName": "Set()",
                 "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(im)setEnableUnhandledCPPExceptionsV2:"
               }
@@ -38082,12 +38154,12 @@
               }
             ],
             "declAttributes": [
+              "Available",
               "Final",
-              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "hasStorage": true,
+            "deprecated": true,
             "kind": "Var",
             "mangledName": "$s6Sentry0A19ExperimentalOptionsC30enableUnhandledCPPExceptionsV2Sbvp",
             "moduleName": "Sentry",

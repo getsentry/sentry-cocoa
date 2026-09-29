@@ -3,15 +3,15 @@ import Foundation
 /// Options for experimental features that are subject to change or may be removed in future versions.
 @objcMembers
 public final class SentryExperimentalOptions: NSObject {
-    /**
-     * A more reliable way to report unhandled C++ exceptions.
-     *
-     * This approach hooks into all instances of the `__cxa_throw` function, which provides a more comprehensive and consistent exception handling across an app’s runtime, regardless of the number of C++ modules or how they’re linked. It helps in obtaining accurate stack traces.
-     *
-     * - Note: The mechanism of hooking into `__cxa_throw` could cause issues with symbolication on iOS due to caching of symbol references.
-     * - Experiment: This is an experimental feature and is therefore disabled by default. We'll enable it by default in a future major release.
-     */
-    public var enableUnhandledCPPExceptionsV2 = false
+    @nonobjc var unhandledCPPExceptionsV2Enabled = false
+
+    /// Use ``Options/enableUnhandledCPPExceptionsV2`` instead.
+    /// This alias will be removed in the next minor release.
+    @available(*, deprecated, renamed: "Options.enableUnhandledCPPExceptionsV2")
+    public var enableUnhandledCPPExceptionsV2: Bool {
+        get { unhandledCPPExceptionsV2Enabled }
+        set { unhandledCPPExceptionsV2Enabled = newValue }
+    }
 
     /// Enables swizzling for automatic network instrumentation of the new URLSession HTTP loader.
     /// Requires `Options.enableSwizzling` and an enabled network tracking feature.

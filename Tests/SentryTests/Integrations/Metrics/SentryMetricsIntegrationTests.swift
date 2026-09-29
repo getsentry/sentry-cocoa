@@ -593,7 +593,9 @@ class SentryMetricsIntegrationTests: XCTestCase {
             $0.dsn = TestConstants.dsnForTestCase(type: Self.self)
             $0.removeAllIntegrations()
 
+            #if !SDK_V10
             $0.enableMetrics = isEnabled
+            #endif // !SDK_V10
 
             configure?($0)
         }
@@ -604,7 +606,6 @@ class SentryMetricsIntegrationTests: XCTestCase {
         let options = Options()
         options.dsn = TestConstants.dsnForTestCase(type: Self.self)
         options.removeAllIntegrations()
-        options.enableMetrics = true
 
         configure?(options)
 

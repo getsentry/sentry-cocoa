@@ -65,17 +65,16 @@ final class CrashE2ERunner {
             try buildVariant(
                 derivedDataPath: config.derivedDataPath,
                 label: "default",
-                extraBuildSettings: crashE2ETestHookBuildSettings
+                extraBuildSettings: crashE2ETestHookBuildSettings + reporterBuildSettings()
             )
         }
         if shouldBuildManagedRuntimeVariant {
-            // This activates SentryCrash's constructor-based signal preloader only for the legacy
-            // reporter. The KSCrash build intentionally has no equivalent yet, so these scenarios
-            // expose the missing managed-runtime handler ordering instead of passing accidentally.
+            // Both reporters preload their signal handler before the fake managed runtime installs
+            // its own. Normal SDK initialization would reverse the required handler order.
             try buildVariant(
                 derivedDataPath: config.managedRuntimeDerivedDataPath,
                 label: "managed runtime",
-                extraBuildSettings: ["GCC_PREPROCESSOR_DEFINITIONS=$(inherited) SENTRY_CRASH_MANAGED_RUNTIME=1"]
+                extraBuildSettings: reporterBuildSettings(managedRuntime: true)
             )
         }
     }
@@ -180,6 +179,26 @@ final class CrashE2ERunner {
             return []
         }
         return ["OTHER_SWIFT_FLAGS=$(inherited) -DSENTRY_CRASH_E2E"]
+    }
+
+    private func reporterBuildSettings(managedRuntime: Bool = false) -> [String] {
+        var cConditions = ["$(inherited)"]
+        var settings: [String] = []
+        if config.reporter == .ksCrash {
+            // Command-line settings reach project-reference dependencies. The app target's settings
+            // alone would leave the SentryObjC V10 wrapper compiling against V9 declarations.
+            cConditions += ["SDK_V10=1", "SENTRY_DISABLE_SENTRYCRASH_V10=1"]
+            settings.append(
+                "SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SDK_V10 SENTRY_DISABLE_SENTRYCRASH_V10"
+            )
+        }
+        if managedRuntime {
+            cConditions.append("SENTRY_CRASH_MANAGED_RUNTIME=1")
+        }
+        if cConditions.count > 1 {
+            settings.append("GCC_PREPROCESSOR_DEFINITIONS=\(cConditions.joined(separator: " "))")
+        }
+        return settings
     }
 
     private var shouldBuildNormalVariant: Bool {

@@ -212,6 +212,20 @@
     XCTAssertEqual([maxBreadcrumbs unsignedIntValue], options.maxBreadcrumbs);
 }
 
+- (void)testInitWithDictionary_whenUnhandledCPPExceptionsV2IsConfigured_shouldApplyValue
+{
+    [self testBooleanField:@"enableUnhandledCPPExceptionsV2" defaultValue:NO];
+}
+
+- (void)testInitWithDictionary_whenFileManagerSwizzlingIsConfigured_shouldApplyValue
+{
+#if SDK_V10
+    [self testBooleanField:@"enableFileManagerSwizzling" defaultValue:YES];
+#else
+    [self testBooleanField:@"enableFileManagerSwizzling" defaultValue:NO];
+#endif // SDK_V10
+}
+
 - (void)testEnableNetworkBreadcrumbs
 {
     [self testBooleanField:@"enableNetworkBreadcrumbs"];
@@ -224,10 +238,12 @@
 }
 #endif // !SDK_V10
 
+#if !SDK_V10
 - (void)testEnableMetrics
 {
     [self testBooleanField:@"enableMetrics" defaultValue:YES];
 }
+#endif // !SDK_V10
 
 - (void)testEnableAutoBreadcrumbTracking
 {
