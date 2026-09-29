@@ -74,6 +74,17 @@ jobs:
         with:
           token: ${{ github.event_name != 'pull_request' && steps.app_token.outputs.token || github.token }}
 
+      # Bazel is required so `make update-versions` can regenerate
+      # linters/SwiftLintCustomRules/MODULE.bazel.lock after bumping SwiftLint.
+      - uses: bazel-contrib/setup-bazel@c5acdfb288317d0b5c0bbd7a396a3dc868bb0f86 # v0.19.0
+        with:
+          module-root: linters/SwiftLintCustomRules
+          bazelisk-cache: true
+          disk-cache: ${{ github.workflow }}
+          repository-cache: linters/SwiftLintCustomRules/MODULE.bazel.lock
+          external-cache: true
+          cache-save: ${{ github.event_name != 'pull_request' }}
+
       - name: Install Tools
         run: make init
 
@@ -106,7 +117,10 @@ jobs:
         if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
         with:
           token: ${{ steps.app_token.outputs.token }}
-          add-paths: scripts/.swiftlint-version
+          add-paths: |
+            scripts/.swiftlint-version
+            linters/SwiftLintCustomRules/MODULE.bazel
+            linters/SwiftLintCustomRules/MODULE.bazel.lock
           branch: github-actions/auto-update-tools-swiftlint
           commit-message: "chore(deps): Update swiftlint version"
           delete-branch: true

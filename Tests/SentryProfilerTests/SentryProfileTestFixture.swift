@@ -1,3 +1,4 @@
+#if (!SWIFT_PACKAGE || !SDK_V10) && (os(iOS) || os(macOS))
 #if SWIFT_PACKAGE
 @_spi(Private) @testable import SentrySwift
 import SentryTestUtilsObjC
@@ -7,8 +8,6 @@ import SentryTestUtilsObjC
 @_spi(Private) @testable import SentryTestUtils
 import _SentryPrivate
 import XCTest
-
-#if (!SWIFT_PACKAGE || !SDK_V10) && (os(iOS) || os(macOS))
 
 #if SWIFT_PACKAGE
 // The Xcode bridging header exposes the ObjC enum at module scope.
@@ -414,4 +413,4 @@ class SentryProfileTestFixture {
 #endif // !os(macOS)
 }
 
-#endif // os(iOS) || os(macOS)
+#endif

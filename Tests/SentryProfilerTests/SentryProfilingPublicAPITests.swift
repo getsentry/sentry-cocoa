@@ -1,3 +1,4 @@
+#if (!SWIFT_PACKAGE || !SDK_V10) && (os(iOS) || os(macOS))
 @_spi(Private) import SentryTestUtils
 #if SWIFT_PACKAGE
 @_spi(Private) @testable import SentrySwift
@@ -7,8 +8,6 @@ import SentryTestUtilsObjC
 @_spi(Private) @testable import Sentry
 #endif
 import XCTest
-
-#if (!SWIFT_PACKAGE || !SDK_V10) && (os(iOS) || os(macOS))
 
 // swiftlint:disable file_length
 class SentryProfilingPublicAPITests: XCTestCase {
@@ -551,4 +550,4 @@ private extension SentryProfilingPublicAPITests {
     }
 }
 
-#endif // os(iOS) || os(macOS)
+#endif

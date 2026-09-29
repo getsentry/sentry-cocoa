@@ -150,6 +150,39 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         XCTAssertEqual(deps.testDispatchQueueWrapper.dispatchAsyncCalled, 0)
     }
 
+    func testInstall_whenCPPExceptionsV2IsDefault_shouldKeepCPPMonitorWithoutThrowHook() throws {
+        // -- Arrange --
+        let installer = MockKSCrashInstaller()
+        let deps = MockKSCrashDependencies(installer: installer)
+        let options = makeOptions()
+
+        // -- Act --
+        let sut = SentryKSCrash.Integration(with: options, dependencies: deps)
+
+        // -- Assert --
+        XCTAssertNotNil(sut)
+        let installCall = try XCTUnwrap(installer.installCalls.first)
+        XCTAssertFalse(installCall.enableSwapCxaThrow)
+        XCTAssertTrue(installCall.monitors.contains(.cppException))
+    }
+
+    func testInstall_whenCPPExceptionsV2IsEnabled_shouldEnableThrowHook() throws {
+        // -- Arrange --
+        let installer = MockKSCrashInstaller()
+        let deps = MockKSCrashDependencies(installer: installer)
+        let options = makeOptions()
+        options.enableUnhandledCPPExceptionsV2 = true
+
+        // -- Act --
+        let sut = SentryKSCrash.Integration(with: options, dependencies: deps)
+
+        // -- Assert --
+        XCTAssertNotNil(sut)
+        let installCall = try XCTUnwrap(installer.installCalls.first)
+        XCTAssertTrue(installCall.enableSwapCxaThrow)
+        XCTAssertTrue(installCall.monitors.contains(.cppException))
+    }
+
     func testInstall_whenMemoryIntrospectionEnabled_shouldEnableMemoryIntrospection() throws {
         // -- Arrange --
         let installer = MockKSCrashInstaller()

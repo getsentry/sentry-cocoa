@@ -26,7 +26,6 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
             "effectiveOrgId", // @_spi(Private) - internal computed property, not a user-facing option
             "beforeSendMetric", // Promoted to GA in https://github.com/getsentry/sentry-cocoa/pull/7843; docs update pending
             "maxFeatureFlags", // Docs update pending
-            "enableUnhandledCPPExceptionsV2", // Promoted from experimental options; docs update pending
             "beforeSendWithHint", // Deprecated in favor of adding hint to beforeSend in v10
             "beforeBreadcrumbWithHint" // Deprecated in favor of adding hint to beforeBreadcrumb in v10
         ]
@@ -61,6 +60,7 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         #endif
 
         #if SDK_V10
+        options.insert("enableUnhandledCPPExceptionsV2") // Stable in v10; docs update pending
         options.insert("beforeSendTransaction") // Docs update pending
         options.insert("dataCollection") // Docs update pending
         options.insert("dataCollectionObjC") // @_spi(Private) - internal Objective-C bridge
