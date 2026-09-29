@@ -1,5 +1,8 @@
 // swiftlint:disable missing_docs
 internal import _SentryPrivate
+#if SDK_V10
+internal import KSCrashRecording
+#endif
 import Foundation
 
 /// APIs intended for Sentry hybrid SDKs (React Native, Flutter, .NET, Unity).
@@ -101,10 +104,9 @@ public struct SentryInternalApi {
 #if !SENTRY_DISABLE_SENTRYCRASH_V10
         sentrycrash_ignore_next_signal(signum)
 #else
-        // KSCRASH_TODO(GH-8797): V10 cannot yet suppress the next signal on this thread, so this
-        // downstream SPI is temporarily a no-op. Acceptance: SCV10-007 in
-        // SENTRYCRASH_V10_MIGRATION_LEDGER.md.
-        _ = signum
+        // KSCRASH_TODO(GH-8886): Collapse this backend branch during the final V10 compile-out.
+        // Acceptance: SCV10-007 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+        sentrykscrash_ignoreNextSignal(signum)
 #endif
     }
 

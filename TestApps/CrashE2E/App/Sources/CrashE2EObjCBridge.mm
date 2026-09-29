@@ -1,4 +1,5 @@
 #import "CrashE2EObjCBridge.h"
+#import <SentryObjC/SentryObjC.h>
 
 #include <cxxabi.h>
 #include <dlfcn.h>
@@ -152,6 +153,7 @@ CrashE2EDestroyRuntimeError(void *exception)
 }
 
 static int g_managedRuntimeMarkerFD = -1;
+static volatile sig_atomic_t g_managedRuntimeShouldForwardSignal = 1;
 static struct sigaction g_previousManagedRuntimeSignalAction;
 static struct sigaction g_defaultManagedRuntimeSignalAction;
 
@@ -165,15 +167,18 @@ CrashE2EFakeManagedRuntimeSignalHandler(int signal, siginfo_t *info, void *conte
     }
 
     // The intended chain is managed runtime -> crash reporter -> system. This fake handler stands
-    // in for .NET/Mono after the reporter's early signal handler has been installed. SentryCrash
-    // provides that preloader; KSCrash does not yet, so its managed-runtime scenarios expose the
-    // missing handler ordering.
+    // in for .NET/Mono after the reporter's early signal handler has been installed. The handled
+    // and forwarded scenarios verify both sides of this ordering contract for each reporter.
     //
-    // Recoverable managed faults are intentionally out of scope: with the correct
-    // order, the managed runtime handles them without ever calling Sentry. This handler forwards
-    // only to smoke-test the unrecoverable path where the runtime delegates to its previous
-    // handler. Resetting to the default action before forwarding keeps Sentry's final re-raise from
-    // re-entering this fake managed handler.
+    // A managed runtime consumes recoverable faults without invoking its previous handler. That
+    // behavior proves the ordering contract because an outer crash reporter would have already
+    // recorded the signal. Unrecoverable scenarios forward to smoke-test the path where the runtime
+    // delegates to its previous handler. Resetting to the default action before forwarding keeps
+    // the crash reporter's final re-raise from re-entering this fake managed handler.
+    if (!g_managedRuntimeShouldForwardSignal) {
+        return;
+    }
+
     sigaction(signal, &g_defaultManagedRuntimeSignalAction, NULL);
 
     if ((g_previousManagedRuntimeSignalAction.sa_flags & SA_SIGINFO) != 0
@@ -185,18 +190,20 @@ CrashE2EFakeManagedRuntimeSignalHandler(int signal, siginfo_t *info, void *conte
         g_previousManagedRuntimeSignalAction.sa_handler(signal);
     }
 
+    // The signal is blocked while this handler is running, so raise() may only mark it pending.
+    // Return from the handler to let the restored default action receive that pending delivery.
     raise(signal);
-    __builtin_unreachable();
 }
 
 extern "C" void
-CrashE2EInstallFakeManagedRuntimeSignalHandler(const char *markerPath)
+CrashE2EInstallFakeManagedRuntimeSignalHandler(const char *markerPath, int forwardSignal)
 {
     if (markerPath == NULL) {
         NSLog(@"CrashE2E - missing fake managed runtime handler marker path");
         abort();
     }
 
+    g_managedRuntimeShouldForwardSignal = forwardSignal != 0;
     g_managedRuntimeMarkerFD = open(markerPath, O_CREAT | O_WRONLY | O_TRUNC, 0600);
     if (g_managedRuntimeMarkerFD < 0) {
         NSLog(@"CrashE2E - failed to open fake managed runtime handler marker: %s", markerPath);
@@ -243,6 +250,12 @@ CrashE2ETriggerRethrownNSException(void)
         @throw;
     }
     abort();
+}
+
+extern "C" void
+CrashE2EIgnoreNextSignalThroughObjC(int signal)
+{
+    [SentryObjCSDK.internal ignoreNextSignal:signal];
 }
 
 extern "C" void

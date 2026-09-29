@@ -6,7 +6,8 @@ NS_ASSUME_NONNULL_BEGIN
 extern "C" {
 #endif
 
-void CrashE2EInstallFakeManagedRuntimeSignalHandler(const char *markerPath);
+void CrashE2EInstallFakeManagedRuntimeSignalHandler(const char *markerPath, int forwardSignal);
+void CrashE2EIgnoreNextSignalThroughObjC(int signal);
 NSString *_Nullable CrashE2ELoadDynamicBinaryImage(const char *path, int slot);
 void CrashE2ETriggerDynamicBinaryImageCrash(void);
 void CrashE2ETriggerDynamicCPPException(void);

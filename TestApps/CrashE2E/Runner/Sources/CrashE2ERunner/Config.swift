@@ -94,7 +94,13 @@ enum Scenario: String, CaseIterable {
     case binaryImages = "binary-images"
     case ignoredSignal = "ignored-signal"
     case sigterm
+    case closedSignal = "closed-signal"
+    case reinitSignal = "reinit-signal"
+    case closedNSException = "closed-ns-exception"
     case managedRuntimeSignalChain = "managed-runtime-signal-chain"
+    case managedRuntimeHandledSignal = "managed-runtime-handled-signal"
+    case managedRuntimeIgnoreNextSignalSwift = "managed-runtime-ignore-next-signal-swift"
+    case managedRuntimeIgnoreNextSignalObjC = "managed-runtime-ignore-next-signal-objc"
     case managedRuntimePreSDKSignal = "managed-runtime-pre-sdk-signal"
     case managedRuntimeClosedSignal = "managed-runtime-closed-signal"
     case managedRuntimeReinitSignal = "managed-runtime-reinit-signal"
@@ -132,7 +138,13 @@ enum Scenario: String, CaseIterable {
         // terminate without writing a report or an event, and the next launch must not be
         // classified as crashed. V9 honors enableSigtermReporting (off here); V10 has no option.
         .sigterm,
+        .closedSignal,
+        .reinitSignal,
+        .closedNSException,
         .managedRuntimeSignalChain,
+        .managedRuntimeHandledSignal,
+        .managedRuntimeIgnoreNextSignalSwift,
+        .managedRuntimeIgnoreNextSignalObjC,
         .managedRuntimePreSDKSignal,
         .managedRuntimeClosedSignal,
         .managedRuntimeReinitSignal,
@@ -158,7 +170,9 @@ enum Scenario: String, CaseIterable {
 
     var requiresManagedRuntimeBuild: Bool {
         switch self {
-        case .managedRuntimeSignalChain, .managedRuntimePreSDKSignal, .managedRuntimeClosedSignal,
+        case .managedRuntimeSignalChain, .managedRuntimeHandledSignal,
+             .managedRuntimeIgnoreNextSignalSwift, .managedRuntimeIgnoreNextSignalObjC,
+             .managedRuntimePreSDKSignal, .managedRuntimeClosedSignal,
              .managedRuntimeReinitSignal:
             return true
         default:
@@ -167,12 +181,15 @@ enum Scenario: String, CaseIterable {
     }
 
     var expectsCrashTermination: Bool {
-        self != .ignoredSignal
+        self != .ignoredSignal && self != .managedRuntimeHandledSignal
     }
 
     var expectsEvent: Bool {
         switch self {
-        case .managedRuntimePreSDKSignal, .managedRuntimeClosedSignal, .ignoredSignal, .sigterm:
+        case .managedRuntimeHandledSignal, .managedRuntimeIgnoreNextSignalSwift,
+             .managedRuntimeIgnoreNextSignalObjC, .managedRuntimePreSDKSignal,
+             .managedRuntimeClosedSignal, .closedSignal, .closedNSException, .ignoredSignal,
+             .sigterm:
             return false
         default:
             return true
