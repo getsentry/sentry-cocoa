@@ -21,7 +21,6 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
             "strictTraceContinuation", // Docs PR: https://github.com/getsentry/sentry-docs/pull/16983
             "orgId", // Docs PR: https://github.com/getsentry/sentry-docs/pull/16983
             "effectiveOrgId", // @_spi(Private) - internal computed property, not a user-facing option
-            "enableMetrics", // Promoted to GA in https://github.com/getsentry/sentry-cocoa/pull/7843; docs update pending
             "beforeSendMetric", // Promoted to GA in https://github.com/getsentry/sentry-cocoa/pull/7843; docs update pending
             "maxFeatureFlags", // Docs update pending
             "beforeSendWithHint", // Deprecated in favor of adding hint to beforeSend in v10
@@ -29,6 +28,7 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         ]
 
         #if !SDK_V10
+        options.insert("enableMetrics") // Promoted to GA in https://github.com/getsentry/sentry-cocoa/pull/7843; docs update pending
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         options.insert("enableReportNonFullyBlockingAppHangsValue") // Internal backing for deprecated enableReportNonFullyBlockingAppHangs
         #endif
@@ -57,6 +57,7 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         #endif
 
         #if SDK_V10
+        options.insert("enableUnhandledCPPExceptionsV2") // Stable in v10; docs update pending
         options.insert("beforeSendTransaction") // Docs update pending
         options.insert("dataCollection") // Docs update pending
         options.insert("dataCollectionObjC") // @_spi(Private) - internal Objective-C bridge

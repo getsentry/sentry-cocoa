@@ -17,7 +17,8 @@
     XCTAssertNotNil(options);
 }
 
-#pragma mark - enableUnhandledCPPExceptionsV2
+#if !SDK_V10
+#    pragma mark - enableUnhandledCPPExceptionsV2
 
 - (void)testEnableUnhandledCPPExceptionsV2_whenDefault_shouldBeFalse
 {
@@ -52,6 +53,8 @@
     // -- Assert --
     XCTAssertFalse(options.enableUnhandledCPPExceptionsV2);
 }
+
+#endif // !SDK_V10
 
 #pragma mark - enableNewURLLoaderSwizzling
 

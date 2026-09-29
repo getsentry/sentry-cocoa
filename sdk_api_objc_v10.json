@@ -2272,13 +2272,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "enableMetrics",
-    "parent": "SentryObjCOptions",
-    "returnType": "BOOL",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "enableNetworkBreadcrumbs",
     "parent": "SentryObjCOptions",
     "returnType": "BOOL",
@@ -2371,7 +2364,7 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "enableUnhandledCPPExceptionsV2",
-    "parent": "SentryObjCExperimentalOptions",
+    "parent": "SentryObjCOptions",
     "returnType": "BOOL",
     "instance": true
   },
@@ -6318,13 +6311,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "setEnableMetrics:",
-    "parent": "SentryObjCOptions",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "setEnableNetworkBreadcrumbs:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
@@ -6410,7 +6396,7 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setEnableUnhandledCPPExceptionsV2:",
-    "parent": "SentryObjCExperimentalOptions",
+    "parent": "SentryObjCOptions",
     "returnType": "void",
     "instance": true
   },
@@ -9722,12 +9708,6 @@
   },
   {
     "kind": "ObjCPropertyDecl",
-    "name": "enableMetrics",
-    "parent": "SentryObjCOptions",
-    "type": "BOOL"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
     "name": "enableNetworkBreadcrumbs",
     "parent": "SentryObjCOptions",
     "type": "BOOL"
@@ -9801,7 +9781,7 @@
   {
     "kind": "ObjCPropertyDecl",
     "name": "enableUnhandledCPPExceptionsV2",
-    "parent": "SentryObjCExperimentalOptions",
+    "parent": "SentryObjCOptions",
     "type": "BOOL"
   },
   {

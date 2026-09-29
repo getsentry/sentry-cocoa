@@ -59,6 +59,7 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - "test-server/**"
   - "**/*.xctestplan"
   - "Plans/**"
+  - ".swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme"
 
   # Project files
   - "Sentry.xcodeproj/**"
@@ -80,6 +81,10 @@ run_distribution_tests_for_prs: &run_distribution_tests_for_prs
   - "Sources/SentryObjCCompat/**"
   - "Sources/include/**"
   - "Tests/SentryObjCCompatTests/**"
+  - "Tests/SentryProfilerTests/**"
+  - "Plans/Sentry_Base.xctestplan"
+  - "Plans/SentrySPM_*.xctestplan"
+  - ".swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme"
   - "Tests/Configuration/**"
   - "SentryTestUtils/**"
   - "SentryTestUtilsTests/**"
@@ -88,13 +93,18 @@ run_distribution_tests_for_prs: &run_distribution_tests_for_prs
   - ".github/workflows/test.yml"
   - ".github/file-filters.yml"
 
-  # Scripts
+  # Scripts & actions
+  - ".github/actions/setup-xcode/**"
+  - ".github/actions/resolve-test-destination/**"
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/resolve-test-destination.sh"
   - "scripts/ci-ensure-runtime-loaded.sh"
   - "scripts/ci-utils.sh"
   - "scripts/prepare-package.sh"
 
   # Project files
   - "Package*.swift"
+  - "Sentry.xcodeproj/**"
 
 run_api_stability_for_prs: &run_api_stability_for_prs
   - "Sources/Configuration/**"
@@ -208,6 +218,8 @@ run_auto_update_tools_for_prs: &run_auto_update_tools_for_prs
   - "scripts/.clang-format-version"
   - "scripts/.swiftlint-version"
   - "scripts/.xcodegen-version"
+  - "linters/SwiftLintCustomRules/MODULE.bazel"
+  - "linters/SwiftLintCustomRules/MODULE.bazel.lock"
 
   # Scripts
   - "scripts/check-tooling-versions.sh"
@@ -464,6 +476,7 @@ run_thread_inspection_harness_for_prs:
 run_build_for_prs: &run_build_for_prs
   - "Sources/**"
   - "TestApps/**"
+  - ".swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme"
 
   # GH Actions
   - ".github/workflows/build.yml"
@@ -714,6 +727,9 @@ run_lint_swiftlint_for_prs: &run_lint_swiftlint_for_prs
   - ".github/actions/setup-xcode/**"
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
+
+  # Custom SwiftLint extra rules (Bazel)
+  - "linters/SwiftLintCustomRules/**"
 
   # Project files
   - "Sentry.xcodeproj/**"

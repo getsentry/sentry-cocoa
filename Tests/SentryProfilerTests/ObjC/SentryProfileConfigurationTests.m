@@ -1,14 +1,19 @@
 @import XCTest;
-@import Sentry;
 #import "SentryProfileConfiguration.h"
 #import "SentryProfiler+Private.h"
+#import "SentryProfilerTestConditionals.h"
+#if SWIFT_PACKAGE
+#    import "SentrySwift.h"
+#else
+@import Sentry;
+#endif
 
 @interface SentryProfileConfigurationTests : XCTestCase
 @end
 
 @implementation SentryProfileConfigurationTests
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#if SENTRY_PROFILER_TESTS_SUPPORTED
 
 - (void)tearDown
 {

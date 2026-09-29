@@ -42,9 +42,19 @@
   - Remove the `pauseAppHangTracking` and `resumeAppHangTracking` APIs
   - Remove the `enableWatchdogTerminationsV2` option; watchdog termination tracking always uses the run-loop-based tracker
 - Remove `enableSigtermReporting`; KSCrash treats `SIGTERM` as a clean exit and never reports it as a crash (#9019)
+- Enable `enableFileManagerSwizzling` by default (#9134)
+- Remove the legacy `enableMetrics` option. Metrics remain available without an enable flag, and `beforeSendMetric` can still modify or drop metrics (#9134)
+- Move `experimental.enableUnhandledCPPExceptionsV2` to the stable `options.enableUnhandledCPPExceptionsV2` API for the KSCrash implementation. The default remains `false`: unhandled C++ exceptions are captured through `std::terminate`; opt in to capture stacks at the throw site. The V2 name distinguishes these two modes (#9175).
 
 ### Fixes
 
+- Migrate managed-runtime signal handling and SDK-close report-persistence lifecycle to `SentryV10` (#9051)
+  - Use a SDK-side Signal plugin and disable KSCrash's Mach monitor so managed faults reach the runtime first and don't report as native crashes.
+  - Keep per-thread, one-shot signal suppression for hybrid SDKs.
+  - Keep process-lifetime handlers installed while suppressing report persistence after close and reactivating it on restart.
+  - Restore predecessor handlers when signal installation is interrupted or fails.
+  - Keep alternate stacks and safely clean up early installation failures.
+  - Validate and publish crash callbacks once, without replacing callbacks used by an active handler.
 - Compile only explicitly allowlisted shared SentryCrash tools in V10
 - Restore foreground app-hang detection and debugger-aware behavior in V10
 - Disambiguate V9 and V10 target dependencies in Xcode builds

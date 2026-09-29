@@ -39,6 +39,15 @@ if [ "${LOCAL_SWIFTLINT_VERSION}" != "${REMOTE_SWIFTLINT_VERSION}" ]; then
     SENTRY_TOOLING_UP_TO_DATE=false
 fi
 
+SWIFTLINT_MODULE_BAZEL="../linters/SwiftLintCustomRules/MODULE.bazel"
+if [[ -f "$SWIFTLINT_MODULE_BAZEL" ]]; then
+    BAZEL_SWIFTLINT_VERSION=$(sed -n 's/.*bazel_dep(name = "swiftlint", version = "\([^"]*\)".*/\1/p' "$SWIFTLINT_MODULE_BAZEL")
+    if [ "${BAZEL_SWIFTLINT_VERSION}" != "${REMOTE_SWIFTLINT_VERSION}" ]; then
+        echo "linters/SwiftLintCustomRules/MODULE.bazel swiftlint version mismatch, expected: ${REMOTE_SWIFTLINT_VERSION}, but found: ${BAZEL_SWIFTLINT_VERSION}"
+        SENTRY_TOOLING_UP_TO_DATE=false
+    fi
+fi
+
 if [ "${LOCAL_XCODEGEN_VERSION}" != "${REMOTE_XCODEGEN_VERSION}" ]; then
     echo "xcodegen version mismatch, expected: ${REMOTE_XCODEGEN_VERSION}, but found: ${LOCAL_XCODEGEN_VERSION}"
     SENTRY_TOOLING_UP_TO_DATE=false

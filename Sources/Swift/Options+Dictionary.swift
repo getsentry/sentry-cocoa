@@ -1,6 +1,13 @@
 import Foundation
 import ObjectiveC
 
+// This is needed because a file that only contains an @objc extension will get automatically stripped out
+// in static builds. We need to either use the -all_load linker flag (which has downsides of app size increases)
+// or make sure that every file containing objc categories/extensions also have a concrete type that
+// is referenced.
+// swiftlint:disable:next missing_docs
+@_spi(Private) @objc public final class PlaceholderOptionsDictionaryClass: NSObject { }
+
 extension Options {
     /// Initializes options from a dictionary, primarily for hybrid SDK configuration.
     @_spi(Private) public convenience init(dictionary: [String: Any]) throws {
@@ -61,6 +68,14 @@ extension Options {
             self.enableCrashHandler = enableCrashHandler
         }
 
+        if let enableUnhandledCPPExceptionsV2 = boolValue(dictionary["enableUnhandledCPPExceptionsV2"]) {
+            #if SDK_V10
+            self.enableUnhandledCPPExceptionsV2 = enableUnhandledCPPExceptionsV2
+            #else
+            self.experimental.enableUnhandledCPPExceptionsV2 = enableUnhandledCPPExceptionsV2
+            #endif // SDK_V10
+        }
+
         #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
         if let enableUncaughtNSExceptionReporting = boolValue(dictionary["enableUncaughtNSExceptionReporting"]) {
             self.enableUncaughtNSExceptionReporting = enableUncaughtNSExceptionReporting
@@ -89,9 +104,11 @@ extension Options {
         }
         #endif // !SDK_V10
 
+        #if !SDK_V10
         if let enableMetrics = boolValue(dictionary["enableMetrics"]) {
             self.enableMetrics = enableMetrics
         }
+        #endif // !SDK_V10
 
         if let enableNetworkBreadcrumbs = boolValue(dictionary["enableNetworkBreadcrumbs"]) {
             self.enableNetworkBreadcrumbs = enableNetworkBreadcrumbs
@@ -235,6 +252,10 @@ extension Options {
 
         if let enableFileIOTracing = boolValue(dictionary["enableFileIOTracing"]) {
             self.enableFileIOTracing = enableFileIOTracing
+        }
+
+        if let enableFileManagerSwizzling = boolValue(dictionary["enableFileManagerSwizzling"]) {
+            self.enableFileManagerSwizzling = enableFileManagerSwizzling
         }
 
         if let tracesSampleRate = dictionary["tracesSampleRate"] as? NSNumber {

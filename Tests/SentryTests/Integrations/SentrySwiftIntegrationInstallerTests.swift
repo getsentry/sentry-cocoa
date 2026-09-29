@@ -42,8 +42,10 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         #if canImport(MetricKit) && !os(tvOS)
         options.enableMetricKit = false
         #endif
+        #if !SDK_V10
         // Metrics stays installed even when enableMetrics is false so manual APIs keep working.
         options.enableMetrics = false
+        #endif // !SDK_V10
 
         let testHub = TestHub(client: nil, andScope: nil)
         SentrySDKInternal.setCurrentHub(testHub)
@@ -83,8 +85,10 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         #if canImport(MetricKit) && !os(tvOS)
         options.enableMetricKit = false
         #endif
+        #if !SDK_V10
         // Metrics remains installed regardless of enableMetrics.
         options.enableMetrics = false
+        #endif // !SDK_V10
 
         let testHub = TestHub(client: nil, andScope: nil)
         SentrySDKInternal.setCurrentHub(testHub)

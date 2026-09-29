@@ -2,8 +2,22 @@
 
 ## Unreleased
 
+### Features
+
+- Update option stability without changing defaults (#9134, #9175):
+  - `enableUnhandledCPPExceptionsV2` remains non-deprecated under `options.experimental` in v9, disabled by default, with dictionary-based initialization support.
+  - `enablePersistingTracesWhenCrashing` is now stable and remains disabled by default.
+  - `attachViewHierarchy` is now stable and remains disabled by default.
+  - `enableTimeToFullDisplayTracing` is now stable and remains disabled by default because applications must explicitly call `SentrySDK.reportFullyDisplayed()`.
+  - `swiftAsyncStacktraces` is now stable and remains disabled by default.
+  - `enableGraphQLOperationTracking` is now stable and remains disabled by default.
+  - `enableFileManagerSwizzling` is now stable, remains disabled by default, and supports dictionary-based initialization.
+- Add `connection_type` to the device context of events, which reports `wifi`, `ethernet`, `cellular`, or `none` (#9097).
+  On iOS, cellular connections additionally report the network technology in `connection_effective_type`, for example `4g` or `5g`.
+
 ### Fixes
 
+- Keep standalone `@objc` extensions in static builds by adding referenced dummy `NSObject` subclasses, and lint for this with a SwiftSyntax SwiftLint extra rule (#9160)
 - Send envelopes captured during a connectivity-triggered cache drain without waiting for another trigger (#9171)
 
 ## 9.29.2

@@ -1,9 +1,14 @@
+#if (!SWIFT_PACKAGE || !SDK_V10) && (os(iOS) || os(macOS))
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+import SentryTestUtilsObjC
+import SentryTestUtilsObjCpp
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import _SentryPrivate
 import XCTest
-
-#if os(iOS) || os(macOS)
 
 final class SentryContinuousProfilerTests: XCTestCase {
     private var fixture: SentryProfileTestFixture!
@@ -450,4 +455,4 @@ private extension SentryContinuousProfilerTests {
     }
 }
 
-#endif // os(iOS) || os(macOS)
+#endif
