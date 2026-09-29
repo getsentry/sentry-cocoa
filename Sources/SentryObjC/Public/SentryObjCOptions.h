@@ -114,11 +114,9 @@ NS_ASSUME_NONNULL_BEGIN
 #if SDK_V10
 /**
  * Captures C++ exception stack traces at the throw site by hooking @c __cxa_throw.
- * Uses KSCrash, not the experimental SentryCrash implementation in v9.
  * When @c NO, unhandled C++ exceptions are still captured through @c std::terminate when crash
  * handling is enabled, but their stacks may not identify the original throw site.
- * @note Defaults to @c NO to preserve the existing capture mode. Enabling this by default is a
- * separate rollout decision, not a limitation on API stability.
+ * @note Defaults to @c NO to preserve the existing capture mode.
  */
 @property (nonatomic) BOOL enableUnhandledCPPExceptionsV2;
 #endif // SDK_V10

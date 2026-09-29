@@ -8,9 +8,9 @@ NS_ASSUME_NONNULL_BEGIN
 #if !SDK_V10
 /**
  * Captures C++ exception stack traces at the throw site by hooking @c __cxa_throw.
- * The v9 SentryCrash implementation remains experimental because of unresolved safety and
- * symbolication concerns. When @c NO, unhandled C++ exceptions are still captured through
- * @c std::terminate when crash handling is enabled, but stacks may not identify the throw site.
+ * Hooking @c __cxa_throw has unresolved safety and symbolication concerns. When @c NO, unhandled
+ * C++ exceptions are still captured through @c std::terminate when crash handling is enabled, but
+ * stacks may not identify the throw site.
  * @warning Disabled by default. Use and monitor this experimental implementation with care.
  * @see https://github.com/getsentry/sentry-cocoa/issues/5309
  */
