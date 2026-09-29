@@ -200,10 +200,10 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
 
     /// The trace ID an event belongs to, for associating it with the replay segment.
     ///
-    /// Transactions are read from the transaction's own trace: by the time global processors run,
-    /// the tracer has been removed from the scope, so on the v9 build the event's `context["trace"]`
-    /// holds the idle propagation trace rather than the transaction's. Other events (e.g. errors)
-    /// carry the correct trace in their context, populated by the scope before processors run.
+    /// Transactions are read from their own trace because, after the tracer leaves the scope,
+    /// the event's `context["trace"]` may hold the idle propagation trace instead. Other events
+    /// (e.g. errors) carry the correct trace in their context, populated by the scope before
+    /// processors run.
     private func traceId(for event: Event) -> SentryId? {
         if let transaction = event as? Transaction {
             return transaction.trace.traceId
