@@ -1,15 +1,19 @@
 @import XCTest;
-@import Sentry;
-@import SentryTestUtilsDynamic;
 #import "SentryClient.h"
+#import "SentryProfilerTestConditionals.h"
 #import "SentryProfilingSwiftHelpers.h"
+#if SWIFT_PACKAGE
+#    import "SentrySwift.h"
+#else
+@import Sentry;
+#endif
 
 @interface SentryProfilingSwiftHelpersTests : XCTestCase
 @end
 
 @implementation SentryProfilingSwiftHelpersTests
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#if SENTRY_PROFILER_TESTS_SUPPORTED
 
 - (void)testIsContinuousProfilingEnabled
 {
