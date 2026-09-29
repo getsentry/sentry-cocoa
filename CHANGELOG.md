@@ -4,18 +4,14 @@
 
 ### Features
 
-- Promote the following options to stable, supported configuration without changing their defaults (#9134):
-  - `enablePersistingTracesWhenCrashing`: remains disabled by default
-  - `attachViewHierarchy`: remains disabled by default.
-  - `enableTimeToFullDisplayTracing`: remains disabled by default because applications must explicitly call `SentrySDK.reportFullyDisplayed()`.
-  - `swiftAsyncStacktraces`: disabled by default
-  - `enableGraphQLOperationTracking`: disabled by default
-  - `enableFileManagerSwizzling`: disabled by default
-- Support `enableFileManagerSwizzling` in dictionary-based options initialization (#9134).
-
-### Fixes
-
-- Keep `enableUnhandledCPPExceptionsV2` under `options.experimental` in v9, non-deprecated and disabled by default, reverting its promotion to stable configuration in #9134. Support this option in dictionary-based initialization (#9175).
+- Update option stability without changing defaults (#9134, #9175):
+  - `enableUnhandledCPPExceptionsV2` remains non-deprecated under `options.experimental` in v9, disabled by default, with dictionary-based initialization support.
+  - `enablePersistingTracesWhenCrashing` is now stable and remains disabled by default.
+  - `attachViewHierarchy` is now stable and remains disabled by default.
+  - `enableTimeToFullDisplayTracing` is now stable and remains disabled by default because applications must explicitly call `SentrySDK.reportFullyDisplayed()`.
+  - `swiftAsyncStacktraces` is now stable and remains disabled by default.
+  - `enableGraphQLOperationTracking` is now stable and remains disabled by default.
+  - `enableFileManagerSwizzling` is now stable, remains disabled by default, and supports dictionary-based initialization.
 
 ## 9.29.2
 
