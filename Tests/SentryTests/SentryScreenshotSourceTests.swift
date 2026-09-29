@@ -96,7 +96,7 @@ class SentryScreenshotSourceTests: XCTestCase {
         XCTAssertEqual(image?.size.height, 10)
     }
 
-    func testAppScreenshots_whenRetinaImageRendered_shouldPreserveResolutionAndRedaction() throws {
+    func testAppScreenshots_whenRetinaImageRendered_shouldKeepOneXAndRedaction() throws {
         for enableMaskRendererV2 in [false, true] {
             for scale: CGFloat in [2, 3] {
                 // -- Arrange --
@@ -123,24 +123,35 @@ class SentryScreenshotSourceTests: XCTestCase {
                 let sut = SentryScreenshotSource(photographer: photographer)
 
                 // -- Act --
+                let feedbackImage = try XCTUnwrap(sut.feedbackScreenshot())
+                let feedbackData = try XCTUnwrap(feedbackImage.pngData())
+                let feedbackPNG = try XCTUnwrap(UIImage(data: feedbackData)?.cgImage)
                 let image = try XCTUnwrap(sut.appScreenshotsFromMainThread().first)
                 let data = try XCTUnwrap(sut.appScreenshotDatasFromMainThread().first)
                 let png = try XCTUnwrap(UIImage(data: data)?.cgImage)
 
                 // -- Assert --
+                XCTAssertEqual(feedbackImage.size, size)
+                XCTAssertEqual(feedbackImage.scale, scale)
+                XCTAssertEqual(try XCTUnwrap(feedbackImage.cgImage).width, Int(size.width * scale))
+                XCTAssertEqual(try XCTUnwrap(feedbackImage.cgImage).height, Int(size.height * scale))
+                XCTAssertEqual(feedbackPNG.width, Int(size.width * scale))
+                XCTAssertEqual(feedbackPNG.height, Int(size.height * scale))
+                XCTAssertEqual(try pixelBytes(in: feedbackImage, at: CGPoint(x: 15, y: 10)), [0, 255, 0, 255])
+                XCTAssertEqual(try pixelBytes(in: feedbackImage, at: CGPoint(x: 5, y: 10)), [255, 0, 0, 255])
                 XCTAssertEqual(image.size, size)
-                XCTAssertEqual(image.scale, scale)
-                XCTAssertEqual(try XCTUnwrap(image.cgImage).width, Int(size.width * scale))
-                XCTAssertEqual(try XCTUnwrap(image.cgImage).height, Int(size.height * scale))
-                XCTAssertEqual(png.width, Int(size.width * scale))
-                XCTAssertEqual(png.height, Int(size.height * scale))
+                XCTAssertEqual(image.scale, 1)
+                XCTAssertEqual(try XCTUnwrap(image.cgImage).width, Int(size.width))
+                XCTAssertEqual(try XCTUnwrap(image.cgImage).height, Int(size.height))
+                XCTAssertEqual(png.width, Int(size.width))
+                XCTAssertEqual(png.height, Int(size.height))
                 XCTAssertEqual(try pixelBytes(in: image, at: CGPoint(x: 15, y: 10)), [0, 255, 0, 255])
                 XCTAssertEqual(try pixelBytes(in: image, at: CGPoint(x: 5, y: 10)), [255, 0, 0, 255])
             }
         }
     }
 
-    func testSaveScreenShots_whenRetinaImageRendered_shouldPreserveResolutionAndRedaction() throws {
+    func testSaveScreenShots_whenRetinaImageRendered_shouldKeepOneXAndRedaction() throws {
         for enableMaskRendererV2 in [false, true] {
             // -- Arrange --
             let size = CGSize(width: 30, height: 20)
@@ -177,15 +188,18 @@ class SentryScreenshotSourceTests: XCTestCase {
             }
 
             // -- Act --
+            let feedbackImage = try XCTUnwrap(sut.feedbackScreenshot())
             withExtendedLifetime(appDelegate) {
                 sut.saveScreenShots(directory.path)
             }
             let data = try Data(contentsOf: directory.appendingPathComponent("screenshot.png"))
-            let crashImage = try XCTUnwrap(UIImage(data: data, scale: 3))
+            let crashImage = try XCTUnwrap(UIImage(data: data))
 
             // -- Assert --
-            XCTAssertEqual(try XCTUnwrap(crashImage.cgImage).width, Int(size.width * 3))
-            XCTAssertEqual(try XCTUnwrap(crashImage.cgImage).height, Int(size.height * 3))
+            XCTAssertEqual(feedbackImage.scale, 3)
+            XCTAssertEqual(crashImage.scale, 1)
+            XCTAssertEqual(try XCTUnwrap(crashImage.cgImage).width, Int(size.width))
+            XCTAssertEqual(try XCTUnwrap(crashImage.cgImage).height, Int(size.height))
             XCTAssertEqual(try pixelBytes(in: crashImage, at: CGPoint(x: 15, y: 10)), [0, 255, 0, 255])
             XCTAssertEqual(try pixelBytes(in: crashImage, at: CGPoint(x: 5, y: 10)), [255, 0, 0, 255])
         }

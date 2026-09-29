@@ -263,7 +263,7 @@ private extension SentryUserFeedbackIntegrationDriver {
             SentrySDKLog.debug("Screenshot ignored — feedback form is already displayed")
             return
         }
-        showForm(screenshot: screenshotSource.appScreenshots().first)
+        showForm(screenshot: screenshotSource.feedbackScreenshot())
     }
 
     var presenter: UIViewController? {
