@@ -7,10 +7,11 @@ import UIKit
 
 /// Ends the session left on disk by the previous app run when that run ended fatally.
 ///
-/// A crash or watchdog termination ends the session as crashed, and on V9 a fatal app hang ends it
-/// as abnormal. The ended session is stored in a dedicated location so the first fatal event can
-/// attach it. A session from a run that ended without a fatal is intentionally left untouched here:
-/// `SessionTracker.endCachedSession` hands it to `SentryHub.closeCachedSession(withTimestamp:)`,
+/// A crash or watchdog termination ends the session as crashed. When app hang tracking is available,
+/// a fatal app hang ends it as abnormal. The ended session is stored in a dedicated location so the
+/// first fatal event can attach it. A session from a run that ended without a fatal is intentionally
+/// left untouched here: `SessionTracker.endCachedSession` hands it to
+/// `SentryHub.closeCachedSession(withTimestamp:)`,
 /// which ends it normally or abnormally, deletes it, and captures it.
 final class PreviousRunSessionFinalizer {
 
