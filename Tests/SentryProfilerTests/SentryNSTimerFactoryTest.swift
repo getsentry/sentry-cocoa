@@ -1,3 +1,4 @@
+#if !SWIFT_PACKAGE || !SDK_V10
 #if SWIFT_PACKAGE
 @_spi(Private) @testable import SentrySwift
 #else
@@ -5,7 +6,6 @@
 #endif
 import XCTest
 
-#if !SWIFT_PACKAGE || !SDK_V10
 class SentryNSTimerFactoryTests: XCTestCase {
     
     private struct Fixture {
