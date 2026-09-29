@@ -216,16 +216,31 @@ struct SentryCellularNetworkTechnologyProvider {
             SentrySDKLog.debug("No radio access technology reported. The device may have no cellular service.")
             return nil
         }
+        return technology(
+            fromTechnologies: technologies,
+            dataServiceIdentifier: networkInfo.dataServiceIdentifier
+        )
+    }
 
+    /// Picks the technology of the service that carries the data.
+    ///
+    /// Takes the two values instead of the network info, because `CTTelephonyNetworkInfo` reads
+    /// them from a system service and can't be built by a test.
+    static func technology(
+        fromTechnologies technologies: [String: String],
+        dataServiceIdentifier: String?
+    ) -> SentryCellularNetworkTechnology? {
         // Devices with multiple SIMs report one radio access technology per service. Only the
-        // service used for data describes the connection of the app, so prefer it.
-        if let dataServiceIdentifier = networkInfo.dataServiceIdentifier,
-           let radioAccessTechnology = technologies[dataServiceIdentifier],
-           let technology = SentryCellularNetworkTechnology(radioAccessTechnology: radioAccessTechnology) {
-            return technology
+        // service used for data describes the connection of the app, so it decides on its own: a
+        // technology this SDK doesn't know means unknown, not the generation of a service that
+        // carries no data.
+        if let dataServiceIdentifier,
+           let radioAccessTechnology = technologies[dataServiceIdentifier] {
+            return SentryCellularNetworkTechnology(radioAccessTechnology: radioAccessTechnology)
         }
 
-        // Sorting the identifiers keeps the reported value stable when the data service is unknown.
+        // No service is known to carry the data. Sorting the identifiers keeps the reported value
+        // stable across calls.
         for serviceIdentifier in technologies.keys.sorted() {
             if let radioAccessTechnology = technologies[serviceIdentifier],
                let technology = SentryCellularNetworkTechnology(radioAccessTechnology: radioAccessTechnology) {

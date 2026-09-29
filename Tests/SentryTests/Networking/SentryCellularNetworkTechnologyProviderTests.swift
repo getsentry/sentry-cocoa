@@ -77,6 +77,74 @@ final class SentryCellularNetworkTechnologyProviderTests: XCTestCase {
         XCTAssertNil(technology)
     }
 
+    func testTechnologyFromTechnologies_whenDataServiceIsKnown_shouldReportItsTechnology() {
+        // -- Arrange --
+        let technologies = [
+            "sim1": CTRadioAccessTechnologyEdge,
+            "sim2": CTRadioAccessTechnologyNR
+        ]
+
+        // -- Act --
+        let technology = SentryCellularNetworkTechnologyProvider.technology(
+            fromTechnologies: technologies,
+            dataServiceIdentifier: "sim2"
+        )
+
+        // -- Assert --
+        XCTAssertEqual(technology, .fifthGeneration)
+    }
+
+    func testTechnologyFromTechnologies_whenDataServiceTechnologyIsUnknown_shouldReturnNil() {
+        // -- Arrange --
+        // The data service decides on its own. Another SIM can carry a known technology, but it
+        // carries no data, so its generation would describe the wrong connection.
+        let technologies = [
+            "sim1": CTRadioAccessTechnologyLTE,
+            "sim2": "SomeTechnologyThisSDKDoesNotKnow"
+        ]
+
+        // -- Act --
+        let technology = SentryCellularNetworkTechnologyProvider.technology(
+            fromTechnologies: technologies,
+            dataServiceIdentifier: "sim2"
+        )
+
+        // -- Assert --
+        XCTAssertNil(technology)
+    }
+
+    func testTechnologyFromTechnologies_whenDataServiceIsUnknown_shouldReportTheFirstKnownTechnology() {
+        // -- Arrange --
+        let technologies = [
+            "sim2": CTRadioAccessTechnologyNR,
+            "sim1": CTRadioAccessTechnologyLTE
+        ]
+
+        // -- Act --
+        let technology = SentryCellularNetworkTechnologyProvider.technology(
+            fromTechnologies: technologies,
+            dataServiceIdentifier: nil
+        )
+
+        // -- Assert --
+        // The identifiers are sorted, so the value is the same on every call.
+        XCTAssertEqual(technology, .fourthGeneration)
+    }
+
+    func testTechnologyFromTechnologies_whenDataServiceHasNoEntry_shouldReportAnotherService() {
+        // -- Arrange --
+        let technologies = ["sim1": CTRadioAccessTechnologyLTE]
+
+        // -- Act --
+        let technology = SentryCellularNetworkTechnologyProvider.technology(
+            fromTechnologies: technologies,
+            dataServiceIdentifier: "sim2"
+        )
+
+        // -- Assert --
+        XCTAssertEqual(technology, .fourthGeneration)
+    }
+
     func testCurrentTechnology_whenNotMonitoring_shouldReturnNil() {
         // -- Arrange --
         let sut = SentryCellularNetworkTechnologyProvider(notificationCenter: NotificationCenter())
