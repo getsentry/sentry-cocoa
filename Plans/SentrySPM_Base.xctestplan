@@ -1,0 +1,69 @@
+{
+  "configurations" : [
+    {
+      "id" : "9F642BCD-F191-42F8-BC7C-76318A568795",
+      "name" : "Configuration 1",
+      "options" : {}
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : true,
+    "language" : "en",
+    "region" : "US",
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:",
+      "identifier" : "SentryObjCInternal",
+      "name" : "SentryObjCInternal"
+    },
+    "uiTestingScreenshotsLifetime" : "keepAlways"
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "SentryTestUtilsTests",
+        "name" : "SentryTestUtilsTests"
+      }
+    },
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "SentryObjCCompatTests",
+        "name" : "SentryObjCCompatTests"
+      }
+    },
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "SentryDistributionTests",
+        "name" : "SentryDistributionTests"
+      }
+    },
+    {
+      "parallelizable" : false,
+      "skippedTests" : [
+        "SentryContinuousProfilerTests\/testStoppingProfilerTransmitsLastFullChunk()"
+      ],
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "SentryProfilerTests",
+        "name" : "SentryProfilerTests"
+      }
+    },
+    {
+      "parallelizable" : false,
+      "skippedTests" : [
+        "SentryProfilerTests\/testProfilerMutationDuringSlicing"
+      ],
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "SentryProfilerTestsObjC",
+        "name" : "SentryProfilerTestsObjC"
+      }
+    }
+  ],
+  "version" : 1
+}

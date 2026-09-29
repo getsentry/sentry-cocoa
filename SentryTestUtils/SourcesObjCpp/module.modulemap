@@ -1,0 +1,8 @@
+module SentryTestUtilsObjCpp {
+    header "SentryProfilerMocksSwiftCompatible.h"
+    // These headers are also used by ObjC++ tests without importing a Swift-only ObjC umbrella.
+    textual header "SentryContinuousProfiler+Test.h"
+    textual header "SentryProfilerMocks.h"
+    textual header "SentryTraceProfiler+Test.h"
+    export *
+}

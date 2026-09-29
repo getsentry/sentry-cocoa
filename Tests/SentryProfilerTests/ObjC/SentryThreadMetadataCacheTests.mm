@@ -1,7 +1,7 @@
 #import "SentryAsyncSafeLog.h"
-#import "SentryProfilingConditionals.h"
+#import "SentryProfilerTestConditionals.h"
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#if SENTRY_PROFILER_TESTS_SUPPORTED
 
 #    import <XCTest/XCTest.h>
 

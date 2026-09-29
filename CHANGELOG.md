@@ -12,6 +12,8 @@
   - `swiftAsyncStacktraces` is now stable and remains disabled by default.
   - `enableGraphQLOperationTracking` is now stable and remains disabled by default.
   - `enableFileManagerSwizzling` is now stable, remains disabled by default, and supports dictionary-based initialization.
+- Add `connection_type` to the device context of events, which reports `wifi`, `ethernet`, `cellular`, or `none`. 
+  On iOS, cellular connections additionally report the network technology in `connection_effective_type`, for example `4g` or `5g` (#9097)
 
 ## 9.29.2
 
