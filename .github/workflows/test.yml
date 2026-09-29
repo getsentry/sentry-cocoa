@@ -300,7 +300,10 @@ jobs:
       name: ${{matrix.name}}
       runs-on: ${{ matrix.runs-on }}
       timeout: ${{matrix.timeout || 20}}
-      should_skip: ${{ github.event_name == 'pull_request' && needs.files-changed.outputs.run_unit_tests_for_prs != 'true' }}
+      # Jobs marked push_only are skipped on pull requests and only run on pushes to main and
+      # release branches, where the unit-tests-required-check still enforces them. They also run
+      # in nightly-test.yml.
+      should_skip: ${{ github.event_name == 'pull_request' && (needs.files-changed.outputs.run_unit_tests_for_prs != 'true' || matrix.push_only == true) }}
       xcode: ${{matrix.xcode}}
       platform: ${{matrix.platform}}
       device: ${{matrix.device || ''}}
@@ -418,11 +421,14 @@ jobs:
           # CADisplayLink/UIWindow in every test process blocks ~10 minutes until it aborts,
           # so the job takes 30+ minutes. tahoe-xl still hits it but the wait is ~5 minutes.
           # See https://github.com/getsentry/sentry-cocoa/pull/9043 for the investigation.
+          # Because of that, the job is skipped on pull requests and only runs on pushes to
+          # main and release branches. It also runs in nightly-test.yml.
           - name: visionOS 27 Sentry
             runs-on: tahoe-xl
             xcode: "27"
             platform: "visionOS"
             timeout: 60
+            push_only: true
 
   # This check validates that either all unit tests passed or were skipped, which allows us
   # to make unit tests a required check with only running the unit tests when required.
