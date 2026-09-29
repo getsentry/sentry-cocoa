@@ -1,6 +1,3 @@
-#if SWIFT_PACKAGE
-import SentryTestsObjCHelpers
-#endif
 import XCTest
 
 final class SentryCrashDoctorTests: XCTestCase {

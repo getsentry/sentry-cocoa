@@ -1,8 +1,4 @@
-#if SWIFT_PACKAGE
-@import SentryTestsSwiftHelpers;
-#else
-#    import "SentryTests-Swift.h"
-#endif
+#import "SentryTests-Swift.h"
 #import <XCTest/XCTest.h>
 
 @interface SentryDictionaryDecoderObjCTests : XCTestCase

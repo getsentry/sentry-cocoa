@@ -2,7 +2,6 @@
 @_spi(Private) import SentryTestUtils
 #if SWIFT_PACKAGE
 @_spi(Private) @testable import SentrySwift
-import SentryTestsObjCHelpers
 #else
 @_spi(Private) @testable import Sentry
 #endif
