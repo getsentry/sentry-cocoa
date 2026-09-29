@@ -38,9 +38,28 @@ public class SentryReachability: NSObject {
 #if os(iOS) && !targetEnvironment(macCatalyst)
     private let cellularNetworkTechnologyProvider: SentryCellularNetworkTechnologyProviding
 
-    init(cellularNetworkTechnologyProvider: SentryCellularNetworkTechnologyProviding = SentryCellularNetworkTechnologyProvider()) {
+    /// Where starting and stopping the cellular technology monitoring is handed off to, or `nil`
+    /// to use the same queue as the path monitor.
+    ///
+    /// Tests inject a wrapper that runs the work inline: that queue is deliberately low priority,
+    /// and waiting for it made the tests depend on when a loaded machine scheduled it.
+    private let cellularMonitoringDispatchQueue: SentryDispatchQueueWrapper?
+
+    init(
+        cellularNetworkTechnologyProvider: SentryCellularNetworkTechnologyProviding = SentryCellularNetworkTechnologyProvider(),
+        cellularMonitoringDispatchQueue: SentryDispatchQueueWrapper? = nil
+    ) {
         self.cellularNetworkTechnologyProvider = cellularNetworkTechnologyProvider
+        self.cellularMonitoringDispatchQueue = cellularMonitoringDispatchQueue
         super.init()
+    }
+
+    private func dispatchCellularMonitoring(_ block: @escaping () -> Void) {
+        if let cellularMonitoringDispatchQueue {
+            cellularMonitoringDispatchQueue.dispatchAsync(block)
+        } else {
+            reachabilityQueue.async(execute: block)
+        }
     }
 #endif // os(iOS) && !targetEnvironment(macCatalyst)
     private let reachabilityQueue: DispatchQueue = DispatchQueue(label: "io.sentry.cocoa.connectivity", qos: .background, attributes: [])
@@ -103,7 +122,7 @@ public class SentryReachability: NSObject {
         // into the SDK, so it runs on the same queue as the path monitor. The provider is never
         // nil; it is copied into a local only to keep self out of the escaping block.
         let cellularNetworkTechnologyProvider = self.cellularNetworkTechnologyProvider
-        reachabilityQueue.async {
+        dispatchCellularMonitoring {
             cellularNetworkTechnologyProvider.startMonitoring()
         }
 #endif // os(iOS) && !targetEnvironment(macCatalyst)
@@ -115,7 +134,7 @@ public class SentryReachability: NSObject {
     private func stopMonitoringCellularNetworkTechnology() {
 #if os(iOS) && !targetEnvironment(macCatalyst)
         let cellularNetworkTechnologyProvider = self.cellularNetworkTechnologyProvider
-        reachabilityQueue.async {
+        dispatchCellularMonitoring {
             cellularNetworkTechnologyProvider.stopMonitoring()
         }
 #endif // os(iOS) && !targetEnvironment(macCatalyst)

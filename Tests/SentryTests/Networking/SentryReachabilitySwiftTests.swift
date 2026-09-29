@@ -1,5 +1,5 @@
+@_spi(Private) import SentryTestUtils
 @_spi(Private) @testable import Sentry
-import SentryTestUtils
 import XCTest
 
 class TestSentryReachabilityObserver: NSObject, SentryReachabilityObserver {
@@ -67,9 +67,15 @@ final class SentryReachabilitySwiftTests: XCTestCase {
     /// The cellular technology provider is injected, so a test that needs to control it replaces
     /// the whole instance instead of reaching into it.
     private func makeReachability(
-        technologyProvider: TestSentryCellularNetworkTechnologyProvider
+        technologyProvider: TestSentryCellularNetworkTechnologyProvider,
+        cellularMonitoringDispatchQueue: SentryDispatchQueueWrapper = TestSentryDispatchQueueWrapper()
     ) -> SentryReachability {
-        configured(SentryReachability(cellularNetworkTechnologyProvider: technologyProvider))
+        configured(
+            SentryReachability(
+                cellularNetworkTechnologyProvider: technologyProvider,
+                cellularMonitoringDispatchQueue: cellularMonitoringDispatchQueue
+            )
+        )
     }
 #endif // os(iOS) && !targetEnvironment(macCatalyst)
 
@@ -191,25 +197,22 @@ final class SentryReachabilitySwiftTests: XCTestCase {
     }
 
 #if os(iOS) && !targetEnvironment(macCatalyst)
-    /// The provider is started and stopped on a background-QoS queue, which a loaded CI machine can
-    /// starve for a while, so the waits are generous.
+    /// The provider is started and stopped through the injected queue, which runs the blocks
+    /// inline here. The production queue is low priority, and waiting for it made this test
+    /// depend on when a loaded machine happened to schedule it.
     func testAdd_whenFirstObserverIsAdded_shouldMonitorCellularNetworkTechnology() {
         // -- Arrange --
         let technologyProvider = TestSentryCellularNetworkTechnologyProvider()
-        reachability = makeReachability(technologyProvider: technologyProvider)
+        reachability = makeReachability(
+            technologyProvider: technologyProvider,
+            cellularMonitoringDispatchQueue: TestSentryDispatchQueueWrapper()
+        )
         reachability.skipRegisteringActualCallbacks = false
-        let startedMonitoring = expectation(description: "Started monitoring the cellular network technology")
-        technologyProvider.onStartMonitoring = { startedMonitoring.fulfill() }
-        let stoppedMonitoring = expectation(description: "Stopped monitoring the cellular network technology")
-        stoppedMonitoring.assertForOverFulfill = false
-        technologyProvider.onStopMonitoring = { stoppedMonitoring.fulfill() }
         let observer = TestSentryReachabilityObserver()
 
         // -- Act --
         reachability.add(observer)
-        wait(for: [startedMonitoring], timeout: 10.0)
         reachability.remove(observer)
-        wait(for: [stoppedMonitoring], timeout: 10.0)
 
         // -- Assert --
         XCTAssertEqual(["start", "stop"], technologyProvider.monitoringInvocations.invocations)
@@ -217,23 +220,28 @@ final class SentryReachabilitySwiftTests: XCTestCase {
 #endif // os(iOS) && !targetEnvironment(macCatalyst)
 
 #if os(iOS) && !targetEnvironment(macCatalyst)
-    /// Starting the monitoring is queued on the reachability queue, so removing the last observer
-    /// right after adding it must not leave the monitoring running.
+    /// Starting the monitoring is queued, so removing the last observer before the queued start
+    /// ran must not leave the monitoring running. The queue holds both blocks until this test runs
+    /// them, so the order is not left to the scheduler.
     func testRemove_whenLastObserverIsRemovedBeforeMonitoringStarted_shouldStopMonitoring() {
         // -- Arrange --
         let technologyProvider = TestSentryCellularNetworkTechnologyProvider()
-        reachability = makeReachability(technologyProvider: technologyProvider)
+        let cellularMonitoringDispatchQueue = TestSentryDispatchQueueWrapper()
+        cellularMonitoringDispatchQueue.dispatchAsyncExecutesBlock = false
+        reachability = makeReachability(
+            technologyProvider: technologyProvider,
+            cellularMonitoringDispatchQueue: cellularMonitoringDispatchQueue
+        )
         reachability.skipRegisteringActualCallbacks = false
-        let stoppedMonitoring = expectation(description: "Stopped monitoring the cellular network technology")
-        stoppedMonitoring.assertForOverFulfill = false
-        technologyProvider.onStopMonitoring = { stoppedMonitoring.fulfill() }
         let observer = TestSentryReachabilityObserver()
 
         // -- Act --
-        // Removing without waiting for the queued start to run.
         reachability.add(observer)
         reachability.remove(observer)
-        wait(for: [stoppedMonitoring], timeout: 10.0)
+        // Both blocks were queued before either ran, so run them in the order they were queued.
+        for block in cellularMonitoringDispatchQueue.dispatchAsyncInvocations.invocations {
+            block()
+        }
 
         // -- Assert --
         XCTAssertEqual(1, technologyProvider.startMonitoringCount)
