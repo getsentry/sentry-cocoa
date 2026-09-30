@@ -93,6 +93,11 @@ struct SessionReplayFileManager {
         }
         return SentrySerialization.deserializeDictionary(fromJsonData: lastReplay) as? [String: Any]
     }
+
+    func claimLastReplayInfo() {
+        guard let dir = replayDirectory() else { return }
+        removeFileIfExists(at: dir.appendingPathComponent(Constants.lastReplay))
+    }
     
     // MARK: - Session Directory
     

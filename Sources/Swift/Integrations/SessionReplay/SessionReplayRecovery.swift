@@ -64,6 +64,10 @@ struct SessionReplayRecovery {
             return
         }
 
+        // Drop replay.last now so later fatals in this sendReports pass cannot reuse this
+        // replay_id. Keep the session folder until encoding finishes.
+        replayFileManager.claimLastReplayInfo()
+
         var eventContext = event.context ?? [:]
         eventContext["replay"] = ["replay_id": replayId.sentryIdString]
         event.context = eventContext
