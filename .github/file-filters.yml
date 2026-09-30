@@ -428,6 +428,8 @@ run_v10_for_prs: &run_v10_for_prs
   - "scripts/assemble-xcframework-sentryobjc.sh"
   - "scripts/validate-xcframework*.sh"
   - "scripts/generate-testapp-v10.sh"
+  - "scripts/remove-v10-package-folder-references.swift"
+  - "scripts/test-v10-package-folder-references.swift"
   - "scripts/set-xcodegen-package-traits.sh"
   - "scripts/set-xcodegen-compiler-flags.sh"
   - "scripts/swap-xcodegen-product-name.sh"
