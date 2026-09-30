@@ -173,7 +173,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             XCTAssertNil(event.debugMeta)
             let attachments = try XCTUnwrap(scope?.attachments.filter { $0.filename == "MXDiagnosticPayload.json" })
             XCTAssertEqual(attachments.count, 1)
-            XCTAssertEqual(attachments.first?.data, rawDiagnostic)
+            let attachmentJSON = try JSONSerialization.jsonObject(with: XCTUnwrap(attachments.first?.data)) as? NSDictionary
+            let diagnosticJSON = try JSONSerialization.jsonObject(with: rawDiagnostic) as? NSDictionary
+            XCTAssertEqual(attachmentJSON, diagnosticJSON)
         }
         XCTAssertEqual(diagnostic.jsonRepresentationInvocations.count, 1)
     }
