@@ -8,10 +8,21 @@ import Foundation
 @_spi(Private) @objc public final class SentryReplayRecoveryIdleGate: NSObject {
     private struct State {
         var pending = 0
+        var claimed = false
     }
 
     private let state = SentryMutex(State())
     private let group = DispatchGroup()
+
+    /// Claims recovery for this SDK lifecycle. The first caller wins; later callers get `false`.
+    /// Does not delete `replay.last`; that stays until encode finishes so a kill can still recover.
+    @objc public func tryClaim() -> Bool {
+        state.withLock { current in
+            if current.claimed { return false }
+            current.claimed = true
+            return true
+        }
+    }
 
     /// Marks recovery encode as in-flight. Must be paired with `end`.
     @objc public func begin() {

@@ -67,9 +67,11 @@ struct SessionReplayRecovery {
             return
         }
 
-        // Drop replay.last now so later fatals in this sendReports pass cannot reuse this
-        // replay_id. Keep the session folder until encoding finishes.
-        replayFileManager.claimLastReplayInfo()
+        // Same-process exclusivity only. Keep replay.last on disk until encode finishes so a
+        // kill during the queued encode can still recover on the next launch.
+        guard idleGate.tryClaim() else {
+            return
+        }
 
         var eventContext = event.context ?? [:]
         eventContext["replay"] = ["replay_id": replayId.sentryIdString]
@@ -95,6 +97,7 @@ struct SessionReplayRecovery {
             } catch {
                 SentrySDKLog.warning("[Session Replay] Could not delete last replay file at path: \(lastReplayURL), error : \(error.localizedDescription)")
             }
+            self.replayFileManager.claimLastReplayInfo()
         }
     }
     

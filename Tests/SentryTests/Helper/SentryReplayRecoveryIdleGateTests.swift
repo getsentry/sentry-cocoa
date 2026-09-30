@@ -45,6 +45,19 @@ class SentryReplayRecoveryIdleGateTests: XCTestCase {
         sut.end()
     }
 
+    func testTryClaim_whenCalledTwice_shouldSucceedOnlyOnce() {
+        // -- Arrange --
+        let sut = SentryReplayRecoveryIdleGate()
+
+        // -- Act --
+        let first = sut.tryClaim()
+        let second = sut.tryClaim()
+
+        // -- Assert --
+        XCTAssertTrue(first)
+        XCTAssertFalse(second)
+    }
+
     func testEnd_whenNothingPending_shouldNotLeaveUnbalanced() {
         // -- Arrange --
         let sut = SentryReplayRecoveryIdleGate()

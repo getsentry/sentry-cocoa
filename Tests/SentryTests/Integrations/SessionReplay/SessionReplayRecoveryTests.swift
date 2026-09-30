@@ -184,7 +184,7 @@ class SessionReplayRecoveryTests: XCTestCase {
             replayId.sentryIdString
         )
         XCTAssertNil(secondCrash.context?["replay"])
-        XCTAssertFalse(FileManager.default.fileExists(atPath: lastReplayPath.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: lastReplayPath.path))
         XCTAssertTrue(FileManager.default.fileExists(atPath: sessionFolder.path))
         XCTAssertEqual(processingQueue.dispatchAsyncCalled, 1)
         XCTAssertFalse(idleGate.waitForIdle(timeout: 0))
@@ -193,6 +193,8 @@ class SessionReplayRecoveryTests: XCTestCase {
         wait(for: [replayCapture], timeout: 1)
         XCTAssertEqual(hub.capturedReplayRecordingVideo.count, 1)
         XCTAssertTrue(idleGate.waitForIdle(timeout: 0))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: lastReplayPath.path))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: sessionFolder.path))
     }
 }
 
