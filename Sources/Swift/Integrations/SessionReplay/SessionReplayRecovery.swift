@@ -58,7 +58,6 @@ struct SessionReplayRecovery {
         
         guard let path = jsonObject["path"] as? String else {
             SentrySDKLog.error("[Session Replay] Failed to read path from last replay")
-            replayFileManager.claimLastReplayInfo()
             return
         }
 
@@ -68,11 +67,11 @@ struct SessionReplayRecovery {
             return
         }
 
+        // Same-process exclusivity. Keep replay.last on disk until encode finishes so a
+        // kill during the queued encode can still recover on the next launch.
         guard idleGate.tryClaim() else {
             return
         }
-        // Durable claim: next launch can still find this replay if we are killed mid-encode.
-        replayFileManager.promoteLastReplayToRecovering()
 
         var eventContext = event.context ?? [:]
         eventContext["replay"] = ["replay_id": replayId.sentryIdString]
@@ -154,7 +153,6 @@ struct SessionReplayRecovery {
         } else {
             guard let frameInterval = resumeReplayMaker.recoveredFrameDateInterval else {
                 SentrySDKLog.debug("[Session Replay] No frames to send, dropping replay")
-                replayFileManager.claimLastReplayInfo()
                 return nil
             }
             let end = frameInterval.end.addingTimeInterval(1.0 / Double(replayOptions.frameRate))
