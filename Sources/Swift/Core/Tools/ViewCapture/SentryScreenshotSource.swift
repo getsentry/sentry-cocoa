@@ -32,7 +32,7 @@ import UIKit
         super.init()
     }
 
-    /// Get a screenshot of every open window in the app.
+    /// Get a redacted screenshot of every open window in the app, preserving the rendered image scale.
     /// - Returns: An array of UIImage instances.
     public func appScreenshotsFromMainThread() -> [UIImage] {
         var result: [UIImage] = []
@@ -44,7 +44,7 @@ import UIKit
         return result
     }
 
-    /// Get a screenshot of every open window in the app.
+    /// Get a redacted screenshot of every open window in the app, preserving the rendered pixel dimensions.
     /// - Returns: An array of Data instances containing PNG images.
     public func appScreenshotDatasFromMainThread() -> [Data] {
         var result: [Data] = []
@@ -56,7 +56,7 @@ import UIKit
         return result
     }
 
-    /// Save the current app screen shots in the given directory.
+    /// Save redacted app screenshots at their rendered resolution in the given directory.
     /// If an app has more than one screen, one image for each screen will be saved.
     /// - Parameter imagesDirectoryPath: The path where the images should be saved.
     public func saveScreenShots(_ imagesDirectoryPath: String) {
