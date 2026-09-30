@@ -4,8 +4,8 @@
 import UIKit
 
 class SentryDefaultMaskRenderer: NSObject, SentryMaskRenderer {
-    func maskScreenshot(screenshot image: UIImage, size: CGSize, masking: [SentryRedactRegion]) -> UIImage {
-        let image = UIGraphicsImageRenderer(size: size, format: .init(for: .init(displayScale: 1))).image { context in
+    func maskScreenshot(screenshot image: UIImage, size: CGSize, masking: [SentryRedactRegion], scale: CGFloat) -> UIImage {
+        let image = UIGraphicsImageRenderer(size: size, format: .init(for: .init(displayScale: scale))).image { context in
             applyMasking(to: context, image: image, size: size, masking: masking)
         }
         return image
