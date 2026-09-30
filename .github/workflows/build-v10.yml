@@ -163,6 +163,8 @@ jobs:
         with:
           version: "26"
           resolve-simulators: "false"
+      - name: Test provenance audit
+        run: ./scripts/test-v10-spm-build-plan.swift
       - name: Verify equivalent SwiftPM V10 source graphs
         if: matrix.mode == 'environment'
         run: ./scripts/verify-v10-spm-route-equivalence.swift
@@ -178,7 +180,8 @@ jobs:
         run: |
           swift build --target SentryObjCInternal --scratch-path .build/v10-environment
           swift build --target SentryTestUtils --scratch-path .build/v10-environment
-          ./scripts/verify-v10-sentrycrash-objects.sh --build-path .build/v10-environment
+          ./scripts/verify-v10-sentrycrash-objects.sh --build-path .build/v10-environment \
+            --spm-target SentrySwift --spm-target SentryObjCInternal --spm-target SentryTestUtils
       - name: Build Swift with trait
         if: matrix.mode == 'trait'
         run: swift build --target SentrySwift --traits V10 --scratch-path .build/v10-trait
@@ -187,7 +190,8 @@ jobs:
         run: |
           swift build --target SentryObjCInternal --traits V10 --scratch-path .build/v10-trait
           swift build --target SentryTestUtils --traits V10 --scratch-path .build/v10-trait
-          ./scripts/verify-v10-sentrycrash-objects.sh --build-path .build/v10-trait
+          ./scripts/verify-v10-sentrycrash-objects.sh --build-path .build/v10-trait \
+            --spm-target SentrySwift --spm-target SentryObjCInternal --spm-target SentryTestUtils
       - name: Build Swift with base manifest
         if: matrix.mode == 'base-manifest'
         env:
@@ -202,7 +206,8 @@ jobs:
         run: |
           swift build --target SentryObjCInternal --scratch-path .build/v10-base-manifest
           swift build --target SentryTestUtils --scratch-path .build/v10-base-manifest
-          ./scripts/verify-v10-sentrycrash-objects.sh --build-path .build/v10-base-manifest
+          ./scripts/verify-v10-sentrycrash-objects.sh --build-path .build/v10-base-manifest \
+            --spm-target SentrySwift --spm-target SentryObjCInternal --spm-target SentryTestUtils
 
   package-v10:
     name: Package V10 ${{ matrix.sdk }}

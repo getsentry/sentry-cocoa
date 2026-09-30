@@ -10,16 +10,26 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/ci-utils.sh"
 
 BUILD_PATH=""
+SPM_TARGETS=()
 
 usage() {
-  log_notice "Usage: $0 --build-path <path>"
+  log_notice "Usage: $0 --build-path <path> [--spm-target <target> ...]"
+  log_notice "  --build-path, -b: completed build output to audit (required)"
+  log_notice "  --spm-target, -t: actual requested target; repeat for native SwiftPM builds"
   exit 1
 }
 
 while [[ $# -gt 0 ]]; do
   case $1 in
-    --build-path)
+    --build-path|-b)
+      [[ $# -ge 2 ]] || usage
       BUILD_PATH="$2"
+      shift 2
+      ;;
+    --spm-target|-t)
+      [[ $# -ge 2 ]] || usage
+      [[ -n "$2" ]] || usage
+      SPM_TARGETS+=(--spm-target "$2")
       shift 2
       ;;
     *)
@@ -67,13 +77,15 @@ record_error() {
   violation_count=$((violation_count + 1))
 }
 
-# Xcode dependency scans, SwiftPM build descriptions, output maps, and dependency files keep the
-# source path. Search all compact build metadata in one pass.
+# Native SwiftPM describes the entire package, including unrequested targets. Validate the actual
+# requested command closure before taking its associated plans/descriptions/maps out of the raw
+# scan. All other metadata (including Xcode/SwiftBuild output) and actual dependencies stay checked.
 source_patterns=$(mktemp)
 header_patterns=$(mktemp)
 metadata_paths=$(mktemp)
 dependency_paths=$(mktemp)
-trap 'rm -f "$source_patterns" "$header_patterns" "$metadata_paths" "$dependency_paths"' EXIT
+native_metadata_paths=$(mktemp)
+trap 'rm -f "$source_patterns" "$header_patterns" "$metadata_paths" "$dependency_paths" "$native_metadata_paths"' EXIT
 printf '%s\n' "${forbidden_sources[@]}" > "$source_patterns"
 printf '%s\n' "${forbidden_headers[@]}" > "$header_patterns"
 find "$BUILD_PATH" -type f \
@@ -81,6 +93,17 @@ find "$BUILD_PATH" -type f \
   -o -name '*.rsp' -o -name '*.SwiftFileList' -o -name '*.LinkFileList' \) \
   -print0 > "$metadata_paths"
 find "$BUILD_PATH" -type f \( -name '*.scan' -o -name '*.d' \) -print0 > "$dependency_paths"
+
+if [[ -f "$BUILD_PATH/debug.yaml" || -f "$BUILD_PATH/release.yaml" || -f "$BUILD_PATH/plugin-tools.yaml" ]]; then
+  if "$SCRIPT_DIR/verify-v10-spm-build-plan.swift" \
+    --build-path "$BUILD_PATH" --source-patterns "$source_patterns" \
+    --metadata-paths "$metadata_paths" --remaining-metadata-paths "$native_metadata_paths" \
+    ${SPM_TARGETS[@]+"${SPM_TARGETS[@]}"}; then
+    mv "$native_metadata_paths" "$metadata_paths"
+  else
+    record_error "Could not verify the requested native SwiftPM build"
+  fi
+fi
 
 metadata_matches=""
 if [[ -s "$metadata_paths" ]]; then

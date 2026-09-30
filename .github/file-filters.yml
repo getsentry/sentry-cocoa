@@ -417,6 +417,8 @@ run_v10_for_prs: &run_v10_for_prs
   - "scripts/verify-v10-sentrycrash-*.sh"
   - "scripts/verify-v10-sentrycrash-source-contract.swift"
   - "scripts/verify-v10-spm-route-equivalence.swift"
+  - "scripts/verify-v10-spm-build-plan.swift"
+  - "scripts/test-v10-spm-build-plan.swift"
   - "scripts/build-xcframework-slice.sh"
   - "scripts/build-xcframework-v10.sh"
   - "scripts/build-xcframework-sentryobjc.sh"

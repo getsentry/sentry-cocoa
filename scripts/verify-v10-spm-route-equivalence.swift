@@ -1,8 +1,8 @@
 #!/usr/bin/env swift
 
-// SwiftPM offers several ways to opt into V10. They should all select the same SDK code and crash
-// backend, so consumers do not get different behavior based on how they enable it. This verifier
-// catches drift between those routes before it becomes a build or release surprise.
+// Enabling V10 through SDK_V10, a package trait, or the base manifest should select the same
+// SDK sources and crash backend. Compare those choices so a different setup doesn't change
+// what code consumers build.
 
 import Foundation
 
@@ -76,6 +76,7 @@ private func makeBaseManifestPackage(at destination: URL) throws -> URL {
         "Package@swift-6.1.swift",
         "Package@swift-6.2.swift"
     ]
+
     for source in try fileManager.contentsOfDirectory(
         at: repositoryRoot,
         includingPropertiesForKeys: nil
@@ -85,10 +86,12 @@ private func makeBaseManifestPackage(at destination: URL) throws -> URL {
             withDestinationURL: source
         )
     }
+
     try fileManager.copyItem(
         at: repositoryRoot.appendingPathComponent("Package.swift"),
         to: package.appendingPathComponent("Package.swift")
     )
+
     return package
 }
 
@@ -107,6 +110,7 @@ private func packageDescription(for route: Route) throws -> PackageDescription {
         "--package-path", package.path,
         "--scratch-path", temporaryDirectory.appendingPathComponent("build").path
     ]
+
     if route == .trait {
         arguments += ["--traits", "V10"]
     }
@@ -120,6 +124,7 @@ private func packageDescription(for route: Route) throws -> PackageDescription {
     process.standardError = FileHandle.standardError
     var environment = ProcessInfo.processInfo.environment
     environment.removeValue(forKey: "SDK_V10")
+
     if route != .trait {
         environment["SDK_V10"] = "1"
     }
@@ -135,6 +140,7 @@ private func packageDescription(for route: Route) throws -> PackageDescription {
             userInfo: [NSLocalizedDescriptionKey: "swift package describe failed for the \(route.rawValue) route"]
         )
     }
+
     return try JSONDecoder().decode(PackageDescription.self, from: data)
 }
 
@@ -152,6 +158,7 @@ private func selectedContents(
             userInfo: [NSLocalizedDescriptionKey: "the \(route.rawValue) manifest does not isolate the expected V9 Swift adapters"]
         )
     }
+
     return try Dictionary(uniqueKeysWithValues: comparedTargets.map { name in
         guard let target = targets[name] else {
             throw NSError(
@@ -160,6 +167,7 @@ private func selectedContents(
                 userInfo: [NSLocalizedDescriptionKey: "the \(route.rawValue) route has no \(name) target"]
             )
         }
+
         return (
             name,
             TargetContents(
@@ -179,10 +187,13 @@ private func reportDifference(
     candidate: Set<String>
 ) {
     guard baseline != candidate else { return }
+
     print("error: \(route.rawValue) \(target) \(kind) differ from environment V10:")
+
     for value in candidate.subtracting(baseline).sorted() {
         print("  + \(value)")
     }
+
     for value in baseline.subtracting(candidate).sorted() {
         print("  - \(value)")
     }
@@ -198,21 +209,28 @@ private func verify(
     let v9Sources = actual.sources.intersection(v9OnlySwiftSources)
     if !v9Sources.isEmpty {
         succeeded = false
+
         print("error: \(route.rawValue) \(target) schedules V9-only Swift sources:")
+
         for source in v9Sources.sorted() {
             print("  \(source)")
         }
     }
+
     let v9Dependencies = actual.targetDependencies.intersection(v9OnlyTargets)
     if !v9Dependencies.isEmpty {
         succeeded = false
+
         print("error: \(route.rawValue) \(target) selects V9-only targets:")
+
         for dependency in v9Dependencies.sorted() {
             print("  \(dependency)")
         }
     }
+
     if actual != expected {
         succeeded = false
+
         reportDifference(
             route: route,
             target: target,
@@ -220,6 +238,7 @@ private func verify(
             baseline: expected.sources,
             candidate: actual.sources
         )
+
         reportDifference(
             route: route,
             target: target,
@@ -227,6 +246,7 @@ private func verify(
             baseline: expected.targetDependencies,
             candidate: actual.targetDependencies
         )
+
         reportDifference(
             route: route,
             target: target,
@@ -235,6 +255,7 @@ private func verify(
             candidate: actual.productDependencies
         )
     }
+
     return succeeded
 }
 
@@ -248,12 +269,15 @@ private func run() throws -> Bool {
     var succeeded = true
     for route in Route.allCases {
         guard let contents = routes[route] else { continue }
+
         for target in comparedTargets {
             guard let expected = baseline[target], let actual = contents[target] else { continue }
+
             succeeded = verify(route: route, target: target, expected: expected, actual: actual)
                 && succeeded
         }
     }
+
     return succeeded
 }
 
