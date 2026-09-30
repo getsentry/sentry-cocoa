@@ -1,7 +1,6 @@
 @_spi(Private) import SentryTestUtils
 @_spi(Private) @testable import Sentry
 import Foundation
-import UIKit
 import XCTest
 
 #if os(iOS) || os(tvOS)
