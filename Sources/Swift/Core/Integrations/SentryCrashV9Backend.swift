@@ -23,9 +23,11 @@ private func sentrycrash_v9_registerSwiftBackend()
     private static var crashWrapperProvider: CrashWrapperProvider?
     private static var exceptionCapture: ExceptionCapture?
 
+    #if !os(watchOS)
     public static func isSigtermReportingEnabled(in options: Options) -> Bool {
         options._enableSigtermReporting
     }
+    #endif
 
     public static func finalizePreviousRunSession(
         options: Options,
