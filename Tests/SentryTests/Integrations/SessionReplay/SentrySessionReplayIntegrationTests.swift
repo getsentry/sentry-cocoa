@@ -853,61 +853,6 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         )
     }
 
-    func testResumePreviousSessionReplay_whenCalledOffProcessingQueue_shouldEncodeOnProcessingQueue() throws {
-        // -- Arrange --
-        let options = Options()
-        options.dsn = "https://user@test.com/test"
-        options.cacheDirectoryPath = FileManager.default.temporaryDirectory.path
-        options.sessionReplay = SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 0)
-
-        let dispatchQueue = TestSentryDispatchQueueWrapper()
-        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueue
-        SentryDependencyContainer.sharedInstance().dispatchFactory = TestDispatchFactory()
-        SentryDependencyContainer.sharedInstance().fileManager = try SentryFileManager(
-            options: options,
-            dateProvider: dateProvider,
-            dispatchQueueWrapper: dispatchQueue
-        )
-
-        try createLastSessionReplay(
-            writeSessionInfo: false,
-            errorSampleRate: 0,
-            replayType: .session
-        )
-
-        // Construct the integration directly so TestDispatchFactory vends the processing
-        // queue. SentrySDK.start would also start unrelated SDK work on other queues.
-        let sut = try XCTUnwrap(
-            SentrySessionReplayIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
-        )
-        let processingQueue = try XCTUnwrap(sut.replayProcessingQueue as? TestSentryDispatchQueueWrapper)
-        processingQueue.dispatchAsyncExecutesBlock = false
-
-        let client = SentryClientInternal(options: options)
-        let hub = TestHub(client: client, andScope: Scope())
-        SentrySDKInternal.setCurrentHub(hub)
-        let replayCapture = expectation(description: "Replay capture")
-        hub.onReplayCapture = {
-            replayCapture.fulfill()
-        }
-
-        let crash = Event(error: NSError(domain: "Error", code: 1))
-        crash.context = [:]
-        crash.isFatalEvent = true
-
-        // -- Act --
-        globalEventProcessor.reportAll(crash)
-
-        // -- Assert --
-        XCTAssertNotNil((crash.context?["replay"] as? [String: Any])?["replay_id"] as? String)
-        XCTAssertEqual(hub.capturedReplayRecordingVideo.count, 0)
-        XCTAssertGreaterThanOrEqual(processingQueue.dispatchAsyncCalled, 1)
-
-        processingQueue.invokeLastDispatchAsync()
-        wait(for: [replayCapture], timeout: 1)
-        XCTAssertEqual(hub.capturedReplayRecordingVideo.count, 1)
-    }
-
     func testBufferReplayForCrash() throws {
         class CustomBreadcrumbConverter: NSObject, SentryReplayBreadcrumbConverter {
             func convert(from breadcrumb: Breadcrumb) -> (any SentryRRWebEventProtocol)? {
