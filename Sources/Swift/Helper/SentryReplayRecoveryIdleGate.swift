@@ -26,18 +26,19 @@ import Foundation
 
     /// Marks recovery encode as in-flight. Must be paired with `end`.
     @objc public func begin() {
-        state.withLock { $0.pending += 1 }
-        group.enter()
+        // Keep pending and the group in the same critical section so waitForIdle
+        // cannot observe work and then wait on an empty group, which succeeds.
+        state.withLock {
+            $0.pending += 1
+            group.enter()
+        }
     }
 
     /// Marks one in-flight recovery encode as finished. Extra calls are ignored.
     @objc public func end() {
-        let shouldLeave = state.withLock { current -> Bool in
-            guard current.pending > 0 else { return false }
+        state.withLock { current in
+            guard current.pending > 0 else { return }
             current.pending -= 1
-            return true
-        }
-        if shouldLeave {
             group.leave()
         }
     }

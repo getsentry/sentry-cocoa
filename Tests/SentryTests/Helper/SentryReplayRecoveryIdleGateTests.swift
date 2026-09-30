@@ -58,6 +58,26 @@ class SentryReplayRecoveryIdleGateTests: XCTestCase {
         XCTAssertFalse(second)
     }
 
+    func testWaitForIdle_whenBeginHasReturned_shouldNotReportIdleUntilEnd() {
+        // -- Arrange --
+        let sut = SentryReplayRecoveryIdleGate()
+        sut.begin()
+        let lock = NSLock()
+        var idleResults: [Bool] = []
+
+        // -- Act --
+        DispatchQueue.concurrentPerform(iterations: 32) { _ in
+            let isIdle = sut.waitForIdle(timeout: 0)
+            lock.lock()
+            idleResults.append(isIdle)
+            lock.unlock()
+        }
+
+        // -- Assert --
+        XCTAssertFalse(idleResults.contains(true))
+        sut.end()
+    }
+
     func testEnd_whenNothingPending_shouldNotLeaveUnbalanced() {
         // -- Arrange --
         let sut = SentryReplayRecoveryIdleGate()
