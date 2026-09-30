@@ -7,7 +7,7 @@ internal import Sentry
 import Foundation
 
 @objc public enum SentryObjCAttachmentType: Int {
-    case eventAttachment = 0, viewHierarchy
+    case eventAttachment = 0, viewHierarchy, flamegraph
 }
 
 extension SentryObjCAttachmentType {

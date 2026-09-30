@@ -75,6 +75,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 NSString *const kSentryAttachmentTypeNameEventAttachment = @"event.attachment";
 NSString *const kSentryAttachmentTypeNameViewHierarchy = @"event.view_hierarchy";
+// Until the ingestion pipeline supports event.flamegraph, send these as regular attachments.
+NSString *const kSentryAttachmentTypeNameFlamegraph = @"event.attachment";
 
 NSString *
 nameForSentryAttachmentType(SentryAttachmentType attachmentType)
@@ -82,6 +84,8 @@ nameForSentryAttachmentType(SentryAttachmentType attachmentType)
     switch (attachmentType) {
     case kSentryAttachmentTypeViewHierarchy:
         return kSentryAttachmentTypeNameViewHierarchy;
+    case kSentryAttachmentTypeFlamegraph:
+        return kSentryAttachmentTypeNameFlamegraph;
     default:
         return kSentryAttachmentTypeNameEventAttachment;
     }

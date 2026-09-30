@@ -6,6 +6,11 @@
   },
   {
     "kind": "EnumConstantDecl",
+    "name": "SentryObjCAttachmentTypeFlamegraph",
+    "parent": "SentryObjCAttachmentType"
+  },
+  {
+    "kind": "EnumConstantDecl",
     "name": "SentryObjCAttachmentTypeViewHierarchy",
     "parent": "SentryObjCAttachmentType"
   },

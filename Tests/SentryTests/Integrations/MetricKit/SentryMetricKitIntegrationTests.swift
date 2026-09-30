@@ -105,7 +105,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         payload.overrides.timeStampBegin = timeStampBegin
         sut.mxManager.didReceive([payload])
 
-            try assertEventWithScopeCaptured { _, scope, _ in
+            try assertExistingHangCaptured { _, scope, _ in
                 let diagnosticAttachment = scope?.attachments.first { $0.filename == "MXDiagnosticPayload.json" }
 
                 XCTAssertEqual(diagnosticAttachment?.data, hangDiagnostic.jsonRepresentation())
@@ -206,7 +206,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         // -- Assert --
         let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient)
         let captures = client.captureEventWithScopeInvocations.invocations
-        XCTAssertEqual(captures.count, 2)
+        XCTAssertEqual(captures.count, 3)
         let malformedCapture = try XCTUnwrap(captures.first)
         let validCapture = try XCTUnwrap(captures.element(at: 1))
         XCTAssertNil(malformedCapture.event.threads)
@@ -220,6 +220,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             XCTAssertEqual(attachments.count, 1)
             XCTAssertEqual(attachments.first?.data, expectedJSON)
         }
+        XCTAssertEqual(captures.element(at: 2)?.scope.attachments.first { $0.filename == "flamegraph.json" }?.attachmentType, .flamegraph)
         XCTAssertFalse(scope.attachments.contains { $0.filename == "MXDiagnosticPayload.json" })
         XCTAssertEqual(malformedDiagnostic.jsonRepresentationInvocations.count, 1)
         XCTAssertEqual(validDiagnostic.jsonRepresentationInvocations.count, 1)
@@ -241,11 +242,55 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         payload.overrides.timeStampBegin = timeStampBegin
         sut.mxManager.didReceive([payload])
 
-            try assertEventWithScopeCaptured { _, scope, _ in
+            try assertExistingHangCaptured { _, scope, _ in
                 let diagnosticAttachment = scope?.attachments.first { $0.filename == "MXDiagnosticPayload.json" }
 
                 XCTAssertNil(diagnosticAttachment)
             }
+    }
+
+    func testDidReceive_whenHangDiagnostic_shouldAttachDeduplicatedFlamegraph() throws {
+        // -- Arrange --
+        givenSDKWithHubWithScope()
+        let sut = SentryMXManager(
+            inAppLogic: SentryInAppLogic(inAppIncludes: []),
+            attachDiagnosticAsAttachment: false
+        )
+        let diagnostic = TestMXHangDiagnostic()
+        diagnostic.overrides.callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/not-per-thread-only-one-frame")
+        let payload = TestMXDiagnosticPayload()
+        payload.overrides.hangDiagnostic = [diagnostic]
+
+        // -- Act --
+        sut.didReceive([payload])
+
+        // -- Assert --
+        let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient)
+        let captures = client.captureEventWithScopeInvocations.invocations
+        XCTAssertEqual(captures.count, 2)
+        let existingHang = try XCTUnwrap(captures.first)
+        XCTAssertNil(existingHang.scope.attachments.first { $0.filename == "flamegraph.json" })
+        XCTAssertNotNil(existingHang.event.exceptions?.first?.stacktrace)
+        let prototypeHang = try XCTUnwrap(captures.element(at: 1))
+        XCTAssertNotEqual(prototypeHang.event.eventId, existingHang.event.eventId)
+        XCTAssertNil(prototypeHang.event.exceptions?.first?.stacktrace)
+        let attachment = try XCTUnwrap(prototypeHang.scope.attachments.first { $0.filename == "flamegraph.json" })
+        XCTAssertEqual(attachment.contentType, "application/json")
+        XCTAssertEqual(attachment.attachmentType, .flamegraph)
+        let item = try XCTUnwrap(SentryEnvelopeItem(attachment: attachment, maxAttachmentSize: UInt.max))
+        XCTAssertEqual(item.header.serialize()["attachment_type"] as? String, "event.attachment")
+
+        let data = try XCTUnwrap(attachment.data)
+        let json = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        let frames = try XCTUnwrap(json["frames"] as? [[String: Any]])
+        XCTAssertEqual(frames.count, 1)
+        XCTAssertEqual(frames.first?["instruction_addr"] as? String, "0x21f1a1a04")
+        let callStacks = try XCTUnwrap(json["call_stacks"] as? [[String: Any]])
+        XCTAssertEqual(callStacks.count, 1)
+        let roots = try XCTUnwrap(callStacks.first?["roots"] as? [[String: Any]])
+        XCTAssertEqual(roots.count, 2)
+        XCTAssertEqual(roots.map { $0["frame_id"] as? Int }, [0, 0])
+        XCTAssertEqual(roots.map { $0["sample_count"] as? Int }, [92, 92])
     }
 
     func testSetInAppIncludes_AppliesInAppToStackTrace() throws {
@@ -265,7 +310,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         payload.overrides.timeStampBegin = timeStampBegin
         sut.mxManager.didReceive([payload])
 
-            try assertEventWithScopeCaptured { event, _, _ in
+            try assertExistingHangCaptured { event, _, _ in
                 let stacktrace = try XCTUnwrap( event?.threads?.first?.stacktrace)
 
                 let inAppFramesCount = stacktrace.frames.filter { $0.inApp as? Bool ?? false }.count
@@ -403,8 +448,16 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         // -- Assert --
         let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient)
         let invocations = client.captureEventWithScopeInvocations.invocations
-        XCTAssertEqual(4, invocations.count)
-        XCTAssertEqual([.warning, .warning, .error, .error], invocations.map(\.event.level))
+        XCTAssertEqual(8, invocations.count)
+        XCTAssertEqual([.warning, .warning, .warning, .warning, .error, .error, .error, .error], invocations.map(\.event.level))
+    }
+
+    private func assertExistingHangCaptured(_ callback: (Event?, Scope?, [SentryEnvelopeItem]?) throws -> Void) throws {
+        let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient)
+        let captures = client.captureEventWithScopeInvocations.invocations
+        XCTAssertEqual(captures.count, 2)
+        let existingHang = try XCTUnwrap(captures.first)
+        try callback(existingHang.event, existingHang.scope, existingHang.additionalEnvelopeItems)
     }
 
     private func givenSDKWithHubWithScope() {
@@ -442,7 +495,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         }
 
         let invocations = client.captureEventWithScopeInvocations.invocations
-        XCTAssertEqual(1, invocations.count, "Client expected to capture 1 event.")
+        XCTAssertEqual(exceptionType == "MXHangDiagnostic" ? 2 : 1, invocations.count)
     }
 
     private func assertFrames(event: Event?, _ exceptionType: String, _ exceptionValue: String, _ exceptionMechanism: String, framesCount: Int, handled: Bool = true, debugMetaCount: Int = 2) throws {

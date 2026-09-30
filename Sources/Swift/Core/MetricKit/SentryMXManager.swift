@@ -198,6 +198,91 @@ extension SentryMXManager: MXMetricManagerSubscriber {
             useFullCallStackTree: true,
             level: level
         )
+
+        do {
+            let tree = try SentryMXCallStackTree.from(data: diagnostic.callStackTree.jsonRepresentation())
+            let data = try flamegraphData(from: tree)
+            let event = Event(level: level)
+            event.timestamp = timestamp
+            let mechanism = Mechanism(type: Diagnostic.hang.mechanism)
+            mechanism.handled = true
+            mechanism.synthetic = true
+            let exception = Exception(value: "MXHangDiagnostic hangDuration:\(hangDuration)", type: "MXHangFlamegraph")
+            exception.mechanism = mechanism
+            event.exceptions = [exception]
+            SentrySDK.capture(event: event) { scope in
+                scope.addAttachment(Attachment(
+                    data: data,
+                    filename: "flamegraph.json",
+                    contentType: "application/json",
+                    attachmentType: .flamegraph
+                ))
+            }
+        } catch {
+            SentrySDKLog.error("Failed to encode MetricKit hang flamegraph: \(error)")
+        }
+    }
+
+    private struct Flamegraph: Encodable {
+        struct Frame: Encodable {
+            let instructionAddr: String
+            let package: String?
+            let imageAddr: String?
+        }
+
+        struct Node: Encodable {
+            let frameId: Int
+            let sampleCount: Int?
+            let children: [Node]
+        }
+
+        struct CallStack: Encodable {
+            let threadAttributed: Bool
+            let roots: [Node]
+        }
+
+        let frames: [Frame]
+        let callStacks: [CallStack]
+    }
+
+    private func flamegraphData(from tree: SentryMXCallStackTree) throws -> Data {
+        var frames: [Flamegraph.Frame] = []
+        var frameIndices: [MXSample.MXFrame: Int] = [:]
+
+        func encode(_ frame: SentryMXFrame) -> Flamegraph.Node {
+            let key = MXSample.MXFrame(
+                binaryUUID: frame.binaryUUID,
+                offsetIntoBinaryTextSegment: frame.offsetIntoBinaryTextSegment,
+                binaryName: frame.binaryName,
+                address: frame.address
+            )
+            let index: Int
+            if let existing = frameIndices[key] {
+                index = existing
+            } else {
+                index = frames.count
+                let imageAddress: String?
+                if frame.binaryUUID != nil && frame.offsetIntoBinaryTextSegment >= 0 && frame.offsetIntoBinaryTextSegment < frame.address {
+                    imageAddress = String(format: "0x%llx", frame.address - UInt64(frame.offsetIntoBinaryTextSegment))
+                } else {
+                    imageAddress = nil
+                }
+                frames.append(Flamegraph.Frame(
+                    instructionAddr: String(format: "0x%llx", frame.address),
+                    package: frame.binaryName,
+                    imageAddr: imageAddress
+                ))
+                frameIndices[key] = index
+            }
+            return Flamegraph.Node(frameId: index, sampleCount: frame.sampleCount, children: (frame.subFrames ?? []).map(encode))
+        }
+
+        let callStacks = tree.callStacks.map { stack in
+            Flamegraph.CallStack(threadAttributed: stack.threadAttributed ?? false, roots: stack.callStackRootFrames.map(encode))
+        }
+        let encoder = JSONEncoder()
+        encoder.keyEncodingStrategy = .convertToSnakeCase
+        return try encoder.encode(Flamegraph(frames: frames, callStacks: callStacks))
     }
 
     private func captureEvent(

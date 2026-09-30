@@ -28,7 +28,11 @@ typedef NS_ENUM(NSInteger, SentryAttachmentType) {
      * View hierarchy attachment. Automatically set by the SDK when capturing view hierarchy data.
      * This type is primarily used by downstream SDKs.
      */
-    kSentryAttachmentTypeViewHierarchy
+    kSentryAttachmentTypeViewHierarchy,
+    /**
+     * Flamegraph attachment for MetricKit hang diagnostics.
+     */
+    kSentryAttachmentTypeFlamegraph
 };
 
 /**

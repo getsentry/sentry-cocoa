@@ -32373,6 +32373,45 @@
             "usr": "c:@E@SentryAttachmentType@kSentryAttachmentTypeEventAttachment"
           },
           {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryAttachmentType",
+                        "printedName": "Sentry.SentryAttachmentType",
+                        "usr": "c:@E@SentryAttachmentType"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryAttachmentType.Type"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryAttachmentType",
+                    "printedName": "Sentry.SentryAttachmentType",
+                    "usr": "c:@E@SentryAttachmentType"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryAttachmentType.Type) -> Sentry.SentryAttachmentType"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "moduleName": "Sentry",
+            "name": "flamegraph",
+            "printedName": "flamegraph",
+            "usr": "c:@E@SentryAttachmentType@kSentryAttachmentTypeFlamegraph"
+          },
+          {
             "accessors": [
               {
                 "accessorKind": "get",
