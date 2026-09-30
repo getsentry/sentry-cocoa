@@ -2,13 +2,6 @@
 
 ## Unreleased
 
-### Fixes
-
-- Session Replay: Always encode crash-recovery video on the replay processing queue, including when startup-crash report processing runs on the SDK init thread (#9158)
-- Session Replay: Claim the previous replay before stamping `replay_id` on a crash event, so a later fatal in the same report pass cannot reuse it (#9158)
-
-## Unreleased
-
 ### Features
 
 - Update option stability without changing defaults (#9134, #9175):
@@ -26,6 +19,7 @@
 
 - Keep standalone `@objc` extensions in static builds by adding referenced dummy `NSObject` subclasses, and lint for this with a SwiftSyntax SwiftLint extra rule (#9160)
 - Send envelopes captured during a connectivity-triggered cache drain without waiting for another trigger (#9171)
+- Session Replay: Encode crash-recovery video off the SDK init thread, and claim the previous replay before stamping `replay_id` on the crash event (#9158)
 
 ## 9.29.2
 
