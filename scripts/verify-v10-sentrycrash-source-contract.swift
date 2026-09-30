@@ -254,9 +254,17 @@ private func run() throws {
         }
     }
 
-    let v9Integration = try text("Sources/SentryCrashV9Swift/SentryCrashIntegration.swift")
-    if matches(#"\bpublic\s+func\s+sentrycrash_v9_registerSwiftBackend\b"#, v9Integration) {
+    let v9AdapterSources = try regularFileNames(in: "Sources/SentryCrashV9Swift")
+        .filter { $0.hasSuffix(".swift") }
+        .sorted()
+        .map { try text("Sources/SentryCrashV9Swift/\($0)") }
+        .joined(separator: "\n")
+    let registrationPattern = #"@usableFromInline\s+@_cdecl\("sentrycrash_v9_registerSwiftBackend"\)\s+"#
+        + #"(?:internal\s+)?func\s+sentrycrash_v9_registerSwiftBackend\s*\("#
+    if matches(#"\bpublic\s+func\s+sentrycrash_v9_registerSwiftBackend\b"#, v9AdapterSources) {
         report("The V9 C registration boundary must not become public SDK API")
+    } else if !matches(registrationPattern, v9AdapterSources) {
+        report("The internal V9 C registration boundary must remain ABI-visible for cross-module linking")
     }
 
     let manifestNames = ["Package.swift", "Package@swift-6.1.swift", "Package@swift-6.2.swift"]

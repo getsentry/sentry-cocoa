@@ -56,6 +56,7 @@ private let v9AdapterSources: Set<String> = [
     "SentryCrashInstallationReporter.swift",
     "SentryCrashIntegration.swift",
     "SentryCrashSwift.swift",
+    "SentryCrashV9Dependencies.swift",
     "SentryDefaultCrashReporter.swift"
 ]
 private let v9OnlyTargets: Set<String> = [
@@ -148,7 +149,7 @@ private func selectedContents(
         throw NSError(
             domain: "V10SwiftPMRouteVerifier",
             code: 1,
-            userInfo: [NSLocalizedDescriptionKey: "the \(route.rawValue) manifest does not isolate the five V9 Swift adapters"]
+            userInfo: [NSLocalizedDescriptionKey: "the \(route.rawValue) manifest does not isolate the expected V9 Swift adapters"]
         )
     }
     return try Dictionary(uniqueKeysWithValues: comparedTargets.map { name in

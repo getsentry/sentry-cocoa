@@ -134,6 +134,9 @@ extension SentryDependencyContainer {
 }
 
 // Export a C linking boundary without adding a public Swift or Objective-C API.
+// Keep it ABI-visible so non-testable Xcode SwiftPM partial links do not localize the symbol
+// before SentrySwift can resolve its cross-module call.
+@usableFromInline
 @_cdecl("sentrycrash_v9_registerSwiftBackend")
 func sentrycrash_v9_registerSwiftBackend() {
     SentryCrashV9Backend.register(
