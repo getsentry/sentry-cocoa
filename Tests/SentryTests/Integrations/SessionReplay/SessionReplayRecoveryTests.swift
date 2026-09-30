@@ -62,6 +62,7 @@ class SessionReplayRecoveryTests: XCTestCase {
         let processingQueue = TestSentryDispatchQueueWrapper()
         processingQueue.dispatchAsyncExecutesBlock = false
         let assetWorkerQueue = TestSentryDispatchQueueWrapper()
+        let idleGate = SentryReplayRecoveryIdleGate()
 
         let sut = SessionReplayRecovery(
             replayOptions: SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 0),
@@ -69,7 +70,8 @@ class SessionReplayRecoveryTests: XCTestCase {
             replayProcessingQueue: processingQueue,
             replayAssetWorkerQueue: assetWorkerQueue,
             replayFileManager: replayFileManager,
-            breadcrumbConverter: SentrySRDefaultBreadcrumbConverter()
+            breadcrumbConverter: SentrySRDefaultBreadcrumbConverter(),
+            idleGate: idleGate
         )
 
         let hub = TestHub(client: nil, andScope: Scope())
@@ -93,10 +95,12 @@ class SessionReplayRecoveryTests: XCTestCase {
         )
         XCTAssertEqual(hub.capturedReplayRecordingVideo.count, 0)
         XCTAssertEqual(processingQueue.dispatchAsyncCalled, 1)
+        XCTAssertFalse(idleGate.waitForIdle(timeout: 0))
 
         processingQueue.invokeLastDispatchAsync()
         wait(for: [replayCapture], timeout: 1)
         XCTAssertEqual(hub.capturedReplayRecordingVideo.count, 1)
+        XCTAssertTrue(idleGate.waitForIdle(timeout: 0))
     }
 
     func testResumePreviousSessionReplay_whenMultipleFatalEvents_shouldStampReplayIdOnFirstOnly() throws {
@@ -144,6 +148,7 @@ class SessionReplayRecoveryTests: XCTestCase {
         let processingQueue = TestSentryDispatchQueueWrapper()
         processingQueue.dispatchAsyncExecutesBlock = false
         let assetWorkerQueue = TestSentryDispatchQueueWrapper()
+        let idleGate = SentryReplayRecoveryIdleGate()
 
         let sut = SessionReplayRecovery(
             replayOptions: SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 0),
@@ -151,7 +156,8 @@ class SessionReplayRecoveryTests: XCTestCase {
             replayProcessingQueue: processingQueue,
             replayAssetWorkerQueue: assetWorkerQueue,
             replayFileManager: replayFileManager,
-            breadcrumbConverter: SentrySRDefaultBreadcrumbConverter()
+            breadcrumbConverter: SentrySRDefaultBreadcrumbConverter(),
+            idleGate: idleGate
         )
 
         let hub = TestHub(client: nil, andScope: Scope())
@@ -182,10 +188,12 @@ class SessionReplayRecoveryTests: XCTestCase {
         XCTAssertFalse(FileManager.default.fileExists(atPath: lastReplayPath.path))
         XCTAssertTrue(FileManager.default.fileExists(atPath: sessionFolder.path))
         XCTAssertEqual(processingQueue.dispatchAsyncCalled, 1)
+        XCTAssertFalse(idleGate.waitForIdle(timeout: 0))
 
         processingQueue.invokeLastDispatchAsync()
         wait(for: [replayCapture], timeout: 1)
         XCTAssertEqual(hub.capturedReplayRecordingVideo.count, 1)
+        XCTAssertTrue(idleGate.waitForIdle(timeout: 0))
     }
 }
 

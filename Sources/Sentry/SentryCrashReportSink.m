@@ -9,7 +9,6 @@
 #    import "SentrySwift.h"
 
 static const NSTimeInterval SENTRY_APP_START_CRASH_DURATION_THRESHOLD = 2.0;
-static const NSTimeInterval SENTRY_APP_START_CRASH_FLUSH_DURATION = 5.0;
 
 @interface SentryCrashReportSink ()
 
@@ -54,7 +53,7 @@ static const NSTimeInterval SENTRY_APP_START_CRASH_FLUSH_DURATION = 5.0;
 
         [self sendReports:reports onCompletion:onCompletion];
 
-        [SentrySDKInternal flush:SENTRY_APP_START_CRASH_FLUSH_DURATION];
+        [SentryStartupCrashFlush flushAfterReplayRecoveryIdle];
         SENTRY_LOG_DEBUG(@"Startup crash: Finished flushing.");
 
     } else {

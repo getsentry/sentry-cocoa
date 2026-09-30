@@ -19,7 +19,7 @@
 
 - Keep standalone `@objc` extensions in static builds by adding referenced dummy `NSObject` subclasses, and lint for this with a SwiftSyntax SwiftLint extra rule (#9160)
 - Send envelopes captured during a connectivity-triggered cache drain without waiting for another trigger (#9171)
-- Session Replay: Encode crash-recovery video off the SDK init thread, and claim the previous replay before stamping `replay_id` on the crash event (#9158)
+- Session Replay: Encode crash-recovery video off the SDK init thread, claim the previous replay before stamping `replay_id`, and keep startup-crash flush on the crash reporter so it waits for that encode within the same 5s budget (#9158)
 
 ## 9.29.2
 

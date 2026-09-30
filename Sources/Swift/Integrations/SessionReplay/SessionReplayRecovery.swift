@@ -19,6 +19,7 @@ struct SessionReplayRecovery {
     private let replayAssetWorkerQueue: SentryDispatchQueueWrapper
     private let replayFileManager: SessionReplayFileManager
     private var breadcrumbConverter: SentryReplayBreadcrumbConverter
+    private let idleGate: SentryReplayRecoveryIdleGate
     
     init(
         replayOptions: SentryReplayOptions,
@@ -26,7 +27,8 @@ struct SessionReplayRecovery {
         replayProcessingQueue: SentryDispatchQueueWrapper,
         replayAssetWorkerQueue: SentryDispatchQueueWrapper,
         replayFileManager: SessionReplayFileManager,
-        breadcrumbConverter: SentryReplayBreadcrumbConverter
+        breadcrumbConverter: SentryReplayBreadcrumbConverter,
+        idleGate: SentryReplayRecoveryIdleGate
     ) {
         self.replayOptions = replayOptions
         self.random = random
@@ -34,6 +36,7 @@ struct SessionReplayRecovery {
         self.replayAssetWorkerQueue = replayAssetWorkerQueue
         self.replayFileManager = replayFileManager
         self.breadcrumbConverter = breadcrumbConverter
+        self.idleGate = idleGate
     }
 
     mutating func updateBreadcrumbConverter(_ breadcrumbConverter: SentryReplayBreadcrumbConverter) {
@@ -74,8 +77,11 @@ struct SessionReplayRecovery {
 
         let breadcrumbs = event.breadcrumbs ?? []
         // Startup-crash report processing runs on the SDK init thread. Encoding waits on
-        // AVAssetWriter and must run on `replayProcessingQueue`.
+        // AVAssetWriter and must run on `replayProcessingQueue`. Signal idle when that
+        // work finishes so the crash reporter can flush without owning replay.
+        idleGate.begin()
         replayProcessingQueue.dispatchAsync {
+            defer { self.idleGate.end() }
             self.createAndSendPreviousReplayVideos(
                 replayId: replayId,
                 lastReplayURL: lastReplayURL,

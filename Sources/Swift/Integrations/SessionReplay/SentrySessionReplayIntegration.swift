@@ -4,7 +4,7 @@ internal import _SentryPrivate
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
-typealias SessionReplayIntegrationScope = NotificationCenterProvider & RateLimitsProvider & CurrentDateProvider & RandomProvider & FileManagerProvider & DebuggerStatusProviderProvider & ReachabilityProvider & GlobalEventProcessorProvider & DispatchQueueWrapperProvider & ApplicationProvider & DispatchFactoryProvider & SessionReplayCaptureSchedulerProvider & SessionReplayBreadcrumbConverterProvider
+typealias SessionReplayIntegrationScope = NotificationCenterProvider & RateLimitsProvider & CurrentDateProvider & RandomProvider & FileManagerProvider & DebuggerStatusProviderProvider & ReachabilityProvider & GlobalEventProcessorProvider & DispatchQueueWrapperProvider & ApplicationProvider & DispatchFactoryProvider & SessionReplayCaptureSchedulerProvider & SessionReplayBreadcrumbConverterProvider & ReplayRecoveryIdleGateProvider
 
 // This is static because it will be used for swizzling and would cause retain cycles
 private var touchTracker: SentryTouchTracker?
@@ -99,7 +99,8 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
             replayProcessingQueue: replayProcessingQueue,
             replayAssetWorkerQueue: replayAssetWorkerQueue,
             replayFileManager: replayFileManager,
-            breadcrumbConverter: breadcrumbConverter
+            breadcrumbConverter: breadcrumbConverter,
+            idleGate: dependencies.replayRecoveryIdleGate
         )
         
         setupTouchTrackerIfNeeded(options: options)

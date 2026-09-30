@@ -539,6 +539,11 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     @objc public lazy var globalEventProcessor = getLazyVar(\._globalEventProcessor) {
         SentryGlobalEventProcessor()
     }
+    private var _replayRecoveryIdleGate: SentryReplayRecoveryIdleGate?
+    @objc public var replayRecoveryIdleGate: SentryReplayRecoveryIdleGate {
+        get { getLazyVar(\._replayRecoveryIdleGate) { SentryReplayRecoveryIdleGate() } }
+        set { _replayRecoveryIdleGate = newValue }
+    }
     private var _appStateManager: SentryAppStateManager?
     @objc public lazy var appStateManager = getLazyVar(\._appStateManager) {
         let release = self.startOptions?.releaseName
@@ -925,6 +930,8 @@ protocol GlobalEventProcessorProvider {
     var globalEventProcessor: SentryGlobalEventProcessor { get }
 }
 extension SentryDependencyContainer: GlobalEventProcessorProvider {}
+
+extension SentryDependencyContainer: ReplayRecoveryIdleGateProvider {}
 
 protocol DispatchQueueWrapperProvider {
     var dispatchQueueWrapper: SentryDispatchQueueWrapper { get }
