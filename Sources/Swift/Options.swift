@@ -131,16 +131,15 @@
     var _enableSigtermReporting: Bool = false
     #endif // !os(watchOS) && !SDK_V10
 
-    /// Enables a more reliable way to report unhandled C++ exceptions.
+    #if SDK_V10
+    /// Captures C++ exception stack traces at the throw site by hooking `__cxa_throw`.
     ///
-    /// This approach hooks into all instances of the `__cxa_throw` function, which provides a more comprehensive and consistent exception handling across an app’s runtime, regardless of the number of C++ modules or how they’re linked. It helps in obtaining accurate stack traces.
+    /// When `false`, unhandled C++ exceptions are still captured through `std::terminate` when
+    /// crash handling is enabled, but their stack traces may not identify the original throw site.
     ///
-    /// - Note: The mechanism of hooking into `__cxa_throw` could cause issues with symbolication on iOS due to caching of symbol references.
-    /// - Note: Disabled by default because of the potential symbolication issues.
-    @objc public var enableUnhandledCPPExceptionsV2: Bool {
-        get { experimental.unhandledCPPExceptionsV2Enabled }
-        set { experimental.unhandledCPPExceptionsV2Enabled = newValue }
-    }
+    /// - Note: Defaults to `false` to preserve the existing capture mode.
+    @objc public var enableUnhandledCPPExceptionsV2: Bool = false
+    #endif // SDK_V10
 
     /// When enabled, the SDK introspects memory contents during a crash.
     /// Any Objective-C objects or C strings near the stack pointer or referenced by

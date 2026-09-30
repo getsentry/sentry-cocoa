@@ -553,6 +553,7 @@
 
 #endif // !SDK_V10
 
+#if SDK_V10
 - (void)testEnableUnhandledCPPExceptionsV2_whenToggled_shouldRetainValue
 {
     // -- Arrange --
@@ -571,6 +572,7 @@
     // -- Assert --
     XCTAssertFalse(options.enableUnhandledCPPExceptionsV2);
 }
+#endif // SDK_V10
 
 #pragma mark - Numeric properties
 
