@@ -350,6 +350,7 @@ targets += [
         name: "SentryTestUtilsTests",
         dependencies: ["SentrySwift", "SentryTestUtils"],
         path: "SentryTestUtilsTests/Sources",
+        cSettings: v10CSettings,
         swiftSettings: [
             .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"]))
         ] + v10SwiftSettings
@@ -358,6 +359,7 @@ targets += [
         name: "SentryObjCCompatTests",
         dependencies: ["SentryObjCCompat", "SentrySwift", "SentryTestUtils"],
         path: "Tests/SentryObjCCompatTests",
+        cSettings: v10CSettings,
         swiftSettings: [
             .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"]))
         ] + v10SwiftSettings + objcCompatSwiftSettings
