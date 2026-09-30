@@ -12,6 +12,7 @@ struct SessionReplayFileManager {
         static let replayFolder = "replay"
         static let currentReplay = "replay.current"
         static let lastReplay = "replay.last"
+        static let recoveringReplay = "replay.recovering"
     }
 
     private let fileManager: SentryFileManager?
@@ -86,12 +87,27 @@ struct SessionReplayFileManager {
 
     func lastReplayInfo() -> [String: Any]? {
         guard let dir = replayDirectory() else { return nil }
-        let lastReplayUrl = dir.appendingPathComponent(Constants.lastReplay)
-        guard let lastReplay = try? Data(contentsOf: lastReplayUrl) else {
-            SentrySDKLog.debug("[Session Replay] No last replay info found")
-            return nil
+        if let recovering = replayInfo(at: dir.appendingPathComponent(Constants.recoveringReplay)) {
+            return recovering
         }
-        return SentrySerialization.deserializeDictionary(fromJsonData: lastReplay) as? [String: Any]
+        if let last = replayInfo(at: dir.appendingPathComponent(Constants.lastReplay)) {
+            return last
+        }
+        SentrySDKLog.debug("[Session Replay] No last replay info found")
+        return nil
+    }
+
+    func promoteLastReplayToRecovering() {
+        guard let dir = replayDirectory() else { return }
+        let last = dir.appendingPathComponent(Constants.lastReplay)
+        let recovering = dir.appendingPathComponent(Constants.recoveringReplay)
+        guard FileManager.default.fileExists(atPath: last.path) else { return }
+        removeFileIfExists(at: recovering)
+        do {
+            try FileManager.default.moveItem(at: last, to: recovering)
+        } catch {
+            SentrySDKLog.error("[Session Replay] Failed to promote last replay to recovering: \(error)")
+        }
     }
 
     func claimLastReplayInfo() {
@@ -101,6 +117,12 @@ struct SessionReplayFileManager {
             return
         }
         removeFileIfExists(at: dir.appendingPathComponent(Constants.lastReplay))
+        removeFileIfExists(at: dir.appendingPathComponent(Constants.recoveringReplay))
+    }
+
+    private func replayInfo(at url: URL) -> [String: Any]? {
+        guard let data = try? Data(contentsOf: url) else { return nil }
+        return SentrySerialization.deserializeDictionary(fromJsonData: data) as? [String: Any]
     }
 
     // MARK: - Session Directory
