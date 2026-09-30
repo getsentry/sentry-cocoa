@@ -855,21 +855,35 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
 
     func testResumePreviousSessionReplay_whenCalledOffProcessingQueue_shouldEncodeOnProcessingQueue() throws {
         // -- Arrange --
+        let options = Options()
+        options.dsn = "https://user@test.com/test"
+        options.cacheDirectoryPath = FileManager.default.temporaryDirectory.path
+        options.sessionReplay = SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 0)
+
+        let dispatchQueue = TestSentryDispatchQueueWrapper()
+        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueue
         SentryDependencyContainer.sharedInstance().dispatchFactory = TestDispatchFactory()
+        SentryDependencyContainer.sharedInstance().fileManager = try SentryFileManager(
+            options: options,
+            dateProvider: dateProvider,
+            dispatchQueueWrapper: dispatchQueue
+        )
 
         try createLastSessionReplay(
             writeSessionInfo: false,
             errorSampleRate: 0,
             replayType: .session
         )
-        startSDK(sessionSampleRate: 0, errorSampleRate: 0)
 
-        let processingQueue = try XCTUnwrap(
-            try getSut().replayProcessingQueue as? TestSentryDispatchQueueWrapper
+        // Construct the integration directly so TestDispatchFactory vends the processing
+        // queue. SentrySDK.start would also start unrelated SDK work on other queues.
+        let sut = try XCTUnwrap(
+            SentrySessionReplayIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
         )
+        let processingQueue = try XCTUnwrap(sut.replayProcessingQueue as? TestSentryDispatchQueueWrapper)
         processingQueue.dispatchAsyncExecutesBlock = false
 
-        let client = SentryClientInternal(options: try XCTUnwrap(SentrySDK.startOption))
+        let client = SentryClientInternal(options: options)
         let hub = TestHub(client: client, andScope: Scope())
         SentrySDKInternal.setCurrentHub(hub)
         let replayCapture = expectation(description: "Replay capture")
