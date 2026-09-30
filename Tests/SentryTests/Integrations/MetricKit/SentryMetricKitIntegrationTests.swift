@@ -258,6 +258,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         )
         let diagnostic = TestMXHangDiagnostic()
         diagnostic.overrides.callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/not-per-thread-only-one-frame")
+        diagnostic.overrides.jsonRepresentation = Data(#"{"diagnosticMetaData":{"deviceType":"iPhone13,2","osVersion":"iPhone OS 27.0 (24A437)","platformArchitecture":"arm64e"}}"#.utf8)
         let payload = TestMXDiagnosticPayload()
         payload.overrides.hangDiagnostic = [diagnostic]
 
@@ -285,6 +286,12 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         let frames = try XCTUnwrap(json["frames"] as? [[String: Any]])
         XCTAssertEqual(frames.count, 1)
         XCTAssertEqual(frames.first?["instruction_addr"] as? String, "0x21f1a1a04")
+        XCTAssertEqual(frames.first?["binary_uuid"] as? String, "810E428A-F26D-37BB-BB0F-609CBB4718C7")
+        XCTAssertEqual(frames.first?["offset_into_binary_text_segment"] as? Int, 6_659)
+        let metadata = try XCTUnwrap(json["diagnostic_meta_data"] as? [String: Any])
+        XCTAssertEqual(metadata["device_type"] as? String, "iPhone13,2")
+        XCTAssertEqual(metadata["os_version"] as? String, "iPhone OS 27.0 (24A437)")
+        XCTAssertEqual(metadata["platform_architecture"] as? String, "arm64e")
         let callStacks = try XCTUnwrap(json["call_stacks"] as? [[String: Any]])
         XCTAssertEqual(callStacks.count, 1)
         let roots = try XCTUnwrap(callStacks.first?["roots"] as? [[String: Any]])

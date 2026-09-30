@@ -189,6 +189,7 @@ extension SentryMXManager: MXMetricManagerSubscriber {
         let hangDurationMilliseconds = diagnostic.hangDuration.converted(to: .milliseconds).value
         let level: SentryLevel = hangDurationMilliseconds > 500 ? .error : .warning
 
+        let rawDiagnostic = attachDiagnosticAsAttachment ? diagnostic.jsonRepresentation() : nil
         captureEvent(
             handled: true,
             diagnosticReport: .hang,
@@ -196,12 +197,14 @@ extension SentryMXManager: MXMetricManagerSubscriber {
             timeStampBegin: timestamp,
             diagnostic: diagnostic,
             useFullCallStackTree: true,
-            level: level
+            level: level,
+            rawDiagnostic: rawDiagnostic
         )
 
         do {
             let tree = try SentryMXCallStackTree.from(data: diagnostic.callStackTree.jsonRepresentation())
-            let data = try flamegraphData(from: tree)
+            let metadata = try? JSONDecoder().decode(DiagnosticMetadataEnvelope.self, from: rawDiagnostic ?? diagnostic.jsonRepresentation()).diagnosticMetaData
+            let data = try flamegraphData(from: tree, diagnosticMetaData: metadata)
             let event = Event(level: level)
             event.timestamp = timestamp
             let mechanism = Mechanism(type: Diagnostic.hang.mechanism)
@@ -223,11 +226,23 @@ extension SentryMXManager: MXMetricManagerSubscriber {
         }
     }
 
+    private struct DiagnosticMetadata: Codable {
+        let deviceType: String?
+        let osVersion: String?
+        let platformArchitecture: String?
+    }
+
+    private struct DiagnosticMetadataEnvelope: Decodable {
+        let diagnosticMetaData: DiagnosticMetadata?
+    }
+
     private struct Flamegraph: Encodable {
         struct Frame: Encodable {
             let instructionAddr: String
             let package: String?
             let imageAddr: String?
+            let binaryUUID: UUID?
+            let offsetIntoBinaryTextSegment: Int
         }
 
         struct Node: Encodable {
@@ -243,9 +258,10 @@ extension SentryMXManager: MXMetricManagerSubscriber {
 
         let frames: [Frame]
         let callStacks: [CallStack]
+        let diagnosticMetaData: DiagnosticMetadata?
     }
 
-    private func flamegraphData(from tree: SentryMXCallStackTree) throws -> Data {
+    private func flamegraphData(from tree: SentryMXCallStackTree, diagnosticMetaData: DiagnosticMetadata?) throws -> Data {
         var frames: [Flamegraph.Frame] = []
         var frameIndices: [MXSample.MXFrame: Int] = [:]
 
@@ -270,7 +286,9 @@ extension SentryMXManager: MXMetricManagerSubscriber {
                 frames.append(Flamegraph.Frame(
                     instructionAddr: String(format: "0x%llx", frame.address),
                     package: frame.binaryName,
-                    imageAddr: imageAddress
+                    imageAddr: imageAddress,
+                    binaryUUID: frame.binaryUUID,
+                    offsetIntoBinaryTextSegment: frame.offsetIntoBinaryTextSegment
                 ))
                 frameIndices[key] = index
             }
@@ -282,7 +300,7 @@ extension SentryMXManager: MXMetricManagerSubscriber {
         }
         let encoder = JSONEncoder()
         encoder.keyEncodingStrategy = .convertToSnakeCase
-        return try encoder.encode(Flamegraph(frames: frames, callStacks: callStacks))
+        return try encoder.encode(Flamegraph(frames: frames, callStacks: callStacks, diagnosticMetaData: diagnosticMetaData))
     }
 
     private func captureEvent(
@@ -292,7 +310,8 @@ extension SentryMXManager: MXMetricManagerSubscriber {
         timeStampBegin: Date,
         diagnostic: MXDiagnostic & SentryMetricKit.CallStackTreeProviding,
         useFullCallStackTree: Bool = false,
-        level: SentryLevel? = nil
+        level: SentryLevel? = nil,
+        rawDiagnostic: Data? = nil
     ) {
         var event = Event(level: level ?? (handled ? .warning : .error))
         event.timestamp = timeStampBegin
@@ -327,7 +346,7 @@ extension SentryMXManager: MXMetricManagerSubscriber {
         // Therefore we don't call captureFatalEvent.
         SentrySDKLog.debug("Capturing MetricKit payload event for diagnostic: \(diagnosticReport)")
         if attachDiagnosticAsAttachment {
-            let diagnosticJSON = diagnostic.jsonRepresentation()
+            let diagnosticJSON = rawDiagnostic ?? diagnostic.jsonRepresentation()
             SentrySDK.capture(event: event) { scope in
                 scope.addAttachment(Attachment(data: diagnosticJSON, filename: "MXDiagnosticPayload.json"))
             }

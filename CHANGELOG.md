@@ -19,6 +19,7 @@
 
 - Keep standalone `@objc` extensions in static builds by adding referenced dummy `NSObject` subclasses, and lint for this with a SwiftSyntax SwiftLint extra rule (#9160)
 - Send envelopes captured during a connectivity-triggered cache drain without waiting for another trigger (#9171)
+- Preserve MetricKit flamegraph binary UUIDs, text offsets, and device metadata for offline symbolication (#9183)
 
 ## 9.29.2
 
