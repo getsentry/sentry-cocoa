@@ -1,10 +1,31 @@
 #if !SDK_V10
+#if SWIFT_PACKAGE
+@_spi(Private) import SentrySwift
+#endif
 internal import _SentryPrivate
 import Foundation
 
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 #endif
+
+/// Provides dependencies for `SentryCrashIntegration` without adding V9-only conformances to the
+/// common dependency container.
+protocol SentryCrashV9IntegrationDependencies {
+    var crashReporter: SentryCrashSwift { get }
+    var crashWrapper: SentryCrashReporter { get }
+    var dateProvider: SentryCurrentDateProvider { get }
+    var notificationCenterWrapper: SentryNSNotificationCenterWrapper { get }
+
+    func getCrashInstallationReporter(_ options: Options) -> SentryCrashInstallationReporter
+    func finalizePreviousRunSession(
+        options: Options,
+        crashedLastLaunch: Bool,
+        activeDurationSinceLastCrash: TimeInterval
+    )
+}
+
+typealias CrashIntegrationProvider = SentryCrashV9IntegrationDependencies
 
 /// Facade that bridges the Sentry SDK layer to the SentryCrash subsystem.
 ///

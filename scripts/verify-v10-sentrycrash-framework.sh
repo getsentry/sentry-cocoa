@@ -162,20 +162,18 @@ if ! grep -qE '^OBJC_CLASS_.*SentryCrashReportConverter$' "$symbols_path"; then
   record_error "SDK-owned SentryCrashReportConverter is missing"
 fi
 
-for forbidden_header in SentryCrashReportSink.h SentryCrashScopeObserver.h; do
+# Header ownership is explicit: every interface in the V9-only header target is forbidden from all
+# V10 package locations. Historically named SDK-owned compatibility headers are outside this set.
+find "$REPO_ROOT/Sources/SentryCrashV9Headers/include" -type f \
+  \( -name '*.h' -o -name '*.hpp' \) \
+  -exec basename {} \; | sort -u > "$legacy_headers_path"
+
+while IFS= read -r forbidden_header; do
   if find "$FRAMEWORK_PATH/Headers" "$FRAMEWORK_PATH/PrivateHeaders" \
     -type f -name "$forbidden_header" -print -quit 2>/dev/null | grep -q .; then
-    record_error "V10 packages a header for an absent implementation: $forbidden_header"
+    record_error "V10 packages V9 recorder header: $forbidden_header"
   fi
-done
-
-{
-  find "$REPO_ROOT/Sources/SentryCrash" -type f \( -name '*.h' -o -name '*.hpp' \) \
-    -exec basename {} \;
-  find "$REPO_ROOT/Sources/Sentry/include" -type f -name 'SentryCrash*.h' -exec basename {} \;
-} \
-  | grep -vE '^(SentryCrashExceptionApplication|SentryCrashDefaultMachineContextWrapper|SentryCrashIsAppImage|SentryCrashMachineContextWrapper|SentryCrashReportConverter|SentryCrashStackEntryMapper)\.h$' \
-  | sort -u > "$legacy_headers_path"
+done < "$legacy_headers_path"
 
 while IFS=: read -r packaged_header line_number directive; do
   imported_header=$(sed -E 's/^[[:space:]]*#[[:space:]]*(import|include)[[:space:]]*[<"]([^>"]+)[>"].*/\2/' <<< "$directive")

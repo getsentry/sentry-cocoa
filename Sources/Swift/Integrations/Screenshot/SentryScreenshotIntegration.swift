@@ -6,10 +6,7 @@ internal import _SentryPrivate
 // nor we want to continue using the DependencyContainer
 private weak var globalScreenshotSource: SentryScreenshotSource?
 
-#if SENTRY_DISABLE_SENTRYCRASH_V10
-// KSCRASH_TODO(GH-8273, GH-8532): V10 crash-time screenshots use this KSCrash
-// writer instead of sentrycrash_setSaveScreenshots. Acceptance: SCV10-008 in
-// SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+#if SDK_V10
 private let crashTimeScreenshotWriter: @convention(c) (UnsafePointer<CChar>) -> Void = { path in
     sentrykscrash_attachments_log("screenshot writer: enter")
     guard let source = globalScreenshotSource else {
@@ -48,29 +45,25 @@ final class SentryScreenshotIntegration<Dependencies: ScreenshotIntegrationProvi
         }
 
         globalScreenshotSource = screenshotSource
-#if !SENTRY_DISABLE_SENTRYCRASH_V10
+#if SDK_V10
+        SentryDependencyContainer.sharedInstance().getKSCrashInstaller().setScreenshotProvider(
+            crashTimeScreenshotWriter
+        )
+#else
         sentrycrash_setSaveScreenshots { path in
             guard let path = path else { return }
             let reportPath = String(cString: path)
             globalScreenshotSource?.saveScreenShots(reportPath)
         }
-#else
-        // KSCRASH_TODO(GH-8273, GH-8532): V10 registers the KSCrash attachments
-        // writer. Acceptance: SCV10-008 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
-        SentryDependencyContainer.sharedInstance().getKSCrashInstaller().setScreenshotProvider(
-            crashTimeScreenshotWriter
-        )
 #endif
     }
 
     func uninstall() {
         globalScreenshotSource = nil
-#if !SENTRY_DISABLE_SENTRYCRASH_V10
-        sentrycrash_setSaveScreenshots(nil)
-#else
-        // KSCRASH_TODO(GH-8273, GH-8532): V10 clears the KSCrash attachments writer.
-        // Acceptance: SCV10-008 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+#if SDK_V10
         SentryDependencyContainer.sharedInstance().getKSCrashInstaller().setScreenshotProvider(nil)
+#else
+        sentrycrash_setSaveScreenshots(nil)
 #endif
         client?.removeAttachmentProcessor(self)
     }

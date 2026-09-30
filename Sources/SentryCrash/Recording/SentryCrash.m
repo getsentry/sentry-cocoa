@@ -45,6 +45,7 @@
 #    import <SentryNSDataUtils.h>
 
 #    import "SentryLogC.h"
+#    import "SentryNativeReportFields.h"
 
 #    if SENTRY_HAS_UIKIT
 #        import <UIKit/UIKit.h>
@@ -506,7 +507,7 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
 
     NSArray *attachments = [self getAttachmentPaths:reportID];
     if (attachments.count > 0) {
-        crashReport[SENTRYCRASH_REPORT_ATTACHMENTS_ITEM] = attachments;
+        crashReport[SentryNativeReportAttachmentsKey] = attachments;
     }
 
     [self doctorReport:crashReport];

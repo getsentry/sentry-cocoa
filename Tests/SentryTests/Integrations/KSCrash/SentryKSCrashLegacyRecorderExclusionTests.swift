@@ -85,6 +85,12 @@ final class SentryKSCrashLegacyRecorderExclusionTests: XCTestCase {
         }
     }
 
+#if os(macOS)
+    func testKSCrashBuild_whenInspectingRuntime_shouldContainExceptionApplication() {
+        XCTAssertNotNil(NSClassFromString("SentryCrashExceptionApplication"))
+    }
+#endif
+
     func testKSCrashBuild_whenInspectingRuntime_shouldNotExposeBroadReporterProtocol() {
         XCTAssertNil(NSProtocolFromString("SentryCrashReporter"))
     }

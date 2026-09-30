@@ -1,4 +1,7 @@
 // swiftlint:disable missing_docs
+#if SWIFT_PACKAGE
+@_spi(Private) import SentrySwift
+#endif
 internal import _SentryPrivate
 import Foundation
 

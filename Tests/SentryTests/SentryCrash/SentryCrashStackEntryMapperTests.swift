@@ -1,72 +1,51 @@
-#if !SDK_V10
 @_spi(Private) import SentryTestUtils
 @_spi(Private) @testable import Sentry
 import XCTest
 
-/** Some of the test parameters are copied during debbuging a working implementation.
- */
+/** Some of the test parameters are copied during debugging a working implementation. */
 class SentryCrashStackEntryMapperTests: XCTestCase {
-    
+
     private let bundleExecutable: String = "iOS-Swift"
     private var sut: SentryCrashStackEntryMapper!
-    
+
     override func setUp() {
         super.setUp()
         sut = SentryCrashStackEntryMapper(inAppLogic: SentryInAppLogic(inAppIncludes: [bundleExecutable]))
     }
-    
+
     override func tearDown() {
         super.tearDown()
         // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
     }
-    
+
     func testInstructionAddress() {
-        var cursor = SentryCrashStackCursor()
-        cursor.stackEntry.address = 2_412_813_376
-        
-        let frame = sut.mapStackEntry(with: cursor)
-        
+        let frame = sut.mapAddress(2_412_813_376)
+
         XCTAssertEqual("0x000000008fd09c40", frame.instructionAddress ?? "")
     }
 
     func testImageFromCache() {
-        let image = createCrashBinaryImage(2_488_998_912)
-        SentryDependencyContainer.sharedInstance().binaryImageCache.start(false)
-        SentryDependencyContainer.sharedInstance().binaryImageCache.binaryImageAdded(imageName: image.name,
-                                                                                     vmAddress: image.vmAddress,
-                                                                                     address: image.address,
-                                                                                     size: image.size,
-                                                                                     uuid: image.uuid)
+        let image = createBinaryImage(2_488_998_912)
+        let cache = SentryDependencyContainer.sharedInstance().binaryImageCache
+        cache.start(false)
+        cache.binaryImageAdded(image)
 
-        var cursor = SentryCrashStackCursor()
-        cursor.stackEntry.address = 2_488_998_950
-
-        let frame = sut.mapStackEntry(with: cursor)
+        let frame = sut.mapAddress(2_488_998_950)
 
         XCTAssertEqual("0x00000000945b1c00", frame.imageAddress ?? "")
         XCTAssertEqual("Expected Name at 2488998912", frame.package)
 
-        SentryDependencyContainer.sharedInstance().binaryImageCache.stop()
+        cache.stop()
     }
 
-    private func createCrashBinaryImage(_ address: UInt) -> SentryCrashBinaryImage {
-        let name = "Expected Name at \(address)"
-        let nameCString = name.withCString { strdup($0) }
-
-        let binaryImage = SentryCrashBinaryImage(
-            address: UInt64(address),
-            vmAddress: 0,
-            size: 100,
-            name: nameCString,
+    private func createBinaryImage(_ address: UInt64) -> SentryBinaryImageInfo {
+        SentryBinaryImageInfo(
+            name: "Expected Name at \(address)",
             uuid: nil,
-            cpuType: 1,
-            cpuSubType: 1,
-            crashInfoMessage: nil,
-            crashInfoMessage2: nil
+            vmAddress: 0,
+            address: address,
+            size: 100
         )
-
-        return binaryImage
     }
 }
-#endif // !SDK_V10

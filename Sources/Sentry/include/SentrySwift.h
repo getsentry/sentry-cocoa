@@ -38,4 +38,8 @@
 #    endif
 #endif // __has_include(<SentryWithoutUIKit/Sentry.h>)
 
+#if defined(SWIFT_PACKAGE) && !SDK_V10
+@import SentryCrashV9Swift;
+#endif
+
 #endif

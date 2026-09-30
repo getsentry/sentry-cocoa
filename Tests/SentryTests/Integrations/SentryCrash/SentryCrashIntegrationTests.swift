@@ -1078,19 +1078,19 @@ class MockCrashDependencies: CrashIntegrationProvider {
         mockedFileManager ?? SentryDependencyContainer.sharedInstance().fileManager
     }
 
-    func getPreviousRunSessionFinalizer(
+    func finalizePreviousRunSession(
         options: Sentry.Options,
         crashedLastLaunch: Bool,
         activeDurationSinceLastCrash: TimeInterval
-    ) -> PreviousRunSessionFinalizer? {
+    ) {
         guard let fileManager else {
-            return nil
+            return
         }
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         let watchdogLogic = SentryWatchdogTerminationLogic(options: options,
                                                    crashAdapter: mockedCrashWrapper,
                                                    appStateManager: appStateManager)
-        return PreviousRunSessionFinalizer(
+        let finalizer = PreviousRunSessionFinalizer(
             crashedLastLaunch: crashedLastLaunch,
             activeDurationSinceLastCrash: activeDurationSinceLastCrash,
             watchdogTerminationLogic: watchdogLogic,
@@ -1098,13 +1098,14 @@ class MockCrashDependencies: CrashIntegrationProvider {
             dateProvider: dateProvider
         )
 #else
-        return PreviousRunSessionFinalizer(
+        let finalizer = PreviousRunSessionFinalizer(
             crashedLastLaunch: crashedLastLaunch,
             activeDurationSinceLastCrash: activeDurationSinceLastCrash,
             fileManager: fileManager,
             dateProvider: dateProvider
         )
 #endif
+        finalizer.finalizeIfNeeded()
     }
 
     var crashReporter: Sentry.SentryCrashSwift {

@@ -56,9 +56,8 @@ static __weak NSObject *_uncaughtExceptionHandlerOwner = nil;
 + (void)captureException:(NSException *)exception
 {
 #    if !SDK_V10
-    SentryCrashSwift *crash = SentryDependencyContainer.sharedInstance.crashReporter;
-    if (nil != crash.uncaughtExceptionHandler && nil != exception) {
-        crash.uncaughtExceptionHandler(exception);
+    if (nil != exception) {
+        [SentryDependencyContainer.sharedInstance captureUnhandledException:exception];
     }
 #    else
     NSUncaughtExceptionHandler *uncaughtExceptionHandler = nil;
