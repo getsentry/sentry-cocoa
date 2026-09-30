@@ -584,7 +584,8 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             return SentryCrashInstallationReporter(
                 inAppLogic: inAppLogic,
                 crashWrapper: crashWrapper,
-                dispatchQueue: dispatchQueueWrapper
+                dispatchQueue: dispatchQueueWrapper,
+                startupCrashFlush: SentryStartupCrashFlush(idleGate: replayRecoveryIdleGate)
             )
         }
     }
@@ -599,7 +600,9 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     private var kscrashInstaller: SentryKSCrash.Installer?
     func getKSCrashInstaller() -> SentryKSCrash.Installer {
         getLazyVar(\.kscrashInstaller) {
-            SentryKSCrash.Installer()
+            SentryKSCrash.Installer(
+                startupCrashFlush: SentryStartupCrashFlush(idleGate: replayRecoveryIdleGate)
+            )
         }
     }
 

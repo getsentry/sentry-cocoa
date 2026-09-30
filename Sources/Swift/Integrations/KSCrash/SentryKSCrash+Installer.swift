@@ -64,6 +64,11 @@ extension SentryKSCrash {
     final class Installer: SentryKSCrash.Installing {
         private(set) var installed = false
         private var installPath: URL?
+        private let startupCrashFlush: SentryStartupCrashFlush
+
+        init(startupCrashFlush: SentryStartupCrashFlush) {
+            self.startupCrashFlush = startupCrashFlush
+        }
 
         /// KSCrash copies plugins only on the first process-lifetime install, so this monitor
         /// must outlive any single SDK lifecycle.
@@ -178,6 +183,7 @@ extension SentryKSCrash {
             // report, then continue with the remaining report IDs regardless of each result while
             // this integration's processing session remains active.
             let installPath = self.installPath
+            let startupCrashFlush = self.startupCrashFlush
             let reportStoreSender = SentryKSCrash.ReportStoreSender(
                 sendReport: { reportID, onCompletion in
                     reportStore.sendReport(
@@ -214,7 +220,7 @@ extension SentryKSCrash {
                 },
                 // Flush the completed startup phase once before regular delivery begins.
                 onPrioritizedReportsCompleted: {
-                    SentryStartupCrashFlush.flushAfterReplayRecoveryIdle()
+                    startupCrashFlush.flushAfterReplayRecoveryIdle()
                 }
             )
         }

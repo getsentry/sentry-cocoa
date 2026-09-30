@@ -23,13 +23,19 @@ import Foundation
         max(minimumFlushDuration, duration - elapsed)
     }
 
+    private let idleGate: SentryReplayRecoveryIdleGate
+
+    /// - Parameter idleGate: Recovery gate shared with session replay for this SDK lifecycle.
+    @objc public init(idleGate: SentryReplayRecoveryIdleGate) {
+        self.idleGate = idleGate
+        super.init()
+    }
+
     /// Waits for optional replay recovery, then flushes with the remaining budget.
-    @objc public static func flushAfterReplayRecoveryIdle() {
+    @objc public func flushAfterReplayRecoveryIdle() {
         let start = CFAbsoluteTimeGetCurrent()
-        _ = SentryDependencyContainer.sharedInstance().replayRecoveryIdleGate.waitForIdle(
-            timeout: recoveryWaitTimeout
-        )
+        _ = idleGate.waitForIdle(timeout: Self.recoveryWaitTimeout)
         let elapsed = CFAbsoluteTimeGetCurrent() - start
-        SentrySDKInternal.flush(timeout: flushTimeout(afterWaiting: elapsed))
+        SentrySDKInternal.flush(timeout: Self.flushTimeout(afterWaiting: elapsed))
     }
 }

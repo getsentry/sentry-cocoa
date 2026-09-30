@@ -15,6 +15,7 @@ static const NSTimeInterval SENTRY_APP_START_CRASH_DURATION_THRESHOLD = 2.0;
 @property (nonatomic, strong) SentryStoredCrashReportProcessor *reportProcessor;
 @property (nonatomic, strong) id<SentryCrashReporter> crashWrapper;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
+@property (nonatomic, strong) SentryStartupCrashFlush *startupCrashFlush;
 
 @end
 
@@ -23,6 +24,7 @@ static const NSTimeInterval SENTRY_APP_START_CRASH_DURATION_THRESHOLD = 2.0;
 - (instancetype)initWithInAppLogic:(SentryInAppLogic *)inAppLogic
                       crashWrapper:(id<SentryCrashReporter>)crashWrapper
                      dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
+                 startupCrashFlush:(SentryStartupCrashFlush *)startupCrashFlush
 {
     if (self = [super init]) {
         // SentryCrash retains its legacy batch cleanup policy, so it does not preserve a session
@@ -36,6 +38,7 @@ static const NSTimeInterval SENTRY_APP_START_CRASH_DURATION_THRESHOLD = 2.0;
                                   preserveCrashedSessionOnCaptureFailure:NO];
         self.crashWrapper = crashWrapper;
         self.dispatchQueue = dispatchQueue;
+        self.startupCrashFlush = startupCrashFlush;
     }
     return self;
 }
@@ -53,7 +56,7 @@ static const NSTimeInterval SENTRY_APP_START_CRASH_DURATION_THRESHOLD = 2.0;
 
         [self sendReports:reports onCompletion:onCompletion];
 
-        [SentryStartupCrashFlush flushAfterReplayRecoveryIdle];
+        [self.startupCrashFlush flushAfterReplayRecoveryIdle];
         SENTRY_LOG_DEBUG(@"Startup crash: Finished flushing.");
 
     } else {
