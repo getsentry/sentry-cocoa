@@ -111,13 +111,15 @@ NS_ASSUME_NONNULL_BEGIN
 #endif // SDK_V10
 @property (nonatomic) BOOL enableCrashHandler;
 
+#if SDK_V10
 /**
- * Enables more reliable reporting of unhandled C++ exceptions by hooking all instances of
- * @c __cxa_throw, regardless of how C++ modules are linked.
- * @note Disabled by default in both v9 and v10 because hooking @c __cxa_throw can cause
- * symbolication issues on iOS due to caching of symbol references.
+ * Captures C++ exception stack traces at the throw site by hooking @c __cxa_throw.
+ * When @c NO, unhandled C++ exceptions are still captured through @c std::terminate when crash
+ * handling is enabled, but their stacks may not identify the original throw site.
+ * @note Defaults to @c NO to preserve the existing capture mode.
  */
 @property (nonatomic) BOOL enableUnhandledCPPExceptionsV2;
+#endif // SDK_V10
 
 /**
  * When enabled, the SDK introspects memory contents during a crash.
@@ -395,11 +397,19 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic) BOOL enableDataSwizzling;
 
+#if SDK_V10
 /**
  * When enabled, the SDK tracks performance for file IO operations with NSFileManager if auto
  * performance tracking and @c enableSwizzling are enabled.
- * @note The default is @c YES in v10, @c NO in earlier versions.
+ * @note The default is @c YES.
  */
+#else
+/**
+ * When enabled, the SDK tracks performance for file IO operations with NSFileManager if auto
+ * performance tracking and @c enableSwizzling are enabled.
+ * @note The default is @c NO.
+ */
+#endif // SDK_V10
 @property (nonatomic) BOOL enableFileManagerSwizzling;
 
 /**
@@ -493,7 +503,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * The minimum amount of time the app must be unresponsive before the SDK considers it hung.
- * In v10, the SDK still uses this threshold internally to classify watchdog terminations.
+ * The SDK also uses this threshold to classify watchdog terminations.
  * @note The actual amount may be a little longer.
  * @note Avoid using values lower than 100ms, which may cause false-positive hang detection.
  * @note The value must be greater than @c 0. When setting a value of @c 0 or lower, the SDK sets it
@@ -556,10 +566,17 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic) BOOL enableTimeToFullDisplayTracing;
 
+#if SDK_V10
 /**
  * Stitches the call to Swift Async functions in one consecutive stack trace.
- * @note Default value is @c YES in v10, @c NO in earlier versions.
+ * @note Default value is @c YES.
  */
+#else
+/**
+ * Stitches the call to Swift Async functions in one consecutive stack trace.
+ * @note Default value is @c NO.
+ */
+#endif // SDK_V10
 @property (nonatomic) BOOL swiftAsyncStacktraces;
 
 /**
@@ -724,11 +741,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 #if __has_include(<MetricKit/MetricKit.h>) && !TARGET_OS_TV
 
+#    if SDK_V10
 /**
  * When enabled, the SDK collects @c MXDiskWriteExceptionDiagnostic, @c MXCPUExceptionDiagnostic,
  * and @c MXHangDiagnostic from MetricKit and converts them to Sentry events.
  * @note Default value is @c YES.
  */
+#    else
+/**
+ * When enabled, the SDK collects @c MXDiskWriteExceptionDiagnostic, @c MXCPUExceptionDiagnostic,
+ * and @c MXHangDiagnostic from MetricKit and converts them to Sentry events.
+ * @note Default value is @c NO.
+ */
+#    endif // SDK_V10
 @property (nonatomic) BOOL enableMetricKit;
 
 /**

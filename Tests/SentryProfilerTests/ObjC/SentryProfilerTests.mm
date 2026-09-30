@@ -1,10 +1,10 @@
-#import "SentryProfilingConditionals.h"
+#import "SentryProfilerTestConditionals.h"
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
+#if SENTRY_PROFILER_TESTS_SUPPORTED
 
 #    import "SentryContinuousProfiler+Test.h"
 #    import "SentryEvent+Private.h"
-#    import "SentryHub+Test.h"
+#    import "SentryHub.h"
 #    import "SentryProfileTimeseries.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfilerMocks.h"
@@ -294,4 +294,4 @@ using namespace sentry::profiling;
 
 @end
 
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+#endif // SENTRY_PROFILER_TESTS_SUPPORTED

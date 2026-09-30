@@ -1,7 +1,8 @@
 #import "SentryProfileTimeseries.h"
+#import "SentryProfilerTestConditionals.h"
 #import <XCTest/XCTest.h>
 
-#if SENTRY_UIKIT_AVAILABLE && SENTRY_TARGET_PROFILING_SUPPORTED
+#if SENTRY_UIKIT_AVAILABLE && SENTRY_PROFILER_TESTS_SUPPORTED
 
 @interface SentryProfileTimeseriesTests : XCTestCase
 
@@ -284,4 +285,4 @@
 
 @end
 
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+#endif // SENTRY_PROFILER_TESTS_SUPPORTED

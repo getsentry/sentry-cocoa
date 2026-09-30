@@ -309,6 +309,9 @@ static BOOL sdkStarted;
     // These classes must be referenced somewhere for their files to not be stripped.
     [PlaceholderSentryApplication class];
     [PlaceholderProcessInfoClass class];
+    [PlaceholderNotificationCenterClass class];
+    [PlaceholderOptionsDictionaryClass class];
+    [PlaceholderReplayNetworkDetailsClass class];
 
     startInvocations++;
     startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
