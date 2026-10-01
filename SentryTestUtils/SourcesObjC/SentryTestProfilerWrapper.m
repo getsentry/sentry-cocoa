@@ -15,18 +15,6 @@ sentry_test_configureContinuousProfiling(NSObject *options)
     sentry_configureContinuousProfiling((SentryOptions *)options);
 }
 
-void
-sentry_test_configureLaunchProfilingForNextLaunch(NSObject *options)
-{
-    sentry_configureLaunchProfilingForNextLaunch((SentryOptions *)options);
-}
-
-BOOL
-sentry_test_willProfileNextLaunch(NSObject *options)
-{
-    return sentry_willProfileNextLaunch((SentryOptions *)options);
-}
-
 #    if SENTRY_HAS_UIKIT
 @implementation TestDelayedWrapper
 - (instancetype)initWithKeepDelayedFramesDuration:(CFTimeInterval)keepDelayedFramesDuration

@@ -96,7 +96,7 @@ class SentryVCTrackerLaunchProfilingTests: XCTestCase {
 
         let hub = SentrySDKInternal.currentHub()
         let launchTracer = fixture.makeLaunchTracer(hub: hub)
-        sentry_launchTracer = launchTracer
+        SentryLaunchProfiling.launchTracer = launchTracer
 
         sut.viewControllerLoadView(viewController) { }
 
@@ -114,7 +114,7 @@ class SentryVCTrackerLaunchProfilingTests: XCTestCase {
 
         let hub = SentrySDKInternal.currentHub()
         let launchTracer = fixture.makeLaunchTracer(hub: hub)
-        sentry_launchTracer = launchTracer
+        SentryLaunchProfiling.launchTracer = launchTracer
 
         sut.viewControllerLoadView(viewController) { }
 
@@ -130,7 +130,7 @@ class SentryVCTrackerLaunchProfilingTests: XCTestCase {
 
         let hub = SentrySDKInternal.currentHub()
         let launchTracer = fixture.makeLaunchTracer(hub: hub)
-        sentry_launchTracer = launchTracer
+        SentryLaunchProfiling.launchTracer = launchTracer
 
         sut.viewControllerLoadView(viewController) { }
 
@@ -159,13 +159,13 @@ class SentryVCTrackerLaunchProfilingTests: XCTestCase {
 
         let hub = SentrySDKInternal.currentHub()
         let launchTracer = fixture.makeLaunchTracer(hub: hub)
-        sentry_launchTracer = launchTracer
+        SentryLaunchProfiling.launchTracer = launchTracer
 
         sut.viewControllerLoadView(viewController) { }
         sut.viewControllerViewWillAppear(viewController) { }
         reportFrame()
 
-        sentry_launchTracer = nil
+        SentryLaunchProfiling.launchTracer = nil
 
         sut.viewControllerViewDidAppear(viewController) { }
 
