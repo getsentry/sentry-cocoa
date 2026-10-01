@@ -89,10 +89,11 @@ for sdk in "${sdks[@]}"; do
 done
 end_group
 
-if [[ -e "$OUTPUT" ]]; then
-    log_error "Output already exists: $OUTPUT"
+if [[ "$OUTPUT" != *.xcframework ]]; then
+    log_error "Output must end in .xcframework: $OUTPUT"
     exit 1
 fi
+rm -rf -- "$OUTPUT"
 begin_group "Creating $OUTPUT"
 xcodebuild "${xcodebuild_args[@]}" -output "$OUTPUT"
 end_group
