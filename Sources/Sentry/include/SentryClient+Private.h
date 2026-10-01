@@ -30,6 +30,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@interface SentryClientInternal (Attachments)
+
+- (void)populateHintAttachments:(SentryHint *)hint
+                          scope:(SentryScope *)scope
+                   isFatalEvent:(BOOL)isFatalEvent;
+
+- (NSArray<SentryAttachment *> *)processAttachmentsForEvent:(SentryEvent *)event
+                                                attachments:
+                                                    (NSArray<SentryAttachment *> *)attachments;
+
+- (void)addAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor;
+- (void)removeAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor;
+
+@end
+
 @interface SentryClientInternal ()
 
 @property (nonatomic, strong)
@@ -106,9 +121,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)recordLostEvent:(SentryDataCategory)category
                  reason:(SentryDiscardReason)reason
                quantity:(NSUInteger)quantity;
-
-- (void)addAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor;
-- (void)removeAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor;
 
 /// Exposed so Swift (e.g. metrics) can reuse it to drop data when the client is disabled.
 /// Broader than `isEnabled` in `SentryClient.h`: `isEnabled` only reflects `close`,
