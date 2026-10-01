@@ -90,7 +90,12 @@ class SentryCrashInstallationReporterTests: XCTestCase {
         let hub = SentryHubInternal(client: testClient, andScope: nil)
         SentrySDKInternal.setCurrentHub(hub)
         
-        sut = SentryCrashInstallationReporter(inAppLogic: SentryInAppLogic(inAppIncludes: []), crashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo), dispatchQueue: TestSentryDispatchQueueWrapper())
+        sut = SentryCrashInstallationReporter(
+            inAppLogic: SentryInAppLogic(inAppIncludes: []),
+            crashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo),
+            dispatchQueue: TestSentryDispatchQueueWrapper(),
+            startupCrashFlush: SentryStartupCrashFlush(idleGate: SentryReplayRecoveryIdleGate())
+        )
         let container = SentryDependencyContainer.sharedInstance()
         sut.bridge = SentryCrashBridge(
             notificationCenterWrapper: container.notificationCenterWrapper,
