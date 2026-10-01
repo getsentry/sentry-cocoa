@@ -19,6 +19,7 @@
 
 - Keep standalone `@objc` extensions in static builds by adding referenced dummy `NSObject` subclasses, and lint for this with a SwiftSyntax SwiftLint extra rule (#9160)
 - Send envelopes captured during a connectivity-triggered cache drain without waiting for another trigger (#9171)
+- Parse crash reports whose NSException reason exceeds the previous 150KB JSON string buffer, and truncate the exception value to 10KB so the event stays within the 1MiB ingestion limit
 
 ## 9.29.2
 
