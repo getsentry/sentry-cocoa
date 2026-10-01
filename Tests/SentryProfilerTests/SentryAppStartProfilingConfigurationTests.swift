@@ -1,10 +1,10 @@
 #if (!SWIFT_PACKAGE || !SDK_V10) && (os(iOS) || os(macOS))
 #if SWIFT_PACKAGE
-@_spi(Private) import SentrySwift
+@_spi(Private) @testable import SentrySwift
 import _SentryPrivate
 import SentryTestUtilsObjC
 #else
-@_spi(Private) import Sentry
+@_spi(Private) @testable import Sentry
 #endif
 @_spi(Private) import SentryTestUtils
 import XCTest
@@ -59,7 +59,7 @@ private extension SentryAppStartProfilingConfigurationTests {
         // this is where SentryOptions.configureProfiling is evaluated
         sentry_configureContinuousProfiling(actualOptions)
 
-        let actualIsValid = sentry_willProfileNextLaunch(actualOptions)
+        let actualIsValid = SentryLaunchProfiling.willProfileNextLaunch(actualOptions)
         if shouldProfileLaunch {
             XCTAssertTrue(actualIsValid, "Expected to enable app launch profiling with options:\n\(expectedOptions.description)")
         } else {

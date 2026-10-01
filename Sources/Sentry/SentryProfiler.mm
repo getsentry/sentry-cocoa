@@ -7,7 +7,6 @@
 #    import "SentryFileManagerHelper.h"
 #    import "SentryHub+Private.h"
 #    import "SentryInternalDefines.h"
-#    import "SentryLaunchProfiling.h"
 #    import "SentryLogC.h"
 #    import "SentryMetricProfiler.h"
 #    import "SentryProfileConfiguration.h"
@@ -155,7 +154,7 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
 
 - (void)stopForReason:(SentryProfilerTruncationReason)reason
 {
-    sentry_isTracingAppLaunch = NO;
+    sentry_setIsTracingAppLaunch(NO);
     [self.metricProfiler stop];
 
     if (![self isRunning]) {

@@ -6,7 +6,6 @@
 @import _SentryPrivate;
 #    import "SentryContinuousProfiler+Test.h"
 #    import "SentryFileManager+Test.h"
-#    import "SentryLaunchProfiling+Tests.h"
 #    import "SentryMetricProfiler.h"
 #    import "SentryProfilerDefines.h"
 #    import "SentryProfilerSerialization+Test.h"
@@ -24,10 +23,6 @@ FOUNDATION_EXPORT void sentry_test_sdkInitProfilerTasks(NSObject *options, Sentr
     NS_SWIFT_NAME(sentry_sdkInitProfilerTasks(_:_:));
 FOUNDATION_EXPORT void sentry_test_configureContinuousProfiling(NSObject *options)
     NS_SWIFT_NAME(sentry_configureContinuousProfiling(_:));
-FOUNDATION_EXPORT void sentry_test_configureLaunchProfilingForNextLaunch(NSObject *options)
-    NS_SWIFT_NAME(sentry_configureLaunchProfilingForNextLaunch(_:));
-FOUNDATION_EXPORT BOOL sentry_test_willProfileNextLaunch(NSObject *options)
-    NS_SWIFT_NAME(sentry_willProfileNextLaunch(_:));
 
 #    if SENTRY_HAS_UIKIT
 // Redeclare the initializer without its Swift-defined protocol parameter, which SwiftPM's
