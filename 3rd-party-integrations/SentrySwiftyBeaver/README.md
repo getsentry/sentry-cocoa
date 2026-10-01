@@ -17,10 +17,22 @@ dependencies: [
 ]
 ```
 
+Then add the `SentrySwiftyBeaver` product to your target:
+
+```swift
+.target(
+    name: "MyApp",
+    dependencies: [
+        .product(name: "SentrySwiftyBeaver", package: "sentry-apple-swiftybeaver")
+    ]
+)
+```
+
 ## Quick Start
 
 ```swift
 import Sentry
+import SentrySwiftyBeaver
 import SwiftyBeaver
 
 SentrySDK.start { options in

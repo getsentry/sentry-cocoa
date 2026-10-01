@@ -29,6 +29,7 @@ import SwiftyBeaver
 /// ## Usage
 /// ```swift
 /// import Sentry
+/// import SentrySwiftyBeaver
 /// import SwiftyBeaver
 ///
 /// SentrySDK.start { options in
