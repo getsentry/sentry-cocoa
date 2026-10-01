@@ -17,6 +17,17 @@ dependencies: [
 ]
 ```
 
+Then add the `SentryCocoaLumberjack` product to your target:
+
+```swift
+.target(
+    name: "MyApp",
+    dependencies: [
+        .product(name: "SentryCocoaLumberjack", package: "sentry-apple-cocoalumberjack")
+    ]
+)
+```
+
 ## Quick Start
 
 ```swift
