@@ -142,6 +142,7 @@ let sentryObjCInternalExcludes = [
     "SentryCrashV9Headers",
     "SentryCrashV9Module",
     "SentryCrashV9Swift",
+    "SentryV10Configuration",
     "Swift",
     "SentrySwiftUI",
     "Resources",
@@ -167,10 +168,16 @@ targets += [
     // At least one source file is required, therefore we use a dummy class to satisfy the SPM build system
     .target(
         name: "SentryHeaders",
+        dependencies: enableV10 ? ["_SentryV10Configuration"] : [],
         path: "Sources/Sentry",
         sources: ["SentryDummyPublicEmptyClass.m"],
         publicHeadersPath: "Public",
         cSettings: v10CSettings
+    ),
+    .target(
+        name: "_SentryV10Configuration",
+        path: "Sources/SentryV10Configuration",
+        publicHeadersPath: "include"
     ),
     .target(
         name: "_SentryCrashV9Headers",

@@ -19,6 +19,8 @@
 
 - Keep standalone `@objc` extensions in static builds by adding referenced dummy `NSObject` subclasses, and lint for this with a SwiftSyntax SwiftLint extra rule (#9160)
 - Send envelopes captured during a connectivity-triggered cache drain without waiting for another trigger (#9171)
+- Report a clear build error when SwiftPM traits select neither crash backend or both crash backends (#9182)
+- Make SwiftPM V10 headers importable by consumers without duplicating SDK compiler defines (#9182)
 
 ## 9.29.2
 

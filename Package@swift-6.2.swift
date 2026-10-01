@@ -21,13 +21,23 @@ let enableV10 = envFlag("SDK_V10")
 let v10SwiftSettings: [SwiftSetting] = enableV10
     ? [.define("SDK_V10")]
     : [.define("SDK_V10", .when(traits: ["V10"]))]
-let v10CSettings: [CSetting] = enableV10
+// Check backend selection in C/C++ and Swift's Clang imports, before importing V9 headers.
+// The base manifest has no traits, so it deliberately does not set these validation markers.
+let v10CSettings: [CSetting] = (enableV10
     ? [.define("SDK_V10", to: "1")]
-    : [.define("SDK_V10", to: "1", .when(traits: ["V10"]))]
+    : [.define("SDK_V10", to: "1", .when(traits: ["V10"]))]) + [
+        .define("SENTRY_SWIFTPM_BACKEND_TRAITS", to: "1"),
+        .define("SENTRY_SWIFTPM_V9", to: "1", .when(traits: ["V9"])),
+        .define("SENTRY_SWIFTPM_V10", to: "1", .when(traits: ["V10"]))
+    ]
 // PackageDescription uses distinct C and C++ setting types, so this cannot reuse v10CSettings.
-let v10CxxSettings: [CXXSetting] = enableV10
+let v10CxxSettings: [CXXSetting] = (enableV10
     ? [.define("SDK_V10", to: "1")]
-    : [.define("SDK_V10", to: "1", .when(traits: ["V10"]))]
+    : [.define("SDK_V10", to: "1", .when(traits: ["V10"]))]) + [
+        .define("SENTRY_SWIFTPM_BACKEND_TRAITS", to: "1"),
+        .define("SENTRY_SWIFTPM_V9", to: "1", .when(traits: ["V9"])),
+        .define("SENTRY_SWIFTPM_V10", to: "1", .when(traits: ["V10"]))
+    ]
 let kscrashDependencyCondition: TargetDependencyCondition? = enableV10
     ? nil
     : .when(traits: ["V10"])
@@ -169,6 +179,7 @@ let sentryObjCInternalExcludes = [
     "SentryCrashV9Headers",
     "SentryCrashV9Module",
     "SentryCrashV9Swift",
+    "SentryV10Configuration",
     "Swift",
     "SentrySwiftUI",
     "Resources",
@@ -204,10 +215,16 @@ targets += [
     // At least one source file is required, therefore we use a dummy class to satisfy the SPM build system
     .target(
         name: "SentryHeaders",
+        dependencies: [.target(name: "_SentryV10Configuration", condition: kscrashDependencyCondition)],
         path: "Sources/Sentry",
         sources: ["SentryDummyPublicEmptyClass.m"],
         publicHeadersPath: "Public",
         cSettings: v10CSettings
+    ),
+    .target(
+        name: "_SentryV10Configuration",
+        path: "Sources/SentryV10Configuration",
+        publicHeadersPath: "include"
     ),
     .target(
         name: "_SentryCrashV9Headers",

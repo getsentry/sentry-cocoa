@@ -358,6 +358,16 @@ jobs:
       - run: make init-ci-build
       - name: Test local package trait selection
         run: ./scripts/test-v10-package-folder-references.swift
+      - name: Test crash backend selection
+        run: ./scripts/test-spm-crash-backend-selection.swift --work-dir "$RUNNER_TEMP/crash-backend-selection"
+      - name: Upload backend selection logs
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: crash-backend-selection-logs
+          path: |
+            ${{ runner.temp }}/crash-backend-selection/*.log
+            ${{ runner.temp }}/crash-backend-selection/*.exit-status
       - run: scripts/generate-testapp-v10.sh --spec TestApps/macOS-CLI-Xcode/macOS-CLI-Xcode.yml
 
       - name: Build macOS-CLI-Xcode test app
