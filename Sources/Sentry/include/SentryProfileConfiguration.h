@@ -40,8 +40,10 @@ SENTRY_NO_INIT
 
 /** Initializer for launch UI profiles (aka continuous V2). */
 - (instancetype)initContinuousProfilingV2WaitingForFullDisplay:(BOOL)shouldWaitForFullDisplay
-                                               samplerDecision:(SentrySamplerDecision *)decision
-                                                profileOptions:(SentryProfileOptions *)options;
+                                               samplerDecision:(SENTRY_SWIFT_MIGRATION_ID(
+                                                                   SentrySamplerDecision))decision
+                                                profileOptions:(SENTRY_SWIFT_MIGRATION_ID(
+                                                                   SentryProfileOptions))options;
 
 @end
 

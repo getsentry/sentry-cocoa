@@ -4,7 +4,6 @@
 
 #    import "SentryFileManagerHelper.h"
 #    import "SentryInternalDefines.h"
-#    import "SentryLaunchProfiling.h"
 #    import "SentrySerialization.h"
 #    import "SentrySwift.h"
 
