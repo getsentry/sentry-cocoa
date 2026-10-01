@@ -646,6 +646,7 @@ build-xcframework-sentryobjc-v10:
 	./scripts/build-xcframework-sentryobjc.sh --sdks "$(SDKS)" --variant both --v10 \
 		--output-dir XCFrameworkBuildPath/V10
 	./scripts/validate-xcframework.sh --xcframework "SentryObjC-Static.xcframework"
+	./scripts/validate-xcframework-sentryobjc-static.sh --xcframework "SentryObjC-Static.xcframework"
 	./scripts/validate-xcframework.sh --xcframework "SentryObjC-Dynamic.xcframework"
 
 ## Build V10 Dynamic XCFramework
