@@ -6,40 +6,37 @@ cd "$SCRIPT_DIR/.."
 # shellcheck source=./ci-utils.sh disable=SC1091
 source "$SCRIPT_DIR/ci-utils.sh"
 
-OLD_VERSION=""
-NEW_VERSION=""
-
 usage() {
-    log_info "Usage: $0 --old-version <version> --new-version <version>"
-    log_info "  -o, --old-version <version>   Current SDK version (required)"
-    log_info "  -n, --new-version <version>   New SDK version (required)"
-    log_info "  Craft release automation may still supply two positional versions."
+    cat <<EOF
+Usage: $(basename "$0") <old_version> <new_version>
+
+Bump the SDK version across all source files and update the package SHA.
+This is the entry point used by Craft during releases.
+
+Accepts positional parameters for Craft compatibility.
+
+ARGUMENTS:
+    old_version     Current version string (e.g., 9.12.0)
+    new_version     New version string (e.g., 9.13.0)
+
+EXAMPLES:
+    $(basename "$0") 9.12.0 9.13.0
+
+EOF
     exit 1
 }
 
-# Craft invokes this script with two positional versions during releases.
-if [[ $# -eq 2 && "$1" != -* ]]; then
-    OLD_VERSION="$1"
-    NEW_VERSION="$2"
-else
-    while [[ $# -gt 0 ]]; do
-        case "$1" in
-            -o|--old-version)
-                if [[ $# -lt 2 ]]; then log_error "Missing value for $1"; usage; fi
-                OLD_VERSION="$2"; shift 2 ;;
-            -n|--new-version)
-                if [[ $# -lt 2 ]]; then log_error "Missing value for $1"; usage; fi
-                NEW_VERSION="$2"; shift 2 ;;
-            -h|--help) usage ;;
-            *) log_error "Unknown argument: $1"; usage ;;
-        esac
-    done
-fi
-
-if [[ -z "$OLD_VERSION" || -z "$NEW_VERSION" ]]; then
-    log_error "--old-version and --new-version are required"
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
     usage
 fi
+
+if [[ $# -lt 2 ]]; then
+    log_error "Expected 2 arguments (old_version, new_version), got $#"
+    usage
+fi
+
+OLD_VERSION="${1}"
+NEW_VERSION="${2}"
 
 log_info "Bumping version:"
 log_info "  Old version: $OLD_VERSION"
