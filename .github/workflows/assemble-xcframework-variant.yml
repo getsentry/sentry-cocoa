@@ -76,7 +76,7 @@ jobs:
   assemble-xcframework-variant:
     name: ${{ inputs.override-name || format('{0}{1}', inputs.scheme, inputs.suffix) }}
 
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Ruby

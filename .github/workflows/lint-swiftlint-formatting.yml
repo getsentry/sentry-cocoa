@@ -38,7 +38,7 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_lint_swiftlint_for_prs == 'true'
     needs: files-changed
     name: Lint
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Install tooling
@@ -54,7 +54,7 @@ jobs:
     name: Check ObjC Extensions
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_lint_swiftlint_for_prs == 'true'
     needs: files-changed
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
