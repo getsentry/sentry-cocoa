@@ -59,7 +59,7 @@ jobs:
   auto-update-tools:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_auto_update_tools_for_prs == 'true'
     needs: files-changed
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
       - name: Generate GitHub App Token
         id: app_token
