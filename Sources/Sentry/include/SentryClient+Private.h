@@ -120,8 +120,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)addAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor;
 - (void)removeAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor;
 
-- (void)_swiftCaptureLog:(NSObject *)log withScope:(SentryScope *)scope;
-
 /// Exposed so Swift (e.g. metrics) can reuse it to drop data when the client is disabled.
 /// Broader than `isEnabled` in `SentryClient.h`: `isEnabled` only reflects `close`,
 /// while `isDisabled` also returns YES for `options.enabled == false` or no DSN.
@@ -130,6 +128,12 @@ NS_ASSUME_NONNULL_BEGIN
 /// Logs a debug message that data is dropped because the client is disabled. Exposed so Swift
 /// (e.g. metrics) logs the same message as event/envelope capture when dropping data.
 - (void)logDisabledMessage;
+
+@end
+
+@interface SentryClientInternal (Telemetry)
+
+- (void)_swiftCaptureLog:(NSObject *)log withScope:(SentryScope *)scope;
 
 /// Exposes the Telemetry Processor so Swift code can forward metrics directly without crossing the
 /// ObjC boundary. SentryMetric is a Swift struct and cannot be passed through ObjC methods, so
