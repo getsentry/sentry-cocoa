@@ -1,10 +1,10 @@
-# `SentrySwiftLog`
+# ``SentrySwiftLog``
 
 Send your swift-log logs to Sentry.
 
 ## Overview
 
-SentrySwiftLog provides `SentryLogHandler`, a [swift-log](https://github.com/apple/swift-log) `LogHandler` that forwards log entries to [Sentry Logs](https://docs.sentry.io/platforms/apple/logs/).
+SentrySwiftLog provides ``SentryLogHandler``, a [swift-log](https://github.com/apple/swift-log) `LogHandler` that forwards log entries to [Sentry Logs](https://docs.sentry.io/platforms/apple/logs/).
 Every entry includes its metadata, source location, and log level.
 
 Start the Sentry SDK, then bootstrap the logging system with the handler:
@@ -30,4 +30,4 @@ logger.info("User logged in", metadata: ["userId": "12345"])
 
 ### Logging
 
-- `SentryLogHandler`
+- ``SentryLogHandler``
