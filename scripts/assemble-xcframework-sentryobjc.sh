@@ -18,14 +18,14 @@ HEADERS_DIR=""
 OUTPUT_NAME="SentryObjC-Static"
 
 usage() {
-    log_notice "Usage: $0"
-    log_notice "  --sdks <list>                     Comma-separated SDKs (required)"
-    log_notice "  --lib-path-template <path>        Static library path template with SDK_NAME placeholder"
-    log_notice "  --framework-path-template <path>  Framework path template with SDK_NAME placeholder"
-    log_notice "  --headers <path>                  Public headers directory (required with --lib-path-template)"
-    log_notice "  --output-name <name>              Output xcframework name (default: SentryObjC-Static)"
-    log_notice ""
-    log_notice "Provide either --lib-path-template (static) or --framework-path-template (dynamic)."
+    log_info "Usage: $0"
+    log_info "  --sdks <list>                     Comma-separated SDKs (required)"
+    log_info "  --lib-path-template <path>        Static library path template with SDK_NAME placeholder"
+    log_info "  --framework-path-template <path>  Framework path template with SDK_NAME placeholder"
+    log_info "  --headers <path>                  Public headers directory (required with --lib-path-template)"
+    log_info "  --output-name <name>              Output xcframework name (default: SentryObjC-Static)"
+    log_info ""
+    log_info "Provide either --lib-path-template (static) or --framework-path-template (dynamic)."
     exit 1
 }
 

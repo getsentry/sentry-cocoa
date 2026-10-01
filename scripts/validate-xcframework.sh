@@ -4,12 +4,14 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=./ci-utils.sh disable=SC1091
 source "$SCRIPT_DIR/ci-utils.sh"
+# shellcheck source=./xcframework-utils.sh disable=SC1091
+source "$SCRIPT_DIR/xcframework-utils.sh"
 
 XCFRAMEWORK_PATH=""
 
 usage() {
-    log_notice "Usage: $0 --xcframework <path>"
-    log_notice "  --xcframework <path>    XCFramework bundle to validate (required)"
+    log_info "Usage: $0 --xcframework <path>"
+    log_info "  --xcframework <path>    XCFramework bundle to validate (required)"
     exit 1
 }
 
@@ -37,11 +39,7 @@ if [ -z "$XCFRAMEWORK_PATH" ]; then
     usage
 fi
 
-if [ ! -d "$XCFRAMEWORK_PATH" ]; then
-    log_error "XCFramework path does not exist: $XCFRAMEWORK_PATH"
-    exit 1
-fi
-
+require_xcframework "$XCFRAMEWORK_PATH"
 "$SCRIPT_DIR/validate-xcframework-format.sh" --xcframework "$XCFRAMEWORK_PATH"
 "$SCRIPT_DIR/validate-xcframework-architectures.sh" --xcframework "$XCFRAMEWORK_PATH"
 "$SCRIPT_DIR/validate-xcframework-symbols.sh" --xcframework "$XCFRAMEWORK_PATH"

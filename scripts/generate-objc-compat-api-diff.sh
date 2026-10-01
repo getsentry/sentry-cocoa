@@ -22,10 +22,10 @@ COMPAT_JSON=""
 OUTPUT=""
 
 usage() {
-    log_notice "Usage: $0"
-    log_notice "  --headers <path>   sdk_api_objc.json path (required)"
-    log_notice "  --compat <path>    sdk_api_objccompat.json path (required)"
-    log_notice "  --output <path>    Output diff JSON file path (required)"
+    log_info "Usage: $0"
+    log_info "  --headers <path>   sdk_api_objc.json path (required)"
+    log_info "  --compat <path>    sdk_api_objccompat.json path (required)"
+    log_info "  --output <path>    Output diff JSON file path (required)"
     exit 1
 }
 

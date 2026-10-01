@@ -91,7 +91,7 @@ jobs:
         env:
           NEW_VERSION: ${{ steps.generate-version-number.outputs.NEW_VERSION }}
           OLD_VERSION: ${{ steps.generate-version-number.outputs.OLD_VERSION }}
-        run: ./scripts/bump.sh "$OLD_VERSION" "$NEW_VERSION"
+        run: ./scripts/bump.sh --old-version "$OLD_VERSION" --new-version "$NEW_VERSION"
 
       - name: Verify outputs of bump.sh
         run: ./scripts/verify-version.sh --version "${{ steps.generate-version-number.outputs.NEW_VERSION }}"
