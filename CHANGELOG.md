@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 9.30.0
 
 ### Features
 
@@ -21,6 +21,9 @@
 - Send envelopes captured during a connectivity-triggered cache drain without waiting for another trigger (#9171)
 - Report a clear build error when SwiftPM traits select neither crash backend or both crash backends (#9182)
 - Make SwiftPM V10 headers importable by consumers without duplicating SDK compiler defines (#9182)
+- Session Replay: Fix queue requirements during crash recovery (#9158)
+- Preserve full resolution when masking feedback, error, and crash screenshots, including screenshots captured through the React Native bridge, without changing Session Replay resolution or redactions (#9179)
+- Compact raw MetricKit diagnostic attachments to reduce their upload size and attachment quota usage (#9183)
 
 ## 9.29.2
 

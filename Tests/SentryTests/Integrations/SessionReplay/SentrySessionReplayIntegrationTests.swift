@@ -973,6 +973,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         startSDK(sessionSampleRate: 0, errorSampleRate: 0)
 
         XCTAssertNil(try captureCrashReplay(expectCapture: false).replay)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: replayFolder() + "/replay.last"))
     }
     
     func testBufferReplayIgnoredBecauseEventDroppedInBeforeSend() throws {

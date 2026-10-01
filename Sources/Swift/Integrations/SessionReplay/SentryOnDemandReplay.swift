@@ -197,13 +197,12 @@ func removeReplayFile(at fileURL: URL) {
             completion(videos)
         }
     }
-    
+
+    /// This function MUST be called on `processingQueue`.
     // swiftlint:disable:next function_body_length cyclomatic_complexity
     public func createVideoWith(beginning: Date, end: Date) -> [SentryVideoInfo] {
         SentrySDKLog.debug("[Session Replay] Creating video with beginning: \(beginning), end: \(end)")
 
-        // Note: In previous implementations this method was wrapped by a sync call to the processing queue.
-        // As this method is already called from the processing queue, we must remove the sync call.
         guard end > beginning else { return [] }
 
         // Select the frames in the half-open window [beginning, end). When captures were skipped,

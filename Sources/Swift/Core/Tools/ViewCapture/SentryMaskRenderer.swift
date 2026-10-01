@@ -4,7 +4,7 @@
 import UIKit
 
 protocol SentryMaskRenderer {
-    func maskScreenshot(screenshot image: UIImage, size: CGSize, masking: [SentryRedactRegion]) -> UIImage
+    func maskScreenshot(screenshot image: UIImage, size: CGSize, masking: [SentryRedactRegion], scale: CGFloat) -> UIImage
 }
 
 protocol SentryMaskRendererContext {
