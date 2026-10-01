@@ -151,6 +151,43 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@interface SentryClientInternal (EventPreparation)
+
+- (nullable SentryEvent *)prepareEvent:(SentryEvent *)event
+                             withScope:(SentryScope *)scope
+                alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace;
+
+- (nullable SentryEvent *)prepareEvent:(nullable SentryEvent *)event
+                             withScope:(SentryScope *)scope
+                alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+                          isFatalEvent:(BOOL)isFatalEvent;
+
+- (nullable SentryEvent *)prepareEvent:(nullable SentryEvent *)event
+                             withScope:(SentryScope *)scope
+                alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+                          isFatalEvent:(BOOL)isFatalEvent
+                                  hint:(SentryHint *)hint;
+
+- (nullable SentryEvent *)prepareEvent:(nullable SentryEvent *)event
+                             withScope:(SentryScope *)scope
+                alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+                          isFatalEvent:(BOOL)isFatalEvent
+                          currentScope:(nullable SentryScope *)currentScope;
+
+- (void)recordPartiallyDroppedSpans:(SentryTransaction *)transaction
+                         withReason:(SentryDiscardReason)reason
+               withCurrentSpanCount:(NSUInteger *)currentSpanCount;
+
+- (BOOL)isSampled:(nullable NSNumber *)sampleRate;
+
+- (nullable SentryEvent *)callEventProcessors:(SentryEvent *)event;
+
+- (void)recordLost:(BOOL)eventIsNotATransaction reason:(SentryDiscardReason)reason;
+
+- (void)recordLostSpanWithReason:(SentryDiscardReason)reason quantity:(NSUInteger)quantity;
+
+@end
+
 @interface SentryClientInternal (EventSending)
 
 - (SentryId *)sendEvent:(SentryEvent *)event

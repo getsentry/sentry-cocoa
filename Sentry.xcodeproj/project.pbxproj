@@ -141,6 +141,7 @@
 		D4C11E170000000000000205 /* SentryClient+ReplayAndFeedback.m in Sources */ = {isa = PBXBuildFile; fileRef = D4C11E170000000000000005 /* SentryClient+ReplayAndFeedback.m */; };
 		D4C11E170000000000000204 /* SentryClient+Attachments.m in Sources */ = {isa = PBXBuildFile; fileRef = D4C11E170000000000000004 /* SentryClient+Attachments.m */; };
 		D4C11E170000000000000206 /* SentryClient+EventSending.m in Sources */ = {isa = PBXBuildFile; fileRef = D4C11E170000000000000006 /* SentryClient+EventSending.m */; };
+		D4C11E170000000000000207 /* SentryClient+EventPreparation.m in Sources */ = {isa = PBXBuildFile; fileRef = D4C11E170000000000000007 /* SentryClient+EventPreparation.m */; };
 		3A8CEED46B48729C712F82FE /* SentryStacktrace.h in Headers */ = {isa = PBXBuildFile; fileRef = 639FCFA21EBC809A00778193 /* SentryStacktrace.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3AD7A0100A0390EE8DDC6120 /* SentrySampling.h in Headers */ = {isa = PBXBuildFile; fileRef = 8E8C57A525EEFC42001CEEFA /* SentrySampling.h */; };
 		3B16D53EEF080920D9B37CDF /* SentryTransportFactory.h in Headers */ = {isa = PBXBuildFile; fileRef = 7BAF3DD3243DD40F008A5414 /* SentryTransportFactory.h */; };
@@ -287,6 +288,7 @@
 		D4C11E170000000000000105 /* SentryClient+ReplayAndFeedback.m in Sources */ = {isa = PBXBuildFile; fileRef = D4C11E170000000000000005 /* SentryClient+ReplayAndFeedback.m */; };
 		D4C11E170000000000000104 /* SentryClient+Attachments.m in Sources */ = {isa = PBXBuildFile; fileRef = D4C11E170000000000000004 /* SentryClient+Attachments.m */; };
 		D4C11E170000000000000106 /* SentryClient+EventSending.m in Sources */ = {isa = PBXBuildFile; fileRef = D4C11E170000000000000006 /* SentryClient+EventSending.m */; };
+		D4C11E170000000000000107 /* SentryClient+EventPreparation.m in Sources */ = {isa = PBXBuildFile; fileRef = D4C11E170000000000000007 /* SentryClient+EventPreparation.m */; };
 		63AA76991EB9C1C200D153DE /* SentryDefines.h in Headers */ = {isa = PBXBuildFile; fileRef = 63AA76951EB9C1C200D153DE /* SentryDefines.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		63AA769D1EB9C57A00D153DE /* SentryError.h in Headers */ = {isa = PBXBuildFile; fileRef = 63AA769B1EB9C57A00D153DE /* SentryError.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		63AA769E1EB9C57A00D153DE /* SentryError.mm in Sources */ = {isa = PBXBuildFile; fileRef = 63AA769C1EB9C57A00D153DE /* SentryError.mm */; };
@@ -1377,6 +1379,8 @@
 		D4C11E170000000000000304 /* SentryClient+Attachments.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SentryClient+Attachments.h"; sourceTree = "<group>"; };
 		D4C11E170000000000000006 /* SentryClient+EventSending.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "SentryClient+EventSending.m"; sourceTree = "<group>"; };
 		D4C11E170000000000000306 /* SentryClient+EventSending.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SentryClient+EventSending.h"; sourceTree = "<group>"; };
+		D4C11E170000000000000007 /* SentryClient+EventPreparation.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "SentryClient+EventPreparation.m"; sourceTree = "<group>"; };
+		D4C11E170000000000000307 /* SentryClient+EventPreparation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SentryClient+EventPreparation.h"; sourceTree = "<group>"; };
 		63AA76651EB8CB2F00D153DE /* SentryTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SentryTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		63AA76781EB8D20500D153DE /* SentryLogC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryLogC.m; sourceTree = "<group>"; };
 		63AA76931EB9C1C200D153DE /* Sentry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Sentry.h; path = Public/Sentry.h; sourceTree = "<group>"; };
@@ -2614,6 +2618,8 @@
 				D4C11E170000000000000304 /* SentryClient+Attachments.h */,
 				D4C11E170000000000000006 /* SentryClient+EventSending.m */,
 				D4C11E170000000000000306 /* SentryClient+EventSending.h */,
+				D4C11E170000000000000007 /* SentryClient+EventPreparation.m */,
+				D4C11E170000000000000307 /* SentryClient+EventPreparation.h */,
 				7B85DC1C24EFAFCD007D01D2 /* SentryClient+Private.h */,
 				7B610D5E2512390E00B0B5D9 /* SentrySDK+Private.h */,
 				FA6555132E30181B009917BC /* SentrySDKInternal.h */,
@@ -4634,6 +4640,7 @@
 				D4C11E170000000000000105 /* SentryClient+ReplayAndFeedback.m in Sources */,
 				D4C11E170000000000000104 /* SentryClient+Attachments.m in Sources */,
 				D4C11E170000000000000106 /* SentryClient+EventSending.m in Sources */,
+				D4C11E170000000000000107 /* SentryClient+EventPreparation.m in Sources */,
 				7B7D873624864C9D00D2ECFF /* SentryCrashDefaultMachineContextWrapper.m in Sources */,
 				63FE712F20DA4C1100CDBAE8 /* SentryCrashSysCtl.c in Sources */,
 				7B3B473825D6CC7E00D01640 /* SentryNSError.m in Sources */,
@@ -4871,6 +4878,7 @@
 				D4C11E170000000000000205 /* SentryClient+ReplayAndFeedback.m in Sources */,
 				D4C11E170000000000000204 /* SentryClient+Attachments.m in Sources */,
 				D4C11E170000000000000206 /* SentryClient+EventSending.m in Sources */,
+				D4C11E170000000000000207 /* SentryClient+EventPreparation.m in Sources */,
 				27C5015F7894A326B1F24589 /* SentryCrashDefaultMachineContextWrapper.m in Sources */,
 				CE184A72DD3143F2A7D8152D /* SentryCrashSysCtl.c in Sources */,
 				C6464184C371E69B5A2954BF /* SentryNSError.m in Sources */,
