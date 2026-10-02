@@ -136,14 +136,22 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 #endif
     }
 #if !SDK_V10
-    private var _crashWrapper: SentryCrashReporter?
-    @objc public lazy var crashWrapper: SentryCrashReporter = getLazyVar(\._crashWrapper) {
-        let bridge = SentryCrashBridge(
-            notificationCenterWrapper: self.notificationCenterWrapper,
-            dateProvider: self.dateProvider,
-            crashReporter: self.crashReporter
-        )
-        return SentryDefaultCrashReporter(bridge: bridge)
+    private var _crashWrapperOverride: SentryCrashReporter?
+    @objc public var crashWrapper: SentryCrashReporter {
+        get {
+            paramLock.synchronized {
+                _crashWrapperOverride ?? SentryCrashV9Backend.crashWrapper(for: self)
+            }
+        }
+        set {
+            paramLock.synchronized {
+                _crashWrapperOverride = newValue
+            }
+        }
+    }
+
+    @objc public func captureUnhandledException(_ exception: NSException) {
+        SentryCrashV9Backend.capture(exception: exception, dependencies: self)
     }
 #endif // !SDK_V10
 #if SENTRY_TEST || SENTRY_TEST_CI
@@ -549,13 +557,6 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         let release = self.startOptions?.releaseName
         return SentryAppStateManager(releaseName: release, dependencies: self)
     }
-#if !SDK_V10
-    private var _crashReporter: SentryCrashSwift?
-    @objc public lazy var crashReporter = getLazyVar(\._crashReporter) {
-        SentryCrashSwift(with: self.startOptions?.cacheDirectoryPath)
-    }
-#endif // !SDK_V10
-
     #if !SDK_V10
     private var anrTracker: SentryANRTracker?
     @objc public func getANRTracker(_ timeout: TimeInterval) -> SentryANRTracker {
@@ -574,22 +575,6 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         }
     }
     #endif
-
-#if !SDK_V10
-    private var crashInstallationReporter: SentryCrashInstallationReporter?
-    func getCrashInstallationReporter(_ options: Options) -> SentryCrashInstallationReporter {
-        getLazyVar(\.crashInstallationReporter) {
-            let inAppLogic = SentryInAppLogic(inAppIncludes: options.inAppIncludes)
-
-            return SentryCrashInstallationReporter(
-                inAppLogic: inAppLogic,
-                crashWrapper: crashWrapper,
-                dispatchQueue: dispatchQueueWrapper,
-                startupCrashFlush: SentryStartupCrashFlush(idleGate: replayRecoveryIdleGate)
-            )
-        }
-    }
-#endif // !SDK_V10
 
     func getCoreDataTracker(_ options: Options) -> SentryCoreDataTrackerProtocol {
         let threadInspector = SentryDefaultThreadInspector(options: options)
@@ -1073,23 +1058,6 @@ protocol NetworkTrackerProvider {
     var networkTracker: SentryNetworkTrackerProtocol { get }
 }
 extension SentryDependencyContainer: NetworkTrackerProvider {}
-
-#if !SDK_V10
-protocol SentryCrashReporterProvider {
-    var crashReporter: SentryCrashSwift { get }
-}
-extension SentryDependencyContainer: SentryCrashReporterProvider {}
-
-protocol CrashWrapperProvider {
-    var crashWrapper: SentryCrashReporter { get }
-}
-extension SentryDependencyContainer: CrashWrapperProvider {}
-
-protocol CrashInstallationReporterBuilder {
-    func getCrashInstallationReporter(_ options: Options) -> SentryCrashInstallationReporter
-}
-extension SentryDependencyContainer: CrashInstallationReporterBuilder {}
-#endif // !SDK_V10
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 protocol SentryUIDeviceWrapperProvider {

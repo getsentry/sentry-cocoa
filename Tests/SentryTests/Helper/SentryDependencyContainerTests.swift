@@ -81,6 +81,74 @@ final class SentryDependencyContainerTests: XCTestCase {
         XCTAssertIdentical(container.debuggerStatusProvider, container.sysctlWrapper)
     }
 
+#if !SDK_V10
+    func testCrashWrapper_whenFirstAccessIsConcurrent_shouldReturnSameInstance() throws {
+        // -- Arrange --
+        SentryDependencyContainer.reset()
+        let container = SentryDependencyContainer.sharedInstance()
+        let wrappers = SentryMutex<[SentryCrashReporter]>([])
+
+        // -- Act --
+        DispatchQueue.concurrentPerform(iterations: 16) { _ in
+            let wrapper = container.crashWrapper
+            wrappers.withLock { $0.append(wrapper) }
+        }
+
+        // -- Assert --
+        let results = wrappers.withLock { $0 }
+        let expected = try XCTUnwrap(results.first)
+        XCTAssertEqual(results.count, 16)
+        for wrapper in results {
+            XCTAssertIdentical(wrapper, expected)
+        }
+        XCTAssertIdentical(container.crashWrapper, expected)
+    }
+
+    func testCrashReporter_whenFirstAccessIsConcurrent_shouldReturnSameInstance() {
+        // -- Arrange --
+        let accessCount = 16
+        let accessQueue = DispatchQueue(
+            label: "SentryDependencyContainerTests.crashReporter",
+            attributes: .concurrent
+        )
+        let ready = expectation(description: "All crash reporter accesses are ready")
+        ready.expectedFulfillmentCount = accessCount
+        ready.assertForOverFulfill = true
+        let finished = expectation(description: "All crash reporter accesses finished")
+        finished.expectedFulfillmentCount = accessCount
+        finished.assertForOverFulfill = true
+        let start = DispatchSemaphore(value: 0)
+        let reporters = SentryMutex<[SentryCrashSwift]>([])
+
+        SentryDependencyContainer.reset()
+        let container = SentryDependencyContainer.sharedInstance()
+
+        for _ in 0..<accessCount {
+            accessQueue.async {
+                ready.fulfill()
+                start.wait()
+
+                // -- Act --
+                let reporter = container.crashReporter
+                reporters.withLock { $0.append(reporter) }
+                finished.fulfill()
+            }
+        }
+
+        wait(for: [ready], timeout: 5)
+        for _ in 0..<accessCount {
+            start.signal()
+        }
+        wait(for: [finished], timeout: 10)
+
+        // -- Assert --
+        let reporterIdentities = reporters.withLock { reporters in
+            Set(reporters.map { ObjectIdentifier($0) })
+        }
+        XCTAssertEqual(reporterIdentities.count, 1)
+    }
+#endif
+
     /**
      * This test helps to find threading issues. If you run it once it detects obvious threading issues. Some rare edge cases
      * only happen if you run this 1000 times in a row or increase the test iterations to 100k.

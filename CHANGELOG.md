@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+> [!WARNING]
+> SwiftPM source consumers specifying traits explicitly must select a crash backend. Replace `traits: ["NoUIFramework"]` with `traits: [.defaults, "NoUIFramework"]` or `traits: ["V9", "NoUIFramework"]`. Ordinary adoption without explicit traits, prebuilt binary products, and base-manifest builds remain unchanged.
+
+### Breaking Changes
+
+- Require explicit SwiftPM source trait selections to retain defaults or select V9/V10. Selecting neither or both backend traits now produces a build error. To use V10, specify `traits: ["V10"]` without `.defaults`, optionally adding `"NoUIFramework"` (#9182).
+
 ## 9.30.0
 
 ### Features

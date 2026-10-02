@@ -648,6 +648,12 @@ build-xcframework-sentryobjc-v10:
 	./scripts/validate-xcframework.sh --xcframework "SentryObjC-Static.xcframework"
 	./scripts/validate-xcframework-sentryobjc-static.sh --xcframework "SentryObjC-Static.xcframework"
 	./scripts/validate-xcframework.sh --xcframework "SentryObjC-Dynamic.xcframework"
+	./scripts/verify-v10-sentrycrash-sentryobjc.sh \
+		--xcframework-path "SentryObjC-Static.xcframework"
+	./scripts/verify-v10-sentrycrash-sentryobjc.sh \
+		--xcframework-path "SentryObjC-Dynamic.xcframework"
+	./scripts/verify-v10-sentrycrash-objects.sh \
+		--build-path "XCFrameworkBuildPath/V10/DerivedData"
 
 ## Build V10 Dynamic XCFramework
 #

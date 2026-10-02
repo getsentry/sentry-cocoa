@@ -1,2 +1,0 @@
-// V10 no longer compiles any legacy SentryCrash Tool implementation.
-SENTRYCRASH_V10_RETAINED_TOOL_SOURCE_FILE_NAMES =

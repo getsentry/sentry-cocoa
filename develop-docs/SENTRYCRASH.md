@@ -137,15 +137,15 @@ Installations/:         221 lines  (1.0%)
 
 The SDK integrates with SentryCrash through these key files:
 
-| File                                                                           | Role                                                     |
-| ------------------------------------------------------------------------------ | -------------------------------------------------------- |
-| `Sources/Swift/Integrations/SentryCrash/SentryCrashIntegration.swift`          | Main integration, implements `SwiftIntegration` protocol |
-| `Sources/Swift/Integrations/SentryCrash/SentryCrashInstallationReporter.swift` | Sentry-specific `SentryCrashInstallation` subclass       |
-| `Sources/Swift/SentryCrash/SentryCrashWrapper.swift`                           | Testability wrapper around C API                         |
-| `Sources/Sentry/SentryCrashReportConverter.m`                                  | Transforms raw crash reports → `SentryEvent`             |
-| `Sources/Sentry/SentryCrashReportSink.m`                                       | Implements `SentryCrashReportFilter` for Sentry          |
-| `Sources/Sentry/SentryCrashScopeObserver.m`                                    | Syncs SDK scope → SentryCrash via C interface            |
-| `Sources/Sentry/SentryScopeSyncC.c`                                            | C interface for scope synchronization at crash time      |
+| File                                                               | Role                                                                  |
+| ------------------------------------------------------------------ | --------------------------------------------------------------------- |
+| `Sources/SentryCrashV9Swift/SentryCrashIntegration.swift`          | Main V9 integration, registered with the shared integration installer |
+| `Sources/SentryCrashV9Swift/SentryCrashInstallationReporter.swift` | Sentry-specific `SentryCrashInstallation` subclass                    |
+| `Sources/SentryCrashV9Swift/SentryCrashSwift.swift`                | V9 Swift/Objective-C adapter around the recorder API                  |
+| `Sources/Sentry/SentryCrashReportConverter.m`                      | Transforms raw crash reports → `SentryEvent`                          |
+| `Sources/Sentry/SentryCrashReportSink.m`                           | Implements `SentryCrashReportFilter` for Sentry                       |
+| `Sources/Sentry/SentryCrashScopeObserver.m`                        | Syncs SDK scope → SentryCrash via C interface                         |
+| `Sources/Sentry/SentryScopeSyncC.c`                                | C interface for scope synchronization at crash time                   |
 
 ### Initialization Sequence
 
@@ -644,7 +644,7 @@ Some features are disabled or limited on certain OS versions (e.g. test disabled
 | **onCrash()**                                   | The global callback invoked when any monitor detects a crash. Implemented in [SentryCrashC.c](Sources/SentryCrash/Recording/SentryCrashC.c); it writes the report, then runs best-effort callbacks (screenshots, view hierarchy, transaction).            |
 | **Freeze / unfreeze**                           | Cached data (thread list, system snapshot) is "frozen" at crash time so the report writer sees a consistent snapshot; it is "unfrozen" after the report is written. See [SentryCrashCachedData.c](Sources/SentryCrash/Recording/SentryCrashCachedData.c). |
 | **Recrash**                                     | A second crash while handling the first (e.g. in the report writer). The context field `crashedDuringCrashHandling` is true; a minimal recrash report is written.                                                                                         |
-| **Installation**                                | SentryCrash installation: the install path, configuration, and the hook that sends pending reports on next launch. The SDK uses [SentryCrashInstallationReporter](Sources/Swift/Integrations/SentryCrash/SentryCrashInstallationReporter.swift).          |
+| **Installation**                                | SentryCrash installation: the install path, configuration, and the hook that sends pending reports on next launch. The SDK uses [SentryCrashInstallationReporter](Sources/SentryCrashV9Swift/SentryCrashInstallationReporter.swift).                      |
 | **Report filter**                               | Protocol for processing reports (e.g. before send). The SDK implements it in [SentryCrashReportSink.m](Sources/Sentry/SentryCrashReportSink.m) to convert and upload to Sentry.                                                                           |
 | **Stack cursor**                                | Abstraction for walking the stack (e.g. `SentryCrashStackCursor`). Used to fill thread backtraces in the report; can be backtrace-based or machine-context-based.                                                                                         |
 

@@ -1,43 +1,42 @@
 #!/bin/bash
 set -euo pipefail
 
-# Compiled-object V10 migration contract. This audit takes an Xcode or SwiftPM build directory and
-# proves that compilation followed the reviewed source classification.
+# V10 uses KSCrash instead of the legacy V9 recorder. We want the old recorder left out of
+# the build entirely, not merely stripped from the final binary by the linker. Checking the
+# packaged framework alone cannot prove that: unused V9 code could have been compiled first.
 #
-# Verifies:
-# - Every Tool in Sources/Configuration/SentryCrashV10ToolSources.xcconfig exists, is unique, and
-#   produced an object in the audited build.
-# - No recorder source, excluded Tool, or excluded SDK-owned V9 adapter produced a normal V10
-#   object.
-# - SwiftPM trait builds may contain only the unavoidable whole-file !SDK_V10 guarded translation
-#   units, and each such object exports no external symbol.
-#
-# This does not prove that final linking, dead stripping, or framework packaging preserved the
-# intended API. That layer is enforced by verify-v10-sentrycrash-framework.sh.
+# This audit inspects a completed build's compile metadata, header dependencies, and object
+# filenames for V9 recorder or adapter sources and headers. It fails if any are found. The
+# source/configuration checker separately checks target membership; this checks build output.
+# For XCFramework builds, pass the producer's DerivedData root so both archive intermediates
+# and Mac Catalyst's non-archive build output are covered.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=./ci-utils.sh disable=SC1091
 source "$SCRIPT_DIR/ci-utils.sh"
 
 BUILD_PATH=""
-ALLOW_EMPTY_TRANSLATION_UNITS=false
+SPM_TARGETS=()
 
 usage() {
-  log_info "Usage: $0"
-  log_info "  --build-path <path>                 V10 build output to audit (required)"
-  log_info "  --allow-empty-translation-units    Allow SDK_V10-guarded legacy files emitted by SwiftPM traits"
+  log_info "Usage: $0 --build-path <path> [--spm-target <target> ...]"
+  log_info "  --build-path, -b: completed build output to audit (required)"
+  log_info "  --spm-target, -t: actual requested target; repeat for native SwiftPM builds"
   exit 1
 }
 
 while [[ $# -gt 0 ]]; do
   case $1 in
-    --build-path)
+    --build-path|-b)
+      [[ $# -ge 2 ]] || usage
       BUILD_PATH="$2"
       shift 2
       ;;
-    --allow-empty-translation-units)
-      ALLOW_EMPTY_TRANSLATION_UNITS=true
-      shift
+    --spm-target|-t)
+      [[ $# -ge 2 ]] || usage
+      [[ -n "$2" ]] || usage
+      SPM_TARGETS+=(--spm-target "$2")
+      shift 2
       ;;
     *)
       usage
@@ -45,190 +44,109 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-if [[ -z "$BUILD_PATH" ]]; then
-  log_error "Error: --build-path is required"
+if [[ -z "$BUILD_PATH" || ! -d "$BUILD_PATH" ]]; then
+  log_error "A valid --build-path is required"
   usage
-fi
-
-if [[ ! -d "$BUILD_PATH" ]]; then
-  log_error "Build path does not exist: $BUILD_PATH"
-  exit 1
 fi
 
 BUILD_PATH="$(cd "$BUILD_PATH" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-ALLOWLIST_PATH="$REPO_ROOT/Sources/Configuration/SentryCrashV10ToolSources.xcconfig"
-ALLOWLIST_SETTING="SENTRYCRASH_V10_RETAINED_TOOL_SOURCE_FILE_NAMES"
-TOOLS_SOURCE_PATH="Sources/SentryCrash/Recording/Tools"
 
-if [[ ! -f "$ALLOWLIST_PATH" ]]; then
-  log_error "V10 SentryCrash Tool source allowlist does not exist: $ALLOWLIST_PATH"
-  exit 1
-fi
-
-allowlist_assignment_count=$(grep -c "^${ALLOWLIST_SETTING} =[[:space:]]*" "$ALLOWLIST_PATH" || true)
-if [[ "$allowlist_assignment_count" -ne 1 ]]; then
-  log_error "Expected exactly one $ALLOWLIST_SETTING assignment in $ALLOWLIST_PATH"
-  exit 1
-fi
-
-allowlist_assignment=$(grep "^${ALLOWLIST_SETTING} =[[:space:]]*" "$ALLOWLIST_PATH")
-allowlist_value=${allowlist_assignment#*=}
-allowlist_value=${allowlist_value# }
-ALLOWED_SOURCE_NAMES=()
-if [[ -n "$allowlist_value" ]]; then
-  read -r -a ALLOWED_SOURCE_NAMES <<< "$allowlist_value"
-fi
-
-contains_value() {
-  local expected="$1"
-  shift
-  local value
-  for value in "$@"; do
-    if [[ "$value" == "$expected" ]]; then
-      return 0
-    fi
-  done
-  return 1
-}
-
-validated_allowed_source_names=()
-for source_name in "${ALLOWED_SOURCE_NAMES[@]+${ALLOWED_SOURCE_NAMES[@]}}"; do
-  if contains_value "$source_name" "${validated_allowed_source_names[@]+${validated_allowed_source_names[@]}}"; then
-    log_error "Duplicate V10 SentryCrash Tool source allowlist entry: $source_name"
-    exit 1
-  fi
-  if [[ ! -f "$REPO_ROOT/$TOOLS_SOURCE_PATH/$source_name" ]]; then
-    log_error "V10 SentryCrash Tool source allowlist entry does not exist: $source_name"
-    exit 1
-  fi
-  validated_allowed_source_names+=("$source_name")
-done
-
-SOURCE_PATHS=()
-XCODE_OBJECT_NAMES=()
-SWIFTPM_OBJECT_NAMES=()
-
-add_source_mapping() {
-  local source_path="$1"
-  local source_name
-  local source_stem
-  source_name=$(basename "$source_path")
-  source_stem=${source_name%.*}
-
-  SOURCE_PATHS+=("$source_path")
-  XCODE_OBJECT_NAMES+=("$source_stem.o")
-  SWIFTPM_OBJECT_NAMES+=("$source_name.o")
-}
-
+forbidden_sources=()
 while IFS= read -r source_path; do
-  add_source_mapping "${source_path#"$REPO_ROOT/"}"
+  forbidden_sources+=("${source_path#"$REPO_ROOT/"}")
 done < <(find "$REPO_ROOT/Sources/SentryCrash" -type f \
   \( -name '*.c' -o -name '*.cc' -o -name '*.cpp' -o -name '*.m' -o -name '*.mm' \) \
   -print | sort)
+while IFS= read -r source_path; do
+  forbidden_sources+=("${source_path#"$REPO_ROOT/"}")
+done < <(find "$REPO_ROOT/Sources/SentryCrashV9Swift" -type f -name '*.swift' -print | sort)
+forbidden_sources+=(
+  Sources/Sentry/SentryCrashDefaultMachineContextWrapper.m
+  Sources/Sentry/SentryCrashReportSink.m
+  Sources/Sentry/SentryCrashScopeObserver.m
+)
 
-for source_path in \
-  Sources/Sentry/SentryCrashReportSink.m \
-  Sources/Sentry/SentryCrashScopeObserver.m; do
-  add_source_mapping "$source_path"
-done
+forbidden_headers=()
+while IFS= read -r header_path; do
+  forbidden_headers+=("${header_path#"$REPO_ROOT/"}")
+done < <(find "$REPO_ROOT/Sources/SentryCrashV9Headers/include" -type f \
+  \( -name '*.h' -o -name '*.hpp' \) -print | sort)
+while IFS= read -r header_path; do
+  forbidden_headers+=("${header_path#"$REPO_ROOT/"}")
+done < <(find "$REPO_ROOT/Sources/SentryCrash" -type f \
+  \( -name '*.h' -o -name '*.hpp' \) -print | sort)
 
-RESOLVED_SOURCE_PATH=""
-resolve_source_path() {
-  local object_name="$1"
-  local index
-  RESOLVED_SOURCE_PATH=""
-
-  for index in "${!SOURCE_PATHS[@]}"; do
-    if [[ "$object_name" == "${XCODE_OBJECT_NAMES[$index]}" \
-      || "$object_name" == "${SWIFTPM_OBJECT_NAMES[$index]}" ]]; then
-      RESOLVED_SOURCE_PATH="${SOURCE_PATHS[$index]}"
-      return 0
-    fi
-  done
-  return 1
-}
-
-is_allowed_source() {
-  local source_path="$1"
-  local source_name
-  source_name=$(basename "$source_path")
-
-  [[ "$source_path" == "$TOOLS_SOURCE_PATH/$source_name" ]] \
-    && contains_value "$source_name" "${validated_allowed_source_names[@]+${validated_allowed_source_names[@]}}"
-}
-
-candidate_object_count=0
 violation_count=0
-empty_translation_unit_count=0
-compiled_allowed_source_names=()
+record_error() {
+  log_error "$1"
+  violation_count=$((violation_count + 1))
+}
 
-while IFS= read -r -d '' object_path; do
-  object_name=$(basename "$object_path")
-  if ! resolve_source_path "$object_name"; then
-    continue
-  fi
+# Native SwiftPM describes the entire package, including unrequested targets. Validate the actual
+# requested command closure before taking its associated plans/descriptions/maps out of the raw
+# scan. All other metadata (including Xcode/SwiftBuild output) and actual dependencies stay checked.
+source_patterns=$(mktemp)
+header_patterns=$(mktemp)
+metadata_paths=$(mktemp)
+dependency_paths=$(mktemp)
+native_metadata_paths=$(mktemp)
+trap 'rm -f "$source_patterns" "$header_patterns" "$metadata_paths" "$dependency_paths" "$native_metadata_paths"' EXIT
+printf '%s\n' "${forbidden_sources[@]}" > "$source_patterns"
+printf '%s\n' "${forbidden_headers[@]}" > "$header_patterns"
+find "$BUILD_PATH" -type f \
+  \( -name '*.scan' -o -name '*.d' -o -name '*.json' -o -name '*.yaml' -o -name '*.txt' \
+  -o -name '*.rsp' -o -name '*.SwiftFileList' -o -name '*.LinkFileList' \) \
+  -print0 > "$metadata_paths"
+find "$BUILD_PATH" -type f \( -name '*.scan' -o -name '*.d' \) -print0 > "$dependency_paths"
 
-  candidate_object_count=$((candidate_object_count + 1))
-  source_path="$RESOLVED_SOURCE_PATH"
-
-  if is_allowed_source "$source_path"; then
-    source_name=$(basename "$source_path")
-    if ! contains_value "$source_name" "${compiled_allowed_source_names[@]+${compiled_allowed_source_names[@]}}"; then
-      compiled_allowed_source_names+=("$source_name")
-    fi
-    continue
-  fi
-
-  if [[ "$ALLOW_EMPTY_TRANSLATION_UNITS" != true ]]; then
-    log_error "Non-allowlisted legacy source compiled in V10: $source_path ($object_path)"
-    violation_count=$((violation_count + 1))
-    continue
-  fi
-
-  if ! grep -qE '^#if[[:space:]]+!SDK_V10[[:space:]]*$' "$REPO_ROOT/$source_path"; then
-    log_error "Non-allowlisted trait source lacks a whole-file SDK_V10 guard: $source_path"
-    violation_count=$((violation_count + 1))
-    continue
-  fi
-
-  if ! symbols=$(nm -gU "$object_path"); then
-    log_error "Could not inspect legacy object: $object_path"
-    violation_count=$((violation_count + 1))
-    continue
-  fi
-  if [[ -n "$symbols" ]]; then
-    log_error "SDK_V10-guarded legacy object defines external symbols: $object_path"
-    printf '%s\n' "$symbols"
-    violation_count=$((violation_count + 1))
-    continue
-  fi
-
-  empty_translation_unit_count=$((empty_translation_unit_count + 1))
-done < <(find "$BUILD_PATH" -type f -name '*.o' -print0)
-
-if [[ $candidate_object_count -eq 0 ]]; then
-  if [[ ${#validated_allowed_source_names[@]} -eq 0 ]]; then
-    log_info "Verified no SentryCrash source objects are present"
+if [[ -f "$BUILD_PATH/debug.yaml" || -f "$BUILD_PATH/release.yaml" || -f "$BUILD_PATH/plugin-tools.yaml" ]]; then
+  if "$SCRIPT_DIR/verify-v10-spm-build-plan.swift" \
+    --build-path "$BUILD_PATH" --source-patterns "$source_patterns" \
+    --metadata-paths "$metadata_paths" --remaining-metadata-paths "$native_metadata_paths" \
+    ${SPM_TARGETS[@]+"${SPM_TARGETS[@]}"}; then
+    mv "$native_metadata_paths" "$metadata_paths"
   else
-    log_error "No SentryCrash source objects found under $BUILD_PATH; the audit did not run"
-    exit 1
+    record_error "Could not verify the requested native SwiftPM build"
   fi
 fi
 
-for source_name in "${validated_allowed_source_names[@]+${validated_allowed_source_names[@]}}"; do
-  if ! contains_value "$source_name" "${compiled_allowed_source_names[@]+${compiled_allowed_source_names[@]}}"; then
-    log_error "Allowlisted V10 SentryCrash Tool source did not compile: $source_name"
-    violation_count=$((violation_count + 1))
-  fi
-done
+metadata_matches=""
+if [[ -s "$metadata_paths" ]]; then
+  metadata_matches=$(xargs -0 grep -aIlFf "$source_patterns" < "$metadata_paths" || true)
+fi
+if [[ -n "$metadata_matches" ]]; then
+  record_error "V10 build metadata schedules a V9 recorder or adapter implementation"
+  printf '%s\n' "$metadata_matches"
+fi
+
+dependency_matches=""
+if [[ -s "$dependency_paths" ]]; then
+  dependency_matches=$(xargs -0 grep -aIlFf "$header_patterns" < "$dependency_paths" || true)
+fi
+if [[ -n "$dependency_matches" ]]; then
+  record_error "V10 dependency metadata resolves a V9 recorder header"
+  printf '%s\n' "$dependency_matches"
+fi
+
+# Object basenames are an independent fallback for Xcode output directories that omit compile
+# metadata. The denylist is exact and gathered from the source, so historically named SDK-owned
+# objects are not rejected.
+while IFS= read -r -d '' object_path; do
+  object_name=$(basename "$object_path")
+  for source_path in "${forbidden_sources[@]}"; do
+    source_name=$(basename "$source_path")
+    source_stem=${source_name%.*}
+    if [[ "$object_name" == "$source_stem.o" || "$object_name" == "$source_name.o" ]]; then
+      record_error "V10 emitted an object reserved for $source_path: $object_path"
+      break
+    fi
+  done
+done < <(find "$BUILD_PATH" -type f -name '*.o' -print0)
 
 if [[ $violation_count -ne 0 ]]; then
-  log_error "$violation_count V10 SentryCrash source object violation(s) found"
+  log_error "$violation_count V10 SentryCrash compile/object violation(s) found"
   exit 1
 fi
 
-log_info "Verified ${#compiled_allowed_source_names[@]} retained SentryCrash Tool sources"
-if [[ "$ALLOW_EMPTY_TRANSLATION_UNITS" == true ]]; then
-  log_info "Verified $empty_translation_unit_count SDK_V10-guarded legacy objects contain no external symbols"
-fi
+log_info "Verified no V9 recorder or adapter compile command or object is present"

@@ -81,6 +81,23 @@ final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase
         }
     }
 
+    func testProcessReport_whenLegacyCompatibleReportContainsAttachments_shouldLoadAttachmentsForCapture() throws {
+        // -- Arrange --
+        var report = try getCrashReport(resource: "Resources/crash-report-1")
+        let attachmentPath = "/tmp/legacy-native-report-attachment.png"
+        report["attachments"] = [attachmentPath]
+
+        // -- Act --
+        try sut.process(report: report)
+
+        // -- Assert --
+        try assertFatalEventWithScope { _, scope in
+            let attachments = try XCTUnwrap(scope?.crashReportAttachments)
+            XCTAssertEqual(attachments.count, 1)
+            XCTAssertEqual(attachments.first?.path, attachmentPath)
+        }
+    }
+
     func testProcessReport_whenCaptureGateDeclines_shouldReturnGateErrorWithoutCapturing() throws {
         // -- Arrange --
         let report = try getCrashReport(resource: "Resources/crash-report-1")

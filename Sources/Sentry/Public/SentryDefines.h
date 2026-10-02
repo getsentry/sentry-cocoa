@@ -1,5 +1,16 @@
 #import <Foundation/Foundation.h>
 
+// SwiftPM consumers do not inherit dependency compiler defines. The selected V10 header
+// target supplies the same SDK_V10 setting when their Clang modules are imported.
+// Keep monolithic Xcode/framework headers independent of any visible package source folders.
+// Older Xcode versions may schedule a trait-conditioned local target even for V9. Honor
+// the SDK's V9 setting and the consumer's reachable V9 headers before adopting V10.
+#if !SENTRY_SWIFTPM_V9 && !__has_include(<SentryCrashV9.h>)                                           \
+    && __has_include(<SentryV10Configuration.h>)                                                    \
+    && (defined(SWIFT_PACKAGE) || __building_module(SentryHeaders) || __building_module(_SentryPrivate))
+#    import <SentryV10Configuration.h>
+#endif
+
 // Clang warns if a double quoted include is used instead of angle brackets in a public header
 // These 3 import variations are how public headers can be imported with angle brackets
 // for Sentry, SentryWithoutUIKit, and SPM

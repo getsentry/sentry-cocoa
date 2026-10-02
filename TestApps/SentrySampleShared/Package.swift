@@ -27,15 +27,19 @@ let package = Package(
         )
     ],
     traits: [
-        .init(name: "V10", description: "Enable SDK V10 API changes.")
+        .init(name: "V9", description: "Enable SDK V9 API changes."),
+        .init(name: "V10", description: "Enable SDK V10 API changes."),
+        .default(enabledTraits: ["V9"])
     ],
     dependencies: [
         .package(
             name: "Sentry",
             path: "../..",
             traits: [
-                .defaults,
                 "_SentryInternalUITestSupport",
+                // Forward the selected backend instead of unconditionally adding default V9
+                // to a V10 consumer's trait graph.
+                .trait(name: "V9", condition: .when(traits: ["V9"])),
                 .trait(name: "V10", condition: .when(traits: ["V10"]))
             ]
         )

@@ -39,7 +39,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Verify source contract
-        run: ./scripts/verify-v10-sentrycrash-source-contract.sh
+        run: ./scripts/verify-v10-sentrycrash-source-contract.swift
 
   build-v10:
     name: Build V10 ${{ matrix.platform }}
@@ -97,7 +97,7 @@ jobs:
           WATCHOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: make ${{ matrix.make-target }}
 
-      - name: Verify SentryCrash source allowlist
+      - name: Verify recorder source exclusion
         run: |
           objects_path="$(find "$HOME/Library/Developer/Xcode/DerivedData" -type d -path '*/Sentry.build/${{ matrix.objects-configuration }}/SentryV10.build/Objects-normal' -print -quit)"
           if [[ -z "$objects_path" ]]; then
@@ -163,6 +163,11 @@ jobs:
         with:
           version: "26"
           resolve-simulators: "false"
+      - name: Test provenance audit
+        run: ./scripts/test-v10-spm-build-plan.swift
+      - name: Verify equivalent SwiftPM V10 source graphs
+        if: matrix.mode == 'environment'
+        run: ./scripts/verify-v10-spm-route-equivalence.swift
       - name: Build Swift with environment
         if: matrix.mode == 'environment'
         env:
@@ -175,7 +180,8 @@ jobs:
         run: |
           swift build --target SentryObjCInternal --scratch-path .build/v10-environment
           swift build --target SentryTestUtils --scratch-path .build/v10-environment
-          ./scripts/verify-v10-sentrycrash-objects.sh --build-path .build/v10-environment
+          ./scripts/verify-v10-sentrycrash-objects.sh --build-path .build/v10-environment \
+            --spm-target SentrySwift --spm-target SentryObjCInternal --spm-target SentryTestUtils
       - name: Build Swift with trait
         if: matrix.mode == 'trait'
         run: swift build --target SentrySwift --traits V10 --scratch-path .build/v10-trait
@@ -184,9 +190,8 @@ jobs:
         run: |
           swift build --target SentryObjCInternal --traits V10 --scratch-path .build/v10-trait
           swift build --target SentryTestUtils --traits V10 --scratch-path .build/v10-trait
-          ./scripts/verify-v10-sentrycrash-objects.sh \
-            --build-path .build/v10-trait \
-            --allow-empty-translation-units
+          ./scripts/verify-v10-sentrycrash-objects.sh --build-path .build/v10-trait \
+            --spm-target SentrySwift --spm-target SentryObjCInternal --spm-target SentryTestUtils
       - name: Build Swift with base manifest
         if: matrix.mode == 'base-manifest'
         env:
@@ -201,7 +206,64 @@ jobs:
         run: |
           swift build --target SentryObjCInternal --scratch-path .build/v10-base-manifest
           swift build --target SentryTestUtils --scratch-path .build/v10-base-manifest
-          ./scripts/verify-v10-sentrycrash-objects.sh --build-path .build/v10-base-manifest
+          ./scripts/verify-v10-sentrycrash-objects.sh --build-path .build/v10-base-manifest \
+            --spm-target SentrySwift --spm-target SentryObjCInternal --spm-target SentryTestUtils
+
+  package-v10:
+    name: Package V10 ${{ matrix.sdk }}
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_v10_for_prs == 'true'
+    needs: files-changed
+    runs-on: macos-26
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        sdk:
+          [
+            iphoneos,
+            iphonesimulator,
+            macosx,
+            maccatalyst,
+            appletvos,
+            appletvsimulator,
+            watchos,
+            watchsimulator,
+            xros,
+            xrsimulator,
+          ]
+    steps:
+      - name: Warm CoreSimulator
+        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "26"
+          resolve-simulators: "false"
+      - name: Test archive audit path
+        run: ./scripts/test-v10-archive-audit-path.sh
+      - name: Test wrapper archive architectures
+        if: matrix.sdk == 'watchos'
+        run: ./scripts/test-sentryobjc-archive-architectures.sh --work-dir "$RUNNER_TEMP/wrapper-archive-architectures"
+      - name: Build and audit dynamic V10 XCFramework
+        run: make build-xcframework-v10-dynamic SDKS=${{ matrix.sdk }}
+      - name: Build and audit static V10 XCFramework
+        run: make build-xcframework-v10-static SDKS=${{ matrix.sdk }}
+      - name: Verify packaged SDK compile provenance
+        run: ./scripts/verify-v10-sentrycrash-objects.sh --build-path "XCFrameworkBuildPath/DerivedData"
+      - name: Build and audit V10 SentryObjC XCFrameworks
+        run: make build-xcframework-sentryobjc-v10 SDKS=${{ matrix.sdk }}
+      - name: Upload archive regression logs
+        if: failure() && matrix.sdk == 'watchos'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: wrapper-archive-architectures
+          path: |
+            ${{ runner.temp }}/wrapper-archive-architectures/**/*.log
+            ${{ runner.temp }}/wrapper-archive-architectures/**/*.exit-status
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
+        if: ${{ failure() || cancelled() }}
 
   build-v10-testapps:
     name: Test App V10 ${{ matrix.scheme }}
@@ -301,6 +363,22 @@ jobs:
           resolve-simulators: "false"
 
       - run: make init-ci-build
+      - name: Test local package trait selection
+        run: ./scripts/test-v10-package-folder-references.swift
+      - name: Test crash backend selection
+        run: ./scripts/test-spm-crash-backend-selection.swift --work-dir "$RUNNER_TEMP/crash-backend-selection"
+      - name: Test V9 NoUI linkage
+        run: ./scripts/test-spm-v9-no-ui-framework.swift --work-dir "$RUNNER_TEMP/v9-no-ui-framework"
+      - name: Upload backend selection logs
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: crash-backend-selection-logs
+          path: |
+            ${{ runner.temp }}/crash-backend-selection/*.log
+            ${{ runner.temp }}/crash-backend-selection/*.exit-status
+            ${{ runner.temp }}/v9-no-ui-framework/*.log
+            ${{ runner.temp }}/v9-no-ui-framework/*.exit-status
       - run: scripts/generate-testapp-v10.sh --spec TestApps/macOS-CLI-Xcode/macOS-CLI-Xcode.yml
 
       - name: Build macOS-CLI-Xcode test app
@@ -330,6 +408,7 @@ jobs:
         build-v10,
         build-v10-spm,
         build-v10-testapps,
+        package-v10,
         check-v10-macOS-CLI-Xcode-no-UI-framework,
         verify-no-binary-targets,
         verify-v10-source-contract,

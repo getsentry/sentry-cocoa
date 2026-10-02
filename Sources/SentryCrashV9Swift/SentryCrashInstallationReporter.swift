@@ -1,6 +1,25 @@
 #if !SDK_V10
+#if SWIFT_PACKAGE
+@_spi(Private) import SentrySwift
+#endif
 internal import _SentryPrivate
 import Foundation
+
+enum SentryCrashV9Log {
+    static func debug(_ message: String, file: String = #file, line: Int = #line) {
+        log(message, level: .debug, file: file, line: line)
+    }
+
+    static func error(_ message: String, file: String = #file, line: Int = #line) {
+        log(message, level: .error, file: file, line: line)
+    }
+
+    private static func log(_ message: String, level: SentryLevel, file: String, line: Int) {
+        let path = file as NSString
+        let fileName = (path.lastPathComponent as NSString).deletingPathExtension
+        SentrySDKLog.log(message: "[\(fileName):\(line)] \(message)", andLevel: level)
+    }
+}
 
 /**
  * Crash installation reporter that handles Sentry-specific reporting details.
@@ -40,9 +59,9 @@ final class SentryCrashInstallationReporter: SentryCrashInstallation {
     override func sendAllReports(completion onCompletion: SentryCrashReportFilterCompletion?) {
         super.sendAllReports { filteredReports, completed, error in
             if let error = error {
-                SentrySDKLog.error("Error sending crash reports: \(error.localizedDescription)")
+                SentryCrashV9Log.error("Error sending crash reports: \(error.localizedDescription)")
             }
-            SentrySDKLog.debug("Sent \(String(describing: filteredReports?.count)) crash report(s)")
+            SentryCrashV9Log.debug("Sent \(String(describing: filteredReports?.count)) crash report(s)")
             if completed, let onCompletion = onCompletion {
                 onCompletion(filteredReports, completed, error)
             }
