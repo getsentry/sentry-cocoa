@@ -82,6 +82,28 @@ final class SentryDependencyContainerTests: XCTestCase {
     }
 
 #if !SDK_V10
+    func testCrashWrapper_whenFirstAccessIsConcurrent_shouldReturnSameInstance() throws {
+        // -- Arrange --
+        SentryDependencyContainer.reset()
+        let container = SentryDependencyContainer.sharedInstance()
+        let wrappers = SentryMutex<[SentryCrashReporter]>([])
+
+        // -- Act --
+        DispatchQueue.concurrentPerform(iterations: 16) { _ in
+            let wrapper = container.crashWrapper
+            wrappers.withLock { $0.append(wrapper) }
+        }
+
+        // -- Assert --
+        let results = wrappers.withLock { $0 }
+        let expected = try XCTUnwrap(results.first)
+        XCTAssertEqual(results.count, 16)
+        for wrapper in results {
+            XCTAssertIdentical(wrapper, expected)
+        }
+        XCTAssertIdentical(container.crashWrapper, expected)
+    }
+
     func testCrashReporter_whenFirstAccessIsConcurrent_shouldReturnSameInstance() {
         // -- Arrange --
         let accessCount = 16

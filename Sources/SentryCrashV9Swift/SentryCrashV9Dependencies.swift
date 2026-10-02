@@ -31,7 +31,12 @@ private final class SentryCrashV9Dependencies: SentryCrashV9IntegrationDependenc
         }
     }
 
-    var crashWrapper: SentryCrashReporter {
+    // Resolve overrides through the container, just like other SDK consumers.
+    var crashWrapper: SentryCrashReporter { container.crashWrapper }
+
+    // Only the container's fallback provider may construct this default. Keeping that
+    // callback separate avoids recursing through container.crashWrapper.
+    var defaultCrashWrapper: SentryCrashReporter {
         let cacheDirectoryPath = container.startOptions?.cacheDirectoryPath
         let notificationCenterWrapper = container.notificationCenterWrapper
         let dateProvider = container.dateProvider
@@ -149,7 +154,7 @@ func sentrycrash_v9_registerSwiftBackend() {
             )
         },
         crashWrapperProvider: { dependencies in
-            SentryCrashV9DependencyStore.dependencies(for: dependencies).crashWrapper
+            SentryCrashV9DependencyStore.dependencies(for: dependencies).defaultCrashWrapper
         },
         exceptionCapture: { dependencies, exception in
             SentryCrashV9DependencyStore.dependencies(for: dependencies)

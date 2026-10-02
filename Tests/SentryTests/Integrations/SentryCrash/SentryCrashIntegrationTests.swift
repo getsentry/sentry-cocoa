@@ -202,6 +202,64 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         assertCrashedSessionStored(expected: expectedCrashedSession)
     }
 
+#if !SDK_V10
+    func testProductionInstaller_whenWrapperOverridden_shouldFinalizeSessionWithOverride() throws {
+        // -- Arrange --
+        let container = SentryDependencyContainer.sharedInstance()
+        let defaultWrapper = container.crashWrapper
+        let override = fixture.sentryCrash
+        container.crashWrapper = override
+        container.fileManager = fixture.client.fileManager
+        let expectedSession = givenCrashedSession()
+        SentrySDKInternal.setCurrentHub(fixture.hub)
+        try advanceTime(bySeconds: 10)
+
+        // -- Act --
+        // Exercise the registered production provider, not MockCrashDependencies.
+        let integration = try XCTUnwrap(SentryCrashV9Backend.installIntegration(
+            options: fixture.options,
+            dependencies: container
+        ))
+        defer { integration.uninstall() }
+
+        // -- Assert --
+        XCTAssertFalse(defaultWrapper === override)
+        XCTAssertIdentical(container.crashWrapper, override)
+        assertCrashedSessionStored(expected: expectedSession)
+    }
+
+    func testProductionInstaller_whenWrapperOverridden_shouldUseOverrideInReportSink() throws {
+        // -- Arrange --
+        let container = SentryDependencyContainer.sharedInstance()
+        fixture.sentryCrash.internalCrashedLastLaunch = false
+        fixture.sentryCrash.internalDurationFromCrashStateInitToLastCrash = 0.001
+        container.crashWrapper = fixture.sentryCrash
+        container.dispatchQueueWrapper = fixture.dispatchQueueWrapper
+        SentrySDKInternal.setCurrentHub(fixture.hub)
+        XCTAssertFalse(SentrySDK.detectedStartUpCrash)
+        let integration = try XCTUnwrap(SentryCrashV9Backend.installIntegration(
+            options: fixture.options,
+            dependencies: container
+        ))
+        defer {
+            sentrycrash_deleteAllReports()
+            integration.uninstall()
+        }
+        // A minimal stored report is enough to reach the installed sink. Conversion/capture
+        // is not under test; the wrapper's duration must trigger startup-crash handling.
+        let reportId = "{}".withCString { sentrycrash_addUserReport($0, 2) }
+        XCTAssertGreaterThan(reportId, 0)
+        let completed = expectation(description: "Production report sink completed")
+
+        // -- Act --
+        container.crashReporter.sendAllReports { _, _, _ in completed.fulfill() }
+        wait(for: [completed], timeout: 5)
+
+        // -- Assert --
+        XCTAssertTrue(SentrySDK.detectedStartUpCrash)
+    }
+#endif // !SDK_V10
+
     func testEndSessionAsCrashed_WithPendingUnhandledCurrentSession_EndsSessionAsCrashed() throws {
         try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 

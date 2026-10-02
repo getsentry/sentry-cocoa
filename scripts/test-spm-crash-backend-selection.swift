@@ -114,6 +114,7 @@ private func prepareSDK(root: URL, scenario: BuildCase) throws -> URL {
         "Package@swift-6.2.swift", 
         "TestApps/SentrySampleShared/Package.swift",
         "Sources/Sentry/include/SentrySwift.h",
+        "Sources/SentryCrashV9Swift/SentryCrashV9Dependencies.swift",
         "Sources/SentryCrash/Installations/SentryCrashInstallation.m",
         "Sources/SentryCrash/Recording/SentryCrash.m",
         "Sources/SentryCrash/Recording/Monitors/SentryCrashMonitor_NSException.m",
