@@ -35,9 +35,6 @@
          location = "group:TestApps/macOS-Swift/macOS-Swift.xcodeproj">
       </FileRef>
       <FileRef
-         location = "group:TestApps/macOS-NSException/macOS-NSException.xcodeproj">
-      </FileRef>
-      <FileRef
          location = "group:TestApps/iOS-ObjectiveC/iOS-ObjectiveC.xcodeproj">
       </FileRef>
       <FileRef
