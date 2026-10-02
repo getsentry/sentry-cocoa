@@ -1,117 +1,99 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-set -eoux pipefail
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=./ci-utils.sh disable=SC1091
+source "$SCRIPT_DIR/ci-utils.sh"
 
-# Disable SC1091 because it won't work with pre-commit
-# shellcheck source=./scripts/ci-utils.sh disable=SC1091
-source "$(cd "$(dirname "$0")" && pwd)/ci-utils.sh"
+SCHEME=""
+SUFFIX=""
+CONFIGURATION_SUFFIX=""
+SDKS=""
+ARCHIVE_TEMPLATE=""
+PRODUCT_NAME=""
+OUTPUT=""
 
 usage() {
-    cat <<EOF
-Usage: $(basename "$0") <scheme> <suffix> <configuration_suffix> <sdks> <xcarchive_path_template> [product_name]
-
-Assembles an XCFramework from per-SDK xcarchive slices.
-
-ARGUMENTS:
-    scheme                      Xcode scheme name (e.g., Sentry)
-    suffix                      Suffix for the output xcframework name (can be empty)
-    configuration_suffix        Suffix for the product name inside archives (can be empty)
-    sdks                        Comma-separated list of SDKs (e.g., iphoneos,macosx)
-    xcarchive_path_template     Path template with SDK_NAME placeholder(s)
-    product_name                Framework name on disk inside xcarchives when it differs
-                                from the scheme name (default: scheme)
-
-EXAMPLES:
-    $(basename "$0") Sentry "" "" "iphoneos,macosx" "/path/to/SDK_NAME.xcarchive"
-    $(basename "$0") "SentryV10" "-Dynamic" "" "iphoneos,macosx" "/path/to/SDK_NAME.xcarchive" "Sentry"
-
-EOF
+    log_info "Usage: $0 --scheme <name> --sdks <list> --archive-template <path> [options]"
+    log_info "  -s, --scheme <name>                 Scheme used for output naming (required)"
+    log_info "  -d, --sdks <list>                   Comma-separated SDKs (required)"
+    log_info "  -a, --archive-template <path>      Archive path with SDK_NAME placeholder (required)"
+    log_info "  -u, --suffix <suffix>               Output name suffix (default: empty)"
+    log_info "  -c, --configuration-suffix <value> Framework product suffix (default: empty)"
+    log_info "  -p, --product-name <name>           Framework product name (default: scheme)"
+    log_info "  -o, --output <path>                 Output xcframework (default: scheme+suffix.xcframework)"
     exit 1
 }
 
-if [ $# -lt 5 ]; then
-    log_error "Expected at least 5 arguments, got $#"
+while [[ $# -gt 0 ]]; do
+    if [[ $# -lt 2 && "$1" != -h && "$1" != --help ]]; then
+        log_error "Missing value for $1"
+        usage
+    fi
+    case "$1" in
+        -s|--scheme)               SCHEME="$2"; shift 2 ;;
+        -d|--sdks)                 SDKS="$2"; shift 2 ;;
+        -a|--archive-template)     ARCHIVE_TEMPLATE="$2"; shift 2 ;;
+        -u|--suffix)               SUFFIX="$2"; shift 2 ;;
+        -c|--configuration-suffix) CONFIGURATION_SUFFIX="$2"; shift 2 ;;
+        -p|--product-name)         PRODUCT_NAME="$2"; shift 2 ;;
+        -o|--output)               OUTPUT="$2"; shift 2 ;;
+        -h|--help)                 usage ;;
+        *)                         log_error "Unknown argument: $1"; usage ;;
+    esac
+done
+
+if [[ -z "$SCHEME" || -z "$SDKS" || -z "$ARCHIVE_TEMPLATE" ]]; then
+    log_error "--scheme, --sdks and --archive-template are required"
     usage
 fi
 
-scheme="$1"
-suffix="$2"
-configuration_suffix="$3"
-IFS=',' read -r -a sdks <<< "$4"
-product_name="${6:-$scheme}"
+PRODUCT_NAME="${PRODUCT_NAME:-$SCHEME}"
+OUTPUT="${OUTPUT:-$SCHEME$SUFFIX.xcframework}"
+IFS=',' read -r -a sdks <<< "$SDKS"
+framework_filename="$PRODUCT_NAME$CONFIGURATION_SUFFIX.framework"
 
-log_info "Assembling XCFramework:"
-log_info "  Scheme:               $scheme"
-log_info "  Suffix:               ${suffix:-(none)}"
-log_info "  Configuration suffix: ${configuration_suffix:-(none)}"
-log_info "  SDKs:                 ${sdks[*]}"
-log_info "  Archive template:     $5"
-if [[ "$product_name" != "$scheme" ]]; then
-    log_info "  Product name:         $product_name"
-fi
+log_info "Assembling $OUTPUT from ${sdks[*]} ($framework_filename)"
 
-# on ci, the xcarchives live in paths like the following:
-#   /path/to/.../xcframework-slices/xcframework-sentry-swiftui-slice-maccatalyst/Library/Frameworks/SentrySwiftUI.framework
-#   /path/to/.../xcframework-slices/xcframework-sentry-swiftui-slice-macosx/Library/Frameworks/SentrySwiftUI.framework
-#   /path/to/.../xcframework-slices/xcframework-sentry-swiftui-slice-iphoneos/Library/Frameworks/SentrySwiftUI.framework
-# in the local build script they're in something like:
-#   /path/to/.../XCFrameworkBuildPath/archive/Sentry-WithoutUIKitOrAppKit/iphoneos.xcarchive
-#   /path/to/.../XCFrameworkBuildPath/archive/Sentry-WithoutUIKitOrAppKit/macos.xcarchive
-# the issue is that we need to inject the sdk name once into the local version, and twice into the ci version. a template string satisfies this requirement.
-xcarchive_path_template="${5}" # may contain any number of instances of the template query string "SDK_NAME" that will be replaced with the actual sdk name below
+# SDK_NAME can occur more than once in CI archive paths.
+archive_framework() {
+    local archive_path="$1"
+    local framework_path="$archive_path/Products/Library/Frameworks/$framework_filename"
+    if [[ ! -d "$framework_path" ]]; then
+        log_error "Missing framework: $framework_path"
+        return 1
+    fi
+    xcodebuild_args+=(-framework "$framework_path")
+    local dsym_path="$archive_path/dSYMs/$framework_filename.dSYM"
+    if [[ -d "$dsym_path" ]]; then
+        xcodebuild_args+=(-debug-symbols "$dsym_path")
+    fi
+}
 
-xcodebuild_cmd="xcodebuild -create-xcframework"
-
-if [ -z "$configuration_suffix" ]; then
-    resolved_product_name="$product_name"
-else
-    resolved_product_name="$product_name$configuration_suffix"
-fi
-
-framework_filename="$resolved_product_name.framework"
-
+xcodebuild_args=(-create-xcframework)
 begin_group "Collecting framework slices"
 for sdk in "${sdks[@]}"; do
-    xcarchive_path="${xcarchive_path_template//SDK_NAME/$sdk}"
-    framework_path="$xcarchive_path/Products/Library/Frameworks/$framework_filename"
-    log_info "Processing $framework_path"
+    archive_path="${ARCHIVE_TEMPLATE//SDK_NAME/$sdk}"
+    archive_framework "$archive_path"
 
-    xcodebuild_cmd+=" -framework \"$framework_path\""
-
-    dsym_path="$xcarchive_path/dSYMs/$framework_filename.dSYM"
-    if [[ -d "$dsym_path" ]]; then
-        log_info "Processing $dsym_path"
-
-        xcodebuild_cmd+=" -debug-symbols \"$dsym_path\""
-    fi
-
-    if [ "$sdk" = "macosx" ]; then
-        mac_catalyst_xcarchive_path="${xcarchive_path_template//SDK_NAME/maccatalyst}/Library/Frameworks"
-        if [[ -d "$mac_catalyst_xcarchive_path" ]]; then
-            log_info "Processing $mac_catalyst_xcarchive_path"
-
-            xcodebuild_cmd+=" -framework \"$mac_catalyst_xcarchive_path/$framework_filename\""
-
-            mac_catalyst_dsym_path="$mac_catalyst_xcarchive_path/dSYMs/$framework_filename.dSYM"
-            if [[ -d "$mac_catalyst_dsym_path" ]]; then
-                log_info "Processing $mac_catalyst_dsym_path"
-
-                xcodebuild_cmd+=" -debug-symbols \"$mac_catalyst_dsym_path\""
+    # CI can provide the Catalyst framework alongside the macOS archive.
+    if [[ "$sdk" == "macosx" ]]; then
+        catalyst_path="${ARCHIVE_TEMPLATE//SDK_NAME/maccatalyst}/Library/Frameworks"
+        if [[ -d "$catalyst_path/$framework_filename" ]]; then
+            xcodebuild_args+=(-framework "$catalyst_path/$framework_filename")
+            if [[ -d "$catalyst_path/dSYMs/$framework_filename.dSYM" ]]; then
+                xcodebuild_args+=(-debug-symbols "$catalyst_path/dSYMs/$framework_filename.dSYM")
             fi
         fi
     fi
 done
 end_group
 
-if [ -z "$suffix" ]; then
-    resolved_xcframework_name="$scheme"
-else
-    resolved_xcframework_name="$scheme$suffix"
+if [[ "$OUTPUT" != *.xcframework ]]; then
+    log_error "Output must end in .xcframework: $OUTPUT"
+    exit 1
 fi
-xcframework_filename="$resolved_xcframework_name.xcframework"
-rm -rf "$xcframework_filename"
-xcodebuild_cmd+=" -output \"$xcframework_filename\""
-
-begin_group "Creating $xcframework_filename"
-eval "$xcodebuild_cmd"
+rm -rf -- "$OUTPUT"
+begin_group "Creating $OUTPUT"
+xcodebuild "${xcodebuild_args[@]}" -output "$OUTPUT"
 end_group

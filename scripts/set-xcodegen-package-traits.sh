@@ -9,10 +9,10 @@ SPEC=""
 TRAITS=()
 
 usage() {
-    log_notice "Usage: $(basename "$0")"
-    log_notice "  -s, --spec <path>     XcodeGen YAML spec (required)"
-    log_notice "  -t, --trait <name>    Package trait to set on local path packages"
-    log_notice "                        (repeatable, required)"
+    log_info "Usage: $(basename "$0")"
+    log_info "  -s, --spec <path>     XcodeGen YAML spec (required)"
+    log_info "  -t, --trait <name>    Package trait to set on local path packages"
+    log_info "                        (repeatable, required)"
     exit 1
 }
 

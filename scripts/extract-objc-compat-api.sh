@@ -18,9 +18,9 @@ OUTPUT=""
 CONFIGURATION="Release"
 
 usage() {
-    log_notice "Usage: $0"
-    log_notice "  --output <path>            Output JSON file path (required)"
-    log_notice "  --configuration <name>     Xcode build configuration (default: Release)"
+    log_info "Usage: $0"
+    log_info "  --output <path>            Output JSON file path (required)"
+    log_info "  --configuration <name>     Xcode build configuration (default: Release)"
     exit 1
 }
 

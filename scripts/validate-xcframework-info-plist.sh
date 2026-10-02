@@ -4,12 +4,14 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=./ci-utils.sh disable=SC1091
 source "$SCRIPT_DIR/ci-utils.sh"
+# shellcheck source=./xcframework-utils.sh disable=SC1091
+source "$SCRIPT_DIR/xcframework-utils.sh"
 
 XCFRAMEWORK_PATH=""
 
 usage() {
-    log_notice "Usage: $0 --xcframework <path>"
-    log_notice "  --xcframework <path>    XCFramework bundle to validate (required)"
+    log_info "Usage: $0 --xcframework <path>"
+    log_info "  --xcframework <path>    XCFramework bundle to validate (required)"
     exit 1
 }
 
@@ -37,10 +39,7 @@ if [ -z "$XCFRAMEWORK_PATH" ]; then
     usage
 fi
 
-if [ ! -d "$XCFRAMEWORK_PATH" ]; then
-    log_error "XCFramework path does not exist: $XCFRAMEWORK_PATH"
-    exit 1
-fi
+require_xcframework "$XCFRAMEWORK_PATH"
 
 REQUIRED_KEYS=(
     CFBundleExecutable
@@ -114,7 +113,7 @@ while IFS= read -r -d '' framework_path; do
 done < <(find "$XCFRAMEWORK_PATH" -name "*.framework" -type d -print0)
 
 if [ "$frameworks_checked" -eq 0 ]; then
-    log_notice "No .framework bundles found in $XCFRAMEWORK_PATH (static library xcframework), skipping"
+    log_info "No .framework bundles found in $XCFRAMEWORK_PATH (static library xcframework), skipping"
     end_group
     exit 0
 fi
@@ -126,4 +125,4 @@ if [ "$validation_errors" -ne 0 ]; then
     exit 1
 fi
 
-log_notice "Info.plist validation passed ($frameworks_checked framework(s) checked)."
+log_info "Info.plist validation passed ($frameworks_checked framework(s) checked)."

@@ -2,52 +2,65 @@
 #
 # Builds a single slice of the SDK to be packaged into an XCFramework
 
-set -eoux pipefail
+set -euo pipefail
 
-# Disable SC1091 because it won't work with pre-commit
-# shellcheck source=./scripts/ci-utils.sh disable=SC1091
-source "$(cd "$(dirname "$0")" && pwd)/ci-utils.sh"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=./ci-utils.sh disable=SC1091
+source "$SCRIPT_DIR/ci-utils.sh"
+
+sdk=""
+scheme=""
+suffix=""
+MACH_O_TYPE="mh_dylib"
+configuration_suffix=""
+product_name=""
+project="Sentry.xcodeproj/"
+build_path="XCFrameworkBuildPath"
+extra_build_settings=()
 
 usage() {
-    cat <<EOF
-Usage: $(basename "$0") <sdk> <scheme> [suffix] [mach_o_type] [configuration_suffix] [product_name] [extra_build_settings...]
-
-Build a single SDK slice to be packaged into an XCFramework.
-
-ARGUMENTS:
-    sdk                     Target SDK (e.g., iphoneos, macosx, maccatalyst, watchos)
-    scheme                  Xcode scheme name (e.g., Sentry, SentrySwiftUI)
-    suffix                  Output name suffix, e.g. '-Dynamic' (default: empty)
-    mach_o_type             Mach-O type: mh_dylib or staticlib (default: mh_dylib)
-    configuration_suffix    Build configuration suffix (default: empty)
-    product_name            Framework product name on disk (default: scheme+configuration_suffix)
-    extra_build_settings    Additional xcodebuild KEY=VALUE overrides (default: none)
-
-EXAMPLES:
-    $(basename "$0") iphoneos Sentry "-Dynamic" mh_dylib
-    $(basename "$0") macosx Sentry "" staticlib
-    $(basename "$0") appletvos "SentryV10" "" mh_dylib "V10" "Sentry" "ARCHS=\$(ARCHS_STANDARD) arm64e"
-
-EOF
+    log_info "Usage: $0 --sdk <sdk> --scheme <name> [options]"
+    log_info "  -d, --sdk <sdk>                    Target SDK (required)"
+    log_info "  -s, --scheme <name>                Xcode scheme (required)"
+    log_info "  -u, --suffix <suffix>              Archive name suffix (default: empty)"
+    log_info "  -m, --mach-o-type <type>           mh_dylib, staticlib or inherit (default: mh_dylib)"
+    log_info "  -c, --configuration-suffix <s>    Release configuration suffix (default: empty)"
+    log_info "  -p, --product-name <name>          Framework name (default: scheme+configuration suffix)"
+    log_info "  -j, --project <path>               Xcode project (default: Sentry.xcodeproj)"
+    log_info "  -b, --build-path <path>            Build directory (default: XCFrameworkBuildPath)"
+    log_info "  -x, --build-setting <KEY=VALUE>   Extra xcodebuild setting (repeatable)"
     exit 1
 }
 
-if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+while [[ $# -gt 0 ]]; do
+    if [[ $# -lt 2 && "$1" != -h && "$1" != --help ]]; then
+        log_error "Missing value for $1"
+        usage
+    fi
+    case "$1" in
+        -d|--sdk)                  sdk="$2"; shift 2 ;;
+        -s|--scheme)               scheme="$2"; shift 2 ;;
+        -u|--suffix)               suffix="$2"; shift 2 ;;
+        -m|--mach-o-type)          MACH_O_TYPE="$2"; shift 2 ;;
+        -c|--configuration-suffix) configuration_suffix="$2"; shift 2 ;;
+        -p|--product-name)         product_name="$2"; shift 2 ;;
+        -j|--project)              project="$2"; shift 2 ;;
+        -b|--build-path)           build_path="$2"; shift 2 ;;
+        -x|--build-setting)        extra_build_settings+=("$2"); shift 2 ;;
+        -h|--help)                 usage ;;
+        *)                         log_error "Unknown argument: $1"; usage ;;
+    esac
+done
+
+if [[ -z "$sdk" || -z "$scheme" ]]; then
+    log_error "--sdk and --scheme are required"
     usage
 fi
-
-if [[ $# -lt 2 ]]; then
-    log_error "Expected at least 2 arguments (sdk, scheme), got $#"
-    usage
+if [[ -z "$build_path" || "$build_path" == / ]]; then
+    log_error "--build-path must be a non-root directory"
+    exit 1
 fi
-
-sdk="${1:-}"
-scheme="$2"
-suffix="${3:-}"
-MACH_O_TYPE="${4-mh_dylib}"
-configuration_suffix="${5-}"
-product_name="${6:-$scheme$configuration_suffix}"
-extra_build_settings=("${@:7}")
+product_name="${product_name:-$scheme$configuration_suffix}"
 
 log_info "Building XCFramework slice:"
 log_info "  SDK:                  $sdk"
@@ -81,7 +94,8 @@ if [ "$MACH_O_TYPE" != "inherit" ]; then
     mach_o_type_override=( MACH_O_TYPE="$MACH_O_TYPE" )
 fi
 
-rm -rf XCFrameworkBuildPath/DerivedData
+# Each slice uses the same derived-data directory, so clear it before building.
+rm -rf "$build_path/DerivedData"
 
 ## watchos and watchsimulator don't support make_mergeable: ld: unknown option: -make_mergeable
 ## For other dynamic frameworks, add -make_mergeable (append to existing flags)
@@ -91,19 +105,19 @@ fi
 
 slice_id="${scheme}${suffix}-${sdk}"
 
-output_xcarchive_path="XCFrameworkBuildPath/archive/${scheme}${suffix}"
+output_xcarchive_path="$build_path/archive/${scheme}${suffix}"
 sentry_xcarchive_path="$output_xcarchive_path/${sdk}.xcarchive"
 
 if [ "$sdk" = "maccatalyst" ]; then
     # we can't use the "archive" action here because it doesn't support the -destination option, which we need to build the maccatalyst slice. so we'll have to build it manually and then copy the build product to an xcarchive directory we create.
     begin_group "Build ${slice_id} (maccatalyst)"
     maccatalyst_args=(
-        -project Sentry.xcodeproj/
+        -project "$project"
         -scheme "$scheme"
         -configuration "$resolved_configuration"
         -sdk iphoneos
         -destination "generic/platform=macOS,variant=Mac Catalyst"
-        -derivedDataPath ./XCFrameworkBuildPath/DerivedData
+        -derivedDataPath "$build_path/DerivedData"
         CODE_SIGNING_REQUIRED=NO
         SKIP_INSTALL=NO
         CODE_SIGN_IDENTITY=
@@ -117,7 +131,7 @@ if [ "$sdk" = "maccatalyst" ]; then
     set -o pipefail && NSUnbufferedIO=YES xcodebuild "${maccatalyst_args[@]}" 2>&1 | tee "${slice_id}.maccatalyst.log" | xcbeautify --preserve-unbeautified
     end_group
 
-    maccatalyst_build_product_directory="XCFrameworkBuildPath/DerivedData/Build/Products/$resolved_configuration-maccatalyst"
+    maccatalyst_build_product_directory="$build_path/DerivedData/Build/Products/$resolved_configuration-maccatalyst"
 
     begin_group "Assemble maccatalyst xcarchive (${slice_id})"
     maccatalyst_xcarchive_framework_directory="${sentry_xcarchive_path}/Products/Library/Frameworks"
@@ -137,7 +151,7 @@ if [ "$sdk" = "maccatalyst" ]; then
 else
     begin_group "Archive ${slice_id}"
     xcodebuild_args=(
-        -project Sentry.xcodeproj/
+        -project "$project"
         -scheme "$scheme"
         -configuration "$resolved_configuration"
         -sdk "$sdk"
@@ -161,7 +175,7 @@ else
     archive_args=(
         archive
         "${xcodebuild_args[@]}"
-        -archivePath "./$sentry_xcarchive_path"
+        -archivePath "$sentry_xcarchive_path"
         "${build_setting_overrides[@]}"
     )
 

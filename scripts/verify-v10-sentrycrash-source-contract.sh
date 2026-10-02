@@ -31,8 +31,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/ci-utils.sh"
 
 usage() {
-  log_notice "Usage: $0"
-  log_notice "Verifies the repository-level V10 SentryCrash migration contract."
+  log_info "Usage: $0"
+  log_info "Verifies the repository-level V10 SentryCrash migration contract."
   exit 1
 }
 
@@ -75,7 +75,7 @@ if [[ -z "$state_protocol_line" || -z "$reporter_guard_line" || -z "$broad_proto
   || "$broad_protocol_line" -ge "$reporter_guard_end_line" ]]; then
   record_error "The narrow crash-state protocol must remain shared and the broad reporter protocol must be V9-only"
 else
-  log_notice "Verified the placeholder reporter is absent and the broad reporter protocol is V9-only"
+  log_info "Verified the placeholder reporter is absent and the broad reporter protocol is V9-only"
 fi
 
 if [[ ! -f "$LEDGER_PATH" ]]; then
@@ -167,7 +167,7 @@ verify_marker_blocks() {
   if [[ $marker_count -eq 0 ]]; then
     record_error "No $marker_kind migration markers found under $search_path; the marker audit did not run"
   else
-    log_notice "Verified $marker_count annotated $marker_kind migration marker blocks"
+    log_info "Verified $marker_count annotated $marker_kind migration marker blocks"
   fi
 }
 
@@ -202,7 +202,7 @@ verify_kscrash_todos() {
     '*.h' '*.hpp' '*.c' '*.cc' '*.cpp' '*.m' '*.mm' '*.swift' || true)
 
   if [[ $malformed_count -eq 0 ]]; then
-    log_notice "Verified $todo_count KSCRASH_TODO markers reference a GH tracker"
+    log_info "Verified $todo_count KSCRASH_TODO markers reference a GH tracker"
   fi
 }
 
@@ -256,7 +256,7 @@ else
       record_error "SDK-owned dependency is missing from the migration ledger: $source_path"
     fi
   done
-  log_notice "Verified ${#dependency_files[@]} SDK-owned dependency files are represented in the migration ledger"
+  log_info "Verified ${#dependency_files[@]} SDK-owned dependency files are represented in the migration ledger"
 fi
 
 sdk_owned_excluded_sources=(
@@ -353,7 +353,7 @@ for manifest_path in Package.swift Package@swift-6.1.swift Package@swift-6.2.swi
     record_error "$manifest_path ObjC V10 exclusions differ from the classified set"
   fi
 done
-log_notice "Verified SDK-owned V10 exclusions use the classified Xcode and SwiftPM sets"
+log_info "Verified SDK-owned V10 exclusions use the classified Xcode and SwiftPM sets"
 
 if grep -qE 'SentryScopeSyncC\.c' "$V10_XCCONFIG_PATH" Package.swift Package@swift-6.1.swift Package@swift-6.2.swift; then
   record_error "SDK-owned SentryScopeSyncC.c must not be excluded from a V10 route"
@@ -374,7 +374,7 @@ for source_name in "${retained_tool_sources[@]+${retained_tool_sources[@]}}"; do
     record_error "Retained Tool source is missing from the migration ledger: $source_name"
   fi
 done
-log_notice "Verified ${#retained_tool_sources[@]} retained Tool sources are documented"
+log_info "Verified ${#retained_tool_sources[@]} retained Tool sources are documented"
 retained_tool_source_list=${retained_tool_sources[*]-}
 
 if grep -Fqw 'SentryCrashSysCtl.c' <<< "$retained_tool_source_list"; then
@@ -402,7 +402,7 @@ done
 if grep -R -qE '(^|[^[:alnum:]_])ksbic_registerForImageAdded[[:space:]]*\(' Sources; then
   record_error "SDK source must not take KSCrash's single image-added callback slot"
 else
-  log_notice "Verified SDK source leaves KSCrash's image-added callback slot untouched"
+  log_info "Verified SDK source leaves KSCrash's image-added callback slot untouched"
 fi
 
 for manifest_path in Package.swift Package@swift-6.1.swift Package@swift-6.2.swift; do
@@ -413,7 +413,7 @@ done
 if grep -q 'RecordingCore' Sentry.xcodeproj/project.pbxproj; then
   record_error "Xcode must receive RecordingCore transitively through its Recording product"
 else
-  log_notice "Verified the SwiftPM/Xcode KSCrash product exception"
+  log_info "Verified the SwiftPM/Xcode KSCrash product exception"
 fi
 
 if [[ $violation_count -ne 0 ]]; then
@@ -421,4 +421,4 @@ if [[ $violation_count -ne 0 ]]; then
   exit 1
 fi
 
-log_notice "Verified the V10 SentryCrash source, marker, ownership, and ledger contract"
+log_info "Verified the V10 SentryCrash source, marker, ownership, and ledger contract"
