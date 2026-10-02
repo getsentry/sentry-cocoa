@@ -23,9 +23,8 @@ static NSString *const SentryCrashReportConverterErrorDomain
 // Sentry SDKs before May 2023 could persist this sentinel between chained async stacks.
 static const uintptr_t SentryLegacyAsyncStackTraceMarker = UINTPTR_MAX - 1234;
 // Relay currently truncates exception values to 8192 characters and discards events
-// over 1MiB. Keep a slightly higher cap so a later Relay increase still shows more of
-// large exception values without letting a ~900KB reason blow the event budget.
-static const NSUInteger SentryMaxCrashExceptionValueLength = 10 * 1024;
+// over 1MiB. 512 gives us enough characters to identify without too much bloat.
+static const NSUInteger SentryMaxCrashExceptionValueLength = 512;
 
 @interface SentryCrashReportConverter ()
 
@@ -519,10 +518,10 @@ static const NSUInteger SentryMaxCrashExceptionValueLength = 10 * 1024;
     NSString *exceptionValue = exception.value;
     if (nil != self.diagnosis && self.diagnosis.length > 0 && exceptionValue != nil
         && ![self.diagnosis containsString:exceptionValue]) {
-        exception.value = [exceptionValue
+        exceptionValue = [exceptionValue
             stringByAppendingString:[NSString stringWithFormat:@" >\n%@", self.diagnosis]];
     }
-    exception.value = [self truncatedExceptionValue:exception.value];
+    exception.value = [self truncatedExceptionValue:exceptionValue];
     return @[ exception ];
 }
 
