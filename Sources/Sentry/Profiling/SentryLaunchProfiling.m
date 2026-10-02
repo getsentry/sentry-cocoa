@@ -9,7 +9,6 @@
 #    import "SentryLogC.h"
 #    import "SentryProfileConfiguration.h"
 #    import "SentryProfiler+Private.h"
-#    import "SentrySampling.h"
 #    import "SentrySamplingContext.h"
 #    import "SentrySpanOperation.h"
 #    import "SentrySwift.h"
@@ -167,15 +166,16 @@ sentry_launchShouldHaveContinuousProfiling(SentryOptions *options)
         transactionContext.forNextAppLaunch = YES;
         SentrySamplingContext *context =
             [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext];
-        SentrySamplerDecision *tracesSamplerDecision = sentry_sampleTrace(context, options);
+        SentrySamplerDecision *tracesSamplerDecision = [SentrySampling sampleTrace:context
+                                                                           options:options];
         if (tracesSamplerDecision.decision != kSentrySampleDecisionYes) {
             SENTRY_LOG_DEBUG(@"Sampling out the launch trace for continuous profile v2 trace "
                              @"lifecycle, won't profile launch.");
             return (SentryLaunchProfileDecision) { NO, nil, nil };
         }
 
-        SentrySamplerDecision *profileSamplerDecision
-            = sentry_sampleProfileSession(options.profiling.sessionSampleRate);
+        SentrySamplerDecision *profileSamplerDecision =
+            [SentrySampling sampleProfileSession:options.profiling.sessionSampleRate];
         if (profileSamplerDecision.decision != kSentrySampleDecisionYes) {
             SENTRY_LOG_DEBUG(
                 @"Sampling out continuous v2 trace lifecycle profile, won't profile launch.");
@@ -187,8 +187,8 @@ sentry_launchShouldHaveContinuousProfiling(SentryOptions *options)
         return (SentryLaunchProfileDecision) { YES, tracesSamplerDecision, profileSamplerDecision };
     }
 
-    SentrySamplerDecision *profileSampleDecision
-        = sentry_sampleProfileSession(options.profiling.sessionSampleRate);
+    SentrySamplerDecision *profileSampleDecision =
+        [SentrySampling sampleProfileSession:options.profiling.sessionSampleRate];
     if (profileSampleDecision.decision != kSentrySampleDecisionYes) {
         SENTRY_LOG_DEBUG(@"Sampling out continuous v2 profile, won't profile launch.");
         return (SentryLaunchProfileDecision) { NO, nil, nil };
