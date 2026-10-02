@@ -24,6 +24,7 @@
 - Session Replay: Fix queue requirements during crash recovery (#9158)
 - Preserve full resolution when masking feedback, error, and crash screenshots, including screenshots captured through the React Native bridge, without changing Session Replay resolution or redactions (#9179)
 - Compact raw MetricKit diagnostic attachments to reduce their upload size and attachment quota usage (#9183)
+- Prevent SentryObjC static XCFrameworks from advertising incomplete architectures supplied only by dependencies (#9182)
 
 ## 9.29.2
 

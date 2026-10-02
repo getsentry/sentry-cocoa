@@ -240,6 +240,9 @@ jobs:
         with:
           version: "26"
           resolve-simulators: "false"
+      - name: Test wrapper archive architectures
+        if: matrix.sdk == 'watchos'
+        run: ./scripts/test-sentryobjc-archive-architectures.sh --work-dir "$RUNNER_TEMP/wrapper-archive-architectures"
       - name: Build and audit dynamic V10 XCFramework
         run: make build-xcframework-v10-dynamic SDKS=${{ matrix.sdk }}
       - name: Build and audit static V10 XCFramework
@@ -254,6 +257,14 @@ jobs:
           ./scripts/verify-v10-sentrycrash-objects.sh --build-path "$build_path"
       - name: Build and audit V10 SentryObjC XCFrameworks
         run: make build-xcframework-sentryobjc-v10 SDKS=${{ matrix.sdk }}
+      - name: Upload archive regression logs
+        if: failure() && matrix.sdk == 'watchos'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: wrapper-archive-architectures
+          path: |
+            ${{ runner.temp }}/wrapper-archive-architectures/**/*.log
+            ${{ runner.temp }}/wrapper-archive-architectures/**/*.exit-status
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
         if: ${{ failure() || cancelled() }}
