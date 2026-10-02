@@ -442,6 +442,7 @@ run_v10_for_prs: &run_v10_for_prs
 
   # Test Apps
   - "TestApps/macOS-CLI-Xcode/**"
+  - "TestApps/SentrySampleShared/**"
 
   # Project files
   - "Sentry.xcodeproj/**"

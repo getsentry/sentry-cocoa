@@ -25,6 +25,7 @@ private struct BuildCase {
     var baseManifest = false
     var swift61Manifest = false
     var nativeBuild = false
+    var sharedTestApp = false
     var expectedDiagnostic: String?
 }
 
@@ -47,7 +48,10 @@ private let cases = [
     BuildCase(name: "base-v10", traits: nil, environmentV10: true, baseManifest: true),
     BuildCase(name: "no-backend-swift61", traits: [], swift61Manifest: true, expectedDiagnostic: missingBackendDiagnostic),
     BuildCase(name: "both-backends-swift61", traits: ["V9", "V10"], swift61Manifest: true, expectedDiagnostic: mutuallyExclusiveTraitsDiagnostic),
-    BuildCase(name: "trait-v10-swift61", traits: ["V10"], swift61Manifest: true)
+    BuildCase(name: "trait-v10-swift61", traits: ["V10"], swift61Manifest: true),
+    BuildCase(name: "shared-testapp-default-v9", traits: nil, sharedTestApp: true),
+    BuildCase(name: "shared-testapp-v10", traits: ["V10"], sharedTestApp: true),
+    BuildCase(name: "shared-testapp-both-backends", traits: ["V9", "V10"], sharedTestApp: true, expectedDiagnostic: mutuallyExclusiveTraitsDiagnostic)
 ]
 
 private func require(_ condition: Bool, _ message: String) throws {
@@ -108,6 +112,7 @@ private func prepareSDK(root: URL, scenario: BuildCase) throws -> URL {
         "Package.swift", 
         "Package@swift-6.1.swift", 
         "Package@swift-6.2.swift", 
+        "TestApps/SentrySampleShared/Package.swift",
         "Sources/Sentry/include/SentrySwift.h",
         "Sources/SentryCrash/Installations/SentryCrashInstallation.m",
         "Sources/SentryCrash/Recording/SentryCrash.m",
@@ -147,7 +152,8 @@ private func test(_ scenario: BuildCase, root: URL) throws {
         let entries = names.map { String(reflecting: $0) } + (scenario.includeDefaultTraits ? [".defaults"] : [])
         return ", traits: [\(entries.joined(separator: ", "))]"
     } ?? ""
-    let product = scenario.environmentV10 ? "Sentry" : "SentrySPM"
+    let dependency = scenario.sharedTestApp ? sdk.appendingPathComponent("TestApps/SentrySampleShared") : sdk
+    let product = scenario.sharedTestApp ? "SentrySampleShared" : (scenario.environmentV10 ? "Sentry" : "SentrySPM")
 
     try write("""
     // swift-tools-version: \(scenario.nativeBuild ? "6.1" : "6.2")
@@ -155,9 +161,9 @@ private func test(_ scenario: BuildCase, root: URL) throws {
     let package = Package(
         name: "BackendConsumer",
         platforms: [.macOS(.v12)],
-        dependencies: [.package(path: \(String(reflecting: sdk.path))\(traits))],
+        dependencies: [.package(path: \(String(reflecting: dependency.path))\(traits))],
         targets: [.executableTarget(name: "BackendConsumer", dependencies: [
-            .product(name: "\(product)", package: "\(sdk.lastPathComponent)")
+            .product(name: "\(product)", package: "\(dependency.lastPathComponent)")
         ])]
     )
     """, to: consumer.appendingPathComponent("Package.swift"))
@@ -166,7 +172,8 @@ private func test(_ scenario: BuildCase, root: URL) throws {
     // startup here; these are compile/link contract checks, not SDK runtime tests.
     let v10 = scenario.environmentV10 || scenario.traits?.contains("V10") == true
     let publicHeaderCheck = v10 ? "import SentryHeaders\nlet _: SentryBeforeSendTransactionCallback = { $0 }\n" : ""
-    try write("import SentrySwift\n\(publicHeaderCheck)SentrySDK.start { _ in }\n", to: consumer.appendingPathComponent("Sources/BackendConsumer/main.swift"))
+    let sharedImport = scenario.sharedTestApp ? "import SentrySampleShared\nlet _ = SentrySDKWrapper.shared\n" : ""
+    try write("import SentrySwift\n\(sharedImport)\(publicHeaderCheck)SentrySDK.start { _ in }\n", to: consumer.appendingPathComponent("Sources/BackendConsumer/main.swift"))
 
     var command = ["swift", "build", "--package-path", consumer.path, "--scratch-path",
                    consumer.appendingPathComponent("build").path]
