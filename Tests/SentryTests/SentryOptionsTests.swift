@@ -23,6 +23,20 @@ final class SentryOptionsTests: XCTestCase {
         XCTAssertFalse(options.experimental.enableNewURLLoaderSwizzling)
     }
 
+#if canImport(MetricKit) && !os(tvOS)
+    func testMetricKitEnabledDiagnosticReports_whenDefault_shouldDependOnSDKVersion() {
+        // -- Arrange --
+        let options = Options()
+
+        // -- Assert --
+#if SDK_V10
+        XCTAssertEqual(options.experimental.metricKit.enabledDiagnosticReports, [.cpuException, .diskWriteException, .hang])
+#else
+        XCTAssertTrue(options.experimental.metricKit.enabledDiagnosticReports.isEmpty)
+#endif
+    }
+#endif // canImport(MetricKit) && !os(tvOS)
+
     // MARK: - Data Collection
 
     func testDataCollection_whenInitialized_shouldUseDefault() throws {
