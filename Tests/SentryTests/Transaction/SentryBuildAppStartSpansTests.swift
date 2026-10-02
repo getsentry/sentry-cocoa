@@ -1,4 +1,4 @@
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 import XCTest
 
 #if canImport(UIKit) && !os(watchOS)
@@ -12,7 +12,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
         let appStartMeasurement: SentryAppStartMeasurement? = nil
 
         // Act
-        let result = sentryBuildAppStartSpans(tracer, appStartMeasurement)
+        let result = SentryBuildAppStartSpans.buildAppStartSpans(tracer: tracer, appStartMeasurement: appStartMeasurement)
 
         // Assert
         XCTAssertTrue(result.isEmpty, "Expected no spans but got \(result.count)")
@@ -22,7 +22,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
         let context = SpanContext(operation: "operation")
         let tracer = SentryTracer(context: context, framesTracker: nil)
 
-        let result = sentryBuildStandaloneAppStartSpans(tracer, nil)
+        let result = SentryBuildAppStartSpans.buildStandaloneAppStartSpans(tracer: tracer, appStartMeasurement: nil)
 
         XCTAssertTrue(result.isEmpty, "Expected no spans but got \(result.count)")
     }
@@ -42,7 +42,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
             didFinishLaunchingTimestamp: Date(timeIntervalSince1970: 1_600)
         )
 
-        let result = sentryBuildStandaloneAppStartSpans(tracer, appStartMeasurement)
+        let result = SentryBuildAppStartSpans.buildStandaloneAppStartSpans(tracer: tracer, appStartMeasurement: appStartMeasurement)
 
         XCTAssertEqual(result.count, 4, "Standalone uses unified app.start op regardless of type, no Initial Frame Render")
     }
@@ -64,7 +64,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
         )
 
         // Act
-        let result = sentryBuildAppStartSpans(tracer, appStartMeasurement)
+        let result = SentryBuildAppStartSpans.buildAppStartSpans(tracer: tracer, appStartMeasurement: appStartMeasurement)
 
         // Assert
         XCTAssertTrue(result.isEmpty, "Expected no spans but got \(result.count)")
@@ -87,7 +87,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
         )
 
         // Act
-        let result = sentryBuildAppStartSpans(tracer, appStartMeasurement)
+        let result = SentryBuildAppStartSpans.buildAppStartSpans(tracer: tracer, appStartMeasurement: appStartMeasurement)
 
         // Assert
         XCTAssertEqual(result.count, 6, "Number of spans do not match")
@@ -174,7 +174,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
         )
 
         // Act
-        let result = sentryBuildAppStartSpans(tracer, appStartMeasurement)
+        let result = SentryBuildAppStartSpans.buildAppStartSpans(tracer: tracer, appStartMeasurement: appStartMeasurement)
 
         // Assert
         XCTAssertEqual(result.count, 6, "Number of spans do not match")
@@ -257,7 +257,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
         )
 
         // Act
-        let result = sentryBuildStandaloneAppStartSpans(tracer, appStartMeasurement)
+        let result = SentryBuildAppStartSpans.buildStandaloneAppStartSpans(tracer: tracer, appStartMeasurement: appStartMeasurement)
 
         // Assert — no intermediate "Cold Start" span, no "Initial Frame Render" (standalone
         // ends at didFinishLaunching), all 4 children parent to tracer
@@ -325,7 +325,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
         )
 
         // Act
-        let result = sentryBuildStandaloneAppStartSpans(tracer, appStartMeasurement)
+        let result = SentryBuildAppStartSpans.buildStandaloneAppStartSpans(tracer: tracer, appStartMeasurement: appStartMeasurement)
 
         // Assert — no grouping span, no pre-runtime spans, no "Initial Frame Render"
         // (standalone ends at didFinishLaunching), all 2 children parent to tracer
@@ -371,7 +371,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
         )
 
         // Act
-        let result = sentryBuildAppStartSpans(tracer, appStartMeasurement)
+        let result = SentryBuildAppStartSpans.buildAppStartSpans(tracer: tracer, appStartMeasurement: appStartMeasurement)
 
         // Assert
         XCTAssertEqual(result.count, 4, "Number of spans do not match")
