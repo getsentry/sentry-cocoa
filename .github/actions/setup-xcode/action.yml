@@ -62,4 +62,4 @@ runs:
         if [[ "$RESOLVE_SIMULATORS" == "false" ]]; then
           FLAGS+=("--skip-simulators")
         fi
-        "${{ github.action_path }}/../../../scripts/ci-select-xcode.sh" "${FLAGS[@]}" "$XCODE_INPUT"
+        "${{ github.action_path }}/../../../scripts/ci-select-xcode.sh" --version "$XCODE_INPUT" "${FLAGS[@]}"

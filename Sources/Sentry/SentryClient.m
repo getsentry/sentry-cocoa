@@ -1,10 +1,14 @@
 #import "SentryClient.h"
 #import "NSMutableDictionary+Sentry.h"
 #import "SentryAttachment.h"
+#import "SentryClient+Attachments.h"
 #import "SentryClient+ErrorEvents.h"
 #import "SentryClient+EventContext.h"
+#import "SentryClient+EventPreparation.h"
+#import "SentryClient+EventSending.h"
 #import "SentryClient+Private.h"
 #import "SentryClient+ReplayAndFeedback.h"
+#import "SentryClient+SessionsAndCrashes.h"
 #import "SentryClient+Telemetry.h"
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryDefaultTelemetryProcessorTransport.h"
@@ -62,6 +66,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     [SentryClientErrorEventsLinker class];
     [SentryClientTelemetryLinker class];
     [SentryClientReplayAndFeedbackLinker class];
+    [SentryClientAttachmentsLinker class];
+    [SentryClientEventSendingLinker class];
+    [SentryClientEventPreparationLinker class];
+    [SentryClientSessionsAndCrashesLinker class];
 
     SentryDependencyContainer *dependencies = SentryDependencyContainer.sharedInstance;
 
@@ -259,82 +267,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     return [self captureEventIncrementingSessionErrorCount:event withScope:scope hint:hint];
 }
 
-// The hint's attachments must be populated before prepareEvent runs the beforeSendWithHint
-// callback, so the callback can add and remove attachments. After the callback returns, the
-// hint's attachment list is authoritative and is what the SDK sends.
-//
-// Fatal events are captured on the launch after the crash, so the scope's attachments belong to
-// the current app run and not to the crashed one. Only attachments the SDK captured at crash time
-// are sent with fatal events; the beforeSendWithHint callback can still add more.
-- (void)populateHintAttachments:(SentryHint *)hint
-                          scope:(SentryScope *)scope
-                   isFatalEvent:(BOOL)isFatalEvent
-{
-    NSMutableArray<SentryAttachment *> *allAttachments =
-        [NSMutableArray arrayWithArray:scope.crashReportAttachments];
-    if (!isFatalEvent) {
-        [allAttachments addObjectsFromArray:scope.attachments];
-        SentryScope *cs = [self.currentScopeStorage scope];
-        if (cs != nil) {
-            for (SentryAttachment *attachment in cs.attachments) {
-                if ([allAttachments indexOfObjectIdenticalTo:attachment] == NSNotFound) {
-                    [allAttachments addObject:attachment];
-                }
-            }
-        }
-    }
-    [allAttachments addObjectsFromArray:hint.attachments];
-    hint.attachments = allAttachments;
-}
-
-- (SentryId *)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope
-{
-    SentryHint *hint = [[SentryHint alloc] init];
-    return [self sendEvent:event
-                     withScope:scope
-        alwaysAttachStacktrace:NO
-                  isFatalEvent:YES
-                          hint:hint];
-}
-
-- (SentryId *)captureFatalEvent:(SentryEvent *)event
-                    withSession:(SentrySession *)session
-                      withScope:(SentryScope *)scope
-{
-    SentryHint *hint = [[SentryHint alloc] init];
-    [self populateHintAttachments:hint scope:scope isFatalEvent:YES];
-    hint.attachments = [self processAttachmentsForEvent:event attachments:hint.attachments];
-    SentryEvent *preparedEvent = [self prepareEvent:event
-                                          withScope:scope
-                             alwaysAttachStacktrace:NO
-                                       isFatalEvent:YES
-                                               hint:hint];
-    return [self sendEvent:preparedEvent withSession:session withScope:scope hint:hint];
-}
-
-- (void)saveCrashTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope
-{
-    // Populate the hint so beforeSendTransaction sees the same attachments as for regular
-    // transactions. Attachments are only informational here because storeEvent doesn't send them.
-    SentryHint *hint = [[SentryHint alloc] init];
-    [self populateHintAttachments:hint scope:scope isFatalEvent:NO];
-    SentryEvent *preparedEvent = [self prepareEvent:transaction
-                                          withScope:scope
-                             alwaysAttachStacktrace:NO
-                                       isFatalEvent:NO
-                                               hint:hint];
-
-    if (preparedEvent == nil) {
-        return;
-    }
-
-    SentryTraceContext *traceContext = [self getTraceStateWithEvent:transaction
-                                                          withScope:scope
-                                                       currentScope:nil];
-
-    [self.transportAdapter storeEvent:preparedEvent traceContext:traceContext];
-}
-
 - (SentryId *)captureEvent:(SentryEvent *)event
 {
     return [self captureEvent:event withScope:[[SentryScope alloc] init]];
@@ -400,64 +332,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     return [self sendEvent:event withScope:scope alwaysAttachStacktrace:NO hint:resolvedHint];
 }
 
-- (SentryId *)captureEventIncrementingSessionErrorCount:(SentryEvent *)event
-                                              withScope:(SentryScope *)scope
-{
-    SentryHint *hint = [[SentryHint alloc] init];
-    return [self captureEventIncrementingSessionErrorCount:event withScope:scope hint:hint];
-}
-
-- (SentryId *)captureEventIncrementingSessionErrorCount:(SentryEvent *)event
-                                              withScope:(SentryScope *)scope
-                                                   hint:(SentryHint *)hint
-{
-    [self populateHintAttachments:hint scope:scope isFatalEvent:NO];
-    hint.attachments = [self processAttachmentsForEvent:event attachments:hint.attachments];
-    SentryEvent *preparedEvent = [self prepareEvent:event
-                                          withScope:scope
-                             alwaysAttachStacktrace:YES
-                                       isFatalEvent:NO
-                                               hint:hint];
-
-    if (preparedEvent != nil) {
-        SentrySession *session = nil;
-        id<SentrySessionDelegate> delegate = self.sessionDelegate;
-        if (delegate != nil) {
-            session = [delegate incrementSessionErrors];
-        }
-
-        return [self sendEvent:preparedEvent withSession:session withScope:scope hint:hint];
-    }
-
-    return SentryId.empty;
-}
-
-- (SentryId *)sendEvent:(SentryEvent *)event
-                 withScope:(SentryScope *)scope
-    alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
-{
-    SentryHint *hint = [[SentryHint alloc] init];
-    return [self sendEvent:event
-                      withScope:scope
-         alwaysAttachStacktrace:alwaysAttachStacktrace
-                   isFatalEvent:NO
-        additionalEnvelopeItems:@[]
-                           hint:hint];
-}
-
-- (SentryId *)sendEvent:(SentryEvent *)event
-                 withScope:(SentryScope *)scope
-    alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
-                      hint:(SentryHint *)hint
-{
-    return [self sendEvent:event
-                      withScope:scope
-         alwaysAttachStacktrace:alwaysAttachStacktrace
-                   isFatalEvent:NO
-        additionalEnvelopeItems:@[]
-                           hint:hint];
-}
-
 - (nullable SentryTraceContext *)getTraceStateWithEvent:(SentryEvent *)event
                                               withScope:(SentryScope *)scope
                                            currentScope:(nullable SentryScope *)currentScope
@@ -485,148 +359,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     return nil;
-}
-
-- (SentryId *)sendEvent:(SentryEvent *)event
-                 withScope:(SentryScope *)scope
-    alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
-              isFatalEvent:(BOOL)isFatalEvent
-{
-    SentryHint *hint = [[SentryHint alloc] init];
-    return [self sendEvent:event
-                      withScope:scope
-         alwaysAttachStacktrace:alwaysAttachStacktrace
-                   isFatalEvent:isFatalEvent
-        additionalEnvelopeItems:@[]
-                           hint:hint];
-}
-
-- (SentryId *)sendEvent:(SentryEvent *)event
-                 withScope:(SentryScope *)scope
-    alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
-              isFatalEvent:(BOOL)isFatalEvent
-                      hint:(SentryHint *)hint
-{
-    return [self sendEvent:event
-                      withScope:scope
-         alwaysAttachStacktrace:alwaysAttachStacktrace
-                   isFatalEvent:isFatalEvent
-        additionalEnvelopeItems:@[]
-                           hint:hint];
-}
-
-- (SentryId *)sendEvent:(SentryEvent *)event
-                  withScope:(SentryScope *)scope
-     alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
-               isFatalEvent:(BOOL)isFatalEvent
-    additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
-{
-    SentryHint *hint = [[SentryHint alloc] init];
-    return [self sendEvent:event
-                      withScope:scope
-         alwaysAttachStacktrace:alwaysAttachStacktrace
-                   isFatalEvent:isFatalEvent
-        additionalEnvelopeItems:additionalEnvelopeItems
-                           hint:hint];
-}
-
-- (SentryId *)sendEvent:(SentryEvent *)event
-                  withScope:(SentryScope *)scope
-     alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
-               isFatalEvent:(BOOL)isFatalEvent
-    additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
-                       hint:(SentryHint *)hint
-{
-    [self populateHintAttachments:hint scope:scope isFatalEvent:isFatalEvent];
-    hint.attachments = [self processAttachmentsForEvent:event attachments:hint.attachments];
-    SentryEvent *preparedEvent = [self prepareEvent:event
-                                          withScope:scope
-                             alwaysAttachStacktrace:alwaysAttachStacktrace
-                                       isFatalEvent:isFatalEvent
-                                               hint:hint];
-
-    if (preparedEvent == nil) {
-        return SentryId.empty;
-    }
-
-    SentryTraceContext *traceContext =
-        [self getTraceStateWithEvent:event
-                           withScope:scope
-                        currentScope:isFatalEvent ? nil : [self.currentScopeStorage scope]];
-
-    [self.transportAdapter sendEvent:preparedEvent
-                        traceContext:traceContext
-                         attachments:hint.attachments
-             additionalEnvelopeItems:additionalEnvelopeItems];
-
-    return preparedEvent.eventId;
-}
-
-- (SentryId *)sendEvent:(SentryEvent *)event
-            withSession:(nullable SentrySession *)session
-              withScope:(SentryScope *)scope
-{
-    SentryHint *hint = [[SentryHint alloc] init];
-    [self populateHintAttachments:hint scope:scope isFatalEvent:event.isFatalEvent];
-    hint.attachments = [self processAttachmentsForEvent:event attachments:hint.attachments];
-    return [self sendEvent:event withSession:session withScope:scope hint:hint];
-}
-
-- (SentryId *)sendEvent:(SentryEvent *)event
-            withSession:(nullable SentrySession *)session
-              withScope:(SentryScope *)scope
-                   hint:(SentryHint *)hint
-{
-    if (event == nil) {
-        return SentryId.empty;
-    }
-
-    NSArray<SentryAttachment *> *attachments = hint.attachments;
-
-    if (event.isFatalEvent && event.context[@"replay"] &&
-        [event.context[@"replay"] isKindOfClass:NSDictionary.class]) {
-        NSDictionary *replay = event.context[@"replay"];
-        scope.replayId = replay[@"replay_id"];
-    }
-
-    SentryTraceContext *traceContext =
-        [self getTraceStateWithEvent:event
-                           withScope:scope
-                        currentScope:event.isFatalEvent ? nil : [self.currentScopeStorage scope]];
-
-    if (session == nil) {
-        [self.transportAdapter sendEvent:event traceContext:traceContext attachments:attachments];
-        return event.eventId;
-    }
-
-    SentrySession *nonnullSession = SENTRY_UNWRAP_NULLABLE(SentrySession, session);
-
-    if (nonnullSession.releaseName == nil || [nonnullSession.releaseName length] == 0) {
-        SENTRY_LOG_DEBUG(DropSessionLogMessage);
-
-        [self.transportAdapter sendEvent:event traceContext:traceContext attachments:attachments];
-        return event.eventId;
-    }
-
-    [self.transportAdapter sendEvent:event
-                         withSession:nonnullSession
-                        traceContext:traceContext
-                         attachments:attachments];
-
-    return event.eventId;
-}
-
-- (void)captureSession:(SentrySession *)session
-{
-    if (nil == session.releaseName || [session.releaseName length] == 0) {
-        SENTRY_LOG_DEBUG(DropSessionLogMessage);
-        return;
-    }
-
-    SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithSession:session];
-    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:[SentryEnvelopeHeader empty]
-                                                           singleItem:item];
-    [self captureEnvelope:envelope];
 }
 
 - (void)captureEnvelope:(SentryEnvelope *)envelope
@@ -666,16 +398,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     [self.transportAdapter recordLostEvent:category reason:reason quantity:quantity];
 }
 
-- (SentryEvent *_Nullable)prepareEvent:(SentryEvent *)event
-                             withScope:(SentryScope *)scope
-                alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
-{
-    return [self prepareEvent:event
-                     withScope:scope
-        alwaysAttachStacktrace:alwaysAttachStacktrace
-                  isFatalEvent:NO];
-}
-
 - (void)flush:(NSTimeInterval)timeout
 {
     NSTimeInterval forwardingTelemetryDataDuration = [self.telemetryProcessor forwardTelemetryData];
@@ -692,49 +414,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     _isEnabled = NO;
     [self flush:self.options.shutdownTimeInterval];
     SENTRY_LOG_DEBUG(@"Closed the Client.");
-}
-
-- (SentryEvent *_Nullable)prepareEvent:(SentryEvent *_Nullable)event
-                             withScope:(SentryScope *)scope
-                alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
-                          isFatalEvent:(BOOL)isFatalEvent
-{
-    SentryHint *hint = [[SentryHint alloc] init];
-    return [self prepareEvent:event
-                     withScope:scope
-        alwaysAttachStacktrace:alwaysAttachStacktrace
-                  isFatalEvent:isFatalEvent
-                          hint:hint];
-}
-
-- (SentryEvent *_Nullable)prepareEvent:(SentryEvent *_Nullable)event
-                             withScope:(SentryScope *)scope
-                alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
-                          isFatalEvent:(BOOL)isFatalEvent
-                                  hint:(SentryHint *)hint
-{
-    SentryScope *cs = [self.currentScopeStorage scope];
-    return [self prepareEvent:event
-                     withScope:scope
-        alwaysAttachStacktrace:alwaysAttachStacktrace
-                  isFatalEvent:isFatalEvent
-                  currentScope:cs
-                          hint:hint];
-}
-
-- (SentryEvent *_Nullable)prepareEvent:(SentryEvent *_Nullable)event
-                             withScope:(SentryScope *)scope
-                alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
-                          isFatalEvent:(BOOL)isFatalEvent
-                          currentScope:(SentryScope *_Nullable)currentScope
-{
-    SentryHint *hint = [[SentryHint alloc] init];
-    return [self prepareEvent:event
-                     withScope:scope
-        alwaysAttachStacktrace:alwaysAttachStacktrace
-                  isFatalEvent:isFatalEvent
-                  currentScope:currentScope
-                          hint:hint];
 }
 
 - (SentryEvent *_Nullable)prepareEvent:(SentryEvent *_Nullable)event
@@ -1003,28 +682,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     return event;
 }
 
-- (void)recordPartiallyDroppedSpans:(SentryTransaction *)transaction
-                         withReason:(SentryDiscardReason)reason
-               withCurrentSpanCount:(NSUInteger *)currentSpanCount
-{
-    // If some spans got removed we still report them as dropped
-    NSUInteger spanCountAfter = transaction.spans.count;
-    NSUInteger droppedSpanCount = *currentSpanCount - spanCountAfter;
-    if (droppedSpanCount > 0) {
-        [self recordLostSpanWithReason:reason quantity:droppedSpanCount];
-    }
-    *currentSpanCount = spanCountAfter;
-}
-
-- (BOOL)isSampled:(NSNumber *_Nullable)sampleRate
-{
-    if (sampleRate == nil) {
-        return NO;
-    }
-
-    return [self.random nextNumber] <= sampleRate.doubleValue ? NO : YES;
-}
-
 - (BOOL)isDisabled
 {
     return !_isEnabled || !self.options.enabled || nil == self.options.parsedDsn;
@@ -1033,19 +690,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 - (void)logDisabledMessage
 {
     SENTRY_LOG_DEBUG(@"SDK disabled or no DSN set. Won't do anything.");
-}
-
-- (SentryEvent *_Nullable)callEventProcessors:(SentryEvent *)event
-{
-    SentryGlobalEventProcessor *globalEventProcessor
-        = SentryDependencyContainer.sharedInstance.globalEventProcessor;
-
-    SentryEvent *newEvent = [globalEventProcessor reportAll:event];
-    if (newEvent == nil) {
-        SENTRY_LOG_DEBUG(@"SentryScope callEventProcessors: An event processor decided to "
-                         @"remove this event.");
-    }
-    return newEvent;
 }
 
 - (void)setUserInfo:(NSDictionary *_Nullable)userInfo withEvent:(SentryEvent *_Nullable)event
@@ -1061,54 +705,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
         [context setValue:sentry_sanitize_dictionary(userInfo) forKey:@"user info"];
     }
-}
-
-- (void)recordLost:(BOOL)eventIsNotATransaction reason:(SentryDiscardReason)reason
-{
-    if (eventIsNotATransaction) {
-        [self recordLostEvent:SentryDataCategoryError reason:reason];
-    } else {
-        [self recordLostEvent:SentryDataCategoryTransaction reason:reason];
-    }
-}
-
-- (void)recordLostSpanWithReason:(SentryDiscardReason)reason quantity:(NSUInteger)quantity
-{
-    [self recordLostEvent:SentryDataCategorySpan reason:reason quantity:quantity];
-}
-
-- (void)addAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor
-{
-    [self.attachmentProcessors addObject:attachmentProcessor];
-}
-
-- (void)removeAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor
-{
-    [self.attachmentProcessors removeObject:attachmentProcessor];
-}
-
-- (NSArray<SentryAttachment *> *)processAttachmentsForEvent:(SentryEvent *)event
-                                                attachments:
-                                                    (NSArray<SentryAttachment *> *)attachments
-{
-    if (self.attachmentProcessors.count == 0) {
-        return attachments;
-    }
-
-    NSArray<SentryAttachment *> *processedAttachments = attachments;
-
-    for (id<SentryClientAttachmentProcessor> attachmentProcessor in self.attachmentProcessors) {
-        // Keep chaining the processed attachments so each processor works on the output of the
-        // previous one. This is necessary so each processor can add and remove attachments.
-        //
-        // Important: This means the order of adding processors matters and relies on the
-        // initialization order of the integrations. At this point in time the attachment processors
-        // are only adding attachments, therefore we can ignore this restriction for now.
-        processedAttachments = [attachmentProcessor processAttachments:processedAttachments
-                                                              forEvent:event];
-    }
-
-    return processedAttachments;
 }
 
 @end

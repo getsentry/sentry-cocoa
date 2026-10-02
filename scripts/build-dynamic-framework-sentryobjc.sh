@@ -22,12 +22,12 @@ FRAMEWORK_NAME="SentryObjC"
 VERSION=""
 
 usage() {
-    log_notice "Usage: $0"
-    log_notice "  --sdk <name>              Target SDK, e.g. iphoneos, iphonesimulator, macosx (required)"
-    log_notice "  --static-lib <path>       Path to libSentryObjC.a (required)"
-    log_notice "  --headers <path>          Path to public headers directory (required)"
-    log_notice "  --output-dir <path>       Output directory (default: XCFrameworkBuildPath)"
-    log_notice "  --version <semver>        Version string for the framework (default: 0.0.0)"
+    log_info "Usage: $0"
+    log_info "  --sdk <name>              Target SDK, e.g. iphoneos, iphonesimulator, macosx (required)"
+    log_info "  --static-lib <path>       Path to libSentryObjC.a (required)"
+    log_info "  --headers <path>          Path to public headers directory (required)"
+    log_info "  --output-dir <path>       Output directory (default: XCFrameworkBuildPath)"
+    log_info "  --version <semver>        Version string for the framework (default: 0.0.0)"
     exit 1
 }
 

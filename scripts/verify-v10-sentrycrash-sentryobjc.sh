@@ -12,7 +12,7 @@ source "$SCRIPT_DIR/ci-utils.sh"
 XCFRAMEWORK_PATH=""
 
 usage() {
-  log_notice "Usage: $0 --xcframework-path <path>"
+  log_info "Usage: $0 --xcframework-path <path>"
   exit 1
 }
 
@@ -178,4 +178,4 @@ if [[ $violation_count -ne 0 ]]; then
   exit 1
 fi
 
-log_notice "Verified recorder exclusion in $slice_count V10 SentryObjC XCFramework slice(s)"
+log_info "Verified recorder exclusion in $slice_count V10 SentryObjC XCFramework slice(s)"

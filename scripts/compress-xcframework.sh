@@ -9,9 +9,9 @@ XCFRAMEWORK_PATH=""
 SIGN=false
 
 usage() {
-    log_notice "Usage: $0 --xcframework <path> [--sign]"
-    log_notice "  --xcframework <path>    Path to the .xcframework directory (required)"
-    log_notice "  --sign                  Codesign with the Sentry certificate"
+    log_info "Usage: $0 --xcframework <path> [--sign]"
+    log_info "  --xcframework <path>    Path to the .xcframework directory (required)"
+    log_info "  --sign                  Codesign with the Sentry certificate"
     exit 1
 }
 

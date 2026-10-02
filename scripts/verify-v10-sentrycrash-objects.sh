@@ -13,9 +13,9 @@ BUILD_PATH=""
 SPM_TARGETS=()
 
 usage() {
-  log_notice "Usage: $0 --build-path <path> [--spm-target <target> ...]"
-  log_notice "  --build-path, -b: completed build output to audit (required)"
-  log_notice "  --spm-target, -t: actual requested target; repeat for native SwiftPM builds"
+  log_info "Usage: $0 --build-path <path> [--spm-target <target> ...]"
+  log_info "  --build-path, -b: completed build output to audit (required)"
+  log_info "  --spm-target, -t: actual requested target; repeat for native SwiftPM builds"
   exit 1
 }
 
@@ -143,4 +143,4 @@ if [[ $violation_count -ne 0 ]]; then
   exit 1
 fi
 
-log_notice "Verified no V9 recorder or adapter compile command or object is present"
+log_info "Verified no V9 recorder or adapter compile command or object is present"

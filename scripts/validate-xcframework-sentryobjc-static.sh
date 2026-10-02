@@ -9,9 +9,9 @@ XCFRAMEWORK_PATH=""
 BUILD_CONSUMER=false
 
 usage() {
-    log_notice "Usage: $0 --xcframework <path> [--build-consumer]"
-    log_notice "  --xcframework <path>    SentryObjC static XCFramework to validate (required)"
-    log_notice "  --build-consumer        Build the macOS CMake consumer and fail on warnings"
+    log_info "Usage: $0 --xcframework <path> [--build-consumer]"
+    log_info "  --xcframework <path>    SentryObjC static XCFramework to validate (required)"
+    log_info "  --build-consumer        Build the macOS CMake consumer and fail on warnings"
     exit 1
 }
 
@@ -87,7 +87,7 @@ fi
 
 MACOS_LIBRARY="$XCFRAMEWORK_PATH/macos-arm64_x86_64/libSentryObjC.a"
 if [ ! -f "$MACOS_LIBRARY" ]; then
-    log_notice "No macOS slice found, skipping the CMake consumer build"
+    log_info "No macOS slice found, skipping the CMake consumer build"
     exit 0
 fi
 

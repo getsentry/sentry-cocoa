@@ -10,12 +10,12 @@ SWIFT_CONDITIONS=()
 C_DEFINES=()
 
 usage() {
-    log_notice "Usage: $(basename "$0")"
-    log_notice "  -s, --spec <path>              XcodeGen YAML spec (required)"
-    log_notice "  -S, --swift-condition <name>   SWIFT_ACTIVE_COMPILATION_CONDITIONS flag"
-    log_notice "                                 (repeatable)"
-    log_notice "  -D, --c-define <name[=value]>  GCC_PREPROCESSOR_DEFINITIONS flag"
-    log_notice "                                 (repeatable)"
+    log_info "Usage: $(basename "$0")"
+    log_info "  -s, --spec <path>              XcodeGen YAML spec (required)"
+    log_info "  -S, --swift-condition <name>   SWIFT_ACTIVE_COMPILATION_CONDITIONS flag"
+    log_info "                                 (repeatable)"
+    log_info "  -D, --c-define <name[=value]>  GCC_PREPROCESSOR_DEFINITIONS flag"
+    log_info "                                 (repeatable)"
     exit 1
 }
 

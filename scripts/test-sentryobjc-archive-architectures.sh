@@ -9,8 +9,8 @@ source "$SCRIPT_DIR/ci-utils.sh"
 WORK_DIR=""
 
 usage() {
-    log_notice "Usage: $0 [-w|--work-dir PATH]"
-    log_notice "  -w, --work-dir PATH    Retain fixtures and logs in a new directory (optional)"
+    log_info "Usage: $0 [-w|--work-dir PATH]"
+    log_info "  -w, --work-dir PATH    Retain fixtures and logs in a new directory (optional)"
     exit 1
 }
 
@@ -31,7 +31,7 @@ else
     trap 'rm -rf "$WORK_DIR"' EXIT
 fi
 
-log_notice "Evidence: $WORK_DIR"
+log_info "Evidence: $WORK_DIR"
 mkdir -p "$WORK_DIR/tools" "$WORK_DIR/package" "$WORK_DIR/objects"
 
 printf '// Fixture package, archive invocation is stubbed.\n' > "$WORK_DIR/package/Package.swift"
@@ -120,7 +120,7 @@ run_case() {
             done
         done
     fi
-    log_notice "PASS $name"
+    log_info "PASS $name"
 }
 
 run_case extra-dependency-architecture "$WORK_DIR/objects/dependency-extra.o" ''
@@ -129,4 +129,4 @@ run_case single-wrapper-architecture "$WORK_DIR/objects/dependency-extra.o" '' "
 run_case missing-required-architecture "$WORK_DIR/objects/dependency-arm64.o" 'Missing required wrapper architectures'
 run_case missing-wrapper "$WORK_DIR/objects/dependency-matching.o" 'Expected one archived SentryObjCCompat.o'
 
-log_notice 'All archive architecture regressions passed.'
+log_info 'All archive architecture regressions passed.'

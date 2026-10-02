@@ -76,7 +76,7 @@ jobs:
   assemble-xcframework-variant:
     name: ${{ inputs.override-name || format('{0}{1}', inputs.scheme, inputs.suffix) }}
 
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Ruby
@@ -134,7 +134,7 @@ jobs:
         if: ${{ inputs.excluded-archs != '' }}
         env:
           EXCLUDED_ARCHS: ${{ inputs.excluded-archs }}
-        run: ./scripts/remove-architectures.sh xcframework-slices/ "$EXCLUDED_ARCHS"
+        run: ./scripts/remove-architectures.sh --xcarchive xcframework-slices/ --excluded-arch "$EXCLUDED_ARCHS"
         shell: bash
 
       - name: Assemble XCFramework
@@ -143,7 +143,7 @@ jobs:
           SUFFIX: ${{ inputs.suffix }}
           CONFIGURATION_SUFFIX: ${{ inputs.configuration-suffix }}
           SDKS: ${{ inputs.sdks }}
-        run: ./scripts/assemble-xcframework.sh "$SCHEME" "$SUFFIX" "$CONFIGURATION_SUFFIX" "$SDKS" "/Users/runner/work/sentry-cocoa/sentry-cocoa/xcframework-slices/SDK_NAME.xcarchive"
+        run: ./scripts/assemble-xcframework.sh --scheme "$SCHEME" --suffix "$SUFFIX" --configuration-suffix "$CONFIGURATION_SUFFIX" --sdks "$SDKS" --archive-template "/Users/runner/work/sentry-cocoa/sentry-cocoa/xcframework-slices/SDK_NAME.xcarchive"
         shell: bash
 
       - name: Rename XCFramework

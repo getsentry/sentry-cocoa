@@ -1,49 +1,42 @@
 #!/bin/bash
 
-set -e
+set -euo pipefail
 
-# Disable SC1091 because it won't work with pre-commit
-# shellcheck source=./scripts/ci-utils.sh disable=SC1091
-source "$(cd "$(dirname "$0")" && pwd)/ci-utils.sh"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=./ci-utils.sh disable=SC1091
+source "$SCRIPT_DIR/ci-utils.sh"
+
+XCARCHIVE_PATH=""
+EXCLUDED_ARCH=""
 
 usage() {
-    cat <<EOF
-Usage: $(basename "$0") <xcarchive_path> <excluded_architecture>
-
-Remove a specific architecture from all framework binaries in an XCArchive.
-
-ARGUMENTS:
-    xcarchive_path          Path to the .xcarchive directory
-    excluded_architecture   Architecture to remove (e.g., arm64e)
-
-EXAMPLES:
-    $(basename "$0") xcframework-slices/iphoneos.xcarchive arm64e
-    $(basename "$0") XCFrameworkBuildPath/archive/iphoneos.xcarchive arm64e
-
-EOF
+    log_info "Usage: $0 --xcarchive <path> --excluded-arch <architecture>"
+    log_info "  -a, --xcarchive <path>           Directory containing xcarchives (required)"
+    log_info "  -x, --excluded-arch <name>      Architecture to remove, e.g. arm64e (required)"
     exit 1
 }
 
-if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+while [[ $# -gt 0 ]]; do
+    if [[ $# -lt 2 && "$1" != -h && "$1" != --help ]]; then
+        log_error "Missing value for $1"
+        usage
+    fi
+    case "$1" in
+        -a|--xcarchive)     XCARCHIVE_PATH="$2"; shift 2 ;;
+        -x|--excluded-arch) EXCLUDED_ARCH="$2"; shift 2 ;;
+        -h|--help)          usage ;;
+        *)                  log_error "Unknown argument: $1"; usage ;;
+    esac
+done
+
+if [[ -z "$XCARCHIVE_PATH" || -z "$EXCLUDED_ARCH" ]]; then
+    log_error "--xcarchive and --excluded-arch are required"
     usage
 fi
-
-if [ $# -ne 2 ]; then
-    log_error "Expected 2 arguments (xcarchive_path, excluded_architecture), got $#"
-    usage
-fi
-
-XCARCHIVE_PATH="$1"
-EXCLUDED_ARCH="$2"
 
 if [ ! -d "$XCARCHIVE_PATH" ]; then
     log_error "XCArchive path does not exist: $XCARCHIVE_PATH"
     exit 1
-fi
-
-if [ -z "$EXCLUDED_ARCH" ]; then
-    log_warning "No excluded architecture specified, nothing to do"
-    exit 0
 fi
 
 log_info "Remove architecture:"

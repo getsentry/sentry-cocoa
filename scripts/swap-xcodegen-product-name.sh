@@ -10,10 +10,10 @@ PRODUCT=""
 WITH=""
 
 usage() {
-    log_notice "Usage: $(basename "$0")"
-    log_notice "  -s, --spec <path>        XcodeGen YAML spec (required)"
-    log_notice "  -p, --product <name>     Product name to replace (required)"
-    log_notice "  -w, --with <name>        Replacement product name (required)"
+    log_info "Usage: $(basename "$0")"
+    log_info "  -s, --spec <path>        XcodeGen YAML spec (required)"
+    log_info "  -p, --product <name>     Product name to replace (required)"
+    log_info "  -w, --with <name>        Replacement product name (required)"
     exit 1
 }
 

@@ -20,11 +20,11 @@ SKIP_SPECS=(
 )
 
 usage() {
-    log_notice "Usage: $(basename "$0")"
-    log_notice "  -s, --spec <path>        XcodeGen YAML spec (repeatable; all eligible"
-    log_notice "                           TestApps/ specs when omitted)"
-    log_notice "  -p, --product <name>     Product name to replace in the generate copy"
-    log_notice "  -w, --with <name>        Replacement product name (required with --product)"
+    log_info "Usage: $(basename "$0")"
+    log_info "  -s, --spec <path>        XcodeGen YAML spec (repeatable; all eligible"
+    log_info "                           TestApps/ specs when omitted)"
+    log_info "  -p, --product <name>     Product name to replace in the generate copy"
+    log_info "  -w, --with <name>        Replacement product name (required with --product)"
     exit 1
 }
 
@@ -160,5 +160,5 @@ done
 
 log_info "Done: generated ${#SPECS[@]} V10 project(s)"
 if [[ -n "$PRODUCT" ]]; then
-    log_notice "Product refs rewritten from '$PRODUCT' to '$WITH'. Open Xcode with SDK_V10=1."
+    log_info "Product refs rewritten from '$PRODUCT' to '$WITH'. Open Xcode with SDK_V10=1."
 fi

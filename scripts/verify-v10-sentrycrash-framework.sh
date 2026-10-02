@@ -24,8 +24,8 @@ source "$SCRIPT_DIR/ci-utils.sh"
 FRAMEWORK_PATH=""
 
 usage() {
-  log_notice "Usage: $0"
-  log_notice "  --framework-path <path>    V10 Sentry.framework to audit (required)"
+  log_info "Usage: $0"
+  log_info "  --framework-path <path>    V10 Sentry.framework to audit (required)"
   exit 1
 }
 
@@ -206,4 +206,4 @@ if [[ $violation_count -ne 0 ]]; then
   exit 1
 fi
 
-log_notice "Verified V10 framework symbols, compatibility contracts, scope sync, and headers"
+log_info "Verified V10 framework symbols, compatibility contracts, scope sync, and headers"

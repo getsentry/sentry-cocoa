@@ -18,11 +18,11 @@ PACKAGE_PATH=""
 CONFIGURATION="Release"
 
 usage() {
-    log_notice "Usage: $0"
-    log_notice "  --sdk <name>              Target SDK, e.g. iphoneos, iphonesimulator, macosx (required)"
-    log_notice "  --output-dir <path>       Output directory (default: XCFrameworkBuildPath)"
-    log_notice "  --package-path <path>     Swift Package root (default: repo root)"
-    log_notice "  --configuration <name>    Xcode configuration (default: Release)"
+    log_info "Usage: $0"
+    log_info "  --sdk <name>              Target SDK, e.g. iphoneos, iphonesimulator, macosx (required)"
+    log_info "  --output-dir <path>       Output directory (default: XCFrameworkBuildPath)"
+    log_info "  --package-path <path>     Swift Package root (default: repo root)"
+    log_info "  --configuration <name>    Xcode configuration (default: Release)"
     exit 1
 }
 

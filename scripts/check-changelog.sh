@@ -10,10 +10,10 @@ PATHS=()
 RUN_TESTS=true
 
 usage() {
-    log_notice "Usage: $0"
-    log_notice "  -p, --path <file>     Changelog file to check (repeatable;"
-    log_notice "                        default: CHANGELOG.md and CHANGELOG_V10.md)"
-    log_notice "  --skip-tests          Skip the custom rule unit tests"
+    log_info "Usage: $0"
+    log_info "  -p, --path <file>     Changelog file to check (repeatable;"
+    log_info "                        default: CHANGELOG.md and CHANGELOG_V10.md)"
+    log_info "  --skip-tests          Skip the custom rule unit tests"
     exit 1
 }
 
