@@ -38768,6 +38768,79 @@
             "name": "enableUIViewControllerInitSwizzling",
             "printedName": "enableUIViewControllerInitSwizzling",
             "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(py)enableUIViewControllerInitSwizzling"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Options",
+                    "printedName": "Sentry.SentryMetricKit.Options",
+                    "usr": "s:6Sentry0A9MetricKitO7OptionsV"
+                  }
+                ],
+                "declAttributes": [
+                  "Final"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A19ExperimentalOptionsC9metricKitAA0a6MetricE0O0C0Vvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A19ExperimentalOptionsC9metricKitAA0a6MetricE0O0C0Vvg"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Options",
+                    "printedName": "Sentry.SentryMetricKit.Options",
+                    "usr": "s:6Sentry0A9MetricKitO7OptionsV"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "Final"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A19ExperimentalOptionsC9metricKitAA0a6MetricE0O0C0Vvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "usr": "s:6Sentry0A19ExperimentalOptionsC9metricKitAA0a6MetricE0O0C0Vvs"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Options",
+                "printedName": "Sentry.SentryMetricKit.Options",
+                "usr": "s:6Sentry0A9MetricKitO7OptionsV"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasStorage"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A19ExperimentalOptionsC9metricKitAA0a6MetricE0O0C0Vvp",
+            "moduleName": "Sentry",
+            "name": "metricKit",
+            "printedName": "metricKit",
+            "usr": "s:6Sentry0A19ExperimentalOptionsC9metricKitAA0a6MetricE0O0C0Vvp"
           }
         ],
         "conformances": [
@@ -50555,6 +50628,598 @@
         "name": "SentryMetric",
         "printedName": "SentryMetric",
         "usr": "s:6Sentry0A6MetricV"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "DiagnosticReport",
+                    "printedName": "Sentry.SentryMetricKit.DiagnosticReport",
+                    "usr": "s:6Sentry0A9MetricKitO16DiagnosticReportO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "DiagnosticReport",
+                    "printedName": "Sentry.SentryMetricKit.DiagnosticReport",
+                    "usr": "s:6Sentry0A9MetricKitO16DiagnosticReportO"
+                  }
+                ],
+                "declKind": "Func",
+                "funcSelfKind": "NonMutating",
+                "kind": "Function",
+                "mangledName": "$s6Sentry0A9MetricKitO16DiagnosticReportO2eeoiySbAE_AEtFZ",
+                "moduleName": "Sentry",
+                "name": "==",
+                "printedName": "==(_:_:)",
+                "static": true,
+                "usr": "s:6Sentry0A9MetricKitO16DiagnosticReportO2eeoiySbAE_AEtFZ"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Hasher",
+                    "paramValueOwnership": "InOut",
+                    "printedName": "Swift.Hasher",
+                    "usr": "s:s6HasherV"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declKind": "Func",
+                "funcSelfKind": "NonMutating",
+                "kind": "Function",
+                "mangledName": "$s6Sentry0A9MetricKitO16DiagnosticReportO4hash4intoys6HasherVz_tF",
+                "moduleName": "Sentry",
+                "name": "hash",
+                "printedName": "hash(into:)",
+                "usr": "s:6Sentry0A9MetricKitO16DiagnosticReportO4hash4intoys6HasherVz_tF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "DiagnosticReport",
+                        "printedName": "Sentry.SentryMetricKit.DiagnosticReport",
+                        "usr": "s:6Sentry0A9MetricKitO16DiagnosticReportO"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[Sentry.SentryMetricKit.DiagnosticReport]",
+                    "usr": "s:Sa"
+                  }
+                ],
+                "declKind": "TypeAlias",
+                "kind": "TypeAlias",
+                "mangledName": "$s6Sentry0A9MetricKitO16DiagnosticReportO8AllCasesa",
+                "moduleName": "Sentry",
+                "name": "AllCases",
+                "printedName": "AllCases",
+                "usr": "s:6Sentry0A9MetricKitO16DiagnosticReportO8AllCasesa"
+              },
+              {
+                "accessors": [
+                  {
+                    "accessorKind": "get",
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "DiagnosticReport",
+                            "printedName": "Sentry.SentryMetricKit.DiagnosticReport",
+                            "usr": "s:6Sentry0A9MetricKitO16DiagnosticReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Array",
+                        "printedName": "[Sentry.SentryMetricKit.DiagnosticReport]",
+                        "usr": "s:Sa"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A9MetricKitO16DiagnosticReportO8allCasesSayAEGvgZ",
+                    "moduleName": "Sentry",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "static": true,
+                    "usr": "s:6Sentry0A9MetricKitO16DiagnosticReportO8allCasesSayAEGvgZ"
+                  }
+                ],
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "DiagnosticReport",
+                        "printedName": "Sentry.SentryMetricKit.DiagnosticReport",
+                        "usr": "s:6Sentry0A9MetricKitO16DiagnosticReportO"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[Sentry.SentryMetricKit.DiagnosticReport]",
+                    "usr": "s:Sa"
+                  }
+                ],
+                "declAttributes": [
+                  "Nonisolated"
+                ],
+                "declKind": "Var",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO16DiagnosticReportO8allCasesSayAEGvpZ",
+                "moduleName": "Sentry",
+                "name": "allCases",
+                "printedName": "allCases",
+                "static": true,
+                "usr": "s:6Sentry0A9MetricKitO16DiagnosticReportO8allCasesSayAEGvpZ"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "DiagnosticReport",
+                        "printedName": "Sentry.SentryMetricKit.DiagnosticReport",
+                        "usr": "s:6Sentry0A9MetricKitO16DiagnosticReportO"
+                      },
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "DiagnosticReport",
+                            "printedName": "Sentry.SentryMetricKit.DiagnosticReport",
+                            "usr": "s:6Sentry0A9MetricKitO16DiagnosticReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.DiagnosticReport.Type"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.DiagnosticReport.Type) -> Sentry.SentryMetricKit.DiagnosticReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO16DiagnosticReportO12cpuExceptionyA2EmF",
+                "moduleName": "Sentry",
+                "name": "cpuException",
+                "printedName": "cpuException",
+                "usr": "s:6Sentry0A9MetricKitO16DiagnosticReportO12cpuExceptionyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "DiagnosticReport",
+                        "printedName": "Sentry.SentryMetricKit.DiagnosticReport",
+                        "usr": "s:6Sentry0A9MetricKitO16DiagnosticReportO"
+                      },
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "DiagnosticReport",
+                            "printedName": "Sentry.SentryMetricKit.DiagnosticReport",
+                            "usr": "s:6Sentry0A9MetricKitO16DiagnosticReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.DiagnosticReport.Type"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.DiagnosticReport.Type) -> Sentry.SentryMetricKit.DiagnosticReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO16DiagnosticReportO5crashyA2EmF",
+                "moduleName": "Sentry",
+                "name": "crash",
+                "printedName": "crash",
+                "usr": "s:6Sentry0A9MetricKitO16DiagnosticReportO5crashyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "DiagnosticReport",
+                        "printedName": "Sentry.SentryMetricKit.DiagnosticReport",
+                        "usr": "s:6Sentry0A9MetricKitO16DiagnosticReportO"
+                      },
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "DiagnosticReport",
+                            "printedName": "Sentry.SentryMetricKit.DiagnosticReport",
+                            "usr": "s:6Sentry0A9MetricKitO16DiagnosticReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.DiagnosticReport.Type"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.DiagnosticReport.Type) -> Sentry.SentryMetricKit.DiagnosticReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO16DiagnosticReportO18diskWriteExceptionyA2EmF",
+                "moduleName": "Sentry",
+                "name": "diskWriteException",
+                "printedName": "diskWriteException",
+                "usr": "s:6Sentry0A9MetricKitO16DiagnosticReportO18diskWriteExceptionyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "DiagnosticReport",
+                        "printedName": "Sentry.SentryMetricKit.DiagnosticReport",
+                        "usr": "s:6Sentry0A9MetricKitO16DiagnosticReportO"
+                      },
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "DiagnosticReport",
+                            "printedName": "Sentry.SentryMetricKit.DiagnosticReport",
+                            "usr": "s:6Sentry0A9MetricKitO16DiagnosticReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryMetricKit.DiagnosticReport.Type"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetricKit.DiagnosticReport.Type) -> Sentry.SentryMetricKit.DiagnosticReport"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO16DiagnosticReportO4hangyA2EmF",
+                "moduleName": "Sentry",
+                "name": "hang",
+                "printedName": "hang",
+                "usr": "s:6Sentry0A9MetricKitO16DiagnosticReportO4hangyA2EmF"
+              },
+              {
+                "accessors": [
+                  {
+                    "accessorKind": "get",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A9MetricKitO16DiagnosticReportO9hashValueSivg",
+                    "moduleName": "Sentry",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "usr": "s:6Sentry0A9MetricKitO16DiagnosticReportO9hashValueSivg"
+                  }
+                ],
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Var",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO16DiagnosticReportO9hashValueSivp",
+                "moduleName": "Sentry",
+                "name": "hashValue",
+                "printedName": "hashValue",
+                "usr": "s:6Sentry0A9MetricKitO16DiagnosticReportO9hashValueSivp"
+              }
+            ],
+            "conformances": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "DiagnosticReport",
+                                "printedName": "Sentry.SentryMetricKit.DiagnosticReport",
+                                "usr": "s:6Sentry0A9MetricKitO16DiagnosticReportO"
+                              }
+                            ],
+                            "kind": "TypeNominal",
+                            "name": "Array",
+                            "printedName": "[Sentry.SentryMetricKit.DiagnosticReport]",
+                            "usr": "s:Sa"
+                          }
+                        ],
+                        "kind": "TypeNameAlias",
+                        "name": "AllCases",
+                        "printedName": "Sentry.SentryMetricKit.DiagnosticReport.AllCases"
+                      }
+                    ],
+                    "kind": "TypeWitness",
+                    "name": "AllCases",
+                    "printedName": "AllCases"
+                  }
+                ],
+                "kind": "Conformance",
+                "mangledName": "$ss12CaseIterableP",
+                "name": "CaseIterable",
+                "printedName": "CaseIterable",
+                "usr": "s:s12CaseIterableP"
+              },
+              {
+                "kind": "Conformance",
+                "mangledName": "$ss8CopyableP",
+                "name": "Copyable",
+                "printedName": "Copyable",
+                "usr": "s:s8CopyableP"
+              },
+              {
+                "kind": "Conformance",
+                "mangledName": "$sSQ",
+                "name": "Equatable",
+                "printedName": "Equatable",
+                "usr": "s:SQ"
+              },
+              {
+                "kind": "Conformance",
+                "mangledName": "$ss9EscapableP",
+                "name": "Escapable",
+                "printedName": "Escapable",
+                "usr": "s:s9EscapableP"
+              },
+              {
+                "kind": "Conformance",
+                "mangledName": "$sSH",
+                "name": "Hashable",
+                "printedName": "Hashable",
+                "usr": "s:SH"
+              },
+              {
+                "kind": "Conformance",
+                "mangledName": "$ss8SendableP",
+                "name": "Sendable",
+                "printedName": "Sendable",
+                "usr": "s:s8SendableP"
+              }
+            ],
+            "declKind": "Enum",
+            "isFromExtension": true,
+            "kind": "TypeDecl",
+            "mangledName": "$s6Sentry0A9MetricKitO16DiagnosticReportO",
+            "moduleName": "Sentry",
+            "name": "DiagnosticReport",
+            "printedName": "DiagnosticReport",
+            "usr": "s:6Sentry0A9MetricKitO16DiagnosticReportO"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Options",
+                    "printedName": "Sentry.SentryMetricKit.Options",
+                    "usr": "s:6Sentry0A9MetricKitO7OptionsV"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Options",
+                    "printedName": "Sentry.SentryMetricKit.Options",
+                    "usr": "s:6Sentry0A9MetricKitO7OptionsV"
+                  }
+                ],
+                "declKind": "Func",
+                "funcSelfKind": "NonMutating",
+                "kind": "Function",
+                "mangledName": "$s6Sentry0A9MetricKitO7OptionsV2eeoiySbAE_AEtFZ",
+                "moduleName": "Sentry",
+                "name": "==",
+                "printedName": "==(_:_:)",
+                "static": true,
+                "usr": "s:6Sentry0A9MetricKitO7OptionsV2eeoiySbAE_AEtFZ"
+              },
+              {
+                "accessors": [
+                  {
+                    "accessorKind": "get",
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "DiagnosticReport",
+                            "printedName": "Sentry.SentryMetricKit.DiagnosticReport",
+                            "usr": "s:6Sentry0A9MetricKitO16DiagnosticReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Set",
+                        "printedName": "Swift.Set<Sentry.SentryMetricKit.DiagnosticReport>",
+                        "usr": "s:Sh"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A9MetricKitO7OptionsV24enabledDiagnosticReportsShyAC0F6ReportOGvg",
+                    "moduleName": "Sentry",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "usr": "s:6Sentry0A9MetricKitO7OptionsV24enabledDiagnosticReportsShyAC0F6ReportOGvg"
+                  },
+                  {
+                    "accessorKind": "set",
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "DiagnosticReport",
+                            "printedName": "Sentry.SentryMetricKit.DiagnosticReport",
+                            "usr": "s:6Sentry0A9MetricKitO16DiagnosticReportO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Set",
+                        "printedName": "Swift.Set<Sentry.SentryMetricKit.DiagnosticReport>",
+                        "usr": "s:Sh"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A9MetricKitO7OptionsV24enabledDiagnosticReportsShyAC0F6ReportOGvs",
+                    "moduleName": "Sentry",
+                    "name": "Set",
+                    "printedName": "Set()",
+                    "usr": "s:6Sentry0A9MetricKitO7OptionsV24enabledDiagnosticReportsShyAC0F6ReportOGvs"
+                  }
+                ],
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "DiagnosticReport",
+                        "printedName": "Sentry.SentryMetricKit.DiagnosticReport",
+                        "usr": "s:6Sentry0A9MetricKitO16DiagnosticReportO"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Set",
+                    "printedName": "Swift.Set<Sentry.SentryMetricKit.DiagnosticReport>",
+                    "usr": "s:Sh"
+                  }
+                ],
+                "declAttributes": [
+                  "HasStorage"
+                ],
+                "declKind": "Var",
+                "hasStorage": true,
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A9MetricKitO7OptionsV24enabledDiagnosticReportsShyAC0F6ReportOGvp",
+                "moduleName": "Sentry",
+                "name": "enabledDiagnosticReports",
+                "printedName": "enabledDiagnosticReports",
+                "usr": "s:6Sentry0A9MetricKitO7OptionsV24enabledDiagnosticReportsShyAC0F6ReportOGvp"
+              }
+            ],
+            "conformances": [
+              {
+                "kind": "Conformance",
+                "mangledName": "$ss8CopyableP",
+                "name": "Copyable",
+                "printedName": "Copyable",
+                "usr": "s:s8CopyableP"
+              },
+              {
+                "kind": "Conformance",
+                "mangledName": "$sSQ",
+                "name": "Equatable",
+                "printedName": "Equatable",
+                "usr": "s:SQ"
+              },
+              {
+                "kind": "Conformance",
+                "mangledName": "$ss9EscapableP",
+                "name": "Escapable",
+                "printedName": "Escapable",
+                "usr": "s:s9EscapableP"
+              }
+            ],
+            "declKind": "Struct",
+            "isFromExtension": true,
+            "kind": "TypeDecl",
+            "mangledName": "$s6Sentry0A9MetricKitO7OptionsV",
+            "moduleName": "Sentry",
+            "name": "Options",
+            "printedName": "Options",
+            "usr": "s:6Sentry0A9MetricKitO7OptionsV"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          }
+        ],
+        "declKind": "Enum",
+        "kind": "TypeDecl",
+        "mangledName": "$s6Sentry0A9MetricKitO",
+        "moduleName": "Sentry",
+        "name": "SentryMetricKit",
+        "printedName": "SentryMetricKit",
+        "usr": "s:6Sentry0A9MetricKitO"
       },
       {
         "children": [

@@ -2,6 +2,10 @@
 
 ## 9.30.1
 
+### Features
+
+- Add `options.experimental.metricKit.enabledDiagnosticReports` to choose which MetricKit diagnostic reports the SDK captures, including crash diagnostics. The option is only available from Swift (#9267)
+
 ### Fixes
 
 - Fix app freeze during crash handling when attaching a crash-time screenshot or view hierarchy with a Swift (MainActor) scene delegate under UIScene (#9282)

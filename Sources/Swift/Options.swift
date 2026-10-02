@@ -740,6 +740,8 @@
     /// and later because, on these versions, @c MetricKit delivers diagnostic reports immediately, which
     /// allows the Sentry SDK to apply the current data from the scope.
     /// @note Default value is @c true.
+    /// @note Use ``SentryExperimentalOptions/metricKit`` on ``experimental`` to choose which
+    /// diagnostic reports the SDK captures.
     @objc public var enableMetricKit: Bool = true
     #else
     /// Use this feature to enable the Sentry MetricKit integration.
@@ -750,6 +752,9 @@
     /// and later because, on these versions, @c MetricKit delivers diagnostic reports immediately, which
     /// allows the Sentry SDK to apply the current data from the scope.
     /// @note Default value is @c false.
+    /// @note Use ``SentryExperimentalOptions/metricKit`` on ``experimental`` to choose which
+    /// diagnostic reports the SDK captures. A non-empty set of reports there enables the
+    /// integration regardless of this option.
     @objc public var enableMetricKit: Bool = false
     #endif // SDK_V10
 
