@@ -176,6 +176,7 @@ else
         archive
         "${xcodebuild_args[@]}"
         -archivePath "$sentry_xcarchive_path"
+        -derivedDataPath "$build_path/DerivedData"
         "${build_setting_overrides[@]}"
     )
 

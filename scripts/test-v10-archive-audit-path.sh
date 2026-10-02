@@ -41,12 +41,38 @@ if [[ ! -s "$WORK_DIR/audit-step.sh" ]]; then
     exit 1
 fi
 
+# Check the real archive producer too: a hand-created directory fixture alone would hide
+# an archive command that still writes to Xcode's default DerivedData directory.
+producer="$WORK_DIR/producer"
+mkdir -p "$producer/bin"
+
+# The generated stub expands these variables when executed, not while being written.
+# shellcheck disable=SC2016
+printf '%s\n' '#!/bin/bash' 'set -euo pipefail' \
+    'derived_data=""' 'while [[ $# -gt 0 ]]; do' \
+    '  if [[ "$1" == -derivedDataPath ]]; then derived_data="$2"; shift 2; else shift; fi' \
+    'done' '[[ "$derived_data" == XCFrameworkBuildPath/DerivedData ]] || { echo "Archive producer did not set the audit build root" >&2; exit 1; }' \
+    'mkdir -p "$derived_data"' > "$producer/bin/xcodebuild"
+
+# shellcheck disable=SC2016
+printf '%s\n' '#!/bin/bash' 'while IFS= read -r line; do printf "%s\\n" "$line"; done' > "$producer/bin/xcbeautify"
+
+chmod +x "$producer/bin/xcodebuild" "$producer/bin/xcbeautify"
+(
+    cd "$producer"
+    PATH="$producer/bin:$PATH" "$SCRIPT_DIR/build-xcframework-slice.sh" \
+        --sdk iphoneos --scheme SentryV10 --configuration-suffix V10 --product-name Sentry
+)
+
+log_info "Passed actual archive producer DerivedData argument"
+
 for layout in maccatalyst archive; do
     fixture="$WORK_DIR/$layout"
     mkdir -p "$fixture/scripts" "$fixture/home" "$fixture/XCFrameworkBuildPath/DerivedData/Build/Intermediates.noindex"
     if [[ "$layout" == archive ]]; then
         mkdir -p "$fixture/XCFrameworkBuildPath/DerivedData/Build/Intermediates.noindex/ArchiveIntermediates/SentryV10"
     fi
+
     # Stub only the expensive object audit; require the workflow to pass the producer's
     # complete DerivedData tree. Catalyst deliberately has no ArchiveIntermediates.
     printf '%s\n' '#!/bin/bash' 'set -euo pipefail' \
@@ -58,6 +84,7 @@ for layout in maccatalyst archive; do
         cd "$fixture"
         HOME="$fixture/home" bash -e "$WORK_DIR/audit-step.sh"
         [[ -f audit-invoked ]]
+
         # An audit failure must still fail the workflow step.
         if HOME="$fixture/home" AUDIT_EXIT_STATUS=42 bash -e "$WORK_DIR/audit-step.sh"; then
             log_error "Workflow ignored the object audit failure"
