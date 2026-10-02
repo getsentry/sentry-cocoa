@@ -437,6 +437,170 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual([.warning, .warning, .error, .error], invocations.map(\.event.level))
     }
 
+    func testDidReceive_whenDiagnosticFromPreviousAppVersion_shouldSetReleaseAndDistFromDiagnostic() throws {
+        // -- Arrange --
+        givenSDKWithHubWithScope()
+        let sut = givenSut(releaseName: "io.sentry.app@2.0.0+20")
+        let payload = try givenHangPayload(appVersion: "1.2.3", appBuild: "45")
+
+        // -- Act --
+        sut.didReceive([payload])
+
+        // -- Assert --
+        try assertEventWithScopeCaptured { event, _, _ in
+            XCTAssertEqual(event?.releaseName, "io.sentry.app@1.2.3+45")
+            XCTAssertEqual(event?.dist, "45")
+        }
+    }
+
+    func testDidReceive_whenDiagnosticFromPreviousBuild_shouldSetReleaseAndDistFromDiagnostic() throws {
+        // -- Arrange --
+        givenSDKWithHubWithScope()
+        let sut = givenSut(releaseName: "io.sentry.app@2.0.0+20")
+        let payload = try givenHangPayload(appVersion: "2.0.0", appBuild: "19")
+
+        // -- Act --
+        sut.didReceive([payload])
+
+        // -- Assert --
+        try assertEventWithScopeCaptured { event, _, _ in
+            XCTAssertEqual(event?.releaseName, "io.sentry.app@2.0.0+19")
+            XCTAssertEqual(event?.dist, "19")
+        }
+    }
+
+    func testDidReceive_whenDiagnosticFromCurrentAppVersion_shouldNotSetReleaseAndDist() throws {
+        // -- Arrange --
+        givenSDKWithHubWithScope()
+        let sut = givenSut(releaseName: "io.sentry.app@2.0.0+20")
+        let payload = try givenHangPayload(appVersion: "2.0.0", appBuild: "20")
+
+        // -- Act --
+        sut.didReceive([payload])
+
+        // -- Assert --
+        try assertEventWithScopeCaptured { event, _, _ in
+            XCTAssertNil(event?.releaseName)
+            XCTAssertNil(event?.dist)
+        }
+    }
+
+    func testDidReceive_whenCustomReleaseNameAndDiagnosticFromPreviousAppVersion_shouldNotSetReleaseAndDist() throws {
+        // -- Arrange --
+        givenSDKWithHubWithScope()
+        let sut = givenSut(releaseName: "my-custom-release")
+        let payload = try givenHangPayload(appVersion: "1.2.3", appBuild: "45")
+
+        // -- Act --
+        sut.didReceive([payload])
+
+        // -- Assert --
+        try assertEventWithScopeCaptured { event, _, _ in
+            XCTAssertNil(event?.releaseName)
+            XCTAssertNil(event?.dist)
+        }
+    }
+
+    func testDidReceive_whenDiagnosticHasMetadata_shouldSetAppAndOSContext() throws {
+        // -- Arrange --
+        givenSDKWithHubWithScope()
+        let sut = givenSut(releaseName: "io.sentry.app@2.0.0+20")
+        let payload = try givenHangPayload(appVersion: "1.2.3", appBuild: "45", osVersion: "iPhone OS 18.6.2 (22G100)")
+
+        // -- Act --
+        sut.didReceive([payload])
+
+        // -- Assert --
+        try assertEventWithScopeCaptured { event, _, _ in
+            let context = try XCTUnwrap(event?.context)
+            XCTAssertEqual(context["app"] as NSDictionary?, ["app_version": "1.2.3", "app_build": "45"])
+            XCTAssertEqual(context["os"] as NSDictionary?, ["version": "18.6.2", "build": "22G100"])
+        }
+    }
+
+    func testDidReceive_whenOSVersionHasNoBuild_shouldSetOnlyOSVersion() throws {
+        // -- Arrange --
+        givenSDKWithHubWithScope()
+        let sut = givenSut(releaseName: "io.sentry.app@2.0.0+20")
+        let payload = try givenHangPayload(appVersion: "2.0.0", appBuild: "20", osVersion: "macOS 14.1")
+
+        // -- Act --
+        sut.didReceive([payload])
+
+        // -- Assert --
+        try assertEventWithScopeCaptured { event, _, _ in
+            XCTAssertEqual(event?.context?["os"] as NSDictionary?, ["version": "14.1"])
+        }
+    }
+
+    func testDidReceive_whenOSVersionIsUnparseable_shouldNotSetOSContext() throws {
+        // -- Arrange --
+        givenSDKWithHubWithScope()
+        let sut = givenSut(releaseName: "io.sentry.app@2.0.0+20")
+        let payload = try givenHangPayload(appVersion: "2.0.0", appBuild: "20", osVersion: "unknown")
+
+        // -- Act --
+        sut.didReceive([payload])
+
+        // -- Assert --
+        try assertEventWithScopeCaptured { event, _, _ in
+            XCTAssertNil(event?.context?["os"])
+        }
+    }
+
+    func testDidReceive_whenDiagnosticHasNoMetadata_shouldNotSetReleaseDistOrContext() throws {
+        // -- Arrange --
+        givenSDKWithHubWithScope()
+        let sut = givenSut(releaseName: "io.sentry.app@2.0.0+20")
+        let diagnostic = TestMXHangDiagnostic()
+        diagnostic.overrides.callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/not-per-thread-only-one-frame")
+        let payload = TestMXDiagnosticPayload()
+        payload.overrides.hangDiagnostic = [diagnostic]
+
+        // -- Act --
+        sut.didReceive([payload])
+
+        // -- Assert --
+        try assertEventWithScopeCaptured { event, _, _ in
+            XCTAssertNil(event?.releaseName)
+            XCTAssertNil(event?.dist)
+            XCTAssertNil(event?.context)
+        }
+    }
+
+    private func givenSut(releaseName: String?) -> SentryMXManager {
+        SentryMXManager(
+            inAppLogic: SentryInAppLogic(inAppIncludes: []),
+            attachDiagnosticAsAttachment: false,
+            enabledDiagnostics: [.hang],
+            releaseName: releaseName,
+            bundleInfo: [
+                "CFBundleIdentifier": "io.sentry.app",
+                "CFBundleShortVersionString": "2.0.0",
+                "CFBundleVersion": "20"
+            ]
+        )
+    }
+
+    private func givenHangPayload(
+        appVersion: String,
+        appBuild: String,
+        osVersion: String = "iPhone OS 18.6.2 (22G100)"
+    ) throws -> TestMXDiagnosticPayload {
+        let metaData = TestMXMetaData()
+        metaData.overrides.applicationBuildVersion = appBuild
+        metaData.overrides.osVersion = osVersion
+
+        let diagnostic = TestMXHangDiagnostic()
+        diagnostic.overrides.callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/not-per-thread-only-one-frame")
+        diagnostic.overrides.metaData = metaData
+        diagnostic.overrides.applicationVersion = appVersion
+
+        let payload = TestMXDiagnosticPayload()
+        payload.overrides.hangDiagnostic = [diagnostic]
+        return payload
+    }
+
     private func givenSDKWithHubWithScope() {
         let scope = Scope()
         scope.addBreadcrumb(TestData.crumb)
@@ -596,6 +760,8 @@ class TestMXHangDiagnostic: MXHangDiagnostic {
         var callStackTree = TestMXCallStackTree()
         var hangDuration = Measurement(value: 6.6, unit: UnitDuration.seconds)
         var jsonRepresentation: Data?
+        var metaData: MXMetaData?
+        var applicationVersion: String?
     }
 
     public var overrides = Override()
@@ -612,6 +778,33 @@ class TestMXHangDiagnostic: MXHangDiagnostic {
 
     override var hangDuration: Measurement<UnitDuration> {
         return overrides.hangDuration
+    }
+
+    override var metaData: MXMetaData {
+        return overrides.metaData ?? super.metaData
+    }
+
+    override var applicationVersion: String {
+        return overrides.applicationVersion ?? super.applicationVersion
+    }
+}
+
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
+class TestMXMetaData: MXMetaData {
+    struct Override {
+        var osVersion = ""
+        var applicationBuildVersion = ""
+    }
+
+    public var overrides = Override()
+
+    override var osVersion: String {
+        return overrides.osVersion
+    }
+
+    override var applicationBuildVersion: String {
+        return overrides.applicationBuildVersion
     }
 }
 
