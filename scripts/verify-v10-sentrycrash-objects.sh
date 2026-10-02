@@ -1,9 +1,15 @@
 #!/bin/bash
 set -euo pipefail
 
-# Compile-command, dependency, and object-level V10 contract. The source/configuration checker
-# independently verifies target membership; this script verifies that a completed build did not
-# schedule or emit a V9 recorder implementation or resolve a V9 recorder header.
+# V10 uses KSCrash instead of the legacy V9 recorder. We want the old recorder left out of
+# the build entirely, not merely stripped from the final binary by the linker. Checking the
+# packaged framework alone cannot prove that: unused V9 code could have been compiled first.
+#
+# This audit inspects a completed build's compile metadata, header dependencies, and object
+# filenames for V9 recorder or adapter sources and headers. It fails if any are found. The
+# source/configuration checker separately checks target membership; this checks build output.
+# For XCFramework builds, pass the producer's DerivedData root so both archive intermediates
+# and Mac Catalyst's non-archive build output are covered.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=./ci-utils.sh disable=SC1091
