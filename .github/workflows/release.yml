@@ -196,6 +196,9 @@ jobs:
           while IFS= read -r -d '' xcframework; do
             found=1
             ./scripts/validate-xcframework.sh --xcframework "$xcframework"
+            if [[ "$(basename "$xcframework")" == "SentryObjC-Static.xcframework" ]]; then
+              ./scripts/validate-xcframework-sentryobjc-static.sh --xcframework "$xcframework"
+            fi
           done < <(find XCFrameworkBuildPath -name "*.xcframework" -type d -print0)
 
           if [ "$found" -eq 0 ]; then
