@@ -43,7 +43,16 @@ extern "C" {
  */
 #define SentryCrashJSON_SIZE_AUTOMATIC -1
 
-#define SentryCrashMAX_STRINGBUFFERSIZE 150000
+/* Scratch buffer for JSON string/number decoding.
+ *
+ * The decoder partitions this into 25% for the current property name and 75%
+ * for the current string/number value. Large exception values can be significant,
+ * so the previous 150KB limit discarded the entire crash report.
+ * 4MB leaves 3MB for a single value, which covers
+ * those with headroom. The converted event still truncates exception
+ * values separately so ingestion stays under the 1MiB event limit.
+ */
+#define SentryCrashMAX_STRINGBUFFERSIZE (4 * 1024 * 1024)
 
 enum {
     /** Encoding or decoding: Everything completed without error */

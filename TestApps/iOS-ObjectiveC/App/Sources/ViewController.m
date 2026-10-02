@@ -1,5 +1,6 @@
 #import "ViewController.h"
 #import "NoARCCrash.h"
+#import "RaiseUncaughtNSException.h"
 
 @import SentryObjC;
 @import SentrySampleShared;
@@ -146,6 +147,17 @@
 - (IBAction)crash:(id)sender
 {
     [SentryObjCSDK crash];
+}
+
+- (IBAction)raiseHugeNSException:(id)sender
+{
+    // Larger than the old 150KB JSON scratch buffer (112.5KB for values).
+    // Uses CrashE2E's objc_exception_rethrow helper. Launch from the simulator
+    // home screen (no LLDB): SentryCrash disables the NSException monitor while
+    // a debugger is attached.
+    NSString *padding = [@"" stringByPaddingToLength:200000 withString:@"a" startingAtIndex:0];
+    NSString *reason = [@"iOS-ObjectiveC huge NSException " stringByAppendingString:padding];
+    RaiseUncaughtNSException(@"HugeNSException", reason);
 }
 
 - (IBAction)sigsevCrash:(id)sender

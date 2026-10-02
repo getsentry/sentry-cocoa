@@ -771,6 +771,16 @@
                                                                 </connections>
                                                             </buttonCell>
                                                         </button>
+                                                        <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="hNs-ms-Ex1" userLabel="raiseHugeNSException">
+                                                            <rect key="frame" x="204" y="586" width="190" height="24"/>
+                                                            <buttonCell key="cell" type="push" title="Huge NSException Crash" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="hNs-ms-Ex2">
+                                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                                <font key="font" metaFont="system"/>
+                                                            </buttonCell>
+                                                            <connections>
+                                                                <action selector="raiseHugeNSException:" target="XfG-lQ-9wD" id="hNs-ms-Ex3"/>
+                                                            </connections>
+                                                        </button>
                                                         <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="TkR-L2-cU3" userLabel="reportNSException">
                                                             <rect key="frame" x="229" y="586" width="139" height="24"/>
                                                             <buttonCell key="cell" type="push" title="reportNSException" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="89W-TG-dLd">
