@@ -13,6 +13,7 @@
 
 - Report a clear build error when SwiftPM traits select neither crash backend or both crash backends (#9182)
 - Fix native SwiftPM source builds importing the V9 adapter before its generated header is available (#9182)
+- Honor the SwiftPM `NoUIFramework` trait in the V9 recorder, avoiding UIKit linkage and UIApplication lifecycle observers (#9182)
 
 ## 9.30.0
 

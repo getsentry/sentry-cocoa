@@ -433,6 +433,7 @@ run_v10_for_prs: &run_v10_for_prs
   - "scripts/remove-v10-package-folder-references.swift"
   - "scripts/test-v10-package-folder-references.swift"
   - "scripts/test-spm-crash-backend-selection.swift"
+  - "scripts/test-spm-v9-no-ui-framework.swift"
   - "scripts/test-sentryobjc-archive-architectures.sh"
   - "scripts/set-xcodegen-package-traits.sh"
   - "scripts/set-xcodegen-compiler-flags.sh"

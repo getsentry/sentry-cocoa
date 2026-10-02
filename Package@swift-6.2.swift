@@ -278,7 +278,10 @@ targets += [
             "Sentry/SentryCrashScopeObserver.m"
         ],
         publicHeadersPath: "SentryCrashV9Module/include",
-        cSettings: [.headerSearchPath("Sentry")]
+        cSettings: [
+            .headerSearchPath("Sentry"),
+            .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
+        ]
     ),
     // SentryObjCInternal compiles reporter-neutral ObjC/C sources. The V9 recorder is isolated in
     // SentryCrashV9 so no V10 target graph schedules Sources/SentryCrash implementations.

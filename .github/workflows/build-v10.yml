@@ -371,6 +371,8 @@ jobs:
         run: ./scripts/test-v10-package-folder-references.swift
       - name: Test crash backend selection
         run: ./scripts/test-spm-crash-backend-selection.swift --work-dir "$RUNNER_TEMP/crash-backend-selection"
+      - name: Test V9 NoUI linkage
+        run: ./scripts/test-spm-v9-no-ui-framework.swift --work-dir "$RUNNER_TEMP/v9-no-ui-framework"
       - name: Upload backend selection logs
         if: failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
@@ -379,6 +381,8 @@ jobs:
           path: |
             ${{ runner.temp }}/crash-backend-selection/*.log
             ${{ runner.temp }}/crash-backend-selection/*.exit-status
+            ${{ runner.temp }}/v9-no-ui-framework/*.log
+            ${{ runner.temp }}/v9-no-ui-framework/*.exit-status
       - run: scripts/generate-testapp-v10.sh --spec TestApps/macOS-CLI-Xcode/macOS-CLI-Xcode.yml
 
       - name: Build macOS-CLI-Xcode test app
