@@ -92,6 +92,14 @@
                                             <action selector="crash:" destination="BYZ-38-t0r" eventType="touchUpInside" id="6xT-zA-EZI"/>
                                         </connections>
                                     </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hNs-9K-xCp" userLabel="Huge NSException Crash">
+                                        <rect key="frame" x="0.0" y="255" width="398" height="30"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="hugeNSExceptionCrash" label="hugeNSExceptionCrash"/>
+                                        <state key="normal" title="Huge NSException Crash"/>
+                                        <connections>
+                                            <action selector="raiseHugeNSException:" destination="BYZ-38-t0r" eventType="touchUpInside" id="hNs-9K-act"/>
+                                        </connections>
+                                    </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eUX-Yi-7fo">
                                         <rect key="frame" x="0.0" y="270" width="398" height="30"/>
                                         <state key="normal" title="sigsevCrash"/>
