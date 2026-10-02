@@ -70,3 +70,5 @@
 - Honor `swiftAsyncStacktraces` in `SentryV10` with KSCrash (#8856)
 - Populate `beforeSendTransaction` trace context from the transaction's own tracer, preserving its `op`, trace IDs, and status when the scope span is cleared or replaced. V9 `beforeSend` behavior is unchanged (#9040)
 - Seed extras, tags, user, context, breadcrumbs, and other nested scope fields into KSCrash crash reports at install time, instead of relying on KSCrash user info scalars
+- Make SwiftPM V10 headers importable by consumers without duplicating SDK compiler defines (#9182)
+- Prevent V10 SentryObjC static XCFrameworks from advertising incomplete architectures supplied only by dependencies (#9182)

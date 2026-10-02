@@ -38,8 +38,7 @@
 #    endif
 #endif // __has_include(<SentryWithoutUIKit/Sentry.h>)
 
-#if defined(SWIFT_PACKAGE) && !SDK_V10
-@import SentryCrashV9Swift;
-#endif
+// Keep this bridge reporter-neutral. Recorder sources import their Swift adapter directly;
+// importing it here makes core ObjC targets depend on an unscheduled generated header.
 
 #endif

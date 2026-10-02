@@ -24,6 +24,7 @@ private struct BuildCase {
     var environmentV10 = false
     var baseManifest = false
     var swift61Manifest = false
+    var nativeBuild = false
     var expectedDiagnostic: String?
 }
 
@@ -32,6 +33,7 @@ private let cases = [
     BuildCase(name: "both-backends", traits: ["V9", "V10"], expectedDiagnostic: mutuallyExclusiveTraitsDiagnostic),
     BuildCase(name: "both-backends-environment", traits: ["V9", "V10"], environmentV10: true, expectedDiagnostic: mutuallyExclusiveTraitsDiagnostic),
     BuildCase(name: "default-v9", traits: nil),
+    BuildCase(name: "default-v9-native", traits: nil, nativeBuild: true),
     BuildCase(name: "explicit-v9", traits: ["V9"]),
     BuildCase(name: "trait-v10", traits: ["V10"]),
     BuildCase(name: "no-ui-only", traits: ["NoUIFramework"], expectedDiagnostic: missingBackendDiagnostic),
@@ -41,6 +43,7 @@ private let cases = [
     BuildCase(name: "environment-v10", traits: [], environmentV10: true),
     BuildCase(name: "environment-v10-defaults", traits: nil, environmentV10: true),
     BuildCase(name: "base-v9", traits: nil, baseManifest: true),
+    BuildCase(name: "base-v9-native", traits: nil, baseManifest: true, nativeBuild: true),
     BuildCase(name: "base-v10", traits: nil, environmentV10: true, baseManifest: true),
     BuildCase(name: "no-backend-swift61", traits: [], swift61Manifest: true, expectedDiagnostic: missingBackendDiagnostic),
     BuildCase(name: "both-backends-swift61", traits: ["V9", "V10"], swift61Manifest: true, expectedDiagnostic: mutuallyExclusiveTraitsDiagnostic),
@@ -105,6 +108,10 @@ private func prepareSDK(root: URL, scenario: BuildCase) throws -> URL {
         "Package.swift", 
         "Package@swift-6.1.swift", 
         "Package@swift-6.2.swift", 
+        "Sources/Sentry/include/SentrySwift.h",
+        "Sources/SentryCrash/Installations/SentryCrashInstallation.m",
+        "Sources/SentryCrash/Recording/SentryCrash.m",
+        "Sources/SentryCrash/Recording/Monitors/SentryCrashMonitor_NSException.m",
         "Sources/Sentry/include/SentryPrivate.h", 
         "Sources/Sentry/include/SentryCrashBackendSelection.h",
         "Sources/Sentry/SentryDummyPrivateEmptyClass.m",
@@ -143,7 +150,7 @@ private func test(_ scenario: BuildCase, root: URL) throws {
     let product = scenario.environmentV10 ? "Sentry" : "SentrySPM"
 
     try write("""
-    // swift-tools-version: 6.2
+    // swift-tools-version: \(scenario.nativeBuild ? "6.1" : "6.2")
     import PackageDescription
     let package = Package(
         name: "BackendConsumer",
@@ -161,8 +168,9 @@ private func test(_ scenario: BuildCase, root: URL) throws {
     let publicHeaderCheck = v10 ? "import SentryHeaders\nlet _: SentryBeforeSendTransactionCallback = { $0 }\n" : ""
     try write("import SentrySwift\n\(publicHeaderCheck)SentrySDK.start { _ in }\n", to: consumer.appendingPathComponent("Sources/BackendConsumer/main.swift"))
 
-    let command = ["swift", "build", "--package-path", consumer.path, "--scratch-path",
+    var command = ["swift", "build", "--package-path", consumer.path, "--scratch-path",
                    consumer.appendingPathComponent("build").path]
+    if scenario.nativeBuild { command += ["--build-system", "native"] }
     let pathLog = root.appendingPathComponent(scenario.name + "-bin-path.log")
     let pathStatus = try run(command + ["--show-bin-path"], in: consumer, log: pathLog, v10: scenario.environmentV10)
     let binPath = try String(contentsOf: pathLog, encoding: .utf8)

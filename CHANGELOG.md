@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased
+
+> [!WARNING]
+> SwiftPM source consumers specifying traits explicitly must select a crash backend. Replace `traits: ["NoUIFramework"]` with `traits: [.defaults, "NoUIFramework"]` or `traits: ["V9", "NoUIFramework"]`. Ordinary adoption without explicit traits, prebuilt binary products, and base-manifest builds remain unchanged.
+
+### Breaking Changes
+
+- Require explicit SwiftPM source trait selections to retain defaults or select V9/V10. Selecting neither or both backend traits now produces a build error. To use V10, specify `traits: ["V10"]` without `.defaults`, optionally adding `"NoUIFramework"` (#9182).
+
+### Fixes
+
+- Report a clear build error when SwiftPM traits select neither crash backend or both crash backends (#9182)
+- Fix native SwiftPM source builds importing the V9 adapter before its generated header is available (#9182)
+
 ## 9.30.0
 
 ### Features
@@ -19,12 +33,9 @@
 
 - Keep standalone `@objc` extensions in static builds by adding referenced dummy `NSObject` subclasses, and lint for this with a SwiftSyntax SwiftLint extra rule (#9160)
 - Send envelopes captured during a connectivity-triggered cache drain without waiting for another trigger (#9171)
-- Report a clear build error when SwiftPM traits select neither crash backend or both crash backends (#9182)
-- Make SwiftPM V10 headers importable by consumers without duplicating SDK compiler defines (#9182)
 - Session Replay: Fix queue requirements during crash recovery (#9158)
 - Preserve full resolution when masking feedback, error, and crash screenshots, including screenshots captured through the React Native bridge, without changing Session Replay resolution or redactions (#9179)
 - Compact raw MetricKit diagnostic attachments to reduce their upload size and attachment quota usage (#9183)
-- Prevent SentryObjC static XCFrameworks from advertising incomplete architectures supplied only by dependencies (#9182)
 
 ## 9.29.2
 

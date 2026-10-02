@@ -42,6 +42,9 @@
 #    import "SentryDefines.h"
 #    import "SentryInternalCDefines.h"
 #    import "SentrySwift.h"
+#    if SWIFT_PACKAGE
+@import SentryCrashV9Swift;
+#    endif
 #    import <SentryNSDataUtils.h>
 
 #    import "SentryLogC.h"
