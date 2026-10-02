@@ -60,4 +60,11 @@ public final class SentryExperimentalOptions: NSObject {
      * See https://github.com/getsentry/sentry-cocoa/issues/8548.
      */
     public var enableUIViewControllerInitSwizzling = false
+
+    #if canImport(MetricKit) && !os(tvOS)
+    /// Options for the MetricKit integration, such as which diagnostic reports the SDK captures.
+    ///
+    /// - Note: This option is only available from Swift.
+    public var metricKit = SentryMetricKit.Options()
+    #endif // canImport(MetricKit) && !os(tvOS)
 }
