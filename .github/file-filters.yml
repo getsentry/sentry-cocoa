@@ -101,6 +101,7 @@ run_distribution_tests_for_prs: &run_distribution_tests_for_prs
   - "scripts/ci-ensure-runtime-loaded.sh"
   - "scripts/ci-utils.sh"
   - "scripts/prepare-package.sh"
+  - "scripts/test-spm-v9-resource-exclusion.sh"
 
   # Project files
   - "Package*.swift"

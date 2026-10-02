@@ -121,6 +121,9 @@ jobs:
         uses: ./.github/actions/resolve-test-destination
         with:
           platform: iOS
+      - name: Test V9 resource exclusion
+        if: matrix.mode == 'V9'
+        run: ./scripts/test-spm-v9-resource-exclusion.sh --work-dir "$RUNNER_TEMP/v9-resource-exclusion"
       - name: Prepare test packages
         shell: bash
         run: ./scripts/prepare-package.sh --remove-binary-targets true
@@ -156,7 +159,10 @@ jobs:
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-test-output-distribution-${{ matrix.mode }}
-          path: raw-test-output-distribution.log
+          path: |
+            raw-test-output-distribution.log
+            ${{ runner.temp }}/v9-resource-exclusion/**/*.log
+            ${{ runner.temp }}/v9-resource-exclusion/**/*.exit-status
 
       - name: Archiving Test Results
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7

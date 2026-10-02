@@ -271,6 +271,8 @@ targets += [
         name: "SentryCrashV9",
         dependencies: ["SentryCrashV9Swift", "SentrySwift", "_SentryPrivate", "_SentryCrashV9Headers", "SentryHeaders"],
         path: "Sources",
+        // Xcode discovers resources independently of sources; the recorder owns no SDK bundle.
+        exclude: ["Resources"],
         sources: [
             "SentryCrash",
             "Sentry/SentryCrashDefaultMachineContextWrapper.m",
