@@ -53,44 +53,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, weak, nullable) id<SentrySessionDelegate> sessionDelegate;
 
-- (SentryId *)captureEvent:(SentryEvent *)event
-                  withScope:(SentryScope *)scope
-    additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
-    NS_SWIFT_NAME(capture(event:scope:additionalEnvelopeItems:));
-
-- (SentryId *)captureError:(NSError *)error
-                 withScope:(SentryScope *)scope
-          attachAllThreads:(nullable NSNumber *)attachAllThreads
-    NS_SWIFT_NAME(capture(error:scope:attachAllThreads:));
-
-- (SentryId *)captureException:(NSException *)exception
-                     withScope:(SentryScope *)scope
-              attachAllThreads:(nullable NSNumber *)attachAllThreads
-    NS_SWIFT_NAME(capture(exception:scope:attachAllThreads:));
-
-- (SentryId *)captureMessage:(NSString *)message
-                   withScope:(SentryScope *)scope
-            attachAllThreads:(nullable NSNumber *)attachAllThreads
-    NS_SWIFT_NAME(capture(message:scope:attachAllThreads:));
-
-- (SentryId *)captureEvent:(SentryEvent *)event
-                 withScope:(SentryScope *)scope
-                      hint:(nullable SentryHint *)hint NS_SWIFT_NAME(capture(event:scope:hint:));
-
-- (SentryId *)captureError:(NSError *)error
-                 withScope:(SentryScope *)scope
-                      hint:(nullable SentryHint *)hint NS_SWIFT_NAME(capture(error:scope:hint:));
-
-- (SentryId *)captureException:(NSException *)exception
-                     withScope:(SentryScope *)scope
-                          hint:(nullable SentryHint *)hint
-    NS_SWIFT_NAME(capture(exception:scope:hint:));
-
-- (SentryId *)captureMessage:(NSString *)message
-                   withScope:(SentryScope *)scope
-                        hint:(nullable SentryHint *)hint
-    NS_SWIFT_NAME(capture(message:scope:hint:));
-
 /**
  * Needed by hybrid SDKs as react-native to synchronously store an envelope to disk.
  */
@@ -129,6 +91,48 @@ NS_ASSUME_NONNULL_BEGIN
 /// Records a dropped trace metric. Boxed in `SentryMetricObjC` (typed `id`, same header/Swift
 /// constraint as `getTelemetryProcessor` above) because `SentryMetric` is a Swift struct.
 - (void)recordDroppedTraceMetricInClientReport:(SENTRY_SWIFT_MIGRATION_ID(SentryMetricObjC))metric;
+
+@end
+
+@interface SentryClientInternal (EventCapturePrivate)
+
+- (SentryId *)captureEvent:(SentryEvent *)event
+                  withScope:(SentryScope *)scope
+    additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
+    NS_SWIFT_NAME(capture(event:scope:additionalEnvelopeItems:));
+
+- (SentryId *)captureError:(NSError *)error
+                 withScope:(SentryScope *)scope
+          attachAllThreads:(nullable NSNumber *)attachAllThreads
+    NS_SWIFT_NAME(capture(error:scope:attachAllThreads:));
+
+- (SentryId *)captureException:(NSException *)exception
+                     withScope:(SentryScope *)scope
+              attachAllThreads:(nullable NSNumber *)attachAllThreads
+    NS_SWIFT_NAME(capture(exception:scope:attachAllThreads:));
+
+- (SentryId *)captureMessage:(NSString *)message
+                   withScope:(SentryScope *)scope
+            attachAllThreads:(nullable NSNumber *)attachAllThreads
+    NS_SWIFT_NAME(capture(message:scope:attachAllThreads:));
+
+- (SentryId *)captureEvent:(SentryEvent *)event
+                 withScope:(SentryScope *)scope
+                      hint:(nullable SentryHint *)hint NS_SWIFT_NAME(capture(event:scope:hint:));
+
+- (SentryId *)captureError:(NSError *)error
+                 withScope:(SentryScope *)scope
+                      hint:(nullable SentryHint *)hint NS_SWIFT_NAME(capture(error:scope:hint:));
+
+- (SentryId *)captureException:(NSException *)exception
+                     withScope:(SentryScope *)scope
+                          hint:(nullable SentryHint *)hint
+    NS_SWIFT_NAME(capture(exception:scope:hint:));
+
+- (SentryId *)captureMessage:(NSString *)message
+                   withScope:(SentryScope *)scope
+                        hint:(nullable SentryHint *)hint
+    NS_SWIFT_NAME(capture(message:scope:hint:));
 
 @end
 
