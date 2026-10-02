@@ -1601,7 +1601,9 @@
 - (void)testConvertExceptions_whenNSExceptionReasonExceedsMaxLength_shouldTruncateValue
 {
     // -- Arrange --
-    NSString *reason = [@"" stringByPaddingToLength:20000 withString:@"a" startingAtIndex:0];
+    NSString *reason = [@"" stringByPaddingToLength:SentryMaxCrashExceptionValueLength + 1
+                                         withString:@"a"
+                                    startingAtIndex:0];
     NSDictionary *mockReport = [self nsexceptionReportWithReason:reason diagnosis:nil];
 
     // -- Act --
@@ -1611,14 +1613,16 @@
 
     // -- Assert --
     SentryException *exception = event.exceptions.firstObject;
-    XCTAssertEqual(exception.value.length, 10240u);
+    XCTAssertEqual(exception.value.length, SentryMaxCrashExceptionValueLength);
     XCTAssertTrue([reason hasPrefix:exception.value]);
 }
 
 - (void)testConvertExceptions_whenNSExceptionReasonFitsMaxLength_shouldKeepValue
 {
     // -- Arrange --
-    NSString *reason = [@"" stringByPaddingToLength:10240 withString:@"b" startingAtIndex:0];
+    NSString *reason = [@"" stringByPaddingToLength:SentryMaxCrashExceptionValueLength
+                                         withString:@"b"
+                                    startingAtIndex:0];
     NSDictionary *mockReport = [self nsexceptionReportWithReason:reason diagnosis:nil];
 
     // -- Act --
@@ -1664,7 +1668,7 @@
 
     // -- Assert --
     SentryException *exception = event.exceptions.firstObject;
-    XCTAssertEqual(exception.value.length, 10240u);
+    XCTAssertEqual(exception.value.length, SentryMaxCrashExceptionValueLength);
     XCTAssertTrue([nsexceptionReason hasPrefix:exception.value]);
     XCTAssertFalse([exception.value hasPrefix:@"e"]);
 }
@@ -1685,7 +1689,7 @@
 
     // -- Assert --
     SentryException *exception = event.exceptions.firstObject;
-    XCTAssertEqual(exception.value.length, 10240u);
+    XCTAssertEqual(exception.value.length, SentryMaxCrashExceptionValueLength);
     XCTAssertTrue([exception.value hasPrefix:reason]);
     XCTAssertTrue([exception.value containsString:@" >\n"]);
 }

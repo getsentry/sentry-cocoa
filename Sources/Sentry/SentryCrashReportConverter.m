@@ -24,7 +24,7 @@ static NSString *const SentryCrashReportConverterErrorDomain
 static const uintptr_t SentryLegacyAsyncStackTraceMarker = UINTPTR_MAX - 1234;
 // Relay currently truncates exception values to 8192 characters and discards events
 // over 1MiB. 512 gives us enough characters to identify without too much bloat.
-static const NSUInteger SentryMaxCrashExceptionValueLength = 512;
+const NSUInteger SentryMaxCrashExceptionValueLength = 512;
 
 @interface SentryCrashReportConverter ()
 
