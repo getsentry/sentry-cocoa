@@ -15,42 +15,7 @@ typealias SentryMetricManager = MXMetricManager
 final class SentryMXManager: NSObject {
     // MARK: - Types
 
-    enum Diagnostic: CaseIterable {
-        case crash
-        case diskWriteException
-        case cpuException
-        case hang
-
-        var exceptionType: String {
-            switch self {
-            case .crash:
-                return "MXCrashDiagnostic"
-            case .diskWriteException:
-                return "MXDiskWriteException"
-            case .cpuException:
-                return "MXCPUException"
-            case .hang:
-                return "MXHangDiagnostic"
-            }
-        }
-
-        var mechanism: String {
-            switch self {
-            case .crash:
-                return "MXCrashDiagnostic"
-            case .diskWriteException:
-                return "mx_disk_write_exception"
-            case .cpuException:
-                return "mx_cpu_exception"
-            case .hang:
-                return "mx_hang_diagnostic"
-            }
-        }
-
-        static var all: Set<Diagnostic> {
-            .init(allCases)
-        }
-    }
+    typealias Diagnostic = SentryMetricKit.DiagnosticReport
 
     // MARK: - Properties
 
@@ -96,6 +61,38 @@ final class SentryMXManager: NSObject {
     }
 }
 
+extension SentryMetricKit.DiagnosticReport {
+    var exceptionType: String {
+        switch self {
+        case .crash:
+            return "MXCrashDiagnostic"
+        case .diskWriteException:
+            return "MXDiskWriteException"
+        case .cpuException:
+            return "MXCPUException"
+        case .hang:
+            return "MXHangDiagnostic"
+        }
+    }
+
+    var mechanism: String {
+        switch self {
+        case .crash:
+            return "MXCrashDiagnostic"
+        case .diskWriteException:
+            return "mx_disk_write_exception"
+        case .cpuException:
+            return "mx_cpu_exception"
+        case .hang:
+            return "mx_hang_diagnostic"
+        }
+    }
+
+    static var all: Set<Self> {
+        .init(allCases)
+    }
+}
+
 extension SentryMXManager: MXMetricManagerSubscriber {
     func didReceive(_ payloads: [MXDiagnosticPayload]) {
         SentrySDKLog.info("Received \(payloads.count) MetricKit diagnostic payloads")
@@ -134,9 +131,9 @@ extension SentryMXManager: MXMetricManagerSubscriber {
         }
         SentrySDKLog.debug("Processing crash diagnostic at timestamp: \(timestamp)")
 
-        let exceptionType = String(describing: diagnostic.exceptionType)
-        let code = String(describing: diagnostic.exceptionCode)
-        let signal = String(describing: diagnostic.signal)
+        let exceptionType = diagnostic.exceptionType?.stringValue ?? "nil"
+        let code = diagnostic.exceptionCode?.stringValue ?? "nil"
+        let signal = diagnostic.signal?.stringValue ?? "nil"
 
         captureEvent(
             handled: false,

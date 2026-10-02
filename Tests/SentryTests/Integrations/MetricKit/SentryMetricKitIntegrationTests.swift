@@ -43,6 +43,110 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
           XCTAssertNil(sut)
     }
 
+    func testInit_whenDiagnosticReportsNotConfigured_shouldUseDefaultDiagnostics() throws {
+        // -- Arrange --
+        let options = Options()
+        options.enableMetricKit = true
+
+        // -- Act --
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+
+        // -- Assert --
+        XCTAssertEqual(sut.mxManager.enabledDiagnostics, [.cpuException, .diskWriteException, .hang])
+    }
+
+    func testInit_whenDiagnosticReportsConfigured_shouldUseConfiguredDiagnostics() throws {
+        // -- Arrange --
+        let options = Options()
+        options.enableMetricKit = true
+        options.experimental.metricKit.enabledDiagnosticReports = [.hang, .crash]
+
+        // -- Act --
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+
+        // -- Assert --
+        XCTAssertEqual(sut.mxManager.enabledDiagnostics, [.hang, .crash])
+    }
+
+    func testInit_whenMetricKitDisabledAndDiagnosticReportsConfigured_shouldDependOnSDKVersion() throws {
+        // -- Arrange --
+        let options = Options()
+        options.enableMetricKit = false
+        options.experimental.metricKit.enabledDiagnosticReports = [.hang]
+
+        // -- Act --
+        let sut = SentryMetricKitIntegration(with: options, dependencies: ())
+
+        // -- Assert --
+#if SDK_V10
+        XCTAssertNil(sut)
+#else
+        // Before v10 a configured set of reports opts in on its own.
+        XCTAssertEqual(try XCTUnwrap(sut).mxManager.enabledDiagnostics, [.hang])
+#endif
+    }
+
+    func testInit_whenDiagnosticReportsEmpty_shouldDependOnSDKVersion() throws {
+        // -- Arrange --
+        let options = Options()
+        options.enableMetricKit = true
+        options.experimental.metricKit.enabledDiagnosticReports = []
+
+        // -- Act --
+        let sut = SentryMetricKitIntegration(with: options, dependencies: ())
+
+        // -- Assert --
+#if SDK_V10
+        XCTAssertNil(sut)
+#else
+        // Before v10 an empty set leaves the decision to enableMetricKit.
+        XCTAssertEqual(try XCTUnwrap(sut).mxManager.enabledDiagnostics, [.cpuException, .diskWriteException, .hang])
+#endif
+    }
+
+    func testInit_whenDefaultOptions_shouldDependOnSDKVersion() throws {
+        // -- Arrange --
+        let options = Options()
+
+        // -- Act --
+        let sut = SentryMetricKitIntegration(with: options, dependencies: ())
+
+        // -- Assert --
+#if SDK_V10
+        XCTAssertEqual(try XCTUnwrap(sut).mxManager.enabledDiagnostics, [.cpuException, .diskWriteException, .hang])
+#else
+        XCTAssertNil(sut)
+#endif
+    }
+
+    func testDidReceive_whenCrashDiagnosticHasExceptionInfo_shouldFormatExceptionValue() throws {
+        // -- Arrange --
+        givenSDKWithHubWithScope()
+        let options = Options()
+        options.enableMetricKit = true
+        options.experimental.metricKit.enabledDiagnosticReports = [.crash]
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+        let crashDiagnostic = TestMXCrashDiagnostic()
+        crashDiagnostic.overrides.callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/per-thread")
+        crashDiagnostic.overrides.exceptionType = 1
+        crashDiagnostic.overrides.exceptionCode = 0
+        crashDiagnostic.overrides.signal = 11
+        let payload = TestMXDiagnosticPayload()
+        payload.overrides.crashDiagnostics = [crashDiagnostic]
+
+        // -- Act --
+        sut.mxManager.didReceive([payload])
+
+        // -- Assert --
+        try assertEventWithScopeCaptured { event, _, _ in
+            let exception = try XCTUnwrap(event?.exceptions?.first)
+            XCTAssertEqual(exception.value, "MachException Type:1 Code:0 Signal:11")
+            XCTAssertEqual(exception.type, "MXCrashDiagnostic")
+            XCTAssertEqual(exception.mechanism?.type, "MXCrashDiagnostic")
+            XCTAssertEqual(exception.mechanism?.handled, false)
+        }
+    }
+
     func testMXCrashPayloadReceived() throws {
             givenSDKWithHubWithScope()
 
@@ -704,12 +808,27 @@ class TestMXCallStackTree: MXCallStackTree {
 class TestMXCrashDiagnostic: MXCrashDiagnostic {
     struct Override {
         var callStackTree = TestMXCallStackTree()
+        var exceptionType: NSNumber?
+        var exceptionCode: NSNumber?
+        var signal: NSNumber?
     }
 
     public var overrides = Override()
 
     override var callStackTree: MXCallStackTree {
         return overrides.callStackTree
+    }
+
+    override var exceptionType: NSNumber? {
+        return overrides.exceptionType
+    }
+
+    override var exceptionCode: NSNumber? {
+        return overrides.exceptionCode
+    }
+
+    override var signal: NSNumber? {
+        return overrides.signal
     }
 }
 
