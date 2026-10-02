@@ -586,80 +586,72 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     func testUncaughtExceptions_Enabled() throws {
         try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
-        defer { resetUserDefaults() }
-
+        // -- Arrange --
         let options = Options()
         options.enableUncaughtNSExceptionReporting = true
         options.enableSwizzling = true
         options.enableCrashHandler = true
 
-        let (_, _) = try givenSutWithGlobalHubAndCrashWrapper(options)
-
-        XCTAssertTrue(UserDefaults.standard.bool(forKey: "NSApplicationCrashOnExceptions"))
-        // We have to set the flat to false, cause otherwise we would crash
-        UserDefaults.standard.set(false, forKey: "NSApplicationCrashOnExceptions")
-
-        let crashReporter = SentryDependencyContainer.sharedInstance().crashReporter
-
-        defer {
-            crashReporter.uncaughtExceptionHandler = nil
-            wasUncaughtExceptionHandlerCalled = false
-        }
-        crashReporter.uncaughtExceptionHandler = uncaughtExceptionHandler
-
-        NSApplication.shared.reportException(uncaughtInternalInconsistencyException)
-        XCTAssertTrue(wasUncaughtExceptionHandlerCalled)
+        // -- Act & Assert --
+        try assertUncaughtExceptionConfiguration(options: options, expectedCallCount: 1)
     }
 
     func testUncaughtExceptions_Enabled_ButSwizzlingDisabled() throws {
         try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
-        defer { resetUserDefaults() }
-
+        // -- Arrange --
         let options = Options()
         options.enableUncaughtNSExceptionReporting = true
         options.enableSwizzling = false
         options.enableCrashHandler = true
 
-        let (_, _) = try givenSutWithGlobalHubAndCrashWrapper(options)
-
-        XCTAssertFalse(UserDefaults.standard.bool(forKey: "NSApplicationCrashOnExceptions"))
-
-        let crashReporter = SentryDependencyContainer.sharedInstance().crashReporter
-
-        defer {
-            crashReporter.uncaughtExceptionHandler = nil
-            wasUncaughtExceptionHandlerCalled = false
-        }
-        crashReporter.uncaughtExceptionHandler = uncaughtExceptionHandler
-
-        NSApplication.shared.reportException(uncaughtInternalInconsistencyException)
-        XCTAssertFalse(wasUncaughtExceptionHandlerCalled)
+        // -- Act & Assert --
+        try assertUncaughtExceptionConfiguration(options: options, expectedCallCount: 0)
     }
 
     func testUncaughtExceptions_Disabled() throws {
         try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
-        defer { resetUserDefaults() }
-
+        // -- Arrange --
         let options = Options()
         options.enableUncaughtNSExceptionReporting = false
+        options.enableSwizzling = true
         options.enableCrashHandler = true
 
-        let (_, _) = try givenSutWithGlobalHubAndCrashWrapper(options)
+        // -- Act & Assert --
+        try assertUncaughtExceptionConfiguration(options: options, expectedCallCount: 0)
+    }
 
-        XCTAssertFalse(UserDefaults.standard.bool(forKey: "NSApplicationCrashOnExceptions"))
-
-        let crashReporter = SentryDependencyContainer.sharedInstance().crashReporter
-
+    private func assertUncaughtExceptionConfiguration(options: Options, expectedCallCount: Int) throws {
+        // These integration tests verify option gating. Real defaults registration and AppKit
+        // swizzles are covered by SentryUncaughtNSExceptionsTests and outlive an SDK instance:
+        // resetUserDefaults cannot undo registration defaults or once-only swizzles.
+        let selectors = [
+            #selector(SentryUncaughtNSExceptions.configureCrashOnExceptions),
+            #selector(SentryUncaughtNSExceptions.swizzleNSApplicationReportException),
+            #selector(SentryUncaughtNSExceptions.swizzleNSApplicationCrashOnException)
+        ]
+        var calls: [Selector] = []
+        var replacements: [(method: Method, original: IMP, replacement: IMP)] = []
         defer {
-            crashReporter.uncaughtExceptionHandler = nil
-            wasUncaughtExceptionHandlerCalled = false
+            for replacement in replacements.reversed() {
+                method_setImplementation(replacement.method, replacement.original)
+                imp_removeBlock(replacement.replacement)
+            }
         }
-        crashReporter.uncaughtExceptionHandler = uncaughtExceptionHandler
+        for selector in selectors {
+            let method = try XCTUnwrap(class_getClassMethod(SentryUncaughtNSExceptions.self, selector))
+            let block: @convention(block) (AnyObject) -> Void = { _ in calls.append(selector) }
+            let replacement = imp_implementationWithBlock(block)
+            let original = method_setImplementation(method, replacement)
+            replacements.append((method, original, replacement))
+        }
 
-        NSApplication.shared.reportException(uncaughtInternalInconsistencyException)
-        XCTAssertFalse(wasUncaughtExceptionHandlerCalled)
+        _ = try givenSutWithGlobalHubAndCrashWrapper(options)
+
+        for selector in selectors {
+            XCTAssertEqual(calls.filter { $0 == selector }.count, expectedCallCount, NSStringFromSelector(selector))
+        }
     }
 #endif // os(macOS)
 
@@ -1125,7 +1117,8 @@ class MockCrashDependencies: CrashIntegrationProvider {
         return SentryCrashInstallationReporter(
             inAppLogic: inAppLogic,
             crashWrapper: mockedCrashWrapper,
-            dispatchQueue: mockedDispatchQueueWrapper
+            dispatchQueue: mockedDispatchQueueWrapper,
+            startupCrashFlush: SentryStartupCrashFlush(idleGate: SentryReplayRecoveryIdleGate())
         )
     }
 }

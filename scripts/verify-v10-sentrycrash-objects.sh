@@ -23,9 +23,9 @@ BUILD_PATH=""
 ALLOW_EMPTY_TRANSLATION_UNITS=false
 
 usage() {
-  log_notice "Usage: $0"
-  log_notice "  --build-path <path>                 V10 build output to audit (required)"
-  log_notice "  --allow-empty-translation-units    Allow SDK_V10-guarded legacy files emitted by SwiftPM traits"
+  log_info "Usage: $0"
+  log_info "  --build-path <path>                 V10 build output to audit (required)"
+  log_info "  --allow-empty-translation-units    Allow SDK_V10-guarded legacy files emitted by SwiftPM traits"
   exit 1
 }
 
@@ -209,7 +209,7 @@ done < <(find "$BUILD_PATH" -type f -name '*.o' -print0)
 
 if [[ $candidate_object_count -eq 0 ]]; then
   if [[ ${#validated_allowed_source_names[@]} -eq 0 ]]; then
-    log_notice "Verified no SentryCrash source objects are present"
+    log_info "Verified no SentryCrash source objects are present"
   else
     log_error "No SentryCrash source objects found under $BUILD_PATH; the audit did not run"
     exit 1
@@ -228,7 +228,7 @@ if [[ $violation_count -ne 0 ]]; then
   exit 1
 fi
 
-log_notice "Verified ${#compiled_allowed_source_names[@]} retained SentryCrash Tool sources"
+log_info "Verified ${#compiled_allowed_source_names[@]} retained SentryCrash Tool sources"
 if [[ "$ALLOW_EMPTY_TRANSLATION_UNITS" == true ]]; then
-  log_notice "Verified $empty_translation_unit_count SDK_V10-guarded legacy objects contain no external symbols"
+  log_info "Verified $empty_translation_unit_count SDK_V10-guarded legacy objects contain no external symbols"
 fi

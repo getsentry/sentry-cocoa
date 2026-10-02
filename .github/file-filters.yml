@@ -130,6 +130,7 @@ run_api_stability_for_prs: &run_api_stability_for_prs
   # Scripts
   - "scripts/build-xcframework-slice.sh"
   - "scripts/assemble-xcframework.sh"
+  - "scripts/xcframework-utils.sh"
   - "scripts/update-api.sh"
   - "scripts/extract-objc-api.sh"
   - "scripts/ci-diagnostics.sh"
@@ -268,6 +269,7 @@ run_release_for_prs: &run_release_for_prs
   - "scripts/build-xcframework-slice.sh"
   - "scripts/build-xcframework-variant.sh"
   - "scripts/validate-xcframework*.sh"
+  - "scripts/xcframework-utils.sh"
   - "scripts/assemble-xcframework.sh"
   - "scripts/build-xcframework-sentryobjc.sh"
   - "scripts/build-static-library-sentryobjc.sh"

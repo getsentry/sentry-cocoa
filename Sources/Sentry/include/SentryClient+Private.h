@@ -30,6 +30,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@interface SentryClientInternal (Attachments)
+
+- (void)populateHintAttachments:(SentryHint *)hint
+                          scope:(SentryScope *)scope
+                   isFatalEvent:(BOOL)isFatalEvent;
+
+- (NSArray<SentryAttachment *> *)processAttachmentsForEvent:(SentryEvent *)event
+                                                attachments:
+                                                    (NSArray<SentryAttachment *> *)attachments;
+
+- (void)addAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor;
+- (void)removeAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor;
+
+@end
+
 @interface SentryClientInternal ()
 
 @property (nonatomic, strong)
@@ -38,32 +53,53 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, weak, nullable) id<SentrySessionDelegate> sessionDelegate;
 
-- (SentryId *)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
+/**
+ * Needed by hybrid SDKs as react-native to synchronously store an envelope to disk.
+ */
+- (void)storeEnvelope:(SentryEnvelope *)envelope;
 
-- (SentryId *)captureFatalEvent:(SentryEvent *)event
-                    withSession:(SentrySession *)session
-                      withScope:(SentryScope *)scope;
+- (void)captureEnvelope:(SentryEnvelope *)envelope;
 
-- (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
-                      withEventId:(NSString *)feedbackEventId
-                      attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
-                            scope:(SentryScope *)scope;
+- (void)recordLostEvent:(SentryDataCategory)category reason:(SentryDiscardReason)reason;
+- (void)recordLostEvent:(SentryDataCategory)category
+                 reason:(SentryDiscardReason)reason
+               quantity:(NSUInteger)quantity;
 
-- (void)saveCrashTransaction:(SentryTransaction *)transaction
-                   withScope:(SentryScope *)scope
-    NS_SWIFT_NAME(saveCrashTransaction(transaction:scope:));
+/// Exposed so Swift (e.g. metrics) can reuse it to drop data when the client is disabled.
+/// Broader than `isEnabled` in `SentryClient.h`: `isEnabled` only reflects `close`,
+/// while `isDisabled` also returns YES for `options.enabled == false` or no DSN.
+@property (nonatomic, assign, readonly) BOOL isDisabled;
+
+/// Logs a debug message that data is dropped because the client is disabled. Exposed so Swift
+/// (e.g. metrics) logs the same message as event/envelope capture when dropping data.
+- (void)logDisabledMessage;
+
+@end
+
+@interface SentryClientInternal (Telemetry)
+
+- (void)_swiftCaptureLog:(NSObject *)log withScope:(SentryScope *)scope;
+
+/// Exposes the Telemetry Processor so Swift code can forward metrics directly without crossing the
+/// ObjC boundary. SentryMetric is a Swift struct and cannot be passed through ObjC methods, so
+/// we use a Swift extension on SentryClientInternal.
+/// The return type is `id` (not `id<SentryObjCTelemetryProcessor>`) to avoid a
+/// circular dependency: the protocol is defined in Swift and cannot be referenced in ObjC headers
+/// that Swift imports.
+- (SENTRY_SWIFT_MIGRATION_ID(id<SentryObjCTelemetryProcessor>))getTelemetryProcessor;
+
+/// Records a dropped trace metric. Boxed in `SentryMetricObjC` (typed `id`, same header/Swift
+/// constraint as `getTelemetryProcessor` above) because `SentryMetric` is a Swift struct.
+- (void)recordDroppedTraceMetricInClientReport:(SENTRY_SWIFT_MIGRATION_ID(SentryMetricObjC))metric;
+
+@end
+
+@interface SentryClientInternal (EventCapturePrivate)
 
 - (SentryId *)captureEvent:(SentryEvent *)event
                   withScope:(SentryScope *)scope
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
     NS_SWIFT_NAME(capture(event:scope:additionalEnvelopeItems:));
-
-- (SentryId *)captureEventIncrementingSessionErrorCount:(SentryEvent *)event
-                                              withScope:(SentryScope *)scope;
-
-- (SentryId *)captureEventIncrementingSessionErrorCount:(SentryEvent *)event
-                                              withScope:(SentryScope *)scope
-                                                   hint:(SentryHint *)hint;
 
 - (SentryId *)captureError:(NSError *)error
                  withScope:(SentryScope *)scope
@@ -98,50 +134,131 @@ NS_ASSUME_NONNULL_BEGIN
                         hint:(nullable SentryHint *)hint
     NS_SWIFT_NAME(capture(message:scope:hint:));
 
+@end
+
+@interface SentryClientInternal (EventPreparation)
+
+- (nullable SentryEvent *)prepareEvent:(SentryEvent *)event
+                             withScope:(SentryScope *)scope
+                alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace;
+
+- (nullable SentryEvent *)prepareEvent:(nullable SentryEvent *)event
+                             withScope:(SentryScope *)scope
+                alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+                          isFatalEvent:(BOOL)isFatalEvent;
+
+- (nullable SentryEvent *)prepareEvent:(nullable SentryEvent *)event
+                             withScope:(SentryScope *)scope
+                alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+                          isFatalEvent:(BOOL)isFatalEvent
+                                  hint:(SentryHint *)hint;
+
+- (nullable SentryEvent *)prepareEvent:(nullable SentryEvent *)event
+                             withScope:(SentryScope *)scope
+                alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+                          isFatalEvent:(BOOL)isFatalEvent
+                          currentScope:(nullable SentryScope *)currentScope;
+
+- (void)recordPartiallyDroppedSpans:(SentryTransaction *)transaction
+                         withReason:(SentryDiscardReason)reason
+               withCurrentSpanCount:(NSUInteger *)currentSpanCount;
+
+- (BOOL)isSampled:(nullable NSNumber *)sampleRate;
+
+- (nullable SentryEvent *)callEventProcessors:(SentryEvent *)event;
+
+- (void)recordLost:(BOOL)eventIsNotATransaction reason:(SentryDiscardReason)reason;
+
+- (void)recordLostSpanWithReason:(SentryDiscardReason)reason quantity:(NSUInteger)quantity;
+
+@end
+
+@interface SentryClientInternal (EventSending)
+
+- (SentryId *)sendEvent:(SentryEvent *)event
+                 withScope:(SentryScope *)scope
+    alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace;
+
+- (SentryId *)sendEvent:(SentryEvent *)event
+                 withScope:(SentryScope *)scope
+    alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+                      hint:(SentryHint *)hint;
+
+- (SentryId *)sendEvent:(SentryEvent *)event
+                 withScope:(SentryScope *)scope
+    alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+              isFatalEvent:(BOOL)isFatalEvent;
+
+- (SentryId *)sendEvent:(SentryEvent *)event
+                 withScope:(SentryScope *)scope
+    alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+              isFatalEvent:(BOOL)isFatalEvent
+                      hint:(SentryHint *)hint;
+
+- (SentryId *)sendEvent:(SentryEvent *)event
+                  withScope:(SentryScope *)scope
+     alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+               isFatalEvent:(BOOL)isFatalEvent
+    additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems;
+
+- (SentryId *)sendEvent:(SentryEvent *)event
+                  withScope:(SentryScope *)scope
+     alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+               isFatalEvent:(BOOL)isFatalEvent
+    additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
+                       hint:(SentryHint *)hint;
+
+- (SentryId *)sendEvent:(SentryEvent *)event
+            withSession:(nullable SentrySession *)session
+              withScope:(SentryScope *)scope;
+
+- (SentryId *)sendEvent:(SentryEvent *)event
+            withSession:(nullable SentrySession *)session
+              withScope:(SentryScope *)scope
+                   hint:(SentryHint *)hint;
+
+@end
+
+@interface SentryClientInternal (SessionsAndCrashes)
+
+- (SentryId *)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
+
+- (SentryId *)captureFatalEvent:(SentryEvent *)event
+                    withSession:(SentrySession *)session
+                      withScope:(SentryScope *)scope;
+
+- (void)saveCrashTransaction:(SentryTransaction *)transaction
+                   withScope:(SentryScope *)scope
+    NS_SWIFT_NAME(saveCrashTransaction(transaction:scope:));
+
+- (SentryId *)captureEventIncrementingSessionErrorCount:(SentryEvent *)event
+                                              withScope:(SentryScope *)scope;
+
+- (SentryId *)captureEventIncrementingSessionErrorCount:(SentryEvent *)event
+                                              withScope:(SentryScope *)scope
+                                                   hint:(SentryHint *)hint;
+
+- (void)captureSession:(SentrySession *)session NS_SWIFT_NAME(capture(session:));
+
+@end
+
+@interface SentryClientInternal (ReplayAndFeedback)
+
 - (void)captureReplayEvent:(SentryReplayEvent *)replayEvent
            replayRecording:(SentryReplayRecording *)replayRecording
                      video:(NSURL *)videoURL
                  withScope:(SentryScope *)scope;
 
-- (void)captureSession:(SentrySession *)session NS_SWIFT_NAME(capture(session:));
+- (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
+                      withEventId:(NSString *)feedbackEventId
+                      attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
+                            scope:(SentryScope *)scope
+                     currentScope:(nullable SentryScope *)currentScope;
 
-/**
- * Needed by hybrid SDKs as react-native to synchronously store an envelope to disk.
- */
-- (void)storeEnvelope:(SentryEnvelope *)envelope;
-
-- (void)captureEnvelope:(SentryEnvelope *)envelope;
-
-- (void)recordLostEvent:(SentryDataCategory)category reason:(SentryDiscardReason)reason;
-- (void)recordLostEvent:(SentryDataCategory)category
-                 reason:(SentryDiscardReason)reason
-               quantity:(NSUInteger)quantity;
-
-- (void)addAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor;
-- (void)removeAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor;
-
-- (void)_swiftCaptureLog:(NSObject *)log withScope:(SentryScope *)scope;
-
-/// Exposed so Swift (e.g. metrics) can reuse it to drop data when the client is disabled.
-/// Broader than `isEnabled` in `SentryClient.h`: `isEnabled` only reflects `close`,
-/// while `isDisabled` also returns YES for `options.enabled == false` or no DSN.
-@property (nonatomic, assign, readonly) BOOL isDisabled;
-
-/// Logs a debug message that data is dropped because the client is disabled. Exposed so Swift
-/// (e.g. metrics) logs the same message as event/envelope capture when dropping data.
-- (void)logDisabledMessage;
-
-/// Exposes the Telemetry Processor so Swift code can forward metrics directly without crossing the
-/// ObjC boundary. SentryMetric is a Swift struct and cannot be passed through ObjC methods, so
-/// we use a Swift extension on SentryClientInternal.
-/// The return type is `id` (not `id<SentryObjCTelemetryProcessor>`) to avoid a
-/// circular dependency: the protocol is defined in Swift and cannot be referenced in ObjC headers
-/// that Swift imports.
-- (SENTRY_SWIFT_MIGRATION_ID(id<SentryObjCTelemetryProcessor>))getTelemetryProcessor;
-
-/// Records a dropped trace metric. Boxed in `SentryMetricObjC` (typed `id`, same header/Swift
-/// constraint as `getTelemetryProcessor` above) because `SentryMetric` is a Swift struct.
-- (void)recordDroppedTraceMetricInClientReport:(SENTRY_SWIFT_MIGRATION_ID(SentryMetricObjC))metric;
+- (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
+                      withEventId:(NSString *)feedbackEventId
+                      attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
+                            scope:(SentryScope *)scope;
 
 @end
 

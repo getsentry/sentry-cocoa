@@ -13,15 +13,18 @@ final class SentryCrashInstallationReporter: SentryCrashInstallation {
     private let inAppLogic: SentryInAppLogic
     private let crashWrapper: SentryCrashReporter
     private let dispatchQueue: SentryDispatchQueueWrapper
+    private let startupCrashFlush: SentryStartupCrashFlush
 
     init(
         inAppLogic: SentryInAppLogic,
         crashWrapper: SentryCrashReporter,
-        dispatchQueue: SentryDispatchQueueWrapper
+        dispatchQueue: SentryDispatchQueueWrapper,
+        startupCrashFlush: SentryStartupCrashFlush
     ) {
         self.inAppLogic = inAppLogic
         self.crashWrapper = crashWrapper
         self.dispatchQueue = dispatchQueue
+        self.startupCrashFlush = startupCrashFlush
         super.init(requiredProperties: [])
     }
 
@@ -29,7 +32,8 @@ final class SentryCrashInstallationReporter: SentryCrashInstallation {
         return SentryCrashReportSink(
             inAppLogic: inAppLogic,
             crashWrapper: crashWrapper,
-            dispatchQueue: dispatchQueue
+            dispatchQueue: dispatchQueue,
+            startupCrashFlush: startupCrashFlush
         )
     }
 
