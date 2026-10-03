@@ -42,6 +42,12 @@ class SentryFeedbackTests: XCTestCase {
         override var isBeingDismissed: Bool { true }
     }
 
+    private final class MarkedTextView: UITextView {
+        override var markedTextRange: UITextRange? {
+            textRange(from: beginningOfDocument, to: beginningOfDocument)
+        }
+    }
+
     func testFormLifecycle_whenFormAppears_shouldCallOpenOnce() {
         let config = SentryUserFeedbackConfiguration()
         var openCalls = 0
@@ -455,6 +461,252 @@ class SentryFeedbackTests: XCTestCase {
         XCTAssertEqual(attachments[2].filename, "recording.mp4")
         XCTAssertEqual(attachments[2].contentType, "video/mp4")
     }
+
+    func testValidate_whenMessageExceedsMaximumLength_shouldReturnSpecificError() throws {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = String(repeating: "a", count: 4_097)
+
+        // -- Act --
+        let result = sut.viewModel.validate()
+
+        // -- Assert --
+        guard case .failure(let error) = result else {
+            return XCTFail("Expected an over-limit message to fail validation.")
+        }
+        XCTAssertEqual(error.errorDescription, "Shorten your message to 4096 characters or fewer.")
+    }
+
+    func testValidate_whenMessageContainsOnlyWhitespace_shouldReportMessageAsMissing() throws {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = " \n\t "
+
+        // -- Act --
+        let result = sut.viewModel.validate()
+
+        // -- Assert --
+        guard case .failure(let error) = result else {
+            return XCTFail("Expected a whitespace-only message to fail validation.")
+        }
+        XCTAssertEqual(error.errorDescription, "You must provide all required information before submitting. Please check the following field: description.")
+    }
+
+    func testValidate_whenMessageContainsOnlyPythonWhitespaceControl_shouldReportMessageAsMissing() throws {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = "\u{1C}"
+
+        // -- Act --
+        let result = sut.viewModel.validate()
+
+        // -- Assert --
+        guard case .failure(let error) = result else {
+            return XCTFail("Expected a Python-whitespace-only message to fail validation.")
+        }
+        XCTAssertEqual(error.errorDescription, "You must provide all required information before submitting. Please check the following field: description.")
+    }
+
+    func testValidate_whenMessageContainsZeroWidthSpace_shouldSucceed() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = "\u{200B}"
+
+        // -- Act --
+        let result = sut.viewModel.validate()
+
+        // -- Assert --
+        guard case .success = result else {
+            return XCTFail("Expected a zero-width space to match Python's non-whitespace behavior.")
+        }
+    }
+
+    func testValidate_whenMessageIsAtMaximumLength_shouldSucceed() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = String(repeating: "a", count: 4_096)
+
+        // -- Act --
+        let result = sut.viewModel.validate()
+
+        // -- Assert --
+        guard case .success = result else {
+            return XCTFail("Expected a message at the limit to validate.")
+        }
+    }
+
+    func testValidate_whenDecomposedMessageIsAtMaximumScalarLength_shouldSucceed() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = String(repeating: "e\u{301}", count: 2_048)
+
+        // -- Act --
+        let result = sut.viewModel.validate()
+
+        // -- Assert --
+        guard case .success = result else {
+            return XCTFail("Expected 4096 Unicode scalars to validate.")
+        }
+    }
+
+    func testValidate_whenDecomposedMessageExceedsMaximumScalarLength_shouldFail() throws {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = String(repeating: "e\u{301}", count: 2_048) + "a"
+
+        // -- Act --
+        let result = sut.viewModel.validate()
+
+        // -- Assert --
+        guard case .failure(let error) = result else {
+            return XCTFail("Expected 4097 Unicode scalars to fail validation.")
+        }
+        XCTAssertEqual(error.errorDescription, "Shorten your message to 4096 characters or fewer.")
+    }
+
+    func testValidate_whenRequiredFieldsAreMissingAndMessageIsTooLong_shouldReportMissingFields() throws {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        config.formConfig.isNameRequired = true
+        config.formConfig.isEmailRequired = true
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = String(repeating: "a", count: 4_097)
+
+        // -- Act --
+        let result = sut.viewModel.validate()
+
+        // -- Assert --
+        guard case .failure(let error) = result else {
+            return XCTFail("Expected missing required fields to fail validation.")
+        }
+        XCTAssertEqual(error.errorDescription, "You must provide all required information before submitting. Please check the following fields: name and email.")
+    }
+
+    func testMessageCharacterCount_whenBelowVisibilityThreshold_shouldBeHidden() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = String(repeating: "a", count: 3_686)
+
+        // -- Act --
+        sut.textViewDidChange(sut.viewModel.messageTextView)
+
+        // -- Assert --
+        XCTAssertTrue(sut.viewModel.messageCharacterCountLabel.isHidden)
+    }
+
+    func testMessageCharacterCount_whenAtVisibilityThreshold_shouldCountUnicodeScalarsAndBeVisible() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = String(repeating: "a", count: 3_685) + "e\u{301}"
+
+        // -- Act --
+        sut.textViewDidChange(sut.viewModel.messageTextView)
+
+        // -- Assert --
+        XCTAssertFalse(sut.viewModel.messageCharacterCountLabel.isHidden)
+        XCTAssertEqual(sut.viewModel.messageCharacterCountLabel.text, "3687 / 4096")
+        XCTAssertEqual(sut.viewModel.messageCharacterCountLabel.accessibilityLabel, "3687 of 4096 characters used")
+        XCTAssertFalse(sut.viewModel.messageCharacterCountLabel.accessibilityTraits.contains(.updatesFrequently))
+        XCTAssertEqual(sut.viewModel.messageCharacterCountLabel.textColor, config.theme.foreground)
+    }
+
+    func testMessageCharacterCount_whenMessageExceedsMaximumLength_shouldUseErrorColor() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = String(repeating: "a", count: 4_097)
+
+        // -- Act --
+        sut.textViewDidChange(sut.viewModel.messageTextView)
+
+        // -- Assert --
+        XCTAssertFalse(sut.viewModel.messageCharacterCountLabel.isHidden)
+        XCTAssertEqual(sut.viewModel.messageCharacterCountLabel.text, "4097 / 4096")
+        XCTAssertEqual(sut.viewModel.messageCharacterCountLabel.textColor, config.theme.errorColor)
+        XCTAssertEqual(sut.viewModel.messageTextView.text.unicodeScalars.count, 4_097)
+    }
+
+    func testMessageCharacterCount_whenCorrectedBelowVisibilityThreshold_shouldHideAgain() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = String(repeating: "a", count: 4_097)
+        sut.textViewDidChange(sut.viewModel.messageTextView)
+        sut.viewModel.messageTextView.text = "Corrected"
+
+        // -- Act --
+        sut.textViewDidChange(sut.viewModel.messageTextView)
+
+        // -- Assert --
+        XCTAssertTrue(sut.viewModel.messageCharacterCountLabel.isHidden)
+        XCTAssertEqual(sut.viewModel.messageCharacterCountLabel.textColor, config.theme.foreground)
+    }
+
+    func testMessageCharacterCount_whileInputMethodCompositionIsActive_shouldDeferUpdate() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = String(repeating: "a", count: 4_097)
+        let markedTextView = MarkedTextView()
+        markedTextView.text = sut.viewModel.messageTextView.text
+
+        // -- Act --
+        sut.textViewDidChange(markedTextView)
+
+        // -- Assert --
+        XCTAssertTrue(sut.viewModel.messageCharacterCountLabel.isHidden)
+
+        // -- Act --
+        sut.textViewDidChange(sut.viewModel.messageTextView)
+
+        // -- Assert --
+        XCTAssertFalse(sut.viewModel.messageCharacterCountLabel.isHidden)
+        XCTAssertEqual(sut.viewModel.messageCharacterCountLabel.text, "4097 / 4096")
+    }
+
+    func testMessageCharacterCount_whenFontFamilyConfigured_shouldUseThemeFont() {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        config.theme.fontFamily = "Helvetica"
+
+        // -- Act --
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+
+        // -- Assert --
+        XCTAssertEqual(sut.viewModel.messageCharacterCountLabel.font.familyName, "Helvetica")
+    }
+
+#if !targetEnvironment(macCatalyst)
+    func testSubmitFeedback_whenMessageExceedsMaximumLength_shouldPresentSpecificError() throws {
+        // -- Arrange --
+        let config = SentryUserFeedbackConfiguration()
+        config.animations = false
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.viewModel.messageTextView.text = String(repeating: "a", count: 4_097)
+        let window = UIWindow(windowScene: Self.mockWindowScene)
+        window.rootViewController = sut
+        window.makeKeyAndVisible()
+        addTeardownBlock { [window] in
+            window.isHidden = true
+        }
+
+        // -- Act --
+        sut.submitFeedback()
+
+        // -- Assert --
+        let alert = try XCTUnwrap(sut.presentedViewController as? UIAlertController)
+        XCTAssertEqual(alert.message, "Shorten your message to 4096 characters or fewer.")
+    }
+#endif
 
     private let inputCombinations: [FeedbackTestCase] = [
         // base case: don't require name or email, don't input a name or email, don't input a message or screenshot
