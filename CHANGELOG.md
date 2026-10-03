@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add mask-aware label capture for interaction breadcrumbs. (#9011)
+
 ### Fixes
 
 - Parse crash reports whose NSException reason exceeds the previous 150KB JSON string buffer, and truncate the exception value to 512 characters so the event stays within the 1MiB ingestion limit (#9256)

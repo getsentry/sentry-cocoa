@@ -89,4 +89,65 @@ class SentryBreadcrumbTrackingIntegrationTests: XCTestCase {
         XCTAssertEqual(crumb.category, try XCTUnwrap(breadcrumbs[0]["category"] as? String))
         XCTAssertEqual(crumb.type, try XCTUnwrap(breadcrumbs[0]["type"] as? String))
     }
+
+#if os(iOS)
+    func testInit_whenReplayIsDisabled_shouldDisableRedaction() throws {
+        // -- Arrange --
+        let options = fixture.defaultOptions
+
+        // -- Act --
+        let sut = try fixture.getSut(options: options)
+        defer {
+            sut.uninstall()
+        }
+        let tracker = try XCTUnwrap(
+            Mirror(reflecting: sut).descendant("breadcrumbTracker") as? SentryBreadcrumbTracker
+        )
+        let button = UIButton()
+        button.setTitle("Visible title", for: .normal)
+
+        // -- Assert --
+        XCTAssertEqual(tracker.extractData(from: button)["title"] as? String, "Visible title")
+    }
+
+    func testInit_whenReplaySessionSamplingIsEnabled_shouldEnableRedaction() throws {
+        // -- Arrange --
+        let options = fixture.defaultOptions
+        options.sessionReplay.sessionSampleRate = 1
+
+        // -- Act --
+        let sut = try fixture.getSut(options: options)
+        defer {
+            sut.uninstall()
+        }
+        let tracker = try XCTUnwrap(
+            Mirror(reflecting: sut).descendant("breadcrumbTracker") as? SentryBreadcrumbTracker
+        )
+        let button = UIButton()
+        button.setTitle("Sensitive title", for: .normal)
+
+        // -- Assert --
+        XCTAssertNil(tracker.extractData(from: button)["title"])
+    }
+
+    func testInit_whenReplayOnErrorSamplingIsEnabled_shouldEnableRedaction() throws {
+        // -- Arrange --
+        let options = fixture.defaultOptions
+        options.sessionReplay.onErrorSampleRate = 1
+
+        // -- Act --
+        let sut = try fixture.getSut(options: options)
+        defer {
+            sut.uninstall()
+        }
+        let tracker = try XCTUnwrap(
+            Mirror(reflecting: sut).descendant("breadcrumbTracker") as? SentryBreadcrumbTracker
+        )
+        let button = UIButton()
+        button.setTitle("Sensitive title", for: .normal)
+
+        // -- Assert --
+        XCTAssertNil(tracker.extractData(from: button)["title"])
+    }
+#endif
 }

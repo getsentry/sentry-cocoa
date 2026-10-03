@@ -21,6 +21,11 @@ import Cocoa
     
     private weak var delegate: SentryBreadcrumbDelegate?
     private let reportAccessibilityIdentifier: Bool
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    private let redactBuilder: SentryUIRedactBuilder?
+    private let shouldApplyRedaction: () -> Bool
+    private let redactBuilderProvider: () -> SentryUIRedactBuilder?
+#endif
     
     // Store notification observer tokens for cleanup
     private var notificationObservers: [NSObjectProtocol] = []
@@ -28,8 +33,28 @@ import Cocoa
     @objc(initReportAccessibilityIdentifier:)
     init(reportAccessibilityIdentifier: Bool) {
         self.reportAccessibilityIdentifier = reportAccessibilityIdentifier
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        self.redactBuilder = nil
+        self.shouldApplyRedaction = { false }
+        self.redactBuilderProvider = { nil }
+#endif
         super.init()
     }
+
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    init(
+        reportAccessibilityIdentifier: Bool,
+        redactOptions: SentryRedactOptions,
+        shouldApplyRedaction: @escaping () -> Bool = { true },
+        redactBuilderProvider: @escaping () -> SentryUIRedactBuilder? = { nil }
+    ) {
+        self.reportAccessibilityIdentifier = reportAccessibilityIdentifier
+        self.redactBuilder = SentryUIRedactBuilder(options: redactOptions)
+        self.shouldApplyRedaction = shouldApplyRedaction
+        self.redactBuilderProvider = redactBuilderProvider
+        super.init()
+    }
+#endif
     
     deinit {
         SentryDependencyContainer.sharedInstance().reachability.remove(self)
@@ -220,7 +245,7 @@ import Cocoa
                     for touch in event.allTouches ?? [] {
                         if let view = touch.view,
                            touch.phase == .cancelled || touch.phase == .ended {
-                            data = Self.extractData(from: view, includeAccessibilityIdentifier: self.reportAccessibilityIdentifier)
+                            data = self.extractData(from: view)
                         }
                     }
                 }
@@ -249,25 +274,11 @@ import Cocoa
     
     @_spi(Private)
     public static func extractData(from view: UIView, includeAccessibilityIdentifier: Bool) -> [String: Any] {
-        var result: [String: Any] = ["view": SwiftDescriptor.getSanitizedViewDescription(view)]
-
-        if view.tag > 0 {
-            result["tag"] = view.tag
-        }
-
-        if includeAccessibilityIdentifier,
-           let identifier = view.accessibilityIdentifier,
-           !identifier.isEmpty {
-            result["accessibilityIdentifier"] = identifier
-        }
-
-        if let button = view as? UIButton,
-           let title = button.currentTitle,
-           !title.isEmpty {
-            result["title"] = title
-        }
-
-        return result
+        extractData(
+            from: view,
+            includeAccessibilityIdentifier: includeAccessibilityIdentifier,
+            redactBuilder: nil
+        )
     }
 
     private static func fetchInfo(about controller: UIViewController) -> [String: Any] {
@@ -302,6 +313,45 @@ import Cocoa
     }
 #endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 }
+
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+extension SentryBreadcrumbTracker {
+    func extractData(from view: UIView) -> [String: Any] {
+        Self.extractData(
+            from: view,
+            includeAccessibilityIdentifier: reportAccessibilityIdentifier,
+            redactBuilder: shouldApplyRedaction() ? (redactBuilderProvider() ?? redactBuilder) : nil
+        )
+    }
+
+    static func extractData(
+        from view: UIView,
+        includeAccessibilityIdentifier: Bool,
+        redactBuilder: SentryUIRedactBuilder?
+    ) -> [String: Any] {
+        var result: [String: Any] = ["view": SwiftDescriptor.getSanitizedViewDescription(view)]
+
+        if view.tag > 0 {
+            result["tag"] = view.tag
+        }
+
+        if includeAccessibilityIdentifier,
+           let identifier = view.accessibilityIdentifier,
+           !identifier.isEmpty {
+            result["accessibilityIdentifier"] = identifier
+        }
+
+        if let button = view as? UIButton,
+           let title = button.currentTitle,
+           !title.isEmpty,
+           redactBuilder?.isViewMaskedForTextExtraction(button.titleLabel ?? button) != true {
+            result["title"] = title
+        }
+
+        return result
+    }
+}
+#endif
 
 extension SentryBreadcrumbTracker: SentryReachabilityObserver {
     @objc

@@ -2,6 +2,10 @@
 import SentryTestUtils
 import XCTest
 
+#if os(iOS) || os(tvOS)
+private final class ExcludedBreadcrumbContainerView: UIView {}
+#endif
+
 final class SentryBreadcrumbTrackerTests: XCTestCase {
     
     private var delegate: SentryBreadcrumbTestDelegate!
@@ -391,6 +395,200 @@ final class SentryBreadcrumbTrackerTests: XCTestCase {
         let crumbData = try XCTUnwrap(crumb.data)
         
         XCTAssertEqual(crumbData["accessibilityIdentifier"] as? String, "TestAccessibilityIdentifier")
+    }
+
+    func testExtractData_whenTextIsMasked_shouldOmitButtonTitle() {
+        // -- Arrange --
+        let button = UIButton()
+        button.setTitle("Sensitive title", for: .normal)
+        button.accessibilityIdentifier = "safe-id"
+        let redactBuilder = SentryUIRedactBuilder(options: TestRedactOptions(
+            maskAllText: true,
+            maskAllImages: false
+        ))
+
+        // -- Act --
+        let result = SentryBreadcrumbTracker.extractData(
+            from: button,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: redactBuilder
+        )
+
+        // -- Assert --
+        XCTAssertNil(result["title"])
+        XCTAssertEqual(result["accessibilityIdentifier"] as? String, "safe-id")
+    }
+
+    func testExtractData_whenMaskAllTextAndButtonIsExplicitlyUnmasked_shouldIncludeButtonTitle() {
+        // -- Arrange --
+        let button = UIButton()
+        button.setTitle("Visible title", for: .normal)
+        SentryRedactViewHelper.unmaskView(button)
+        let redactBuilder = SentryUIRedactBuilder(options: TestRedactOptions(
+            maskAllText: true,
+            maskAllImages: false
+        ))
+
+        // -- Act --
+        let result = SentryBreadcrumbTracker.extractData(
+            from: button,
+            includeAccessibilityIdentifier: false,
+            redactBuilder: redactBuilder
+        )
+
+        // -- Assert --
+        XCTAssertEqual(result["title"] as? String, "Visible title")
+    }
+
+    func testExtractData_whenAncestorIsMasked_shouldOmitButtonTitle() {
+        // -- Arrange --
+        let ancestor = UIView()
+        let button = UIButton()
+        button.setTitle("Sensitive title", for: .normal)
+        ancestor.addSubview(button)
+        SentryRedactViewHelper.maskView(ancestor)
+        let redactBuilder = SentryUIRedactBuilder(options: TestRedactOptions(
+            maskAllText: false,
+            maskAllImages: false
+        ))
+
+        // -- Act --
+        let result = SentryBreadcrumbTracker.extractData(
+            from: button,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: redactBuilder
+        )
+
+        // -- Assert --
+        XCTAssertNil(result["title"])
+    }
+
+    func testExtractData_whenButtonTitleLabelIsMasked_shouldOmitButtonTitle() throws {
+        // -- Arrange --
+        let button = UIButton()
+        button.setTitle("Sensitive title", for: .normal)
+        button.accessibilityIdentifier = "safe-id"
+        let titleLabel = try XCTUnwrap(button.titleLabel)
+        SentryRedactViewHelper.maskView(titleLabel)
+        let redactBuilder = SentryUIRedactBuilder(options: TestRedactOptions(
+            maskAllText: false,
+            maskAllImages: false
+        ))
+
+        // -- Act --
+        let result = SentryBreadcrumbTracker.extractData(
+            from: button,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: redactBuilder
+        )
+
+        // -- Assert --
+        XCTAssertNil(result["title"])
+        XCTAssertEqual(result["accessibilityIdentifier"] as? String, "safe-id")
+    }
+
+    func testExtractData_whenAncestorSubtreeIsExcluded_shouldOmitButtonTitle() {
+        // -- Arrange --
+        let ancestor = ExcludedBreadcrumbContainerView()
+        let button = UIButton()
+        button.setTitle("Sensitive title", for: .normal)
+        ancestor.addSubview(button)
+        let redactBuilder = SentryUIRedactBuilder(options: TestRedactOptions(
+            maskAllText: false,
+            maskAllImages: false,
+            excludedViewClasses: [type(of: ancestor).description()]
+        ))
+
+        // -- Act --
+        let result = SentryBreadcrumbTracker.extractData(
+            from: button,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: redactBuilder
+        )
+
+        // -- Assert --
+        XCTAssertNil(result["title"])
+    }
+
+    func testExtractData_whenTextIsNotMasked_shouldIncludeButtonTitle() {
+        // -- Arrange --
+        let button = UIButton()
+        button.setTitle("Visible title", for: .normal)
+        let redactBuilder = SentryUIRedactBuilder(options: TestRedactOptions(
+            maskAllText: false,
+            maskAllImages: false
+        ))
+
+        // -- Act --
+        let result = SentryBreadcrumbTracker.extractData(
+            from: button,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: redactBuilder
+        )
+
+        // -- Assert --
+        XCTAssertEqual(result["title"] as? String, "Visible title")
+    }
+
+    func testExtractData_whenUsingPublicCompatibilityPath_shouldIncludeButtonTitle() {
+        // -- Arrange --
+        let button = UIButton()
+        button.setTitle("Visible title", for: .normal)
+
+        // -- Act --
+        let result = SentryBreadcrumbTracker.extractData(
+            from: button,
+            includeAccessibilityIdentifier: true
+        )
+
+        // -- Assert --
+        XCTAssertEqual(result["title"] as? String, "Visible title")
+    }
+
+    func testExtractData_whenReplayActivationChanges_shouldApplyRedactionDynamically() {
+        // -- Arrange --
+        let button = UIButton()
+        button.setTitle("Sensitive title", for: .normal)
+        var isReplayActive = false
+        let tracker = SentryBreadcrumbTracker(
+            reportAccessibilityIdentifier: false,
+            redactOptions: TestRedactOptions(maskAllText: true, maskAllImages: false),
+            shouldApplyRedaction: { isReplayActive }
+        )
+
+        // -- Act --
+        let beforeReplayStarts = tracker.extractData(from: button)
+        isReplayActive = true
+        let afterReplayStarts = tracker.extractData(from: button)
+
+        // -- Assert --
+        XCTAssertEqual(beforeReplayStarts["title"] as? String, "Sensitive title")
+        XCTAssertNil(afterReplayStarts["title"])
+    }
+
+    func testExtractData_whenActiveReplayBuilderChanges_shouldUseLatestRedactionState() {
+        // -- Arrange --
+        let button = UIButton()
+        button.setTitle("Sensitive title", for: .normal)
+        let activeReplayBuilder = SentryUIRedactBuilder(options: TestRedactOptions(
+            maskAllText: false,
+            maskAllImages: false
+        ))
+        let tracker = SentryBreadcrumbTracker(
+            reportAccessibilityIdentifier: false,
+            redactOptions: TestRedactOptions(maskAllText: false, maskAllImages: false),
+            shouldApplyRedaction: { true },
+            redactBuilderProvider: { activeReplayBuilder }
+        )
+
+        // -- Act --
+        let initial = tracker.extractData(from: button)
+        activeReplayBuilder.addRedactClass(UILabel.self)
+        let redacted = tracker.extractData(from: button)
+
+        // -- Assert --
+        XCTAssertEqual(initial["title"] as? String, "Sensitive title")
+        XCTAssertNil(redacted["title"])
     }
 
     func testBreadcrumbViewControllerCustomScreenName() throws {
