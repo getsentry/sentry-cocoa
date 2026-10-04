@@ -17,7 +17,12 @@ final class SentryBreadcrumbTrackerButtonTests: XCTestCase {
         view.addSubview(button)
 
         // -- Act --
-        let data = SentryBreadcrumbTracker.extractData(from: view, includeAccessibilityIdentifier: true)
+        let data = SentryBreadcrumbTracker.extractData(
+            from: view,
+            includeAccessibilityIdentifier: true,
+            redactBuilder: nil,
+            extractChildText: true
+        )
 
         // -- Assert --
         XCTAssertEqual(data["label"] as? String, "Configured title")

@@ -5,6 +5,8 @@
 ### Features
 
 - Add experimental `enableBreadcrumbTextExtraction` opt-in for interaction breadcrumb child-text extraction. (#9010)
+- Add mask-aware label capture for interaction breadcrumbs. (#9011)
+- Add child text labels to UIKit interaction breadcrumbs when the tapped view has no accessibility identifier or button title. (#8974)
 
 ### Fixes
 
@@ -48,7 +50,6 @@
 
 > [!CAUTION]
 > **Known issue:** This release can crash apps statically linking the SDK without `-ObjC` with `-[SentryEvent isMetricKitEvent]: unrecognized selector`, even when MetricKit is disabled. Add `-ObjC` to the app target's linker flags, preserving `$(inherited)`, or pin to **9.29.0** until a fix is released. See [#9154](https://github.com/getsentry/sentry-cocoa/issues/9154).
-- Add mask-aware label capture for interaction breadcrumbs. (#9011)
 
 ### Fixes
 
@@ -83,7 +84,6 @@
 
 ### Features
 
-- Add child text labels to UIKit interaction breadcrumbs when the tapped view has no accessibility identifier or button title. (#8974)
 - Add a `device.event` breadcrumb (`SYSTEM_CLOCK_CHANGE`) when the system clock changes, for example due to a manual time change or NTP sync (#8946)
 - Add Hints API with `beforeSendWithHint` and `beforeBreadcrumbWithHint` callbacks (#8942)
 

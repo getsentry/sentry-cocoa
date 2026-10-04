@@ -4,8 +4,8 @@
 #else
 @_spi(Private) @testable import Sentry
 #endif
+@_spi(Private) import SentryTestUtils
 import Foundation
-import SentryTestUtils
 import UIKit
 import XCTest
 
@@ -36,13 +36,32 @@ class SentryViewPhotographerTests: XCTestCase {
         }
     }
     
-    private func sut(dateProvider: SentryCurrentDateProvider = SentryDefaultCurrentDateProvider()) -> SentryViewPhotographer {
+    private func sut(
+        dateProvider: SentryCurrentDateProvider = SentryDefaultCurrentDateProvider(),
+        dispatchQueue: SentryDispatchQueueWrapper = SentryDispatchQueueWrapper()
+    ) -> SentryViewPhotographer {
         return SentryViewPhotographer(
             renderer: TestViewRenderer(),
             redactOptions: TestRedactOptions(),
             enableMaskRendererV2: false,
-            dateProvider: dateProvider
+            dateProvider: dateProvider,
+            dispatchQueue: dispatchQueue
         )
+    }
+
+    func testRedactionConfigurationMutations_shouldDispatchSynchronouslyOnMainQueue() {
+        // -- Arrange --
+        let dispatchQueue = TestSentryDispatchQueueWrapper()
+        let sut = sut(dispatchQueue: dispatchQueue)
+
+        // -- Act --
+        sut.addIgnoreClasses(classes: [UILabel.self])
+        sut.addRedactClasses(classes: [UIButton.self])
+        sut.setIgnoreContainerClass(UIStackView.self)
+        sut.setRedactContainerClass(UIScrollView.self)
+
+        // -- Assert --
+        XCTAssertEqual(dispatchQueue.blockOnMainInvocations.count, 4)
     }
 
     func testImage_whenTimed_shouldReportDurationForEachPhase() {

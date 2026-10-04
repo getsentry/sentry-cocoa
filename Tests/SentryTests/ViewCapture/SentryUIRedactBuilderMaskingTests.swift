@@ -134,6 +134,24 @@ final class SentryUIRedactBuilderMaskingTests: XCTestCase {
         XCTAssertTrue(result)
     }
 
+    func testIsViewMaskedForTextExtraction_whenMaskAllTextAndAncestorClassUnmasked_shouldReturnTrue() {
+        // -- Arrange --
+        let sut = SentryUIRedactBuilder(options: TestRedactOptions(
+            maskAllText: true,
+            maskAllImages: false,
+            unmaskedViewClasses: [MaskedContainerView.self]
+        ))
+        let ancestor = MaskedContainerView()
+        let view = UILabel()
+        ancestor.addSubview(view)
+
+        // -- Act --
+        let result = sut.isViewMaskedForTextExtraction(view)
+
+        // -- Assert --
+        XCTAssertTrue(result)
+    }
+
     func testIsViewMaskedForTextExtraction_whenAncestorClassUnmasked_shouldNotPropagate() {
         // -- Arrange --
         let sut = SentryUIRedactBuilder(options: TestRedactOptions(
@@ -188,6 +206,27 @@ final class SentryUIRedactBuilderMaskingTests: XCTestCase {
 
         // -- Assert --
         XCTAssertFalse(result)
+    }
+
+    func testIsViewMaskedForTextExtraction_whenAncestorInspectionBudgetIsExhausted_shouldReturnTrue() {
+        // -- Arrange --
+        let leaf = UIView()
+        var descendant = leaf
+        for _ in 0..<60 {
+            let ancestor = UIView()
+            ancestor.addSubview(descendant)
+            descendant = ancestor
+        }
+        let sut = SentryUIRedactBuilder(options: TestRedactOptions(
+            maskAllText: false,
+            maskAllImages: false
+        ))
+
+        // -- Act --
+        let result = sut.isViewMaskedForTextExtraction(leaf)
+
+        // -- Assert --
+        XCTAssertTrue(result)
     }
 
     func testIsViewMaskedForTextExtraction_whenExcludedUnmaskedViewHasMaskedAncestor_shouldReturnTrue() {

@@ -474,23 +474,71 @@ final class SentryUIRedactBuilder {
         return (otherRegions + swiftUIRedact).reversed()
     }
 
+    private static let maximumTextExtractionInspections = 60
+
+    enum TextExtractionMaskingDecision: Equatable {
+        case unmasked
+        case maskText
+        case maskSubtree
+
+        var isMasked: Bool { self != .unmasked }
+    }
+
     func isViewMaskedForTextExtraction(_ view: UIView) -> Bool {
+        var remainingInspections = Self.maximumTextExtractionInspections
+        var inspectedViews = Set<ObjectIdentifier>()
+        return textExtractionMaskingDecision(
+            for: view,
+            remainingInspections: &remainingInspections,
+            inspectedViews: &inspectedViews
+        ).isMasked
+    }
+
+    func isViewMaskedForTextExtraction(
+        _ view: UIView,
+        remainingInspections: inout Int,
+        inspectedViews: inout Set<ObjectIdentifier>
+    ) -> Bool {
+        return textExtractionMaskingDecision(
+            for: view,
+            remainingInspections: &remainingInspections,
+            inspectedViews: &inspectedViews
+        ).isMasked
+    }
+
+    func textExtractionMaskingDecision(
+        for view: UIView,
+        remainingInspections: inout Int,
+        inspectedViews: inout Set<ObjectIdentifier>
+    ) -> TextExtractionMaskingDecision {
         var hierarchy: [UIView] = []
         var currentView: UIView? = view
         while let current = currentView {
+            let identifier = ObjectIdentifier(current)
+            if !inspectedViews.contains(identifier) {
+                guard remainingInspections > 0 else { return .maskSubtree }
+                remainingInspections -= 1
+                inspectedViews.insert(identifier)
+            }
+            guard !current.isHidden,
+                  current.alpha > 0.01,
+                  current.layer.opacity > 0.01 else {
+                return .maskSubtree
+            }
             hierarchy.append(current)
             currentView = current.superview
         }
 
-        if maskAllText && !hierarchy.contains(where: shouldIgnore(view:)) {
-            return true
-        }
-
+        let maskTextByDefault = maskAllText && !hierarchy.contains(where: shouldIgnore(view:))
         var forceRedact = false
         var forceIgnore = false
         for current in hierarchy.reversed() {
             if isViewSubtreeIgnored(current) {
-                return forceRedact || (!forceIgnore && !shouldIgnore(view: current))
+                let isMasked = forceRedact || (!forceIgnore && !shouldIgnore(view: current))
+                if isMasked {
+                    return .maskSubtree
+                }
+                return maskTextByDefault ? .maskText : .unmasked
             }
 
             let explicitlyMasked = SentryRedactViewHelper.shouldMaskView(current)
@@ -507,7 +555,10 @@ final class SentryUIRedactBuilder {
                 forceIgnore = true
             }
         }
-        return forceRedact
+        if forceRedact {
+            return .maskSubtree
+        }
+        return maskTextByDefault ? .maskText : .unmasked
     }
 
     private func shouldIgnore(view: UIView) -> Bool {

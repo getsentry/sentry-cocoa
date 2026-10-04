@@ -32,34 +32,7 @@ final class SentryAutoBreadcrumbTrackingIntegration<Dependencies: AutoBreadcrumb
 
         super.init()
 
-        // Create breadcrumb tracker
-#if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
-        let reportAccessibilityIdentifier = options.reportAccessibilityIdentifier
-        #else
-        let reportAccessibilityIdentifier = false
-#endif // os(iOS) && !SENTRY_NO_UI_FRAMEWORK
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-        let isSessionReplayConfigured = Self.isSessionReplayConfigured(options.sessionReplay)
-        let replayIntegrationProvider = dependencies.replayIntegrationProvider
-        let breadcrumbTracker = SentryBreadcrumbTracker(
-            reportAccessibilityIdentifier: reportAccessibilityIdentifier,
-            enableBreadcrumbTextExtraction: options.experimental.enableBreadcrumbTextExtraction,
-            redactOptions: options.sessionReplay,
-            shouldApplyRedaction: {
-                isSessionReplayConfigured
-                    || replayIntegrationProvider.getReplayIntegration()?.sessionReplay != nil
-            },
-            redactBuilderProvider: {
-                replayIntegrationProvider.getReplayIntegration()?
-                    .viewPhotographer.redactBuilderForTextExtraction
-            }
-        )
-#else
-        let breadcrumbTracker = SentryBreadcrumbTracker(
-            reportAccessibilityIdentifier: reportAccessibilityIdentifier,
-            enableBreadcrumbTextExtraction: false
-        )
-#endif
+        let breadcrumbTracker = Self.makeBreadcrumbTracker(with: options, dependencies: dependencies)
         self.breadcrumbTracker = breadcrumbTracker
         breadcrumbTracker.start(with: self)
 
@@ -78,6 +51,39 @@ final class SentryAutoBreadcrumbTrackingIntegration<Dependencies: AutoBreadcrumb
         self.systemEventBreadcrumbs = systemEventBreadcrumbs
         systemEventBreadcrumbs.start(with: self)
         #endif // os(iOS) && !SENTRY_NO_UI_FRAMEWORK
+    }
+
+    private static func makeBreadcrumbTracker(
+        with options: Options,
+        dependencies: Dependencies
+    ) -> SentryBreadcrumbTracker {
+#if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
+        let reportAccessibilityIdentifier = options.reportAccessibilityIdentifier
+#else
+        let reportAccessibilityIdentifier = false
+#endif // os(iOS) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        let isSessionReplayConfigured = isSessionReplayConfigured(options.sessionReplay)
+        let replayIntegrationProvider = dependencies.replayIntegrationProvider
+        return SentryBreadcrumbTracker(
+            reportAccessibilityIdentifier: reportAccessibilityIdentifier,
+            enableBreadcrumbTextExtraction: options.experimental.enableBreadcrumbTextExtraction,
+            redactOptions: options.sessionReplay,
+            shouldApplyRedaction: {
+                isSessionReplayConfigured
+                    || replayIntegrationProvider.getReplayIntegration()?.sessionReplay != nil
+            },
+            redactBuilderProvider: {
+                replayIntegrationProvider.getReplayIntegration()?
+                    .viewPhotographer.redactBuilderForTextExtraction
+            }
+        )
+#else
+        return SentryBreadcrumbTracker(
+            reportAccessibilityIdentifier: reportAccessibilityIdentifier,
+            enableBreadcrumbTextExtraction: false
+        )
+#endif
     }
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
