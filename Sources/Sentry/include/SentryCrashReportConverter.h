@@ -5,6 +5,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** Maximum characters kept on converted crash exception values. */
+FOUNDATION_EXPORT const NSUInteger SentryMaxCrashExceptionValueLength;
+
 @interface SentryCrashReportConverter : NSObject
 
 @property (nonatomic, strong) NSDictionary *userContext;
