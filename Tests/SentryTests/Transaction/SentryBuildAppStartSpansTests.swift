@@ -354,7 +354,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
         XCTAssertEqual("warm", result[1].data["app.vitals.start.type"] as? String)
     }
 
-    func testSentryBuildAppStartSpans_appStartMeasurementIsPreWarmed_shouldIncludePreRuntimeSpans() {
+    func testSentryBuildAppStartSpans_appStartMeasurementIsPreWarmed_shouldNotIncludePreRuntimeSpans() {
         // Arrange
         let context = SpanContext(operation: "operation")
         let tracer = SentryTracer(context: context, framesTracker: nil)
