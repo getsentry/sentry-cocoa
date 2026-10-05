@@ -5,7 +5,6 @@
 #import "SentryLogC.h"
 #import "SentryProfilingConditionals.h"
 #import "SentrySDK+Private.h"
-#import "SentrySampling.h"
 #import "SentrySamplingContext.h"
 #import "SentryScope+Private.h"
 #import "SentrySerialization.h"
@@ -526,8 +525,8 @@ NS_ASSUME_NONNULL_BEGIN
         [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
                                             customSamplingContext:customSamplingContext];
 
-    SentrySamplerDecision *tracesSamplerDecision
-        = sentry_sampleTrace(samplingContext, self.client.options);
+    SentrySamplerDecision *tracesSamplerDecision = [SentrySampling sampleTrace:samplingContext
+                                                                       options:self.client.options];
     transactionContext = [self transactionContext:transactionContext
                                       withSampled:tracesSamplerDecision.decision
                                        sampleRate:tracesSamplerDecision.sampleRate

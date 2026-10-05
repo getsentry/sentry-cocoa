@@ -2,7 +2,6 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    import "SentrySampling.h"
 #    import "SentrySwift.h"
 
 @interface SentryProfileConfiguration ()
@@ -65,8 +64,8 @@
 
 - (void)reevaluateSessionSampleRate
 {
-    self.profilerSessionSampleDecision
-        = sentry_sampleProfileSession(self.profileOptions.sessionSampleRate);
+    self.profilerSessionSampleDecision =
+        [SentrySampling sampleProfileSession:self.profileOptions.sessionSampleRate];
 }
 
 @end
