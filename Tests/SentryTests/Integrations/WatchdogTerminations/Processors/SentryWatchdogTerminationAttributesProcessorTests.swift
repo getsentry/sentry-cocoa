@@ -108,6 +108,81 @@ class SentryWatchdogTerminationAttributesProcessorTests: XCTestCase {
         sut = fixture.getSut()
     }
 
+    private final class DescriptionProbe: CustomDebugStringConvertible {
+        var descriptionCalls = 0
+
+        var debugDescription: String {
+            descriptionCalls += 1
+            return "watchdog-description-probe"
+        }
+    }
+
+    func testSetExtras_whenDebugLoggingIsDisabled_shouldNotDescribeData() {
+        // -- Arrange --
+        let oldDebug = SentrySDKLog.isDebug
+        let oldLevel = SentrySDKLog.diagnosticLevel
+        defer { SentrySDKLog.configureLog(oldDebug, diagnosticLevel: oldLevel) }
+        fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock = false
+        let probe = DescriptionProbe()
+
+        for (debug, level) in [(false, SentryLevel.debug), (true, SentryLevel.error)] {
+            SentrySDKLog.configureLog(debug, diagnosticLevel: level)
+
+            // -- Act --
+            sut.setExtras(["probe": probe])
+
+            // -- Assert --
+            XCTAssertEqual(probe.descriptionCalls, 0)
+        }
+        XCTAssertEqual(fixture.dispatchQueueWrapper.dispatchAsyncInvocations.count, 2)
+    }
+
+    func testSetExtras_whenDebugLoggingIsEnabled_shouldDescribeData() {
+        // -- Arrange --
+        let oldDebug = SentrySDKLog.isDebug
+        let oldLevel = SentrySDKLog.diagnosticLevel
+        let oldOutput = SentrySDKLog.getLogOutput()
+        defer {
+            SentrySDKLog.configureLog(oldDebug, diagnosticLevel: oldLevel)
+            SentrySDKLog.setOutput(oldOutput)
+        }
+        let logOutput = TestLogOutput()
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLog.configureLog(true, diagnosticLevel: .debug)
+        fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock = false
+        let probe = DescriptionProbe()
+
+        // -- Act --
+        sut.setExtras(["probe": probe])
+
+        // -- Assert --
+        XCTAssertGreaterThan(probe.descriptionCalls, 0)
+        XCTAssertTrue(logOutput.loggedMessages.contains { $0.contains("watchdog-description-probe") })
+        XCTAssertEqual(fixture.dispatchQueueWrapper.dispatchAsyncInvocations.count, 1)
+    }
+
+    func testSetTags_whenDebugLoggingIsDisabled_shouldPersistAndDeleteTags() throws {
+        // -- Arrange --
+        let oldDebug = SentrySDKLog.isDebug
+        let oldLevel = SentrySDKLog.diagnosticLevel
+        defer { SentrySDKLog.configureLog(oldDebug, diagnosticLevel: oldLevel) }
+        SentrySDKLog.configureLog(false, diagnosticLevel: .debug)
+
+        // -- Act --
+        sut.setTags(fixture.tags)
+
+        // -- Assert --
+        let data = try Data(contentsOf: fixture.scopePersistentStore.currentFileURLFor(field: .tags))
+        let tags = try JSONDecoder().decode([String: String].self, from: data)
+        XCTAssertEqual(tags, fixture.tags)
+
+        // -- Act --
+        sut.setTags(nil)
+
+        // -- Assert --
+        assertPersistedFileNotExists(field: .tags)
+    }
+
     // MARK: - Context Tests
 
     func testInit_fileExistsAtActiveFilePath_shouldDeleteFile() throws {
