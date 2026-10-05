@@ -501,9 +501,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         }
     }
 
-    func testDidReceive_whenDiagnosticHasMetadata_shouldSetAppAndOSContext() throws {
+    func testDidReceive_whenDiagnosticHasMetadata_shouldReplaceAppAndOSContextOnScope() throws {
         // -- Arrange --
-        givenSDKWithHubWithScope()
+        givenSDKWithHubWithScope(appContext: Self.runningAppContext, osContext: Self.runningOSContext)
         let sut = givenSut(releaseName: "io.sentry.app@2.0.0+20")
         let payload = try givenHangPayload(appVersion: "1.2.3", appBuild: "45", osVersion: "iPhone OS 18.6.2 (22G100)")
 
@@ -511,16 +511,59 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         sut.didReceive([payload])
 
         // -- Assert --
-        try assertEventWithScopeCaptured { event, _, _ in
-            let context = try XCTUnwrap(event?.context)
-            XCTAssertEqual(context["app"] as NSDictionary?, ["app_version": "1.2.3", "app_build": "45"])
-            XCTAssertEqual(context["os"] as NSDictionary?, ["version": "18.6.2", "build": "22G100"])
+        try assertEventWithScopeCaptured { event, scope, _ in
+            // The contexts are set on the scope, because the scope merge can't remove keys.
+            XCTAssertNil(event?.context)
+            XCTAssertEqual(scope?.getContextForKey("app") as NSDictionary?, [
+                "app_identifier": "io.sentry.app",
+                "app_version": "1.2.3",
+                "app_build": "45"
+            ])
+            XCTAssertEqual(scope?.getContextForKey("os") as NSDictionary?, [
+                "name": "iOS",
+                "version": "18.6.2",
+                "build": "22G100"
+            ])
         }
     }
 
-    func testDidReceive_whenOSVersionHasNoBuild_shouldSetOnlyOSVersion() throws {
+    func testDidReceive_whenDiagnosticHasOnlyAppVersion_shouldSetAppContextWithoutBuild() throws {
+        // -- Arrange --
+        givenSDKWithHubWithScope(appContext: Self.runningAppContext)
+        let sut = givenSut(releaseName: "io.sentry.app@2.0.0+20")
+        let payload = try givenHangPayload(appVersion: "1.2.3", appBuild: "")
+
+        // -- Act --
+        sut.didReceive([payload])
+
+        // -- Assert --
+        try assertEventWithScopeCaptured { _, scope, _ in
+            XCTAssertEqual(scope?.getContextForKey("app") as NSDictionary?, [
+                "app_identifier": "io.sentry.app",
+                "app_version": "1.2.3"
+            ])
+        }
+    }
+
+    func testDidReceive_whenScopeHasNoAppContext_shouldSetAppVersionAndBuildOnScope() throws {
         // -- Arrange --
         givenSDKWithHubWithScope()
+        SentrySDKInternal.currentHub().scope.removeContext(key: "app")
+        let sut = givenSut(releaseName: "io.sentry.app@2.0.0+20")
+        let payload = try givenHangPayload(appVersion: "1.2.3", appBuild: "45")
+
+        // -- Act --
+        sut.didReceive([payload])
+
+        // -- Assert --
+        try assertEventWithScopeCaptured { _, scope, _ in
+            XCTAssertEqual(scope?.getContextForKey("app") as NSDictionary?, ["app_version": "1.2.3", "app_build": "45"])
+        }
+    }
+
+    func testDidReceive_whenOSVersionHasNoBuild_shouldSetOSContextWithoutBuild() throws {
+        // -- Arrange --
+        givenSDKWithHubWithScope(osContext: Self.runningOSContext)
         let sut = givenSut(releaseName: "io.sentry.app@2.0.0+20")
         let payload = try givenHangPayload(appVersion: "2.0.0", appBuild: "20", osVersion: "macOS 14.1")
 
@@ -528,14 +571,31 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         sut.didReceive([payload])
 
         // -- Assert --
-        try assertEventWithScopeCaptured { event, _, _ in
-            XCTAssertEqual(event?.context?["os"] as NSDictionary?, ["version": "14.1"])
+        try assertEventWithScopeCaptured { event, scope, _ in
+            XCTAssertNil(event?.context?["os"])
+            XCTAssertEqual(scope?.getContextForKey("os") as NSDictionary?, ["name": "iOS", "version": "14.1"])
         }
     }
 
-    func testDidReceive_whenOSVersionIsUnparseable_shouldNotSetOSContext() throws {
+    func testDidReceive_whenScopeHasNoOSContext_shouldSetOSVersionAndBuildOnScope() throws {
         // -- Arrange --
         givenSDKWithHubWithScope()
+        SentrySDKInternal.currentHub().scope.removeContext(key: "os")
+        let sut = givenSut(releaseName: "io.sentry.app@2.0.0+20")
+        let payload = try givenHangPayload(appVersion: "2.0.0", appBuild: "20", osVersion: "iPhone OS 18.6.2 (22G100)")
+
+        // -- Act --
+        sut.didReceive([payload])
+
+        // -- Assert --
+        try assertEventWithScopeCaptured { _, scope, _ in
+            XCTAssertEqual(scope?.getContextForKey("os") as NSDictionary?, ["version": "18.6.2", "build": "22G100"])
+        }
+    }
+
+    func testDidReceive_whenOSVersionIsUnparseable_shouldKeepOSContextOfScope() throws {
+        // -- Arrange --
+        givenSDKWithHubWithScope(osContext: Self.runningOSContext)
         let sut = givenSut(releaseName: "io.sentry.app@2.0.0+20")
         let payload = try givenHangPayload(appVersion: "2.0.0", appBuild: "20", osVersion: "unknown")
 
@@ -543,14 +603,30 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         sut.didReceive([payload])
 
         // -- Assert --
-        try assertEventWithScopeCaptured { event, _, _ in
+        try assertEventWithScopeCaptured { event, scope, _ in
             XCTAssertNil(event?.context?["os"])
+            XCTAssertEqual(scope?.getContextForKey("os") as NSDictionary?, Self.runningOSContext as NSDictionary)
         }
+    }
+
+    func testDidReceive_shouldNotModifyAppAndOSContextOfHubScope() throws {
+        // -- Arrange --
+        givenSDKWithHubWithScope(appContext: Self.runningAppContext, osContext: Self.runningOSContext)
+        let sut = givenSut(releaseName: "io.sentry.app@2.0.0+20")
+        let payload = try givenHangPayload(appVersion: "1.2.3", appBuild: "45", osVersion: "iPhone OS 18.6.2 (22G100)")
+
+        // -- Act --
+        sut.didReceive([payload])
+
+        // -- Assert --
+        let hubScope = SentrySDKInternal.currentHub().scope
+        XCTAssertEqual(hubScope.getContextForKey("app") as NSDictionary?, Self.runningAppContext as NSDictionary)
+        XCTAssertEqual(hubScope.getContextForKey("os") as NSDictionary?, Self.runningOSContext as NSDictionary)
     }
 
     func testDidReceive_whenDiagnosticHasNoMetadata_shouldNotSetReleaseDistOrContext() throws {
         // -- Arrange --
-        givenSDKWithHubWithScope()
+        givenSDKWithHubWithScope(appContext: Self.runningAppContext, osContext: Self.runningOSContext)
         let sut = givenSut(releaseName: "io.sentry.app@2.0.0+20")
         let diagnostic = TestMXHangDiagnostic()
         diagnostic.overrides.callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/not-per-thread-only-one-frame")
@@ -561,10 +637,12 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         sut.didReceive([payload])
 
         // -- Assert --
-        try assertEventWithScopeCaptured { event, _, _ in
+        try assertEventWithScopeCaptured { event, scope, _ in
             XCTAssertNil(event?.releaseName)
             XCTAssertNil(event?.dist)
             XCTAssertNil(event?.context)
+            XCTAssertEqual(scope?.getContextForKey("app") as NSDictionary?, Self.runningAppContext as NSDictionary)
+            XCTAssertEqual(scope?.getContextForKey("os") as NSDictionary?, Self.runningOSContext as NSDictionary)
         }
     }
 
@@ -601,12 +679,38 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         return payload
     }
 
-    private func givenSDKWithHubWithScope() {
+    private static let runningAppContext: [String: Any] = [
+        "app_identifier": "io.sentry.app",
+        "app_name": "SentryApp",
+        "app_version": "2.0.0",
+        "app_build": "20",
+        "build_type": "app store",
+        "app_start_time": "2026-10-05T10:00:00.000Z",
+        "device_app_hash": "abc123"
+    ]
+
+    private static let runningOSContext: [String: Any] = [
+        "name": "iOS",
+        "version": "26.0",
+        "build": "23A340",
+        "kernel_version": "Darwin Kernel Version 25.0.0",
+        "rooted": false
+    ]
+
+    private func givenSDKWithHubWithScope(appContext: [String: Any]? = nil, osContext: [String: Any]? = nil) {
         let scope = Scope()
         scope.addBreadcrumb(TestData.crumb)
         scope.addAttachment(TestData.dataAttachment)
 
         givenSdkWithHub(scope: scope)
+
+        // Creating the hub enriches the scope with the running app and OS, so presets must come after.
+        if let appContext {
+            SentrySDKInternal.currentHub().scope.setContext(value: appContext, key: "app")
+        }
+        if let osContext {
+            SentrySDKInternal.currentHub().scope.setContext(value: osContext, key: "os")
+        }
     }
 
     private func assertPerThread(exceptionType: String, exceptionValue: String, exceptionMechanism: String, handled: Bool = true) throws {

@@ -1,4 +1,5 @@
 #if os(iOS) || os(macOS) || os(visionOS)
+internal import _SentryPrivate
 import Foundation
 import MetricKit
 
@@ -248,6 +249,21 @@ extension SentryMXManager: MXMetricManagerSubscriber {
         // The crash event can be way from the past. We don't want to impact the current session.
         // Therefore we don't call captureFatalEvent.
         SentrySDKLog.debug("Capturing MetricKit payload event for diagnostic: \(diagnosticReport)")
+
+        // The event is captured with a copy of the current scope, so the changes below only
+        // apply to this event and never reach the hub's scope.
+        let scope = Scope(scope: SentrySDKInternal.currentHub().scope)
+
+        // The app and OS contexts have to be set on the scope rather than the event. The scope
+        // merge can only add or replace keys, so an event could never drop the running app and
+        // OS attributes that are unknown for the time the diagnostic was recorded.
+        if let appContext = Self.diagnosticAppContext(for: diagnostic, runningApp: scope.getContextForKey("app")) {
+            scope.setContext(value: appContext, key: "app")
+        }
+        if let osContext = Self.diagnosticOSContext(for: diagnostic, runningOS: scope.getContextForKey("os")) {
+            scope.setContext(value: osContext, key: "os")
+        }
+
         if attachDiagnosticAsAttachment {
             let diagnosticJSON = diagnostic.jsonRepresentation()
             let attachmentData: Data
@@ -258,92 +274,11 @@ extension SentryMXManager: MXMetricManagerSubscriber {
                 SentrySDKLog.warning("Failed to compact MetricKit diagnostic JSON: \(error)")
                 attachmentData = diagnosticJSON
             }
-            SentrySDK.capture(event: event) { scope in
-                scope.addAttachment(Attachment(data: attachmentData, filename: "MXDiagnosticPayload.json"))
-            }
-        } else {
-            SentrySDK.capture(event: event)
+            scope.addAttachment(Attachment(data: attachmentData, filename: "MXDiagnosticPayload.json"))
         }
+
+        SentrySDKInternal.capture(event: event, scope: scope)
         SentrySDKLog.debug("Captured MetricKit payload as event")
-    }
-
-    // MetricKit can deliver a diagnostic after the app or the OS was updated. Without this, the
-    // client describes the event with the versions of the running app instead of the versions
-    // the diagnostic was recorded on.
-    private func applyMetadata(of diagnostic: MXDiagnostic, to event: Event) {
-        // MetricKit declares these as nonnull, but they bridge to empty strings when missing.
-        let appVersion = diagnostic.applicationVersion
-        let appBuild = diagnostic.metaData.applicationBuildVersion
-
-        var context = event.context ?? [:]
-
-        var appContext = context["app"] ?? [:]
-        if !appVersion.isEmpty {
-            appContext["app_version"] = appVersion
-        }
-        if !appBuild.isEmpty {
-            appContext["app_build"] = appBuild
-        }
-        if !appContext.isEmpty {
-            context["app"] = appContext
-        }
-
-        if let osVersion = Self.parseOSVersion(diagnostic.metaData.osVersion) {
-            var osContext = context["os"] ?? [:]
-            osContext["version"] = osVersion.version
-            osContext["build"] = osVersion.build
-            context["os"] = osContext
-        }
-
-        if !context.isEmpty {
-            event.context = context
-        }
-
-        applyRelease(appVersion: appVersion, appBuild: appBuild, to: event)
-    }
-
-    private func applyRelease(appVersion: String, appBuild: String, to event: Event) {
-        guard !appVersion.isEmpty, !appBuild.isEmpty else {
-            return
-        }
-
-        let currentAppVersion = bundleInfo["CFBundleShortVersionString"] as? String
-        let currentAppBuild = bundleInfo["CFBundleVersion"] as? String
-        guard appVersion != currentAppVersion || appBuild != currentAppBuild else {
-            // The release and dist the client applies already match the diagnostic.
-            return
-        }
-
-        // MetricKit only knows the app version and build, so a custom release name of a
-        // previous app version can't be reconstructed. Release and dist stay untouched then,
-        // because a dist only has a meaning within its release.
-        guard let appIdentifier = bundleInfo["CFBundleIdentifier"] as? String,
-              let releaseName,
-              releaseName == SentryReleaseName.defaultName(bundleInfo: bundleInfo) else {
-            SentrySDKLog.debug("MetricKit diagnostic is from app version \(appVersion) (\(appBuild)), but the release name is custom, keeping the current release")
-            return
-        }
-
-        event.releaseName = SentryReleaseName.format(appIdentifier: appIdentifier, appVersion: appVersion, appBuild: appBuild)
-        event.dist = appBuild
-    }
-
-    /// Extracts version and build from the MetricKit format, for example
-    /// `iPhone OS 18.6.2 (22G100)`.
-    private static func parseOSVersion(_ osVersion: String) -> (version: String, build: String?)? {
-        let version = osVersion.split(separator: " ").first { component in
-            component.first?.isNumber == true && component.allSatisfy { $0.isNumber || $0 == "." }
-        }
-        guard let version else {
-            return nil
-        }
-
-        var build: String?
-        if let open = osVersion.lastIndex(of: "("), let close = osVersion.lastIndex(of: ")"), open < close {
-            let value = osVersion[osVersion.index(after: open)..<close]
-            build = value.isEmpty ? nil : String(value)
-        }
-        return (String(version), build)
     }
 
     private func apply(callStackTree: MXCallStackTree, toEvent event: inout Event, useFullCallStackTree: Bool, isHandled: Bool) throws {
