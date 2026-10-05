@@ -30,7 +30,6 @@
 #if SENTRY_HAS_UIKIT
 #    import "SentryAppStartMeasurement+Private.h"
 #    import "SentryAppStartMeasurementProvider.h"
-#    import "SentryBuildAppStartSpans.h"
 #endif // SENTRY_HAS_UIKIT
 
 NS_ASSUME_NONNULL_BEGIN
@@ -718,8 +717,10 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
     [self addFrameStatistics];
 
     NSArray<id<SentrySpan>> *appStartSpans = [self isStandaloneAppStartTransaction]
-        ? sentryBuildStandaloneAppStartSpans(self, appStartMeasurement)
-        : sentryBuildAppStartSpans(self, appStartMeasurement);
+        ? [SentryBuildAppStartSpans buildStandaloneAppStartSpansForTracer:self
+                                                      appStartMeasurement:appStartMeasurement]
+        : [SentryBuildAppStartSpans buildAppStartSpansForTracer:self
+                                            appStartMeasurement:appStartMeasurement];
     capacity = _children.count + appStartSpans.count;
 #else
     capacity = _children.count;
