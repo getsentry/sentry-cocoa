@@ -69,9 +69,7 @@ import Foundation
     
     // MARK: - Private
     private func setData<T>(data: T?, field: SentryScopeField, save: @escaping (T) -> Void) {
-        if SentrySDKLog.willLog(atLevel: .debug) {
-            SentrySDKLog.debug("Setting \(field.name) in background queue: \(String(describing: data))")
-        }
+        SentrySDKLog.debug("Setting \(field.name) in background queue: \(String(describing: data))")
         dispatchQueueWrapper.dispatchAsync { [weak self] in
             guard let strongSelf = self else {
                 SentrySDKLog.debug("Can not set \(field.name), reason: reference to processor is nil")
