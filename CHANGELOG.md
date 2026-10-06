@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add experimental MetricKit hang culprit reporting via `options.experimental.metrickit.hangReportingMode = .culprit`, also available through `SentryObjC`. The default `.legacy` mode preserves the existing flattened call stack tree (#9289)
+
 ### Fixes
 
 - Fix app freeze during crash handling when attaching a crash-time screenshot or view hierarchy with a Swift (MainActor) scene delegate under UIScene (#9282)
