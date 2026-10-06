@@ -731,19 +731,7 @@
 
     #if canImport(MetricKit) && !os(tvOS)
 
-    #if SDK_V10
-    /// Use this feature to enable the Sentry MetricKit integration.
-    ///
-    /// @brief When enabled, the SDK sends @c MXDiskWriteExceptionDiagnostic, @c MXCPUExceptionDiagnostic
-    /// and
-    /// @c MXHangDiagnostic to Sentry. The SDK supports this feature from iOS 15 and later and macOS 12
-    /// and later because, on these versions, @c MetricKit delivers diagnostic reports immediately, which
-    /// allows the Sentry SDK to apply the current data from the scope.
-    /// @note Default value is @c true.
-    /// @note Use ``SentryExperimentalOptions/metricKit`` on ``experimental`` to choose which
-    /// diagnostic reports the SDK captures.
-    @objc public var enableMetricKit: Bool = true
-    #else
+    #if !SDK_V10
     /// Use this feature to enable the Sentry MetricKit integration.
     ///
     /// @brief When enabled, the SDK sends @c MXDiskWriteExceptionDiagnostic, @c MXCPUExceptionDiagnostic
@@ -755,11 +743,14 @@
     /// @note Use ``SentryExperimentalOptions/metricKit`` on ``experimental`` to choose which
     /// diagnostic reports the SDK captures. A non-empty set of reports there enables the
     /// integration regardless of this option.
+    /// @note In v10 and later, the MetricKit integration is enabled by default and this option is
+    /// removed. Set ``SentryExperimentalOptions/metricKit`` on ``experimental`` to an empty set of
+    /// diagnostic reports to disable the integration.
     @objc public var enableMetricKit: Bool = false
-    #endif // SDK_V10
+    #endif // !SDK_V10
 
     /// When enabled, the SDK adds the raw MXDiagnosticPayloads as an attachment to the converted
-    /// SentryEvent. You need to enable @c enableMetricKit for this flag to work.
+    /// SentryEvent. The MetricKit integration must be enabled for this flag to work.
     ///
     /// @note Default value is @c false.
     @objc public var enableMetricKitRawPayload = false

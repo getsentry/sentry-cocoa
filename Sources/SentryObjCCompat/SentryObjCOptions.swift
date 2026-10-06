@@ -583,10 +583,12 @@ import Foundation
 
     #if canImport(MetricKit) && !os(tvOS)
 
+    #if !SDK_V10
     @objc public var enableMetricKit: Bool {
         get { wrapped.enableMetricKit }
         set { wrapped.enableMetricKit = newValue }
     }
+    #endif // !SDK_V10
 
     @objc public var enableMetricKitRawPayload: Bool {
         get { wrapped.enableMetricKitRawPayload }

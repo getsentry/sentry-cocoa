@@ -5,8 +5,7 @@ extension SentryMetricKit {
         #if SDK_V10
         /// The MetricKit diagnostic reports the SDK captures as events.
         ///
-        /// An empty set disables the MetricKit integration, and so does setting
-        /// ``SentrySDKOptions/enableMetricKit`` to `false`.
+        /// An empty set disables the MetricKit integration.
         ///
         /// - Note: Defaults to ``SentryMetricKit/DiagnosticReport/cpuException``,
         ///   ``SentryMetricKit/DiagnosticReport/diskWriteException`` and

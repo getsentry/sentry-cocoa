@@ -1375,6 +1375,7 @@
 
 #if __has_include(<MetricKit/MetricKit.h>) && !TARGET_OS_TV
 
+#    if !SDK_V10
 - (void)testEnableMetricKit_whenSetToYes_shouldReturnYes
 {
     // -- Arrange --
@@ -1386,6 +1387,7 @@
     // -- Assert --
     XCTAssertTrue(options.enableMetricKit);
 }
+#    endif // !SDK_V10
 
 - (void)testEnableMetricKitRawPayload_whenSetToYes_shouldReturnYes
 {

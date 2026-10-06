@@ -33,7 +33,7 @@ final class SentryMetricKitIntegration<Dependencies>: NSObject, SwiftIntegration
     private static func enabledDiagnostics(for options: Options) -> Set<SentryMXManager.Diagnostic> {
         let enabledDiagnosticReports = options.experimental.metricKit.enabledDiagnosticReports
         #if SDK_V10
-        return options.enableMetricKit ? enabledDiagnosticReports : []
+        return enabledDiagnosticReports
         #else
         // Before v10 the integration is opt-in, and enableMetricKit keeps capturing the
         // diagnostics it always captured unless the app chooses its own set.
