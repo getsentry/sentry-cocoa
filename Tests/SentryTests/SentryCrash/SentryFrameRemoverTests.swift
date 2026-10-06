@@ -22,6 +22,22 @@ class SentryFrameRemoverTests: XCTestCase {
             return frame(withPackage: "/Users/sentry/private/var/containers/Bundle/Application/A722B503-2FA1-4C32-B5A7-E6FB47099C9D/iOS-Swift.app/Frameworks/SentryPrivate.framework/Sentry")
         }
         
+        var sentryObjCFrame: Frame {
+            return frame(withPackage: "/Users/sentry/private/var/containers/Bundle/Application/A722B503-2FA1-4C32-B5A7-E6FB47099C9D/iOS-Swift.app/Frameworks/SentryObjC.framework/SentryObjC")
+        }
+
+        var sentryObjCMacFrameworkFrame: Frame {
+            return frame(withPackage: "/Applications/macOS-App.app/Contents/Frameworks/SentryObjC.framework/Versions/A/SentryObjC")
+        }
+
+        var sentryObjCDylibFrame: Frame {
+            return frame(withPackage: "/Applications/macOS-App.app/Contents/UE/Binaries/Mac/SentryObjC.dylib")
+        }
+
+        var nonSentryDylibFrame: Frame {
+            return frame(withPackage: "/Applications/macOS-App.app/Contents/Frameworks/MySentryObjC.dylib")
+        }
+
         var nonSentryFrame: Frame {
             return frame(withPackage: "/Users/sentry/private/var/containers/Bundle/Application/F42DD392-77D6-42B4-8092-D1AAE50C5B4B/iOS-Swift.app/iOS-Swift")
         }
@@ -73,6 +89,25 @@ class SentryFrameRemoverTests: XCTestCase {
         XCTAssertEqual(fixture.nonSentryFrames, actual)
     }
     
+    func testSentryObjCFramesFirst_OnlyFirstSentryFramesRemoved() {
+        let sentryObjCFrames = [fixture.sentryObjCFrame,
+                                fixture.sentryObjCMacFrameworkFrame,
+                                fixture.sentryObjCDylibFrame]
+        let frames = sentryObjCFrames + fixture.nonSentryFrames + [fixture.sentryObjCDylibFrame]
+
+        let expected = fixture.nonSentryFrames + [fixture.sentryObjCDylibFrame]
+        let actual = SentryFrameRemover.removeNonSdkFrames(frames)
+
+        XCTAssertEqual(expected, actual)
+    }
+
+    func testSimilarlyNamedNonSdkDylibFirst_NoFramesRemoved() {
+        let frames = [fixture.nonSentryDylibFrame] + fixture.nonSentryFrames
+
+        let actual = SentryFrameRemover.removeNonSdkFrames(frames)
+        XCTAssertEqual(frames, actual)
+    }
+
     func testOnlySdkFrames_AllFramesRemoved() {
         let actual = SentryFrameRemover.removeNonSdkFrames(fixture.sentryFrames)
         XCTAssertEqual(fixture.sentryFrames, actual)
