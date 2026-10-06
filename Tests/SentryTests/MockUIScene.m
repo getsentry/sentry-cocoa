@@ -65,5 +65,10 @@
     return self.sentry_session;
 }
 
+- (NSArray<UIWindow *> *)windows
+{
+    return self.mockWindows ?: @[];
+}
+
 @end
 #endif
