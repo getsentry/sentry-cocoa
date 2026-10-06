@@ -35,7 +35,12 @@ typealias SentryLogOutput = ((String) -> Void)
     @objc
     public static func log(message: String, andLevel level: SentryLevel) {
         guard willLog(atLevel: level) else { return }
+        write(message: message, level: level)
+    }
 
+    /// Formats and writes the message without checking ``willLog(atLevel:)``.
+    /// Callers must check it exactly once before calling this method.
+    private static func write(message: String, level: SentryLevel) {
         // We use the time interval because date format is
         // expensive and we only care about the time difference between the
         // log messages. We don't use system uptime because of privacy concerns
@@ -86,10 +91,9 @@ typealias SentryLogOutput = ((String) -> Void)
 
 extension SentrySDKLog {
     private static func log(level: SentryLevel, message: String, file: String, line: Int) {
-        guard willLog(atLevel: level) else { return }
         let path = file as NSString
         let fileName = (path.lastPathComponent as NSString).deletingPathExtension
-        log(message: "[\(fileName):\(line)] \(message)", andLevel: level)
+        write(message: "[\(fileName):\(line)] \(message)", level: level)
     }
 
     static func debug(_ message: @autoclosure () -> String, file: String = #file, line: Int = #line) {
