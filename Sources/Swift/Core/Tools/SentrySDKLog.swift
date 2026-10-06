@@ -92,20 +92,24 @@ extension SentrySDKLog {
         log(message: "[\(fileName):\(line)] \(message)", andLevel: level)
     }
 
-    static func debug(_ message: String, file: String = #file, line: Int = #line) {
-        log(level: .debug, message: message, file: file, line: line)
+    static func debug(_ message: @autoclosure () -> String, file: String = #file, line: Int = #line) {
+        guard willLog(atLevel: .debug) else { return }
+        log(level: .debug, message: message(), file: file, line: line)
     }
 
-    static func info(_ message: String, file: String = #file, line: Int = #line) {
-        log(level: .info, message: message, file: file, line: line)
+    static func info(_ message: @autoclosure () -> String, file: String = #file, line: Int = #line) {
+        guard willLog(atLevel: .info) else { return }
+        log(level: .info, message: message(), file: file, line: line)
     }
 
-    static func warning(_ message: String, file: String = #file, line: Int = #line) {
-        log(level: .warning, message: message, file: file, line: line)
+    static func warning(_ message: @autoclosure () -> String, file: String = #file, line: Int = #line) {
+        guard willLog(atLevel: .warning) else { return }
+        log(level: .warning, message: message(), file: file, line: line)
     }
 
-    static func error(_ message: String, file: String = #file, line: Int = #line) {
-        log(level: .error, message: message, file: file, line: line)
+    static func error(_ message: @autoclosure () -> String, file: String = #file, line: Int = #line) {
+        guard willLog(atLevel: .error) else { return }
+        log(level: .error, message: message(), file: file, line: line)
     }
 
     static func fatal(_ message: String, file: String = #file, line: Int = #line) {

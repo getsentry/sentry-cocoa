@@ -1,5 +1,9 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
 class SentrySDKLogTests: XCTestCase {
@@ -103,13 +107,106 @@ class SentrySDKLogTests: XCTestCase {
         XCTAssertTrue(logOutput.loggedMessages.isEmpty)
     }
     
-    func testConvenientLogFunction() {
+    func testConvenienceLogs_whenDebuggingIsDisabled_shouldNotEvaluateMessages() {
+        // -- Arrange --
         let logOutput = TestLogOutput()
         SentrySDKLog.setLogOutput(logOutput)
-        SentrySDKLogSupport.configure(true, diagnosticLevel: SentryLevel.debug)
+        SentrySDKLogSupport.configure(false, diagnosticLevel: .debug)
+        var evaluations = 0
+        func message() -> String {
+            evaluations += 1
+            return "Log Message"
+        }
+
+        // -- Act --
+        SentrySDKLog.debug(message())
+        SentrySDKLog.info(message())
+        SentrySDKLog.warning(message())
+        SentrySDKLog.error(message())
+
+        // -- Assert --
+        XCTAssertEqual(evaluations, 0)
+        XCTAssertTrue(logOutput.loggedMessages.isEmpty)
+    }
+
+    func testConvenienceLogs_whenDiagnosticLevelFiltersMessages_shouldOnlyEvaluateEnabledMessages() {
+        let cases: [(SentryLevel, [SentryLevel])] = [
+            (.info, [.info, .warning, .error]),
+            (.warning, [.warning, .error]),
+            (.error, [.error]),
+            (.fatal, [])
+        ]
+        for (diagnosticLevel, expectedLevels) in cases {
+            // -- Arrange --
+            let logOutput = TestLogOutput()
+            SentrySDKLog.setLogOutput(logOutput)
+            SentrySDKLogSupport.configure(true, diagnosticLevel: diagnosticLevel)
+            var evaluations = 0
+            func message() -> String {
+                evaluations += 1
+                return "Log Message"
+            }
+
+            // -- Act --
+            SentrySDKLog.debug(message(), file: "Log.swift", line: 1)
+            SentrySDKLog.info(message(), file: "Log.swift", line: 1)
+            SentrySDKLog.warning(message(), file: "Log.swift", line: 1)
+            SentrySDKLog.error(message(), file: "Log.swift", line: 1)
+
+            // -- Assert --
+            XCTAssertEqual(evaluations, expectedLevels.count, "Diagnostic level: \(diagnosticLevel)")
+            XCTAssertEqual(expectedLevels.map {
+                "[Sentry] [\($0)] [\(timeIntervalSince1970)] [Log:1] Log Message"
+            }, logOutput.loggedMessages)
+        }
+    }
+
+    func testConvenienceLogs_whenEnabled_shouldEvaluateMessagesOnceAndPreserveSourceLocation() {
+        // -- Arrange --
+        let logOutput = TestLogOutput()
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLogSupport.configure(true, diagnosticLevel: .debug)
+        var evaluations = 0
+        func message() -> String {
+            evaluations += 1
+            return "Log \(evaluations)"
+        }
+
+        // -- Act --
         let line = #line + 1
-        SentrySDKLog.debug("Debug Log")
-        XCTAssertEqual(["[Sentry] [debug] [\(timeIntervalSince1970)] [SentrySDKLogTests:\(line)] Debug Log"], logOutput.loggedMessages)
+        SentrySDKLog.debug(message())
+        SentrySDKLog.info(message())
+        SentrySDKLog.warning(message())
+        SentrySDKLog.error(message())
+
+        // -- Assert --
+        XCTAssertEqual(evaluations, 4)
+        XCTAssertEqual([
+            "[Sentry] [debug] [\(timeIntervalSince1970)] [SentrySDKLogTests:\(line)] Log 1",
+            "[Sentry] [info] [\(timeIntervalSince1970)] [SentrySDKLogTests:\(line + 1)] Log 2",
+            "[Sentry] [warning] [\(timeIntervalSince1970)] [SentrySDKLogTests:\(line + 2)] Log 3",
+            "[Sentry] [error] [\(timeIntervalSince1970)] [SentrySDKLogTests:\(line + 3)] Log 4"
+        ], logOutput.loggedMessages)
+    }
+
+    func testFatal_whenDebuggingIsDisabled_shouldStillEvaluateAndLogMessage() {
+        // -- Arrange --
+        let logOutput = TestLogOutput()
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLogSupport.configure(false, diagnosticLevel: .none)
+        var evaluations = 0
+        func message() -> String {
+            evaluations += 1
+            return "Fatal Log"
+        }
+
+        // -- Act --
+        let line = #line + 1
+        SentrySDKLog.fatal(message())
+
+        // -- Assert --
+        XCTAssertEqual(evaluations, 1)
+        XCTAssertEqual(["[Sentry] [fatal] [\(timeIntervalSince1970)] [SentrySDKLogTests:\(line)] Fatal Log"], logOutput.loggedMessages)
     }
 
     /// Verifies that passing nil to setOutput (which can happen from Objective-C callers
