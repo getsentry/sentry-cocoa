@@ -21,15 +21,15 @@ class SentrySessionReplayTests: XCTestCase {
         /// Main-thread capture cost reported through screenshot metadata.
         var mainThreadDuration: TimeInterval?
         var completeAsync = false
-        private var pendingCompletions = [Sentry.TimedScreenshotCallback]()
+        private var pendingCompletions = [TimedScreenshotCallback]()
 
-        func image(view: UIView, onComplete: @escaping Sentry.ScreenshotCallback) {
+        func image(view: UIView, onComplete: @escaping ScreenshotCallback) {
             timedImage(view: view) { image, _ in
                 onComplete(image)
             }
         }
 
-        func timedImage(view: UIView, onComplete: @escaping Sentry.TimedScreenshotCallback) {
+        func timedImage(view: UIView, onComplete: @escaping TimedScreenshotCallback) {
             lastImageCall = view
             imageCallCount += 1
             if completeAsync {
@@ -43,7 +43,7 @@ class SentrySessionReplayTests: XCTestCase {
             complete(pendingCompletions.removeFirst())
         }
 
-        private func complete(_ completion: Sentry.TimedScreenshotCallback) {
+        private func complete(_ completion: TimedScreenshotCallback) {
             beforeComplete?()
             completion(
                 UIImage.add,
@@ -60,9 +60,9 @@ class SentrySessionReplayTests: XCTestCase {
         var imageCallCount = 0
         var beforeComplete: (() -> Void)?
         var completeAsync = false
-        private var pendingCompletion: Sentry.ScreenshotCallback?
+        private var pendingCompletion: ScreenshotCallback?
 
-        func image(view: UIView, onComplete: @escaping Sentry.ScreenshotCallback) {
+        func image(view: UIView, onComplete: @escaping ScreenshotCallback) {
             imageCallCount += 1
             if completeAsync {
                 pendingCompletion = onComplete
@@ -77,7 +77,7 @@ class SentrySessionReplayTests: XCTestCase {
             complete(pendingCompletion)
         }
 
-        private func complete(_ completion: Sentry.ScreenshotCallback) {
+        private func complete(_ completion: ScreenshotCallback) {
             beforeComplete?()
             completion(.add)
         }
@@ -164,7 +164,7 @@ class SentrySessionReplayTests: XCTestCase {
         func createVideoInBackgroundWith(
             beginning: Date,
             end: Date,
-            completion: @escaping ([Sentry.SentryVideoInfo]) -> Void
+            completion: @escaping ([SentryVideoInfo]) -> Void
         ) {
             // Note: This implementation is just to satisfy the protocol.
             // If possible, keep the tests logic the synchronous version `createVideoWith`
@@ -179,7 +179,7 @@ class SentrySessionReplayTests: XCTestCase {
             completion(videos)
         }
 
-        func createVideoWith(beginning: Date, end: Date) -> [Sentry.SentryVideoInfo] {
+        func createVideoWith(beginning: Date, end: Date) -> [SentryVideoInfo] {
             let call = CreateVideoCall(beginning: beginning, end: end)
             createVideoCalls.append(call)
 
@@ -191,7 +191,7 @@ class SentrySessionReplayTests: XCTestCase {
             completion(videos(for: call))
         }
 
-        private func videos(for call: CreateVideoCall) -> [Sentry.SentryVideoInfo] {
+        private func videos(for call: CreateVideoCall) -> [SentryVideoInfo] {
             if !createVideoResults.isEmpty {
                 let videos = createVideoResults.removeFirst()
                 videos.forEach { createVideoCallBack?($0) }

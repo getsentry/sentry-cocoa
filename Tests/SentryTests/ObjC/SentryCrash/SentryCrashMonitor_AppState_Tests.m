@@ -25,10 +25,11 @@
 // THE SOFTWARE.
 //
 
-#import "FileBasedTestCase.h"
-#import "XCTestCase+SentryCrash.h"
+#if !SDK_V10
+#    import "FileBasedTestCase.h"
+#    import "XCTestCase+SentryCrash.h"
 
-#import "SentryCrashMonitor_AppState.h"
+#    import "SentryCrashMonitor_AppState.h"
 
 @interface SentryCrashMonitor_AppState_Tests : FileBasedTestCase
 @end
@@ -735,3 +736,5 @@
 }
 
 @end
+
+#endif // !SDK_V10

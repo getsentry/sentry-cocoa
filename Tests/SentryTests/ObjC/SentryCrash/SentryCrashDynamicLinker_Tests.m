@@ -25,10 +25,11 @@
 // THE SOFTWARE.
 //
 
-#import <XCTest/XCTest.h>
-#include <mach-o/dyld.h>
+#if !SDK_V10
+#    import <XCTest/XCTest.h>
+#    include <mach-o/dyld.h>
 
-#import "SentryCrashDynamicLinker.h"
+#    import "SentryCrashDynamicLinker.h"
 
 @interface SentryCrashDynamicLinker_Tests : XCTestCase
 @end
@@ -68,3 +69,5 @@
 }
 
 @end
+
+#endif // !SDK_V10

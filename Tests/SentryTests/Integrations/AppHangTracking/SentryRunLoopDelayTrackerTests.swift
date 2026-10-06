@@ -789,11 +789,11 @@ private class RunLoopDeinitSentinel {
 private class MockDependencies: SentryRunLoopDelayTrackerDependencies {
     let mockDateProvider = TestCurrentDateProvider()
 
-    var dateProvider: any Sentry.SentryCurrentDateProvider {
+    var dateProvider: any SentryCurrentDateProvider {
         mockDateProvider
     }
 
-    func application() -> (any Sentry.SentryApplication)? { nil }
+    func application() -> (any SentryApplication)? { nil }
 }
 
 private struct TestRunLoopObserver: SentryRunLoopObserver { }

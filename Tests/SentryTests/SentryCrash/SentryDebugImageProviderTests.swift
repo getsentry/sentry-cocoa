@@ -89,10 +89,10 @@ class SentryDebugImageProviderTests: XCTestCase {
     func testGetDebugImagesFromCacheForThreads() throws {
         let sut = fixture.getSut(images: fixture.getTestImages())
         
-        let frame1 = Sentry.Frame()
+        let frame1 = Frame()
         frame1.imageAddress = "0x0000000105705000"
         
-        let frame2 = Sentry.Frame()
+        let frame2 = Frame()
         frame2.imageAddress = "0x00000001410b1a00"
         
         let thread1 = SentryThread(threadId: NSNumber(value: 1))
@@ -126,10 +126,10 @@ class SentryDebugImageProviderTests: XCTestCase {
     func testGetDebugImagesFromCacheForFrames() throws {
         let sut = fixture.getSut(images: fixture.getTestImages())
         
-        let frame1 = Sentry.Frame()
+        let frame1 = Frame()
         frame1.imageAddress = "0x0000000105705000"
         
-        let frame2 = Sentry.Frame()
+        let frame2 = Frame()
         frame2.imageAddress = "0x00000001410b1a00"
         
         let actual = sut.getDebugImagesFromCacheForFrames(frames: [frame1, frame2])
@@ -157,10 +157,10 @@ class SentryDebugImageProviderTests: XCTestCase {
     func testGetDebugImagesFromCacheForFrames_GarbageImageAddress() throws {
         let sut = fixture.getSut(images: fixture.getTestImages())
         
-        let frame1 = Sentry.Frame()
+        let frame1 = Frame()
         frame1.imageAddress = "0x0000000105705000"
         
-        let frame2 = Sentry.Frame()
+        let frame2 = Frame()
         frame2.imageAddress = "garbage"
         
         let actual = sut.getDebugImagesFromCacheForFrames(frames: [frame1, frame2])

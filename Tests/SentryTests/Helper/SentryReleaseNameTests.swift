@@ -1,4 +1,8 @@
+#if SWIFT_PACKAGE
+@testable import SentrySwift
+#else
 @testable import Sentry
+#endif
 import XCTest
 
 final class SentryReleaseNameTests: XCTestCase {

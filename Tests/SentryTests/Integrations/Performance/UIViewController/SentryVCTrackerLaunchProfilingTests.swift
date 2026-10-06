@@ -1,4 +1,5 @@
 // Profiling is only supported on iOS
+#if !SDK_V10
 #if os(iOS)
 
 @_spi(Private) import SentryTestUtils
@@ -209,3 +210,5 @@ class SentryVCTrackerLaunchProfilingTests: XCTestCase {
 }
 
 #endif
+
+#endif // !SDK_V10

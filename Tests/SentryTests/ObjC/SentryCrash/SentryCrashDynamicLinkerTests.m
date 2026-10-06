@@ -1,12 +1,13 @@
-#import "SentryCrashDynamicLinker+Test.h"
-#import "SentryCrashDynamicLinker.h"
-#import <XCTest/XCTest.h>
-#import <mach-o/dyld.h>
-#import <mach-o/dyld_images.h>
-#if TARGET_OS_IOS
-#    import <UIKit/UIKit.h>
-#endif
-#import <Foundation/Foundation.h>
+#if !SDK_V10
+#    import "SentryCrashDynamicLinker+Test.h"
+#    import "SentryCrashDynamicLinker.h"
+#    import <XCTest/XCTest.h>
+#    import <mach-o/dyld.h>
+#    import <mach-o/dyld_images.h>
+#    if TARGET_OS_IOS
+#        import <UIKit/UIKit.h>
+#    endif
+#    import <Foundation/Foundation.h>
 
 @interface SentryCrashDynamicLinkerTests : XCTestCase
 @end
@@ -32,3 +33,5 @@
 }
 
 @end
+
+#endif // !SDK_V10

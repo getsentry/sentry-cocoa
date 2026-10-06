@@ -5,7 +5,7 @@
 #endif
 
 //Exposing internal/test functions from SentrySDKLog
-extension Sentry.SentrySDKLog {
+extension SentrySDKLog {
     static func configureLog(_ isDebug: Bool, diagnosticLevel: SentryLevel) {
         SentrySDKLogSupport.configure(isDebug, diagnosticLevel: diagnosticLevel)
     }

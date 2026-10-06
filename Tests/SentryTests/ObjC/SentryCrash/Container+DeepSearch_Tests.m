@@ -25,9 +25,10 @@
 // THE SOFTWARE.
 //
 
-#import <XCTest/XCTest.h>
+#if !SDK_V10
+#    import <XCTest/XCTest.h>
 
-#import "SentryDictionaryDeepSearch.h"
+#    import "SentryDictionaryDeepSearch.h"
 
 @interface Container_DeepSearch_Tests : XCTestCase
 @end
@@ -103,3 +104,5 @@
 }
 
 @end
+
+#endif // !SDK_V10

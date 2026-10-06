@@ -1,13 +1,14 @@
-#import "SentryCrashBinaryImageCache+Test.h"
-#import "SentryCrashBinaryImageCache.h"
-#import "SentryCrashBinaryImageCacheState.h"
-#import "SentryCrashDynamicLinker+Test.h"
-#import "SentrySwift.h"
-#import <XCTest/XCTest.h>
+#if !SDK_V10
+#    import "SentryCrashBinaryImageCache+Test.h"
+#    import "SentryCrashBinaryImageCache.h"
+#    import "SentryCrashBinaryImageCacheState.h"
+#    import "SentryCrashDynamicLinker+Test.h"
+#    import "SentrySwift.h"
+#    import <XCTest/XCTest.h>
 
-#include <mach-o/dyld.h>
-#include <mach-o/dyld_images.h>
-#include <string.h>
+#    include <mach-o/dyld.h>
+#    include <mach-o/dyld_images.h>
+#    include <string.h>
 
 // Test-only functions are declared in `SentryCrashBinaryImageCache+Test.h`
 
@@ -574,3 +575,5 @@ initializeTestCacheState(SentryCrashBinaryImageCacheState *cache)
 }
 
 @end
+
+#endif // !SDK_V10

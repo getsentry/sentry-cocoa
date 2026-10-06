@@ -5,7 +5,7 @@
 #endif
 
 extension SentrySdkInfo {
-    public static func == (lhs: Sentry.SentrySdkInfo, rhs: Sentry.SentrySdkInfo) -> Bool {
+    public static func == (lhs: SentrySdkInfo, rhs: SentrySdkInfo) -> Bool {
         return lhs.name == rhs.name &&
         lhs.version == rhs.version &&
         Set(lhs.integrations) == Set(rhs.integrations) &&

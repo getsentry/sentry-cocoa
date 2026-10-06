@@ -259,7 +259,7 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         }
         
         let event = Event()
-        event.exceptions = [Sentry.Exception(value: "test", type: "App Hanging")]
+        event.exceptions = [Exception(value: "test", type: "App Hanging")]
 
         let ex = expectation(description: "Attachment Added")
         

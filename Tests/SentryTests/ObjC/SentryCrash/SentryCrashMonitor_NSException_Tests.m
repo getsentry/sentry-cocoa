@@ -25,10 +25,11 @@
 // THE SOFTWARE.
 //
 
-#import <XCTest/XCTest.h>
+#if !SDK_V10
+#    import <XCTest/XCTest.h>
 
-#import "SentryCrashMonitorContext.h"
-#import "SentryCrashMonitor_NSException.h"
+#    import "SentryCrashMonitorContext.h"
+#    import "SentryCrashMonitor_NSException.h"
 
 @interface SentryCrashMonitor_NSException_Tests : XCTestCase
 @end
@@ -61,3 +62,5 @@
 }
 
 @end
+
+#endif // !SDK_V10

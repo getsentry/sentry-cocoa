@@ -25,9 +25,10 @@
 // THE SOFTWARE.
 //
 
-#import <XCTest/XCTest.h>
+#if !SDK_V10
+#    import <XCTest/XCTest.h>
 
-#import "SentryCrashNSErrorUtil.h"
+#    import "SentryCrashNSErrorUtil.h"
 
 @interface NSError_SimpleConstructor_Tests : XCTestCase
 @end
@@ -46,3 +47,5 @@
 }
 
 @end
+
+#endif // !SDK_V10

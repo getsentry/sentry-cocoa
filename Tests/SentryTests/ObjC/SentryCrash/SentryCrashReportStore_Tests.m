@@ -25,17 +25,18 @@
 // THE SOFTWARE.
 //
 
-#import "FileBasedTestCase.h"
-#import "XCTestCase+SentryCrash.h"
+#if !SDK_V10
+#    import "FileBasedTestCase.h"
+#    import "XCTestCase+SentryCrash.h"
 
-#import "SentryCrashReportStore.h"
+#    import "SentryCrashReportStore.h"
 
-#include <inttypes.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
+#    include <inttypes.h>
+#    include <stdlib.h>
+#    include <string.h>
+#    include <time.h>
 
-#define REPORT_PREFIX @"CrashReport-SentryCrashTest"
+#    define REPORT_PREFIX @"CrashReport-SentryCrashTest"
 
 typedef struct {
     char path[SentryCrashCRS_MAX_PATH_LENGTH];
@@ -548,3 +549,5 @@ makeUTCReportTime(int year, int month, int day, int hour, int minute, int second
 }
 
 @end
+
+#endif // !SDK_V10

@@ -1,4 +1,5 @@
 // swiftlint:disable file_length
+#if !SDK_V10
 @_spi(Private) import SentryTestUtils
 #if SWIFT_PACKAGE
 @_spi(Private) @testable import SentrySwift
@@ -1066,16 +1067,16 @@ class MockCrashDependencies: CrashIntegrationProvider {
         mockedCrashWrapper
     }
 
-    var appStateManager: Sentry.SentryAppStateManager {
+    var appStateManager: SentryAppStateManager {
         SentryDependencyContainer.sharedInstance().appStateManager
     }
 
-    var fileManager: Sentry.SentryFileManager? {
+    var fileManager: SentryFileManager? {
         mockedFileManager ?? SentryDependencyContainer.sharedInstance().fileManager
     }
 
     func getPreviousRunSessionFinalizer(
-        options: Sentry.Options,
+        options: Options,
         crashedLastLaunch: Bool,
         activeDurationSinceLastCrash: TimeInterval
     ) -> PreviousRunSessionFinalizer? {
@@ -1103,7 +1104,7 @@ class MockCrashDependencies: CrashIntegrationProvider {
 #endif
     }
 
-    var crashReporter: Sentry.SentryCrashSwift {
+    var crashReporter: SentryCrashSwift {
         SentryDependencyContainer.sharedInstance().crashReporter
     }
 
@@ -1126,3 +1127,5 @@ class MockCrashDependencies: CrashIntegrationProvider {
         )
     }
 }
+
+#endif // !SDK_V10

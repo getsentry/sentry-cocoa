@@ -1,7 +1,8 @@
-#import "FileBasedTestCase.h"
-#import "SentryCrash+Test.h"
-#import "SentryCrash.h"
-#include "SentryCrashReportStore.h"
+#if !SDK_V10
+#    import "FileBasedTestCase.h"
+#    import "SentryCrash+Test.h"
+#    import "SentryCrash.h"
+#    include "SentryCrashReportStore.h"
 
 @interface SentryCrashTests : FileBasedTestCase
 
@@ -180,3 +181,5 @@
 }
 
 @end
+
+#endif // !SDK_V10

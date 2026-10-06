@@ -1,3 +1,4 @@
+#if !SDK_V10
 @_spi(Private) import SentryTestUtils
 #if SWIFT_PACKAGE
 @_spi(Private) @testable import SentrySwift
@@ -172,3 +173,5 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
         delayNonBlocking(timeout: forSeconds)
     }
 }
+
+#endif // !SDK_V10

@@ -522,7 +522,7 @@ private class MockDependencies: MockDependenciesProtocol {
     }
 
     #if !SDK_V10
-    func getANRTracker(_ interval: TimeInterval) -> Sentry.SentryANRTracker {
+    func getANRTracker(_ interval: TimeInterval) -> SentryANRTracker {
         SentryDependencyContainer.sharedInstance().getANRTracker(interval)
     }
     #endif
@@ -552,11 +552,11 @@ private class MockDependencies: MockDependenciesProtocol {
         return SentryDefaultAppHangTracker(runLoopDelayTracker: runLoopDelayTracker)
     }()
 
-    var processInfoWrapper: any Sentry.SentryProcessInfoSource {
+    var processInfoWrapper: any SentryProcessInfoSource {
         SentryDependencyContainer.sharedInstance().processInfoWrapper
     }
 
-    var appStateManager: Sentry.SentryAppStateManager {
+    var appStateManager: SentryAppStateManager {
         SentryDependencyContainer.sharedInstance().appStateManager
     }
 
@@ -565,13 +565,13 @@ private class MockDependencies: MockDependenciesProtocol {
     }
 
     var getWatchdogTerminationTrackerCalled: Bool = false
-    func getWatchdogTerminationTracker(_ options: Sentry.Options) -> Sentry.SentryWatchdogTerminationTracker? {
+    func getWatchdogTerminationTracker(_ options: Options) -> SentryWatchdogTerminationTracker? {
         getWatchdogTerminationTrackerCalled = true
         return SentryDependencyContainer.sharedInstance().getWatchdogTerminationTracker(options)
     }
 
     var getWatchdogTerminationBreadcrumbProcessorCalled: Bool = false
-    func getWatchdogTerminationBreadcrumbProcessor(_ options: Sentry.Options) -> SentryWatchdogTerminationBreadcrumbProcessor? {
+    func getWatchdogTerminationBreadcrumbProcessor(_ options: Options) -> SentryWatchdogTerminationBreadcrumbProcessor? {
         getWatchdogTerminationBreadcrumbProcessorCalled = true
         if let injectedBreadcrumbProcessor {
             return injectedBreadcrumbProcessor
@@ -615,7 +615,7 @@ typealias ControllableDelayTrackerMockDependenciesProtocol = ProcessInfoProvider
 private class MockDependenciesWithControllableDelayTracker: ControllableDelayTrackerMockDependenciesProtocol {
 
 #if !SDK_V10
-    func getANRTracker(_ interval: TimeInterval) -> Sentry.SentryANRTracker {
+    func getANRTracker(_ interval: TimeInterval) -> SentryANRTracker {
         SentryDependencyContainer.sharedInstance().getANRTracker(interval)
     }
 #endif
@@ -626,11 +626,11 @@ private class MockDependenciesWithControllableDelayTracker: ControllableDelayTra
         self.appHangTracker = SentryDefaultAppHangTracker(runLoopDelayTracker: delayTracker)
     }
 
-    var processInfoWrapper: any Sentry.SentryProcessInfoSource {
+    var processInfoWrapper: any SentryProcessInfoSource {
         SentryDependencyContainer.sharedInstance().processInfoWrapper
     }
 
-    var appStateManager: Sentry.SentryAppStateManager {
+    var appStateManager: SentryAppStateManager {
         SentryDependencyContainer.sharedInstance().appStateManager
     }
 
@@ -638,11 +638,11 @@ private class MockDependenciesWithControllableDelayTracker: ControllableDelayTra
         SentryDependencyContainer.sharedInstance().watchdogTerminationAttributesProcessor
     }
 
-    func getWatchdogTerminationTracker(_ options: Sentry.Options) -> Sentry.SentryWatchdogTerminationTracker? {
+    func getWatchdogTerminationTracker(_ options: Options) -> SentryWatchdogTerminationTracker? {
         return SentryDependencyContainer.sharedInstance().getWatchdogTerminationTracker(options)
     }
 
-    func getWatchdogTerminationBreadcrumbProcessor(_ options: Sentry.Options) -> SentryWatchdogTerminationBreadcrumbProcessor? {
+    func getWatchdogTerminationBreadcrumbProcessor(_ options: Options) -> SentryWatchdogTerminationBreadcrumbProcessor? {
         return SentryDependencyContainer.sharedInstance().getWatchdogTerminationBreadcrumbProcessor(options)
     }
 
