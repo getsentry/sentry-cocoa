@@ -1817,8 +1817,8 @@
 		3CFC66F92FF50344004005B4 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			additionalCompilerFlagsByRelativePath = {
-				SentryCrash/SentryCrashReportFilter_Tests.m = "-w -Xanalyzer -analyzer-disable-all-checks";
-				SentryCrash/SentryCrashSysCtl_Tests.m = "-w -Xanalyzer -analyzer-disable-all-checks";
+				ObjC/SentryCrash/SentryCrashReportFilter_Tests.m = "-w -Xanalyzer -analyzer-disable-all-checks";
+				ObjC/SentryCrash/SentryCrashSysCtl_Tests.m = "-w -Xanalyzer -analyzer-disable-all-checks";
 			};
 			membershipExceptions = (
 				Info.plist,
@@ -2044,8 +2044,8 @@
 		FAB1CD142F458DA50000CC24 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			additionalCompilerFlagsByRelativePath = {
-				SentryCrash/SentryCrashReportFilter_Tests.m = "-w -Xanalyzer -analyzer-disable-all-checks";
-				SentryCrash/SentryCrashSysCtl_Tests.m = "-w -Xanalyzer -analyzer-disable-all-checks";
+				ObjC/SentryCrash/SentryCrashReportFilter_Tests.m = "-w -Xanalyzer -analyzer-disable-all-checks";
+				ObjC/SentryCrash/SentryCrashSysCtl_Tests.m = "-w -Xanalyzer -analyzer-disable-all-checks";
 			};
 			membershipExceptions = (
 				Info.plist,

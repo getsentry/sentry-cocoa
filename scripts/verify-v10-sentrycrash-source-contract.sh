@@ -390,7 +390,7 @@ if grep -qE 'SentryCrash(FileUtils|JSONCodec)\.h|sentrycrash(fu|json)_' Sources/
   record_error "SentryViewHierarchyProviderHelper.m must use the SDK-owned streaming serializer"
 fi
 if ! grep -q '#.*import "SentryJSONStreamWriter.h"' Sources/Sentry/SentryViewHierarchyProviderHelper.m \
-  || [[ ! -f Tests/SentryTests/Helper/SentryJSONStreamWriterTests.m ]]; then
+  || [[ ! -f Tests/SentryTests/ObjC/Helper/SentryJSONStreamWriterTests.m ]]; then
   record_error "The neutral view-hierarchy serializer and its focused contract tests must remain present"
 fi
 for removed_tool in SentryCrashFileUtils.c SentryCrashJSONCodec.c; do
