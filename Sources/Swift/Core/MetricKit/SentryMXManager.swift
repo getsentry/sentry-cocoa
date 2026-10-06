@@ -69,6 +69,9 @@ final class SentryMXManager: NSObject {
     let releaseName: String?
     let bundleInfo: [String: Any]
 
+    let enableLegacyHangReports: Bool
+    let enableFlamegraphAttachments: Bool
+
     init(
         metricManager: SentryMetricManager = MXMetricManager.shared,
         inAppLogic: SentryInAppLogic,
@@ -192,19 +195,23 @@ extension SentryMXManager: MXMetricManagerSubscriber {
         }
         SentrySDKLog.debug("Processing hang diagnostic at timestamp: \(timestamp)")
 
-        let hangDuration = measurementFormatter.string(from: diagnostic.hangDuration)
-        let hangDurationMilliseconds = diagnostic.hangDuration.converted(to: .milliseconds).value
-        let level: SentryLevel = hangDurationMilliseconds > 500 ? .error : .warning
+        if enableLegacyHangReports {
+            let hangDuration = measurementFormatter.string(from: diagnostic.hangDuration)
+            let hangDurationMilliseconds = diagnostic.hangDuration.converted(to: .milliseconds).value
+            let level: SentryLevel = hangDurationMilliseconds > 500 ? .error : .warning
 
-        captureEvent(
-            handled: true,
-            diagnosticReport: .hang,
-            exceptionValue: "MXHangDiagnostic hangDuration:\(hangDuration)",
-            timeStampBegin: timestamp,
-            diagnostic: diagnostic,
-            useFullCallStackTree: true,
-            level: level
-        )
+            captureEvent(
+                handled: true,
+                diagnosticReport: .hang,
+                exceptionValue: "MXHangDiagnostic hangDuration:\(hangDuration)",
+                timeStampBegin: timestamp,
+                diagnostic: diagnostic,
+                useFullCallStackTree: true,
+                level: level
+            )
+        } else {
+
+        }
     }
 
     private func captureEvent(
@@ -289,7 +296,8 @@ extension SentryMXManager: MXMetricManagerSubscriber {
         }
 
         let encodedCallStackTree = callStackTree.jsonRepresentation()
-        let decodedCallStackTree = try SentryMXCallStackTree.from(data: encodedCallStackTree)
+        let decoder = JSONDecoder()
+        let decodedCallStackTree = try decoder.decode(SentryMXCallStackTree.self, from: encodedCallStackTree)
 
         let debugMeta = decodedCallStackTree.toDebugMeta()
         let threads: [SentryThread]
