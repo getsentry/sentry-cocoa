@@ -196,6 +196,9 @@ jobs:
           while IFS= read -r -d '' xcframework; do
             found=1
             ./scripts/validate-xcframework.sh --xcframework "$xcframework"
+            if [[ "$(basename "$xcframework")" == "SentryObjC-Static.xcframework" ]]; then
+              ./scripts/validate-xcframework-sentryobjc-static.sh --xcframework "$xcframework"
+            fi
           done < <(find XCFrameworkBuildPath -name "*.xcframework" -type d -print0)
 
           if [ "$found" -eq 0 ]; then
@@ -432,7 +435,7 @@ jobs:
           version: "16"
           resolve-simulators: "false"
       - name: Setup Ruby
-        uses: ruby/setup-ruby@e8944e80fb94b20106697132f8c20c665fab29e9 # v1.325.0
+        uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
         with:
           bundler-cache: true
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -553,7 +556,7 @@ jobs:
           GITHUB_RUN_ID: ${{ github.run_id }}
 
       - name: Prepare release
-        uses: getsentry/craft@b5451aa5604f399ebaef98c0850bece7d062e288 # v2
+        uses: getsentry/craft@25028d0646040cc0a669ae3314cbf884f4c4347a # v2
         env:
           GITHUB_TOKEN: ${{ steps.token.outputs.token }}
         with:

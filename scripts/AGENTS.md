@@ -8,7 +8,10 @@
 - Start scripts with `set -euo pipefail`
 - Declare defaults before `usage()` and validate required parameters after parsing
 - Document every parameter in `usage()`
-- Source `ci-utils.sh` for CI logging
+- Source `ci-utils.sh` for CI logging; use `log_info` for routine output and reserve `log_notice` for intentional GitHub annotations
+- Extract repeated logic into local functions; source a shared library for logic used by multiple scripts
+- Keep `validate-xcframework.sh` product-agnostic; invoke product-specific checks from the caller
+- Use `assemble-xcframework.sh` for XCArchive, standalone-framework, and static-library assembly
 - Avoid complex heredocs and move substantial logic into an appropriate standalone script
 - Follow `scripts/sentry-xcodebuild.sh` as the named-parameter reference
 
@@ -26,9 +29,9 @@ PARAM_ONE=""
 PARAM_TWO="default-value"
 
 usage() {
-    log_notice "Usage: $0"
-    log_notice "  -p, --param-one <value>    Description of param one (required)"
-    log_notice "  -t, --param-two <value>    Description of param two (default: default-value)"
+    log_info "Usage: $0"
+    log_info "  -p, --param-one <value>    Description of param one (required)"
+    log_info "  -t, --param-two <value>    Description of param two (default: default-value)"
     exit 1
 }
 
@@ -50,3 +53,4 @@ fi
 
 - Do not migrate unrelated positional arguments while making a focused change
 - Migrate a legacy script to named parameters only when required by the requested change
+- Keep `scripts/bump.sh` positional: Craft requires its two positional version arguments

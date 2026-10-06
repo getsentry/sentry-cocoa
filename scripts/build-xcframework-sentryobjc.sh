@@ -26,13 +26,13 @@ VARIANT="static"
 V10="false"
 
 usage() {
-    log_notice "Usage: $0"
-    log_notice "  --output-dir <path>       Output directory (default: XCFrameworkBuildPath)"
-    log_notice "  --configuration <name>    Xcode configuration (default: Release)"
-    log_notice "  --sdks <list>             Comma-separated SDKs (default: all Apple SDKs)"
-    log_notice "  --package-path <path>     Swift Package root (default: repo root)"
-    log_notice "  --variant <type>          static, dynamic, or both (default: static)"
-    log_notice "  --v10                     Build the V10 (KSCrash) SDK for local debugging"
+    log_info "Usage: $0"
+    log_info "  --output-dir <path>       Output directory (default: XCFrameworkBuildPath)"
+    log_info "  --configuration <name>    Xcode configuration (default: Release)"
+    log_info "  --sdks <list>             Comma-separated SDKs (default: all Apple SDKs)"
+    log_info "  --package-path <path>     Swift Package root (default: repo root)"
+    log_info "  --variant <type>          static, dynamic, or both (default: static)"
+    log_info "  --v10                     Build the V10 (KSCrash) SDK for local debugging"
     exit 1
 }
 

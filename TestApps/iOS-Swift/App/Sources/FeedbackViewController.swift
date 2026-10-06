@@ -39,6 +39,11 @@ final class FeedbackViewController: UIViewController {
         SentrySDK.feedback.disableOnShake()
     }
 
+    @IBAction private func simulateScreenshot(_: UIButton) {
+        // Simulate the iOS notification so the SDK captures and redacts the current UI.
+        NotificationCenter.default.post(name: UIApplication.userDidTakeScreenshotNotification, object: nil)
+    }
+
     @IBAction private func toggleWidget(_: UIButton) {
 #if !SDK_V10
         if isFeedbackWidgetVisible {

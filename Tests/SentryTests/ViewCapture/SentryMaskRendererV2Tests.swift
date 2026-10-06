@@ -40,7 +40,7 @@ final class SentryMaskRendererV2Tests: XCTestCase {
         let sut = SentryMaskRendererV2()
 
         // -- Act --
-        let result = sut.maskScreenshot(screenshot: image, size: image.size, masking: [region])
+        let result = sut.maskScreenshot(screenshot: image, size: image.size, masking: [region], scale: 1)
 
         // -- Assert --
         assertImagePixelColor(.red, at: CGPoint(x: 12, y: 10), in: result)
@@ -80,7 +80,7 @@ final class SentryMaskRendererV2Tests: XCTestCase {
         let sut = SentryMaskRendererV2()
 
         // -- Act --
-        let result = sut.maskScreenshot(screenshot: image, size: image.size, masking: [region])
+        let result = sut.maskScreenshot(screenshot: image, size: image.size, masking: [region], scale: 1)
 
         // -- Assert --
         let left = try XCTUnwrap(imagePixel(at: CGPoint(x: 5, y: 5), in: result))
@@ -138,7 +138,7 @@ final class SentryMaskRendererV2Tests: XCTestCase {
         let sut = SentryMaskRendererV2()
 
         // -- Act --
-        let result = sut.maskScreenshot(screenshot: image, size: image.size, masking: regions)
+        let result = sut.maskScreenshot(screenshot: image, size: image.size, masking: regions, scale: 1)
 
         // -- Assert --
         assertImagePixelColor(.red, at: CGPoint(x: 5, y: 10), in: result)
