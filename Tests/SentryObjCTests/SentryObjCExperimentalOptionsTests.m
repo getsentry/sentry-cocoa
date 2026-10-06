@@ -6,6 +6,38 @@
 
 @implementation SentryObjCExperimentalOptionsTests
 
+#pragma mark - MetricKit
+
+- (void)testHangReportingMode_whenDefault_shouldUseLegacy
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Assert --
+    XCTAssertEqual(options.experimental.metrickit.hangReportingMode,
+        SentryObjCMetricKitHangReportingModeLegacy);
+}
+
+- (void)testHangReportingMode_whenToggled_shouldRetainMode
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    options.experimental.metrickit.hangReportingMode = SentryObjCMetricKitHangReportingModeCulprit;
+
+    // -- Assert --
+    XCTAssertEqual(options.experimental.metrickit.hangReportingMode,
+        SentryObjCMetricKitHangReportingModeCulprit);
+
+    // -- Act --
+    options.experimental.metrickit.hangReportingMode = SentryObjCMetricKitHangReportingModeLegacy;
+
+    // -- Assert --
+    XCTAssertEqual(options.experimental.metrickit.hangReportingMode,
+        SentryObjCMetricKitHangReportingModeLegacy);
+}
+
 #pragma mark - Init
 
 - (void)testInit_shouldCreateInstance

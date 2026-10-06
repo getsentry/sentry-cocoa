@@ -68,6 +68,7 @@ final class SentryMXManager: NSObject {
     let enabledDiagnostics: Set<Diagnostic>
     let releaseName: String?
     let bundleInfo: [String: Any]
+    let hangReportingMode: SentryMetricKitHangReportingMode
 
     init(
         metricManager: SentryMetricManager = MXMetricManager.shared,
@@ -75,7 +76,8 @@ final class SentryMXManager: NSObject {
         attachDiagnosticAsAttachment: Bool,
         enabledDiagnostics: Set<Diagnostic> = Diagnostic.all.subtracting([.crash]),
         releaseName: String? = nil,
-        bundleInfo: [String: Any] = Bundle.main.infoDictionary ?? [:]
+        bundleInfo: [String: Any] = Bundle.main.infoDictionary ?? [:],
+        hangReportingMode: SentryMetricKitHangReportingMode = .legacy
     ) {
         self.metricManager = metricManager
         self.inAppLogic = inAppLogic
@@ -83,6 +85,7 @@ final class SentryMXManager: NSObject {
         self.enabledDiagnostics = enabledDiagnostics
         self.releaseName = releaseName
         self.bundleInfo = bundleInfo
+        self.hangReportingMode = hangReportingMode
         super.init()
     }
 
@@ -293,8 +296,18 @@ extension SentryMXManager: MXMetricManagerSubscriber {
 
         let debugMeta = decodedCallStackTree.toDebugMeta()
         let threads: [SentryThread]
-        if useFullCallStackTree {
-            // For hang diagnostics, use the flattened tree to preserve all samples
+        if useFullCallStackTree && hangReportingMode == .culprit {
+            let identifier = SentryMXHangCulpritIdentifier(inAppLogic: inAppLogic)
+            if let stacktrace = identifier.identify(in: decodedCallStackTree) {
+                let thread = SentryThread(threadId: 0)
+                thread.stacktrace = stacktrace
+                thread.crashed = false
+                threads = [thread]
+            } else {
+                threads = []
+            }
+        } else if useFullCallStackTree {
+            // Legacy hang reporting preserves every sampled frame and its tree metadata.
             threads = decodedCallStackTree.flattenedBacktrace(inAppLogic: inAppLogic, handled: isHandled)
         } else {
             threads = decodedCallStackTree.sentryMXBacktrace(inAppLogic: inAppLogic, handled: isHandled)

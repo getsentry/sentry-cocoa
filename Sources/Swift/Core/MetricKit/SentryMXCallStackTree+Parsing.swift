@@ -90,6 +90,14 @@ extension SentryMXCallStackTree {
 }
 
 extension SentryMXCallStack {
+    func validatedHangSamples() -> [MXSample]? {
+        guard callStackRootFrames.allSatisfy({ $0.hasValidHangSampleCounts }) else {
+            SentrySDKLog.warning("MetricKit hang diagnostic received inconsistent sample counts")
+            return nil
+        }
+        return callStackRootFrames.flatMap { $0.toSamples() }
+    }
+
     func toDebugMeta() -> [DebugMeta] {
         callStackRootFrames.flatMap { frame in
             frame.toDebugMeta()
@@ -142,7 +150,20 @@ extension SentryMXFrame {
     }
 }
 
-private extension MXSample.MXFrame {
+private extension SentryMXFrame {
+    var hasValidHangSampleCounts: Bool {
+        guard let sampleCount, sampleCount >= 0 else { return false }
+        var remaining = sampleCount
+        for child in subFrames ?? [] {
+            guard child.hasValidHangSampleCounts, let childCount = child.sampleCount, childCount <= remaining else { return false }
+            // Subtract rather than sum untrusted child counts, avoiding integer overflow.
+            remaining -= childCount
+        }
+        return true
+    }
+}
+
+extension MXSample.MXFrame {
     func toSentryFrame() -> Frame {
         let frame = Frame()
         frame.package = binaryName

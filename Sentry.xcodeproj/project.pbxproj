@@ -1910,6 +1910,7 @@
 				Public/SentryObjCMessage.h,
 				Public/SentryObjCMetric.h,
 				Public/SentryObjCMetricsApi.h,
+				Public/SentryObjCMetricKitOptions.h,
 				Public/SentryObjCMetricValue.h,
 				Public/SentryObjCNSError.h,
 				Public/SentryObjCOptions.h,
@@ -1951,6 +1952,7 @@
 			);
 			publicHeaders = (
 				Public/SentryObjC.h,
+				Public/SentryObjCMetricKitOptions.h,
 				Public/SentryObjCAttachment.h,
 				Public/SentryObjCAttachmentType.h,
 				Public/SentryObjCAttribute.h,

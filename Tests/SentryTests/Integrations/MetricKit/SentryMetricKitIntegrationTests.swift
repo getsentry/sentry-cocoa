@@ -34,6 +34,74 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         clearTestState()
     }
 
+    func testDidReceive_whenCulpritMode_shouldReportRepresentativeStack() throws {
+        // -- Arrange --
+        givenSDKWithHubWithScope()
+        let options = Options()
+        options.enableMetricKit = true
+        options.experimental.metrickit.hangReportingMode = .culprit
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+        defer { sut.uninstall() }
+        let diagnostic = TestMXHangDiagnostic()
+        diagnostic.overrides.callStackTree.overrides.jsonRepresentation = hangTreeJSON
+        let payload = TestMXDiagnosticPayload()
+        payload.overrides.hangDiagnostic = [diagnostic]
+
+        // -- Act --
+        sut.mxManager.didReceive([payload])
+
+        // -- Assert --
+        try assertEventWithScopeCaptured { capturedEvent, _, _ in
+            let event = try XCTUnwrap(capturedEvent)
+            let exception = try XCTUnwrap(event.exceptions?.first)
+            let frames = try XCTUnwrap(exception.stacktrace).frames
+            XCTAssertEqual(frames.map(\.instructionAddress), ["0x0000000000001001", "0x0000000000001002"])
+            XCTAssertTrue(frames.allSatisfy { $0.parentIndex == nil && $0.sampleCount == nil })
+            XCTAssertEqual(event.threads?.first?.stacktrace?.frames.map(\.instructionAddress), frames.map(\.instructionAddress))
+            XCTAssertEqual(exception.threadId, 0)
+            XCTAssertEqual(exception.mechanism?.type, "mx_hang_diagnostic")
+            XCTAssertFalse(try XCTUnwrap(event.debugMeta).isEmpty)
+        }
+    }
+
+    func testDidReceive_whenDefaultMode_shouldPreserveFlattenedHangTree() throws {
+        // -- Arrange --
+        givenSDKWithHubWithScope()
+        let options = Options()
+        options.enableMetricKit = true
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+        defer { sut.uninstall() }
+        let diagnostic = TestMXHangDiagnostic()
+        diagnostic.overrides.callStackTree.overrides.jsonRepresentation = hangTreeJSON
+        let payload = TestMXDiagnosticPayload()
+        payload.overrides.hangDiagnostic = [diagnostic]
+
+        // -- Act --
+        sut.mxManager.didReceive([payload])
+
+        // -- Assert --
+        try assertEventWithScopeCaptured { capturedEvent, _, _ in
+            let event = try XCTUnwrap(capturedEvent)
+            let frames = try XCTUnwrap(event.exceptions?.first?.stacktrace).frames
+            XCTAssertEqual(frames.map(\.instructionAddress), ["0x0000000000001001", "0x0000000000001002", "0x0000000000001003", "0x0000000000001004"])
+            XCTAssertEqual(frames.map(\.parentIndex), [-1, 0, 1, 1])
+            XCTAssertEqual(frames.map(\.sampleCount), [100, 100, 50, 50])
+        }
+    }
+
+    private var hangTreeJSON: Data {
+        Data("""
+        {"callStackPerThread":true,"callStacks":[{"threadAttributed":false,"callStackRootFrames":[
+          {"binaryUUID":"00000000-0000-0000-0000-000000000001","binaryName":"App","address":4097,"offsetIntoBinaryTextSegment":1,"sampleCount":100,"subFrames":[
+            {"binaryUUID":"00000000-0000-0000-0000-000000000001","binaryName":"App","address":4098,"offsetIntoBinaryTextSegment":2,"sampleCount":100,"subFrames":[
+              {"binaryUUID":"00000000-0000-0000-0000-000000000001","binaryName":"App","address":4099,"offsetIntoBinaryTextSegment":3,"sampleCount":50},
+              {"binaryUUID":"00000000-0000-0000-0000-000000000001","binaryName":"App","address":4100,"offsetIntoBinaryTextSegment":4,"sampleCount":50}
+            ]}
+          ]}
+        ]}]}
+        """.utf8)
+    }
+
     func testOptionEnabled_MetricKitManagerInitialized() {
           let options = Options()
           options.enableMetricKit = true
