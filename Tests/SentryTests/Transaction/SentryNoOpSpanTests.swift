@@ -1,4 +1,9 @@
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+import _SentryPrivate
+#else
 import Sentry
+#endif
 import XCTest
 
 class SentryNoOpSpanTests: XCTestCase {

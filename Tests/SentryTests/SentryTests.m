@@ -8,7 +8,11 @@
 #import "SentryOptions+Tests.h"
 #import "SentrySDK+Private.h"
 #import <XCTest/XCTest.h>
+#if SWIFT_PACKAGE
+@import SentrySwift;
+#else
 @import Sentry;
+#endif
 
 @interface SentryTests : XCTestCase
 
