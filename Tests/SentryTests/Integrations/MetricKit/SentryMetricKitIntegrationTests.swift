@@ -34,6 +34,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         clearTestState()
     }
 
+#if !SDK_V10
     func testOptionEnabled_MetricKitManagerInitialized() {
           let options = Options()
           options.enableMetricKit = true
@@ -60,10 +61,24 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual(sut.mxManager.enabledDiagnostics, [.cpuException, .diskWriteException, .hang])
     }
 
+    func testInit_whenMetricKitDisabledAndDiagnosticReportsConfigured_shouldUseConfiguredDiagnostics() throws {
+        // -- Arrange --
+        let options = Options()
+        options.enableMetricKit = false
+        options.experimental.metricKit.enabledDiagnosticReports = [.hang]
+
+        // -- Act --
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+
+        // -- Assert --
+        // Before v10 a configured set of reports opts in on its own.
+        XCTAssertEqual(sut.mxManager.enabledDiagnostics, [.hang])
+    }
+#endif // !SDK_V10
+
     func testInit_whenDiagnosticReportsConfigured_shouldUseConfiguredDiagnostics() throws {
         // -- Arrange --
         let options = Options()
-        options.enableMetricKit = true
         options.experimental.metricKit.enabledDiagnosticReports = [.hang, .crash]
 
         // -- Act --
@@ -73,28 +88,12 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual(sut.mxManager.enabledDiagnostics, [.hang, .crash])
     }
 
-    func testInit_whenMetricKitDisabledAndDiagnosticReportsConfigured_shouldDependOnSDKVersion() throws {
-        // -- Arrange --
-        let options = Options()
-        options.enableMetricKit = false
-        options.experimental.metricKit.enabledDiagnosticReports = [.hang]
-
-        // -- Act --
-        let sut = SentryMetricKitIntegration(with: options, dependencies: ())
-
-        // -- Assert --
-#if SDK_V10
-        XCTAssertNil(sut)
-#else
-        // Before v10 a configured set of reports opts in on its own.
-        XCTAssertEqual(try XCTUnwrap(sut).mxManager.enabledDiagnostics, [.hang])
-#endif
-    }
-
     func testInit_whenDiagnosticReportsEmpty_shouldDependOnSDKVersion() throws {
         // -- Arrange --
         let options = Options()
+        #if !SDK_V10
         options.enableMetricKit = true
+        #endif // !SDK_V10
         options.experimental.metricKit.enabledDiagnosticReports = []
 
         // -- Act --
@@ -128,7 +127,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         // -- Arrange --
         givenSDKWithHubWithScope()
         let options = Options()
+        #if !SDK_V10
         options.enableMetricKit = true
+        #endif // !SDK_V10
         options.experimental.metricKit.enabledDiagnosticReports = [.crash]
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
         let crashDiagnostic = TestMXCrashDiagnostic()
@@ -156,7 +157,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             givenSDKWithHubWithScope()
 
         let options = Options()
+        #if !SDK_V10
         options.enableMetricKit = true
+        #endif // !SDK_V10
         let sut = SentryMXManager(
             inAppLogic: SentryInAppLogic(inAppIncludes: []),
             attachDiagnosticAsAttachment: false,
@@ -201,7 +204,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             givenSDKWithHubWithScope()
 
         let options = Options()
+        #if !SDK_V10
         options.enableMetricKit = true
+        #endif // !SDK_V10
         options.enableMetricKitRawPayload = true
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
 
@@ -251,7 +256,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         // -- Arrange --
         givenSDKWithHubWithScope()
         let options = Options()
+        #if !SDK_V10
         options.enableMetricKit = true
+        #endif // !SDK_V10
         options.enableMetricKitRawPayload = true
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
         let diagnostic = TestMXHangDiagnostic()
@@ -293,7 +300,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         // -- Arrange --
         givenSDKWithHubWithScope()
         let options = Options()
+        #if !SDK_V10
         options.enableMetricKit = true
+        #endif // !SDK_V10
         options.enableMetricKitRawPayload = false
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
         let diagnostic = TestMXHangDiagnostic()
@@ -315,7 +324,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         scope.addAttachment(TestData.dataAttachment)
         givenSdkWithHub(scope: scope)
         let options = Options()
+        #if !SDK_V10
         options.enableMetricKit = true
+        #endif // !SDK_V10
         options.enableMetricKitRawPayload = true
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
 
@@ -368,7 +379,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             givenSDKWithHubWithScope()
 
         let options = Options()
+        #if !SDK_V10
         options.enableMetricKit = true
+        #endif // !SDK_V10
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
 
         let payload = TestMXDiagnosticPayload()
@@ -391,7 +404,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             givenSDKWithHubWithScope()
 
         let options = Options()
+        #if !SDK_V10
         options.enableMetricKit = true
+        #endif // !SDK_V10
         options.add(inAppInclude: "iOS-Swift")
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
 
@@ -417,7 +432,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             givenSDKWithHubWithScope()
 
             let options = Options()
+            #if !SDK_V10
             options.enableMetricKit = true
+            #endif // !SDK_V10
             let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
 
         let payload = TestMXDiagnosticPayload()
@@ -436,7 +453,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             givenSDKWithHubWithScope()
 
             let options = Options()
+            #if !SDK_V10
             options.enableMetricKit = true
+            #endif // !SDK_V10
             let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
 
         let payload = TestMXDiagnosticPayload()
@@ -473,7 +492,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             givenSDKWithHubWithScope()
 
             let options = Options()
+            #if !SDK_V10
             options.enableMetricKit = true
+            #endif // !SDK_V10
             let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
 
         let payload = TestMXDiagnosticPayload()
@@ -492,7 +513,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             givenSDKWithHubWithScope()
 
             let options = Options()
+            #if !SDK_V10
             options.enableMetricKit = true
+            #endif // !SDK_V10
             let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
 
         let payload = TestMXDiagnosticPayload()
@@ -511,7 +534,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         // -- Arrange --
         givenSDKWithHubWithScope()
         let options = Options()
+        #if !SDK_V10
         options.enableMetricKit = true
+        #endif // !SDK_V10
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
 
         let payload = TestMXDiagnosticPayload()

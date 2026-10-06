@@ -741,20 +741,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 #if __has_include(<MetricKit/MetricKit.h>) && !TARGET_OS_TV
 
-#    if SDK_V10
-/**
- * When enabled, the SDK collects @c MXDiskWriteExceptionDiagnostic, @c MXCPUExceptionDiagnostic,
- * and @c MXHangDiagnostic from MetricKit and converts them to Sentry events.
- * @note Default value is @c YES.
- */
-#    else
+#    if !SDK_V10
 /**
  * When enabled, the SDK collects @c MXDiskWriteExceptionDiagnostic, @c MXCPUExceptionDiagnostic,
  * and @c MXHangDiagnostic from MetricKit and converts them to Sentry events.
  * @note Default value is @c NO.
+ * @note In v10 and later, the MetricKit integration is enabled by default and this option is
+ * removed. Configure the captured diagnostic reports from Swift to disable the integration.
  */
-#    endif // SDK_V10
 @property (nonatomic) BOOL enableMetricKit;
+#    endif // !SDK_V10
 
 /**
  * When enabled, the SDK sends the raw MXDiagnosticPayload as an attachment to Sentry.
