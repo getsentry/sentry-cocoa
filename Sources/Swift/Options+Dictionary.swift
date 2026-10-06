@@ -331,6 +331,10 @@ extension Options {
         if let hangReportingMode = SentryMetricKitHangReportingMode.fromName(dictionary["metricKitHangReportingMode"] as? String) {
             self.experimental.metrickit.hangReportingMode = hangReportingMode
         }
+
+        if let metrickit = dictionary["metrickit"] as? [String: Any] {
+            self.experimental.metrickit.apply(dictionary: metrickit)
+        }
         #endif
 
         if let strictTraceContinuation = boolValue(dictionary["strictTraceContinuation"]) {
