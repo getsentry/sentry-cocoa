@@ -52,7 +52,7 @@ static void testBeforeAtomicStore(const volatile void *object);
 #        define sentrykscrash_ignoreNextSignal test_ignoreNextSignal
 #        pragma push_macro("SENTRY_CRASH_MANAGED_RUNTIME")
 #        undef SENTRY_CRASH_MANAGED_RUNTIME
-#        include "../../../../Sources/Sentry/KSCrash/SentryKSCrashManagedSignal.c"
+#        include "../../../../../Sources/Sentry/KSCrash/SentryKSCrashManagedSignal.c"
 #        pragma pop_macro("SENTRY_CRASH_MANAGED_RUNTIME")
 #        undef sigaction
 #        undef sigaltstack
