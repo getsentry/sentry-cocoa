@@ -51,5 +51,21 @@ extension SentryMetricKit.DiagnosticReport {
     static var all: Set<Self> {
         .init(allCases)
     }
+
+    /// Creates a report from its name in the options dictionary hybrid SDKs use.
+    init?(dictionaryValue: String) {
+        switch dictionaryValue {
+        case "crash":
+            self = .crash
+        case "hang":
+            self = .hang
+        case "cpuException":
+            self = .cpuException
+        case "diskWriteException":
+            self = .diskWriteException
+        default:
+            return nil
+        }
+    }
 }
 #endif // canImport(MetricKit) && !os(tvOS)

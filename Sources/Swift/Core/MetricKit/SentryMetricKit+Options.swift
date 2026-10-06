@@ -21,6 +21,20 @@ extension SentryMetricKit {
         /// - Note: Defaults to an empty set.
         public var enabledDiagnosticReports: Set<SentryMetricKit.DiagnosticReport> = []
         #endif // SDK_V10
+
+        // Defining init(dictionary:) suppresses the synthesized default initializer.
+        init() {}
+
+        /// Creates MetricKit options from a dictionary, primarily for hybrid SDK configuration.
+        ///
+        /// Report names in `enabledDiagnosticReports` that the SDK doesn't know are ignored.
+        init(dictionary: [String: Any]) {
+            self.init()
+
+            if let reports = SentryDictionaryDecoder.strings(dictionary, "enabledDiagnosticReports") {
+                self.enabledDiagnosticReports = Set(reports.compactMap(SentryMetricKit.DiagnosticReport.init(dictionaryValue:)))
+            }
+        }
     }
 }
 #endif // canImport(MetricKit) && !os(tvOS)
