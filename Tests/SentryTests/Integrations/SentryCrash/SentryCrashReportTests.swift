@@ -1,6 +1,5 @@
 #if SWIFT_PACKAGE
 @_spi(Private) @testable import SentrySwift
-import SentryTestUtilsObjC
 #else
 @_spi(Private) @testable import Sentry
 #endif

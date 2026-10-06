@@ -1,9 +1,9 @@
 #if SWIFT_PACKAGE
 @_spi(Private) @testable import SentrySwift
-import SentryTestUtilsObjC
 #else
 @testable import Sentry
 #endif
+import SentryTestUtils
 import XCTest
 
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK

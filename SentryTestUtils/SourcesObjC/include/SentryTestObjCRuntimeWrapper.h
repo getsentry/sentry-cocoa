@@ -1,24 +1,16 @@
 #import <Foundation/Foundation.h>
-#if !SWIFT_PACKAGE
-@import Sentry;
-#endif
 
 /**
  * Written in ObjC, because dealing with the pointers in Swift is super complicated.
  */
 @interface SentryTestObjCRuntimeWrapper : NSObject
-#if !SWIFT_PACKAGE
-                                          <SentryObjCRuntimeWrapper>
-#endif
 
-#if SWIFT_PACKAGE
-// A Clang module consumed by Swift cannot import this Swift-owned protocol.
+// Conformance to the Swift-owned protocol lives in SentryObjCHelperBridges.swift.
 - (const char *_Nonnull *_Nullable)copyClassNamesForImage:(const char *_Nonnull)image
                                                    amount:(unsigned int *_Nullable)outCount
     NS_SWIFT_NAME(copyClassNamesForImage(_:_:));
 - (const char *_Nullable)class_getImageName:(Class _Nonnull)cls
     NS_SWIFT_NAME(classGetImageName(_:));
-#endif
 
 @property (nullable, nonatomic, copy) void (^beforeGetClassList)(void);
 

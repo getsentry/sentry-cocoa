@@ -1,9 +1,18 @@
 #if SWIFT_PACKAGE
 @_spi(Private) import SentrySwift
-import SentryTestUtilsObjC
+#else
+@_spi(Private) import Sentry
+#endif
+// Swift tests get both Swift and Objective-C helpers through SentryTestUtils.
+@_exported import SentryTestUtilsObjC
 
-// Clang modules imported by Swift cannot declare conformance to a Swift-owned protocol.
+// Clang modules cannot declare conformance to a Swift-owned protocol. SwiftPM knows both
+// types belong to this package; Xcode treats them as foreign modules.
+#if SWIFT_PACKAGE
 @_spi(Private) extension SentryTestObjCRuntimeWrapper: SentryObjCRuntimeWrapper {}
+#else
+@_spi(Private) extension SentryTestObjCRuntimeWrapper: @retroactive SentryObjCRuntimeWrapper {}
+#endif
 
 #if !SDK_V10
 extension SentryCrashScopeHelper {
@@ -13,5 +22,4 @@ extension SentryCrashScopeHelper {
         unsafeBitCast(makeScopeObserver(maxBreadcrumbs: maxBreadcrumbs), to: SentryScopeObserver.self)
     }
 }
-#endif
 #endif

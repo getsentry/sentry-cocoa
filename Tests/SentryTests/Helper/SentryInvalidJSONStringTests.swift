@@ -1,6 +1,4 @@
-#if SWIFT_PACKAGE
-import SentryTestUtilsObjC
-#endif
+import SentryTestUtils
 import XCTest
 
 final class SentryInvalidJSONStringTests: XCTestCase {
