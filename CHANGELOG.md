@@ -4,7 +4,9 @@
 
 ### Fixes
 
+- Fix app freeze during crash handling when attaching a crash-time screenshot or view hierarchy with a Swift (MainActor) scene delegate under UIScene (#9282)
 - Parse crash reports whose NSException reason exceeds the previous 150KB JSON string buffer, and truncate the exception value to 512 characters so the event stays within the 1MiB ingestion limit (#9256)
+- Avoid evaluating Swift SDK debug, info, warning, and error log messages when logging is disabled or filtered by the diagnostic level (#9283)
 
 ## 9.30.0
 

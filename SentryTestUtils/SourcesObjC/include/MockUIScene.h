@@ -31,6 +31,9 @@ API_AVAILABLE(ios(13.0))
 - (instancetype)init;
 - (instancetype)initWithSessionRole:(UISceneSessionRole)role;
 
+/// Backs the overridden `windows` property so tests can inject a scene's windows.
+@property (nonatomic, strong) NSArray<UIWindow *> *mockWindows;
+
 @end
 
 NS_ASSUME_NONNULL_END
