@@ -1,4 +1,5 @@
 #if os(iOS) || os(macOS) || os(visionOS)
+internal import _SentryPrivate
 import Foundation
 import MetricKit
 
@@ -65,17 +66,23 @@ final class SentryMXManager: NSObject {
     let inAppLogic: SentryInAppLogic
     let attachDiagnosticAsAttachment: Bool
     let enabledDiagnostics: Set<Diagnostic>
+    let releaseName: String?
+    let bundleInfo: [String: Any]
 
     init(
         metricManager: SentryMetricManager = MXMetricManager.shared,
         inAppLogic: SentryInAppLogic,
         attachDiagnosticAsAttachment: Bool,
-        enabledDiagnostics: Set<Diagnostic> = Diagnostic.all.subtracting([.crash])
+        enabledDiagnostics: Set<Diagnostic> = Diagnostic.all.subtracting([.crash]),
+        releaseName: String? = nil,
+        bundleInfo: [String: Any] = Bundle.main.infoDictionary ?? [:]
     ) {
         self.metricManager = metricManager
         self.inAppLogic = inAppLogic
         self.attachDiagnosticAsAttachment = attachDiagnosticAsAttachment
         self.enabledDiagnostics = enabledDiagnostics
+        self.releaseName = releaseName
+        self.bundleInfo = bundleInfo
         super.init()
     }
 
@@ -211,6 +218,7 @@ extension SentryMXManager: MXMetricManagerSubscriber {
     ) {
         var event = Event(level: level ?? (handled ? .warning : .error))
         event.timestamp = timeStampBegin
+        applyMetadata(of: diagnostic, to: event)
 
         let mechanism = Mechanism(type: diagnosticReport.mechanism)
         mechanism.handled = NSNumber(value: handled)
@@ -241,6 +249,21 @@ extension SentryMXManager: MXMetricManagerSubscriber {
         // The crash event can be way from the past. We don't want to impact the current session.
         // Therefore we don't call captureFatalEvent.
         SentrySDKLog.debug("Capturing MetricKit payload event for diagnostic: \(diagnosticReport)")
+
+        // The event is captured with a copy of the current scope, so the changes below only
+        // apply to this event and never reach the hub's scope.
+        let scope = Scope(scope: SentrySDKInternal.currentHub().scope)
+
+        // The app and OS contexts have to be set on the scope rather than the event. The scope
+        // merge can only add or replace keys, so an event could never drop the running app and
+        // OS attributes that are unknown for the time the diagnostic was recorded.
+        if let appContext = Self.diagnosticAppContext(for: diagnostic, runningApp: scope.getContextForKey("app")) {
+            scope.setContext(value: appContext, key: "app")
+        }
+        if let osContext = Self.diagnosticOSContext(for: diagnostic, runningOS: scope.getContextForKey("os")) {
+            scope.setContext(value: osContext, key: "os")
+        }
+
         if attachDiagnosticAsAttachment {
             let diagnosticJSON = diagnostic.jsonRepresentation()
             let attachmentData: Data
@@ -251,12 +274,10 @@ extension SentryMXManager: MXMetricManagerSubscriber {
                 SentrySDKLog.warning("Failed to compact MetricKit diagnostic JSON: \(error)")
                 attachmentData = diagnosticJSON
             }
-            SentrySDK.capture(event: event) { scope in
-                scope.addAttachment(Attachment(data: attachmentData, filename: "MXDiagnosticPayload.json"))
-            }
-        } else {
-            SentrySDK.capture(event: event)
+            scope.addAttachment(Attachment(data: attachmentData, filename: "MXDiagnosticPayload.json"))
         }
+
+        SentrySDKInternal.capture(event: event, scope: scope)
         SentrySDKLog.debug("Captured MetricKit payload as event")
     }
 
