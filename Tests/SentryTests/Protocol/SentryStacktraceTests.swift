@@ -3,6 +3,7 @@
 #else
 @_spi(Private) @testable import Sentry
 #endif
+import SentryTestUtils
 import XCTest
 
 class SentryStacktraceTests: XCTestCase {

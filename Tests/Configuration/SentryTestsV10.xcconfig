@@ -1,9 +1,6 @@
 #include "SentryTests.xcconfig"
 
-// The V10 target uses a distinct Swift module name, which would generate
-// "SentryTestsV10-Swift.h". ObjC files import "SentryTests-Swift.h", so we
-// override the header name explicitly.
-SWIFT_OBJC_INTERFACE_HEADER_NAME = SentryTests-Swift.h
+SENTRY_TEST_UTILS_TARGET = SentryTestUtilsV10
 
 // Temporary expectations selected by this marker map to acceptance IDs in
 // SENTRYCRASH_V10_MIGRATION_LEDGER.md. SDK_V10 selects permanent backend-specific tests.

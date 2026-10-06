@@ -49,25 +49,28 @@ let v10ExcludedSentryCrashToolSources = [
     "SentryCrash/Recording/Tools/SentryCrashSysCtl.c",
     "SentryCrash/Recording/Tools/SentryCrashUUIDConversion.c"
 ]
-let v10SwiftSettings: [SwiftSetting] = enableV10
+// SwiftPM's defaults do not reach Swift's Clang importer. Keep the package and backend
+// definitions consistent across Swift, C/C++, and headers imported by Swift.
+let swiftSettings: [SwiftSetting] = [.define("SWIFT_PACKAGE")] + (enableV10
     ? [.define("SDK_V10"), .define("SENTRY_DISABLE_SENTRYCRASH_V10")]
     : [
         .define("SDK_V10", .when(traits: ["V10"])),
         .define("SENTRY_DISABLE_SENTRYCRASH_V10", .when(traits: ["V10"]))
-    ]
-let v10CSettings: [CSetting] = enableV10
+    ])
+let cSettings: [CSetting] = [.define("SWIFT_PACKAGE", to: "1")] + (enableV10
     ? [.define("SDK_V10", to: "1"), .define("SENTRY_DISABLE_SENTRYCRASH_V10", to: "1")]
     : [
         .define("SDK_V10", to: "1", .when(traits: ["V10"])),
         .define("SENTRY_DISABLE_SENTRYCRASH_V10", to: "1", .when(traits: ["V10"]))
-    ]
-// PackageDescription uses distinct C and C++ setting types, so this cannot reuse v10CSettings.
-let v10CxxSettings: [CXXSetting] = enableV10
+    ])
+// PackageDescription uses distinct C and C++ setting types.
+let cxxSettings: [CXXSetting] = [.define("SWIFT_PACKAGE", to: "1")] + (enableV10
     ? [.define("SDK_V10", to: "1"), .define("SENTRY_DISABLE_SENTRYCRASH_V10", to: "1")]
     : [
         .define("SDK_V10", to: "1", .when(traits: ["V10"])),
         .define("SENTRY_DISABLE_SENTRYCRASH_V10", to: "1", .when(traits: ["V10"]))
-    ]
+    ])
+
 let kscrashDependencyCondition: TargetDependencyCondition? = enableV10
     ? nil
     : .when(traits: ["V10"])
@@ -195,10 +198,10 @@ let sentrySwiftTarget: Target = .target(
     ],
     path: "Sources/Swift",
     exclude: sentrySwiftExcludes,
-    cSettings: v10CSettings,
+    cSettings: cSettings,
     swiftSettings: [
         .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"]))
-    ] + v10SwiftSettings
+    ] + swiftSettings
 )
 
 var sentryObjCInternalExcludes = [
@@ -253,7 +256,7 @@ let sentryObjCInternalCSettings: [CSetting] = [
     .headerSearchPath("SentryCrash/Reporting/Filters/Tools"),
     .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"])),
     .define("SENTRY_UI_TEST_SUPPORT", to: "1", .when(traits: ["_SentryInternalUITestSupport"]))
-] + v10CSettings
+] + cSettings
 
 targets += [
     // At least one source file is required, therefore we use a dummy class to satisfy the SPM build system
@@ -262,7 +265,7 @@ targets += [
         path: "Sources/Sentry",
         sources: ["SentryDummyPublicEmptyClass.m"],
         publicHeadersPath: "Public",
-        cSettings: v10CSettings
+        cSettings: cSettings
     ),
     .target(
         name: "_SentryPrivate",
@@ -277,7 +280,7 @@ targets += [
         path: "Sources/Sentry",
         sources: ["SentryDummyPrivateEmptyClass.m"],
         publicHeadersPath: "include",
-        cSettings: v10CSettings
+        cSettings: cSettings
     ),
 
     sentrySwiftTarget
@@ -308,10 +311,10 @@ targets += [
         name: "SentryObjCCompat",
         dependencies: ["SentryObjCInternal"],
         path: "Sources/SentryObjCCompat",
-        cSettings: v10CSettings,
+        cSettings: cSettings,
         swiftSettings: [
             .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"]))
-        ] + v10SwiftSettings + objcCompatSwiftSettings
+        ] + swiftSettings + objcCompatSwiftSettings
     ),
     .target(
         name: "SentryObjC",
@@ -321,7 +324,7 @@ targets += [
         cSettings: [
             .headerSearchPath("Public"),
             .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
-        ] + v10CSettings
+        ] + cSettings
     )
 ]
 // END:OBJC_WRAPPER
@@ -334,8 +337,14 @@ targets += [
         path: "SentryTestUtils/SourcesObjC",
         publicHeadersPath: "include",
         cSettings: [
+            .headerSearchPath("."),
             .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
-        ] + v10CSettings
+        ] + cSettings,
+        linkerSettings: [
+            .linkedLibrary("z"),
+            // Equality categories have no referenced symbols to pull them out of a static archive.
+            .unsafeFlags(["-Xlinker", "-ObjC"])
+        ]
     ),
     .target(
         name: "SentryTestUtilsObjCpp",
@@ -344,10 +353,10 @@ targets += [
         publicHeadersPath: ".",
         cSettings: [
             .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
-        ] + v10CSettings,
+        ] + cSettings,
         cxxSettings: [
             .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
-        ] + v10CxxSettings,
+        ] + cxxSettings,
         linkerSettings: [
             // The profiler mocks use C++ standard-library types such as std::vector.
             .linkedLibrary("c++")
@@ -365,25 +374,28 @@ targets += [
             "SentryTestUtilsObjCpp"
         ],
         path: "SentryTestUtils/Sources",
+        cSettings: cSettings,
         swiftSettings: [
             .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"]))
-        ] + v10SwiftSettings
+        ] + swiftSettings
     ),
     .testTarget(
         name: "SentryTestUtilsTests",
         dependencies: ["SentrySwift", "SentryTestUtils"],
         path: "SentryTestUtilsTests/Sources",
+        cSettings: cSettings,
         swiftSettings: [
             .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"]))
-        ] + v10SwiftSettings
+        ] + swiftSettings
     ),
     .testTarget(
         name: "SentryObjCCompatTests",
         dependencies: ["SentryObjCCompat", "SentrySwift", "SentryTestUtils"],
         path: "Tests/SentryObjCCompatTests",
+        cSettings: cSettings,
         swiftSettings: [
             .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"]))
-        ] + v10SwiftSettings + objcCompatSwiftSettings
+        ] + swiftSettings + objcCompatSwiftSettings
     )
 ]
 
@@ -396,7 +408,8 @@ if !enableV10 {
             dependencies: ["SentrySwift", "SentryTestUtils", "SentryTestUtilsObjC", "SentryTestUtilsObjCpp"],
             path: "Tests/SentryProfilerTests",
             exclude: ["ObjC"],
-            swiftSettings: v10SwiftSettings
+            cSettings: cSettings,
+            swiftSettings: swiftSettings
         ),
         .testTarget(
             name: "SentryProfilerTestsObjC",
@@ -404,10 +417,10 @@ if !enableV10 {
             path: "Tests/SentryProfilerTests/ObjC",
             cSettings: [
                 .headerSearchPath("../../../Sources/Sentry")
-            ] + v10CSettings,
+            ] + cSettings,
             // Xcode disables C++ modules for package test bundles by default. The ObjC++
             // tests import SentrySwift's generated Objective-C interface as a Clang module.
-            cxxSettings: [.unsafeFlags(["-fcxx-modules"])] + v10CxxSettings,
+            cxxSettings: [.unsafeFlags(["-fmodules", "-fcxx-modules"])] + cxxSettings,
             linkerSettings: [.linkedLibrary("c++")]
         )
     ]

@@ -3,6 +3,7 @@
 #else
 @testable import Sentry
 #endif
+import SentryTestUtils
 import XCTest
 
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK

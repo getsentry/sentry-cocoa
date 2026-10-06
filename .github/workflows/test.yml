@@ -137,13 +137,15 @@ jobs:
           TEST_DEVICE: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
           # Native Base plans include distribution tests; see develop-docs/TEST.md.
+          # Keep the result bundle outside the package: updates inside it trigger package-graph
+          # reloads that can invalidate test bundles and crash Xcode between test targets.
           status=0
           # Xcode, not the shell, expands $(inherited).
           # shellcheck disable=SC2016
           NSUnbufferedIO=YES xcodebuild test -workspace . -scheme SentrySPM \
             -configuration TestCI -parallel-testing-enabled NO \
             -testPlan "$TEST_PLAN" \
-            -resultBundlePath results.xcresult \
+            -resultBundlePath "$RUNNER_TEMP/results.xcresult" \
             -sdk iphonesimulator -destination "platform=iOS Simulator,OS=$TEST_OS,name=$TEST_DEVICE" \
             -xcconfig Tests/Configuration/SwiftPM.xcconfig \
             'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SENTRY_TEST_CI' \
@@ -163,7 +165,7 @@ jobs:
         if: ${{ failure() || cancelled() }}
         with:
           name: result-bundle-distribution-${{ matrix.mode }}
-          path: results.xcresult
+          path: ${{ runner.temp }}/results.xcresult
 
   # This matrix runs only the unit tests requiring the test server.
   # We do this to speed up the other unit test jobs and to avoid running the

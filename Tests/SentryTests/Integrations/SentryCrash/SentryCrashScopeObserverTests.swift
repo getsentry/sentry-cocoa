@@ -3,7 +3,7 @@
 #else
 @_spi(Private) import Sentry
 #endif
-import SentryTestUtils
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 class SentryCrashScopeObserverTests: XCTestCase {

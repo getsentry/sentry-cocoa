@@ -4,7 +4,7 @@
 #else
 @_spi(Private) @testable import Sentry
 #endif
-import SentryTestUtils
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 class SentryScopeSwiftTests: XCTestCase {

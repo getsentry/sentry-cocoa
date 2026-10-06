@@ -1,4 +1,5 @@
 #import "SentryLogTestHelper.h"
+#import "SentryLogC.h"
 #import <XCTest/XCTest.h>
 
 NSString *

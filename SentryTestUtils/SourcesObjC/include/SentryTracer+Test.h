@@ -2,6 +2,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class SentryMeasurementUnit;
+
 @interface SentryTracer (Test)
 
 - (void)updateStartTime:(NSDate *)startTime;

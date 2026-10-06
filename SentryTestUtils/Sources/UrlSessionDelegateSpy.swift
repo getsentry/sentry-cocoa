@@ -1,9 +1,9 @@
 import Foundation
 
-class UrlSessionDelegateSpy: NSObject, URLSessionDelegate {
-    var delegateCallback: () -> Void = {}
+public class UrlSessionDelegateSpy: NSObject, URLSessionDelegate {
+    public var delegateCallback: () -> Void = {}
 
-    func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+    public func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         delegateCallback()
 
         /*
