@@ -44,10 +44,10 @@ CONFIGURATION_SUFFIX="V10"
 ARM64E_DEVICE_SDKS=( iphoneos macosx maccatalyst appletvos watchos xros )
 
 usage() {
-    log_notice "Usage: $0 [options]"
-    log_notice "  --suffix <suffix>      Output xcframework name suffix (default: empty)"
-    log_notice "  --mach-o-type <type>   staticlib for a static build; omit for dynamic (default: inherit from xcconfig)"
-    log_notice "  --sdks <list>          Comma-separated SDKs or AllSDKs (default: all)"
+    log_info "Usage: $0 [options]"
+    log_info "  --suffix <suffix>      Output xcframework name suffix (default: empty)"
+    log_info "  --mach-o-type <type>   staticlib for a static build; omit for dynamic (default: inherit from xcconfig)"
+    log_info "  --sdks <list>          Comma-separated SDKs or AllSDKs (default: all)"
     exit 1
 }
 
@@ -80,21 +80,17 @@ for sdk in "${sdks[@]}"; do
         fi
     done
 
-    "$SCRIPT_DIR/build-xcframework-slice.sh" \
-        "$sdk" \
-        "$SCHEME" \
-        "$SUFFIX" \
-        "$MACH_O_TYPE" \
-        "$CONFIGURATION_SUFFIX" \
-        "$PRODUCT_NAME" \
-        "${extra_build_settings[@]+"${extra_build_settings[@]}"}"
+    slice_args=(--sdk "$sdk" --scheme "$SCHEME" --suffix "$SUFFIX"
+        --mach-o-type "$MACH_O_TYPE" --configuration-suffix "$CONFIGURATION_SUFFIX"
+        --product-name "$PRODUCT_NAME")
+    for setting in "${extra_build_settings[@]+"${extra_build_settings[@]}"}"; do
+        slice_args+=(--build-setting "$setting")
+    done
+    "$SCRIPT_DIR/build-xcframework-slice.sh" "${slice_args[@]}"
 done
 
 xcframework_sdks="$(IFS=,; echo "${sdks[*]}")"
-"$SCRIPT_DIR/assemble-xcframework.sh" \
-    "$SCHEME" \
-    "$SUFFIX" \
-    "" \
-    "$xcframework_sdks" \
-    "$(pwd)/XCFrameworkBuildPath/archive/$SCHEME$SUFFIX/SDK_NAME.xcarchive" \
-    "$PRODUCT_NAME"
+"$SCRIPT_DIR/assemble-xcframework.sh" --scheme "$SCHEME" --suffix "$SUFFIX" \
+    --sdks "$xcframework_sdks" \
+    --archive-template "$(pwd)/XCFrameworkBuildPath/archive/$SCHEME$SUFFIX/SDK_NAME.xcarchive" \
+    --product-name "$PRODUCT_NAME"

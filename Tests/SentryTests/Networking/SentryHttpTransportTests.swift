@@ -1227,6 +1227,53 @@ class SentryHttpTransportTests: XCTestCase {
     }
 
 #if !os(watchOS)
+    func testConnectivityChanged_whenCaptureOverlapsEmptyScan_shouldSendEnvelope() throws {
+        // -- Arrange --
+        let fileManager = EmptyScanBlockingFileManager(
+            helper: try SentryFileManagerHelper(options: fixture.options),
+            dateProvider: fixture.currentDateProvider,
+            dispatchQueueWrapper: fixture.dispatchQueueWrapper
+        )
+        let transportQueue = SentryDispatchQueueWrapper()
+        let transportQueueKey = DispatchSpecificKey<Bool>()
+        transportQueue.queue.setSpecific(key: transportQueueKey, value: true)
+        sut = try fixture.getSut(fileManager: fileManager, dispatchQueueWrapper: transportQueue)
+
+        let scanStarted = expectation(description: "Connectivity drain found no envelopes")
+        let scanFinished = expectation(description: "Connectivity drain returned")
+        let resumeScan = DispatchSemaphore(value: 0)
+        let captureStored = DispatchSemaphore(value: 0)
+        fileManager.onEmptyScan = {
+            scanStarted.fulfill()
+            if DispatchQueue.getSpecific(key: transportQueueKey) == nil {
+                XCTAssertEqual(.success, captureStored.wait(timeout: .now() + 5))
+                XCTAssertEqual(1, fileManager.getAllEnvelopes().count)
+            }
+            _ = resumeScan.wait(timeout: .now() + 5)
+        }
+
+        // -- Act --
+        DispatchQueue.global().async {
+            self.fixture.reachability.triggerNetworkReachable()
+            scanFinished.fulfill()
+        }
+        defer { resumeScan.signal() }
+        wait(for: [scanStarted], timeout: 5)
+
+        sut.send(envelope: fixture.eventEnvelope)
+        transportQueue.dispatchAsync { captureStored.signal() }
+        resumeScan.signal()
+        wait(for: [scanFinished], timeout: 5)
+        let queueDrained = expectation(description: "Transport queue processed the capture")
+        transportQueue.dispatchAsync { queueDrained.fulfill() }
+        wait(for: [queueDrained], timeout: 5)
+        fixture.requestManager.waitForAllRequests()
+
+        // -- Assert --
+        XCTAssertEqual(1, fixture.requestManager.requests.count, "The capture must be sent without another trigger")
+        XCTAssertEqual(0, fileManager.getAllEnvelopes().count)
+    }
+
     func testSendsWhenNetworkComesBack() {
         givenNoInternetConnection()
 
@@ -1395,6 +1442,18 @@ class SentryHttpTransportTests: XCTestCase {
     private func assertClientReportNotStoredInMemory() throws {
         let dict = try XCTUnwrap(Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent])
         XCTAssertEqual(0, dict.count)
+    }
+}
+private final class EmptyScanBlockingFileManager: SentryFileManager {
+    var onEmptyScan: (() -> Void)?
+
+    override func getOldestEnvelope() -> SentryFileContents? {
+        let envelope = super.getOldestEnvelope()
+        if envelope == nil, let onEmptyScan {
+            self.onEmptyScan = nil
+            onEmptyScan()
+        }
+        return envelope
     }
 }
 // swiftlint:enable file_length

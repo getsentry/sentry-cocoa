@@ -148,7 +148,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithTracer:(SentryTracer *)tracer
                        context:(SentrySpanContext *)context
 #if SENTRY_HAS_UIKIT
-                 framesTracker:(nullable SentryFramesTracker *)framesTracker
+                 framesTracker:
+                     (nullable SENTRY_SWIFT_MIGRATION_ID(SentryFramesTracker))framesTracker
 {
     if (self = [self initWithContext:context framesTracker:framesTracker]) {
 #else

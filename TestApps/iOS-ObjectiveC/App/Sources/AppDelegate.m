@@ -1,4 +1,5 @@
 #import "AppDelegate.h"
+#import "RaiseUncaughtNSException.h"
 @import CoreData;
 @import SentryObjC;
 @import SentrySampleShared;
@@ -95,6 +96,20 @@
                 = ^(NSError *_Nonnull error) { NSLog(@"Failed to submit feedback: %@", error); };
         };
     }];
+
+    if ([args containsObject:@"--io.sentry.crash.huge-nsexception"] ||
+        [args containsObject:@"--io.sentry.crash.short-nsexception"]) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSString *reason = [@"iOS-ObjectiveC short NSException" copy];
+            if ([args containsObject:@"--io.sentry.crash.huge-nsexception"]) {
+                NSString *padding = [@"" stringByPaddingToLength:200000
+                                                      withString:@"a"
+                                                 startingAtIndex:0];
+                reason = [@"iOS-ObjectiveC huge NSException " stringByAppendingString:padding];
+            }
+            RaiseUncaughtNSException(@"HugeNSException", reason);
+        });
+    }
 
     return YES;
 }

@@ -594,6 +594,45 @@ final class UserFeedbackIntegrationTests: XCTestCase {
 #endif
     }
 
+    func testScreenshotTrigger_whenRetinaImageRendered_shouldPreserveResolution() throws {
+        for enableMaskRendererV2 in [false, true] {
+            for scale: CGFloat in [2, 3] {
+                // -- Arrange --
+                let size = CGSize(width: 30, height: 20)
+                let window = makeWindow()
+                window.frame = CGRect(origin: .zero, size: size)
+                let viewController = TestPresentingViewController()
+                useFallbackPresenter(viewController, in: window)
+                let renderer = TestSentryViewRenderer()
+                let format = UIGraphicsImageRendererFormat()
+                format.scale = scale
+                renderer.mockedReturnValue = UIGraphicsImageRenderer(size: size, format: format).image { context in
+                    UIColor.red.setFill()
+                    context.fill(CGRect(origin: .zero, size: size))
+                }
+                let source = SentryScreenshotSource(photographer: SentryViewPhotographer(
+                    renderer: renderer,
+                    redactOptions: SentryRedactDefaultOptions(),
+                    enableMaskRendererV2: enableMaskRendererV2))
+                let config = SentryUserFeedbackConfiguration()
+                config.animations = false
+                config.showFormForScreenshots = true
+                let sut = SentryUserFeedbackIntegrationDriver(configuration: config, screenshotSource: source)
+
+                // -- Act --
+                NotificationCenter.default.post(name: UIApplication.userDidTakeScreenshotNotification, object: nil)
+
+                // -- Assert --
+                let form = try XCTUnwrap(viewController.lastPresentedViewController as? SentryUserFeedbackFormController)
+                let screenshot = try XCTUnwrap(form.screenshot)
+                XCTAssertEqual(screenshot.scale, scale)
+                XCTAssertEqual(try XCTUnwrap(screenshot.cgImage).width, Int(size.width * scale))
+                XCTAssertEqual(try XCTUnwrap(screenshot.cgImage).height, Int(size.height * scale))
+                withExtendedLifetime((sut, window)) { }
+            }
+        }
+    }
+
     func testShowForm_whenConfigurationBuildersAreSet_shouldNotApplyBuildersAgain() throws {
         let window = makeWindow()
         let viewController = TestPresentingViewController()

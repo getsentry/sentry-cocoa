@@ -722,6 +722,32 @@
 
 #pragma mark private helper
 
+- (NSDictionary *)nsexceptionReportWithReason:(NSString *)reason diagnosis:(NSString *)diagnosis
+{
+    NSMutableDictionary *crash = [@{
+        @"threads" : @[ @{
+            @"index" : @0,
+            @"crashed" : @YES,
+            @"current_thread" : @YES,
+            @"backtrace" : @ { @"contents" : @[] }
+        } ],
+        @"error" : @ {
+            @"type" : @"nsexception",
+            @"reason" : reason,
+            @"nsexception" : @ { @"name" : @"NSInvalidArgumentException", @"reason" : reason }
+        }
+    } mutableCopy];
+    if (diagnosis != nil) {
+        crash[@"diagnosis"] = diagnosis;
+    }
+
+    return @{
+        @"crash" : crash,
+        @"binary_images" : @[],
+        @"system" : @ { @"application_stats" : @ { @"application_in_foreground" : @YES } }
+    };
+}
+
 - (SentryEvent *)eventFromNSExceptionUserInfo:(id)userInfo
 {
     return [self eventFromNSExceptionUserInfo:userInfo context:nil];
@@ -1574,6 +1600,102 @@
     NSString *signalNumber =
         [NSString stringWithFormat:@"%@", exception.mechanism.meta.signal[@"number"]];
     XCTAssertEqualObjects(signalNumber, @"10");
+}
+
+- (void)testConvertExceptions_whenNSExceptionReasonExceedsMaxLength_shouldTruncateValue
+{
+    // -- Arrange --
+    NSString *reason = [@"" stringByPaddingToLength:SentryMaxCrashExceptionValueLength + 1
+                                         withString:@"a"
+                                    startingAtIndex:0];
+    NSDictionary *mockReport = [self nsexceptionReportWithReason:reason diagnosis:nil];
+
+    // -- Act --
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:mockReport inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    // -- Assert --
+    SentryException *exception = event.exceptions.firstObject;
+    XCTAssertEqual(exception.value.length, SentryMaxCrashExceptionValueLength);
+    XCTAssertTrue([reason hasPrefix:exception.value]);
+}
+
+- (void)testConvertExceptions_whenNSExceptionReasonFitsMaxLength_shouldKeepValue
+{
+    // -- Arrange --
+    NSString *reason = [@"" stringByPaddingToLength:SentryMaxCrashExceptionValueLength
+                                         withString:@"b"
+                                    startingAtIndex:0];
+    NSDictionary *mockReport = [self nsexceptionReportWithReason:reason diagnosis:nil];
+
+    // -- Act --
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:mockReport inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    // -- Assert --
+    SentryException *exception = event.exceptions.firstObject;
+    XCTAssertEqualObjects(exception.value, reason);
+}
+
+- (void)testConvertExceptions_whenBothReasonFieldsExceedMaxLength_shouldTruncateValue
+{
+    // -- Arrange --
+    NSString *nsexceptionReason = [@"n" stringByPaddingToLength:20000
+                                                     withString:@"n"
+                                                startingAtIndex:0];
+    NSString *errorReason = [@"e" stringByPaddingToLength:20000 withString:@"e" startingAtIndex:0];
+    NSDictionary *mockReport = @{
+        @"crash" : @ {
+            @"threads" : @[ @{
+                @"index" : @0,
+                @"crashed" : @YES,
+                @"current_thread" : @YES,
+                @"backtrace" : @ { @"contents" : @[] }
+            } ],
+            @"error" : @ {
+                @"type" : @"nsexception",
+                @"reason" : errorReason,
+                @"nsexception" :
+                    @ { @"name" : @"NSInvalidArgumentException", @"reason" : nsexceptionReason }
+            }
+        },
+        @"binary_images" : @[],
+        @"system" : @ { @"application_stats" : @ { @"application_in_foreground" : @YES } }
+    };
+
+    // -- Act --
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:mockReport inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    // -- Assert --
+    SentryException *exception = event.exceptions.firstObject;
+    XCTAssertEqual(exception.value.length, SentryMaxCrashExceptionValueLength);
+    XCTAssertTrue([nsexceptionReason hasPrefix:exception.value]);
+    XCTAssertFalse([exception.value hasPrefix:@"e"]);
+}
+
+- (void)testConvertExceptions_whenDiagnosisMakesValueExceedMaxLength_shouldTruncateValue
+{
+    // -- Arrange --
+    NSString *reason = @"short reason";
+    NSString *diagnosis = [@"Application threw exception Other: " stringByPaddingToLength:20000
+                                                                               withString:@"d"
+                                                                          startingAtIndex:0];
+    NSDictionary *mockReport = [self nsexceptionReportWithReason:reason diagnosis:diagnosis];
+
+    // -- Act --
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:mockReport inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    // -- Assert --
+    SentryException *exception = event.exceptions.firstObject;
+    XCTAssertEqual(exception.value.length, SentryMaxCrashExceptionValueLength);
+    XCTAssertTrue([exception.value hasPrefix:reason]);
+    XCTAssertTrue([exception.value containsString:@" >\n"]);
 }
 
 - (SentryException *)firstExceptionOfReport:(NSString *)path

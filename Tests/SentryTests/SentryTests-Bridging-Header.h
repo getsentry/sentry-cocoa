@@ -26,7 +26,6 @@
 #import "NSMutableDictionary+Sentry.h"
 #import "Sentry/Sentry-Swift.h"
 #import "SentryBooleanSerialization.h"
-#import "SentryBuildAppStartSpans.h"
 #import "SentryClient+TestInit.h"
 #import "SentryClient.h"
 #import "SentryCrash+Test.h"

@@ -16,13 +16,13 @@ SDKS=""
 EXCLUDED_ARCHS=""
 
 usage() {
-    log_notice "Usage: $0 --scheme <name> [options]"
-    log_notice "  --scheme <name>              Xcode scheme (required)"
-    log_notice "  --suffix <suffix>            Output suffix (e.g. -Dynamic)"
-    log_notice "  --mach-o-type <type>         mh_dylib or staticlib (default: mh_dylib)"
-    log_notice "  --configuration-suffix <s>   Configuration suffix (e.g. WithoutUIKit)"
-    log_notice "  --sdks <list>                Comma-separated SDKs or AllSDKs (default: all)"
-    log_notice "  --excluded-archs <archs>     Architectures to strip (e.g. arm64e)"
+    log_info "Usage: $0 --scheme <name> [options]"
+    log_info "  --scheme <name>              Xcode scheme (required)"
+    log_info "  --suffix <suffix>            Output suffix (e.g. -Dynamic)"
+    log_info "  --mach-o-type <type>         mh_dylib or staticlib (default: mh_dylib)"
+    log_info "  --configuration-suffix <s>   Configuration suffix (e.g. WithoutUIKit)"
+    log_info "  --sdks <list>                Comma-separated SDKs or AllSDKs (default: all)"
+    log_info "  --excluded-archs <archs>     Architectures to strip (e.g. arm64e)"
     exit 1
 }
 
@@ -57,12 +57,15 @@ else
 fi
 
 for sdk in "${sdks[@]}"; do
-    ./scripts/build-xcframework-slice.sh "$sdk" "$SCHEME" "$SUFFIX" "$MACH_O_TYPE" "$CONFIGURATION_SUFFIX"
+    "$SCRIPT_DIR/build-xcframework-slice.sh" --sdk "$sdk" --scheme "$SCHEME" \
+        --suffix "$SUFFIX" --mach-o-type "$MACH_O_TYPE" --configuration-suffix "$CONFIGURATION_SUFFIX"
 done
 
 if [ -n "$EXCLUDED_ARCHS" ]; then
-    ./scripts/remove-architectures.sh "$(pwd)/XCFrameworkBuildPath/archive/$SCHEME$SUFFIX/" "$EXCLUDED_ARCHS"
+    "$SCRIPT_DIR/remove-architectures.sh" --xcarchive "$(pwd)/XCFrameworkBuildPath/archive/$SCHEME$SUFFIX/" --excluded-arch "$EXCLUDED_ARCHS"
 fi
 
 xcframework_sdks="$(IFS=,; echo "${sdks[*]}")"
-./scripts/assemble-xcframework.sh "$SCHEME" "$SUFFIX" "$CONFIGURATION_SUFFIX" "$xcframework_sdks" "$(pwd)/XCFrameworkBuildPath/archive/$SCHEME$SUFFIX/SDK_NAME.xcarchive"
+"$SCRIPT_DIR/assemble-xcframework.sh" --scheme "$SCHEME" --suffix "$SUFFIX" \
+    --configuration-suffix "$CONFIGURATION_SUFFIX" --sdks "$xcframework_sdks" \
+    --archive-template "$(pwd)/XCFrameworkBuildPath/archive/$SCHEME$SUFFIX/SDK_NAME.xcarchive"

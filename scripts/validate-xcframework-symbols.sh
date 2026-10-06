@@ -4,12 +4,14 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=./ci-utils.sh disable=SC1091
 source "$SCRIPT_DIR/ci-utils.sh"
+# shellcheck source=./xcframework-utils.sh disable=SC1091
+source "$SCRIPT_DIR/xcframework-utils.sh"
 
 XCFRAMEWORK_PATH=""
 
 usage() {
-    log_notice "Usage: $0 --xcframework <path>"
-    log_notice "  --xcframework <path>    XCFramework bundle to validate (required)"
+    log_info "Usage: $0 --xcframework <path>"
+    log_info "  --xcframework <path>    XCFramework bundle to validate (required)"
     exit 1
 }
 
@@ -33,50 +35,8 @@ if [ -z "$XCFRAMEWORK_PATH" ]; then
     usage
 fi
 
-if [ ! -d "$XCFRAMEWORK_PATH" ]; then
-    log_error "XCFramework path does not exist: $XCFRAMEWORK_PATH"
-    exit 1
-fi
-
+require_xcframework "$XCFRAMEWORK_PATH"
 info_plist_path="$XCFRAMEWORK_PATH/Info.plist"
-if [ ! -f "$info_plist_path" ]; then
-    log_error "Missing XCFramework Info.plist: $info_plist_path"
-    exit 1
-fi
-
-binary_path_for_library() {
-    local library_identifier="$1"
-    local library_path="$2"
-    local library_full_path="$XCFRAMEWORK_PATH/$library_identifier/$library_path"
-    local framework_name=""
-    local binary_path=""
-
-    if [[ "$library_full_path" == *.framework ]]; then
-        framework_name="$(basename "$library_full_path" .framework)"
-        binary_path="$library_full_path/$framework_name"
-        if [ -e "$binary_path" ]; then
-            printf "%s\n" "$binary_path"
-            return 0
-        fi
-
-        binary_path="$library_full_path/Versions/A/$framework_name"
-        if [ -e "$binary_path" ]; then
-            printf "%s\n" "$binary_path"
-            return 0
-        fi
-
-        log_error "Missing framework binary for $library_identifier: $library_full_path" >&2
-        return 1
-    fi
-
-    if [ -f "$library_full_path" ]; then
-        printf "%s\n" "$library_full_path"
-        return 0
-    fi
-
-    log_error "Unsupported or missing library path for $library_identifier: $library_full_path" >&2
-    return 1
-}
 
 # shellcheck disable=SC2016
 extract_objc_class_symbols() {
@@ -98,7 +58,7 @@ validate_library_symbols() {
     local ref_arch=""
     local errors=0
 
-    if ! binary_path="$(binary_path_for_library "$library_identifier" "$library_path")"; then
+    if ! binary_path="$(binary_path_for_library "$XCFRAMEWORK_PATH" "$library_identifier" "$library_path")"; then
         return 1
     fi
 
@@ -110,7 +70,7 @@ validate_library_symbols() {
     read -ra arch_array <<< "$archs"
 
     if [ "${#arch_array[@]}" -lt 2 ]; then
-        log_notice "$library_identifier: single architecture (${arch_array[*]}), skipping symbol comparison"
+        log_info "$library_identifier: single architecture (${arch_array[*]}), skipping symbol comparison"
         return 0
     fi
 
@@ -150,7 +110,7 @@ validate_library_symbols() {
     done
 
     if [ "$errors" -eq 0 ]; then
-        log_notice "$library_identifier: ObjC class symbols consistent across architectures (${arch_array[*]})"
+        log_info "$library_identifier: ObjC class symbols consistent across architectures (${arch_array[*]})"
     fi
 
     return "$errors"
@@ -195,4 +155,4 @@ if [ "$validation_errors" -ne 0 ]; then
     exit 1
 fi
 
-log_notice "XCFramework symbol consistency check passed."
+log_info "XCFramework symbol consistency check passed."

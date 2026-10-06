@@ -113,8 +113,34 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             try assertEventWithScopeCaptured { _, scope, _ in
                 let diagnosticAttachment = scope?.attachments.first { $0.filename == "MXDiagnosticPayload.json" }
 
-                XCTAssertEqual(diagnosticAttachment?.data, hangDiagnostic.jsonRepresentation())
+                let attachmentJSON = try JSONSerialization.jsonObject(with: XCTUnwrap(diagnosticAttachment?.data)) as? NSDictionary
+                let diagnosticJSON = try JSONSerialization.jsonObject(with: hangDiagnostic.jsonRepresentation()) as? NSDictionary
+                XCTAssertEqual(attachmentJSON, diagnosticJSON)
             }
+    }
+
+    func testDidReceive_whenRawDiagnosticIsPrettyPrinted_shouldAttachCompactJSON() throws {
+        // -- Arrange --
+        givenSDKWithHubWithScope()
+        let sut = SentryMXManager(
+            inAppLogic: SentryInAppLogic(inAppIncludes: []),
+            attachDiagnosticAsAttachment: true,
+            enabledDiagnostics: [.hang]
+        )
+        let diagnostic = TestMXHangDiagnostic()
+        diagnostic.overrides.callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/not-per-thread-only-one-frame")
+        diagnostic.overrides.jsonRepresentation = Data("{\n  \"hangDuration\": \"6.6 sec\"\n}".utf8)
+        let payload = TestMXDiagnosticPayload()
+        payload.overrides.hangDiagnostic = [diagnostic]
+
+        // -- Act --
+        sut.didReceive([payload])
+
+        // -- Assert --
+        try assertEventWithScopeCaptured { _, scope, _ in
+            let attachment = try XCTUnwrap(scope?.attachments.first { $0.filename == "MXDiagnosticPayload.json" })
+            XCTAssertEqual(attachment.data, Data(#"{"hangDuration":"6.6 sec"}"#.utf8))
+        }
     }
 
     func testDidReceive_whenHangDecodingFailsAndRawPayloadEnabled_shouldCaptureRawDiagnostic() throws {
@@ -152,7 +178,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             XCTAssertNil(event.debugMeta)
             let attachments = try XCTUnwrap(scope?.attachments.filter { $0.filename == "MXDiagnosticPayload.json" })
             XCTAssertEqual(attachments.count, 1)
-            XCTAssertEqual(attachments.first?.data, rawDiagnostic)
+            let attachmentJSON = try JSONSerialization.jsonObject(with: XCTUnwrap(attachments.first?.data)) as? NSDictionary
+            let diagnosticJSON = try JSONSerialization.jsonObject(with: rawDiagnostic) as? NSDictionary
+            XCTAssertEqual(attachmentJSON, diagnosticJSON)
         }
         XCTAssertEqual(diagnostic.jsonRepresentationInvocations.count, 1)
     }
@@ -223,7 +251,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             XCTAssertEqual(capture.event.timestamp, timeStampBegin)
             let attachments = capture.scope.attachments.filter { $0.filename == "MXDiagnosticPayload.json" }
             XCTAssertEqual(attachments.count, 1)
-            XCTAssertEqual(attachments.first?.data, expectedJSON)
+            let attachmentJSON = try JSONSerialization.jsonObject(with: XCTUnwrap(attachments.first?.data)) as? NSDictionary
+            let diagnosticJSON = try JSONSerialization.jsonObject(with: expectedJSON) as? NSDictionary
+            XCTAssertEqual(attachmentJSON, diagnosticJSON)
         }
         XCTAssertFalse(scope.attachments.contains { $0.filename == "MXDiagnosticPayload.json" })
         XCTAssertEqual(malformedDiagnostic.jsonRepresentationInvocations.count, 1)

@@ -243,8 +243,16 @@ extension SentryMXManager: MXMetricManagerSubscriber {
         SentrySDKLog.debug("Capturing MetricKit payload event for diagnostic: \(diagnosticReport)")
         if attachDiagnosticAsAttachment {
             let diagnosticJSON = diagnostic.jsonRepresentation()
+            let attachmentData: Data
+            do {
+                let jsonObject = try JSONSerialization.jsonObject(with: diagnosticJSON)
+                attachmentData = try JSONSerialization.data(withJSONObject: jsonObject)
+            } catch {
+                SentrySDKLog.warning("Failed to compact MetricKit diagnostic JSON: \(error)")
+                attachmentData = diagnosticJSON
+            }
             SentrySDK.capture(event: event) { scope in
-                scope.addAttachment(Attachment(data: diagnosticJSON, filename: "MXDiagnosticPayload.json"))
+                scope.addAttachment(Attachment(data: attachmentData, filename: "MXDiagnosticPayload.json"))
             }
         } else {
             SentrySDK.capture(event: event)

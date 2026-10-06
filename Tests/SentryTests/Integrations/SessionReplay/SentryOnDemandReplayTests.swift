@@ -115,6 +115,27 @@ class SentryOnDemandReplayTests: XCTestCase {
             XCTAssertEqual(frames[i].screenName, "\(i)")
         }
     }
+
+    func testCreateVideoWith_whenCalledOnProcessingQueue_shouldComplete() {
+        // -- Arrange --
+        let processingQueue = SentryDispatchQueueWrapper()
+        let sut = SentryOnDemandReplay(
+            outputPath: outputPath.path,
+            processingQueue: processingQueue,
+            assetWorkerQueue: SentryDispatchQueueWrapper()
+        )
+        let start = Date(timeIntervalSinceReferenceDate: 0)
+        let completed = expectation(description: "createVideoWith completed on processing queue")
+
+        // -- Act --
+        processingQueue.queue.async {
+            _ = sut.createVideoWith(beginning: start, end: start.addingTimeInterval(1))
+            completed.fulfill()
+        }
+
+        // -- Assert --
+        wait(for: [completed], timeout: 1)
+    }
     
     func testGenerateVideo() throws {
         // -- Arrange --

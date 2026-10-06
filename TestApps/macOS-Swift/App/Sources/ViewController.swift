@@ -44,6 +44,17 @@ class ViewController: NSViewController {
         exception.raise()
     }
 
+    @IBAction func raiseHugeNSException(_ sender: Any) {
+        // Larger than the old 150KB JSON scratch buffer (112.5KB for values).
+        let padding = String(repeating: "a", count: 200_000)
+        let exception = NSException(
+            name: NSExceptionName("HugeNSException"),
+            reason: "macOS-Swift huge NSException " + padding,
+            userInfo: nil
+        )
+        exception.raise()
+    }
+
     @IBAction func reportNSException(_ sender: Any) {
         let userInfo: [String: String] = ["user-info-key-1": "user-info-value-1", "user-info-key-2": "user-info-value-2"]
         let exception = NSException(name: NSExceptionName("NSException via NSApplication report"), reason: "It doesn't work", userInfo: userInfo)

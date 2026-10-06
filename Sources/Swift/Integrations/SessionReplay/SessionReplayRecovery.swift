@@ -19,6 +19,7 @@ struct SessionReplayRecovery {
     private let replayAssetWorkerQueue: SentryDispatchQueueWrapper
     private let replayFileManager: SessionReplayFileManager
     private var breadcrumbConverter: SentryReplayBreadcrumbConverter
+    private let idleGate: SentryReplayRecoveryIdleGate
     
     init(
         replayOptions: SentryReplayOptions,
@@ -26,7 +27,8 @@ struct SessionReplayRecovery {
         replayProcessingQueue: SentryDispatchQueueWrapper,
         replayAssetWorkerQueue: SentryDispatchQueueWrapper,
         replayFileManager: SessionReplayFileManager,
-        breadcrumbConverter: SentryReplayBreadcrumbConverter
+        breadcrumbConverter: SentryReplayBreadcrumbConverter,
+        idleGate: SentryReplayRecoveryIdleGate
     ) {
         self.replayOptions = replayOptions
         self.random = random
@@ -34,6 +36,7 @@ struct SessionReplayRecovery {
         self.replayAssetWorkerQueue = replayAssetWorkerQueue
         self.replayFileManager = replayFileManager
         self.breadcrumbConverter = breadcrumbConverter
+        self.idleGate = idleGate
     }
 
     mutating func updateBreadcrumbConverter(_ breadcrumbConverter: SentryReplayBreadcrumbConverter) {
@@ -43,10 +46,6 @@ struct SessionReplayRecovery {
     // MARK: - Recovery
 
     /// Send the cached frames from a previous session that eventually crashed.
-    ///
-    /// This function is called when processing an event created by SentryCrashIntegration,
-    /// which runs in the background. That's why we don't need to dispatch the generation of the
-    /// replay to the background in this function.
     func resumePreviousSessionReplay(_ event: Event) {
         SentrySDKLog.debug("[Session Replay] Resuming previous session replay")
         guard let dir = replayFileManager.replayDirectory(),
@@ -63,23 +62,42 @@ struct SessionReplayRecovery {
         }
 
         let lastReplayURL = dir.appendingPathComponent(path)
-        
+
         guard let previousReplayConfig = loadPreviousReplayConfig(from: lastReplayURL, jsonObject: jsonObject) else {
             return
         }
-        
-        createAndSendPreviousReplayVideos(
-            replayId: replayId,
-            lastReplayURL: lastReplayURL,
-            config: previousReplayConfig,
-            event: event
-        )
 
-        do {
-            try FileManager.default.removeItem(at: lastReplayURL)
-            SentrySDKLog.debug("[Session Replay] Deleted last replay file at path: \(lastReplayURL)")
-        } catch {
-            SentrySDKLog.warning("[Session Replay] Could not delete last replay file at path: \(lastReplayURL), error : \(error.localizedDescription)")
+        // Same-process exclusivity. Keep replay.last on disk until encode finishes so a
+        // kill during the queued encode can still recover on the next launch.
+        guard idleGate.tryClaim() else {
+            return
+        }
+
+        var eventContext = event.context ?? [:]
+        eventContext["replay"] = ["replay_id": replayId.sentryIdString]
+        event.context = eventContext
+
+        let breadcrumbs = event.breadcrumbs ?? []
+        // Startup-crash report processing runs on the SDK init thread. Encoding waits on
+        // AVAssetWriter and must run on `replayProcessingQueue`. Signal idle when that
+        // work finishes so the crash reporter can flush without owning replay.
+        idleGate.begin()
+        replayProcessingQueue.dispatchAsync {
+            defer { self.idleGate.end() }
+            self.createAndSendPreviousReplayVideos(
+                replayId: replayId,
+                lastReplayURL: lastReplayURL,
+                config: previousReplayConfig,
+                breadcrumbs: breadcrumbs
+            )
+
+            do {
+                try FileManager.default.removeItem(at: lastReplayURL)
+                SentrySDKLog.debug("[Session Replay] Deleted last replay file at path: \(lastReplayURL)")
+            } catch {
+                SentrySDKLog.warning("[Session Replay] Could not delete last replay file at path: \(lastReplayURL), error : \(error.localizedDescription)")
+            }
+            self.replayFileManager.claimLastReplayInfo()
         }
     }
     
@@ -169,7 +187,7 @@ struct SessionReplayRecovery {
         replayId: SentryId,
         lastReplayURL: URL,
         config: PreviousReplayConfig,
-        event: Event
+        breadcrumbs: [Breadcrumb]
     ) {
         let resumeReplayMaker = createResumeReplayMaker(from: lastReplayURL)
         let videos = resumeReplayMaker.createVideoWith(
@@ -193,16 +211,12 @@ struct SessionReplayRecovery {
                 replayId: replayId,
                 segmentId: currentSegmentId,
                 type: currentType,
-                breadcrumbs: event.breadcrumbs ?? []
+                breadcrumbs: breadcrumbs
             )
             currentSegmentId += 1
             // type buffer is only for the first segment
             currentType = .session
         }
-
-        var eventContext = event.context ?? [:]
-        eventContext["replay"] = ["replay_id": replayId.sentryIdString]
-        event.context = eventContext
     }
 
     private func captureVideo(

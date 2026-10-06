@@ -101,6 +101,110 @@ class SentryScreenshotSourceTests: XCTestCase {
         XCTAssertEqual(image?.size.height, 10)
     }
 
+    func testAppScreenshots_whenRetinaImageRendered_shouldPreserveResolutionAndRedaction() throws {
+        for enableMaskRendererV2 in [false, true] {
+            for scale: CGFloat in [2, 3] {
+                // -- Arrange --
+                let size = CGSize(width: 30, height: 20)
+                let window = TestWindow(testFrame: CGRect(origin: .zero, size: size))
+                // The redaction builder skips hidden layers; no real window presentation is needed.
+                window.layer.isHidden = false
+                let label = UILabel(frame: CGRect(x: 10, y: 5, width: 10, height: 10))
+                label.text = "Private"
+                label.textColor = .green
+                window.addSubview(label)
+                fixture.uiApplication.windows = [window]
+                let format = UIGraphicsImageRendererFormat()
+                format.scale = scale
+                fixture.renderer.mockedReturnValue = UIGraphicsImageRenderer(size: size, format: format).image { context in
+                    UIColor.red.setFill()
+                    context.fill(CGRect(origin: .zero, size: size))
+                }
+                let photographer = SentryViewPhotographer(
+                    renderer: fixture.renderer,
+                    redactOptions: SentryRedactDefaultOptions(),
+                    enableMaskRendererV2: enableMaskRendererV2
+                )
+                let sut = SentryScreenshotSource(photographer: photographer)
+
+                // -- Act --
+                let image = try XCTUnwrap(sut.appScreenshotsFromMainThread().first)
+                let data = try XCTUnwrap(sut.appScreenshotDatasFromMainThread().first)
+                let png = try XCTUnwrap(UIImage(data: data)?.cgImage)
+
+                // -- Assert --
+                XCTAssertEqual(image.size, size)
+                XCTAssertEqual(image.scale, scale)
+                XCTAssertEqual(try XCTUnwrap(image.cgImage).width, Int(size.width * scale))
+                XCTAssertEqual(try XCTUnwrap(image.cgImage).height, Int(size.height * scale))
+                XCTAssertEqual(png.width, Int(size.width * scale))
+                XCTAssertEqual(png.height, Int(size.height * scale))
+                XCTAssertEqual(try pixelBytes(in: image, at: CGPoint(x: 15, y: 10)), [0, 255, 0, 255])
+                XCTAssertEqual(try pixelBytes(in: image, at: CGPoint(x: 5, y: 10)), [255, 0, 0, 255])
+            }
+        }
+    }
+
+    func testSaveScreenShots_whenRetinaImageRendered_shouldPreserveResolutionAndRedaction() throws {
+        for enableMaskRendererV2 in [false, true] {
+            // -- Arrange --
+            let size = CGSize(width: 30, height: 20)
+            let window = TestWindow(testFrame: CGRect(origin: .zero, size: size))
+            window.layer.isHidden = false
+            let label = UILabel(frame: CGRect(x: 10, y: 5, width: 10, height: 10))
+            label.text = "Private"
+            label.textColor = .green
+            window.addSubview(label)
+            fixture.uiApplication.windows = [window]
+            let appDelegate = TestApplicationDelegate()
+            appDelegate.window = window
+            fixture.uiApplication.appDelegate = appDelegate
+            let format = UIGraphicsImageRendererFormat()
+            format.scale = 3
+            fixture.renderer.mockedReturnValue = UIGraphicsImageRenderer(size: size, format: format).image { context in
+                UIColor.red.setFill()
+                context.fill(CGRect(origin: .zero, size: size))
+            }
+            let photographer = SentryViewPhotographer(
+                renderer: fixture.renderer,
+                redactOptions: SentryRedactDefaultOptions(),
+                enableMaskRendererV2: enableMaskRendererV2
+            )
+            let sut = SentryScreenshotSource(photographer: photographer)
+            let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            defer {
+                do {
+                    try FileManager.default.removeItem(at: directory)
+                } catch {
+                    XCTFail("Failed to remove screenshot test directory: \(error)")
+                }
+            }
+
+            // -- Act --
+            withExtendedLifetime(appDelegate) {
+                sut.saveScreenShots(directory.path)
+            }
+            let data = try Data(contentsOf: directory.appendingPathComponent("screenshot.png"))
+            let crashImage = try XCTUnwrap(UIImage(data: data, scale: 3))
+
+            // -- Assert --
+            XCTAssertEqual(try XCTUnwrap(crashImage.cgImage).width, Int(size.width * 3))
+            XCTAssertEqual(try XCTUnwrap(crashImage.cgImage).height, Int(size.height * 3))
+            XCTAssertEqual(try pixelBytes(in: crashImage, at: CGPoint(x: 15, y: 10)), [0, 255, 0, 255])
+            XCTAssertEqual(try pixelBytes(in: crashImage, at: CGPoint(x: 5, y: 10)), [255, 0, 0, 255])
+        }
+    }
+
+    private func pixelBytes(in image: UIImage, at point: CGPoint) throws -> [UInt8] {
+        let pixelRect = CGRect(x: point.x * image.scale, y: point.y * image.scale, width: 1, height: 1)
+        let cropped = try XCTUnwrap(image.cgImage?.cropping(to: pixelRect))
+        let context = try XCTUnwrap(CGContext(data: nil, width: 1, height: 1, bitsPerComponent: 8, bytesPerRow: 4, space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))
+        context.draw(cropped, in: CGRect(x: 0, y: 0, width: 1, height: 1))
+        let bytes = try XCTUnwrap(context.data).assumingMemoryBound(to: UInt8.self)
+        return Array(UnsafeBufferPointer(start: bytes, count: 4))
+    }
+
     func test_ZeroSizeScreenShot_GetsDiscarded() {
         let testWindow = TestWindow(testFrame: CGRect(x: 0, y: 0, width: 0, height: 0))
         fixture.uiApplication.windows = [testWindow]
