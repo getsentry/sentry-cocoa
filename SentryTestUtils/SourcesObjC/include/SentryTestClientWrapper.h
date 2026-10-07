@@ -34,6 +34,11 @@ NS_ASSUME_NONNULL_BEGIN
            additionalEnvelopeItems:(NSArray *)additionalEnvelopeItems
     NS_SWIFT_NAME(wrapper_capture(event:scope:additionalEnvelopeItems:));
 
+- (SentryId *)wrapper_captureEvent:(SentryEvent *)event
+                         withScope:(SentryScope *)scope
+                              hint:(SENTRY_SWIFT_MIGRATION_ID(SentryHint)_Nullable)hint
+    NS_SWIFT_NAME(wrapper_capture(event:scope:hint:));
+
 - (SentryId *)wrapper_captureFatalEvent:(SentryEvent *)event
                             withSession:(SENTRY_SWIFT_MIGRATION_ID(SentrySession))session
                               withScope:(SentryScope *)scope

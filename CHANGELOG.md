@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Stop applying the current scope, app state and mutable device data to MetricKit events from an earlier app run. These events carry the app and OS versions of the diagnostic and the stable device attributes, while breadcrumbs, user, tags, extras, scope attachments and the current replay stay out. Diagnostics recorded by the running process keep the scope data (#9297)
+
 ## 9.30.1
 
 ### Fixes
