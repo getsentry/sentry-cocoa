@@ -25,10 +25,11 @@
 // THE SOFTWARE.
 //
 
-#import <XCTest/XCTest.h>
-#import <objc/runtime.h>
+#if !SDK_V10
+#    import <XCTest/XCTest.h>
+#    import <objc/runtime.h>
 
-#import "SentryCrashObjC.h"
+#    import "SentryCrashObjC.h"
 
 @interface SomeObjCClass : NSObject {
     int someIvar;
@@ -131,10 +132,10 @@ static NSArray *g_test_strings;
 - (void)testObjectTypeCorrupt
 {
     struct objc_object objcClass;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     objcClass.isa = (__bridge Class)((void *)-1);
-#pragma clang diagnostic pop
+#    pragma clang diagnostic pop
     SentryCrashObjCType type = sentrycrashobjc_objectType(&objcClass);
     XCTAssertEqual(type, SentryCrashObjCTypeUnknown, @"Type was %d", type);
 }
@@ -486,7 +487,7 @@ static NSArray *g_test_strings;
 
 - (void)testArrayDescription
 {
-#if 0
+#    if 0
     NSArray* array = [NSArray arrayWithObjects:@"test", nil];
     void* arrayPtr = (__bridge void*)array;
     NSString* expectedClassName = [NSString stringWithCString:class_getName([array class]) encoding:NSUTF8StringEncoding];
@@ -509,7 +510,7 @@ static NSArray *g_test_strings;
     expectedClassName = [NSString stringWithCString:class_getName([expectedTheRest class]) encoding:NSUTF8StringEncoding];
     XCTAssertEqualObjects(className, expectedClassName, @"");
     XCTAssertEqualObjects(theRest, expectedTheRest, @"");
-#endif
+#    endif
 }
 
 - (void)testCopyArrayContentsImmutableEmpty
@@ -705,3 +706,5 @@ static NSArray *g_test_strings;
 }
 
 @end
+
+#endif // !SDK_V10

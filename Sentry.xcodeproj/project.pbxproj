@@ -1822,10 +1822,6 @@
 			};
 			membershipExceptions = (
 				Info.plist,
-				Integrations/Performance/SwizzlingCallTests.swift,
-				Integrations/Performance/UIViewController/SentryUIViewControllerPerformanceTrackerTests.swift,
-				Integrations/Performance/UIViewController/SentryUIViewControllerSwizzlingTests.swift,
-				Integrations/Performance/UIViewController/SentryVCTrackerLaunchProfilingTests.swift,
 			);
 			target = 3CFC66DE2FF50342004005B4 /* SentryTestsV10 */;
 		};

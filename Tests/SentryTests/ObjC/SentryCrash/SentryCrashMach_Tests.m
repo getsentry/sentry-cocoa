@@ -25,11 +25,12 @@
 // THE SOFTWARE.
 //
 
-#import <XCTest/XCTest.h>
+#if !SDK_V10
+#    import <XCTest/XCTest.h>
 
-#import "SentryCrashMach.h"
-#include <mach/exception_types.h>
-#include <mach/kern_return.h>
+#    import "SentryCrashMach.h"
+#    include <mach/exception_types.h>
+#    include <mach/kern_return.h>
 
 @interface SentryCrashMach_Tests : XCTestCase
 @end
@@ -66,3 +67,5 @@
 }
 
 @end
+
+#endif // !SDK_V10

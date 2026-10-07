@@ -25,15 +25,16 @@
 // THE SOFTWARE.
 //
 
-#import <XCTest/XCTest.h>
-#import <float.h>
-#import <math.h>
-#import <stdint.h>
+#if !SDK_V10
+#    import <XCTest/XCTest.h>
+#    import <float.h>
+#    import <math.h>
+#    import <stdint.h>
 
-#import "FileBasedTestCase.h"
-#import "SentryCrashJSONCodec.h"
-#import "SentryCrashJSONCodecObjC.h"
-#import "SentryInvalidJSONString.h"
+#    import "FileBasedTestCase.h"
+#    import "SentryCrashJSONCodec.h"
+#    import "SentryCrashJSONCodecObjC.h"
+#    import "SentryInvalidJSONString.h"
 
 @interface SentryCrashJSONCodec_Tests : FileBasedTestCase
 @end
@@ -1936,3 +1937,5 @@ addJSONData(const char *data, int length, void *userData)
 }
 
 @end
+
+#endif // !SDK_V10

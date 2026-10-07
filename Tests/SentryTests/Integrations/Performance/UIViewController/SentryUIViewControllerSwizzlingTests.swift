@@ -1,3 +1,4 @@
+#if !SDK_V10
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 @_spi(Private) import SentryTestUtils
@@ -763,3 +764,5 @@ private class TestSubClassFinder: SentrySubClassFinder {
 }
 
 #endif
+
+#endif // !SDK_V10

@@ -1,9 +1,10 @@
-#include "SentryCrashCxaThrowSwapper.h"
-#include "SentryCrashMonitorContext.h"
-#import "SentryCrashMonitor_CPPException.h"
-#import <XCTest/XCTest.h>
+#if !SDK_V10
+#    include "SentryCrashCxaThrowSwapper.h"
+#    include "SentryCrashMonitorContext.h"
+#    import "SentryCrashMonitor_CPPException.h"
+#    import <XCTest/XCTest.h>
 
-#include <stdexcept>
+#    include <stdexcept>
 
 @interface SentryTestNSExceptionSubclass : NSException
 @end
@@ -277,3 +278,5 @@ mockHandleExceptionHandler(struct SentryCrash_MonitorContext *context)
     XCTAssertEqualObjects(capturedExceptionContextCrashReason, truncatedErrorMessage);
 }
 @end
+
+#endif // !SDK_V10

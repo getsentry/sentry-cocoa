@@ -23,10 +23,11 @@
 // THE SOFTWARE.
 //
 
-#import "SentryCrashMach-O.h"
-#import <XCTest/XCTest.h>
-#import <mach-o/loader.h>
-#import <mach/mach.h>
+#if !SDK_V10
+#    import "SentryCrashMach-O.h"
+#    import <XCTest/XCTest.h>
+#    import <mach-o/loader.h>
+#    import <mach/mach.h>
 
 @interface SentryCrashMach_O_Tests : XCTestCase
 @end
@@ -547,3 +548,5 @@
 }
 
 @end
+
+#endif // !SDK_V10

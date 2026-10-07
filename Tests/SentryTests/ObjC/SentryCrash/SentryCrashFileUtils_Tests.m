@@ -25,12 +25,13 @@
 // THE SOFTWARE.
 //
 
-#import "FileBasedTestCase.h"
-#include <fcntl.h>
-#include <stdio.h>
-#include <string.h>
+#if !SDK_V10
+#    import "FileBasedTestCase.h"
+#    include <fcntl.h>
+#    include <stdio.h>
+#    include <string.h>
 
-#import "SentryCrashFileUtils.h"
+#    import "SentryCrashFileUtils.h"
 
 typedef struct {
     char path[SentryCrashFU_MAX_PATH_LENGTH];
@@ -891,7 +892,7 @@ isFileUtilsCanaryIntact(const GuardedSentryCrashFUPathBuffer *buffer)
     XCTAssertNil(error);
 
     // Smoke-test the directory got created
-    bool isDirectory;
+    BOOL isDirectory;
     XCTAssertTrue([fileManager fileExistsAtPath:dirPath isDirectory:&isDirectory],
         "Failed to create test file");
     XCTAssertTrue(isDirectory);
@@ -1077,3 +1078,5 @@ isFileUtilsCanaryIntact(const GuardedSentryCrashFUPathBuffer *buffer)
     XCTAssertFalse(result, @"openBufferedWriter should fail for invalid directory path");
 }
 @end
+
+#endif // !SDK_V10

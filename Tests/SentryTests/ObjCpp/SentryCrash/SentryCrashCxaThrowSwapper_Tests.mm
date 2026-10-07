@@ -1,11 +1,12 @@
-#include "SentryCompiler.h"
-#import "SentryCrashCxaThrowSwapper.h"
-#import <XCTest/XCTest.h>
-#import <chrono>
-#import <dlfcn.h>
-#import <exception>
-#import <stdexcept>
-#import <vector>
+#if !SDK_V10
+#    include "SentryCompiler.h"
+#    import "SentryCrashCxaThrowSwapper.h"
+#    import <XCTest/XCTest.h>
+#    import <chrono>
+#    import <dlfcn.h>
+#    import <exception>
+#    import <stdexcept>
+#    import <vector>
 
 @interface SentryCrashCxaThrowSwapper_Tests : XCTestCase
 
@@ -309,3 +310,5 @@ testExceptionHandlerNoOp(
 }
 
 @end
+
+#endif // !SDK_V10

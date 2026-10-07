@@ -1,4 +1,5 @@
 // swiftlint:disable file_length
+#if !SDK_V10
 #if os(iOS) || os(tvOS) || os(visionOS)
 
 @_spi(Private) import SentryTestUtils
@@ -1000,3 +1001,5 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
     }
 }
 #endif // os(iOS) || os(tvOS)
+
+#endif // !SDK_V10

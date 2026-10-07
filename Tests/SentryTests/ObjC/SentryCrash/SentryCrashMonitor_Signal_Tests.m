@@ -25,12 +25,13 @@
 // THE SOFTWARE.
 //
 
-#import <XCTest/XCTest.h>
+#if !SDK_V10
+#    import <XCTest/XCTest.h>
 
-#import "SentryCrashMonitorContext.h"
-#import "SentryCrashMonitor_Signal.h"
+#    import "SentryCrashMonitorContext.h"
+#    import "SentryCrashMonitor_Signal.h"
 
-#if SENTRY_HAS_SIGNAL
+#    if SENTRY_HAS_SIGNAL
 
 @interface SentryCrashMonitor_Signal_Tests : XCTestCase
 @end
@@ -63,4 +64,6 @@
 }
 
 @end
-#endif
+#    endif
+
+#endif // !SDK_V10

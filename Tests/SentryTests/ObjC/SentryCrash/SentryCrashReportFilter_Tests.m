@@ -25,11 +25,12 @@
 // THE SOFTWARE.
 //
 
-#import <XCTest/XCTest.h>
+#if !SDK_V10
+#    import <XCTest/XCTest.h>
 
-#import "SentryCrashNSErrorUtil.h"
-#import "SentryCrashReportFilter.h"
-#import "SentryCrashReportFilterBasic.h"
+#    import "SentryCrashNSErrorUtil.h"
+#    import "SentryCrashReportFilter.h"
+#    import "SentryCrashReportFilterBasic.h"
 
 @interface SentryCrash_TestNilFilter : NSObject <SentryCrashReportFilter>
 
@@ -115,7 +116,7 @@
 
 @implementation SentryCrashReportFilter_Tests
 
-#if __has_feature(objc_arc)
+#    if __has_feature(objc_arc)
 
 - (void)testPassthroughLeak
 {
@@ -258,7 +259,7 @@
                }];
 }
 
-#endif
+#    endif
 
 - (void)testFilterPassthrough
 {
@@ -634,3 +635,5 @@
 }
 
 @end
+
+#endif // !SDK_V10

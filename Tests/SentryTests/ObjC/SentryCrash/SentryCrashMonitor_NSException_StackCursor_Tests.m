@@ -25,12 +25,13 @@
 // THE SOFTWARE.
 //
 
-#import <XCTest/XCTest.h>
+#if !SDK_V10
+#    import <XCTest/XCTest.h>
 
-#import "SentryCrashMonitor_NSException_StackCursor.h"
-#import "SentryCrashStackCursor.h"
-#import "SentryCrashStackCursor_Backtrace.h"
-#import "SentryCrashStackCursor_SelfThread.h"
+#    import "SentryCrashMonitor_NSException_StackCursor.h"
+#    import "SentryCrashStackCursor.h"
+#    import "SentryCrashStackCursor_Backtrace.h"
+#    import "SentryCrashStackCursor_SelfThread.h"
 
 @interface SentryCrashMonitor_NSException_StackCursor_Tests : XCTestCase
 @end
@@ -113,3 +114,5 @@
 }
 
 @end
+
+#endif // !SDK_V10

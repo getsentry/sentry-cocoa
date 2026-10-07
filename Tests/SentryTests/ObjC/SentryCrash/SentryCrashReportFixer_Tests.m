@@ -1,5 +1,6 @@
-#import "SentryCrashReportFixer.h"
-#import <XCTest/XCTest.h>
+#if !SDK_V10
+#    import "SentryCrashReportFixer.h"
+#    import <XCTest/XCTest.h>
 
 @interface SentryCrashReportFixer_Tests : XCTestCase
 
@@ -89,3 +90,5 @@
 }
 
 @end
+
+#endif // !SDK_V10

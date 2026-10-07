@@ -25,9 +25,10 @@
 // THE SOFTWARE.
 //
 
-#import <XCTest/XCTest.h>
+#if !SDK_V10
+#    import <XCTest/XCTest.h>
 
-#import "SentryCrashString.h"
+#    import "SentryCrashString.h"
 
 @interface SentryCrashString_Tests : XCTestCase
 @end
@@ -237,3 +238,5 @@
 }
 
 @end
+
+#endif // !SDK_V10

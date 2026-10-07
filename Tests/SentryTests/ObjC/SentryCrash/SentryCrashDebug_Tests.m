@@ -25,9 +25,10 @@
 // THE SOFTWARE.
 //
 
-#import <XCTest/XCTest.h>
+#if !SDK_V10
+#    import <XCTest/XCTest.h>
 
-#import "SentryCrashDebug.h"
+#    import "SentryCrashDebug.h"
 
 @interface SentryCrashDebug_Tests : XCTestCase
 @end
@@ -52,3 +53,5 @@
 // verified through code review.
 
 @end
+
+#endif // !SDK_V10

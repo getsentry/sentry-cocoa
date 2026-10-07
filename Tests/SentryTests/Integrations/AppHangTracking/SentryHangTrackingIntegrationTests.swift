@@ -932,13 +932,13 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
 
         if addThreads {
             
-            let frame1 = Sentry.Frame()
+            let frame1 = Frame()
             
             let thread1 = SentryThread(threadId: 0)
             thread1.stacktrace = SentryStacktrace(frames: [frame1], registers: [:])
             thread1.current = true
             
-            let frame2 = Sentry.Frame()
+            let frame2 = Frame()
             
             let thread2 = SentryThread(threadId: 1)
             thread2.stacktrace = SentryStacktrace(frames: [frame2], registers: [:])

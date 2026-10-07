@@ -23,8 +23,9 @@
 // THE SOFTWARE.
 //
 
-#import "SentryCrashDate.h"
-#import <XCTest/XCTest.h>
+#if !SDK_V10
+#    import "SentryCrashDate.h"
+#    import <XCTest/XCTest.h>
 
 @interface RFC3339DateTool_Tests : XCTestCase
 @end
@@ -70,3 +71,5 @@ stringFromDate(NSDate *date)
 }
 
 @end
+
+#endif // !SDK_V10
