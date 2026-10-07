@@ -64,7 +64,8 @@ public final class SentryExperimentalOptions: NSObject {
     #if canImport(MetricKit) && !os(tvOS)
     /// Options for the MetricKit integration, such as which diagnostic reports the SDK captures.
     ///
-    /// - Note: This option is only available from Swift.
+    /// - Note: Objective-C apps configure it through `SentryObjCExperimentalOptions.metricKit` of
+    ///   the SentryObjC SDK, and hybrid SDKs through the `metricKit` key of the options dictionary.
     public var metricKit = SentryMetricKit.Options()
     #endif // canImport(MetricKit) && !os(tvOS)
 }

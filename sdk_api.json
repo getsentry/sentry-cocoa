@@ -50502,6 +50502,24 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
+                    "name": "Options",
+                    "printedName": "Sentry.SentryMetricKit.Options",
+                    "usr": "s:6Sentry0A9MetricKitO7OptionsV"
+                  }
+                ],
+                "declKind": "Constructor",
+                "init_kind": "Designated",
+                "kind": "Constructor",
+                "mangledName": "$s6Sentry0A9MetricKitO7OptionsVAEycfc",
+                "moduleName": "Sentry",
+                "name": "init",
+                "printedName": "init()",
+                "usr": "s:6Sentry0A9MetricKitO7OptionsVAEycfc"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
                     "name": "Bool",
                     "printedName": "Swift.Bool",
                     "usr": "s:Sb"

@@ -1,4 +1,7 @@
 #import <Foundation/Foundation.h>
+
+@class SentryObjCMetricKitOptions;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /// Options for experimental features that are subject to change or may be removed in future
@@ -60,6 +63,11 @@ NS_ASSUME_NONNULL_BEGIN
  * @see https://github.com/getsentry/sentry-cocoa/issues/8548
  */
 @property (nonatomic) BOOL enableUIViewControllerInitSwizzling;
+
+#if __has_include(<MetricKit/MetricKit.h>) && !TARGET_OS_TV
+/// Options for the MetricKit integration, such as which diagnostic reports the SDK captures.
+@property (nonatomic, strong) SentryObjCMetricKitOptions *metricKit;
+#endif // __has_include(<MetricKit/MetricKit.h>) && !TARGET_OS_TV
 
 /// Initializes experimental options with default values.
 - (instancetype)init;

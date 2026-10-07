@@ -322,6 +322,10 @@ extension Options {
         if let enableMetricKitRawPayload = boolValue(dictionary["enableMetricKitRawPayload"]) {
             self.enableMetricKitRawPayload = enableMetricKitRawPayload
         }
+
+        if let metricKit = dictionary["metricKit"] as? [String: Any] {
+            self.experimental.metricKit = SentryMetricKit.Options(dictionary: metricKit)
+        }
         #endif
 
         if let strictTraceContinuation = boolValue(dictionary["strictTraceContinuation"]) {

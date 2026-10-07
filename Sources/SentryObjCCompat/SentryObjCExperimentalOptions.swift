@@ -41,6 +41,13 @@ import Foundation
         get { wrapped.enableUIViewControllerInitSwizzling }
         set { wrapped.enableUIViewControllerInitSwizzling = newValue }
     }
+
+    #if canImport(MetricKit) && !os(tvOS)
+    @objc public var metricKit: SentryObjCMetricKitOptions {
+        get { SentryObjCMetricKitOptions(parent: wrapped) }
+        set { wrapped.metricKit = newValue.wrapped }
+    }
+    #endif // canImport(MetricKit) && !os(tvOS)
 }
 
 // swiftlint:enable missing_docs

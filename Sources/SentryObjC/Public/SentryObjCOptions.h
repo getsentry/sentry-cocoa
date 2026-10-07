@@ -747,8 +747,8 @@ NS_ASSUME_NONNULL_BEGIN
  * and @c MXHangDiagnostic from MetricKit and converts them to Sentry events.
  * @note Default value is @c NO.
  * @note In v10 and later, the MetricKit integration is enabled by default and this option is
- * removed. Set @c options.experimental.metricKit.enabledDiagnosticReports from Swift to choose
- * the captured reports, or to an empty set to disable the integration.
+ * removed. Set @c options.experimental.metricKit.enabledDiagnosticReports to choose the
+ * captured reports, or to @c SentryObjCMetricKitDiagnosticReportNone to disable the integration.
  */
 @property (nonatomic) BOOL enableMetricKit;
 #    endif // !SDK_V10
