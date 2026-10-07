@@ -7,7 +7,7 @@
 // without adding whole SDK source directories to the search path. A private aggregate header
 // cannot replace the forwarding headers because SDK imports reference their exact filenames.
 
-#import "SentryTestSDKHeaders.h"
+#import "SentryTestUtilsObjC-SDKHeaders.h"
 
 // Test helpers.
 #import "SentryTestClientWrapper.h"

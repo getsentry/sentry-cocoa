@@ -30,6 +30,10 @@ make test
 
 In `Tests/SentryTests`, keep Swift tests in the existing feature directories, Objective-C tests and their headers under `ObjC/`, and Objective-C++ tests under `ObjCpp/`. Preserve the feature hierarchy within each directory; the Xcode bridging header stays at the root.
 
+Shared SDK test declarations belong in [`SentryTestUtilsObjC-SDKHeaders.h`](../SentryTestUtils/SourcesObjC/include/SentryTestUtilsObjC-SDKHeaders.h), exposed through the `SentryTestUtilsObjC` module in both Xcode and SwiftPM. Import declarations already exposed by the SDK from their owning modules instead of duplicating them here. `SentryTestUtils` re-exports the helper module and does not use a bridging header.
+
+Keep remaining mixed-language declarations that SwiftPM cannot yet import in [`SentryTests-Bridging-Header.h`](../Tests/SentryTests/SentryTests-Bridging-Header.h) until their APIs are migrated. Do not import generated Swift interfaces into the shared Clang module.
+
 ### SwiftPM SDK Tests
 
 SDK tests need test definitions in both the SDK and test targets; `DEBUG` and `@testable import` alone are insufficient. For local macOS tests with Xcode 26 or newer, run from the repository root:

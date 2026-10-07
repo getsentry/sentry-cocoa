@@ -1,11 +1,14 @@
-#if SWIFT_PACKAGE
 import _SentryPrivate
+#if SWIFT_PACKAGE
 import SentryHeaders
+#else
+import Sentry
+#endif
 import SentryTestUtilsObjC
 import XCTest
 
-// Keep this suite free of a bridging header and of generated Swift interfaces. It verifies
-// that main-suite dependencies are both importable and linked through the test-only module.
+// Neither build system uses a bridging header for this target. Verify that main-suite
+// dependencies are importable and linked through the shared test-only module.
 final class TestSdkHeaderImportsTests: XCTestCase {
     func testDictionaryHeader_whenImported_shouldExposeMerge() {
         // -- Arrange --
@@ -149,4 +152,3 @@ final class TestSdkHeaderImportsTests: XCTestCase {
     }
     #endif
 }
-#endif
