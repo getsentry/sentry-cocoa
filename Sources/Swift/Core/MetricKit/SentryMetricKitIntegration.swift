@@ -13,7 +13,8 @@ final class SentryMetricKitIntegration<Dependencies>: NSObject, SwiftIntegration
         mxManager = SentryMXManager(
             inAppLogic: SentryInAppLogic(inAppIncludes: options.inAppIncludes),
             attachDiagnosticAsAttachment: options.enableMetricKitRawPayload,
-            enabledDiagnostics: [.cpuException, .diskWriteException, .hang]
+            enabledDiagnostics: [.cpuException, .diskWriteException, .hang],
+            releaseName: options.releaseName
         )
         super.init()
 

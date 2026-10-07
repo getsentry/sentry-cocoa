@@ -1,6 +1,10 @@
 // swiftlint:disable file_length
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
-import SentryTestUtils
+#endif
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 class SentryScopeSwiftTests: XCTestCase {

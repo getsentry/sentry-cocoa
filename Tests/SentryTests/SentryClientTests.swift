@@ -1,5 +1,9 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
 extension SentryClientInternal {
@@ -724,6 +728,64 @@ final class SentryClientTests: XCTestCase {
         let attachment = try XCTUnwrap(capture.attachments.first)
         XCTAssertEqual(attachment.filename, "MXDiagnosticPayload.json")
         XCTAssertEqual(attachment.data, rawDiagnostic)
+    }
+
+    func testCaptureEvent_whenMetricKitDiagnosticFromPreviousAppVersion_shouldSendDiagnosticVersions() throws {
+        // -- Arrange --
+        let sut = fixture.getSut(configureOptions: { options in
+            options.releaseName = "io.sentry.app@2.0.0+20"
+        })
+        let scope = Scope()
+        let hub = SentryHubInternal(client: sut, andScope: scope, activeCrashReporterState: TestSentryCrashReporterState(), andDispatchQueue: TestSentryDispatchQueueWrapper())
+        SentrySDK.setStart(with: sut.options)
+        SentrySDKInternal.setCurrentHub(hub)
+        // Creating the hub enriches the scope with the contexts of the running app, so the
+        // contexts of the current app version are set afterwards.
+        scope.setContext(value: ["name": "iOS", "version": "26.0", "build": "23A341", "kernel_version": "Darwin 25.0.0", "rooted": false], key: "os")
+        scope.setContext(value: ["app_identifier": "io.sentry.app", "app_name": "App", "app_version": "2.0.0", "app_build": "20", "build_type": "app store", "app_start_time": "2026-10-05T10:00:00.000Z"], key: "app")
+        let manager = SentryMXManager(
+            inAppLogic: SentryInAppLogic(inAppIncludes: []),
+            attachDiagnosticAsAttachment: false,
+            enabledDiagnostics: [.hang],
+            releaseName: sut.options.releaseName,
+            bundleInfo: [
+                "CFBundleIdentifier": "io.sentry.app",
+                "CFBundleShortVersionString": "2.0.0",
+                "CFBundleVersion": "20"
+            ]
+        )
+        let metaData = TestMXMetaData()
+        metaData.overrides.applicationBuildVersion = "45"
+        metaData.overrides.osVersion = "iPhone OS 18.6.2 (22G100)"
+        let diagnostic = TestMXHangDiagnostic()
+        diagnostic.overrides.callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/not-per-thread-only-one-frame")
+        diagnostic.overrides.metaData = metaData
+        diagnostic.overrides.applicationVersion = "1.2.3"
+        let payload = TestMXDiagnosticPayload()
+        payload.overrides.hangDiagnostic = [diagnostic]
+
+        // -- Act --
+        manager.didReceive([payload])
+
+        // -- Assert --
+        let event = try XCTUnwrap(fixture.transportAdapter.sendEventWithTraceStateInvocations.first).event
+        XCTAssertEqual(event.releaseName, "io.sentry.app@1.2.3+45")
+        XCTAssertEqual(event.dist, "45")
+        // Only the attributes known for the diagnostic are sent. The running kernel version,
+        // jailbreak state, app name, build type and app start time are left out.
+        let osContext = try XCTUnwrap(event.context?["os"])
+        XCTAssertEqual(osContext["name"] as? String, "iOS")
+        XCTAssertEqual(osContext["version"] as? String, "18.6.2")
+        XCTAssertEqual(osContext["build"] as? String, "22G100")
+        XCTAssertNil(osContext["kernel_version"])
+        XCTAssertNil(osContext["rooted"])
+        let appContext = try XCTUnwrap(event.context?["app"])
+        XCTAssertEqual(appContext["app_identifier"] as? String, "io.sentry.app")
+        XCTAssertEqual(appContext["app_version"] as? String, "1.2.3")
+        XCTAssertEqual(appContext["app_build"] as? String, "45")
+        XCTAssertNil(appContext["app_name"])
+        XCTAssertNil(appContext["build_type"])
+        XCTAssertNil(appContext["app_start_time"])
     }
 
     func testCaptureEvent_whenMetricKitHasNoStacktrace_shouldNotAttachCurrentThreads() throws {
