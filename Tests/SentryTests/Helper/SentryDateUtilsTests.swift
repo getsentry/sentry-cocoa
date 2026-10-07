@@ -1,6 +1,4 @@
-#if SWIFT_PACKAGE
 import _SentryPrivate
-#endif
 import XCTest
 
 final class SentryDateUtilsTests: XCTestCase {

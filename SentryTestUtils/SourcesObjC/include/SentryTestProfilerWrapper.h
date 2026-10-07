@@ -1,20 +1,22 @@
-// SwiftPM replacement for the profiler portion of SentryTests-Bridging-Header.h.
-// Xcode project tests continue to use their bridging header directly.
 #import "SentryProfilingConditionals.h"
 
-#if SWIFT_PACKAGE && !SDK_V10 && SENTRY_TARGET_PROFILING_SUPPORTED
+// These original headers are directly importable by both Xcode and SwiftPM tests,
+// including V10's main-suite profiling tests. Only the existing adapters below are V9-only.
+#if SENTRY_TARGET_PROFILING_SUPPORTED
 @import _SentryPrivate;
 #    import "SentryContinuousProfiler+Test.h"
-#    import "SentryFileManager+Test.h"
-#    import "SentryLaunchProfiling+Tests.h"
 #    import "SentryMetricProfiler.h"
-#    import "SentryProfilerDefines.h"
 #    import "SentryProfilerSerialization+Test.h"
-#    import "SentryProfilerSerialization.h"
 #    import "SentryProfilerState.h"
 #    import "SentryProfilerTestHelpers.h"
-#    import "SentrySDKInternal+Tests.h"
 #    import "SentryTraceProfiler+Test.h"
+#endif
+
+#if SWIFT_PACKAGE && !SDK_V10 && SENTRY_TARGET_PROFILING_SUPPORTED
+#    import "SentryFileManager+Test.h"
+#    import "SentryLaunchProfiling+Tests.h"
+#    import "SentryProfilerSerialization.h"
+#    import "SentrySDKInternal+Tests.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

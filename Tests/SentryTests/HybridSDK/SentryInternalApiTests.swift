@@ -4,6 +4,7 @@
 #else
 @_spi(Private) @testable import Sentry
 #endif
+import _SentryPrivate
 import XCTest
 
 #if !os(tvOS) && !os(watchOS) && !os(visionOS)

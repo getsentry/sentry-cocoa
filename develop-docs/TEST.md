@@ -32,6 +32,21 @@ In `Tests/SentryTests`, keep Swift tests in the existing feature directories, Ob
 
 ### SwiftPM SDK Tests
 
+#### Main-suite dependency access
+
+The main `Tests/SentryTests` suite is not yet a package test target. Keep dependency imports explicit in both Xcode and SwiftPM rather than relying on `SentryTests-Bridging-Header.h`:
+
+- Use `SentrySwift` for Swift SDK declarations and `SentryHeaders` for public Objective-C declarations (`SentrySwift` re-exports `SentryHeaders`).
+- Use `_SentryPrivate` for already-modular private declarations, such as date utilities and trace-origin constants.
+- Use `SentryTestUtilsObjC` for test-only header exposure, such as private categories, dictionary/weak-map helpers, formatters, crash C APIs, and profiler test headers. Tests already importing `SentryTestUtils` receive its re-export of this module. Preserve the V9 crash and platform-specific profiling guards.
+- Use `SentryTestUtilsObjCpp` for its existing Swift-compatible profiler mocks. The shared Xcode test configuration includes this module's search path, so SwiftPM-only imports are unnecessary.
+
+Keep additional private headers in the [test support entry point](../SentryTestUtils/SourcesObjC/include/SentryTestUtilsObjC.h), not the production public API. Expose the original header when Swift can import it, and remove its redundant bridging-header imports once consumers use the module. The modularized headers are shared by both build systems; only genuinely package-specific adapters should be gated by `SWIFT_PACKAGE`. Avoid duplicate declarations and generated Swift interfaces in Clang modules. Load an owning module before exposing categories on its types; `SentryTestUtilsObjC.h` imports `_SentryPrivate` first to preserve those types' module identity. Preserve backend/platform guards, and do not rely on a profiler-only import for helpers used on other backends or platforms.
+
+[TestSdkHeaderImportsTests](../SentryTestUtilsTests/Sources/TestSdkHeaderImportsTests.swift) runs in the existing SwiftPM utility-test target without a bridging header. It checks header importability and linkage, not complete main-suite compatibility. Methods with Swift-owned parameter types, including the client/hub test initializers and transport factory, still need separate module-boundary work. Resource packaging, the dynamic fixture, and full main-suite package wiring are also separate steps.
+
+#### SDK test definitions
+
 SDK tests need test definitions in both the SDK and test targets; `DEBUG` and `@testable import` alone are insufficient. For local macOS tests with Xcode 26 or newer, run from the repository root:
 
 ```sh
