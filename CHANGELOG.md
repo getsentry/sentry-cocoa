@@ -4,7 +4,7 @@
 
 ### Features
 
-- Add `options.experimental.metricKit.enabledDiagnosticReports` to choose which MetricKit diagnostic reports the SDK captures, including crash diagnostics. The option is available from Swift and through the `metricKit` key of the options dictionary, but not from Objective-C (#9267)
+- Add `options.experimental.metricKit.enabledDiagnosticReports` to choose which MetricKit diagnostic reports the SDK captures, including crash diagnostics. The option is available from Swift, from the SentryObjC SDK through `options.experimental.metricKit.enabledDiagnosticReports`, and through the `metricKit` key of the options dictionary (#9267)
 
 ### Fixes
 

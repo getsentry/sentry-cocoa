@@ -26,8 +26,37 @@
       "parent": "SentryObjCDataCollectionHttpBodyType"
     },
     {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitDiagnosticReportCPUException",
+      "parent": "SentryObjCMetricKitDiagnosticReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitDiagnosticReportCrash",
+      "parent": "SentryObjCMetricKitDiagnosticReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitDiagnosticReportDiskWriteException",
+      "parent": "SentryObjCMetricKitDiagnosticReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitDiagnosticReportHang",
+      "parent": "SentryObjCMetricKitDiagnosticReport"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCMetricKitDiagnosticReportNone",
+      "parent": "SentryObjCMetricKitDiagnosticReport"
+    },
+    {
       "kind": "EnumDecl",
       "name": "SentryObjCDataCollectionHttpBodyType"
+    },
+    {
+      "kind": "EnumDecl",
+      "name": "SentryObjCMetricKitDiagnosticReport"
     },
     {
       "kind": "ObjCMethodDecl",
@@ -126,6 +155,13 @@
       "parent": "SentryObjCEnvelopeHeader",
       "returnType": "instancetype _Nonnull",
       "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "enabledDiagnosticReports",
+      "parent": "SentryObjCMetricKitOptions",
+      "returnType": "SentryObjCMetricKitDiagnosticReport",
+      "instance": true
     },
     {
       "kind": "ObjCMethodDecl",
@@ -314,6 +350,12 @@
     },
     {
       "kind": "ObjCPropertyDecl",
+      "name": "enabledDiagnosticReports",
+      "parent": "SentryObjCMetricKitOptions",
+      "type": "SentryObjCMetricKitDiagnosticReport"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
       "name": "httpBodies",
       "parent": "SentryObjCDataCollectionOptions",
       "type": "SentryObjCDataCollectionHttpBodyType"
@@ -424,6 +466,11 @@
       "kind": "TypedefDecl",
       "name": "SentryObjCDataCollectionHttpBodyType",
       "type": "enum SentryObjCDataCollectionHttpBodyType"
+    },
+    {
+      "kind": "TypedefDecl",
+      "name": "SentryObjCMetricKitDiagnosticReport",
+      "type": "enum SentryObjCMetricKitDiagnosticReport"
     }
   ],
   "only_in_compat": [
@@ -524,6 +571,13 @@
       "parent": "SentryObjCEnvelopeHeader",
       "returnType": "SentryObjCEnvelopeHeader * _Nonnull",
       "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "enabledDiagnosticReports",
+      "parent": "SentryObjCMetricKitOptions",
+      "returnType": "NSUInteger",
+      "instance": true
     },
     {
       "kind": "ObjCMethodDecl",
@@ -800,6 +854,12 @@
       "name": "diagnosticLevel",
       "parent": "SentryObjCOptions",
       "type": "enum SentryObjCLevel"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "enabledDiagnosticReports",
+      "parent": "SentryObjCMetricKitOptions",
+      "type": "NSUInteger"
     },
     {
       "kind": "ObjCPropertyDecl",

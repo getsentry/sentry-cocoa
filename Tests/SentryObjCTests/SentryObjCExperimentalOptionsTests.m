@@ -116,4 +116,54 @@
 }
 #endif
 
+#if __has_include(<MetricKit/MetricKit.h>) && !TARGET_OS_TV
+#    pragma mark - metricKit
+
+- (void)testMetricKit_whenDefault_shouldDependOnSDKVersion
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Assert --
+#    if SDK_V10
+    XCTAssertEqual(options.experimental.metricKit.enabledDiagnosticReports,
+        SentryObjCMetricKitDiagnosticReportCPUException
+            | SentryObjCMetricKitDiagnosticReportDiskWriteException
+            | SentryObjCMetricKitDiagnosticReportHang);
+#    else
+    XCTAssertEqual(options.experimental.metricKit.enabledDiagnosticReports,
+        SentryObjCMetricKitDiagnosticReportNone);
+#    endif // SDK_V10
+}
+
+- (void)testMetricKit_whenReportsSetInPlace_shouldWriteThroughToOptions
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    options.experimental.metricKit.enabledDiagnosticReports
+        = SentryObjCMetricKitDiagnosticReportHang | SentryObjCMetricKitDiagnosticReportCrash;
+
+    // -- Assert --
+    XCTAssertEqual(options.experimental.metricKit.enabledDiagnosticReports,
+        SentryObjCMetricKitDiagnosticReportHang | SentryObjCMetricKitDiagnosticReportCrash);
+}
+
+- (void)testMetricKit_whenReplaced_shouldUseNewOptions
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+    SentryObjCMetricKitOptions *metricKit = [[SentryObjCMetricKitOptions alloc] init];
+    metricKit.enabledDiagnosticReports = SentryObjCMetricKitDiagnosticReportDiskWriteException;
+
+    // -- Act --
+    options.experimental.metricKit = metricKit;
+
+    // -- Assert --
+    XCTAssertEqual(options.experimental.metricKit.enabledDiagnosticReports,
+        SentryObjCMetricKitDiagnosticReportDiskWriteException);
+}
+#endif // __has_include(<MetricKit/MetricKit.h>) && !TARGET_OS_TV
+
 @end

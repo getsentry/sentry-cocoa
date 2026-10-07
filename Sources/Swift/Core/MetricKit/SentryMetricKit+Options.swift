@@ -22,8 +22,8 @@ extension SentryMetricKit {
         public var enabledDiagnosticReports: Set<SentryMetricKit.DiagnosticReport> = []
         #endif // SDK_V10
 
-        // Defining init(dictionary:) suppresses the synthesized default initializer.
-        init() {}
+        /// Creates options with the default diagnostic reports.
+        public init() {}
 
         /// Creates MetricKit options from a dictionary, primarily for hybrid SDK configuration.
         ///
