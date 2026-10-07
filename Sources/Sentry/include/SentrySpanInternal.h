@@ -104,7 +104,8 @@ SENTRY_NO_INIT
 - (instancetype)initWithTracer:(SentryTracer *)transaction
                        context:(SentrySpanContext *)context
 #if SENTRY_HAS_UIKIT
-                 framesTracker:(nullable SentryFramesTracker *)framesTracker;
+                 framesTracker:
+                     (nullable SENTRY_SWIFT_MIGRATION_ID(SentryFramesTracker))framesTracker;
 #endif // SENTRY_HAS_UIKIT
 ;
 

@@ -1,3 +1,6 @@
+#if SWIFT_PACKAGE
+import _SentryPrivate
+#endif
 #if SDK_V10
 import Darwin
 import Foundation

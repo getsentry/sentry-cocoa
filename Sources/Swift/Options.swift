@@ -51,11 +51,7 @@
     #endif // SDK_V10
 
     /// This property will be filled before the event is sent.
-    @objc public var releaseName: String? = {
-        guard let infoDict = Bundle.main.infoDictionary else { return nil }
-
-        return "\(infoDict["CFBundleIdentifier"] ?? "")@\(infoDict["CFBundleShortVersionString"] ?? "")+\(infoDict["CFBundleVersion"] ?? "")"
-    }()
+    @objc public var releaseName: String? = SentryReleaseName.defaultName(bundleInfo: Bundle.main.infoDictionary)
 
     /// The distribution of the application.
     /// @discussion Distributions are used to disambiguate build or deployment variants of the same

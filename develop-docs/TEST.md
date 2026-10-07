@@ -26,6 +26,10 @@ Test can either be ran inside from Xcode or via
 make test
 ```
 
+### Main Test Source Layout
+
+In `Tests/SentryTests`, keep Swift tests in the existing feature directories, Objective-C tests and their headers under `ObjC/`, and Objective-C++ tests under `ObjCpp/`. Preserve the feature hierarchy within each directory; the Xcode bridging header stays at the root.
+
 ### SwiftPM SDK Tests
 
 SDK tests need test definitions in both the SDK and test targets; `DEBUG` and `@testable import` alone are insufficient. For local macOS tests with Xcode 26 or newer, run from the repository root:

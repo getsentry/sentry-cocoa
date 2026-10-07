@@ -1,5 +1,9 @@
 #if !SDK_V10
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
 final class SentryANRTrackerTests: XCTestCase {
@@ -96,11 +100,11 @@ final class MockANRTrackerDelegate: SentryANRTrackerDelegate {
     var stoppedResults: [SentryANRStoppedResult?] = []
     var detectedTypes: [SentryANRType] = []
 
-    func anrDetected(type: Sentry.SentryANRType) {
+    func anrDetected(type: SentryANRType) {
         detectedTypes.append(type)
     }
     
-    func anrStopped(result: Sentry.SentryANRStoppedResult?) {
+    func anrStopped(result: SentryANRStoppedResult?) {
         stoppedResults.append(result)
     }
 }

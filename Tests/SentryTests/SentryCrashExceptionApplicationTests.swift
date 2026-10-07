@@ -1,4 +1,10 @@
+#if !SDK_V10
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+import _SentryPrivate
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import SentryTestUtils
 import XCTest
 
@@ -86,3 +92,5 @@ class SentryNSExceptionCaptureHelperTests: XCTestCase {
 }
 
 #endif // os(macOS)
+
+#endif // !SDK_V10
