@@ -243,9 +243,9 @@ private func headerReference(_ object: URL, arguments: [String], source: String)
 
 private let swiftLibraries: Set<String> = [
     "swiftCompatibility56", "swiftCompatibilityConcurrency", "swiftCompatibilityDynamicReplacements", "swiftCompatibilityPacks",
-    "swiftAVFoundation", "swiftCoreAudio", "swiftCoreFoundation", "swiftCoreImage", "swiftCoreLocation", "swiftCoreMIDI", "swiftCoreMedia",
-    "swiftDispatch", "swiftFoundation", "swiftIOKit", "swiftMetal", "swiftOSLog",
-    "swiftObjectiveC", "swiftQuartzCore", "swiftSpatial", "swiftUIKit", "swiftUniformTypeIdentifiers", "swiftXPC", "swift_Builtin_float", "swiftos", "swiftsimd"
+    "swiftARKit", "swiftAVFoundation", "swiftCoreAudio", "swiftCoreFoundation", "swiftCoreImage", "swiftCoreLocation", "swiftCoreMIDI", "swiftCoreMedia",
+    "swiftDispatch", "swiftFoundation", "swiftIOKit", "swiftMapKit", "swiftMetal", "swiftOSLog", "swiftSceneKit",
+    "swiftObjectiveC", "swiftQuartzCore", "swiftSpatial", "swiftUIKit", "swiftUniformTypeIdentifiers", "swiftWatchKit", "swiftXPC", "swift_Builtin_float", "swiftos", "swiftsimd"
 ]
 
 private func inspectEmpty(_ object: URL, arguments: [String], source: String) throws {
