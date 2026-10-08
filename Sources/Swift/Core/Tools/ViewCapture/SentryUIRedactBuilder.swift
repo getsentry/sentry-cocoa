@@ -482,8 +482,14 @@ final class SentryUIRedactBuilder {
             currentView = current.superview
         }
 
-        if maskAllText && !hierarchy.contains(where: shouldIgnore(view:)) {
-            return true
+        if maskAllText {
+            let targetIsIgnored = shouldIgnore(view: view)
+            let hasExplicitlyUnmaskedAncestor = hierarchy.dropFirst().contains {
+                SentryRedactViewHelper.shouldUnmask($0)
+            }
+            if !targetIsIgnored && !hasExplicitlyUnmaskedAncestor {
+                return true
+            }
         }
 
         var forceRedact = false

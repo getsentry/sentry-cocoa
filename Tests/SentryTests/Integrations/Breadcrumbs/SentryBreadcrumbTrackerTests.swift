@@ -515,6 +515,28 @@ final class SentryBreadcrumbTrackerTests: XCTestCase {
         XCTAssertNil(result["title"])
     }
 
+    func testExtractData_whenMaskAllTextAndAncestorIsIgnoredSubtree_shouldOmitButtonTitle() {
+        // -- Arrange --
+        let ancestor = UISwitch()
+        let button = UIButton()
+        button.setTitle("Sensitive title", for: .normal)
+        ancestor.addSubview(button)
+        let redactBuilder = SentryUIRedactBuilder(options: TestRedactOptions(
+            maskAllText: true,
+            maskAllImages: false
+        ))
+
+        // -- Act --
+        let result = SentryBreadcrumbTracker.extractData(
+            from: button,
+            includeAccessibilityIdentifier: false,
+            redactBuilder: redactBuilder
+        )
+
+        // -- Assert --
+        XCTAssertNil(result["title"])
+    }
+
     func testExtractData_whenTextIsNotMasked_shouldIncludeButtonTitle() {
         // -- Arrange --
         let button = UIButton()

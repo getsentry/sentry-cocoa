@@ -153,6 +153,75 @@ final class SentryUIRedactBuilderMaskingTests: XCTestCase {
         XCTAssertTrue(result)
     }
 
+    func testIsViewMaskedForTextExtraction_whenMaskAllTextAndAncestorClassUnmasked_shouldReturnTrue() {
+        // -- Arrange --
+        let sut = SentryUIRedactBuilder(options: TestRedactOptions(
+            maskAllText: true,
+            maskAllImages: false,
+            unmaskedViewClasses: [MaskedContainerView.self]
+        ))
+        let ancestor = MaskedContainerView()
+        let view = UIButton()
+        ancestor.addSubview(view)
+
+        // -- Act --
+        let result = sut.isViewMaskedForTextExtraction(view)
+
+        // -- Assert --
+        XCTAssertTrue(result)
+    }
+
+    func testIsViewMaskedForTextExtraction_whenMaskAllTextAndAncestorIsIgnoredSubtree_shouldReturnTrue() {
+        // -- Arrange --
+        let sut = SentryUIRedactBuilder(options: TestRedactOptions(
+            maskAllText: true,
+            maskAllImages: false
+        ))
+        let ancestor = UISwitch()
+        let view = UIButton()
+        ancestor.addSubview(view)
+
+        // -- Act --
+        let result = sut.isViewMaskedForTextExtraction(view)
+
+        // -- Assert --
+        XCTAssertTrue(result)
+    }
+
+    func testIsViewMaskedForTextExtraction_whenMaskAllTextAndViewClassUnmasked_shouldReturnFalse() {
+        // -- Arrange --
+        let sut = SentryUIRedactBuilder(options: TestRedactOptions(
+            maskAllText: true,
+            maskAllImages: false,
+            unmaskedViewClasses: [MaskedContentView.self]
+        ))
+        let view = MaskedContentView()
+
+        // -- Act --
+        let result = sut.isViewMaskedForTextExtraction(view)
+
+        // -- Assert --
+        XCTAssertFalse(result)
+    }
+
+    func testIsViewMaskedForTextExtraction_whenMaskAllTextAndAncestorExplicitlyUnmasked_shouldReturnFalse() {
+        // -- Arrange --
+        let sut = SentryUIRedactBuilder(options: TestRedactOptions(
+            maskAllText: true,
+            maskAllImages: false
+        ))
+        let ancestor = UIView()
+        let view = UIButton()
+        ancestor.addSubview(view)
+        SentryRedactViewHelper.unmaskView(ancestor)
+
+        // -- Act --
+        let result = sut.isViewMaskedForTextExtraction(view)
+
+        // -- Assert --
+        XCTAssertFalse(result)
+    }
+
     func testIsViewMaskedForTextExtraction_whenAncestorSubtreeExcluded_shouldReturnTrue() {
         // -- Arrange --
         let ancestor = MaskedContainerView()
