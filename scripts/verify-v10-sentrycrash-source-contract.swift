@@ -82,64 +82,58 @@ private func implementationFileNames(in path: String) throws -> Set<String> {
     return result
 }
 
-// This repository contract intentionally checks many independent resulting state invariants in one
-// executable; keeping them together makes the verifier's policy much easier to read. Thus:
-// swiftlint:disable cyclomatic_complexity function_body_length
 private func phaseEntries(
     project: [String],
     marker: String,
-    kind: String
-) throws -> [String] {
+    pattern: Regex<(Substring, Substring)>
+) -> [String] {
     guard let start = project.firstIndex(where: { $0.contains(marker) }) else {
         report("missing Xcode phase \(marker)")
         return []
     }
+
     guard let end = project[(start + 1)...].firstIndex(where: { $0.hasPrefix("\t\t};") }) else {
         report("unterminated Xcode phase \(marker)")
         return []
     }
-    let pattern = try NSRegularExpression(pattern: #"/\* (.+) in \#(kind) \*/"#)
-    return project[start...end].compactMap { line in
-        let range = NSRange(line.startIndex..., in: line)
-        guard let match = pattern.firstMatch(in: line, range: range),
-              let value = Range(match.range(at: 1), in: line) else { return nil }
-        return String(line[value])
-    }
-}
 
-private func matches(_ pattern: String, _ value: String) -> Bool {
-    value.range(of: pattern, options: .regularExpression) != nil
+    return project[start...end].compactMap { line in
+        line.firstMatch(of: pattern).map { String($0.1) }
+    }
 }
 
 private func activeV10Imports(_ path: String) throws -> Set<String> {
     var active = true
     var stack: [(parent: Bool, branch: Bool?)] = []
     var imports: Set<String> = []
-    let importPattern = try NSRegularExpression(pattern: #"^#\s*(?:include|import)\s*[<\"]([^>\"]+)[>\"]"#)
+    let importPattern = #/^#\s*(?:include|import)\s*[<"]([^>"]+)[>"]/#
+    let v9GuardPattern = #/^#\s*if\s+!SDK_V10\s*$/#
+    let v10GuardPattern = #/^#\s*if\s+SDK_V10\s*$/#
+    let elsePattern = #/^#\s*else\b/#
+    let endifPattern = #/^#\s*endif\b/#
 
     for rawLine in try lines(path) {
         let line = rawLine.trimmingCharacters(in: .whitespaces)
-        if matches(#"^#\s*if\s+!SDK_V10\s*$"#, line) {
+        if line.contains(v9GuardPattern) {
             stack.append((active, false))
             active = false
-        } else if matches(#"^#\s*if\s+SDK_V10\s*$"#, line) {
+        } else if line.contains(v10GuardPattern) {
             stack.append((active, true))
-        } else if matches(#"^#\s*else\b"#, line), let last = stack.last, let branch = last.branch {
+        } else if line.contains(elsePattern), let last = stack.last, let branch = last.branch {
             stack[stack.count - 1] = (last.parent, !branch)
             active = last.parent && !branch
-        } else if matches(#"^#\s*endif\b"#, line), let last = stack.popLast() {
+        } else if line.contains(endifPattern), let last = stack.popLast() {
             active = last.parent
-        } else if active {
-            let range = NSRange(line.startIndex..., in: line)
-            if let match = importPattern.firstMatch(in: line, range: range),
-               let value = Range(match.range(at: 1), in: line) {
-                imports.insert(URL(fileURLWithPath: String(line[value])).lastPathComponent)
-            }
+        } else if active, let match = line.firstMatch(of: importPattern) {
+            imports.insert(URL(fileURLWithPath: String(match.1)).lastPathComponent)
         }
     }
     return imports
 }
 
+// This repository contract intentionally checks many independent resulting state invariants in one
+// executable; keeping them together makes the verifier's policy much easier to read. Thus:
+// swiftlint:disable:next cyclomatic_complexity function_body_length
 private func run() throws {
     if CommandLine.arguments.count != 1 {
         print("Usage: \(CommandLine.arguments[0])")
@@ -161,23 +155,24 @@ private func run() throws {
         report("recorder header remains in neutral include path: \(name)")
     }
 
-    let v10Sources = try phaseEntries(
+    let v10Sources = phaseEntries(
         project: project,
         marker: "A9073C6F28FEA4B259D57E1C /* Sources */ = {",
-        kind: "Sources"
+        pattern: #/\/\* (.+) in Sources \*\//#
     )
     for name in Set(v10Sources).intersection(legacySourceNames).sorted() {
         report("V10 Xcode source phase contains V9 implementation: \(name)")
     }
 
-    let v10Headers = try phaseEntries(
+    let v10Headers = phaseEntries(
         project: project,
         marker: "DB9A231CB1C05A5228D9C1B4 /* Headers */ = {",
-        kind: "Headers"
+        pattern: #/\/\* (.+) in Headers \*\//#
     )
     for name in Set(v10Headers).intersection(v9HeaderNames).sorted() {
         report("V10 Xcode header phase contains recorder header: \(name)")
     }
+
     let allowedHistoricalHeaders: Set<String> = [
         "SentryCrashExceptionApplication.h",
         "SentryCrashReportConverter.h",
@@ -203,11 +198,14 @@ private func run() throws {
         .sorted()
         .map { try text("Sources/SentryCrashV9Swift/\($0)") }
         .joined(separator: "\n")
-    let registrationPattern = #"@usableFromInline\s+@_cdecl\("sentrycrash_v9_registerSwiftBackend"\)\s+"#
-        + #"(?:internal\s+)?func\s+sentrycrash_v9_registerSwiftBackend\s*\("#
-    if matches(#"\bpublic\s+func\s+sentrycrash_v9_registerSwiftBackend\b"#, v9AdapterSources) {
+    let registrationPattern = #/
+        @usableFromInline\s+@_cdecl\("sentrycrash_v9_registerSwiftBackend"\)\s+
+        (?:internal\s+)?func\s+sentrycrash_v9_registerSwiftBackend\s*\(
+        /#
+
+    if v9AdapterSources.contains(#/\bpublic\s+func\s+sentrycrash_v9_registerSwiftBackend\b/#) {
         report("The V9 C registration boundary must not become public SDK API")
-    } else if !matches(registrationPattern, v9AdapterSources) {
+    } else if !v9AdapterSources.contains(registrationPattern) {
         report("The internal V9 C registration boundary must remain ABI-visible for cross-module linking")
     }
 
@@ -227,12 +225,14 @@ private func run() throws {
             report("\(manifestName) has no explicit private public-header path")
         }
     }
+
     for manifestName in ["Package@swift-6.1.swift", "Package@swift-6.2.swift"] {
         let manifest = try text(manifestName)
         if manifest.contains(#".when(traits: ["V9"])"#) || manifest.contains(#".default(enabledTraits: ["V9"])"#) {
             report("\(manifestName) reintroduces mandatory V9 selection")
         }
     }
+
     let olderManifest = try text("Package@swift-6.1.swift")
     if olderManifest.contains(#".when(traits: ["V10"])"#) {
         report("The older manifest must use environment-only V10 development selection")
