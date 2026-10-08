@@ -139,9 +139,6 @@ patch_and_generate() {
         fi
         begin_group "generate V10: $spec"
         xcodegen --spec "$tmp"
-        local project_name
-        project_name="$(yq -er '.name' "$tmp")"
-        "$SCRIPT_DIR/remove-v10-package-folder-references.swift" "$dir/$project_name.xcodeproj"
         log_info "  Generated"
         end_group
     )

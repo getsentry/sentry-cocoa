@@ -95,7 +95,12 @@ jobs:
           VISIONOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
           WATCHOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.watchos-simulator-os }}
           WATCHOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
-        run: make ${{ matrix.make-target }}
+        run: |
+          # This build-only lane audits implementation-free objects. Coverage inserts
+          # executable LLVM runtime helpers even into empty Swift files. Unit-test
+          # lanes retain their existing coverage settings.
+          printf 'ENABLE_CODE_COVERAGE = NO\n' > "$RUNNER_TEMP/v10-audit.xcconfig"
+          XCODE_XCCONFIG_FILE="$RUNNER_TEMP/v10-audit.xcconfig" make ${{ matrix.make-target }}
 
       - name: Verify recorder source exclusion
         run: |
@@ -104,7 +109,9 @@ jobs:
             echo "::error::Could not find SentryV10 object output"
             exit 1
           fi
-          ./scripts/verify-v10-sentrycrash-objects.sh --build-path "$objects_path"
+          # The log includes package-target outputs as well as SentryV10 objects.
+          ./scripts/verify-v10-sentrycrash-objects.sh --build-path "${objects_path%%/Build/*}" \
+            --build-log raw-build-output.log
 
       - name: Verify SentryCrash framework contract
         run: |
@@ -165,7 +172,6 @@ jobs:
           resolve-simulators: "false"
       - name: Test build output checks
         run: |
-          ./scripts/test-v10-spm-build-plan.swift
           ./scripts/test-v10-compiler-log.sh
           ./scripts/test-v10-empty-objects.sh --work-dir "$RUNNER_TEMP/v10-empty-audit"
           ./scripts/test-v10-sentryobjc-slice-inventory.sh --work-dir "$RUNNER_TEMP/v10-slice-audit"
@@ -260,7 +266,12 @@ jobs:
       - name: Build and audit static V10 XCFramework
         run: make build-xcframework-v10-static SDKS=${{ matrix.sdk }}
       - name: Check packaged SDK build output
-        run: ./scripts/verify-v10-sentrycrash-objects.sh --build-path "XCFrameworkBuildPath/DerivedData"
+        run: |
+          objects_path="XCFrameworkBuildPath/DerivedData/Build/Intermediates.noindex"
+          archive_objects="$objects_path/ArchiveIntermediates/SentryV10/IntermediateBuildFilesPath"
+          if [[ -d "$archive_objects" ]]; then objects_path="$archive_objects"; fi
+          ./scripts/verify-v10-sentrycrash-objects.sh --build-path "$objects_path" \
+            --build-log "XCFrameworkBuildPath/raw-build-output.log"
       - name: Build and audit V10 SentryObjC XCFrameworks
         run: make build-xcframework-sentryobjc-v10 SDKS=${{ matrix.sdk }}
       - name: Upload archive regression logs
@@ -373,8 +384,6 @@ jobs:
           resolve-simulators: "false"
 
       - run: make init-ci-build
-      - name: Test local package trait selection
-        run: ./scripts/test-v10-package-folder-references.swift
       - name: Test crash backend selection
         run: ./scripts/test-spm-crash-backend-selection.swift --work-dir "$RUNNER_TEMP/crash-backend-selection"
       - name: Test V9 NoUI linkage

@@ -87,6 +87,19 @@ for sdk in "${sdks[@]}"; do
         slice_args+=(--build-setting "$setting")
     done
     "$SCRIPT_DIR/build-xcframework-slice.sh" "${slice_args[@]}"
+
+    # Archive moves installed products away, leaving dangling BuildProductsPath aliases.
+    # All recorded compiler outputs remain in IntermediateBuildFilesPath; the audit
+    # requires every recorded output to be inside this root and present on disk.
+    objects_path="XCFrameworkBuildPath/DerivedData/Build/Intermediates.noindex"
+    if [[ "$sdk" != maccatalyst ]]; then
+        objects_path+="/ArchiveIntermediates/$SCHEME/IntermediateBuildFilesPath"
+    fi
+
+    # Audit each completed slice before the next build replaces its output and log.
+    "$SCRIPT_DIR/verify-v10-sentrycrash-objects.sh" \
+        --build-path "$objects_path" \
+        --build-log XCFrameworkBuildPath/raw-build-output.log
 done
 
 xcframework_sdks="$(IFS=,; echo "${sdks[*]}")"

@@ -118,6 +118,48 @@ test_aggregate() {
     check aggregate-implementation-injection fail 'Aggregate implementation differs'
 
     rm "$aggregate"
+
+    compile_fixture $'#if !SDK_V10\nint arbitrary_function(void) { return 1; }\n#endif'
+    command=("$(xcrun --find libtool)" -static -D -filelist "$list" -o "$aggregate")
+    "${command[@]}" > "$WORK_DIR/static-link.log" 2>&1
+    cp "$BUILD_LOG" "$WORK_DIR/static-source.log"
+    jq -nr --args '$ARGS.positional | @sh' -- "${command[@]}" >> "$BUILD_LOG"
+    printf '\nBuild complete!\n' >> "$BUILD_LOG"
+    cp "$BUILD_LOG" "$WORK_DIR/complete-static.log"
+    check accounted-static-aggregate pass
+
+    printf '%s\n' "$BUILD/Unknown.o" > "$list"
+    check unknown-static-aggregate-input fail 'aggregate inputs'
+    printf '%s\n' "$OBJECT" > "$list"
+
+    cp "$OBJECT" "$WORK_DIR/static-source.backup.o"
+    compile_fixture 'int arbitrary_archive_implementation(void) { return 1; }'
+    "${command[@]}" > "$WORK_DIR/static-link.log" 2>&1
+    cp "$WORK_DIR/static-source.backup.o" "$OBJECT"
+    cp "$WORK_DIR/complete-static.log" "$BUILD_LOG"
+    check static-aggregate-implementation-injection fail 'Aggregate implementation differs'
+
+    cp "$WORK_DIR/static-source.log" "$BUILD_LOG"
+    jq -nr --args '$ARGS.positional | @sh' -- "${command[@]}" -lUnexpectedRecorder >> "$BUILD_LOG"
+    printf '\nBuild complete!\n' >> "$BUILD_LOG"
+    check unsupported-static-aggregate-input fail 'Unsupported static archive'
+
+    cp "$WORK_DIR/static-source.log" "$BUILD_LOG"
+    jq -nr --args '$ARGS.positional | @sh' -- "$(xcrun --find libtool)" -static -filelist "$list" -o "$aggregate" >> "$BUILD_LOG"
+    printf '\nBuild complete!\n' >> "$BUILD_LOG"
+    check nondeterministic-static-aggregate fail 'Unsupported static archive'
+
+    cp "$WORK_DIR/static-source.log" "$BUILD_LOG"
+    jq -nr --args '$ARGS.positional | @sh' -- "${command[@]}" "$WORK_DIR/unaccounted.bin" >> "$BUILD_LOG"
+    printf '\nBuild complete!\n' >> "$BUILD_LOG"
+    check unaccounted-static-positional-input fail 'Unsupported static archive'
+
+    cp "$WORK_DIR/static-source.log" "$BUILD_LOG"
+    jq -nr --args '$ARGS.positional | @sh' -- "${command[@]}" -filelist "$list" >> "$BUILD_LOG"
+    printf '\nBuild complete!\n' >> "$BUILD_LOG"
+    check duplicate-static-input-list fail 'duplicate static archive'
+
+    rm "$aggregate"
 }
 
 test_implementations() {
@@ -213,6 +255,8 @@ test_swift() {
         -module-name SentryCrashV9Swift -emit-object)
     compile_fixture $'#if !SDK_V10\nfunc arbitraryFunction() {}\n#endif\n'
     check swift-guarded-empty pass
+    compile_command "$COMPILER" "${COMPILE_FLAGS[@]}" -profile-generate "$SOURCE" -o "$OBJECT"
+    check unsupported-swift-coverage-runtime fail implementation
 
     compile_command "$COMPILER" "${COMPILE_FLAGS[@]}" -Xcc -U -Xcc SDK_V10 "$SOURCE" -o "$OBJECT"
     check swift-forwarded-split-undefine fail 'Conflicting V10 flag'
@@ -243,6 +287,18 @@ test_swift() {
     write_output_map "$SOURCE" object
     compile_fixture 'func arbitraryFunction() {}'
     check swift-guard-loss fail implementation
+
+    # Catalyst's SDK imports emit additional weak Swift overlay force-load records,
+    # even when the source has no implementation. Their data/relocations stay audited.
+    local sdk
+    sdk="$(xcrun --sdk macosx --show-sdk-path)"
+    COMPILE_FLAGS=(-sdk "$sdk" -target arm64-apple-ios15.0-macabi
+        -I "$sdk/System/iOSSupport/usr/lib/swift" -F "$sdk/System/iOSSupport/System/Library/Frameworks"
+        -parse-as-library -DSDK_V10 -module-name SentryCrashV9Swift -emit-object)
+    compile_fixture $'import Foundation\nimport UIKit\nimport AVFoundation\nimport CoreLocation\nimport CoreMIDI\nimport CoreMedia\n#if !SDK_V10\nfunc arbitraryFunction() {}\n#endif'
+    check swift-catalyst-overlay-only pass
+    compile_fixture $'import UIKit\nfunc arbitraryFunction() {}'
+    check swift-catalyst-guard-loss fail implementation
 }
 
 test_header_reference() {
@@ -389,5 +445,15 @@ test_swift
 test_header_reference
 test_real_guard_loss
 
-[[ "$COUNT" == 54 ]] || { log_error "Missing expected control coverage: $COUNT/54"; exit 1; }
+mkdir -p "$WORK_DIR/no-log-output"
+if bash "$SCRIPT_DIR/verify-v10-sentrycrash-objects.sh" --build-path "$WORK_DIR/no-log-output" \
+    > "$WORK_DIR/missing-required-log.log" 2>&1; then
+    log_error "Object wrapper accepted output without compiler evidence"
+    exit 1
+fi
+grep -Fq 'A valid --build-log is required' "$WORK_DIR/missing-required-log.log"
+COUNT=$((COUNT + 1))
+log_info 'PASS missing-required-log'
+
+[[ "$COUNT" == 65 ]] || { log_error "Missing expected control coverage: $COUNT/65"; exit 1; }
 log_info "$COUNT real V10 separation empty-object controls passed; logs and test files: $WORK_DIR"

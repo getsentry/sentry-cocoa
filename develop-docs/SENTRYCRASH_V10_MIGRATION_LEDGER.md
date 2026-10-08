@@ -12,7 +12,7 @@ The goal is separate release branches, with KSCrash as V10's sole backend on `ma
 - `working`: V10 has a working implementation and a test that exercises it.
 - `decision`: expected product behavior or compatibility requirements must be agreed before changing the implementation.
 - Development V10 uses the modern manifest's `V10` opt-in or `SDK_V10=1`; the older manifest is environment-only. Absent V10 selects V9 without requiring a V9 trait. Remove all version-selection machinery at the branch split.
-- Legacy files may compile in V10 only if the object checker uses that build's full log to identify their outputs and confirms they contain no recorder implementation. Archive builds checked without a build log must leave legacy files out entirely.
+- Legacy files may compile in V10 only if the object checker uses that build's full log to identify their outputs and confirms they contain no recorder implementation. Every build-output audit requires the full log from that completed build, including archive builds.
 - V10 compile-out tracker: [#8528](https://github.com/getsentry/sentry-cocoa/issues/8528).
 - Repository-wide removal after V9 retirement: [#8319](https://github.com/getsentry/sentry-cocoa/issues/8319).
 - Downstream SPI audit: [#8738](https://github.com/getsentry/sentry-cocoa/issues/8738).
@@ -115,7 +115,7 @@ serialization, process-time queries, and debugger detection.
 ## Contract Enforcement
 
 - `scripts/verify-v10-sentrycrash-source-contract.swift` inspects final Xcode/SwiftPM source ownership, header phases, umbrellas, shared test selection, packaging CI, and compatibility files.
-- `scripts/verify-v10-sentrycrash-objects.sh` checks build output for legacy recorder files. With a build log, it also checks that any compiled legacy files contain no recorder implementation.
+- `scripts/verify-v10-sentrycrash-objects.sh` requires completed compiler evidence and checks that any compiled legacy files contain no recorder implementation.
 - `scripts/verify-v10-sentrycrash-framework.sh` inspects final symbols, classes, compatibility APIs, and all path-owned recorder headers.
 - `scripts/verify-v10-sentrycrash-sentryobjc.sh` audits every static and dynamic ObjC-wrapper slice for recorder symbols, classes, headers, imports, and unresolved V10 gates.
 - CI builds dynamic/static Sentry XCFrameworks and static/dynamic SentryObjC wrappers for every supported SDK. Every produced slice is audited, and simulator architecture selection is passed through to SwiftPM dependencies explicitly.

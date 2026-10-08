@@ -104,6 +104,8 @@ if [[ "$sdk" != "watchos" && "$sdk" != "watchsimulator" ]] && [ "$MACH_O_TYPE" !
 fi
 
 slice_id="${scheme}${suffix}-${sdk}"
+mkdir -p "$build_path"
+raw_build_log="$build_path/raw-build-output.log"
 
 output_xcarchive_path="$build_path/archive/${scheme}${suffix}"
 sentry_xcarchive_path="$output_xcarchive_path/${sdk}.xcarchive"
@@ -128,7 +130,7 @@ if [ "$sdk" = "maccatalyst" ]; then
         OTHER_LDFLAGS="$OTHER_LDFLAGS"
         "${extra_build_settings[@]+${extra_build_settings[@]}}"
     )
-    set -o pipefail && NSUnbufferedIO=YES xcodebuild "${maccatalyst_args[@]}" 2>&1 | tee "${slice_id}.maccatalyst.log" | xcbeautify --preserve-unbeautified
+    set -o pipefail && NSUnbufferedIO=YES xcodebuild "${maccatalyst_args[@]}" 2>&1 | tee "${slice_id}.maccatalyst.log" "$raw_build_log" | xcbeautify --preserve-unbeautified
     end_group
 
     maccatalyst_build_product_directory="$build_path/DerivedData/Build/Products/$resolved_configuration-maccatalyst"
@@ -180,7 +182,7 @@ else
         "${build_setting_overrides[@]}"
     )
 
-    set -o pipefail && NSUnbufferedIO=YES xcodebuild "${archive_args[@]}" 2>&1 | tee "${slice_id}.log" | xcbeautify --preserve-unbeautified
+    set -o pipefail && NSUnbufferedIO=YES xcodebuild "${archive_args[@]}" 2>&1 | tee "${slice_id}.log" "$raw_build_log" | xcbeautify --preserve-unbeautified
     end_group
 fi
 

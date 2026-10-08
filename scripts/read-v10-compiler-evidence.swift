@@ -124,11 +124,33 @@ private func aggregateRecord(_ arguments: [String]) throws -> Record {
         throw Failure(message: "Relocatable link requires an output and input file list")
     }
 
-    // A -nostdlib relocatable link only combines accounted objects, not external libraries
-    // or synthesized sections. Do not exempt an aggregate merely because its name is familiar.
-    try require(arguments.contains("-nostdlib") && !arguments.contains(where: {
-        $0.contains("sectcreate") || $0.hasSuffix(".a") || $0.hasSuffix(".dylib")
-    }), "Unsupported relocatable link inputs/options")
+    if URL(fileURLWithPath: arguments[0]).lastPathComponent == "libtool" {
+        // Only deterministic archives of the listed, independently accounted objects.
+        try require(arguments.contains("-static") && arguments.contains("-D"), "Unsupported static archive inputs/options")
+
+        let operands: Set<String> = ["-arch_only", "-syslibroot", "-filelist", "-dependency_info", "-o"]
+        var index = 1
+        var seen: Set<String> = []
+
+        while index < arguments.count {
+            let argument = arguments[index]
+            index += 1
+
+            if operands.contains(argument) {
+                try require(index < arguments.count && seen.insert(argument).inserted,
+                            "Missing/duplicate static archive option operand")
+                index += 1
+            } else {
+                try require(argument == "-static" || argument == "-D" || (argument.hasPrefix("-L") && argument.count > 2),
+                            "Unsupported static archive inputs/options: \(argument)")
+            }
+        }
+    } else {
+        // A -nostdlib relocatable link combines accounted objects, not external libraries.
+        try require(arguments.contains("-nostdlib") && !arguments.contains(where: {
+            $0.contains("sectcreate") || $0.hasSuffix(".a") || $0.hasSuffix(".dylib")
+        }), "Unsupported relocatable link inputs/options")
+    }
 
     // ld file lists contain one literal path per line, not shell-quoted arguments.
     let inputs = try String(contentsOfFile: list, encoding: .utf8).split(separator: "\n").map(String.init)
@@ -138,7 +160,7 @@ private func aggregateRecord(_ arguments: [String]) throws -> Record {
 }
 
 private func read(_ log: String) throws -> [Record] {
-    let compilers = #/(?:^|\s)((?:'|")?\/[^\n]*?\/(?:clang\+\+|clang|swiftc|swift-frontend)(?:'|")?)\s/#
+    let compilers = #/(?:^|\s)((?:'|")?\/[^\n]*?\/(?:clang\+\+|clang|swiftc|swift-frontend|libtool)(?:'|")?)\s/#
     var result: [Record] = []
 
     for line in log.split(separator: "\n") {
@@ -152,6 +174,9 @@ private func read(_ log: String) throws -> [Record] {
         if arguments.contains("-c") || arguments.contains("-emit-object") {
             result += try compileRecords(arguments)
         } else if arguments.contains("-r") {
+            result.append(try aggregateRecord(arguments))
+        } else if URL(fileURLWithPath: arguments[0]).lastPathComponent == "libtool",
+                  let output = try option(arguments, "-o"), output.hasSuffix(".o") {
             result.append(try aggregateRecord(arguments))
         }
     }

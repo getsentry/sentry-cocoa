@@ -85,10 +85,10 @@ Create a fresh V10 build and save its full, verbose build log without filtering 
   --build-log /path/to/raw-build.log
 ```
 
-- `--build-path` is the build output directory containing the objects to inspect. For XCFramework builds, use the producer's `DerivedData` directory.
+- `--build-path` is the build output directory containing the objects to inspect. For archive builds, use `DerivedData/Build/Intermediates.noindex/ArchiveIntermediates/SentryV10/IntermediateBuildFilesPath`; for Catalyst packaging builds, use `DerivedData/Build/Intermediates.noindex`. For ordinary Debug SDK builds, use the entire `DerivedData` directory, including recorded package aggregate outputs in `Build/Products`. Archive installation moves products out of `BuildProductsPath`, leaving dangling aliases there; the intermediate tree contains all recorded compiler outputs.
 - `--build-log` is the log from that same build. It lets the verifier match compiled sources to their outputs and check that any compiled legacy files emitted no recorder implementation.
 - When checking a copied SDK checkout, also pass `--source-root /path/to/sdk` so the verifier uses that checkout's source inventory.
 
 For implementation details, see the [build-log reader](../scripts/read-v10-compiler-evidence.swift) and [object checker](../scripts/verify-v10-empty-objects.swift).
 
-Without `--build-log`, the checker rejects legacy source files, header dependencies and objects. It cannot determine whether compiled legacy files contain recorder implementation without the compiler commands from that build. Archive workflows currently run without this option, so they must leave legacy files out of the build entirely. Packaged SDKs and runtime behavior still need separate checks.
+The build log is required; missing, incomplete or unsupported compiler evidence fails the audit. Relocatable package objects and deterministic `libtool -static -D` object archives are checked against their accounted inputs. The build-only SDK CI lane disables coverage instrumentation, which emits executable LLVM helpers even for empty Swift sources; unit-test coverage settings are unchanged. SDK builds keep `raw-build-output.log`. XCFramework slice builds keep `XCFrameworkBuildPath/raw-build-output.log`, and the V10 packager audits each slice before the next build replaces its output. Packaged SDKs and runtime behavior still need separate checks.

@@ -243,8 +243,9 @@ private func headerReference(_ object: URL, arguments: [String], source: String)
 
 private let swiftLibraries: Set<String> = [
     "swiftCompatibility56", "swiftCompatibilityConcurrency", "swiftCompatibilityDynamicReplacements", "swiftCompatibilityPacks",
-    "swiftCoreAudio", "swiftCoreFoundation", "swiftCoreImage", "swiftDispatch", "swiftFoundation", "swiftIOKit", "swiftMetal", "swiftOSLog",
-    "swiftObjectiveC", "swiftQuartzCore", "swiftSpatial", "swiftUniformTypeIdentifiers", "swiftXPC", "swift_Builtin_float", "swiftos", "swiftsimd"
+    "swiftAVFoundation", "swiftCoreAudio", "swiftCoreFoundation", "swiftCoreImage", "swiftCoreLocation", "swiftCoreMIDI", "swiftCoreMedia",
+    "swiftDispatch", "swiftFoundation", "swiftIOKit", "swiftMetal", "swiftOSLog",
+    "swiftObjectiveC", "swiftQuartzCore", "swiftSpatial", "swiftUIKit", "swiftUniformTypeIdentifiers", "swiftXPC", "swift_Builtin_float", "swiftos", "swiftsimd"
 ]
 
 private func inspectEmpty(_ object: URL, arguments: [String], source: String) throws {
@@ -443,8 +444,15 @@ private func aggregateReference(_ object: URL, record: CompilerRecord) throws {
     }
 
     _ = try tool(arguments)
-    try require(signature(object, allowEmptySections: true) == signature(reference, allowEmptySections: true),
-                "Aggregate implementation differs from accounted input objects: \(object.path)")
+    let matches: Bool
+    if URL(fileURLWithPath: record.arguments[0]).lastPathComponent == "libtool" {
+        // -D removes archive timestamps; exact bytes certify membership and contents,
+        // including nested archives, without exempting historically familiar names.
+        matches = try Data(contentsOf: object) == Data(contentsOf: reference)
+    } else {
+        matches = try signature(object, allowEmptySections: true) == signature(reference, allowEmptySections: true)
+    }
+    try require(matches, "Aggregate implementation differs from accounted input objects: \(object.path)")
 }
 
 private func auditOutputs(_ build: URL, inventory: Set<String>, observed: ObservedOutputs) throws -> Int {
