@@ -1,10 +1,12 @@
 # Changelog
 
-## 9.30.1
+## Unreleased
 
 ### Features
 
 - Add `options.experimental.metricKit.enabledDiagnosticReports` to choose which MetricKit diagnostic reports the SDK captures, including crash diagnostics. The option is only available from Swift (#9267)
+
+## 9.30.1
 
 ### Fixes
 
