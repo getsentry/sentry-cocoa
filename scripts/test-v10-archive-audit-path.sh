@@ -34,10 +34,10 @@ mkdir -p "$WORK_DIR"
 WORK_DIR="$(cd "$WORK_DIR" && pwd)"
 
 # Execute the actual workflow step, not a duplicate of its path-selection logic.
-yq -r '.jobs."package-v10".steps[] | select(.name == "Verify packaged SDK compile provenance") | .run' \
+yq -r '.jobs."package-v10".steps[] | select(.name == "Check packaged SDK build output") | .run' \
     "$SCRIPT_DIR/../.github/workflows/build-v10.yml" > "$WORK_DIR/audit-step.sh"
 if [[ ! -s "$WORK_DIR/audit-step.sh" ]]; then
-    log_error "Missing packaged SDK provenance step"
+    log_error "Missing packaged SDK build-output check"
     exit 1
 fi
 

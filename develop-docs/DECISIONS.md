@@ -41,6 +41,7 @@
 - [37. Strip DWARF from prebuilt SentryObjC static binaries](#37-strip-dwarf-from-prebuilt-sentryobjc-static-binaries)
 - [38. Keep opt-out flags free of deprecation warnings](#38-keep-opt-out-flags-free-of-deprecation-warnings)
 - [39. Native SwiftPM test plans](#39-native-swiftpm-test-plans)
+- [40. V10 backend separation with temporary development selection](#40-v10-backend-separation-with-temporary-development-selection)
 
 ---
 
@@ -741,6 +742,8 @@ Related links:
 Date: June 30th, 2026
 Contributors: @NinjaLikesCheez, @philprime, @philipphofmann, @itaybre, @supervacuus
 
+> **Partially superseded by [decision 40](#40-v10-backend-separation-with-temporary-development-selection):** Backend selection is temporary until V9 branches off for maintenance. V10 continues on `main` with KSCrash alone; backend-version traits and legacy recorder sources are removed before its first release.
+
 We are migrating from `SentryCrash` (a KSCrash v1.x fork with renamed identifiers) to KSCrash 2.x, with the new integration (`SentryKSCrashIntegration`) becoming the default crash handler in v10. `SentryCrash` will be removed entirely when the migration is complete.
 
 We chose to ship both `SentryCrashIntegration` and `SentryKSCrashIntegration` on `main` simultaneously (Option B), rather than keeping KSCrash work on a long-lived feature branch (Option A).
@@ -897,3 +900,33 @@ Related links:
 - [Package test commands](TEST.md#package-tests-with-xcodebuild)
 - [Shared package scheme](../.swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme)
 - [Profiler migration](https://github.com/getsentry/sentry-cocoa/pull/9086)
+
+## 40. V10 backend separation with temporary development selection
+
+Date: October 5, 2026
+Contributors: Phil Niedertscheider, Itay Brenner, migration author
+
+This decision clarifies the release boundary in [decision 35](#35-kscrash-migration-strategy-dual-integrations-on-main). The goal is separate release branches: V9 retains the bundled SentryCrash recorder, and V10 uses KSCrash alone. Temporarily developing both backends in one checkout is a bridge to that separation, not a permanent dual-backend product or single branch that must maintain two major versions of Product roots. Before the first V10 release, a V9 maintenance branch will be created and the legacy recorder will be removed from main (the future V10 branch).
+
+Existing V9 consumers must stay backward-compatible, including explicit NoUIFramework-only and defaults-disabled trait selections. V10 is a development opt-in, not a published backend/release-selection API. We don't require a V9 trait or an additional product/package migration to support this temporary development bridge. The trajectory is to remove all backend-version traits at the branch split, not make them permanent.
+
+Required toolchain support covers the current and preceding Xcode major (Xcode 27 and 26 at this decision). We preserve V9 functionality on older Xcode 16, but do not add complexity solely to have a streamlined V10 development selection there. Specifically, the Swift 6.1 manifest uses environment-only V10 selection via `SDK_V10=1`; the Swift 6.2+ manifest keeps the development V10 trait and environment route. This avoids old Xcode (< 26) exposing inactive trait-conditioned V10 configuration headers to V9 consumers.
+
+Before the branch split, guarded legacy files may compile into empty translation units for V10 development. They must emit no legacy recorder implementation into V10 products and must not activate the legacy backend. We'll keep useful module ownership boundaries and SDK-side compatibility surfaces, and verify objects, linked artifacts, packaged headers and runtime behavior.
+
+The separation work must include an explicit retirement plan. Before the first V10 release, we must
+
+- establish the V9 maintenance branch
+- delete V9 recorder sources, adapters, headers, targets, bootstrap and V9-only tests from the V10 branch
+- remove development backend-version traits and selectors
+- simplify manifests, Xcode configuration, test apps and workflows to KSCrash alone
+- retire temporary dual-backend development tests and tooling
+- keep any remaining and applicable artifact, compatibility, behavior, NoUI, resource and packaging verification.
+
+At that point, we can enforce complete legacy source/dependency absence on V10 and independently validate both release branches.
+
+Related links:
+
+- [V10 backend separation PR](https://github.com/getsentry/sentry-cocoa/pull/9182)
+- [Repository-wide legacy retirement](https://github.com/getsentry/sentry-cocoa/issues/8319)
+- [SentryCrash ownership and build documentation](SENTRYCRASH.md)

@@ -54,17 +54,6 @@ private func runProcess(_ executable: String, _ arguments: [String]) throws -> S
     return result
 }
 
-private func verifyRetiredTokenAbsent(description: String, token: String) throws {
-    do {
-        let output = try runProcess("/usr/bin/git", ["grep", "--untracked", "-nIF", token, "--", "."])
-        if !output.isEmpty {
-            report("\(description) is still present\n\(output.trimmingCharacters(in: .newlines))")
-        }
-    } catch let error as NSError where error.code == 1 {
-        // git grep returns 1 when there are no matches.
-    }
-}
-
 private func regularFileNames(in path: String) throws -> Set<String> {
     let directory = repositoryRoot.appending(path)
     return Set(try fileManager.contentsOfDirectory(
@@ -157,51 +146,6 @@ private func run() throws {
         exit(1)
     }
 
-    try verifyRetiredTokenAbsent(
-        description: "The retired V10 backend switch",
-        token: "SENTRY_DISABLE_SENTRY" + "CRASH_V10"
-    )
-    try verifyRetiredTokenAbsent(
-        description: "The retired KSCrash TODO marker",
-        token: "KSCRASH_" + "TODO"
-    )
-
-    let removedToolConfig = "SentryCrashV10" + "ToolSources"
-    let removedToolSetting = "SENTRYCRASH_V10_RETAINED" + "_TOOL_SOURCE_FILE_NAMES"
-    let removedIncludeSetting = "INCLUDED_SOURCE" + "_FILE_NAMES"
-    let removedEmptyOption = "allow-empty" + "-translation-units"
-    let removedToolPath = "Sources/Configuration/\(removedToolConfig).xcconfig"
-    if fileManager.fileExists(atPath: repositoryRoot.appending(removedToolPath).path) {
-        report("Removed V10 migration scaffolding still exists: \(removedToolPath)")
-    }
-
-    let scaffoldRoots = [
-        "Package.swift", "Package@swift-6.1.swift", "Package@swift-6.2.swift",
-        "Sources", "Tests", "scripts", ".github", "develop-docs", "Sentry.xcodeproj"
-    ]
-    let scaffoldTokens = [removedToolConfig, removedToolSetting, removedIncludeSetting, removedEmptyOption]
-    outer: for root in scaffoldRoots {
-        let url = repositoryRoot.appending(root)
-        var isDirectory: ObjCBool = false
-        if fileManager.fileExists(atPath: url.path, isDirectory: &isDirectory), !isDirectory.boolValue {
-            let contents = try String(contentsOf: url, encoding: .utf8)
-            if scaffoldTokens.contains(where: contents.contains) {
-                report("The retained-Tool or empty-translation-unit mechanism is still referenced")
-                break
-            }
-        } else if let enumerator = fileManager.enumerator(at: url, includingPropertiesForKeys: [.isRegularFileKey]) {
-            for case let file as URL in enumerator {
-                if file.pathComponents.contains(".build") { continue }
-                guard try file.resourceValues(forKeys: [.isRegularFileKey]).isRegularFile == true,
-                      let contents = try? String(contentsOf: file, encoding: .utf8) else { continue }
-                if scaffoldTokens.contains(where: contents.contains) {
-                    report("The retained-Tool or empty-translation-unit mechanism is still referenced")
-                    break outer
-                }
-            }
-        }
-    }
-
     let project = try lines("Sentry.xcodeproj/project.pbxproj")
     let v9HeaderNames = try regularFileNames(in: "Sources/SentryCrashV9Headers/include")
     var legacySourceNames = try implementationFileNames(in: "Sources/SentryCrash")
@@ -285,13 +229,16 @@ private func run() throws {
     }
     for manifestName in ["Package@swift-6.1.swift", "Package@swift-6.2.swift"] {
         let manifest = try text(manifestName)
-        for required in [
-            #".default(enabledTraits: ["V9"])"#,
-            #".when(traits: ["V9"])"#,
-            #".when(traits: ["V10"])"#
-        ] where !manifest.contains(required) {
-            report("\(manifestName) is missing trait source-graph selection: \(required)")
+        if manifest.contains(#".when(traits: ["V9"])"#) || manifest.contains(#".default(enabledTraits: ["V9"])"#) {
+            report("\(manifestName) reintroduces mandatory V9 selection")
         }
+    }
+    let olderManifest = try text("Package@swift-6.1.swift")
+    if olderManifest.contains(#".when(traits: ["V10"])"#) {
+        report("The older manifest must use environment-only V10 development selection")
+    }
+    if !(try text("Package@swift-6.2.swift")).contains(#".when(traits: ["V10"])"#) {
+        report("The modern manifest is missing its development V10 opt-in")
     }
 
     for requiredPath in [
@@ -358,10 +305,9 @@ private func run() throws {
         // grep returns 1 when there are no matches.
     }
 
-    do {
-        _ = try runProcess(repositoryRoot.appending("scripts/verify-v10-spm-route-equivalence.swift").path, [])
-    } catch {
-        report("SwiftPM V10 routes do not select equivalent source graphs")
+    for requiredAudit in ["test-v10-empty-objects.sh", "--build-log v10-environment.log",
+                          "--build-log v10-trait.log", "--build-log v10-base-manifest.log"] where !workflow.contains(requiredAudit) {
+        report("SwiftPM V10 builds must run the object checker with their build logs; missing workflow command: \(requiredAudit)")
     }
 }
 // swiftlint:enable cyclomatic_complexity function_body_length
@@ -379,4 +325,4 @@ if !errors.isEmpty {
     print("error: \(errors.count) V10 SentryCrash source-contract violation(s) found")
     exit(1)
 }
-print("Verified final V10 source graphs, header ownership, umbrellas, and compatibility files")
+print("Verified V10 separation source ownership, header delivery, compatibility and audit coverage")

@@ -21,23 +21,13 @@ let enableV10 = envFlag("SDK_V10")
 let v10SwiftSettings: [SwiftSetting] = enableV10
     ? [.define("SDK_V10")]
     : [.define("SDK_V10", .when(traits: ["V10"]))]
-// Check backend selection in C/C++ and Swift's Clang imports, before importing V9 headers.
-// The base manifest has no traits, so it deliberately does not set these validation markers.
-let v10CSettings: [CSetting] = (enableV10
+let v10CSettings: [CSetting] = enableV10
     ? [.define("SDK_V10", to: "1")]
-    : [.define("SDK_V10", to: "1", .when(traits: ["V10"]))]) + [
-        .define("SENTRY_SWIFTPM_BACKEND_TRAITS", to: "1"),
-        .define("SENTRY_SWIFTPM_V9", to: "1", .when(traits: ["V9"])),
-        .define("SENTRY_SWIFTPM_V10", to: "1", .when(traits: ["V10"]))
-    ]
+    : [.define("SDK_V10", to: "1", .when(traits: ["V10"]))]
 // PackageDescription uses distinct C and C++ setting types, so this cannot reuse v10CSettings.
-let v10CxxSettings: [CXXSetting] = (enableV10
+let v10CxxSettings: [CXXSetting] = enableV10
     ? [.define("SDK_V10", to: "1")]
-    : [.define("SDK_V10", to: "1", .when(traits: ["V10"]))]) + [
-        .define("SENTRY_SWIFTPM_BACKEND_TRAITS", to: "1"),
-        .define("SENTRY_SWIFTPM_V9", to: "1", .when(traits: ["V9"])),
-        .define("SENTRY_SWIFTPM_V10", to: "1", .when(traits: ["V10"]))
-    ]
+    : [.define("SDK_V10", to: "1", .when(traits: ["V10"]))]
 let kscrashDependencyCondition: TargetDependencyCondition? = enableV10
     ? nil
     : .when(traits: ["V10"])
@@ -165,7 +155,7 @@ let sentrySwiftTarget: Target = .target(
 )
 if !enableV10 {
     sentrySwiftTarget.dependencies.append(
-        .target(name: "_SentryCrashV9Headers", condition: .when(traits: ["V9"]))
+        .target(name: "_SentryCrashV9Headers")
     )
 }
 
@@ -207,7 +197,7 @@ var sentryPrivateDependencies: [Target.Dependency] = [
 ]
 if !enableV10 {
     sentryPrivateDependencies.append(
-        .target(name: "_SentryCrashV9Headers", condition: .when(traits: ["V9"]))
+        .target(name: "_SentryCrashV9Headers")
     )
 }
 
@@ -245,9 +235,10 @@ targets += [
         name: "SentryCrashV9Swift",
         dependencies: ["SentrySwift", "_SentryPrivate", "_SentryCrashV9Headers", "SentryHeaders"],
         path: "Sources/SentryCrashV9Swift",
+        cSettings: v10CSettings,
         swiftSettings: [
             .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"]))
-        ]
+        ] + v10SwiftSettings
     )
 ]
 
@@ -261,8 +252,8 @@ var sentryObjCInternalDependencies: [Target.Dependency] = [
 ]
 if !enableV10 {
     sentryObjCInternalDependencies += [
-        .target(name: "SentryCrashV9", condition: .when(traits: ["V9"])),
-        .target(name: "_SentryCrashV9Headers", condition: .when(traits: ["V9"]))
+        .target(name: "SentryCrashV9"),
+        .target(name: "_SentryCrashV9Headers")
     ]
 }
 
@@ -283,10 +274,10 @@ targets += [
         cSettings: [
             .headerSearchPath("Sentry"),
             .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
-        ]
+        ] + v10CSettings
     ),
-    // SentryObjCInternal compiles reporter-neutral ObjC/C sources. The V9 recorder is isolated in
-    // SentryCrashV9 so no V10 target graph schedules Sources/SentryCrash implementations.
+    // The recorder stays separate from reporter-neutral SDK code. The development V10 trait
+    // compiles its guarded sources without recorder implementation; the environment route excludes it.
     .target(
         name: "SentryObjCInternal",
         dependencies: sentryObjCInternalDependencies,
@@ -437,10 +428,9 @@ let package = Package(
     platforms: [.iOS(.v15), .macOS(.v12), .tvOS(.v15), .watchOS(.v9), .visionOS(.v1)],
     products: products,
     traits: [
-        .default(enabledTraits: ["V9"]),
-        .init(name: "V9", description: "Build the default SentryCrash-backed SDK."),
+        .default(enabledTraits: []),
         .init(name: "NoUIFramework", description: "Build without UIKit/AppKit/SwiftUI framework linkage. Use for command-line tools or contexts where UI frameworks are unavailable."),
-        .init(name: "V10", description: "Enable SDK V10 API changes, including the upstream KSCrash integration."),
+        .init(name: "V10", description: "Development-only V10 API and KSCrash selection; removed when V9 branches off before V10 release."),
         .init(name: "_SentryInternalUITestSupport", description: "Internal support for Sentry's sample UI tests. Do not enable in production."),
         .init(name: "_SentryTest", description: "Internal SDK unit-test support for local development. Changes SDK behavior; not for consumers or production builds."),
         .init(name: "_SentryTestCI", description: "Internal SDK unit-test support for CI. Changes SDK behavior; not for consumers or production builds.")

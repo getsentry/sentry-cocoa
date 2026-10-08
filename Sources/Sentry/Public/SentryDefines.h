@@ -3,10 +3,9 @@
 // SwiftPM consumers do not inherit dependency compiler defines. The selected V10 header
 // target supplies the same SDK_V10 setting when their Clang modules are imported.
 // Keep monolithic Xcode/framework headers independent of any visible package source folders.
-// Older Xcode versions may schedule a trait-conditioned local target even for V9. Honor
-// the SDK's V9 setting and the consumer's reachable V9 headers before adopting V10.
-#if !SENTRY_SWIFTPM_V9 && !__has_include(<SentryCrashV9.h>)                                           \
-    && __has_include(<SentryV10Configuration.h>)                                                    \
+// Legacy headers may remain reachable from guarded V10 targets, so they do not select V9.
+// The older manifest uses environment-only selection to keep this configuration absent for V9.
+#if __has_include(<SentryV10Configuration.h>)                                                      \
     && (defined(SWIFT_PACKAGE) || __building_module(SentryHeaders) || __building_module(_SentryPrivate))
 #    import <SentryV10Configuration.h>
 #endif

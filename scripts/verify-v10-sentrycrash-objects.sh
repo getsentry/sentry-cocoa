@@ -1,13 +1,12 @@
 #!/bin/bash
 set -euo pipefail
 
-# V10 uses KSCrash instead of the legacy V9 recorder. We want the old recorder left out of
-# the build entirely, not merely stripped from the final binary by the linker. Checking the
-# packaged framework alone cannot prove that: unused V9 code could have been compiled first.
+# V10 must not emit or activate the legacy recorder implementation. Before V9 branches off,
+# --build-log lets the audit verify that compiled legacy files emit no recorder implementation.
+# Artifact audits remain independent: linker stripping alone does not certify isolation.
 #
-# This audit inspects a completed build's compile metadata, header dependencies, and object
-# filenames for V9 recorder or adapter sources and headers. It fails if any are found. The
-# source/configuration checker separately checks target membership; this checks build output.
+# Without --build-log, reject legacy sources, header dependencies and object files.
+# Checking that compiled legacy files contain no recorder implementation requires the log.
 # For XCFramework builds, pass the producer's DerivedData root so both archive intermediates
 # and Mac Catalyst's non-archive build output are covered.
 
@@ -16,12 +15,16 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/ci-utils.sh"
 
 BUILD_PATH=""
+BUILD_LOG=""
+SOURCE_ROOT=""
 SPM_TARGETS=()
 
 usage() {
-  log_info "Usage: $0 --build-path <path> [--spm-target <target> ...]"
+  log_info "Usage: $0 --build-path <path> [--build-log <path>] [--spm-target <target> ...]"
   log_info "  --build-path, -b: completed build output to audit (required)"
   log_info "  --spm-target, -t: actual requested target; repeat for native SwiftPM builds"
+  log_info "  --build-log, -l: full verbose log from a completed build; permits verified implementation-free legacy objects"
+  log_info "  --source-root, -s: SDK source inventory root (default: repository; requires build log)"
   exit 1
 }
 
@@ -30,6 +33,16 @@ while [[ $# -gt 0 ]]; do
     --build-path|-b)
       [[ $# -ge 2 ]] || usage
       BUILD_PATH="$2"
+      shift 2
+      ;;
+    --build-log|-l)
+      [[ $# -ge 2 ]] || usage
+      BUILD_LOG="$2"
+      shift 2
+      ;;
+    --source-root|-s)
+      [[ $# -ge 2 ]] || usage
+      SOURCE_ROOT="$2"
       shift 2
       ;;
     --spm-target|-t)
@@ -52,6 +65,15 @@ fi
 BUILD_PATH="$(cd "$BUILD_PATH" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
+if [[ -n "$BUILD_LOG" ]]; then
+  [[ -f "$BUILD_LOG" ]] || { log_error "Missing build log: $BUILD_LOG"; exit 1; }
+  exec swift "$SCRIPT_DIR/verify-v10-empty-objects.swift" --build-path "$BUILD_PATH" \
+    --build-log "$BUILD_LOG" --source-root "${SOURCE_ROOT:-$REPO_ROOT}"
+fi
+[[ -z "$SOURCE_ROOT" ]] || usage
+
+# No build log was supplied. Reject legacy files rather than trying to determine
+# whether their compiled objects contain recorder implementation.
 forbidden_sources=()
 while IFS= read -r source_path; do
   forbidden_sources+=("${source_path#"$REPO_ROOT/"}")

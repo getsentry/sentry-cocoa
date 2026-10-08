@@ -49,27 +49,31 @@ trap 'rm -f "$legacy_headers_path" "$slice_inventory_path" "$symbols_path"' EXIT
 find "$REPO_ROOT/Sources/SentryCrashV9Headers/include" -type f \
   \( -name '*.h' -o -name '*.hpp' \) -exec basename {} \; | sort -u > "$legacy_headers_path"
 
-python3 - "$XCFRAMEWORK_PATH" > "$slice_inventory_path" <<'PY'
-from pathlib import Path
-import plistlib
-import sys
-
-xcframework = Path(sys.argv[1])
-with (xcframework / "Info.plist").open("rb") as file:
-    info = plistlib.load(file)
-
-for library in info.get("AvailableLibraries", []):
-    identifier = library["LibraryIdentifier"]
-    slice_root = xcframework / identifier
-    library_path = slice_root / library["LibraryPath"]
-    if library_path.suffix == ".framework":
-        binary_path = library_path / library_path.stem
-        headers_path = library_path / "Headers"
-    else:
-        binary_path = library_path
-        headers_path = slice_root / library.get("HeadersPath", "Headers")
-    print(f"{identifier}\t{binary_path}\t{headers_path}")
-PY
+# plutil accepts XML and binary plists; jq validates required metadata before producing
+# the TSV inventory. Reject traversal/control characters rather than auditing outside the slice.
+plutil -convert json -o - "$INFO_PLIST" | jq -er --arg root "$XCFRAMEWORK_PATH" '
+  def relative_path:
+    type == "string" and length > 0 and
+    (startswith("/") | not) and (test("[\u0000-\u001f]") | not) and
+    (split("/") | all(. != ".." and . != "." and length > 0));
+  def headers_path: if has("HeadersPath") then .HeadersPath else "Headers" end;
+  .AvailableLibraries
+  | if type == "array" and length > 0 then .[] else error("Missing library slices") end
+  | if (.LibraryIdentifier | relative_path) and
+       (.LibraryIdentifier | contains("/") | not) and
+       (.LibraryPath | relative_path) and
+       (headers_path | relative_path)
+    then . else error("Invalid slice paths") end
+  | ($root + "/" + .LibraryIdentifier) as $slice
+  | ($slice + "/" + .LibraryPath) as $library_path
+  | if (.LibraryPath | endswith(".framework"))
+    then [.LibraryIdentifier,
+          ($library_path + "/" + (.LibraryPath | split("/") | last | rtrimstr(".framework"))),
+          ($library_path + "/Headers")]
+    else [.LibraryIdentifier, $library_path, ($slice + "/" + headers_path)]
+    end
+  | @tsv
+' > "$slice_inventory_path"
 
 if [[ ! -s "$slice_inventory_path" ]]; then
   log_error "XCFramework contains no library slices: $XCFRAMEWORK_PATH"

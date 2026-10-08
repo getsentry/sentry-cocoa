@@ -392,6 +392,6 @@ private func run() throws {
 do {
     try run()
 } catch {
-    fputs("Invalid V10 native SwiftPM evidence: \(error.localizedDescription)\n", stderr)
+    fputs("Cannot check the native SwiftPM build: \(error.localizedDescription)\n", stderr)
     exit(1)
 }

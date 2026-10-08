@@ -163,51 +163,61 @@ jobs:
         with:
           version: "26"
           resolve-simulators: "false"
-      - name: Test provenance audit
-        run: ./scripts/test-v10-spm-build-plan.swift
-      - name: Verify equivalent SwiftPM V10 source graphs
-        if: matrix.mode == 'environment'
-        run: ./scripts/verify-v10-spm-route-equivalence.swift
+      - name: Test build output checks
+        run: |
+          ./scripts/test-v10-spm-build-plan.swift
+          ./scripts/test-v10-compiler-log.sh
+          ./scripts/test-v10-empty-objects.sh --work-dir "$RUNNER_TEMP/v10-empty-audit"
+          ./scripts/test-v10-sentryobjc-slice-inventory.sh --work-dir "$RUNNER_TEMP/v10-slice-audit"
       - name: Build Swift with environment
         if: matrix.mode == 'environment'
         env:
           SDK_V10: "1"
-        run: swift build --target SentrySwift --scratch-path .build/v10-environment
+        run: swift build -v --target SentrySwift --scratch-path .build/v10-environment 2>&1 | tee v10-environment.log
       - name: Build source SDK with environment
         if: matrix.mode == 'environment'
         env:
           SDK_V10: "1"
         run: |
-          swift build --target SentryObjCInternal --scratch-path .build/v10-environment
-          swift build --target SentryTestUtils --scratch-path .build/v10-environment
+          swift build -v --target SentryObjCInternal --scratch-path .build/v10-environment 2>&1 | tee -a v10-environment.log
+          swift build -v --target SentryTestUtils --scratch-path .build/v10-environment 2>&1 | tee -a v10-environment.log
           ./scripts/verify-v10-sentrycrash-objects.sh --build-path .build/v10-environment \
-            --spm-target SentrySwift --spm-target SentryObjCInternal --spm-target SentryTestUtils
+            --build-log v10-environment.log
       - name: Build Swift with trait
         if: matrix.mode == 'trait'
-        run: swift build --target SentrySwift --traits V10 --scratch-path .build/v10-trait
+        run: swift build -v --target SentrySwift --traits V10 --scratch-path .build/v10-trait 2>&1 | tee v10-trait.log
       - name: Verify SentryCrash sources with trait
         if: matrix.mode == 'trait'
         run: |
-          swift build --target SentryObjCInternal --traits V10 --scratch-path .build/v10-trait
-          swift build --target SentryTestUtils --traits V10 --scratch-path .build/v10-trait
+          swift build -v --target SentryObjCInternal --traits V10 --scratch-path .build/v10-trait 2>&1 | tee -a v10-trait.log
+          swift build -v --target SentryTestUtils --traits V10 --scratch-path .build/v10-trait 2>&1 | tee -a v10-trait.log
           ./scripts/verify-v10-sentrycrash-objects.sh --build-path .build/v10-trait \
-            --spm-target SentrySwift --spm-target SentryObjCInternal --spm-target SentryTestUtils
+            --build-log v10-trait.log
       - name: Build Swift with base manifest
         if: matrix.mode == 'base-manifest'
         env:
           SDK_V10: "1"
         run: |
           rm Package@swift-6.1.swift Package@swift-6.2.swift
-          swift build --target SentrySwift --scratch-path .build/v10-base-manifest
+          swift build -v --target SentrySwift --scratch-path .build/v10-base-manifest 2>&1 | tee v10-base-manifest.log
       - name: Build source SDK with base manifest
         if: matrix.mode == 'base-manifest'
         env:
           SDK_V10: "1"
         run: |
-          swift build --target SentryObjCInternal --scratch-path .build/v10-base-manifest
-          swift build --target SentryTestUtils --scratch-path .build/v10-base-manifest
+          swift build -v --target SentryObjCInternal --scratch-path .build/v10-base-manifest 2>&1 | tee -a v10-base-manifest.log
+          swift build -v --target SentryTestUtils --scratch-path .build/v10-base-manifest 2>&1 | tee -a v10-base-manifest.log
           ./scripts/verify-v10-sentrycrash-objects.sh --build-path .build/v10-base-manifest \
-            --spm-target SentrySwift --spm-target SentryObjCInternal --spm-target SentryTestUtils
+            --build-log v10-base-manifest.log
+      - name: Upload build check logs
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: v10-spm-audit-${{ matrix.mode }}
+          path: |
+            v10-*.log
+            ${{ runner.temp }}/v10-empty-audit
+            ${{ runner.temp }}/v10-slice-audit
 
   package-v10:
     name: Package V10 ${{ matrix.sdk }}
@@ -249,7 +259,7 @@ jobs:
         run: make build-xcframework-v10-dynamic SDKS=${{ matrix.sdk }}
       - name: Build and audit static V10 XCFramework
         run: make build-xcframework-v10-static SDKS=${{ matrix.sdk }}
-      - name: Verify packaged SDK compile provenance
+      - name: Check packaged SDK build output
         run: ./scripts/verify-v10-sentrycrash-objects.sh --build-path "XCFrameworkBuildPath/DerivedData"
       - name: Build and audit V10 SentryObjC XCFrameworks
         run: make build-xcframework-sentryobjc-v10 SDKS=${{ matrix.sdk }}

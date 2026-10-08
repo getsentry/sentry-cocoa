@@ -14,8 +14,8 @@ set -euo pipefail
 #   headers, and the generated Swift header does not declare excluded implementation classes or
 #   the V9-only broad reporter protocol.
 #
-# This enforces the linked and packaged result; source responsibility coverage and compiled-object
-# provenance are enforced by the companion source-contract and object scripts.
+# This checks the packaged framework. The source-contract checker checks target membership and
+# header ownership; the object checker inspects build output before unused code can be stripped.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=./ci-utils.sh disable=SC1091

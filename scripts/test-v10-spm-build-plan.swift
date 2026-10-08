@@ -223,7 +223,7 @@ private final class Tests {
     }
 
     func testMetadata() throws {
-    try test("malformed-plan", diagnostic: "Invalid V10 native SwiftPM evidence") {
+    try test("malformed-plan", diagnostic: "Cannot check the native SwiftPM build") {
         try write("commands: [unterminated", to: $0.build + "/debug.yaml")
     }
     try test("missing-description", diagnostic: "Missing or ambiguous native description") {

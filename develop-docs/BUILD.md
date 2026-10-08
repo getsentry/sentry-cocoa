@@ -49,3 +49,46 @@ make build-xcframework-dynamic  # Build Sentry-Dynamic XCFramework
 - Uses pre-built binaries for faster builds and mixed-language limitations
 - Binary distribution via git release assets
 - Not compatible with UIKit-free configurations
+
+## Temporary V10 Development Verification
+
+> [!NOTE]
+> This workflow applies while V9 and V10 are developed in the same branch. At the branch split, retire the temporary backend-selection checks and adapt the remaining checks for KSCrash-only V10. See [decision 40](DECISIONS.md#40-v10-backend-separation-with-temporary-development-selection) for the release plan.
+
+These checks help ensure that V10 builds contain no legacy recorder implementation while existing V9 dependency declarations continue to work. Run the commands below from the repository root.
+
+### 1. Test the verification scripts
+
+Run their regression tests before using the verifiers on your checkout:
+
+```bash
+./scripts/test-v10-compiler-log.sh
+./scripts/test-v10-empty-objects.sh
+./scripts/test-v10-sentryobjc-slice-inventory.sh
+```
+
+### 2. Check source ownership
+
+Check that V9 recorder sources and headers stay separate from V10, shared compatibility interfaces remain available, and the required build and test coverage is configured:
+
+```bash
+./scripts/verify-v10-sentrycrash-source-contract.swift
+```
+
+### 3. Check a V10 build
+
+Create a fresh V10 build and save its full, verbose build log without filtering or summarizing it. Once the build has completed successfully, run:
+
+```bash
+./scripts/verify-v10-sentrycrash-objects.sh \
+  --build-path /path/to/build-output \
+  --build-log /path/to/raw-build.log
+```
+
+- `--build-path` is the build output directory containing the objects to inspect. For XCFramework builds, use the producer's `DerivedData` directory.
+- `--build-log` is the log from that same build. It lets the verifier match compiled sources to their outputs and check that any compiled legacy files emitted no recorder implementation.
+- When checking a copied SDK checkout, also pass `--source-root /path/to/sdk` so the verifier uses that checkout's source inventory.
+
+For implementation details, see the [build-log reader](../scripts/read-v10-compiler-evidence.swift) and [object checker](../scripts/verify-v10-empty-objects.swift).
+
+Without `--build-log`, the checker rejects legacy source files, header dependencies and objects. It cannot determine whether compiled legacy files contain recorder implementation without the compiler commands from that build. Archive workflows currently run without this option, so they must leave legacy files out of the build entirely. Packaged SDKs and runtime behavior still need separate checks.

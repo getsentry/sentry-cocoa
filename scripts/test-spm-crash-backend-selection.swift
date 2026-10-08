@@ -1,7 +1,7 @@
 #!/usr/bin/env swift
 
-// Build real SDK consumers with valid and invalid crash backend selections. Negative tests
-// pass only on the expected intentional diagnostic, not an unrelated compiler failure.
+// Build real SDK consumers with temporary development selection before V10 separation.
+// Absent development V10 selects V9, including empty and NoUI-only declarations.
 // SDK copies and build logs stay outside the checkout but with --work-dir 
 // you keep them where you like for review.
 
@@ -9,8 +9,6 @@ import Foundation
 
 private let files = FileManager.default
 private let repository = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
-private let missingBackendDiagnostic = "Sentry requires a crash backend: enable the V9 or V10 package trait."
-private let mutuallyExclusiveTraitsDiagnostic = "Sentry crash backend traits V9 and V10 are mutually exclusive: enable only one."
 
 private struct Failure: LocalizedError {
     let message: String
@@ -26,19 +24,14 @@ private struct BuildCase {
     var swift61Manifest = false
     var nativeBuild = false
     var sharedTestApp = false
-    var expectedDiagnostic: String?
 }
 
 private let cases = [
-    BuildCase(name: "no-backend", traits: [], expectedDiagnostic: missingBackendDiagnostic),
-    BuildCase(name: "both-backends", traits: ["V9", "V10"], expectedDiagnostic: mutuallyExclusiveTraitsDiagnostic),
-    BuildCase(name: "both-backends-environment", traits: ["V9", "V10"], environmentV10: true, expectedDiagnostic: mutuallyExclusiveTraitsDiagnostic),
+    BuildCase(name: "disabled-defaults-v9", traits: []),
     BuildCase(name: "default-v9", traits: nil),
     BuildCase(name: "default-v9-native", traits: nil, nativeBuild: true),
-    BuildCase(name: "explicit-v9", traits: ["V9"]),
     BuildCase(name: "trait-v10", traits: ["V10"]),
-    BuildCase(name: "no-ui-only", traits: ["NoUIFramework"], expectedDiagnostic: missingBackendDiagnostic),
-    BuildCase(name: "no-ui-v9", traits: ["V9", "NoUIFramework"]),
+    BuildCase(name: "no-ui-only", traits: ["NoUIFramework"]),
     BuildCase(name: "no-ui-defaults", traits: ["NoUIFramework"], includeDefaultTraits: true),
     BuildCase(name: "no-ui-v10", traits: ["V10", "NoUIFramework"]),
     BuildCase(name: "environment-v10", traits: [], environmentV10: true),
@@ -46,12 +39,12 @@ private let cases = [
     BuildCase(name: "base-v9", traits: nil, baseManifest: true),
     BuildCase(name: "base-v9-native", traits: nil, baseManifest: true, nativeBuild: true),
     BuildCase(name: "base-v10", traits: nil, environmentV10: true, baseManifest: true),
-    BuildCase(name: "no-backend-swift61", traits: [], swift61Manifest: true, expectedDiagnostic: missingBackendDiagnostic),
-    BuildCase(name: "both-backends-swift61", traits: ["V9", "V10"], swift61Manifest: true, expectedDiagnostic: mutuallyExclusiveTraitsDiagnostic),
-    BuildCase(name: "trait-v10-swift61", traits: ["V10"], swift61Manifest: true),
+    BuildCase(name: "disabled-defaults-v9-swift61", traits: [], swift61Manifest: true, nativeBuild: true),
+    BuildCase(name: "no-ui-only-swift61", traits: ["NoUIFramework"], swift61Manifest: true, nativeBuild: true),
+    BuildCase(name: "environment-v10-swift61", traits: [], environmentV10: true, swift61Manifest: true, nativeBuild: true),
     BuildCase(name: "shared-testapp-default-v9", traits: nil, sharedTestApp: true),
     BuildCase(name: "shared-testapp-v10", traits: ["V10"], sharedTestApp: true),
-    BuildCase(name: "shared-testapp-both-backends", traits: ["V9", "V10"], sharedTestApp: true, expectedDiagnostic: mutuallyExclusiveTraitsDiagnostic)
+    BuildCase(name: "shared-testapp-environment-v10-swift61", traits: [], environmentV10: true, swift61Manifest: true, nativeBuild: true, sharedTestApp: true)
 ]
 
 private func require(_ condition: Bool, _ message: String) throws {
@@ -96,39 +89,19 @@ private func prepareSDK(root: URL, scenario: BuildCase) throws -> URL {
     if files.fileExists(atPath: sdk.path) { return sdk }
 
     try files.createDirectory(at: sdk, withIntermediateDirectories: true)
-    let archive = root.appendingPathComponent("source.tar")
-    if !files.fileExists(atPath: archive.path) {
-        let status = try run(["git", "archive", "HEAD", "--output", archive.path], in: repository,
-                             log: root.appendingPathComponent("archive.log"))
-        try require(status == 0, "SDK archive failed; see \(root.path)/archive.log")
-    }
-
-    let extracted = try run(["tar", "-xf", archive.path, "-C", sdk.path], in: root,
-                            log: root.appendingPathComponent(name + "-extract.log"))
-    try require(extracted == 0, "SDK extraction failed")
-
-    // Use the current diagnostic/manifests, but exclude unrelated working-tree changes.
-    for path in [
-        "Package.swift", 
-        "Package@swift-6.1.swift", 
-        "Package@swift-6.2.swift", 
-        "TestApps/SentrySampleShared/Package.swift",
-        "Sources/Sentry/include/SentrySwift.h",
-        "Sources/SentryCrashV9Swift/SentryCrashV9Dependencies.swift",
-        "Sources/SentryCrash/Installations/SentryCrashInstallation.m",
-        "Sources/SentryCrash/Recording/SentryCrash.m",
-        "Sources/SentryCrash/Recording/Monitors/SentryCrashMonitor_NSException.m",
-        "Sources/Sentry/include/SentryPrivate.h", 
-        "Sources/Sentry/include/SentryCrashBackendSelection.h",
-        "Sources/Sentry/SentryDummyPrivateEmptyClass.m",
-        "Sources/Sentry/Public/SentryDefines.h", 
-        "Sources/SentryV10Configuration/include/SentryV10Configuration.h",
-        "Sources/SentryV10Configuration/SentryV10Configuration.c"] {
-        if files.fileExists(atPath: sdk.appendingPathComponent(path).path) {
-            try files.removeItem(at: sdk.appendingPathComponent(path))
-        }
-        try files.createDirectory(at: sdk.appendingPathComponent(path).deletingLastPathComponent(), withIntermediateDirectories: true)
-        try files.copyItem(at: repository.appendingPathComponent(path), to: sdk.appendingPathComponent(path))
+    // Copy current tracked and non-ignored new files, including local edits and deletions.
+    // Build products and Git metadata stay outside the disposable SDK copy.
+    let inventory = root.appendingPathComponent(name + "-files.log")
+    let status = try run(["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z"],
+                         in: repository, log: inventory)
+    try require(status == 0, "SDK file inventory failed; see \(inventory.path)")
+    let paths = String(decoding: try Data(contentsOf: inventory), as: UTF8.self).split(separator: "\0")
+    for path in Set(paths.map(String.init)) {
+        let source = repository.appendingPathComponent(path)
+        guard files.fileExists(atPath: source.path) else { continue }
+        let destination = sdk.appendingPathComponent(path)
+        try files.createDirectory(at: destination.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try files.copyItem(at: source, to: destination)
     }
 
     if scenario.baseManifest {
@@ -188,14 +161,14 @@ private func test(_ scenario: BuildCase, root: URL) throws {
     let binary = URL(fileURLWithPath: binPath).appendingPathComponent("BackendConsumer")
     let log = root.appendingPathComponent(scenario.name + ".log")
     let status = try run(command + ["-v"], in: consumer, log: log, v10: scenario.environmentV10)
-    let output = try String(contentsOf: log, encoding: .utf8)
-
-    if let expectedDiagnostic = scenario.expectedDiagnostic {
-        try require(status != 0 && output.contains(expectedDiagnostic) && !files.fileExists(atPath: binary.path),
-                    "\(scenario.name): expected the intentional backend diagnostic and no executable; see \(log.path)")
-    } else {
-        try require(status == 0 && !output.contains(missingBackendDiagnostic) && !output.contains(mutuallyExclusiveTraitsDiagnostic) && files.fileExists(atPath: binary.path),
-                    "\(scenario.name): expected a linked consumer; see \(log.path)")
+    try require(status == 0 && files.fileExists(atPath: binary.path),
+                "\(scenario.name): expected a linked consumer; see \(log.path)")
+    if v10 {
+        let auditLog = root.appendingPathComponent(scenario.name + "-object-audit.log")
+        let auditStatus = try run(["swift", repository.appendingPathComponent("scripts/verify-v10-empty-objects.swift").path,
+                                   "--build-path", consumer.appendingPathComponent("build").path,
+                                   "--build-log", log.path, "--source-root", sdk.path], in: root, log: auditLog)
+        try require(auditStatus == 0, "\(scenario.name): empty-object audit failed; see \(auditLog.path)")
     }
 
     print("PASS \(scenario.name)")
@@ -206,7 +179,6 @@ private func testHeaderContexts(root: URL) throws {
 
     try write("""
     #import "SentryDefines.h"
-    #import "SentryCrashBackendSelection.h"
     #if SDK_V10 != EXPECTED_VERSION
     #error "A visible SwiftPM configuration header changed the monolithic SDK version."
     #endif
@@ -214,14 +186,12 @@ private func testHeaderContexts(root: URL) throws {
 
     let contexts: [(name: String, version: Int, flags: [String])] = [
         ("monolithic-v9", 0, []),
-        ("monolithic-v10", 1, ["-DSDK_V10=1"]),
-        ("package-v9-compiler", 0, ["-DSWIFT_PACKAGE=1", "-DSENTRY_SWIFTPM_BACKEND_TRAITS=1", "-DSENTRY_SWIFTPM_V9=1"]),
-        ("package-v9-consumer", 0, ["-DSWIFT_PACKAGE=1", "-I", repository.appendingPathComponent("Sources/SentryCrashV9Headers/include").path])
+        ("monolithic-v10", 1, ["-DSDK_V10=1"])
     ]
 
     for context in contexts {
         // The V10 configuration header is deliberately visible in every case. It must not
-        // override monolithic headers, explicit V9 compilation or a V9 consumer's graph.
+        // override monolithic headers. Package consumers use their actual selected graph.
         var command = ["xcrun", "--sdk", "macosx", "clang", "-fsyntax-only", "-x", "objective-c",
                        "-fblocks", "-fmodules", "-fmodule-name=Sentry", "-DEXPECTED_VERSION=\(context.version)"] + context.flags
 
