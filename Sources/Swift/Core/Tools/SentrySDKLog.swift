@@ -90,27 +90,40 @@ typealias SentryLogOutput = ((String) -> Void)
 }
 
 extension SentrySDKLog {
+    /// Formats the call site into the message and writes it.
+    ///
+    /// Never inlined, so the formatting exists once instead of being copied into every
+    /// call site of the level methods below.
+    @inline(never)
     private static func log(level: SentryLevel, message: String, file: String, line: Int) {
         let path = file as NSString
         let fileName = (path.lastPathComponent as NSString).deletingPathExtension
         write(message: "[\(fileName):\(line)] \(message)", level: level)
     }
 
+    // The level methods take the message as an autoclosure so it is only built when it gets
+    // logged. They are always inlined because, when they are not, the optimizer instead
+    // specializes each of them for every call site to inline the closure there, which emitted
+    // one copy of the method per log statement and grew the SDK binary noticeably.
+    @inline(__always)
     static func debug(_ message: @autoclosure () -> String, file: String = #file, line: Int = #line) {
         guard willLog(atLevel: .debug) else { return }
         log(level: .debug, message: message(), file: file, line: line)
     }
 
+    @inline(__always)
     static func info(_ message: @autoclosure () -> String, file: String = #file, line: Int = #line) {
         guard willLog(atLevel: .info) else { return }
         log(level: .info, message: message(), file: file, line: line)
     }
 
+    @inline(__always)
     static func warning(_ message: @autoclosure () -> String, file: String = #file, line: Int = #line) {
         guard willLog(atLevel: .warning) else { return }
         log(level: .warning, message: message(), file: file, line: line)
     }
 
+    @inline(__always)
     static func error(_ message: @autoclosure () -> String, file: String = #file, line: Int = #line) {
         guard willLog(atLevel: .error) else { return }
         log(level: .error, message: message(), file: file, line: line)

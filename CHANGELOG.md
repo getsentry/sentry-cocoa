@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Reduce the binary size by no longer emitting a specialized copy of the Swift SDK log helpers for every log statement (#9298)
+
 ## 9.30.1
 
 ### Fixes
