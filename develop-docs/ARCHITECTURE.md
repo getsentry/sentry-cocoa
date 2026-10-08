@@ -84,7 +84,7 @@ The test apps are configured by default to use UI Profiling with trace lifecycle
 
 Key files:
 
-- `Sources/Sentry/Profiling/SentryLaunchProfiling.m`: Main launch profiling logic
+- `Sources/Swift/Profiling/SentryLaunchProfiling.swift`: Main launch profiling logic
 - `Sources/Sentry/SentryTimeToDisplayTracker.m`: TTID/TTFD tracking with profiling integration
 - `Sources/Sentry/Profiling/SentryProfiledTracerConcurrency.mm`: Profiler/tracer lifecycle management
 

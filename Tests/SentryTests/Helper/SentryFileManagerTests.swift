@@ -1315,10 +1315,10 @@ extension SentryFileManagerTests {
         let config = sentry_persistedLaunchProfileConfigurationOptions()
 
         // -- Assert --
-        let actualTracesSampleRate = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyTracesSampleRate]).doubleValue
-        let actualTracesSampleRand = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyTracesSampleRand]).doubleValue
-        let actualProfilesSampleRate = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyProfilesSampleRate]).doubleValue
-        let actualProfilesSampleRand = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyProfilesSampleRand]).doubleValue
+        let actualTracesSampleRate = try XCTUnwrap(config?[SentryLaunchProfileConfigKey.tracesSampleRate]).doubleValue
+        let actualTracesSampleRand = try XCTUnwrap(config?[SentryLaunchProfileConfigKey.tracesSampleRand]).doubleValue
+        let actualProfilesSampleRate = try XCTUnwrap(config?[SentryLaunchProfileConfigKey.profilesSampleRate]).doubleValue
+        let actualProfilesSampleRand = try XCTUnwrap(config?[SentryLaunchProfileConfigKey.profilesSampleRand]).doubleValue
         XCTAssertEqual(actualTracesSampleRate, expectedTracesSampleRate)
         XCTAssertEqual(actualTracesSampleRand, expectedTracesSampleRand)
         XCTAssertEqual(actualProfilesSampleRate, expectedProfilesSampleRate)
@@ -1340,19 +1340,19 @@ extension SentryFileManagerTests {
         let expectedProfilesSampleRate = 0.34
         let expectedProfilesSampleRand = 0.66
         writeAppLaunchProfilingConfigFile([
-            kSentryLaunchProfileConfigKeyTracesSampleRate: expectedTracesSampleRate,
-            kSentryLaunchProfileConfigKeyTracesSampleRand: expectedTracesSampleRand,
-            kSentryLaunchProfileConfigKeyProfilesSampleRate: expectedProfilesSampleRate,
-            kSentryLaunchProfileConfigKeyProfilesSampleRand: expectedProfilesSampleRand
+            SentryLaunchProfileConfigKey.tracesSampleRate: expectedTracesSampleRate,
+            SentryLaunchProfileConfigKey.tracesSampleRand: expectedTracesSampleRand,
+            SentryLaunchProfileConfigKey.profilesSampleRate: expectedProfilesSampleRate,
+            SentryLaunchProfileConfigKey.profilesSampleRand: expectedProfilesSampleRand
         ])
 
         let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         let config = NSDictionary(contentsOf: configURL)
 
-        let actualTracesSampleRate = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyTracesSampleRate] as? NSNumber).doubleValue
-        let actualTracesSampleRand = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyTracesSampleRand] as? NSNumber).doubleValue
-        let actualProfilesSampleRate = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyProfilesSampleRate] as? NSNumber).doubleValue
-        let actualProfilesSampleRand = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyProfilesSampleRand] as? NSNumber).doubleValue
+        let actualTracesSampleRate = try XCTUnwrap(config?[SentryLaunchProfileConfigKey.tracesSampleRate] as? NSNumber).doubleValue
+        let actualTracesSampleRand = try XCTUnwrap(config?[SentryLaunchProfileConfigKey.tracesSampleRand] as? NSNumber).doubleValue
+        let actualProfilesSampleRate = try XCTUnwrap(config?[SentryLaunchProfileConfigKey.profilesSampleRate] as? NSNumber).doubleValue
+        let actualProfilesSampleRand = try XCTUnwrap(config?[SentryLaunchProfileConfigKey.profilesSampleRand] as? NSNumber).doubleValue
         XCTAssertEqual(actualTracesSampleRate, expectedTracesSampleRate)
         XCTAssertEqual(actualTracesSampleRand, expectedTracesSampleRand)
         XCTAssertEqual(actualProfilesSampleRate, expectedProfilesSampleRate)
@@ -1371,20 +1371,20 @@ extension SentryFileManagerTests {
 
         // -- Act --
         writeAppLaunchProfilingConfigFile([
-            kSentryLaunchProfileConfigKeyTracesSampleRate: expectedTracesSampleRate,
-            kSentryLaunchProfileConfigKeyTracesSampleRand: expectedTracesSampleRand,
-            kSentryLaunchProfileConfigKeyProfilesSampleRate: expectedProfilesSampleRate,
-            kSentryLaunchProfileConfigKeyProfilesSampleRand: expectedProfilesSampleRand
+            SentryLaunchProfileConfigKey.tracesSampleRate: expectedTracesSampleRate,
+            SentryLaunchProfileConfigKey.tracesSampleRand: expectedTracesSampleRand,
+            SentryLaunchProfileConfigKey.profilesSampleRate: expectedProfilesSampleRate,
+            SentryLaunchProfileConfigKey.profilesSampleRand: expectedProfilesSampleRand
         ])
         
         // -- Assert --
         let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         let config = NSDictionary(contentsOf: configURL)
 
-        let actualTracesSampleRate = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyTracesSampleRate] as? NSNumber).doubleValue
-        let actualTracesSampleRand = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyTracesSampleRand] as? NSNumber).doubleValue
-        let actualProfilesSampleRate = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyProfilesSampleRate] as? NSNumber).doubleValue
-        let actualProfilesSampleRand = try XCTUnwrap(config?[kSentryLaunchProfileConfigKeyProfilesSampleRand] as? NSNumber).doubleValue
+        let actualTracesSampleRate = try XCTUnwrap(config?[SentryLaunchProfileConfigKey.tracesSampleRate] as? NSNumber).doubleValue
+        let actualTracesSampleRand = try XCTUnwrap(config?[SentryLaunchProfileConfigKey.tracesSampleRand] as? NSNumber).doubleValue
+        let actualProfilesSampleRate = try XCTUnwrap(config?[SentryLaunchProfileConfigKey.profilesSampleRate] as? NSNumber).doubleValue
+        let actualProfilesSampleRand = try XCTUnwrap(config?[SentryLaunchProfileConfigKey.profilesSampleRand] as? NSNumber).doubleValue
         XCTAssertEqual(actualTracesSampleRate, expectedTracesSampleRate)
         XCTAssertEqual(actualTracesSampleRand, expectedTracesSampleRand)
         XCTAssertEqual(actualProfilesSampleRate, expectedProfilesSampleRate)
@@ -1465,10 +1465,10 @@ extension SentryFileManagerTests {
 
         // -- Act --
         let config: NSMutableDictionary = [
-            kSentryLaunchProfileConfigKeyTracesSampleRate: 0.5,
-            kSentryLaunchProfileConfigKeyTracesSampleRand: 0.3,
-            kSentryLaunchProfileConfigKeyProfilesSampleRate: 0.25,
-            kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.4
+            SentryLaunchProfileConfigKey.tracesSampleRate: 0.5,
+            SentryLaunchProfileConfigKey.tracesSampleRand: 0.3,
+            SentryLaunchProfileConfigKey.profilesSampleRate: 0.25,
+            SentryLaunchProfileConfigKey.profilesSampleRand: 0.4
         ]
         writeAppLaunchProfilingConfigFile(config)
 
@@ -1476,7 +1476,7 @@ extension SentryFileManagerTests {
         XCTAssertTrue(fm.fileExists(atPath: directoryURL.path))
         XCTAssertTrue(fm.fileExists(atPath: url.path))
         let written = NSDictionary(contentsOf: url)
-        XCTAssertEqual(written?[kSentryLaunchProfileConfigKeyTracesSampleRate] as? Double, 0.5)
+        XCTAssertEqual(written?[SentryLaunchProfileConfigKey.tracesSampleRate] as? Double, 0.5)
     }
 
     func testSentryGetScopedCachesDirectory_targetIsNotMacOS_shouldReturnSamePath() throws {
@@ -1594,10 +1594,10 @@ private extension SentryFileManagerTests {
         if exists {
             XCTAssertTrue(ensureLaunchProfileConfigDirectoryExists(), "Directory for launch profile config must exist before writing")
             let dict = [
-                kSentryLaunchProfileConfigKeyTracesSampleRate: tracesSampleRate,
-                kSentryLaunchProfileConfigKeyTracesSampleRand: tracesSampleRand,
-                kSentryLaunchProfileConfigKeyProfilesSampleRate: profilesSampleRate,
-                kSentryLaunchProfileConfigKeyProfilesSampleRand: profilesSampleRand
+                SentryLaunchProfileConfigKey.tracesSampleRate: tracesSampleRate,
+                SentryLaunchProfileConfigKey.tracesSampleRand: tracesSampleRand,
+                SentryLaunchProfileConfigKey.profilesSampleRate: profilesSampleRate,
+                SentryLaunchProfileConfigKey.profilesSampleRand: profilesSampleRand
             ]
             try (dict as NSDictionary).write(to: url)
         } else {

@@ -7,6 +7,7 @@
 @class SentryClientInternal;
 @class SentryDispatchQueueWrapper;
 @class SentryScreenFrames;
+@class SentryTracer;
 @class SentryTransactionContext;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -43,6 +44,10 @@ id sentry_addObserverForName(NSNotificationName name, dispatch_block_t block);
 NSTimer *sentry_scheduledTimer(NSTimeInterval interval, BOOL repeats, dispatch_block_t block);
 NSTimer *sentry_scheduledTimerWithTarget(
     NSTimeInterval interval, id target, SEL selector, _Nullable id userInfo, BOOL repeats);
+void sentry_startLaunchProfile(void);
+BOOL sentry_isTracingAppLaunch(void);
+void sentry_setIsTracingAppLaunch(BOOL isTracingAppLaunch);
+SentryTracer *_Nullable sentry_getLaunchTracer(void);
 
 #if SENTRY_HAS_UIKIT
 #    if !SDK_V10

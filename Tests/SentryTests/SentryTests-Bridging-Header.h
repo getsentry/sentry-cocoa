@@ -1,7 +1,6 @@
 #import "SentryDefines.h"
 #import "SentryGeo+Private.h"
-
-#import "SentryLaunchProfiling+Tests.h"
+#import "SentryProfilingConditionals.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryContinuousProfiler+Test.h"
