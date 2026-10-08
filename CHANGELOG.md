@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Reduce the binary size by logging only file names instead of the absolute source paths of the build machine for SDK log statements (#9299)
+
 ## 9.30.1
 
 ### Fixes

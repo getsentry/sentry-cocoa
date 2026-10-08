@@ -90,33 +90,36 @@ typealias SentryLogOutput = ((String) -> Void)
 }
 
 extension SentrySDKLog {
+    // The level methods default to `#fileID` instead of `#file`, which in Swift 5 mode is the
+    // absolute path of the source file on the build machine. Only the file name is logged, and
+    // `#fileID` keeps the build machine paths out of the shipped binary and makes it smaller.
     private static func log(level: SentryLevel, message: String, file: String, line: Int) {
         let path = file as NSString
         let fileName = (path.lastPathComponent as NSString).deletingPathExtension
         write(message: "[\(fileName):\(line)] \(message)", level: level)
     }
 
-    static func debug(_ message: @autoclosure () -> String, file: String = #file, line: Int = #line) {
+    static func debug(_ message: @autoclosure () -> String, file: String = #fileID, line: Int = #line) {
         guard willLog(atLevel: .debug) else { return }
         log(level: .debug, message: message(), file: file, line: line)
     }
 
-    static func info(_ message: @autoclosure () -> String, file: String = #file, line: Int = #line) {
+    static func info(_ message: @autoclosure () -> String, file: String = #fileID, line: Int = #line) {
         guard willLog(atLevel: .info) else { return }
         log(level: .info, message: message(), file: file, line: line)
     }
 
-    static func warning(_ message: @autoclosure () -> String, file: String = #file, line: Int = #line) {
+    static func warning(_ message: @autoclosure () -> String, file: String = #fileID, line: Int = #line) {
         guard willLog(atLevel: .warning) else { return }
         log(level: .warning, message: message(), file: file, line: line)
     }
 
-    static func error(_ message: @autoclosure () -> String, file: String = #file, line: Int = #line) {
+    static func error(_ message: @autoclosure () -> String, file: String = #fileID, line: Int = #line) {
         guard willLog(atLevel: .error) else { return }
         log(level: .error, message: message(), file: file, line: line)
     }
 
-    static func fatal(_ message: String, file: String = #file, line: Int = #line) {
+    static func fatal(_ message: String, file: String = #fileID, line: Int = #line) {
         log(level: .fatal, message: message, file: file, line: line)
     }
 }
