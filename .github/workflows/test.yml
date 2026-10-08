@@ -121,9 +121,6 @@ jobs:
         uses: ./.github/actions/resolve-test-destination
         with:
           platform: iOS
-      - name: Test V9 resource exclusion
-        if: matrix.mode == 'V9'
-        run: ./scripts/test-spm-v9-resource-exclusion.sh --work-dir "$RUNNER_TEMP/v9-resource-exclusion"
       - name: Prepare test packages
         shell: bash
         run: ./scripts/prepare-package.sh --remove-binary-targets true
@@ -149,6 +146,7 @@ jobs:
             -configuration TestCI -parallel-testing-enabled NO \
             -testPlan "$TEST_PLAN" \
             -resultBundlePath "$RUNNER_TEMP/results.xcresult" \
+            -derivedDataPath "$RUNNER_TEMP/distribution-derived-data" \
             -sdk iphonesimulator -destination "platform=iOS Simulator,OS=$TEST_OS,name=$TEST_DEVICE" \
             -xcconfig Tests/Configuration/SwiftPM.xcconfig \
             'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SENTRY_TEST_CI' \
@@ -156,15 +154,31 @@ jobs:
             > raw-test-output-distribution.log 2>&1 || status=$?
           xcbeautify --preserve-unbeautified < raw-test-output-distribution.log
           exit "$status"
+      - name: Verify V9 resource ownership
+        if: matrix.mode == 'V9'
+        shell: bash
+        run: |
+          # Xcode can discover SDK resources for the Sources-rooted recorder target,
+          # even with an explicit source list. Inspect the build we just tested.
+          derived_data="$RUNNER_TEMP/distribution-derived-data"
+          resources="$(find "$derived_data" \( -path '*SentryCrashV9*.build/*resource_bundle_accessor*' -o \
+            -name Sentry_SentryCrashV9.bundle \) -print)"
+          if [[ -n "$resources" ]]; then
+            echo "::error::V9 recorder unexpectedly owns a resource bundle/accessor"
+            printf '%s\n' "$resources"
+            exit 1
+          fi
+          recorder_objects="$(find "$derived_data" -type f -path '*/SentryCrashV9.build/*/SentryCrash.o' -print)"
+          if [[ -z "$recorder_objects" ]]; then
+            echo "::error::V9 recorder was not compiled; resource ownership was not verified"
+            exit 1
+          fi
       - name: Upload Distribution Test Logs
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-test-output-distribution-${{ matrix.mode }}
-          path: |
-            raw-test-output-distribution.log
-            ${{ runner.temp }}/v9-resource-exclusion/**/*.log
-            ${{ runner.temp }}/v9-resource-exclusion/**/*.exit-status
+          path: raw-test-output-distribution.log
 
       - name: Archiving Test Results
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
