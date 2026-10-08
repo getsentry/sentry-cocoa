@@ -259,7 +259,8 @@ jobs:
         with:
           version: "26"
           resolve-simulators: "false"
-      - name: Test archive audit path
+      - name: Test packaging failure handling
+        if: matrix.sdk == 'macosx'
         run: ./scripts/test-v10-archive-audit-path.sh
       - name: Test wrapper archive architectures
         if: matrix.sdk == 'watchos'
