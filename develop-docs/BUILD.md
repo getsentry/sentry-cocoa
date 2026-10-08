@@ -53,7 +53,7 @@ make build-xcframework-dynamic  # Build Sentry-Dynamic XCFramework
 ## Temporary V10 Development Verification
 
 > [!NOTE]
-> This workflow applies while V9 and V10 are developed in the same branch. At the branch split, retire the temporary backend-selection checks and adapt the remaining checks for KSCrash-only V10. See [decision 40](DECISIONS.md#40-v10-backend-separation-with-temporary-development-selection) for the release plan.
+> This workflow applies while V9 and V10 are developed in the same branch. At the branch split, retire the temporary backend-selection checks and adapt the remaining checks for KSCrash-only V10. See [decision 40](DECISIONS.md#40-develop-v10-on-main-then-branch-off-v9) for the release plan.
 
 These checks help ensure that V10 builds contain no legacy recorder implementation while existing V9 dependency declarations continue to work. Run the commands below from the repository root.
 

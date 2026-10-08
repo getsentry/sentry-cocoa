@@ -2,7 +2,7 @@
 
 This ledger tracks responsibilities moving from the SDK's bundled SentryCrash recorder (V9) to KSCrash-backed V10, and SDK-owned features and interfaces that must remain. Each row identifies the owner, replacement implementation and acceptance test; a historically named SentryCrash* feature is not necessarily part of the crash backend.
 
-The goal is separate release branches, with KSCrash as V10's sole backend on `main`. Both implementations temporarily remain in the development checkout so that work can proceed without changing existing V9 customer declarations and not having sync back and forth between pre-established branches. Before the first V10 release, establish the V9 maintenance branch and remove legacy recorder sources, adapters and version-selection machinery from V10. [Decision 40](DECISIONS.md#40-v10-backend-separation-with-temporary-development-selection) records the rationale and release boundary.
+The goal is separate release branches, with KSCrash as V10's sole backend on `main`. Both implementations temporarily remain in the development checkout so that work can proceed without changing existing V9 customer declarations and not having sync back and forth between pre-established branches. Before the first V10 release, establish the V9 maintenance branch and remove legacy recorder sources, adapters and version-selection machinery from V10. [Decision 40](DECISIONS.md#40-develop-v10-on-main-then-branch-off-v9) records the rationale and release boundary.
 
 ## Contract
 
