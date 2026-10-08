@@ -355,7 +355,7 @@ private func verifyForceLoads(_ section: Section, definitions: [String], module:
                 "Unexpected implementation relocation: \(object.path)")
 }
 
-private func audit(build: URL, log: URL, sourceRoot: URL) throws {
+private func audit(build: URL, log: URL, sourceRoot: URL, archive: URL?) throws {
     let inventory = Set(try descendants(sourceRoot.appendingPathComponent("Sources")).filter {
         extensions.contains($0.pathExtension) && legacy(sourceKey($0.path))
     }.map { sourceKey($0.path) })
@@ -369,7 +369,7 @@ private func audit(build: URL, log: URL, sourceRoot: URL) throws {
         .anchorsMatchLineEndings()
     try require(text.firstMatch(of: failedBuildPattern) == nil, "Failed/incomplete build: the log contains a build failure or error")
 
-    let observed = try observedOutputs(log, build: build, inventory: inventory)
+    let observed = try observedOutputs(log, build: build, inventory: inventory, archive: archive)
     try verifyAggregates(observed)
 
     let audited = try auditOutputs(build, inventory: inventory, observed: observed)
@@ -385,7 +385,28 @@ private struct CompilerRecord: Decodable {
 
 private typealias ObservedOutputs = [String: CompilerRecord]
 
-private func observedOutputs(_ log: URL, build: URL, inventory: Set<String>) throws -> ObservedOutputs {
+private func completedOutput(_ record: CompilerRecord, build: URL, archive: URL?) throws -> URL {
+    let object = path(record.output)
+    if object.path.hasPrefix(build.path + "/") { return object }
+
+    // Xcode moves installed single-architecture package aggregates into the archive.
+    // Only those logged aggregates may relocate; they still must match their accounted inputs.
+    let installation = build.deletingLastPathComponent().appendingPathComponent("InstallationBuildProductsLocation")
+    guard let archive, record.source.isEmpty, build.lastPathComponent == "IntermediateBuildFilesPath",
+          object.path.hasPrefix(installation.path + "/") else {
+        throw AuditFailure(message: "Compiler output outside --build-path: \(object.path)")
+    }
+
+    let products = archive.appendingPathComponent("Products")
+    let relative = String(object.path.dropFirst(installation.path.count + 1))
+    let relocated = path(products.appendingPathComponent(relative).path)
+
+    try require(relocated.path.hasPrefix(products.path + "/"), "Archived compiler output outside Products: \(relocated.path)")
+
+    return relocated
+}
+
+private func observedOutputs(_ log: URL, build: URL, inventory: Set<String>, archive: URL?) throws -> ObservedOutputs {
     let reader = URL(fileURLWithPath: #filePath).deletingLastPathComponent().appendingPathComponent("read-v10-compiler-evidence.swift")
     let data = try tool(["swift", reader.path, "--build-log", log.path])
     let records = try JSONDecoder().decode([CompilerRecord].self, from: Data(data.utf8))
@@ -393,8 +414,7 @@ private func observedOutputs(_ log: URL, build: URL, inventory: Set<String>) thr
     var observed: ObservedOutputs = [:]
 
     for record in records where record.output.hasSuffix(".o") {
-        let object = path(record.output)
-        try require(object.path.hasPrefix(build.path + "/"), "Compiler output outside --build-path: \(object.path)")
+        let object = try completedOutput(record, build: build, archive: archive)
         try require(files.fileExists(atPath: object.path), "Missing completed output: \(object.path)")
         try require(isFile(object.path), "Completed output is not a regular file: \(object.path)")
 
@@ -560,9 +580,10 @@ private func verifyFlags(_ arguments: [String], source: String) throws {
 }
 
 private func run() throws {
-    let aliases = ["-b": "--build-path", "-l": "--build-log", "-s": "--source-root"]
+    let aliases = ["-b": "--build-path", "-l": "--build-log", "-s": "--source-root", "-a": "--archive-path"]
     let arguments = Array(CommandLine.arguments.dropFirst())
-    try require(arguments.count.isMultiple(of: 2), "Usage: verify-v10-empty-objects.swift --build-path PATH --build-log PATH [--source-root PATH]")
+    try require(arguments.count.isMultiple(of: 2),
+                "Usage: verify-v10-empty-objects.swift --build-path PATH --build-log PATH [--source-root PATH] [--archive-path PATH]")
 
     var options: [String: String] = [:]
 
@@ -577,7 +598,7 @@ private func run() throws {
     }
 
     let sourceRoot = options["--source-root"].map(path) ?? URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
-    try audit(build: path(build), log: path(log), sourceRoot: sourceRoot)
+    try audit(build: path(build), log: path(log), sourceRoot: sourceRoot, archive: options["--archive-path"].map(path))
 }
 
 do {

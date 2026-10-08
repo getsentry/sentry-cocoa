@@ -38,6 +38,7 @@ SOURCE="$REPOSITORY/Sources/SentryCrash/Recording/Probe.c"
 OBJECT="$BUILD/Probe.c.o"
 COMPILER="$(xcrun --find clang)"
 COMPILE_FLAGS=(-DSDK_V10=1 -c)
+ARCHIVE_PATH=""
 COUNT=0
 
 mkdir -p "$(dirname "$SOURCE")" "$BUILD"
@@ -71,6 +72,7 @@ check() {
         executable=(bash "$SCRIPT_DIR/verify-v10-sentrycrash-objects.sh")
     fi
 
+    if [[ -n "$ARCHIVE_PATH" ]]; then executable+=(--archive-path "$ARCHIVE_PATH"); fi
     "${executable[@]}" --build-path "$BUILD" --build-log "$BUILD_LOG" --source-root "$REPOSITORY" \
         > "$WORK_DIR/$name.log" 2>&1 || status=$?
 
@@ -160,6 +162,48 @@ test_aggregate() {
     check duplicate-static-input-list fail 'duplicate static archive'
 
     rm "$aggregate"
+}
+
+test_archived_aggregate() {
+    local original_build="$BUILD" original_object="$OBJECT"
+    BUILD="$WORK_DIR/archive-intermediates/IntermediateBuildFilesPath"
+    OBJECT="$BUILD/Probe.c.o"
+    local installed="$WORK_DIR/archive-intermediates/InstallationBuildProductsLocation/Objects/Aggregate.o"
+    local archive="$WORK_DIR/slice.xcarchive" list="$WORK_DIR/archive.LinkFileList"
+    local archived="$archive/Products/Objects/Aggregate.o"
+    local command=("$COMPILER" -r -nostdlib -filelist "$list" -o "$installed")
+    mkdir -p "$BUILD" "$(dirname "$installed")" "$(dirname "$archived")"
+    compile_fixture $'#if !SDK_V10\nint arbitrary_function(void) { return 1; }\n#endif'
+    printf '%s\n' "$OBJECT" > "$list"
+    "${command[@]}" > "$WORK_DIR/archive-link.log" 2>&1
+    jq -nr --args '$ARGS.positional | @sh' -- "${command[@]}" >> "$BUILD_LOG"
+    printf '\n** ARCHIVE SUCCEEDED **\n' >> "$BUILD_LOG"
+    cp "$BUILD_LOG" "$WORK_DIR/archive-complete.log"
+    mv "$installed" "$archived"
+    check archive-without-relocation-context fail 'Compiler output outside --build-path'
+
+    ARCHIVE_PATH="$archive"
+    check archived-aggregate pass
+    mv "$archived" "$WORK_DIR/archived.backup.o"
+    check missing-archived-aggregate fail 'Missing completed output'
+    ln -s "$WORK_DIR/archived.backup.o" "$archived"
+    check archived-aggregate-symlink-escape fail 'Archived compiler output outside'
+    rm "$archived"
+    cp "$WORK_DIR/archived.backup.o" "$archived"
+
+    cp "$OBJECT" "$WORK_DIR/archive-source.backup.o"
+    compile_fixture 'int arbitrary_archived_implementation(void) { return 1; }'
+    "${command[@]}" > "$WORK_DIR/archive-link.log" 2>&1
+    mv "$installed" "$archived"
+    cp "$WORK_DIR/archive-source.backup.o" "$OBJECT"
+    cp "$WORK_DIR/archive-complete.log" "$BUILD_LOG"
+    check archived-aggregate-implementation-injection fail 'Aggregate implementation differs'
+
+    write_build_log "$COMPILER" "${COMPILE_FLAGS[@]}" "$SOURCE" -o "$installed"
+    check archived-source-output-not-exempt fail 'Compiler output outside --build-path'
+    ARCHIVE_PATH=""
+    BUILD="$original_build"
+    OBJECT="$original_object"
 }
 
 test_implementations() {
@@ -446,6 +490,7 @@ check completed-target-build pass
 compile_fixture
 
 test_aggregate
+test_archived_aggregate
 test_implementations
 test_missing_build_information
 test_swift
@@ -462,5 +507,5 @@ grep -Fq 'A valid --build-log is required' "$WORK_DIR/missing-required-log.log"
 COUNT=$((COUNT + 1))
 log_info 'PASS missing-required-log'
 
-[[ "$COUNT" == 67 ]] || { log_error "Missing expected control coverage: $COUNT/67"; exit 1; }
+[[ "$COUNT" == 73 ]] || { log_error "Missing expected control coverage: $COUNT/73"; exit 1; }
 log_info "$COUNT real V10 separation empty-object controls passed; logs and test files: $WORK_DIR"

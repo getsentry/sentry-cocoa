@@ -85,10 +85,16 @@ Create a fresh V10 build and save its full, verbose build log without filtering 
   --build-log /path/to/raw-build.log
 ```
 
-- `--build-path` is the build output directory containing the objects to inspect. For archive builds, use `DerivedData/Build/Intermediates.noindex/ArchiveIntermediates/SentryV10/IntermediateBuildFilesPath`; for Catalyst packaging builds, use `DerivedData/Build/Intermediates.noindex`. For ordinary Debug SDK builds, use the entire `DerivedData` directory, including recorded package aggregate outputs in `Build/Products`. Archive installation moves products out of `BuildProductsPath`, leaving dangling aliases there; the intermediate tree contains all recorded compiler outputs.
-- `--build-log` is the log from that same build. It lets the verifier match compiled sources to their outputs and check that any compiled legacy files emitted no recorder implementation.
-- When checking a copied SDK checkout, also pass `--source-root /path/to/sdk` so the verifier uses that checkout's source inventory.
+Choose `--build-path` for the build being checked:
 
-For implementation details, see the [build-log reader](../scripts/read-v10-compiler-evidence.swift) and [object checker](../scripts/verify-v10-empty-objects.swift).
+| Build                     | Output directory                                                                                   |
+| ------------------------- | -------------------------------------------------------------------------------------------------- |
+| SDK or SentryObjC archive | `DerivedData/Build/Intermediates.noindex/ArchiveIntermediates/<scheme>/IntermediateBuildFilesPath` |
+| Catalyst packaging        | `DerivedData/Build/Intermediates.noindex`                                                          |
+| Debug SDK                 | `DerivedData`, including `Build/Products`                                                          |
 
-The build log is required; missing, incomplete or unsupported compiler evidence fails the audit. Relocatable package objects and deterministic `libtool -static -D` object archives are checked against their accounted inputs. The build-only SDK CI lane disables coverage instrumentation, which emits executable LLVM helpers even for empty Swift sources; unit-test coverage settings are unchanged. SDK builds keep `raw-build-output.log`. XCFramework slice builds keep `XCFrameworkBuildPath/raw-build-output.log`, and the V10 packager audits each slice before the next build replaces its output. Packaged SDKs and runtime behavior still need separate checks.
+For archives, `<scheme>` is `SentryV10` or `SentryObjC`. SentryObjC also needs `--archive-path /path/to/sdk.xcarchive`: Xcode moves single-architecture package aggregates into `Products`, leaving dangling build-directory aliases. Only those logged aggregates may relocate, and their contents must still match their accounted inputs. For a copied checkout, add `--source-root /path/to/sdk`.
+
+Use the raw log from the same build. SDK builds retain `raw-build-output.log`; SDK XCFramework slices retain `XCFrameworkBuildPath/raw-build-output.log`; SentryObjC slices retain `<output-dir>/archive/SentryObjC/<sdk>.log`. V10 packagers audit each slice before its intermediates are replaced.
+
+Missing, incomplete or unsupported evidence fails the audit. See the [build-log reader](../scripts/read-v10-compiler-evidence.swift) and [object checker](../scripts/verify-v10-empty-objects.swift) for source/output accounting and aggregate-content checks. Build-only audit lanes disable coverage because it emits executable helpers even for empty Swift files; unit-test coverage is unchanged. Packaged artifacts and runtime behavior still need separate checks.

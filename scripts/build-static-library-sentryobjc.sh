@@ -77,6 +77,14 @@ archive_path="$ARCHIVE_DIR/$SDK.xcarchive"
 
 mkdir -p "$ARCHIVE_DIR" "$LIB_DIR"
 
+# Resolve into the archive's package cache before selecting its generated scheme.
+# Xcode 26 can lose that scheme when the first checkout regenerates schemes mid-archive.
+begin_group "Resolve package schemes"
+xcodebuild -list -workspace "$PACKAGE_PATH" \
+    -clonedSourcePackagesDirPath "$DERIVED_DATA/SourcePackages" \
+    2>&1 | tee "$ARCHIVE_DIR/$SDK-resolve.log"
+end_group
+
 begin_group "Archive $SCHEME for $SDK"
 log_info "  SDK:            $SDK"
 log_info "  Destination:    $destination"
@@ -89,6 +97,7 @@ set -o pipefail && NSUnbufferedIO=YES xcodebuild archive \
     -destination "$destination" \
     -archivePath "$archive_path" \
     -derivedDataPath "$DERIVED_DATA" \
+    -clonedSourcePackagesDirPath "$DERIVED_DATA/SourcePackages" \
     SKIP_INSTALL=NO \
     BUILD_LIBRARY_FOR_DISTRIBUTION=YES \
     CODE_SIGNING_REQUIRED=NO \

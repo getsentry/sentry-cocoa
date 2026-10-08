@@ -11,12 +11,14 @@ source "$SCRIPT_DIR/ci-utils.sh"
 BUILD_PATH=""
 BUILD_LOG=""
 SOURCE_ROOT=""
+ARCHIVE_PATH=""
 
 usage() {
-  log_info "Usage: $0 --build-path <path> --build-log <path> [--source-root <path>]"
+  log_info "Usage: $0 --build-path <path> --build-log <path> [--source-root <path>] [--archive-path <path>]"
   log_info "  --build-path, -b: completed build output to audit (required)"
   log_info "  --build-log, -l: full verbose log from that completed build (required)"
   log_info "  --source-root, -s: SDK source inventory root (default: repository)"
+  log_info "  --archive-path, -a: XCArchive containing relocated package aggregates (optional)"
   exit 1
 }
 
@@ -26,6 +28,7 @@ while [[ $# -gt 0 ]]; do
     --build-path|-b) BUILD_PATH="$2"; shift 2 ;;
     --build-log|-l) BUILD_LOG="$2"; shift 2 ;;
     --source-root|-s) SOURCE_ROOT="$2"; shift 2 ;;
+    --archive-path|-a) ARCHIVE_PATH="$2"; shift 2 ;;
     *) usage ;;
   esac
 done
@@ -41,5 +44,6 @@ fi
 
 BUILD_PATH="$(cd "$BUILD_PATH" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-exec swift "$SCRIPT_DIR/verify-v10-empty-objects.swift" --build-path "$BUILD_PATH" \
-  --build-log "$BUILD_LOG" --source-root "${SOURCE_ROOT:-$REPO_ROOT}"
+arguments=(--build-path "$BUILD_PATH" --build-log "$BUILD_LOG" --source-root "${SOURCE_ROOT:-$REPO_ROOT}")
+if [[ -n "$ARCHIVE_PATH" ]]; then arguments+=(--archive-path "$ARCHIVE_PATH"); fi
+exec swift "$SCRIPT_DIR/verify-v10-empty-objects.swift" "${arguments[@]}"

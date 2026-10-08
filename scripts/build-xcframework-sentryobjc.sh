@@ -119,6 +119,7 @@ for sdk in "${sdk_list[@]}"; do
         "$SCRIPT_DIR/verify-v10-sentrycrash-objects.sh" \
             --build-path "$objects_path" \
             --build-log "$OUTPUT_DIR/archive/SentryObjC/$sdk.log" \
+            --archive-path "$OUTPUT_DIR/archive/SentryObjC/$sdk.xcarchive" \
             --source-root "$PACKAGE_PATH"
     fi
 done

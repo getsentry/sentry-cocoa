@@ -1,6 +1,6 @@
 #!/bin/bash
 # Exercise the real static-library packager with tiny Mach-O archive products.
-# Only xcodebuild archive is stubbed! Compilation, libtool, lipo and nm are real.
+# Only xcodebuild is stubbed! Compilation, libtool, lipo and nm are real.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -41,6 +41,7 @@ printf 'int dependency_marker(void) { return 1; }\n' > "$WORK_DIR/dependency.c"
 cat > "$WORK_DIR/tools/xcodebuild" <<'SH'
 #!/bin/bash
 set -euo pipefail
+[ "${1:-}" = -list ] && exit 0
 [ "${1:-}" = archive ] || exit 1
 echo 'Using precompiled fixture archive products.'
 SH
