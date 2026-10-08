@@ -25,7 +25,7 @@ extension SentryMXCallStackTree {
             let thread = SentryThread(threadId: NSNumber(value: index))
             let samples = callStack.callStackRootFrames.flatMap { $0.toSamples() }
             // Group by stacktrace in case there are multiple samples with the same trace
-            var samplesToCount = [[MXSample.MXFrame]: Int]()
+            var samplesToCount = [[SentryMXSampleFrame]: Int]()
             for sample in samples {
                 let count = samplesToCount[sample.frames] ?? 0
                 samplesToCount[sample.frames] = sample.count + count
@@ -113,15 +113,15 @@ extension SentryMXFrame {
         return [result] + (subFrames?.flatMap { $0.toDebugMeta() } ?? [])
     }
 
-    func toSamples() -> [MXSample] {
-        let selfFrame = MXSample.MXFrame(binaryUUID: binaryUUID, offsetIntoBinaryTextSegment: offsetIntoBinaryTextSegment, binaryName: binaryName, address: address)
+    func toSamples() -> [SentryMXSample] {
+        let selfFrame = SentryMXSampleFrame(binaryUUID: binaryUUID, offsetIntoBinaryTextSegment: offsetIntoBinaryTextSegment, binaryName: binaryName, address: address)
         let subframes = subFrames ?? []
 
         let childCount = subframes.map { $0.sampleCount ?? 0 }.reduce(0, +)
         let selfCount = (sampleCount ?? 0) - childCount
-        var result = subframes.flatMap { $0.toSamples() }.map { MXSample(count: $0.count, frames: [selfFrame] + $0.frames) }
+        var result = subframes.flatMap { $0.toSamples() }.map { SentryMXSample(count: $0.count, frames: [selfFrame] + $0.frames) }
         if selfCount > 0 {
-            result.append(MXSample(count: selfCount, frames: [selfFrame]))
+            result.append(SentryMXSample(count: selfCount, frames: [selfFrame]))
         }
         return result
     }
@@ -139,25 +139,6 @@ extension SentryMXFrame {
         frame.sampleCount = sampleCount as NSNumber?
 
         return frame
-    }
-}
-
-private extension MXSample.MXFrame {
-    func toSentryFrame() -> Frame {
-        let frame = Frame()
-        frame.package = binaryName
-        frame.instructionAddress = sentry_formatHexAddressUInt64Swift(address)
-        if binaryUUID != nil && offsetIntoBinaryTextSegment >= 0 && offsetIntoBinaryTextSegment < address {
-            frame.imageAddress = sentry_formatHexAddressUInt64Swift(address - UInt64(offsetIntoBinaryTextSegment))
-        }
-        return frame
-    }
-}
-
-private extension Sequence {
-    func unique<T: Hashable>(by key: (Element) -> T) -> [Element] {
-        var seen = Set<T>()
-        return filter { seen.insert(key($0)).inserted }
     }
 }
 
