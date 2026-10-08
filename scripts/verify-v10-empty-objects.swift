@@ -115,6 +115,7 @@ private func legacy(_ key: String) -> Bool {
 }
 
 private struct Section: Equatable {
+    let pointerSize: Int
     let segment: String
     let name: String
     let address: UInt64
@@ -130,20 +131,21 @@ private func sections(_ object: URL, allowEmpty: Bool = false) throws -> [Sectio
 
     let commandPattern = #/^Load command \d+\n.*?(?=^Load command \d+\n|\z)/#
         .anchorsMatchLineEndings().dotMatchesNewlines()
-    let segmentPattern = #/^[ \t]*cmd LC_SEGMENT_64[ \t]*$/#.anchorsMatchLineEndings()
-    let segments = loads.matches(of: commandPattern).map(\.output).filter {
-        $0.firstMatch(of: segmentPattern) != nil
+    let segmentPattern = #/^[ \t]*cmd LC_SEGMENT(_64)?[ \t]*$/#.anchorsMatchLineEndings()
+    let segments: [(text: Substring, pointerSize: Int)] = loads.matches(of: commandPattern).compactMap { command in
+        guard let marker = command.output.firstMatch(of: segmentPattern) else { return nil }
+        return (command.output, marker.1 == nil ? 4 : 8)
     }
-    try require(!segments.isEmpty, "No 64-bit Mach-O segment commands found (32-bit objects are not supported): \(object.path)")
+    try require(!segments.isEmpty, "No supported Mach-O segment commands found: \(object.path)")
 
     let countPattern = #/^[ \t]*nsects (\d+)[ \t]*$/#.anchorsMatchLineEndings()
     let pattern = #/Section\s+sectname (\S+)\s+segname (\S+)\s+addr (\S+)\s+size (\S+)\s+offset (\d+)\s+align [^\n]+\s+reloff (\d+)\s+nreloc (\d+)\s+flags (0x[0-9a-fA-F]+)/#
     let result = try segments.enumerated().flatMap { index, segment -> [Section] in
-        let counts = segment.matches(of: countPattern)
+        let counts = segment.text.matches(of: countPattern)
         guard counts.count == 1, let expected = Int(counts[0].1) else {
             throw AuditFailure(message: "Missing/invalid segment section count: \(object.path): segment \(index)")
         }
-        let records = segment.matches(of: pattern)
+        let records = segment.text.matches(of: pattern)
 
         // Check each command separately: missing sections in one segment must not be
         // hidden by extra matches in another. Count all sections before excluding DWARF.
@@ -161,6 +163,7 @@ private func sections(_ object: URL, allowEmpty: Bool = false) throws -> [Sectio
             try require(zeroFill || (offset <= raw.count && size <= raw.count - offset), "Invalid section bounds: \(object.path)")
 
             return Section(
+                pointerSize: segment.pointerSize,
                 segment: String(record.2),
                 name: String(record.1),
                 address: address,
@@ -315,7 +318,7 @@ private func validateSymbols(_ syms: [String], module: String, source: String, o
 }
 
 private func verifyForceLoads(_ section: Section, definitions: [String], module: String, object: URL) throws {
-    try require(section.data.count == 8 * definitions.count && section.data == Data(repeating: 0, count: section.data.count)
+    try require(section.data.count == section.pointerSize * definitions.count && section.data == Data(repeating: 0, count: section.data.count)
                 && section.relocations == definitions.count, "Unexpected legacy implementation data: \(object.path)")
 
     var expected: [UInt64: String] = [:]
@@ -339,15 +342,16 @@ private func verifyForceLoads(_ section: Section, definitions: [String], module:
 
     var actual: [UInt64: String] = [:]
 
-    let relocationPattern = #/^([0-9a-fA-F]+)\s+False\s+.*?True\s+UNSIGND\s+False\s+(\S+)$/#
+    let relocationPattern = #/^([0-9a-fA-F]+)\s+False\s+(long|quad|\?\( *3\))\s+True\s+UNSIGND\s+False\s+(\S+)$/#
         .anchorsMatchLineEndings()
     for record in blocks[0].output.matches(of: relocationPattern) {
         guard let address = UInt64(record.1, radix: 16) else { throw AuditFailure(message: "Invalid metadata relocation") }
+        try require((record.2 == "long") == (section.pointerSize == 4), "Unexpected implementation relocation width: \(object.path)")
         try require(actual[address] == nil, "Ambiguous metadata relocation")
-        actual[address] = String(record.2)
+        actual[address] = String(record.3)
     }
 
-    try require(actual == expected && Set(expected.keys) == Set(stride(from: UInt64(0), to: UInt64(section.data.count), by: 8)),
+    try require(actual == expected && Set(expected.keys) == Set(stride(from: UInt64(0), to: UInt64(section.data.count), by: section.pointerSize)),
                 "Unexpected implementation relocation: \(object.path)")
 }
 

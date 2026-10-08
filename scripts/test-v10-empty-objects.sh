@@ -299,6 +299,13 @@ test_swift() {
     check swift-catalyst-overlay-only pass
     compile_fixture $'import UIKit\nfunc arbitraryFunction() {}'
     check swift-catalyst-guard-loss fail implementation
+
+    COMPILE_FLAGS=(-sdk "$(xcrun --sdk watchos --show-sdk-path)" -target arm64_32-apple-watchos9.0
+        -parse-as-library -DSDK_V10 -module-name SentryCrashV9Swift -emit-object)
+    compile_fixture $'import Foundation\nimport WatchKit\n#if !SDK_V10\nfunc arbitraryFunction() {}\n#endif'
+    check swift-arm64-32-overlay-only pass
+    compile_fixture $'import WatchKit\nfunc arbitraryFunction() {}'
+    check swift-arm64-32-guard-loss fail implementation
 }
 
 test_header_reference() {
@@ -455,5 +462,5 @@ grep -Fq 'A valid --build-log is required' "$WORK_DIR/missing-required-log.log"
 COUNT=$((COUNT + 1))
 log_info 'PASS missing-required-log'
 
-[[ "$COUNT" == 65 ]] || { log_error "Missing expected control coverage: $COUNT/65"; exit 1; }
+[[ "$COUNT" == 67 ]] || { log_error "Missing expected control coverage: $COUNT/67"; exit 1; }
 log_info "$COUNT real V10 separation empty-object controls passed; logs and test files: $WORK_DIR"
