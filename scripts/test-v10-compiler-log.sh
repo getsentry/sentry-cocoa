@@ -41,11 +41,14 @@ for response in "$WORK_DIR/missing.rsp" 'loader_pathology'; do
     fi
     grep -Fq 'Missing/cyclic response file' "$WORK_DIR/error.log"
 done
+
 printf '@%s\n' "$WORK_DIR/cycle.rsp" > "$WORK_DIR/cycle.rsp"
 printf '%s @%s\n' "$COMPILER" "$WORK_DIR/cycle.rsp" > "$WORK_DIR/build.log"
+
 if "$READER" --build-log "$WORK_DIR/build.log" > "$WORK_DIR/records.json" 2> "$WORK_DIR/error.log"; then
     log_error 'Cyclic response file unexpectedly accepted'
     exit 1
 fi
+
 grep -Fq 'Missing/cyclic response file' "$WORK_DIR/error.log"
 log_info 'Response-file and loader-path checks passed'

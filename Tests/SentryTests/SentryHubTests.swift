@@ -1,5 +1,10 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+import _SentryPrivate
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
 // swiftlint:disable file_length
@@ -2222,7 +2227,7 @@ class TestTimeToDisplayTracker: SentryTimeToDisplayTracker {
 #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
 #if os(iOS) || os(tvOS)
 private class MockScreenshotProvider: NSObject, SentryViewScreenshotProvider {
-    func image(view: UIView, onComplete: @escaping Sentry.ScreenshotCallback) {
+    func image(view: UIView, onComplete: @escaping ScreenshotCallback) {
         onComplete(UIImage())
     }
 }
@@ -2237,8 +2242,8 @@ private class MockReplayDelegate: NSObject, SentrySessionReplayDelegate {
 }
 
 private class MockReplayMaker: NSObject, SentryReplayVideoMaker {
-    func createVideoInBackgroundWith(beginning: Date, end: Date, completion: @escaping ([Sentry.SentryVideoInfo]) -> Void) {}
-    func createVideoWith(beginning: Date, end: Date) -> [Sentry.SentryVideoInfo] { return [] }
+    func createVideoInBackgroundWith(beginning: Date, end: Date, completion: @escaping ([SentryVideoInfo]) -> Void) {}
+    func createVideoWith(beginning: Date, end: Date) -> [SentryVideoInfo] { return [] }
     func addFrameAsync(timestamp: Date, maskedViewImage: UIImage, forScreen: String?) {}
     func releaseFramesUntil(_ date: Date) {}
 }

@@ -42,14 +42,14 @@ SentryCrash is the **backbone of the Sentry Cocoa SDK** -- it handles all crash 
 
 ## Component Overview
 
-| Metric                  | Value                                                                  |
-| ----------------------- | ---------------------------------------------------------------------- |
-| **Total files**         | 84 files (36 .h, 36 .c, 11 .m, 1 .cpp)                                 |
-| **Total lines of code** | ~21,400                                                                |
-| **Location**            | `Sources/SentryCrash/`                                                 |
-| **Languages**           | C (primary), Objective-C, C++, Swift (wrappers)                        |
-| **Test files**          | ~55 across `Tests/SentryTests/SentryCrash/`                            |
-| **Original source**     | [KSCrash](https://github.com/kstenerud/KSCrash) by Karl Stenerud (MIT) |
+| Metric                  | Value                                                                                      |
+| ----------------------- | ------------------------------------------------------------------------------------------ |
+| **Total files**         | 84 files (36 .h, 36 .c, 11 .m, 1 .cpp)                                                     |
+| **Total lines of code** | ~21,400                                                                                    |
+| **Location**            | `Sources/SentryCrash/`                                                                     |
+| **Languages**           | C (primary), Objective-C, C++, Swift (wrappers)                                            |
+| **Test files**          | ~55 under `Tests/SentryTests/`: `SentryCrash/`, `ObjC/SentryCrash/`, `ObjCpp/SentryCrash/` |
+| **Original source**     | [KSCrash](https://github.com/kstenerud/KSCrash) by Karl Stenerud (MIT)                     |
 
 ---
 

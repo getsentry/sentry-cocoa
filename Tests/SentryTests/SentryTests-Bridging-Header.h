@@ -3,10 +3,6 @@
 
 #import "SentryLaunchProfiling+Tests.h"
 
-#if SENTRY_HAS_UIKIT
-#    import "MockUIScene.h"
-#endif // SENTRY_HAS_UIKIT
-
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryContinuousProfiler+Test.h"
 #    import "SentryMetricProfiler.h"
@@ -21,12 +17,8 @@
 
 @import _SentryPrivate;
 
-#import "Helper/ExceptionCatcher.h"
-#import "NSData+Unzip.h"
 #import "NSMutableDictionary+Sentry.h"
 #import "Sentry/Sentry-Swift.h"
-#import "SentryBooleanSerialization.h"
-#import "SentryBuildAppStartSpans.h"
 #import "SentryClient+TestInit.h"
 #import "SentryClient.h"
 #import "SentryCrashStackEntryMapper.h"
@@ -45,7 +37,6 @@
 #    import "SentryCrashMonitor_MachException.h"
 #    import "SentryCrashReport.h"
 #    import "SentryCrashReportStore.h"
-#    import "SentryCrashScopeHelper.h"
 #    import "SentryCrashStackCursor_Backtrace.h"
 #    import "SentryCrashStackCursor_SelfThread.h"
 #endif
@@ -55,20 +46,12 @@
 #import "SentryHttpStatusCodeRange+Private.h"
 #import "SentryHttpTransport.h"
 #import "SentryHub+Test.h"
-#import "SentryInitializeForGettingSubclassesNotCalled.h"
 #import "SentryInternalNotificationNames.h"
-#import "SentryInvalidJSONString.h"
 #import "SentryLogC.h"
-#import "SentryLogTestHelper.h"
 #import "SentrySDKInternal+Tests.h"
 #import "SentrySampleDecision+Private.h"
-#import "SentrySanitizerUtils+Tests.h"
 #import "SentrySpanInternal.h"
 #import "SentrySwift.h"
-#import "SentryTestObjCRuntimeWrapper.h"
 #import "SentryTracer+Private.h"
-#import "SentryTracer+Test.h"
 #import "SentryTransportFactory.h"
 #import "SentryWeakMap.h"
-#import "TestSentrySpan.h"
-#import "URLSessionTaskMock.h"

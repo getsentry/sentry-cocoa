@@ -1192,8 +1192,6 @@
 		55A6C82292034DB0A38BC74C /* SentrySamplerDecisionHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentrySamplerDecisionHelper.h; path = include/SentrySamplerDecisionHelper.h; sourceTree = "<group>"; };
 		561C802967D4B56E87461906 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		5A26B3F8FEC73853A95C538F /* SentryCxaThrowCompatibility.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SentryCxaThrowCompatibility.cpp; sourceTree = "<group>"; };
-		620379DA2AFE1415005AC0C1 /* SentryBuildAppStartSpans.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryBuildAppStartSpans.h; path = include/SentryBuildAppStartSpans.h; sourceTree = "<group>"; };
-		620379DC2AFE1432005AC0C1 /* SentryBuildAppStartSpans.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryBuildAppStartSpans.m; sourceTree = "<group>"; };
 		6214366A2E7A7D6600A2CB8F /* Sentry_TestServer.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = Sentry_TestServer.xctestplan; sourceTree = "<group>"; };
 		622C08D929E554B9002571D4 /* SentrySpanContext+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "SentrySpanContext+Private.h"; path = "include/SentrySpanContext+Private.h"; sourceTree = "<group>"; };
 		624729172DE5980500DFEE00 /* TestCurrentDateProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestCurrentDateProviderTests.swift; sourceTree = "<group>"; };
@@ -1713,15 +1711,11 @@
 		3CFC66F92FF50344004005B4 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			additionalCompilerFlagsByRelativePath = {
-				SentryCrash/SentryCrashReportFilter_Tests.m = "-w -Xanalyzer -analyzer-disable-all-checks";
-				SentryCrash/SentryCrashSysCtl_Tests.m = "-w -Xanalyzer -analyzer-disable-all-checks";
+				ObjC/SentryCrash/SentryCrashReportFilter_Tests.m = "-w -Xanalyzer -analyzer-disable-all-checks";
+				ObjC/SentryCrash/SentryCrashSysCtl_Tests.m = "-w -Xanalyzer -analyzer-disable-all-checks";
 			};
 			membershipExceptions = (
 				Info.plist,
-				Integrations/Performance/SwizzlingCallTests.swift,
-				Integrations/Performance/UIViewController/SentryUIViewControllerPerformanceTrackerTests.swift,
-				Integrations/Performance/UIViewController/SentryUIViewControllerSwizzlingTests.swift,
-				Integrations/Performance/UIViewController/SentryVCTrackerLaunchProfilingTests.swift,
 			);
 			target = 3CFC66DE2FF50342004005B4 /* SentryTestsV10 */;
 		};
@@ -1940,8 +1934,8 @@
 		FAB1CD142F458DA50000CC24 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			additionalCompilerFlagsByRelativePath = {
-				SentryCrash/SentryCrashReportFilter_Tests.m = "-w -Xanalyzer -analyzer-disable-all-checks";
-				SentryCrash/SentryCrashSysCtl_Tests.m = "-w -Xanalyzer -analyzer-disable-all-checks";
+				ObjC/SentryCrash/SentryCrashReportFilter_Tests.m = "-w -Xanalyzer -analyzer-disable-all-checks";
+				ObjC/SentryCrash/SentryCrashSysCtl_Tests.m = "-w -Xanalyzer -analyzer-disable-all-checks";
 			};
 			membershipExceptions = (
 				Info.plist,
@@ -2978,8 +2972,6 @@
 				D8603DD4284F8497000E1227 /* SentryBaggage.m */,
 				85AE23B0FFFD4830A3D05EBB /* SentryAppStartMeasurementProvider.h */,
 				A71411BCABB1428EB4403ADF /* SentryAppStartMeasurementProvider.m */,
-				620379DA2AFE1415005AC0C1 /* SentryBuildAppStartSpans.h */,
-				620379DC2AFE1432005AC0C1 /* SentryBuildAppStartSpans.m */,
 				7BE912AA272162AF00E49E62 /* SentryNoOpSpan.h */,
 				7BE912AC272162D900E49E62 /* SentryNoOpSpan.m */,
 				8E4A037725F6F52100000D77 /* SentrySampleDecision.h */,
@@ -3266,7 +3258,6 @@
 				63FE713F20DA4C1100CDBAE8 /* SentryCrashStackCursor_SelfThread.h in Headers */,
 				639FCFA41EBC809A00778193 /* SentryStacktrace.h in Headers */,
 				2CC64625538247BE9E5E1D92 /* SentryAppStartMeasurementProvider.h in Headers */,
-				620379DB2AFE1415005AC0C1 /* SentryBuildAppStartSpans.h in Headers */,
 				63FE716320DA4C1100CDBAE8 /* SentryCrashDynamicLinker.h in Headers */,
 				639FCF981EBC7B9700778193 /* SentryEvent.h in Headers */,
 				03F84D2527DD414C008FE43F /* SentryThreadState.hpp in Headers */,
@@ -4636,7 +4627,6 @@
 				639FCF991EBC7B9700778193 /* SentryEvent.m in Sources */,
 				632F43521F581D5400A18A36 /* SentryCrashExceptionApplication.m in Sources */,
 				01F8480438964E6B9718EC9F /* SentryAppStartMeasurementProvider.m in Sources */,
-				620379DD2AFE1432005AC0C1 /* SentryBuildAppStartSpans.m in Sources */,
 				6292585F2DAFA8290049388F /* SentryCrashMach-O.c in Sources */,
 				63FE712520DA4C1000CDBAE8 /* SentryCrashSignalInfo.c in Sources */,
 				63FE70F320DA4C1000CDBAE8 /* SentryCrashMonitor_Signal.c in Sources */,
