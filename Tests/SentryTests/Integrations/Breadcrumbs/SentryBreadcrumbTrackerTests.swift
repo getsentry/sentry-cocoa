@@ -515,6 +515,7 @@ final class SentryBreadcrumbTrackerTests: XCTestCase {
         XCTAssertNil(result["title"])
     }
 
+    #if os(iOS)
     func testExtractData_whenMaskAllTextAndAncestorIsIgnoredSubtree_shouldOmitButtonTitle() {
         // -- Arrange --
         let ancestor = UISwitch()
@@ -536,6 +537,7 @@ final class SentryBreadcrumbTrackerTests: XCTestCase {
         // -- Assert --
         XCTAssertNil(result["title"])
     }
+    #endif
 
     func testExtractData_whenTextIsNotMasked_shouldIncludeButtonTitle() {
         // -- Arrange --
