@@ -8,6 +8,12 @@
 
 ## 9.30.1
 
+### Features
+
+- Add experimental `enableBreadcrumbTextExtraction` opt-in for interaction breadcrumb child-text extraction. (#9010)
+- Add mask-aware label capture for interaction breadcrumbs. (#9011)
+- Add child text labels to UIKit interaction breadcrumbs when the tapped view has no accessibility identifier or button title. (#8974)
+
 ### Fixes
 
 - Fix app freeze during crash handling when attaching a crash-time screenshot or view hierarchy with a Swift (MainActor) scene delegate under UIScene (#9282)
