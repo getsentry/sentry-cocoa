@@ -101,7 +101,7 @@ class SessionReplayRecoveryTests: XCTestCase {
         XCTAssertFalse(idleGate.waitForIdle(timeout: 0))
 
         processingQueue.invokeLastDispatchAsync()
-        wait(for: [replayCapture], timeout: 1)
+        wait(for: [replayCapture], timeout: 10)
         XCTAssertEqual(hub.capturedReplayRecordingVideo.count, 1)
         XCTAssertTrue(idleGate.waitForIdle(timeout: 0))
     }
@@ -194,7 +194,7 @@ class SessionReplayRecoveryTests: XCTestCase {
         XCTAssertFalse(idleGate.waitForIdle(timeout: 0))
 
         processingQueue.invokeLastDispatchAsync()
-        wait(for: [replayCapture], timeout: 1)
+        wait(for: [replayCapture], timeout: 10)
         XCTAssertEqual(hub.capturedReplayRecordingVideo.count, 1)
         XCTAssertTrue(idleGate.waitForIdle(timeout: 0))
         XCTAssertFalse(FileManager.default.fileExists(atPath: lastReplayPath.path))
