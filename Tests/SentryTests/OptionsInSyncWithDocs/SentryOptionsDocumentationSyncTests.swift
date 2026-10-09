@@ -20,18 +20,10 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         var options: Set<String> = [
             "parsedDsn",
             "experimental",
-            "onLastRunStatusDetermined",
-            "strictTraceContinuation", // Docs PR: https://github.com/getsentry/sentry-docs/pull/16983
-            "orgId", // Docs PR: https://github.com/getsentry/sentry-docs/pull/16983
-            "effectiveOrgId", // @_spi(Private) - internal computed property, not a user-facing option
-            "beforeSendMetric", // Promoted to GA in https://github.com/getsentry/sentry-cocoa/pull/7843; docs update pending
-            "maxFeatureFlags", // Docs update pending
-            "beforeSendWithHint", // Deprecated in favor of adding hint to beforeSend in v10
-            "beforeBreadcrumbWithHint" // Deprecated in favor of adding hint to beforeBreadcrumb in v10
+            "effectiveOrgId" // @_spi(Private) - internal computed property, not a user-facing option
         ]
 
         #if !SDK_V10
-        options.insert("enableMetrics") // Promoted to GA in https://github.com/getsentry/sentry-cocoa/pull/7843; docs update pending
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         options.insert("enableReportNonFullyBlockingAppHangsValue") // Internal backing for deprecated enableReportNonFullyBlockingAppHangs
         #endif
@@ -51,7 +43,6 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
 
         #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
         options.insert("userFeedbackConfiguration") // @_spi(Private) - internal backing for configureUserFeedback
-        options.insert("configureUserFeedback")
         #endif
 
         #if !(os(tvOS) || os(visionOS) || os(watchOS))
