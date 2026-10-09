@@ -15,7 +15,7 @@ protocol SentryUserFeedbackFormViewModelDelegate: NSObjectProtocol {
 @_spi(Private) public class SentryUserFeedbackFormViewModel: NSObject {
     // The backend uses Python code-point length, which matches Swift Unicode scalars.
     static let maxMessageLength = SentryFeedbackValidator.maximumMessageScalarCount
-    static let messageCountVisibilityThreshold = 3_687
+    static let messageCountVisibilityThreshold = Int(ceil(Double(maxMessageLength) * 0.9))
 
     let config: SentryUserFeedbackConfiguration
     unowned let controller: SentryUserFeedbackFormController
