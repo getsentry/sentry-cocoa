@@ -8,6 +8,7 @@ import Foundation
 import SentryTestUtilsObjC
 import XCTest
 
+// swiftlint:disable type_body_length
 /// `open` because subclassed in test targets, e.g. to override `getTelemetryProcessor()`.
 open class TestClient: SentryTestClientWrapper {
 
@@ -131,6 +132,15 @@ open class TestClient: SentryTestClientWrapper {
             return event.eventId
         }
         captureEventWithScopeInvocations.record((event, scope, additionalEnvelopeItems))
+        return event.eventId
+    }
+
+    public var captureEventWithScopeAndHintInvocations = Invocations<(event: Event, scope: Scope, hint: Hint?)>()
+    public override func wrapper_capture(event: Event, scope: Scope, hint: Any?) -> SentryId {
+        // Also recorded as a capture with scope, so assertions don't depend on whether the
+        // captured event came with a hint.
+        captureEventWithScopeInvocations.record((event, scope, []))
+        captureEventWithScopeAndHintInvocations.record((event, scope, hint as? Hint))
         return event.eventId
     }
     
