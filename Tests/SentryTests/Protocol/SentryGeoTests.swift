@@ -3,6 +3,7 @@
 #else
 @_spi(Private) @testable import Sentry
 #endif
+import SentryTestUtilsObjC
 import XCTest
 
 class SentryGeoTests: XCTestCase {

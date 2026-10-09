@@ -4,6 +4,7 @@
 @_spi(Private) @testable import Sentry
 #endif
 @_spi(Private) @testable import SentryTestUtils
+import _SentryPrivate
 import XCTest
 
 private final class NoOpBinaryImageProvider: SentryBinaryImageProvider {
