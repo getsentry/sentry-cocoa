@@ -1,6 +1,7 @@
 #import "SentryAttachment.h"
 #import "SentryClient+ReplayAndFeedback.h"
 #import "SentryEvent+Private.h"
+#import "SentryId+Private.h"
 #import "SentryLogC.h"
 #import "SentryScope+Private.h"
 #import "SentrySwift.h"
@@ -37,6 +38,30 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation SentryClientInternal (ReplayAndFeedback)
+
+- (BOOL)isValidFeedbackEvent:(SentryEvent *)event
+{
+    id feedbackValue = event.context[@"feedback"];
+    if (![feedbackValue isKindOfClass:[NSDictionary class]]) {
+        return NO;
+    }
+    NSDictionary *feedback = (NSDictionary *)feedbackValue;
+
+    id messageValue = feedback[@"message"];
+    if (![messageValue isKindOfClass:[NSString class]]
+        || ![SentryFeedbackValidator isValidMessage:(NSString *)messageValue]) {
+        return NO;
+    }
+
+    id associatedEventId = feedback[@"associated_event_id"];
+    if (associatedEventId != nil
+        && (![associatedEventId isKindOfClass:[NSString class]] ||
+            [SentryId sentry_parseUUIDString:(NSString *)associatedEventId] == nil)) {
+        return NO;
+    }
+
+    return YES;
+}
 
 - (void)captureReplayEvent:(SentryReplayEvent *)replayEvent
            replayRecording:(SentryReplayRecording *)replayRecording
@@ -124,6 +149,14 @@ NS_ASSUME_NONNULL_BEGIN
                                        currentScope:currentScope];
 
     if (preparedEvent == nil) {
+        return;
+    }
+
+    // Validate the final feedback payload after event processing and before transport.
+    if (![self isValidFeedbackEvent:preparedEvent]) {
+        SENTRY_LOG_ERROR(@"Feedback payload is invalid and will not be sent.");
+        [self recordLostEvent:SentryDataCategoryFeedback
+                       reason:SentryDiscardReasonInsufficientData];
         return;
     }
 

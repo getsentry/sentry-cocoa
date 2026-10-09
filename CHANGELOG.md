@@ -5,6 +5,7 @@
 ### Fixes
 
 - Fix a data race on the span end timestamp that could crash in `SentryTracer.trimEndTimestamp` when a child span finishes on another thread while its transaction finishes (#9305)
+- Validate feedback payloads before transport and align the managed form's message counter and errors with the cross-SDK input validation specification (#8973)
 
 ## 9.30.1
 
