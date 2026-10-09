@@ -344,6 +344,32 @@ class SentrySpanTests: XCTestCase {
         XCTAssertTrue(span.isFinished)
     }
     
+    func testFinish_whenTimestampIsBeingSet_shouldNotReportFinishedWithoutTimestamp() throws {
+        // -- Arrange --
+        let dateProvider = BlockingDateProvider()
+        SentryDependencyContainer.sharedInstance().dateProvider = dateProvider
+        let span = fixture.getSutWithTracer()
+        dateProvider.blockNextDateCall()
+
+        // -- Act --
+        let finished = expectation(description: "span finished")
+        DispatchQueue.global().async {
+            span.finish()
+            finished.fulfill()
+        }
+        XCTAssertEqual(dateProvider.waitUntilDateCallIsBlocked(), .success)
+
+        // -- Assert --
+        // A span observable as finished must already carry its end timestamp. The tracer
+        // relies on this when it reads the timestamps of its finished children.
+        XCTAssertEqual(span.isFinished, span.timestamp != nil)
+
+        dateProvider.unblockDateCall()
+        wait(for: [finished], timeout: 5)
+        XCTAssertTrue(span.isFinished)
+        XCTAssertNotNil(span.timestamp)
+    }
+
     func testFinishWithChild() throws {
         let client = TestClient(options: fixture.options)!
         let span = fixture.getSut(client: client)
@@ -816,4 +842,44 @@ class SentrySpanTests: XCTestCase {
         return (displayLinkWrapper, framesTracker)
     }
 #endif // os(iOS) || os(tvOS)
+}
+
+/// Blocks inside `date()` once requested so a test can observe span state in the middle of `finish()`.
+private final class BlockingDateProvider: NSObject, SentryCurrentDateProvider {
+    private let lock = NSLock()
+    private var shouldBlockNextDateCall = false
+    private let dateCallEntered = DispatchSemaphore(value: 0)
+    private let dateCallMayProceed = DispatchSemaphore(value: 0)
+
+    func blockNextDateCall() {
+        lock.synchronized { shouldBlockNextDateCall = true }
+    }
+
+    func waitUntilDateCallIsBlocked() -> DispatchTimeoutResult {
+        dateCallEntered.wait(timeout: .now() + 5)
+    }
+
+    func unblockDateCall() {
+        dateCallMayProceed.signal()
+    }
+
+    func date() -> Date {
+        let shouldBlock = lock.synchronized {
+            defer { shouldBlockNextDateCall = false }
+            return shouldBlockNextDateCall
+        }
+        if shouldBlock {
+            dateCallEntered.signal()
+            dateCallMayProceed.wait()
+        }
+        return TestData.timestamp
+    }
+
+    func timezoneOffset() -> Int { 0 }
+
+    func systemTime() -> UInt64 { 0 }
+
+    func systemUptime() -> TimeInterval { 0 }
+
+    func getAbsoluteTime() -> UInt64 { 0 }
 }
