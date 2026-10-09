@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add experimental MetricKit hang culprit reporting via `options.experimental.metrickit.hangReportingMode = .culprit`, also available through `SentryObjC`. The default `.legacy` mode preserves the existing flattened call stack tree (#9289)
+
 ### Fixes
 
 - Validate feedback payloads before transport and align the managed form's message counter and errors with the cross-SDK input validation specification (#8973)

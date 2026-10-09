@@ -17,6 +17,10 @@ import Foundation
         self.wrapped = SentryExperimentalOptions()
     }
 
+    @objc public var metrickit: SentryObjCMetricKitOptions {
+        SentryObjCMetricKitOptions(wrapped.metrickit)
+    }
+
     #if !SDK_V10
     @objc public var enableUnhandledCPPExceptionsV2: Bool {
         get { wrapped.enableUnhandledCPPExceptionsV2 }

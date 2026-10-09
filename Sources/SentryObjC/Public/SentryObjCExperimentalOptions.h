@@ -1,9 +1,17 @@
 #import <Foundation/Foundation.h>
+#if !__has_include(<SentryObjC/SentryObjCMetricKitOptions.h>)
+#    import "SentryObjCMetricKitOptions.h"
+#else
+#    import <SentryObjC/SentryObjCMetricKitOptions.h>
+#endif
 NS_ASSUME_NONNULL_BEGIN
 
 /// Options for experimental features that are subject to change or may be removed in future
 /// versions.
 @interface SentryObjCExperimentalOptions : NSObject
+
+/// Experimental MetricKit diagnostic reporting options.
+@property (nonatomic, readonly, strong) SentryObjCMetricKitOptions *metrickit;
 
 #if !SDK_V10
 /**

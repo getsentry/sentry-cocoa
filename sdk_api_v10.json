@@ -38768,6 +38768,54 @@
             "name": "enableUIViewControllerInitSwizzling",
             "printedName": "enableUIViewControllerInitSwizzling",
             "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(py)enableUIViewControllerInitSwizzling"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryMetricKitOptions",
+                    "printedName": "Sentry.SentryMetricKitOptions",
+                    "usr": "s:6Sentry0A16MetricKitOptionsC"
+                  }
+                ],
+                "declAttributes": [
+                  "Final"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A19ExperimentalOptionsC9metrickitAA0a9MetricKitC0Cvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A19ExperimentalOptionsC9metrickitAA0a9MetricKitC0Cvg"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryMetricKitOptions",
+                "printedName": "Sentry.SentryMetricKitOptions",
+                "usr": "s:6Sentry0A16MetricKitOptionsC"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasStorage",
+              "NonObjC"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "isLet": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A19ExperimentalOptionsC9metrickitAA0a9MetricKitC0Cvp",
+            "moduleName": "Sentry",
+            "name": "metrickit",
+            "printedName": "metrickit",
+            "usr": "s:6Sentry0A19ExperimentalOptionsC9metrickitAA0a9MetricKitC0Cvp"
           }
         ],
         "conformances": [
@@ -50555,6 +50603,317 @@
         "name": "SentryMetric",
         "printedName": "SentryMetric",
         "usr": "s:6Sentry0A6MetricV"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryMetricKitHangReportingMode",
+                "printedName": "Sentry.SentryMetricKitHangReportingMode",
+                "usr": "s:6Sentry0A26MetricKitHangReportingModeO"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryMetricKitHangReportingMode",
+                "printedName": "Sentry.SentryMetricKitHangReportingMode",
+                "usr": "s:6Sentry0A26MetricKitHangReportingModeO"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A26MetricKitHangReportingModeO2eeoiySbAC_ACtFZ",
+            "moduleName": "Sentry",
+            "name": "==",
+            "printedName": "==(_:_:)",
+            "static": true,
+            "usr": "s:6Sentry0A26MetricKitHangReportingModeO2eeoiySbAC_ACtFZ"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Hasher",
+                "paramValueOwnership": "InOut",
+                "printedName": "Swift.Hasher",
+                "usr": "s:s6HasherV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A26MetricKitHangReportingModeO4hash4intoys6HasherVz_tF",
+            "moduleName": "Sentry",
+            "name": "hash",
+            "printedName": "hash(into:)",
+            "usr": "s:6Sentry0A26MetricKitHangReportingModeO4hash4intoys6HasherVz_tF"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryMetricKitHangReportingMode",
+                        "printedName": "Sentry.SentryMetricKitHangReportingMode",
+                        "usr": "s:6Sentry0A26MetricKitHangReportingModeO"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryMetricKitHangReportingMode.Type"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryMetricKitHangReportingMode",
+                    "printedName": "Sentry.SentryMetricKitHangReportingMode",
+                    "usr": "s:6Sentry0A26MetricKitHangReportingModeO"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryMetricKitHangReportingMode.Type) -> Sentry.SentryMetricKitHangReportingMode"
+              }
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A26MetricKitHangReportingModeO7culprityA2CmF",
+            "moduleName": "Sentry",
+            "name": "culprit",
+            "printedName": "culprit",
+            "usr": "s:6Sentry0A26MetricKitHangReportingModeO7culprityA2CmF"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Accessor",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A26MetricKitHangReportingModeO9hashValueSivg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A26MetricKitHangReportingModeO9hashValueSivg"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Var",
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A26MetricKitHangReportingModeO9hashValueSivp",
+            "moduleName": "Sentry",
+            "name": "hashValue",
+            "printedName": "hashValue",
+            "usr": "s:6Sentry0A26MetricKitHangReportingModeO9hashValueSivp"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryMetricKitHangReportingMode",
+                        "printedName": "Sentry.SentryMetricKitHangReportingMode",
+                        "usr": "s:6Sentry0A26MetricKitHangReportingModeO"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryMetricKitHangReportingMode.Type"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryMetricKitHangReportingMode",
+                    "printedName": "Sentry.SentryMetricKitHangReportingMode",
+                    "usr": "s:6Sentry0A26MetricKitHangReportingModeO"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryMetricKitHangReportingMode.Type) -> Sentry.SentryMetricKitHangReportingMode"
+              }
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A26MetricKitHangReportingModeO6legacyyA2CmF",
+            "moduleName": "Sentry",
+            "name": "legacy",
+            "printedName": "legacy",
+            "usr": "s:6Sentry0A26MetricKitHangReportingModeO6legacyyA2CmF"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$sSQ",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$sSH",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH"
+          }
+        ],
+        "declKind": "Enum",
+        "kind": "TypeDecl",
+        "mangledName": "$s6Sentry0A26MetricKitHangReportingModeO",
+        "moduleName": "Sentry",
+        "name": "SentryMetricKitHangReportingMode",
+        "printedName": "SentryMetricKitHangReportingMode",
+        "usr": "s:6Sentry0A26MetricKitHangReportingModeO"
+      },
+      {
+        "children": [
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryMetricKitHangReportingMode",
+                    "printedName": "Sentry.SentryMetricKitHangReportingMode",
+                    "usr": "s:6Sentry0A26MetricKitHangReportingModeO"
+                  }
+                ],
+                "declAttributes": [
+                  "Final"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A16MetricKitOptionsC17hangReportingModeAA0abc4HangfG0Ovg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A16MetricKitOptionsC17hangReportingModeAA0abc4HangfG0Ovg"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryMetricKitHangReportingMode",
+                    "printedName": "Sentry.SentryMetricKitHangReportingMode",
+                    "usr": "s:6Sentry0A26MetricKitHangReportingModeO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "Final"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A16MetricKitOptionsC17hangReportingModeAA0abc4HangfG0Ovs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "usr": "s:6Sentry0A16MetricKitOptionsC17hangReportingModeAA0abc4HangfG0Ovs"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryMetricKitHangReportingMode",
+                "printedName": "Sentry.SentryMetricKitHangReportingMode",
+                "usr": "s:6Sentry0A26MetricKitHangReportingModeO"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasStorage"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A16MetricKitOptionsC17hangReportingModeAA0abc4HangfG0Ovp",
+            "moduleName": "Sentry",
+            "name": "hangReportingMode",
+            "printedName": "hangReportingMode",
+            "usr": "s:6Sentry0A16MetricKitOptionsC17hangReportingModeAA0abc4HangfG0Ovp"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          }
+        ],
+        "declAttributes": [
+          "Final"
+        ],
+        "declKind": "Class",
+        "hasMissingDesignatedInitializers": true,
+        "kind": "TypeDecl",
+        "mangledName": "$s6Sentry0A16MetricKitOptionsC",
+        "moduleName": "Sentry",
+        "name": "SentryMetricKitOptions",
+        "printedName": "SentryMetricKitOptions",
+        "usr": "s:6Sentry0A16MetricKitOptionsC"
       },
       {
         "children": [
