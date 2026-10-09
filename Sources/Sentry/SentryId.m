@@ -1,4 +1,5 @@
 #import "SentryId.h"
+#import "SentryId+Private.h"
 
 @interface SentryId ()
 
@@ -45,36 +46,33 @@
     return nil;
 }
 
++ (nullable NSUUID *)sentry_parseUUIDString:(NSString *)uuidString
+{
+    NSUUID *parsed = [[NSUUID alloc] initWithUUIDString:uuidString];
+    if (parsed != nil || uuidString.length != 32) {
+        return parsed;
+    }
+
+    NSMutableString *dashed = [NSMutableString stringWithCapacity:36];
+    for (NSUInteger i = 0; i < uuidString.length; i++) {
+        if (i == 8 || i == 12 || i == 16 || i == 20) {
+            [dashed appendString:@"-"];
+        }
+        [dashed appendFormat:@"%C", [uuidString characterAtIndex:i]];
+    }
+    return [[NSUUID alloc] initWithUUIDString:dashed];
+}
+
 - (nonnull instancetype)initWithUUIDString:(NSString *_Nonnull)uuidString
 {
     if (self = [super init]) {
-        // Try to create UUID directly from the provided string
-        NSUUID *parsed = [[NSUUID alloc] initWithUUIDString:uuidString];
+        NSUUID *parsed = [SentryId sentry_parseUUIDString:uuidString];
         if (parsed != nil) {
             self.id = parsed;
             return self;
         }
 
-        // If it's a 32-char hex string, insert dashes at 8-12-16-20 and try again
-        if (uuidString.length == 32) {
-            // Ensure the characters are hex; if not, we still attempt formatting like the Swift
-            // code
-            NSMutableString *dashed = [NSMutableString stringWithCapacity:36];
-            for (NSUInteger i = 0; i < uuidString.length; i++) {
-                if (i == 8 || i == 12 || i == 16 || i == 20) {
-                    [dashed appendString:@"-"];
-                }
-                unichar c = [uuidString characterAtIndex:i];
-                [dashed appendFormat:@"%C", c];
-            }
-            NSUUID *reparsed = [[NSUUID alloc] initWithUUIDString:dashed];
-            if (reparsed != nil) {
-                self.id = reparsed;
-                return self;
-            }
-        }
-
-        // Fallback: zero UUID; if that ever fails (it shouldn't), use a random UUID
+        // Preserve the public initializer's historical fallback for invalid input.
         NSUUID *zero = [[NSUUID alloc] initWithUUIDString:@"00000000-0000-0000-0000-000000000000"];
         self.id = zero ?: [NSUUID UUID];
         return self;

@@ -6,6 +6,10 @@
 
 - Add `options.experimental.metricKit.enabledDiagnosticReports` to choose which MetricKit diagnostic reports the SDK captures, including crash diagnostics. The option is only available from Swift (#9267)
 
+### Fixes
+
+- Validate feedback payloads before transport and align the managed form's message counter and errors with the cross-SDK input validation specification (#8973)
+
 ## 9.30.1
 
 ### Fixes
