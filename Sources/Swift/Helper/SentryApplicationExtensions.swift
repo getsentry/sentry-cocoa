@@ -29,8 +29,8 @@ import UIKit
     }
 
     @objc public var unsafeApplicationState: State {
-        // ThreadsafeApplication's initializer reads this exactly once to determine the initial state, and only
-        // when it runs on the main thread; off the main thread it defaults to `.active` and relies on
+        // ThreadsafeApplication reads this exactly once to determine its initial state, either inline when it is
+        // initialized on the main thread or from a block it dispatches to the main queue otherwise, and relies on
         // notifications from there on. The remaining callers go through `mainThread_isActive`, which can run on
         // any thread.
         //

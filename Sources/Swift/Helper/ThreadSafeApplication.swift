@@ -18,24 +18,18 @@ final class SentryAlwaysForegroundApplicationStateProvider: NSObject, SentryAppl
 @objc @_spi(Private) public final class SentryThreadsafeApplication: NSObject, SentryApplicationStateProvider {
     private let notificationCenter: SentryNSNotificationCenterWrapper
     
-    init(applicationProvider: () -> SentryApplication?, notificationCenter: SentryNSNotificationCenterWrapper) {
+    init(applicationProvider: @escaping () -> SentryApplication?, notificationCenter: SentryNSNotificationCenterWrapper, dispatchQueueWrapper: SentryDispatchQueueWrapper) {
         self.notificationCenter = notificationCenter
         // This matches the ObjC behavior which did not initialize the state when the UIApplication was null
         // so it kept a default value of 0 which happens to be defined to be `active`.
         // Acquiring the lock is not necessary here since the instance has not been initialized yet.
-        if !Thread.isMainThread {
-            // UIKit only allows reading the application state on the main thread. The dependency container
-            // creates this instance eagerly on whichever thread first accesses it, for example a React Native
-            // synchronous module method running on the JS thread. Reading the state there would either violate
-            // UIKit's threading contract or block the caller until the main thread is free, which it rarely is
-            // during launch. Default to `.active`, matching the nil-application fallback below, and let the
-            // lifecycle notifications correct the state.
-            SentrySDKLog.debug("SentryThreadsafeApplication initialized off the main thread, defaulting the application state to active.")
-            self.state = SentryMutex(.active)
-        } else if let application = applicationProvider() {
+        let isMainThread = Thread.isMainThread
+        if isMainThread, let application = applicationProvider() {
             self.state = SentryMutex(application.unsafeApplicationState)
         } else {
-            SentrySDKLog.warning("Application is null in SentryThreadsafeApplication")
+            if isMainThread {
+                SentrySDKLog.warning("Application is null in SentryThreadsafeApplication")
+            }
             self.state = SentryMutex(.active)
         }
         super.init()
@@ -43,6 +37,23 @@ final class SentryAlwaysForegroundApplicationStateProvider: NSObject, SentryAppl
         notificationCenter.addObserver(self, selector: #selector(didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
         notificationCenter.addObserver(self, selector: #selector(willEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
         notificationCenter.addObserver(self, selector: #selector(didBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
+
+        if !isMainThread {
+            // UIKit only allows reading the application state on the main thread, and the dependency container
+            // creates this instance eagerly on whichever thread first accesses it, for example a React Native
+            // synchronous module method running on the JS thread. Blocking that thread until the main thread is
+            // free is not acceptable during launch, so start from `.active` and refresh the state asynchronously
+            // on the main queue, like the original ObjC implementation did. UIKit delivers the lifecycle
+            // notifications on the main thread as well, so the refreshed value is never staler than a
+            // notification that already arrived.
+            SentrySDKLog.debug("SentryThreadsafeApplication initialized off the main thread, reading the application state asynchronously on the main queue.")
+            dispatchQueueWrapper.dispatchAsyncOnMainQueueIfNotMainThread { [weak self] in
+                guard let self, let application = applicationProvider() else {
+                    return
+                }
+                self.state.withLock { $0 = application.unsafeApplicationState }
+            }
+        }
     }
     
     deinit {

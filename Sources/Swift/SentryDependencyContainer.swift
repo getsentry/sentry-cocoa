@@ -292,7 +292,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     @objc public var uiDeviceWrapper: SentryUIDeviceWrapper = Dependencies.uiDeviceWrapper
-    @objc public var threadsafeApplication = SentryThreadsafeApplication(applicationProvider: defaultApplicationProvider, notificationCenter: Dependencies.notificationCenterWrapper)
+    @objc public var threadsafeApplication = SentryThreadsafeApplication(applicationProvider: defaultApplicationProvider, notificationCenter: Dependencies.notificationCenterWrapper, dispatchQueueWrapper: Dependencies.dispatchQueueWrapper)
     @objc public var swizzleWrapper = SentrySwizzleWrapper()
 
     // MARK: Lazy Vars
