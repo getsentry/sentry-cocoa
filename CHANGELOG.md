@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add mask-aware label capture for interaction breadcrumbs. (#9011)
+
 ### Fixes
 
 - Validate feedback payloads before transport and align the managed form's message counter and errors with the cross-SDK input validation specification (#8973)
