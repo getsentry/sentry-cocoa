@@ -23,7 +23,16 @@ final class SentryAlwaysForegroundApplicationStateProvider: NSObject, SentryAppl
         // This matches the ObjC behavior which did not initialize the state when the UIApplication was null
         // so it kept a default value of 0 which happens to be defined to be `active`.
         // Acquiring the lock is not necessary here since the instance has not been initialized yet.
-        if let application = applicationProvider() {
+        if !Thread.isMainThread {
+            // UIKit only allows reading the application state on the main thread. The dependency container
+            // creates this instance eagerly on whichever thread first accesses it, for example a React Native
+            // synchronous module method running on the JS thread. Reading the state there would either violate
+            // UIKit's threading contract or block the caller until the main thread is free, which it rarely is
+            // during launch. Default to `.active`, matching the nil-application fallback below, and let the
+            // lifecycle notifications correct the state.
+            SentrySDKLog.debug("SentryThreadsafeApplication initialized off the main thread, defaulting the application state to active.")
+            self.state = SentryMutex(.active)
+        } else if let application = applicationProvider() {
             self.state = SentryMutex(application.unsafeApplicationState)
         } else {
             SentrySDKLog.warning("Application is null in SentryThreadsafeApplication")

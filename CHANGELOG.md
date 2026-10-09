@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Default `SentryThreadsafeApplication` to the active state when the SDK's dependency container is first accessed off the main thread instead of reading `UIApplication.applicationState` there, which could stall the calling thread while waiting for the main thread during app launch (#9304)
+
 ## 9.30.1
 
 ### Fixes
