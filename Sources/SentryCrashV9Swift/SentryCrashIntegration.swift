@@ -1,4 +1,7 @@
 #if !SDK_V10
+#if SWIFT_PACKAGE
+@_spi(Private) import SentrySwift
+#endif
 internal import _SentryPrivate
 import Foundation
 
@@ -14,20 +17,15 @@ import UIKit
 public func sentry_finishAndSaveTransaction() {
     let scope = SentrySDKInternal.currentHub().scope as Scope
     guard let span = scope.getCastedInternalSpan() else {
-        SentrySDKLog.debug("No span found in current scope, skipping transaction finish and save")
+        SentryCrashV9Log.debug("No span found in current scope, skipping transaction finish and save")
         return
     }
     span.tracer?.finishForCrash()
 }
 
-// MARK: - Dependency Provider
-
-/// Provides dependencies for `SentryCrashIntegration`.
-typealias CrashIntegrationProvider = SentryCrashReporterProvider & CrashWrapperProvider & PreviousRunSessionFinalizerBuilder & CrashInstallationReporterBuilder & DateProviderProvider & NotificationCenterProvider
-
 // MARK: - SentryCrashIntegration
 
-final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSObject, SwiftIntegration {
+final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSObject, SentryIntegrationProtocol {
 
     private weak var options: Options?
     private var scopeObserver: SentryCrashScopeObserver?
@@ -39,7 +37,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
 
     init?(with options: Options, dependencies: Dependencies) {
         guard options.enableCrashHandler else {
-            SentrySDKLog.debug("Not going to enable \(Self.name) because enableCrashHandler is disabled.")
+            SentryCrashV9Log.debug("Not going to enable \(Self.name) because enableCrashHandler is disabled.")
             return nil
         }
 
@@ -105,7 +103,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
     private func startCrashHandler(options: Options, dependencies: Dependencies) {
         var enableSigtermReporting = false
         #if !os(watchOS)
-        enableSigtermReporting = options._enableSigtermReporting
+        enableSigtermReporting = SentryCrashV9Backend.isSigtermReportingEnabled(in: options)
         #endif
 
         var enableReportingUncaughtExceptions = false
@@ -145,18 +143,17 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         #endif
 
         if options.experimental.enableUnhandledCPPExceptionsV2 {
-            SentrySDKLog.debug("Enabling CppExceptionsV2 by swapping cxa_throw.")
+            SentryCrashV9Log.debug("Enabling CppExceptionsV2 by swapping cxa_throw.")
             sentrycrashcm_cppexception_enable_swap_cxa_throw()
         }
 
         // Finalize the previous session before report processing or auto session tracking
         // can start, so the first fatal event can attach the crashed session.
-        let finalizer = dependencies.getPreviousRunSessionFinalizer(
+        dependencies.finalizePreviousRunSession(
             options: options,
             crashedLastLaunch: dependencies.crashWrapper.crashedLastLaunch,
             activeDurationSinceLastCrash: dependencies.crashWrapper.activeDurationSinceLastCrash
         )
-        finalizer?.finalizeIfNeeded()
 
         // We only need to send all reports on the first initialization of SentryCrash. If
         // SentryCrash was deactivated there are no new reports to send. Furthermore, the
@@ -288,4 +285,8 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         sentrycrash_setSaveTransaction(sentry_finishAndSaveTransaction)
     }
 }
+
+#if !SWIFT_PACKAGE
+extension SentryCrashIntegration: SwiftIntegration {}
+#endif
 #endif // !SDK_V10

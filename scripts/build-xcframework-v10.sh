@@ -68,14 +68,14 @@ else
 fi
 
 for sdk in "${sdks[@]}"; do
-    extra_build_settings=()
+    # ARCHS from an xcconfig does not propagate into SwiftPM sub-targets. Pass the standard
+    # architecture set for every SDK so simulator packages do not collapse to the host architecture.
+    extra_build_settings=( "ARCHS=\$(ARCHS_STANDARD)" )
 
     for arm64e_sdk in "${ARM64E_DEVICE_SDKS[@]}"; do
         if [[ "$sdk" == "$arm64e_sdk" ]]; then
-            # Pass ARCHS on the command line so it propagates to SPM sub-targets
-            # (KSCrash packages), ensuring arm64e symbols are present in all
-            # architectures of the fat binary.
-            extra_build_settings+=( "ARCHS=\$(ARCHS_STANDARD) arm64e" )
+            # Device SDKs additionally carry the arm64e release slice.
+            extra_build_settings=( "ARCHS=\$(ARCHS_STANDARD) arm64e" )
             break
         fi
     done
@@ -87,6 +87,19 @@ for sdk in "${sdks[@]}"; do
         slice_args+=(--build-setting "$setting")
     done
     "$SCRIPT_DIR/build-xcframework-slice.sh" "${slice_args[@]}"
+
+    # Archive moves installed products away, leaving dangling BuildProductsPath aliases.
+    # All recorded compiler outputs remain in IntermediateBuildFilesPath; the audit
+    # requires every recorded output to be inside this root and present on disk.
+    objects_path="XCFrameworkBuildPath/DerivedData/Build/Intermediates.noindex"
+    if [[ "$sdk" != maccatalyst ]]; then
+        objects_path+="/ArchiveIntermediates/$SCHEME/IntermediateBuildFilesPath"
+    fi
+
+    # Audit each completed slice before the next build replaces its output and log.
+    "$SCRIPT_DIR/verify-v10-sentrycrash-objects.sh" \
+        --build-path "$objects_path" \
+        --build-log XCFrameworkBuildPath/raw-build-output.log
 done
 
 xcframework_sdks="$(IFS=,; echo "${sdks[*]}")"

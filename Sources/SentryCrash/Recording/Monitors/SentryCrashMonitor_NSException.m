@@ -35,6 +35,9 @@
 #    import "SentryCrashStackCursor.h"
 #    include "SentryCrashThread.h"
 #    import "SentrySwift.h"
+#    if SWIFT_PACKAGE
+@import SentryCrashV9Swift;
+#    endif
 
 #    import "SentryLogC.h"
 

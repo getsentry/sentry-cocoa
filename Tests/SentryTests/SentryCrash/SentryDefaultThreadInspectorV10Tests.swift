@@ -175,7 +175,13 @@ final class SentryDefaultThreadInspectorV10Tests: XCTestCase {
 
         // -- Assert --
         XCTAssertFalse(threads.isEmpty)
+#if os(watchOS)
+        // watchOS prohibits suspending other threads, so only the current stack is available.
+        XCTAssertTrue(threads.contains { $0.current == true && !($0.stacktrace?.frames.isEmpty ?? true) })
+        XCTAssertTrue(threads.filter { $0.current != true }.allSatisfy { $0.stacktrace == nil })
+#else
         XCTAssertTrue(threads.contains { $0.current == false && !($0.stacktrace?.frames.isEmpty ?? true) })
+#endif
     }
 
     func testSystemProvider_whenCrashHandlingDisabled_shouldCaptureWithoutSDKInstallation() throws {
@@ -191,7 +197,11 @@ final class SentryDefaultThreadInspectorV10Tests: XCTestCase {
         XCTAssertFalse(threads.isEmpty)
         let current = try XCTUnwrap(threads.first { $0.current == true })
         XCTAssertFalse(try XCTUnwrap(current.stacktrace).frames.isEmpty)
+#if os(watchOS)
+        XCTAssertTrue(threads.filter { $0.current != true }.allSatisfy { $0.stacktrace == nil })
+#else
         XCTAssertTrue(threads.contains { $0.current == false && !($0.stacktrace?.frames.isEmpty ?? true) })
+#endif
         XCTAssertEqual(threads.first?.isMain, true)
         XCTAssertNil(sut.getThreadName(0))
     }

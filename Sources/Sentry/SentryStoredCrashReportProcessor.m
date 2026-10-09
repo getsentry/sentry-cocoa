@@ -1,13 +1,13 @@
 #import "SentryStoredCrashReportProcessor.h"
 
 #import "SentryClient+Private.h"
-#import "SentryCrash.h"
 #import "SentryCrashReportConverter.h"
 #import "SentryEvent.h"
 #import "SentryHub+Private.h"
 #import "SentryHub.h"
 #import "SentryId.h"
 #import "SentryLogC.h"
+#import "SentryNativeReportFields.h"
 #import "SentryScope+Private.h"
 #import "SentrySwift.h"
 
@@ -86,7 +86,7 @@ NSErrorDomain const SentryStoredCrashReportProcessorErrorDomain
 
         SentryScope *scope = [[SentryScope alloc] initWithScope:hub.scope];
         // KSCrash stitch injects crash-time screenshot and view-hierarchy paths under this key.
-        for (NSString *attachmentPath in report[SENTRYCRASH_REPORT_ATTACHMENTS_ITEM] ?: @[]) {
+        for (NSString *attachmentPath in report[SentryNativeReportAttachmentsKey] ?: @[]) {
             [scope addCrashReportAttachmentInPath:attachmentPath];
         }
 

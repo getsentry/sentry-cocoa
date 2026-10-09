@@ -103,11 +103,25 @@ trap 'for f in "${PACKAGE_FILES[@]}"; do mv "$f.bak" "$f"; done' EXIT
 IFS=',' read -r -a sdk_list <<< "$SDKS"
 
 for sdk in "${sdk_list[@]}"; do
+    objects_path="$OUTPUT_DIR/DerivedData/Build/Intermediates.noindex/ArchiveIntermediates/SentryObjC/IntermediateBuildFilesPath"
+    if [ "$V10" = "true" ]; then
+        # Each audit needs fresh compiler evidence, not another slice's cached objects.
+        rm -rf "$objects_path"
+    fi
+
     "$SCRIPT_DIR/build-static-library-sentryobjc.sh" \
         --sdk "$sdk" \
         --output-dir "$OUTPUT_DIR" \
         --package-path "$PACKAGE_PATH" \
         --configuration "$CONFIGURATION"
+
+    if [ "$V10" = "true" ]; then
+        "$SCRIPT_DIR/verify-v10-sentrycrash-objects.sh" \
+            --build-path "$objects_path" \
+            --build-log "$OUTPUT_DIR/archive/SentryObjC/$sdk.log" \
+            --archive-path "$OUTPUT_DIR/archive/SentryObjC/$sdk.xcarchive" \
+            --source-root "$PACKAGE_PATH"
+    fi
 done
 
 if [ "$VARIANT" = "static" ] || [ "$VARIANT" = "both" ]; then

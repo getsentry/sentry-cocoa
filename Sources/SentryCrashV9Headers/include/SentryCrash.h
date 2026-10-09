@@ -45,8 +45,6 @@ typedef enum {
     SentryCrashCDeleteAlways
 } SentryCrashCDeleteBehavior;
 
-static NSString *_Nonnull const SENTRYCRASH_REPORT_ATTACHMENTS_ITEM = @"attachments";
-
 NS_ASSUME_NONNULL_BEGIN
 
 /**

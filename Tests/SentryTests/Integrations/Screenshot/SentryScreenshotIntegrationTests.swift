@@ -41,6 +41,9 @@ class SentryScreenshotIntegrationTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
+#if SDK_V10
+        sentrykscrash_attachments_setScreenshotWriter(nil)
+#endif
     }
     
     override func tearDown() {
@@ -55,10 +58,9 @@ class SentryScreenshotIntegrationTests: XCTestCase {
             $0.attachScreenshot = false
         }
         XCTAssertEqual(SentrySDKInternal.currentHub().getClient()?.attachmentProcessors.count, 0)
-#if !SENTRY_DISABLE_SENTRYCRASH_V10
-        // KSCRASH_TODO(GH-8273, GH-8532): V9 callback install. V10 uses the KSCrash
-        // attachments writer instead. Acceptance: SCV10-008 in
-        // SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+#if SDK_V10
+        XCTAssertFalse(sentrykscrash_attachments_hasScreenshotWriter())
+#else
         XCTAssertFalse(sentrycrash_hasSaveScreenshotCallback())
 #endif
     }
@@ -69,10 +71,9 @@ class SentryScreenshotIntegrationTests: XCTestCase {
             $0.attachScreenshot = true
         }
         XCTAssertEqual(SentrySDKInternal.currentHub().getClient()?.attachmentProcessors.count, 1)
-#if !SENTRY_DISABLE_SENTRYCRASH_V10
-        // KSCRASH_TODO(GH-8273, GH-8532): V9 callback install. V10 uses the KSCrash
-        // attachments writer instead. Acceptance: SCV10-008 in
-        // SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+#if SDK_V10
+        XCTAssertTrue(sentrykscrash_attachments_hasScreenshotWriter())
+#else
         XCTAssertTrue(sentrycrash_hasSaveScreenshotCallback())
 #endif
     }
@@ -85,10 +86,9 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         SentrySDK.close()
         
         XCTAssertNil(SentrySDKInternal.currentHub().getClient()?.attachmentProcessors)
-#if !SENTRY_DISABLE_SENTRYCRASH_V10
-        // KSCRASH_TODO(GH-8273, GH-8532): V9 callback install. V10 uses the KSCrash
-        // attachments writer instead. Acceptance: SCV10-008 in
-        // SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+#if SDK_V10
+        XCTAssertFalse(sentrykscrash_attachments_hasScreenshotWriter())
+#else
         XCTAssertFalse(sentrycrash_hasSaveScreenshotCallback())
 #endif
     }

@@ -41,6 +41,7 @@
 - [37. Strip DWARF from prebuilt SentryObjC static binaries](#37-strip-dwarf-from-prebuilt-sentryobjc-static-binaries)
 - [38. Keep opt-out flags free of deprecation warnings](#38-keep-opt-out-flags-free-of-deprecation-warnings)
 - [39. Native SwiftPM test plans](#39-native-swiftpm-test-plans)
+- [40. Develop V10 on main, then branch off V9](#40-develop-v10-on-main-then-branch-off-v9)
 
 ---
 
@@ -741,6 +742,8 @@ Related links:
 Date: June 30th, 2026
 Contributors: @NinjaLikesCheez, @philprime, @philipphofmann, @itaybre, @supervacuus
 
+> **Partially superseded by [decision 40](#40-develop-v10-on-main-then-branch-off-v9):** Backend selection is temporary until V9 branches off for maintenance. V10 continues on `main` with KSCrash alone; backend-version traits and legacy recorder sources are removed before its first release.
+
 We are migrating from `SentryCrash` (a KSCrash v1.x fork with renamed identifiers) to KSCrash 2.x, with the new integration (`SentryKSCrashIntegration`) becoming the default crash handler in v10. `SentryCrash` will be removed entirely when the migration is complete.
 
 We chose to ship both `SentryCrashIntegration` and `SentryKSCrashIntegration` on `main` simultaneously (Option B), rather than keeping KSCrash work on a long-lived feature branch (Option A).
@@ -897,3 +900,34 @@ Related links:
 - [Package test commands](TEST.md#package-tests-with-xcodebuild)
 - [Shared package scheme](../.swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme)
 - [Profiler migration](https://github.com/getsentry/sentry-cocoa/pull/9086)
+
+## 40. Develop V10 on main, then branch off V9
+
+Date: October 5, 2026
+Contributors: Phil Niedertscheider, Itay Brenner, Mischan Toosarani-Hausberger
+
+We continue to develop V10 on `main` alongside V9, then create a V9 maintenance branch before releasing V10. V9 will keep SentryCrash; `main` will use KSCrash only. This changes parts of [decision 35](#35-kscrash-migration-strategy-dual-integrations-on-main): choosing between V9 and V10 is only for development, and V10 may compile files whose SentryCrash code is disabled.
+
+Until the branches split, V9 stays the default. Existing SwiftPM dependencies must keep working, whether they use defaults, only `NoUIFramework`, or disable default traits. Customers must not need a V9 trait or a different product/package to keep using V9.
+
+This development work must support the current and previous Xcode majors (27 and 26). Existing V9 builds on older Xcode versions, including Xcode 16, must keep working too. With the Swift 6.1 manifest, developers select V10 using `SDK_V10=1`. The Swift 6.2+ manifest also supports the `V10` trait. We won't add workarounds just to support that trait on older Xcode versions, where it exposed V10 configuration headers to V9 builds.
+
+Compiling a disabled SentryCrash file is acceptable; including its crash-recording code in a V10 binary or starting SentryCrash is not. Keep recorder code separate from shared SDK code. A `SentryCrash` name alone is not a reason to delete shared code or an API. Check the object files, final binaries, packaged headers and runtime behavior.
+
+Before the first V10 release:
+
+- Create the V9 maintenance branch.
+- Remove SentryCrash and the V9 adapters, headers, targets, startup code and tests from `main`.
+- Remove the V9/V10 selection flags and traits.
+- Simplify manifests, Xcode settings, test apps and CI for KSCrash only.
+- Delete tests and scripts needed only to select V9/V10 or check disabled SentryCrash files.
+- Keep API, behavior, NoUI, resource and packaging checks that still apply.
+
+Test both branches separately and verify that V10 no longer includes SentryCrash sources or dependencies.
+
+Related links:
+
+- [V10 backend isolation PR](https://github.com/getsentry/sentry-cocoa/pull/9182)
+- [Remove SentryCrash from V10](https://github.com/getsentry/sentry-cocoa/issues/8319)
+- [Files to remove or replace for V10](SENTRYCRASH_V10_MIGRATION_LEDGER.md)
+- [V10 build checks](BUILD.md#temporary-v10-development-verification)

@@ -1,0 +1,31 @@
+#ifndef SentryCrashV9_h
+#define SentryCrashV9_h
+
+#import "SentryCrash.h"
+#import "SentryCrashAsync.h"
+#import "SentryCrashBinaryImageCache.h"
+#import "SentryCrashC.h"
+#import "SentryCrashDebug.h"
+#import "SentryCrashDefaultMachineContextWrapper.h"
+#import "SentryCrashDynamicLinker.h"
+#import "SentryCrashInstallation+Private.h"
+#import "SentryCrashInstallation.h"
+#import "SentryCrashIsAppImage.h"
+#import "SentryCrashMachineContext.h"
+#import "SentryCrashMachineContextWrapper.h"
+#import "SentryCrashMachineContext_Apple.h"
+#import "SentryCrashMonitor.h"
+#import "SentryCrashMonitorType.h"
+#import "SentryCrashMonitor_AppState.h"
+#import "SentryCrashMonitor_CPPException.h"
+#import "SentryCrashMonitor_Signal.h"
+#import "SentryCrashMonitor_System.h"
+#import "SentryCrashReportFilter.h"
+#import "SentryCrashReportSink.h"
+#import "SentryCrashReportWriter.h"
+#import "SentryCrashScopeObserver.h"
+#import "SentryCrashStackCursor.h"
+#import "SentryCrashThread.h"
+#import "SentryCrashUUIDConversion.h"
+
+#endif // SentryCrashV9_h

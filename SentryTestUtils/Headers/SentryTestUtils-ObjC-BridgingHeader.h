@@ -19,10 +19,12 @@
 #import "SentryAppStartTrackerHelper.h"
 #import "SentryClient+Private.h"
 #import "SentryClient+TestInit.h"
-#import "SentryCrash+Test.h"
-#import "SentryCrashCachedData.h"
-#import "SentryCrashInstallation+Private.h"
-#import "SentryCrashMonitor_MachException.h"
+#if !SDK_V10
+#    import "SentryCrash+Test.h"
+#    import "SentryCrashCachedData.h"
+#    import "SentryCrashInstallation+Private.h"
+#    import "SentryCrashMonitor_MachException.h"
+#endif
 #import "SentryDefaultThreadInspector.h"
 #import "SentryFileManager+Test.h"
 #import "SentryFileManagerHelper.h"
