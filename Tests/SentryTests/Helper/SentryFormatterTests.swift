@@ -1,3 +1,4 @@
+import SentryTestUtilsObjC
 import XCTest
 
 final class SentryFormatterTests: XCTestCase {

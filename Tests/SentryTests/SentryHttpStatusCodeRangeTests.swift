@@ -1,6 +1,7 @@
 #if SWIFT_PACKAGE
 @_spi(Private) @testable import SentrySwift
 #endif
+import SentryTestUtilsObjC
 import XCTest
 
 class SentryHttpStatusCodeRangeTests: XCTestCase {

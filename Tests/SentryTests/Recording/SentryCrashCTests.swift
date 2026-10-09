@@ -4,6 +4,8 @@
 #else
 @testable import Sentry
 #endif
+import _SentryPrivate
+import SentryTestUtilsObjC
 import XCTest
 
 final class SentryCrashCTests: XCTestCase {

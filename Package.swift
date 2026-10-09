@@ -301,7 +301,6 @@ targets += [
         name: "SentryTestUtilsObjC",
         dependencies: ["SentryObjCInternal", "SentrySwift", "_SentryPrivate", "SentryHeaders", "SentryTestUtilsObjCpp"],
         path: "SentryTestUtils/SourcesObjC",
-        publicHeadersPath: "include",
         cSettings: [.headerSearchPath(".")] + cSettings,
         linkerSettings: [
             .linkedLibrary("z"),
@@ -313,7 +312,6 @@ targets += [
         name: "SentryTestUtilsObjCpp",
         dependencies: ["SentryObjCInternal", "_SentryPrivate"],
         path: "SentryTestUtils/SourcesObjCpp",
-        publicHeadersPath: ".",
         cSettings: cSettings,
         cxxSettings: cxxSettings,
         linkerSettings: [

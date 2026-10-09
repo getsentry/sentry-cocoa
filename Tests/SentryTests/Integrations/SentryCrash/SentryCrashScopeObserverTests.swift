@@ -5,6 +5,7 @@
 @_spi(Private) import Sentry
 #endif
 @_spi(Private) import SentryTestUtils
+import _SentryPrivate
 import XCTest
 
 class SentryCrashScopeObserverTests: XCTestCase {
