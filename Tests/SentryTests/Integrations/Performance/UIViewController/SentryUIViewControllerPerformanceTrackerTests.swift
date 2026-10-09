@@ -8,6 +8,7 @@
 #else
 @_spi(Private) @testable import Sentry
 #endif
+import _SentryPrivate
 import ObjectiveC
 import XCTest
 

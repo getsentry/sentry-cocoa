@@ -4,10 +4,10 @@
 import UIKit
 #endif
 @_spi(Private) @testable import SentrySwift
-import _SentryPrivate
 #else
 @_spi(Private) @testable import Sentry
 #endif
+import _SentryPrivate
 // swiftlint:disable file_length
 import Foundation
 import XCTest

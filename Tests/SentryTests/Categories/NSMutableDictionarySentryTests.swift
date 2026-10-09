@@ -1,3 +1,4 @@
+import SentryTestUtilsObjC
 import XCTest
 
 class NSMutableDictionarySentryTests: XCTestCase {

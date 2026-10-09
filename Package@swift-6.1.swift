@@ -335,7 +335,6 @@ targets += [
         name: "SentryTestUtilsObjC",
         dependencies: ["SentryObjCInternal", "SentrySwift", "_SentryPrivate", "SentryHeaders", "SentryTestUtilsObjCpp"],
         path: "SentryTestUtils/SourcesObjC",
-        publicHeadersPath: "include",
         cSettings: [
             .headerSearchPath("."),
             .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
@@ -350,7 +349,6 @@ targets += [
         name: "SentryTestUtilsObjCpp",
         dependencies: ["SentryObjCInternal", "_SentryPrivate"],
         path: "SentryTestUtils/SourcesObjCpp",
-        publicHeadersPath: ".",
         cSettings: [
             .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
         ] + cSettings,

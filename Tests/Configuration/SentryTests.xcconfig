@@ -6,7 +6,8 @@ SENTRY_TEST_UTILS_TARGET = SentryTestUtils
 // (originally added to Sentry.xcconfig in #3716, but it's only needed in the test targets, not the SDK target)
 // This config is required so the test code can access the SentryPrivate module. Removing this setting
 // leads to an error: no such module '_SentryPrivate' when including the XCFramework
-HEADER_SEARCH_PATHS = $(SRCROOT)/Sources/Sentry/include/** $(SRCROOT)/SentryTestUtils/SourcesObjC/include "$(CONFIGURATION_TEMP_DIR)/$(SENTRY_TEST_UTILS_TARGET).build/DerivedSources"
+// The helper include directories expose their Clang modules to both Objective-C and Swift.
+HEADER_SEARCH_PATHS = $(SRCROOT)/Sources/Sentry/include/** $(SRCROOT)/SentryTestUtils/SourcesObjC/include $(SRCROOT)/SentryTestUtils/SourcesObjCpp/include "$(CONFIGURATION_TEMP_DIR)/$(SENTRY_TEST_UTILS_TARGET).build/DerivedSources"
 
 PRODUCT_NAME = Tests
 INFOPLIST_FILE = Tests/SentryTests/Info.plist

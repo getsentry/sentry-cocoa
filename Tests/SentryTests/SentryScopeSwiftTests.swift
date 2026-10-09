@@ -5,6 +5,7 @@
 @_spi(Private) @testable import Sentry
 #endif
 @_spi(Private) import SentryTestUtils
+import _SentryPrivate
 import XCTest
 
 class SentryScopeSwiftTests: XCTestCase {
