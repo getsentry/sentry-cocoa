@@ -1,11 +1,11 @@
 #if SDK_V10
 #if SWIFT_PACKAGE
 @_spi(Private) @testable import SentrySwift
-import _SentryPrivate
 #else
 @_spi(Private) @testable import Sentry
 #endif
 internal import KSCrashRecordingCore
+import _SentryPrivate
 import Foundation
 import XCTest
 

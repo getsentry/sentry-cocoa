@@ -1,7 +1,5 @@
-#if SWIFT_PACKAGE
-import _SentryPrivate
-#endif
 #if SDK_V10
+import _SentryPrivate
 import Darwin
 import Foundation
 import XCTest

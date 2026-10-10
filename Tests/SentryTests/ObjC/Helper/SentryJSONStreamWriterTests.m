@@ -1,6 +1,6 @@
 @import XCTest;
 
-#import "SentryJSONStreamWriter.h"
+@import SentryTestUtilsObjC;
 
 #include <float.h>
 #include <math.h>

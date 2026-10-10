@@ -29,7 +29,7 @@
 #    import <XCTest/XCTest.h>
 #    import <objc/runtime.h>
 
-#    import "SentryCrashObjC.h"
+@import SentryTestUtilsObjC;
 
 @interface SomeObjCClass : NSObject {
     int someIvar;

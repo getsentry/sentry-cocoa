@@ -24,7 +24,7 @@
 //
 
 #if !SDK_V10
-#    import "SentryCrashMach-O.h"
+@import SentryTestUtilsObjC;
 #    import <XCTest/XCTest.h>
 #    import <mach-o/loader.h>
 #    import <mach/mach.h>

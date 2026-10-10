@@ -28,7 +28,7 @@
 #if !SDK_V10
 #    import <XCTest/XCTest.h>
 
-#    import "SentryCrashNSErrorUtil.h"
+@import SentryTestUtilsObjC;
 
 @interface NSError_SimpleConstructor_Tests : XCTestCase
 @end

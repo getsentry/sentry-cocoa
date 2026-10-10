@@ -28,7 +28,7 @@
 
 #    import <XCTest/XCTest.h>
 
-#    import "SentryCrashMemory.h"
+@import SentryTestUtilsObjC;
 #    import "TestThread.h"
 
 @interface SentryCrashMemory_Tests : XCTestCase

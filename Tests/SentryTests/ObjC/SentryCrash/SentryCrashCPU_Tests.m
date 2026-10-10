@@ -28,8 +28,8 @@
 
 #    import <XCTest/XCTest.h>
 
-#    import "SentryCrashCPU.h"
-#    import "SentryCrashMachineContext.h"
+@import _SentryPrivate;
+@import SentryTestUtilsObjC;
 #    import "TestThread.h"
 
 #    import <mach/mach.h>

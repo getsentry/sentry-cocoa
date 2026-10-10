@@ -31,7 +31,7 @@
 #    include <stdio.h>
 #    include <string.h>
 
-#    import "SentryCrashFileUtils.h"
+@import SentryTestUtilsObjC;
 
 typedef struct {
     char path[SentryCrashFU_MAX_PATH_LENGTH];
