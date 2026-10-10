@@ -4,22 +4,7 @@
 #import "SentryEvent.h"
 #import "SentrySwift.h"
 
-@interface SentryClientInternal (SentryTestClientWrapperInitializer)
-
-- (instancetype)initWithOptions:(NSObject *)options
-                   dateProvider:(id<SentryCurrentDateProvider>)dateProvider
-               transportAdapter:(SentryTransportAdapter *)transportAdapter
-                    fileManager:(SentryFileManager *)fileManager
-                threadInspector:(SentryDefaultThreadInspector *)threadInspector
-             debugImageProvider:(SentryDebugImageProvider *)debugImageProvider
-                         random:(id<SentryRandomProtocol>)random
-                         locale:(NSLocale *)locale
-                       timezone:(NSTimeZone *)timezone
-           eventContextEnricher:(id<SentryEventContextEnricher>)eventContextEnricher
-               binaryImageCache:(SentryBinaryImageCache *)binaryImageCache
-           dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
-
-@end
+#import "SentryClient+TestInit.h"
 
 @implementation SentryTestClientWrapper
 
@@ -87,6 +72,21 @@
                               withScope:(SentryScope *)scope
 {
     return event.eventId;
+}
+
+- (void)captureReplayEvent:(SentryReplayEvent *)event
+           replayRecording:(SentryReplayRecording *)recording
+                     video:(NSURL *)video
+                 withScope:(SentryScope *)scope
+{
+    [self wrapper_captureReplayEvent:event replayRecording:recording video:video withScope:scope];
+}
+
+- (void)wrapper_captureReplayEvent:(id)event
+                   replayRecording:(id)recording
+                             video:(NSURL *)video
+                         withScope:(SentryScope *)scope
+{
 }
 
 - (void)captureFeedback:(SentryFeedback *)feedback withScope:(SentryScope *)scope

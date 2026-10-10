@@ -30,7 +30,7 @@ open class TestClient: SentryTestClientWrapper {
         }
 
         super.init(
-            options: options,
+            testOptions: options,
             dateProvider: TestCurrentDateProvider(),
             transportAdapter: TestTransportAdapter(transports: [TestTransport()], options: options),
             fileManager: fileManager,
@@ -48,7 +48,7 @@ open class TestClient: SentryTestClientWrapper {
     // Without this override we get a fatal error: use of unimplemented initializer
     // see https://stackoverflow.com/questions/28187261/ios-swift-fatal-error-use-of-unimplemented-initializer-init
     public override init(
-        options: NSObject,
+        testOptions options: NSObject,
         dateProvider: Any,
         transportAdapter: Any,
         fileManager: Any,
@@ -62,7 +62,7 @@ open class TestClient: SentryTestClientWrapper {
         dispatchQueueWrapper: Any
     ) {
         super.init(
-            options: options,
+            testOptions: options,
             dateProvider: dateProvider,
             transportAdapter: transportAdapter,
             fileManager: fileManager,
@@ -77,36 +77,6 @@ open class TestClient: SentryTestClientWrapper {
         )
     }
 
-    @_spi(Private) @nonobjc public convenience init(
-        options: NSObject,
-        dateProvider: SentryCurrentDateProvider,
-        transportAdapter: SentryTransportAdapter,
-        fileManager: SentryFileManager,
-        threadInspector: SentryDefaultThreadInspector,
-        debugImageProvider: SentryDebugImageProvider,
-        random: SentryRandomProtocol,
-        locale: Locale,
-        timezone: TimeZone,
-        eventContextEnricher: SentryEventContextEnricher,
-        binaryImageCache: SentryBinaryImageCache,
-        dispatchQueueWrapper: SentryDispatchQueueWrapper
-    ) {
-        self.init(
-            options: options,
-            dateProvider: dateProvider as Any,
-            transportAdapter: transportAdapter as Any,
-            fileManager: fileManager as Any,
-            threadInspector: threadInspector as Any,
-            debugImageProvider: debugImageProvider as Any,
-            random: random as Any,
-            locale: locale,
-            timezone: timezone,
-            eventContextEnricher: eventContextEnricher as Any,
-            binaryImageCache: binaryImageCache as Any,
-            dispatchQueueWrapper: dispatchQueueWrapper as Any
-        )
-    }
-    
     @_spi(Private)
     public var captureSessionInvocations = Invocations<SentrySession>()
     @_spi(Private)

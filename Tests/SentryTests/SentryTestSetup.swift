@@ -17,10 +17,10 @@ enum SentryTestSetup {
         #endif
     }
 
-    // The duplicated V10 test target has a distinct module name. Some UIEventTracker tests
-    // assert on symbols that include the module name.
+    // Only Xcode duplicates the V10 target; SwiftPM uses SentryTests in both modes.
+    // Some tests assert on symbols that include the module name.
     static var testPrefix: String {
-        #if SDK_V10
+        #if SDK_V10 && !SWIFT_PACKAGE
         "SentryTestsV10"
         #else
         "SentryTests"

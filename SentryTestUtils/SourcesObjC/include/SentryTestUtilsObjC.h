@@ -9,10 +9,17 @@
 
 #import "SentryTestUtilsObjC-SDKHeaders.h"
 
+// Test-only selectors on the real SDK classes.
+#import "SentryClient+TestInit.h"
+#import "SentryHub+Test.h"
+#import "SentrySDKInternal+Tests.h"
+#import "SentrySDKTestAccess.h"
+
 // Test helpers.
 #import "SentryTestClientWrapper.h"
 #import "SentryTestHubWrapper.h"
 #import "SentryTestProfilerWrapper.h"
+#import "SentryTestSDKBridge.h"
 #import "SentryTestStateWrapper.h"
 
 #import "ExceptionCatcher.h"

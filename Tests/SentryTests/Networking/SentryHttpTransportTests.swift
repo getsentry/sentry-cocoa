@@ -171,7 +171,7 @@ class SentryHttpTransportTests: XCTestCase {
             dispatchQueueWrapper: SentryDispatchQueueWrapper? = nil,
             reachability: SentryReachability? = nil
         ) throws -> Transport {
-            return SentryHttpTransport(
+            return makeTestHttpTransport(
                 dsn: try XCTUnwrap(options.parsedDsn),
                 sendClientReports: options.sendClientReports,
                 cachedEnvelopeSendDelay: 0.0,

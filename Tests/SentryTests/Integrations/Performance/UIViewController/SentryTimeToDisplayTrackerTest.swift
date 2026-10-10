@@ -9,8 +9,6 @@ import Foundation
 import XCTest
 
 #if os(iOS) || os(tvOS) || os(visionOS)
-class TestDelayedWrapper: SentryDelayedFramesTracker {}
-
 class SentryTimeToDisplayTrackerTest: XCTestCase {
 
     private class Fixture {

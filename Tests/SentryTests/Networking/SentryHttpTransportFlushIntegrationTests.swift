@@ -183,7 +183,7 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
 
         let rateLimits = DefaultRateLimits(retryAfterHeaderParser: RetryAfterHeaderParser(httpDateParser: HttpDateParser(), currentDateProvider: currentDate), andRateLimitParser: RateLimitParser(currentDateProvider: currentDate), currentDateProvider: currentDate)
 
-        let transport = SentryHttpTransport(
+        let transport = makeTestHttpTransport(
             dsn: try XCTUnwrap(options.parsedDsn),
             sendClientReports: options.sendClientReports,
             cachedEnvelopeSendDelay: 0.0,

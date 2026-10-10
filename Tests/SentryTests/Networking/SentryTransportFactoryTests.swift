@@ -30,7 +30,7 @@ class SentryTransportFactoryTests: XCTestCase {
         ))
 
         // -- Act --
-        let transports = TransportInitializer.initTransports(
+        let transports = TestTransportFactory.initTransports(
             options,
             dateProvider: dateProvider,
             sentryFileManager: fileManager,
@@ -71,7 +71,7 @@ class SentryTransportFactoryTests: XCTestCase {
         ))
 
         // -- Act --
-        let transports = TransportInitializer.initTransports(
+        let transports = TestTransportFactory.initTransports(
             options,
             dateProvider: dateProvider,
             sentryFileManager: fileManager,
@@ -101,7 +101,7 @@ class SentryTransportFactoryTests: XCTestCase {
         options.enableSpotlight = true
 
         // -- Act --
-        let transports = TransportInitializer.initTransports(
+        let transports = TestTransportFactory.initTransports(
             options,
             dateProvider: dateProvider,
             sentryFileManager: try SentryFileManager(
@@ -119,7 +119,7 @@ class SentryTransportFactoryTests: XCTestCase {
             $0.isKind(of: SentrySpotlightTransport.self)
         })
         XCTAssertTrue(transports.contains {
-            $0.isKind(of: SentryHttpTransport.self)
+            $0.isKind(of: TestTransportFactory.httpTransportClass)
         })
     }
 
@@ -132,7 +132,7 @@ class SentryTransportFactoryTests: XCTestCase {
         options.enableSpotlight = false
 
         // -- Act --
-        let transports = TransportInitializer.initTransports(
+        let transports = TestTransportFactory.initTransports(
             options,
             dateProvider: dateProvider,
             sentryFileManager: try SentryFileManager(
@@ -157,7 +157,7 @@ class SentryTransportFactoryTests: XCTestCase {
         options.enableSpotlight = true
 
         // -- Act --
-        let transports = TransportInitializer.initTransports(
+        let transports = TestTransportFactory.initTransports(
             options,
             dateProvider: dateProvider,
             sentryFileManager: try SentryFileManager(

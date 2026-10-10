@@ -39,6 +39,12 @@ NS_ASSUME_NONNULL_BEGIN
                               withScope:(SentryScope *)scope
     NS_SWIFT_NAME(wrapper_captureFatalEvent(_:session:scope:));
 
+- (void)wrapper_captureReplayEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryReplayEvent))event
+                   replayRecording:(SENTRY_SWIFT_MIGRATION_ID(SentryReplayRecording))recording
+                             video:(NSURL *)video
+                         withScope:(SentryScope *)scope
+    NS_SWIFT_NAME(wrapper_captureReplayEvent(_:recording:video:scope:));
+
 - (void)wrapper_captureFeedback:(SENTRY_SWIFT_MIGRATION_ID(SentryFeedback))feedback
                       withScope:(SentryScope *)scope
     NS_SWIFT_NAME(wrapper_capture(feedback:scope:));
