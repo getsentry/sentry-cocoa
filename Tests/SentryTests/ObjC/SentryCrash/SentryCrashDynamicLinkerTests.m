@@ -1,6 +1,6 @@
 #if !SDK_V10
+@import _SentryPrivate;
 @import SentryTestUtilsObjC;
-#    import "SentryCrashDynamicLinker.h"
 #    import <XCTest/XCTest.h>
 #    import <mach-o/dyld.h>
 #    import <mach-o/dyld_images.h>

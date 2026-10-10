@@ -28,8 +28,8 @@
 #if !SDK_V10
 #    import <XCTest/XCTest.h>
 
+@import _SentryPrivate;
 @import SentryTestUtilsObjC;
-#    import "SentryCrashStackCursor.h"
 
 @interface SentryCrashMonitor_NSException_StackCursor_Tests : XCTestCase
 @end

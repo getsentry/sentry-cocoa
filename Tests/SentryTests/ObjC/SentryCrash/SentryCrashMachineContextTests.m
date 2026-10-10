@@ -3,6 +3,7 @@
 
 #    import "SentryCrashMachineContext.h"
 #    import "SentryCrashMachineContext_Apple.h"
+@import _SentryPrivate;
 @import SentryTestUtilsObjC;
 #    import "TestThread.h"
 #    import <mach/mach.h>

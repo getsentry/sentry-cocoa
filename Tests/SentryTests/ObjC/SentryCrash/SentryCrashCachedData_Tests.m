@@ -26,6 +26,7 @@
 #if !SDK_V10
 #    import <XCTest/XCTest.h>
 
+@import _SentryPrivate;
 @import SentryTestUtilsObjC;
 #    import "TestThread.h"
 
