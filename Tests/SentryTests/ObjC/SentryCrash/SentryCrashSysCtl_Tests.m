@@ -28,10 +28,10 @@
 #if !SDK_V10
 
 #    import <XCTest/XCTest.h>
+#    include <sys/sysctl.h>
 
 #    import "FileBasedTestCase.h"
-#    import "SentryAsyncSafeLog.h"
-#    import "SentryCrashSysCtl.h"
+@import SentryTestUtilsObjC;
 
 @interface SentryCrashSysCtl_Tests : FileBasedTestCase
 @end

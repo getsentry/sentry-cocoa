@@ -28,7 +28,7 @@
 #if !SDK_V10
 #    import <XCTest/XCTest.h>
 
-#    import "SentryCrashMach.h"
+@import SentryTestUtilsObjC;
 #    include <mach/exception_types.h>
 #    include <mach/kern_return.h>
 

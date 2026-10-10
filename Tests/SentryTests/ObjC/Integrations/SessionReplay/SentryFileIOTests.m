@@ -1,6 +1,6 @@
 @import XCTest;
 
-#import "SentryFileIO.h"
+@import SentryTestUtilsObjC;
 
 #include <pthread.h>
 #include <signal.h>

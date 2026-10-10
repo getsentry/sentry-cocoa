@@ -28,7 +28,7 @@
 
 #    import <XCTest/XCTest.h>
 
-#    import "SentryCrashCPU.h"
+@import SentryTestUtilsObjC;
 #    import "SentryCrashMachineContext.h"
 #    import "TestThread.h"
 

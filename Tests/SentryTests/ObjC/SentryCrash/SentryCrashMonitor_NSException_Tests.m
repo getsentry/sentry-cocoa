@@ -29,7 +29,7 @@
 #    import <XCTest/XCTest.h>
 
 #    import "SentryCrashMonitorContext.h"
-#    import "SentryCrashMonitor_NSException.h"
+@import SentryTestUtilsObjC;
 
 @interface SentryCrashMonitor_NSException_Tests : XCTestCase
 @end

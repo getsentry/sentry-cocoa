@@ -1,5 +1,5 @@
 #if !SDK_V10
-#    import "SentryCrashDynamicLinker+Test.h"
+@import SentryTestUtilsObjC;
 #    import "SentryCrashDynamicLinker.h"
 #    import <XCTest/XCTest.h>
 #    import <mach-o/dyld.h>

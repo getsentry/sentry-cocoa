@@ -28,9 +28,8 @@
 #if !SDK_V10
 #    import <XCTest/XCTest.h>
 
-#    import "SentryCrashNSErrorUtil.h"
+@import SentryTestUtilsObjC;
 #    import "SentryCrashReportFilter.h"
-#    import "SentryCrashReportFilterBasic.h"
 
 @interface SentryCrash_TestNilFilter : NSObject <SentryCrashReportFilter>
 

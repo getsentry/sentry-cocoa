@@ -1,4 +1,4 @@
-#import "SentryAsyncSafeLog.h"
+@import SentryTestUtilsObjC;
 #import <XCTest/XCTest.h>
 
 @interface SentryAsyncSafeLog : XCTestCase
