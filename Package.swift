@@ -301,7 +301,7 @@ targets += [
         name: "SentryTestUtilsObjC",
         dependencies: ["SentryObjCInternal", "SentrySwift", "_SentryPrivate", "SentryHeaders", "SentryTestUtilsObjCpp"],
         path: "SentryTestUtils/SourcesObjC",
-        cSettings: [.headerSearchPath(".")] + cSettings,
+        cSettings: [.headerSearchPath("Utils")] + cSettings,
         linkerSettings: [
             .linkedLibrary("z"),
             // Equality categories have no referenced symbols to pull them out of a static archive.

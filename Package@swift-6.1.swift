@@ -336,7 +336,7 @@ targets += [
         dependencies: ["SentryObjCInternal", "SentrySwift", "_SentryPrivate", "SentryHeaders", "SentryTestUtilsObjCpp"],
         path: "SentryTestUtils/SourcesObjC",
         cSettings: [
-            .headerSearchPath("."),
+            .headerSearchPath("Utils"),
             .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
         ] + cSettings,
         linkerSettings: [

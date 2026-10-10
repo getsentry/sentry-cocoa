@@ -14,29 +14,31 @@ class SentryEnvelopeRateLimitTests: XCTestCase {
 // but we need a strong reference to make the test work.
     private var delegate: TestEnvelopeRateLimitDelegate!
 // swiftlint:enable weak_delegate
-    private var sut: EnvelopeRateLimit!
+    private var sut: EnvelopeRateLimit?
     
     override func setUp() {
         super.setUp()
-        rateLimits = TestRateLimits()
+        let limits = TestRateLimits()
+        rateLimits = limits
         delegate = TestEnvelopeRateLimitDelegate()
-        sut = EnvelopeRateLimit(rateLimits: rateLimits)
-        sut.setDelegate(delegate)
+        let limiter = EnvelopeRateLimit(rateLimits: limits)
+        sut = limiter
+        limiter.setDelegate(delegate)
     }
     
-    func testNoLimitsActive() {
+    func testNoLimitsActive() throws {
         let envelope = getEnvelope()
         
-        let actual = sut.removeRateLimitedItems(envelope)
+        let actual = try XCTUnwrap(sut).removeRateLimitedItems(envelope)
         
         XCTAssertEqual(envelope, actual)
     }
     
-    func testLimitForErrorActive() {
+    func testLimitForErrorActive() throws {
         rateLimits.rateLimits = [SentryDataCategory.error]
         
         let envelope = getEnvelope()
-        let actual = sut.removeRateLimitedItems(envelope)
+        let actual = try XCTUnwrap(sut).removeRateLimitedItems(envelope)
         
         XCTAssertEqual(3, actual.items.count)
         for item in actual.items {
@@ -49,11 +51,11 @@ class SentryEnvelopeRateLimitTests: XCTestCase {
         XCTAssertEqual(expected, delegate.envelopeItemsDropped.invocations)
     }
     
-    func testLimitForSessionActive() {
+    func testLimitForSessionActive() throws {
         rateLimits.rateLimits = [SentryDataCategory.session]
         
         let envelope = getEnvelope()
-        let actual = sut.removeRateLimitedItems(envelope)
+        let actual = try XCTUnwrap(sut).removeRateLimitedItems(envelope)
         
         XCTAssertEqual(3, actual.items.count)
         for item in actual.items {
@@ -66,7 +68,7 @@ class SentryEnvelopeRateLimitTests: XCTestCase {
         XCTAssertEqual(expected, delegate.envelopeItemsDropped.invocations)
     }
     
-    func testLimitForCustomType() {
+    func testLimitForCustomType() throws {
         rateLimits.rateLimits = [SentryDataCategory.default]
         var envelopeItems = [SentryEnvelopeItem]()
         envelopeItems.append(SentryEnvelopeItem(event: Event()))
@@ -77,7 +79,7 @@ class SentryEnvelopeRateLimitTests: XCTestCase {
         
         let envelope = SentryEnvelope(id: SentryId(), items: envelopeItems)
         
-        let actual = sut.removeRateLimitedItems(envelope)
+        let actual = try XCTUnwrap(sut).removeRateLimitedItems(envelope)
         
         XCTAssertEqual(1, actual.items.count)
         XCTAssertEqual(SentryEnvelopeItemTypes.event, try XCTUnwrap(actual.items.first).header.type)

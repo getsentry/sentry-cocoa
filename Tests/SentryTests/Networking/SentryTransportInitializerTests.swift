@@ -32,7 +32,7 @@ class SentryTransportInitializerTests: XCTestCase {
         let options = Options()
         options.dsn = SentryTransportInitializerTests.dsnAsString
     
-        let result = TransportInitializer.initTransports(
+        let result = TestTransportFactory.initTransports(
             options,
             dateProvider: dateProvider,
             sentryFileManager: fileManager,
@@ -42,6 +42,6 @@ class SentryTransportInitializerTests: XCTestCase {
         XCTAssertEqual(result.count, 1)
         
         let firstTransport = result.first
-        XCTAssertEqual(firstTransport?.isKind(of: SentryHttpTransport.self), true)
+        XCTAssertEqual(firstTransport?.isKind(of: TestTransportFactory.httpTransportClass), true)
     }
 }

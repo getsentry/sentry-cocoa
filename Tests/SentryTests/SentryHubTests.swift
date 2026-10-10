@@ -1416,13 +1416,18 @@ class SentryHubTests: XCTestCase {
         assertNoEnvelopesCaptured()
     }
     
-    func testCaptureReplay() {
-        class SentryClientMockReplay: SentryClientInternal {
+    func testCaptureReplay() throws {
+        class SentryClientMockReplay: TestClient {
             var replayEvent: SentryReplayEvent?
             var replayRecording: SentryReplayRecording?
             var videoUrl: URL?
             var scope: Scope?
-            override func capture(_ replayEvent: SentryReplayEvent, replayRecording: SentryReplayRecording, video videoURL: URL, with scope: Scope) {
+            override func wrapper_captureReplayEvent(_ event: Any, recording: Any, video videoURL: URL, scope: Scope) {
+                guard let replayEvent = event as? SentryReplayEvent,
+                      let replayRecording = recording as? SentryReplayRecording else {
+                    XCTFail("Unexpected replay payload types")
+                    return
+                }
                 self.replayEvent = replayEvent
                 self.replayRecording = replayRecording
                 self.videoUrl = videoURL
@@ -1433,7 +1438,7 @@ class SentryHubTests: XCTestCase {
         
         let replayEvent = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(), replayType: .buffer, segmentId: 1)
         let replayRecording = SentryReplayRecording(segmentId: 3, size: 200, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 930, width: 390, extraEvents: [])
-        let videoUrl = URL(string: "https://sentry.io")!
+        let videoUrl = try XCTUnwrap(URL(string: "https://sentry.io"))
         
         sut.bindClient(mockClient)
         sut.captureReplayEvent(replayEvent, replayRecording: replayRecording, video: videoUrl)

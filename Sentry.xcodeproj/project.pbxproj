@@ -742,10 +742,12 @@
 		D49005020000000000000002 /* TestHubWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D49005010000000000000002 /* TestHubWrapperTests.swift */; };
 		D49005020000000000000003 /* ClearTestStateWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D49005010000000000000003 /* ClearTestStateWrapperTests.swift */; };
 		D49005020000000000000004 /* TestSdkHeaderImportsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D49005010000000000000004 /* TestSdkHeaderImportsTests.swift */; };
+		D49101020000000000000001 /* TestSDKAdaptersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D49101010000000000000001 /* TestSDKAdaptersTests.swift */; };
 		D49005030000000000000001 /* TestClientWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D49005010000000000000001 /* TestClientWrapperTests.swift */; };
 		D49005030000000000000002 /* TestHubWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D49005010000000000000002 /* TestHubWrapperTests.swift */; };
 		D49005030000000000000003 /* ClearTestStateWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D49005010000000000000003 /* ClearTestStateWrapperTests.swift */; };
 		D49005030000000000000004 /* TestSdkHeaderImportsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D49005010000000000000004 /* TestSdkHeaderImportsTests.swift */; };
+		D49101030000000000000001 /* TestSDKAdaptersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D49101010000000000000001 /* TestSDKAdaptersTests.swift */; };
 		D49B279F302E079E00FF88D3 /* SentryObjCCompat.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D49BE436302DFF3000FF88D3 /* SentryObjCCompat.framework */; };
 		D49B27A0302E079E00FF88D3 /* SentryObjCCompat.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D49BE436302DFF3000FF88D3 /* SentryObjCCompat.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D49B27A7302E07D300FF88D3 /* SentryObjC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D49BE469302DFF3300FF88D3 /* SentryObjC.framework */; };
@@ -1706,6 +1708,7 @@
 		D49005010000000000000002 /* TestHubWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestHubWrapperTests.swift; sourceTree = "<group>"; };
 		D49005010000000000000003 /* ClearTestStateWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClearTestStateWrapperTests.swift; sourceTree = "<group>"; };
 		D49005010000000000000004 /* TestSdkHeaderImportsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestSdkHeaderImportsTests.swift; sourceTree = "<group>"; };
+		D49101010000000000000001 /* TestSDKAdaptersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestSDKAdaptersTests.swift; sourceTree = "<group>"; };
 		D49B27C7302E07E600FF88D3 /* SentryTestUtilsDynamic.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SentryTestUtilsDynamic.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D49B51CE302E118500FF88D3 /* SentryObjCCompatV10.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = SentryObjCCompatV10.xcconfig; sourceTree = "<group>"; };
 		D49B51CF302E118500FF88D3 /* SentryObjCV10.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = SentryObjCV10.xcconfig; sourceTree = "<group>"; };
@@ -1831,18 +1834,18 @@
 		D49005040000000000000001 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			publicHeaders = (
-				SourcesObjC/include/SentryTestClientWrapper.h,
-				SourcesObjC/include/SentryTestHubWrapper.h,
-				SourcesObjC/include/SentryTestStateWrapper.h,
+				"SourcesObjC/include/Wrappers/SentryClientWrapper.h",
+				"SourcesObjC/include/Wrappers/SentryHubWrapper.h",
+				"SourcesObjC/include/Utils/SentryTestState.h",
 			);
 			target = 8431F00929B284F200D8DC56 /* SentryTestUtils */;
 		};
 		D49005040000000000000002 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			publicHeaders = (
-				SourcesObjC/include/SentryTestClientWrapper.h,
-				SourcesObjC/include/SentryTestHubWrapper.h,
-				SourcesObjC/include/SentryTestStateWrapper.h,
+				"SourcesObjC/include/Wrappers/SentryClientWrapper.h",
+				"SourcesObjC/include/Wrappers/SentryHubWrapper.h",
+				"SourcesObjC/include/Utils/SentryTestState.h",
 			);
 			target = 1C2FEF2649BB40C532CF4441 /* SentryTestUtilsV10 */;
 		};
@@ -3132,6 +3135,7 @@
 				D49005010000000000000001 /* TestClientWrapperTests.swift */,
 				D49005010000000000000002 /* TestHubWrapperTests.swift */,
 				D49005010000000000000004 /* TestSdkHeaderImportsTests.swift */,
+				D49101010000000000000001 /* TestSDKAdaptersTests.swift */,
 				D4CBA2512DE06D1600581618 /* TestConstantTests.swift */,
 				624729172DE5980500DFEE00 /* TestCurrentDateProviderTests.swift */,
 				D44B16712DE464A9006DBDB3 /* TestDispatchFactoryTests.swift */,
@@ -5055,6 +5059,7 @@
 				D49005030000000000000001 /* TestClientWrapperTests.swift in Sources */,
 				D49005030000000000000002 /* TestHubWrapperTests.swift in Sources */,
 				D49005030000000000000004 /* TestSdkHeaderImportsTests.swift in Sources */,
+				D49101030000000000000001 /* TestSDKAdaptersTests.swift in Sources */,
 				097CACB838680DA09F3380D4 /* TestInfoPlistWrapperTests.swift in Sources */,
 				09FEF56506F10EEB581DD5C5 /* TestConstantTests.swift in Sources */,
 			);
@@ -5124,6 +5129,7 @@
 				D49005020000000000000001 /* TestClientWrapperTests.swift in Sources */,
 				D49005020000000000000002 /* TestHubWrapperTests.swift in Sources */,
 				D49005020000000000000004 /* TestSdkHeaderImportsTests.swift in Sources */,
+				D49101020000000000000001 /* TestSDKAdaptersTests.swift in Sources */,
 				D4599F8F2E99113E0045BB95 /* TestInfoPlistWrapperTests.swift in Sources */,
 				D4CBA2532DE06D1600581618 /* TestConstantTests.swift in Sources */,
 			);
@@ -5852,7 +5858,10 @@
 					"-Wno-error=nullable-to-nonnull-conversion",
 					"-Wno-error=nullability-completeness",
 				);
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/SentryTestUtils/SourcesObjC/include";
+				SWIFT_INCLUDE_PATHS = (
+					"$(SRCROOT)/SentryTestUtils/SourcesObjC/include",
+					"$(SRCROOT)/SentryTestUtils/SourcesObjCpp/include",
+				);
 			};
 			name = ReleaseV10;
 		};
@@ -5921,7 +5930,10 @@
 					"-Wno-error=nullable-to-nonnull-conversion",
 					"-Wno-error=nullability-completeness",
 				);
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/SentryTestUtils/SourcesObjC/include";
+				SWIFT_INCLUDE_PATHS = (
+					"$(SRCROOT)/SentryTestUtils/SourcesObjC/include",
+					"$(SRCROOT)/SentryTestUtils/SourcesObjCpp/include",
+				);
 			};
 			name = DebugV10;
 		};
@@ -6035,7 +6047,6 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_INCLUDE_PATHS = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "Tests/SentryTests/SentryTests-Bridging-Header.h";
 				SWIFT_OBJC_INTEROP_MODE = objc;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
@@ -6069,7 +6080,6 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_INCLUDE_PATHS = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "Tests/SentryTests/SentryTests-Bridging-Header.h";
 				SWIFT_OBJC_INTEROP_MODE = objc;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
@@ -6104,7 +6114,6 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_INCLUDE_PATHS = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "Tests/SentryTests/SentryTests-Bridging-Header.h";
 				SWIFT_OBJC_INTEROP_MODE = objc;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
@@ -6139,7 +6148,6 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_INCLUDE_PATHS = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "Tests/SentryTests/SentryTests-Bridging-Header.h";
 				SWIFT_OBJC_INTEROP_MODE = objc;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
@@ -6174,7 +6182,6 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_INCLUDE_PATHS = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "Tests/SentryTests/SentryTests-Bridging-Header.h";
 				SWIFT_OBJC_INTEROP_MODE = objc;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
@@ -6209,7 +6216,6 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_INCLUDE_PATHS = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "Tests/SentryTests/SentryTests-Bridging-Header.h";
 				SWIFT_OBJC_INTEROP_MODE = objc;
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 5.0;
@@ -6243,7 +6249,6 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_INCLUDE_PATHS = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "Tests/SentryTests/SentryTests-Bridging-Header.h";
 				SWIFT_OBJC_INTEROP_MODE = objc;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
@@ -6278,7 +6283,6 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_INCLUDE_PATHS = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "Tests/SentryTests/SentryTests-Bridging-Header.h";
 				SWIFT_OBJC_INTEROP_MODE = objc;
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 5.0;
@@ -6312,7 +6316,6 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_INCLUDE_PATHS = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "Tests/SentryTests/SentryTests-Bridging-Header.h";
 				SWIFT_OBJC_INTEROP_MODE = objc;
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 5.0;
@@ -6421,7 +6424,10 @@
 					"-Wno-error=nullable-to-nonnull-conversion",
 					"-Wno-error=nullability-completeness",
 				);
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/SentryTestUtils/SourcesObjC/include";
+				SWIFT_INCLUDE_PATHS = (
+					"$(SRCROOT)/SentryTestUtils/SourcesObjC/include",
+					"$(SRCROOT)/SentryTestUtils/SourcesObjCpp/include",
+				);
 			};
 			name = TestV10;
 		};
@@ -6657,7 +6663,10 @@
 					"-Wno-error=nullable-to-nonnull-conversion",
 					"-Wno-error=nullability-completeness",
 				);
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/SentryTestUtils/SourcesObjC/include";
+				SWIFT_INCLUDE_PATHS = (
+					"$(SRCROOT)/SentryTestUtils/SourcesObjC/include",
+					"$(SRCROOT)/SentryTestUtils/SourcesObjCpp/include",
+				);
 			};
 			name = Debug;
 		};
@@ -6672,7 +6681,10 @@
 					"-Wno-error=nullable-to-nonnull-conversion",
 					"-Wno-error=nullability-completeness",
 				);
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/SentryTestUtils/SourcesObjC/include";
+				SWIFT_INCLUDE_PATHS = (
+					"$(SRCROOT)/SentryTestUtils/SourcesObjC/include",
+					"$(SRCROOT)/SentryTestUtils/SourcesObjCpp/include",
+				);
 			};
 			name = Release;
 		};
@@ -6727,7 +6739,6 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_INCLUDE_PATHS = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "Tests/SentryTests/SentryTests-Bridging-Header.h";
 				SWIFT_OBJC_INTEROP_MODE = objc;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
@@ -6762,7 +6773,6 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_INCLUDE_PATHS = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "Tests/SentryTests/SentryTests-Bridging-Header.h";
 				SWIFT_OBJC_INTEROP_MODE = objc;
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 5.0;
@@ -6875,7 +6885,6 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_INCLUDE_PATHS = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "Tests/SentryTests/SentryTests-Bridging-Header.h";
 				SWIFT_OBJC_INTEROP_MODE = objc;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
@@ -7042,7 +7051,10 @@
 					"-Wno-error=nullable-to-nonnull-conversion",
 					"-Wno-error=nullability-completeness",
 				);
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/SentryTestUtils/SourcesObjC/include";
+				SWIFT_INCLUDE_PATHS = (
+					"$(SRCROOT)/SentryTestUtils/SourcesObjC/include",
+					"$(SRCROOT)/SentryTestUtils/SourcesObjCpp/include",
+				);
 			};
 			name = TestCI;
 		};
@@ -7085,7 +7097,6 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_INCLUDE_PATHS = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "Tests/SentryTests/SentryTests-Bridging-Header.h";
 				SWIFT_OBJC_INTEROP_MODE = objc;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
@@ -7203,7 +7214,6 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "Tests/SentryTests/SentryTests-Bridging-Header.h";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 5.0;
 			};
@@ -7220,7 +7230,10 @@
 					"-Wno-error=nullable-to-nonnull-conversion",
 					"-Wno-error=nullability-completeness",
 				);
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/SentryTestUtils/SourcesObjC/include";
+				SWIFT_INCLUDE_PATHS = (
+					"$(SRCROOT)/SentryTestUtils/SourcesObjC/include",
+					"$(SRCROOT)/SentryTestUtils/SourcesObjCpp/include",
+				);
 			};
 			name = DebugWithoutUIKit;
 		};
@@ -7262,7 +7275,6 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_INCLUDE_PATHS = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "Tests/SentryTests/SentryTests-Bridging-Header.h";
 				SWIFT_OBJC_INTEROP_MODE = objc;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
@@ -7340,7 +7352,6 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "Tests/SentryTests/SentryTests-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 5.0;
@@ -7401,7 +7412,6 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "Tests/SentryTests/SentryTests-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 5.0;
@@ -7431,7 +7441,6 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "Tests/SentryTests/SentryTests-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 5.0;
@@ -7461,7 +7470,6 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "Tests/SentryTests/SentryTests-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 5.0;
@@ -7491,7 +7499,6 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "Tests/SentryTests/SentryTests-Bridging-Header.h";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 5.0;
 			};
@@ -7698,7 +7705,10 @@
 					"-Wno-error=nullable-to-nonnull-conversion",
 					"-Wno-error=nullability-completeness",
 				);
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/SentryTestUtils/SourcesObjC/include";
+				SWIFT_INCLUDE_PATHS = (
+					"$(SRCROOT)/SentryTestUtils/SourcesObjC/include",
+					"$(SRCROOT)/SentryTestUtils/SourcesObjCpp/include",
+				);
 			};
 			name = ReleaseWithoutUIKit;
 		};
@@ -7741,7 +7751,6 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_INCLUDE_PATHS = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "Tests/SentryTests/SentryTests-Bridging-Header.h";
 				SWIFT_OBJC_INTEROP_MODE = objc;
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 5.0;
@@ -7817,7 +7826,6 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "Tests/SentryTests/SentryTests-Bridging-Header.h";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 5.0;
 			};
@@ -7986,7 +7994,6 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_INCLUDE_PATHS = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "Tests/SentryTests/SentryTests-Bridging-Header.h";
 				SWIFT_OBJC_INTEROP_MODE = objc;
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 5.0;
@@ -8184,7 +8191,6 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "Tests/SentryTests/SentryTests-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 5.0;
@@ -8226,7 +8232,6 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "Tests/SentryTests/SentryTests-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 5.0;
@@ -12646,7 +12651,10 @@
 					"-Wno-error=nullable-to-nonnull-conversion",
 					"-Wno-error=nullability-completeness",
 				);
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/SentryTestUtils/SourcesObjC/include";
+				SWIFT_INCLUDE_PATHS = (
+					"$(SRCROOT)/SentryTestUtils/SourcesObjC/include",
+					"$(SRCROOT)/SentryTestUtils/SourcesObjCpp/include",
+				);
 			};
 			name = Test;
 		};
@@ -12689,7 +12697,6 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_INCLUDE_PATHS = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "Tests/SentryTests/SentryTests-Bridging-Header.h";
 				SWIFT_OBJC_INTEROP_MODE = objc;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
@@ -13332,7 +13339,6 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_INCLUDE_PATHS = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "Tests/SentryTests/SentryTests-Bridging-Header.h";
 				SWIFT_OBJC_INTEROP_MODE = objc;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;

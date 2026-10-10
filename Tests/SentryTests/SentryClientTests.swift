@@ -9,7 +9,7 @@ import XCTest
 
 extension SentryClientInternal {
     convenience init(options: Options, fileManager: SentryFileManager) {
-        let transports = TransportInitializer.initTransports(options, dateProvider: SentryDependencyContainer.sharedInstance().dateProvider, sentryFileManager: fileManager, rateLimits: SentryDependencyContainer.sharedInstance().rateLimits, reachability: TestSentryReachability())
+        let transports = TestTransportFactory.initTransports(options, dateProvider: SentryDependencyContainer.sharedInstance().dateProvider, sentryFileManager: fileManager, rateLimits: SentryDependencyContainer.sharedInstance().rateLimits, reachability: TestSentryReachability())
 
         let transportAdapter = SentryTransportAdapter(transports: transports, options: options)
 
@@ -4067,14 +4067,14 @@ final class SentryClientTests: XCTestCase {
 
 extension SentryClientTests {
 
-    final class SentryTestSessionDelegate: NSObject, SentrySessionDelegate {
+    final class SentryTestSessionDelegate: SentryTestSessionDelegateWrapper {
         private let handler: () -> SentrySession?
 
         init(handler: @escaping () -> SentrySession?) {
             self.handler = handler
         }
 
-        func incrementSessionErrors() -> SentrySession? {
+        override func wrapper_incrementSessionErrors() -> Any? {
             handler()
         }
     }

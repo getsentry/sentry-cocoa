@@ -1,6 +1,6 @@
 #if !SDK_V10
 #    import "SentryCrashMonitor_CPPException.h"
-#    include "SentryTestUtilsObjCpp-SDKHeaders.h"
+#    include "SentryTestUtilsObjCpp.h"
 #    import <XCTest/XCTest.h>
 
 #    include <stdexcept>
