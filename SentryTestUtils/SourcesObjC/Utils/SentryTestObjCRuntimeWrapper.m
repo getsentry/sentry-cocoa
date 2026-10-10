@@ -1,0 +1,67 @@
+#import "Utils/SentryTestObjCRuntimeWrapper.h"
+#import "SentryInternalDefines.h"
+#import "SentrySwift.h"
+#import <objc/runtime.h>
+
+@protocol SentryObjCRuntimeWrapper;
+
+@interface SentryTestObjCRuntimeWrapper ()
+
+@property (nonatomic, strong) id<SentryObjCRuntimeWrapper> objcRuntimeWrapper;
+
+@end
+
+@implementation SentryTestObjCRuntimeWrapper
+
+- (instancetype)init
+{
+    if (self = [super init]) {
+        self.objcRuntimeWrapper = [[SentryDependencyContainer sharedInstance] objcRuntimeWrapper];
+    }
+
+    return self;
+}
+
+- (const char **)copyClassNamesForImage:(const char *)image amount:(unsigned int *)outCount
+{
+    if (self.beforeGetClassList != nil) {
+        self.beforeGetClassList();
+    }
+
+    if (image == nil) {
+        return nil;
+    }
+
+    const char **result =
+        [self.objcRuntimeWrapper copyClassNamesForImage:SENTRY_UNWRAP_NULLABLE(const char, image)
+                                                 amount:outCount];
+
+    if (self.classesNames != nil) {
+        NSMutableArray *names = [[NSMutableArray alloc] init];
+        for (unsigned int i = 0; i < *outCount; i++) {
+            [names addObject:[NSString stringWithCString:result[i] encoding:NSUTF8StringEncoding]];
+        }
+
+        NSArray<NSString *> *newNames = self.classesNames(names);
+        free(result);
+
+        result = malloc(sizeof(char *) * newNames.count);
+        for (NSUInteger i = 0; i < newNames.count; i++) {
+            result[i] = [newNames[i] cStringUsingEncoding:NSUTF8StringEncoding];
+        }
+        *outCount = (unsigned int)newNames.count;
+    }
+
+    if (self.afterGetClassList != nil) {
+        self.afterGetClassList();
+    }
+
+    return result;
+}
+
+- (const char *)class_getImageName:(Class)cls
+{
+    return self.imageName;
+}
+
+@end

@@ -1834,18 +1834,18 @@
 		D49005040000000000000001 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			publicHeaders = (
-				SourcesObjC/include/SentryTestClientWrapper.h,
-				SourcesObjC/include/SentryTestHubWrapper.h,
-				SourcesObjC/include/SentryTestStateWrapper.h,
+				"SourcesObjC/include/Wrappers/SentryClientWrapper.h",
+				"SourcesObjC/include/Wrappers/SentryHubWrapper.h",
+				"SourcesObjC/include/Utils/SentryTestState.h",
 			);
 			target = 8431F00929B284F200D8DC56 /* SentryTestUtils */;
 		};
 		D49005040000000000000002 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			publicHeaders = (
-				SourcesObjC/include/SentryTestClientWrapper.h,
-				SourcesObjC/include/SentryTestHubWrapper.h,
-				SourcesObjC/include/SentryTestStateWrapper.h,
+				"SourcesObjC/include/Wrappers/SentryClientWrapper.h",
+				"SourcesObjC/include/Wrappers/SentryHubWrapper.h",
+				"SourcesObjC/include/Utils/SentryTestState.h",
 			);
 			target = 1C2FEF2649BB40C532CF4441 /* SentryTestUtilsV10 */;
 		};
@@ -5858,7 +5858,10 @@
 					"-Wno-error=nullable-to-nonnull-conversion",
 					"-Wno-error=nullability-completeness",
 				);
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/SentryTestUtils/SourcesObjC/include";
+				SWIFT_INCLUDE_PATHS = (
+					"$(SRCROOT)/SentryTestUtils/SourcesObjC/include",
+					"$(SRCROOT)/SentryTestUtils/SourcesObjCpp/include",
+				);
 			};
 			name = ReleaseV10;
 		};
@@ -5927,7 +5930,10 @@
 					"-Wno-error=nullable-to-nonnull-conversion",
 					"-Wno-error=nullability-completeness",
 				);
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/SentryTestUtils/SourcesObjC/include";
+				SWIFT_INCLUDE_PATHS = (
+					"$(SRCROOT)/SentryTestUtils/SourcesObjC/include",
+					"$(SRCROOT)/SentryTestUtils/SourcesObjCpp/include",
+				);
 			};
 			name = DebugV10;
 		};
@@ -6418,7 +6424,10 @@
 					"-Wno-error=nullable-to-nonnull-conversion",
 					"-Wno-error=nullability-completeness",
 				);
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/SentryTestUtils/SourcesObjC/include";
+				SWIFT_INCLUDE_PATHS = (
+					"$(SRCROOT)/SentryTestUtils/SourcesObjC/include",
+					"$(SRCROOT)/SentryTestUtils/SourcesObjCpp/include",
+				);
 			};
 			name = TestV10;
 		};
@@ -6654,7 +6663,10 @@
 					"-Wno-error=nullable-to-nonnull-conversion",
 					"-Wno-error=nullability-completeness",
 				);
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/SentryTestUtils/SourcesObjC/include";
+				SWIFT_INCLUDE_PATHS = (
+					"$(SRCROOT)/SentryTestUtils/SourcesObjC/include",
+					"$(SRCROOT)/SentryTestUtils/SourcesObjCpp/include",
+				);
 			};
 			name = Debug;
 		};
@@ -6669,7 +6681,10 @@
 					"-Wno-error=nullable-to-nonnull-conversion",
 					"-Wno-error=nullability-completeness",
 				);
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/SentryTestUtils/SourcesObjC/include";
+				SWIFT_INCLUDE_PATHS = (
+					"$(SRCROOT)/SentryTestUtils/SourcesObjC/include",
+					"$(SRCROOT)/SentryTestUtils/SourcesObjCpp/include",
+				);
 			};
 			name = Release;
 		};
@@ -7036,7 +7051,10 @@
 					"-Wno-error=nullable-to-nonnull-conversion",
 					"-Wno-error=nullability-completeness",
 				);
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/SentryTestUtils/SourcesObjC/include";
+				SWIFT_INCLUDE_PATHS = (
+					"$(SRCROOT)/SentryTestUtils/SourcesObjC/include",
+					"$(SRCROOT)/SentryTestUtils/SourcesObjCpp/include",
+				);
 			};
 			name = TestCI;
 		};
@@ -7212,7 +7230,10 @@
 					"-Wno-error=nullable-to-nonnull-conversion",
 					"-Wno-error=nullability-completeness",
 				);
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/SentryTestUtils/SourcesObjC/include";
+				SWIFT_INCLUDE_PATHS = (
+					"$(SRCROOT)/SentryTestUtils/SourcesObjC/include",
+					"$(SRCROOT)/SentryTestUtils/SourcesObjCpp/include",
+				);
 			};
 			name = DebugWithoutUIKit;
 		};
@@ -7684,7 +7705,10 @@
 					"-Wno-error=nullable-to-nonnull-conversion",
 					"-Wno-error=nullability-completeness",
 				);
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/SentryTestUtils/SourcesObjC/include";
+				SWIFT_INCLUDE_PATHS = (
+					"$(SRCROOT)/SentryTestUtils/SourcesObjC/include",
+					"$(SRCROOT)/SentryTestUtils/SourcesObjCpp/include",
+				);
 			};
 			name = ReleaseWithoutUIKit;
 		};
@@ -12627,7 +12651,10 @@
 					"-Wno-error=nullable-to-nonnull-conversion",
 					"-Wno-error=nullability-completeness",
 				);
-				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/SentryTestUtils/SourcesObjC/include";
+				SWIFT_INCLUDE_PATHS = (
+					"$(SRCROOT)/SentryTestUtils/SourcesObjC/include",
+					"$(SRCROOT)/SentryTestUtils/SourcesObjCpp/include",
+				);
 			};
 			name = Test;
 		};

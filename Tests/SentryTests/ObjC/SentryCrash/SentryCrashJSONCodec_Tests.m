@@ -33,7 +33,7 @@
 
 #    import "FileBasedTestCase.h"
 @import SentryTestUtilsObjC;
-#    import "SentryInvalidJSONString.h"
+#    import "Utils/SentryInvalidJSONString.h"
 
 @interface SentryCrashJSONCodec_Tests : FileBasedTestCase
 @end

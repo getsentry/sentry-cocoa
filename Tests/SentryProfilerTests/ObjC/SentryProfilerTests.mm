@@ -2,18 +2,18 @@
 
 #if SENTRY_PROFILER_TESTS_SUPPORTED
 
-#    import "SentryContinuousProfiler+Test.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryHub.h"
 #    import "SentryProfileTimeseries.h"
 #    import "SentryProfiler+Private.h"
-#    import "SentryProfilerMocks.h"
 #    import "SentryProfilerSerialization+Test.h"
 #    import "SentryProfilerState+ObjCpp.h"
 #    import "SentrySwift.h"
 #    import "SentryThread.h"
 #    import "SentryTransaction.h"
 #    import "SentryTransactionContext+Private.h"
+#    import "Utils/SentryProfilerMocks.h"
+#    import "Wrappers/SentryContinuousProfilerWrapper.h"
 
 using namespace sentry::profiling;
 
