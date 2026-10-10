@@ -24,12 +24,12 @@ final class SentryBreadcrumbTrackerTests: XCTestCase {
     }
     
 #if os(iOS) || os(tvOS) || os(visionOS)
-    func testInit_whenUsingLegacyInitializer_shouldEnableBreadcrumbTextExtraction() {
+    func testInit_whenUsingLegacyInitializer_shouldDisableBreadcrumbTextExtraction() {
         // -- Act --
         let sut = SentryBreadcrumbTracker(reportAccessibilityIdentifier: true)
 
         // -- Assert --
-        XCTAssertTrue(sut.enableBreadcrumbTextExtraction)
+        XCTAssertFalse(sut.enableBreadcrumbTextExtraction)
     }
 
     func testExtractData_whenBreadcrumbTextExtractionDisabled_shouldIncludeDirectButtonTitle() {

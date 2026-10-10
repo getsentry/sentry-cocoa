@@ -30,7 +30,7 @@ import Cocoa
     convenience init(reportAccessibilityIdentifier: Bool) {
         self.init(
             reportAccessibilityIdentifier: reportAccessibilityIdentifier,
-            enableBreadcrumbTextExtraction: true
+            enableBreadcrumbTextExtraction: false
         )
     }
 
