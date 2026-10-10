@@ -23,6 +23,36 @@ final class SentryBreadcrumbTrackerTests: XCTestCase {
         clearTestState()
     }
     
+#if os(iOS) || os(tvOS) || os(visionOS)
+    func testInit_whenUsingLegacyInitializer_shouldDisableBreadcrumbTextExtraction() {
+        // -- Act --
+        let sut = SentryBreadcrumbTracker(reportAccessibilityIdentifier: true)
+
+        // -- Assert --
+        XCTAssertFalse(sut.enableBreadcrumbTextExtraction)
+    }
+
+    func testExtractData_whenBreadcrumbTextExtractionDisabled_shouldIncludeDirectButtonTitle() {
+        // -- Arrange --
+        let sut = SentryBreadcrumbTracker(
+            reportAccessibilityIdentifier: false,
+            enableBreadcrumbTextExtraction: false
+        )
+        let button = UIButton()
+        button.setTitle("Button title", for: .normal)
+
+        // -- Act --
+        let result = SentryBreadcrumbTracker.extractData(
+            from: button,
+            includeAccessibilityIdentifier: false
+        )
+
+        // -- Assert --
+        XCTAssertFalse(sut.enableBreadcrumbTextExtraction)
+        XCTAssertEqual(result["title"] as? String, "Button title")
+    }
+#endif
+
 #if os(iOS) || os(tvOS)
     func testStopRemovesSwizzleSendAction() {
         let sut = SentryBreadcrumbTracker(reportAccessibilityIdentifier: true)
