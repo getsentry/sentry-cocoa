@@ -309,7 +309,11 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
 
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         if let urlString = sessionTask.originalRequest?.url?.absoluteString,
-           isNetworkDetailCaptureEnabled(for: urlString, options: options) {
+           isNetworkDetailCaptureEnabled(
+               for: urlString,
+               task: sessionTask,
+               options: options
+           ) {
             captureRequestDetails(
                 for: sessionTask,
                 networkCaptureBodies: options.sessionReplay.networkCaptureBodies,
@@ -384,7 +388,11 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
     func captureResponseDetails(_ data: Data, response: URLResponse, request requestURL: URL, task: URLSessionTask) {
         let urlString = requestURL.absoluteString
         guard let options = hub.currentOptions,
-              isNetworkDetailCaptureEnabled(for: urlString, options: options) else {
+              isNetworkDetailCaptureEnabled(
+                  for: urlString,
+                  task: task,
+                  options: options
+              ) else {
             return
         }
 
@@ -726,8 +734,52 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
     // MARK: - Session Replay network details
 
     #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-    private func isNetworkDetailCaptureEnabled(for urlString: String, options: Options) -> Bool {
-        options.sessionReplay.isNetworkDetailCaptureEnabled(for: urlString)
+    private func isNetworkDetailCaptureEnabled(
+        for urlString: String,
+        task: URLSessionTask,
+        options: Options
+    ) -> Bool {
+        let replayOptions = options.sessionReplay
+        let snapshot = replayOptions.networkDetailUrlPatternsSnapshot()
+
+        if let cached = task.withNetworkTrackerState({
+            $0.networkDetailCaptureDecisions[urlString]
+        }),
+           cached.replayOptions === replayOptions,
+           cached.patternVersion == snapshot.version {
+            return cached.isEnabled
+        }
+
+        // Perform regex matching outside the task-state lock and configuration lock.
+        let result = replayOptions.isNetworkDetailCaptureEnabled(
+            for: urlString,
+            allowUrls: snapshot.allowUrls,
+            denyUrls: snapshot.denyUrls
+        )
+
+        return task.withNetworkTrackerState { state in
+            let currentVersion = replayOptions.networkDetailURLPatternVersion
+
+            // Another callback may have populated the cache while matching.
+            if let cached = state.networkDetailCaptureDecisions[urlString],
+               cached.replayOptions === replayOptions,
+               cached.patternVersion == currentVersion {
+                return cached.isEnabled
+            }
+
+            if snapshot.version != currentVersion {
+                return result
+            }
+
+            state.networkDetailCaptureDecisions[urlString] =
+                URLSessionTaskNetworkTrackerState.NetworkDetailCaptureDecision(
+                    replayOptions: replayOptions,
+                    patternVersion: snapshot.version,
+                    isEnabled: result
+                )
+
+            return result
+        }
     }
 
     private func captureRequestDetails(
