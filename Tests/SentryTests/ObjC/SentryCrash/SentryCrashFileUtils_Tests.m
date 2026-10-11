@@ -27,6 +27,7 @@
 
 #if !SDK_V10
 #    import "FileBasedTestCase.h"
+#    include <errno.h>
 #    include <fcntl.h>
 #    include <stdio.h>
 #    include <string.h>
@@ -357,6 +358,112 @@ isFileUtilsCanaryIntact(const GuardedSentryCrashFUPathBuffer *buffer)
     XCTAssertEqualObjects(actualFileContents, fileContents);
 }
 
+- (void)testWriteBuffered_whenFlushFails_shouldPreservePendingBytes
+{
+    // -- Arrange --
+    NSString *path = [self generateFileWithString:@"read only"];
+    int fd = open(path.UTF8String, O_RDONLY);
+    XCTAssertGreaterThan(fd, 0);
+    if (fd <= 0) {
+        if (fd == 0) {
+            close(fd);
+        }
+        return;
+    }
+    // Extra storage keeps repeated appends safe even with the unfixed implementation.
+    char buffer[1024 + 16];
+    char payload[1025];
+    memset(payload, 'a', sizeof(payload));
+    for (int pending = 1024; pending >= 1020; pending -= 4) {
+        memset(buffer, 0xa5, sizeof(buffer));
+        SentryCrashBufferedWriter writer
+            = { .fd = fd, .buffer = buffer, .bufferLength = 1024, .position = 0 };
+        XCTAssertTrue(sentrycrashfu_writeBufferedWriter(&writer, payload, pending));
+        NSData *expected = [NSData dataWithBytes:buffer length:sizeof(buffer)];
+
+        // -- Act & Assert --
+        for (int attempt = 0; attempt < 2; attempt++) {
+            XCTAssertFalse(sentrycrashfu_writeBufferedWriter(&writer, "12345678", 8));
+            XCTAssertEqual(writer.position, pending);
+            XCTAssertEqualObjects([NSData dataWithBytes:buffer length:sizeof(buffer)], expected);
+        }
+        XCTAssertFalse(sentrycrashfu_writeBufferedWriter(&writer, payload, sizeof(payload)));
+        XCTAssertEqual(writer.position, pending);
+        XCTAssertEqualObjects([NSData dataWithBytes:buffer length:sizeof(buffer)], expected);
+    }
+    close(fd);
+}
+
+- (void)testWriteBuffered_whenPartialFlushFails_shouldPreservePendingBytes
+{
+    // -- Arrange --
+    int descriptors[2];
+    int result = pipe(descriptors);
+    XCTAssertEqual(result, 0);
+    if (result != 0) {
+        return;
+    }
+    @try {
+        for (int i = 0; i < 2; i++) {
+            int flags = fcntl(descriptors[i], F_GETFL);
+            XCTAssertGreaterThanOrEqual(flags, 0);
+            result = fcntl(descriptors[i], F_SETFL, flags | O_NONBLOCK);
+            XCTAssertEqual(result, 0);
+            if (flags < 0 || result != 0) {
+                return;
+            }
+        }
+        char chunk[4096];
+        memset(chunk, 'a', sizeof(chunk));
+        int capacity = 0;
+        ssize_t count = 0;
+        // Bound discovery so unusual pipe semantics cannot hang the test.
+        while (
+            capacity < 1024 * 1024 && (count = write(descriptors[1], chunk, sizeof(chunk))) > 0) {
+            capacity += (int)count;
+        }
+        XCTAssertEqual(count, -1);
+        XCTAssertEqual(errno, EAGAIN);
+        XCTAssertGreaterThan(capacity, 0);
+        XCTAssertLessThan(capacity, 1024 * 1024);
+        if (count != -1 || capacity <= 0 || capacity >= 1024 * 1024) {
+            return;
+        }
+        int drained = 0;
+        while ((count = read(descriptors[0], chunk, sizeof(chunk))) > 0) {
+            drained += (int)count;
+        }
+        XCTAssertEqual(drained, capacity);
+        // Exceed the measured capacity, retaining the reader to get EAGAIN, not SIGPIPE.
+        int pending = capacity * 2;
+        NSMutableData *storage = [NSMutableData dataWithLength:pending + 8];
+        memset(storage.mutableBytes, 'a', pending);
+        memset((char *)storage.mutableBytes + pending, 0xa5, 8);
+        NSData *expected = [storage copy];
+        SentryCrashBufferedWriter writer = { .fd = descriptors[1],
+            .buffer = storage.mutableBytes,
+            .bufferLength = pending,
+            .position = pending };
+
+        // -- Act --
+        bool success = sentrycrashfu_writeBufferedWriter(&writer, "12345678", 8);
+
+        // -- Assert --
+        XCTAssertFalse(success);
+        XCTAssertEqual(writer.position, pending);
+        XCTAssertEqualObjects(storage, expected);
+        int received = 0;
+        while ((count = read(descriptors[0], chunk, sizeof(chunk))) > 0) {
+            received += (int)count;
+        }
+        XCTAssertGreaterThan(received, 0);
+        XCTAssertLessThan(received, pending);
+    } @finally {
+        close(descriptors[0]);
+        close(descriptors[1]);
+    }
+}
+
 - (void)testWriteBuffered_Flush
 {
     int writeBufferSize = 5;
@@ -368,13 +475,14 @@ isFileUtilsCanaryIntact(const GuardedSentryCrashFUPathBuffer *buffer)
     XCTAssertTrue(
         sentrycrashfu_openBufferedWriter(&writer, path.UTF8String, writeBuffer, writeBufferSize));
     XCTAssertTrue(sentrycrashfu_writeBufferedWriter(&writer, fileContents.UTF8String, writeSize));
-    sentrycrashfu_flushBufferedWriter(&writer);
+    XCTAssertTrue(sentrycrashfu_writeBufferedWriter(&writer, "abc", 3));
+    XCTAssertTrue(sentrycrashfu_flushBufferedWriter(&writer));
     NSError *error = nil;
     NSString *actualFileContents = [NSString stringWithContentsOfFile:path
                                                              encoding:NSUTF8StringEncoding
                                                                 error:&error];
     XCTAssertNil(error);
-    XCTAssertEqualObjects(actualFileContents, fileContents);
+    XCTAssertEqualObjects(actualFileContents, [fileContents stringByAppendingString:@"abc"]);
     sentrycrashfu_closeBufferedWriter(&writer);
 }
 
@@ -388,6 +496,7 @@ isFileUtilsCanaryIntact(const GuardedSentryCrashFUPathBuffer *buffer)
     NSString *path = [self generateTempFilePath];
     XCTAssertTrue(
         sentrycrashfu_openBufferedWriter(&writer, path.UTF8String, writeBuffer, writeBufferSize));
+    XCTAssertTrue(sentrycrashfu_writeBufferedWriter(&writer, "abc", 3));
     XCTAssertTrue(sentrycrashfu_writeBufferedWriter(&writer, fileContents.UTF8String, writeSize));
     sentrycrashfu_closeBufferedWriter(&writer);
     NSError *error = nil;
@@ -395,7 +504,7 @@ isFileUtilsCanaryIntact(const GuardedSentryCrashFUPathBuffer *buffer)
                                                              encoding:NSUTF8StringEncoding
                                                                 error:&error];
     XCTAssertNil(error);
-    XCTAssertEqualObjects(actualFileContents, fileContents);
+    XCTAssertEqualObjects(actualFileContents, [@"abc" stringByAppendingString:fileContents]);
 }
 
 - (void)testWriteBuffered_DataIsSmaller

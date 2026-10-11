@@ -549,12 +549,14 @@ sentrycrashfu_writeBufferedWriter(
     SentryCrashBufferedWriter *writer, const char *restrict const data, const int length)
 {
     if (length > writer->bufferLength - writer->position) {
-        sentrycrashfu_flushBufferedWriter(writer);
+        if (!sentrycrashfu_flushBufferedWriter(writer)) {
+            return false;
+        }
     }
     if (length > writer->bufferLength) {
         return sentrycrashfu_writeBytesToFD(writer->fd, data, length);
     }
-    // memcpy here cannot write out of bounds: the flush above resets writer->position to 0 if
+    // memcpy here cannot write out of bounds: a successful flush resets writer->position to 0 if
     // length would otherwise overflow the remaining buffer, and the second check returns
     // early when length itself exceeds the entire buffer. After both checks we are guaranteed
     // length <= writer->bufferLength - writer->position, which is exactly the space remaining
