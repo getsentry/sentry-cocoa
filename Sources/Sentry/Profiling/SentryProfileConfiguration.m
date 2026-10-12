@@ -35,8 +35,10 @@
 }
 
 - (instancetype)initContinuousProfilingV2WaitingForFullDisplay:(BOOL)shouldWaitForFullDisplay
-                                               samplerDecision:(SentrySamplerDecision *)decision
-                                                profileOptions:(SentryProfileOptions *)options
+                                               samplerDecision:(SENTRY_SWIFT_MIGRATION_ID(
+                                                                   SentrySamplerDecision))decision
+                                                profileOptions:(SENTRY_SWIFT_MIGRATION_ID(
+                                                                   SentryProfileOptions))options
 {
     if (!(self = [self initWaitingForFullDisplay:shouldWaitForFullDisplay])) {
         return nil;

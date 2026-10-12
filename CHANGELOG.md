@@ -6,6 +6,7 @@
 
 - Fix a data race on the span end timestamp that could crash in `SentryTracer.trimEndTimestamp` when a child span finishes on another thread while its transaction finishes (#9305)
 - Validate feedback payloads before transport and align the managed form's message counter and errors with the cross-SDK input validation specification (#8973)
+- Read the initial `UIApplication.applicationState` asynchronously on the main queue when the SDK's dependency container is first accessed off the main thread, instead of blocking the calling thread while waiting for the main thread during app launch (#9304)
 - Prevent crash report buffer overflows when flushing pending data fails (#9317)
 
 ## 9.30.1
