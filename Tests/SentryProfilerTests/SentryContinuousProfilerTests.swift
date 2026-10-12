@@ -3,11 +3,11 @@
 #if SWIFT_PACKAGE
 @_spi(Private) @testable import SentrySwift
 import SentryTestUtilsObjC
-import SentryTestUtilsObjCpp
 #else
 @_spi(Private) @testable import Sentry
 #endif
 import _SentryPrivate
+import SentryTestUtilsObjCpp
 import XCTest
 
 final class SentryContinuousProfilerTests: XCTestCase {

@@ -185,7 +185,7 @@ private func run() throws {
 
     for umbrella in [
         "Sources/Sentry/include/SentryPrivate.h",
-        "SentryTestUtils/Headers/SentryTestUtils-ObjC-BridgingHeader.h",
+        "SentryTestUtils/SourcesObjC/include/SentryTestUtilsObjC-SDKHeaders.h",
         "Tests/SentryTests/SentryTests-Bridging-Header.h"
     ] {
         for name in try activeV10Imports(umbrella).intersection(v9HeaderNames).sorted() {

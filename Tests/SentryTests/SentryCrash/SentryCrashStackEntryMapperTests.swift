@@ -4,6 +4,7 @@
 #else
 @_spi(Private) @testable import Sentry
 #endif
+import _SentryPrivate
 import XCTest
 
 /** Some of the test parameters are copied during debugging a working implementation. */
