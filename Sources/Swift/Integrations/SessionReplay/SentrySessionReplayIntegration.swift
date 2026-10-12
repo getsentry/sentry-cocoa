@@ -185,7 +185,11 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
                 // trace would be attached to the wrong (new) segment while the recovered replay
                 // never receives it.
                 self.replayRecovery?.resumePreviousSessionReplay(event)
-            } else {
+            } else if !event.isFromEarlierAppRun {
+                // Events from an earlier app run, such as MetricKit diagnostics delivered on a
+                // later launch, weren't recorded by the current replay, so they get no replay
+                // context and don't register their trace on it.
+                //
                 // Associate the event's trace with the recording replay segment (#7964), so replays
                 // can be searched by trace ID. Skip replay_video events, which carry no trace of
                 // their own.

@@ -39,7 +39,7 @@ extern NSString *const DropSessionLogMessage;
                       withScope:(SentryScope *)scope
 {
     SentryHint *hint = [[SentryHint alloc] init];
-    [self populateHintAttachments:hint scope:scope isFatalEvent:YES];
+    [self populateHintAttachments:hint scope:scope isFromEarlierAppRun:YES];
     hint.attachments = [self processAttachmentsForEvent:event attachments:hint.attachments];
     SentryEvent *preparedEvent = [self prepareEvent:event
                                           withScope:scope
@@ -54,7 +54,7 @@ extern NSString *const DropSessionLogMessage;
     // Populate the hint so beforeSendTransaction sees the same attachments as for regular
     // transactions. Attachments are only informational here because storeEvent doesn't send them.
     SentryHint *hint = [[SentryHint alloc] init];
-    [self populateHintAttachments:hint scope:scope isFatalEvent:NO];
+    [self populateHintAttachments:hint scope:scope isFromEarlierAppRun:NO];
     SentryEvent *preparedEvent = [self prepareEvent:transaction
                                           withScope:scope
                              alwaysAttachStacktrace:NO
@@ -83,7 +83,7 @@ extern NSString *const DropSessionLogMessage;
                                               withScope:(SentryScope *)scope
                                                    hint:(SentryHint *)hint
 {
-    [self populateHintAttachments:hint scope:scope isFatalEvent:NO];
+    [self populateHintAttachments:hint scope:scope isFromEarlierAppRun:event.isFromEarlierAppRun];
     hint.attachments = [self processAttachmentsForEvent:event attachments:hint.attachments];
     SentryEvent *preparedEvent = [self prepareEvent:event
                                           withScope:scope

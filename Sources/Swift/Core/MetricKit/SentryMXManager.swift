@@ -68,6 +68,8 @@ final class SentryMXManager: NSObject {
     let enabledDiagnostics: Set<Diagnostic>
     let releaseName: String?
     let bundleInfo: [String: Any]
+    let processIdentifier: pid_t
+    let processStartDate: Date
 
     init(
         metricManager: SentryMetricManager = MXMetricManager.shared,
@@ -75,7 +77,9 @@ final class SentryMXManager: NSObject {
         attachDiagnosticAsAttachment: Bool,
         enabledDiagnostics: Set<Diagnostic> = Diagnostic.all.subtracting([.crash]),
         releaseName: String? = nil,
-        bundleInfo: [String: Any] = Bundle.main.infoDictionary ?? [:]
+        bundleInfo: [String: Any] = Bundle.main.infoDictionary ?? [:],
+        processIdentifier: pid_t = ProcessInfo.processInfo.processIdentifier,
+        processStartDate: Date = SentryDependencyContainer.sharedInstance().sysctlWrapper.processStartTimestamp
     ) {
         self.metricManager = metricManager
         self.inAppLogic = inAppLogic
@@ -83,6 +87,8 @@ final class SentryMXManager: NSObject {
         self.enabledDiagnostics = enabledDiagnostics
         self.releaseName = releaseName
         self.bundleInfo = bundleInfo
+        self.processIdentifier = processIdentifier
+        self.processStartDate = processStartDate
         super.init()
     }
 
@@ -218,7 +224,13 @@ extension SentryMXManager: MXMetricManagerSubscriber {
     ) {
         var event = Event(level: level ?? (handled ? .warning : .error))
         event.timestamp = timeStampBegin
-        applyMetadata(of: diagnostic, to: event)
+
+        if isFromEarlierAppRun(diagnostic: diagnostic, payloadTimeStampBegin: timeStampBegin) {
+            // The client doesn't apply the current scope to events from an earlier app run, so the
+            // event itself has to carry the release and the contexts known for the diagnostic.
+            event.isFromEarlierAppRun = true
+            applyMetadata(of: diagnostic, to: event, runningScope: SentrySDKInternal.currentHub().scope)
+        }
 
         let mechanism = Mechanism(type: diagnosticReport.mechanism)
         mechanism.handled = NSNumber(value: handled)
@@ -250,20 +262,9 @@ extension SentryMXManager: MXMetricManagerSubscriber {
         // Therefore we don't call captureFatalEvent.
         SentrySDKLog.debug("Capturing MetricKit payload event for diagnostic: \(diagnosticReport)")
 
-        // The event is captured with a copy of the current scope, so the changes below only
-        // apply to this event and never reach the hub's scope.
-        let scope = Scope(scope: SentrySDKInternal.currentHub().scope)
-
-        // The app and OS contexts have to be set on the scope rather than the event. The scope
-        // merge can only add or replace keys, so an event could never drop the running app and
-        // OS attributes that are unknown for the time the diagnostic was recorded.
-        if let appContext = Self.diagnosticAppContext(for: diagnostic, runningApp: scope.getContextForKey("app")) {
-            scope.setContext(value: appContext, key: "app")
-        }
-        if let osContext = Self.diagnosticOSContext(for: diagnostic, runningOS: scope.getContextForKey("os")) {
-            scope.setContext(value: osContext, key: "os")
-        }
-
+        // The raw diagnostic travels in the hint rather than on the scope, because the client
+        // doesn't send the scope's attachments with events from an earlier app run.
+        let hint = Hint()
         if attachDiagnosticAsAttachment {
             let diagnosticJSON = diagnostic.jsonRepresentation()
             let attachmentData: Data
@@ -274,10 +275,10 @@ extension SentryMXManager: MXMetricManagerSubscriber {
                 SentrySDKLog.warning("Failed to compact MetricKit diagnostic JSON: \(error)")
                 attachmentData = diagnosticJSON
             }
-            scope.addAttachment(Attachment(data: attachmentData, filename: "MXDiagnosticPayload.json"))
+            hint.attachments = [Attachment(data: attachmentData, filename: "MXDiagnosticPayload.json")]
         }
 
-        SentrySDKInternal.capture(event: event, scope: scope)
+        SentrySDKInternal.capture(event: event, scope: SentrySDKInternal.currentHub().scope, hint: hint)
         SentrySDKLog.debug("Captured MetricKit payload as event")
     }
 

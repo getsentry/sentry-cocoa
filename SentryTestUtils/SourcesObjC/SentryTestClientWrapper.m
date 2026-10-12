@@ -75,6 +75,20 @@
     return event.eventId;
 }
 
+- (SentryId *)captureEvent:(SentryEvent *)event
+                 withScope:(SentryScope *)scope
+                      hint:(SentryHint *_Nullable)hint
+{
+    return [self wrapper_captureEvent:event withScope:scope hint:hint];
+}
+
+- (SentryId *)wrapper_captureEvent:(SentryEvent *)event
+                         withScope:(SentryScope *)scope
+                              hint:(id _Nullable)hint
+{
+    return event.eventId;
+}
+
 - (SentryId *)captureFatalEvent:(SentryEvent *)event
                     withSession:(SentrySession *)session
                       withScope:(SentryScope *)scope

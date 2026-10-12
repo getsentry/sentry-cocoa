@@ -20,16 +20,17 @@ NS_ASSUME_NONNULL_BEGIN
 // callback, so the callback can add and remove attachments. After the callback returns, the
 // hint's attachment list is authoritative and is what the SDK sends.
 //
-// Fatal events are captured on the launch after the crash, so the scope's attachments belong to
-// the current app run and not to the crashed one. Only attachments the SDK captured at crash time
-// are sent with fatal events; the beforeSendWithHint callback can still add more.
+// Fatal events and other events from an earlier app run are captured on a later launch, so the
+// scope's attachments belong to the current app run and not to the one they describe. Only
+// attachments the SDK captured for the event, such as crash-time screenshots, are sent with them;
+// the beforeSendWithHint callback can still add more.
 - (void)populateHintAttachments:(SentryHint *)hint
                           scope:(SentryScope *)scope
-                   isFatalEvent:(BOOL)isFatalEvent
+            isFromEarlierAppRun:(BOOL)isFromEarlierAppRun
 {
     NSMutableArray<SentryAttachment *> *allAttachments =
         [NSMutableArray arrayWithArray:scope.crashReportAttachments];
-    if (!isFatalEvent) {
+    if (!isFromEarlierAppRun) {
         [allAttachments addObjectsFromArray:scope.attachments];
         SentryScope *cs = [self.currentScopeStorage scope];
         if (cs != nil) {
