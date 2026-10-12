@@ -8,6 +8,7 @@
 #import "../../../Sources/Sentry/SentryFileIO.h"
 #import "../../../Sources/Sentry/SentryJSONStreamWriter.h"
 #import "../../../Sources/Sentry/include/NSMutableDictionary+Sentry.h"
+#import "../../../Sources/Sentry/include/SentryCrashStackEntryMapper.h"
 #import "../../../Sources/Sentry/include/SentryFormatter.h"
 #import "../../../Sources/Sentry/include/SentryGeo+Private.h"
 #import "../../../Sources/Sentry/include/SentryHttpStatusCodeRange+Private.h"

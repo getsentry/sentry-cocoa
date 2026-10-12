@@ -9,14 +9,7 @@ import SentryTestUtilsObjC
 import _SentryPrivate
 import XCTest
 
-#if SWIFT_PACKAGE
-// The Xcode bridging header exposes the ObjC enum at module scope.
 typealias SentryProfileLifecycle = SentryProfileOptions.SentryProfileLifecycle
-#endif
-
-#if !os(macOS) && !SWIFT_PACKAGE
-class TestDelayedWrapper: SentryDelayedFramesTracker {}
-#endif
 
 class SentryProfileTestFixture {
     struct ThreadMetadata {
