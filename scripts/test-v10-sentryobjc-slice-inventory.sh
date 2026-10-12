@@ -58,6 +58,23 @@ make_plist xml1
 check xml-static-and-framework pass
 make_plist binary1
 check binary-static-and-framework pass
+
+FORBIDDEN_HEADER="$SCRIPT_DIR/../Sources/SentryCrash/Recording/Tools/SentryCrashSignalInfo.h"
+cp "$FORBIDDEN_HEADER" "$XCFRAMEWORK/static/CustomHeaders/"
+check static-recorder-header fail 'packages V9 recorder header (static): SentryCrashSignalInfo.h'
+rm "$XCFRAMEWORK/static/CustomHeaders/SentryCrashSignalInfo.h"
+
+FRAMEWORK="$XCFRAMEWORK/framework/SentryObjC.framework"
+mkdir -p "$FRAMEWORK/Versions/A"
+mv "$FRAMEWORK/Headers" "$FRAMEWORK/SentryObjC" "$FRAMEWORK/Versions/A/"
+ln -s A "$FRAMEWORK/Versions/Current"
+ln -s Versions/Current/Headers "$FRAMEWORK/Headers"
+ln -s Versions/Current/SentryObjC "$FRAMEWORK/SentryObjC"
+check versioned-framework pass
+cp "$FORBIDDEN_HEADER" "$FRAMEWORK/Headers/"
+check versioned-recorder-header fail 'packages V9 recorder header (framework): SentryCrashSignalInfo.h'
+rm "$FRAMEWORK/Headers/SentryCrashSignalInfo.h"
+
 cp "$WORK_DIR/info.json" "$WORK_DIR/valid-info.json"
 jq '.AvailableLibraries[0].LibraryPath = "../outside.a"' "$WORK_DIR/valid-info.json" > "$WORK_DIR/info.json"
 make_plist xml1

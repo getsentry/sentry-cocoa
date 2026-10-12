@@ -151,7 +151,7 @@ while IFS=$'\t' read -r identifier binary_path headers_path; do
   fi
 
   while IFS= read -r forbidden_header; do
-    if find "$headers_path" -type f -name "$forbidden_header" -print -quit | grep -q .; then
+    if find -H "$headers_path" -type f -name "$forbidden_header" -print -quit | grep -q .; then
       record_error "V10 SentryObjC slice packages V9 recorder header ($identifier): $forbidden_header"
     fi
   done < "$legacy_headers_path"

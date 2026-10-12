@@ -169,7 +169,7 @@ find "$REPO_ROOT/Sources/SentryCrashV9Headers/include" -type f \
   -exec basename {} \; | sort -u > "$legacy_headers_path"
 
 while IFS= read -r forbidden_header; do
-  if find "$FRAMEWORK_PATH/Headers" "$FRAMEWORK_PATH/PrivateHeaders" \
+  if find -H "$FRAMEWORK_PATH/Headers" "$FRAMEWORK_PATH/PrivateHeaders" \
     -type f -name "$forbidden_header" -print -quit 2>/dev/null | grep -q .; then
     record_error "V10 packages V9 recorder header: $forbidden_header"
   fi
