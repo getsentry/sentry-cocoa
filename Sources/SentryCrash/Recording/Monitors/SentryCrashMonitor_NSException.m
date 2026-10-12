@@ -39,7 +39,7 @@
 @import SentryCrashV9Swift;
 #    endif
 
-#    import "SentryLogC.h"
+#    include "SentryAsyncSafeLog.h"
 
 // ============================================================================
 #    pragma mark - Globals -
@@ -68,7 +68,7 @@ static SentryCrashBridge *g_bridge = nil;
 static void
 handleException(NSException *exception)
 {
-    SENTRY_LOG_DEBUG(@"Trapped exception %@", exception);
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("Trapped exception %p", (__bridge void *)exception);
     if (g_isEnabled) {
         thread_act_array_t threads = NULL;
         mach_msg_type_number_t numThreads = 0;
@@ -76,7 +76,7 @@ handleException(NSException *exception)
         // not document threading or reentrancy behavior.
         sentrycrashcm_notifyFatalException(false, &threads, &numThreads);
 
-        SENTRY_LOG_DEBUG(@"Filling out context.");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Filling out context.");
 
         char eventID[37];
         sentrycrashid_generate(eventID);
@@ -99,14 +99,14 @@ handleException(NSException *exception)
         crashContext->crashReason = [[exception reason] UTF8String];
         crashContext->stackCursor = &cursor;
 
-        SENTRY_LOG_DEBUG(@"Calling main crash handler.");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Calling main crash handler.");
         sentrycrashcm_handleException(crashContext);
 
         if (callstack != NULL) {
             free(callstack);
         }
         if (g_previousUncaughtExceptionHandler != NULL) {
-            SENTRY_LOG_DEBUG(@"Calling original exception handler.");
+            SENTRY_ASYNC_SAFE_LOG_DEBUG("Calling original exception handler.");
             g_previousUncaughtExceptionHandler(exception);
         }
     }
@@ -134,18 +134,19 @@ setEnabled(bool isEnabled)
     if (isEnabled != g_isEnabled) {
         g_isEnabled = isEnabled;
         if (isEnabled) {
-            SENTRY_LOG_DEBUG(@"Backing up original handler.");
+            SENTRY_ASYNC_SAFE_LOG_DEBUG("Backing up original handler.");
             g_previousUncaughtExceptionHandler = NSGetUncaughtExceptionHandler();
 
-            SENTRY_LOG_DEBUG(@"Setting new handler.");
+            SENTRY_ASYNC_SAFE_LOG_DEBUG("Setting new handler.");
             NSSetUncaughtExceptionHandler(&handleUncaughtException);
             if (g_bridge == nil) {
-                SENTRY_LOG_WARN(@"Bridge is nil; uncaughtExceptionHandler will not be set on the "
-                                @"crash reporter.");
+                SENTRY_ASYNC_SAFE_LOG_WARN("Bridge is nil; uncaughtExceptionHandler will not be "
+                                           "set on the crash reporter.");
             }
             g_bridge.crashReporter.uncaughtExceptionHandler = &handleUncaughtException;
         } else {
-            SENTRY_LOG_DEBUG(@"Restoring original handler.");
+            // Monitor shutdown can run while another thread holds the SDK logger's stdout lock.
+            SENTRY_ASYNC_SAFE_LOG_DEBUG("Restoring original handler.");
             NSSetUncaughtExceptionHandler(g_previousUncaughtExceptionHandler);
         }
     }

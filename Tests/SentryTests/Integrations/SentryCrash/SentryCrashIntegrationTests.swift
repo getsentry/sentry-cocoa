@@ -121,17 +121,23 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         }
 
         setEnabled(true)
-        let logOutput = TestLogOutput()
-        SentrySDKLog.setLogOutput(logOutput)
         SentrySDKLogSupport.configure(true, diagnosticLevel: .debug)
+        let logOutput = TestLogOutput()
+        let shutdownThread = Thread.current
+        SentrySDKLog.setOutput { message in
+            // SDK initialization can still be logging on background threads.
+            if Thread.current === shutdownThread {
+                logOutput.log(message)
+            }
+        }
 
         // -- Act --
         setEnabled(false)
 
         // -- Assert --
         XCTAssertFalse(isEnabled())
-        XCTAssertTrue(logOutput.loggedMessages.isEmpty,
-                      "Disabling the NSException monitor can run with other threads suspended. Logging must use SENTRY_ASYNC_SAFE_LOG instead of the SDK output callback, which can acquire stdout's lock.")
+        XCTAssertEqual(logOutput.loggedMessages.count, 0,
+                       "Disabling the NSException monitor must use async-safe logging because other threads can hold stdout's lock. SDK logs: \(logOutput.loggedMessages)")
     }
 
     // Test for GH-581
