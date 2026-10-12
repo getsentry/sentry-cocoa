@@ -32,6 +32,39 @@ final class TestSDKAdaptersTests: XCTestCase {
         XCTAssertIdentical(client.options, replacementOptions)
     }
 
+    func testScopeAccessors_whenUsingOriginalAPI_shouldPreservePropagationContext() {
+        // -- Arrange --
+        let scope = Scope()
+        let context = SentryPropagationContext()
+
+        // -- Act --
+        // Initializer expressions must also resolve without an ambiguous ObjC property overload.
+        scope.propagationContext = SentryPropagationContext(traceId: context.traceId, spanId: context.spanId)
+        let traceId = scope.propagationContext.traceId
+        scope.propagationContext = context
+
+        // -- Assert --
+        XCTAssertEqual(traceId, context.traceId)
+        XCTAssertIdentical(scope.propagationContext, context)
+        XCTAssertEqual(scope.propagationContext.traceId, scope.propagationContextTraceId)
+    }
+
+    func testTracingAccessors_whenUsingOriginalAPI_shouldPreserveTypedValues() {
+        // -- Arrange --
+        let context = TransactionContext(name: "test", nameSource: .custom, operation: "test", origin: "manual")
+        let tracer = SentryTracer(transactionContext: context, hub: nil)
+
+        // -- Act --
+        tracer.setMeasurement(name: "duration", value: 12, unit: MeasurementUnitDuration.millisecond)
+        let measurements: [String: SentryMeasurementValue] = tracer.measurements
+        let nameSource: SentryTransactionNameSource = context.nameSource
+
+        // -- Assert --
+        XCTAssertEqual(nameSource, .custom)
+        XCTAssertEqual(measurements["duration"]?.value, 12)
+        XCTAssertEqual(measurements["duration"]?.unit?.unit, "millisecond")
+    }
+
     func testSDKAccessors_whenUsingOriginalAPI_shouldPreserveOptionsAndEnvelopeDispatch() throws {
         // -- Arrange --
         let options = Options.noIntegrations()
@@ -130,6 +163,31 @@ final class TestSDKAdaptersTests: XCTestCase {
         XCTAssertEqual(delegate.invocations, 1)
         XCTAssertIdentical(Dynamic(client).sessionDelegate.asObject as? SessionDelegate, delegate)
     }
+
+    #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    func testSpanInitializer_whenImported_shouldPreserveContextAndFrameTracker() {
+        // -- Arrange --
+        let context = SpanContext(operation: "test")
+        let framesTracker = SentryDependencyContainer.sharedInstance().framesTracker
+
+        // -- Act --
+        let span = SentrySpanInternal(context: context, framesTracker: framesTracker)
+        let tracer = SentryTracer(context: context, framesTracker: nil)
+        let subclass = ImportedSpan(context: context, framesTracker: nil)
+
+        // -- Assert --
+        XCTAssertEqual(span.traceId, context.traceId)
+        XCTAssertEqual(span.spanId, context.spanId)
+        XCTAssertEqual(span.operation, "test")
+        XCTAssertIdentical(span.value(forKey: "framesTracker") as? SentryFramesTracker, framesTracker)
+        XCTAssertEqual(tracer.traceId, context.traceId)
+        XCTAssertNil(tracer.value(forKey: "framesTracker"))
+        XCTAssertEqual(subclass.traceId, context.traceId)
+    }
+
+    // Swift subclasses must not inherit two names for the same Objective-C initializer.
+    private final class ImportedSpan: SentrySpanInternal {}
+    #endif
 
     private final class SessionDelegate: SentryTestSessionDelegateWrapper {
         var invocations = 0
