@@ -77,6 +77,14 @@ archive_path="$ARCHIVE_DIR/$SDK.xcarchive"
 
 mkdir -p "$ARCHIVE_DIR" "$LIB_DIR"
 
+# Resolve into the archive's package cache before selecting its generated scheme.
+# Xcode 26 can lose that scheme when the first checkout regenerates schemes mid-archive.
+begin_group "Resolve package schemes"
+xcodebuild -list -workspace "$PACKAGE_PATH" \
+    -clonedSourcePackagesDirPath "$DERIVED_DATA/SourcePackages" \
+    2>&1 | tee "$ARCHIVE_DIR/$SDK-resolve.log"
+end_group
+
 begin_group "Archive $SCHEME for $SDK"
 log_info "  SDK:            $SDK"
 log_info "  Destination:    $destination"
@@ -89,6 +97,7 @@ set -o pipefail && NSUnbufferedIO=YES xcodebuild archive \
     -destination "$destination" \
     -archivePath "$archive_path" \
     -derivedDataPath "$DERIVED_DATA" \
+    -clonedSourcePackagesDirPath "$DERIVED_DATA/SourcePackages" \
     SKIP_INSTALL=NO \
     BUILD_LIBRARY_FOR_DISTRIBUTION=YES \
     CODE_SIGNING_REQUIRED=NO \
@@ -107,6 +116,39 @@ if [ ${#objects[@]} -eq 0 ]; then
     exit 1
 fi
 
+# Dependencies may archive extra legacy architectures that the Swift wrapper does not
+# support. Distributing their union would advertise incomplete slices (e.g. armv7k).
+# Use the wrapper's architecture set, but fail rather than silently omit a required slice.
+wrapper_objects=()
+
+for object in "${objects[@]}"; do
+    if [ "${object##*/}" = "SentryObjCCompat.o" ]; then
+        wrapper_objects+=( "$object" )
+    fi
+done
+
+if [ "${#wrapper_objects[@]}" -ne 1 ]; then
+    log_error "Expected one archived SentryObjCCompat.o, found ${#wrapper_objects[@]}"
+    exit 1
+fi
+
+read -r -a wrapper_archs <<< "$(xcrun lipo -archs "${wrapper_objects[0]}")"
+if [ "${#wrapper_archs[@]}" -eq 0 ]; then
+    log_error "Could not read archived wrapper architectures"
+    exit 1
+fi
+
+for object in "${objects[@]}"; do
+    for arch in "${wrapper_archs[@]}"; do
+        if ! xcrun lipo "$object" -verify_arch "$arch"; then
+            log_error "Missing required wrapper architectures ($arch) in $object"
+            exit 1
+        fi
+    done
+done
+
+log_info "  Distribution architectures: ${wrapper_archs[*]}"
+
 archive_dir="$LIB_DIR/$SDK"
 debug_static_lib="$archive_dir/libSentryObjC-Debug.a"
 static_lib="$archive_dir/libSentryObjC.a"
@@ -114,12 +156,29 @@ stripped_objects_dir="$archive_dir/stripped-objects"
 rm -rf "$stripped_objects_dir"
 mkdir -p "$stripped_objects_dir"
 
+architecture_libraries_dir="$archive_dir/architecture-libraries"
+rm -rf "$architecture_libraries_dir"
+mkdir -p "$architecture_libraries_dir"
+
+create_static_library() {
+    local output="$1"
+    shift
+    local architecture_libraries=()
+    for arch in "${wrapper_archs[@]}"; do
+        local library
+        library="$architecture_libraries_dir/$(basename "$output")-$arch.a"
+        libtool -static -arch_only "$arch" -no_warning_for_no_symbols -o "$library" "$@"
+        architecture_libraries+=( "$library" )
+    done
+    xcrun lipo -create "${architecture_libraries[@]}" -output "$output"
+}
+
 begin_group "Create static libraries for $SDK"
 log_info "  Objects:      ${#objects[@]} files"
 log_info "  Debug output: $debug_static_lib"
 # The dynamic framework build uses this unstripped archive to generate its separate dSYM.
 # It is an intermediate and is not distributed as the static SentryObjC binary.
-libtool -static -no_warning_for_no_symbols -o "$debug_static_lib" "${objects[@]}"
+create_static_library "$debug_static_lib" "${objects[@]}"
 
 stripped_objects=()
 for object in "${objects[@]}"; do
@@ -138,7 +197,7 @@ for object in "${objects[@]}"; do
 done
 
 log_info "  Static output: $static_lib"
-libtool -static -no_warning_for_no_symbols -o "$static_lib" "${stripped_objects[@]}"
+create_static_library "$static_lib" "${stripped_objects[@]}"
 end_group
 
 log_info "Static slice built: $static_lib"

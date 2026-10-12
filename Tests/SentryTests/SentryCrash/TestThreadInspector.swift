@@ -5,6 +5,7 @@
 #endif
 import _SentryPrivate
 import Foundation
+import SentryTestUtils
 
 class TestDefaultThreadInspector: SentryDefaultThreadInspector {
 

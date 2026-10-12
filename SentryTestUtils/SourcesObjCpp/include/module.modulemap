@@ -4,5 +4,6 @@ module SentryTestUtilsObjCpp {
     textual header "SentryContinuousProfiler+Test.h"
     textual header "SentryProfilerMocks.h"
     textual header "SentryTraceProfiler+Test.h"
+    textual header "SentryTestUtilsObjCpp-SDKHeaders.h"
     export *
 }

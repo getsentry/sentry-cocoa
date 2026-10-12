@@ -1,7 +1,5 @@
-#if SWIFT_PACKAGE
-import _SentryPrivate
-#endif
 #if SDK_V10
+import _SentryPrivate
 import Darwin
 import Foundation
 import XCTest
@@ -87,6 +85,12 @@ final class SentryKSCrashLegacyRecorderExclusionTests: XCTestCase {
             XCTAssertNotNil(dlsym(UnsafeMutableRawPointer(bitPattern: -2), symbol), "Missing compatibility symbol: \(symbol)")
         }
     }
+
+#if os(macOS)
+    func testKSCrashBuild_whenInspectingRuntime_shouldContainExceptionApplication() {
+        XCTAssertNotNil(NSClassFromString("SentryCrashExceptionApplication"))
+    }
+#endif
 
     func testKSCrashBuild_whenInspectingRuntime_shouldNotExposeBroadReporterProtocol() {
         XCTAssertNil(NSProtocolFromString("SentryCrashReporter"))

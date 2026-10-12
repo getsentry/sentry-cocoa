@@ -3,8 +3,8 @@
 #else
 @_spi(Private) @testable import Sentry
 #endif
+@_spi(Private) import SentryTestUtils
 import _SentryPrivate
-import SentryTestUtils
 import XCTest
 
 class SentryTransactionTests: XCTestCase {

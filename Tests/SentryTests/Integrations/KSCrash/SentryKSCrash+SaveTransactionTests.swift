@@ -1,9 +1,5 @@
 #if SDK_V10
-#if SWIFT_PACKAGE
 import _SentryPrivate
-#else
-@_spi(Private) @testable import Sentry
-#endif
 import Foundation
 import XCTest
 
