@@ -14,10 +14,10 @@ func envFlag(_ name: String) -> Bool {
     getenv(name).map { String(cString: $0) == "1" } ?? false
 }
 
-let enableV10 = envFlag("SDK_V10")
-let v10SwiftSettings: [SwiftSetting] = enableV10 ? [.define("SDK_V10")] : []
-let v10CSettings: [CSetting] = enableV10 ? [.define("SDK_V10", to: "1")] : []
-let v10CxxSettings: [CXXSetting] = enableV10 ? [.define("SDK_V10", to: "1")] : []
+let envSelectsV10 = envFlag("SDK_V10")
+let v10SwiftSettings: [SwiftSetting] = envSelectsV10 ? [.define("SDK_V10")] : []
+let v10CSettings: [CSetting] = envSelectsV10 ? [.define("SDK_V10", to: "1")] : []
+let v10CxxSettings: [CXXSetting] = envSelectsV10 ? [.define("SDK_V10", to: "1")] : []
 // SwiftPM's defaults do not reach Swift's Clang importer.
 let swiftSettings: [SwiftSetting] = [.define("SWIFT_PACKAGE")] + v10SwiftSettings
 let cSettings: [CSetting] = [.define("SWIFT_PACKAGE", to: "1")] + v10CSettings
@@ -37,7 +37,7 @@ var products: [Product] = [
     .library(name: "SentryDistribution", targets: ["SentryDistribution"])
 ]
 
-if !enableV10 {
+if !envSelectsV10 {
     // BEGIN:BINARY_PRODUCTS
     products += [
         .library(name: "Sentry", targets: ["Sentry", "SentryCppHelper"]),
@@ -57,7 +57,7 @@ var targets: [Target] = [
     .testTarget(name: "SentryDistributionTests", dependencies: ["SentryDistribution"], path: "Sources/SentryDistributionTests")
 ]
 
-if !enableV10 {
+if !envSelectsV10 {
     // BEGIN:BINARY_TARGETS
     targets += [
         .binaryTarget(
@@ -116,7 +116,7 @@ if !enableV10 {
 }
 
 // Targets required to support compile-from-source builds via SPM.
-if enableV10 {
+if envSelectsV10 {
     products.append(.library(name: "Sentry", targets: ["SentryObjCInternal"]))
 } else {
     products.append(.library(name: "SentrySPM", targets: ["SentryObjCInternal"]))
@@ -129,7 +129,7 @@ let sentrySwiftTarget: Target = .target(
     swiftSettings: swiftSettings
 )
 
-if enableV10 {
+if envSelectsV10 {
     sentrySwiftTarget.dependencies += [
         .product(name: "Recording", package: "KSCrash"),
         .product(name: "RecordingCore", package: "KSCrash")
@@ -162,7 +162,7 @@ let sentryObjCInternalCSettings: [CSetting] = [
     .headerSearchPath("Sentry")
 ] + cSettings
 
-let sentryPrivateDependencies: [Target.Dependency] = if enableV10 {
+let sentryPrivateDependencies: [Target.Dependency] = if envSelectsV10 {
     ["SentryHeaders", .product(name: "Recording", package: "KSCrash")]
 } else {
     ["SentryHeaders", "_SentryCrashV9Headers"]
@@ -172,7 +172,7 @@ targets += [
     // At least one source file is required, therefore we use a dummy class to satisfy the SPM build system
     .target(
         name: "SentryHeaders",
-        dependencies: enableV10 ? ["_SentryV10Configuration"] : [],
+        dependencies: envSelectsV10 ? ["_SentryV10Configuration"] : [],
         path: "Sources/Sentry",
         sources: ["SentryDummyPublicEmptyClass.m"],
         publicHeadersPath: "Public",
@@ -206,7 +206,7 @@ targets += [
 ]
 
 var sentryObjCInternalDependencies: [Target.Dependency] = ["SentrySwift"]
-if enableV10 {
+if envSelectsV10 {
     sentryObjCInternalDependencies.append(.product(name: "Recording", package: "KSCrash"))
 } else {
     sentrySwiftTarget.dependencies.append("_SentryCrashV9Headers")
@@ -315,7 +315,7 @@ targets += [
 
 // Match the entire V9-only Xcode profiler suite, including its wrapper tests.
 // Traits cannot remove targets, so source guards also exclude this suite when V10 is selected.
-if !enableV10 {
+if !envSelectsV10 {
     targets += [
         .testTarget(
             name: "SentryProfilerTests",
@@ -340,7 +340,7 @@ if !enableV10 {
     ]
 }
 
-let packageDependencies: [Package.Dependency] = enableV10 ? [.package(url: "https://github.com/getsentry/KSCrash.git", revision: "18a633dec20c265f03386294f9d82d208bb13094")] : []
+let packageDependencies: [Package.Dependency] = envSelectsV10 ? [.package(url: "https://github.com/getsentry/KSCrash.git", revision: "18a633dec20c265f03386294f9d82d208bb13094")] : []
 
 let package = Package(
     name: "Sentry",

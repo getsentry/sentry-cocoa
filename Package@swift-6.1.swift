@@ -17,16 +17,16 @@ func envFlag(_ name: String) -> Bool {
     getenv(name).map { String(cString: $0) == "1" } ?? false
 }
 
-let enableV10 = envFlag("SDK_V10")
+let envSelectsV10 = envFlag("SDK_V10")
 // Xcode 16.4 can expose inactive trait-conditioned configuration targets. Keep V9's
 // graph deterministic here; older-toolchain V10 development uses SDK_V10=1 instead.
-let v10SwiftSettings: [SwiftSetting] = enableV10 ? [.define("SDK_V10")] : []
-let v10CSettings: [CSetting] = enableV10 ? [.define("SDK_V10", to: "1")] : []
-let v10CxxSettings: [CXXSetting] = enableV10 ? [.define("SDK_V10", to: "1")] : []
-let kscrashDependencies: [Target.Dependency] = enableV10
+let v10SwiftSettings: [SwiftSetting] = envSelectsV10 ? [.define("SDK_V10")] : []
+let v10CSettings: [CSetting] = envSelectsV10 ? [.define("SDK_V10", to: "1")] : []
+let v10CxxSettings: [CXXSetting] = envSelectsV10 ? [.define("SDK_V10", to: "1")] : []
+let kscrashDependencies: [Target.Dependency] = envSelectsV10
     ? [.product(name: "Recording", package: "KSCrash")]
     : []
-let kscrashSwiftDependencies: [Target.Dependency] = kscrashDependencies + (enableV10
+let kscrashSwiftDependencies: [Target.Dependency] = kscrashDependencies + (envSelectsV10
     ? [.product(name: "RecordingCore", package: "KSCrash")]
     : [])
 // SwiftPM's defaults do not reach Swift's Clang importer.
@@ -48,7 +48,7 @@ var products: [Product] = [
     .library(name: "SentryDistribution", targets: ["SentryDistribution"])
 ]
 
-if !enableV10 {
+if !envSelectsV10 {
     // BEGIN:BINARY_PRODUCTS
     products += [
         .library(name: "Sentry", targets: ["Sentry", "SentryCppHelper"]),
@@ -68,7 +68,7 @@ var targets: [Target] = [
     .testTarget(name: "SentryDistributionTests", dependencies: ["SentryDistribution"], path: "Sources/SentryDistributionTests")
 ]
 
-if !enableV10 {
+if !envSelectsV10 {
     // BEGIN:BINARY_TARGETS
     targets += [
         .binaryTarget(
@@ -127,7 +127,7 @@ if !enableV10 {
 }
 
 // Targets required to support compile-from-source builds via SPM.
-if enableV10 {
+if envSelectsV10 {
     products.append(.library(name: "Sentry", targets: ["SentryObjCInternal"]))
 } else {
     products.append(.library(name: "SentrySPM", targets: ["SentryObjCInternal"]))
@@ -145,7 +145,7 @@ let sentrySwiftTarget: Target = .target(
         .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"]))
     ] + swiftSettings
 )
-if !enableV10 {
+if !envSelectsV10 {
     sentrySwiftTarget.dependencies.append(
         .target(name: "_SentryCrashV9Headers")
     )
@@ -180,7 +180,7 @@ let sentryObjCInternalCSettings: [CSetting] = [
 ] + cSettings
 
 var sentryPrivateDependencies: [Target.Dependency] = ["SentryHeaders"] + kscrashDependencies
-if !enableV10 {
+if !envSelectsV10 {
     sentryPrivateDependencies.append(
         .target(name: "_SentryCrashV9Headers")
     )
@@ -190,7 +190,7 @@ targets += [
     // At least one source file is required, therefore we use a dummy class to satisfy the SPM build system
     .target(
         name: "SentryHeaders",
-        dependencies: enableV10 ? [.target(name: "_SentryV10Configuration")] : [],
+        dependencies: envSelectsV10 ? [.target(name: "_SentryV10Configuration")] : [],
         path: "Sources/Sentry",
         sources: ["SentryDummyPublicEmptyClass.m"],
         publicHeadersPath: "Public",
@@ -228,7 +228,7 @@ targets += [
 ]
 
 var sentryObjCInternalDependencies: [Target.Dependency] = ["SentrySwift"] + kscrashDependencies
-if !enableV10 {
+if !envSelectsV10 {
     sentryObjCInternalDependencies += [
         .target(name: "SentryCrashV9"),
         .target(name: "_SentryCrashV9Headers")
@@ -362,7 +362,7 @@ targets += [
 
 // Match the entire V9-only Xcode profiler suite, including its wrapper tests.
 // Environment V10 excludes the V9-only profiler suite.
-if !enableV10 {
+if !envSelectsV10 {
     targets += [
         .testTarget(
             name: "SentryProfilerTests",
@@ -414,7 +414,6 @@ let package = Package(
     platforms: [.iOS(.v15), .macOS(.v12), .tvOS(.v15), .watchOS(.v9), .visionOS(.v1)],
     products: products,
     traits: [
-        .default(enabledTraits: []),
         .init(name: "NoUIFramework", description: "Build without UIKit/AppKit/SwiftUI framework linkage. Use for command-line tools or contexts where UI frameworks are unavailable."),
         .init(name: "_SentryInternalUITestSupport", description: "Internal support for Sentry's sample UI tests. Do not enable in production."),
         .init(name: "_SentryTest", description: "Internal SDK unit-test support for local development. Changes SDK behavior; not for consumers or production builds."),

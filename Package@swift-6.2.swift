@@ -17,15 +17,15 @@ func envFlag(_ name: String) -> Bool {
     getenv(name).map { String(cString: $0) == "1" } ?? false
 }
 
-let enableV10 = envFlag("SDK_V10")
-let v10SwiftSettings: [SwiftSetting] = enableV10
+let envSelectsV10 = envFlag("SDK_V10")
+let v10SwiftSettings: [SwiftSetting] = envSelectsV10
     ? [.define("SDK_V10")]
     : [.define("SDK_V10", .when(traits: ["V10"]))]
-let v10CSettings: [CSetting] = enableV10
+let v10CSettings: [CSetting] = envSelectsV10
     ? [.define("SDK_V10", to: "1")]
     : [.define("SDK_V10", to: "1", .when(traits: ["V10"]))]
 // PackageDescription uses distinct C and C++ setting types, so this cannot reuse v10CSettings.
-let v10CxxSettings: [CXXSetting] = enableV10
+let v10CxxSettings: [CXXSetting] = envSelectsV10
     ? [.define("SDK_V10", to: "1")]
     : [.define("SDK_V10", to: "1", .when(traits: ["V10"]))]
 // SwiftPM's defaults do not reach Swift's Clang importer.
@@ -33,7 +33,7 @@ let swiftSettings: [SwiftSetting] = [.define("SWIFT_PACKAGE")] + v10SwiftSetting
 let cSettings: [CSetting] = [.define("SWIFT_PACKAGE", to: "1")] + v10CSettings
 let cxxSettings: [CXXSetting] = [.define("SWIFT_PACKAGE", to: "1")] + v10CxxSettings
 
-let kscrashDependencyCondition: TargetDependencyCondition? = enableV10
+let kscrashDependencyCondition: TargetDependencyCondition? = envSelectsV10
     ? nil
     : .when(traits: ["V10"])
 
@@ -51,7 +51,7 @@ var products: [Product] = [
     .library(name: "SentryDistribution", targets: ["SentryDistribution"])
 ]
 
-if !enableV10 {
+if !envSelectsV10 {
     // BEGIN:BINARY_PRODUCTS
     products += [
         .library(name: "Sentry", targets: ["Sentry", "SentryCppHelper"]),
@@ -71,7 +71,7 @@ var targets: [Target] = [
     .testTarget(name: "SentryDistributionTests", dependencies: ["SentryDistribution"], path: "Sources/SentryDistributionTests")
 ]
 
-if !enableV10 {
+if !envSelectsV10 {
     // BEGIN:BINARY_TARGETS
     targets += [
         .binaryTarget(
@@ -130,7 +130,7 @@ if !enableV10 {
 }
 
 // Targets required to support compile-from-source builds via SPM.
-if enableV10 {
+if envSelectsV10 {
     products.append(.library(name: "Sentry", targets: ["SentryObjCInternal"]))
 } else {
     products.append(.library(name: "SentrySPM", targets: ["SentryObjCInternal"]))
@@ -158,7 +158,7 @@ let sentrySwiftTarget: Target = .target(
         .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"]))
     ] + swiftSettings
 )
-if !enableV10 {
+if !envSelectsV10 {
     sentrySwiftTarget.dependencies.append(
         .target(name: "_SentryCrashV9Headers")
     )
@@ -200,7 +200,7 @@ var sentryPrivateDependencies: [Target.Dependency] = [
         condition: kscrashDependencyCondition
     )
 ]
-if !enableV10 {
+if !envSelectsV10 {
     sentryPrivateDependencies.append(
         .target(name: "_SentryCrashV9Headers")
     )
@@ -255,7 +255,7 @@ var sentryObjCInternalDependencies: [Target.Dependency] = [
         condition: kscrashDependencyCondition
     )
 ]
-if !enableV10 {
+if !envSelectsV10 {
     sentryObjCInternalDependencies += [
         .target(name: "SentryCrashV9"),
         .target(name: "_SentryCrashV9Headers")
@@ -386,7 +386,7 @@ targets += [
 
 // Match the entire V9-only Xcode profiler suite, including its wrapper tests.
 // Traits cannot remove targets, so source guards also exclude this suite when V10 is selected.
-if !enableV10 {
+if !envSelectsV10 {
     targets += [
         .testTarget(
             name: "SentryProfilerTests",
@@ -438,7 +438,6 @@ let package = Package(
     platforms: [.iOS(.v15), .macOS(.v12), .tvOS(.v15), .watchOS(.v9), .visionOS(.v1)],
     products: products,
     traits: [
-        .default(enabledTraits: []),
         .init(name: "NoUIFramework", description: "Build without UIKit/AppKit/SwiftUI framework linkage. Use for command-line tools or contexts where UI frameworks are unavailable."),
         .init(name: "V10", description: "Development-only V10 API and KSCrash selection; removed when V9 branches off before V10 release."),
         .init(name: "_SentryInternalUITestSupport", description: "Internal support for Sentry's sample UI tests. Do not enable in production."),
