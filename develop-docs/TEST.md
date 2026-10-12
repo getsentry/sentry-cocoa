@@ -45,7 +45,23 @@ New Objective-C and Objective-C++ headers belong under `include/Wrappers/` for a
 
 Same-named forwarding headers exist only where an original SDK header needs to resolve an internal include by filename. Implementation-only forwarders remain in `SourcesObjC/`; `include/SentryCrashMonitorContext.h` must remain at the exported include root for Swift consumers of `SentryCrashReport.h`. These forwarders are header-search plumbing, not additional wrapper APIs.
 
+### Main SwiftPM Test Targets
+
+The manifests declare separate `SentryTests`, `SentryTestsObjC`, and `SentryTestsObjCpp` targets for the existing Swift, Objective-C, and Objective-C++ directories. The Swift target enables bare-slash regex literals, matching the project compiler default. The Clang targets use shared test-header modules rather than SDK directory search paths or Xcode header maps. V9/V10 selection continues to use the existing source guards.
+
+Tests that directly access the extracted `SentryCrashV9Swift` module are deferred to a dedicated V9 crash SwiftPM test target. The manifests exclude those test files from `SentryTests`; V9 crash-specific cases in the shared dependency-container and logging suites use `!SWIFT_PACKAGE` guards. They remain covered by the Xcode-project suite. Do not add a `SentryCrashV9Swift` dependency to the main package test target.
+
+`SentryTestUtilsObjC` copies `Tests/Resources` and `TestInfoPlist.plist` into one shared SwiftPM resource bundle. Use `sentryTestResourceBundle(for:)` in Swift or `SentryTestResourceBundle` in Objective-C, passing the calling test class. The accessor uses SwiftPM's generated bundle accessor for package tests and the calling test's bundle for the Xcode project. `.copy` preserves the `Resources/` directory and nested snapshot paths. The plist remains excluded from the Swift test target because the shared helper target owns it.
+
+UIKit tests also depend on the local `SentryTestUtilsDynamic` package's dynamic library product, which keeps the external view-controller fixture in a separate image. An intra-package target dependency would link the fixture statically, even with a dynamic product declaration. Do not fold this fixture into the static test helpers; the swizzling tests check its image identity.
+
+> [!NOTE]
+> The shared Base plans have been validated on macOS and an iOS simulator in both V9 and V10, using package-owned resources without manual fixture staging. Other platforms, Flaky/TestServer execution, and Xcode/package discovered-test parity require separate validation.
+
 ### SwiftPM SDK Tests
+
+> [!NOTE]
+> Plain `swift test` builds the main Swift target even with `--filter`, but does not include the Objective-C/Objective-C++ test targets or apply Xcode test plans. Use `xcodebuild` with the shared `SentrySPM` scheme for the mixed-language suite.
 
 SDK tests need test definitions in both the SDK and test targets; `DEBUG` and `@testable import` alone are insufficient. For local macOS tests with Xcode 26 or newer, run from the repository root:
 
@@ -75,14 +91,14 @@ Use `xcodebuild`, not `swift test`, to include Objective-C/Objective-C++ package
 
 #### Package tests with xcodebuild
 
-For project-equivalent compilation or simulator/device tests, use `xcodebuild` with the shared [SentrySPM scheme](../.swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme). Select `SentrySPM_Base` for V9 or `SentrySPM_Base_v10` with `SDK_V10=1`. These native plans include all current package test targets, with profiler tests only in V9. `swift test` does not apply Xcode test plans.
+For project-equivalent compilation or simulator/device tests, use `xcodebuild` with the shared [SentrySPM scheme](../.swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme). Select `SentrySPM_Base` for V9 or `SentrySPM_Base_v10` with `SDK_V10=1`. These native plans include the main Swift/Objective-C/Objective-C++ suite, helpers, wrapper and distribution tests, and V9-only profiler tests. Base targets run nonparallel, with exclusions mapped from the corresponding project plan; redundant method exclusions under an excluded class are omitted. `swift test` does not apply Xcode test plans.
 
 `xcodebuild` cannot select root-package traits from the command line, so explicit test flags are still required. Prepare and test a temporary source-only package to avoid duplicate binary outputs:
 
 ```sh
 package_dir="$(mktemp -d)"
 package_test_config="$PWD/Tests/Configuration/SwiftPM.xcconfig"
-rsync -a Package*.swift Sources SentryTestUtils SentryTestUtilsTests Tests Plans "$package_dir/"
+rsync -a Package*.swift Sources SentryTestUtils SentryTestUtilsDynamic SentryTestUtilsTests Tests Plans "$package_dir/"
 package_schemes=.swiftpm/xcode/xcshareddata/xcschemes
 mkdir -p "$package_dir/$package_schemes"
 cp "$package_schemes/SentrySPM.xcscheme" "$package_dir/$package_schemes/"
@@ -103,16 +119,19 @@ xcodebuild test -workspace "$package_dir" -scheme SentrySPM \
   -xcconfig "$package_test_config" \
   'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SENTRY_TEST' \
   'GCC_PREPROCESSOR_DEFINITIONS=$(inherited) DEBUG=1 SENTRY_TEST=1' \
+  CODE_SIGNING_ALLOWED=NO \
   > "$package_dir/package-tests.log" 2>&1 || status=$?
 grep -E 'Executed|error:|TEST SUCCEEDED|TEST FAILED' "$package_dir/package-tests.log"
 (test "$status" -eq 0)
 ```
 
 - For V10, run `export SDK_V10=1` before the commands above.
-- Use an available iOS simulator destination for iOS-specific tests.
+- Use an available iOS simulator destination for iOS-specific tests. The example disables signing for local macOS/simulator tests because Xcode can reject the shared fixture bundle's copied `Resources/` layout during signing. Device tests require a separate signing configuration.
 - Limit a run with `-only-testing:<test-target>`, for example `-only-testing:SentryObjCCompatTests`.
 - CI uses `TestCI` and the corresponding definitions from the table above. The [Distribution Tests job](../.github/workflows/test.yml) prepares all package manifests, selects Xcode 26 on `macos-26`, and resolves the iOS simulator runtime and device from that toolchain.
-- Keep shared Base exclusions consistent between project and package plans, mapping methods to the Swift or Objective-C package target. Project Base, Flaky, and TestServer plans remain unchanged.
+- Keep shared Base exclusions consistent between project and package plans, mapping identifiers to their Swift, Objective-C, or Objective-C++ target. Preserve whole-class exclusions for every matching target. Project Base, Flaky, and TestServer plans remain unchanged.
+- Use `SentrySPM_Flaky` for the package tests selected by the V9 project Flaky plan. It retains randomized ordering and retry-on-failure, separately from Base.
+- Use `SentrySPM_TestServer` or `SentrySPM_TestServer_v10` for network tests. Start the local server with `make -C test-server start-debug` before that run and stop it with `make -C test-server stop` afterward, including on failure. Do not run unrelated plans while the server is active.
 
 #### Compiler settings and project parity
 

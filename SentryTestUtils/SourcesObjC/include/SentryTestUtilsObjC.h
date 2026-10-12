@@ -37,6 +37,7 @@
 #import "SentryTestHubWrapper.h"
 #import "SentryTestObjCRuntimeWrapper.h"
 #import "SentryTestProfilerWrapper.h"
+#import "SentryTestResourceBundle.h"
 #import "SentryTestStateWrapper.h"
 #import "SentryTracer+Test.h"
 #import "TestSentrySpan.h"

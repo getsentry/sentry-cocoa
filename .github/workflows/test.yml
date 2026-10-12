@@ -140,6 +140,8 @@ jobs:
           # Keep the result bundle outside the package: updates inside it trigger package-graph
           # reloads that can invalidate test bundles and crash Xcode between test targets.
           status=0
+          # Simulator tests do not need signing; codesign rejects the fixture bundle's
+          # copied Resources/ directory. Keep this override scoped to this test command.
           # Xcode, not the shell, expands $(inherited).
           # shellcheck disable=SC2016
           NSUnbufferedIO=YES xcodebuild test -workspace . -scheme SentrySPM \
@@ -151,6 +153,7 @@ jobs:
             -xcconfig Tests/Configuration/SwiftPM.xcconfig \
             'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SENTRY_TEST_CI' \
             'GCC_PREPROCESSOR_DEFINITIONS=$(inherited) DEBUG=1 SENTRY_TEST=1 SENTRY_TEST_CI=1' \
+            CODE_SIGNING_ALLOWED=NO \
             > raw-test-output-distribution.log 2>&1 || status=$?
           xcbeautify --preserve-unbeautified < raw-test-output-distribution.log
           exit "$status"

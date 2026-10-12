@@ -106,20 +106,20 @@ class SentryTraceContextTests: XCTestCase {
         )
     }
     
-    func testInitWithScopeOptions() {
+    func testInitWithScopeOptions() throws {
         // Act
-        let traceContext = TraceContext(scope: fixture.scope, options: fixture.options)!
+        let traceContext = try XCTUnwrap(TraceContext(scope: fixture.scope, options: fixture.options))
         
         // Assert
         assertTraceState(traceContext: traceContext)
     }
     
-    func testInitWithTracerScopeOptions() {
+    func testInitWithTracerScopeOptions() throws {
         // Act
-        let traceContext = TraceContext(tracer: fixture.tracer, scope: fixture.scope, options: fixture.options)
+        let traceContext = try XCTUnwrap(TraceContext(tracer: fixture.tracer, scope: fixture.scope, options: fixture.options))
         
         // Assert
-        assertTraceState(traceContext: traceContext!)
+        assertTraceState(traceContext: traceContext)
     }
 
     func testInitWithTracerNotSampled() {

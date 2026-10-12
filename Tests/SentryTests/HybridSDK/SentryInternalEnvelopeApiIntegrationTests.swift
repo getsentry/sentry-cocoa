@@ -51,7 +51,7 @@ class SentryInternalEnvelopeApiIntegrationTests: XCTestCase {
         let hub = TestHub(client: client, andScope: nil)
         SentrySDKInternal.setCurrentHub(hub)
         hub.setTestSession()
-        let sessionToBeCrashed = hub.session
+        let sessionToBeCrashed = try XCTUnwrap(hub.session)
 
         let envelope = makeUnhandledExceptionEnvelope()
 
@@ -64,7 +64,7 @@ class SentryInternalEnvelopeApiIntegrationTests: XCTestCase {
         let attachedSession = try XCTUnwrap(try JSONSerialization.jsonObject(with: attachedSessionData) as? [String: Any])
 
         XCTAssertEqual(0, hub.startSessionInvocations)
-        XCTAssertEqual(sessionToBeCrashed!.sessionId.uuidString, try XCTUnwrap(attachedSession["sid"] as? String))
+        XCTAssertEqual(sessionToBeCrashed.sessionId.uuidString, try XCTUnwrap(attachedSession["sid"] as? String))
         XCTAssertEqual("crashed", try XCTUnwrap(attachedSession["status"] as? String))
     }
 
@@ -91,7 +91,7 @@ class SentryInternalEnvelopeApiIntegrationTests: XCTestCase {
         let hub = TestHub(client: client, andScope: nil)
         SentrySDKInternal.setCurrentHub(hub)
         hub.setTestSession()
-        let sessionToBeCrashed = hub.session
+        let sessionToBeCrashed = try XCTUnwrap(hub.session)
 
         let envelope = makeUnhandledExceptionEnvelope()
 
@@ -104,7 +104,7 @@ class SentryInternalEnvelopeApiIntegrationTests: XCTestCase {
         let attachedSession = try XCTUnwrap(try JSONSerialization.jsonObject(with: attachedSessionData) as? [String: Any])
 
         XCTAssertEqual(1, hub.startSessionInvocations)
-        XCTAssertEqual(sessionToBeCrashed!.sessionId.uuidString, try XCTUnwrap(attachedSession["sid"] as? String))
+        XCTAssertEqual(sessionToBeCrashed.sessionId.uuidString, try XCTUnwrap(attachedSession["sid"] as? String))
         XCTAssertEqual("crashed", try XCTUnwrap(attachedSession["status"] as? String))
     }
 

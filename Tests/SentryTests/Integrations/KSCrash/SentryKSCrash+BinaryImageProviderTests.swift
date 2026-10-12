@@ -4,8 +4,6 @@
 #else
 @_spi(Private) @testable import Sentry
 #endif
-import Darwin
-import MachO
 import XCTest
 
 final class SentryKSCrashBinaryImageProviderTests: XCTestCase {
@@ -67,47 +65,26 @@ final class SentryKSCrashBinaryImageProviderTests: XCTestCase {
         XCTAssertEqual(result?.address, image.address)
     }
 
-#if os(iOS) && !targetEnvironment(macCatalyst)
-    func testImageByAddress_shouldRefreshAfterDynamicImageLoad() throws {
+    func testImageByAddress_whenSDKCacheMisses_shouldRefreshFromKSCrash() throws {
         // -- Arrange --
         sut.start(false)
-        let initialImages = sut.getAllBinaryImages()
-        let candidates = [
-            (path: "/System/Library/Frameworks/EventKit.framework/EventKit", marker: "EventKit.framework/EventKit"),
-            (path: "/System/Library/Frameworks/MapKit.framework/MapKit", marker: "MapKit.framework/MapKit"),
-            (path: "/System/Library/Frameworks/PDFKit.framework/PDFKit", marker: "PDFKit.framework/PDFKit"),
-            (path: "/usr/lib/libbz2.dylib", marker: "libbz2")
-        ]
+        let image = try XCTUnwrap(sut.cache?.first)
 
-        for candidate in candidates where !initialImages.contains(where: { $0.name.contains(candidate.marker) }) {
-            guard let handle = dlopen(candidate.path, RTLD_NOW | RTLD_LOCAL) else { continue }
-            guard let header = imageHeader(containing: candidate.marker) else {
-                dlclose(handle)
-                continue
-            }
+        // XCTest can preload all candidate system frameworks, making dlopen-based fixtures
+        // unreliable. Model a newly loaded image deterministically: KSCrash knows the image,
+        // but the SDK cache does not. This exercises the real provider's cache-miss refresh,
+        // not KSCrash's own dynamic-loader notification handling.
+        sut.binaryImageRemoved(at: image.address)
+        XCTAssertFalse(sut.containsBinaryImage(at: image.address))
 
-            // -- Act --
-            let image = sut.imageByAddress(UInt64(UInt(bitPattern: header)))
-            dlclose(handle)
+        // -- Act --
+        let refreshedImage = try XCTUnwrap(sut.imageByAddress(image.address))
 
-            // -- Assert --
-            let loadedImage = try XCTUnwrap(image)
-            XCTAssertTrue(loadedImage.name.contains(candidate.marker))
-            return
-        }
-
-        XCTFail("Expected an unloaded dynamic-image fixture to be available")
+        // -- Assert --
+        XCTAssertEqual(refreshedImage.address, image.address)
+        XCTAssertEqual(refreshedImage.name, image.name)
+        XCTAssertEqual(refreshedImage.uuid, image.uuid)
+        XCTAssertTrue(sut.containsBinaryImage(at: image.address))
     }
-
-    private func imageHeader(containing marker: String) -> UnsafePointer<mach_header>? {
-        for index in 0..<_dyld_image_count() {
-            guard let name = _dyld_get_image_name(index) else { continue }
-            if String(cString: name).contains(marker) {
-                return _dyld_get_image_header(index)
-            }
-        }
-        return nil
-    }
-#endif // os(iOS) && !targetEnvironment(macCatalyst)
 }
 #endif // SDK_V10
