@@ -1,70 +1,17 @@
+// Xcode-only declarations that still depend on Swift-owned types across the Objective-C/Swift
+// boundary. Keep these here until their mixed-language APIs are migrated to SwiftPM.
+// Shared SDK test declarations belong in SentryTestUtilsObjC-SDKHeaders.h, exposed through
+// SentryTestUtilsObjC in both build systems; import other declarations from their owning modules.
 #import "SentryDefines.h"
-#import "SentryGeo+Private.h"
 #import "SentryProfilingConditionals.h"
 
-#if SENTRY_HAS_UIKIT
-#    import "MockUIScene.h"
-#endif // SENTRY_HAS_UIKIT
-
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-#    import "SentryContinuousProfiler+Test.h"
-#    import "SentryMetricProfiler.h"
-#    import "SentryProfilerDefines.h"
-#    import "SentryProfilerMocksSwiftCompatible.h"
-#    import "SentryProfilerSerialization+Test.h"
-#    import "SentryProfilerSerialization.h"
-#    import "SentryProfilerState.h"
-#    import "SentryProfilerTestHelpers.h"
-#    import "SentryTraceProfiler+Test.h"
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
-
+// Load the Objective-C base declarations before their generated Swift interface.
 @import _SentryPrivate;
-
-#import "Helper/ExceptionCatcher.h"
-#import "NSData+Unzip.h"
-#import "NSMutableDictionary+Sentry.h"
-#import "Sentry/Sentry-Swift.h"
-#import "SentryBooleanSerialization.h"
 #import "SentryClient+TestInit.h"
-#import "SentryClient.h"
-#import "SentryCrash+Test.h"
-#import "SentryCrashBinaryImageCache+Test.h"
-#import "SentryCrashBinaryImageCacheTestHelper.h"
-#import "SentryCrashCachedData.h"
-#import "SentryCrashCxaThrowSwapper.h"
-#import "SentryCrashDoctor.h"
-#import "SentryCrashJSONCodecObjC.h"
-#import "SentryCrashMachineContext.h"
-#import "SentryCrashMachineContext_Apple.h"
-#import "SentryCrashMonitor.h"
-#import "SentryCrashMonitorContext.h"
-#import "SentryCrashMonitor_MachException.h"
-#import "SentryCrashReport.h"
-#import "SentryCrashReportStore.h"
-#import "SentryCrashScopeHelper.h"
-#import "SentryCrashStackCursor_Backtrace.h"
-#import "SentryCrashStackCursor_SelfThread.h"
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryEnvelopeRateLimit.h"
-#import "SentryFileManager+Test.h"
-#import "SentryFormatter.h"
-#import "SentryHttpStatusCodeRange+Private.h"
 #import "SentryHttpTransport.h"
 #import "SentryHub+Test.h"
-#import "SentryInitializeForGettingSubclassesNotCalled.h"
-#import "SentryInternalNotificationNames.h"
-#import "SentryInvalidJSONString.h"
-#import "SentryLogC.h"
-#import "SentryLogTestHelper.h"
 #import "SentrySDKInternal+Tests.h"
-#import "SentrySampleDecision+Private.h"
-#import "SentrySanitizerUtils+Tests.h"
-#import "SentrySpanInternal.h"
 #import "SentrySwift.h"
-#import "SentryTestObjCRuntimeWrapper.h"
-#import "SentryTracer+Private.h"
-#import "SentryTracer+Test.h"
 #import "SentryTransportFactory.h"
-#import "SentryWeakMap.h"
-#import "TestSentrySpan.h"
-#import "URLSessionTaskMock.h"

@@ -3,6 +3,7 @@
 #else
 @_spi(Private) @testable import Sentry
 #endif
+import _SentryPrivate
 import Foundation
 
 class TestDefaultThreadInspector: SentryDefaultThreadInspector {

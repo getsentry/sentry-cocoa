@@ -1,3 +1,5 @@
+import _SentryPrivate
+import SentryTestUtils
 import XCTest
 
 final class SentryTracePropagationTests: XCTestCase {

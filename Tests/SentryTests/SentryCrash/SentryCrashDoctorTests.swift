@@ -1,3 +1,5 @@
+#if !SDK_V10
+import SentryTestUtilsObjC
 import XCTest
 
 final class SentryCrashDoctorTests: XCTestCase {
@@ -27,3 +29,5 @@ final class SentryCrashDoctorTests: XCTestCase {
         XCTAssertEqual("Graceful OS termination requested.", diagnose)
     }
 }
+
+#endif // !SDK_V10

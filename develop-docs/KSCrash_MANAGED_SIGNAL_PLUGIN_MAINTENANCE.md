@@ -85,7 +85,7 @@ make test-macos-v10 FOR_AGENTS=true ONLY_TESTING=SentryTestsV10/SentryKSCrashMan
 make test-ios-v10 FOR_AGENTS=true ONLY_TESTING=SentryTestsV10/SentryKSCrashManagedSignalTests
 ```
 
-[`SentryKSCrashManagedSignalTests.m`](../Tests/SentryTests/Integrations/KSCrash/SentryKSCrashManagedSignalTests.m)
+[`SentryKSCrashManagedSignalTests.m`](../Tests/SentryTests/ObjC/Integrations/KSCrash/SentryKSCrashManagedSignalTests.m)
 compiles an isolated copy of the SDK-side monitor with renamed external symbols, no constructor,
 and substituted `sigaction`, `sigaltstack`, `raise`, and allocation functions. This permits
 deterministic interruption, failure injection, and ownership checks without replacing the test

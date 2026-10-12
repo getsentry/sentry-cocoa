@@ -1,9 +1,9 @@
 #if SWIFT_PACKAGE
 @_spi(Private) @testable import SentrySwift
-import _SentryPrivate
 #else
 @testable import Sentry
 #endif
+import _SentryPrivate
 import SentryTestUtils
 import XCTest
 

@@ -772,7 +772,7 @@ class SentryANRTrackerV2TestDelegate: NSObject, SentryANRTrackerDelegate {
 
     let anrDetectedExpectation = XCTestExpectation(description: "Test Delegate ANR Detection")
     let anrStoppedExpectation  = XCTestExpectation(description: "Test Delegate ANR Stopped")
-    let anrsDetected = Invocations<Sentry.SentryANRType>()
+    let anrsDetected = Invocations<SentryANRType>()
     let anrStoppedResults = Invocations<SentryANRStoppedResult>()
     private let blockOnFirstANRStopped: (() -> Void)?
 
@@ -806,7 +806,7 @@ class SentryANRTrackerV2TestDelegate: NSObject, SentryANRTrackerDelegate {
         anrStoppedExpectation.fulfill()
     }
 
-    func anrDetected(type: Sentry.SentryANRType) {
+    func anrDetected(type: SentryANRType) {
         anrsDetected.record(type)
         anrDetectedExpectation.fulfill()
     }

@@ -63,41 +63,61 @@ extension SentryApplication {
 
     // This cannot be declared with @objc so until we delete more ObjC code it needs a separate
     // function than the objc visible one.
+    //
+    // Runs on the main thread, so reading the delegate's `window` is safe. The crash-time path
+    // cannot and uses `collectWindowsOnCurrentThread()` instead.
     public func internal_getWindows() -> [UIWindow]? {
-        var windows: [UIWindow] = []
-        Dependencies.dispatchQueueWrapper.dispatchSyncOnMainQueue({ [weak self] in
-            windows = self?.collectWindowsOnCurrentThread() ?? []
-        }, timeout: 0.01)
-        return windows
-    }
-
-    /// Crash-time window access. Must not hop to main; KSCrash has suspended other threads.
-    public func collectWindowsOnCurrentThread() -> [UIWindow] {
         var windows = Set<UIWindow>()
+        Dependencies.dispatchQueueWrapper.dispatchSyncOnMainQueue({ [weak self] in
+            guard let self else { return }
 
-        // For each active scene we get the window
-        for scene in connectedScenes {
-            if scene.activationState == .foregroundActive {
-                if
-                    let delegate = scene.delegate as? UIWindowSceneDelegate,
-                    let window = delegate.window {
-                    if let window {
-                        windows.insert(window)
+            // For each active scene we get the window
+            let scenes = self.connectedScenes
+            for scene in scenes {
+                if scene.activationState == .foregroundActive {
+                    if
+                        let delegate = scene.delegate as? UIWindowSceneDelegate,
+                        let window = delegate.window {
+                        if let window {
+                            windows.insert(window)
+                        }
                     }
                 }
             }
+
+            // If no scenes are given, we try to find the window of the application delegate
+            guard let delegate else {
+                SentrySDKLog.debug("No application delegate found.")
+                return
+            }
+
+            // If scenes are not used, we fallback to the default UIApplicationDelegate.window.
+            // The property is of type UIWindow?? so we need to unwrap both optional layers.
+            if let optionalWindow = delegate.window, let window = optionalWindow {
+                windows.insert(window)
+            }
+        }, timeout: 0.01)
+        return Array(windows)
+    }
+
+    /// Crash-time window access. Must not hop to main; KSCrash has suspended other threads.
+    ///
+    /// Reads the scene's windows directly instead of the delegate's `window`, whose Swift
+    /// `@MainActor` getter would trap when read off the main thread.
+    public func collectWindowsOnCurrentThread() -> [UIWindow] {
+        var windows = Set<UIWindow>()
+
+        for scene in connectedScenes where scene.activationState == .foregroundActive {
+            if let windowScene = scene as? UIWindowScene {
+                windows.formUnion(windowScene.windows)
+            }
         }
 
-        // If no scenes are given, we try to find the window of the application delegate
-        guard let delegate else {
-            return Array(windows)
-        }
-
-        // If scenes are not used, we fallback to the default UIApplicationDelegate.window.
-        // The property is of type UIWindow?? so we need to unwrap both optional layers.
-        if let optionalWindow = delegate.window, let window = optionalWindow {
+        // Fall back to the app delegate's window only for legacy, non-UIScene apps.
+        if windows.isEmpty, let optionalWindow = delegate?.window, let window = optionalWindow {
             windows.insert(window)
         }
+
         return Array(windows)
     }
     
