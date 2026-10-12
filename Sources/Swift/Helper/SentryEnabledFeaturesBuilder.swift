@@ -109,6 +109,12 @@ import Foundation
         features.append("watchdogTerminationsV2")
         #endif
 
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        if options.experimental.enableBreadcrumbTextExtraction {
+            features.append("breadcrumbTextExtraction")
+        }
+#endif
+
         if options.experimental.enableNewURLLoaderSwizzling {
             features.append("newURLLoaderSwizzling")
         }
