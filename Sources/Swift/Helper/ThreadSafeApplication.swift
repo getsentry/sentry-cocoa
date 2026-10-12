@@ -46,7 +46,7 @@ final class SentryAlwaysForegroundApplicationStateProvider: NSObject, SentryAppl
             // on the main queue, like the original ObjC implementation did. UIKit delivers the lifecycle
             // notifications on the main thread as well, so the refreshed value is never staler than a
             // notification that already arrived.
-            SentrySDKLog.debug("SentryThreadsafeApplication initialized off the main thread, reading the application state asynchronously on the main queue.")
+            SentrySDKLog.warning("SentryThreadsafeApplication initialized off the main thread, reading the application state asynchronously on the main queue.")
             dispatchQueueWrapper.dispatchAsyncOnMainQueueIfNotMainThread { [weak self] in
                 guard let self, let application = applicationProvider() else {
                     return
