@@ -26,7 +26,7 @@ protocol SwiftIntegration: SentryIntegrationProtocol {
 
 // Type erases the `Integration` so that it can be stored in an array and used for `addInstalledIntegration`
 private struct AnyIntegration {
-    let install: (Options, SentryDependencyContainer) -> (any SwiftIntegration)?
+    let install: (Options, SentryDependencyContainer) -> SentryIntegrationProtocol?
     let name: String
 
     init<I: SwiftIntegration>(_ integration: I.Type) where I.Dependencies == SentryDependencyContainer {
@@ -35,6 +35,21 @@ private struct AnyIntegration {
             integration.init(with: $0, dependencies: $1)
         }
     }
+
+    init(
+        name: String,
+        install: @escaping (Options, SentryDependencyContainer) -> SentryIntegrationProtocol?
+    ) {
+        self.name = name
+        self.install = install
+    }
+
+#if !SDK_V10
+    static let sentryCrashV9 = AnyIntegration(
+        name: "SentryCrashIntegration",
+        install: SentryCrashV9Backend.installIntegration
+    )
+#endif
 }
 
 // Bridges to ObjC code to trigger installing the integrations
@@ -56,7 +71,7 @@ private struct AnyIntegration {
         #if SDK_V10
         integrations.append(.init(SentryKSCrash.Integration.self))
         #else
-        integrations.append(.init(SentryCrashIntegration.self))
+        integrations.append(.sentryCrashV9)
         #endif
 
         integrations.append(contentsOf: [

@@ -35,8 +35,6 @@ extension SentryKSCrash {
             CFDictionary?, UnsafePointer<CChar>?, KSCrashSidecarScope, Context
         ) -> Unmanaged<CFDictionary>?
 
-        static let attachmentsReportKey = "attachments"
-
         /// Commit token written to the KSCrash sidecar path after payload files exist.
         ///
         /// Presence of this file is evidence that attachments were correctly written to disk
@@ -281,7 +279,7 @@ extension SentryKSCrash.AttachmentsMonitor {
         }
 
         let original = reportDict as NSDictionary
-        let existing = (original[Self.attachmentsReportKey] as? [String]) ?? []
+        let existing = (original[SentryNativeReportAttachmentsKey] as? [String]) ?? []
         var merged = existing
         var seen = Set(existing)
         for path in incoming where !seen.contains(path) {
@@ -294,7 +292,7 @@ extension SentryKSCrash.AttachmentsMonitor {
         }
 
         let stitched = NSMutableDictionary(dictionary: original)
-        stitched[Self.attachmentsReportKey] = merged
+        stitched[SentryNativeReportAttachmentsKey] = merged
         SentrySDKLog.debug("Stitched \(incoming.count) attachment path(s) into crash report")
         return Unmanaged.passRetained(stitched as CFDictionary)
     }

@@ -27,15 +27,16 @@ let package = Package(
         )
     ],
     traits: [
-        .init(name: "V10", description: "Enable SDK V10 API changes.")
+        .init(name: "V10", description: "Development-only V10 selection on supported trait tooling; use SDK_V10=1 with older tooling."),
+        .default(enabledTraits: [])
     ],
     dependencies: [
         .package(
             name: "Sentry",
             path: "../..",
             traits: [
-                .defaults,
                 "_SentryInternalUITestSupport",
+                // V9 is implicit. Forward only the development V10 opt-in.
                 .trait(name: "V10", condition: .when(traits: ["V10"]))
             ]
         )
@@ -52,12 +53,12 @@ let package = Package(
                 .process("LoremIpsum.txt"),
                 .process("screenshot.png")
             ],
-            cSettings: [
-                .define("SDK_V10", to: "1", .when(traits: ["V10"]))
-            ],
-            swiftSettings: [
-                .define("SDK_V10", .when(traits: ["V10"]))
-            ]
+            cSettings: enableV10
+                ? [.define("SDK_V10", to: "1")]
+                : [.define("SDK_V10", to: "1", .when(traits: ["V10"]))],
+            swiftSettings: enableV10
+                ? [.define("SDK_V10")]
+                : [.define("SDK_V10", .when(traits: ["V10"]))]
         ),
         .target(
             name: "SentrySampleUITestShared",
