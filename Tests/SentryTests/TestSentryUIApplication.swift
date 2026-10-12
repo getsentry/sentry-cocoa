@@ -52,8 +52,12 @@ final class TestSentryUIApplication: SentryApplication {
     }
 
     private var _underlyingAppState: UIApplication.State = .active
+    private(set) var unsafeApplicationStateReadCount = 0
     var unsafeApplicationState: UIApplication.State {
-        get { _underlyingAppState }
+        get {
+            unsafeApplicationStateReadCount += 1
+            return _underlyingAppState
+        }
         set { _underlyingAppState = newValue }
     }
 
