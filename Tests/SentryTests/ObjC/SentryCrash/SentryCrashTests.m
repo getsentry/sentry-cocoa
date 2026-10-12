@@ -2,7 +2,7 @@
 #    import "FileBasedTestCase.h"
 #    import "SentryCrash+Test.h"
 #    import "SentryCrash.h"
-#    include "SentryCrashReportStore.h"
+@import SentryTestUtilsObjC;
 
 @interface SentryCrashTests : FileBasedTestCase
 
