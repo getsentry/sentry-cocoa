@@ -127,36 +127,9 @@ final class SentryExtraContextProviderTests: XCTestCase {
         // -- Assert --
         let device = try XCTUnwrap(actualContext["device"] as? [String: Any])
         XCTAssertEqual(try XCTUnwrap(device["connection_type"] as? String), "wifi")
-        // Only cellular connections have a network technology.
-        XCTAssertNil(device["connection_effective_type"])
 
         fixture.reachability.removeAllObservers()
     }
-
-#if os(iOS) && !targetEnvironment(macCatalyst)
-    func testConnectionEffectiveType_whenOnCellularWithKnownTechnology_shouldBeSet() throws {
-        // -- Arrange --
-        let technologyProvider = TestSentryCellularNetworkTechnologyProvider()
-        technologyProvider.currentTechnology = .fifthGeneration
-        fixture.reachability = SentryReachability(cellularNetworkTechnologyProvider: technologyProvider)
-        let sut = fixture.getSut()
-        fixture.reachability.skipRegisteringActualCallbacks = true
-        fixture.reachability.setReachabilityIgnoreActualCallback(true)
-        let observer = TestSentryReachabilityObserver()
-        fixture.reachability.add(observer)
-        fixture.reachability.triggerConnectivityCallback(.cellular)
-
-        // -- Act --
-        let actualContext = sut.getExtraContext()
-
-        // -- Assert --
-        let device = try XCTUnwrap(actualContext["device"] as? [String: Any])
-        XCTAssertEqual(try XCTUnwrap(device["connection_type"] as? String), "cellular")
-        XCTAssertEqual(try XCTUnwrap(device["connection_effective_type"] as? String), "5g")
-
-        fixture.reachability.removeAllObservers()
-    }
-#endif // os(iOS) && !targetEnvironment(macCatalyst)
 
     func testLowPowerModeDisabled() throws {
         let sut = fixture.getSut()

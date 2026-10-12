@@ -22,35 +22,6 @@ class TestSentryReachabilityObserver: NSObject, SentryReachabilityObserver {
     }
 }
 
-#if os(iOS) && !targetEnvironment(macCatalyst)
-class TestSentryCellularNetworkTechnologyProvider: SentryCellularNetworkTechnologyProviding {
-    var currentTechnology: SentryCellularNetworkTechnology?
-    var onStartMonitoring: (() -> Void)?
-    var onStopMonitoring: (() -> Void)?
-
-    /// Records starts and stops in one list, so tests can assert their order and not only their count.
-    let monitoringInvocations = Invocations<String>()
-
-    var startMonitoringCount: Int {
-        monitoringInvocations.invocations.filter { $0 == "start" }.count
-    }
-
-    var stopMonitoringCount: Int {
-        monitoringInvocations.invocations.filter { $0 == "stop" }.count
-    }
-
-    func startMonitoring() {
-        monitoringInvocations.record("start")
-        onStartMonitoring?()
-    }
-
-    func stopMonitoring() {
-        monitoringInvocations.record("stop")
-        onStopMonitoring?()
-    }
-}
-#endif // os(iOS) && !targetEnvironment(macCatalyst)
-
 final class SentryReachabilitySwiftTests: XCTestCase {
     
     private var reachability: SentryReachability!
@@ -64,26 +35,7 @@ final class SentryReachabilitySwiftTests: XCTestCase {
     }
 
     private func makeReachability() -> SentryReachability {
-        configured(SentryReachability())
-    }
-
-#if os(iOS) && !targetEnvironment(macCatalyst)
-    /// The cellular technology provider is injected, so a test that needs to control it replaces
-    /// the whole instance instead of reaching into it.
-    private func makeReachability(
-        technologyProvider: TestSentryCellularNetworkTechnologyProvider,
-        cellularMonitoringDispatchQueue: SentryDispatchQueueWrapper = TestSentryDispatchQueueWrapper()
-    ) -> SentryReachability {
-        configured(
-            SentryReachability(
-                cellularNetworkTechnologyProvider: technologyProvider,
-                cellularMonitoringDispatchQueue: cellularMonitoringDispatchQueue
-            )
-        )
-    }
-#endif // os(iOS) && !targetEnvironment(macCatalyst)
-
-    private func configured(_ reachability: SentryReachability) -> SentryReachability {
+        let reachability = SentryReachability()
         reachability.skipRegisteringActualCallbacks = true
         reachability.setReachabilityIgnoreActualCallback(true)
         return reachability
@@ -105,66 +57,9 @@ final class SentryReachabilitySwiftTests: XCTestCase {
         #endif
     }
 
-#if os(iOS) && !targetEnvironment(macCatalyst)
-    func testConnectivityChanged_whenCellularTechnologyIsKnown_shouldNotChangeTypeDescription() throws {
-        // -- Arrange --
-        // The technology belongs to connection_effective_type, so observers keep seeing the
-        // documented connectivity values.
-        let technologyProvider = TestSentryCellularNetworkTechnologyProvider()
-        technologyProvider.currentTechnology = .fifthGeneration
-        reachability = makeReachability(technologyProvider: technologyProvider)
-
-        var typeDescriptions = [String]()
-        let observer = TestSentryReachabilityObserver()
-        observer.onReachabilityChanged = { _, typeDescription in
-            typeDescriptions.append(typeDescription)
-        }
-        reachability.add(observer)
-
-        // -- Act --
-        reachability.triggerConnectivityCallback(.cellular)
-        reachability.triggerConnectivityCallback(.wiFi)
-
-        // -- Assert --
-        XCTAssertEqual(["cellular", "wifi"], typeDescriptions)
-    }
-
-    func testCurrentConnectionEffectiveType_whenCellularTechnologyIsKnown_shouldReportTheGeneration() {
-        // -- Arrange --
-        let technologyProvider = TestSentryCellularNetworkTechnologyProvider()
-        technologyProvider.currentTechnology = .fourthGeneration
-        reachability = makeReachability(technologyProvider: technologyProvider)
-        let observer = TestSentryReachabilityObserver()
-        reachability.add(observer)
-
-        // -- Act --
-        reachability.triggerConnectivityCallback(.cellular)
-
-        // -- Assert --
-        XCTAssertEqual("cellular", reachability.currentConnection?.type)
-        XCTAssertEqual("4g", reachability.currentConnection?.effectiveType)
-    }
-
-    func testCurrentConnectionEffectiveType_whenNotCellular_shouldBeNil() {
-        // -- Arrange --
-        let technologyProvider = TestSentryCellularNetworkTechnologyProvider()
-        technologyProvider.currentTechnology = .fifthGeneration
-        reachability = makeReachability(technologyProvider: technologyProvider)
-        let observer = TestSentryReachabilityObserver()
-        reachability.add(observer)
-
-        // -- Act --
-        reachability.triggerConnectivityCallback(.wiFi)
-
-        // -- Assert --
-        XCTAssertEqual("wifi", reachability.currentConnection?.type)
-        XCTAssertNil(reachability.currentConnection?.effectiveType)
-    }
-#endif // os(iOS) && !targetEnvironment(macCatalyst)
-
     func testCurrentConnectionType_whenNotMonitoring_shouldBeNil() {
         // -- Act & Assert --
-        XCTAssertNil(reachability.currentConnection)
+        XCTAssertNil(reachability.currentConnectionType)
     }
 
     func testConnectivityChanged_whenAllObserversWereDeallocated_shouldForgetTheConnection() {
@@ -175,14 +70,14 @@ final class SentryReachabilitySwiftTests: XCTestCase {
             let observer = TestSentryReachabilityObserver()
             reachability.add(observer)
             reachability.triggerConnectivityCallback(.wiFi)
-            XCTAssertEqual("wifi", reachability.currentConnection?.type)
+            XCTAssertEqual("wifi", reachability.currentConnectionType)
         }
 
         // -- Act --
         reachability.triggerConnectivityCallback(.cellular)
 
         // -- Assert --
-        XCTAssertNil(reachability.currentConnection)
+        XCTAssertNil(reachability.currentConnectionType)
     }
 
     func testCurrentConnectionType_whenAllObserversAreRemoved_shouldBeNil() {
@@ -190,70 +85,16 @@ final class SentryReachabilitySwiftTests: XCTestCase {
         let observer = TestSentryReachabilityObserver()
         reachability.add(observer)
         reachability.triggerConnectivityCallback(.wiFi)
-        let connectionTypeWhileMonitoring = reachability.currentConnection?.type
+        let connectionTypeWhileMonitoring = reachability.currentConnectionType
 
         // -- Act --
         reachability.remove(observer)
 
         // -- Assert --
         XCTAssertEqual("wifi", connectionTypeWhileMonitoring)
-        XCTAssertNil(reachability.currentConnection)
+        XCTAssertNil(reachability.currentConnectionType)
     }
 
-#if os(iOS) && !targetEnvironment(macCatalyst)
-    /// The provider is started and stopped through the injected queue, which runs the blocks
-    /// inline here. The production queue is low priority, and waiting for it made this test
-    /// depend on when a loaded machine happened to schedule it.
-    func testAdd_whenFirstObserverIsAdded_shouldMonitorCellularNetworkTechnology() {
-        // -- Arrange --
-        let technologyProvider = TestSentryCellularNetworkTechnologyProvider()
-        reachability = makeReachability(
-            technologyProvider: technologyProvider,
-            cellularMonitoringDispatchQueue: TestSentryDispatchQueueWrapper()
-        )
-        reachability.skipRegisteringActualCallbacks = false
-        let observer = TestSentryReachabilityObserver()
-
-        // -- Act --
-        reachability.add(observer)
-        reachability.remove(observer)
-
-        // -- Assert --
-        XCTAssertEqual(["start", "stop"], technologyProvider.monitoringInvocations.invocations)
-    }
-#endif // os(iOS) && !targetEnvironment(macCatalyst)
-
-#if os(iOS) && !targetEnvironment(macCatalyst)
-    /// Starting the monitoring is queued, so removing the last observer before the queued start
-    /// ran must not leave the monitoring running. The queue holds both blocks until this test runs
-    /// them, so the order is not left to the scheduler.
-    func testRemove_whenLastObserverIsRemovedBeforeMonitoringStarted_shouldStopMonitoring() {
-        // -- Arrange --
-        let technologyProvider = TestSentryCellularNetworkTechnologyProvider()
-        let cellularMonitoringDispatchQueue = TestSentryDispatchQueueWrapper()
-        cellularMonitoringDispatchQueue.dispatchAsyncExecutesBlock = false
-        reachability = makeReachability(
-            technologyProvider: technologyProvider,
-            cellularMonitoringDispatchQueue: cellularMonitoringDispatchQueue
-        )
-        reachability.skipRegisteringActualCallbacks = false
-        let observer = TestSentryReachabilityObserver()
-
-        // -- Act --
-        reachability.add(observer)
-        reachability.remove(observer)
-        // Both blocks were queued before either ran, so run them in the order they were queued.
-        for block in cellularMonitoringDispatchQueue.dispatchAsyncInvocations.invocations {
-            block()
-        }
-
-        // -- Assert --
-        XCTAssertEqual(1, technologyProvider.startMonitoringCount)
-        XCTAssertEqual(1, technologyProvider.stopMonitoringCount)
-        XCTAssertEqual("stop", technologyProvider.monitoringInvocations.last)
-    }
-#endif // os(iOS) && !targetEnvironment(macCatalyst)
-    
     func testMultipleReachabilityObservers() {
         print("[Sentry] [TEST] creating observer A")
         let observerA = TestSentryReachabilityObserver()

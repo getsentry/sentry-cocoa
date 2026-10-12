@@ -359,13 +359,6 @@
         "declKind": "Import",
         "kind": "Import",
         "moduleName": "Sentry",
-        "name": "CoreTelephony",
-        "printedName": "CoreTelephony"
-      },
-      {
-        "declKind": "Import",
-        "kind": "Import",
-        "moduleName": "Sentry",
         "name": "Darwin",
         "printedName": "Darwin"
       },

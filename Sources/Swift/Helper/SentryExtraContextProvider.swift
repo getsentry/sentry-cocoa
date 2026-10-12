@@ -60,14 +60,10 @@ internal import _SentryPrivate
 
         // The connection type is only known while the SDK monitors connectivity, which it does as
         // long as it has a transport. `connection_type` is the device context alias of
-        // `network.connection.type`, so `connection_effective_type` mirrors
-        // `network.connection.effective_type` the same way.
+        // `network.connection.type`.
         // https://getsentry.github.io/sentry-conventions/attributes/network/
-        if let connection = reachability.currentConnection {
-            extraDeviceContext["connection_type"] = connection.type
-            if let effectiveType = connection.effectiveType {
-                extraDeviceContext["connection_effective_type"] = effectiveType
-            }
+        if let connectionType = reachability.currentConnectionType {
+            extraDeviceContext["connection_type"] = connectionType
         }
         
         #if (os(iOS)) && !SENTRY_NO_UI_FRAMEWORK

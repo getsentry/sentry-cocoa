@@ -5,6 +5,7 @@
 ### Fixes
 
 - Validate feedback payloads before transport and align the managed form's message counter and errors with the cross-SDK input validation specification (#8973)
+- Stop reading the cellular network technology from CoreTelephony, which crashed apps on iOS, and remove `connection_effective_type` from the device context (#9318)
 
 ## 9.30.1
 
