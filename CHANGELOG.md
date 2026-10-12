@@ -5,7 +5,7 @@
 ### Fixes
 
 - Validate feedback payloads before transport and align the managed form's message counter and errors with the cross-SDK input validation specification (#8973)
-- Prevent crash report buffer overflows when flushing pending data fails.
+- Prevent crash report buffer overflows when flushing pending data fails (#9317)
 
 ## 9.30.1
 
