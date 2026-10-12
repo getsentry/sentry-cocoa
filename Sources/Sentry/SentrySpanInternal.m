@@ -37,6 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableDictionary<NSString *, id> *_tags;
     NSObject *_stateLock;
     BOOL _isFinished;
+    NSDate *_Nullable _timestamp;
     uint64_t _startSystemTime;
 #if SENTRY_HAS_UIKIT
     NSUInteger initTotalFrames;
@@ -258,6 +259,24 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+// The tracer reads the end timestamp of its children on the thread that finishes the
+// transaction while a child may still be finishing on another thread. Guard it with the same
+// lock as the finished flag so the strong reference is never read while being stored, and so a
+// span never reads as finished without its timestamp.
+- (nullable NSDate *)timestamp
+{
+    @synchronized(_stateLock) {
+        return _timestamp;
+    }
+}
+
+- (void)setTimestamp:(nullable NSDate *)timestamp
+{
+    @synchronized(_stateLock) {
+        _timestamp = timestamp;
+    }
+}
+
 - (void)finish
 {
     SENTRY_LOG_DEBUG(@"Attempting to finish span with id %@", self.spanId.sentrySpanIdString);
@@ -270,12 +289,20 @@ NS_ASSUME_NONNULL_BEGIN
     [self stopObservingContinuousProfiling];
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
     self.status = status;
+    // Fetch the date outside the lock so the date provider can't stall readers, but set the
+    // timestamp and the finished flag in one critical section: a reader that observes
+    // isFinished == YES must also observe a non-nil timestamp.
+    NSDate *now = [SentryDependencyContainer.sharedInstance.dateProvider date];
+    BOOL didSetTimestamp = NO;
     @synchronized(_stateLock) {
+        if (_timestamp == nil) {
+            _timestamp = now;
+            didSetTimestamp = YES;
+        }
         _isFinished = YES;
     }
-    if (self.timestamp == nil) {
-        self.timestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
-        SENTRY_LOG_DEBUG(@"Setting span timestamp: %@ at system time %llu", self.timestamp,
+    if (didSetTimestamp) {
+        SENTRY_LOG_DEBUG(@"Setting span timestamp: %@ at system time %llu", now,
             (unsigned long long)SentryDependencyContainer.sharedInstance.dateProvider.systemTime);
     }
 
