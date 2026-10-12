@@ -395,6 +395,7 @@ run_v10_for_prs: &run_v10_for_prs
   - "Sources/SentryCrashV9Headers/**"
   - "Sources/SentryCrashV9Module/**"
   - "Sources/SentryCrashV9Swift/**"
+  - "Sources/SentryV10Configuration/**"
   - "Sources/SentryObjC/**"
   - "Sources/SentryObjCCompat/**"
   - "Sources/SentrySwiftUI/**"
