@@ -14,7 +14,6 @@
 
 #if SWIFT_PACKAGE && !SDK_V10 && SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryFileManager+Test.h"
-#    import "SentryLaunchProfiling+Tests.h"
 #    import "SentryProfilerSerialization.h"
 #    import "SentrySDKInternal+Tests.h"
 
@@ -26,10 +25,6 @@ FOUNDATION_EXPORT void sentry_test_sdkInitProfilerTasks(NSObject *options, Sentr
     NS_SWIFT_NAME(sentry_sdkInitProfilerTasks(_:_:));
 FOUNDATION_EXPORT void sentry_test_configureContinuousProfiling(NSObject *options)
     NS_SWIFT_NAME(sentry_configureContinuousProfiling(_:));
-FOUNDATION_EXPORT void sentry_test_configureLaunchProfilingForNextLaunch(NSObject *options)
-    NS_SWIFT_NAME(sentry_configureLaunchProfilingForNextLaunch(_:));
-FOUNDATION_EXPORT BOOL sentry_test_willProfileNextLaunch(NSObject *options)
-    NS_SWIFT_NAME(sentry_willProfileNextLaunch(_:));
 
 #    if SENTRY_HAS_UIKIT
 // Redeclare the initializer without its Swift-defined protocol parameter, which SwiftPM's

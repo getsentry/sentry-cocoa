@@ -23,7 +23,7 @@ import Foundation
     public func startSpan(withName name: String, nameSource: Int, operation: String, origin: String) -> SpanId {
         var activeSpan: Span?
 #if !(os(watchOS) || os(tvOS) || os(visionOS))
-        activeSpan = sentry_launchTracer
+        activeSpan = SentryLaunchProfiling.launchTracer
 #endif
         if activeSpan == nil {
             synchronized(activeSpanStack) { [self] in
