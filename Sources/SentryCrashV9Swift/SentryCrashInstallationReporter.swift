@@ -5,13 +5,16 @@
 internal import _SentryPrivate
 import Foundation
 
+// SentrySDKLog's convenience methods are internal to SentrySwift; the V9 module uses its SPI.
 enum SentryCrashV9Log {
-    static func debug(_ message: String, file: String = #file, line: Int = #line) {
-        log(message, level: .debug, file: file, line: line)
+    static func debug(_ message: @autoclosure () -> String, file: String = #file, line: Int = #line) {
+        guard SentrySDKLog.willLog(atLevel: .debug) else { return }
+        log(message(), level: .debug, file: file, line: line)
     }
 
-    static func error(_ message: String, file: String = #file, line: Int = #line) {
-        log(message, level: .error, file: file, line: line)
+    static func error(_ message: @autoclosure () -> String, file: String = #file, line: Int = #line) {
+        guard SentrySDKLog.willLog(atLevel: .error) else { return }
+        log(message(), level: .error, file: file, line: line)
     }
 
     private static func log(_ message: String, level: SentryLevel, file: String, line: Int) {
