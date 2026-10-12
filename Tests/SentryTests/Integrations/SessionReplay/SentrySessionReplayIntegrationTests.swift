@@ -63,6 +63,14 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     }
     
     override func tearDown() {
+        // Crash recovery encodes on the replay processing queue and only deletes the
+        // session folder and `replay.last` after the recovered replay was captured. Tests
+        // return as soon as the capture fulfills their expectation, so without this wait
+        // the leftover work races the next test, which writes the same replay folder.
+        XCTAssertTrue(
+            SentryDependencyContainer.sharedInstance().replayRecoveryIdleGate.waitForIdle(timeout: 10),
+            "Replay crash recovery did not finish before tearDown"
+        )
         super.tearDown()
         // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
@@ -892,7 +900,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         ]
         globalEventProcessor.reportAll(crash)
         
-        wait(for: [expectation], timeout: 1)
+        wait(for: [expectation], timeout: 10)
         XCTAssertEqual(hub.capturedReplayRecordingVideo.count, 1)
         
         let replayInfo = try XCTUnwrap(hub.capturedReplayRecordingVideo.first)
@@ -938,7 +946,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         ]
         globalEventProcessor.reportAll(crash)
 
-        wait(for: [expectation], timeout: 1)
+        wait(for: [expectation], timeout: 10)
         let replayInfo = try XCTUnwrap(hub.capturedReplayRecordingVideo.first)
         let breadcrumbs = replayInfo.recording.events.compactMap { $0 as? SentryRRWebBreadcrumbEvent }
         XCTAssertEqual(breadcrumbs.count, 1)
@@ -964,7 +972,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         crash.isFatalEvent = true
         globalEventProcessor.reportAll(crash)
 
-        wait(for: [expectation], timeout: 1)
+        wait(for: [expectation], timeout: 10)
 
         let replayInfo = try XCTUnwrap(hub.capturedReplayRecordingVideo.first)
         XCTAssertEqual(replayInfo.replay.replayType, SentryReplayType.buffer)
@@ -1738,7 +1746,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         crash.isFatalEvent = true
         globalEventProcessor.reportAll(crash)
 
-        wait(for: [replayCapture], timeout: 1)
+        wait(for: [replayCapture], timeout: expectCapture ? 10 : 1)
         return (crash, hub.capturedReplayRecordingVideo.first)
     }
     
