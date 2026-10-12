@@ -4067,14 +4067,14 @@ final class SentryClientTests: XCTestCase {
 
 extension SentryClientTests {
 
-    final class SentryTestSessionDelegate: NSObject, SentrySessionDelegate {
+    final class SentryTestSessionDelegate: SentryTestSessionDelegateWrapper {
         private let handler: () -> SentrySession?
 
         init(handler: @escaping () -> SentrySession?) {
             self.handler = handler
         }
 
-        func incrementSessionErrors() -> SentrySession? {
+        override func wrapper_incrementSessionErrors() -> Any? {
             handler()
         }
     }

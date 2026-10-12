@@ -9,12 +9,11 @@
 
 #import "SentryTestUtilsObjC-SDKHeaders.h"
 
-// Test helpers.
-#import "SentryTestClientWrapper.h"
-#import "SentryTestHubWrapper.h"
-#import "SentryTestProfilerWrapper.h"
-#import "SentryTestStateWrapper.h"
+// Import adapted SDK selectors before subclasses so Swift inherits their initializers.
+#import "Wrappers/SentryClient+PrivateWrapper.h"
+#import "Wrappers/SentryHub+PrivateWrapper.h"
 
+// Existing helpers retain their paths until the test-support layout migration.
 #import "ExceptionCatcher.h"
 #import "MockUIScene.h"
 #import "NSData+Unzip.h"
@@ -25,8 +24,13 @@
 #import "SentryInitializeForGettingSubclassesNotCalled.h"
 #import "SentryInvalidJSONString.h"
 #import "SentryLogTestHelper.h"
+#import "SentrySDKInternal+Tests.h"
 #import "SentrySanitizerUtils+Tests.h"
+#import "SentryTestClientWrapper.h"
+#import "SentryTestHubWrapper.h"
 #import "SentryTestObjCRuntimeWrapper.h"
+#import "SentryTestProfilerWrapper.h"
+#import "SentryTestStateWrapper.h"
 #import "SentryTracer+Test.h"
 #import "TestSentrySpan.h"
 #import "URLSessionTaskMock.h"

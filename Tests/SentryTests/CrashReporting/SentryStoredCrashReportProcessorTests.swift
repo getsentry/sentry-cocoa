@@ -16,10 +16,10 @@ final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase
             clearClientWithoutCapturing()
         }
 
-        public override func captureFatalEvent(
+        public override func wrapper_captureFatalEvent(
             _ event: Event,
-            with session: SentrySession,
-            with scope: Scope
+            session: Any,
+            scope: Scope
         ) -> SentryId {
             clearClientWithoutCapturing()
         }
@@ -36,10 +36,10 @@ final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase
             closeWithoutCapturing()
         }
 
-        public override func captureFatalEvent(
+        public override func wrapper_captureFatalEvent(
             _ event: Event,
-            with session: SentrySession,
-            with scope: Scope
+            session: Any,
+            scope: Scope
         ) -> SentryId {
             closeWithoutCapturing()
         }
@@ -55,10 +55,10 @@ final class SentryStoredCrashReportProcessorTests: SentrySDKIntegrationTestsBase
             SentryId.empty
         }
 
-        public override func captureFatalEvent(
+        public override func wrapper_captureFatalEvent(
             _ event: Event,
-            with session: SentrySession,
-            with scope: Scope
+            session: Any,
+            scope: Scope
         ) -> SentryId {
             SentryId.empty
         }

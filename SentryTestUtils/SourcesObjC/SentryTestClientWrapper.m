@@ -4,22 +4,7 @@
 #import "SentryEvent.h"
 #import "SentrySwift.h"
 
-@interface SentryClientInternal (SentryTestClientWrapperInitializer)
-
-- (instancetype)initWithOptions:(NSObject *)options
-                   dateProvider:(id<SentryCurrentDateProvider>)dateProvider
-               transportAdapter:(SentryTransportAdapter *)transportAdapter
-                    fileManager:(SentryFileManager *)fileManager
-                threadInspector:(SentryDefaultThreadInspector *)threadInspector
-             debugImageProvider:(SentryDebugImageProvider *)debugImageProvider
-                         random:(id<SentryRandomProtocol>)random
-                         locale:(NSLocale *)locale
-                       timezone:(NSTimeZone *)timezone
-           eventContextEnricher:(id<SentryEventContextEnricher>)eventContextEnricher
-               binaryImageCache:(SentryBinaryImageCache *)binaryImageCache
-           dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
-
-@end
+#import "Wrappers/SentryClient+PrivateWrapper.h"
 
 @implementation SentryTestClientWrapper
 
