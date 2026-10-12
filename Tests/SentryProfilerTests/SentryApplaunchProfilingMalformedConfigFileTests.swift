@@ -1,11 +1,11 @@
 #if (!SWIFT_PACKAGE || !SDK_V10) && (os(iOS) || os(macOS))
 #if SWIFT_PACKAGE
 @_spi(Private) @testable import SentrySwift
-import _SentryPrivate
 import SentryTestUtilsObjC
 #else
 @_spi(Private) @testable import Sentry
 #endif
+import _SentryPrivate
 import SentryTestUtils
 import XCTest
 

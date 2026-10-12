@@ -1,8 +1,8 @@
 #if canImport(UIKit) && !os(watchOS)
-#if SWIFT_PACKAGE
 #if canImport(UIKit)
 import UIKit
 #endif
+#if SWIFT_PACKAGE
 @_spi(Private) @testable import SentrySwift
 #else
 @_spi(Private) @testable import Sentry

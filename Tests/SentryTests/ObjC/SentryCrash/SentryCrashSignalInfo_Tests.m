@@ -28,7 +28,7 @@
 #if !SDK_V10
 #    import <XCTest/XCTest.h>
 
-#    import "SentryCrashSignalInfo.h"
+@import SentryTestUtilsObjC;
 
 @interface SentryCrashSignalInfo_Tests : XCTestCase
 @end

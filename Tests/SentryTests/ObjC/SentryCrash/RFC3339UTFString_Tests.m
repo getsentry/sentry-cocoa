@@ -24,7 +24,7 @@
 //
 
 #if !SDK_V10
-#    import "SentryCrashDate.h"
+@import SentryTestUtilsObjC;
 #    import <XCTest/XCTest.h>
 
 @interface RFC3339DateTool_Tests : XCTestCase
