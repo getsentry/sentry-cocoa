@@ -112,7 +112,7 @@ grep -E 'Executed|error:|TEST SUCCEEDED|TEST FAILED' "$package_dir/package-tests
 - For V10, run `export SDK_V10=1` before the commands above.
 - Use an available iOS simulator destination for iOS-specific tests. `CODE_SIGNING_ALLOWED=NO` avoids fixture-bundle signing errors on macOS and simulators; device tests need a separate signing configuration.
 - Limit a run with `-only-testing:<test-target>`, for example `-only-testing:SentryObjCCompatTests`.
-- CI uses `TestCI` and the corresponding definitions from the table above. The [Distribution Tests job](../.github/workflows/test.yml) prepares all package manifests, selects Xcode 26 on `macos-26`, and resolves the iOS simulator runtime and device from that toolchain.
+- CI uses `TestCI` and the corresponding definitions from the table above. The [SPM Tests job](../.github/workflows/test.yml) prepares all package manifests, selects Xcode 26 on `macos-26`, and resolves the iOS simulator runtime and device from that toolchain.
 - Keep shared Base exclusions consistent between project and package plans, mapping tests to their Swift, Objective-C, or Objective-C++ target.
 - Use `SentrySPM_Flaky` for V9 flaky tests.
 - Use `SentrySPM_TestServer` or `SentrySPM_TestServer_v10` for network tests. Start the server with `make -C test-server start-debug` before that run and stop it with `make -C test-server stop` afterward, including on failure. Do not run unrelated plans while the server is active.
