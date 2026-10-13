@@ -367,6 +367,48 @@ targets += [
     )
 ]
 
+// SwiftPM cannot mix Swift and Clang test sources in one target.
+// Keep the main suite's existing language directories and V9/V10 source guards.
+targets += [
+    .testTarget(
+        name: "SentryTests",
+        dependencies: [
+            "SentrySwift", "_SentryPrivate", "SentryTestUtils", "SentryTestUtilsObjC", "SentryTestUtilsObjCpp",
+            .product(name: "SentryTestUtilsDynamic", package: "SentryTestUtilsDynamic", condition: .when(platforms: [.iOS, .tvOS, .visionOS]))
+        ] + (envSelectsV10 ? [] : [.target(name: "SentryCrashV9Swift")]),
+        path: "Tests/SentryTests",
+        exclude: [
+            "ObjC",
+            "ObjCpp",
+            "Info.plist",
+            "Helper/InfoPlist/TestInfoPlist.plist",
+            "OptionsInSyncWithDocs/README.md"
+        ],
+        cSettings: cSettings,
+        swiftSettings: [
+            .enableUpcomingFeature("BareSlashRegexLiterals"),
+            .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"]))
+        ] + swiftSettings
+    )
+]
+targets += [
+    .testTarget(
+        name: "SentryTestsObjC",
+        dependencies: ["SentryObjCInternal", "SentrySwift", "_SentryPrivate", "SentryTestUtils", "SentryTestUtilsObjC"],
+        path: "Tests/SentryTests/ObjC",
+        cSettings: [
+            .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
+        ] + cSettings
+    ),
+    .testTarget(
+        name: "SentryTestsObjCpp",
+        dependencies: ["SentryObjCInternal", "_SentryPrivate", "SentryTestUtilsObjCpp"],
+        path: "Tests/SentryTests/ObjCpp",
+        cxxSettings: cxxSettings,
+        linkerSettings: [.linkedLibrary("c++")]
+    )
+]
+
 // Match the entire V9-only Xcode profiler suite, including its wrapper tests.
 // Environment V10 excludes the V9-only profiler suite.
 if !envSelectsV10 {
@@ -413,6 +455,11 @@ for target in targets where target.type == .regular || target.type == .test {
 }
 
 let packageDependencies: [Package.Dependency] = [
+    // Test-only: keep this local dependency unreachable from all SDK products.
+    .package(
+        path: "SentryTestUtilsDynamic",
+        traits: [.trait(name: "NoUIFramework", condition: .when(traits: ["NoUIFramework"]))]
+    ),
     .package(url: "https://github.com/getsentry/KSCrash.git", revision: "18a633dec20c265f03386294f9d82d208bb13094")
 ]
 
