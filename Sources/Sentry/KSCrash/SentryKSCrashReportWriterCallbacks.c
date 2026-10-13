@@ -294,6 +294,12 @@ sentrykscrash_attachments_setViewHierarchyWriter(SentryKSCrashAttachmentsViewHie
 
 #    if SENTRY_TEST || SENTRY_TEST_CI
 bool
+sentrykscrash_attachments_hasScreenshotWriter(void)
+{
+    return atomic_load_explicit(&g_screenshotWriter, memory_order_acquire) != NULL;
+}
+
+bool
 sentrykscrash_attachments_hasViewHierarchyWriter(void)
 {
     return atomic_load_explicit(&g_viewHierarchyWriter, memory_order_acquire) != NULL;

@@ -3,7 +3,8 @@
 
 #    import "SentryCrashMachineContext.h"
 #    import "SentryCrashMachineContext_Apple.h"
-#    import "SentryCrashStackCursor_MachineContext.h"
+@import _SentryPrivate;
+@import SentryTestUtilsObjC;
 #    import "TestThread.h"
 #    import <mach/mach.h>
 #    if defined(__arm64__)

@@ -1,17 +1,17 @@
-// This import must be first. In SPM the file needs to be in the "include" directory since that is
-// the Public headers directory.
+// This import must precede the SDK headers. In SPM the file needs to be in the "include" directory
+// since that is the Public headers directory.
 #import "SentryProfilingConditionals.h"
 
 // Sentry internal headers that are needed for swift code; you cannot import headers that depend on
 // public interfaces here
 #import "SentryClient+Private.h"
-#import "SentryCrashAsync.h"
 #if !SDK_V10
+#    import "SentryCrashAsync.h"
 #    import "SentryCrashBinaryImageCache.h"
+#    import "SentryCrashC.h"
 #    import "SentryCrashDynamicLinker.h"
 #    import "SentryCrashUUIDConversion.h"
 #endif
-#import "SentryCrashC.h"
 #import "SentryError.h"
 #import "SentryFormatterSwift.h"
 #import "SentryHub+Private.h"
@@ -25,6 +25,7 @@
 #import "SentryNSExceptionCaptureHelper.h"
 #import "SentryNSFileManagerSwizzlingHelper.h"
 #import "SentryNSURLSessionTaskSearch.h"
+#import "SentryNativeReportFields.h"
 #import "SentryNoOpSpan.h"
 #import "SentryObjCExceptionHelper.h"
 #import "SentrySDK+Private.h"
@@ -46,20 +47,20 @@
 #import "SentryAttachment+Private.h"
 #import "SentryBreadcrumb+Private.h"
 #import "SentryContinuousProfiler.h"
-#import "SentryCrash.h"
-#import "SentryCrashDebug.h"
 #if !SDK_V10
+#    import "SentryCrash.h"
+#    import "SentryCrashDebug.h"
 #    import "SentryCrashDefaultMachineContextWrapper.h"
+#    import "SentryCrashInstallation+Private.h"
+#    import "SentryCrashInstallation.h"
 #    import "SentryCrashMachineContextWrapper.h"
+#    import "SentryCrashMonitor_AppState.h"
+#    import "SentryCrashMonitor_CPPException.h"
+#    import "SentryCrashMonitor_Signal.h"
+#    import "SentryCrashMonitor_System.h"
+#    import "SentryCrashReportSink.h"
+#    import "SentryCrashScopeObserver.h"
 #endif
-#import "SentryCrashInstallation+Private.h"
-#import "SentryCrashInstallation.h"
-#import "SentryCrashMonitor_AppState.h"
-#import "SentryCrashMonitor_CPPException.h"
-#import "SentryCrashMonitor_Signal.h"
-#import "SentryCrashMonitor_System.h"
-#import "SentryCrashReportSink.h"
-#import "SentryCrashScopeObserver.h"
 #import "SentryDateUtils.h"
 #import "SentryDefaultThreadInspector.h"
 #import "SentryDefaultUIViewControllerPerformanceTracker.h"
@@ -69,11 +70,11 @@
 #import "SentryEvent+Private.h"
 #import "SentryFileIOTrackerHelper.h"
 #import "SentryFileManagerHelper.h"
-#import "SentryLaunchProfiling.h"
 #import "SentryMsgPackSerializer.h"
 #import "SentryNSDataSwizzlingHelper.h"
 #import "SentryNSFileManagerSwizzlingHelper.h"
 #import "SentryProfileCollector.h"
+#import "SentryProfileConfiguration.h"
 #import "SentryProfiledTracerConcurrency.h"
 #import "SentryProfiler+Private.h"
 #import "SentrySDKInternal.h"
@@ -92,6 +93,7 @@
 #import "SentryTraceOrigin.h"
 #import "SentryTraceProfiler.h"
 #import "SentryTracePropagation.h"
+#import "SentryTracer+Private.h"
 #import "SentryTransaction+Private.h"
 #import "SentryTransactionContext+Private.h"
 #import "SentryUIViewControllerSwizzlingHelper.h"
