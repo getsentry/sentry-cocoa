@@ -399,22 +399,14 @@ targets += [
         dependencies: [
             "SentrySwift", "_SentryPrivate", "SentryTestUtils", "SentryTestUtilsObjC", "SentryTestUtilsObjCpp",
             .product(name: "SentryTestUtilsDynamic", package: "SentryTestUtilsDynamic", condition: .when(platforms: [.iOS, .tvOS, .visionOS]))
-        ],
+        ] + (envSelectsV10 ? [] : [.target(name: "SentryCrashV9Swift")]),
         path: "Tests/SentryTests",
         exclude: [
             "ObjC",
             "ObjCpp",
             "Info.plist",
             "Helper/InfoPlist/TestInfoPlist.plist",
-            "OptionsInSyncWithDocs/README.md",
-            // Deferred to a dedicated V9 crash test target; still covered by the Xcode project.
-            "Integrations/SentryCrash/SentryCrashIntegrationTests.swift",
-            "Integrations/SentryCrash/SentryCrashReportTests.swift",
-            "Integrations/SentryCrash/SentryUncaughtNSExceptionsTests.swift",
-            "Integrations/Session/SentrySessionGeneratorTests.swift",
-            "SentryCrash/SentryCrashInstallationReporterTests.swift",
-            "SentryCrash/SentryCrashInstallationTests.swift",
-            "SentryCrashExceptionApplicationTests.swift"
+            "OptionsInSyncWithDocs/README.md"
         ],
         cSettings: cSettings,
         swiftSettings: [
