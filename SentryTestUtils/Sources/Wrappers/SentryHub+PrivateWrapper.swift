@@ -23,6 +23,7 @@ extension SentryHubInternal {
         )
     }
 
+    #if SWIFT_PACKAGE
     @_spi(Private) public var session: SentrySession? {
         get {
             guard let object = test_session() else { return nil }
@@ -34,4 +35,5 @@ extension SentryHubInternal {
         }
         set { test_setSession(newValue) }
     }
+    #endif
 }
