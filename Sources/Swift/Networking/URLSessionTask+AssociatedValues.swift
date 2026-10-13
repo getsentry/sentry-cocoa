@@ -12,14 +12,6 @@ final class URLSessionTaskNetworkTrackerState {
         case completed
     }
 
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-    struct NetworkDetailCaptureDecision {
-        let replayOptions: SentryReplayOptions
-        let patternVersion: Int
-        let isEnabled: Bool
-    }
-#endif
-
     struct Values {
         var spanState = SpanState.idle
         var startDate: Date?
@@ -29,7 +21,7 @@ final class URLSessionTaskNetworkTrackerState {
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         var networkDetails: SentryReplayNetworkDetails?
-        var networkDetailCaptureDecisions: [String: NetworkDetailCaptureDecision] = [:]
+        var networkDetailCaptureDecisions: [String: Bool] = [:]
 #endif
     }
 

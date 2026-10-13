@@ -53,12 +53,52 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
 
     private let state = SentryMutex(NetworkTrackerState())
 
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    private struct NetworkDetailConfiguration {
+        let allowUrls: [SentryUrlMatcher]
+        let denyUrls: [SentryUrlMatcher]
+        let hasAllowUrls: Bool
+
+        init(options: Options?) {
+            if let options {
+                let snapshot = options.sessionReplay.networkDetailUrlPatternsSnapshot()
+                self.allowUrls = snapshot.allowUrls
+                self.denyUrls = snapshot.denyUrls
+                self.hasAllowUrls = !snapshot.allowUrls.isEmpty
+            } else {
+                self.allowUrls = []
+                self.denyUrls = []
+                self.hasAllowUrls = false
+            }
+        }
+
+        func isCaptureEnabled(for urlString: String) -> Bool {
+            guard hasAllowUrls else {
+                return false
+            }
+            if matches(url: urlString, against: denyUrls) {
+                return false
+            }
+            return matches(url: urlString, against: allowUrls)
+        }
+
+        private func matches(url: String, against matchers: [SentryUrlMatcher]) -> Bool {
+            matchers.contains { $0.matches(url: url) }
+        }
+    }
+
+    private let networkDetailConfiguration: NetworkDetailConfiguration
+#endif
+
     // MARK: - Initializers
 
     init(options: Options?, dependencies: Dependencies) {
         self.dateProvider = dependencies.dateProvider
         self.hub = dependencies.hub
         self.threadInspector = dependencies.threadInspector
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        self.networkDetailConfiguration = NetworkDetailConfiguration(options: options)
+#endif
     }
 
     // MARK: - Public API
@@ -737,47 +777,28 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
     private func isNetworkDetailCaptureEnabled(
         for urlString: String,
         task: URLSessionTask,
-        options: Options
+        options: Options? = nil
     ) -> Bool {
-        let replayOptions = options.sessionReplay
-        let snapshot = replayOptions.networkDetailUrlPatternsSnapshot()
+        _ = options
 
         if let cached = task.withNetworkTrackerState({
             $0.networkDetailCaptureDecisions[urlString]
-        }),
-           cached.replayOptions === replayOptions,
-           cached.patternVersion == snapshot.version {
-            return cached.isEnabled
+        }) {
+            return cached
         }
 
-        // Perform regex matching outside the task-state lock and configuration lock.
-        let result = replayOptions.isNetworkDetailCaptureEnabled(
-            for: urlString,
-            allowUrls: snapshot.allowUrls,
-            denyUrls: snapshot.denyUrls
-        )
+        guard networkDetailConfiguration.hasAllowUrls else {
+            return false
+        }
+
+        // Perform pattern matching outside the task-state lock.
+        let result = networkDetailConfiguration.isCaptureEnabled(for: urlString)
 
         return task.withNetworkTrackerState { state in
-            let currentVersion = replayOptions.networkDetailURLPatternVersion
-
-            // Another callback may have populated the cache while matching.
-            if let cached = state.networkDetailCaptureDecisions[urlString],
-               cached.replayOptions === replayOptions,
-               cached.patternVersion == currentVersion {
-                return cached.isEnabled
+            if let cached = state.networkDetailCaptureDecisions[urlString] {
+                return cached
             }
-
-            if snapshot.version != currentVersion {
-                return result
-            }
-
-            state.networkDetailCaptureDecisions[urlString] =
-                URLSessionTaskNetworkTrackerState.NetworkDetailCaptureDecision(
-                    replayOptions: replayOptions,
-                    patternVersion: snapshot.version,
-                    isEnabled: result
-                )
-
+            state.networkDetailCaptureDecisions[urlString] = result
             return result
         }
     }

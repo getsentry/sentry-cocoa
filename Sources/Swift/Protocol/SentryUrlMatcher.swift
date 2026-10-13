@@ -12,7 +12,28 @@ public enum SentryUrlMatcher {
     case string(String)
     /// NSRegularExpression pattern for regex matching.
     case regex(NSRegularExpression)
-    
+
+    /// Converts the matcher back to its underlying `SentryUrlMatchable` representation.
+    var matchable: SentryUrlMatchable {
+        switch self {
+        case .string(let string):
+            return string
+        case .regex(let regex):
+            return regex
+        }
+    }
+
+    /// Evaluates whether the given URL string matches this pattern.
+    func matches(url: String) -> Bool {
+        switch self {
+        case .string(let pattern):
+            return url.contains(pattern)
+        case .regex(let regex):
+            let range = NSRange(url.startIndex..., in: url)
+            return regex.firstMatch(in: url, range: range) != nil
+        }
+    }
+
     /// Converts an array of Any values to an array of SentryUrlMatchable, filtering out invalid types.
     ///
     /// Validates and filters entries: trim whitespace from strings, discard empty strings,
