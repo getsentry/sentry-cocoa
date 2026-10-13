@@ -27,14 +27,27 @@
 
 #if !SDK_V10
 #    import <XCTest/XCTest.h>
+#    include <limits.h>
+#    include <stdbool.h>
+#    include <stddef.h>
+#    include <stdint.h>
 
 @import _SentryPrivate;
 @import SentryTestUtilsObjC;
+
+extern bool sentrycrashcm_nsexception_isValidFrameCount(size_t numFrames);
 
 @interface SentryCrashMonitor_NSException_StackCursor_Tests : XCTestCase
 @end
 
 @implementation SentryCrashMonitor_NSException_StackCursor_Tests
+
+- (void)testIsValidFrameCount_whenCountExceedsLimits_shouldReturnFalse
+{
+    // -- Act & Assert --
+    XCTAssertFalse(sentrycrashcm_nsexception_isValidFrameCount((size_t)INT_MAX + 1));
+    XCTAssertFalse(sentrycrashcm_nsexception_isValidFrameCount(SIZE_MAX / sizeof(uintptr_t) + 1));
+}
 
 - (void)testExceptionWithEmptyCallStackReturnAddresses_CapturesCurrentThreadStack
 {

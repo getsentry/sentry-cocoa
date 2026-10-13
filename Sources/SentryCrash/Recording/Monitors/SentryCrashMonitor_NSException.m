@@ -68,8 +68,12 @@ static SentryCrashBridge *g_bridge = nil;
 static void
 handleException(NSException *exception)
 {
-    SENTRY_ASYNC_SAFE_LOG_DEBUG("Trapped exception %p", (__bridge void *)exception);
     if (g_isEnabled) {
+        // The exception already contains its throw-site backtrace. Copy it before suspending
+        // other threads, since extraction uses Objective-C messaging and heap allocation.
+        SentryCrashStackCursor cursor;
+        uintptr_t *callstack = sentrycrashcm_nsexception_initStackCursor(&cursor, exception);
+
         thread_act_array_t threads = NULL;
         mach_msg_type_number_t numThreads = 0;
         // Apple's documentation for NSSetUncaughtExceptionHandler does
@@ -82,9 +86,6 @@ handleException(NSException *exception)
         sentrycrashid_generate(eventID);
         SentryCrashMC_NEW_CONTEXT(machineContext);
         sentrycrashmc_getContextForThread(sentrycrashthread_self(), machineContext, true);
-        SentryCrashStackCursor cursor;
-
-        uintptr_t *callstack = sentrycrashcm_nsexception_initStackCursor(&cursor, exception);
 
         SentryCrash_MonitorContext *crashContext = &g_monitorContext;
         memset(crashContext, 0, sizeof(*crashContext));
@@ -92,6 +93,8 @@ handleException(NSException *exception)
         crashContext->eventID = eventID;
         crashContext->offendingMachineContext = machineContext;
         crashContext->registersAreValid = false;
+        // Other threads are suspended here. Objective-C messaging, string conversion and formatting
+        // userInfo can allocate or acquire locks.
         crashContext->NSException.name = [[exception name] UTF8String];
         crashContext->NSException.userInfo =
             [[NSString stringWithFormat:@"%@", exception.userInfo] UTF8String];
@@ -99,12 +102,15 @@ handleException(NSException *exception)
         crashContext->crashReason = [[exception reason] UTF8String];
         crashContext->stackCursor = &cursor;
 
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Trapped exception %s: %s",
+            crashContext->exceptionName ?: "(null)", crashContext->crashReason ?: "(null)");
         SENTRY_ASYNC_SAFE_LOG_DEBUG("Calling main crash handler.");
         sentrycrashcm_handleException(crashContext);
 
-        if (callstack != NULL) {
-            free(callstack);
-        }
+        // free can acquire allocator locks held by suspended threads.
+        sentrycrashmc_resumeEnvironment(threads, numThreads);
+        free(callstack);
+
         if (g_previousUncaughtExceptionHandler != NULL) {
             SENTRY_ASYNC_SAFE_LOG_DEBUG("Calling original exception handler.");
             g_previousUncaughtExceptionHandler(exception);
