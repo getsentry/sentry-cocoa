@@ -1,5 +1,7 @@
 #if SWIFT_PACKAGE
 @_spi(Private) @testable import SentrySwift
+#else
+@_spi(Private) @testable import Sentry
 #endif
 import Foundation
 
@@ -35,9 +37,9 @@ extension SentryStacktrace {
     }
 }
 
-extension Sentry.Frame {
+extension Frame {
     open override func isEqual(_ object: Any?) -> Bool {
-        if  let other = object as? Sentry.Frame {
+        if  let other = object as? Frame {
             return symbolAddress == other.symbolAddress &&
                 fileName == other.fileName &&
                 function == other.function &&

@@ -68,6 +68,8 @@ SENTRY_NO_INIT
 
 /**
  * The timestamp of which the span ended.
+ * @note The accessors are synchronized together with @c isFinished because the tracer reads the
+ * timestamps of finished child spans from another thread.
  */
 @property (nullable, nonatomic, strong) NSDate *timestamp;
 

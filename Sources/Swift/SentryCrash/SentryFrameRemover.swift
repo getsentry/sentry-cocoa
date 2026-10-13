@@ -12,7 +12,10 @@
             guard let package = frame.package?.lowercased() else {
                 return true
             }
-            return !package.contains("/sentry.framework/") && !package.contains("/sentryprivate.framework/")
+            return !package.contains("/sentry.framework/")
+                && !package.contains("/sentryprivate.framework/")
+                && !package.contains("/sentryobjc.framework/")
+                && !package.hasSuffix("/sentryobjc.dylib")
         }
         
         if let indexOfFirstNonSentryFrame {

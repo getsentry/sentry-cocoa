@@ -1,6 +1,4 @@
-#if SWIFT_PACKAGE
 import _SentryPrivate
-#endif
 import XCTest
 
 // We need to know whether Apple changes the NSURLSessionTask implementation.

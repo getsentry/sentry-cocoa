@@ -4,6 +4,7 @@
 #else
 @_spi(Private) @testable import Sentry
 #endif
+import _SentryPrivate
 import XCTest
 
 // swiftlint:disable file_length

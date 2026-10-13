@@ -1,13 +1,14 @@
 // Profiling is only supported on iOS
+#if !SDK_V10
 #if os(iOS)
 
 @_spi(Private) import SentryTestUtils
 #if SWIFT_PACKAGE
 @_spi(Private) @testable import SentrySwift
-import _SentryPrivate
 #else
 @_spi(Private) @testable import Sentry
 #endif
+import _SentryPrivate
 import ObjectiveC
 import XCTest
 
@@ -96,7 +97,7 @@ class SentryVCTrackerLaunchProfilingTests: XCTestCase {
 
         let hub = SentrySDKInternal.currentHub()
         let launchTracer = fixture.makeLaunchTracer(hub: hub)
-        sentry_launchTracer = launchTracer
+        SentryLaunchProfiling.launchTracer = launchTracer
 
         sut.viewControllerLoadView(viewController) { }
 
@@ -114,7 +115,7 @@ class SentryVCTrackerLaunchProfilingTests: XCTestCase {
 
         let hub = SentrySDKInternal.currentHub()
         let launchTracer = fixture.makeLaunchTracer(hub: hub)
-        sentry_launchTracer = launchTracer
+        SentryLaunchProfiling.launchTracer = launchTracer
 
         sut.viewControllerLoadView(viewController) { }
 
@@ -130,7 +131,7 @@ class SentryVCTrackerLaunchProfilingTests: XCTestCase {
 
         let hub = SentrySDKInternal.currentHub()
         let launchTracer = fixture.makeLaunchTracer(hub: hub)
-        sentry_launchTracer = launchTracer
+        SentryLaunchProfiling.launchTracer = launchTracer
 
         sut.viewControllerLoadView(viewController) { }
 
@@ -159,13 +160,13 @@ class SentryVCTrackerLaunchProfilingTests: XCTestCase {
 
         let hub = SentrySDKInternal.currentHub()
         let launchTracer = fixture.makeLaunchTracer(hub: hub)
-        sentry_launchTracer = launchTracer
+        SentryLaunchProfiling.launchTracer = launchTracer
 
         sut.viewControllerLoadView(viewController) { }
         sut.viewControllerViewWillAppear(viewController) { }
         reportFrame()
 
-        sentry_launchTracer = nil
+        SentryLaunchProfiling.launchTracer = nil
 
         sut.viewControllerViewDidAppear(viewController) { }
 
@@ -209,3 +210,5 @@ class SentryVCTrackerLaunchProfilingTests: XCTestCase {
 }
 
 #endif
+
+#endif // !SDK_V10

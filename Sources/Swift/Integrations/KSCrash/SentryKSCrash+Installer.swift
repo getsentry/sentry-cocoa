@@ -255,10 +255,6 @@ extension SentryKSCrash {
                 case let value as Date:
                     KSCrash.shared.setUserInfo(value, forKey: key)
                 default:
-#if SENTRY_DISABLE_SENTRYCRASH_V10
-                    // KSCRASH_TODO(GH-8756): KSCrash's key-value store drops nested scope data.
-                    // Residual limitation of SCV10-015 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
-#endif
                     SentrySDKLog.debug("Dropping '\(key): \(value) as it's not a supported type")
                 }
             }

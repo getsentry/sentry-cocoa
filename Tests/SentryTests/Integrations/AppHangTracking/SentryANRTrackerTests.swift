@@ -100,11 +100,11 @@ final class MockANRTrackerDelegate: SentryANRTrackerDelegate {
     var stoppedResults: [SentryANRStoppedResult?] = []
     var detectedTypes: [SentryANRType] = []
 
-    func anrDetected(type: Sentry.SentryANRType) {
+    func anrDetected(type: SentryANRType) {
         detectedTypes.append(type)
     }
     
-    func anrStopped(result: Sentry.SentryANRStoppedResult?) {
+    func anrStopped(result: SentryANRStoppedResult?) {
         stoppedResults.append(result)
     }
 }
