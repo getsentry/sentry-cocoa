@@ -6,6 +6,12 @@
 
 - Fix a data race on the span end timestamp that could crash in `SentryTracer.trimEndTimestamp` when a child span finishes on another thread while its transaction finishes (#9305)
 - Validate feedback payloads before transport and align the managed form's message counter and errors with the cross-SDK input validation specification (#8973)
+- Read the initial `UIApplication.applicationState` asynchronously on the main queue when the SDK's dependency container is first accessed off the main thread, instead of blocking the calling thread while waiting for the main thread during app launch (#9304)
+- Prevent crash report buffer overflows when flushing pending data fails (#9317)
+- Fix an `EXC_BAD_ACCESS` crash while reading the cellular network technology on iOS. The SDK now copies the value from CoreTelephony under the lock that CoreTelephony uses to change it (#9332)
+- Avoid crash-handler deadlocks caused by SDK debug logging or NSException backtrace memory management while other threads are suspended (#9324)
+  - Prepare NSException backtraces before suspending other threads, and resume them before releasing the backtrace buffer.
+  - NSException-monitor debug and warning diagnostics now use the async-safe logger's compile-time threshold (`ERROR` by default), so runtime debug options no longer enable them.
 
 ## 9.30.1
 
