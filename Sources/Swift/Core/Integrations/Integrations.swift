@@ -79,10 +79,6 @@ private struct AnyIntegration {
             .init(SentryNetworkTrackingIntegration.self)
         ])
 
-        #if os(iOS) && !targetEnvironment(macCatalyst)
-        integrations.append(.init(SentryConnectionEffectiveTypeIntegration.self))
-        #endif
-
         #if !SDK_V10
         integrations.append(.init(SentryHangTrackerIntegrationObjC.self))
         #endif
@@ -108,6 +104,9 @@ private struct AnyIntegration {
 
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         integrations.append(.init(SentryScreenshotIntegration.self))
+        #endif
+
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         integrations.append(.init(SentryViewHierarchyIntegration.self))
         #endif
 

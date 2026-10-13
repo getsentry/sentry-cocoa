@@ -60,12 +60,4 @@ public final class SentryExperimentalOptions: NSObject {
      * See https://github.com/getsentry/sentry-cocoa/issues/8548.
      */
     public var enableUIViewControllerInitSwizzling = false
-
-    /// Reports the generation of the cellular network technology, for example `4g` or `5g`, as
-    /// `connection_effective_type` in the device context of events on cellular connections.
-    ///
-    /// Only has an effect on iOS. Reading the technology from `CoreTelephony` crashed apps in
-    /// 9.30.0 and 9.30.1, so this is disabled by default until the fix is confirmed.
-    /// See https://github.com/getsentry/sentry-cocoa/issues/9330.
-    public var enableConnectionEffectiveType = false
 }

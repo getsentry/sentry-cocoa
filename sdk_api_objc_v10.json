@@ -2202,13 +2202,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "enableConnectionEffectiveType",
-    "parent": "SentryObjCExperimentalOptions",
-    "returnType": "BOOL",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "enableCoreDataTracing",
     "parent": "SentryObjCOptions",
     "returnType": "BOOL",
@@ -6248,13 +6241,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "setEnableConnectionEffectiveType:",
-    "parent": "SentryObjCExperimentalOptions",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "setEnableCoreDataTracing:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
@@ -9658,12 +9644,6 @@
     "kind": "ObjCPropertyDecl",
     "name": "enableCaptureFailedRequests",
     "parent": "SentryObjCOptions",
-    "type": "BOOL"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
-    "name": "enableConnectionEffectiveType",
-    "parent": "SentryObjCExperimentalOptions",
     "type": "BOOL"
   },
   {

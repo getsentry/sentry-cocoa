@@ -138,8 +138,8 @@ final class SentryExtraContextProviderTests: XCTestCase {
         // -- Arrange --
         let technologyProvider = TestSentryCellularNetworkTechnologyProvider()
         technologyProvider.currentTechnology = .fifthGeneration
+        fixture.reachability = SentryReachability(cellularNetworkTechnologyProvider: technologyProvider)
         let sut = fixture.getSut()
-        fixture.reachability.setCellularNetworkTechnologyProvider(technologyProvider)
         fixture.reachability.skipRegisteringActualCallbacks = true
         fixture.reachability.setReachabilityIgnoreActualCallback(true)
         let observer = TestSentryReachabilityObserver()

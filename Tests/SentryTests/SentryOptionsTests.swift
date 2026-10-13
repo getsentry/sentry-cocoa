@@ -27,14 +27,6 @@ final class SentryOptionsTests: XCTestCase {
         XCTAssertFalse(options.experimental.enableNewURLLoaderSwizzling)
     }
 
-    func testEnableConnectionEffectiveType_whenDefault_shouldBeFalse() {
-        // -- Arrange --
-        let options = Options()
-
-        // -- Assert --
-        XCTAssertFalse(options.experimental.enableConnectionEffectiveType)
-    }
-
     // MARK: - Data Collection
 
     func testDataCollection_whenInitialized_shouldUseDefault() throws {
