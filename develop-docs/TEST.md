@@ -75,14 +75,14 @@ Use `xcodebuild`, not `swift test`, to include Objective-C/Objective-C++ package
 
 #### Package tests with xcodebuild
 
-For project-equivalent compilation or simulator/device tests, use `xcodebuild` with the shared [SentrySPM scheme](../.swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme). Select `SentrySPM_Base` for V9 or `SentrySPM_Base_v10` with `SDK_V10=1`. These native plans include all current package test targets, with profiler tests only in V9. `swift test` does not apply Xcode test plans.
+For project-equivalent compilation or simulator/device tests, use `xcodebuild` with the shared [SentrySPM scheme](../.swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme). Select `SentrySPM_Base` for V9 or `SentrySPM_Base_v10` with `SDK_V10=1`. These plans include the main SDK suite, with profiler tests only in V9. Tests requiring `SentryCrashV9Swift` remain Xcode-project-only. `swift test` does not apply Xcode test plans.
 
 `xcodebuild` cannot select root-package traits from the command line, so explicit test flags are still required. Prepare and test a temporary source-only package to avoid duplicate binary outputs:
 
 ```sh
 package_dir="$(mktemp -d)"
 package_test_config="$PWD/Tests/Configuration/SwiftPM.xcconfig"
-rsync -a Package*.swift Sources SentryTestUtils SentryTestUtilsTests Tests Plans "$package_dir/"
+rsync -a Package*.swift Sources SentryTestUtils SentryTestUtilsDynamic SentryTestUtilsTests Tests Plans "$package_dir/"
 package_schemes=.swiftpm/xcode/xcshareddata/xcschemes
 mkdir -p "$package_dir/$package_schemes"
 cp "$package_schemes/SentrySPM.xcscheme" "$package_dir/$package_schemes/"
@@ -113,7 +113,9 @@ grep -E 'Executed|error:|TEST SUCCEEDED|TEST FAILED' "$package_dir/package-tests
 - Use an available iOS simulator destination for iOS-specific tests. `CODE_SIGNING_ALLOWED=NO` avoids fixture-bundle signing errors on macOS and simulators; device tests need a separate signing configuration.
 - Limit a run with `-only-testing:<test-target>`, for example `-only-testing:SentryObjCCompatTests`.
 - CI uses `TestCI` and the corresponding definitions from the table above. The [Distribution Tests job](../.github/workflows/test.yml) prepares all package manifests, selects Xcode 26 on `macos-26`, and resolves the iOS simulator runtime and device from that toolchain.
-- Keep shared Base exclusions consistent between project and package plans, mapping methods to the Swift or Objective-C package target. Project Base, Flaky, and TestServer plans remain unchanged.
+- Keep shared Base exclusions consistent between project and package plans, mapping tests to their Swift, Objective-C, or Objective-C++ target.
+- Use `SentrySPM_Flaky` for V9 flaky tests.
+- Use `SentrySPM_TestServer` or `SentrySPM_TestServer_v10` for network tests. Start the server with `make -C test-server start-debug` before that run and stop it with `make -C test-server stop` afterward, including on failure. Do not run unrelated plans while the server is active.
 
 #### Compiler settings and project parity
 

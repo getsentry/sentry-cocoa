@@ -1,5 +1,8 @@
 // swift-tools-version:6.0
 
+// Package targets and build settings must stay in a single manifest.
+// swiftlint:disable file_length
+
 #if canImport(Darwin)
 import Darwin.C
 #elseif canImport(Glibc)
@@ -322,6 +325,53 @@ targets += [
     )
 ]
 
+// SwiftPM cannot mix Swift and Clang test sources in one target.
+// Keep the main suite's existing language directories and V9/V10 source guards.
+targets += [
+    .testTarget(
+        name: "SentryTests",
+        dependencies: [
+            "SentrySwift", "_SentryPrivate", "SentryTestUtils", "SentryTestUtilsObjC", "SentryTestUtilsObjCpp",
+            .product(name: "SentryTestUtilsDynamic", package: "SentryTestUtilsDynamic", condition: .when(platforms: [.iOS, .tvOS, .visionOS]))
+        ],
+        path: "Tests/SentryTests",
+        exclude: [
+            "ObjC",
+            "ObjCpp",
+            "Info.plist",
+            "Helper/InfoPlist/TestInfoPlist.plist",
+            "OptionsInSyncWithDocs/README.md",
+            // Deferred to a dedicated V9 crash test target; still covered by the Xcode project.
+            "Integrations/SentryCrash/SentryCrashIntegrationTests.swift",
+            "Integrations/SentryCrash/SentryCrashReportTests.swift",
+            "Integrations/SentryCrash/SentryUncaughtNSExceptionsTests.swift",
+            "Integrations/Session/SentrySessionGeneratorTests.swift",
+            "SentryCrash/SentryCrashInstallationReporterTests.swift",
+            "SentryCrash/SentryCrashInstallationTests.swift",
+            "SentryCrashExceptionApplicationTests.swift"
+        ],
+        cSettings: cSettings,
+        swiftSettings: [
+            .enableUpcomingFeature("BareSlashRegexLiterals")
+        ] + swiftSettings
+    )
+]
+targets += [
+    .testTarget(
+        name: "SentryTestsObjC",
+        dependencies: ["SentryObjCInternal", "SentrySwift", "_SentryPrivate", "SentryTestUtils", "SentryTestUtilsObjC"],
+        path: "Tests/SentryTests/ObjC",
+        cSettings: cSettings
+    ),
+    .testTarget(
+        name: "SentryTestsObjCpp",
+        dependencies: ["SentryObjCInternal", "_SentryPrivate", "SentryTestUtilsObjCpp"],
+        path: "Tests/SentryTests/ObjCpp",
+        cxxSettings: cxxSettings,
+        linkerSettings: [.linkedLibrary("c++")]
+    )
+]
+
 // Match the entire V9-only Xcode profiler suite, including its wrapper tests.
 // Traits cannot remove targets, so source guards also exclude this suite when V10 is selected.
 if !envSelectsV10 {
@@ -349,7 +399,10 @@ if !envSelectsV10 {
     ]
 }
 
-let packageDependencies: [Package.Dependency] = envSelectsV10 ? [.package(url: "https://github.com/getsentry/KSCrash.git", revision: "18a633dec20c265f03386294f9d82d208bb13094")] : []
+let packageDependencies: [Package.Dependency] = [
+    // Test-only: keep this local dependency unreachable from all SDK products.
+    .package(path: "SentryTestUtilsDynamic")
+] + (envSelectsV10 ? [.package(url: "https://github.com/getsentry/KSCrash.git", revision: "18a633dec20c265f03386294f9d82d208bb13094")] : [])
 
 let package = Package(
     name: "Sentry",
