@@ -538,6 +538,11 @@ final class SentryUIRedactBuilder {
         guard let image = imageView.image, image.size.width > 10 && image.size.height > 10  else {
             return false
         }
+        // Symbols include SF Symbols and custom asset-catalog symbols. Identify them
+        // without reading imageAsset, whose lazy initialization can mutate the image.
+        if image.isSymbolImage {
+            return false
+        }
         return image.imageAsset?.value(forKey: "_containingBundle") == nil
     }
 

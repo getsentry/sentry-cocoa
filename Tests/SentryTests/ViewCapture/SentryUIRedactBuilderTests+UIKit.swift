@@ -351,6 +351,53 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
         XCTAssertEqual(result.count, 0)
     }
 
+    func testRedactRegionsFor_whenImageIsSystemSymbol_shouldNotRedact() throws {
+        // -- Arrange --
+        let symbol = try XCTUnwrap(UIImage(systemName: "person.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 40)))
+        XCTAssertTrue(symbol.isSymbolImage)
+        XCTAssertGreaterThan(symbol.size.width, 10)
+        XCTAssertGreaterThan(symbol.size.height, 10)
+        let imageView = UIImageView(image: symbol)
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+
+        // -- Act --
+        let regions = sut.redactRegionsFor(view: imageView)
+
+        // -- Assert --
+        XCTAssertFalse(regions.contains { $0.type == .redact })
+    }
+
+    private final class SymbolImageAssetSpy: UIImage, @unchecked Sendable {
+        var imageAssetReads = 0
+
+        override var isSymbolImage: Bool { true }
+
+        override var imageAsset: UIImageAsset? {
+            imageAssetReads += 1
+            return nil
+        }
+    }
+
+    func testRedactRegionsFor_whenSymbolHasNoAsset_shouldNotReadAssetOrRedact() throws {
+        // -- Arrange --
+        // Models a symbol without bundle provenance and detects the side-effecting getter.
+        let raster = UIGraphicsImageRenderer(size: CGSize(width: 40, height: 40)).image { context in
+            context.fill(CGRect(x: 0, y: 0, width: 40, height: 40))
+        }
+        let symbol = SymbolImageAssetSpy(cgImage: try XCTUnwrap(raster.cgImage))
+        let imageView = UIImageView(image: symbol)
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        // Ignore any UIKit accesses made while constructing the view.
+        symbol.imageAssetReads = 0
+
+        // -- Act --
+        let regions = sut.redactRegionsFor(view: imageView)
+
+        // -- Assert --
+        XCTAssertFalse(regions.contains { $0.type == .redact })
+        XCTAssertEqual(symbol.imageAssetReads, 0)
+    }
+
     func testUIImageViewSmallImage_shouldNotRedact() {
         // -- Arrange --
         let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
