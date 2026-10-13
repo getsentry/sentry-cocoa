@@ -109,7 +109,7 @@ class SentryInternalApiTests: XCTestCase {
         let hub = TestHub(client: client, andScope: nil)
         SentrySDKInternal.setCurrentHub(hub)
         hub.setTestSession()
-        let sessionToBeCrashed = try XCTUnwrap(hub.session)
+        let sessionToBeCrashed = hub.session
 
         let envelope = getUnhandledExceptionEnvelope()
         SentrySDK.internal.envelope.store(envelope)
@@ -120,7 +120,7 @@ class SentryInternalApiTests: XCTestCase {
         
         XCTAssertEqual(0, hub.startSessionInvocations)
         // Assert crashed session was attached to the envelope
-        XCTAssertEqual(sessionToBeCrashed.sessionId.uuidString, try XCTUnwrap(attachedSession["sid"] as? String))
+        XCTAssertEqual(sessionToBeCrashed!.sessionId.uuidString, try XCTUnwrap(attachedSession["sid"] as? String))
         XCTAssertEqual("crashed", try XCTUnwrap(attachedSession["status"] as? String))
     }
     
@@ -140,7 +140,7 @@ class SentryInternalApiTests: XCTestCase {
         let hub = TestHub(client: client, andScope: nil)
         SentrySDKInternal.setCurrentHub(hub)
         hub.setTestSession()
-        let sessionToBeCrashed = try XCTUnwrap(hub.session)
+        let sessionToBeCrashed = hub.session
 
         let envelope = getUnhandledExceptionEnvelope()
         SentrySDK.internal.envelope.capture(envelope)
@@ -152,7 +152,7 @@ class SentryInternalApiTests: XCTestCase {
         // Assert new session was started
         XCTAssertEqual(1, hub.startSessionInvocations)
         // Assert crashed session was attached to the envelope
-        XCTAssertEqual(sessionToBeCrashed.sessionId.uuidString, try XCTUnwrap(attachedSession["sid"] as? String))
+        XCTAssertEqual(sessionToBeCrashed!.sessionId.uuidString, try XCTUnwrap(attachedSession["sid"] as? String))
         XCTAssertEqual("crashed", try XCTUnwrap(attachedSession["status"] as? String))
     }
 

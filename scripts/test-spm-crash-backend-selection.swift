@@ -2,7 +2,7 @@
 
 // Build real SDK consumers with temporary development selection before V10 separation.
 // Absent development V10 selects V9, including empty and NoUI-only declarations.
-// SDK copies and build logs stay outside the checkout but with --work-dir
+// SDK copies and build logs stay outside the checkout but with --work-dir 
 // you keep them where you like for review.
 
 import Foundation

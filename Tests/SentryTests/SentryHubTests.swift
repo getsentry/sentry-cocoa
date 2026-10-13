@@ -1423,13 +1423,8 @@ class SentryHubTests: XCTestCase {
             var videoUrl: URL?
             var scope: Scope?
             override func capture(_ event: Any, replayRecording recording: Any, video videoURL: URL, with scope: Scope) {
-                guard let replayEvent = event as? SentryReplayEvent,
-                      let replayRecording = recording as? SentryReplayRecording else {
-                    XCTFail("Unexpected replay payload types")
-                    return
-                }
-                self.replayEvent = replayEvent
-                self.replayRecording = replayRecording
+                self.replayEvent = event as? SentryReplayEvent
+                self.replayRecording = recording as? SentryReplayRecording
                 self.videoUrl = videoURL
                 self.scope = scope
             }

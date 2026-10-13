@@ -88,8 +88,8 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         SentrySDK.setStart(with: fixture.options)
     }
 
-    override func tearDownWithError() throws {
-        try super.tearDownWithError()
+    override func tearDown() {
+        super.tearDown()
         fixture.client.fileManager.deleteCurrentSession()
         fixture.client.fileManager.deleteCrashedSession()
         fixture.client.fileManager.deleteAbnormalSession()
@@ -198,14 +198,14 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     func testEndSessionAsCrashed_WithCurrentSession() throws {
         try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
-        let expectedCrashedSession = try givenCrashedSession()
+        let expectedCrashedSession = givenCrashedSession()
         SentrySDKInternal.setCurrentHub(fixture.hub)
 
         try advanceTime(bySeconds: 10)
 
         _ = try fixture.getSut()
 
-        try assertCrashedSessionStored(expected: expectedCrashedSession)
+        assertCrashedSessionStored(expected: expectedCrashedSession)
     }
 
 #if !SDK_V10
@@ -270,7 +270,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
         // -- Arrange --
-        _ = try givenPendingUnhandledCurrentSession()
+        _ = givenPendingUnhandledCurrentSession()
         SentrySDKInternal.setCurrentHub(fixture.hub)
 
         try advanceTime(bySeconds: 10)
@@ -288,25 +288,25 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     func testEndSessionAsCrashed_WhenOOM_WithCurrentSession() throws {
         try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
-        try givenOOMAppState()
+        givenOOMAppState()
         SentrySDKInternal.startInvocations = 1
 
-        let expectedCrashedSession = try givenCrashedSession()
+        let expectedCrashedSession = givenCrashedSession()
 
         SentrySDKInternal.setCurrentHub(fixture.hub)
         try advanceTime(bySeconds: 10)
 
         _ = try XCTUnwrap(fixture.sutWithoutCrash)
 
-        try assertCrashedSessionStored(expected: expectedCrashedSession)
+        assertCrashedSessionStored(expected: expectedCrashedSession)
     }
 
     func testOutOfMemoryTrackingDisabled() throws {
         try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
-        try givenOOMAppState()
+        givenOOMAppState()
 
-        let session = try givenCurrentSession()
+        let session = givenCurrentSession()
 
         _ = try XCTUnwrap(fixture.sutWithoutCrash)
 
@@ -335,7 +335,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     func testEndSessionAsCrashed_NoCrashLastLaunch() throws {
         try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
-        let session = try givenCurrentSession()
+        let session = givenCurrentSession()
 
         let sentryCrash = fixture.sentryCrash
         sentryCrash.internalCrashedLastLaunch = false
@@ -404,7 +404,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let sentryCrash = fixture.sentryCrash
         sentryCrash.internalCrashedLastLaunch = false
 
-        let session = try givenCurrentSession()
+        let session = givenCurrentSession()
 
         // Act
         _ = try fixture.getSut(crashWrapper: sentryCrash)
@@ -431,7 +431,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let sentryCrash = fixture.sentryCrash
         sentryCrash.internalCrashedLastLaunch = false
 
-        let session = try givenCurrentSession()
+        let session = givenCurrentSession()
         let appHangEvent = Event()
         fileManager.storeAppHang(appHangEvent)
 
@@ -452,7 +452,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let sentryCrash = fixture.sentryCrash
         sentryCrash.internalCrashedLastLaunch = false
 
-        let session = try givenCurrentSession()
+        let session = givenCurrentSession()
 
         let fileManager = fixture.client.fileManager
         let appHangEvent = Event()
@@ -483,7 +483,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let sentryCrash = fixture.sentryCrash
         sentryCrash.internalCrashedLastLaunch = false
 
-        _ = try givenPendingUnhandledCurrentSession()
+        _ = givenPendingUnhandledCurrentSession()
 
         let fileManager = fixture.client.fileManager
         fileManager.storeAppHang(Event())
@@ -502,7 +502,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
         // Arrange
-        let expectedCrashedSession = try givenCrashedSession()
+        let expectedCrashedSession = givenCrashedSession()
         SentrySDKInternal.setCurrentHub(fixture.hub)
         let fileManager = fixture.client.fileManager
         let appHangEvent = Event()
@@ -514,7 +514,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         _ = try fixture.getSut()
 
         // Assert
-        try assertCrashedSessionStored(expected: expectedCrashedSession)
+        assertCrashedSessionStored(expected: expectedCrashedSession)
         XCTAssertNil(fileManager.readAbnormalSession())
     }
 
@@ -797,8 +797,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         options.enablePersistingTracesWhenCrashing = true
 
         let client = SentryClientInternal(options: options)
-        let fileManager = try XCTUnwrap(client?.fileManager)
-        defer { fileManager.deleteAllEnvelopes() }
+        defer { client?.fileManager.deleteAllEnvelopes() }
         let hub = SentryHubInternal(client: client, andScope: nil)
         SentrySDKInternal.setCurrentHub(hub)
 
@@ -810,8 +809,8 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
 
         XCTAssertTrue(transaction.isFinished)
 
-        XCTAssertEqual(1, fileManager.getAllEnvelopes().count)
-        let transactionEnvelopeFileContents = try XCTUnwrap(fileManager.getOldestEnvelope())
+        XCTAssertEqual(1, client?.fileManager.getAllEnvelopes().count)
+        let transactionEnvelopeFileContents = try XCTUnwrap(client?.fileManager.getOldestEnvelope())
         let envelope = try XCTUnwrap(SentrySerializationSwift.envelope(with: transactionEnvelopeFileContents.contents))
         XCTAssertEqual(1, envelope.items.count)
         XCTAssertEqual("transaction", envelope.items.first?.header.type)
@@ -824,8 +823,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         options.enablePersistingTracesWhenCrashing = true
 
         let client = SentryClientInternal(options: options)
-        let fileManager = try XCTUnwrap(client?.fileManager)
-        defer { fileManager.deleteAllEnvelopes() }
+        defer { client?.fileManager.deleteAllEnvelopes() }
         let hub = SentryHubInternal(client: client, andScope: nil)
         SentrySDKInternal.setCurrentHub(hub)
 
@@ -837,7 +835,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         sentrycrash_invokeSaveTransaction()
 
         XCTAssertFalse(transaction.isFinished)
-        XCTAssertEqual(0, fileManager.getAllEnvelopes().count)
+        XCTAssertEqual(0, client?.fileManager.getAllEnvelopes().count)
     }
 
     func testEnableTracingForCrashes_InvokeCallback_WhenSpanOnScopeIsNotATracer_StoresTransaction() throws {
@@ -847,8 +845,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         options.enablePersistingTracesWhenCrashing = true
 
         let client = SentryClientInternal(options: options)
-        let fileManager = try XCTUnwrap(client?.fileManager)
-        defer { fileManager.deleteAllEnvelopes() }
+        defer { client?.fileManager.deleteAllEnvelopes() }
         let hub = SentryHubInternal(client: client, andScope: nil)
         SentrySDKInternal.setCurrentHub(hub)
 
@@ -860,8 +857,8 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
 
         sentrycrash_invokeSaveTransaction()
 
-        XCTAssertEqual(1, fileManager.getAllEnvelopes().count)
-        let transactionEnvelopeFileContents = try XCTUnwrap(fileManager.getOldestEnvelope())
+        XCTAssertEqual(1, client?.fileManager.getAllEnvelopes().count)
+        let transactionEnvelopeFileContents = try XCTUnwrap(client?.fileManager.getOldestEnvelope())
         let envelope = try XCTUnwrap(SentrySerializationSwift.envelope(with: transactionEnvelopeFileContents.contents))
         XCTAssertEqual(1, envelope.items.count)
         XCTAssertEqual("transaction", envelope.items.first?.header.type)
@@ -968,30 +965,30 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         _ = try fixture.getSut(crashWrapper: crash)
     }
 
-    private func givenCurrentSession() throws -> SentrySession {
+    private func givenCurrentSession() -> SentrySession {
         // serialize sets the timestamp
-        let session = try XCTUnwrap(SentrySession(jsonObject: fixture.session.serialize()))
+        let session = SentrySession(jsonObject: fixture.session.serialize())!
         fixture.client.fileManager.storeCurrentSession(session)
         return session
     }
 
-    private func givenPendingUnhandledCurrentSession() throws -> SentrySession {
+    private func givenPendingUnhandledCurrentSession() -> SentrySession {
         // serialize sets the timestamp
-        let session = try XCTUnwrap(SentrySession(jsonObject: fixture.session.serialize()))
+        let session = SentrySession(jsonObject: fixture.session.serialize())!
         session.markPendingUnhandled()
         fixture.client.fileManager.storeCurrentSession(session)
         return session
     }
 
-    private func givenCrashedSession() throws -> SentrySession {
-        let session = try givenCurrentSession()
+    private func givenCrashedSession() -> SentrySession {
+        let session = givenCurrentSession()
         session.endCrashed(withTimestamp: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(5))
 
         return session
     }
 
     #if os(iOS) || os(tvOS)
-    private func givenOOMAppState() throws {
+    private func givenOOMAppState() {
         let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, vendorId: UIDevice.current.identifierForVendor?.uuidString ?? "", isDebugging: false, systemBootTimestamp: SentryDependencyContainer.sharedInstance().dateProvider.date())
         appState.isActive = true
         fixture.client.fileManager.store(appState)
@@ -1040,7 +1037,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         }
     }
 
-    private func assertCrashedSessionStored(expected: SentrySession) throws {
+    private func assertCrashedSessionStored(expected: SentrySession) {
         let crashedSession = fixture.client.fileManager.readCrashedSession()
         XCTAssertEqual(SentrySessionStatus.crashed, crashedSession?.status)
         try XCTAssertTrue(expected.isEqual(to: XCTUnwrap(crashedSession)))
