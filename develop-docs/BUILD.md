@@ -49,3 +49,52 @@ make build-xcframework-dynamic  # Build Sentry-Dynamic XCFramework
 - Uses pre-built binaries for faster builds and mixed-language limitations
 - Binary distribution via git release assets
 - Not compatible with UIKit-free configurations
+
+## Temporary V10 Development Verification
+
+> [!NOTE]
+> This workflow applies while V9 and V10 are developed in the same branch. At the branch split, retire the temporary backend-selection checks and adapt the remaining checks for KSCrash-only V10. See [decision 40](DECISIONS.md#40-develop-v10-on-main-then-branch-off-v9) for the release plan.
+
+These checks help ensure that V10 builds contain no legacy recorder implementation while existing V9 dependency declarations continue to work. Run the commands below from the repository root.
+
+### 1. Test the verification scripts
+
+Run their regression tests before using the verifiers on your checkout:
+
+```bash
+./scripts/test-v10-compiler-log.sh
+./scripts/test-v10-empty-objects.sh
+./scripts/test-v10-sentryobjc-slice-inventory.sh
+```
+
+### 2. Check source ownership
+
+Check that V9 recorder sources and headers stay separate from V10, shared compatibility interfaces remain available, and the required build and test coverage is configured:
+
+```bash
+./scripts/verify-v10-sentrycrash-source-contract.swift
+```
+
+### 3. Check a V10 build
+
+Create a fresh V10 build and save its full, verbose build log without filtering or summarizing it. Once the build has completed successfully, run:
+
+```bash
+./scripts/verify-v10-sentrycrash-objects.sh \
+  --build-path /path/to/build-output \
+  --build-log /path/to/raw-build.log
+```
+
+Choose `--build-path` for the build being checked:
+
+| Build                     | Output directory                                                                                   |
+| ------------------------- | -------------------------------------------------------------------------------------------------- |
+| SDK or SentryObjC archive | `DerivedData/Build/Intermediates.noindex/ArchiveIntermediates/<scheme>/IntermediateBuildFilesPath` |
+| Catalyst packaging        | `DerivedData/Build/Intermediates.noindex`                                                          |
+| Debug SDK                 | `DerivedData`, including `Build/Products`                                                          |
+
+For archives, `<scheme>` is `SentryV10` or `SentryObjC`. SentryObjC also needs `--archive-path /path/to/sdk.xcarchive`: Xcode moves single-architecture package aggregates into `Products`, leaving dangling build-directory aliases. Only those logged aggregates may relocate, and their contents must still match their accounted inputs. For a copied checkout, add `--source-root /path/to/sdk`.
+
+Use the raw log from the same build. SDK builds retain `raw-build-output.log`; SDK XCFramework slices retain `XCFrameworkBuildPath/raw-build-output.log`; SentryObjC slices retain `<output-dir>/archive/SentryObjC/<sdk>.log`. V10 packagers audit each slice before its intermediates are replaced.
+
+Missing, incomplete or unsupported evidence fails the audit. See the [build-log reader](../scripts/read-v10-compiler-evidence.swift) and [object checker](../scripts/verify-v10-empty-objects.swift) for source/output accounting and aggregate-content checks. Build-only audit lanes disable coverage because it emits executable helpers even for empty Swift files; unit-test coverage is unchanged. Packaged artifacts and runtime behavior still need separate checks.

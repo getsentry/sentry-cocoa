@@ -23,6 +23,7 @@ class SentrySDKLogTests: XCTestCase {
         timeIntervalSince1970 = currentDateProvider.date().timeIntervalSince1970
         
         SentrySDKLog.setCurrentDateProvider(currentDateProvider)
+        SentrySDKLog.resetWillLogCallCount()
     }
 
     override func tearDown() {
@@ -189,6 +190,38 @@ class SentrySDKLogTests: XCTestCase {
         ], logOutput.loggedMessages)
     }
 
+    #if !SDK_V10
+    func testV9ConvenienceLogs_whenMessagesAreFiltered_shouldOnlyEvaluateEnabledMessages() {
+        let cases: [(Bool, SentryLevel, [SentryLevel])] = [
+            (false, .debug, []),
+            (true, .fatal, []),
+            (true, .error, [.error]),
+            (true, .debug, [.debug, .error])
+        ]
+        for (debug, diagnosticLevel, expectedLevels) in cases {
+            // -- Arrange --
+            let logOutput = TestLogOutput()
+            SentrySDKLog.setLogOutput(logOutput)
+            SentrySDKLogSupport.configure(debug, diagnosticLevel: diagnosticLevel)
+            var evaluations = 0
+            func message() -> String {
+                evaluations += 1
+                return "Log Message"
+            }
+
+            // -- Act --
+            SentryCrashV9Log.debug(message(), file: "/Sources/Crash.swift", line: 42)
+            SentryCrashV9Log.error(message(), file: "/Sources/Crash.swift", line: 42)
+
+            // -- Assert --
+            XCTAssertEqual(evaluations, expectedLevels.count, "Debug: \(debug), level: \(diagnosticLevel)")
+            XCTAssertEqual(expectedLevels.map {
+                "[Sentry] [\($0)] [\(timeIntervalSince1970)] [Crash:42] Log Message"
+            }, logOutput.loggedMessages)
+        }
+    }
+    #endif
+
     func testFatal_whenDebuggingIsDisabled_shouldStillEvaluateAndLogMessage() {
         // -- Arrange --
         let logOutput = TestLogOutput()
@@ -207,6 +240,99 @@ class SentrySDKLogTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(evaluations, 1)
         XCTAssertEqual(["[Sentry] [fatal] [\(timeIntervalSince1970)] [SentrySDKLogTests:\(line)] Fatal Log"], logOutput.loggedMessages)
+    }
+
+    func testLogMessageAndLevel_whenEnabled_shouldCheckWillLogOncePerLog() {
+        // -- Arrange --
+        // Configure first: it initializes the async log file, which emits a debug log on first use.
+        SentrySDKLogSupport.configure(true, diagnosticLevel: .debug)
+        let logOutput = TestLogOutput()
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLog.resetWillLogCallCount()
+
+        // -- Act --
+        SentrySDKLog.log(message: "debug", andLevel: .debug)
+        SentrySDKLog.log(message: "info", andLevel: .info)
+        SentrySDKLog.log(message: "warning", andLevel: .warning)
+        SentrySDKLog.log(message: "error", andLevel: .error)
+        SentrySDKLog.log(message: "fatal", andLevel: .fatal)
+
+        // -- Assert --
+        XCTAssertEqual(SentrySDKLog.getWillLogCallCount(), 5)
+        XCTAssertEqual(logOutput.loggedMessages.count, 5)
+    }
+
+    func testLogMessageAndLevel_whenFiltered_shouldCheckWillLogOncePerLog() {
+        // -- Arrange --
+        SentrySDKLogSupport.configure(false, diagnosticLevel: .none)
+        let logOutput = TestLogOutput()
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLog.resetWillLogCallCount()
+
+        // -- Act --
+        SentrySDKLog.log(message: "debug", andLevel: .debug)
+        SentrySDKLog.log(message: "info", andLevel: .info)
+        SentrySDKLog.log(message: "warning", andLevel: .warning)
+        SentrySDKLog.log(message: "error", andLevel: .error)
+        SentrySDKLog.log(message: "fatal", andLevel: .fatal)
+
+        // -- Assert --
+        // Fatal is at the always-log threshold, so it is the only message that gets through.
+        XCTAssertEqual(SentrySDKLog.getWillLogCallCount(), 5)
+        XCTAssertEqual(logOutput.loggedMessages, ["[Sentry] [fatal] [\(timeIntervalSince1970)] fatal"])
+    }
+
+    func testConvenienceLogs_whenEnabled_shouldCheckWillLogOncePerLog() {
+        // -- Arrange --
+        SentrySDKLogSupport.configure(true, diagnosticLevel: .debug)
+        let logOutput = TestLogOutput()
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLog.resetWillLogCallCount()
+
+        // -- Act --
+        SentrySDKLog.debug("debug")
+        SentrySDKLog.info("info")
+        SentrySDKLog.warning("warning")
+        SentrySDKLog.error("error")
+
+        // -- Assert --
+        XCTAssertEqual(SentrySDKLog.getWillLogCallCount(), 4)
+        XCTAssertEqual(logOutput.loggedMessages.count, 4)
+    }
+
+    func testConvenienceLogs_whenFiltered_shouldCheckWillLogOncePerLog() {
+        // -- Arrange --
+        SentrySDKLogSupport.configure(false, diagnosticLevel: .none)
+        let logOutput = TestLogOutput()
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLog.resetWillLogCallCount()
+
+        // -- Act --
+        SentrySDKLog.debug("debug")
+        SentrySDKLog.info("info")
+        SentrySDKLog.warning("warning")
+        SentrySDKLog.error("error")
+
+        // -- Assert --
+        XCTAssertEqual(SentrySDKLog.getWillLogCallCount(), 4)
+        XCTAssertTrue(logOutput.loggedMessages.isEmpty)
+    }
+
+    func testFatal_whenCalled_shouldLogWithoutCheckingWillLog() {
+        // -- Arrange --
+        SentrySDKLogSupport.configure(false, diagnosticLevel: .none)
+        let logOutput = TestLogOutput()
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLog.resetWillLogCallCount()
+
+        // -- Act --
+        let line = #line + 1
+        SentrySDKLog.fatal("fatal")
+
+        // -- Assert --
+        // Fatal is always logged, so it skips the level check entirely.
+        XCTAssertEqual(SentrySDKLog.getWillLogCallCount(), 0)
+        XCTAssertEqual(logOutput.loggedMessages, ["[Sentry] [fatal] [\(timeIntervalSince1970)] [SentrySDKLogTests:\(line)] fatal"])
     }
 
     /// Verifies that passing nil to setOutput (which can happen from Objective-C callers

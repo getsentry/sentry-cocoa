@@ -28,7 +28,7 @@
 #if !SDK_V10
 #    import <XCTest/XCTest.h>
 
-#    import "SentryCrashString.h"
+@import SentryTestUtilsObjC;
 
 @interface SentryCrashString_Tests : XCTestCase
 @end

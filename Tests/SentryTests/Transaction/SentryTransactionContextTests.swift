@@ -3,9 +3,9 @@
 #else
 @testable import Sentry
 #endif
+@_spi(Private) import SentryTestUtils
 import _SentryPrivate
 import Foundation
-import SentryTestUtils
 import XCTest
 
 class SentryTransactionContextTests: XCTestCase {

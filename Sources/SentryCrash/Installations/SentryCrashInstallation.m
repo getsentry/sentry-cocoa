@@ -35,6 +35,9 @@
 #    import "SentryCrashNSErrorUtil.h"
 #    import "SentryCrashReportFilterBasic.h"
 #    import "SentrySwift.h"
+#    if SWIFT_PACKAGE
+@import SentryCrashV9Swift;
+#    endif
 #    import <objc/runtime.h>
 
 /** Max number of properties that can be defined for writing to the report */

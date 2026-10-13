@@ -29,7 +29,7 @@
 #    import "FileBasedTestCase.h"
 #    import "XCTestCase+SentryCrash.h"
 
-#    import "SentryCrashReportStore.h"
+@import SentryTestUtilsObjC;
 
 #    include <inttypes.h>
 #    include <stdlib.h>
