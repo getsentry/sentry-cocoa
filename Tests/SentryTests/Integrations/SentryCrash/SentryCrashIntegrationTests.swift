@@ -646,7 +646,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         api?.pointee.setEnabled(false)
     }
 
-#if os(macOS)
+#if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
 
     func testUncaughtExceptions_Enabled() throws {
         try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
@@ -718,7 +718,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
             XCTAssertEqual(calls.filter { $0 == selector }.count, expectedCallCount, NSStringFromSelector(selector))
         }
     }
-#endif // os(macOS)
+#endif // os(macOS) && !SENTRY_NO_UI_FRAMEWORK
 
     func testEnableCppExceptionsV2_SwapsCxaThrow() throws {
         try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
