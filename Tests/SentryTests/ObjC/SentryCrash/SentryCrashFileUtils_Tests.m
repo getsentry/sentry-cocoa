@@ -27,10 +27,16 @@
 
 #if !SDK_V10
 #    import "FileBasedTestCase.h"
+#    include <TargetConditionals.h>
 #    include <errno.h>
 #    include <fcntl.h>
 #    include <stdio.h>
 #    include <string.h>
+#    include <unistd.h>
+
+#    if TARGET_OS_OSX && !TARGET_OS_MACCATALYST
+#        include <sys/wait.h>
+#    endif
 
 @import SentryTestUtilsObjC;
 
@@ -356,6 +362,146 @@ isFileUtilsCanaryIntact(const GuardedSentryCrashFUPathBuffer *buffer)
                                                                 error:&error];
     XCTAssertNil(error);
     XCTAssertEqualObjects(actualFileContents, fileContents);
+}
+
+#    if TARGET_OS_OSX && !TARGET_OS_MACCATALYST
+- (void)testBufferedWriter_whenDescriptorIsZero_shouldFlushAndClose
+{
+    // -- Arrange --
+    NSString *path = [self generateTempFilePath];
+    const char *filePath = path.UTF8String;
+
+    // -- Act --
+    // Use a child process so the test runner keeps its stdin. fork() requires macOS.
+    // Avoid Objective-C and XCTest in the child: they can deadlock on locks held by
+    // threads that were not copied into the child.
+    pid_t child = fork();
+    if (child == 0) {
+        // open() takes the lowest free descriptor, so freeing stdin makes it return zero.
+        close(STDIN_FILENO);
+
+        char buffer[8];
+        SentryCrashBufferedWriter writer;
+
+        if (!sentrycrashfu_openBufferedWriter(&writer, filePath, buffer, sizeof(buffer))
+            || writer.fd != STDIN_FILENO) {
+            _exit(1);
+        }
+
+        if (!sentrycrashfu_writeBufferedWriter(&writer, "12345", 5)) {
+            _exit(2);
+        }
+
+        bool flushed = sentrycrashfu_flushBufferedWriter(&writer);
+        // Check the file size too: clearing the buffer alone must not count as a flush.
+        bool flushSucceeded
+            = flushed && writer.position == 0 && lseek(STDIN_FILENO, 0, SEEK_END) == 5;
+
+        // Leave data for close() to flush. Three bytes still fit if the earlier flush did nothing.
+        bool appended = sentrycrashfu_writeBufferedWriter(&writer, "abc", 3);
+        sentrycrashfu_closeBufferedWriter(&writer);
+        bool closed = writer.fd == -1 && fcntl(STDIN_FILENO, F_GETFD) == -1 && errno == EBADF;
+        // Each failed check sets a bit in the exit code for the parent's assertion below.
+        // _exit() skips cleanup handlers inherited from the test runner.
+        _exit((flushSucceeded ? 0 : 4) | (closed ? 0 : 8) | (appended ? 0 : 16));
+    }
+
+    // -- Assert --
+    XCTAssertGreaterThan(child, 0);
+    if (child < 0) {
+        return;
+    }
+
+    int status = 0;
+    pid_t waited;
+    // A signal can interrupt the wait without the child having finished; keep waiting.
+    do {
+        waited = waitpid(child, &status, 0);
+    } while (waited == -1 && errno == EINTR);
+
+    XCTAssertEqual(waited, child);
+
+    if (waited != child) {
+        return;
+    }
+
+    XCTAssertTrue(WIFEXITED(status));
+
+    if (!WIFEXITED(status)) {
+        return;
+    }
+
+    XCTAssertEqual(WEXITSTATUS(status), 0,
+        @"Child failure: 1=open, 2=initial append, 4=flush, 8=close, 16=final append");
+
+    NSError *error = nil;
+    NSString *contents = [NSString stringWithContentsOfFile:path
+                                                   encoding:NSUTF8StringEncoding
+                                                      error:&error];
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(contents, @"12345abc");
+}
+#    endif
+
+- (void)testFlushBufferedWriter_whenDescriptorIsInvalid_shouldPreservePendingBytes
+{
+    // -- Arrange --
+    char buffer[] = "abc";
+    SentryCrashBufferedWriter writer
+        = { .buffer = buffer, .bufferLength = sizeof(buffer), .position = 3, .fd = -1 };
+
+    // -- Act --
+    bool flushed = sentrycrashfu_flushBufferedWriter(&writer);
+
+    // -- Assert --
+    XCTAssertFalse(flushed);
+    XCTAssertEqual(writer.position, 3);
+    XCTAssertEqual(memcmp(buffer, "abc", sizeof(buffer)), 0);
+}
+
+- (void)testFlushBufferedWriter_whenEmptyAndClosed_shouldSucceed
+{
+    // -- Arrange --
+    char buffer[4] = { 0 };
+    SentryCrashBufferedWriter writer
+        = { .buffer = buffer, .bufferLength = sizeof(buffer), .position = 0, .fd = -1 };
+
+    // -- Act --
+    bool flushed = sentrycrashfu_flushBufferedWriter(&writer);
+    sentrycrashfu_closeBufferedWriter(&writer);
+    sentrycrashfu_closeBufferedWriter(&writer);
+
+    // -- Assert --
+    XCTAssertTrue(flushed);
+    XCTAssertEqual(writer.position, 0);
+    XCTAssertEqual(writer.fd, -1);
+}
+
+- (void)testCloseBufferedWriter_whenFlushFails_shouldStillCloseDescriptor
+{
+    // -- Arrange --
+    NSString *path = [self generateFileWithString:@"read only"];
+    int fd = open(path.UTF8String, O_RDONLY);
+    XCTAssertGreaterThanOrEqual(fd, 0);
+    if (fd < 0) {
+        return;
+    }
+    char buffer[] = "abc";
+    SentryCrashBufferedWriter writer
+        = { .buffer = buffer, .bufferLength = sizeof(buffer), .position = 3, .fd = fd };
+
+    // -- Act --
+    sentrycrashfu_closeBufferedWriter(&writer);
+    int flags = fcntl(fd, F_GETFD);
+    int error = errno;
+
+    // -- Assert --
+    XCTAssertEqual(writer.fd, -1);
+    XCTAssertEqual(flags, -1);
+    XCTAssertEqual(error, EBADF);
+    if (flags != -1) {
+        close(fd);
+    }
 }
 
 - (void)testWriteBuffered_whenFlushFails_shouldPreservePendingBytes
