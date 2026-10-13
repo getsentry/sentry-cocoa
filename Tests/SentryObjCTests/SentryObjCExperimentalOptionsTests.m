@@ -85,6 +85,35 @@
     XCTAssertFalse(options.experimental.enableNewURLLoaderSwizzling);
 }
 
+#pragma mark - enableConnectionEffectiveType
+
+- (void)testEnableConnectionEffectiveType_whenDefault_shouldBeFalse
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Assert --
+    XCTAssertFalse(options.experimental.enableConnectionEffectiveType);
+}
+
+- (void)testEnableConnectionEffectiveType_whenToggled_shouldRetainValue
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    options.experimental.enableConnectionEffectiveType = YES;
+
+    // -- Assert --
+    XCTAssertTrue(options.experimental.enableConnectionEffectiveType);
+
+    // -- Act --
+    options.experimental.enableConnectionEffectiveType = NO;
+
+    // -- Assert --
+    XCTAssertFalse(options.experimental.enableConnectionEffectiveType);
+}
+
 #if !SDK_V10
 #    pragma mark - enableWatchdogTerminationsV2
 

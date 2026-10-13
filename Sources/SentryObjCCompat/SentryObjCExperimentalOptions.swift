@@ -41,6 +41,11 @@ import Foundation
         get { wrapped.enableUIViewControllerInitSwizzling }
         set { wrapped.enableUIViewControllerInitSwizzling = newValue }
     }
+
+    @objc public var enableConnectionEffectiveType: Bool {
+        get { wrapped.enableConnectionEffectiveType }
+        set { wrapped.enableConnectionEffectiveType = newValue }
+    }
 }
 
 // swiftlint:enable missing_docs

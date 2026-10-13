@@ -61,6 +61,18 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic) BOOL enableUIViewControllerInitSwizzling;
 
+/**
+ * Reports the generation of the cellular network technology, for example @c 4g or @c 5g, as
+ * @c connection_effective_type in the device context of events on cellular connections.
+ *
+ * Only has an effect on iOS. Reading the technology from @c CoreTelephony crashed apps in 9.30.0
+ * and 9.30.1, so this is disabled by default until the fix is confirmed.
+ *
+ * @warning This is an experimental feature and is therefore disabled by default.
+ * @see https://github.com/getsentry/sentry-cocoa/issues/9330
+ */
+@property (nonatomic) BOOL enableConnectionEffectiveType;
+
 /// Initializes experimental options with default values.
 - (instancetype)init;
 

@@ -521,6 +521,29 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     }
 #endif
 
+    func testEnableConnectionEffectiveType_isEnabled_shouldAddFeature() {
+        // -- Arrange --
+        let options = Options()
+        options.experimental.enableConnectionEffectiveType = true
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertTrue(features.contains("connectionEffectiveType"))
+    }
+
+    func testEnableConnectionEffectiveType_whenDefault_shouldNotAddFeature() {
+        // -- Arrange --
+        let options = Options()
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("connectionEffectiveType"))
+    }
+
     func testEnableUIViewControllerInitSwizzling_isEnabled_shouldAddFeature() throws {
         // -- Arrange --
         let options = Options()

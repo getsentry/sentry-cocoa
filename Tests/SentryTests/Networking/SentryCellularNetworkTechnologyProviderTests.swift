@@ -149,6 +149,51 @@ final class SentryCellularNetworkTechnologyProviderTests: XCTestCase {
         XCTAssertEqual(technology, .fourthGeneration)
     }
 
+    func testCopyTechnologies_whenTheLockIsHeld_shouldWaitAndCopyTheChangedValue() {
+        // -- Arrange --
+        let dictionary = NSMutableDictionary(dictionary: ["sim1": CTRadioAccessTechnologyLTE])
+        let copyStarted = DispatchSemaphore(value: 0)
+        let copied = expectation(description: "Copied the technologies")
+        var copy: [String: String]?
+        // Stands in for CoreTelephony, which changes the dictionary on its own queue while it
+        // holds `@synchronized` on the dictionary.
+        objc_sync_enter(dictionary)
+
+        // -- Act --
+        DispatchQueue.global().async {
+            copyStarted.signal()
+            copy = SentryCellularNetworkTechnologyProvider.copyTechnologies(lockingOn: dictionary)
+            copied.fulfill()
+        }
+        copyStarted.wait()
+        dictionary["sim1"] = CTRadioAccessTechnologyNR
+        objc_sync_exit(dictionary)
+        wait(for: [copied], timeout: 5)
+
+        // -- Assert --
+        XCTAssertEqual(copy, ["sim1": CTRadioAccessTechnologyNR])
+    }
+
+    func testCopyTechnologies_whenTheDictionaryChangesLater_shouldKeepTheCopiedValue() {
+        // -- Arrange --
+        let dictionary = NSMutableDictionary(dictionary: ["sim1": CTRadioAccessTechnologyLTE])
+
+        // -- Act --
+        let copy = SentryCellularNetworkTechnologyProvider.copyTechnologies(lockingOn: dictionary)
+        dictionary["sim1"] = CTRadioAccessTechnologyNR
+
+        // -- Assert --
+        XCTAssertEqual(copy, ["sim1": CTRadioAccessTechnologyLTE])
+    }
+
+    func testCopyTechnologies_whenValuesAreNotStrings_shouldReturnNil() {
+        // -- Arrange --
+        let dictionary = NSMutableDictionary(dictionary: ["sim1": NSNumber(value: 4)])
+
+        // -- Act & Assert --
+        XCTAssertNil(SentryCellularNetworkTechnologyProvider.copyTechnologies(lockingOn: dictionary))
+    }
+
     func testCurrentTechnology_whenNotMonitoring_shouldReturnNil() {
         // -- Arrange --
         let sut = SentryCellularNetworkTechnologyProvider(notificationCenter: NotificationCenter())
