@@ -63,35 +63,53 @@ init: init-local init-ci-build init-ci-format xcode-ci
 # Installs Homebrew, dependencies, pre-commit hooks, rbenv, bundler, and updates tooling versions.
 .PHONY: init-local
 init-local:
-	which brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-	brew update && brew bundle
+	@echo "--> Updating Homebrew..."
+	brew update
+	@echo "--> Installing dependencies..."
+	brew bundle
+
+	@echo "--> Installing pre-commit hooks..."
 	pre-commit install
+
+	@echo "--> Installing Ruby..."
 	rbenv install --skip-existing
+	@echo "--> Updating Bundler..."
 	rbenv exec gem update bundler
+	@echo "--> Installing gems via Bundler..."
 	rbenv exec bundle install
-	# Install the tools needed to update tooling versions locally
-	"$(MAKE)" init-ci-build init-ci-format
-	./scripts/update-tooling-versions.sh
+
+	"$(MAKE)" init-ci-build
+	"$(MAKE)" init-ci-format
+	"$(MAKE)" update-versions
 
 ## Install CI build dependencies
 #
 # Installs tools needed for CI build tasks using Brewfile-ci-build.
 .PHONY: init-ci-build
 init-ci-build:
-	brew update && brew bundle --file Brewfile-ci-build
+	@echo "--> Initializing CI build environment..."
+	@echo "--> Updating Homebrew..."
+	brew update
+	@echo "--> Installing CI build dependencies..."
+	brew bundle --file Brewfile-ci-build
 
 ## Install CI format dependencies
 #
 # Installs tools needed to run CI format tasks locally using Brewfile-ci-format.
 .PHONY: init-ci-format
 init-ci-format:
-	brew update && brew bundle --file Brewfile-ci-format
+	@echo "--> Initializing CI format environment..."
+	@echo "--> Updating Homebrew..."
+	brew update
+	@echo "--> Installing CI format dependencies..."
+	brew bundle --file Brewfile-ci-format
 
 ## Update tooling versions
 #
 # Updates tooling versions to match CI requirements.
 .PHONY: update-versions
 update-versions:
+	@echo "--> Updating tooling versions..."
 	./scripts/update-tooling-versions.sh
 
 ## Check tooling versions
@@ -99,6 +117,7 @@ update-versions:
 # Verifies that local tooling versions match CI requirements.
 .PHONY: check-versions
 check-versions:
+	@echo "--> Checking tooling versions..."
 	./scripts/check-tooling-versions.sh
 
 ## Check SentryCrash imports
