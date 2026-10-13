@@ -82,6 +82,43 @@ class SentryNetworkTrackerTests: XCTestCase {
         clearTestState()
     }
 
+    #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    func testSetState_whenNetworkDetailAllowListIsEmpty_shouldNotReadOriginalRequest() throws {
+        // -- Arrange --
+        fixture.options.tracesSampleRate = 0.1
+        fixture.options.enableCaptureFailedRequests = false
+        fixture.options.enableAppHangTracking = false
+        XCTAssertTrue(fixture.options.sessionReplay.networkDetailAllowUrls.isEmpty)
+
+        let tracker = TestNetworkTracker(
+            options: fixture.options,
+            dependencies: SentryDependencyContainer.sharedInstance()
+        )
+        tracker.enableNetworkTracking()
+        tracker.enableNetworkBreadcrumbs()
+
+        let task = OriginalRequestAccessCountingTask(request: URLRequest(url: Self.fullUrl))
+        task.state = .running
+        task.setResponse(try createResponse(code: 200))
+        let transaction = startTransaction()
+        tracker.urlSessionTaskResume(task)
+        let spans = Dynamic(transaction).children as [Span]?
+        let span = try XCTUnwrap(spans?.first)
+        task.originalRequestAccessCount = 0
+
+        // -- Act --
+        tracker.urlSessionTask(task, setState: .completed)
+
+        // -- Assert --
+        XCTAssertEqual(task.originalRequestAccessCount, 0,
+                       "Disabled Replay network details must not read the task's originalRequest (issue #9307)")
+        XCTAssertNil(task.networkDetails)
+        XCTAssertTrue(span.isFinished)
+        let breadcrumbs = Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?
+        XCTAssertEqual(breadcrumbs?.filter { $0.category == "http" }.count, 1)
+    }
+    #endif
+
     func testCaptureCompletion() throws {
         let task = createDataTask()
         let span = try XCTUnwrap(spanForTask(task: task))
@@ -2605,6 +2642,17 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(spans?.count ?? 0, 0)
     }
 }
+
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+private final class OriginalRequestAccessCountingTask: URLSessionDataTaskMock, @unchecked Sendable {
+    var originalRequestAccessCount = 0
+
+    override var originalRequest: URLRequest? {
+        originalRequestAccessCount += 1
+        return super.originalRequest
+    }
+}
+#endif
 
 private struct NetworkTrackerTestDependencies: CurrentDateProvider, HubProvider, ThreadInspectorProvider {
     let dateProvider: SentryCurrentDateProvider
