@@ -1,4 +1,5 @@
 @import SentryTestUtilsObjC;
+@import _SentryPrivate;
 #import "SentryBreadcrumb.h"
 #import "SentryCrashReportConverter.h"
 #import "SentryDateUtils.h"
