@@ -24,7 +24,7 @@
 
 - (void)testLoadCrash
 {
-    NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+    NSBundle *bundle = SentryTestResourceBundle(self.class);
     NSString *rawPath = [bundle pathForResource:@"Resources/raw" ofType:@"json"];
     NSData *rawData = [NSData dataWithContentsOfFile:rawPath];
     char *fixedBytes = sentrycrashcrf_fixupCrashReport(rawData.bytes);

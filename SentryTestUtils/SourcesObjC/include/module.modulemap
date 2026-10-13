@@ -1,3 +1,4 @@
 module SentryTestUtilsObjC {
     header "SentryTestUtilsObjC.h"
+    export _SentryPrivate
 }

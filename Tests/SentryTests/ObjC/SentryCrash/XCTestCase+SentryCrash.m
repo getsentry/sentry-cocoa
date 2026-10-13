@@ -26,6 +26,7 @@
 //
 
 #import "XCTestCase+SentryCrash.h"
+@import SentryTestUtilsObjC;
 
 @implementation XCTestCase (XCTestCase_SentryCrash)
 
@@ -56,7 +57,7 @@
                               error:&error];
     XCTAssertNil(error, @"");
 
-    NSString *bundlePath = [[NSBundle bundleForClass:[self class]] resourcePath];
+    NSString *bundlePath = [SentryTestResourceBundle(self.class) resourcePath];
     NSArray *files = [fm contentsOfDirectoryAtPath:bundlePath error:&error];
     XCTAssertNil(error, @"");
 
