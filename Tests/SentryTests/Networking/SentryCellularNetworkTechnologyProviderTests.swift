@@ -174,6 +174,35 @@ final class SentryCellularNetworkTechnologyProviderTests: XCTestCase {
         XCTAssertEqual(copy, ["sim1": CTRadioAccessTechnologyNR])
     }
 
+    /// `copyTechnologies(lockingOn:)` is only protected while CoreTelephony returns its internal
+    /// dictionary and locks on it. This test fails when a CoreTelephony version stops doing that.
+    /// It runs against the CoreTelephony of the simulator, not of a device.
+    func testServiceCurrentRadioAccessTechnology_whenTheDictionaryIsLocked_shouldWaitForTheLock() throws {
+        // -- Arrange --
+        let networkInfo = CTTelephonyNetworkInfo()
+        let getter = #selector(getter: CTTelephonyNetworkInfo.serviceCurrentRadioAccessTechnology)
+        let dictionary = try XCTUnwrap(networkInfo.perform(getter)?.takeUnretainedValue() as? NSDictionary)
+        let read = DispatchSemaphore(value: 0)
+
+        // -- Act --
+        objc_sync_enter(dictionary)
+        DispatchQueue.global().async {
+            _ = networkInfo.perform(getter)
+            read.signal()
+        }
+        let resultWhileLocked = read.wait(timeout: .now() + 0.5)
+        objc_sync_exit(dictionary)
+        let resultAfterUnlock = read.wait(timeout: .now() + 5)
+
+        // -- Assert --
+        XCTAssertEqual(resultWhileLocked, .timedOut, "CoreTelephony no longer locks on the dictionary it returns.")
+        XCTAssertEqual(resultAfterUnlock, .success)
+        XCTAssertTrue(
+            networkInfo.perform(getter)?.takeUnretainedValue() === dictionary,
+            "CoreTelephony no longer returns its internal dictionary."
+        )
+    }
+
     func testCopyTechnologies_whenTheDictionaryChangesLater_shouldKeepTheCopiedValue() {
         // -- Arrange --
         let dictionary = NSMutableDictionary(dictionary: ["sim1": CTRadioAccessTechnologyLTE])

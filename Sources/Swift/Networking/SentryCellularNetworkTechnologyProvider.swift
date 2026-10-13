@@ -242,10 +242,7 @@ struct SentryCellularNetworkTechnologyProvider {
     /// The lock is a detail of the `CoreTelephony` implementation. If a later version locks on
     /// something else, this copy is no longer protected, but it is not less safe than the bridge.
     static func copyTechnologies(lockingOn dictionary: NSDictionary) -> [String: String]? {
-        objc_sync_enter(dictionary)
-        let copy = dictionary.copy()
-        objc_sync_exit(dictionary)
-        return copy as? [String: String]
+        synchronized(dictionary) { dictionary.copy() } as? [String: String]
     }
 
     /// Picks the technology of the service that carries the data.
