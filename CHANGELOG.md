@@ -8,7 +8,7 @@
 - Validate feedback payloads before transport and align the managed form's message counter and errors with the cross-SDK input validation specification (#8973)
 - Read the initial `UIApplication.applicationState` asynchronously on the main queue when the SDK's dependency container is first accessed off the main thread, instead of blocking the calling thread while waiting for the main thread during app launch (#9304)
 - Prevent crash report buffer overflows when flushing pending data fails (#9317)
-- Fix an `EXC_BAD_ACCESS` crash while reading the cellular network technology on iOS. The SDK now copies the value from CoreTelephony under the lock that CoreTelephony uses to change it, and reports `connection_effective_type` only when you enable the experimental option `enableConnectionEffectiveType` (#9331)
+- Fix an `EXC_BAD_ACCESS` crash while reading the cellular network technology on iOS. The SDK now copies the value from CoreTelephony under the lock that CoreTelephony uses to change it, and reports `connection_effective_type` only when you enable the experimental option `enableConnectionEffectiveType` (#9332)
 
 ## 9.30.1
 
