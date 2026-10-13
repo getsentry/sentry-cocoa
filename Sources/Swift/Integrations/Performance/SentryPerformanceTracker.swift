@@ -203,13 +203,6 @@ import Foundation
     }
 }
 
-// Temporary local equivalent of Objective-C @synchronized for this conversion.
-private func synchronized<T>(_ object: AnyObject, operation: () throws -> T) rethrows -> T {
-    objc_sync_enter(object)
-    defer { objc_sync_exit(object) }
-    return try operation()
-}
-
 // The public Swift type cannot expose a conformance imported from _SentryPrivate.
 // Keep the delegate weak, as it was when the tracer referenced the tracker directly.
 private final class PerformanceTrackerDelegate: NSObject, SentryTracerDelegate {
