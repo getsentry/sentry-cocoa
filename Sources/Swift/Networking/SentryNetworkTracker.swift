@@ -308,7 +308,9 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         }
 
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-        if let urlString = sessionTask.originalRequest?.url?.absoluteString,
+        // Avoid bridging the task's request for Replay when network details are not configured.
+        if options.sessionReplay.networkDetailHasUrls,
+           let urlString = sessionTask.originalRequest?.url?.absoluteString,
            isNetworkDetailCaptureEnabled(for: urlString, options: options) {
             captureRequestDetails(
                 for: sessionTask,

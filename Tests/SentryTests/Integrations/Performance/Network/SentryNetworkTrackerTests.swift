@@ -87,7 +87,6 @@ class SentryNetworkTrackerTests: XCTestCase {
         // -- Arrange --
         fixture.options.tracesSampleRate = 0.1
         fixture.options.enableCaptureFailedRequests = false
-        fixture.options.enableAppHangTracking = false
         XCTAssertTrue(fixture.options.sessionReplay.networkDetailAllowUrls.isEmpty)
 
         let tracker = TestNetworkTracker(

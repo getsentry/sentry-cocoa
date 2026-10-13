@@ -8,6 +8,7 @@
 - Validate feedback payloads before transport and align the managed form's message counter and errors with the cross-SDK input validation specification (#8973)
 - Read the initial `UIApplication.applicationState` asynchronously on the main queue when the SDK's dependency container is first accessed off the main thread, instead of blocking the calling thread while waiting for the main thread during app launch (#9304)
 - Prevent crash report buffer overflows when flushing pending data fails (#9317)
+- Avoid accessing the original URLSession task request for Replay network details when the allow list is empty (#9334)
 
 ## 9.30.1
 
