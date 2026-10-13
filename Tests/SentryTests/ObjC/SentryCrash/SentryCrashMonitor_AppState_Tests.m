@@ -27,6 +27,7 @@
 
 #if !SDK_V10
 @import SentryTestUtilsObjC;
+@import _SentryPrivate;
 #    import "FileBasedTestCase.h"
 #    import "XCTestCase+SentryCrash.h"
 
