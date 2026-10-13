@@ -428,7 +428,9 @@ targets += [
         name: "SentryTestsObjC",
         dependencies: ["SentryObjCInternal", "SentrySwift", "_SentryPrivate", "SentryTestUtils", "SentryTestUtilsObjC"],
         path: "Tests/SentryTests/ObjC",
-        cSettings: cSettings
+        cSettings: [
+            .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
+        ] + cSettings
     ),
     .testTarget(
         name: "SentryTestsObjCpp",
