@@ -541,10 +541,14 @@ final class SentryUIRedactBuilder {
         // Do not read imageAsset: its getter can lazily create an asset and change the layout
         // size of archived images whose scale differs from their trait collection's display scale.
         // Check symbols first to avoid allocating their description string on each replay frame.
+        if image.isSymbolImage {
+            return false
+        }
+
         // The "named(" marker identifies bundle images without relying on private asset properties.
         // This debug format is undocumented. If it changes, these images default to being masked.
         // Rendering mode alone is not a safe exemption: template images can contain user content.
-        return !image.isSymbolImage && !image.description.contains("named(")
+        return !image.description.contains("named(")
     }
 
     // swiftlint:disable:next function_body_length cyclomatic_complexity
