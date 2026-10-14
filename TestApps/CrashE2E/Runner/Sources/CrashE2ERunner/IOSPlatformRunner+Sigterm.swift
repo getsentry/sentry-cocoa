@@ -16,14 +16,10 @@ extension IOSPlatformRunner {
         let pid = try ProcessExitObserver.launchedProcessIdentifier(stdout: launchResult.stdout, bundleID: bundleID)
 
         // Simulator apps run as host processes, so the runner can signal the pid directly.
-        do {
-            try SigtermScenarioAsserter.waitForReadyMarker(at: readyMarker, platform: "ios")
-            try SigtermScenarioAsserter.sendSigterm(to: pid, platform: "ios")
-        } catch {
-            // Otherwise the app aborts on its own timer later and leaves a report behind.
-            try terminateApp()
-            throw error
-        }
+        // runScenarioWithCleanup terminates the app if readiness or signalling fails
+        // and reports the original error together with any termination error.
+        try SigtermScenarioAsserter.waitForReadyMarker(at: readyMarker, platform: "ios")
+        try SigtermScenarioAsserter.sendSigterm(to: pid, platform: "ios")
         guard try waitForAppToStop(timeout: SigtermScenarioConstants.terminationTimeout) else {
             try fail("iOS app did not terminate after SIGTERM")
         }

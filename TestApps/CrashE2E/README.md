@@ -34,6 +34,24 @@ Each launch writes an `ios-<scenario>-launch-<sequence>` artifact directory cont
 
 Diagnostic subprocesses have their own bounded timeouts. Diagnostic collection does not turn a failed termination wait into success or increase the scenario's termination deadline. The observer only detects termination and not whether a run was successful.
 
-After any scenario failure, the runner stops the app and preserves Sentry's cache directories in `ios-<scenario>-failed-cache` before classifying the outcome. Known SDK gaps accept only report assertion failures; launch, observation, timeout, and I/O errors still fail the run. Cleanup applies to expected failures too. If the app cannot be stopped, the run aborts even with `--keep-going`, rather than clearing a cache still in use, so we can ensure that scenarios are sufficiently isolated. CI uploads artifacts on failure, for local investion use `--keep-artifacts` so they aren't cleaned up once the tests completed.
-
 A non-termination failure still represents a possible real hang. Use the process sample and app logs to distinguish startup, crash handling, drain, and SDK shutdown hangs from simulator service problems. The harness does not change crash-recorder behavior or relax the crash/report assertions.
+
+### Failure handling
+
+When an iOS scenario fails, the runner first confirms that the app has stopped:
+
+- a process observer's exit notification is sufficient
+- any simulator termination error is logged
+- without an observer, `simctl` must confirm termination or report "no such process"
+
+If termination cannot be confirmed, the run aborts (even with `--keep-going`) to preserve isolation between scenarios. Both the original scenario error and the cleanup error are reported.
+
+Once the app has stopped, the runner attempts to preserve SDK's cache directories in `ios-<scenario>-failed-cache`.
+
+### Expected failures
+
+Cleanup also applies to scenarios with known SDK gaps. Only report assertion failures qualify as expected failures; launch errors, process-observation errors, timeouts, and report I/O errors remain test failures.
+
+### Keeping artifacts
+
+CI uploads artifacts on failure. For local debugging, use `--keep-artifacts` to retain them after the run.
