@@ -3,7 +3,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * A task's request, read once in Objective-C.
+ * The URL, method, headers, and body of a task's request, copied when the snapshot is created.
  *
  * Swift bridges @c NSURLRequest to a @c URLRequest copy. Copying a task's request races with
  * threads that write protocol properties into it, and releasing a copy taken during such a write
