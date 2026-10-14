@@ -337,7 +337,27 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * - Note: Request and response bodies are truncated to 150KB maximum.
      * - Note: See ``SentryReplayOptions.DefaultValues.networkDetailAllowUrls`` for the default value.
      */
-    public var networkDetailAllowUrls: [SentryUrlMatchable]
+    private struct NetworkDetailState {
+        var allowUrls: [SentryUrlMatchable] = []
+        var allowMatchers: [SentryUrlMatcher] = []
+        var denyUrls: [SentryUrlMatchable] = []
+        var denyMatchers: [SentryUrlMatcher] = []
+    }
+
+    private let networkDetailLock: SentryMutex<NetworkDetailState>
+
+    public var networkDetailAllowUrls: [SentryUrlMatchable] {
+        get {
+            networkDetailLock.withLock { $0.allowUrls }
+        }
+        set {
+            let matchers = newValue.map { $0.asSentryUrlMatcher }
+            networkDetailLock.withLock { state in
+                state.allowUrls = newValue
+                state.allowMatchers = matchers
+            }
+        }
+    }
 
     /**
      * A list of URL patterns to exclude from network detail capture during session replay.
@@ -358,7 +378,18 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * - Mixed arrays are supported with both types
      *
      */
-    public var networkDetailDenyUrls: [SentryUrlMatchable]
+    public var networkDetailDenyUrls: [SentryUrlMatchable] {
+        get {
+            networkDetailLock.withLock { $0.denyUrls }
+        }
+        set {
+            let matchers = newValue.map { $0.asSentryUrlMatcher }
+            networkDetailLock.withLock { state in
+                state.denyUrls = newValue
+                state.denyMatchers = matchers
+            }
+        }
+    }
 
     /**
      * Whether to capture request and response bodies for allowed URLs.
@@ -427,6 +458,10 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     }
     private var _networkResponseHeaders: [String]
 
+    @nonobjc func networkDetailUrlPatternsSnapshot() -> (allowUrls: [SentryUrlMatcher], denyUrls: [SentryUrlMatcher]) {
+        return networkDetailLock.withLock { ($0.allowMatchers, $0.denyMatchers) }
+    }
+
     /**
      * Defines the quality of the session replay.
      *
@@ -492,7 +527,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * - Returns: `true` if `networkDetailAllowUrls` is non-empty, `false` otherwise.
      */
     var networkDetailHasUrls: Bool {
-        !networkDetailAllowUrls.isEmpty
+        return networkDetailLock.withLock { !$0.allowMatchers.isEmpty }
     }
 
     /**
@@ -503,16 +538,30 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      */
     @objc
     public func isNetworkDetailCaptureEnabled(for urlString: String) -> Bool {
+        let snapshot = networkDetailUrlPatternsSnapshot()
+        return isNetworkDetailCaptureEnabled(
+            for: urlString,
+            allowUrls: snapshot.allowUrls,
+            denyUrls: snapshot.denyUrls
+        )
+    }
+
+    @nonobjc
+    func isNetworkDetailCaptureEnabled(
+        for urlString: String,
+        allowUrls: [SentryUrlMatcher],
+        denyUrls: [SentryUrlMatcher]
+    ) -> Bool {
         // If allow list is empty, network detail capture is disabled
-        guard !networkDetailAllowUrls.isEmpty else {
+        guard !allowUrls.isEmpty else {
             return false
         }
 
-        if matches(url: urlString, against: networkDetailDenyUrls) {
+        if matches(url: urlString, against: denyUrls) {
             return false
         }
 
-        return matches(url: urlString, against: networkDetailAllowUrls)
+        return matches(url: urlString, against: allowUrls)
     }
 
     /**
@@ -524,19 +573,11 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      *
      * - Parameters:
      *   - url: The URL string to test
-     *   - matchers: Array of SentryUrlMatchable patterns
+     *   - matchers: Array of SentryUrlMatcher patterns
      * - Returns: `true` if the URL matches any pattern, `false` otherwise
      */
-    private func matches(url: String, against matchers: [SentryUrlMatchable]) -> Bool {
-        matchers.contains { matcher in
-            switch matcher.asSentryUrlMatcher {
-            case .string(let pattern):
-                return url.contains(pattern)
-            case .regex(let regex):
-                let range = NSRange(url.startIndex..., in: url)
-                return regex.firstMatch(in: url, range: range) != nil
-            }
-        }
+    private func matches(url: String, against matchers: [SentryUrlMatcher]) -> Bool {
+        matchers.contains { $0.matches(url: url) }
     }
 
     /**
@@ -703,11 +744,23 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         self.maximumDuration = maximumDuration ?? DefaultValues.maximumDuration
         self.excludedViewClasses = excludedViewClasses ?? DefaultValues.excludedViewClasses
         self.includedViewClasses = includedViewClasses ?? DefaultValues.includedViewClasses
-        self.networkDetailAllowUrls = networkDetailAllowUrls ?? DefaultValues.networkDetailAllowUrls
-        self.networkDetailDenyUrls = networkDetailDenyUrls ?? DefaultValues.networkDetailDenyUrls
+        let resolvedAllowUrls = networkDetailAllowUrls ?? DefaultValues.networkDetailAllowUrls
+        let resolvedDenyUrls = networkDetailDenyUrls ?? DefaultValues.networkDetailDenyUrls
+        self.networkDetailLock = SentryMutex(NetworkDetailState(
+            allowUrls: resolvedAllowUrls,
+            allowMatchers: resolvedAllowUrls.map { $0.asSentryUrlMatcher },
+            denyUrls: resolvedDenyUrls,
+            denyMatchers: resolvedDenyUrls.map { $0.asSentryUrlMatcher }
+        ))
         self.networkCaptureBodies = networkCaptureBodies ?? DefaultValues.networkCaptureBodies
-        self._networkRequestHeaders = Self.mergeWithDefaultHeaders(networkRequestHeaders, defaults: DefaultValues.networkRequestHeaders)
-        self._networkResponseHeaders = Self.mergeWithDefaultHeaders(networkResponseHeaders, defaults: DefaultValues.networkResponseHeaders)
+        self._networkRequestHeaders = Self.mergeWithDefaultHeaders(
+            networkRequestHeaders,
+            defaults: DefaultValues.networkRequestHeaders
+        )
+        self._networkResponseHeaders = Self.mergeWithDefaultHeaders(
+            networkResponseHeaders,
+            defaults: DefaultValues.networkResponseHeaders
+        )
 
         super.init()
     }
