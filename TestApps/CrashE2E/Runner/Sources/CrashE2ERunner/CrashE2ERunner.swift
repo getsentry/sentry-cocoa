@@ -56,8 +56,8 @@ final class CrashE2ERunner {
 
         log("Generating CrashE2E Xcode project.")
         try processRunner.run(
-            "xcodegen",
-            ["--spec", "TestApps/CrashE2E/CrashE2E.yml"],
+            "make",
+            ["xcode-ci-CrashE2E"],
             workingDirectory: config.directories.repoRoot
         )
 
