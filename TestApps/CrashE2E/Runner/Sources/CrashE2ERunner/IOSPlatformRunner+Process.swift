@@ -56,17 +56,46 @@ extension IOSPlatformRunner {
     }
 
     func terminateApp() throws {
-        let result = try processRunner.run(
-            "xcrun", ["simctl", "terminate", deviceID, bundleID],
-            captureOutput: true, timeout: 10, allowFailure: true
-        )
-
-        if let appProcess, try !appProcess.wait(timeout: 5) {
-            try fail("iOS PID \(appProcess.processIdentifier) survived cleanup (\(result.summary)): \(result.stderr)")
+        // A confirmed exit means this launch can no longer modify the shared cache,
+        // even if its launchd job remains registered. No termination request is needed.
+        if let appProcess, try appProcess.wait(timeout: 0) {
+            self.appProcess = nil
+            return
         }
 
-        // Only tolerate simctl's explicit "no such process" response. A failed simulator
-        // service or timed-out command is not evidence that an unobserved launch stopped.
+        let commandOutcome = Result {
+            try processRunner.run(
+                "xcrun", ["simctl", "terminate", deviceID, bundleID],
+                captureOutput: true, timeout: 10, allowFailure: true
+            )
+        }
+
+        if let appProcess {
+            guard try appProcess.wait(timeout: 5) else {
+                let result = try commandOutcome.get()
+                try fail("iOS PID \(appProcess.processIdentifier) survived cleanup (\(result.summary)): \(result.stderr)")
+            }
+
+            // simctl can fail independently of the app's lifetime. A confirmed process
+            // exit establishes scenario isolation even when the termination request fails.
+            switch commandOutcome {
+            case .success(let result):
+                if !result.succeeded {
+                    log("iOS PID \(appProcess.processIdentifier) exited despite simctl terminate (\(result.summary)): \(result.stderr)")
+                }
+            case .failure(let error):
+                log("iOS PID \(appProcess.processIdentifier) exited despite simctl terminate error: \(error)")
+            }
+
+            self.appProcess = nil
+
+            return
+        }
+
+        // Without an observer, simctl's response is the only evidence of termination.
+        // An explicit "no such process" response confirms absence; service errors
+        // and timeouts do not.
+        let result = try commandOutcome.get()
         let notRunning = !result.timedOut && result.terminationReason == .exit
             && result.terminationStatus == 3
             && result.stderr.contains("domain=NSPOSIXErrorDomain, code=3")
