@@ -68,6 +68,7 @@ final class SentryMXManager: NSObject {
     let enabledDiagnostics: Set<Diagnostic>
     let releaseName: String?
     let bundleInfo: [String: Any]
+    let hangReportingMode: SentryMetricKitHangReportingMode
 
     init(
         metricManager: SentryMetricManager = MXMetricManager.shared,
@@ -75,7 +76,8 @@ final class SentryMXManager: NSObject {
         attachDiagnosticAsAttachment: Bool,
         enabledDiagnostics: Set<Diagnostic> = Diagnostic.all.subtracting([.crash]),
         releaseName: String? = nil,
-        bundleInfo: [String: Any] = Bundle.main.infoDictionary ?? [:]
+        bundleInfo: [String: Any] = Bundle.main.infoDictionary ?? [:],
+        hangReportingMode: SentryMetricKitHangReportingMode = .legacy
     ) {
         self.metricManager = metricManager
         self.inAppLogic = inAppLogic
@@ -83,6 +85,7 @@ final class SentryMXManager: NSObject {
         self.enabledDiagnostics = enabledDiagnostics
         self.releaseName = releaseName
         self.bundleInfo = bundleInfo
+        self.hangReportingMode = hangReportingMode
         super.init()
     }
 
@@ -228,8 +231,9 @@ extension SentryMXManager: MXMetricManagerSubscriber {
         exception.mechanism = mechanism
         event.exceptions = [exception]
 
+        var flamegraphAttachment: Attachment?
         do {
-            try apply(
+            flamegraphAttachment = try apply(
                 callStackTree: diagnostic.callStackTree,
                 toEvent: &event,
                 useFullCallStackTree: useFullCallStackTree,
@@ -264,6 +268,10 @@ extension SentryMXManager: MXMetricManagerSubscriber {
             scope.setContext(value: osContext, key: "os")
         }
 
+        if let flamegraphAttachment {
+            scope.addAttachment(flamegraphAttachment)
+        }
+
         if attachDiagnosticAsAttachment {
             let diagnosticJSON = diagnostic.jsonRepresentation()
             let attachmentData: Data
@@ -281,20 +289,24 @@ extension SentryMXManager: MXMetricManagerSubscriber {
         SentrySDKLog.debug("Captured MetricKit payload as event")
     }
 
-    private func apply(callStackTree: MXCallStackTree, toEvent event: inout Event, useFullCallStackTree: Bool, isHandled: Bool) throws {
+    private func apply(callStackTree: MXCallStackTree, toEvent event: inout Event, useFullCallStackTree: Bool, isHandled: Bool) throws -> Attachment? {
         SentrySDKLog.debug("Applying MetricKit call stack tree to event with id: \(event.eventId)")
         guard let exception = event.exceptions?.first else {
             SentrySDKLog.warning("MetricKit event does not have an exception set, skipping call stack tree decoding")
-            return
+            return nil
         }
 
         let encodedCallStackTree = callStackTree.jsonRepresentation()
         let decodedCallStackTree = try SentryMXCallStackTree.from(data: encodedCallStackTree)
 
+        if useFullCallStackTree && hangReportingMode == .flamegraphAttachment {
+            return decodedCallStackTree.flamegraphAttachment(inAppLogic: inAppLogic)
+        }
+
         let debugMeta = decodedCallStackTree.toDebugMeta()
         let threads: [SentryThread]
         if useFullCallStackTree {
-            // For hang diagnostics, use the flattened tree to preserve all samples
+            // Legacy hang reporting preserves every sampled frame and its tree metadata.
             threads = decodedCallStackTree.flattenedBacktrace(inAppLogic: inAppLogic, handled: isHandled)
         } else {
             threads = decodedCallStackTree.sentryMXBacktrace(inAppLogic: inAppLogic, handled: isHandled)
@@ -308,10 +320,11 @@ extension SentryMXManager: MXMetricManagerSubscriber {
 
         guard let exceptionThread else {
             SentrySDKLog.warning("MetricKit call stack threads are empty")
-            return
+            return nil
         }
         exception.stacktrace = exceptionThread.stacktrace
         exception.threadId = exceptionThread.threadId
+        return nil
     }
 }
 
