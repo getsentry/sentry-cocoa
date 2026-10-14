@@ -12,6 +12,7 @@
 - Avoid crash-handler deadlocks caused by SDK debug logging or NSException backtrace memory management while other threads are suspended (#9324)
   - Prepare NSException backtraces before suspending other threads, and resume them before releasing the backtrace buffer.
   - NSException-monitor debug and warning diagnostics now use the async-safe logger's compile-time threshold (`ERROR` by default), so runtime debug options no longer enable them.
+- Prevent crash report buffer overflows and file descriptor leaks when the report writer receives file descriptor zero (#9341)
 
 ## 9.30.1
 
