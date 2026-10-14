@@ -1,3 +1,5 @@
+internal import _SentryPrivate
+
 /// Provides metadata about the origin of an event or breadcrumb.
 ///
 /// A hint flows alongside the event through the capture pipeline, giving ``Options/beforeSendWithHint``
@@ -14,7 +16,9 @@ public final class Hint: NSObject {
     private struct State {
         var originalError: Error?
         var originalException: NSException?
-        var urlRequest: URLRequest?
+        // Stores the wrapper instead of a `URLRequest`, so that setting a task's request doesn't
+        // bridge it. The SDK never reads `urlRequest`; only user callbacks do.
+        var urlRequest: SentryURLRequestWrapper?
         var httpResponse: HTTPURLResponse?
         var attachments: [Attachment] = []
         var extra: [String: Any] = [:]
@@ -36,8 +40,20 @@ public final class Hint: NSObject {
 
     /// The `URLRequest` associated with the event or breadcrumb, if it originated from a network operation.
     public var urlRequest: URLRequest? {
-        get { state.withLock { $0.urlRequest } }
-        set { state.withLock { $0.urlRequest = newValue } }
+        get { state.withLock { $0.urlRequest }?.request }
+        set { state.withLock { $0.urlRequest = newValue.map(SentryURLRequestWrapper.init(request:)) } }
+    }
+
+    /// Sets ``urlRequest`` without copying the request until user code reads it.
+    ///
+    /// The network tracker passes a task's request here. Bridging that request to a `URLRequest`
+    /// copies it, which races with threads that write protocol properties into it and can crash
+    /// when the copy is released (#9307). Assigning `wrapper.request` to ``urlRequest`` would make
+    /// that copy on CFNetwork's queue for every network event. Storing the wrapper defers it to
+    /// the getter, which only runs when a `beforeSendWithHint` or `beforeBreadcrumbWithHint`
+    /// callback reads ``urlRequest``.
+    func setURLRequest(_ request: SentryURLRequestWrapper) {
+        state.withLock { $0.urlRequest = request }
     }
 
     /// The `HTTPURLResponse` associated with the event or breadcrumb, if it originated from a network operation.
