@@ -28,13 +28,25 @@ The runner parses the launched PID and registers a kernel `NOTE_EXIT` event. Thi
 
 Each launch writes an `ios-<scenario>-launch-<sequence>` artifact directory containing the launch command/result and redirected app stdout/stderr. A termination timeout also captures:
 
-- host process state (`process.log`)
+- the failing phase, observed PID, and app-exit deadline (`timeout.log`)
+- host process state before and after sampling (`process.log`, `process-after-sample.log`)
 - a best-effort stack sample of the still-running process (`sample.txt`, `sample-command.log`)
+- host load and memory statistics (`host-load.log`, `host-memory.log`)
 - simulator `launchd` state in `launchctl.log` (for diagnostics only)
+
+Command logs include the scenario phase, app state, attempt number, time budget, elapsed time, stdout/stderr, and final exit status or signal—even when the command timed out. Simulator-management commands are recorded in `ios-<scenario>-commands`. Scenario failures have a separate `ios-<scenario>-failure.log`; cleanup failures are recorded alongside it. Exhausted simulator-control retries also capture host load and memory statistics.
 
 Diagnostic subprocesses have their own bounded timeouts. Diagnostic collection does not turn a failed termination wait into success or increase the scenario's termination deadline. The observer only detects termination and not whether a run was successful.
 
 A non-termination failure still represents a possible real hang. Use the process sample and app logs to distinguish startup, crash handling, drain, and SDK shutdown hangs from simulator service problems. The harness does not change crash-recorder behavior or relax the crash/report assertions.
+
+### Simulator recovery
+
+The runner distinguishes an unknown app state from a confirmed stop. Stop confirmation remains valid until another launch is requested; a failed launch request makes the state unknown again. Switching simulators also invalidates that confirmation.
+
+Two simulator-management operations can retry a timeout: terminating the app and looking up its data container. They use a 10-second attempt followed by one 30-second attempt. Subprocess termination grace periods are additional. Termination is idempotent, and container lookup is read-only; neither retry executes the app or discards its reports. Other command errors are not retried, and every attempt remains in the logs.
+
+App launches, app-exit waits, and report assertions are never retried into success. If simulator-control retries are exhausted, the scenario is reported as incomplete due to infrastructure failure, not as an SDK assertion failure or a pass. The run remains failed; `--keep-going` can execute later scenarios only after isolation is established.
 
 ### Failure handling
 
@@ -46,7 +58,7 @@ When an iOS scenario fails, the runner first confirms that the app has stopped:
 
 If termination cannot be confirmed, the run aborts (even with `--keep-going`) to preserve isolation between scenarios. Both the original scenario error and the cleanup error are reported.
 
-Once the app has stopped, the runner attempts to preserve SDK's cache directories in `ios-<scenario>-failed-cache`.
+Once the app has stopped, the runner attempts to preserve SDK's cache directories in `ios-<scenario>-failed-cache`. It uses the container path acquired for that scenario, without another simulator query. If setup never acquired a container, the log explains why no cache snapshot is available. An aborted run lists the scenarios that were not executed.
 
 ### Expected failures
 

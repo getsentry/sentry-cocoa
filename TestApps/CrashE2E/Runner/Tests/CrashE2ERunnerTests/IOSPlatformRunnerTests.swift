@@ -47,14 +47,15 @@ final class IOSPlatformRunnerTests: XCTestCase {
         XCTAssertTrue(launch.contains("--stdout="))
         XCTAssertTrue(launch.contains("--stderr="))
         XCTAssertTrue(launch.contains("\(process.processIdentifier)"))
-        for name in ["process.log", "sample-command.log", "launchctl.log"] {
+        for name in ["timeout.log", "process.log", "sample-command.log", "process-after-sample.log",
+                     "host-load.log", "host-memory.log", "launchctl.log"] {
             XCTAssertTrue(FileManager.default.fileExists(atPath: directory.appendingPathComponent(name).path), name)
         }
 
         let launchctl = try String(contentsOf: directory.appendingPathComponent("launchctl.log"), encoding: .utf8)
         XCTAssertTrue(launchctl.contains("status 1"))
-        XCTAssertEqual(fixture.commands.calls.map(\.tool), ["xcrun", "ps", "sample", "xcrun"])
-        XCTAssertEqual(fixture.commands.calls.map(\.timeout), [30, 5, 8, 5])
+        XCTAssertEqual(fixture.commands.calls.map(\.tool), ["xcrun", "ps", "sample", "ps", "uptime", "vm_stat", "xcrun"])
+        XCTAssertEqual(fixture.commands.calls.map(\.timeout), [30, 5, 8, 5, 5, 5, 5])
         XCTAssertTrue(fixture.commands.calls.allSatisfy { $0.captureOutput && $0.allowFailure })
 
         let launchCall = try XCTUnwrap(fixture.commands.calls.first)
@@ -151,6 +152,7 @@ final class IOSPlatformRunnerTests: XCTestCase {
         let fixture = try IOSRunnerFixture(pid: 0)
         defer { fixture.remove() }
 
+        _ = try fixture.runner.dataContainer()
         let cache = fixture.directory.appendingPathComponent("Library/Caches")
         let names = ["io.sentry", "KSCrash", "SentryCrash"]
         for name in names {
@@ -255,7 +257,7 @@ final class IOSPlatformRunnerTests: XCTestCase {
         XCTAssertEqual(fixture.runner.launchCount, 2)
 
         let terminations = fixture.commands.calls.filter { $0.isCommand("xcrun", ["simctl", "terminate"]) }
-        XCTAssertEqual(terminations.count, 5, "Install, two scenario starts, and two failed-launch cleanups")
+        XCTAssertEqual(terminations.count, 3, "Initial isolation and two failed-launch cleanups; stopped scenario starts need no command")
     }
 
     func testLaunchApp_whenCommandTimesOut_shouldNotObservePID() throws {
@@ -353,8 +355,7 @@ extension IOSPlatformRunnerTests {
         // -- Assert --
         XCTAssertEqual(fixture.commands.calls.map { Array($0.arguments.prefix(2)) }, [
             ["simctl", "terminate"], ["simctl", "uninstall"], ["simctl", "install"],
-            ["simctl", "terminate"], ["simctl", "get_app_container"], ["simctl", "launch"],
-            ["simctl", "terminate"], ["simctl", "get_app_container"]
+            ["simctl", "get_app_container"], ["simctl", "launch"], ["simctl", "terminate"]
         ])
 
         let terminations = fixture.commands.calls.filter { $0.isCommand("xcrun", ["simctl", "terminate"]) }
@@ -382,7 +383,6 @@ extension IOSPlatformRunnerTests {
             XCTAssertEqual(call.arguments, ["simctl", "bootstatus", "test-device", "-b"])
             XCTAssertFalse(call.allowFailure)
             XCTAssertEqual(call.timeout, 180)
-
             return call.result()
         }
 

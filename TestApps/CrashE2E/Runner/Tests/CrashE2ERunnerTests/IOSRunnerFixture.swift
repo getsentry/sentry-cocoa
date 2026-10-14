@@ -42,7 +42,8 @@ struct IOSRunnerFixture {
             }
 
             if call.isCommand("xcrun", ["simctl", "install"]) || call.isCommand("xcrun", ["simctl", "uninstall"])
-                || call.isCommand("ps") || call.isCommand("sample") {
+                || call.isCommand("ps") || call.isCommand("sample")
+                || call.isCommand("uptime") || call.isCommand("vm_stat") {
                 return call.result()
             }
 

@@ -8,10 +8,15 @@ final class IOSPlatformRunner {
     private(set) var deviceID = ""
     private(set) var xcodebuildDestination = ""
     private var installedDerivedDataPath: URL?
-    var appProcess: ProcessExitObserver?
+    static let simulatorCommandTimeouts: [TimeInterval] = [10, 30]
+    var appState: IOSAppState = .unknown
+    var appProcess: ProcessExitObserver? { appState.observer }
+    var phase: IOSRunnerPhase = .setup
+    var scenarioContainer: URL?
     var launchArtifacts: URL?
     var scenarioName = "app"
     var launchCount = 0
+    var commandCount = 0
 
     init(config: Config, processRunner: any CommandExecuting) {
         self.config = config
@@ -23,6 +28,11 @@ final class IOSPlatformRunner {
             deviceID: config.iosDeviceID,
             destination: config.iosDestination
         )
+        if deviceID != selection.device.udid {
+            appState = .unknown
+            scenarioContainer = nil
+            installedDerivedDataPath = nil
+        }
         deviceID = selection.device.udid
         xcodebuildDestination = selection.xcodebuildDestination
 
@@ -49,20 +59,26 @@ final class IOSPlatformRunner {
     }
 
     private func uninstallApp() throws {
-        try processRunner.run("xcrun", ["simctl", "uninstall", deviceID, bundleID], captureOutput: true, allowFailure: true)
+        try runLoggedCommand("xcrun", ["simctl", "uninstall", deviceID, bundleID], operation: "uninstall")
     }
 
     private func installApp(at appPath: URL) throws {
-        try processRunner.run("xcrun", ["simctl", "install", deviceID, appPath.path])
+        try runLoggedCommand("xcrun", ["simctl", "install", deviceID, appPath.path],
+                             operation: "install", captureOutput: false, allowFailure: false)
     }
 
     func runScenarios() throws {
         var failures: [String] = []
 
-        for scenario in config.scenarios {
-            // Cleanup precedes known-failure classification and keep-going handling. Its
-            // own failure must abort even when the scenario has a documented SDK gap.
-            let outcome = try runScenarioWithCleanup(scenario)
+        for (index, scenario) in config.scenarios.enumerated() {
+            let outcome: Result<Void, Error>
+            do {
+                outcome = try runScenarioWithCleanup(scenario)
+            } catch {
+                let remaining = config.scenarios.dropFirst(index + 1).map(\.rawValue).joined(separator: ", ")
+                try fail((failures + ["iOS/\(scenario.rawValue) aborted: \(error)",
+                                     "Scenarios not executed: \(remaining.isEmpty ? "none" : remaining)"]).joined(separator: "\n"))
+            }
             do {
                 try runAllowingKnownFailure(scenario, reporter: config.reporter, platform: "ios") {
                     try outcome.get()
@@ -84,9 +100,14 @@ final class IOSPlatformRunner {
     }
 
     private func runScenarioWithCleanup(_ scenario: Scenario) throws -> Result<Void, Error> {
+        scenarioName = scenario.rawValue
+        scenarioContainer = nil
+        launchArtifacts = nil
+        phase = .scenarioSetup
         do {
             let derivedDataPath = self.derivedDataPath(for: scenario)
             if installedDerivedDataPath != derivedDataPath {
+                phase = .installation
                 try reinstallApp(derivedDataPath: derivedDataPath)
                 installedDerivedDataPath = derivedDataPath
             }
@@ -96,10 +117,13 @@ final class IOSPlatformRunner {
             return .success(())
         } catch {
             let scenarioError = error
+            recordScenarioFailure(error)
+            phase = .cleanup
 
             do {
                 try terminateApp()
             } catch {
+                recordCleanupFailure(error)
                 try fail("\(scenarioError)\nCould not stop iOS app after failure: \(error)")
             }
 
@@ -121,7 +145,7 @@ final class IOSPlatformRunner {
     private func runScenario(_ scenario: Scenario) throws {
         log("iOS scenario: \(scenario.rawValue)")
 
-        scenarioName = scenario.rawValue
+        phase = .scenarioSetup
         try terminateApp()
 
         let container = try dataContainer()
@@ -145,12 +169,13 @@ final class IOSPlatformRunner {
         let launchResult = try launchApp(arguments: crashLaunchArguments(for: scenario, markerPath: markerPath))
         try assertLaunchSucceeded(launchResult, scenario: scenario, launchType: "crash")
 
-        log("iOS crash launch exited with \(launchResult.summary). Waiting for termination.")
+        log("iOS crash launch command completed with \(launchResult.summary). Waiting for app termination.")
 
         guard try waitForAppToStop(timeout: 25) else {
             try fail("iOS app did not terminate for scenario: \(scenario.rawValue)")
         }
 
+        phase = .reportValidation
         let cacheRoot = container.appendingPathComponent("Library/Caches", isDirectory: true)
         try assertCrashLaunchArtifacts(for: scenario, cacheRoot: cacheRoot)
 
@@ -163,6 +188,7 @@ final class IOSPlatformRunner {
 
         try drainPreviousCrash(for: scenario)
 
+        phase = .reportValidation
         try ScenarioEventAsserter.assertScenarioEvent(
             scenario,
             cacheRoot: cacheRoot,
@@ -273,14 +299,32 @@ final class IOSPlatformRunner {
     }
 
     func dataContainer() throws -> URL {
-        let result = try processRunner.run("xcrun", ["simctl", "get_app_container", deviceID, bundleID, "data"],
-                                           captureOutput: true, timeout: 10)
-        let path = result.stdout.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !path.isEmpty else {
-            try fail("Could not determine iOS app data container for \(bundleID)")
+        if let scenarioContainer { return scenarioContainer }
+        // Container lookup is read-only. Retrying a control-command timeout does not
+        // execute the app again or discard reports produced by a prior launch.
+        for (index, timeout) in Self.simulatorCommandTimeouts.enumerated() {
+            let result = try runLoggedCommand("xcrun", ["simctl", "get_app_container", deviceID, bundleID, "data"],
+                                             operation: "get_app_container", timeout: timeout, attempt: index + 1)
+            if result.succeeded {
+                let path = result.stdout.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !path.isEmpty else {
+                    throw SimulatorCommandFailure(message: "Empty data container path for \(bundleID)")
+                }
+                let container = URL(fileURLWithPath: path, isDirectory: true)
+                scenarioContainer = container
+
+                return container
+            }
+
+            if result.timedOut, index + 1 < Self.simulatorCommandTimeouts.count {
+                log("Retrying data container lookup after control-command timeout; app state: \(appState)")
+                continue
+            }
+
+            throw SimulatorCommandFailure(message: "simctl get_app_container failed after \(index + 1) attempt(s) (\(result.summary)): \(result.stderr)")
         }
 
-        return URL(fileURLWithPath: path, isDirectory: true)
+        throw SimulatorCommandFailure(message: "No data container lookup attempt completed")
     }
 
     var bundleID: String {

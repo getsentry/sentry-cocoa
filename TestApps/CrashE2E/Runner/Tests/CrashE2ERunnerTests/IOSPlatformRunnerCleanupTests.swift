@@ -111,7 +111,7 @@ final class IOSPlatformRunnerCleanupTests: XCTestCase {
 
         // -- Act & Assert --
         XCTAssertThrowsError(try fixture.runner.terminateApp()) { error in
-            XCTAssertTrue(String(describing: error).contains("timeout after 10s"))
+            XCTAssertTrue(String(describing: error).contains("timeout after 30s"))
         }
     }
 
