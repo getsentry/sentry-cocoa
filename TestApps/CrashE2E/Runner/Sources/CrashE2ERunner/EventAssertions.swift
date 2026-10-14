@@ -411,7 +411,7 @@ enum EventAssertions {
     }
 
     static func assert(_ condition: Bool, _ message: String) throws {
-        guard condition else { throw CrashE2EFailure(message: message) }
+        guard condition else { throw ReportAssertionFailure(message: message) }
     }
 
     static func dictionary(_ value: Any?) -> [String: Any] {

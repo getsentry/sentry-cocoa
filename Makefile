@@ -2138,6 +2138,10 @@ xcode-ci: xcode-ci-SPM \
 	xcode-ci-SwiftUITestSample \
 	xcode-ci-SwiftUICrashTest
 
+.PHONY: xcode-ci-CrashE2E
+xcode-ci-CrashE2E:
+	xcodegen --spec TestApps/CrashE2E/CrashE2E.yml
+
 .PHONY: xcode-ci-SPM
 xcode-ci-SPM:
 	@echo "[MAKE] $@: Generating Xcode project from TestApps/SPM/SPM.yml"

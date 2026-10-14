@@ -3,12 +3,6 @@ import Foundation
 extension IOSPlatformRunner {
     func runKSCrashRetryScenario(container: URL) throws {
         let cacheRoot = container.appendingPathComponent("Library/Caches", isDirectory: true)
-        try processRunner.run(
-            "xcrun",
-            ["simctl", "terminate", deviceID, bundleID],
-            captureOutput: true,
-            allowFailure: true
-        )
 
         try prepareKSCrashRetryReportA(cacheRoot: cacheRoot)
         KSCrashRetryScenarioConstants.waitForDistinctReportID()

@@ -13,7 +13,7 @@ extension IOSPlatformRunner {
 
         let launchResult = try launchApp(arguments: ["--scenario", Scenario.sigterm.rawValue])
         try assertLaunchSucceeded(launchResult, scenario: .sigterm, launchType: "sigterm")
-        let pid = try launchedProcessIdentifier(from: launchResult)
+        let pid = try ProcessExitObserver.launchedProcessIdentifier(stdout: launchResult.stdout, bundleID: bundleID)
 
         // Simulator apps run as host processes, so the runner can signal the pid directly.
         do {
@@ -39,18 +39,4 @@ extension IOSPlatformRunner {
         try SigtermScenarioAsserter.assertLastRunNotCrashed(cacheRoot: cacheRoot, platform: "ios")
     }
 
-    private func terminateApp() throws {
-        try processRunner.run("xcrun", ["simctl", "terminate", deviceID, bundleID],
-                              captureOutput: true, allowFailure: true)
-    }
-
-    /// `simctl launch` prints `<bundle id>: <pid>` on success.
-    private func launchedProcessIdentifier(from result: ProcessResult) throws -> Int32 {
-        let output = result.stdout.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard let pidToken = output.split(whereSeparator: { $0 == ":" || $0 == " " }).last,
-              let pid = Int32(pidToken.trimmingCharacters(in: .whitespaces)) else {
-            try fail("Could not parse the launched iOS pid from simctl output: \(output)")
-        }
-        return pid
-    }
 }

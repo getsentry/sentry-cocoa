@@ -32,9 +32,9 @@ final class IOSSimulatorResolver {
         let isAvailable: Bool?
     }
 
-    private let processRunner: ProcessRunner
+    private let processRunner: any CommandExecuting
 
-    init(processRunner: ProcessRunner) {
+    init(processRunner: any CommandExecuting) {
         self.processRunner = processRunner
     }
 
@@ -75,8 +75,8 @@ final class IOSSimulatorResolver {
     }
 
     private func availableIOSDevices() throws -> [IOSSimulatorDevice] {
-        let output = try processRunner.runOutput("xcrun", ["simctl", "list", "devices", "available", "-j"])
-        let data = Data(output.utf8)
+        let result = try processRunner.run("xcrun", ["simctl", "list", "devices", "available", "-j"], captureOutput: true)
+        let data = Data(result.stdout.utf8)
         let list = try JSONDecoder().decode(SimctlDeviceList.self, from: data)
 
         return list.devices.flatMap { runtimeIdentifier, rawDevices -> [IOSSimulatorDevice] in
