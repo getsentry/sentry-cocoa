@@ -4,7 +4,7 @@
 
 ### Features
 
-- Add experimental MetricKit hang flame graph attachments via `options.experimental.metrickit.hangReportingMode = .flamegraphAttachment`, also available through `SentryObjC`. The default `.legacy` mode reports the flattened call stack tree (#9289)
+- Add experimental MetricKit hang flame graph attachments via `options.experimental.metrickit.hangReportingMode = .flamegraphAttachment`, also available through `SentryObjC`. The default `.legacy` mode reports the flattened call stack tree (#9347)
 
 ### Fixes
 
