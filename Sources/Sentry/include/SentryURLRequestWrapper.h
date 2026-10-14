@@ -3,22 +3,29 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * The URL, method, headers, and body of a task's request, copied when the snapshot is created.
+ * Wraps a request so Swift can read it without bridging it to a @c URLRequest.
  *
  * Swift bridges @c NSURLRequest to a @c URLRequest copy. Copying a task's request races with
  * threads that write protocol properties into it, and releasing a copy taken during such a write
  * crashes in CoreFoundation. Read the task's requests through this class instead.
  */
-@interface SentryURLRequestSnapshot : NSObject
+@interface SentryURLRequestWrapper : NSObject
 
-+ (nullable instancetype)snapshotOfOriginalRequestOfTask:(NSURLSessionTask *)task
++ (nullable instancetype)wrapperForOriginalRequestOfTask:(NSURLSessionTask *)task
     NS_SWIFT_NAME(init(originalRequestOf:));
 
-+ (nullable instancetype)snapshotOfCurrentRequestOfTask:(NSURLSessionTask *)task
++ (nullable instancetype)wrapperForCurrentRequestOfTask:(NSURLSessionTask *)task
     NS_SWIFT_NAME(init(currentRequestOf:));
 
+- (instancetype)initWithRequest:(NSURLRequest *)request NS_DESIGNATED_INITIALIZER;
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
+
+/**
+ * The wrapped request. Swift bridges it to a @c URLRequest copy, so only read it to hand the
+ * request to user code.
+ */
+@property (nonatomic, readonly) NSURLRequest *request;
 
 @property (nonatomic, readonly, nullable) NSURL *URL;
 @property (nonatomic, readonly, nullable) NSString *HTTPMethod;

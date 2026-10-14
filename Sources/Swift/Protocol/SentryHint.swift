@@ -1,3 +1,5 @@
+internal import _SentryPrivate
+
 /// Provides metadata about the origin of an event or breadcrumb.
 ///
 /// A hint flows alongside the event through the capture pipeline, giving ``Options/beforeSendWithHint``
@@ -14,7 +16,7 @@ public final class Hint: NSObject {
     private struct State {
         var originalError: Error?
         var originalException: NSException?
-        var urlRequest: URLRequest?
+        var urlRequest: SentryURLRequestWrapper?
         var httpResponse: HTTPURLResponse?
         var attachments: [Attachment] = []
         var extra: [String: Any] = [:]
@@ -36,8 +38,16 @@ public final class Hint: NSObject {
 
     /// The `URLRequest` associated with the event or breadcrumb, if it originated from a network operation.
     public var urlRequest: URLRequest? {
-        get { state.withLock { $0.urlRequest } }
-        set { state.withLock { $0.urlRequest = newValue } }
+        get { state.withLock { $0.urlRequest }?.request }
+        set { setURLRequest(newValue.map(SentryURLRequestWrapper.init(request:))) }
+    }
+
+    /// Sets ``urlRequest`` without bridging the wrapped request, which copies it.
+    ///
+    /// The SDK passes a task's request here. Copying it races with threads that write into it, so
+    /// the copy is only made when user code reads ``urlRequest``.
+    func setURLRequest(_ request: SentryURLRequestWrapper?) {
+        state.withLock { $0.urlRequest = request }
     }
 
     /// The `HTTPURLResponse` associated with the event or breadcrumb, if it originated from a network operation.
