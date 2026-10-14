@@ -2489,7 +2489,13 @@ class SentryNetworkTrackerTests: XCTestCase {
 
     func testCaptureHTTPClientError_hintContainsRequestAndResponse() throws {
         let sut = fixture.getSut()
-        let task = createDataTask()
+        let task = createDataTask {
+            var request = $0
+            request.httpMethod = "POST"
+            request.setValue("value", forHTTPHeaderField: "X-Custom")
+            request.httpBody = Data("body".utf8)
+            return request
+        }
         let response = try createResponse(code: 500)
         task.setResponse(response)
 
@@ -2497,8 +2503,11 @@ class SentryNetworkTrackerTests: XCTestCase {
 
         XCTAssertEqual(fixture.hub.capturedErrorHints.count, 1)
         let hint = try XCTUnwrap(fixture.hub.capturedErrorHints.first)
-        XCTAssertNotNil(hint.urlRequest)
-        XCTAssertEqual(hint.urlRequest?.url, SentryNetworkTrackerTests.fullUrl)
+        let urlRequest = try XCTUnwrap(hint.urlRequest)
+        XCTAssertEqual(urlRequest.url, SentryNetworkTrackerTests.fullUrl)
+        XCTAssertEqual(urlRequest.httpMethod, "POST")
+        XCTAssertEqual(urlRequest.value(forHTTPHeaderField: "X-Custom"), "value")
+        XCTAssertEqual(urlRequest.httpBody, Data("body".utf8))
         let httpResponse = try XCTUnwrap(hint.httpResponse)
         XCTAssertEqual(httpResponse.statusCode, 500)
     }

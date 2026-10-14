@@ -124,7 +124,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
 
         // Snapshot currentRequest once — the property is volatile and can return a freed
         // object if the task completes on another thread between repeated accesses.
-        guard let currentRequest = sessionTask.currentRequest,
+        guard let currentRequest = SentryURLRequestSnapshot(currentRequestOf: sessionTask),
               let url = currentRequest.url else {
             return
         }
@@ -542,7 +542,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         event.context = context
 
         let hint = Hint()
-        hint.setURLRequest(currentRequest)
+        hint.urlRequest = URLRequest(currentRequest, url: requestURL)
         if let httpResponse = sessionTask.response as? HTTPURLResponse {
             hint.httpResponse = httpResponse
         }
@@ -631,7 +631,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         breadcrumb.type = "http"
 
         let hint = Hint()
-        hint.setURLRequest(currentRequest)
+        hint.urlRequest = URLRequest(currentRequest, url: requestURL)
         if let httpResponse = sessionTask.response as? HTTPURLResponse {
             hint.httpResponse = httpResponse
         }
@@ -813,7 +813,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         return true
     }
 
-    private func isDuplicateTask(_ request: URLRequest, currentSpan: Span?) -> Bool {
+    private func isDuplicateTask(_ request: SentryURLRequestSnapshot, currentSpan: Span?) -> Bool {
         guard let traceHeader = request.value(forHTTPHeaderField: SENTRY_TRACE_HEADER),
               let tracer = currentSpan.flatMap(SentryTracer.getTracer) else {
             return false
@@ -867,6 +867,19 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             tracePropagationTargets: options.tracePropagationTargets,
             toRequest: task
         )
+    }
+}
+
+private extension URLRequest {
+    /// Creates a request with the method, headers, and body of `snapshot`.
+    ///
+    /// Bridging the task's request instead would copy it, which races with threads that write into it.
+    init(_ snapshot: SentryURLRequestSnapshot, url: URL) {
+        self.init(url: url)
+        httpMethod = snapshot.httpMethod
+        // swiftlint:disable:next avoid_all_header_fields - copies all headers, no single-header lookup
+        allHTTPHeaderFields = snapshot.allHTTPHeaderFields
+        httpBody = snapshot.httpBody
     }
 }
 // swiftlint:enable type_body_length file_length
