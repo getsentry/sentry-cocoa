@@ -2133,6 +2133,7 @@ xcode-ci: xcode-ci-SPM \
 	xcode-ci-visionOS-Swift \
 	xcode-ci-visionOS-SwiftUI-SPM \
 	xcode-ci-watchOS-Swift \
+	xcode-ci-CrashE2E \
 	xcode-ci-DistributionSample \
 	xcode-ci-SDK-Size \
 	xcode-ci-SwiftUITestSample \
