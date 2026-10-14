@@ -308,7 +308,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         }
 
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-        if let urlString = sessionTask.unbridgedOriginalRequest?.url?.absoluteString,
+        if let urlString = SentryURLRequestSnapshot(originalRequestOf: sessionTask)?.url?.absoluteString,
            isNetworkDetailCaptureEnabled(for: urlString, options: options) {
             captureRequestDetails(
                 for: sessionTask,
@@ -323,7 +323,8 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             return
         }
 
-        guard let currentRequest = sessionTask.unbridgedCurrentRequest, let url = currentRequest.url else {
+        guard let currentRequest = SentryURLRequestSnapshot(currentRequestOf: sessionTask),
+              let url = currentRequest.url else {
             return
         }
 
@@ -431,7 +432,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
 
     private func captureFailedRequest(
         for sessionTask: URLSessionTask,
-        currentRequest: NSURLRequest,
+        currentRequest: SentryURLRequestSnapshot,
         options: Options,
         featureState: NetworkTrackerState
     ) {
@@ -559,7 +560,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
     // swiftlint:disable:next function_body_length
     private func addBreadcrumb(
         for sessionTask: URLSessionTask,
-        currentRequest: NSURLRequest,
+        currentRequest: SentryURLRequestSnapshot,
         options: Options,
         featureState: NetworkTrackerState
     ) {
@@ -737,7 +738,8 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
     ) {
         // Completion may be the first capture for new-loader tasks, after currentRequest has
         // changed on a redirect. Keep the method, headers, and body from the same initial request.
-        guard let request = sessionTask.unbridgedOriginalRequest ?? sessionTask.unbridgedCurrentRequest else {
+        guard let request = SentryURLRequestSnapshot(originalRequestOf: sessionTask)
+                ?? SentryURLRequestSnapshot(currentRequestOf: sessionTask) else {
             return
         }
 

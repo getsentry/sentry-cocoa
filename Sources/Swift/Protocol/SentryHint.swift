@@ -1,3 +1,5 @@
+internal import _SentryPrivate
+
 /// Provides metadata about the origin of an event or breadcrumb.
 ///
 /// A hint flows alongside the event through the capture pipeline, giving ``Options/beforeSendWithHint``
@@ -14,8 +16,9 @@ public final class Hint: NSObject {
     private struct State {
         var originalError: Error?
         var originalException: NSException?
-        // Stored unbridged so the SDK can hand over a task's request without copying it.
-        var urlRequest: NSURLRequest?
+        var urlRequest: URLRequest?
+        // Set by the SDK instead of `urlRequest`, so a task's request is only copied when read.
+        var urlRequestSnapshot: SentryURLRequestSnapshot?
         var httpResponse: HTTPURLResponse?
         var attachments: [Attachment] = []
         var extra: [String: Any] = [:]
@@ -37,16 +40,27 @@ public final class Hint: NSObject {
 
     /// The `URLRequest` associated with the event or breadcrumb, if it originated from a network operation.
     public var urlRequest: URLRequest? {
-        get { state.withLock { $0.urlRequest }.map { $0 as URLRequest } }
-        set { state.withLock { $0.urlRequest = newValue.map { $0 as NSURLRequest } } }
+        get {
+            let (urlRequest, snapshot) = state.withLock { ($0.urlRequest, $0.urlRequestSnapshot) }
+            return urlRequest ?? snapshot?.requestCopy
+        }
+        set {
+            state.withLock {
+                $0.urlRequest = newValue
+                $0.urlRequestSnapshot = nil
+            }
+        }
     }
 
-    /// Sets ``urlRequest`` without bridging `request` to a `URLRequest`.
+    /// Sets ``urlRequest`` to the request of `snapshot`.
     ///
-    /// Bridging copies the request without synchronizing with threads that write into it, so the
-    /// copy is deferred until a callback reads ``urlRequest``.
-    func setURLRequest(_ request: NSURLRequest) {
-        state.withLock { $0.urlRequest = request }
+    /// Bridging a task's request to a `URLRequest` copies it without synchronizing with threads
+    /// that write into it, so the copy is deferred until a callback reads ``urlRequest``.
+    func setURLRequest(_ snapshot: SentryURLRequestSnapshot) {
+        state.withLock {
+            $0.urlRequest = nil
+            $0.urlRequestSnapshot = snapshot
+        }
     }
 
     /// The `HTTPURLResponse` associated with the event or breadcrumb, if it originated from a network operation.
