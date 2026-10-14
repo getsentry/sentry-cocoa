@@ -23,7 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * The wrapped request. Swift bridges it to a @c URLRequest copy, so only read it to hand the
- * request to user code.
+ * request to user code. @c Hint stores the wrapper and reads this only when a callback reads
+ * @c urlRequest.
  */
 @property (nonatomic, readonly) NSURLRequest *request;
 

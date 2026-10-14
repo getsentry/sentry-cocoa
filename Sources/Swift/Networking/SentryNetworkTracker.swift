@@ -124,6 +124,9 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
 
         // Snapshot currentRequest once — the property is volatile and can return a freed
         // object if the task completes on another thread between repeated accesses.
+        // Read the task's requests through SentryURLRequestWrapper, never through
+        // `sessionTask.originalRequest`/`currentRequest`: bridging them to `URLRequest` copies the
+        // request, which can crash when another thread writes into it (#9307).
         guard let currentRequest = SentryURLRequestWrapper(currentRequestOf: sessionTask),
               let url = currentRequest.url else {
             return
@@ -542,6 +545,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         event.context = context
 
         let hint = Hint()
+        // Don't assign `currentRequest.request`: reading it copies the task's request (#9307).
         hint.setURLRequest(currentRequest)
         if let httpResponse = sessionTask.response as? HTTPURLResponse {
             hint.httpResponse = httpResponse
@@ -631,6 +635,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         breadcrumb.type = "http"
 
         let hint = Hint()
+        // Don't assign `currentRequest.request`: reading it copies the task's request (#9307).
         hint.setURLRequest(currentRequest)
         if let httpResponse = sessionTask.response as? HTTPURLResponse {
             hint.httpResponse = httpResponse
