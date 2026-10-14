@@ -14,7 +14,8 @@ public final class Hint: NSObject {
     private struct State {
         var originalError: Error?
         var originalException: NSException?
-        var urlRequest: URLRequest?
+        // Stored unbridged so the SDK can hand over a task's request without copying it.
+        var urlRequest: NSURLRequest?
         var httpResponse: HTTPURLResponse?
         var attachments: [Attachment] = []
         var extra: [String: Any] = [:]
@@ -36,8 +37,16 @@ public final class Hint: NSObject {
 
     /// The `URLRequest` associated with the event or breadcrumb, if it originated from a network operation.
     public var urlRequest: URLRequest? {
-        get { state.withLock { $0.urlRequest } }
-        set { state.withLock { $0.urlRequest = newValue } }
+        get { state.withLock { $0.urlRequest }.map { $0 as URLRequest } }
+        set { state.withLock { $0.urlRequest = newValue.map { $0 as NSURLRequest } } }
+    }
+
+    /// Sets ``urlRequest`` without bridging `request` to a `URLRequest`.
+    ///
+    /// Bridging copies the request without synchronizing with threads that write into it, so the
+    /// copy is deferred until a callback reads ``urlRequest``.
+    func setURLRequest(_ request: NSURLRequest) {
+        state.withLock { $0.urlRequest = request }
     }
 
     /// The `HTTPURLResponse` associated with the event or breadcrumb, if it originated from a network operation.

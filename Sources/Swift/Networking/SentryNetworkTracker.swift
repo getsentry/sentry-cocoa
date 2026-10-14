@@ -308,7 +308,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         }
 
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-        if let urlString = sessionTask.originalRequest?.url?.absoluteString,
+        if let urlString = sessionTask.unbridgedOriginalRequest?.url?.absoluteString,
            isNetworkDetailCaptureEnabled(for: urlString, options: options) {
             captureRequestDetails(
                 for: sessionTask,
@@ -323,7 +323,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
             return
         }
 
-        guard let currentRequest = sessionTask.currentRequest, let url = currentRequest.url else {
+        guard let currentRequest = sessionTask.unbridgedCurrentRequest, let url = currentRequest.url else {
             return
         }
 
@@ -431,7 +431,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
 
     private func captureFailedRequest(
         for sessionTask: URLSessionTask,
-        currentRequest: URLRequest,
+        currentRequest: NSURLRequest,
         options: Options,
         featureState: NetworkTrackerState
     ) {
@@ -541,7 +541,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         event.context = context
 
         let hint = Hint()
-        hint.urlRequest = currentRequest
+        hint.setURLRequest(currentRequest)
         if let httpResponse = sessionTask.response as? HTTPURLResponse {
             hint.httpResponse = httpResponse
         }
@@ -559,7 +559,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
     // swiftlint:disable:next function_body_length
     private func addBreadcrumb(
         for sessionTask: URLSessionTask,
-        currentRequest: URLRequest,
+        currentRequest: NSURLRequest,
         options: Options,
         featureState: NetworkTrackerState
     ) {
@@ -630,7 +630,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
         breadcrumb.type = "http"
 
         let hint = Hint()
-        hint.urlRequest = currentRequest
+        hint.setURLRequest(currentRequest)
         if let httpResponse = sessionTask.response as? HTTPURLResponse {
             hint.httpResponse = httpResponse
         }
@@ -737,7 +737,7 @@ final class SentryDefaultNetworkTracker<Dependencies: SentryDefaultNetworkTracke
     ) {
         // Completion may be the first capture for new-loader tasks, after currentRequest has
         // changed on a redirect. Keep the method, headers, and body from the same initial request.
-        guard let request = sessionTask.originalRequest ?? sessionTask.currentRequest else {
+        guard let request = sessionTask.unbridgedOriginalRequest ?? sessionTask.unbridgedCurrentRequest else {
             return
         }
 
