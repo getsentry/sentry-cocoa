@@ -20,7 +20,6 @@
 #    import "SentrySamplerDecisionHelper.h"
 #    import "SentryTraceProfiler.h"
 #    import "SentryTracer+Private.h"
-#    import "SentryTransaction+Private.h"
 
 #    if SENTRY_HAS_UIKIT
 #        import "SentryAppStartMeasurement.h"
@@ -244,6 +243,7 @@ sentry_stopProfilerDueToFinishedTransaction(SentryHubInternal *hub,
 #    endif // SENTRY_HAS_UIKIT
 )
 {
+    SentryTracer *trace = [(NSObject *)transaction valueForKey:@"trace"];
     SentryProfileConfiguration *profileConfiguration = sentry_getProfileConfiguration();
     if (profileConfiguration != nil && profileConfiguration.isProfilingThisLaunch
         && profileConfiguration.profileOptions != nil
@@ -251,11 +251,12 @@ sentry_stopProfilerDueToFinishedTransaction(SentryHubInternal *hub,
             SENTRY_UNWRAP_NULLABLE(SentryProfileOptions, profileConfiguration.profileOptions))) {
         SENTRY_LOG_DEBUG(@"Stopping launch UI trace profile.");
         sentry_stopTrackingRootSpanForContinuousProfilerV2();
+
         // The launch tracer is intentionally discarded by
         // SentryLaunchProfiling.stopAndDiscardLaunchProfileTracer. Other transactions finishing
         // during the launch profiling window (e.g., manual transactions or app start transactions)
         // must still be captured.
-        if (transaction.trace != sentry_getLaunchTracer()) {
+        if (trace != sentry_getLaunchTracer()) {
             [hub captureTransaction:transaction withScope:hub.scope];
         }
         return;
@@ -267,7 +268,7 @@ sentry_stopProfilerDueToFinishedTransaction(SentryHubInternal *hub,
         && sentry_isProfilingCorrelatedToTraces(
             SENTRY_UNWRAP_NULLABLE(SentryClientInternal, client))) {
         SENTRY_LOG_DEBUG(@"Stopping tracking root span tracer with profilerReferenceId %@",
-            sentry_stringFromSentryID(transaction.trace.profilerReferenceID));
+            sentry_stringFromSentryID(trace.profilerReferenceID));
         sentry_stopTrackingRootSpanForContinuousProfilerV2();
         [hub captureTransaction:transaction withScope:hub.scope];
         return;
@@ -299,20 +300,21 @@ sentry_stopProfilerDueToFinishedTransaction(SentryHubInternal *hub,
     // start system time as we currently do
     SENTRY_LOG_DEBUG(@"Tracer start time: %llu", startSystemTime);
 
-    transaction.startSystemTime = startSystemTime;
+    [(NSObject *)transaction setValue:@(startSystemTime) forKey:@"startSystemTime"];
 #    if SENTRY_HAS_UIKIT
     if (appStartMeasurement != nil) {
         SENTRY_LOG_DEBUG(@"Assigning transaction start time as app start system time (%llu)",
             appStartMeasurement.runtimeInitSystemTimestamp);
-        transaction.startSystemTime = appStartMeasurement.runtimeInitSystemTimestamp;
+        [(NSObject *)transaction setValue:@(appStartMeasurement.runtimeInitSystemTimestamp)
+                                   forKey:@"startSystemTime"];
     }
 #    endif // SENTRY_HAS_UIKIT
 
     [SentryTraceProfiler recordMetrics];
-    transaction.endSystemTime = sentry_getSystemTime();
+    [(NSObject *)transaction setValue:@(sentry_getSystemTime()) forKey:@"endSystemTime"];
 
     SentryProfiler *_Nullable nullableProfiler
-        = sentry_profilerForFinishedTracer(transaction.trace.profilerReferenceID);
+        = sentry_profilerForFinishedTracer(trace.profilerReferenceID);
     if (!nullableProfiler) {
         [hub captureTransaction:transaction withScope:hub.scope];
         return;
