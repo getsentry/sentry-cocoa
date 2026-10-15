@@ -95,7 +95,6 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         var sut: SentryAppStartTracker {
             #if SDK_V10
             let sut = SentryAppStartTracker(
-                dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
                 appStateManager: appStateManager,
                 enablePreWarmedAppStartTracing: enablePreWarmedAppStartTracing,
                 dateProvider: SentryDependencyContainer.sharedInstance().dateProvider,
@@ -105,7 +104,6 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
             )
             #else
             let sut = SentryAppStartTracker(
-                dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
                 appStateManager: appStateManager,
                 framesTracker: framesTracker,
                 enablePreWarmedAppStartTracing: enablePreWarmedAppStartTracing,
