@@ -44,6 +44,19 @@ SENTRY_NO_INIT
 - (void)endSessionWithTimestamp:(NSDate *)timestamp;
 
 /**
+ * Ends the current session with the given status.
+ * @param status The status to end the session with.
+ */
+- (void)endSessionWithStatus:(SentrySessionEndStatus)status;
+
+/**
+ * Ends the current session with the given status and timestamp.
+ * @param status The status to end the session with.
+ * @param timestamp The timestamp to end the session with.
+ */
+- (void)endSessionWithStatus:(SentrySessionEndStatus)status timestamp:(NSDate *)timestamp;
+
+/**
  * Captures a manually created event and sends it to Sentry.
  * @param event The event to send to Sentry.
  * @return The SentryId of the event or SentryId.empty if the event is not sent.

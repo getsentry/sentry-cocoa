@@ -3,10 +3,12 @@
 #    import "SentryObjCDefines.h"
 #    import "SentryObjCFeedbackSource.h"
 #    import "SentryObjCLastRunStatus.h"
+#    import "SentryObjCSessionEndStatus.h"
 #else
 #    import <SentryObjC/SentryObjCDefines.h>
 #    import <SentryObjC/SentryObjCFeedbackSource.h>
 #    import <SentryObjC/SentryObjCLastRunStatus.h>
+#    import <SentryObjC/SentryObjCSessionEndStatus.h>
 #endif
 
 @class SentryObjCAttachment;
@@ -480,6 +482,18 @@ NS_ASSUME_NONNULL_BEGIN
  * @c startSession to manually track sessions.
  */
 + (void)endSession;
+
+/**
+ * Ends the current @c SentrySession with the given status. You can use this method in
+ * combination with @c startSession to manually track sessions.
+ * Unlike @c endSession, which determines whether the session ends as exited
+ * or unhandled, this method sets the status explicitly. Passing
+ * @c SentryObjCSessionEndStatusExited overrides any pending unhandled-error status.
+ * Passing @c SentryObjCSessionEndStatusCrashed marks the session as crashed.
+ * It does not crash the process or capture a crash event.
+ * @param status The terminal status to assign to the session.
+ */
++ (void)endSessionWithStatus:(SentryObjCSessionEndStatus)status;
 
 /**
  * This forces a crash, useful to test the SentryCrash integration.

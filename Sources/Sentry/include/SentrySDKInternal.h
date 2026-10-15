@@ -374,6 +374,13 @@ SENTRY_NO_INIT
 + (void)endSession;
 
 /**
+ * Ends the current @c SentrySession with the given status. You can use this method in
+ * combination with @c startSession to manually track sessions.
+ * @param status The status to end the session with.
+ */
++ (void)endSessionWithStatus:(SentrySessionEndStatus)status NS_SWIFT_NAME(endSession(status:));
+
+/**
  * This forces a crash, useful to test the @c SentryCrash integration.
  *
  * @note The SDK can't report a crash when a debugger is attached. Your application needs to run
