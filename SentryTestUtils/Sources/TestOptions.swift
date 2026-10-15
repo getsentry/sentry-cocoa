@@ -33,7 +33,11 @@ public extension Options {
         #endif // !SDK_V10
         beforeSendMetric = { metric in metric }
         #if canImport(MetricKit) && !os(tvOS)
+        #if SDK_V10
+        experimental.metricKit.enabledDiagnosticReports = []
+        #else
         enableMetricKit = false
+        #endif // SDK_V10
         #endif
     }
 

@@ -313,9 +313,11 @@ extension Options {
         }
 
         #if canImport(MetricKit) && !os(tvOS)
+        #if !SDK_V10
         if let enableMetricKit = boolValue(dictionary["enableMetricKit"]) {
             self.enableMetricKit = enableMetricKit
         }
+        #endif // !SDK_V10
 
         if let enableMetricKitRawPayload = boolValue(dictionary["enableMetricKitRawPayload"]) {
             self.enableMetricKitRawPayload = enableMetricKitRawPayload
