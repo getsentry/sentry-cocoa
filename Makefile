@@ -2133,10 +2133,15 @@ xcode-ci: xcode-ci-SPM \
 	xcode-ci-visionOS-Swift \
 	xcode-ci-visionOS-SwiftUI-SPM \
 	xcode-ci-watchOS-Swift \
+	xcode-ci-CrashE2E \
 	xcode-ci-DistributionSample \
 	xcode-ci-SDK-Size \
 	xcode-ci-SwiftUITestSample \
 	xcode-ci-SwiftUICrashTest
+
+.PHONY: xcode-ci-CrashE2E
+xcode-ci-CrashE2E:
+	xcodegen --spec TestApps/CrashE2E/CrashE2E.yml
 
 .PHONY: xcode-ci-SPM
 xcode-ci-SPM:

@@ -6,6 +6,14 @@ struct CrashE2EFailure: Error, CustomStringConvertible {
     var description: String { message }
 }
 
+/// A completed crash/drain run produced a missing or incorrect report. Keep this separate
+/// from harness failures so known SDK gaps cannot hide launch, observation, or I/O errors.
+struct ReportAssertionFailure: Error, CustomStringConvertible {
+    let message: String
+
+    var description: String { message }
+}
+
 func fail(_ message: String) throws -> Never {
     throw CrashE2EFailure(message: message)
 }

@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 9.30.2
 
 ### Features
 
@@ -17,6 +17,8 @@
 - Avoid crash-handler deadlocks caused by SDK debug logging or NSException backtrace memory management while other threads are suspended (#9324)
   - Prepare NSException backtraces before suspending other threads, and resume them before releasing the backtrace buffer.
   - NSException-monitor debug and warning diagnostics now use the async-safe logger's compile-time threshold (`ERROR` by default), so runtime debug options no longer enable them.
+- Prevent Session Replay image redaction from changing archived images' rendered size while preserving masking exemptions for bundled images and system symbols (#9344)
+- Fix an `EXC_BAD_ACCESS` crash in `cow_cleanup` when a `URLSessionTask` changes state while another thread writes protocol properties into its request. The network tracker now reads the task's requests without copying them to Swift `URLRequest` values (#9343)
 - Prevent crash report buffer overflows and file descriptor leaks when the report writer receives file descriptor zero (#9341)
 
 ## 9.30.1
