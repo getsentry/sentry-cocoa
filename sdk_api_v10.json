@@ -819,16 +819,6 @@
         "declKind": "Import",
         "kind": "Import",
         "moduleName": "Sentry",
-        "name": "Sentry.SentryTransaction",
-        "printedName": "Sentry.SentryTransaction"
-      },
-      {
-        "declAttributes": [
-          "Exported"
-        ],
-        "declKind": "Import",
-        "kind": "Import",
-        "moduleName": "Sentry",
         "name": "Sentry.SentryTransactionContext",
         "printedName": "Sentry.SentryTransactionContext"
       },
@@ -22706,7 +22696,7 @@
                                 "kind": "TypeNominal",
                                 "name": "Transaction",
                                 "printedName": "Sentry.Transaction",
-                                "usr": "c:objc(cs)SentryTransaction"
+                                "usr": "c:@M@Sentry@objc(cs)SentryTransaction"
                               }
                             ],
                             "kind": "TypeNominal",
@@ -22726,7 +22716,7 @@
                                 "kind": "TypeNominal",
                                 "name": "Transaction",
                                 "printedName": "Sentry.Transaction",
-                                "usr": "c:objc(cs)SentryTransaction"
+                                "usr": "c:@M@Sentry@objc(cs)SentryTransaction"
                               }
                             ],
                             "kind": "TypeNominal",
@@ -22752,7 +22742,7 @@
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry7OptionsC21beforeSendTransactionSo0aE0CSgAF_AA4HintCtcSgvg",
+                "mangledName": "$s6Sentry7OptionsC21beforeSendTransactionAA0E0CSgAF_AA4HintCtcSgvg",
                 "moduleName": "Sentry",
                 "name": "Get",
                 "printedName": "Get()",
@@ -22771,7 +22761,7 @@
                                 "kind": "TypeNominal",
                                 "name": "Transaction",
                                 "printedName": "Sentry.Transaction",
-                                "usr": "c:objc(cs)SentryTransaction"
+                                "usr": "c:@M@Sentry@objc(cs)SentryTransaction"
                               }
                             ],
                             "kind": "TypeNominal",
@@ -22791,7 +22781,7 @@
                                 "kind": "TypeNominal",
                                 "name": "Transaction",
                                 "printedName": "Sentry.Transaction",
-                                "usr": "c:objc(cs)SentryTransaction"
+                                "usr": "c:@M@Sentry@objc(cs)SentryTransaction"
                               }
                             ],
                             "kind": "TypeNominal",
@@ -22822,7 +22812,7 @@
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry7OptionsC21beforeSendTransactionSo0aE0CSgAF_AA4HintCtcSgvs",
+                "mangledName": "$s6Sentry7OptionsC21beforeSendTransactionAA0E0CSgAF_AA4HintCtcSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
                 "printedName": "Set()",
@@ -22840,7 +22830,7 @@
                             "kind": "TypeNominal",
                             "name": "Transaction",
                             "printedName": "Sentry.Transaction",
-                            "usr": "c:objc(cs)SentryTransaction"
+                            "usr": "c:@M@Sentry@objc(cs)SentryTransaction"
                           }
                         ],
                         "kind": "TypeNominal",
@@ -22860,7 +22850,7 @@
                             "kind": "TypeNominal",
                             "name": "Transaction",
                             "printedName": "Sentry.Transaction",
-                            "usr": "c:objc(cs)SentryTransaction"
+                            "usr": "c:@M@Sentry@objc(cs)SentryTransaction"
                           }
                         ],
                         "kind": "TypeNominal",
@@ -22888,7 +22878,7 @@
             "declKind": "Var",
             "hasStorage": true,
             "kind": "Var",
-            "mangledName": "$s6Sentry7OptionsC21beforeSendTransactionSo0aE0CSgAF_AA4HintCtcSgvp",
+            "mangledName": "$s6Sentry7OptionsC21beforeSendTransactionAA0E0CSgAF_AA4HintCtcSgvp",
             "moduleName": "Sentry",
             "name": "beforeSendTransaction",
             "printedName": "beforeSendTransaction",
@@ -78019,34 +78009,21 @@
                   }
                 ],
                 "declAttributes": [
-                  "DiscardableResult",
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry11TransactionC5spansSaySo0A4Span_pGvg",
                 "moduleName": "Sentry",
                 "name": "Get",
-                "objc_name": "spans",
                 "printedName": "Get()",
-                "usr": "c:objc(cs)SentryTransaction(im)spans"
+                "usr": "c:@M@Sentry@objc(cs)SentryTransaction(im)spans"
               },
               {
                 "accessorKind": "set",
                 "children": [
-                  {
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ],
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void"
-                  },
                   {
                     "children": [
                       {
@@ -78060,20 +78037,25 @@
                     "name": "Array",
                     "printedName": "[any Sentry.Span]",
                     "usr": "s:Sa"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
                   }
                 ],
                 "declAttributes": [
-                  "Dynamic",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "implicit": true,
                 "isOpen": true,
                 "kind": "Accessor",
+                "mangledName": "$s6Sentry11TransactionC5spansSaySo0A4Span_pGvs",
                 "moduleName": "Sentry",
                 "name": "Set",
-                "objc_name": "setSpans:",
                 "printedName": "Set()",
-                "usr": "c:objc(cs)SentryTransaction(im)setSpans:"
+                "usr": "c:@M@Sentry@objc(cs)SentryTransaction(im)setSpans:"
               }
             ],
             "children": [
@@ -78093,17 +78075,168 @@
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "HasStorage",
               "ObjC"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "isOpen": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry11TransactionC5spansSaySo0A4Span_pGvp",
+            "moduleName": "Sentry",
+            "name": "spans",
+            "printedName": "spans",
+            "usr": "c:@M@Sentry@objc(cs)SentryTransaction(py)spans"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "String",
+                            "printedName": "Swift.String",
+                            "usr": "s:SS"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "String",
+                            "printedName": "Swift.String",
+                            "usr": "s:SS"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Dictionary",
+                        "printedName": "[Swift.String : Swift.String]",
+                        "usr": "s:SD"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "[Swift.String : Swift.String]?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "Dynamic",
+                  "ObjC",
+                  "Override"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry11TransactionC4tagsSDyS2SGSgvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "objc_name": "tags",
+                "overriding": true,
+                "printedName": "Get()",
+                "usr": "c:@M@Sentry@objc(cs)SentryTransaction(im)tags"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "String",
+                            "printedName": "Swift.String",
+                            "usr": "s:SS"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "String",
+                            "printedName": "Swift.String",
+                            "usr": "s:SS"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Dictionary",
+                        "printedName": "[Swift.String : Swift.String]",
+                        "usr": "s:SD"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "[Swift.String : Swift.String]?",
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "Dynamic",
+                  "ObjC",
+                  "Override"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry11TransactionC4tagsSDyS2SGSgvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "objc_name": "setTags:",
+                "overriding": true,
+                "printedName": "Set()",
+                "usr": "c:@M@Sentry@objc(cs)SentryTransaction(im)setTags:"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Dictionary",
+                    "printedName": "[Swift.String : Swift.String]",
+                    "usr": "s:SD"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "[Swift.String : Swift.String]?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declAttributes": [
+              "Dynamic",
+              "ObjC",
+              "Override"
             ],
             "declKind": "Var",
             "isOpen": true,
             "kind": "Var",
+            "mangledName": "$s6Sentry11TransactionC4tagsSDyS2SGSgvp",
             "moduleName": "Sentry",
-            "name": "spans",
-            "objc_name": "spans",
-            "printedName": "spans",
-            "usr": "c:objc(cs)SentryTransaction(py)spans"
+            "name": "tags",
+            "objc_name": "tags",
+            "overriding": true,
+            "printedName": "tags",
+            "usr": "c:@M@Sentry@objc(cs)SentryTransaction(py)tags"
           }
         ],
         "conformances": [
@@ -78170,13 +78303,13 @@
           }
         ],
         "declAttributes": [
-          "Dynamic",
           "ObjC"
         ],
         "declKind": "Class",
-        "inheritsConvenienceInitializers": true,
+        "hasMissingDesignatedInitializers": true,
         "isOpen": true,
         "kind": "TypeDecl",
+        "mangledName": "$s6Sentry11TransactionC",
         "moduleName": "Sentry",
         "name": "Transaction",
         "objc_name": "SentryTransaction",
@@ -78186,7 +78319,7 @@
           "Sentry.Event"
         ],
         "superclassUsr": "c:objc(cs)SentryEvent",
-        "usr": "c:objc(cs)SentryTransaction"
+        "usr": "c:@M@Sentry@objc(cs)SentryTransaction"
       },
       {
         "children": [

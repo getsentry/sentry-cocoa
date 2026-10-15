@@ -25,7 +25,6 @@
 #    import "SentrySwift.h"
 #    import "SentryTime.h"
 #    import "SentryTracer+Private.h"
-#    import "SentryTransaction+Private.h"
 #    import "SentryTransactionContext+Private.h"
 
 NSString *const kSentryProfilerSerializationKeySlowFrameRenders = @"slow_frame_renders";
@@ -380,12 +379,12 @@ SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHubInternal 
     }
 
     payload[@"platform"] = SentryPlatformName;
+    SentryTracer *trace = (SentryTracer *)transaction.trace;
     NSMutableDictionary *transactionDict = [[NSMutableDictionary alloc] initWithDictionary:@ {
         @"id" : transaction.eventId.sentryIdString,
-        @"trace_id" : transaction.trace.traceId.sentryIdString,
+        @"trace_id" : trace.traceId.sentryIdString,
     }];
-    NSNumber *_Nullable activeThreadId =
-        [transaction.trace.transactionContext sentry_threadInfo].threadId;
+    NSNumber *_Nullable activeThreadId = [trace.transactionContext sentry_threadInfo].threadId;
     if (activeThreadId != nil || [activeThreadId isEqual:@0]) {
         transactionDict[@"active_thread_id"] = activeThreadId;
     }

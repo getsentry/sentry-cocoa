@@ -12,7 +12,6 @@
 #import "SentryTime.h"
 #import "SentryTraceOrigin.h"
 #import "SentryTracer.h"
-#import "SentryTransaction+Private.h"
 #import "SentryTransactionContext+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -375,7 +374,7 @@ NS_ASSUME_NONNULL_BEGIN
                   withScope:(SentryScope *)scope
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
 {
-    SentrySampleDecision decision = transaction.trace.sampled;
+    SentrySampleDecision decision = ((SentryTracer *)transaction.trace).sampled;
     if (decision != kSentrySampleDecisionYes) {
         [self.client recordLostEvent:SentryDataCategoryTransaction
                               reason:SentryDiscardReasonSampleRate];
@@ -398,7 +397,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)saveCrashTransaction:(SentryTransaction *)transaction
 {
-    SentrySampleDecision decision = transaction.trace.sampled;
+    SentrySampleDecision decision = ((SentryTracer *)transaction.trace).sampled;
 
     if (decision != kSentrySampleDecisionYes) {
         // No need to update client reports when we're crashing cause they get lost anyways.
