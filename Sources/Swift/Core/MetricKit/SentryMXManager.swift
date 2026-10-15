@@ -299,8 +299,9 @@ extension SentryMXManager: MXMetricManagerSubscriber {
         let encodedCallStackTree = callStackTree.jsonRepresentation()
         let decodedCallStackTree = try SentryMXCallStackTree.from(data: encodedCallStackTree)
 
-        if useFullCallStackTree && hangReportingMode == .flamegraphAttachment {
-            return decodedCallStackTree.flamegraphAttachment(inAppLogic: inAppLogic)
+        if useFullCallStackTree && hangReportingMode == .flamegraphAttachment,
+           let attachment = decodedCallStackTree.flamegraphAttachment(inAppLogic: inAppLogic) {
+            return attachment
         }
 
         let debugMeta = decodedCallStackTree.toDebugMeta()

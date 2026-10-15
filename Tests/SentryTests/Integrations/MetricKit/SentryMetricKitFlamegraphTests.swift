@@ -64,6 +64,39 @@ final class SentryMetricKitFlamegraphTests: SentrySDKIntegrationTestsBase {
         }
     }
 
+    func testDidReceive_whenFlamegraphIsRejected_shouldPreserveFlattenedHangTree() throws {
+        // -- Arrange --
+        givenSdkWithHub(scope: Scope())
+        let options = Options()
+        options.enableMetricKit = true
+        options.experimental.metrickit.hangReportingMode = .flamegraphAttachment
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+        defer { sut.uninstall() }
+        let diagnostic = TestMXHangDiagnostic()
+        let json = try XCTUnwrap(String(data: hangTreeJSON, encoding: .utf8))
+            .replacingOccurrences(of: "\"sampleCount\":100,\"subFrames\":[", with: "\"sampleCount\":99,\"subFrames\":[")
+        diagnostic.overrides.callStackTree.overrides.jsonRepresentation = Data(json.utf8)
+        let payload = TestMXDiagnosticPayload()
+        payload.overrides.hangDiagnostic = [diagnostic]
+
+        // -- Act --
+        sut.mxManager.didReceive([payload])
+
+        // -- Assert --
+        try assertEventWithScopeCaptured { capturedEvent, scope, _ in
+            let event = try XCTUnwrap(capturedEvent)
+            let exception = try XCTUnwrap(event.exceptions?.first)
+            let frames = try XCTUnwrap(exception.stacktrace).frames
+            XCTAssertEqual(frames.map(\.instructionAddress), ["0x0000000000001001", "0x0000000000001002", "0x0000000000001003", "0x0000000000001004"])
+            XCTAssertEqual(frames.map(\.parentIndex), [-1, 0, 1, 1])
+            XCTAssertEqual(frames.map(\.sampleCount), [99, 99, 50, 50])
+            XCTAssertEqual(exception.threadId, event.threads?.first?.threadId)
+            XCTAssertFalse(event.threads?.isEmpty ?? true)
+            XCTAssertFalse(event.debugMeta?.isEmpty ?? true)
+            XCTAssertFalse(scope?.attachments.contains { $0.filename == "flamegraph.json" } ?? false)
+        }
+    }
+
     func testDidReceive_whenDefaultMode_shouldPreserveFlattenedHangTree() throws {
         // -- Arrange --
         givenSdkWithHub(scope: Scope())
