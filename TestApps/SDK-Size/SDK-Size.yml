@@ -46,6 +46,30 @@ targets:
       - script: INFOPLIST_FILE="${TARGET_BUILD_DIR}/${INFOPLIST_PATH}" ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
         basedOnDependencyAnalysis: false
+      - name: Strip Debug Symbols
+        basedOnDependencyAnalysis: false
+        inputFiles:
+          - $(SYMBOL_STRIPPING_INPUT)
+        script: |
+          set -eu
+
+          if [ "${CONFIGURATION}" != "Release" ]; then
+            echo "Skipping symbol stripping for ${CONFIGURATION} build."
+            exit 0
+          fi
+
+          # The dSYM input ensures symbolication data is generated before stripping.
+          echo "Stripping main binary: ${TARGET_BUILD_DIR}/${EXECUTABLE_PATH}"
+          /usr/bin/strip -rSTx "${TARGET_BUILD_DIR}/${EXECUTABLE_PATH}"
+
+          for framework in "${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}"/*.framework; do
+            framework_name="${framework##*/}"
+            binary="${framework}/${framework_name%.framework}"
+            if [ -f "${binary}" ] && ! /usr/bin/codesign -v -R="anchor apple" "${binary}" >/dev/null 2>&1; then
+              echo "Stripping framework binary: ${binary}"
+              /usr/bin/strip -rSTx "${binary}"
+            fi
+          done
     entitlements:
       path: App/Configurations/SDK-Size.entitlements
       properties:
