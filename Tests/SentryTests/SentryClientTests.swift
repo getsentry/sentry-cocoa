@@ -1157,6 +1157,29 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(lastSentEventArguments.event.exceptions?.last?.mechanism?.meta?.error).code, 100)
     }
 
+    func testSessionDelegate_whenHandlerReturnsSession_shouldBridgeIdenticalObject() {
+        // -- Arrange --
+        let session = fixture.session
+        let delegate = SentryTestSessionDelegate { session }
+
+        // -- Act --
+        let result = Dynamic(delegate).incrementSessionErrors().asObject
+
+        // -- Assert --
+        XCTAssertIdentical(result, session)
+    }
+
+    func testSessionDelegate_whenHandlerReturnsNil_shouldBridgeNil() {
+        // -- Arrange --
+        let delegate = SentryTestSessionDelegate { nil }
+
+        // -- Act --
+        let result = Dynamic(delegate).incrementSessionErrors().asObject
+
+        // -- Assert --
+        XCTAssertNil(result)
+    }
+
     func testCaptureErrorWithSession() throws {
         let sessionBlockExpectation = expectation(description: "session block gets called")
         let scope = Scope()

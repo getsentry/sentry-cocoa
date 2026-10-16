@@ -212,7 +212,7 @@ struct SentryCellularNetworkTechnologyProvider {
     }
 
     private static func technology(from networkInfo: CTTelephonyNetworkInfo) -> SentryCellularNetworkTechnology? {
-        guard let technologies = networkInfo.serviceCurrentRadioAccessTechnology, !technologies.isEmpty else {
+        guard let technologies = serviceCurrentRadioAccessTechnology(of: networkInfo), !technologies.isEmpty else {
             SentrySDKLog.debug("No radio access technology reported. The device may have no cellular service.")
             return nil
         }
@@ -220,6 +220,29 @@ struct SentryCellularNetworkTechnologyProvider {
             fromTechnologies: technologies,
             dataServiceIdentifier: networkInfo.dataServiceIdentifier
         )
+    }
+
+    /// Reads `serviceCurrentRadioAccessTechnology` without letting Swift bridge the returned object.
+    ///
+    /// `CTTelephonyNetworkInfo` returns its internal `NSMutableDictionary` instead of a copy, and
+    /// changes it on a private queue inside `@synchronized` on that dictionary. Bridging it to a
+    /// Swift dictionary walks it without that lock, so a concurrent change releases values while
+    /// the bridge reads them, which crashed apps with `EXC_BAD_ACCESS`. See
+    /// https://github.com/getsentry/sentry-cocoa/issues/9312.
+    private static func serviceCurrentRadioAccessTechnology(of networkInfo: CTTelephonyNetworkInfo) -> [String: String]? {
+        let getter = #selector(getter: CTTelephonyNetworkInfo.serviceCurrentRadioAccessTechnology)
+        guard let dictionary = networkInfo.perform(getter)?.takeUnretainedValue() as? NSDictionary else {
+            return nil
+        }
+        return copyTechnologies(lockingOn: dictionary)
+    }
+
+    /// Copies the dictionary while holding the lock that `CoreTelephony` changes it under.
+    ///
+    /// The lock is a detail of the `CoreTelephony` implementation. If a later version locks on
+    /// something else, this copy is no longer protected, but it is not less safe than the bridge.
+    static func copyTechnologies(lockingOn dictionary: NSDictionary) -> [String: String]? {
+        synchronized(dictionary) { dictionary.copy() } as? [String: String]
     }
 
     /// Picks the technology of the service that carries the data.
