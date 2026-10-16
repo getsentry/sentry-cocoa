@@ -5,7 +5,9 @@ import UIKit
 #endif
 
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
-typealias AutoBreadcrumbTrackingIntegrationProvider = SentryUIDeviceWrapperProvider & FileManagerProvider & NotificationCenterProvider
+typealias AutoBreadcrumbTrackingIntegrationProvider = SentryUIDeviceWrapperProvider & FileManagerProvider & NotificationCenterProvider & ReplayIntegrationProviderProvider
+#elseif (os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+typealias AutoBreadcrumbTrackingIntegrationProvider = FileManagerProvider & ReplayIntegrationProviderProvider
 #else
 typealias AutoBreadcrumbTrackingIntegrationProvider = FileManagerProvider
 #endif
@@ -36,7 +38,26 @@ final class SentryAutoBreadcrumbTrackingIntegration<Dependencies: AutoBreadcrumb
         #else
         let reportAccessibilityIdentifier = false
 #endif // os(iOS) && !SENTRY_NO_UI_FRAMEWORK
-        let breadcrumbTracker = SentryBreadcrumbTracker(reportAccessibilityIdentifier: reportAccessibilityIdentifier)
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        let isSessionReplayConfigured = Self.isSessionReplayConfigured(options.sessionReplay)
+        let replayIntegrationProvider = dependencies.replayIntegrationProvider
+        let breadcrumbTracker = SentryBreadcrumbTracker(
+            reportAccessibilityIdentifier: reportAccessibilityIdentifier,
+            redactOptions: options.sessionReplay,
+            shouldApplyRedaction: {
+                isSessionReplayConfigured
+                    || replayIntegrationProvider.getReplayIntegration()?.sessionReplay != nil
+            },
+            redactBuilderProvider: {
+                replayIntegrationProvider.getReplayIntegration()?
+                    .viewPhotographer.redactBuilderForTextExtraction
+            }
+        )
+#else
+        let breadcrumbTracker = SentryBreadcrumbTracker(
+            reportAccessibilityIdentifier: reportAccessibilityIdentifier
+        )
+#endif
         self.breadcrumbTracker = breadcrumbTracker
         breadcrumbTracker.start(with: self)
 
@@ -56,6 +77,12 @@ final class SentryAutoBreadcrumbTrackingIntegration<Dependencies: AutoBreadcrumb
         systemEventBreadcrumbs.start(with: self)
         #endif // os(iOS) && !SENTRY_NO_UI_FRAMEWORK
     }
+
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    private static func isSessionReplayConfigured(_ options: SentryReplayOptions) -> Bool {
+        options.sessionSampleRate > 0 || options.onErrorSampleRate > 0
+    }
+#endif
 
     func uninstall() {
         breadcrumbTracker?.stop()

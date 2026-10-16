@@ -2,6 +2,10 @@
 
 ## 9.30.2
 
+### Features
+
+- Add mask-aware label capture for interaction breadcrumbs. (#9011)
+
 ### Fixes
 
 - Fix a data race on the span end timestamp that could crash in `SentryTracer.trimEndTimestamp` when a child span finishes on another thread while its transaction finishes (#9305)
