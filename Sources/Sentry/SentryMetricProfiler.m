@@ -7,7 +7,6 @@
 #    import "SentryLogC.h"
 #    import "SentrySwift.h"
 #    import "SentryTime.h"
-#    import "SentryTransaction.h"
 
 /**
  * A storage class for metric readings, with one property for the reading value itself, whether it
