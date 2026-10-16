@@ -16,6 +16,7 @@
 - Default to `internal` and expose only intentional SDK API as `public`
 - Prefer `private` over `fileprivate`
 - Mark classes `final` unless designed for subclassing
+- When converting Objective-C types to Swift, check `SentryTestUtils/Sources/Wrappers` and `SentryTestUtils/SourcesObjC` for adapters that become obsolete. Flag cleanup opportunities to maintainers so they can decide what to remove; preserve Xcode and SwiftPM test compatibility.
 - Do not put an `@objc` extension in a file by itself; static linkers strip those object files. Add a dummy `@objc` `NSObject` subclass in the same file and reference it from `SentrySDKInternal` (see `PlaceholderProcessInfoClass`). Enforced by `standalone_objc_extension` in `linters/SwiftLintCustomRules`
 
 ### Error Handling and Closures

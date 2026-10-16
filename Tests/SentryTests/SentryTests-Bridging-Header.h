@@ -7,11 +7,8 @@
 
 // Load the Objective-C base declarations before their generated Swift interface.
 @import _SentryPrivate;
-#import "SentryClient+TestInit.h"
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryEnvelopeRateLimit.h"
 #import "SentryHttpTransport.h"
-#import "SentryHub+Test.h"
-#import "SentrySDKInternal+Tests.h"
 #import "SentrySwift.h"
 #import "SentryTransportFactory.h"
