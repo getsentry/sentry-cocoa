@@ -20,10 +20,10 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         try super.setUpWithError()
 
         let contentsPerThread = try contentsOfResource("MetricKitCallstacks/per-thread")
-        callStackTreePerThread = try SentryMXCallStackTree.from(data: contentsPerThread)
+        callStackTreePerThread = try JSONDecoder().decode(SentryMXCallStackTree.self, from: contentsPerThread)
 
         let contentsNotPerThread = try contentsOfResource("MetricKitCallstacks/not-per-thread")
-        callStackTreeNotPerThread = try SentryMXCallStackTree.from(data: contentsNotPerThread)
+        callStackTreeNotPerThread = try JSONDecoder().decode(SentryMXCallStackTree.self, from: contentsNotPerThread)
 
         timeStampBegin = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(21.23)
     }
