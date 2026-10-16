@@ -99,7 +99,7 @@ jobs:
           ./TestApps/CrashE2E/run-crash-e2e.sh "${ARGS[@]}" 2>&1 | tee raw-crash-e2e-output.log
 
       - name: Archiving Crash E2E Artifacts
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: crash-e2e-${{ matrix.reporter }}-${{ matrix.platform }}
@@ -108,7 +108,7 @@ jobs:
             TestApps/CrashE2E/artifacts/**
 
       - name: Archiving Crash Logs
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: crash-logs-crash-e2e-${{ matrix.reporter }}-${{ matrix.platform }}
