@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MetricKit flamegraphs</title>
+  <style>
+    /* Sentry's scraps light theme and profiling/flamegraph/flamegraphTheme.tsx. */
+    :root {
+      color-scheme: light;
+      --background: #fff;
+      --surface: #f8f8f9;
+      --text: #302e36;
+      --muted: #6a6772;
+      --border: #dad9de;
+      --separator: #e6e6e9;
+      --accent: #7553ff;
+      --application: rgba(117, 83, 255, .4);
+      --system: rgba(255, 0, 43, .3);
+      --mono: 'Roboto Mono', Monaco, Consolas, 'Courier New', monospace;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--surface); color: var(--text); font: 14px/1.4 Rubik, 'Avenir Next', system-ui, sans-serif; }
+    main { margin: 0 auto; padding: 32px; }
+    h1 { margin: 0 0 8px; font-size: 24px; font-weight: 600; }
+    .intro { margin: 0 0 24px; color: var(--muted); }
+    .panel { background: var(--background); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+    .panel-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding: 16px; border-bottom: 1px solid var(--border); }
+    h2 { margin: 0; font-size: 16px; font-weight: 600; }
+    .legend { display: flex; flex-wrap: wrap; gap: 16px; color: var(--muted); font-size: 12px; }
+    .legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .marker { width: 12px; height: 12px; border-radius: 1px; background: var(--system); }
+    .marker.application { background: var(--application); }
+    .controls { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; padding: 16px; border-bottom: 1px solid var(--border); }
+    .controls label { display: grid; gap: 6px; color: var(--muted); font-size: 12px; }
+    .search { flex: 1; min-width: 180px; }
+    input, select, button { min-height: 36px; border: 1px solid var(--border); border-radius: 6px; background: var(--background); color: var(--text); font: inherit; font-size: 13px; padding: 8px 12px; }
+    input[type=file] { max-width: 280px; padding: 4px; }
+    input::file-selector-button { border: 0; border-right: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 5px 10px; margin-right: 8px; cursor: pointer; }
+    select { max-width: 300px; }
+    button { font-weight: 600; cursor: pointer; box-shadow: 0 1px 1px #0000000d; }
+    button:hover:not(:disabled) { background: var(--surface); border-color: var(--muted); }
+    .options { position: relative; }
+    .options summary { min-height: 36px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .options[open] summary { border-color: var(--accent); }
+    .options-menu { position: absolute; right: 0; top: calc(100% + 6px); z-index: 1; width: 320px; max-width: calc(100vw - 64px); padding: 12px; background: var(--background); border: 1px solid var(--border); border-radius: 6px; box-shadow: 0 4px 16px #302e3626; }
+    .options-menu label { display: flex; align-items: center; gap: 8px; color: var(--text); cursor: pointer; }
+    input[type=checkbox] { min-height: 0; margin: 0; accent-color: var(--accent); flex-shrink: 0; }
+    .binary-picker { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--separator); }
+    .binary-list { max-height: 220px; overflow: auto; margin-top: 8px; color: var(--muted); font-size: 12px; }
+    .binary-list label { display: flex; align-items: center; gap: 8px; min-height: 28px; padding: 4px 0; overflow-wrap: anywhere; color: var(--text); cursor: pointer; }
+    dialog { width: 440px; max-width: calc(100vw - 32px); max-height: calc(100vh - 32px); padding: 24px; border: 1px solid var(--border); border-radius: 8px; background: var(--background); color: var(--text); box-shadow: 0 8px 32px #302e3626; }
+    dialog::backdrop { background: #302e3659; }
+    dialog .binary-list { max-height: 40vh; margin-top: 16px; }
+    .dialog-file { color: var(--muted); font: 12px var(--mono); overflow-wrap: anywhere; }
+    .dialog-actions { display: flex; justify-content: flex-end; margin-top: 20px; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    :disabled { opacity: .5; cursor: default; }
+    #status { margin: 0; padding: 12px 16px; color: var(--muted); font-size: 12px; border-bottom: 1px solid var(--separator); white-space: pre-wrap; }
+    #status.error { color: #d50024; }
+    #chart { overflow: auto; min-height: 300px; max-height: 60vh; background: var(--surface); }
+    #chart:empty::before { content: 'Choose a MetricKit call-stack JSON file to visualize its frames.'; display: block; padding: 100px 24px; text-align: center; color: var(--muted); }
+    svg { display: block; width: 100%; min-width: 800px; }
+    svg text { font: 11px var(--mono); fill: var(--text); }
+    svg .stack-heading { font: 12px Rubik, 'Avenir Next', system-ui, sans-serif; fill: var(--muted); }
+    .frame { cursor: pointer; outline: none; }
+    .frame rect { fill: var(--system); stroke: var(--surface); stroke-width: 1; }
+    .frame.application rect { fill: var(--application); }
+    .frame:hover rect { stroke: var(--muted); stroke-width: 2; }
+    .frame:focus rect, .frame.selected rect { stroke: var(--accent); stroke-width: 2; }
+    .frame.match rect { fill: #fdb359; }
+    .frame.dim rect { fill: rgba(128, 128, 153, .1); }
+    .frame.dim text { fill: var(--muted); }
+    .details-panel { padding: 16px; border-top: 1px solid var(--border); }
+    .details-heading { font-size: 12px; font-weight: 600; }
+    #details { margin: 8px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; min-height: 7em; font: 12px/1.5 var(--mono); }
+    .hint { margin: 12px 0 0; font-size: 12px; color: var(--muted); }
+    @media (max-width: 700px) { main { padding: 16px; } .controls label, input[type=file], select { width: 100%; max-width: none; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>MetricKit flamegraphs</h1>
+    <p class="intro">Inspect raw or symbolicated call stacks locally. Your files never leave this browser.</p>
+    <section class="panel" aria-labelledby="chart-heading">
+      <div class="panel-heading">
+        <h2 id="chart-heading">Stack Trace</h2>
+        <div class="legend" aria-label="Frame colors">
+          <span><i class="marker application"></i>Application Function</span>
+          <span><i class="marker"></i>System Function / Unclassified</span>
+        </div>
+      </div>
+      <div class="controls">
+        <label>JSON file <input id="files" type="file" accept=".json,application/json"></label>
+        <label>Frame type
+          <select id="frame-filter">
+            <option value="all">All Frames</option>
+            <option value="system">System Frames</option>
+            <option value="application">Application Frames</option>
+          </select>
+        </label>
+        <label class="search">Search frames <input id="search" type="search" placeholder="Function, binary, address, source…"></label>
+        <button id="reset" disabled>Reset zoom</button>
+        <details id="options" class="options">
+          <summary>Options</summary>
+          <div class="options-menu">
+            <label><input id="invert" type="checkbox">Invert stack tree</label>
+            <div class="binary-picker" role="group" aria-label="Application binaries">
+              <div class="details-heading">Application binaries</div>
+              <p class="hint">Check the binaries that belong to your application.</p>
+              <div id="binary-list" class="binary-list">Load a JSON file to choose binaries.</div>
+            </div>
+          </div>
+        </details>
+      </div>
+      <p id="status" role="status">Select files from Tests/Resources/MetricKitCallstacks to begin.</p>
+      <div id="chart"></div>
+      <div class="details-panel">
+        <div class="details-heading">Frame details</div>
+        <pre id="details">Hover or focus a frame for details. Click or press Enter to zoom.</pre>
+      </div>
+    </section>
+    <p class="hint">Pinch to zoom the graph's width. Two-finger pan scrolls horizontally or vertically. Browsers do not expose pinch direction, so vertical pinches also affect width.</p>
+    <p class="hint">Choose application binaries in Options to set frame colors and filters. Unchecked binaries appear under System Frames. Selections last until you reload this page.</p>
+  </main>
+  <dialog id="binary-dialog" aria-labelledby="binary-dialog-title" aria-describedby="binary-dialog-help">
+    <form method="dialog">
+      <h2 id="binary-dialog-title">Select application binaries</h2>
+      <p id="binary-dialog-file" class="dialog-file"></p>
+      <p id="binary-dialog-help" class="hint">Check the binaries that belong to your application. You can change these selections later in Options, or continue without selecting any.</p>
+      <div class="binary-list"></div>
+      <div class="dialog-actions"><button autofocus>Continue</button></div>
+    </form>
+  </dialog>
+  <script>
+    const $ = id => document.getElementById(id);
+    const MARGIN = 20, ROW = 20;
+    const SVG_NS = 'http://www.w3.org/2000/svg';
+    let activeFile = null, stacks = [], perThread = false, focus = null, filename = '';
+    const applicationBinaries = new Set();
+    let widthZoom = 1, pendingWidthZoom = null, zoomAnchorX = 0, zoomFrame = null, gestureStartZoom = null;
+
+    function resetWidthZoom() {
+      widthZoom = 1;
+      pendingWidthZoom = null;
+      gestureStartZoom = null;
+      if (zoomFrame !== null) cancelAnimationFrame(zoomFrame);
+      zoomFrame = null;
+      $('chart').scrollLeft = 0;
+    }
+
+    function svgElement(parent, tag, attributes = {}, text) {
+      const element = document.createElementNS(SVG_NS, tag);
+      for (const [key, value] of Object.entries(attributes)) element.setAttribute(key, value);
+      if (text !== undefined) element.textContent = text;
+      parent.append(element);
+      return element;
+    }
+
+    function hex(value) {
+      return Number.isSafeInteger(value) ? `0x${value.toString(16)}` : '?';
+    }
+
+    function layout(stack) {
+      if (!Array.isArray(stack.callStackRootFrames)) throw new Error('Missing callStackRootFrames array.');
+      const frames = [];
+      function walk(siblings, start, depth, prefix) {
+        let x = start;
+        siblings.forEach((frame, index) => {
+          const samples = frame.sampleCount;
+          if (!Number.isFinite(samples) || samples < 0) throw new Error('Invalid sampleCount.');
+          const path = `${prefix}${index}.`;
+          const binary = frame.binaryName || `Unknown binary (${frame.binaryUUID ?? '?'})`;
+          const rawLabel = `${binary} @ ${hex(frame.address)}`;
+          const symbol = frame.symbolication;
+          const label = typeof symbol?.function === 'string' && symbol.function ? symbol.function : rawLabel;
+          let source = typeof symbol?.file === 'string' ? symbol.file : '';
+          if (source && Number.isSafeInteger(symbol.line) && symbol.line > 0) source += `:${symbol.line}`;
+          const details = (label !== rawLabel ? `${label}\n` : '')
+            + `${rawLabel}\nAddress: ${frame.address ?? '?'}\nSamples: ${samples}`
+            + `\nBinary offset: ${hex(frame.offsetIntoBinaryTextSegment)}\nUUID: ${frame.binaryUUID ?? '?'}`
+            + (source ? `\nSource: ${source}` : '');
+          frames.push({ x, depth, samples, path, label, details, binary });
+          if (frame.subFrames !== undefined) {
+            if (!Array.isArray(frame.subFrames)) throw new Error('Invalid subFrames array.');
+            walk(frame.subFrames, x, depth + 1, path);
+          }
+          x += samples;
+        });
+        return x - start;
+      }
+      const total = walk(stack.callStackRootFrames, 0, 0, '');
+      return { frames, total, attributed: stack.threadAttributed === true };
+    }
+
+    function renderBinarySelector() {
+      const binaries = [...new Set(stacks.flatMap(stack => stack.frames.map(frame => frame.binary)))].sort();
+      for (const container of document.querySelectorAll('.binary-list')) {
+        container.replaceChildren();
+        if (binaries.length === 0) container.textContent = 'Load a JSON file to choose binaries.';
+        for (const binary of binaries) {
+          const label = document.createElement('label');
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.value = binary;
+          checkbox.checked = applicationBinaries.has(binary);
+          checkbox.addEventListener('change', () => {
+            if (checkbox.checked) applicationBinaries.add(binary);
+            else applicationBinaries.delete(binary);
+            for (const input of document.querySelectorAll('.binary-list input')) {
+              input.checked = applicationBinaries.has(input.value);
+            }
+            focus = null;
+            $('details').textContent = 'Hover or focus a frame for details. Click or press Enter to zoom.';
+            render();
+          });
+          label.append(checkbox, document.createTextNode(binary));
+          container.append(label);
+        }
+      }
+    }
+
+    function highlight() {
+      const query = $('search').value.trim().toLowerCase();
+      let matches = 0;
+      for (const frame of $('chart').querySelectorAll('.frame')) {
+        const match = query !== '' && frame.querySelector('title').textContent.toLowerCase().includes(query);
+        frame.classList.toggle('match', match);
+        frame.classList.toggle('dim', query !== '' && !match);
+        if (match) matches++;
+      }
+      $('status').textContent = `${filename} · Width = sample count · Roots at ${$('invert').checked ? 'bottom' : 'top'}`
+        + ` · ${$('frame-filter').selectedOptions[0].textContent}`
+        + (focus ? ' · Zoomed into one branch' : '')
+        + (widthZoom > 1 ? ` · Width zoom: ${widthZoom.toFixed(1)}×` : '')
+        + (query ? ` · ${matches} matching visible frames` : '');
+    }
+
+    function render() {
+      const WIDTH = Math.max(800, $('chart').clientWidth) * widthZoom;
+      $('chart').replaceChildren();
+      const svg = svgElement($('chart'), 'svg', { xmlns: SVG_NS, role: 'group', 'aria-label': filename });
+      svgElement(svg, 'title', {}, filename);
+      let top = 28;
+      stacks.forEach((stack, stackIndex) => {
+        if (focus && focus.stackIndex !== stackIndex) return;
+        const selected = focus?.frame;
+        const mode = $('frame-filter').value;
+        const depths = [];
+        const visible = [];
+        // Hoist descendants of hidden frames without changing their sample intervals.
+        for (const frame of stack.frames) {
+          const inApp = applicationBinaries.has(frame.binary);
+          const included = mode === 'all' || (mode === 'application' ? inApp : !inApp);
+          const depth = (depths[frame.depth - 1] ?? -1) + (included ? 1 : 0);
+          depths[frame.depth] = depth;
+          if (included && frame.samples > 0 && (!selected
+            || frame.path.startsWith(selected.path) || selected.path.startsWith(frame.path))) {
+            visible.push({ ...frame, depth, inApp });
+          }
+        }
+        if (visible.length === 0) return;
+        const levels = Math.max(...visible.map(frame => frame.depth)) + 1;
+        const start = selected?.x ?? 0;
+        const total = selected?.samples ?? stack.total;
+        const scale = total > 0 ? (WIDTH - MARGIN * 2) / total : 0;
+        const panel = svgElement(svg, 'g', { class: 'stack' });
+        const heading = `${perThread ? 'Thread' : 'Call stack'} ${stackIndex}`
+          + (stack.attributed ? ' (attributed)' : '') + ` · ${stack.total} samples`;
+        svgElement(panel, 'text', { x: MARGIN, y: top, class: 'stack-heading' }, heading);
+        visible.forEach(frame => {
+          const x = MARGIN + Math.max(0, frame.x - start) * scale;
+          const width = (Math.min(start + total, frame.x + frame.samples) - Math.max(start, frame.x)) * scale;
+          if (width <= 0) return;
+          const y = top + 10 + ($('invert').checked ? levels - frame.depth - 1 : frame.depth) * ROW;
+          const classes = ['frame', frame.inApp ? 'application' : 'system', selected?.path === frame.path ? 'selected' : ''];
+          const group = svgElement(panel, 'g', { class: classes.join(' '), tabindex: 0, role: 'button',
+            'aria-label': `Zoom into ${frame.label}` });
+          const details = `${frame.details}\n${(frame.samples / stack.total * 100).toFixed(1)}% of stack`;
+          svgElement(group, 'title', {}, details);
+          svgElement(group, 'rect', { x, y, width, height: ROW });
+          const characters = Math.floor((width - 12) / 6.6);
+          if (characters >= 3) {
+            const label = frame.label.length <= characters ? frame.label : frame.label.slice(0, characters - 1) + '…';
+            svgElement(group, 'text', { x: x + 6, y: y + 14 }, label);
+          }
+          const zoom = () => { focus = { stackIndex, frame }; resetWidthZoom(); render(); };
+          group.addEventListener('click', zoom);
+          group.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); zoom(); }
+          });
+          group.addEventListener('mouseenter', () => { $('details').textContent = details; });
+          group.addEventListener('focus', () => { $('details').textContent = details; });
+        });
+        top += levels * ROW + 45;
+      });
+      if (!svg.querySelector('.frame')) {
+        const mode = $('frame-filter').value;
+        let message = 'No frames with samples.';
+        if (mode === 'application') message = 'No application frames. Choose application binaries in Options.';
+        if (mode === 'system') message = 'No system frames.';
+        svgElement(svg, 'text', { x: MARGIN, y: top, class: 'stack-heading' }, message);
+        top += ROW;
+      }
+      svg.setAttribute('viewBox', `0 0 ${WIDTH} ${top}`);
+      svg.setAttribute('width', WIDTH);
+      svg.setAttribute('height', top);
+      svg.style.width = `${WIDTH}px`;
+      svg.style.height = `${top}px`;
+      $('reset').disabled = !focus && widthZoom === 1;
+      highlight();
+    }
+
+    async function load(file) {
+      activeFile = file;
+      $('binary-dialog').close();
+      $('options').open = false;
+      resetWidthZoom();
+      $('chart').replaceChildren();
+      $('status').className = '';
+      $('status').textContent = 'Loading…';
+      $('details').textContent = 'Hover or focus a frame for details. Click or press Enter to zoom.';
+      $('reset').disabled = true;
+      stacks = [];
+      renderBinarySelector();
+      focus = null;
+      filename = file.name;
+      try {
+        const text = await file.text();
+        if (activeFile !== file) return;
+        const payload = JSON.parse(text);
+        const data = payload?.callStackTree ?? payload;
+        if (!Array.isArray(data?.callStacks) || data.callStacks.length === 0) {
+          throw new Error('Expected callStacks at the top level or inside callStackTree.');
+        }
+        stacks = data.callStacks.map(layout);
+        perThread = data.callStackPerThread === true;
+        renderBinarySelector();
+        render();
+        $('binary-dialog-file').textContent = file.name;
+        $('binary-dialog').showModal();
+      } catch (error) {
+        if (activeFile !== file) return;
+        $('chart').replaceChildren();
+        $('status').className = 'error';
+        $('status').textContent = `${file.name}: ${error.message}`;
+      }
+    }
+
+    $('files').addEventListener('change', () => {
+      const file = $('files').files[0];
+      if (file) load(file);
+    });
+    $('search').addEventListener('input', () => { if ($('chart').firstChild) highlight(); });
+    $('reset').addEventListener('click', () => { focus = null; resetWidthZoom(); render(); });
+    $('frame-filter').addEventListener('change', () => {
+      focus = null;
+      $('details').textContent = 'Hover or focus a frame for details. Click or press Enter to zoom.';
+      if (stacks.length) render();
+    });
+    $('invert').addEventListener('change', () => { if (stacks.length) render(); });
+    document.addEventListener('click', event => {
+      if (!$('options').contains(event.target)) $('options').open = false;
+    });
+    $('options').addEventListener('keydown', event => {
+      if (event.key === 'Escape') {
+        $('options').open = false;
+        $('options').querySelector('summary').focus();
+      }
+    });
+    function queueWidthZoom(nextZoom, clientX) {
+      const chart = $('chart');
+      pendingWidthZoom = Math.max(1, Math.min(64, nextZoom));
+      zoomAnchorX = Math.max(0, Math.min(chart.clientWidth, clientX - chart.getBoundingClientRect().left));
+      if (zoomFrame !== null) return;
+      zoomFrame = requestAnimationFrame(() => {
+        zoomFrame = null;
+        const nextZoom = pendingWidthZoom;
+        pendingWidthZoom = null;
+        const svg = chart.querySelector('svg');
+        if (!svg || nextZoom === widthZoom) return;
+        const anchor = (chart.scrollLeft + zoomAnchorX - MARGIN) / (Number(svg.getAttribute('width')) - 2 * MARGIN);
+        const scrollTop = chart.scrollTop;
+        widthZoom = nextZoom;
+        render();
+        const width = Number(chart.querySelector('svg').getAttribute('width'));
+        chart.scrollLeft = MARGIN + anchor * (width - 2 * MARGIN) - zoomAnchorX;
+        chart.scrollTop = scrollTop;
+      });
+    }
+
+    $('chart').addEventListener('wheel', event => {
+      // Sentry's useCanvasZoomOrScroll maps ctrl/meta + wheel to pinch zoom.
+      // deltaY encodes pinch magnitude here, not the fingers' vertical movement.
+      if (!(event.ctrlKey || event.metaKey) || !$('chart').querySelector('.frame')) return;
+      event.preventDefault();
+      // Prefer Safari's gesture events and avoid handling the same pinch twice.
+      if ('GestureEvent' in window || gestureStartZoom !== null) return;
+      let delta = event.deltaY;
+      if (event.deltaMode === WheelEvent.DOM_DELTA_LINE) delta *= ROW;
+      if (event.deltaMode === WheelEvent.DOM_DELTA_PAGE) delta *= $('chart').clientHeight;
+      queueWidthZoom((pendingWidthZoom ?? widthZoom) * Math.exp(-delta * .01), event.clientX);
+    }, { passive: false });
+    $('chart').addEventListener('gesturestart', event => {
+      if (!$('chart').querySelector('.frame')) return;
+      event.preventDefault();
+      gestureStartZoom = pendingWidthZoom ?? widthZoom;
+    }, { passive: false });
+    $('chart').addEventListener('gesturechange', event => {
+      if (gestureStartZoom === null) return;
+      event.preventDefault();
+      queueWidthZoom(gestureStartZoom * event.scale, event.clientX);
+    }, { passive: false });
+    $('chart').addEventListener('gestureend', event => {
+      if (gestureStartZoom === null) return;
+      event.preventDefault();
+      gestureStartZoom = null;
+    }, { passive: false });
+    let chartWidth = 0;
+    new ResizeObserver(() => {
+      const width = $('chart').clientWidth;
+      if (width !== chartWidth) {
+        chartWidth = width;
+        if (stacks.length) render();
+      }
+    }).observe($('chart'));
+  </script>
+</body>
+</html>
