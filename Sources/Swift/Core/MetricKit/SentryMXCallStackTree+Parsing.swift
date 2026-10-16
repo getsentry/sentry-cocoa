@@ -3,6 +3,53 @@
 internal import _SentryPrivate
 
 extension SentryMXCallStackTree {
+    func flamegraphAttachment(inAppLogic: SentryInAppLogic) -> Attachment? {
+        guard !callStacks.isEmpty,
+              callStacks.allSatisfy({ !$0.callStackRootFrames.isEmpty && $0.callStackRootFrames.allSatisfy { $0.hasValidHangSampleCounts } }) else {
+            SentrySDKLog.warning("MetricKit flame graph requires non-empty trees with valid sample counts")
+            return nil
+        }
+
+        var frames = [SentryRelayWireFormat.Profiling.V2.Frame]()
+        var frameIndices = [MXSample.MXFrame: Int]()
+        func node(_ source: SentryMXFrame) -> SentryRelayWireFormat.Attachments.FlameGraph.Node {
+            let key = MXSample.MXFrame(binaryUUID: source.binaryUUID, offsetIntoBinaryTextSegment: source.offsetIntoBinaryTextSegment, binaryName: source.binaryName, address: source.address)
+            let frameIndex: Int
+            if let existing = frameIndices[key] {
+                frameIndex = existing
+            } else {
+                frameIndex = frames.count
+                frameIndices[key] = frameIndex
+                frames.append(SentryRelayWireFormat.Profiling.V2.Frame(
+                    instructionAddress: sentry_formatHexAddressUInt64Swift(source.address),
+                    package: source.binaryName,
+                    inApp: source.binaryName.map { inAppLogic.is(inApp: $0) }
+                ))
+            }
+            let children = source.subFrames?.map { node($0) }
+            return SentryRelayWireFormat.Attachments.FlameGraph.Node(frameID: frameIndex, sampleCount: source.sampleCount ?? 0, children: children?.isEmpty == false ? children : nil)
+        }
+
+        let trees = callStacks.map { stack in
+            SentryRelayWireFormat.Attachments.FlameGraph.Tree(roots: stack.callStackRootFrames.map { node($0) }, threadAttributed: stack.threadAttributed)
+        }
+        let images = toDebugMeta().map { image in
+            SentryRelayWireFormat.EventPayloads.DebugMeta.Image(type: image.type, debugID: image.debugID, codeFile: image.codeFile, imageAddress: image.imageAddress, imageSize: image.imageSize?.uint64Value, imageVmAddress: image.imageVmAddress)
+        }
+        let payload = SentryRelayWireFormat.Attachments.FlameGraph(frames: frames, trees: trees, debugMeta: SentryRelayWireFormat.EventPayloads.DebugMeta(images: images))
+        do {
+            let data = try JSONEncoder().encode(payload)
+            guard data.count <= 10 * 1_024 * 1_024 else {
+                SentrySDKLog.error("MetricKit flame graph exceeds the 10 MiB attachment limit")
+                return nil
+            }
+            return Attachment(data: data, filename: "flamegraph.json", contentType: "application/json", attachmentType: .flamegraph)
+        } catch {
+            SentrySDKLog.error("Failed to serialize MetricKit flame graph: \(error)")
+            return nil
+        }
+    }
+
     func toDebugMeta() -> [DebugMeta] {
         callStacks.flatMap { frame in
             frame.toDebugMeta()
@@ -139,6 +186,19 @@ extension SentryMXFrame {
         frame.sampleCount = sampleCount as NSNumber?
 
         return frame
+    }
+}
+
+private extension SentryMXFrame {
+    var hasValidHangSampleCounts: Bool {
+        guard let sampleCount, sampleCount > 0, sampleCount <= 9_007_199_254_740_991 else { return false }
+        var remaining = sampleCount
+        for child in subFrames ?? [] {
+            guard child.hasValidHangSampleCounts, let childCount = child.sampleCount, childCount <= remaining else { return false }
+            // Subtract rather than sum untrusted child counts, avoiding integer overflow.
+            remaining -= childCount
+        }
+        return true
     }
 }
 

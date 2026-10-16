@@ -14,7 +14,8 @@ final class SentryMetricKitIntegration<Dependencies>: NSObject, SwiftIntegration
             inAppLogic: SentryInAppLogic(inAppIncludes: options.inAppIncludes),
             attachDiagnosticAsAttachment: options.enableMetricKitRawPayload,
             enabledDiagnostics: [.cpuException, .diskWriteException, .hang],
-            releaseName: options.releaseName
+            releaseName: options.releaseName,
+            hangReportingMode: options.experimental.metrickit.hangReportingMode
         )
         super.init()
 
