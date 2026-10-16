@@ -70,6 +70,8 @@ final class SentryUIRedactBuilder {
 
     // MARK: - Properties
 
+    private let maskAllText: Bool
+
     /// This is a wrapper which marks it's direct children to be ignored
     private var ignoreContainerClassIdentifier: ObjectIdentifier?
 
@@ -140,6 +142,7 @@ final class SentryUIRedactBuilder {
     /// - note: On iOS, views such as `WKWebView` and `UIWebView` are always redacted, and controls like
     ///   `UISlider` and `UISwitch` are ignored by default.
     init(options: SentryRedactOptions) { // swiftlint:disable:this function_body_length
+        maskAllText = options.maskAllText
         var redactClasses = Set<ClassIdentifier>()
         var redactLayers = Set<String>()
 
@@ -469,6 +472,93 @@ final class SentryUIRedactBuilder {
 
         // The swiftUI type needs to appear first in the list so it always gets masked
         return (otherRegions + swiftUIRedact).reversed()
+    }
+
+    private static let maximumTextExtractionInspections = 60
+
+    enum TextExtractionMaskingDecision: Equatable {
+        case unmasked
+        case maskText
+        case maskSubtree
+
+        var isMasked: Bool { self != .unmasked }
+    }
+
+    func isViewMaskedForTextExtraction(_ view: UIView) -> Bool {
+        var remainingInspections = Self.maximumTextExtractionInspections
+        var inspectedViews = Set<ObjectIdentifier>()
+        return textExtractionMaskingDecision(
+            for: view,
+            remainingInspections: &remainingInspections,
+            inspectedViews: &inspectedViews
+        ).isMasked
+    }
+
+    func isViewMaskedForTextExtraction(
+        _ view: UIView,
+        remainingInspections: inout Int,
+        inspectedViews: inout Set<ObjectIdentifier>
+    ) -> Bool {
+        return textExtractionMaskingDecision(
+            for: view,
+            remainingInspections: &remainingInspections,
+            inspectedViews: &inspectedViews
+        ).isMasked
+    }
+
+    func textExtractionMaskingDecision(
+        for view: UIView,
+        remainingInspections: inout Int,
+        inspectedViews: inout Set<ObjectIdentifier>
+    ) -> TextExtractionMaskingDecision {
+        var hierarchy: [UIView] = []
+        var currentView: UIView? = view
+        while let current = currentView {
+            let identifier = ObjectIdentifier(current)
+            if !inspectedViews.contains(identifier) {
+                guard remainingInspections > 0 else { return .maskSubtree }
+                remainingInspections -= 1
+                inspectedViews.insert(identifier)
+            }
+            guard !current.isHidden,
+                  current.alpha > 0.01,
+                  current.layer.opacity > 0.01 else {
+                return .maskSubtree
+            }
+            hierarchy.append(current)
+            currentView = current.superview
+        }
+
+        let maskTextByDefault = maskAllText && !hierarchy.contains(where: shouldIgnore(view:))
+        var forceRedact = false
+        var forceIgnore = false
+        for current in hierarchy.reversed() {
+            if isViewSubtreeIgnored(current) {
+                let isMasked = forceRedact || (!forceIgnore && !shouldIgnore(view: current))
+                if isMasked {
+                    return .maskSubtree
+                }
+                return maskTextByDefault ? .maskText : .unmasked
+            }
+
+            let explicitlyMasked = SentryRedactViewHelper.shouldMaskView(current)
+            let instanceUnmasked = SentryRedactViewHelper.shouldUnmask(current)
+            let ignore = !forceRedact
+                && (shouldIgnore(view: current) || (forceIgnore && !explicitlyMasked))
+            let redact = forceRedact
+                || shouldRedact(view: current)
+                || SentryRedactViewHelper.shouldRedactSwiftUI(current)
+
+            if !ignore && redact {
+                forceRedact = true
+            } else if instanceUnmasked {
+                forceIgnore = true
+            }
+        }
+        if forceRedact {
+            return .maskSubtree
+        }
+        return maskTextByDefault ? .maskText : .unmasked
     }
 
     private func shouldIgnore(view: UIView) -> Bool {

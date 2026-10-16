@@ -21,15 +21,74 @@ import Cocoa
     
     private weak var delegate: SentryBreadcrumbDelegate?
     private let reportAccessibilityIdentifier: Bool
+    let enableBreadcrumbTextExtraction: Bool
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    private let redactBuilder: SentryUIRedactBuilder?
+    private let shouldApplyRedaction: () -> Bool
+    private let redactBuilderProvider: () -> SentryUIRedactBuilder?
+#endif
     
     // Store notification observer tokens for cleanup
     private var notificationObservers: [NSObjectProtocol] = []
     
     @objc(initReportAccessibilityIdentifier:)
-    init(reportAccessibilityIdentifier: Bool) {
+    convenience init(reportAccessibilityIdentifier: Bool) {
+        self.init(
+            reportAccessibilityIdentifier: reportAccessibilityIdentifier,
+            enableBreadcrumbTextExtraction: false
+        )
+    }
+
+    init(reportAccessibilityIdentifier: Bool, enableBreadcrumbTextExtraction: Bool) {
         self.reportAccessibilityIdentifier = reportAccessibilityIdentifier
+        self.enableBreadcrumbTextExtraction = enableBreadcrumbTextExtraction
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        self.redactBuilder = nil
+        self.shouldApplyRedaction = { false }
+        self.redactBuilderProvider = { nil }
+#endif
         super.init()
     }
+
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    convenience init(reportAccessibilityIdentifier: Bool, redactOptions: SentryRedactOptions) {
+        self.init(
+            reportAccessibilityIdentifier: reportAccessibilityIdentifier,
+            enableBreadcrumbTextExtraction: false,
+            redactOptions: redactOptions
+        )
+    }
+
+    convenience init(
+        reportAccessibilityIdentifier: Bool,
+        redactOptions: SentryRedactOptions,
+        shouldApplyRedaction: @escaping () -> Bool,
+        redactBuilderProvider: @escaping () -> SentryUIRedactBuilder? = { nil }
+    ) {
+        self.init(
+            reportAccessibilityIdentifier: reportAccessibilityIdentifier,
+            enableBreadcrumbTextExtraction: false,
+            redactOptions: redactOptions,
+            shouldApplyRedaction: shouldApplyRedaction,
+            redactBuilderProvider: redactBuilderProvider
+        )
+    }
+
+    init(
+        reportAccessibilityIdentifier: Bool,
+        enableBreadcrumbTextExtraction: Bool,
+        redactOptions: SentryRedactOptions,
+        shouldApplyRedaction: @escaping () -> Bool = { true },
+        redactBuilderProvider: @escaping () -> SentryUIRedactBuilder? = { nil }
+    ) {
+        self.reportAccessibilityIdentifier = reportAccessibilityIdentifier
+        self.enableBreadcrumbTextExtraction = enableBreadcrumbTextExtraction
+        self.redactBuilder = SentryUIRedactBuilder(options: redactOptions)
+        self.shouldApplyRedaction = shouldApplyRedaction
+        self.redactBuilderProvider = redactBuilderProvider
+        super.init()
+    }
+#endif
     
     deinit {
         SentryDependencyContainer.sharedInstance().reachability.remove(self)
@@ -67,103 +126,6 @@ import Cocoa
         delegate = nil
         stopTrackNetworkConnectivityChanges()
     }
-    
-    private func trackApplicationNotifications() {
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-        trackApplicationNotificationsUIKit()
-#elseif os(macOS) && !SENTRY_NO_UI_FRAMEWORK
-        trackApplicationNotificationsMacOS()
-#else // watchOS or other platforms
-        SentrySDKLog.debug("NO UIKit, macOS and Catalyst -> [SentryBreadcrumbTracker trackApplicationNotifications] does nothing.")
-#endif
-    }
-    
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-    private func trackApplicationNotificationsUIKit() {
-        let notificationCenter = NotificationCenter.default
-        
-        // not available for macOS
-        let memoryWarningObserver = notificationCenter.addObserver(
-            forName: UIApplication.didReceiveMemoryWarningNotification,
-            object: nil,
-            queue: nil
-        ) { [weak self] _ in
-            guard let self = self else { return }
-            let crumb = Breadcrumb(level: .warning, category: "device.event")
-            crumb.type = "system"
-            crumb.setData(value: "LOW_MEMORY", key: "action")
-            crumb.message = "Low memory"
-            self.delegate?.add(crumb)
-        }
-        notificationObservers.append(memoryWarningObserver)
-        
-        let willEnterForegroundObserver = notificationCenter.addObserver(
-            forName: UIApplication.willEnterForegroundNotification,
-            object: nil,
-            queue: nil
-        ) { [weak self] _ in
-            guard let self = self else { return }
-            self.addBreadcrumb(type: "navigation", category: "app.lifecycle", level: .info, dataKey: "state", dataValue: "foreground")
-        }
-        notificationObservers.append(willEnterForegroundObserver)
-        
-        let didBecomeActiveObserver = notificationCenter.addObserver(
-            forName: UIApplication.didBecomeActiveNotification,
-            object: nil,
-            queue: nil
-        ) { [weak self] _ in
-            guard let self = self else { return }
-            self.addBreadcrumb(type: "navigation", category: "app.lifecycle", level: .info, dataKey: "state", dataValue: "active")
-        }
-        notificationObservers.append(didBecomeActiveObserver)
-        
-        let willResignActiveObserver = notificationCenter.addObserver(
-            forName: UIApplication.willResignActiveNotification,
-            object: nil,
-            queue: nil
-        ) { [weak self] _ in
-            guard let self = self else { return }
-            self.addBreadcrumb(type: "navigation", category: "app.lifecycle", level: .info, dataKey: "state", dataValue: "inactive")
-        }
-        notificationObservers.append(willResignActiveObserver)
-        
-        let didEnterBackgroundObserver = notificationCenter.addObserver(
-            forName: UIApplication.didEnterBackgroundNotification,
-            object: nil,
-            queue: nil
-        ) { [weak self] _ in
-            guard let self = self else { return }
-            self.addBreadcrumb(type: "navigation", category: "app.lifecycle", level: .info, dataKey: "state", dataValue: "background")
-        }
-        notificationObservers.append(didEnterBackgroundObserver)
-    }
-#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-    
-#if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
-    private func trackApplicationNotificationsMacOS() {
-        let notificationCenter = NotificationCenter.default
-        
-        let didBecomeActiveObserver = notificationCenter.addObserver(
-            forName: NSApplication.didBecomeActiveNotification,
-            object: nil,
-            queue: nil
-        ) { [weak self] _ in
-            guard let self = self else { return }
-            self.addBreadcrumb(type: "navigation", category: "app.lifecycle", level: .info, dataKey: "state", dataValue: "active")
-        }
-        notificationObservers.append(didBecomeActiveObserver)
-        
-        let willResignActiveObserver = notificationCenter.addObserver(
-            forName: NSApplication.willResignActiveNotification,
-            object: nil,
-            queue: nil
-        ) { [weak self] _ in
-            guard let self = self else { return }
-            self.addBreadcrumb(type: "navigation", category: "app.lifecycle", level: .info, dataKey: "state", dataValue: "inactive")
-        }
-        notificationObservers.append(willResignActiveObserver)
-    }
-#endif // os(macOS)
     
     private func trackNetworkConnectivityChanges() {
         SentryDependencyContainer.sharedInstance().reachability.add(self)
@@ -220,7 +182,7 @@ import Cocoa
                     for touch in event.allTouches ?? [] {
                         if let view = touch.view,
                            touch.phase == .cancelled || touch.phase == .ended {
-                            data = Self.extractData(from: view, includeAccessibilityIdentifier: self.reportAccessibilityIdentifier)
+                            data = self.extractData(from: view)
                         }
                     }
                 }
@@ -249,25 +211,12 @@ import Cocoa
     
     @_spi(Private)
     public static func extractData(from view: UIView, includeAccessibilityIdentifier: Bool) -> [String: Any] {
-        var result: [String: Any] = ["view": SwiftDescriptor.getSanitizedViewDescription(view)]
-
-        if view.tag > 0 {
-            result["tag"] = view.tag
-        }
-
-        if includeAccessibilityIdentifier,
-           let identifier = view.accessibilityIdentifier,
-           !identifier.isEmpty {
-            result["accessibilityIdentifier"] = identifier
-        }
-
-        if let button = view as? UIButton,
-           let title = button.currentTitle,
-           !title.isEmpty {
-            result["title"] = title
-        }
-
-        return result
+        extractData(
+            from: view,
+            includeAccessibilityIdentifier: includeAccessibilityIdentifier,
+            redactBuilder: nil,
+            extractChildText: false
+        )
     }
 
     private static func fetchInfo(about controller: UIViewController) -> [String: Any] {
@@ -302,6 +251,118 @@ import Cocoa
     }
 #endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 }
+
+private extension SentryBreadcrumbTracker {
+    func trackApplicationNotifications() {
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        trackApplicationNotificationsUIKit()
+#elseif os(macOS) && !SENTRY_NO_UI_FRAMEWORK
+        trackApplicationNotificationsMacOS()
+#else // watchOS or other platforms
+        SentrySDKLog.debug("NO UIKit, macOS and Catalyst -> [SentryBreadcrumbTracker trackApplicationNotifications] does nothing.")
+#endif
+    }
+
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    func trackApplicationNotificationsUIKit() {
+        let notificationCenter = NotificationCenter.default
+
+        // not available for macOS
+        let memoryWarningObserver = notificationCenter.addObserver(
+            forName: UIApplication.didReceiveMemoryWarningNotification,
+            object: nil,
+            queue: nil
+        ) { [weak self] _ in
+            guard let self = self else { return }
+            let crumb = Breadcrumb(level: .warning, category: "device.event")
+            crumb.type = "system"
+            crumb.setData(value: "LOW_MEMORY", key: "action")
+            crumb.message = "Low memory"
+            self.delegate?.add(crumb)
+        }
+        notificationObservers.append(memoryWarningObserver)
+
+        let willEnterForegroundObserver = notificationCenter.addObserver(
+            forName: UIApplication.willEnterForegroundNotification,
+            object: nil,
+            queue: nil
+        ) { [weak self] _ in
+            guard let self = self else { return }
+            self.addBreadcrumb(type: "navigation", category: "app.lifecycle", level: .info, dataKey: "state", dataValue: "foreground")
+        }
+        notificationObservers.append(willEnterForegroundObserver)
+
+        let didBecomeActiveObserver = notificationCenter.addObserver(
+            forName: UIApplication.didBecomeActiveNotification,
+            object: nil,
+            queue: nil
+        ) { [weak self] _ in
+            guard let self = self else { return }
+            self.addBreadcrumb(type: "navigation", category: "app.lifecycle", level: .info, dataKey: "state", dataValue: "active")
+        }
+        notificationObservers.append(didBecomeActiveObserver)
+
+        let willResignActiveObserver = notificationCenter.addObserver(
+            forName: UIApplication.willResignActiveNotification,
+            object: nil,
+            queue: nil
+        ) { [weak self] _ in
+            guard let self = self else { return }
+            self.addBreadcrumb(type: "navigation", category: "app.lifecycle", level: .info, dataKey: "state", dataValue: "inactive")
+        }
+        notificationObservers.append(willResignActiveObserver)
+
+        let didEnterBackgroundObserver = notificationCenter.addObserver(
+            forName: UIApplication.didEnterBackgroundNotification,
+            object: nil,
+            queue: nil
+        ) { [weak self] _ in
+            guard let self = self else { return }
+            self.addBreadcrumb(type: "navigation", category: "app.lifecycle", level: .info, dataKey: "state", dataValue: "background")
+        }
+        notificationObservers.append(didEnterBackgroundObserver)
+    }
+#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+
+#if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
+    func trackApplicationNotificationsMacOS() {
+        let notificationCenter = NotificationCenter.default
+
+        let didBecomeActiveObserver = notificationCenter.addObserver(
+            forName: NSApplication.didBecomeActiveNotification,
+            object: nil,
+            queue: nil
+        ) { [weak self] _ in
+            guard let self = self else { return }
+            self.addBreadcrumb(type: "navigation", category: "app.lifecycle", level: .info, dataKey: "state", dataValue: "active")
+        }
+        notificationObservers.append(didBecomeActiveObserver)
+
+        let willResignActiveObserver = notificationCenter.addObserver(
+            forName: NSApplication.willResignActiveNotification,
+            object: nil,
+            queue: nil
+        ) { [weak self] _ in
+            guard let self = self else { return }
+            self.addBreadcrumb(type: "navigation", category: "app.lifecycle", level: .info, dataKey: "state", dataValue: "inactive")
+        }
+        notificationObservers.append(willResignActiveObserver)
+    }
+#endif // os(macOS)
+}
+
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+extension SentryBreadcrumbTracker {
+    func extractData(from view: UIView) -> [String: Any] {
+        Self.extractData(
+            from: view,
+            includeAccessibilityIdentifier: reportAccessibilityIdentifier,
+            redactBuilder: shouldApplyRedaction() ? (redactBuilderProvider() ?? redactBuilder) : nil,
+            extractChildText: enableBreadcrumbTextExtraction
+        )
+    }
+}
+#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 extension SentryBreadcrumbTracker: SentryReachabilityObserver {
     @objc
