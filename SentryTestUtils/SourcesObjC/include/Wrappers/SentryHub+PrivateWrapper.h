@@ -28,10 +28,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)eventContainsOnlyHandledErrors:(NSDictionary *)eventDictionary;
 @end
 
+// Xcode imports the typed SDK property directly; redeclaring it creates ambiguous accessors.
+#if SWIFT_PACKAGE
 @interface SentryHubInternal (TestAccess)
 - (nullable SENTRY_SWIFT_MIGRATION_ID(SentrySession))session NS_SWIFT_NAME(test_session());
 - (void)setSession:(nullable SENTRY_SWIFT_MIGRATION_ID(SentrySession))session
     NS_SWIFT_NAME(test_setSession(_:));
 @end
+#endif
 
 NS_ASSUME_NONNULL_END

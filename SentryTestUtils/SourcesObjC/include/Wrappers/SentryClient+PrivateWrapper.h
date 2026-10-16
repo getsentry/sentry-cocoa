@@ -26,9 +26,12 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface SentryClientInternal (TestAccess)
+// Xcode imports the typed SDK property directly; redeclaring it creates ambiguous accessors.
+#if SWIFT_PACKAGE
 - (SENTRY_SWIFT_MIGRATION_ID(SentryFileManager))fileManager NS_SWIFT_NAME(test_fileManager());
 - (void)setFileManager:(SENTRY_SWIFT_MIGRATION_ID(SentryFileManager))fileManager
     NS_SWIFT_NAME(test_setFileManager(_:));
+#endif
 - (SentryId *)captureFatalEvent:(SentryEvent *)event
                     withSession:(SENTRY_SWIFT_MIGRATION_ID(SentrySession))session
                       withScope:(SentryScope *)scope NS_SWIFT_NAME(captureFatalEvent(_:with:with:));

@@ -79,6 +79,9 @@ jobs:
 
       - run: make init-ci-build
 
+      - name: Test Crash E2E runner
+        run: swift test --package-path TestApps/CrashE2E/Runner
+
       - name: Run Crash E2E scenarios
         env:
           REPORTER: ${{ matrix.reporter }}

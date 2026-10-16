@@ -12,10 +12,10 @@ extension SentryClientInternal {
         get { requireTestBridgeValue(getOptions()) }
         set { setOptions(newValue) }
     }
-    #endif
 
     @_spi(Private) public var fileManager: SentryFileManager {
         get { requireTestBridgeValue(test_fileManager()) }
         set { test_setFileManager(newValue) }
     }
+    #endif
 }

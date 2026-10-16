@@ -3,7 +3,7 @@
 // Shared SDK test declarations belong in SentryTestUtilsObjC-SDKHeaders.h, exposed through
 // SentryTestUtilsObjC in both build systems; import other declarations from their owning modules.
 #import "SentryDefines.h"
-#import "SentryLaunchProfiling+Tests.h"
+#import "SentryProfilingConditionals.h"
 
 // Load the Objective-C base declarations before their generated Swift interface.
 @import _SentryPrivate;

@@ -17,7 +17,8 @@ extension Scenario {
     }
 }
 
-/// Runs a scenario and inverts the outcome when it is a known failure for the reporter.
+/// Accepts only report assertion failures for a listed SDK gap. Harness failures always
+/// propagate. Callers must finish process cleanup before passing a failed outcome here.
 func runAllowingKnownFailure(_ scenario: Scenario, reporter: Reporter, platform: String,
                              _ body: () throws -> Void) throws {
     guard let reason = scenario.knownFailureReason(for: reporter) else {
@@ -27,7 +28,7 @@ func runAllowingKnownFailure(_ scenario: Scenario, reporter: Reporter, platform:
 
     do {
         try body()
-    } catch {
+    } catch let error as ReportAssertionFailure {
         log("⚠️ \(platform)/\(scenario.rawValue) failed as expected (\(reason)): \(error)")
         return
     }
