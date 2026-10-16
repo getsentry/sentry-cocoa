@@ -97,5 +97,6 @@
 #import "SentryTransaction+Private.h"
 #import "SentryTransactionContext+Private.h"
 #import "SentryUIViewControllerSwizzlingHelper.h"
+#import "SentryURLRequestWrapper.h"
 #import "SentryUncaughtNSExceptions.h"
 #import "SentryUser+Private.h"
