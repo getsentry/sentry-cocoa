@@ -43,6 +43,42 @@ if [ -z "$PLATFORM" ]; then
     usage
 fi
 
+# Strips any patch component, e.g. 26.4.1 -> 26.4.
+major_minor() {
+    echo "$1" | awk -F. '{print $1"."$2}'
+}
+
+# Prints the newest "iPhone N Pro" (excluding Max/Plus) in the iOS runtime
+# with the given major.minor version, or nothing if there is none.
+# `simctl list devices` groups devices by major.minor runtime sections.
+find_newest_iphone_pro() {
+    local os_mm="$1"
+    xcrun simctl list devices available 2>/dev/null \
+        | awk -v platform="iOS" -v version="$os_mm" '
+            $0 ~ "^-- " platform " " version " --" { in_section = 1; next }
+            in_section { if (/^-- /) exit; print }' \
+        | grep -E "iPhone [0-9]+ Pro \(" \
+        | sed -E 's/^[[:space:]]*(iPhone [0-9]+ Pro)[[:space:]]+\(.*$/\1/' \
+        | sort -V \
+        | tail -n1 || true
+}
+
+# Prints the exact versions of available iOS runtimes that share the given
+# major version and have a lower minor version, newest first.
+# E.g. for 27.2 this prints 27.1 and 27.0 if both are installed.
+list_lower_minor_ios_runtimes() {
+    local major="$1"
+    local minor="$2"
+    xcrun simctl list runtimes -j 2>/dev/null \
+        | jq -r --argjson major "$major" --argjson minor "$minor" '
+            .runtimes[]
+            | select(.isAvailable == true and .platform == "iOS")
+            | .version
+            | (split(".") | map(tonumber)) as $parts
+            | select($parts[0] == $major and ($parts[1] // 0) < $minor)' \
+        | sort -ruV || true
+}
+
 if [ -n "$OS" ]; then
     TEST_OS="$OS"
 else
@@ -61,18 +97,34 @@ if [ -n "$DEVICE" ]; then
 else
     case "$PLATFORM" in
         iOS|Catalyst)
-            # Pick the newest "iPhone N Pro" (excluding Max/Plus) available in
-            # the resolved iOS runtime. `simctl list devices` groups by major.minor
-            # so strip any patch component before searching.
-            OS_MM=$(echo "$TEST_OS" | awk -F. '{print $1"."$2}')
-            TEST_DEVICE=$(xcrun simctl list devices available 2>/dev/null \
-                | awk -v platform="iOS" -v version="$OS_MM" '
-                    $0 ~ "^-- " platform " " version " --" { in_section = 1; next }
-                    in_section { if (/^-- /) exit; print }' \
-                | grep -E "iPhone [0-9]+ Pro \(" \
-                | sed -E 's/^[[:space:]]*(iPhone [0-9]+ Pro)[[:space:]]+\(.*$/\1/' \
-                | sort -V \
-                | tail -n1) || TEST_DEVICE=""
+            # Pick the newest "iPhone N Pro" available in the resolved iOS runtime.
+            OS_MM=$(major_minor "$TEST_OS")
+            TEST_DEVICE=$(find_newest_iphone_pro "$OS_MM")
+
+            # Runner images can ship a new minor runtime (e.g. iOS 27.1) without
+            # pre-created iPhone Pro simulators. Walk down the minor versions of
+            # the same major (27.1 -> 27.0) and use the first runtime that has
+            # one. TEST_OS is updated to the exact fallback runtime version so
+            # the runtime-loaded check, simulator boot, and xcodebuild
+            # destination all agree.
+            if [ -z "$TEST_DEVICE" ] && [ "$PLATFORM" = "iOS" ] \
+                && [[ "$OS_MM" =~ ^([0-9]+)\.([0-9]+)$ ]]; then
+                OS_MAJOR="${BASH_REMATCH[1]}"
+                OS_MINOR="${BASH_REMATCH[2]}"
+                while IFS= read -r FALLBACK_OS; do
+                    [ -n "$FALLBACK_OS" ] || continue
+                    TEST_DEVICE=$(find_newest_iphone_pro "$(major_minor "$FALLBACK_OS")")
+                    if [ -n "$TEST_DEVICE" ]; then
+                        log_warning "No iPhone Pro simulator for iOS $TEST_OS, falling back to $TEST_DEVICE on iOS $FALLBACK_OS"
+                        TEST_OS="$FALLBACK_OS"
+                        break
+                    fi
+                done < <(list_lower_minor_ios_runtimes "$OS_MAJOR" "$OS_MINOR")
+            fi
+
+            if [ -z "$TEST_DEVICE" ] && [ "$PLATFORM" = "iOS" ]; then
+                log_warning "No iPhone Pro simulator found for iOS $TEST_OS or a lower minor version of the same major"
+            fi
             ;;
         tvOS)
             TEST_DEVICE="Apple TV"

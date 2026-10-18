@@ -1,10 +1,13 @@
 name: "Resolve test destination"
 description: >-
   Resolves the simulator OS version and device name for a test run.
-  When `test-destination-os` or `device` are provided they pass through unchanged.
+  When `device` is provided, `device` and `test-destination-os` pass through unchanged.
   When omitted (empty), the action falls back to the values exported by
   `setup-xcode` for the given platform (e.g. IOS_SIMULATOR_OS). For iOS,
   the device defaults to the newest "iPhone N Pro" in the resolved runtime.
+  If that runtime has none, it falls back to the newest lower minor runtime
+  of the same major that has one (e.g. 27.1 -> 27.0) and updates TEST_OS,
+  so callers must use TEST_OS together with TEST_DEVICE.
 inputs:
   test-destination-os:
     description: >-
