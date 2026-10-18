@@ -1,7 +1,11 @@
 #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
 #if os(iOS) || os(tvOS)
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import UIKit
 import XCTest
 

@@ -1,5 +1,10 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
 import XCTest
 
 final class SentrySwiftIntegrationInstallerTests: XCTestCase {
@@ -21,6 +26,7 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
     }
 
     // We are not testing `SwiftAsyncIntegration`, but use it as an example for an installed integration
+    @available(*, deprecated, message: "Testing deprecated App Hang tracking option")
     func testInstall_AddsInstalledIntegrations() throws {
         // Arrange
         let options = Options()
@@ -41,8 +47,10 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         #if canImport(MetricKit) && !os(tvOS)
         options.enableMetricKit = false
         #endif
+        #if !SDK_V10
         // Metrics stays installed even when enableMetrics is false so manual APIs keep working.
         options.enableMetrics = false
+        #endif // !SDK_V10
 
         let testHub = TestHub(client: nil, andScope: nil)
         SentrySDKInternal.setCurrentHub(testHub)
@@ -61,6 +69,7 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
 #endif
     }
 
+    @available(*, deprecated, message: "Testing deprecated App Hang tracking option")
     func testInstall_WithDisabledIntegration_DoesNotAddIntegration() {
         // Arrange
         let options = Options()
@@ -81,8 +90,10 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         #if canImport(MetricKit) && !os(tvOS)
         options.enableMetricKit = false
         #endif
+        #if !SDK_V10
         // Metrics remains installed regardless of enableMetrics.
         options.enableMetrics = false
+        #endif // !SDK_V10
 
         let testHub = TestHub(client: nil, andScope: nil)
         SentrySDKInternal.setCurrentHub(testHub)

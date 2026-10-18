@@ -1,6 +1,10 @@
 @_spi(Private) import _SentryPrivate
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
 class SentryBreadcrumbTrackingIntegrationTests: XCTestCase {

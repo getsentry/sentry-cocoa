@@ -62,6 +62,13 @@ import Foundation
         set { wrapped.enableCrashHandler = newValue }
     }
 
+    #if SDK_V10
+    @objc public var enableUnhandledCPPExceptionsV2: Bool {
+        get { wrapped.enableUnhandledCPPExceptionsV2 }
+        set { wrapped.enableUnhandledCPPExceptionsV2 = newValue }
+    }
+    #endif // SDK_V10
+
     @objc public var enableMemoryIntrospection: Bool {
         get { wrapped.enableMemoryIntrospection }
         set { wrapped.enableMemoryIntrospection = newValue }
@@ -74,12 +81,13 @@ import Foundation
     }
     #endif
 
-    #if !os(watchOS)
+    #if !os(watchOS) && !SDK_V10
+    @available(*, deprecated, message: "This property will be removed in v10. KSCrash always catches SIGTERM, records a clean exit, and never writes a crash report for it.")
     @objc public var enableSigtermReporting: Bool {
         get { wrapped.enableSigtermReporting }
         set { wrapped.enableSigtermReporting = newValue }
     }
-    #endif
+    #endif // !os(watchOS) && !SDK_V10
 
     @objc public var maxBreadcrumbs: UInt {
         get { wrapped.maxBreadcrumbs }
@@ -137,11 +145,11 @@ import Foundation
     private var _beforeSendWithHint: ((SentryObjCEvent, SentryObjCHint) -> SentryObjCEvent?)?
 
     #if SDK_V10
-    @objc public var beforeSendTransaction: ((SentryObjCTransaction) -> SentryObjCTransaction?)? {
+    @objc public var beforeSendTransaction: ((SentryObjCTransaction, SentryObjCHint) -> SentryObjCTransaction?)? {
         didSet {
             if let beforeSendTransaction = beforeSendTransaction {
-                wrapped.beforeSendTransaction = { transaction in
-                    guard let result = beforeSendTransaction(SentryObjCTransaction(transaction)) else {
+                wrapped.beforeSendTransaction = { transaction, hint in
+                    guard let result = beforeSendTransaction(SentryObjCTransaction(transaction), SentryObjCHint(hint)) else {
                         return nil
                     }
                     return result.wrappedTransaction
@@ -436,6 +444,7 @@ import Foundation
     #if !SDK_V10
     @objc public var enableReportNonFullyBlockingAppHangs: Bool {
         get { wrapped.enableReportNonFullyBlockingAppHangs }
+        @available(*, deprecated, message: "App Hang tracking is deprecated and will be removed in v10 because it can produce less relevant stack traces and false positives. Enable the MetricKit integration for system-provided hang diagnostics.", renamed: "enableMetricKit")
         set { wrapped.enableReportNonFullyBlockingAppHangs = newValue }
     }
     #endif // !SDK_V10
@@ -633,9 +642,11 @@ import Foundation
         set { wrapped.experimental = newValue.wrapped }
     }
 
+    #if !SDK_V10
     @objc public var enableMetrics: Bool {
         get { wrapped.enableMetrics }
         set { wrapped.enableMetrics = newValue }
     }
+    #endif // !SDK_V10
 }
 // swiftlint:enable file_length missing_docs type_body_length

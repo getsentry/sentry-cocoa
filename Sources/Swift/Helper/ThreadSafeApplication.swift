@@ -19,44 +19,58 @@ final class SentryAlwaysForegroundApplicationStateProvider: NSObject, SentryAppl
     private let notificationCenter: SentryNSNotificationCenterWrapper
     private let applicationProvider: () -> SentryApplication?
     
-    init(applicationProvider: @escaping () -> SentryApplication?, notificationCenter: SentryNSNotificationCenterWrapper) {
+    init(applicationProvider: @escaping () -> SentryApplication?, notificationCenter: SentryNSNotificationCenterWrapper, dispatchQueueWrapper: SentryDispatchQueueWrapper) {
         self.notificationCenter = notificationCenter
         self.applicationProvider = applicationProvider
         // Acquiring the lock is not necessary here since the instance has not been initialized yet.
-        let applicationIsAvailable: Bool
-        if let application = applicationProvider() {
+        let isMainThread = Thread.isMainThread
+        let stateIsResolved: Bool
+        if isMainThread, let application = applicationProvider() {
             self.state = SentryMutex(application.unsafeApplicationState)
-            applicationIsAvailable = true
+            stateIsResolved = true
         } else {
-            // The SDK can start before UIApplication exists, for example from a SwiftUI `App.init`,
-            // which runs before `UIApplicationMain`. This matches the ObjC behavior which did not
-            // initialize the state when the UIApplication was null so it kept a default value of 0
-            // which happens to be defined to be `active`. That default is only correct for a
-            // foreground launch: a process the system launches in the background, for example for
-            // background fetch or a background URLSession, never posts
-            // `didBecomeActive` or `didEnterBackground`, so nothing would ever correct it and the
-            // SDK would treat the whole background lifetime as foreground. The real state is read
-            // once UIApplication is up, at `didFinishLaunchingNotification`.
-            SentrySDKLog.warning("Application is null in SentryThreadsafeApplication. Assuming active until UIApplicationDidFinishLaunchingNotification.")
+            // This matches the ObjC behavior which did not initialize the state when the UIApplication was null
+            // so it kept a default value of 0 which happens to be defined to be `active`. That default is only
+            // correct for a foreground launch, so it is provisional until the real state is resolved below.
+            if isMainThread {
+                SentrySDKLog.warning("Application is null in SentryThreadsafeApplication. Assuming active until UIApplicationDidFinishLaunchingNotification.")
+            }
             self.state = SentryMutex(.active)
-            applicationIsAvailable = false
+            stateIsResolved = false
         }
         super.init()
 
         notificationCenter.addObserver(self, selector: #selector(didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
         notificationCenter.addObserver(self, selector: #selector(willEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
         notificationCenter.addObserver(self, selector: #selector(didBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
-        if !applicationIsAvailable {
-            notificationCenter.addObserver(self, selector: #selector(didFinishLaunching), name: UIApplication.didFinishLaunchingNotification, object: nil)
-            // UIApplication may have finished launching between the check above and registering the
-            // observer, in which case the notification was already posted and will not be received.
-            // Checking again after registering closes that window: either the notification is still
-            // to come, or the application is available now and its state can be read directly.
-            if let application = applicationProvider() {
-                notificationCenter.removeObserver(self, name: UIApplication.didFinishLaunchingNotification, object: nil)
-                let launchState = application.unsafeApplicationState
-                state.withLock { $0 = launchState }
-            }
+
+        guard !stateIsResolved else {
+            return
+        }
+
+        // The SDK can start before UIApplication exists, for example from a SwiftUI `App.init`, which runs before
+        // `UIApplicationMain`. A process the system launches in the background, for example for background fetch
+        // or a background URLSession, never posts `didBecomeActive` or `didEnterBackground`, so nothing would ever
+        // correct the provisional `.active` and the SDK would treat the whole background lifetime as foreground.
+        // The real state is read once UIApplication is up, at `didFinishLaunchingNotification`.
+        notificationCenter.addObserver(self, selector: #selector(didFinishLaunching), name: UIApplication.didFinishLaunchingNotification, object: nil)
+
+        if !isMainThread {
+            // UIKit only allows reading the application state on the main thread, and the dependency container
+            // creates this instance eagerly on whichever thread first accesses it, for example a React Native
+            // synchronous module method running on the JS thread. Blocking that thread until the main thread is
+            // free is not acceptable during launch, so start from `.active` and refresh the state asynchronously
+            // on the main queue, like the original ObjC implementation did. UIKit delivers the lifecycle
+            // notifications on the main thread as well, so the refreshed value is never staler than a
+            // notification that already arrived.
+            SentrySDKLog.warning("SentryThreadsafeApplication initialized off the main thread, reading the application state asynchronously on the main queue.")
+        }
+        // UIApplication may have finished launching before the observer above was registered, in which case the
+        // notification was already posted and will not be received. Checking again after registering closes that
+        // window: either the notification is still to come, or the application is available and its state can be
+        // read directly. Both this check and the notification run on the main thread, so they cannot interleave.
+        dispatchQueueWrapper.dispatchAsyncOnMainQueueIfNotMainThread { [weak self] in
+            self?.resolveStateIfApplicationIsAvailable()
         }
     }
     
@@ -93,9 +107,9 @@ final class SentryAlwaysForegroundApplicationStateProvider: NSObject, SentryAppl
         state.withLock { $0 = .active }
     }
 
-    /// Only observed when the application was not available at init. The notification is posted on
-    /// the main thread, where reading `unsafeApplicationState` is safe, and it precedes every other
-    /// lifecycle notification, so resolving here cannot overwrite a state a later notification set.
+    /// Only observed while the state is provisional. The notification is posted on the main thread, where
+    /// reading `unsafeApplicationState` is safe, and it precedes every other lifecycle notification, so resolving
+    /// here cannot overwrite a state a later notification set.
     @objc
     private func didFinishLaunching() {
         notificationCenter.removeObserver(self, name: UIApplication.didFinishLaunchingNotification, object: nil)
@@ -103,6 +117,17 @@ final class SentryAlwaysForegroundApplicationStateProvider: NSObject, SentryAppl
             SentrySDKLog.warning("Application is still null in SentryThreadsafeApplication after launch. Keeping the active default.")
             return
         }
+        let launchState = application.unsafeApplicationState
+        state.withLock { $0 = launchState }
+    }
+
+    /// Must be called on the main thread. Leaves the `didFinishLaunching` observer in place while the application
+    /// is not available yet.
+    private func resolveStateIfApplicationIsAvailable() {
+        guard let application = applicationProvider() else {
+            return
+        }
+        notificationCenter.removeObserver(self, name: UIApplication.didFinishLaunchingNotification, object: nil)
         let launchState = application.unsafeApplicationState
         state.withLock { $0 = launchState }
     }

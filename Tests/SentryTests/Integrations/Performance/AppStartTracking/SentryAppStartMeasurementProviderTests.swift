@@ -1,4 +1,9 @@
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
 import XCTest
 
 #if os(iOS) || os(tvOS) || os(visionOS)
@@ -8,7 +13,7 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         SentryAppStartMeasurementProvider.reset()
-        PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = false
+        SentrySDK.internal.appStart.hybridSDKMode = false
         SentrySDKInternal.setAppStartMeasurement(nil)
     }
 
@@ -62,7 +67,7 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
         SentrySDKInternal.setAppStartMeasurement(
             buildAppStartMeasurement(type: .cold, appStartTimestamp: appStartTimestamp, duration: appStartDuration)
         )
-        PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = true
+        SentrySDK.internal.appStart.hybridSDKMode = true
         let transactionStart = appStartTimestamp.addingTimeInterval(appStartDuration)
 
         // -- Act --

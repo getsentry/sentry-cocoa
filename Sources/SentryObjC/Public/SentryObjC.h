@@ -241,11 +241,9 @@
 #if !__has_include(<SentryObjC/SentryObjCDefines.h>)
 #    import "SentryObjCClient.h"
 #    import "SentryObjCHub.h"
-#    import "SentryObjCPrivateSDKOnly.h"
 #    import "SentryObjCSDK.h"
 #else
 #    import <SentryObjC/SentryObjCClient.h>
 #    import <SentryObjC/SentryObjCHub.h>
-#    import <SentryObjC/SentryObjCPrivateSDKOnly.h>
 #    import <SentryObjC/SentryObjCSDK.h>
 #endif

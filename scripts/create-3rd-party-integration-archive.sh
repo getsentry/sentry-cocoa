@@ -29,7 +29,7 @@ usage() {
 Usage: $(basename "$0") [options]
 
 Create .tgz archives for 3rd-party integration distribution repos.
-Copies sources, tests, README, .gitignore, and LICENSE.md.
+Copies sources, tests, README, .gitignore, .spi.yml (if present), and LICENSE.md.
 Stamps the sentry-cocoa dependency version in Package.swift.
 
 OPTIONS:
@@ -110,6 +110,11 @@ create_archive() {
 
     cp "$src_dir/.gitignore" "$staging_dir/.gitignore"
     cp "$src_dir/README.md" "$staging_dir/README.md"
+    # Craft replaces the downstream repo contents with the archive on release,
+    # so the Swift Package Index manifest must be part of it to survive.
+    if [ -f "$src_dir/.spi.yml" ]; then
+        cp "$src_dir/.spi.yml" "$staging_dir/.spi.yml"
+    fi
     cp "$REPO_ROOT/LICENSE.md" "$staging_dir/LICENSE.md"
 
     cp -R "$src_dir/Sources" "$staging_dir/Sources"

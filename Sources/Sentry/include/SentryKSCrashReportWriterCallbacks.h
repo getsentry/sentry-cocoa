@@ -3,9 +3,11 @@
 
 #if SDK_V10
 
+#    include "KSCrashMonitorAPI.h"
 #    include "KSCrashMonitorContext.h"
 #    include "KSCrashReportWriter.h"
 #    include "KSCrashReportWriterCallbacks.h"
+#    include <stdbool.h>
 #    include <stdint.h>
 
 #    ifdef __cplusplus
@@ -20,6 +22,63 @@ void sentrykscrash_isWritingReport(const KSCrash_ExceptionHandlingPlan *_Nonnull
 
 void sentrykscrash_didWriteReport(
     const KSCrash_ExceptionHandlingPlan *_Nonnull const plan, int64_t reportID);
+
+typedef void (*SentryKSCrashSaveTransactionCallback)(void);
+void sentrykscrash_setSaveTransaction(SentryKSCrashSaveTransactionCallback _Nullable callback);
+
+/** Activate or deactivate report persistence without removing process-lifetime handlers. */
+void sentrykscrash_setReportPersistenceEnabled(bool enabled);
+bool sentrykscrash_isReportPersistenceEnabled(void);
+
+/** KSCrash plugin ID for crash-time attachments. Must match the Swift monitor ID. */
+extern const char *const _Nonnull sentrykscrash_attachmentsMonitorID;
+
+typedef void (*SentryKSCrashAttachmentsScreenshotWriter)(const char *_Nonnull payloadDirectory);
+typedef void (*SentryKSCrashAttachmentsViewHierarchyWriter)(const char *_Nonnull payloadDirectory);
+
+const char *_Nullable sentrykscrash_attachments_monitorId(void *_Nullable context);
+bool sentrykscrash_attachments_isEnabled(void *_Nullable context);
+void sentrykscrash_attachments_setEnabled(bool enabled, void *_Nullable context);
+void sentrykscrash_attachments_setScreenshotWriter(
+    SentryKSCrashAttachmentsScreenshotWriter _Nullable writer);
+void sentrykscrash_attachments_setViewHierarchyWriter(
+    SentryKSCrashAttachmentsViewHierarchyWriter _Nullable writer);
+void sentrykscrash_attachments_setSidecarPathProvider(
+    KSCrashReportSidecarPathProviderFunc _Nullable provider);
+
+#    if SENTRY_TEST || SENTRY_TEST_CI
+/** For testing. True when a screenshot writer is registered. */
+bool sentrykscrash_attachments_hasScreenshotWriter(void);
+
+/** For testing. True when a view-hierarchy writer is registered. */
+bool sentrykscrash_attachments_hasViewHierarchyWriter(void);
+
+/** For testing. Invokes the registered view-hierarchy writer, if any. */
+void sentrykscrash_attachments_invokeViewHierarchyWriter(const char *_Nonnull payloadDirectory);
+
+/** For testing. Invokes `sentrykscrash_didWriteReport` with a synthesized plan. */
+void sentrykscrash_test_invokeDidWriteReport(
+    bool isFatal, bool isCleanExit, bool crashedDuringExceptionHandling, int64_t reportID);
+
+/** For testing. True when a save-transaction callback is registered. */
+bool sentrykscrash_hasSaveTransaction(void);
+
+/** For testing. Invokes the registered save-transaction callback, if any. */
+void sentrykscrash_invokeSaveTransaction(void);
+#    endif // SENTRY_TEST || SENTRY_TEST_CI
+
+/**
+ * This is accepted as not being a async-signal-safe operation.
+ * It represents a best-effort attempt at grabbing useful information before the application is
+ * terminated.
+ */
+void sentrykscrash_attachments_capture(int64_t reportID);
+
+/** Async-signal-safe log into `Caches/io.sentry/async.log`. */
+void sentrykscrash_attachments_log(const char *_Nonnull message);
+void sentrykscrash_attachments_log_i(const char *_Nonnull message, int value);
+
+void sentrykscrash_attachments_handleDidWriteReport(void *_Nullable context, int64_t reportID);
 
 #    ifdef __cplusplus
 }

@@ -1,4 +1,8 @@
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
 final class SentryEnabledFeaturesBuilderTests: XCTestCase {
@@ -13,15 +17,15 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         // -- Assert --
 #if SDK_V10
     #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-        XCTAssertEqual(features, ["captureFailedRequests", "swiftAsyncStacktraces", "experimentalViewRenderer", "dataSwizzling", "metrics", "standaloneAppStartTracing", "watchdogTerminationsV2"])
+        XCTAssertEqual(features, ["swiftAsyncStacktraces", "standaloneAppStartTracing", "dataSwizzling", "fileManagerSwizzling", "captureFailedRequests", "metrics", "experimentalViewRenderer", "watchdogTerminationsV2"])
     #else
-        XCTAssertEqual(features, ["captureFailedRequests", "swiftAsyncStacktraces", "dataSwizzling", "metrics"])
+        XCTAssertEqual(features, ["swiftAsyncStacktraces", "dataSwizzling", "fileManagerSwizzling", "captureFailedRequests", "metrics"])
     #endif
 #else
     #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-        XCTAssertEqual(features, ["captureFailedRequests", "experimentalViewRenderer", "dataSwizzling", "metrics"])
+        XCTAssertEqual(features, ["dataSwizzling", "captureFailedRequests", "metrics", "experimentalViewRenderer"])
     #else
-        XCTAssertEqual(features, ["captureFailedRequests", "dataSwizzling", "metrics"])
+        XCTAssertEqual(features, ["dataSwizzling", "captureFailedRequests", "metrics"])
     #endif
 #endif
     }
@@ -265,10 +269,38 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         XCTAssertFalse(features.contains("fileManagerSwizzling"))
     }
 
+    func testEnableNewURLLoaderSwizzling_whenEnabled_shouldAddFeature() {
+        // -- Arrange --
+        let options = Options()
+        options.experimental.enableNewURLLoaderSwizzling = true
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertTrue(features.contains("newURLLoaderSwizzling"))
+    }
+
+    func testEnableNewURLLoaderSwizzling_whenDisabled_shouldNotAddFeature() {
+        // -- Arrange --
+        let options = Options()
+        options.experimental.enableNewURLLoaderSwizzling = false
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("newURLLoaderSwizzling"))
+    }
+
     func testEnableUnhandledCPPExceptionsV2_shouldAddFeature() throws {
         // -- Arrange --
         let options = Options()
+        #if SDK_V10
+        options.enableUnhandledCPPExceptionsV2 = true
+        #else
         options.experimental.enableUnhandledCPPExceptionsV2 = true
+        #endif // SDK_V10
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
@@ -280,7 +312,11 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     func testEnableUnhandledCPPExceptionsV2_isDisabled_shouldNotAddFeature() throws {
         // -- Arrange --
         let options = Options()
+        #if SDK_V10
+        options.enableUnhandledCPPExceptionsV2 = false
+        #else
         options.experimental.enableUnhandledCPPExceptionsV2 = false
+        #endif // SDK_V10
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
@@ -289,6 +325,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         XCTAssertFalse(features.contains("unhandledCPPExceptionsV2"))
     }
 
+    #if !SDK_V10
     func testEnableMetrics_isEnabled_shouldAddFeature() throws {
         // -- Arrange --
         let options = Options()
@@ -311,6 +348,69 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 
         // -- Assert --
         XCTAssertFalse(features.contains("metrics"))
+    }
+
+    #endif // !SDK_V10
+
+    func testEnableGraphQLOperationTracking_whenEnabled_shouldAddFeature() {
+        // -- Arrange --
+        let options = Options()
+        options.enableGraphQLOperationTracking = true
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertTrue(features.contains("graphQLOperationTracking"))
+    }
+
+    func testEnableGraphQLOperationTracking_whenDisabled_shouldNotAddFeature() {
+        // -- Arrange --
+        let options = Options()
+        options.enableGraphQLOperationTracking = false
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("graphQLOperationTracking"))
+    }
+
+    func testEnableUnhandledCPPExceptionsV2_whenDefault_shouldNotAddFeature() {
+        // -- Arrange --
+        let options = Options()
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        #if SDK_V10
+        XCTAssertFalse(options.enableUnhandledCPPExceptionsV2)
+        #else
+        XCTAssertFalse(options.experimental.enableUnhandledCPPExceptionsV2)
+        #endif // SDK_V10
+        XCTAssertFalse(features.contains("unhandledCPPExceptionsV2"))
+    }
+
+    func testEnableUnhandledCPPExceptionsV2_whenOptionIsDisabled_shouldRemoveFeature() {
+        // -- Arrange --
+        let options = Options()
+        #if SDK_V10
+        options.enableUnhandledCPPExceptionsV2 = true
+        #else
+        options.experimental.enableUnhandledCPPExceptionsV2 = true
+        #endif // SDK_V10
+        XCTAssertTrue(SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options).contains("unhandledCPPExceptionsV2"))
+
+        // -- Act --
+        #if SDK_V10
+        options.enableUnhandledCPPExceptionsV2 = false
+        #else
+        options.experimental.enableUnhandledCPPExceptionsV2 = false
+        #endif // SDK_V10
+
+        // -- Assert --
+        XCTAssertFalse(SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options).contains("unhandledCPPExceptionsV2"))
     }
 
     func testMaxFeatureFlags_isModified_shouldAddFeature() throws {
@@ -387,6 +487,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     }
     #endif // !SDK_V10
 
+    @available(*, deprecated, message: "Testing deprecated watchdog terminations V2 option")
     func testWatchdogTerminationsV2_shouldAddFeature() throws {
 #if !SDK_V10 || ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK)
         // -- Arrange --
@@ -406,6 +507,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     }
 
 #if !SDK_V10
+    @available(*, deprecated, message: "Testing deprecated watchdog terminations V2 option")
     func testEnableWatchdogTerminationsV2_isDisabled_shouldNotAddFeature() throws {
         // -- Arrange --
         let options = Options()

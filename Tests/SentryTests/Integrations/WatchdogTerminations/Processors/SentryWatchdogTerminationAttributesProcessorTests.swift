@@ -1,5 +1,9 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
 class SentryWatchdogTerminationAttributesProcessorTests: XCTestCase {
@@ -106,6 +110,28 @@ class SentryWatchdogTerminationAttributesProcessorTests: XCTestCase {
     override func setUpWithError() throws {
         fixture = try Fixture()
         sut = fixture.getSut()
+    }
+
+    func testSetTags_whenDebugLoggingIsDisabled_shouldPersistAndDeleteTags() throws {
+        // -- Arrange --
+        let oldDebug = SentrySDKLog.isDebug
+        let oldLevel = SentrySDKLog.diagnosticLevel
+        defer { SentrySDKLog.configureLog(oldDebug, diagnosticLevel: oldLevel) }
+        SentrySDKLog.configureLog(false, diagnosticLevel: .debug)
+
+        // -- Act --
+        sut.setTags(fixture.tags)
+
+        // -- Assert --
+        let data = try Data(contentsOf: fixture.scopePersistentStore.currentFileURLFor(field: .tags))
+        let tags = try JSONDecoder().decode([String: String].self, from: data)
+        XCTAssertEqual(tags, fixture.tags)
+
+        // -- Act --
+        sut.setTags(nil)
+
+        // -- Assert --
+        assertPersistedFileNotExists(field: .tags)
     }
 
     // MARK: - Context Tests

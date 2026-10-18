@@ -1,4 +1,8 @@
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
 final class SentryNetworkTrackerProxyTests: XCTestCase {
@@ -30,6 +34,28 @@ final class SentryNetworkTrackerProxyTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(firstTracker.resumeInvocations, 1)
         XCTAssertEqual(secondTracker.resumeInvocations, 1)
+    }
+
+    func testNewLoaderTarget_whenOptInChanges_shouldOnlyForwardWhileEnabled() {
+        // -- Arrange --
+        let sut = SentryNetworkTrackerProxy()
+        let tracker = TestNetworkTracker()
+        let task = URLSession.shared.dataTask(with: URL(string: "https://example.com")!)
+        defer { task.cancel() }
+
+        // -- Act --
+        sut.setTarget(tracker)
+        sut.newLoaderTarget?.urlSessionTaskResume(task)
+        sut.setTarget(tracker, enableNewURLLoaderSwizzling: true)
+        sut.newLoaderTarget?.urlSessionTaskResume(task)
+        sut.setTarget(tracker, enableNewURLLoaderSwizzling: false)
+        sut.newLoaderTarget?.urlSessionTaskResume(task)
+        sut.target?.urlSessionTaskResume(task)
+
+        // -- Assert --
+        XCTAssertEqual(tracker.resumeInvocations, 2)
+        XCTAssertNil(sut.newLoaderTarget)
+        XCTAssertIdentical(sut.target, tracker)
     }
 
     func testTarget_shouldNotRetainTarget() {
@@ -103,6 +129,7 @@ private final class TestNetworkTracker: SentryNetworkTrackerProtocol {
     }
 
     func urlSessionTask(_ sessionTask: URLSessionTask, setState newState: URLSessionTask.State) {}
+    func urlSessionTaskCompleted(_ sessionTask: URLSessionTask, error: Error?) {}
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     func captureResponseDetails(_ data: Data, response: URLResponse, request requestURL: URL, task: URLSessionTask) {}

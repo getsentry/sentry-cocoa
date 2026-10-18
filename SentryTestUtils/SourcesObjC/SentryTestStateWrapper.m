@@ -1,13 +1,16 @@
 #import "SentryTestStateWrapper.h"
 
-#import "SentryPerformanceTracker.h"
+#if __has_include("SentryPerformanceTracker.h")
+#    import "SentryPerformanceTracker.h"
+#else
+#    import "SentrySwift.h"
+#endif
 #import "SentryProfilingConditionals.h"
 #import "SentrySDKInternal.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryContinuousProfiler.h"
 #    import "SentryFileManagerHelper.h"
-#    import "SentryLaunchProfiling.h"
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryTraceProfiler.h"
@@ -67,7 +70,7 @@ wrapper_resetProfilingState(void)
 #    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
     removeAppLaunchProfilingConfigFile();
-    sentry_stopAndDiscardLaunchProfileTracer(nil);
+    [SentryLaunchProfiling stopAndDiscardLaunchProfileTracerWithHub:nil];
 
     if ([SentryContinuousProfiler isCurrentlyProfiling]) {
         [SentryContinuousProfiler stopTimerAndCleanup];

@@ -25,6 +25,7 @@ import Sentry
 /// ```swift
 /// import Logging
 /// import Sentry
+/// import SentrySwiftLog
 ///
 /// // Initialize Sentry SDK
 /// SentrySDK.start { options in

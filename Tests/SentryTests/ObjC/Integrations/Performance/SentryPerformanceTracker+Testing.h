@@ -1,0 +1,16 @@
+#if __has_include("SentryPerformanceTracker.h")
+#    import "SentryPerformanceTracker.h"
+#    import "SentrySpanId.h"
+#    import "SentrySpanInternal.h"
+#    import "SentryTracer.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface SentryPerformanceTracker (Testing) <SentryTracerDelegate>
+
+- (void)clear;
+
+@end
+
+NS_ASSUME_NONNULL_END
+#endif

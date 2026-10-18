@@ -1,4 +1,9 @@
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
 import SentryTestUtils
 import XCTest
 
@@ -30,6 +35,21 @@ class SentryInternalReplayApiIntegrationTests: XCTestCase {
             options.dsn = SentryInternalReplayApiIntegrationTests.dsnAsString
             options.removeAllIntegrations()
         }
+    }
+
+    /// Starts the SDK in buffer (on-error) mode only, so no replay is sent and
+    /// the scope's `replayId` stays nil while a buffered replay is recording.
+    /// `cacheDirectoryPath` is required so the replay can create its session
+    /// directory, and starting a session triggers the replay to begin recording
+    /// in a headless test environment.
+    private func startSDKBuffering() {
+        SentrySDK.start { options in
+            options.dsn = SentryInternalReplayApiIntegrationTests.dsnAsString
+            options.cacheDirectoryPath = FileManager.default.temporaryDirectory.path
+            options.removeAllIntegrations()
+            options.sessionReplay = SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 1)
+        }
+        SentrySDKInternal.currentHub().startSession()
     }
 
     private func getReplayIntegration() throws -> SentrySessionReplayIntegration {
@@ -102,6 +122,45 @@ class SentryInternalReplayApiIntegrationTests: XCTestCase {
         XCTAssertEqual(result, Self.validReplayId)
     }
 
+    func testReplayId_whenBufferRecording_shouldFallBackToSessionReplayId() throws {
+        // A buffer (on-error) replay is recording: the scope's `replayId` is nil,
+        // but the integration already has an id. The API must surface it so an
+        // event can be linked before the replay is flushed.
+        // Regression for getsentry/sentry-react-native#6598.
+        guard #available(iOS 16.0, tvOS 16.0, *) else {
+            throw XCTSkip("Session replay requires iOS/tvOS 16+")
+        }
+
+        #if targetEnvironment(macCatalyst)
+        if #available(macCatalyst 26.0, *) {
+            throw XCTSkip(
+                "Creating UIWindow in an unhosted Mac Catalyst test throws "
+                    + "NSInternalInconsistencyException on macOS 26 and later."
+            )
+        }
+        #endif
+
+        // -- Arrange: a window and reachability so buffer recording can start --
+        let uiApplication = TestSentryUIApplication()
+        uiApplication.windows = [UIWindow()]
+        SentryDependencyContainer.sharedInstance().applicationOverride = uiApplication
+        SentryDependencyContainer.sharedInstance().reachability = TestSentryReachability()
+
+        startSDKBuffering()
+
+        let integration = try getReplayIntegration()
+        let sessionReplay = try XCTUnwrap(integration.sessionReplay, "Buffer replay should be recording")
+        let bufferedId = try XCTUnwrap(sessionReplay.sessionReplayId?.sentryIdString)
+
+        // The scope has no replayId while only buffering.
+        var scopeReplayId: String?
+        SentrySDKInternal.currentHub().configureScope { scopeReplayId = $0.replayId }
+        XCTAssertNil(scopeReplayId)
+
+        // -- Act & Assert: the API returns the buffered id via the fallback --
+        XCTAssertEqual(SentrySDK.internal.replay.replayId, bufferedId)
+    }
+
     // MARK: - addIgnoreClasses
 
     func testAddIgnoreClasses_withReplayEnabled_shouldNotCrash() {
@@ -159,6 +218,57 @@ class SentryInternalReplayApiIntegrationTests: XCTestCase {
 
         // -- Act & Assert (no crash) --
         SentrySDK.internal.replay.setTags(["environment": "test"])
+    }
+
+    // MARK: - registerTraceId
+
+    func testRegisterTraceId_withoutReplay_shouldNotCrash() {
+        startSDKWithoutReplay()
+
+        // -- Act & Assert (no-op, no crash across the hybrid boundary) --
+        SentrySDK.internal.replay.registerTraceId(SentryId())
+    }
+
+    func testRegisterTraceId_withReplayEnabled_shouldNotCrash() {
+        startSDKWithReplay()
+
+        // -- Act & Assert (no active recording in test env; routing must not crash) --
+        SentrySDK.internal.replay.registerTraceId(SentryId())
+        SentrySDK.internal.replay.registerTraceId(SentryId.empty)
+    }
+
+    func testRegisterTraceId_whenBufferRecording_shouldRouteToRecordingReplay() throws {
+        // A buffer (on-error) replay is live-recording. Registering through the public hybrid API
+        // must reach that recording replay without crossing the boundary as an error. Segment
+        // payload content (that the id lands under `trace_ids`) is covered deterministically by
+        // SentrySessionReplayTests, which drives the real `captureSegment` path in both modes.
+        guard #available(iOS 16.0, tvOS 16.0, *) else {
+            throw XCTSkip("Session replay requires iOS/tvOS 16+")
+        }
+
+        #if targetEnvironment(macCatalyst)
+        if #available(macCatalyst 26.0, *) {
+            throw XCTSkip(
+                "Creating UIWindow in an unhosted Mac Catalyst test throws "
+                    + "NSInternalInconsistencyException on macOS 26 and later."
+            )
+        }
+        #endif
+
+        // -- Arrange: a window and reachability so buffer recording can start --
+        let uiApplication = TestSentryUIApplication()
+        uiApplication.windows = [UIWindow()]
+        SentryDependencyContainer.sharedInstance().applicationOverride = uiApplication
+        SentryDependencyContainer.sharedInstance().reachability = TestSentryReachability()
+
+        startSDKBuffering()
+
+        let integration = try getReplayIntegration()
+        let sessionReplay = try XCTUnwrap(integration.sessionReplay, "Buffer replay should be recording")
+
+        // -- Act & Assert: registering through the public API reaches the live recording replay --
+        SentrySDK.internal.replay.registerTraceId(SentryId(uuidString: Self.validReplayId))
+        XCTAssertTrue(sessionReplay.isRunning)
     }
 }
 

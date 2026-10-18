@@ -11,7 +11,8 @@
   "excludes": [
     ".github/labeler.yml",
     "Tests/Resources/**/*garbage*.json",
-    "sdk_api*.json"
+    "sdk_api*.json",
+    "**/*.docc/**"
   ],
   "plugins": [
     "https://plugins.dprint.dev/json-0.20.0.wasm",

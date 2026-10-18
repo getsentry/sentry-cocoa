@@ -1,0 +1,127 @@
+#import "AppDelegate.h"
+#import "RaiseUncaughtNSException.h"
+@import CoreData;
+@import SentryObjC;
+@import SentrySampleShared;
+
+@implementation AppDelegate
+
+- (BOOL)application:(UIApplication *)application
+    didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+{
+    NSArray<NSString *> *args = NSProcessInfo.processInfo.arguments;
+    NSDictionary<NSString *, NSString *> *env = NSProcessInfo.processInfo.environment;
+
+    [SentryObjCSDK startWithConfigureOptions:^(SentryObjCOptions *options) {
+        options.dsn = @"https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557";
+        options.debug = YES;
+        options.attachScreenshot = YES;
+        options.attachViewHierarchy = YES;
+        [SentrySampleDataCollectionConfiguration configureWithObjCOptions:options];
+
+        if (env[@"--io.sentry.tracesSamplerValue"] != nil) {
+            options.tracesSampler
+                = ^NSNumber *_Nullable(SentryObjCSamplingContext *_Nonnull samplingContext)
+            {
+                return @([env[@"--io.sentry.tracesSamplerValue"] doubleValue]);
+            };
+        }
+
+        options.tracesSampleRate = @1.0;
+        if (env[@"--io.sentry.tracesSampleRate"] != nil) {
+            options.tracesSampleRate = @([env[@"--io.sentry.tracesSampleRate"] doubleValue]);
+        }
+
+        if (![args containsObject:@"--io.sentry.profiling.disable-ui-profiling"]) {
+            options.configureProfiling = ^(SentryObjCProfileOptions *_Nonnull profiling) {
+                profiling.lifecycle =
+                    [args containsObject:@"--io.sentry.profiling.profile-lifecycle-manual"]
+                    ? SentryObjCProfileLifecycleManual
+                    : SentryObjCProfileLifecycleTrace;
+
+                profiling.sessionSampleRate = 1.f;
+                if (env[@"--io.sentry.profiling.profile-session-sample-rate"] != nil) {
+                    profiling.sessionSampleRate =
+                        [env[@"--io.sentry.profiling.profile-session-sample-rate"] floatValue];
+                }
+            };
+        }
+
+        SentryObjCHttpStatusCodeRange *httpStatusCodeRange =
+            [[SentryObjCHttpStatusCodeRange alloc] initWithMin:400 max:599];
+        options.failedRequestStatusCodes = @[ httpStatusCodeRange ];
+
+        SentryObjCReplayOptions *sessionReplay = [[SentryObjCReplayOptions alloc] init];
+        sessionReplay.sessionSampleRate = 0;
+        sessionReplay.onErrorSampleRate = 1;
+        sessionReplay.maskAllText = YES;
+        sessionReplay.maskAllImages = YES;
+        sessionReplay.enableViewRendererV2 = ![args containsObject:@"--disable-view-renderer-v2"];
+        sessionReplay.enableFastViewRendering
+            = ![args containsObject:@"--disable-fast-view-rendering"];
+        options.sessionReplay = sessionReplay;
+
+        options.enableFileManagerSwizzling
+            = ![args containsObject:@"--disable-filemanager-swizzling"];
+
+        options.initialScope = ^SentryObjCScope *(SentryObjCScope *scope) {
+            [GitInjector objc_injectGitInformationInto:scope];
+            return scope;
+        };
+
+        options.configureUserFeedback = ^(SentryObjCUserFeedbackConfiguration *_Nonnull config) {
+            if ([args containsObject:@"--io.sentry.feedback.all-defaults"]) {
+                return;
+            }
+            config.useShakeGesture = YES;
+            config.showFormForScreenshots = YES;
+            config.configureForm = ^(SentryObjCUserFeedbackFormConfiguration *_Nonnull uiForm) {
+                uiForm.formTitle = @"Jank Report";
+                uiForm.submitButtonLabel = @"Report that jank";
+                uiForm.messagePlaceholder
+                    = @"Describe the nature of the jank. Its essence, if you will.";
+                uiForm.useSentryUser = YES;
+            };
+            config.configureTheme = ^(SentryObjCUserFeedbackThemeConfiguration *_Nonnull theme) {
+                theme.fontFamily = @"ChalkboardSE-Regular";
+                theme.outlineStyle = [[SentryObjCUserFeedbackFormElementOutlineStyle alloc]
+                    initWithColor:UIColor.purpleColor
+                     cornerRadius:10
+                     outlineWidth:4];
+            };
+            config.onSubmitSuccess = ^(NSDictionary<NSString *, id> *_Nonnull info) {
+                NSLog(@"Feedback submitted successfully: %@", info);
+            };
+            config.onSubmitError
+                = ^(NSError *_Nonnull error) { NSLog(@"Failed to submit feedback: %@", error); };
+        };
+    }];
+
+    if ([args containsObject:@"--io.sentry.crash.huge-nsexception"] ||
+        [args containsObject:@"--io.sentry.crash.short-nsexception"]) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSString *reason = [@"iOS-ObjectiveC short NSException" copy];
+            if ([args containsObject:@"--io.sentry.crash.huge-nsexception"]) {
+                NSString *padding = [@"" stringByPaddingToLength:200000
+                                                      withString:@"a"
+                                                 startingAtIndex:0];
+                reason = [@"iOS-ObjectiveC huge NSException " stringByAppendingString:padding];
+            }
+            RaiseUncaughtNSException(@"HugeNSException", reason);
+        });
+    }
+
+    return YES;
+}
+
+#pragma mark - UISceneSession lifecycle
+
+- (UISceneConfiguration *)application:(UIApplication *)application
+    configurationForConnectingSceneSession:(UISceneSession *)connectingSceneSession
+                                   options:(UISceneConnectionOptions *)options
+{
+    return [[UISceneConfiguration alloc] initWithName:@"Default Configuration"
+                                          sessionRole:connectingSceneSession.role];
+}
+
+@end

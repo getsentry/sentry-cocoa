@@ -11,7 +11,6 @@
 #    import "SentryEvent+Private.h"
 #    import "SentryHub+Private.h"
 #    import "SentryInternalDefines.h"
-#    import "SentryLaunchProfiling.h"
 #    import "SentryProfileConfiguration.h"
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfiler+Private.h"
@@ -252,10 +251,11 @@ sentry_stopProfilerDueToFinishedTransaction(SentryHubInternal *hub,
             SENTRY_UNWRAP_NULLABLE(SentryProfileOptions, profileConfiguration.profileOptions))) {
         SENTRY_LOG_DEBUG(@"Stopping launch UI trace profile.");
         sentry_stopTrackingRootSpanForContinuousProfilerV2();
-        // The launch tracer is intentionally discarded by sentry_stopAndDiscardLaunchProfileTracer.
-        // Other transactions finishing during the launch profiling window (e.g., manual
-        // transactions or app start transactions) must still be captured.
-        if (transaction.trace != sentry_launchTracer) {
+        // The launch tracer is intentionally discarded by
+        // SentryLaunchProfiling.stopAndDiscardLaunchProfileTracer. Other transactions finishing
+        // during the launch profiling window (e.g., manual transactions or app start transactions)
+        // must still be captured.
+        if (transaction.trace != sentry_getLaunchTracer()) {
             [hub captureTransaction:transaction withScope:hub.scope];
         }
         return;
@@ -372,7 +372,7 @@ SentryId *_Nullable sentry_startProfilerForTrace(
     BOOL profileShouldBeSampled
         = sentry_samplerDecisionEquals(profilesSamplerDecision, kSentrySampleDecisionYes);
 
-    if (sentry_isTracingAppLaunch || profileShouldBeSampled) {
+    if (sentry_isTracingAppLaunch() || profileShouldBeSampled) {
         SentryId *internalID = sentry_getSentryId();
         if ([SentryTraceProfiler startWithTracer:internalID]) {
             SENTRY_LOG_DEBUG(@"Started profiler for trace %@ with internal id %@",

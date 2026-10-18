@@ -4,7 +4,7 @@ internal import _SentryPrivate
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
-typealias SessionReplayIntegrationScope = NotificationCenterProvider & RateLimitsProvider & CurrentDateProvider & RandomProvider & FileManagerProvider & DebuggerStatusProviderProvider & ReachabilityProvider & GlobalEventProcessorProvider & DispatchQueueWrapperProvider & ApplicationProvider & DispatchFactoryProvider & SessionReplayCaptureSchedulerProvider & SessionReplayBreadcrumbConverterProvider
+typealias SessionReplayIntegrationScope = NotificationCenterProvider & RateLimitsProvider & CurrentDateProvider & RandomProvider & FileManagerProvider & DebuggerStatusProviderProvider & ReachabilityProvider & GlobalEventProcessorProvider & DispatchQueueWrapperProvider & ApplicationProvider & DispatchFactoryProvider & SessionReplayCaptureSchedulerProvider & SessionReplayBreadcrumbConverterProvider & ReplayRecoveryIdleGateProvider
 
 // This is static because it will be used for swizzling and would cause retain cycles
 private var touchTracker: SentryTouchTracker?
@@ -99,7 +99,8 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
             replayProcessingQueue: replayProcessingQueue,
             replayAssetWorkerQueue: replayAssetWorkerQueue,
             replayFileManager: replayFileManager,
-            breadcrumbConverter: breadcrumbConverter
+            breadcrumbConverter: breadcrumbConverter,
+            idleGate: dependencies.replayRecoveryIdleGate
         )
         
         setupTouchTrackerIfNeeded(options: options)
@@ -173,13 +174,46 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     private func registerEventProcessor(dependencies: SessionReplayIntegrationScope) {
         dependencies.globalEventProcessor.add { [weak self] event in
             guard let self = self else { return event }
+            // Feedback capture resolves its replay before processing, including the form's
+            // opening-time association. Do not replace it with the current session's ID.
+            if event.type == SentryEnvelopeItemTypes.feedback {
+                return event
+            }
             if event.isFatalEvent {
+                // A crash belongs to the previous session, which is recovered and sent separately.
+                // Don't register its trace on the current session's replay: the crash's persisted
+                // trace would be attached to the wrong (new) segment while the recovered replay
+                // never receives it.
                 self.replayRecovery?.resumePreviousSessionReplay(event)
             } else {
+                // Associate the event's trace with the recording replay segment (#7964), so replays
+                // can be searched by trace ID. Skip replay_video events, which carry no trace of
+                // their own.
+                if event.type != SentryEnvelopeItemTypes.replayVideo,
+                    let traceId = traceId(for: event) {
+                    self.sessionReplay?.registerTraceId(traceId)
+                }
                 self.sessionReplay?.captureReplayFor(event: event)
             }
             return event
         }
+    }
+
+    /// The trace ID an event belongs to, for associating it with the replay segment.
+    ///
+    /// Transactions are read from their own trace because, after the tracer leaves the scope,
+    /// the event's `context["trace"]` may hold the idle propagation trace instead. Other events
+    /// (e.g. errors) carry the correct trace in their context, populated by the scope before
+    /// processors run.
+    private func traceId(for event: Event) -> SentryId? {
+        if let transaction = event as? Transaction {
+            return transaction.trace.traceId
+        }
+        guard let hexString = event.context?["trace"]?["trace_id"] as? String else {
+            return nil
+        }
+        let traceId = SentryId(uuidString: hexString)
+        return traceId == SentryId.empty ? nil : traceId
     }
 
     // MARK: - Session Listener
@@ -364,7 +398,13 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         sessionReplay?.pause()
         touchTracker?.disable()
         removeBackgroundForegroundObservers()
+        // Clear the replay first because the replay ID getter falls back to it when the scope ID is nil.
+        // Reversing this order could briefly return the ID of the replay that just stopped.
         sessionReplay = nil
+        // Clear the scope's replayId so events captured after a manual stop() are not associated with a
+        // replay that is no longer recording. This mirrors sessionReplayEnded(), which is only reached on
+        // the maximum-duration teardown path and never for a manual stop().
+        SentrySDKInternal.currentHub().configureScope { scope in scope.replayId = nil }
     }
 
     // MARK: - API Exposed to ObjC
@@ -425,6 +465,13 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         return sessionReplay?.captureReplay() ?? false 
     }
 
+    /// Samples and flushes the active replay for feedback, returning its association when captured.
+    @objc public func captureReplayForFeedback() -> SentryId? {
+        guard let sessionReplay = sessionReplay else { return nil }
+        guard sessionReplay.isFullSession || replayOptions.onErrorSampleRate > 0 else { return nil }
+        return sessionReplay.captureForFeedback()
+    }
+
     @objc public func configureReplayWith(_ breadcrumbConverter: SentryReplayBreadcrumbConverter?, screenshotProvider: SentryViewScreenshotProvider?) {
         SentrySDKLog.debug("[Session Replay] Configuring replay")
         if let bc = breadcrumbConverter {
@@ -440,7 +487,15 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
 
     @objc public func setReplayTags(_ tags: [String: Any]) {
         SentrySDKLog.debug("[Session Replay] Setting replay tags: \(tags)")
-        sessionReplay?.replayTags = tags 
+        sessionReplay?.replayTags = tags
+    }
+
+    /// Registers a trace ID with the current replay segment.
+    ///
+    /// No-op when no replay is recording. Reachable from hybrid SDKs through
+    /// `SentrySDK.internal.replay.registerTraceId(_:)`.
+    @objc public func registerReplayTraceId(_ traceId: SentryId) {
+        sessionReplay?.registerTraceId(traceId)
     }
 
     @objc public func showMaskPreview(_ opacity: Float) {
@@ -494,10 +549,12 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     public func sessionReplayEnded() {
         SentrySDKLog.debug("[Session Replay] Session replay ended")
         isPendingStart = false
+        // Clear the replay first because the replay ID getter falls back to it when the scope ID is nil.
+        // Reversing this order could briefly return the ID of the replay that just ended.
+        sessionReplay = nil
         SentrySDKInternal.currentHub().configureScope { scope in scope.replayId = nil }
         touchTracker?.disable()
         removeBackgroundForegroundObservers()
-        sessionReplay = nil
     }
 
     public func breadcrumbsForSessionReplay() -> [Breadcrumb] {

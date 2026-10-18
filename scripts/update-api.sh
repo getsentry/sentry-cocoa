@@ -49,18 +49,20 @@ end_group
 # Build both frameworks at once, as they depend on each other
 begin_group "Build Sentry-Dynamic XCFramework"
 log_info "Building Sentry-Dynamic slice"
-"$SCRIPT_DIR/build-xcframework-slice.sh" "iphoneos" "Sentry" "-Dynamic" "mh_dylib"
+"$SCRIPT_DIR/build-xcframework-slice.sh" --sdk iphoneos --scheme Sentry --suffix '-Dynamic' --mach-o-type mh_dylib
 
 log_info "Assembling Sentry-Dynamic xcframework"
-"$SCRIPT_DIR/assemble-xcframework.sh" "Sentry" "-Dynamic" "" "iphoneos" "$(pwd)/XCFrameworkBuildPath/archive/Sentry-Dynamic/SDK_NAME.xcarchive"
+"$SCRIPT_DIR/assemble-xcframework.sh" --scheme Sentry --suffix '-Dynamic' --sdks iphoneos \
+    --archive-template "$(pwd)/XCFrameworkBuildPath/archive/Sentry-Dynamic/SDK_NAME.xcarchive"
 end_group
 
 begin_group "Build SentrySwiftUI XCFramework"
 log_info "Building SentrySwiftUI slice"
-"$SCRIPT_DIR/build-xcframework-slice.sh" "iphoneos" "SentrySwiftUI" "" "mh_dylib"
+"$SCRIPT_DIR/build-xcframework-slice.sh" --sdk iphoneos --scheme SentrySwiftUI --mach-o-type mh_dylib
 
 log_info "Assembling SentrySwiftUI xcframework"
-"$SCRIPT_DIR/assemble-xcframework.sh" "SentrySwiftUI" "" "" "iphoneos" "$(pwd)/XCFrameworkBuildPath/archive/SentrySwiftUI/SDK_NAME.xcarchive"
+"$SCRIPT_DIR/assemble-xcframework.sh" --scheme SentrySwiftUI --sdks iphoneos \
+    --archive-template "$(pwd)/XCFrameworkBuildPath/archive/SentrySwiftUI/SDK_NAME.xcarchive"
 end_group
 
 begin_group "Extract Public API"

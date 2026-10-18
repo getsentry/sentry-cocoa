@@ -1,7 +1,12 @@
 #if os(iOS) || os(tvOS) || os(visionOS)
 
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 @_spi(Private) @testable import SentryTestUtils
+import _SentryPrivate
 import XCTest
 
 class SentryViewHierarchyIntegrationTests: XCTestCase {
@@ -32,6 +37,9 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         fixture = Fixture()
 
         SentryDependencyContainer.sharedInstance().viewHierarchyProvider = fixture.viewHierarchyProvider
+#if SDK_V10
+        sentrykscrash_attachments_setViewHierarchyWriter(nil)
+#endif
     }
 
     override func tearDown() {
@@ -50,9 +58,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         }
 
         XCTAssertEqual(SentrySDKInternal.currentHub().getClient()?.attachmentProcessors.count, 0)
-#if !SENTRY_DISABLE_SENTRYCRASH_V10
-        // KSCRASH_TODO(GH-8273, GH-8532): V10 has no fatal view-hierarchy callback.
-        // Acceptance: SCV10-009 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+#if !SDK_V10
         XCTAssertFalse(sentrycrash_hasSaveViewHierarchyCallback())
 #endif
     }
@@ -67,9 +73,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         }
 
         XCTAssertEqual(SentrySDKInternal.currentHub().getClient()?.attachmentProcessors.count, 1)
-#if !SENTRY_DISABLE_SENTRYCRASH_V10
-        // KSCRASH_TODO(GH-8273, GH-8532): V10 does not install a fatal view-hierarchy callback.
-        // Acceptance: SCV10-009 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+#if !SDK_V10
         XCTAssertTrue(sentrycrash_hasSaveViewHierarchyCallback())
 #endif
     }
@@ -81,12 +85,71 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         }
         SentrySDK.close()
         XCTAssertNil(SentrySDKInternal.currentHub().getClient()?.attachmentProcessors)
-#if !SENTRY_DISABLE_SENTRYCRASH_V10
-        // KSCRASH_TODO(GH-8273, GH-8532): V10 has no fatal view-hierarchy callback to remove.
-        // Acceptance: SCV10-009 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+#if !SDK_V10
         XCTAssertFalse(sentrycrash_hasSaveViewHierarchyCallback())
 #endif
     }
+
+#if SDK_V10
+    func testInstall_whenAttachViewHierarchyDisabled_shouldNotRegisterCrashWriter() {
+        // -- Arrange --
+        SentrySDK.start {
+            $0.removeAllIntegrations()
+            $0.attachViewHierarchy = false
+        }
+        defer {
+            SentrySDK.close()
+        }
+
+        // -- Assert --
+        XCTAssertFalse(sentrykscrash_attachments_hasViewHierarchyWriter())
+    }
+
+    func testInstall_whenAttachViewHierarchyEnabled_shouldRegisterCrashWriter() {
+        // -- Arrange --
+        SentrySDK.start {
+            $0.removeAllIntegrations()
+            $0.attachViewHierarchy = true
+        }
+        defer {
+            SentrySDK.close()
+        }
+
+        // -- Assert --
+        XCTAssertTrue(sentrykscrash_attachments_hasViewHierarchyWriter())
+    }
+
+    func testUninstall_whenSDKCloses_shouldClearCrashWriter() {
+        // -- Arrange --
+        SentrySDK.start {
+            $0.removeAllIntegrations()
+            $0.attachViewHierarchy = true
+        }
+
+        // -- Act --
+        SentrySDK.close()
+
+        // -- Assert --
+        XCTAssertFalse(sentrykscrash_attachments_hasViewHierarchyWriter())
+    }
+
+    func testCrashTimeWriter_whenInvoked_shouldSaveViewHierarchyToPayloadDirectory() {
+        // -- Arrange --
+        SentrySDK.start {
+            $0.removeAllIntegrations()
+            $0.attachViewHierarchy = true
+        }
+        defer {
+            SentrySDK.close()
+        }
+
+        // -- Act --
+        sentrykscrash_attachments_invokeViewHierarchyWriter("/test/path")
+
+        // -- Assert --
+        XCTAssertEqual("/test/path/view-hierarchy.json", fixture.viewHierarchyProvider.saveFilePathUsed)
+    }
+#endif
 
     func test_integrationAddFileName() {
         SentrySDK.start {
@@ -256,7 +319,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         SentryDependencyContainer.sharedInstance().viewHierarchyProvider = testVH
 
         let event = Event()
-        event.exceptions = [Sentry.Exception(value: "test", type: "App Hanging")]
+        event.exceptions = [Exception(value: "test", type: "App Hanging")]
         
         let ex = expectation(description: "Attachment Added")
         

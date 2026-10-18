@@ -1,4 +1,8 @@
-@testable import Sentry
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
+@_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
@@ -47,7 +51,9 @@ private class MockHub: Hub {
     func captureNonTerminatingEnvelope(_ envelope: SentryEnvelope) {}
     func updateSessionForDroppedEventNonTerminating(unhandled: Bool) {}
     func captureErrorEvent(event: Event) {}
+    func captureErrorEvent(event: Event, hint: Hint) {}
     func setTrace(_ traceId: SentryId, spanId: SpanId) {}
+    func getSessionReplayId() -> String? { nil }
     var currentOptions: Options? { options }
     var options: Options { Options() }
     var scope: Scope { Scope() }

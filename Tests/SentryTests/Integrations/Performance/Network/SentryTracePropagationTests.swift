@@ -1,3 +1,10 @@
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
+@_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
+import SentryTestUtils
 import XCTest
 
 final class SentryTracePropagationTests: XCTestCase {

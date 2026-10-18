@@ -1,5 +1,9 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
 final class SentryRunLoopDelayTrackerTests: XCTestCase {
@@ -785,11 +789,11 @@ private class RunLoopDeinitSentinel {
 private class MockDependencies: SentryRunLoopDelayTrackerDependencies {
     let mockDateProvider = TestCurrentDateProvider()
 
-    var dateProvider: any Sentry.SentryCurrentDateProvider {
+    var dateProvider: any SentryCurrentDateProvider {
         mockDateProvider
     }
 
-    func application() -> (any Sentry.SentryApplication)? { nil }
+    func application() -> (any SentryApplication)? { nil }
 }
 
 private struct TestRunLoopObserver: SentryRunLoopObserver { }

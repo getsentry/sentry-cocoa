@@ -14,16 +14,16 @@ extension SentryKSCrash {
         ) -> Void
 
         private let sendReport: SendReport
-        private let cleanupOrphanedRunSidecars: () -> Void
+        private let cleanupOrphanedSidecars: () -> Void
         private let processingSession: ReportProcessingSession
 
         init(
             sendReport: @escaping SendReport,
-            cleanupOrphanedRunSidecars: @escaping () -> Void,
+            cleanupOrphanedSidecars: @escaping () -> Void,
             processingSession: ReportProcessingSession
         ) {
             self.sendReport = sendReport
-            self.cleanupOrphanedRunSidecars = cleanupOrphanedRunSidecars
+            self.cleanupOrphanedSidecars = cleanupOrphanedSidecars
             self.processingSession = processingSession
         }
 
@@ -51,20 +51,20 @@ extension SentryKSCrash {
             guard !prioritizedReportIDs.isEmpty else {
                 sendReports(
                     remainingReportIDs[...],
-                    onCompletion: cleanupOrphanedRunSidecars
+                    onCompletion: cleanupOrphanedSidecars
                 )
                 return
             }
 
             sendReports(prioritizedReportIDs[...]) { [self] in
                 guard !processingSession.isCancelled else {
-                    cleanupOrphanedRunSidecars()
+                    cleanupOrphanedSidecars()
                     return
                 }
                 onPrioritizedReportsCompleted()
                 sendReports(
                     remainingReportIDs[...],
-                    onCompletion: cleanupOrphanedRunSidecars
+                    onCompletion: cleanupOrphanedSidecars
                 )
             }
         }
@@ -74,7 +74,7 @@ extension SentryKSCrash {
             onCompletion: @escaping () -> Void
         ) {
             guard !processingSession.isCancelled else {
-                cleanupOrphanedRunSidecars()
+                cleanupOrphanedSidecars()
                 return
             }
             guard let reportID = reportIDs.first else {

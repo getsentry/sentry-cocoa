@@ -1,5 +1,12 @@
 #if canImport(UIKit) && !os(watchOS)
+#if canImport(UIKit)
+import UIKit
+#endif
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 
 final class TestSentryUIApplication: SentryApplication {
     func getKeyWindow() -> UIWindow? {
@@ -45,8 +52,12 @@ final class TestSentryUIApplication: SentryApplication {
     }
 
     private var _underlyingAppState: UIApplication.State = .active
+    private(set) var unsafeApplicationStateReadCount = 0
     var unsafeApplicationState: UIApplication.State {
-        get { _underlyingAppState }
+        get {
+            unsafeApplicationStateReadCount += 1
+            return _underlyingAppState
+        }
         set { _underlyingAppState = newValue }
     }
 

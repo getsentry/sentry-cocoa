@@ -1,6 +1,12 @@
 // swiftlint:disable file_length
+#if !SDK_V10
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
 import XCTest
 
 class SentryCrashIntegrationTests: NotificationCenterTestCase {
@@ -97,6 +103,41 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     override class func tearDown() {
         SentryDependencyContainer.sharedInstance().crashReporter.uninstall()
         super.tearDown()
+    }
+
+    func testNSExceptionMonitor_whenDisablingWithDebugLogging_shouldNotUseSDKLogOutput() throws {
+        // -- Arrange --
+        let api = try XCTUnwrap(sentrycrashcm_nsexception_getAPI())
+        let setEnabled = try XCTUnwrap(api.pointee.setEnabled)
+        let isEnabled = try XCTUnwrap(api.pointee.isEnabled)
+        let wasEnabled = isEnabled()
+        let oldDebug = SentrySDKLog.isDebug
+        let oldLevel = SentrySDKLog.diagnosticLevel
+        let oldOutput = SentrySDKLog.getLogOutput()
+        defer {
+            SentrySDKLog.setOutput(oldOutput)
+            SentrySDKLogSupport.configure(oldDebug, diagnosticLevel: oldLevel)
+            setEnabled(wasEnabled)
+        }
+
+        setEnabled(true)
+        SentrySDKLogSupport.configure(true, diagnosticLevel: .debug)
+        let logOutput = TestLogOutput()
+        let shutdownThread = Thread.current
+        SentrySDKLog.setOutput { message in
+            // SDK initialization can still be logging on background threads.
+            if Thread.current === shutdownThread {
+                logOutput.log(message)
+            }
+        }
+
+        // -- Act --
+        setEnabled(false)
+
+        // -- Assert --
+        XCTAssertFalse(isEnabled())
+        XCTAssertEqual(logOutput.loggedMessages.count, 0,
+                       "Disabling the NSException monitor must use async-safe logging because other threads can hold stdout's lock. SDK logs: \(logOutput.loggedMessages)")
     }
 
     // Test for GH-581
@@ -201,6 +242,64 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
 
         assertCrashedSessionStored(expected: expectedCrashedSession)
     }
+
+#if !SDK_V10
+    func testProductionInstaller_whenWrapperOverridden_shouldFinalizeSessionWithOverride() throws {
+        // -- Arrange --
+        let container = SentryDependencyContainer.sharedInstance()
+        let defaultWrapper = container.crashWrapper
+        let override = fixture.sentryCrash
+        container.crashWrapper = override
+        container.fileManager = fixture.client.fileManager
+        let expectedSession = givenCrashedSession()
+        SentrySDKInternal.setCurrentHub(fixture.hub)
+        try advanceTime(bySeconds: 10)
+
+        // -- Act --
+        // Exercise the registered production provider, not MockCrashDependencies.
+        let integration = try XCTUnwrap(SentryCrashV9Backend.installIntegration(
+            options: fixture.options,
+            dependencies: container
+        ))
+        defer { integration.uninstall() }
+
+        // -- Assert --
+        XCTAssertFalse(defaultWrapper === override)
+        XCTAssertIdentical(container.crashWrapper, override)
+        assertCrashedSessionStored(expected: expectedSession)
+    }
+
+    func testProductionInstaller_whenWrapperOverridden_shouldUseOverrideInReportSink() throws {
+        // -- Arrange --
+        let container = SentryDependencyContainer.sharedInstance()
+        fixture.sentryCrash.internalCrashedLastLaunch = false
+        fixture.sentryCrash.internalDurationFromCrashStateInitToLastCrash = 0.001
+        container.crashWrapper = fixture.sentryCrash
+        container.dispatchQueueWrapper = fixture.dispatchQueueWrapper
+        SentrySDKInternal.setCurrentHub(fixture.hub)
+        XCTAssertFalse(SentrySDK.detectedStartUpCrash)
+        let integration = try XCTUnwrap(SentryCrashV9Backend.installIntegration(
+            options: fixture.options,
+            dependencies: container
+        ))
+        defer {
+            sentrycrash_deleteAllReports()
+            integration.uninstall()
+        }
+        // A minimal stored report is enough to reach the installed sink. Conversion/capture
+        // is not under test; the wrapper's duration must trigger startup-crash handling.
+        let reportId = "{}".withCString { sentrycrash_addUserReport($0, 2) }
+        XCTAssertGreaterThan(reportId, 0)
+        let completed = expectation(description: "Production report sink completed")
+
+        // -- Act --
+        container.crashReporter.sendAllReports { _, _, _ in completed.fulfill() }
+        wait(for: [completed], timeout: 5)
+
+        // -- Assert --
+        XCTAssertTrue(SentrySDK.detectedStartUpCrash)
+    }
+#endif // !SDK_V10
 
     func testEndSessionAsCrashed_WithPendingUnhandledCurrentSession_EndsSessionAsCrashed() throws {
         try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
@@ -586,80 +685,72 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     func testUncaughtExceptions_Enabled() throws {
         try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
-        defer { resetUserDefaults() }
-
+        // -- Arrange --
         let options = Options()
         options.enableUncaughtNSExceptionReporting = true
         options.enableSwizzling = true
         options.enableCrashHandler = true
 
-        let (_, _) = try givenSutWithGlobalHubAndCrashWrapper(options)
-
-        XCTAssertTrue(UserDefaults.standard.bool(forKey: "NSApplicationCrashOnExceptions"))
-        // We have to set the flat to false, cause otherwise we would crash
-        UserDefaults.standard.set(false, forKey: "NSApplicationCrashOnExceptions")
-
-        let crashReporter = SentryDependencyContainer.sharedInstance().crashReporter
-
-        defer {
-            crashReporter.uncaughtExceptionHandler = nil
-            wasUncaughtExceptionHandlerCalled = false
-        }
-        crashReporter.uncaughtExceptionHandler = uncaughtExceptionHandler
-
-        NSApplication.shared.reportException(uncaughtInternalInconsistencyException)
-        XCTAssertTrue(wasUncaughtExceptionHandlerCalled)
+        // -- Act & Assert --
+        try assertUncaughtExceptionConfiguration(options: options, expectedCallCount: 1)
     }
 
     func testUncaughtExceptions_Enabled_ButSwizzlingDisabled() throws {
         try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
-        defer { resetUserDefaults() }
-
+        // -- Arrange --
         let options = Options()
         options.enableUncaughtNSExceptionReporting = true
         options.enableSwizzling = false
         options.enableCrashHandler = true
 
-        let (_, _) = try givenSutWithGlobalHubAndCrashWrapper(options)
-
-        XCTAssertFalse(UserDefaults.standard.bool(forKey: "NSApplicationCrashOnExceptions"))
-
-        let crashReporter = SentryDependencyContainer.sharedInstance().crashReporter
-
-        defer {
-            crashReporter.uncaughtExceptionHandler = nil
-            wasUncaughtExceptionHandlerCalled = false
-        }
-        crashReporter.uncaughtExceptionHandler = uncaughtExceptionHandler
-
-        NSApplication.shared.reportException(uncaughtInternalInconsistencyException)
-        XCTAssertFalse(wasUncaughtExceptionHandlerCalled)
+        // -- Act & Assert --
+        try assertUncaughtExceptionConfiguration(options: options, expectedCallCount: 0)
     }
 
     func testUncaughtExceptions_Disabled() throws {
         try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
-        defer { resetUserDefaults() }
-
+        // -- Arrange --
         let options = Options()
         options.enableUncaughtNSExceptionReporting = false
+        options.enableSwizzling = true
         options.enableCrashHandler = true
 
-        let (_, _) = try givenSutWithGlobalHubAndCrashWrapper(options)
+        // -- Act & Assert --
+        try assertUncaughtExceptionConfiguration(options: options, expectedCallCount: 0)
+    }
 
-        XCTAssertFalse(UserDefaults.standard.bool(forKey: "NSApplicationCrashOnExceptions"))
-
-        let crashReporter = SentryDependencyContainer.sharedInstance().crashReporter
-
+    private func assertUncaughtExceptionConfiguration(options: Options, expectedCallCount: Int) throws {
+        // These integration tests verify option gating. Real defaults registration and AppKit
+        // swizzles are covered by SentryUncaughtNSExceptionsTests and outlive an SDK instance:
+        // resetUserDefaults cannot undo registration defaults or once-only swizzles.
+        let selectors = [
+            #selector(SentryUncaughtNSExceptions.configureCrashOnExceptions),
+            #selector(SentryUncaughtNSExceptions.swizzleNSApplicationReportException),
+            #selector(SentryUncaughtNSExceptions.swizzleNSApplicationCrashOnException)
+        ]
+        var calls: [Selector] = []
+        var replacements: [(method: Method, original: IMP, replacement: IMP)] = []
         defer {
-            crashReporter.uncaughtExceptionHandler = nil
-            wasUncaughtExceptionHandlerCalled = false
+            for replacement in replacements.reversed() {
+                method_setImplementation(replacement.method, replacement.original)
+                imp_removeBlock(replacement.replacement)
+            }
         }
-        crashReporter.uncaughtExceptionHandler = uncaughtExceptionHandler
+        for selector in selectors {
+            let method = try XCTUnwrap(class_getClassMethod(SentryUncaughtNSExceptions.self, selector))
+            let block: @convention(block) (AnyObject) -> Void = { _ in calls.append(selector) }
+            let replacement = imp_implementationWithBlock(block)
+            let original = method_setImplementation(method, replacement)
+            replacements.append((method, original, replacement))
+        }
 
-        NSApplication.shared.reportException(uncaughtInternalInconsistencyException)
-        XCTAssertFalse(wasUncaughtExceptionHandlerCalled)
+        _ = try givenSutWithGlobalHubAndCrashWrapper(options)
+
+        for selector in selectors {
+            XCTAssertEqual(calls.filter { $0 == selector }.count, expectedCallCount, NSStringFromSelector(selector))
+        }
     }
 #endif // os(macOS)
 
@@ -1066,34 +1157,49 @@ class MockCrashDependencies: CrashIntegrationProvider {
         self.mockedFileManager = fileManager
     }
 
-    var appStateManager: Sentry.SentryAppStateManager {
+    var crashWrapper: SentryCrashReporter {
+        mockedCrashWrapper
+    }
+
+    var appStateManager: SentryAppStateManager {
         SentryDependencyContainer.sharedInstance().appStateManager
     }
 
-    var fileManager: Sentry.SentryFileManager? {
+    var fileManager: SentryFileManager? {
         mockedFileManager ?? SentryDependencyContainer.sharedInstance().fileManager
     }
 
-    func getCrashIntegrationSessionBuilder(_ options: Sentry.Options, bridge: SentryCrashBridge) -> Sentry.SentryCrashIntegrationSessionHandler? {
+    func finalizePreviousRunSession(
+        options: Options,
+        crashedLastLaunch: Bool,
+        activeDurationSinceLastCrash: TimeInterval
+    ) {
         guard let fileManager else {
-            return nil
+            return
         }
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         let watchdogLogic = SentryWatchdogTerminationLogic(options: options,
                                                    crashAdapter: mockedCrashWrapper,
                                                    appStateManager: appStateManager)
-        return SentryCrashIntegrationSessionHandler(
-            crashWrapper: mockedCrashWrapper,
+        let finalizer = PreviousRunSessionFinalizer(
+            crashedLastLaunch: crashedLastLaunch,
+            activeDurationSinceLastCrash: activeDurationSinceLastCrash,
             watchdogTerminationLogic: watchdogLogic,
             fileManager: fileManager,
-            bridge: bridge
+            dateProvider: dateProvider
         )
 #else
-        return SentryCrashIntegrationSessionHandler(crashWrapper: mockedCrashWrapper, fileManager: fileManager, bridge: bridge)
+        let finalizer = PreviousRunSessionFinalizer(
+            crashedLastLaunch: crashedLastLaunch,
+            activeDurationSinceLastCrash: activeDurationSinceLastCrash,
+            fileManager: fileManager,
+            dateProvider: dateProvider
+        )
 #endif
+        finalizer.finalizeIfNeeded()
     }
 
-    var crashReporter: Sentry.SentryCrashSwift {
+    var crashReporter: SentryCrashSwift {
         SentryDependencyContainer.sharedInstance().crashReporter
     }
 
@@ -1111,7 +1217,10 @@ class MockCrashDependencies: CrashIntegrationProvider {
         return SentryCrashInstallationReporter(
             inAppLogic: inAppLogic,
             crashWrapper: mockedCrashWrapper,
-            dispatchQueue: mockedDispatchQueueWrapper
+            dispatchQueue: mockedDispatchQueueWrapper,
+            startupCrashFlush: SentryStartupCrashFlush(idleGate: SentryReplayRecoveryIdleGate())
         )
     }
 }
+
+#endif // !SDK_V10

@@ -96,6 +96,15 @@ For more information checkout the [docs](https://docs.sentry.io/platforms/apple)
 
 <sup>(1)</sup>limited symbolication support and no crash handling.
 
+# Logging Integrations
+
+Forward logs from popular logging libraries to [Sentry Logs](https://docs.sentry.io/platforms/apple/logs/). Each integration is a separate Swift package, so you only pull in the dependencies you use:
+
+- [swift-log](https://github.com/apple/swift-log): [sentry-apple-swift-log](https://github.com/getsentry/sentry-apple-swift-log)
+- [CocoaLumberjack](https://github.com/CocoaLumberjack/CocoaLumberjack): [sentry-apple-cocoalumberjack](https://github.com/getsentry/sentry-apple-cocoalumberjack)
+- [Pulse](https://github.com/kean/Pulse): [sentry-apple-pulse](https://github.com/getsentry/sentry-apple-pulse)
+- [SwiftyBeaver](https://github.com/SwiftyBeaver/SwiftyBeaver): [sentry-apple-swiftybeaver](https://github.com/getsentry/sentry-apple-swiftybeaver)
+
 # Resources
 
 - [![Documentation](https://img.shields.io/badge/documentation-sentry.io-green.svg)](https://docs.sentry.io/platforms/apple/)
@@ -103,3 +112,4 @@ For more information checkout the [docs](https://docs.sentry.io/platforms/apple)
 - [![Discord Chat](https://img.shields.io/discord/621778831602221064?logo=discord&logoColor=ffffff&color=7389D8)](https://discord.com/invite/sentry)
 - [![Code of Conduct](https://img.shields.io/badge/code%20of%20conduct-sentry-green.svg)](https://github.com/getsentry/.github/blob/master/CODE_OF_CONDUCT.md)
 - [![Twitter Follow](https://img.shields.io/twitter/follow/sentry?label=sentry&style=social)](https://twitter.com/intent/follow?screen_name=sentry)
+- Check out product updates, deep dives, and tips on [the Sentry blog](https://blog.sentry.io/) and [our changelog](https://sentry.io/changelog/)

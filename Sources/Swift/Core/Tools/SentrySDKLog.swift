@@ -35,7 +35,12 @@ typealias SentryLogOutput = ((String) -> Void)
     @objc
     public static func log(message: String, andLevel level: SentryLevel) {
         guard willLog(atLevel: level) else { return }
+        write(message: message, level: level)
+    }
 
+    /// Formats and writes the message without checking ``willLog(atLevel:)``.
+    /// Callers must check it exactly once before calling this method.
+    private static func write(message: String, level: SentryLevel) {
         // We use the time interval because date format is
         // expensive and we only care about the time difference between the
         // log messages. We don't use system uptime because of privacy concerns
@@ -50,6 +55,9 @@ typealias SentryLogOutput = ((String) -> Void)
      */
     @objc
     public static func willLog(atLevel level: SentryLevel) -> Bool {
+        #if SENTRY_TEST || SENTRY_TEST_CI
+            willLogCallCount.withLock { $0 += 1 }
+        #endif
         if level == .none {
             return false
         }
@@ -61,7 +69,7 @@ typealias SentryLogOutput = ((String) -> Void)
 
     /// Sets a custom log output handler. This allows hybrid SDKs (React Native, Flutter, etc.)
     /// to intercept SDK log messages and forward them to their respective consoles.
-    /// - Note: Exposed through `PrivateSentrySDKOnly.setLogOutput` for hybrid SDK consumption.
+    /// - Note: Exposed through `SentryInternalApi.setLogOutput` for hybrid SDK consumption.
     /// - Parameter output: A closure to handle log output. If `nil` is passed (which can happen
     ///   from Objective-C callers despite nullability annotations), the default `print` handler is used.
     @objc
@@ -72,6 +80,18 @@ typealias SentryLogOutput = ((String) -> Void)
     }
 
     #if SENTRY_TEST || SENTRY_TEST_CI
+
+        /// Counts the calls to ``willLog(atLevel:)`` so tests can verify that
+        /// each log call checks the level exactly once.
+        private static let willLogCallCount = SentryMutex(0)
+
+        static func getWillLogCallCount() -> Int {
+            return willLogCallCount.withLock { $0 }
+        }
+
+        static func resetWillLogCallCount() {
+            willLogCallCount.withLock { $0 = 0 }
+        }
 
         static func getOutput() -> SentryLogOutput {
             return logOutput
@@ -86,26 +106,29 @@ typealias SentryLogOutput = ((String) -> Void)
 
 extension SentrySDKLog {
     private static func log(level: SentryLevel, message: String, file: String, line: Int) {
-        guard willLog(atLevel: level) else { return }
         let path = file as NSString
         let fileName = (path.lastPathComponent as NSString).deletingPathExtension
-        log(message: "[\(fileName):\(line)] \(message)", andLevel: level)
+        write(message: "[\(fileName):\(line)] \(message)", level: level)
     }
 
-    static func debug(_ message: String, file: String = #file, line: Int = #line) {
-        log(level: .debug, message: message, file: file, line: line)
+    static func debug(_ message: @autoclosure () -> String, file: String = #file, line: Int = #line) {
+        guard willLog(atLevel: .debug) else { return }
+        log(level: .debug, message: message(), file: file, line: line)
     }
 
-    static func info(_ message: String, file: String = #file, line: Int = #line) {
-        log(level: .info, message: message, file: file, line: line)
+    static func info(_ message: @autoclosure () -> String, file: String = #file, line: Int = #line) {
+        guard willLog(atLevel: .info) else { return }
+        log(level: .info, message: message(), file: file, line: line)
     }
 
-    static func warning(_ message: String, file: String = #file, line: Int = #line) {
-        log(level: .warning, message: message, file: file, line: line)
+    static func warning(_ message: @autoclosure () -> String, file: String = #file, line: Int = #line) {
+        guard willLog(atLevel: .warning) else { return }
+        log(level: .warning, message: message(), file: file, line: line)
     }
 
-    static func error(_ message: String, file: String = #file, line: Int = #line) {
-        log(level: .error, message: message, file: file, line: line)
+    static func error(_ message: @autoclosure () -> String, file: String = #file, line: Int = #line) {
+        guard willLog(atLevel: .error) else { return }
+        log(level: .error, message: message(), file: file, line: line)
     }
 
     static func fatal(_ message: String, file: String = #file, line: Int = #line) {

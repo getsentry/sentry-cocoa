@@ -34,6 +34,10 @@ SENTRY_NO_INIT
  */
 - (_Nullable instancetype)initWithOptions:(SentryOptionsObjC *)options;
 
+@end
+
+@interface SentryClientInternal (EventCapture)
+
 /**
  * Captures a manually created event and sends it to Sentry.
  * @param event The event to send to Sentry.
@@ -97,6 +101,10 @@ SENTRY_NO_INIT
  */
 - (SentryId *)captureMessage:(NSString *)message
                    withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(message:scope:));
+
+@end
+
+@interface SentryClientInternal ()
 
 /**
  * Captures a new-style user feedback and sends it to Sentry.

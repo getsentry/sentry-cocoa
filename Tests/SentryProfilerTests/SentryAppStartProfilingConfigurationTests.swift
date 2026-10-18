@@ -1,8 +1,13 @@
-@_spi(Private) import Sentry
+#if (!SWIFT_PACKAGE || !SDK_V10) && (os(iOS) || os(macOS))
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+import SentryTestUtilsObjC
+#else
+@_spi(Private) @testable import Sentry
+#endif
 @_spi(Private) import SentryTestUtils
+import _SentryPrivate
 import XCTest
-
-#if os(iOS) || os(macOS)
 
 /// Trace sample rates (tracing v2) affects continuous profiling v2
 /// - `tracesSampleRate`
@@ -54,7 +59,7 @@ private extension SentryAppStartProfilingConfigurationTests {
         // this is where SentryOptions.configureProfiling is evaluated
         sentry_configureContinuousProfiling(actualOptions)
 
-        let actualIsValid = sentry_willProfileNextLaunch(actualOptions)
+        let actualIsValid = SentryLaunchProfiling.willProfileNextLaunch(actualOptions)
         if shouldProfileLaunch {
             XCTAssertTrue(actualIsValid, "Expected to enable app launch profiling with options:\n\(expectedOptions.description)")
         } else {
@@ -155,4 +160,4 @@ extension LaunchProfileOptions.ContinuousProfileV2Options: CustomStringConvertib
     }
 }
 
-#endif // os(iOS) || os(macOS)
+#endif

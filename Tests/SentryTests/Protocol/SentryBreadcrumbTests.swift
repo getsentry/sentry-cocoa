@@ -1,4 +1,9 @@
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
 import SentryTestUtils
 import XCTest
 
@@ -34,7 +39,7 @@ class SentryBreadcrumbTests: XCTestCase {
     private let fixture = Fixture()
 
     func testInitWithDictionary() {
-        let dict: [AnyHashable: Any] = [
+        let dict: [String: Any] = [
             "level": "info",
             "timestamp": fixture.dateAs8601String,
             "category": fixture.category,
@@ -43,7 +48,7 @@ class SentryBreadcrumbTests: XCTestCase {
             "message": fixture.message,
             "data": ["foo": "bar"]
         ]
-        let breadcrumb = PrivateSentrySDKOnly.breadcrumb(with: dict)
+        let breadcrumb = SentrySDK.internal.breadcrumbs.fromDictionary(dict)
         
         XCTAssertEqual(breadcrumb.level, SentryLevel.info)
         XCTAssertEqual(breadcrumb.timestamp, fixture.date)

@@ -5,22 +5,39 @@ NS_ASSUME_NONNULL_BEGIN
 /// versions.
 @interface SentryObjCExperimentalOptions : NSObject
 
+#if !SDK_V10
 /**
- * A more reliable way to report unhandled C++ exceptions.
- *
- * This approach hooks into all instances of the @c __cxa_throw function, which provides a more
- * comprehensive and consistent exception handling across an app's runtime, regardless of the number
- * of C++ modules or how they're linked. It helps in obtaining accurate stack traces.
- *
- * @note The mechanism of hooking into @c __cxa_throw could cause issues with symbolication on iOS
- * due to caching of symbol references.
- * @warning This is an experimental feature and is therefore disabled by default.
+ * Captures C++ exception stack traces at the throw site by hooking @c __cxa_throw.
+ * Hooking @c __cxa_throw has unresolved safety and symbolication concerns. When @c NO, unhandled
+ * C++ exceptions are still captured through @c std::terminate when crash handling is enabled, but
+ * stacks may not identify the throw site.
+ * @warning Disabled by default. Use and monitor this experimental implementation with care.
+ * @see https://github.com/getsentry/sentry-cocoa/issues/5309
  */
 @property (nonatomic) BOOL enableUnhandledCPPExceptionsV2;
+#endif // !SDK_V10
+
+/**
+ * Enables swizzling for automatic network instrumentation of the new URLSession HTTP loader.
+ * Requires @c enableSwizzling and an enabled network tracking feature.
+ * Classic-loader instrumentation is unaffected by this option.
+ *
+ * @warning This is an experimental feature and is disabled by default.
+ * @note Configure this option before starting the SDK. Installed swizzles remain for the process
+ * lifetime, but bypass new-loader instrumentation if the SDK restarts with this option disabled.
+ */
+@property (nonatomic) BOOL enableNewURLLoaderSwizzling;
 
 #if !SDK_V10
-/// When enabled, the SDK uses a more efficient mechanism for detecting watchdog terminations.
-@property (nonatomic) BOOL enableWatchdogTerminationsV2;
+/**
+ * When enabled, the SDK uses a more efficient mechanism for detecting watchdog terminations.
+ * @deprecated This option will be removed in v10, where the improved watchdog termination tracking
+ * mechanism is enabled by default.
+ */
+@property (nonatomic) BOOL enableWatchdogTerminationsV2
+    __attribute__((deprecated("enableWatchdogTerminationsV2 is deprecated and will be removed in "
+                              "v10, where the improved watchdog termination tracking mechanism is "
+                              "enabled by default.")));
 #endif
 
 /**

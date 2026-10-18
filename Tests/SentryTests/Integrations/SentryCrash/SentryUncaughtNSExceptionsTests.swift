@@ -1,4 +1,10 @@
+#if !SDK_V10
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) import Sentry
+#endif
+import _SentryPrivate
 import SentryTestUtils
 import XCTest
 
@@ -127,3 +133,5 @@ func uncaughtExceptionHandler(exception: NSException) {
 }
 
 let uncaughtInternalInconsistencyException = NSException(name: .internalInconsistencyException, reason: "reason", userInfo: nil)
+
+#endif // !SDK_V10

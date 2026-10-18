@@ -22,6 +22,7 @@ jobs:
     needs: run-full-ci-gate
     outputs:
       run_v10_for_prs: ${{ steps.changes.outputs.run_v10_for_prs }}
+      run_thread_inspection_harness_for_prs: ${{ steps.changes.outputs.run_thread_inspection_harness_for_prs }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Get changed files
@@ -35,7 +36,7 @@ jobs:
     name: Build test server
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_v10_for_prs == 'true'
     needs: files-changed
-    runs-on: macos-15
+    runs-on: ["bitrise_pool_name:sequoia"]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Cache for Test Server
@@ -76,7 +77,7 @@ jobs:
     name: Test V10 ${{ matrix.platform }}
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_v10_for_prs == 'true'
     needs: files-changed
-    runs-on: macos-26
+    runs-on: ["bitrise_pool_name:tahoe"]
     timeout-minutes: 30
     strategy:
       fail-fast: false
@@ -137,6 +138,75 @@ jobs:
             raw-build-for-testing-output.log
             raw-test-output.log
 
+      - name: Archiving Test Results
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: result-bundle-v10-${{ matrix.platform }}
+          path: results.xcresult
+
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
+        if: ${{ failure() || cancelled() }}
+
+  thread-inspection-harness:
+    name: Test Thread Inspection
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_thread_inspection_harness_for_prs == 'true'
+    needs: files-changed
+    runs-on: ["bitrise_pool_name:tahoe"]
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "26"
+          resolve-simulators: "false"
+
+      - name: Run harness tests
+        run: |
+          set -o pipefail
+          env -u KSCRASH_PATH swift test \
+            --package-path Tests/ThreadInspectionHarness \
+            2>&1 | tee thread-inspection-harness.log
+
+      - name: Run harness with ASan
+        run: |
+          set -o pipefail
+          env -u KSCRASH_PATH swift test \
+            --package-path Tests/ThreadInspectionHarness \
+            --scratch-path "$RUNNER_TEMP/thread-inspection-asan" \
+            --sanitize address \
+            2>&1 | tee thread-inspection-harness-asan.log
+
+      - name: Run harness with UBSan
+        run: |
+          set -o pipefail
+          env -u KSCRASH_PATH swift test \
+            --package-path Tests/ThreadInspectionHarness \
+            --scratch-path "$RUNNER_TEMP/thread-inspection-ubsan" \
+            --sanitize undefined \
+            2>&1 | tee thread-inspection-harness-ubsan.log
+
+      # TSan does not model Mach suspension as synchronization. Keep real remote suspension out of
+      # this run while covering the registry, deterministic driver, and lifecycle concurrency.
+      - name: Run harness with TSan
+        run: |
+          set -o pipefail
+          env -u KSCRASH_PATH swift test \
+            --package-path Tests/ThreadInspectionHarness \
+            --scratch-path "$RUNNER_TEMP/thread-inspection-tsan" \
+            --sanitize thread \
+            --filter 'ReservedThreadContractTests|SentryThreadSnapshotTests|SentryThreadInspectionLifecycleTests' \
+            2>&1 | tee thread-inspection-harness-tsan.log
+
+      - name: Archive harness logs
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: thread-inspection-harness-logs
+          path: thread-inspection-harness*.log
+
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
         if: ${{ failure() || cancelled() }}
@@ -145,7 +215,7 @@ jobs:
     name: Test V10 with Test Server ${{ matrix.platform }}
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_v10_for_prs == 'true'
     needs: [files-changed, build-test-server]
-    runs-on: macos-26
+    runs-on: ["bitrise_pool_name:tahoe"]
     timeout-minutes: 20
     strategy:
       fail-fast: false
@@ -218,7 +288,7 @@ jobs:
         with:
           name: derived-data-v10-test-server-${{ matrix.platform }}
           path: |
-            /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
+            ~/Library/Developer/Xcode/DerivedData/**/Logs/**
 
       - name: Archiving Raw Logs
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
@@ -229,6 +299,13 @@ jobs:
             raw-build-output.log
             raw-build-for-testing-output.log
             raw-test-output.log
+
+      - name: Archiving Test Results
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: result-bundle-v10-test-server-${{ matrix.platform }}
+          path: results.xcresult
 
       - name: Archiving Crash Logs
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
@@ -249,6 +326,7 @@ jobs:
         build-test-server,
         test-v10,
         test-v10-with-test-server,
+        thread-inspection-harness,
         run-full-ci-gate,
       ]
     name: Test V10

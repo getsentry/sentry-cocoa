@@ -1,0 +1,28 @@
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void CrashE2EInstallFakeManagedRuntimeSignalHandler(const char *markerPath, int forwardSignal);
+void CrashE2EIgnoreNextSignalThroughObjC(int signal);
+NSString *_Nullable CrashE2ELoadDynamicBinaryImage(const char *path, int slot);
+void CrashE2ETriggerDynamicBinaryImageCrash(void);
+void CrashE2ETriggerDynamicCPPException(void);
+void CrashE2EInstallUncaughtNSExceptionMarker(const char *markerPath);
+void CrashE2ETriggerRethrownNSException(void);
+void CrashE2ETriggerNSExceptionSubclass(void);
+void CrashE2ETriggerCPPException(void);
+void CrashE2ETriggerUnitySentryCxaThrow(void);
+void CrashE2ETriggerObjCObjectException(void);
+void CrashE2ETriggerObjCObjectAfterCaughtCPPException(void);
+void CrashE2ETriggerMallocZoneLockedSignal(void);
+void CrashE2ETriggerMemoryIntrospectionMarkerCrash(void);
+
+#ifdef __cplusplus
+}
+#endif
+
+NS_ASSUME_NONNULL_END

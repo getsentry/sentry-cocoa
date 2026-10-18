@@ -1,5 +1,11 @@
+#if !SDK_V10
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
-import SentryTestUtils
+#endif
+@_spi(Private) import SentryTestUtils
+import _SentryPrivate
 import XCTest
 
 class SentryCrashReportTests: XCTestCase {
@@ -307,3 +313,5 @@ class SentryCrashReportTests: XCTestCase {
     }
     // swiftlint:enable identifier_name
 }
+
+#endif // !SDK_V10

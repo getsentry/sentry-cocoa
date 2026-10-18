@@ -7,7 +7,7 @@ struct MXSample {
     let frames: [MXFrame]
     
     struct MXFrame: Hashable {
-        let binaryUUID: UUID
+        let binaryUUID: UUID?
         let offsetIntoBinaryTextSegment: Int
         let binaryName: String?
         let address: UInt64

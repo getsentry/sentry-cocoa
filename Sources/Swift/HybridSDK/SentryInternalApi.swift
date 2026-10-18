@@ -1,5 +1,8 @@
 // swiftlint:disable missing_docs
 internal import _SentryPrivate
+#if SDK_V10
+internal import KSCrashRecording
+#endif
 import Foundation
 
 /// APIs intended for Sentry hybrid SDKs (React Native, Flutter, .NET, Unity).
@@ -19,15 +22,19 @@ public struct SentryInternalApi {
         & SentryInternalScopeApi.Dependencies
         & OptionsDeserializerProvider
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-    typealias UIDependencies = BaseDependencies
+    typealias PlatformDependencies = BaseDependencies
         & SentryInternalPerformanceApi.Dependencies
         & SentryInternalScreenApi.Dependencies
         & SentryInternalScreenshotApi.Dependencies
         & SentryInternalViewHierarchyApi.Dependencies
         & SentryInternalReplayApi.Dependencies
-    typealias Dependencies = UIDependencies
 #else
-    typealias Dependencies = BaseDependencies
+    typealias PlatformDependencies = BaseDependencies
+#endif
+#if !(os(watchOS) || os(tvOS) || os(visionOS))
+    typealias Dependencies = PlatformDependencies & SentryInternalProfilingApi.Dependencies
+#else
+    typealias Dependencies = PlatformDependencies
 #endif
 
     /// SDK metadata and configuration.
@@ -94,13 +101,10 @@ public struct SentryInternalApi {
 
     /// Tells the crash reporter to ignore the next occurrence of the given signal on the calling thread.
     public func ignoreNextSignal(_ signum: Int32) {
-#if !SENTRY_DISABLE_SENTRYCRASH_V10
-        sentrycrash_ignore_next_signal(signum)
+#if SDK_V10
+        sentrykscrash_ignoreNextSignal(signum)
 #else
-        // KSCRASH_TODO(GH-8797): V10 cannot yet suppress the next signal on this thread, so this
-        // downstream SPI is temporarily a no-op. Acceptance: SCV10-007 in
-        // SENTRYCRASH_V10_MIGRATION_LEDGER.md.
-        _ = signum
+        sentrycrash_ignore_next_signal(signum)
 #endif
     }
 
@@ -134,7 +138,7 @@ public struct SentryInternalApi {
         self.screenshot = SentryInternalScreenshotApi(dependencies: dependencies)
 #endif
 #if !(os(watchOS) || os(tvOS) || os(visionOS))
-        self.profiling = SentryInternalProfilingApi()
+        self.profiling = SentryInternalProfilingApi(dependencies: dependencies)
 #endif
     }
 }

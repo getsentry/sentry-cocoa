@@ -136,13 +136,6 @@
     },
     {
       "kind": "ObjCMethodDecl",
-      "name": "getExtraContext",
-      "parent": "SentryObjCPrivateSDKOnly",
-      "returnType": "NSDictionary * _Nonnull",
-      "instance": false
-    },
-    {
-      "kind": "ObjCMethodDecl",
       "name": "httpBodies",
       "parent": "SentryObjCDataCollectionOptions",
       "returnType": "SentryObjCDataCollectionHttpBodyType",
@@ -541,13 +534,6 @@
     },
     {
       "kind": "ObjCMethodDecl",
-      "name": "getExtraContext",
-      "parent": "SentryObjCPrivateSDKOnly",
-      "returnType": "NSDictionary<NSString *,id> * _Nonnull",
-      "instance": false
-    },
-    {
-      "kind": "ObjCMethodDecl",
       "name": "httpBodies",
       "parent": "SentryObjCDataCollectionOptions",
       "returnType": "NSUInteger",
@@ -571,13 +557,6 @@
       "kind": "ObjCMethodDecl",
       "name": "init",
       "parent": "SentryObjCInternalUserApi",
-      "returnType": "instancetype _Nonnull",
-      "instance": true
-    },
-    {
-      "kind": "ObjCMethodDecl",
-      "name": "init",
-      "parent": "SentryObjCPrivateSDKOnly",
       "returnType": "instancetype _Nonnull",
       "instance": true
     },

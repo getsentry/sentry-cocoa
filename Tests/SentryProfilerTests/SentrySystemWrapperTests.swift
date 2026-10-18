@@ -1,7 +1,11 @@
+#if (!SWIFT_PACKAGE || !SDK_V10) && (os(iOS) || os(macOS))
+#if SWIFT_PACKAGE
+@_spi(Private) import SentrySwift
+#else
 @_spi(Private) import Sentry
+#endif
 import XCTest
 
-#if os(iOS) || os(macOS)
 class SentrySystemWrapperTests: XCTestCase {
     private struct Fixture {
         lazy var systemWrapper = SentrySystemWrapper(processorCount: 4)
@@ -69,4 +73,4 @@ class SentrySystemWrapperTests: XCTestCase {
     // mach_task_self() which cannot be made to fail without resource exhaustion.
 #endif // arch(arm64)
 }
-#endif // os(iOS) || os(macOS)
+#endif

@@ -5,6 +5,12 @@
 # Orchestrates the per-SDK slice builds (sequentially) and then assembles
 # the final xcframework. For CI, each slice runs as a separate parallel job;
 # this script is the local equivalent that runs them in sequence.
+#
+# With --v10 the package is built with SDK_V10=1, which swaps SentryCrash for
+# KSCrash and embeds the KSCrash objects into the library. The packaged headers
+# are copies with every SDK_V10 gate resolved, so consumers see the V10 API
+# without defining SDK_V10 themselves. V10 output is meant for local debugging
+# of downstream SDKs and is not a release artifact.
 
 set -euo pipefail
 
@@ -17,14 +23,16 @@ SDKS="iphoneos,iphonesimulator,macosx,maccatalyst,appletvos,appletvsimulator,wat
 PACKAGE_PATH=""
 CONFIGURATION="Release"
 VARIANT="static"
+V10="false"
 
 usage() {
-    log_notice "Usage: $0"
-    log_notice "  --output-dir <path>       Output directory (default: XCFrameworkBuildPath)"
-    log_notice "  --configuration <name>    Xcode configuration (default: Release)"
-    log_notice "  --sdks <list>             Comma-separated SDKs (default: all Apple SDKs)"
-    log_notice "  --package-path <path>     Swift Package root (default: repo root)"
-    log_notice "  --variant <type>          static, dynamic, or both (default: static)"
+    log_info "Usage: $0"
+    log_info "  --output-dir <path>       Output directory (default: XCFrameworkBuildPath)"
+    log_info "  --configuration <name>    Xcode configuration (default: Release)"
+    log_info "  --sdks <list>             Comma-separated SDKs (default: all Apple SDKs)"
+    log_info "  --package-path <path>     Swift Package root (default: repo root)"
+    log_info "  --variant <type>          static, dynamic, or both (default: static)"
+    log_info "  --v10                     Build the V10 (KSCrash) SDK for local debugging"
     exit 1
 }
 
@@ -35,6 +43,7 @@ while [[ $# -gt 0 ]]; do
         --sdks)            SDKS="$2";           shift 2 ;;
         --package-path)    PACKAGE_PATH="$2";   shift 2 ;;
         --variant)         VARIANT="$2";        shift 2 ;;
+        --v10)             V10="true";          shift ;;
         -h|--help)         usage ;;
         *)                 log_error "Unknown argument: $1"; usage ;;
     esac
@@ -60,6 +69,23 @@ if [ -z "$SDKS" ] || [ "$SDKS" = "AllSDKs" ]; then
     SDKS="iphoneos,iphonesimulator,macosx,maccatalyst,appletvos,appletvsimulator,watchos,watchsimulator,xros,xrsimulator"
 fi
 
+if [ "$V10" = "true" ]; then
+    # Package.swift reads SDK_V10 from the environment of every xcodebuild invocation below.
+    export SDK_V10=1
+
+    # The public headers gate V10-only and V9-only API with SDK_V10. Resolve the gates so the
+    # packaged headers match the binary; consumers such as bindings generators do not define it.
+    V10_HEADERS_DIR="$OUTPUT_DIR/headers/SentryObjC-V10"
+    rm -rf "$V10_HEADERS_DIR"
+    mkdir -p "$V10_HEADERS_DIR"
+    for header in "$HEADERS_DIR"/*.h; do
+        # unifdef exits with 1 when it changed the file and with 2 on errors.
+        unifdef -DSDK_V10=1 -o "$V10_HEADERS_DIR/$(basename "$header")" "$header" || [ $? -eq 1 ]
+    done
+    HEADERS_DIR="$V10_HEADERS_DIR"
+    log_info "Building V10 with resolved headers at $HEADERS_DIR"
+fi
+
 rm -rf "$OUTPUT_DIR/archive/SentryObjC" "$OUTPUT_DIR/DerivedData" "$OUTPUT_DIR/lib/SentryObjC" "$OUTPUT_DIR/framework/SentryObjC"
 
 PACKAGE_FILES=()
@@ -77,11 +103,25 @@ trap 'for f in "${PACKAGE_FILES[@]}"; do mv "$f.bak" "$f"; done' EXIT
 IFS=',' read -r -a sdk_list <<< "$SDKS"
 
 for sdk in "${sdk_list[@]}"; do
+    objects_path="$OUTPUT_DIR/DerivedData/Build/Intermediates.noindex/ArchiveIntermediates/SentryObjC/IntermediateBuildFilesPath"
+    if [ "$V10" = "true" ]; then
+        # Each audit needs fresh compiler evidence, not another slice's cached objects.
+        rm -rf "$objects_path"
+    fi
+
     "$SCRIPT_DIR/build-static-library-sentryobjc.sh" \
         --sdk "$sdk" \
         --output-dir "$OUTPUT_DIR" \
         --package-path "$PACKAGE_PATH" \
         --configuration "$CONFIGURATION"
+
+    if [ "$V10" = "true" ]; then
+        "$SCRIPT_DIR/verify-v10-sentrycrash-objects.sh" \
+            --build-path "$objects_path" \
+            --build-log "$OUTPUT_DIR/archive/SentryObjC/$sdk.log" \
+            --archive-path "$OUTPUT_DIR/archive/SentryObjC/$sdk.xcarchive" \
+            --source-root "$PACKAGE_PATH"
+    fi
 done
 
 if [ "$VARIANT" = "static" ] || [ "$VARIANT" = "both" ]; then
@@ -97,7 +137,7 @@ if [ "$VARIANT" = "dynamic" ] || [ "$VARIANT" = "both" ]; then
     for sdk in "${sdk_list[@]}"; do
         "$SCRIPT_DIR/build-dynamic-framework-sentryobjc.sh" \
             --sdk "$sdk" \
-            --static-lib "$OUTPUT_DIR/lib/SentryObjC/$sdk/libSentryObjC.a" \
+            --static-lib "$OUTPUT_DIR/lib/SentryObjC/$sdk/libSentryObjC-Debug.a" \
             --headers "$HEADERS_DIR" \
             --output-dir "$OUTPUT_DIR"
     done

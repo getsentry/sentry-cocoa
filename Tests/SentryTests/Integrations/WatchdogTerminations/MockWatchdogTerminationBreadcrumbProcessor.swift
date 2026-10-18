@@ -1,4 +1,8 @@
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @testable import Sentry
+#endif
 import SentryTestUtils
 
 // Note: This file should ideally live in SentryTestUtils, but this would lead to circular imports.

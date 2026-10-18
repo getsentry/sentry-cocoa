@@ -1,5 +1,26 @@
 #if SDK_V10 && SENTRY_CRASH_E2E
+internal import _SentryPrivate
 import Foundation
+
+private nonisolated(unsafe) var crashE2EScreenshotPNG = Data()
+private let crashE2EWriteScreenshot: @convention(c) (UnsafePointer<CChar>) -> Void = { path in
+    let url = URL(fileURLWithPath: String(cString: path)).appendingPathComponent("screenshot.png")
+    try? crashE2EScreenshotPNG.write(to: url)
+}
+
+private nonisolated(unsafe) var crashE2EViewHierarchyJSON = Data()
+private let crashE2EWriteViewHierarchy: @convention(c) (UnsafePointer<CChar>) -> Void = { path in
+    let url = URL(fileURLWithPath: String(cString: path))
+        .appendingPathComponent("view-hierarchy.json")
+    try? crashE2EViewHierarchyJSON.write(to: url)
+}
+
+/// Fatal crash on the KSCrash handler thread. Must not return: a returning writer
+/// would still let `writeInfo()` run after capture if the two calls were swapped.
+private let crashE2EFatalScreenshotWriter: @convention(c) (UnsafePointer<CChar>) -> Void = { _ in
+    sentrykscrash_attachments_log("crash-e2e: screenshot writer crashing")
+    abort()
+}
 
 extension SentryKSCrash {
     /// CrashE2E-only fault injection and synchronization for stored-report delivery.
@@ -12,23 +33,6 @@ extension SentryKSCrash {
         private static let processingCompleteMarkerArgument =
             "--io.sentry.crash-e2e-kscrash-processing-complete"
         private static let errorDomain = "io.sentry.crash-e2e-kscrash"
-
-        static var reportUserInfo: [String: Any]? {
-            let marker: String
-            switch argumentValue(after: "--scenario") {
-            case "kscrash-retry-report-a":
-                marker = "crash-e2e-kscrash-report-a"
-            case "kscrash-retry-report-b":
-                marker = "crash-e2e-kscrash-report-b"
-            default:
-                return nil
-            }
-            return [
-                "context": [
-                    "crash_e2e_kscrash_retry": ["report": marker]
-                ]
-            ]
-        }
 
         static func retryableProcessingError(for report: [AnyHashable: Any]) -> (any Error)? {
             guard let marker = argumentValue(after: retryableMarkerArgument),
@@ -92,6 +96,69 @@ extension SentryKSCrash {
                 return array.contains { contains(marker: marker, in: $0) }
             }
             return false
+        }
+
+        /// Installs synthetic crash-time attachment writers for the `crash-time-attachments`
+        /// E2E scenario. The writers place a minimal 1×1 red PNG and a tiny view-hierarchy JSON
+        /// into the payload directory so the files can be verified on disk without a real UIKit
+        /// capture.
+        static func installSyntheticAttachmentProviders() {
+            guard argumentValue(after: "--scenario") == "crash-time-attachments" else { return }
+            // Minimal valid 1×1 red PNG (67 bytes).
+            let pngBytes: [UInt8] = [
+                0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
+                0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52,
+                0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
+                0x08, 0x02, 0x00, 0x00, 0x00, 0x90, 0x77, 0x53,
+                0xDE, 0x00, 0x00, 0x00, 0x0C, 0x49, 0x44, 0x41,
+                0x54, 0x08, 0xD7, 0x63, 0xF8, 0xCF, 0xC0, 0x00,
+                0x00, 0x00, 0x02, 0x00, 0x01, 0xE2, 0x21, 0xBC,
+                0x33, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E,
+                0x44, 0xAE, 0x42, 0x60, 0x82
+            ]
+            crashE2EScreenshotPNG = Data(pngBytes)
+            crashE2EViewHierarchyJSON = Data(
+                #"{"rendering_system":"UIKIT","windows":[]}"#.utf8
+            )
+            let installer = SentryDependencyContainer.sharedInstance().getKSCrashInstaller()
+            installer.setScreenshotProvider(crashE2EWriteScreenshot)
+            installer.setViewHierarchyProvider(crashE2EWriteViewHierarchy)
+        }
+
+        /// Seeds session-replay sync state so `sentrykscrash_didWriteReport` can persist a
+        /// recovery checkpoint during the `crash-time-replay` scenarios.
+        static func installReplayCheckpointIfNeeded() {
+            switch argumentValue(after: "--scenario") {
+            case "crash-time-replay", "crash-time-replay-attachment-crash":
+                break
+            default:
+                return
+            }
+            guard let path = replayCheckpointPath() else {
+                SentrySDKLog.error("CrashE2E could not resolve the replay checkpoint path.")
+                return
+            }
+            sentrySessionReplaySync_start(path, 1)
+            sentrySessionReplaySync_updateInfo(7, 123.5)
+        }
+
+        static func installFailingAttachmentProviderIfNeeded() {
+            guard argumentValue(after: "--scenario") == "crash-time-replay-attachment-crash" else {
+                return
+            }
+            let installer = SentryDependencyContainer.sharedInstance().getKSCrashInstaller()
+            installer.setScreenshotProvider(crashE2EFatalScreenshotWriter)
+        }
+
+        private static func replayCheckpointPath() -> String? {
+            if let cacheDir = argumentValue(after: "--cache-dir") {
+                return URL(fileURLWithPath: cacheDir)
+                    .appendingPathComponent("crash-e2e-replay-checkpoint")
+                    .path
+            }
+            return FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first?
+                .appendingPathComponent("crash-e2e-replay-checkpoint")
+                .path
         }
     }
 }

@@ -1,4 +1,8 @@
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) import Sentry
+#endif
 import XCTest
 
 final class SentryOptionsDictionaryTests: XCTestCase {
@@ -31,7 +35,7 @@ final class SentryOptionsDictionaryTests: XCTestCase {
         throw XCTSkip("Test is only valid for SDK v10 and above")
     #else
         // -- Arrange --
-        let callback: @convention(block) (Event) -> Event? = { $0 }
+        let callback: @convention(block) (Transaction, Hint) -> Transaction? = { transaction, _ in transaction }
 
         // -- Act --
         let options = try Options(dictionary: [

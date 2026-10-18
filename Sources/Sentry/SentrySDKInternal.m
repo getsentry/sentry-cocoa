@@ -1,9 +1,7 @@
 #import "SentrySDKInternal.h"
-#import "PrivateSentrySDKOnly.h"
 #import "SentryAppStartMeasurement.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
-#import "SentryCrash.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
@@ -16,6 +14,8 @@
 #import "SentrySpanInternal.h"
 #import "SentrySwift.h"
 #import "SentryTransactionContext.h"
+
+@class SentryAppStartMeasurement;
 
 #if SDK_V10
 // Keep the dlsym-only Unity C++ ABI compatibility symbols in static links.
@@ -47,6 +47,11 @@ static BOOL lastRunStatusCalled;
 static BOOL fatalDetected;
 static SentryAppStartMeasurement *_Nullable sentrySDKappStartMeasurement;
 static NSObject *sentrySDKappStartMeasurementLock;
+static void (^_Nullable sentryOnAppStartMeasurementAvailable)(SentryAppStartMeasurement *_Nullable);
+static BOOL sentryAppStartMeasurementHybridSDKMode;
+#if SENTRY_HAS_UIKIT
+static BOOL sentryFramesTrackingMeasurementHybridSDKMode;
+#endif // SENTRY_HAS_UIKIT
 static BOOL _detectedStartUpCrash;
 
 /**
@@ -171,8 +176,10 @@ static BOOL sdkStarted;
     @synchronized(sentrySDKappStartMeasurementLock) {
         sentrySDKappStartMeasurement = value;
     }
-    if (PrivateSentrySDKOnly.onAppStartMeasurementAvailable) {
-        PrivateSentrySDKOnly.onAppStartMeasurementAvailable(value);
+
+    void (^callback)(SentryAppStartMeasurement *_Nullable) = self.onAppStartMeasurementAvailable;
+    if (callback != nil) {
+        callback(value);
     }
 }
 
@@ -185,6 +192,51 @@ static BOOL sdkStarted;
         return sentrySDKappStartMeasurement;
     }
 }
+
++ (void (^_Nullable)(SentryAppStartMeasurement *_Nullable))onAppStartMeasurementAvailable
+{
+    @synchronized(self) {
+        return [sentryOnAppStartMeasurementAvailable copy];
+    }
+}
+
++ (void)setOnAppStartMeasurementAvailable:(void (^_Nullable)(
+                                              SentryAppStartMeasurement *_Nullable))callback
+{
+    @synchronized(self) {
+        sentryOnAppStartMeasurementAvailable = [callback copy];
+    }
+}
+
++ (BOOL)appStartMeasurementHybridSDKMode
+{
+    @synchronized(self) {
+        return sentryAppStartMeasurementHybridSDKMode;
+    }
+}
+
++ (void)setAppStartMeasurementHybridSDKMode:(BOOL)value
+{
+    @synchronized(self) {
+        sentryAppStartMeasurementHybridSDKMode = value;
+    }
+}
+
+#if SENTRY_HAS_UIKIT
++ (BOOL)framesTrackingMeasurementHybridSDKMode
+{
+    @synchronized(self) {
+        return sentryFramesTrackingMeasurementHybridSDKMode;
+    }
+}
+
++ (void)setFramesTrackingMeasurementHybridSDKMode:(BOOL)value
+{
+    @synchronized(self) {
+        sentryFramesTrackingMeasurementHybridSDKMode = value;
+    }
+}
+#endif // SENTRY_HAS_UIKIT
 
 /**
  * Not public, only for internal use.
@@ -256,6 +308,9 @@ static BOOL sdkStarted;
     // These classes must be referenced somewhere for their files to not be stripped.
     [PlaceholderSentryApplication class];
     [PlaceholderProcessInfoClass class];
+    [PlaceholderNotificationCenterClass class];
+    [PlaceholderOptionsDictionaryClass class];
+    [PlaceholderReplayNetworkDetailsClass class];
 
     startInvocations++;
     startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
@@ -499,6 +554,11 @@ static BOOL sdkStarted;
 
 + (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {
+    [self addBreadcrumb:crumb withHint:nil];
+}
+
++ (void)addBreadcrumb:(SentryBreadcrumb *)crumb withHint:(id _Nullable)hint
+{
     if (![SentrySDKInternal isEnabled]) {
         // We must log with level fatal because only fatal messages get logged even when the SDK
         // isn't started. We've seen multiple times that users try to add a breadcrumb before
@@ -510,7 +570,7 @@ static BOOL sdkStarted;
             @"the SDK before adding breadcrumbs.");
     }
 
-    [SentrySDKInternal.currentHub addBreadcrumb:crumb];
+    [SentrySDKInternal.currentHub addBreadcrumb:crumb withHint:hint];
 }
 
 + (void)configureScope:(void (^)(SentryScope *scope))callback

@@ -2,11 +2,11 @@
 
 How `SentryObjC-Static.xcframework` and `SentryObjC-Dynamic.xcframework` are built and distributed. For the wrapper architecture itself, see [SENTRY-OBJC.md](SENTRY-OBJC.md).
 
-## Why a dedicated pipeline?
+## Why a dedicated build pipeline?
 
-The main Sentry SDK xcframeworks (Sentry-Dynamic, Sentry-Static, SentrySwiftUI) are built via the generic `build-xcframework-slice.sh` → `assemble-xcframework.sh` pipeline, which archives an Xcode project scheme and produces `.framework` bundles.
+The main Sentry SDK xcframeworks (Sentry-Dynamic, Sentry-Static, SentrySwiftUI) build slices by archiving Xcode project schemes. SentryObjC builds its slices through SwiftPM instead, but both pipelines assemble them with `assemble-xcframework.sh`.
 
-SentryObjC cannot use this pipeline because:
+SentryObjC cannot use the Xcode project slice builder because:
 
 1. **SPM dependency chain.** The SentryObjC SPM product resolves as `SentryObjC → SentryObjCCompat → SentryObjCInternal`, where `SentryObjCInternal` compiles the full SDK from source. The Xcode project scheme builds `SentryObjC.framework` as a thin shell with `SentryObjCCompat.framework` as an embedded dependency, but does not re-export its symbols — so consumers get linker errors for all `SentryObjC*` wrapper classes.
 
@@ -30,8 +30,8 @@ for each SDK:
     → libtool -static → libSentryObjC.a
 
 scripts/assemble-xcframework-sentryobjc.sh
-  → xcodebuild -create-xcframework -library ... -headers ...
-  → SentryObjC-Static.xcframework
+  → assemble-xcframework.sh --library-template ... --headers ...
+  → xcodebuild -create-xcframework → SentryObjC-Static.xcframework
 ```
 
 ### CI (release workflow)
@@ -62,12 +62,12 @@ assemble-sentryobjc-dynamic-xcframework (single job, depends on all slices)
 
 ## Scripts
 
-| Script                                  | Purpose                                                                                  |
-| --------------------------------------- | ---------------------------------------------------------------------------------------- |
-| `build-static-library-sentryobjc.sh`    | Build one SDK slice: SPM archive → collect `.o` → `libtool -static` → `libSentryObjC.a`  |
-| `build-dynamic-framework-sentryobjc.sh` | Build one SDK slice: `.a` → `swiftc -emit-library` → `.framework` bundle                 |
-| `assemble-xcframework-sentryobjc.sh`    | Assemble xcframework from per-SDK static libraries or framework bundles + public headers |
-| `build-xcframework-sentryobjc.sh`       | Local orchestrator: loops over SDKs, calls the above scripts sequentially                |
+| Script                                  | Purpose                                                                                    |
+| --------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `build-static-library-sentryobjc.sh`    | Build one SDK slice: SPM archive → collect `.o` → `libtool -static` → `libSentryObjC.a`    |
+| `build-dynamic-framework-sentryobjc.sh` | Build one SDK slice: `.a` → `swiftc -emit-library` → `.framework` bundle                   |
+| `assemble-xcframework-sentryobjc.sh`    | Forward SentryObjC slice paths and headers to the shared `assemble-xcframework.sh` command |
+| `build-xcframework-sentryobjc.sh`       | Local orchestrator: loops over SDKs, calls the above scripts sequentially                  |
 
 ## Workflows
 
@@ -83,11 +83,22 @@ assemble-sentryobjc-dynamic-xcframework (single job, depends on all slices)
 
 2. **Object merging.** `libtool -static` combines all `.o` files from SentryObjC, SentryObjCCompat, and SentryObjCInternal into a single `libSentryObjC.a`. This is why all wrapper class symbols (`SentryObjCSDK`, `SentryObjCBreadcrumb`, etc.) end up in one binary.
 
-3. **Static XCFramework assembly.** `xcodebuild -create-xcframework` takes the per-SDK `.a` files and the public headers from `Sources/SentryObjC/Public/` to produce `SentryObjC-Static.xcframework`.
+3. **Static XCFramework assembly.** `assemble-xcframework.sh --library-template` passes the per-SDK `.a` files and public headers from `Sources/SentryObjC/Public/` to `xcodebuild -create-xcframework`, producing `SentryObjC-Static.xcframework`.
 
 4. **Dynamic re-linking.** `swiftc -emit-library -force_load` re-links each per-SDK `libSentryObjC.a` as a dynamic library. The result is packaged as a `.framework` bundle with headers, modulemap, and Info.plist.
 
-5. **Dynamic XCFramework assembly.** `xcodebuild -create-xcframework` takes the per-SDK `.framework` bundles to produce `SentryObjC-Dynamic.xcframework`.
+5. **Dynamic XCFramework assembly.** `assemble-xcframework.sh --framework-template` passes the per-SDK `.framework` bundles and available dSYMs to `xcodebuild -create-xcframework`, producing `SentryObjC-Dynamic.xcframework`.
+
+## V10 builds
+
+`scripts/build-xcframework-sentryobjc.sh --v10` builds the V10 SDK for local debugging of downstream SDKs. It is not a release artifact and has no CI job.
+
+- Exports `SDK_V10=1` so `Package.swift` adds the KSCrash dependency and the V10 defines. The KSCrash objects land in the archive products and are merged into `libSentryObjC.a`
+- Copies the public headers through `unifdef -DSDK_V10=1` so the packaged headers match the binary. Consumers such as bindings generators do not define `SDK_V10`
+- Writes to the same `SentryObjC-Static.xcframework` and `SentryObjC-Dynamic.xcframework` paths as a V9 build so downstream build scripts pick it up unchanged
+
+> [!WARNING]
+> The dynamic framework exports the embedded KSCrash symbols. They are an implementation detail without packaged headers. Downstream SDKs must not link against them or add a second copy of KSCrash.
 
 ## Makefile targets
 
@@ -95,9 +106,12 @@ assemble-sentryobjc-dynamic-xcframework (single job, depends on all slices)
 | ----------------------------------------------- | ------------------------------------------------------------------------ |
 | `build-xcframework-sentryobjc-static SDKS=...`  | Build static xcframework via SPM pipeline                                |
 | `build-xcframework-sentryobjc-dynamic SDKS=...` | Build dynamic xcframework (static slices → re-link as dylibs → assemble) |
+| `build-xcframework-sentryobjc-v10 SDKS=...`     | Build static and dynamic V10 (KSCrash) xcframeworks for local debugging  |
 
 ## Relationship to the generic pipeline
 
-The generic pipeline (`generate_release_matrix.sh` → `build-xcframework-variant-slices.yml` → `assemble-xcframework-variant.yml`) handles Sentry, SentrySwiftUI, and Sentry-WithoutUIKitOrAppKit. SentryObjC is **not** in the generic matrix — it has its own parallel jobs in `release.yml` that run alongside the generic variants.
+The generic release matrix (`generate_release_matrix.sh` → `build-xcframework-variant-slices.yml` → `assemble-xcframework-variant.yml`) handles Sentry, SentrySwiftUI, and Sentry-WithoutUIKitOrAppKit. SentryObjC is **not** in that matrix because its slices need the SwiftPM build and re-link steps. Its parallel jobs use the same assembly command through `assemble-xcframework-sentryobjc.sh`.
+
+`validate-xcframework.sh` checks the shared XCFramework structure, architectures, symbols, and framework plists. SentryObjC static libraries additionally require `validate-xcframework-sentryobjc-static.sh` for debug-map and wrapper-symbol checks. The SentryObjC static build target and CI jobs invoke this explicitly, including release artifact validation and local V10 builds.
 
 The release artifact naming follows the same convention (`xcframework-${{sha}}-sentryobjc-static`, `xcframework-${{sha}}-sentryobjc-dynamic`) so the `job_release` step picks it up via the `xcframework-${{sha}}-*` glob pattern.

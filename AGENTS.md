@@ -13,7 +13,7 @@ Sentry Cocoa SDK for iOS, macOS, tvOS, watchOS, and visionOS.
 | [`Tests/AGENTS.md`](Tests/AGENTS.md)               | Testing conventions and commands           |
 | [`Sources/AGENTS.md`](Sources/AGENTS.md)           | Source, API, concurrency, and crash safety |
 | [`.github/AGENTS.md`](.github/AGENTS.md)           | Workflows, concurrency, and file filters   |
-| [`Samples/AGENTS.md`](Samples/AGENTS.md)           | Sample generation, builds, and UI tests    |
+| [`TestApps/AGENTS.md`](TestApps/AGENTS.md)         | Test app generation, builds, and UI tests  |
 | [`scripts/AGENTS.md`](scripts/AGENTS.md)           | Shell script conventions                   |
 | [`develop-docs/AGENTS.md`](develop-docs/AGENTS.md) | Maintainer documentation                   |
 | [`REVIEWS.md`](REVIEWS.md)                         | Code review priorities and SDK concerns    |
@@ -69,11 +69,11 @@ SentrySDK (public API)
 | `SentryCrash` or C/C++                                        | iOS and macOS                           | `make test-ios FOR_AGENTS=true`         |
 | `SentrySwiftUI`                                               | `make build-ios FOR_AGENTS=true`        | Targeted iOS tests                      |
 | Build system, `Package.swift`, or cross-platform code         | All affected platforms                  | `make test FOR_AGENTS=true`             |
-| Sample code                                                   | Affected sample                         | Affected UI tests when behavior changed |
+| Test app code                                                 | Affected test app                       | Affected UI tests when behavior changed |
 
 - Public API changes, including public Swift symbols, `@objc` members, and Objective-C public headers, require `make generate-public-api` and committing changes to `sdk_api.json` or `sdk_api_sentryswiftui.json`
 - Public APIs that require Objective-C support must also be exposed through `SentryObjC` and `SentryObjCCompat`
-- Treat changes to `@_spi(Private)` and `PrivateSentrySDKOnly` as compatibility-sensitive for React Native, Flutter, .NET, and Unity
+- Treat changes to `@_spi(Private)` as compatibility-sensitive for React Native, Flutter, .NET, and Unity
 - Event enrichment changes should be checked with Sentry MCP `search_events` when an environment is available
 - Transport changes should verify envelope ingestion when an environment is available
 - Capture and transport changes should be checked for regressions with Sentry MCP `search_issues` when an environment is available

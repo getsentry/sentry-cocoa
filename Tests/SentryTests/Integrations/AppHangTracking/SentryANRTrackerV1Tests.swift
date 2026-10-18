@@ -1,6 +1,10 @@
 #if !SDK_V10
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
 #if os(iOS) || os(tvOS)
@@ -226,11 +230,11 @@ class SentryANRTrackerV1Tests: XCTestCase, SentryANRTrackerDelegate {
     // swiftlint:disable test_case_accessibility
     // Protocl implementation can't be private
 
-    func anrDetected(type: Sentry.SentryANRType) {
+    func anrDetected(type: SentryANRType) {
         anrDetectedExpectation.fulfill()
     }
 
-    func anrStopped(result: Sentry.SentryANRStoppedResult?) {
+    func anrStopped(result: SentryANRStoppedResult?) {
         lastANRStoppedResult = result
         anrStoppedExpectation.fulfill()
     }
@@ -251,11 +255,11 @@ class SentryANRTrackerTestDelegate: NSObject, SentryANRTrackerDelegate {
         anrStoppedExpectation.isInverted = true
     }
 
-    func anrStopped(result: Sentry.SentryANRStoppedResult?) {
+    func anrStopped(result: SentryANRStoppedResult?) {
         anrStoppedExpectation.fulfill()
     }
 
-    func anrDetected(type: Sentry.SentryANRType) {
+    func anrDetected(type: SentryANRType) {
         anrDetectedExpectation.fulfill()
     }
 }

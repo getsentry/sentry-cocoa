@@ -1,9 +1,11 @@
+internal import _SentryPrivate
+
 /// Provides metadata about the origin of an event or breadcrumb.
 ///
 /// A hint flows alongside the event through the capture pipeline, giving ``Options/beforeSendWithHint``
 /// and ``Options/beforeBreadcrumbWithHint`` callbacks access to the raw source material that produced
 /// the event — such as the original `NSError` or `NSException` — and the list of attachments that will
-/// be sent with it.
+/// be sent with it. In the next major version, `beforeSendTransaction` receives the hint as well.
 ///
 /// ## Thread Safety
 /// All property access is guarded by a mutex. It is safe to read and write from any queue.
@@ -14,6 +16,10 @@ public final class Hint: NSObject {
     private struct State {
         var originalError: Error?
         var originalException: NSException?
+        // Stores the wrapper instead of a `URLRequest`, so that setting a task's request doesn't
+        // bridge it. The SDK never reads `urlRequest`; only user callbacks do.
+        var urlRequest: SentryURLRequestWrapper?
+        var httpResponse: HTTPURLResponse?
         var attachments: [Attachment] = []
         var extra: [String: Any] = [:]
     }
@@ -30,6 +36,30 @@ public final class Hint: NSObject {
     public var originalException: NSException? {
         get { state.withLock { $0.originalException } }
         set { state.withLock { $0.originalException = newValue } }
+    }
+
+    /// The `URLRequest` associated with the event or breadcrumb, if it originated from a network operation.
+    public var urlRequest: URLRequest? {
+        get { state.withLock { $0.urlRequest }?.request }
+        set { state.withLock { $0.urlRequest = newValue.map(SentryURLRequestWrapper.init(request:)) } }
+    }
+
+    /// Sets ``urlRequest`` without copying the request until user code reads it.
+    ///
+    /// The network tracker passes a task's request here. Bridging that request to a `URLRequest`
+    /// copies it, which races with threads that write protocol properties into it and can crash
+    /// when the copy is released (#9307). Assigning `wrapper.request` to ``urlRequest`` would make
+    /// that copy on CFNetwork's queue for every network event. Storing the wrapper defers it to
+    /// the getter, which only runs when a `beforeSendWithHint` or `beforeBreadcrumbWithHint`
+    /// callback reads ``urlRequest``.
+    func setURLRequest(_ request: SentryURLRequestWrapper) {
+        state.withLock { $0.urlRequest = request }
+    }
+
+    /// The `HTTPURLResponse` associated with the event or breadcrumb, if it originated from a network operation.
+    public var httpResponse: HTTPURLResponse? {
+        get { state.withLock { $0.httpResponse } }
+        set { state.withLock { $0.httpResponse = newValue } }
     }
 
     /// The attachments that will be sent alongside the event.

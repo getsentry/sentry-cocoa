@@ -6,7 +6,6 @@
 @class SentryTimeToDisplayTracker;
 @class UIViewController;
 @class SentrySpanId;
-@class SentryPerformanceTracker;
 @class SentryDispatchQueueWrapper;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -29,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 SENTRY_NO_INIT
 
-- (instancetype)initWithTracker:(SentryPerformanceTracker *)tracker;
+- (instancetype)initWithTracker:(SENTRY_SWIFT_MIGRATION_ID(SentryPerformanceTracker))tracker;
 
 /**
  * Measures @c controller's @c loadView method.

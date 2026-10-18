@@ -20,10 +20,9 @@
 #    define IMAGE_READY 1 // Published, visible to readers
 #    define IMAGE_REMOVED 3 // Image was unloaded
 
-static SentryCrashBinaryImageCacheState g_defaultCache = {
-    .addImageCallback = &_dyld_register_func_for_add_image,
-    .removeImageCallback = &_dyld_register_func_for_remove_image,
-};
+// Keep the default cache entirely zero-initialized so its large image array is emitted as
+// zero-fill rather than file-backed data. A null registration callback selects the dyld default.
+static SentryCrashBinaryImageCacheState g_defaultCache;
 static _Atomic(SentryCrashBinaryImageCacheState *) g_activeCache = &g_defaultCache;
 
 static inline SentryCrashBinaryImageCacheState *
@@ -44,14 +43,22 @@ static inline void
 registerDyldAddImageCallback(
     SentryCrashBinaryImageCacheState *cache, SentryRegisterImageCallback callback)
 {
-    cache->addImageCallback(callback);
+    SentryRegisterFunction registerCallback = cache->addImageCallback;
+    if (registerCallback == NULL) {
+        registerCallback = &_dyld_register_func_for_add_image;
+    }
+    registerCallback(callback);
 }
 
 static inline void
 registerDyldRemoveImageCallback(
     SentryCrashBinaryImageCacheState *cache, SentryRegisterImageCallback callback)
 {
-    cache->removeImageCallback(callback);
+    SentryRegisterFunction registerCallback = cache->removeImageCallback;
+    if (registerCallback == NULL) {
+        registerCallback = &_dyld_register_func_for_remove_image;
+    }
+    registerCallback(callback);
 }
 
 static inline void

@@ -3,19 +3,42 @@ import Foundation
 /// Options for experimental features that are subject to change or may be removed in future versions.
 @objcMembers
 public final class SentryExperimentalOptions: NSObject {
-    /**
-     * A more reliable way to report unhandled C++ exceptions.
-     *
-     * This approach hooks into all instances of the `__cxa_throw` function, which provides a more comprehensive and consistent exception handling across an app’s runtime, regardless of the number of C++ modules or how they’re linked. It helps in obtaining accurate stack traces.
-     *
-     * - Note: The mechanism of hooking into `__cxa_throw` could cause issues with symbolication on iOS due to caching of symbol references.
-     * - Experiment: This is an experimental feature and is therefore disabled by default. We'll enable it by default in a future major release.
-     */
+    #if !SDK_V10
+    /// Captures C++ exception stack traces at the throw site by hooking `__cxa_throw`.
+    ///
+    /// Hooking `__cxa_throw` has unresolved safety and symbolication concerns. When `false`,
+    /// unhandled C++ exceptions are still captured through `std::terminate` when crash handling
+    /// is enabled, but stacks may not identify the throw site.
+    ///
+    /// - Experiment: Disabled by default. Use and monitor this implementation with care.
+    ///   See https://github.com/getsentry/sentry-cocoa/issues/5309.
     public var enableUnhandledCPPExceptionsV2 = false
+    #endif // !SDK_V10
+
+    /// Enables swizzling for automatic network instrumentation of the new URLSession HTTP loader.
+    /// Requires `Options.enableSwizzling` and an enabled network tracking feature.
+    /// Classic-loader instrumentation is unaffected by this option.
+    ///
+    /// Disabled by default while this experimental instrumentation is being tested.
+    /// Configure this option before starting the SDK. Installed swizzles remain for the process
+    /// lifetime, but bypass new-loader instrumentation if the SDK restarts with this option disabled.
+    public var enableNewURLLoaderSwizzling = false
 
     #if !SDK_V10
+    @nonobjc var enableWatchdogTerminationsV2Value = false
+
     /// When enabled, the SDK uses a more efficient mechanism for detecting watchdog terminations.
-    public var enableWatchdogTerminationsV2 = false
+    /// - Deprecated: This option will be removed in v10, where the improved watchdog termination
+    ///   tracking mechanism is enabled by default.
+    public var enableWatchdogTerminationsV2: Bool {
+        get {
+            enableWatchdogTerminationsV2Value
+        }
+        @available(*, deprecated, message: "enableWatchdogTerminationsV2 is deprecated and will be removed in v10, where the improved watchdog termination tracking mechanism is enabled by default.")
+        set {
+            enableWatchdogTerminationsV2Value = newValue
+        }
+    }
     #endif
 
     /**

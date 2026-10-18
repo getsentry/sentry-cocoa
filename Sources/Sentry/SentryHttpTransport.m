@@ -95,7 +95,8 @@
 {
     if (connected) {
         SENTRY_LOG_DEBUG(@"Internet connection is back.");
-        [self sendAllCachedEnvelopes];
+        __weak SentryHttpTransport *weakSelf = self;
+        [self.dispatchQueue dispatchAsyncWithBlock:^{ [weakSelf sendAllCachedEnvelopes]; }];
     } else {
         SENTRY_LOG_DEBUG(@"Lost internet connection.");
     }

@@ -1,4 +1,8 @@
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @testable import Sentry
+#endif
 import XCTest
 
 final class SentrySwizzleMethodTests: XCTestCase {
@@ -106,6 +110,31 @@ final class SentrySwizzleMethodTests: XCTestCase {
         XCTAssertEqual(object.description, "@")
         XCTAssertEqual(selector.description, ":")
         XCTAssertEqual(block.description, "@?")
+    }
+
+    func testABITypeInit_whenEncodingIsBool_shouldParseAndMatch() {
+        // -- Act --
+        let type = ABIType(encoding: "B")
+
+        // -- Assert --
+        XCTAssertEqual(type.description, "B")
+        XCTAssertTrue(type.matches(ABIType(encoding: "B")))
+        XCTAssertFalse(type.matches(.object))
+        XCTAssertFalse(type.matches(.signedInteger(4)))
+    }
+
+    func testABITypeInit_whenEncodingIsObjectPointer_shouldParseAndMatch() {
+        // -- Act --
+        let type = ABIType(encoding: "^@")
+        let qualified = ABIType(encoding: "o^@")
+
+        // -- Assert --
+        XCTAssertEqual(type.description, "^@")
+        XCTAssertTrue(type.matches(qualified))
+        XCTAssertFalse(type.matches(.object))
+        XCTAssertFalse(type.matches(ABIType(encoding: "^v")))
+        XCTAssertFalse(type.matches(ABIType(encoding: "^^@")))
+        XCTAssertFalse(type.matches(ABIType(encoding: "^@?")))
     }
 
     func testABITypeInit_whenEncodingIsSignedInteger_shouldParsePlatformSize() {

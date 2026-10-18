@@ -43,6 +43,13 @@ During a release, the [release workflow](../.github/workflows/release.yml):
 
 Craft authenticates via the GitHub org's own rules — no additional repo-level setup is needed for release pushes.
 
+> [!WARNING]
+> Craft replaces the downstream repo contents with the archive. Any file that should exist in the downstream repo, such as `.spi.yml`, must be copied by the archive script.
+
+## Swift Package Index
+
+A 3rd-party integration can include a `.spi.yml` at its root to configure the [Swift Package Index](https://swiftpackageindex.com), for example to host DocC documentation via `documentation_targets`. Both the continuous sync and the release archive copy it to the downstream repo. Validate changes with the [online validator](https://swiftpackageindex.com/validate-spi-manifest).
+
 ## Adding a New Downstream Mirror
 
 ### For 3rd-party integrations
@@ -52,6 +59,7 @@ Craft authenticates via the GitHub org's own rules — no additional repo-level 
 3. **Add to the mirror workflow matrix** in [`.github/workflows/mirror-3rd-party-integrations.yml`](../.github/workflows/mirror-3rd-party-integrations.yml).
 4. **Add a Craft target** in [`.craft.yml`](../.craft.yml) with a `commit-on-git-repository` entry matching the archive name.
 5. **Add the archive mapping** in [`scripts/create-3rd-party-integration-archive.sh`](../scripts/create-3rd-party-integration-archive.sh).
+6. **Optionally add a `.spi.yml`** and submit the downstream repo to the [Swift Package Index](https://swiftpackageindex.com/add-a-package).
 
 ### For binary distribution repos (e.g., sentry-apple-binaries)
 

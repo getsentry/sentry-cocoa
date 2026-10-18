@@ -1,5 +1,9 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 // swiftlint:disable file_length
 import Foundation
 #if canImport(UIKit)
@@ -17,15 +21,15 @@ class SentrySessionReplayTests: XCTestCase {
         /// Main-thread capture cost reported through screenshot metadata.
         var mainThreadDuration: TimeInterval?
         var completeAsync = false
-        private var pendingCompletions = [Sentry.TimedScreenshotCallback]()
+        private var pendingCompletions = [TimedScreenshotCallback]()
 
-        func image(view: UIView, onComplete: @escaping Sentry.ScreenshotCallback) {
+        func image(view: UIView, onComplete: @escaping ScreenshotCallback) {
             timedImage(view: view) { image, _ in
                 onComplete(image)
             }
         }
 
-        func timedImage(view: UIView, onComplete: @escaping Sentry.TimedScreenshotCallback) {
+        func timedImage(view: UIView, onComplete: @escaping TimedScreenshotCallback) {
             lastImageCall = view
             imageCallCount += 1
             if completeAsync {
@@ -39,7 +43,7 @@ class SentrySessionReplayTests: XCTestCase {
             complete(pendingCompletions.removeFirst())
         }
 
-        private func complete(_ completion: Sentry.TimedScreenshotCallback) {
+        private func complete(_ completion: TimedScreenshotCallback) {
             beforeComplete?()
             completion(
                 UIImage.add,
@@ -56,9 +60,9 @@ class SentrySessionReplayTests: XCTestCase {
         var imageCallCount = 0
         var beforeComplete: (() -> Void)?
         var completeAsync = false
-        private var pendingCompletion: Sentry.ScreenshotCallback?
+        private var pendingCompletion: ScreenshotCallback?
 
-        func image(view: UIView, onComplete: @escaping Sentry.ScreenshotCallback) {
+        func image(view: UIView, onComplete: @escaping ScreenshotCallback) {
             imageCallCount += 1
             if completeAsync {
                 pendingCompletion = onComplete
@@ -73,7 +77,7 @@ class SentrySessionReplayTests: XCTestCase {
             complete(pendingCompletion)
         }
 
-        private func complete(_ completion: Sentry.ScreenshotCallback) {
+        private func complete(_ completion: ScreenshotCallback) {
             beforeComplete?()
             completion(.add)
         }
@@ -160,7 +164,7 @@ class SentrySessionReplayTests: XCTestCase {
         func createVideoInBackgroundWith(
             beginning: Date,
             end: Date,
-            completion: @escaping ([Sentry.SentryVideoInfo]) -> Void
+            completion: @escaping ([SentryVideoInfo]) -> Void
         ) {
             // Note: This implementation is just to satisfy the protocol.
             // If possible, keep the tests logic the synchronous version `createVideoWith`
@@ -175,7 +179,7 @@ class SentrySessionReplayTests: XCTestCase {
             completion(videos)
         }
 
-        func createVideoWith(beginning: Date, end: Date) -> [Sentry.SentryVideoInfo] {
+        func createVideoWith(beginning: Date, end: Date) -> [SentryVideoInfo] {
             let call = CreateVideoCall(beginning: beginning, end: end)
             createVideoCalls.append(call)
 
@@ -187,7 +191,7 @@ class SentrySessionReplayTests: XCTestCase {
             completion(videos(for: call))
         }
 
-        private func videos(for call: CreateVideoCall) -> [Sentry.SentryVideoInfo] {
+        private func videos(for call: CreateVideoCall) -> [SentryVideoInfo] {
             if !createVideoResults.isEmpty {
                 let videos = createVideoResults.removeFirst()
                 videos.forEach { createVideoCallBack?($0) }
@@ -482,6 +486,172 @@ class SentrySessionReplayTests: XCTestCase {
         XCTAssertEqual(secondSegment.segmentId, 1)
     }
     
+    // MARK: - Trace IDs (#7964)
+
+    /// Advances time and drives the run loop so exactly one full-session segment is cut.
+    private func captureFullSessionSegment(_ fixture: Fixture) {
+        fixture.dateProvider.advance(by: 1)
+        fixture.runLoopCapture()
+        fixture.dateProvider.advance(by: 5)
+        fixture.runLoopCapture()
+    }
+
+    func testRegisterTraceId_whenFullSessionSegmentCaptured_shouldIncludeTraceId() throws {
+        // -- Arrange --
+        let fixture = Fixture()
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
+        sut.start(rootView: fixture.rootView, fullSession: true)
+        let traceId = SentryId()
+
+        // -- Act --
+        sut.registerTraceId(traceId)
+        captureFullSessionSegment(fixture)
+
+        // -- Assert --
+        let segment = try XCTUnwrap(fixture.lastReplayEvent)
+        XCTAssertEqual(segment.traceIds, [traceId])
+    }
+
+    func testRegisterTraceId_whenBufferModeErrorCaptured_shouldIncludeTraceId() throws {
+        // -- Arrange --
+        let fixture = Fixture()
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 1))
+        sut.start(rootView: fixture.rootView, fullSession: false)
+        let traceId = SentryId()
+
+        // -- Act --
+        sut.registerTraceId(traceId)
+        sut.captureReplayFor(event: Event(error: NSError(domain: "Some error", code: 1)))
+
+        // -- Assert --
+        let segment = try XCTUnwrap(fixture.lastReplayEvent)
+        XCTAssertEqual(segment.traceIds, [traceId])
+    }
+
+    func testRegisterTraceId_whenMoreThan100Registered_shouldCapAt100() throws {
+        // -- Arrange --
+        let fixture = Fixture()
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
+        sut.start(rootView: fixture.rootView, fullSession: true)
+
+        // -- Act --
+        for _ in 0..<150 {
+            sut.registerTraceId(SentryId())
+        }
+        captureFullSessionSegment(fixture)
+
+        // -- Assert --
+        let segment = try XCTUnwrap(fixture.lastReplayEvent)
+        XCTAssertEqual(segment.traceIds?.count, 100)
+    }
+
+    func testRegisterTraceId_whenOverCap_shouldEvictOldestAndKeepNewest() throws {
+        // A buffer replay drains only on flush, so the triggering event's trace (registered last)
+        // must survive the cap. The oldest is evicted instead of dropping the newest.
+        // -- Arrange --
+        let fixture = Fixture()
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
+        sut.start(rootView: fixture.rootView, fullSession: true)
+        let oldest = SentryId()
+        let trigger = SentryId()
+
+        // -- Act --
+        sut.registerTraceId(oldest)
+        for _ in 0..<99 { // fill the cap: oldest + 99 = 100
+            sut.registerTraceId(SentryId())
+        }
+        sut.registerTraceId(trigger) // 101st: evicts `oldest`
+        captureFullSessionSegment(fixture)
+
+        // -- Assert --
+        let segment = try XCTUnwrap(fixture.lastReplayEvent)
+        let traceIds = try XCTUnwrap(segment.traceIds)
+        XCTAssertEqual(traceIds.count, 100)
+        XCTAssertTrue(traceIds.contains(trigger), "The newest (triggering) trace must be retained")
+        XCTAssertFalse(traceIds.contains(oldest), "The oldest trace must be evicted at the cap")
+    }
+
+    func testRegisterTraceId_afterSegmentCaptured_shouldClearBufferForNextSegment() throws {
+        // -- Arrange --
+        let fixture = Fixture()
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
+        sut.start(rootView: fixture.rootView, fullSession: true)
+        let traceId = SentryId()
+
+        // -- Act --
+        sut.registerTraceId(traceId)
+        captureFullSessionSegment(fixture)
+        let firstSegment = try XCTUnwrap(fixture.lastReplayEvent)
+
+        captureFullSessionSegment(fixture)
+        let secondSegment = try XCTUnwrap(fixture.lastReplayEvent)
+
+        // -- Assert --
+        XCTAssertEqual(firstSegment.traceIds, [traceId])
+        XCTAssertNil(secondSegment.traceIds)
+    }
+
+    func testRegisterTraceId_whenEmpty_shouldIgnore() throws {
+        // -- Arrange --
+        let fixture = Fixture()
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
+        sut.start(rootView: fixture.rootView, fullSession: true)
+
+        // -- Act --
+        sut.registerTraceId(SentryId.empty)
+        captureFullSessionSegment(fixture)
+
+        // -- Assert --
+        let segment = try XCTUnwrap(fixture.lastReplayEvent)
+        XCTAssertNil(segment.traceIds)
+    }
+
+    func testRegisterTraceId_whenDuplicate_shouldDeduplicate() throws {
+        // -- Arrange --
+        let fixture = Fixture()
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
+        sut.start(rootView: fixture.rootView, fullSession: true)
+        let traceId = SentryId()
+
+        // -- Act --
+        sut.registerTraceId(traceId)
+        sut.registerTraceId(traceId)
+        captureFullSessionSegment(fixture)
+
+        // -- Assert --
+        let segment = try XCTUnwrap(fixture.lastReplayEvent)
+        XCTAssertEqual(segment.traceIds, [traceId])
+    }
+
+    func testRegisterTraceId_whenCalledConcurrently_shouldBeThreadSafe() throws {
+        // -- Arrange --
+        let fixture = Fixture()
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
+        sut.start(rootView: fixture.rootView, fullSession: true)
+        let ids = (0..<200).map { _ in SentryId() }
+
+        // -- Act --
+        let queue = DispatchQueue(label: "io.sentry.test.trace-id", attributes: .concurrent)
+        let allRegistered = expectation(description: "All trace IDs registered")
+        allRegistered.expectedFulfillmentCount = ids.count
+        for id in ids {
+            queue.async {
+                sut.registerTraceId(id)
+                allRegistered.fulfill()
+            }
+        }
+        wait(for: [allRegistered], timeout: 5)
+        captureFullSessionSegment(fixture)
+
+        // -- Assert --
+        let segment = try XCTUnwrap(fixture.lastReplayEvent)
+        // Capped at 100; the assertion is primarily that concurrent access neither crashes nor
+        // corrupts the buffer (would trip the thread sanitizer otherwise).
+        XCTAssertEqual(segment.traceIds?.count, 100)
+        let registered = Set(ids)
+        XCTAssertTrue(try XCTUnwrap(segment.traceIds).allSatisfy { registered.contains($0) })
+    }
+
     func testDontChangeReplayMode_forNonErrorEvent() {
         let fixture = Fixture()
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
@@ -503,6 +673,65 @@ class SentrySessionReplayTests: XCTestCase {
 
         XCTAssertEqual(fixture.lastReplayId, sut.sessionReplayId)
         assertFullSession(sut, expected: true)
+    }
+
+    func testCaptureForFeedback_whenBuffering_shouldFlushPrecedingBufferBeforeVideoCompletes() throws {
+        // -- Arrange --
+        let fixture = Fixture()
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 1))
+        sut.start(rootView: fixture.rootView, fullSession: false)
+        fixture.dateProvider.advance(by: 60)
+        fixture.replayMaker.deferCreateVideoCompletion = true
+        let openingTime = fixture.dateProvider.date()
+
+        // -- Act --
+        let replayId = sut.captureForFeedback()
+
+        // -- Assert --
+        XCTAssertEqual(replayId, sut.sessionReplayId)
+        XCTAssertTrue(sut.isFullSession)
+        XCTAssertNil(fixture.lastReplayEvent)
+        let capture = try XCTUnwrap(fixture.replayMaker.lastCallToCreateVideo)
+        XCTAssertEqual(capture.beginning, openingTime.addingTimeInterval(-30.5))
+        XCTAssertEqual(capture.end, openingTime)
+    }
+
+    func testCaptureForFeedback_whenFullSession_shouldFlushCurrentSegmentWithoutChangingReplay() throws {
+        // -- Arrange --
+        let fixture = Fixture()
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 0))
+        sut.start(rootView: fixture.rootView, fullSession: true)
+        let replayId = try XCTUnwrap(sut.sessionReplayId)
+        let start = fixture.dateProvider.date()
+        fixture.dateProvider.advance(by: 2)
+        fixture.isFullSession = false // Any attempt to sample again would be rejected.
+
+        // -- Act --
+        let capturedReplayId = sut.captureForFeedback()
+
+        // -- Assert --
+        XCTAssertEqual(capturedReplayId, replayId)
+        XCTAssertTrue(sut.isRunning)
+        let capture = try XCTUnwrap(fixture.replayMaker.lastCallToCreateVideo)
+        XCTAssertEqual(capture.beginning, start)
+        XCTAssertEqual(capture.end, start.addingTimeInterval(2))
+        XCTAssertEqual(fixture.lastReplayEvent?.replayType, .session)
+    }
+
+    func testCaptureForFeedback_whenPaused_shouldNotFlushOrResume() {
+        // -- Arrange --
+        let fixture = Fixture()
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 1))
+        sut.start(rootView: fixture.rootView, fullSession: false)
+        sut.pause()
+
+        // -- Act --
+        let replayId = sut.captureForFeedback()
+
+        // -- Assert --
+        XCTAssertNil(replayId)
+        XCTAssertFalse(sut.isRunning)
+        XCTAssertNil(fixture.replayMaker.lastCallToCreateVideo)
     }
 
     func testFlush_shouldKeepSessionReplayTypeForFollowingSegments() throws {

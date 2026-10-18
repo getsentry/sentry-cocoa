@@ -1,5 +1,9 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import AVFoundation
 import CoreMedia
 import Foundation
@@ -110,6 +114,27 @@ class SentryOnDemandReplayTests: XCTestCase {
         for i in 0..<4 {
             XCTAssertEqual(frames[i].screenName, "\(i)")
         }
+    }
+
+    func testCreateVideoWith_whenCalledOnProcessingQueue_shouldComplete() {
+        // -- Arrange --
+        let processingQueue = SentryDispatchQueueWrapper()
+        let sut = SentryOnDemandReplay(
+            outputPath: outputPath.path,
+            processingQueue: processingQueue,
+            assetWorkerQueue: SentryDispatchQueueWrapper()
+        )
+        let start = Date(timeIntervalSinceReferenceDate: 0)
+        let completed = expectation(description: "createVideoWith completed on processing queue")
+
+        // -- Act --
+        processingQueue.queue.async {
+            _ = sut.createVideoWith(beginning: start, end: start.addingTimeInterval(1))
+            completed.fulfill()
+        }
+
+        // -- Assert --
+        wait(for: [completed], timeout: 1)
     }
     
     func testGenerateVideo() throws {
@@ -452,7 +477,11 @@ class SentryOnDemandReplayTests: XCTestCase {
         let imagePath = outputPath
             .appendingPathComponent("\(start.timeIntervalSinceReferenceDate)")
             .appendingPathExtension("png")
-        try UIImage.add.pngData()?.write(to: imagePath)
+        let imageData = UIGraphicsImageRenderer(size: CGSize(width: 10, height: 10)).pngData { ctx in
+            UIColor.red.setFill()
+            ctx.fill(CGRect(x: 0, y: 0, width: 10, height: 10))
+        }
+        try imageData.write(to: imagePath)
 
         sut.frames = [
             SentryReplayFrame(imagePath: imagePath.path, time: start, screenName: nil, image: nil)
@@ -495,7 +524,11 @@ class SentryOnDemandReplayTests: XCTestCase {
         let imagePath = outputPath
             .appendingPathComponent("\(start.timeIntervalSinceReferenceDate)")
             .appendingPathExtension("png")
-        try UIImage.add.pngData()?.write(to: imagePath)
+        let imageData = UIGraphicsImageRenderer(size: CGSize(width: 10, height: 10)).pngData { ctx in
+            UIColor.red.setFill()
+            ctx.fill(CGRect(x: 0, y: 0, width: 10, height: 10))
+        }
+        try imageData.write(to: imagePath)
 
         // -- Act --
         let sut = SentryOnDemandReplay(

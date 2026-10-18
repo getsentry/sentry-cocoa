@@ -1,5 +1,12 @@
 import Foundation
 
+// This is needed because a file that only contains an @objc extension will get automatically stripped out
+// in static builds. We need to either use the -all_load linker flag (which has downsides of app size increases)
+// or make sure that every file containing objc categories/extensions also have a concrete type that
+// is referenced.
+// swiftlint:disable:next missing_docs
+@_spi(Private) @objc public final class PlaceholderReplayNetworkDetailsClass: NSObject { }
+
 extension SentryReplayNetworkDetails {
     /// Sets request details from raw body data.
     @objc

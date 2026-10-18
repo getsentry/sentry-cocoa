@@ -101,7 +101,7 @@ jobs:
           INPUT_SUFFIX: ${{ inputs.suffix }}
           INPUT_MACHO_TYPE: ${{ inputs.macho-type }}
           INPUT_CONFIG_SUFFIX: ${{ inputs.configuration-suffix }}
-        run: ./scripts/build-xcframework-slice.sh "$MATRIX_SDK" "$INPUT_NAME" "$INPUT_SUFFIX" "$INPUT_MACHO_TYPE" "$INPUT_CONFIG_SUFFIX"
+        run: ./scripts/build-xcframework-slice.sh --sdk "$MATRIX_SDK" --scheme "$INPUT_NAME" --suffix "$INPUT_SUFFIX" --mach-o-type "$INPUT_MACHO_TYPE" --configuration-suffix "$INPUT_CONFIG_SUFFIX"
         shell: bash
 
       # SentrySwiftUI depends on Sentry, which gets built as a byproduct.

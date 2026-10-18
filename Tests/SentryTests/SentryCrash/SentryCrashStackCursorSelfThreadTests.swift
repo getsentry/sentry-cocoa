@@ -1,4 +1,11 @@
+#if !SDK_V10
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
+import SentryTestUtilsObjC
 import XCTest
 
 final class SentryCrashStackCursorSelfThreadTests: XCTestCase {
@@ -23,3 +30,5 @@ final class SentryCrashStackCursorSelfThreadTests: XCTestCase {
         XCTAssertEqual(logOutput.loggedMessages.count, 0, "sentrycrashsc_initSelfThread can be called when crashing and MUST NOT use non async safe logging. You must use SENTRY_ASYNC_SAFE_LOG instead.")
     }
 }
+
+#endif // !SDK_V10

@@ -6,6 +6,18 @@ internal import _SentryPrivate
 // nor we want to continue using the DependencyContainer
 private weak var globalScreenshotSource: SentryScreenshotSource?
 
+#if SDK_V10
+private let crashTimeScreenshotWriter: @convention(c) (UnsafePointer<CChar>) -> Void = { path in
+    sentrykscrash_attachments_log("screenshot writer: enter")
+    guard let source = globalScreenshotSource else {
+        sentrykscrash_attachments_log("screenshot writer: source is nil")
+        return
+    }
+    source.saveScreenShots(String(cString: path))
+    sentrykscrash_attachments_log("screenshot writer: returned")
+}
+#endif
+
 final class SentryScreenshotIntegration<Dependencies: ScreenshotIntegrationProvider>: NSObject, SwiftIntegration, SentryClientAttachmentProcessor {
     private let options: Options
     private let screenshotSource: SentryScreenshotSource
@@ -33,26 +45,25 @@ final class SentryScreenshotIntegration<Dependencies: ScreenshotIntegrationProvi
         }
 
         globalScreenshotSource = screenshotSource
-#if !SENTRY_DISABLE_SENTRYCRASH_V10
+#if SDK_V10
+        SentryDependencyContainer.sharedInstance().getKSCrashInstaller().setScreenshotProvider(
+            crashTimeScreenshotWriter
+        )
+#else
         sentrycrash_setSaveScreenshots { path in
             guard let path = path else { return }
             let reportPath = String(cString: path)
             globalScreenshotSource?.saveScreenShots(reportPath)
         }
-#else
-        // KSCRASH_TODO(GH-8273, GH-8532): Nonfatal screenshots still work, but V10 does not
-        // register a fatal-crash screenshot callback. Acceptance: SCV10-008 in
-        // SENTRYCRASH_V10_MIGRATION_LEDGER.md.
 #endif
     }
 
     func uninstall() {
         globalScreenshotSource = nil
-#if !SENTRY_DISABLE_SENTRYCRASH_V10
-        sentrycrash_setSaveScreenshots(nil)
+#if SDK_V10
+        SentryDependencyContainer.sharedInstance().getKSCrashInstaller().setScreenshotProvider(nil)
 #else
-        // KSCRASH_TODO(GH-8273, GH-8532): V10 has no fatal-crash screenshot callback to remove.
-        // Acceptance: SCV10-008 in SENTRYCRASH_V10_MIGRATION_LEDGER.md.
+        sentrycrash_setSaveScreenshots(nil)
 #endif
         client?.removeAttachmentProcessor(self)
     }

@@ -17,9 +17,9 @@ OUTPUT=""
 DEFINES=()
 
 usage() {
-    log_notice "Usage: $0"
-    log_notice "  --output <path>      Output JSON file path (required)"
-    log_notice "  --define <NAME=VAL>  Preprocessor define passed to clang (repeatable)"
+    log_info "Usage: $0"
+    log_info "  --output <path>      Output JSON file path (required)"
+    log_info "  --define <NAME=VAL>  Preprocessor define passed to clang (repeatable)"
     exit 1
 }
 

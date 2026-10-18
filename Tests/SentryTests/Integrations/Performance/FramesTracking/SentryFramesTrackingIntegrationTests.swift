@@ -1,5 +1,9 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
 #if os(iOS) || os(tvOS) || os(visionOS)
@@ -30,7 +34,7 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
     }
     
     override func tearDown() {
-        PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode = false
+        SentrySDK.internal.performance.framesTrackingHybridSDKMode = false
         // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
         super.tearDown()
@@ -72,7 +76,7 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
         XCTAssertNotNil(sut?.tracker)
     }
 
-    func testAppHangEnabled_ButIntervalZero_DoestNotMeasuresFrames() {
+    func testAppHangEnabled_ButIntervalZero_ResetsToDefaultAndMeasuresFrames() {
         let options = fixture.options
         options.appHangTimeoutInterval = 0.0
         options.enableWatchdogTerminationTracking = false
@@ -81,14 +85,18 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
             sut?.uninstall()
         }
 
-        XCTAssertNil(sut)
+        XCTAssertEqual(2.0, options.appHangTimeoutInterval)
+        XCTAssertNotNil(sut)
     }
     #endif // !SDK_V10
 
+    @available(*, deprecated, message: "Testing deprecated App Hang tracking option")
     func testZeroTracesSampleRate_DoesNotMeasureFrames() {
         let options = fixture.options
         options.tracesSampleRate = 0.0
-        options.appHangTimeoutInterval = 0.0
+        #if !SDK_V10
+        options.enableAppHangTracking = false
+        #endif // !SDK_V10
         options.enableWatchdogTerminationTracking = false
         let sut = SentryFramesTrackingIntegration(with: options, dependencies: fixture.dependencies)
         defer {
@@ -98,6 +106,7 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
         XCTAssertNil(sut)
     }
 
+    @available(*, deprecated, message: "Testing deprecated App Hang tracking option")
     func testAutoPerformanceTrackingDisabled_DoesNotMeasureFrames() {
         let options = fixture.options
         options.tracesSampleRate = 0.1
@@ -116,9 +125,9 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
 
     func test_HybridSDKEnables_MeasureFrames() {
         // -- Arrange --
-        let original = PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode
-        PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode = true
-        defer { PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode = original }
+        let original = SentrySDK.internal.performance.framesTrackingHybridSDKMode
+        SentrySDK.internal.performance.framesTrackingHybridSDKMode = true
+        defer { SentrySDK.internal.performance.framesTrackingHybridSDKMode = original }
 
         // -- Act --
 

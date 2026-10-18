@@ -25,11 +25,11 @@ SEARCH_PATH=""
 MESSAGE=""
 
 usage() {
-    log_notice "Usage: $0 --pattern <ere> --rule <id> --path <path> [--message <text>]"
-    log_notice "  --pattern <ere>   Extended regex to ban (plain strings match literally) (required)"
-    log_notice "  --rule <id>       Suppression marker id: // sentry-lint:disable <id> (required)"
-    log_notice "  --path <path>     File or directory scanned recursively for .m/.mm/.h sources (required)"
-    log_notice "  --message <text>  Custom guidance shown on violations (optional)"
+    log_info "Usage: $0 --pattern <ere> --rule <id> --path <path> [--message <text>]"
+    log_info "  --pattern <ere>   Extended regex to ban (plain strings match literally) (required)"
+    log_info "  --rule <id>       Suppression marker id: // sentry-lint:disable <id> (required)"
+    log_info "  --path <path>     File or directory scanned recursively for .m/.mm/.h sources (required)"
+    log_info "  --message <text>  Custom guidance shown on violations (optional)"
     exit 1
 }
 

@@ -44,10 +44,10 @@ CONFIGURATION_SUFFIX="V10"
 ARM64E_DEVICE_SDKS=( iphoneos macosx maccatalyst appletvos watchos xros )
 
 usage() {
-    log_notice "Usage: $0 [options]"
-    log_notice "  --suffix <suffix>      Output xcframework name suffix (default: empty)"
-    log_notice "  --mach-o-type <type>   staticlib for a static build; omit for dynamic (default: inherit from xcconfig)"
-    log_notice "  --sdks <list>          Comma-separated SDKs or AllSDKs (default: all)"
+    log_info "Usage: $0 [options]"
+    log_info "  --suffix <suffix>      Output xcframework name suffix (default: empty)"
+    log_info "  --mach-o-type <type>   staticlib for a static build; omit for dynamic (default: inherit from xcconfig)"
+    log_info "  --sdks <list>          Comma-separated SDKs or AllSDKs (default: all)"
     exit 1
 }
 
@@ -68,33 +68,42 @@ else
 fi
 
 for sdk in "${sdks[@]}"; do
-    extra_build_settings=()
+    # ARCHS from an xcconfig does not propagate into SwiftPM sub-targets. Pass the standard
+    # architecture set for every SDK so simulator packages do not collapse to the host architecture.
+    extra_build_settings=( "ARCHS=\$(ARCHS_STANDARD)" )
 
     for arm64e_sdk in "${ARM64E_DEVICE_SDKS[@]}"; do
         if [[ "$sdk" == "$arm64e_sdk" ]]; then
-            # Pass ARCHS on the command line so it propagates to SPM sub-targets
-            # (KSCrash packages), ensuring arm64e symbols are present in all
-            # architectures of the fat binary.
-            extra_build_settings+=( "ARCHS=\$(ARCHS_STANDARD) arm64e" )
+            # Device SDKs additionally carry the arm64e release slice.
+            extra_build_settings=( "ARCHS=\$(ARCHS_STANDARD) arm64e" )
             break
         fi
     done
 
-    "$SCRIPT_DIR/build-xcframework-slice.sh" \
-        "$sdk" \
-        "$SCHEME" \
-        "$SUFFIX" \
-        "$MACH_O_TYPE" \
-        "$CONFIGURATION_SUFFIX" \
-        "$PRODUCT_NAME" \
-        "${extra_build_settings[@]+"${extra_build_settings[@]}"}"
+    slice_args=(--sdk "$sdk" --scheme "$SCHEME" --suffix "$SUFFIX"
+        --mach-o-type "$MACH_O_TYPE" --configuration-suffix "$CONFIGURATION_SUFFIX"
+        --product-name "$PRODUCT_NAME")
+    for setting in "${extra_build_settings[@]+"${extra_build_settings[@]}"}"; do
+        slice_args+=(--build-setting "$setting")
+    done
+    "$SCRIPT_DIR/build-xcframework-slice.sh" "${slice_args[@]}"
+
+    # Archive moves installed products away, leaving dangling BuildProductsPath aliases.
+    # All recorded compiler outputs remain in IntermediateBuildFilesPath; the audit
+    # requires every recorded output to be inside this root and present on disk.
+    objects_path="XCFrameworkBuildPath/DerivedData/Build/Intermediates.noindex"
+    if [[ "$sdk" != maccatalyst ]]; then
+        objects_path+="/ArchiveIntermediates/$SCHEME/IntermediateBuildFilesPath"
+    fi
+
+    # Audit each completed slice before the next build replaces its output and log.
+    "$SCRIPT_DIR/verify-v10-sentrycrash-objects.sh" \
+        --build-path "$objects_path" \
+        --build-log XCFrameworkBuildPath/raw-build-output.log
 done
 
 xcframework_sdks="$(IFS=,; echo "${sdks[*]}")"
-"$SCRIPT_DIR/assemble-xcframework.sh" \
-    "$SCHEME" \
-    "$SUFFIX" \
-    "" \
-    "$xcframework_sdks" \
-    "$(pwd)/XCFrameworkBuildPath/archive/$SCHEME$SUFFIX/SDK_NAME.xcarchive" \
-    "$PRODUCT_NAME"
+"$SCRIPT_DIR/assemble-xcframework.sh" --scheme "$SCHEME" --suffix "$SUFFIX" \
+    --sdks "$xcframework_sdks" \
+    --archive-template "$(pwd)/XCFrameworkBuildPath/archive/$SCHEME$SUFFIX/SDK_NAME.xcarchive" \
+    --product-name "$PRODUCT_NAME"

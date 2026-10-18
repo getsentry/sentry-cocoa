@@ -1,5 +1,9 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import _SentryPrivate
 import XCTest
 
@@ -58,7 +62,7 @@ class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
     override func tearDown() {
         super.tearDown()
         fixture.fileManager.deleteAppState()
-        PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = false
+        SentrySDK.internal.appStart.hybridSDKMode = false
         SentrySDKInternal.setAppStartMeasurement(nil)
         // swiftlint:disable:next avoid_clear_test_state - just disabled to allow adding the SwiftLint rule. Please double check if you can remove this when touching this.
         clearTestState()
@@ -94,7 +98,7 @@ class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
     }
 
     func testHybridSDKModeEnabled_properlySetupTracker() throws {
-        PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = true
+        SentrySDK.internal.appStart.hybridSDKMode = true
 
         let options = fixture.options
         options.tracesSampleRate = 0.0

@@ -1,5 +1,9 @@
 @_spi(Private) import _SentryPrivate
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import CoreData
 import SentryTestUtils
 import XCTest
@@ -53,7 +57,7 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
             sut.uninstall()
         }
 
-        XCTAssertTrue(SentryCoreDataSwizzlingHelper.swizzlingActive())
+        XCTAssertTrue(SentryCoreDataTrackerProxy.shared.target != nil)
     }
     
     func test_Install_swizzlingDisabled() {
@@ -127,7 +131,7 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
         confOptions(options)
 
         // Save current swizzling state
-        let wasSwizzlingActive = SentryCoreDataSwizzlingHelper.swizzlingActive()
+        let wasSwizzlingActive = SentryCoreDataTrackerProxy.shared.target != nil
 
         let sut = SentryCoreDataTrackingIntegration(
             with: options,
@@ -136,7 +140,7 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
         XCTAssertNil(sut, file: file, line: line)
 
         // Swizzling state should not have changed
-        XCTAssertEqual(SentryCoreDataSwizzlingHelper.swizzlingActive(), wasSwizzlingActive, file: file, line: line)
+        XCTAssertEqual(SentryCoreDataTrackerProxy.shared.target != nil, wasSwizzlingActive, file: file, line: line)
     }
     
     private func startTransaction() throws -> SentryTracer {

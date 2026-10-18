@@ -1,7 +1,11 @@
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @testable import Sentry
+#endif
 
 extension SentrySDKSettings {
-    public static func == (lhs: Sentry.SentrySDKSettings, rhs: Sentry.SentrySDKSettings) -> Bool {
+    public static func == (lhs: SentrySDKSettings, rhs: SentrySDKSettings) -> Bool {
         lhs.autoInferIP == rhs.autoInferIP
     }
 }

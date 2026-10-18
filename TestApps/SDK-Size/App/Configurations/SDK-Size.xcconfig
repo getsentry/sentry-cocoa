@@ -1,0 +1,22 @@
+#include "../../../Shared/Config/_Common.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.SDK-Size
+
+PROVISIONING_PROFILE_SPECIFIER_Debug = match Development io.sentry.sample.SDK-Size
+PROVISIONING_PROFILE_SPECIFIER_Test = match Development io.sentry.sample.SDK-Size
+PROVISIONING_PROFILE_SPECIFIER_TestCI = match Development io.sentry.sample.SDK-Size
+PROVISIONING_PROFILE_SPECIFIER_Release = match AppStore io.sentry.sample.SDK-Size
+PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*] = $(PROVISIONING_PROFILE_SPECIFIER_$(CONFIGURATION))
+PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*] =
+
+CODE_SIGN_STYLE = Manual
+
+SUPPORTED_PLATFORMS = iphoneos iphonesimulator
+
+EXPORTED_SYMBOLS_FILE_Release = $(SRCROOT)/App/Configurations/ExportedSymbols.txt
+EXPORTED_SYMBOLS_FILE = $(EXPORTED_SYMBOLS_FILE_$(CONFIGURATION))
+
+// Debug builds use DWARF without a dSYM and skip stripping.
+SYMBOL_STRIPPING_INPUT_Debug = $(TARGET_BUILD_DIR)/$(EXECUTABLE_PATH)
+SYMBOL_STRIPPING_INPUT_Release = $(DWARF_DSYM_FOLDER_PATH)/$(DWARF_DSYM_FILE_NAME)/Contents/Resources/DWARF/$(EXECUTABLE_NAME)
+SYMBOL_STRIPPING_INPUT = $(SYMBOL_STRIPPING_INPUT_$(CONFIGURATION))

@@ -310,6 +310,9 @@ SENTRY_NO_INIT
  */
 + (void)addBreadcrumb:(SentryBreadcrumb *)crumb NS_SWIFT_NAME(addBreadcrumb(_:));
 
++ (void)addBreadcrumb:(SentryBreadcrumb *)crumb
+             withHint:(SENTRY_SWIFT_MIGRATION_ID(SentryHint)_Nullable)hint;
+
 /**
  * Use this method to modify the current Scope of the current Hub. The SDK uses the Scope to attach
  * contextual data to events.

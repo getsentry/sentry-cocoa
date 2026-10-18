@@ -1,4 +1,8 @@
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
 final class SentryOptionsTests: XCTestCase {
@@ -13,6 +17,14 @@ final class SentryOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertFalse(options.responds(to: NSSelectorFromString("sendDefaultPii")))
 #endif
+    }
+
+    func testEnableNewURLLoaderSwizzling_whenDefault_shouldBeFalse() {
+        // -- Arrange --
+        let options = Options()
+
+        // -- Assert --
+        XCTAssertFalse(options.experimental.enableNewURLLoaderSwizzling)
     }
 
     // MARK: - Data Collection

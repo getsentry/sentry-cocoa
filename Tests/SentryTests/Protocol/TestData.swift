@@ -1,6 +1,13 @@
+import _SentryPrivate
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) import Sentry
+#endif
 @_spi(Private) import SentryTestUtils
+#if !SWIFT_PACKAGE
 import Sentry
+#endif
 
 #if os(iOS) || os(tvOS) || os(visionOS)
 import UIKit

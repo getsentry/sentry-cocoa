@@ -59,7 +59,7 @@ jobs:
   auto-update-tools:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_auto_update_tools_for_prs == 'true'
     needs: files-changed
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
       - name: Generate GitHub App Token
         id: app_token
@@ -73,6 +73,17 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           token: ${{ github.event_name != 'pull_request' && steps.app_token.outputs.token || github.token }}
+
+      # Bazel is required so `make update-versions` can regenerate
+      # linters/SwiftLintCustomRules/MODULE.bazel.lock after bumping SwiftLint.
+      - uses: bazel-contrib/setup-bazel@c5acdfb288317d0b5c0bbd7a396a3dc868bb0f86 # v0.19.0
+        with:
+          module-root: linters/SwiftLintCustomRules
+          bazelisk-cache: true
+          disk-cache: ${{ github.workflow }}
+          repository-cache: linters/SwiftLintCustomRules/MODULE.bazel.lock
+          external-cache: true
+          cache-save: ${{ github.event_name != 'pull_request' }}
 
       - name: Install Tools
         run: make init
@@ -100,19 +111,24 @@ jobs:
           title: "chore(deps): Update clang-format version"
           sign-commits: true
           base: main
+          labels: run-full-ci
 
       - name: Create pull request for swiftlint version
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
         with:
           token: ${{ steps.app_token.outputs.token }}
-          add-paths: scripts/.swiftlint-version
+          add-paths: |
+            scripts/.swiftlint-version
+            linters/SwiftLintCustomRules/MODULE.bazel
+            linters/SwiftLintCustomRules/MODULE.bazel.lock
           branch: github-actions/auto-update-tools-swiftlint
           commit-message: "chore(deps): Update swiftlint version"
           delete-branch: true
           title: "chore(deps): Update swiftlint version"
           sign-commits: true
           base: main
+          labels: run-full-ci
 
       - name: Create pull request for xcodegen version
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
@@ -126,6 +142,7 @@ jobs:
           title: "chore(deps): Update xcodegen version"
           sign-commits: true
           base: main
+          labels: run-full-ci
 
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics

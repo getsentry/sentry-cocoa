@@ -1,6 +1,10 @@
 #if !SDK_V10
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
 #if os(iOS) || os(tvOS)
@@ -670,23 +674,18 @@ final class SentryANRTrackerV2Tests: XCTestCase {
 
         let listener = SentryANRTrackerV2TestDelegate(shouldANRBeDetected: false, shouldStoppedBeCalled: false)
 
-        // So ARC deallocates SentryANRTrackerTestDelegate
-        let addListenersCount = 10
-        func addListeners() {
-            for _ in 0..<addListenersCount {
-                sut.add(listener: SentryANRTrackerV2TestDelegate())
-            }
+        weak var releasedListener: DelegateWrapper?
+        autoreleasepool {
+            let wrapper = DelegateWrapper(helper: listener)
+            releasedListener = wrapper
+            sut.helper.addListener(wrapper)
         }
-        addListeners()
+        XCTAssertNil(releasedListener, "The tracker must not retain its listeners")
 
         sut.add(listener: listener)
         sut.remove(listener: listener)
 
         triggerFullyBlockingAppHang(currentDate)
-
-        let listeners = Dynamic(sut.helper).listeners.asObject as? NSHashTable<NSObject>
-
-        XCTAssertGreaterThan(addListenersCount, listeners?.count ?? addListenersCount)
 
         wait(for: [listener.anrDetectedExpectation, listener.anrStoppedExpectation], timeout: self.waitTimeout)
     }
@@ -773,7 +772,7 @@ class SentryANRTrackerV2TestDelegate: NSObject, SentryANRTrackerDelegate {
 
     let anrDetectedExpectation = XCTestExpectation(description: "Test Delegate ANR Detection")
     let anrStoppedExpectation  = XCTestExpectation(description: "Test Delegate ANR Stopped")
-    let anrsDetected = Invocations<Sentry.SentryANRType>()
+    let anrsDetected = Invocations<SentryANRType>()
     let anrStoppedResults = Invocations<SentryANRStoppedResult>()
     private let blockOnFirstANRStopped: (() -> Void)?
 
@@ -807,7 +806,7 @@ class SentryANRTrackerV2TestDelegate: NSObject, SentryANRTrackerDelegate {
         anrStoppedExpectation.fulfill()
     }
 
-    func anrDetected(type: Sentry.SentryANRType) {
+    func anrDetected(type: SentryANRType) {
         anrsDetected.record(type)
         anrDetectedExpectation.fulfill()
     }

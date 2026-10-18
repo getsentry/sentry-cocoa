@@ -1,5 +1,10 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
 import XCTest
 
 // swiftlint:disable file_length
@@ -1411,15 +1416,15 @@ class SentryHubTests: XCTestCase {
         assertNoEnvelopesCaptured()
     }
     
-    func testCaptureReplay() {
+    func testCaptureReplay() throws {
         class SentryClientMockReplay: SentryClientInternal {
             var replayEvent: SentryReplayEvent?
             var replayRecording: SentryReplayRecording?
             var videoUrl: URL?
             var scope: Scope?
-            override func capture(_ replayEvent: SentryReplayEvent, replayRecording: SentryReplayRecording, video videoURL: URL, with scope: Scope) {
-                self.replayEvent = replayEvent
-                self.replayRecording = replayRecording
+            override func capture(_ event: Any, replayRecording recording: Any, video videoURL: URL, with scope: Scope) {
+                self.replayEvent = event as? SentryReplayEvent
+                self.replayRecording = recording as? SentryReplayRecording
                 self.videoUrl = videoURL
                 self.scope = scope
             }
@@ -1428,7 +1433,7 @@ class SentryHubTests: XCTestCase {
         
         let replayEvent = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(), replayType: .buffer, segmentId: 1)
         let replayRecording = SentryReplayRecording(segmentId: 3, size: 200, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 930, width: 390, extraEvents: [])
-        let videoUrl = URL(string: "https://sentry.io")!
+        let videoUrl = try XCTUnwrap(URL(string: "https://sentry.io"))
         
         sut.bindClient(mockClient)
         sut.captureReplayEvent(replayEvent, replayRecording: replayRecording, video: videoUrl)
@@ -2222,7 +2227,7 @@ class TestTimeToDisplayTracker: SentryTimeToDisplayTracker {
 #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
 #if os(iOS) || os(tvOS)
 private class MockScreenshotProvider: NSObject, SentryViewScreenshotProvider {
-    func image(view: UIView, onComplete: @escaping Sentry.ScreenshotCallback) {
+    func image(view: UIView, onComplete: @escaping ScreenshotCallback) {
         onComplete(UIImage())
     }
 }
@@ -2237,8 +2242,8 @@ private class MockReplayDelegate: NSObject, SentrySessionReplayDelegate {
 }
 
 private class MockReplayMaker: NSObject, SentryReplayVideoMaker {
-    func createVideoInBackgroundWith(beginning: Date, end: Date, completion: @escaping ([Sentry.SentryVideoInfo]) -> Void) {}
-    func createVideoWith(beginning: Date, end: Date) -> [Sentry.SentryVideoInfo] { return [] }
+    func createVideoInBackgroundWith(beginning: Date, end: Date, completion: @escaping ([SentryVideoInfo]) -> Void) {}
+    func createVideoWith(beginning: Date, end: Date) -> [SentryVideoInfo] { return [] }
     func addFrameAsync(timestamp: Date, maskedViewImage: UIImage, forScreen: String?) {}
     func releaseFramesUntil(_ date: Date) {}
 }

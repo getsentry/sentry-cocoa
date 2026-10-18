@@ -68,6 +68,8 @@ SENTRY_NO_INIT
 
 /**
  * The timestamp of which the span ended.
+ * @note The accessors are synchronized together with @c isFinished because the tracer reads the
+ * timestamps of finished child spans from another thread.
  */
 @property (nullable, nonatomic, strong) NSDate *timestamp;
 
@@ -104,7 +106,8 @@ SENTRY_NO_INIT
 - (instancetype)initWithTracer:(SentryTracer *)transaction
                        context:(SentrySpanContext *)context
 #if SENTRY_HAS_UIKIT
-                 framesTracker:(nullable SentryFramesTracker *)framesTracker;
+                 framesTracker:
+                     (nullable SENTRY_SWIFT_MIGRATION_ID(SentryFramesTracker))framesTracker;
 #endif // SENTRY_HAS_UIKIT
 ;
 

@@ -1,4 +1,8 @@
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @testable @_spi(Private) import Sentry
+#endif
 
 final class TestNSURLRequestBuilder: SentryNSURLRequestBuilder {
     var shouldFailWithError: Bool = false

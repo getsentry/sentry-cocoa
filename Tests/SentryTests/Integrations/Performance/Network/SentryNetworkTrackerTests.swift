@@ -1,5 +1,10 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
 import ObjectiveC
 import XCTest
 
@@ -82,6 +87,19 @@ class SentryNetworkTrackerTests: XCTestCase {
         let span = try XCTUnwrap(spanForTask(task: task))
 
         try assertCompletedSpan(task, span)
+    }
+
+    func testURLSessionTaskCompleted_whenNewLoaderDisabled_shouldNotFinishSpan() throws {
+        // -- Arrange --
+        let task = createDataTask()
+        let span = try XCTUnwrap(spanForTask(task: task))
+        let tracker = fixture.getSut()
+
+        // -- Act --
+        tracker.urlSessionTaskCompleted(task, error: nil)
+
+        // -- Assert --
+        XCTAssertFalse(span.isFinished)
     }
 
     func test_CallResumeTwice_OneSpan() {
@@ -486,6 +504,95 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(span.data["http.request.method"] as? String, "GET")
     }
 
+    /// Reproduces #9307: `setState:` bridges the task's `originalRequest` (iOS, tvOS, visionOS) and
+    /// `currentRequest` to `URLRequest`. Bridging copies the request's protocol-property dictionary
+    /// without synchronization. When another thread inserts the first protocol property during
+    /// that copy, the copy gets `{storage = NULL, size > 0}`, and releasing it crashes in
+    /// CoreFoundation's `cow_cleanup`.
+    func testSetState_whenProtocolPropertiesWrittenConcurrently_shouldNotCrash() {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        let currentTask = LockedTask(Self.makeCompletedTask())
+        let deadline = ProcessInfo.processInfo.systemUptime + 5
+        let writerFinished = DispatchSemaphore(value: 0)
+
+        // Every request accepts its first protocol property only once, so each write needs a new task.
+        let writer = Thread {
+            while ProcessInfo.processInfo.systemUptime < deadline {
+                autoreleasepool {
+                    let task = Self.makeCompletedTask()
+                    let requests = Self.requestObjects(of: task)
+                    currentTask.set(task)
+                    Self.spin(nanoseconds: UInt64.random(in: 0...2_000))
+                    requests.forEach(Self.insertFirstProtocolProperties(into:))
+                }
+            }
+            writerFinished.signal()
+        }
+        writer.start()
+
+        // -- Act --
+        while ProcessInfo.processInfo.systemUptime < deadline {
+            autoreleasepool {
+                sut.urlSessionTask(currentTask.get(), setState: .completed)
+            }
+        }
+
+        // -- Assert --
+        XCTAssertEqual(writerFinished.wait(timeout: .now() + 5), .success)
+    }
+
+    private final class LockedTask: @unchecked Sendable {
+        private let lock = NSLock()
+        private var task: URLSessionDataTaskMock
+
+        init(_ task: URLSessionDataTaskMock) {
+            self.task = task
+        }
+
+        func get() -> URLSessionDataTaskMock {
+            lock.withLock { task }
+        }
+
+        func set(_ task: URLSessionDataTaskMock) {
+            lock.withLock { self.task = task }
+        }
+    }
+
+    /// A completed task skips breadcrumbs and failed-request capture, so `setState:` mostly reads requests.
+    private static func makeCompletedTask() -> URLSessionDataTaskMock {
+        let task = URLSessionDataTaskMock(request: URLRequest(url: fullUrl))
+        task.state = .completed
+        return task
+    }
+
+    /// Returns the request objects the task holds. The Swift properties return bridged copies instead.
+    private static func requestObjects(of task: URLSessionTask) -> [NSURLRequest] {
+        [#selector(getter: URLSessionTask.originalRequest), #selector(getter: URLSessionTask.currentRequest)]
+            .compactMap { task.perform($0)?.takeUnretainedValue() as? NSURLRequest }
+    }
+
+    /// Inserts two protocol properties, as any code holding the request can do.
+    ///
+    /// `URLProtocol.setProperty(_:forKey:in:)` only sends `-_setProperty:forKey:`, which
+    /// `NSURLRequest` implements, so it also writes into an immutable `originalRequest`. The first
+    /// insert briefly leaves the dictionary with a size but no storage. The second insert detaches
+    /// the dictionary from the copy-on-write storage that a concurrent copy shares.
+    private static func insertFirstProtocolProperties(into request: NSURLRequest) {
+        let pointer = Unmanaged.passUnretained(request).toOpaque()
+        let mutableRequest = Unmanaged<NSMutableURLRequest>.fromOpaque(pointer).takeUnretainedValue()
+        URLProtocol.setProperty(true, forKey: "first", in: mutableRequest)
+        URLProtocol.setProperty(true, forKey: "second", in: mutableRequest)
+    }
+
+    /// Busy-waits so that the writes land at different points of the concurrent copy.
+    private static func spin(nanoseconds: UInt64) {
+        let end = DispatchTime.now().uptimeNanoseconds + nanoseconds
+        while DispatchTime.now().uptimeNanoseconds < end {
+            continue
+        }
+    }
+
     func testStatusForTaskRunning() {
         let sut = fixture.getSut()
         let task = createDataTask()
@@ -878,6 +985,72 @@ class SentryNetworkTrackerTests: XCTestCase {
         let request = try XCTUnwrap(details.serialize()["request"] as? [String: Any])
         let headers = try XCTUnwrap(request["headers"] as? [String: String])
         XCTAssertEqual(headers["X-Request"], "original")
+    }
+
+    func testCaptureResponseDetails_whenNewLoaderDisabled_shouldNotInitializeRequestDetails() throws {
+        // -- Arrange --
+        fixture.options.sessionReplay.networkDetailAllowUrls = ["www.domain.com"]
+        let tracker = fixture.getSut()
+        let task = createDataTask()
+        let response = try createResponse(code: 200)
+
+        // -- Act --
+        tracker.captureResponseDetails(Data(), response: response, request: Self.fullUrl, task: task)
+
+        // -- Assert --
+        XCTAssertNil(task.networkDetails)
+    }
+
+    func testCaptureRequestDetails_whenFirstCapturedAfterRedirect_shouldKeepOriginalRequest() throws {
+        // -- Arrange --
+        fixture.options.experimental.enableNewURLLoaderSwizzling = true
+        let originalURL = try XCTUnwrap(URL(string: "https://api.example.com/users"))
+        let redirectedURL = try XCTUnwrap(URL(string: "https://api.example.com/redirected"))
+        fixture.options.sessionReplay.networkDetailAllowUrls = ["api.example.com"]
+        fixture.options.sessionReplay.networkRequestHeaders = ["X-Request"]
+        fixture.options.sessionReplay.networkCaptureBodies = true
+        let tracker = fixture.getSut()
+
+        var originalRequest = URLRequest(url: originalURL)
+        originalRequest.httpMethod = "POST"
+        originalRequest.httpBody = Data(#"{"name":"original"}"#.utf8)
+        originalRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        originalRequest.setValue("original", forHTTPHeaderField: "X-Request")
+
+        var redirectedRequest = URLRequest(url: redirectedURL)
+        redirectedRequest.httpMethod = "GET"
+        redirectedRequest.setValue("text/plain", forHTTPHeaderField: "Content-Type")
+        redirectedRequest.setValue("redirected", forHTTPHeaderField: "X-Request")
+        let response = try XCTUnwrap(HTTPURLResponse(
+            url: redirectedURL, statusCode: 200, httpVersion: nil, headerFields: nil
+        ))
+
+        for captureResponse in [true, false] {
+            let task = URLSessionDataTaskMock(request: originalRequest)
+            task.setCurrentRequest(redirectedRequest)
+            task.setResponse(response)
+
+            // -- Act --
+            // New-loader tasks reach completion without a setState: request capture.
+            if captureResponse {
+                tracker.captureResponseDetails(Data(), response: response, request: originalURL, task: task)
+            }
+            tracker.urlSessionTaskCompleted(task, error: nil)
+
+            // -- Assert --
+            let details = try XCTUnwrap(task.networkDetails).serialize()
+            XCTAssertEqual(details["method"] as? String, "POST")
+            let request = try XCTUnwrap(details["request"] as? [String: Any])
+            let headers = try XCTUnwrap(request["headers"] as? [String: String])
+            XCTAssertEqual(headers["X-Request"], "original")
+            XCTAssertEqual(headers["Content-Type"], "application/json")
+            let body = try XCTUnwrap(request["body"] as? [String: Any])
+            let parsedBody = try XCTUnwrap(body["body"] as? [String: Any])
+            XCTAssertEqual(parsedBody["name"] as? String, "original")
+            if captureResponse {
+                XCTAssertEqual(details["statusCode"] as? Int, 200)
+            }
+        }
     }
 
     /// Regression test for #8388: `captureResponseDetails` must read the response `Content-Type`
@@ -1606,7 +1779,31 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertTrue(breadcrumbs?.isEmpty ?? true)
     }
 
-    func testResume_whenDuplicateTaskResumesAfterMatchingSpanFinishes_shouldTrackTask() throws {
+    func testResume_whenTaskCarriesCancelledNetworkSpanHeader_shouldIgnoreDuplicateTask() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        let transaction = try XCTUnwrap(startTransaction() as? SentryTracer)
+        let originalTask = createDataTask()
+        sut.urlSessionTaskResume(originalTask)
+        let originalSpan = try XCTUnwrap(transaction.children.first)
+        let forwardedRequest = try XCTUnwrap(originalTask.currentRequest)
+        try setTaskState(originalTask, state: .canceling)
+        let duplicateTask = createDataTask { _ in forwardedRequest }
+
+        // -- Act --
+        sut.urlSessionTaskResume(duplicateTask)
+        duplicateTask.setResponse(try createResponse(code: 200))
+        try setTaskState(duplicateTask, state: .completed)
+
+        // -- Assert --
+        XCTAssertEqual(transaction.children.count, 1)
+        XCTAssertTrue(originalSpan.isFinished)
+        XCTAssertEqual(originalSpan.status, .cancelled)
+        let breadcrumbs = try XCTUnwrap(Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?)
+        XCTAssertEqual(breadcrumbs.count, 1)
+    }
+
+    func testResume_whenDuplicateTaskResumesAfterMatchingSpanFinishes_shouldIgnoreDuplicateTask() throws {
         // -- Arrange --
         let sut = fixture.getSut()
         let transaction = try XCTUnwrap(startTransaction() as? SentryTracer)
@@ -1632,10 +1829,10 @@ class SentryNetworkTrackerTests: XCTestCase {
         try setTaskState(duplicateTask, state: .completed)
 
         // -- Assert --
-        XCTAssertEqual(transaction.children.count, 2)
-        XCTAssertTrue(try XCTUnwrap(transaction.children.last).isFinished)
+        XCTAssertEqual(transaction.children.count, 1)
+        XCTAssertTrue(originalSpan.isFinished)
         let breadcrumbs = try XCTUnwrap(Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?)
-        XCTAssertEqual(breadcrumbs.count, 2)
+        XCTAssertEqual(breadcrumbs.count, 1)
     }
 
     func testTraceHeader() throws {
@@ -2290,6 +2487,44 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertNil(fixture.hub.capturedEventsWithScopes.first)
     }
 
+    func testCaptureHTTPClientError_hintContainsRequestAndResponse() throws {
+        let sut = fixture.getSut()
+        let task = createDataTask()
+        let response = try createResponse(code: 500)
+        task.setResponse(response)
+
+        sut.urlSessionTask(task, setState: .completed)
+
+        XCTAssertEqual(fixture.hub.capturedErrorHints.count, 1)
+        let hint = try XCTUnwrap(fixture.hub.capturedErrorHints.first)
+        XCTAssertNotNil(hint.urlRequest)
+        XCTAssertEqual(hint.urlRequest?.url, SentryNetworkTrackerTests.fullUrl)
+        let httpResponse = try XCTUnwrap(hint.httpResponse)
+        XCTAssertEqual(httpResponse.statusCode, 500)
+    }
+
+    @available(*, deprecated, message: "Testing deprecated beforeBreadcrumbWithHint API")
+    func testNetworkBreadcrumb_hintContainsRequestAndResponse() throws {
+        var receivedHint: Hint?
+        fixture.options.beforeBreadcrumbWithHint = { breadcrumb, hint in
+            receivedHint = hint
+            return breadcrumb
+        }
+
+        let sut = fixture.getSut()
+        let task = createDataTask()
+        let response = try createResponse(code: 200)
+        task.setResponse(response)
+
+        sut.urlSessionTask(task, setState: .completed)
+
+        let hint = try XCTUnwrap(receivedHint)
+        XCTAssertNotNil(hint.urlRequest)
+        XCTAssertEqual(hint.urlRequest?.url, SentryNetworkTrackerTests.fullUrl)
+        let httpResponse = try XCTUnwrap(hint.httpResponse)
+        XCTAssertEqual(httpResponse.statusCode, 200)
+    }
+
     private func setTaskState(_ task: URLSessionTaskMock, state: URLSessionTask.State) throws {
         fixture.getSut().urlSessionTask(try XCTUnwrap(task as? URLSessionTask), setState: state)
         task.state = state
@@ -2494,7 +2729,11 @@ private final class NetworkTrackerTestHub: Hub {
     func captureNonTerminatingEnvelope(_ envelope: SentryEnvelope) {}
     func updateSessionForDroppedEventNonTerminating(unhandled: Bool) {}
     func captureErrorEvent(event: Event) {}
+    func captureErrorEvent(event: Event, hint: Hint) {}
     func setTrace(_ traceId: SentryId, spanId: SpanId) {}
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    func getSessionReplayId() -> String? { nil }
+#endif
 }
 
 private final class NetworkTrackerTestSpan: NSObject, Span {

@@ -443,11 +443,14 @@
     // -- Arrange --
     SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
 
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     // -- Act --
     options.enableAppHangTracking = YES;
 
     // -- Assert --
     XCTAssertTrue(options.enableAppHangTracking);
+#    pragma clang diagnostic pop
 }
 #endif // !SDK_V10
 
@@ -535,6 +538,7 @@
     XCTAssertTrue(options.strictTraceContinuation);
 }
 
+#if !SDK_V10
 - (void)testEnableMetrics_whenSetToYes_shouldReturnYes
 {
     // -- Arrange --
@@ -546,6 +550,29 @@
     // -- Assert --
     XCTAssertTrue(options.enableMetrics);
 }
+
+#endif // !SDK_V10
+
+#if SDK_V10
+- (void)testEnableUnhandledCPPExceptionsV2_whenToggled_shouldRetainValue
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+    XCTAssertFalse(options.enableUnhandledCPPExceptionsV2);
+
+    // -- Act --
+    options.enableUnhandledCPPExceptionsV2 = YES;
+
+    // -- Assert --
+    XCTAssertTrue(options.enableUnhandledCPPExceptionsV2);
+
+    // -- Act --
+    options.enableUnhandledCPPExceptionsV2 = NO;
+
+    // -- Assert --
+    XCTAssertFalse(options.enableUnhandledCPPExceptionsV2);
+}
+#endif // SDK_V10
 
 #pragma mark - Numeric properties
 
@@ -640,6 +667,30 @@
 
     // -- Assert --
     XCTAssertEqualWithAccuracy(options.appHangTimeoutInterval, 5.0, 0.001);
+}
+
+- (void)testAppHangTimeoutInterval_whenSetToZero_shouldReturnDefault
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    options.appHangTimeoutInterval = 0;
+
+    // -- Assert --
+    XCTAssertEqualWithAccuracy(options.appHangTimeoutInterval, 2.0, 0.001);
+}
+
+- (void)testAppHangTimeoutInterval_whenSetToNegative_shouldReturnDefault
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    options.appHangTimeoutInterval = -1.0;
+
+    // -- Assert --
+    XCTAssertEqualWithAccuracy(options.appHangTimeoutInterval, 2.0, 0.001);
 }
 
 - (void)testSampleRate_whenSet_shouldReturnValue
@@ -822,8 +873,8 @@
     SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
 
     // -- Act --
-    options.beforeSendTransaction
-        = ^SentryObjCTransaction *_Nullable(SentryObjCTransaction *transaction)
+    options.beforeSendTransaction = ^SentryObjCTransaction *_Nullable(
+        SentryObjCTransaction *transaction, SentryObjCHint *hint)
     {
         return transaction;
     };
@@ -1147,6 +1198,25 @@
 #pragma mark - Platform-conditional properties
 
 #if !TARGET_OS_WATCH
+#    if SDK_V10
+
+- (void)testEnableSigtermReporting_whenV10_shouldNotExist
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    BOOL respondsToGetter =
+        [options respondsToSelector:NSSelectorFromString(@"enableSigtermReporting")];
+    BOOL respondsToSetter =
+        [options respondsToSelector:NSSelectorFromString(@"setEnableSigtermReporting:")];
+
+    // -- Assert --
+    XCTAssertFalse(respondsToGetter);
+    XCTAssertFalse(respondsToSetter);
+}
+
+#    else
 
 - (void)testEnableSigtermReporting_whenSetToYes_shouldReturnYes
 {
@@ -1154,13 +1224,17 @@
     SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
 
     // -- Act --
+#        pragma clang diagnostic push
+#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
     options.enableSigtermReporting = YES;
 
     // -- Assert --
     XCTAssertTrue(options.enableSigtermReporting);
+#        pragma clang diagnostic pop
 }
 
-#endif
+#    endif // SDK_V10
+#endif // !TARGET_OS_WATCH
 
 #if TARGET_OS_OSX && !SENTRY_NO_UI_FRAMEWORK
 
@@ -1270,11 +1344,14 @@
     // -- Arrange --
     SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
 
+#        pragma clang diagnostic push
+#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
     // -- Act --
     options.enableReportNonFullyBlockingAppHangs = YES;
 
     // -- Assert --
     XCTAssertTrue(options.enableReportNonFullyBlockingAppHangs);
+#        pragma clang diagnostic pop
 }
 #    endif // !SDK_V10
 

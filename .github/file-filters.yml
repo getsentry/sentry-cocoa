@@ -59,6 +59,7 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - "test-server/**"
   - "**/*.xctestplan"
   - "Plans/**"
+  - ".swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme"
 
   # Project files
   - "Sentry.xcodeproj/**"
@@ -71,6 +72,7 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - "Brewfile*"
 
 run_distribution_tests_for_prs: &run_distribution_tests_for_prs
+  - "Sources/Resources/**"
   - "Sources/SentryDistribution/**"
   - "Sources/SentryDistributionTests/**"
   - "Sources/Sentry/**"
@@ -80,6 +82,11 @@ run_distribution_tests_for_prs: &run_distribution_tests_for_prs
   - "Sources/SentryObjCCompat/**"
   - "Sources/include/**"
   - "Tests/SentryObjCCompatTests/**"
+  - "Tests/SentryProfilerTests/**"
+  - "Plans/Sentry_Base.xctestplan"
+  - "Plans/SentrySPM_*.xctestplan"
+  - ".swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme"
+  - "Tests/Configuration/**"
   - "SentryTestUtils/**"
   - "SentryTestUtilsTests/**"
 
@@ -87,13 +94,18 @@ run_distribution_tests_for_prs: &run_distribution_tests_for_prs
   - ".github/workflows/test.yml"
   - ".github/file-filters.yml"
 
-  # Scripts
+  # Scripts & actions
+  - ".github/actions/setup-xcode/**"
+  - ".github/actions/resolve-test-destination/**"
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/resolve-test-destination.sh"
   - "scripts/ci-ensure-runtime-loaded.sh"
   - "scripts/ci-utils.sh"
   - "scripts/prepare-package.sh"
 
   # Project files
   - "Package*.swift"
+  - "Sentry.xcodeproj/**"
 
 run_api_stability_for_prs: &run_api_stability_for_prs
   - "Sources/Configuration/**"
@@ -119,6 +131,7 @@ run_api_stability_for_prs: &run_api_stability_for_prs
   # Scripts
   - "scripts/build-xcframework-slice.sh"
   - "scripts/assemble-xcframework.sh"
+  - "scripts/xcframework-utils.sh"
   - "scripts/update-api.sh"
   - "scripts/extract-objc-api.sh"
   - "scripts/ci-diagnostics.sh"
@@ -184,7 +197,8 @@ run_sentrycrash_import_ratchet_for_prs:
   - "Brewfile*"
 
 run_objc_conversion_analysis_for_prs: &run_objc_conversion_analysis_for_prs
-  - "SwiftConversion/**"
+  - "Utils/SwiftConversion/**"
+  - "Makefile"
 
   # GH Actions
   - ".github/workflows/objc-conversion-analysis.yml"
@@ -206,6 +220,8 @@ run_auto_update_tools_for_prs: &run_auto_update_tools_for_prs
   - "scripts/.clang-format-version"
   - "scripts/.swiftlint-version"
   - "scripts/.xcodegen-version"
+  - "linters/SwiftLintCustomRules/MODULE.bazel"
+  - "linters/SwiftLintCustomRules/MODULE.bazel.lock"
 
   # Scripts
   - "scripts/check-tooling-versions.sh"
@@ -254,6 +270,7 @@ run_release_for_prs: &run_release_for_prs
   - "scripts/build-xcframework-slice.sh"
   - "scripts/build-xcframework-variant.sh"
   - "scripts/validate-xcframework*.sh"
+  - "scripts/xcframework-utils.sh"
   - "scripts/assemble-xcframework.sh"
   - "scripts/build-xcframework-sentryobjc.sh"
   - "scripts/build-static-library-sentryobjc.sh"
@@ -269,16 +286,14 @@ run_release_for_prs: &run_release_for_prs
   - "Sentry.xcodeproj/**"
   - "Package*.swift"
 
-  # Sample projects
-  - "Samples/macOS-SPM-CommandLine/**"
-  - "Samples/SPM-Dynamic/**"
+  # Test Apps
+  - "TestApps/macOS-ObjectiveC-Static-CMake/**"
+  - "TestApps/macOS-SPM-CommandLine/**"
+  - "TestApps/SPM-Dynamic/**"
 
   # Build configuration
   - "fastlane/**"
   - "Makefile"
-
-  # Test files
-  - "Tests/Perf/metrics-test.yml"
 
 run_lint_swift_formatting_for_prs: &run_lint_swift_formatting_for_prs
   - "**/*.swift"
@@ -348,7 +363,7 @@ run_lint_xcode_analyze_for_prs: &run_lint_xcode_analyze_for_prs
   - "Sources/SentrySwiftUI/**"
   - "Sources/Swift/**"
   - "Tests/**"
-  - "Samples/**"
+  - "TestApps/**"
 
   # GH Actions
   - ".github/workflows/lint-xcode-analyze.yml"
@@ -374,10 +389,15 @@ run_v10_for_prs: &run_v10_for_prs
   - "Sources/Sentry/**"
   - "Sources/SentryCppHelper/**"
   - "Sources/SentryCrash/**"
+  - "Sources/SentryCrashV9Headers/**"
+  - "Sources/SentryCrashV9Module/**"
+  - "Sources/SentryCrashV9Swift/**"
+  - "Sources/SentryV10Configuration/**"
   - "Sources/SentryObjC/**"
   - "Sources/SentryObjCCompat/**"
   - "Sources/SentrySwiftUI/**"
   - "Sources/Swift/**"
+  - "Plans/**"
   - "Tests/**"
   - "SentryTestUtils/**"
   - "SentryTestUtilsTests/**"
@@ -396,6 +416,34 @@ run_v10_for_prs: &run_v10_for_prs
   - "scripts/ci-utils.sh"
   - "scripts/sentry-xcodebuild.sh"
   - "scripts/verify-v10-sentrycrash-*.sh"
+  - "scripts/verify-v10-sentrycrash-source-contract.swift"
+  - "scripts/verify-v10-empty-objects.swift"
+  - "scripts/read-v10-compiler-evidence.swift"
+  - "scripts/test-v10-compiler-log.sh"
+  - "scripts/test-v10-empty-objects.sh"
+  - "scripts/test-v10-sentryobjc-slice-inventory.sh"
+  - "scripts/build-xcframework-slice.sh"
+  - "scripts/build-xcframework-v10.sh"
+  - "scripts/build-xcframework-sentryobjc.sh"
+  - "scripts/build-static-library-sentryobjc.sh"
+  - "scripts/build-dynamic-framework-sentryobjc.sh"
+  - "scripts/assemble-xcframework.sh"
+  - "scripts/assemble-xcframework-sentryobjc.sh"
+  - "scripts/validate-xcframework*.sh"
+  - "scripts/generate-testapp-v10.sh"
+  - "scripts/test-spm-crash-backend-selection.swift"
+  - "scripts/test-spm-v9-no-ui-framework.swift"
+  - "scripts/test-sentryobjc-archive-architectures.sh"
+  - "scripts/test-v10-archive-audit-path.sh"
+  - "scripts/set-xcodegen-package-traits.sh"
+  - "scripts/set-xcodegen-compiler-flags.sh"
+  - "scripts/swap-xcodegen-product-name.sh"
+  - "scripts/check-ui-framework-linkage.sh"
+  - "scripts/prepare-package.sh"
+
+  # Test Apps
+  - "TestApps/macOS-CLI-Xcode/**"
+  - "TestApps/SentrySampleShared/**"
 
   # Project files
   - "Sentry.xcodeproj/**"
@@ -405,9 +453,55 @@ run_v10_for_prs: &run_v10_for_prs
   # Build configuration
   - "Makefile"
 
+run_crash_e2e_for_prs:
+  - "Sources/Configuration/**"
+  - "Sources/include/**"
+  - "Sources/Resources/**"
+  - "Sources/Sentry/**"
+  - "Sources/SentryCppHelper/**"
+  - "Sources/SentryCrash/**"
+  - "Sources/Swift/**"
+  # Includes the runner's Swift package and its standalone regression tests.
+  - "TestApps/CrashE2E/**"
+
+  # GH Actions
+  - ".github/workflows/test-crash-e2e.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts & actions
+  - "scripts/ci-select-xcode.sh"
+  - ".github/actions/setup-xcode/**"
+  - ".github/actions/resolve-test-destination/**"
+  - ".github/actions/ci-diagnostics/**"
+  - "scripts/resolve-test-destination.sh"
+  - "scripts/ci-diagnostics.sh"
+  - "scripts/ci-utils.sh"
+  - "scripts/ci-ensure-runtime-loaded.sh"
+
+  # Project files
+  - "Sentry.xcodeproj/**"
+  - "Package*.swift"
+
+  # Build configuration
+  - "Makefile"
+  - "Brewfile*"
+
+run_thread_inspection_harness_for_prs:
+  - "Sources/Sentry/SentryThreadSnapshot.c"
+  - "Sources/Sentry/SentryThreadSnapshotKSCrash.c"
+  - "Sources/Sentry/include/SentryThreadSnapshot.h"
+  - "Tests/ThreadInspectionHarness/**"
+
+  # GH Actions
+  - ".github/workflows/test-v10.yml"
+  - ".github/file-filters.yml"
+  - ".github/actions/setup-xcode/**"
+  - ".github/actions/ci-diagnostics/**"
+
 run_build_for_prs: &run_build_for_prs
   - "Sources/**"
-  - "Samples/**"
+  - "TestApps/**"
+  - ".swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme"
 
   # GH Actions
   - ".github/workflows/build.yml"
@@ -439,11 +533,16 @@ run_build_for_prs: &run_build_for_prs
 run_testflight_for_prs: &run_testflight_for_prs
   - ".github/workflows/testflight.yml"
   - ".github/file-filters.yml"
+  - "TestApps/iOS-Swift/**"
 
   # Scripts & actions
   - "scripts/ci-select-xcode.sh"
   - ".github/actions/setup-xcode/**"
   - "scripts/ci-utils.sh"
+
+  # Build configuration
+  - "fastlane/**"
+  - "Makefile"
 
 run_testflight_for_pushes: &run_testflight_for_pushes
   - "Sources/Configuration/**"
@@ -456,7 +555,7 @@ run_testflight_for_pushes: &run_testflight_for_pushes
   - "Sources/SentryObjCCompat/**"
   - "Sources/SentrySwiftUI/**"
   - "Sources/Swift/**"
-  - "Samples/iOS-Swift/**"
+  - "TestApps/iOS-Swift/**"
 
   # GH Actions
   - ".github/workflows/testflight.yml"
@@ -571,13 +670,13 @@ run_ui_tests_for_prs: &run_ui_tests_for_prs
   - "**/*.xctestplan"
   - "Plans/**"
 
-  # Sample projects
-  - "Samples/iOS-SwiftUI/**"
-  - "Samples/iOS-Swift/**"
-  - "Samples/iOS-Swift6/**"
-  - "Samples/macOS-Swift/**"
-  - "Samples/SentrySampleShared/**"
-  - "Samples/Shared/**"
+  # Test Apps
+  - "TestApps/iOS-SwiftUI/**"
+  - "TestApps/iOS-Swift/**"
+  - "TestApps/iOS-Swift6/**"
+  - "TestApps/macOS-Swift/**"
+  - "TestApps/SentrySampleShared/**"
+  - "TestApps/Shared/**"
 
   # Build configuration
   - "fastlane/**"
@@ -595,7 +694,9 @@ run_ui_tests_critical_for_prs: &run_ui_tests_critical_for_prs
   - "Sources/SentryObjCCompat/**"
   - "Sources/SentrySwiftUI/**"
   - "Sources/Swift/**"
-  - "TestSamples/**"
+  - "TestApps/CrashE2E/**"
+  - "TestApps/SwiftUICrashTest/**"
+  - "TestApps/SwiftUITestSample/**"
 
   # GH Actions
   - ".github/workflows/ui-tests-critical.yml"
@@ -636,7 +737,7 @@ run_lint_swiftlint_for_prs: &run_lint_swiftlint_for_prs
   - "Sources/SentrySwiftUI/**"
   - "Sources/Swift/**"
   - "Tests/**"
-  - "Samples/**"
+  - "TestApps/**"
 
   # GH Actions
   - ".github/workflows/lint-swiftlint-formatting.yml"
@@ -651,6 +752,9 @@ run_lint_swiftlint_for_prs: &run_lint_swiftlint_for_prs
   - ".github/actions/setup-xcode/**"
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
+
+  # Custom SwiftLint extra rules (Bazel)
+  - "linters/SwiftLintCustomRules/**"
 
   # Project files
   - "Sentry.xcodeproj/**"
@@ -670,7 +774,7 @@ run_size_analysis_for_prs: &run_size_analysis_for_prs
   - "Sources/SentryObjCCompat/**"
   - "Sources/SentrySwiftUI/**"
   - "Sources/Swift/**"
-  - "Samples/**"
+  - "TestApps/**"
 
   # GH Actions
   - ".github/workflows/size-analysis.yml"
@@ -688,33 +792,6 @@ run_size_analysis_for_prs: &run_size_analysis_for_prs
   # Build configuration
   - "Makefile"
   - "Brewfile*"
-
-run_xcode27_for_prs: &run_xcode27_for_prs
-  - "Sources/Configuration/**"
-  - "Sources/include/**"
-  - "Sources/Resources/**"
-  - "Sources/Sentry/**"
-  - "Sources/SentryCppHelper/**"
-  - "Sources/SentryCrash/**"
-  - "Sources/SentryObjC/**"
-  - "Sources/SentryObjCCompat/**"
-  - "Sources/SentrySwiftUI/**"
-  - "Sources/Swift/**"
-
-  # GH Actions
-  - ".github/workflows/xcode27-test.yml"
-  - ".github/file-filters.yml"
-
-  # Scripts & actions
-  - ".github/actions/setup-xcode/**"
-  - ".github/actions/ci-diagnostics/**"
-  - "scripts/sentry-xcodebuild.sh"
-  - "scripts/ci-diagnostics.sh"
-  - "scripts/ci-select-xcode.sh"
-  - "scripts/ci-utils.sh"
-
-  # Project files
-  - "Package*.swift"
 
 run_3rd_party_integrations_tests_for_prs: &run_3rd_party_integrations_tests_for_prs
   - "Sources/Configuration/**"

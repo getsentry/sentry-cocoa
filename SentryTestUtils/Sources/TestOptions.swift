@@ -1,9 +1,9 @@
-import Foundation
 #if SWIFT_PACKAGE
-@_spi(Private) import SentrySwift
+@_spi(Private) @testable import SentrySwift
 #else
-import Sentry
+@_spi(Private) @testable import Sentry
 #endif
+import Foundation
 
 public extension Options {
     
@@ -16,6 +16,7 @@ public extension Options {
         #if !SDK_V10
         enableAppHangTracking = false
         #endif // !SDK_V10
+        enableGraphQLOperationTracking = false
         enableNetworkTracking = false
         enableNetworkBreadcrumbs = false
         enableCaptureFailedRequests = false
@@ -27,7 +28,9 @@ public extension Options {
         attachViewHierarchy = false
         enableUIViewControllerTracing = false
         #endif
+        #if !SDK_V10
         enableMetrics = false
+        #endif // !SDK_V10
         beforeSendMetric = { metric in metric }
         #if canImport(MetricKit) && !os(tvOS)
         enableMetricKit = false

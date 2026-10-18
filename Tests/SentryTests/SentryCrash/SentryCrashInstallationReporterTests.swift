@@ -1,5 +1,11 @@
+#if !SDK_V10
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
 import XCTest
 
 class SentryCrashInstallationReporterTests: XCTestCase {
@@ -90,7 +96,12 @@ class SentryCrashInstallationReporterTests: XCTestCase {
         let hub = SentryHubInternal(client: testClient, andScope: nil)
         SentrySDKInternal.setCurrentHub(hub)
         
-        sut = SentryCrashInstallationReporter(inAppLogic: SentryInAppLogic(inAppIncludes: []), crashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo), dispatchQueue: TestSentryDispatchQueueWrapper())
+        sut = SentryCrashInstallationReporter(
+            inAppLogic: SentryInAppLogic(inAppIncludes: []),
+            crashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo),
+            dispatchQueue: TestSentryDispatchQueueWrapper(),
+            startupCrashFlush: SentryStartupCrashFlush(idleGate: SentryReplayRecoveryIdleGate())
+        )
         let container = SentryDependencyContainer.sharedInstance()
         sut.bridge = SentryCrashBridge(
             notificationCenterWrapper: container.notificationCenterWrapper,
@@ -105,3 +116,5 @@ class SentryCrashInstallationReporterTests: XCTestCase {
         sentrycrash_deleteAllReports()
     }
 }
+
+#endif // !SDK_V10

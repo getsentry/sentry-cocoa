@@ -7,7 +7,7 @@ final class SentryFramesTrackingIntegration<Dependencies: FramesTrackingProvider
 
     init?(with options: Options, dependencies: Dependencies) {
         // Check hybrid SDK mode first - if enabled, always start frames tracking
-        if !PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode {
+        if !SentrySDKInternal.framesTrackingMeasurementHybridSDKMode {
             
             // Check if frames tracking should be enabled based on options
             let performanceDisabled = !options.enableAutoPerformanceTracing || !options.isTracingEnabled

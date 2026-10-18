@@ -1,6 +1,11 @@
 #if SDK_V10
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
 import Foundation
 import XCTest
 
@@ -23,6 +28,8 @@ class SentryKSCrashIntegrationTests: XCTestCase {
     override func setUpWithError() throws {
         try super.setUpWithError()
         SentrySDKInternal.fatalDetected = false
+        sentrykscrash_setSaveTransaction(nil)
+        sentrykscrash_setReportPersistenceEnabled(false)
         cacheDirectoryPath = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString)
             .path
@@ -30,6 +37,8 @@ class SentryKSCrashIntegrationTests: XCTestCase {
 
     override func tearDownWithError() throws {
         SentrySDKInternal.fatalDetected = false
+        sentrykscrash_setSaveTransaction(nil)
+        sentrykscrash_setReportPersistenceEnabled(false)
         if FileManager.default.fileExists(atPath: cacheDirectoryPath) {
             try FileManager.default.removeItem(atPath: cacheDirectoryPath)
         }
@@ -41,6 +50,83 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         options.enableCrashHandler = enableCrashHandler
         options.cacheDirectoryPath = cacheDirectoryPath
         return options
+    }
+
+    func testInstallCrashHandler_whenHandlersCanRun_shouldEnablePersistence() throws {
+        // -- Arrange --
+        var persistenceEnabledWhenHandlersCanRun = false
+
+        // -- Act --
+        try SentryKSCrash.Installer.installCrashHandler {
+            persistenceEnabledWhenHandlersCanRun = sentrykscrash_isReportPersistenceEnabled()
+        }
+
+        // -- Assert --
+        XCTAssertTrue(persistenceEnabledWhenHandlersCanRun)
+        XCTAssertTrue(sentrykscrash_isReportPersistenceEnabled())
+    }
+
+    func testInstallCrashHandler_whenInstallationFails_shouldDisablePersistence() {
+        // -- Arrange --
+        let expectedError = NSError(domain: "TestKSCrash", code: -1)
+        var persistenceEnabledWhenHandlersCanRun = false
+
+        // -- Act --
+        XCTAssertThrowsError(
+            try SentryKSCrash.Installer.installCrashHandler {
+                persistenceEnabledWhenHandlersCanRun = sentrykscrash_isReportPersistenceEnabled()
+                throw expectedError
+            }
+        ) { actualError in
+            XCTAssertEqual((actualError as NSError).domain, expectedError.domain)
+            XCTAssertEqual((actualError as NSError).code, expectedError.code)
+        }
+
+        // -- Assert --
+        XCTAssertTrue(persistenceEnabledWhenHandlersCanRun)
+        XCTAssertFalse(sentrykscrash_isReportPersistenceEnabled())
+    }
+
+    func testInstallCrashHandler_whenKSCrashIsAlreadyInstalled_shouldKeepPersistenceEnabled() throws {
+        // -- Arrange --
+        let alreadyInstalledError = NSError(domain: "KSCrashErrorDomain", code: 1)
+
+        // -- Act --
+        try SentryKSCrash.Installer.installCrashHandler {
+            throw alreadyInstalledError
+        }
+
+        // -- Assert --
+        XCTAssertTrue(sentrykscrash_isReportPersistenceEnabled())
+    }
+
+    func testConfiguredMonitors_whenManagedRuntimeBuild_shouldDisableMachAndBuiltInSignal() {
+        // -- Arrange --
+        let requested = SentryKSCrash.productionSafeMonitors
+        let expected = requested.subtracting([.machException, .signal])
+
+        // -- Act --
+        let actual = SentryKSCrash.Installer.configuredMonitors(
+            requested,
+            managedRuntimeBuild: true
+        )
+
+        // -- Assert --
+        XCTAssertEqual(actual, expected)
+    }
+
+    func testConfiguredMonitors_whenOrdinaryBuild_shouldPreserveRequestedMonitors() {
+        // -- Arrange --
+        let requested = SentryKSCrash.productionSafeMonitors
+
+        // -- Act --
+        let actual = SentryKSCrash.Installer.configuredMonitors(
+            requested,
+            managedRuntimeBuild: false
+        )
+
+        // -- Assert --
+        XCTAssertEqual(actual, requested)
     }
 
     func testInstall_whenCrashHandlerEnabled_shouldSendReportsWithoutDispatchingInstaller() throws {
@@ -62,6 +148,39 @@ class SentryKSCrashIntegrationTests: XCTestCase {
         XCTAssertEqual(installer.sendAllReportsInvocations.count, 1)
         XCTAssertIdentical(installer.sendAllReportsDispatchQueues.first, deps.testDispatchQueueWrapper)
         XCTAssertEqual(deps.testDispatchQueueWrapper.dispatchAsyncCalled, 0)
+    }
+
+    func testInstall_whenCPPExceptionsV2IsDefault_shouldKeepCPPMonitorWithoutThrowHook() throws {
+        // -- Arrange --
+        let installer = MockKSCrashInstaller()
+        let deps = MockKSCrashDependencies(installer: installer)
+        let options = makeOptions()
+
+        // -- Act --
+        let sut = SentryKSCrash.Integration(with: options, dependencies: deps)
+
+        // -- Assert --
+        XCTAssertNotNil(sut)
+        let installCall = try XCTUnwrap(installer.installCalls.first)
+        XCTAssertFalse(installCall.enableSwapCxaThrow)
+        XCTAssertTrue(installCall.monitors.contains(.cppException))
+    }
+
+    func testInstall_whenCPPExceptionsV2IsEnabled_shouldEnableThrowHook() throws {
+        // -- Arrange --
+        let installer = MockKSCrashInstaller()
+        let deps = MockKSCrashDependencies(installer: installer)
+        let options = makeOptions()
+        options.enableUnhandledCPPExceptionsV2 = true
+
+        // -- Act --
+        let sut = SentryKSCrash.Integration(with: options, dependencies: deps)
+
+        // -- Assert --
+        XCTAssertNotNil(sut)
+        let installCall = try XCTUnwrap(installer.installCalls.first)
+        XCTAssertTrue(installCall.enableSwapCxaThrow)
+        XCTAssertTrue(installCall.monitors.contains(.cppException))
     }
 
     func testInstall_whenMemoryIntrospectionEnabled_shouldEnableMemoryIntrospection() throws {
@@ -576,6 +695,146 @@ class SentryKSCrashIntegrationTests: XCTestCase {
             let dist = sentrycrash_scopesync_getScope().pointee.dist
             XCTAssertEqual(dist.map { String(cString: $0) }, "\"crash-e2e-dist\"")
         }
+    }
+
+    // MARK: - Persist traces when crashing
+
+    func testInstall_whenPersistingTracesWhenCrashingEnabled_shouldSetCallback() {
+        // -- Arrange --
+        let installer = MockKSCrashInstaller()
+        let deps = MockKSCrashDependencies(installer: installer)
+        let options = makeOptions()
+        options.enablePersistingTracesWhenCrashing = true
+
+        // -- Act --
+        _ = SentryKSCrash.Integration(with: options, dependencies: deps)
+
+        // -- Assert --
+        XCTAssertTrue(sentrykscrash_hasSaveTransaction())
+    }
+
+    func testUninstall_whenPersistingTracesWhenCrashingEnabled_shouldRemoveCallback() {
+        // -- Arrange --
+        let installer = MockKSCrashInstaller()
+        let deps = MockKSCrashDependencies(installer: installer)
+        let options = makeOptions()
+        options.enablePersistingTracesWhenCrashing = true
+        let sut = SentryKSCrash.Integration(with: options, dependencies: deps)
+
+        // -- Act --
+        sut?.uninstall()
+
+        // -- Assert --
+        XCTAssertFalse(sentrykscrash_hasSaveTransaction())
+    }
+
+    func testInstall_whenPersistingTracesWhenCrashingDisabled_shouldNotSetCallback() {
+        // -- Arrange --
+        let installer = MockKSCrashInstaller()
+        let deps = MockKSCrashDependencies(installer: installer)
+        let options = makeOptions()
+        options.enablePersistingTracesWhenCrashing = false
+
+        // -- Act --
+        _ = SentryKSCrash.Integration(with: options, dependencies: deps)
+
+        // -- Assert --
+        XCTAssertFalse(sentrykscrash_hasSaveTransaction())
+    }
+
+    func testInstall_whenPersistingTracesWhenCrashingEnabled_invokeCallback_shouldStoreTransaction() throws {
+        // -- Arrange --
+        let options = makeOptions()
+        options.enablePersistingTracesWhenCrashing = true
+        options.dsn = TestConstants.dsnAsString(username: "SentryKSCrashIntegrationTests")
+        options.tracesSampleRate = 1.0
+
+        let client = SentryClientInternal(options: options)
+        defer { client?.fileManager.deleteAllEnvelopes() }
+        let hub = SentryHubInternal(client: client, andScope: nil)
+        let originalHub = SentrySDKInternal.currentHub()
+        SentrySDKInternal.setCurrentHub(hub)
+        defer { SentrySDKInternal.setCurrentHub(originalHub) }
+
+        let installer = MockKSCrashInstaller()
+        let deps = MockKSCrashDependencies(installer: installer)
+        _ = SentryKSCrash.Integration(with: options, dependencies: deps)
+
+        let transaction = SentrySDK.startTransaction(name: "Crashing", operation: "Operation", bindToScope: true)
+
+        // -- Act --
+        sentrykscrash_invokeSaveTransaction()
+
+        // -- Assert --
+        XCTAssertTrue(transaction.isFinished)
+
+        XCTAssertEqual(1, client?.fileManager.getAllEnvelopes().count)
+        let transactionEnvelopeFileContents = try XCTUnwrap(client?.fileManager.getOldestEnvelope())
+        let envelope = try XCTUnwrap(SentrySerializationSwift.envelope(with: transactionEnvelopeFileContents.contents))
+        XCTAssertEqual(1, envelope.items.count)
+        XCTAssertEqual("transaction", envelope.items.first?.header.type)
+    }
+
+    func testInstall_whenPersistingTracesWhenCrashingEnabled_invokeCallbackWhenNoSpanOnScope_shouldNotFinishTransaction() throws {
+        // -- Arrange --
+        let options = makeOptions()
+        options.enablePersistingTracesWhenCrashing = true
+        options.dsn = TestConstants.dsnAsString(username: "SentryKSCrashIntegrationTests")
+        options.tracesSampleRate = 1.0
+
+        let client = SentryClientInternal(options: options)
+        defer { client?.fileManager.deleteAllEnvelopes() }
+        let hub = SentryHubInternal(client: client, andScope: nil)
+        let originalHub = SentrySDKInternal.currentHub()
+        SentrySDKInternal.setCurrentHub(hub)
+        defer { SentrySDKInternal.setCurrentHub(originalHub) }
+
+        let installer = MockKSCrashInstaller()
+        let deps = MockKSCrashDependencies(installer: installer)
+        _ = SentryKSCrash.Integration(with: options, dependencies: deps)
+
+        let transaction = SentrySDK.startTransaction(name: "name", operation: "operation", bindToScope: true)
+        SentrySDKInternal.currentHub().scope.span = nil
+
+        // -- Act --
+        sentrykscrash_invokeSaveTransaction()
+
+        // -- Assert --
+        XCTAssertFalse(transaction.isFinished)
+        XCTAssertEqual(0, client?.fileManager.getAllEnvelopes().count)
+    }
+
+    func testInstall_whenPersistingTracesWhenCrashingEnabled_invokeCallbackWhenSpanOnScopeIsNotATracer_shouldStoreTransaction() throws {
+        // -- Arrange --
+        let options = makeOptions()
+        options.enablePersistingTracesWhenCrashing = true
+        options.dsn = TestConstants.dsnAsString(username: "SentryKSCrashIntegrationTests")
+        options.tracesSampleRate = 1.0
+
+        let client = SentryClientInternal(options: options)
+        defer { client?.fileManager.deleteAllEnvelopes() }
+        let hub = SentryHubInternal(client: client, andScope: nil)
+        let originalHub = SentrySDKInternal.currentHub()
+        SentrySDKInternal.setCurrentHub(hub)
+        defer { SentrySDKInternal.setCurrentHub(originalHub) }
+
+        let installer = MockKSCrashInstaller()
+        let deps = MockKSCrashDependencies(installer: installer)
+        _ = SentryKSCrash.Integration(with: options, dependencies: deps)
+
+        let transaction = SentrySDK.startTransaction(name: "name", operation: "operation", bindToScope: true)
+        let span = transaction.startChild(operation: "child")
+        SentrySDKInternal.currentHub().scope.span = span
+
+        // -- Act --
+        sentrykscrash_invokeSaveTransaction()
+
+        // -- Assert --
+        XCTAssertEqual(1, client?.fileManager.getAllEnvelopes().count)
+        let transactionEnvelopeFileContents = try XCTUnwrap(client?.fileManager.getOldestEnvelope())
+        let envelope = try XCTUnwrap(SentrySerializationSwift.envelope(with: transactionEnvelopeFileContents.contents))
+        XCTAssertEqual(1, envelope.items.count)
+        XCTAssertEqual("transaction", envelope.items.first?.header.type)
     }
 }
 #endif

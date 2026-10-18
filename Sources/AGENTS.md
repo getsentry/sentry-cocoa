@@ -16,6 +16,8 @@
 - Default to `internal` and expose only intentional SDK API as `public`
 - Prefer `private` over `fileprivate`
 - Mark classes `final` unless designed for subclassing
+- When converting Objective-C types to Swift, check `SentryTestUtils/Sources/Wrappers` and `SentryTestUtils/SourcesObjC` for adapters that become obsolete. Flag cleanup opportunities to maintainers so they can decide what to remove; preserve Xcode and SwiftPM test compatibility.
+- Do not put an `@objc` extension in a file by itself; static linkers strip those object files. Add a dummy `@objc` `NSObject` subclass in the same file and reference it from `SentrySDKInternal` (see `PlaceholderProcessInfoClass`). Enforced by `standalone_objc_extension` in `linters/SwiftLintCustomRules`
 
 ### Error Handling and Closures
 
@@ -31,7 +33,6 @@
 - Prefer `SentryDependencyContainer` providers for SDK-owned dependencies
 - Use `getLazyVar` or `getOptionalLazyVar` for lazily-created defaults
 - Override dependencies through `SentryDependencyContainer.sharedInstance()` in tests
-- Do not use `PrivateSentrySDKOnly` for test injection when a provider fits
 - Do not add static shared service singletons
 - Put lifecycle-owned shared services in [`SentryDependencyContainer`](Swift/SentryDependencyContainer.swift)
 - When process-lifetime hooks require global access, use a narrow proxy with synchronized weak lifecycle targets, following [`SentryNetworkTrackerProxy`](Swift/Integrations/Performance/Network/SentryNetworkTrackerProxy.swift)
@@ -48,7 +49,6 @@
 - Do not add `@objc`, `NSObject` inheritance, `NS_SWIFT_NAME`, or Objective-C wrappers unless an existing contract or identified consumer requires Objective-C support
 - Use `@_spi(Private)` for unstable API consumed by hybrid SDKs
 - Keep `@_spi(Private)` out of public headers
-- Document `PrivateSentrySDKOnly` instability in headerdocs
 - Use `SENTRY_NO_INIT` for types that must not be publicly instantiated
 - Follow [`develop-docs/SENTRY-OBJC.md`](../develop-docs/SENTRY-OBJC.md) for wrappers and API placement
 

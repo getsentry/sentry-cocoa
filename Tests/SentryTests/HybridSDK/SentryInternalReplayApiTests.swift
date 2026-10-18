@@ -1,4 +1,8 @@
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import XCTest
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
@@ -71,6 +75,16 @@ class SentryInternalReplayApiTests: XCTestCase {
 
     func testSetTags_beforeStart_shouldNotCrash() {
         sut.setTags(["key": "value"])
+    }
+
+    // MARK: - registerTraceId
+
+    func testRegisterTraceId_beforeStart_shouldNotCrash() {
+        sut.registerTraceId(SentryId())
+    }
+
+    func testRegisterTraceId_withEmptyId_beforeStart_shouldNotCrash() {
+        sut.registerTraceId(SentryId.empty)
     }
 }
 

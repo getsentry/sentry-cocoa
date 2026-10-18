@@ -38,6 +38,10 @@
 - [34. Session Replay Network Details: Body Capture Strategy](#34-session-replay-network-details-body-capture-strategy)
 - [35. KSCrash Migration Strategy: Dual Integrations on `main`](#35-kscrash-migration-strategy-dual-integrations-on-main)
 - [36. Breadcrumb persistence durability and caller latency](#36-breadcrumb-persistence-durability-and-caller-latency)
+- [37. Strip DWARF from prebuilt SentryObjC static binaries](#37-strip-dwarf-from-prebuilt-sentryobjc-static-binaries)
+- [38. Keep opt-out flags free of deprecation warnings](#38-keep-opt-out-flags-free-of-deprecation-warnings)
+- [39. Native SwiftPM test plans](#39-native-swiftpm-test-plans)
+- [40. Develop V10 on main, then branch off V9](#40-develop-v10-on-main-then-branch-off-v9)
 
 ---
 
@@ -137,7 +141,7 @@ We release experimental SentrySwiftUI cocoa package with the version 8.0.0 becau
 Date: March 20th, 2023
 Contributors: @brustolin, @philipphofmann
 
-Some private headers add a dependency of a public header, when those private headers are used in a sample project, or referenced from a hybrid SDK, it is treated as part of the project using it, therefore, if it points to a header that is not part of said project, a compilation error will occur. To solve this we make use of `__has_include` to try to point to the SDK version of the header, or to fallback to the direct reference when compiling the SDK.
+Some private headers add a dependency of a public header, when those private headers are used in a test app project, or referenced from a hybrid SDK, it is treated as part of the project using it, therefore, if it points to a header that is not part of said project, a compilation error will occur. To solve this we make use of `__has_include` to try to point to the SDK version of the header, or to fallback to the direct reference when compiling the SDK.
 
 ## 11. Tracking package managers
 
@@ -738,6 +742,8 @@ Related links:
 Date: June 30th, 2026
 Contributors: @NinjaLikesCheez, @philprime, @philipphofmann, @itaybre, @supervacuus
 
+> **Partially superseded by [decision 40](#40-develop-v10-on-main-then-branch-off-v9):** Backend selection is temporary until V9 branches off for maintenance. V10 continues on `main` with KSCrash alone; backend-version traits and legacy recorder sources are removed before its first release.
+
 We are migrating from `SentryCrash` (a KSCrash v1.x fork with renamed identifiers) to KSCrash 2.x, with the new integration (`SentryKSCrashIntegration`) becoming the default crash handler in v10. `SentryCrash` will be removed entirely when the migration is complete.
 
 We chose to ship both `SentryCrashIntegration` and `SentryKSCrashIntegration` on `main` simultaneously (Option B), rather than keeping KSCrash work on a long-lived feature branch (Option A).
@@ -837,3 +843,91 @@ Contributors: @philprime, @itaybre, @NinjaLikesCheez, @philipphofmann
 Reports of watchdog breadcrumb file writes causing app hangs showed that average filesystem write performance does not account for tail latency. We serialize and persist breadcrumbs on a serial utility queue so a blocked filesystem operation cannot block the thread adding a breadcrumb; see https://github.com/getsentry/sentry-cocoa/issues/7794.
 
 This preserves the order of completed persistence operations but can lose any breadcrumbs still queued when the OS abruptly terminates the process. Watchdog and OOM terminations do not provide a final callback in which the SDK can safely perform a synchronous flush, so a crash-time synchronous fallback cannot restore this durability guarantee. This aligns with the [crash-safe telemetry buffer guidance for abnormal process termination](https://develop.sentry.dev/sdk/foundations/processing/telemetry-processor/mobile-telemetry-processor/#abnormal-process-termination). We accept this trade-off to prevent breadcrumb persistence from causing an app hang.
+
+## 37. Strip DWARF from prebuilt SentryObjC static binaries
+
+Date: September 8, 2026
+Contributors: @philprime, @itaybre, @NinjaLikesCheez, @supervacuus
+
+`SentryObjC-Static.xcframework` contained debug-map entries that referenced object files in the CI build directory, but those object files were not included in the distributed artifact. Consumers therefore received warnings when generating their application's dSYM, and the references could not provide usable debug information. These DWARF references are distinct from the Mach-O symbol table required for linking.
+
+We decided to remove all DWARF debug information from the prebuilt static SentryObjC binary instead of embedding portable DWARF in every archived object file. A static library cannot ship a final reusable dSYM because addresses are assigned when the consumer links their application. Embedding portable DWARF would allow the consumer's linker to include SentryObjC debug information in the application's dSYM, but measurements showed a disproportionate distribution cost:
+
+| Artifact                |  Stripped | Full DWARF |          Increase |
+| ----------------------- | --------: | ---------: | ----------------: |
+| Raw logical XCFramework | 158.99 MB |  521.79 MB | 362.80 MB, 228.2% |
+| Compressed ZIP          |  37.99 MB |  138.08 MB | 100.09 MB, 263.4% |
+
+The compressed release artifact would be 3.63 times larger. SwiftPM downloads declared remote binary targets during package resolution, so this cost would affect every consumer rather than only users who need SentryObjC debug information. The existing prebuilt static Sentry framework already disables debug information due to the same class of non-redistributable module-debugging references.
+
+We accept that SentryObjC frames from this prebuilt static artifact cannot receive source-level DWARF symbolication, including file and line information or inline call frames. Linker symbols remain available when they survive the consumer's final link, allowing Symbolicator's Mach-O symbol-table fallback to provide function-name + offset symbolication. Dynamic frameworks continue to ship separate dSYMs. Consumers and downstream SDKs that require complete debug information should prefer building from source. If sufficient demand arises, we can reconsider publishing a separate debug-enabled binary artifact or repository without increasing downloads for all other users.
+
+Related links:
+
+- https://github.com/getsentry/sentry-cocoa/issues/8966
+- https://github.com/getsentry/sentry-cocoa/pull/8979
+- https://github.com/getsentry/sentry-cocoa/pull/8987
+- https://github.com/getsentry/sentry-cocoa/pull/3800
+
+## 38. Keep opt-out flags free of deprecation warnings
+
+Date: September 22, 2026
+Contributors: @philprime, @NinjaLikesCheez, @christophaigner
+
+We decided to remove the compiler deprecation annotations from `enableAppHangTracking` in the [Swift options](../Sources/Swift/Options.swift) and its Objective-C wrappers while keeping the documentation about App Hang tracking's deprecation and removal in v10.
+
+Deprecation warnings normally encourage users to stop using an API. App Hang tracking is enabled by default, however, so users must continue setting `enableAppHangTracking` to `false` to opt out until the next major release removes the feature. Removing that assignment would re-enable tracking. Enabling MetricKit does not replace the opt-out, so a compiler warning or automatic rename to `enableMetricKit` is not actionable migration guidance.
+
+Keep opt-out flags usable without compiler deprecation warnings while they remain necessary to disable a deprecated feature. Document the planned removal and recommended alternative instead. This change preserves the existing default and runtime behavior.
+
+Related links:
+
+- https://github.com/getsentry/sentry-cocoa/issues/9093
+
+## 39. Native SwiftPM test plans
+
+Date: September 22, 2026
+Contributors: @denrase, @NinjaLikesCheez
+
+The profiler migration needs method-level exclusions matching the Xcode project's Base plan. SwiftPM manifest exclusions operate on files, while command-line skips duplicate test selection in CI and local instructions. We use a checked-in `SentrySPM` scheme and native V9/V10 Base plans to keep selection in Xcode's supported test configuration instead.
+
+The plans include whole package test targets with static skips, enable coverage, pin English/US, and disable target parallelization. Invocations also disable parallel testing and pair `SDK_V10` with the matching plan. Profiler targets are included only in the V9 plan. Source-only preparation and opt-in compiler settings remain necessary; package schemes do not inherit the project's SDK configuration.
+
+Existing project Base, Flaky, and TestServer coverage remains unchanged. Until those suites move, shared Base skip-policy changes must be reflected in both project and package plans. We accept that small configuration duplication rather than introducing synchronization tooling. Further package test migrations should extend these plans rather than add CI selection logic.
+
+Related links:
+
+- [Package test commands](TEST.md#package-tests-with-xcodebuild)
+- [Shared package scheme](../.swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme)
+- [Profiler migration](https://github.com/getsentry/sentry-cocoa/pull/9086)
+
+## 40. Develop V10 on main, then branch off V9
+
+Date: October 5, 2026
+Contributors: Phil Niedertscheider, Itay Brenner, Mischan Toosarani-Hausberger
+
+We continue to develop V10 on `main` alongside V9, then create a V9 maintenance branch before releasing V10. V9 will keep SentryCrash; `main` will use KSCrash only. This changes parts of [decision 35](#35-kscrash-migration-strategy-dual-integrations-on-main): choosing between V9 and V10 is only for development, and V10 may compile files whose SentryCrash code is disabled.
+
+Until the branches split, V9 stays the default. Existing SwiftPM dependencies must keep working, whether they use defaults, only `NoUIFramework`, or disable default traits. Customers must not need a V9 trait or a different product/package to keep using V9.
+
+This development work must support the current and previous Xcode majors (27 and 26). Existing V9 builds on older Xcode versions, including Xcode 16, must keep working too. With the Swift 6.1 manifest, developers select V10 using `SDK_V10=1`. The Swift 6.2+ manifest also supports the `V10` trait. We won't add workarounds just to support that trait on older Xcode versions, where it exposed V10 configuration headers to V9 builds.
+
+Compiling a disabled SentryCrash file is acceptable; including its crash-recording code in a V10 binary or starting SentryCrash is not. Keep recorder code separate from shared SDK code. A `SentryCrash` name alone is not a reason to delete shared code or an API. Check the object files, final binaries, packaged headers and runtime behavior.
+
+Before the first V10 release:
+
+- Create the V9 maintenance branch.
+- Remove SentryCrash and the V9 adapters, headers, targets, startup code and tests from `main`.
+- Remove the V9/V10 selection flags and traits.
+- Simplify manifests, Xcode settings, test apps and CI for KSCrash only.
+- Delete tests and scripts needed only to select V9/V10 or check disabled SentryCrash files.
+- Keep API, behavior, NoUI, resource and packaging checks that still apply.
+
+Test both branches separately and verify that V10 no longer includes SentryCrash sources or dependencies.
+
+Related links:
+
+- [V10 backend isolation PR](https://github.com/getsentry/sentry-cocoa/pull/9182)
+- [Remove SentryCrash from V10](https://github.com/getsentry/sentry-cocoa/issues/8319)
+- [Files to remove or replace for V10](SENTRYCRASH_V10_MIGRATION_LEDGER.md)
+- [V10 build checks](BUILD.md#temporary-v10-development-verification)

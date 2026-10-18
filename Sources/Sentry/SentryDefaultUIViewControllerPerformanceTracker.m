@@ -6,20 +6,15 @@
 #    import "SentryAppStartMeasurementProvider.h"
 #    import "SentryHub.h"
 #    import "SentryLogC.h"
-#    import "SentryPerformanceTracker.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySpanId.h"
 #    import "SentrySpanOperation.h"
 #    import "SentrySwift.h"
-#    import "SentryTimeToDisplayTracker.h"
 #    import "SentryTraceOrigin.h"
 #    import "SentryTracer.h"
 #    import "SentryWeakMap.h"
 #    import <UIKit/UIKit.h>
 #    import <objc/runtime.h>
-
-@interface SentryTimeToDisplayTracker () <SentryInitialDisplayReporting>
-@end
 
 @interface SentrySwiftUISpanHelper () <SentryInitialDisplayReporting>
 @end
@@ -93,7 +88,7 @@
 
 @implementation SentryDefaultUIViewControllerPerformanceTracker
 
-- (instancetype)initWithTracker:(SentryPerformanceTracker *)tracker
+- (instancetype)initWithTracker:(SENTRY_SWIFT_MIGRATION_ID(SentryPerformanceTracker))tracker
 {
     if (self = [super init]) {
         self.tracker = tracker;

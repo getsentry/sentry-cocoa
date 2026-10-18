@@ -1,11 +1,20 @@
+#if (!SWIFT_PACKAGE || !SDK_V10) && (os(iOS) || os(macOS))
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+import SentryTestUtilsObjC
+#else
+@_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
 import SentryTestUtils
 import XCTest
 
-#if os(iOS) || os(macOS)
 class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
     override func setUp() {
         super.setUp()
         removeAppLaunchProfilingConfigFile()
+        // These tests write directly, without SDK startup creating the cache directory first.
+        XCTAssertTrue(ensureLaunchProfileConfigDirectoryExists())
     }
 
     override func tearDown() {
@@ -24,11 +33,11 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
 
         XCTAssertNil(sentry_persistedLaunchProfileConfigurationOptions())
 
-        _sentry_nondeduplicated_startLaunchProfile()
+        SentryLaunchProfiling.startLaunchProfileWithoutDeduplication()
 
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-        XCTAssertNil(sentry_launchTracer)
+        XCTAssertNil(SentryLaunchProfiling.launchTracer)
 
         XCTAssertFalse(appLaunchProfileConfigFileExists())
     }
@@ -36,9 +45,9 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
     func testMalformedConfigFile_ContinuousV2MissingLifecycle_DoesNotStartProfilingAndRemovesFile() throws {
         // Create a config file with continuous profiling v2 enabled but missing lifecycle
         let configDict: [String: Any] = [
-            kSentryLaunchProfileConfigKeyProfilesSampleRate: 1.0,
-            kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5
-            // Missing: kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle
+            SentryLaunchProfileConfigKey.profilesSampleRate: 1.0,
+            SentryLaunchProfileConfigKey.profilesSampleRand: 0.5
+            // Missing: SentryLaunchProfileConfigKey.continuousProfilingV2Lifecycle
         ]
 
         let configURL = try XCTUnwrap(launchProfileConfigFileURL())
@@ -47,11 +56,11 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
         XCTAssertTrue(appLaunchProfileConfigFileExists())
         XCTAssertNotNil(sentry_persistedLaunchProfileConfigurationOptions())
 
-        _sentry_nondeduplicated_startLaunchProfile()
+        SentryLaunchProfiling.startLaunchProfileWithoutDeduplication()
 
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-        XCTAssertNil(sentry_launchTracer)
+        XCTAssertNil(SentryLaunchProfiling.launchTracer)
 
         XCTAssertFalse(appLaunchProfileConfigFileExists())
     }
@@ -59,9 +68,9 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
     func testMalformedConfigFile_ContinuousV2ManualMissingSampleRate_DoesNotStartProfilingAndRemovesFile() throws {
         // Create a config file with continuous profiling v2 manual lifecycle but missing sample rate
         let configDict: [String: Any] = [
-            kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle: SentryProfileLifecycle.manual.rawValue,
-            kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5
-            // Missing: kSentryLaunchProfileConfigKeyProfilesSampleRate
+            SentryLaunchProfileConfigKey.continuousProfilingV2Lifecycle: SentryProfileLifecycle.manual.rawValue,
+            SentryLaunchProfileConfigKey.profilesSampleRand: 0.5
+            // Missing: SentryLaunchProfileConfigKey.profilesSampleRate
         ]
 
         let configURL = try XCTUnwrap(launchProfileConfigFileURL())
@@ -70,11 +79,11 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
         XCTAssertTrue(appLaunchProfileConfigFileExists())
         XCTAssertNotNil(sentry_persistedLaunchProfileConfigurationOptions())
 
-        _sentry_nondeduplicated_startLaunchProfile()
+        SentryLaunchProfiling.startLaunchProfileWithoutDeduplication()
 
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-        XCTAssertNil(sentry_launchTracer)
+        XCTAssertNil(SentryLaunchProfiling.launchTracer)
 
         XCTAssertFalse(appLaunchProfileConfigFileExists())
     }
@@ -82,9 +91,9 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
     func testMalformedConfigFile_ContinuousV2ManualMissingSampleRand_DoesNotStartProfilingAndRemovesFile() throws {
         // Create a config file with continuous profiling v2 manual lifecycle but missing sample rand
         let configDict: [String: Any] = [
-            kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle: SentryProfileLifecycle.manual.rawValue,
-            kSentryLaunchProfileConfigKeyProfilesSampleRate: 1.0
-            // Missing: kSentryLaunchProfileConfigKeyProfilesSampleRand
+            SentryLaunchProfileConfigKey.continuousProfilingV2Lifecycle: SentryProfileLifecycle.manual.rawValue,
+            SentryLaunchProfileConfigKey.profilesSampleRate: 1.0
+            // Missing: SentryLaunchProfileConfigKey.profilesSampleRand
         ]
 
         let configURL = try XCTUnwrap(launchProfileConfigFileURL())
@@ -93,11 +102,11 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
         XCTAssertTrue(appLaunchProfileConfigFileExists())
         XCTAssertNotNil(sentry_persistedLaunchProfileConfigurationOptions())
 
-        _sentry_nondeduplicated_startLaunchProfile()
+        SentryLaunchProfiling.startLaunchProfileWithoutDeduplication()
 
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-        XCTAssertNil(sentry_launchTracer)
+        XCTAssertNil(SentryLaunchProfiling.launchTracer)
 
         XCTAssertFalse(appLaunchProfileConfigFileExists())
     }
@@ -105,10 +114,10 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
     func testMalformedConfigFile_TraceProfilingMissingProfilesRate_DoesNotStartProfilingAndRemovesFile() throws {
         // Create a config file for trace profiling but missing profiles sample rate
         let configDict: [String: Any] = [
-            kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
-            kSentryLaunchProfileConfigKeyTracesSampleRate: 1.0,
-            kSentryLaunchProfileConfigKeyTracesSampleRand: 0.5
-            // Missing: kSentryLaunchProfileConfigKeyProfilesSampleRate
+            SentryLaunchProfileConfigKey.profilesSampleRand: 0.5,
+            SentryLaunchProfileConfigKey.tracesSampleRate: 1.0,
+            SentryLaunchProfileConfigKey.tracesSampleRand: 0.5
+            // Missing: SentryLaunchProfileConfigKey.profilesSampleRate
         ]
 
         let configURL = try XCTUnwrap(launchProfileConfigFileURL())
@@ -117,11 +126,11 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
         XCTAssertTrue(appLaunchProfileConfigFileExists())
         XCTAssertNotNil(sentry_persistedLaunchProfileConfigurationOptions())
 
-        _sentry_nondeduplicated_startLaunchProfile()
+        SentryLaunchProfiling.startLaunchProfileWithoutDeduplication()
 
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-        XCTAssertNil(sentry_launchTracer)
+        XCTAssertNil(SentryLaunchProfiling.launchTracer)
 
         XCTAssertFalse(appLaunchProfileConfigFileExists())
     }
@@ -129,10 +138,10 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
     func testMalformedConfigFile_TraceProfilingMissingProfilesRand_DoesNotStartProfilingAndRemovesFile() throws {
         // Create a config file for trace profiling but missing profiles sample rand
         let configDict: [String: Any] = [
-            kSentryLaunchProfileConfigKeyProfilesSampleRate: 1.0,
-            kSentryLaunchProfileConfigKeyTracesSampleRate: 1.0,
-            kSentryLaunchProfileConfigKeyTracesSampleRand: 0.5
-            // Missing: kSentryLaunchProfileConfigKeyProfilesSampleRand
+            SentryLaunchProfileConfigKey.profilesSampleRate: 1.0,
+            SentryLaunchProfileConfigKey.tracesSampleRate: 1.0,
+            SentryLaunchProfileConfigKey.tracesSampleRand: 0.5
+            // Missing: SentryLaunchProfileConfigKey.profilesSampleRand
         ]
 
         let configURL = try XCTUnwrap(launchProfileConfigFileURL())
@@ -141,11 +150,11 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
         XCTAssertTrue(appLaunchProfileConfigFileExists())
         XCTAssertNotNil(sentry_persistedLaunchProfileConfigurationOptions())
 
-        _sentry_nondeduplicated_startLaunchProfile()
+        SentryLaunchProfiling.startLaunchProfileWithoutDeduplication()
 
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-        XCTAssertNil(sentry_launchTracer)
+        XCTAssertNil(SentryLaunchProfiling.launchTracer)
 
         XCTAssertFalse(appLaunchProfileConfigFileExists())
     }
@@ -153,10 +162,10 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
     func testMalformedConfigFile_TraceProfilingMissingTracesRate_DoesNotStartProfilingAndRemovesFile() throws {
         // Create a config file for trace profiling but missing traces sample rate
         let configDict: [String: Any] = [
-            kSentryLaunchProfileConfigKeyProfilesSampleRate: 1.0,
-            kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
-            kSentryLaunchProfileConfigKeyTracesSampleRand: 0.5
-            // Missing: kSentryLaunchProfileConfigKeyTracesSampleRate
+            SentryLaunchProfileConfigKey.profilesSampleRate: 1.0,
+            SentryLaunchProfileConfigKey.profilesSampleRand: 0.5,
+            SentryLaunchProfileConfigKey.tracesSampleRand: 0.5
+            // Missing: SentryLaunchProfileConfigKey.tracesSampleRate
         ]
 
         let configURL = try XCTUnwrap(launchProfileConfigFileURL())
@@ -165,11 +174,11 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
         XCTAssertTrue(appLaunchProfileConfigFileExists())
         XCTAssertNotNil(sentry_persistedLaunchProfileConfigurationOptions())
 
-        _sentry_nondeduplicated_startLaunchProfile()
+        SentryLaunchProfiling.startLaunchProfileWithoutDeduplication()
 
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-        XCTAssertNil(sentry_launchTracer)
+        XCTAssertNil(SentryLaunchProfiling.launchTracer)
 
         XCTAssertFalse(appLaunchProfileConfigFileExists())
     }
@@ -177,10 +186,10 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
     func testMalformedConfigFile_TraceProfilingMissingTracesRand_DoesNotStartProfilingAndRemovesFile() throws {
         // Create a config file for trace profiling but missing traces sample rand
         let configDict: [String: Any] = [
-            kSentryLaunchProfileConfigKeyProfilesSampleRate: 1.0,
-            kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
-            kSentryLaunchProfileConfigKeyTracesSampleRate: 1.0
-            // Missing: kSentryLaunchProfileConfigKeyTracesSampleRand
+            SentryLaunchProfileConfigKey.profilesSampleRate: 1.0,
+            SentryLaunchProfileConfigKey.profilesSampleRand: 0.5,
+            SentryLaunchProfileConfigKey.tracesSampleRate: 1.0
+            // Missing: SentryLaunchProfileConfigKey.tracesSampleRand
         ]
 
         let configURL = try XCTUnwrap(launchProfileConfigFileURL())
@@ -189,16 +198,16 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
         XCTAssertTrue(appLaunchProfileConfigFileExists())
         XCTAssertNotNil(sentry_persistedLaunchProfileConfigurationOptions())
 
-        _sentry_nondeduplicated_startLaunchProfile()
+        SentryLaunchProfiling.startLaunchProfileWithoutDeduplication()
 
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-        XCTAssertNil(sentry_launchTracer)
+        XCTAssertNil(SentryLaunchProfiling.launchTracer)
 
         XCTAssertFalse(appLaunchProfileConfigFileExists())
     }
 
-    func testMalformedConfigFile_EmptyConfigFile_DoesNotStartProfilingButKeepsFile() throws {
+    func testMalformedConfigFile_EmptyConfigFile_DoesNotStartProfilingAndRemovesFile() throws {
         // Create an empty but valid plist file
         let configDict: [String: Any] = [:]
 
@@ -208,11 +217,11 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
         XCTAssertTrue(appLaunchProfileConfigFileExists())
         XCTAssertNotNil(sentry_persistedLaunchProfileConfigurationOptions())
 
-        _sentry_nondeduplicated_startLaunchProfile()
+        SentryLaunchProfiling.startLaunchProfileWithoutDeduplication()
 
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-        XCTAssertNil(sentry_launchTracer)
+        XCTAssertNil(SentryLaunchProfiling.launchTracer)
 
         XCTAssertFalse(appLaunchProfileConfigFileExists())
     }
@@ -220,11 +229,11 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
     func testMalformedConfigFile_ContinuousV2TraceLifecycleMissingTracesRate_DoesNotStartProfilingAndRemovesFile() throws {
         // Create a config file with continuous profiling v2 trace lifecycle but missing traces sample rate
         let configDict: [String: Any] = [
-            kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle: SentryProfileLifecycle.trace.rawValue,
-            kSentryLaunchProfileConfigKeyProfilesSampleRate: 1.0,
-            kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
-            kSentryLaunchProfileConfigKeyTracesSampleRand: 0.5
-            // Missing: kSentryLaunchProfileConfigKeyTracesSampleRate
+            SentryLaunchProfileConfigKey.continuousProfilingV2Lifecycle: SentryProfileLifecycle.trace.rawValue,
+            SentryLaunchProfileConfigKey.profilesSampleRate: 1.0,
+            SentryLaunchProfileConfigKey.profilesSampleRand: 0.5,
+            SentryLaunchProfileConfigKey.tracesSampleRand: 0.5
+            // Missing: SentryLaunchProfileConfigKey.tracesSampleRate
         ]
 
         let configURL = try XCTUnwrap(launchProfileConfigFileURL())
@@ -233,13 +242,13 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
         XCTAssertTrue(appLaunchProfileConfigFileExists())
         XCTAssertNotNil(sentry_persistedLaunchProfileConfigurationOptions())
 
-        _sentry_nondeduplicated_startLaunchProfile()
+        SentryLaunchProfiling.startLaunchProfileWithoutDeduplication()
 
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-        XCTAssertNil(sentry_launchTracer)
+        XCTAssertNil(SentryLaunchProfiling.launchTracer)
 
         XCTAssertFalse(appLaunchProfileConfigFileExists())
     }
 }
-#endif // os(iOS) || os(macOS)
+#endif

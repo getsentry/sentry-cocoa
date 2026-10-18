@@ -22,12 +22,12 @@ FRAMEWORK_NAME="SentryObjC"
 VERSION=""
 
 usage() {
-    log_notice "Usage: $0"
-    log_notice "  --sdk <name>              Target SDK, e.g. iphoneos, iphonesimulator, macosx (required)"
-    log_notice "  --static-lib <path>       Path to libSentryObjC.a (required)"
-    log_notice "  --headers <path>          Path to public headers directory (required)"
-    log_notice "  --output-dir <path>       Output directory (default: XCFrameworkBuildPath)"
-    log_notice "  --version <semver>        Version string for the framework (default: 0.0.0)"
+    log_info "Usage: $0"
+    log_info "  --sdk <name>              Target SDK, e.g. iphoneos, iphonesimulator, macosx (required)"
+    log_info "  --static-lib <path>       Path to libSentryObjC.a (required)"
+    log_info "  --headers <path>          Path to public headers directory (required)"
+    log_info "  --output-dir <path>       Output directory (default: XCFrameworkBuildPath)"
+    log_info "  --version <semver>        Version string for the framework (default: 0.0.0)"
     exit 1
 }
 
@@ -158,11 +158,13 @@ if is_macos_layout "$SDK"; then
     versioned="$FW_DIR/Versions/A"
     mkdir -p "$versioned/Headers" "$versioned/Modules" "$versioned/Resources"
     cp -R "$HEADERS_DIR"/. "$versioned/Headers/"
-    ln -sfh A "$FW_DIR/Versions/Current"
-    ln -sfh Versions/Current/Headers "$FW_DIR/Headers"
-    ln -sfh Versions/Current/Modules "$FW_DIR/Modules"
-    ln -sfh Versions/Current/Resources "$FW_DIR/Resources"
-    ln -sfh "Versions/Current/$FRAMEWORK_NAME" "$FW_DIR/$FRAMEWORK_NAME"
+    # Homebrew coreutils can put GNU ln ahead of /bin/ln; it rejects -h, breaking framework packaging.
+    # -n preserves the same no-dereference behavior on both GNU and BSD ln.
+    ln -sfn A "$FW_DIR/Versions/Current"
+    ln -sfn Versions/Current/Headers "$FW_DIR/Headers"
+    ln -sfn Versions/Current/Modules "$FW_DIR/Modules"
+    ln -sfn Versions/Current/Resources "$FW_DIR/Resources"
+    ln -sfn "Versions/Current/$FRAMEWORK_NAME" "$FW_DIR/$FRAMEWORK_NAME"
     modules_dir="$versioned/Modules"
     binary_path="$versioned/$FRAMEWORK_NAME"
     resources_dir="$versioned/Resources"

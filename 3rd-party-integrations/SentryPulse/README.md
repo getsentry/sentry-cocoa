@@ -17,6 +17,17 @@ dependencies: [
 ]
 ```
 
+Then add the `SentryPulse` product to your target:
+
+```swift
+.target(
+    name: "MyApp",
+    dependencies: [
+        .product(name: "SentryPulse", package: "sentry-apple-pulse")
+    ]
+)
+```
+
 ## Quick Start
 
 ```swift

@@ -1,5 +1,9 @@
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import _SentryPrivate
 import ObjectiveC
 import XCTest
@@ -369,6 +373,37 @@ class SentryTracerTests: XCTestCase {
             child.finish()
         })
         SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = fixture.dispatchQueue
+    }
+
+    func testFinish_whenChildrenFinishConcurrently_shouldSetTimestampOnAllChildren() {
+        // -- Arrange --
+        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = SentryDispatchQueueWrapper()
+        defer { SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = fixture.dispatchQueue }
+        let sut = fixture.getSut(waitForChildren: true)
+        let children = (0..<200).map { _ in sut.startChild(operation: fixture.transactionOperation) }
+
+        // -- Act --
+        // The last child to finish triggers finishInternal, which reads every child's
+        // timestamp in trimEndTimestamp while the other children may still be storing theirs.
+        let queue = DispatchQueue(label: "SentryTracerTests.concurrentChildren", attributes: .concurrent)
+        let childrenFinished = expectation(description: "children finished")
+        childrenFinished.expectedFulfillmentCount = children.count
+        childrenFinished.assertForOverFulfill = true
+        for child in children {
+            queue.async {
+                child.finish()
+                childrenFinished.fulfill()
+            }
+        }
+        sut.finish()
+        wait(for: [childrenFinished], timeout: 10)
+
+        // -- Assert --
+        XCTAssertTrue(sut.isFinished)
+        for child in children {
+            XCTAssertTrue(child.isFinished)
+            XCTAssertNotNil(child.timestamp)
+        }
     }
 
     func testFinish_CheckDefaultStatus() throws {
@@ -939,7 +974,7 @@ class SentryTracerTests: XCTestCase {
     func testAppStartMeasurementHybridSDKModeEnabled_NotPutOnTransaction() throws {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .warm)
         SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
-        PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = true
+        SentrySDK.internal.appStart.hybridSDKMode = true
         
         let sut = fixture.getSut()
         sut.finish()

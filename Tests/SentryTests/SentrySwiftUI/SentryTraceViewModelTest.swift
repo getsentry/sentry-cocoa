@@ -1,5 +1,11 @@
 #if canImport(UIKit) && canImport(SwiftUI) && (os(iOS) || os(tvOS))
-@testable import Sentry
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
+@_spi(Private) @testable import Sentry
+#endif
+@_spi(Private) import SentryTestUtils
+import _SentryPrivate
 import XCTest
 
 class SentryTraceViewModelTestCase: XCTestCase {

@@ -49,7 +49,7 @@ jobs:
             timeout: 30
 
           - name: watchOS 27 Sentry
-            runs-on: xcode-beta
+            runs-on: tahoe-27
             xcode: "27"
             allow_prerelease: true
             platform: "watchOS"
@@ -60,6 +60,15 @@ jobs:
             xcode: "16"
             platform: "visionOS"
             timeout: 30
+
+          # visionOS 27 is slow because of a backboardd deadlock in the simulator, so test.yml
+          # skips it on pull requests and only runs it on pushes to main and release branches.
+          # See the visionOS 27 comment in test.yml for details.
+          - name: visionOS 27 Sentry
+            runs-on: tahoe-xl
+            xcode: "27"
+            platform: "visionOS"
+            timeout: 60
 
   slack-notification:
     name: Slack Notification

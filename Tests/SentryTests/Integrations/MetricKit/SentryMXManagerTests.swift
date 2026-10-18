@@ -1,4 +1,8 @@
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
 import SentryTestUtils
 import XCTest
 
@@ -18,8 +22,8 @@ final class SentryMXManagerTests: XCTestCase {
         let sut = SentryMXManager(
             inAppLogic: SentryInAppLogic(inAppIncludes: []),
             attachDiagnosticAsAttachment: false,
-            enabledDiagnostics: SentryMXManager.DiagnosticMetric.all
-                .subtracting(disableCrashDiagnostics ? [.crashDiagnostics] : [])
+            enabledDiagnostics: SentryMXManager.Diagnostic.all
+                .subtracting(disableCrashDiagnostics ? [.crash] : [])
         )
 
         return sut

@@ -1,0 +1,5 @@
+# Config for the Bazel-built SwiftLint that includes extra rules.
+# Homebrew SwiftLint does not know `standalone_objc_extension`, so this file
+# is not used by `swiftlint` from Brewfile-ci-format.
+only_rules:
+  - standalone_objc_extension

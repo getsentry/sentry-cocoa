@@ -1,8 +1,14 @@
 #if !SDK_V10
 @_spi(Private) import SentryTestUtils
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) @testable import Sentry
+#endif
+import _SentryPrivate
 import XCTest
 
+@available(*, deprecated, message: "Testing deprecated App Hang tracking")
 class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     
     private static let dsn = TestConstants.dsnAsString(username: "SentryANRTrackingIntegrationTests")
@@ -101,13 +107,12 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertNil(result)
     }
     
-    func test_appHangsTimeoutInterval_Zero() {
-        let options = Options()
-        options.enableAppHangTracking = true
+    func test_appHangsTimeoutInterval_Zero_ResetsToDefault() {
         options.appHangTimeoutInterval = 0
         
-        let result = hangTracker(with: options)
-        XCTAssertNil(result)
+        XCTAssertEqual(2.0, options.appHangTimeoutInterval)
+        givenInitializedTracker()
+        XCTAssertNotNil(sut)
     }
 
 #if os(macOS)
@@ -349,21 +354,40 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
 #endif // os(iOS) || os(tvOS)
 
     func testDealloc_CallsUninstall() throws {
-        givenInitializedTracker()
-        
-        // // So ARC deallocates the SentryANRTrackingIntegration
-        func initIntegration() {
-            self.fixture.sysctl.internalIsBeingTraced = false
-            let _ = hangTracker(with: self.options)
+        // -- Arrange --
+        let threadWrapper = SentryTestThreadWrapper()
+        let sleepStarted = expectation(description: "Watchdog started")
+        let resumeSleep = DispatchSemaphore(value: 0)
+        let didSleep = SentryMutex(false)
+        threadWrapper.blockWhenSleeping = {
+            let firstSleep = didSleep.withLock { didSleep in
+                defer { didSleep = true }
+                return !didSleep
+            }
+            if firstSleep {
+                sleepStarted.fulfill()
+                resumeSleep.wait()
+            }
         }
-        
-        initIntegration()
-        
-        let tracker = SentryDependencyContainer.sharedInstance().getANRTracker(self.options.appHangTimeoutInterval)
-        
-        let listeners = try XCTUnwrap(Dynamic(tracker.helper).listeners.asObject as? NSHashTable<NSObject>)
-        
-        XCTAssertEqual(1, listeners.count)
+        SentryDependencyContainer.sharedInstance().threadWrapper = threadWrapper
+        givenInitializedTracker()
+        let tracker = try XCTUnwrap(sut?.tracker)
+        defer {
+            tracker.clear()
+            resumeSleep.signal()
+        }
+        wait(for: [sleepStarted], timeout: 5)
+        weak var releasedIntegration: SentryHangTrackingIntegration<SentryDependencyContainer>?
+        releasedIntegration = sut
+
+        // -- Act --
+        sut = nil
+        resumeSleep.signal()
+
+        // -- Assert --
+        XCTAssertNil(releasedIntegration)
+        wait(for: [threadWrapper.threadFinishedExpectation], timeout: 5)
+        XCTAssertTrue(threadWrapper.threads.isEmpty)
     }
     
 #if os(iOS) || os(tvOS)
@@ -908,13 +932,13 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
 
         if addThreads {
             
-            let frame1 = Sentry.Frame()
+            let frame1 = Frame()
             
             let thread1 = SentryThread(threadId: 0)
             thread1.stacktrace = SentryStacktrace(frames: [frame1], registers: [:])
             thread1.current = true
             
-            let frame2 = Sentry.Frame()
+            let frame2 = Frame()
             
             let thread2 = SentryThread(threadId: 1)
             thread2.stacktrace = SentryStacktrace(frames: [frame2], registers: [:])

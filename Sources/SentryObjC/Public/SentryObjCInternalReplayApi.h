@@ -9,6 +9,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class SentryObjCId;
+
 /// Session replay APIs for Sentry hybrid SDKs.
 ///
 /// These methods may change in any minor release without deprecation.
@@ -53,6 +55,9 @@ SENTRY_NO_INIT
 
 /// Sets tags on the current replay session.
 - (void)setTags:(NSDictionary<NSString *, id> *)tags;
+
+/// Registers a trace ID with the current replay segment.
+- (void)registerTraceId:(SentryObjCId *)traceId;
 
 @end
 

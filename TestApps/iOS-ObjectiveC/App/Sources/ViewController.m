@@ -1,0 +1,185 @@
+#import "ViewController.h"
+#import "NoARCCrash.h"
+#import "RaiseUncaughtNSException.h"
+
+@import SentryObjC;
+@import SentrySampleShared;
+
+@interface ViewController ()
+
+@end
+
+@implementation ViewController
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+
+    // Do any additional setup after loading the view.
+    [SentryObjCSDK configureScope:^(SentryObjCScope *_Nonnull scope) {
+        [scope setEnvironment:@"debug"];
+        [scope setTagValue:@"objc" forKey:@"language"];
+        [scope setExtraValue:[NSString stringWithFormat:@"%@", self]
+                      forKey:@"currentViewController"];
+        SentryObjCUser *user = [[SentryObjCUser alloc] initWithUserId:@"1"];
+        user.email = @"tony@example.com";
+        [scope setUser:user];
+
+        NSString *path = [[NSBundle mainBundle] pathForResource:@"Tongariro" ofType:@"jpg"];
+        [scope addAttachment:[[SentryObjCAttachment alloc] initWithPath:path
+                                                               filename:@"Tongariro.jpg"
+                                                            contentType:@"image/jpeg"]];
+
+        [scope addAttachment:[[SentryObjCAttachment alloc]
+                                 initWithData:[@"hello" dataUsingEncoding:NSUTF8StringEncoding]
+                                     filename:@"log.txt"]];
+    }];
+    // Also works
+    SentryObjCUser *user = [[SentryObjCUser alloc] initWithUserId:@"1"];
+    user.email = @"tony@example.com";
+    [SentryObjCSDK setUser:user];
+
+    // Load an image just for HTTP swizzling
+    NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:config];
+    NSURL *url = [[NSURL alloc]
+        initWithString:@"https://sentry-brand.storage.googleapis.com/sentry-logo-black.png"];
+    NSURLSessionDataTask *task = [session dataTaskWithURL:url];
+    [task resume];
+}
+
+- (IBAction)showFeedbackForm:(id)sender
+{
+    [SentryObjCSDK.feedback show];
+}
+
+- (IBAction)presentFeedbackForm:(id)sender
+{
+    UIViewController *feedbackForm = [SentryObjCFeedbackForm
+        viewControllerWithConfigure:^(SentryObjCUserFeedbackConfiguration *configuration) {
+            configuration.tags = @ { @"presentation" : @"manual" };
+            configuration.configureForm
+                = ^(SentryObjCUserFeedbackFormConfiguration *formConfiguration) {
+                      formConfiguration.formTitle = @"Manual Feedback";
+                      formConfiguration.submitButtonLabel = @"Send Manual Feedback";
+                  };
+        }];
+    [self presentViewController:feedbackForm animated:YES completion:nil];
+}
+
+- (IBAction)addBreadcrumb:(id)sender
+{
+    SentryObjCBreadcrumb *crumb = [[SentryObjCBreadcrumb alloc] init];
+    crumb.message = @"tapped addBreadcrumb";
+    [SentryObjCSDK addBreadcrumb:crumb];
+}
+
+- (IBAction)captureMessage:(id)sender
+{
+    SentryObjCId *eventId = [SentryObjCSDK captureMessage:@"Yeah captured a message"];
+    // Returns eventId in case of successful processed event
+    // otherwise emptyId
+    NSLog(@"%@", eventId);
+}
+
+- (IBAction)captureUserFeedbackV2:(id)sender
+{
+    NSData *data = [NSData dataWithContentsOfURL:BundleResourceProvider.screenshotURL];
+    NSArray<SentryObjCAttachment *> *attachments = nil;
+    if (data != nil) {
+        attachments = @[ [[SentryObjCAttachment alloc] initWithData:data
+                                                           filename:@"screenshot.png"] ];
+    }
+    SentryObjCId *errorEventID = [SentryObjCSDK
+        captureError:[NSError errorWithDomain:@"test-error.user-feedback.iOS-ObjectiveC"
+                                         code:1
+                                     userInfo:nil]];
+    [SentryObjCSDK captureFeedbackWithMessage:
+            @"It broke again on iOS-ObjectiveC. I don't know why, but this happens."
+                                         name:@"John Me"
+                                        email:@"john@me.com"
+                                       source:SentryObjCFeedbackSourceCustom
+                            associatedEventId:errorEventID
+                                  attachments:attachments];
+}
+
+- (IBAction)captureError:(id)sender
+{
+    NSError *error =
+        [[NSError alloc] initWithDomain:@"SampleErrorDomain"
+                                   code:0
+                               userInfo:@{ NSLocalizedDescriptionKey : @"Object does not exist" }];
+    [SentryObjCSDK captureError:error
+                 withScopeBlock:^(SentryObjCScope *_Nonnull scope) {
+                     // Changes in here will only be captured for this event
+                     // The scope in this callback is a clone of the current scope
+                     // It contains all data but mutations only influence the event
+                     // being sent
+                     [scope setTagValue:@"value" forKey:@"myTag"];
+                 }];
+}
+
+- (IBAction)captureException:(id)sender
+{
+    NSException *exception = [[NSException alloc] initWithName:@"My Custom exception"
+                                                        reason:@"User clicked the button"
+                                                      userInfo:nil];
+
+    SentryObjCScope *scope = [[SentryObjCScope alloc] init];
+    [scope setLevel:SentryObjCLevelFatal];
+    // !!!: By explicity just passing the scope, only the data in this scope object will be added to
+    // the event; the global scope (calls to configureScope) will be ignored. If you do that, be
+    // careful–a lot of useful info is lost. If you just want to mutate what's in the scope use the
+    // callback, see: captureError.
+    [SentryObjCSDK captureException:exception withScope:scope];
+}
+
+- (IBAction)captureTransaction:(id)sender
+{
+    __block SentryObjCSpan *fakeTransaction =
+        [SentryObjCSDK startTransactionWithName:@"Some Transaction" operation:@"some operation"];
+
+    dispatch_after(
+        dispatch_time(DISPATCH_TIME_NOW, (int64_t)(arc4random_uniform(100) + 400 * NSEC_PER_MSEC)),
+        dispatch_get_main_queue(), ^{ [fakeTransaction finish]; });
+}
+
+- (IBAction)crash:(id)sender
+{
+    [SentryObjCSDK crash];
+}
+
+- (IBAction)raiseHugeNSException:(id)sender
+{
+    // Larger than the old 150KB JSON scratch buffer (112.5KB for values).
+    // Uses CrashE2E's objc_exception_rethrow helper. Launch from the simulator
+    // home screen (no LLDB): SentryCrash disables the NSException monitor while
+    // a debugger is attached.
+    NSString *padding = [@"" stringByPaddingToLength:200000 withString:@"a" startingAtIndex:0];
+    NSString *reason = [@"iOS-ObjectiveC huge NSException " stringByAppendingString:padding];
+    RaiseUncaughtNSException(@"HugeNSException", reason);
+}
+
+- (IBAction)sigsevCrash:(id)sender
+{
+    callMessageOnDeallocatedObject();
+}
+
+- (IBAction)oomCrash:(id)sender
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSUInteger megaByte = 1024 * 1024;
+        NSUInteger memoryPageSize = NSPageSize();
+        NSUInteger memoryPages = megaByte / memoryPageSize;
+
+        while (1) {
+            // Allocate one MB and set one element of each memory page to something.
+            volatile char *ptr = malloc(megaByte);
+            for (int i = 0; i < memoryPages; i++) {
+                ptr[i * memoryPageSize] = 'b';
+            }
+        }
+    });
+}
+
+@end

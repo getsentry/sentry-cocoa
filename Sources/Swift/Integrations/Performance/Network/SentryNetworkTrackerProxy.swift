@@ -4,9 +4,11 @@ final class SentryNetworkTrackerProxy {
     // The proxy must not extend the tracker's integration and dependency-container lifetime.
     private final class WeakBox {
         weak var value: SentryNetworkTrackerProtocol?
+        let enableNewURLLoaderSwizzling: Bool
 
-        init(_ value: SentryNetworkTrackerProtocol) {
+        init(_ value: SentryNetworkTrackerProtocol, enableNewURLLoaderSwizzling: Bool) {
             self.value = value
+            self.enableNewURLLoaderSwizzling = enableNewURLLoaderSwizzling
         }
     }
 
@@ -18,8 +20,17 @@ final class SentryNetworkTrackerProxy {
         weakTargetMutex.withLock { $0?.value }
     }
 
-    func setTarget(_ target: SentryNetworkTrackerProtocol) {
-        let reference = WeakBox(target)
+    var newLoaderTarget: SentryNetworkTrackerProtocol? {
+        weakTargetMutex.withLock { reference in
+            guard reference?.enableNewURLLoaderSwizzling == true else {
+                return nil
+            }
+            return reference?.value
+        }
+    }
+
+    func setTarget(_ target: SentryNetworkTrackerProtocol, enableNewURLLoaderSwizzling: Bool = false) {
+        let reference = WeakBox(target, enableNewURLLoaderSwizzling: enableNewURLLoaderSwizzling)
         weakTargetMutex.withLock { $0 = reference }
     }
 

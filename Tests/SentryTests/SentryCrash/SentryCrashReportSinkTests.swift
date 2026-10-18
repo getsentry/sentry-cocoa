@@ -1,5 +1,11 @@
+#if !SDK_V10
+#if SWIFT_PACKAGE
+@_spi(Private) @testable import SentrySwift
+#else
 @_spi(Private) import Sentry
+#endif
 @_spi(Private) @testable import SentryTestUtils
+import _SentryPrivate
 import XCTest
 
 class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
@@ -9,7 +15,12 @@ class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         
         var sut: SentryCrashReportSink {
-            return SentryCrashReportSink(inAppLogic: inAppLogic, crashWrapper: crashWrapper, dispatchQueue: dispatchQueue)
+            return SentryCrashReportSink(
+                inAppLogic: inAppLogic,
+                crashWrapper: crashWrapper,
+                dispatchQueue: dispatchQueue,
+                startupCrashFlush: SentryStartupCrashFlush(idleGate: SentryReplayRecoveryIdleGate())
+            )
         }
 
         private let inAppLogic = SentryInAppLogic(inAppIncludes: [])
@@ -120,7 +131,8 @@ class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
         let report = ["attachments": ["file.png"]]
         fixture.sut.filterReports([report]) { _, _, _ in
             self.assertFatalEventWithScope { _, scope in
-                XCTAssertEqual(scope?.attachments.count, 1)
+                XCTAssertEqual(scope?.attachments.count, 0)
+                XCTAssertEqual(scope?.crashReportAttachments.count, 1)
             }
         }
     }
@@ -135,3 +147,5 @@ class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
         return client!
     }
 }
+
+#endif // !SDK_V10
