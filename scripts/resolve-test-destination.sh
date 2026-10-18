@@ -66,6 +66,8 @@ find_newest_iphone_pro() {
 # Prints the exact versions of available iOS runtimes that share the given
 # major version and have a lower minor version, newest first.
 # E.g. for 27.2 this prints 27.1 and 27.0 if both are installed.
+# Partially loaded runtimes can report `version: null`; skip any version that
+# is not purely numeric so one bad entry doesn't abort jq for all runtimes.
 list_lower_minor_ios_runtimes() {
     local major="$1"
     local minor="$2"
@@ -74,6 +76,7 @@ list_lower_minor_ios_runtimes() {
             .runtimes[]
             | select(.isAvailable == true and .platform == "iOS")
             | .version
+            | select(type == "string" and test("^[0-9]+(\\.[0-9]+)*$"))
             | (split(".") | map(tonumber)) as $parts
             | select($parts[0] == $major and ($parts[1] // 0) < $minor)' \
         | sort -ruV || true
