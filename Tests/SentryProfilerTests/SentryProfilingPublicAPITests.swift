@@ -436,7 +436,7 @@ extension SentryProfilingPublicAPITests {
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
-#if !os(macOS)
+#if !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
     func testSessionSampleRateReevaluationOnAppBecomingActive_whenNewSessionStarts_shouldReevaluate() {
         // Arrange
         fixture.options.sessionTrackingIntervalMillis = 10_000
@@ -522,7 +522,7 @@ extension SentryProfilingPublicAPITests {
         // Assert
         XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
     }
-#endif // !os(macOS)
+#endif // !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
 }
 
 private extension SentryProfilingPublicAPITests {
