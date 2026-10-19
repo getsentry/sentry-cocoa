@@ -6,7 +6,9 @@ description: >-
   to `$GITHUB_ENV` (XCODE_VERSION, IOS_SIMULATOR_OS, TVOS_SIMULATOR_OS,
   WATCHOS_SIMULATOR_OS, VISIONOS_SIMULATOR_OS) so the Makefile and downstream
   scripts pick them up automatically. For device name resolution, use the
-  `resolve-test-destination` action.
+  `resolve-test-destination` action. Also configures git to authenticate
+  github.com fetches with the workflow token, so SwiftPM package resolution
+  doesn't fail when GitHub rejects anonymous clones of public repositories.
 inputs:
   version:
     description: >-
@@ -46,6 +48,13 @@ outputs:
 runs:
   using: "composite"
   steps:
+    - name: Configure GitHub credentials for SwiftPM
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      run: |
+        "${{ github.action_path }}/../../../scripts/ci-configure-github-credentials.sh"
+
     - name: Select Xcode and export simulator versions
       id: select
       shell: bash
