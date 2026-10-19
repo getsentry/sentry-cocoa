@@ -369,19 +369,28 @@ if !envSelectsV10 {
             dependencies: ["SentrySwift", "SentryTestUtils", "SentryTestUtilsObjC", "SentryTestUtilsObjCpp"],
             path: "Tests/SentryProfilerTests",
             exclude: ["ObjC"],
-            cSettings: cSettings,
-            swiftSettings: swiftSettings
+            // Keep Swift's Clang importer consistent with the NoUI SDK declarations.
+            cSettings: [
+                .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
+            ] + cSettings,
+            swiftSettings: [
+                .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"]))
+            ] + swiftSettings
         ),
         .testTarget(
             name: "SentryProfilerTestsObjC",
             dependencies: ["SentryObjCInternal", "SentryTestUtilsObjCpp"],
             path: "Tests/SentryProfilerTests/ObjC",
             cSettings: [
-                .headerSearchPath("../../../Sources/Sentry")
+                .headerSearchPath("../../../Sources/Sentry"),
+                .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
             ] + cSettings,
             // Xcode disables C++ modules for package test bundles by default. The ObjC++
             // tests import SentrySwift's generated Objective-C interface as a Clang module.
-            cxxSettings: [.unsafeFlags(["-fmodules", "-fcxx-modules"])] + cxxSettings,
+            cxxSettings: [
+                .unsafeFlags(["-fmodules", "-fcxx-modules"]),
+                .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
+            ] + cxxSettings,
             linkerSettings: [.linkedLibrary("c++")]
         )
     ]
