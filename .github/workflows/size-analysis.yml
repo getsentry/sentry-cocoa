@@ -16,36 +16,18 @@ jobs:
     name: run-full-ci gate
     uses: ./.github/workflows/run-full-ci-workflow.yml
 
-  files-changed:
-    name: Detect File Changes
-    runs-on: ubuntu-latest
-    needs: run-full-ci-gate
-    outputs:
-      run_size_analysis_for_prs: ${{ steps.changes.outputs.run_size_analysis_for_prs }}
-      is_dependabot: ${{ github.actor == 'dependabot[bot]' }}
-      is_fork: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Get changed files
-        id: changes
-        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
-        with:
-          token: ${{ github.token }}
-          filters: .github/file-filters.yml
-
   skip-size-analysis-for-non-contributors:
     name: Skip Size Analysis for Non-Contributors
     runs-on: ubuntu-latest
-    needs: files-changed
+    needs: run-full-ci-gate
     # Skip for non-contributors or fork PRs, but not for dependabot (handled in build)
     if: |
       github.event_name == 'pull_request' &&
-      needs.files-changed.outputs.run_size_analysis_for_prs == 'true' &&
       (
         !contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR", "CONTRIBUTOR"]'), github.event.pull_request.author_association) ||
-        needs.files-changed.outputs.is_fork == 'true'
+        github.event.pull_request.head.repo.full_name != github.repository
       ) &&
-      needs.files-changed.outputs.is_dependabot == 'false'
+      github.actor != 'dependabot[bot]'
     steps:
       - name: Skip Size Analysis for Non-Contributors
         run: |
@@ -55,18 +37,19 @@ jobs:
   build:
     name: Build and Analyze SDK Size
     runs-on: macos-26
-    # Run for PRs with related changes (including dependabot) or non-PR events.
+    # Run on every PR regardless of changed files, because the Sentry App
+    # "Size Analysis" required check is only reported after an upload.
+    # Fork PRs are skipped because secrets are unavailable; dependabot PRs build without uploading.
     if: |
       github.event_name != 'pull_request' || (
-        needs.files-changed.outputs.run_size_analysis_for_prs == 'true' &&
-        needs.files-changed.outputs.is_fork != 'true' && (
+        github.event.pull_request.head.repo.full_name == github.repository && (
           contains(
           fromJson('["OWNER", "MEMBER", "COLLABORATOR", "CONTRIBUTOR"]'),
           github.event.pull_request.author_association
         ) ||
-        needs.files-changed.outputs.is_dependabot == 'true')
+        github.actor == 'dependabot[bot]')
       )
-    needs: files-changed
+    needs: run-full-ci-gate
     timeout-minutes: 20
     steps:
       - name: Warm CoreSimulator
@@ -99,7 +82,7 @@ jobs:
       - name: Build and Upload for Size Analysis
         run: |
           bundle exec fastlane build_ios_for_size_analysis \
-            skip_codesigning:${{ needs.files-changed.outputs.is_dependabot == 'true' }}
+            skip_codesigning:${{ github.actor == 'dependabot[bot]' }}
         env:
           FASTLANE_BUNDLE_VERSION: ${{ github.run_number }}
           FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
@@ -116,7 +99,6 @@ jobs:
     needs:
       [
         run-full-ci-gate,
-        files-changed,
         build,
         skip-size-analysis-for-non-contributors,
       ]

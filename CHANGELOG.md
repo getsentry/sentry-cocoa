@@ -5,6 +5,7 @@
 ### Fixes
 
 - Resolve the application state at `UIApplicationDidFinishLaunchingNotification` when the SDK starts before `UIApplication` exists, such as from a SwiftUI `App.init`. A process launched in the background was treated as active for its whole lifetime, which let the app hang tracker report fatal app hangs with an idle main thread (#8988)
+- Increase the crash report read limit in SentryCrash to 20 MB (#9386)
 
 ## 9.30.2
 
