@@ -6074,13 +6074,6 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setData:",
-    "parent": "SentryObjCBreadcrumb",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "setData:",
     "parent": "SentryObjCMechanism",
     "returnType": "void",
     "instance": true

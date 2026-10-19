@@ -912,6 +912,28 @@ class SentryScopeSwiftTests: XCTestCase {
     }
 
     // swiftlint:disable no_breadcrumb_data_setter
+#if SDK_V10
+    func testAddBreadcrumb_storesDefensiveCopy() {
+        let scope = Scope(maxBreadcrumbs: 5)
+        let crumb = Breadcrumb(level: .info, category: "ui")
+        crumb.message = "before"
+        (["key": "before"] as [String: Any]).forEach { crumb.setData(value: $0.value, key: $0.key) }
+
+        scope.addBreadcrumb(crumb)
+
+        crumb.message = "after"
+        (["key": "after"] as [String: Any]).forEach { crumb.setData(value: $0.value, key: $0.key) }
+
+        let stored = scope.breadcrumbs().first
+        XCTAssertNotNil(stored)
+        XCTAssertFalse(stored === crumb,
+            "Scope should store a copy, not the original object")
+        XCTAssertEqual(stored?.message, "before",
+            "Stored breadcrumb should not reflect mutations to the original")
+        XCTAssertEqual(stored?.data?["key"] as? String, "before",
+            "Stored breadcrumb data should not reflect mutations to the original")
+    }
+#else
     @available(*, deprecated, message: "Testing deprecated Breadcrumb.data setter")
     func testAddBreadcrumb_storesDefensiveCopy() {
         let scope = Scope(maxBreadcrumbs: 5)
@@ -933,9 +955,57 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(stored?.data?["key"] as? String, "before",
             "Stored breadcrumb data should not reflect mutations to the original")
     }
+#endif
     // swiftlint:enable no_breadcrumb_data_setter
 
     // swiftlint:disable no_breadcrumb_data_setter
+#if SDK_V10
+    func testAddBreadcrumb_evictionDoesNotCrash_whenReadConcurrently() {
+        // Regression test for https://github.com/getsentry/sentry-cocoa/issues/8013
+        // The ring buffer evicts old breadcrumbs when full. Without a defensive copy,
+        // the evicted breadcrumb's dealloc can race with a concurrent reader calling
+        // serialize on the same object, causing EXC_BAD_ACCESS.
+        let maxCrumbs = 5
+        let scope = Scope(maxBreadcrumbs: maxCrumbs)
+
+        let queue = DispatchQueue(label: "test.breadcrumb.race", attributes: .concurrent)
+        let expectation = expectation(description: "concurrent breadcrumb race")
+        expectation.expectedFulfillmentCount = 3
+
+        // Writer: continuously add breadcrumbs, forcing evictions
+        queue.async {
+            for i in 0..<2_000 {
+                let crumb = Breadcrumb(level: .info, category: "cat-\(i)")
+                crumb.message = "message-\(i)"
+                (["iteration": i, "padding": String(repeating: "x", count: 100)] as [String: Any]).forEach { crumb.setData(value: $0.value, key: $0.key) }
+                scope.addBreadcrumb(crumb)
+            }
+            expectation.fulfill()
+        }
+
+        // Reader 1: continuously read and serialize breadcrumbs
+        queue.async {
+            for _ in 0..<2_000 {
+                let crumbs = scope.breadcrumbs()
+                for crumb in crumbs {
+                    _ = crumb.serialize()
+                }
+            }
+            expectation.fulfill()
+        }
+
+        // Reader 2: continuously apply scope to events
+        queue.async {
+            for _ in 0..<1_000 {
+                let event = Event()
+                scope.applyTo(event: event, maxBreadcrumbs: UInt(maxCrumbs))
+            }
+            expectation.fulfill()
+        }
+
+        wait(for: [expectation], timeout: 30)
+    }
+#else
     @available(*, deprecated, message: "Testing deprecated Breadcrumb.data setter")
     func testAddBreadcrumb_evictionDoesNotCrash_whenReadConcurrently() {
         // Regression test for https://github.com/getsentry/sentry-cocoa/issues/8013
@@ -982,6 +1052,7 @@ class SentryScopeSwiftTests: XCTestCase {
 
         wait(for: [expectation], timeout: 30)
     }
+#endif
     // swiftlint:enable no_breadcrumb_data_setter
 
     func testScopeObserver_passesDistinctCopyToObservers() {
