@@ -7,7 +7,7 @@
 
 # Contributing
 
-Thanks for your interest in contributing to `sentry-cocoa`! This guide explains how we work with external contributions and how to get your environment set up. If you have questions, reach out on [Discord](https://discord.gg/Ww9hbqr).
+Thanks for your interest in contributing to `sentry-cocoa`! This guide explains how we work with external contributions and how to get your environment set up. If you have questions, reach out on [Discord](https://discord.com/invite/sentry).
 
 For more detailed information, see `develop-docs/README.md`.
 
