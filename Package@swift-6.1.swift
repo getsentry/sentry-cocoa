@@ -360,6 +360,30 @@ targets += [
     )
 ]
 
+// Public API tests exercise the hand-written ObjC headers, not the Swift compat implementation.
+targets += [
+    .testTarget(
+        name: "SentryObjCTests",
+        dependencies: ["SentryObjC"],
+        path: "Tests/SentryObjCTests",
+        exclude: ["Swift"],
+        cSettings: [
+            .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
+        ] + cSettings
+    ),
+    .testTarget(
+        name: "SentryObjCTestsSwift",
+        dependencies: ["SentryObjC", "SentryTestUtils"],
+        path: "Tests/SentryObjCTests/Swift",
+        cSettings: [
+            .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
+        ] + cSettings,
+        swiftSettings: [
+            .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"]))
+        ] + swiftSettings
+    )
+]
+
 // Match the entire V9-only Xcode profiler suite, including its wrapper tests.
 // Environment V10 excludes the V9-only profiler suite.
 if !envSelectsV10 {
