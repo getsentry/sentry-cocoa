@@ -73,6 +73,8 @@ jobs:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
       - name: Setup Xcode
         id: setup-xcode
         uses: ./.github/actions/setup-xcode
@@ -133,6 +135,8 @@ jobs:
     runs-on: macos-26
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
@@ -168,6 +172,8 @@ jobs:
         mode: [environment, trait, base-manifest]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
@@ -254,6 +260,8 @@ jobs:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
@@ -336,6 +344,8 @@ jobs:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
       - name: Remove binary targets from Package.swift
         run: ./scripts/prepare-package.sh --remove-binary-targets true
       - name: Setup Xcode
@@ -379,6 +389,8 @@ jobs:
     runs-on: macos-26
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
       - name: Remove binary targets from Package.swift
         run: ./scripts/prepare-package.sh --remove-binary-targets true
       - name: Setup Xcode
