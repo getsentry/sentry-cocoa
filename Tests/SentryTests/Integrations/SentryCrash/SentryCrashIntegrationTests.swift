@@ -105,6 +105,41 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         super.tearDown()
     }
 
+    func testNSExceptionMonitor_whenDisablingWithDebugLogging_shouldNotUseSDKLogOutput() throws {
+        // -- Arrange --
+        let api = try XCTUnwrap(sentrycrashcm_nsexception_getAPI())
+        let setEnabled = try XCTUnwrap(api.pointee.setEnabled)
+        let isEnabled = try XCTUnwrap(api.pointee.isEnabled)
+        let wasEnabled = isEnabled()
+        let oldDebug = SentrySDKLog.isDebug
+        let oldLevel = SentrySDKLog.diagnosticLevel
+        let oldOutput = SentrySDKLog.getLogOutput()
+        defer {
+            SentrySDKLog.setOutput(oldOutput)
+            SentrySDKLogSupport.configure(oldDebug, diagnosticLevel: oldLevel)
+            setEnabled(wasEnabled)
+        }
+
+        setEnabled(true)
+        SentrySDKLogSupport.configure(true, diagnosticLevel: .debug)
+        let logOutput = TestLogOutput()
+        let shutdownThread = Thread.current
+        SentrySDKLog.setOutput { message in
+            // SDK initialization can still be logging on background threads.
+            if Thread.current === shutdownThread {
+                logOutput.log(message)
+            }
+        }
+
+        // -- Act --
+        setEnabled(false)
+
+        // -- Assert --
+        XCTAssertFalse(isEnabled())
+        XCTAssertEqual(logOutput.loggedMessages.count, 0,
+                       "Disabling the NSException monitor must use async-safe logging because other threads can hold stdout's lock. SDK logs: \(logOutput.loggedMessages)")
+    }
+
     // Test for GH-581
     func testReleaseNamePassedToSentryCrash() throws {
         try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")

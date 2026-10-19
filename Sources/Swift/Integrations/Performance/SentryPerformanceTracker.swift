@@ -23,7 +23,7 @@ import Foundation
     public func startSpan(withName name: String, nameSource: Int, operation: String, origin: String) -> SpanId {
         var activeSpan: Span?
 #if !(os(watchOS) || os(tvOS) || os(visionOS))
-        activeSpan = sentry_launchTracer
+        activeSpan = SentryLaunchProfiling.launchTracer
 #endif
         if activeSpan == nil {
             synchronized(activeSpanStack) { [self] in
@@ -201,13 +201,6 @@ import Foundation
             spans.removeObject(forKey: tracer.spanId)
         }
     }
-}
-
-// Temporary local equivalent of Objective-C @synchronized for this conversion.
-private func synchronized<T>(_ object: AnyObject, operation: () throws -> T) rethrows -> T {
-    objc_sync_enter(object)
-    defer { objc_sync_exit(object) }
-    return try operation()
 }
 
 // The public Swift type cannot expose a conformance imported from _SentryPrivate.

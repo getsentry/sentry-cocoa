@@ -5,7 +5,6 @@
 #    import "SentryDependencyContainerSwiftHelper.h"
 #    import "SentryHub.h"
 #    import "SentryInternalDefines.h"
-#    import "SentryLaunchProfiling.h"
 #    import "SentryLogC.h"
 #    import "SentryProfileConfiguration.h"
 #    import "SentryProfiler+Private.h"
@@ -162,6 +161,29 @@ sentry_scheduledTimerWithTarget(
                                repeats:repeats];
 }
 
+void
+sentry_startLaunchProfile(void)
+{
+    [SentryLaunchProfiling startLaunchProfile];
+}
+
+BOOL
+sentry_isTracingAppLaunch(void)
+{
+    return SentryLaunchProfiling.isTracingAppLaunch;
+}
+
+void
+sentry_setIsTracingAppLaunch(BOOL isTracingAppLaunch)
+{
+    SentryLaunchProfiling.isTracingAppLaunch = isTracingAppLaunch;
+}
+
+SentryTracer *_Nullable sentry_getLaunchTracer(void)
+{
+    return (SentryTracer *)SentryLaunchProfiling.launchTracer;
+}
+
 #    if SENTRY_HAS_UIKIT
 #        if !SDK_V10
 BOOL
@@ -288,11 +310,11 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHubInternal *hub)
                 SENTRY_LOG_DEBUG(
                     @"Stopping launch profile in SentrySDK.start because there is no time "
                     @"to display tracker to stop it.");
-                sentry_stopAndDiscardLaunchProfileTracer(hub);
+                [SentryLaunchProfiling stopAndDiscardLaunchProfileTracerWithHub:hub];
             }
         }
 
-        sentry_configureLaunchProfilingForNextLaunch(options);
+        [SentryLaunchProfiling configureLaunchProfilingForNextLaunchWithOptions:options];
     });
 }
 
