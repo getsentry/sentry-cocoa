@@ -149,7 +149,7 @@ jobs:
             build 2>&1 | tee raw-build-output.log | xcbeautify --preserve-unbeautified
 
       - name: Archiving Raw Build Logs
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-build-output-scheme-${{matrix.scheme}}
@@ -196,7 +196,7 @@ jobs:
             CODE_SIGNING_ALLOWED="NO" \
             build 2>&1 | tee raw-build-output.log | xcbeautify --preserve-unbeautified
       - name: Archiving Raw Build Logs
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-build-output-scheme-${{matrix.scheme}}
@@ -326,7 +326,7 @@ jobs:
             -destination 'generic/platform=iphoneos' \
             build | tee raw-build-output-spm.log | xcbeautify --preserve-unbeautified
       - name: Upload SPM Build Logs
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-build-output-spm
@@ -366,7 +366,7 @@ jobs:
             --command build
 
       - name: Upload SPM Build Logs
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-build-output-spm

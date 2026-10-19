@@ -226,7 +226,7 @@ jobs:
             --build-log v10-base-manifest.log
       - name: Upload build check logs
         if: failure()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: v10-spm-audit-${{ matrix.mode }}
           path: |
@@ -288,7 +288,7 @@ jobs:
         run: make build-xcframework-sentryobjc-v10 SDKS=${{ matrix.sdk }}
       - name: Upload archive regression logs
         if: failure() && matrix.sdk == 'watchos'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: wrapper-archive-architectures
           path: |
@@ -371,7 +371,7 @@ jobs:
           WATCHOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
 
       - name: Archiving Raw Build Logs
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-build-output-v10-${{matrix.scheme}}
@@ -406,7 +406,7 @@ jobs:
         run: ./scripts/test-spm-v9-no-ui-framework.swift --work-dir "$RUNNER_TEMP/v9-no-ui-framework"
       - name: Upload backend selection logs
         if: failure()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: crash-backend-selection-logs
           path: |
