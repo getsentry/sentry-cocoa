@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Increase the crash report read limit in SentryCrash to 20 MB (#9386)
+
 ## 9.30.2
 
 ### Fixes

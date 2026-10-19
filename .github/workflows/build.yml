@@ -243,7 +243,7 @@ jobs:
       - name: Build Test App
         run: make ${{ matrix.make-target }}
         env:
-          IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
+          IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
 
       - name: Run CI Diagnostics
@@ -432,7 +432,7 @@ jobs:
       - name: Build for ${{ matrix.configuration }}
         env:
           REF: ${{ github.ref }}
-          IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
+          IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
           ARGS=(
@@ -499,7 +499,7 @@ jobs:
       - name: Build for Debug
         env:
           REF: ${{ github.ref }}
-          IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
+          IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
           ./scripts/sentry-xcodebuild.sh \
