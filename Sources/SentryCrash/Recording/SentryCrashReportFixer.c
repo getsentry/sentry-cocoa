@@ -267,7 +267,8 @@ sentrycrashcrf_fixupCrashReport(const char *crashReport)
     // null-terminates its returned buffer.
     int crashReportLength = (int)strlen(crashReport);
     int fixedReportLength = (int)(crashReportLength * 1.5);
-    char *fixedReport = malloc((unsigned)fixedReportLength);
+    // Keep a byte outside the encoder's budget for the terminating NUL, even on errors.
+    char *fixedReport = malloc((unsigned)fixedReportLength + 1);
     if (fixedReport == NULL) {
         free(stringBuffer);
         SENTRY_ASYNC_SAFE_LOG_ERROR(
