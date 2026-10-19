@@ -297,9 +297,6 @@ run_release_for_prs: &run_release_for_prs
   - "fastlane/**"
   - "Makefile"
 
-  # Test files
-  - "Tests/Perf/metrics-test.yml"
-
 run_lint_swift_formatting_for_prs: &run_lint_swift_formatting_for_prs
   - "**/*.swift"
 
@@ -466,6 +463,7 @@ run_crash_e2e_for_prs:
   - "Sources/SentryCppHelper/**"
   - "Sources/SentryCrash/**"
   - "Sources/Swift/**"
+  # Includes the runner's Swift package and its standalone regression tests.
   - "TestApps/CrashE2E/**"
 
   # GH Actions

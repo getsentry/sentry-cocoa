@@ -13,14 +13,14 @@ enum ScenarioEventAsserter {
         let events = try EnvelopeReader.exceptionEvents(in: cacheRoot)
         if !scenario.expectsEvent {
             guard events.isEmpty else {
-                try fail("Expected no event envelope for \(platform)/\(scenario.rawValue) under \(cacheRoot.path), found \(events.count)")
+                throw ReportAssertionFailure(message: "Expected no event envelope for \(platform)/\(scenario.rawValue) under \(cacheRoot.path), found \(events.count)")
             }
             log("✅ \(platform)/\(scenario.rawValue) no-event assertion passed.")
             return
         }
 
         guard events.count == 1 else {
-            try fail("Expected exactly one event envelope for \(platform)/\(scenario.rawValue) under \(cacheRoot.path), found \(events.count)")
+            throw ReportAssertionFailure(message: "Expected exactly one event envelope for \(platform)/\(scenario.rawValue) under \(cacheRoot.path), found \(events.count)")
         }
 
         let eventPath = artifactsDir.appendingPathComponent("\(platform)-\(scenario.rawValue)-event.json")
