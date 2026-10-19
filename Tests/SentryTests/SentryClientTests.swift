@@ -3239,6 +3239,7 @@ final class SentryClientTests: XCTestCase {
 
         let actual = try lastSentEvent()
         XCTAssertEqual(actual.user?.email, "jane@example.com")
+        XCTAssertNil(actual.user?.userId)
 #endif
     }
 
@@ -3266,14 +3267,49 @@ final class SentryClientTests: XCTestCase {
 #endif // SDK_V10
     }
 
-    func testInstallationIdNotSetWhenUserIsSetWithoutId() throws {
+    func testCapture_whenUserHasNoId_shouldApplyInstallationIdFallback() throws {
+        // -- Arrange --
         let scope = fixture.scope
-        scope.setUser(fixture.user)
-        fixture.getSut().capture(message: "any message", scope: scope)
+        let user = fixture.user
+        user.username = "jane"
+        scope.setUser(user)
+        let sut = fixture.getSut()
 
+        // -- Act --
+        sut.capture(message: "any message", scope: scope)
+
+        // -- Assert --
         let actual = try lastSentEventWithAttachment()
-        XCTAssertEqual(fixture.user.userId, actual.user?.userId)
-        XCTAssertEqual(fixture.user.email, actual.user?.email)
+#if SDK_V10
+        XCTAssertEqual(SentryInstallation.id(withCacheDirectoryPath: sut.options.cacheDirectoryPath), actual.user?.userId)
+#else
+        XCTAssertNil(actual.user?.userId)
+#endif // SDK_V10
+        XCTAssertEqual(actual.user?.email, user.email)
+        XCTAssertEqual(actual.user?.username, "jane")
+        XCTAssertNil(user.userId)
+    }
+
+    func testCapture_whenEventUserHasEmptyId_shouldApplyInstallationIdFallback() throws {
+        // -- Arrange --
+        let event = Event()
+        let user = User()
+        user.userId = ""
+        user.username = "jane"
+        event.user = user
+        let sut = fixture.getSut()
+
+        // -- Act --
+        sut.capture(event: event)
+
+        // -- Assert --
+        let actual = try lastSentEvent()
+#if SDK_V10
+        XCTAssertEqual(SentryInstallation.id(withCacheDirectoryPath: sut.options.cacheDirectoryPath), actual.user?.userId)
+#else
+        XCTAssertEqual(actual.user?.userId, "")
+#endif // SDK_V10
+        XCTAssertEqual(actual.user?.username, "jane")
     }
 
     func testInstallationIdNotSetWhenUserIsSetWithId() throws {
