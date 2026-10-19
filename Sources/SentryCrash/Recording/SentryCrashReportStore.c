@@ -289,7 +289,9 @@ sentrycrashcrs_readReport(int64_t reportID)
     char path[SentryCrashCRS_MAX_PATH_LENGTH];
     getCrashReportPathByID(reportID, path);
     char *result;
-    sentrycrashfu_readEntireFile(path, &result, NULL, 2000000);
+    // Use 20 MB limit so reports with large NSException reasons are not truncated before decoding.
+    // This is aligned with KSCrash which bumped to the same value, meaning V9 and V10 match now.
+    sentrycrashfu_readEntireFile(path, &result, NULL, 20000000);
     pthread_mutex_unlock(&g_mutex);
     return result;
 }
