@@ -27,6 +27,7 @@ Every line we merge is code we maintain long-term for thousands of apps, so we w
 
 - Fork the repo and make your changes on a branch.
 - Add tests. Non-trivial PRs won't be accepted without them.
+- Don't bump version numbers. We do that when we release.
 - Open a [draft PR](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests#draft-pull-requests) that links the issue (e.g. `Fixes #123`), and mark it ready for review once CI passes.
 - Name your PR according to our [commit message format](https://develop.sentry.dev/commit-messages/#commit-message-format).
 - Keep PRs focused: one change per PR, no unrelated refactors.
@@ -119,9 +120,3 @@ without a closing keyword is not enough.
 
 Each Unreleased or version block may only have one heading per section type, for example a single
 `### Features` block. Duplicate section headings are rejected by `make check-changelog`.
-
-## Final Notes
-
-When contributing to the codebase, please make note of the following:
-
-- Please do not bump version numbers yourself.
