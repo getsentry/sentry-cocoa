@@ -53,6 +53,8 @@ jobs:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
       # As the DistributionSample project uses local SPM, xcodebuild resolves SPM dependencies for all
       # test app projects. The Package.swift references binary targets, which in release branch commits points
       # to non-existent download URLs. This creates chicken-egg failures when building these test apps for
@@ -69,7 +71,7 @@ jobs:
           version: "26"
           resolve-simulators: "false"
       - name: Setup Ruby
-        uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
+        uses: ruby/setup-ruby@651ff0d62c5c79bed6d53ec518387aae20e72c1a # v1.329.0
         with:
           bundler-cache: true
       - run: make init-ci-build
@@ -119,6 +121,8 @@ jobs:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
       # Some test app projects use local SPM references. xcodebuild resolves SPM dependencies for the
       # workspace, so Package.swift binary targets can be resolved even when building another scheme.
       # On release branches these binary target URLs point to artifacts that do not exist yet, causing
@@ -175,6 +179,8 @@ jobs:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
@@ -225,6 +231,8 @@ jobs:
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - name: Checkout Repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
 
       - name: Setup Xcode
         id: setup-xcode
@@ -243,7 +251,7 @@ jobs:
       - name: Build Test App
         run: make ${{ matrix.make-target }}
         env:
-          IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
+          IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
 
       - name: Run CI Diagnostics
@@ -260,6 +268,8 @@ jobs:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
 
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
@@ -300,6 +310,8 @@ jobs:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
@@ -331,6 +343,8 @@ jobs:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
@@ -417,6 +431,8 @@ jobs:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
       - name: Setup Xcode
         id: setup-xcode
         uses: ./.github/actions/setup-xcode
@@ -432,7 +448,7 @@ jobs:
       - name: Build for ${{ matrix.configuration }}
         env:
           REF: ${{ github.ref }}
-          IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
+          IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
           ARGS=(
@@ -475,6 +491,8 @@ jobs:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
       # If the SentryAsyncSafeLog doesn't contain the SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR this fails.
       - name: Async Safe Log Level is Error
         run: grep -c "SENTRY_ASYNC_SAFE_LOG_LEVEL SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR" Sources/Sentry/SentryAsyncSafeLog.h
@@ -499,7 +517,7 @@ jobs:
       - name: Build for Debug
         env:
           REF: ${{ github.ref }}
-          IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
+          IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
           ./scripts/sentry-xcodebuild.sh \
