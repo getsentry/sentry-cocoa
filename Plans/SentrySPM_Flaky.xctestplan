@@ -65,6 +65,17 @@
         "identifier": "SentryProfilerTests",
         "name": "SentryProfilerTests"
       }
+    },
+    {
+      "parallelizable": false,
+      "selectedTests": [
+        "SentryObjCInternalProfilingApiIntegrationTests/testCollect_shouldContainTransactionInfo"
+      ],
+      "target": {
+        "containerPath": "container:",
+        "identifier": "SentryObjCTests",
+        "name": "SentryObjCTests"
+      }
     }
   ],
   "version": 1
