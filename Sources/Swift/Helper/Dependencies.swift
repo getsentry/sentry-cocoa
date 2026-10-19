@@ -8,7 +8,7 @@ internal import _SentryPrivate
     static let infoPlistWrapper: SentryInfoPlistWrapperProvider = SentryInfoPlistWrapper()
     @objc public static let dispatchQueueWrapper = SentryDispatchQueueWrapper()
     @objc public static let notificationCenterWrapper: SentryNSNotificationCenterWrapper = NotificationCenter.default
-    @objc public static let binaryImageCache = SentryBinaryImageCache()
+    @objc public static let binaryImageCache = SentryBinaryImageCache(processInfoWrapper: processInfoWrapper)
     @objc public static let debugImageProvider = SentryDebugImageProvider()
     @objc public static let sysctlWrapper = SentrySysctl()
     @objc public static let dateProvider = SentryDefaultCurrentDateProvider()
