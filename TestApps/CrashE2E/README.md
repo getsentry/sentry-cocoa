@@ -20,6 +20,26 @@ swift test --package-path TestApps/CrashE2E/Runner
 
 They cover stale `launchd` entries, launch failures, malformed PIDs, live processes, exits before/after observation, unreaped processes, cleanup, and timeout diagnostics. Orchestration tests use a Swift command-execution fake to configure results/errors and inspect calls, without shell helpers or fake executables on `PATH`. Process-exit observation is still tested against real host processes; a few small subprocess integration tests check the production command adapter separately. The Crash E2E workflow runs them before the scenarios.
 
+## Stack-capture feasibility probe
+
+The workflow also runs `DiagnosticsProbe/probe.py` on its SentryCrash iOS matrix leg and uploads `crash-e2e-stack-probe` **even on success**. This is a feasibility check, not yet a replacement for the runner's `sample` diagnostics.
+
+The opt-in probe requires root for `spindump`, but its disposable target runs as the normal runner user. It checks target-only binary stackshot collection, report generation after the target exits, repeated SIGTERM/SIGKILL interruption during collection, and raw-data preservation when report generation times out. The target has a named blocked frame and a heartbeat; it must remain responsive and exit cooperatively without any resume operation. Results, command timings/output, raw captures, reports, and target symbols are retained. These checks cannot prove the absence of every cancellation race; collector ownership of suspension must also be reviewed before adoption.
+
+Local orchestration checks do not require sudo:
+
+```sh
+python3 -m unittest discover -s TestApps/CrashE2E/DiagnosticsProbe -v
+```
+
+For an explicitly privileged live probe, use a fresh output directory:
+
+```sh
+sudo -n "$(command -v python3)" TestApps/CrashE2E/DiagnosticsProbe/probe.py \
+  --artifacts /tmp/crash-e2e-stack-probe \
+  --target-uid "$(id -u)" --target-gid "$(id -g)"
+```
+
 ## iOS termination and diagnostics
 
 Simulator apps run as host processes but are _not_ children of the runner. A successful `simctl launch` only confirms the launch command succeeded; its exit status is not the app's exit status.

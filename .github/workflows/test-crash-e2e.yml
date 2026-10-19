@@ -82,6 +82,24 @@ jobs:
       - name: Test Crash E2E runner
         run: swift test --package-path TestApps/CrashE2E/Runner
 
+      # Deliberately exercise timeout diagnostics; a passing E2E scenario never calls them.
+      # One matrix leg is enough to validate the collector on the same macOS/Xcode image.
+      - name: Probe stack capture
+        if: ${{ matrix.platform == 'iOS' && matrix.reporter == 'SentryCrash' }}
+        timeout-minutes: 6
+        run: |
+          python3 -m unittest discover -s TestApps/CrashE2E/DiagnosticsProbe -v
+          sudo -n "$(command -v python3)" TestApps/CrashE2E/DiagnosticsProbe/probe.py \
+            --artifacts "$RUNNER_TEMP/crash-e2e-stack-probe" \
+            --target-uid "$(id -u)" --target-gid "$(id -g)"
+
+      - name: Archive stack probe
+        if: ${{ always() && matrix.platform == 'iOS' && matrix.reporter == 'SentryCrash' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: crash-e2e-stack-probe
+          path: ${{ runner.temp }}/crash-e2e-stack-probe/**
+
       - name: Run Crash E2E scenarios
         env:
           REPORTER: ${{ matrix.reporter }}
