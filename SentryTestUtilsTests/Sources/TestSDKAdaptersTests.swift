@@ -157,7 +157,7 @@ final class TestSDKAdaptersTests: XCTestCase {
     func testHttpTransport_whenCreatedThroughAdapter_shouldUseInjectedDependencies() throws {
         // -- Arrange --
         let options = Options.noIntegrations()
-        options.dsn = TestConstants.dsnForTestCase(type: Self.self, testName: name)
+        options.dsn = TestConstants.dsnForTestCase(type: Self.self, testName: #function)
         let container = SentryDependencyContainer.sharedInstance()
         let queue = TestSentryDispatchQueueWrapper()
         queue.dispatchAsyncExecutesBlock = false

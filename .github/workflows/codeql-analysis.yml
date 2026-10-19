@@ -83,7 +83,7 @@ jobs:
             tee raw-analyze-output.log |
             xcbeautify --preserve-unbeautified
         env:
-          IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
+          IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
 
       - name: Perform CodeQL Analysis
