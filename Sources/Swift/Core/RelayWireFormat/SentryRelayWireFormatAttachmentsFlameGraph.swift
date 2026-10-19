@@ -5,12 +5,16 @@ extension SentryRelayWireFormat.Attachments {
     ///
     /// @SeeAlso https://develop.sentry.dev/sdk/telemetry/attachments/#flame-graph-payload
     struct FlameGraph: Encodable {
+        typealias FrameIndex = TypedIndex<SentryRelayWireFormat.Profiling.V2.Frame, Int>
+
         /// Wire-format version used by consumers to interpret the payload.
         let version = "1"
         /// Default Sentry platform for the captured native Apple frames.
         let platform = "cocoa"
         /// Non-empty shared frame table. Frame indices have no stack ordering.
         let frames: [SentryRelayWireFormat.Profiling.V2.Frame]
+        /// Non-empty flat table of frame occurrences referenced by roots and children.
+        let nodes: [Node]
         /// Non-empty collection of independent call trees.
         let trees: [Tree]
         /// Symbolication inputs from the process that produced the diagnostic, not the uploading process.
@@ -20,7 +24,7 @@ extension SentryRelayWireFormat.Attachments {
         ///
         /// @SeeAlso https://develop.sentry.dev/sdk/telemetry/attachments/#flame-graph-payload
         enum CodingKeys: String, CodingKey {
-            case version, platform, frames, trees
+            case version, platform, frames, nodes, trees
             case debugMeta = "debug_meta"
         }
 
@@ -29,8 +33,8 @@ extension SentryRelayWireFormat.Attachments {
         ///
         /// @SeeAlso https://develop.sentry.dev/sdk/telemetry/attachments/#flame-graph-trees
         struct Tree: Encodable {
-            /// Non-empty forest whose roots are the oldest retained callers.
-            let roots: [Node]
+            /// Non-empty indices into the node table for the oldest retained callers.
+            let roots: [Node.Index]
             /// Whether the diagnostic source attributes the reported issue to this tree's thread.
             /// Omitted when the attribution is unknown.
             let threadAttributed: Bool?
@@ -49,12 +53,14 @@ extension SentryRelayWireFormat.Attachments {
         ///
         /// @SeeAlso https://develop.sentry.dev/sdk/telemetry/attachments/#flame-graph-nodes
         struct Node: Encodable {
+            typealias Index = TypedIndex<Self, Int>
+
             /// Zero-based index into the attachment's shared frame table.
-            let frameID: Int
+            let frameID: FrameIndex
             /// Positive inclusive sample count, no greater than `9007199254740991`.
             let sampleCount: Int
-            /// Direct callees. Omission is equivalent to an empty array.
-            let children: [Node]?
+            /// Indices into the node table for direct callees. Omission is equivalent to an empty array.
+            let children: [Index]?
 
             /// Field names defined by the flame graph node schema.
             ///

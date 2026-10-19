@@ -52,13 +52,14 @@ final class SentryMetricKitFlamegraphTests: SentrySDKIntegrationTestsBase {
             XCTAssertEqual(trees.count, 1)
             XCTAssertNil(trees.first?["thread_id"])
             XCTAssertEqual(trees.first?["thread_attributed"] as? Bool, false)
-            let roots = try XCTUnwrap(trees.first?["roots"] as? [[String: Any]])
-            XCTAssertEqual(roots.first?["sample_count"] as? Int, 100)
-            XCTAssertEqual(roots.first?["frame_id"] as? Int, 0)
-            let children = try XCTUnwrap(roots.first?["children"] as? [[String: Any]])
-            let leaves = try XCTUnwrap(children.first?["children"] as? [[String: Any]])
-            XCTAssertEqual(leaves.compactMap { $0["sample_count"] as? Int }, [50, 50])
-            XCTAssertEqual(leaves.compactMap { $0["frame_id"] as? Int }, [2, 3])
+            XCTAssertEqual(trees.first?["roots"] as? [Int], [0])
+            let nodes = try XCTUnwrap(json["nodes"] as? [[String: Any]])
+            XCTAssertEqual(nodes.compactMap { $0["frame_id"] as? Int }, [0, 1, 2, 3])
+            XCTAssertEqual(nodes.compactMap { $0["sample_count"] as? Int }, [100, 100, 50, 50])
+            XCTAssertEqual(try XCTUnwrap(nodes.element(at: 0))["children"] as? [Int], [1])
+            XCTAssertEqual(try XCTUnwrap(nodes.element(at: 1))["children"] as? [Int], [2, 3])
+            XCTAssertNil(try XCTUnwrap(nodes.element(at: 2))["children"])
+            XCTAssertNil(try XCTUnwrap(nodes.element(at: 3))["children"])
             let debugMeta = try XCTUnwrap(json["debug_meta"] as? [String: Any])
             XCTAssertFalse(try XCTUnwrap(debugMeta["images"] as? [[String: Any]]).isEmpty)
         }
@@ -135,11 +136,37 @@ final class SentryMetricKitFlamegraphTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual((json["frames"] as? [[String: Any]])?.count, 4)
         let trees = try XCTUnwrap(json["trees"] as? [[String: Any]])
         XCTAssertEqual(trees.count, 2)
-        let firstRoots = try XCTUnwrap(trees.first?["roots"] as? [[String: Any]])
-        let lastRoots = try XCTUnwrap(trees.last?["roots"] as? [[String: Any]])
-        XCTAssertEqual(firstRoots.first?["frame_id"] as? Int, lastRoots.first?["frame_id"] as? Int)
-        XCTAssertEqual(firstRoots.first?["sample_count"] as? Int, 100)
-        XCTAssertEqual(lastRoots.first?["sample_count"] as? Int, 100)
+        XCTAssertEqual(trees.first?["roots"] as? [Int], [0])
+        XCTAssertEqual(trees.last?["roots"] as? [Int], [4])
+        let nodes = try XCTUnwrap(json["nodes"] as? [[String: Any]])
+        XCTAssertEqual(nodes.compactMap { $0["frame_id"] as? Int }, [0, 1, 2, 3, 0, 1, 2, 3])
+        XCTAssertEqual(nodes.compactMap { $0["sample_count"] as? Int }, [100, 100, 50, 50, 100, 100, 50, 50])
+        XCTAssertEqual(try XCTUnwrap(nodes.element(at: 4))["children"] as? [Int], [5])
+        XCTAssertEqual(try XCTUnwrap(nodes.element(at: 5))["children"] as? [Int], [6, 7])
+    }
+
+    func testFlamegraphAttachment_whenMultipleRootsContainRecursiveFrames_shouldKeepDistinctNodes() throws {
+        // -- Arrange --
+        let leaf = SentryMXFrame(binaryUUID: nil, offsetIntoBinaryTextSegment: 0, binaryName: nil, address: 4_096, subFrames: nil, sampleCount: 2)
+        let root = SentryMXFrame(binaryUUID: nil, offsetIntoBinaryTextSegment: 0, binaryName: nil, address: 4_096, subFrames: [leaf], sampleCount: 3)
+        let tree = SentryMXCallStackTree(callStacks: [
+            SentryMXCallStack(threadAttributed: true, callStackRootFrames: [root, leaf])
+        ], callStackPerThread: true)
+
+        // -- Act --
+        let attachment = try XCTUnwrap(tree.flamegraphAttachment(inAppLogic: SentryInAppLogic(inAppIncludes: [])))
+
+        // -- Assert --
+        let json = try XCTUnwrap(JSONSerialization.jsonObject(with: XCTUnwrap(attachment.data)) as? [String: Any])
+        XCTAssertEqual((json["frames"] as? [[String: Any]])?.count, 1)
+        let trees = try XCTUnwrap(json["trees"] as? [[String: Any]])
+        XCTAssertEqual(trees.first?["roots"] as? [Int], [0, 1])
+        let nodes = try XCTUnwrap(json["nodes"] as? [[String: Any]])
+        XCTAssertEqual(nodes.compactMap { $0["frame_id"] as? Int }, [0, 0, 0])
+        XCTAssertEqual(nodes.compactMap { $0["sample_count"] as? Int }, [3, 2, 2])
+        XCTAssertEqual(try XCTUnwrap(nodes.element(at: 0))["children"] as? [Int], [2])
+        XCTAssertNil(try XCTUnwrap(nodes.element(at: 1))["children"])
+        XCTAssertNil(try XCTUnwrap(nodes.element(at: 2))["children"])
     }
 
     func testFlamegraphAttachment_whenSampleCountsAreInvalid_shouldOmitAttachment() throws {

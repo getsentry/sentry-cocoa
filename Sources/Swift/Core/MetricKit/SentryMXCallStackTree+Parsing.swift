@@ -11,32 +11,32 @@ extension SentryMXCallStackTree {
         }
 
         var frames = [SentryRelayWireFormat.Profiling.V2.Frame]()
-        var frameIndices = [MXSample.MXFrame: Int]()
-        func node(_ source: SentryMXFrame) -> SentryRelayWireFormat.Attachments.FlameGraph.Node {
-            let key = MXSample.MXFrame(binaryUUID: source.binaryUUID, offsetIntoBinaryTextSegment: source.offsetIntoBinaryTextSegment, binaryName: source.binaryName, address: source.address)
-            let frameIndex: Int
-            if let existing = frameIndices[key] {
-                frameIndex = existing
-            } else {
-                frameIndex = frames.count
-                frameIndices[key] = frameIndex
-                frames.append(SentryRelayWireFormat.Profiling.V2.Frame(
-                    instructionAddress: sentry_formatHexAddressUInt64Swift(source.address),
-                    package: source.binaryName,
-                    inApp: source.binaryName.map { inAppLogic.is(inApp: $0) }
-                ))
-            }
-            let children = source.subFrames?.map { node($0) }
-            return SentryRelayWireFormat.Attachments.FlameGraph.Node(frameID: frameIndex, sampleCount: source.sampleCount ?? 0, children: children?.isEmpty == false ? children : nil)
-        }
+        typealias FlameGraph = SentryRelayWireFormat.Attachments.FlameGraph
+        var frameIndices = [MXSample.MXFrame: SentryRelayWireFormat.Attachments.FlameGraph.FrameIndex]()
 
+        var nodes = [SentryRelayWireFormat.Attachments.FlameGraph.Node]()
         let trees = callStacks.map { stack in
-            SentryRelayWireFormat.Attachments.FlameGraph.Tree(roots: stack.callStackRootFrames.map { node($0) }, threadAttributed: stack.threadAttributed)
+            let baseIndex = nodes.count
+            var pending = stack.callStackRootFrames
+            let roots = pending.indices.map { FlameGraph.Node.Index(baseIndex + $0) }
+            var index = 0
+            while index < pending.count {
+                let source = pending[index]
+                let subFrames = source.subFrames ?? []
+                let children = subFrames.indices.map { FlameGraph.Node.Index(baseIndex + pending.count + $0) }
+                nodes.append(SentryRelayWireFormat.Attachments.FlameGraph.Node(
+                    frameID: source.flamegraphFrameIndex(frames: &frames, indices: &frameIndices, inAppLogic: inAppLogic), sampleCount: source.sampleCount ?? 0,
+                    children: children.isEmpty ? nil : children
+                ))
+                pending.append(contentsOf: subFrames)
+                index += 1
+            }
+            return SentryRelayWireFormat.Attachments.FlameGraph.Tree(roots: roots, threadAttributed: stack.threadAttributed)
         }
         let images = toDebugMeta().map { image in
             SentryRelayWireFormat.EventPayloads.DebugMeta.Image(type: image.type, debugID: image.debugID, codeFile: image.codeFile, imageAddress: image.imageAddress, imageSize: image.imageSize?.uint64Value, imageVmAddress: image.imageVmAddress)
         }
-        let payload = SentryRelayWireFormat.Attachments.FlameGraph(frames: frames, trees: trees, debugMeta: SentryRelayWireFormat.EventPayloads.DebugMeta(images: images))
+        let payload = SentryRelayWireFormat.Attachments.FlameGraph(frames: frames, nodes: nodes, trees: trees, debugMeta: SentryRelayWireFormat.EventPayloads.DebugMeta(images: images))
         do {
             let data = try JSONEncoder().encode(payload)
             guard data.count <= 10 * 1_024 * 1_024 else {
@@ -190,6 +190,25 @@ extension SentryMXFrame {
 }
 
 private extension SentryMXFrame {
+    func flamegraphFrameIndex(
+        frames: inout [SentryRelayWireFormat.Profiling.V2.Frame],
+        indices: inout [MXSample.MXFrame: SentryRelayWireFormat.Attachments.FlameGraph.FrameIndex],
+        inAppLogic: SentryInAppLogic
+    ) -> SentryRelayWireFormat.Attachments.FlameGraph.FrameIndex {
+        let key = MXSample.MXFrame(binaryUUID: binaryUUID, offsetIntoBinaryTextSegment: offsetIntoBinaryTextSegment, binaryName: binaryName, address: address)
+        if let existing = indices[key] {
+            return existing
+        }
+        let index = SentryRelayWireFormat.Attachments.FlameGraph.FrameIndex(frames.count)
+        indices[key] = index
+        frames.append(SentryRelayWireFormat.Profiling.V2.Frame(
+            instructionAddress: sentry_formatHexAddressUInt64Swift(address),
+            package: binaryName,
+            inApp: binaryName.map { inAppLogic.is(inApp: $0) }
+        ))
+        return index
+    }
+
     var hasValidHangSampleCounts: Bool {
         guard let sampleCount, sampleCount > 0, sampleCount <= 9_007_199_254_740_991 else { return false }
         var remaining = sampleCount
