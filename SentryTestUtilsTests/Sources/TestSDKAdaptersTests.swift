@@ -17,7 +17,7 @@ final class TestSDKAdaptersTests: XCTestCase {
     func testClientAccessors_whenUsingOriginalAPI_shouldPreserveInjectedObjects() throws {
         // -- Arrange --
         let options = Options.noIntegrations()
-        options.dsn = TestConstants.dsnForTestCase(type: Self.self, testName: name)
+        options.dsn = TestConstants.dsnForTestCase(type: Self.self, testName: #function)
         let client = try XCTUnwrap(TestClient(options: options))
         let container = SentryDependencyContainer.sharedInstance()
         let fileManager = try TestFileManager(options: options, dateProvider: container.dateProvider, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
@@ -65,10 +65,39 @@ final class TestSDKAdaptersTests: XCTestCase {
         XCTAssertEqual(measurements["duration"]?.unit?.unit, "millisecond")
     }
 
+    func testHubSession_whenUsingOriginalAPI_shouldPreserveSessionAndNil() {
+        // -- Arrange --
+        let hub = SentryHubInternal(client: nil, andScope: Scope())
+        let session = SentrySession(releaseName: "test", distinctId: "user")
+
+        // -- Act --
+        hub.session = session
+
+        // -- Assert --
+        XCTAssertIdentical(hub.session, session)
+        hub.session = nil
+        XCTAssertNil(hub.session)
+    }
+
+    func testDSN_whenUsingTestIdentifier_shouldNotRequireAutomaticEncoding() throws {
+        // -- Arrange --
+        let dsn = TestConstants.dsnForTestCase(type: Self.self, testName: #function)
+
+        // -- Act --
+        // Older Foundation versions reject invalid URL characters instead of encoding them.
+        if #available(macOS 14.0, iOS 17.0, tvOS 17.0, watchOS 10.0, *) {
+            let url = URL(string: dsn, encodingInvalidCharacters: false)
+
+            // -- Assert --
+            XCTAssertNotNil(url)
+        }
+        XCTAssertNoThrow(try SentryDsn(string: dsn))
+    }
+
     func testSDKAccessors_whenUsingOriginalAPI_shouldPreserveOptionsAndEnvelopeDispatch() throws {
         // -- Arrange --
         let options = Options.noIntegrations()
-        options.dsn = TestConstants.dsnForTestCase(type: Self.self, testName: name)
+        options.dsn = TestConstants.dsnForTestCase(type: Self.self, testName: #function)
         let client = try XCTUnwrap(TestClient(options: options))
         SentrySDKInternal.setCurrentHub(TestHub(client: client, andScope: Scope()))
         let envelope = SentryEnvelope(event: Event())
@@ -128,7 +157,7 @@ final class TestSDKAdaptersTests: XCTestCase {
     func testHttpTransport_whenCreatedThroughAdapter_shouldUseInjectedDependencies() throws {
         // -- Arrange --
         let options = Options.noIntegrations()
-        options.dsn = TestConstants.dsnForTestCase(type: Self.self, testName: name)
+        options.dsn = TestConstants.dsnForTestCase(type: Self.self, testName: #function)
         let container = SentryDependencyContainer.sharedInstance()
         let queue = TestSentryDispatchQueueWrapper()
         queue.dispatchAsyncExecutesBlock = false
@@ -162,7 +191,7 @@ final class TestSDKAdaptersTests: XCTestCase {
     func testFatalEventWithSession_whenOverridden_shouldDispatchThroughWrapper() throws {
         // -- Arrange --
         let options = Options.noIntegrations()
-        options.dsn = TestConstants.dsnForTestCase(type: Self.self, testName: name)
+        options.dsn = TestConstants.dsnForTestCase(type: Self.self, testName: #function)
         let client = try XCTUnwrap(SessionCaptureClient(options: options))
         let event = Event()
         let session = SentrySession(releaseName: "test", distinctId: "user")
@@ -183,7 +212,7 @@ final class TestSDKAdaptersTests: XCTestCase {
     func testReplayCapture_whenCalledThroughHub_shouldCallSwiftOverride() throws {
         // -- Arrange --
         let options = Options.noIntegrations()
-        options.dsn = TestConstants.dsnForTestCase(type: Self.self, testName: name)
+        options.dsn = TestConstants.dsnForTestCase(type: Self.self, testName: #function)
         let client = try XCTUnwrap(ReplayCaptureClient(options: options))
         let scope = Scope()
         let hub = SentryHubInternal(client: client, andScope: scope)
@@ -204,7 +233,7 @@ final class TestSDKAdaptersTests: XCTestCase {
     func testReplayCapture_whenNotOverridden_shouldUseClientImplementation() throws {
         // -- Arrange --
         let options = Options.noIntegrations()
-        options.dsn = TestConstants.dsnForTestCase(type: Self.self, testName: name)
+        options.dsn = TestConstants.dsnForTestCase(type: Self.self, testName: #function)
         var preparedEvent: Event?
         options.beforeSend = { event in
             preparedEvent = event
@@ -224,7 +253,7 @@ final class TestSDKAdaptersTests: XCTestCase {
     func testSessionDelegate_whenCapturingError_shouldCallSwiftOverride() throws {
         // -- Arrange --
         let options = Options.noIntegrations()
-        options.dsn = TestConstants.dsnForTestCase(type: Self.self, testName: name)
+        options.dsn = TestConstants.dsnForTestCase(type: Self.self, testName: #function)
         let client = try XCTUnwrap(TestClient(options: options))
         let delegate = SessionDelegate()
         client.sessionDelegate = delegate

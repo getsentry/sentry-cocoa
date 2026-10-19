@@ -34,10 +34,10 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         // Arrange
         // persisted configuration simulating previous launch
         let configDict: [String: Any] = [
-            kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle: SentryProfileLifecycle.manual.rawValue,
-            kSentryLaunchProfileConfigKeyProfilesSampleRate: 0.5,
-            kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
-            kSentryLaunchProfileConfigKeyWaitForFullDisplay: false
+            SentryLaunchProfileConfigKey.continuousProfilingV2Lifecycle: SentryProfileLifecycle.manual.rawValue,
+            SentryLaunchProfileConfigKey.profilesSampleRate: 0.5,
+            SentryLaunchProfileConfigKey.profilesSampleRand: 0.5,
+            SentryLaunchProfileConfigKey.waitForFullDisplay: false
         ]
         let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
@@ -52,7 +52,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         fixture.options.enableTimeToFullDisplayTracing = true
 
         // Act: simulate app launch
-        _sentry_nondeduplicated_startLaunchProfile()
+        SentryLaunchProfiling.startLaunchProfileWithoutDeduplication()
 
         // Assert correct type of profile started
         XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -75,10 +75,10 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         // Arrange
         // persisted configuration simulating previous launch
         let configDict: [String: Any] = [
-            kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle: SentryProfileLifecycle.manual.rawValue,
-            kSentryLaunchProfileConfigKeyProfilesSampleRate: 0.5,
-            kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
-            kSentryLaunchProfileConfigKeyWaitForFullDisplay: false
+            SentryLaunchProfileConfigKey.continuousProfilingV2Lifecycle: SentryProfileLifecycle.manual.rawValue,
+            SentryLaunchProfileConfigKey.profilesSampleRate: 0.5,
+            SentryLaunchProfileConfigKey.profilesSampleRand: 0.5,
+            SentryLaunchProfileConfigKey.waitForFullDisplay: false
         ]
         let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
@@ -92,7 +92,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         fixture.options.enableTimeToFullDisplayTracing = true
 
         // Act: simulate app launch
-        _sentry_nondeduplicated_startLaunchProfile()
+        SentryLaunchProfiling.startLaunchProfileWithoutDeduplication()
 
         // Assert correct type of profile started
         XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -116,12 +116,12 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         // Arrange
         // persisted configuration simulating previous launch
         let configDict: [String: Any] = [
-            kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle: SentryProfileLifecycle.trace.rawValue,
-            kSentryLaunchProfileConfigKeyProfilesSampleRate: 0.5,
-            kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
-            kSentryLaunchProfileConfigKeyTracesSampleRate: 0.5,
-            kSentryLaunchProfileConfigKeyTracesSampleRand: 0.5,
-            kSentryLaunchProfileConfigKeyWaitForFullDisplay: false
+            SentryLaunchProfileConfigKey.continuousProfilingV2Lifecycle: SentryProfileLifecycle.trace.rawValue,
+            SentryLaunchProfileConfigKey.profilesSampleRate: 0.5,
+            SentryLaunchProfileConfigKey.profilesSampleRand: 0.5,
+            SentryLaunchProfileConfigKey.tracesSampleRate: 0.5,
+            SentryLaunchProfileConfigKey.tracesSampleRand: 0.5,
+            SentryLaunchProfileConfigKey.waitForFullDisplay: false
         ]
         let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
@@ -136,7 +136,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         fixture.options.enableTimeToFullDisplayTracing = true
 
         // Act: simulate app launch
-        _sentry_nondeduplicated_startLaunchProfile()
+        SentryLaunchProfiling.startLaunchProfileWithoutDeduplication()
 
         // Assert correct type of profile started
         XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -158,12 +158,12 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         // Arrange
         // persisted configuration simulating previous launch
         let configDict: [String: Any] = [
-            kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle: SentryProfileLifecycle.trace.rawValue,
-            kSentryLaunchProfileConfigKeyProfilesSampleRate: 0.5,
-            kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
-            kSentryLaunchProfileConfigKeyTracesSampleRate: 0.5,
-            kSentryLaunchProfileConfigKeyTracesSampleRand: 0.5,
-            kSentryLaunchProfileConfigKeyWaitForFullDisplay: false
+            SentryLaunchProfileConfigKey.continuousProfilingV2Lifecycle: SentryProfileLifecycle.trace.rawValue,
+            SentryLaunchProfileConfigKey.profilesSampleRate: 0.5,
+            SentryLaunchProfileConfigKey.profilesSampleRand: 0.5,
+            SentryLaunchProfileConfigKey.tracesSampleRate: 0.5,
+            SentryLaunchProfileConfigKey.tracesSampleRand: 0.5,
+            SentryLaunchProfileConfigKey.waitForFullDisplay: false
         ]
         let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
@@ -177,7 +177,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         fixture.options.enableTimeToFullDisplayTracing = true
 
         // Act: simulate app launch
-        _sentry_nondeduplicated_startLaunchProfile()
+        SentryLaunchProfiling.startLaunchProfileWithoutDeduplication()
 
         // Assert correct type of profile started
         XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -203,10 +203,10 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         // Arrange
         // persisted configuration simulating previous launch
         let configDict: [String: Any] = [
-            kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle: SentryProfileLifecycle.manual.rawValue,
-            kSentryLaunchProfileConfigKeyProfilesSampleRate: 0.5,
-            kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
-            kSentryLaunchProfileConfigKeyWaitForFullDisplay: true
+            SentryLaunchProfileConfigKey.continuousProfilingV2Lifecycle: SentryProfileLifecycle.manual.rawValue,
+            SentryLaunchProfileConfigKey.profilesSampleRate: 0.5,
+            SentryLaunchProfileConfigKey.profilesSampleRand: 0.5,
+            SentryLaunchProfileConfigKey.waitForFullDisplay: true
         ]
         let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
@@ -221,7 +221,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         fixture.options.enableTimeToFullDisplayTracing = false
 
         // Act: simulate app launch
-        _sentry_nondeduplicated_startLaunchProfile()
+        SentryLaunchProfiling.startLaunchProfileWithoutDeduplication()
 
         // Assert correct type of profile started
         XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -244,10 +244,10 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         // Arrange
         // persisted configuration simulating previous launch
         let configDict: [String: Any] = [
-            kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle: SentryProfileLifecycle.manual.rawValue,
-            kSentryLaunchProfileConfigKeyProfilesSampleRate: 0.5,
-            kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
-            kSentryLaunchProfileConfigKeyWaitForFullDisplay: true
+            SentryLaunchProfileConfigKey.continuousProfilingV2Lifecycle: SentryProfileLifecycle.manual.rawValue,
+            SentryLaunchProfileConfigKey.profilesSampleRate: 0.5,
+            SentryLaunchProfileConfigKey.profilesSampleRand: 0.5,
+            SentryLaunchProfileConfigKey.waitForFullDisplay: true
         ]
         let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
@@ -261,7 +261,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         fixture.options.enableTimeToFullDisplayTracing = false
 
         // Act: simulate app launch
-        _sentry_nondeduplicated_startLaunchProfile()
+        SentryLaunchProfiling.startLaunchProfileWithoutDeduplication()
 
         // Assert correct type of profile started
         XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -285,12 +285,12 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         // Arrange
         // persisted configuration simulating previous launch
         let configDict: [String: Any] = [
-            kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle: SentryProfileLifecycle.trace.rawValue,
-            kSentryLaunchProfileConfigKeyProfilesSampleRate: 0.5,
-            kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
-            kSentryLaunchProfileConfigKeyTracesSampleRate: 0.5,
-            kSentryLaunchProfileConfigKeyTracesSampleRand: 0.5,
-            kSentryLaunchProfileConfigKeyWaitForFullDisplay: true
+            SentryLaunchProfileConfigKey.continuousProfilingV2Lifecycle: SentryProfileLifecycle.trace.rawValue,
+            SentryLaunchProfileConfigKey.profilesSampleRate: 0.5,
+            SentryLaunchProfileConfigKey.profilesSampleRand: 0.5,
+            SentryLaunchProfileConfigKey.tracesSampleRate: 0.5,
+            SentryLaunchProfileConfigKey.tracesSampleRand: 0.5,
+            SentryLaunchProfileConfigKey.waitForFullDisplay: true
         ]
         let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
@@ -305,7 +305,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         fixture.options.enableTimeToFullDisplayTracing = false
 
         // Act: simulate app launch
-        _sentry_nondeduplicated_startLaunchProfile()
+        SentryLaunchProfiling.startLaunchProfileWithoutDeduplication()
 
         // Assert correct type of profile started
         XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -315,7 +315,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         sentry_sdkInitProfilerTasks(fixture.options, TestHub(client: nil, andScope: nil))
         
         // Act: simulate TTFD stoppage
-        let launchTracer = try XCTUnwrap(sentry_launchTracer)
+        let launchTracer = try XCTUnwrap(SentryLaunchProfiling.launchTracer)
         let ttd = SentryTimeToDisplayTracker(name: "UIViewController", waitForFullDisplay: true, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
         ttd.start(for: launchTracer)
         ttd.reportInitialDisplay()
@@ -333,12 +333,12 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         // Arrange
         // persisted configuration simulating previous launch
         let configDict: [String: Any] = [
-            kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle: SentryProfileLifecycle.trace.rawValue,
-            kSentryLaunchProfileConfigKeyProfilesSampleRate: 0.5,
-            kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
-            kSentryLaunchProfileConfigKeyTracesSampleRate: 0.5,
-            kSentryLaunchProfileConfigKeyTracesSampleRand: 0.5,
-            kSentryLaunchProfileConfigKeyWaitForFullDisplay: true
+            SentryLaunchProfileConfigKey.continuousProfilingV2Lifecycle: SentryProfileLifecycle.trace.rawValue,
+            SentryLaunchProfileConfigKey.profilesSampleRate: 0.5,
+            SentryLaunchProfileConfigKey.profilesSampleRand: 0.5,
+            SentryLaunchProfileConfigKey.tracesSampleRate: 0.5,
+            SentryLaunchProfileConfigKey.tracesSampleRand: 0.5,
+            SentryLaunchProfileConfigKey.waitForFullDisplay: true
         ]
         let configURL = try XCTUnwrap(launchProfileConfigFileURL())
         try (configDict as NSDictionary).write(to: configURL)
@@ -352,7 +352,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         fixture.options.enableTimeToFullDisplayTracing = false
 
         // Act: simulate app launch
-        _sentry_nondeduplicated_startLaunchProfile()
+        SentryLaunchProfiling.startLaunchProfileWithoutDeduplication()
 
         // Assert correct type of profile started
         XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -362,7 +362,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         sentry_sdkInitProfilerTasks(fixture.options, TestHub(client: nil, andScope: nil))
 
         // Act: simulate TTFD stoppage
-        let launchTracer = try XCTUnwrap(sentry_launchTracer)
+        let launchTracer = try XCTUnwrap(SentryLaunchProfiling.launchTracer)
         let ttd = SentryTimeToDisplayTracker(name: "UIViewController", waitForFullDisplay: true, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
         ttd.start(for: launchTracer)
         ttd.reportInitialDisplay()
