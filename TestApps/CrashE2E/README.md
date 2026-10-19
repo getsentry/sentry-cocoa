@@ -20,11 +20,13 @@ swift test --package-path TestApps/CrashE2E/Runner
 
 They cover stale `launchd` entries, launch failures, malformed PIDs, live processes, exits before/after observation, unreaped processes, cleanup, and timeout diagnostics. Orchestration tests use a Swift command-execution fake to configure results/errors and inspect calls, without shell helpers or fake executables on `PATH`. Process-exit observation is still tested against real host processes; a few small subprocess integration tests check the production command adapter separately. The Crash E2E workflow runs them before the scenarios.
 
-## Stack-capture feasibility probe
+## Stack-capture validation probe
 
-The workflow also runs `DiagnosticsProbe/probe.py` on its SentryCrash iOS matrix leg and uploads `crash-e2e-stack-probe` **even on success**. This is a feasibility check, not yet a replacement for the runner's `sample` diagnostics.
+The workflow also runs `DiagnosticsProbe/probe.py` on its SentryCrash iOS matrix leg and uploads `crash-e2e-stack-probe` **even on success**. A passing E2E scenario does not exercise timeout diagnostics, so the probe deliberately exercises collection against a controlled target.
 
-The opt-in probe requires root for `spindump`, but its disposable target runs as the normal runner user. It checks target-only binary stackshot collection, report generation after the target exits, repeated SIGTERM/SIGKILL interruption during collection, and raw-data preservation when report generation times out. The target has a named blocked frame and a heartbeat; it must remain responsive and exit cooperatively without any resume operation. Results, command timings/output, raw captures, reports, and target symbols are retained. These checks cannot prove the absence of every cancellation race; collector ownership of suspension must also be reviewed before adoption.
+The opt-in probe requires root, but its disposable target runs as the normal runner user. It checks single-pass symbolicated stackshot collection, optional re-reporting after the target exits, repeated SIGTERM/SIGKILL interruption during collection, and preservation of the original report when re-reporting times out. It also requires the runner's non-root `sudo -n` invocation to succeed in CI; a local privilege-dropped subprocess may lack your terminal's sudo authorization. The target has a named blocked frame and a heartbeat; it must remain responsive and exit cooperatively without any resume operation. Results, command timings/output, captures, reports, and target symbols are retained. These are functional checks, not benchmarks for a loaded CI runner or proof of the absence of every cancellation race.
+
+A separate experiment deliberately waits for `SIGINFO` after sampling. Its time-limit behavior is recorded in `observations.json`, including whether the probe had to terminate the collector. Outlasting the requested limit in this artificial mode is an observation, not a failed normal-capture requirement. Failure to start the experiment or recover the target still fails the probe. This experimental Python harness and CI step are temporary; they are not intended for the final main-branch patch.
 
 Local orchestration checks do not require sudo:
 
@@ -49,16 +51,21 @@ The runner parses the launched PID and registers a kernel `NOTE_EXIT` event. Thi
 Each launch writes an `ios-<scenario>-launch-<sequence>` artifact directory containing the launch command/result and redirected app stdout/stderr. A termination timeout also captures:
 
 - the failing phase, observed PID, and app-exit deadline (`timeout.log`)
-- host process state before and after sampling (`process.log`, `process-after-sample.log`)
-- a best-effort stack sample of the still-running process (`sample.txt`, `sample-command.log`)
+- host process state before and after stack collection (`process.log`, `process-after-stackshot.log`)
+- a best-effort symbolicated kernel stackshot of the still-running process (`stackshot.spindump`, `stackshot-command.log`)
+- an explicit `stackshot-unavailable.log` if collection fails or saves no nonempty report
 - host load and memory statistics (`host-load.log`, `host-memory.log`)
 - simulator `launchd` state in `launchctl.log` (for diagnostics only)
 
 Command logs include the scenario phase, app state, attempt number, time budget, elapsed time, stdout/stderr, and final exit status or signal—even when the command timed out. Simulator-management commands are recorded in `ios-<scenario>-commands`. Scenario failures have a separate `ios-<scenario>-failure.log`; cleanup failures are recorded alongside it. Exhausted simulator-control retries also capture host load and memory statistics.
 
-Diagnostic subprocesses have their own bounded timeouts. Diagnostic collection does not turn a failed termination wait into success or increase the scenario's termination deadline. The observer only detects termination and not whether a run was successful.
+Stack collection uses `sudo -n /usr/sbin/spindump` with a two-second sample duration and a **requested 60-second collection/symbolication budget** via `-timelimit`. This flag is not an independent hard wall-clock watchdog: on macOS 27, the probe's deliberate `-siginfo` wait outlasted its requested limit. That artificial wait is not used by the runner and is not evidence of a hang during ordinary collection. Symbolication is ordinary work that can take longer under CI load; it is not treated as a separate failure-prone stage. A successful invocation saves both readable stacks and binary data in one report. The runner does not separately kill the sudo wrapper on a shorter deadline; the enclosing CI job retains its overall time limit. Other diagnostic commands retain their existing bounded timeouts.
 
-A non-termination failure still represents a possible real hang. Use the process sample and app logs to distinguish startup, crash handling, drain, and SDK shutdown hangs from simulator service problems. The harness does not change crash-recorder behavior or relax the crash/report assertions.
+Unlike a client-managed suspend/resume sequence, [kernel stackshots](https://github.com/apple-oss-distributions/xnu/blob/main/doc/observability/mt_stackshot.md) finish their kernel rendezvous before returning to user space. Interrupting the collector therefore does not require the runner to resume the target. Stack collection remains best-effort: without non-interactive sudo permission it records the error and continues with the other diagnostics and cleanup, rather than prompting or falling back to `sample`. Do not run the whole build/runner as root to obtain stacks.
+
+Diagnostic collection does not turn a failed termination wait into success or increase the scenario's termination deadline. The observer only detects termination and not whether a run was successful.
+
+A non-termination failure still represents a possible real hang. Use the stackshot and app logs to distinguish startup, crash handling, drain, and SDK shutdown hangs from simulator service problems. The harness does not change crash-recorder behavior or relax the crash/report assertions.
 
 ### Simulator recovery
 
