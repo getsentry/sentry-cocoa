@@ -133,6 +133,16 @@ NS_SWIFT_NAME(Span)
  */
 - (void)removeTagForKey:(NSString *)key NS_SWIFT_NAME(removeTag(key:));
 
+#if SDK_V10
+/**
+ * Set a measurement on this span without a unit. No formatting will be applied to the measurement
+ * value in the Sentry product, and the value will be shown as is.
+ * @discussion Setting a measurement with the same name on the same span multiple times only
+ * keeps the last value. Child span measurements are not forwarded to the root transaction.
+ * @param name the name of the measurement
+ * @param value the value of the measurement
+ */
+#else
 /**
  * Set a measurement without unit. When setting the measurement without the unit, no formatting
  * will be applied to the measurement value in the Sentry product, and the value will be shown as
@@ -142,9 +152,20 @@ NS_SWIFT_NAME(Span)
  * @param name the name of the measurement
  * @param value the value of the measurement
  */
+#endif
 - (void)setMeasurement:(NSString *)name
                  value:(NSNumber *)value NS_SWIFT_NAME(setMeasurement(name:value:));
 
+#if SDK_V10
+/**
+ * Set a measurement on this span with a specific unit.
+ * @discussion Setting a measurement with the same name on the same span multiple times only
+ * keeps the last value. Child span measurements are not forwarded to the root transaction.
+ * @param name the name of the measurement
+ * @param value the value of the measurement
+ * @param unit the unit the value is measured in
+ */
+#else
 /**
  * Set a measurement with specific unit.
  * @discussion Setting a measurement with the same name on the same transaction multiple times only
@@ -153,6 +174,7 @@ NS_SWIFT_NAME(Span)
  * @param value the value of the measurement
  * @param unit the unit the value is measured in
  */
+#endif
 - (void)setMeasurement:(NSString *)name
                  value:(NSNumber *)value
                   unit:(SentryMeasurementUnit *)unit

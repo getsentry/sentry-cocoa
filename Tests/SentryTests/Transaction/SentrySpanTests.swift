@@ -546,6 +546,89 @@ class SentrySpanTests: XCTestCase {
         XCTAssertNil(childData["flag.evaluation.checkout"])
     }
     
+#if SDK_V10
+    func testSetMeasurement_whenChildSpan_shouldSerializeLocallyWithoutOverwritingTransaction() throws {
+        // -- Arrange --
+        let tracer = fixture.getSut() as! SentryTracer
+        let span = tracer.startChild(operation: "child")
+        tracer.setMeasurement(name: "duration", value: 12, unit: MeasurementUnitDuration.second)
+
+        // -- Act --
+        span.setMeasurement(name: "duration", value: 34, unit: MeasurementUnitDuration.millisecond)
+
+        // -- Assert --
+        let measurements = try XCTUnwrap(span.serialize()["measurements"] as? [String: [String: Any]])
+        let measurement = try XCTUnwrap(measurements["duration"])
+        XCTAssertEqual(measurement["value"] as? NSNumber, 34)
+        XCTAssertEqual(measurement["unit"] as? String, "millisecond")
+        XCTAssertEqual(tracer.measurements["duration"]?.value, 12)
+        XCTAssertEqual(tracer.measurements["duration"]?.unit?.unit, "second")
+    }
+
+    func testSetMeasurement_whenNestedSpans_shouldKeepMeasurementsIndependent() throws {
+        // -- Arrange --
+        let tracer = fixture.getSut() as! SentryTracer
+        let child = tracer.startChild(operation: "child")
+        let grandchild = child.startChild(operation: "grandchild")
+        let sibling = tracer.startChild(operation: "sibling")
+
+        // -- Act --
+        child.setMeasurement(name: "count", value: 1)
+        grandchild.setMeasurement(name: "count", value: 2)
+        child.setMeasurement(name: "count", value: 3)
+
+        // -- Assert --
+        let childMeasurements = try XCTUnwrap(child.serialize()["measurements"] as? [String: [String: NSNumber]])
+        let grandchildMeasurements = try XCTUnwrap(grandchild.serialize()["measurements"] as? [String: [String: NSNumber]])
+        XCTAssertEqual(childMeasurements, ["count": ["value": 3]])
+        XCTAssertEqual(grandchildMeasurements, ["count": ["value": 2]])
+        XCTAssertNil(sibling.serialize()["measurements"])
+        XCTAssertTrue(tracer.measurements.isEmpty)
+    }
+
+    func testSetMeasurement_whenWritingConcurrently_shouldSerializeAllSpanMeasurements() throws {
+        // -- Arrange --
+        let tracer = fixture.getSut() as! SentryTracer
+        let span = tracer.startChild(operation: "child")
+        let writes = expectation(description: "Measurements written")
+        writes.expectedFulfillmentCount = 100
+        let queue = DispatchQueue(label: "span-measurements", attributes: .concurrent)
+
+        // -- Act --
+        for index in 0..<100 {
+            queue.async {
+                span.setMeasurement(name: "count-\(index)", value: NSNumber(value: index))
+                _ = span.serialize()
+                writes.fulfill()
+            }
+        }
+        wait(for: [writes], timeout: 5)
+
+        // -- Assert --
+        let measurements = try XCTUnwrap(span.serialize()["measurements"] as? [String: [String: NSNumber]])
+        XCTAssertEqual(measurements.count, 100)
+        for index in 0..<100 {
+            XCTAssertEqual(measurements["count-\(index)"]?["value"], NSNumber(value: index))
+        }
+        XCTAssertTrue(tracer.measurements.isEmpty)
+    }
+
+    func testSetMeasurement_whenTracerReleased_shouldRetainMeasurement() throws {
+        // -- Arrange --
+        var transaction: Span? = fixture.getSut()
+        let child = try XCTUnwrap(transaction).startChild(operation: "child")
+        transaction = nil
+
+        // -- Act --
+        child.setMeasurement(name: "count", value: 1)
+
+        // -- Assert --
+        XCTAssertNil((child as? SentrySpanInternal)?.tracer)
+        let measurements = try XCTUnwrap(child.serialize()["measurements"] as? [String: [String: NSNumber]])
+        XCTAssertEqual(measurements, ["count": ["value": 1]])
+    }
+#endif
+
     func testAddAndRemoveTags() {
         let span = fixture.getSut()
         
