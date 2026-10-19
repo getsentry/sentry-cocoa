@@ -1,10 +1,10 @@
 internal import _SentryPrivate
 import Foundation
 
-@objc(SentryTransaction)
 /// An event containing a trace and its child spans.
+@objc(SentryTransaction)
 open class Transaction: Event {
-    internal var trace: SentryTracer!
+    internal var trace: SentryTracer
 
     /// The child spans belonging to this transaction.
     @objc open var spans: [any Span] = []
@@ -12,9 +12,16 @@ open class Transaction: Event {
     /// The names of views shown while the transaction was active.
     @_spi(Private) @objc public var viewNames: [String]?
 
+    /// The trace associated with this transaction.
     @_spi(Private) @objc(trace) public var traceObject: AnyObject? {
         get { trace }
-        set { trace = newValue as? SentryTracer }
+        set {
+            guard let newTrace = newValue as? SentryTracer else {
+                SentrySDKLog.error("Cannot assign an invalid trace to a transaction.")
+                return
+            }
+            trace = newTrace
+        }
     }
 
     internal init(trace: SentryTracer, children: [any Span]) {
@@ -26,9 +33,10 @@ open class Transaction: Event {
         self.type = SentryEnvelopeItemTypes.transaction
     }
 
+    /// Creates a transaction from an SDK-internal tracer object and child spans.
     @_spi(Private)
     @objc(initWithTrace:children:)
-    public convenience init?(traceObject: AnyObject, children: [any Span]) {
+    public convenience init?(traceObject: AnyObject?, children: [any Span]) {
         // This initializer is an Objective-C bridge for SDK-internal callers, which previously
         // accepted only SentryTracer in SentryTransaction+Private.h.
         guard let trace = traceObject as? SentryTracer else {
@@ -37,33 +45,30 @@ open class Transaction: Event {
         self.init(trace: trace, children: children)
     }
 
+    /// Unavailable. Transactions must be initialized with a trace.
     @available(*, unavailable)
     public required convenience init() {
         fatalError("init() is unavailable")
     }
 
-#if SENTRY_TEST || SENTRY_TEST_CI
+    @available(*, unavailable)
     @objc public override init(level: SentryLevel) {
-        super.init(level: level)
+        fatalError("init(level:) is unavailable")
     }
-#endif
+
+    /// Unavailable. Transactions cannot be initialized from an error.
+    @available(*, unavailable)
+    @objc public convenience init(error: Error) {
+        fatalError("init(error:) is unavailable")
+    }
 
     @objc open override var tags: [String: String]? {
         get {
-            guard let trace else {
-                return super.tags
-            }
-
             return (super.tags ?? [:]).merging(trace.tags) { _, tracerValue in
                 tracerValue
             }
         }
         set {
-            guard let trace else {
-                super.tags = newValue
-                return
-            }
-
             for key in trace.tags.keys {
                 trace.removeTag(key: key)
             }
@@ -90,14 +95,14 @@ open class Transaction: Event {
 
 #if !(os(watchOS) || os(tvOS) || os(visionOS))
         var profileContextData: [String: Any] = [:]
-        profileContextData["profiler_id"] = trace?.value(forKey: "profileSessionID") as? String
+        profileContextData["profiler_id"] = trace.value(forKey: "profileSessionID") as? String
         mutableContext["profile"] = profileContextData
 #endif
 
-        mutableContext["trace"] = trace?.serialize()
+        mutableContext["trace"] = trace.serialize()
         serializedData["contexts"] = mutableContext
 
-        let traceTags = trace.map { sanitizedDictionary($0.tags as NSDictionary) } ?? [:]
+        let traceTags = SentrySanitizerUtils.sanitizedDictionary(trace.tags as NSDictionary)
         if var tags = serializedData["tags"] as? [String: Any] {
             tags.merge(traceTags) { _, tracerValue in tracerValue }
             serializedData["tags"] = tags
@@ -105,7 +110,7 @@ open class Transaction: Event {
             serializedData["tags"] = traceTags
         }
 
-        let traceData = trace.map { sanitizedDictionary($0.data as NSDictionary) } ?? [:]
+        let traceData = SentrySanitizerUtils.sanitizedDictionary(trace.data as NSDictionary)
         if var extra = serializedData["extra"] as? [String: Any] {
             extra.merge(traceData) { _, tracerValue in tracerValue }
             serializedData["extra"] = extra
@@ -113,25 +118,19 @@ open class Transaction: Event {
             serializedData["extra"] = traceData
         }
 
-        if let measurements = trace?.value(forKey: "measurements") as? [String: SentryMeasurementValue],
+        if let measurements = trace.value(forKey: "measurements") as? [String: SentryMeasurementValue],
            !measurements.isEmpty {
             serializedData["measurements"] = measurements.mapValues { $0.serialize() }
         }
 
-        if let trace {
-            let rawNameSource = trace.transactionContext.value(forKey: "nameSource") as? Int ?? 0
-            let nameSource = SentryTransactionNameSource(rawValue: rawNameSource) ?? .custom
-            serializedData["transaction"] = trace.transactionContext.name
-            serializedData["transaction_info"] = [
-                "source": string(for: nameSource)
-            ]
-        }
+        let rawNameSource = trace.transactionContext.value(forKey: "nameSource") as? Int ?? 0
+        let nameSource = SentryTransactionNameSource(rawValue: rawNameSource) ?? .custom
+        serializedData["transaction"] = trace.transactionContext.name
+        serializedData["transaction_info"] = [
+            "source": string(for: nameSource)
+        ]
 
         return serializedData
-    }
-
-    private func sanitizedDictionary(_ dictionary: NSDictionary?) -> [String: Any] {
-        sentry_sanitize_dictionary(dictionary) as? [String: Any] ?? [:]
     }
 
     private func string(for source: SentryTransactionNameSource) -> String {

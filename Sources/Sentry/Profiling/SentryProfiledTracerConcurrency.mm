@@ -18,6 +18,7 @@
 #    import "SentryProfilerState.h"
 #    import "SentryProfilingSwiftHelpers.h"
 #    import "SentrySamplerDecisionHelper.h"
+#    import "SentrySwift.h"
 #    import "SentryTraceProfiler.h"
 #    import "SentryTracer+Private.h"
 
@@ -234,8 +235,9 @@ SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryId *internalTra
 }
 
 void
-sentry_stopProfilerDueToFinishedTransaction(SentryHubInternal *hub,
-    SentryDispatchQueueWrapper *dispatchQueue, SentryTransaction *transaction, BOOL isProfiling,
+sentry_stopProfilerDueToFinishedTransaction(
+    SentryHubInternal *hub, SentryDispatchQueueWrapper *dispatchQueue,
+    SENTRY_SWIFT_MIGRATION_ID(SentryTransaction) transaction, BOOL isProfiling,
     NSDate *_Nullable traceStartTimestamp, uint64_t startSystemTime
 #    if SENTRY_HAS_UIKIT
     ,
@@ -243,7 +245,7 @@ sentry_stopProfilerDueToFinishedTransaction(SentryHubInternal *hub,
 #    endif // SENTRY_HAS_UIKIT
 )
 {
-    SentryTracer *trace = [(NSObject *)transaction valueForKey:@"trace"];
+    SentryTracer *trace = [transaction trace];
     SentryProfileConfiguration *profileConfiguration = sentry_getProfileConfiguration();
     if (profileConfiguration != nil && profileConfiguration.isProfilingThisLaunch
         && profileConfiguration.profileOptions != nil
