@@ -12,6 +12,8 @@ runs:
     # drops system helpers such as osxkeychain for github.com, so no stale
     # token is read from the keychain. HTTP/1.1 avoids the HTTP/2 401s and
     # the HTTP 400s on authenticated retries seen with HTTP/2.
+    # Context: https://github.com/orgs/community/discussions/206581
+    # Remove this action once GitHub stops rejecting anonymous fetches.
     - name: Configure GitHub git access
       shell: bash
       run: |
