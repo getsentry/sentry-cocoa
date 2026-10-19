@@ -3239,7 +3239,6 @@ final class SentryClientTests: XCTestCase {
 
         let actual = try lastSentEvent()
         XCTAssertEqual(actual.user?.email, "jane@example.com")
-        XCTAssertNil(actual.user?.userId)
 #endif
     }
 
@@ -3267,6 +3266,19 @@ final class SentryClientTests: XCTestCase {
 #endif // SDK_V10
     }
 
+#if !SDK_V10
+    func testInstallationIdNotSetWhenUserIsSetWithoutId() throws {
+        let scope = fixture.scope
+        scope.setUser(fixture.user)
+        fixture.getSut().capture(message: "any message", scope: scope)
+
+        let actual = try lastSentEventWithAttachment()
+        XCTAssertEqual(fixture.user.userId, actual.user?.userId)
+        XCTAssertEqual(fixture.user.email, actual.user?.email)
+    }
+#endif // !SDK_V10
+
+#if SDK_V10
     func testCapture_whenUserHasNoId_shouldApplyInstallationIdFallback() throws {
         // -- Arrange --
         let scope = fixture.scope
@@ -3280,11 +3292,7 @@ final class SentryClientTests: XCTestCase {
 
         // -- Assert --
         let actual = try lastSentEventWithAttachment()
-#if SDK_V10
         XCTAssertEqual(SentryInstallation.id(withCacheDirectoryPath: sut.options.cacheDirectoryPath), actual.user?.userId)
-#else
-        XCTAssertNil(actual.user?.userId)
-#endif // SDK_V10
         XCTAssertEqual(actual.user?.email, user.email)
         XCTAssertEqual(actual.user?.username, "jane")
         XCTAssertNil(user.userId)
@@ -3304,13 +3312,29 @@ final class SentryClientTests: XCTestCase {
 
         // -- Assert --
         let actual = try lastSentEvent()
-#if SDK_V10
         XCTAssertEqual(SentryInstallation.id(withCacheDirectoryPath: sut.options.cacheDirectoryPath), actual.user?.userId)
-#else
-        XCTAssertEqual(actual.user?.userId, "")
-#endif // SDK_V10
         XCTAssertEqual(actual.user?.username, "jane")
     }
+
+    func testCapture_whenUserInfoCollectionIsDisabled_shouldNotApplyInstallationIdFallback() throws {
+        // -- Arrange --
+        let scope = Scope()
+        let user = User()
+        user.username = "jane"
+        scope.setUser(user)
+        let sut = fixture.getSut { options in
+            options.dataCollection.userInfo = false
+        }
+
+        // -- Act --
+        sut.capture(message: "any message", scope: scope)
+
+        // -- Assert --
+        let actual = try lastSentEvent()
+        XCTAssertNil(actual.user?.userId)
+        XCTAssertEqual(actual.user?.username, "jane")
+    }
+#endif // SDK_V10
 
     func testInstallationIdNotSetWhenUserIsSetWithId() throws {
         let scope = Scope()
