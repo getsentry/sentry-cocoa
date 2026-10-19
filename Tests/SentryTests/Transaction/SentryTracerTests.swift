@@ -184,6 +184,7 @@ class SentryTracerTests: XCTestCase {
         }
     }
     
+#if !SDK_V10
     func testFinish_ShouldIgnoreWaitForChildrenCallback() throws {
         let sut = fixture.getSut()
         
@@ -209,6 +210,8 @@ class SentryTracerTests: XCTestCase {
         XCTAssertNotNil(sut.shouldIgnoreWaitForChildrenCallback, "We must not set the callback to nil because when iterating over the child spans in hasUnfinishedChildSpansToWaitFor this could lead to a crash when shouldIgnoreWaitForChildrenCallback is nil.")
     }
     
+#endif
+
     /// Reproduces a crash in hasUnfinishedChildSpansToWaitFor; see https://github.com/getsentry/sentry-cocoa/issues/3781
     /// We used to set the shouldIgnoreWaitForChildrenCallback to nil in finishInternal, which can lead
     /// to a crash when spans keep finishing while finishInternal is executed because
@@ -1374,6 +1377,96 @@ class SentryTracerTests: XCTestCase {
         wait(for: [expectation], timeout: 5.0)
     }
 
+#if SDK_V10
+    func testFinish_whenChildrenAreUnfinished_shouldPreserveStatusAndOmitEndTimestamp() throws {
+        // -- Arrange --
+        let sut = fixture.getSut(waitForChildren: false)
+        let unfinished = sut.startChild(operation: "unfinished")
+        let withStatus = sut.startChild(operation: "custom-status")
+        withStatus.status = .notFound
+        let finished = sut.startChild(operation: "finished")
+        advanceTime(bySeconds: 1)
+        finished.finish(status: .cancelled)
+        let finishedTimestamp = finished.timestamp
+        advanceTime(bySeconds: 1)
+
+        // -- Act --
+        sut.finish()
+
+        // -- Assert --
+        XCTAssertTrue(sut.isFinished)
+        XCTAssertFalse(unfinished.isFinished)
+        XCTAssertNil(unfinished.timestamp)
+        XCTAssertEqual(unfinished.status, .undefined)
+        XCTAssertFalse(withStatus.isFinished)
+        XCTAssertNil(withStatus.timestamp)
+        XCTAssertEqual(withStatus.status, .notFound)
+        XCTAssertEqual(finished.timestamp, finishedTimestamp)
+        XCTAssertEqual(finished.status, .cancelled)
+        assertOneTransactionCaptured(sut)
+
+        let transaction = try getSerializedTransaction()
+        let spans = try XCTUnwrap(transaction["spans"] as? [[String: Any]])
+        XCTAssertEqual(spans.count, 3)
+        let unfinishedPayload = try XCTUnwrap(spans.first { $0["op"] as? String == "unfinished" })
+        XCTAssertNil(unfinishedPayload["timestamp"])
+        XCTAssertNil(unfinishedPayload["status"])
+        let withStatusPayload = try XCTUnwrap(spans.first { $0["op"] as? String == "custom-status" })
+        XCTAssertNil(withStatusPayload["timestamp"])
+        XCTAssertEqual(withStatusPayload["status"] as? String, "not_found")
+        let finishedPayload = try XCTUnwrap(spans.first { $0["op"] as? String == "finished" })
+        XCTAssertEqual(finishedPayload["timestamp"] as? TimeInterval, finishedTimestamp?.timeIntervalSince1970)
+        XCTAssertEqual(finishedPayload["status"] as? String, "cancelled")
+    }
+
+    func testFinish_whenIgnoringUnfinishedChildren_shouldCaptureWithoutFinishingThem() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        sut.shouldIgnoreWaitForChildrenCallback = { _ in true }
+        let child = sut.startChild(operation: "ignored")
+        child.status = .invalidArgument
+
+        // -- Act --
+        sut.finish()
+
+        // -- Assert --
+        assertOneTransactionCaptured(sut)
+        XCTAssertFalse(child.isFinished)
+        XCTAssertNil(child.timestamp)
+        XCTAssertEqual(child.status, .invalidArgument)
+        XCTAssertNotNil(sut.shouldIgnoreWaitForChildrenCallback)
+        let spans = try XCTUnwrap(try getSerializedTransaction()["spans"] as? [[String: Any]])
+        XCTAssertEqual(spans.count, 1)
+        XCTAssertNil(spans.first?["timestamp"])
+        XCTAssertEqual(spans.first?["status"] as? String, "invalid_argument")
+    }
+
+    func testFinish_whenAutoTransactionHasUnfinishedChildren_shouldNotTrimEndTimestamp() throws {
+        // -- Arrange --
+        let sut = fixture.getSut(waitForChildren: false, idleTimeout: fixture.idleTimeout)
+        let finished = sut.startChild(operation: "finished")
+        advanceTime(bySeconds: 1)
+        finished.finish()
+        advanceTime(bySeconds: 1)
+        let unfinished = sut.startChild(operation: "unfinished")
+        advanceTime(bySeconds: 1)
+        let expectedEndTimestamp = fixture.currentDateProvider.date()
+
+        // -- Act --
+        sut.finish()
+
+        // -- Assert --
+        assertOneTransactionCaptured(sut)
+        XCTAssertEqual(sut.timestamp, expectedEndTimestamp)
+        XCTAssertFalse(unfinished.isFinished)
+        XCTAssertNil(unfinished.timestamp)
+        let transaction = try getSerializedTransaction()
+        XCTAssertEqual(transaction["timestamp"] as? TimeInterval, expectedEndTimestamp.timeIntervalSince1970)
+        let spans = try XCTUnwrap(transaction["spans"] as? [[String: Any]])
+        let unfinishedPayload = try XCTUnwrap(spans.first { $0["op"] as? String == "unfinished" })
+        XCTAssertNil(unfinishedPayload["timestamp"])
+    }
+#else
     func testFinish_WithUnfinishedChildren() {
         let sut = fixture.getSut(waitForChildren: false)
         let child1 = sut.startChild(operation: fixture.transactionOperation)
@@ -1403,6 +1496,8 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(sut.timestamp, child3.timestamp)
     }
     
+#endif
+
     func testFinishCallback_CalledWhenTracerFinishes() {
         let callbackExpectation = expectation(description: "FinishCallback called")
         
