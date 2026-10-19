@@ -1,4 +1,5 @@
 import Foundation
+import SentryTestUtilsObjC
 
 /**
  Helper class to create test bundles with custom Info.plist files for testing.
@@ -50,7 +51,7 @@ class TestBundle {
     /// Locates the TestInfoPlist.plist file in the test bundle
     /// - Returns: URL to the plist file, or nil if not found
     private static func locateTestInfoPlist() -> URL? {
-        let testBundle = Bundle(for: TestBundle.self)
+        let testBundle = sentryTestResourceBundle(for: TestBundle.self)
         
         // Try with subdirectory first
         if let url = testBundle.url(forResource: "TestInfoPlist", withExtension: "plist", subdirectory: "Helper/InfoPlist") {
