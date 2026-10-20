@@ -40,10 +40,10 @@ class SentryProfileTestFixture {
     
     let currentDateProvider = TestCurrentDateProvider()
     
-#if !os(macOS)
+#if !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
     lazy var displayLinkWrapper = TestDisplayLinkWrapper(dateProvider: currentDateProvider)
     lazy var framesTracker = TestFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: currentDateProvider, dispatchQueueWrapper: dispatchQueueWrapper, notificationCenter: notificationCenter, delayedFramesTracker: TestDelayedWrapper(keepDelayedFramesDuration: 0, dateProvider: currentDateProvider))
-#endif // !os(macOS)
+#endif // !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
     
     init() {
         SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueueWrapper
@@ -91,11 +91,11 @@ class SentryProfileTestFixture {
             self.metricTimerFactory = eventHandler
         }
         
-#if !os(macOS)
+#if !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
         SentryDependencyContainer.sharedInstance().framesTracker = framesTracker
         framesTracker.start()
         displayLinkWrapper.call()
-#endif // !os(macOS)
+#endif // !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
     }
     
     /// Advance the mock date provider, start a new transaction and return its handle.
@@ -149,7 +149,7 @@ class SentryProfileTestFixture {
         systemWrapper.overrides.cpuEnergyUsageError = nil
     }
     
-#if !os(macOS)
+#if !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
     // SentryFramesTracker starts assuming a frame rate of 60 Hz and will only log an update if it changes, so the first value here needs to be different for it to register.
     let mockFrameRateChangesPerBatch: [FrameRate] = [.high, .low, .high, .low]
     
@@ -171,7 +171,7 @@ class SentryProfileTestFixture {
         expectedContinuousProfileFrozenFrames = [[String: NSNumber]]()
         expectedContinuousProfileFrameRateChanges = [[String: NSNumber]]()
     }
-#endif // !os(macOS)
+#endif // !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
     
     lazy var df: DateFormatter = {
         let dateFormatter = DateFormatter()
@@ -191,7 +191,7 @@ class SentryProfileTestFixture {
             systemWrapper.overrides.cpuEnergyUsage = NSNumber(value: try XCTUnwrap(systemWrapper.overrides.cpuEnergyUsage).intValue + mockMetrics.cpuEnergyUsage.intValue)
         }
         
-#if !os(macOS)
+#if !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
         var shouldRecordFrameRateExpectation = true
         
         func changeFrameRate(_ new: FrameRate) {
@@ -265,7 +265,7 @@ class SentryProfileTestFixture {
         renderGPUFrame(.slow)
         renderGPUFrame(.normal)
         renderGPUFrame(.frozen)
-#endif // !os(macOS)
+#endif // !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
         
         // mock errors gathering cpu usage and memory footprint and fire a callback for them to ensure they don't add more information to the payload
         systemWrapper.overrides.cpuUsageError = NSError(domain: "test-error", code: 0)
@@ -302,7 +302,7 @@ class SentryProfileTestFixture {
         systemWrapper.overrides.memoryFootprintError = nil
         systemWrapper.overrides.cpuEnergyUsageError = nil
         
-#if !os(macOS)
+#if !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
         var shouldRecordFrameRateExpectation = true
         
         func changeFrameRate(_ new: FrameRate) {
@@ -380,7 +380,7 @@ class SentryProfileTestFixture {
         renderGPUFrame(.frozen)
         
         framesTracker.expectedFrames = SentryScreenFrames(total: 0, frozen: 0, slow: 0, slowFrameTimestamps: expectedContinuousProfileSlowFrames, frozenFrameTimestamps: expectedContinuousProfileFrozenFrames, frameRateTimestamps: expectedContinuousProfileFrameRateChanges)
-#endif // !os(macOS)
+#endif // !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
     }
     
     // app start simulation
@@ -390,7 +390,7 @@ class SentryProfileTestFixture {
     var appStartDuration = 0.5
     lazy var appStartEnd = appStart.addingTimeInterval(appStartDuration)
     
-#if !os(macOS)
+#if !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
     func getAppStartMeasurement(type: SentryAppStartType, preWarmed: Bool = false) -> SentryAppStartMeasurement {
         let runtimeInitDuration = 0.05
         let runtimeInit = appStart.addingTimeInterval(runtimeInitDuration)
@@ -403,7 +403,7 @@ class SentryProfileTestFixture {
         return SentryAppStartMeasurement(type: type, isPreWarmed: preWarmed, appStartTimestamp: appStart, runtimeInitSystemTimestamp: appStartSystemTime, duration: appStartDuration, runtimeInitTimestamp: runtimeInit, moduleInitializationTimestamp: main,
                                          sdkStartTimestamp: appStart, didFinishLaunchingTimestamp: didFinishLaunching)
     }
-#endif // !os(macOS)
+#endif // !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
 }
 
 #endif
