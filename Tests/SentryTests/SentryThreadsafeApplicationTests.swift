@@ -123,6 +123,47 @@ final class SentryThreadsafeApplicationTests: XCTestCase {
         XCTAssertFalse(sut.isActive)
     }
 
+    func testInit_whenCalledOffMainThreadAndApplicationBecomesAvailableBeforeMainQueueBlock_shouldResolveStateAndIgnoreLaunch() throws {
+        // -- Arrange --
+        // UIApplication finishes launching after init registered the launch observer but before the main queue
+        // block runs. The notification was posted before the observer existed, so only the main queue re-check
+        // can resolve the state, and it must remove the launch observer so a later post cannot overwrite it.
+        let notificationCenterWrapper = TestNSNotificationCenterWrapper()
+        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        dispatchQueueWrapper.blockBeforeMainBlock = { false }
+        let application = TestSentryUIApplication()
+        application.unsafeApplicationState = .background
+        let applicationAvailable = SentryMutex(false)
+        let threadsafeApplication = SentryMutex<SentryThreadsafeApplication?>(nil)
+        let initExpectation = expectation(description: "init off the main thread")
+
+        DispatchQueue.global().async {
+            XCTAssertFalse(Thread.isMainThread)
+            let sut = SentryThreadsafeApplication(applicationProvider: { applicationAvailable.withLock { $0 } ? application : nil }, notificationCenter: notificationCenterWrapper, dispatchQueueWrapper: dispatchQueueWrapper)
+            threadsafeApplication.withLock { $0 = sut }
+            initExpectation.fulfill()
+        }
+        wait(for: [initExpectation], timeout: 5)
+        let sut = try XCTUnwrap(threadsafeApplication.withLock { $0 })
+        XCTAssertEqual(.active, sut.applicationState)
+        applicationAvailable.withLock { $0 = true }
+
+        // -- Act --
+        let resolveState = try XCTUnwrap(dispatchQueueWrapper.blockOnMainInvocations.invocations.last)
+        resolveState()
+
+        // -- Assert --
+        XCTAssertEqual(.background, sut.applicationState)
+        XCTAssertFalse(sut.isApplicationInForeground)
+
+        notificationCenterWrapper.post(Notification(name: UIApplication.didBecomeActiveNotification))
+        XCTAssertEqual(.active, sut.applicationState)
+
+        application.unsafeApplicationState = .background
+        notificationCenterWrapper.post(Notification(name: UIApplication.didFinishLaunchingNotification))
+        XCTAssertEqual(.active, sut.applicationState, "The launch observer must be removed once the state is resolved")
+    }
+
     func testInit_whenCalledOnMainThread_shouldReadApplicationStateInline() {
         // -- Arrange --
         let notificationCenterWrapper = TestNSNotificationCenterWrapper()
