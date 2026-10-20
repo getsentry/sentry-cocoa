@@ -81,10 +81,6 @@ protocol SentryBinaryImageProvider: AnyObject {
     private var mainExecutableAddress: UInt64?
 #endif
 
-    @objc public override convenience init() {
-        self.init(processInfoWrapper: ProcessInfo.processInfo)
-    }
-
     convenience init(processInfoWrapper: SentryProcessInfoSource) {
 #if SDK_V10
         self.init(provider: SentryKSCrash.BinaryImageProvider(), processInfoWrapper: processInfoWrapper)

@@ -149,7 +149,7 @@ private struct MockDebugProvider: DebugImageProvider, BinaryImageCacheProvider {
 
     init(
         debugImageProvider: SentryDebugImageProvider = SentryDebugImageProvider(),
-        binaryImageCache: SentryBinaryImageCache = SentryBinaryImageCache()
+        binaryImageCache: SentryBinaryImageCache = SentryBinaryImageCache(provider: NoOpBinaryImageProvider(), processInfoWrapper: MockSentryProcessInfo())
     ) {
         self.debugImageProvider = debugImageProvider
         self.binaryImageCache = binaryImageCache
