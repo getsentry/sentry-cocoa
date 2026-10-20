@@ -1,4 +1,5 @@
 #if !SDK_V10
+import SentryTestUtilsObjC
 import XCTest
 
 final class SentryCrashDoctorTests: XCTestCase {

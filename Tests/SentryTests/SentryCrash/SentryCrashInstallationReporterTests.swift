@@ -2,10 +2,10 @@
 @_spi(Private) import SentryTestUtils
 #if SWIFT_PACKAGE
 @_spi(Private) @testable import SentrySwift
-import _SentryPrivate
 #else
 @_spi(Private) @testable import Sentry
 #endif
+import _SentryPrivate
 import XCTest
 
 class SentryCrashInstallationReporterTests: XCTestCase {
@@ -103,11 +103,11 @@ class SentryCrashInstallationReporterTests: XCTestCase {
             startupCrashFlush: SentryStartupCrashFlush(idleGate: SentryReplayRecoveryIdleGate())
         )
         let container = SentryDependencyContainer.sharedInstance()
-        sut.bridge = SentryCrashBridge(
+        sut.setBridgeObject(SentryCrashBridge(
             notificationCenterWrapper: container.notificationCenterWrapper,
             dateProvider: container.dateProvider,
             crashReporter: container.crashReporter
-        )
+        ))
         // Reset global SentryCrash state so install() fully reinitializes the report store path,
         // even if a previous test class left g_installed = 1.
         sentrycrash_uninstall()

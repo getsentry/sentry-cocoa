@@ -1,10 +1,10 @@
 @_spi(Private) import SentryTestUtils
 #if SWIFT_PACKAGE
 @_spi(Private) @testable import SentrySwift
-import _SentryPrivate
 #else
 @_spi(Private) @testable import Sentry
 #endif
+import _SentryPrivate
 import XCTest
 
 // swiftlint:disable file_length
@@ -1416,15 +1416,15 @@ class SentryHubTests: XCTestCase {
         assertNoEnvelopesCaptured()
     }
     
-    func testCaptureReplay() {
+    func testCaptureReplay() throws {
         class SentryClientMockReplay: SentryClientInternal {
             var replayEvent: SentryReplayEvent?
             var replayRecording: SentryReplayRecording?
             var videoUrl: URL?
             var scope: Scope?
-            override func capture(_ replayEvent: SentryReplayEvent, replayRecording: SentryReplayRecording, video videoURL: URL, with scope: Scope) {
-                self.replayEvent = replayEvent
-                self.replayRecording = replayRecording
+            override func capture(_ event: Any, replayRecording recording: Any, video videoURL: URL, with scope: Scope) {
+                self.replayEvent = event as? SentryReplayEvent
+                self.replayRecording = recording as? SentryReplayRecording
                 self.videoUrl = videoURL
                 self.scope = scope
             }
@@ -1433,7 +1433,7 @@ class SentryHubTests: XCTestCase {
         
         let replayEvent = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(), replayType: .buffer, segmentId: 1)
         let replayRecording = SentryReplayRecording(segmentId: 3, size: 200, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 930, width: 390, extraEvents: [])
-        let videoUrl = URL(string: "https://sentry.io")!
+        let videoUrl = try XCTUnwrap(URL(string: "https://sentry.io"))
         
         sut.bindClient(mockClient)
         sut.captureReplayEvent(replayEvent, replayRecording: replayRecording, video: videoUrl)

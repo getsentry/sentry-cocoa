@@ -2,11 +2,11 @@
 @_spi(Private) import SentryTestUtils
 #if SWIFT_PACKAGE
 @_spi(Private) @testable import SentrySwift
-import _SentryPrivate
 import SentryTestUtilsObjC
 #else
 @_spi(Private) @testable import Sentry
 #endif
+import _SentryPrivate
 import XCTest
 
 // swiftlint:disable file_length
@@ -436,7 +436,7 @@ extension SentryProfilingPublicAPITests {
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
-#if !os(macOS)
+#if !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
     func testSessionSampleRateReevaluationOnAppBecomingActive_whenNewSessionStarts_shouldReevaluate() {
         // Arrange
         fixture.options.sessionTrackingIntervalMillis = 10_000
@@ -522,7 +522,7 @@ extension SentryProfilingPublicAPITests {
         // Assert
         XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
     }
-#endif // !os(macOS)
+#endif // !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
 }
 
 private extension SentryProfilingPublicAPITests {

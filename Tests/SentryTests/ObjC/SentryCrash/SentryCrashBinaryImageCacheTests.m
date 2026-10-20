@@ -1,8 +1,7 @@
 #if !SDK_V10
 #    import "SentryCrashBinaryImageCache+Test.h"
 #    import "SentryCrashBinaryImageCache.h"
-#    import "SentryCrashBinaryImageCacheState.h"
-#    import "SentryCrashDynamicLinker+Test.h"
+@import SentryTestUtilsObjC;
 #    import "SentrySwift.h"
 #    import <XCTest/XCTest.h>
 

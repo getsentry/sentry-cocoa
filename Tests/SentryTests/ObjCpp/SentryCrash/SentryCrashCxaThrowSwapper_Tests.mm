@@ -1,6 +1,6 @@
 #if !SDK_V10
 #    include "SentryCompiler.h"
-#    import "SentryCrashCxaThrowSwapper.h"
+#    include "SentryTestUtilsObjCpp-SDKHeaders.h"
 #    import <XCTest/XCTest.h>
 #    import <chrono>
 #    import <dlfcn.h>

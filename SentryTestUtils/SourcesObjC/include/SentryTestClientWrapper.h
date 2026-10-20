@@ -65,4 +65,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@interface SentryClientInternal (TestFeedbackAccess)
+- (void)captureFeedback:(SENTRY_SWIFT_MIGRATION_ID(SentryFeedback))feedback
+              withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(feedback:scope:));
+@end
+
 NS_ASSUME_NONNULL_END

@@ -3,6 +3,7 @@
 #else
 @testable import Sentry
 #endif
+import SentryTestUtilsObjC
 import XCTest
 
 class SentryWeakMapTests: XCTestCase {

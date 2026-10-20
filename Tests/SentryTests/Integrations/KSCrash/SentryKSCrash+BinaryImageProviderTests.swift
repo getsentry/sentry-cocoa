@@ -13,7 +13,7 @@ final class SentryKSCrashBinaryImageProviderTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        sut = SentryBinaryImageCache(provider: SentryKSCrash.BinaryImageProvider())
+        sut = SentryBinaryImageCache(provider: SentryKSCrash.BinaryImageProvider(), processInfoWrapper: ProcessInfo.processInfo)
     }
 
     override func tearDown() {

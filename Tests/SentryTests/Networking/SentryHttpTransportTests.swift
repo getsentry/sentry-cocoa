@@ -4,6 +4,7 @@
 #else
 @_spi(Private) @testable import Sentry
 #endif
+import _SentryPrivate
 import XCTest
 
 // swiftlint:disable file_length
@@ -170,7 +171,7 @@ class SentryHttpTransportTests: XCTestCase {
             dispatchQueueWrapper: SentryDispatchQueueWrapper? = nil,
             reachability: SentryReachability? = nil
         ) throws -> Transport {
-            return SentryHttpTransport(
+            return SentryHttpTransportWrapper.make(
                 dsn: try XCTUnwrap(options.parsedDsn),
                 sendClientReports: options.sendClientReports,
                 cachedEnvelopeSendDelay: 0.0,

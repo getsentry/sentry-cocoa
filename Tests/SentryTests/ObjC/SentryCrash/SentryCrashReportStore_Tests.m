@@ -29,7 +29,7 @@
 #    import "FileBasedTestCase.h"
 #    import "XCTestCase+SentryCrash.h"
 
-#    import "SentryCrashReportStore.h"
+@import SentryTestUtilsObjC;
 
 #    include <inttypes.h>
 #    include <stdlib.h>
@@ -412,6 +412,174 @@ makeUTCReportTime(int year, int month, int day, int hour, int minute, int second
     NSString *reportContents = @"Testing";
     int64_t reportID = [self writeCrashReportWithStringContents:reportContents];
     [self expectReports:@[ @(reportID) ] areStrings:@[ reportContents ]];
+}
+
+- (void)testReadReport_whenSizeIsWithinLimit_shouldReadEntireReport
+{
+    // -- Arrange --
+    [self prepareReportStoreWithPathEnd:NSStringFromSelector(_cmd)];
+
+    const NSUInteger reportLengths[] = { 1999999, 2000000, 2000001, 19999999, 20000000 };
+
+    for (NSUInteger i = 0; i < sizeof(reportLengths) / sizeof(reportLengths[0]); i++) {
+        @autoreleasepool {
+            NSUInteger length = reportLengths[i];
+            NSString *contents = [@"start" stringByPaddingToLength:length
+                                                        withString:@"x"
+                                                   startingAtIndex:0];
+            int64_t reportID = [self writeCrashReportWithStringContents:contents];
+
+            // -- Act --
+            char *report = sentrycrashcrs_readReport(reportID);
+
+            // -- Assert --
+            XCTAssertTrue(report != NULL);
+
+            if (report != NULL) {
+                XCTAssertEqual(strlen(report), length);
+
+                if (strlen(report) == length) {
+                    XCTAssertEqual(memcmp(report, contents.UTF8String, length), 0);
+                }
+
+                free(report);
+            }
+
+            sentrycrashcrs_deleteReportWithID(reportID);
+        }
+    }
+}
+
+- (void)testReadReport_whenSizeExceedsLimit_shouldKeepReadBounded
+{
+    // -- Arrange --
+    [self prepareReportStoreWithPathEnd:NSStringFromSelector(_cmd)];
+    NSString *contents = [@"!" stringByPaddingToLength:20000001 withString:@"x" startingAtIndex:0];
+    int64_t reportID = [self writeCrashReportWithStringContents:contents];
+
+    // -- Act --
+    char *report = sentrycrashcrs_readReport(reportID);
+
+    // -- Assert --
+    XCTAssertTrue(report != NULL);
+
+    if (report != NULL) {
+        // The file utility preserves the tail of oversized files, not the beginning.
+        XCTAssertEqual(strlen(report), 20000000);
+
+        if (strlen(report) == 20000000) {
+            XCTAssertEqual(memcmp(report, contents.UTF8String + 1, 20000000), 0);
+        }
+
+        free(report);
+    }
+}
+
+- (NSDictionary *)readFixedReportWithID:(int64_t)reportID
+{
+    char *rawReport = sentrycrashcrs_readReport(reportID);
+    XCTAssertTrue(rawReport != NULL);
+    if (rawReport == NULL) {
+        return nil;
+    }
+
+    char *fixedReport = sentrycrashcrf_fixupCrashReport(rawReport);
+    free(rawReport);
+    XCTAssertTrue(fixedReport != NULL);
+    if (fixedReport == NULL) {
+        return nil;
+    }
+
+    NSData *data = [NSData dataWithBytesNoCopy:fixedReport
+                                        length:strlen(fixedReport)
+                                  freeWhenDone:YES];
+    NSError *error = nil;
+
+    NSDictionary *decoded = [SentryCrashJSONCodec decode:data
+                                                 options:SentryCrashJSONDecodeOptionNone
+                                                   error:&error];
+
+    XCTAssertNil(error);
+    XCTAssertNotNil(decoded);
+
+    return decoded;
+}
+
+- (void)testReadReport_whenLargeNSExceptionReport_shouldFixAndDecodeEntireReport
+{
+    // -- Arrange --
+    [self prepareReportStoreWithPathEnd:NSStringFromSelector(_cmd)];
+    // The crash writer stores the exception reason twice. Each value fits the decoder's
+    // scratch buffer, but together they exceed the previous 2 MB report-read limit.
+    NSString *reason = [@"" stringByPaddingToLength:1100000 withString:@"a" startingAtIndex:0];
+    NSDictionary *report = @{
+        @"report" : @ { @"timestamp" : @0 },
+        @"crash" : @ {
+            @"error" : @ {
+                @"type" : @"nsexception",
+                @"reason" : reason,
+                @"nsexception" : @ { @"name" : @"NSException", @"reason" : reason }
+            }
+        }
+    };
+    NSError *error = nil;
+
+    NSData *data = [NSJSONSerialization dataWithJSONObject:report
+                                                   options:NSJSONWritingPrettyPrinted
+                                                     error:&error];
+
+    XCTAssertNil(error);
+    XCTAssertGreaterThan(data.length, 2000000);
+
+    int64_t reportID = sentrycrashcrs_addUserReport(data.bytes, (int)data.length);
+
+    // -- Act --
+    NSDictionary *decoded = [self readFixedReportWithID:reportID];
+
+    // -- Assert --
+    XCTAssertEqualObjects(decoded[@"report"][@"timestamp"], @"1970-01-01T00:00:00Z");
+
+    // Avoid dumping megabytes of text into the test log on failure.
+    XCTAssertTrue([decoded[@"crash"][@"error"][@"reason"] isEqualToString:reason]);
+    XCTAssertTrue([decoded[@"crash"][@"error"][@"nsexception"][@"reason"] isEqualToString:reason]);
+}
+
+- (void)testReadReport_whenReportIsAtSizeLimit_shouldFixAndDecodeEntireReport
+{
+    // -- Arrange --
+    [self prepareReportStoreWithPathEnd:NSStringFromSelector(_cmd)];
+
+    // Exercise aggregate report size without exceeding the separate per-string limit.
+    NSString *value = [@"" stringByPaddingToLength:999990 withString:@"a" startingAtIndex:0];
+    NSMutableArray *values = [NSMutableArray array];
+
+    for (NSUInteger i = 0; i < 20; i++) {
+        [values addObject:value];
+    }
+
+    NSError *error = nil;
+    NSData *data = [NSJSONSerialization dataWithJSONObject:@{ @"values" : values }
+                                                   options:NSJSONWritingPrettyPrinted
+                                                     error:&error];
+    XCTAssertNil(error);
+
+    NSString *json = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    XCTAssertLessThanOrEqual(json.length, 20000000);
+
+    json = [json stringByPaddingToLength:20000000 withString:@" " startingAtIndex:0];
+    int64_t reportID = [self writeCrashReportWithStringContents:json];
+
+    // -- Act --
+    NSDictionary *decoded = [self readFixedReportWithID:reportID];
+
+    // -- Assert --
+    NSArray *decodedValues = decoded[@"values"];
+    XCTAssertEqual(decodedValues.count, values.count);
+
+    for (NSString *decodedValue in decodedValues) {
+        XCTAssertEqual(decodedValue.length, value.length);
+        XCTAssertTrue([decodedValue isEqualToString:value]);
+    }
 }
 
 - (void)testStoresLoadsOneUserReport

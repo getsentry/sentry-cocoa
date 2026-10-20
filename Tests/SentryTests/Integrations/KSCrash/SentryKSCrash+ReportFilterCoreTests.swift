@@ -1,11 +1,11 @@
 #if SDK_V10
 #if SWIFT_PACKAGE
 @_spi(Private) @testable import SentrySwift
-import _SentryPrivate
 #else
 @_spi(Private) @testable import Sentry
 #endif
 @_spi(Private) @testable import SentryTestUtils
+import _SentryPrivate
 import Foundation
 import XCTest
 
@@ -92,6 +92,31 @@ final class SentryKSCrashReportFilterCoreTests: SentrySDKIntegrationTestsBase {
         let processedReports = try XCTUnwrap(completionResult).get()
         XCTAssertEqual(processedReports.count, 0)
         XCTAssertEqual(try getTestClient().captureFatalEventInvocations.count, 0)
+    }
+
+    func testFilterReports_whenKSCrashReportContainsAttachments_shouldLoadAttachmentsForCapture() throws {
+        // -- Arrange --
+        var dictionary = try makeCrashReport(durationSinceInitialization: 2)
+        let attachmentPath = "/tmp/kscrash-native-report-attachment.png"
+        dictionary["attachments"] = [attachmentPath]
+        let report = TestReport(dictionary: dictionary)
+        let client = try getTestClient()
+        var completionResult: Result<[TestReport], Error>?
+
+        // -- Act --
+        sut.filterReports(
+            [report],
+            reportDictionary: { $0.dictionary }
+        ) { result in
+            completionResult = result
+        }
+
+        // -- Assert --
+        let processedReports = try XCTUnwrap(completionResult).get()
+        XCTAssertIdentical(processedReports.first, report)
+        let scope = try XCTUnwrap(client.captureFatalEventInvocations.first?.scope)
+        XCTAssertEqual(scope.crashReportAttachments.count, 1)
+        XCTAssertEqual(scope.crashReportAttachments.first?.path, attachmentPath)
     }
 
     func testFilterReports_whenMultipleReportsProvided_shouldFailBeforeProcessing() throws {

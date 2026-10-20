@@ -56,8 +56,8 @@ final class CrashE2ERunner {
 
         log("Generating CrashE2E Xcode project.")
         try processRunner.run(
-            "xcodegen",
-            ["--spec", "TestApps/CrashE2E/CrashE2E.yml"],
+            "make",
+            ["xcode-ci-CrashE2E"],
             workingDirectory: config.directories.repoRoot
         )
 
@@ -187,10 +187,8 @@ final class CrashE2ERunner {
         if config.reporter == .ksCrash {
             // Command-line settings reach project-reference dependencies. The app target's settings
             // alone would leave the SentryObjC V10 wrapper compiling against V9 declarations.
-            cConditions += ["SDK_V10=1", "SENTRY_DISABLE_SENTRYCRASH_V10=1"]
-            settings.append(
-                "SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SDK_V10 SENTRY_DISABLE_SENTRYCRASH_V10"
-            )
+            cConditions.append("SDK_V10=1")
+            settings.append("SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SDK_V10")
         }
         if managedRuntime {
             cConditions.append("SENTRY_CRASH_MANAGED_RUNTIME=1")
