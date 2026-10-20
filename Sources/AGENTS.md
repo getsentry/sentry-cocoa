@@ -75,6 +75,8 @@
 
 - Assume public methods can be called from arbitrary queues
 - Use `SentryMutex<T>` for new Swift mutable state
+- Use `SentryOnce` for Swift operations that must execute at most once per instance or process, instead of ad hoc Boolean guards or side-effect-only static initializers
+- Use `SentryOnce<Input>` for caller-supplied values and a tuple for multiple arguments. Parameterless closures infer `Input == Void` and support `once()`
 - Group related protected values in a private `State` struct
 - Do not use `NSLock`, `NSRecursiveLock`, or legacy `synchronized` helpers for new Swift code
 - Refactor reentrant locking before adopting non-recursive `SentryMutex`
