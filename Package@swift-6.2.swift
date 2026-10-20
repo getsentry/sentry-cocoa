@@ -408,7 +408,9 @@ targets += [
             "Helper/InfoPlist/TestInfoPlist.plist",
             "OptionsInSyncWithDocs/README.md"
         ],
-        cSettings: cSettings,
+        cSettings: [
+            .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
+        ] + cSettings,
         swiftSettings: [
             .enableUpcomingFeature("BareSlashRegexLiterals"),
             .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"]))
