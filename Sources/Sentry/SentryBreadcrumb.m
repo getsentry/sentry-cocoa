@@ -3,6 +3,7 @@
 #import "SentryCompiler.h"
 #import "SentryDateUtils.h"
 #import "SentryInternalDefines.h"
+#import "SentryInternalSerializable.h"
 #import "SentryLevel.h"
 #import "SentrySanitizerUtils.h"
 #import "SentrySwift.h"

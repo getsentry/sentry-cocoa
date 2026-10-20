@@ -1070,6 +1070,43 @@
       {
         "children": [
           {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Transaction",
+                    "printedName": "Sentry.Transaction",
+                    "usr": "c:objc(cs)SentryTransaction"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Sentry.Transaction?",
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Transaction",
+                "printedName": "Sentry.Transaction",
+                "usr": "c:objc(cs)SentryTransaction"
+              }
+            ],
+            "kind": "TypeFunc",
+            "name": "Function",
+            "printedName": "(Sentry.Transaction) -> Sentry.Transaction?"
+          }
+        ],
+        "declKind": "TypeAlias",
+        "kind": "TypeAlias",
+        "moduleName": "Sentry",
+        "name": "SentryBeforeSendTransactionCallback",
+        "printedName": "SentryBeforeSendTransactionCallback",
+        "usr": "c:@T@SentryBeforeSendTransactionCallback"
+      },
+      {
+        "children": [
+          {
             "kind": "TypeNominal",
             "name": "SentryAttribute",
             "printedName": "Sentry.SentryAttribute",
@@ -1082,41 +1119,6 @@
         "name": "SentryLogAttribute",
         "printedName": "SentryLogAttribute",
         "usr": "c:@SentryLogAttribute"
-      },
-      {
-        "children": [
-          {
-            "children": [
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "kind": "TypeNameAlias",
-                "name": "Void",
-                "printedName": "Swift.Void"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Event",
-                "printedName": "Sentry.Event",
-                "usr": "c:objc(cs)SentryEvent"
-              }
-            ],
-            "kind": "TypeFunc",
-            "name": "Function",
-            "printedName": "(Sentry.Event) -> Swift.Void"
-          }
-        ],
-        "declKind": "TypeAlias",
-        "kind": "TypeAlias",
-        "moduleName": "Sentry",
-        "name": "SentryOnCrashedLastRunCallback",
-        "printedName": "SentryOnCrashedLastRunCallback",
-        "usr": "c:@T@SentryOnCrashedLastRunCallback"
       },
       {
         "children": [
@@ -4759,8 +4761,7 @@
             "declAttributes": [
               "Dynamic",
               "ObjC",
-              "Override",
-              "Required"
+              "Override"
             ],
             "declKind": "Constructor",
             "init_kind": "Designated",
@@ -4898,43 +4899,6 @@
             "objc_name": "isEqualToBreadcrumb:",
             "printedName": "isEqual(to:)",
             "usr": "c:objc(cs)SentryBreadcrumb(im)isEqualToBreadcrumb:"
-          },
-          {
-            "children": [
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "ProtocolComposition",
-                    "printedName": "Any"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "kind": "TypeNominal",
-                "name": "Dictionary",
-                "printedName": "[Swift.String : Any]",
-                "usr": "s:SD"
-              }
-            ],
-            "declAttributes": [
-              "DiscardableResult",
-              "Dynamic",
-              "ObjC"
-            ],
-            "declKind": "Func",
-            "funcSelfKind": "NonMutating",
-            "isOpen": true,
-            "kind": "Function",
-            "moduleName": "Sentry",
-            "name": "serialize",
-            "objc_name": "serialize",
-            "printedName": "serialize()",
-            "usr": "c:objc(cs)SentryBreadcrumb(im)serialize"
           },
           {
             "children": [
@@ -5782,12 +5746,6 @@
             "name": "NSObjectProtocol",
             "printedName": "NSObjectProtocol",
             "usr": "c:objc(pl)NSObject"
-          },
-          {
-            "kind": "Conformance",
-            "name": "SentrySerializable",
-            "printedName": "SentrySerializable",
-            "usr": "c:objc(pl)SentrySerializable"
           }
         ],
         "declAttributes": [
@@ -6556,8 +6514,7 @@
             "declAttributes": [
               "Dynamic",
               "ObjC",
-              "Override",
-              "Required"
+              "Override"
             ],
             "declKind": "Constructor",
             "init_kind": "Designated",
@@ -7434,12 +7391,6 @@
             "name": "NSObjectProtocol",
             "printedName": "NSObjectProtocol",
             "usr": "c:objc(pl)NSObject"
-          },
-          {
-            "kind": "Conformance",
-            "name": "SentrySerializable",
-            "printedName": "SentrySerializable",
-            "usr": "c:objc(pl)SentrySerializable"
           }
         ],
         "declAttributes": [
@@ -7993,8 +7944,7 @@
             "declAttributes": [
               "Dynamic",
               "ObjC",
-              "Override",
-              "Required"
+              "Override"
             ],
             "declKind": "Constructor",
             "init_kind": "Designated",
@@ -11298,12 +11248,6 @@
             "name": "NSObjectProtocol",
             "printedName": "NSObjectProtocol",
             "usr": "c:objc(pl)NSObject"
-          },
-          {
-            "kind": "Conformance",
-            "name": "SentrySerializable",
-            "printedName": "SentrySerializable",
-            "usr": "c:objc(pl)SentrySerializable"
           }
         ],
         "declAttributes": [
@@ -12075,12 +12019,6 @@
             "name": "NSObjectProtocol",
             "printedName": "NSObjectProtocol",
             "usr": "c:objc(pl)NSObject"
-          },
-          {
-            "kind": "Conformance",
-            "name": "SentrySerializable",
-            "printedName": "SentrySerializable",
-            "usr": "c:objc(pl)SentrySerializable"
           }
         ],
         "declAttributes": [
@@ -12926,8 +12864,7 @@
             "declAttributes": [
               "Dynamic",
               "ObjC",
-              "Override",
-              "Required"
+              "Override"
             ],
             "declKind": "Constructor",
             "init_kind": "Designated",
@@ -15014,12 +14951,6 @@
             "name": "NSObjectProtocol",
             "printedName": "NSObjectProtocol",
             "usr": "c:objc(pl)NSObject"
-          },
-          {
-            "kind": "Conformance",
-            "name": "SentrySerializable",
-            "printedName": "SentrySerializable",
-            "usr": "c:objc(pl)SentrySerializable"
           }
         ],
         "declAttributes": [
@@ -15543,12 +15474,6 @@
             "name": "NSObjectProtocol",
             "printedName": "NSObjectProtocol",
             "usr": "c:objc(pl)NSObject"
-          },
-          {
-            "kind": "Conformance",
-            "name": "SentrySerializable",
-            "printedName": "SentrySerializable",
-            "usr": "c:objc(pl)SentrySerializable"
           }
         ],
         "declAttributes": [
@@ -19995,12 +19920,6 @@
             "name": "NSObjectProtocol",
             "printedName": "NSObjectProtocol",
             "usr": "c:objc(pl)NSObject"
-          },
-          {
-            "kind": "Conformance",
-            "name": "SentrySerializable",
-            "printedName": "SentrySerializable",
-            "usr": "c:objc(pl)SentrySerializable"
           }
         ],
         "declAttributes": [
@@ -20035,8 +19954,7 @@
             "declAttributes": [
               "Dynamic",
               "ObjC",
-              "Override",
-              "Required"
+              "Override"
             ],
             "declKind": "Constructor",
             "init_kind": "Designated",
@@ -20503,12 +20421,6 @@
             "name": "NSObjectProtocol",
             "printedName": "NSObjectProtocol",
             "usr": "c:objc(pl)NSObject"
-          },
-          {
-            "kind": "Conformance",
-            "name": "SentrySerializable",
-            "printedName": "SentrySerializable",
-            "usr": "c:objc(pl)SentrySerializable"
           }
         ],
         "declAttributes": [
@@ -29924,8 +29836,7 @@
             "declAttributes": [
               "Dynamic",
               "ObjC",
-              "Override",
-              "Required"
+              "Override"
             ],
             "declKind": "Constructor",
             "init_kind": "Convenience",
@@ -30343,43 +30254,6 @@
             "objc_name": "removeTagForKey:",
             "printedName": "removeTag(key:)",
             "usr": "c:objc(cs)SentryScope(im)removeTagForKey:"
-          },
-          {
-            "children": [
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "ProtocolComposition",
-                    "printedName": "Any"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "kind": "TypeNominal",
-                "name": "Dictionary",
-                "printedName": "[Swift.String : Any]",
-                "usr": "s:SD"
-              }
-            ],
-            "declAttributes": [
-              "DiscardableResult",
-              "Dynamic",
-              "ObjC"
-            ],
-            "declKind": "Func",
-            "funcSelfKind": "NonMutating",
-            "isOpen": true,
-            "kind": "Function",
-            "moduleName": "Sentry",
-            "name": "serialize",
-            "objc_name": "serialize",
-            "printedName": "serialize()",
-            "usr": "c:objc(cs)SentryScope(im)serialize"
           },
           {
             "children": [
@@ -31312,12 +31186,6 @@
             "name": "NSObjectProtocol",
             "printedName": "NSObjectProtocol",
             "usr": "c:objc(pl)NSObject"
-          },
-          {
-            "kind": "Conformance",
-            "name": "SentrySerializable",
-            "printedName": "SentrySerializable",
-            "usr": "c:objc(pl)SentrySerializable"
           }
         ],
         "declAttributes": [
@@ -39307,43 +39175,6 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "ProtocolComposition",
-                    "printedName": "Any"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "kind": "TypeNominal",
-                "name": "Dictionary",
-                "printedName": "[Swift.String : Any]",
-                "usr": "s:SD"
-              }
-            ],
-            "declAttributes": [
-              "Final",
-              "ObjC"
-            ],
-            "declKind": "Func",
-            "funcSelfKind": "NonMutating",
-            "isFromExtension": true,
-            "kind": "Function",
-            "mangledName": "$s6Sentry0A8FeedbackC9serializeSDySSypGyF",
-            "moduleName": "Sentry",
-            "name": "serialize",
-            "objc_name": "serialize",
-            "printedName": "serialize()",
-            "usr": "c:@CM@Sentry@objc(cs)SentryFeedback(im)serialize"
-          },
-          {
-            "children": [
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
                     "name": "Int",
                     "printedName": "Swift.Int",
                     "usr": "s:Si"
@@ -39671,12 +39502,6 @@
             "name": "NSObjectProtocol",
             "printedName": "NSObjectProtocol",
             "usr": "c:objc(pl)NSObject"
-          },
-          {
-            "kind": "Conformance",
-            "name": "SentrySerializable",
-            "printedName": "SentrySerializable",
-            "usr": "c:objc(pl)SentrySerializable"
           }
         ],
         "declAttributes": [
@@ -45334,6 +45159,43 @@
           {
             "children": [
               {
+                "kind": "TypeNominal",
+                "name": "DebugMeta",
+                "printedName": "Sentry.DebugMeta",
+                "usr": "c:objc(cs)SentryDebugMeta"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Any]",
+                "usr": "s:SD"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A21InternalSerializerApiV9serialize9debugMetaSDySSypGSo0a5DebugG0C_tF",
+            "moduleName": "Sentry",
+            "name": "serialize",
+            "printedName": "serialize(debugMeta:)",
+            "usr": "s:6Sentry0A21InternalSerializerApiV9serialize9debugMetaSDySSypGSo0a5DebugG0C_tF"
+          },
+          {
+            "children": [
+              {
                 "children": [
                   {
                     "kind": "TypeNominal",
@@ -45367,6 +45229,43 @@
             "name": "serialize",
             "printedName": "serialize(event:)",
             "usr": "s:6Sentry0A21InternalSerializerApiV9serialize5eventSDySSypGSo0A5EventC_tF"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Any]",
+                "usr": "s:SD"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Scope",
+                "printedName": "Sentry.Scope",
+                "usr": "c:objc(cs)SentryScope"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A21InternalSerializerApiV9serialize5scopeSDySSypGSo0A5ScopeC_tF",
+            "moduleName": "Sentry",
+            "name": "serialize",
+            "printedName": "serialize(scope:)",
+            "usr": "s:6Sentry0A21InternalSerializerApiV9serialize5scopeSDySSypGSo0A5ScopeC_tF"
           }
         ],
         "conformances": [
@@ -49807,12 +49706,6 @@
             "name": "NSObjectProtocol",
             "printedName": "NSObjectProtocol",
             "usr": "c:objc(pl)NSObject"
-          },
-          {
-            "kind": "Conformance",
-            "name": "SentrySerializable",
-            "printedName": "SentrySerializable",
-            "usr": "c:objc(pl)SentrySerializable"
           }
         ],
         "declAttributes": [
@@ -51510,12 +51403,6 @@
             "name": "NSObjectProtocol",
             "printedName": "NSObjectProtocol",
             "usr": "c:objc(pl)NSObject"
-          },
-          {
-            "kind": "Conformance",
-            "name": "SentrySerializable",
-            "printedName": "SentrySerializable",
-            "usr": "c:objc(pl)SentrySerializable"
           }
         ],
         "declAttributes": [
@@ -57340,8 +57227,7 @@
             "declAttributes": [
               "Dynamic",
               "ObjC",
-              "Override",
-              "Required"
+              "Override"
             ],
             "declKind": "Constructor",
             "init_kind": "Designated",
@@ -57469,15 +57355,29 @@
                   {
                     "children": [
                       {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "String",
+                            "printedName": "Swift.String",
+                            "usr": "s:SS"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "String",
+                            "printedName": "Swift.String",
+                            "usr": "s:SS"
+                          }
+                        ],
                         "kind": "TypeNominal",
-                        "name": "String",
-                        "printedName": "Swift.String",
-                        "usr": "s:SS"
+                        "name": "Dictionary",
+                        "printedName": "[Swift.String : Swift.String]",
+                        "usr": "s:SD"
                       }
                     ],
                     "kind": "TypeNominal",
                     "name": "Optional",
-                    "printedName": "Swift.String?",
+                    "printedName": "[Swift.String : Swift.String]?",
                     "usr": "s:Sq"
                   }
                 ],
@@ -57513,15 +57413,29 @@
                   {
                     "children": [
                       {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "String",
+                            "printedName": "Swift.String",
+                            "usr": "s:SS"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "String",
+                            "printedName": "Swift.String",
+                            "usr": "s:SS"
+                          }
+                        ],
                         "kind": "TypeNominal",
-                        "name": "String",
-                        "printedName": "Swift.String",
-                        "usr": "s:SS"
+                        "name": "Dictionary",
+                        "printedName": "[Swift.String : Swift.String]",
+                        "usr": "s:SD"
                       }
                     ],
                     "kind": "TypeNominal",
                     "name": "Optional",
-                    "printedName": "Swift.String?",
+                    "printedName": "[Swift.String : Swift.String]?",
                     "usr": "s:Sq"
                   }
                 ],
@@ -57543,15 +57457,29 @@
               {
                 "children": [
                   {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
                     "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
+                    "name": "Dictionary",
+                    "printedName": "[Swift.String : Swift.String]",
+                    "usr": "s:SD"
                   }
                 ],
                 "kind": "TypeNominal",
                 "name": "Optional",
-                "printedName": "Swift.String?",
+                "printedName": "[Swift.String : Swift.String]?",
                 "usr": "s:Sq"
               }
             ],
@@ -58201,12 +58129,6 @@
             "name": "NSObjectProtocol",
             "printedName": "NSObjectProtocol",
             "usr": "c:objc(pl)NSObject"
-          },
-          {
-            "kind": "Conformance",
-            "name": "SentrySerializable",
-            "printedName": "SentrySerializable",
-            "usr": "c:objc(pl)SentrySerializable"
           }
         ],
         "declAttributes": [
@@ -61183,83 +61105,6 @@
           {
             "children": [
               {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "ProtocolComposition",
-                    "printedName": "Any"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "kind": "TypeNominal",
-                "name": "Dictionary",
-                "printedName": "[Swift.String : Any]",
-                "usr": "s:SD"
-              }
-            ],
-            "declAttributes": [
-              "DiscardableResult",
-              "Dynamic",
-              "ObjC"
-            ],
-            "declKind": "Func",
-            "funcSelfKind": "NonMutating",
-            "genericSig": "<Self where Self : Sentry.SentrySerializable>",
-            "kind": "Function",
-            "moduleName": "Sentry",
-            "name": "serialize",
-            "objc_name": "serialize",
-            "printedName": "serialize()",
-            "protocolReq": true,
-            "reqNewWitnessTableEntry": true,
-            "usr": "c:objc(pl)SentrySerializable(im)serialize"
-          }
-        ],
-        "conformances": [
-          {
-            "kind": "Conformance",
-            "mangledName": "$ss8CopyableP",
-            "name": "Copyable",
-            "printedName": "Copyable",
-            "usr": "s:s8CopyableP"
-          },
-          {
-            "kind": "Conformance",
-            "mangledName": "$ss9EscapableP",
-            "name": "Escapable",
-            "printedName": "Escapable",
-            "usr": "s:s9EscapableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "NSObjectProtocol",
-            "printedName": "NSObjectProtocol",
-            "usr": "c:objc(pl)NSObject"
-          }
-        ],
-        "declAttributes": [
-          "Dynamic",
-          "ObjC"
-        ],
-        "declKind": "Protocol",
-        "genericSig": "<Self : ObjectiveC.NSObjectProtocol>",
-        "kind": "TypeDecl",
-        "moduleName": "Sentry",
-        "name": "SentrySerializable",
-        "objc_name": "SentrySerializable",
-        "printedName": "SentrySerializable",
-        "usr": "c:objc(pl)SentrySerializable"
-      },
-      {
-        "children": [
-          {
-            "children": [
-              {
                 "kind": "TypeNominal",
                 "name": "SentrySessionReplayHybridSDK",
                 "printedName": "Sentry.SentrySessionReplayHybridSDK",
@@ -63094,12 +62939,6 @@
             "name": "NSObjectProtocol",
             "printedName": "NSObjectProtocol",
             "usr": "c:objc(pl)NSObject"
-          },
-          {
-            "kind": "Conformance",
-            "name": "SentrySerializable",
-            "printedName": "SentrySerializable",
-            "usr": "c:objc(pl)SentrySerializable"
           }
         ],
         "declAttributes": [
@@ -63860,12 +63699,6 @@
             "name": "NSObjectProtocol",
             "printedName": "NSObjectProtocol",
             "usr": "c:objc(pl)NSObject"
-          },
-          {
-            "kind": "Conformance",
-            "name": "SentrySerializable",
-            "printedName": "SentrySerializable",
-            "usr": "c:objc(pl)SentrySerializable"
           }
         ],
         "declAttributes": [
@@ -74551,45 +74384,6 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "ProtocolComposition",
-                    "printedName": "Any"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "kind": "TypeNominal",
-                "name": "Dictionary",
-                "printedName": "[Swift.String : Any]",
-                "usr": "s:SD"
-              }
-            ],
-            "declAttributes": [
-              "DiscardableResult",
-              "Dynamic",
-              "ObjC"
-            ],
-            "declKind": "Func",
-            "funcSelfKind": "NonMutating",
-            "genericSig": "<Self where Self : Sentry.Span>",
-            "kind": "Function",
-            "moduleName": "Sentry",
-            "name": "serialize",
-            "objc_name": "serialize",
-            "printedName": "serialize()",
-            "protocolReq": true,
-            "reqNewWitnessTableEntry": true,
-            "usr": "c:objc(pl)SentrySpan(im)serialize"
-          },
-          {
-            "children": [
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
                     "name": "Void",
                     "printedName": "()"
                   }
@@ -75273,12 +75067,6 @@
             "name": "NSObjectProtocol",
             "printedName": "NSObjectProtocol",
             "usr": "c:objc(pl)NSObject"
-          },
-          {
-            "kind": "Conformance",
-            "name": "SentrySerializable",
-            "printedName": "SentrySerializable",
-            "usr": "c:objc(pl)SentrySerializable"
           }
         ],
         "declAttributes": [
@@ -75286,7 +75074,7 @@
           "ObjC"
         ],
         "declKind": "Protocol",
-        "genericSig": "<Self : Sentry.SentrySerializable>",
+        "genericSig": "<Self : ObjectiveC.NSObjectProtocol>",
         "kind": "TypeDecl",
         "moduleName": "Sentry",
         "name": "Span",
@@ -75951,12 +75739,6 @@
             "name": "NSObjectProtocol",
             "printedName": "NSObjectProtocol",
             "usr": "c:objc(pl)NSObject"
-          },
-          {
-            "kind": "Conformance",
-            "name": "SentrySerializable",
-            "printedName": "SentrySerializable",
-            "usr": "c:objc(pl)SentrySerializable"
           }
         ],
         "declAttributes": [
@@ -77667,12 +77449,6 @@
             "name": "NSObjectProtocol",
             "printedName": "NSObjectProtocol",
             "usr": "c:objc(pl)NSObject"
-          },
-          {
-            "kind": "Conformance",
-            "name": "SentrySerializable",
-            "printedName": "SentrySerializable",
-            "usr": "c:objc(pl)SentrySerializable"
           }
         ],
         "declAttributes": [
@@ -78144,12 +77920,6 @@
             "name": "NSObjectProtocol",
             "printedName": "NSObjectProtocol",
             "usr": "c:objc(pl)NSObject"
-          },
-          {
-            "kind": "Conformance",
-            "name": "SentrySerializable",
-            "printedName": "SentrySerializable",
-            "usr": "c:objc(pl)SentrySerializable"
           }
         ],
         "declAttributes": [
@@ -79323,12 +79093,6 @@
             "name": "NSObjectProtocol",
             "printedName": "NSObjectProtocol",
             "usr": "c:objc(pl)NSObject"
-          },
-          {
-            "kind": "Conformance",
-            "name": "SentrySerializable",
-            "printedName": "SentrySerializable",
-            "usr": "c:objc(pl)SentrySerializable"
           }
         ],
         "declAttributes": [
@@ -79601,8 +79365,7 @@
             "declAttributes": [
               "Dynamic",
               "ObjC",
-              "Override",
-              "Required"
+              "Override"
             ],
             "declKind": "Constructor",
             "init_kind": "Designated",
@@ -80585,12 +80348,6 @@
             "name": "NSObjectProtocol",
             "printedName": "NSObjectProtocol",
             "usr": "c:objc(pl)NSObject"
-          },
-          {
-            "kind": "Conformance",
-            "name": "SentrySerializable",
-            "printedName": "SentrySerializable",
-            "usr": "c:objc(pl)SentrySerializable"
           }
         ],
         "declAttributes": [

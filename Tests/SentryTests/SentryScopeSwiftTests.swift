@@ -420,7 +420,7 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "old")
         XCTAssertEqual(values.element(at: 1)?["flag"] as? String, "new")
 
-        let data = try XCTUnwrap(transaction.serialize()["data"] as? [String: Any])
+        let data = try XCTUnwrap((try XCTUnwrap(transaction as? SentrySpanInternal)).serialize()["data"] as? [String: Any])
         XCTAssertNil(data["flag.evaluation.old"])
         XCTAssertEqual(try XCTUnwrap(data["flag.evaluation.new"] as? Bool), true)
     }
@@ -440,7 +440,7 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(values.count, 1)
         XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "checkout")
 
-        let data = try XCTUnwrap(transaction.serialize()["data"] as? [String: Any])
+        let data = try XCTUnwrap((try XCTUnwrap(transaction as? SentrySpanInternal)).serialize()["data"] as? [String: Any])
         XCTAssertNil(data["flag.evaluation.checkout"])
     }
 
@@ -462,11 +462,11 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "root")
         XCTAssertEqual(values.element(at: 1)?["flag"] as? String, "child")
 
-        let transactionData = try XCTUnwrap(transaction.serialize()["data"] as? [String: Any])
+        let transactionData = try XCTUnwrap((try XCTUnwrap(transaction as? SentrySpanInternal)).serialize()["data"] as? [String: Any])
         XCTAssertEqual(try XCTUnwrap(transactionData["flag.evaluation.root"] as? Bool), true)
         XCTAssertNil(transactionData["flag.evaluation.child"])
 
-        let childData = try XCTUnwrap(child.serialize()["data"] as? [String: Any])
+        let childData = try XCTUnwrap((try XCTUnwrap(child as? SentrySpanInternal)).serialize()["data"] as? [String: Any])
         XCTAssertNil(childData["flag.evaluation.root"])
         XCTAssertEqual(try XCTUnwrap(childData["flag.evaluation.child"] as? Bool), true)
     }
@@ -1245,7 +1245,7 @@ class SentryScopeSwiftTests: XCTestCase {
         sut.span = transaction
 
         let traceContext = try XCTUnwrap(observer.traceContext)
-        let serializedTransaction = transaction.serialize()
+        let serializedTransaction = (try XCTUnwrap(transaction as? SentrySpanInternal)).serialize()
 
         var expectedKeys = Set(serializedTransaction.keys)
         // The transaction doesn't serialize the status when it's undefined, but the trace context sets it to OK.

@@ -1,4 +1,5 @@
 #import "SentryMechanismContext.h"
+#import "SentryInternalSerializable.h"
 #import "SentryNSError.h"
 #import "SentrySanitizerUtils.h"
 

@@ -6,6 +6,11 @@
 
 - Increase the crash report read limit in SentryCrash to 20 MB (#9386)
 
+### Internal
+
+- Add scope and debug image serialization APIs for hybrid SDKs through `SentrySDK.internal.serializer` and `SentryObjCSDK.internal.serializer`.
+  The public `SentrySerializable` protocol and `serialize()` methods will be removed in the next major release.
+
 ## 9.30.2
 
 ### Fixes
