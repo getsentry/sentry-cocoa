@@ -103,14 +103,15 @@ xcodebuild test -workspace "$package_dir" -scheme SentrySPM \
   -xcconfig "$package_test_config" \
   'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SENTRY_TEST' \
   'GCC_PREPROCESSOR_DEFINITIONS=$(inherited) DEBUG=1 SENTRY_TEST=1' \
+  CODE_SIGNING_ALLOWED=NO \
   > "$package_dir/package-tests.log" 2>&1 || status=$?
 grep -E 'Executed|error:|TEST SUCCEEDED|TEST FAILED' "$package_dir/package-tests.log"
 (test "$status" -eq 0)
 ```
 
 - For V10, run `export SDK_V10=1` before the commands above.
-- Use an available iOS simulator destination for iOS-specific tests.
-- Limit a run with `-only-testing:<test-target>`. The wrapper suites are `SentryObjCTests`, `SentryObjCTestsSwift`, and `SentryObjCCompatTests`.
+- Use an available iOS simulator destination for iOS-specific tests. `CODE_SIGNING_ALLOWED=NO` avoids fixture-bundle signing errors on macOS and simulators; device tests need a separate signing configuration.
+- Limit a run with `-only-testing:<test-target>`, for example `-only-testing:SentryObjCCompatTests`. The wrapper suites are `SentryObjCTests`, `SentryObjCTestsSwift`, and `SentryObjCCompatTests`.
 - CI uses `TestCI` and the corresponding definitions from the table above. The [Distribution Tests job](../.github/workflows/test.yml) prepares all package manifests, selects Xcode 26 on `macos-26`, and resolves the iOS simulator runtime and device from that toolchain.
 - Keep shared Base exclusions consistent between project and package plans, mapping methods to the Swift or Objective-C package target. Project Base, Flaky, and TestServer plans remain unchanged.
 

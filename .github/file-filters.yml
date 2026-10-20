@@ -85,6 +85,8 @@ run_distribution_tests_for_prs: &run_distribution_tests_for_prs
   - "Tests/SentryObjCCompatTests/**"
   - "Tests/SentryObjCTests/**"
   - "Tests/SentryProfilerTests/**"
+  - "Tests/SentryTests/**"
+  - "Tests/Resources/**"
   - "Plans/Sentry_Base.xctestplan"
   - "Plans/SentrySPM_*.xctestplan"
   - ".swiftpm/xcode/xcshareddata/xcschemes/SentrySPM.xcscheme"
