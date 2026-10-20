@@ -41,6 +41,8 @@ enum EventAssertions {
                                             threadValues: [[String: Any]]) throws {
         let exceptionThreadID = int(firstException["thread_id"])
         switch scenario {
+        case .harnessTimeout:
+            try fail("harness-timeout must time out before event validation")
         case .cppExceptionV1, .unityCxaThrow:
             // Current SentryCrash C++ V1 can report the unhandled exception while omitting the
             // actual exception/main thread from threads.values, especially on iOS. The Unity smoke
@@ -108,6 +110,8 @@ enum EventAssertions {
                                                      cacheRoot: URL) throws {
         let eventContext = dictionary(event["contexts"])
         switch scenario {
+        case .harnessTimeout:
+            try fail("harness-timeout must time out before event validation")
         case .signal, .reinitSignal, .binaryImages, .managedRuntimeSignalChain,
              .managedRuntimePreSDKSignal, .managedRuntimeClosedSignal,
              .managedRuntimeReinitSignal, .mallocZoneLockedSignal, .crashTimeScope, .crashTimeAttachments, .crashTimeReplay,
@@ -137,10 +141,8 @@ enum EventAssertions {
         case .cppExceptionV1, .cppExceptionV2, .swiftAsyncCPPExceptionV2Off,
              .swiftAsyncCPPExceptionV2On, .unityCxaThrow, .unityCxaThrowV2:
             try assertCPPExceptionScenario(
-                scenario,
-                firstException: firstException,
-                mechanism: mechanism,
-                platform: platform
+                scenario, firstException: firstException,
+                mechanism: mechanism, platform: platform
             )
 
         case .cppExceptionV2DynamicImage:
