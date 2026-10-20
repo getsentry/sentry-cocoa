@@ -152,9 +152,8 @@ class SentryReplayOptionsTests: XCTestCase {
     #if SDK_V10
     func testInit_maskAllTextOmitted_shouldUseDefaultValues() {
         // -- Act --
-        let options = SentryPrivacyOptions(
-            maskAllImages: false
-        )
+        var options = SentryPrivacyOptions()
+        options.maskAllImages = false
 
         // -- Assert --
         XCTAssertTrue(options.maskAllText)
@@ -178,9 +177,8 @@ class SentryReplayOptionsTests: XCTestCase {
     #if SDK_V10
     func testInit_maskAllImagesOmitted_shouldUseDefaultValues() {
         // -- Act --
-        let options = SentryPrivacyOptions(
-            maskAllText: false
-        )
+        var options = SentryPrivacyOptions()
+        options.maskAllText = false
 
         // -- Assert --
         XCTAssertTrue(options.maskAllImages)
@@ -1101,7 +1099,7 @@ class SentryReplayOptionsTests: XCTestCase {
     
     func testExcludedViewClasses_excludeViewTypeFromSubtreeTraversal_shouldAddViewType() {
         // -- Arrange --
-        let options = MaskingOptions()
+        var options = MaskingOptions()
         
         // -- Act --
         options.excludeViewTypeFromSubtreeTraversal("MyCustomView")
@@ -1113,7 +1111,7 @@ class SentryReplayOptionsTests: XCTestCase {
     
     func testExcludedViewClasses_excludeViewTypeFromSubtreeTraversal_multipleCalls_shouldAddAllViewTypes() {
         // -- Arrange --
-        let options = MaskingOptions()
+        var options = MaskingOptions()
         
         // -- Act --
         options.excludeViewTypeFromSubtreeTraversal("MyCustomView1")
@@ -1129,7 +1127,7 @@ class SentryReplayOptionsTests: XCTestCase {
     
     func testIncludedViewClasses_includeViewTypeInSubtreeTraversal_shouldAddViewType() {
         // -- Arrange --
-        let options = MaskingOptions()
+        var options = MaskingOptions()
         options.excludeViewTypeFromSubtreeTraversal("MyCustomView")
         XCTAssertTrue(options.excludedViewClasses.contains("MyCustomView"))
         
@@ -1143,7 +1141,7 @@ class SentryReplayOptionsTests: XCTestCase {
     
     func testIncludedViewClasses_includeViewTypeInSubtreeTraversal_shouldAllowRemovingDefaultCameraUIView() {
         // -- Arrange --
-        let options = MaskingOptions()
+        var options = MaskingOptions()
         
         // -- Act --
         options.includeViewTypeInSubtreeTraversal("CameraUI.ChromeSwiftUIView")
@@ -1155,7 +1153,7 @@ class SentryReplayOptionsTests: XCTestCase {
     
     func testIncludedViewClasses_includeViewTypeInSubtreeTraversal_nonExistentViewType_shouldNotCrash() {
         // -- Arrange --
-        let options = MaskingOptions()
+        var options = MaskingOptions()
         let initialCount = options.includedViewClasses.count
         
         // -- Act --

@@ -8,6 +8,26 @@ import Foundation
 import XCTest
 
 class SentryPrivacyOptionsTests: XCTestCase {
+    func testPrivacy_whenCopyIsModified_shouldPreserveOriginalSettings() {
+        // -- Arrange --
+        let original = Options()
+        let copy = Options()
+        copy.privacy = original.privacy
+
+        // -- Act --
+        copy.privacy.maskAllText = false
+        copy.privacy.maskedViewClasses.append(NSString.self)
+        copy.privacy.excludeViewTypeFromSubtreeTraversal("CustomView")
+
+        // -- Assert --
+        XCTAssertTrue(original.privacy.maskAllText)
+        XCTAssertTrue(original.privacy.maskedViewClasses.isEmpty)
+        XCTAssertTrue(original.privacy.excludedViewClasses.isEmpty)
+        XCTAssertFalse(copy.privacy.maskAllText)
+        XCTAssertEqual(copy.privacy.maskedViewClasses.map(ObjectIdentifier.init), [ObjectIdentifier(NSString.self)])
+        XCTAssertEqual(copy.privacy.excludedViewClasses, ["CustomView"])
+    }
+
     func testInit_withoutArguments_shouldMaskTextAndImages() {
         // -- Act --
         let options = Options()
@@ -55,7 +75,9 @@ class SentryPrivacyOptionsTests: XCTestCase {
 
     func testTraversal_whenAddingTypes_shouldPreserveExistingTypes() {
         // -- Arrange --
-        let options = SentryPrivacyOptions(excludedViewClasses: ["Existing"], includedViewClasses: ["Included"])
+        var options = SentryPrivacyOptions()
+        options.excludeViewTypeFromSubtreeTraversal("Existing")
+        options.includeViewTypeInSubtreeTraversal("Included")
 
         // -- Act --
         options.excludeViewTypeFromSubtreeTraversal("Excluded")

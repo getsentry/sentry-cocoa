@@ -101,9 +101,8 @@ class SentryViewScreenshotOptionsTests: XCTestCase {
     #if SDK_V10
     func testInit_maskAllTextOmitted_shouldUseDefaultValues() {
         // -- Act --
-        let options = SentryPrivacyOptions(
-            maskAllImages: false
-        )
+        var options = SentryPrivacyOptions()
+        options.maskAllImages = false
 
         // -- Assert --
         XCTAssertTrue(options.maskAllText)
@@ -125,9 +124,8 @@ class SentryViewScreenshotOptionsTests: XCTestCase {
     #if SDK_V10
     func testInit_maskAllImagesOmitted_shouldUseDefaultValues() {
         // -- Act --
-        let options = SentryPrivacyOptions(
-            maskAllText: false
-        )
+        var options = SentryPrivacyOptions()
+        options.maskAllText = false
 
         // -- Assert --
         XCTAssertTrue(options.maskAllImages)
@@ -149,11 +147,10 @@ class SentryViewScreenshotOptionsTests: XCTestCase {
     #if SDK_V10
     func testInit_maskedViewClassesOmitted_shouldUseDefaultValues() {
         // -- Act --
-        let options = SentryPrivacyOptions(
-            maskAllText: false,
-            maskAllImages: false,
-            unmaskedViewClasses: [NSString.self]
-        )
+        var options = SentryPrivacyOptions()
+        options.maskAllText = false
+        options.maskAllImages = false
+        options.unmaskedViewClasses = [NSString.self]
 
         // -- Assert --
         XCTAssertEqual(options.maskedViewClasses.count, 0)
@@ -177,11 +174,10 @@ class SentryViewScreenshotOptionsTests: XCTestCase {
     #if SDK_V10
     func testInit_unmaskedViewClassesOmitted_shouldUseDefaultValues() {
         // -- Act --
-        let options = SentryPrivacyOptions(
-            maskAllText: false,
-            maskAllImages: false,
-            maskedViewClasses: [NSString.self]
-        )
+        var options = SentryPrivacyOptions()
+        options.maskAllText = false
+        options.maskAllImages = false
+        options.maskedViewClasses = [NSString.self]
 
         // -- Assert --
         XCTAssertEqual(options.unmaskedViewClasses.count, 0)

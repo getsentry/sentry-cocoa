@@ -2,41 +2,24 @@
 import Foundation
 
 /// Shared masking and view traversal settings for session replay and screenshot attachments.
-@objcMembers
-public final class SentryPrivacyOptions: NSObject, SentryRedactOptions {
-    /// Default privacy settings. Text and non-bundled images are masked by default.
-    public final class DefaultValues {
-        /// Text masking is enabled.
-        public static let maskAllText: Bool = true
-        /// Non-bundled image masking is enabled.
-        public static let maskAllImages: Bool = true
-        /// No additional view classes are masked.
-        public static let maskedViewClasses: [AnyClass] = []
-        /// No view classes are explicitly unmasked.
-        public static let unmaskedViewClasses: [AnyClass] = []
-        /// No additional view types are excluded from traversal.
-        public static let excludedViewClasses: Set<String> = []
-        /// No view types override the default traversal exclusions.
-        public static let includedViewClasses: Set<String> = []
-    }
-
+public struct SentryPrivacyOptions: SentryRedactOptions {
     // MARK: - Masking
     
     /**
      * Indicates whether the capture should redact all non-bundled images
      * in the app by drawing a black rectangle over it.
      *
-     * - Note: See ``SentryPrivacyOptions.DefaultValues`` for the default value.
+     * - Note: Defaults to `true`.
      */
-    public var maskAllImages: Bool
+    public var maskAllImages: Bool = true
     
     /**
      * Indicates whether the capture should redact all text in the app
      * by drawing a black rectangle over it.
      *
-     * - Note: See ``SentryPrivacyOptions.DefaultValues`` for the default value.
+     * - Note: Defaults to `true`.
      */
-    public var maskAllText: Bool
+    public var maskAllText: Bool = true
     
     /**
      * A list of custom UIView subclasses that need
@@ -44,9 +27,9 @@ public final class SentryPrivacyOptions: NSObject, SentryRedactOptions {
      * By default Sentry already masks text and image elements from UIKit
      * Every child of a view that is redacted will also be redacted.
      *
-     * - Note: See ``SentryPrivacyOptions.DefaultValues`` for the default value.
+     * - Note: Defaults to an empty array.
      */
-    public var maskedViewClasses: [AnyClass]
+    public var maskedViewClasses: [AnyClass] = []
     
     /**
      * A list of custom UIView subclasses to be ignored
@@ -54,9 +37,9 @@ public final class SentryPrivacyOptions: NSObject, SentryRedactOptions {
      * The views of given classes will not be redacted but their children may be.
      * This property has precedence over `maskedViewClasses`.
      *
-     * - Note: See ``SentryPrivacyOptions.DefaultValues`` for the default value.
+     * - Note: Defaults to an empty array.
      */
-    public var unmaskedViewClasses: [AnyClass]
+    public var unmaskedViewClasses: [AnyClass] = []
 
     /**
      * A set of view type identifier strings that should be excluded from subtree traversal.
@@ -75,7 +58,7 @@ public final class SentryPrivacyOptions: NSObject, SentryRedactOptions {
      *         **Default View Classes + Excluded View Classes - Included View Classes**
      *         Default view classes are defined in `SentryViewSubtreeTraversal` (e.g., `CameraUI.ChromeSwiftUIView` on iOS 26+).
      */
-    public private(set) var excludedViewClasses: Set<String>
+    public private(set) var excludedViewClasses: Set<String> = []
 
     /**
      * A set of view type identifier strings that should be included in subtree traversal.
@@ -98,7 +81,7 @@ public final class SentryPrivacyOptions: NSObject, SentryRedactOptions {
      *         if "ChromeCameraUI" is excluded and "Camera" is included, "ChromeCameraUI" will still be excluded
      *         because "Camera" doesn't exactly match "ChromeCameraUI".
      */
-    public private(set) var includedViewClasses: Set<String>
+    public private(set) var includedViewClasses: Set<String> = []
     
     /**
      * Adds a view type pattern to the excluded set, preventing matching views' subtrees from being traversed.
@@ -112,7 +95,7 @@ public final class SentryPrivacyOptions: NSObject, SentryRedactOptions {
      *         default excluded types (defined in `SentryViewSubtreeTraversal`) and filtered by `includedViewClasses`
      *         to produce the final set.
      */
-    public func excludeViewTypeFromSubtreeTraversal(_ viewType: String) {
+    public mutating func excludeViewTypeFromSubtreeTraversal(_ viewType: String) {
         excludedViewClasses.insert(viewType)
     }
     
@@ -128,84 +111,39 @@ public final class SentryPrivacyOptions: NSObject, SentryRedactOptions {
      *         For example, you can use this to re-enable traversal for `CameraUI.ChromeSwiftUIView` on iOS 26+.
      * - Note: Included patterns use exact matching (not partial) to prevent accidental matches.
      */
-    public func includeViewTypeInSubtreeTraversal(_ viewType: String) {
+    public mutating func includeViewTypeInSubtreeTraversal(_ viewType: String) {
         includedViewClasses.insert(viewType)
     }
 
-    /**
-     * Initializes privacy options with masking enabled.
-     *
-     * - Note: This initializer is added for Objective-C compatibility, as constructors with default values
-     *         are not supported in Objective-C.
-     * - Note: See ``SentryPrivacyOptions.DefaultValues`` for the default values of each parameter.
-     */
-    public convenience override init() {
-        self.init(
-            maskAllText: DefaultValues.maskAllText,
-            maskAllImages: DefaultValues.maskAllImages,
-            maskedViewClasses: DefaultValues.maskedViewClasses,
-            unmaskedViewClasses: DefaultValues.unmaskedViewClasses,
-            excludedViewClasses: DefaultValues.excludedViewClasses,
-            includedViewClasses: DefaultValues.includedViewClasses
-        )
-    }
-    
-    /**
-     * Initializes a new instance of ``SentryPrivacyOptions`` using a dictionary.
-     *
-     * - Parameter dictionary: A dictionary containing the configuration options for captures.
-     *
-     * - Warning: This initializer is primarily used by Hybrid SDKs and is not intended for public use.
-     */
-    convenience init(dictionary: [String: Any]) {
-        self.init(
-            maskAllText: (dictionary["maskAllText"] as? NSNumber)?.boolValue ?? DefaultValues.maskAllText,
-            maskAllImages: (dictionary["maskAllImages"] as? NSNumber)?.boolValue ?? DefaultValues.maskAllImages,
-            maskedViewClasses: (dictionary["maskedViewClasses"] as? NSArray)?.compactMap({ element in
-                NSClassFromString((element as? String) ?? "")
-            }) ?? DefaultValues.maskedViewClasses,
-            unmaskedViewClasses: (dictionary["unmaskedViewClasses"] as? NSArray)?.compactMap({ element in
-                NSClassFromString((element as? String) ?? "")
-            }) ?? DefaultValues.unmaskedViewClasses,
-            excludedViewClasses: (dictionary["excludedViewClasses"] as? [String]).map { Set($0) } ?? DefaultValues.excludedViewClasses,
-            includedViewClasses: (dictionary["includedViewClasses"] as? [String]).map { Set($0) } ?? DefaultValues.includedViewClasses
-        )
-    }
-    
-    /**
-     * Initializes a new instance of ``SentryPrivacyOptions`` with the specified parameters.
-     *
-     * - Parameters:
-     *   - maskAllText: Flag to redact all text in the app by drawing a rectangle over it.
-     *   - maskAllImages: Flag to redact all images in the app by drawing a rectangle over it.
-     *   - maskedViewClasses: A list of custom UIView subclasses that need to be masked during captures.
-     *   - unmaskedViewClasses: A list of custom UIView subclasses to be ignored during masking.
-     *   - excludedViewClasses: A set of view type identifiers that should be excluded from subtree traversal.
-     *   - includedViewClasses: A set of view type identifiers that should be included in subtree traversal.
-     *
-     * - Note: See ``SentryPrivacyOptions.DefaultValues`` for the default values of each parameter.
-     */
-    public init(
-        maskAllText: Bool = DefaultValues.maskAllText,
-        maskAllImages: Bool = DefaultValues.maskAllImages,
-        maskedViewClasses: [AnyClass] = DefaultValues.maskedViewClasses,
-        unmaskedViewClasses: [AnyClass] = DefaultValues.unmaskedViewClasses,
-        excludedViewClasses: Set<String> = DefaultValues.excludedViewClasses,
-        includedViewClasses: Set<String> = DefaultValues.includedViewClasses
-    ) {
-        // - This initializer is publicly available for Swift, but not for Objective-C, because automatically bridged Swift initializers
-        //   with default values result in a single initializer requiring all parameters.
-        // - Each parameter has a default value, so the parameter can be omitted, which is not possible for Objective-C.
-        // - Parameter values are not optional, because SDK users should not be able to set them to nil.
-        self.maskAllText = maskAllText
-        self.maskAllImages = maskAllImages
-        self.maskedViewClasses = maskedViewClasses
-        self.unmaskedViewClasses = unmaskedViewClasses
-        self.excludedViewClasses = excludedViewClasses
-        self.includedViewClasses = includedViewClasses
+    /// Initializes privacy options with text and image masking enabled.
+    public init() {}
 
-        super.init()
+    /// Initializes privacy options from hybrid SDK configuration, preserving defaults for absent values.
+    init(dictionary: [String: Any]) {
+        self.init()
+
+        if let maskAllText = (dictionary["maskAllText"] as? NSNumber)?.boolValue {
+            self.maskAllText = maskAllText
+        }
+        if let maskAllImages = (dictionary["maskAllImages"] as? NSNumber)?.boolValue {
+            self.maskAllImages = maskAllImages
+        }
+        if let maskedViewClasses = dictionary["maskedViewClasses"] as? NSArray {
+            self.maskedViewClasses = maskedViewClasses.compactMap {
+                NSClassFromString(($0 as? String) ?? "")
+            }
+        }
+        if let unmaskedViewClasses = dictionary["unmaskedViewClasses"] as? NSArray {
+            self.unmaskedViewClasses = unmaskedViewClasses.compactMap {
+                NSClassFromString(($0 as? String) ?? "")
+            }
+        }
+        if let excludedViewClasses = dictionary["excludedViewClasses"] as? [String] {
+            self.excludedViewClasses = Set(excludedViewClasses)
+        }
+        if let includedViewClasses = dictionary["includedViewClasses"] as? [String] {
+            self.includedViewClasses = Set(includedViewClasses)
+        }
     }
-    
 }
 #endif // SDK_V10

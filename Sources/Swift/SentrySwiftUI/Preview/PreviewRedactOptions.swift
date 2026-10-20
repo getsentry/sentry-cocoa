@@ -95,12 +95,12 @@ public final class PreviewRedactOptions: SentryRedactOptions {
      * - Note: See ``SentryReplayOptions.DefaultValues`` for the default values of each parameter.
      */
     public init(
-        maskAllText: Bool = SentryPrivacyOptions.DefaultValues.maskAllText,
-        maskAllImages: Bool = SentryPrivacyOptions.DefaultValues.maskAllImages,
-        maskedViewClasses: [AnyClass] = SentryPrivacyOptions.DefaultValues.maskedViewClasses,
-        unmaskedViewClasses: [AnyClass] = SentryPrivacyOptions.DefaultValues.unmaskedViewClasses,
-        excludedViewClasses: Set<String> = SentryPrivacyOptions.DefaultValues.excludedViewClasses,
-        includedViewClasses: Set<String> = SentryPrivacyOptions.DefaultValues.includedViewClasses,
+        maskAllText: Bool = true,
+        maskAllImages: Bool = true,
+        maskedViewClasses: [AnyClass] = [],
+        unmaskedViewClasses: [AnyClass] = [],
+        excludedViewClasses: Set<String> = [],
+        includedViewClasses: Set<String> = [],
         enableViewRendererV2: Bool = SentryReplayOptions.DefaultValues.enableViewRendererV2
     ) {
         self.maskAllText = maskAllText

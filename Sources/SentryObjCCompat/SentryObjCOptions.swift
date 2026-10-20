@@ -455,7 +455,7 @@ import Foundation
 
     #if SDK_V10
     @objc public var privacy: SentryObjCPrivacyOptions {
-        get { SentryObjCPrivacyOptions(wrapped.privacy) }
+        get { SentryObjCPrivacyOptions(parent: wrapped) }
         set { wrapped.privacy = newValue.wrapped }
     }
     #endif // SDK_V10

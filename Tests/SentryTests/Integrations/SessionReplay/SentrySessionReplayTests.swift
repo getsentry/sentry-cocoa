@@ -1433,8 +1433,11 @@ class SentrySessionReplayTests: XCTestCase {
         
         #if SDK_V10
         let replayOptions = SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 0)
-        let privacyOptions = SentryPrivacyOptions(maskAllText: false, maskAllImages: false,
-                                                 maskedViewClasses: [UIView.self], unmaskedViewClasses: [UITextField.self, UITextView.self])
+        var privacyOptions = SentryPrivacyOptions()
+        privacyOptions.maskAllText = false
+        privacyOptions.maskAllImages = false
+        privacyOptions.maskedViewClasses = [UIView.self]
+        privacyOptions.unmaskedViewClasses = [UITextField.self, UITextView.self]
         #else
         let replayOptions = SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 0, maskAllText: false, maskAllImages: false)
         replayOptions.maskedViewClasses = [UIView.self]

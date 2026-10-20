@@ -385,7 +385,7 @@
     #if SDK_V10
     /// Shared masking and view traversal settings for session replay and screenshot attachments.
     /// Text and non-bundled images are masked by default.
-    @objc public var privacy: SentryPrivacyOptions = SentryPrivacyOptions()
+    public var privacy: SentryPrivacyOptions = SentryPrivacyOptions()
     #endif // SDK_V10
 
     /// Settings to configure screenshot attachments.

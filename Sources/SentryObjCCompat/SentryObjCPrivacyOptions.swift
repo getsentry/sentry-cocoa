@@ -8,14 +8,19 @@ internal import Sentry
 import Foundation
 
 @objc(SentryObjCPrivacyOptions) public final class SentryObjCPrivacyOptions: NSObject {
-    internal let wrapped: SentryPrivacyOptions
+    private let storage: Accessor<SentryPrivacyOptions>
 
-    internal init(_ wrapped: SentryPrivacyOptions) {
-        self.wrapped = wrapped
+    internal var wrapped: SentryPrivacyOptions {
+        get { storage.value }
+        set { storage.value = newValue }
+    }
+
+    internal init(parent: Options) {
+        self.storage = Accessor(root: parent, keyPath: \.privacy)
     }
 
     @objc public override init() {
-        self.wrapped = SentryPrivacyOptions()
+        self.storage = Accessor(SentryPrivacyOptions())
     }
 
     @objc public var maskAllText: Bool {
