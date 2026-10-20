@@ -93,7 +93,7 @@ protocol SentryBinaryImageProvider: AnyObject {
 #endif
     }
 
-    init(provider: SentryBinaryImageProvider, processInfoWrapper: SentryProcessInfoSource = ProcessInfo.processInfo) {
+    init(provider: SentryBinaryImageProvider, processInfoWrapper: SentryProcessInfoSource) {
         self.provider = provider
 #if SDK_V10
         self.processInfoWrapper = processInfoWrapper

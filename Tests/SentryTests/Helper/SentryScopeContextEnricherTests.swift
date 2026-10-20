@@ -236,7 +236,8 @@ final class SentryDefaultScopeContextEnricherTests: XCTestCase {
             size: 1
         )
         let binaryImageCache = SentryBinaryImageCache(
-            provider: ScopeContextBinaryImageProvider(images: [image])
+            provider: ScopeContextBinaryImageProvider(images: [image]),
+            processInfoWrapper: MockSentryProcessInfo()
         )
         binaryImageCache.start(false)
         let provider = SentryDefaultSystemInfoProvider(

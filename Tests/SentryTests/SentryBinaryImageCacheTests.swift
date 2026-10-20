@@ -69,7 +69,7 @@ final class SentryBinaryImageCacheTests: XCTestCase {
     override func setUp() {
         super.setUp()
         provider = TestBinaryImageProvider()
-        sut = SentryBinaryImageCache(provider: provider)
+        sut = SentryBinaryImageCache(provider: provider, processInfoWrapper: MockSentryProcessInfo())
         sut.start(false)
     }
 
