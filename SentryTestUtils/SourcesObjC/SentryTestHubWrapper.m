@@ -30,6 +30,18 @@
     return event.eventId;
 }
 
+- (void)captureTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope
+{
+    [self wrapper_captureTransaction:transaction withScope:scope];
+    [super captureTransaction:transaction withScope:scope];
+}
+
+- (void)wrapper_captureTransaction:(id)transaction withScope:(SentryScope *)scope
+{
+    // Intentionally empty: Swift TestHub overrides this SwiftPM-compatible bridge method
+    // to record the invocation before hub capture continues.
+}
+
 - (void)wrapper_setSession:(nullable id)session
 {
     self.session = session;

@@ -18,7 +18,6 @@
 #    import "SentryProfilerState.h"
 #    import "SentryProfilingSwiftHelpers.h"
 #    import "SentrySamplerDecisionHelper.h"
-#    import "SentrySwift.h"
 #    import "SentryTraceProfiler.h"
 #    import "SentryTracer+Private.h"
 
@@ -245,7 +244,7 @@ sentry_stopProfilerDueToFinishedTransaction(
 #    endif // SENTRY_HAS_UIKIT
 )
 {
-    SentryTracer *trace = [transaction trace];
+    SentryTracer *trace = sentry_tracerForTransaction(transaction);
     SentryProfileConfiguration *profileConfiguration = sentry_getProfileConfiguration();
     if (profileConfiguration != nil && profileConfiguration.isProfilingThisLaunch
         && profileConfiguration.profileOptions != nil

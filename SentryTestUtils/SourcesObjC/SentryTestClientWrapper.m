@@ -110,6 +110,17 @@
     [self wrapper_captureEnvelope:envelope];
 }
 
+- (void)saveCrashTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope
+{
+    [self wrapper_saveCrashTransaction:transaction withScope:scope];
+}
+
+- (void)wrapper_saveCrashTransaction:(id)transaction withScope:(SentryScope *)scope
+{
+    // Intentionally empty: Swift TestClient overrides this SwiftPM-compatible bridge method
+    // to record the invocation without storing a real crash transaction.
+}
+
 - (void)wrapper_captureEnvelope:(id)envelope
 {
     // Intentionally empty: Swift TestClient overrides this SwiftPM-compatible bridge method

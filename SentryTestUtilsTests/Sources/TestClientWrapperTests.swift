@@ -123,6 +123,19 @@ final class TestClientWrapperTests: XCTestCase {
         XCTAssertEqual(client.captureFeedbackInvocations.count, 0)
     }
 
+    func testSaveCrashTransaction_whenBridgeReceivesWrongType_shouldReportFailure() throws {
+        // -- Arrange --
+        let client = try XCTUnwrap(TestClient(options: Options.noIntegrations()))
+
+        // -- Act --
+        XCTExpectFailure("Invalid crash transactions must fail the test") {
+            client.wrapper_saveCrashTransaction(transaction: NSObject(), scope: Scope())
+        }
+
+        // -- Assert --
+        XCTAssertEqual(client.saveCrashTransactionInvocations.count, 0)
+    }
+
     func testCaptureEnvelope_whenBridgeReceivesWrongType_shouldReportFailure() throws {
         // -- Arrange --
         let client = try XCTUnwrap(TestClient(options: Options.noIntegrations()))
