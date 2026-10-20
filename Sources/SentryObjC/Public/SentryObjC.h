@@ -159,6 +159,7 @@
 #if !__has_include(<SentryObjC/SentryObjCDefines.h>)
 #    import "SentryObjCExperimentalOptions.h"
 #    import "SentryObjCOptions.h"
+#    import "SentryObjCPrivacyOptions.h"
 #    import "SentryObjCProfileOptions.h"
 #    import "SentryObjCReplayOptions.h"
 #    import "SentryObjCUserFeedbackConfiguration.h"
@@ -168,6 +169,7 @@
 #else
 #    import <SentryObjC/SentryObjCExperimentalOptions.h>
 #    import <SentryObjC/SentryObjCOptions.h>
+#    import <SentryObjC/SentryObjCPrivacyOptions.h>
 #    import <SentryObjC/SentryObjCProfileOptions.h>
 #    import <SentryObjC/SentryObjCReplayOptions.h>
 #    import <SentryObjC/SentryObjCUserFeedbackConfiguration.h>

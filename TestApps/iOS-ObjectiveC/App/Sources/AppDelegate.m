@@ -54,8 +54,13 @@
         SentryObjCReplayOptions *sessionReplay = [[SentryObjCReplayOptions alloc] init];
         sessionReplay.sessionSampleRate = 0;
         sessionReplay.onErrorSampleRate = 1;
+#if SDK_V10
+        options.privacy.maskAllText = YES;
+        options.privacy.maskAllImages = YES;
+#else
         sessionReplay.maskAllText = YES;
         sessionReplay.maskAllImages = YES;
+#endif // SDK_V10
         sessionReplay.enableViewRendererV2 = ![args containsObject:@"--disable-view-renderer-v2"];
         sessionReplay.enableFastViewRendering
             = ![args containsObject:@"--disable-fast-view-rendering"];
