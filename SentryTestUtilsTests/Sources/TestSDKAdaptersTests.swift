@@ -115,6 +115,79 @@ final class TestSDKAdaptersTests: XCTestCase {
         XCTAssertNil(SentrySDKInternal.options)
     }
 
+    func testEnvelopeRateLimit_whenRateLimited_shouldForwardTypedDelegateCallback() throws {
+        // -- Arrange --
+        let limits = SentryDependencyContainer.sharedInstance().rateLimits
+        let url = try XCTUnwrap(URL(string: "https://example.invalid"))
+        let response = try XCTUnwrap(HTTPURLResponse(url: url, statusCode: 429, httpVersion: nil, headerFields: ["Retry-After": "60"]))
+        limits.update(response)
+        let limiter = EnvelopeRateLimit(rateLimits: limits)
+        let delegate = TestEnvelopeRateLimitDelegate()
+        limiter.setDelegate(delegate)
+        let item = SentryEnvelopeItem(event: Event())
+        let envelope = SentryEnvelope(id: nil, singleItem: item)
+
+        // -- Act --
+        let result = limiter.removeRateLimitedItems(envelope)
+
+        // -- Assert --
+        XCTAssertTrue(result.items.isEmpty)
+        XCTAssertEqual(delegate.envelopeItemsDropped.invocations, [.error])
+        XCTAssertIdentical(delegate.droppedItems.first, item)
+    }
+
+    func testEnvelopeDelegate_whenBridgeReceivesInvalidValues_shouldReportFailure() {
+        // -- Arrange --
+        let delegate = TestEnvelopeRateLimitDelegate()
+        let item = SentryEnvelopeItem(event: Event())
+
+        // -- Act --
+        XCTExpectFailure("The erased bridge must reject invalid items") {
+            delegate.wrapper_envelopeItemDropped(NSObject(), withCategory: SentryDataCategory.error.rawValue)
+        }
+        XCTExpectFailure("The erased bridge must reject invalid categories") {
+            delegate.wrapper_envelopeItemDropped(item, withCategory: UInt.max)
+        }
+
+        // -- Assert --
+        XCTAssertTrue(delegate.droppedItems.invocations.isEmpty)
+        XCTAssertTrue(delegate.envelopeItemsDropped.invocations.isEmpty)
+    }
+
+    func testHttpTransport_whenCreatedThroughAdapter_shouldUseInjectedDependencies() throws {
+        // -- Arrange --
+        let options = Options.noIntegrations()
+        options.dsn = TestConstants.dsnForTestCase(type: Self.self, testName: #function)
+        let container = SentryDependencyContainer.sharedInstance()
+        let queue = TestSentryDispatchQueueWrapper()
+        queue.dispatchAsyncExecutesBlock = false
+        let fileManager = try TestFileManager(options: options, dateProvider: container.dateProvider, dispatchQueueWrapper: queue)
+        let requests = UnavailableRequestManager()
+        let reachability = container.reachability
+        reachability.skipRegisteringActualCallbacks = true
+
+        // -- Act --
+        let transport = SentryHttpTransportWrapper.make(
+            dsn: try XCTUnwrap(options.parsedDsn),
+            sendClientReports: false,
+            cachedEnvelopeSendDelay: 0,
+            dateProvider: container.dateProvider,
+            fileManager: fileManager,
+            requestManager: requests,
+            requestBuilder: SentryNSURLRequestBuilder(),
+            rateLimits: container.rateLimits,
+            envelopeRateLimit: EnvelopeRateLimit(rateLimits: container.rateLimits),
+            dispatchQueueWrapper: queue,
+            reachability: reachability
+        )
+
+        // -- Assert --
+        XCTAssertTrue(type(of: transport) == SentryHttpTransportWrapper.httpTransportClass())
+        XCTAssertIdentical(Dynamic(transport).requestManager.asObject as? UnavailableRequestManager, requests)
+        XCTAssertIdentical(Dynamic(transport).fileManager.asObject as? SentryFileManager, fileManager)
+        XCTAssertIdentical(Dynamic(transport).dispatchQueue.asObject as? SentryDispatchQueueWrapper, queue)
+    }
+
     func testFatalEventWithSession_whenOverridden_shouldDispatchThroughWrapper() throws {
         // -- Arrange --
         let options = Options.noIntegrations()
@@ -217,6 +290,14 @@ final class TestSDKAdaptersTests: XCTestCase {
     // Swift subclasses must not inherit two names for the same Objective-C initializer.
     private final class ImportedSpan: SentrySpanInternal {}
     #endif
+
+    private final class UnavailableRequestManager: NSObject, RequestManager {
+        let isReady = false
+
+        func add(_ request: URLRequest, completionHandler: SentryRequestOperationFinished?) {
+            XCTFail("The adapter test must not send network requests")
+        }
+    }
 
     private final class SessionDelegate: SentryTestSessionDelegateWrapper {
         var invocations = 0
