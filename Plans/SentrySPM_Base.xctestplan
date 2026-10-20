@@ -36,6 +36,25 @@
     },
     {
       "parallelizable" : false,
+      "skippedTests" : [
+        "SentryObjCInternalProfilingApiIntegrationTests\/testCollect_shouldContainTransactionInfo"
+      ],
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "SentryObjCTests",
+        "name" : "SentryObjCTests"
+      }
+    },
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "SentryObjCTestsSwift",
+        "name" : "SentryObjCTestsSwift"
+      }
+    },
+    {
+      "parallelizable" : false,
       "target" : {
         "containerPath" : "container:",
         "identifier" : "SentryDistributionTests",

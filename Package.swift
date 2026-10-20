@@ -364,6 +364,24 @@ targets += [
     )
 ]
 
+// Public API tests exercise the hand-written ObjC headers, not the Swift compat implementation.
+targets += [
+    .testTarget(
+        name: "SentryObjCTests",
+        dependencies: ["SentryObjC"],
+        path: "Tests/SentryObjCTests",
+        exclude: ["Swift"],
+        cSettings: cSettings
+    ),
+    .testTarget(
+        name: "SentryObjCTestsSwift",
+        dependencies: ["SentryObjC", "SentryTestUtils"],
+        path: "Tests/SentryObjCTests/Swift",
+        cSettings: cSettings,
+        swiftSettings: swiftSettings
+    )
+]
+
 // Match the entire V9-only Xcode profiler suite, including its wrapper tests.
 // Traits cannot remove targets, so source guards also exclude this suite when V10 is selected.
 if !envSelectsV10 {

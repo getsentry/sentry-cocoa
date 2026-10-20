@@ -30,6 +30,8 @@ jobs:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
@@ -85,7 +87,7 @@ jobs:
             "${version_args[@]}"
 
       - name: Upload static slice
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: sentryobjc-slice-${{ matrix.sdk }}
           if-no-files-found: error
@@ -102,14 +104,14 @@ jobs:
             SentryObjC.framework SentryObjC.framework.dSYM
 
       - name: Upload dynamic framework slice
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: sentryobjc-dynamic-slice-${{ matrix.sdk }}
           if-no-files-found: error
           path: XCFrameworkBuildPath/sentryobjc-dynamic-${{ matrix.sdk }}.tar.gz
 
       - name: Upload build log if failed
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-build-output-sentryobjc-${{ matrix.sdk }}

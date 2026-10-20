@@ -68,6 +68,8 @@ jobs:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
       # We use Xcode 16 (latest installed minor) for building XCFrameworks. The setup-xcode action
       # picks the newest 16.x available on the macos-15 runner image.
       - name: Setup Xcode
@@ -129,7 +131,7 @@ jobs:
         shell: bash
 
       - name: Upload xcarchive
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: xcframework-${{inputs.variant-id}}-slice-${{matrix.sdk}}
           if-no-files-found: error
@@ -137,7 +139,7 @@ jobs:
             ${{inputs.name}}${{inputs.suffix}}.xcarchive.zip
 
       - name: Upload build log if failed
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-build-output-build-xcframework-${{inputs.variant-id}}-${{matrix.sdk}}

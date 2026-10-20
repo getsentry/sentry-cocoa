@@ -111,7 +111,7 @@ grep -E 'Executed|error:|TEST SUCCEEDED|TEST FAILED' "$package_dir/package-tests
 
 - For V10, run `export SDK_V10=1` before the commands above.
 - Use an available iOS simulator destination for iOS-specific tests. `CODE_SIGNING_ALLOWED=NO` avoids fixture-bundle signing errors on macOS and simulators; device tests need a separate signing configuration.
-- Limit a run with `-only-testing:<test-target>`, for example `-only-testing:SentryObjCCompatTests`.
+- Limit a run with `-only-testing:<test-target>`, for example `-only-testing:SentryObjCCompatTests`. The wrapper suites are `SentryObjCTests`, `SentryObjCTestsSwift`, and `SentryObjCCompatTests`.
 - CI uses `TestCI` and the corresponding definitions from the table above. The [SPM Tests job](../.github/workflows/test.yml) prepares all package manifests, selects Xcode 26 on `macos-26`, and resolves the iOS simulator runtime and device from that toolchain.
 - Keep shared Base exclusions consistent between project and package plans, mapping tests to their Swift, Objective-C, or Objective-C++ target.
 - Use `SentrySPM_Flaky` for V9 flaky tests.
@@ -122,7 +122,7 @@ grep -E 'Executed|error:|TEST SUCCEEDED|TEST FAILED' "$package_dir/package-tests
 Plain `swift test` uses SwiftPM's debug and ABI defaults. The opt-in [SwiftPM test configuration](../Tests/Configuration/SwiftPM.xcconfig) aligns package-workspace tests with the project:
 
 - **Test compilation:** `Test`/`TestCI` omit automatic Swift `DEBUG`, preserve manifest definitions, and use unoptimized, testable Sentry builds. Do not substitute `Debug`.
-- **Target settings:** Wrappers and wrapper tests use whole-module compilation. `SentrySwift` and `SentryObjCCompat` use library evolution and verify their textual interfaces.
+- **Target settings:** `SentryObjCCompat` and `SentryObjCCompatTests` use whole-module compilation. `SentrySwift` and `SentryObjCCompat` use library evolution and verify their textual interfaces.
 - **Diagnostics:** Sentry-owned targets use warnings-as-errors; dependencies retain their own settings. Avoid global `-Xswiftc -warnings-as-errors` or `-Xcc -Werror` overrides.
 
 Wrapper language features live in the manifests: `MemberImportVisibility` and approachable concurrency are enabled unconditionally, as both are available in the oldest supported Xcode (26, Swift 6.2). They apply to ordinary builds and tests, while the xcconfig remains test-only. See its comments for setting-specific rationale.
