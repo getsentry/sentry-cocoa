@@ -1,6 +1,7 @@
 #import "SentryTestResourceBundle.h"
 
-#if SWIFT_PACKAGE
+// Native SwiftPM pre-includes the accessor; Xcode requires an explicit import.
+#if SWIFT_PACKAGE && !defined(SWIFTPM_MODULE_BUNDLE)
 #    import "resource_bundle_accessor.h"
 #endif
 
