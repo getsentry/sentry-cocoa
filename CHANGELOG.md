@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add `SentrySDK.endSession(status:)` to end the current session with an explicit status (#9355).
+
 ### Fixes
 
 - Increase the crash report read limit in SentryCrash to 20 MB (#9386)
