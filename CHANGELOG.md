@@ -4,6 +4,7 @@
 
 ### Fixes
 
+- Keep the UI profiler running when `SentrySDK.startProfiler()` is called before a requested stop takes effect at the end of the current chunk (#XXXX)
 - Increase the crash report read limit in SentryCrash to 20 MB (#9386)
 
 ## 9.30.2
