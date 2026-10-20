@@ -81,6 +81,10 @@ protocol SentryBinaryImageProvider: AnyObject {
     private var mainExecutableAddress: UInt64?
 #endif
 
+    @objc public override convenience init() {
+        self.init(processInfoWrapper: Dependencies.processInfoWrapper)
+    }
+
     convenience init(processInfoWrapper: SentryProcessInfoSource) {
 #if SDK_V10
         self.init(provider: SentryKSCrash.BinaryImageProvider(), processInfoWrapper: processInfoWrapper)
@@ -111,7 +115,10 @@ protocol SentryBinaryImageProvider: AnyObject {
             // Resolve once per cache lifetime. Live frame mapping compares image addresses,
             // not executable filenames, which may also belong to unrelated loaded images.
             if let processPath = self.processInfoWrapper.processPath {
-                self.mainExecutableAddress = self.cache?.first { $0.name == processPath }?.address
+                let executableURL = URL(fileURLWithPath: processPath).resolvingSymlinksInPath()
+                self.mainExecutableAddress = self.cache?.first {
+                    URL(fileURLWithPath: $0.name).resolvingSymlinksInPath() == executableURL
+                }?.address
             }
 #endif
         }

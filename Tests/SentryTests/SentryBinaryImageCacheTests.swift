@@ -81,6 +81,18 @@ final class SentryBinaryImageCacheTests: XCTestCase {
         super.tearDown()
     }
 
+    func testInit_whenUsingPublicInitializer_shouldLoadImages() {
+        // -- Arrange --
+        let cache = SentryBinaryImageCache()
+        defer { cache.stop() }
+
+        // -- Act --
+        cache.start(false)
+
+        // -- Assert --
+        XCTAssertFalse(cache.getAllBinaryImages().isEmpty)
+    }
+
     func testStart_whenAlreadyStarted_shouldNotResetCache() throws {
         // -- Arrange --
         provider.notifyAdded(makeBinaryImage(address: 100))
@@ -107,6 +119,37 @@ final class SentryBinaryImageCacheTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(sut.cache).count, 1)
         XCTAssertEqual(sut.imageByAddress(100)?.name, "Expected Name at 100")
     }
+
+#if SDK_V10
+    func testStart_whenExecutablePathsHaveDifferentSpellings_shouldIdentifyMainImage() throws {
+        // -- Arrange --
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { XCTAssertNoThrow(try FileManager.default.removeItem(at: directory)) }
+        let executable = directory.appendingPathComponent("tool")
+        try Data().write(to: executable)
+        let link = directory.appendingPathComponent("tool-link")
+        try FileManager.default.createSymbolicLink(at: link, withDestinationURL: executable)
+        let canonicalPath = executable.resolvingSymlinksInPath().path
+        let processInfo = MockSentryProcessInfo()
+        let image = makeBinaryImage(address: 100, name: canonicalPath)
+        let unrelatedImage = makeBinaryImage(address: 200, name: "/unrelated/tool")
+        provider.images = [image, unrelatedImage]
+
+        for path in [link.path, directory.path + "/./tool", executable.path] {
+            processInfo.overrides.processPath = path
+            let cache = SentryBinaryImageCache(provider: provider, processInfoWrapper: processInfo)
+
+            // -- Act --
+            cache.start(false)
+
+            // -- Assert --
+            XCTAssertTrue(cache.isMainExecutableImage(image), path)
+            XCTAssertFalse(cache.isMainExecutableImage(unrelatedImage), path)
+            cache.stop()
+        }
+    }
+#endif
 
     func testStop_whenAlreadyStopped_shouldNotStopProviderAgain() {
         // -- Act --
