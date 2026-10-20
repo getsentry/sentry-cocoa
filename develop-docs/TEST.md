@@ -28,13 +28,22 @@ make test
 
 ### Main Test Source Layout
 
-In `Tests/SentryTests`, keep Swift tests in the existing feature directories, Objective-C tests and their headers under `ObjC/`, and Objective-C++ tests under `ObjCpp/`. Preserve the feature hierarchy within each directory; the Xcode bridging header stays at the root.
+In `Tests/SentryTests`, keep Swift tests in the existing feature directories, Objective-C tests and their headers under `ObjC/`, and Objective-C++ tests under `ObjCpp/`. Preserve the feature hierarchy within each directory.
 
-Shared SDK test declarations belong in [`SentryTestUtilsObjC-SDKHeaders.h`](../SentryTestUtils/SourcesObjC/include/SentryTestUtilsObjC-SDKHeaders.h), exposed through the `SentryTestUtilsObjC` module in both Xcode and SwiftPM. Import declarations already exposed by the SDK from their owning modules instead of duplicating them here. `SentryTestUtils` re-exports the helper module and does not use a bridging header.
+SDK headers that do not need wrapping are exposed through [`SentryTestUtilsObjC-SDKHeaders.h`](../SentryTestUtils/SourcesObjC/include/SentryTestUtilsObjC-SDKHeaders.h) and the `SentryTestUtilsObjC` module in both Xcode and SwiftPM. Import declarations already exposed by the SDK from their owning modules instead of duplicating them here. `SentryTestUtils` re-exports the helper module and does not use a bridging header.
 
-Both `SentryTestUtils/SourcesObjC` and `SentryTestUtils/SourcesObjCpp` use SwiftPM's default `include/` directory for exported test headers and module maps. Implementations and implementation-only headers stay outside `include/`. Xcode discovers both helper modules through `HEADER_SEARCH_PATHS`.
+### Shared Test Support Layout
 
-Keep remaining mixed-language declarations that SwiftPM cannot yet import in [`SentryTests-Bridging-Header.h`](../Tests/SentryTests/SentryTests-Bridging-Header.h) until their APIs are migrated. Do not import generated Swift interfaces into the shared Clang module.
+`SentryTestUtils` keeps the language boundaries required by SwiftPM (`Sources`, `SourcesObjC`, and `SourcesObjCpp`). New files follow this layout within each language directory; existing files retain their current paths:
+
+- **`Wrappers/`** adapts existing SDK functionality to the test module/language boundary. Each SDK adapter file mirrors the SDK header it wraps: for example, `SentryClient+Private.h` maps to `SentryClient+PrivateWrapper.h`. Keep input-only selectors callable directly from their Objective-C declarations. Add matching Swift adapters only when typed results, enum conversion, or overload resolution require them, and Objective-C implementations only when declarations alone are insufficient. Do not combine unrelated SDK types in an SDK-wide access, bridge, or profiling wrapper.
+- **The directory root** contains mocks, spies, fixtures, equality categories, cleanup, and general helpers. A mock stays here even when it subclasses a language adapter in `Wrappers/`.
+
+New Objective-C and Objective-C++ headers belong under `include/Wrappers/` for adapters or directly under `include/` for other test helpers; existing exported headers retain their paths. Implementations and implementation-only headers stay outside `include/`; do not add generated Swift interfaces to the shared Clang modules. Xcode discovers the modules through `HEADER_SEARCH_PATHS`.
+
+[`SentryTestUtilsObjC.h`](../SentryTestUtils/SourcesObjC/include/SentryTestUtilsObjC.h) is an import-only module entry point shared by Xcode and SwiftPM. The Objective-C++ module keeps C++ declarations textual so non-module consumers can include them too.
+
+Same-named forwarding headers exist only where an original SDK header needs to resolve an internal include by filename. Implementation-only forwarders remain in `SourcesObjC/`; `include/SentryCrashMonitorContext.h` must remain at the exported include root for Swift consumers of `SentryCrashReport.h`. These forwarders are header-search plumbing, not additional wrapper APIs.
 
 ### SwiftPM SDK Tests
 

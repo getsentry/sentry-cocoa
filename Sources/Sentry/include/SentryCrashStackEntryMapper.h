@@ -11,7 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryCrashStackEntryMapper : NSObject
 SENTRY_NO_INIT
 
-- (instancetype)initWithInAppLogic:(SentryInAppLogic *)inAppLogic;
+- (instancetype)initWithInAppLogic:(SENTRY_SWIFT_MIGRATION_ID(SentryInAppLogic))inAppLogic;
 
 /** Maps a plain instruction address. Only call after all target threads have resumed. */
 - (SentryFrame *)mapAddress:(uintptr_t)address;
