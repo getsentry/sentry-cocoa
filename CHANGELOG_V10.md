@@ -45,7 +45,7 @@
 - Enable `enableFileManagerSwizzling` by default (#9134)
 - Remove the legacy `enableMetrics` option. Metrics remain available without an enable flag, and `beforeSendMetric` can still modify or drop metrics (#9134)
 - Move `experimental.enableUnhandledCPPExceptionsV2` to the stable `options.enableUnhandledCPPExceptionsV2` API for the KSCrash implementation. The default remains `false`: unhandled C++ exceptions are captured through `std::terminate`; opt in to capture stacks at the throw site. The V2 name distinguishes these two modes (#9175).
-- Remove the public `SentrySerializable` protocol, its model conformances, and model `serialize()` methods. Hybrid SDKs use `SentrySDK.internal.serializer` or `SentryObjCSDK.internal.serializer` for scopes, debug images, and events. Applications should use model properties and Sentry's capture APIs instead.
+- Remove the public `SentrySerializable` protocol, its model conformances, and model `serialize()` methods. Hybrid SDKs use `SentrySDK.internal.serializer` or `SentryObjCSDK.internal.serializer` for scopes, debug images, and events. Applications should use model properties and Sentry's capture APIs instead (#9403).
 
 ### Fixes
 

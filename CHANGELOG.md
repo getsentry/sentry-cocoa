@@ -8,7 +8,7 @@
 
 ### Internal
 
-- Add scope and debug image serialization APIs for hybrid SDKs through `SentrySDK.internal.serializer` and `SentryObjCSDK.internal.serializer`.
+- Add scope and debug image serialization APIs for hybrid SDKs through `SentrySDK.internal.serializer` and `SentryObjCSDK.internal.serializer` (#9403).
   The public `SentrySerializable` protocol and `serialize()` methods will be removed in the next major release.
 
 ## 9.30.2
