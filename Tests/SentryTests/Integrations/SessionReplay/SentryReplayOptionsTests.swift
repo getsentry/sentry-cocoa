@@ -1099,7 +1099,11 @@ class SentryReplayOptionsTests: XCTestCase {
     
     func testExcludedViewClasses_excludeViewTypeFromSubtreeTraversal_shouldAddViewType() {
         // -- Arrange --
+        #if SDK_V10
         var options = MaskingOptions()
+        #else
+        let options = MaskingOptions()
+        #endif // SDK_V10
         
         // -- Act --
         options.excludeViewTypeFromSubtreeTraversal("MyCustomView")
@@ -1111,7 +1115,11 @@ class SentryReplayOptionsTests: XCTestCase {
     
     func testExcludedViewClasses_excludeViewTypeFromSubtreeTraversal_multipleCalls_shouldAddAllViewTypes() {
         // -- Arrange --
+        #if SDK_V10
         var options = MaskingOptions()
+        #else
+        let options = MaskingOptions()
+        #endif // SDK_V10
         
         // -- Act --
         options.excludeViewTypeFromSubtreeTraversal("MyCustomView1")
@@ -1127,7 +1135,11 @@ class SentryReplayOptionsTests: XCTestCase {
     
     func testIncludedViewClasses_includeViewTypeInSubtreeTraversal_shouldAddViewType() {
         // -- Arrange --
+        #if SDK_V10
         var options = MaskingOptions()
+        #else
+        let options = MaskingOptions()
+        #endif // SDK_V10
         options.excludeViewTypeFromSubtreeTraversal("MyCustomView")
         XCTAssertTrue(options.excludedViewClasses.contains("MyCustomView"))
         
@@ -1141,7 +1153,11 @@ class SentryReplayOptionsTests: XCTestCase {
     
     func testIncludedViewClasses_includeViewTypeInSubtreeTraversal_shouldAllowRemovingDefaultCameraUIView() {
         // -- Arrange --
+        #if SDK_V10
         var options = MaskingOptions()
+        #else
+        let options = MaskingOptions()
+        #endif // SDK_V10
         
         // -- Act --
         options.includeViewTypeInSubtreeTraversal("CameraUI.ChromeSwiftUIView")
@@ -1153,7 +1169,11 @@ class SentryReplayOptionsTests: XCTestCase {
     
     func testIncludedViewClasses_includeViewTypeInSubtreeTraversal_nonExistentViewType_shouldNotCrash() {
         // -- Arrange --
+        #if SDK_V10
         var options = MaskingOptions()
+        #else
+        let options = MaskingOptions()
+        #endif // SDK_V10
         let initialCount = options.includedViewClasses.count
         
         // -- Act --
