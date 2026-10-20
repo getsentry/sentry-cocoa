@@ -35,12 +35,17 @@ NS_ASSUME_NONNULL_BEGIN
     frame.instructionAddress = sentry_formatHexAddressUInt64(address);
 
     // Get image from the cache.
-    SentryBinaryImageInfo *info = [SentryDependencyContainer.sharedInstance.binaryImageCache
-        imageByAddress:(uint64_t)address];
+    SentryBinaryImageCache *cache = SentryDependencyContainer.sharedInstance.binaryImageCache;
+    SentryBinaryImageInfo *info = [cache imageByAddress:(uint64_t)address];
 
     frame.imageAddress = sentry_formatHexAddressUInt64(info.address);
     frame.package = info.name;
+#if SDK_V10
+    frame.inApp = @(
+        (info != nil && [cache isMainExecutableImage:info]) || [self.inAppLogic isInApp:info.name]);
+#else
     frame.inApp = @([self.inAppLogic isInApp:info.name]);
+#endif
 
     return frame;
 }
