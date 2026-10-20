@@ -108,8 +108,8 @@ extern NSString *const DropSessionLogMessage;
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
                        hint:(SentryHint *)hint
 {
-    BOOL isFromEarlierAppRun = isFatalEvent || event.isFromEarlierAppRun;
-    [self populateHintAttachments:hint scope:scope isFromEarlierAppRun:isFromEarlierAppRun];
+    BOOL isFromPreviousProcess = isFatalEvent || event.isFromPreviousProcess;
+    [self populateHintAttachments:hint scope:scope isFromPreviousProcess:isFromPreviousProcess];
     hint.attachments = [self processAttachmentsForEvent:event attachments:hint.attachments];
     SentryEvent *preparedEvent = [self prepareEvent:event
                                           withScope:scope
@@ -121,10 +121,10 @@ extern NSString *const DropSessionLogMessage;
         return SentryId.empty;
     }
 
-    SentryTraceContext *traceContext =
-        [self getTraceStateWithEvent:event
-                           withScope:scope
-                        currentScope:isFromEarlierAppRun ? nil : [self.currentScopeStorage scope]];
+    SentryTraceContext *traceContext = [self
+        getTraceStateWithEvent:event
+                     withScope:scope
+                  currentScope:isFromPreviousProcess ? nil : [self.currentScopeStorage scope]];
 
     [self.transportAdapter sendEvent:preparedEvent
                         traceContext:traceContext
@@ -141,7 +141,7 @@ extern NSString *const DropSessionLogMessage;
     SentryHint *hint = [[SentryHint alloc] init];
     [self populateHintAttachments:hint
                             scope:scope
-              isFromEarlierAppRun:event.isFatalEvent || event.isFromEarlierAppRun];
+            isFromPreviousProcess:event.isFatalEvent || event.isFromPreviousProcess];
     hint.attachments = [self processAttachmentsForEvent:event attachments:hint.attachments];
     return [self sendEvent:event withSession:session withScope:scope hint:hint];
 }
@@ -166,7 +166,7 @@ extern NSString *const DropSessionLogMessage;
     SentryTraceContext *traceContext =
         [self getTraceStateWithEvent:event
                            withScope:scope
-                        currentScope:(event.isFatalEvent || event.isFromEarlierAppRun)
+                        currentScope:(event.isFatalEvent || event.isFromPreviousProcess)
                 ? nil
                 : [self.currentScopeStorage scope]];
 

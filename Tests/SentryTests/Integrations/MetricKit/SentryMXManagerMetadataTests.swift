@@ -10,7 +10,7 @@ import XCTest
 #if os(iOS) || os(macOS) || os(visionOS)
 import MetricKit
 
-/// Covers how `SentryMXManager` tells diagnostics of an earlier app run from the current one and
+/// Covers how `SentryMXManager` tells diagnostics of a previous process from the current one and
 /// which metadata it gives their events.
 final class SentryMXManagerMetadataTests: SentrySDKIntegrationTestsBase {
 
@@ -20,22 +20,22 @@ final class SentryMXManagerMetadataTests: SentrySDKIntegrationTestsBase {
         clearTestState()
     }
 
-    // MARK: - Diagnostics from an earlier app run
+    // MARK: - Diagnostics from a previous process
 
-    func testDidReceive_whenDiagnosticPidDiffers_shouldMarkEventAsFromEarlierAppRun() throws {
+    func testDidReceive_whenDiagnosticPidDiffers_shouldMarkEventAsFromPreviousProcess() throws {
         try requirePidSupport()
         // -- Arrange --
         givenSDKWithHubWithScope()
         let sut = givenSut(releaseName: "io.sentry.app@2.0.0+20")
         // The payload window opened in this run, but MetricKit knows the diagnostic's process.
-        let payload = try givenHangPayload(appVersion: "2.0.0", appBuild: "20", pid: Self.earlierRunPid, timeStampBegin: Self.processStartDate.addingTimeInterval(60))
+        let payload = try givenHangPayload(appVersion: "2.0.0", appBuild: "20", pid: Self.previousProcessPid, timeStampBegin: Self.processStartDate.addingTimeInterval(60))
 
         // -- Act --
         sut.didReceive([payload])
 
         // -- Assert --
         try assertEventWithScopeCaptured { event, scope, _ in
-            XCTAssertEqual(event?.isFromEarlierAppRun, true)
+            XCTAssertEqual(event?.isFromPreviousProcess, true)
             // The hub's scope is passed through untouched; the client leaves it out for the event.
             XCTAssertTrue(scope === SentrySDKInternal.currentHub().scope)
         }
@@ -54,7 +54,7 @@ final class SentryMXManagerMetadataTests: SentrySDKIntegrationTestsBase {
 
         // -- Assert --
         try assertEventWithScopeCaptured { event, scope, _ in
-            XCTAssertEqual(event?.isFromEarlierAppRun, false)
+            XCTAssertEqual(event?.isFromPreviousProcess, false)
             XCTAssertNil(event?.context)
             XCTAssertNil(event?.releaseName)
             XCTAssertNil(event?.dist)
@@ -62,7 +62,7 @@ final class SentryMXManagerMetadataTests: SentrySDKIntegrationTestsBase {
         }
     }
 
-    func testDidReceive_whenNoPidAndPayloadStartsBeforeProcess_shouldMarkEventAsFromEarlierAppRun() throws {
+    func testDidReceive_whenNoPidAndPayloadStartsBeforeProcess_shouldMarkEventAsFromPreviousProcess() throws {
         // -- Arrange --
         givenSDKWithHubWithScope()
         let sut = givenSut(releaseName: "io.sentry.app@2.0.0+20")
@@ -73,7 +73,7 @@ final class SentryMXManagerMetadataTests: SentrySDKIntegrationTestsBase {
 
         // -- Assert --
         try assertEventWithScopeCaptured { event, _, _ in
-            XCTAssertEqual(event?.isFromEarlierAppRun, true)
+            XCTAssertEqual(event?.isFromPreviousProcess, true)
         }
     }
 
@@ -88,7 +88,7 @@ final class SentryMXManagerMetadataTests: SentrySDKIntegrationTestsBase {
 
         // -- Assert --
         try assertEventWithScopeCaptured { event, _, _ in
-            XCTAssertEqual(event?.isFromEarlierAppRun, false)
+            XCTAssertEqual(event?.isFromPreviousProcess, false)
             XCTAssertNil(event?.context)
         }
     }
@@ -137,7 +137,7 @@ final class SentryMXManagerMetadataTests: SentrySDKIntegrationTestsBase {
         // -- Assert --
         // The client applies the running release, which matches the diagnostic.
         try assertEventWithScopeCaptured { event, _, _ in
-            XCTAssertEqual(event?.isFromEarlierAppRun, true)
+            XCTAssertEqual(event?.isFromPreviousProcess, true)
             XCTAssertNil(event?.releaseName)
             XCTAssertNil(event?.dist)
         }
@@ -284,7 +284,7 @@ final class SentryMXManagerMetadataTests: SentrySDKIntegrationTestsBase {
 
         // -- Assert --
         try assertEventWithScopeCaptured { event, _, _ in
-            XCTAssertEqual(event?.isFromEarlierAppRun, true)
+            XCTAssertEqual(event?.isFromPreviousProcess, true)
             XCTAssertNil(event?.releaseName)
             XCTAssertNil(event?.dist)
             // Only the attributes that don't depend on the app version or the OS remain.
@@ -293,7 +293,7 @@ final class SentryMXManagerMetadataTests: SentrySDKIntegrationTestsBase {
         }
     }
 
-    func testDidReceive_whenDiagnosticFromEarlierAppRun_shouldKeepOnlyStableDeviceContext() throws {
+    func testDidReceive_whenDiagnosticFromPreviousProcess_shouldKeepOnlyStableDeviceContext() throws {
         // -- Arrange --
         givenSDKWithHubWithScope()
         SentrySDKInternal.currentHub().scope.setContext(value: [
@@ -342,7 +342,7 @@ final class SentryMXManagerMetadataTests: SentrySDKIntegrationTestsBase {
         }
     }
 
-    func testDidReceive_whenDiagnosticFromEarlierAppRunAndScopeHasRuntimeContext_shouldKeepRuntimeContext() throws {
+    func testDidReceive_whenDiagnosticFromPreviousProcessAndScopeHasRuntimeContext_shouldKeepRuntimeContext() throws {
         // -- Arrange --
         givenSDKWithHubWithScope()
         let runtimeContext = ["name": "iOS App on Mac", "raw_description": "ios-app-on-mac"]
@@ -359,7 +359,7 @@ final class SentryMXManagerMetadataTests: SentrySDKIntegrationTestsBase {
         }
     }
 
-    func testDidReceive_whenDiagnosticFromEarlierAppRun_shouldNotCopyOtherScopeContexts() throws {
+    func testDidReceive_whenDiagnosticFromPreviousProcess_shouldNotCopyOtherScopeContexts() throws {
         // -- Arrange --
         givenSDKWithHubWithScope()
         SentrySDKInternal.currentHub().scope.setContext(value: ["key": "value"], key: "custom")
@@ -376,8 +376,59 @@ final class SentryMXManagerMetadataTests: SentrySDKIntegrationTestsBase {
         }
     }
 
+    // MARK: - Stable device context keys
+
+    /// Guards the stable device context keys against new keys in the scope context enricher: a
+    /// key the enricher adds has to be classified as stable or mutable, or this test fails.
+    func testDiagnosticDeviceContext_whenScopeIsEnriched_shouldDropOnlyMutableKeys() throws {
+        // -- Arrange --
+        let processInfo = MockSentryProcessInfo()
+        processInfo.overrides.isiOSAppOnMac = true
+        processInfo.overrides.isMacCatalystApp = true
+        processInfo.overrides.isiOSAppOnVisionOS = true
+        let enricher = SentryDefaultScopeContextEnricher(
+            processInfoWrapper: processInfo,
+            systemInfoProvider: TestSystemInfoProvider(value: SentrySystemInfo(
+                systemName: "iOS",
+                osBuild: "23A340",
+                kernelVersion: "Darwin Kernel Version 25.0.0",
+                isJailbroken: false,
+                cpuArchitecture: "arm64e",
+                machine: "iPhone17,1",
+                model: "D93AP",
+                freeMemorySize: 123_456,
+                usableMemorySize: 654_321,
+                memorySize: 8_000_000_000,
+                appStartTime: "2026-10-05T10:00:00.000Z",
+                deviceAppHash: "abc123",
+                appID: nil,
+                buildType: "app store"
+            )),
+            bundleInfo: ["CFBundleIdentifier": "io.sentry.app"],
+            osVersionProvider: { "26.0" },
+            screenSizeProvider: { CGSize(width: 1_206, height: 2_622) }
+        )
+        let scope = Scope()
+        enricher.enrichScope(scope)
+        let runningDevice = try XCTUnwrap(scope.getContextForKey("device"))
+
+        // -- Act --
+        let deviceContext = try XCTUnwrap(SentryMXManager.diagnosticDeviceContext(runningDevice: runningDevice))
+
+        // -- Assert --
+        var mutableKeys: Set<String> = ["free_memory", "usable_memory"]
+#if !SDK_V10
+        mutableKeys.insert("locale")
+#endif
+        XCTAssertEqual(
+            Set(runningDevice.keys).subtracting(deviceContext.keys),
+            mutableKeys,
+            "The enricher sets a device key that is neither in SentryMXManager.stableDeviceContextKeys nor in the mutable keys of this test. Decide whether it can change between app runs on the same device, then add it to one of them."
+        )
+    }
+
     private static let currentPid: pid_t = 4_242
-    private static let earlierRunPid: pid_t = 1_337
+    private static let previousProcessPid: pid_t = 1_337
     private static let processStartDate = Date(timeIntervalSince1970: 1_700_000_000)
 
     private func requirePidSupport() throws {
@@ -402,13 +453,13 @@ final class SentryMXManagerMetadataTests: SentrySDKIntegrationTestsBase {
         )
     }
 
-    /// Builds a hang payload that, by default, was recorded by an earlier run of the app: its
+    /// Builds a hang payload that, by default, was recorded by a previous process of the app: its
     /// process differs from the running one and its window opened before the process started.
     private func givenHangPayload(
         appVersion: String,
         appBuild: String,
         osVersion: String = "iPhone OS 18.6.2 (22G100)",
-        pid: pid_t = SentryMXManagerMetadataTests.earlierRunPid,
+        pid: pid_t = SentryMXManagerMetadataTests.previousProcessPid,
         timeStampBegin: Date = SentryMXManagerMetadataTests.processStartDate.addingTimeInterval(-3_600)
     ) throws -> TestMXDiagnosticPayload {
         let metaData = TestMXMetaData()
@@ -459,6 +510,18 @@ final class SentryMXManagerMetadataTests: SentrySDKIntegrationTestsBase {
         if let osContext {
             SentrySDKInternal.currentHub().scope.setContext(value: osContext, key: "os")
         }
+    }
+}
+
+private final class TestSystemInfoProvider: SentrySystemInfoProvider {
+    private let value: SentrySystemInfo
+
+    init(value: SentrySystemInfo) {
+        self.value = value
+    }
+
+    func systemInfo() -> SentrySystemInfo {
+        value
     }
 }
 

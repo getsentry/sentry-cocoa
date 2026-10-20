@@ -706,7 +706,7 @@ final class SentryClientTests: XCTestCase {
         let hub = SentryHubInternal(client: sut, andScope: Scope(), activeCrashReporterState: TestSentryCrashReporterState(), andDispatchQueue: TestSentryDispatchQueueWrapper())
         SentrySDK.setStart(with: sut.options)
         SentrySDKInternal.setCurrentHub(hub)
-        let integration = try XCTUnwrap(SentryMetricKitIntegration(with: sut.options, dependencies: ()))
+        let integration = try XCTUnwrap(SentryMetricKitIntegration(with: sut.options, dependencies: SentryDependencyContainer.sharedInstance()))
         let diagnostic = TestMXHangDiagnostic()
         diagnostic.overrides.callStackTree.overrides.jsonRepresentation = Data(#"{"callStacks":"unexpected"}"#.utf8)
         let rawDiagnostic = Data(#"{"hangDuration":"6.6 sec","callStackTree":{"callStacks":"unexpected"}}"#.utf8)
@@ -730,7 +730,7 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(attachment.data, rawDiagnostic)
     }
 
-    func testCaptureEvent_whenMetricKitDiagnosticFromEarlierAppRun_shouldSendDiagnosticVersionsWithoutCurrentScopeData() throws {
+    func testCaptureEvent_whenMetricKitDiagnosticFromPreviousProcess_shouldSendDiagnosticVersionsWithoutCurrentScopeData() throws {
         // -- Arrange --
         let sut = fixture.getSut(configureOptions: { options in
             options.releaseName = "io.sentry.app@2.0.0+20"
@@ -745,7 +745,7 @@ final class SentryClientTests: XCTestCase {
         // -- Assert --
         let capture = try XCTUnwrap(fixture.transportAdapter.sendEventWithTraceStateInvocations.first)
         let event = capture.event
-        XCTAssertEqual(event.isFromEarlierAppRun, true)
+        XCTAssertEqual(event.isFromPreviousProcess, true)
         XCTAssertEqual(event.releaseName, "io.sentry.app@1.2.3+45")
         XCTAssertEqual(event.dist, "45")
         // Only the attributes known for the diagnostic are sent. The running kernel version,
@@ -801,7 +801,7 @@ final class SentryClientTests: XCTestCase {
         // -- Assert --
         let capture = try XCTUnwrap(fixture.transportAdapter.sendEventWithTraceStateInvocations.first)
         let event = capture.event
-        XCTAssertEqual(event.isFromEarlierAppRun, false)
+        XCTAssertEqual(event.isFromPreviousProcess, false)
         XCTAssertEqual(event.releaseName, "io.sentry.app@2.0.0+20")
         XCTAssertEqual(event.tags, ["tag": "value"])
         XCTAssertEqual(event.breadcrumbs?.count, 1)
@@ -916,7 +916,7 @@ final class SentryClientTests: XCTestCase {
     }
 #endif
 
-    func testCaptureEvent_whenEventIsFromEarlierAppRun_shouldNotApplyScopeOrCurrentState() throws {
+    func testCaptureEvent_whenEventIsFromPreviousProcess_shouldNotApplyScopeOrCurrentState() throws {
         // -- Arrange --
         let sut = fixture.getSut(configureOptions: { options in
             options.attachStacktrace = true
@@ -930,7 +930,7 @@ final class SentryClientTests: XCTestCase {
         let event = Event(level: .warning)
         event.message = fixture.message
         event.context = ["app": ["app_version": "1.0.0"], "device": ["model": "iPhone17,1"]]
-        event.isFromEarlierAppRun = true
+        event.isFromPreviousProcess = true
 
         // -- Act --
         sut.capture(event: event, scope: scope)
@@ -954,13 +954,13 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(capture.attachments.count, 0)
     }
 
-    func testCaptureEvent_whenEventIsFromEarlierAppRun_shouldNotOverlayCurrentScope() throws {
+    func testCaptureEvent_whenEventIsFromPreviousProcess_shouldNotOverlayCurrentScope() throws {
         // -- Arrange --
         let sut = fixture.getSut()
         let currentScope = Scope()
         currentScope.setTag(value: "current", key: "layer")
         let event = Event()
-        event.isFromEarlierAppRun = true
+        event.isFromPreviousProcess = true
 
         // -- Act --
         SentryDependencyContainer.sharedInstance().currentScopeStorage.withScope(currentScope) {
@@ -971,11 +971,11 @@ final class SentryClientTests: XCTestCase {
         XCTAssertNil(try lastSentEvent().tags)
     }
 
-    func testCaptureEvent_whenEventIsFromEarlierAppRunWithHintAttachment_shouldSendOnlyHintAttachment() throws {
+    func testCaptureEvent_whenEventIsFromPreviousProcessWithHintAttachment_shouldSendOnlyHintAttachment() throws {
         // -- Arrange --
         let sut = fixture.getSut()
         let event = Event()
-        event.isFromEarlierAppRun = true
+        event.isFromPreviousProcess = true
         let hint = Hint()
         let attachment = Attachment(data: Data("diagnostic".utf8), filename: "MXDiagnosticPayload.json")
         hint.attachments = [attachment]

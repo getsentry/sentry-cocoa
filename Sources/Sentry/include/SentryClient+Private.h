@@ -34,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)populateHintAttachments:(SentryHint *)hint
                           scope:(SentryScope *)scope
-            isFromEarlierAppRun:(BOOL)isFromEarlierAppRun;
+          isFromPreviousProcess:(BOOL)isFromPreviousProcess;
 
 - (NSArray<SentryAttachment *> *)processAttachmentsForEvent:(SentryEvent *)event
                                                 attachments:

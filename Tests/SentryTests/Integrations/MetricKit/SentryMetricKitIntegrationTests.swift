@@ -37,14 +37,14 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     func testOptionEnabled_MetricKitManagerInitialized() {
           let options = Options()
           options.enableMetricKit = true
-          let sut = SentryMetricKitIntegration(with: options, dependencies: ())
+          let sut = SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
           XCTAssertNotNil(sut)
     }
 
     func testOptionDisabled_MetricKitManagerNotInitialized() {
           let options = Options()
           options.enableMetricKit = false
-          let sut = SentryMetricKitIntegration(with: options, dependencies: ())
+          let sut = SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
           XCTAssertNil(sut)
     }
 
@@ -56,7 +56,8 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         let sut = SentryMXManager(
             inAppLogic: SentryInAppLogic(inAppIncludes: []),
             attachDiagnosticAsAttachment: false,
-            enabledDiagnostics: [.crash]
+            enabledDiagnostics: [.crash],
+            processStartDate: .distantPast
         )
 
         let payload = TestMXDiagnosticPayload()
@@ -77,7 +78,8 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         let sut = SentryMXManager(
             inAppLogic: SentryInAppLogic(inAppIncludes: []),
             attachDiagnosticAsAttachment: false,
-            enabledDiagnostics: [.crash]
+            enabledDiagnostics: [.crash],
+            processStartDate: .distantPast
         )
         let payload = TestMXDiagnosticPayload()
         let callStackTree = TestMXCallStackTree()
@@ -99,7 +101,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         let options = Options()
         options.enableMetricKit = true
         options.enableMetricKitRawPayload = true
-        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
         let payload = TestMXDiagnosticPayload()
         let callStackTree = TestMXCallStackTree()
@@ -125,7 +127,8 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         let sut = SentryMXManager(
             inAppLogic: SentryInAppLogic(inAppIncludes: []),
             attachDiagnosticAsAttachment: true,
-            enabledDiagnostics: [.hang]
+            enabledDiagnostics: [.hang],
+            processStartDate: .distantPast
         )
         let diagnostic = TestMXHangDiagnostic()
         diagnostic.overrides.callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/not-per-thread-only-one-frame")
@@ -149,7 +152,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         let options = Options()
         options.enableMetricKit = true
         options.enableMetricKitRawPayload = true
-        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         let diagnostic = TestMXHangDiagnostic()
         diagnostic.overrides.callStackTree.overrides.jsonRepresentation = Data(#"{"callStacks":"unexpected"}"#.utf8)
         let rawDiagnostic = Data(#"{"hangDuration":"6.6 sec","callStackTree":{"callStacks":"unexpected"}}"#.utf8)
@@ -191,7 +194,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         let options = Options()
         options.enableMetricKit = true
         options.enableMetricKitRawPayload = false
-        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         let diagnostic = TestMXHangDiagnostic()
         diagnostic.overrides.callStackTree.overrides.jsonRepresentation = Data(#"{"callStacks":"unexpected"}"#.utf8)
         let payload = TestMXDiagnosticPayload()
@@ -213,7 +216,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         let options = Options()
         options.enableMetricKit = true
         options.enableMetricKitRawPayload = true
-        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
         let malformedDiagnostic = TestMXHangDiagnostic()
         malformedDiagnostic.overrides.callStackTree.overrides.jsonRepresentation = Data(#"{"callStacks":"unexpected"}"#.utf8)
@@ -265,7 +268,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
 
         let options = Options()
         options.enableMetricKit = true
-        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
         let payload = TestMXDiagnosticPayload()
         let callStackTree = TestMXCallStackTree()
@@ -289,7 +292,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         let options = Options()
         options.enableMetricKit = true
         options.add(inAppInclude: "iOS-Swift")
-        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
         let payload = TestMXDiagnosticPayload()
         let callStackTree = TestMXCallStackTree()
@@ -314,7 +317,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
 
             let options = Options()
             options.enableMetricKit = true
-            let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+            let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
         let payload = TestMXDiagnosticPayload()
         let callStackTree = TestMXCallStackTree()
@@ -333,7 +336,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
 
             let options = Options()
             options.enableMetricKit = true
-            let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+            let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
         let payload = TestMXDiagnosticPayload()
         let callStackTree = TestMXCallStackTree()
@@ -370,7 +373,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
 
             let options = Options()
             options.enableMetricKit = true
-            let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+            let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
         let payload = TestMXDiagnosticPayload()
         let callStackTree = TestMXCallStackTree()
@@ -389,7 +392,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
 
             let options = Options()
             options.enableMetricKit = true
-            let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+            let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
         let payload = TestMXDiagnosticPayload()
         let callStackTree = TestMXCallStackTree()
@@ -408,7 +411,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         givenSDKWithHubWithScope()
         let options = Options()
         options.enableMetricKit = true
-        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
 
         let payload = TestMXDiagnosticPayload()
         let callStackTree = TestMXCallStackTree()

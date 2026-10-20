@@ -79,7 +79,7 @@ final class SentryMXManager: NSObject {
         releaseName: String? = nil,
         bundleInfo: [String: Any] = Bundle.main.infoDictionary ?? [:],
         processIdentifier: pid_t = ProcessInfo.processInfo.processIdentifier,
-        processStartDate: Date = SentryDependencyContainer.sharedInstance().sysctlWrapper.processStartTimestamp
+        processStartDate: Date
     ) {
         self.metricManager = metricManager
         self.inAppLogic = inAppLogic
@@ -225,10 +225,10 @@ extension SentryMXManager: MXMetricManagerSubscriber {
         var event = Event(level: level ?? (handled ? .warning : .error))
         event.timestamp = timeStampBegin
 
-        if isFromEarlierAppRun(diagnostic: diagnostic, payloadTimeStampBegin: timeStampBegin) {
-            // The client doesn't apply the current scope to events from an earlier app run, so the
+        if isFromPreviousProcess(diagnostic: diagnostic, payloadTimeStampBegin: timeStampBegin) {
+            // The client doesn't apply the current scope to events from a previous process, so the
             // event itself has to carry the release and the contexts known for the diagnostic.
-            event.isFromEarlierAppRun = true
+            event.isFromPreviousProcess = true
             applyMetadata(of: diagnostic, to: event, runningScope: SentrySDKInternal.currentHub().scope)
         }
 
@@ -263,7 +263,7 @@ extension SentryMXManager: MXMetricManagerSubscriber {
         SentrySDKLog.debug("Capturing MetricKit payload event for diagnostic: \(diagnosticReport)")
 
         // The raw diagnostic travels in the hint rather than on the scope, because the client
-        // doesn't send the scope's attachments with events from an earlier app run.
+        // doesn't send the scope's attachments with events from a previous process.
         let hint = Hint()
         if attachDiagnosticAsAttachment {
             let diagnosticJSON = diagnostic.jsonRepresentation()

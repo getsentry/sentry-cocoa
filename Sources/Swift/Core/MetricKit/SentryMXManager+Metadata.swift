@@ -5,14 +5,14 @@ import MetricKit
 /// Describes a MetricKit event with the app, OS and device metadata the diagnostic was recorded
 /// with.
 extension SentryMXManager {
-    /// Whether the diagnostic was recorded by an earlier run of the app instead of the running
+    /// Whether the diagnostic was recorded by a previous process of the app instead of the running
     /// process.
     ///
     /// A diagnostic only counts as the current run's when that is certain. MetricKit reports the
     /// recording process on iOS 17 and macOS 14 and later. Without that, a payload window that
     /// opened after the process started can only hold diagnostics of this run. Everything else is
-    /// treated as an earlier run, so the running process's data is never attached by mistake.
-    func isFromEarlierAppRun(diagnostic: MXDiagnostic, payloadTimeStampBegin: Date) -> Bool {
+    /// treated as a previous process, so the running process's data is never attached by mistake.
+    func isFromPreviousProcess(diagnostic: MXDiagnostic, payloadTimeStampBegin: Date) -> Bool {
         if #available(iOS 17.0, macOS 14.0, *) {
             // MetricKit declares the metadata as nonnull, but a missing one bridges to a pid of 0.
             let pid = diagnostic.metaData.pid
@@ -23,7 +23,7 @@ extension SentryMXManager {
         return payloadTimeStampBegin < processStartDate
     }
 
-    /// Sets the release and the contexts of an event from an earlier app run.
+    /// Sets the release and the contexts of an event from a previous process.
     ///
     /// The client doesn't apply the scope to such events, so the event has to carry its contexts
     /// itself, reduced to the attributes known for the time the diagnostic was recorded. MetricKit
@@ -37,18 +37,21 @@ extension SentryMXManager {
         )
 
         var context = event.context ?? [:]
-        let contexts: [(key: String, value: [String: Any]?)] = [
-            ("app", Self.diagnosticAppContext(for: diagnostic, runningApp: runningScope.getContextForKey("app"))),
-            ("os", Self.diagnosticOSContext(for: diagnostic, runningOS: runningScope.getContextForKey("os"))),
-            ("device", Self.diagnosticDeviceContext(runningDevice: runningScope.getContextForKey("device"))),
-            // The runtime context says whether an iOS app runs on a Mac or through Mac Catalyst,
-            // which can't change for the same app on the same device.
-            ("runtime", runningScope.getContextForKey("runtime"))
-        ]
-        for (key, value) in contexts {
-            if let value, !value.isEmpty {
-                context[key] = value
-            }
+        let appContext = Self.diagnosticAppContext(for: diagnostic, runningApp: runningScope.getContextForKey("app"))
+        if !appContext.isEmpty {
+            context["app"] = appContext
+        }
+        let osContext = Self.diagnosticOSContext(for: diagnostic, runningOS: runningScope.getContextForKey("os"))
+        if !osContext.isEmpty {
+            context["os"] = osContext
+        }
+        if let deviceContext = Self.diagnosticDeviceContext(runningDevice: runningScope.getContextForKey("device")), !deviceContext.isEmpty {
+            context["device"] = deviceContext
+        }
+        // The runtime context says whether an iOS app runs on a Mac or through Mac Catalyst,
+        // which can't change for the same app on the same device.
+        if let runtimeContext = runningScope.getContextForKey("runtime"), !runtimeContext.isEmpty {
+            context["runtime"] = runtimeContext
         }
         if !context.isEmpty {
             event.context = context
@@ -102,6 +105,16 @@ extension SentryMXManager {
         runningDevice?.filter { stableDeviceContextKeys.contains($0.key) }
     }
 
+    /// The device context keys that `SentryDefaultScopeContextEnricher.enrichScopeWithDeviceData`
+    /// sets and that stay the same between app runs on the same device. The enricher also sets
+    /// `free_memory`, `usable_memory` and `locale`, which can change between runs and are left
+    /// out. Other integrations add mutable attributes, such as `low_power_mode` or
+    /// `battery_level`, which are left out as well.
+    ///
+    /// When adding a key to the enricher, add it here when it can't change for the same device,
+    /// and otherwise add it to the mutable keys in
+    /// `SentryMXManagerMetadataTests.testDiagnosticDeviceContext_whenScopeIsEnriched_shouldDropOnlyMutableKeys`,
+    /// which fails for keys that aren't listed in either place.
     private static let stableDeviceContextKeys: Set<String> = [
         "arch",
         "family",
