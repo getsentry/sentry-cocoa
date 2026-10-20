@@ -32,14 +32,16 @@ extension SentrySDK {
         return SentrySDKInternal.isEnabled
     }
 
-    #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS) || os(visionOS))
+    #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     /// API to control session replay
     #if !SDK_V10
     @objc
     #endif
     public static var replay: SentryReplayApi {
-        return SentrySDKInternal.replay
+        replayInstance
     }
+
+    private static let replayInstance = SentryReplayApi()
     #endif
 
     /// API to access Sentry logs

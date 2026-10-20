@@ -6,7 +6,6 @@
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryProfilingConditionals.h"
-#import "SentryReplayApi.h"
 #import "SentrySamplingContext.h"
 #import "SentryScope+Private.h"
 #import "SentryScope.h"
@@ -91,16 +90,6 @@ static BOOL sdkStarted;
 {
     return SentryDependencyContainer.sharedInstance.startOptions;
 }
-
-#if SENTRY_TARGET_REPLAY_SUPPORTED
-+ (SentryReplayApi *)replay
-{
-    static SentryReplayApi *replay;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{ replay = [[SentryReplayApi alloc] init]; });
-    return replay;
-}
-#endif
 
 /** Internal, only needed for testing. */
 + (void)setCurrentHub:(nullable SentryHubInternal *)hub
