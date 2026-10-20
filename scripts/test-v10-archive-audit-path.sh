@@ -66,6 +66,9 @@ printf '%s\n' '#!/bin/bash' 'set -euo pipefail' \
     'root=XCFrameworkBuildPath/DerivedData/Build/Intermediates.noindex' \
     'if [[ "$sdk" != maccatalyst ]]; then root+=/ArchiveIntermediates/SentryV10/IntermediateBuildFilesPath; fi' \
     'mkdir -p "$root"' 'echo "$sdk" > XCFrameworkBuildPath/raw-build-output.log' \
+    'headers="XCFrameworkBuildPath/archive/SentryV10/$sdk.xcarchive/Products/Library/Frameworks/Sentry.framework/Headers"' \
+    'mkdir -p "$headers"' \
+    'printf "%s\n" "#if SDK_V10" "#define SELECTED_API 10" "#else" "#define SELECTED_API 9" "#endif" > "$headers/SentryVersion.h"' \
     > "$orchestrator/scripts/build-xcframework-slice.sh"
 
 # shellcheck disable=SC2016
@@ -86,6 +89,13 @@ chmod +x "$orchestrator/scripts/"*.sh
         log_error 'Slices were not audited before replacement/assembly'; exit 1;
     }
     log_info 'Passed per-slice audit ordering'
+    for sdk in macosx maccatalyst; do
+        header="XCFrameworkBuildPath/archive/SentryV10/$sdk.xcarchive/Products/Library/Frameworks/Sentry.framework/Headers/SentryVersion.h"
+        [[ "$(< "$header")" == '#define SELECTED_API 10' ]] || {
+            log_error "Version gates were not resolved in the $sdk archive header"; exit 1;
+        }
+    done
+    log_info 'Passed distributed header version selection'
     rm assembled audited-slices
 
     expect_failure orchestrator-build-failure env PRODUCER_EXIT_STATUS=42 \
