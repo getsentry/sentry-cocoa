@@ -4,22 +4,7 @@
 #import "SentryEvent.h"
 #import "SentrySwift.h"
 
-@interface SentryClientInternal (SentryTestClientWrapperInitializer)
-
-- (instancetype)initWithOptions:(NSObject *)options
-                   dateProvider:(id<SentryCurrentDateProvider>)dateProvider
-               transportAdapter:(SentryTransportAdapter *)transportAdapter
-                    fileManager:(SentryFileManager *)fileManager
-                threadInspector:(SentryDefaultThreadInspector *)threadInspector
-             debugImageProvider:(SentryDebugImageProvider *)debugImageProvider
-                         random:(id<SentryRandomProtocol>)random
-                         locale:(NSLocale *)locale
-                       timezone:(NSTimeZone *)timezone
-           eventContextEnricher:(id<SentryEventContextEnricher>)eventContextEnricher
-               binaryImageCache:(SentryBinaryImageCache *)binaryImageCache
-           dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
-
-@end
+#import "Wrappers/SentryClient+PrivateWrapper.h"
 
 @implementation SentryTestClientWrapper
 
@@ -57,6 +42,8 @@
 
 - (void)wrapper_captureSession:(id)session
 {
+    // Intentionally empty: Swift TestClient overrides this SwiftPM-compatible bridge method
+    // to record the invocation without capturing a real session.
 }
 
 - (SentryId *)captureEvent:(SentryEvent *)event
@@ -72,6 +59,8 @@
                          withScope:(SentryScope *)scope
            additionalEnvelopeItems:(NSArray *)additionalEnvelopeItems
 {
+    // Return only the event ID: Swift TestClient overrides this SwiftPM-compatible bridge method
+    // to record the invocation without capturing a real event.
     return event.eventId;
 }
 
@@ -86,6 +75,8 @@
                             withSession:(id)session
                               withScope:(SentryScope *)scope
 {
+    // Return only the event ID: Swift TestClient overrides this SwiftPM-compatible bridge method
+    // to record the invocation without capturing a real fatal event or session.
     return event.eventId;
 }
 
@@ -96,6 +87,8 @@
 
 - (void)wrapper_captureFeedback:(id)feedback withScope:(SentryScope *)scope
 {
+    // Intentionally empty: Swift TestClient overrides this SwiftPM-compatible bridge method
+    // to record the invocation without capturing real feedback.
 }
 
 - (void)captureEnvelope:(SentryEnvelope *)envelope
@@ -105,6 +98,8 @@
 
 - (void)wrapper_captureEnvelope:(id)envelope
 {
+    // Intentionally empty: Swift TestClient overrides this SwiftPM-compatible bridge method
+    // to record the invocation without sending a real envelope.
 }
 
 - (void)storeEnvelope:(SentryEnvelope *)envelope
@@ -114,6 +109,8 @@
 
 - (void)wrapper_storeEnvelope:(id)envelope
 {
+    // Intentionally empty: Swift TestClient overrides this SwiftPM-compatible bridge method
+    // to record the invocation without writing an envelope to disk.
 }
 
 - (void)recordLostEvent:(SentryDataCategory)category reason:(SentryDiscardReason)reason
@@ -123,6 +120,8 @@
 
 - (void)wrapper_recordLostEvent:(NSUInteger)category reason:(NSUInteger)reason
 {
+    // Intentionally empty: Swift TestClient overrides this SwiftPM-compatible bridge method
+    // to record the invocation without updating real client reports.
 }
 
 - (void)recordLostEvent:(SentryDataCategory)category
@@ -136,6 +135,8 @@
                          reason:(NSUInteger)reason
                        quantity:(NSUInteger)quantity
 {
+    // Intentionally empty: Swift TestClient overrides this SwiftPM-compatible bridge method
+    // to record the invocation and quantity without updating real client reports.
 }
 
 @end

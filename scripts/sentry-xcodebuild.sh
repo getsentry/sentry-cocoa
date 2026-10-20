@@ -260,6 +260,42 @@ format_output() {
     fi
 }
 
+# Package resolution can fail transiently before compilation starts. Retry only
+# that failure, bypassing the repository cache without deleting shared caches.
+run_build() {
+    local output_log="$1"
+    shift
+    local attempt=1
+    local max_attempts=3
+    local status
+    local retry_args=()
+
+    while true; do
+        if NSUnbufferedIO=YES xcodebuild "$@" "${retry_args[@]+${retry_args[@]}}" 2>&1 |
+            tee "$output_log" |
+            format_output --preserve-unbeautified; then
+            return 0
+        else
+            status=$?
+        fi
+
+        if ! grep -Fq 'Could not resolve package dependencies' "$output_log"; then
+            return "$status"
+        fi
+
+        if [ "$attempt" -ge "$max_attempts" ]; then
+            log_error "Package resolution failed after $max_attempts attempts"
+            return "$status"
+        fi
+
+        cp "$output_log" "${output_log%.log}-attempt-$attempt.log"
+        log_info "Package resolution failed (attempt $attempt/$max_attempts). Retrying without the repository cache in $((attempt * 5)) seconds."
+        sleep "$((attempt * 5))"
+        retry_args=(-disablePackageRepositoryCache)
+        attempt=$((attempt + 1))
+    done
+}
+
 if [ $RUN_BUILD == true ]; then
     log_info "Running xcodebuild build"
 
@@ -273,11 +309,7 @@ if [ $RUN_BUILD == true ]; then
     [[ -n "$DERIVED_DATA_PATH" ]] && BUILD_ARGS+=(-derivedDataPath "$DERIVED_DATA_PATH")
     BUILD_ARGS+=("${XCCONFIG_ARGS[@]+${XCCONFIG_ARGS[@]}}")
 
-    set -o pipefail && NSUnbufferedIO=YES xcodebuild \
-        "${BUILD_ARGS[@]}" \
-        build 2>&1 |
-        tee raw-build-output.log |
-        format_output --preserve-unbeautified
+    run_build raw-build-output.log "${BUILD_ARGS[@]}" build
 fi
 
 TEST_PLAN_ARGS=()
@@ -313,11 +345,7 @@ if [ $RUN_BUILD_FOR_TESTING == true ]; then
     BFT_ARGS+=(-destination "$DESTINATION")
     BFT_ARGS+=("${XCCONFIG_ARGS[@]+${XCCONFIG_ARGS[@]}}")
 
-    set -o pipefail && NSUnbufferedIO=YES xcodebuild \
-        "${BFT_ARGS[@]}" \
-        build-for-testing 2>&1 |
-        tee raw-build-for-testing-output.log |
-        format_output --preserve-unbeautified
+    run_build raw-build-for-testing-output.log "${BFT_ARGS[@]}" build-for-testing
 fi
 
 if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then

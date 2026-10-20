@@ -322,8 +322,15 @@ targets += [
         name: "SentryTestUtilsObjC",
         dependencies: ["SentryObjCInternal", "SentrySwift", "_SentryPrivate", "SentryHeaders", "SentryTestUtilsObjCpp"],
         path: "SentryTestUtils/SourcesObjC",
+        // One fixture bundle shared by Swift and Clang tests. Copy preserves nested paths.
+        resources: [
+            .copy("../../Tests/Resources"),
+            .copy("../../Tests/SentryTests/Helper/InfoPlist/TestInfoPlist.plist")
+        ],
         cSettings: [
             .headerSearchPath("."),
+            // Xcode's generated ObjC resource accessor has a non-prototype C function.
+            .unsafeFlags(["-Wno-strict-prototypes"]),
             .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
         ] + cSettings,
         linkerSettings: [
@@ -384,6 +391,30 @@ targets += [
     )
 ]
 
+// Public API tests exercise the hand-written ObjC headers, not the Swift compat implementation.
+targets += [
+    .testTarget(
+        name: "SentryObjCTests",
+        dependencies: ["SentryObjC"],
+        path: "Tests/SentryObjCTests",
+        exclude: ["Swift"],
+        cSettings: [
+            .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
+        ] + cSettings
+    ),
+    .testTarget(
+        name: "SentryObjCTestsSwift",
+        dependencies: ["SentryObjC", "SentryTestUtils"],
+        path: "Tests/SentryObjCTests/Swift",
+        cSettings: [
+            .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
+        ] + cSettings,
+        swiftSettings: [
+            .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"]))
+        ] + swiftSettings
+    )
+]
+
 // Match the entire V9-only Xcode profiler suite, including its wrapper tests.
 // Traits cannot remove targets, so source guards also exclude this suite when V10 is selected.
 if !envSelectsV10 {
@@ -393,19 +424,28 @@ if !envSelectsV10 {
             dependencies: ["SentrySwift", "SentryTestUtils", "SentryTestUtilsObjC", "SentryTestUtilsObjCpp"],
             path: "Tests/SentryProfilerTests",
             exclude: ["ObjC"],
-            cSettings: cSettings,
-            swiftSettings: swiftSettings
+            // Keep Swift's Clang importer consistent with the NoUI SDK declarations.
+            cSettings: [
+                .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
+            ] + cSettings,
+            swiftSettings: [
+                .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"]))
+            ] + swiftSettings
         ),
         .testTarget(
             name: "SentryProfilerTestsObjC",
             dependencies: ["SentryObjCInternal", "SentryTestUtilsObjCpp"],
             path: "Tests/SentryProfilerTests/ObjC",
             cSettings: [
-                .headerSearchPath("../../../Sources/Sentry")
+                .headerSearchPath("../../../Sources/Sentry"),
+                .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
             ] + cSettings,
             // Xcode disables C++ modules for package test bundles by default. The ObjC++
             // tests import SentrySwift's generated Objective-C interface as a Clang module.
-            cxxSettings: [.unsafeFlags(["-fmodules", "-fcxx-modules"])] + cxxSettings,
+            cxxSettings: [
+                .unsafeFlags(["-fmodules", "-fcxx-modules"]),
+                .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
+            ] + cxxSettings,
             linkerSettings: [.linkedLibrary("c++")]
         )
     ]
