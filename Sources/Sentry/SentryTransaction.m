@@ -90,6 +90,11 @@ NS_ASSUME_NONNULL_BEGIN
 
     NSMutableArray *serializedSpans = [[NSMutableArray alloc] init];
     for (id<SentryInternalSerializable> span in self.spans) {
+#if SDK_V10
+        if (![span conformsToProtocol:@protocol(SentryInternalSerializable)]) {
+            continue;
+        }
+#endif
         [serializedSpans addObject:[span serialize]];
     }
     serializedData[@"spans"] = serializedSpans;

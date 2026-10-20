@@ -1490,6 +1490,54 @@ class SentryScopeSwiftTests: XCTestCase {
     }
 #endif // os(macOS)
 
+    #if SDK_V10
+    func testSerialize_whenSpanIsCustom_shouldUsePropagationContext() throws {
+        // -- Arrange --
+        let scope = Scope()
+        scope.span = NotOfTypeSpan()
+
+        // -- Act --
+        let serialized = scope.serialize()
+
+        // -- Assert --
+        let trace = try XCTUnwrap(serialized["traceContext"] as? [String: String])
+        XCTAssertEqual(trace, scope.propagationContext.traceContextForEvent())
+    }
+
+    func testApplyToEvent_whenSpanIsCustom_shouldUsePropagationContext() throws {
+        // -- Arrange --
+        let scope = Scope()
+        scope.span = NotOfTypeSpan()
+        let event = Event()
+
+        // -- Act --
+        scope.applyTo(event: event, maxBreadcrumbs: 0)
+
+        // -- Assert --
+        let trace = try XCTUnwrap(event.context?["trace"] as? [String: String])
+        XCTAssertEqual(trace, scope.propagationContext.traceContextForEvent())
+    }
+
+    func testSerializeTransaction_whenChildIsCustom_shouldKeepOnlySDKSpans() throws {
+        // -- Arrange --
+        let tracer = try XCTUnwrap(fixture.transaction as? SentryTracer)
+        #if os(iOS) || os(tvOS) || os(visionOS)
+        let sdkSpan = SentrySpanInternal(context: SpanContext(operation: "sdk"), framesTracker: nil)
+        #else
+        let sdkSpan = SentrySpanInternal(context: SpanContext(operation: "sdk"))
+        #endif
+        let transaction = Transaction(trace: tracer, children: [NotOfTypeSpan(), sdkSpan])
+
+        // -- Act --
+        let serialized = transaction.serialize()
+
+        // -- Assert --
+        let spans = try XCTUnwrap(serialized["spans"] as? [[String: Any]])
+        XCTAssertEqual(spans.count, 1)
+        XCTAssertEqual(spans.first?["span_id"] as? String, sdkSpan.spanId.sentrySpanIdString)
+    }
+    #endif
+
     func testGetCasedInternalSpan_SpanIsOfDifferentType() {
         // -- Arrange --
         let scope = Scope()
@@ -1969,8 +2017,10 @@ private final class NotOfTypeSpan: NSObject, Span {
     func toTraceHeader() -> TraceHeader { return TraceHeader(trace: traceId, spanId: spanId, sampled: sampled) }
     func baggageHttpHeader() -> String? { return nil }
 
+    #if !SDK_V10
     // MARK: - SentrySerializable (no-op payload)
     func serialize() -> [String: Any] { return [:] }
+    #endif
 }
 
 private final class SubClassOfSentrySpanInternal: SentrySpanInternal {}
