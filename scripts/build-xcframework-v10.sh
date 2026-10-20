@@ -88,14 +88,6 @@ for sdk in "${sdks[@]}"; do
     done
     "$SCRIPT_DIR/build-xcframework-slice.sh" "${slice_args[@]}"
 
-    # Framework consumers do not inherit the archive's compiler definitions. Resolve V10
-    # gates in the distributed headers, as the SentryObjC XCFramework builder does.
-    headers_path="XCFrameworkBuildPath/archive/$SCHEME$SUFFIX/$sdk.xcarchive/Products/Library/Frameworks/$PRODUCT_NAME.framework/Headers"
-    for header in "$headers_path"/*.h; do
-        unifdef -DSDK_V10=1 -o "$header.v10" "$header" || [ $? -eq 1 ]
-        mv "$header.v10" "$header"
-    done
-
     # Archive moves installed products away, leaving dangling BuildProductsPath aliases.
     # All recorded compiler outputs remain in IntermediateBuildFilesPath; the audit
     # requires every recorded output to be inside this root and present on disk.
