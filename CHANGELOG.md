@@ -6,6 +6,10 @@
 
 - Add experimental MetricKit hang flame graph attachments via `options.experimental.metrickit.hangReportingMode = .flamegraphAttachment`, also available through `SentryObjC`. The default `.legacy` mode reports the flattened call stack tree, which is also retained when flame graph attachment creation fails (#9347)
 
+### Fixes
+
+- Increase the crash report read limit in SentryCrash to 20 MB (#9386)
+
 ## 9.30.2
 
 ### Fixes

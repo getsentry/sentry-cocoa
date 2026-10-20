@@ -266,7 +266,16 @@ targets += [
         name: "SentryTestUtilsObjC",
         dependencies: ["SentryObjCInternal", "SentrySwift", "_SentryPrivate", "SentryHeaders", "SentryTestUtilsObjCpp"],
         path: "SentryTestUtils/SourcesObjC",
-        cSettings: [.headerSearchPath(".")] + cSettings,
+        // One fixture bundle shared by Swift and Clang tests. Copy preserves nested paths.
+        resources: [
+            .copy("../../Tests/Resources"),
+            .copy("../../Tests/SentryTests/Helper/InfoPlist/TestInfoPlist.plist")
+        ],
+        cSettings: [
+            .headerSearchPath("."),
+            // Xcode's generated ObjC resource accessor has a non-prototype C function.
+            .unsafeFlags(["-Wno-strict-prototypes"])
+        ] + cSettings,
         linkerSettings: [
             .linkedLibrary("z"),
             // Equality categories have no referenced symbols to pull them out of a static archive.
@@ -310,6 +319,24 @@ targets += [
         path: "Tests/SentryObjCCompatTests",
         cSettings: cSettings,
         swiftSettings: swiftSettings + objcCompatSwiftSettings
+    )
+]
+
+// Public API tests exercise the hand-written ObjC headers, not the Swift compat implementation.
+targets += [
+    .testTarget(
+        name: "SentryObjCTests",
+        dependencies: ["SentryObjC"],
+        path: "Tests/SentryObjCTests",
+        exclude: ["Swift"],
+        cSettings: cSettings
+    ),
+    .testTarget(
+        name: "SentryObjCTestsSwift",
+        dependencies: ["SentryObjC", "SentryTestUtils"],
+        path: "Tests/SentryObjCTests/Swift",
+        cSettings: cSettings,
+        swiftSettings: swiftSettings
     )
 ]
 

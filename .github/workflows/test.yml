@@ -70,14 +70,14 @@ jobs:
           make release-universal 2>&1 | tee test-server-build.log
 
       - name: Archiving DerivedData
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: test-server
           path: |
             ./test-server/test-server-exec
 
       - name: Archiving Raw Test Logs
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: test-server-build-log
@@ -112,6 +112,8 @@ jobs:
     needs: files-changed
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
       - name: Select Xcode
         uses: ./.github/actions/setup-xcode
         with:
@@ -140,6 +142,8 @@ jobs:
           # Keep the result bundle outside the package: updates inside it trigger package-graph
           # reloads that can invalidate test bundles and crash Xcode between test targets.
           status=0
+          # Simulator tests do not need signing; codesign rejects the fixture bundle's
+          # copied Resources/ directory. Keep this override scoped to this test command.
           # Xcode, not the shell, expands $(inherited).
           # shellcheck disable=SC2016
           NSUnbufferedIO=YES xcodebuild test -workspace . -scheme SentrySPM \
@@ -151,6 +155,7 @@ jobs:
             -xcconfig Tests/Configuration/SwiftPM.xcconfig \
             'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SENTRY_TEST_CI' \
             'GCC_PREPROCESSOR_DEFINITIONS=$(inherited) DEBUG=1 SENTRY_TEST=1 SENTRY_TEST_CI=1' \
+            CODE_SIGNING_ALLOWED=NO \
             > raw-test-output-distribution.log 2>&1 || status=$?
           xcbeautify --preserve-unbeautified < raw-test-output-distribution.log
           exit "$status"
@@ -174,14 +179,14 @@ jobs:
             exit 1
           fi
       - name: Upload Distribution Test Logs
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-test-output-distribution-${{ matrix.mode }}
           path: raw-test-output-distribution.log
 
       - name: Archiving Test Results
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: result-bundle-distribution-${{ matrix.mode }}
@@ -217,7 +222,9 @@ jobs:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: test-server
 
@@ -272,7 +279,7 @@ jobs:
         run: make -C test-server stop
 
       - name: Archiving DerivedData Logs
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: steps.build_tests.outcome == 'failure'
         with:
           name: derived-data-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
@@ -280,7 +287,7 @@ jobs:
             /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
 
       - name: Archiving Raw Logs
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-output-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
@@ -290,14 +297,14 @@ jobs:
             raw-test-output.log
 
       - name: Archiving Test Results
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: result-bundle-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
           path: results.xcresult
 
       - name: Archiving Crash Logs
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: crash-logs-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}

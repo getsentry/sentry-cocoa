@@ -46,8 +46,6 @@ jobs:
     needs: run-full-ci-gate
     outputs:
       run_release_for_prs: ${{ steps.changes.outputs.run_release_for_prs }}
-      is_dependabot: ${{ github.actor == 'dependabot[bot]' }}
-      is_fork: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Get changed files
@@ -174,7 +172,9 @@ jobs:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
@@ -231,7 +231,9 @@ jobs:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
@@ -276,7 +278,9 @@ jobs:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
@@ -321,7 +325,9 @@ jobs:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
@@ -365,7 +371,9 @@ jobs:
       - name: Warm CoreSimulator
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
@@ -408,82 +416,6 @@ jobs:
       needs_xcframework: true
       platform: macOS
 
-  app-metrics:
-    name: Collect App Metrics
-    runs-on: macos-15
-    needs: [files-changed, assemble-xcframework-variant]
-    # Run for PRs with related changes (including dependabot) or non-PR events. Skip fork PRs (no secrets available).
-    if: |
-      github.event_name != 'pull_request' || (
-        needs.files-changed.outputs.run_release_for_prs == 'true' &&
-        needs.files-changed.outputs.is_fork != 'true' && (
-          contains(
-          fromJson('["OWNER", "MEMBER", "COLLABORATOR", "CONTRIBUTOR"]'),
-          github.event.pull_request.author_association
-        ) ||
-        needs.files-changed.outputs.is_dependabot == 'true')
-      )
-    timeout-minutes: 20
-    steps:
-      - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
-      - name: Git checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Setup Xcode
-        uses: ./.github/actions/setup-xcode
-        with:
-          version: "16"
-          resolve-simulators: "false"
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
-        with:
-          bundler-cache: true
-      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        id: app-plain-cache
-        with:
-          path: Tests/Perf/test-app-plain.ipa
-          key: ${{ github.workflow }}-${{ github.job }}-appplain-${{ hashFiles('fastlane/Fastfile', 'Tests/Perf/test-app-plain/**') }}
-      # When running the workflows for dependabot PRs, we need to skip code signing, because the code signing secrets are not available for dependabot PRs.
-      # We still want to run as much of the full workflow as possible, to verify the behaviour.
-      - name: Build test app plain
-        if: steps.app-plain-cache.outputs['cache-hit'] != 'true'
-        run: |
-          bundle exec fastlane build_perf_test_app_plain \
-            skip_codesigning:${{ needs.files-changed.outputs.is_dependabot == 'true' }}
-        env:
-          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
-          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
-        with:
-          pattern: xcframework-${{github.sha}}-sentry-dynamic
-          path: XCFrameworkBuildPath/
-      - run: find XCFrameworkBuildPath -name "Sentry-Dynamic.xcframework.zip" -print0 | xargs -t0I @ unzip @ -d XCFrameworkBuildPath
-      - name: Build test app with sentry
-        run: |
-          bundle exec fastlane build_perf_test_app_sentry \
-            skip_codesigning:${{ needs.files-changed.outputs.is_dependabot == 'true' }}
-        env:
-          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
-          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
-      - name: Collect app metrics
-        if: needs.files-changed.outputs.is_dependabot != 'true'
-        uses: getsentry/action-app-sdk-overhead-metrics@44fb5489ac4ac252c87d84811972dc93a1e490b8
-        with:
-          config: Tests/Perf/metrics-test.yml
-          sauce-user: ${{ secrets.SAUCE_USERNAME }}
-          sauce-key: ${{ secrets.SAUCE_ACCESS_KEY }}
-      - name: App metrics collection skipped
-        if: needs.files-changed.outputs.is_dependabot == 'true'
-        run: |
-          echo "::warning::App metrics collection was SKIPPED ON PURPOSE for dependabot PR. Code signing secrets are not available for dependabot PRs."
-      - name: Run CI Diagnostics
-        uses: ./.github/actions/ci-diagnostics
-        if: ${{ failure() || cancelled() }}
-
   job_release:
     runs-on: ubuntu-latest
     name: "Release New Version"
@@ -495,7 +427,6 @@ jobs:
         validate-spm-dynamic,
         swift-build,
         duplication-tests,
-        app-metrics,
         assemble-sentryobjc-static-xcframework,
         assemble-sentryobjc-dynamic-xcframework,
       ]
@@ -503,7 +434,7 @@ jobs:
     steps:
       - name: Get auth token
         id: token
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
           app-id: ${{ vars.SENTRY_RELEASE_BOT_CLIENT_ID }}
           private-key: ${{ secrets.SENTRY_RELEASE_BOT_PRIVATE_KEY }}
@@ -513,7 +444,7 @@ jobs:
           token: ${{ steps.token.outputs.token }}
           fetch-depth: 0
 
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
@@ -540,7 +471,7 @@ jobs:
             --output-dir XCFrameworkBuildPath
 
       - name: Archive XCFrameworks for Craft
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: xcframeworks.zip
           if-no-files-found: error
@@ -582,7 +513,6 @@ jobs:
         validate-spm-dynamic,
         swift-build,
         duplication-tests,
-        app-metrics,
         run-full-ci-gate,
       ]
     name: Release

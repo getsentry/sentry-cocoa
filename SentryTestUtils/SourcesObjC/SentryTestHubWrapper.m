@@ -25,6 +25,8 @@
                          withScope:(SentryScope *)scope
            additionalEnvelopeItems:(NSArray *)additionalEnvelopeItems
 {
+    // Return only the event ID: Swift TestHub overrides this SwiftPM-compatible bridge method
+    // to record the invocation without capturing a real event.
     return event.eventId;
 }
 

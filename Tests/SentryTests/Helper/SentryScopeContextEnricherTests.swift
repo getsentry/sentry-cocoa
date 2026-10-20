@@ -194,7 +194,7 @@ final class SentryDefaultScopeContextEnricherTests: XCTestCase {
     }
 
     func testDefaultSystemInfoProviderProducesMeaningfulContext() throws {
-        let binaryImageCache = SentryBinaryImageCache()
+        let binaryImageCache = SentryBinaryImageCache(processInfoWrapper: ProcessInfo.processInfo)
         binaryImageCache.start(false)
         let memoryMetricsProvider = SentryDefaultMemoryMetricsProvider()
         let dateProvider = TestCurrentDateProvider()
@@ -236,7 +236,8 @@ final class SentryDefaultScopeContextEnricherTests: XCTestCase {
             size: 1
         )
         let binaryImageCache = SentryBinaryImageCache(
-            provider: ScopeContextBinaryImageProvider(images: [image])
+            provider: ScopeContextBinaryImageProvider(images: [image]),
+            processInfoWrapper: MockSentryProcessInfo()
         )
         binaryImageCache.start(false)
         let provider = SentryDefaultSystemInfoProvider(

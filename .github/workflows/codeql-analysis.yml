@@ -57,6 +57,8 @@ jobs:
         run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Git access
+        uses: ./.github/actions/setup-git-access
       - name: Initialize CodeQL
         uses: github/codeql-action/init@256d634097be96e792d6764f9edaefc4320557b1 # v4
         with:
@@ -83,7 +85,7 @@ jobs:
             tee raw-analyze-output.log |
             xcbeautify --preserve-unbeautified
         env:
-          IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
+          IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
 
       - name: Perform CodeQL Analysis
