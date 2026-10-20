@@ -122,7 +122,7 @@ class SentryCrashInstallationTests: XCTestCase {
             crashReporter: container.crashReporter
         )
         container.crashReporter.setBridge(bridge)
-        installation.bridge = bridge
+        installation.setBridgeObject(bridge)
         return installation
     }
 

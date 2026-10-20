@@ -72,7 +72,7 @@ final class SentryContinuousProfilerTests: XCTestCase {
         try performContinuousProfilingTest(expectedEnvironment: expectedEnvironment)
     }
 
-#if !os(macOS)
+#if !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
 
 #if !SDK_V10
     func testDoesNotStopFramesTracker_WhenAppHangsV2Enabled() throws {
@@ -90,7 +90,7 @@ final class SentryContinuousProfilerTests: XCTestCase {
         fixture.notificationCenter.post(Notification(name: UIApplication.willResignActiveNotification, object: nil))
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
-    #endif // !os(macOS)
+    #endif // !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
 
     // test that after starting the continuous profiler and waiting for more
     // than 30 seconds, the profiler is still running; (tests that the trace
@@ -274,9 +274,9 @@ private extension SentryContinuousProfilerTests {
             try fixture.timeoutTimerFactory.check()
             XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
             try assertValidData(expectedEnvironment: expectedEnvironment, expectedAddresses: expectedAddresses, countMetricsReadingAtProfileStart: countMetricsReadingAtProfileStart)
-    #if  os(iOS) || os(tvOS)
+    #if !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
             fixture.resetProfileGPUExpectations()
-    #endif //  os(iOS) || os(tvOS)
+    #endif // !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
             fixture.currentDateProvider.advanceBy(interval: 1)
         }
         
@@ -386,11 +386,15 @@ private extension SentryContinuousProfilerTests {
         try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyCPUEnergyUsage, expectedValue: fixture.mockMetrics.cpuEnergyUsage, expectedUnits: kSentryMetricProfilerSerializationUnitNanoJoules, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime, readingsPerBatch: expectedReadingsPerBatch, expectOneLessEnergyReading: countMetricsReadingAtProfileStart)
         #endif // arch(arm) || arch(arm64)
 
-#if !os(macOS)
+#if !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
         try assertMetricEntries(measurements: measurements, key: kSentryProfilerSerializationKeySlowFrameRenders, expectedEntries: fixture.expectedContinuousProfileSlowFrames, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime)
         try assertMetricEntries(measurements: measurements, key: kSentryProfilerSerializationKeyFrozenFrameRenders, expectedEntries: fixture.expectedContinuousProfileFrozenFrames, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime)
         try assertMetricEntries(measurements: measurements, key: kSentryProfilerSerializationKeyFrameRates, expectedEntries: fixture.expectedContinuousProfileFrameRateChanges, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime)
-#endif // !os(macOS)
+#else
+        XCTAssertNil(measurements[kSentryProfilerSerializationKeySlowFrameRenders])
+        XCTAssertNil(measurements[kSentryProfilerSerializationKeyFrozenFrameRenders])
+        XCTAssertNil(measurements[kSentryProfilerSerializationKeyFrameRates])
+#endif // !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
     }
     
     func assertMetricEntries(measurements: [String: Any], key: String, expectedEntries: [[String: Any]], chunkStartTime: TimeInterval, chunkEndTime: TimeInterval) throws {

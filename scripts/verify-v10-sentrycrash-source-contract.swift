@@ -185,8 +185,7 @@ private func run() throws {
 
     for umbrella in [
         "Sources/Sentry/include/SentryPrivate.h",
-        "SentryTestUtils/SourcesObjC/include/SentryTestUtilsObjC-SDKHeaders.h",
-        "Tests/SentryTests/SentryTests-Bridging-Header.h"
+        "SentryTestUtils/SourcesObjC/include/SentryTestUtilsObjC-SDKHeaders.h"
     ] {
         for name in try activeV10Imports(umbrella).intersection(v9HeaderNames).sorted() {
             report("\(umbrella) imports recorder header in its V10 branch: \(name)")

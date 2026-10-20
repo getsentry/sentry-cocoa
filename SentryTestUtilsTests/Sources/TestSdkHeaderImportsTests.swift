@@ -1,8 +1,9 @@
 import _SentryPrivate
 #if SWIFT_PACKAGE
+@testable import SentrySwift
 import SentryHeaders
 #else
-import Sentry
+@testable import Sentry
 #endif
 import SentryTestUtilsObjC
 import XCTest
@@ -35,7 +36,7 @@ final class TestSdkHeaderImportsTests: XCTestCase {
         XCTAssertEqual(geo.city, "Vienna")
     }
 
-    func testStatusCodeHeader_whenImported_shouldExposeRangeCheck() {
+    func testStatusCodeRange_whenImported_shouldExposeRangeCheck() {
         // -- Arrange --
         let range = HttpStatusCodeRange(min: 500, max: 599)
 

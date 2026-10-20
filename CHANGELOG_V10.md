@@ -46,6 +46,7 @@
 - Remove the legacy `enableMetrics` option. Metrics remain available without an enable flag, and `beforeSendMetric` can still modify or drop metrics (#9134)
 - Move `experimental.enableUnhandledCPPExceptionsV2` to the stable `options.enableUnhandledCPPExceptionsV2` API for the KSCrash implementation. The default remains `false`: unhandled C++ exceptions are captured through `std::terminate`; opt in to capture stacks at the throw site. The V2 name distinguishes these two modes (#9175).
 - Mark live stack frames from the main executable as in-app even when `inAppIncludes` is empty, including command-line tools. Main executable detection uses cached binary-image identity (#9393).
+- Use the installation ID as the fallback user ID when a user has a missing or empty ID, preserving other user fields. Disable automatic user information with `options.dataCollection.userInfo` (#9384)
 
 ### Fixes
 

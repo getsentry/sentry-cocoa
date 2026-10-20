@@ -11,6 +11,8 @@
 
 // Import adapted SDK selectors before subclasses so Swift inherits their initializers.
 #import "Wrappers/SentryClient+PrivateWrapper.h"
+#import "Wrappers/SentryEnvelopeRateLimitWrapper.h"
+#import "Wrappers/SentryHttpTransportWrapper.h"
 #import "Wrappers/SentryHub+PrivateWrapper.h"
 #import "Wrappers/SentryScope+PrivateWrapper.h"
 #import "Wrappers/SentrySpanInternal+PrivateWrapper.h"
@@ -35,6 +37,7 @@
 #import "SentryTestHubWrapper.h"
 #import "SentryTestObjCRuntimeWrapper.h"
 #import "SentryTestProfilerWrapper.h"
+#import "SentryTestResourceBundle.h"
 #import "SentryTestStateWrapper.h"
 #import "SentryTracer+Test.h"
 #import "TestSentrySpan.h"

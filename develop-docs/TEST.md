@@ -28,13 +28,22 @@ make test
 
 ### Main Test Source Layout
 
-In `Tests/SentryTests`, keep Swift tests in the existing feature directories, Objective-C tests and their headers under `ObjC/`, and Objective-C++ tests under `ObjCpp/`. Preserve the feature hierarchy within each directory; the Xcode bridging header stays at the root.
+In `Tests/SentryTests`, keep Swift tests in the existing feature directories, Objective-C tests and their headers under `ObjC/`, and Objective-C++ tests under `ObjCpp/`. Preserve the feature hierarchy within each directory.
 
-Shared SDK test declarations belong in [`SentryTestUtilsObjC-SDKHeaders.h`](../SentryTestUtils/SourcesObjC/include/SentryTestUtilsObjC-SDKHeaders.h), exposed through the `SentryTestUtilsObjC` module in both Xcode and SwiftPM. Import declarations already exposed by the SDK from their owning modules instead of duplicating them here. `SentryTestUtils` re-exports the helper module and does not use a bridging header.
+SDK headers that do not need wrapping are exposed through [`SentryTestUtilsObjC-SDKHeaders.h`](../SentryTestUtils/SourcesObjC/include/SentryTestUtilsObjC-SDKHeaders.h) and the `SentryTestUtilsObjC` module in both Xcode and SwiftPM. Import declarations already exposed by the SDK from their owning modules instead of duplicating them here. `SentryTestUtils` re-exports the helper module and does not use a bridging header.
 
-Both `SentryTestUtils/SourcesObjC` and `SentryTestUtils/SourcesObjCpp` use SwiftPM's default `include/` directory for exported test headers and module maps. Implementations and implementation-only headers stay outside `include/`. Xcode discovers both helper modules through `HEADER_SEARCH_PATHS`.
+### Shared Test Support Layout
 
-Keep remaining mixed-language declarations that SwiftPM cannot yet import in [`SentryTests-Bridging-Header.h`](../Tests/SentryTests/SentryTests-Bridging-Header.h) until their APIs are migrated. Do not import generated Swift interfaces into the shared Clang module.
+`SentryTestUtils` keeps the language boundaries required by SwiftPM (`Sources`, `SourcesObjC`, and `SourcesObjCpp`). New files follow this layout within each language directory; existing files retain their current paths:
+
+- **`Wrappers/`** adapts existing SDK functionality to the test module/language boundary. Each SDK adapter file mirrors the SDK header it wraps: for example, `SentryClient+Private.h` maps to `SentryClient+PrivateWrapper.h`. Keep input-only selectors callable directly from their Objective-C declarations. Add matching Swift adapters only when typed results, enum conversion, or overload resolution require them, and Objective-C implementations only when declarations alone are insufficient. Do not combine unrelated SDK types in an SDK-wide access, bridge, or profiling wrapper.
+- **The directory root** contains mocks, spies, fixtures, equality categories, cleanup, and general helpers. A mock stays here even when it subclasses a language adapter in `Wrappers/`.
+
+New Objective-C and Objective-C++ headers belong under `include/Wrappers/` for adapters or directly under `include/` for other test helpers; existing exported headers retain their paths. Implementations and implementation-only headers stay outside `include/`; do not add generated Swift interfaces to the shared Clang modules. Xcode discovers the modules through `HEADER_SEARCH_PATHS`.
+
+[`SentryTestUtilsObjC.h`](../SentryTestUtils/SourcesObjC/include/SentryTestUtilsObjC.h) is an import-only module entry point shared by Xcode and SwiftPM. The Objective-C++ module keeps C++ declarations textual so non-module consumers can include them too.
+
+Same-named forwarding headers exist only where an original SDK header needs to resolve an internal include by filename. Implementation-only forwarders remain in `SourcesObjC/`; `include/SentryCrashMonitorContext.h` must remain at the exported include root for Swift consumers of `SentryCrashReport.h`. These forwarders are header-search plumbing, not additional wrapper APIs.
 
 ### SwiftPM SDK Tests
 
@@ -94,14 +103,15 @@ xcodebuild test -workspace "$package_dir" -scheme SentrySPM \
   -xcconfig "$package_test_config" \
   'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) SENTRY_TEST' \
   'GCC_PREPROCESSOR_DEFINITIONS=$(inherited) DEBUG=1 SENTRY_TEST=1' \
+  CODE_SIGNING_ALLOWED=NO \
   > "$package_dir/package-tests.log" 2>&1 || status=$?
 grep -E 'Executed|error:|TEST SUCCEEDED|TEST FAILED' "$package_dir/package-tests.log"
 (test "$status" -eq 0)
 ```
 
 - For V10, run `export SDK_V10=1` before the commands above.
-- Use an available iOS simulator destination for iOS-specific tests.
-- Limit a run with `-only-testing:<test-target>`, for example `-only-testing:SentryObjCCompatTests`.
+- Use an available iOS simulator destination for iOS-specific tests. `CODE_SIGNING_ALLOWED=NO` avoids fixture-bundle signing errors on macOS and simulators; device tests need a separate signing configuration.
+- Limit a run with `-only-testing:<test-target>`, for example `-only-testing:SentryObjCCompatTests`. The wrapper suites are `SentryObjCTests`, `SentryObjCTestsSwift`, and `SentryObjCCompatTests`.
 - CI uses `TestCI` and the corresponding definitions from the table above. The [Distribution Tests job](../.github/workflows/test.yml) prepares all package manifests, selects Xcode 26 on `macos-26`, and resolves the iOS simulator runtime and device from that toolchain.
 - Keep shared Base exclusions consistent between project and package plans, mapping methods to the Swift or Objective-C package target. Project Base, Flaky, and TestServer plans remain unchanged.
 
@@ -110,7 +120,7 @@ grep -E 'Executed|error:|TEST SUCCEEDED|TEST FAILED' "$package_dir/package-tests
 Plain `swift test` uses SwiftPM's debug and ABI defaults. The opt-in [SwiftPM test configuration](../Tests/Configuration/SwiftPM.xcconfig) aligns package-workspace tests with the project:
 
 - **Test compilation:** `Test`/`TestCI` omit automatic Swift `DEBUG`, preserve manifest definitions, and use unoptimized, testable Sentry builds. Do not substitute `Debug`.
-- **Target settings:** Wrappers and wrapper tests use whole-module compilation. `SentrySwift` and `SentryObjCCompat` use library evolution and verify their textual interfaces.
+- **Target settings:** `SentryObjCCompat` and `SentryObjCCompatTests` use whole-module compilation. `SentrySwift` and `SentryObjCCompat` use library evolution and verify their textual interfaces.
 - **Diagnostics:** Sentry-owned targets use warnings-as-errors; dependencies retain their own settings. Avoid global `-Xswiftc -warnings-as-errors` or `-Xcc -Werror` overrides.
 
 Wrapper language features live in the manifests: `MemberImportVisibility` and approachable concurrency are enabled unconditionally, as both are available in the oldest supported Xcode (26, Swift 6.2). They apply to ordinary builds and tests, while the xcconfig remains test-only. See its comments for setting-specific rationale.
