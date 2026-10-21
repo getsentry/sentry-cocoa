@@ -1,3 +1,6 @@
+@import SentryTestUtilsObjC;
+#import "SentryInternalSerializable.h"
+@import _SentryPrivate;
 #import "SentryBreadcrumb.h"
 #import "SentryCrashReportConverter.h"
 #import "SentryDateUtils.h"
@@ -822,7 +825,7 @@
 
 - (NSDictionary *)getCrashReport:(NSString *)path
 {
-    NSString *jsonPath = [[NSBundle bundleForClass:self.class] pathForResource:path ofType:@"json"];
+    NSString *jsonPath = [SentryTestResourceBundle(self.class) pathForResource:path ofType:@"json"];
     if (jsonPath == nil) {
         XCTFail(@"Was unable to find crash report in resources for path: '%@'", path);
         return @{ };

@@ -5,7 +5,9 @@
 #else
 #    import <SentryDefines.h>
 #endif
-#import SENTRY_HEADER(SentrySerializable)
+#if !SDK_V10
+#    import SENTRY_HEADER(SentrySerializable)
+#endif // !SDK_V10
 #import SENTRY_HEADER(SentrySpanContext)
 
 NS_ASSUME_NONNULL_BEGIN
@@ -17,7 +19,11 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryTraceHeader;
 
 NS_SWIFT_NAME(Span)
+#if SDK_V10
+@protocol SentrySpan <NSObject>
+#else
 @protocol SentrySpan <SentrySerializable>
+#endif // SDK_V10
 
 /**
  * Determines which trace the Span belongs to.
@@ -181,7 +187,9 @@ NS_SWIFT_NAME(Span)
  */
 - (nullable NSString *)baggageHttpHeader;
 
+#if !SDK_V10
 - (NSDictionary<NSString *, id> *)serialize;
+#endif // !SDK_V10
 
 @end
 

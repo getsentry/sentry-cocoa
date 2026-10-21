@@ -289,7 +289,8 @@ extension SentryMXManager: MXMetricManagerSubscriber {
         }
 
         let encodedCallStackTree = callStackTree.jsonRepresentation()
-        let decodedCallStackTree = try SentryMXCallStackTree.from(data: encodedCallStackTree)
+        let decoder = JSONDecoder()
+        let decodedCallStackTree = try decoder.decode(SentryMXCallStackTree.self, from: encodedCallStackTree)
 
         let debugMeta = decodedCallStackTree.toDebugMeta()
         let threads: [SentryThread]

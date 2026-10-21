@@ -79,6 +79,39 @@ public final class PreviewRedactOptions: SentryRedactOptions {
      */
     public let enableViewRendererV2: Bool
 
+    #if SDK_V10
+    /**
+     * Initializes a new instance of ``PreviewRedactOptions`` with the specified parameters.
+     *
+     * - Parameters:
+     *   - maskAllText: Flag to redact all text in the app by drawing a rectangle over it.
+     *   - maskAllImages: Flag to redact all images in the app by drawing a rectangle over it.
+     *   - maskedViewClasses: The classes of views to mask.
+     *   - unmaskedViewClasses: The classes of views to exclude from masking.
+     *   - excludedViewClasses: A set of view type identifiers that should be excluded from subtree traversal.
+     *   - includedViewClasses: A set of view type identifiers that should be included in subtree traversal.
+     *   - enableViewRendererV2: Enables the up to 5x faster view renderer.
+     *
+     * - Note: See ``SentryReplayOptions.DefaultValues`` for the default values of each parameter.
+     */
+    public init(
+        maskAllText: Bool = true,
+        maskAllImages: Bool = true,
+        maskedViewClasses: [AnyClass] = [],
+        unmaskedViewClasses: [AnyClass] = [],
+        excludedViewClasses: Set<String> = [],
+        includedViewClasses: Set<String> = [],
+        enableViewRendererV2: Bool = SentryReplayOptions.DefaultValues.enableViewRendererV2
+    ) {
+        self.maskAllText = maskAllText
+        self.maskAllImages = maskAllImages
+        self.maskedViewClasses = maskedViewClasses
+        self.unmaskedViewClasses = unmaskedViewClasses
+        self.excludedViewClasses = excludedViewClasses
+        self.includedViewClasses = includedViewClasses
+        self.enableViewRendererV2 = enableViewRendererV2
+    }
+    #else
     /**
      * Initializes a new instance of ``PreviewRedactOptions`` with the specified parameters.
      *
@@ -110,6 +143,7 @@ public final class PreviewRedactOptions: SentryRedactOptions {
         self.includedViewClasses = includedViewClasses
         self.enableViewRendererV2 = enableViewRendererV2
     }
+    #endif // SDK_V10
 }
 
 #endif

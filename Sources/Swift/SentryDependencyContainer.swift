@@ -415,7 +415,6 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     func getAppStartTracker(_ options: Options) -> SentryAppStartTracker {
         #if SDK_V10
         return SentryAppStartTracker(
-            dispatchQueueWrapper: SentryDispatchQueueWrapper(),
             appStateManager: appStateManager,
             enablePreWarmedAppStartTracing: options.enablePreWarmedAppStartTracing,
             dateProvider: dateProvider,
@@ -425,7 +424,6 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         )
         #else
         return SentryAppStartTracker(
-            dispatchQueueWrapper: SentryDispatchQueueWrapper(),
             appStateManager: appStateManager,
             framesTracker: framesTracker,
             enablePreWarmedAppStartTracing: options.enablePreWarmedAppStartTracing,
@@ -507,9 +505,14 @@ extension SentryFileManager: SentryFileManagerProtocol { }
                     viewRenderer = SentryDefaultViewRenderer()
                 }
 
+                #if SDK_V10
+                let redactOptions = options.privacy
+                #else
+                let redactOptions = options.screenshot
+                #endif // SDK_V10
                 let photographer = SentryViewPhotographer(
                     renderer: viewRenderer,
-                    redactOptions: options.screenshot,
+                    redactOptions: redactOptions,
                     enableMaskRendererV2: options.screenshot.enableViewRendererV2,
                     dateProvider: self.dateProvider)
                 return SentryScreenshotSource(photographer: photographer)

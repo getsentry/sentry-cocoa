@@ -6,13 +6,19 @@
 #else
 #    import <SentryDefines.h>
 #endif
-#import SENTRY_HEADER(SentrySerializable)
+#if !SDK_V10
+#    import SENTRY_HEADER(SentrySerializable)
+#endif // !SDK_V10
 #import SENTRY_HEADER(SentryLevel)
 
 NS_ASSUME_NONNULL_BEGIN
 
 NS_SWIFT_NAME(Breadcrumb)
+#if SDK_V10
+@interface SentryBreadcrumb : NSObject
+#else
 @interface SentryBreadcrumb : NSObject <SentrySerializable>
+#endif // SDK_V10
 
 /**
  * Level of breadcrumb
@@ -93,7 +99,9 @@ NS_SWIFT_NAME(Breadcrumb)
 - (instancetype)init;
 + (instancetype)new NS_UNAVAILABLE;
 
+#if !SDK_V10
 - (NSDictionary<NSString *, id> *)serialize;
+#endif // !SDK_V10
 
 - (BOOL)isEqual:(id _Nullable)other;
 

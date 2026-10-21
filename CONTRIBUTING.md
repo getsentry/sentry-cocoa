@@ -7,9 +7,34 @@
 
 # Contributing
 
-We welcome suggested improvements and bug fixes for `sentry-cocoa`, in the form of pull requests. To get early feedback, we recommend opening up a [draft PR](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests#draft-pull-requests). Please follow our official [Commit Guidelines](https://develop.sentry.dev/code-review/#commit-guidelines) and also prefix the title of your PR according to the [Commit Guidelines](https://develop.sentry.dev/code-review/#commit-guidelines). The guide below will help you get started, but if you have further questions, please feel free to reach out on [Discord](https://discord.gg/Ww9hbqr).
+Thanks for your interest in contributing to `sentry-cocoa`! This guide explains how we work with external contributions and how to get your environment set up. If you have questions, reach out on [Discord](https://discord.com/invite/sentry).
 
 For more detailed information, see `develop-docs/README.md`.
+
+## Submitting Changes
+
+**TL;DR: Discuss your change in a GitHub issue before opening a pull request. We may close PRs that weren't discussed with a maintainer first.**
+
+Every line we merge is code we maintain long-term for hundreds of thousands of apps, so we want to agree on the problem and the approach before anyone writes code. This saves time for you and for us.
+
+### Before You Start
+
+1. **Find or create an issue.** Search the [issue tracker](https://github.com/getsentry/sentry-cocoa/issues) first. If nothing fits, open a new issue describing the problem or feature.
+2. **Discuss your approach with a maintainer.** Comment on the issue with what you plan to change and wait for a maintainer to respond before you start working.
+3. **Check the assignee.** If the issue is already assigned to someone else, coordinate with them in the issue before starting work.
+
+### Making Your Contribution
+
+- Fork the repo and make your changes on a branch.
+- Add tests. Non-trivial PRs won't be accepted without them.
+- Don't bump version numbers. We do that when we release.
+- Open a [draft PR](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests#draft-pull-requests) that links the issue (e.g. `Fixes #123`), and mark it ready for review once CI passes.
+- Name your PR according to our [commit message format](https://develop.sentry.dev/commit-messages/#commit-message-format).
+- Keep PRs focused: one change per PR, no unrelated refactors.
+
+### AI Use
+
+You are welcome to use whatever tools you prefer for making a contribution. However, any changes you propose have to be understood, reviewed and tested by you, a human, first, before you submit a pull request with them for the Sentry team to review. If we feel like that didn't happen, we will close the PR outright. For example, we won't review visibly AI-generated PRs from an agent instructed to look for and "fix" open issues in the repo. This aligns with our SDK principle: [every line has an owner](https://develop.sentry.dev/sdk/getting-started/principles/#every-line-has-an-owner).
 
 ## Environment
 
@@ -96,13 +121,22 @@ without a closing keyword is not enough.
 Each Unreleased or version block may only have one heading per section type, for example a single
 `### Features` block. Duplicate section headings are rejected by `make check-changelog`.
 
-## AI Use
+### Changelog merge conflicts
 
-You are welcome to use whatever tools you prefer for making a contribution. However, any changes you propose have to be reviewed and tested by you, a human, first, before you submit a pull request with them for the Sentry team to review. If we feel like that didn't happen, we will close the PR outright. For example, we won't review visibly AI-generated PRs from an agent instructed to look for and "fix" open issues in the repo. This aligns with our SDK principle: [every line has an owner](https://develop.sentry.dev/sdk/getting-started/principles/#every-line-has-an-owner).
+`.gitattributes` marks `CHANGELOG.md` and `CHANGELOG_V10.md` with Git's built-in `merge=union`
+driver, so a local merge or rebase keeps the entries from both sides instead of reporting a
+conflict. GitHub ignores this attribute: the pull request conflict check, the **Update branch**
+button, and the web conflict editor still report changelog conflicts. When a pull request only
+conflicts in a changelog, update it locally and push:
 
-## Final Notes
+```sh
+git fetch origin
+git merge origin/main
+git push
+```
 
-When contributing to the codebase, please make note of the following:
+`git rebase origin/main` followed by `git push --force-with-lease` works too.
 
-- Non-trivial PRs will not be accepted without tests (see above).
-- Please do not bump version numbers yourself.
+The union driver keeps the lines from both sides without understanding Markdown. Check the merged
+changelog: if both sides edited the same entry, it keeps both versions. `make check-changelog`
+rejects duplicate section headings.

@@ -420,7 +420,7 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "old")
         XCTAssertEqual(values.element(at: 1)?["flag"] as? String, "new")
 
-        let data = try XCTUnwrap(transaction.serialize()["data"] as? [String: Any])
+        let data = try XCTUnwrap((try XCTUnwrap(transaction as? SentrySpanInternal)).serialize()["data"] as? [String: Any])
         XCTAssertNil(data["flag.evaluation.old"])
         XCTAssertEqual(try XCTUnwrap(data["flag.evaluation.new"] as? Bool), true)
     }
@@ -440,7 +440,7 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(values.count, 1)
         XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "checkout")
 
-        let data = try XCTUnwrap(transaction.serialize()["data"] as? [String: Any])
+        let data = try XCTUnwrap((try XCTUnwrap(transaction as? SentrySpanInternal)).serialize()["data"] as? [String: Any])
         XCTAssertNil(data["flag.evaluation.checkout"])
     }
 
@@ -462,11 +462,11 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "root")
         XCTAssertEqual(values.element(at: 1)?["flag"] as? String, "child")
 
-        let transactionData = try XCTUnwrap(transaction.serialize()["data"] as? [String: Any])
+        let transactionData = try XCTUnwrap((try XCTUnwrap(transaction as? SentrySpanInternal)).serialize()["data"] as? [String: Any])
         XCTAssertEqual(try XCTUnwrap(transactionData["flag.evaluation.root"] as? Bool), true)
         XCTAssertNil(transactionData["flag.evaluation.child"])
 
-        let childData = try XCTUnwrap(child.serialize()["data"] as? [String: Any])
+        let childData = try XCTUnwrap((try XCTUnwrap(child as? SentrySpanInternal)).serialize()["data"] as? [String: Any])
         XCTAssertNil(childData["flag.evaluation.root"])
         XCTAssertEqual(try XCTUnwrap(childData["flag.evaluation.child"] as? Bool), true)
     }
@@ -1316,7 +1316,7 @@ class SentryScopeSwiftTests: XCTestCase {
         sut.span = transaction
 
         let traceContext = try XCTUnwrap(observer.traceContext)
-        let serializedTransaction = transaction.serialize()
+        let serializedTransaction = (try XCTUnwrap(transaction as? SentrySpanInternal)).serialize()
 
         var expectedKeys = Set(serializedTransaction.keys)
         // The transaction doesn't serialize the status when it's undefined, but the trace context sets it to OK.
@@ -1560,6 +1560,54 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(actualSpan.spanId, span.spanId)
     }
 #endif // os(macOS)
+
+    #if SDK_V10
+    func testSerialize_whenSpanIsCustom_shouldUsePropagationContext() throws {
+        // -- Arrange --
+        let scope = Scope()
+        scope.span = NotOfTypeSpan()
+
+        // -- Act --
+        let serialized = scope.serialize()
+
+        // -- Assert --
+        let trace = try XCTUnwrap(serialized["traceContext"] as? [String: String])
+        XCTAssertEqual(trace, scope.propagationContext.traceContextForEvent())
+    }
+
+    func testApplyToEvent_whenSpanIsCustom_shouldUsePropagationContext() throws {
+        // -- Arrange --
+        let scope = Scope()
+        scope.span = NotOfTypeSpan()
+        let event = Event()
+
+        // -- Act --
+        scope.applyTo(event: event, maxBreadcrumbs: 0)
+
+        // -- Assert --
+        let trace = try XCTUnwrap(event.context?["trace"] as? [String: String])
+        XCTAssertEqual(trace, scope.propagationContext.traceContextForEvent())
+    }
+
+    func testSerializeTransaction_whenChildIsCustom_shouldKeepOnlySDKSpans() throws {
+        // -- Arrange --
+        let tracer = try XCTUnwrap(fixture.transaction as? SentryTracer)
+        #if os(iOS) || os(tvOS) || os(visionOS)
+        let sdkSpan = SentrySpanInternal(context: SpanContext(operation: "sdk"), framesTracker: nil)
+        #else
+        let sdkSpan = SentrySpanInternal(context: SpanContext(operation: "sdk"))
+        #endif
+        let transaction = Transaction(trace: tracer, children: [NotOfTypeSpan(), sdkSpan])
+
+        // -- Act --
+        let serialized = transaction.serialize()
+
+        // -- Assert --
+        let spans = try XCTUnwrap(serialized["spans"] as? [[String: Any]])
+        XCTAssertEqual(spans.count, 1)
+        XCTAssertEqual(spans.first?["span_id"] as? String, sdkSpan.spanId.sentrySpanIdString)
+    }
+    #endif
 
     func testGetCasedInternalSpan_SpanIsOfDifferentType() {
         // -- Arrange --
@@ -2040,8 +2088,10 @@ private final class NotOfTypeSpan: NSObject, Span {
     func toTraceHeader() -> TraceHeader { return TraceHeader(trace: traceId, spanId: spanId, sampled: sampled) }
     func baggageHttpHeader() -> String? { return nil }
 
+    #if !SDK_V10
     // MARK: - SentrySerializable (no-op payload)
     func serialize() -> [String: Any] { return [:] }
+    #endif
 }
 
 private final class SubClassOfSentrySpanInternal: SentrySpanInternal {}
