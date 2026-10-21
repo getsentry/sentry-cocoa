@@ -424,9 +424,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 /**
- * Transactions are captured on a background thread. Without waiting for pending captures, flush
- * could find nothing to send and return before a transaction that finished right before the call
- * is even stored.
+ * Waits for transaction captures that are still pending on the background thread, so they reach
+ * the transport before flushing.
  * @return The remaining timeout after waiting, or @c 0 if waiting timed out.
  */
 - (NSTimeInterval)waitForPendingTransactionCaptures:(NSTimeInterval)timeout
