@@ -42,6 +42,7 @@
 - [38. Keep opt-out flags free of deprecation warnings](#38-keep-opt-out-flags-free-of-deprecation-warnings)
 - [39. Native SwiftPM test plans](#39-native-swiftpm-test-plans)
 - [40. Develop V10 on main, then branch off V9](#40-develop-v10-on-main-then-branch-off-v9)
+- [41. Generate CHANGELOG.md with Craft](#41-generate-changelogmd-with-craft)
 
 ---
 
@@ -931,3 +932,19 @@ Related links:
 - [Remove SentryCrash from V10](https://github.com/getsentry/sentry-cocoa/issues/8319)
 - [Files to remove or replace for V10](SENTRYCRASH_V10_MIGRATION_LEDGER.md)
 - [V10 build checks](BUILD.md#temporary-v10-development-verification)
+
+## 41. Generate CHANGELOG.md with Craft
+
+Date: October 21, 2026
+Contributors: Phil Niedertscheider
+
+Pull requests no longer edit `CHANGELOG.md`. Every pull request added entries to the same `## Unreleased` section, so open pull requests kept conflicting with each other. GitHub ignores the `merge=union` attribute in `.gitattributes`, so its auto-merge, merge queue and **Update branch** button can't resolve these conflicts, and every local fix reruns CI.
+
+Craft's `auto` changelog policy now generates each release section from the pull requests merged since the previous release, like in sentry-dart. `.github/release.yml` maps the Conventional Commits type of each pull request title to the sections we used before. A `## Changelog Entry` section in the pull request description replaces the title, and the **Changelog Preview** check shows the result on each pull request. We removed Danger, because its changelog check requires a manual entry and can't be configured for this.
+
+`CHANGELOG_V10.md` stays manually edited until V10 development moves to its own release process.
+
+Related links:
+
+- [Craft changelog policies](https://getsentry.github.io/craft/configuration/#changelog-policies)
+- [Contributing: Changelog entries](../CONTRIBUTING.md#changelog-entries-and-linked-issues)

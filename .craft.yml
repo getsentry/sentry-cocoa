@@ -1,5 +1,9 @@
-minVersion: 2.21.3
-changelogPolicy: auto
+minVersion: 2.34.1
+# Craft writes the CHANGELOG.md section of each release from the merged pull
+# requests, categorized by .github/release.yml. See CONTRIBUTING.md.
+changelog:
+  policy: auto
+  scopeGrouping: false
 preReleaseCommand: bash ./scripts/bump.sh
 # Craft looks up artifacts on the workflow runs of the release commit. The
 # 'Upload XCFrameworks' workflow re-uploads the XCFrameworks built in the

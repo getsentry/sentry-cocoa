@@ -85,11 +85,12 @@ SentrySDK (public API)
 - Name branches `<type>/<short-description>`, for example `fix/session-tracking`
 - If pre-commit hooks modify files, inspect the changes and retry the commit
 - Use `git mv` for renames
-- `feat`, `fix`, and `impr` require a `CHANGELOG.md` entry with the pull request number, not an issue number
-- Before the pull request exists, either estimate its number from the current highest issue or pull request, or add the changelog in a follow-up commit after opening the pull request
+- Do not edit `CHANGELOG.md`: Craft generates each release section from merged pull request titles, categorized by `.github/release.yml`
+- For `feat`, `fix`, and `impr`, write the user-facing entry under a `## Changelog Entry` heading in the pull request description
 - Other pull request types require `#skip-changelog` in the pull request description, never in a commit message
+- Never write `#skip-changelog` elsewhere in a description that needs an entry, because Craft drops any pull request whose description contains it
 - V10-only changes go in `CHANGELOG_V10.md` and require `#skip-changelog` in the pull request description
-- Resolve changelog conflicts by merging or rebasing `origin/main` locally, because GitHub ignores the `merge=union` attribute in `.gitattributes`
+- Resolve `CHANGELOG_V10.md` conflicts by merging or rebasing `origin/main` locally, because GitHub ignores the `merge=union` attribute in `.gitattributes`
 - Pull request titles follow the commit subject format
 - Add `run-full-ci` only when the pull request is ready for comprehensive testing
 - After committing, include any `Agent transcript:` link from `git log main..HEAD` in the pull request description
@@ -97,6 +98,6 @@ SentrySDK (public API)
 ## Documentation
 
 - Keep affected headerdocs, comments, maintainer docs, and specification compliance in sync with behavior changes
-- Append changelog entries to the end of their section
+- Append `CHANGELOG_V10.md` entries to the end of their section
 - Place changelog alerts after `## Version` and before section headings
 - Each `##` version, including Unreleased, may only have one `###` heading of a given name

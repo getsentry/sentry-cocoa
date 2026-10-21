@@ -1,0 +1,41 @@
+# Craft generates the CHANGELOG.md section of a release from the pull
+# requests merged since the previous tag (`changelog.policy: auto` in
+# .craft.yml). The pull request title is the entry, unless the description
+# has a `## Changelog Entry` section. See CONTRIBUTING.md.
+#
+# Categories match the section headings CHANGELOG.md has used so far.
+# Craft extends GitHub's release.yml format with `commit_patterns` and
+# `semver`: https://getsentry.github.io/craft/configuration/#changelog-policies
+changelog:
+  exclude:
+    labels:
+      - skip-changelog
+    authors:
+      - dependabot[bot]
+      - dependabot
+      # Tooling version bumps, such as clang-format and SwiftLint.
+      - sentry-mobile-updater[bot]
+      - sentry-mobile-updater
+
+  categories:
+    - title: Breaking Changes
+      commit_patterns:
+        - "^(?<type>\\w+(?:\\((?<scope>[^)]+)\\))?!:\\s*)"
+      semver: major
+    - title: Features
+      commit_patterns:
+        - "^(?<type>feat(?:\\((?<scope>[^)]+)\\))?!?:\\s*)"
+      semver: minor
+    - title: Fixes
+      commit_patterns:
+        - "^(?<type>fix(?:\\((?<scope>[^)]+)\\))?!?:\\s*)"
+        - '^Revert "'
+      semver: patch
+    - title: Improvements
+      commit_patterns:
+        - "^(?<type>(?:impr|perf)(?:\\((?<scope>[^)]+)\\))?!?:\\s*)"
+      semver: patch
+    - title: Internal
+      commit_patterns:
+        - "^(?<type>(?:build|chore|ci|docs?|meta|ref|refactor|style|tests?)(?:\\((?<scope>[^)]+)\\))?!?:\\s*)"
+      semver: patch

@@ -1,0 +1,32 @@
+name: Changelog Preview
+
+# Comments on each pull request with the CHANGELOG.md entry Craft will
+# generate for it at release time, based on the pull request title or the
+# `## Changelog Entry` section of its description. See CONTRIBUTING.md.
+#
+# pull_request_target lets the comment work on pull requests from forks. It
+# is safe here because the reusable workflow downloads a released Craft
+# binary and only reads git metadata and .craft.yml; it never runs code from
+# the pull request.
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, edited, labeled, unlabeled]
+
+# Concurrency configuration:
+# - This workflow only runs on pull requests, and only the preview for the
+#   latest title, description, and commits matters, so we always cancel
+#   in-progress runs.
+# - We group by pull request number because github.ref is the base branch
+#   for pull_request_target events.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  statuses: write
+
+jobs:
+  changelog-preview:
+    uses: getsentry/craft/.github/workflows/changelog-preview.yml@0ff75896d43285ca376c7254e8143bac23acd429 # 2.35.1

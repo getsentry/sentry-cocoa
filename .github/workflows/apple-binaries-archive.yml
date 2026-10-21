@@ -39,13 +39,15 @@ jobs:
           mkdir -p XCFrameworkBuildPath
           echo "<FAKE STATIC ZIP>" > XCFrameworkBuildPath/Sentry.xcframework.zip
           echo "<FAKE SENTRYOBJC STATIC ZIP>" > XCFrameworkBuildPath/SentryObjC-Static.xcframework.zip
+          printf '### Fixes\n\n- Fake generated entry by @user in [#1](https://github.com/getsentry/sentry-cocoa/pull/1)\n' > "$RUNNER_TEMP/release-changelog.md"
 
       - name: Create archive
         run: |
           ./scripts/create-apple-binaries-archive.sh \
             --version "99.0.0" \
             --xcframework-dir XCFrameworkBuildPath \
-            --output-dir XCFrameworkBuildPath
+            --output-dir XCFrameworkBuildPath \
+            --changelog-section "$RUNNER_TEMP/release-changelog.md"
 
       - name: Verify archive contents
         run: |
@@ -62,6 +64,14 @@ jobs:
 
           # Verify version was stamped
           grep -q "releases/download/99.0.0/" /tmp/apple-binaries-verify/Package.swift
+
+          # Verify the generated release notes are the first version section
+          FIRST_SECTION=$(grep -m1 '^## ' /tmp/apple-binaries-verify/CHANGELOG.md)
+          if [ "$FIRST_SECTION" != "## 99.0.0" ]; then
+            echo "Expected '## 99.0.0' as the first section but found '$FIRST_SECTION'"
+            exit 1
+          fi
+          grep -q "^- Fake generated entry by @user" /tmp/apple-binaries-verify/CHANGELOG.md
 
           # Verify checksums were updated (should match the fake zips)
           EXPECTED_STATIC=$(sha256sum XCFrameworkBuildPath/Sentry.xcframework.zip | awk '{print $1}')

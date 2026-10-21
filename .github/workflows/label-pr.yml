@@ -26,7 +26,7 @@ jobs:
       - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
-            // skip-changelog is intentionally not managed here: Danger/cross-repo
+            // skip-changelog is intentionally not managed here: Craft/cross-repo
             // checks read #skip-changelog from the PR body, and applying the label
             // on open retriggers pull_request workflows that listen for `labeled`.
             const MANAGED_LABELS = ['approved', 'changes-requested'];

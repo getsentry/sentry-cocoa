@@ -112,22 +112,55 @@ make lint
 
 ## Changelog entries and linked issues
 
-Changelog entries are generated from merged PRs (see Danger and release tooling). If a PR should
-trigger a comment on a linked issue after a release ships, use a GitHub closing keyword in the PR
-description, such as `Fixes #123`, `Closes #123`, or `Resolves #123`. The release notification
-workflow only comments on issues GitHub recognizes as closed by the released PR; mentioning an issue
-without a closing keyword is not enough.
+Do not edit `CHANGELOG.md` in pull requests. When a release is prepared, [Craft](https://getsentry.github.io/craft/configuration/#changelog-policies)
+generates its `CHANGELOG.md` section from the pull requests merged since the previous release, so
+pull requests no longer conflict on the changelog. `.github/release.yml` maps the
+[Conventional Commits](https://www.conventionalcommits.org/) type of each pull request title to a
+section:
 
-Each Unreleased or version block may only have one heading per section type, for example a single
-`### Features` block. Duplicate section headings are rejected by `make check-changelog`.
+| Pull request title                                  | Section            |
+| --------------------------------------------------- | ------------------ |
+| `feat!:`, `fix!:`, and so on                        | `Breaking Changes` |
+| `feat:`                                             | `Features`         |
+| `fix:` or `Revert "…"`                              | `Fixes`            |
+| `impr:` or `perf:`                                  | `Improvements`     |
+| `ref:`, `chore:`, `test:`, `ci:`, `docs:`, `build:` | `Internal`         |
+
+Each entry is the pull request title without its type, followed by the author and a link to the pull
+request. Pull request titles are short, so for user-facing changes write the entry in the pull request
+description under a `## Changelog Entry` heading. Craft uses that text instead of the title:
+
+```markdown
+## Changelog Entry
+
+- Fix an `EXC_BAD_ACCESS` crash in `cow_cleanup` when a `URLSessionTask` changes state while another
+  thread writes protocol properties into its request
+```
+
+Each top-level bullet becomes a separate entry, and nested bullets stay under their entry. The
+**Changelog Preview** check comments on every pull request with the entry Craft will generate, so
+review it like any other part of the change.
+
+Add `#skip-changelog` to the pull request description, or the `skip-changelog` label, to leave a
+pull request out of the changelog. Use it for changes users don't notice, and only there: Craft drops
+every pull request whose description contains that text anywhere, including in HTML comments and
+quotes. Dependabot and tooling update pull requests are excluded automatically.
+
+V10-only changes still go in `CHANGELOG_V10.md` by hand and need `#skip-changelog`, so they don't
+appear in the v9 changelog.
+
+If a PR should trigger a comment on a linked issue after a release ships, use a GitHub closing keyword
+in the PR description, such as `Fixes #123`, `Closes #123`, or `Resolves #123`. The release
+notification workflow only comments on issues GitHub recognizes as closed by the released PR;
+mentioning an issue without a closing keyword is not enough.
 
 ### Changelog merge conflicts
 
-`.gitattributes` marks `CHANGELOG.md` and `CHANGELOG_V10.md` with Git's built-in `merge=union`
-driver, so a local merge or rebase keeps the entries from both sides instead of reporting a
-conflict. GitHub ignores this attribute: the pull request conflict check, the **Update branch**
-button, and the web conflict editor still report changelog conflicts. When a pull request only
-conflicts in a changelog, update it locally and push:
+`CHANGELOG_V10.md` is still edited by hand. `.gitattributes` marks it and `CHANGELOG.md` with Git's
+built-in `merge=union` driver, so a local merge or rebase keeps the entries from both sides instead of
+reporting a conflict. GitHub ignores this attribute: the pull request conflict check, the **Update
+branch** button, and the web conflict editor still report changelog conflicts. When a pull request
+only conflicts in a changelog, update it locally and push:
 
 ```sh
 git fetch origin
@@ -138,5 +171,5 @@ git push
 `git rebase origin/main` followed by `git push --force-with-lease` works too.
 
 The union driver keeps the lines from both sides without understanding Markdown. Check the merged
-changelog: if both sides edited the same entry, it keeps both versions. `make check-changelog`
-rejects duplicate section headings.
+changelog: if both sides edited the same entry, it keeps both versions. Each version block may only
+have one heading per section type, and `make check-changelog` rejects duplicate section headings.

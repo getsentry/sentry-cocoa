@@ -39,7 +39,7 @@ Craft runs `scripts/bump.sh` as its `preReleaseCommand`, which calls `bump-versi
 We frequently release a beta version of our SDK and dogfood it with internal apps to increase our SDK stability. We continue to merge PRs to the main branch, so we can't promote a beta release by publishing it from the main branch. Instead, we create a branch from the GH tag of the beta release and promote it from there. To do this, follow these steps:
 
 1. Checkout a new branch from the GH tag of the beta release: `git checkout -b publish/x.x.x x.x.x-beta.1`. You can't use `release/x.x.x` or `x.x.x` as the branch name as craft will fail, as it creates a `release/x.x.x` branch for updating the changelog and it will create a tag `x.x.x` for the release.
-2. Duplicate the Changelog.md entry of the beta release and change header of the version number to unreleased.
+2. Duplicate the `CHANGELOG.md` section of the beta release and change its header to the version you're releasing, for example `## x.x.x`. Don't use `## Unreleased`: Craft generates the changelog from merged pull requests, and finds no new ones on this branch. With an existing `## x.x.x` section, Craft publishes that section as is.
 3. Commit and push the changes.
 4. Trigger the release workflow with use workflow from the `publish/x.x.x` branch and set the target branch to merge into to `publish/x.x.x`, cause per default craft will merge into the main branch and this could lead to merge conflicts in the changelog.
 5. After the successful release, validate that craft merged the changes back into `publish/x.x.x` branch and deleted the release branch.

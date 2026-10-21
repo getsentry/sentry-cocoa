@@ -450,6 +450,23 @@ jobs:
           merge-multiple: true
           path: XCFrameworkBuildPath/
 
+      # Craft writes the CHANGELOG.md section of this release in "Prepare
+      # release" below, after the apple-binaries archive is built. Generate the
+      # same section from the same commit now so the archive includes it. Keep
+      # CRAFT_VERSION in sync with the getsentry/craft pin below.
+      - name: Generate release changelog
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        env:
+          CRAFT_VERSION: 2.34.1
+          GITHUB_TOKEN: ${{ steps.token.outputs.token }}
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/craft" "https://github.com/getsentry/craft/releases/download/${CRAFT_VERSION}/craft"
+          chmod +x "$RUNNER_TEMP/craft"
+          "$RUNNER_TEMP/craft" changelog > "$RUNNER_TEMP/release-changelog.md"
+          if [ "$(cat "$RUNNER_TEMP/release-changelog.md")" = "No changelog entries found." ]; then
+            : > "$RUNNER_TEMP/release-changelog.md"
+          fi
+
       - name: Create apple-binaries archive
         if: ${{ github.event_name == 'workflow_dispatch' }}
         env:
@@ -458,7 +475,8 @@ jobs:
           ./scripts/create-apple-binaries-archive.sh \
             --version "$VERSION" \
             --xcframework-dir XCFrameworkBuildPath \
-            --output-dir XCFrameworkBuildPath
+            --output-dir XCFrameworkBuildPath \
+            --changelog-section "$RUNNER_TEMP/release-changelog.md"
 
       - name: Create 3rd-party integration archives
         if: ${{ github.event_name == 'workflow_dispatch' }}
