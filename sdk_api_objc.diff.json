@@ -86,6 +86,13 @@
     },
     {
       "kind": "ObjCMethodDecl",
+      "name": "hangReportingMode",
+      "parent": "SentryObjCMetricKitOptions",
+      "returnType": "SentryObjCMetricKitHangReportingMode",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
       "name": "integer:",
       "parent": "SentryObjCAttributeContent",
       "returnType": "instancetype _Nonnull",
@@ -247,6 +254,12 @@
       "name": "diagnosticLevel",
       "parent": "SentryObjCOptions",
       "type": "SentryObjCLevel"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "hangReportingMode",
+      "parent": "SentryObjCMetricKitOptions",
+      "type": "SentryObjCMetricKitHangReportingMode"
     },
     {
       "kind": "ObjCPropertyDecl",
@@ -435,6 +448,13 @@
       "parent": "SentryObjCMetricValue",
       "returnType": "SentryObjCMetricValue * _Nonnull",
       "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "hangReportingMode",
+      "parent": "SentryObjCMetricKitOptions",
+      "returnType": "enum SentryObjCMetricKitHangReportingMode",
+      "instance": true
     },
     {
       "kind": "ObjCMethodDecl",
@@ -676,6 +696,12 @@
       "name": "diagnosticLevel",
       "parent": "SentryObjCOptions",
       "type": "enum SentryObjCLevel"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "hangReportingMode",
+      "parent": "SentryObjCMetricKitOptions",
+      "type": "enum SentryObjCMetricKitHangReportingMode"
     },
     {
       "kind": "ObjCPropertyDecl",
