@@ -45,7 +45,7 @@ Hybrid SDKs use `SentrySDK.internal.serializer` to obtain wire-format dictionari
 
 Scope serialization accepts an explicit scope instance and preserves the singular `context` key. Use `SentrySDK.internal.scope.serializedContexts()` when only the current scope's event contexts, including trace context, are needed.
 
-In v10, model serialization is internal. `SentrySerializable` and model `serialize()` methods are not public API. The v9 public serialization API remains available. Replay event and feedback serialization used by hybrid tests is SPI-only.
+In SDK v9, `SentrySerializable` and model `serialize()` methods are public API. In SDK v10, model serialization is internal, and these APIs are no longer public. Replay event and feedback serialization used by hybrid tests is SPI-only.
 
 ## Tests
 
